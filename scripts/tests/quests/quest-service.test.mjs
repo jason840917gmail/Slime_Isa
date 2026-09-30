@@ -86,7 +86,6 @@ function dependencies() {
     rewards: { grant: () => {} },
     clock: { now: () => 1234 },
     conditions: {
-      playerLevel: () => 1,
       inventoryCount: () => 0,
       hasDiscoveredArea: () => false,
       hasWorldFlag: () => false,
@@ -126,7 +125,10 @@ test('chapter 1 plays through from the workbench to Gloop Forest, each quest ope
 
   service.accept('worm-trouble', 'level-1-spider-giver');
   craft('wooden-spear');
-  for (let enemyId = 0; enemyId < 5; enemyId += 1) service.handleEvent('enemy.died', { enemyId, areaId: 'level-1', kind: 'worm-brawler' });
+  service.handleEvent('enemy.died', { enemyId: 99, areaId: 'level-1', kind: 'worm-brawler' });
+  assert.equal(service.get('worm-trouble').progress['defeat-worms'] ?? 0, 0, 'brawlers no longer count');
+  for (let enemyId = 0; enemyId < 3; enemyId += 1) service.handleEvent('enemy.died', { enemyId, areaId: 'level-1', kind: 'worm-swordsman' });
+  assert.equal(service.get('worm-trouble').readyToTurnIn, true, 'three swordsmen clear the camp');
   turnIn('worm-trouble', 'level-1-spider-giver');
 
   service.accept('the-one-eyed-guardian', 'village-elder-plop');
@@ -401,4 +403,16 @@ test('the real collectible controller advances a quest exactly once per transfer
   assert.equal(service.get('controller-bridge').status, 'completed');
   assert.equal(service.get('controller-bridge').progress.wood, 10);
   assert.equal(deps.eventsLog.filter((entry) => entry.event === 'quest.progressed').length, 1);
+});
+
+test('saves from before Worm Trouble v2 keep their progress within the new target', () => {
+  const service = new QuestService({ catalog: getQuestDefinitions(), ...dependencies() });
+  const states = getQuestDefinitions().map((definition) => ({ questId: definition.id, definitionVersion: definition.definitionVersion, status: 'locked', activeStageId: null, progress: {}, rewardsGranted: false }));
+  const index = states.findIndex((state) => state.questId === 'worm-trouble');
+  states[index] = { questId: 'worm-trouble', definitionVersion: 1, status: 'active', activeStageId: 'clear-camp', progress: { 'craft-wooden-spear': 1, 'defeat-worms': 4 }, rewardsGranted: false };
+  service.load(states);
+  const quest = service.get('worm-trouble');
+  assert.equal(quest.definitionVersion, 2);
+  assert.equal(quest.progress['defeat-worms'], 3);
+  assert.equal(quest.readyToTurnIn, true);
 });

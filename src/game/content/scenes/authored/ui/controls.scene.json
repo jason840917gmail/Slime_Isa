@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "sceneId": "ui.controls",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "controls",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -240,
+          -260
+        ],
+        "offsetMax": [
+          240,
+          260
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--shell game-ui--controls",
+        "ariaLabel": "Controls",
+        "zIndex": 97,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2150
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          24,
+          14
+        ],
+        "offsetMax": [
+          -24,
+          50
+        ],
+        "text": "Controls",
+        "tone": "warning",
+        "fontSize": 24,
+        "textAlign": "center",
+        "fontWeight": 700
+      },
+      "parentId": "surface",
+      "order": 0
+    },
+    {
+      "id": "keys",
+      "name": "Keys",
+      "type": "Label",
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          28,
+          62
+        ],
+        "offsetMax": [
+          -300,
+          452
+        ],
+        "text": "",
+        "tone": "accent",
+        "fontSize": 14,
+        "textAlign": "left",
+        "fontWeight": 700,
+        "wrap": true
+      },
+      "parentId": "surface",
+      "order": 1
+    },
+    {
+      "id": "actions",
+      "name": "Actions",
+      "type": "Label",
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          180,
+          62
+        ],
+        "offsetMax": [
+          -28,
+          452
+        ],
+        "text": "",
+        "tone": "default",
+        "fontSize": 14,
+        "textAlign": "left",
+        "wrap": true
+      },
+      "parentId": "surface",
+      "order": 2
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          352,
+          -46
+        ],
+        "offsetMax": [
+          -16,
+          -12
+        ],
+        "text": "Close",
+        "tone": "muted",
+        "textAlign": "center"
+      },
+      "parentId": "surface",
+      "order": 3
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "surfaceId": "controls",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          },
+          {
+            "nodePath": "../Keys",
+            "property": "text",
+            "model": "keys"
+          },
+          {
+            "nodePath": "../Actions",
+            "property": "text",
+            "model": "actions"
+          }
+        ],
+        "actions": {
+          "on_close_action": "close"
+        }
+      }
+    },
+    {
+      "id": "sfx-click-sfx",
+      "name": "ClickSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.click"
+        },
+        "minIntervalMs": 40
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.click",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.click.1"
+    }
+  ]
+}

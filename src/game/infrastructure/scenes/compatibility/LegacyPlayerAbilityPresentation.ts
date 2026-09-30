@@ -15,6 +15,9 @@ import type {
 import { resolveWorldDepth } from '../../../presentation/WorldDepth';
 import type { WorldVisual } from '../../../presentation/WorldVisual';
 import { floatingText } from '../../../ui/FloatingText';
+import { gameFeel } from '../../../features/feel/sharedFeel';
+import { SQUASH_PRESETS, squashStart } from '../../../features/feel/SquashStretch';
+import { gameSettings } from '../../../features/settings/GameSettingsService';
 
 const JUMP_ARC_HEIGHT = 54;
 
@@ -93,15 +96,11 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
     return lease;
   }
 
-  notifyRejected(
-    _abilityId: PlayerAbilityId,
-    reason: PlayerAbilityRejectionReason,
-    unlockLevel?: number,
-  ): void {
+  notifyRejected(_abilityId: PlayerAbilityId, reason: PlayerAbilityRejectionReason): void {
     const player = this.context.getPlayer();
     if (reason !== 'busy') gameEvents.emit('player.action', { anim: 'ability-denied' });
     if (reason === 'locked') {
-      floatingText.spawn(this.context.scene, player.x, player.y - 30, `Locked - Lv ${unlockLevel ?? '?'}`, 'red');
+      floatingText.spawn(this.context.scene, player.x, player.y - 30, 'Not learned yet', 'red');
     } else if (reason === 'energy') {
       floatingText.spawn(this.context.scene, player.x, player.y - 30, 'Low energy', 'orange');
     }
@@ -129,7 +128,9 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
       duration: durationMs / 2,
       ease: 'Quad.Out',
     }));
-    lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 0.82, scaleY: 1.35, duration: durationMs / 2, ease: 'Quad.Out' }));
+    // Take-off stretch (9.2), softened under reduce motion.
+    const stretch = squashStart(SQUASH_PRESETS.jump, gameSettings.settings.reduceMotion);
+    lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: stretch.x, scaleY: stretch.y, duration: durationMs / 2, ease: SQUASH_PRESETS.jump.ease }));
     lease.trackTween(scene.tweens.add({
       targets: visual.effects,
       offsetX: target.x - start.x,
@@ -139,11 +140,13 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
       ease: 'Quad.In',
       onComplete: () => {
         this.context.teleportPlayer(target);
-        gameEvents.emit('player.action', { anim: 'jump-land' });
         visual.effects.offsetX = 0;
         visual.effects.offsetY = 0;
-        lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 1, scaleY: 1, duration: 120, ease: 'Back.Out' }));
-        const dust = scene.add.particles(target.x, target.y, 'xp-orb', {
+        // Back at rest; the world's squash and stretch plays the landing splat on 'jump-land'.
+        visual.effects.scaleX = 1;
+        visual.effects.scaleY = 1;
+        gameEvents.emit('player.action', { anim: 'jump-land' });
+        const dust = scene.add.particles(target.x, target.y, 'goo-dust', {
           lifespan: 320,
           speed: { min: 20, max: 60 },
           scale: { start: 0.3, end: 0 },
@@ -239,7 +242,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
               duration: 300,
               onComplete: () => ring.destroy(),
             }));
-            scene.cameras.main.shake(150, 0.01);
+            gameFeel.play('slam');
             gameEvents.emit('player.action', { anim: 'slam-impact' });
             const targets = this.context.getCombatTargets();
             if (targets) {

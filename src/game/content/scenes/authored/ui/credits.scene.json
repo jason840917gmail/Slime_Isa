@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "sceneId": "ui.credits",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "credits",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -270,
+          -265
+        ],
+        "offsetMax": [
+          270,
+          265
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--shell game-ui--credits",
+        "ariaLabel": "Credits",
+        "zIndex": 96,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2120
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          24,
+          14
+        ],
+        "offsetMax": [
+          -24,
+          50
+        ],
+        "text": "Credits",
+        "tone": "warning",
+        "fontSize": 24,
+        "textAlign": "center",
+        "fontWeight": 700
+      },
+      "parentId": "surface",
+      "order": 0
+    },
+    {
+      "id": "text",
+      "name": "Text",
+      "type": "Label",
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          28,
+          60
+        ],
+        "offsetMax": [
+          -28,
+          466
+        ],
+        "text": "",
+        "tone": "default",
+        "fontSize": 13,
+        "textAlign": "left",
+        "wrap": true
+      },
+      "parentId": "surface",
+      "order": 1
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          412,
+          -46
+        ],
+        "offsetMax": [
+          -16,
+          -12
+        ],
+        "text": "Close",
+        "tone": "muted",
+        "textAlign": "center"
+      },
+      "parentId": "surface",
+      "order": 2
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "surfaceId": "credits",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          },
+          {
+            "nodePath": "../Text",
+            "property": "text",
+            "model": "text"
+          }
+        ],
+        "actions": {
+          "on_close_action": "close"
+        }
+      }
+    },
+    {
+      "id": "sfx-click-sfx",
+      "name": "ClickSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.click"
+        },
+        "minIntervalMs": 40
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.click",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.click.1"
+    }
+  ]
+}

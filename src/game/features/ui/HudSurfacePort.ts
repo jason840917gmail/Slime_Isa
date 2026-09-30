@@ -5,7 +5,7 @@ import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurface
 
 type ModelListener = (model: UiPresentationModel) => void;
 
-/** Read-only adapter from progression state into the authored HUD scene. */
+/** Read-only adapter from player state (coins, HP, energy) into the authored HUD scene. */
 export class HudSurfacePort implements UiSurfacePort {
   private readonly listeners = new Set<ModelListener>();
   private stopped = false;
@@ -13,21 +13,15 @@ export class HudSurfacePort implements UiSurfacePort {
   constructor() {
     gameEvents.on('coins.changed', this.publish, this);
     gameEvents.on('hp.changed', this.publish, this);
-    gameEvents.on('xp.changed', this.publish, this);
     gameEvents.on('energy.changed', this.publish, this);
-    gameEvents.on('level.up', this.publish, this);
   }
 
   snapshot(surfaceId: string): UiPresentationModel {
     if (surfaceId !== 'hud') return {};
-    const xpMax = gameState.xpToNextLevel;
     return {
-      levelLabel: `Level ${gameState.level}`,
       coinsLabel: `Coins ${formatHudCount(gameState.coins)}`,
       hp: gameState.hp,
       maxHp: gameState.maxHp,
-      xp: xpMax === null ? 1 : gameState.currentXp,
-      xpMax: xpMax ?? 1,
       energy: gameState.energy,
       maxEnergy: gameState.maxEnergy,
     } satisfies Readonly<Record<string, JsonValue>>;
@@ -48,9 +42,7 @@ export class HudSurfacePort implements UiSurfacePort {
     this.stopped = true;
     gameEvents.off('coins.changed', this.publish, this);
     gameEvents.off('hp.changed', this.publish, this);
-    gameEvents.off('xp.changed', this.publish, this);
     gameEvents.off('energy.changed', this.publish, this);
-    gameEvents.off('level.up', this.publish, this);
     this.listeners.clear();
   }
 

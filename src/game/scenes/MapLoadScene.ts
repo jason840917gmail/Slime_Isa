@@ -42,7 +42,8 @@ export class MapLoadScene extends Phaser.Scene {
         if (controller.signal.aborted) return;
         status.destroy();
         this.scene.start('world', {
-          areaId: pending?.mapId ?? request.area.id,
+          // A development `?map=` preview plays as that map's own area.
+          areaId: pending?.mapId ?? (devMapOverride && !pending ? mapId : request.area.id),
           entryEdge: pending?.entryEdge ?? request.entryEdge,
           entryDoor: pending?.entryDoor ?? request.entryDoor,
           loadedWorld,

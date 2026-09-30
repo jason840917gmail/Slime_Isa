@@ -12,18 +12,42 @@ import {
   type AcceptedDamageResult,
   type DamageRequest,
 } from '../features/player/PlayerHealthController';
-import { StatusEffectManager } from '../systems/StatusEffects';
+import { StatusEffectManager, statusSpeedMultiplier } from '../systems/StatusEffects';
 import { getStats } from '../systems/PlayerStats';
 import { PlayerAbilityController } from '../features/player/PlayerAbilityController';
-import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinitions';
+import {
+  isPlayerAbilityId,
+  PLAYER_ABILITY_DEFINITIONS,
+  PLAYER_ABILITY_IDS,
+  type PlayerAbilityId,
+} from '../features/player/PlayerAbilityDefinitions';
 import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Inventory';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { floatingText } from '../ui/FloatingText';
 import { hitboxPool } from '../combat/Hitbox';
-import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
+import { AREAS, STARTING_AREA_ID, getAreaDefinition, type AreaDef, type AreaId, type Direction } from '../world/Area';
+import { sceneId } from '../content/scenes/identifiers';
+import { placedBedId, planRespawn, worldHasBed } from '../features/rest/RespawnDestination';
+import { GulpController } from '../features/gulp/GulpController';
+import { GulpHud } from '../features/gulp/GulpHud';
+import { GulpWheel } from '../features/gulp/GulpWheel';
+import { gameFeel } from '../features/feel/sharedFeel';
+import { SquashStretch } from '../features/feel/SquashStretch';
+import { particleFx } from '../features/feel/ParticlePresets';
+import { SlimeTrail } from '../features/feel/SlimeTrail';
+import { GULP_WHEEL_HOLD_MS, pickGulpWheelSlot } from '../features/gulp/GulpWheelLayout';
+import type { GulpWheelEntry } from '../features/gulp/GulpController';
+import { resolveQuestWaypoint, type QuestWaypointTarget, type QuestWaypointWorld } from '../features/quests/QuestWaypoint';
+import { QuestWaypointPresenter } from '../features/quests/QuestWaypointPresenter';
+import { trackedQuestView } from '../features/ui/QuestTrackerSurfacePort';
+import { GAME_CONSTANTS } from '../Constant';
+import { GAME_SHELL_SCENE_IDS, GameShell } from '../features/shell/GameShell';
+import { CONTROL_HINT_SURFACE_ID, ControlHintsController, type ControlHintId } from '../features/hints/ControlHints';
+import { gameSettings } from '../features/settings/GameSettingsService';
+import { getCharacterPackages } from '../content/characters/CharacterCatalog';
 import { BIOMES } from '../world/Biome';
 import { questTracker } from '../quests/QuestTracker';
-import { bindQuestStory } from '../quests/QuestService';
+import { bindQuestStory, questService } from '../quests/QuestService';
 import { storyProgress } from '../features/progression/StoryProgress';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
@@ -36,6 +60,7 @@ import {
   navigateToArea as navigateToAreaUrl,
   resolveAreaRequest,
   restoreAreaTransition,
+  returnToTitle,
   type AreaEntry,
 } from '../features/world-navigation/AreaNavigation';
 import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
@@ -45,8 +70,8 @@ import { ResourceNodeController } from '../features/resources/ResourceNodeContro
 import { worldProgress } from '../features/progression/WorldProgress';
 import { SleepController, type SleepRequest } from '../features/rest/SleepController';
 import { FurniturePlacementController, type FootprintRect, type PlacementRequest } from '../features/building/FurniturePlacementController';
-import { recipesFor } from '../content/recipes/RecipeCatalog';
-import type { CraftingContext } from '../content/recipes/types';
+import { PORTABLE_SITE } from '../content/recipes/RecipeCatalog';
+import type { CraftingSite } from '../content/recipes/types';
 import type { ModalHandle } from '../ui/ModalStack';
 import type { RespawnPointData } from '../infrastructure/persistence/SaveSchema';
 import { CollectibleController } from '../features/collectibles/CollectibleController';
@@ -68,7 +93,7 @@ import { QuestNotificationPresenter } from '../features/quests/QuestNotification
 import { playerInventoryWorldTransaction } from '../features/progression/InventoryWorldTransaction';
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from '../infrastructure/scenes/PreparedSceneContent';
 import type { LoadedWorldScene } from '../infrastructure/scenes/WorldSceneLoader';
-import { UniversalSceneWorldController } from '../features/world/UniversalSceneWorldController';
+import { UniversalSceneWorldController, type RestorationRequest } from '../features/world/UniversalSceneWorldController';
 import type { MapEnemySafeZone, MapEnemySpawnArea, MapFile, MapPoint, MapSpawns } from '../content/maps/mapFormat';
 import type { WorldExitRequest, WorldExitResult } from '../features/scripts/WorldExitScript';
 import { questRewardLines } from '../features/quests/QuestRewardText';
@@ -90,6 +115,29 @@ interface AuthoredWorldMetadata {
   readonly spawns?: MapSpawns;
 }
 
+/** The picture and music fade out this long before a map change. */
+const AREA_LEAVE_FADE_MS = 320;
+const AREA_ARRIVE_FADE_MS = 400;
+/** The dodge hint appears when an enemy is this close. */
+const HINT_DODGE_ENEMY_RANGE_PX = 360;
+/** The crafting hint appears once the first workbench is affordable. */
+const HINT_CRAFTING_WOOD = 40;
+/** Banner color for a story-taught ability (a fresh-goo green, distinct from area names). */
+const ABILITY_LEARNED_COLOR = '#9ff0c8';
+/** Banner color for a collected Goo Heart. */
+const GOO_HEART_COLOR = '#ff9fb4';
+
+/** The run-wide story flag that remembers a collected Goo Heart. */
+function gooHeartFlag(heartId: string): string {
+  return `goo-heart.${heartId}`;
+}
+/** Title backdrop: drift ±TITLE_PAN_RANGE_PX around the start, one sweep per period. */
+const TITLE_PAN_PERIOD_MS = 60_000;
+const TITLE_PAN_RANGE_PX = 360;
+const TITLE_PAN_OFFSET = { x: 160, y: 120 } as const;
+/** Shown on the title screen; bump with package.json when a release is tagged. */
+const GAME_VERSION = '0.1.0';
+
 export class WorldScene extends Phaser.Scene {
   private static sessionStarted = false;
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -108,6 +156,38 @@ export class WorldScene extends Phaser.Scene {
   private healthSystem?: PlayerHealthController;
   private sleepController?: SleepController;
   private furniturePlacement?: FurniturePlacementController;
+  private gulp?: GulpController;
+  private gulpHud?: GulpHud;
+  private gulpWheel?: GulpWheel;
+  private squash?: SquashStretch;
+  private slimeTrail?: SlimeTrail;
+  private nextTrailSlowAt = 0;
+  /** Move-start squash: whether the slime moved last frame, and since when it has stood still. */
+  private wasMoving = false;
+  private stillSince = 0;
+  /** W is down: a tap eats on release; held past GULP_WHEEL_HOLD_MS it opens the quick wheel. */
+  private eatHold?: {
+    readonly since: number;
+    lastSeen: number;
+    open: boolean;
+    /** Held with nothing to choose: releasing does nothing. */
+    empty: boolean;
+    entries: readonly GulpWheelEntry[];
+    selected?: number;
+    pointerStart?: Readonly<{ x: number; y: number }>;
+  };
+  private waypointPresenter?: QuestWaypointPresenter;
+  private waypointTarget?: QuestWaypointTarget;
+  private nextWaypointResolveAt = 0;
+  private nextWebMessageAt = 0;
+  private shell?: GameShell;
+  private hints?: ControlHintsController;
+  /** The first world of a page load shows the title screen over a paused, empty Slimeshire. */
+  private titleMode = false;
+  private titleCameraMs = 0;
+  private playerNameTag?: Phaser.GameObjects.Text;
+  /** Source ID of the last hit the player took, to name what defeated them. */
+  private lastDamageSource?: string;
   private placementModal?: ModalHandle;
   private statusEffects?: StatusEffectManager;
   private modalStack?: ModalStack;
@@ -129,8 +209,8 @@ export class WorldScene extends Phaser.Scene {
   private entryDoor?: string;
   private transitioning = false;
   private nextGateMessageAt = 0;
-  private levelUpNoticeHandler?: (payload: { level: number }) => void;
-  private questCompleteHandler?: (payload: { questId: string; title: string; rewards: { coins?: number; xp?: number } }) => void;
+  private abilityLearnedHandler?: (payload: { abilityId: string }) => void;
+  private questCompleteHandler?: (payload: { questId: string; title: string; rewards: { coins?: number } }) => void;
   private restoredFromAreaTransition = false;
   private pendingRestoreLocation?: GameLocationData;
   private debugRenderer?: WorldDebugRenderer;
@@ -169,14 +249,17 @@ export class WorldScene extends Phaser.Scene {
     this.disposables.add(() => this.game.events.off(Phaser.Core.Events.DESTROY, this.resetSceneStateForAreaLoad, this));
     this.pendingRestoreLocation = undefined;
     this.restoredFromAreaTransition = this.restoreAreaTransitionHandoff();
+    const devMapPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).has('map');
+    this.titleMode = !WorldScene.sessionStarted && !this.restoredFromAreaTransition && !devMapPreview;
     // Install the complete run before authored objects are registered. Resource
     // nodes consult WorldProgress during registration, so loading afterwards
-    // would build the first scene from stale map state.
+    // would build the first scene from stale map state. Behind the title screen
+    // this is a throwaway run that is never saved.
     if (!WorldScene.sessionStarted && !this.restoredFromAreaTransition) {
       if (!saveSystem.hasInstalledRun()) saveSystem.startNewRun();
       WorldScene.sessionStarted = true;
     }
-    saveSystem.startAutoSave();
+    if (!this.titleMode) saveSystem.startAutoSave();
     playerWeaponLoadout.reconcile();
 
     // Phase 1: World entities (no cross-system side effects)
@@ -187,6 +270,8 @@ export class WorldScene extends Phaser.Scene {
       throw new Error('WorldScene requires a shared ModalStack.');
     }
     this.modalStack = modalStack;
+    this.shell = this.createGameShell(modalStack);
+    this.hints = this.createControlHints();
     this.interactionRouter = new InteractionRouter(this);
     this.questNpcController = new QuestNpcController({
       scene: this,
@@ -203,6 +288,8 @@ export class WorldScene extends Phaser.Scene {
     this.healthSystem = new PlayerHealthController({
       getPlayerPosition: () => ({ x: this.player.x, y: this.player.y }),
       applyKnockback: (direction, strength, durationMs) => {
+        // A Heavy slime cannot be pushed around.
+        if (this.gulp?.activeForm?.knockbackImmune) return;
         this.playerKnockbackUntil = Math.max(
           this.playerKnockbackUntil,
           this.simulationNow() + durationMs,
@@ -217,6 +304,7 @@ export class WorldScene extends Phaser.Scene {
     this.createPlayer();
     this.sleepController = this.createSleepController();
     this.furniturePlacement = this.createFurniturePlacement();
+    this.createGulp();
     this.disposables.add(saveSystem.setLocationProvider(() => this.capturePlayerLocation()));
     this.depthDiagnostics = new DepthDiagnostics({
       scene: this,
@@ -258,6 +346,7 @@ export class WorldScene extends Phaser.Scene {
       hasWorldFlag: (flagId) => storyProgress.hasFlag(flagId),
       hasTalkedToNpc: (npcId) => storyProgress.hasTalkedTo(npcId),
       learnRecipes: (recipeIds) => storyProgress.learnRecipes(recipeIds),
+      learnAbilities: (abilityIds) => storyProgress.learnAbilities(abilityIds),
       setFlags: (flagIds) => storyProgress.setFlags(flagIds),
     });
     questTracker.start();
@@ -273,21 +362,49 @@ export class WorldScene extends Phaser.Scene {
     gameEvents.on('persistence.modal', persistenceModalHandler);
     this.disposables.add(() => gameEvents.off('persistence.modal', persistenceModalHandler));
 
-    // Notify when an ability unlocks via level-up.
-    this.levelUpNoticeHandler = (p) => {
-      if (p.level === 2) {
-        floatingText.spawn(this, this.player.x, this.player.y - 50, 'JUMP UNLOCKED!', 'green', true);
-      } else if (p.level === 3) {
-        floatingText.spawn(this, this.player.x, this.player.y - 50, 'SQUASH SLAM!', 'green', true);
-      } else if (p.level === 4) {
-        floatingText.spawn(this, this.player.x, this.player.y - 50, 'STRETCH LASH!', 'orange', true);
-      } else if (p.level === 5) {
-        floatingText.spawn(this, this.player.x, this.player.y - 50, 'TELEPORT UNLOCKED!', 'cyan', true);
-      }
-    };
-    gameEvents.on('level.up', this.levelUpNoticeHandler);
+    // Game feel (9.1): shakes and hit-stops go through one service that honours the shake and motion settings.
+    this.disposables.add(gameFeel.bind({ now: () => this.time.now, shake: (ms, intensity) => this.cameras.main.shake(ms, intensity) }));
+    // Pooled particle presets (9.3): one emitter each, reused for every burst.
+    this.disposables.add(particleFx.bind(this));
+    // The goo trail (9.4): pooled fading marks that slow enemies standing on fresh goo.
+    const trail = new SlimeTrail(this);
+    this.slimeTrail = trail;
     this.disposables.add(() => {
-      if (this.levelUpNoticeHandler) gameEvents.off('level.up', this.levelUpNoticeHandler);
+      trail.destroy();
+      if (this.slimeTrail === trail) this.slimeTrail = undefined;
+    });
+    const onCollected = () => { if (this.player) particleFx.play('loot-sparkle', this.player.x, this.player.y - 24); };
+    gameEvents.on('collectible.collected', onCollected);
+    this.disposables.add(() => gameEvents.off('collectible.collected', onCollected));
+    // Squash and stretch (9.2) on the slime's effect channel.
+    const squash = new SquashStretch({
+      scene: this,
+      effects: () => this.playerVisual?.effects,
+      reduceMotion: () => gameSettings.settings.reduceMotion,
+      busy: () => this.abilitySystem?.isBusy() ?? false,
+    });
+    this.squash = squash;
+    const onAction = ({ anim }: { anim: string }) => { if (anim === 'jump-land') squash.play('land', true); };
+    const onGulp = ({ reason }: { reason: string }) => { if (reason === 'started' || reason === 'refreshed') squash.play('gulp'); };
+    gameEvents.on('player.action', onAction);
+    gameEvents.on('gulp.changed', onGulp);
+    this.disposables.add(() => {
+      gameEvents.off('player.action', onAction);
+      gameEvents.off('gulp.changed', onGulp);
+      squash.destroy();
+      if (this.squash === squash) this.squash = undefined;
+    });
+
+    // A story-taught ability is announced with the area-title banner and its key
+    // (the quest's reward lines already float above the player).
+    this.abilityLearnedHandler = ({ abilityId }) => {
+      if (!isPlayerAbilityId(abilityId)) return;
+      const { title, key } = PLAYER_ABILITY_DEFINITIONS[abilityId];
+      this.universalWorld?.showAreaTitle(`${title} learned: press ${key}`, ABILITY_LEARNED_COLOR);
+    };
+    gameEvents.on('ability.learned', this.abilityLearnedHandler);
+    this.disposables.add(() => {
+      if (this.abilityLearnedHandler) gameEvents.off('ability.learned', this.abilityLearnedHandler);
     });
 
     this.questCompleteHandler = (p) => {
@@ -304,11 +421,124 @@ export class WorldScene extends Phaser.Scene {
     // Phase 3: One-time cross-system sync
     this.scale.on('resize', this.handleResize, this);
     this.disposables.add(() => this.scale.off('resize', this.handleResize, this));
-    gameEvents.emit('area.enter', { areaId: this.currentArea.id });
-    saveSystem.writeRecovery(this.capturePlayerLocation());
     clearOneShotNavigationParams();
-    this.universalWorld?.showAreaTitle(this.currentArea.name, BIOMES[this.currentArea.biome].titleColor);
+    if (this.titleMode) {
+      this.enterTitleMode();
+    } else {
+      gameEvents.emit('area.enter', { areaId: this.currentArea.id });
+      saveSystem.writeRecovery(this.capturePlayerLocation());
+      this.universalWorld?.showAreaTitle(this.currentArea.name, BIOMES[this.currentArea.biome].titleColor);
+    }
     this.syncCameraLayers();
+  }
+
+  private createGameShell(modalStack: ModalStack): GameShell {
+    const outcome = (result: { readonly ok: boolean; readonly message?: string }) => (
+      result.ok ? { ok: true as const } : { ok: false as const, message: result.message ?? 'That did not work.' }
+    );
+    const shell = new GameShell({
+      modalStack,
+      setPaused: (source, paused) => this.setSimulationPaused(source, paused),
+      version: GAME_VERSION,
+      settings: gameSettings,
+      saves: {
+        list: () => saveSystem.listNamedSaves(),
+        create: (name) => outcome(saveSystem.createNamedSave(name, this.capturePlayerLocation())),
+        overwrite: (saveId) => outcome(saveSystem.overwriteNamedSave(saveId, this.capturePlayerLocation())),
+        load: async (saveId) => outcome(await saveSystem.loadNamedSave(saveId)),
+      },
+      placeName: (mapId) => getAreaDefinition(mapId).name,
+      hasStoryFlag: (flagId) => storyProgress.hasFlag(flagId),
+      pause: {
+        canOpen: () => !this.titleMode && !this.transitioning && !(this.healthSystem?.isDead() ?? false)
+          && !(this.furniturePlacement?.active ?? false),
+        openJournal: () => this.universalWorld?.questJournalSurface.open(),
+        openInventory: () => this.universalWorld?.inventorySurface.open(),
+        openMap: () => this.universalWorld?.worldMapSurface.open(),
+        quitToTitle: () => this.quitToTitle(),
+      },
+      title: {
+        canContinue: () => saveSystem.canContinue(),
+        hasAutosave: () => saveSystem.hasSave(),
+        newGame: () => { saveSystem.resetRun(); },
+        continueGame: () => { void saveSystem.continueLatest(); },
+      },
+      wake: () => this.respawnPlayer(),
+    });
+    const onStoryChanged = (): void => shell.endCard.checkFlags();
+    const onPlayerDamage = ({ source }: { source?: string }): void => { this.lastDamageSource = source; };
+    gameEvents.on('story.changed', onStoryChanged);
+    gameEvents.on('player.damage', onPlayerDamage);
+    this.disposables.add(() => {
+      gameEvents.off('story.changed', onStoryChanged);
+      gameEvents.off('player.damage', onPlayerDamage);
+      shell.destroy();
+      if (this.shell === shell) this.shell = undefined;
+    });
+    return shell;
+  }
+
+  /** First-time control hints; what the player has learned is saved with the run as story flags. */
+  private createControlHints(): ControlHintsController {
+    const flag = (id: ControlHintId): string => `hint.${id}`;
+    const hints = new ControlHintsController({
+      isLearned: (id) => storyProgress.hasFlag(flag(id)),
+      learn: (id) => storyProgress.setFlags([flag(id)]),
+      isRelevant: (id) => {
+        switch (id) {
+          case 'move': return true;
+          case 'interact': return this.interactionRouter?.hasCandidate() ?? false;
+          case 'attack': return gameState.equippedWeaponId !== null;
+          case 'dodge': return (this.universalWorld?.nearestEnemyDistance(this.player) ?? Number.POSITIVE_INFINITY) < HINT_DODGE_ENEMY_RANGE_PX;
+          case 'inventory': return playerInventory.serialize().slots.some((slot) => slot !== null);
+          case 'crafting': return playerInventory.count('wood') >= HINT_CRAFTING_WOOD;
+          default: return false;
+        }
+      },
+    });
+    // Inventory and crafting pause the game while open, so learn them as they open.
+    const stopObserving = this.modalStack?.observe(({ id, open }) => {
+      if (open && id === 'inventory') hints.learn('inventory');
+      if (open && id === 'crafting') hints.learn('crafting');
+    });
+    this.disposables.add(() => {
+      stopObserving?.();
+      if (this.hints === hints) this.hints = undefined;
+    });
+    return hints;
+  }
+
+  /** Shows the useful hint, and learns controls the player just used without a key press path. */
+  private updateControlHints(direction: Phaser.Math.Vector2): void {
+    const hints = this.hints;
+    if (!hints) return;
+    if (this.titleMode || this.paused || (this.healthSystem?.isDead() ?? false) || (this.sleepController?.sleeping ?? false)) {
+      hints.hide();
+      return;
+    }
+    if (direction.lengthSq() > 0) hints.learn('move');
+    hints.update();
+  }
+
+  /** Behind the title screen: no player, no HUD, a slow pan over Slimeshire. */
+  private enterTitleMode(): void {
+    this.playerVisual?.setAlpha(0);
+    this.playerNameTag?.setVisible(false);
+    this.cameras.main.stopFollow();
+    const uiRoot = this.game.registry.get('universal-ui-root');
+    if (uiRoot instanceof HTMLElement) {
+      uiRoot.classList.add('is-title-screen');
+      this.disposables.add(() => uiRoot.classList.remove('is-title-screen'));
+    }
+    this.shell?.title.open();
+  }
+
+  /** Saves the run, fades out, and reloads to the title screen. */
+  private quitToTitle(): void {
+    if (this.transitioning) return;
+    this.transitioning = true;
+    saveSystem.writeRecovery(this.capturePlayerLocation());
+    this.leaveAreaThen(() => returnToTitle());
   }
 
   private resetSceneStateForAreaLoad(): void {
@@ -352,9 +582,9 @@ export class WorldScene extends Phaser.Scene {
     this.depthDiagnostics = undefined;
     this.healthSystem?.destroy();
     this.playerVisual = undefined;
-    if (this.levelUpNoticeHandler) {
-      gameEvents.off('level.up', this.levelUpNoticeHandler);
-      this.levelUpNoticeHandler = undefined;
+    if (this.abilityLearnedHandler) {
+      gameEvents.off('ability.learned', this.abilityLearnedHandler);
+      this.abilityLearnedHandler = undefined;
     }
     if (this.questCompleteHandler) {
       gameEvents.off('quest.completed', this.questCompleteHandler);
@@ -397,6 +627,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.paused = shouldPause;
     this.universalWorld?.setPaused(shouldPause);
+    if (shouldPause) this.hints?.hide();
     if (shouldPause) {
       this.stopMovingBodies();
       this.physics.world.pause();
@@ -425,7 +656,8 @@ export class WorldScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     if (this.universalWorld) {
-      this.universalWorld.advanceFrame(delta / 1000);
+      // Hit-stop: the simulation holds still for a moment while rendering and the shake carry on.
+      this.universalWorld.advanceFrame(gameFeel.frozen ? 0 : delta / 1000);
       return;
     }
     this.updatePresentation(delta);
@@ -436,13 +668,15 @@ export class WorldScene extends Phaser.Scene {
     this.syncCameraLayers();
 
     if (this.paused) {
+      this.closeEatHold();
       this.stopPlayerMotion();
       this.debugRenderer?.update();
     }
   }
 
   private updateGameplay(delta: number): void {
-    this.universalWorld?.minimapSurface.update(this.cameras.main, this.player);
+    this.updateQuestWaypoint(delta);
+    this.universalWorld?.minimapSurface.update(this.cameras.main, this.player, this.waypointTarget);
 
     const now = this.simulationNow();
     this.finishExpiredActionAnimation(now);
@@ -450,11 +684,14 @@ export class WorldScene extends Phaser.Scene {
     this.interactionRouter?.update();
     this.furniturePlacement?.update();
     this.statusEffects?.update(now, delta);
+    this.updateSlimeTrail(now);
+    this.gulp?.update();
+    this.gulpHud?.update(this.player, this.gulp?.activeForm, this.gulp?.remainingMs() ?? 0, this.gulp?.nearestSpot());
     this.abilitySystem?.update();
     this.combatController?.update(now, delta);
     this.occlusionController?.update();
     this.depthDiagnostics?.update();
-    // Passive energy regen (scaled by Quick Recovery perk).
+    // Passive energy regen.
     if (!this.healthSystem?.isDead()) {
       const stats = getStats();
       const regen = (stats.energyRegenPerSec * delta) / 1000;
@@ -463,6 +700,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Respawn override: if dead, skip input but still tick systems above.
     if (this.healthSystem?.isDead()) {
+      this.closeEatHold();
       this.stopPlayerMotion();
       this.player.rotation = 0;
       this.debugRenderer?.update();
@@ -470,12 +708,14 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (this.sleepController?.sleeping) {
+      this.closeEatHold();
       this.sleepController.update(delta);
       this.debugRenderer?.update();
       return;
     }
 
     const direction = this.playerController.readDirection();
+    this.updateControlHints(direction);
 
     if (this.playerController.isMovementSuppressed()) {
       this.playerController.move(direction);
@@ -490,13 +730,107 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
+    if (this.updateEatHold(direction)) {
+      // The quick wheel owns the arrow keys while it is open: the slime stands still.
+      this.stopPlayerMotion();
+      this.debugRenderer?.update();
+      return;
+    }
+
     if (this.handleActionInput(direction)) {
       this.debugRenderer?.update();
       return;
     }
 
+    this.squashOnMoveStart(direction);
     this.playerController.move(direction);
     this.debugRenderer?.update();
+  }
+
+  /** Drops goo marks while the slime is on the ground; enemies on fresh goo move at the `slow` status's speed. */
+  private updateSlimeTrail(now: number): void {
+    const trail = this.slimeTrail;
+    const body = this.player?.body as Phaser.Physics.Arcade.Body | undefined;
+    if (!trail || !body) return;
+    const grounded = !this.healthSystem?.isDead() && !this.sleepController?.sleeping && !this.transitioning
+      && !(this.abilitySystem?.isBusy() ?? false);
+    trail.update(now, grounded ? { x: this.player.x, y: resolveBodyBottom(body) - 3 } : undefined);
+    if (now < this.nextTrailSlowAt) return;
+    this.nextTrailSlowAt = now + 100;
+    this.universalWorld?.slowEnemiesNear(trail.model.freshPoints(now), 26, statusSpeedMultiplier('slow'), 400);
+  }
+
+  /** A little lean into a walk that starts from standing still (not on every key tap). */
+  private squashOnMoveStart(direction: Phaser.Math.Vector2): void {
+    const moving = direction.lengthSq() > 0;
+    const now = this.time.now;
+    if (moving && !this.wasMoving && now - this.stillSince >= 150) this.squash?.play('move-start');
+    if (!moving && this.wasMoving) this.stillSince = now;
+    this.wasMoving = moving;
+  }
+
+  /**
+   * W (roadmap 7.2): a tap eats when released (a Gulp spot, else the last-used
+   * material, else burps a form); holding opens the quick wheel of carried Gulp
+   * materials, the arrow keys or the mouse choose, and releasing eats the choice.
+   * True while the wheel is open.
+   */
+  private updateEatHold(direction: Phaser.Math.Vector2): boolean {
+    const hold = this.eatHold;
+    const gulp = this.gulp;
+    if (!hold || !gulp) return false;
+    const now = this.time.now;
+    // Frames were skipped (a menu, a knockback): drop the press rather than eat late.
+    if (now - hold.lastSeen > 600) {
+      this.closeEatHold();
+      return false;
+    }
+    hold.lastSeen = now;
+    if (!this.playerMotion().isActionPressed('eat')) {
+      if (hold.open) {
+        const entry = hold.selected === undefined ? undefined : hold.entries[hold.selected];
+        if (entry && gulp.eatMaterial(entry.itemId) !== 'nothing') this.playActionAnimation('slime-eat');
+      } else if (!hold.empty && gulp.eat() !== 'nothing') {
+        this.playActionAnimation('slime-eat');
+      }
+      this.closeEatHold();
+      return false;
+    }
+    if (!hold.open && !hold.empty && now - hold.since >= GULP_WHEEL_HOLD_MS) {
+      const entries = gulp.wheelEntries();
+      if (entries.length === 0) {
+        hold.empty = true;
+        floatingText.spawn(this, this.player.x, this.player.y - 56, 'No Gulp materials carried', 'white', false);
+      } else {
+        const preferred = gulp.preferredMaterial;
+        hold.open = true;
+        hold.entries = entries;
+        hold.selected = Math.max(0, entries.findIndex((entry) => entry.itemId === preferred));
+        hold.pointerStart = this.pointerWorldPosition();
+        this.gulpWheel?.open(entries);
+      }
+    }
+    if (!hold.open) return false;
+    let pick = pickGulpWheelSlot(direction, hold.entries.length);
+    const pointer = this.pointerWorldPosition();
+    if (pick === undefined && hold.pointerStart && Math.hypot(pointer.x - hold.pointerStart.x, pointer.y - hold.pointerStart.y) > 10) {
+      pick = pickGulpWheelSlot({ x: pointer.x - this.player.x, y: pointer.y - (this.player.y - 28) }, hold.entries.length);
+    }
+    if (pick !== undefined) hold.selected = pick;
+    this.gulpWheel?.update({ x: this.player.x, y: this.player.y }, hold.selected);
+    return true;
+  }
+
+  private closeEatHold(): void {
+    if (!this.eatHold) return;
+    this.eatHold = undefined;
+    this.gulpWheel?.close();
+  }
+
+  private pointerWorldPosition(): { x: number; y: number } {
+    const pointer = this.input.activePointer;
+    const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    return { x: point.x, y: point.y };
   }
 
   private createDebugRenderer(): void {
@@ -528,7 +862,14 @@ export class WorldScene extends Phaser.Scene {
   private transitionTo(areaId: AreaId, entry: AreaEntry): void {
     this.transitioning = true;
     this.stopPlayerMotion();
-    this.navigateToArea(areaId, entry, false);
+    this.leaveAreaThen(() => this.navigateToArea(areaId, entry, false));
+  }
+
+  /** Fades the picture and the music out, then travels (a map change reloads the page). */
+  private leaveAreaThen(travel: () => void): void {
+    this.universalWorld?.fadeOutMusic(AREA_LEAVE_FADE_MS);
+    this.cameras.main.fadeOut(AREA_LEAVE_FADE_MS, 11, 16, 32);
+    this.time.delayedCall(AREA_LEAVE_FADE_MS, travel);
   }
 
   private requestAuthoredExit(request: WorldExitRequest): WorldExitResult {
@@ -596,6 +937,96 @@ export class WorldScene extends Phaser.Scene {
         y: point.y,
       }),
     );
+  }
+
+  private createGulp(): void {
+    this.gulp = new GulpController({
+      now: () => this.simulationNow(),
+      formDurationMs: GAME_CONSTANTS.gulp.formDurationMs,
+      playerPosition: () => ({ x: this.player.x, y: this.player.y }),
+      spots: () => this.universalWorld?.gulpSpots() ?? [],
+      inventoryCount: (itemId) => playerInventory.count(itemId),
+      consume: (itemId) => playerInventory.transact([{ itemId, count: 1 }], []),
+      onFormChanged: (form, reason) => {
+        this.restorePlayerTint();
+        gameEvents.emit('gulp.changed', { formId: form?.id ?? null, reason });
+        const message = form
+          ? (reason === 'refreshed' ? `${form.name} refreshed` : `${form.name.toUpperCase()}!`)
+          : reason === 'burp' ? 'Burp!' : reason === 'expired' ? 'The form wore off' : undefined;
+        if (message) floatingText.spawn(this, this.player.x, this.player.y - 56, message, form ? 'cyan' : 'white', true);
+      },
+      showMessage: (text) => floatingText.spawn(this, this.player.x, this.player.y - 56, text, 'white', false),
+    });
+    const waypoint = new QuestWaypointPresenter(this);
+    this.waypointPresenter = waypoint;
+    this.disposables.add(() => {
+      waypoint.destroy();
+      if (this.waypointPresenter === waypoint) this.waypointPresenter = undefined;
+    });
+    const hud = new GulpHud(this);
+    this.gulpHud = hud;
+    const wheel = new GulpWheel(this);
+    this.gulpWheel = wheel;
+    this.disposables.add(() => {
+      hud.destroy();
+      wheel.destroy();
+      if (this.gulpHud === hud) this.gulpHud = undefined;
+      if (this.gulpWheel === wheel) this.gulpWheel = undefined;
+      this.eatHold = undefined;
+      this.gulp = undefined;
+    });
+  }
+
+  /**
+   * The quest waypoint (clicking the quest tracker): where the tracked quest's
+   * next step happens on this map, re-resolved a few times a second.
+   */
+  private updateQuestWaypoint(delta: number): void {
+    const tracker = this.universalWorld?.questTrackerSurface;
+    if (!tracker?.showingWay || !this.player || this.titleMode) {
+      this.waypointTarget = undefined;
+      this.waypointPresenter?.hide();
+      return;
+    }
+    const now = this.time.now;
+    if (now >= this.nextWaypointResolveAt) {
+      this.nextWaypointResolveAt = now + 250;
+      const quest = trackedQuestView();
+      const from = { x: this.player.x, y: this.player.y };
+      this.waypointTarget = quest ? resolveQuestWaypoint(quest, this.questWaypointWorld(), from) : undefined;
+      tracker.setWaypointFound(this.waypointTarget !== undefined);
+    }
+    this.waypointPresenter?.update(delta, { x: this.player.x, y: this.player.y }, this.waypointTarget);
+  }
+
+  private questWaypointWorld(): QuestWaypointWorld {
+    const world = this.universalWorld;
+    return {
+      npcPosition: (npcId) => this.questNpcController?.npcPosition(npcId),
+      bossCampPosition: (bossId) => world?.bossCampPosition(bossId),
+      spawnAreaFor: (kinds, from) => {
+        let best: { x: number; y: number } | undefined;
+        for (const area of this.builtMap?.enemySpawnAreas ?? []) {
+          if (!area.enemies.some((entry) => kinds.includes(entry.type))) continue;
+          const stay = area.stayPerimeter;
+          if (!stay || stay.shape !== 'rectangle') continue;
+          const center = { x: stay.x + stay.w / 2, y: stay.y + stay.h / 2 };
+          if (!best || Math.hypot(center.x - from.x, center.y - from.y) < Math.hypot(best.x - from.x, best.y - from.y)) best = center;
+        }
+        return best;
+      },
+      exitToArea: (areaId, from) => world?.exitToArea(areaId, from),
+      nearestSource: (itemIds, from) => world?.nearestSource(itemIds, from),
+      nearestStation: (station, from) => world?.nearestStation(station, from),
+      restorationSite: (objectIds, from) => world?.restorationSite(objectIds, from),
+    };
+  }
+
+  /** Clears a flash and puts back the Gulp form's look, if any. */
+  private restorePlayerTint(): void {
+    const form = this.gulp?.activeForm;
+    if (form) this.playerVisual?.setTint(form.tint);
+    else this.playerVisual?.clearTint();
   }
 
   private createFurniturePlacement(): FurniturePlacementController {
@@ -668,7 +1099,9 @@ export class WorldScene extends Phaser.Scene {
     playerInventory.transact([], [{ itemId: record.itemId, count: 1 }]);
     // A bed that is picked up can no longer be woken up in.
     const respawn = worldProgress.respawnPoint;
-    if (respawn && respawn.mapId === mapId && Phaser.Math.Distance.Between(respawn.x, respawn.y, record.x, record.y) < 128) {
+    if (respawn && respawn.mapId === mapId && (respawn.bedId !== undefined
+      ? respawn.bedId === placedBedId(placementId)
+      : Phaser.Math.Distance.Between(respawn.x, respawn.y, record.x, record.y) < 128)) {
       worldProgress.clearRespawnPoint();
     }
     gameEvents.emit('furniture.picked-up', { mapId, placementId, itemId: record.itemId });
@@ -676,11 +1109,11 @@ export class WorldScene extends Phaser.Scene {
     return true;
   }
 
-  private openCraftingStation(context: CraftingContext): boolean {
+  private openCraftingStation(site: CraftingSite): boolean {
     const world = this.universalWorld;
     if (!world || this.paused || world.craftingSurface.isOpen() || world.inventorySurface.isOpen()) return false;
-    world.craftingSurface.open(recipesFor(context));
-    gameEvents.emit('workbench.opened', { mapId: this.loadedMap.map.mapId, context });
+    world.craftingSurface.open(site);
+    gameEvents.emit('workbench.opened', { mapId: this.loadedMap.map.mapId, context: site.station });
     return true;
   }
 
@@ -721,6 +1154,7 @@ export class WorldScene extends Phaser.Scene {
           mapId: this.loadedMap.map.mapId,
           x: Math.round(request.wakePoint.x),
           y: Math.round(request.wakePoint.y),
+          bedId: request.bedId,
         });
         floatingText.spawn(this, request.sleepPoint.x, request.sleepPoint.y - 48, 'Respawn point set', 'cyan', false);
       },
@@ -840,7 +1274,7 @@ export class WorldScene extends Phaser.Scene {
     this.createUniversalSceneWorld(spawnPoint);
     this.player = this.universalWorld!.playerPhysicsSprite;
     this.playerVisual = this.universalWorld!.playerPresentation;
-    const nameTag = this.add.text(this.player.x, this.player.y - 56, this.universalWorld!.managedPlayer.playerName, {
+    const nameTag = this.playerNameTag = this.add.text(this.player.x, this.player.y - 56, this.universalWorld!.managedPlayer.playerName, {
       fontFamily: UI_THEME.fontFamily,
       fontSize: '14px',
       color: UI_THEME.colors.text,
@@ -858,6 +1292,7 @@ export class WorldScene extends Phaser.Scene {
       getMotion: () => this.playerMotion(),
       getInput: () => this.playerMotion(),
       getStatusEffects: () => this.statusEffects,
+      getFormSpeedMultiplier: () => this.gulp?.activeForm?.speedMultiplier ?? 1,
       playAnimation: (key) => this.playAnimation(key),
     });
     if (restoredLocation) this.applyFacing(restoredLocation.facing);
@@ -870,6 +1305,8 @@ export class WorldScene extends Phaser.Scene {
   private createCamera(): void {
     this.physics.world.resume();
     this.cameras.main.resetFX();
+    // Arriving mirrors leaving (leaveAreaThen): the picture fades in while the music rises.
+    this.cameras.main.fadeIn(AREA_ARRIVE_FADE_MS, 11, 16, 32);
     this.cameras.main.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);
     this.cameraController = new ResponsiveCameraController(this, this.cameras.main);
     if (this.loadedMap.cameraMode === 'fixed') {
@@ -992,10 +1429,20 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private handlePresentationPostUpdate(_time: number, delta: number): void {
+    this.universalWorld?.updateMusic(delta);
     this.playerController?.updateVisuals();
-    this.cameraController?.update(delta);
+    if (this.titleMode) this.panTitleCamera(delta);
+    else this.cameraController?.update(delta);
     updateDevToolsCameraZoom(this.cameraController?.zoom ?? this.cameras.main.zoom);
     this.renderingDiagnostics?.update(this.time.now);
+  }
+
+  /** A slow side-to-side drift over the start area while the title screen shows. */
+  private panTitleCamera(deltaMs: number): void {
+    this.titleCameraMs += deltaMs;
+    const spawn = this.builtMap?.playerSpawn ?? { x: this.worldDimensions.width / 2, y: this.worldDimensions.height / 2 };
+    const drift = Math.sin(this.titleCameraMs / TITLE_PAN_PERIOD_MS * Math.PI * 2) * TITLE_PAN_RANGE_PX;
+    this.cameras.main.centerOn(spawn.x + TITLE_PAN_OFFSET.x + drift, spawn.y + TITLE_PAN_OFFSET.y);
   }
 
   private getEntryAnchor(): Phaser.Math.Vector2 | undefined {
@@ -1117,6 +1564,7 @@ export class WorldScene extends Phaser.Scene {
       // The router owns the visible shared prompt, so its candidate must own
       // the key press whenever one is displayed.
       if (this.interactionRouter?.hasCandidate()) {
+        this.hints?.learn('interact');
         this.interactionRouter.handleInteract();
       }
       return true;
@@ -1132,12 +1580,12 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (input.consumeActionPress('dodge')) {
-      if (!stuck) this.playerController.tryDodge(direction);
+      if (!stuck && this.playerController.tryDodge(direction)) this.hints?.learn('dodge');
       return true;
     }
 
     if (input.consumeActionPress('attack')) {
-      this.combatController?.tryAttack();
+      if (this.combatController?.tryAttack()) this.hints?.learn('attack');
       return true;
     }
 
@@ -1157,7 +1605,9 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (input.consumeActionPress('eat')) {
-      this.playActionAnimation('slime-eat');
+      // W is the mouth: what it does is decided on release or after a hold (updateEatHold).
+      const now = this.time.now;
+      this.eatHold = { since: now, lastSeen: now, open: false, empty: false, entries: [] };
       return true;
     }
 
@@ -1203,6 +1653,12 @@ export class WorldScene extends Phaser.Scene {
 
   private onPlayerHit(result: AcceptedDamageResult): void {
     this.sleepController?.wake('damage');
+    // Hits only: burn and poison ticks bypass this, so they never stutter the game.
+    if (result.actualHpLost > 0) {
+      gameFeel.play('player-hurt');
+      this.squash?.play('hit');
+      particleFx.play('slime-splash', this.player.x, this.player.y);
+    }
     this.universalWorld?.flashPlayerHealthBar();
     floatingText.spawn(
       this,
@@ -1217,7 +1673,7 @@ export class WorldScene extends Phaser.Scene {
       this.iFrameFlashActive = true;
       this.playerVisual?.setTintFill(0xff6f88);
       this.time.delayedCall(120, () => {
-        this.playerVisual?.clearTint();
+        this.restorePlayerTint();
         this.iFrameFlashActive = false;
       });
     }
@@ -1225,37 +1681,50 @@ export class WorldScene extends Phaser.Scene {
 
   private onPlayerDeath(): void {
     this.sleepController?.wake('death');
+    this.gulp?.clear();
     this.playerKnockbackUntil = 0;
     this.universalWorld?.resetActiveFights();
     this.playAnimation('slime-die', true);
     this.stopPlayerMotion();
     this.player.rotation = 0;
-    this.cameras.main.shake(400, 0.012);
+    gameFeel.play('player-defeated');
     floatingText.spawn(this, this.player.x, this.player.y - 40, 'DEFEATED', 'red', true);
 
-    // Respawn at last bed after a short delay.
-    this.time.delayedCall(1400, () => this.respawnPlayer());
+    // After the defeat animation, the game-over screen offers waking or loading.
+    this.time.delayedCall(1400, () => {
+      if (!this.shell) { this.respawnPlayer(); return; }
+      this.shell.showDefeat({
+        cause: this.describeDefeat(this.lastDamageSource),
+        playTimeMs: saveSystem.playTimeMs(),
+        hasBed: worldProgress.respawnPoint !== undefined,
+      });
+    });
   }
 
   private respawnPlayer(): void {
     if (!this.healthSystem) return;
 
-    // Home is the last bed slept in; without one, the level-1 start.
-    const bed = worldProgress.respawnPoint;
+    // Home is the last bed slept in; without one (or if its world lost it), the start area's spawn.
+    const plan = planRespawn(worldProgress.respawnPoint, (mapId, bedId) => this.bedExists(mapId, bedId));
+    if (plan.kind === 'start' && plan.staleBed) worldProgress.clearRespawnPoint();
+    const bed = plan.kind === 'bed' ? plan.point : undefined;
     if (bed && bed.mapId !== this.loadedMap.map.mapId) {
       gameState.revive();
       this.statusEffects?.clear();
-      this.navigateToRespawnPoint(bed);
+      this.leaveAreaThen(() => this.navigateToRespawnPoint(bed));
       return;
     }
-    if (!bed && this.currentArea.id !== 'level-1') {
+    if (!bed && this.currentArea.id !== STARTING_AREA_ID) {
       gameState.revive();
       this.statusEffects?.clear();
-      this.navigateToArea('level-1', {}, true);
+      this.leaveAreaThen(() => this.navigateToArea(STARTING_AREA_ID, {}, true));
       return;
     }
 
-    const pos = this.findSpawnPoint(bed ? new Phaser.Math.Vector2(bed.x, bed.y) : this.getEntryAnchor());
+    const spawn = this.builtMap?.playerSpawn;
+    const pos = this.findSpawnPoint(bed
+      ? new Phaser.Math.Vector2(bed.x, bed.y)
+      : spawn ? new Phaser.Math.Vector2(spawn.x, spawn.y) : this.getEntryAnchor());
 
     this.healthSystem.respawn();
     this.statusEffects?.clear();
@@ -1273,6 +1742,26 @@ export class WorldScene extends Phaser.Scene {
     }
 
     floatingText.spawn(this, pos.x, pos.y - 40, 'Respawned', 'green', true);
+  }
+
+  private bedExists(mapId: string, bedId: string | undefined): boolean {
+    const content = this.game.registry.get(PREPARED_SCENE_CONTENT_KEY);
+    if (!(content instanceof PreparedSceneContent)) return false;
+    return worldHasBed({
+      scene: (id) => content.catalog.get(sceneId(id)),
+      placedFurniture: (id) => worldProgress.placedFurniture(id),
+    }, mapId, bedId);
+  }
+
+  /** Names what defeated the player from the damage source ID ("Worm Brawler"). */
+  private describeDefeat(source: string | undefined): string | undefined {
+    if (!source) return undefined;
+    const match = getCharacterPackages()
+      .map((pack) => pack.character)
+      .filter((character) => source.includes(character.characterId))
+      .sort((left, right) => right.characterId.length - left.characterId.length)[0];
+    const name = match?.displayName;
+    return name ? name.charAt(0).toUpperCase() + name.slice(1) : undefined;
   }
 
   private useItem(itemId: string): void {
@@ -1339,7 +1828,7 @@ export class WorldScene extends Phaser.Scene {
     // before the browser moves focus.
     kb.on('keydown-TAB', (event: KeyboardEvent) => {
       event.preventDefault();
-      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.audioSettingsSurface.isOpen() || this.actionLocked) return;
+      if (this.titleMode || this.shell?.isAnyOpen() || this.actionLocked) return;
       this.universalWorld?.inventorySurface.toggle();
     });
 
@@ -1354,14 +1843,14 @@ export class WorldScene extends Phaser.Scene {
     });
 
     kb.on('keydown-U', () => {
-      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen() || this.universalWorld?.audioSettingsSurface.isOpen()) return;
+      if (this.titleMode || this.shell?.isAnyOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
       this.universalWorld?.questJournalSurface.toggle();
     });
 
     kb.on('keydown-C', () => {
-      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen() || this.universalWorld?.audioSettingsSurface.isOpen()) return;
+      if (this.titleMode || this.shell?.isAnyOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
       if (this.furniturePlacement?.active) return;
-      this.universalWorld?.craftingSurface.toggle(recipesFor('portable'));
+      this.universalWorld?.craftingSurface.toggle(PORTABLE_SITE);
     });
 
     // Left-click triggers an attack in the player's current facing direction.
@@ -1371,6 +1860,80 @@ export class WorldScene extends Phaser.Scene {
         this.combatController?.tryAttack();
       }
     });
+  }
+
+  /** Weak ground broke under the Heavy form. */
+  private onGroundCracked(at: Readonly<{ x: number; y: number }>): void {
+    gameFeel.play('ground-crack');
+    gameEvents.emit('ground.cracked', { x: at.x, y: at.y });
+    floatingText.spawn(this, at.x, at.y - 60, 'The ground gives way!', 'yellow', true, 1800);
+  }
+
+  /**
+   * F at a ruined building (roadmap 6.3): on its quest and carrying the materials,
+   * the player pays them, the story flag swaps the ruin for the restored building,
+   * and quests hear `object.activated`. Otherwise it says why, in red when short.
+   */
+  private restoreSite(request: RestorationRequest): boolean {
+    if (this.paused || this.transitioning || !request.flagId || storyProgress.hasFlag(request.flagId)) return false;
+    // In front of the building, where the player stands (above the roof is off screen).
+    const labelY = request.at.y - 36;
+    if (request.questId && questService.get(request.questId)?.status !== 'active') {
+      floatingText.spawn(this, request.at.x, labelY, request.lockedMessage, 'white', true, 2400);
+      gameEvents.emit('building.restore-refused', { objectId: request.objectId, reason: 'locked' });
+      return true;
+    }
+    const missing = request.cost
+      .map((cost) => ({ ...cost, short: cost.count - playerInventory.count(cost.itemId) }))
+      .filter((cost) => cost.short > 0)
+      .map((cost) => `${cost.short} ${itemRegistry.get(cost.itemId)?.name ?? cost.itemId}`);
+    if (missing.length > 0) {
+      floatingText.spawn(this, request.at.x, labelY, `Missing: ${missing.join(', ')}`, 'red', true, 2400);
+      gameEvents.emit('building.restore-refused', { objectId: request.objectId, reason: 'missing-materials' });
+      return true;
+    }
+    for (const cost of request.cost) playerInventory.remove(cost.itemId, cost.count);
+    storyProgress.setFlags([request.flagId]);
+    gameEvents.emit('object.activated', { objectId: request.objectId, instanceId: request.instanceId, areaId: this.currentArea.id });
+    gameEvents.emit('building.restored', { objectId: request.objectId, instanceId: request.instanceId, x: request.at.x, y: request.at.y });
+    gameFeel.play('building-restored');
+    const dust = this.add.particles(request.at.x, request.at.y - 70, 'dust-puff', {
+      lifespan: { min: 700, max: 1200 },
+      speed: { min: 30, max: 130 },
+      angle: { min: 180, max: 360 },
+      scale: { start: 2.2, end: 0.6 },
+      alpha: { start: 0.95, end: 0 },
+      emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-140, -90, 280, 120), quantity: 1 },
+      emitting: false,
+    }).setDepth(resolveWorldDepth(request.at.y + 60, { stableId: 'restoration-dust', attachmentSlot: 4 }).depth);
+    dust.emitParticle(60);
+    this.time.delayedCall(1300, () => dust.destroy());
+    floatingText.spawn(this, request.at.x, labelY, request.restoredMessage, 'green', true, 2600);
+    return true;
+  }
+
+  /** A web caught the slime: stuck for a moment and set back on the side it came from. */
+  private catchInWeb(zone: Readonly<{ x: number; y: number; halfWidth: number; halfHeight: number }>): void {
+    const fromAbove = this.player.y < zone.y;
+    this.teleportPlayer({ x: this.player.x, y: fromAbove ? zone.y - zone.halfHeight - 26 : zone.y + zone.halfHeight + 30 });
+    this.applyWeb(900);
+    const now = this.time.now;
+    if (now >= this.nextWebMessageAt) {
+      this.nextWebMessageAt = now + 2500;
+      floatingText.spawn(this, this.player.x, this.player.y - 56, 'Caught in the web! (something sticky could cross)', 'white', true, 2200);
+    }
+  }
+
+  /** A Goo Heart raises max HP for the rest of the run; its story flag keeps it collected. */
+  private collectGooHeart(heartId: string, at: Readonly<{ x: number; y: number }>): void {
+    const flag = gooHeartFlag(heartId);
+    if (storyProgress.hasFlag(flag)) return;
+    storyProgress.setFlags([flag]);
+    gameState.addGooHeart();
+    const bonus = GAME_CONSTANTS.character.player.gooHeart.maxHpBonus;
+    gameEvents.emit('goo-heart.collected', { heartId, maxHp: gameState.maxHp });
+    this.universalWorld?.showAreaTitle(`Goo Heart! Max HP ${gameState.maxHp}`, GOO_HEART_COLOR);
+    floatingText.spawn(this, at.x, at.y - 40, `+${bonus} max HP`, 'green', true, 2000);
   }
 
   private equipWeaponSlot(slotIndex: number): void {
@@ -1471,11 +2034,19 @@ export class WorldScene extends Phaser.Scene {
       setQuestOfferPaused: (paused) => this.setSimulationPaused('quest-npc', paused),
       setNpcDialoguePaused: (paused) => this.setSimulationPaused('npc-dialogue', paused),
       setWorldMapPaused: (paused) => this.setSimulationPaused('worldmap', paused),
-      setLevelUpPaused: (paused) => this.setSimulationPaused('levelup', paused),
-      setAudioSettingsPaused: (paused) => this.setSimulationPaused('audio-settings', paused),
+      shellSurfaces: [...(this.shell?.surfaces ?? []), ...(this.hints ? [[CONTROL_HINT_SURFACE_ID, this.hints] as const] : [])],
+      shellSceneIds: [...GAME_SHELL_SCENE_IDS, 'ui.control-hint'],
+      setStoryFlags: (flagIds) => storyProgress.setFlags(flagIds),
       getCurrentAreaId: () => this.currentArea.id,
       worldDimensions: this.worldDimensions,
       onCrafted: ({ recipe }) => {
+        if (itemRegistry.get(recipe.output.itemId)?.placeable) {
+          // Straight from the bench to the ground: close crafting and start placing (Esc keeps it in the bag).
+          this.universalWorld?.craftingSurface.close();
+          this.startFurniturePlacement(recipe.output.itemId);
+          floatingText.spawn(this, this.player.x, this.player.y - 44, `Crafted: ${recipe.name}`, 'green', true);
+          return;
+        }
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
         if (craftedWeaponId) {
           const slotIndex = playerWeaponLoadout.ensureAssigned(craftedWeaponId);
@@ -1508,6 +2079,20 @@ export class WorldScene extends Phaser.Scene {
       registerOcclusionActor: (registration) => this.occlusionController!.registerActor(registration),
       requestExit: (request) => this.requestAuthoredExit(request),
       requestSleep: (request) => this.requestSleep(request),
+      plateWeights: () => (this.gulp?.activeForm?.pressesPlates && this.player ? [{ x: this.player.x, y: this.player.y }] : []),
+      hasStoryFlag: (flagId) => storyProgress.hasFlag(flagId),
+      groundCrack: { groundCracked: (at) => this.onGroundCracked(at) },
+      spiderWebs: {
+        playerPosition: () => (this.player && !this.healthSystem?.isDead() && !this.transitioning ? { x: this.player.x, y: this.player.y } : undefined),
+        playerCrossesWebs: () => this.gulp?.activeForm?.crossesWebs ?? false,
+        catchPlayer: (zone) => this.catchInWeb(zone),
+      },
+      gooHearts: {
+        isCollected: (heartId) => storyProgress.hasFlag(gooHeartFlag(heartId)),
+        collect: (heartId, at) => this.collectGooHeart(heartId, at),
+        playerPosition: () => (this.player && !this.healthSystem?.isDead() ? { x: this.player.x, y: this.player.y } : undefined),
+      },
+      restoreSite: (request) => this.restoreSite(request),
       openCraftingStation: (context) => this.openCraftingStation(context),
       pickUpFurniture: (placementId) => this.pickUpFurniture(placementId),
       onEquipWeaponSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
@@ -1528,7 +2113,7 @@ export class WorldScene extends Phaser.Scene {
 
     const guard = () => !this.paused && !this.healthSystem?.isDead();
 
-    // Shift+[1] = debug damage, Shift+[2] = XP, Shift+[3] = heal,
+    // Shift+[1] = debug damage, Shift+[2] = teach every ability (dev only), Shift+[3] = heal,
     // Shift+[4] = coins, Shift+[5] = potion, Shift+[6/7] = status, Shift+[8] = dummy.
     kb.on('keydown-ONE', (event: KeyboardEvent) => {
       if (!event.shiftKey) return;
@@ -1546,9 +2131,8 @@ export class WorldScene extends Phaser.Scene {
 
     kb.on('keydown-TWO', (event: KeyboardEvent) => {
       if (!event.shiftKey) return;
-      if (!guard()) return;
-      gameState.addXp(25);
-      floatingText.spawn(this, this.player.x, this.player.y - 30, '+25 XP', 'cyan');
+      if (!import.meta.env.DEV || !guard()) return;
+      storyProgress.learnAbilities(PLAYER_ABILITY_IDS);
     });
 
     kb.on('keydown-THREE', (event: KeyboardEvent) => {

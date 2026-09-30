@@ -22,6 +22,12 @@ const {
   CraftingService,
   normalizeQuantity,
 } = await vite.ssrLoadModule('/src/game/crafting/CraftingService.ts');
+const {
+  RECIPE_CATALOG,
+  PORTABLE_SITE,
+  recipesAt,
+  siteTitle,
+} = await vite.ssrLoadModule('/src/game/content/recipes/RecipeCatalog.ts');
 
 test.after(async () => {
   await vite.close();
@@ -115,7 +121,7 @@ function recipe(id, ingredients, output, extra = {}) {
     id,
     name: id,
     description: `${id} recipe`,
-    context: 'portable',
+    station: 'portable',
     tier: 1,
     ingredients,
     output,
@@ -285,4 +291,57 @@ test('quest-learned recipes stay locked until the story grants them', () => {
   learned.add('craft-spear');
   assert.equal(service.quote(locked, 1).status, 'ready');
   assert.equal(service.craft(locked, 1).ok, true);
+});
+
+test('a recipe can only be crafted at its station and tier, and a refusal never consumes materials', () => {
+  const definitions = new Map([['wood', item('wood')], ['spear', item('spear', 1)], ['beam', item('beam')]]);
+  const inventory = new FakeInventory(definitions, [{ itemId: 'wood', count: 40 }]);
+  const service = new CraftingService({
+    inventory,
+    getItem: (itemId) => definitions.get(itemId),
+    getWeapon: () => undefined,
+    emitCompleted: () => {},
+  });
+  const benchSpear = recipe('bench-spear', [{ itemId: 'wood', count: 10 }], { itemId: 'spear', count: 1 }, { station: 'workbench' });
+  const workshopBeam = recipe('workshop-beam', [{ itemId: 'wood', count: 5 }], { itemId: 'beam', count: 1 }, { station: 'workshop', tier: 2 });
+  const workbench = { station: 'workbench', tier: 1 };
+  const snapshot = () => JSON.stringify(inventory.slots);
+  const before = snapshot();
+
+  assert.equal(service.quote(benchSpear, 1, PORTABLE_SITE).status, 'wrong-station', 'not with C');
+  assert.equal(service.craft(benchSpear, 1).reason, 'wrong-station', 'the default site is portable');
+  assert.equal(service.craft(workshopBeam, 1, workbench).reason, 'wrong-station', 'the workbench does not craft Workshop recipes');
+  assert.equal(service.craft(workshopBeam, 1, { station: 'workshop', tier: 1 }).reason, 'station-tier');
+  assert.equal(snapshot(), before, 'no refusal touched the inventory');
+
+  assert.equal(service.craft(benchSpear, 1, workbench).ok, true);
+  assert.equal(service.quote(benchSpear, 1, { station: 'workshop', tier: 1 }).status, 'ready', 'the Workshop crafts workbench recipes too');
+  assert.equal(service.craft(workshopBeam, 2, { station: 'workshop', tier: 2 }).ok, true);
+  assert.equal(inventory.count('wood'), 20);
+});
+
+test('each site lists its own recipes: C portable only, the workbench its own plus the Workshop recipes locked, no kitchen yet', () => {
+  const ids = (site) => recipesAt(site).map((entry) => entry.id);
+  const benchRecipes = ['craft-wooden-spear', 'craft-stone-axe', 'craft-stone-pickaxe', 'craft-stone-spear'];
+  assert.deepEqual(ids(PORTABLE_SITE), ['craft-workbench', 'brew-tonic', 'cook-berry-basket']);
+  assert.deepEqual(ids({ station: 'workbench', tier: 1 }), [...benchRecipes, 'craft-slam-hammer'], 'the Workshop recipes come last at the workbench (shown locked: wrong-station)');
+  assert.deepEqual(ids({ station: 'workshop', tier: 1 }), ['craft-slam-hammer', ...benchRecipes], 'the Workshop lists its own recipes first, then everything the workbench does');
+  assert.equal(RECIPE_CATALOG.some((entry) => entry.station === 'alchemy'), false, 'the alchemy station is retired');
+  assert.deepEqual(RECIPE_CATALOG.filter((entry) => entry.station === 'kitchen').map((entry) => entry.id), ['brew-fizzy', 'weave-tonics']);
+  assert.equal(siteTitle(PORTABLE_SITE), 'Crafting');
+  assert.equal(siteTitle({ station: 'workshop', tier: 2 }), 'Workshop · Tier 2');
+});
+
+test('the Workshop crafts the Slam Hammer; the workbench only shows it, and never takes the materials', () => {
+  const hammer = RECIPE_CATALOG.find((entry) => entry.id === 'craft-slam-hammer');
+  assert.equal(hammer.station, 'workshop');
+  assert.equal(hammer.tier, 1);
+  const definitions = new Map([['wood', item('wood')], ['stone', item('stone')], ['slam-hammer', item('slam-hammer', 1)]]);
+  const inventory = new FakeInventory(definitions, [{ itemId: 'wood', count: 25 }, { itemId: 'stone', count: 25 }]);
+  const service = new CraftingService({ inventory, getItem: (itemId) => definitions.get(itemId), getWeapon: () => undefined, emitCompleted: () => {} });
+  assert.equal(service.craft(hammer, 1, { station: 'workbench', tier: 1 }).reason, 'wrong-station');
+  assert.equal(inventory.count('wood'), 25, 'the refusal kept the wood');
+  assert.equal(service.craft(hammer, 1, { station: 'workshop', tier: 1 }).ok, true);
+  assert.equal(inventory.count('slam-hammer'), 1);
+  assert.equal(inventory.count('wood') + inventory.count('stone'), 0);
 });

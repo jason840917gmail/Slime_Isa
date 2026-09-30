@@ -12,6 +12,7 @@ import {
   type PlacedFurnitureData,
   isRespawnPoint,
   isRecord,
+  isStory,
   type GameSaveData,
   type CollectibleProgressStateData,
   type BossCampProgressData,
@@ -27,8 +28,6 @@ import {
   type WorldProgressData,
 } from './SaveSchema';
 import { STORAGE_KEYS } from './storageKeys';
-import { GAME_CONSTANTS } from '../../Constant';
-import { migratePlayerProgression } from './PlayerProgressionMigration';
 
 interface StorageLike {
   getItem(key: string): string | null;
@@ -285,16 +284,10 @@ function migrateLegacyInventory(value: unknown): Array<{ itemId: string; count: 
 function migrateData(value: unknown, storage: StorageLike | null): GameSaveData | null {
   if (!isRecord(value)) return null;
   const initial = createInitialRunState();
-  const player = isRecord(value.player) ? value.player as Partial<GameStateData> : value as Partial<GameStateData>;
-  if (!isRecord(player) || typeof player.level !== 'number') return null;
-  let progression: { level: number; currentXp: number };
-  try {
-    progression = 'currentXp' in player
-      ? { level: player.level, currentXp: player.currentXp as number }
-      : migratePlayerProgression(GAME_CONSTANTS.character.player.progression, player.level, (player as Record<string, unknown>).xp);
-  } catch {
-    return null;
-  }
+  const player = isRecord(value.player) ? value.player as Record<string, unknown> : value;
+  if (!isRecord(player) || !['coins', 'hp', 'level'].some((key) => typeof player[key] === 'number')) return null;
+  // Only fields the current player shape still has are kept: the retired
+  // level, XP, skill points and perks (schema v9 and older) are dropped.
   const currentPlayerFields = Object.fromEntries(
     Object.keys(initial.player).flatMap((key) => (
       key in player ? [[key, (player as Record<string, unknown>)[key]]] : []
@@ -302,7 +295,7 @@ function migrateData(value: unknown, storage: StorageLike | null): GameSaveData 
   );
   const legacySlots = migrateLegacyInventory(value.inventory);
   const candidate: GameSaveData = {
-    player: clone({ ...initial.player, ...currentPlayerFields, ...progression, schemaVersion: 4 } as unknown as GameStateData),
+    player: clone({ ...initial.player, ...currentPlayerFields, schemaVersion: initial.player.schemaVersion } as unknown as GameStateData),
     inventory: legacySlots
       ? { maxSlots: Math.max(initial.inventory.maxSlots, legacySlots.length), slots: clone(legacySlots) }
       : isRecord(value.inventory) ? clone(value.inventory) as unknown as GameSaveData['inventory'] : initial.inventory,
@@ -334,7 +327,33 @@ function migrateData(value: unknown, storage: StorageLike | null): GameSaveData 
     world: mapWorld(value.world, storage),
     playTimeMs: typeof value.playTimeMs === 'number' && Number.isFinite(value.playTimeMs) ? Math.max(0, value.playTimeMs) : 0,
   };
-  return isGameSaveData(candidate) ? candidate : null;
+  const quests = candidate.quests;
+  const story = isStory(value.story) ? clone(value.story) : undefined;
+  const migrated: GameSaveData = story || quests.some((quest) => quest.status === 'completed')
+    ? { ...candidate, story: withQuestTaughtAbilities(story, quests) }
+    : candidate;
+  return isGameSaveData(migrated) ? migrated : null;
+}
+
+/**
+ * Abilities used to unlock by level; they are now quest rewards. A migrated save
+ * keeps every ability its completed quests teach, so no finished story beat is lost.
+ */
+function withQuestTaughtAbilities(
+  story: NonNullable<GameSaveData['story']> | undefined,
+  quests: readonly QuestState[],
+): NonNullable<GameSaveData['story']> {
+  const learned = new Set(story?.learnedAbilityIds ?? []);
+  for (const quest of quests) {
+    if (quest.status !== 'completed') continue;
+    for (const abilityId of getQuestDefinition(quest.questId)?.rewards.abilityIds ?? []) learned.add(abilityId);
+  }
+  return {
+    worldFlags: [...(story?.worldFlags ?? [])],
+    learnedRecipeIds: [...(story?.learnedRecipeIds ?? [])],
+    learnedAbilityIds: [...learned],
+    talkedNpcIds: [...(story?.talkedNpcIds ?? [])],
+  };
 }
 
 function readLegacyWorld(storage: StorageLike | null): WorldProgressData {
@@ -359,7 +378,6 @@ function isMetadata(value: unknown): value is NamedSaveMetadata {
     && (value.schemaVersion as number) > 0
     && (value.schemaVersion as number) <= SAVE_SCHEMA_VERSION
     && typeof value.currentMapId === 'string'
-    && Number.isInteger(value.playerLevel)
     && typeof value.playTimeMs === 'number'
     && Number.isFinite(value.playTimeMs);
 }
@@ -398,7 +416,6 @@ export class SaveRepository {
         updatedAt: snapshot.updatedAt,
         schemaVersion: snapshot.schemaVersion,
         currentMapId: snapshot.currentMapId,
-        playerLevel: snapshot.playerLevel,
         playTimeMs: snapshot.playTimeMs,
       });
     }
@@ -418,7 +435,7 @@ export class SaveRepository {
     const metadata: NamedSaveMetadata = {
       saveId: this.newId(), name: normalizedName, createdAt: now, updatedAt: now,
       schemaVersion: SAVE_SCHEMA_VERSION, currentMapId: data.location.mapId,
-      playerLevel: data.player.level, playTimeMs: data.playTimeMs,
+      playTimeMs: data.playTimeMs,
     };
     const snapshot: NamedSaveSnapshot = { ...metadata, data: clone(data) };
     const key = this.recordKey(metadata.saveId);
@@ -446,7 +463,7 @@ export class SaveRepository {
       updatedAt: Date.now(),
       schemaVersion: previous.schemaVersion,
       currentMapId: data.location.mapId,
-      playerLevel: data.player.level, playTimeMs: data.playTimeMs,
+      playTimeMs: data.playTimeMs,
     };
     const key = this.recordKey(saveId);
     const oldRaw = this.storage.getItem(key);
@@ -486,7 +503,6 @@ export class SaveRepository {
         updatedAt: parsed.updatedAt as number,
         schemaVersion: SAVE_SCHEMA_VERSION,
         currentMapId: data.location.mapId,
-        playerLevel: data.player.level,
         playTimeMs: data.playTimeMs,
         data,
       };

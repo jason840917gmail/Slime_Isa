@@ -11,7 +11,7 @@ export const EVIDENCE_PATH = 'docs/superpowers/plans/evidence/universal-scene-co
 
 const PRODUCTION_MAPS = new Set(['crystal-caverns', 'gloop-forest', 'level-1']);
 const UI_MODULES = [
-  'src/game/HUD.ts',
+  'scripts/migrations/frozen-sources/HUD.ts',
   'src/game/Minimap.ts',
   'src/game/ui/AbilityBar.ts',
   'src/game/ui/AreaTitleCard.ts',
@@ -21,7 +21,6 @@ const UI_MODULES = [
   'src/game/ui/FloatingText.ts',
   'src/game/ui/HealthBar.ts',
   'src/game/ui/InventoryUI.ts',
-  'src/game/ui/LevelUpModal.ts',
   'src/game/ui/QuestJournal.ts',
   'src/game/ui/QuestOfferModal.ts',
   'src/game/ui/WeaponHotbar.ts',

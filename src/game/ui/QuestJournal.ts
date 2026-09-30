@@ -264,7 +264,7 @@ export class QuestJournal {
     }
 
     if (!compact) {
-      const reward = [`${def.rewards.coins ?? 0} coins`, `${def.rewards.xp ?? 0} XP`].join('  ·  ');
+      const reward = `${def.rewards.coins ?? 0} coins`;
       container.add(scene.add.text(left + 16, y, `Reward: ${reward}`, {
         fontFamily: FONT,
         fontSize: '12px',

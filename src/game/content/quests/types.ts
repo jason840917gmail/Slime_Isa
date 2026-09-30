@@ -15,10 +15,11 @@ export interface QuestRewardItem {
 
 export interface QuestRewards {
   readonly coins?: number;
-  readonly xp?: number;
   readonly items?: readonly QuestRewardItem[];
   /** Recipes the player learns; locked recipes stay visible but uncraftable until learned. */
   readonly recipeIds?: readonly string[];
+  /** Abilities the slime learns (`content/abilities.ts`); locked ones show how they are earned. */
+  readonly abilityIds?: readonly string[];
   /** Persistent story flags other content (gates, quests) can require. */
   readonly flags?: readonly string[];
 }
@@ -111,10 +112,6 @@ export type QuestConditionDefinition =
   | {
     readonly kind: 'area-entered';
     readonly areaIds: readonly string[];
-  }
-  | {
-    readonly kind: 'player-level';
-    readonly minimumLevel: number;
   }
   | {
     readonly kind: 'inventory-count';

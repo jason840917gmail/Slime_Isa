@@ -51,7 +51,7 @@ const STATUS_CUES: Readonly<Record<string, string>> = {
 };
 
 /** Modal surfaces whose own scene or event already sounds on open/close. */
-const SILENT_MODALS: ReadonlySet<string> = new Set(['chest-inventory', 'level-up', 'furniture-placement']);
+const SILENT_MODALS: ReadonlySet<string> = new Set(['chest-inventory', 'furniture-placement']);
 
 /** Energy gains at least this large read as a restore (potion), not regeneration ticks. */
 const ENERGY_RESTORE_CUE_MIN_DELTA = 20;
@@ -76,13 +76,19 @@ export class AudioEventBridge {
     on('player.respawn', () => this.play('Respawn'));
     on('energy.changed', ({ delta }) => { if (delta >= ENERGY_RESTORE_CUE_MIN_DELTA) this.play('EnergyRestore'); });
     on('coins.changed', ({ delta }) => { if (delta > 0) this.play('Coin'); });
-    on('level.up', () => this.play('LevelUp'));
-    on('perk.taken', () => this.play('PerkChoose'));
+    on('ability.learned', () => this.play('AbilityLearned'));
+    on('craft.failed', () => this.play('CraftFail'));
+    on('ground.cracked', () => this.play('GroundCrack'));
+    on('building.restored', () => this.play('BuildingRestored'));
+    on('building.restore-refused', ({ reason }) => { if (reason === 'missing-materials') this.play('CraftFail'); });
+    // PLACEHOLDER: the heal chime until a Goo Heart pickup sound is made (roadmap 5).
+    on('goo-heart.collected', () => this.play('Heal'));
     on('status.added', ({ kind }) => this.play(STATUS_CUES[kind]));
     on('status.removed', () => this.play('StatusExpire'));
     on('weapon.equipped', ({ weaponId }) => {
       if (weaponId) this.play(BLADE_WEAPON_PATTERN.test(weaponId) ? 'EquipBlade' : 'EquipTool');
     });
+    on('weapon.critical-hit', () => this.play('Crit'));
     on('craft.completed', () => this.play('CraftSuccess'));
     on('npc.talked', () => this.play('NpcBlip'));
     on('quest.accepted', () => this.play('QuestAccept'));

@@ -1,0 +1,3092 @@
+{
+  "version": 1,
+  "sceneId": "world.playground-cavern",
+  "rootNodeId": "world",
+  "nodes": [
+    {
+      "id": "world",
+      "name": "playground-cavern",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "layer-ground",
+      "name": "ground",
+      "type": "TileMapLayer2D",
+      "parentId": "world",
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ],
+        "tileData": {
+          "resourceId": "tiles.playground-cavern.ground.data"
+        },
+        "tileSize": 64,
+        "seed": 20260930,
+        "depth": 0,
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "collisionEnabled": true,
+        "editorLocked": false
+      }
+    },
+    {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "playground-cavern",
+        "tileSize": 64,
+        "columns": 22,
+        "rows": 14,
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 704,
+              "y": 260
+            },
+            "entries": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "player-spawn",
+      "name": "player-spawn",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          704,
+          260
+        ]
+      }
+    },
+    {
+      "id": "walls",
+      "name": "crystal-walls",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "cave",
+      "name": "cave",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 4,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "instances": [
+    {
+      "instanceId": "playground-cavern-wall-top-0-1",
+      "name": "wall-top-0-1",
+      "sceneId": "object.crystal-cluster-wall.01",
+      "parentNodeId": "walls",
+      "order": 0,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-0-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-0-13",
+      "name": "wall-bottom-0-13",
+      "sceneId": "object.crystal-cluster-wall.02",
+      "parentNodeId": "walls",
+      "order": 1,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-0-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-1-1",
+      "name": "wall-top-1-1",
+      "sceneId": "object.crystal-cluster-wall.03",
+      "parentNodeId": "walls",
+      "order": 2,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-1-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            96,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-1-13",
+      "name": "wall-bottom-1-13",
+      "sceneId": "object.crystal-cluster-wall.04",
+      "parentNodeId": "walls",
+      "order": 3,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-1-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            96,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-2-1",
+      "name": "wall-top-2-1",
+      "sceneId": "object.crystal-cluster-wall.05",
+      "parentNodeId": "walls",
+      "order": 4,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-2-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            160,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-2-13",
+      "name": "wall-bottom-2-13",
+      "sceneId": "object.crystal-cluster-wall.06",
+      "parentNodeId": "walls",
+      "order": 5,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-2-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            160,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-3-1",
+      "name": "wall-top-3-1",
+      "sceneId": "object.crystal-cluster-wall.07",
+      "parentNodeId": "walls",
+      "order": 6,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-3-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            224,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-3-13",
+      "name": "wall-bottom-3-13",
+      "sceneId": "object.crystal-cluster-wall.08",
+      "parentNodeId": "walls",
+      "order": 7,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-3-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            224,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-4-1",
+      "name": "wall-top-4-1",
+      "sceneId": "object.crystal-cluster-wall.09",
+      "parentNodeId": "walls",
+      "order": 8,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-4-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-4-13",
+      "name": "wall-bottom-4-13",
+      "sceneId": "object.crystal-cluster-wall.10",
+      "parentNodeId": "walls",
+      "order": 9,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-4-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-5-1",
+      "name": "wall-top-5-1",
+      "sceneId": "object.crystal-cluster-wall.11",
+      "parentNodeId": "walls",
+      "order": 10,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-5-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            352,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-5-13",
+      "name": "wall-bottom-5-13",
+      "sceneId": "object.crystal-cluster-wall.12",
+      "parentNodeId": "walls",
+      "order": 11,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-5-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            352,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-6-1",
+      "name": "wall-top-6-1",
+      "sceneId": "object.crystal-cluster-wall.13",
+      "parentNodeId": "walls",
+      "order": 12,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-6-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            416,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-6-13",
+      "name": "wall-bottom-6-13",
+      "sceneId": "object.crystal-cluster-wall.14",
+      "parentNodeId": "walls",
+      "order": 13,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-6-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            416,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-7-1",
+      "name": "wall-top-7-1",
+      "sceneId": "object.crystal-cluster-wall.15",
+      "parentNodeId": "walls",
+      "order": 14,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-7-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            480,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-7-13",
+      "name": "wall-bottom-7-13",
+      "sceneId": "object.crystal-cluster-wall.16",
+      "parentNodeId": "walls",
+      "order": 15,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-7-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            480,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-8-1",
+      "name": "wall-top-8-1",
+      "sceneId": "object.crystal-cluster-wall.01",
+      "parentNodeId": "walls",
+      "order": 16,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-8-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-8-13",
+      "name": "wall-bottom-8-13",
+      "sceneId": "object.crystal-cluster-wall.02",
+      "parentNodeId": "walls",
+      "order": 17,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-8-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-9-1",
+      "name": "wall-top-9-1",
+      "sceneId": "object.crystal-cluster-wall.03",
+      "parentNodeId": "walls",
+      "order": 18,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-9-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            608,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-9-13",
+      "name": "wall-bottom-9-13",
+      "sceneId": "object.crystal-cluster-wall.04",
+      "parentNodeId": "walls",
+      "order": 19,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-9-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            608,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-10-1",
+      "name": "wall-top-10-1",
+      "sceneId": "object.crystal-cluster-wall.05",
+      "parentNodeId": "walls",
+      "order": 20,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-10-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            672,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-10-13",
+      "name": "wall-bottom-10-13",
+      "sceneId": "object.crystal-cluster-wall.06",
+      "parentNodeId": "walls",
+      "order": 21,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-10-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            672,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-11-1",
+      "name": "wall-top-11-1",
+      "sceneId": "object.crystal-cluster-wall.07",
+      "parentNodeId": "walls",
+      "order": 22,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-11-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            736,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-11-13",
+      "name": "wall-bottom-11-13",
+      "sceneId": "object.crystal-cluster-wall.08",
+      "parentNodeId": "walls",
+      "order": 23,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-11-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            736,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-12-1",
+      "name": "wall-top-12-1",
+      "sceneId": "object.crystal-cluster-wall.09",
+      "parentNodeId": "walls",
+      "order": 24,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-12-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-12-13",
+      "name": "wall-bottom-12-13",
+      "sceneId": "object.crystal-cluster-wall.10",
+      "parentNodeId": "walls",
+      "order": 25,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-12-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-13-1",
+      "name": "wall-top-13-1",
+      "sceneId": "object.crystal-cluster-wall.11",
+      "parentNodeId": "walls",
+      "order": 26,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-13-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            864,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-13-13",
+      "name": "wall-bottom-13-13",
+      "sceneId": "object.crystal-cluster-wall.12",
+      "parentNodeId": "walls",
+      "order": 27,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-13-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            864,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-14-1",
+      "name": "wall-top-14-1",
+      "sceneId": "object.crystal-cluster-wall.13",
+      "parentNodeId": "walls",
+      "order": 28,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-14-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            928,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-14-13",
+      "name": "wall-bottom-14-13",
+      "sceneId": "object.crystal-cluster-wall.14",
+      "parentNodeId": "walls",
+      "order": 29,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-14-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            928,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-15-1",
+      "name": "wall-top-15-1",
+      "sceneId": "object.crystal-cluster-wall.15",
+      "parentNodeId": "walls",
+      "order": 30,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-15-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            992,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-15-13",
+      "name": "wall-bottom-15-13",
+      "sceneId": "object.crystal-cluster-wall.16",
+      "parentNodeId": "walls",
+      "order": 31,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-15-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            992,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-16-1",
+      "name": "wall-top-16-1",
+      "sceneId": "object.crystal-cluster-wall.01",
+      "parentNodeId": "walls",
+      "order": 32,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-16-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1056,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-16-13",
+      "name": "wall-bottom-16-13",
+      "sceneId": "object.crystal-cluster-wall.02",
+      "parentNodeId": "walls",
+      "order": 33,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-16-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1056,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-17-1",
+      "name": "wall-top-17-1",
+      "sceneId": "object.crystal-cluster-wall.03",
+      "parentNodeId": "walls",
+      "order": 34,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-17-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1120,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-17-13",
+      "name": "wall-bottom-17-13",
+      "sceneId": "object.crystal-cluster-wall.04",
+      "parentNodeId": "walls",
+      "order": 35,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-17-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1120,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-18-1",
+      "name": "wall-top-18-1",
+      "sceneId": "object.crystal-cluster-wall.05",
+      "parentNodeId": "walls",
+      "order": 36,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-18-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1184,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-18-13",
+      "name": "wall-bottom-18-13",
+      "sceneId": "object.crystal-cluster-wall.06",
+      "parentNodeId": "walls",
+      "order": 37,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-18-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1184,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-19-1",
+      "name": "wall-top-19-1",
+      "sceneId": "object.crystal-cluster-wall.07",
+      "parentNodeId": "walls",
+      "order": 38,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-19-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1248,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-19-13",
+      "name": "wall-bottom-19-13",
+      "sceneId": "object.crystal-cluster-wall.08",
+      "parentNodeId": "walls",
+      "order": 39,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-19-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1248,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-20-1",
+      "name": "wall-top-20-1",
+      "sceneId": "object.crystal-cluster-wall.09",
+      "parentNodeId": "walls",
+      "order": 40,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-20-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1312,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-20-13",
+      "name": "wall-bottom-20-13",
+      "sceneId": "object.crystal-cluster-wall.10",
+      "parentNodeId": "walls",
+      "order": 41,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-20-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1312,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-top-21-1",
+      "name": "wall-top-21-1",
+      "sceneId": "object.crystal-cluster-wall.11",
+      "parentNodeId": "walls",
+      "order": 42,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-top-21-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-bottom-21-13",
+      "name": "wall-bottom-21-13",
+      "sceneId": "object.crystal-cluster-wall.12",
+      "parentNodeId": "walls",
+      "order": 43,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-bottom-21-13",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            886
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-2",
+      "name": "wall-left-0-2",
+      "sceneId": "object.crystal-cluster-wall.13",
+      "parentNodeId": "walls",
+      "order": 44,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            182
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-2",
+      "name": "wall-right-21-2",
+      "sceneId": "object.crystal-cluster-wall.14",
+      "parentNodeId": "walls",
+      "order": 45,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            182
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-3",
+      "name": "wall-left-0-3",
+      "sceneId": "object.crystal-cluster-wall.15",
+      "parentNodeId": "walls",
+      "order": 46,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            246
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-3",
+      "name": "wall-right-21-3",
+      "sceneId": "object.crystal-cluster-wall.16",
+      "parentNodeId": "walls",
+      "order": 47,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            246
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-4",
+      "name": "wall-left-0-4",
+      "sceneId": "object.crystal-cluster-wall.01",
+      "parentNodeId": "walls",
+      "order": 48,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            310
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-4",
+      "name": "wall-right-21-4",
+      "sceneId": "object.crystal-cluster-wall.02",
+      "parentNodeId": "walls",
+      "order": 49,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            310
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-5",
+      "name": "wall-left-0-5",
+      "sceneId": "object.crystal-cluster-wall.03",
+      "parentNodeId": "walls",
+      "order": 50,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            374
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-5",
+      "name": "wall-right-21-5",
+      "sceneId": "object.crystal-cluster-wall.04",
+      "parentNodeId": "walls",
+      "order": 51,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            374
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-6",
+      "name": "wall-left-0-6",
+      "sceneId": "object.crystal-cluster-wall.05",
+      "parentNodeId": "walls",
+      "order": 52,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            438
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-6",
+      "name": "wall-right-21-6",
+      "sceneId": "object.crystal-cluster-wall.06",
+      "parentNodeId": "walls",
+      "order": 53,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            438
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-7",
+      "name": "wall-left-0-7",
+      "sceneId": "object.crystal-cluster-wall.07",
+      "parentNodeId": "walls",
+      "order": 54,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            502
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-7",
+      "name": "wall-right-21-7",
+      "sceneId": "object.crystal-cluster-wall.08",
+      "parentNodeId": "walls",
+      "order": 55,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            502
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-8",
+      "name": "wall-left-0-8",
+      "sceneId": "object.crystal-cluster-wall.09",
+      "parentNodeId": "walls",
+      "order": 56,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            566
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-8",
+      "name": "wall-right-21-8",
+      "sceneId": "object.crystal-cluster-wall.10",
+      "parentNodeId": "walls",
+      "order": 57,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            566
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-9",
+      "name": "wall-left-0-9",
+      "sceneId": "object.crystal-cluster-wall.11",
+      "parentNodeId": "walls",
+      "order": 58,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            630
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-9",
+      "name": "wall-right-21-9",
+      "sceneId": "object.crystal-cluster-wall.12",
+      "parentNodeId": "walls",
+      "order": 59,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            630
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-10",
+      "name": "wall-left-0-10",
+      "sceneId": "object.crystal-cluster-wall.13",
+      "parentNodeId": "walls",
+      "order": 60,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-10",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            694
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-10",
+      "name": "wall-right-21-10",
+      "sceneId": "object.crystal-cluster-wall.14",
+      "parentNodeId": "walls",
+      "order": 61,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-10",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            694
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-11",
+      "name": "wall-left-0-11",
+      "sceneId": "object.crystal-cluster-wall.15",
+      "parentNodeId": "walls",
+      "order": 62,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-11",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            758
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-11",
+      "name": "wall-right-21-11",
+      "sceneId": "object.crystal-cluster-wall.16",
+      "parentNodeId": "walls",
+      "order": 63,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-11",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            758
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-left-0-12",
+      "name": "wall-left-0-12",
+      "sceneId": "object.crystal-cluster-wall.01",
+      "parentNodeId": "walls",
+      "order": 64,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-left-0-12",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            32,
+            822
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-wall-right-21-12",
+      "name": "wall-right-21-12",
+      "sceneId": "object.crystal-cluster-wall.02",
+      "parentNodeId": "walls",
+      "order": 65,
+      "persistenceKey": "playground-cavern.playground-cavern-wall-right-21-12",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            822
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-ladder",
+      "name": "ladder",
+      "sceneId": "object.cave-ladder",
+      "parentNodeId": "cave",
+      "order": 0,
+      "persistenceKey": "playground-cavern.playground-cavern-ladder",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            704,
+            200
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "mapId",
+          "value": "playground-cavern"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "doorId",
+          "value": "playground-cavern-ladder"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "targetAreaId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "targetDoorId",
+          "value": "playground-sinkhole"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-hidden-chest",
+      "name": "hidden-chest",
+      "sceneId": "object.chest-wooden",
+      "parentNodeId": "cave",
+      "order": 1,
+      "persistenceKey": "playground-cavern.playground-cavern-hidden-chest",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1088,
+            640
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground-cavern"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-cavern-hidden-chest"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "initialContents",
+          "value": {
+            "shard": 3,
+            "silk-clump": 2,
+            "hp-potion": 1
+          }
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-shard-1",
+      "name": "shard-1",
+      "sceneId": "object.collectible-crystal-shard",
+      "parentNodeId": "cave",
+      "order": 2,
+      "persistenceKey": "playground-cavern.playground-cavern-shard-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            420,
+            520
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground-cavern"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-cavern-shard-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-shard-2",
+      "name": "shard-2",
+      "sceneId": "object.collectible-crystal-shard",
+      "parentNodeId": "cave",
+      "order": 3,
+      "persistenceKey": "playground-cavern.playground-cavern-shard-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            520,
+            700
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground-cavern"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-cavern-shard-2"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cavern-shard-3",
+      "name": "shard-3",
+      "sceneId": "object.collectible-crystal-shard",
+      "parentNodeId": "cave",
+      "order": 4,
+      "persistenceKey": "playground-cavern.playground-cavern-shard-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            900,
+            420
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground-cavern"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-cavern-shard-3"
+        }
+      ]
+    }
+  ],
+  "connections": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "tiles.playground-cavern.ground.data",
+      "kind": "tile-data",
+      "tileSet": "terrain.tiles",
+      "columns": 22,
+      "rows": 14,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 17,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 19,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 20,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 21,
+          "y": 0,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 15,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 16,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 17,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 18,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 19,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 20,
+          "y": 1,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 1,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 15,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 16,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 17,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 18,
+          "y": 2,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 20,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 21,
+          "y": 2,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 15,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 16,
+          "y": 3,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 18,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 19,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 20,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 21,
+          "y": 3,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 4,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 17,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 18,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 19,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 20,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 21,
+          "y": 4,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 15,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 16,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 17,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 18,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 20,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 21,
+          "y": 5,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 15,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 18,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 19,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 20,
+          "y": 6,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 21,
+          "y": 6,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 0,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 7,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 16,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 18,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 20,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 7,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 18,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 20,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 8,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 0,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 18,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 20,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 9,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 0,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 3,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 14,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 16,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 18,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 20,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 10,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 0,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 1,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 12,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 11,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 16,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 18,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 20,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 11,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 0,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 8,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 10,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 12,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 16,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 18,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 20,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 12,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 1,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 2,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 3,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 4,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 5,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 7,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 9,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 10,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 11,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 13,
+          "y": 13,
+          "tileId": "cavern-floor"
+        },
+        {
+          "x": 14,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 15,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 17,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 19,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 20,
+          "y": 13,
+          "tileId": "crystal-floor"
+        },
+        {
+          "x": 21,
+          "y": 13,
+          "tileId": "crystal-floor"
+        }
+      ]
+    }
+  ]
+}

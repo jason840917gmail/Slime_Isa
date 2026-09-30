@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "sceneId": "object.cave-ladder",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "cave-ladder",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "cave-ladder.sprite"
+        },
+        "frame": 2,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.8,
+          0.8
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "wall",
+      "name": "Wall",
+      "type": "StaticBody2D",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          -20
+        ]
+      }
+    },
+    {
+      "id": "wall-shape",
+      "name": "Shape",
+      "type": "CollisionShape2D",
+      "parentId": "wall",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "cave-ladder.shape"
+        }
+      }
+    },
+    {
+      "id": "door-script",
+      "name": "DoorScript",
+      "type": "ScriptNode",
+      "scriptId": "game.door",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "mapId": "unassigned",
+        "doorId": "ladder",
+        "targetAreaId": "unassigned",
+        "targetDoorId": "sinkhole",
+        "prompt": "Climb up",
+        "interactRadius": 90,
+        "badgeRise": 150
+      }
+    },
+    {
+      "id": "door-arrival",
+      "name": "arrival",
+      "type": "Node2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "position": [
+          0,
+          60
+        ]
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "cave-ladder.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.props.gulp.8x1",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "cave-ladder.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 110,
+        "height": 30
+      }
+    }
+  ]
+}

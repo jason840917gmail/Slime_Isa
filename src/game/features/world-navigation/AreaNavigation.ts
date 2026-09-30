@@ -2,7 +2,7 @@ import { gameState } from '../../core/GameState';
 import { playerInventory } from '../../systems/Inventory';
 import { questTracker } from '../../quests/QuestTracker';
 import { worldProgress } from '../progression/WorldProgress';
-import { getAreaDefinition, type AreaDef, type AreaId, type Direction } from '../../world/Area';
+import { getAreaDefinition, STARTING_AREA_ID, type AreaDef, type AreaId, type Direction } from '../../world/Area';
 import type { GameSaveData } from '../../infrastructure/persistence/SaveSchema';
 import {
   consumeRunNavigation,
@@ -39,7 +39,7 @@ export function resolveAreaRequest(data: AreaNavigationRequest): ResolvedAreaReq
   const queryDoor = params.get('door');
   const areaId = data.areaId
     ?? pending?.mapId
-    ?? (queryArea && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(queryArea) ? queryArea : 'level-1');
+    ?? (queryArea && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(queryArea) ? queryArea : STARTING_AREA_ID);
 
   return {
     area: getAreaDefinition(areaId),
@@ -121,6 +121,13 @@ export function navigateToArea(
     playTimeMs: 0,
   };
   queueRunNavigation('area', handoffData, areaId, entry, respawnHome);
+}
+
+/** Reloads the game to its title screen (no run handoff, no area in the URL). */
+export function returnToTitle(): void {
+  const url = new URL(window.location.href);
+  for (const key of ['area', 'entry', 'door', 'respawn', 't', 'map']) url.searchParams.delete(key);
+  window.location.assign(url.toString());
 }
 
 export function clearOneShotNavigationParams(): void {

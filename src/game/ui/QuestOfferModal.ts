@@ -111,7 +111,7 @@ export class QuestOfferModal {
       }));
       y += 22;
     }
-    container.add(this.scene.add.text(-w / 2 + 36, 52, `Reward: ${quest.definition.rewards.coins ?? 0} coins · ${quest.definition.rewards.xp ?? 0} XP`, {
+    container.add(this.scene.add.text(-w / 2 + 36, 52, `Reward: ${quest.definition.rewards.coins ?? 0} coins`, {
       fontFamily: FONT, fontSize: '13px', color: '#ffd277',
     }));
     this.errorText = this.scene.add.text(0, 88, '', {

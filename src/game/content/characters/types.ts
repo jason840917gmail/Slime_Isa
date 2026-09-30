@@ -127,8 +127,7 @@ export interface EnemyGameplayDocument {
     projectileSpeed?: number;
     knockbackResist: number;
   };
-  drop: {
-    xp: number;
+  drop: {
     coins: number;
     items?: EnemyDropItemDocument[];
   };

@@ -5,7 +5,7 @@
 // authoring source for its generated layer only. It keeps every hand-authored
 // node and instance that tests, quests and saves depend on (NPCs, the Fatty
 // camp at 2528,1472, exit-1, the starter worm camp, resources and collectibles,
-// the houses and their doors), moves some of them into the new layout, and
+// the houses and their doors, the Workshop), moves some of them into the new layout, and
 // regenerates everything else:
 //
 //   - terrain: meadow grass, dirt roads, a cobbled town square, a river with
@@ -73,7 +73,12 @@ const CAMP_TILE = { x: CAMP.x / TILE - 0.5, y: CAMP.y / TILE }; // tile 39, y 23
 const MAZE = { x0: 30, y0: 14, cols: 7, rows: 7, cell: 3 }; // hedge maze around the camp
 const MAZE_X1 = MAZE.x0 + MAZE.cols * MAZE.cell; // 51
 const MAZE_Y1 = MAZE.y0 + MAZE.rows * MAZE.cell; // 35
-const ARENA_RADIUS = 5.4; // cleared circle (tiles) around the camp inside the maze
+// Fatty's arena: an open clearing (tiles) around the camp with nothing to hide behind.
+// The camp's arena and activation circles (encounters/level-1-fatty-camp.scene.json)
+// sit just inside it, so Fatty never leaps over the hedges.
+const ARENA_RADIUS = 7;
+/** The guarded chest waits at the north rim of the clearing (camp-relative, px). */
+const CHEST_OFFSET = { x: 0, y: -395 };
 const POCKET = { x0: 47, x1: 55, y0: 5, y1: 11 }; // walled pocket in front of exit-1
 const GATE = { x: 51 * TILE, y: 12 * TILE }; // Verdant Gate root (bottom centre)
 const RUINS = { cx: 17.7, cy: 23.7 };
@@ -458,9 +463,8 @@ function placeTown() {
   force(G, 'anvil', 19.6 * TILE, 15.9 * TILE);
   force(G, 'grindstone', 20.9 * TILE, 16.8 * TILE);
   force(G, 'tool-bench', 19.4 * TILE, 13.3 * TILE);
-  // woodcutter yard around the loose wood piles
-  force(G, 'haystack', 8.3 * TILE, 5.3 * TILE);
-  force(G, 'hay-bale', 10.2 * TILE, 5.0 * TILE);
+  // woodcutter yard around the loose wood piles; the ruined Workshop (hand-placed, level-1-workshop) stands behind it
+  force(G, 'haystack', 3.5 * TILE, 7.7 * TILE);
   force(G, 'tool-bench', 12.9 * TILE, 7.2 * TILE);
   force(G, 'birdhouse', 3.4 * TILE, 9.6 * TILE);
   force(G, 'herb-planter', 25.4 * TILE, 11.0 * TILE);
@@ -480,26 +484,15 @@ function placeTown() {
   force(G, 'lantern-post', 9.6 * TILE, 18.5 * TILE);
   force(G, 'lantern-post', 13.1 * TILE, 18.5 * TILE);
   // quarry dressing
-  for (const [x, y, n] of [[16.3, 4.6, '13'], [18.7, 5.4, '17'], [11.2, 3.6, '19'], [14.9, 7.1, '21']]) {
+  for (const [x, y, n] of [[16.3, 4.6, '13'], [18.7, 5.4, '17'], [14.9, 7.1, '21']]) {
     place('gen-nature', 'l1-rock', `object.rock-world-wall-solid.field-${n}`, x * TILE, y * TILE, { radius: 40 });
   }
 }
 
 function placeFattyCamp() {
-  // camp dressing at the arena rim; the centre stays clear for the fight
+  // The clearing stays empty: nothing to hide behind and nothing to pull focus
+  // from Fatty (playtest 2026-09-29). Only the maze entrances are marked.
   const G = 'gen-maze';
-  const cx = CAMP.x; const cy = CAMP.y;
-  force(G, 'canvas-tent', cx - 2.9 * TILE, cy - 2.1 * TILE);
-  force(G, 'campfire', cx - 1.2 * TILE, cy - 2.9 * TILE);
-  force(G, 'cooking-cauldron', cx + 0.3 * TILE, cy - 3.1 * TILE);
-  force(G, 'haystack', cx + 2.1 * TILE, cy - 2.8 * TILE);
-  force(G, 'palisade-cluster', cx - 3.4 * TILE, cy + 1.2 * TILE);
-  force(G, 'palisade-cluster', cx - 2.4 * TILE, cy + 2.9 * TILE);
-  force(G, 'palisade-gap', cx + 1.8 * TILE, cy + 3.2 * TILE);
-  force(G, 'armor-statue', cx + 3.1 * TILE, cy + 2.2 * TILE);
-  for (const [dx, dy, n] of [[-4.6, -0.6, '02'], [4.3, -2.2, '05'], [0.6, 4.4, '09'], [-1.8, 4.2, '15']]) {
-    place(G, 'l1-rock', `object.rock-world-wall-decorative.field-${n}`, cx + dx * TILE, cy + dy * TILE, { root: 'root', decalRadius: 40 });
-  }
   // maze entrance markers
   force(G, 'lantern-post', (MAZE.x0 - 0.6) * TILE, 23.6 * TILE);
   force(G, 'lantern-post', (MAZE.x0 - 0.6) * TILE, 26.7 * TILE);
@@ -674,16 +667,7 @@ function area(key, kind, position, shape, extra = {}) {
 }
 function defineAreas() {
   const cellRect = (i, j) => ({ x: (MAZE.x0 + i * MAZE.cell + 2) * TILE, y: (MAZE.y0 + j * MAZE.cell + 2) * TILE });
-  const west = cellRect(1, 5);
-  area('maze-west', 'enemy-spawn', [west.x, west.y], { shape: 'rectangle', width: 110, height: 110 }, {
-    pursue: { position: [(MAZE.x0 + 5.5) * TILE, (MAZE.y0 + 10.5) * TILE], shape: { shape: 'rectangle', width: 11 * TILE, height: 21 * TILE } },
-    data: { enemies: [{ type: 'worm-swordsman', weight: 2, maxAlive: 2 }, { type: 'worm-brawler', weight: 1, maxAlive: 1 }], intervalMs: 6000, maxPopulation: 3 },
-  });
-  const east = cellRect(5, 1);
-  area('maze-east', 'enemy-spawn', [east.x, east.y], { shape: 'rectangle', width: 110, height: 110 }, {
-    pursue: { position: [(MAZE.x0 + 16) * TILE, (MAZE.y0 + 10.5) * TILE], shape: { shape: 'rectangle', width: 10 * TILE, height: 21 * TILE } },
-    data: { enemies: [{ type: 'worm-archer', weight: 1, maxAlive: 2 }, { type: 'worm-swordsman', weight: 1, maxAlive: 1 }], intervalMs: 7000, maxPopulation: 3 },
-  });
+  // The maze is Fatty's alone: no spawns inside it, so nothing joins his fight.
   area('webwood', 'enemy-spawn', [39.5 * TILE, 4.8 * TILE], { shape: 'rectangle', width: 260, height: 150 }, {
     pursue: { position: [38.5 * TILE, 5.6 * TILE], shape: { shape: 'rectangle', width: 17 * TILE, height: 8 * TILE } },
     data: { enemies: [{ type: 'slime-spider', weight: 1, maxAlive: 3 }], intervalMs: 5000, maxPopulation: 3 },
@@ -809,14 +793,16 @@ function assemble(scene) {
     entry.instances.forEach((instance, index) => scene.instances.push({ ...instance, parentNodeId: id, order: index }));
   }
 
-  // dense sibling order under world (nodes and instances together), music last
+  // dense sibling order under world (nodes and instances together); the world's
+  // audio players (music, then ambience beds from audio:wire) come last
   scene.nodes.push(music);
+  const audioPlayers = [music, ...scene.nodes.filter((node) => node.parentId === 'world' && node !== music && node.id.startsWith('sfx-'))];
   const worldChildren = [
-    ...scene.nodes.filter((node) => node.parentId === 'world' && node !== music),
+    ...scene.nodes.filter((node) => node.parentId === 'world' && !audioPlayers.includes(node)),
     ...scene.instances.filter((instance) => instance.parentNodeId === 'world'),
   ];
   worldChildren.forEach((child, index) => { child.order = index; });
-  music.order = worldChildren.length;
+  audioPlayers.forEach((node, index) => { node.order = worldChildren.length + index; });
   scene.subresources.push(musicResource);
   // instance entries: keep the documented key order
   scene.instances = scene.instances.map(({ instanceId, name, sceneId, parentNodeId, order, persistenceKey, overrides }) => ({ instanceId, name, sceneId, parentNodeId, order, persistenceKey, overrides }));
@@ -832,14 +818,14 @@ paintTerrain();
 findBridges();
 buildWalls();
 // keep the pinned markers, houses and key spots clear of walls/props
-const KEEP_CLEAR = [[640, 704, 90], [512, 512, 60], [CAMP.x, CAMP.y, 200], [CAMP.x + 320, CAMP.y, 60], [1200, 1550, 60], [1081, 990, 60],
+const KEEP_CLEAR = [[640, 704, 90], [512, 512, 60], [CAMP.x, CAMP.y, ARENA_RADIUS * TILE], [CAMP.x + CHEST_OFFSET.x, CAMP.y + CHEST_OFFSET.y, 60], [1200, 1550, 60], [1081, 990, 60],
   [MOVES.nodes['player-entry-east'][0], MOVES.nodes['player-entry-east'][1], 70]];
 for (const [x, y, r] of KEEP_CLEAR) { occupied.push([x, y, r]); NO_DECAL_POINTS.push([x, y]); }
 // existing solid instances also block new props
 for (const instance of scene.instances) {
   const position = MOVES.instances[instance.instanceId] ?? instance.overrides.find((entry) => entry.property === 'position')?.value;
   if (!position || REMOVE_INSTANCES.has(instance.instanceId) || instance.parentNodeId?.startsWith('gen-')) continue;
-  const big = /house/.test(instance.sceneId) ? 170 : /fatty-camp/.test(instance.sceneId) ? 0 : 48;
+  const big = /house|workshop/.test(instance.sceneId) ? 170 : /fatty-camp/.test(instance.sceneId) ? 0 : 48;
   if (big) { occupied.push([position[0], position[1] - (big > 100 ? 90 : 0), big]); decalBlock.push([position[0], position[1] - (big > 100 ? 80 : 0), big + 10]); }
 }
 placeLandmarks();

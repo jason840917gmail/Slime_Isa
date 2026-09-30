@@ -60,6 +60,24 @@
         "depthMode": "world-sorted",
         "depthBand": "world-entities"
       }
+    },
+    {
+      "id": "sfx-loop-sfx",
+      "name": "LoopSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.world.anvil-loop"
+        },
+        "bus": "ambience",
+        "loop": true,
+        "autoplay": true,
+        "volume": 0.4,
+        "maxDistance": 420,
+        "polyphony": 1
+      }
     }
   ],
   "instances": [],
@@ -81,6 +99,12 @@
         "width": 70,
         "height": 22
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.world.anvil-loop",
+      "kind": "audio",
+      "assetId": "audio.sfx.world.anvil-loop.1"
     }
   ]
 }

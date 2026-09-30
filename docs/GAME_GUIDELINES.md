@@ -28,16 +28,20 @@ in the [roadmap](./GAME_ROADMAP.md#release-1-v01--the-target).
 
 ## Progression: Gear, Not Levels
 
-Decided 2026-09-29. There are no XP, levels, or perks (roadmap Milestone 5
-removes the current ones). The player grows through:
+Decided 2026-09-29. There are no XP, levels, or perks (removed in roadmap
+Milestone 5). Base stats are flat (`character.player.stats`). The player grows
+through:
 
 - **Crafted gear:** weapon and tool tiers (wood → stone → iron → later
   materials) are the main power curve.
-- **Goo Hearts:** collectibles that permanently raise max HP, hidden in secrets
-  and dropped by bosses. Exploration pays off in strength.
+- **Goo Hearts:** collectibles that permanently raise max HP
+  (`character.player.gooHeart.maxHpBonus`, 10 each), hidden in secrets and
+  dropped by bosses. Exploration pays off in strength. Each heart has a unique
+  ID and can be taken once per run.
 - **Story-unlocked abilities:** quests and bosses teach abilities (Jump, Squash
   Slam, Stretch Lash, Teleport, and later ones), the same way they teach
-  recipes.
+  recipes. Chapter 1's Worm Trouble teaches Jump; a locked ability says on the
+  ability bar how it is earned.
 - **Gulp forms:** temporary forms that change how the slime plays (see below).
 
 Enemies are worth fighting for their drops, which gate recipes, and for access
@@ -66,8 +70,8 @@ clear look and exactly one rule.
 - New forms are tried in the dev-only `playground` map and enter chapter
   content only after the user accepts them as fun.
 - **Release 1 forms:** **Heavy** (stone): no knockback, holds pressure plates
-  down, moves slower. **Sticky** (silk): crosses spider webs that would catch
-  a normal slime.
+  down, breaks cracked ground to open hidden caverns, moves slower. **Sticky**
+  (silk): crosses spider webs that would catch a normal slime.
 - **Later forms:** **Glow** (crystal shard) lights dark caves; **Bouncy**
   (berry); biome forms such as ice and lava for later regions.
 - Forms open traversal puzzles and secrets. A fight requires a form only when
@@ -100,12 +104,14 @@ and tier.
 | Station | Crafts | Main inputs | When |
 |---|---|---|---|
 | **Placeable workbench** | Chapter 1 tier-1 tools and spears | Wood, stone | Today |
-| **Workshop** | Everything the workbench does, plus weapons, tools, bombs, storage, building parts, and repairs | Wood, stone, metal bars, enemy materials | Release 1 (Chapter 1 → 2) |
+| **Workshop** | Everything the workbench does, plus weapons, tools, bombs, storage, building parts, and repairs | Wood, stone, metal bars, enemy materials | Release 1: restored in Chapter 1 (The Old Workshop, optional), tier 2 in Chapter 2 |
 | **Forge** | Smelts ore into metal bars, later alloys; never outputs weapons | Ore and fuel | Release 1 (Chapter 2) |
 | **Kitchen** | Food, healing and buff meals, potions, and antidotes | Forage, fish, crops, monster materials | After Release 1 |
 | **Builder's table** | Furniture, storage, and defenses for homes | Building parts, bars | After Release 1 |
 
 - Metal gear goes ore → Forge (bars) → Workshop.
+- A station lists the recipes of the station that builds on it as locked ("At
+  the Workshop"), so the player knows what restoring it would give.
 - The workbench recipe itself, Slime Tonic, and Berry Basket stay portable so a
   fresh save can never softlock.
 - The Alchemy table is retired: potions belong to the Kitchen and bombs to the
@@ -126,9 +132,9 @@ and stone nodes need the matching stone tool. In Chapter 2, a Reinforced
 Pickaxe made with an enemy-only material harvests iron, and the Forge turns
 iron into bars for metal gear. Later regions add rarer materials.
 
-Harvested trees and rock nodes respawn after a long timer (roadmap 5.5). Until
-then Level 1 is a fixed material budget, and loose starter piles and quest
-rewards keep the chain softlock-free.
+Harvested trees and rock nodes grow back after a long timer
+(`resources.respawnMs`, roadmap 5.5), checked when their map loads. Loose
+starter piles and quest rewards keep the chain softlock-free.
 
 ## Recipe Discovery
 
@@ -200,7 +206,7 @@ refining the [Game UI Visual Skin System](./superpowers/specs/2026-09-03-game-ui
 ## Open Questions
 
 - Does equipment wear out? Coin-paid repairs (below) need a durability rule.
-- How long is the resource respawn time for trees, rocks, and ore?
+- How long is the resource respawn time for trees, rocks, and ore? (Provisionally 10 minutes, `resources.respawnMs`.)
 - What are the safety, recovery, and storage rules for homes?
 - What is the Chapter 2 boss's final design?
 - What are the material tiers after iron, and where does each appear?

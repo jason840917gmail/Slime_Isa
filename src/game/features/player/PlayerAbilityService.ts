@@ -10,7 +10,8 @@ export interface AbilityVector {
 }
 
 export interface PlayerAbilityStatePort {
-  getLevel(): number;
+  /** Whether the story has taught this ability (quest or boss reward). */
+  isLearned(abilityId: PlayerAbilityId): boolean;
   getEnergy(): number;
   isActionLocked(): boolean;
   setActionLocked(locked: boolean): void;
@@ -47,7 +48,7 @@ export interface PlayerAbilityIntent {
 
 export type PlayerAbilityDecision =
   | { readonly accepted: true; readonly intent: PlayerAbilityIntent }
-  | { readonly accepted: false; readonly reason: PlayerAbilityRejectionReason; readonly unlockLevel?: number };
+  | { readonly accepted: false; readonly reason: PlayerAbilityRejectionReason };
 
 export class PlayerAbilityService {
   private readonly cooldownUntil: Record<PlayerAbilityId, number> = {
@@ -61,12 +62,8 @@ export class PlayerAbilityService {
 
   constructor(private readonly options: PlayerAbilityServiceOptions) {}
 
-  unlockLevel(abilityId: PlayerAbilityId): number {
-    return PLAYER_ABILITY_DEFINITIONS[abilityId].unlockLevel;
-  }
-
   isUnlocked(abilityId: PlayerAbilityId): boolean {
-    return this.options.state.getLevel() >= this.unlockLevel(abilityId);
+    return this.options.state.isLearned(abilityId);
   }
 
   isBusy(): boolean {
@@ -76,7 +73,7 @@ export class PlayerAbilityService {
   tryBegin(abilityId: PlayerAbilityId, request: PlayerAbilityRequest): PlayerAbilityDecision {
     const definition = PLAYER_ABILITY_DEFINITIONS[abilityId];
     if (this.isBusy()) return { accepted: false, reason: 'busy' };
-    if (!this.isUnlocked(abilityId)) return { accepted: false, reason: 'locked', unlockLevel: definition.unlockLevel };
+    if (!this.isUnlocked(abilityId)) return { accepted: false, reason: 'locked' };
     const nowMs = this.options.nowMs();
     if (nowMs < this.cooldownUntil[abilityId]) return { accepted: false, reason: 'cooldown' };
     if (this.options.state.isActionLocked()) return { accepted: false, reason: 'action-locked' };

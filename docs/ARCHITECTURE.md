@@ -38,11 +38,11 @@ Folders under `src/game/`:
 
 ## Gameplay configuration
 
-`content/game-constants.json` owns inventory capacity and stack rules, initial player attributes, movement speeds and cap, dodge and hit protection, the player progression table, world-navigation timing, sleep regeneration, and the ordered `resources.tags` harvesting catalog. `game-constants.schema.json` owns the structural contract and generates both TypeScript types and a standalone validator; `GameConstantsValidation.ts` adds only cross-field invariants. Runtime code imports the validated, deeply readonly `GAME_CONSTANTS` and its types through `src/game/Constant.ts`; direct runtime JSON imports, duplicate hand-written interfaces, and fallback balance literals are forbidden.
+`content/game-constants.json` owns inventory capacity and stack rules, initial player attributes, movement speeds and cap, dodge and hit protection, the player's base stats and Goo Heart bonus, world-navigation timing, sleep regeneration, the Gulp form duration, and the ordered `resources.tags` harvesting catalog. `game-constants.schema.json` owns the structural contract and generates both TypeScript types and a standalone validator; `GameConstantsValidation.ts` adds only cross-field invariants. Runtime code imports the validated, deeply readonly `GAME_CONSTANTS` and its types through `src/game/Constant.ts`; direct runtime JSON imports, duplicate hand-written interfaces, and fallback balance literals are forbidden.
 
 After a schema edit run `pnpm constants:generate`; `pnpm constants:check` rejects stale generated code. In development Vite stays available when the document is invalid so it can be repaired (a dev endpoint, `/__game-constants`, serves and saves it), while gameplay fails before `BootScene`. Production builds reject invalid constants.
 
-Harvest capability and requirement fields persist stable IDs from the closed `resources.tags` catalog. Damage-modifier tags are a separate open domain. Character packages own identity, body, and visuals, not player attributes or progression; enemy packages may own their own stats.
+Harvest capability and requirement fields persist stable IDs from the closed `resources.tags` catalog. Damage-modifier tags are a separate open domain. Character packages own identity, body, and visuals, not player attributes or stats; enemy packages may own their own stats.
 
 ## Scene tree and Scene Studio
 
@@ -74,7 +74,13 @@ Each world is an authored scene `content/scenes/authored/worlds/<map-id>.scene.j
 
 ## Persistence
 
-Save schema version 9 (`infrastructure/persistence/SaveSchema.ts`) stores player state, inventory, quests, location, world progress, story, and play time in one envelope, with multiple named saves plus a debounced recovery autosave driven by typed domain events. `SaveRepository` migrates older envelopes and legacy split keys.
+Save schema version 10 (`infrastructure/persistence/SaveSchema.ts`) stores player state, inventory, quests, location, world progress, story, and play time in one envelope, with multiple named saves plus a debounced recovery autosave driven by typed domain events. `SaveRepository` migrates older envelopes and legacy split keys. Players see the named saves as three slots ("Slot 1"–"Slot 3") and the autosave as Continue.
+
+Per-device preferences (sound mix, screen shake, reduce motion) are not part of a run: `features/settings/GameSettingsService` (`gameSettings`) loads them through `infrastructure/persistence/GameSettingsStore` and is the one place gameplay reads them. Screen shake and hit-stop go through `features/feel/` (`gameFeel`, named presets scaled by those settings); never call `cameras.main.shake` directly. Squash and stretch, pooled particle presets (`particleFx`) and the goo trail live there too.
+
+## Game shell
+
+`features/shell/` owns the frame around play: the title screen (the first world of a page load runs in title mode: paused, no player or HUD, nothing autosaved), the pause menu (Esc), settings and controls, save slots, game over, credits, and end cards. Each menu is a `MenuSurface` presented by one authored `ui.*` scene; `GameShell` composes them and `WorldScene` supplies the actions. First-time control hints live in `features/hints/`.
 
 Weapon ownership is inventory-backed: `WeaponLoadout` validates ownership and the six persistent hotbar slots, and `CombatController` swaps the active weapon only after the loadout authorizes it. Number keys 1–6 select loadout slots; development cheats use Shift+1–Shift+8.
 

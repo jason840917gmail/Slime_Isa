@@ -5,7 +5,7 @@
     {
       "id": "ability-bar",
       "sourcePath": "src/game/ui/AbilityBar.ts",
-      "sourceHash": "cbbd03c25fc8250a3e1dc21d134b0b1a689a82837080f59198a3aa022c5fa9ca",
+      "sourceHash": "0e4c98577ba1a2a1257907a41d8c1983cc6f395386b6c8d560bb1af5d7b5e8ec",
       "sceneId": "ui.ability-bar",
       "modal": false,
       "layoutValues": {
@@ -536,7 +536,7 @@
     {
       "id": "crafting-ui",
       "sourcePath": "src/game/ui/CraftingUI.ts",
-      "sourceHash": "aa4c7a3b0b2e37ce7ebe2da791bfd54b87e2ceb5768c854e71cf31741f36731f",
+      "sourceHash": "4ac05e94be93d9694ec40a74f204438554df50e848c2d82be4f7474e41ee6be2",
       "sceneId": "ui.crafting-ui",
       "modal": true,
       "layoutValues": {
@@ -564,6 +564,11 @@
       },
       "bindings": [
         {
+          "nodePath": "../Scroll/Content/Title",
+          "property": "text",
+          "model": "title"
+        },
+        {
           "nodePath": "../Scroll/Content/Recipes",
           "property": "items",
           "model": "recipes"
@@ -587,6 +592,11 @@
           "nodePath": "../Scroll/Content/Status",
           "property": "text",
           "model": "status"
+        },
+        {
+          "nodePath": "../Scroll/Content/Status",
+          "property": "color",
+          "model": "statusColor"
         },
         {
           "nodePath": "../Scroll/Content/Craft",
@@ -1048,20 +1058,18 @@
     },
     {
       "id": "hud",
-      "sourcePath": "src/game/HUD.ts",
+      "sourcePath": "scripts/migrations/frozen-sources/HUD.ts",
       "sourceHash": "78703dc74bd675e119891f727c00ee95539ccde4f58e69d44afb346e5720594a",
       "sceneId": "ui.hud",
       "modal": false,
-      "layoutValues": { "anchorMin": [0, 0], "anchorMax": [0, 0], "offsetMin": [16, 16], "offsetMax": [300, 112] },
+      "layoutValues": { "anchorMin": [0, 0], "anchorMax": [0, 0], "offsetMin": [16, 16], "offsetMax": [300, 84] },
       "themeValues": { "gap": 3, "meterHeight": 8, "fontSize": 12 },
-      "bindings": [{ "nodePath": "../Level", "property": "text", "model": "levelLabel" }, { "nodePath": "../Coins", "property": "text", "model": "coinsLabel" }, { "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "../Experience", "property": "value", "model": "xp" }, { "nodePath": "../Experience", "property": "max", "model": "xpMax" }, { "nodePath": "../Energy", "property": "value", "model": "energy" }, { "nodePath": "../Energy", "property": "max", "model": "maxEnergy" }],
+      "bindings": [{ "nodePath": "../Coins", "property": "text", "model": "coinsLabel" }, { "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "../Energy", "property": "value", "model": "energy" }, { "nodePath": "../Energy", "property": "max", "model": "maxEnergy" }],
       "actions": {},
       "controls": [
-        { "id": "level", "name": "Level", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [0.5, 0], "offsetMax": [0, 22], "tone": "accent", "fontWeight": 700 } },
-        { "id": "coins", "name": "Coins", "type": "Label", "properties": { "anchorMin": [0.5, 0], "anchorMax": [1, 0], "offsetMax": [0, 22], "tone": "warning", "fontSize": 12, "fontWeight": 700, "textAlign": "right" } },
+        { "id": "coins", "name": "Coins", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 22], "tone": "warning", "fontSize": 12, "fontWeight": 700 } },
         { "id": "health", "name": "Health", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 28], "offsetMax": [0, 46], "label": "HP", "tone": "danger", "showValue": true } },
-        { "id": "experience", "name": "Experience", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 50], "offsetMax": [0, 68], "label": "XP", "tone": "info", "showValue": true } },
-        { "id": "energy", "name": "Energy", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 72], "offsetMax": [0, 90], "label": "Energy", "tone": "warning", "showValue": true } }
+        { "id": "energy", "name": "Energy", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 50], "offsetMax": [0, 68], "label": "Energy", "tone": "warning", "showValue": true } }
       ]
     },
     {
@@ -1704,155 +1712,6 @@
       ]
     },
     {
-      "id": "level-up-modal",
-      "sourcePath": "src/game/ui/LevelUpModal.ts",
-      "sourceHash": "20f88cca760c0bce9546d790e78ef227a46e1a7312ef90d35ae453bf59ad5eda",
-      "sceneId": "ui.level-up-modal",
-      "modal": true,
-      "layoutValues": {
-        "anchorMin": [
-          0.5,
-          0.5
-        ],
-        "anchorMax": [
-          0.5,
-          0.5
-        ],
-        "offsetMin": [
-          -360,
-          -250
-        ],
-        "offsetMax": [
-          360,
-          250
-        ]
-      },
-      "themeValues": {
-        "columns": 3,
-        "gap": 12,
-        "surface": "level-up",
-        "styleClass": "game-ui game-ui--level-up-modal",
-        "ariaLabel": "level up choices",
-        "zIndex": 100
-      },
-      "bindings": [
-        {
-          "nodePath": "../Title",
-          "property": "text",
-          "model": "title"
-        },
-        {
-          "nodePath": "../Choices",
-          "property": "items",
-          "model": "choices"
-        },
-        {
-          "nodePath": "..",
-          "property": "open",
-          "model": "open"
-        },
-        {
-          "nodePath": "..",
-          "property": "offsetMin",
-          "model": "offsetMin"
-        },
-        {
-          "nodePath": "..",
-          "property": "offsetMax",
-          "model": "offsetMax"
-        }
-      ],
-      "actions": {
-        "on_item_selected": "choose-upgrade",
-        "on_close_action": "close"
-      },
-      "controls": [
-        {
-          "id": "title",
-          "name": "Title",
-          "type": "Label",
-          "properties": {
-            "anchorMin": [
-              0,
-              0
-            ],
-            "anchorMax": [
-              1,
-              0
-            ],
-            "offsetMax": [
-              -16,
-              58
-            ],
-            "text": "Level up",
-            "tone": "warning",
-            "fontSize": 26,
-            "fontWeight": 700,
-            "textAlign": "center",
-            "offsetMin": [
-              16,
-              12
-            ]
-          }
-        },
-        {
-          "id": "choices",
-          "name": "Choices",
-          "type": "ItemList",
-          "properties": {
-            "anchorMin": [
-              0,
-              0
-            ],
-            "anchorMax": [
-              1,
-              1
-            ],
-            "offsetMin": [
-              18,
-              68
-            ],
-            "offsetMax": [
-              -18,
-              -60
-            ],
-            "columns": 3,
-            "gap": 12,
-            "ariaLabel": "Upgrade choices"
-          },
-          "handler": "on_item_selected",
-          "signal": "item_selected"
-        },
-        {
-          "id": "close",
-          "name": "Close",
-          "type": "Button",
-          "properties": {
-            "anchorMin": [
-              1,
-              1
-            ],
-            "anchorMax": [
-              1,
-              1
-            ],
-            "offsetMin": [
-              -112,
-              -50
-            ],
-            "offsetMax": [
-              -18,
-              -10
-            ],
-            "text": "Later",
-            "tone": "muted"
-          },
-          "handler": "on_close_action",
-          "signal": "pressed"
-        }
-      ]
-    },
-    {
       "id": "minimap",
       "sourcePath": "src/game/Minimap.ts",
       "sourceHash": "d9b4cc4cff86dc1f9b405427304e01262be34347981aa8168e243fde61063532",
@@ -1966,7 +1825,7 @@
     {
       "id": "quest-journal",
       "sourcePath": "src/game/ui/QuestJournal.ts",
-      "sourceHash": "e78287f1a12a5c87841f0b91ae06849d3a72341e3922798fc41e73daa623f3a6",
+      "sourceHash": "e0adaca4396cb666f41bae1d2e89c990896fb766031d91e3b8fe245c665f6e38",
       "sceneId": "ui.quest-journal",
       "modal": true,
       "layoutValues": {
@@ -2252,7 +2111,7 @@
     {
       "id": "quest-offer-modal",
       "sourcePath": "src/game/ui/QuestOfferModal.ts",
-      "sourceHash": "3c757aa35b6f564cda920f13e3418aaecfe0b5998ef05f3bba0e1ceacc5ae034",
+      "sourceHash": "60bba0a122f5b61d572ff08dff3e18b406ef25ceeac1d13eddc862d5eb19b527",
       "sceneId": "ui.quest-offer-modal",
       "modal": true,
       "layoutValues": {

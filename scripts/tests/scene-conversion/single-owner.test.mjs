@@ -11,5 +11,5 @@ test('Scene Studio is the only mounted editor and scene-owned UI has an authored
   assert.match(config, /mountSceneStudio\(container\)/);
   assert.doesNotMatch(config, /mount(?:Character|Animation|Weapon|Projectile)Studio|MapEditor(?:Load)?Scene/);
   const ledger = JSON.parse(readFileSync(path.join(REPOSITORY_ROOT, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
-  assert.equal(ledger.rows.filter((row) => row.family === 'ui' && row.writerState === 'scene').length, 15);
+  assert.equal(ledger.rows.filter((row) => row.family === 'ui' && row.writerState === 'scene').length, 14);
 });

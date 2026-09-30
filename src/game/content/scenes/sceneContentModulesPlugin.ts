@@ -3,6 +3,8 @@ import path from 'node:path';
 
 import type { Plugin } from 'vite';
 
+import { isDevOnlyWorldSceneFile } from './devOnlyWorlds';
+
 const VIRTUAL_ID = 'virtual-scene-content';
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
 
@@ -26,12 +28,16 @@ function isContentFile(file: string): boolean {
 }
 
 export function sceneContentModulesPlugin(contentRoot = path.resolve(process.cwd(), 'src/game/content/scenes/authored')): Plugin {
+  // Production builds ship only reachable worlds; dev-only worlds stay in `pnpm dev`.
+  let production = false;
   return {
     name: 'slime-scene-content-modules',
+    configResolved(config) { production = config.command === 'build'; },
     resolveId(id) { return id === VIRTUAL_ID ? RESOLVED_ID : undefined; },
     async load(id) {
       if (id !== RESOLVED_ID) return undefined;
-      const scenes = await discover(contentRoot, '.scene.json');
+      const scenes = (await discover(contentRoot, '.scene.json'))
+        .filter((file) => !production || !isDevOnlyWorldSceneFile(file));
       const resources = await discover(contentRoot, '.resource.json');
       const imports = [
         ...scenes.map((file, index) => `import scene${index} from ${JSON.stringify(file)};`),

@@ -1,0 +1,7325 @@
+{
+  "version": 1,
+  "sceneId": "world.playground",
+  "rootNodeId": "world",
+  "nodes": [
+    {
+      "id": "world",
+      "name": "playground",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "layer-ground",
+      "name": "ground",
+      "type": "TileMapLayer2D",
+      "parentId": "world",
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ],
+        "tileData": {
+          "resourceId": "tiles.playground.ground.data"
+        },
+        "tileSize": 64,
+        "seed": 20260929,
+        "depth": 0,
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "collisionEnabled": true,
+        "editorLocked": false
+      }
+    },
+    {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "playground",
+        "tileSize": 64,
+        "columns": 40,
+        "rows": 28,
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 1280,
+              "y": 1536
+            },
+            "entries": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "player-spawn",
+      "name": "player-spawn",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          1280,
+          1536
+        ]
+      }
+    },
+    {
+      "id": "areas",
+      "name": "areas",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "area-playground-spawn-safe",
+      "name": "playground-spawn-safe",
+      "type": "Area2D",
+      "parentId": "areas",
+      "order": 0,
+      "properties": {
+        "position": [
+          1280,
+          1440
+        ],
+        "collisionLayer": 512,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-playground-spawn-safe-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-playground-spawn-safe",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "playground.area-playground-spawn-safe.shape"
+        }
+      }
+    },
+    {
+      "id": "area-playground-spawn-safe-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-playground-spawn-safe",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "playground-spawn-safe",
+        "area": {
+          "nodeId": "area-playground-spawn-safe"
+        },
+        "data": {},
+        "shape": {
+          "nodeId": "area-playground-spawn-safe-shape"
+        }
+      }
+    },
+    {
+      "id": "area-playground-enemy-pen",
+      "name": "playground-enemy-pen",
+      "type": "Area2D",
+      "parentId": "areas",
+      "order": 1,
+      "properties": {
+        "position": [
+          2144,
+          640
+        ],
+        "collisionLayer": 512,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-playground-enemy-pen-shape",
+      "name": "pursue-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-playground-enemy-pen",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "playground.area-playground-enemy-pen.shape"
+        }
+      }
+    },
+    {
+      "id": "area-playground-enemy-pen-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-playground-enemy-pen",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "playground.area-playground-enemy-pen.stay-shape"
+        }
+      }
+    },
+    {
+      "id": "area-playground-enemy-pen-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-playground-enemy-pen",
+      "order": 2,
+      "properties": {
+        "areaKind": "enemy-spawn",
+        "areaId": "playground-enemy-pen",
+        "area": {
+          "nodeId": "area-playground-enemy-pen"
+        },
+        "data": {
+          "enemies": [
+            {
+              "type": "worm-brawler",
+              "weight": 3,
+              "maxAlive": 3
+            },
+            {
+              "type": "worm-archer",
+              "weight": 1,
+              "maxAlive": 1
+            },
+            {
+              "type": "slime-spider",
+              "weight": 1,
+              "maxAlive": 1
+            }
+          ],
+          "intervalMs": 4000,
+          "maxPopulation": 5
+        },
+        "shape": {
+          "nodeId": "area-playground-enemy-pen-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-playground-enemy-pen-stay-shape"
+        }
+      }
+    },
+    {
+      "id": "grove",
+      "name": "resource-grove",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 4,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "camp",
+      "name": "spawn-camp",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 5,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "heavy-puzzle",
+      "name": "heavy-puzzle",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 6,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "end-card-flag",
+      "name": "end-card-flag",
+      "type": "ScriptNode",
+      "scriptId": "game.story-flag",
+      "parentId": "heavy-puzzle",
+      "order": 22,
+      "properties": {
+        "flagId": "playground-end-card-test"
+      }
+    },
+    {
+      "id": "gulp-secrets",
+      "name": "gulp-secrets",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 7,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "web-puzzle",
+      "name": "web-puzzle",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 8,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "instances": [
+    {
+      "instanceId": "playground-tree-1",
+      "name": "tree-1",
+      "sceneId": "object.tree-world-solid.green-tree-02",
+      "parentNodeId": "grove",
+      "order": 0,
+      "persistenceKey": "playground.playground-tree-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            220,
+            380
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-tree-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-tree-2",
+      "name": "tree-2",
+      "sceneId": "object.tree-world-solid.grove-tree-04",
+      "parentNodeId": "grove",
+      "order": 1,
+      "persistenceKey": "playground.playground-tree-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            520,
+            420
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-tree-2"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-tree-3",
+      "name": "tree-3",
+      "sceneId": "object.tree-world-solid.pine-06",
+      "parentNodeId": "grove",
+      "order": 2,
+      "persistenceKey": "playground.playground-tree-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            260,
+            760
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-tree-3"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-tree-4",
+      "name": "tree-4",
+      "sceneId": "object.tree-world-solid.autumn-tree-01",
+      "parentNodeId": "grove",
+      "order": 3,
+      "persistenceKey": "playground.playground-tree-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            600,
+            820
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-tree-4"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-stone-1",
+      "name": "stone-1",
+      "sceneId": "object.resource-stone-node",
+      "parentNodeId": "grove",
+      "order": 4,
+      "persistenceKey": "playground.playground-stone-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            300,
+            1080
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-stone-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-stone-2",
+      "name": "stone-2",
+      "sceneId": "object.resource-stone-node",
+      "parentNodeId": "grove",
+      "order": 5,
+      "persistenceKey": "playground.playground-stone-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            520,
+            1140
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-stone-2"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-stone-3",
+      "name": "stone-3",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "parentNodeId": "grove",
+      "order": 6,
+      "persistenceKey": "playground.playground-stone-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            400,
+            1300
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-stone-3"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-wood-pile-1",
+      "name": "wood-pile-1",
+      "sceneId": "object.collectible-wood-pile",
+      "parentNodeId": "grove",
+      "order": 7,
+      "persistenceKey": "playground.playground-wood-pile-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            760,
+            520
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-wood-pile-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-wood-pile-2",
+      "name": "wood-pile-2",
+      "sceneId": "object.collectible-small-wood-pile",
+      "parentNodeId": "grove",
+      "order": 8,
+      "persistenceKey": "playground.playground-wood-pile-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            820,
+            640
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-wood-pile-2"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-stone-pile-1",
+      "name": "stone-pile-1",
+      "sceneId": "object.collectible-stone-pile",
+      "parentNodeId": "grove",
+      "order": 9,
+      "persistenceKey": "playground.playground-stone-pile-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            760,
+            1080
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-stone-pile-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-stone-pile-2",
+      "name": "stone-pile-2",
+      "sceneId": "object.collectible-small-stone-pile",
+      "parentNodeId": "grove",
+      "order": 10,
+      "persistenceKey": "playground.playground-stone-pile-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            820,
+            1200
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-stone-pile-2"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-silk-1",
+      "name": "silk-1",
+      "sceneId": "object.collectible-silk-clump",
+      "parentNodeId": "grove",
+      "order": 11,
+      "persistenceKey": "playground.playground-silk-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            700,
+            1320
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-silk-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-silk-2",
+      "name": "silk-2",
+      "sceneId": "object.collectible-silk-clump",
+      "parentNodeId": "grove",
+      "order": 12,
+      "persistenceKey": "playground.playground-silk-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            780,
+            1380
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-silk-2"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-test-chest",
+      "name": "test-chest",
+      "sceneId": "object.chest-wooden",
+      "parentNodeId": "camp",
+      "order": 0,
+      "persistenceKey": "playground.playground-test-chest",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1120,
+            1440
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-test-chest"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "initialContents",
+          "value": {
+            "stone-spear": 1,
+            "stone-axe": 1,
+            "stone-pickaxe": 1,
+            "wood": 20,
+            "stone": 20,
+            "silk-clump": 10,
+            "hp-potion": 5
+          }
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-corner-1152-256",
+      "name": "pen-corner-1152-256",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "heavy-puzzle",
+      "order": 0,
+      "persistenceKey": "playground.playground-pen-corner-1152-256",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1152,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-corner-1536-256",
+      "name": "pen-corner-1536-256",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "heavy-puzzle",
+      "order": 1,
+      "persistenceKey": "playground.playground-pen-corner-1536-256",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1536,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-corner-1152-576",
+      "name": "pen-corner-1152-576",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "heavy-puzzle",
+      "order": 2,
+      "persistenceKey": "playground.playground-pen-corner-1152-576",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1152,
+            576
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-corner-1536-576",
+      "name": "pen-corner-1536-576",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "heavy-puzzle",
+      "order": 3,
+      "persistenceKey": "playground.playground-pen-corner-1536-576",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1536,
+            576
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-top-1216",
+      "name": "pen-top-1216",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "heavy-puzzle",
+      "order": 4,
+      "persistenceKey": "playground.playground-pen-top-1216",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1216,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-top-1280",
+      "name": "pen-top-1280",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "heavy-puzzle",
+      "order": 5,
+      "persistenceKey": "playground.playground-pen-top-1280",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1280,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-top-1344",
+      "name": "pen-top-1344",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "heavy-puzzle",
+      "order": 6,
+      "persistenceKey": "playground.playground-pen-top-1344",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1344,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-top-1408",
+      "name": "pen-top-1408",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "heavy-puzzle",
+      "order": 7,
+      "persistenceKey": "playground.playground-pen-top-1408",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1408,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-top-1472",
+      "name": "pen-top-1472",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "heavy-puzzle",
+      "order": 8,
+      "persistenceKey": "playground.playground-pen-top-1472",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1472,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-left-320",
+      "name": "pen-left-320",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 9,
+      "persistenceKey": "playground.playground-pen-left-320",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1152,
+            320
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-right-320",
+      "name": "pen-right-320",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 10,
+      "persistenceKey": "playground.playground-pen-right-320",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1536,
+            320
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-left-384",
+      "name": "pen-left-384",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 11,
+      "persistenceKey": "playground.playground-pen-left-384",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1152,
+            384
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-right-384",
+      "name": "pen-right-384",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 12,
+      "persistenceKey": "playground.playground-pen-right-384",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1536,
+            384
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-left-448",
+      "name": "pen-left-448",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 13,
+      "persistenceKey": "playground.playground-pen-left-448",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1152,
+            448
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-right-448",
+      "name": "pen-right-448",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 14,
+      "persistenceKey": "playground.playground-pen-right-448",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1536,
+            448
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-left-512",
+      "name": "pen-left-512",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 15,
+      "persistenceKey": "playground.playground-pen-left-512",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1152,
+            512
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-pen-right-512",
+      "name": "pen-right-512",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "heavy-puzzle",
+      "order": 16,
+      "persistenceKey": "playground.playground-pen-right-512",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1536,
+            512
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-heavy-gate",
+      "name": "heavy-gate",
+      "sceneId": "object.gate-verdant",
+      "parentNodeId": "heavy-puzzle",
+      "order": 17,
+      "persistenceKey": "playground.playground-heavy-gate",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1344,
+            576
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "gateId",
+          "value": "playground-heavy-gate"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "prompt",
+          "value": "Sealed gate"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "lockedMessage",
+          "value": "Something heavy must press the plate."
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-reward-chest",
+      "name": "reward-chest",
+      "sceneId": "object.chest-wooden",
+      "parentNodeId": "heavy-puzzle",
+      "order": 18,
+      "persistenceKey": "playground.playground-reward-chest",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1344,
+            420
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-reward-chest"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "initialContents",
+          "value": {
+            "purple-berry-mat": 3,
+            "hp-potion": 1
+          }
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-heavy-plate",
+      "name": "heavy-plate",
+      "sceneId": "object.pressure-plate",
+      "parentNodeId": "heavy-puzzle",
+      "order": 19,
+      "persistenceKey": "playground.playground-heavy-plate",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1344,
+            780
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "plateId",
+          "value": "playground-heavy-plate"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "gateId",
+          "value": "playground-heavy-gate"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-stone-gulp-spot",
+      "name": "stone-gulp-spot",
+      "sceneId": "object.gulp-spot-stone",
+      "parentNodeId": "heavy-puzzle",
+      "order": 20,
+      "persistenceKey": "playground.playground-stone-gulp-spot",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1120,
+            800
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-end-card-plate",
+      "name": "end-card-plate",
+      "sceneId": "object.pressure-plate",
+      "parentNodeId": "heavy-puzzle",
+      "order": 21,
+      "persistenceKey": "playground.playground-end-card-plate",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1210,
+            380
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "plateId",
+          "value": "playground-end-card-plate"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-cracked-ground",
+      "name": "cracked-ground",
+      "sceneId": "object.cracked-ground",
+      "parentNodeId": "gulp-secrets",
+      "order": 0,
+      "persistenceKey": "playground.playground-cracked-ground",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1600,
+            1040
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "crack",
+          "property": "flagId",
+          "value": "cracked.playground-sinkhole"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "variant",
+          "property": "flagId",
+          "value": "cracked.playground-sinkhole"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "doorId",
+          "value": "playground-sinkhole"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "targetAreaId",
+          "value": "playground-cavern"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "door-script",
+          "property": "targetDoorId",
+          "value": "playground-cavern-ladder"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-corner-224-1504",
+      "name": "nook-corner-224-1504",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "web-puzzle",
+      "order": 0,
+      "persistenceKey": "playground.playground-nook-corner-224-1504",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            224,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-corner-544-1504",
+      "name": "nook-corner-544-1504",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "web-puzzle",
+      "order": 1,
+      "persistenceKey": "playground.playground-nook-corner-544-1504",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-corner-224-1760",
+      "name": "nook-corner-224-1760",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "web-puzzle",
+      "order": 2,
+      "persistenceKey": "playground.playground-nook-corner-224-1760",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            224,
+            1760
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-corner-544-1760",
+      "name": "nook-corner-544-1760",
+      "sceneId": "object.wall-stone-solid.junction-01",
+      "parentNodeId": "web-puzzle",
+      "order": 3,
+      "persistenceKey": "playground.playground-nook-corner-544-1760",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            1760
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-top-288",
+      "name": "nook-top-288",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "web-puzzle",
+      "order": 4,
+      "persistenceKey": "playground.playground-nook-top-288",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-top-352",
+      "name": "nook-top-352",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "web-puzzle",
+      "order": 5,
+      "persistenceKey": "playground.playground-nook-top-352",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            352,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-top-416",
+      "name": "nook-top-416",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "web-puzzle",
+      "order": 6,
+      "persistenceKey": "playground.playground-nook-top-416",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            416,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-top-480",
+      "name": "nook-top-480",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "web-puzzle",
+      "order": 7,
+      "persistenceKey": "playground.playground-nook-top-480",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            480,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-bottom-288",
+      "name": "nook-bottom-288",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "web-puzzle",
+      "order": 8,
+      "persistenceKey": "playground.playground-nook-bottom-288",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            1760
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-bottom-480",
+      "name": "nook-bottom-480",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "web-puzzle",
+      "order": 9,
+      "persistenceKey": "playground.playground-nook-bottom-480",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            480,
+            1760
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-left-1568",
+      "name": "nook-left-1568",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "web-puzzle",
+      "order": 10,
+      "persistenceKey": "playground.playground-nook-left-1568",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            224,
+            1568
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-right-1568",
+      "name": "nook-right-1568",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "web-puzzle",
+      "order": 11,
+      "persistenceKey": "playground.playground-nook-right-1568",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            1568
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-left-1632",
+      "name": "nook-left-1632",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "web-puzzle",
+      "order": 12,
+      "persistenceKey": "playground.playground-nook-left-1632",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            224,
+            1632
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-right-1632",
+      "name": "nook-right-1632",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "web-puzzle",
+      "order": 13,
+      "persistenceKey": "playground.playground-nook-right-1632",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            1632
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-left-1696",
+      "name": "nook-left-1696",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "web-puzzle",
+      "order": 14,
+      "persistenceKey": "playground.playground-nook-left-1696",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            224,
+            1696
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-right-1696",
+      "name": "nook-right-1696",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "web-puzzle",
+      "order": 15,
+      "persistenceKey": "playground.playground-nook-right-1696",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            1696
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-web",
+      "name": "nook-web",
+      "sceneId": "object.spider-web",
+      "parentNodeId": "web-puzzle",
+      "order": 16,
+      "persistenceKey": "playground.playground-nook-web",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            384,
+            1760
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-nook-chest",
+      "name": "nook-chest",
+      "sceneId": "object.chest-wooden",
+      "parentNodeId": "web-puzzle",
+      "order": 17,
+      "persistenceKey": "playground.playground-nook-chest",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            384,
+            1624
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-nook-chest"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "initialContents",
+          "value": {
+            "purple-berry-mat": 4,
+            "shard": 2
+          }
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-silk-gulp-spot",
+      "name": "silk-gulp-spot",
+      "sceneId": "object.gulp-spot-silk",
+      "parentNodeId": "web-puzzle",
+      "order": 18,
+      "persistenceKey": "playground.playground-silk-gulp-spot",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            680,
+            1660
+          ]
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "instancePath": [
+          "playground-end-card-plate"
+        ],
+        "nodeId": "script"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "end-card-flag"
+      },
+      "handler": "set"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "tiles.playground.ground.data",
+      "kind": "tile-data",
+      "tileSet": "terrain.tiles",
+      "columns": 40,
+      "rows": 28,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 0,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 1,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 2,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 3,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 3,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 3,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 4,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 4,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 4,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 5,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 5,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 5,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 6,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 6,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 6,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 7,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 7,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 7,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 8,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 8,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 8,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 9,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 9,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 9,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 9,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 10,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 10,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 10,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 11,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 11,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 11,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 12,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 12,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 12,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 12,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 13,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 17,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 19,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 20,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 21,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 22,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 23,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 24,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 25,
+          "y": 13,
+          "tileId": "town-cobble"
+        },
+        {
+          "x": 26,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 13,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 13,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 14,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 14,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 14,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 15,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 15,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 15,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 16,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 30,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 31,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 32,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 33,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 34,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 35,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 36,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 37,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 38,
+          "y": 16,
+          "tileId": "forest-floor"
+        },
+        {
+          "x": 39,
+          "y": 16,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 17,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 17,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 18,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 18,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 19,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 19,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 2,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 3,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 4,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 5,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 6,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 7,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 8,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 9,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 10,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 11,
+          "y": 20,
+          "tileId": "grass-b"
+        },
+        {
+          "x": 12,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 20,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 21,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 22,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 23,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 24,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 25,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 26,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 0,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 1,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 2,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 3,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 4,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 5,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 6,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 7,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 8,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 9,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 10,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 11,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 12,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 13,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 14,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 15,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 16,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 17,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 18,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 19,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 20,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 21,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 22,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 23,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 24,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 25,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 26,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 27,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 28,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 29,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 30,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 31,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 32,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 33,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 34,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 35,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 36,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 37,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 38,
+          "y": 27,
+          "tileId": "grass-a"
+        },
+        {
+          "x": 39,
+          "y": 27,
+          "tileId": "grass-a"
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "playground.area-playground-spawn-safe.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 1024,
+        "height": 640
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "playground.area-playground-enemy-pen.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 704,
+        "height": 960
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "playground.area-playground-enemy-pen.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 448,
+        "height": 576
+      }
+    }
+  ]
+}

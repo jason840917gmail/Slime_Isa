@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { gameState } from '../../core/GameState';
+import { storyProgress } from '../progression/StoryProgress';
 import { isTileCollidable, type WorldTileId } from '../../content/terrain/TileCatalog';
 import { PLAYER_ABILITY_DEFINITIONS, type PlayerAbilityId } from './PlayerAbilityDefinitions';
 import { PlayerAbilityPresentation } from './PlayerAbilityPresentation';
@@ -14,7 +15,8 @@ import type { WorldDimensions } from '../../world/WorldDimensions';
 
 export interface PlayerAbilityStatus {
   readonly unlocked: boolean;
-  readonly unlockLevel: number;
+  /** How the ability is earned while it is locked ("Quest", "Boss"). */
+  readonly earnedBy: string;
   readonly cooldownRemainingMs: number;
   readonly busy: boolean;
   readonly actionLocked: boolean;
@@ -48,7 +50,7 @@ export class PlayerAbilityController {
     this.decisions = new PlayerAbilityService({
       nowMs: () => this.now(),
       state: {
-        getLevel: () => gameState.level,
+        isLearned: (abilityId) => storyProgress.knowsAbility(abilityId),
         getEnergy: () => gameState.energy,
         isActionLocked: context.isActionLocked,
         setActionLocked: context.setActionLocked,
@@ -72,10 +74,6 @@ export class PlayerAbilityController {
     return this.context.nowMs?.() ?? this.context.scene.time.now;
   }
 
-  unlockLevel(ability: PlayerAbilityId): number {
-    return this.decisions.unlockLevel(ability);
-  }
-
   isUnlocked(ability: PlayerAbilityId): boolean {
     return this.decisions.isUnlocked(ability);
   }
@@ -85,7 +83,6 @@ export class PlayerAbilityController {
   }
 
   status(ability: PlayerAbilityId): PlayerAbilityStatus {
-    const unlockLevel = this.decisions.unlockLevel(ability);
     const unlocked = this.decisions.isUnlocked(ability);
     const cooldownRemainingMs = Math.max(0, this.decisions.readyAt(ability) - this.now());
     const busy = this.decisions.isBusy();
@@ -93,7 +90,7 @@ export class PlayerAbilityController {
     const insufficientEnergy = gameState.energy < PLAYER_ABILITY_DEFINITIONS[ability].energyCost;
     return {
       unlocked,
-      unlockLevel,
+      earnedBy: PLAYER_ABILITY_DEFINITIONS[ability].earnedBy,
       cooldownRemainingMs,
       busy,
       actionLocked,
@@ -134,7 +131,7 @@ export class PlayerAbilityController {
       facing: { x: facing.x, y: facing.y },
     });
     if (!decision.accepted) {
-      this.presentation.notifyRejected(abilityId, decision.reason, decision.unlockLevel);
+      this.presentation.notifyRejected(abilityId, decision.reason);
       return false;
     }
     try {

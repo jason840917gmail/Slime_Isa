@@ -25,6 +25,7 @@ import { getEnemyConfig } from '../../../../src/game/enemies/library/EnemyTypes'
 import { playerWeaponLoadout } from '../../../../src/game/systems/WeaponLoadout';
 import { playerInventory } from '../../../../src/game/systems/Inventory';
 import { gameState } from '../../../../src/game/core/GameState';
+import { storyProgress } from '../../../../src/game/features/progression/StoryProgress';
 import { questService } from '../../../../src/game/quests/QuestService';
 import { worldProgress } from '../../../../src/game/features/progression/WorldProgress';
 import type { QuestView } from '../../../../src/game/content/quests/types';
@@ -80,7 +81,7 @@ type FixtureSnapshot = {
   readonly managedWeaponId?: string | null;
   readonly weaponSlots?: readonly (string | null)[];
   readonly equippedWeaponId?: string | null;
-  readonly playerLevel?: number;
+  readonly learnedAbilityIds?: readonly string[];
   readonly playerEnergy?: number;
   readonly jumpCooldownMs?: number;
   readonly managedWeaponAttacking?: boolean;
@@ -120,11 +121,8 @@ type FixtureApi = {
   openProductionQuestTurnInForUi(): void;
   productionQuestTurnInClosedCount(): number;
   discoverProductionArea(areaId: string): void;
-  triggerProductionLevelUp(): number;
-  productionSkillPoints(): number;
-  productionPerkRank(perkId: string): number;
   setProductionEquippedSlot(slotIndex: number): void;
-  setProductionLevel(level: number): void;
+  learnProductionAbilities(abilityIds: readonly string[]): void;
   drainProductionEnergy(): void;
   damageProductionPlayer(amount: number): number;
   resetProductionBossFight(): void;
@@ -584,22 +582,13 @@ const api: FixtureApi = {
     if (!game || mode !== 'baseline') throw new Error('Production world map is only available in baseline mode');
     worldProgress.discoverArea(areaId);
   },
-  triggerProductionLevelUp() {
-    if (!game || mode !== 'baseline') throw new Error('Production leveling is only available in baseline mode');
-    const needed = gameState.xpToNextLevel;
-    if (needed === null) throw new Error('Maximum production level reached');
-    gameState.addXp(Math.max(1, needed - gameState.currentXp));
-    return gameState.level;
-  },
-  productionSkillPoints() { return gameState.skillPoints; },
-  productionPerkRank(perkId) { return gameState.perkRank(perkId); },
   setProductionEquippedSlot(slotIndex) {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     gameState.equipWeapon(playerWeaponLoadout.weaponAt(slotIndex));
   },
-  setProductionLevel(level) {
-    if (!game || mode !== 'baseline') throw new Error('Production levels are only available in baseline mode');
-    gameState.load({ ...gameState.serialize(), level });
+  learnProductionAbilities(abilityIds) {
+    if (!game || mode !== 'baseline') throw new Error('Production abilities are only available in baseline mode');
+    storyProgress.learnAbilities(abilityIds);
   },
   drainProductionEnergy() {
     if (!game || mode !== 'baseline') throw new Error('Production energy is only available in baseline mode');
@@ -696,7 +685,7 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedPassiveObjectCount: world.universalWorld.managedPassiveObjectCount } : {}),
       ...(world?.universalWorld ? { managedWeaponId: world.universalWorld.managedWeaponId } : {}),
       ...(world?.universalWorld ? { weaponSlots: playerWeaponLoadout.slots(), equippedWeaponId: gameState.equippedWeaponId } : {}),
-      ...(world ? { playerLevel: gameState.level, playerEnergy: gameState.energy } : {}),
+      ...(world ? { learnedAbilityIds: storyProgress.serialize().learnedAbilityIds ?? [], playerEnergy: gameState.energy } : {}),
       ...(world?.abilitySystem ? { jumpCooldownMs: world.abilitySystem.status('jump').cooldownRemainingMs } : {}),
       ...(world?.universalWorld ? { managedWeaponAttacking: world.universalWorld.managedWeaponAttacking } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),

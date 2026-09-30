@@ -10,11 +10,7 @@ export interface PlayerAbilityPresentationLease {
 
 export interface PlayerAbilityPresentationBackend {
   present(intent: PlayerAbilityIntent, complete: () => void): PlayerAbilityPresentationLease;
-  notifyRejected(
-    abilityId: PlayerAbilityId,
-    reason: PlayerAbilityRejectionReason,
-    unlockLevel?: number,
-  ): void;
+  notifyRejected(abilityId: PlayerAbilityId, reason: PlayerAbilityRejectionReason): void;
 }
 
 interface ActivePresentation {
@@ -54,12 +50,8 @@ export class PlayerAbilityPresentation {
     }
   }
 
-  notifyRejected(
-    abilityId: PlayerAbilityId,
-    reason: PlayerAbilityRejectionReason,
-    unlockLevel?: number,
-  ): void {
-    if (!this.disposed) this.backend.notifyRejected(abilityId, reason, unlockLevel);
+  notifyRejected(abilityId: PlayerAbilityId, reason: PlayerAbilityRejectionReason): void {
+    if (!this.disposed) this.backend.notifyRejected(abilityId, reason);
   }
 
   cancel(): void {

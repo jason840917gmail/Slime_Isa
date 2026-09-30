@@ -33,12 +33,22 @@ export interface GameConstantsDocument {
      */
     sleepHpRegenPerSec: number;
   };
+  gulp: {
+    /**
+     * How long a Gulp form lasts after eating its material, in milliseconds. Eating the same material at a Gulp spot restarts the timer.
+     */
+    formDurationMs: number;
+  };
 }
 /**
  * This interface was referenced by `GameConstantsDocument`'s JSON-Schema
  * via the `definition` "resources".
  */
 export interface Resources {
+  /**
+   * How long a harvested tree, stone node or ore node stays gone, in milliseconds. It grows back the next time its map loads after this time, once its dropped piles are collected.
+   */
+  respawnMs: number;
   /**
    * @minItems 1
    */
@@ -63,7 +73,8 @@ export interface Player {
   initialAttributes: Attributes;
   movement: Movement;
   hitInvulnerabilityMs: number;
-  progression: Progression;
+  stats: PlayerStats;
+  gooHeart: GooHeart;
 }
 /**
  * This interface was referenced by `GameConstantsDocument`'s JSON-Schema
@@ -88,35 +99,21 @@ export interface Movement {
 }
 /**
  * This interface was referenced by `GameConstantsDocument`'s JSON-Schema
- * via the `definition` "progression".
+ * via the `definition` "playerStats".
  */
-export interface Progression {
-  maxLevel: PositiveInteger;
-  baseMaxHp: number;
-  baseMaxEnergy: number;
-  baseAttack: NonNegative;
-  baseDefense: NonNegative;
-  /**
-   * @minItems 1
-   */
-  levels: [Level, ...Level[]];
-}
-/**
- * This interface was referenced by `GameConstantsDocument`'s JSON-Schema
- * via the `definition` "level".
- */
-export interface Level {
-  level: PositiveInteger;
-  xpToNextLevel: number | null;
-  gains: Gains;
-}
-/**
- * This interface was referenced by `GameConstantsDocument`'s JSON-Schema
- * via the `definition` "gains".
- */
-export interface Gains {
-  maxHp: NonNegative;
-  maxEnergy: NonNegative;
+export interface PlayerStats {
+  maxHp: number;
+  maxEnergy: number;
   attack: NonNegative;
   defense: NonNegative;
+  critChance: number;
+  critMultiplier: number;
+  energyRegenPerSecond: NonNegative;
+}
+/**
+ * This interface was referenced by `GameConstantsDocument`'s JSON-Schema
+ * via the `definition` "gooHeart".
+ */
+export interface GooHeart {
+  maxHpBonus: number;
 }

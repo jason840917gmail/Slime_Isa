@@ -71,6 +71,9 @@ const creak = ({ at = 0, dur = 0.5, freq = [70, 110], gain = 0.5, cutoff = 1400 
   env: { a: 0.04, s: 1, r: 0.08 }, filters: [{ type: 'bp', cutoff, q: 3 }],
 });
 
+/** Holds a loop layer at full level from start to end (the loop fold hides the edges). */
+const SUSTAIN = { a: 0.01, s: 1, r: 0.01 };
+
 const C5 = 523.25; const D5 = 587.33; const E5 = 659.26; const G5 = 783.99; const A5 = 880; const C6 = 1046.5; const E6 = 1318.5; const G4 = 392;
 
 // ── Catalog ─────────────────────────────────────────────────────────────────
@@ -116,7 +119,8 @@ export const CUES = {
     heal: { library: ['maximize_004'], synth: () => ({ echo: { delay: 0.09, feedback: 0.35, mix: 0.35 }, layers: [...notes([C5, E5, G5], { step: 0.07, dur: 0.35, wave: 'sine', gain: 0.5 }), sparkle({ at: 0.1, dur: 0.4, gain: 0.15 })] }) },
     'potion-drink': { library: ['rubberduck-slime/bubble_03'], synth: () => ({ layers: [...[0, 0.09, 0.18].map((at, index) => blip({ at, f0: 380 + index * 40, f1: 780 + index * 60, dur: 0.07, wave: 'sine', gain: 0.6 })), crystal({ at: 0.27, freq: 2800, dur: 0.25, gain: 0.3 })] }) },
     'energy-restore': { library: ['maximize_002'], synth: () => ({ layers: [{ type: 'tone', wave: 'square', dur: 0.3, freq: [300, 1200], env: { a: 0.01, d: 0.3 }, gain: 0.25, filter: { type: 'lp', cutoff: 3000 } }, sparkle({ dur: 0.3 })] }) },
-    'level-up': { library: ['jingles_NES05'], synth: () => ({ echo: { delay: 0.1, feedback: 0.35, mix: 0.3 }, layers: [...notes([C5, E5, G5], { step: 0.09, dur: 0.14, wave: 'square', gain: 0.28 }), ...notes([C6], { at: 0.27, dur: 0.5, wave: 'square', gain: 0.3 }), ...notes([E6], { at: 0.27, dur: 0.5, wave: 'triangle', gain: 0.3 }), sparkle({ at: 0.27, dur: 0.6 })] }) },
+    // PLACEHOLDER: the old level-up jingle until an ability-learned sting is made (roadmap 5).
+    'ability-learned': { library: ['jingles_NES05'], synth: () => ({ echo: { delay: 0.1, feedback: 0.35, mix: 0.3 }, layers: [...notes([C5, E5, G5], { step: 0.09, dur: 0.14, wave: 'square', gain: 0.28 }), ...notes([C6], { at: 0.27, dur: 0.5, wave: 'square', gain: 0.3 }), ...notes([E6], { at: 0.27, dur: 0.5, wave: 'triangle', gain: 0.3 }), sparkle({ at: 0.27, dur: 0.6 })] }) },
     coin: { variants: 2, library: ['handleCoins', 'handleCoins2'], synth: (k) => ({ layers: [{ type: 'tone', wave: 'square', dur: 0.06, freq: 988 * k, env: { a: 0.001, s: 1, r: 0.005 }, gain: 0.3 }, { type: 'tone', wave: 'square', at: 0.06, dur: 0.28, freq: 1319 * k, env: { a: 0.001, d: 0.28 }, gain: 0.3 }] }) },
     // Looped while asleep. Synth-only: a pause (leading, so it survives silence trimming),
     // a slow airy inhale and a longer, darker exhale with a faint slimy hum underneath.
@@ -213,6 +217,48 @@ export const CUES = {
     'npc-blip': { library: ['rubberduck-creature-1/cute_02', 'rubberduck-creature-1/cute_05', 'rubberduck-creature-1/cute_10'], variants: 3, synth: (k) => ({ layers: [{ type: 'tone', wave: 'square', dur: 0.06, freq: 440 * k, env: { a: 0.002, s: 1, r: 0.015 }, gain: 0.3, filter: { type: 'lp', cutoff: 2500 } }] }) },
     interact: { library: ['tick_001'], synth: () => ({ layers: [blip({ f0: 1500, f1: 1500, dur: 0.03, wave: 'sine', gain: 0.5 })] }) },
     save: { library: ['confirmation_004'], synth: () => ({ echo: { delay: 0.08, feedback: 0.3, mix: 0.3 }, layers: notes([G5, C6], { step: 0.08, dur: 0.3, wave: 'sine', gain: 0.4 }) }) },
+    // A ruined building is restored (roadmap 6.3): hammer knocks, a settling thud and a bright finish.
+    'restore-building': { library: ['magnific/restore-building'], synth: () => ({ echo: { delay: 0.11, feedback: 0.3, mix: 0.25 }, layers: [
+      ...[0, 0.16, 0.32, 0.5].map((at, index) => wood({ at, freq: 360 + (index % 2) * 60, dur: 0.12, gain: 0.8 })),
+      ...[0, 0.16, 0.32, 0.5].map((at) => thump({ at, f0: 150, f1: 80, dur: 0.07, gain: 0.35 })),
+      thump({ at: 0.72, f0: 120, f1: 45, dur: 0.3, gain: 0.8 }),
+      gravel({ at: 0.72, dur: 0.45, rate: [220, 30], cutoff: 1600, gain: 0.45, size: 0.008 }),
+      ...notes([C5, E5, G5, C6], { at: 0.95, step: 0.08, dur: 0.45, wave: 'triangle', gain: 0.3 }),
+      sparkle({ at: 1.1, dur: 0.5, gain: 0.15 }),
+    ] }) },
+    // Seamless loops for props and places (roadmap 3.9). Synth-only placeholders until final recordings.
+    'campfire-loop': { synth: () => ({ loop: { seconds: 6 }, maxRmsDb: -20, layers: [
+      { type: 'noise', color: 'brown', dur: 6.5, gain: 0.5, env: SUSTAIN, filter: { type: 'lp', cutoff: 380 } },
+      { type: 'noise', dur: 6.5, gain: 0.9, env: SUSTAIN, grains: { rate: 14, size: 0.004, jitter: 1.6 }, filter: { type: 'hp', cutoff: 1400 } },
+      { type: 'noise', dur: 6.5, gain: 0.6, env: SUSTAIN, grains: { rate: 3, size: 0.012, jitter: 1.8 }, filter: { type: 'bp', cutoff: 900, q: 1.2 } },
+    ] }) },
+    'cauldron-loop': { synth: () => ({ loop: { seconds: 6 }, maxRmsDb: -20, layers: [
+      { type: 'noise', color: 'brown', dur: 6.5, gain: 0.5, env: SUSTAIN, filter: { type: 'lp', cutoff: 260 } },
+      ...[0.3, 0.9, 1.2, 1.9, 2.6, 2.8, 3.5, 4.1, 4.4, 5.0, 5.6, 6.1].map((at, index) => ({
+        type: 'tone', wave: 'sine', at, dur: 0.07 + (index % 3) * 0.02, freq: [260 + (index * 53) % 180, 620 + (index * 71) % 300],
+        glide: 0.06, env: { a: 0.003, d: 0.09 }, gain: 0.35,
+      })),
+    ] }) },
+    'grindstone-loop': { synth: () => ({ loop: { seconds: 4 }, maxRmsDb: -20, layers: [
+      { type: 'noise', color: 'brown', dur: 4.5, gain: 0.3, env: SUSTAIN, filter: { type: 'lp', cutoff: 300 } },
+      ...[0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4].map((at) => ({ type: 'noise', at, dur: 0.45, gain: 0.55, env: { peak: 0.5, curve: 1.3 }, filters: [{ type: 'bp', cutoff: [2200, 3400], q: 2.5 }] })),
+    ] }) },
+    'anvil-loop': { synth: () => ({ loop: { seconds: 4.8 }, maxRmsDb: -18, layers: [
+      ...[[0.2, 1], [1.0, 0.97], [2.6, 1], [3.2, 1.02], [3.8, 0.98]].map(([at, k]) => metal({ at, freq: 1650 * k, dur: 0.9, gain: 0.55, ratios: [1, 2.76, 5.4, 8.9] })),
+      ...[0.2, 1.0, 2.6, 3.2, 3.8].map((at) => thump({ at, f0: 170, f1: 90, dur: 0.08, gain: 0.4 })),
+    ] }) },
+    'meadow-ambience': { synth: () => ({ loop: { seconds: 12, crossfade: 1.5 }, maxRmsDb: -24, layers: [
+      { type: 'noise', color: 'pink', dur: 13.5, gain: 0.5, env: SUSTAIN, filter: { type: 'lp', cutoff: 650 } },
+      { type: 'noise', color: 'pink', dur: 7, gain: 0.5, env: { peak: 0.5, curve: 1.4 }, filter: { type: 'bp', cutoff: 700, q: 0.8 } },
+      { type: 'noise', color: 'pink', at: 6, dur: 7.5, gain: 0.5, env: { peak: 0.5, curve: 1.4 }, filter: { type: 'bp', cutoff: 550, q: 0.8 } },
+      ...[[1.2, 1], [1.35, 1.1], [4.8, 0.9], [4.95, 0.95], [5.1, 1.05], [8.3, 1.15], [8.42, 1.2], [10.6, 0.85]].map(([at, k]) => ({
+        type: 'tone', wave: 'sine', at, dur: 0.09, freq: [2600 * k, 4100 * k], glide: 0.07, env: { a: 0.004, d: 0.09 }, vibrato: { rate: 40, depth: 0.03 }, gain: 0.12,
+      })),
+    ] }) },
+    'interior-ambience': { synth: () => ({ loop: { seconds: 8 }, maxRmsDb: -26, layers: [
+      { type: 'noise', color: 'brown', dur: 8.5, gain: 0.5, env: SUSTAIN, filter: { type: 'lp', cutoff: 220 } },
+      { type: 'noise', dur: 8.5, gain: 0.7, env: SUSTAIN, grains: { rate: 6, size: 0.004, jitter: 1.6 }, filter: { type: 'hp', cutoff: 1600 } },
+    ] }) },
   },
 
   ui: {
@@ -225,7 +271,6 @@ export const CUES = {
     close: { library: ['close_001'], synth: () => ({ layers: [blip({ f0: 950, f1: 400, dur: 0.12, wave: 'triangle', gain: 0.6 })] }) },
     'craft-success': { library: ['confirmation_002'], synth: () => ({ echo: { delay: 0.08, feedback: 0.3, mix: 0.3 }, layers: [metal({ freq: 1200, dur: 0.25, gain: 0.5, ratios: [1, 2.4, 3.9] }), metal({ at: 0.14, freq: 1250, dur: 0.25, gain: 0.5, ratios: [1, 2.4, 3.9] }), ...notes([C6, E6], { at: 0.3, step: 0.07, dur: 0.35, wave: 'sine', gain: 0.4 }), sparkle({ at: 0.3, dur: 0.4 })] }) },
     'craft-fail': { library: ['error_002'], synth: () => ({ layers: [thump({ f0: 160, f1: 90, dur: 0.12, gain: 0.7 }), blip({ at: 0.06, f0: 500, f1: 250, dur: 0.18, wave: 'triangle', gain: 0.5 })] }) },
-    'perk-choose': { library: ['confirmation_003'], synth: () => ({ echo: { delay: 0.07, feedback: 0.3, mix: 0.3 }, layers: [...notes([E5, A5, E6], { step: 0.05, dur: 0.25, wave: 'triangle', gain: 0.45 }), sparkle({ dur: 0.4 })] }) },
     'quest-accept': { library: ['jingles_PIZZI04'], synth: () => ({ layers: notes([C5, G5], { step: 0.08, dur: 0.3, wave: 'triangle', gain: 0.5 }) }) },
     'quest-progress': { library: ['pluck_001'], synth: () => ({ layers: [{ type: 'pluck', freq: 1175, dur: 0.25, damping: 0.995, brightness: 0.5, gain: 0.7 }] }) },
     'quest-complete': { library: ['jingles_STEEL07'], synth: () => ({ echo: { delay: 0.11, feedback: 0.35, mix: 0.3 }, layers: [...notes([C5, E5, G5, C6], { step: 0.1, dur: 0.18, wave: 'square', gain: 0.25 }), ...[C6, E6, G5].map((freq) => ({ type: 'tone', wave: 'triangle', at: 0.42, dur: 0.8, freq, env: { a: 0.01, d: 0.8 }, gain: 0.3 })), sparkle({ at: 0.4, dur: 0.7 })] }) },

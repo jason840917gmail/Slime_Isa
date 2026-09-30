@@ -13,7 +13,7 @@ Top-down open-world slime game: Phaser 3 + TypeScript + Vite (ES2022, ESNext mod
 
 ## Commands
 
-- `pnpm dev` — Vite on port 3000. Game: `http://localhost:3000`; Scene Studio (dev only): `?studio=scenes[&scene=<sceneId>]`; world preview: `?map=<id>`
+- `pnpm dev` — Vite on port 3000. Game: `http://localhost:3000`; Scene Studio (dev only): `?studio=scenes[&scene=<sceneId>]`; world preview: `?map=<id>` (including dev-only worlds such as the `playground` testbed, listed in `src/game/content/scenes/devOnlyWorlds.ts` and left out of production builds)
 - `pnpm typecheck` — strict `tsc` over `src/`, `vite.config.ts`, and the Playwright specs
 - Targeted checks: `scenes:check` (scene JSON), `assets:check` (`asset/assets.json`), `constants:check`, `audio:check`, `quests:check`, `scene-ownership:check`, and per-domain `visuals|characters|weapons|projectiles|effects|enemies|objects:check`
 - Targeted tests: `pnpm test:<suite>` (Node `--test` suites in `scripts/tests/`, e.g. `test:combat`, `test:quests`, `test:scene-runtime`, `test:persistence`); `test:scene-browser` runs Playwright

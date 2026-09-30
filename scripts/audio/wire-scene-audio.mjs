@@ -45,6 +45,7 @@ function cueAssets(cueRef) {
  *   on        [{ signal, source?: scriptId | node id, filter? }] triggering play (source defaults to the scene's script node)
  *   positional  AudioStreamPlayer2D (default true) vs AudioStreamPlayer
  *   props     extra node properties (volume, pitchRandomness, minIntervalMs, detached, autoplay, maxDistance, ...)
+ * Add `parent: '<node id>'` to a spec to place it under a group other than the rule's.
  */
 const sfx = (name, cue, on = [], props = {}, positional = true) => ({ name, cue, on, props, positional });
 
@@ -55,6 +56,10 @@ const kebab = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase(
 const ONE_SHOT = { pitchRandomness: 0.06 };
 const DETACHED = { ...ONE_SHOT, detached: true };
 const IMPACT = { autoplay: true, detached: true, pitchRandomness: 0.07 };
+/** Heard within about six tiles, fading with distance; stops when the prop leaves the tree. */
+const PROP_LOOP = { bus: 'ambience', loop: true, autoplay: true, volume: 0.55, maxDistance: 420, polyphony: 1 };
+/** A place's background bed: non-positional, quiet, always on while the world is mounted. */
+const AMBIENCE_BED = { bus: 'ambience', loop: true, autoplay: true, volume: 0.35, polyphony: 1 };
 
 const ENEMY_WORM = (windupCue) => [
   sfx('HurtSfx', 'enemy/worm-hurt', [{ signal: 'damaged' }], { ...ONE_SHOT, minIntervalMs: 90 }),
@@ -171,7 +176,17 @@ const RULES = [
   // World music: a looping, non-positional track on the music bus while the world is mounted.
   ['worlds/level-1.scene.json', [
     sfx('MusicPlayer', 'music/level-1-home-town', [], { bus: 'music', loop: true, autoplay: true, volume: 0.55, polyphony: 1 }, false),
+    sfx('Ambience', 'world/meadow-ambience', [], AMBIENCE_BED, false),
   ]],
+  // Interiors: a quiet room bed (hearth crackle) instead of music.
+  ['worlds/slime-home.scene.json', [sfx('Ambience', 'world/interior-ambience', [], AMBIENCE_BED, false)]],
+  ['worlds/mushroom-home.scene.json', [sfx('Ambience', 'world/interior-ambience', [], AMBIENCE_BED, false)]],
+
+  // Props that sound while you are near them: looping, positional, on the ambience bus.
+  ['objects/decoration-world-solid--campfire.scene.json', [sfx('LoopSfx', 'world/campfire-loop', [], PROP_LOOP)]],
+  ['objects/decoration-world-solid--cooking-cauldron.scene.json', [sfx('LoopSfx', 'world/cauldron-loop', [], PROP_LOOP)]],
+  ['objects/decoration-world-solid--grindstone.scene.json', [sfx('LoopSfx', 'world/grindstone-loop', [], { ...PROP_LOOP, volume: 0.45 })]],
+  ['objects/decoration-world-solid--anvil.scene.json', [sfx('LoopSfx', 'world/anvil-loop', [], { ...PROP_LOOP, volume: 0.4 })]],
 
   // Global cues driven by features/audio/AudioEventBridge (names must match its cue names).
   ['audio/global.scene.json', [
@@ -180,18 +195,21 @@ const RULES = [
       ['TeleportOut', 'player/teleport-out'], ['TeleportIn', 'player/teleport-in'], ['SlamWindup', 'player/slam-windup'],
       ['SlamImpact', 'player/slam-impact'], ['Lash', 'player/lash'], ['AbilityDenied', 'ui/ability-denied'],
       ['Heal', 'player/heal'], ['Respawn', 'player/respawn'], ['EnergyRestore', 'player/energy-restore'],
-      ['Coin', 'player/coin'], ['LevelUp', 'player/level-up'], ['PerkChoose', 'ui/perk-choose'],
+      ['Coin', 'player/coin'], ['AbilityLearned', 'player/ability-learned'],
       ['StatusBurn', 'status/burn'], ['StatusPoison', 'status/poison'], ['StatusSlow', 'status/slow'],
       ['StatusSticky', 'status/sticky'], ['StatusBouncy', 'status/bouncy'], ['StatusFrenzy', 'status/frenzy'],
       ['StatusExpire', 'status/expire'], ['EquipBlade', 'weapon/equip-blade'], ['EquipTool', 'weapon/equip-tool'],
-      ['CraftSuccess', 'ui/craft-success'], ['NpcBlip', 'world/npc-blip'], ['QuestAccept', 'ui/quest-accept'],
+      ['CraftSuccess', 'ui/craft-success'], ['CraftFail', 'ui/craft-fail'], ['GroundCrack', 'resource/stone-crumble'], ['BuildingRestored', 'world/restore-building'], ['NpcBlip', 'world/npc-blip'], ['QuestAccept', 'ui/quest-accept'],
       ['QuestProgress', 'ui/quest-progress'], ['QuestComplete', 'ui/quest-complete'], ['QuestFailed', 'ui/quest-failed'],
       ['Victory', 'boss/victory'], ['AreaTransition', 'world/area-transition'], ['MenuOpen', 'ui/open'],
-      ['MenuClose', 'ui/close'], ['JournalOpen', 'ui/journal-open'],
+      ['MenuClose', 'ui/close'], ['JournalOpen', 'ui/journal-open'], ['Crit', 'weapon/crit'],
     ].map(([name, cue]) => sfx(name, cue, [], { ...ONE_SHOT, minIntervalMs: 60 }, false)),
     // Sleeping: a quiet breathing loop started/stopped by player.sleep, and one soft chime when rested.
     sfx('SleepBreath', 'player/sleep-breath', [], { loop: true, volume: 0.3, polyphony: 1 }, false),
     sfx('Rested', 'player/rested', [], { volume: 0.35, minIntervalMs: 1000 }, false),
+    // Boss fights: features/audio/MusicDirector crossfades world music to this and back.
+    // PLACEHOLDER: the town theme, pitched up, until a real boss track is sourced (roadmap 3.10).
+    { ...sfx('BossMusic', 'music/level-1-home-town', [], { bus: 'music', loop: true, volume: 0.5, pitch: 1.12, polyphony: 1 }, false), parent: 'music' },
   ], 'effects'],
 
   // UI scenes: every Button press clicks, list selections and slider steps tick.
@@ -274,9 +292,16 @@ for (const file of listScenes(authoredRoot)) {
   if (rule) {
     const [, specs, parentName] = rule;
     if (Array.isArray(specs)) {
-      const parentId = parentName ? scene.nodes.find((node) => node.id === parentName)?.id : scene.rootNodeId;
-      if (!parentId) throw new Error(`${file}: parent node '${parentName}' not found`);
-      addNodes(scene, specs, parentId);
+      const groups = new Map();
+      for (const spec of specs) {
+        const name = spec.parent ?? parentName;
+        groups.set(name, [...(groups.get(name) ?? []), spec]);
+      }
+      for (const [name, group] of groups) {
+        const parentId = name ? scene.nodes.find((node) => node.id === name)?.id : scene.rootNodeId;
+        if (!parentId) throw new Error(`${file}: parent node '${name}' not found`);
+        addNodes(scene, group, parentId);
+      }
     } else {
       addUiControls(scene, specs);
     }

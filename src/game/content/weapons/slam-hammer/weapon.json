@@ -782,13 +782,13 @@
   "presentation": {
     "facingMode": "vector"
   },
-  "baseDamage": 50,
-  "cooldownMs": 2000,
+  "baseDamage": 14,
+  "cooldownMs": 1300,
   "hitboxWidth": 88,
   "hitboxHeight": 72,
   "hitboxOffset": 46,
   "hitboxDurationMs": 170,
-  "knockStrength": 100,
+  "knockStrength": 320,
   "damageModifiers": [
     {
       "targetTag": "stone",
@@ -811,7 +811,6 @@
     }
   },
   "vfxColor": 16758868,
-  "unlockLevel": 1,
   "iconKey": "weapon-player-hammer-spear-tiles",
   "iconFrame": 2,
   "description": "A slow, heavy tool with a compact arc and crushing knockback.",

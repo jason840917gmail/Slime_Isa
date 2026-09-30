@@ -123,6 +123,8 @@ export class AudioPlaybackController {
   private lastPlayAt = Number.NEGATIVE_INFINITY;
   private lastPan?: number;
   private lastAttenuation = 1;
+  /** Runtime fade multiplier (music crossfades); 1 plays at the authored volume. */
+  private gain = 1;
   private readonly preferences: AudioPreferences;
   private readonly unlock: AudioUnlockService;
   private readonly assetIds: readonly string[];
@@ -145,6 +147,13 @@ export class AudioPlaybackController {
   }
 
   get playing(): boolean { return this.desiredPlaying; }
+  get bus(): AudioBus { return this.options.bus ?? 'effects'; }
+
+  /** Scales this node's volume at run time, for fades; clamped to [0, 1]. */
+  setGain(gain: number): void {
+    this.gain = Math.max(0, Math.min(1, Number.isFinite(gain) ? gain : 1));
+    this.synchronize(this.lastPan, this.lastAttenuation);
+  }
 
   enter(pan?: number, attenuation = 1): void {
     this.entered = true;
@@ -182,7 +191,7 @@ export class AudioPlaybackController {
     this.lastAttenuation = attenuation;
     const bus = this.options.bus ?? 'effects';
     const preferenceVolume = this.preferences.muted(bus) ? 0 : this.preferences.volume(bus);
-    const volume = Math.max(0, (this.options.volume ?? 1) * preferenceVolume * attenuation);
+    const volume = Math.max(0, (this.options.volume ?? 1) * preferenceVolume * attenuation * this.gain);
     for (const voice of this.voices) {
       voice.handle.setVolume?.(volume);
       voice.handle.setRate?.(voice.rate);
@@ -295,8 +304,11 @@ export class AudioStreamPlayerNode extends Node {
   }
 
   get playing(): boolean { return this.playback.playing; }
+  get bus(): AudioBus { return this.playback.bus; }
   play(): void { this.playback.play(); }
   stop(): void { this.playback.stop(); }
+  /** Runtime fade multiplier on top of the authored volume (see MusicDirector). */
+  setGain(gain: number): void { this.playback.setGain(gain); }
   override _enter_tree(): void { this.playback.enter(); }
   override _process(): void { this.playback.synchronize(); }
   override _exit_tree(): void { this.playback.exit(); }

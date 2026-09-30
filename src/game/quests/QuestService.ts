@@ -28,7 +28,6 @@ export interface QuestRewardPort {
 }
 
 export interface QuestConditionQueries {
-  playerLevel(): number;
   inventoryCount(itemId: string): number;
   hasDiscoveredArea(areaId: string): boolean;
   hasWorldFlag(flagId: string): boolean;
@@ -77,6 +76,7 @@ export interface QuestStoryBinding {
   hasWorldFlag(flagId: string): boolean;
   hasTalkedToNpc(npcId: string): boolean;
   learnRecipes(recipeIds: readonly string[]): void;
+  learnAbilities(abilityIds: readonly string[]): void;
   setFlags(flagIds: readonly string[]): void;
 }
 
@@ -87,7 +87,6 @@ export function bindQuestStory(binding: QuestStoryBinding): void {
 }
 
 const defaultConditions: QuestConditionQueries = {
-  playerLevel: () => gameState.level,
   inventoryCount: (itemId) => playerInventory.count(itemId),
   hasDiscoveredArea: (areaId) => storyBinding?.hasDiscoveredArea(areaId) ?? false,
   hasWorldFlag: (flagId) => storyBinding?.hasWorldFlag(flagId) ?? false,
@@ -99,13 +98,13 @@ const defaultRewards: QuestRewardPort = {
     if (additions.length > 0 && !playerInventory.transact([], additions)) {
       throw new Error(`Could not grant all reward items for quest '${_questId}'.`);
     }
-    if ((rewards.recipeIds?.length || rewards.flags?.length) && !storyBinding) {
+    if ((rewards.recipeIds?.length || rewards.abilityIds?.length || rewards.flags?.length) && !storyBinding) {
       throw new Error(`Quest '${_questId}' grants story rewards before the story binding exists.`);
     }
     if (rewards.recipeIds?.length) storyBinding!.learnRecipes(rewards.recipeIds);
+    if (rewards.abilityIds?.length) storyBinding!.learnAbilities(rewards.abilityIds);
     if (rewards.flags?.length) storyBinding!.setFlags(rewards.flags);
     if (rewards.coins) gameState.addCoins(rewards.coins);
-    if (rewards.xp) gameState.addXp(rewards.xp);
   },
 };
 const defaultEvents: QuestEventPort = {
@@ -463,8 +462,6 @@ export class QuestService {
         return this.states.get(condition.questId)?.status === condition.status;
       case 'area-entered':
         return condition.areaIds.some((areaId) => this.discoveredAreaIds.has(areaId) || this.conditions.hasDiscoveredArea(areaId));
-      case 'player-level':
-        return this.conditions.playerLevel() >= condition.minimumLevel;
       case 'inventory-count':
         return this.conditions.inventoryCount(condition.itemId) >= condition.minimumCount;
       case 'world-flag':

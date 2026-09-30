@@ -104,38 +104,6 @@ function semanticIssues(value: unknown): readonly GameConstantsIssue[] {
     }
   }
 
-  const progressionPath = 'character.player.progression';
-  const progression = isRecord(player.progression) ? player.progression : undefined;
-  if (!progression || !Array.isArray(progression.levels)) return issues;
-  const maxLevel = progression.maxLevel;
-  const hasMaxLevel = typeof maxLevel === 'number' && Number.isInteger(maxLevel) && maxLevel >= 1;
-  if (hasMaxLevel && progression.levels.length !== maxLevel) {
-    issues.push({
-      path: `${progressionPath}.levels`,
-      message: `must contain exactly ${maxLevel} entries`,
-    });
-  }
-  progression.levels.forEach((candidate, index) => {
-    if (!isRecord(candidate)) return;
-    const expectedLevel = index + 1;
-    const levelPath = `${progressionPath}.levels[${index}]`;
-    if (typeof candidate.level === 'number' && Number.isInteger(candidate.level) && candidate.level >= 1 && candidate.level !== expectedLevel) {
-      issues.push({ path: `${levelPath}.level`, message: `must be ${expectedLevel}` });
-    }
-    const isFinal = hasMaxLevel && expectedLevel === maxLevel;
-    if (isFinal && candidate.xpToNextLevel !== null) {
-      issues.push({ path: `${levelPath}.xpToNextLevel`, message: 'final level must use null' });
-    } else if (hasMaxLevel && !isFinal && candidate.xpToNextLevel === null) {
-      issues.push({ path: `${levelPath}.xpToNextLevel`, message: 'non-final level must use a positive integer' });
-    }
-    if (expectedLevel === 1 && isRecord(candidate.gains)) {
-      for (const [field, gain] of Object.entries(candidate.gains)) {
-        if (isNonNegativeNumber(gain) && gain !== 0) {
-          issues.push({ path: `${levelPath}.gains.${field}`, message: 'level 1 gain must be zero' });
-        }
-      }
-    }
-  });
   return issues;
 }
 

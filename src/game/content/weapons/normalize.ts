@@ -113,7 +113,6 @@ function normalizeLayeredWeaponDefinition(
     ...(definition.harvestCapabilities ? { harvestCapabilities: definition.harvestCapabilities } : {}),
     ...(definition.scaling ? { scaling: definition.scaling } : {}),
     vfxColor: definition.vfxColor,
-    unlockLevel: definition.unlockLevel,
     iconKey: definition.iconKey,
     iconFrame: definition.iconFrame,
     description: definition.description,

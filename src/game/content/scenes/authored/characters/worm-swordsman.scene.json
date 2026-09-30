@@ -181,7 +181,6 @@
           "damageMultiplier": 1
         },
         "rewards": {
-          "xp": 50,
           "coins": 10,
           "items": [
             {

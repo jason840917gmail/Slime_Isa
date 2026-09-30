@@ -27,7 +27,7 @@ export interface QuestDef {
   area: string;
   description: string;
   objectives: readonly QuestObjectiveDef[];
-  rewards: { coins?: number; xp?: number };
+  rewards: { coins?: number };
 }
 
 /** @deprecated The runtime state is now content/quests/types QuestState. */
@@ -65,7 +65,7 @@ function legacyDefinition(questId: string): QuestDef | undefined {
     area: '',
     description: definition.description,
     objectives,
-    rewards: { coins: definition.rewards.coins, xp: definition.rewards.xp },
+    rewards: { coins: definition.rewards.coins },
   };
 }
 

@@ -138,8 +138,8 @@
           "sourceNodeId": "body",
           "property": "position",
           "value": [
-            320,
-            0
+            0,
+            -395
           ]
         },
         {
@@ -172,7 +172,7 @@
       "kind": "collision-shape",
       "value": {
         "shape": "circle",
-        "radius": 954
+        "radius": 440
       }
     },
     {
@@ -181,7 +181,7 @@
       "kind": "collision-shape",
       "value": {
         "shape": "circle",
-        "radius": 933
+        "radius": 420
       }
     },
     {

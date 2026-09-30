@@ -16,13 +16,21 @@ import { ResourceNodeScript } from './ResourceNodeScript';
 import { CollectibleScript } from './CollectibleScript';
 import { BedScript } from './BedScript';
 import { WorkbenchScript } from './WorkbenchScript';
+import { RestorationSiteScript } from './RestorationSiteScript';
 import { DoorScript } from './DoorScript';
 import { GateScript } from './GateScript';
+import { GulpSpotScript } from './GulpSpotScript';
+import { PressurePlateScript } from './PressurePlateScript';
+import { GooHeartScript } from './GooHeartScript';
+import { StoryVariantScript } from './StoryVariantScript';
+import { CrackedGroundScript } from './CrackedGroundScript';
+import { SpiderWebScript } from './SpiderWebScript';
+import { StoryFlagScript } from './StoryFlagScript';
 import { InteractionScript } from './InteractionScript';
 import { WorldExitScript } from './WorldExitScript';
 import { WorldDefinitionScript } from './WorldDefinitionScript';
 import { WorldAreaScript } from './WorldAreaScript';
-import { UiSurfaceScript } from './ui/UiSurfaceScript';
+import { MENU_HANDLERS, UiSurfaceScript } from './ui/UiSurfaceScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -474,12 +482,121 @@ export const GATE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     nodeReference('doors', 'Door Body'),
   ],
   signals: [{ id: 'opened', payload: 'GateOpened' }],
+  handlers: [{ id: 'open', payload: 'Any' }],
+};
+
+export const GULP_SPOT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.gulp-spot',
+  displayName: 'Gulp Spot Script',
+  description: 'A world object the slime eats from with W, any number of times, to take the Gulp form of its material.',
+  sourcePath: 'src/game/features/scripts/GulpSpotScript.ts',
+  capabilities: ['gulp-spot'],
+  exclusiveCapabilities: ['gulp-spot'],
+  properties: [
+    stringProperty('materialItemId', 'Material Item ID', 'Gulp'),
+    numberProperty('radius', 'Reach Radius', 96, 'Gulp'),
+    numberProperty('badgeRise', 'Hint Rise', 80, 'Gulp'),
+  ],
+};
+
+export const PRESSURE_PLATE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.pressure-plate',
+  displayName: 'Pressure Plate Script',
+  description: 'A plate only the Heavy Gulp form holds down. Emits pressed/released; set Opens Gate ID (or connect pressed to the open handler of a gate) to open a gate. The plate sprite sinks, and shows Pressed Frame while down when set.',
+  sourcePath: 'src/game/features/scripts/PressurePlateScript.ts',
+  capabilities: ['pressure-plate'],
+  exclusiveCapabilities: ['pressure-plate'],
+  references: [{ key: 'visual', label: 'Plate Sprite', required: false, expectedNodeType: 'Sprite2D' }],
+  properties: [
+    stringProperty('plateId', 'Plate ID', 'Plate'),
+    numberProperty('radius', 'Press Radius', 40, 'Plate'),
+    numberProperty('sinkPx', 'Sink Distance', 4, 'Plate'),
+    { key: 'pressedFrame', label: 'Pressed Frame', group: 'Plate', value: { kind: 'number', min: -1 }, defaultValue: -1, serialized: true, inspector: 'number', overridable: true },
+    { key: 'gateId', label: 'Opens Gate ID', group: 'Plate', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+    { key: 'latch', label: 'Stay Down', group: 'Plate', value: { kind: 'boolean' }, defaultValue: false, serialized: true, inspector: 'checkbox', overridable: true },
+    { ...nodeReference('visual', 'Plate Sprite'), required: false },
+  ],
+  signals: [{ id: 'pressed', payload: 'PlateEvent' }, { id: 'released', payload: 'PlateEvent' }],
+};
+
+export const GOO_HEART_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.goo-heart',
+  displayName: 'Goo Heart Script',
+  description: 'A hidden Goo Heart: walking over it raises max HP for the rest of the run. Heart IDs are unique across maps.',
+  sourcePath: 'src/game/features/scripts/GooHeartScript.ts',
+  capabilities: ['goo-heart'],
+  exclusiveCapabilities: ['goo-heart'],
+  references: [{ key: 'visual', label: 'Heart Sprite', required: false, expectedNodeType: 'Sprite2D' }],
+  properties: [
+    stringProperty('heartId', 'Heart ID', 'Goo Heart'),
+    numberProperty('radius', 'Pickup Radius', 36, 'Goo Heart'),
+    numberProperty('bobPx', 'Bob Height', 4, 'Goo Heart'),
+    { ...nodeReference('visual', 'Heart Sprite'), required: false },
+  ],
+  signals: [{ id: 'collected', payload: 'GooHeartEvent' }],
+};
+
+export const STORY_VARIANT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.story-variant',
+  displayName: 'Story Variant Script',
+  description: 'Keeps only one of two subtrees in the scene: "When Set" once the story flag is set, "When Unset" before. Visuals, collision, doors and stations swap with it. The set handler sets the flag.',
+  sourcePath: 'src/game/features/scripts/StoryVariantScript.ts',
+  capabilities: ['story-variant'],
+  references: [
+    { key: 'whenSet', label: 'When Set', required: false },
+    { key: 'whenUnset', label: 'When Unset', required: false },
+  ],
+  properties: [
+    stringProperty('flagId', 'Flag ID', 'Story'),
+    { ...nodeReference('whenSet', 'When Set'), required: false },
+    { ...nodeReference('whenUnset', 'When Unset'), required: false },
+  ],
+  handlers: [{ id: 'set', payload: 'Any' }],
+  signals: [{ id: 'switched', payload: 'Any' }],
+};
+
+export const CRACKED_GROUND_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.cracked-ground',
+  displayName: 'Cracked Ground Script',
+  description: 'Weak ground the Heavy Gulp form breaks by standing on it; sets its story flag for good (pair with a story variant on the same flag).',
+  sourcePath: 'src/game/features/scripts/CrackedGroundScript.ts',
+  capabilities: ['cracked-ground'],
+  exclusiveCapabilities: ['cracked-ground'],
+  properties: [
+    stringProperty('flagId', 'Flag ID', 'Story'),
+    numberProperty('radius', 'Break Radius', 48, 'Ground'),
+  ],
+  signals: [{ id: 'cracked', payload: 'Any' }],
+};
+
+export const SPIDER_WEB_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.spider-web',
+  displayName: 'Spider Web Script',
+  description: 'A web barrier: a normal slime is caught and set back; the Sticky Gulp form crosses it.',
+  sourcePath: 'src/game/features/scripts/SpiderWebScript.ts',
+  capabilities: ['spider-web'],
+  exclusiveCapabilities: ['spider-web'],
+  properties: [
+    numberProperty('width', 'Width', 200, 'Web'),
+    numberProperty('depth', 'Depth', 48, 'Web'),
+  ],
+  signals: [{ id: 'caught', payload: 'Any' }],
 };
 
 const vectorProperty = (key: string, label: string, group: string, defaultValue: readonly [number, number]): PropertyDescriptor => ({
   key, label, group, value: { kind: 'vector2' }, defaultValue: [...defaultValue],
   serialized: true, inspector: 'vector2', overridable: true,
 });
+
+export const STORY_FLAG_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.story-flag',
+  displayName: 'Story Flag Script',
+  description: 'Sets a saved story flag when its set handler runs (for example from a pressure plate).',
+  sourcePath: 'src/game/features/scripts/StoryFlagScript.ts',
+  capabilities: ['story-flag'],
+  properties: [stringProperty('flagId', 'Flag ID', 'Story')],
+  handlers: [{ id: 'set', payload: 'Any' }],
+};
 
 export const BED_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.bed',
@@ -500,15 +617,36 @@ export const BED_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const WORKBENCH_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.workbench',
   displayName: 'Workbench Script',
-  description: 'Crafting station: press F nearby to craft the recipes of its context.',
+  description: 'Crafting station: press F nearby to craft its recipes. Recipe Context is the station (workbench, workshop, forge); recipes above its tier show as locked.',
   sourcePath: 'src/game/features/scripts/WorkbenchScript.ts',
   capabilities: ['crafting-station', 'interactable'],
   exclusiveCapabilities: ['station-controller'],
   properties: [
     stringProperty('prompt', 'Prompt', 'Interaction'),
     stringProperty('recipeContext', 'Recipe Context', 'Crafting'),
+    numberProperty('tier', 'Station Tier', 1, 'Crafting'),
     numberProperty('interactRadius', 'Interact Radius', 90, 'Interaction'),
     numberProperty('badgeRise', 'Key Badge Rise', 80, 'Interaction'),
+  ],
+};
+
+export const RESTORATION_SITE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.restoration-site',
+  displayName: 'Restoration Site Script',
+  description: 'A ruined building: press F nearby to pay its materials (Cost, e.g. {"wood": 60}). Restoring sets the story flag (pair it with a Story Variant on the same flag) and reports Object ID to quests. With Quest ID set, only a player on that quest can restore it.',
+  sourcePath: 'src/game/features/scripts/RestorationSiteScript.ts',
+  capabilities: ['restoration-site', 'interactable'],
+  exclusiveCapabilities: ['restoration-controller'],
+  properties: [
+    stringProperty('prompt', 'Prompt', 'Interaction'),
+    stringProperty('flagId', 'Story Flag', 'Restoration'),
+    stringProperty('objectId', 'Object ID', 'Restoration'),
+    { key: 'questId', label: 'Quest ID', group: 'Restoration', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+    jsonProperty('cost', 'Cost', 'Restoration', {}),
+    stringProperty('lockedMessage', 'Locked Message', 'Restoration'),
+    stringProperty('restoredMessage', 'Restored Message', 'Restoration'),
+    numberProperty('interactRadius', 'Interact Radius', 150, 'Interaction'),
+    numberProperty('badgeRise', 'Key Badge Rise', 200, 'Interaction'),
   ],
 };
 
@@ -597,6 +735,7 @@ export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'on_remove' },
     { id: 'on_remove_all' },
     { id: 'on_value_changed', payload: 'UiSliderChange' },
+    ...MENU_HANDLERS.map((id) => ({ id })),
   ],
 };
 
@@ -618,8 +757,16 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   WORLD_EXIT_SCRIPT_DESCRIPTOR,
   DOOR_SCRIPT_DESCRIPTOR,
   GATE_SCRIPT_DESCRIPTOR,
+  GULP_SPOT_SCRIPT_DESCRIPTOR,
+  PRESSURE_PLATE_SCRIPT_DESCRIPTOR,
+  GOO_HEART_SCRIPT_DESCRIPTOR,
+  STORY_VARIANT_SCRIPT_DESCRIPTOR,
+  CRACKED_GROUND_SCRIPT_DESCRIPTOR,
+  SPIDER_WEB_SCRIPT_DESCRIPTOR,
+  STORY_FLAG_SCRIPT_DESCRIPTOR,
   BED_SCRIPT_DESCRIPTOR,
   WORKBENCH_SCRIPT_DESCRIPTOR,
+  RESTORATION_SITE_SCRIPT_DESCRIPTOR,
   WORLD_DEFINITION_SCRIPT_DESCRIPTOR,
   WORLD_AREA_SCRIPT_DESCRIPTOR,
   UI_SURFACE_SCRIPT_DESCRIPTOR,
@@ -644,8 +791,16 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: WORLD_EXIT_SCRIPT_DESCRIPTOR, factory: (context) => new WorldExitScript(context) })
     .registerDefinition({ descriptor: DOOR_SCRIPT_DESCRIPTOR, factory: (context) => new DoorScript(context) })
     .registerDefinition({ descriptor: GATE_SCRIPT_DESCRIPTOR, factory: (context) => new GateScript(context) })
+    .registerDefinition({ descriptor: GULP_SPOT_SCRIPT_DESCRIPTOR, factory: (context) => new GulpSpotScript(context) })
+    .registerDefinition({ descriptor: PRESSURE_PLATE_SCRIPT_DESCRIPTOR, factory: (context) => new PressurePlateScript(context) })
+    .registerDefinition({ descriptor: GOO_HEART_SCRIPT_DESCRIPTOR, factory: (context) => new GooHeartScript(context) })
+    .registerDefinition({ descriptor: STORY_VARIANT_SCRIPT_DESCRIPTOR, factory: (context) => new StoryVariantScript(context) })
+    .registerDefinition({ descriptor: CRACKED_GROUND_SCRIPT_DESCRIPTOR, factory: (context) => new CrackedGroundScript(context) })
+    .registerDefinition({ descriptor: SPIDER_WEB_SCRIPT_DESCRIPTOR, factory: (context) => new SpiderWebScript(context) })
+    .registerDefinition({ descriptor: STORY_FLAG_SCRIPT_DESCRIPTOR, factory: (context) => new StoryFlagScript(context) })
     .registerDefinition({ descriptor: BED_SCRIPT_DESCRIPTOR, factory: (context) => new BedScript(context) })
     .registerDefinition({ descriptor: WORKBENCH_SCRIPT_DESCRIPTOR, factory: (context) => new WorkbenchScript(context) })
+    .registerDefinition({ descriptor: RESTORATION_SITE_SCRIPT_DESCRIPTOR, factory: (context) => new RestorationSiteScript(context) })
     .registerDefinition({ descriptor: WORLD_DEFINITION_SCRIPT_DESCRIPTOR, factory: (context) => new WorldDefinitionScript(context) })
     .registerDefinition({ descriptor: WORLD_AREA_SCRIPT_DESCRIPTOR, factory: (context) => new WorldAreaScript(context) })
     .registerDefinition({ descriptor: UI_SURFACE_SCRIPT_DESCRIPTOR, factory: (context) => new UiSurfaceScript(context) });

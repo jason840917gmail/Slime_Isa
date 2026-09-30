@@ -12,7 +12,7 @@ function intent(sequenceId, abilityId = 'jump') {
     direction: { x: 1, y: 0 },
     start: { x: 10, y: 20 },
     target: { x: 30, y: 20 },
-    definition: { abilityId, unlockLevel: 1, cooldownMs: 100, energyCost: 0 },
+    definition: { abilityId, title: 'Jump', key: 'Space', earnedBy: 'Quest', cooldownMs: 100, energyCost: 0 },
     cooldownUntilMs: 100,
   };
 }
@@ -70,11 +70,11 @@ test('PlayerAbilityPresentation cancellation cleans effects without completing t
 test('PlayerAbilityPresentation forwards rejection feedback without engine dependencies', () => {
   const renderer = backend();
   const presentation = new PlayerAbilityPresentation(renderer);
-  presentation.notifyRejected('stretch-lash', 'locked', 4);
+  presentation.notifyRejected('stretch-lash', 'locked');
   presentation.notifyRejected('teleport', 'energy');
   assert.deepEqual(renderer.rejections, [
-    ['stretch-lash', 'locked', 4],
-    ['teleport', 'energy', undefined],
+    ['stretch-lash', 'locked'],
+    ['teleport', 'energy'],
   ]);
 });
 

@@ -11,7 +11,7 @@
   "enemy": {
     "maxHp": 55,
     "ai": { "aggroRange": 240, "attackRange": 34, "wanderSpeed": 50, "chaseSpeed": 130, "attackCooldownMs": 1100, "attackWindupMs": 250, "attackRecoveryMs": 250, "contactDamage": 52, "knockbackStrength": 340, "isRanged": false, "knockbackResist": 0.1 },
-    "drop": { "xp": 40, "coins": 8 },
+    "drop": { "coins": 8 },
     "impactEffect": { "visualSetId": "effect.enemy.worm-brawler-hit", "clipId": "hit", "distance": 22 }
   }
 }

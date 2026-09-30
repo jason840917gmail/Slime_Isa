@@ -81,6 +81,8 @@ interface PanelLayout {
 function reasonText(reason: CraftFailureReason): string {
   switch (reason) {
     case 'invalid-recipe': return 'This recipe is unavailable.';
+    case 'wrong-station': return 'Craft this at another station.';
+    case 'station-tier': return 'The station needs an upgrade.';
     case 'not-learned': return 'Not learned yet — a quest will teach it.';
     case 'unique-owned': return 'You already have this item.';
     case 'missing-materials': return 'More materials are needed.';

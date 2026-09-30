@@ -193,6 +193,7 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     return this;
   }
   setTintFill(color: number): this { this.sprite?.setTintFill(color); return this; }
+  setTint(color: number): this { this.sprite?.setTint(color); return this; }
   clearTint(): this { this.sprite?.clearTint(); return this; }
 
   resetEffects(): this {

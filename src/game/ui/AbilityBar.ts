@@ -96,11 +96,10 @@ export class AbilityBar {
 
     for (const slot of this.slots) {
       const unlocked = sys.isUnlocked(slot.id);
-      const unlockLevel = sys.unlockLevel(slot.id);
 
       if (!unlocked) {
         slot.icon.setAlpha(0.35);
-        slot.locked.setText(`Lv ${unlockLevel}`).setVisible(true);
+        slot.locked.setText(sys.status(slot.id).earnedBy).setVisible(true);
         slot.cooldown.clear();
         continue;
       }

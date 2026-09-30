@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "sceneId": "object.gulp-spot-stone",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "gulp-spot-stone",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "gulp-spot-stone.shape"
+        },
+        "position": [
+          0,
+          -16
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "gulp-spot-stone.sprite"
+        },
+        "frame": 20,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1.15,
+          1.15
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "script",
+      "name": "GulpSpotScript",
+      "type": "ScriptNode",
+      "scriptId": "game.gulp-spot",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "materialItemId": "stone",
+        "radius": 100,
+        "badgeRise": 112
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "gulp-spot-stone.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.rocks.8x3",
+      "frameWidth": 96,
+      "frameHeight": 96
+    },
+    {
+      "version": 1,
+      "resourceId": "gulp-spot-stone.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 84,
+        "height": 30
+      }
+    }
+  ]
+}

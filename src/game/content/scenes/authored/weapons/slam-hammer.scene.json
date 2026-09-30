@@ -191,9 +191,9 @@
         "animation": {
           "nodeId": "animation"
         },
-        "baseDamage": 50,
-        "cooldownMs": 2000,
-        "knockStrength": 100,
+        "baseDamage": 14,
+        "cooldownMs": 1300,
+        "knockStrength": 320,
         "damageModifiers": [
           {
             "targetTag": "stone",

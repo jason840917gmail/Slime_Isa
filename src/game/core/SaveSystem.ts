@@ -49,9 +49,7 @@ class SaveSystem {
     gameEvents.on('coins.changed', this.scheduleRecovery, this);
     gameEvents.on('boost.changed', this.scheduleRecovery, this);
     gameEvents.on('hp.changed', this.scheduleRecovery, this);
-    gameEvents.on('xp.changed', this.scheduleRecovery, this);
     gameEvents.on('energy.changed', this.scheduleRecovery, this);
-    gameEvents.on('perk.taken', this.scheduleRecovery, this);
     gameEvents.on('inventory.changed', this.scheduleRecovery, this);
     gameEvents.on('weapon.loadout.changed', this.scheduleRecovery, this);
     gameEvents.on('weapon.equipped', this.scheduleRecovery, this);
@@ -174,6 +172,33 @@ class SaveSystem {
     return this.queueNavigation(snapshot.data, 'load', loadedMap.map.mapId)
       ? { ok: true, snapshot }
       : { ok: false, saveId, message: 'The load request could not be started.' };
+  }
+
+  /** Play time of the installed run so far. */
+  playTimeMs(): number {
+    return this.playTimeBaseMs + Math.max(0, Date.now() - this.playTimeStartedAt);
+  }
+
+  /** True when there is a run to continue: the autosave or any named save. */
+  canContinue(): boolean {
+    return this.hasSave() || this.listNamedSaves().length > 0;
+  }
+
+  /**
+   * Travels into the newest run: the recovery autosave (written throughout
+   * play), or else the most recently updated named save.
+   */
+  async continueLatest(): Promise<LoadResult | { readonly ok: true }> {
+    const recovery = saveRepository.readRecovery();
+    if (recovery) {
+      saveRepository.markLegacyMigrationComplete();
+      return this.queueNavigation(recovery, 'load', recovery.location.mapId)
+        ? { ok: true }
+        : { ok: false, message: 'The autosave could not be opened.' };
+    }
+    const newest = [...this.listNamedSaves()].sort((left, right) => right.updatedAt - left.updatedAt)[0];
+    if (!newest) return { ok: false, message: 'There is no saved game yet.' };
+    return this.loadNamedSave(newest.saveId);
   }
 
   resetRun(): ResetResult {

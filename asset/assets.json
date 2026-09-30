@@ -30,6 +30,7 @@
       "sheet.grounds.19x19.town-cobble",
       "sheet.decorations.8x3",
       "sheet.landmarks.level-1.4x1",
+      "sheet.props.gulp.8x1",
       "sheet.walls.horizontal.8x1",
       "sheet.walls.corners.4x2",
       "sheet.walls.t-junctions.7x1",
@@ -44,6 +45,7 @@
       "sheet.trees.3x1",
       "sheet.houses.3x1",
       "sheet.houses.mushroom.2x1",
+      "sheet.houses.workshop.2x1",
       "enemy.worm.archer",
       "enemy.worm.swordsman",
       "enemy.worm.brawler",
@@ -78,9 +80,11 @@
       "ui.backplate.crafting-detail-workbench",
       "ui.backplate.quest-journal",
       "ui.frame.quest-offer-scroll",
-      "ui.frame.levelup-crest",
       "ui.frame.boss-health",
-      "ui.banner.area-title"
+      "ui.banner.area-title",
+      "ui.logo.slime-isa",
+      "ui.illustration.game-over",
+      "ui.icons.gulp-forms.2x1"
     ],
     "interiors": [
       "sheet.interiors.structure.8x8",
@@ -173,7 +177,7 @@
       "audio.sfx.player.heal.1",
       "audio.sfx.player.potion-drink.1",
       "audio.sfx.player.energy-restore.1",
-      "audio.sfx.player.level-up.1",
+      "audio.sfx.player.ability-learned.1",
       "audio.sfx.player.coin.1",
       "audio.sfx.player.coin.2",
       "audio.sfx.player.sleep-breath.1",
@@ -276,6 +280,13 @@
       "audio.sfx.world.npc-blip.3",
       "audio.sfx.world.interact.1",
       "audio.sfx.world.save.1",
+      "audio.sfx.world.restore-building.1",
+      "audio.sfx.world.campfire-loop.1",
+      "audio.sfx.world.cauldron-loop.1",
+      "audio.sfx.world.grindstone-loop.1",
+      "audio.sfx.world.anvil-loop.1",
+      "audio.sfx.world.meadow-ambience.1",
+      "audio.sfx.world.interior-ambience.1",
       "audio.sfx.ui.hover.1",
       "audio.sfx.ui.click.1",
       "audio.sfx.ui.confirm.1",
@@ -285,7 +296,6 @@
       "audio.sfx.ui.close.1",
       "audio.sfx.ui.craft-success.1",
       "audio.sfx.ui.craft-fail.1",
-      "audio.sfx.ui.perk-choose.1",
       "audio.sfx.ui.quest-accept.1",
       "audio.sfx.ui.quest-progress.1",
       "audio.sfx.ui.quest-complete.1",
@@ -832,6 +842,39 @@
         "prop"
       ],
       "status": "ready"
+    },
+    "sheet.props.gulp.8x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/props/256x256-tile_8x1-gulp-props.png",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 8,
+          "rows": 1
+        },
+        "expect": {
+          "w": 2048,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "props-gulp-8x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "object",
+        "prop",
+        "gulp"
+      ],
+      "status": "ready",
+      "notes": "Gulp and secret props (frame 0 cracked ground, 1 sinkhole, 2 cave ladder, 3 silk cocoon Gulp spot, 4 spider web barrier, 5 Goo Heart, 6 pressure plate up, 7 pressure plate down) generated with Magnific GPT-2; sources in asset/Originals/props/gulp/, packed by scripts/props/pack-gulp-props.py."
     },
     "sheet.landmarks.level-1.4x1": {
       "source": {
@@ -1482,6 +1525,39 @@
       ],
       "status": "draft",
       "notes": "Top-down mushroom house exteriors (frame 0 wide cap, frame 1 round cap) generated with Magnific GPT-2; sources in asset/Originals/houses/, packed by scripts/houses/normalize-mushroom-houses.py."
+    },
+    "sheet.houses.workshop.2x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/Houses/320-workshop-2x1.png",
+        "frame": {
+          "w": 320,
+          "h": 320,
+          "cols": 2,
+          "rows": 1
+        },
+        "expect": {
+          "w": 640,
+          "h": 320
+        }
+      },
+      "runtime": {
+        "textureKey": "houses-workshop-2x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "house",
+        "workshop"
+      ],
+      "status": "draft",
+      "notes": "Slimeshire Workshop exterior (frame 0 ruined, frame 1 restored) generated with Magnific GPT-2; sources in asset/Originals/houses/generated/, packed by scripts/houses/pack-workshop.py."
     },
     "sheet.rocks.3x1": {
       "source": {
@@ -3003,6 +3079,93 @@
       "status": "ready",
       "notes": "Warm map and quest-journal paper surface; routes and text stay dynamic."
     },
+    "ui.logo.slime-isa": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-slime-isa-logo.png",
+        "expect": {
+          "w": 720,
+          "h": 397
+        }
+      },
+      "runtime": {
+        "textureKey": "ui-slime-isa-logo"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "logo",
+        "title"
+      ],
+      "status": "ready",
+      "notes": "Title-screen wordmark, generated with Magnific GPT-2 (source in asset/Originals/ui/generated/)."
+    },
+    "ui.icons.gulp-forms.2x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "UI/ui-gulp-form-icons-2x1.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 2,
+          "rows": 1
+        },
+        "expect": {
+          "w": 256,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "ui-gulp-form-icons"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "icon",
+        "gulp"
+      ],
+      "status": "draft",
+      "notes": "Gulp form badges (frame 0 Heavy, 1 Sticky) for the form timer and the quick wheel; generated with Magnific GPT-2 (sources in asset/Originals/ui/gulp/), packed by scripts/props/pack-gulp-props.py."
+    },
+    "ui.illustration.game-over": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-game-over-puddle.png",
+        "expect": {
+          "w": 420,
+          "h": 420
+        }
+      },
+      "runtime": {
+        "textureKey": "ui-game-over-puddle"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "illustration",
+        "game-over"
+      ],
+      "status": "ready",
+      "notes": "Game-over illustration: a melted, teary slime puddle; generated with Magnific GPT-2 (source in asset/Originals/ui/generated/)."
+    },
     "ui.frame.organic-minimap": {
       "source": {
         "kind": "image",
@@ -3138,33 +3301,6 @@
       ],
       "status": "ready",
       "notes": "Quest offer and turn-in scroll frame; objectives and rewards stay dynamic."
-    },
-    "ui.frame.levelup-crest": {
-      "source": {
-        "kind": "image",
-        "path": "UI/ui-levelup-crest-frame.png",
-        "expect": {
-          "w": 1448,
-          "h": 1086
-        }
-      },
-      "runtime": {
-        "textureKey": "ui-levelup-crest-frame"
-      },
-      "render": {
-        "origin": [
-          0.5,
-          0.5
-        ],
-        "pixelArt": false
-      },
-      "tags": [
-        "ui",
-        "frame",
-        "levelup"
-      ],
-      "status": "ready",
-      "notes": "Special-event level-up frame with a central slime and crystal crest."
     },
     "ui.frame.boss-health": {
       "source": {
@@ -4123,13 +4259,13 @@
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
     },
-    "audio.sfx.player.level-up.1": {
+    "audio.sfx.player.ability-learned.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/level-up.wav",
-        "alternates": { "library": "audio/sfx/library/player/level-up.ogg" }
+        "path": "audio/sfx/synth/player/ability-learned.wav",
+        "alternates": { "library": "audio/sfx/library/player/ability-learned.ogg" }
       },
-      "runtime": { "textureKey": "sfx-player-level-up-1" },
+      "runtime": { "textureKey": "sfx-player-ability-learned-1" },
       "tags": ["audio", "sfx", "player"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
@@ -5251,6 +5387,77 @@
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
     },
+    "audio.sfx.world.restore-building.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/restore-building.wav",
+        "alternates": { "library": "audio/sfx/library/world/restore-building.wav" }
+      },
+      "runtime": { "textureKey": "sfx-world-restore-building-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.campfire-loop.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/campfire-loop.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-campfire-loop-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.cauldron-loop.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/cauldron-loop.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-cauldron-loop-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.grindstone-loop.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/grindstone-loop.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-grindstone-loop-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.anvil-loop.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/anvil-loop.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-anvil-loop-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.meadow-ambience.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/meadow-ambience.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-meadow-ambience-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.interior-ambience.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/interior-ambience.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-interior-ambience-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
     "audio.sfx.ui.hover.1": {
       "source": {
         "kind": "audio",
@@ -5346,17 +5553,6 @@
         "alternates": { "library": "audio/sfx/library/ui/craft-fail.ogg" }
       },
       "runtime": { "textureKey": "sfx-ui-craft-fail-1" },
-      "tags": ["audio", "sfx", "ui"],
-      "status": "draft",
-      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
-    },
-    "audio.sfx.ui.perk-choose.1": {
-      "source": {
-        "kind": "audio",
-        "path": "audio/sfx/synth/ui/perk-choose.wav",
-        "alternates": { "library": "audio/sfx/library/ui/perk-choose.ogg" }
-      },
-      "runtime": { "textureKey": "sfx-ui-perk-choose-1" },
       "tags": ["audio", "sfx", "ui"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."

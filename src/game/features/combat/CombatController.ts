@@ -15,6 +15,8 @@ import { UI_THEME } from '../../presentation/theme';
 import { getStats } from '../../systems/PlayerStats';
 import { playerInventory } from '../../systems/Inventory';
 import { floatingText } from '../../ui/FloatingText';
+import { gameFeel } from '../feel/sharedFeel';
+import { particleFx } from '../feel/ParticlePresets';
 import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
 import type { NormalizedWeaponDefinition } from '../../content/weapons/types';
 import type { WorldDimensions } from '../../world/WorldDimensions';
@@ -74,6 +76,8 @@ export class CombatController {
   private spawner?: AuthoredEnemyPopulationController;
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
+  /** The swing in flight rolled a crit; cleared once its first creature hit sounds the crit. */
+  private criticalAttack = false;
 
   constructor(private readonly ctx: CombatControllerContext) {
     const { scene, player } = ctx;
@@ -95,7 +99,7 @@ export class CombatController {
       onComboReset: () => this.comboText.setAlpha(0),
       onComboFinish: (count) => {
         floatingText.spawn(scene, player.x, player.y - 60, `${count}x FINISHER!`, 'yellow', true);
-        scene.cameras.main.shake(120, 0.008);
+        gameFeel.play('combo-finisher');
       },
     });
 
@@ -162,7 +166,8 @@ export class CombatController {
       ],
       damageTypes: ['physical'],
     });
-    if (attacked && critical) this.ctx.scene.cameras.main.shake(80, 0.006);
+    if (attacked && critical) gameFeel.play('critical-hit');
+    if (attacked) this.criticalAttack = critical;
     return attacked;
   }
 
@@ -192,8 +197,17 @@ export class CombatController {
   onManagedWeaponOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined): void {
     if (outcome.result.status !== 'accepted') return;
     const targetTags = target?.targetTags ?? [];
-    if (targetTags.includes('enemy')) this.applyLifeSteal(outcome.result.actualDamage);
     if (targetTags.includes('resource')) return;
+    if (this.criticalAttack && outcome.result.actualDamage > 0) {
+      // One crit sting per swing, however many creatures it hits.
+      this.criticalAttack = false;
+      gameEvents.emit('weapon.critical-hit', {});
+    }
+    // A light hit-stop whenever the weapon lands on a creature.
+    if (target && outcome.result.actualDamage > 0) {
+      gameFeel.play('hit');
+      particleFx.play('hit-spark', target.x, target.y - 12);
+    }
     const effectId = this.weapon?.onHitEffectId;
     if (!target || !effectId || outcome.result.actualDamage <= 0) return;
     this.spawnEffect({
@@ -253,13 +267,6 @@ export class CombatController {
     }
   }
 
-  private applyLifeSteal(damageDealt: number): void {
-    const percentage = getStats().lifeStealPct;
-    if (damageDealt <= 0 || percentage <= 0) return;
-    const healed = this.ctx.healPlayer(Math.ceil(damageDealt * percentage));
-    if (healed > 0) floatingText.spawn(this.ctx.scene, this.ctx.player.x, this.ctx.player.y - 36, `+${healed}`, 'green');
-  }
-
   private awardEnemyDefeat(enemy: ManagedEnemyDefeat): void {
     const { drop } = enemy.config;
     const { scene } = this.ctx;
@@ -269,10 +276,6 @@ export class CombatController {
       kind: enemy.config.id,
     });
 
-    if (drop.xp > 0) {
-      gameState.addXp(drop.xp);
-      floatingText.spawn(scene, enemy.x, enemy.y - 36, `+${drop.xp} XP`, 'cyan');
-    }
     if (drop.coins > 0) {
       gameState.addCoins(drop.coins);
       floatingText.spawn(scene, enemy.x, enemy.y - 20, `+${drop.coins}c`, 'yellow');

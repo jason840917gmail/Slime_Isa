@@ -13,6 +13,7 @@ import { sceneDocuments, sceneResourceDocuments } from 'virtual-scene-content';
 import { sceneId } from './content/scenes/identifiers';
 import { itemRegistry } from './systems/Inventory';
 import { redirectLegacyStudioRoute } from './editor/scene-studio/SceneStudioRoute';
+import { GAME_SHELL_SCENE_IDS } from './features/shell/GameShell';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
   const legacyStudioRoute = import.meta.env.DEV
@@ -99,8 +100,8 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('ui.npc-dialogue'),
           sceneId('ui.quest-tracker'),
           sceneId('ui.world-map-ui'),
-          sceneId('ui.level-up-modal'),
-          sceneId('ui.audio-settings'),
+          ...GAME_SHELL_SCENE_IDS.map((id) => sceneId(id)),
+          sceneId('ui.control-hint'),
           sceneId('ui.minimap'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
@@ -111,28 +112,31 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
       <div class="canvas-frame">
         <div id="game-root"></div>
         <div class="scene-ui-root" data-scene-ui-root aria-label="Game interface"></div>
-        <details class="keymap-panel" open>
+${import.meta.env.DEV ? `
+        <details class="keymap-panel">
           <summary>Controls</summary>
           <table>
             <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
             <tr><td class="k">Mouse Wheel</td><td>Zoom camera</td></tr>
             <tr><td class="k">E / Click</td><td>Attack</td></tr>
             <tr><td class="k">Q</td><td>Roll / dodge (i-frames)</td></tr>
-            <tr><td class="k">Space</td><td>Jump <span class="lock">Lv 2</span></td></tr>
-            <tr><td class="k">T</td><td>Squash Slam <span class="lock">Lv 3</span></td></tr>
-            <tr><td class="k">R</td><td>Stretch Lash <span class="lock">Lv 4</span></td></tr>
-            <tr><td class="k">Y</td><td>Teleport <span class="lock">Lv 5</span></td></tr>
+            <tr><td class="k">Space</td><td>Jump <span class="lock">Quest</span></td></tr>
+            <tr><td class="k">T</td><td>Squash Slam <span class="lock">Boss</span></td></tr>
+            <tr><td class="k">R</td><td>Stretch Lash <span class="lock">Quest</span></td></tr>
+            <tr><td class="k">Y</td><td>Teleport <span class="lock">Later</span></td></tr>
             <tr><td class="k">F</td><td>Interact</td></tr>
             <tr><td class="k">G</td><td>Pick up placed furniture</td></tr>
+            <tr><td class="k">W</td><td>Gulp: tap to eat a Gulp material or burp a form; hold for the quick wheel</td></tr>
             <tr><td class="k">1–6</td><td>Equip inventory weapon</td></tr>
             <tr><td class="k">Tab</td><td>Inventory</td></tr>
             <tr><td class="k">M</td><td>World Map</td></tr>
             <tr><td class="k">U</td><td>Quest Book</td></tr>
             <tr><td class="k">C</td><td>Crafting</td></tr>
-            <tr><td class="k">Esc</td><td>Sound settings</td></tr>
+            <tr><td class="k">Esc</td><td>Pause menu</td></tr>
             <tr><td class="k">Shift + 1–8</td><td>Debug cheats</td></tr>
           </table>
         </details>
+        ` : ''}
       </div>
       ${devPanel}
     </section>
@@ -186,6 +190,8 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     },
     scene: [BootScene, MapLoadScene, WorldScene],
   });
+  // Development only: lets automated playtests inspect the running game.
+  if (import.meta.env.DEV) Object.assign(window, { __slimeGame: game });
   game.events.once(Phaser.Core.Events.DESTROY, () => modalStack.destroy());
   game.events.once(Phaser.Core.Events.DESTROY, () => preparedSceneContent.dispose());
   return game;

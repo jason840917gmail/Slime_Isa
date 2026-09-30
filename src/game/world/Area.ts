@@ -18,10 +18,13 @@ export interface AreaDef {
   neighbors: Partial<Record<Direction, AreaId>>;
 }
 
+/** Where a new run begins and where the player wakes when no bed is available. */
+export const STARTING_AREA_ID: AreaId = 'level-1';
+
 export const AREAS: Readonly<Record<string, AreaDef>> = {
   'level-1': {
     id: 'level-1',
-    name: 'Level 1',
+    name: 'Slimeshire Meadow',
     biome: 'meadow',
     seed: 1,
     mapX: 0,

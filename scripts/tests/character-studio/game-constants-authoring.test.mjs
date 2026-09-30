@@ -68,7 +68,7 @@ test('development endpoint validates GET and POST while preserving invalid and s
     const initial = await getResponse.json();
     assert.equal(getResponse.status, 200);
     assert.equal(initial.ok, true);
-    assert.equal(initial.data.document.character.player.progression.maxLevel, 10);
+    assert.equal(initial.data.document.character.player.stats.maxHp, 100);
 
     const diskBeforeInvalid = await fs.readFile(fixturePath, 'utf8');
     const invalid = structuredClone(initial.data.document);

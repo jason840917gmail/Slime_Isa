@@ -17,5 +17,5 @@ export const PLAYER_CONFIG = {
   attributes: GAME_CONSTANTS.character.player.initialAttributes,
   body: primary.body,
   movement: GAME_CONSTANTS.character.player.movement,
-  progression: GAME_CONSTANTS.character.player.progression,
+  stats: GAME_CONSTANTS.character.player.stats,
 } as const;

@@ -69,13 +69,13 @@ are ordered but not sized or dated (decided 2026-09-29).
 | S | Universal scene architecture | Every world, entity, UI, and audio surface is an authored scene | `[x]` |
 | **Release 1** | | | |
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
-| 4 | Game shell | Title, continue, pause, game over, settings, credits | `[ ]` |
-| 5 | Gear-based progression | XP and levels are gone; gear, Goo Hearts, and story unlocks make you stronger | `[ ]` |
-| 6 | Rebuild Slimeshire: the Workshop | Restore a ruined building and craft at the Workshop | `[ ]` |
-| 7 | Gulp | Swallow a material to take its form and solve a puzzle | `[ ]` |
-| 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss | `[ ]` |
-| 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[ ]` |
-| 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[ ]` |
+| 4 | Game shell | Title, continue, pause, game over, settings, credits | `[~]` |
+| 5 | Gear-based progression | XP and levels are gone; gear, Goo Hearts, and story unlocks make you stronger | `[~]` |
+| 6 | Rebuild Slimeshire: the Workshop | Restore a ruined building and craft at the Workshop | `[~]` |
+| 7 | Gulp | Swallow a material to take its form and solve a puzzle | `[~]` |
+| 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss | `[~]` |
+| 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[~]` |
+| 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[~]` |
 | 11 | Playtest and ship | Blind playtest, fixes, `v0.1.0` published | `[ ]` |
 
 Why this order: 3 closes the work already half done. 4 gives every later
@@ -131,42 +131,46 @@ in is where the player wakes.
   worlds use a fixed camera that fits the room; a bobbing F badge marks the
   door, chest, or NPC in range.
 
-### [~] 3.4 — Beds are home (was 3.3)
+### [x] 3.4 — Beds are home (was 3.3), verified 2026-09-29
 
-- Build: sleeping in a bed saves `world.respawnPoint`; defeat returns the
-  player to that bed's map and wake point, falling back to the Level 1 start.
-- Player proof: sleep in a bed, get defeated elsewhere, wake at that bed.
-- Done when: the respawn bed survives save/load and falls back to Level 1 when
-  the bed's map no longer has it.
+- Done: sleeping saves `world.respawnPoint` with the bed's identity (`bedId`:
+  the instance's persistence key, or `placed-furniture:<id>` for a placed bed).
+  Defeat wakes the player at that bed on its own map; if the bed's world no
+  longer has it (`features/rest/RespawnDestination.ts` checks the scene
+  catalog), the point is cleared and the player wakes at the Level 1 spawn.
+  Played headless: sleep in the Slime Home, die in Level 1, wake in the bed;
+  the bed survives a reload; a removed bed falls back to Level 1.
+  `pnpm test:progression` covers the lookup.
 
-### [~] 3.5 — Interior collision and interaction (was 4.5)
+### [x] 3.5 — Interior collision and interaction (was 4.5), verified 2026-09-29
 
-- Current: `game.bed` scripts on sleepable beds; F plays the `doze`/`sleep`
-  clips with floating z's and restores `rest.sleepHpRegenPerSec` HP/s; input or
-  damage wakes the player.
-- Build: block walls and solid furniture everywhere in both rooms.
-- Done when: collision, interaction, and depth are correct from every direction.
+- Done: `game.bed` scripts on sleepable beds (F dozes, sleeps, and restores
+  `rest.sleepHpRegenPerSec` HP/s; input or damage wakes the player). A
+  flood-fill of where the player's body can stand shows both rooms closed:
+  no footprint reaches wall art. Beds, tables, hearths, the alchemy bench and
+  the water basin got deeper footprints (`FOOTPRINT_SHARES` in
+  `scripts/interiors/interior_catalog.py`), so the player can no longer walk
+  into the hearth alcove or across tabletops. Depth and the F badge were
+  checked from the north, south, east and west of each large piece.
 
-### [~] 3.6 — Persist placed furniture (was 4.6)
+### [x] 3.6 — Persist placed furniture (was 4.6), verified 2026-09-29
 
-- Current: the workbench is placed from the inventory with a grid-snapped
+- Done: the workbench is placed from the inventory with a grid-snapped
   preview (R variant, Esc cancel), saved per map as `placedFurniture`, and
-  picked up with G.
-- Done when: placed furniture in homes and outdoors survives leaving, reload,
-  and a second placement without duplication.
+  picked up with G. Played headless: one bench in Level 1 and one in the Slime
+  Home each stay exactly once through leaving, returning, and a reload;
+  picking one up and placing it again leaves one record.
 
-### [ ] 3.7 — The playground map
+### [x] 3.7 — The playground map, verified 2026-09-29
 
-- Build: a dev-only `playground` world scene for trying new mechanics: open
-  ground, a few enemies, resource nodes, and room for test puzzles. It is
-  reachable with `?map=playground` in development and left out of production
-  builds. Today every world ships, so this task adds the dev-only world list
-  that keeps it out; 10.2 later adds the other test maps to the same list. It
-  is built early because 4.7, 7.x, 8.2, and 9.4 test in it.
-- Player proof: a new feature can be tried in isolation before any chapter
-  depends on it.
-- Done when: the map opens with `?map=playground`, `pnpm scenes:check`
-  passes, and a production build does not contain it.
+- Done: `world.playground` (40 × 28 tiles) has a resource grove, an empty
+  cobble puzzle yard, an enemy pen (worm brawlers, a worm archer, a slime
+  spider) and a chest of stone gear, materials and potions by the spawn. It
+  opens with `?map=playground`. `src/game/content/scenes/devOnlyWorlds.ts` is
+  the dev-only world list; the scene content plugin drops those worlds from
+  production builds (a build contains no `world.playground`). 10.2 adds the
+  other test maps to the same list. Dev-only worlds have no legacy
+  `.map.json`, so a named save made in one cannot be loaded back.
 
 Interior authoring in Scene Studio (was 4.3) is not a separate task: the next
 interior, the Gloop Forest hut, is built in 8.8 with Scene Studio as it is
@@ -174,6 +178,14 @@ today, and only real blockers get fixed.
 
 ### [ ] 3.8 — Pick one sound flavour (was A.4)
 
+- 2026-09-30: the picker now also offers **Neither** per cue (with a "how
+  should it sound?" box, for replacements to make) and a ✕ to drop single
+  takes, plus a **My picks are final** button. Claude applies the picks only
+  once they are marked final.
+
+- Current: every cue's library and synth takes are on an A/B listening page,
+  [Slime Isa Sound Picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ);
+  picks made there save for Claude to apply.
 - Build: compare synth and library takes per category, delete the losing
   flavour, and remove the `?sfx` toggle.
 - Done when: each cue ID has one shipped flavour and `assets:check` finds no
@@ -183,6 +195,14 @@ today, and only real blockers get fixed.
 
 - Current: terrain footsteps, status, chest, gate, NPC, and area-title cues
   exist, and Level 1 plays its town music.
+- Built 2026-09-29 with synth placeholder loops (`world/*-loop`,
+  `world/meadow-ambience`, `world/interior-ambience` in
+  `scripts/audio/cues.mjs`, rendered as seamless loops): every campfire,
+  cauldron, grindstone and anvil plays a positional loop on the ambience bus
+  (audible within ~420 px, silent beyond); Level 1 has a meadow bed and both
+  interiors a room-and-hearth bed. Played headless: each prop is audible up
+  close and silent 700 px away. Open: final recordings (see Assets), or the
+  user accepting the placeholders.
 - Build: prop loops for the campfire, cauldron, grindstone, and anvil; Level 1
   ambience; interior ambience or music.
 - Player proof: Slimeshire sounds alive and props can be heard as you approach.
@@ -192,11 +212,19 @@ today, and only real blockers get fixed.
 
 ### [~] 3.10 — Audio polish (was A.6)
 
-- Current: the Esc sound modal has master, effects, and music sliders plus
-  mute, saved per device by `AudioSettingsStore`.
+- Current: Settings (pause menu or title) has master, effects, and music
+  sliders plus mute, saved per device by `GameSettingsService`.
 - Build: duck music while paused, crossfade on `area.enter`, switch to boss
   music on `boss_spawn_requested`, and pass the crit flag to hit sounds.
 - Done when: music transitions never stack or cut off abruptly.
+- Built 2026-09-29: `features/audio/MusicDirector.ts` fades world music in on
+  arrival, dips the music bus to 35% while a menu pauses the game, crossfades
+  to `Music/BossMusic` in `audio.global` while a boss fight lasts
+  (`boss.engaged` / `boss.disengaged`) and back, and fades music and picture
+  out before any map change. A critical hit plays the `weapon/crit` sting
+  once per swing. Played headless on Fatty's arena; `pnpm test:audio`.
+  Open: `BossMusic` is a placeholder (the town theme pitched up) until a boss
+  track is sourced.
 
 The cue list, hooks, and sourcing rules are in the
 [Audio & SFX implementation plan](./superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
@@ -208,16 +236,31 @@ save/load, and map changes, and today's content has final sound and music.
 
 - Reuse: interior catalog, `house-*` exteriors, the CC0 library packs listed in
   `asset/audio/CREDITS.md`, `level-1-home-town.ogg`.
-- [ ] Ambience loops: meadow day, forest, interior.
-- [ ] Prop loops: campfire, cauldron, grindstone, anvil.
-- [ ] Boss music track (CC0 or commissioned).
+- [ ] Ambience loops: meadow day, forest, interior (synth placeholders for
+      meadow and interior are wired).
+- [ ] Prop loops: campfire, cauldron, grindstone, anvil (synth placeholders
+      are wired).
+- [ ] Boss music track (CC0 or commissioned); a placeholder is wired.
 
 ## 4. Game Shell
 
-Today there is no title, pause, or game-over screen, and Save, Load, and Reset
-live in the Development Tools panel (see P.4).
+Built 2026-09-29 as `features/shell/` (one `MenuSurface` base, one authored
+`ui.*` scene per menu, composed by `GameShell`); `pnpm test:shell` covers the
+menus and hints. Played headless end to end: fresh profile → title (Continue
+and Load disabled) → New Game → play → Esc → Save to Slot 1 → Quit to Title
+(Continue and Load enabled) → Load Slot 1 (same position) → defeat → "Defeated
+by Worm Brawler" → wake. The Development Tools panel (with its Save, Load, and
+Reset) only exists in `pnpm dev`. Placeholder presentation until the assets
+below exist.
 
-### [ ] 4.1 — Title screen
+### [x] 4.1 — Title screen, verified 2026-09-29
+
+- Done: the first world of a page load is a title screen over a paused,
+  empty Slimeshire that drifts slowly (`WorldScene` title mode; nothing is
+  autosaved behind it). New Game (asks first when an autosave exists; save
+  slots are kept), Continue (`SaveSystem.continueLatest`: the autosave, else
+  the newest slot), Load, Settings, Credits, and the version. Run handoffs
+  (travel, load, reset) and dev `?map=` previews skip it.
 
 - Build: New Game, Continue (newest save or recovery autosave), Load,
   Settings, Credits, and the version number. A slow camera pan over Slimeshire
@@ -225,7 +268,12 @@ live in the Development Tools panel (see P.4).
 - Player proof: the game starts like a game.
 - Done when: every button works on a fresh browser profile and with saves.
 
-### [ ] 4.2 — Pause menu
+### [x] 4.2 — Pause menu, verified 2026-09-29
+
+- Done: Esc with nothing open pauses and shows Resume, Journal, Inventory,
+  Map, Settings, Save, and Quit to Title (which saves, fades out, and reloads
+  to the title). Settings and Save open on top of it; Esc closes the topmost
+  window first. The sound settings are part of Settings.
 
 - Build: Escape with no other surface open pauses and shows Resume, Journal,
   Inventory, Map, Settings, Save, and Quit to Title, routed through the
@@ -233,27 +281,49 @@ live in the Development Tools panel (see P.4).
 - Done when: pause state, Escape order, and resume are correct from every
   surface.
 
-### [ ] 4.3 — Player-facing saves
+### [x] 4.3 — Player-facing saves, verified 2026-09-29
+
+- Done: three save slots (named saves "Slot 1"–"Slot 3") from Save in the
+  pause menu, and Load from the title or the game-over screen; overwriting a
+  slot asks first. The P.5 matrix stays covered by `pnpm test:persistence`
+  plus the menu round trip above.
 
 - Build: move Save, Load, and Reset Run out of Development Tools into the pause
   menu and title screen, and hide Development Tools in production builds.
 - Player proof: a player can save, quit, and continue without developer UI.
 - Done when: the P.5 persistence matrix still passes through the new menus.
 
-### [ ] 4.4 — Game over
+### [x] 4.4 — Game over, verified 2026-09-29
+
+- Done: after the defeat animation, "Defeated" names the attacker from the
+  last hit ("Defeated by Worm Brawler") and the time played, with "Wake at
+  your bed" (or "Wake in Slimeshire") and "Load a save". Three defeats in a
+  row left one player and the inventory intact.
 
 - Build: on defeat, a short screen (what defeated you, time played) with
   "Wake at your bed" and "Load a save".
 - Done when: repeated defeats never duplicate the player or lose progress.
 
-### [ ] 4.5 — Settings
+### [x] 4.5 — Settings, verified 2026-09-29
+
+- Done: master, effects, music, screen shake, reduce motion (which turns
+  shake off), and a Controls list. `features/settings/GameSettingsService`
+  (`gameSettings`) is the one store gameplay reads (`shakeScale`), saved per
+  device under `slime-isa:settings:v1`; older sound settings carry over.
 
 - Build: sound (existing), screen shake, reduce motion, and a controls list.
   Settings stay per device, separate from save slots.
 - Done when: every setting survives a reload and is readable by gameplay code
   through one settings store. (Milestone 9 checks that its effects obey them.)
 
-### [ ] 4.6 — First-time control hints
+### [x] 4.6 — First-time control hints, verified 2026-09-29
+
+- Done: `features/hints/ControlHints.ts` shows one banner at a time above the
+  hotbar while it is useful (move at start; F when a prompt shows; attack
+  once armed; dodge near an enemy; inventory once you carry something;
+  crafting at 40 wood). Using the control saves a `hint.<id>` story flag, so a
+  hint never returns in that run and a new game shows them again. All six
+  were checked headless, including after a reload.
 
 - Build: contextual hints for move, attack, dodge, interact (F), inventory,
   and crafting that fade after first use.
@@ -261,7 +331,13 @@ live in the Development Tools panel (see P.4).
 - Done when: on a fresh save each of the six hints appears once, disappears
   after the player performs that action, and never returns on reload.
 
-### [ ] 4.7 — Credits screen and end-card component
+### [x] 4.7 — Credits screen and end-card component, verified 2026-09-29
+
+- Done: credits read `src/game/content/credits/credits.json`. End cards
+  (`content/story/endCards.ts`) show when their story flag is newly set and
+  return to the title. In the playground, the Heavy form on the plate inside
+  the puzzle pen sets `playground-end-card-test` through a `game.story-flag`
+  node; the card appeared and returned to the title.
 
 - Build: a credits screen, opened from the title, that reads its entries from
   one credits data file (today: the audio packs in `asset/audio/CREDITS.md`
@@ -272,7 +348,14 @@ live in the Development Tools panel (see P.4).
   setting a test flag in the playground shows the end card and returns to the
   title.
 
-### [ ] 4.8 — Artwork-first HUD (was UX.0.1)
+### [x] 4.8 — Artwork-first HUD (was UX.0.1), verified 2026-09-29
+
+- Done: the HUD and weapon hotbar have no filled boxes (transparent meter
+  tracks and slots, thin outlines, text shadows; the selected slot has a gold
+  double outline and a marker); the minimap already used its frame over a
+  0.16-alpha interior. Checked at 1280×720, 800×600 and 390×720 (hotbar
+  350 px wide at 390). Label and button text alignment now works in every
+  UI scene (it was ignored before).
 
 - Build: apply the approved artwork-first treatment to the `hud`, `minimap`,
   and `weapon-hotbar` UI scenes. See
@@ -280,7 +363,29 @@ live in the Development Tools panel (see P.4).
 - Done when: the world art shows through the widgets and every value fits at
   wide, medium, and narrow viewports.
 
-### [ ] 4.9 — First fresh-eyes playtest
+### [~] 4.9 — First fresh-eyes playtest
+
+- Owner playtest, 2026-09-29. Findings and what changed (2026-09-30):
+  - Crafting a placeable item needed close → inventory → place: crafting one
+    now closes the popup and starts placing it at once (Esc keeps it in the
+    bag).
+  - Missing materials were easy to miss: Craft stays pressable and answers
+    "Missing: 15 Wood." in red; short recipes show a red edge and "Missing 15
+    Wood" in the list; the details mark each short material.
+  - The first worm camp was too hard: it now holds worm swordsmen (slower,
+    telegraphed), and Worm Trouble asks for three of them (definition v2;
+    older saves keep their progress, clamped to the new target).
+  - Quests needed a WoW-style pointer: clicking the quest tracker shows a gold
+    arrow with the distance to the next step (giver, turn-in NPC, camp, boss,
+    exit, tree or rock, workbench), a marker over it once on screen, and a pin
+    on the minimap (`features/quests/QuestWaypoint.ts`).
+  - Fatty's camp was cramped and cheesable: his clearing is now an open
+    7-tile circle with no props, walls or trees inside, his arena and
+    activation circles sit just inside it (so he never leaps over hedges), the
+    chest waits at the north rim, and the maze has no enemy spawns, so no
+    worm joins his fight (`scripts/maps/build-level-1.mjs`).
+  - Credits read "Created by Daniel, Isa and Dany6".
+- Open: a second new player.
 
 - Build: two people who have never seen the game play Chapter 1 from the
   title screen while you watch without helping. Note where they get stuck and
@@ -293,17 +398,22 @@ live in the Development Tools panel (see P.4).
 
 **Milestone 4 complete when:** boot → title → new game → play → defeat →
 wake → pause → settings → save → quit → title → continue works end to end,
-and two new players have played Chapter 1 (4.9).
+and two new players have played Chapter 1 (4.9). The loop works (headless,
+2026-09-29); open: 4.9 and the assets below.
 
 **Assets**
 
 - Reuse: `ui-organic-modal-frame`, `ui-map-journal-paper`, the existing UI
   sound cues, the player's defeat clip.
-- [ ] Game logo (title screen, browser tab icon, store page).
+- [~] Game logo: Magnific GPT-2 (`asset/UI/ui-slime-isa-logo.png`,
+      `ui.logo.slime-isa`), shown at the top of the title panel; owner to
+      accept. Open: the browser tab icon and store page.
 - [ ] Menu button states (normal, hover, pressed, disabled), matching the
       organic frame style.
 - [ ] Title music (CC0 or commissioned).
-- [ ] Game-over illustration or an animated melted-slime puddle.
+- [~] Game-over illustration: a melted-slime puddle, Magnific GPT-2
+      (`asset/UI/ui-game-over-puddle.png`, `ui.illustration.game-over`), above
+      "Defeated"; owner to accept.
 - [ ] Control-hint key and mouse glyphs.
 
 ## 5. Gear-Based Progression
@@ -312,12 +422,30 @@ Decided 2026-09-29: the player gets stronger through gear, not experience.
 XP, levels, and perks are removed. See
 [Progression](./GAME_GUIDELINES.md#progression-gear-not-levels).
 
-Today XP and levels touch about 36 source files: enemy drops, quest rewards,
-the HUD, the level-up modal and perks, save schema v9, `game-constants.json`
-level tables, weapon `unlockLevel`, and ability unlocks (Jump at level 2, Squash
-Slam 3, Stretch Lash 4, Teleport 5).
+Built 2026-09-29 (5.1–5.5). The player has flat base stats
+(`character.player.stats` in `game-constants.json`), Goo Hearts raise max HP,
+and quests teach abilities the way they teach recipes. The work is verified in
+the running game with placeholder art and sound; the assets below are open.
 
-### [ ] 5.1 — Retire XP, levels, and perks
+### [x] 5.1 — Retire XP, levels, and perks, verified 2026-09-29
+
+- Done: enemy drops and quest rewards carry no XP; the HUD shows coins, HP, and
+  energy only; the level-up modal, its `P` reopen, perks and their icons,
+  weapon `unlockLevel`, and the level table are gone (`GameState` holds coins,
+  HP, energy, Goo Hearts, attributes, and equipment). Save schema v10 (player
+  shape v5) drops `level`, `currentXp`, `skillPoints`, and `perks` from older
+  saves, keeps their story progress, and gives back every ability their
+  completed quests teach. Played headless: a v9 save at level 3 with 124 HP
+  loaded as a v10 save at 100 HP with Jump kept (Worm Trouble was done) and its
+  recipes intact. The level-up jingle became the ability-learned sting; the
+  perk sound and the 2.2 MB level-up crest frame were removed (its source art
+  stays in `asset/Originals/ui/`).
+- Checks: `pnpm test:persistence` covers the v9 migration;
+  `test:game-constants`, `test:progression`, `test:quests`,
+  `test:scene-integration`, `test:ui`, and the ability-bar and HUD Playwright
+  specs pass. `pnpm check` still stops on failures that predate this work: 6
+  scene-conversion tests and 4 Playwright specs (global audio, worm arrow,
+  quest journal, Studio controls).
 
 - Build: remove XP from enemy drops and quest rewards, the XP bar, the level-up
   modal and its `P` reopen, perks, weapon `unlockLevel`, and the level tables.
@@ -326,7 +454,17 @@ Slam 3, Stretch Lash 4, Teleport 5).
 - Done when: no XP or level text remains, old saves load, and `pnpm check`
   passes.
 
-### [ ] 5.2 — Story-unlocked abilities
+### [x] 5.2 — Story-unlocked abilities, verified 2026-09-29
+
+- Done: quest rewards take `abilityIds` (validated against
+  `content/abilities.ts`); `StoryProgress` saves learned abilities and emits
+  `ability.learned`, shown as the area-title banner ("Jump learned: press
+  Space") with the placeholder sting. Mossy teaches Jump when Worm Trouble is
+  handed in, with a new line of dialogue. Locked abilities show how they are
+  earned on the ability bar: Jump "Quest", Squash Slam "Boss", Stretch Lash
+  "Quest", Teleport "Later". Played headless from a save at the Worm Trouble
+  hand-in: Jump was locked, the turn-in taught it, Space jumped, and it
+  survived Continue. The full Chapter 1 run is part of the 4.9 playtest.
 
 - Build: quest and boss rewards can grant abilities, like they grant recipes.
   A Chapter 1 quest teaches Jump (players reach level 2 during Chapter 1
@@ -339,7 +477,17 @@ Slam 3, Stretch Lash 4, Teleport 5).
   survives save/load, and the reward type is covered by the quest tests
   (`pnpm test:quests`).
 
-### [ ] 5.3 — Goo Hearts
+### [x] 5.3 — Goo Hearts, verified 2026-09-29
+
+- Done: `object.goo-heart` (script `game.goo-heart`) is a walk-over pickup;
+  each one raises max HP by `character.player.gooHeart.maxHpBonus` (10) and
+  fills HP. A collected heart sets the story flag `goo-heart.<heartId>`, so it
+  is taken once per run and stays gone after save and load. Two are hidden in
+  Slimeshire Meadow: on the sand behind the big west lake
+  (`meadow-lakeside`) and behind the trees in the far south-east of the
+  autumn grove (`meadow-autumn-thicket`). Played headless: 100 → 110 → 120 max
+  HP, walking over a taken heart does nothing, and both stayed taken after
+  Continue.
 
 - Build: a collectible that permanently raises max HP, and hide at least two
   in Slimeshire Meadow. Gloop Forest's hearts are placed in 8.9 and the
@@ -348,7 +496,26 @@ Slam 3, Stretch Lash 4, Teleport 5).
 - Done when: both Meadow hearts raise max HP by the configured amount, can be
   collected only once per run, and stay collected after save/load.
 
-### [ ] 5.4 — Rebalance Chapter 1 without levels
+### [x] 5.4 — Rebalance Chapter 1 without levels, verified 2026-09-29
+
+- Done: base stats are the old level-2 values (attack 12, defense 3), with 100
+  max HP and 100 energy. Chapter 1 quests give about 410 XP, so a typical
+  player ended the chapter at level 2. Measured in the running game with no
+  crits (axes and pickaxes do not hurt worms), before the change at level 2
+  and after it on a fresh run:
+
+  | Check | Before (level 2) | After (fresh run) |
+  |---|---|---|
+  | Wooden spear hits to defeat a worm brawler (55 HP) | 8 | 8 |
+  | Stone spear hits to defeat a worm brawler | 7 | 7 |
+  | Wooden spear hits to defeat Fatty One Eye (140 HP) | 20 | 20 |
+  | Stone spear hits to defeat Fatty One Eye | 16 | 16 |
+  | Worm brawler hits the player survives | 2 | 2 |
+  | Worm swordsman hits the player survives | 3 | 2 (3 with one Goo Heart) |
+  | Worm archer arrows the player survives | 5 | 5 (6 with two Goo Hearts) |
+
+  Level 1 for reference: 10 and 7 swings per brawler, 24 and 18 on Fatty,
+  survives 1 brawler hit.
 
 - Build: set base stats so a fresh run with stone gear matches today's typical
   end-of-Chapter-1 player. Fatty One Eye and the worms keep their current
@@ -358,7 +525,17 @@ Slam 3, Stretch Lash 4, Teleport 5).
   survives; after the change, a fresh Chapter 1 run with the same gear matches
   each number within one hit, with no debug grants.
 
-### [ ] 5.5 — Resources respawn
+### [x] 5.5 — Resources respawn, verified 2026-09-29
+
+- Done: a depleted tree, stone node or ore node records
+  `respawnReadyAtEpochMs` (now + `resources.respawnMs`, provisionally 10
+  minutes) in the map's saved progress. When its map loads after that time
+  and its dropped piles are collected, it grows back full
+  (`features/resources/ResourceRespawn.ts`); older saves start the timer on
+  first load, so nothing returns early. Only scripts that opt in regrow
+  (`ResourceNodeScript.regrows`). Played headless: a chopped tree stayed gone
+  through a trip into the Slime Home before its time and stood again at full
+  health after it. `pnpm test:progression` covers the rules.
 
 - Build: harvested trees and stone nodes (and later iron nodes) come back after
   a long respawn time set in `game-constants.json`, tracked per map in the
@@ -369,15 +546,22 @@ Slam 3, Stretch Lash 4, Teleport 5).
   save/load, and never respawns early.
 
 **Milestone 5 complete when:** the player grows only through gear, Goo Hearts,
-and story unlocks, and Chapter 1 still plays as it did.
+and story unlocks, and Chapter 1 still plays as it did. The systems are in
+(2026-09-29); open: the assets below and a human Chapter 1 run (4.9).
 
 **Assets**
 
-- Reuse: the area-title banner for "ability learned", Kenney music jingles.
-- [ ] Goo Heart world sprite, inventory icon, and pickup effect.
-- [ ] HUD heart or max-HP growth display.
-- [ ] Ability-learned sting.
-- Retire: `ui-levelup-crest-frame` (2.2 MB) and the eight perk icons.
+- Reuse: the area-title banner for "ability learned" and "Goo Heart", Kenney
+  music jingles.
+- [~] Goo Heart world sprite: generated 2026-09-30 (Magnific GPT-2, a glossy
+      goo heart, `sheet.props.gulp.8x1` frame 5). Open: a pickup effect and
+      sound (the heal chime stands in).
+- [ ] HUD heart or max-HP growth display. Placeholder: the longer HP bar and
+      the "Goo Heart! Max HP 110" banner.
+- [ ] Ability-learned sting. Placeholder: the old level-up jingle
+      (`audio.sfx.player.ability-learned.1`).
+- [x] Retired: `ui-levelup-crest-frame` (2.2 MB), the eight perk icons, and the
+      perk-choose sound.
 
 ## 6. Rebuild Slimeshire: The Workshop
 
@@ -387,7 +571,15 @@ it. The placeable
 workbench stays as the Chapter 1 field station for tier-1 recipes; portable
 recipes stay portable so a fresh save cannot softlock.
 
-### [ ] 6.1 — Story-flag scene variants
+### [x] 6.1 — Story-flag scene variants, verified 2026-09-30
+
+- Done: `game.story-variant` keeps only one of two authored subtrees in the
+  tree ("When Set" once its story flag is set, "When Unset" before); visuals,
+  collision, doors and stations swap with it, parked subtrees are freed with
+  the script, and the world controller ignores interactables that are parked.
+  Its `set` handler sets the flag. First use: the cracked ground (7.4), whose
+  sinkhole and door appear when the Heavy form breaks it, and stay after save
+  and load. `pnpm test:scene-integration` covers the swap.
 
 - Build: a ScriptNode that shows one child subtree per story-flag state, so a
   building can be authored as both ruined and restored in the same world scene,
@@ -397,7 +589,22 @@ recipes stay portable so a fresh save cannot softlock.
 - Done when: setting the flag swaps visuals and collision, and save/load keeps
   the right variant.
 
-### [ ] 6.2 — Station-aware crafting (was UX.2)
+### [x] 6.2 — Station-aware crafting (was UX.2), verified 2026-09-29
+
+- Done ([spec](./superpowers/specs/2026-09-29-station-aware-crafting-design.md)):
+  recipes name a `station` (`portable`, `workbench`, `workshop`, `forge`,
+  `kitchen`) and a tier; a site is a station plus its tier, authored on the
+  `game.workbench` script (`recipeContext`, `tier`). `recipesAt(site)` lists a
+  station's recipes (the Workshop also lists the workbench's), including ones
+  above its tier, and `CraftingService` refuses `wrong-station` and
+  `station-tier` before touching the inventory. The one crafting popup is
+  titled for its site ("Crafting", "Workbench", "Workshop · Tier 2") and names
+  every lock ("Needs tier 2", "Not learned yet", "Already owned"). `alchemy` is
+  gone; `brew-fizzy` and `weave-tonics` wait in `kitchen`. Played headless: C
+  listed only the three portable recipes, a placed workbench its four.
+  `pnpm test:ui` covers wrong station, tier, and untouched inventory; the
+  crafting Playwright spec passes again.
+
 
 - Build: one crafting popup and recipe catalog filtered by unlock, station
   (`portable`, `workbench`, `workshop`, `forge`), and station tier; explain
@@ -407,7 +614,23 @@ recipes stay portable so a fresh save cannot softlock.
 - Done when: a wrong station cannot craft a recipe, and a failed craft never
   consumes materials.
 
-### [ ] 6.3 — Restore the Workshop
+### [x] 6.3 — Restore the Workshop, verified 2026-09-30
+
+- Done: `object.workshop` stands in Slimeshire's woodcutter yard, north of the
+  plaza (hand-placed `level-1-workshop`, 0.85 scale). It is a story variant on
+  `workshop.restored`: the ruin carries a `game.restoration-site` (F: "Restore
+  the Workshop (60 wood, 40 stone)"), the restored building a Workshop station
+  (`game.workbench`, `recipeContext: workshop`, tier 1). Elder Plop offers
+  **The Old Workshop** (optional, after Stone Tools; `activate-object`
+  objective, completes on the spot, 25 coins). Without the quest the ruin says
+  to ask Elder Plop; short of materials it says what is missing, in red; paying
+  sets the flag, raises a dust cloud with a small shake and plays the
+  restoration sound, and the ruin becomes the Workshop at once. The quest
+  arrow points at the ruin. Played headless on the running game: locked, then
+  missing wood, then restored and completed; the station stayed after a trip
+  into the Slime Home and back and after save and load.
+  `pnpm test:scene-integration` (the scene before and after its flag),
+  `test:quests` (the arrow) and `test:ui` cover it.
 
 - Build: a ruined Workshop in Slimeshire and a restoration quest paid in
   materials (wood and stone; coins are saved for the later shop and repairs).
@@ -417,7 +640,17 @@ recipes stay portable so a fresh save cannot softlock.
 - Done when: the restoration quest completes on a fresh save, and the restored
   Workshop and its station survive leaving the map and save/load.
 
-### [ ] 6.4 — Restoring a building unlocks its recipes
+### [x] 6.4 — Restoring a building unlocks its recipes, verified 2026-09-30
+
+- Done: the Workshop's first own recipe is the **Slam Hammer** (25 wood, 25
+  stone; a slow, short-reach hammer with heavy knockback, retuned from its
+  debug-arsenal stats to 14 damage, 1.3 s, knockback 320). A placed workbench
+  lists the Workshop's tier-1 recipes last, locked: "At the Workshop" in the
+  list and "Craft this at the Workshop." in the details; the Workshop lists
+  its own recipes first, then every workbench recipe. The restored building is
+  the unlock, so it survives save and load with the story flag. Played
+  headless: the hammer was locked at the workbench and crafted at the restored
+  Workshop.
 
 - Build: restoring the Workshop unlocks its tier-1 recipes; upgrading it
   unlocks the next tier. The Workshop crafts everything the workbench does,
@@ -426,15 +659,20 @@ recipes stay portable so a fresh save cannot softlock.
   reason, afterwards they are craftable, and the unlock survives save/load.
 
 **Milestone 6 complete when:** the player restores the Workshop and crafts
-there, and the town visibly changed.
+there, and the town visibly changed. Built 2026-09-30; waiting on the owner to
+accept the Workshop art and restoration sound.
 
 **Assets**
 
 - Reuse: `decoration-world-solid--tool-bench`, `--anvil`, `--grindstone`, the
   crafting backplates.
-- [ ] Ruined Workshop exterior (320 × 320 house frame).
-- [ ] Restored Workshop exterior.
-- [ ] Restoration effect (dust puff or scaffold) and a construction sound.
+- [~] Ruined Workshop exterior (320 × 320 house frame): Magnific GPT-2,
+  `asset/MAPS/Houses/320-workshop-2x1.png` frame 0
+  (`scripts/houses/pack-workshop.py`); owner to accept.
+- [~] Restored Workshop exterior: frame 1 of the same sheet; owner to accept.
+- [~] Restoration effect and a construction sound: a procedural dust cloud and
+  camera shake; `world/restore-building` has a Magnific take (library) and a
+  synth take, both in the next picker round; owner to accept.
 - [ ] Workshop header art for the crafting popup (optional).
 
 ## 7. Gulp — The Signature Mechanic
@@ -451,7 +689,7 @@ to an unused `eat` action with a short eat clip. No menu ever opens to eat.
 | Tap W near a Gulp spot | Eat from the world: free, uses nothing from the inventory |
 | Tap W anywhere else | Eat the last-used Gulp material from the inventory (costs one) |
 | Tap W in a form, away from a Gulp spot | Burp the form away (cancel) |
-| Hold W | Quick wheel of carried Gulp materials; the game keeps running; release on one to eat it (from 7.2) |
+| Hold W | Quick wheel of carried Gulp materials; the game keeps running; arrows or the mouse choose, release eats (built in 7.2) |
 
 Eating a different material switches forms; eating the same material at a
 Gulp spot resets the timer. **Gulp spots** are world objects (a mossy
@@ -459,18 +697,40 @@ boulder, a silk cocoon) that never run out and look different from walk-over
 piles, which are collected on contact. Every Gulp puzzle has its spot beside
 it, so a puzzle never depends on what the player carries.
 
-### [ ] 7.0 — Rough Gulp prototype
+### [x] 7.0 — Rough Gulp prototype, verdict 2026-09-29: keep
+
+- Verdict (owner): "I like the Gulp." Add more effects; Heavy should also
+  break cracked ground to discover caverns. Both are now in the playground:
+  Heavy cracks ground into a cavern (7.4) and the Sticky form crosses webs
+  (7.2).
 
 - Build: right after the playground (3.7), and ahead of Milestones 4–6: the
   Heavy form only, with placeholder art, in the playground. Tapping W at a
   stone Gulp spot or with stone in the inventory starts it; tapping W again
   burps it; one rough pressure plate opens one gate. No save/load, no polish.
+- Built 2026-09-29, waiting for the user's verdict. Try it with `pnpm dev` at
+  `http://localhost:3000/?map=playground`: walk to the mossy boulder west of
+  the plate below the cobble yard, press W ("HEAVY 1:00" appears), stand on
+  the plate to open the sealed gate, and walk into the pen. W away from the
+  boulder burps; W elsewhere eats a stone from the chest by the spawn. Heavy
+  moves at 0.6× speed and ignores knockback; the form lasts
+  `gulp.formDurationMs` (60 s). Code: `features/gulp/`, `content/gulp/`,
+  `game.gulp-spot` and `game.pressure-plate` scripts, `object.gulp-spot-stone`
+  and `object.pressure-plate` scenes; `pnpm test:gulp`.
 - Player proof: Gulp can be felt in a day or two instead of on paper.
 - Done when: the user has played it and decided keep, change, or drop; the
   verdict and any control changes are written under this task before the
   Chapter 2 outline (8.1) is finished.
 
-### [ ] 7.1 — Gulp action and the Heavy form
+### [x] 7.1 — Gulp action and the Heavy form, verified 2026-09-30
+
+- Done: the W controls above for stone, with stone Gulp spots; Heavy lasts
+  `gulp.formDurationMs` (1 minute): no knockback, holds plates down, moves
+  slower. The form's badge (Magnific art, `ui.icons.gulp-forms.2x1`) and time
+  left float over the slime; "[W] Gulp" floats over the spot in reach. A form
+  is not saved: it ends cleanly on a map change and on save and load (played
+  headless: Heavy through the Slime Home door and after a reload, the stone
+  stays spent). The owner accepted Gulp as fun (7.0 verdict).
 
 - Build: the W controls above for stone, with a proper Gulp spot. Heavy lasts
   **1 minute** (a `game-constants.json` value, tuned after playtests): no
@@ -482,7 +742,23 @@ it, so a puzzle never depends on what the player carries.
   cleanly on them); eating never opens a menu; and the user accepts it as fun
   in the playground (3.7).
 
-### [ ] 7.2 — The Sticky form and the quick wheel
+### [x] 7.2 — The Sticky form and the quick wheel, verified 2026-09-30
+
+- Done: eating a silk cocoon Gulp spot or a silk clump makes the slime
+  **Sticky** (`content/gulp/gulpForms.ts`); a `game.spider-web` barrier
+  catches a normal slime (stuck for a moment, set back on its side) and lets a
+  Sticky one through. The playground's web nook (south-west) hides a chest
+  behind a web, with the cocoon beside it.
+- Quick wheel: W is decided on release. A tap does what it did; holding W for
+  a quarter second opens a ring of the carried Gulp materials around the slime
+  (`features/gulp/GulpWheel.ts`), starting on the last-used one; the arrow keys
+  or the mouse choose, the slime stands still while choosing, the game keeps
+  running, and releasing eats the choice (switching forms directly, no burp).
+  Holding with nothing carried says so. The wheel lists `GULP_FORMS`, so a
+  third form is one entry there plus its art. Played headless in the
+  playground: tap → Heavy, hold + Down → Sticky, hold + Up → Heavy, 700 ms of
+  simulation passed while the wheel was open. `pnpm test:gulp` covers the
+  entries, the switch and the slot picking.
 
 - Build: eating silk makes the slime Sticky: it crosses spider webs that would
   catch it normally. Holding W opens the quick wheel of carried Gulp materials.
@@ -490,12 +766,35 @@ it, so a puzzle never depends on what the player carries.
   switches forms, the wheel picks a form without pausing, and adding a third
   form is data plus art.
 
-### [ ] 7.3 — Gulp puzzle pieces
+### [x] 7.3 — Gulp puzzle pieces, verified 2026-09-30
+
+- Done: the pieces are object scenes placed from Scene Studio and set up in
+  its inspector, with no scene connections: `object.gulp-spot-stone` and
+  `object.gulp-spot-silk` (eaten any number of times), `object.pressure-plate`
+  (new art; **Opens Gate ID** opens every `game.gate` with that id when the
+  Heavy form presses it; latching by default), `object.gate-verdant`
+  (`game.gate`), `object.spider-web` (Sticky crosses) and
+  `object.cracked-ground` (Heavy breaks it; ids and door target in the
+  inspector). Studio has no signal-connection editor yet, so links are
+  properties. The playground's plate now opens its gate through the property
+  (played headless: a light slime does nothing, the Heavy form opens it).
+  `pnpm test:scene-integration` covers the plate frames, the latch and the
+  gate link.
 
 - Build: stone and silk Gulp spots, a pressure plate linked to a gate (reuse
   `game.gate`), and a web barrier or bridge, all authored in world scenes.
 - Done when: the pieces work from Scene Studio placement alone, and a Gulp spot
   can be eaten any number of times.
+
+### [~] 7.4 — Heavy breaks cracked ground into caverns
+
+- Built 2026-09-30 (playground): `object.cracked-ground` is weak ground only
+  the Heavy form breaks (`game.cracked-ground`, by standing on it). It sets a
+  story flag, and a story variant (6.1) swaps the cracks for a sinkhole with a
+  rope ladder; F climbs down into the dev-only `playground-cavern` (a chest and
+  crystal shards), and the cave ladder climbs back up beside the hole.
+  Played headless both ways; the hole stays open after returning.
+- Next: the owner tries it; then a first real cavern secret in Chapter 1 or 2.
 
 **Milestone 7 complete when:** the playground has one Heavy and one Sticky
 puzzle that a player solves without a hint, and the user has accepted Gulp as
@@ -507,10 +806,16 @@ fun.
 - [ ] Player form-end (burp) clip: new frames on the player sheet or an
       overlay effect.
 - [ ] Heavy and Sticky form overlays (stone flecks, silk strands).
-- [ ] Two form icons for the HUD timer and the quick wheel.
-- [ ] Gulp spots: a stone spot and a silk cocoon, clearly different from
+- [~] Two form icons for the HUD timer and the quick wheel: Magnific GPT-2
+      badges (`asset/UI/ui-gulp-form-icons-2x1.png`, frame per form via
+      `GulpFormDefinition.iconFrame`); owner to accept.
+- [~] Gulp spots: a stone spot and a silk cocoon, clearly different from
       loose piles.
-- [ ] Pressure plate (up and down) and web barrier or bridge sprites.
+- [~] Pressure plate (up and down) and web barrier or bridge sprites: the
+      silk cocoon, spider web, cracked ground, sinkhole, cave ladder and a
+      mossy rune plate (raised, and pressed with its rune glowing; the plate
+      shows `pressedFrame` while held) were generated 2026-09-30
+      (`scripts/props/pack-gulp-props.py`, frames 0–7); owner to accept.
 - [ ] Eat, burp, plate click, and web tear sounds.
 
 ## 8. Chapter 2 — Gloop Forest
@@ -519,7 +824,15 @@ Chapter 2 turns Gloop Forest from an empty map behind the Verdant Gate into
 the second chapter. It absorbs the former milestones 6 (iron), 7 (enemy
 materials), 8 (Forge), and 13 (progression pass).
 
-### [ ] 8.1 — Write the Chapter 2 outline
+### [~] 8.1 — Write the Chapter 2 outline
+
+- Draft 2026-09-30, waiting on the owner:
+  [Chapter 2 outline](./superpowers/specs/2026-09-30-chapter-2-outline.md)
+  (six quests, places, characters from existing sheets, materials with
+  renewable sources, recipes, the Matron built around Sticky, three Gulp
+  puzzles, build order, and five questions). The quests are not stubbed in the
+  catalog yet: `quests:check` needs their items and recipes, which 8.3–8.6
+  add; they become `chapterTwo.ts` as those land.
 
 - Build: 5–6 quests in `chapterTwo.ts` form, with givers, objectives,
   rewards, flags, and material sources (resources respawn after 5.5). Assign
@@ -532,6 +845,15 @@ materials), 8 (Forge), and 13 (progression pass).
   outline before starting 8.7 and 8.9.
 
 ### [ ] 8.2 — A new Gloop Forest enemy
+
+- Blocked on the owner (2026-09-30): the orb-weaver sheet
+  (`64x64-8x10-forest-orb-weaver-slime.png`) is already the Meadow slime
+  spider's runtime art (`character.enemy.slime-spider`, chosen in an earlier
+  commit), and the old yellow spider sheet (`64x64-8x10-spider_slime.png`,
+  same 8 × 10 layout) is unregistered. Either the Meadow spider goes back to
+  the yellow sheet and the orb-weaver becomes Gloop Forest's new enemy, or
+  Chapter 2 gets a different new enemy (new art). See question 5 in the
+  [Chapter 2 outline](./superpowers/specs/2026-09-30-chapter-2-outline.md).
 
 - Build: add the Forest Orb-Weaver Slime to the roster: behavior, drops, spawn
   areas. Its sprite sheet is already registered in `asset/assets.json` but
@@ -645,27 +967,69 @@ card, and the gear path wood → stone → iron is complete.
 A slime's feel is mostly hit-stop, screen shake, and squash and stretch. Every
 effect respects the reduce-motion setting (4.5).
 
-### [ ] 9.1 — Hit-stop and screen shake
+### [x] 9.1 — Hit-stop and screen shake, verified 2026-09-30
+
+- Done: `features/feel/GameFeel.ts` holds named presets (hit, critical hit,
+  combo finisher, player hurt, slam, boss landing, boss and player defeat,
+  ground crack, restoration), and every camera shake in the game now goes
+  through it (`gameFeel` in `features/feel/sharedFeel.ts`), so the Screen
+  shake slider finally scales them (before, the slider changed nothing).
+  Hit-stop holds the simulation still (the world advances by zero) while
+  rendering and the shake carry on; overlapping stops never add up; burn and
+  poison ticks never stop the game. Reduce motion turns both off. Measured
+  in the running game: a boss defeat froze the simulation for about 135 ms,
+  none with reduce motion. `pnpm test:feel` covers presets, scaling and
+  reduce motion.
 
 - Build: named presets per event (light hit, heavy hit, boss slam, defeat).
 - Done when: each preset fires on its event, the screen-shake setting (4.5)
   scales or disables shake, and reduce motion turns both off.
 
-### [ ] 9.2 — Squash and stretch
+### [x] 9.2 — Squash and stretch, verified 2026-09-30
+
+- Done: `features/feel/SquashStretch.ts` snaps the slime's body to a preset
+  shape and springs it back through the sprite's effect channel: a lean on
+  move start (only after standing still, not on every tap), the jump's
+  take-off stretch, a landing splat, a flattening when hit, and a wobbling
+  bulge on Gulp. A new event replaces the one playing, the body always ends
+  at rest, and abilities that animate the body are left alone. Reduce motion
+  keeps a third of each shape. Read live in the playground: move start
+  0.93 × 1.08, jump 0.85 × 1.29, landing 1.13 × 0.78, all back to 1 × 1.
+  `pnpm test:feel` covers the five events, replacement and reduce motion.
 
 - Build: event-driven squash and stretch on move start, jump, land, hit, and
   Gulp.
 - Done when: each of the five events plays its deformation, the slime always
   returns to its rest shape, and reduce motion softens it.
 
-### [ ] 9.3 — Particle presets
+### [~] 9.3 — Particle presets
+
+- Built 2026-09-30: `features/feel/ParticlePresets.ts` keeps one emitter per
+  preset for the world scene and reuses it for every burst: hit sparks when a
+  weapon lands on a creature, a goo splash when the slime is hit, dodge dust
+  (it used to make and destroy an emitter per dodge), a sparkle on every
+  pickup, and a burst where a boss is defeated. The textures are procedural
+  (`fx-spark`, `fx-goo-drop`, `fx-sparkle`). Headless: all five fire, and 200
+  bursts plus a dodge leave the emitter count at 5. `pnpm test:feel` covers
+  the pool. Open: the 60 fps check of a 20-enemy fight on a real machine
+  (headless runs on a software renderer), and particle art (assets below).
 
 - Build: pooled hit sparks, slime splash, dodge dust, loot sparkle, and boss
   defeat bursts.
 - Done when: each preset plays on its event, particles come from a pool (no
   per-hit allocations), and a 20-enemy fight in the playground holds 60 fps.
 
-### [ ] 9.4 — Slime trail
+### [~] 9.4 — Slime trail
+
+- Built 2026-09-30: `features/feel/SlimeTrail.ts` drops a translucent goo mark
+  every 30 px the slime moves on the ground (none mid-jump), from a pool of 28
+  images reused oldest first; each fades over 5 s. Every 100 ms, ordinary
+  enemies within 26 px of a mark younger than 2.5 s get the `slow` status's
+  multiplier (0.55) for 0.4 s through the new `EnemyScript.applySlow`; bosses
+  are not slowed. Measured in the playground: a chasing worm brawler went
+  from 50 to 28 px/s on fresh goo. `pnpm test:feel` covers the pool, the fade
+  and freshness. Open: the owner tries it in the playground (and decides
+  whether it should stay on all the time or come with a form or ability).
 
 - Build: the slime leaves fading goo marks behind it. Enemies that cross fresh
   goo are slowed through the existing `slow` status.
@@ -691,7 +1055,15 @@ reduce motion turns the strong effects off.
 - Done when: the first load is under about 25 MB and a cold start on a normal
   connection shows the title within a few seconds.
 
-### [ ] 10.2 — Production-only content
+### [x] 10.2 — Production-only content, verified 2026-09-30
+
+- Done: the twelve maps below joined `devOnlyWorlds.ts`, so a production
+  build bundles only the five reachable world scenes (about 8 MB of world
+  JSON left out). `?map=`, the debug hotkeys and Development Tools were
+  already dev-only, and the development arsenal grant has no caller. Checked
+  by running the scene plugin in build mode (`pnpm test:scene-content`) and a
+  real `pnpm build`: the main script went from 5.4 MB to 4.5 MB, and the
+  bundle holds only the five reachable world scenes.
 
 - Build: ship only reachable worlds (`level-1`, `slime-home`, `mushroom-home`,
   `gloop-forest`, `crystal-caverns`, and the 8.8 hut). Add these to the
@@ -845,14 +1217,27 @@ numbered milestone and task tiles.
 
 ## Immediate Next Sprint
 
-1. Milestone 3: pick the sound flavour (3.8), verify the bed respawn round
-   trip (3.4), finish interior collision (3.5), and build the playground
-   (3.7).
-2. The rough Gulp prototype (7.0) in the playground, so the Chapter 2 outline
-   builds on a Gulp that has been played.
-3. Milestone 4: title screen, pause menu, and player-facing saves (4.1–4.3).
-4. In parallel, write the gear-progression change list (Milestone 5). Start
-   the Chapter 2 outline (8.1) once the 7.0 verdict is in.
+Milestones 3 to 7 and 9 are built and played headless (2026-09-30); each waits
+on its assets and the owner's acceptance. Waiting on the owner:
+
+- 3.8: mark the sound picks final in the picker; then the losing takes go and
+  the "neither" wishes become new sounds. The picker now also has the
+  Workshop's restoration sound.
+- 4.9: play the fixes from the first playtest, then a second new player.
+- 6: accept the Workshop art and restoration sound; play The Old Workshop.
+- 7: try the Heavy plate gate, the Sticky web nook, the hold-W quick wheel and
+  the cracked-ground cavern in the playground (`?map=playground`); accept the
+  new plate and form-badge art.
+- 8.1: read the Chapter 2 outline and answer its five questions (the fifth
+  decides the orb-weaver art, which 8.2 waits on).
+- 9: play the new feel (hit-stop, squash and stretch, particles, goo trail)
+  and say whether the trail should always be on.
+- 10.1: approve how to cut the download (resize the UI backplates to their
+  display size, WebP or not, and load biome grounds that only the dev maps use
+  outside the boot bundle).
+
+Chapter 2 (8.2 onward) waits on the outline's questions; art keeps coming
+from Magnific (GPT-2) as each task needs it.
 
 ## Done — Foundations
 

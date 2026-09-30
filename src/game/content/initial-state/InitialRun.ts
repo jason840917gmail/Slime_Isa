@@ -10,15 +10,12 @@ const INITIAL_AREA_ID = INITIAL_MAP_ID;
 const INITIAL_SPAWN = level1Map.player.spawn;
 
 const INITIAL_PLAYER: GameStateData = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   coins: 50,
   boostBonus: 0,
-  level: 1,
-  currentXp: 0,
-  hp: PLAYER_CONFIG.progression.baseMaxHp,
-  energy: PLAYER_CONFIG.progression.baseMaxEnergy,
-  skillPoints: 0,
-  perks: {},
+  hp: PLAYER_CONFIG.stats.maxHp,
+  energy: PLAYER_CONFIG.stats.maxEnergy,
+  gooHearts: 0,
   attributes: { ...PLAYER_CONFIG.attributes },
   equipment: {
     weaponId: null,
@@ -40,7 +37,6 @@ export function createInitialRunState(): GameSaveData {
   return {
     player: {
       ...INITIAL_PLAYER,
-      perks: {},
       attributes: { ...INITIAL_PLAYER.attributes },
       equipment: {
         ...INITIAL_PLAYER.equipment,

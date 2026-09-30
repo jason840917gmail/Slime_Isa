@@ -6,8 +6,11 @@ import { resourceId, sceneId, type SceneId } from '../../content/scenes/identifi
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
 import { createGlobalAudioCuePort } from '../../infrastructure/audio/GlobalAudioCuePort';
 import { GlobalAudioServices } from '../../infrastructure/audio/GlobalAudioServices';
-import { DEFAULT_AUDIO_SETTINGS, loadAudioSettings, saveAudioSettings } from '../../infrastructure/persistence/AudioSettingsStore';
-import { AudioSettingsSurfacePort } from '../ui/AudioSettingsSurfacePort';
+import { gameSettings } from '../settings/GameSettingsService';
+import { gameFeel } from '../feel/sharedFeel';
+import { particleFx } from '../feel/ParticlePresets';
+import { applyMix } from '../shell/SettingsSurfacePort';
+import { STORY_FLAG_SERVICE, type StoryFlagPort } from '../scripts/StoryFlagScript';
 import { gameEvents } from '../../core/EventBus';
 import { AudioEventBridge } from '../audio/AudioEventBridge';
 import { CharacterBody2DNode } from '../../infrastructure/phaser-nodes/CharacterBody2DNode';
@@ -38,6 +41,7 @@ import {
   BOSS_UI_SERVICE,
   BossCampScript,
   type BossSceneSpawnRequest,
+  type BossStatusViewPort,
 } from '../scripts/BossCampScript';
 import {
   CHEST_GUARD_SERVICE,
@@ -125,7 +129,6 @@ import { QuestOfferSurfacePort } from '../ui/QuestOfferSurfacePort';
 import { NpcDialogueSurfacePort } from '../ui/NpcDialogueSurfacePort';
 import { QuestTrackerSurfacePort } from '../ui/QuestTrackerSurfacePort';
 import { WorldMapSurfacePort } from '../ui/WorldMapSurfacePort';
-import { LevelUpSurfacePort } from '../ui/LevelUpSurfacePort';
 import { MinimapSurfacePort } from '../ui/MinimapSurfacePort';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import { craftingService } from '../../crafting/Crafting';
@@ -136,13 +139,27 @@ import type { PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
 import { UI_SURFACE_SERVICE, type UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
 import {
   WORLD_EXIT_SERVICE,
+  WorldExitScript,
   type WorldExitPort,
   type WorldExitRequest,
   type WorldExitResult,
 } from '../scripts/WorldExitScript';
 import { BedScript } from '../scripts/BedScript';
+import { GulpSpotScript } from '../scripts/GulpSpotScript';
+import { AudioStreamPlayerNode } from '../../infrastructure/phaser-nodes/AudioStreamPlayerNode';
+import { MusicDirector } from '../audio/MusicDirector';
+import { resolveResourceRespawn } from '../resources/ResourceRespawn';
+import { GAME_CONSTANTS } from '../../Constant';
+import { PLATE_WEIGHT_SERVICE, type PlateWeightPort } from '../scripts/PressurePlateScript';
+import { GOO_HEART_SERVICE, type GooHeartPort } from '../scripts/GooHeartScript';
+import { GROUND_CRACK_SERVICE, type GroundCrackPort } from '../scripts/CrackedGroundScript';
+import { SPIDER_WEB_SERVICE, type SpiderWebPort } from '../scripts/SpiderWebScript';
+import type { GulpSpot } from '../gulp/GulpController';
+import { placedBedId } from '../rest/RespawnDestination';
 import { WorkbenchScript } from '../scripts/WorkbenchScript';
-import type { CraftingContext } from '../../content/recipes/types';
+import { RestorationSiteScript, type RestorationCost } from '../scripts/RestorationSiteScript';
+import type { CraftingSite, CraftingStation } from '../../content/recipes/types';
+import { stationServes } from '../../content/recipes/RecipeCatalog';
 import type { PlacedFurnitureData } from '../../infrastructure/persistence/SaveSchema';
 import type { PlaceableVisual } from '../building/FurniturePlacementController';
 import { DoorScript } from '../scripts/DoorScript';
@@ -167,8 +184,12 @@ export interface UniversalSceneWorldControllerOptions {
   readonly setQuestOfferPaused: (paused: boolean) => void;
   readonly setNpcDialoguePaused: (paused: boolean) => void;
   readonly setWorldMapPaused: (paused: boolean) => void;
-  readonly setLevelUpPaused: (paused: boolean) => void;
-  readonly setAudioSettingsPaused: (paused: boolean) => void;
+  /** Game-shell menus (title, pause, settings, saves, …) served to their `ui.*` scenes. */
+  readonly shellSurfaces: readonly (readonly [string, UiSurfacePort])[];
+  /** `ui.*` scenes that present the shell surfaces. */
+  readonly shellSceneIds: readonly string[];
+  /** Sets saved story flags (from authored `game.story-flag` scripts). */
+  readonly setStoryFlags: (flagIds: readonly string[]) => void;
   readonly getCurrentAreaId: () => string;
   readonly worldDimensions: WorldDimensions;
   readonly onCrafted: (result: CraftSuccess) => void;
@@ -197,8 +218,20 @@ export interface UniversalSceneWorldControllerOptions {
   readonly requestExit: (request: WorldExitRequest) => WorldExitResult;
   /** Lies the player down in a bed; returns false when sleeping is not possible now. */
   readonly requestSleep: (request: SleepRequest) => boolean;
+  /** Positions of whatever is heavy enough to hold pressure plates down (the Heavy Gulp form). */
+  readonly plateWeights: () => Iterable<Readonly<{ x: number; y: number }>>;
+  /** Run-wide Goo Heart bookkeeping (collected flags, the max-HP grant). */
+  readonly gooHearts: GooHeartPort;
+  /** Whether a story flag is set (story-flag variants, cracked ground). */
+  readonly hasStoryFlag: (flagId: string) => boolean;
+  /** The moment weak ground gives way under the Heavy form. */
+  readonly groundCrack: GroundCrackPort;
+  /** Spider-web barriers: who crosses and what a catch does. */
+  readonly spiderWebs: SpiderWebPort;
+  /** Pays for a ruined building and restores it; false when nothing happened (the reason is shown). */
+  readonly restoreSite: (request: RestorationRequest) => boolean;
   /** Opens the crafting surface for a station's recipe context. */
-  readonly openCraftingStation: (context: CraftingContext) => boolean;
+  readonly openCraftingStation: (site: CraftingSite) => boolean;
   /** Returns placed furniture to the inventory; false when it cannot be picked up now. */
   readonly pickUpFurniture: (placementId: string) => boolean;
   readonly onEquipWeaponSlot: (slotIndex: number) => void;
@@ -207,6 +240,20 @@ export interface UniversalSceneWorldControllerOptions {
   readonly onActivateAbility: (abilityId: PlayerAbilityId) => void;
   readonly getPlayer: () => Phaser.Physics.Arcade.Sprite | undefined;
   readonly uiRoot: HTMLElement;
+}
+
+/** What pressing F at a ruined building asks the world to do. */
+export interface RestorationRequest {
+  readonly flagId: string;
+  readonly objectId: string;
+  readonly questId: string;
+  readonly instanceId: string;
+  readonly cost: readonly RestorationCost[];
+  readonly lockedMessage: string;
+  readonly restoredMessage: string;
+  /** Where the building stands (its origin) and how high its label floats. */
+  readonly at: Readonly<{ x: number; y: number }>;
+  readonly badgeRise: number;
 }
 
 export interface BossBattleAreas {
@@ -291,6 +338,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
   readonly runtime: PhaserUniversalSceneRuntime;
   readonly audioComposition: MountedScene;
   readonly audioServices: GlobalAudioServices;
+  private worldMusic?: AudioStreamPlayerNode;
+  private music?: MusicDirector;
+  private readonly unsubscribeBossMusic: () => void;
   private readonly audioEvents: AudioEventBridge;
   private readonly activations = new AttackActivation();
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
@@ -310,10 +360,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
   readonly questJournalSurface: QuestJournalSurfacePort;
   readonly questOfferSurface: QuestOfferSurfacePort;
   readonly npcDialogueSurface: NpcDialogueSurfacePort;
-  private readonly questTrackerSurface: QuestTrackerSurfacePort;
+  readonly questTrackerSurface: QuestTrackerSurfacePort;
   readonly worldMapSurface: WorldMapSurfacePort;
-  readonly levelUpSurface: LevelUpSurfacePort;
-  readonly audioSettingsSurface: AudioSettingsSurfacePort;
+  private readonly stopApplyingSettings: () => void;
   readonly minimapSurface: MinimapSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
@@ -337,7 +386,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly doors = new Set<DoorScript>();
   private readonly gates = new Set<GateScript>();
   private readonly beds = new Set<BedScript>();
+  private readonly gulpSpotScripts = new Set<GulpSpotScript>();
   private readonly workbenches = new Set<WorkbenchScript>();
+  private readonly restorationSites = new Set<RestorationSiteScript>();
   /** Player-placed furniture mounted at runtime, keyed by placement id. */
   private readonly placedFurniture = new Map<string, { readonly record: PlacedFurnitureData; readonly mount: MountedScene; readonly scripts: readonly Node[] }>();
   /** Which placement an interactable script belongs to (absent for authored objects). */
@@ -347,6 +398,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly unregisterGateInteraction: () => void;
   private readonly unregisterBedInteraction: () => void;
   private readonly unregisterWorkbenchInteraction: () => void;
+  private readonly unregisterRestorationInteraction: () => void;
   private readonly unregisterFurnitureInteraction: () => void;
   private nextBossSequence = 1;
   private nextEnemySequence = 1;
@@ -384,13 +436,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
       modalStack: options.modalStack, uiRoot: options.uiRoot,
       getCurrentArea: options.getCurrentAreaId, onPausedChange: options.setWorldMapPaused,
     });
-    this.audioSettingsSurface = new AudioSettingsSurfacePort({
-      modalStack: options.modalStack, mixer: this.audioServices, load: loadAudioSettings, save: saveAudioSettings,
-      defaults: DEFAULT_AUDIO_SETTINGS, onPausedChange: options.setAudioSettingsPaused,
-    });
-    this.levelUpSurface = new LevelUpSurfacePort({
-      modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setLevelUpPaused,
-    });
+    // The sound mix follows the player's settings live (edited from the Settings menu).
+    this.stopApplyingSettings = gameSettings.observe((settings) => applyMix(this.audioServices, settings));
     this.minimapSurface = new MinimapSurfacePort({ uiRoot: options.uiRoot, dimensions: options.worldDimensions });
     this.craftingSurface = new CraftingSurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot, service: craftingService,
@@ -431,8 +478,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ['npc-dialogue', this.npcDialogueSurface],
       ['quest-tracker', this.questTrackerSurface],
       ['world-map-ui', this.worldMapSurface],
-      ['level-up-modal', this.levelUpSurface],
-      ['audio-settings', this.audioSettingsSurface],
+      ...options.shellSurfaces,
       ['minimap', this.minimapSurface],
       ['boss-health-bar', this.bossHealthSurface],
       ['area-title-card', this.areaTitleSurface],
@@ -454,7 +500,18 @@ export class UniversalSceneWorldController implements InteractionProvider {
       viewport: () => ({ width: options.uiRoot.clientWidth, height: options.uiRoot.clientHeight }),
       resolveAssetUrl: createUiAssetUrlResolver(options.scene),
     });
-    const bossStatus = this.bossHealthSurface;
+    const bossSurface = this.bossHealthSurface;
+    // The boss bar doubles as the fight's lifecycle: music and other listeners hear it as events.
+    const bossStatus: BossStatusViewPort = {
+      showBoss: (campId, bossId) => {
+        bossSurface.showBoss(campId, bossId);
+        gameEvents.emit('boss.engaged', { campId, bossId });
+      },
+      hideBoss: (campId, defeated) => {
+        bossSurface.hideBoss(campId, defeated);
+        gameEvents.emit('boss.disengaged', { campId, defeated });
+      },
+    };
     const scripts = createGameScriptRegistry({
       [DAMAGE_ROUTER_SERVICE]: this.damageRouter,
       [ATTACK_ACTIVATION_SERVICE]: this.activations,
@@ -482,7 +539,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
         showDamageNumber: (request: EnemyDamageNumberRequest) => this.showEnemyDamageNumber(request),
         showTelegraph: (request: EnemyTelegraphRequest) => this.attackTelegraphs.show(request),
         clearTelegraph: (sourceNodeId: string) => this.attackTelegraphs.clear(sourceNodeId),
-        shakeCamera: (request: { readonly durationMs: number; readonly intensity: number }) => options.scene.cameras.main.shake(request.durationMs, request.intensity),
+        // Bosses author their own landing shake; the feel service scales it by the player's settings.
+        shakeCamera: (request: { readonly durationMs: number; readonly intensity: number }) => gameFeel.play('boss-landing', request),
       },
       [NPC_RUNTIME_SERVICE]: {
         acquire: (request: NpcRuntimeRequest) => this.acquireNpcAgent(request),
@@ -493,6 +551,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
         markBossDefeated: (bossId: string) => {
           options.progress.defeatBoss(bossId);
           gameEvents.emit('boss.defeated', { bossId });
+          gameFeel.play('boss-defeated');
         },
       },
       [BOSS_SCENE_SPAWNER_SERVICE]: {
@@ -508,15 +567,26 @@ export class UniversalSceneWorldController implements InteractionProvider {
       [CHEST_GUARD_SERVICE]: { isLocked: (instanceId: string) => this.isChestLocked(instanceId) },
       [CHEST_VIEW_SERVICE]: this.chestUi,
       [WORLD_OBJECT_STATE_SERVICE]: {
-        load: (mapId: string, instanceId: string) => {
-          const state = options.progress.resourceState(mapId, instanceId);
+        load: (mapId: string, instanceId: string, regrows: boolean) => {
+          const saved = options.progress.resourceState(mapId, instanceId);
+          const resolved = regrows
+            ? resolveResourceRespawn(saved, Date.now(), GAME_CONSTANTS.resources.respawnMs)
+            : { state: saved, changed: false };
+          if (resolved.changed) {
+            if (resolved.state) options.progress.setResourceState(mapId, instanceId, resolved.state);
+            else options.progress.clearResourceState(mapId, instanceId);
+          }
+          const state = resolved.state;
           return state ? { health: state.value, destroyed: state.stage !== 'node' } : undefined;
         },
         saveHealth: (mapId: string, instanceId: string, health: number) => {
           options.progress.setResourceState(mapId, instanceId, { stage: 'node', value: health });
         },
-        markDestroyed: (mapId: string, instanceId: string) => {
-          options.progress.setResourceState(mapId, instanceId, { stage: 'depleted', value: 0 });
+        markDestroyed: (mapId: string, instanceId: string, regrows: boolean) => {
+          options.progress.setResourceState(mapId, instanceId, {
+            stage: 'depleted', value: 0,
+            ...(regrows ? { respawnReadyAtEpochMs: Date.now() + GAME_CONSTANTS.resources.respawnMs } : {}),
+          });
         },
       } satisfies WorldObjectStatePort,
       [RESOURCE_NODE_SERVICE]: {
@@ -539,6 +609,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
           return options.requestExit(request);
         },
       } satisfies WorldExitPort,
+      [PLATE_WEIGHT_SERVICE]: { weights: () => options.plateWeights() } satisfies PlateWeightPort,
+      [GOO_HEART_SERVICE]: options.gooHearts,
+      [GROUND_CRACK_SERVICE]: options.groundCrack,
+      [SPIDER_WEB_SERVICE]: options.spiderWebs,
+      [STORY_FLAG_SERVICE]: {
+        setFlags: (flagIds: readonly string[]) => options.setStoryFlags(flagIds),
+        hasFlag: (flagId: string) => options.hasStoryFlag(flagId),
+      } satisfies StoryFlagPort,
       [GATE_LOCK_SERVICE]: {
         isUnlocked: (mapId: string, gateId: string) => options.progress.isGateUnlocked(mapId, gateId),
       } satisfies GateLockPort,
@@ -600,8 +678,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.npc-dialogue'), { runtimeNamespace: 'ui-npc-dialogue' });
       this.runtime.mountScene(sceneId('ui.quest-tracker'), { runtimeNamespace: 'ui-quest-tracker' });
       this.runtime.mountScene(sceneId('ui.world-map-ui'), { runtimeNamespace: 'ui-world-map-ui' });
-      this.runtime.mountScene(sceneId('ui.level-up-modal'), { runtimeNamespace: 'ui-level-up-modal' });
-      this.runtime.mountScene(sceneId('ui.audio-settings'), { runtimeNamespace: 'ui-audio-settings' });
+      for (const shellScene of options.shellSceneIds) {
+        this.runtime.mountScene(sceneId(shellScene), { runtimeNamespace: shellScene.replace('.', '-') });
+      }
       this.runtime.mountScene(sceneId('ui.minimap'), { runtimeNamespace: 'ui-minimap' });
     } catch (error) {
       mountedRuntime?.shutdown();
@@ -623,19 +702,32 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.npcDialogueSurface.destroy();
       this.questTrackerSurface.destroy();
       this.worldMapSurface.destroy();
-      this.levelUpSurface.destroy();
-      this.audioSettingsSurface.destroy();
+      this.stopApplyingSettings();
       this.minimapSurface.destroy();
       throw error;
     }
 
     this.mountPlayer();
     this.mountAuthoredWorld();
+    this.music = new MusicDirector({
+      ...this.musicTracks(),
+      isAudioUnlocked: () => this.audioServices.isUnlocked(),
+      setMusicDuck: (factor) => this.audioServices.setDuck('music', factor),
+    });
+    const onBossEngaged = (): void => this.music?.setBossFight(true);
+    const onBossDisengaged = (): void => this.music?.setBossFight(false);
+    gameEvents.on('boss.engaged', onBossEngaged);
+    gameEvents.on('boss.disengaged', onBossDisengaged);
+    this.unsubscribeBossMusic = () => {
+      gameEvents.off('boss.engaged', onBossEngaged);
+      gameEvents.off('boss.disengaged', onBossDisengaged);
+    };
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
     this.unregisterDoorInteraction = options.interactions.register('world-doors', { getCandidate: () => this.doorCandidate() });
     this.unregisterGateInteraction = options.interactions.register('world-gates', { getCandidate: () => this.gateCandidate() });
     this.unregisterBedInteraction = options.interactions.register('world-beds', { getCandidate: () => this.bedCandidate() });
     this.unregisterWorkbenchInteraction = options.interactions.register('world-workbenches', { getCandidate: () => this.workbenchCandidate() });
+    this.unregisterRestorationInteraction = options.interactions.register('world-restorations', { getCandidate: () => this.restorationCandidate() });
     this.unregisterFurnitureInteraction = options.interactions.register('placed-furniture', { getCandidate: () => this.furnitureCandidate() });
     this.unregisterFloatingText = floatingText.registerPresentation(options.scene, this.floatingTextSurface);
   }
@@ -649,6 +741,20 @@ export class UniversalSceneWorldController implements InteractionProvider {
   setPaused(paused: boolean): void {
     if (paused) this.playerScript?.clearInput();
     this.runtime.setPaused(paused);
+    this.music?.setPaused(paused);
+  }
+
+  /** Advances music fades; call every rendered frame, paused or not. */
+  updateMusic(deltaMs: number): void { this.music?.update(deltaMs); }
+
+  /** Fades all music out before the player leaves the area. */
+  fadeOutMusic(durationMs: number): void { this.music?.fadeOut(durationMs); }
+
+  /** The world's own music and the boss-fight music, when authored. */
+  private musicTracks(): { world?: AudioStreamPlayerNode; boss?: AudioStreamPlayerNode } {
+    const root = this.audioComposition.root;
+    const boss = root.has_node('Music/BossMusic') ? root.get_node('Music/BossMusic') : undefined;
+    return { world: this.worldMusic, boss: boss instanceof AudioStreamPlayerNode ? boss : undefined };
   }
   get managedOrdinaryEnemyCount(): number { return this.ordinaryEnemies.size; }
   get managedBossCount(): number { return this.bosses.size; }
@@ -747,6 +853,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     let nearest: DoorScript | undefined;
     let nearestDistance = Number.POSITIVE_INFINITY;
     for (const door of this.doors) {
+      if (!door.is_inside_tree()) continue;
       const parent = door.get_parent() as Node2D | undefined;
       if (!parent) continue;
       const position = parent.get_global_transform().position;
@@ -785,6 +892,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     let nearest: GateScript | undefined;
     let nearestDistance = Number.POSITIVE_INFINITY;
     for (const gate of this.gates) {
+      if (!gate.is_inside_tree()) continue;
       const parent = gate.get_parent() as Node2D | undefined;
       if (gate.isOpen || !parent) continue;
       const position = parent.get_global_transform().position;
@@ -831,6 +939,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     let nearest: { readonly bench: WorkbenchScript; readonly origin: Readonly<{ x: number; y: number }> } | undefined;
     let nearestDistance = Number.POSITIVE_INFINITY;
     for (const bench of this.workbenches) {
+      if (!bench.is_inside_tree()) continue;
       const parent = bench.get_parent() as Node2D | undefined;
       if (!parent) continue;
       const origin = parent.get_global_transform().position;
@@ -846,7 +955,42 @@ export class UniversalSceneWorldController implements InteractionProvider {
       priority: 88,
       anchor: () => ({ x: origin.x, y: origin.y - bench.badgeRise }),
       ...(secondary ? { secondary } : {}),
-      execute: () => this.options.openCraftingStation(bench.recipeContext),
+      execute: () => this.options.openCraftingStation(bench.site),
+    };
+  }
+
+  /** A ruined building in reach: F pays its materials and restores it. */
+  private restorationCandidate() {
+    if (!this.playerBody) return undefined;
+    const player = this.managedPlayer.getPosition();
+    let nearest: { readonly site: RestorationSiteScript; readonly origin: Readonly<{ x: number; y: number }> } | undefined;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const site of this.restorationSites) {
+      if (!site.is_inside_tree()) continue;
+      const parent = site.get_parent() as Node2D | undefined;
+      if (!parent) continue;
+      const origin = parent.get_global_transform().position;
+      const distance = Phaser.Math.Distance.Between(player.x, player.y, origin.x, origin.y);
+      if (distance <= site.interactRadius && distance < nearestDistance) { nearest = { site, origin }; nearestDistance = distance; }
+    }
+    if (!nearest) return undefined;
+    const { site, origin } = nearest;
+    return {
+      id: `world-restorations:${site.runtimeId}`,
+      prompt: `[F] ${site.prompt}`,
+      priority: 89,
+      anchor: () => ({ x: origin.x, y: origin.y - site.badgeRise }),
+      execute: () => this.options.restoreSite({
+        flagId: site.flagId,
+        objectId: site.objectId,
+        questId: site.questId,
+        instanceId: this.persistenceKeyOf(site),
+        cost: site.cost,
+        lockedMessage: site.lockedMessage,
+        restoredMessage: site.restoredMessage,
+        at: { x: origin.x, y: origin.y },
+        badgeRise: site.badgeRise,
+      }),
     };
   }
 
@@ -879,6 +1023,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     let nearest: { readonly bed: BedScript; readonly origin: Readonly<{ x: number; y: number }> } | undefined;
     let nearestDistance = Number.POSITIVE_INFINITY;
     for (const bed of this.beds) {
+      if (!bed.is_inside_tree()) continue;
       const parent = bed.get_parent() as Node2D | undefined;
       if (!parent) continue;
       const origin = parent.get_global_transform().position;
@@ -894,10 +1039,110 @@ export class UniversalSceneWorldController implements InteractionProvider {
       anchor: () => ({ x: origin.x, y: origin.y - bed.badgeRise }),
       ...(this.pickUpAction(bed) ? { secondary: this.pickUpAction(bed)! } : {}),
       execute: () => this.options.requestSleep({
+        bedId: this.bedId(bed),
         sleepPoint: { x: origin.x + bed.sleepPoint.x, y: origin.y + bed.sleepPoint.y },
         wakePoint: { x: origin.x + bed.wakePoint.x, y: origin.y + bed.wakePoint.y },
       }),
     };
+  }
+
+  /** Placed beds are named by their placement; authored beds by their instance's persistence key. */
+  private bedId(bed: BedScript): string {
+    const placementId = this.scriptPlacement.get(bed);
+    if (placementId) return placedBedId(placementId);
+    return this.persistenceKeyOf(bed);
+  }
+
+  /** The persistence key of the authored instance a script belongs to. */
+  private persistenceKeyOf(script: Node): string {
+    for (let node: Node | undefined = script; node; node = node.get_parent()) {
+      const provenance = node.authoredInstanceProvenance;
+      if (provenance) return provenance.persistenceKey ?? provenance.authoredInstanceId;
+    }
+    return String(script.runtimeId);
+  }
+
+  /** Every Gulp spot in the world, at the bottom centre of its art. */
+  /** Where the camp of a boss sits on this map (its encounter root). */
+  bossCampPosition(bossId: string): { x: number; y: number } | undefined {
+    for (const camp of this.camps.values()) {
+      if (camp.script.bossId !== bossId) continue;
+      const position = (camp.owner as Node2D).get_global_transform().position;
+      return { x: position.x, y: position.y };
+    }
+    return undefined;
+  }
+
+  /** The nearest exit or door leading into `areaId`. */
+  exitToArea(areaId: string, from: { x: number; y: number }): { x: number; y: number } | undefined {
+    let best: { x: number; y: number } | undefined;
+    const consider = (node: Node | null | undefined): void => {
+      if (!(node instanceof Node2D)) return;
+      const position = node.get_global_transform().position;
+      if (!best || Math.hypot(position.x - from.x, position.y - from.y) < Math.hypot(best.x - from.x, best.y - from.y)) best = { x: position.x, y: position.y };
+    };
+    for (const exit of descendants(this.runtime.root, WorldExitScript)) if (exit.targetAreaId === areaId) consider(exit.get_parent());
+    for (const door of this.doors) if (door.is_inside_tree() && door.targetAreaId === areaId) consider(door.get_parent());
+    return best;
+  }
+
+  /** The nearest walk-over pile or standing tree/rock that yields one of `itemIds`. */
+  nearestSource(itemIds: readonly string[], from: { x: number; y: number }): { x: number; y: number } | undefined {
+    let best: { x: number; y: number } | undefined;
+    let bestDistance = Number.POSITIVE_INFINITY;
+    const consider = (x: number, y: number): void => {
+      const distance = Math.hypot(x - from.x, y - from.y);
+      if (distance < bestDistance) { best = { x, y }; bestDistance = distance; }
+    };
+    for (const { owner, script } of this.collectibles.values()) {
+      if (!itemIds.includes(script.itemId) || script.remaining <= 0 || !(owner instanceof Node2D)) continue;
+      const position = owner.get_global_transform().position;
+      consider(position.x, position.y);
+    }
+    for (const { script } of this.resources.values()) {
+      if (script.destroyed || !script.harvestTag || !itemIds.includes(script.harvestTag)) continue;
+      consider(script.position.x, script.position.y);
+    }
+    return best;
+  }
+
+  /** The nearest crafting station of a kind (placed workbenches included). */
+  nearestStation(station: CraftingStation, from: { x: number; y: number }): { x: number; y: number } | undefined {
+    let best: { x: number; y: number } | undefined;
+    for (const bench of this.workbenches) {
+      if (!bench.is_inside_tree()) continue;
+      // The Workshop also crafts workbench recipes.
+      if (!stationServes(bench.station, station)) continue;
+      const parent = bench.get_parent();
+      if (!(parent instanceof Node2D)) continue;
+      const position = parent.get_global_transform().position;
+      if (!best || Math.hypot(position.x - from.x, position.y - from.y) < Math.hypot(best.x - from.x, best.y - from.y)) best = { x: position.x, y: position.y };
+    }
+    return best;
+  }
+
+  /** The nearest ruined building still waiting to be restored, by quest object id. */
+  restorationSite(objectIds: readonly string[], from: { x: number; y: number }): { x: number; y: number } | undefined {
+    let best: { x: number; y: number } | undefined;
+    for (const site of this.restorationSites) {
+      if (!site.is_inside_tree() || !objectIds.includes(site.objectId)) continue;
+      const parent = site.get_parent();
+      if (!(parent instanceof Node2D)) continue;
+      const position = parent.get_global_transform().position;
+      if (!best || Math.hypot(position.x - from.x, position.y - from.y) < Math.hypot(best.x - from.x, best.y - from.y)) best = { x: position.x, y: position.y };
+    }
+    return best;
+  }
+
+  gulpSpots(): GulpSpot[] {
+    const spots: GulpSpot[] = [];
+    for (const script of this.gulpSpotScripts) {
+      const parent = script.get_parent();
+      if (!(parent instanceof Node2D) || !script.materialItemId) continue;
+      const { x, y } = parent.get_global_transform().position;
+      spots.push({ x, y, materialItemId: script.materialItemId, radius: script.radius, badgeRise: script.badgeRise });
+    }
+    return spots;
   }
 
   isChestLocked(instanceId: string): boolean {
@@ -906,6 +1151,21 @@ export class UniversalSceneWorldController implements InteractionProvider {
 
   resetActiveFights(): void {
     for (const camp of this.camps.values()) camp.script.resetActiveFight();
+  }
+
+  /** Slows ordinary enemies standing within `radius` of any point (the slime's goo trail); returns how many. */
+  slowEnemiesNear(points: readonly Readonly<{ x: number; y: number }>[], radius: number, multiplier: number, durationMs: number): number {
+    if (points.length === 0) return 0;
+    const radiusSquared = radius * radius;
+    let slowed = 0;
+    for (const enemy of this.ordinaryEnemies.values()) {
+      if (enemy.script.defeated) continue;
+      const at = enemy.script.worldPosition;
+      if (!points.some((point) => (point.x - at.x) ** 2 + (point.y - at.y) ** 2 <= radiusSquared)) continue;
+      enemy.script.applySlow(multiplier, durationMs);
+      slowed += 1;
+    }
+    return slowed;
   }
 
   createManagedEnemy(request: EnemySpawnRequest): EnemyPopulationMember | null | undefined {
@@ -1147,8 +1407,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.unregisterGateInteraction();
     this.unregisterBedInteraction();
     this.unregisterWorkbenchInteraction();
+    this.unregisterRestorationInteraction();
     this.unregisterFurnitureInteraction();
     this.unregisterFloatingText();
+    this.unsubscribeBossMusic();
+    this.music = undefined;
     this.inputRouter.destroy();
     this.runtime.shutdown();
     this.npcNameTags.destroy();
@@ -1170,8 +1433,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.npcDialogueSurface.destroy();
     this.questTrackerSurface.destroy();
     this.worldMapSurface.destroy();
-    this.levelUpSurface.destroy();
-    this.audioSettingsSurface.destroy();
+    this.stopApplyingSettings();
     this.minimapSurface.destroy();
     this.camps.clear();
     this.bosses.clear();
@@ -1193,7 +1455,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.doors.clear();
     this.gates.clear();
     this.beds.clear();
+    this.gulpSpotScripts.clear();
+    this.worldMusic = undefined;
     this.workbenches.clear();
+    this.restorationSites.clear();
     this.placedFurniture.clear();
     this.scriptPlacement.clear();
   }
@@ -1202,6 +1467,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const mount = this.runtime.mountScene(this.options.worldSceneId, {
       runtimeNamespace: `managed-world-${this.options.map.mapId}`,
     });
+    this.worldMusic = descendants(mount.root, AudioStreamPlayerNode).find((node) => node.bus === 'music');
     for (const visual of descendants(mount.root, Sprite2DNode)) {
       if (!visual.occlusionBounds || !this.options.registerOccluder) continue;
       const registration = this.options.registerOccluder({
@@ -1252,13 +1518,17 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ...descendants(root, DoorScript),
       ...descendants(root, GateScript),
       ...descendants(root, BedScript),
+      ...descendants(root, GulpSpotScript),
       ...descendants(root, WorkbenchScript),
+      ...descendants(root, RestorationSiteScript),
     ];
     for (const script of scripts) {
       if (script instanceof DoorScript) this.doors.add(script);
       else if (script instanceof GateScript) this.gates.add(script);
       else if (script instanceof BedScript) this.beds.add(script);
+      else if (script instanceof GulpSpotScript) this.gulpSpotScripts.add(script);
       else if (script instanceof WorkbenchScript) this.workbenches.add(script);
+      else if (script instanceof RestorationSiteScript) this.restorationSites.add(script);
       if (placementId) this.scriptPlacement.set(script, placementId);
     }
     return scripts;
@@ -1290,7 +1560,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.doors.delete(script as DoorScript);
       this.gates.delete(script as GateScript);
       this.beds.delete(script as BedScript);
+      this.gulpSpotScripts.delete(script as GulpSpotScript);
       this.workbenches.delete(script as WorkbenchScript);
+      this.restorationSites.delete(script as RestorationSiteScript);
       this.scriptPlacement.delete(script);
     }
     this.placedFurniture.delete(placementId);
@@ -1477,6 +1749,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     for (const [campId, boss] of [...this.bosses]) {
       if (!boss.script.defeated || boss.defeatedNotified) continue;
       boss.defeatedNotified = true;
+      particleFx.play('boss-burst', boss.script.worldPosition.x, boss.script.worldPosition.y - 30);
       this.camps.get(campId)?.script.onBossDefeated(Date.now());
       this.options.showMessage(
         boss.script.worldPosition.x,
@@ -1632,6 +1905,18 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.collectibles.delete(instanceId);
     }
     this.runtime.tree.flushMutations();
+  }
+
+  /** Distance from `point` to the nearest living enemy or boss (Infinity when none). */
+  nearestEnemyDistance(point: Readonly<{ x: number; y: number }>): number {
+    let nearest = Number.POSITIVE_INFINITY;
+    for (const script of [...[...this.ordinaryEnemies.values()].map((enemy) => enemy.script), ...[...this.bosses.values()].map((boss) => boss.script)]) {
+      const body = script.get_parent();
+      if (!(body instanceof Node2D)) continue;
+      const { x, y } = body.get_global_transform().position;
+      nearest = Math.min(nearest, Math.hypot(x - point.x, y - point.y));
+    }
+    return nearest;
   }
 
   private managedTargetTags(receiverNodeId: string): readonly string[] {

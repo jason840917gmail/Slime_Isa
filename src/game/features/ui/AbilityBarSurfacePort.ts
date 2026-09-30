@@ -31,7 +31,7 @@ export class AbilityBarSurfacePort implements UiSurfacePort {
       const unlocked = status?.unlocked ?? false;
       const cooldownMs = status?.cooldownRemainingMs ?? 0;
       const label = !unlocked
-        ? `Lv ${status?.unlockLevel ?? PLAYER_ABILITY_DEFINITIONS[id].unlockLevel}\n${name}`
+        ? `${status?.earnedBy ?? PLAYER_ABILITY_DEFINITIONS[id].earnedBy}\n${name}`
         : cooldownMs > 0
           ? `${(Math.ceil(cooldownMs / 100) / 10).toFixed(1)}s\n${name}`
           : status?.insufficientEnergy

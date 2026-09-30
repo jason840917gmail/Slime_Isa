@@ -30,7 +30,8 @@ test('Level 1 spawns Worm Brawler through the universal runtime without a legacy
   expect(authored.managedChestCount).toBe(1);
   expect(authored.managedNpcCount).toBe(6);
   expect(authored.managedPlayerCount).toBe(1);
-  expect(authored.managedResourceCount).toBe(59);
+  // 58 since the Workshop (6.3) took the woodcutter yard's place and one generated tree made room.
+  expect(authored.managedResourceCount).toBe(58);
   expect(authored.managedCollectibleCount).toBe(15);
   expect(authored.hasLegacyChestController).toBe(false);
   await page.keyboard.down('ArrowRight');
@@ -178,9 +179,10 @@ test('managed projectile and impact effect scenes complete their production life
   await expect.poll(async () => (
     await page.evaluate(() => window.sceneFixture.snapshot().managedProjectileSpawnCount ?? 0)
   ), { timeout: 10_000 }).toBeGreaterThan(0);
+  // A worm arrow deals 22; the player's base defense (character.player.stats.defense, 3) takes 3 off.
   await expect.poll(async () => (
     await page.evaluate(() => window.sceneFixture.snapshot().playerHp ?? Number.POSITIVE_INFINITY)
-  ), { timeout: 5_000 }).toBe(before.playerHp! - 20);
+  ), { timeout: 5_000 }).toBe(before.playerHp! - 19);
   await expect.poll(async () => (
     await page.evaluate(() => window.sceneFixture.snapshot().managedProjectileCount ?? -1)
   ), { timeout: 5_000 }).toBe(0);

@@ -209,13 +209,17 @@ const RENDERERS = { tone: renderTone, noise: renderNoise, pluck: renderPluck, mo
 function layerEnd(layer) { return (layer.at ?? 0) + layer.dur; }
 
 /**
- * Renders a recipe: { layers, gain?, drive?, echo?: { delay, feedback, mix }, tail?, peak? }.
+ * Renders a recipe: { layers, gain?, drive?, echo?: { delay, feedback, mix }, tail?, peak?, loop? }.
+ * `loop: { seconds, crossfade? }` makes a seamless loop of exactly `seconds`: layers may run past
+ * the end, and everything after it is crossfaded back over the start (no end fade, no trimming).
  * Returns Float32Array samples in [-1, 1].
  */
 export function renderRecipe(recipe, seed) {
   const rng = createRng(seed);
   const echoTail = recipe.echo ? recipe.echo.delay * Math.ceil(Math.log(0.01) / Math.log(recipe.echo.feedback)) : 0;
-  const duration = Math.max(...recipe.layers.map(layerEnd)) + echoTail + (recipe.tail ?? 0.01);
+  const loopCrossfade = recipe.loop ? (recipe.loop.crossfade ?? 0.5) : 0;
+  const duration = Math.max(...recipe.layers.map(layerEnd), recipe.loop ? recipe.loop.seconds + loopCrossfade : 0)
+    + echoTail + (recipe.tail ?? 0.01);
   const out = new Float32Array(Math.ceil(duration * SAMPLE_RATE));
   for (const layer of recipe.layers) {
     const renderer = RENDERERS[layer.type];
@@ -239,6 +243,10 @@ export function renderRecipe(recipe, seed) {
   const rmsAfterPeak = Math.sqrt(sumSquares / Math.max(out.length, 1)) * peakScale;
   const ceiling = 10 ** ((recipe.maxRmsDb ?? -15) / 20);
   const scale = rmsAfterPeak > ceiling ? peakScale * (ceiling / rmsAfterPeak) : peakScale;
+  if (recipe.loop) {
+    for (let index = 0; index < out.length; index += 1) out[index] *= scale;
+    return foldLoop(out, Math.round(recipe.loop.seconds * SAMPLE_RATE), Math.round(loopCrossfade * SAMPLE_RATE));
+  }
   const fade = Math.min(out.length, Math.round(0.006 * SAMPLE_RATE));
   for (let index = 0; index < out.length; index += 1) {
     out[index] *= scale;
@@ -246,6 +254,25 @@ export function renderRecipe(recipe, seed) {
     if (fromEnd < fade) out[index] *= fromEnd / fade;
   }
   return trimSilence(out);
+}
+
+/**
+ * Seamless loop of `length` samples: the first `crossfade` samples blend from the audio that
+ * followed the loop end into the loop's own start, so the wrap point continues the material.
+ * Anything later than that overflow is added back on as well, so no event is lost.
+ */
+function foldLoop(samples, length, crossfade) {
+  const loop = new Float32Array(length);
+  loop.set(samples.subarray(0, length));
+  for (let index = 0; index < crossfade && length + index < samples.length; index += 1) {
+    const toStart = index / crossfade;
+    loop[index] = loop[index] * toStart + samples[length + index] * (1 - toStart);
+  }
+  for (let index = length + crossfade; index < samples.length; index += 1) loop[(index - length) % length] += samples[index];
+  let peak = 0;
+  for (const sample of loop) peak = Math.max(peak, Math.abs(sample));
+  if (peak > 0.99) for (let index = 0; index < length; index += 1) loop[index] *= 0.99 / peak;
+  return loop;
 }
 
 /** Drops trailing samples below -60 dB so echo/decay tails do not pad files. */

@@ -78,6 +78,19 @@ export class ResourceNodeScript extends DestructibleScript {
     });
   }
 
+  /** Harvested trees, stone and ore grow back (`resources.respawnMs`). */
+  protected override regrows(): boolean { return true; }
+
+  /** The resource tag this node yields when harvested (`wood`, `stone`), if any. */
+  get harvestTag(): string | undefined {
+    return this.harvestRequirement()?.targetTag;
+  }
+
+  /** Where the node stands in the world. */
+  get position(): Readonly<{ x: number; y: number }> {
+    return this.worldPosition();
+  }
+
   get dropDefinition(): Readonly<{ objectId: string; visualId: string; pieces: number }> | undefined {
     return this.dropConfiguration();
   }
