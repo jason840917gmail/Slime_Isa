@@ -1,0 +1,38 @@
+<svg viewBox="0 0 680 650" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+<title>Terrain blend pipeline</title>
+<desc>Flow from logical tile grid through chunk planning, per-sample weight math, and canvas baking into Phaser images.</desc>
+<style>
+.g rect{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:0.8}.g .th{fill:#444441}.g .ts{fill:#5F5E5A}
+.t rect{fill:#E1F5EE;stroke:#0F6E56;stroke-width:0.8}.t .th{fill:#085041}.t .ts{fill:#0F6E56}
+.p rect{fill:#EEEDFE;stroke:#534AB7;stroke-width:0.8}.p .th{fill:#3C3489}.p .ts{fill:#534AB7}
+.th{font-size:14px;font-weight:500}.ts{font-size:12px}.lbl{font-size:12px;fill:#5F5E5A}
+line{stroke:#888780;stroke-width:1}
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#888780"/></marker></defs>
+<rect x="0" y="0" width="680" height="650" fill="#FFFFFF"/>
+<g class="g"><rect x="200" y="10" width="280" height="50" rx="4"/><text class="th" x="340" y="31" text-anchor="middle">Logical tile grid</text><text class="ts" x="340" y="49" text-anchor="middle">one tile ID per cell</text></g>
+<line x1="340" y1="60" x2="340" y2="82" marker-end="url(#a)"/>
+<g class="g"><rect x="200" y="84" width="280" height="50" rx="4"/><text class="th" x="340" y="105" text-anchor="middle">terrainBlendLookup(tileId)</text><text class="ts" x="340" y="123" text-anchor="middle">group natural-ground → material, priority</text></g>
+<line x1="340" y1="134" x2="340" y2="156" marker-end="url(#a)"/>
+<text class="lbl" x="20" y="172">Plan — TerrainBlendField.ts (pure)</text>
+<g class="t"><rect x="20" y="180" width="640" height="46" rx="4"/><text class="th" x="340" y="200" text-anchor="middle">1. Split world into 512 px chunks (+2 px gutter)</text><text class="ts" x="340" y="217" text-anchor="middle">skip chunk unless two materials touch within ±2 cells (8-neighbour)</text></g>
+<line x1="340" y1="226" x2="340" y2="246" marker-end="url(#a)"/>
+<g class="t"><rect x="20" y="248" width="640" height="46" rx="4"/><text class="th" x="340" y="268" text-anchor="middle">2. Sample every 6 px, in tile units (u, v) = world / tileSize</text><text class="ts" x="340" y="285" text-anchor="middle">sample on a non-blending cell → skipped (keeps hard edge)</text></g>
+<line x1="340" y1="294" x2="340" y2="314" marker-end="url(#a)"/>
+<g class="t"><rect x="20" y="316" width="205" height="72" rx="4"/><text class="th" x="122" y="338" text-anchor="middle">3a. Domain warp</text><text class="ts" x="122" y="356" text-anchor="middle">u' = u + 0.45·N(0.45u)</text><text class="ts" x="122" y="372" text-anchor="middle">+ 0.10·N(2.2u)</text></g>
+<g class="t"><rect x="237" y="316" width="205" height="72" rx="4"/><text class="th" x="340" y="338" text-anchor="middle">3b. Radial kernel</text><text class="ts" x="340" y="356" text-anchor="middle">k(d) = (1 − d²/R²)²,  R = 1.05</text><text class="ts" x="340" y="372" text-anchor="middle">summed per material, 3×3 cells</text></g>
+<g class="t"><rect x="454" y="316" width="206" height="72" rx="4"/><text class="th" x="557" y="338" text-anchor="middle">3c. Bias + sharpen</text><text class="ts" x="557" y="356" text-anchor="middle">s = (W · (1 + 0.14·rank))⁴</text><text class="ts" x="557" y="372" text-anchor="middle">share = s / Σs</text></g>
+<line x1="225" y1="352" x2="235" y2="352" marker-end="url(#a)"/>
+<line x1="442" y1="352" x2="452" y2="352" marker-end="url(#a)"/>
+<line x1="557" y1="388" x2="557" y2="398"/><line x1="557" y1="398" x2="340" y2="398"/><line x1="340" y1="398" x2="340" y2="410" marker-end="url(#a)"/>
+<g class="t"><rect x="20" y="412" width="640" height="46" rx="4"/><text class="th" x="340" y="432" text-anchor="middle">4. Over-alpha per layer:  αₘ = shareₘ / Σ share(rank ≤ m)</text><text class="ts" x="340" y="449" text-anchor="middle">stored as Uint8 mask per material, low → high priority</text></g>
+<line x1="340" y1="458" x2="340" y2="478" marker-end="url(#a)"/>
+<text class="lbl" x="20" y="494">Bake — TerrainTransitionLayer.ts (canvas)</text>
+<g class="p"><rect x="20" y="502" width="205" height="72" rx="4"/><text class="th" x="122" y="524" text-anchor="middle">5a. Draw tiles</text><text class="ts" x="122" y="542" text-anchor="middle">material's most common</text><text class="ts" x="122" y="558" text-anchor="middle">tile, only where α &gt; 0</text></g>
+<g class="p"><rect x="237" y="502" width="205" height="72" rx="4"/><text class="th" x="340" y="524" text-anchor="middle">5b. Mask</text><text class="ts" x="340" y="542" text-anchor="middle">destination-in, mask ×6</text><text class="ts" x="340" y="558" text-anchor="middle">bilinear upscale</text></g>
+<g class="p"><rect x="454" y="502" width="206" height="72" rx="4"/><text class="th" x="557" y="524" text-anchor="middle">5c. Composite</text><text class="ts" x="557" y="542" text-anchor="middle">source-over onto chunk;</text><text class="ts" x="557" y="558" text-anchor="middle">clear excluded cells</text></g>
+<line x1="225" y1="538" x2="235" y2="538" marker-end="url(#a)"/>
+<line x1="442" y1="538" x2="452" y2="538" marker-end="url(#a)"/>
+<line x1="557" y1="574" x2="557" y2="592" marker-end="url(#a)"/>
+<g class="g"><rect x="380" y="594" width="280" height="46" rx="4"/><text class="th" x="520" y="614" text-anchor="middle">Phaser image per chunk</text><text class="ts" x="520" y="631" text-anchor="middle">over base tiles, camera-culled</text></g>
+</svg>
