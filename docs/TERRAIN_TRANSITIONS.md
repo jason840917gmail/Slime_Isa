@@ -26,6 +26,8 @@ Only `group`, `material`, and `priority` drive rendering; `edgeWidth` and `style
 3. Weights are sharpened and normalized into shares, then painted as per-material alpha masks in ascending priority. Higher priority nudges a border into the lower material; straight borders stay near the cell edge while convex corners and lone cells round off.
 4. Chunks outside the camera are culled.
 
+Formulas, a pipeline diagram, and an interactive playground: [TERRAIN_BLEND_MATH.md](./TERRAIN_BLEND_MATH.md).
+
 Tiles without a `natural-ground` transition (`rock-wall`, `wood-floor`, the `mushroom-*` floors) keep hard cell edges. `water` and `deep-water` do participate (priorities 5 and 4) while remaining solid. `grass-a`/`grass-b` share the `highland` material, so their ID difference does not produce a seam. Blending applies only to unrotated, unscaled layers.
 
 ### Limitations
