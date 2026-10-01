@@ -22,6 +22,8 @@ export * from './GooHeartScript';
 export * from './StoryVariantScript';
 export * from './CrackedGroundScript';
 export * from './SpiderWebScript';
+export * from './WebPatchScript';
+export * from './MatronScript';
 export * from './StoryFlagScript';
 export * from './PressurePlateScript';
 export * from './GateScript';

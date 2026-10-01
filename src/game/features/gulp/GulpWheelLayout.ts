@@ -1,4 +1,4 @@
-/** Hold W this long (ms) to open the quick wheel; a shorter press is a tap. */
+/** Hold the mouth (Q) this long (ms) to open the quick wheel; a shorter press is a tap. */
 export const GULP_WHEEL_HOLD_MS = 250;
 
 /**

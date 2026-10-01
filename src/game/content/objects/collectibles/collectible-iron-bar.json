@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.iron-bar",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "sheet.items.chapter-2.5x2",
+    "frames": [{ "visualId": "iron-bar", "frame": 1, "displayName": "Iron bar", "scale": 0.5 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "iron-bar", "quantity": 1 },
+  "tags": ["collectible", "material", "iron"]
+}

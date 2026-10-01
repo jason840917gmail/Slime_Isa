@@ -32,6 +32,8 @@ export interface WorldVisual {
   /** Multiplies the art by `color` (a look such as a Gulp form); `clearTint` removes it. */
   setTint(color: number): this;
   clearTint(): this;
+  /** Draws the visual from another texture with the same frames (a Gulp form's skin); `undefined` restores its own. */
+  setSkin(textureKey: string | undefined): this;
   resetEffects(): this;
   getBounds(): Phaser.Geom.Rectangle;
   getRenderState(): WorldVisualRenderState;

@@ -9,7 +9,7 @@ export interface GulpPoint {
 /** A world object that can be eaten from any number of times. */
 export interface GulpSpot extends GulpPoint {
   readonly materialItemId: string;
-  /** Distance from the spot within which W eats from it. */
+  /** Distance from the spot within which the mouth (Q) eats from it. */
   readonly radius: number;
   /** How far above the spot its "[Q] Gulp" hint floats. */
   readonly badgeRise?: number;
@@ -38,14 +38,14 @@ export interface GulpWheelEntry {
   readonly count: number;
 }
 
-/** What one press of W did. */
+/** What one press of the mouth (Q) did. */
 export type GulpEatResult = 'spot' | 'inventory' | 'burp' | 'nothing';
 
 /**
  * The slime's mouth (the `eat` control, Q). Tap near a Gulp spot to eat from the world for free;
  * tap while in a form, away from a spot, to burp the form away; a tap anywhere
  * else only says how to gulp. Carried materials are eaten from the quick wheel
- * (hold W: `wheelEntries`, `eatMaterial`). A form ends by itself after
+ * (hold Q: `wheelEntries`, `eatMaterial`). A form ends by itself after
  * `formDurationMs`.
  */
 export class GulpController {
@@ -76,7 +76,7 @@ export class GulpController {
       this.end('burp');
       return 'burp';
     }
-    // Carried materials are only eaten from the quick wheel (hold W), never by a
+    // Carried materials are only eaten from the quick wheel (hold Q), never by a
     // stray tap: the owner kept turning Heavy far from any rock (2026-09-30).
     this.ctx.showMessage(this.carriedMaterial() ? `No Gulp spot here. Hold ${controlLabel('eat')} to eat what you carry` : 'Nothing to gulp here');
     return 'nothing';

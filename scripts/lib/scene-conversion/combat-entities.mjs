@@ -6,6 +6,7 @@ const DIRECTIONS = ['right', 'left', 'up', 'down'];
 const WEAPON_KEYS = new Set([
   'weapon:basic-spear', 'weapon:basic-sword', 'weapon:goo-gauntlet', 'weapon:pickaxe', 'weapon:slam-hammer',
   'weapon:stone-axe', 'weapon:stone-pickaxe', 'weapon:stone-spear', 'weapon:wooden-axe', 'weapon:wooden-spear',
+  'weapon:reinforced-pickaxe', 'weapon:iron-spear', 'weapon:iron-axe',
 ]);
 const PROJECTILE_KEYS = new Set(['projectile:worm-arrow']);
 const EFFECT_KEYS = new Set([

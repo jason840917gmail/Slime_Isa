@@ -1,0 +1,1604 @@
+{
+  "version": 1,
+  "sceneId": "weapon.reinforced-pickaxe",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "ReinforcedPickaxe",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual-1",
+      "name": "Pickaxe1",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "weapon.reinforced-pickaxe.visual.1"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "scale": [
+          0.5,
+          0.5
+        ],
+        "rotation": 0,
+        "alpha": 0,
+        "depthMode": "relative",
+        "depthOffset": 0.01,
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "attack-area",
+      "name": "AttackArea",
+      "type": "Area2D",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "shape-right-pickaxe-head",
+      "name": "right--pickaxe-head",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.reinforced-pickaxe.right.pickaxe-head.shape"
+        },
+        "position": [
+          60,
+          15
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-left-pickaxe-head",
+      "name": "left--pickaxe-head",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.reinforced-pickaxe.left.pickaxe-head.shape"
+        },
+        "position": [
+          -60,
+          15
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-up-pickaxe-head",
+      "name": "up--pickaxe-head",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 2,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.reinforced-pickaxe.up.pickaxe-head.shape"
+        },
+        "position": [
+          0,
+          -60
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-down-pickaxe-head",
+      "name": "down--pickaxe-head",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 3,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.reinforced-pickaxe.down.pickaxe-head.shape"
+        },
+        "position": [
+          0,
+          60
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "weapon.reinforced-pickaxe.animations"
+        },
+        "domain": "physics",
+        "autoplay": "idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "WeaponScript",
+      "type": "ScriptNode",
+      "scriptId": "game.weapon",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "weaponId": "reinforced-pickaxe",
+        "category": "melee",
+        "attackArea": {
+          "nodeId": "attack-area"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "baseDamage": 15,
+        "cooldownMs": 900,
+        "knockStrength": 70,
+        "damageModifiers": [
+          {
+            "targetTag": "iron",
+            "modifier": 1
+          },
+          {
+            "targetTag": "stone",
+            "modifier": 1
+          },
+          {
+            "targetTag": "resource",
+            "modifier": 0
+          },
+          {
+            "targetTag": "enemy",
+            "modifier": 0
+          }
+        ],
+        "harvestCapabilities": {
+          "stone": 2,
+          "iron": 2
+        },
+        "scaling": {},
+        "attackPlans": {
+          "right": {
+            "animationId": "attack-right",
+            "durationMs": 500,
+            "framesPerSecond": 12,
+            "hitboxSpans": [
+              {
+                "hitboxId": "pickaxe-head",
+                "from": 4,
+                "through": 5,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 0.2
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          },
+          "left": {
+            "animationId": "attack-left",
+            "durationMs": 500,
+            "framesPerSecond": 12,
+            "hitboxSpans": [
+              {
+                "hitboxId": "pickaxe-head",
+                "from": 4,
+                "through": 5,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 0.2
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": true,
+              "y": false
+            }
+          },
+          "up": {
+            "animationId": "attack-up",
+            "durationMs": 500,
+            "framesPerSecond": 12,
+            "hitboxSpans": [
+              {
+                "hitboxId": "pickaxe-head",
+                "from": 4,
+                "through": 5,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 0.2
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": true
+            }
+          },
+          "down": {
+            "animationId": "attack-down",
+            "durationMs": 500,
+            "framesPerSecond": 12,
+            "hitboxSpans": [
+              {
+                "hitboxId": "pickaxe-head",
+                "from": 4,
+                "through": 5,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 0.2
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "sfx-swing-sfx",
+      "name": "SwingSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "root",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.swing-tool"
+        },
+        "pitchRandomness": 0.06
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "attack-area"
+      },
+      "signal": "area_entered",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "attack_started",
+      "target": {
+        "nodeId": "sfx-swing-sfx"
+      },
+      "handler": "play"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "weapon.reinforced-pickaxe.visual.1",
+      "kind": "sprite-sheet",
+      "assetId": "weapon.player.iron-tools-tiles",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frameCount": 4
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.reinforced-pickaxe.animations",
+      "kind": "animation-library",
+      "animations": {
+        "idle": {
+          "durationSeconds": 0.1666666667,
+          "framesPerSecond": 6,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Pickaxe1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -10,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": -0.5235987755982988
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                }
+              ]
+            }
+          ]
+        },
+        "attack-right": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Pickaxe1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 3
+                },
+                {
+                  "at": 1,
+                  "value": 3
+                },
+                {
+                  "at": 2,
+                  "value": 3
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                },
+                {
+                  "at": 4,
+                  "value": 3
+                },
+                {
+                  "at": 5,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -20,
+                    -15
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    -15
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    20,
+                    -10
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    30,
+                    0
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    40,
+                    20
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    40,
+                    20
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": -0.5235987755982988
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0.5235987755982988
+                },
+                {
+                  "at": 3,
+                  "value": 1.0471975511965976
+                },
+                {
+                  "at": 4,
+                  "value": 1.5707963267948966
+                },
+                {
+                  "at": 5,
+                  "value": 1.5707963267948966
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                }
+              ]
+            }
+          ]
+        },
+        "attack-left": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Pickaxe1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 3
+                },
+                {
+                  "at": 1,
+                  "value": 3
+                },
+                {
+                  "at": 2,
+                  "value": 3
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                },
+                {
+                  "at": 4,
+                  "value": 3
+                },
+                {
+                  "at": 5,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    20,
+                    -15
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    -15
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    -20,
+                    -10
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    -30,
+                    0
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    -40,
+                    20
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    -40,
+                    20
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.5235987755982988
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": -0.5235987755982988
+                },
+                {
+                  "at": 3,
+                  "value": -1.0471975511965976
+                },
+                {
+                  "at": 4,
+                  "value": -1.5707963267948966
+                },
+                {
+                  "at": 5,
+                  "value": -1.5707963267948966
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                }
+              ]
+            }
+          ]
+        },
+        "attack-up": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Pickaxe1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 3
+                },
+                {
+                  "at": 1,
+                  "value": 3
+                },
+                {
+                  "at": 2,
+                  "value": 3
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                },
+                {
+                  "at": 4,
+                  "value": 3
+                },
+                {
+                  "at": 5,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    30,
+                    20
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    30,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    30,
+                    -20
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    10,
+                    -30
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0,
+                    -35
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    -35
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": -1.0471975511965976
+                },
+                {
+                  "at": 1,
+                  "value": -1.5707963267948966
+                },
+                {
+                  "at": 2,
+                  "value": -2.0943951023931953
+                },
+                {
+                  "at": 3,
+                  "value": -2.792526803190927
+                },
+                {
+                  "at": 4,
+                  "value": -3.3161255787892263
+                },
+                {
+                  "at": 5,
+                  "value": -3.3161255787892263
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                }
+              ]
+            }
+          ]
+        },
+        "attack-down": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Pickaxe1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 3
+                },
+                {
+                  "at": 1,
+                  "value": 3
+                },
+                {
+                  "at": 2,
+                  "value": 3
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                },
+                {
+                  "at": 4,
+                  "value": 3
+                },
+                {
+                  "at": 5,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    30,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    30,
+                    20
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    30,
+                    40
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    10,
+                    50
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0,
+                    55
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    55
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0.5,
+                    0.5
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1.0471975511965976
+                },
+                {
+                  "at": 1,
+                  "value": 1.5707963267948966
+                },
+                {
+                  "at": 2,
+                  "value": 2.0943951023931953
+                },
+                {
+                  "at": 3,
+                  "value": 2.792526803190927
+                },
+                {
+                  "at": 4,
+                  "value": 3.3161255787892263
+                },
+                {
+                  "at": 5,
+                  "value": 3.3161255787892263
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.reinforced-pickaxe.right.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.reinforced-pickaxe.left.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.reinforced-pickaxe.up.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.reinforced-pickaxe.down.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.swing-tool",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.swing-tool.1",
+      "variants": [
+        "audio.sfx.weapon.swing-tool.2"
+      ]
+    }
+  ]
+}

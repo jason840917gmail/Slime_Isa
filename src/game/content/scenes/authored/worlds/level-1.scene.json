@@ -1034,6 +1034,19 @@
       "name": "Water Life",
       "type": "Node2D",
       "parentId": "world",
+      "order": 58,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "chapter-1-villagers",
+      "name": "chapter-1-villagers",
+      "type": "Node2D",
+      "parentId": "world",
       "order": 60,
       "properties": {
         "position": [
@@ -1043,11 +1056,25 @@
       }
     },
     {
+      "id": "chapter-1-villagers-variant",
+      "name": "StoryVariantScript",
+      "type": "ScriptNode",
+      "scriptId": "game.story-variant",
+      "parentId": "world",
+      "order": 61,
+      "properties": {
+        "flagId": "chapter-1-complete",
+        "whenUnset": {
+          "nodeId": "chapter-1-villagers"
+        }
+      }
+    },
+    {
       "id": "sfx-music-player",
       "name": "MusicPlayer",
       "type": "AudioStreamPlayer",
       "parentId": "world",
-      "order": 61,
+      "order": 62,
       "properties": {
         "stream": {
           "resourceId": "music.level-1-home-town"
@@ -1064,7 +1091,7 @@
       "name": "Ambience",
       "type": "AudioStreamPlayer",
       "parentId": "world",
-      "order": 62,
+      "order": 63,
       "properties": {
         "stream": {
           "resourceId": "sfx.world.meadow-ambience"
@@ -1716,8 +1743,8 @@
       "instanceId": "level-1-npc-yellow-blond-slime-girl",
       "name": "level-1-npc-yellow-blond-slime-girl",
       "sceneId": "character.yellow-blond-slime-girl",
-      "parentNodeId": "world",
-      "order": 50,
+      "parentNodeId": "chapter-1-villagers",
+      "order": 0,
       "persistenceKey": "level-1.level-1-npc-yellow-blond-slime-girl",
       "overrides": [
         {
@@ -1736,7 +1763,7 @@
       "name": "tree-world-solid-70613972",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 51,
+      "order": 50,
       "persistenceKey": "level-1.tree-world-solid-70613972",
       "overrides": [
         {
@@ -1766,8 +1793,8 @@
       "instanceId": "level-1-npc-mossy-scout",
       "name": "level-1-npc-mossy-scout",
       "sceneId": "character.mossy-scout",
-      "parentNodeId": "world",
-      "order": 52,
+      "parentNodeId": "chapter-1-villagers",
+      "order": 1,
       "persistenceKey": "level-1.level-1-npc-mossy-scout",
       "overrides": [
         {
@@ -1786,7 +1813,7 @@
       "name": "forge-red",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 53,
+      "order": 51,
       "persistenceKey": "world.level-1.object-house-world-solid-forge-red",
       "overrides": [
         {
@@ -1805,7 +1832,7 @@
       "name": "level-1-npc-fisherman-slime",
       "sceneId": "character.fisherman-slime",
       "parentNodeId": "world",
-      "order": 54,
+      "order": 52,
       "persistenceKey": "level-1.level-1-npc-fisherman-slime",
       "overrides": [
         {
@@ -1824,7 +1851,7 @@
       "name": "mushroom-red",
       "sceneId": "object.house-mushroom",
       "parentNodeId": "world",
-      "order": 55,
+      "order": 53,
       "persistenceKey": "world.level-1.object-house-mushroom",
       "overrides": [
         {
@@ -1843,7 +1870,7 @@
       "name": "level-1-goo-heart-meadow-lakeside",
       "sceneId": "object.goo-heart",
       "parentNodeId": "world",
-      "order": 56,
+      "order": 54,
       "persistenceKey": "level-1.level-1-goo-heart-meadow-lakeside",
       "overrides": [
         {
@@ -1868,7 +1895,7 @@
       "name": "level-1-goo-heart-meadow-autumn-thicket",
       "sceneId": "object.goo-heart",
       "parentNodeId": "world",
-      "order": 57,
+      "order": 55,
       "persistenceKey": "level-1.level-1-goo-heart-meadow-autumn-thicket",
       "overrides": [
         {
@@ -1893,7 +1920,7 @@
       "name": "level-1-workshop",
       "sceneId": "object.workshop",
       "parentNodeId": "world",
-      "order": 58,
+      "order": 56,
       "persistenceKey": "level-1.level-1-workshop",
       "overrides": [
         {
@@ -28987,8 +29014,8 @@
           "sourceNodeId": "body",
           "property": "position",
           "value": [
-            1254.4,
-            1017.6
+            1318.4,
+            1062.4
           ]
         }
       ]
@@ -29006,8 +29033,8 @@
           "sourceNodeId": "body",
           "property": "position",
           "value": [
-            1337.6,
-            1075.2
+            1433.6,
+            1088
           ]
         }
       ]
@@ -54004,7 +54031,7 @@
       "name": "cooking-cauldron",
       "sceneId": "object.decoration-world-solid.cooking-cauldron",
       "parentNodeId": "world",
-      "order": 59,
+      "order": 57,
       "persistenceKey": "world.level-1.object-decoration-world-solid-cooking-cauldron",
       "overrides": [
         {
@@ -55453,6 +55480,25 @@
           "value": [
             613.16,
             3252.19
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-forge",
+      "name": "level-1-forge",
+      "sceneId": "object.forge",
+      "parentNodeId": "world",
+      "order": 59,
+      "persistenceKey": "level-1.level-1-forge",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1190,
+            1068
           ]
         }
       ]

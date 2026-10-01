@@ -57,6 +57,11 @@ export class NpcNameTags {
   setMarker(id: string, kind: NpcQuestMarker | undefined): void {
     const tag = this.tags.get(id);
     if (!tag || tag.markerKind === kind) return;
+    // A story variant can take the NPC out of the world while its quest state changes.
+    if (!tag.anchor.isActive()) {
+      this.remove(id);
+      return;
+    }
     tag.marker?.destroy();
     tag.marker = undefined;
     tag.markerKind = kind;

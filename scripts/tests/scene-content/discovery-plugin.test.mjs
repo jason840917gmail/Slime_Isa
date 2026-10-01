@@ -50,5 +50,5 @@ test('a production build ships exactly the reachable worlds (roadmap 10.2)', asy
   const built = await plugin.load('\0virtual-scene-content');
   // Paths are JSON-escaped in the generated module (Windows separators arrive as "\\").
   const worlds = [...built.matchAll(/[\\/]+worlds[\\/]+([^\\/"]+)\.scene\.json/g)].map((match) => match[1]).sort();
-  assert.deepEqual(worlds, ['crystal-caverns', 'gloop-forest', 'level-1', 'mushroom-home', 'slime-home']);
+  assert.deepEqual(worlds, ['crystal-caverns', 'gloop-cavern', 'gloop-forest', 'gloop-hut', 'level-1', 'mushroom-home', 'slime-home']);
 });

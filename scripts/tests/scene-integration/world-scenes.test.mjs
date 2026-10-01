@@ -18,7 +18,7 @@ async function json(file) {
 
 test('every authored map placement has exactly one reported scene owner', async () => {
   const mapFiles = (await readdir(mapRoot)).filter((name) => name.endsWith('.map.json')).sort();
-  assert.equal(mapFiles.length, 17);
+  assert.equal(mapFiles.length, 19);
   for (const name of mapFiles) {
     const map = await json(path.join(mapRoot, name));
     const report = await json(path.join(reportRoot, `${map.mapId}.mapping.json`));

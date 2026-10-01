@@ -63,6 +63,10 @@
       "coins": 14,
       "items": [
         {
+          "itemId": "weaver-fang",
+          "chance": 0.6
+        },
+        {
           "itemId": "silk-clump",
           "chance": 0.5
         },

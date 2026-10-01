@@ -7,6 +7,7 @@ const COLLECTIBLE_KEYS = [
   'object:collectible.crystal-shard',
   'object:collectible.energy-potion',
   'object:collectible.green-key',
+  'object:collectible.crystal-key',
   'object:collectible.hp-potion',
   'object:collectible.iron-ore-pile',
   'object:collectible.purple-berry',
@@ -15,6 +16,8 @@ const COLLECTIBLE_KEYS = [
   'object:collectible.small-wood-pile',
   'object:collectible.stone-pile',
   'object:collectible.wood-pile',
+  'object:collectible.weaver-fang',
+  'object:collectible.iron-bar',
 ];
 const PASSIVE_OBJECT_KEYS = [
   'object:decoration.world.floor',

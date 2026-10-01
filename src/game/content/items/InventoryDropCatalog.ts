@@ -16,3 +16,8 @@ export function resolveInventoryDropDefinition(itemId: string): InventoryDropDef
     || !hasObjectVisual(presentation.objectId, presentation.visualId)) return undefined;
   return { objectId: presentation.objectId, visualId: presentation.visualId };
 }
+
+/** The item a walk-over pile gives (`collectible.iron-ore-pile` → `iron-ore`), from items.json `worldDrop`. */
+export function itemIdForWorldDrop(objectId: string): string | undefined {
+  return Object.values(getBaseItemDefinitions()).find((item) => item.worldDrop?.objectId === objectId)?.id;
+}

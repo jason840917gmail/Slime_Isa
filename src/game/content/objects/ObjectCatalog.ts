@@ -10,8 +10,11 @@ import hpPotionJson from './collectibles/collectible-hp-potion.json';
 import berryBasketJson from './collectibles/collectible-berry-basket.json';
 import energyPotionJson from './collectibles/collectible-energy-potion.json';
 import silkClumpJson from './collectibles/collectible-silk-clump.json';
+import weaverFangJson from './collectibles/collectible-weaver-fang.json';
+import ironBarJson from './collectibles/collectible-iron-bar.json';
 import crystalShardJson from './collectibles/collectible-crystal-shard.json';
 import greenKeyJson from './collectibles/collectible-green-key.json';
+import crystalKeyJson from './collectibles/collectible-crystal-key.json';
 import smallStonePileJson from './collectibles/collectible-small-stone-pile.json';
 import smallWoodPileJson from './collectibles/collectible-small-wood-pile.json';
 import decorationWorldFloorJson from './decorations/decoration-world-floor.json';
@@ -128,8 +131,11 @@ const OBJECT_FILES = {
   'collectible.berry-basket': berryBasketJson,
   'collectible.energy-potion': energyPotionJson,
   'collectible.silk-clump': silkClumpJson,
+  'collectible.weaver-fang': weaverFangJson,
+  'collectible.iron-bar': ironBarJson,
   'collectible.crystal-shard': crystalShardJson,
   'collectible.green-key': greenKeyJson,
+  'collectible.crystal-key': crystalKeyJson,
   'collectible.purple-berry': purpleBerryJson,
   'collectible.small-stone-pile': smallStonePileJson,
   'collectible.small-wood-pile': smallWoodPileJson,

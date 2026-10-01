@@ -1,8 +1,9 @@
 /**
  * Gulp forms: eating a Gulp material turns the slime into that material's
  * form for a while (`gulp.formDurationMs`). Each form has one look and one
- * rule; adding a form is a new entry here plus its art (a badge frame in
- * `ui.icons.gulp-forms`).
+ * rule; adding a form is a new entry here plus its art: a badge frame in
+ * `ui.icons.gulp-forms` and a skin, the whole player sheet re-textured
+ * (scripts/characters/build-gulp-form-skins.py).
  */
 
 /** Texture of the form badges (`ui.icons.gulp-forms.2x1`), one frame per form. */
@@ -15,7 +16,9 @@ export interface GulpFormDefinition {
   readonly name: string;
   /** Item eaten from the inventory (and offered by matching Gulp spots) to take this form. */
   readonly materialItemId: string;
-  /** Multiply tint applied to the player sprite while the form lasts (placeholder look). */
+  /** Texture the player is drawn from while the form lasts (the player sheet's frames, re-textured). */
+  readonly skinTextureKey: string;
+  /** Multiply tint used only when the skin texture is missing. */
   readonly tint: number;
   /** Movement speed multiplier while in the form. */
   readonly speedMultiplier: number;
@@ -34,6 +37,7 @@ export const GULP_FORMS: readonly GulpFormDefinition[] = Object.freeze([
     id: 'heavy',
     name: 'Heavy',
     materialItemId: 'stone',
+    skinTextureKey: 'slime-form-heavy',
     tint: 0x9aa3ad,
     speedMultiplier: 0.6,
     knockbackImmune: true,
@@ -45,6 +49,7 @@ export const GULP_FORMS: readonly GulpFormDefinition[] = Object.freeze([
     id: 'sticky',
     name: 'Sticky',
     materialItemId: 'silk-clump',
+    skinTextureKey: 'slime-form-sticky',
     tint: 0xf1ecff,
     speedMultiplier: 0.9,
     knockbackImmune: false,

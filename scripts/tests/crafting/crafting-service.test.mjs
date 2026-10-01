@@ -322,7 +322,7 @@ test('a recipe can only be crafted at its station and tier, and a refusal never 
 
 test('each site lists its own recipes: C portable only, the workbench its own plus the Workshop recipes locked, no kitchen yet', () => {
   const ids = (site) => recipesAt(site).map((entry) => entry.id);
-  const benchRecipes = ['craft-wooden-spear', 'craft-stone-axe', 'craft-stone-pickaxe', 'craft-stone-spear'];
+  const benchRecipes = ['craft-wooden-spear', 'craft-stone-axe', 'craft-stone-pickaxe', 'craft-stone-spear', 'craft-reinforced-pickaxe', 'craft-iron-spear', 'craft-iron-axe'];
   assert.deepEqual(ids(PORTABLE_SITE), ['craft-workbench', 'brew-tonic', 'cook-berry-basket']);
   assert.deepEqual(ids({ station: 'workbench', tier: 1 }), [...benchRecipes, 'craft-slam-hammer'], 'the Workshop recipes come last at the workbench (shown locked: wrong-station)');
   assert.deepEqual(ids({ station: 'workshop', tier: 1 }), ['craft-slam-hammer', ...benchRecipes], 'the Workshop lists its own recipes first, then everything the workbench does');

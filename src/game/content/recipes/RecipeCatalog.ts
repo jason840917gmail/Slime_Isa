@@ -27,11 +27,39 @@ export const RECIPE_CATALOG: readonly RecipeDef[] = [
     description: 'A stronger spear with a cool stone-blue thrust.',
     ingredients: [{ itemId: 'wood', count: 20 }, { itemId: 'stone', count: 20 }], output: { itemId: 'stone-spear', count: 1 },
   },
+  {
+    id: 'craft-reinforced-pickaxe', name: 'Reinforced Pickaxe', station: 'workbench', tier: 1, uniqueOutput: true, learnedByQuest: true,
+    description: 'A stone pick bound with weaver fangs. Required to break iron ore nodes.',
+    ingredients: [{ itemId: 'wood', count: 10 }, { itemId: 'stone', count: 15 }, { itemId: 'weaver-fang', count: 3 }],
+    output: { itemId: 'reinforced-pickaxe', count: 1 },
+  },
+  // Iron gear (Chapter 2): bars come from the Forge; quests teach the recipes.
+  {
+    id: 'craft-iron-spear', name: 'Iron Spear', station: 'workbench', tier: 1, uniqueOutput: true, learnedByQuest: true,
+    description: 'An iron-headed spear: more damage and a quicker thrust than stone.',
+    ingredients: [{ itemId: 'wood', count: 10 }, { itemId: 'iron-bar', count: 4 }], output: { itemId: 'iron-spear', count: 1 },
+  },
+  {
+    id: 'craft-iron-axe', name: 'Iron Axe', station: 'workbench', tier: 1, uniqueOutput: true, learnedByQuest: true,
+    description: 'Fells trees in a few strokes, and bites in a fight too.',
+    ingredients: [{ itemId: 'wood', count: 10 }, { itemId: 'iron-bar', count: 3 }], output: { itemId: 'iron-axe', count: 1 },
+  },
   // The Workshop's own recipes (it also crafts every workbench recipe). The workbench lists them locked.
   {
     id: 'craft-slam-hammer', name: 'Slam Hammer', station: 'workshop', tier: 1, uniqueOutput: true,
     description: 'A slow, heavy hammer: a short reach, but it knocks enemies far back.',
     ingredients: [{ itemId: 'wood', count: 25 }, { itemId: 'stone', count: 25 }], output: { itemId: 'slam-hammer', count: 1 },
+  },
+  // The Forge (Slimeshire, restored in Chapter 2) smelts; it never makes gear.
+  {
+    id: 'smelt-charcoal', name: 'Smelt Charcoal', station: 'forge', tier: 1,
+    description: 'Char wood slowly in the Forge into clean-burning fuel.',
+    ingredients: [{ itemId: 'wood', count: 5 }], output: { itemId: 'charcoal', count: 2 },
+  },
+  {
+    id: 'smelt-iron-bar', name: 'Smelt Iron Bar', station: 'forge', tier: 1,
+    description: 'Melt iron ore over charcoal and cast it into a bar.',
+    ingredients: [{ itemId: 'iron-ore', count: 2 }, { itemId: 'charcoal', count: 1 }], output: { itemId: 'iron-bar', count: 1 },
   },
   {
     // Portable so a fresh save can always heal; Lili's side quest teaches it.

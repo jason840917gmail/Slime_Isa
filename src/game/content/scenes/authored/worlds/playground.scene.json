@@ -772,7 +772,8 @@
             "wood": 20,
             "stone": 20,
             "silk-clump": 10,
-            "hp-potion": 5
+            "hp-potion": 5,
+            "weaver-fang": 3
           }
         }
       ]
@@ -2262,6 +2263,68 @@
             1680,
             1400
           ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-iron-1",
+      "name": "iron-1",
+      "sceneId": "object.resource-iron-node",
+      "parentNodeId": "grove",
+      "order": 13,
+      "persistenceKey": "playground.playground-iron-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            200,
+            1240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-iron-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-iron-2",
+      "name": "iron-2",
+      "sceneId": "object.resource-iron-node",
+      "parentNodeId": "grove",
+      "order": 14,
+      "persistenceKey": "playground.playground-iron-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            640,
+            980
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-iron-2"
         }
       ]
     }

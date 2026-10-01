@@ -132,7 +132,7 @@
           "wood": 60,
           "stone": 40
         },
-        "lockedMessage": "The old Workshop has caved in. Elder Plop might know how to fix it.",
+        "lockedMessage": "The old Workshop has caved in. Rebuilding it will take iron from a working Forge.",
         "restoredMessage": "The Workshop is restored!",
         "interactRadius": 150,
         "badgeRise": 150

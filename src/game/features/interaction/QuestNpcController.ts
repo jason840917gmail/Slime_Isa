@@ -68,9 +68,9 @@ export class QuestNpcController implements InteractionProvider {
     return surface;
   }
 
-  /** Where a quest NPC stands on this map, if it is here. */
+  /** Where a quest NPC stands on this map, if it is here (a story variant can take an NPC out of the world). */
   npcPosition(npcId: string): { readonly x: number; readonly y: number } | undefined {
-    const record = this.records.find((entry) => entry.npcId === npcId);
+    const record = this.records.find((entry) => entry.npcId === npcId && entry.actor.isActive());
     return record?.actor.getPosition();
   }
 
