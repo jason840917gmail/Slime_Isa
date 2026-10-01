@@ -2,10 +2,13 @@ import { expect, test, type Page } from '@playwright/test';
 
 /*
  * Behaviour tests against REAL production content: the authored
- * player-slime / NPC / worm-arrow scenes, real house and tree object scenes
- * and real map wall tiles, all mounted in the running production world with
- * the production collision layer data. Every assertion is about gameplay
+ * player-slime / NPC / worm-arrow scenes, real house, tree and wall object
+ * scenes and real map water tiles, all mounted in the running production world
+ * with the production collision layer data. Every assertion is about gameplay
  * (did the body stop at the solid?), not about node counts or layer values.
+ *
+ * Gloop Forest's walls are placed object instances; its only collidable tiles
+ * are water, which blocks walkers but lets projectiles fly over it.
  */
 
 type Rect = { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
@@ -57,19 +60,29 @@ async function mountInClearRegion(page: Page, sceneId: string): Promise<{ mountI
   }, sceneId);
 }
 
-/** A collidable map tile whose left side is exposed and far from exits (map edges). */
-async function exposedWallTile(page: Page, corridorWidth: number, height: number): Promise<Rect> {
-  const tile = await page.evaluate(({ corridorWidth: width, height: corridorHeight }) => {
+/** A map tile body on `layer` whose left side is exposed and far from exits (map edges). */
+async function exposedTile(page: Page, layer: string, corridorWidth: number, height: number): Promise<Rect> {
+  const tile = await page.evaluate(({ layer: tileLayer, corridorWidth: width, height: corridorHeight }) => {
     const bounds = window.physicsProbe.worldBounds();
-    return window.physicsProbe.collidableTileRects().find((candidate) => {
+    return window.physicsProbe.collidableTileRects(tileLayer).find((candidate) => {
       if (candidate.x - width < bounds.x + 256 || candidate.x > bounds.x + bounds.width - 256) return false;
       const centerY = candidate.y + candidate.height / 2;
       const corridor = { x: candidate.x - width, y: centerY - corridorHeight / 2, width: width - 1, height: corridorHeight };
       return window.physicsProbe.bodiesIn(corridor) === 0;
     }) ?? null;
-  }, { corridorWidth, height });
-  if (!tile) throw new Error('The production map has no exposed wall tile');
+  }, { layer, corridorWidth, height });
+  if (!tile) throw new Error(`The production map has no exposed '${layer}' tile`);
   return tile;
+}
+
+/** Launches a worm-arrow from `gap` px left of `target` along its centre line and waits for it to expire. */
+async function traceArrowToward(page: Page, target: Rect, gap: number): Promise<{ readonly maxRight: number; readonly steps: number }> {
+  const start = { x: target.x - gap, y: target.y + target.height / 2 };
+  const corridor = { x: start.x, y: start.y - 8, width: gap - 1, height: 16 };
+  expect(await page.evaluate((rect) => window.physicsProbe.bodiesIn(rect), corridor), 'arrow corridor is clear').toBe(0);
+  await page.evaluate(({ x, y }) => window.physicsProbe.launchArrow(x, y, 1, 0, 180), start);
+  await expect.poll(() => page.evaluate(() => window.physicsProbe.arrowTrace().live), { timeout: 20_000 }).toBe(0);
+  return page.evaluate(() => window.physicsProbe.arrowTrace());
 }
 
 async function expectPlayerBlockedFromLeft(page: Page, target: Rect, label: string): Promise<void> {
@@ -114,40 +127,47 @@ async function expectNpcBlockedFromLeft(page: Page, npcSceneId: string, target: 
   expect(right, `${label}: NPC must not enter the solid`).toBeLessThanOrEqual(target.x + 0.5);
 }
 
-test('the production player is blocked by a real house, a real tree and a real wall tile', async ({ page }) => {
+test('the production player is blocked by a real house, a real tree and a real water tile', async ({ page }) => {
   const pageErrors = await openProductionWorld(page, 'gloop-forest');
   const house = await mountInClearRegion(page, 'object.house-world-solid');
   await expectPlayerBlockedFromLeft(page, house.rect, 'house');
   const tree = await mountInClearRegion(page, 'object.tree-world-solid');
   await expectPlayerBlockedFromLeft(page, tree.rect, 'tree');
   const player = await page.evaluate(() => window.physicsProbe.playerBodyRect());
-  const wall = await exposedWallTile(page, APPROACH_GAP + player.width * 2, player.height);
-  await expectPlayerBlockedFromLeft(page, wall, 'wall tile');
+  const water = await exposedTile(page, 'water', APPROACH_GAP + player.width * 2, player.height);
+  await expectPlayerBlockedFromLeft(page, water, 'water tile');
   expect(pageErrors).toEqual([]);
 });
 
-test('a production NPC is blocked by a real house, a real tree and a real wall tile', async ({ page }) => {
+test('a production NPC is blocked by a real house, a real tree and a real water tile', async ({ page }) => {
   const pageErrors = await openProductionWorld(page, 'gloop-forest');
   const house = await mountInClearRegion(page, 'object.house-world-solid');
   await expectNpcBlockedFromLeft(page, 'character.lili', house.rect, 'house');
   const tree = await mountInClearRegion(page, 'object.tree-world-solid');
   await expectNpcBlockedFromLeft(page, 'character.lili', tree.rect, 'tree');
-  const wall = await exposedWallTile(page, APPROACH_GAP + 160, 64);
-  await expectNpcBlockedFromLeft(page, 'character.lili', wall, 'wall tile');
+  const water = await exposedTile(page, 'water', APPROACH_GAP + 160, 64);
+  await expectNpcBlockedFromLeft(page, 'character.lili', water, 'water tile');
   expect(pageErrors).toEqual([]);
 });
 
-test('a production worm-arrow stops at a wall tile instead of flying through it', async ({ page }) => {
+test('a production worm-arrow stops at a real wall instead of flying through it', async ({ page }) => {
   const pageErrors = await openProductionWorld(page, 'gloop-forest');
-  const wall = await exposedWallTile(page, 220, 48);
-  await page.evaluate(({ x, y }) => window.physicsProbe.launchArrow(x, y, 1, 0, 180), { x: wall.x - 160, y: wall.y + wall.height / 2 });
-  await expect.poll(() => page.evaluate(() => window.physicsProbe.arrowTrace().live), { timeout: 20_000 }).toBe(0);
-  const trace = await page.evaluate(() => window.physicsProbe.arrowTrace());
+  const wall = await mountInClearRegion(page, 'object.wall-stone-solid.horizontal-02');
+  const trace = await traceArrowToward(page, wall.rect, 160);
   expect(trace.steps).toBeGreaterThan(10);
   // Expired by the wall contact, well before its 3000ms lifetime would have carried it ~540px.
   expect(trace.steps * (1000 / 60)).toBeLessThan(2_000);
-  expect(trace.maxRight).toBeGreaterThan(wall.x - 4);
-  expect(trace.maxRight).toBeLessThanOrEqual(wall.x + 0.5);
+  expect(trace.maxRight).toBeGreaterThan(wall.rect.x - 4);
+  expect(trace.maxRight).toBeLessThanOrEqual(wall.rect.x + 0.5);
+  expect(pageErrors).toEqual([]);
+});
+
+test('a production worm-arrow flies over a water tile that blocks walkers', async ({ page }) => {
+  const pageErrors = await openProductionWorld(page, 'gloop-forest');
+  const water = await exposedTile(page, 'water', 220, 48);
+  const trace = await traceArrowToward(page, water, 160);
+  // A blocking contact would have stopped it at the water's left edge.
+  expect(trace.maxRight).toBeGreaterThan(water.x + 32);
   expect(pageErrors).toEqual([]);
 });
 

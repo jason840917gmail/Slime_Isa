@@ -7,6 +7,8 @@ test('authored quest journal shows active objectives and restores focus', async 
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('./?mode=baseline&map=level-1');
   await expect.poll(() => page.evaluate(() => window.sceneFixture?.ready() === true), { timeout: 45_000 }).toBe(true);
+  // The journal lists only quests the player took on; unaccepted offers stay with their giver.
+  expect(await page.evaluate(() => window.sceneFixture.acceptProductionQuest('a-place-to-work', 'village-elder-plop'))).toBe(true);
 
   const root = page.locator('[data-scene-ui-root]');
   const journal = root.locator('.game-ui--quest-journal');
@@ -17,7 +19,8 @@ test('authored quest journal shows active objectives and restores focus', async 
   await root.locator('.game-ui--menu-tabs').getByRole('button', { name: 'Journal tab' }).click();
   await expect(journal).toBeVisible();
   await expect(journal.getByRole('listbox', { name: 'Quests' })).toContainText('A Place to Work');
-  await expect(journal).toContainText('Craft a Workbench (40 wood): 0/1');
+  await expect(journal.getByRole('listbox', { name: 'Quests' })).toContainText('Main · In progress · Step 1/2');
+  await expect(journal).toContainText('Craft a Workbench (40 wood)');
   await expect(journal.getByRole('button', { name: 'No action' })).toBeDisabled();
   await expect.poll(() => page.evaluate(() => window.sceneFixture.snapshot().universalRuntimePaused)).toBe(true);
 

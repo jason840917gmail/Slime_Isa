@@ -94,7 +94,8 @@ type FixtureSnapshot = {
   readonly hasLegacyChestController?: boolean;
   readonly universalRuntimePaused?: boolean;
   readonly audioCompositionMounted?: boolean;
-  readonly productionAudioObjectCount?: number;
+  /** Cache keys of the world scene's live Phaser sounds. */
+  readonly productionAudioKeys?: readonly string[];
 };
 
 type FixtureApi = {
@@ -118,6 +119,7 @@ type FixtureApi = {
   productionItemCount(itemId: string): number;
   openProductionChestForUi(): { instanceId: string; itemId: string; count: number };
   productionChestRemaining(instanceId: string, itemId: string): number;
+  acceptProductionQuest(questId: string, npcId: string): boolean;
   openProductionQuestTurnInForUi(): void;
   productionQuestTurnInClosedCount(): number;
   discoverProductionArea(areaId: string): void;
@@ -568,6 +570,10 @@ const api: FixtureApi = {
     } };
     return world.universalWorld?.chests.get(instanceId)?.remaining[itemId] ?? 0;
   },
+  acceptProductionQuest(questId, npcId) {
+    if (!game || mode !== 'baseline') throw new Error('Production quests are only available in baseline mode');
+    return questService.accept(questId, npcId).ok;
+  },
   openProductionQuestTurnInForUi() {
     if (!game || mode !== 'baseline') throw new Error('Production quests are only available in baseline mode');
     const quest = questService.get('a-place-to-work');
@@ -648,7 +654,7 @@ const api: FixtureApi = {
             readonly runtime: { readonly tree: { readonly paused: boolean }; readonly context: { readonly managedBlockingColliderCount: number; readonly managedContactParticipantCount: number } };
             readonly audioComposition: { readonly sceneId: string; readonly disposed: boolean };
           };
-          readonly sound: { readonly sounds: readonly unknown[] };
+          readonly sound: { readonly sounds: readonly { readonly key: string }[] };
           readonly healthSystem?: { getDamageState(): { readonly hp: number } };
           readonly abilitySystem?: { status(abilityId: 'jump'): { readonly cooldownRemainingMs: number } };
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
@@ -693,7 +699,7 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedBlockingColliderCount: world.universalWorld.runtime.context.managedBlockingColliderCount } : {}),
       ...(world?.universalWorld ? { managedContactParticipantCount: world.universalWorld.runtime.context.managedContactParticipantCount } : {}),
       ...(world?.universalWorld ? { audioCompositionMounted: world.universalWorld.audioComposition.sceneId === 'audio.global' && !world.universalWorld.audioComposition.disposed } : {}),
-      ...(world ? { productionAudioObjectCount: world.sound.sounds.length } : {}),
+      ...(world ? { productionAudioKeys: world.sound.sounds.map((sound) => sound.key) } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
       ...(world?.player ? { legacyPlayerX: world.player.x } : {}),

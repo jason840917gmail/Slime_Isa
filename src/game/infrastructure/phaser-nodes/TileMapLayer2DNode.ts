@@ -52,6 +52,7 @@ interface MountedBody {
   readonly zone: Phaser.GameObjects.Zone;
   /** Body rectangle relative to the layer origin, in world pixels. */
   readonly rect: TileBodyRect;
+  readonly collisionLayer: number;
 }
 
 export interface CellRectangle {
@@ -151,9 +152,13 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
   get collisionBodyCount(): number { return this.mountedBodies.length; }
   get collisionEnabled(): boolean { return this.collisionEnabledValue; }
 
-  /** World-space Arcade rectangles of the merged tile bodies, for inspection and tests. */
-  collisionBodyBounds(): readonly TileBodyRect[] {
-    return this.mountedBodies.flatMap(({ zone }) => {
+  /**
+   * World-space Arcade rectangles of the merged tile bodies, for inspection and
+   * tests. `collisionLayer` keeps only bodies on one of those layer bits.
+   */
+  collisionBodyBounds(collisionLayer?: number): readonly TileBodyRect[] {
+    return this.mountedBodies.flatMap(({ zone, collisionLayer: layer }) => {
+      if (collisionLayer !== undefined && (layer & collisionLayer) === 0) return [];
       const body = zone.body as Phaser.Physics.Arcade.StaticBody | null;
       return body ? [{ x: body.position.x, y: body.position.y, width: body.width, height: body.height }] : [];
     });
@@ -361,7 +366,7 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
     scene.physics.add.existing(zone, true);
     const body = zone.body as Phaser.Physics.Arcade.StaticBody;
     body.enable = this.collisionEnabledValue;
-    this.mountedBodies.push({ zone, rect });
+    this.mountedBodies.push({ zone, rect, collisionLayer });
     const node = this;
     const participant: PhaserBlockingParticipant = {
       runtimeId: `${this.runtimeId}/tile-body-${key}` as RuntimeNodeId,

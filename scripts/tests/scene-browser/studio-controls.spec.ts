@@ -16,7 +16,8 @@ test('real Scene Studio controls preserve focus, selection, undo, and save confl
   await page.getByRole('button', { name: 'Add node' }).click();
   await expect(page.getByRole('dialog', { name: 'Add a universal node' })).toBeVisible();
   await page.getByRole('dialog').getByRole('searchbox').fill('Area2D');
-  await page.getByRole('option', { name: /Area2D/ }).click();
+  // The node type itself, not a template built on it (such as Enemy Spawn Area).
+  await page.getByRole('option', { name: /Area2D Extends Node2D/ }).click();
   await expect(page.getByRole('button', { name: 'Save changes' })).toBeEnabled();
   await page.keyboard.press('Control+z');
   await expect(page.getByRole('treeitem', { name: /Area2D/ })).toHaveCount(0);

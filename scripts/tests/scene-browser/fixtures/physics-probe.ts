@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 
+import { collisionBits } from '../../../../src/game/content/physics/CollisionLayers';
 import { sceneId as toSceneId } from '../../../../src/game/content/scenes/identifiers';
 import type { PhaserUniversalSceneRuntime } from '../../../../src/game/infrastructure/scenes/PhaserUniversalSceneRuntime';
 import { Area2DNode } from '../../../../src/game/infrastructure/phaser-nodes/Area2DNode';
@@ -29,7 +30,8 @@ export interface PhysicsProbeApi {
   mountRootBodyRect(mountId: string): ProbeRect;
   /** Queues a teleport of the mount's root CharacterBody2D so its body centre lands on (x, y). */
   placeMountBody(mountId: string, x: number, y: number): void;
-  collidableTileRects(): readonly ProbeRect[];
+  /** Merged tile collision rectangles, optionally only those on the named collision layer (`world`, `water`). */
+  collidableTileRects(layer?: string): readonly ProbeRect[];
   /** Stops the mount's scripts' physics processing and drives its root body at a constant velocity every physics step. */
   driveMountBody(mountId: string, velocityX: number, velocityY: number): void;
   mountBodyLayer(mountId: string): { readonly collisionLayer: number; readonly collisionMask: number };
@@ -178,10 +180,11 @@ export function createPhysicsProbe(getGame: () => Phaser.Game | undefined): Phys
       const anchor = node.get_global_transform().position;
       node.queue_teleport({ x: x - (rect.x + rect.width / 2 - anchor.x), y: y - (rect.y + rect.height / 2 - anchor.y) });
     },
-    collidableTileRects() {
+    collidableTileRects(layer) {
       const root = universal().runtime.tree.root;
       if (!root) return [];
-      return descendantsOf(root, TileMapLayer2DNode).flatMap((layer) => layer.collisionBodyBounds());
+      const bits = layer === undefined ? undefined : collisionBits(layer);
+      return descendantsOf(root, TileMapLayer2DNode).flatMap((tiles) => tiles.collisionBodyBounds(bits));
     },
     driveMountBody(mountId, velocityX, velocityY) {
       const entry = mounts.get(mountId);
