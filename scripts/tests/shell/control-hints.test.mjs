@@ -45,6 +45,11 @@ test('a learned hint never returns; an unlearned one waits until it is relevant 
   assert.ok(h.learned.has('interact'));
 });
 
-test('there are exactly the six Release 1 hints', () => {
-  assert.deepEqual(CONTROL_HINTS.map((hint) => hint.id), ['move', 'interact', 'attack', 'dodge', 'inventory', 'crafting']);
+test('the hints cover every control a new player needs, in teaching order', () => {
+  assert.deepEqual(CONTROL_HINTS.map((hint) => hint.id), ['move', 'interact', 'attack', 'dodge', 'inventory', 'crafting', 'weapon-switch', 'sprint', 'map', 'pause']);
+  const text = Object.fromEntries(CONTROL_HINTS.map((hint) => [hint.id, hint.text]));
+  assert.equal(text['weapon-switch'], 'Use the mouse wheel to switch weapons: tools only work in hand');
+  assert.equal(text.sprint, 'Hold Shift to sprint');
+  assert.equal(text.map, 'Press M for the map');
+  assert.equal(text.pause, 'Press Esc to pause, save or change settings');
 });

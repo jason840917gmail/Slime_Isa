@@ -4,8 +4,8 @@ import { MenuSurface, type MenuSurfaceOptions } from './MenuSurface';
 export interface TitleActions {
   /** True when there is a run to continue (the autosave or a save slot). */
   canContinue(): boolean;
-  /** True when a save slot holds a run. */
-  hasSlots(): boolean;
+  /** True when the Load window has something to show (the autosave or a save slot). */
+  hasLoadable(): boolean;
   /** True when starting over would replace an autosave. */
   hasAutosave(): boolean;
   newGame(): void;
@@ -40,6 +40,12 @@ export class TitleSurfacePort extends MenuSurface {
     this.status = '';
   }
 
+  /** A one-off message under the menu (why a save could not be loaded). */
+  showNotice(text: string): void {
+    this.status = text;
+    this.publish();
+  }
+
   protected model(): UiPresentationModel {
     const { actions } = this.options;
     return {
@@ -47,7 +53,7 @@ export class TitleSurfacePort extends MenuSurface {
       menuVisible: !this.confirmingNewGame,
       confirming: this.confirmingNewGame,
       continueDisabled: !actions.canContinue(),
-      loadDisabled: !actions.hasSlots(),
+      loadDisabled: !actions.hasLoadable(),
       status: this.confirmingNewGame
         ? 'Start a new game? Your autosave will be replaced. Save slots are kept.'
         : this.status,

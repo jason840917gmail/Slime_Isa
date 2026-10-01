@@ -15,7 +15,7 @@ changes the ground rules for this idea:
   3 Squash Slam, 4 Teleport);
 - every key label comes from one binding table.
 
-When this idea is picked up, read its "six slots" and "1–6" as "three slots on
+When this idea is picked up, read its "six slots" and "1–6" as "four slots on
 the wheel".
 
 ## Goal

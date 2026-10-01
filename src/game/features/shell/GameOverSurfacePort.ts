@@ -13,7 +13,8 @@ export interface DefeatInfo {
 export interface GameOverActions {
   wake(): void;
   openLoad(): void;
-  hasSlots(): boolean;
+  /** True when the Load window has something to show (the autosave or a save slot). */
+  hasLoadable(): boolean;
 }
 
 export interface GameOverSurfaceOptions extends MenuSurfaceOptions {
@@ -48,7 +49,7 @@ export class GameOverSurfacePort extends MenuSurface {
       playTime: formatPlayTime(this.info.playTimeMs),
       wakeLabel: this.info.hasBed ? 'Wake at your bed' : 'Wake in Slimeshire',
       wakeDisabled: this.waking,
-      loadDisabled: this.waking || !this.options.actions.hasSlots(),
+      loadDisabled: this.waking || !this.options.actions.hasLoadable(),
     };
   }
 

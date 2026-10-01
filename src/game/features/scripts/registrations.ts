@@ -28,6 +28,8 @@ import { GooHeartScript } from './GooHeartScript';
 import { StoryVariantScript } from './StoryVariantScript';
 import { CrackedGroundScript } from './CrackedGroundScript';
 import { SpiderWebScript } from './SpiderWebScript';
+import { WebPatchScript } from './WebPatchScript';
+import { MatronScript } from './MatronScript';
 import { StoryFlagScript } from './StoryFlagScript';
 import { InteractionScript } from './InteractionScript';
 import { WorldExitScript } from './WorldExitScript';
@@ -92,6 +94,7 @@ export const ENEMY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { key: 'faction', label: 'Faction', group: 'Identity', value: { kind: 'string', minLength: 1 }, defaultValue: 'hostile', serialized: true, inspector: 'text', overridable: true },
     { key: 'rank', label: 'Rank', group: 'Identity', value: { kind: 'enum', values: ['ordinary', 'elite', 'boss'] }, defaultValue: 'ordinary', serialized: true, inspector: 'select', overridable: true },
     numberProperty('maxHealth', 'Maximum Health', 1, 'Health'),
+    { ...numberProperty('arenaRecoveryMs', 'Arena Recovery', 0, 'Health'), help: 'Bosses with an arena: heal to full once the player has stayed outside the arena this long (0 = never).' },
     numberProperty('targetingRadius', 'Targeting Radius', 0, 'Targeting'),
     numberProperty('attackRange', 'Attack Range', 0, 'Targeting'),
     numberProperty('movementSpeed', 'Movement Speed', 0, 'Movement'),
@@ -195,6 +198,42 @@ export const FATTY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { key: 'landingZone', label: 'Landing Zone', required: true, expectedCapability: 'area' },
   ],
   signals: [{ id: 'phase_changed', payload: 'FattyPhaseChanged' }],
+};
+
+export const MATRON_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.matron',
+  displayName: 'Matron Script',
+  description: 'The Orb-Weaver Matron (8.7): fights like an orb-weaver, and every volley cadence marks web circles on the ground, lands them as web patches and rests.',
+  sourcePath: 'src/game/features/scripts/MatronScript.ts',
+  extends: 'game.enemy',
+  capabilities: ['matron-behavior'],
+  properties: [
+    numberProperty('firstVolleyDelayMs', 'First Volley Delay', 3500, 'Matron'),
+    numberProperty('volleyCadenceMs', 'Volley Cadence', 6500, 'Matron'),
+    { ...numberProperty('volleyTelegraphMs', 'Volley Telegraph', 900, 'Matron'), help: 'How long the circles show before the webs land (at least 500 ms).' },
+    numberProperty('volleyRestMs', 'Rest After Volley', 1300, 'Matron'),
+    numberProperty('volleyPoints', 'Circles Per Volley', 4, 'Matron'),
+    numberProperty('volleySpread', 'Circle Spread', 170, 'Matron'),
+    numberProperty('volleyRadius', 'Circle Radius', 56, 'Matron'),
+    numberProperty('volleyDamage', 'Volley Damage', 20, 'Matron'),
+    numberProperty('volleyKnockbackStrength', 'Volley Knockback', 120, 'Matron'),
+    { key: 'patchEffectId', label: 'Web Patch Effect', group: 'Matron', help: 'Effect scene left on each circle (a web patch).', value: { kind: 'string', optionSource: 'effectScenes' }, defaultValue: 'matron-web-patch', serialized: true, inspector: 'select', overridable: true },
+  ],
+  signals: [{ id: 'phase_changed', payload: 'Any' }],
+};
+
+export const WEB_PATCH_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.web-patch',
+  displayName: 'Web Patch Script',
+  description: 'A web lying on the ground: catches a normal slime like the web barrier; the Sticky Gulp form walks through and tears it. Not remembered.',
+  sourcePath: 'src/game/features/scripts/WebPatchScript.ts',
+  capabilities: ['web-patch'],
+  references: [{ key: 'visual', label: 'Web Sprite', required: false, expectedNodeType: 'Sprite2D' }],
+  properties: [
+    numberProperty('radius', 'Radius', 48, 'Web'),
+    { ...nodeReference('visual', 'Web Sprite'), required: false },
+  ],
+  signals: [{ id: 'caught', payload: 'Any' }, { id: 'torn', payload: 'Any' }],
 };
 
 export const CHEST_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
@@ -782,6 +821,8 @@ export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'on_close_action' },
     { id: 'on_item_selected', payload: 'UiListSelection' },
     { id: 'on_item_secondary', payload: 'UiListSelection' },
+    { id: 'on_item_dropped', payload: 'UiListDrop' },
+    { id: 'on_belt_selected', payload: 'UiListSelection' },
     { id: 'on_jump_action' },
     { id: 'on_dodge_action' },
     { id: 'on_slam_action' },
@@ -828,6 +869,8 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   STORY_VARIANT_SCRIPT_DESCRIPTOR,
   CRACKED_GROUND_SCRIPT_DESCRIPTOR,
   SPIDER_WEB_SCRIPT_DESCRIPTOR,
+  WEB_PATCH_SCRIPT_DESCRIPTOR,
+  MATRON_SCRIPT_DESCRIPTOR,
   STORY_FLAG_SCRIPT_DESCRIPTOR,
   BED_SCRIPT_DESCRIPTOR,
   WORKBENCH_SCRIPT_DESCRIPTOR,
@@ -865,6 +908,8 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: STORY_VARIANT_SCRIPT_DESCRIPTOR, factory: (context) => new StoryVariantScript(context) })
     .registerDefinition({ descriptor: CRACKED_GROUND_SCRIPT_DESCRIPTOR, factory: (context) => new CrackedGroundScript(context) })
     .registerDefinition({ descriptor: SPIDER_WEB_SCRIPT_DESCRIPTOR, factory: (context) => new SpiderWebScript(context) })
+    .registerDefinition({ descriptor: WEB_PATCH_SCRIPT_DESCRIPTOR, factory: (context) => new WebPatchScript(context) })
+    .registerDefinition({ descriptor: MATRON_SCRIPT_DESCRIPTOR, factory: (context) => new MatronScript(context) })
     .registerDefinition({ descriptor: STORY_FLAG_SCRIPT_DESCRIPTOR, factory: (context) => new StoryFlagScript(context) })
     .registerDefinition({ descriptor: BED_SCRIPT_DESCRIPTOR, factory: (context) => new BedScript(context) })
     .registerDefinition({ descriptor: WORKBENCH_SCRIPT_DESCRIPTOR, factory: (context) => new WorkbenchScript(context) })

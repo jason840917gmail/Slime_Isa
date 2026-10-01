@@ -6,6 +6,7 @@ import { questService, type QuestCommandResult } from '../../quests/QuestService
 import type { ModalHandle, ModalStack } from '../../ui/ModalStack';
 import { questRewardSummary } from '../quests/QuestRewardText';
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
+import { objectiveLabel } from './QuestTrackerSurfacePort';
 
 export interface QuestJournalSurfaceOptions {
   readonly modalStack: ModalStack;
@@ -40,6 +41,8 @@ export class QuestJournalSurfacePort implements UiSurfacePort {
     if (this.openValue || this.stopped) return;
     this.openValue = true;
     this.status = '';
+    // Each time the book opens it shows the first quest listed: the main story's.
+    this.selectedQuestId = undefined;
     this.options.onPausedChange(true);
     this.modalHandle.open();
     this.publish();
@@ -207,7 +210,7 @@ function detailsFor(quest: QuestView): string {
     const requirements = stage.objectives.map((objective) => {
       const progress = done ? objective.target : Math.min(objective.target, quest.progress[objective.id] ?? 0);
       const count = objective.target > 1 ? `  ${progress}/${objective.target}` : '';
-      return `   ${progress >= objective.target ? '✓' : '•'} ${objective.label}${count}`;
+      return `   ${progress >= objective.target ? '✓' : '•'} ${objectiveLabel(objective)}${count}`;
     });
     return [...(heading ? [heading] : []), ...requirements, ''];
   });

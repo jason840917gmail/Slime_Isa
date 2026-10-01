@@ -404,7 +404,8 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       { key: 'selectedIndex', label: 'Selected Index', value: { kind: 'number', integer: true, min: -1 }, defaultValue: -1, serialized: true, inspector: 'number', overridable: true },
       { key: 'columns', label: 'Columns', value: { kind: 'number', integer: true, min: 1 }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
       number('gap', 'Gap', 8, 0),
-    ], signals: [{ id: 'item_selected', payload: 'UiListSelection' }, { id: 'item_secondary', payload: 'UiListSelection' }] },
+      boolean('dropTarget', 'Drop Target', false),
+    ], signals: [{ id: 'item_selected', payload: 'UiListSelection' }, { id: 'item_secondary', payload: 'UiListSelection' }, { id: 'item_dropped', payload: 'UiListDrop' }] },
     { type: 'GridContainer', extends: 'Container', capabilities: ['grid-control'], properties: [
       { key: 'columns', label: 'Columns', value: { kind: 'number', integer: true, min: 1 }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
     ] },

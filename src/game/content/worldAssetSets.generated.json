@@ -26,7 +26,7 @@
       "sheet.walls.vertical.1x8"
     ],
     "cole": [
-      "character.enemy.slime-spider",
+      "character.enemy.meadow-spider",
       "enemy.worm.archer",
       "enemy.worm.brawler",
       "sheet.decorations.8x3",
@@ -69,7 +69,7 @@
       "sheet.water.reeds.8x4"
     ],
     "girls": [
-      "character.enemy.slime-spider",
+      "character.enemy.meadow-spider",
       "character.npc.lili",
       "character.npc.mossy-scout",
       "character.npc.red-slime-boy",
@@ -86,8 +86,17 @@
       "sheet.walls.horizontal.8x1",
       "sheet.walls.vertical.1x8"
     ],
+    "gloop-cavern": [
+      "sheet.grounds.19x19.cavern-floor",
+      "sheet.grounds.19x19.crystal-floor",
+      "sheet.objects.chest-wooden.2x1",
+      "sheet.props.gulp.8x1",
+      "sheet.rocks.crystal-clusters.8x2"
+    ],
     "gloop-forest": [
       "character.enemy.slime-spider",
+      "character.npc.mossy-scout",
+      "character.npc.yellow-blond-slime-girl",
       "enemy.worm.archer",
       "enemy.worm.brawler",
       "enemy.worm.swordsman",
@@ -99,12 +108,26 @@
       "sheet.grounds.19x19.forest-moss",
       "sheet.houses.3x1",
       "sheet.interiors.mushroom-floor-decor.8x8",
+      "sheet.landmarks.level-1.4x1",
+      "sheet.objects.chest-wooden.2x1",
+      "sheet.props.gulp.8x1",
+      "sheet.rocks.8x3",
+      "sheet.rocks.iron-ore.2x1",
       "sheet.trees.sway.16x22",
       "sheet.walls.corners.4x2",
       "sheet.walls.horizontal.8x1",
       "sheet.walls.t-junctions.7x1",
       "sheet.walls.vertical.1x8",
       "sheet.water.plants.8x5"
+    ],
+    "gloop-hut": [
+      "sheet.interiors.beds-directional.6x8",
+      "sheet.interiors.decor-lighting-utility.8x8",
+      "sheet.interiors.storage-states.8x8",
+      "sheet.interiors.structure.8x8",
+      "sheet.interiors.tables-directional.5x9",
+      "terrain.interior.floor-wood-a",
+      "terrain.interior.floor-wood-b"
     ],
     "hot": [
       "sheet.decorations.ambient.8x5",
@@ -151,7 +174,7 @@
     ],
     "level-1": [
       "character.boss.fatty-one-eye",
-      "character.enemy.slime-spider",
+      "character.enemy.meadow-spider",
       "character.npc.fisherman-slime",
       "character.npc.lili",
       "character.npc.mossy-scout",
@@ -172,6 +195,7 @@
       "sheet.grounds.19x19.town-cobble",
       "sheet.grounds.19x19.water",
       "sheet.houses.3x1",
+      "sheet.houses.forge.2x1",
       "sheet.houses.mushroom.2x1",
       "sheet.houses.workshop.2x1",
       "sheet.interiors.mushroom-floor-decor.8x8",
@@ -194,7 +218,7 @@
       "sheet.water.reeds.8x4"
     ],
     "meadow-crossing": [
-      "character.enemy.slime-spider",
+      "character.enemy.meadow-spider",
       "enemy.worm.archer",
       "enemy.worm.brawler",
       "enemy.worm.swordsman",
@@ -218,6 +242,7 @@
       "terrain.interior.floor-mushroom-plain"
     ],
     "playground": [
+      "character.enemy.meadow-spider",
       "character.enemy.slime-spider",
       "enemy.worm.archer",
       "enemy.worm.brawler",
@@ -232,6 +257,7 @@
       "sheet.objects.chest-wooden.2x1",
       "sheet.props.gulp.8x1",
       "sheet.rocks.8x3",
+      "sheet.rocks.iron-ore.2x1",
       "sheet.trees.sway.16x22",
       "sheet.walls.corners.4x2",
       "sheet.walls.horizontal.8x1",
@@ -259,7 +285,7 @@
       "sheet.rocks.8x3"
     ],
     "tiktok": [
-      "character.enemy.slime-spider",
+      "character.enemy.meadow-spider",
       "enemy.worm.archer",
       "enemy.worm.brawler",
       "enemy.worm.swordsman",

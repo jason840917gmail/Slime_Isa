@@ -89,6 +89,16 @@ export interface DiscoverAreaObjective extends QuestObjectiveBase {
   readonly areaIds: readonly string[];
 }
 
+/** Controls a tutorial objective can ask for: a menu tab, sprinting, switching weapons, pausing. */
+export const TUTORIAL_CONTROL_IDS = ['menu:inventory', 'menu:crafting', 'menu:journal', 'menu:map', 'sprint', 'weapon-switch', 'pause'] as const;
+export type TutorialControlId = typeof TUTORIAL_CONTROL_IDS[number];
+
+/** Done when the player uses one of the controls (the quest tracker adds its key). */
+export interface UseControlObjective extends QuestObjectiveBase {
+  readonly kind: 'use-control';
+  readonly controlIds: readonly TutorialControlId[];
+}
+
 export type QuestObjectiveDefinition =
   | CollectObjective
   | KillObjective
@@ -99,7 +109,8 @@ export type QuestObjectiveDefinition =
   | ActivateObjectObjective
   | SurviveDurationObjective
   | PlaceItemObjective
-  | DiscoverAreaObjective;
+  | DiscoverAreaObjective
+  | UseControlObjective;
 
 export type QuestObjectiveKind = QuestObjectiveDefinition['kind'];
 
@@ -251,6 +262,10 @@ export type QuestInputEvents = {
   };
   'area.enter': {
     readonly areaId: string;
+  };
+  /** The player used a control a tutorial teaches. */
+  'control.used': {
+    readonly controlId: TutorialControlId;
   };
   'furniture.placed': {
     readonly mapId: string;

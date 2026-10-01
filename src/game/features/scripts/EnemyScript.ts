@@ -224,6 +224,8 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private hitStunUntil = 0;
   private hitFlashUntil = 0;
   private returningToArenaValue = false;
+  /** Simulation time the player left the boss arena; cleared when they come back. */
+  private arenaLeftAtMs?: number;
 
   constructor(context: NodeConstructionContext) {
     super(context);
@@ -278,10 +280,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
    * duration that grows with the applied knockback. Bosses override this.
    */
   protected reactToDamage(commit: DamageCommit, defeated: boolean): void {
-    this.hitFlashUntil = this.simulationTimeMs + ENEMY_HIT_FLASH_MS;
-    this.tintableVisual()?.setTintFill(ENEMY_HIT_FLASH_COLOR);
-    const origin = this.body().get_global_transform().position;
-    this.targetService?.showDamageNumber?.({ sourceNodeId: this.runtimeId, x: origin.x, y: origin.y, amount: commit.result.actualDamage });
+    this.showHitFeedback(commit);
     if (defeated) return;
 
     this.cancelAttack();
@@ -302,6 +301,14 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     this.hitStunUntil = Math.max(this.hitStunUntil, this.simulationTimeMs + stunMs);
     this.playFacing('knockback', true);
     this.getSignal<{ durationMs: number; strength: number }>('hit_reaction')?.emit({ durationMs: stunMs, strength });
+  }
+
+  /** The flash and damage number every landed hit shows, bosses included. */
+  protected showHitFeedback(commit: DamageCommit): void {
+    this.hitFlashUntil = this.simulationTimeMs + ENEMY_HIT_FLASH_MS;
+    this.tintableVisual()?.setTintFill(ENEMY_HIT_FLASH_COLOR);
+    const origin = this.body().get_global_transform().position;
+    this.targetService?.showDamageNumber?.({ sourceNodeId: this.runtimeId, x: origin.x, y: origin.y, amount: commit.result.actualDamage });
   }
 
   publishDamageFeedback(commit: DamageCommit): void {
@@ -384,6 +391,10 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     const navigation = this.navigation();
     // Arena leash (boss camps): outside the arena the enemy drops the fight and walks home.
     if (navigation?.arena && !bossPerimeterContains(navigation.arena, target.position.x, target.position.y)) {
+      // Left alone long enough (`arenaRecoveryMs`), the boss heals to full: no wearing it down in visits.
+      this.arenaLeftAtMs ??= this.simulationTimeMs;
+      const recoveryMs = this.numberProperty('arenaRecoveryMs', 0);
+      if (recoveryMs > 0 && this.simulationTimeMs - this.arenaLeftAtMs >= recoveryMs) this.restoreHealth(this.maxHealth);
       this.cancelAttack();
       this.returningToArenaValue = true;
       this.aiState = 'idle';
@@ -395,6 +406,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       return;
     }
     this.returningToArenaValue = false;
+    this.arenaLeftAtMs = undefined;
     const movement = this.movementToward(origin, target.position, 1);
     const direction = movement.speed > 0 ? { x: movement.x, y: movement.y } : this.attackDirection;
     const distance = Math.sqrt(this.distanceSquared(origin, target.position));

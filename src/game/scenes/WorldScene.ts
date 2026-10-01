@@ -41,25 +41,27 @@ import { GULP_WHEEL_HOLD_MS, pickGulpWheelSlot } from '../features/gulp/GulpWhee
 import type { GulpWheelEntry } from '../features/gulp/GulpController';
 import { resolveQuestWaypoint, type QuestWaypointTarget, type QuestWaypointWorld } from '../features/quests/QuestWaypoint';
 import { QuestWaypointPresenter } from '../features/quests/QuestWaypointPresenter';
-import { trackedQuestView } from '../features/ui/QuestTrackerSurfacePort';
 import { GAME_CONSTANTS } from '../Constant';
 import { GAME_SHELL_SCENE_IDS, GameShell } from '../features/shell/GameShell';
 import { CONTROL_HINT_SURFACE_ID, ControlHintsController, type ControlHintId } from '../features/hints/ControlHints';
+import type { TutorialControlId } from '../content/quests/types';
+import { harvestToolAdvice } from '../features/combat/HarvestAdvice';
+import type { ResourceHarvestBlocked } from '../features/scripts/ResourceNodeScript';
+import { getWeaponDefinition } from '../content/weapons/WeaponCatalog';
 import { gameSettings } from '../features/settings/GameSettingsService';
 import { getCharacterPackages } from '../content/characters/CharacterCatalog';
 import { BIOMES } from '../world/Biome';
 import { questTracker } from '../quests/QuestTracker';
 import { bindQuestStory, questService } from '../quests/QuestService';
 import { storyProgress } from '../features/progression/StoryProgress';
+import { RECIPE_CATALOG } from '../content/recipes/RecipeCatalog';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { PlayerController } from '../features/player/PlayerController';
 import { controlLabel } from '../features/player/ControlLabels';
 import { isControlCode, type ShellInputAction } from '../features/player/PlayerInputActions';
 import { aimToward, snapToCardinal, type PointerAim } from '../features/player/PointerAim';
-import { harvestToolFor } from '../features/combat/HarvestTools';
 import { MENU_TABS_SURFACE_ID, MenuTabsSurfacePort } from '../features/ui/MenuTabsSurfacePort';
-import { getWeaponDefinition } from '../content/weapons/WeaponCatalog';
 import type { PlayerActorPort } from '../features/player/PlayerServicePorts';
 import type { WorldVisual } from '../presentation/WorldVisual';
 import { UI_THEME } from '../presentation/theme';
@@ -131,12 +133,20 @@ const LASH_STANDOFF_PX = 30;
 const HINT_DODGE_ENEMY_RANGE_PX = 360;
 /** The crafting hint appears once the first workbench is affordable. */
 const HINT_CRAFTING_WOOD = 40;
+/** Story flag set once the player has seen what the menu tabs are. */
+const MENU_TABS_COACH_FLAG = 'hint.menu-tabs';
+/** Menu windows (modal ids) that tutorial quests ask the player to open. */
+const MENU_CONTROL_IDS: Readonly<Record<string, TutorialControlId>> = {
+  inventory: 'menu:inventory',
+  crafting: 'menu:crafting',
+  'quest-journal': 'menu:journal',
+  'world-map': 'menu:map',
+  'pause-menu': 'pause',
+};
 /** The slime's middle sits this far above its origin; the pointer aims from there. */
 const SLIME_CENTER_RISE_PX = 28;
 /** Holding interact this long on a placed bed or bench picks it up instead of using it. */
 const INTERACT_HOLD_MS = 450;
-/** A tree or rock this close ahead of the slime gets the right tool swung at it. */
-const HARVEST_TOOL_REACH_PX = 120;
 /** Banner color for a story-taught ability (a fresh-goo green, distinct from area names). */
 const ABILITY_LEARNED_COLOR = '#9ff0c8';
 /** Banner color for a collected Goo Heart. */
@@ -206,7 +216,13 @@ export class WorldScene extends Phaser.Scene {
     crafting: this.universalWorld?.craftingSurface,
     journal: this.universalWorld?.questJournalSurface,
     map: this.universalWorld?.worldMapSurface,
-  }));
+  }), {
+    isLearned: () => storyProgress.hasFlag(MENU_TABS_COACH_FLAG),
+    learn: () => storyProgress.setFlags([MENU_TABS_COACH_FLAG]),
+    now: () => performance.now(),
+  });
+  /** True while sprint is held with the slime moving (a new sprint is reported once). */
+  private sprinting = false;
   private waypointPresenter?: QuestWaypointPresenter;
   private waypointTarget?: QuestWaypointTarget;
   private nextWaypointResolveAt = 0;
@@ -215,6 +231,8 @@ export class WorldScene extends Phaser.Scene {
   private hints?: ControlHintsController;
   /** The first world of a page load shows the title screen over a paused, empty Slimeshire. */
   private titleMode = false;
+  /** Shown on the title screen once, e.g. why a save failed to load. */
+  private titleNotice?: string;
   private titleCameraMs = 0;
   private playerNameTag?: Phaser.GameObjects.Text;
   /** Source ID of the last hit the player took, to name what defeated them. */
@@ -510,9 +528,12 @@ export class WorldScene extends Phaser.Scene {
       settings: gameSettings,
       saves: {
         list: () => saveSystem.listNamedSaves(),
+        unreadable: () => saveSystem.unreadableNamedSaves(),
         create: (name) => outcome(saveSystem.createNamedSave(name, this.capturePlayerLocation())),
         overwrite: (saveId) => outcome(saveSystem.overwriteNamedSave(saveId, this.capturePlayerLocation())),
         load: async (saveId) => outcome(await saveSystem.loadNamedSave(saveId)),
+        autosave: () => saveSystem.autosaveSummary(),
+        loadAutosave: () => outcome(saveSystem.loadAutosave()),
       },
       placeName: (mapId) => getAreaDefinition(mapId).name,
       hasStoryFlag: (flagId) => storyProgress.hasFlag(flagId),
@@ -560,14 +581,23 @@ export class WorldScene extends Phaser.Scene {
             && (this.universalWorld?.nearestEnemyDistance(this.player) ?? Number.POSITIVE_INFINITY) < HINT_DODGE_ENEMY_RANGE_PX;
           case 'inventory': return playerInventory.serialize().slots.some((slot) => slot !== null);
           case 'crafting': return playerInventory.count('wood') >= HINT_CRAFTING_WOOD;
+          case 'weapon-switch': return playerWeaponLoadout.slots().filter((weaponId) => weaponId && playerWeaponLoadout.ownsWeapon(weaponId)).length >= 2;
+          case 'sprint': return storyProgress.hasFlag('hint.move');
+          case 'map':
+          case 'pause': return storyProgress.hasFlag('hint.inventory');
           default: return false;
         }
       },
     });
-    // Inventory and crafting pause the game while open, so learn them as they open.
+    // Menus pause the game while open, so learn them (and report them to tutorial quests) as they open.
     const stopObserving = this.modalStack?.observe(({ id, open }) => {
-      if (open && id === 'inventory') hints.learn('inventory');
-      if (open && id === 'crafting') hints.learn('crafting');
+      if (!open) return;
+      if (id === 'inventory') hints.learn('inventory');
+      if (id === 'crafting') hints.learn('crafting');
+      if (id === 'world-map') hints.learn('map');
+      if (id === 'pause-menu') hints.learn('pause');
+      const controlId = MENU_CONTROL_IDS[id];
+      if (controlId) gameEvents.emit('control.used', { controlId });
     });
     this.disposables.add(() => {
       stopObserving?.();
@@ -585,6 +615,12 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
     if (direction.lengthSq() > 0) hints.learn('move');
+    const sprinting = direction.lengthSq() > 0 && this.playerMotion().isActionPressed('sprint');
+    if (sprinting && !this.sprinting) {
+      hints.learn('sprint');
+      gameEvents.emit('control.used', { controlId: 'sprint' });
+    }
+    this.sprinting = sprinting;
     hints.update();
   }
 
@@ -599,6 +635,8 @@ export class WorldScene extends Phaser.Scene {
       this.disposables.add(() => uiRoot.classList.remove('is-title-screen'));
     }
     this.shell?.title.open();
+    if (this.titleNotice) this.shell?.title.showNotice(this.titleNotice);
+    this.titleNotice = undefined;
   }
 
   /** Saves the run, fades out, and reloads to the title screen. */
@@ -672,7 +710,14 @@ export class WorldScene extends Phaser.Scene {
   private restoreAreaTransitionHandoff(): boolean {
     const restored = restoreAreaTransition();
     if (restored.restored && restored.data) {
-      saveSystem.install(restored.data);
+      try {
+        saveSystem.install(restored.data);
+      } catch (error) {
+        // A save that cannot be installed lands on the title with the reason, never a blank screen.
+        console.error('The saved run could not be installed.', error);
+        this.titleNotice = `That save could not be loaded. ${error instanceof Error ? error.message.split('\n')[0] : ''}`.trim();
+        return false;
+      }
       if (restored.kind === 'reset') saveSystem.completeResetHandoff();
       this.pendingRestoreLocation = restored.data.location;
       WorldScene.sessionStarted = true;
@@ -938,6 +983,8 @@ export class WorldScene extends Phaser.Scene {
       getBossBattleAreas: () => this.universalWorld?.bossBattleAreas ?? [],
       getWorldVisuals: () => this.universalWorld?.worldVisuals ?? [],
       getEnemyAttackAreas: () => this.universalWorld?.enemyAttackAreas ?? [],
+      getWeaponSwing: () => this.universalWorld?.weaponDebugSwing,
+      getHurtboxes: () => this.universalWorld?.hurtboxes ?? [],
     });
   }
 
@@ -1106,7 +1153,7 @@ export class WorldScene extends Phaser.Scene {
     const now = this.time.now;
     if (now >= this.nextWaypointResolveAt) {
       this.nextWaypointResolveAt = now + 250;
-      const quest = trackedQuestView();
+      const quest = tracker.waypointQuest();
       const from = { x: this.player.x, y: this.player.y };
       this.waypointTarget = quest ? resolveQuestWaypoint(quest, this.questWaypointWorld(), from) : undefined;
       tracker.setWaypointFound(this.waypointTarget !== undefined);
@@ -1138,9 +1185,12 @@ export class WorldScene extends Phaser.Scene {
   }
 
   /** Clears a flash and puts back the Gulp form's look, if any. */
+  /** A Gulp form draws the slime from its skin (a stone or silk slime); the tint is only a fallback. */
   private restorePlayerTint(): void {
     const form = this.gulp?.activeForm;
-    if (form) this.playerVisual?.setTint(form.tint);
+    const skinned = !!form && this.textures.exists(form.skinTextureKey);
+    this.playerVisual?.setSkin(skinned ? form.skinTextureKey : undefined);
+    if (form && !skinned) this.playerVisual?.setTint(form.tint);
     else this.playerVisual?.clearTint();
   }
 
@@ -1693,34 +1743,9 @@ export class WorldScene extends Phaser.Scene {
       const aim = this.pointerAim();
       if (aim) this.playerController.face(snapToCardinal(aim));
     }
-    const combat = this.combatController;
-    if (!combat) return false;
-    const tool = this.harvestToolAhead();
-    return tool ? combat.tryToolAttack(tool) : combat.tryAttack();
-  }
-
-  /**
-   * Tools pick themselves: the best owned tool for the tree or rock the swing
-   * is about to hit, when the equipped weapon cannot harvest it.
-   */
-  private harvestToolAhead(): string | undefined {
-    if (!this.player) return undefined;
-    const need = this.universalWorld?.harvestNeedAhead(
-      { x: this.player.x, y: this.player.y },
-      this.playerController.facing,
-      HARVEST_TOOL_REACH_PX,
-    );
-    if (!need) return undefined;
-    const owned = itemRegistry.all()
-      .filter((item) => item.equipment && playerInventory.count(item.id) > 0)
-      .map((item) => item.equipment!.weaponId);
-    return harvestToolFor(need, this.combatController?.equippedWeaponId() ?? null, owned, (weaponId) => {
-      try {
-        return getWeaponDefinition(weaponId).harvestCapabilities;
-      } catch {
-        return undefined;
-      }
-    });
+    // The weapon in hand always swings, even at a tree or rock (owner, 2026-10-01:
+    // swapping to a tool on its own lost fights against enemies hiding behind one).
+    return this.combatController?.tryAttack() ?? false;
   }
 
   /** Web hit: the player is stuck in place and wrapped in web until it wears off. */
@@ -1757,7 +1782,7 @@ export class WorldScene extends Phaser.Scene {
     for (const [action, step] of [['weapon-next', 1], ['weapon-previous', -1]] as const) {
       if (!input.consumeActionPress(action)) continue;
       const slotIndex = playerWeaponLoadout.cycleSlot(step);
-      if (slotIndex !== null) this.equipWeaponSlot(slotIndex);
+      if (slotIndex !== null) this.switchWeaponSlot(slotIndex);
     }
     if (this.updateInteractHold()) return true;
     if (input.consumeActionPress('interact')) {
@@ -1998,16 +2023,18 @@ export class WorldScene extends Phaser.Scene {
     const offsetX = (index - (total - 1) / 2) * 30;
 
     if (texture && this.textures.exists(texture)) {
-      const icon = this.add.image(x, y, texture)
+      const icon = this.add.image(x, y, texture, item?.iconFrame ?? 0)
         .setDepth(resolveWorldDepth(y, { band: 'reveal-effects', stableId: `item-drop:${itemId}:${index}` }).depth)
-        .setScale(1.35)
         .setAlpha(0);
+      // Icon sheets differ in cell size (32 to 128 px); every drop pops to about 50 px.
+      const unit = 32 / Math.max(icon.frame.width, icon.frame.height, 1);
+      icon.setScale(1.35 * unit);
       this.tweens.add({
         targets: icon,
         x: x + offsetX,
         y: y - 34,
         alpha: { from: 0, to: 1 },
-        scale: { from: 0.8, to: 1.55 },
+        scale: { from: 0.8 * unit, to: 1.55 * unit },
         duration: 180,
         ease: 'Back.Out',
         onComplete: () => {
@@ -2156,14 +2183,22 @@ export class WorldScene extends Phaser.Scene {
     floatingText.spawn(this, at.x, at.y - 40, `+${bonus} max HP`, 'green', true, 2000);
   }
 
-  private equipWeaponSlot(slotIndex: number): void {
+  /** The player switched weapons on the belt (wheel or a click): teaches the switch hint and tutorial. */
+  private switchWeaponSlot(slotIndex: number): void {
+    if (!this.equipWeaponSlot(slotIndex)) return;
+    this.hints?.learn('weapon-switch');
+    gameEvents.emit('control.used', { controlId: 'weapon-switch' });
+  }
+
+  /** Puts a belt slot's weapon in hand; true when the weapon in hand changed. */
+  private equipWeaponSlot(slotIndex: number): boolean {
     const result = playerWeaponLoadout.equipSlot(slotIndex, (weaponId) => this.combatController?.equipWeapon(weaponId) ?? false);
     if (result.ok) {
       if (result.changed) {
         const item = weaponItemFor(result.weaponId);
         floatingText.spawn(this, this.player.x, this.player.y - 48, `${item?.name ?? result.weaponId} equipped`, 'yellow', true);
       }
-      return;
+      return result.changed;
     }
     const message = result.reason === 'empty'
       ? `Slot ${slotIndex + 1} is empty`
@@ -2173,15 +2208,41 @@ export class WorldScene extends Phaser.Scene {
           ? 'Finish the attack first'
           : 'Weapon is unavailable';
     floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white');
+    return false;
   }
 
+  /**
+   * A tree or rock the weapon in hand cannot harvest names its tool, and says
+   * how to get it in hand when the player owns one (tools never swap by themselves).
+   */
+  private harvestBlockedMessage(request: ResourceHarvestBlocked): string {
+    const belt = playerWeaponLoadout.slots().filter((weaponId): weaponId is string => !!weaponId && playerWeaponLoadout.ownsWeapon(weaponId));
+    const bag = itemRegistry.all()
+      .filter((item) => item.equipment && playerInventory.count(item.id) > 0)
+      .map((item) => item.equipment!.weaponId);
+    const advice = harvestToolAdvice(request, belt, bag, (weaponId) => {
+      try {
+        return getWeaponDefinition(weaponId).harvestCapabilities;
+      } catch {
+        return undefined;
+      }
+    });
+    if (advice === 'belt') return `${request.message}: switch with the ${controlLabel('weapon-next').toLowerCase()}`;
+    if (advice === 'bag') return `${request.message}: put yours on the belt (${controlLabel('menu')})`;
+    return request.message;
+  }
+
+  /** Holds a weapon from the bag; with a full belt it takes the slot of the weapon in hand. */
   private equipWeaponFromInventory(weaponId: string): void {
     const slotIndex = playerWeaponLoadout.ensureAssigned(weaponId);
-    if (slotIndex === null) {
-      floatingText.spawn(this, this.player.x, this.player.y - 42, 'Hotbar is full — choose a slot', 'white');
+    if (slotIndex !== null) {
+      this.equipWeaponSlot(slotIndex);
       return;
     }
-    this.equipWeaponSlot(slotIndex);
+    const inHand = playerWeaponLoadout.equippedWeaponId();
+    const handSlot = inHand ? playerWeaponLoadout.slots().indexOf(inHand) : -1;
+    this.assignWeaponSlot(weaponId, Math.max(0, handSlot));
+    if (playerWeaponLoadout.equippedWeaponId() !== weaponId) this.equipWeaponSlot(Math.max(0, handSlot));
   }
 
   private assignWeaponSlot(weaponId: string, slotIndex: number): void {
@@ -2287,6 +2348,7 @@ export class WorldScene extends Phaser.Scene {
       canDropInventoryItem: (itemId) => this.inventoryDrops?.canDrop(itemId) ?? false,
       onDropInventoryItem: (slotIndex, quantity) => this.inventoryDrops?.dropFromSlot(slotIndex, quantity) ?? false,
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
+      harvestBlockedMessage: (request) => this.harvestBlockedMessage(request),
       updateGameplay: (deltaMs) => this.updateGameplay(deltaMs),
       updatePresentation: (deltaMs) => this.updatePresentation(deltaMs),
       transformManagedWeaponDamage: (damage, target) => this.combatController?.transformManagedWeaponDamage(damage, target) ?? damage,
@@ -2347,7 +2409,7 @@ export class WorldScene extends Phaser.Scene {
       restoreSite: (request) => this.restoreSite(request),
       openCraftingStation: (context) => this.openCraftingStation(context),
       pickUpFurniture: (placementId) => this.pickUpFurniture(placementId),
-      onEquipWeaponSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
+      onEquipWeaponSlot: (slotIndex) => this.switchWeaponSlot(slotIndex),
       getAbilitySystem: () => this.abilitySystem,
       canUseAbilities: () => !this.paused && !this.healthSystem?.isDead(),
       onActivateAbility: (abilityId) => this.activateAbilityFromUi(abilityId),
@@ -2397,6 +2459,10 @@ export class WorldScene extends Phaser.Scene {
         case 'dummy':
           this.combatController?.spawnDummy(x + Phaser.Math.Between(60, 140), y + Phaser.Math.Between(-60, 60));
           floatingText.spawn(this, x, y - 30, '+dummy', 'white');
+          return;
+        case 'recipes':
+          storyProgress.learnRecipes(RECIPE_CATALOG.map((recipe) => recipe.id));
+          floatingText.spawn(this, x, y - 30, 'ALL RECIPES', 'green', true);
           return;
       }
     };

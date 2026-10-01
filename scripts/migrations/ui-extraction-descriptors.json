@@ -270,12 +270,82 @@
       "sourceHash": "b9b1d810a9d84930ad7334d6884dfc3e970eb497a7c1268f59938fd1635071b1",
       "sceneId": "ui.area-title-card",
       "modal": false,
-      "layoutValues": { "anchorMin": [0.5, 0], "anchorMax": [0.5, 0], "offsetMin": [-220, 72], "offsetMax": [220, 136] },
-      "themeValues": { "tone": "warning", "fontSize": 24 },
-      "bindings": [{ "nodePath": "../AreaName", "property": "text", "model": "title" }, { "nodePath": "../AreaName", "property": "color", "model": "color" }, { "nodePath": "..", "property": "visible", "model": "visible" }, { "nodePath": "..", "property": "opacity", "model": "opacity" }, { "nodePath": "..", "property": "offsetMin", "model": "offsetMin" }, { "nodePath": "..", "property": "offsetMax", "model": "offsetMax" }],
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0
+        ],
+        "anchorMax": [
+          0.5,
+          0
+        ],
+        "offsetMin": [
+          -220,
+          72
+        ],
+        "offsetMax": [
+          220,
+          136
+        ]
+      },
+      "themeValues": {
+        "tone": "warning",
+        "fontSize": 24
+      },
+      "bindings": [
+        {
+          "nodePath": "../AreaName",
+          "property": "text",
+          "model": "title"
+        },
+        {
+          "nodePath": "../AreaName",
+          "property": "color",
+          "model": "color"
+        },
+        {
+          "nodePath": "..",
+          "property": "visible",
+          "model": "visible"
+        },
+        {
+          "nodePath": "..",
+          "property": "opacity",
+          "model": "opacity"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
       "actions": {},
       "controls": [
-        { "id": "area-name", "name": "AreaName", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "textAlign": "center", "tone": "warning", "fontSize": 24, "fontWeight": 700, "ariaLabel": "Area title" } }
+        {
+          "id": "area-name",
+          "name": "AreaName",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "textAlign": "center",
+            "tone": "warning",
+            "fontSize": 24,
+            "fontWeight": 700,
+            "ariaLabel": "Area title"
+          }
+        }
       ]
     },
     {
@@ -284,13 +354,96 @@
       "sourceHash": "0befac89b6efb7afdb2cc53e2924eabbaebb22e781bbff131c90fabebc7a6ae8",
       "sceneId": "ui.boss-health-bar",
       "modal": false,
-      "layoutValues": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-274, -264], "offsetMax": [274, -192] },
-      "themeValues": { "tone": "danger", "width": 520 },
-      "bindings": [{ "nodePath": "../BossName", "property": "text", "model": "name" }, { "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "..", "property": "visible", "model": "visible" }],
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          1
+        ],
+        "anchorMax": [
+          0.5,
+          1
+        ],
+        "offsetMin": [
+          -274,
+          -264
+        ],
+        "offsetMax": [
+          274,
+          -192
+        ]
+      },
+      "themeValues": {
+        "tone": "danger",
+        "width": 520
+      },
+      "bindings": [
+        {
+          "nodePath": "../BossName",
+          "property": "text",
+          "model": "name"
+        },
+        {
+          "nodePath": "../Health",
+          "property": "value",
+          "model": "hp"
+        },
+        {
+          "nodePath": "../Health",
+          "property": "max",
+          "model": "maxHp"
+        },
+        {
+          "nodePath": "..",
+          "property": "visible",
+          "model": "visible"
+        }
+      ],
       "actions": {},
       "controls": [
-        { "id": "boss-name", "name": "BossName", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 28], "tone": "danger", "fontSize": 16, "fontWeight": 700 } },
-        { "id": "health", "name": "Health", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [0, 34], "label": "Boss health", "tone": "danger", "showValue": true } }
+        {
+          "id": "boss-name",
+          "name": "BossName",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              0,
+              28
+            ],
+            "tone": "danger",
+            "fontSize": 16,
+            "fontWeight": 700
+          }
+        },
+        {
+          "id": "health",
+          "name": "Health",
+          "type": "ProgressBar",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              34
+            ],
+            "label": "Boss health",
+            "tone": "danger",
+            "showValue": true
+          }
+        }
       ]
     },
     {
@@ -1083,11 +1236,91 @@
       "sourceHash": "761c39406093ccba53a029f59ccc4776eb029cb875e58f75863df8408a5b39a3",
       "sceneId": "ui.floating-text",
       "modal": false,
-      "layoutValues": { "anchorMin": [0, 0], "anchorMax": [0, 0], "offsetMin": [0, 0], "offsetMax": [280, 48] },
-      "themeValues": { "tone": "default", "fontSize": 15 },
-      "bindings": [{ "nodePath": "../Message", "property": "text", "model": "message" }, { "nodePath": "../Message", "property": "color", "model": "color" }, { "nodePath": "../Message", "property": "fontSize", "model": "fontSize" }, { "nodePath": "..", "property": "visible", "model": "visible" }, { "nodePath": "..", "property": "opacity", "model": "opacity" }, { "nodePath": "..", "property": "scale", "model": "scale" }, { "nodePath": "..", "property": "offsetMin", "model": "offsetMin" }, { "nodePath": "..", "property": "offsetMax", "model": "offsetMax" }],
+      "layoutValues": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          0
+        ],
+        "offsetMin": [
+          0,
+          0
+        ],
+        "offsetMax": [
+          280,
+          48
+        ]
+      },
+      "themeValues": {
+        "tone": "default",
+        "fontSize": 15
+      },
+      "bindings": [
+        {
+          "nodePath": "../Message",
+          "property": "text",
+          "model": "message"
+        },
+        {
+          "nodePath": "../Message",
+          "property": "color",
+          "model": "color"
+        },
+        {
+          "nodePath": "../Message",
+          "property": "fontSize",
+          "model": "fontSize"
+        },
+        {
+          "nodePath": "..",
+          "property": "visible",
+          "model": "visible"
+        },
+        {
+          "nodePath": "..",
+          "property": "opacity",
+          "model": "opacity"
+        },
+        {
+          "nodePath": "..",
+          "property": "scale",
+          "model": "scale"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
       "actions": {},
-      "controls": [{ "id": "message", "name": "Message", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "textAlign": "center", "fontSize": 15, "fontWeight": 700 } }]
+      "controls": [
+        {
+          "id": "message",
+          "name": "Message",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "textAlign": "center",
+            "fontSize": 15,
+            "fontWeight": 700
+          }
+        }
+      ]
     },
     {
       "id": "health-bar",
@@ -1095,11 +1328,80 @@
       "sourceHash": "9d8dfa9d51dfe019ef15174749084319802658778a05365f52c189f63c5642f3",
       "sceneId": "ui.health-bar",
       "modal": false,
-      "layoutValues": { "anchorMin": [0, 0], "anchorMax": [0, 0], "offsetMin": [0, 0], "offsetMax": [56, 8] },
-      "themeValues": { "tone": "danger", "height": 8 },
-      "bindings": [{ "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "..", "property": "visible", "model": "visible" }, { "nodePath": "../Health", "property": "tone", "model": "tone" }, { "nodePath": "..", "property": "offsetMin", "model": "offsetMin" }, { "nodePath": "..", "property": "offsetMax", "model": "offsetMax" }],
+      "layoutValues": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          0
+        ],
+        "offsetMin": [
+          0,
+          0
+        ],
+        "offsetMax": [
+          56,
+          8
+        ]
+      },
+      "themeValues": {
+        "tone": "danger",
+        "height": 8
+      },
+      "bindings": [
+        {
+          "nodePath": "../Health",
+          "property": "value",
+          "model": "hp"
+        },
+        {
+          "nodePath": "../Health",
+          "property": "max",
+          "model": "maxHp"
+        },
+        {
+          "nodePath": "..",
+          "property": "visible",
+          "model": "visible"
+        },
+        {
+          "nodePath": "../Health",
+          "property": "tone",
+          "model": "tone"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
       "actions": {},
-      "controls": [{ "id": "health", "name": "Health", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "label": "Health", "tone": "danger" } }]
+      "controls": [
+        {
+          "id": "health",
+          "name": "Health",
+          "type": "ProgressBar",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "label": "Health",
+            "tone": "danger"
+          }
+        }
+      ]
     },
     {
       "id": "hud",
@@ -1107,14 +1409,132 @@
       "sourceHash": "78703dc74bd675e119891f727c00ee95539ccde4f58e69d44afb346e5720594a",
       "sceneId": "ui.hud",
       "modal": false,
-      "layoutValues": { "anchorMin": [0, 0], "anchorMax": [0, 0], "offsetMin": [16, 16], "offsetMax": [300, 84] },
-      "themeValues": { "gap": 3, "meterHeight": 8, "fontSize": 12 },
-      "bindings": [{ "nodePath": "../Coins", "property": "text", "model": "coinsLabel" }, { "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "../Energy", "property": "value", "model": "energy" }, { "nodePath": "../Energy", "property": "max", "model": "maxEnergy" }],
+      "layoutValues": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          0
+        ],
+        "offsetMin": [
+          16,
+          16
+        ],
+        "offsetMax": [
+          300,
+          84
+        ]
+      },
+      "themeValues": {
+        "gap": 3,
+        "meterHeight": 8,
+        "fontSize": 12
+      },
+      "bindings": [
+        {
+          "nodePath": "../Coins",
+          "property": "text",
+          "model": "coinsLabel"
+        },
+        {
+          "nodePath": "../Health",
+          "property": "value",
+          "model": "hp"
+        },
+        {
+          "nodePath": "../Health",
+          "property": "max",
+          "model": "maxHp"
+        },
+        {
+          "nodePath": "../Energy",
+          "property": "value",
+          "model": "energy"
+        },
+        {
+          "nodePath": "../Energy",
+          "property": "max",
+          "model": "maxEnergy"
+        }
+      ],
       "actions": {},
       "controls": [
-        { "id": "coins", "name": "Coins", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 22], "tone": "warning", "fontSize": 12, "fontWeight": 700 } },
-        { "id": "health", "name": "Health", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 28], "offsetMax": [0, 46], "label": "HP", "tone": "danger", "showValue": true } },
-        { "id": "energy", "name": "Energy", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 50], "offsetMax": [0, 68], "label": "Energy", "tone": "warning", "showValue": true } }
+        {
+          "id": "coins",
+          "name": "Coins",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              0,
+              22
+            ],
+            "tone": "warning",
+            "fontSize": 12,
+            "fontWeight": 700
+          }
+        },
+        {
+          "id": "health",
+          "name": "Health",
+          "type": "ProgressBar",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              28
+            ],
+            "offsetMax": [
+              0,
+              46
+            ],
+            "label": "HP",
+            "tone": "danger",
+            "showValue": true
+          }
+        },
+        {
+          "id": "energy",
+          "name": "Energy",
+          "type": "ProgressBar",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              50
+            ],
+            "offsetMax": [
+              0,
+              68
+            ],
+            "label": "Energy",
+            "tone": "warning",
+            "showValue": true
+          }
+        }
       ]
     },
     {
@@ -1148,21 +1568,6 @@
       },
       "bindings": [
         {
-          "nodePath": "../Scroll/Content/Items",
-          "property": "items",
-          "model": "items"
-        },
-        {
-          "nodePath": "../Scroll/Content/Items",
-          "property": "selectedIndex",
-          "model": "selectedIndex"
-        },
-        {
-          "nodePath": "../Scroll/Content/Details",
-          "property": "text",
-          "model": "details"
-        },
-        {
           "nodePath": "..",
           "property": "open",
           "model": "open"
@@ -1178,6 +1583,46 @@
           "model": "offsetMax"
         },
         {
+          "nodePath": "../Scroll/Content/Belt",
+          "property": "items",
+          "model": "belt"
+        },
+        {
+          "nodePath": "../Scroll/Content/Belt",
+          "property": "selectedIndex",
+          "model": "beltSelectedIndex"
+        },
+        {
+          "nodePath": "../Scroll/Content/Items",
+          "property": "items",
+          "model": "items"
+        },
+        {
+          "nodePath": "../Scroll/Content/Items",
+          "property": "selectedIndex",
+          "model": "selectedIndex"
+        },
+        {
+          "nodePath": "../Scroll/Content/DetailsName",
+          "property": "text",
+          "model": "detailsName"
+        },
+        {
+          "nodePath": "../Scroll/Content/DetailsStatus",
+          "property": "text",
+          "model": "detailsStatus"
+        },
+        {
+          "nodePath": "../Scroll/Content/DetailsStatus",
+          "property": "color",
+          "model": "detailsStatusColor"
+        },
+        {
+          "nodePath": "../Scroll/Content/Details",
+          "property": "text",
+          "model": "details"
+        },
+        {
           "nodePath": "../Scroll/Content/Primary",
           "property": "text",
           "model": "primaryLabel"
@@ -1186,6 +1631,11 @@
           "nodePath": "../Scroll/Content/Primary",
           "property": "disabled",
           "model": "primaryDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/AssignTitle",
+          "property": "visible",
+          "model": "hotbarVisible"
         },
         {
           "nodePath": "../Scroll/Content/HotbarSlots",
@@ -1275,6 +1725,8 @@
       ],
       "actions": {
         "on_item_selected": "select-item",
+        "on_belt_selected": "hold-belt-slot",
+        "on_item_dropped": "drop-on-belt",
         "on_primary_action": "use-or-equip",
         "on_secondary_action": "drop",
         "on_close_action": "close",
@@ -1353,6 +1805,151 @@
           "parentId": "content"
         },
         {
+          "id": "close",
+          "name": "Close",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.835,
+              0.96
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -20,
+              0
+            ],
+            "text": "Close",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_close_action",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "belt-title",
+          "name": "BeltTitle",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              20,
+              58
+            ],
+            "offsetMax": [
+              -20,
+              80
+            ],
+            "text": "Weapon belt",
+            "tone": "warning",
+            "fontSize": 16,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "belt-help",
+          "name": "BeltHelp",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              20,
+              80
+            ],
+            "offsetMax": [
+              -20,
+              102
+            ],
+            "text": "Click a slot to hold that weapon. Drag a weapon from the bag onto a slot to put it there. Outside, the mouse wheel switches.",
+            "tone": "muted",
+            "fontSize": 13
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "belt",
+          "name": "Belt",
+          "type": "ItemList",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              20,
+              106
+            ],
+            "offsetMax": [
+              -20,
+              188
+            ],
+            "columns": 4,
+            "gap": 10,
+            "dropTarget": true,
+            "styleClass": "inventory-belt",
+            "ariaLabel": "Weapon belt"
+          },
+          "signal": "item_selected",
+          "handler": "on_belt_selected",
+          "secondarySignal": "item_dropped",
+          "secondaryHandler": "on_item_dropped",
+          "parentId": "content"
+        },
+        {
+          "id": "items-title",
+          "name": "ItemsTitle",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              0.6,
+              0
+            ],
+            "offsetMin": [
+              20,
+              200
+            ],
+            "offsetMax": [
+              -8,
+              224
+            ],
+            "text": "In the bag — click an item to see it",
+            "tone": "warning",
+            "fontSize": 15,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
           "id": "items",
           "name": "Items",
           "type": "ItemList",
@@ -1382,6 +1979,62 @@
           "parentId": "content"
         },
         {
+          "id": "details-name",
+          "name": "DetailsName",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.62,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              200
+            ],
+            "offsetMax": [
+              -20,
+              228
+            ],
+            "text": "",
+            "tone": "warning",
+            "fontSize": 21,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "details-status",
+          "name": "DetailsStatus",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.62,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              230
+            ],
+            "offsetMax": [
+              -20,
+              252
+            ],
+            "text": "",
+            "tone": "muted",
+            "fontSize": 14,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
           "id": "details",
           "name": "Details",
           "type": "Label",
@@ -1403,6 +2056,62 @@
               0
             ],
             "wrap": true,
+            "tone": "muted",
+            "fontSize": 13
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "primary",
+          "name": "Primary",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.96
+            ],
+            "anchorMax": [
+              0.825,
+              1
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -4,
+              0
+            ],
+            "text": "Use",
+            "tone": "accent",
+            "fontSize": 12
+          },
+          "handler": "on_primary_action",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "assign-title",
+          "name": "AssignTitle",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.62,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              422
+            ],
+            "offsetMax": [
+              -20,
+              444
+            ],
+            "text": "Or put it on a belt slot:",
             "tone": "muted",
             "fontSize": 13
           },
@@ -1693,64 +2402,6 @@
             "fontSize": 12
           },
           "handler": "on_remove_all",
-          "signal": "pressed",
-          "parentId": "content"
-        },
-        {
-          "id": "primary",
-          "name": "Primary",
-          "type": "Button",
-          "properties": {
-            "anchorMin": [
-              0.67,
-              0.96
-            ],
-            "anchorMax": [
-              0.825,
-              1
-            ],
-            "offsetMin": [
-              0,
-              0
-            ],
-            "offsetMax": [
-              -4,
-              0
-            ],
-            "text": "Use",
-            "tone": "accent",
-            "fontSize": 12
-          },
-          "handler": "on_primary_action",
-          "signal": "pressed",
-          "parentId": "content"
-        },
-        {
-          "id": "close",
-          "name": "Close",
-          "type": "Button",
-          "properties": {
-            "anchorMin": [
-              0.835,
-              0.96
-            ],
-            "anchorMax": [
-              1,
-              1
-            ],
-            "offsetMin": [
-              0,
-              0
-            ],
-            "offsetMax": [
-              -20,
-              0
-            ],
-            "text": "Close",
-            "tone": "muted",
-            "fontSize": 12
-          },
-          "handler": "on_close_action",
           "signal": "pressed",
           "parentId": "content"
         }
@@ -2411,11 +3062,66 @@
       "sourceHash": "fbd6a3ab28260b55bc84655e146f815b6bec648e980e042b3add4ff2e9c47b2f",
       "sceneId": "ui.weapon-hotbar",
       "modal": false,
-      "layoutValues": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-190, -172], "offsetMax": [190, -116] },
-      "themeValues": { "columns": 6, "gap": 4, "surface": "hotbar" },
-      "bindings": [{ "nodePath": "../Weapons", "property": "items", "model": "weapons" }, { "nodePath": "../Weapons", "property": "selectedIndex", "model": "selectedIndex" }],
-      "actions": { "on_item_selected": "equip-slot" },
-      "controls": [{ "id": "weapons", "name": "Weapons", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "columns": 6, "gap": 4, "ariaLabel": "Weapon hotbar" }, "handler": "on_item_selected", "signal": "item_selected" }]
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          1
+        ],
+        "anchorMax": [
+          0.5,
+          1
+        ],
+        "offsetMin": [
+          -190,
+          -172
+        ],
+        "offsetMax": [
+          190,
+          -116
+        ]
+      },
+      "themeValues": {
+        "columns": 6,
+        "gap": 4,
+        "surface": "hotbar"
+      },
+      "bindings": [
+        {
+          "nodePath": "../Weapons",
+          "property": "items",
+          "model": "weapons"
+        },
+        {
+          "nodePath": "../Weapons",
+          "property": "selectedIndex",
+          "model": "selectedIndex"
+        }
+      ],
+      "actions": {
+        "on_item_selected": "equip-slot"
+      },
+      "controls": [
+        {
+          "id": "weapons",
+          "name": "Weapons",
+          "type": "ItemList",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "columns": 6,
+            "gap": 4,
+            "ariaLabel": "Weapon hotbar"
+          },
+          "handler": "on_item_selected",
+          "signal": "item_selected"
+        }
+      ]
     },
     {
       "id": "world-map-ui",

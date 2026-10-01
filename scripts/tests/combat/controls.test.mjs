@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 
-const { harvestToolFor } = await loadTypescriptModule('src/game/features/combat/HarvestTools.ts');
+const { harvestToolAdvice } = await loadTypescriptModule('src/game/features/combat/HarvestAdvice.ts');
 const { fitWeaponSlots } = await loadTypescriptModule('src/game/core/WeaponSlots.ts');
 const { aimToward, snapToCardinal } = await loadTypescriptModule('src/game/features/player/PointerAim.ts');
 const bindings = await loadTypescriptModule('src/game/features/player/PlayerInputActions.ts');
@@ -85,26 +85,20 @@ test('the pointer aims from the slime and snaps to four directions', () => {
   assert.deepEqual(snapToCardinal({ x: 0.5, y: -0.5 }), { x: 1, y: 0 }, 'ties go sideways, like weapon swings');
 });
 
-test('tools pick themselves for the tree or rock ahead', () => {
-  const capabilities = {
-    'basic-sword': undefined,
-    'stone-axe': { wood: 2 },
-    'wooden-axe': { wood: 1 },
-    'stone-pickaxe': { stone: 2 },
-  };
+test('the weapon in hand always swings; a blocked harvest says where the right tool is', () => {
+  const capabilities = { 'basic-sword': undefined, 'stone-axe': { wood: 2 }, 'stone-pickaxe': { stone: 2 } };
   const lookup = (weaponId) => capabilities[weaponId];
-  const owned = Object.keys(capabilities);
-  assert.equal(harvestToolFor({ targetTag: 'wood', minimumTier: 1 }, 'basic-sword', owned, lookup), 'stone-axe', 'the best axe');
-  assert.equal(harvestToolFor({ targetTag: 'stone', minimumTier: 1 }, null, owned, lookup), 'stone-pickaxe', 'no weapon equipped still harvests');
-  assert.equal(harvestToolFor({ targetTag: 'wood', minimumTier: 1 }, 'wooden-axe', owned, lookup), undefined, 'an equipped tool that works stays');
-  assert.equal(harvestToolFor({ targetTag: 'iron', minimumTier: 1 }, 'basic-sword', owned, lookup), undefined, 'nothing owned can: the weapon swings');
-  assert.equal(harvestToolFor({ targetTag: 'wood', minimumTier: 3 }, 'basic-sword', owned, lookup), undefined, 'a tier too low does not count');
+  const wood = { targetTag: 'wood', minimumTier: 1 };
+  assert.equal(harvestToolAdvice(wood, ['basic-sword', 'stone-axe'], ['basic-sword', 'stone-axe'], lookup), 'belt', 'switch to the axe on the belt');
+  assert.equal(harvestToolAdvice(wood, ['basic-sword'], ['basic-sword', 'stone-axe'], lookup), 'bag', 'the axe is only in the bag');
+  assert.equal(harvestToolAdvice({ targetTag: 'iron', minimumTier: 1 }, ['stone-pickaxe'], ['stone-pickaxe'], lookup), undefined, 'nothing owned can');
+  assert.equal(harvestToolAdvice({ targetTag: 'wood', minimumTier: 3 }, ['stone-axe'], ['stone-axe'], lookup), undefined, 'a tier too low does not count');
 });
 
-test('an old six-slot belt fits the three-slot belt without losing the equipped weapon', () => {
-  assert.deepEqual(fitWeaponSlots([null, 'sword', null]), [null, 'sword', null], 'a belt that fits keeps its places');
-  assert.deepEqual(fitWeaponSlots(['sword', null, null, null, null, 'spear']), ['sword', 'spear', null], 'two weapons fit: packed in order');
-  assert.deepEqual(fitWeaponSlots(['a', 'b', 'c', 'd', 'e', null], 'd'), ['d', 'e', 'a'], 'the equipped weapon and the ones after it');
-  assert.deepEqual(fitWeaponSlots(['a', 'b', 'c', 'd'], null), ['a', 'b', 'c']);
-  assert.deepEqual(fitWeaponSlots(undefined), [null, null, null]);
+test('an old belt fits the four-slot belt without losing the equipped weapon', () => {
+  assert.deepEqual(fitWeaponSlots([null, 'sword', null]), [null, 'sword', null, null], 'a three-slot belt keeps its places');
+  assert.deepEqual(fitWeaponSlots(['sword', null, null, null, null, 'spear']), ['sword', 'spear', null, null], 'two weapons fit: packed in order');
+  assert.deepEqual(fitWeaponSlots(['a', 'b', 'c', 'd', 'e', null], 'd'), ['d', 'e', 'a', 'b'], 'the equipped weapon and the ones after it');
+  assert.deepEqual(fitWeaponSlots(['a', 'b', 'c', 'd', 'e'], null), ['a', 'b', 'c', 'd']);
+  assert.deepEqual(fitWeaponSlots(undefined), [null, null, null, null]);
 });

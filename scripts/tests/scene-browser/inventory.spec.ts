@@ -36,7 +36,8 @@ test('authored inventory owns its modal, item actions, focus, and cleanup', asyn
   await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('hp-potion'))).toBe(3);
   await inventory.getByRole('button', { name: '+1', exact: true }).click();
   await expect(inventory).toContainText('Quantity: 2');
-  await inventory.getByRole('button', { name: 'Remove', exact: true }).click();
+  // "Destroy" since the 2026-10-01 bag redesign (it was "Remove"): the items are gone for good.
+  await inventory.getByRole('button', { name: 'Destroy', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('hp-potion'))).toBe(1);
 
   await page.keyboard.press('Escape');

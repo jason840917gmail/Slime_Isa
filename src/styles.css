@@ -415,7 +415,11 @@ body {
   line-height: 1.4;
 }
 
+/* Positioned so each hidden input sits inside its row: an input positioned
+   against the shell lay outside the panel's scroll area, and focusing it
+   scrolled the whole (overflow-hidden) page, cutting the game in half. */
 .dev-toggle-row {
+  position: relative;
   display: grid;
   grid-template-columns: 18px 1fr;
   gap: 10px;
@@ -429,6 +433,11 @@ body {
 
 .dev-toggle-row input {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  margin: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -494,6 +503,12 @@ body {
 .swatch-depth-anchor { color: #ffd166; }
 .swatch-interaction { color: #73e2b1; }
 .swatch-attack { color: #a78bfa; }
+.swatch-swing { color: #ffe14d; }
+.swatch-swing-hit { color: #4dff88; }
+.swatch-swing-refused { color: #ff4d4d; }
+.swatch-hurt-player { color: #00e5ff; }
+.swatch-hurt-enemy { color: #ff5fa2; }
+.swatch-hurt-boss { color: #ff3df5; }
 .swatch-enemy-stay { color: #ffc65c; }
 .swatch-enemy-pursue { color: #5ee7ff; }
 .swatch-boss-activation { color: #40e0d0; }
@@ -3296,7 +3311,7 @@ body {
   opacity: 0.45;
 }
 
-/* Six compact field-belt slots keep the weapon name and key visible. */
+/* Four compact field-belt slots keep the weapon name and key visible. */
 .game-ui--weapon-hotbar {
   border-radius: 8px;
 }
@@ -3408,27 +3423,98 @@ body {
 .game-ui--ability-bar .scene-control--button:not(:disabled) {
   border-color: color-mix(in srgb, var(--scene-special, #a78bfa) 65%, transparent);
 }
-/* Authored inventory uses the field-kit surface with a readable slot grid. */
+/* The bag (playtest 2026-10-01): the weapon belt always shows what each slot
+   holds and takes weapons dragged from the bag; big item cells with names;
+   big buttons. */
 .game-ui--inventory-ui {
   border-radius: 12px;
   box-shadow: 0 18px 48px #080e1abf;
 }
 .game-ui--inventory-ui .scene-control--itemlist { overflow: auto; align-content: start; }
 .game-ui--inventory-ui .scene-control--itemlist > button {
-  min-height: 44px;
-  border-radius: 5px;
-  font-size: 11px;
+  position: relative;
+  min-height: 84px;
+  padding: 6px 4px 4px;
+  border-radius: 8px;
+  font-size: 12px;
   overflow: hidden;
 }
-.game-ui--inventory-ui .scene-item--illustrated { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
-.game-ui--inventory-ui .scene-item--illustrated img { width: 26px; height: 26px; object-fit: contain; image-rendering: pixelated; }
-.game-ui--inventory-ui .scene-item--illustrated span { color: var(--scene-warning, #ffd277); font-size: 10px; }
+.game-ui--inventory-ui .scene-item--illustrated { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.game-ui--inventory-ui .scene-item--illustrated img { width: 44px; height: 44px; object-fit: contain; image-rendering: pixelated; }
+.game-ui--inventory-ui .scene-item--illustrated .scene-item-label {
+  max-width: 100%;
+  color: var(--scene-text-primary, #f5f7ff);
+  font-size: 12px;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* Stack counts sit in the corner of a bag cell. */
+.game-ui--inventory-ui .scene-item--illustrated .scene-item-shortcut {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: var(--scene-warning, #ffd277);
+  font-size: 12px;
+  font-weight: 700;
+}
+.game-ui--inventory-ui .scene-item--illustrated[draggable="true"] { cursor: grab; }
 .game-ui--inventory-ui .scene-control--label { line-height: 1.4; align-items: flex-start; overflow: auto; }
-.game-ui--inventory-ui .scene-control--button { border-radius: 5px; padding: 2px; }
+.game-ui--inventory-ui .scene-control--button { border-radius: 8px; padding: 4px 8px; }
+.game-ui--inventory-ui .scene-control--button:not(:disabled):hover { background: var(--scene-surface-raised, #192642); }
+
+/* The weapon belt: slot number top-left, the weapon in hand gold with a tag. */
+.game-ui--inventory-ui .inventory-belt > button {
+  min-height: 78px;
+  border-width: 2px;
+  border-style: dashed;
+  color: var(--scene-text-muted, #8fbba3);
+  white-space: pre-line;
+}
+.game-ui--inventory-ui .inventory-belt > button.scene-item--illustrated { border-style: solid; }
+.game-ui--inventory-ui .inventory-belt > button .scene-item-shortcut {
+  left: 7px;
+  right: auto;
+  color: var(--scene-text-muted, #8fbba3);
+}
+.game-ui--inventory-ui .inventory-belt > button[aria-selected="true"] {
+  border-color: var(--scene-warning, #ffd277);
+  box-shadow: inset 0 0 0 1px var(--scene-warning, #ffd277), 0 0 14px #ffd27755;
+}
+.game-ui--inventory-ui .inventory-belt > button[aria-selected="true"]::after {
+  content: "IN HAND";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: var(--scene-warning, #ffd277);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.game-ui--inventory-ui .inventory-assign > button {
+  min-height: 40px;
+  font-size: 13px;
+  text-align: left;
+  padding: 4px 10px;
+}
+/* While a weapon is dragged, belt slots light up as drop targets. */
+.scene-list-dragging .scene-control--itemlist[data-drop-target="true"] > button {
+  border-color: var(--scene-accent, #86f0c3);
+  border-style: dashed;
+}
+.scene-control--itemlist[data-drop-target="true"] > button.scene-item--drop-over {
+  border-style: solid;
+  border-color: var(--scene-accent, #86f0c3);
+  background: color-mix(in srgb, var(--scene-accent, #86f0c3) 22%, var(--scene-surface-inset, #182b46));
+  transform: scale(1.04);
+}
+.scene-control--itemlist > button.scene-item--dragging { opacity: 0.5; }
 @media (max-width: 760px) {
-  .game-ui--inventory-ui .scene-control--itemlist > button { min-height: 36px; font-size: 9px; }
-  .game-ui--inventory-ui .scene-item--illustrated img { width: 20px; height: 20px; }
-  .game-ui--inventory-ui .scene-control--button { font-size: 10px !important; }
+  .game-ui--inventory-ui .scene-control--itemlist > button { min-height: 60px; font-size: 10px; }
+  .game-ui--inventory-ui .scene-item--illustrated img { width: 30px; height: 30px; }
+  .game-ui--inventory-ui .scene-item--illustrated .scene-item-label { font-size: 10px; }
+  .game-ui--inventory-ui .scene-control--button { font-size: 12px !important; }
 }
 
 .game-ui--chest-inventory-panel {
@@ -3596,16 +3682,16 @@ body {
   overflow: hidden;
 }
 .game-ui--quest-tracker [data-scene-control-id$="/heading"] { letter-spacing: 0.12em; }
-/* The whole card is the "show the way" button; only it takes the pointer. */
-.game-ui--quest-tracker [data-scene-control-id$="/show-way"] {
+/* Each quest block is its own "show the way" button; only they take the pointer. */
+.game-ui--quest-tracker [data-scene-control-id*="/track-"] {
   pointer-events: auto;
   cursor: pointer;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
 }
-.game-ui--quest-tracker [data-scene-control-id$="/show-way"]:hover,
-.game-ui--quest-tracker [data-scene-control-id$="/show-way"]:focus-visible {
+.game-ui--quest-tracker [data-scene-control-id*="/track-"]:hover,
+.game-ui--quest-tracker [data-scene-control-id*="/track-"]:focus-visible {
   background: color-mix(in srgb, var(--scene-warning, #ffd277) 10%, transparent) !important;
   outline: 2px solid color-mix(in srgb, var(--scene-warning, #ffd277) 60%, transparent);
 }
@@ -3638,6 +3724,33 @@ body {
   box-shadow: 0 10px 28px #080e1abf;
 }
 .game-ui--menu-tabs .scene-control--button { border-radius: 6px; }
+/* First-time pointer at the tabs: a bubble under the strip with an arrow up at it. */
+.game-ui--menu-tabs .menu-tabs-coach {
+  position: absolute;
+  justify-content: center;
+  align-items: center !important;
+  padding: 8px 12px;
+  border: 2px solid var(--scene-warning, #ffd277);
+  border-radius: 10px;
+  background: #0b1528f2;
+  box-shadow: 0 8px 24px #080e1acc;
+  pointer-events: none;
+  animation: menu-tabs-coach-bob 1.1s ease-in-out infinite;
+}
+.game-ui--menu-tabs .menu-tabs-coach::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: var(--scene-warning, #ffd277);
+}
+@keyframes menu-tabs-coach-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 4px; }
+}
+@media (prefers-reduced-motion: reduce) { .game-ui--menu-tabs .menu-tabs-coach { animation: none; } }
 .game-ui--menu-tabs .scene-control--button:disabled {
   opacity: 1;
   cursor: default;
@@ -3683,7 +3796,7 @@ body {
   border: 5px solid transparent;
   border-top-color: var(--scene-warning, #ffd277);
 }
-/* Narrow screens (spec: at most 366px of hotbar at 390px): shrink the six slots together. */
+/* Narrow screens (spec: at most 366px of hotbar at 390px): shrink the belt slots together. */
 @media (max-width: 420px) {
   .game-ui--weapon-hotbar { transform: scale(0.92); transform-origin: 50% 100%; }
 }

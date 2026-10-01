@@ -13,8 +13,8 @@ export type StatusKind =
   | 'bouncy'
   | 'frenzy';
 
-/** Weapons on the belt, switched with the mouse wheel (roadmap 4.10). */
-export const WEAPON_HOTBAR_SLOT_COUNT = 3;
+/** Weapons on the belt, switched with the mouse wheel (roadmap 4.10; four slots since the 2026-10-01 playtest). */
+export const WEAPON_HOTBAR_SLOT_COUNT = 4;
 
 export type ItemCategory = 'consumable' | 'material' | 'key' | 'collectible' | 'weapon' | 'tool' | 'furniture';
 

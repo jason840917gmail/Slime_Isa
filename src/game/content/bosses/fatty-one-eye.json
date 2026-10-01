@@ -23,6 +23,6 @@
     "recoveryMs": 700,
     "crackFadeMs": 650
   },
-  "allowedWeaponIds": ["wooden-spear", "stone-spear"],
+  "allowedWeaponIds": ["wooden-spear", "stone-spear", "iron-spear", "basic-spear"],
   "effectImmunities": ["knockback"]
 }

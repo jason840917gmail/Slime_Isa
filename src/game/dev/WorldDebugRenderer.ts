@@ -10,6 +10,13 @@ import {
 import type { SpriteBoundsGeometry } from '../infrastructure/phaser-nodes/Sprite2DNode';
 import type { EnemyDebugAttackArea } from '../features/scripts/EnemyScript';
 import { traceSensorShape } from '../features/effects/AttackTelegraphs';
+import type { WeaponDebugSwing } from '../features/scripts/WeaponScript';
+import type { DebugHurtbox } from '../features/world/UniversalSceneWorldController';
+
+/** A finished swing stays on screen this long, so a 150 ms hit window can be seen. */
+const SWING_LINGER_MS = 450;
+const SWING_COLOR: Readonly<Record<WeaponDebugSwing['outcome'], number>> = { open: 0xffe14d, hit: 0x4dff88, refused: 0xff4d4d };
+const HURTBOX_COLOR: Readonly<Record<DebugHurtbox['kind'], number>> = { player: 0x00e5ff, enemy: 0xff5fa2, boss: 0xff3df5 };
 
 type DebugGroup = Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup;
 
@@ -35,10 +42,17 @@ export interface WorldDebugContext {
   getWorldVisuals: () => readonly DebugWorldVisual[];
   /** Authored enemy attack areas (contact, landing) with live target overlap. */
   getEnemyAttackAreas: () => readonly EnemyDebugAttackArea[];
+  /** The slime's weapon swing while its hitboxes are open. */
+  getWeaponSwing: () => WeaponDebugSwing | undefined;
+  /** Where the slime, enemies and bosses take damage. */
+  getHurtboxes: () => readonly DebugHurtbox[];
 }
 
 export class WorldDebugRenderer {
   private graphics?: Phaser.GameObjects.Graphics;
+  private readonly labels: Phaser.GameObjects.Text[] = [];
+  private usedLabels = 0;
+  private lastSwing?: { readonly swing: WeaponDebugSwing; readonly until: number };
 
   constructor(private readonly ctx: WorldDebugContext) {}
 
@@ -49,8 +63,10 @@ export class WorldDebugRenderer {
       .setScrollFactor(1);
     this.graphics = g;
     g.clear();
+    this.usedLabels = 0;
     if (!devToolsState.enabled) {
       g.setVisible(false);
+      this.hideUnusedLabels();
       return;
     }
 
@@ -63,14 +79,18 @@ export class WorldDebugRenderer {
     if (devToolsState.depthAnchors) this.drawDepthAnchors(g);
     if (devToolsState.interactionZones) this.drawInteractionZones(g);
     if (devToolsState.attackBoxes) this.drawActiveAttackHitboxes(g);
+    if (devToolsState.hurtboxes) this.drawHurtboxes(g);
     if (devToolsState.enemyBoundaries) this.drawEnemyBoundaries(g);
     if (devToolsState.bossBattleAreas) this.drawBossBattleAreas(g);
     if (devToolsState.enemyAttackAreas) this.drawEnemyAttackAreas(g);
+    this.hideUnusedLabels();
   }
 
   destroy(): void {
     this.graphics?.destroy();
     this.graphics = undefined;
+    for (const label of this.labels) label.destroy();
+    this.labels.length = 0;
   }
 
   private drawWorld(g: Phaser.GameObjects.Graphics): void {
@@ -139,8 +159,54 @@ export class WorldDebugRenderer {
     for (const zone of this.ctx.getTransitionZones()) this.drawBody(g, this.bodyOf(zone), 0x73e2b1, 0.85);
   }
 
+  /**
+   * The slime's weapon swing (its authored hitbox shapes while a hit window is
+   * open, lingering briefly): yellow while open, green once it hit something,
+   * red when every touch was refused (wrong weapon, a guarding boss). Also the
+   * legacy pool (Squash Slam on training dummies).
+   */
   private drawActiveAttackHitboxes(g: Phaser.GameObjects.Graphics): void {
     for (const config of hitboxPool.getActiveConfigs(this.ctx.scene)) this.drawAttackShape(g, config);
+    const now = this.ctx.scene.time.now;
+    const swing = this.ctx.getWeaponSwing();
+    if (swing) this.lastSwing = { swing, until: now + SWING_LINGER_MS };
+    if (!this.lastSwing || now > this.lastSwing.until) return;
+    const fade = swing ? 1 : Math.max(0.25, (this.lastSwing.until - now) / SWING_LINGER_MS);
+    const color = SWING_COLOR[this.lastSwing.swing.outcome];
+    g.fillStyle(color, 0.22 * fade).lineStyle(3, color, 0.95 * fade);
+    for (const shape of this.lastSwing.swing.shapes) traceSensorShape(g, shape);
+  }
+
+  /** Where things take damage: the slime in cyan, enemies in pink, bosses in magenta with the weapons they accept. */
+  private drawHurtboxes(g: Phaser.GameObjects.Graphics): void {
+    for (const hurtbox of this.ctx.getHurtboxes()) {
+      const color = HURTBOX_COLOR[hurtbox.kind];
+      const boss = hurtbox.kind === 'boss';
+      g.fillStyle(color, boss ? 0.3 : 0.16).lineStyle(boss ? 3 : 2, color, 1);
+      for (const shape of hurtbox.shapes) traceSensorShape(g, shape);
+      const first = hurtbox.shapes[0];
+      if (!boss || !first) continue;
+      const top = first.shape === 'rectangle' ? { x: first.x + first.width / 2, y: first.y }
+        : first.shape === 'circle' ? { x: first.centerX, y: first.centerY - first.radius }
+          : 'centerX' in first ? { x: first.centerX, y: first.centerY - ('radiusY' in first ? first.radiusY : 0) } : undefined;
+      if (top) this.label(top.x, top.y - 6, hurtbox.accepts ? `HURTBOX · ${hurtbox.accepts}` : 'HURTBOX', color);
+    }
+  }
+
+  private label(x: number, y: number, text: string, color: number): void {
+    let label = this.labels[this.usedLabels];
+    if (!label) {
+      label = this.ctx.scene.add.text(0, 0, '', { fontFamily: 'monospace', fontSize: '11px', fontStyle: 'bold', backgroundColor: '#081022cc', padding: { x: 3, y: 1 } })
+        .setOrigin(0.5, 1)
+        .setDepth(resolveExplicitDepth('editor-template-overlay', 11));
+      this.labels.push(label);
+    }
+    this.usedLabels += 1;
+    label.setText(text).setColor(`#${color.toString(16).padStart(6, '0')}`).setPosition(x, y).setVisible(true);
+  }
+
+  private hideUnusedLabels(): void {
+    for (let index = this.usedLabels; index < this.labels.length; index += 1) this.labels[index]!.setVisible(false);
   }
 
   private drawEnemyBoundaries(g: Phaser.GameObjects.Graphics): void {

@@ -89,8 +89,8 @@
           "resourceId": "fatty-one-eye.eye-shape"
         },
         "position": [
-          2,
-          -35
+          -2,
+          -33
         ]
       }
     },
@@ -203,7 +203,9 @@
           ],
           "allowedWeaponIds": [
             "wooden-spear",
-            "stone-spear"
+            "stone-spear",
+            "iron-spear",
+            "basic-spear"
           ],
           "attackWindupMs": 250,
           "attackRecoveryMs": 50,
@@ -215,9 +217,8 @@
           "damageMultiplier": 1,
           "acceptedSources": [
             {
-              "weaponIds": [
-                "wooden-spear",
-                "stone-spear"
+              "allWeaponTags": [
+                "spear"
               ]
             }
           ],
@@ -243,7 +244,8 @@
         "landingKnockbackStrength": 280,
         "landingEffectId": "boss-ground-crack",
         "landingShakeMs": 100,
-        "landingShakeIntensity": 0.003
+        "landingShakeIntensity": 0.003,
+        "arenaRecoveryMs": 60000
       }
     },
     {
@@ -413,6 +415,54 @@
                   ]
                 }
               ]
+            },
+            {
+              "binding": "../Eye/EyeShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -2,
+                    -33
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    -2,
+                    -31
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    -2,
+                    -34
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    -2,
+                    -34
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    -3,
+                    -31
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    -5,
+                    -31
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -441,6 +491,40 @@
                 {
                   "at": 3,
                   "value": 15
+                }
+              ]
+            },
+            {
+              "binding": "../Eye/EyeShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -2,
+                    -29
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    -1,
+                    -64
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    -4,
+                    -64
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    -4,
+                    -43
+                  ]
                 }
               ]
             }
@@ -481,6 +565,54 @@
                   "value": 23
                 }
               ]
+            },
+            {
+              "binding": "../Eye/EyeShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -3,
+                    -22
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    -1,
+                    -70
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    -1,
+                    -71
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    -4,
+                    -71
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    -3,
+                    -40
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    -1,
+                    -18
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -511,6 +643,40 @@
                   "value": 27
                 }
               ]
+            },
+            {
+              "binding": "../Eye/EyeShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -1,
+                    -8
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    -3,
+                    -9
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    -2,
+                    -13
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    -18
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -531,6 +697,26 @@
                 {
                   "at": 1,
                   "value": 29
+                }
+              ]
+            },
+            {
+              "binding": "../Eye/EyeShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -4,
+                    -22
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    -7,
+                    -18
+                  ]
                 }
               ]
             }
@@ -599,6 +785,40 @@
                 {
                   "at": 5,
                   "value": 15
+                }
+              ]
+            },
+            {
+              "binding": "../Eye/EyeShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -2,
+                    -29
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    -1,
+                    -64
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    -4,
+                    -64
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    -4,
+                    -43
+                  ]
                 }
               ]
             }

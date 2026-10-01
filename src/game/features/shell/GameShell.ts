@@ -68,14 +68,20 @@ export class GameShell {
     });
     this.pause = new PauseMenuSurfacePort({
       modalStack, onPausedChange: pausing('pause-menu'),
-      actions: { ...ctx.pause, openSettings: () => this.settings.open(), openSaves: () => this.saves.openFor('save') },
+      actions: {
+        ...ctx.pause,
+        openSettings: () => this.settings.open(),
+        openSaves: () => this.saves.openFor('save'),
+        openLoad: () => this.saves.openFor('load'),
+        hasLoadable: () => this.hasLoadable(),
+      },
     });
     this.credits = new CreditsSurfacePort({ modalStack, onPausedChange: pausing('credits') });
     this.title = new TitleSurfacePort({
       modalStack, onPausedChange: pausing('title-screen'), version: ctx.version,
       actions: {
         ...ctx.title,
-        hasSlots: () => this.hasSlots(),
+        hasLoadable: () => this.hasLoadable(),
         openLoad: () => this.saves.openFor('load'),
         openSettings: () => this.settings.open(),
         openCredits: () => this.credits.open(),
@@ -83,7 +89,7 @@ export class GameShell {
     });
     this.gameOver = new GameOverSurfacePort({
       modalStack, onPausedChange: pausing('game-over'),
-      actions: { wake: ctx.wake, openLoad: () => this.saves.openFor('load'), hasSlots: () => this.hasSlots() },
+      actions: { wake: ctx.wake, openLoad: () => this.saves.openFor('load'), hasLoadable: () => this.hasLoadable() },
     });
     this.endCard = new EndCardSurfacePort({
       modalStack, onPausedChange: pausing('end-card'), cards: END_CARDS, hasFlag: ctx.hasStoryFlag,
@@ -110,7 +116,9 @@ export class GameShell {
     for (const surface of this.all) surface.destroy();
   }
 
-  private hasSlots(): boolean {
-    return this.ctx.saves.list().some((save) => /^Slot [1-3]$/.test(save.name));
+  /** Something the Load window can show: the autosave, or a slot (even one that cannot be read, to say why). */
+  private hasLoadable(): boolean {
+    const isSlot = (save: { readonly name: string }) => /^Slot [1-3]$/.test(save.name);
+    return !!this.ctx.saves.autosave() || this.ctx.saves.list().some(isSlot) || this.ctx.saves.unreadable().some(isSlot);
   }
 }

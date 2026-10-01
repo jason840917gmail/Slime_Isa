@@ -25,15 +25,16 @@ import { Node2D } from '../../runtime/scene/Node2D';
 import { AttackActivation } from '../combat/AttackActivation';
 import type { RoutedDamageOutcome } from '../combat/DamageRouter';
 import { DamageRouter } from '../combat/DamageRouter';
-import type { DamageRequest } from '../combat/DamageReceiver';
+import type { DamageAreaRule, DamageRequest } from '../combat/DamageReceiver';
 import type { AreaStrikeRequest, AreaStrikeResult, LashCatch } from '../combat/LineStrike';
-import { sensorShapesIntersect, sensorShapeTouchesSegment } from '../../runtime/scene/physics/SensorGeometry';
+import { sensorShapesIntersect, sensorShapeTouchesSegment, type SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 import type { InteractionProvider, InteractionRouter } from '../interaction/InteractionRouter';
 import type { NpcActorHandle, QuestNpcRegistration } from '../interaction/QuestNpcController';
 import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
 import { NpcNameTags, type NpcQuestMarker } from '../npcs/NpcNameTags';
 import { AttackTelegraphs } from '../effects/AttackTelegraphs';
 import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
+import { itemIdForWorldDrop } from '../../content/items/InventoryDropCatalog';
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
 import type { WorldProgress } from '../progression/WorldProgress';
 import type { EnemyPopulationMember, EnemySpawnRequest } from '../../enemies/AuthoredEnemyPopulationController';
@@ -109,6 +110,7 @@ import {
   type ManagedWeaponTarget,
   type WeaponAttackDirection,
   type WeaponDamagePayload,
+  type WeaponDebugSwing,
 } from '../scripts/WeaponScript';
 import type { WorldEffectSpawnRequest } from '../effects/WorldEffectSpawn';
 import { WorldEffectPositionAttachment } from '../effects/WorldEffectPositionAttachment';
@@ -206,6 +208,8 @@ export interface UniversalSceneWorldControllerOptions {
   readonly canDropInventoryItem: (itemId: string) => boolean;
   readonly onDropInventoryItem: (slotIndex: number, quantity: number) => boolean;
   readonly showMessage: (x: number, y: number, message: string, color?: 'white' | 'yellow' | 'green' | 'cyan' | 'orange' | 'red', important?: boolean) => void;
+  /** What a tree or rock says when the weapon in hand cannot harvest it (with how to get the right tool). */
+  readonly harvestBlockedMessage: (request: ResourceHarvestBlocked) => string;
   readonly updateGameplay: (deltaMs: number) => void;
   readonly updatePresentation: (deltaMs: number) => void;
   readonly transformManagedWeaponDamage: (damage: number, target: ManagedWeaponTarget) => number;
@@ -339,8 +343,6 @@ function bossDisplayName(script: EnemyScript, fallbackId: string): string {
 const CHEST_BADGE_RISE_PX = 56;
 /** Pointing this far above an interactable's origin (its body, not its feet) picks it. */
 const TARGET_BODY_RISE_PX = 24;
-/** A resource counts as "ahead" of a swing within about 50 degrees of the facing. */
-const HARVEST_AHEAD_COS = 0.64;
 
 /** Collision layer 1 ("world" in content/physics/collision-layers.json): walls, houses, trees, rocks. */
 const WORLD_COLLISION_LAYER_BIT = 1;
@@ -359,6 +361,20 @@ function isPassiveObjectScene(sceneIdValue: string): boolean {
     || sceneIdValue.startsWith('object.rock-world-wall-')
     || sceneIdValue.startsWith('object.wall-stone-solid')
     || sceneIdValue.startsWith('object.interior-');
+}
+
+/** A hurtbox for the dev overlay: whose it is, its shapes, and which weapons may hurt it when limited. */
+export interface DebugHurtbox {
+  readonly kind: 'player' | 'enemy' | 'boss';
+  readonly shapes: readonly SensorShape[];
+  /** "spear only" when the area accepts only some weapons. */
+  readonly accepts?: string;
+}
+
+function acceptedSourcesLabel(rule: DamageAreaRule | undefined): string | undefined {
+  if (!rule?.acceptedSources?.length) return undefined;
+  const parts = rule.acceptedSources.map((matcher) => matcher.allWeaponTags?.join(' + ') ?? matcher.weaponIds?.join(', ') ?? matcher.anyDamageTypes?.join(' or ') ?? 'any');
+  return `${parts.join(' or ')} only`;
 }
 
 export class UniversalSceneWorldController implements InteractionProvider {
@@ -621,7 +637,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       [RESOURCE_NODE_SERVICE]: {
         publishHit: (request: ResourceHitFeedbackRequest) => this.publishResourceHit(request),
         publishHarvestBlocked: (request: ResourceHarvestBlocked) => {
-          options.showMessage(request.x, request.y - 58, request.message, 'cyan', true);
+          options.showMessage(request.x, request.y - 58, options.harvestBlockedMessage(request), 'cyan', true);
         },
         spawnDrops: (request: ResourceDropRequest) => options.spawnManagedResourceDrops(request),
       },
@@ -840,6 +856,26 @@ export class UniversalSceneWorldController implements InteractionProvider {
   /** Authored attack areas of every live enemy, for the dev overlay. */
   get enemyAttackAreas(): readonly EnemyDebugAttackArea[] {
     return descendants(this.runtime.root, EnemyScript).flatMap((script) => script.debugAttackAreas());
+  }
+
+  /** The slime's weapon swing while its hitboxes are open, for the dev overlay. */
+  get weaponDebugSwing(): WeaponDebugSwing | undefined {
+    return this.weapon?.script.debugSwing();
+  }
+
+  /** Every hurtbox (where something takes damage) of the slime, enemies and bosses, for the dev overlay. */
+  get hurtboxes(): readonly DebugHurtbox[] {
+    const player = this.playerScript?.runtimeNodeId;
+    return this.damageRouter.areaNodeIds().flatMap((areaNodeId): DebugHurtbox[] => {
+      const area = this.runtime.tree.getNodeById(areaNodeId as SceneRuntimeNodeId);
+      const receiver = this.damageRouter.receiverNodeIdForArea(areaNodeId);
+      if (!(area instanceof Area2DNode) || !receiver) return [];
+      const tags = this.managedTargetTags(receiver);
+      const kind = receiver === player ? 'player' : tags.includes('boss') ? 'boss' : tags.includes('enemy') ? 'enemy' : undefined;
+      if (!kind) return [];
+      const accepts = acceptedSourcesLabel(this.damageRouter.ruleForArea(areaNodeId));
+      return [{ kind, shapes: area.contactShapes(), ...(accepts ? { accepts } : {}) }];
+    });
   }
 
   get managedLiveCampCount(): number { return [...this.camps.values()].filter((camp) => camp.script.hasLiveBoss).length; }
@@ -1128,7 +1164,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return best;
   }
 
-  /** The nearest walk-over pile or standing tree/rock that yields one of `itemIds`. */
+  /** The nearest walk-over pile or standing tree/rock/ore node that yields one of `itemIds`. */
   nearestSource(itemIds: readonly string[], from: { x: number; y: number }): { x: number; y: number } | undefined {
     let best: { x: number; y: number } | undefined;
     let bestDistance = Number.POSITIVE_INFINITY;
@@ -1142,7 +1178,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
       consider(position.x, position.y);
     }
     for (const { script } of this.resources.values()) {
-      if (script.destroyed || !script.harvestTag || !itemIds.includes(script.harvestTag)) continue;
+      // A node is a source of what its piles give (an iron node yields `iron-ore`, not its `iron` tag).
+      const yielded = script.dropDefinition ? itemIdForWorldDrop(script.dropDefinition.objectId) : undefined;
+      if (script.destroyed || !yielded || !itemIds.includes(yielded)) continue;
       consider(script.position.x, script.position.y);
     }
     return best;
@@ -2152,29 +2190,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
       nearest = Math.min(nearest, Math.hypot(x - point.x, y - point.y));
     }
     return nearest;
-  }
-
-  /**
-   * What the nearest standing tree, rock or other resource ahead of `from`
-   * (within `reach` px and roughly along `facing`) needs to be harvested.
-   */
-  harvestNeedAhead(
-    from: Readonly<{ x: number; y: number }>,
-    facing: Readonly<{ x: number; y: number }>,
-    reach: number,
-  ): Readonly<{ targetTag: string; minimumTier: number }> | undefined {
-    const facingLength = Math.hypot(facing.x, facing.y) || 1;
-    let nearest: { readonly distance: number; readonly script: ResourceNodeScript } | undefined;
-    for (const { script } of this.resources.values()) {
-      if (script.destroyed || !script.is_inside_tree()) continue;
-      const { x, y } = script.position;
-      const distance = Math.hypot(x - from.x, y - from.y);
-      if (distance > reach || (nearest && distance >= nearest.distance)) continue;
-      const along = distance === 0 ? 1 : ((x - from.x) * facing.x + (y - from.y) * facing.y) / (distance * facingLength);
-      if (along < HARVEST_AHEAD_COS) continue;
-      nearest = { distance, script };
-    }
-    return nearest?.script.harvestNeed;
   }
 
   private managedTargetTags(receiverNodeId: string): readonly string[] {

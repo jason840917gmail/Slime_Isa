@@ -67,7 +67,8 @@ function horizontalReach(value) {
 function request(activationId, targetAreaNodeId, weaponId = 'wooden-spear') {
   return {
     activationId, sourceNodeId: 'player-weapon', attackAreaNodeId: 'player-swing', targetAreaNodeId,
-    weaponId, weaponTags: ['melee', 'spear'], damageTypes: ['physical'], baseDamage: 12,
+    // Weapons tag themselves `spear` by id, like CombatController does.
+    weaponId, weaponTags: ['melee', weaponId.includes('spear') ? 'spear' : 'weapon'], damageTypes: ['physical'], baseDamage: 12,
     effects: [{ effectId: 'knockback', potency: 1 }],
     impact: { x: 0, y: 0, knockX: 1, knockY: 0 },
   };
@@ -116,6 +117,32 @@ test('Fatty enforces grounded eye weapon filtering and retries airborne state wi
   assert.deepEqual(grounded[0].result.appliedEffects, []);
   assert.deepEqual(grounded[0].result.rejectedEffects, [{ effectId: 'knockback', reason: 'immune' }]);
   assert.equal(script.hp, 128);
+  fixture.tree.shutdown(); fixture.packed.dispose();
+});
+
+test('every spear reaches the eye, and Fatty heals to full after a minute alone outside his arena', async () => {
+  const target = { position: { x: 30, y: 0 }, damageAreaNodeId: 'away-player-area', active: true, hostile: true };
+  const arena = { shape: 'circle', x: 0, y: 0, radius: 300 };
+  const fixture = await instantiate({ getPrimaryTarget: () => target, getNavigation: () => ({ arena }) });
+  const script = fixture.root.get_node('FattyScript');
+  const eye = fixture.root.get_node('Eye');
+  for (const [index, weaponId] of ['iron-spear', 'basic-spear'].entries()) {
+    const activation = fixture.activations.begin('player-weapon', ['player-swing']);
+    const outcome = fixture.router.routeStep([request(activation, eye.runtimeId, weaponId)], 10 + index);
+    assert.equal(outcome[0].result.status, 'accepted', `${weaponId} hits the eye`);
+  }
+  assert.equal(script.hp, 116);
+
+  const advance = (seconds) => { for (let elapsed = 0; elapsed < seconds; elapsed += 0.5) fixture.tree.physicsProcess(0.5); };
+  target.position = { x: 900, y: 0 };
+  advance(30);
+  target.position = { x: 30, y: 0 };
+  fixture.tree.physicsProcess(1 / 60);
+  target.position = { x: 900, y: 0 };
+  advance(59);
+  assert.equal(script.hp, 116, 'coming back inside restarts the minute');
+  advance(1.5);
+  assert.equal(script.hp, 140, 'a minute outside the arena heals him to full');
   fixture.tree.shutdown(); fixture.packed.dispose();
 });
 

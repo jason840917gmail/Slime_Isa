@@ -42,6 +42,11 @@ export class DamageRouter {
     return this.areas.get(areaNodeId)?.receiver.runtimeNodeId;
   }
 
+  /** The rule a hurtbox area was registered with (what may hurt it), for the dev overlay. */
+  ruleForArea(areaNodeId: RuntimeNodeId): DamageAreaRule | undefined {
+    return this.areas.get(areaNodeId)?.rule;
+  }
+
   /** Every registered hurtbox area, for attacks that sweep the world instead of overlapping one area (the Stretch Lash). */
   areaNodeIds(): readonly RuntimeNodeId[] {
     return [...this.areas.keys()];

@@ -86,16 +86,16 @@
           -12,
           22
         ],
-        "text": "U · Quest book",
+        "text": "E · Journal tab",
         "tone": "muted",
         "fontSize": 10,
         "textAlign": "right"
       }
     },
     {
-      "id": "title",
-      "name": "Title",
-      "type": "Label",
+      "id": "quest-1",
+      "name": "Quest1",
+      "type": "Container",
       "parentId": "surface",
       "order": 2,
       "properties": {
@@ -108,24 +108,50 @@
           0
         ],
         "offsetMin": [
-          12,
-          20
+          10,
+          26
         ],
         "offsetMax": [
-          -12,
-          42
+          -10,
+          64
+        ],
+        "visible": false
+      }
+    },
+    {
+      "id": "quest-1-title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "quest-1",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          0
+        ],
+        "offsetMax": [
+          0,
+          20
         ],
         "tone": "warning",
-        "fontSize": 15,
+        "fontSize": 14,
         "fontWeight": 700
       }
     },
     {
-      "id": "objectives",
+      "id": "quest-1-objectives",
       "name": "Objectives",
       "type": "Label",
-      "parentId": "surface",
-      "order": 3,
+      "parentId": "quest-1",
+      "order": 1,
       "properties": {
         "anchorMin": [
           0,
@@ -136,15 +162,338 @@
           1
         ],
         "offsetMin": [
-          14,
-          44
+          8,
+          20
         ],
         "offsetMax": [
-          -12,
-          -26
+          0,
+          0
         ],
         "fontSize": 12,
         "wrap": true
+      }
+    },
+    {
+      "id": "track-1",
+      "name": "Track",
+      "type": "Button",
+      "parentId": "quest-1",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "text": "",
+        "tone": "muted",
+        "ariaLabel": "Show the way to quest 1"
+      }
+    },
+    {
+      "id": "quest-2",
+      "name": "Quest2",
+      "type": "Container",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          10,
+          26
+        ],
+        "offsetMax": [
+          -10,
+          64
+        ],
+        "visible": false
+      }
+    },
+    {
+      "id": "quest-2-title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "quest-2",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          0
+        ],
+        "offsetMax": [
+          0,
+          20
+        ],
+        "tone": "warning",
+        "fontSize": 14,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "quest-2-objectives",
+      "name": "Objectives",
+      "type": "Label",
+      "parentId": "quest-2",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          8,
+          20
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "fontSize": 12,
+        "wrap": true
+      }
+    },
+    {
+      "id": "track-2",
+      "name": "Track",
+      "type": "Button",
+      "parentId": "quest-2",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "text": "",
+        "tone": "muted",
+        "ariaLabel": "Show the way to quest 2"
+      }
+    },
+    {
+      "id": "quest-3",
+      "name": "Quest3",
+      "type": "Container",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          10,
+          26
+        ],
+        "offsetMax": [
+          -10,
+          64
+        ],
+        "visible": false
+      }
+    },
+    {
+      "id": "quest-3-title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "quest-3",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          0
+        ],
+        "offsetMax": [
+          0,
+          20
+        ],
+        "tone": "warning",
+        "fontSize": 14,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "quest-3-objectives",
+      "name": "Objectives",
+      "type": "Label",
+      "parentId": "quest-3",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          8,
+          20
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "fontSize": 12,
+        "wrap": true
+      }
+    },
+    {
+      "id": "track-3",
+      "name": "Track",
+      "type": "Button",
+      "parentId": "quest-3",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "text": "",
+        "tone": "muted",
+        "ariaLabel": "Show the way to quest 3"
+      }
+    },
+    {
+      "id": "quest-4",
+      "name": "Quest4",
+      "type": "Container",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          10,
+          26
+        ],
+        "offsetMax": [
+          -10,
+          64
+        ],
+        "visible": false
+      }
+    },
+    {
+      "id": "quest-4-title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "quest-4",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          0
+        ],
+        "offsetMax": [
+          0,
+          20
+        ],
+        "tone": "warning",
+        "fontSize": 14,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "quest-4-objectives",
+      "name": "Objectives",
+      "type": "Label",
+      "parentId": "quest-4",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          8,
+          20
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "fontSize": 12,
+        "wrap": true
+      }
+    },
+    {
+      "id": "track-4",
+      "name": "Track",
+      "type": "Button",
+      "parentId": "quest-4",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "text": "",
+        "tone": "muted",
+        "ariaLabel": "Show the way to quest 4"
       }
     },
     {
@@ -152,7 +501,7 @@
       "name": "Hint",
       "type": "Label",
       "parentId": "surface",
-      "order": 4,
+      "order": 6,
       "properties": {
         "anchorMin": [
           0,
@@ -175,32 +524,12 @@
       }
     },
     {
-      "id": "show-way",
-      "name": "ShowWay",
-      "type": "Button",
-      "parentId": "surface",
-      "order": 5,
-      "properties": {
-        "anchorMin": [
-          0,
-          0
-        ],
-        "anchorMax": [
-          1,
-          1
-        ],
-        "text": "",
-        "tone": "muted",
-        "ariaLabel": "Show the way to this quest"
-      }
-    },
-    {
       "id": "script",
       "name": "UiSurfaceScript",
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 6,
+      "order": 7,
       "properties": {
         "surfaceId": "quest-tracker",
         "modal": false,
@@ -209,16 +538,6 @@
             "nodePath": "../Heading",
             "property": "text",
             "model": "heading"
-          },
-          {
-            "nodePath": "../Title",
-            "property": "text",
-            "model": "title"
-          },
-          {
-            "nodePath": "../Objectives",
-            "property": "text",
-            "model": "objectives"
           },
           {
             "nodePath": "../Hint",
@@ -244,10 +563,133 @@
             "nodePath": "../BookHint",
             "property": "text",
             "model": "bookHint"
+          },
+          {
+            "nodePath": "../Quest1",
+            "property": "visible",
+            "model": "quest1Visible"
+          },
+          {
+            "nodePath": "../Quest1",
+            "property": "offsetMin",
+            "model": "quest1OffsetMin"
+          },
+          {
+            "nodePath": "../Quest1",
+            "property": "offsetMax",
+            "model": "quest1OffsetMax"
+          },
+          {
+            "nodePath": "../Quest1/Title",
+            "property": "text",
+            "model": "quest1Title"
+          },
+          {
+            "nodePath": "../Quest1/Title",
+            "property": "color",
+            "model": "quest1Color"
+          },
+          {
+            "nodePath": "../Quest1/Objectives",
+            "property": "text",
+            "model": "quest1Objectives"
+          },
+          {
+            "nodePath": "../Quest2",
+            "property": "visible",
+            "model": "quest2Visible"
+          },
+          {
+            "nodePath": "../Quest2",
+            "property": "offsetMin",
+            "model": "quest2OffsetMin"
+          },
+          {
+            "nodePath": "../Quest2",
+            "property": "offsetMax",
+            "model": "quest2OffsetMax"
+          },
+          {
+            "nodePath": "../Quest2/Title",
+            "property": "text",
+            "model": "quest2Title"
+          },
+          {
+            "nodePath": "../Quest2/Title",
+            "property": "color",
+            "model": "quest2Color"
+          },
+          {
+            "nodePath": "../Quest2/Objectives",
+            "property": "text",
+            "model": "quest2Objectives"
+          },
+          {
+            "nodePath": "../Quest3",
+            "property": "visible",
+            "model": "quest3Visible"
+          },
+          {
+            "nodePath": "../Quest3",
+            "property": "offsetMin",
+            "model": "quest3OffsetMin"
+          },
+          {
+            "nodePath": "../Quest3",
+            "property": "offsetMax",
+            "model": "quest3OffsetMax"
+          },
+          {
+            "nodePath": "../Quest3/Title",
+            "property": "text",
+            "model": "quest3Title"
+          },
+          {
+            "nodePath": "../Quest3/Title",
+            "property": "color",
+            "model": "quest3Color"
+          },
+          {
+            "nodePath": "../Quest3/Objectives",
+            "property": "text",
+            "model": "quest3Objectives"
+          },
+          {
+            "nodePath": "../Quest4",
+            "property": "visible",
+            "model": "quest4Visible"
+          },
+          {
+            "nodePath": "../Quest4",
+            "property": "offsetMin",
+            "model": "quest4OffsetMin"
+          },
+          {
+            "nodePath": "../Quest4",
+            "property": "offsetMax",
+            "model": "quest4OffsetMax"
+          },
+          {
+            "nodePath": "../Quest4/Title",
+            "property": "text",
+            "model": "quest4Title"
+          },
+          {
+            "nodePath": "../Quest4/Title",
+            "property": "color",
+            "model": "quest4Color"
+          },
+          {
+            "nodePath": "../Quest4/Objectives",
+            "property": "text",
+            "model": "quest4Objectives"
           }
         ],
         "actions": {
-          "on_menu_1": "toggle-waypoint"
+          "on_menu_1": "track-1",
+          "on_menu_2": "track-2",
+          "on_menu_3": "track-3",
+          "on_menu_4": "track-4"
         }
       }
     },
@@ -256,7 +698,7 @@
       "name": "ClickSfx",
       "type": "AudioStreamPlayer",
       "parentId": "surface",
-      "order": 7,
+      "order": 8,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.click"
@@ -269,7 +711,7 @@
   "connections": [
     {
       "source": {
-        "nodeId": "show-way"
+        "nodeId": "track-1"
       },
       "signal": "pressed",
       "target": {
@@ -279,7 +721,67 @@
     },
     {
       "source": {
-        "nodeId": "show-way"
+        "nodeId": "track-2"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_menu_2"
+    },
+    {
+      "source": {
+        "nodeId": "track-3"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_menu_3"
+    },
+    {
+      "source": {
+        "nodeId": "track-4"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_menu_4"
+    },
+    {
+      "source": {
+        "nodeId": "track-1"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "track-2"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "track-3"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "track-4"
       },
       "signal": "pressed",
       "target": {
