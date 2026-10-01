@@ -6,6 +6,7 @@ import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { InventoryWorldDropProgress } from '../progression/WorldProgress';
 import type { CollectibleStateChange } from './CollectibleController';
 import { findInventoryDropDestination, type InventoryDropCellInspection } from './InventoryDropPlacement';
+import { scatterLootDestinations } from './LootDropPlacement';
 import type { WorldDropRequest } from './WorldDropRequest';
 
 export interface InventoryDropControllerContext {
@@ -19,6 +20,8 @@ export interface InventoryDropControllerContext {
   readonly getPlayerAnchor: () => { readonly x: number; readonly y: number };
   readonly getFacing: () => FacingDirection;
   readonly inspectCell: (itemId: string, cellX: number, cellY: number) => InventoryDropCellInspection;
+  /** True where enemy loot must not land (walls, trees, water, outside the world). */
+  readonly isLootPointBlocked: (x: number, y: number) => boolean;
   readonly spawnWorldDrop: (request: WorldDropRequest) => void;
   readonly showMessage: (message: string) => void;
   readonly progress: {
@@ -31,7 +34,18 @@ export interface InventoryDropControllerContext {
   };
 }
 
-/** Owns persistent physical drops created explicitly from player inventory. */
+/** An enemy's loot: the items that fell when it was defeated, where it fell. */
+export interface EnemyLootRequest {
+  readonly x: number;
+  readonly y: number;
+  readonly items: readonly { readonly itemId: string; readonly count: number }[];
+}
+
+/**
+ * Owns persistent physical drops: items the player drops from the bag, and
+ * enemy loot (playtest 2026-10-01: loot lands on the ground and is picked up
+ * by walking over it, like resources). Both persist until picked up.
+ */
 export class InventoryDropController {
   constructor(private readonly ctx: InventoryDropControllerContext) {}
 
@@ -102,6 +116,49 @@ export class InventoryDropController {
       if (import.meta.env.DEV) console.warn('Inventory drop creation failed.', error);
       return false;
     }
+  }
+
+  /**
+   * Scatters an enemy's loot around where it fell. Each piece is persisted
+   * before it launches, so a failed spawn still comes back on reload; an item
+   * with no ground look goes straight into the bag.
+   */
+  dropLoot(request: EnemyLootRequest): void {
+    const destinations = scatterLootDestinations(request, request.items.length, this.ctx.dimensions.tileSize, this.ctx.isLootPointBlocked);
+    request.items.forEach((item, index) => {
+      if (!Number.isSafeInteger(item.count) || item.count <= 0) return;
+      const definition = resolveInventoryDropDefinition(item.itemId);
+      const destination = destinations[index];
+      if (!definition || !destination) {
+        this.ctx.inventory.add(item.itemId, item.count);
+        return;
+      }
+      const record = this.ctx.progress.createInventoryDrop(this.ctx.mapId, {
+        itemId: item.itemId,
+        amount: item.count,
+        objectId: definition.objectId,
+        visualId: definition.visualId,
+        x: destination.x,
+        y: destination.y,
+        origin: 'loot',
+      });
+      try {
+        this.ctx.spawnWorldDrop({
+          mode: 'launch',
+          source: { x: request.x, y: request.y },
+          destination,
+          launchIndex: index,
+          drop: {
+            objectId: definition.objectId,
+            visualId: definition.visualId,
+            instanceId: record.id,
+            initialState: { remaining: item.count, sourceInventoryDropId: record.id },
+          },
+        });
+      } catch (error) {
+        if (import.meta.env.DEV) console.warn('Enemy loot could not be spawned; it returns on reload.', error);
+      }
+    });
   }
 
   restore(): void {

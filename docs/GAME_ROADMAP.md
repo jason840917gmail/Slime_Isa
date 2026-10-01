@@ -380,6 +380,26 @@ below exist.
 - Played headless (Brave): the bag drag, belt click, tab pointer, Slime
   Basics progress, a stale-quest save loading, the defeat-screen load, the
   overlays and a spear hit on Fatty.
+- Second list, built 2026-10-01:
+  - **Loot on the ground:** an enemy's item drops scatter around where it
+    fell and are picked up by walking over them, like resource piles; they
+    count for quests on pickup and persist until picked up (bag drops' store,
+    `origin: 'loot'`). Picking your own bag drop back up no longer counts
+    for quests or berry coins, and a regrown tree or rock gives its piles
+    again (their old "collected" records were never cleared).
+  - **Mossy's quests:** Beyond the Verdant Gate (v2) asks for 5 orb-weavers
+    and 3 fangs together; A Harder Pick (v2) starts at the pickaxe. Saves
+    reconcile.
+  - **Gloop Forest:** tree walls on the west, east and south edges (openings
+    at the level-1 entry and the crystal corridor), a deep-water band on the
+    north; the Matron's nest is ringed by trees with one web-draped entrance
+    to the west, its arena carpeted with webs, egg sacs and victim cocoons.
+    Webs, hanging and ground cocoons (motion-only idle loops) dress every
+    orb-weaver thicket, the silk nook and level-1's Webwood and south meadow.
+    Art: `sheet.props.web-decor.4x3` (Magnific, 11 pieces).
+  - **Windows:** bag cells are one size, crafting shows the item, its
+    description and a materials list with have / need, the Quest Book shows
+    the quest's name and state on top, and every window's buttons are centred.
 
 ### [x] 4.7 — Credits screen and end-card component, verified 2026-09-29
 
@@ -1017,9 +1037,9 @@ materials), 8 (Forge), and 13 (progression pass).
 - Built 2026-09-30: the **weaver fang** (`weaver-fang`, icon frame 0 of
   `sheet.items.chapter-2.5x2`, stacks to 99, drops as its own pile
   `collectible.weaver-fang`). Orb-weavers drop it 60 % of the time
-  (`orb-weaver/character.json` and its scene); nothing else does. Enemy drops
-  now count as collected, so a quest can ask for "3 weaver fangs", and the drop
-  pop-up shows the item's own icon frame. Played headless on a fresh
+  (`orb-weaver/character.json` and its scene); nothing else does. Since the
+  2026-10-01 playtest enemy drops land on the ground and count as collected
+  when picked up (4.11), so a quest can ask for "3 weaver fangs". Played headless on a fresh
   playground save: two orb-weaver kills gave two fangs (plus silk and a
   shard), and five fangs saved and reloaded as one stack of five.
 - Build: the orb-weaver drops a material that the Reinforced Pickaxe (8.4)
@@ -1118,7 +1138,7 @@ materials), 8 (Forge), and 13 (progression pass).
   21 Iron Spear swings defeated her, and the quest, Squash Slam, the flag and
   the end card followed. Open: her own art and sounds (the orb-weaver sheet,
   2.6× and purple, and the spider's voice pitched down are placeholders),
-  arena dressing, the owner's fight, and tuning (standing still in her
+  the owner's fight, and tuning (standing still in her
   volleys is deadly).
 - Build: one boss on the Fatty model: a telegraphed signature attack, boss
   bar, arena leash, guarded reward, and persisted defeat. Proposal: the

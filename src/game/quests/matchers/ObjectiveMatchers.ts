@@ -47,7 +47,7 @@ function tagsIncludeAll(values: readonly string[] | undefined, tags: readonly st
 }
 
 function collectMatch(objective: CollectObjective, payload: QuestInputEvents['collectible.collected']): ObjectiveMatchResult {
-  return objective.itemIds.includes(payload.itemId) && Number.isInteger(payload.quantity) && payload.quantity > 0
+  return !payload.recovered && objective.itemIds.includes(payload.itemId) && Number.isInteger(payload.quantity) && payload.quantity > 0
     ? matched(payload.quantity)
     : { matched: false };
 }

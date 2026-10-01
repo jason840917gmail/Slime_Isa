@@ -22,10 +22,11 @@ const retry = { kind: 'forbidden' } as const;
 
 export const beyondTheVerdantGate: QuestDefinition = {
   id: 'beyond-the-verdant-gate',
-  definitionVersion: 1,
+  // v2 (playtest 2026-10-01): the weaver hunt and its fangs are one step, not two quests apart.
+  definitionVersion: 2,
   chapter: CHAPTER,
   title: 'Beyond the Verdant Gate',
-  description: 'Mossy has set up camp in Gloop Forest. Orb-weavers spin their webs all around it.',
+  description: 'Mossy has set up camp in Gloop Forest. Orb-weavers spin their webs all around it, and their fangs are hard as iron.',
   category: 'mandatory',
   prerequisites: [{ kind: 'quest-status', questId: 'the-one-eyed-guardian', status: 'completed' }],
   acquisition: { kind: 'npc', npcIds: [MOSSY] },
@@ -33,9 +34,10 @@ export const beyondTheVerdantGate: QuestDefinition = {
     {
       id: 'thin-the-weavers',
       title: 'Thin out the weavers',
-      description: 'Orb-weavers nest in the thickets around the camp. They spit webs from afar: get close and keep moving.',
+      description: 'Orb-weavers nest in the thickets around the camp. They spit webs from afar: get close and keep moving. A fallen weaver often leaves a fang on the ground.',
       objectives: [
-        { id: 'defeat-orb-weavers', kind: 'kill', label: 'Defeat orb-weavers', target: 3, enemyKinds: ['orb-weaver'] },
+        { id: 'defeat-orb-weavers', kind: 'kill', label: 'Defeat orb-weavers', target: 5, enemyKinds: ['orb-weaver'] },
+        { id: 'collect-fangs', kind: 'collect', label: 'Pick up weaver fangs', target: 3, itemIds: ['weaver-fang'] },
       ],
     },
   ],
@@ -52,11 +54,12 @@ export const beyondTheVerdantGate: QuestDefinition = {
       'You made it through the Verdant Gate! Welcome to Gloop Forest.',
       'I set up camp here, behind these old walls. The hut is ours to use: sleep in its bed and you will wake here, not back home.',
       'The trouble is the orb-weavers. They spin webs all over the forest and spit them at anything that moves. Help me thin them out?',
+      'And bring me three of their fangs. They are hard as iron, and I have a use for them.',
     ],
-    progress: ['They hang back and spit. Close the gap fast, and dodge when you see them wind up.'],
+    progress: ['They hang back and spit. Close the gap fast, and dodge when you see them wind up. Their fangs drop where they fall: just walk over them.'],
     complete: [
-      'Not bad at all! Did you see their fangs? Hard as iron, those.',
-      'Bind three of them to a stone pick and it will bite through iron ore. There is iron in this forest, south-east of the camp.',
+      'Not bad at all! And three fangs, hard as iron.',
+      'Bind them to a stone pick at the workbench and it will bite through iron ore. There is iron in this forest, south-east of the camp.',
       'One more thing. Watch: stretch out a strand of goo, catch something, and pull! Light things come to you. Heavy things pull you to them.',
     ],
   },
@@ -64,21 +67,14 @@ export const beyondTheVerdantGate: QuestDefinition = {
 
 export const aHarderPick: QuestDefinition = {
   id: 'a-harder-pick',
-  definitionVersion: 1,
+  // v2 (playtest 2026-10-01): the fangs come with the weaver hunt in Beyond the Verdant Gate.
+  definitionVersion: 2,
   title: 'A Harder Pick',
-  description: 'Stone tools cannot break iron. Gather weaver fangs, make a Reinforced Pickaxe, and mine iron ore.',
+  description: 'Stone tools cannot break iron. Bind the weaver fangs into a Reinforced Pickaxe and mine iron ore.',
   category: 'mandatory',
   prerequisites: [{ kind: 'quest-status', questId: 'beyond-the-verdant-gate', status: 'completed' }],
   acquisition: { kind: 'npc', npcIds: [MOSSY] },
   stages: [
-    {
-      id: 'gather-fangs',
-      title: 'Weaver fangs',
-      description: 'Orb-weavers sometimes leave a fang behind when they fall.',
-      objectives: [
-        { id: 'collect-fangs', kind: 'collect', label: 'Collect weaver fangs', target: 3, itemIds: ['weaver-fang'] },
-      ],
-    },
     {
       id: 'craft-pickaxe',
       title: 'A pick that bites',
@@ -105,10 +101,10 @@ export const aHarderPick: QuestDefinition = {
   dialogue: {
     offer: [
       'Stone tools just bounce off iron. You need something harder.',
-      'Bring me three weaver fangs, bind them to a pick at the workbench, then go and dig some iron.',
+      'You have the fangs: bind them to a pick at the workbench, then go and dig some iron.',
       'The ore sits in an old walled hollow south-east of here. Last I saw, its gate only opened for something heavy on the plate.',
     ],
-    progress: ['Fangs from the weavers, a pick from the bench, iron from the hollow. You will get there.'],
+    progress: ['A pick from the bench, iron from the hollow. You will get there.'],
     complete: [
       'Real iron! Now we are getting somewhere.',
       'Ore is no use without a fire hot enough to melt it, though. Slimeshire had a Forge, once.',

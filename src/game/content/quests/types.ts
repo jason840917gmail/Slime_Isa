@@ -224,6 +224,8 @@ export type QuestInputEvents = {
     readonly objectId: string;
     readonly itemId: string;
     readonly quantity: number;
+    /** A bag drop picked back up: never counts. */
+    readonly recovered?: boolean;
   };
   'enemy.died': {
     readonly enemyId: number;

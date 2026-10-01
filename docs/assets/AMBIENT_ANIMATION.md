@@ -8,7 +8,7 @@ This is the standard for idle ("ambient") motion on world objects.
 | Tier | When | How | Examples |
 | --- | --- | --- | --- |
 | 1. Frame sheet | The shape itself changes | 8-frame loop in a sprite sheet, played on the `Visual` sprite's `frame` | campfire flames, lantern flicker, stew bubbles, banner cloth, water shimmer, tree canopy sway, the animated autumn tree |
-| 2. Motion only | The object moves but keeps its shape | `AnimationPlayer` tracks on the `Visual` sprite (`rotation`, `alpha`), no new art | a hanging sign swinging, a glow pulsing |
+| 2. Motion only | The object moves but keeps its shape | `AnimationPlayer` tracks on the `Visual` sprite (`rotation`, `alpha`), no new art | a hanging sign swinging, a glow pulsing, tree webs swaying and victim cocoons struggling (`object.decoration-world-ambient.web-*`, origin at the thread so they swing from it) |
 | 3. Static | Nothing would move | nothing | fences, tables, anvils, crates, statues |
 
 Gates, doors and the grindstone get interaction clips (open, spin), not idle loops.

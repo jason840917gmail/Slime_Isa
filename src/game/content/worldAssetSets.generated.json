@@ -111,6 +111,7 @@
       "sheet.landmarks.level-1.4x1",
       "sheet.objects.chest-wooden.2x1",
       "sheet.props.gulp.8x1",
+      "sheet.props.web-decor.4x3",
       "sheet.rocks.8x3",
       "sheet.rocks.iron-ore.2x1",
       "sheet.trees.sway.16x22",
@@ -118,6 +119,7 @@
       "sheet.walls.horizontal.8x1",
       "sheet.walls.t-junctions.7x1",
       "sheet.walls.vertical.1x8",
+      "sheet.water.fish.8x5",
       "sheet.water.plants.8x5"
     ],
     "gloop-hut": [
@@ -202,6 +204,7 @@
       "sheet.landmarks.level-1.4x1",
       "sheet.objects.chest-wooden.2x1",
       "sheet.props.gulp.8x1",
+      "sheet.props.web-decor.4x3",
       "sheet.rocks.3x1",
       "sheet.rocks.8x3",
       "sheet.trees.3x1.sway.8x3",

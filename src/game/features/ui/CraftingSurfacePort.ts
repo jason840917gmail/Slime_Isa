@@ -35,7 +35,7 @@ export class CraftingSurfacePort implements UiSurfacePort {
       isOpen: () => this.isOpen(),
       close: () => this.close(),
     });
-    gameEvents.on('inventory.changed', this.publish, this);
+    gameEvents.on('inventory.changed', this.onInventoryChanged, this);
     this.resizeObserver = new ResizeObserver(this.publish);
     this.resizeObserver.observe(options.uiRoot);
   }
@@ -99,7 +99,9 @@ export class CraftingSurfacePort implements UiSurfacePort {
         };
       }),
       selectedIndex: recipe ? selectedIndex : -1,
+      detailsName: recipe ? itemRegistry.get(recipe.output.itemId)?.name ?? recipe.name : 'Nothing to craft here',
       details: recipe && quote ? detailsFor(recipe, quote) : 'No recipes available',
+      materials: quote ? materialRows(quote) : [],
       quantity: quote ? `Amount: ${quote.requestedQuantity}  ·  MAX ${quote.maxCraftable}` : 'Amount: 0',
       status: this.status ?? (recipe && quote?.status && quote.status !== 'ready' ? reasonText(quote.status, recipe, this.site, quote) : ''),
       statusColor: this.statusColor ?? STATUS_COLORS.hint,
@@ -161,7 +163,7 @@ export class CraftingSurfacePort implements UiSurfacePort {
     if (this.stopped) return;
     this.close();
     this.stopped = true;
-    gameEvents.off('inventory.changed', this.publish, this);
+    gameEvents.off('inventory.changed', this.onInventoryChanged, this);
     this.resizeObserver.disconnect();
     this.modalHandle.unregister();
     this.listeners.clear();
@@ -176,6 +178,15 @@ export class CraftingSurfacePort implements UiSurfacePort {
     return this.options.service.quote(recipe, quantity, this.site);
   }
 
+  /** New materials answer a refused craft: its "Missing ..." line gives way to the live quote. */
+  private readonly onInventoryChanged = (): void => {
+    if (this.statusColor === STATUS_COLORS.refused) {
+      this.status = undefined;
+      this.statusColor = undefined;
+    }
+    this.publish();
+  };
+
   private readonly publish = (): void => {
     if (this.stopped) return;
     const model = this.snapshot('crafting-ui');
@@ -184,19 +195,24 @@ export class CraftingSurfacePort implements UiSurfacePort {
 }
 
 function detailsFor(recipe: RecipeDef, quote: CraftQuote): string {
-  const item = itemRegistry.get(recipe.output.itemId);
-  return [
-    item?.name ?? recipe.name,
-    recipe.description,
-    '',
-    ...quote.stats.map((stat) => `${stat.label}: ${stat.value}`),
-    '',
-    'MATERIALS NEEDED',
-    ...quote.requirements.map((cost) => {
-      const name = itemRegistry.get(cost.itemId)?.name ?? cost.itemId;
-      return `${name}: ${cost.available} / ${cost.required}${cost.missing > 0 ? `  ✗ need ${cost.missing} more` : '  ✓'}`;
-    }),
-  ].join('\n');
+  const stats = quote.stats.map((stat) => `${stat.label}: ${stat.value}`);
+  return [recipe.description, ...(stats.length ? ['', stats.join('  ·  ')] : [])].join('\n');
+}
+
+/** One row per material: its icon, what the bag holds of what the craft needs; short ones in red. */
+function materialRows(quote: CraftQuote): JsonValue[] {
+  return quote.requirements.map((cost) => {
+    const item = itemRegistry.get(cost.itemId);
+    const name = item?.name ?? cost.itemId;
+    return {
+      id: `material-${cost.itemId}`,
+      label: `${name}\n${cost.available} / ${cost.required}${cost.missing > 0 ? `  (need ${cost.missing} more)` : '  ✓'}`,
+      metadata: {
+        ...(item ? { iconKey: item.icon, iconFrame: item.iconFrame ?? 0, showLabel: true } : {}),
+        ...(cost.missing > 0 ? { short: true } : {}),
+      },
+    };
+  });
 }
 
 /** The short state under a recipe's name in the list. */

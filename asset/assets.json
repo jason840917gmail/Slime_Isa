@@ -66,6 +66,7 @@
       "effect.enemy.worm-brawler-hit",
       "character.enemy.slime-spider",
       "character.enemy.meadow-spider",
+      "sheet.props.web-decor.4x3",
       "character.boss.fatty-one-eye",
       "sheet.objects.chest-wooden.2x1",
       "sheet.items.keys.5x4",
@@ -1118,6 +1119,40 @@
         "decoration",
         "animated"
       ],
+      "status": "ready"
+    },
+    "sheet.props.web-decor.4x3": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/props/256x256-tile_4x3-web-decor.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 4,
+          "rows": 3,
+          "count": 11
+        },
+        "expect": {
+          "w": 1024,
+          "h": 768
+        }
+      },
+      "runtime": {
+        "textureKey": "props-web-decor-4x3"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "object",
+        "prop",
+        "decoration"
+      ],
+      "notes": "Spider web decorations (frame 0-1 ground webs, 2-3 tree webs, 4-6 hanging victim cocoons, 7-8 ground victim cocoons, 9-10 egg sacs) generated with Magnific GPT-2 on #FF00FF; sources in asset/Originals/props/webs/, packed by scripts/props/pack-web-decor.py; scenes by scripts/props/generate-web-decor-scenes.mjs.",
       "status": "ready"
     },
     "sheet.props.gulp.8x1": {

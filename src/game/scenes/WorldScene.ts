@@ -133,6 +133,8 @@ const LASH_STANDOFF_PX = 30;
 const HINT_DODGE_ENEMY_RANGE_PX = 360;
 /** The crafting hint appears once the first workbench is affordable. */
 const HINT_CRAFTING_WOOD = 40;
+/** Enemy loot owns no authored cell: every authored object blocks where it lands. */
+const LOOT_SOURCE_ID = '__enemy-loot__';
 /** Story flag set once the player has seen what the menu tabs are. */
 const MENU_TABS_COACH_FLAG = 'hint.menu-tabs';
 /** Menu windows (modal ids) that tutorial quests ask the player to open. */
@@ -1362,6 +1364,7 @@ export class WorldScene extends Phaser.Scene {
       progress: worldProgress,
       publisher: COLLECTIBLE_EVENTS,
       showMessage: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
+      itemName: (itemId) => itemRegistry.get(itemId)?.name ?? itemId,
       onStateChanged: (change) => {
         this.resourceNodes?.onCollectibleStateChanged(change);
         this.inventoryDrops?.onCollectibleStateChanged(change);
@@ -1385,6 +1388,10 @@ export class WorldScene extends Phaser.Scene {
       getPlayerAnchor: () => ({ x: this.player.x, y: this.player.y }),
       getFacing: () => this.facingDirection(),
       inspectCell: (itemId, cellX, cellY) => this.inspectInventoryDropCell(itemId, cellX, cellY),
+      isLootPointBlocked: (x, y) => {
+        const { tileSize } = this.worldDimensions;
+        return this.isResourceDropCellBlocked(Math.floor(x / tileSize), Math.floor((y - 1) / tileSize), LOOT_SOURCE_ID);
+      },
       spawnWorldDrop: (request) => this.spawnWorldDrop(request),
       showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true, 1800),
       progress: worldProgress,
@@ -2016,43 +2023,6 @@ export class WorldScene extends Phaser.Scene {
     playerInventory.remove(itemId, 1);
   }
 
-  private spawnItemDropIcon(x: number, y: number, itemId: string, count: number, index: number, total: number): void {
-    const item = itemRegistry.get(itemId);
-    const texture = item?.icon;
-    const label = item?.name ?? itemId;
-    const offsetX = (index - (total - 1) / 2) * 30;
-
-    if (texture && this.textures.exists(texture)) {
-      const icon = this.add.image(x, y, texture, item?.iconFrame ?? 0)
-        .setDepth(resolveWorldDepth(y, { band: 'reveal-effects', stableId: `item-drop:${itemId}:${index}` }).depth)
-        .setAlpha(0);
-      // Icon sheets differ in cell size (32 to 128 px); every drop pops to about 50 px.
-      const unit = 32 / Math.max(icon.frame.width, icon.frame.height, 1);
-      icon.setScale(1.35 * unit);
-      this.tweens.add({
-        targets: icon,
-        x: x + offsetX,
-        y: y - 34,
-        alpha: { from: 0, to: 1 },
-        scale: { from: 0.8 * unit, to: 1.55 * unit },
-        duration: 180,
-        ease: 'Back.Out',
-        onComplete: () => {
-          this.tweens.add({
-            targets: icon,
-            y: y - 54,
-            alpha: 0,
-            duration: 650,
-            ease: 'Sine.In',
-            onComplete: () => icon.destroy(),
-          });
-        },
-      });
-    }
-
-    floatingText.spawn(this, x + offsetX, y - 64, `+${count} ${label}`, 'green');
-  }
-
   /**
    * Controls that also work over an open window: the menu key and zoom. The
    * player's own actions (moving, both mouse buttons, the wheel, abilities)
@@ -2273,9 +2243,7 @@ export class WorldScene extends Phaser.Scene {
       canAttack: () => !this.actionLocked && !this.paused && !this.healthSystem?.isDead(),
       nowMs: () => this.simulationNow(),
       healPlayer: (amount) => this.healthSystem?.heal(amount) ?? 0,
-      spawnItemDropIcon: (x, y, itemId, count, index, total) => {
-        this.spawnItemDropIcon(x, y, itemId, count, index, total);
-      },
+      dropEnemyLoot: (request) => this.inventoryDrops?.dropLoot(request),
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
       spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
       mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,

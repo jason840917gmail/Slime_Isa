@@ -28,7 +28,7 @@ export class CollectibleReactionController implements Disposable {
   }
 
   private onCollected = (payload: CollectibleCollectedPayload): void => {
-    if (payload.itemId !== 'purple-berry-mat') return;
+    if (payload.itemId !== 'purple-berry-mat' || payload.recovered) return;
     this.ctx.playEatAnimation();
     this.ctx.awardCoins(5 * payload.quantity);
     this.ctx.flashCoins();

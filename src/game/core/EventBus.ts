@@ -81,6 +81,8 @@ export interface CollectibleCollectedPayload {
   readonly objectId: string;
   readonly itemId: string;
   readonly quantity: number;
+  /** The player picked their own bag drop back up: it was already theirs, so quests and rewards ignore it. */
+  readonly recovered?: boolean;
 }
 
 type Handler<T extends keyof GameEvents> = (payload: GameEvents[T]) => void;

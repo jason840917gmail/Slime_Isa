@@ -59,6 +59,8 @@ export interface InventoryWorldDropProgressData {
   readonly visualId: string;
   readonly x: number;
   readonly y: number;
+  /** `loot` when an enemy dropped it (picking it up counts as collecting); absent for the player's own bag drops. */
+  readonly origin?: 'loot';
 }
 
 export interface BossCampProgressData {

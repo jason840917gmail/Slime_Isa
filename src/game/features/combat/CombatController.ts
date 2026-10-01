@@ -13,7 +13,6 @@ import {
 import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
 import { UI_THEME } from '../../presentation/theme';
 import { getStats } from '../../systems/PlayerStats';
-import { itemRegistry, playerInventory } from '../../systems/Inventory';
 import { floatingText } from '../../ui/FloatingText';
 import { gameFeel } from '../feel/sharedFeel';
 import { particleFx } from '../feel/ParticlePresets';
@@ -49,7 +48,8 @@ export interface CombatControllerContext {
   setActionLocked: (locked: boolean) => void;
   canAttack: () => boolean;
   healPlayer: (amount: number) => number;
-  spawnItemDropIcon: (x: number, y: number, itemId: string, count: number, index: number, total: number) => void;
+  /** Drops an enemy's loot on the ground where it fell, to be picked up by walking over it. */
+  dropEnemyLoot: (request: Readonly<{ x: number; y: number; items: readonly { itemId: string; count: number }[] }>) => void;
   createManagedEnemy: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   spawnManagedEffect: ManagedWorldEffectSpawner;
   mountManagedWeapon: (weaponId: string) => boolean;
@@ -293,24 +293,10 @@ export class CombatController {
       floatingText.spawn(scene, enemy.x, enemy.y - 20, `+${drop.coins}c`, 'yellow');
     }
 
-    const itemDrops = (drop.items ?? []).filter((item) => Math.random() < item.chance);
-    itemDrops.forEach((item, index) => {
-      const added = playerInventory.add(item.itemId, item.count ?? 1);
-      if (added <= 0) {
-        // Never lose a drop silently: say the bag had no room for it.
-        const name = itemRegistry.get(item.itemId)?.name ?? item.itemId;
-        floatingText.spawn(scene, enemy.x, enemy.y - 44 - index * 18, `Bag full: ${name} lost`, 'white', true);
-        return;
-      }
-      this.ctx.spawnItemDropIcon(enemy.x, enemy.y, item.itemId, added, index, itemDrops.length);
-      // Drops go straight into the bag, so they count as collected ("Collect 3 weaver fangs").
-      gameEvents.emit('collectible.collected', {
-        mapId: this.ctx.areaId,
-        instanceId: `enemy-${enemy.enemyId}-drop-${index + 1}`,
-        objectId: `enemy-drop.${enemy.config.id}`,
-        itemId: item.itemId,
-        quantity: added,
-      });
-    });
+    // Item loot falls on the ground; walking over it picks it up and counts it for quests then.
+    const items = (drop.items ?? [])
+      .filter((item) => Math.random() < item.chance)
+      .map((item) => ({ itemId: item.itemId, count: item.count ?? 1 }));
+    if (items.length > 0) this.ctx.dropEnemyLoot({ x: enemy.x, y: enemy.y, items });
   }
 }

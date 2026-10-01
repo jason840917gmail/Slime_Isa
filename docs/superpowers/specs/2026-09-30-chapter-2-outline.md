@@ -90,7 +90,9 @@ Notes:
   started automatically (an automatic first stage "talk to Mossy" would be
   filled in at once from Chapter 1, where the player already talked to
   Mossy). It has no rest objective, and it also teaches the Reinforced Pickaxe
-  recipe, so Q2 starts with the fangs. Q3 teaches the Iron Spear and Q4 the
+  recipe, so Q2 starts with the fangs. After the 2026-10-01 playtest Q1 (v2)
+  asks for 5 orb-weavers and 3 fangs together and Q2 (v2) starts at the
+  pickaxe: the hunt and its fangs belong to one step. Q3 teaches the Iron Spear and Q4 the
   Iron Axe. Q5's stream is at the north edge.
 - **No Workshop in Chapter 2** (changed 2026-09-30). Question 1 had made The
   Old Workshop required; the owner then moved the Workshop after Chapter 2,

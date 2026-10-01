@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "sceneId": "object.decoration-world-ambient.web-cocoon-hanging-01",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "web-cocoon-hanging-01",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "decoration-world-ambient.web-cocoon-hanging-01.sprite"
+        },
+        "frame": 4,
+        "origin": [
+          0.5,
+          0
+        ],
+        "scale": [
+          0.36,
+          0.36
+        ],
+        "visualOffset": [
+          0,
+          -150
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "decoration-world-ambient.web-cocoon-hanging-01.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "decoration-world-ambient.web-cocoon-hanging-01.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.props.web-decor.4x3",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "decoration-world-ambient.web-cocoon-hanging-01.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 4,
+          "framesPerSecond": 20,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": -0.05,
+                  "transition": "ease-in-out"
+                },
+                {
+                  "at": 20,
+                  "value": 0.05,
+                  "transition": "ease-in-out"
+                },
+                {
+                  "at": 40,
+                  "value": -0.05
+                },
+                {
+                  "at": 43,
+                  "value": 0.11
+                },
+                {
+                  "at": 46,
+                  "value": -0.09
+                },
+                {
+                  "at": 49,
+                  "value": 0.1
+                },
+                {
+                  "at": 52,
+                  "value": -0.07
+                },
+                {
+                  "at": 55,
+                  "value": 0.05,
+                  "transition": "ease-in-out"
+                },
+                {
+                  "at": 68,
+                  "value": -0.03,
+                  "transition": "ease-in-out"
+                },
+                {
+                  "at": 80,
+                  "value": -0.05
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -36,3 +36,21 @@ export const questReconciliationRegistry = new QuestReconciliationRegistry();
 
 // Worm Trouble v2: five worm brawlers became three worm swordsmen.
 questReconciliationRegistry.register('worm-trouble', 1, 2, clampProgressToTargets);
+
+// Beyond the Verdant Gate v2: five weavers and three fangs (the fangs moved here from A Harder Pick).
+questReconciliationRegistry.register('beyond-the-verdant-gate', 1, 2, clampProgressToTargets);
+
+// A Harder Pick v2: no fang step any more; a run gathering fangs moves on to the pickaxe.
+questReconciliationRegistry.register('a-harder-pick', 1, 2, (state, definition) => {
+  const { 'collect-fangs': _fangs, ...progress } = state.progress;
+  const { 'collect-fangs': _facts, ...consumedFactIds } = state.consumedFactIds ?? {};
+  const moved = (stageId: string | null | undefined) => (stageId === 'gather-fangs' ? 'craft-pickaxe' : stageId);
+  return {
+    ...state,
+    definitionVersion: definition.definitionVersion,
+    activeStageId: moved(state.activeStageId) ?? null,
+    progress,
+    consumedFactIds,
+    ...(state.resumeStageId ? { resumeStageId: moved(state.resumeStageId)! } : {}),
+  };
+});

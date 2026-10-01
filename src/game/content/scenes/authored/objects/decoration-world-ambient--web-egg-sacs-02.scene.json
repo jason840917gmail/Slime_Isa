@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "sceneId": "object.decoration-world-ambient.web-egg-sacs-02",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "web-egg-sacs-02",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "decoration-world-ambient.web-egg-sacs-02.sprite"
+        },
+        "frame": 10,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.42,
+          0.42
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "decoration-world-ambient.web-egg-sacs-02.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.props.web-decor.4x3",
+      "frameWidth": 256,
+      "frameHeight": 256
+    }
+  ]
+}

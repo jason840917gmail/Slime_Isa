@@ -1070,11 +1070,24 @@
       }
     },
     {
+      "id": "webs",
+      "name": "Webs",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 62,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
       "id": "sfx-music-player",
       "name": "MusicPlayer",
       "type": "AudioStreamPlayer",
       "parentId": "world",
-      "order": 62,
+      "order": 63,
       "properties": {
         "stream": {
           "resourceId": "music.level-1-home-town"
@@ -1091,7 +1104,7 @@
       "name": "Ambience",
       "type": "AudioStreamPlayer",
       "parentId": "world",
-      "order": 63,
+      "order": 64,
       "properties": {
         "stream": {
           "resourceId": "sfx.world.meadow-ambience"
@@ -55499,6 +55512,595 @@
           "value": [
             1190,
             1068
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "web-ground-001",
+      "name": "web-ground-001",
+      "sceneId": "object.decoration-world-ambient.web-ground-01",
+      "parentNodeId": "webs",
+      "order": 0,
+      "persistenceKey": "level-1.web-ground-001",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2470,
+            300
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-ground-002",
+      "name": "web-ground-002",
+      "sceneId": "object.decoration-world-ambient.web-ground-01",
+      "parentNodeId": "webs",
+      "order": 1,
+      "persistenceKey": "level-1.web-ground-002",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2610,
+            340
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            0.45,
+            0.45
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-ground-003",
+      "name": "web-ground-003",
+      "sceneId": "object.decoration-world-ambient.web-ground-01",
+      "parentNodeId": "webs",
+      "order": 2,
+      "persistenceKey": "level-1.web-ground-003",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2380,
+            360
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            0.42,
+            0.42
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-ground-004",
+      "name": "web-ground-004",
+      "sceneId": "object.decoration-world-ambient.web-ground-01",
+      "parentNodeId": "webs",
+      "order": 3,
+      "persistenceKey": "level-1.web-ground-004",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2700,
+            420
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-eggs-005",
+      "name": "web-eggs-005",
+      "sceneId": "object.decoration-world-ambient.web-egg-sacs-02",
+      "parentNodeId": "webs",
+      "order": 4,
+      "persistenceKey": "level-1.web-eggs-005",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2560,
+            250
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "web-victim-006",
+      "name": "web-victim-006",
+      "sceneId": "object.decoration-world-ambient.web-cocoon-ground-01",
+      "parentNodeId": "webs",
+      "order": 5,
+      "persistenceKey": "level-1.web-victim-006",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2440,
+            410
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-tree-007",
+      "name": "web-tree-007",
+      "sceneId": "object.decoration-world-ambient.web-tree-02",
+      "parentNodeId": "webs",
+      "order": 6,
+      "persistenceKey": "level-1.web-tree-007",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            184
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            1.8,
+            -117.56
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-cocoon-008",
+      "name": "web-cocoon-008",
+      "sceneId": "object.decoration-world-ambient.web-cocoon-hanging-01",
+      "parentNodeId": "webs",
+      "order": 7,
+      "persistenceKey": "level-1.web-cocoon-008",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2548,
+            185
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            0,
+            -140.06
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "web-tree-009",
+      "name": "web-tree-009",
+      "sceneId": "object.decoration-world-ambient.web-tree-02",
+      "parentNodeId": "webs",
+      "order": 8,
+      "persistenceKey": "level-1.web-tree-009",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2464,
+            184
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            1.9,
+            -117.49
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-cocoon-010",
+      "name": "web-cocoon-010",
+      "sceneId": "object.decoration-world-ambient.web-cocoon-hanging-01",
+      "parentNodeId": "webs",
+      "order": 9,
+      "persistenceKey": "level-1.web-cocoon-010",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2444,
+            185
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            0,
+            -139.98
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "web-tree-011",
+      "name": "web-tree-011",
+      "sceneId": "object.decoration-world-ambient.web-tree-02",
+      "parentNodeId": "webs",
+      "order": 10,
+      "persistenceKey": "level-1.web-tree-011",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2592,
+            184
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            1.61,
+            -117.42
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-tree-012",
+      "name": "web-tree-012",
+      "sceneId": "object.decoration-world-ambient.web-tree-02",
+      "parentNodeId": "webs",
+      "order": 11,
+      "persistenceKey": "level-1.web-tree-012",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            120
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            1.71,
+            -117.34
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-tree-013",
+      "name": "web-tree-013",
+      "sceneId": "object.decoration-world-ambient.web-tree-02",
+      "parentNodeId": "webs",
+      "order": 12,
+      "persistenceKey": "level-1.web-tree-013",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2464,
+            120
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            1.43,
+            -117.27
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-ground-014",
+      "name": "web-ground-014",
+      "sceneId": "object.decoration-world-ambient.web-ground-02",
+      "parentNodeId": "webs",
+      "order": 13,
+      "persistenceKey": "level-1.web-ground-014",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1720,
+            3150
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            0.45,
+            0.45
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-ground-015",
+      "name": "web-ground-015",
+      "sceneId": "object.decoration-world-ambient.web-ground-02",
+      "parentNodeId": "webs",
+      "order": 14,
+      "persistenceKey": "level-1.web-ground-015",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1830,
+            3210
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-eggs-016",
+      "name": "web-eggs-016",
+      "sceneId": "object.decoration-world-ambient.web-egg-sacs-02",
+      "parentNodeId": "webs",
+      "order": 15,
+      "persistenceKey": "level-1.web-eggs-016",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1790,
+            3110
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-tree-017",
+      "name": "web-tree-017",
+      "sceneId": "object.decoration-world-ambient.web-tree-02",
+      "parentNodeId": "webs",
+      "order": 16,
+      "persistenceKey": "level-1.web-tree-017",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1888,
+            3320
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            -8.25,
+            -119.23
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "web-cocoon-018",
+      "name": "web-cocoon-018",
+      "sceneId": "object.decoration-world-ambient.web-cocoon-hanging-01",
+      "parentNodeId": "webs",
+      "order": 17,
+      "persistenceKey": "level-1.web-cocoon-018",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1908,
+            3321
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            0,
+            -148.18
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "web-tree-019",
+      "name": "web-tree-019",
+      "sceneId": "object.decoration-world-ambient.web-tree-02",
+      "parentNodeId": "webs",
+      "order": 18,
+      "persistenceKey": "level-1.web-tree-019",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1824,
+            2552
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            -8.16,
+            -119.16
           ]
         }
       ]
