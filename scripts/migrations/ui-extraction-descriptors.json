@@ -840,6 +840,16 @@
           "nodePath": "..",
           "property": "offsetMax",
           "model": "offsetMax"
+        },
+        {
+          "nodePath": "../Scroll/Content/DetailsName",
+          "property": "text",
+          "model": "detailsName"
+        },
+        {
+          "nodePath": "../Scroll/Content/Materials",
+          "property": "items",
+          "model": "materials"
         }
       ],
       "actions": {
@@ -947,6 +957,34 @@
           "signal": "item_selected"
         },
         {
+          "id": "details-name",
+          "name": "DetailsName",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              66
+            ],
+            "offsetMax": [
+              -20,
+              96
+            ],
+            "text": "",
+            "tone": "warning",
+            "fontSize": 22,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
           "id": "details",
           "name": "Details",
           "type": "Label",
@@ -972,6 +1010,62 @@
             "tone": "muted",
             "fontSize": 13
           }
+        },
+        {
+          "id": "materials-title",
+          "name": "MaterialsTitle",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              202
+            ],
+            "offsetMax": [
+              -20,
+              226
+            ],
+            "text": "You need",
+            "tone": "warning",
+            "fontSize": 15,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "materials",
+          "name": "Materials",
+          "type": "ItemList",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              230
+            ],
+            "offsetMax": [
+              -20,
+              392
+            ],
+            "columns": 2,
+            "gap": 6,
+            "styleClass": "crafting-materials",
+            "ariaLabel": "Materials needed"
+          },
+          "parentId": "content"
         },
         {
           "id": "status",
@@ -2591,6 +2685,16 @@
           "nodePath": "..",
           "property": "offsetMax",
           "model": "offsetMax"
+        },
+        {
+          "nodePath": "../Scroll/Content/DetailsName",
+          "property": "text",
+          "model": "detailsName"
+        },
+        {
+          "nodePath": "../Scroll/Content/DetailsStatus",
+          "property": "text",
+          "model": "detailsStatus"
         }
       ],
       "actions": {
@@ -2691,6 +2795,62 @@
           },
           "handler": "on_item_selected",
           "signal": "item_selected"
+        },
+        {
+          "id": "details-name",
+          "name": "DetailsName",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.44,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              66
+            ],
+            "offsetMax": [
+              -20,
+              96
+            ],
+            "text": "",
+            "tone": "warning",
+            "fontSize": 22,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "details-status",
+          "name": "DetailsStatus",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.44,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              98
+            ],
+            "offsetMax": [
+              -20,
+              120
+            ],
+            "text": "",
+            "tone": "accent",
+            "fontSize": 14,
+            "fontWeight": 700
+          },
+          "parentId": "content"
         },
         {
           "id": "details",

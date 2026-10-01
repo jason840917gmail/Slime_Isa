@@ -25,6 +25,8 @@ const { CollectibleEventChannel } = await vite.ssrLoadModule('/src/game/features
 const { CollectibleReactionController } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleReactionController.ts');
 const { InventoryDropController } = await vite.ssrLoadModule('/src/game/features/collectibles/InventoryDropController.ts');
 const { findInventoryDropDestination } = await vite.ssrLoadModule('/src/game/features/collectibles/InventoryDropPlacement.ts');
+const { scatterLootDestinations } = await vite.ssrLoadModule('/src/game/features/collectibles/LootDropPlacement.ts');
+const { getEnemyGameplay, getEnemyPackages } = await vite.ssrLoadModule('/src/game/content/characters/CharacterCatalog.ts');
 const { resolveInventoryDropDefinition } = await vite.ssrLoadModule('/src/game/content/items/InventoryDropCatalog.ts');
 const { getBaseItemDefinitions } = await vite.ssrLoadModule('/src/game/content/items/ItemCatalog.ts');
 const {
@@ -177,6 +179,7 @@ function inventoryDropHarness({ blocked = false, throwOnSpawn = false, throwOnPe
     getPlayerAnchor: () => ({ x: 160, y: 192 }),
     getFacing: () => 'right',
     inspectCell: () => ({ kind: blocked ? 'blocked' : 'open' }),
+    isLootPointBlocked: () => blocked,
     spawnWorldDrop(request) {
       if (throwOnSpawn) throw new Error('spawn failed');
       requests.push(request);
@@ -187,6 +190,67 @@ function inventoryDropHarness({ blocked = false, throwOnSpawn = false, throwOnPe
   });
   return { controller, slots, requests, messages, progress };
 }
+
+test('enemy loot lands around the corpse, persists as loot before it launches, and comes back on reload', () => {
+  const state = inventoryDropHarness();
+  state.controller.dropLoot({ x: 400, y: 400, items: [{ itemId: 'weaver-fang', count: 1 }, { itemId: 'silk-clump', count: 2 }] });
+  assert.deepEqual(state.slots, [{ itemId: 'wood', count: 12 }], 'loot never goes straight into the bag');
+  const records = state.progress.inventoryDrops('level-1');
+  assert.deepEqual(records.map((record) => [record.itemId, record.amount, record.origin]), [['weaver-fang', 1, 'loot'], ['silk-clump', 2, 'loot']]);
+  assert.deepEqual(state.requests.map((request) => [request.mode, request.launchIndex, request.source.x, request.drop.instanceId]), [
+    ['launch', 0, 400, 'inventory-drop-1'],
+    ['launch', 1, 400, 'inventory-drop-2'],
+  ]);
+  const [first, second] = state.requests.map((request) => request.destination);
+  assert.notDeepEqual(first, second, 'pieces spread out');
+  for (const point of [first, second]) assert.ok(Math.hypot(point.x - 400, point.y - 400) < 64, 'within a tile of the corpse');
+  state.requests.length = 0;
+  state.controller.restore();
+  assert.deepEqual(state.requests.map((request) => [request.mode, request.drop.instanceId]), [['settled', 'inventory-drop-1'], ['settled', 'inventory-drop-2']]);
+});
+
+test('loot scatter is deterministic and falls on the corpse when every point is blocked', () => {
+  const free = scatterLootDestinations({ x: 100, y: 100 }, 3, 64, () => false);
+  assert.deepEqual(free, scatterLootDestinations({ x: 100, y: 100 }, 3, 64, () => false));
+  assert.equal(new Set(free.map((point) => `${point.x},${point.y}`)).size, 3);
+  assert.deepEqual(scatterLootDestinations({ x: 100, y: 100 }, 2, 64, () => true), [{ x: 100, y: 100 }, { x: 100, y: 100 }]);
+  const westBlocked = scatterLootDestinations({ x: 100, y: 100 }, 4, 64, (x) => x < 100);
+  assert.ok(westBlocked.every((point) => point.x >= 100), 'blocked points are skipped');
+});
+
+test('every item an enemy can drop has a ground pile to pick up', () => {
+  for (const { character } of getEnemyPackages()) {
+    for (const item of getEnemyGameplay(character).drop?.items ?? []) {
+      assert.ok(resolveInventoryDropDefinition(item.itemId), `${character.characterId} drops ${item.itemId}, which needs a world drop`);
+    }
+  }
+});
+
+test('picking up enemy loot counts; picking your own bag drop back up is marked recovered', () => {
+  const drops = new Map([['inventory-drop-1', { origin: 'loot' }], ['inventory-drop-2', {}]]);
+  const published = [];
+  const controller = new CollectibleController({
+    scene: { time: { now: 0 } },
+    mapId: 'level-1',
+    transaction: { collectWorldItem: (input) => input.remaining },
+    progress: {
+      collectibleState: () => undefined,
+      inventoryDrop: (_mapId, dropId) => drops.get(dropId),
+    },
+    publisher: { publishCollected: (payload) => published.push(payload) },
+    showMessage: () => {},
+    itemName: (itemId) => (itemId === 'weaver-fang' ? 'Weaver Fang' : itemId),
+  });
+  for (const [instanceId, itemId] of [['inventory-drop-1', 'weaver-fang'], ['inventory-drop-2', 'wood']]) {
+    controller.ensureInitialized('level-1', instanceId, 1);
+    controller.pickup({
+      mapId: 'level-1', instanceId, objectId: `collectible.${itemId}`, itemId, requested: 1,
+      sourceInventoryDropId: instanceId, collectorAreaNodeId: 'player', x: 0, y: 0,
+    });
+  }
+  assert.equal(published[0].recovered, undefined, 'loot counts as collected');
+  assert.equal(published[1].recovered, true, 'a bag drop picked back up does not');
+});
 
 test('every current non-equipment item has an explicit valid world-drop presentation', () => {
   // Furniture is placed as its own scene, never dropped as a pile.

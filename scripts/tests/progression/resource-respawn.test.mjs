@@ -61,3 +61,16 @@ test('world progress keeps a node\'s regrowth time while its piles change, and f
   progress.clearResourceState('level-1', 'tree-1');
   assert.equal(progress.resourceState('level-1', 'tree-1'), undefined);
 });
+
+test('a regrown node forgets its collected piles, so the next harvest gives its wood again', () => {
+  const progress = new WorldProgress();
+  progress.load({ discoveredAreas: [], defeatedBossIds: [], completedDungeonIds: [], maps: {} });
+  progress.setResourceState('level-1', 'tree-1', { stage: 'depleted', value: 0, respawnReadyAtEpochMs: 1 });
+  progress.setCollectibleState('level-1', 'tree-1-drop-1', { remaining: 0, sourceResourceInstanceId: 'tree-1' });
+  progress.setCollectibleState('level-1', 'tree-1-drop-2', { remaining: 0 });
+  progress.setCollectibleState('level-1', 'tree-10-drop-1', { remaining: 0, sourceResourceInstanceId: 'tree-10' });
+  progress.clearResourceState('level-1', 'tree-1');
+  assert.equal(progress.collectibleState('level-1', 'tree-1-drop-1'), undefined);
+  assert.equal(progress.collectibleState('level-1', 'tree-1-drop-2'), undefined);
+  assert.deepEqual(progress.collectibleState('level-1', 'tree-10-drop-1'), { remaining: 0, sourceResourceInstanceId: 'tree-10' }, 'other nodes keep theirs');
+});

@@ -424,3 +424,26 @@ test('saves from before Worm Trouble v2 keep their progress within the new targe
   assert.equal(quest.progress['defeat-worms'], 3);
   assert.equal(quest.readyToTurnIn, true);
 });
+
+test('Beyond the Verdant Gate asks for the weavers and their fangs together; older runs move on', () => {
+  const service = new QuestService({ catalog: getQuestDefinitions(), ...dependencies() });
+  const states = getQuestDefinitions().map((definition) => ({ questId: definition.id, definitionVersion: definition.definitionVersion, status: 'locked', activeStageId: null, progress: {}, rewardsGranted: false }));
+  const at = (questId) => states.findIndex((state) => state.questId === questId);
+  states[at('beyond-the-verdant-gate')] = { questId: 'beyond-the-verdant-gate', definitionVersion: 1, status: 'active', activeStageId: 'thin-the-weavers', progress: { 'defeat-orb-weavers': 3 }, rewardsGranted: false };
+  states[at('a-harder-pick')] = { questId: 'a-harder-pick', definitionVersion: 1, status: 'active', activeStageId: 'gather-fangs', progress: { 'collect-fangs': 2 }, consumedFactIds: { 'collect-fangs': [] }, rewardsGranted: false };
+  service.load(states);
+
+  const hunt = service.get('beyond-the-verdant-gate');
+  assert.equal(hunt.definitionVersion, 2);
+  assert.equal(hunt.readyToTurnIn, false, 'three weavers are no longer enough on their own');
+  for (let enemyId = 0; enemyId < 2; enemyId += 1) service.handleEvent('enemy.died', { enemyId, areaId: 'gloop-forest', kind: 'orb-weaver' });
+  service.handleEvent('collectible.collected', { mapId: 'gloop-forest', instanceId: 'inventory-drop-1', objectId: 'collectible.weaver-fang', itemId: 'weaver-fang', quantity: 1, recovered: true });
+  assert.equal(service.get('beyond-the-verdant-gate').progress['collect-fangs'] ?? 0, 0, 'a bag drop picked back up does not count');
+  service.handleEvent('collectible.collected', { mapId: 'gloop-forest', instanceId: 'inventory-drop-2', objectId: 'collectible.weaver-fang', itemId: 'weaver-fang', quantity: 3 });
+  assert.equal(service.get('beyond-the-verdant-gate').readyToTurnIn, true, 'five weavers and three fangs');
+
+  const pick = service.get('a-harder-pick');
+  assert.equal(pick.definitionVersion, 2);
+  assert.equal(pick.activeStageId, 'craft-pickaxe', 'a run gathering fangs moves on to the pickaxe');
+  assert.equal(pick.progress['collect-fangs'], undefined, 'the old fang count is dropped');
+});

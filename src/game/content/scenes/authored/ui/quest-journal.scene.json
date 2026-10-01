@@ -134,11 +134,69 @@
       }
     },
     {
+      "id": "details-name",
+      "name": "DetailsName",
+      "type": "Label",
+      "parentId": "content",
+      "properties": {
+        "anchorMin": [
+          0.44,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          66
+        ],
+        "offsetMax": [
+          -20,
+          96
+        ],
+        "text": "",
+        "tone": "warning",
+        "fontSize": 22,
+        "fontWeight": 700
+      },
+      "order": 2
+    },
+    {
+      "id": "details-status",
+      "name": "DetailsStatus",
+      "type": "Label",
+      "parentId": "content",
+      "properties": {
+        "anchorMin": [
+          0.44,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          98
+        ],
+        "offsetMax": [
+          -20,
+          120
+        ],
+        "text": "",
+        "tone": "accent",
+        "fontSize": 14,
+        "fontWeight": 700
+      },
+      "order": 3
+    },
+    {
       "id": "details",
       "name": "Details",
       "type": "Label",
       "parentId": "content",
-      "order": 2,
+      "order": 4,
       "properties": {
         "anchorMin": [
           0.44,
@@ -150,15 +208,15 @@
         ],
         "offsetMin": [
           0,
-          66
+          126
         ],
         "offsetMax": [
           -20,
           -132
         ],
         "wrap": true,
-        "tone": "muted",
-        "fontSize": 13
+        "tone": "default",
+        "fontSize": 14
       }
     },
     {
@@ -166,7 +224,7 @@
       "name": "Status",
       "type": "Label",
       "parentId": "content",
-      "order": 3,
+      "order": 5,
       "properties": {
         "anchorMin": [
           0.44,
@@ -186,7 +244,7 @@
         ],
         "wrap": true,
         "tone": "info",
-        "fontSize": 12
+        "fontSize": 14
       }
     },
     {
@@ -194,7 +252,7 @@
       "name": "Action",
       "type": "Button",
       "parentId": "content",
-      "order": 4,
+      "order": 6,
       "properties": {
         "anchorMin": [
           0.44,
@@ -213,7 +271,9 @@
           -12
         ],
         "text": "No action",
-        "tone": "danger"
+        "tone": "danger",
+        "fontSize": 16,
+        "fontWeight": 700
       }
     },
     {
@@ -221,7 +281,7 @@
       "name": "Close",
       "type": "Button",
       "parentId": "content",
-      "order": 5,
+      "order": 7,
       "properties": {
         "anchorMin": [
           0.74,
@@ -239,8 +299,10 @@
           0,
           -12
         ],
-        "text": "Close",
-        "tone": "muted"
+        "text": "Close (Esc)",
+        "tone": "muted",
+        "fontSize": 16,
+        "fontWeight": 700
       }
     },
     {
@@ -298,6 +360,16 @@
             "nodePath": "..",
             "property": "offsetMax",
             "model": "offsetMax"
+          },
+          {
+            "nodePath": "../Scroll/Content/DetailsName",
+            "property": "text",
+            "model": "detailsName"
+          },
+          {
+            "nodePath": "../Scroll/Content/DetailsStatus",
+            "property": "text",
+            "model": "detailsStatus"
           }
         ],
         "actions": {

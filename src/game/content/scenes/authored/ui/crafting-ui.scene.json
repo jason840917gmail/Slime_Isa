@@ -134,11 +134,10 @@
       }
     },
     {
-      "id": "details",
-      "name": "Details",
+      "id": "details-name",
+      "name": "DetailsName",
       "type": "Label",
       "parentId": "content",
-      "order": 2,
       "properties": {
         "anchorMin": [
           0.58,
@@ -154,19 +153,107 @@
         ],
         "offsetMax": [
           -20,
-          500
+          96
+        ],
+        "text": "",
+        "tone": "warning",
+        "fontSize": 22,
+        "fontWeight": 700
+      },
+      "order": 2
+    },
+    {
+      "id": "details",
+      "name": "Details",
+      "type": "Label",
+      "parentId": "content",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0.58,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          100
+        ],
+        "offsetMax": [
+          -20,
+          196
         ],
         "wrap": true,
-        "tone": "muted",
-        "fontSize": 13
+        "tone": "default",
+        "fontSize": 14
       }
+    },
+    {
+      "id": "materials-title",
+      "name": "MaterialsTitle",
+      "type": "Label",
+      "parentId": "content",
+      "properties": {
+        "anchorMin": [
+          0.58,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          202
+        ],
+        "offsetMax": [
+          -20,
+          226
+        ],
+        "text": "You need",
+        "tone": "warning",
+        "fontSize": 15,
+        "fontWeight": 700
+      },
+      "order": 4
+    },
+    {
+      "id": "materials",
+      "name": "Materials",
+      "type": "ItemList",
+      "parentId": "content",
+      "properties": {
+        "anchorMin": [
+          0.58,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          230
+        ],
+        "offsetMax": [
+          -20,
+          392
+        ],
+        "columns": 2,
+        "gap": 6,
+        "styleClass": "crafting-materials",
+        "ariaLabel": "Materials needed"
+      },
+      "order": 5
     },
     {
       "id": "status",
       "name": "Status",
       "type": "Label",
       "parentId": "content",
-      "order": 3,
+      "order": 6,
       "properties": {
         "anchorMin": [
           0.58,
@@ -178,15 +265,16 @@
         ],
         "offsetMin": [
           0,
-          -156
+          -176
         ],
         "offsetMax": [
           -20,
-          -130
+          -148
         ],
         "wrap": true,
         "tone": "warning",
-        "fontSize": 12
+        "fontSize": 14,
+        "fontWeight": 700
       }
     },
     {
@@ -194,7 +282,7 @@
       "name": "Quantity",
       "type": "Label",
       "parentId": "content",
-      "order": 4,
+      "order": 7,
       "properties": {
         "anchorMin": [
           0.58,
@@ -206,15 +294,15 @@
         ],
         "offsetMin": [
           0,
-          -126
+          -142
         ],
         "offsetMax": [
           -20,
-          -98
+          -116
         ],
         "text": "Amount: 1",
         "tone": "info",
-        "fontSize": 13
+        "fontSize": 14
       }
     },
     {
@@ -222,7 +310,7 @@
       "name": "Minus10",
       "type": "Button",
       "parentId": "content",
-      "order": 5,
+      "order": 8,
       "properties": {
         "anchorMin": [
           0.58,
@@ -234,15 +322,16 @@
         ],
         "offsetMin": [
           0,
-          -94
+          -110
         ],
         "offsetMax": [
           0,
-          -60
+          -70
         ],
         "text": "-10",
         "tone": "muted",
-        "fontSize": 12
+        "fontSize": 15,
+        "fontWeight": 700
       }
     },
     {
@@ -250,7 +339,7 @@
       "name": "Minus1",
       "type": "Button",
       "parentId": "content",
-      "order": 6,
+      "order": 9,
       "properties": {
         "anchorMin": [
           0.66,
@@ -262,15 +351,16 @@
         ],
         "offsetMin": [
           0,
-          -94
+          -110
         ],
         "offsetMax": [
           0,
-          -60
+          -70
         ],
         "text": "-1",
         "tone": "muted",
-        "fontSize": 12
+        "fontSize": 15,
+        "fontWeight": 700
       }
     },
     {
@@ -278,7 +368,7 @@
       "name": "Plus1",
       "type": "Button",
       "parentId": "content",
-      "order": 7,
+      "order": 10,
       "properties": {
         "anchorMin": [
           0.74,
@@ -290,15 +380,16 @@
         ],
         "offsetMin": [
           0,
-          -94
+          -110
         ],
         "offsetMax": [
           0,
-          -60
+          -70
         ],
         "text": "+1",
         "tone": "muted",
-        "fontSize": 12
+        "fontSize": 15,
+        "fontWeight": 700
       }
     },
     {
@@ -306,7 +397,7 @@
       "name": "Plus10",
       "type": "Button",
       "parentId": "content",
-      "order": 8,
+      "order": 11,
       "properties": {
         "anchorMin": [
           0.82,
@@ -318,15 +409,16 @@
         ],
         "offsetMin": [
           0,
-          -94
+          -110
         ],
         "offsetMax": [
           0,
-          -60
+          -70
         ],
         "text": "+10",
         "tone": "muted",
-        "fontSize": 12
+        "fontSize": 15,
+        "fontWeight": 700
       }
     },
     {
@@ -334,7 +426,7 @@
       "name": "Max",
       "type": "Button",
       "parentId": "content",
-      "order": 9,
+      "order": 12,
       "properties": {
         "anchorMin": [
           0.9,
@@ -346,15 +438,16 @@
         ],
         "offsetMin": [
           0,
-          -94
+          -110
         ],
         "offsetMax": [
           0,
-          -60
+          -70
         ],
         "text": "MAX",
         "tone": "muted",
-        "fontSize": 12
+        "fontSize": 15,
+        "fontWeight": 700
       }
     },
     {
@@ -362,26 +455,28 @@
       "name": "Craft",
       "type": "Button",
       "parentId": "content",
-      "order": 10,
+      "order": 13,
       "properties": {
         "anchorMin": [
           0.58,
           1
         ],
         "anchorMax": [
-          0.78,
+          0.79,
           1
         ],
         "offsetMin": [
           0,
-          -52
+          -60
         ],
         "offsetMax": [
-          0,
+          -6,
           -12
         ],
         "text": "Craft",
-        "tone": "accent"
+        "tone": "accent",
+        "fontSize": 18,
+        "fontWeight": 700
       }
     },
     {
@@ -389,26 +484,28 @@
       "name": "Close",
       "type": "Button",
       "parentId": "content",
-      "order": 11,
+      "order": 14,
       "properties": {
         "anchorMin": [
-          0.8,
+          0.79,
           1
         ],
         "anchorMax": [
-          0.98,
+          1,
           1
         ],
         "offsetMin": [
-          0,
-          -52
+          6,
+          -60
         ],
         "offsetMax": [
-          0,
+          -20,
           -12
         ],
-        "text": "Close",
-        "tone": "muted"
+        "text": "Close (Esc)",
+        "tone": "muted",
+        "fontSize": 16,
+        "fontWeight": 700
       }
     },
     {
@@ -501,6 +598,16 @@
             "nodePath": "..",
             "property": "offsetMax",
             "model": "offsetMax"
+          },
+          {
+            "nodePath": "../Scroll/Content/DetailsName",
+            "property": "text",
+            "model": "detailsName"
+          },
+          {
+            "nodePath": "../Scroll/Content/Materials",
+            "property": "items",
+            "model": "materials"
           }
         ],
         "actions": {
@@ -708,6 +815,16 @@
     {
       "source": {
         "nodeId": "recipes"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "sfx-select-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "materials"
       },
       "signal": "item_selected",
       "target": {

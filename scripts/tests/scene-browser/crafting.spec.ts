@@ -39,7 +39,9 @@ test('authored crafting quotes materials and commits a recipe transaction', asyn
 
   await page.evaluate(() => window.sceneFixture.grantProductionItem('wood', 40));
   await expect(workbench.getByRole('button', { name: 'Craft', exact: true })).toBeEnabled();
-  await expect(workbench).toContainText('Wood: 40 / 40');
+  // Materials list each need with what the bag holds (2026-10-01 redesign); the refusal line clears.
+  await expect(workbench.getByRole('listbox', { name: 'Materials needed' })).toContainText('40 / 40');
+  await expect(workbench).not.toContainText('Missing: 40 Wood');
   await workbench.getByRole('button', { name: 'Craft', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('workbench'))).toBe(1);
   await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('wood'))).toBe(0);

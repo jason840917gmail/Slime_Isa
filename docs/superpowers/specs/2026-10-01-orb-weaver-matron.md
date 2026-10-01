@@ -52,4 +52,6 @@ the Sticky form is the way to keep moving.
 
 Placeholder until the owner asks for new art: the orb-weaver sheet scaled and
 tinted, the web-cover effect as the ground patch, the spider's voice pitched
-down. Open: her own sprite sheet, a web-volley sound, arena dressing.
+down. Open: her own sprite sheet, a web-volley sound. Arena dressing was built
+2026-10-01: a tree ring with one webbed entrance to the west, ground webs, egg
+sacs and victim cocoons (roadmap 4.11).

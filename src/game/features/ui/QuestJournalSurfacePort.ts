@@ -75,7 +75,9 @@ export class QuestJournalSurfacePort implements UiSurfacePort {
         ...(isFinished(quest) ? { metadata: { locked: true } } : {}),
       })),
       selectedIndex: selected ? quests.indexOf(selected) : -1,
-      details: selected ? detailsFor(selected) : 'No quests yet.',
+      detailsName: selected ? selected.definition.title : 'No quests yet',
+      detailsStatus: selected ? questState(selected) : '',
+      details: selected ? detailsFor(selected) : 'Talk to the slimes marked with ! to take on a quest.',
       status: this.status,
       actionLabel: action === 'abandon' ? 'Abandon' : action === 'retry' ? 'Retry' : 'No action',
       actionDisabled: !action,
@@ -218,9 +220,6 @@ function detailsFor(quest: QuestView): string {
     ? [`? Return to ${npcName(def.completion.npcIds[0])} for your reward.`, '']
     : [];
   return [
-    def.title,
-    questState(quest),
-    '',
     def.description,
     '',
     ...steps,

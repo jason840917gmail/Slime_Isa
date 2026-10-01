@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "sceneId": "object.decoration-world-ambient.web-tree-01",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "web-tree-01",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "decoration-world-ambient.web-tree-01.sprite"
+        },
+        "frame": 2,
+        "origin": [
+          0.5,
+          0
+        ],
+        "scale": [
+          0.5,
+          0.5
+        ],
+        "visualOffset": [
+          0,
+          -118
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "decoration-world-ambient.web-tree-01.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "decoration-world-ambient.web-tree-01.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.props.web-decor.4x3",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "decoration-world-ambient.web-tree-01.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 3.6,
+          "framesPerSecond": 20,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": -0.035,
+                  "transition": "ease-in-out"
+                },
+                {
+                  "at": 36,
+                  "value": 0.035,
+                  "transition": "ease-in-out"
+                },
+                {
+                  "at": 72,
+                  "value": -0.035
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

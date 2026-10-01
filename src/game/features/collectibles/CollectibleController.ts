@@ -26,7 +26,11 @@ export interface CollectibleControllerContext {
   readonly transaction: InventoryWorldTransaction;
   readonly progress: {
     collectibleState(mapId: string, instanceId: string): CollectibleProgressState | undefined;
+    /** The persisted bag or loot drop behind a pile, while it lies on the ground. */
+    inventoryDrop?(mapId: string, dropId: string): Readonly<{ origin?: 'loot' }> | undefined;
   };
+  /** The name players read for an item ("Weaver Fang"). */
+  readonly itemName?: (itemId: string) => string;
   readonly publisher: CollectibleEventPublisher;
   readonly showMessage: (x: number, y: number, message: string, color: 'white' | 'yellow', important?: boolean) => void;
   readonly onStateChanged?: (change: CollectibleStateChange) => void;
@@ -57,6 +61,9 @@ export class CollectibleController implements CollectibleWorldPort {
       return { status: 'rejected', moved: 0, remaining, reason: 'wrong-map' };
     }
     if (remaining <= 0) return { status: 'rejected', moved: 0, remaining: 0, reason: 'depleted' };
+    // Read before the pickup: emptying a drop deletes its record.
+    const recovered = !!request.sourceInventoryDropId
+      && this.ctx.progress.inventoryDrop?.(request.mapId, request.sourceInventoryDropId)?.origin !== 'loot';
     const moved = this.ctx.transaction.collectWorldItem({
       mapId: request.mapId,
       instanceId: request.instanceId,
@@ -81,13 +88,14 @@ export class CollectibleController implements CollectibleWorldPort {
       ...(next.sourceResourceInstanceId ? { sourceResourceInstanceId: next.sourceResourceInstanceId } : {}),
       ...(next.sourceInventoryDropId ? { sourceInventoryDropId: next.sourceInventoryDropId } : {}),
     });
-    this.ctx.showMessage(request.x, request.y - 34, `+${moved} ${request.itemId}`, 'yellow');
+    this.ctx.showMessage(request.x, request.y - 34, `+${moved} ${this.ctx.itemName?.(request.itemId) ?? request.itemId}`, 'yellow');
     this.ctx.publisher.publishCollected({
       mapId: request.mapId,
       instanceId: request.instanceId,
       objectId: request.objectId,
       itemId: request.itemId,
       quantity: moved,
+      ...(recovered ? { recovered: true } : {}),
     });
     return {
       status: next.remaining === 0 ? 'collected' : 'partial',

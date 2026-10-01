@@ -409,7 +409,12 @@ export class WorldProgress {
     const mapState = this.mapStates.get(mapId);
     if (!mapState || !(instanceId in mapState.resources)) return;
     const { [instanceId]: _removed, ...rest } = mapState.resources;
-    this.mapStates.set(mapId, { ...mapState, resources: rest });
+    // A regrown node's next piles reuse their ids (`<node>-drop-N`): forget the
+    // collected ones, or the next harvest's piles read as empty and vanish.
+    const collectibles = Object.fromEntries(Object.entries(mapState.collectibles ?? {}).filter(([pileId, state]) => (
+      state.sourceResourceInstanceId !== instanceId && !pileId.startsWith(`${instanceId}-drop-`)
+    )));
+    this.mapStates.set(mapId, { ...mapState, resources: rest, ...(mapState.collectibles ? { collectibles } : {}) });
     gameEvents.emit('world.progress.changed', {});
   }
 
@@ -428,6 +433,12 @@ export class WorldProgress {
     collectibles[instanceId] = normalized;
     this.mapStates.set(mapId, { ...mapState, collectibles });
     gameEvents.emit('world.progress.changed', {});
+  }
+
+  inventoryDrop(mapId: string, dropId: string): InventoryWorldDropProgress | undefined {
+    this.ensureLoaded();
+    const drop = this.mapStates.get(mapId)?.inventoryDrops?.[dropId];
+    return drop ? { ...drop } : undefined;
   }
 
   inventoryDrops(mapId: string): readonly InventoryWorldDropProgress[] {
