@@ -345,6 +345,7 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       { ...resource('library', 'Animation Library', ['animation-library']), required: true },
       { key: 'domain', label: 'Clock Domain', value: { kind: 'enum', values: ['physics', 'render'] }, defaultValue: 'render', serialized: true, inspector: 'select', overridable: true },
       { key: 'autoplay', label: 'Autoplay', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+      { ...boolean('randomizeStart', 'Randomize Start Frame', false), help: 'Looping autoplay clips begin at a random frame so placed copies do not move in sync.' },
     ], signals: [{ id: 'animation_event', payload: 'AnimationEventEmission' }, { id: 'animation_finished', payload: 'string' }] },
     { type: 'AudioStreamPlayer', extends: 'Node', properties: audioPlayerProperties(), signals: [{ id: 'playback_finished' }], handlers: AUDIO_PLAYER_HANDLERS },
     { type: 'AudioStreamPlayer2D', extends: 'Node2D', properties: [

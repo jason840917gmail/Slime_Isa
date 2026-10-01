@@ -44,7 +44,7 @@
         "texture": {
           "resourceId": "decoration-world-solid.village-banner.sprite"
         },
-        "frame": 13,
+        "frame": 24,
         "origin": [
           0.5,
           1
@@ -60,6 +60,21 @@
         "depthMode": "world-sorted",
         "depthBand": "world-entities"
       }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "decoration-world-solid.village-banner.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
     }
   ],
   "instances": [],
@@ -68,7 +83,7 @@
       "version": 1,
       "resourceId": "decoration-world-solid.village-banner.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.decorations.8x3",
+      "assetId": "sheet.decorations.ambient.8x5",
       "frameWidth": 128,
       "frameHeight": 128
     },
@@ -80,6 +95,59 @@
         "shape": "rectangle",
         "width": 30,
         "height": 25
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "decoration-world-solid.village-banner.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 1.1428571428571428,
+          "framesPerSecond": 7,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 24
+                },
+                {
+                  "at": 1,
+                  "value": 25
+                },
+                {
+                  "at": 2,
+                  "value": 26
+                },
+                {
+                  "at": 3,
+                  "value": 27
+                },
+                {
+                  "at": 4,
+                  "value": 28
+                },
+                {
+                  "at": 5,
+                  "value": 29
+                },
+                {
+                  "at": 6,
+                  "value": 30
+                },
+                {
+                  "at": 7,
+                  "value": 31
+                }
+              ]
+            }
+          ]
+        }
       }
     }
   ]

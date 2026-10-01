@@ -51,3 +51,14 @@ test('compound bounds are a deterministic union and invalid geometry is rejected
   assert.throws(() => geometry.sensorShapeBounds(circle('bad', 0, 0, 0)), /positive radius/);
   assert.throws(() => geometry.sensorShapeBounds(sector('bad-sector', 0, 0, 0, 0, 0, 10)), /0 < arc/);
 });
+
+test('a thick swept line touches the shapes it passes and misses the ones beside it', () => {
+  const from = { x: 0, y: 0 };
+  const to = { x: 180, y: 0 };
+  assert.equal(geometry.sensorShapeTouchesSegment(rectangle('near', 170, 10, 40, 40), from, to, 16), true, 'a box just below the tip');
+  assert.equal(geometry.sensorShapeTouchesSegment(rectangle('below', 60, 30, 40, 40), from, to, 16), false, 'a box beside the line');
+  assert.equal(geometry.sensorShapeTouchesSegment(circle('past', 210, 0, 12), from, to, 16), false, 'a circle past the tip');
+  assert.equal(geometry.sensorShapeTouchesSegment(circle('tip', 205, 0, 12), from, to, 16), true, 'the tip reaches a circle within reach');
+  assert.equal(geometry.sensorShapeTouchesSegment(ellipse('mid', 90, 20, 10, 6), from, to, 16), true, 'an ellipse just off the middle');
+  assert.equal(geometry.sensorShapeTouchesSegment(sector('behind', -60, 0, 0, Math.PI / 4, 0, 20), from, to, 16), false, 'a sector behind the start');
+});

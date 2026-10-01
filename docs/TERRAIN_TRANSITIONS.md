@@ -8,6 +8,7 @@ World scenes store one logical terrain ID per cell in a `TileMapLayer2D`. They d
 - `features/world/TerrainBlendField.ts` plans the blend (pure, no Phaser).
 - `features/world/TerrainTransitionLayer.ts` bakes the plan into canvas-texture chunks; `TerrainTransitionRenderer.ts` wires the two together.
 - `infrastructure/phaser-nodes/TileMapLayer2DNode.ts` mounts the blend over the base tiles, so the game and Scene Studio render identical terrain.
+- `features/world/WaterSurfaceLayer.ts` draws animated water over `water` and `deep-water` tiles: one WebGL shader quad per tile layer, just above the baked chunks (`ground-decals + 0.5`), re-sampling the water ground textures with a moving refraction, crossing caustics, soft sun glints and shoreline foam. Deep water is darker and slower with broad swells. A one-texel-per-tile mask places it; Canvas renderers skip it. Pond and deep-water wildlife is described in [assets/AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md#water).
 - Physics, walkability, and decoration rules use only the logical tile. Blending never changes gameplay or map data.
 
 ## Current strategy: organic region blending

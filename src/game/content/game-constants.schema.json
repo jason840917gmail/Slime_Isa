@@ -12,7 +12,8 @@
     "character",
     "worldNavigation",
     "rest",
-    "gulp"
+    "gulp",
+    "input"
   ],
   "properties": {
     "$schema": {
@@ -77,6 +78,26 @@
           "description": "How long a Gulp form lasts after eating its material, in milliseconds. Eating the same material at a Gulp spot restarts the timer.",
           "type": "integer",
           "minimum": 1000
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bufferMs",
+        "weaponWheelStepLockMs"
+      ],
+      "properties": {
+        "bufferMs": {
+          "description": "How long a key or button press waits to be used, in milliseconds. A press made during knockback, an action lock or the Gulp wheel that is not used in time is dropped instead of firing late.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "weaponWheelStepLockMs": {
+          "description": "After the mouse wheel switches weapon, further scrolling is ignored until the wheel has been still this long, in milliseconds, so one trackpad swipe or wheel flick moves one weapon.",
+          "type": "integer",
+          "minimum": 0
         }
       }
     }
@@ -175,7 +196,9 @@
         "baseSpeed",
         "boostSpeed",
         "dodgeSpeed",
+        "dodgeDurationMs",
         "dodgeInvulnerabilityMs",
+        "dodgeCooldownMs",
         "movementSpeedCap"
       ],
       "properties": {
@@ -188,7 +211,18 @@
         "dodgeSpeed": {
           "$ref": "#/$defs/nonNegative"
         },
+        "dodgeDurationMs": {
+          "description": "How long a dodge roll lasts, in milliseconds.",
+          "type": "integer",
+          "minimum": 1
+        },
         "dodgeInvulnerabilityMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How long the slime cannot be hurt from the start of a dodge roll, in milliseconds. At most dodgeDurationMs."
+        },
+        "dodgeCooldownMs": {
+          "description": "Wait after a dodge roll ends before the next can start, in milliseconds.",
           "type": "integer",
           "minimum": 0
         },

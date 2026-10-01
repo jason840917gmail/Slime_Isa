@@ -184,7 +184,7 @@
           -20,
           52
         ],
-        "columns": 5,
+        "columns": 3,
         "gap": 4,
         "ariaLabel": "Assign hotbar slot"
       }

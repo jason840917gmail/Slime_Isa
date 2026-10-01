@@ -6,6 +6,18 @@ Open — the runtime already has a six-slot weapon/tool belt and a separate
 four-slot ability bar. This task consolidates their presentation and completes
 loadout assignment without creating another equipment state model.
 
+Roadmap task 4.10
+([simple controls](../../../superpowers/specs/2026-09-30-simple-controls-design.md))
+changes the ground rules for this idea:
+
+- the belt shrinks to three weapon slots, switched with the mouse wheel;
+- Space is Jump, and keys 1–0 belong to abilities (1 Dodge, 2 Stretch Lash,
+  3 Squash Slam, 4 Teleport);
+- every key label comes from one binding table.
+
+When this idea is picked up, read its "six slots" and "1–6" as "three slots on
+the wheel".
+
 ## Goal
 
 Create one responsive bottom command dashboard, inspired by action RPGs, that

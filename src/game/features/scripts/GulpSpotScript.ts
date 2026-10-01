@@ -18,7 +18,7 @@ export class GulpSpotScript extends ScriptNode {
   /** Item ID of the material this spot offers (for example `stone`). */
   readonly materialItemId: string;
   readonly radius: number;
-  /** How far above the spot origin the "[W] Gulp" hint floats. */
+  /** How far above the spot origin the "[Q] Gulp" hint floats. */
   readonly badgeRise: number;
 
   constructor(context: NodeConstructionContext) {

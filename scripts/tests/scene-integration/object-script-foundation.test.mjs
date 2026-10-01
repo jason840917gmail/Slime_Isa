@@ -342,6 +342,127 @@ test('a plate opens the gates named by its Opens Gate ID, with no scene connecti
   dispose(fixture);
 });
 
+function bellWorld(bellProperties) {
+  const gateText = { requiredItemId: 'green-key', prompt: 'Open', lockedPrompt: 'Locked', lockedMessage: 'Locked.', unlockedMessage: 'Open!' };
+  return {
+    version: 1, sceneId: 'world.lash-bell-fixture', rootNodeId: 'root',
+    nodes: [
+      { id: 'root', name: 'World', type: 'Node2D', parentId: null, order: 0, properties: {} },
+      { id: 'bell', name: 'Bell', type: 'Node2D', parentId: 'root', order: 0, properties: { position: [300, 200] } },
+      { id: 'bell-area', name: 'DamageArea', type: 'Area2D', parentId: 'bell', order: 0, properties: {} },
+      { id: 'bell-script', name: 'LashBellScript', type: 'ScriptNode', scriptId: 'game.lash-bell', parentId: 'bell', order: 1, properties: { bellId: 'b1', gateId: 'g1', damageArea: { nodeId: 'bell-area' }, ...bellProperties } },
+      { id: 'gate', name: 'Gate', type: 'Node2D', parentId: 'root', order: 1, properties: { position: [0, 0] } },
+      { id: 'gate-script', name: 'GateScript', type: 'ScriptNode', scriptId: 'game.gate', parentId: 'gate', order: 0,
+        properties: { ...gateText, mapId: 'fixture', gateId: 'g1', visual: { nodeId: 'gate-visual' }, doors: { nodeId: 'gate-doors' } } },
+      { id: 'gate-visual', name: 'Visual', type: 'Node2D', parentId: 'gate', order: 1, properties: {} },
+      { id: 'gate-doors', name: 'Doors', type: 'Node2D', parentId: 'gate', order: 2, properties: {} },
+    ],
+    instances: [],
+  };
+}
+
+test('a lash bell rings when the Stretch Lash hooks it and opens its gates; weapons only ring it when allowed', async () => {
+  const activations = new t.AttackActivation();
+  const router = new t.DamageRouter(activations);
+  const rung = [];
+  const services = {
+    [t.DAMAGE_ROUTER_SERVICE]: router,
+    [t.LASH_BELL_SERVICE]: { rung: (at) => rung.push(at) },
+    [t.GATE_LOCK_SERVICE]: { isUnlocked: () => false },
+  };
+  const fixture = await instantiate(bellWorld({}), services);
+  fixture.tree.flushMutations();
+  const bell = fixture.root.get_node('Bell/LashBellScript');
+  const gate = fixture.root.get_node('Gate/GateScript');
+  const area = fixture.root.get_node('Bell/DamageArea').runtimeId;
+  assert.equal(router.hasArea(area), false, 'a lash-only bell ignores weapons');
+  assert.equal(gate.isOpen, false);
+  bell.ring();
+  assert.equal(gate.isOpen, true, 'the hook opens the named gate');
+  assert.deepEqual(rung, [{ x: 300, y: 200 }], 'the world hears the ring where the bell stands');
+  assert.equal(bell.ringing, true);
+  for (let step = 0; step < 8; step += 1) fixture.tree.process(0.1);
+  assert.equal(bell.ringing, false, 'the ring settles');
+  dispose(fixture);
+
+  const open = await instantiate(bellWorld({ lashOnly: false }), services);
+  open.tree.flushMutations();
+  const openGate = open.root.get_node('Gate/GateScript');
+  const openArea = open.root.get_node('Bell/DamageArea').runtimeId;
+  const [hit] = router.routeStep([damageRequest(activations.begin('weapon', ['weapon-area']), openArea, ['sword'], 10)], 0);
+  assert.equal(hit.result.status, 'accepted', JSON.stringify(hit.result));
+  assert.equal(open.root.get_node('Bell/LashBellScript').getDamageState().dead, false, 'the bell never breaks');
+  assert.equal(openGate.isOpen, true, 'with Lash Only off a sword rings it too');
+  dispose(open);
+});
+
+test('a training dummy takes every hit, shows it, wobbles, and never breaks', async () => {
+  const activations = new t.AttackActivation();
+  const router = new t.DamageRouter(activations);
+  const shown = [];
+  const document = {
+    version: 1, sceneId: 'world.dummy-fixture', rootNodeId: 'root',
+    nodes: [
+      { id: 'root', name: 'World', type: 'Node2D', parentId: null, order: 0, properties: {} },
+      { id: 'dummy', name: 'Dummy', type: 'Node2D', parentId: 'root', order: 0, properties: { position: [50, 80] } },
+      { id: 'dummy-area', name: 'DamageArea', type: 'Area2D', parentId: 'dummy', order: 0, properties: {} },
+      { id: 'dummy-visual', name: 'Visual', type: 'Node2D', parentId: 'dummy', order: 1, properties: {} },
+      { id: 'dummy-script', name: 'TrainingDummyScript', type: 'ScriptNode', scriptId: 'game.training-dummy', parentId: 'dummy', order: 2, properties: { damageArea: { nodeId: 'dummy-area' }, visual: { nodeId: 'dummy-visual' } } },
+    ],
+    instances: [],
+  };
+  const fixture = await instantiate(document, {
+    [t.DAMAGE_ROUTER_SERVICE]: router,
+    [t.TRAINING_DUMMY_SERVICE]: { showHit: (at, damage) => shown.push({ ...at, damage }) },
+  });
+  fixture.tree.flushMutations();
+  const dummy = fixture.root.get_node('Dummy/TrainingDummyScript');
+  const visual = fixture.root.get_node('Dummy/Visual');
+  const area = fixture.root.get_node('Dummy/DamageArea').runtimeId;
+  for (const damage of [12, 5000]) {
+    const [hit] = router.routeStep([damageRequest(activations.begin('weapon', ['weapon-area']), area, ['sword'], damage)], 0);
+    assert.equal(hit.result.status, 'accepted');
+  }
+  assert.deepEqual(shown, [{ x: 50, y: 80, damage: 12 }, { x: 50, y: 80, damage: 5000 }]);
+  assert.equal(dummy.hits, 2);
+  assert.equal(dummy.getDamageState().dead, false, 'it never breaks');
+  fixture.tree.process(0.05);
+  assert.notEqual(visual.rotation, 0, 'a hit makes it lean');
+  for (let step = 0; step < 40; step += 1) fixture.tree.process(0.1);
+  assert.equal(visual.rotation, 0, 'the wobble settles');
+  dispose(fixture);
+});
+
+test('an ability lesson teaches its abilities once, when the player arrives', async () => {
+  const learned = new Set(['jump']);
+  const taught = [];
+  let player = { x: 500, y: 0 };
+  const document = {
+    version: 1, sceneId: 'world.lesson-fixture', rootNodeId: 'root',
+    nodes: [
+      { id: 'root', name: 'World', type: 'Node2D', parentId: null, order: 0, properties: {} },
+      { id: 'lesson', name: 'Lesson', type: 'Node2D', parentId: 'root', order: 0, properties: { position: [0, 0] } },
+      { id: 'lesson-script', name: 'AbilityLessonScript', type: 'ScriptNode', scriptId: 'game.ability-lesson', parentId: 'lesson', order: 0, properties: { abilityIds: ['jump', 'stretch-lash'], radius: 100 } },
+    ],
+    instances: [],
+  };
+  const fixture = await instantiate(document, {
+    [t.ABILITY_LESSON_SERVICE]: {
+      playerPosition: () => player,
+      knows: (id) => learned.has(id),
+      learn: (ids) => { taught.push([...ids]); for (const id of ids) learned.add(id); },
+    },
+  });
+  fixture.tree.flushMutations();
+  fixture.tree.process(0.1);
+  assert.deepEqual(taught, [], 'nothing while the player is away');
+  player = { x: 60, y: 40 };
+  fixture.tree.process(0.1);
+  fixture.tree.process(0.1);
+  assert.deepEqual(taught, [['stretch-lash']], 'teaches only what is new, once');
+  dispose(fixture);
+});
+
 test('the Workshop is a ruin with a restoration site until its flag is set, then a Workshop station', async () => {
   const { readFileSync } = await import('node:fs');
   const document = JSON.parse(readFileSync('src/game/content/scenes/authored/objects/workshop.scene.json', 'utf8'));

@@ -155,7 +155,7 @@ function makeScene() {
   scene.textures = {
     exists: (key) => textures.has(key),
     getFrame: (key, frame) => (key === 'sheet' ? { cutX: 0, cutY: 0, cutWidth: 64, cutHeight: 64, source: { image: {} } } : textures.get(key)?.frames?.[frame]),
-    addCanvas(key, canvas) {
+    create(key, canvas) {
       const texture = { canvas, frames: {}, add(name, source, x, y, width, height) { this.frames[name] = { cutX: x, cutY: y, cutWidth: width, cutHeight: height }; } };
       textures.set(key, texture);
       return texture;

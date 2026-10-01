@@ -40,7 +40,8 @@ through:
   ID and can be taken once per run.
 - **Story-unlocked abilities:** quests and bosses teach abilities (Jump, Squash
   Slam, Stretch Lash, Teleport, and later ones), the same way they teach
-  recipes. Chapter 1's Worm Trouble teaches Jump; a locked ability says on the
+  recipes. The Stretch Lash is a hook, not a weapon: light things come to the
+  slime, heavy things pull the slime to them. Chapter 1's Worm Trouble teaches Jump; a locked ability says on the
   ability bar how it is earned.
 - **Gulp forms:** temporary forms that change how the slime plays (see below).
 
@@ -55,11 +56,13 @@ old perks gave, such as crit, life steal, and speed, as gear.
 The slime eats a Gulp material and takes its form for a while. Each form has a
 clear look and exactly one rule.
 
-- **One key, W, is the slime's mouth, and no menu ever opens to eat.** Tap W
-  near a Gulp spot to eat from the world; tap W elsewhere to eat the last-used
-  Gulp material from the inventory; hold W for a quick wheel of carried Gulp
-  materials while the game keeps running. In a form, tapping W away from a
-  Gulp spot burps the form away.
+- **One key, Q, is the slime's mouth, and no menu ever opens to eat.**
+  - Tap Q near a Gulp spot to eat from the world. Right-clicking the spot does
+    the same.
+  - Hold Q for a quick wheel of carried Gulp materials; the game keeps running.
+  - In a form, tapping Q away from a Gulp spot burps the form away.
+  - Anywhere else, a tap only says how to gulp.
+  - It was W until the controls moved to WASD and the mouse (roadmap 4.10).
 - **Gulp spots** (a mossy boulder, a silk cocoon) never run out and look
   different from walk-over piles. Every Gulp puzzle has its spot beside it, so
   a puzzle never depends on what the player carries. Carried materials are for
@@ -176,7 +179,8 @@ starter piles and quest rewards keep the chain softlock-free.
 - Audio shapes perceived quality more than any single visual.
 - Hit-stop, screen shake, and squash and stretch are most of a slime's feel.
   Every hit, landing, pickup, and Gulp gets feedback.
-- The slime leaves a fading goo trail that slows enemies crossing it.
+- The Goo Trail, a passive ability a later quest teaches, leaves fading goo
+  that slows enemies crossing it.
 - Accessibility from day one: every shake, flash, and strong motion respects
   the reduce-motion setting, and status colors must stay readable for
   colorblind players.
@@ -186,6 +190,20 @@ starter piles and quest rewards keep the chain softlock-free.
 **Cozy storybook woodland, hand-painted miniatures**, defined from the NPC and
 interior sprites. Every new asset follows the
 [art style guide](./assets/visual-style-guide.md).
+
+## Controls
+
+The left hand stays on WASD and the right hand stays on the mouse (agreed
+2026-09-30, roadmap 4.10;
+[design](./superpowers/specs/2026-09-30-simple-controls-design.md)):
+
+- **The mouse:** left click uses (attack, chop, mine); right click interacts
+  with what the pointer is on.
+- **Abilities:** the story teaches them, and they sit on Space (Jump) and the
+  number keys (1 Dodge, 2–4 the rest). Those that aim, aim at the pointer.
+- **Shift is only ever held** (sprint), and Ctrl and Alt are never used.
+- **Key names:** every key name the player reads comes from one binding
+  table, so content text never names a key.
 
 ## UI Style
 

@@ -12,6 +12,7 @@ import type {
   PlayerAbilityIntent,
   PlayerAbilityRejectionReason,
 } from '../../../features/player/PlayerAbilityService';
+import type { AbilityWorldPort, LashCatch } from '../../../features/combat/LineStrike';
 import { resolveWorldDepth } from '../../../presentation/WorldDepth';
 import type { WorldVisual } from '../../../presentation/WorldVisual';
 import { floatingText } from '../../../ui/FloatingText';
@@ -21,6 +22,23 @@ import { gameSettings } from '../../../features/settings/GameSettingsService';
 
 const JUMP_ARC_HEIGHT = 54;
 
+/**
+ * The Stretch Lash sheet (`effect.player.stretch-lash`, packed by
+ * scripts/effects/pack-stretch-lash.py): frames 384 px long, drawn at twice
+ * the display size, the tendril's centre line 52 px down.
+ */
+const STRETCH_LASH_SHEET = {
+  textureKey: 'effect-player-stretch-lash',
+  frameWidth: 384,
+  originY: 52 / 96,
+  scaleY: 0.5,
+  halfWidthPx: 16,
+  minReachPx: 48,
+} as const;
+/** How fast a heavy catch pulls the slime (px per ms). */
+const STRETCH_LASH_PULL_SPEED = 0.9;
+const SQUASH_SLAM_KNOCKBACK = 320;
+
 export interface LegacyPlayerAbilityPresentationContext {
   readonly scene: Phaser.Scene;
   readonly getPlayer: () => Phaser.Physics.Arcade.Sprite;
@@ -29,6 +47,8 @@ export interface LegacyPlayerAbilityPresentationContext {
   readonly teleportPlayer: (position: Readonly<{ x: number; y: number }>) => void;
   readonly playAnimation: (key: string) => void;
   readonly getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
+  /** The scene world for abilities (the lash hook, the slam's strike); absent in tests without a world. */
+  readonly abilityWorld?: AbilityWorldPort;
 }
 
 class PhaserAbilityLease implements PlayerAbilityPresentationLease {
@@ -103,6 +123,8 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
       floatingText.spawn(this.context.scene, player.x, player.y - 30, 'Not learned yet', 'red');
     } else if (reason === 'energy') {
       floatingText.spawn(this.context.scene, player.x, player.y - 30, 'Low energy', 'orange');
+    } else if (reason === 'blocked') {
+      floatingText.spawn(this.context.scene, player.x, player.y - 30, 'No safe spot there', 'orange');
     }
   }
 
@@ -244,6 +266,15 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
             }));
             gameFeel.play('slam');
             gameEvents.emit('player.action', { anim: 'slam-impact' });
+            // Enemies (and other damage receivers) around the landing.
+            this.context.abilityWorld?.strikeArea({
+              abilityId: 'squash-slam',
+              center: { x: player.x, y: player.y },
+              radius,
+              damage,
+              knockback: SQUASH_SLAM_KNOCKBACK,
+              weaponTags: ['slam'],
+            });
             const targets = this.context.getCombatTargets();
             if (targets) {
               lease.trackHitbox(hitboxPool.spawn(scene, targets, {
@@ -253,7 +284,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
                 height: radius * 2,
                 damage,
                 durationMs: 200,
-                knockStrength: 320,
+                knockStrength: SQUASH_SLAM_KNOCKBACK,
                 vfxColor: 0x86f0c3,
                 showVfx: false,
               }, (target, appliedDamage, _knockX, _knockY, knockStrength) => {
@@ -278,81 +309,118 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
     }));
   }
 
+  /**
+   * The Stretch Lash is a goo hook (`STRETCH_LASH_SHEET`), not a weapon: it
+   * reaches along the slime's facing until it catches something. A loose
+   * pickup flies back to the slime; anything solid (a tree, rock, post, wall
+   * or bell) pulls the slime across to it, over water too, and a bell it
+   * catches rings. It does no damage.
+   */
   private presentStretchLash(intent: PlayerAbilityIntent, lease: PhaserAbilityLease, complete: () => void): void {
     const scene = this.context.scene;
-    const player = this.context.getPlayer();
     const visual = this.context.getPlayerVisual();
+    const world = this.context.abilityWorld;
     const direction = intent.direction;
     const range = intent.definition.distance ?? 180;
-    const damage = intent.definition.damage ?? 18;
+    const halfWidth = STRETCH_LASH_SHEET.halfWidthPx;
+    const from = { x: intent.start.x, y: intent.start.y };
+    const wanted = { x: from.x + direction.x * range, y: from.y + direction.y * range };
+    const caught: LashCatch = world?.lashProbe(from, wanted, halfWidth) ?? { kind: 'none', at: wanted };
+    const tipDistance = Math.hypot(caught.at.x - from.x, caught.at.y - from.y);
     this.context.playAnimation('slime-stretch');
     this.context.stopPlayerMotion();
-    const stretchX = player.x + direction.x * range * 0.5;
-    const stretchY = player.y + direction.y * range * 0.5;
+    // A short lean into the throw.
     lease.trackTween(scene.tweens.add({
       targets: visual.effects,
-      offsetX: stretchX - intent.start.x,
-      offsetY: stretchY - intent.start.y,
-      duration: 180,
+      offsetX: direction.x * 8,
+      offsetY: direction.y * 8,
+      scaleX: 1.14,
+      scaleY: 0.88,
+      duration: 110,
       ease: 'Quad.Out',
-      onComplete: () => {
-        const tipX = intent.start.x + direction.x * range;
-        const tipY = intent.start.y + direction.y * range;
-        const lash = scene.add.graphics().setDepth(resolveWorldDepth(player.y, {
-          band: 'reveal-effects', stableId: 'player-stretch-lash', attachmentSlot: -2,
-        }).depth);
-        lease.trackObject(lash);
-        lash.lineStyle(4, 0xffad66, 0.8);
-        lash.beginPath();
-        lash.moveTo(player.x, player.y);
-        lash.lineTo(tipX, tipY);
-        lash.strokePath();
-        lease.trackTween(scene.tweens.add({
-          targets: lash,
-          alpha: 0,
-          duration: 200,
-          onComplete: () => lash.destroy(),
-        }));
-        const targets = this.context.getCombatTargets();
-        if (targets) {
-          lease.trackHitbox(hitboxPool.spawn(scene, targets, {
-            x: player.x + direction.x * range * 0.4,
-            y: player.y + direction.y * range * 0.4,
-            width: range,
-            height: 40,
-            damage,
-            durationMs: 160,
-            knockX: direction.x,
-            knockY: direction.y,
-            knockStrength: 280,
-            vfxColor: 0xffad66,
-            showVfx: false,
-          }, (target, appliedDamage, knockX, knockY, knockStrength) => {
-            if (!(target instanceof TargetDummy)) return;
-            target.takeDamage(appliedDamage, knockX, knockY, knockStrength);
-            floatingText.spawn(scene, target.x, target.y - 24, `${appliedDamage}`, 'orange', true);
-          }));
-        }
-        lease.trackTween(scene.tweens.add({
-          targets: visual.effects,
-          offsetX: direction.x * range * 0.2,
-          offsetY: direction.y * range * 0.2,
-          duration: 200,
-          ease: 'Quad.In',
-          onComplete: () => {
-            this.context.teleportPlayer({
-              x: intent.start.x + direction.x * range * 0.2,
-              y: intent.start.y + direction.y * range * 0.2,
-            });
-            visual.effects.offsetX = 0;
-            visual.effects.offsetY = 0;
-            complete();
-          },
-        }));
-        lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 1, scaleY: 1, duration: 200, ease: 'Quad.In' }));
-      },
+      yoyo: true,
     }));
-    lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 1.5, scaleY: 0.64, duration: 180, ease: 'Quad.Out' }));
+
+    const lash = scene.textures.exists(STRETCH_LASH_SHEET.textureKey)
+      ? scene.add.sprite(from.x, from.y, STRETCH_LASH_SHEET.textureKey, 0)
+        .setOrigin(0, STRETCH_LASH_SHEET.originY)
+        .setRotation(Math.atan2(direction.y, direction.x))
+      : undefined;
+    if (lash) lease.trackObject(lash);
+    /** Draws the tendril from `at` reaching `length` px, showing `frame`. */
+    const draw = (frame: number, at: Readonly<{ x: number; y: number }> = from, length = tipDistance) => {
+      if (!lash?.scene) return;
+      lash.setFrame(frame)
+        .setPosition(at.x, at.y)
+        .setScale(Math.max(STRETCH_LASH_SHEET.minReachPx, length) / STRETCH_LASH_SHEET.frameWidth, STRETCH_LASH_SHEET.scaleY)
+        .setDepth(resolveWorldDepth(at.y, { stableId: 'player-stretch-lash', attachmentSlot: -2 }).depth);
+    };
+    const finish = () => {
+      if (lash?.scene) lash.destroy();
+      complete();
+    };
+    const at = (delay: number, step: () => void) => {
+      if (delay === 0) step();
+      else lease.trackTimer(scene.time.delayedCall(delay, step));
+    };
+
+    // Reach out (frames 0-3), then act on the catch.
+    at(0, () => draw(0));
+    at(40, () => draw(1));
+    at(80, () => draw(2));
+    at(120, () => {
+      if (caught.kind === 'light') {
+        draw(4);
+        const player = this.context.getPlayer();
+        world?.lashPull(caught.pickupId, { x: player.x, y: player.y });
+        at(60, () => draw(6));
+        at(120, () => draw(7));
+        at(170, finish);
+        return;
+      }
+      if (caught.kind === 'heavy' && world) {
+        draw(4);
+        world.lashRing(from, caught.at, halfWidth);
+        const landing = world.lashLanding(from, caught.anchor ?? caught.at);
+        const travel = Math.hypot(landing.x - from.x, landing.y - from.y);
+        if (travel < 8) {
+          at(60, () => draw(6));
+          at(110, () => draw(7));
+          at(160, finish);
+          return;
+        }
+        const flight = { progress: 0 };
+        at(50, () => lease.trackTween(scene.tweens.add({
+          targets: flight,
+          progress: 1,
+          duration: Math.max(120, travel / STRETCH_LASH_PULL_SPEED),
+          ease: 'Quad.In',
+          onUpdate: () => {
+            const position = { x: from.x + (landing.x - from.x) * flight.progress, y: from.y + (landing.y - from.y) * flight.progress };
+            this.context.teleportPlayer(position);
+            draw(3, position, Math.hypot(caught.at.x - position.x, caught.at.y - position.y));
+          },
+          onComplete: () => {
+            if (lash?.scene) lash.destroy();
+            // Arrive with a little squash.
+            lease.trackTween(scene.tweens.add({
+              targets: visual.effects,
+              scaleX: 1.2,
+              scaleY: 0.82,
+              duration: 90,
+              ease: 'Quad.Out',
+              yoyo: true,
+              onComplete: complete,
+            }));
+          },
+        })));
+        return;
+      }
+      draw(3);
+      at(50, () => draw(6));
+      at(100, () => draw(7));
+      at(150, finish);
+    });
   }
 
   private spawnFlash(x: number, y: number, color: number, lease: PhaserAbilityLease): void {

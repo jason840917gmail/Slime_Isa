@@ -2,13 +2,16 @@ import type { JsonValue } from '../../content/scenes/types';
 import { PLAYER_ABILITY_DEFINITIONS, type PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
 import type { PlayerAbilityController } from '../player/PlayerAbilityController';
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
+import { controlLabel } from '../player/ControlLabels';
 
+/** In key order (Space, then 1–4); each slot shows its key from the binding table. */
 const ABILITIES = [
-  { id: 'jump', name: 'Jump', key: 'Space', model: 'jump' },
-  { id: 'squash-slam', name: 'Slam', key: 'T', model: 'slam' },
-  { id: 'stretch-lash', name: 'Lash', key: 'R', model: 'lash' },
-  { id: 'teleport', name: 'Teleport', key: 'Y', model: 'teleport' },
-] as const satisfies readonly { id: PlayerAbilityId; name: string; key: string; model: string }[];
+  { id: 'jump', name: 'Jump', model: 'jump' },
+  { id: 'dodge', name: 'Dodge', model: 'dodge' },
+  { id: 'stretch-lash', name: 'Lash', model: 'lash' },
+  { id: 'squash-slam', name: 'Slam', model: 'slam' },
+  { id: 'teleport', name: 'Teleport', model: 'teleport' },
+] as const satisfies readonly { id: PlayerAbilityId; name: string; model: string }[];
 
 /** Read-only ability status plus typed activation for the authored action bar. */
 export class AbilityBarSurfacePort implements UiSurfacePort {
@@ -26,7 +29,8 @@ export class AbilityBarSurfacePort implements UiSurfacePort {
     if (surfaceId !== 'ability-bar' || this.stopped) return {};
     const system = this.getAbilitySystem();
     const interactive = this.canInteract();
-    const entries = ABILITIES.flatMap(({ id, name, key, model }) => {
+    const entries = ABILITIES.flatMap(({ id, name, model }) => {
+      const key = controlLabel(PLAYER_ABILITY_DEFINITIONS[id].action);
       const status = system?.status(id);
       const unlocked = status?.unlocked ?? false;
       const cooldownMs = status?.cooldownRemainingMs ?? 0;

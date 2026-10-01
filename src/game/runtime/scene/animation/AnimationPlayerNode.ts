@@ -30,6 +30,10 @@ export interface AnimationPlayerNodeOptions extends NodeOptions {
   readonly resolveBinding: (player: AnimationPlayerNode, binding: string, property: string) => AnimationBinding;
   readonly advanceSource?: AnimationAdvanceSource;
   readonly autoplay?: string;
+  /** Start the autoplay clip at a random frame so copies of one scene don't move in lockstep. */
+  readonly randomizeStart?: boolean;
+  /** Injectable for tests; defaults to Math.random. */
+  readonly random?: () => number;
 }
 
 function validateAnimation(name: string, animation: UniversalAnimationDocument): void {
@@ -98,7 +102,13 @@ export class AnimationPlayerNode extends Node {
     }
   }
 
-  override _ready(): void { if (this.animationOptions.autoplay) this.play(this.animationOptions.autoplay); }
+  override _ready(): void {
+    const { autoplay, randomizeStart, random = Math.random } = this.animationOptions;
+    if (!autoplay) return;
+    this.play(autoplay);
+    const animation = this.animationOptions.animations[autoplay];
+    if (randomizeStart && animation.loop) this.seek(Math.floor(random() * animation.durationSeconds * animation.framesPerSecond));
+  }
   override _process(deltaSeconds: number): void { if (!this.animationOptions.advanceSource) this.advance(deltaSeconds); }
   override _physics_process(deltaSeconds: number): void { if (!this.animationOptions.advanceSource) this.advance(deltaSeconds); }
   override _exit_tree(): void { this.stop(); }

@@ -507,6 +507,19 @@
           32
         ]
       }
+    },
+    {
+      "id": "water-life",
+      "name": "Water Life",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 188,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
     }
   ],
   "instances": [
@@ -4729,7 +4742,7 @@
     {
       "instanceId": "wall-stone-solid-2f136f7c",
       "name": "wall-stone-solid-2f136f7c",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
       "order": 148,
       "persistenceKey": "jk.wall-stone-solid-2f136f7c",
@@ -4862,7 +4875,7 @@
     {
       "instanceId": "wall-stone-solid-c653cd77",
       "name": "wall-stone-solid-c653cd77",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
       "order": 155,
       "persistenceKey": "jk.wall-stone-solid-c653cd77",
@@ -4881,7 +4894,7 @@
     {
       "instanceId": "wall-stone-solid-4ee68459",
       "name": "wall-stone-solid-4ee68459",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 156,
       "persistenceKey": "jk.wall-stone-solid-4ee68459",
@@ -4900,7 +4913,7 @@
     {
       "instanceId": "wall-stone-solid-59789bc2",
       "name": "wall-stone-solid-59789bc2",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 157,
       "persistenceKey": "jk.wall-stone-solid-59789bc2",
@@ -4919,7 +4932,7 @@
     {
       "instanceId": "wall-stone-solid-a35e3e18",
       "name": "wall-stone-solid-a35e3e18",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 158,
       "persistenceKey": "jk.wall-stone-solid-a35e3e18",
@@ -4938,7 +4951,7 @@
     {
       "instanceId": "wall-stone-solid-b5aed9c2",
       "name": "wall-stone-solid-b5aed9c2",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 159,
       "persistenceKey": "jk.wall-stone-solid-b5aed9c2",
@@ -4957,7 +4970,7 @@
     {
       "instanceId": "wall-stone-solid-1e54cf7e",
       "name": "wall-stone-solid-1e54cf7e",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 160,
       "persistenceKey": "jk.wall-stone-solid-1e54cf7e",
@@ -4976,7 +4989,7 @@
     {
       "instanceId": "wall-stone-solid-2d88d459",
       "name": "wall-stone-solid-2d88d459",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "world",
       "order": 161,
       "persistenceKey": "jk.wall-stone-solid-2d88d459",
@@ -4995,7 +5008,7 @@
     {
       "instanceId": "wall-stone-solid-579d5c2d",
       "name": "wall-stone-solid-579d5c2d",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
       "order": 162,
       "persistenceKey": "jk.wall-stone-solid-579d5c2d",
@@ -5033,7 +5046,7 @@
     {
       "instanceId": "wall-stone-solid-a0d47c06",
       "name": "wall-stone-solid-a0d47c06",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 164,
       "persistenceKey": "jk.wall-stone-solid-a0d47c06",
@@ -5052,7 +5065,7 @@
     {
       "instanceId": "wall-stone-solid-62bc601d",
       "name": "wall-stone-solid-62bc601d",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 165,
       "persistenceKey": "jk.wall-stone-solid-62bc601d",
@@ -5071,7 +5084,7 @@
     {
       "instanceId": "wall-stone-solid-f0739e0e",
       "name": "wall-stone-solid-f0739e0e",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 166,
       "persistenceKey": "jk.wall-stone-solid-f0739e0e",
@@ -5090,7 +5103,7 @@
     {
       "instanceId": "wall-stone-solid-db047572",
       "name": "wall-stone-solid-db047572",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 167,
       "persistenceKey": "jk.wall-stone-solid-db047572",
@@ -5109,7 +5122,7 @@
     {
       "instanceId": "wall-stone-solid-9b1486f1",
       "name": "wall-stone-solid-9b1486f1",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 168,
       "persistenceKey": "jk.wall-stone-solid-9b1486f1",
@@ -5128,7 +5141,7 @@
     {
       "instanceId": "wall-stone-solid-e8e1f45d",
       "name": "wall-stone-solid-e8e1f45d",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-07",
       "parentNodeId": "world",
       "order": 169,
       "persistenceKey": "jk.wall-stone-solid-e8e1f45d",
@@ -5166,7 +5179,7 @@
     {
       "instanceId": "wall-stone-solid-f3d907f7",
       "name": "wall-stone-solid-f3d907f7",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
       "order": 171,
       "persistenceKey": "jk.wall-stone-solid-f3d907f7",
@@ -5185,7 +5198,7 @@
     {
       "instanceId": "wall-stone-solid-117e8e10",
       "name": "wall-stone-solid-117e8e10",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 172,
       "persistenceKey": "jk.wall-stone-solid-117e8e10",
@@ -5204,7 +5217,7 @@
     {
       "instanceId": "wall-stone-solid-a4304606",
       "name": "wall-stone-solid-a4304606",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 173,
       "persistenceKey": "jk.wall-stone-solid-a4304606",
@@ -5223,7 +5236,7 @@
     {
       "instanceId": "wall-stone-solid-98ad6d53",
       "name": "wall-stone-solid-98ad6d53",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 174,
       "persistenceKey": "jk.wall-stone-solid-98ad6d53",
@@ -5242,7 +5255,7 @@
     {
       "instanceId": "wall-stone-solid-740f0527",
       "name": "wall-stone-solid-740f0527",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 175,
       "persistenceKey": "jk.wall-stone-solid-740f0527",
@@ -5261,7 +5274,7 @@
     {
       "instanceId": "wall-stone-solid-13193187",
       "name": "wall-stone-solid-13193187",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 176,
       "persistenceKey": "jk.wall-stone-solid-13193187",
@@ -5280,7 +5293,7 @@
     {
       "instanceId": "wall-stone-solid-3269dec8",
       "name": "wall-stone-solid-3269dec8",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 177,
       "persistenceKey": "jk.wall-stone-solid-3269dec8",
@@ -5297,30 +5310,11 @@
       ]
     },
     {
-      "instanceId": "wall-stone-solid-bc83258a",
-      "name": "wall-stone-solid-bc83258a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 178,
-      "persistenceKey": "jk.wall-stone-solid-bc83258a",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            2528,
-            1408
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "wall-stone-solid-f27d7193",
       "name": "wall-stone-solid-f27d7193",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 179,
+      "order": 178,
       "persistenceKey": "jk.wall-stone-solid-f27d7193",
       "overrides": [
         {
@@ -5337,9 +5331,9 @@
     {
       "instanceId": "wall-stone-solid-a502decb",
       "name": "wall-stone-solid-a502decb",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 180,
+      "order": 179,
       "persistenceKey": "jk.wall-stone-solid-a502decb",
       "overrides": [
         {
@@ -5356,9 +5350,9 @@
     {
       "instanceId": "wall-stone-solid-dab3a373",
       "name": "wall-stone-solid-dab3a373",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 181,
+      "order": 180,
       "persistenceKey": "jk.wall-stone-solid-dab3a373",
       "overrides": [
         {
@@ -5375,9 +5369,9 @@
     {
       "instanceId": "wall-stone-solid-3ff39923",
       "name": "wall-stone-solid-3ff39923",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 182,
+      "order": 181,
       "persistenceKey": "jk.wall-stone-solid-3ff39923",
       "overrides": [
         {
@@ -5394,9 +5388,9 @@
     {
       "instanceId": "wall-stone-solid-1eb4c444",
       "name": "wall-stone-solid-1eb4c444",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 183,
+      "order": 182,
       "persistenceKey": "jk.wall-stone-solid-1eb4c444",
       "overrides": [
         {
@@ -5413,9 +5407,9 @@
     {
       "instanceId": "wall-stone-solid-af390ac1",
       "name": "wall-stone-solid-af390ac1",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 184,
+      "order": 183,
       "persistenceKey": "jk.wall-stone-solid-af390ac1",
       "overrides": [
         {
@@ -5432,9 +5426,9 @@
     {
       "instanceId": "wall-stone-solid-1a5fdda6",
       "name": "wall-stone-solid-1a5fdda6",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 185,
+      "order": 184,
       "persistenceKey": "jk.wall-stone-solid-1a5fdda6",
       "overrides": [
         {
@@ -5451,9 +5445,9 @@
     {
       "instanceId": "wall-stone-solid-d6eb5ffa",
       "name": "wall-stone-solid-d6eb5ffa",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 186,
+      "order": 185,
       "persistenceKey": "jk.wall-stone-solid-d6eb5ffa",
       "overrides": [
         {
@@ -5472,7 +5466,7 @@
       "name": "house-world-solid-74b30aa4",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 187,
+      "order": 186,
       "persistenceKey": "jk.house-world-solid-74b30aa4",
       "overrides": [
         {
@@ -5483,6 +5477,195 @@
             2592,
             960
           ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-bc83258a",
+      "name": "wall-stone-solid-bc83258a",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 187,
+      "persistenceKey": "jk.wall-stone-solid-bc83258a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1408
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-89116a2d",
+      "name": "water-life-89116a2d",
+      "sceneId": "object.water-life.fish-minnow-lane",
+      "parentNodeId": "water-life",
+      "order": 0,
+      "persistenceKey": "jk.water-life-89116a2d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            1888
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-99c71425",
+      "name": "water-life-99c71425",
+      "sceneId": "object.water-life.frog-lilypad",
+      "parentNodeId": "water-life",
+      "order": 1,
+      "persistenceKey": "jk.water-life-99c71425",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2604.05,
+            1785.04
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-4ac5d8ae",
+      "name": "water-life-4ac5d8ae",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 2,
+      "persistenceKey": "jk.water-life-4ac5d8ae",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2774.64,
+            1794.5
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d0b2207c",
+      "name": "water-life-d0b2207c",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 3,
+      "persistenceKey": "jk.water-life-d0b2207c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2967.51,
+            1911.21
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-8dbce8f3",
+      "name": "water-life-8dbce8f3",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 4,
+      "persistenceKey": "jk.water-life-8dbce8f3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3043.45,
+            1886
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ffea88ce",
+      "name": "water-life-ffea88ce",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 5,
+      "persistenceKey": "jk.water-life-ffea88ce",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2903.16,
+            1968.84
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-61712134",
+      "name": "water-life-61712134",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 6,
+      "persistenceKey": "jk.water-life-61712134",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2787.89,
+            2054
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-48d50646",
+      "name": "water-life-48d50646",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 7,
+      "persistenceKey": "jk.water-life-48d50646",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2910.81,
+            2047.98
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
         }
       ]
     }

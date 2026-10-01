@@ -5,7 +5,7 @@ import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurface
 const SURFACE_ID = 'npc-dialogue';
 const REVEAL_CHARS_PER_SECOND = 45;
 const REVEAL_TICK_MS = 30;
-const ADVANCE_KEYS = new Set(['KeyF', 'Space', 'Enter', 'NumpadEnter']);
+const ADVANCE_KEYS = new Set(['Space', 'Enter', 'NumpadEnter']);
 
 export interface NpcDialogueSurfaceOptions {
   readonly modalStack: ModalStack;
@@ -114,7 +114,7 @@ export class NpcDialogueSurfacePort implements UiSurfacePort {
       text: session ? currentText(session).slice(0, session.revealed) : '',
       pageLabel: session && session.pages.length > 1 ? `${session.page + 1} / ${session.pages.length}` : '',
       nextLabel: typing ? 'Skip  ▸▸' : lastPage ? session?.finishLabel ?? 'Done  ✓' : 'Next  ▸',
-      hint: 'F / Space  continue   ·   Esc  close',
+      hint: 'Space / Enter  continue   ·   Esc  close',
     };
   }
 
@@ -159,7 +159,7 @@ export class NpcDialogueSurfacePort implements UiSurfacePort {
     this.revealTimer = undefined;
   }
 
-  /** Captures advance keys while open so they never leak into gameplay (e.g. F re-opening the talk). */
+  /** Captures advance keys while open so they never leak into gameplay (e.g. Space jumping). */
   private readonly handleKeyDown = (event: KeyboardEvent): void => {
     if (!this.session || !ADVANCE_KEYS.has(event.code)) return;
     event.preventDefault();

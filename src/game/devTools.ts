@@ -1,5 +1,8 @@
 import { saveSystem } from './core/SaveSystem';
+import { storyProgress } from './features/progression/StoryProgress';
+import { abilityTitle, PASSIVE_ABILITY_IDS, PLAYER_ABILITY_IDS } from './features/player/PlayerAbilityDefinitions';
 import { gameEvents } from './core/EventBus';
+import { gameSettings } from './features/settings/GameSettingsService';
 import type { NamedSaveMetadata } from './infrastructure/persistence/SaveSchema';
 import { formatCameraZoom } from './presentation/CameraZoom';
 import { ModalStack } from './ui/ModalStack';
@@ -51,6 +54,36 @@ export const devToolsState: DevToolsState = {
   enemyAttackAreas: false,
 };
 
+const PLAYGROUND_ABILITIES: readonly string[] = [...PLAYER_ABILITY_IDS, ...PASSIVE_ABILITY_IDS];
+
+/** Game-feel effects the playground buttons play on the slime (see WorldScene's `dev.feel` handler). */
+const FEEL_BUTTONS: ReadonlyArray<{ effect: string; label: string }> = [
+  { effect: 'feel:hit', label: 'Hit-stop' },
+  { effect: 'feel:critical-hit', label: 'Critical hit' },
+  { effect: 'feel:slam', label: 'Slam shake' },
+  { effect: 'feel:boss-defeated', label: 'Big shake' },
+  { effect: 'squash:land', label: 'Squash: land' },
+  { effect: 'squash:jump', label: 'Squash: jump' },
+  { effect: 'squash:hit', label: 'Squash: hit' },
+  { effect: 'squash:gulp', label: 'Squash: gulp' },
+  { effect: 'particle:hit-spark', label: 'Hit spark' },
+  { effect: 'particle:slime-splash', label: 'Slime splash' },
+  { effect: 'particle:dodge-dust', label: 'Dodge dust' },
+  { effect: 'particle:loot-sparkle', label: 'Loot sparkle' },
+  { effect: 'particle:boss-burst', label: 'Boss burst' },
+];
+
+/** Cheats the panel's buttons send to the world (see WorldScene's `dev.cheat` handler). */
+const CHEAT_BUTTONS: ReadonlyArray<{ cheat: string; label: string }> = [
+  { cheat: 'damage', label: 'Take 20 damage' },
+  { cheat: 'heal', label: 'Full heal' },
+  { cheat: 'coins', label: '+100 coins' },
+  { cheat: 'potion', label: '+1 potion' },
+  { cheat: 'burn', label: 'Burn' },
+  { cheat: 'slow', label: 'Slow' },
+  { cheat: 'dummy', label: 'Spawn dummy' },
+];
+
 let displayedCameraZoom = 1;
 
 export function updateDevToolsCameraZoom(zoom: number): void {
@@ -70,6 +103,21 @@ export function createDevToolsPanel(): string {
     </label>
   `).join('');
 
+  const abilityRows = PLAYGROUND_ABILITIES.map((abilityId) => `
+    <label class="dev-toggle-row">
+      <input type="checkbox" data-dev-ability="${abilityId}" />
+      <span class="dev-checkbox" aria-hidden="true"></span>
+      <span><strong>${abilityTitle(abilityId)}</strong></span>
+    </label>
+  `).join('');
+  const feelButtons = FEEL_BUTTONS.map((button) => `
+    <button class="dev-runtime-button dev-runtime-button--secondary" type="button" data-dev-feel="${button.effect}">${button.label}</button>
+  `).join('');
+  const cheatButtons = CHEAT_BUTTONS.map((button) => `
+    <button class="dev-runtime-button dev-runtime-button--secondary" type="button" data-dev-cheat="${button.cheat}">${button.label}</button>
+  `).join('');
+  const aim = gameSettings.settings.attackAim;
+
   return `
     <aside class="development-panel" aria-label="Development tools">
       <header class="development-panel__header">
@@ -87,6 +135,29 @@ export function createDevToolsPanel(): string {
         </div>
         <p class="dev-note">Named saves are independent snapshots. Recovery autosave is used for browser close.</p>
         <p class="dev-note">Visible only in Vite dev mode.</p>
+      </section>
+      <section class="dev-card">
+        <h3>Playground</h3>
+        <p class="dev-note">Abilities: checked means learned (for trying them anywhere).</p>
+        ${abilityRows}
+        <p class="dev-note">Game feel: play one effect on the slime. Hit-stop freezes the world for a few frames on every hit; these buttons hold it five times longer, so walk or watch an enemy while pressing. Hit the training dummies for the real thing.</p>
+        <div class="dev-feel-grid">${feelButtons}</div>
+        <p class="dev-note">Cheats (dev builds only).</p>
+        <div class="dev-feel-grid">${cheatButtons}</div>
+      </section>
+      <section class="dev-card">
+        <h3>Controls test</h3>
+        <p class="dev-note">Where a left click swings (roadmap 4.10, under test). Saved with the settings on this device.</p>
+        <label class="dev-toggle-row">
+          <input type="radio" name="dev-attack-aim" value="pointer" data-dev-attack-aim ${aim === 'pointer' ? 'checked' : ''} />
+          <span class="dev-checkbox" aria-hidden="true"></span>
+          <span><strong>Toward the pointer</strong><small>Turns to the cursor, snapped to 4 directions</small></span>
+        </label>
+        <label class="dev-toggle-row">
+          <input type="radio" name="dev-attack-aim" value="facing" data-dev-attack-aim ${aim === 'facing' ? 'checked' : ''} />
+          <span class="dev-checkbox" aria-hidden="true"></span>
+          <span><strong>Facing</strong><small>The way the slime last moved</small></span>
+        </label>
       </section>
       <section class="dev-card"><h3>Bounds</h3>${rows}</section>
       <section class="dev-card dev-legend">
@@ -267,6 +338,57 @@ export function bindDevToolsPanel(root: ParentNode, modalStack: ModalStack): voi
     input.addEventListener('change', () => {
       devToolsState[key] = input.checked;
       if (input.checked && !devToolsState.enabled) { devToolsState.enabled = true; syncButton(); }
+    });
+  });
+  // The panel is mouse-only: game keys (Space jumps, Enter, arrows) must never toggle
+  // a checkbox or press a button that still has focus from the last click.
+  const panel = root.querySelector<HTMLElement>('.development-panel');
+  if (panel) {
+    const isPanelControl = (target: EventTarget | null): target is HTMLElement => target instanceof HTMLElement
+      && target.matches('input[type="checkbox"], input[type="radio"], button');
+    const blockKeys = (event: KeyboardEvent) => {
+      if (isPanelControl(event.target) && [' ', 'Enter', 'Spacebar'].includes(event.key)) event.preventDefault();
+    };
+    panel.addEventListener('keydown', blockKeys);
+    panel.addEventListener('keyup', blockKeys);
+    panel.addEventListener('click', (event) => {
+      if (!(event.target instanceof HTMLElement) || !event.target.closest('label, button')) return;
+      // After the click has done its work, hand the keyboard back to the game.
+      window.setTimeout(() => {
+        if (isPanelControl(document.activeElement)) document.activeElement.blur();
+      }, 0);
+    });
+  }
+
+  const abilityInputs = [...root.querySelectorAll<HTMLInputElement>('[data-dev-ability]')];
+  const syncAbilities = () => {
+    for (const input of abilityInputs) input.checked = storyProgress.knowsAbility(input.dataset.devAbility ?? '');
+  };
+  for (const input of abilityInputs) {
+    input.addEventListener('change', () => {
+      const abilityId = input.dataset.devAbility;
+      if (!abilityId) return;
+      if (input.checked) storyProgress.learnAbilities([abilityId]);
+      else storyProgress.forgetAbilities([abilityId]);
+    });
+  }
+  gameEvents.on('story.changed', syncAbilities);
+  syncAbilities();
+  root.querySelectorAll<HTMLButtonElement>('[data-dev-feel]').forEach((feelButton) => {
+    feelButton.addEventListener('click', () => {
+      const effect = feelButton.dataset.devFeel;
+      if (effect) gameEvents.emit('dev.feel', { effect });
+    });
+  });
+  root.querySelectorAll<HTMLButtonElement>('[data-dev-cheat]').forEach((cheatButton) => {
+    cheatButton.addEventListener('click', () => {
+      const cheat = cheatButton.dataset.devCheat;
+      if (cheat) gameEvents.emit('dev.cheat', { cheat });
+    });
+  });
+  root.querySelectorAll<HTMLInputElement>('[data-dev-attack-aim]').forEach((input) => {
+    input.addEventListener('change', () => {
+      if (input.checked && (input.value === 'pointer' || input.value === 'facing')) gameSettings.update({ attackAim: input.value });
     });
   });
   rootElement.addEventListener('click', (event) => {

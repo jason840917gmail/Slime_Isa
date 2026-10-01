@@ -17,7 +17,7 @@ stays in `asset/Originals/`, which the manifest ignores), then add an entry to
 "sheet.rocks.crystal-clusters.8x2": {
   "source": {
     "kind": "spritesheet",
-    "path": "MAPS/rocks/128x128-tile_8x2-crystal-clusters.png",
+    "path": "MAPS/rocks/128x128-tile_8x2-crystal-clusters.webp",
     "frame": { "w": 128, "h": 128, "cols": 8, "rows": 2, "count": 16 },
     "expect": { "w": 1024, "h": 256 }
   },
@@ -42,10 +42,14 @@ Manifest rules (schema: `asset/assets.schema.json`):
 - Use stable dotted asset IDs and unique texture keys.
 - Paths are relative to `asset/`, use `/`, and match filename casing.
 - Name sheets with their frame size and grid, for example
-  `128x128-tile_4x2-resource-piles.png`.
+  `128x128-tile_4x2-resource-piles.webp`.
 - Never put colliders, solidity, health, drops, damage, AI, or interactions here.
 - Run `pnpm assets:check`. It verifies paths, casing, `expect` dimensions, even
-  frame division, unique texture keys, bundles, and fails on unregistered PNGs.
+  frame division, unique texture keys, bundles, and fails on unregistered images
+  and on stale per-world image lists. After adding or re-pointing art that
+  worlds use, run `pnpm assets:worlds`: images only some worlds use then load
+  when the player enters those worlds instead of at boot. Anything not in those
+  lists loads at boot, so a stale list never leaves a texture missing.
 
 ## 2. Build a scene
 

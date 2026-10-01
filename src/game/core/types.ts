@@ -13,7 +13,8 @@ export type StatusKind =
   | 'bouncy'
   | 'frenzy';
 
-export const WEAPON_HOTBAR_SLOT_COUNT = 6;
+/** Weapons on the belt, switched with the mouse wheel (roadmap 4.10). */
+export const WEAPON_HOTBAR_SLOT_COUNT = 3;
 
 export type ItemCategory = 'consumable' | 'material' | 'key' | 'collectible' | 'weapon' | 'tool' | 'furniture';
 
@@ -36,7 +37,7 @@ export interface ItemDef {
   };
   /**
    * Furniture the player can place in the world from the inventory. The first
-   * scene is the default; R cycles the others (e.g. facing variants).
+   * scene is the default; the mouse wheel cycles the others while placing (e.g. facing variants).
    */
   placeable?: {
     sceneIds: string[];

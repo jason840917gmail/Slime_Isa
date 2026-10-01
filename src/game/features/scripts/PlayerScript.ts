@@ -14,6 +14,8 @@ import type {
 import type { DamageRouter } from '../combat/DamageRouter';
 import type { PlayerActorPort } from '../player/PlayerServicePorts';
 import { isPlayerInputAction, type PlayerInputAction } from '../player/PlayerInputActions';
+import { WheelStepper } from '../player/WheelStepper';
+import { GAME_CONSTANTS } from '../../Constant';
 import {
   PlayerNodePorts,
   requirePlayerAnimationNode,
@@ -37,9 +39,12 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
   private ports?: PlayerNodePorts;
   private simulationTimeMs = 0;
   private dodgeUntilMs = 0;
+  private rollUntilMs = 0;
   private movementSuppressedUntilMs = 0;
   private readonly heldInput = new Set<PlayerInputAction>();
-  private readonly pressedInput = new Set<PlayerInputAction>();
+  /** Presses not yet used, with the simulation time they were made. */
+  private readonly pressedInput = new Map<PlayerInputAction, number>();
+  private readonly wheel = new WheelStepper(() => GAME_CONSTANTS.input.weaponWheelStepLockMs);
 
   constructor(context: NodeConstructionContext) {
     super(context);
@@ -92,8 +97,13 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
   override _unhandled_input(event: SceneTreeInputEvent): void {
     const input = event as InputEvent;
     if (!isPlayerInputAction(input.action)) return;
+    if (input.type === 'wheel') {
+      if (this.wheel.step(input.action, input.wheelDelta ?? 0, input.timestamp)) this.pressedInput.set(input.action, this.simulationTimeMs);
+      event.handled = true;
+      return;
+    }
     if (input.pressed) {
-      if (!this.heldInput.has(input.action)) this.pressedInput.add(input.action);
+      if (!this.heldInput.has(input.action)) this.pressedInput.set(input.action, this.simulationTimeMs);
       this.heldInput.add(input.action);
     }
     if (input.released) this.heldInput.delete(input.action);
@@ -121,8 +131,9 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
     return this.simulationTimeMs < this.dodgeUntilMs;
   }
 
+  /** Knockback or a dodge roll owns the body: movement keys and actions wait. */
   isMovementSuppressed(): boolean {
-    return this.simulationTimeMs < this.movementSuppressedUntilMs;
+    return this.simulationTimeMs < this.movementSuppressedUntilMs || this.isRolling();
   }
 
   move(direction: CharacterPoint, speed: number): boolean {
@@ -149,20 +160,25 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
   }
 
   isActionPressed(action: string): boolean {
-    const resolved = action === 'boost' ? 'dodge-boost' : action;
-    return isPlayerInputAction(resolved) && this.heldInput.has(resolved);
+    return isPlayerInputAction(action) && this.heldInput.has(action);
   }
 
+  /**
+   * Uses a press of `action`. A press older than `input.bufferMs` (made during
+   * knockback, an action lock or the Gulp wheel) is dropped instead of firing late.
+   */
   consumeActionPress(action: string): boolean {
-    const resolved = action === 'dodge' ? 'dodge-boost' : action;
-    if (!isPlayerInputAction(resolved) || !this.pressedInput.has(resolved)) return false;
-    this.pressedInput.delete(resolved);
-    return true;
+    if (!isPlayerInputAction(action)) return false;
+    const pressedAt = this.pressedInput.get(action);
+    if (pressedAt === undefined) return false;
+    this.pressedInput.delete(action);
+    return this.simulationTimeMs - pressedAt <= GAME_CONSTANTS.input.bufferMs;
   }
 
   clearInput(): void {
     this.heldInput.clear();
     this.pressedInput.clear();
+    this.wheel.reset();
   }
 
   teleport(position: CharacterPoint): void {
@@ -170,12 +186,23 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
     this.requirePorts().teleport(position);
   }
 
-  beginDodge(direction: CharacterPoint, speed: number, invulnerabilityMs: number): boolean {
-    if (this.isMovementSuppressed() || !Number.isFinite(invulnerabilityMs) || invulnerabilityMs < 0) return false;
-    this.dodgeUntilMs = Math.max(this.dodgeUntilMs, this.simulationTimeMs + invulnerabilityMs);
+  /**
+   * Rolls along `direction` for `durationMs`: movement keys are ignored for the
+   * whole roll, and damage only for its first `invulnerabilityMs`.
+   */
+  beginDodge(direction: CharacterPoint, speed: number, durationMs: number, invulnerabilityMs: number): boolean {
+    if (this.isMovementSuppressed() || !Number.isFinite(durationMs) || durationMs <= 0
+      || !Number.isFinite(invulnerabilityMs) || invulnerabilityMs < 0) return false;
+    this.dodgeUntilMs = Math.max(this.dodgeUntilMs, this.simulationTimeMs + Math.min(invulnerabilityMs, durationMs));
+    this.rollUntilMs = Math.max(this.rollUntilMs, this.simulationTimeMs + durationMs);
     this.requirePorts().setVelocity(direction, speed);
     this.requirePorts().play('roll');
     return true;
+  }
+
+  /** True for the whole roll, including the recovery after the invulnerable part. */
+  isRolling(): boolean {
+    return this.simulationTimeMs < this.rollUntilMs;
   }
 
   applyKnockback(direction: CharacterPoint, strength: number, durationMs: number): void {

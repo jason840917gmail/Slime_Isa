@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "sceneId": "object.water-life.waterweed-eelgrass",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "waterweed-eelgrass",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "water-life.waterweed-eelgrass.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.55,
+          0.55
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "alpha": 0.6,
+        "tint": "#a9d2e3",
+        "depthMode": "explicit",
+        "depthBand": "ground-decals",
+        "depth": 2000000000.6
+      }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "water-life.waterweed-eelgrass.animations"
+        },
+        "domain": "render",
+        "autoplay": "object.water-life.idle",
+        "randomizeStart": true
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "water-life.waterweed-eelgrass.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.water.plants.8x5",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "water-life.waterweed-eelgrass.animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.water-life.idle": {
+          "durationSeconds": 2,
+          "framesPerSecond": 4,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                },
+                {
+                  "at": 4,
+                  "value": 4
+                },
+                {
+                  "at": 5,
+                  "value": 5
+                },
+                {
+                  "at": 6,
+                  "value": 6
+                },
+                {
+                  "at": 7,
+                  "value": 7
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

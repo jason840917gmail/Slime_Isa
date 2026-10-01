@@ -14,6 +14,11 @@ async function waitForProductionReady(page: import('@playwright/test').Page, pag
 
 const playerY = (page: import('@playwright/test').Page) => page.evaluate(() => window.sceneFixture.snapshot().managedPlayerY ?? 0);
 
+/** Right click over the game: interacts with the target in reach (the gate). */
+async function interact(page: import('@playwright/test').Page): Promise<void> {
+  await page.locator('canvas').first().click({ button: 'right' });
+}
+
 async function walkNorth(page: import('@playwright/test').Page, ms: number): Promise<void> {
   await page.keyboard.down('ArrowUp');
   await page.waitForTimeout(ms);
@@ -40,13 +45,13 @@ test('the Verdant Gate blocks the way east until the green key unlocks it', asyn
   expect(await playerY(page)).toBeGreaterThan(730);
 
   // Without the key the gate stays shut.
-  await page.keyboard.press('f');
+  await interact(page);
   await walkNorth(page, 600);
   expect(await playerY(page)).toBeGreaterThan(730);
 
   // With the key, interacting opens the gate and consumes the key.
   await page.evaluate(() => window.sceneFixture.grantProductionItem('green-key', 1));
-  await page.keyboard.press('f');
+  await interact(page);
   await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('green-key'))).toBe(0);
   await walkNorth(page, 1_400);
   expect(await playerY(page)).toBeLessThan(700);

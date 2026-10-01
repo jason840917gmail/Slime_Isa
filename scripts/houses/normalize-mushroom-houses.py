@@ -19,10 +19,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from PIL import Image
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "asset" / "Originals" / "houses"
-OUTPUT = ROOT / "asset" / "MAPS" / "Houses" / "320-mushroom-2x1.png"
+OUTPUT = ROOT / "asset" / "MAPS" / "Houses" / "320-mushroom-2x1.webp"
 
 FRAME = 320
 TARGET = 300  # longest side of the house art inside its frame, like the existing houses
@@ -44,7 +48,7 @@ def main() -> None:
         sheet.alpha_composite(art, (x, y))
         print(f"frame {index}: {stem} {art.width}x{art.height} at ({x - index * FRAME}, {y}) scale {scale:.4f}")
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    sheet.save(OUTPUT, optimize=True)
+    save_game_webp(sheet, OUTPUT)
     print(f"wrote {OUTPUT.relative_to(ROOT)}")
 
 

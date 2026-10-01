@@ -43,9 +43,16 @@ export class InputRouter {
   };
   private destroyed = false;
 
+  /** The wheel only feeds gameplay (weapon switching); it never blocks page scrolling. */
+  private readonly handleWheel = (nativeEvent: Event): void => {
+    const event = inputEventFromDom(nativeEvent, this.options.actions);
+    if (event) this.options.sink.enqueueInput(event);
+  };
+
   constructor(private readonly options: InputRouterOptions) {
     this.eventTarget = options.eventTarget ?? document;
     for (const type of DOM_INPUT_TYPES) this.eventTarget.addEventListener(type, this.handleDomEvent);
+    this.eventTarget.addEventListener('wheel', this.handleWheel, { passive: true });
   }
 
   registerControl(control: InputControl): () => void {
@@ -77,6 +84,7 @@ export class InputRouter {
     if (this.destroyed) return;
     this.destroyed = true;
     for (const type of DOM_INPUT_TYPES) this.eventTarget.removeEventListener(type, this.handleDomEvent);
+    this.eventTarget.removeEventListener('wheel', this.handleWheel);
     this.controls.clear();
   }
 }

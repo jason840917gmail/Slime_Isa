@@ -170,8 +170,8 @@ export const CUES = {
     // Magnific takes (sound picks 2026-09-30, "more subtle than Synth").
     'bow-draw': { library: ['magnific/enemy-bow-draw-1'], synth: () => ({ layers: [creak({ dur: 0.35, freq: [60, 95], cutoff: 1100, gain: 0.7 })] }) },
     'arrow-release': { library: ['swish-13', 'swish-10'], variants: 2, synth: (k) => ({ layers: [{ type: 'pluck', freq: 170 * k, dur: 0.35, damping: 0.994, brightness: 0.6, gain: 0.7 }, whoosh({ at: 0.02, dur: 0.14, from: 1200, peak: 4200, to: 2000, gain: 0.4, q: 2 })] }) },
-    // Magnific takes (sound picks 2026-09-30, "it should sound like a arrow entering a target").
-    'arrow-hit': { library: ['magnific/enemy-arrow-hit-1', 'magnific/enemy-arrow-hit-2'], variants: 2, synth: (k) => ({ layers: [burst({ dur: 0.04, type: 'bp', cutoff: 1100 * k, q: 1.5, gain: 0.8 }), thump({ f0: 220 * k, f1: 90, dur: 0.09 })] }) },
+    // Magnific takes (sound picks 2026-09-30, "it should sound like a arrow entering a target"; round 2 kept take 3).
+    'arrow-hit': { library: ['magnific/enemy-arrow-hit-3'], synth: (k) => ({ layers: [burst({ dur: 0.04, type: 'bp', cutoff: 1100 * k, q: 1.5, gain: 0.8 }), thump({ f0: 220 * k, f1: 90, dur: 0.09 })] }) },
     'arrow-thunk': { variants: 2, library: ['impactWood_light_000', 'impactWood_light_001'], synth: (k) => ({ layers: [wood({ freq: 300 * k, dur: 0.12 }), { type: 'tone', wave: 'triangle', dur: 0.25, freq: 95 * k, tremolo: { rate: 45, depth: 0.9 }, env: { a: 0.002, d: 0.25 }, gain: 0.3 }] }) },
     'spider-hurt': { library: ['rubberduck-creature-2/bug_05', 'rubberduck-creature-2/bug_06'], variants: 2, synth: (k) => ({ layers: [{ type: 'noise', dur: 0.2, gain: 0.7, env: { a: 0.003, d: 0.2 }, filter: { type: 'bp', cutoff: [3200 * k, 1800], q: 2 } }, { type: 'tone', wave: 'saw', dur: 0.16, freq: [1300 * k, 900 * k], fm: { ratio: 1.41, index: 0.3 }, filter: { type: 'bp', cutoff: 2000, q: 1.2 }, env: { a: 0.003, d: 0.16 }, gain: 0.5 }] }) },
     // Magnific takes (sound picks 2026-09-30, "should sound like a spider dying , similar to spider hurt but more dramatic").
@@ -193,8 +193,8 @@ export const CUES = {
     // Magnific takes (sound picks 2026-09-30, "like a big box falling to the ground, un sonido seco un poco mas largo con ondas").
     'fatty-land': { library: ['magnific/boss-fatty-land-1'], synth: () => ({ drive: 2.8, echo: { delay: 0.1, feedback: 0.35, mix: 0.3 }, layers: [thump({ f0: 70, f1: 24, dur: 1.0 }), burst({ dur: 0.8, cutoff: [900, 120], gain: 1, color: 'pink' }), squelch({ dur: 0.45, gain: 0.8, cutoff: [1100, 200] }), gravel({ at: 0.05, dur: 0.7, rate: [150, 20], cutoff: 1400, gain: 0.5 })] }) },
     'fatty-hurt': { library: ['rubberduck-creature-1/grunt_01', 'rubberduck-creature-1/grunt_05'], variants: 2, synth: (k) => ({ layers: [{ type: 'tone', wave: 'saw', dur: 0.28, freq: [170 * k, 110 * k], vibrato: { rate: 18, depth: 0.05 }, filter: { type: 'lp', cutoff: 900 }, env: { a: 0.01, d: 0.28 }, gain: 0.8 }, thump({ f0: 120, f1: 60, dur: 0.12, gain: 0.5 })] }) },
-    // Magnific takes (sound picks 2026-09-30, "i don't know what is this").
-    'fatty-recover': { library: ['magnific/boss-fatty-recover-1'], synth: () => ({ layers: [0, 0.35, 0.7].map((at) => ({ type: 'noise', at, dur: 0.28, env: { peak: 0.4 }, filter: { type: 'bp', cutoff: 700, q: 1.3 }, gain: 0.5 })) }) },
+    // Magnific takes (sound picks 2026-09-30, "i don't know what is this"; round 2 kept take 3).
+    'fatty-recover': { library: ['magnific/boss-fatty-recover-3'], synth: () => ({ layers: [0, 0.35, 0.7].map((at) => ({ type: 'noise', at, dur: 0.28, env: { peak: 0.4 }, filter: { type: 'bp', cutoff: 700, q: 1.3 }, gain: 0.5 })) }) },
     // Magnific takes (sound picks 2026-09-30, "come with other ideas").
     'fatty-death': { library: ['magnific/boss-fatty-death-1'], synth: () => ({ drive: 1.8, echo: { delay: 0.12, feedback: 0.35, mix: 0.3 }, layers: [{ type: 'tone', wave: 'saw', dur: 1.6, freq: [150, 38], vibrato: { rate: 8, depth: [0.02, 0.1] }, filter: { type: 'lp', cutoff: [1100, 250] }, env: { a: 0.05, d: 1.6 }, gain: 0.9 }, thump({ at: 1.3, f0: 70, f1: 25, dur: 0.8 }), squelch({ at: 1.3, dur: 0.4, gain: 0.7, cutoff: [800, 200] })] }) },
     victory: { library: ['jingles_NES00'], synth: () => ({ echo: { delay: 0.12, feedback: 0.35, mix: 0.3 }, layers: [...notes([G4, C5, E5], { step: 0.12, dur: 0.2, wave: 'square', gain: 0.25 }), ...notes([G5], { at: 0.36, dur: 0.3, wave: 'square', gain: 0.25 }), ...notes([E5], { at: 0.66, dur: 0.18, wave: 'square', gain: 0.25 }), ...[C6, E6, G5].map((freq) => ({ type: 'tone', wave: 'triangle', at: 0.84, dur: 0.9, freq, env: { a: 0.01, d: 0.9 }, gain: 0.3 })), sparkle({ at: 0.84, dur: 0.8 })] }) },
@@ -246,6 +246,8 @@ export const CUES = {
       ...notes([C5, E5, G5, C6], { at: 0.95, step: 0.08, dur: 0.45, wave: 'triangle', gain: 0.3 }),
       sparkle({ at: 1.1, dur: 0.5, gain: 0.15 }),
     ] }) },
+    // The Stretch Lash rings a bell post across a gap (roadmap 8.1): a goo slap, then a bright ring (Magnific takes 1-3; 2 ships).
+    'bell-ring': { library: ['magnific/world-bell-ring-2'], synth: () => ({ echo: { delay: 0.12, feedback: 0.3, mix: 0.25 }, layers: [squelch({ dur: 0.08, gain: 0.4 }), metal({ at: 0.02, freq: 1320, dur: 1.4, gain: 0.55 })] }) },
     // Seamless loops for props and places (roadmap 3.9). Synth-only placeholders until final recordings.
     'campfire-loop': { synth: () => ({ loop: { seconds: 6 }, maxRmsDb: -20, layers: [
       { type: 'noise', color: 'brown', dur: 6.5, gain: 0.5, env: SUSTAIN, filter: { type: 'lp', cutoff: 380 } },

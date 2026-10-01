@@ -15,21 +15,21 @@ The shared sheet contract. Continue with the focused guide for the asset type:
 - World props and furniture are bottom-centre anchored (`render.origin`
   `[0.5, 1]`) so the frame's bottom edge is the ground contact line.
 - Name runtime files with frame size and grid, e.g.
-  `128x128-tile_8x2-crystal-clusters.png`.
+  `128x128-tile_8x2-crystal-clusters.webp`.
 
 ## Current sizes
 
 | Asset | Frame | Example |
 | --- | --- | --- |
 | World tile | `64 x 64` | map `tileSize` is 64 |
-| Ground material | `64 x 64` cells, `19 x 19` sheet (`1216 x 1216`) | `MAPS/grounds/64x64-tile_19x19_forest-floor.png` |
-| Player slime | `256 x 256`, `8 x 8` | `characters/slime_normalized.png` |
-| NPC | `229 x 229`, `6 x 5` | `characters/authored/npcs/lili.png` |
-| Worm / spider enemy | `64 x 64` | `MAPS/enemies/64x64-8x6-worm-archer.png` |
-| Tree | `128 x 170` | `MAPS/trees/128X170-tiles_8x6.png` |
-| Rock / prop | `96`, `128`, or `256` square | `MAPS/rocks/96x96-tile_8x3.png` |
-| House | `320 x 320` | `MAPS/Houses/320-3x1.png` |
-| Item icon | `64 x 64`, `5 x 2` | `MAPS/items/gems-5x2.png` |
+| Ground material | `64 x 64` cells, `19 x 19` sheet (`1216 x 1216`) | `MAPS/grounds/64x64-tile_19x19_forest-floor.webp` |
+| Player slime | `256 x 256`, `8 x 8` | `characters/slime_normalized.webp` |
+| NPC | `229 x 229`, `6 x 5` | `characters/authored/npcs/lili.webp` |
+| Worm / spider enemy | `64 x 64` | `MAPS/enemies/64x64-8x6-worm-archer.webp` |
+| Tree | `128 x 170` | `MAPS/trees/128X170-tiles_8x6.webp` |
+| Rock / prop | `96`, `128`, or `256` square | `MAPS/rocks/96x96-tile_8x3.webp` |
+| House | `320 x 320` | `MAPS/Houses/320-3x1.webp` |
+| Item icon | `64 x 64`, `5 x 2` | `MAPS/items/gems-5x2.webp` |
 | Interior furniture | `128`, `192`, or `256` square | `MAPS/interiors/` |
 | Weapon / hit effect | `120`-`128` square | `MAPS/weapons/` |
 

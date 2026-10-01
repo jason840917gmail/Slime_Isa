@@ -42,6 +42,11 @@ export class DamageRouter {
     return this.areas.get(areaNodeId)?.receiver.runtimeNodeId;
   }
 
+  /** Every registered hurtbox area, for attacks that sweep the world instead of overlapping one area (the Stretch Lash). */
+  areaNodeIds(): readonly RuntimeNodeId[] {
+    return [...this.areas.keys()];
+  }
+
   registerArea(receiver: DamageReceiver, rule: DamageAreaRule): void {
     const existing = this.areas.get(rule.areaNodeId);
     if (existing) {

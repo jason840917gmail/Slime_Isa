@@ -1,19 +1,33 @@
 import type Phaser from 'phaser';
 
 import { DEPTH_BANDS } from '../../presentation/WorldDepth';
+import { controlCodes } from '../player/PlayerInputActions';
+import { controlLabel, controlVerb } from '../player/ControlLabels';
 
 export interface InteractionCandidate {
   readonly id: string;
+  /** What interacting does, without a key ("Open chest"); the router adds the control. */
   readonly prompt: string;
   readonly priority: number;
   /** World point where the key badge's bottom centre sits, above the target. */
   readonly anchor?: () => { readonly x: number; readonly y: number };
-  /** Optional second action on the same target (G), e.g. picking placed furniture back up. */
+  /** Where the target stands in the world, for pointing at it (falls back to `anchor`). */
+  readonly origin?: () => { readonly x: number; readonly y: number };
+  /**
+   * Optional second action on the same target, done by holding interact
+   * (e.g. picking placed furniture back up). A short press still does `execute`.
+   */
   readonly secondary?: {
     readonly prompt: string;
     execute(): boolean;
   };
   execute(): boolean;
+}
+
+/** The shared prompt line: "Right-click: Sleep     Hold: Pick up". */
+export function interactionPromptText(candidate: Pick<InteractionCandidate, 'prompt' | 'secondary'>): string {
+  const main = `${controlVerb('interact')}: ${candidate.prompt}`;
+  return candidate.secondary ? `${main}     Hold: ${candidate.secondary.prompt}` : main;
 }
 
 const BADGE_SIZE = 22;
@@ -22,10 +36,15 @@ const BADGE_BOB_PERIOD_MS = 1400;
 
 export interface InteractionProvider {
   getCandidate(): InteractionCandidate | undefined;
+  /** Every target in reach, so the pointer can choose one that is not the nearest. */
+  getCandidates?(): readonly InteractionCandidate[];
 }
 
+/** The pointer picks a target in reach whose position is within this many world pixels. */
+export const POINTER_PICK_PX = 64;
+
 /**
- * Chooses exactly one intentional F interaction and owns the shared prompt plus
+ * Chooses exactly one intentional interaction and owns the shared prompt plus
  * the world-space key badge shown above the chosen target.
  */
 export class InteractionRouter {
@@ -64,18 +83,26 @@ export class InteractionRouter {
     if (suppressed) this.clearCandidate();
   }
 
-  update(): void {
+  /**
+   * Chooses the target for the next interact press: the one in reach that the
+   * pointer (`pointer`, world coordinates) is on, else the highest-priority one.
+   */
+  update(pointer?: Readonly<{ x: number; y: number }>): void {
     if (this.suppressed) return;
-    let best: InteractionCandidate | undefined;
-    for (const provider of this.providers.values()) {
-      const candidate = provider.getCandidate();
-      if (!candidate || (best && (candidate.priority < best.priority
-        || (candidate.priority === best.priority && candidate.id > best.id)))) continue;
-      best = candidate;
+    const candidates = [...this.providers.values()].flatMap((provider) => (
+      provider.getCandidates ? [...provider.getCandidates()] : [provider.getCandidate()].filter((candidate): candidate is InteractionCandidate => !!candidate)
+    ));
+    let best = pointer ? pointedCandidate(candidates, pointer) : undefined;
+    if (!best) {
+      for (const candidate of candidates) {
+        if (best && (candidate.priority < best.priority
+          || (candidate.priority === best.priority && candidate.id > best.id))) continue;
+        best = candidate;
+      }
     }
     const previousId = this.candidate?.id;
     this.candidate = best;
-    this.prompt.setText(best ? (best.secondary ? `${best.prompt}     ${best.secondary.prompt}` : best.prompt) : '').setVisible(!!best);
+    this.prompt.setText(best ? interactionPromptText(best) : '').setVisible(!!best);
     this.updateBadge(best, best?.id !== previousId);
   }
 
@@ -91,6 +118,11 @@ export class InteractionRouter {
 
   hasCandidate(): boolean {
     return this.candidate !== undefined;
+  }
+
+  /** The chosen target also has a second action (picking placed furniture back up). */
+  hasSecondary(): boolean {
+    return this.candidate?.secondary !== undefined;
   }
 
   destroy(): void {
@@ -116,15 +148,37 @@ export class InteractionRouter {
     frame.fillStyle(0x000000, 0.35).fillRoundedRect(-half + 1, -BADGE_SIZE + 2, BADGE_SIZE, BADGE_SIZE, 5);
     frame.fillStyle(0x101a31, 0.92).fillRoundedRect(-half, -BADGE_SIZE, BADGE_SIZE, BADGE_SIZE, 5);
     frame.lineStyle(2, 0x9dffc8, 1).strokeRoundedRect(-half, -BADGE_SIZE, BADGE_SIZE, BADGE_SIZE, 5);
-    const label = this.scene.add.text(0, -half, 'F', {
-      fontFamily: 'Trebuchet MS, Segoe UI Variable, sans-serif',
-      fontSize: '14px',
-      fontStyle: 'bold',
-      color: '#e7fff5',
-    }).setOrigin(0.5);
-    return this.scene.add.container(0, 0, [frame, label])
+    const code = controlCodes('interact')[0];
+    const mouseButton = code.startsWith('Mouse') ? Number(code.slice(5)) : undefined;
+    const glyph = mouseButton === undefined
+      ? this.scene.add.text(0, -half, controlLabel('interact'), {
+        fontFamily: 'Trebuchet MS, Segoe UI Variable, sans-serif',
+        fontSize: '14px',
+        fontStyle: 'bold',
+        color: '#e7fff5',
+      }).setOrigin(0.5)
+      : this.drawMouseGlyph(-half, mouseButton);
+    return this.scene.add.container(0, 0, [frame, glyph])
       .setDepth(DEPTH_BANDS['overhead-artwork'])
       .setVisible(false);
+  }
+
+  /** A small mouse with the bound button lit (stand-in until the control glyph art exists). */
+  private drawMouseGlyph(centerY: number, button: number): Phaser.GameObjects.Graphics {
+    const width = 11;
+    const height = 15;
+    const left = -width / 2;
+    const top = centerY - height / 2;
+    const mouse = this.scene.add.graphics();
+    if (button === 0 || button === 2) {
+      mouse.fillStyle(0x9dffc8, 1);
+      const buttonLeft = button === 0 ? left : 0;
+      mouse.fillRoundedRect(buttonLeft, top, width / 2, height * 0.45, { tl: button === 0 ? 4 : 0, tr: button === 2 ? 4 : 0, bl: 0, br: 0 });
+    }
+    mouse.lineStyle(1.5, 0xe7fff5, 1).strokeRoundedRect(left, top, width, height, 4);
+    mouse.lineBetween(0, top, 0, top + height * 0.45);
+    mouse.lineBetween(left, top + height * 0.45, left + width, top + height * 0.45);
+    return mouse;
   }
 
   private updateBadge(candidate: InteractionCandidate | undefined, changed: boolean): void {
@@ -145,4 +199,23 @@ export class InteractionRouter {
   private readonly handleResize = (gameSize: Phaser.Structs.Size): void => {
     this.prompt.setPosition(gameSize.width / 2, gameSize.height - 42);
   };
+}
+
+/** The candidate whose position is nearest the pointer, if one is within `POINTER_PICK_PX`. */
+function pointedCandidate(
+  candidates: readonly InteractionCandidate[],
+  pointer: Readonly<{ x: number; y: number }>,
+): InteractionCandidate | undefined {
+  let pointed: InteractionCandidate | undefined;
+  let pointedDistance: number = POINTER_PICK_PX;
+  for (const candidate of candidates) {
+    const at = candidate.origin?.() ?? candidate.anchor?.();
+    if (!at) continue;
+    const distance = Math.hypot(at.x - pointer.x, at.y - pointer.y);
+    if (distance <= pointedDistance) {
+      pointed = candidate;
+      pointedDistance = distance;
+    }
+  }
+  return pointed;
 }

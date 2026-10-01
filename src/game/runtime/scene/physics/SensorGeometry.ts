@@ -185,3 +185,46 @@ export function sensorShapesIntersect(first: SensorShape, second: SensorShape): 
 export function closestPointOnBounds(bounds: SensorBounds, x: number, y: number): Readonly<{ x: number; y: number }> {
   return { x: clamp(x, bounds.x, bounds.x + bounds.width), y: clamp(y, bounds.y, bounds.y + bounds.height) };
 }
+
+/**
+ * Whether a swept line `halfWidth` thick (a lash or beam) touches `shape`:
+ * the segment is sampled no more than `halfWidth` apart, and each sample tests
+ * the shape grown by `halfWidth` (sectors are tested as authored).
+ */
+export function sensorShapeTouchesSegment(
+  shape: SensorShape,
+  from: Readonly<{ x: number; y: number }>,
+  to: Readonly<{ x: number; y: number }>,
+  halfWidth: number,
+): boolean {
+  validateSensorShape(shape);
+  const reach = Math.max(0, halfWidth);
+  const bounds = sensorShapeBounds(shape);
+  const sweep = {
+    x: Math.min(from.x, to.x) - reach,
+    y: Math.min(from.y, to.y) - reach,
+    width: Math.abs(to.x - from.x) + reach * 2,
+    height: Math.abs(to.y - from.y) + reach * 2,
+  };
+  if (!sensorBoundsIntersect(bounds, sweep)) return false;
+  const length = Math.hypot(to.x - from.x, to.y - from.y);
+  const steps = Math.max(1, Math.ceil(length / Math.max(4, reach)));
+  for (let step = 0; step <= steps; step += 1) {
+    const x = from.x + (to.x - from.x) * step / steps;
+    const y = from.y + (to.y - from.y) * step / steps;
+    if (shape.shape === 'rectangle') {
+      const closest = closestPointOnBounds(shape, x, y);
+      if (squaredDistance(x, y, closest.x, closest.y) <= reach * reach + EPSILON) return true;
+    } else if (shape.shape === 'circle') {
+      const radius = shape.radius + reach;
+      if (squaredDistance(x, y, shape.centerX, shape.centerY) <= radius * radius + EPSILON) return true;
+    } else if (shape.shape === 'ellipse') {
+      const dx = (x - shape.centerX) / (shape.radiusX + reach);
+      const dy = (y - shape.centerY) / (shape.radiusY + reach);
+      if (dx * dx + dy * dy <= 1 + EPSILON) return true;
+    } else if (pointInSector(x, y, shape)) {
+      return true;
+    }
+  }
+  return false;
+}

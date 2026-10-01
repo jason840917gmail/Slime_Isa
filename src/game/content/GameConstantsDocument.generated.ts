@@ -39,6 +39,16 @@ export interface GameConstantsDocument {
      */
     formDurationMs: number;
   };
+  input: {
+    /**
+     * How long a key or button press waits to be used, in milliseconds. A press made during knockback, an action lock or the Gulp wheel that is not used in time is dropped instead of firing late.
+     */
+    bufferMs: number;
+    /**
+     * After the mouse wheel switches weapon, further scrolling is ignored until the wheel has been still this long, in milliseconds, so one trackpad swipe or wheel flick moves one weapon.
+     */
+    weaponWheelStepLockMs: number;
+  };
 }
 /**
  * This interface was referenced by `GameConstantsDocument`'s JSON-Schema
@@ -94,7 +104,18 @@ export interface Movement {
   baseSpeed: NonNegative;
   boostSpeed: NonNegative;
   dodgeSpeed: NonNegative;
+  /**
+   * How long a dodge roll lasts, in milliseconds.
+   */
+  dodgeDurationMs: number;
+  /**
+   * How long the slime cannot be hurt from the start of a dodge roll, in milliseconds. At most dodgeDurationMs.
+   */
   dodgeInvulnerabilityMs: number;
+  /**
+   * Wait after a dodge roll ends before the next can start, in milliseconds.
+   */
+  dodgeCooldownMs: number;
   movementSpeedCap: NonNegative;
 }
 /**

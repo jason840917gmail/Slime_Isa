@@ -1,20 +1,26 @@
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
+import { controlLabel, controlVerb, movementLabel } from '../player/ControlLabels';
 
 export type ControlHintId = 'move' | 'interact' | 'attack' | 'dodge' | 'inventory' | 'crafting';
 
 export interface ControlHintDefinition {
   readonly id: ControlHintId;
+  /** Read when shown, so the key names always match the binding table. */
   readonly text: string;
+}
+
+function hint(id: ControlHintId, text: () => string): ControlHintDefinition {
+  return Object.freeze({ id, get text() { return text(); } });
 }
 
 /** In priority order: when several are useful at once, the first unlearned one shows. */
 export const CONTROL_HINTS: readonly ControlHintDefinition[] = Object.freeze([
-  { id: 'move', text: 'Move with the arrow keys (or I J K L)' },
-  { id: 'interact', text: 'Press F to talk, open or use' },
-  { id: 'attack', text: 'Press E or click to attack' },
-  { id: 'dodge', text: 'Press Q to roll out of danger' },
-  { id: 'inventory', text: 'Press Tab to open your inventory' },
-  { id: 'crafting', text: 'Press C to craft' },
+  hint('move', () => `Move with ${movementLabel()}`),
+  hint('interact', () => `${controlVerb('interact')} to talk, open or use`),
+  hint('attack', () => `${controlVerb('attack')} to attack`),
+  hint('dodge', () => `Press ${controlLabel('dodge')} to roll out of danger`),
+  hint('inventory', () => `Press ${controlLabel('menu')} to open your bag`),
+  hint('crafting', () => `Press ${controlLabel('menu')}, then Crafting, to craft`),
 ]);
 
 export interface ControlHintState {

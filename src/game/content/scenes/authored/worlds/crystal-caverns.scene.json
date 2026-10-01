@@ -276,6 +276,19 @@
         },
         "gate": {}
       }
+    },
+    {
+      "id": "water-life",
+      "name": "Water Life",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 203,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
     }
   ],
   "instances": [
@@ -8072,6 +8085,566 @@
           "value": [
             1.2,
             1.2
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-c3e2f306",
+      "name": "water-life-c3e2f306",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 0,
+      "persistenceKey": "crystal-caverns.water-life-c3e2f306",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2259.86,
+            813.67
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a41be604",
+      "name": "water-life-a41be604",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 1,
+      "persistenceKey": "crystal-caverns.water-life-a41be604",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1068.97,
+            870.32
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-06adb1a8",
+      "name": "water-life-06adb1a8",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 2,
+      "persistenceKey": "crystal-caverns.water-life-06adb1a8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1059.85,
+            962.91
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-c7020f1c",
+      "name": "water-life-c7020f1c",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 3,
+      "persistenceKey": "crystal-caverns.water-life-c7020f1c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2400.47,
+            947.82
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-55e3158a",
+      "name": "water-life-55e3158a",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 4,
+      "persistenceKey": "crystal-caverns.water-life-55e3158a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2463.33,
+            1065.25
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-5672fec7",
+      "name": "water-life-5672fec7",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 5,
+      "persistenceKey": "crystal-caverns.water-life-5672fec7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2643.93,
+            1061.32
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-64544dd4",
+      "name": "water-life-64544dd4",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 6,
+      "persistenceKey": "crystal-caverns.water-life-64544dd4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            605.14,
+            1150.62
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-644cf3ef",
+      "name": "water-life-644cf3ef",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 7,
+      "persistenceKey": "crystal-caverns.water-life-644cf3ef",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            744.52,
+            1138.9
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-8a4288c7",
+      "name": "water-life-8a4288c7",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 8,
+      "persistenceKey": "crystal-caverns.water-life-8a4288c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            998.8,
+            1150.33
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-3d7f8352",
+      "name": "water-life-3d7f8352",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 9,
+      "persistenceKey": "crystal-caverns.water-life-3d7f8352",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            806.61,
+            1254.07
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-67f09d79",
+      "name": "water-life-67f09d79",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 10,
+      "persistenceKey": "crystal-caverns.water-life-67f09d79",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2405.58,
+            1326.91
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-8a224c59",
+      "name": "water-life-8a224c59",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 11,
+      "persistenceKey": "crystal-caverns.water-life-8a224c59",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1002.16,
+            1400.75
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-e658d9b7",
+      "name": "water-life-e658d9b7",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 12,
+      "persistenceKey": "crystal-caverns.water-life-e658d9b7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2330.21,
+            1397.93
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-563edce9",
+      "name": "water-life-563edce9",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 13,
+      "persistenceKey": "crystal-caverns.water-life-563edce9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            800.39,
+            2154.73
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a26d2c41",
+      "name": "water-life-a26d2c41",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 14,
+      "persistenceKey": "crystal-caverns.water-life-a26d2c41",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            739.34,
+            2218
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-bb48e529",
+      "name": "water-life-bb48e529",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 15,
+      "persistenceKey": "crystal-caverns.water-life-bb48e529",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2644.14,
+            2238.97
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a6ae3419",
+      "name": "water-life-a6ae3419",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 16,
+      "persistenceKey": "crystal-caverns.water-life-a6ae3419",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            406.27,
+            2279.44
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-da68b432",
+      "name": "water-life-da68b432",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 17,
+      "persistenceKey": "crystal-caverns.water-life-da68b432",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2591.43,
+            2290.45
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-146f13e2",
+      "name": "water-life-146f13e2",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 18,
+      "persistenceKey": "crystal-caverns.water-life-146f13e2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            988.7,
+            2356.46
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-4ea152a9",
+      "name": "water-life-4ea152a9",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 19,
+      "persistenceKey": "crystal-caverns.water-life-4ea152a9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2394.56,
+            2362.4
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a1dd684f",
+      "name": "water-life-a1dd684f",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 20,
+      "persistenceKey": "crystal-caverns.water-life-a1dd684f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            479.67,
+            2421.6
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-051790f4",
+      "name": "water-life-051790f4",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 21,
+      "persistenceKey": "crystal-caverns.water-life-051790f4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            730.24,
+            2397.28
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-72d15192",
+      "name": "water-life-72d15192",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 22,
+      "persistenceKey": "crystal-caverns.water-life-72d15192",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            552.92,
+            2548.06
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-1cb7fd94",
+      "name": "water-life-1cb7fd94",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 23,
+      "persistenceKey": "crystal-caverns.water-life-1cb7fd94",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            797.78,
+            2537.33
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7a01f29b",
+      "name": "water-life-7a01f29b",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 24,
+      "persistenceKey": "crystal-caverns.water-life-7a01f29b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2341.34,
+            2597.35
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a76db7bf",
+      "name": "water-life-a76db7bf",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 25,
+      "persistenceKey": "crystal-caverns.water-life-a76db7bf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2527.69,
+            2587.75
           ]
         }
       ]

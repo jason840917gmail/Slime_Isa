@@ -97,7 +97,7 @@
     "category": "furniture",
     "icon": "interior-workshop-crafting-8x8",
     "iconFrame": 8,
-    "description": "A sturdy bench for shaping wood and stone into tools and weapons. Place it anywhere, then press F at it to craft.",
+    "description": "A sturdy bench for shaping wood and stone into tools and weapons. Place it anywhere, then use it to craft.",
     "placeable": { "sceneIds": ["object.interior-workshop-workbench", "object.interior-workshop-workbench-vise"] }
   },
   "berry-basket": {

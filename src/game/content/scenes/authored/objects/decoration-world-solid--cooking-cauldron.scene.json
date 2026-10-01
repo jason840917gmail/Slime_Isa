@@ -44,7 +44,7 @@
         "texture": {
           "resourceId": "decoration-world-solid.cooking-cauldron.sprite"
         },
-        "frame": 7,
+        "frame": 8,
         "origin": [
           0.5,
           1
@@ -62,11 +62,26 @@
       }
     },
     {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "decoration-world-solid.cooking-cauldron.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
+    },
+    {
       "id": "sfx-loop-sfx",
       "name": "LoopSfx",
       "type": "AudioStreamPlayer2D",
       "parentId": "body",
-      "order": 2,
+      "order": 3,
       "properties": {
         "stream": {
           "resourceId": "sfx.world.cauldron-loop"
@@ -86,7 +101,7 @@
       "version": 1,
       "resourceId": "decoration-world-solid.cooking-cauldron.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.decorations.8x3",
+      "assetId": "sheet.decorations.ambient.8x5",
       "frameWidth": 128,
       "frameHeight": 128
     },
@@ -98,6 +113,59 @@
         "shape": "rectangle",
         "width": 87,
         "height": 61
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "decoration-world-solid.cooking-cauldron.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 1,
+          "framesPerSecond": 8,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 8
+                },
+                {
+                  "at": 1,
+                  "value": 9
+                },
+                {
+                  "at": 2,
+                  "value": 10
+                },
+                {
+                  "at": 3,
+                  "value": 11
+                },
+                {
+                  "at": 4,
+                  "value": 12
+                },
+                {
+                  "at": 5,
+                  "value": 13
+                },
+                {
+                  "at": 6,
+                  "value": 14
+                },
+                {
+                  "at": 7,
+                  "value": 15
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {

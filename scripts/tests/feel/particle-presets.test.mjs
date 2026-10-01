@@ -45,7 +45,7 @@ test('one pooled emitter per preset; every burst reuses it', () => {
 
 test('a preset whose texture is missing is skipped, and rebinding replaces the pool', () => {
   const fx = new ParticlePresets();
-  const first = fakeScene(['goo-dust']);
+  const first = fakeScene(['dust-puff']);
   fx.bind(first);
   assert.equal(first.emitters.length, 1);
   fx.play('loot-sparkle', 0, 0);

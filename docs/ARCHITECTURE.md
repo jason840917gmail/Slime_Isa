@@ -82,7 +82,7 @@ Per-device preferences (sound mix, screen shake, reduce motion) are not part of 
 
 `features/shell/` owns the frame around play: the title screen (the first world of a page load runs in title mode: paused, no player or HUD, nothing autosaved), the pause menu (Esc), settings and controls, save slots, game over, credits, and end cards. Each menu is a `MenuSurface` presented by one authored `ui.*` scene; `GameShell` composes them and `WorldScene` supplies the actions. First-time control hints live in `features/hints/`.
 
-Weapon ownership is inventory-backed: `WeaponLoadout` validates ownership and the six persistent hotbar slots, and `CombatController` swaps the active weapon only after the loadout authorizes it. Number keys 1–6 select loadout slots; development cheats use Shift+1–Shift+8.
+Weapon ownership is inventory-backed: `WeaponLoadout` validates ownership and the three persistent hotbar slots (`WEAPON_HOTBAR_SLOT_COUNT`; older six-slot saves are fitted by `core/WeaponSlots.ts`), and `CombatController` swaps the active weapon only after the loadout authorizes it. The mouse wheel cycles the filled slots; a tree or rock in front gets the best owned harvest tool for one swing (`CombatController.tryToolAttack`). Every player control is bound in one table, `features/player/PlayerInputActions.ts`, and every key label comes from `ControlLabels.ts`; development cheats are buttons on the dev panel (`dev.cheat`), never keys.
 
 ## Verification scope
 

@@ -935,6 +935,7 @@ export class SceneStudioController {
       return topInstanceKey(node);
     };
     const markers: LiveViewportMarker[] = [];
+    const instancesById = new Map(state.document.instances.map((instance) => [instance.instanceId, instance]));
     const uiNodes = this.viewport.nodes(state.document.nodes).filter((node) => node.kind === 'ui');
     const isUiScene = uiNodes.length > 0 && !nodes.some((node) => node.global && !node.readOnly && node.key !== `:${state.document.rootNodeId}`);
     for (const node of uiNodes) {
@@ -947,7 +948,7 @@ export class SceneStudioController {
       if (!node.readOnly) {
         markers.push({ key: node.key, label: node.name, type: node.type, kind: 'node', position: node.global.position, selected, movable: true, rotation: node.global.rotation, rotatable: node.key !== `:${state.document.rootNodeId}` });
       } else if (node.instancePath.length === 1 && node.parentKey && byKey.get(node.parentKey)?.readOnly === false) {
-        const instance = state.document.instances.find((candidate) => candidate.instanceId === node.instancePath[0]);
+        const instance = instancesById.get(node.instancePath[0]);
         markers.push({ key: topInstanceKey(node), label: instance?.name ?? node.name, type: instance?.sceneId ?? node.type, kind: 'instance', position: node.global.position, selected: selected || selectedRow?.key === topInstanceKey(node), movable: true });
       } else if (selected || visibleRowKeys.has(node.key)) {
         markers.push({ key: node.key, label: node.name, type: node.type, kind: 'node', position: node.global.position, selected, movable: false });

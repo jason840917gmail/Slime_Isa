@@ -29,6 +29,12 @@
       "sheet.grounds.19x19.deep-water",
       "sheet.grounds.19x19.town-cobble",
       "sheet.decorations.8x3",
+      "sheet.decorations.ambient.8x5",
+      "sheet.water.fish.8x5",
+      "sheet.water.frog.8x1",
+      "sheet.water.lilypads.8x4",
+      "sheet.water.reeds.8x4",
+      "sheet.water.plants.8x5",
       "sheet.landmarks.level-1.4x1",
       "sheet.props.gulp.8x1",
       "sheet.walls.horizontal.8x1",
@@ -43,6 +49,8 @@
       "sheet.rocks.crystal-clusters.8x2",
       "sheet.trees.autumn.6x2",
       "sheet.trees.3x1",
+      "sheet.trees.sway.16x22",
+      "sheet.trees.3x1.sway.8x3",
       "sheet.houses.3x1",
       "sheet.houses.mushroom.2x1",
       "sheet.houses.workshop.2x1",
@@ -62,6 +70,9 @@
       "sheet.items.materials.5x2",
       "sheet.items.forage.5x2",
       "effect.boss.ground-crack",
+      "effect.player.stretch-lash",
+      "object.lash-bell-post",
+      "object.training-dummy",
       "weapon.player.sword-tiles",
       "effect.weapon.hit-tiles",
       "weapon.player.wooden-axe-tiles",
@@ -213,7 +224,6 @@
       "audio.sfx.enemy.arrow-release.1",
       "audio.sfx.enemy.arrow-release.2",
       "audio.sfx.enemy.arrow-hit.1",
-      "audio.sfx.enemy.arrow-hit.2",
       "audio.sfx.enemy.arrow-thunk.1",
       "audio.sfx.enemy.arrow-thunk.2",
       "audio.sfx.enemy.spider-hurt.1",
@@ -274,6 +284,7 @@
       "audio.sfx.world.interact.1",
       "audio.sfx.world.save.1",
       "audio.sfx.world.restore-building.1",
+      "audio.sfx.world.bell-ring.1",
       "audio.sfx.world.campfire-loop.1",
       "audio.sfx.world.cauldron-loop.1",
       "audio.sfx.world.grindstone-loop.1",
@@ -304,7 +315,7 @@
     "character.player.slime": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/slime_normalized.png",
+        "path": "characters/slime_normalized.webp",
         "frame": {
           "w": 256,
           "h": 256,
@@ -336,7 +347,7 @@
     "character.npc.village-elder-plop": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/npcs/village-elder-plop.png",
+        "path": "characters/authored/npcs/village-elder-plop.webp",
         "frame": {
           "w": 229,
           "h": 229,
@@ -370,7 +381,7 @@
     "character.npc.mossy-scout": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/npcs/mossy-scout.png",
+        "path": "characters/authored/npcs/mossy-scout.webp",
         "frame": {
           "w": 229,
           "h": 229,
@@ -404,7 +415,7 @@
     "character.npc.lili": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/npcs/lili.png",
+        "path": "characters/authored/npcs/lili.webp",
         "frame": {
           "w": 229,
           "h": 229,
@@ -438,7 +449,7 @@
     "character.npc.red-slime-boy": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/npcs/red-slime-boy.png",
+        "path": "characters/authored/npcs/red-slime-boy.webp",
         "frame": {
           "w": 229,
           "h": 229,
@@ -472,7 +483,7 @@
     "character.npc.yellow-blond-slime-girl": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/npcs/yellow-blond-slime-girl.png",
+        "path": "characters/authored/npcs/yellow-blond-slime-girl.webp",
         "frame": {
           "w": 229,
           "h": 229,
@@ -506,7 +517,7 @@
     "character.npc.fisherman-slime": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/npcs/fisherman-slime.png",
+        "path": "characters/authored/npcs/fisherman-slime.webp",
         "frame": {
           "w": 229,
           "h": 229,
@@ -807,7 +818,7 @@
     "sheet.decorations.8x3": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/decorations/128x128-tile_8x3.png",
+        "path": "MAPS/decorations/128x128-tile_8x3.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -836,10 +847,208 @@
       ],
       "status": "ready"
     },
+    "sheet.decorations.ambient.8x5": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 5
+        },
+        "expect": {
+          "w": 1024,
+          "h": 640
+        }
+      },
+      "runtime": {
+        "textureKey": "decorations-ambient-8x5"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "decoration",
+        "prop",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "sheet.water.fish.8x5": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/water/128x64-tile_8x5-water-fish.webp",
+        "frame": {
+          "w": 128,
+          "h": 64,
+          "cols": 8,
+          "rows": 5
+        },
+        "expect": {
+          "w": 1024,
+          "h": 320
+        }
+      },
+      "runtime": {
+        "textureKey": "water-fish-8x5"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "water",
+        "decoration",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "sheet.water.frog.8x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/water/128x128-tile_8x1-water-frog.webp",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 1
+        },
+        "expect": {
+          "w": 1024,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "water-frog-8x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "water",
+        "decoration",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "sheet.water.lilypads.8x4": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/water/128x128-tile_8x4-water-lilypads.webp",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 4
+        },
+        "expect": {
+          "w": 1024,
+          "h": 512
+        }
+      },
+      "runtime": {
+        "textureKey": "water-lilypads-8x4"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "water",
+        "decoration",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "sheet.water.reeds.8x4": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/water/128x128-tile_8x4-water-reeds.webp",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 4
+        },
+        "expect": {
+          "w": 1024,
+          "h": 512
+        }
+      },
+      "runtime": {
+        "textureKey": "water-reeds-8x4"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "water",
+        "decoration",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "sheet.water.plants.8x5": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/water/128x128-tile_8x5-water-plants.webp",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 5
+        },
+        "expect": {
+          "w": 1024,
+          "h": 640
+        }
+      },
+      "runtime": {
+        "textureKey": "water-plants-8x5"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "water",
+        "decoration",
+        "animated"
+      ],
+      "status": "ready"
+    },
     "sheet.props.gulp.8x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/props/256x256-tile_8x1-gulp-props.png",
+        "path": "MAPS/props/256x256-tile_8x1-gulp-props.webp",
         "frame": {
           "w": 256,
           "h": 256,
@@ -872,7 +1081,7 @@
     "sheet.landmarks.level-1.4x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.png",
+        "path": "MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.webp",
         "frame": {
           "w": 320,
           "h": 256,
@@ -906,7 +1115,7 @@
     "sheet.interiors.structure.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-structure.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-structure.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -942,7 +1151,7 @@
     "sheet.interiors.seating-directional.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-seating-directional.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-seating-directional.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -978,7 +1187,7 @@
     "sheet.interiors.beds-directional.6x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/256x256-tile_6x8-interior-beds-directional.png",
+        "path": "MAPS/interiors/256x256-tile_6x8-interior-beds-directional.webp",
         "frame": {
           "w": 256,
           "h": 256,
@@ -1015,7 +1224,7 @@
     "sheet.interiors.tables-directional.5x9": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/256x256-tile_5x9-interior-tables-directional.png",
+        "path": "MAPS/interiors/256x256-tile_5x9-interior-tables-directional.webp",
         "frame": {
           "w": 256,
           "h": 256,
@@ -1052,7 +1261,7 @@
     "sheet.interiors.storage-states.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-storage-states.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-storage-states.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1088,7 +1297,7 @@
     "sheet.interiors.kitchen-hearth.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-kitchen-hearth.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-kitchen-hearth.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1124,7 +1333,7 @@
     "sheet.interiors.workshop-crafting.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-workshop-crafting.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-workshop-crafting.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1160,7 +1369,7 @@
     "sheet.interiors.decor-lighting-utility.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-decor-lighting-utility.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-decor-lighting-utility.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1196,7 +1405,7 @@
     "sheet.interiors.specialty-rooms.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-specialty-rooms.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-specialty-rooms.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1232,7 +1441,7 @@
     "sheet.interiors.mushroom-structure.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-structure.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-structure.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1269,7 +1478,7 @@
     "sheet.interiors.mushroom-large-furniture.4x4": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/256x256-tile_4x4-interior-mushroom-large-furniture.png",
+        "path": "MAPS/interiors/256x256-tile_4x4-interior-mushroom-large-furniture.webp",
         "frame": {
           "w": 256,
           "h": 256,
@@ -1307,7 +1516,7 @@
     "sheet.interiors.mushroom-furniture-props.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.png",
+        "path": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.webp",
         "frame": {
           "w": 192,
           "h": 192,
@@ -1346,7 +1555,7 @@
     "sheet.interiors.mushroom-decor-lighting.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-decor-lighting.png",
+        "path": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-decor-lighting.webp",
         "frame": {
           "w": 192,
           "h": 192,
@@ -1384,7 +1593,7 @@
     "sheet.interiors.mushroom-floor-decor.8x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-floor-decor.png",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-floor-decor.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1421,7 +1630,7 @@
     "sheet.interiors.mushroom-room-shell.8x7": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/interiors/128x128-tile_8x7-interior-mushroom-room-shell.png",
+        "path": "MAPS/interiors/128x128-tile_8x7-interior-mushroom-room-shell.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1458,7 +1667,7 @@
     "sheet.houses.3x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/Houses/320-3x1.png",
+        "path": "MAPS/Houses/320-3x1.webp",
         "frame": {
           "w": 320,
           "h": 320,
@@ -1489,7 +1698,7 @@
     "sheet.houses.mushroom.2x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/Houses/320-mushroom-2x1.png",
+        "path": "MAPS/Houses/320-mushroom-2x1.webp",
         "frame": {
           "w": 320,
           "h": 320,
@@ -1522,7 +1731,7 @@
     "sheet.houses.workshop.2x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/Houses/320-workshop-2x1.png",
+        "path": "MAPS/Houses/320-workshop-2x1.webp",
         "frame": {
           "w": 320,
           "h": 320,
@@ -1555,7 +1764,7 @@
     "sheet.rocks.3x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/rocks/128x128-tile_3x1.png",
+        "path": "MAPS/rocks/128x128-tile_3x1.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1598,7 +1807,7 @@
     "sheet.rocks.8x3": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/rocks/96x96-tile_8x3.png",
+        "path": "MAPS/rocks/96x96-tile_8x3.webp",
         "frame": {
           "w": 96,
           "h": 96,
@@ -1704,7 +1913,7 @@
     "sheet.resources.4x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/resources/128x128-tile_4x2-resource-piles.png",
+        "path": "MAPS/resources/128x128-tile_4x2-resource-piles.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1765,7 +1974,7 @@
     "sheet.trees.8x6": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/trees/128X170-tiles_8x6.png",
+        "path": "MAPS/trees/128X170-tiles_8x6.webp",
         "frame": {
           "w": 128,
           "h": 170,
@@ -1796,7 +2005,7 @@
     "sheet.rocks.crystal-clusters.8x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/rocks/128x128-tile_8x2-crystal-clusters.png",
+        "path": "MAPS/rocks/128x128-tile_8x2-crystal-clusters.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1830,7 +2039,7 @@
     "sheet.resources.starter-materials.2x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/resources/128x128-tile_2x1-starter-materials.png",
+        "path": "MAPS/resources/128x128-tile_2x1-starter-materials.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -1872,7 +2081,7 @@
     "sheet.trees.autumn.6x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/trees/autumn-tree-idle-leaf-fall-6x2.png",
+        "path": "MAPS/trees/autumn-tree-idle-leaf-fall-6x2.webp",
         "frame": {
           "w": 128,
           "h": 170,
@@ -1906,7 +2115,7 @@
     "sheet.trees.3x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/trees/256x256-Tile_3x1.png",
+        "path": "MAPS/trees/256x256-Tile_3x1.webp",
         "frame": {
           "w": 256,
           "h": 256,
@@ -1934,10 +2143,75 @@
       ],
       "status": "ready"
     },
+    "sheet.trees.sway.16x22": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/trees/128x170-tile_16x22-trees-sway.webp",
+        "frame": {
+          "w": 128,
+          "h": 170,
+          "cols": 16,
+          "rows": 22,
+          "count": 344
+        },
+        "expect": {
+          "w": 2048,
+          "h": 3740
+        }
+      },
+      "runtime": {
+        "textureKey": "trees-sway-16x22"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "tree",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "sheet.trees.3x1.sway.8x3": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/trees/256x256-tile_8x3-trees-sway.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 8,
+          "rows": 3
+        },
+        "expect": {
+          "w": 2048,
+          "h": 768
+        }
+      },
+      "runtime": {
+        "textureKey": "trees-3x1-sway-8x3"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "tree",
+        "animated"
+      ],
+      "status": "ready"
+    },
     "enemy.worm.archer": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/64x64-8x6-worm-archer.png",
+        "path": "MAPS/enemies/64x64-8x6-worm-archer.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -1968,7 +2242,7 @@
     "enemy.worm.swordsman": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/64x64-4x10-worm-swordsman.png",
+        "path": "MAPS/enemies/64x64-4x10-worm-swordsman.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -1999,7 +2273,7 @@
     "enemy.worm.brawler": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/64x64-8x6-worm-brawler.png",
+        "path": "MAPS/enemies/64x64-8x6-worm-brawler.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2030,7 +2304,7 @@
     "enemy.projectile.worm-arrow": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/40x40-1x5-worm-arrows.png",
+        "path": "MAPS/enemies/40x40-1x5-worm-arrows.webp",
         "frame": {
           "w": 40,
           "h": 40,
@@ -2061,7 +2335,7 @@
     "enemy.projectile.spider-web": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/40x40-7x1-spider-web.png",
+        "path": "MAPS/enemies/40x40-7x1-spider-web.webp",
         "frame": {
           "w": 40,
           "h": 40,
@@ -2093,7 +2367,7 @@
     "effect.enemy.spider-web-cover": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/64x64-4x1-spider-web-cover.png",
+        "path": "MAPS/enemies/64x64-4x1-spider-web-cover.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2125,7 +2399,7 @@
     "effect.enemy.worm-brawler-hit": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/16x20-1x3-worm-brawler_hits.png",
+        "path": "MAPS/enemies/16x20-1x3-worm-brawler_hits.webp",
         "frame": {
           "w": 16,
           "h": 20,
@@ -2157,7 +2431,7 @@
     "sheet.walls.horizontal.8x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/walls/70x70-8x1tiles_horizontals.png",
+        "path": "MAPS/walls/70x70-8x1tiles_horizontals.webp",
         "frame": {
           "w": 70,
           "h": 70,
@@ -2190,7 +2464,7 @@
     "sheet.walls.corners.4x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/walls/70x70-4x2tiles_corners.png",
+        "path": "MAPS/walls/70x70-4x2tiles_corners.webp",
         "frame": {
           "w": 70,
           "h": 70,
@@ -2223,7 +2497,7 @@
     "sheet.walls.t-junctions.7x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/walls/70x70-7x1tiles_Ts.png",
+        "path": "MAPS/walls/70x70-7x1tiles_Ts.webp",
         "frame": {
           "w": 70,
           "h": 70,
@@ -2256,7 +2530,7 @@
     "sheet.walls.vertical.1x8": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/walls/70x70-8x1tiles_verticals.png",
+        "path": "MAPS/walls/70x70-8x1tiles_verticals.webp",
         "frame": {
           "w": 70,
           "h": 70,
@@ -2289,7 +2563,7 @@
     "character.enemy.slime-spider": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/enemies/64x64-8x10-forest-orb-weaver-slime.png",
+        "path": "MAPS/enemies/64x64-8x10-forest-orb-weaver-slime.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2314,7 +2588,7 @@
     "character.boss.fatty-one-eye": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/bosses/fatty-one-eye-6x7.png",
+        "path": "characters/authored/bosses/fatty-one-eye-6x7.webp",
         "frame": {
           "w": 108,
           "h": 118,
@@ -2348,7 +2622,7 @@
     "sheet.objects.chest-wooden.2x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/objects/chest-wooden-2x1.png",
+        "path": "MAPS/objects/chest-wooden-2x1.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2389,7 +2663,7 @@
     "sheet.items.keys.5x4": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/items/keys-5x4.png",
+        "path": "MAPS/items/keys-5x4.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2422,7 +2696,7 @@
     "sheet.items.potions.5x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/items/potions-5x2.png",
+        "path": "MAPS/items/potions-5x2.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2455,7 +2729,7 @@
     "sheet.items.gems.5x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/items/gems-5x2.png",
+        "path": "MAPS/items/gems-5x2.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2489,7 +2763,7 @@
     "sheet.items.materials.5x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/items/materials-5x2.png",
+        "path": "MAPS/items/materials-5x2.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2523,7 +2797,7 @@
     "sheet.items.forage.5x2": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/items/forage-5x2.png",
+        "path": "MAPS/items/forage-5x2.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2554,10 +2828,112 @@
       ],
       "status": "ready"
     },
+    "effect.player.stretch-lash": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/effects/384x96-tile_4x2-stretch-lash.webp",
+        "frame": {
+          "w": 384,
+          "h": 96,
+          "cols": 4,
+          "rows": 2,
+          "count": 8
+        },
+        "expect": {
+          "w": 1536,
+          "h": 192
+        }
+      },
+      "runtime": {
+        "textureKey": "effect-player-stretch-lash"
+      },
+      "render": {
+        "origin": [
+          0,
+          0.5417
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "effect",
+        "player",
+        "ability"
+      ],
+      "status": "ready",
+      "notes": "Stretch Lash goo tendril (frames 0-3 reach out, 4-5 hit with a splat, 6-7 pull back), drawn at twice the display size. Magnific GPT-2 sources in asset/Originals/effects/stretch-lash/, packed by scripts/effects/pack-stretch-lash.py."
+    },
+    "object.training-dummy": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/objects/256x256-tile_1x1-training-dummy.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 1,
+          "rows": 1,
+          "count": 1
+        },
+        "expect": {
+          "w": 256,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "object-training-dummy"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "object",
+        "prop",
+        "playground"
+      ],
+      "status": "ready",
+      "notes": "Straw training dummy for the playground's feel yard (weapons and abilities on something that never fights back). Magnific GPT-2 with Magnific background removal; source asset/Originals/props/training-dummy/, packed by scripts/props/pack-training-dummy.py."
+    },
+    "object.lash-bell-post": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/objects/256x256-tile_3x1-lash-bell-post.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 3,
+          "rows": 1,
+          "count": 3
+        },
+        "expect": {
+          "w": 768,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "object-lash-bell-post"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "object",
+        "prop",
+        "puzzle"
+      ],
+      "status": "ready",
+      "notes": "Bell post rung by the Stretch Lash (frame 0 rest, 1 and 2 the bell swung). Magnific GPT-2 source asset/Originals/effects/stretch-lash/bell-post-b.png, packed by scripts/effects/pack-lash-bell.py."
+    },
     "effect.boss.ground-crack": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/effects/boss-ground-crack-4x1.png",
+        "path": "MAPS/effects/boss-ground-crack-4x1.webp",
         "frame": {
           "w": 96,
           "h": 96,
@@ -2590,7 +2966,7 @@
     "weapon.player.sword-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/120x120_9x2_swordTiles.png",
+        "path": "MAPS/weapons/120x120_9x2_swordTiles.webp",
         "frame": {
           "w": 120,
           "h": 120,
@@ -2622,7 +2998,7 @@
     "effect.weapon.hit-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/126x126_3x1_Hits.png",
+        "path": "MAPS/weapons/126x126_3x1_Hits.webp",
         "frame": {
           "w": 126,
           "h": 126,
@@ -2655,7 +3031,7 @@
     "weapon.player.wooden-axe-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/128x128-tile_3x1-wooden-axe.png",
+        "path": "MAPS/weapons/128x128-tile_3x1-wooden-axe.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -2699,7 +3075,7 @@
     "weapon.player.stone-tools-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/128x128-tile_4x1-stone-tools.png",
+        "path": "MAPS/weapons/128x128-tile_4x1-stone-tools.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -2747,7 +3123,7 @@
     "weapon.player.pickaxe-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/128x128-tile_3x1-pickaxe.png",
+        "path": "MAPS/weapons/128x128-tile_3x1-pickaxe.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -2791,7 +3167,7 @@
     "effect.resource.impact-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/128x128-tile_4x1-resource-impact.png",
+        "path": "MAPS/weapons/128x128-tile_4x1-resource-impact.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -2838,7 +3214,7 @@
     "effect.resource.stone-impact-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/128x128-tile_4x1-stone-impact.png",
+        "path": "MAPS/weapons/128x128-tile_4x1-stone-impact.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -2886,7 +3262,7 @@
     "weapon.player.starter-spears-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/128x128-tile_2x2-starter-spears.png",
+        "path": "MAPS/weapons/128x128-tile_2x2-starter-spears.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -2933,7 +3309,7 @@
     "weapon.player.hammer-spear-tiles": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/weapons/126x126_2x2_HammerAndSpear.png",
+        "path": "MAPS/weapons/126x126_2x2_HammerAndSpear.webp",
         "frame": {
           "w": 126,
           "h": 126,
@@ -2965,7 +3341,7 @@
     "ui.frame.organic-compact": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-organic-compact-frame.png",
+        "path": "UI/ui-organic-compact-frame.webp",
         "expect": {
           "w": 2172,
           "h": 724
@@ -2992,7 +3368,7 @@
     "ui.backplate.inventory": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-inventory-backplate.png",
+        "path": "UI/ui-inventory-backplate.webp",
         "expect": {
           "w": 1672,
           "h": 941
@@ -3019,7 +3395,7 @@
     "ui.surface.map-journal-paper": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-map-journal-paper.png",
+        "path": "UI/ui-map-journal-paper.webp",
         "expect": {
           "w": 1448,
           "h": 1086
@@ -3048,7 +3424,7 @@
     "ui.logo.slime-isa": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-slime-isa-logo.png",
+        "path": "UI/ui-slime-isa-logo.webp",
         "expect": {
           "w": 720,
           "h": 397
@@ -3075,7 +3451,7 @@
     "ui.icons.gulp-forms.2x1": {
       "source": {
         "kind": "spritesheet",
-        "path": "UI/ui-gulp-form-icons-2x1.png",
+        "path": "UI/ui-gulp-form-icons-2x1.webp",
         "frame": {
           "w": 128,
           "h": 128,
@@ -3108,7 +3484,7 @@
     "ui.illustration.game-over": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-game-over-puddle.png",
+        "path": "UI/ui-game-over-puddle.webp",
         "expect": {
           "w": 420,
           "h": 420
@@ -3135,7 +3511,7 @@
     "ui.frame.organic-minimap": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-organic-minimap-frame.png",
+        "path": "UI/ui-organic-minimap-frame.webp",
         "expect": {
           "w": 1254,
           "h": 1254
@@ -3162,7 +3538,7 @@
     "ui.backplate.crafting-detail-workbench": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-crafting-detail-workbench-backplate.png",
+        "path": "UI/ui-crafting-detail-workbench-backplate.webp",
         "expect": {
           "w": 2048,
           "h": 1152
@@ -3190,7 +3566,7 @@
     "ui.backplate.quest-journal": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-quest-journal-backplate.png",
+        "path": "UI/ui-quest-journal-backplate.webp",
         "expect": {
           "w": 1448,
           "h": 1086
@@ -3217,7 +3593,7 @@
     "ui.frame.quest-offer-scroll": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-quest-offer-scroll-frame.png",
+        "path": "UI/ui-quest-offer-scroll-frame.webp",
         "expect": {
           "w": 1672,
           "h": 941
@@ -3244,7 +3620,7 @@
     "ui.frame.boss-health": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-boss-health-frame.png",
+        "path": "UI/ui-boss-health-frame.webp",
         "expect": {
           "w": 2172,
           "h": 724
@@ -3271,7 +3647,7 @@
     "ui.banner.area-title": {
       "source": {
         "kind": "image",
-        "path": "UI/ui-area-title-banner.png",
+        "path": "UI/ui-area-title-banner.webp",
         "expect": {
           "w": 2172,
           "h": 724
@@ -3314,7 +3690,7 @@
     "terrain.interior.floor-wood-a": {
       "source": {
         "kind": "image",
-        "path": "MAPS/interiors/128x128-interior-floor-wood-a.png",
+        "path": "MAPS/interiors/128x128-interior-floor-wood-a.webp",
         "expect": {
           "w": 128,
           "h": 128
@@ -3341,7 +3717,7 @@
     "terrain.interior.floor-wood-b": {
       "source": {
         "kind": "image",
-        "path": "MAPS/interiors/128x128-interior-floor-wood-b.png",
+        "path": "MAPS/interiors/128x128-interior-floor-wood-b.webp",
         "expect": {
           "w": 128,
           "h": 128
@@ -3368,7 +3744,7 @@
     "terrain.interior.floor-mushroom-earth-a": {
       "source": {
         "kind": "image",
-        "path": "MAPS/interiors/128x128-interior-floor-mushroom-earth-a.png",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-earth-a.webp",
         "expect": {
           "w": 128,
           "h": 128
@@ -3396,7 +3772,7 @@
     "terrain.interior.floor-mushroom-earth-b": {
       "source": {
         "kind": "image",
-        "path": "MAPS/interiors/128x128-interior-floor-mushroom-earth-b.png",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-earth-b.webp",
         "expect": {
           "w": 128,
           "h": 128
@@ -3424,7 +3800,7 @@
     "terrain.interior.floor-mushroom-clover-a": {
       "source": {
         "kind": "image",
-        "path": "MAPS/interiors/128x128-interior-floor-mushroom-clover-a.png",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-clover-a.webp",
         "expect": {
           "w": 128,
           "h": 128
@@ -3452,7 +3828,7 @@
     "terrain.interior.floor-mushroom-clover-b": {
       "source": {
         "kind": "image",
-        "path": "MAPS/interiors/128x128-interior-floor-mushroom-clover-b.png",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-clover-b.webp",
         "expect": {
           "w": 128,
           "h": 128
@@ -3480,7 +3856,7 @@
     "terrain.interior.floor-mushroom-plain": {
       "source": {
         "kind": "image",
-        "path": "MAPS/interiors/128x128-interior-floor-mushroom-plain.png",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-plain.webp",
         "expect": {
           "w": 128,
           "h": 128
@@ -4508,19 +4884,9 @@
     "audio.sfx.enemy.arrow-hit.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/library/enemy/arrow-hit-1.wav"
+        "path": "audio/sfx/library/enemy/arrow-hit.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-arrow-hit-1" },
-      "tags": ["audio", "sfx", "enemy"],
-      "status": "draft",
-      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
-    },
-    "audio.sfx.enemy.arrow-hit.2": {
-      "source": {
-        "kind": "audio",
-        "path": "audio/sfx/library/enemy/arrow-hit-2.wav"
-      },
-      "runtime": { "textureKey": "sfx-enemy-arrow-hit-2" },
       "tags": ["audio", "sfx", "enemy"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
@@ -5121,6 +5487,16 @@
         "path": "audio/sfx/library/world/restore-building.wav"
       },
       "runtime": { "textureKey": "sfx-world-restore-building-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.bell-ring.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/library/world/bell-ring.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-bell-ring-1" },
       "tags": ["audio", "sfx", "world"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."

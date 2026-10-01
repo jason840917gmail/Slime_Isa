@@ -12,6 +12,8 @@ import type { InteractionCandidate, InteractionRouter, InteractionProvider } fro
 const NPC_INTERACT_DISTANCE = 96;
 const NPC_BADGE_OFFSET_X = 30;
 const NPC_BADGE_OFFSET_Y = -30;
+/** An NPC's body centre sits this far above its position; pointing near it picks the NPC. */
+const NPC_BODY_RISE_PX = 24;
 
 interface QuestNpcRecord {
   readonly actor: NpcActorHandle;
@@ -85,31 +87,44 @@ export class QuestNpcController implements InteractionProvider {
   }
 
   getCandidate(): InteractionCandidate | undefined {
-    if (this.disposed) return undefined;
+    return this.inReach()[0]?.candidate;
+  }
+
+  /** Every NPC in reach, so the pointer can choose one that is not the nearest. */
+  getCandidates(): readonly InteractionCandidate[] {
+    return this.inReach().map(({ candidate }) => candidate);
+  }
+
+  /** NPCs in reach, best first: highest priority, then nearest. */
+  private inReach(): readonly { readonly distance: number; readonly candidate: InteractionCandidate }[] {
+    if (this.disposed) return [];
     if (this.markersDirty) this.refreshMarkers();
     const player = this.ctx.getPlayer();
-    let best: { record: QuestNpcRecord; distance: number; candidate: InteractionCandidate } | undefined;
+    const found: { distance: number; candidate: InteractionCandidate }[] = [];
     for (const record of this.records) {
       if (!record.actor.isActive()) continue;
       const position = record.actor.getPosition();
       const distance = Phaser.Math.Distance.Between(player.x, player.y, position.x, position.y);
       if (distance > NPC_INTERACT_DISTANCE) continue;
-      const candidate = this.candidateFor(record);
-      if (!best || candidate.priority > best.candidate.priority
-        || (candidate.priority === best.candidate.priority && distance < best.distance)) {
-        best = { record, distance, candidate };
-      }
+      const actor = record.actor;
+      found.push({
+        distance,
+        candidate: {
+          ...this.candidateFor(record),
+          // Beside the head so the badge never covers the NPC's name tag.
+          anchor: () => {
+            const at = actor.getPosition();
+            return { x: at.x + NPC_BADGE_OFFSET_X, y: at.y + NPC_BADGE_OFFSET_Y };
+          },
+          // Pointing at the NPC's body picks it.
+          origin: () => {
+            const at = actor.getPosition();
+            return { x: at.x, y: at.y - NPC_BODY_RISE_PX };
+          },
+        },
+      });
     }
-    if (!best) return undefined;
-    const actor = best.record.actor;
-    return {
-      ...best.candidate,
-      // Beside the head so the badge never covers the NPC's name tag.
-      anchor: () => {
-        const position = actor.getPosition();
-        return { x: position.x + NPC_BADGE_OFFSET_X, y: position.y + NPC_BADGE_OFFSET_Y };
-      },
-    };
+    return found.sort((left, right) => right.candidate.priority - left.candidate.priority || left.distance - right.distance);
   }
 
   private candidateFor(record: QuestNpcRecord): InteractionCandidate {
@@ -118,7 +133,7 @@ export class QuestNpcController implements InteractionProvider {
     if (turnIn) {
       return {
         id: `quest-npcs:${record.instanceId}:turn-in`,
-        prompt: `F  Return to ${name}`,
+        prompt: `Return to ${name}`,
         priority: 100,
         execute: () => this.converse(record, turnIn.definition.dialogue?.complete, 'Claim reward  ▸',
           (release) => this.modal.openTurnIn(turnIn, record.npcId, () => this.talked(record.npcId), release)),
@@ -128,7 +143,7 @@ export class QuestNpcController implements InteractionProvider {
     if (offer) {
       return {
         id: `quest-npcs:${record.instanceId}:offer`,
-        prompt: `F  Talk to ${name}`,
+        prompt: `Talk to ${name}`,
         priority: 90,
         execute: () => this.converse(record, offer.quest.definition.dialogue?.offer, 'Continue  ▸',
           (release) => this.modal.openOffer(offer, () => this.talked(record.npcId), release)),
@@ -138,7 +153,7 @@ export class QuestNpcController implements InteractionProvider {
     if (reoffer) {
       return {
         id: `quest-npcs:${record.instanceId}:reoffer`,
-        prompt: `F  Resume quest with ${name}`,
+        prompt: `Resume quest with ${name}`,
         priority: 85,
         execute: () => {
           const release = record.actor.acquireInteractionLock();
@@ -173,7 +188,7 @@ export class QuestNpcController implements InteractionProvider {
     }
     return {
       id: `quest-npcs:${record.instanceId}:talk`,
-      prompt: `F  Talk to ${name}`,
+      prompt: `Talk to ${name}`,
       priority: 50,
       execute: () => {
         const definition = getNpcDefinition(record.npcId);

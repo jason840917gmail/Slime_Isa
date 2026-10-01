@@ -12,7 +12,9 @@ test('authored quest journal shows active objectives and restores focus', async 
   const journal = root.locator('.game-ui--quest-journal');
   const priorFocus = page.locator('#fixture-control');
   await priorFocus.focus();
-  await page.keyboard.press('u');
+  // One menu (roadmap 4.10): E opens the bag, and its Journal tab switches to the quests.
+  await page.keyboard.press('e');
+  await root.locator('.game-ui--menu-tabs').getByRole('button', { name: 'Journal tab' }).click();
   await expect(journal).toBeVisible();
   await expect(journal.getByRole('listbox', { name: 'Quests' })).toContainText('A Place to Work');
   await expect(journal).toContainText('Craft a Workbench (40 wood): 0/1');

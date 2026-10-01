@@ -13,6 +13,9 @@ import type { BlockingContact } from '../../runtime/scene/physics/PhysicsContact
 import { collisionBits, collisionLayerValue } from '../../content/physics/CollisionLayers';
 import type { PresentationParticipant } from './PresentationSync';
 import { renderTerrainBlend, terrainBlendLookup, type TerrainTransitionLayer } from '../../features/world/TerrainTransitionRenderer';
+import { WaterSurfaceLayer, type WaterKind } from '../../features/world/WaterSurfaceLayer';
+
+const WATER_ASSETS: Readonly<Record<string, WaterKind>> = { 'sheet.grounds.19x19.water': 'shallow', 'sheet.grounds.19x19.deep-water': 'deep' };
 
 export interface TileMapLayer2DNodeOptions extends Node2DOptions {
   readonly context: PhaserNodeContext;
@@ -122,6 +125,8 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
   private readonly groundSelections = new Map<string, GroundSheetSelection>();
   /** Blended material borders derived from the tiles (visual only). */
   private terrainBlend?: TerrainTransitionLayer;
+  /** Animated water surface over water tiles (visual only). */
+  private waterSurface?: WaterSurfaceLayer;
   private syncedTransformRevision?: number;
   private syncedVisible?: boolean;
 
@@ -186,6 +191,8 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
     this.entryDisposables.add(() => {
       this.terrainBlend?.destroy();
       this.terrainBlend = undefined;
+      this.waterSurface?.destroy();
+      this.waterSurface = undefined;
       for (const tile of this.mountedTiles) tile.image.destroy();
       this.mountedTiles.length = 0;
       for (const { zone } of this.mountedBodies) zone.destroy();
@@ -227,6 +234,8 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
     for (const body of this.mountedBodies) this.placeTileBody(body, transform.position);
     this.terrainBlend?.setOrigin(transform.position.x, transform.position.y);
     this.terrainBlend?.setVisible(this.visible);
+    this.waterSurface?.setOrigin(transform.position.x, transform.position.y);
+    this.waterSurface?.setVisible(this.visible);
   }
 
   /**
@@ -256,6 +265,20 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
       },
       dimensions: { width: columns * this.tileSize, height: rows * this.tileSize, tileSize: this.tileSize, columns, rows },
       seed: this.seed,
+    });
+    const waterKind = (tileId: string): WaterKind | undefined => {
+      for (const assetId of tiles[tileId]?.assetIds ?? []) if (WATER_ASSETS[assetId]) return WATER_ASSETS[assetId];
+      return undefined;
+    };
+    this.waterSurface = WaterSurfaceLayer.create({
+      scene,
+      grid,
+      waterKind,
+      tileSize: this.tileSize,
+      textures: {
+        shallow: this.tileOptions.context.assetKey('sheet.grounds.19x19.water'),
+        deep: this.tileOptions.context.assetKey('sheet.grounds.19x19.deep-water'),
+      },
     });
   }
 

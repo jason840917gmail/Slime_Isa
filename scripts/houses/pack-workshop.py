@@ -8,10 +8,14 @@ Magnific GPT-2 renders in asset/Originals/houses/generated/.
 from pathlib import Path
 
 from PIL import Image
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'lib'))
+from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / 'asset' / 'Originals' / 'houses' / 'generated'
-OUT = ROOT / 'asset' / 'MAPS' / 'Houses' / '320-workshop-2x1.png'
+OUT = ROOT / 'asset' / 'MAPS' / 'Houses' / '320-workshop-2x1.webp'
 FRAME = 320
 MAX_WIDTH = 300
 BOTTOM_MARGIN = 2
@@ -29,7 +33,7 @@ def main() -> None:
         # Premultiplied resize keeps the transparent edge free of dark fringes.
         art = source.crop(box).convert('RGBa').resize(size, Image.LANCZOS).convert('RGBA')
         sheet.alpha_composite(art, (index * FRAME + (FRAME - art.width) // 2, FRAME - BOTTOM_MARGIN - art.height))
-    sheet.save(OUT, optimize=True)
+    save_game_webp(sheet, OUT)
     print(f'wrote {OUT.relative_to(ROOT)} ({size[0]}x{size[1]} art per frame)')
 
 

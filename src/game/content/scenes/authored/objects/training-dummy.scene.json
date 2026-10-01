@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "sceneId": "object.training-dummy",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "training-dummy",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "training-dummy.body-shape"
+        },
+        "position": [
+          0,
+          -10
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "training-dummy.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.42,
+          0.42
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": false,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "training-dummy.damage-shape"
+        },
+        "position": [
+          0,
+          -46
+        ]
+      }
+    },
+    {
+      "id": "script",
+      "name": "TrainingDummyScript",
+      "type": "ScriptNode",
+      "scriptId": "game.training-dummy",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "damageArea": {
+          "nodeId": "damage-area"
+        },
+        "visual": {
+          "nodeId": "visual"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "training-dummy.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "object.training-dummy",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "training-dummy.body-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 34,
+        "height": 20
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "training-dummy.damage-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 78,
+        "height": 96
+      }
+    }
+  ]
+}

@@ -15,8 +15,11 @@ test('authored crafting quotes materials and commits a recipe transaction', asyn
   const workbench = root.locator('.game-ui--crafting-ui');
   const priorFocus = page.locator('#fixture-control');
   await priorFocus.focus();
-  await page.keyboard.press('c');
+  // One menu (roadmap 4.10): E opens the bag, and its Crafting tab crafts the portable recipes.
+  await page.keyboard.press('e');
+  await root.locator('.game-ui--menu-tabs').getByRole('button', { name: 'Crafting tab' }).click();
   await expect(workbench).toBeVisible();
+  await expect(root.locator('.game-ui--inventory-ui')).toBeHidden();
   await expect.poll(() => page.evaluate(() => window.sceneFixture.snapshot().universalRuntimePaused)).toBe(true);
   await expect.poll(() => workbench.evaluate((element) => {
     const box = element.getBoundingClientRect();
@@ -24,7 +27,7 @@ test('authored crafting quotes materials and commits a recipe transaction', asyn
     return Boolean(viewport && box.left >= viewport.left && box.right <= viewport.right && box.top >= viewport.top && box.bottom <= viewport.bottom);
   })).toBe(true);
   await expect(workbench.getByRole('listbox', { name: 'Crafting recipes' })).toBeVisible();
-  // C crafts the portable recipes; the first is the workbench itself.
+  // The portable recipes; the first is the workbench itself.
   await expect(workbench).toContainText('Crafting');
   await expect(workbench).not.toContainText('Wooden Spear');
   // Short of materials, Craft stays pressable and answers with exactly what is missing (playtest 2026-09-29).

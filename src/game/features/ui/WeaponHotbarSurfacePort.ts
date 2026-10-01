@@ -7,7 +7,7 @@ import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurface
 
 type ModelListener = (model: UiPresentationModel) => void;
 
-/** Adapts inventory and loadout state to the authored six-slot field belt. */
+/** Adapts inventory and loadout state to the authored field belt (three slots, switched with the mouse wheel). */
 export class WeaponHotbarSurfacePort implements UiSurfacePort {
   private readonly listeners = new Set<ModelListener>();
   private stopped = false;
@@ -30,9 +30,9 @@ export class WeaponHotbarSurfacePort implements UiSurfacePort {
         const name = weaponId ? item?.name ?? weaponId : 'Empty';
         return {
           id: `slot-${index + 1}`,
-          label: `${index + 1}\n${name}`,
+          label: name,
           disabled: !owned,
-          ...(owned && item ? { metadata: { iconKey: item.icon, iconFrame: item.iconFrame ?? 0, shortcut: String(index + 1) } } : {}),
+          ...(owned && item ? { metadata: { iconKey: item.icon, iconFrame: item.iconFrame ?? 0 } } : {}),
         };
       }),
       selectedIndex: slots.findIndex((weaponId) => !!weaponId && weaponId === equipped && playerWeaponLoadout.ownsWeapon(weaponId)),

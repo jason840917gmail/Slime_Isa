@@ -44,7 +44,7 @@
         "texture": {
           "resourceId": "decoration-world-solid.campfire.sprite"
         },
-        "frame": 8,
+        "frame": 0,
         "origin": [
           0.5,
           1
@@ -62,11 +62,26 @@
       }
     },
     {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "decoration-world-solid.campfire.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
+    },
+    {
       "id": "sfx-loop-sfx",
       "name": "LoopSfx",
       "type": "AudioStreamPlayer2D",
       "parentId": "body",
-      "order": 2,
+      "order": 3,
       "properties": {
         "stream": {
           "resourceId": "sfx.world.campfire-loop"
@@ -86,7 +101,7 @@
       "version": 1,
       "resourceId": "decoration-world-solid.campfire.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.decorations.8x3",
+      "assetId": "sheet.decorations.ambient.8x5",
       "frameWidth": 128,
       "frameHeight": 128
     },
@@ -98,6 +113,59 @@
         "shape": "rectangle",
         "width": 97,
         "height": 54
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "decoration-world-solid.campfire.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 0.8,
+          "framesPerSecond": 10,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                },
+                {
+                  "at": 4,
+                  "value": 4
+                },
+                {
+                  "at": 5,
+                  "value": 5
+                },
+                {
+                  "at": 6,
+                  "value": 6
+                },
+                {
+                  "at": 7,
+                  "value": 7
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {

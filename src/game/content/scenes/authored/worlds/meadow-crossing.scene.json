@@ -9720,7 +9720,7 @@
     {
       "instanceId": "wall-stone-solid-95da8dc7",
       "name": "wall-stone-solid-95da8dc7",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.horizontal-08",
       "parentNodeId": "world",
       "order": 315,
       "persistenceKey": "meadow-crossing.wall-stone-solid-95da8dc7",
@@ -10176,7 +10176,7 @@
     {
       "instanceId": "wall-stone-solid-fbd06880",
       "name": "wall-stone-solid-fbd06880",
-      "sceneId": "object.wall-stone-solid.corner-06",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "world",
       "order": 339,
       "persistenceKey": "meadow-crossing.wall-stone-solid-fbd06880",
@@ -11259,7 +11259,7 @@
     {
       "instanceId": "wall-stone-solid-1dab2104",
       "name": "wall-stone-solid-1dab2104",
-      "sceneId": "object.wall-stone-solid.corner-06",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "world",
       "order": 396,
       "persistenceKey": "meadow-crossing.wall-stone-solid-1dab2104",

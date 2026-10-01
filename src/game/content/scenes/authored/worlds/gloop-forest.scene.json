@@ -329,7 +329,7 @@
       "name": "Decorations",
       "type": "Node2D",
       "parentId": "world",
-      "order": 140,
+      "order": 139,
       "properties": {
         "position": [
           0,
@@ -342,7 +342,7 @@
       "name": "gloop-orb-weavers-north-east",
       "type": "Area2D",
       "parentId": "world",
-      "order": 141,
+      "order": 140,
       "properties": {
         "position": [
           2560,
@@ -415,7 +415,7 @@
       "name": "gloop-orb-weavers-south-west",
       "type": "Area2D",
       "parentId": "world",
-      "order": 142,
+      "order": 141,
       "properties": {
         "position": [
           768,
@@ -482,13 +482,26 @@
           "nodeId": "area-gloop-orb-weavers-south-west-stay-shape"
         }
       }
+    },
+    {
+      "id": "water-life",
+      "name": "Water Life",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 143,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
     }
   ],
   "instances": [
     {
       "instanceId": "wall-stone-solid-447f8fe4",
       "name": "wall-stone-solid-447f8fe4",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
       "order": 9,
       "persistenceKey": "gloop-forest.wall-stone-solid-447f8fe4",
@@ -640,7 +653,7 @@
     {
       "instanceId": "wall-stone-solid-9d254d4e",
       "name": "wall-stone-solid-9d254d4e",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 17,
       "persistenceKey": "gloop-forest.wall-stone-solid-9d254d4e",
@@ -659,7 +672,7 @@
     {
       "instanceId": "wall-stone-solid-bdcc08b8",
       "name": "wall-stone-solid-bdcc08b8",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.junction-03",
       "parentNodeId": "world",
       "order": 18,
       "persistenceKey": "gloop-forest.wall-stone-solid-bdcc08b8",
@@ -678,7 +691,7 @@
     {
       "instanceId": "wall-stone-solid-5a71b84e",
       "name": "wall-stone-solid-5a71b84e",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 19,
       "persistenceKey": "gloop-forest.wall-stone-solid-5a71b84e",
@@ -697,7 +710,7 @@
     {
       "instanceId": "wall-stone-solid-26bd82f8",
       "name": "wall-stone-solid-26bd82f8",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-07",
       "parentNodeId": "world",
       "order": 20,
       "persistenceKey": "gloop-forest.wall-stone-solid-26bd82f8",
@@ -868,7 +881,7 @@
     {
       "instanceId": "wall-stone-solid-4d0f8dd5",
       "name": "wall-stone-solid-4d0f8dd5",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
       "order": 29,
       "persistenceKey": "gloop-forest.wall-stone-solid-4d0f8dd5",
@@ -1246,30 +1259,11 @@
       ]
     },
     {
-      "instanceId": "wall-stone-solid-d55fd7b2",
-      "name": "wall-stone-solid-d55fd7b2",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 49,
-      "persistenceKey": "gloop-forest.wall-stone-solid-d55fd7b2",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            3104,
-            1664
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "wall-stone-solid-bbb86d39",
       "name": "wall-stone-solid-bbb86d39",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 50,
+      "order": 49,
       "persistenceKey": "gloop-forest.wall-stone-solid-bbb86d39",
       "overrides": [
         {
@@ -1288,7 +1282,7 @@
       "name": "wall-stone-solid-7aa641b2",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 51,
+      "order": 50,
       "persistenceKey": "gloop-forest.wall-stone-solid-7aa641b2",
       "overrides": [
         {
@@ -1307,7 +1301,7 @@
       "name": "wall-stone-solid-ba27d9ea",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 52,
+      "order": 51,
       "persistenceKey": "gloop-forest.wall-stone-solid-ba27d9ea",
       "overrides": [
         {
@@ -1326,7 +1320,7 @@
       "name": "wall-stone-solid-95d5baae",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 53,
+      "order": 52,
       "persistenceKey": "gloop-forest.wall-stone-solid-95d5baae",
       "overrides": [
         {
@@ -1343,9 +1337,9 @@
     {
       "instanceId": "wall-stone-solid-c7517386",
       "name": "wall-stone-solid-c7517386",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.horizontal-08",
       "parentNodeId": "world",
-      "order": 54,
+      "order": 53,
       "persistenceKey": "gloop-forest.wall-stone-solid-c7517386",
       "overrides": [
         {
@@ -1364,7 +1358,7 @@
       "name": "wall-stone-solid-6220f2a0",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 55,
+      "order": 54,
       "persistenceKey": "gloop-forest.wall-stone-solid-6220f2a0",
       "overrides": [
         {
@@ -1383,7 +1377,7 @@
       "name": "wall-stone-solid-8dcacd2e",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 56,
+      "order": 55,
       "persistenceKey": "gloop-forest.wall-stone-solid-8dcacd2e",
       "overrides": [
         {
@@ -1402,7 +1396,7 @@
       "name": "wall-stone-solid-44041b2e",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 57,
+      "order": 56,
       "persistenceKey": "gloop-forest.wall-stone-solid-44041b2e",
       "overrides": [
         {
@@ -1421,7 +1415,7 @@
       "name": "wall-stone-solid-975a0d5f",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 58,
+      "order": 57,
       "persistenceKey": "gloop-forest.wall-stone-solid-975a0d5f",
       "overrides": [
         {
@@ -1440,7 +1434,7 @@
       "name": "wall-stone-solid-f451f441",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 59,
+      "order": 58,
       "persistenceKey": "gloop-forest.wall-stone-solid-f451f441",
       "overrides": [
         {
@@ -1459,7 +1453,7 @@
       "name": "wall-stone-solid-c92d1627",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 60,
+      "order": 59,
       "persistenceKey": "gloop-forest.wall-stone-solid-c92d1627",
       "overrides": [
         {
@@ -1478,7 +1472,7 @@
       "name": "wall-stone-solid-2cba8bbc",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 61,
+      "order": 60,
       "persistenceKey": "gloop-forest.wall-stone-solid-2cba8bbc",
       "overrides": [
         {
@@ -1497,7 +1491,7 @@
       "name": "wall-stone-solid-b8883fb9",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 62,
+      "order": 61,
       "persistenceKey": "gloop-forest.wall-stone-solid-b8883fb9",
       "overrides": [
         {
@@ -1516,7 +1510,7 @@
       "name": "wall-stone-solid-914d0074",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 63,
+      "order": 62,
       "persistenceKey": "gloop-forest.wall-stone-solid-914d0074",
       "overrides": [
         {
@@ -1535,7 +1529,7 @@
       "name": "wall-stone-solid-d93f900d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 64,
+      "order": 63,
       "persistenceKey": "gloop-forest.wall-stone-solid-d93f900d",
       "overrides": [
         {
@@ -1554,7 +1548,7 @@
       "name": "wall-stone-solid-4ba346b9",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 65,
+      "order": 64,
       "persistenceKey": "gloop-forest.wall-stone-solid-4ba346b9",
       "overrides": [
         {
@@ -1573,7 +1567,7 @@
       "name": "wall-stone-solid-41802005",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 66,
+      "order": 65,
       "persistenceKey": "gloop-forest.wall-stone-solid-41802005",
       "overrides": [
         {
@@ -1592,7 +1586,7 @@
       "name": "wall-stone-solid-bb39acd7",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 67,
+      "order": 66,
       "persistenceKey": "gloop-forest.wall-stone-solid-bb39acd7",
       "overrides": [
         {
@@ -1611,7 +1605,7 @@
       "name": "wall-stone-solid-6a323e05",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 68,
+      "order": 67,
       "persistenceKey": "gloop-forest.wall-stone-solid-6a323e05",
       "overrides": [
         {
@@ -1630,7 +1624,7 @@
       "name": "wall-stone-solid-85a8a4e6",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 69,
+      "order": 68,
       "persistenceKey": "gloop-forest.wall-stone-solid-85a8a4e6",
       "overrides": [
         {
@@ -1649,7 +1643,7 @@
       "name": "wall-stone-solid-02c241e4",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 70,
+      "order": 69,
       "persistenceKey": "gloop-forest.wall-stone-solid-02c241e4",
       "overrides": [
         {
@@ -1668,7 +1662,7 @@
       "name": "wall-stone-solid-647528db",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 71,
+      "order": 70,
       "persistenceKey": "gloop-forest.wall-stone-solid-647528db",
       "overrides": [
         {
@@ -1685,9 +1679,9 @@
     {
       "instanceId": "wall-stone-solid-4c57e77b",
       "name": "wall-stone-solid-4c57e77b",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.horizontal-08",
       "parentNodeId": "world",
-      "order": 72,
+      "order": 71,
       "persistenceKey": "gloop-forest.wall-stone-solid-4c57e77b",
       "overrides": [
         {
@@ -1706,7 +1700,7 @@
       "name": "wall-stone-solid-6097842e",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 73,
+      "order": 72,
       "persistenceKey": "gloop-forest.wall-stone-solid-6097842e",
       "overrides": [
         {
@@ -1725,7 +1719,7 @@
       "name": "tree-forest-wall-614a1f39",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 74,
+      "order": 73,
       "persistenceKey": "gloop-forest.tree-forest-wall-614a1f39",
       "overrides": [
         {
@@ -1762,7 +1756,7 @@
       "name": "tree-forest-wall-3e29e043",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 75,
+      "order": 74,
       "persistenceKey": "gloop-forest.tree-forest-wall-3e29e043",
       "overrides": [
         {
@@ -1799,7 +1793,7 @@
       "name": "tree-forest-wall-604a1da6",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 76,
+      "order": 75,
       "persistenceKey": "gloop-forest.tree-forest-wall-604a1da6",
       "overrides": [
         {
@@ -1842,7 +1836,7 @@
       "name": "tree-forest-wall-73a90ff5",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 77,
+      "order": 76,
       "persistenceKey": "gloop-forest.tree-forest-wall-73a90ff5",
       "overrides": [
         {
@@ -1885,7 +1879,7 @@
       "name": "tree-forest-wall-bc4dd483",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 78,
+      "order": 77,
       "persistenceKey": "gloop-forest.tree-forest-wall-bc4dd483",
       "overrides": [
         {
@@ -1928,7 +1922,7 @@
       "name": "tree-forest-wall-5f549d5f",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 79,
+      "order": 78,
       "persistenceKey": "gloop-forest.tree-forest-wall-5f549d5f",
       "overrides": [
         {
@@ -1965,7 +1959,7 @@
       "name": "tree-forest-wall-609c71e7",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 80,
+      "order": 79,
       "persistenceKey": "gloop-forest.tree-forest-wall-609c71e7",
       "overrides": [
         {
@@ -2002,7 +1996,7 @@
       "name": "tree-forest-wall-3d29deb0",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 81,
+      "order": 80,
       "persistenceKey": "gloop-forest.tree-forest-wall-3d29deb0",
       "overrides": [
         {
@@ -2039,7 +2033,7 @@
       "name": "tree-forest-wall-0c3cecd2",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 82,
+      "order": 81,
       "persistenceKey": "gloop-forest.tree-forest-wall-0c3cecd2",
       "overrides": [
         {
@@ -2076,7 +2070,7 @@
       "name": "tree-forest-wall-6b4a2ef7",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 83,
+      "order": 82,
       "persistenceKey": "gloop-forest.tree-forest-wall-6b4a2ef7",
       "overrides": [
         {
@@ -2119,7 +2113,7 @@
       "name": "tree-forest-wall-1fafe6fc",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 84,
+      "order": 83,
       "persistenceKey": "gloop-forest.tree-forest-wall-1fafe6fc",
       "overrides": [
         {
@@ -2156,7 +2150,7 @@
       "name": "tree-forest-wall-0629dbcb",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 85,
+      "order": 84,
       "persistenceKey": "gloop-forest.tree-forest-wall-0629dbcb",
       "overrides": [
         {
@@ -2199,7 +2193,7 @@
       "name": "tree-forest-wall-559c6096",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 86,
+      "order": 85,
       "persistenceKey": "gloop-forest.tree-forest-wall-559c6096",
       "overrides": [
         {
@@ -2236,7 +2230,7 @@
       "name": "tree-forest-wall-75a9131b",
       "sceneId": "object.tree-forest-wall.green-tree-07",
       "parentNodeId": "world",
-      "order": 87,
+      "order": 86,
       "persistenceKey": "gloop-forest.tree-forest-wall-75a9131b",
       "overrides": [
         {
@@ -2279,7 +2273,7 @@
       "name": "tree-forest-wall-20afe88f",
       "sceneId": "object.tree-forest-wall.green-tree-07",
       "parentNodeId": "world",
-      "order": 88,
+      "order": 87,
       "persistenceKey": "gloop-forest.tree-forest-wall-20afe88f",
       "overrides": [
         {
@@ -2316,7 +2310,7 @@
       "name": "tree-forest-wall-0529da38",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 89,
+      "order": 88,
       "persistenceKey": "gloop-forest.tree-forest-wall-0529da38",
       "overrides": [
         {
@@ -2353,7 +2347,7 @@
       "name": "tree-forest-wall-4b29f4ba",
       "sceneId": "object.tree-forest-wall.green-tree-05",
       "parentNodeId": "world",
-      "order": 90,
+      "order": 89,
       "persistenceKey": "gloop-forest.tree-forest-wall-4b29f4ba",
       "overrides": [
         {
@@ -2396,7 +2390,7 @@
       "name": "tree-forest-wall-ab9a1c3b",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 91,
+      "order": 90,
       "persistenceKey": "gloop-forest.tree-forest-wall-ab9a1c3b",
       "overrides": [
         {
@@ -2433,7 +2427,7 @@
       "name": "tree-forest-wall-b6b1ecb4",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 92,
+      "order": 91,
       "persistenceKey": "gloop-forest.tree-forest-wall-b6b1ecb4",
       "overrides": [
         {
@@ -2476,7 +2470,7 @@
       "name": "tree-forest-wall-54158bc9",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 93,
+      "order": 92,
       "persistenceKey": "gloop-forest.tree-forest-wall-54158bc9",
       "overrides": [
         {
@@ -2519,7 +2513,7 @@
       "name": "tree-forest-wall-23fed335",
       "sceneId": "object.tree-forest-wall.green-tree-05",
       "parentNodeId": "world",
-      "order": 94,
+      "order": 93,
       "persistenceKey": "gloop-forest.tree-forest-wall-23fed335",
       "overrides": [
         {
@@ -2562,7 +2556,7 @@
       "name": "tree-forest-wall-ccf85456",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 95,
+      "order": 94,
       "persistenceKey": "gloop-forest.tree-forest-wall-ccf85456",
       "overrides": [
         {
@@ -2605,7 +2599,7 @@
       "name": "tree-forest-wall-1e868469",
       "sceneId": "object.tree-forest-wall.green-tree-07",
       "parentNodeId": "world",
-      "order": 96,
+      "order": 95,
       "persistenceKey": "gloop-forest.tree-forest-wall-1e868469",
       "overrides": [
         {
@@ -2648,7 +2642,7 @@
       "name": "tree-forest-wall-f47c8ad4",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 97,
+      "order": 96,
       "persistenceKey": "gloop-forest.tree-forest-wall-f47c8ad4",
       "overrides": [
         {
@@ -2691,7 +2685,7 @@
       "name": "tree-forest-wall-53158a36",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 98,
+      "order": 97,
       "persistenceKey": "gloop-forest.tree-forest-wall-53158a36",
       "overrides": [
         {
@@ -2734,7 +2728,7 @@
       "name": "tree-forest-wall-cdad8f1c",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 99,
+      "order": 98,
       "persistenceKey": "gloop-forest.tree-forest-wall-cdad8f1c",
       "overrides": [
         {
@@ -2777,7 +2771,7 @@
       "name": "tree-forest-wall-521588a3",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 100,
+      "order": 99,
       "persistenceKey": "gloop-forest.tree-forest-wall-521588a3",
       "overrides": [
         {
@@ -2814,7 +2808,7 @@
       "name": "tree-forest-wall-51158710",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 101,
+      "order": 100,
       "persistenceKey": "gloop-forest.tree-forest-wall-51158710",
       "overrides": [
         {
@@ -2857,7 +2851,7 @@
       "name": "tree-forest-wall-23b95410",
       "sceneId": "object.tree-forest-wall.green-tree-07",
       "parentNodeId": "world",
-      "order": 102,
+      "order": 101,
       "persistenceKey": "gloop-forest.tree-forest-wall-23b95410",
       "overrides": [
         {
@@ -2894,7 +2888,7 @@
       "name": "tree-forest-wall-5717cf19",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 103,
+      "order": 102,
       "persistenceKey": "gloop-forest.tree-forest-wall-5717cf19",
       "overrides": [
         {
@@ -2937,7 +2931,7 @@
       "name": "tree-forest-wall-2f01231d",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 104,
+      "order": 103,
       "persistenceKey": "gloop-forest.tree-forest-wall-2f01231d",
       "overrides": [
         {
@@ -2974,7 +2968,7 @@
       "name": "tree-forest-wall-743b3e07",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 105,
+      "order": 104,
       "persistenceKey": "gloop-forest.tree-forest-wall-743b3e07",
       "overrides": [
         {
@@ -3017,7 +3011,7 @@
       "name": "tree-forest-wall-27f7f576",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 106,
+      "order": 105,
       "persistenceKey": "gloop-forest.tree-forest-wall-27f7f576",
       "overrides": [
         {
@@ -3060,7 +3054,7 @@
       "name": "tree-forest-wall-b0d644bd",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 107,
+      "order": 106,
       "persistenceKey": "gloop-forest.tree-forest-wall-b0d644bd",
       "overrides": [
         {
@@ -3097,7 +3091,7 @@
       "name": "tree-forest-wall-28f7f709",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 108,
+      "order": 107,
       "persistenceKey": "gloop-forest.tree-forest-wall-28f7f709",
       "overrides": [
         {
@@ -3140,7 +3134,7 @@
       "name": "tree-forest-wall-25b95736",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 109,
+      "order": 108,
       "persistenceKey": "gloop-forest.tree-forest-wall-25b95736",
       "overrides": [
         {
@@ -3183,7 +3177,7 @@
       "name": "tree-forest-wall-5517cbf3",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 110,
+      "order": 109,
       "persistenceKey": "gloop-forest.tree-forest-wall-5517cbf3",
       "overrides": [
         {
@@ -3226,7 +3220,7 @@
       "name": "tree-forest-wall-328cac51",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 111,
+      "order": 110,
       "persistenceKey": "gloop-forest.tree-forest-wall-328cac51",
       "overrides": [
         {
@@ -3269,7 +3263,7 @@
       "name": "tree-forest-wall-dff633a8",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 112,
+      "order": 111,
       "persistenceKey": "gloop-forest.tree-forest-wall-dff633a8",
       "overrides": [
         {
@@ -3312,7 +3306,7 @@
       "name": "tree-forest-wall-22010ea6",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 113,
+      "order": 112,
       "persistenceKey": "gloop-forest.tree-forest-wall-22010ea6",
       "overrides": [
         {
@@ -3349,7 +3343,7 @@
       "name": "tree-forest-wall-a2d62eb3",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 114,
+      "order": 113,
       "persistenceKey": "gloop-forest.tree-forest-wall-a2d62eb3",
       "overrides": [
         {
@@ -3386,7 +3380,7 @@
       "name": "tree-forest-wall-54a614dc",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 115,
+      "order": 114,
       "persistenceKey": "gloop-forest.tree-forest-wall-54a614dc",
       "overrides": [
         {
@@ -3423,7 +3417,7 @@
       "name": "tree-forest-wall-2fb966f4",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 116,
+      "order": 115,
       "persistenceKey": "gloop-forest.tree-forest-wall-2fb966f4",
       "overrides": [
         {
@@ -3466,7 +3460,7 @@
       "name": "tree-forest-wall-6317e1fd",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 117,
+      "order": 116,
       "persistenceKey": "gloop-forest.tree-forest-wall-6317e1fd",
       "overrides": [
         {
@@ -3509,7 +3503,7 @@
       "name": "tree-forest-wall-ec27b23b",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 118,
+      "order": 117,
       "persistenceKey": "gloop-forest.tree-forest-wall-ec27b23b",
       "overrides": [
         {
@@ -3552,7 +3546,7 @@
       "name": "tree-forest-wall-6d840514",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 119,
+      "order": 118,
       "persistenceKey": "gloop-forest.tree-forest-wall-6d840514",
       "overrides": [
         {
@@ -3589,7 +3583,7 @@
       "name": "tree-forest-wall-601a1bdb",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 120,
+      "order": 119,
       "persistenceKey": "gloop-forest.tree-forest-wall-601a1bdb",
       "overrides": [
         {
@@ -3632,7 +3626,7 @@
       "name": "tree-forest-wall-b98fbf6d",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 121,
+      "order": 120,
       "persistenceKey": "gloop-forest.tree-forest-wall-b98fbf6d",
       "overrides": [
         {
@@ -3669,7 +3663,7 @@
       "name": "tree-forest-wall-4888f26c",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 122,
+      "order": 121,
       "persistenceKey": "gloop-forest.tree-forest-wall-4888f26c",
       "overrides": [
         {
@@ -3706,7 +3700,7 @@
       "name": "tree-forest-wall-aa8bddfb",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 123,
+      "order": 122,
       "persistenceKey": "gloop-forest.tree-forest-wall-aa8bddfb",
       "overrides": [
         {
@@ -3749,7 +3743,7 @@
       "name": "tree-forest-wall-6081b206",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 124,
+      "order": 123,
       "persistenceKey": "gloop-forest.tree-forest-wall-6081b206",
       "overrides": [
         {
@@ -3792,7 +3786,7 @@
       "name": "tree-forest-wall-a5d3f4d5",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 125,
+      "order": 124,
       "persistenceKey": "gloop-forest.tree-forest-wall-a5d3f4d5",
       "overrides": [
         {
@@ -3835,7 +3829,7 @@
       "name": "tree-forest-wall-b88fbdda",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 126,
+      "order": 125,
       "persistenceKey": "gloop-forest.tree-forest-wall-b88fbdda",
       "overrides": [
         {
@@ -3878,7 +3872,7 @@
       "name": "tree-forest-wall-a98bdc68",
       "sceneId": "object.tree-forest-wall.green-tree-05",
       "parentNodeId": "world",
-      "order": 127,
+      "order": 126,
       "persistenceKey": "gloop-forest.tree-forest-wall-a98bdc68",
       "overrides": [
         {
@@ -3921,7 +3915,7 @@
       "name": "tree-forest-wall-b2042fed",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 128,
+      "order": 127,
       "persistenceKey": "gloop-forest.tree-forest-wall-b2042fed",
       "overrides": [
         {
@@ -3964,7 +3958,7 @@
       "name": "tree-forest-wall-631c5f2b",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 129,
+      "order": 128,
       "persistenceKey": "gloop-forest.tree-forest-wall-631c5f2b",
       "overrides": [
         {
@@ -4007,7 +4001,7 @@
       "name": "tree-forest-wall-aaf2dbc7",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 130,
+      "order": 129,
       "persistenceKey": "gloop-forest.tree-forest-wall-aaf2dbc7",
       "overrides": [
         {
@@ -4050,7 +4044,7 @@
       "name": "tree-forest-wall-aeb40732",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 131,
+      "order": 130,
       "persistenceKey": "gloop-forest.tree-forest-wall-aeb40732",
       "overrides": [
         {
@@ -4093,7 +4087,7 @@
       "name": "tree-forest-wall-23c14551",
       "sceneId": "object.tree-forest-wall.pine-02",
       "parentNodeId": "world",
-      "order": 132,
+      "order": 131,
       "persistenceKey": "gloop-forest.tree-forest-wall-23c14551",
       "overrides": [
         {
@@ -4136,7 +4130,7 @@
       "name": "tree-forest-wall-641c60be",
       "sceneId": "object.tree-forest-wall.pine-06",
       "parentNodeId": "world",
-      "order": 133,
+      "order": 132,
       "persistenceKey": "gloop-forest.tree-forest-wall-641c60be",
       "overrides": [
         {
@@ -4179,7 +4173,7 @@
       "name": "tree-forest-wall-abf2dd5a",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 134,
+      "order": 133,
       "persistenceKey": "gloop-forest.tree-forest-wall-abf2dd5a",
       "overrides": [
         {
@@ -4222,7 +4216,7 @@
       "name": "tree-forest-wall-b0dac1eb",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 135,
+      "order": 134,
       "persistenceKey": "gloop-forest.tree-forest-wall-b0dac1eb",
       "overrides": [
         {
@@ -4265,7 +4259,7 @@
       "name": "tree-forest-wall-21881460",
       "sceneId": "object.tree-forest-wall.pine-04",
       "parentNodeId": "world",
-      "order": 136,
+      "order": 135,
       "persistenceKey": "gloop-forest.tree-forest-wall-21881460",
       "overrides": [
         {
@@ -4308,7 +4302,7 @@
       "name": "tree-forest-wall-651c6251",
       "sceneId": "object.tree-forest-wall.green-tree-06",
       "parentNodeId": "world",
-      "order": 137,
+      "order": 136,
       "persistenceKey": "gloop-forest.tree-forest-wall-651c6251",
       "overrides": [
         {
@@ -4351,7 +4345,7 @@
       "name": "tree-forest-wall-acf2deed",
       "sceneId": "object.tree-forest-wall.pine-03",
       "parentNodeId": "world",
-      "order": 138,
+      "order": 137,
       "persistenceKey": "gloop-forest.tree-forest-wall-acf2deed",
       "overrides": [
         {
@@ -4394,7 +4388,7 @@
       "name": "tree-forest-wall-228815f3",
       "sceneId": "object.tree-forest-wall.pine-07",
       "parentNodeId": "world",
-      "order": 139,
+      "order": 138,
       "persistenceKey": "gloop-forest.tree-forest-wall-228815f3",
       "overrides": [
         {
@@ -25166,6 +25160,226 @@
           "value": [
             0.48,
             0.48
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-d55fd7b2",
+      "name": "wall-stone-solid-d55fd7b2",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 142,
+      "persistenceKey": "gloop-forest.wall-stone-solid-d55fd7b2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3104,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d13ec5a3",
+      "name": "water-life-d13ec5a3",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 0,
+      "persistenceKey": "gloop-forest.water-life-d13ec5a3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            551.12,
+            493.18
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-f6ea2f17",
+      "name": "water-life-f6ea2f17",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 1,
+      "persistenceKey": "gloop-forest.water-life-f6ea2f17",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1705.05,
+            488.57
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-88523f84",
+      "name": "water-life-88523f84",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 2,
+      "persistenceKey": "gloop-forest.water-life-88523f84",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2070.77,
+            496.07
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ae8ab9ba",
+      "name": "water-life-ae8ab9ba",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 3,
+      "persistenceKey": "gloop-forest.water-life-ae8ab9ba",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            556.61,
+            563.11
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-de60ddfc",
+      "name": "water-life-de60ddfc",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 4,
+      "persistenceKey": "gloop-forest.water-life-de60ddfc",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2149.07,
+            637.87
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-149b62cf",
+      "name": "water-life-149b62cf",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 5,
+      "persistenceKey": "gloop-forest.water-life-149b62cf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2029.07,
+            1590.57
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ffce7995",
+      "name": "water-life-ffce7995",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 6,
+      "persistenceKey": "gloop-forest.water-life-ffce7995",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            479.33,
+            1638.22
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-980adef1",
+      "name": "water-life-980adef1",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 7,
+      "persistenceKey": "gloop-forest.water-life-980adef1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            420.18,
+            1854.35
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-c20aeacb",
+      "name": "water-life-c20aeacb",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 8,
+      "persistenceKey": "gloop-forest.water-life-c20aeacb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1893.85,
+            2932.29
           ]
         }
       ]

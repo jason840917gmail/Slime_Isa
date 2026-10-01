@@ -57,6 +57,11 @@ export type GameEvents = {
   'building.restore-refused': { objectId: string; reason: 'missing-materials' | 'locked' };
   /** The Sticky slime tore a spider web open for good. */
   'web.torn': { x: number; y: number };
+  'lash-bell.rung': { x: number; y: number };
+  /** Dev tools: play one game-feel effect on the slime (`particle:<id>`, `feel:<id>`, `squash:<id>`). */
+  'dev.feel': { effect: string };
+  /** Development panel cheats (`pnpm dev` only): damage, heal, coins, potion, burn, slow, dummy. */
+  'dev.cheat': { cheat: string };
   /** Weak ground broke under the Heavy Gulp form. */
   'ground.cracked': { x: number; y: number };
   /** Craft was pressed but refused (missing materials, full inventory, ...). */

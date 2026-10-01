@@ -300,6 +300,32 @@
           0
         ]
       }
+    },
+    {
+      "id": "lash-yard",
+      "name": "lash-yard",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 9,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "feel-yard",
+      "name": "feel-yard",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 10,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
     }
   ],
   "instances": [
@@ -754,7 +780,7 @@
     {
       "instanceId": "playground-pen-corner-1152-256",
       "name": "pen-corner-1152-256",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "heavy-puzzle",
       "order": 0,
       "persistenceKey": "playground.playground-pen-corner-1152-256",
@@ -773,7 +799,7 @@
     {
       "instanceId": "playground-pen-corner-1536-256",
       "name": "pen-corner-1536-256",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "heavy-puzzle",
       "order": 1,
       "persistenceKey": "playground.playground-pen-corner-1536-256",
@@ -792,7 +818,7 @@
     {
       "instanceId": "playground-pen-corner-1152-576",
       "name": "pen-corner-1152-576",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "heavy-puzzle",
       "order": 2,
       "persistenceKey": "playground.playground-pen-corner-1152-576",
@@ -811,7 +837,7 @@
     {
       "instanceId": "playground-pen-corner-1536-576",
       "name": "pen-corner-1536-576",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "heavy-puzzle",
       "order": 3,
       "persistenceKey": "playground.playground-pen-corner-1536-576",
@@ -1290,7 +1316,7 @@
     {
       "instanceId": "playground-nook-corner-224-1504",
       "name": "nook-corner-224-1504",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "web-puzzle",
       "order": 0,
       "persistenceKey": "playground.playground-nook-corner-224-1504",
@@ -1309,7 +1335,7 @@
     {
       "instanceId": "playground-nook-corner-544-1504",
       "name": "nook-corner-544-1504",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "web-puzzle",
       "order": 1,
       "persistenceKey": "playground.playground-nook-corner-544-1504",
@@ -1328,7 +1354,7 @@
     {
       "instanceId": "playground-nook-corner-224-1760",
       "name": "nook-corner-224-1760",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "web-puzzle",
       "order": 2,
       "persistenceKey": "playground.playground-nook-corner-224-1760",
@@ -1347,7 +1373,7 @@
     {
       "instanceId": "playground-nook-corner-544-1760",
       "name": "nook-corner-544-1760",
-      "sceneId": "object.wall-stone-solid.junction-01",
+      "sceneId": "object.wall-stone-solid.corner-07",
       "parentNodeId": "web-puzzle",
       "order": 3,
       "persistenceKey": "playground.playground-nook-corner-544-1760",
@@ -1442,7 +1468,7 @@
     {
       "instanceId": "playground-nook-bottom-288",
       "name": "nook-bottom-288",
-      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "sceneId": "object.wall-stone-solid.horizontal-08",
       "parentNodeId": "web-puzzle",
       "order": 8,
       "persistenceKey": "playground.playground-nook-bottom-288",
@@ -1665,6 +1691,576 @@
           "value": [
             680,
             1660
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-lesson",
+      "name": "lash-lesson",
+      "sceneId": "object.ability-lesson",
+      "parentNodeId": "lash-yard",
+      "order": 0,
+      "persistenceKey": "playground.playground-lash-lesson",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1904,
+            1520
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "abilityIds",
+          "value": [
+            "stretch-lash"
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "radius",
+          "value": 140
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-corner-1792-1152",
+      "name": "lash-pen-corner-1792-1152",
+      "sceneId": "object.wall-stone-solid.corner-01",
+      "parentNodeId": "lash-yard",
+      "order": 1,
+      "persistenceKey": "playground.playground-lash-pen-corner-1792-1152",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1792,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-corner-2176-1152",
+      "name": "lash-pen-corner-2176-1152",
+      "sceneId": "object.wall-stone-solid.corner-03",
+      "parentNodeId": "lash-yard",
+      "order": 2,
+      "persistenceKey": "playground.playground-lash-pen-corner-2176-1152",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2176,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-corner-1792-1408",
+      "name": "lash-pen-corner-1792-1408",
+      "sceneId": "object.wall-stone-solid.vertical-08",
+      "parentNodeId": "lash-yard",
+      "order": 3,
+      "persistenceKey": "playground.playground-lash-pen-corner-1792-1408",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1792,
+            1408
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-corner-2176-1408",
+      "name": "lash-pen-corner-2176-1408",
+      "sceneId": "object.wall-stone-solid.vertical-08",
+      "parentNodeId": "lash-yard",
+      "order": 4,
+      "persistenceKey": "playground.playground-lash-pen-corner-2176-1408",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2176,
+            1408
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-top-1856",
+      "name": "lash-pen-top-1856",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "lash-yard",
+      "order": 5,
+      "persistenceKey": "playground.playground-lash-pen-top-1856",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1856,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-top-1920",
+      "name": "lash-pen-top-1920",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "lash-yard",
+      "order": 6,
+      "persistenceKey": "playground.playground-lash-pen-top-1920",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1920,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-top-1984",
+      "name": "lash-pen-top-1984",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "lash-yard",
+      "order": 7,
+      "persistenceKey": "playground.playground-lash-pen-top-1984",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1984,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-top-2048",
+      "name": "lash-pen-top-2048",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "lash-yard",
+      "order": 8,
+      "persistenceKey": "playground.playground-lash-pen-top-2048",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2048,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-top-2112",
+      "name": "lash-pen-top-2112",
+      "sceneId": "object.wall-stone-solid.horizontal-04",
+      "parentNodeId": "lash-yard",
+      "order": 9,
+      "persistenceKey": "playground.playground-lash-pen-top-2112",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2112,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-left-1216",
+      "name": "lash-pen-left-1216",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "lash-yard",
+      "order": 10,
+      "persistenceKey": "playground.playground-lash-pen-left-1216",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1792,
+            1216
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-right-1216",
+      "name": "lash-pen-right-1216",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "lash-yard",
+      "order": 11,
+      "persistenceKey": "playground.playground-lash-pen-right-1216",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2176,
+            1216
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-left-1280",
+      "name": "lash-pen-left-1280",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "lash-yard",
+      "order": 12,
+      "persistenceKey": "playground.playground-lash-pen-left-1280",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1792,
+            1280
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-right-1280",
+      "name": "lash-pen-right-1280",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "lash-yard",
+      "order": 13,
+      "persistenceKey": "playground.playground-lash-pen-right-1280",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2176,
+            1280
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-left-1344",
+      "name": "lash-pen-left-1344",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "lash-yard",
+      "order": 14,
+      "persistenceKey": "playground.playground-lash-pen-left-1344",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1792,
+            1344
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-pen-right-1344",
+      "name": "lash-pen-right-1344",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "lash-yard",
+      "order": 15,
+      "persistenceKey": "playground.playground-lash-pen-right-1344",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2176,
+            1344
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-gate",
+      "name": "lash-gate",
+      "sceneId": "object.gate-verdant",
+      "parentNodeId": "lash-yard",
+      "order": 16,
+      "persistenceKey": "playground.playground-lash-gate",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1984,
+            1408
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "gateId",
+          "value": "playground-lash-gate"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "prompt",
+          "value": "Sealed gate"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "lockedMessage",
+          "value": "Ring the bell across the water with the Stretch Lash."
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-chest",
+      "name": "lash-chest",
+      "sceneId": "object.chest-wooden",
+      "parentNodeId": "lash-yard",
+      "order": 17,
+      "persistenceKey": "playground.playground-lash-chest",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1984,
+            1270
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-lash-chest"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "initialContents",
+          "value": {
+            "hp-potion": 1,
+            "purple-berry-mat": 2
+          }
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-bell",
+      "name": "lash-bell",
+      "sceneId": "object.lash-bell-post",
+      "parentNodeId": "lash-yard",
+      "order": 18,
+      "persistenceKey": "playground.playground-lash-bell",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2490,
+            1470
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "bellId",
+          "value": "playground-lash-bell"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "gateId",
+          "value": "playground-lash-gate"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-loot-1",
+      "name": "lash-loot-1",
+      "sceneId": "object.collectible-wood-pile",
+      "parentNodeId": "lash-yard",
+      "order": 19,
+      "persistenceKey": "playground.playground-lash-loot-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2470,
+            1296
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-lash-loot-1"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-loot-2",
+      "name": "lash-loot-2",
+      "sceneId": "object.collectible-stone-pile",
+      "parentNodeId": "lash-yard",
+      "order": 20,
+      "persistenceKey": "playground.playground-lash-loot-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2470,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "playground"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "playground-lash-loot-2"
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-lash-anchor",
+      "name": "lash-anchor",
+      "sceneId": "object.decoration-world-solid.armor-statue",
+      "parentNodeId": "lash-yard",
+      "order": 21,
+      "persistenceKey": "playground.playground-lash-anchor",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2306,
+            1400
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-training-dummy-1",
+      "name": "training-dummy-1",
+      "sceneId": "object.training-dummy",
+      "parentNodeId": "feel-yard",
+      "order": 0,
+      "persistenceKey": "playground.playground-training-dummy-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1480,
+            1400
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-training-dummy-2",
+      "name": "training-dummy-2",
+      "sceneId": "object.training-dummy",
+      "parentNodeId": "feel-yard",
+      "order": 1,
+      "persistenceKey": "playground.playground-training-dummy-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1580,
+            1400
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "playground-training-dummy-3",
+      "name": "training-dummy-3",
+      "sceneId": "object.training-dummy",
+      "parentNodeId": "feel-yard",
+      "order": 2,
+      "persistenceKey": "playground.playground-training-dummy-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1680,
+            1400
           ]
         }
       ]
@@ -5682,17 +6278,17 @@
         {
           "x": 37,
           "y": 19,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
           "y": 19,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 39,
           "y": 19,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 0,
@@ -5882,7 +6478,7 @@
         {
           "x": 37,
           "y": 20,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
@@ -6082,7 +6678,7 @@
         {
           "x": 37,
           "y": 21,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
@@ -6282,7 +6878,7 @@
         {
           "x": 37,
           "y": 22,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
@@ -6482,7 +7078,7 @@
         {
           "x": 37,
           "y": 23,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
@@ -6682,7 +7278,7 @@
         {
           "x": 37,
           "y": 24,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
@@ -6882,7 +7478,7 @@
         {
           "x": 37,
           "y": 25,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
@@ -7082,17 +7678,17 @@
         {
           "x": 37,
           "y": 26,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 38,
           "y": 26,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 39,
           "y": 26,
-          "tileId": "grass-a"
+          "tileId": "water"
         },
         {
           "x": 0,

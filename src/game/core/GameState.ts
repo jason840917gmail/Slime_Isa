@@ -2,7 +2,7 @@ import { gameEvents, type HealSource } from './EventBus';
 import { createInitialRunState } from '../content/initial-state/InitialRun';
 import { GAME_CONSTANTS } from '../Constant';
 import type { CharacterAttributeSet } from '../content/characters/types';
-import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
+import { fitWeaponSlots } from './WeaponSlots';
 
 /**
  * Single source of truth for persistent player state: coins, HP, energy, Goo
@@ -41,12 +41,8 @@ function defaultData(): GameStateData {
 
 const SAVE_STATE_SCHEMA_VERSION = SAVE_SCHEMA_VERSION;
 
-function normalizeWeaponSlots(value: unknown): Array<string | null> {
-  const input = Array.isArray(value) ? value : defaultData().equipment.weaponSlots;
-  return Array.from({ length: WEAPON_HOTBAR_SLOT_COUNT }, (_, index) => {
-    const entry = input[index];
-    return typeof entry === 'string' && entry.trim().length > 0 ? entry : null;
-  });
+function normalizeWeaponSlots(value: unknown, equippedWeaponId: string | null = null): Array<string | null> {
+  return fitWeaponSlots(Array.isArray(value) ? value : defaultData().equipment.weaponSlots, equippedWeaponId);
 }
 
 function normalizeEquippedWeaponId(value: unknown): string | null {
@@ -72,7 +68,7 @@ class GameStateImpl {
         ...defaults.equipment,
         ...(data.equipment ?? {}),
         weaponId: normalizeEquippedWeaponId(data.equipment?.weaponId),
-        weaponSlots: normalizeWeaponSlots(data.equipment?.weaponSlots),
+        weaponSlots: normalizeWeaponSlots(data.equipment?.weaponSlots, normalizeEquippedWeaponId(data.equipment?.weaponId)),
       },
     };
     this.data.hp = Math.min(this.data.hp, this.maxHp);

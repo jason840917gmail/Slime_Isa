@@ -102,6 +102,10 @@ function semanticIssues(value: unknown): readonly GameConstantsIssue[] {
     if (isNonNegativeNumber(dodgeSpeed) && isNonNegativeNumber(movementSpeedCap) && dodgeSpeed > movementSpeedCap) {
       issues.push({ path: movementPath, message: 'dodgeSpeed must not exceed movementSpeedCap' });
     }
+    const { dodgeDurationMs, dodgeInvulnerabilityMs } = movement;
+    if (isNonNegativeNumber(dodgeDurationMs) && isNonNegativeNumber(dodgeInvulnerabilityMs) && dodgeInvulnerabilityMs > dodgeDurationMs) {
+      issues.push({ path: movementPath, message: 'dodgeInvulnerabilityMs must not exceed dodgeDurationMs' });
+    }
   }
 
   return issues;

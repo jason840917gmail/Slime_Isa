@@ -8,7 +8,7 @@ effect, or object. Rendering is kept separate from gameplay physics.
 ```mermaid
 flowchart LR
     A["asset/assets.json<br/>path, frame grid, texture key, bundle"]
-    B["ProceduralAssetScene<br/>loads boot/interiors/audio/music bundles"]
+    B["ProceduralAssetScene / MapLoadScene<br/>boot images, audio and music at start;<br/>each world's own images when entered"]
     C["Scene JSON<br/>sprite-sheet subresource + Sprite2D"]
     D["AnimationPlayer<br/>animation-library subresource"]
     E["Body + CollisionShape2D<br/>stable gameplay anchor"]

@@ -44,7 +44,7 @@
         "texture": {
           "resourceId": "tree-forest-wall.green-tree-05.sprite"
         },
-        "frame": 29,
+        "frame": 232,
         "origin": [
           0.5,
           1
@@ -66,6 +66,21 @@
           "offsetY": 7
         }
       }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "tree-forest-wall.green-tree-05.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
     }
   ],
   "instances": [],
@@ -74,7 +89,7 @@
       "version": 1,
       "resourceId": "tree-forest-wall.green-tree-05.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.trees.8x6",
+      "assetId": "sheet.trees.sway.16x22",
       "frameWidth": 128,
       "frameHeight": 170
     },
@@ -86,6 +101,59 @@
         "shape": "rectangle",
         "width": 48,
         "height": 44
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "tree-forest-wall.green-tree-05.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 2,
+          "framesPerSecond": 4,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 232
+                },
+                {
+                  "at": 1,
+                  "value": 233
+                },
+                {
+                  "at": 2,
+                  "value": 234
+                },
+                {
+                  "at": 3,
+                  "value": 235
+                },
+                {
+                  "at": 4,
+                  "value": 236
+                },
+                {
+                  "at": 5,
+                  "value": 237
+                },
+                {
+                  "at": 6,
+                  "value": 238
+                },
+                {
+                  "at": 7,
+                  "value": 239
+                }
+              ]
+            }
+          ]
+        }
       }
     }
   ]

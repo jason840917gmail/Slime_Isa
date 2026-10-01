@@ -1,7 +1,7 @@
 import { getNpcDefinition } from '../npcs/NpcCatalog';
 import { isKnownItemId } from '../items/ItemCatalog';
 import { RECIPE_CATALOG } from '../recipes/RecipeCatalog';
-import { isPlayerAbilityId } from '../abilities';
+import { isLearnableAbilityId } from '../abilities';
 import type {
   QuestConditionDefinition,
   QuestDefinition,
@@ -221,7 +221,7 @@ function validateQuest(quest: QuestDefinition, index: number, ids: Set<string>, 
   if (rewards.abilityIds !== undefined) {
     if (!nonEmptyStringArray(rewards.abilityIds)) issues.push(`${path}.rewards.abilityIds: expected a non-empty string array`);
     for (const abilityId of Array.isArray(rewards.abilityIds) ? rewards.abilityIds : []) {
-      if (typeof abilityId === 'string' && !isPlayerAbilityId(abilityId)) issues.push(`${path}.rewards.abilityIds: unknown ability '${abilityId}'`);
+      if (typeof abilityId === 'string' && !isLearnableAbilityId(abilityId)) issues.push(`${path}.rewards.abilityIds: unknown ability '${abilityId}'`);
     }
   }
   if (rewards.flags !== undefined) {

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import type { MapEnemyAreaPerimeter, MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
-import { resourceId, sceneId, type SceneId } from '../../content/scenes/identifiers';
+import { resourceId, sceneId, type RuntimeNodeId as SceneRuntimeNodeId, type SceneId } from '../../content/scenes/identifiers';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
 import { createGlobalAudioCuePort } from '../../infrastructure/audio/GlobalAudioCuePort';
 import { GlobalAudioServices } from '../../infrastructure/audio/GlobalAudioServices';
@@ -25,6 +25,9 @@ import { Node2D } from '../../runtime/scene/Node2D';
 import { AttackActivation } from '../combat/AttackActivation';
 import type { RoutedDamageOutcome } from '../combat/DamageRouter';
 import { DamageRouter } from '../combat/DamageRouter';
+import type { DamageRequest } from '../combat/DamageReceiver';
+import type { AreaStrikeRequest, AreaStrikeResult, LashCatch } from '../combat/LineStrike';
+import { sensorShapesIntersect, sensorShapeTouchesSegment } from '../../runtime/scene/physics/SensorGeometry';
 import type { InteractionProvider, InteractionRouter } from '../interaction/InteractionRouter';
 import type { NpcActorHandle, QuestNpcRegistration } from '../interaction/QuestNpcController';
 import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
@@ -152,6 +155,9 @@ import { resolveResourceRespawn } from '../resources/ResourceRespawn';
 import { GAME_CONSTANTS } from '../../Constant';
 import { PLATE_WEIGHT_SERVICE, type PlateWeightPort } from '../scripts/PressurePlateScript';
 import { GOO_HEART_SERVICE, type GooHeartPort } from '../scripts/GooHeartScript';
+import { ABILITY_LESSON_SERVICE, type AbilityLessonPort } from '../scripts/AbilityLessonScript';
+import { LASH_BELL_SERVICE, LashBellScript, type LashBellPort } from '../scripts/LashBellScript';
+import { TRAINING_DUMMY_SERVICE, type TrainingDummyPort } from '../scripts/TrainingDummyScript';
 import { GROUND_CRACK_SERVICE, type GroundCrackPort } from '../scripts/CrackedGroundScript';
 import { SPIDER_WEB_SERVICE, type SpiderWebPort } from '../scripts/SpiderWebScript';
 import type { GulpSpot } from '../gulp/GulpController';
@@ -222,6 +228,12 @@ export interface UniversalSceneWorldControllerOptions {
   readonly plateWeights: () => Iterable<Readonly<{ x: number; y: number }>>;
   /** Run-wide Goo Heart bookkeeping (collected flags, the max-HP grant). */
   readonly gooHearts: GooHeartPort;
+  /** Test-area lessons that teach abilities on arrival (the playground's lash yard). */
+  readonly abilityLessons: AbilityLessonPort;
+  /** Sound and hint when the Stretch Lash rings a bell post. */
+  readonly lashBells: LashBellPort;
+  /** Damage numbers over training dummies. */
+  readonly trainingDummies: TrainingDummyPort;
   /** Whether a story flag is set (story-flag variants, cracked ground). */
   readonly hasStoryFlag: (flagId: string) => boolean;
   /** The moment weak ground gives way under the Heavy form. */
@@ -325,9 +337,21 @@ function bossDisplayName(script: EnemyScript, fallbackId: string): string {
 
 /** Key-badge height above a chest's body origin. */
 const CHEST_BADGE_RISE_PX = 56;
+/** Pointing this far above an interactable's origin (its body, not its feet) picks it. */
+const TARGET_BODY_RISE_PX = 24;
+/** A resource counts as "ahead" of a swing within about 50 degrees of the facing. */
+const HARVEST_AHEAD_COS = 0.64;
 
 /** Collision layer 1 ("world" in content/physics/collision-layers.json): walls, houses, trees, rocks. */
 const WORLD_COLLISION_LAYER_BIT = 1;
+/** How long a pickup the Stretch Lash catches takes to fly to the slime. */
+const LASH_PULL_MS = 220;
+/** How close to the lash line a pickup's centre must be to be caught (on top of the line's half width). */
+const LASH_PICKUP_RADIUS = 18;
+/** How far past a heavy catch the lash still rings a bell (the bell's hurtbox sits around its post). */
+const LASH_RING_DEPTH = 24;
+/** A bell closer than this to the slime does not catch the hook (it is thrown away from it). */
+const LASH_NEAR_PX = 24;
 
 function isPassiveObjectScene(sceneIdValue: string): boolean {
   return sceneIdValue.startsWith('object.decoration-world-')
@@ -616,6 +640,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
       } satisfies WorldExitPort,
       [PLATE_WEIGHT_SERVICE]: { weights: () => options.plateWeights() } satisfies PlateWeightPort,
       [GOO_HEART_SERVICE]: options.gooHearts,
+      [ABILITY_LESSON_SERVICE]: options.abilityLessons,
+      [LASH_BELL_SERVICE]: options.lashBells,
+      [TRAINING_DUMMY_SERVICE]: options.trainingDummies,
       [GROUND_CRACK_SERVICE]: options.groundCrack,
       [SPIDER_WEB_SERVICE]: options.spiderWebs,
       [STORY_FLAG_SERVICE]: {
@@ -841,9 +868,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const locked = !nearest.script.empty && this.isChestLocked(nearest.script.instanceId);
     return {
       id: `managed-chests:${nearest.script.instanceId}`,
-      prompt: locked ? '[F] Chest locked by Fatty One Eye' : nearest.script.empty ? '[F] Inspect empty chest' : '[F] Open chest',
+      prompt: locked ? 'Chest locked by Fatty One Eye' : nearest.script.empty ? 'Inspect empty chest' : 'Open chest',
       priority: 80,
       anchor: () => ({ x: nearest!.position.x, y: nearest!.position.y - CHEST_BADGE_RISE_PX }),
+      origin: () => ({ x: nearest!.position.x, y: nearest!.position.y - TARGET_BODY_RISE_PX }),
       execute: () => {
         const result = nearest!.script.requestOpen();
         if (result === 'guarded') this.options.showMessage(nearest!.position.x, nearest!.position.y - 48, 'Fatty One Eye is guarding this chest!', 'white', true);
@@ -870,11 +898,15 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const actorNodeId = this.playerBody.runtimeId;
     return {
       id: `world-doors:${door.doorId}`,
-      prompt: `[F] ${door.prompt}`,
+      prompt: door.prompt,
       priority: 90,
       anchor: () => {
         const position = (door.get_parent() as Node2D).get_global_transform().position;
         return { x: position.x, y: position.y - door.badgeRise };
+      },
+      origin: () => {
+        const position = (door.get_parent() as Node2D).get_global_transform().position;
+        return { x: position.x, y: position.y - TARGET_BODY_RISE_PX };
       },
       execute: () => {
         const result = this.options.requestExit({
@@ -909,9 +941,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const origin = () => (gate.get_parent() as Node2D).get_global_transform().position;
     return {
       id: `world-gates:${gate.gateId}`,
-      prompt: `[F] ${gate.prompt}`,
+      prompt: gate.prompt,
       priority: 95,
       anchor: () => ({ x: origin().x, y: origin().y - gate.badgeRise }),
+      origin: () => ({ x: origin().x, y: origin().y - TARGET_BODY_RISE_PX }),
       execute: () => {
         const result = this.options.transaction.unlockGate({
           mapId: gate.mapId,
@@ -931,11 +964,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     };
   }
 
-  /** G on placed furniture puts it back in the inventory. */
+  /** Holding interact on placed furniture puts it back in the inventory. */
   private pickUpAction(script: Node) {
     const placementId = this.scriptPlacement.get(script);
     if (!placementId) return undefined;
-    return { prompt: '[G] Pick up', execute: () => this.options.pickUpFurniture(placementId) };
+    return { prompt: 'Pick up', execute: () => this.options.pickUpFurniture(placementId) };
   }
 
   private workbenchCandidate() {
@@ -956,15 +989,16 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const secondary = this.pickUpAction(bench);
     return {
       id: `world-workbenches:${bench.runtimeId}`,
-      prompt: `[F] ${bench.prompt}`,
+      prompt: bench.prompt,
       priority: 88,
       anchor: () => ({ x: origin.x, y: origin.y - bench.badgeRise }),
+      origin: () => ({ x: origin.x, y: origin.y - TARGET_BODY_RISE_PX }),
       ...(secondary ? { secondary } : {}),
       execute: () => this.options.openCraftingStation(bench.site),
     };
   }
 
-  /** A ruined building in reach: F pays its materials and restores it. */
+  /** A ruined building in reach: interacting pays its materials and restores it. */
   private restorationCandidate() {
     if (!this.playerBody) return undefined;
     const player = this.managedPlayer.getPosition();
@@ -982,9 +1016,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const { site, origin } = nearest;
     return {
       id: `world-restorations:${site.runtimeId}`,
-      prompt: `[F] ${site.prompt}`,
+      prompt: site.prompt,
       priority: 89,
       anchor: () => ({ x: origin.x, y: origin.y - site.badgeRise }),
+      origin: () => ({ x: origin.x, y: origin.y - TARGET_BODY_RISE_PX }),
       execute: () => this.options.restoreSite({
         flagId: site.flagId,
         objectId: site.objectId,
@@ -999,7 +1034,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     };
   }
 
-  /** Placed furniture without its own interaction can still be picked up (G or F). */
+  /** Placed furniture without its own interaction is picked up by interacting with it. */
   private furnitureCandidate() {
     if (!this.playerBody) return undefined;
     const player = this.managedPlayer.getPosition();
@@ -1015,9 +1050,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const execute = () => this.options.pickUpFurniture(placementId);
     return {
       id: `placed-furniture:${placementId}`,
-      prompt: '[F] Pick up',
+      prompt: 'Pick up',
       priority: 40,
       anchor: () => ({ x, y: y - 72 }),
+      origin: () => ({ x, y: y - TARGET_BODY_RISE_PX }),
       execute,
     };
   }
@@ -1039,9 +1075,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const { bed, origin } = nearest;
     return {
       id: `world-beds:${bed.runtimeId}`,
-      prompt: `[F] ${bed.prompt}`,
+      prompt: bed.prompt,
       priority: 85,
       anchor: () => ({ x: origin.x, y: origin.y - bed.badgeRise }),
+      origin: () => ({ x: origin.x, y: origin.y - TARGET_BODY_RISE_PX }),
       ...(this.pickUpAction(bed) ? { secondary: this.pickUpAction(bed)! } : {}),
       execute: () => this.options.requestSleep({
         bedId: this.bedId(bed),
@@ -1171,6 +1208,199 @@ export class UniversalSceneWorldController implements InteractionProvider {
       slowed += 1;
     }
     return slowed;
+  }
+
+  /** How far a line from `from` towards `to` gets before a wall, house or tree stops it (water does not). */
+  lineReach(from: Readonly<{ x: number; y: number }>, to: Readonly<{ x: number; y: number }>): Readonly<{ x: number; y: number }> {
+    const context = this.runtime.context;
+    if (!context.sightBlocked(from, to, WORLD_COLLISION_LAYER_BIT)) return to;
+    let open = 0;
+    let blocked = 1;
+    for (let step = 0; step < 7; step += 1) {
+      const middle = (open + blocked) / 2;
+      const point = { x: from.x + (to.x - from.x) * middle, y: from.y + (to.y - from.y) * middle };
+      if (context.sightBlocked(from, point, WORLD_COLLISION_LAYER_BIT)) blocked = middle;
+      else open = middle;
+    }
+    return { x: from.x + (to.x - from.x) * open, y: from.y + (to.y - from.y) * open };
+  }
+
+  /**
+   * Throws the Stretch Lash hook along a line: the first loose pickup it
+   * touches is a light catch; otherwise whatever solid stops it (a wall, tree,
+   * post or bell) is a heavy catch; otherwise it catches nothing.
+   */
+  lashProbe(from: Readonly<{ x: number; y: number }>, to: Readonly<{ x: number; y: number }>, halfWidth: number): LashCatch {
+    let reach = this.lineReach(from, to);
+    let blocked = reach.x !== to.x || reach.y !== to.y;
+    // A bell post catches the hook anywhere on the post, not only at its small footprint,
+    // and the slime is pulled to the post's foot.
+    const bell = this.firstBellAlong(from, reach, halfWidth);
+    if (bell) {
+      reach = bell.at;
+      blocked = true;
+    }
+    const length = Math.hypot(reach.x - from.x, reach.y - from.y);
+    const dirX = length > 0 ? (reach.x - from.x) / length : 0;
+    const dirY = length > 0 ? (reach.y - from.y) / length : 0;
+    let light: { id: string; along: number; at: Readonly<{ x: number; y: number }> } | undefined;
+    for (const [instanceId, collectible] of this.collectibles) {
+      const { owner, script } = collectible;
+      if (!(owner instanceof Node2D) || script.remaining <= 0) continue;
+      const at = owner.get_global_transform().position;
+      const touches = sensorShapeTouchesSegment(
+        { shape: 'circle', shapeId: instanceId as SceneRuntimeNodeId, centerX: at.x, centerY: at.y, radius: LASH_PICKUP_RADIUS },
+        from, reach, halfWidth,
+      );
+      if (!touches) continue;
+      const along = (at.x - from.x) * dirX + (at.y - from.y) * dirY;
+      if (!light || along < light.along) light = { id: instanceId, along, at };
+    }
+    if (light) return { kind: 'light', at: light.at, pickupId: light.id };
+    if (bell) return { kind: 'heavy', at: reach, anchor: bell.anchor };
+    return blocked ? { kind: 'heavy', at: reach } : { kind: 'none', at: reach };
+  }
+
+  /**
+   * Where a line first touches a lash bell's post (its damage area), and the
+   * post's foot. A bell the slime already stands at (within `LASH_NEAR_PX`)
+   * is skipped, so the hook can be thrown away from it.
+   */
+  private firstBellAlong(
+    from: Readonly<{ x: number; y: number }>,
+    to: Readonly<{ x: number; y: number }>,
+    halfWidth: number,
+  ): { at: Readonly<{ x: number; y: number }>; anchor: Readonly<{ x: number; y: number }> } | undefined {
+    const length = Math.hypot(to.x - from.x, to.y - from.y);
+    if (length === 0) return undefined;
+    let best: { along: number; at: Readonly<{ x: number; y: number }>; anchor: Readonly<{ x: number; y: number }> } | undefined;
+    for (const bell of descendants(this.runtime.root, LashBellScript)) {
+      const area = bell.getReference('damageArea')?.configuredTarget;
+      const post = bell.get_parent();
+      if (!(area instanceof Area2DNode) || !(post instanceof Node2D)) continue;
+      const shapes = area.contactShapes();
+      if (!shapes.some((shape) => sensorShapeTouchesSegment(shape, from, to, halfWidth))) continue;
+      for (let along = 0; along <= length; along += 4) {
+        const point = { x: from.x + (to.x - from.x) * along / length, y: from.y + (to.y - from.y) * along / length };
+        if (!shapes.some((shape) => sensorShapeTouchesSegment(shape, point, point, halfWidth))) continue;
+        if (along >= LASH_NEAR_PX && (!best || along < best.along)) best = { along, at: point, anchor: post.get_global_transform().position };
+        break;
+      }
+    }
+    return best && { at: best.at, anchor: best.anchor };
+  }
+
+  /** Rings every lash bell right at a heavy catch; returns how many rang. */
+  lashRing(from: Readonly<{ x: number; y: number }>, caught: Readonly<{ x: number; y: number }>, halfWidth: number): number {
+    const length = Math.hypot(caught.x - from.x, caught.y - from.y) || 1;
+    const dirX = (caught.x - from.x) / length;
+    const dirY = (caught.y - from.y) / length;
+    const tipFrom = { x: caught.x - dirX * 6, y: caught.y - dirY * 6 };
+    const tipTo = { x: caught.x + dirX * LASH_RING_DEPTH, y: caught.y + dirY * LASH_RING_DEPTH };
+    let rung = 0;
+    for (const bell of descendants(this.runtime.root, LashBellScript)) {
+      const area = bell.getReference('damageArea')?.configuredTarget;
+      if (!(area instanceof Area2DNode)) continue;
+      if (!area.contactShapes().some((shape) => sensorShapeTouchesSegment(shape, tipFrom, tipTo, halfWidth))) continue;
+      bell.ring();
+      rung += 1;
+    }
+    return rung;
+  }
+
+  /** Flies one caught pickup to `to`, then picks it up with the player's pickup area. */
+  lashPull(pickupId: string, to: Readonly<{ x: number; y: number }>): boolean {
+    const pickupArea = this.playerPickupArea;
+    const collectible = this.collectibles.get(pickupId);
+    if (!pickupArea || !collectible) return false;
+    const { owner, script } = collectible;
+    if (!(owner instanceof Node2D) || script.remaining <= 0) return false;
+    const start = owner.get_global_transform().position;
+    const flight = { progress: 0 };
+    const alive = () => !owner.is_freed() && owner.is_inside_tree();
+    const land = () => {
+      if (!alive()) return;
+      owner.set_global_transform({ ...owner.get_global_transform(), position: to });
+      script.requestPickup(pickupArea.runtimeId);
+      this.finishDepletedCollectibles();
+    };
+    try {
+      this.options.scene.tweens.add({
+        targets: flight,
+        progress: 1,
+        duration: LASH_PULL_MS,
+        ease: 'Quad.In',
+        onUpdate: () => {
+          if (!alive()) return;
+          owner.set_global_transform({
+            ...owner.get_global_transform(),
+            position: { x: start.x + (to.x - start.x) * flight.progress, y: start.y + (to.y - start.y) * flight.progress },
+          });
+        },
+        onComplete: land,
+      });
+    } catch {
+      land();
+    }
+    return true;
+  }
+
+  /**
+   * A strike on everything around a point (the Squash Slam): one hit to every
+   * damage receiver whose hurtbox overlaps the circle, except the player and
+   * trees and rocks, each pushed away from the centre.
+   */
+  strikeArea(request: AreaStrikeRequest): AreaStrikeResult {
+    const sourceNodeId = `ability.${request.abilityId}`;
+    const attackAreaNodeId = `${sourceNodeId}.area`;
+    const playerReceiver = this.playerScript?.runtimeNodeId;
+    const circle = {
+      shape: 'circle' as const,
+      shapeId: attackAreaNodeId as SceneRuntimeNodeId,
+      centerX: request.center.x,
+      centerY: request.center.y,
+      radius: request.radius,
+    };
+    const activationId = this.activations.begin(sourceNodeId, [attackAreaNodeId]);
+    const requests: DamageRequest[] = [];
+    const positions = new Map<string, Readonly<{ x: number; y: number }>>();
+    for (const areaNodeId of this.damageRouter.areaNodeIds()) {
+      const receiverNodeId = this.damageRouter.receiverNodeIdForArea(areaNodeId);
+      // Trees and rocks want their tool, not a slam.
+      if (!receiverNodeId || receiverNodeId === playerReceiver || this.managedTargetTags(receiverNodeId).includes('resource')) continue;
+      const area = this.runtime.tree.getNodeById(areaNodeId as SceneRuntimeNodeId);
+      if (!(area instanceof Area2DNode)) continue;
+      if (!area.contactShapes().some((shape) => sensorShapesIntersect(shape, circle))) continue;
+      const at = area.get_global_transform().position;
+      const distance = Math.hypot(at.x - request.center.x, at.y - request.center.y) || 1;
+      positions.set(receiverNodeId, at);
+      requests.push({
+        activationId,
+        sourceNodeId,
+        attackAreaNodeId,
+        targetAreaNodeId: areaNodeId,
+        weaponId: request.abilityId,
+        weaponTags: request.weaponTags,
+        damageTypes: ['physical'],
+        baseDamage: request.damage,
+        effects: request.knockback > 0 ? [{ effectId: 'knockback', potency: request.knockback }] : [],
+        impact: { x: at.x, y: at.y, knockX: (at.x - request.center.x) / distance, knockY: (at.y - request.center.y) / distance },
+      });
+    }
+    const hits: Readonly<{ x: number; y: number }>[] = [];
+    try {
+      for (const outcome of this.damageRouter.routeStep(requests, this.simulationTimeMs)) {
+        if (outcome.result.status !== 'accepted' || !outcome.receiverNodeId) continue;
+        const at = positions.get(outcome.receiverNodeId);
+        if (!at) continue;
+        hits.push(at);
+        if (outcome.result.actualDamage > 0) particleFx.play('hit-spark', at.x, at.y - 12);
+      }
+    } finally {
+      this.activations.end(activationId);
+    }
+    if (hits.length > 0) gameFeel.play('hit');
+    return { hits };
   }
 
   createManagedEnemy(request: EnemySpawnRequest): EnemyPopulationMember | null | undefined {
@@ -1922,6 +2152,29 @@ export class UniversalSceneWorldController implements InteractionProvider {
       nearest = Math.min(nearest, Math.hypot(x - point.x, y - point.y));
     }
     return nearest;
+  }
+
+  /**
+   * What the nearest standing tree, rock or other resource ahead of `from`
+   * (within `reach` px and roughly along `facing`) needs to be harvested.
+   */
+  harvestNeedAhead(
+    from: Readonly<{ x: number; y: number }>,
+    facing: Readonly<{ x: number; y: number }>,
+    reach: number,
+  ): Readonly<{ targetTag: string; minimumTier: number }> | undefined {
+    const facingLength = Math.hypot(facing.x, facing.y) || 1;
+    let nearest: { readonly distance: number; readonly script: ResourceNodeScript } | undefined;
+    for (const { script } of this.resources.values()) {
+      if (script.destroyed || !script.is_inside_tree()) continue;
+      const { x, y } = script.position;
+      const distance = Math.hypot(x - from.x, y - from.y);
+      if (distance > reach || (nearest && distance >= nearest.distance)) continue;
+      const along = distance === 0 ? 1 : ((x - from.x) * facing.x + (y - from.y) * facing.y) / (distance * facingLength);
+      if (along < HARVEST_AHEAD_COS) continue;
+      nearest = { distance, script };
+    }
+    return nearest?.script.harvestNeed;
   }
 
   private managedTargetTags(receiverNodeId: string): readonly string[] {

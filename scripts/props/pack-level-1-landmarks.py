@@ -19,10 +19,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from PIL import Image
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "asset" / "Originals" / "props" / "level-1"
-OUTPUT = ROOT / "asset" / "MAPS" / "landmarks" / "320x256-tile_4x1-level-1-landmarks.png"
+OUTPUT = ROOT / "asset" / "MAPS" / "landmarks" / "320x256-tile_4x1-level-1-landmarks.webp"
 
 FRAME_W, FRAME_H = 320, 256
 MARGIN = 2
@@ -58,7 +62,7 @@ def main() -> None:
     for index, frame in enumerate(frames):
         sheet.alpha_composite(frame, (index * FRAME_W, 0))
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    sheet.save(OUTPUT, optimize=True)
+    save_game_webp(sheet, OUTPUT)
     print(f"wrote {OUTPUT.relative_to(ROOT)}")
 
 
