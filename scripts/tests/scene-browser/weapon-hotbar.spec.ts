@@ -20,8 +20,9 @@ test('authored weapon hotbar hydrates, equips by pointer and keyboard, refreshes
   const list = hotbar.getByRole('listbox', { name: 'Weapon hotbar' });
   const slots = list.getByRole('option');
   await expect(hotbar).toBeVisible();
-  await expect(slots).toHaveCount(6);
-  await expect(slots.first()).toContainText('1');
+  await expect(slots).toHaveCount(3);
+  // Slots carry no number keys any more: the mouse wheel switches weapons (roadmap 4.10).
+  await expect(slots.first()).toContainText('Empty');
   await expect.poll(() => list.locator('button:disabled').count()).toBeGreaterThan(0);
 
   await page.evaluate(() => window.sceneFixture.grantProductionWeapons());

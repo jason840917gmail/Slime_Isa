@@ -7,7 +7,7 @@ islands (sparkles, drips) to the nearest item, orders items in reading order
 (row, then column) and fits each one, centred, inside its own frame with a
 transparent safety margin so no pixel reaches a neighbouring frame.
 
-Writes asset/MAPS/items/<sheet>-5x2.png and asset/Originals/items/atlas-index.json
+Writes asset/MAPS/items/<sheet>-5x2.webp and asset/Originals/items/atlas-index.json
 (frame -> item name, so unused frames can be wired up later). Requires Pillow
 and numpy.
 
@@ -22,6 +22,10 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 ORIGINALS = ROOT / "asset" / "Originals" / "items"
@@ -121,7 +125,7 @@ def pack(name: str, source_name: str, labels: list[str]) -> dict[str, int]:
         column, row = index % COLUMNS, index // COLUMNS
         atlas.alpha_composite(item, (column * FRAME + (FRAME - item.width) // 2, row * FRAME + (FRAME - item.height) // 2))
     PROMOTED.mkdir(parents=True, exist_ok=True)
-    atlas.save(PROMOTED / f"{name}-{COLUMNS}x{ROWS}.png", optimize=True)
+    save_game_webp(atlas, PROMOTED / f"{name}-{COLUMNS}x{ROWS}.webp")
     return {label: frame for frame, label in enumerate(labels)}
 
 

@@ -16,10 +16,10 @@ When in doubt, put the new asset next to these and compare.
 
 | Reference | File | What it defines |
 |---|---|---|
-| Village Elder Plop | `asset/characters/authored/npcs/village-elder-plop.png` | Slime characters: translucent jelly body, painted shading, one or two props |
-| Lili | `asset/characters/authored/npcs/lili.png` | Cute slime faces: big glossy eyes, blush, a small accessory |
-| Mushroom furniture and props | `asset/MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.png` | Objects and props: materials, detail level, palette |
-| Beds | `asset/MAPS/interiors/256x256-tile_6x8-interior-beds-directional.png` | Camera angle, directional variants, the sprout motif |
+| Village Elder Plop | `asset/characters/authored/npcs/village-elder-plop.webp` | Slime characters: translucent jelly body, painted shading, one or two props |
+| Lili | `asset/characters/authored/npcs/lili.webp` | Cute slime faces: big glossy eyes, blush, a small accessory |
+| Mushroom furniture and props | `asset/MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.webp` | Objects and props: materials, detail level, palette |
+| Beds | `asset/MAPS/interiors/256x256-tile_6x8-interior-beds-directional.webp` | Camera angle, directional variants, the sprout motif |
 
 ## Camera And Form
 

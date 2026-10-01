@@ -69,7 +69,7 @@ are ordered but not sized or dated (decided 2026-09-29).
 | S | Universal scene architecture | Every world, entity, UI, and audio surface is an authored scene | `[x]` |
 | **Release 1** | | | |
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
-| 4 | Game shell | Title, continue, pause, game over, settings, credits | `[~]` |
+| 4 | Game shell | Title, continue, pause, game over, settings, credits, simple controls | `[~]` |
 | 5 | Gear-based progression | XP and levels are gone; gear, Goo Hearts, and story unlocks make you stronger | `[~]` |
 | 6 | Rebuild Slimeshire: the Workshop | Restore a ruined building and craft at the Workshop | `[~]` |
 | 7 | Gulp | Swallow a material to take its form and solve a puzzle | `[~]` |
@@ -183,10 +183,11 @@ today, and only real blockers get fixed.
   losing takes and the six dropped takes are gone, and the `?sfx` switch and
   manifest alternates are removed. The 20 cues marked "Neither" got new takes
   made with Magnific from the owner's descriptions (66 takes, sources in
-  `asset/Originals/audio/magnific/`); the game ships the first ones, and
-  round 2 of the [picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ)
-  lets the owner drop or replace them. Shipped sound went from about 7.5 MB
-  to 5.6 MB. `assets:check` finds no orphans.
+  `asset/Originals/audio/magnific/`). In round 2 of the
+  [picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ) the owner kept
+  the new takes for all 20 and dropped a few (recorded under `round2` in
+  `picks.json`); Fatty's recover and the arrow hit now ship take 3. Shipped
+  sound went from about 7.5 MB to 5.6 MB. `assets:check` finds no orphans.
 
 - 2026-09-30: the picker now also offers **Neither** per cue (with a "how
   should it sound?" box, for replacements to make) and a ✕ to drop single
@@ -409,6 +410,8 @@ below exist.
     searched for 3 s where last seen, and they walk home healing. Played
     headless: a worm engaged at 150 px in sight, searched then went home when
     the slime hid behind the ruins, and healed to full after giving up.
+  - The controls felt odd: attacking by clicking while walking with the
+    arrows, and many keys that each do one thing. Planned as 4.10.
 - Open: a second new player.
 
 - Build: two people who have never seen the game play Chapter 1 from the
@@ -420,25 +423,63 @@ below exist.
   every blocker they hit is fixed or has its own task, and lessons that affect
   Chapter 2 are carried into the outline (8.1).
 
+### [~] 4.10 — Simple mouse-and-keyboard controls
+
+- Plan: [Simple controls design](./superpowers/specs/2026-09-30-simple-controls-design.md),
+  agreed 2026-09-30 after the owner feedback in 4.9.
+- Built 2026-09-30, waiting for the owner's playtest:
+  - every control comes from one binding table
+    (`features/player/PlayerInputActions.ts`), and so does every key label;
+  - Dodge is a learned ability (Stone Tools), and Jump is on Space;
+  - the belt has three slots on the mouse wheel, and tools pick themselves;
+  - right click interacts with what the pointer is on, and holding it picks
+    up placed furniture;
+  - E opens the menu with tabs;
+  - cheats are dev-panel buttons.
+  - Two headless playtests passed 34 of 34 checks. See
+    [As Built](./superpowers/specs/2026-09-30-simple-controls-design.md#as-built-2026-09-30).
+- Open:
+  - the owner picks the attack direction (pointer or facing; the dev panel's
+    "Controls test" switch);
+  - the key and mouse glyph art.
+- Build: the left hand on WASD, the right hand on the mouse.
+  - Left click attacks, and the right tool is picked automatically for trees
+    and rocks. Whether attacks aim at the pointer or the facing is under test,
+    with a switch.
+  - Right click interacts with whatever the pointer is on.
+  - Space is Jump. 1 is Dodge, a roll of 0.5 s toward the pointer (4
+    directions) that Stone Tools now teaches. Holding Shift sprints.
+  - Q is the mouth (Gulp), and 2–4 are the other abilities.
+  - The mouse wheel switches between up to 3 equipped weapons.
+  - E opens one menu with tabs.
+  - One binding table supplies every key label, and key presses expire after
+    150 ms.
+- Player proof: a new player finishes Chapter 1 without taking their right
+  hand off the mouse.
+- Done when: the plan's "Done When" checks pass on a fresh save, and the owner
+  accepts the feel in the playground and in a Chapter 1 run.
+
 **Milestone 4 complete when:** boot → title → new game → play → defeat →
 wake → pause → settings → save → quit → title → continue works end to end,
-and two new players have played Chapter 1 (4.9). The loop works (headless,
-2026-09-29); open: 4.9 and the assets below.
+two new players have played Chapter 1 (4.9), and the new controls are in
+(4.10). The loop works (headless, 2026-09-29); open: 4.9, 4.10 and the assets
+below.
 
 **Assets**
 
 - Reuse: `ui-map-journal-paper`, the existing UI
   sound cues, the player's defeat clip.
-- [~] Game logo: Magnific GPT-2 (`asset/UI/ui-slime-isa-logo.png`,
+- [~] Game logo: Magnific GPT-2 (`asset/UI/ui-slime-isa-logo.webp`,
       `ui.logo.slime-isa`), shown at the top of the title panel; owner to
       accept. Open: the browser tab icon and store page.
 - [ ] Menu button states (normal, hover, pressed, disabled), matching the
       organic frame style.
 - [ ] Title music (CC0 or commissioned).
 - [~] Game-over illustration: a melted-slime puddle, Magnific GPT-2
-      (`asset/UI/ui-game-over-puddle.png`, `ui.illustration.game-over`), above
+      (`asset/UI/ui-game-over-puddle.webp`, `ui.illustration.game-over`), above
       "Defeated"; owner to accept.
-- [ ] Control-hint key and mouse glyphs.
+- [ ] Control-hint key and mouse glyphs: left click, right click, wheel, and
+      a keycap (4.10).
 
 ## 5. Gear-Based Progression
 
@@ -691,7 +732,7 @@ accept the Workshop art and restoration sound.
 - Reuse: `decoration-world-solid--tool-bench`, `--anvil`, `--grindstone`, the
   crafting backplates.
 - [~] Ruined Workshop exterior (320 × 320 house frame): Magnific GPT-2,
-  `asset/MAPS/Houses/320-workshop-2x1.png` frame 0
+  `asset/MAPS/Houses/320-workshop-2x1.webp` frame 0
   (`scripts/houses/pack-workshop.py`); owner to accept.
 - [~] Restored Workshop exterior: frame 1 of the same sheet; owner to accept.
 - [~] Restoration effect and a construction sound: a procedural dust cloud and
@@ -705,15 +746,17 @@ The slime eats a Gulp material and takes its form for a while. Each form has a
 look and one rule. See
 [Gulp](./GAME_GUIDELINES.md#signature-mechanic-gulp).
 
-**Controls (decided 2026-09-29): W is the slime's mouth.** W is already bound
-to an unused `eat` action with a short eat clip. No menu ever opens to eat.
+**Controls (decided 2026-09-29): one key is the slime's mouth.** It was W
+until 4.10 moved movement to WASD; it is now Q (the `eat` control, with a
+short eat clip). No menu ever opens to eat. The task notes below say W
+because they describe the game when they were checked.
 
 | Input | Result |
 |---|---|
-| Tap W near a Gulp spot | Eat from the world: free, uses nothing from the inventory |
-| Tap W anywhere else | Eat the last-used Gulp material from the inventory (costs one) |
-| Tap W in a form, away from a Gulp spot | Burp the form away (cancel) |
-| Hold W | Quick wheel of carried Gulp materials; the game keeps running; arrows or the mouse choose, release eats (built in 7.2) |
+| Tap Q near a Gulp spot (or right-click the spot) | Eat from the world: free, uses nothing from the inventory |
+| Tap Q away from a Gulp spot, not in a form | Nothing but a hint: "Hold Q to eat what you carry" (changed 2026-09-30: stray taps turned the slime Heavy far from any rock) |
+| Tap Q in a form, away from a Gulp spot | Burp the form away (cancel) |
+| Hold Q | Quick wheel of carried Gulp materials; the game keeps running; WASD or the mouse choose, release eats (built in 7.2) |
 
 Eating a different material switches forms; eating the same material at a
 Gulp spot resets the timer. **Gulp spots** are world objects (a mossy
@@ -835,7 +878,7 @@ fun.
       overlay effect.
 - [ ] Heavy and Sticky form overlays (stone flecks, silk strands).
 - [~] Two form icons for the HUD timer and the quick wheel: Magnific GPT-2
-      badges (`asset/UI/ui-gulp-form-icons-2x1.png`, frame per form via
+      badges (`asset/UI/ui-gulp-form-icons-2x1.webp`, frame per form via
       `GulpFormDefinition.iconFrame`); owner to accept.
 - [~] Gulp spots: a stone spot and a silk cocoon, clearly different from
       loose piles.
@@ -861,6 +904,29 @@ materials), 8 (Forge), and 13 (progression pass).
   puzzles, build order, and five questions). The quests are not stubbed in the
   catalog yet: `quests:check` needs their items and recipes, which 8.3–8.6
   add; they become `chapterTwo.ts` as those land.
+- Squash Slam (fixed 2026-09-30): it hits every enemy and training dummy
+  within its radius through the damage router (30 damage, pushed outwards);
+  before, like the lash, it only hit the Shift+8 target dummy. Measured in
+  the playground: a worm archer went from 40 to 10.
+- Owner's answers 2026-09-30: The Old Workshop becomes required in Chapter 2;
+  Pip and Sunny reuse the existing sheets (new art for further characters);
+  the Matron's web-volley design is approved for now. Stretch Lash: option B,
+  a tool as well as a hit, so the main line teaches it (the outline has it
+  as Q1's reward).
+- Stretch Lash built 2026-09-30: an animated goo tendril
+  (`effect.player.stretch-lash`, Magnific art packed by
+  `scripts/effects/pack-stretch-lash.py`) reaches 180 px along the slime's
+  facing. Reworked the same day (owner: a hook, not a weapon): it does no
+  damage. A loose pickup it touches flies to the slime; anything solid it
+  catches (a tree, rock, post, wall, statue or bell) pulls the slime across
+  to it, over water too, landing just short of it on walkable ground; a
+  **lash bell post** it catches rings (`object.lash-bell-post`,
+  `game.lash-bell`, opens the gates named in Opens Gate ID, Magnific bell
+  sound). Enemies ignore it. Try it in the playground's lash yard
+  (south-east): walking in teaches the lash (`game.ability-lesson`); from the
+  west bank pull the wood and stone piles off the island, hook the bell to
+  ring it (the pen to the west opens) and fly onto the island, then hook the
+  armor statue on the bank to fly back.
 
 - Build: 5–6 quests in `chapterTwo.ts` form, with givers, objectives,
   rewards, flags, and material sources (resources respawn after 5.5). Assign
@@ -979,7 +1045,7 @@ card, and the gear path wood → stone → iron is complete.
 
 **Assets**
 
-- Reuse: `64x64-8x10-forest-orb-weaver-slime.png`, `house-world-solid--forge-red`
+- Reuse: `64x64-8x10-forest-orb-weaver-slime.webp`, `house-world-solid--forge-red`
   (the restored Forge), `collectible-iron-ore-pile`, `collectible-charcoal-pile`,
   `rock-amber-ore-mineable` (as a style reference), the interior catalog.
 - [ ] Iron ore node (intact and depleted).
@@ -998,6 +1064,14 @@ A slime's feel is mostly hit-stop, screen shake, and squash and stretch. Every
 effect respects the reduce-motion setting (4.5).
 
 ### [x] 9.1 — Hit-stop and screen shake, verified 2026-09-30
+
+- 2026-09-30 (owner could not see hit-stop or the dodge dust): hit-stop now
+  freezes Arcade physics, tweens and sprite animation too, not only the scene
+  runtime, so the slime and knocked-back enemies really stop. It lasts about
+  four frames on a light hit (65 ms) and five to ten on heavy hits and
+  defeats. The dodge dust is a puff of sandy cloud instead of faint goo dots.
+  The playground panel's hit-stop buttons hold the stop five times longer so
+  it can be seen; hitting a training dummy shows the real one.
 
 - Done: `features/feel/GameFeel.ts` holds named presets (hit, critical hit,
   combo finisher, player hurt, slam, boss landing, boss and player defeat,
@@ -1058,8 +1132,15 @@ effect respects the reduce-motion setting (4.5).
   multiplier (0.55) for 0.4 s through the new `EnemyScript.applySlow`; bosses
   are not slowed. Measured in the playground: a chasing worm brawler went
   from 50 to 28 px/s on fresh goo. `pnpm test:feel` covers the pool, the fade
-  and freshness. Open: the owner tries it in the playground (and decides
-  whether it should stay on all the time or come with a form or ability).
+  and freshness.
+- 2026-09-30 (owner: since it slows enemies, it should be an ability a later
+  quest teaches, when a mission needs it): the trail is now the passive
+  **Goo Trail** ability (`content/abilities.ts` passive abilities, no key or
+  bar slot). Until a quest reward teaches `goo-trail` the slime leaves no
+  goo; learning it shows "Goo Trail learned". No quest teaches it yet; pick
+  the chapter and mission when one benefits from slowing enemies. In dev
+  builds the playground panel's checkboxes teach any ability, the Goo Trail
+  included.
 
 - Build: the slime leaves fading goo marks behind it. Enemies that cross fresh
   goo are slowed through the existing `slow` status.
@@ -1093,6 +1174,30 @@ reduce motion turns the strong effects off.
   quality change; lossy WebP (quality 95) would save much more with slight
   noise, so it needs the owner's eye first. Then lazy area loading and a
   loading bar.
+- 2026-09-30 (owner: lossy WebP is fine, but transparency must stay exact):
+  every mapped image is WebP now. The 87 PNGs went from 62.4 MB to 14.8 MB:
+  79 lossy (quality 90) and 8 small outlined icon sheets (items, weapon
+  icons, arrows) lossless, because lossy colour visibly shifted them at close
+  zoom (below 26 dB on visible pixels). Transparency is stored lossless and
+  checked identical on every file; Phaser premultiplies alpha on upload, so
+  colour under fully transparent pixels never shows. Side-by-side crops of
+  the NPC, furniture and tree sheets showed no visible difference.
+  `scripts/lib/game_webp.py` holds the rule; every pack script saves through
+  it, and `scripts/assets/convert-png-to-webp.py` converts hand-exported PNGs.
+- 2026-09-30 (owner: load each area only when it is entered, with a loading
+  bar): boot loads only the images that can appear anywhere (6.8 MB: the
+  player, weapons, effects, item icons, UI) plus sound; each world's own
+  images load when the player enters it (`pnpm assets:worlds` writes the
+  per-world lists from the scene graphs into
+  `worldAssetSets.generated.json`; `assets:check` fails when they are stale;
+  anything not listed loads at boot). A plain HTML loader covers the code
+  download, then a loading bar shows boot and each world's load. Measured
+  headless: the slime home downloads 8.6 MB of images, Gloop Forest about
+  15 MB and Slimeshire (the title backdrop) 22 MB, against 31 MB for every
+  page before. Every area change reloads the page, so nothing needs
+  unloading; the browser cache serves repeat visits.
+  The Vite asset glob now mirrors every manifest `ignore` pattern, so the two
+  unused PNGs no longer ship. `pnpm build`: `dist/` went from 89 MB to 43 MB.
 
 - Build: `dist/` is 70 MB today: a 5.4 MB main script and UI backplates of
   2–5 MB each. Compress and resize images to their display size, load area art
@@ -1119,7 +1224,16 @@ reduce motion turns the strong effects off.
   production.
 - Done when: a production build contains none of them.
 
-### [ ] 10.3 — Licenses and credits
+### [~] 10.3 — Licenses and credits
+
+- 2026-09-30: [Credits and licenses](./CREDITS.md) lists every shipped
+  library, sound and image family with its source, license and evidence
+  (C2PA metadata on the generated sources), and what the credits screen must
+  show. The credits screen names the generated sound effects and the
+  shipped libraries, and says the art was made by the team with AI image
+  tools (the owner made the older art without a recorded source with AI).
+  Open: the AI terms of use are checked, and the MIT notices ship with the
+  build.
 
 - Build: record the source and license of every image, sound, and font in the
   production build.
@@ -1241,7 +1355,8 @@ numbered milestone and task tiles.
   [Player action dashboard and loadout](./task/ideas/open/player-action-dashboard-and-loadout.md).
 - Weapon dropping and pickup (was UX.3).
 - Gamepad support, key rebinding, colorblind-safe status colors, text size,
-  photo mode.
+  photo mode. For rebinding, the 4.10 binding table is already the data; only
+  the settings screen is missing.
 - The Android app in `MobileVersion/` stays frozen until after Release 1.
 
 ### Tooling (frozen)
@@ -1265,25 +1380,34 @@ numbered milestone and task tiles.
 Milestones 3 to 7 and 9 are built and played headless (2026-09-30); each waits
 on its assets and the owner's acceptance. Waiting on the owner:
 
-- 3.8 round 2: in the [picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ),
-  judge the new takes for the 20 replaced sounds (drop, keep "Before", or
-  describe again), then mark them final.
 - 4.9: play the second round of fixes (tearing webs, Heavy jump on cracked
   ground, enemy territories), then a second new player.
 - 6: accept the Workshop art and restoration sound; play The Old Workshop.
 - 7: try the Heavy plate gate, the Sticky web nook, the hold-W quick wheel and
   the cracked-ground cavern in the playground (`?map=playground`); accept the
   new plate and form-badge art.
-- 8.1: answer the Chapter 2 outline's first four questions (the fifth, the
-  orb-weaver art, is answered).
+- Owner's playtest fixes 2026-09-30: Jump from standing still hops in place
+  (a moving jump still follows the movement); Teleport lands on the farthest
+  safe spot in reach, across rivers and thin walls, and says "No safe spot
+  there" when there is none (costing nothing); a tap of W away from a Gulp
+  spot no longer eats carried stone (hold W for the quick wheel); the dev
+  panel only reacts to the mouse, so Space no longer unticks Jump.
+- Playground (dev builds): the dev tools panel has a **Playground** section:
+  checkboxes that teach or forget each ability (Jump, Squash Slam, Stretch
+  Lash, Teleport, Goo Trail) and buttons that play each game-feel effect on
+  the slime (hit-stop, shakes, squash shapes, every particle preset). Three
+  straw **training dummies** stand east of the spawn (`object.training-dummy`,
+  `game.training-dummy`): they take any weapon or ability hit, show the
+  damage and wobble, and never fight back.
+- 8.1: try the Stretch Lash hook in the playground's lash yard (the
+  outline's questions are all answered).
 - 8.2: fight the orb-weavers in the playground pen and in Gloop Forest.
-- 9: play the new feel (hit-stop, squash and stretch, particles, goo trail)
-  and say whether the trail should always be on.
-- 10.1: decide on lossy WebP for the remaining large images (lossless is
-  done for the grounds).
+- 9: play the new feel (hit-stop, squash and stretch, particles) on the
+  playground's training dummies and with the panel's game-feel buttons. The
+  goo trail is now a learned ability (9.4) that no quest teaches yet.
 
-Next to build: 8.3 (the orb-weaver's own material and the Reinforced
-Pickaxe) and 8.4 (iron) follow the outline once its questions are answered;
+Next to build: 8.3 (the weaver fang) and 8.4 (iron nodes and the Reinforced
+Pickaxe), then 8.5 (the Forge) and 8.6 (iron gear), following the outline;
 art keeps coming from Magnific (GPT-2) as each task needs it.
 
 ## Done — Foundations

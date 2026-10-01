@@ -6,7 +6,7 @@ crystal chips attach to the nearest prop), read in row/column order, and placed
 bottom-centred in its own frame. One uniform scale per atlas keeps the props'
 relative sizes; a transparent margin keeps every pixel inside its own frame.
 
-Output: asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.png (the rocks
+Output: asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.webp (the rocks
 folder naming), used by the wall prop scenes (generate-wall-prop-scenes.py).
 
 Requires Pillow and numpy.
@@ -25,6 +25,9 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "items"))
 from importlib import import_module  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from game_webp import save_game_webp  # noqa: E402
 
 items = import_module("pack-item-sheets")  # reuse component detection
 
@@ -61,7 +64,7 @@ def main() -> None:
             prop = prop.resize((max(1, round(prop.width * scale)), max(1, round(prop.height * scale))), Image.LANCZOS)
             column, row = index % columns, index // columns
             atlas.alpha_composite(prop, (column * FRAME + (FRAME - prop.width) // 2, row * FRAME + FRAME - PADDING - prop.height))
-        atlas.save(PROMOTED / f"{FRAME}x{FRAME}-tile_{columns}x{rows}-{name}.png", optimize=True)
+        save_game_webp(atlas, PROMOTED / f"{FRAME}x{FRAME}-tile_{columns}x{rows}-{name}.webp")
     print(f"packed {len(ATLASES)} prop atlases into {PROMOTED.relative_to(ROOT)}")
 
 

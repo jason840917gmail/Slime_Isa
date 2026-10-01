@@ -72,7 +72,7 @@ test('fresh initial runs do not share mutable state and use the authored Level 1
   assert.notEqual(second.player.equipment.weaponSlots[0], 'changed-for-test');
   assert.deepEqual(second.player.equipment, {
     weaponId: null,
-    weaponSlots: [null, null, null, null, null, null],
+    weaponSlots: [null, null, null],
   });
   assert.deepEqual(second.inventory, { maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots, slots: [] });
   assert.equal(second.world.discoveredAreas.includes('changed-for-test'), false);
@@ -304,10 +304,17 @@ test('schema v9 saves drop level, XP and perks and keep every quest-taught abili
   assert.deepEqual(migrated.story.worldFlags, ['met-mossy']);
   assert.deepEqual(migrated.story.learnedRecipeIds, ['craft-stone-spear']);
   assert.deepEqual(migrated.story.talkedNpcIds, ['level-1-spider-giver']);
-  assert.deepEqual(migrated.story.learnedAbilityIds, ['jump'], 'Worm Trouble was finished, so Jump stays learned');
+  assert.deepEqual(
+    [...migrated.story.learnedAbilityIds].sort(),
+    ['dodge', 'jump'],
+    'Stone Tools and Worm Trouble were finished, so Dodge and Jump are learned',
+  );
 
   const early = migrate(v9(['a-place-to-work']));
   assert.deepEqual(early.story.learnedAbilityIds, [], 'level 3 alone no longer teaches anything');
+
+  const pastStoneTools = migrate(v9(['a-place-to-work', 'stone-tools']));
+  assert.deepEqual(pastStoneTools.story.learnedAbilityIds, ['dodge'], 'a save past Stone Tools learns the dodge it now teaches');
 
   const legacyXp = createInitialRunState();
   legacyXp.player = { ...legacyXp.player, schemaVersion: 2, level: 2, xp: 80, maxHpBonus: 999, maxEnergyBonus: 999 };

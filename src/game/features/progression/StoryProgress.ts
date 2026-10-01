@@ -44,6 +44,12 @@ export class StoryProgress {
     this.addAll(this.learnedAbilities, fresh);
     for (const abilityId of fresh) gameEvents.emit('ability.learned', { abilityId });
   }
+  /** Unlearns abilities (the dev tools' playground switches only; the story never takes one back). */
+  forgetAbilities(abilityIds: readonly string[]): void {
+    const before = this.learnedAbilities.size;
+    for (const abilityId of abilityIds) this.learnedAbilities.delete(abilityId);
+    if (this.learnedAbilities.size !== before) gameEvents.emit('story.changed', {});
+  }
   recordTalk(npcId: string): void { this.addAll(this.talkedNpcs, [npcId]); }
 
   private addAll(target: Set<string>, values: readonly string[]): void {

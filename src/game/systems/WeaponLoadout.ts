@@ -6,7 +6,7 @@ import { playerInventory, weaponItemFor } from './Inventory';
 export const DEVELOPMENT_ARSENAL_WEAPON_IDS = ['goo-gauntlet', 'basic-sword', 'basic-spear', 'slam-hammer', 'wooden-axe', 'pickaxe'] as const;
 
 const STARTER_WEAPON_PREFERRED_SLOTS: Readonly<Record<string, number>> = {
-  'basic-spear': 3,
+  'basic-spear': 1,
   'slam-hammer': 2,
 };
 
@@ -120,6 +120,24 @@ class WeaponLoadout {
       ok: true,
       equipAssignedWeapon: previousIndex < 0 && previousTarget === gameState.equippedWeaponId,
     };
+  }
+
+  /**
+   * The belt slot the mouse wheel moves to: the next (`step` 1) or previous
+   * (-1) filled slot after the equipped weapon's, wrapping around. Null when
+   * no other weapon is on the belt.
+   */
+  cycleSlot(step: 1 | -1): number | null {
+    const count = WEAPON_HOTBAR_SLOT_COUNT;
+    const equipped = gameState.equippedWeaponId;
+    const current = equipped ? gameState.weaponSlots.indexOf(equipped) : -1;
+    const start = current >= 0 ? current : step > 0 ? count - 1 : 0;
+    for (let offset = 1; offset <= count; offset += 1) {
+      const index = (start + step * offset + count * offset) % count;
+      if (index === current) return null;
+      if (this.weaponAt(index)) return index;
+    }
+    return null;
   }
 
   ensureAssigned(weaponId: string): number | null {

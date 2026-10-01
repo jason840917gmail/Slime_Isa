@@ -16,9 +16,10 @@ import { StatusEffectManager, statusSpeedMultiplier } from '../systems/StatusEff
 import { getStats } from '../systems/PlayerStats';
 import { PlayerAbilityController } from '../features/player/PlayerAbilityController';
 import {
+  isPassiveAbilityId,
   isPlayerAbilityId,
+  PASSIVE_ABILITY_DEFINITIONS,
   PLAYER_ABILITY_DEFINITIONS,
-  PLAYER_ABILITY_IDS,
   type PlayerAbilityId,
 } from '../features/player/PlayerAbilityDefinitions';
 import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Inventory';
@@ -32,8 +33,9 @@ import { GulpController } from '../features/gulp/GulpController';
 import { GulpHud } from '../features/gulp/GulpHud';
 import { GulpWheel } from '../features/gulp/GulpWheel';
 import { gameFeel } from '../features/feel/sharedFeel';
-import { SquashStretch } from '../features/feel/SquashStretch';
-import { particleFx } from '../features/feel/ParticlePresets';
+import { FEEL_PRESETS, type FeelEvent } from '../features/feel/GameFeel';
+import { SquashStretch, type SquashEvent } from '../features/feel/SquashStretch';
+import { particleFx, type ParticleEvent } from '../features/feel/ParticlePresets';
 import { SlimeTrail } from '../features/feel/SlimeTrail';
 import { GULP_WHEEL_HOLD_MS, pickGulpWheelSlot } from '../features/gulp/GulpWheelLayout';
 import type { GulpWheelEntry } from '../features/gulp/GulpController';
@@ -52,6 +54,12 @@ import { storyProgress } from '../features/progression/StoryProgress';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { PlayerController } from '../features/player/PlayerController';
+import { controlLabel } from '../features/player/ControlLabels';
+import { isControlCode, type ShellInputAction } from '../features/player/PlayerInputActions';
+import { aimToward, snapToCardinal, type PointerAim } from '../features/player/PointerAim';
+import { harvestToolFor } from '../features/combat/HarvestTools';
+import { MENU_TABS_SURFACE_ID, MenuTabsSurfacePort } from '../features/ui/MenuTabsSurfacePort';
+import { getWeaponDefinition } from '../content/weapons/WeaponCatalog';
 import type { PlayerActorPort } from '../features/player/PlayerServicePorts';
 import type { WorldVisual } from '../presentation/WorldVisual';
 import { UI_THEME } from '../presentation/theme';
@@ -70,7 +78,6 @@ import { ResourceNodeController } from '../features/resources/ResourceNodeContro
 import { worldProgress } from '../features/progression/WorldProgress';
 import { SleepController, type SleepRequest } from '../features/rest/SleepController';
 import { FurniturePlacementController, type FootprintRect, type PlacementRequest } from '../features/building/FurniturePlacementController';
-import { PORTABLE_SITE } from '../content/recipes/RecipeCatalog';
 import type { CraftingSite } from '../content/recipes/types';
 import type { ModalHandle } from '../ui/ModalStack';
 import type { RespawnPointData } from '../infrastructure/persistence/SaveSchema';
@@ -119,9 +126,17 @@ interface AuthoredWorldMetadata {
 const AREA_LEAVE_FADE_MS = 320;
 const AREA_ARRIVE_FADE_MS = 400;
 /** The dodge hint appears when an enemy is this close. */
+/** How far short of a heavy Stretch Lash catch the slime lands. */
+const LASH_STANDOFF_PX = 30;
 const HINT_DODGE_ENEMY_RANGE_PX = 360;
 /** The crafting hint appears once the first workbench is affordable. */
 const HINT_CRAFTING_WOOD = 40;
+/** The slime's middle sits this far above its origin; the pointer aims from there. */
+const SLIME_CENTER_RISE_PX = 28;
+/** Holding interact this long on a placed bed or bench picks it up instead of using it. */
+const INTERACT_HOLD_MS = 450;
+/** A tree or rock this close ahead of the slime gets the right tool swung at it. */
+const HARVEST_TOOL_REACH_PX = 120;
 /** Banner color for a story-taught ability (a fresh-goo green, distinct from area names). */
 const ABILITY_LEARNED_COLOR = '#9ff0c8';
 /** Banner color for a collected Goo Heart. */
@@ -160,6 +175,8 @@ export class WorldScene extends Phaser.Scene {
   private gulpHud?: GulpHud;
   private gulpWheel?: GulpWheel;
   private squash?: SquashStretch;
+  /** A hit-stop is holding physics, tweens and animation still. */
+  private hitStopHeld = false;
   private slimeTrail?: SlimeTrail;
   /** The Heavy slime's last jump landing (cracked ground breaks under it). */
   private heavyLanding?: { readonly x: number; readonly y: number; readonly id: number };
@@ -179,6 +196,17 @@ export class WorldScene extends Phaser.Scene {
     selected?: number;
     pointerStart?: Readonly<{ x: number; y: number }>;
   };
+  /** Interact pressed on a target with a second action: a release uses it, a hold picks it up. */
+  private interactHold?: { readonly since: number };
+  /** False until the pointer first moves over the game, so aiming falls back to the facing. */
+  private pointerSeen = false;
+  /** One menu: the tab strip over the bag, crafting, journal and map windows. */
+  private readonly menuTabs = new MenuTabsSurfacePort(() => ({
+    inventory: this.universalWorld?.inventorySurface,
+    crafting: this.universalWorld?.craftingSurface,
+    journal: this.universalWorld?.questJournalSurface,
+    map: this.universalWorld?.worldMapSurface,
+  }));
   private waypointPresenter?: QuestWaypointPresenter;
   private waypointTarget?: QuestWaypointTarget;
   private nextWaypointResolveAt = 0;
@@ -336,6 +364,13 @@ export class WorldScene extends Phaser.Scene {
       playAnimation: (key) => this.playAnimation(key),
       getTerrainGrid: () => this.terrainGrid,
       getCombatTargets: () => this.combatController?.targets ?? null,
+      abilityWorld: {
+        lashProbe: (from, to, halfWidth) => this.universalWorld?.lashProbe(from, to, halfWidth) ?? { kind: 'none', at: to },
+        lashLanding: (from, caught) => this.lashLanding(from, caught),
+        lashRing: (from, caught, halfWidth) => this.universalWorld?.lashRing(from, caught, halfWidth) ?? 0,
+        lashPull: (pickupId, to) => this.universalWorld?.lashPull(pickupId, to) ?? false,
+        strikeArea: (request) => this.universalWorld?.strikeArea(request) ?? { hits: [] },
+      },
       nowMs: () => this.simulationNow(),
     });
     this.universalWorld?.worldMapSurface.discover(this.currentArea.id);
@@ -357,7 +392,7 @@ export class WorldScene extends Phaser.Scene {
     this.createCombatSystem();
 
     this.bindHotkeys();
-    this.bindDebugCheats();
+    this.bindDevCheats();
 
     const persistenceModalHandler = (payload: { open: boolean }) => {
       this.setSimulationPaused('persistence', payload.open);
@@ -367,6 +402,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Game feel (9.1): shakes and hit-stops go through one service that honours the shake and motion settings.
     this.disposables.add(gameFeel.bind({ now: () => this.time.now, shake: (ms, intensity) => this.cameras.main.shake(ms, intensity) }));
+    this.disposables.add(() => this.holdForHitStop(false));
     // Pooled particle presets (9.3): one emitter each, reused for every burst.
     this.disposables.add(particleFx.bind(this));
     // The goo trail (9.4): pooled fading marks that slow enemies standing on fresh goo.
@@ -404,12 +440,34 @@ export class WorldScene extends Phaser.Scene {
       if (this.squash === squash) this.squash = undefined;
     });
 
+    // Dev tools: the playground panel plays one game-feel effect on the slime.
+    if (import.meta.env.DEV) {
+      const onDevFeel = ({ effect }: { effect: string }) => {
+        const [kind, id] = effect.split(':');
+        const player = this.player;
+        if (!player || !id) return;
+        if (kind === 'particle') particleFx.play(id as ParticleEvent, player.x, player.y - 20);
+        else if (kind === 'feel') {
+          // A real hit-stop lasts a few frames; the panel holds it five times longer so it can be seen.
+          gameFeel.play(id as FeelEvent);
+          gameFeel.hitStop(FEEL_PRESETS[id as FeelEvent].hitStopMs * 5);
+        }
+        else if (kind === 'squash') squash.play(id as SquashEvent, true);
+      };
+      gameEvents.on('dev.feel', onDevFeel);
+      this.disposables.add(() => gameEvents.off('dev.feel', onDevFeel));
+    }
+
     // A story-taught ability is announced with the area-title banner and its key
     // (the quest's reward lines already float above the player).
     this.abilityLearnedHandler = ({ abilityId }) => {
+      if (isPassiveAbilityId(abilityId)) {
+        this.universalWorld?.showAreaTitle(PASSIVE_ABILITY_DEFINITIONS[abilityId].learnedText, ABILITY_LEARNED_COLOR);
+        return;
+      }
       if (!isPlayerAbilityId(abilityId)) return;
-      const { title, key } = PLAYER_ABILITY_DEFINITIONS[abilityId];
-      this.universalWorld?.showAreaTitle(`${title} learned: press ${key}`, ABILITY_LEARNED_COLOR);
+      const { title, action } = PLAYER_ABILITY_DEFINITIONS[abilityId];
+      this.universalWorld?.showAreaTitle(`${title} learned: press ${controlLabel(action)}`, ABILITY_LEARNED_COLOR);
     };
     gameEvents.on('ability.learned', this.abilityLearnedHandler);
     this.disposables.add(() => {
@@ -498,7 +556,8 @@ export class WorldScene extends Phaser.Scene {
           case 'move': return true;
           case 'interact': return this.interactionRouter?.hasCandidate() ?? false;
           case 'attack': return gameState.equippedWeaponId !== null;
-          case 'dodge': return (this.universalWorld?.nearestEnemyDistance(this.player) ?? Number.POSITIVE_INFINITY) < HINT_DODGE_ENEMY_RANGE_PX;
+          case 'dodge': return storyProgress.knowsAbility('dodge')
+            && (this.universalWorld?.nearestEnemyDistance(this.player) ?? Number.POSITIVE_INFINITY) < HINT_DODGE_ENEMY_RANGE_PX;
           case 'inventory': return playerInventory.serialize().slots.some((slot) => slot !== null);
           case 'crafting': return playerInventory.count('wood') >= HINT_CRAFTING_WOOD;
           default: return false;
@@ -621,6 +680,26 @@ export class WorldScene extends Phaser.Scene {
     return restored.restored;
   }
 
+  /**
+   * Hit-stop (9.1) freezes more than the scene runtime: Arcade physics (so a
+   * sliding slime or a knocked-back enemy stops too), tweens and sprite
+   * animation hold still until it ends.
+   */
+  private holdForHitStop(frozen: boolean): void {
+    if (frozen === this.hitStopHeld) return;
+    this.hitStopHeld = frozen;
+    if (frozen) {
+      this.physics.world.pause();
+      this.tweens.timeScale = 0;
+      this.anims.pauseAll();
+      return;
+    }
+    // A modal pause (inventory, dialogue) that began during the stop keeps physics paused.
+    if (!this.paused) this.physics.world.resume();
+    this.tweens.timeScale = 1;
+    this.anims.resumeAll();
+  }
+
   private setSimulationPaused(source: string, paused: boolean): void {
     if (paused) {
       this.pauseSources.add(source);
@@ -665,8 +744,10 @@ export class WorldScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     if (this.universalWorld) {
-      // Hit-stop: the simulation holds still for a moment while rendering and the shake carry on.
-      this.universalWorld.advanceFrame(gameFeel.frozen ? 0 : delta / 1000);
+      // Hit-stop: the whole world holds still for a moment while rendering, the shake and particles carry on.
+      const frozen = gameFeel.frozen;
+      this.holdForHitStop(frozen);
+      this.universalWorld.advanceFrame(frozen ? 0 : delta / 1000);
       return;
     }
     this.updatePresentation(delta);
@@ -690,7 +771,8 @@ export class WorldScene extends Phaser.Scene {
     const now = this.simulationNow();
     this.finishExpiredActionAnimation(now);
     this.interactionRouter?.setSuppressed((this.sleepController?.sleeping ?? false) || (this.furniturePlacement?.active ?? false));
-    this.interactionRouter?.update();
+    // Right click acts on what the pointer is on; with nothing pointed at, the nearest target.
+    this.interactionRouter?.update(this.pointerSeen ? this.pointerWorldPosition() : undefined);
     this.furniturePlacement?.update();
     this.statusEffects?.update(now, delta);
     this.updateSlimeTrail(now);
@@ -746,7 +828,7 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
-    if (this.handleActionInput(direction)) {
+    if (this.handleActionInput()) {
       this.debugRenderer?.update();
       return;
     }
@@ -756,13 +838,16 @@ export class WorldScene extends Phaser.Scene {
     this.debugRenderer?.update();
   }
 
-  /** Drops goo marks while the slime is on the ground; enemies on fresh goo move at the `slow` status's speed. */
+  /**
+   * Once the Goo Trail is learned, drops goo marks while the slime is on the
+   * ground; enemies on fresh goo move at the `slow` status's speed.
+   */
   private updateSlimeTrail(now: number): void {
     const trail = this.slimeTrail;
     const body = this.player?.body as Phaser.Physics.Arcade.Body | undefined;
     if (!trail || !body) return;
-    const grounded = !this.healthSystem?.isDead() && !this.sleepController?.sleeping && !this.transitioning
-      && !(this.abilitySystem?.isBusy() ?? false);
+    const grounded = storyProgress.knowsAbility('goo-trail') && !this.healthSystem?.isDead()
+      && !this.sleepController?.sleeping && !this.transitioning && !(this.abilitySystem?.isBusy() ?? false);
     trail.update(now, grounded ? { x: this.player.x, y: resolveBodyBottom(body) - 3 } : undefined);
     if (now < this.nextTrailSlowAt) return;
     this.nextTrailSlowAt = now + 100;
@@ -972,6 +1057,27 @@ export class WorldScene extends Phaser.Scene {
       waypoint.destroy();
       if (this.waypointPresenter === waypoint) this.waypointPresenter = undefined;
     });
+    // A Gulp spot is also an interactable: right-clicking it eats, the same as a tap of the mouth key.
+    // No badge: the spot's own "[Q] Gulp" hint already floats over it.
+    const unregisterSpots = this.interactionRouter?.register('gulp-spots', {
+      getCandidate: () => {
+        const gulp = this.gulp;
+        const spot = gulp?.nearestSpot();
+        if (!gulp || !spot) return undefined;
+        const material = itemRegistry.get(spot.materialItemId)?.name ?? spot.materialItemId;
+        return {
+          id: `gulp-spots:${Math.round(spot.x)}:${Math.round(spot.y)}`,
+          prompt: `Gulp the ${material}`,
+          priority: 60,
+          origin: () => spot,
+          execute: () => {
+            if (gulp.eat() !== 'nothing') this.playActionAnimation('slime-eat');
+            return true;
+          },
+        };
+      },
+    });
+    if (unregisterSpots) this.disposables.add(unregisterSpots);
     const hud = new GulpHud(this);
     this.gulpHud = hud;
     const wheel = new GulpWheel(this);
@@ -1347,9 +1453,6 @@ export class WorldScene extends Phaser.Scene {
       this.cameras.remove(uiCamera, true);
       if (this.uiCamera === uiCamera) this.uiCamera = undefined;
     });
-
-    this.input.on('wheel', this.handleCameraWheel, this);
-    this.disposables.add(() => this.input.off('wheel', this.handleCameraWheel, this));
   }
 
   private capturePlayerLocation(): GameLocationData {
@@ -1409,16 +1512,6 @@ export class WorldScene extends Phaser.Scene {
       }
       this.cameraLayerAssignments.set(child, layer);
     }
-  }
-
-  private handleCameraWheel(
-    _pointer: Phaser.Input.Pointer,
-    _objects: unknown[],
-    _deltaX: number,
-    deltaY: number,
-  ): void {
-    if (this.universalWorld?.craftingSurface.isOpen()) return;
-    this.cameraController?.stepZoom(deltaY);
   }
 
   private playerMotion(): PlayerActorPort {
@@ -1494,6 +1587,27 @@ export class WorldScene extends Phaser.Scene {
       && tileY < this.worldDimensions.rows;
   }
 
+  /**
+   * Where a heavy Stretch Lash catch pulls the slime: `LASH_STANDOFF_PX` short
+   * of the catch, stepping back towards the throw until the tile is walkable
+   * (so a catch at the water's edge never drops the slime in the water).
+   */
+  private lashLanding(from: Readonly<{ x: number; y: number }>, caught: Readonly<{ x: number; y: number }>): Readonly<{ x: number; y: number }> {
+    const length = Math.hypot(caught.x - from.x, caught.y - from.y);
+    if (length <= LASH_STANDOFF_PX) return from;
+    const dirX = (caught.x - from.x) / length;
+    const dirY = (caught.y - from.y) / length;
+    const tile = this.worldDimensions.tileSize;
+    for (let distance = length - LASH_STANDOFF_PX; distance > 0; distance -= 8) {
+      const x = from.x + dirX * distance;
+      const y = from.y + dirY * distance;
+      const tileX = Math.floor(x / tile);
+      const tileY = Math.floor(y / tile);
+      if (this.isWithinWorld(tileX, tileY) && !this.isSolidTile(tileX, tileY)) return { x, y };
+    }
+    return from;
+  }
+
   private isSolidTile(tileX: number, tileY: number): boolean {
     const tileId = this.terrainGrid[tileY]?.[tileX];
     return tileId ? isTileCollidable(tileId) : false;
@@ -1533,13 +1647,80 @@ export class WorldScene extends Phaser.Scene {
 
   private activateAbilityFromUi(abilityId: PlayerAbilityId): void {
     if (this.paused || this.healthSystem?.isDead() || !this.abilitySystem) return;
-    const direction = this.playerController.readDirection();
+    if (this.playerController.isMovementSuppressed()) return;
+    this.useAbility(abilityId, this.statusEffects?.isRooted() ?? false);
+  }
+
+  /**
+   * An ability from its key or its ability-bar button. Jump follows the
+   * movement keys; Dodge, Stretch Lash and Teleport aim at the pointer (the
+   * facing when it sits on the slime). Stuck in a web, nothing that moves the
+   * slime works.
+   */
+  private useAbility(abilityId: PlayerAbilityId, stuck: boolean): void {
+    const abilities = this.abilitySystem;
+    if (!abilities) return;
+    const aim = this.pointerAim();
+    const toward = aim ?? this.playerController.facing;
     switch (abilityId) {
-      case 'jump': this.abilitySystem.tryJump(direction); break;
-      case 'squash-slam': this.abilitySystem.trySquashSlam(); break;
-      case 'stretch-lash': this.abilitySystem.tryStretchLash(); break;
-      case 'teleport': this.abilitySystem.tryTeleport(direction); break;
+      case 'jump':
+        if (!stuck) abilities.tryJump(this.playerController.readDirection());
+        break;
+      case 'dodge':
+        if (!stuck && abilities.tryDodge(() => this.playerController.tryDodge(snapToCardinal(toward)))) this.hints?.learn('dodge');
+        break;
+      case 'stretch-lash': abilities.tryStretchLash(toward); break;
+      case 'squash-slam': abilities.trySquashSlam(); break;
+      case 'teleport':
+        if (!stuck) abilities.tryTeleport(toward, aim?.distance);
+        break;
     }
+  }
+
+  /** Where the pointer is from the slime's middle, or undefined when it sits on the slime or never reached the game. */
+  private pointerAim(): PointerAim | undefined {
+    if (!this.player || !this.pointerSeen) return undefined;
+    return aimToward({ x: this.player.x, y: this.player.y - SLIME_CENTER_RISE_PX }, this.pointerWorldPosition());
+  }
+
+  /**
+   * A swing of the equipped weapon. With `attackAim` on `pointer` the slime
+   * first turns toward the pointer (snapped to 4 directions); on `facing` it
+   * swings the way it last moved.
+   */
+  private attack(): boolean {
+    if (gameSettings.settings.attackAim === 'pointer') {
+      const aim = this.pointerAim();
+      if (aim) this.playerController.face(snapToCardinal(aim));
+    }
+    const combat = this.combatController;
+    if (!combat) return false;
+    const tool = this.harvestToolAhead();
+    return tool ? combat.tryToolAttack(tool) : combat.tryAttack();
+  }
+
+  /**
+   * Tools pick themselves: the best owned tool for the tree or rock the swing
+   * is about to hit, when the equipped weapon cannot harvest it.
+   */
+  private harvestToolAhead(): string | undefined {
+    if (!this.player) return undefined;
+    const need = this.universalWorld?.harvestNeedAhead(
+      { x: this.player.x, y: this.player.y },
+      this.playerController.facing,
+      HARVEST_TOOL_REACH_PX,
+    );
+    if (!need) return undefined;
+    const owned = itemRegistry.all()
+      .filter((item) => item.equipment && playerInventory.count(item.id) > 0)
+      .map((item) => item.equipment!.weaponId);
+    return harvestToolFor(need, this.combatController?.equippedWeaponId() ?? null, owned, (weaponId) => {
+      try {
+        return getWeaponDefinition(weaponId).harvestCapabilities;
+      } catch {
+        return undefined;
+      }
+    });
   }
 
   /** Web hit: the player is stuck in place and wrapped in web until it wears off. */
@@ -1557,70 +1738,86 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private handleActionInput(direction: Phaser.Math.Vector2): boolean {
+  private handleActionInput(): boolean {
     const input = this.playerMotion();
     if (this.furniturePlacement?.active) {
-      // Placing furniture: the player may walk, but keys that act (attack,
-      // abilities, R which cycles the variant) must not also fire their action.
-      for (const action of ['interact', 'pickup', 'attack', 'jump', 'dodge', 'stretch-lash', 'squash-slam', 'teleport', 'eat']) {
+      // Placing furniture: the player may walk; the attack button places, the
+      // wheel switches the variant, interact cancels, and nothing else acts.
+      const placement = this.furniturePlacement;
+      if (input.consumeActionPress('attack')) placement.handlePointerDown();
+      if (input.consumeActionPress('weapon-next')) placement.cycleVariant(1);
+      if (input.consumeActionPress('weapon-previous')) placement.cycleVariant(-1);
+      if (input.consumeActionPress('interact')) placement.cancel();
+      for (const action of ['jump', 'dodge', 'stretch-lash', 'squash-slam', 'teleport', 'eat']) {
         input.consumeActionPress(action);
       }
       return false;
     }
-    // Stuck in a web: attacks still work, but nothing that moves the player.
-    const stuck = this.statusEffects?.isRooted() ?? false;
+    // Switching weapons never stops the slime walking.
+    for (const [action, step] of [['weapon-next', 1], ['weapon-previous', -1]] as const) {
+      if (!input.consumeActionPress(action)) continue;
+      const slotIndex = playerWeaponLoadout.cycleSlot(step);
+      if (slotIndex !== null) this.equipWeaponSlot(slotIndex);
+    }
+    if (this.updateInteractHold()) return true;
     if (input.consumeActionPress('interact')) {
       // The router owns the visible shared prompt, so its candidate must own
-      // the key press whenever one is displayed.
-      if (this.interactionRouter?.hasCandidate()) {
+      // the press whenever one is displayed. A target with a second action
+      // (pick up a placed bed or bench) waits for the release: holding picks it up.
+      const router = this.interactionRouter;
+      if (router?.hasCandidate()) {
         this.hints?.learn('interact');
-        this.interactionRouter.handleInteract();
+        if (router.hasSecondary()) this.interactHold = { since: this.simulationNow() };
+        else router.handleInteract();
       }
       return true;
     }
-    if (input.consumeActionPress('pickup')) {
-      this.interactionRouter?.handleSecondary();
-      return true;
-    }
 
-    if (input.consumeActionPress('jump')) {
-      if (!stuck) this.abilitySystem?.tryJump(direction);
-      return true;
-    }
-
-    if (input.consumeActionPress('dodge')) {
-      if (!stuck && this.playerController.tryDodge(direction)) this.hints?.learn('dodge');
+    // Stuck in a web: attacks still work, but nothing that moves the player.
+    const stuck = this.statusEffects?.isRooted() ?? false;
+    for (const abilityId of ['jump', 'dodge', 'stretch-lash', 'squash-slam', 'teleport'] as const) {
+      if (!input.consumeActionPress(PLAYER_ABILITY_DEFINITIONS[abilityId].action)) continue;
+      this.useAbility(abilityId, stuck);
       return true;
     }
 
     if (input.consumeActionPress('attack')) {
-      if (this.combatController?.tryAttack()) this.hints?.learn('attack');
-      return true;
-    }
-
-    if (input.consumeActionPress('stretch-lash')) {
-      this.abilitySystem?.tryStretchLash();
-      return true;
-    }
-
-    if (input.consumeActionPress('squash-slam')) {
-      this.abilitySystem?.trySquashSlam();
-      return true;
-    }
-
-    if (input.consumeActionPress('teleport')) {
-      if (!stuck) this.abilitySystem?.tryTeleport(direction);
+      if (this.attack()) this.hints?.learn('attack');
       return true;
     }
 
     if (input.consumeActionPress('eat')) {
-      // W is the mouth: what it does is decided on release or after a hold (updateEatHold).
+      // Q is the mouth: what it does is decided on release or after a hold (updateEatHold).
       const now = this.time.now;
       this.eatHold = { since: now, lastSeen: now, open: false, empty: false, entries: [] };
       return true;
     }
 
     return false;
+  }
+
+  /**
+   * Interact on a target with a second action: a short press does the main
+   * action on release; holding past `INTERACT_HOLD_MS` does the second one.
+   * True while the button is still held.
+   */
+  private updateInteractHold(): boolean {
+    const hold = this.interactHold;
+    if (!hold) return false;
+    const router = this.interactionRouter;
+    if (!router?.hasSecondary()) {
+      this.interactHold = undefined;
+      return false;
+    }
+    if (this.simulationNow() - hold.since >= INTERACT_HOLD_MS) {
+      this.interactHold = undefined;
+      router.handleSecondary();
+      return true;
+    }
+    if (this.playerMotion().isActionPressed('interact')) return true;
+    this.interactHold = undefined;
+    router.handleInteract();
+    return true;
   }
 
   private playActionAnimation(key: string): void {
@@ -1829,46 +2026,60 @@ export class WorldScene extends Phaser.Scene {
     floatingText.spawn(this, x + offsetX, y - 64, `+${count} ${label}`, 'green');
   }
 
+  /**
+   * Controls that also work over an open window: the menu key and zoom. The
+   * player's own actions (moving, both mouse buttons, the wheel, abilities)
+   * arrive through the input router and the binding table instead.
+   */
   private bindHotkeys(): void {
     const kb = this.input.keyboard;
-    if (!kb) return;
-
-    // Tab = toggle inventory. Bind via keydown-TAB so we can preventDefault
-    // before the browser moves focus.
-    kb.on('keydown-TAB', (event: KeyboardEvent) => {
-      event.preventDefault();
-      if (this.titleMode || this.shell?.isAnyOpen() || this.actionLocked) return;
-      this.universalWorld?.inventorySurface.toggle();
-    });
-
-    const weaponKeys = ['keydown-ONE', 'keydown-TWO', 'keydown-THREE', 'keydown-FOUR', 'keydown-FIVE', 'keydown-SIX'] as const;
-    weaponKeys.forEach((eventName, slotIndex) => {
-      const equipHandler = (event: KeyboardEvent) => {
-        if (event.shiftKey || event.repeat || this.paused || this.healthSystem?.isDead()) return;
-        this.equipWeaponSlot(slotIndex);
+    if (kb) {
+      const onKeyDown = (event: KeyboardEvent): void => {
+        if (event.repeat || this.titleMode) return;
+        const zoom = (['zoom-in', 'zoom-out'] as const satisfies readonly ShellInputAction[])
+          .find((action) => isControlCode(action, event.code));
+        if (zoom) this.cameraController?.stepZoom(zoom === 'zoom-in' ? -1 : 1);
       };
-      kb.on(eventName, equipHandler);
-      this.disposables.add(() => kb.off(eventName, equipHandler));
-    });
-
-    kb.on('keydown-U', () => {
-      if (this.titleMode || this.shell?.isAnyOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
-      this.universalWorld?.questJournalSurface.toggle();
-    });
-
-    kb.on('keydown-C', () => {
-      if (this.titleMode || this.shell?.isAnyOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
-      if (this.furniturePlacement?.active) return;
-      this.universalWorld?.craftingSurface.toggle(PORTABLE_SITE);
-    });
-
-    // Left-click triggers an attack in the player's current facing direction.
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      if (pointer.leftButtonDown()) {
-        if (this.furniturePlacement?.handlePointerDown()) return;
-        this.combatController?.tryAttack();
+      kb.on('keydown', onKeyDown);
+      this.disposables.add(() => kb.off('keydown', onKeyDown));
+    }
+    // The menu key must also close a window that holds keyboard focus (windows stop
+    // keys from bubbling), so it listens in the capture phase, like Esc and M.
+    const onMenuKey = (event: KeyboardEvent): void => {
+      if (!isControlCode('menu', event.code) || event.repeat || this.titleMode || event.ctrlKey || event.altKey || event.metaKey) return;
+      if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (this.toggleMenu()) {
+        event.preventDefault();
+        event.stopPropagation();
       }
+    };
+    document.addEventListener('keydown', onMenuKey, { capture: true });
+    this.disposables.add(() => document.removeEventListener('keydown', onMenuKey, { capture: true }));
+
+    // Right click is the interact button: the browser's menu never opens over the game.
+    this.input.mouse?.disableContextMenu();
+    const onPointer = (): void => { this.pointerSeen = true; };
+    this.input.on('pointermove', onPointer);
+    this.input.on('pointerdown', onPointer);
+    this.disposables.add(() => {
+      this.input.off('pointermove', onPointer);
+      this.input.off('pointerdown', onPointer);
     });
+  }
+
+  /** The menu key: closes the open menu tab (bag, crafting, journal or map), else opens the bag. True when it did either. */
+  private toggleMenu(): boolean {
+    const world = this.universalWorld;
+    if (!world || this.shell?.isAnyOpen()) return false;
+    const open = this.menuTabs.current();
+    if (open) {
+      const windows = { inventory: world.inventorySurface, crafting: world.craftingSurface, journal: world.questJournalSurface, map: world.worldMapSurface };
+      windows[open].close();
+      return true;
+    }
+    if (this.actionLocked || this.paused || this.furniturePlacement?.active) return false;
+    world.inventorySurface.open();
+    return true;
   }
 
   /** Weak ground broke under the Heavy form. */
@@ -2043,8 +2254,12 @@ export class WorldScene extends Phaser.Scene {
       setQuestOfferPaused: (paused) => this.setSimulationPaused('quest-npc', paused),
       setNpcDialoguePaused: (paused) => this.setSimulationPaused('npc-dialogue', paused),
       setWorldMapPaused: (paused) => this.setSimulationPaused('worldmap', paused),
-      shellSurfaces: [...(this.shell?.surfaces ?? []), ...(this.hints ? [[CONTROL_HINT_SURFACE_ID, this.hints] as const] : [])],
-      shellSceneIds: [...GAME_SHELL_SCENE_IDS, 'ui.control-hint'],
+      shellSurfaces: [
+        ...(this.shell?.surfaces ?? []),
+        ...(this.hints ? [[CONTROL_HINT_SURFACE_ID, this.hints] as const] : []),
+        [MENU_TABS_SURFACE_ID, this.menuTabs] as const,
+      ],
+      shellSceneIds: [...GAME_SHELL_SCENE_IDS, 'ui.control-hint', 'ui.menu-tabs'],
       setStoryFlags: (flagIds) => storyProgress.setFlags(flagIds),
       getCurrentAreaId: () => this.currentArea.id,
       worldDimensions: this.worldDimensions,
@@ -2115,6 +2330,20 @@ export class WorldScene extends Phaser.Scene {
         collect: (heartId, at) => this.collectGooHeart(heartId, at),
         playerPosition: () => (this.player && !this.healthSystem?.isDead() ? { x: this.player.x, y: this.player.y } : undefined),
       },
+      trainingDummies: {
+        showHit: (at, damage) => floatingText.spawn(this, at.x, at.y - 96, `${damage}`, 'orange', true),
+      },
+      lashBells: {
+        rung: (at) => {
+          gameEvents.emit('lash-bell.rung', { x: at.x, y: at.y });
+          particleFx.play('loot-sparkle', at.x, at.y - 70);
+        },
+      },
+      abilityLessons: {
+        playerPosition: () => (this.player && !this.healthSystem?.isDead() ? { x: this.player.x, y: this.player.y } : undefined),
+        knows: (abilityId) => storyProgress.knowsAbility(abilityId),
+        learn: (abilityIds) => storyProgress.learnAbilities(abilityIds),
+      },
       restoreSite: (request) => this.restoreSite(request),
       openCraftingStation: (context) => this.openCraftingStation(context),
       pickUpFurniture: (placementId) => this.pickUpFurniture(placementId),
@@ -2130,74 +2359,49 @@ export class WorldScene extends Phaser.Scene {
     this.inventoryDrops?.restore();
   }
 
-  private bindDebugCheats(): void {
-    const kb = this.input.keyboard;
-    if (!kb) return;
-
-    const guard = () => !this.paused && !this.healthSystem?.isDead();
-
-    // Shift+[1] = debug damage, Shift+[2] = teach every ability (dev only), Shift+[3] = heal,
-    // Shift+[4] = coins, Shift+[5] = potion, Shift+[6/7] = status, Shift+[8] = dummy.
-    kb.on('keydown-ONE', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!guard()) return;
-      if (this.playerController.isDodging()) {
-        floatingText.spawn(this, this.player.x, this.player.y - 30, 'DODGED!', 'cyan', true);
-        return;
+  /** Cheat buttons on the development panel; they exist only in `pnpm dev`, never in a release build. */
+  private bindDevCheats(): void {
+    if (!import.meta.env.DEV) return;
+    const onCheat = ({ cheat }: { cheat: string }): void => {
+      if (this.paused || this.healthSystem?.isDead() || !this.player) return;
+      const { x, y } = this.player;
+      switch (cheat) {
+        case 'damage': {
+          if (this.playerController.isDodging()) {
+            floatingText.spawn(this, x, y - 30, 'DODGED!', 'cyan', true);
+            return;
+          }
+          const request: DamageRequest = { amount: 20, source: 'debug', knockStrength: 180, knockX: x > this.worldDimensions.width / 2 ? -1 : 1, knockY: 0 };
+          this.healthSystem?.applyDamage(request, this.simulationNow());
+          return;
+        }
+        case 'heal':
+          this.healthSystem?.heal(gameState.maxHp);
+          floatingText.spawn(this, x, y - 30, 'FULL HEAL', 'green', true);
+          return;
+        case 'coins':
+          gameState.addCoins(100);
+          return;
+        case 'potion':
+          playerInventory.add('hp-potion', 1);
+          floatingText.spawn(this, x, y - 30, '+potion', 'green');
+          return;
+        case 'burn':
+          this.statusEffects?.apply('burn');
+          floatingText.spawn(this, x, y - 30, 'BURN!', 'orange');
+          return;
+        case 'slow':
+          this.statusEffects?.apply('slow');
+          floatingText.spawn(this, x, y - 30, 'SLOWED', 'cyan');
+          return;
+        case 'dummy':
+          this.combatController?.spawnDummy(x + Phaser.Math.Between(60, 140), y + Phaser.Math.Between(-60, 60));
+          floatingText.spawn(this, x, y - 30, '+dummy', 'white');
+          return;
       }
-      const req: DamageRequest = { amount: 20, source: 'debug', knockStrength: 180 };
-      const dx = this.player.x;
-      req.knockX = dx > this.worldDimensions.width / 2 ? -1 : 1;
-      req.knockY = 0;
-      this.healthSystem?.applyDamage(req, this.simulationNow());
-    });
-
-    kb.on('keydown-TWO', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!import.meta.env.DEV || !guard()) return;
-      storyProgress.learnAbilities(PLAYER_ABILITY_IDS);
-    });
-
-    kb.on('keydown-THREE', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!guard()) return;
-      this.healthSystem?.heal(gameState.maxHp);
-      floatingText.spawn(this, this.player.x, this.player.y - 30, 'FULL HEAL', 'green', true);
-    });
-
-    kb.on('keydown-FOUR', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!guard()) return;
-      gameState.addCoins(100);
-    });
-
-    kb.on('keydown-FIVE', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!guard()) return;
-      playerInventory.add('hp-potion', 1);
-      floatingText.spawn(this, this.player.x, this.player.y - 30, '+potion', 'green');
-    });
-
-    kb.on('keydown-SIX', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!guard()) return;
-      this.statusEffects?.apply('burn');
-      floatingText.spawn(this, this.player.x, this.player.y - 30, 'BURN!', 'orange');
-    });
-
-    kb.on('keydown-SEVEN', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!guard()) return;
-      this.statusEffects?.apply('slow');
-      floatingText.spawn(this, this.player.x, this.player.y - 30, 'SLOWED', 'cyan');
-    });
-
-    kb.on('keydown-EIGHT', (event: KeyboardEvent) => {
-      if (!event.shiftKey) return;
-      if (!guard()) return;
-      this.combatController?.spawnDummy(this.player.x + Phaser.Math.Between(60, 140), this.player.y + Phaser.Math.Between(-60, 60));
-      floatingText.spawn(this, this.player.x, this.player.y - 30, '+dummy', 'white');
-    });
+    };
+    gameEvents.on('dev.cheat', onCheat);
+    this.disposables.add(() => gameEvents.off('dev.cheat', onCheat));
   }
 
 }

@@ -4,7 +4,7 @@ export const RECIPE_CATALOG: readonly RecipeDef[] = [
   // The one recipe craftable anywhere (C): every wood and stone recipe needs a placed workbench.
   {
     id: 'craft-workbench', name: 'Workbench', station: 'portable', tier: 1,
-    description: 'A placeable crafting station. Place it from the inventory, then press F at it to craft tools and weapons.',
+    description: 'A placeable crafting station. Place it from your bag, then use it to craft tools and weapons.',
     ingredients: [{ itemId: 'wood', count: 40 }], output: { itemId: 'workbench', count: 1 },
   },
   {

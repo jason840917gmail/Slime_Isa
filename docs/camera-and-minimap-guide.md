@@ -1,6 +1,6 @@
 # Camera and Minimap Guide
 
-This guide documents the responsive camera, wheel zoom, and screen-space minimap.
+This guide documents the responsive camera, zoom (the `+` / `−` keys; the mouse wheel switches weapons since roadmap 4.10), and screen-space minimap.
 
 ## Camera modes
 
@@ -57,7 +57,7 @@ zoom when comparing it with world positions.
 A world whose `game.world-definition` sets `cameraMode: "fixed"` (small
 interiors) does not follow the player. The camera removes its bounds, centers
 on the whole world, and zooms out only as far as needed to fit it (never above
-`1x`); it re-fits on resize and wheel zoom re-centers on the world.
+`1x`); it re-fits on resize and zooming re-centers on the world.
 
 Otherwise camera bounds are the authored world dimensions. On respawn the camera
 pans to the respawn point, restores the default `1x` zoom, and resumes the
@@ -73,7 +73,7 @@ The HUD and minimap are authored DOM UI scenes (`ui.minimap`), not Phaser
 objects. `features/ui/MinimapSurfacePort.ts` draws the minimap into a canvas
 inside that scene's Control host, sizes it from the viewport (24% of the short
 side, clamped to 128–180 px) in the lower-left corner, and derives the view
-rectangle from the world camera's scroll and zoom, so wheel zoom is still
+rectangle from the world camera's scroll and zoom, so zooming is still
 represented.
 
 ## Rendering diagnostics

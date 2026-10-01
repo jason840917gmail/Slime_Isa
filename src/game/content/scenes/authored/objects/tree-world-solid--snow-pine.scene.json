@@ -44,7 +44,7 @@
         "texture": {
           "resourceId": "tree-world-solid.snow-pine.sprite"
         },
-        "frame": 24,
+        "frame": 192,
         "origin": [
           0.5,
           1
@@ -101,7 +101,8 @@
           "resourceId": "tree-world-solid.snow-pine.animations"
         },
         "domain": "physics",
-        "autoplay": "object.tree.idle"
+        "autoplay": "object.tree.idle",
+        "randomizeStart": true
       }
     },
     {
@@ -198,7 +199,7 @@
       "version": 1,
       "resourceId": "tree-world-solid.snow-pine.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.trees.8x6",
+      "assetId": "sheet.trees.sway.16x22",
       "frameWidth": 128,
       "frameHeight": 170
     },
@@ -218,8 +219,8 @@
       "kind": "animation-library",
       "animations": {
         "object.tree.idle": {
-          "durationSeconds": 0.5,
-          "framesPerSecond": 2,
+          "durationSeconds": 2,
+          "framesPerSecond": 4,
           "loop": true,
           "loopMode": "wrap",
           "tracks": [
@@ -229,33 +230,35 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": 24
-                }
-              ]
-            },
-            {
-              "binding": "../Visual",
-              "property": "visualOffset",
-              "keys": [
+                  "value": 192
+                },
                 {
-                  "at": 0,
-                  "value": [
-                    0,
-                    0
-                  ]
-                }
-              ]
-            },
-            {
-              "binding": "../Visual",
-              "property": "scale",
-              "keys": [
+                  "at": 1,
+                  "value": 193
+                },
                 {
-                  "at": 0,
-                  "value": [
-                    1,
-                    1
-                  ]
+                  "at": 2,
+                  "value": 194
+                },
+                {
+                  "at": 3,
+                  "value": 195
+                },
+                {
+                  "at": 4,
+                  "value": 196
+                },
+                {
+                  "at": 5,
+                  "value": 197
+                },
+                {
+                  "at": 6,
+                  "value": 198
+                },
+                {
+                  "at": 7,
+                  "value": 199
                 }
               ]
             }

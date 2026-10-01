@@ -134,7 +134,9 @@ export class TerrainTransitionLayer {
     let key: string;
     do { key = `terrain-transition-chunk:${nextTextureId++}`; }
     while (this.scene.textures.exists(key));
-    const texture = this.scene.textures.addCanvas(key, canvas);
+    // A plain texture over the canvas: a CanvasTexture would read every pixel
+    // back (getImageData) for pixel queries these chunks never use.
+    const texture = this.scene.textures.create(key, canvas, chunk.textureWidth, chunk.textureHeight);
     if (!texture) throw new Error(`Could not allocate terrain transition chunk '${key}'`);
     this.textureKeys.push(key);
     const gutterX = chunk.x - chunk.originX;

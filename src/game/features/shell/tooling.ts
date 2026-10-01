@@ -2,7 +2,7 @@
 export { ModalStack } from '../../ui/ModalStack';
 export { GameSettingsService, DEFAULT_GAME_SETTINGS } from '../settings/GameSettingsService';
 export { SettingsSurfacePort, applyMix } from './SettingsSurfacePort';
-export { ControlsSurfacePort, CONTROL_ROWS } from './ControlsSurfacePort';
+export { ControlsSurfacePort, controlRows } from './ControlsSurfacePort';
 export { PauseMenuSurfacePort } from './PauseMenuSurfacePort';
 export { SaveSlotsSurfacePort, formatPlayTime, slotName } from './SaveSlotsSurfacePort';
 export { TitleSurfacePort } from './TitleSurfacePort';

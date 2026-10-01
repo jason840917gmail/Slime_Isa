@@ -44,7 +44,7 @@
         "texture": {
           "resourceId": "tree-world-solid.autumn-tree-03.sprite"
         },
-        "frame": 13,
+        "frame": 104,
         "origin": [
           0.5,
           1
@@ -138,11 +138,26 @@
       }
     },
     {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "library": {
+          "resourceId": "tree-world-solid.autumn-tree-03.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
+    },
+    {
       "id": "sfx-rustle-sfx",
       "name": "RustleSfx",
       "type": "AudioStreamPlayer2D",
       "parentId": "body",
-      "order": 4,
+      "order": 5,
       "properties": {
         "stream": {
           "resourceId": "sfx.resource.leaf-rustle"
@@ -156,7 +171,7 @@
       "name": "WrongToolSfx",
       "type": "AudioStreamPlayer2D",
       "parentId": "body",
-      "order": 5,
+      "order": 6,
       "properties": {
         "stream": {
           "resourceId": "sfx.resource.wrong-tool"
@@ -170,7 +185,7 @@
       "name": "FallSfx",
       "type": "AudioStreamPlayer2D",
       "parentId": "body",
-      "order": 6,
+      "order": 7,
       "properties": {
         "stream": {
           "resourceId": "sfx.resource.tree-fall"
@@ -186,7 +201,7 @@
       "version": 1,
       "resourceId": "tree-world-solid.autumn-tree-03.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.trees.8x6",
+      "assetId": "sheet.trees.sway.16x22",
       "frameWidth": 128,
       "frameHeight": 170
     },
@@ -198,6 +213,59 @@
         "shape": "rectangle",
         "width": 40,
         "height": 42
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "tree-world-solid.autumn-tree-03.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 2,
+          "framesPerSecond": 4,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 104
+                },
+                {
+                  "at": 1,
+                  "value": 105
+                },
+                {
+                  "at": 2,
+                  "value": 106
+                },
+                {
+                  "at": 3,
+                  "value": 107
+                },
+                {
+                  "at": 4,
+                  "value": 108
+                },
+                {
+                  "at": 5,
+                  "value": 109
+                },
+                {
+                  "at": 6,
+                  "value": 110
+                },
+                {
+                  "at": 7,
+                  "value": 111
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {

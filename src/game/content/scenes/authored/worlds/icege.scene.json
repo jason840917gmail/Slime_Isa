@@ -8011,7 +8011,7 @@
     {
       "instanceId": "wall-stone-solid-b2547a3d",
       "name": "wall-stone-solid-b2547a3d",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 351,
       "persistenceKey": "icege.wall-stone-solid-b2547a3d",
@@ -8030,7 +8030,7 @@
     {
       "instanceId": "wall-stone-solid-f43bc7b5",
       "name": "wall-stone-solid-f43bc7b5",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 352,
       "persistenceKey": "icege.wall-stone-solid-f43bc7b5",
@@ -8049,7 +8049,7 @@
     {
       "instanceId": "wall-stone-solid-f2c65e18",
       "name": "wall-stone-solid-f2c65e18",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 353,
       "persistenceKey": "icege.wall-stone-solid-f2c65e18",
@@ -8068,7 +8068,7 @@
     {
       "instanceId": "wall-stone-solid-1d8167ca",
       "name": "wall-stone-solid-1d8167ca",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-07",
       "parentNodeId": "world",
       "order": 354,
       "persistenceKey": "icege.wall-stone-solid-1d8167ca",
@@ -8144,7 +8144,7 @@
     {
       "instanceId": "wall-stone-solid-2b2bb735",
       "name": "wall-stone-solid-2b2bb735",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 358,
       "persistenceKey": "icege.wall-stone-solid-2b2bb735",
@@ -8163,7 +8163,7 @@
     {
       "instanceId": "wall-stone-solid-d609cccc",
       "name": "wall-stone-solid-d609cccc",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 359,
       "persistenceKey": "icege.wall-stone-solid-d609cccc",
@@ -8180,30 +8180,11 @@
       ]
     },
     {
-      "instanceId": "wall-stone-solid-e786a2f0",
-      "name": "wall-stone-solid-e786a2f0",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 360,
-      "persistenceKey": "icege.wall-stone-solid-e786a2f0",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            928,
-            640
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "wall-stone-solid-357f582a",
       "name": "wall-stone-solid-357f582a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 361,
+      "order": 360,
       "persistenceKey": "icege.wall-stone-solid-357f582a",
       "overrides": [
         {
@@ -8220,9 +8201,9 @@
     {
       "instanceId": "wall-stone-solid-265baf4c",
       "name": "wall-stone-solid-265baf4c",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "world",
-      "order": 362,
+      "order": 361,
       "persistenceKey": "icege.wall-stone-solid-265baf4c",
       "overrides": [
         {
@@ -8239,9 +8220,9 @@
     {
       "instanceId": "wall-stone-solid-6c849f0e",
       "name": "wall-stone-solid-6c849f0e",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
-      "order": 363,
+      "order": 362,
       "persistenceKey": "icege.wall-stone-solid-6c849f0e",
       "overrides": [
         {
@@ -8258,9 +8239,9 @@
     {
       "instanceId": "wall-stone-solid-0dc2c987",
       "name": "wall-stone-solid-0dc2c987",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
-      "order": 364,
+      "order": 363,
       "persistenceKey": "icege.wall-stone-solid-0dc2c987",
       "overrides": [
         {
@@ -8277,9 +8258,9 @@
     {
       "instanceId": "wall-stone-solid-ab970d5d",
       "name": "wall-stone-solid-ab970d5d",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
-      "order": 365,
+      "order": 364,
       "persistenceKey": "icege.wall-stone-solid-ab970d5d",
       "overrides": [
         {
@@ -8296,9 +8277,9 @@
     {
       "instanceId": "wall-stone-solid-3103a27b",
       "name": "wall-stone-solid-3103a27b",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 366,
+      "order": 365,
       "persistenceKey": "icege.wall-stone-solid-3103a27b",
       "overrides": [
         {
@@ -8315,9 +8296,9 @@
     {
       "instanceId": "wall-stone-solid-4d7fa086",
       "name": "wall-stone-solid-4d7fa086",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 367,
+      "order": 366,
       "persistenceKey": "icege.wall-stone-solid-4d7fa086",
       "overrides": [
         {
@@ -8334,9 +8315,9 @@
     {
       "instanceId": "wall-stone-solid-f06ce1b6",
       "name": "wall-stone-solid-f06ce1b6",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 368,
+      "order": 367,
       "persistenceKey": "icege.wall-stone-solid-f06ce1b6",
       "overrides": [
         {
@@ -8353,9 +8334,9 @@
     {
       "instanceId": "wall-stone-solid-9bd1b007",
       "name": "wall-stone-solid-9bd1b007",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "world",
-      "order": 369,
+      "order": 368,
       "persistenceKey": "icege.wall-stone-solid-9bd1b007",
       "overrides": [
         {
@@ -8374,7 +8355,7 @@
       "name": "wall-stone-solid-b590a8b3",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 370,
+      "order": 369,
       "persistenceKey": "icege.wall-stone-solid-b590a8b3",
       "overrides": [
         {
@@ -8393,27 +8374,8 @@
       "name": "wall-stone-solid-1c27e31a",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 371,
+      "order": 370,
       "persistenceKey": "icege.wall-stone-solid-1c27e31a",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            352,
-            832
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-8c6bb947",
-      "name": "wall-stone-solid-8c6bb947",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 372,
-      "persistenceKey": "icege.wall-stone-solid-8c6bb947",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -8431,7 +8393,7 @@
       "name": "wall-stone-solid-df007775",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 373,
+      "order": 371,
       "persistenceKey": "icege.wall-stone-solid-df007775",
       "overrides": [
         {
@@ -8448,9 +8410,9 @@
     {
       "instanceId": "wall-stone-solid-9fa6dfe4",
       "name": "wall-stone-solid-9fa6dfe4",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-07",
       "parentNodeId": "world",
-      "order": 374,
+      "order": 372,
       "persistenceKey": "icege.wall-stone-solid-9fa6dfe4",
       "overrides": [
         {
@@ -8467,9 +8429,9 @@
     {
       "instanceId": "wall-stone-solid-a0648501",
       "name": "wall-stone-solid-a0648501",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 375,
+      "order": 373,
       "persistenceKey": "icege.wall-stone-solid-a0648501",
       "overrides": [
         {
@@ -8486,9 +8448,9 @@
     {
       "instanceId": "wall-stone-solid-f36aad53",
       "name": "wall-stone-solid-f36aad53",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 376,
+      "order": 374,
       "persistenceKey": "icege.wall-stone-solid-f36aad53",
       "overrides": [
         {
@@ -8505,9 +8467,9 @@
     {
       "instanceId": "wall-stone-solid-dbfe8676",
       "name": "wall-stone-solid-dbfe8676",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 377,
+      "order": 375,
       "persistenceKey": "icege.wall-stone-solid-dbfe8676",
       "overrides": [
         {
@@ -8524,9 +8486,9 @@
     {
       "instanceId": "wall-stone-solid-3fda220b",
       "name": "wall-stone-solid-3fda220b",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
-      "order": 378,
+      "order": 376,
       "persistenceKey": "icege.wall-stone-solid-3fda220b",
       "overrides": [
         {
@@ -8545,7 +8507,7 @@
       "name": "wall-stone-solid-ffe1167d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 379,
+      "order": 377,
       "persistenceKey": "icege.wall-stone-solid-ffe1167d",
       "overrides": [
         {
@@ -8564,7 +8526,7 @@
       "name": "wall-stone-solid-d079a59f",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 380,
+      "order": 378,
       "persistenceKey": "icege.wall-stone-solid-d079a59f",
       "overrides": [
         {
@@ -8583,7 +8545,7 @@
       "name": "wall-stone-solid-ec5b506c",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 381,
+      "order": 379,
       "persistenceKey": "icege.wall-stone-solid-ec5b506c",
       "overrides": [
         {
@@ -8593,6 +8555,44 @@
           "value": [
             288,
             576
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-e786a2f0",
+      "name": "wall-stone-solid-e786a2f0",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 380,
+      "persistenceKey": "icege.wall-stone-solid-e786a2f0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            928,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-8c6bb947",
+      "name": "wall-stone-solid-8c6bb947",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 381,
+      "persistenceKey": "icege.wall-stone-solid-8c6bb947",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            352,
+            832
           ]
         }
       ]

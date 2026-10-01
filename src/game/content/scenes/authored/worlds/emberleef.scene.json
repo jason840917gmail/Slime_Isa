@@ -509,6 +509,19 @@
         },
         "gate": {}
       }
+    },
+    {
+      "id": "water-life",
+      "name": "Water Life",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 660,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
     }
   ],
   "instances": [
@@ -16814,30 +16827,11 @@
       ]
     },
     {
-      "instanceId": "wall-stone-solid-6e315554",
-      "name": "wall-stone-solid-6e315554",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 553,
-      "persistenceKey": "emberleef.wall-stone-solid-6e315554",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            992,
-            960
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "wall-stone-solid-21fb25e7",
       "name": "wall-stone-solid-21fb25e7",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 554,
+      "order": 553,
       "persistenceKey": "emberleef.wall-stone-solid-21fb25e7",
       "overrides": [
         {
@@ -16856,7 +16850,7 @@
       "name": "wall-stone-solid-8372825e",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 555,
+      "order": 554,
       "persistenceKey": "emberleef.wall-stone-solid-8372825e",
       "overrides": [
         {
@@ -16875,7 +16869,7 @@
       "name": "wall-stone-solid-91168926",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 556,
+      "order": 555,
       "persistenceKey": "emberleef.wall-stone-solid-91168926",
       "overrides": [
         {
@@ -16894,7 +16888,7 @@
       "name": "wall-stone-solid-f94ff7be",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 557,
+      "order": 556,
       "persistenceKey": "emberleef.wall-stone-solid-f94ff7be",
       "overrides": [
         {
@@ -16913,7 +16907,7 @@
       "name": "wall-stone-solid-761b1afa",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 558,
+      "order": 557,
       "persistenceKey": "emberleef.wall-stone-solid-761b1afa",
       "overrides": [
         {
@@ -16932,7 +16926,7 @@
       "name": "wall-stone-solid-6afeec6d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 559,
+      "order": 558,
       "persistenceKey": "emberleef.wall-stone-solid-6afeec6d",
       "overrides": [
         {
@@ -16951,7 +16945,7 @@
       "name": "wall-stone-solid-4714ddcc",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 560,
+      "order": 559,
       "persistenceKey": "emberleef.wall-stone-solid-4714ddcc",
       "overrides": [
         {
@@ -16970,7 +16964,7 @@
       "name": "wall-stone-solid-6685c8a8",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 561,
+      "order": 560,
       "persistenceKey": "emberleef.wall-stone-solid-6685c8a8",
       "overrides": [
         {
@@ -16989,27 +16983,8 @@
       "name": "wall-stone-solid-3ba9187b",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 562,
+      "order": 561,
       "persistenceKey": "emberleef.wall-stone-solid-3ba9187b",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1632,
-            960
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-5a4eaaba",
-      "name": "wall-stone-solid-5a4eaaba",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 563,
-      "persistenceKey": "emberleef.wall-stone-solid-5a4eaaba",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -17027,7 +17002,7 @@
       "name": "wall-stone-solid-c6dcf0a8",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 564,
+      "order": 562,
       "persistenceKey": "emberleef.wall-stone-solid-c6dcf0a8",
       "overrides": [
         {
@@ -17046,7 +17021,7 @@
       "name": "wall-stone-solid-33e37e52",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 565,
+      "order": 563,
       "persistenceKey": "emberleef.wall-stone-solid-33e37e52",
       "overrides": [
         {
@@ -17065,7 +17040,7 @@
       "name": "wall-stone-solid-20e91ec8",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 566,
+      "order": 564,
       "persistenceKey": "emberleef.wall-stone-solid-20e91ec8",
       "overrides": [
         {
@@ -17084,7 +17059,7 @@
       "name": "wall-stone-solid-bbd3de35",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 567,
+      "order": 565,
       "persistenceKey": "emberleef.wall-stone-solid-bbd3de35",
       "overrides": [
         {
@@ -17103,7 +17078,7 @@
       "name": "wall-stone-solid-d513b522",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 568,
+      "order": 566,
       "persistenceKey": "emberleef.wall-stone-solid-d513b522",
       "overrides": [
         {
@@ -17122,7 +17097,7 @@
       "name": "wall-stone-solid-c2148e6e",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 569,
+      "order": 567,
       "persistenceKey": "emberleef.wall-stone-solid-c2148e6e",
       "overrides": [
         {
@@ -17141,7 +17116,7 @@
       "name": "wall-stone-solid-ad430ac3",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 570,
+      "order": 568,
       "persistenceKey": "emberleef.wall-stone-solid-ad430ac3",
       "overrides": [
         {
@@ -17160,7 +17135,7 @@
       "name": "wall-stone-solid-1d680214",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 571,
+      "order": 569,
       "persistenceKey": "emberleef.wall-stone-solid-1d680214",
       "overrides": [
         {
@@ -17179,7 +17154,7 @@
       "name": "wall-stone-solid-0590e560",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 572,
+      "order": 570,
       "persistenceKey": "emberleef.wall-stone-solid-0590e560",
       "overrides": [
         {
@@ -17194,30 +17169,11 @@
       ]
     },
     {
-      "instanceId": "wall-stone-solid-3bd7c385",
-      "name": "wall-stone-solid-3bd7c385",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 573,
-      "persistenceKey": "emberleef.wall-stone-solid-3bd7c385",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            800,
-            960
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "wall-stone-solid-780a92d5",
       "name": "wall-stone-solid-780a92d5",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
-      "order": 574,
+      "order": 571,
       "persistenceKey": "emberleef.wall-stone-solid-780a92d5",
       "overrides": [
         {
@@ -17234,29 +17190,10 @@
     {
       "instanceId": "wall-stone-solid-c1f7ce42",
       "name": "wall-stone-solid-c1f7ce42",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
-      "order": 575,
+      "order": 572,
       "persistenceKey": "emberleef.wall-stone-solid-c1f7ce42",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            2208,
-            960
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-26a6ad4a",
-      "name": "wall-stone-solid-26a6ad4a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 576,
-      "persistenceKey": "emberleef.wall-stone-solid-26a6ad4a",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -17272,9 +17209,9 @@
     {
       "instanceId": "wall-stone-solid-663986a1",
       "name": "wall-stone-solid-663986a1",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 577,
+      "order": 573,
       "persistenceKey": "emberleef.wall-stone-solid-663986a1",
       "overrides": [
         {
@@ -17291,9 +17228,9 @@
     {
       "instanceId": "wall-stone-solid-a85b50be",
       "name": "wall-stone-solid-a85b50be",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 578,
+      "order": 574,
       "persistenceKey": "emberleef.wall-stone-solid-a85b50be",
       "overrides": [
         {
@@ -17310,9 +17247,9 @@
     {
       "instanceId": "wall-stone-solid-587b4886",
       "name": "wall-stone-solid-587b4886",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 579,
+      "order": 575,
       "persistenceKey": "emberleef.wall-stone-solid-587b4886",
       "overrides": [
         {
@@ -17329,9 +17266,9 @@
     {
       "instanceId": "wall-stone-solid-57242ea2",
       "name": "wall-stone-solid-57242ea2",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 580,
+      "order": 576,
       "persistenceKey": "emberleef.wall-stone-solid-57242ea2",
       "overrides": [
         {
@@ -17348,9 +17285,9 @@
     {
       "instanceId": "wall-stone-solid-3a3dad5e",
       "name": "wall-stone-solid-3a3dad5e",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 581,
+      "order": 577,
       "persistenceKey": "emberleef.wall-stone-solid-3a3dad5e",
       "overrides": [
         {
@@ -17367,29 +17304,10 @@
     {
       "instanceId": "wall-stone-solid-40277fc5",
       "name": "wall-stone-solid-40277fc5",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 582,
+      "order": 578,
       "persistenceKey": "emberleef.wall-stone-solid-40277fc5",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            2272,
-            1344
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-cc3d6c26",
-      "name": "wall-stone-solid-cc3d6c26",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 583,
-      "persistenceKey": "emberleef.wall-stone-solid-cc3d6c26",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -17405,9 +17323,9 @@
     {
       "instanceId": "wall-stone-solid-e48dd0cd",
       "name": "wall-stone-solid-e48dd0cd",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 584,
+      "order": 579,
       "persistenceKey": "emberleef.wall-stone-solid-e48dd0cd",
       "overrides": [
         {
@@ -17424,9 +17342,9 @@
     {
       "instanceId": "wall-stone-solid-f653b88d",
       "name": "wall-stone-solid-f653b88d",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 585,
+      "order": 580,
       "persistenceKey": "emberleef.wall-stone-solid-f653b88d",
       "overrides": [
         {
@@ -17443,9 +17361,9 @@
     {
       "instanceId": "wall-stone-solid-d4642ec1",
       "name": "wall-stone-solid-d4642ec1",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 586,
+      "order": 581,
       "persistenceKey": "emberleef.wall-stone-solid-d4642ec1",
       "overrides": [
         {
@@ -17462,9 +17380,9 @@
     {
       "instanceId": "wall-stone-solid-c05e3985",
       "name": "wall-stone-solid-c05e3985",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 587,
+      "order": 582,
       "persistenceKey": "emberleef.wall-stone-solid-c05e3985",
       "overrides": [
         {
@@ -17481,9 +17399,9 @@
     {
       "instanceId": "wall-stone-solid-4304adc0",
       "name": "wall-stone-solid-4304adc0",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 588,
+      "order": 583,
       "persistenceKey": "emberleef.wall-stone-solid-4304adc0",
       "overrides": [
         {
@@ -17500,9 +17418,9 @@
     {
       "instanceId": "wall-stone-solid-d122c411",
       "name": "wall-stone-solid-d122c411",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 589,
+      "order": 584,
       "persistenceKey": "emberleef.wall-stone-solid-d122c411",
       "overrides": [
         {
@@ -17519,9 +17437,9 @@
     {
       "instanceId": "wall-stone-solid-c4c97961",
       "name": "wall-stone-solid-c4c97961",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 590,
+      "order": 585,
       "persistenceKey": "emberleef.wall-stone-solid-c4c97961",
       "overrides": [
         {
@@ -17538,9 +17456,9 @@
     {
       "instanceId": "wall-stone-solid-9c62cdc4",
       "name": "wall-stone-solid-9c62cdc4",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 591,
+      "order": 586,
       "persistenceKey": "emberleef.wall-stone-solid-9c62cdc4",
       "overrides": [
         {
@@ -17557,9 +17475,9 @@
     {
       "instanceId": "wall-stone-solid-77b54ee0",
       "name": "wall-stone-solid-77b54ee0",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 592,
+      "order": 587,
       "persistenceKey": "emberleef.wall-stone-solid-77b54ee0",
       "overrides": [
         {
@@ -17576,9 +17494,9 @@
     {
       "instanceId": "wall-stone-solid-365d6c49",
       "name": "wall-stone-solid-365d6c49",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 593,
+      "order": 588,
       "persistenceKey": "emberleef.wall-stone-solid-365d6c49",
       "overrides": [
         {
@@ -17595,9 +17513,9 @@
     {
       "instanceId": "wall-stone-solid-0a3655ae",
       "name": "wall-stone-solid-0a3655ae",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 594,
+      "order": 589,
       "persistenceKey": "emberleef.wall-stone-solid-0a3655ae",
       "overrides": [
         {
@@ -17614,9 +17532,9 @@
     {
       "instanceId": "wall-stone-solid-59c07be8",
       "name": "wall-stone-solid-59c07be8",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 595,
+      "order": 590,
       "persistenceKey": "emberleef.wall-stone-solid-59c07be8",
       "overrides": [
         {
@@ -17633,9 +17551,9 @@
     {
       "instanceId": "wall-stone-solid-a6a5ec6b",
       "name": "wall-stone-solid-a6a5ec6b",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 596,
+      "order": 591,
       "persistenceKey": "emberleef.wall-stone-solid-a6a5ec6b",
       "overrides": [
         {
@@ -17652,9 +17570,9 @@
     {
       "instanceId": "wall-stone-solid-dc43c1e1",
       "name": "wall-stone-solid-dc43c1e1",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 597,
+      "order": 592,
       "persistenceKey": "emberleef.wall-stone-solid-dc43c1e1",
       "overrides": [
         {
@@ -17671,9 +17589,9 @@
     {
       "instanceId": "wall-stone-solid-b0f920e9",
       "name": "wall-stone-solid-b0f920e9",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 598,
+      "order": 593,
       "persistenceKey": "emberleef.wall-stone-solid-b0f920e9",
       "overrides": [
         {
@@ -17690,9 +17608,9 @@
     {
       "instanceId": "wall-stone-solid-cefe021c",
       "name": "wall-stone-solid-cefe021c",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 599,
+      "order": 594,
       "persistenceKey": "emberleef.wall-stone-solid-cefe021c",
       "overrides": [
         {
@@ -17709,9 +17627,9 @@
     {
       "instanceId": "wall-stone-solid-c9b87076",
       "name": "wall-stone-solid-c9b87076",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 600,
+      "order": 595,
       "persistenceKey": "emberleef.wall-stone-solid-c9b87076",
       "overrides": [
         {
@@ -17728,9 +17646,9 @@
     {
       "instanceId": "wall-stone-solid-a3ac9f58",
       "name": "wall-stone-solid-a3ac9f58",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 601,
+      "order": 596,
       "persistenceKey": "emberleef.wall-stone-solid-a3ac9f58",
       "overrides": [
         {
@@ -17747,9 +17665,9 @@
     {
       "instanceId": "wall-stone-solid-19c37acc",
       "name": "wall-stone-solid-19c37acc",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 602,
+      "order": 597,
       "persistenceKey": "emberleef.wall-stone-solid-19c37acc",
       "overrides": [
         {
@@ -17766,9 +17684,9 @@
     {
       "instanceId": "wall-stone-solid-1e4faa7b",
       "name": "wall-stone-solid-1e4faa7b",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 603,
+      "order": 598,
       "persistenceKey": "emberleef.wall-stone-solid-1e4faa7b",
       "overrides": [
         {
@@ -17785,9 +17703,9 @@
     {
       "instanceId": "wall-stone-solid-0ea3431a",
       "name": "wall-stone-solid-0ea3431a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 604,
+      "order": 599,
       "persistenceKey": "emberleef.wall-stone-solid-0ea3431a",
       "overrides": [
         {
@@ -17804,9 +17722,9 @@
     {
       "instanceId": "wall-stone-solid-755a2317",
       "name": "wall-stone-solid-755a2317",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 605,
+      "order": 600,
       "persistenceKey": "emberleef.wall-stone-solid-755a2317",
       "overrides": [
         {
@@ -17823,9 +17741,9 @@
     {
       "instanceId": "wall-stone-solid-e12be1a8",
       "name": "wall-stone-solid-e12be1a8",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 606,
+      "order": 601,
       "persistenceKey": "emberleef.wall-stone-solid-e12be1a8",
       "overrides": [
         {
@@ -17842,9 +17760,9 @@
     {
       "instanceId": "wall-stone-solid-efa127df",
       "name": "wall-stone-solid-efa127df",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 607,
+      "order": 602,
       "persistenceKey": "emberleef.wall-stone-solid-efa127df",
       "overrides": [
         {
@@ -17861,9 +17779,9 @@
     {
       "instanceId": "wall-stone-solid-65958085",
       "name": "wall-stone-solid-65958085",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 608,
+      "order": 603,
       "persistenceKey": "emberleef.wall-stone-solid-65958085",
       "overrides": [
         {
@@ -17880,9 +17798,9 @@
     {
       "instanceId": "wall-stone-solid-82412644",
       "name": "wall-stone-solid-82412644",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 609,
+      "order": 604,
       "persistenceKey": "emberleef.wall-stone-solid-82412644",
       "overrides": [
         {
@@ -17899,29 +17817,10 @@
     {
       "instanceId": "wall-stone-solid-042713c0",
       "name": "wall-stone-solid-042713c0",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 610,
+      "order": 605,
       "persistenceKey": "emberleef.wall-stone-solid-042713c0",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            672,
-            1984
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-37481654",
-      "name": "wall-stone-solid-37481654",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 611,
-      "persistenceKey": "emberleef.wall-stone-solid-37481654",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -17937,9 +17836,9 @@
     {
       "instanceId": "wall-stone-solid-3a269dcb",
       "name": "wall-stone-solid-3a269dcb",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 612,
+      "order": 606,
       "persistenceKey": "emberleef.wall-stone-solid-3a269dcb",
       "overrides": [
         {
@@ -17956,9 +17855,9 @@
     {
       "instanceId": "wall-stone-solid-af20aff5",
       "name": "wall-stone-solid-af20aff5",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 613,
+      "order": 607,
       "persistenceKey": "emberleef.wall-stone-solid-af20aff5",
       "overrides": [
         {
@@ -17975,9 +17874,9 @@
     {
       "instanceId": "wall-stone-solid-f52b9881",
       "name": "wall-stone-solid-f52b9881",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 614,
+      "order": 608,
       "persistenceKey": "emberleef.wall-stone-solid-f52b9881",
       "overrides": [
         {
@@ -17994,9 +17893,9 @@
     {
       "instanceId": "wall-stone-solid-c615e199",
       "name": "wall-stone-solid-c615e199",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 615,
+      "order": 609,
       "persistenceKey": "emberleef.wall-stone-solid-c615e199",
       "overrides": [
         {
@@ -18013,9 +17912,9 @@
     {
       "instanceId": "wall-stone-solid-3df55a8a",
       "name": "wall-stone-solid-3df55a8a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 616,
+      "order": 610,
       "persistenceKey": "emberleef.wall-stone-solid-3df55a8a",
       "overrides": [
         {
@@ -18032,9 +17931,9 @@
     {
       "instanceId": "wall-stone-solid-a8667276",
       "name": "wall-stone-solid-a8667276",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 617,
+      "order": 611,
       "persistenceKey": "emberleef.wall-stone-solid-a8667276",
       "overrides": [
         {
@@ -18051,9 +17950,9 @@
     {
       "instanceId": "wall-stone-solid-8a1cd964",
       "name": "wall-stone-solid-8a1cd964",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
-      "order": 618,
+      "order": 612,
       "persistenceKey": "emberleef.wall-stone-solid-8a1cd964",
       "overrides": [
         {
@@ -18072,7 +17971,7 @@
       "name": "wall-stone-solid-4c015895",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 619,
+      "order": 613,
       "persistenceKey": "emberleef.wall-stone-solid-4c015895",
       "overrides": [
         {
@@ -18091,7 +17990,7 @@
       "name": "wall-stone-solid-129afcec",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 620,
+      "order": 614,
       "persistenceKey": "emberleef.wall-stone-solid-129afcec",
       "overrides": [
         {
@@ -18110,7 +18009,7 @@
       "name": "wall-stone-solid-136880ed",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 621,
+      "order": 615,
       "persistenceKey": "emberleef.wall-stone-solid-136880ed",
       "overrides": [
         {
@@ -18129,27 +18028,8 @@
       "name": "wall-stone-solid-2f5a35ba",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 622,
+      "order": 616,
       "persistenceKey": "emberleef.wall-stone-solid-2f5a35ba",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1440,
-            1536
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-210312b3",
-      "name": "wall-stone-solid-210312b3",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 623,
-      "persistenceKey": "emberleef.wall-stone-solid-210312b3",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -18167,7 +18047,7 @@
       "name": "wall-stone-solid-aa467aa6",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 624,
+      "order": 617,
       "persistenceKey": "emberleef.wall-stone-solid-aa467aa6",
       "overrides": [
         {
@@ -18186,7 +18066,7 @@
       "name": "wall-stone-solid-98e4fa8b",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 625,
+      "order": 618,
       "persistenceKey": "emberleef.wall-stone-solid-98e4fa8b",
       "overrides": [
         {
@@ -18205,7 +18085,7 @@
       "name": "wall-stone-solid-529a7eb5",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 626,
+      "order": 619,
       "persistenceKey": "emberleef.wall-stone-solid-529a7eb5",
       "overrides": [
         {
@@ -18224,7 +18104,7 @@
       "name": "wall-stone-solid-b0521e31",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 627,
+      "order": 620,
       "persistenceKey": "emberleef.wall-stone-solid-b0521e31",
       "overrides": [
         {
@@ -18241,9 +18121,9 @@
     {
       "instanceId": "wall-stone-solid-f33879a7",
       "name": "wall-stone-solid-f33879a7",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
-      "order": 628,
+      "order": 621,
       "persistenceKey": "emberleef.wall-stone-solid-f33879a7",
       "overrides": [
         {
@@ -18260,29 +18140,10 @@
     {
       "instanceId": "wall-stone-solid-a3720e5c",
       "name": "wall-stone-solid-a3720e5c",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 629,
+      "order": 622,
       "persistenceKey": "emberleef.wall-stone-solid-a3720e5c",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1760,
-            1600
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-175f7d06",
-      "name": "wall-stone-solid-175f7d06",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 630,
-      "persistenceKey": "emberleef.wall-stone-solid-175f7d06",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -18298,9 +18159,9 @@
     {
       "instanceId": "wall-stone-solid-4157baa0",
       "name": "wall-stone-solid-4157baa0",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 631,
+      "order": 623,
       "persistenceKey": "emberleef.wall-stone-solid-4157baa0",
       "overrides": [
         {
@@ -18317,29 +18178,10 @@
     {
       "instanceId": "wall-stone-solid-8a7a1324",
       "name": "wall-stone-solid-8a7a1324",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 632,
+      "order": 624,
       "persistenceKey": "emberleef.wall-stone-solid-8a7a1324",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1760,
-            1728
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-e6d82363",
-      "name": "wall-stone-solid-e6d82363",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 633,
-      "persistenceKey": "emberleef.wall-stone-solid-e6d82363",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -18355,9 +18197,9 @@
     {
       "instanceId": "wall-stone-solid-0ceacce6",
       "name": "wall-stone-solid-0ceacce6",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 634,
+      "order": 625,
       "persistenceKey": "emberleef.wall-stone-solid-0ceacce6",
       "overrides": [
         {
@@ -18376,7 +18218,7 @@
       "name": "wall-stone-solid-06b55882",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 635,
+      "order": 626,
       "persistenceKey": "emberleef.wall-stone-solid-06b55882",
       "overrides": [
         {
@@ -18393,9 +18235,9 @@
     {
       "instanceId": "wall-stone-solid-91cdd7e5",
       "name": "wall-stone-solid-91cdd7e5",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 636,
+      "order": 627,
       "persistenceKey": "emberleef.wall-stone-solid-91cdd7e5",
       "overrides": [
         {
@@ -18412,29 +18254,10 @@
     {
       "instanceId": "wall-stone-solid-4ce824ef",
       "name": "wall-stone-solid-4ce824ef",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 637,
+      "order": 628,
       "persistenceKey": "emberleef.wall-stone-solid-4ce824ef",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1184,
-            1664
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-a3210ee0",
-      "name": "wall-stone-solid-a3210ee0",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 638,
-      "persistenceKey": "emberleef.wall-stone-solid-a3210ee0",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -18450,9 +18273,9 @@
     {
       "instanceId": "wall-stone-solid-464cf473",
       "name": "wall-stone-solid-464cf473",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 639,
+      "order": 629,
       "persistenceKey": "emberleef.wall-stone-solid-464cf473",
       "overrides": [
         {
@@ -18469,29 +18292,10 @@
     {
       "instanceId": "wall-stone-solid-b9717577",
       "name": "wall-stone-solid-b9717577",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 640,
+      "order": 630,
       "persistenceKey": "emberleef.wall-stone-solid-b9717577",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1184,
-            1792
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-7689354a",
-      "name": "wall-stone-solid-7689354a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 641,
-      "persistenceKey": "emberleef.wall-stone-solid-7689354a",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -18507,29 +18311,10 @@
     {
       "instanceId": "wall-stone-solid-bad56bb3",
       "name": "wall-stone-solid-bad56bb3",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.horizontal-08",
       "parentNodeId": "world",
-      "order": 642,
+      "order": 631,
       "persistenceKey": "emberleef.wall-stone-solid-bad56bb3",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1248,
-            1856
-          ]
-        }
-      ]
-    },
-    {
-      "instanceId": "wall-stone-solid-c2b39934",
-      "name": "wall-stone-solid-c2b39934",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 643,
-      "persistenceKey": "emberleef.wall-stone-solid-c2b39934",
       "overrides": [
         {
           "sourceInstancePath": [],
@@ -18545,9 +18330,9 @@
     {
       "instanceId": "wall-stone-solid-4a287dc6",
       "name": "wall-stone-solid-4a287dc6",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "world",
-      "order": 644,
+      "order": 632,
       "persistenceKey": "emberleef.wall-stone-solid-4a287dc6",
       "overrides": [
         {
@@ -18564,9 +18349,9 @@
     {
       "instanceId": "wall-stone-solid-f2f9a92c",
       "name": "wall-stone-solid-f2f9a92c",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-07",
       "parentNodeId": "world",
-      "order": 645,
+      "order": 633,
       "persistenceKey": "emberleef.wall-stone-solid-f2f9a92c",
       "overrides": [
         {
@@ -18585,7 +18370,7 @@
       "name": "decoration-world-solid-65fa1033",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 646,
+      "order": 634,
       "persistenceKey": "emberleef.decoration-world-solid-65fa1033",
       "overrides": [
         {
@@ -18604,7 +18389,7 @@
       "name": "decoration-world-solid-8b8f4cee",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 647,
+      "order": 635,
       "persistenceKey": "emberleef.decoration-world-solid-8b8f4cee",
       "overrides": [
         {
@@ -18623,7 +18408,7 @@
       "name": "decoration-world-solid-c3e537b3",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 648,
+      "order": 636,
       "persistenceKey": "emberleef.decoration-world-solid-c3e537b3",
       "overrides": [
         {
@@ -18642,7 +18427,7 @@
       "name": "decoration-world-solid-69ccf225",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 649,
+      "order": 637,
       "persistenceKey": "emberleef.decoration-world-solid-69ccf225",
       "overrides": [
         {
@@ -18661,7 +18446,7 @@
       "name": "decoration-world-solid-8fb6f9e7",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 650,
+      "order": 638,
       "persistenceKey": "emberleef.decoration-world-solid-8fb6f9e7",
       "overrides": [
         {
@@ -18680,7 +18465,7 @@
       "name": "decoration-world-solid-24aa9998",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 651,
+      "order": 639,
       "persistenceKey": "emberleef.decoration-world-solid-24aa9998",
       "overrides": [
         {
@@ -18699,7 +18484,7 @@
       "name": "decoration-world-solid-ca94ba9b",
       "sceneId": "object.decoration-world-solid.village-banner",
       "parentNodeId": "world",
-      "order": 652,
+      "order": 640,
       "persistenceKey": "emberleef.decoration-world-solid-ca94ba9b",
       "overrides": [
         {
@@ -18718,7 +18503,7 @@
       "name": "decoration-world-solid-00de0f62",
       "sceneId": "object.decoration-world-solid.village-banner",
       "parentNodeId": "world",
-      "order": 653,
+      "order": 641,
       "persistenceKey": "emberleef.decoration-world-solid-00de0f62",
       "overrides": [
         {
@@ -18737,7 +18522,7 @@
       "name": "decoration-world-solid-09c80a44",
       "sceneId": "object.decoration-world-solid.stone-birdbath",
       "parentNodeId": "world",
-      "order": 654,
+      "order": 642,
       "persistenceKey": "emberleef.decoration-world-solid-09c80a44",
       "overrides": [
         {
@@ -18756,7 +18541,7 @@
       "name": "decoration-world-solid-428817c3",
       "sceneId": "object.decoration-world-solid.armor-statue",
       "parentNodeId": "world",
-      "order": 655,
+      "order": 643,
       "persistenceKey": "emberleef.decoration-world-solid-428817c3",
       "overrides": [
         {
@@ -18775,7 +18560,7 @@
       "name": "decoration-world-solid-b233212b",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 656,
+      "order": 644,
       "persistenceKey": "emberleef.decoration-world-solid-b233212b",
       "overrides": [
         {
@@ -18794,7 +18579,7 @@
       "name": "decoration-world-solid-7aeeb06d",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 657,
+      "order": 645,
       "persistenceKey": "emberleef.decoration-world-solid-7aeeb06d",
       "overrides": [
         {
@@ -18813,7 +18598,7 @@
       "name": "decoration-world-solid-530781c1",
       "sceneId": "object.decoration-world-solid.stone-pedestal",
       "parentNodeId": "world",
-      "order": 658,
+      "order": 646,
       "persistenceKey": "emberleef.decoration-world-solid-530781c1",
       "overrides": [
         {
@@ -18832,7 +18617,7 @@
       "name": "decoration-world-solid-83150545",
       "sceneId": "object.decoration-world-solid.stone-pedestal",
       "parentNodeId": "world",
-      "order": 659,
+      "order": 647,
       "persistenceKey": "emberleef.decoration-world-solid-83150545",
       "overrides": [
         {
@@ -18842,6 +18627,1291 @@
           "value": [
             2336,
             2752
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-6e315554",
+      "name": "wall-stone-solid-6e315554",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 648,
+      "persistenceKey": "emberleef.wall-stone-solid-6e315554",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            992,
+            960
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-5a4eaaba",
+      "name": "wall-stone-solid-5a4eaaba",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 649,
+      "persistenceKey": "emberleef.wall-stone-solid-5a4eaaba",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1632,
+            960
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-3bd7c385",
+      "name": "wall-stone-solid-3bd7c385",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 650,
+      "persistenceKey": "emberleef.wall-stone-solid-3bd7c385",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            960
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-26a6ad4a",
+      "name": "wall-stone-solid-26a6ad4a",
+      "sceneId": "object.wall-stone-solid.corner-03",
+      "parentNodeId": "world",
+      "order": 651,
+      "persistenceKey": "emberleef.wall-stone-solid-26a6ad4a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2208,
+            960
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-cc3d6c26",
+      "name": "wall-stone-solid-cc3d6c26",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 652,
+      "persistenceKey": "emberleef.wall-stone-solid-cc3d6c26",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2272,
+            1344
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-37481654",
+      "name": "wall-stone-solid-37481654",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 653,
+      "persistenceKey": "emberleef.wall-stone-solid-37481654",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            672,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-210312b3",
+      "name": "wall-stone-solid-210312b3",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 654,
+      "persistenceKey": "emberleef.wall-stone-solid-210312b3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1440,
+            1536
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-175f7d06",
+      "name": "wall-stone-solid-175f7d06",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 655,
+      "persistenceKey": "emberleef.wall-stone-solid-175f7d06",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1760,
+            1600
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-e6d82363",
+      "name": "wall-stone-solid-e6d82363",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 656,
+      "persistenceKey": "emberleef.wall-stone-solid-e6d82363",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1760,
+            1728
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-a3210ee0",
+      "name": "wall-stone-solid-a3210ee0",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 657,
+      "persistenceKey": "emberleef.wall-stone-solid-a3210ee0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1184,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-7689354a",
+      "name": "wall-stone-solid-7689354a",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 658,
+      "persistenceKey": "emberleef.wall-stone-solid-7689354a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1184,
+            1792
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-c2b39934",
+      "name": "wall-stone-solid-c2b39934",
+      "sceneId": "object.wall-stone-solid.horizontal-08",
+      "parentNodeId": "world",
+      "order": 659,
+      "persistenceKey": "emberleef.wall-stone-solid-c2b39934",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1248,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ab1cd48c",
+      "name": "water-life-ab1cd48c",
+      "sceneId": "object.water-life.fish-perch-lane",
+      "parentNodeId": "water-life",
+      "order": 0,
+      "persistenceKey": "emberleef.water-life-ab1cd48c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            160,
+            2144
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b8375192",
+      "name": "water-life-b8375192",
+      "sceneId": "object.water-life.fish-koi-lane",
+      "parentNodeId": "water-life",
+      "order": 1,
+      "persistenceKey": "emberleef.water-life-b8375192",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            544,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b912017c",
+      "name": "water-life-b912017c",
+      "sceneId": "object.water-life.fish-perch-lane",
+      "parentNodeId": "water-life",
+      "order": 2,
+      "persistenceKey": "emberleef.water-life-b912017c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            864,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ed3e0ac6",
+      "name": "water-life-ed3e0ac6",
+      "sceneId": "object.water-life.fish-carp-lane",
+      "parentNodeId": "water-life",
+      "order": 3,
+      "persistenceKey": "emberleef.water-life-ed3e0ac6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1120,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-9f56d45b",
+      "name": "water-life-9f56d45b",
+      "sceneId": "object.water-life.fish-carp-lane",
+      "parentNodeId": "water-life",
+      "order": 4,
+      "persistenceKey": "emberleef.water-life-9f56d45b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1312,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7697fd9b",
+      "name": "water-life-7697fd9b",
+      "sceneId": "object.water-life.fish-perch-lane",
+      "parentNodeId": "water-life",
+      "order": 5,
+      "persistenceKey": "emberleef.water-life-7697fd9b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d46b1554",
+      "name": "water-life-d46b1554",
+      "sceneId": "object.water-life.fish-perch-lane",
+      "parentNodeId": "water-life",
+      "order": 6,
+      "persistenceKey": "emberleef.water-life-d46b1554",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-6d815a40",
+      "name": "water-life-6d815a40",
+      "sceneId": "object.water-life.fish-minnow-lane",
+      "parentNodeId": "water-life",
+      "order": 7,
+      "persistenceKey": "emberleef.water-life-6d815a40",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-fc9fe703",
+      "name": "water-life-fc9fe703",
+      "sceneId": "object.water-life.fish-carp-lane",
+      "parentNodeId": "water-life",
+      "order": 8,
+      "persistenceKey": "emberleef.water-life-fc9fe703",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1568,
+            2272
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b2a329a2",
+      "name": "water-life-b2a329a2",
+      "sceneId": "object.water-life.fish-minnow-lane",
+      "parentNodeId": "water-life",
+      "order": 9,
+      "persistenceKey": "emberleef.water-life-b2a329a2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1952,
+            2272
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-156fe1c3",
+      "name": "water-life-156fe1c3",
+      "sceneId": "object.water-life.fish-carp-lane",
+      "parentNodeId": "water-life",
+      "order": 10,
+      "persistenceKey": "emberleef.water-life-156fe1c3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2464,
+            2272
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-497ae7e6",
+      "name": "water-life-497ae7e6",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 11,
+      "persistenceKey": "emberleef.water-life-497ae7e6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            10.75,
+            2162
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ad5a1c15",
+      "name": "water-life-ad5a1c15",
+      "sceneId": "object.water-life.waterweed-bushy",
+      "parentNodeId": "water-life",
+      "order": 12,
+      "persistenceKey": "emberleef.water-life-ad5a1c15",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            226.85,
+            2152.04
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a0a5ca60",
+      "name": "water-life-a0a5ca60",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 13,
+      "persistenceKey": "emberleef.water-life-a0a5ca60",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            287.71,
+            2142
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-f18ebfc6",
+      "name": "water-life-f18ebfc6",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 14,
+      "persistenceKey": "emberleef.water-life-f18ebfc6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            542.26,
+            2142
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-e332a46c",
+      "name": "water-life-e332a46c",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 15,
+      "persistenceKey": "emberleef.water-life-e332a46c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            609.03,
+            2142
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a34c32b3",
+      "name": "water-life-a34c32b3",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 16,
+      "persistenceKey": "emberleef.water-life-a34c32b3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            730.35,
+            2142
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7efb620f",
+      "name": "water-life-7efb620f",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 17,
+      "persistenceKey": "emberleef.water-life-7efb620f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            235.45,
+            2235.44
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-1c3ff889",
+      "name": "water-life-1c3ff889",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 18,
+      "persistenceKey": "emberleef.water-life-1c3ff889",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            347.72,
+            2246
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-70cf184e",
+      "name": "water-life-70cf184e",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 19,
+      "persistenceKey": "emberleef.water-life-70cf184e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            605.22,
+            2246
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-9e71f9f9",
+      "name": "water-life-9e71f9f9",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 20,
+      "persistenceKey": "emberleef.water-life-9e71f9f9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            863.5,
+            2206
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-00884401",
+      "name": "water-life-00884401",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 21,
+      "persistenceKey": "emberleef.water-life-00884401",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1234.87,
+            2227.37
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-89246df1",
+      "name": "water-life-89246df1",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 22,
+      "persistenceKey": "emberleef.water-life-89246df1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1381.37,
+            2206
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-6b9710a7",
+      "name": "water-life-6b9710a7",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 23,
+      "persistenceKey": "emberleef.water-life-6b9710a7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1505.83,
+            2206
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d771a523",
+      "name": "water-life-d771a523",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 24,
+      "persistenceKey": "emberleef.water-life-d771a523",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1571.52,
+            2206
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-31f81b60",
+      "name": "water-life-31f81b60",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 25,
+      "persistenceKey": "emberleef.water-life-31f81b60",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1952.28,
+            2206
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7ea4a712",
+      "name": "water-life-7ea4a712",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 26,
+      "persistenceKey": "emberleef.water-life-7ea4a712",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2016.91,
+            2206
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-f271ad53",
+      "name": "water-life-f271ad53",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 27,
+      "persistenceKey": "emberleef.water-life-f271ad53",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2079.95,
+            2206
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-91215747",
+      "name": "water-life-91215747",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 28,
+      "persistenceKey": "emberleef.water-life-91215747",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2203.15,
+            2206
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-474180d9",
+      "name": "water-life-474180d9",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 29,
+      "persistenceKey": "emberleef.water-life-474180d9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2336.81,
+            2206
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-eab0b3b1",
+      "name": "water-life-eab0b3b1",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 30,
+      "persistenceKey": "emberleef.water-life-eab0b3b1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2468.02,
+            2206
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-3254dd71",
+      "name": "water-life-3254dd71",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 31,
+      "persistenceKey": "emberleef.water-life-3254dd71",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2906.39,
+            2206
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-3b220c41",
+      "name": "water-life-3b220c41",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 32,
+      "persistenceKey": "emberleef.water-life-3b220c41",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2980.5,
+            2206
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d41115d4",
+      "name": "water-life-d41115d4",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 33,
+      "persistenceKey": "emberleef.water-life-d41115d4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3358.79,
+            2206
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b0edf8b0",
+      "name": "water-life-b0edf8b0",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 34,
+      "persistenceKey": "emberleef.water-life-b0edf8b0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            800.25,
+            2310
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b04b693c",
+      "name": "water-life-b04b693c",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 35,
+      "persistenceKey": "emberleef.water-life-b04b693c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1116.44,
+            2310
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-4ff3ec86",
+      "name": "water-life-4ff3ec86",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 36,
+      "persistenceKey": "emberleef.water-life-4ff3ec86",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1316.09,
+            2310
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-0de8a666",
+      "name": "water-life-0de8a666",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 37,
+      "persistenceKey": "emberleef.water-life-0de8a666",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1379.23,
+            2310
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-00c2bf34",
+      "name": "water-life-00c2bf34",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 38,
+      "persistenceKey": "emberleef.water-life-00c2bf34",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1763.2,
+            2310
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-9f8e1df9",
+      "name": "water-life-9f8e1df9",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 39,
+      "persistenceKey": "emberleef.water-life-9f8e1df9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1826.18,
+            2310
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-c48b1651",
+      "name": "water-life-c48b1651",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 40,
+      "persistenceKey": "emberleef.water-life-c48b1651",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1952.7,
+            2310
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-84d45f87",
+      "name": "water-life-84d45f87",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 41,
+      "persistenceKey": "emberleef.water-life-84d45f87",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2467.39,
+            2310
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-20ef34a6",
+      "name": "water-life-20ef34a6",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 42,
+      "persistenceKey": "emberleef.water-life-20ef34a6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2591.77,
+            2310
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b65bafed",
+      "name": "water-life-b65bafed",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 43,
+      "persistenceKey": "emberleef.water-life-b65bafed",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2655.53,
+            2310
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ae137304",
+      "name": "water-life-ae137304",
+      "sceneId": "object.water-life.waterweed-bushy",
+      "parentNodeId": "water-life",
+      "order": 44,
+      "persistenceKey": "emberleef.water-life-ae137304",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2733.33,
+            2299.6
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-413e9aa7",
+      "name": "water-life-413e9aa7",
+      "sceneId": "object.water-life.frog-lilypad",
+      "parentNodeId": "water-life",
+      "order": 45,
+      "persistenceKey": "emberleef.water-life-413e9aa7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2849.6,
+            2291.23
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ebd2dc04",
+      "name": "water-life-ebd2dc04",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 46,
+      "persistenceKey": "emberleef.water-life-ebd2dc04",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2978.18,
+            2310
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b258d7b1",
+      "name": "water-life-b258d7b1",
+      "sceneId": "object.water-life.lilypad-single",
+      "parentNodeId": "water-life",
+      "order": 47,
+      "persistenceKey": "emberleef.water-life-b258d7b1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3054.44,
+            2302.36
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b63d8b43",
+      "name": "water-life-b63d8b43",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 48,
+      "persistenceKey": "emberleef.water-life-b63d8b43",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3166.05,
+            2310
           ]
         }
       ]

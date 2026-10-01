@@ -5517,7 +5517,7 @@
     {
       "instanceId": "wall-stone-solid-3960ce1a",
       "name": "wall-stone-solid-3960ce1a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
       "order": 178,
       "persistenceKey": "girls.wall-stone-solid-3960ce1a",
@@ -5536,7 +5536,7 @@
     {
       "instanceId": "wall-stone-solid-3ecd7a23",
       "name": "wall-stone-solid-3ecd7a23",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 179,
       "persistenceKey": "girls.wall-stone-solid-3ecd7a23",
@@ -5555,7 +5555,7 @@
     {
       "instanceId": "wall-stone-solid-a8a85e6b",
       "name": "wall-stone-solid-a8a85e6b",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 180,
       "persistenceKey": "girls.wall-stone-solid-a8a85e6b",
@@ -5574,7 +5574,7 @@
     {
       "instanceId": "wall-stone-solid-f9120f4f",
       "name": "wall-stone-solid-f9120f4f",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 181,
       "persistenceKey": "girls.wall-stone-solid-f9120f4f",
@@ -5593,7 +5593,7 @@
     {
       "instanceId": "wall-stone-solid-190fdb59",
       "name": "wall-stone-solid-190fdb59",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
       "order": 182,
       "persistenceKey": "girls.wall-stone-solid-190fdb59",
@@ -5610,30 +5610,11 @@
       ]
     },
     {
-      "instanceId": "wall-stone-solid-a2930790",
-      "name": "wall-stone-solid-a2930790",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
-      "parentNodeId": "world",
-      "order": 183,
-      "persistenceKey": "girls.wall-stone-solid-a2930790",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1376,
-            768
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "wall-stone-solid-0720bae0",
       "name": "wall-stone-solid-0720bae0",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 184,
+      "order": 183,
       "persistenceKey": "girls.wall-stone-solid-0720bae0",
       "overrides": [
         {
@@ -5650,9 +5631,9 @@
     {
       "instanceId": "wall-stone-solid-23736f68",
       "name": "wall-stone-solid-23736f68",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 185,
+      "order": 184,
       "persistenceKey": "girls.wall-stone-solid-23736f68",
       "overrides": [
         {
@@ -5669,9 +5650,9 @@
     {
       "instanceId": "wall-stone-solid-af6485b5",
       "name": "wall-stone-solid-af6485b5",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 186,
+      "order": 185,
       "persistenceKey": "girls.wall-stone-solid-af6485b5",
       "overrides": [
         {
@@ -5688,9 +5669,9 @@
     {
       "instanceId": "wall-stone-solid-e37c7482",
       "name": "wall-stone-solid-e37c7482",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 187,
+      "order": 186,
       "persistenceKey": "girls.wall-stone-solid-e37c7482",
       "overrides": [
         {
@@ -5707,9 +5688,9 @@
     {
       "instanceId": "wall-stone-solid-c9f15271",
       "name": "wall-stone-solid-c9f15271",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 188,
+      "order": 187,
       "persistenceKey": "girls.wall-stone-solid-c9f15271",
       "overrides": [
         {
@@ -5726,9 +5707,9 @@
     {
       "instanceId": "wall-stone-solid-64248e0a",
       "name": "wall-stone-solid-64248e0a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 189,
+      "order": 188,
       "persistenceKey": "girls.wall-stone-solid-64248e0a",
       "overrides": [
         {
@@ -5745,9 +5726,9 @@
     {
       "instanceId": "wall-stone-solid-2ac6da96",
       "name": "wall-stone-solid-2ac6da96",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 190,
+      "order": 189,
       "persistenceKey": "girls.wall-stone-solid-2ac6da96",
       "overrides": [
         {
@@ -5764,9 +5745,9 @@
     {
       "instanceId": "wall-stone-solid-490598c3",
       "name": "wall-stone-solid-490598c3",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 191,
+      "order": 190,
       "persistenceKey": "girls.wall-stone-solid-490598c3",
       "overrides": [
         {
@@ -5783,9 +5764,9 @@
     {
       "instanceId": "wall-stone-solid-178e5ee4",
       "name": "wall-stone-solid-178e5ee4",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 192,
+      "order": 191,
       "persistenceKey": "girls.wall-stone-solid-178e5ee4",
       "overrides": [
         {
@@ -5804,7 +5785,7 @@
       "name": "wall-stone-solid-3be40296",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 193,
+      "order": 192,
       "persistenceKey": "girls.wall-stone-solid-3be40296",
       "overrides": [
         {
@@ -5821,9 +5802,9 @@
     {
       "instanceId": "wall-stone-solid-7f5b1c11",
       "name": "wall-stone-solid-7f5b1c11",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "world",
-      "order": 194,
+      "order": 193,
       "persistenceKey": "girls.wall-stone-solid-7f5b1c11",
       "overrides": [
         {
@@ -5842,7 +5823,7 @@
       "name": "wall-stone-solid-061d6d20",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 195,
+      "order": 194,
       "persistenceKey": "girls.wall-stone-solid-061d6d20",
       "overrides": [
         {
@@ -5861,7 +5842,7 @@
       "name": "wall-stone-solid-9c099a11",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 196,
+      "order": 195,
       "persistenceKey": "girls.wall-stone-solid-9c099a11",
       "overrides": [
         {
@@ -5880,7 +5861,7 @@
       "name": "wall-stone-solid-113888f4",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 197,
+      "order": 196,
       "persistenceKey": "girls.wall-stone-solid-113888f4",
       "overrides": [
         {
@@ -5899,7 +5880,7 @@
       "name": "wall-stone-solid-db5ac0a3",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 198,
+      "order": 197,
       "persistenceKey": "girls.wall-stone-solid-db5ac0a3",
       "overrides": [
         {
@@ -5916,9 +5897,9 @@
     {
       "instanceId": "wall-stone-solid-df50080c",
       "name": "wall-stone-solid-df50080c",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-07",
       "parentNodeId": "world",
-      "order": 199,
+      "order": 198,
       "persistenceKey": "girls.wall-stone-solid-df50080c",
       "overrides": [
         {
@@ -5937,7 +5918,7 @@
       "name": "wall-stone-solid-2686177e",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 200,
+      "order": 199,
       "persistenceKey": "girls.wall-stone-solid-2686177e",
       "overrides": [
         {
@@ -5956,7 +5937,7 @@
       "name": "wall-stone-solid-9037aa04",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 201,
+      "order": 200,
       "persistenceKey": "girls.wall-stone-solid-9037aa04",
       "overrides": [
         {
@@ -5975,7 +5956,7 @@
       "name": "wall-stone-solid-dea95a81",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 202,
+      "order": 201,
       "persistenceKey": "girls.wall-stone-solid-dea95a81",
       "overrides": [
         {
@@ -5994,7 +5975,7 @@
       "name": "wall-stone-solid-48ef3daa",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 203,
+      "order": 202,
       "persistenceKey": "girls.wall-stone-solid-48ef3daa",
       "overrides": [
         {
@@ -6013,7 +5994,7 @@
       "name": "wall-stone-solid-b678b943",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 204,
+      "order": 203,
       "persistenceKey": "girls.wall-stone-solid-b678b943",
       "overrides": [
         {
@@ -6030,9 +6011,9 @@
     {
       "instanceId": "wall-stone-solid-2a4bac01",
       "name": "wall-stone-solid-2a4bac01",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
-      "order": 205,
+      "order": 204,
       "persistenceKey": "girls.wall-stone-solid-2a4bac01",
       "overrides": [
         {
@@ -6049,9 +6030,9 @@
     {
       "instanceId": "wall-stone-solid-c395b63c",
       "name": "wall-stone-solid-c395b63c",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-03",
       "parentNodeId": "world",
-      "order": 206,
+      "order": 205,
       "persistenceKey": "girls.wall-stone-solid-c395b63c",
       "overrides": [
         {
@@ -6068,9 +6049,9 @@
     {
       "instanceId": "wall-stone-solid-29936327",
       "name": "wall-stone-solid-29936327",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 207,
+      "order": 206,
       "persistenceKey": "girls.wall-stone-solid-29936327",
       "overrides": [
         {
@@ -6087,9 +6068,9 @@
     {
       "instanceId": "wall-stone-solid-fd1f6623",
       "name": "wall-stone-solid-fd1f6623",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-08",
       "parentNodeId": "world",
-      "order": 208,
+      "order": 207,
       "persistenceKey": "girls.wall-stone-solid-fd1f6623",
       "overrides": [
         {
@@ -6108,7 +6089,7 @@
       "name": "collectible-small-wood-pile-8873461e",
       "sceneId": "object.collectible-small-wood-pile",
       "parentNodeId": "world",
-      "order": 209,
+      "order": 208,
       "persistenceKey": "girls.collectible-small-wood-pile-8873461e",
       "overrides": [
         {
@@ -6139,7 +6120,7 @@
       "name": "collectible-small-wood-pile-0840e508",
       "sceneId": "object.collectible-small-wood-pile",
       "parentNodeId": "world",
-      "order": 210,
+      "order": 209,
       "persistenceKey": "girls.collectible-small-wood-pile-0840e508",
       "overrides": [
         {
@@ -6170,7 +6151,7 @@
       "name": "collectible-small-wood-pile-0cc03a5e",
       "sceneId": "object.collectible-small-wood-pile",
       "parentNodeId": "world",
-      "order": 211,
+      "order": 210,
       "persistenceKey": "girls.collectible-small-wood-pile-0cc03a5e",
       "overrides": [
         {
@@ -6201,7 +6182,7 @@
       "name": "collectible-small-wood-pile-d89c7706",
       "sceneId": "object.collectible-small-wood-pile",
       "parentNodeId": "world",
-      "order": 212,
+      "order": 211,
       "persistenceKey": "girls.collectible-small-wood-pile-d89c7706",
       "overrides": [
         {
@@ -6232,7 +6213,7 @@
       "name": "collectible-stone-pile-366cef89",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 213,
+      "order": 212,
       "persistenceKey": "girls.collectible-stone-pile-366cef89",
       "overrides": [
         {
@@ -6263,7 +6244,7 @@
       "name": "collectible-stone-pile-f950a0b1",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 214,
+      "order": 213,
       "persistenceKey": "girls.collectible-stone-pile-f950a0b1",
       "overrides": [
         {
@@ -6294,7 +6275,7 @@
       "name": "collectible-stone-pile-673774c2",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 215,
+      "order": 214,
       "persistenceKey": "girls.collectible-stone-pile-673774c2",
       "overrides": [
         {
@@ -6325,7 +6306,7 @@
       "name": "collectible-stone-pile-85616bb4",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 216,
+      "order": 215,
       "persistenceKey": "girls.collectible-stone-pile-85616bb4",
       "overrides": [
         {
@@ -6356,7 +6337,7 @@
       "name": "collectible-wood-pile-be8dce0b",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 217,
+      "order": 216,
       "persistenceKey": "girls.collectible-wood-pile-be8dce0b",
       "overrides": [
         {
@@ -6387,7 +6368,7 @@
       "name": "collectible-wood-pile-f7845444",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 218,
+      "order": 217,
       "persistenceKey": "girls.collectible-wood-pile-f7845444",
       "overrides": [
         {
@@ -6418,7 +6399,7 @@
       "name": "collectible-wood-pile-928ced26",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 219,
+      "order": 218,
       "persistenceKey": "girls.collectible-wood-pile-928ced26",
       "overrides": [
         {
@@ -6449,7 +6430,7 @@
       "name": "collectible-wood-pile-cac25c7f",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 220,
+      "order": 219,
       "persistenceKey": "girls.collectible-wood-pile-cac25c7f",
       "overrides": [
         {
@@ -6480,7 +6461,7 @@
       "name": "house-world-solid-eebe0cb8",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 221,
+      "order": 220,
       "persistenceKey": "girls.house-world-solid-eebe0cb8",
       "overrides": [
         {
@@ -6499,7 +6480,7 @@
       "name": "wall-stone-solid-d621b4f7",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 222,
+      "order": 221,
       "persistenceKey": "girls.wall-stone-solid-d621b4f7",
       "overrides": [
         {
@@ -6518,7 +6499,7 @@
       "name": "wall-stone-solid-9338128a",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 223,
+      "order": 222,
       "persistenceKey": "girls.wall-stone-solid-9338128a",
       "overrides": [
         {
@@ -6537,7 +6518,7 @@
       "name": "wall-stone-solid-b0ece2d0",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 224,
+      "order": 223,
       "persistenceKey": "girls.wall-stone-solid-b0ece2d0",
       "overrides": [
         {
@@ -6556,7 +6537,7 @@
       "name": "wall-stone-solid-2cd7726d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 225,
+      "order": 224,
       "persistenceKey": "girls.wall-stone-solid-2cd7726d",
       "overrides": [
         {
@@ -6575,7 +6556,7 @@
       "name": "wall-stone-solid-51344f62",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 226,
+      "order": 225,
       "persistenceKey": "girls.wall-stone-solid-51344f62",
       "overrides": [
         {
@@ -6594,7 +6575,7 @@
       "name": "wall-stone-solid-cabd0742",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 227,
+      "order": 226,
       "persistenceKey": "girls.wall-stone-solid-cabd0742",
       "overrides": [
         {
@@ -6611,9 +6592,9 @@
     {
       "instanceId": "wall-stone-solid-511535d4",
       "name": "wall-stone-solid-511535d4",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.corner-01",
       "parentNodeId": "world",
-      "order": 228,
+      "order": 227,
       "persistenceKey": "girls.wall-stone-solid-511535d4",
       "overrides": [
         {
@@ -6630,9 +6611,9 @@
     {
       "instanceId": "wall-stone-solid-3509c57b",
       "name": "wall-stone-solid-3509c57b",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 229,
+      "order": 228,
       "persistenceKey": "girls.wall-stone-solid-3509c57b",
       "overrides": [
         {
@@ -6649,9 +6630,9 @@
     {
       "instanceId": "wall-stone-solid-2c1bc73a",
       "name": "wall-stone-solid-2c1bc73a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 230,
+      "order": 229,
       "persistenceKey": "girls.wall-stone-solid-2c1bc73a",
       "overrides": [
         {
@@ -6668,9 +6649,9 @@
     {
       "instanceId": "wall-stone-solid-12353e6a",
       "name": "wall-stone-solid-12353e6a",
-      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "sceneId": "object.wall-stone-solid.vertical-02",
       "parentNodeId": "world",
-      "order": 231,
+      "order": 230,
       "persistenceKey": "girls.wall-stone-solid-12353e6a",
       "overrides": [
         {
@@ -6689,7 +6670,7 @@
       "name": "house-world-solid-126e5112",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 232,
+      "order": 231,
       "persistenceKey": "girls.house-world-solid-126e5112",
       "overrides": [
         {
@@ -6708,7 +6689,7 @@
       "name": "npc-yellow-blond-slime-girl-70a72712",
       "sceneId": "character.yellow-blond-slime-girl",
       "parentNodeId": "world",
-      "order": 233,
+      "order": 232,
       "persistenceKey": "girls.npc-yellow-blond-slime-girl-70a72712",
       "overrides": [
         {
@@ -6727,7 +6708,7 @@
       "name": "house-world-solid-dc1fcf4d",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 234,
+      "order": 233,
       "persistenceKey": "girls.house-world-solid-dc1fcf4d",
       "overrides": [
         {
@@ -6746,7 +6727,7 @@
       "name": "tree-world-solid-d24e5767",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 235,
+      "order": 234,
       "persistenceKey": "girls.tree-world-solid-d24e5767",
       "overrides": [
         {
@@ -6777,7 +6758,7 @@
       "name": "tree-world-solid-ea88abf0",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 236,
+      "order": 235,
       "persistenceKey": "girls.tree-world-solid-ea88abf0",
       "overrides": [
         {
@@ -6808,7 +6789,7 @@
       "name": "tree-world-solid-17020a61",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 237,
+      "order": 236,
       "persistenceKey": "girls.tree-world-solid-17020a61",
       "overrides": [
         {
@@ -6839,7 +6820,7 @@
       "name": "tree-world-solid-bc0528b6",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 238,
+      "order": 237,
       "persistenceKey": "girls.tree-world-solid-bc0528b6",
       "overrides": [
         {
@@ -6870,7 +6851,7 @@
       "name": "tree-world-solid-7222affc",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 239,
+      "order": 238,
       "persistenceKey": "girls.tree-world-solid-7222affc",
       "overrides": [
         {
@@ -6901,7 +6882,7 @@
       "name": "tree-world-solid-8e144f5d",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 240,
+      "order": 239,
       "persistenceKey": "girls.tree-world-solid-8e144f5d",
       "overrides": [
         {
@@ -6932,7 +6913,7 @@
       "name": "tree-world-solid-66408f47",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 241,
+      "order": 240,
       "persistenceKey": "girls.tree-world-solid-66408f47",
       "overrides": [
         {
@@ -6963,7 +6944,7 @@
       "name": "tree-world-solid-00dc2ce2",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 242,
+      "order": 241,
       "persistenceKey": "girls.tree-world-solid-00dc2ce2",
       "overrides": [
         {
@@ -6994,7 +6975,7 @@
       "name": "tree-world-solid-93a01bd3",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 243,
+      "order": 242,
       "persistenceKey": "girls.tree-world-solid-93a01bd3",
       "overrides": [
         {
@@ -7025,7 +7006,7 @@
       "name": "tree-world-solid-37fd2cc8",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 244,
+      "order": 243,
       "persistenceKey": "girls.tree-world-solid-37fd2cc8",
       "overrides": [
         {
@@ -7056,7 +7037,7 @@
       "name": "tree-world-solid-e08123c6",
       "sceneId": "object.tree-world-solid.green-tree-03",
       "parentNodeId": "world",
-      "order": 245,
+      "order": 244,
       "persistenceKey": "girls.tree-world-solid-e08123c6",
       "overrides": [
         {
@@ -7087,7 +7068,7 @@
       "name": "decoration-world-solid-0eb48ede",
       "sceneId": "object.decoration-world-solid.campfire",
       "parentNodeId": "world",
-      "order": 246,
+      "order": 245,
       "persistenceKey": "girls.decoration-world-solid-0eb48ede",
       "overrides": [
         {
@@ -7106,7 +7087,7 @@
       "name": "decoration-world-solid-ea56cf4c",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 247,
+      "order": 246,
       "persistenceKey": "girls.decoration-world-solid-ea56cf4c",
       "overrides": [
         {
@@ -7125,7 +7106,7 @@
       "name": "decoration-world-solid-b5ab9188",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 248,
+      "order": 247,
       "persistenceKey": "girls.decoration-world-solid-b5ab9188",
       "overrides": [
         {
@@ -7144,7 +7125,7 @@
       "name": "decoration-world-solid-2fa23fa2",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 249,
+      "order": 248,
       "persistenceKey": "girls.decoration-world-solid-2fa23fa2",
       "overrides": [
         {
@@ -7163,7 +7144,7 @@
       "name": "decoration-world-solid-5fda8705",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 250,
+      "order": 249,
       "persistenceKey": "girls.decoration-world-solid-5fda8705",
       "overrides": [
         {
@@ -7182,7 +7163,7 @@
       "name": "decoration-world-solid-80a71254",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 251,
+      "order": 250,
       "persistenceKey": "girls.decoration-world-solid-80a71254",
       "overrides": [
         {
@@ -7201,7 +7182,7 @@
       "name": "decoration-world-solid-8e5cdb20",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 252,
+      "order": 251,
       "persistenceKey": "girls.decoration-world-solid-8e5cdb20",
       "overrides": [
         {
@@ -7220,7 +7201,7 @@
       "name": "decoration-world-solid-01949132",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 253,
+      "order": 252,
       "persistenceKey": "girls.decoration-world-solid-01949132",
       "overrides": [
         {
@@ -7239,7 +7220,7 @@
       "name": "decoration-world-solid-03722a25",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 254,
+      "order": 253,
       "persistenceKey": "girls.decoration-world-solid-03722a25",
       "overrides": [
         {
@@ -7258,7 +7239,7 @@
       "name": "decoration-world-solid-b1f995c7",
       "sceneId": "object.decoration-world-solid.birdhouse",
       "parentNodeId": "world",
-      "order": 255,
+      "order": 254,
       "persistenceKey": "girls.decoration-world-solid-b1f995c7",
       "overrides": [
         {
@@ -7277,7 +7258,7 @@
       "name": "decoration-world-solid-a7e03e0b",
       "sceneId": "object.decoration-world-solid.birdhouse",
       "parentNodeId": "world",
-      "order": 256,
+      "order": 255,
       "persistenceKey": "girls.decoration-world-solid-a7e03e0b",
       "overrides": [
         {
@@ -7287,6 +7268,25 @@
           "value": [
             1056,
             704
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-a2930790",
+      "name": "wall-stone-solid-a2930790",
+      "sceneId": "object.wall-stone-solid.vertical-02",
+      "parentNodeId": "world",
+      "order": 256,
+      "persistenceKey": "girls.wall-stone-solid-a2930790",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1376,
+            768
           ]
         }
       ]

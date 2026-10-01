@@ -1,0 +1,997 @@
+{
+  "version": 1,
+  "sceneId": "object.water-life.fish-koi-oval",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "fish-koi-oval",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "water-life.fish-koi-oval.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "scale": [
+          0.42,
+          0.42
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "alpha": 0.72,
+        "tint": "#b9dcef",
+        "depthMode": "explicit",
+        "depthBand": "ground-decals",
+        "depth": 2000000000.6499999
+      }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "water-life.fish-koi-oval.animations"
+        },
+        "domain": "render",
+        "autoplay": "object.water-life.idle",
+        "randomizeStart": true
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "water-life.fish-koi-oval.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.water.fish.8x5",
+      "frameWidth": 128,
+      "frameHeight": 64
+    },
+    {
+      "version": 1,
+      "resourceId": "water-life.fish-koi-oval.animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.water-life.idle": {
+          "durationSeconds": 8,
+          "framesPerSecond": 10,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    56,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    55.83,
+                    2.04
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    55.31,
+                    4.07
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    54.45,
+                    6.07
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    53.26,
+                    8.03
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    51.74,
+                    9.95
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    49.9,
+                    11.8
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    47.75,
+                    13.58
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    45.3,
+                    15.28
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    42.58,
+                    16.89
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    39.6,
+                    18.38
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    36.37,
+                    19.77
+                  ]
+                },
+                {
+                  "at": 12,
+                  "value": [
+                    32.92,
+                    21.03
+                  ]
+                },
+                {
+                  "at": 13,
+                  "value": [
+                    29.26,
+                    22.17
+                  ]
+                },
+                {
+                  "at": 14,
+                  "value": [
+                    25.42,
+                    23.17
+                  ]
+                },
+                {
+                  "at": 15,
+                  "value": [
+                    21.43,
+                    24.02
+                  ]
+                },
+                {
+                  "at": 16,
+                  "value": [
+                    17.3,
+                    24.73
+                  ]
+                },
+                {
+                  "at": 17,
+                  "value": [
+                    13.07,
+                    25.28
+                  ]
+                },
+                {
+                  "at": 18,
+                  "value": [
+                    8.76,
+                    25.68
+                  ]
+                },
+                {
+                  "at": 19,
+                  "value": [
+                    4.39,
+                    25.92
+                  ]
+                },
+                {
+                  "at": 20,
+                  "value": [
+                    0,
+                    26
+                  ]
+                },
+                {
+                  "at": 21,
+                  "value": [
+                    -4.39,
+                    25.92
+                  ]
+                },
+                {
+                  "at": 22,
+                  "value": [
+                    -8.76,
+                    25.68
+                  ]
+                },
+                {
+                  "at": 23,
+                  "value": [
+                    -13.07,
+                    25.28
+                  ]
+                },
+                {
+                  "at": 24,
+                  "value": [
+                    -17.3,
+                    24.73
+                  ]
+                },
+                {
+                  "at": 25,
+                  "value": [
+                    -21.43,
+                    24.02
+                  ]
+                },
+                {
+                  "at": 26,
+                  "value": [
+                    -25.42,
+                    23.17
+                  ]
+                },
+                {
+                  "at": 27,
+                  "value": [
+                    -29.26,
+                    22.17
+                  ]
+                },
+                {
+                  "at": 28,
+                  "value": [
+                    -32.92,
+                    21.03
+                  ]
+                },
+                {
+                  "at": 29,
+                  "value": [
+                    -36.37,
+                    19.77
+                  ]
+                },
+                {
+                  "at": 30,
+                  "value": [
+                    -39.6,
+                    18.38
+                  ]
+                },
+                {
+                  "at": 31,
+                  "value": [
+                    -42.58,
+                    16.89
+                  ]
+                },
+                {
+                  "at": 32,
+                  "value": [
+                    -45.3,
+                    15.28
+                  ]
+                },
+                {
+                  "at": 33,
+                  "value": [
+                    -47.75,
+                    13.58
+                  ]
+                },
+                {
+                  "at": 34,
+                  "value": [
+                    -49.9,
+                    11.8
+                  ]
+                },
+                {
+                  "at": 35,
+                  "value": [
+                    -51.74,
+                    9.95
+                  ]
+                },
+                {
+                  "at": 36,
+                  "value": [
+                    -53.26,
+                    8.03
+                  ]
+                },
+                {
+                  "at": 37,
+                  "value": [
+                    -54.45,
+                    6.07
+                  ]
+                },
+                {
+                  "at": 38,
+                  "value": [
+                    -55.31,
+                    4.07
+                  ]
+                },
+                {
+                  "at": 39,
+                  "value": [
+                    -55.83,
+                    2.04
+                  ]
+                },
+                {
+                  "at": 40,
+                  "value": [
+                    -56,
+                    0
+                  ]
+                },
+                {
+                  "at": 41,
+                  "value": [
+                    -55.83,
+                    -2.04
+                  ]
+                },
+                {
+                  "at": 42,
+                  "value": [
+                    -55.31,
+                    -4.07
+                  ]
+                },
+                {
+                  "at": 43,
+                  "value": [
+                    -54.45,
+                    -6.07
+                  ]
+                },
+                {
+                  "at": 44,
+                  "value": [
+                    -53.26,
+                    -8.03
+                  ]
+                },
+                {
+                  "at": 45,
+                  "value": [
+                    -51.74,
+                    -9.95
+                  ]
+                },
+                {
+                  "at": 46,
+                  "value": [
+                    -49.9,
+                    -11.8
+                  ]
+                },
+                {
+                  "at": 47,
+                  "value": [
+                    -47.75,
+                    -13.58
+                  ]
+                },
+                {
+                  "at": 48,
+                  "value": [
+                    -45.3,
+                    -15.28
+                  ]
+                },
+                {
+                  "at": 49,
+                  "value": [
+                    -42.58,
+                    -16.89
+                  ]
+                },
+                {
+                  "at": 50,
+                  "value": [
+                    -39.6,
+                    -18.38
+                  ]
+                },
+                {
+                  "at": 51,
+                  "value": [
+                    -36.37,
+                    -19.77
+                  ]
+                },
+                {
+                  "at": 52,
+                  "value": [
+                    -32.92,
+                    -21.03
+                  ]
+                },
+                {
+                  "at": 53,
+                  "value": [
+                    -29.26,
+                    -22.17
+                  ]
+                },
+                {
+                  "at": 54,
+                  "value": [
+                    -25.42,
+                    -23.17
+                  ]
+                },
+                {
+                  "at": 55,
+                  "value": [
+                    -21.43,
+                    -24.02
+                  ]
+                },
+                {
+                  "at": 56,
+                  "value": [
+                    -17.3,
+                    -24.73
+                  ]
+                },
+                {
+                  "at": 57,
+                  "value": [
+                    -13.07,
+                    -25.28
+                  ]
+                },
+                {
+                  "at": 58,
+                  "value": [
+                    -8.76,
+                    -25.68
+                  ]
+                },
+                {
+                  "at": 59,
+                  "value": [
+                    -4.39,
+                    -25.92
+                  ]
+                },
+                {
+                  "at": 60,
+                  "value": [
+                    0,
+                    -26
+                  ]
+                },
+                {
+                  "at": 61,
+                  "value": [
+                    4.39,
+                    -25.92
+                  ]
+                },
+                {
+                  "at": 62,
+                  "value": [
+                    8.76,
+                    -25.68
+                  ]
+                },
+                {
+                  "at": 63,
+                  "value": [
+                    13.07,
+                    -25.28
+                  ]
+                },
+                {
+                  "at": 64,
+                  "value": [
+                    17.3,
+                    -24.73
+                  ]
+                },
+                {
+                  "at": 65,
+                  "value": [
+                    21.43,
+                    -24.02
+                  ]
+                },
+                {
+                  "at": 66,
+                  "value": [
+                    25.42,
+                    -23.17
+                  ]
+                },
+                {
+                  "at": 67,
+                  "value": [
+                    29.26,
+                    -22.17
+                  ]
+                },
+                {
+                  "at": 68,
+                  "value": [
+                    32.92,
+                    -21.03
+                  ]
+                },
+                {
+                  "at": 69,
+                  "value": [
+                    36.37,
+                    -19.77
+                  ]
+                },
+                {
+                  "at": 70,
+                  "value": [
+                    39.6,
+                    -18.38
+                  ]
+                },
+                {
+                  "at": 71,
+                  "value": [
+                    42.58,
+                    -16.89
+                  ]
+                },
+                {
+                  "at": 72,
+                  "value": [
+                    45.3,
+                    -15.28
+                  ]
+                },
+                {
+                  "at": 73,
+                  "value": [
+                    47.75,
+                    -13.58
+                  ]
+                },
+                {
+                  "at": 74,
+                  "value": [
+                    49.9,
+                    -11.8
+                  ]
+                },
+                {
+                  "at": 75,
+                  "value": [
+                    51.74,
+                    -9.95
+                  ]
+                },
+                {
+                  "at": 76,
+                  "value": [
+                    53.26,
+                    -8.03
+                  ]
+                },
+                {
+                  "at": 77,
+                  "value": [
+                    54.45,
+                    -6.07
+                  ]
+                },
+                {
+                  "at": 78,
+                  "value": [
+                    55.31,
+                    -4.07
+                  ]
+                },
+                {
+                  "at": 79,
+                  "value": [
+                    55.83,
+                    -2.04
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 40,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                },
+                {
+                  "at": 4,
+                  "value": 4
+                },
+                {
+                  "at": 5,
+                  "value": 5
+                },
+                {
+                  "at": 6,
+                  "value": 6
+                },
+                {
+                  "at": 7,
+                  "value": 7
+                },
+                {
+                  "at": 8,
+                  "value": 0
+                },
+                {
+                  "at": 9,
+                  "value": 1
+                },
+                {
+                  "at": 10,
+                  "value": 2
+                },
+                {
+                  "at": 11,
+                  "value": 3
+                },
+                {
+                  "at": 12,
+                  "value": 4
+                },
+                {
+                  "at": 13,
+                  "value": 5
+                },
+                {
+                  "at": 14,
+                  "value": 6
+                },
+                {
+                  "at": 15,
+                  "value": 7
+                },
+                {
+                  "at": 16,
+                  "value": 0
+                },
+                {
+                  "at": 17,
+                  "value": 1
+                },
+                {
+                  "at": 18,
+                  "value": 2
+                },
+                {
+                  "at": 19,
+                  "value": 3
+                },
+                {
+                  "at": 20,
+                  "value": 4
+                },
+                {
+                  "at": 21,
+                  "value": 5
+                },
+                {
+                  "at": 22,
+                  "value": 6
+                },
+                {
+                  "at": 23,
+                  "value": 7
+                },
+                {
+                  "at": 24,
+                  "value": 0
+                },
+                {
+                  "at": 25,
+                  "value": 1
+                },
+                {
+                  "at": 26,
+                  "value": 2
+                },
+                {
+                  "at": 27,
+                  "value": 3
+                },
+                {
+                  "at": 28,
+                  "value": 4
+                },
+                {
+                  "at": 29,
+                  "value": 5
+                },
+                {
+                  "at": 30,
+                  "value": 6
+                },
+                {
+                  "at": 31,
+                  "value": 7
+                },
+                {
+                  "at": 32,
+                  "value": 0
+                },
+                {
+                  "at": 33,
+                  "value": 1
+                },
+                {
+                  "at": 34,
+                  "value": 2
+                },
+                {
+                  "at": 35,
+                  "value": 3
+                },
+                {
+                  "at": 36,
+                  "value": 4
+                },
+                {
+                  "at": 37,
+                  "value": 5
+                },
+                {
+                  "at": 38,
+                  "value": 6
+                },
+                {
+                  "at": 39,
+                  "value": 7
+                },
+                {
+                  "at": 40,
+                  "value": 0
+                },
+                {
+                  "at": 41,
+                  "value": 1
+                },
+                {
+                  "at": 42,
+                  "value": 2
+                },
+                {
+                  "at": 43,
+                  "value": 3
+                },
+                {
+                  "at": 44,
+                  "value": 4
+                },
+                {
+                  "at": 45,
+                  "value": 5
+                },
+                {
+                  "at": 46,
+                  "value": 6
+                },
+                {
+                  "at": 47,
+                  "value": 7
+                },
+                {
+                  "at": 48,
+                  "value": 0
+                },
+                {
+                  "at": 49,
+                  "value": 1
+                },
+                {
+                  "at": 50,
+                  "value": 2
+                },
+                {
+                  "at": 51,
+                  "value": 3
+                },
+                {
+                  "at": 52,
+                  "value": 4
+                },
+                {
+                  "at": 53,
+                  "value": 5
+                },
+                {
+                  "at": 54,
+                  "value": 6
+                },
+                {
+                  "at": 55,
+                  "value": 7
+                },
+                {
+                  "at": 56,
+                  "value": 0
+                },
+                {
+                  "at": 57,
+                  "value": 1
+                },
+                {
+                  "at": 58,
+                  "value": 2
+                },
+                {
+                  "at": 59,
+                  "value": 3
+                },
+                {
+                  "at": 60,
+                  "value": 4
+                },
+                {
+                  "at": 61,
+                  "value": 5
+                },
+                {
+                  "at": 62,
+                  "value": 6
+                },
+                {
+                  "at": 63,
+                  "value": 7
+                },
+                {
+                  "at": 64,
+                  "value": 0
+                },
+                {
+                  "at": 65,
+                  "value": 1
+                },
+                {
+                  "at": 66,
+                  "value": 2
+                },
+                {
+                  "at": 67,
+                  "value": 3
+                },
+                {
+                  "at": 68,
+                  "value": 4
+                },
+                {
+                  "at": 69,
+                  "value": 5
+                },
+                {
+                  "at": 70,
+                  "value": 6
+                },
+                {
+                  "at": 71,
+                  "value": 7
+                },
+                {
+                  "at": 72,
+                  "value": 0
+                },
+                {
+                  "at": 73,
+                  "value": 1
+                },
+                {
+                  "at": 74,
+                  "value": 2
+                },
+                {
+                  "at": 75,
+                  "value": 3
+                },
+                {
+                  "at": 76,
+                  "value": 4
+                },
+                {
+                  "at": 77,
+                  "value": 5
+                },
+                {
+                  "at": 78,
+                  "value": 6
+                },
+                {
+                  "at": 79,
+                  "value": 7
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

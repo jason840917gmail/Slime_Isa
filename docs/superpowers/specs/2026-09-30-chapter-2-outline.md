@@ -52,8 +52,8 @@ Existing sheets only, no new NPC art:
 - **Red Slime Boy** becomes **Pip**, the smith's son, who has wanted to light
   the Forge again; he gives the Forge quest (a name change in
   `NpcDefinitions.ts`, a conversion input).
-- **Yellow-Blond Slime Girl** becomes **Sunny**, an optional giver of the
-  Stretch Lash quest (she lost her basket across a web gap).
+- **Yellow-Blond Slime Girl** becomes **Sunny**, who gives an optional quest
+  (her basket is stuck on the far bank of a stream).
 
 ## Quests
 
@@ -63,22 +63,24 @@ discover-area).
 
 | # | Quest | Giver | Needs | Objectives | Rewards |
 |---|---|---|---|---|---|
-| 1 | **Beyond the Verdant Gate** (main) | automatic on entering Gloop Forest, turned in to Mossy | `the-one-eyed-guardian` | Talk to Mossy at the forest camp; rest in the hut bed (sets respawn; a `rest` objective needs a small producer, else "talk to Mossy" only); defeat 3 orb-weaver slimes | 30 coins; Mossy explains fangs and iron |
+| 1 | **Beyond the Verdant Gate** (main) | automatic on entering Gloop Forest, turned in to Mossy | `the-one-eyed-guardian` | Talk to Mossy at the forest camp; rest in the hut bed (sets respawn; a `rest` objective needs a small producer, else "talk to Mossy" only); defeat 3 orb-weaver slimes | 30 coins; **Stretch Lash** (Mossy shows how to pull things across water); Mossy explains fangs and iron |
 | 2 | **A Harder Pick** (main) | Mossy | Q1, **The Old Workshop** | Collect 3 weaver fangs (8.3); craft the Reinforced Pickaxe at the Workshop; collect 6 iron ore | recipe unlock is the pickaxe itself; 20 coins |
 | 3 | **Rekindle the Forge** (main, 8.5) | Pip (Slimeshire) | Q2 | Restore the Forge (restoration site: 40 stone, 20 wood, 6 iron ore); smelt 2 charcoal and 3 iron bars | Forge recipes; 40 coins |
 | 4 | **Iron for the Workshop** (main, 8.6) | Elder Plop | Q3 | Upgrade the Workshop (restoration site on the restored Workshop: 6 iron bars, 30 wood; flag `workshop.tier-2`); craft an Iron Spear | Iron Axe recipe learned; 40 coins |
-| 5 | **Sunny's Basket** (optional) | Sunny (forest camp) | Q1 | Collect the basket across the silk path (a collectible behind the Sticky puzzle) | **Stretch Lash**; 2 purple berries |
+| 5 | **Sunny's Basket** (optional) | Sunny (forest camp) | Q1 | Pull her basket back across the stream with the Stretch Lash (a collectible on the far bank) | 2 purple berries; 20 coins |
 | 6 | **The Matron's Nest** (main, 8.7) | Mossy | Q4 | Defeat the Orb-Weaver Matron | Goo Heart (her chest), **Squash Slam**, 100 coins, flag `chapter-2-complete` (end card, 8.11) |
 
 Notes:
 
 - **The Old Workshop dependency.** Q2 needs the Workshop, which Chapter 1
   offers as optional. If it is not restored, Q1's closing line sends the
-  player to Elder Plop and the tracker shows The Old Workshop; open question
-  below.
-- Stretch Lash is a ranged lash (180 px, 18 damage), a good answer to
-  orb-weavers that keep their distance; offering it from an optional quest
-  keeps the main line short. Moving it to Q2's reward is the alternative.
+  player to Elder Plop and the tracker shows The Old Workshop as a main
+  quest (question 1, answered: required).
+- Stretch Lash (question 3, answered: option B; reworked 2026-09-30) is a
+  goo hook with no damage: a pickup it touches flies back to the slime, and
+  anything solid it catches pulls the slime across to it, over water too;
+  bell posts it catches ring and open gates. Chapter 2's puzzles use it, so
+  the main line teaches it (Q1's reward).
 - Squash Slam comes from the boss, as the ability bar already says.
 
 ## Materials and where they come from
@@ -131,6 +133,10 @@ a tier-2 one: the 6.3 pieces, reused.
    start; Goo Heart and Sunny's basket at the end.
 3. **Cracked clearing** (Heavy): cracked ground over a small cavern with the
    second Goo Heart and a chest; the ladder climbs back up (7.4 pieces).
+4. **Bell across the stream** (Stretch Lash): a lash bell post on the far
+   bank opens the iron hollow's back gate and pulls the slime across; a
+   stump or statue on each bank is the hook back. Sunny's basket waits on
+   the far bank (Q5).
 
 ## Balance targets
 
@@ -150,12 +156,20 @@ above → 8.11 the locked exit and end card.
 
 1. Should **The Old Workshop** become part of the main line (for example,
    offered again at the start of Chapter 2 as mandatory when it is not done),
-   or stay optional with Q2 simply waiting for it?
+   or stay optional with Q2 simply waiting for it? (Answered 2026-09-30:
+   **required**. It stays optional in Chapter 1; when Chapter 2 starts
+   without it, Q1 offers it as a main quest and Q2 needs it.)
 2. **Pip** (Red Slime Boy) and **Sunny** (Yellow-Blond Slime Girl): happy to
    rename and give them these roles, or do you want new characters?
+   (Answered 2026-09-30: either works; **reuse** these two sheets for Pip and
+   Sunny, and make new art for any further characters.)
 3. **Stretch Lash** from Sunny's optional quest, or from the main line (Q2)?
+   (Answered 2026-09-30: **option B**, the lash is a tool as well: it pulls
+   pickups across water and rings bell posts, so the main line teaches it,
+   as Q1's reward. Built and playable in the playground's lash yard.)
 4. **The Matron**: is a web-volley boss that you cross with the Sticky form
    the direction you want (the guidelines list the boss design as open)?
+   (Answered 2026-09-30: **yes, for now**.)
 5. **Orb-weaver art.** (Answered 2026-09-30: use the orb-weaver art for now;
    built in 8.2 as a larger, darker, tougher variant.) The green orb-weaver sheet is already the Meadow slime
    spider's look (an earlier, deliberate change); the old yellow spider sheet

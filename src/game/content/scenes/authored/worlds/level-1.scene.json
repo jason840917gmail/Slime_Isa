@@ -1030,11 +1030,24 @@
       }
     },
     {
+      "id": "water-life",
+      "name": "Water Life",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 60,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
       "id": "sfx-music-player",
       "name": "MusicPlayer",
       "type": "AudioStreamPlayer",
       "parentId": "world",
-      "order": 59,
+      "order": 61,
       "properties": {
         "stream": {
           "resourceId": "music.level-1-home-town"
@@ -1051,7 +1064,7 @@
       "name": "Ambience",
       "type": "AudioStreamPlayer",
       "parentId": "world",
-      "order": 60,
+      "order": 62,
       "properties": {
         "stream": {
           "resourceId": "sfx.world.meadow-ambience"
@@ -27444,7 +27457,7 @@
     {
       "instanceId": "l1-ruin-wall-002",
       "name": "l1-ruin-wall-002",
-      "sceneId": "object.wall-stone-solid.corner-06",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "gen-ruins",
       "order": 1,
       "persistenceKey": "level-1.l1-ruin-wall-002",
@@ -27881,7 +27894,7 @@
     {
       "instanceId": "l1-ruin-wall-025",
       "name": "l1-ruin-wall-025",
-      "sceneId": "object.wall-stone-solid.corner-06",
+      "sceneId": "object.wall-stone-solid.corner-05",
       "parentNodeId": "gen-ruins",
       "order": 24,
       "persistenceKey": "level-1.l1-ruin-wall-025",
@@ -28905,30 +28918,11 @@
       ]
     },
     {
-      "instanceId": "l1-canvas-tent-001",
-      "name": "l1-canvas-tent-001",
-      "sceneId": "object.decoration-world-solid.canvas-tent",
-      "parentNodeId": "gen-town",
-      "order": 10,
-      "persistenceKey": "level-1.l1-canvas-tent-001",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            473.6,
-            1062.4
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "l1-wood-table-001",
       "name": "l1-wood-table-001",
       "sceneId": "object.decoration-world-solid.wood-table",
       "parentNodeId": "gen-town",
-      "order": 11,
+      "order": 10,
       "persistenceKey": "level-1.l1-wood-table-001",
       "overrides": [
         {
@@ -28947,7 +28941,7 @@
       "name": "l1-cooking-cauldron-001",
       "sceneId": "object.decoration-world-solid.cooking-cauldron",
       "parentNodeId": "gen-town",
-      "order": 12,
+      "order": 11,
       "persistenceKey": "level-1.l1-cooking-cauldron-001",
       "overrides": [
         {
@@ -28966,7 +28960,7 @@
       "name": "l1-hay-bale-001",
       "sceneId": "object.decoration-world-solid.hay-bale",
       "parentNodeId": "gen-town",
-      "order": 13,
+      "order": 12,
       "persistenceKey": "level-1.l1-hay-bale-001",
       "overrides": [
         {
@@ -28985,7 +28979,7 @@
       "name": "l1-anvil-001",
       "sceneId": "object.decoration-world-solid.anvil",
       "parentNodeId": "gen-town",
-      "order": 14,
+      "order": 13,
       "persistenceKey": "level-1.l1-anvil-001",
       "overrides": [
         {
@@ -29004,7 +28998,7 @@
       "name": "l1-grindstone-001",
       "sceneId": "object.decoration-world-solid.grindstone",
       "parentNodeId": "gen-town",
-      "order": 15,
+      "order": 14,
       "persistenceKey": "level-1.l1-grindstone-001",
       "overrides": [
         {
@@ -29019,30 +29013,11 @@
       ]
     },
     {
-      "instanceId": "l1-tool-bench-001",
-      "name": "l1-tool-bench-001",
-      "sceneId": "object.decoration-world-solid.tool-bench",
-      "parentNodeId": "gen-town",
-      "order": 16,
-      "persistenceKey": "level-1.l1-tool-bench-001",
-      "overrides": [
-        {
-          "sourceInstancePath": [],
-          "sourceNodeId": "body",
-          "property": "position",
-          "value": [
-            1241.6,
-            851.2
-          ]
-        }
-      ]
-    },
-    {
       "instanceId": "l1-haystack-001",
       "name": "l1-haystack-001",
       "sceneId": "object.decoration-world-solid.haystack",
       "parentNodeId": "gen-town",
-      "order": 17,
+      "order": 15,
       "persistenceKey": "level-1.l1-haystack-001",
       "overrides": [
         {
@@ -29061,7 +29036,7 @@
       "name": "l1-tool-bench-002",
       "sceneId": "object.decoration-world-solid.tool-bench",
       "parentNodeId": "gen-town",
-      "order": 18,
+      "order": 16,
       "persistenceKey": "level-1.l1-tool-bench-002",
       "overrides": [
         {
@@ -29080,7 +29055,7 @@
       "name": "l1-birdhouse-001",
       "sceneId": "object.decoration-world-solid.birdhouse",
       "parentNodeId": "gen-town",
-      "order": 19,
+      "order": 17,
       "persistenceKey": "level-1.l1-birdhouse-001",
       "overrides": [
         {
@@ -29099,7 +29074,7 @@
       "name": "l1-herb-planter-002",
       "sceneId": "object.decoration-world-solid.herb-planter",
       "parentNodeId": "gen-town",
-      "order": 20,
+      "order": 18,
       "persistenceKey": "level-1.l1-herb-planter-002",
       "overrides": [
         {
@@ -29118,7 +29093,7 @@
       "name": "l1-birdhouse-002",
       "sceneId": "object.decoration-world-solid.birdhouse",
       "parentNodeId": "gen-town",
-      "order": 21,
+      "order": 19,
       "persistenceKey": "level-1.l1-birdhouse-002",
       "overrides": [
         {
@@ -29137,7 +29112,7 @@
       "name": "l1-cottage-001",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "gen-town",
-      "order": 22,
+      "order": 20,
       "persistenceKey": "level-1.l1-cottage-001",
       "overrides": [
         {
@@ -29156,7 +29131,7 @@
       "name": "l1-round-house-001",
       "sceneId": "object.house-mushroom-round",
       "parentNodeId": "gen-town",
-      "order": 23,
+      "order": 21,
       "persistenceKey": "level-1.l1-round-house-001",
       "overrides": [
         {
@@ -29175,7 +29150,7 @@
       "name": "l1-palisade-gap-001",
       "sceneId": "object.decoration-world-solid.palisade-gap",
       "parentNodeId": "gen-town",
-      "order": 24,
+      "order": 22,
       "persistenceKey": "level-1.l1-palisade-gap-001",
       "overrides": [
         {
@@ -29194,7 +29169,7 @@
       "name": "l1-reinforced-fence-001",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 25,
+      "order": 23,
       "persistenceKey": "level-1.l1-reinforced-fence-001",
       "overrides": [
         {
@@ -29213,7 +29188,7 @@
       "name": "l1-reinforced-fence-002",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 26,
+      "order": 24,
       "persistenceKey": "level-1.l1-reinforced-fence-002",
       "overrides": [
         {
@@ -29232,7 +29207,7 @@
       "name": "l1-reinforced-fence-003",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 27,
+      "order": 25,
       "persistenceKey": "level-1.l1-reinforced-fence-003",
       "overrides": [
         {
@@ -29251,7 +29226,7 @@
       "name": "l1-reinforced-fence-004",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 28,
+      "order": 26,
       "persistenceKey": "level-1.l1-reinforced-fence-004",
       "overrides": [
         {
@@ -29270,7 +29245,7 @@
       "name": "l1-reinforced-fence-005",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 29,
+      "order": 27,
       "persistenceKey": "level-1.l1-reinforced-fence-005",
       "overrides": [
         {
@@ -29289,7 +29264,7 @@
       "name": "l1-palisade-gap-002",
       "sceneId": "object.decoration-world-solid.palisade-gap",
       "parentNodeId": "gen-town",
-      "order": 30,
+      "order": 28,
       "persistenceKey": "level-1.l1-palisade-gap-002",
       "overrides": [
         {
@@ -29308,7 +29283,7 @@
       "name": "l1-palisade-gap-003",
       "sceneId": "object.decoration-world-solid.palisade-gap",
       "parentNodeId": "gen-town",
-      "order": 31,
+      "order": 29,
       "persistenceKey": "level-1.l1-palisade-gap-003",
       "overrides": [
         {
@@ -29327,7 +29302,7 @@
       "name": "l1-reinforced-fence-006",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 32,
+      "order": 30,
       "persistenceKey": "level-1.l1-reinforced-fence-006",
       "overrides": [
         {
@@ -29346,7 +29321,7 @@
       "name": "l1-reinforced-fence-007",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 33,
+      "order": 31,
       "persistenceKey": "level-1.l1-reinforced-fence-007",
       "overrides": [
         {
@@ -29365,7 +29340,7 @@
       "name": "l1-reinforced-fence-008",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 34,
+      "order": 32,
       "persistenceKey": "level-1.l1-reinforced-fence-008",
       "overrides": [
         {
@@ -29384,7 +29359,7 @@
       "name": "l1-reinforced-fence-009",
       "sceneId": "object.decoration-world-solid.reinforced-fence",
       "parentNodeId": "gen-town",
-      "order": 35,
+      "order": 33,
       "persistenceKey": "level-1.l1-reinforced-fence-009",
       "overrides": [
         {
@@ -29403,7 +29378,7 @@
       "name": "l1-lantern-post-015",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "gen-town",
-      "order": 36,
+      "order": 34,
       "persistenceKey": "level-1.l1-lantern-post-015",
       "overrides": [
         {
@@ -29422,7 +29397,7 @@
       "name": "l1-lantern-post-016",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "gen-town",
-      "order": 37,
+      "order": 35,
       "persistenceKey": "level-1.l1-lantern-post-016",
       "overrides": [
         {
@@ -54021,6 +53996,1464 @@
           "sourceNodeId": "visual",
           "property": "flipX",
           "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "object-decoration-world-solid-cooking-cauldron",
+      "name": "cooking-cauldron",
+      "sceneId": "object.decoration-world-solid.cooking-cauldron",
+      "parentNodeId": "world",
+      "order": 59,
+      "persistenceKey": "world.level-1.object-decoration-world-solid-cooking-cauldron",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1414,
+            2862
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b488512a",
+      "name": "water-life-b488512a",
+      "sceneId": "object.water-life.fish-minnow-lane",
+      "parentNodeId": "water-life",
+      "order": 0,
+      "persistenceKey": "level-1.water-life-b488512a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            864,
+            2528
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ac7102ac",
+      "name": "water-life-ac7102ac",
+      "sceneId": "object.water-life.deep-fish-shadow-oval",
+      "parentNodeId": "water-life",
+      "order": 1,
+      "persistenceKey": "level-1.water-life-ac7102ac",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            608,
+            2592
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b4bfd650",
+      "name": "water-life-b4bfd650",
+      "sceneId": "object.water-life.fish-carp-lane",
+      "parentNodeId": "water-life",
+      "order": 2,
+      "persistenceKey": "level-1.water-life-b4bfd650",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            288,
+            2656
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-fcfb84ae",
+      "name": "water-life-fcfb84ae",
+      "sceneId": "object.water-life.fish-carp-oval",
+      "parentNodeId": "water-life",
+      "order": 3,
+      "persistenceKey": "level-1.water-life-fcfb84ae",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            800,
+            2720
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b3741fed",
+      "name": "water-life-b3741fed",
+      "sceneId": "object.water-life.fish-minnow-lane",
+      "parentNodeId": "water-life",
+      "order": 4,
+      "persistenceKey": "level-1.water-life-b3741fed",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            480,
+            2912
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-0e74fee9",
+      "name": "water-life-0e74fee9",
+      "sceneId": "object.water-life.fish-minnow-lane",
+      "parentNodeId": "water-life",
+      "order": 5,
+      "persistenceKey": "level-1.water-life-0e74fee9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            672,
+            3040
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-33f02efe",
+      "name": "water-life-33f02efe",
+      "sceneId": "object.water-life.fish-minnow-lane",
+      "parentNodeId": "water-life",
+      "order": 6,
+      "persistenceKey": "level-1.water-life-33f02efe",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            416,
+            3104
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-07b63f51",
+      "name": "water-life-07b63f51",
+      "sceneId": "object.water-life.lilypad-pink",
+      "parentNodeId": "water-life",
+      "order": 7,
+      "persistenceKey": "level-1.water-life-07b63f51",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1760.93,
+            53.57
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-68c79271",
+      "name": "water-life-68c79271",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 8,
+      "persistenceKey": "level-1.water-life-68c79271",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1741.67,
+            178
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-56890614",
+      "name": "water-life-56890614",
+      "sceneId": "object.water-life.frog-lilypad",
+      "parentNodeId": "water-life",
+      "order": 9,
+      "persistenceKey": "level-1.water-life-56890614",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1811.78,
+            237.52
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-cc3e8d6a",
+      "name": "water-life-cc3e8d6a",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 10,
+      "persistenceKey": "level-1.water-life-cc3e8d6a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1838.19,
+            434
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-37c16892",
+      "name": "water-life-37c16892",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 11,
+      "persistenceKey": "level-1.water-life-37c16892",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1738.09,
+            818
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-26531b2e",
+      "name": "water-life-26531b2e",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 12,
+      "persistenceKey": "level-1.water-life-26531b2e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1292.84,
+            882
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-cefa4711",
+      "name": "water-life-cefa4711",
+      "sceneId": "object.water-life.lilypad-small",
+      "parentNodeId": "water-life",
+      "order": 13,
+      "persistenceKey": "level-1.water-life-cefa4711",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1445.4,
+            883.42
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-2898ed14",
+      "name": "water-life-2898ed14",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 14,
+      "persistenceKey": "level-1.water-life-2898ed14",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1838.39,
+            882
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-a0678737",
+      "name": "water-life-a0678737",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 15,
+      "persistenceKey": "level-1.water-life-a0678737",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1325.3,
+            952.37
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-cf8db9a5",
+      "name": "water-life-cf8db9a5",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 16,
+      "persistenceKey": "level-1.water-life-cf8db9a5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1586.76,
+            946
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-afd5ce22",
+      "name": "water-life-afd5ce22",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 17,
+      "persistenceKey": "level-1.water-life-afd5ce22",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1734.62,
+            946
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-3553bb44",
+      "name": "water-life-3553bb44",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 18,
+      "persistenceKey": "level-1.water-life-3553bb44",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1846.41,
+            1010
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-8cd987f5",
+      "name": "water-life-8cd987f5",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 19,
+      "persistenceKey": "level-1.water-life-8cd987f5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1768.66,
+            1076.2
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7fb13097",
+      "name": "water-life-7fb13097",
+      "sceneId": "object.water-life.lilypad-pink",
+      "parentNodeId": "water-life",
+      "order": 20,
+      "persistenceKey": "level-1.water-life-7fb13097",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1827.84,
+            1137.84
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-98857694",
+      "name": "water-life-98857694",
+      "sceneId": "object.water-life.waterweed-bushy",
+      "parentNodeId": "water-life",
+      "order": 21,
+      "persistenceKey": "level-1.water-life-98857694",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1754.87,
+            1346.5
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-de7109fa",
+      "name": "water-life-de7109fa",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 22,
+      "persistenceKey": "level-1.water-life-de7109fa",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1846.41,
+            1330
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-2caf8230",
+      "name": "water-life-2caf8230",
+      "sceneId": "object.water-life.waterweed-bushy",
+      "parentNodeId": "water-life",
+      "order": 23,
+      "persistenceKey": "level-1.water-life-2caf8230",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1698.62,
+            1985.55
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-6f3c90d1",
+      "name": "water-life-6f3c90d1",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 24,
+      "persistenceKey": "level-1.water-life-6f3c90d1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1759.9,
+            1990
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7c1299de",
+      "name": "water-life-7c1299de",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 25,
+      "persistenceKey": "level-1.water-life-7c1299de",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1361.37,
+            2226
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-15eb6875",
+      "name": "water-life-15eb6875",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 26,
+      "persistenceKey": "level-1.water-life-15eb6875",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1296.09,
+            2290
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-419063ad",
+      "name": "water-life-419063ad",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 27,
+      "persistenceKey": "level-1.water-life-419063ad",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            393.49,
+            2354
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-becabd66",
+      "name": "water-life-becabd66",
+      "sceneId": "object.water-life.reeds-sedge",
+      "parentNodeId": "water-life",
+      "order": 28,
+      "persistenceKey": "level-1.water-life-becabd66",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            481.37,
+            2334
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-0a678af1",
+      "name": "water-life-0a678af1",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 29,
+      "persistenceKey": "level-1.water-life-0a678af1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            803.09,
+            2370.18
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7fcc349e",
+      "name": "water-life-7fcc349e",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 30,
+      "persistenceKey": "level-1.water-life-7fcc349e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1250.18,
+            2334
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d5ea9a0d",
+      "name": "water-life-d5ea9a0d",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 31,
+      "persistenceKey": "level-1.water-life-d5ea9a0d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1308.72,
+            2374
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-8eaaa949",
+      "name": "water-life-8eaaa949",
+      "sceneId": "object.water-life.lilypad-pink",
+      "parentNodeId": "water-life",
+      "order": 32,
+      "persistenceKey": "level-1.water-life-8eaaa949",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            479.67,
+            2427.6
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-bb115e9f",
+      "name": "water-life-bb115e9f",
+      "sceneId": "object.water-life.lilypad-small",
+      "parentNodeId": "water-life",
+      "order": 33,
+      "persistenceKey": "level-1.water-life-bb115e9f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            730.24,
+            2403.28
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-69b520a0",
+      "name": "water-life-69b520a0",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 34,
+      "persistenceKey": "level-1.water-life-69b520a0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            869.67,
+            2398
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-1e8191dc",
+      "name": "water-life-1e8191dc",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 35,
+      "persistenceKey": "level-1.water-life-1e8191dc",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            549.14,
+            2485.82
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-bf1a3427",
+      "name": "water-life-bf1a3427",
+      "sceneId": "object.water-life.lilypad-single",
+      "parentNodeId": "water-life",
+      "order": 36,
+      "persistenceKey": "level-1.water-life-bf1a3427",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            799.2,
+            2487.47
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-9525333e",
+      "name": "water-life-9525333e",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 37,
+      "persistenceKey": "level-1.water-life-9525333e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            929.61,
+            2462
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-53ded07c",
+      "name": "water-life-53ded07c",
+      "sceneId": "object.water-life.lilypad-small",
+      "parentNodeId": "water-life",
+      "order": 38,
+      "persistenceKey": "level-1.water-life-53ded07c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1195.07,
+            2479.47
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-959e6ac9",
+      "name": "water-life-959e6ac9",
+      "sceneId": "object.water-life.lilypad-white",
+      "parentNodeId": "water-life",
+      "order": 39,
+      "persistenceKey": "level-1.water-life-959e6ac9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            301.76,
+            2529.09
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-3ae06ee4",
+      "name": "water-life-3ae06ee4",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 40,
+      "persistenceKey": "level-1.water-life-3ae06ee4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            724.76,
+            2561.4
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-4e0fa523",
+      "name": "water-life-4e0fa523",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 41,
+      "persistenceKey": "level-1.water-life-4e0fa523",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            412.2,
+            2606.53
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-727425cf",
+      "name": "water-life-727425cf",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 42,
+      "persistenceKey": "level-1.water-life-727425cf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            218.1,
+            2670.8
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-c81aaf8a",
+      "name": "water-life-c81aaf8a",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 43,
+      "persistenceKey": "level-1.water-life-c81aaf8a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            478.18,
+            2679.86
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-0dce09de",
+      "name": "water-life-0dce09de",
+      "sceneId": "object.water-life.lilypad-white",
+      "parentNodeId": "water-life",
+      "order": 44,
+      "persistenceKey": "level-1.water-life-0dce09de",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            861.18,
+            2669.08
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d1f08c49",
+      "name": "water-life-d1f08c49",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 45,
+      "persistenceKey": "level-1.water-life-d1f08c49",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1011.65,
+            2674
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-b8ee674c",
+      "name": "water-life-b8ee674c",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 46,
+      "persistenceKey": "level-1.water-life-b8ee674c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            936.94,
+            2728.07
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d7135eb6",
+      "name": "water-life-d7135eb6",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 47,
+      "persistenceKey": "level-1.water-life-d7135eb6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            739.46,
+            2804.48
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-3684a508",
+      "name": "water-life-3684a508",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 48,
+      "persistenceKey": "level-1.water-life-3684a508",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            869.66,
+            2814.37
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-2b1034af",
+      "name": "water-life-2b1034af",
+      "sceneId": "object.water-life.lilypad-pink",
+      "parentNodeId": "water-life",
+      "order": 49,
+      "persistenceKey": "level-1.water-life-2b1034af",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            930.7,
+            2793.19
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-011c04cb",
+      "name": "water-life-011c04cb",
+      "sceneId": "object.water-life.waterweed-bushy",
+      "parentNodeId": "water-life",
+      "order": 50,
+      "persistenceKey": "level-1.water-life-011c04cb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            216.05,
+            2877.94
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-53cda05c",
+      "name": "water-life-53cda05c",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 51,
+      "persistenceKey": "level-1.water-life-53cda05c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            622.81,
+            2912.58
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-4cf6fedf",
+      "name": "water-life-4cf6fedf",
+      "sceneId": "object.water-life.lilypad-pink",
+      "parentNodeId": "water-life",
+      "order": 52,
+      "persistenceKey": "level-1.water-life-4cf6fedf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            863.57,
+            2928.96
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-c0d237b0",
+      "name": "water-life-c0d237b0",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 53,
+      "persistenceKey": "level-1.water-life-c0d237b0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1870.34,
+            2930
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-2da44f66",
+      "name": "water-life-2da44f66",
+      "sceneId": "object.water-life.reeds-rushes",
+      "parentNodeId": "water-life",
+      "order": 54,
+      "persistenceKey": "level-1.water-life-2da44f66",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2016.01,
+            2910
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-6db16f9d",
+      "name": "water-life-6db16f9d",
+      "sceneId": "object.water-life.frog-lilypad",
+      "parentNodeId": "water-life",
+      "order": 55,
+      "persistenceKey": "level-1.water-life-6db16f9d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            293.43,
+            2998.09
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-cb7a546e",
+      "name": "water-life-cb7a546e",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 56,
+      "persistenceKey": "level-1.water-life-cb7a546e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            855.41,
+            2991.72
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-012eebb5",
+      "name": "water-life-012eebb5",
+      "sceneId": "object.water-life.waterweed-bushy",
+      "parentNodeId": "water-life",
+      "order": 57,
+      "persistenceKey": "level-1.water-life-012eebb5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            814.76,
+            3060.61
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-5a66c70f",
+      "name": "water-life-5a66c70f",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 58,
+      "persistenceKey": "level-1.water-life-5a66c70f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            278.71,
+            3130.29
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-d3914c83",
+      "name": "water-life-d3914c83",
+      "sceneId": "object.water-life.waterweed-bushy",
+      "parentNodeId": "water-life",
+      "order": 59,
+      "persistenceKey": "level-1.water-life-d3914c83",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            664.25,
+            3111.14
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-7a9a8a82",
+      "name": "water-life-7a9a8a82",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 60,
+      "persistenceKey": "level-1.water-life-7a9a8a82",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            748.71,
+            3132.95
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-8c4d0fc4",
+      "name": "water-life-8c4d0fc4",
+      "sceneId": "object.water-life.reeds-cattails",
+      "parentNodeId": "water-life",
+      "order": 61,
+      "persistenceKey": "level-1.water-life-8c4d0fc4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            459.73,
+            3186
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-ea8dbac7",
+      "name": "water-life-ea8dbac7",
+      "sceneId": "object.water-life.waterweed-eelgrass",
+      "parentNodeId": "water-life",
+      "order": 62,
+      "persistenceKey": "level-1.water-life-ea8dbac7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            615.16,
+            3175.51
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-176ea58d",
+      "name": "water-life-176ea58d",
+      "sceneId": "object.water-life.reeds-reeds",
+      "parentNodeId": "water-life",
+      "order": 63,
+      "persistenceKey": "level-1.water-life-176ea58d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            545.86,
+            3270
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-2f97eb79",
+      "name": "water-life-2f97eb79",
+      "sceneId": "object.water-life.lilypad-single",
+      "parentNodeId": "water-life",
+      "order": 64,
+      "persistenceKey": "level-1.water-life-2f97eb79",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            613.16,
+            3252.19
+          ]
         }
       ]
     }

@@ -40,6 +40,7 @@ class FakeObject {
   fillRoundedRect() { return this; }
   lineStyle() { return this; }
   strokeRoundedRect() { return this; }
+  lineBetween() { return this; }
   setOrigin() { return this; }
   setDepth() { return this; }
   setScale() { return this; }
@@ -80,33 +81,34 @@ test('the router displays and executes only the highest-priority candidate', () 
   });
 
   router.update();
-  assert.equal(prompt.text, 'High');
+  assert.equal(prompt.text, 'Right-click: High');
   assert.equal(prompt.visible, true);
   assert.equal(router.handleInteract(), true);
   assert.deepEqual(executed, ['high']);
 
   unregisterHigh();
   router.update();
-  assert.equal(prompt.text, 'Low');
+  assert.equal(prompt.text, 'Right-click: Low');
   router.handleInteract();
   assert.deepEqual(executed, ['high', 'low']);
   router.destroy();
 });
 
-test('a candidate anchor shows the key badge above its target and a secondary action runs on G', () => {
+test('a candidate anchor shows the key badge above its target and a secondary action runs on hold', () => {
   const { router, prompt, badge } = harness();
   const executed = [];
   router.register('bench', {
     getCandidate: () => ({
-      id: 'bench:one', prompt: '[F] Use workbench', priority: 50,
+      id: 'bench:one', prompt: 'Use workbench', priority: 50,
       anchor: () => ({ x: 320, y: 200 }),
-      secondary: { prompt: '[G] Pick up', execute: () => { executed.push('pick-up'); return true; } },
+      secondary: { prompt: 'Pick up', execute: () => { executed.push('pick-up'); return true; } },
       execute: () => { executed.push('use'); return true; },
     }),
   });
 
   router.update();
-  assert.match(prompt.text, /\[F\] Use workbench.*\[G\] Pick up/);
+  assert.match(prompt.text, /^Right-click: Use workbench\s+Hold: Pick up$/);
+  assert.equal(router.hasSecondary(), true);
   assert.equal(badge().visible, true);
   assert.equal(badge().x, 320);
   assert.equal(router.handleSecondary(), true);
@@ -119,13 +121,37 @@ test('a candidate anchor shows the key badge above its target and a secondary ac
   router.destroy();
 });
 
+test('the pointer picks the target it is on, even when another is nearer or more important', () => {
+  const { router, prompt } = harness();
+  const executed = [];
+  router.register('npcs', {
+    getCandidate: () => undefined,
+    getCandidates: () => [
+      { id: 'npcs:near', prompt: 'Talk to Near', priority: 100, origin: () => ({ x: 100, y: 100 }), execute: () => { executed.push('near'); return true; } },
+      { id: 'npcs:far', prompt: 'Talk to Far', priority: 50, origin: () => ({ x: 300, y: 100 }), execute: () => { executed.push('far'); return true; } },
+    ],
+  });
+
+  router.update({ x: 310, y: 90 });
+  assert.equal(prompt.text, 'Right-click: Talk to Far');
+  router.handleInteract();
+  router.update({ x: 600, y: 600 });
+  assert.equal(prompt.text, 'Right-click: Talk to Near', 'with nothing pointed at, the best target');
+  router.handleInteract();
+  router.update();
+  assert.equal(prompt.text, 'Right-click: Talk to Near', 'no pointer yet: the best target');
+  assert.deepEqual(executed, ['far', 'near']);
+  router.destroy();
+});
+
 test('WorldScene delegates authored interactions only through the shared router', () => {
   const source = fs.readFileSync(path.join(process.cwd(), 'src/game/scenes/WorldScene.ts'), 'utf8');
   const methodStart = source.indexOf('private handleActionInput');
-  const methodEnd = source.indexOf('private updateMovement', methodStart);
+  const methodEnd = source.indexOf('private updateInteractHold', methodStart);
   const method = source.slice(methodStart, methodEnd);
-  const candidateCheck = method.indexOf('this.interactionRouter?.hasCandidate()');
-  const routerCall = method.indexOf('this.interactionRouter.handleInteract()');
+  assert.match(method, /const router = this\.interactionRouter;/);
+  const candidateCheck = method.indexOf('router?.hasCandidate()');
+  const routerCall = method.indexOf('router.handleInteract()');
   assert.ok(candidateCheck >= 0 && routerCall > candidateCheck);
   assert.doesNotMatch(method, /houseSystem|tryOpenShopNearby|spawnFriend/);
 });

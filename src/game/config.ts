@@ -13,7 +13,10 @@ import { sceneDocuments, sceneResourceDocuments } from 'virtual-scene-content';
 import { sceneId } from './content/scenes/identifiers';
 import { itemRegistry } from './systems/Inventory';
 import { redirectLegacyStudioRoute } from './editor/scene-studio/SceneStudioRoute';
+import { hideBootLoader, removeBootLoader, showBootLoader } from './presentation/BootLoader';
 import { GAME_SHELL_SCENE_IDS } from './features/shell/GameShell';
+import { controlRows } from './features/shell/ControlsSurfacePort';
+import { loadKeyboardLayoutLabels } from './features/player/ControlLabels';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
   const legacyStudioRoute = import.meta.env.DEV
@@ -25,15 +28,21 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   const sceneStudio = import.meta.env.DEV
     && new URLSearchParams(window.location.search).get('studio') === 'scenes';
   if (sceneStudio) {
+    removeBootLoader();
     document.title = 'Scene Studio — Field Cartographer';
     const { mountSceneStudio } = await import('./editor/scene-studio/SceneStudio');
     mountSceneStudio(container);
     return undefined;
   }
   const modalStack = new ModalStack();
+  // Key labels follow the player's keyboard layout where the browser reports it (AZERTY shows Z Q S D).
+  await loadKeyboardLayoutLabels();
   const devPanel = import.meta.env.DEV ? createDevToolsPanel() : '';
 
+  // A startup prompt (dev `?map=` recovery choice) needs the screen; the loader returns for scene preparation.
+  hideBootLoader();
   await prepareRunStartup(container);
+  showBootLoader();
 
   const preparedSceneContent = await PreparedSceneContent.prepare({
         scenes: sceneDocuments,
@@ -102,6 +111,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('ui.world-map-ui'),
           ...GAME_SHELL_SCENE_IDS.map((id) => sceneId(id)),
           sceneId('ui.control-hint'),
+          sceneId('ui.menu-tabs'),
           sceneId('ui.minimap'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
@@ -116,24 +126,8 @@ ${import.meta.env.DEV ? `
         <details class="keymap-panel">
           <summary>Controls</summary>
           <table>
-            <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
-            <tr><td class="k">Mouse Wheel</td><td>Zoom camera</td></tr>
-            <tr><td class="k">E / Click</td><td>Attack</td></tr>
-            <tr><td class="k">Q</td><td>Roll / dodge (i-frames)</td></tr>
-            <tr><td class="k">Space</td><td>Jump <span class="lock">Quest</span></td></tr>
-            <tr><td class="k">T</td><td>Squash Slam <span class="lock">Boss</span></td></tr>
-            <tr><td class="k">R</td><td>Stretch Lash <span class="lock">Quest</span></td></tr>
-            <tr><td class="k">Y</td><td>Teleport <span class="lock">Later</span></td></tr>
-            <tr><td class="k">F</td><td>Interact</td></tr>
-            <tr><td class="k">G</td><td>Pick up placed furniture</td></tr>
-            <tr><td class="k">W</td><td>Gulp: tap to eat a Gulp material or burp a form; hold for the quick wheel</td></tr>
-            <tr><td class="k">1–6</td><td>Equip inventory weapon</td></tr>
-            <tr><td class="k">Tab</td><td>Inventory</td></tr>
-            <tr><td class="k">M</td><td>World Map</td></tr>
-            <tr><td class="k">U</td><td>Quest Book</td></tr>
-            <tr><td class="k">C</td><td>Crafting</td></tr>
-            <tr><td class="k">Esc</td><td>Pause menu</td></tr>
-            <tr><td class="k">Shift + 1–8</td><td>Debug cheats</td></tr>
+            ${controlRows().map(([key, action]) => `<tr><td class="k">${key}</td><td>${action}</td></tr>`).join('\n            ')}
+            <tr><td class="k">Dev panel</td><td>Cheats and the attack-direction test</td></tr>
           </table>
         </details>
         ` : ''}

@@ -149,6 +149,8 @@ test('Chapter 1 teaches Jump from Worm Trouble and rewards no XP', () => {
   assert.deepEqual(quests.find((entry) => entry.id === 'worm-trouble').rewards.abilityIds, ['jump']);
   assert.equal(quests.some((entry) => 'xp' in entry.rewards), false);
   assert.throws(() => validateQuestCatalog([quest('bad-ability', { rewards: { abilityIds: ['fly'] } })]), /unknown ability 'fly'/);
+  assert.doesNotThrow(() => validateQuestCatalog([quest('teach-trail', { rewards: { abilityIds: ['goo-trail'] } })]), 'the passive Goo Trail is teachable');
+  assert.equal(quests.some((entry) => entry.rewards.abilityIds?.includes('goo-trail')), false, 'no quest teaches the Goo Trail yet');
   assert.throws(() => validateQuestCatalog([quest('old-xp', { rewards: { xp: 10 } })]), /XP was retired/);
 });
 
@@ -162,6 +164,6 @@ test('saves accept an optional story block and reject a malformed one', () => {
 });
 
 test('reward text lists items, learned recipes and learned abilities', () => {
-  const lines = questRewardLines({ coins: 20, items: [{ itemId: 'wood', count: 10 }], recipeIds: ['craft-wooden-spear'], abilityIds: ['jump'] });
-  assert.deepEqual(lines, ['20 coins', '10× Wood', 'New recipe: Wooden Spear', 'New ability: Jump']);
+  const lines = questRewardLines({ coins: 20, items: [{ itemId: 'wood', count: 10 }], recipeIds: ['craft-wooden-spear'], abilityIds: ['jump', 'goo-trail'] });
+  assert.deepEqual(lines, ['20 coins', '10× Wood', 'New recipe: Wooden Spear', 'New ability: Jump', 'New ability: Goo Trail']);
 });

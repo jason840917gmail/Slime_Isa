@@ -31,7 +31,7 @@ function costsOf(value: JsonValue | undefined): readonly RestorationCost[] {
 }
 
 /**
- * A ruined building the player rebuilds (roadmap 6.3): press F nearby to pay its
+ * A ruined building the player rebuilds (roadmap 6.3): interacting nearby pays its
  * materials. Restoring sets `flagId`; a `game.story-variant` on the same flag then
  * swaps the ruin for the restored building, and `objectId` is reported to quests
  * (`activate-object`). With `questId` set, only a player on that quest can

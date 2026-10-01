@@ -72,6 +72,8 @@ export interface ManagedEnemyDefeat {
 export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
   private weapon?: NormalizedWeaponDefinition;
+  /** Set while a picked harvest tool swings: the weapon to put back when the swing ends. */
+  private restoreAfterToolSwing?: { readonly weaponId: string | null };
   private combo: ComboSystem;
   private spawner?: AuthoredEnemyPopulationController;
   private comboText: Phaser.GameObjects.Text;
@@ -171,6 +173,33 @@ export class CombatController {
     return attacked;
   }
 
+  /**
+   * One swing of a harvest tool picked for the tree or rock in front (roadmap
+   * 4.10): the tool is mounted for this swing only, then the equipped weapon
+   * comes back. The belt and the HUD never change.
+   */
+  tryToolAttack(toolId: string): boolean {
+    if (this.attacking || !this.ctx.canAttack()) return false;
+    const previous = this.weapon?.weaponId ?? null;
+    if (previous === toolId) return this.tryAttack();
+    if (!this.equipWeapon(toolId)) return false;
+    if (this.tryAttack()) {
+      this.restoreAfterToolSwing = { weaponId: previous };
+      return true;
+    }
+    this.restoreWeapon(previous);
+    return false;
+  }
+
+  private restoreWeapon(weaponId: string | null): void {
+    if (weaponId) {
+      this.equipWeapon(weaponId);
+      return;
+    }
+    this.weapon = undefined;
+    this.ctx.clearManagedWeapon();
+  }
+
   equipWeapon(weaponId: string): boolean {
     if (this.attacking || weaponId === this.weapon?.weaponId) return !this.attacking;
     let next: NormalizedWeaponDefinition;
@@ -252,6 +281,9 @@ export class CombatController {
     this.attacking = false;
     this.ctx.setActionLocked(false);
     this.ctx.playCharacterAction('idle');
+    const restore = this.restoreAfterToolSwing;
+    this.restoreAfterToolSwing = undefined;
+    if (restore) this.restoreWeapon(restore.weaponId);
   }
 
   private safeZones(): MapEnemySafeZone[] {

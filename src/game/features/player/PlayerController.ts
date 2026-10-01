@@ -61,7 +61,7 @@ export class PlayerController {
       return;
     }
     const statusEffects = this.ctx.getStatusEffects();
-    const wantsBoost = this.ctx.getInput().isActionPressed('boost');
+    const wantsBoost = this.ctx.getInput().isActionPressed('sprint');
     const stats = getStats();
     const baseSpeed = wantsBoost
       ? PLAYER_CONFIG.movement.boostSpeed + gameState.boostBonus
@@ -94,26 +94,36 @@ export class PlayerController {
       Math.abs(direction.x) >= Math.abs(direction.y) && direction.x > 0,
     );
 
-    if (wantsBoost) this.ctx.playAnimation('slime-roll');
-    else if (Math.abs(direction.y) > Math.abs(direction.x)) {
+    // Sprinting walks faster with the walk animations: the roll belongs to the dodge only.
+    if (Math.abs(direction.y) > Math.abs(direction.x)) {
       this.ctx.playAnimation(direction.y < 0 ? 'slime-stretch' : 'slime-hop');
     } else this.ctx.playAnimation('slime-walk');
   }
 
-  tryDodge(direction: Phaser.Math.Vector2): boolean {
+  /** Turns the slime to `direction` (a unit vector), as a swing or a roll does. */
+  face(direction: Readonly<{ x: number; y: number }>): void {
+    if (direction.x === 0 && direction.y === 0) return;
+    this.facing.set(direction.x, direction.y).normalize();
+    this.ctx.visual.setFlipX(Math.abs(direction.x) >= Math.abs(direction.y) && direction.x > 0);
+  }
+
+  /** Rolls along `direction` (already snapped to 4 directions by the caller). */
+  tryDodge(direction: Readonly<{ x: number; y: number }>): boolean {
     const scene = this.ctx.scene;
     const player = this.ctx.player;
-    const dodgeDirection = direction.lengthSq() > 0
-      ? direction.clone().normalize()
-      : this.facing.clone().normalize();
+    const dodgeDirection = new Phaser.Math.Vector2(direction.x, direction.y);
+    if (dodgeDirection.lengthSq() === 0) dodgeDirection.copy(this.facing);
     if (dodgeDirection.lengthSq() === 0) dodgeDirection.set(1, 0);
+    dodgeDirection.normalize();
 
-    const dodgeSpeed = resolveMovementSpeed(PLAYER_CONFIG.movement.dodgeSpeed);
+    const { dodgeSpeed, dodgeDurationMs, dodgeInvulnerabilityMs } = PLAYER_CONFIG.movement;
     if (!this.ctx.getMotion().beginDodge(
       dodgeDirection,
-      dodgeSpeed,
-      PLAYER_CONFIG.movement.dodgeInvulnerabilityMs,
+      resolveMovementSpeed(dodgeSpeed),
+      dodgeDurationMs,
+      dodgeInvulnerabilityMs,
     )) return false;
+    this.face(dodgeDirection);
     this.ctx.playAnimation('slime-roll');
     gameEvents.emit('player.action', { anim: 'dodge' });
 

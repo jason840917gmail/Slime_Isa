@@ -4,6 +4,7 @@ import { worldProgress } from '../progression/WorldProgress';
 import { AREAS, type AreaId } from '../../world/Area';
 import type { ModalHandle, ModalStack } from '../../ui/ModalStack';
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
+import { isControlCode } from '../player/PlayerInputActions';
 
 export interface WorldMapSurfaceOptions {
   readonly modalStack: ModalStack;
@@ -96,7 +97,7 @@ export class WorldMapSurfacePort implements UiSurfacePort {
   }
 
   private readonly handleMapShortcut = (event: KeyboardEvent): void => {
-    if (event.key.toLowerCase() !== 'm' || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
+    if (!isControlCode('map', event.code) || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
     if (!this.openValue && this.options.modalStack.hasActiveSurface()) return;
     if (!this.openValue && event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable]')) return;
     this.toggle();

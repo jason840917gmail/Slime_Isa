@@ -123,6 +123,19 @@
           32
         ]
       }
+    },
+    {
+      "id": "water-life",
+      "name": "Water Life",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 389,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
     }
   ],
   "instances": [
@@ -11710,6 +11723,448 @@
           "sourceNodeId": "script",
           "property": "instanceId",
           "value": "collectible-purple-berry-70e609a1"
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-dbfb7e91",
+      "name": "water-life-dbfb7e91",
+      "sceneId": "object.water-life.deep-fish-shadow-oval",
+      "parentNodeId": "water-life",
+      "order": 0,
+      "persistenceKey": "174.water-life-dbfb7e91",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1376,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-bdc47bca",
+      "name": "water-life-bdc47bca",
+      "sceneId": "object.water-life.fish-koi-oval",
+      "parentNodeId": "water-life",
+      "order": 1,
+      "persistenceKey": "174.water-life-bdc47bca",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1568,
+            1504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-f9cc19ed",
+      "name": "water-life-f9cc19ed",
+      "sceneId": "object.water-life.fish-carp-oval",
+      "parentNodeId": "water-life",
+      "order": 2,
+      "persistenceKey": "174.water-life-f9cc19ed",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1696,
+            1696
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-5f6ae1ca",
+      "name": "water-life-5f6ae1ca",
+      "sceneId": "object.water-life.fish-minnow-oval",
+      "parentNodeId": "water-life",
+      "order": 3,
+      "persistenceKey": "174.water-life-5f6ae1ca",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1376,
+            1760
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-2353c362",
+      "name": "water-life-2353c362",
+      "sceneId": "object.water-life.fish-perch-lane",
+      "parentNodeId": "water-life",
+      "order": 4,
+      "persistenceKey": "174.water-life-2353c362",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1504,
+            1888
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-73317499",
+      "name": "water-life-73317499",
+      "sceneId": "object.water-life.deep-fish-shadow-oval",
+      "parentNodeId": "water-life",
+      "order": 5,
+      "persistenceKey": "174.water-life-73317499",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1568,
+            1952
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-63be285f",
+      "name": "water-life-63be285f",
+      "sceneId": "object.water-life.fish-perch-lane",
+      "parentNodeId": "water-life",
+      "order": 6,
+      "persistenceKey": "174.water-life-63be285f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1376,
+            2016
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-975f71e9",
+      "name": "water-life-975f71e9",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 7,
+      "persistenceKey": "174.water-life-975f71e9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1688.9,
+            1447.5
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-73dce835",
+      "name": "water-life-73dce835",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 8,
+      "persistenceKey": "174.water-life-73dce835",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1256.73,
+            1520.27
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-c766385d",
+      "name": "water-life-c766385d",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 9,
+      "persistenceKey": "174.water-life-c766385d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1390.59,
+            1530.61
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-e46b897e",
+      "name": "water-life-e46b897e",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 10,
+      "persistenceKey": "174.water-life-e46b897e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1190.26,
+            1590.18
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-4a9cad5f",
+      "name": "water-life-4a9cad5f",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 11,
+      "persistenceKey": "174.water-life-4a9cad5f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1494.32,
+            1593.73
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-0f690380",
+      "name": "water-life-0f690380",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 12,
+      "persistenceKey": "174.water-life-0f690380",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1389.71,
+            1653.35
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-00912482",
+      "name": "water-life-00912482",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 13,
+      "persistenceKey": "174.water-life-00912482",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1558.26,
+            1658.09
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-0c2de545",
+      "name": "water-life-0c2de545",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 14,
+      "persistenceKey": "174.water-life-0c2de545",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1629.81,
+            1637.25
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-9eab575a",
+      "name": "water-life-9eab575a",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 15,
+      "persistenceKey": "174.water-life-9eab575a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1170.16,
+            1776.35
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-9610eb16",
+      "name": "water-life-9610eb16",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 16,
+      "persistenceKey": "174.water-life-9610eb16",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1240.49,
+            1769.73
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-bec502e5",
+      "name": "water-life-bec502e5",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 17,
+      "persistenceKey": "174.water-life-bec502e5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1564.09,
+            1783.78
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-37cb28b4",
+      "name": "water-life-37cb28b4",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 18,
+      "persistenceKey": "174.water-life-37cb28b4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1836.37,
+            1755.47
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-055b4fb8",
+      "name": "water-life-055b4fb8",
+      "sceneId": "object.water-life.kelp-teal",
+      "parentNodeId": "water-life",
+      "order": 19,
+      "persistenceKey": "174.water-life-055b4fb8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1574.02,
+            1858.8
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "flipX",
+          "value": true
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-f37ea057",
+      "name": "water-life-f37ea057",
+      "sceneId": "object.water-life.kelp-olive",
+      "parentNodeId": "water-life",
+      "order": 20,
+      "persistenceKey": "174.water-life-f37ea057",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1708.81,
+            1894.69
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "water-life-e38a1d3a",
+      "name": "water-life-e38a1d3a",
+      "sceneId": "object.water-life.bubbles",
+      "parentNodeId": "water-life",
+      "order": 21,
+      "persistenceKey": "174.water-life-e38a1d3a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            1373.34,
+            1975.41
+          ]
         }
       ]
     }

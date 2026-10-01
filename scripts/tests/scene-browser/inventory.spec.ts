@@ -18,8 +18,9 @@ test('authored inventory owns its modal, item actions, focus, and cleanup', asyn
 
   const previousFocus = page.locator('#fixture-control');
   await previousFocus.focus();
-  await page.keyboard.press('Tab');
+  await page.keyboard.press('e');
   await expect(inventory).toBeVisible();
+  await expect(root.locator('.game-ui--menu-tabs')).toBeVisible();
   await expect.poll(() => page.evaluate(() => window.sceneFixture.snapshot().universalRuntimePaused)).toBe(true);
   await expect.poll(() => page.evaluate(() => document.activeElement?.closest('.game-ui--inventory-ui') !== null)).toBe(true);
   console.log('inventory bounds', await inventory.evaluate((element) => ({ box: element.getBoundingClientRect().toJSON(), viewport: element.closest('[data-scene-ui-root]')?.getBoundingClientRect().toJSON() })));

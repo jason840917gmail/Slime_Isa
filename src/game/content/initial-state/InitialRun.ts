@@ -3,6 +3,7 @@ import { createInitialQuestStates } from '../quests/QuestCatalog';
 import type { GameLocationData, GameSaveData } from '../../infrastructure/persistence/SaveSchema';
 import { PLAYER_CONFIG } from '../player';
 import { GAME_CONSTANTS } from '../../Constant';
+import { WEAPON_HOTBAR_SLOT_COUNT } from '../../core/types';
 import level1Map from '../maps/level-1.map.json' with { type: 'json' };
 
 const INITIAL_MAP_ID = level1Map.mapId;
@@ -19,7 +20,7 @@ const INITIAL_PLAYER: GameStateData = {
   attributes: { ...PLAYER_CONFIG.attributes },
   equipment: {
     weaponId: null,
-    weaponSlots: [null, null, null, null, null, null],
+    weaponSlots: Array.from({ length: WEAPON_HOTBAR_SLOT_COUNT }, () => null),
   },
 };
 

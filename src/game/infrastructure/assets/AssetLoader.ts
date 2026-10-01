@@ -8,7 +8,7 @@
  */
 import type Phaser from 'phaser';
 
-import { getBundleAssetIds, getAsset, type BundleName } from './manifest';
+import { getBundleAssetIds, getAsset, type AssetId, type BundleName } from './manifest';
 import { resolveAssetUrl, tryResolveAudioUrl } from './assetUrls';
 
 type LoadableSource =
@@ -24,26 +24,45 @@ type LoadableSource =
 
 /** Queues Phaser loads for every file-based asset in the bundle. Call in preload(). */
 export function loadAssetBundle(scene: Phaser.Scene, bundleName: BundleName): void {
-  for (const assetId of getBundleAssetIds(bundleName)) {
+  queueAssets(scene, getBundleAssetIds(bundleName));
+}
+
+/**
+ * Queues Phaser loads for the given assets, skipping any already loaded.
+ * In preload() the loader starts by itself; elsewhere call `scene.load.start()`.
+ * Returns how many files were queued.
+ */
+export function queueAssets(scene: Phaser.Scene, assetIds: readonly AssetId[]): number {
+  let queued = 0;
+  for (const assetId of assetIds) {
     const asset = getAsset(assetId);
     const source = asset.source as LoadableSource;
     const { runtime } = asset;
 
     switch (source.kind) {
       case 'image':
+        if (scene.textures.exists(runtime.textureKey)) break;
         scene.load.image(runtime.textureKey, resolveAssetUrl(source.path));
+        queued += 1;
         break;
       case 'spritesheet':
+        if (scene.textures.exists(runtime.textureKey)) break;
         scene.load.spritesheet(runtime.textureKey, resolveAssetUrl(source.path), {
           frameWidth: source.frame.w,
           frameHeight: source.frame.h,
         });
+        queued += 1;
         break;
       case 'audio': {
+        if (scene.cache.audio.exists(runtime.textureKey)) break;
         const path = source.path;
         const url = tryResolveAudioUrl(path);
-        if (url) scene.load.audio(runtime.textureKey, url);
-        else console.warn(`No bundled URL for audio asset '${assetId}' at '${path}'; the cue stays silent.`);
+        if (url) {
+          scene.load.audio(runtime.textureKey, url);
+          queued += 1;
+        } else {
+          console.warn(`No bundled URL for audio asset '${assetId}' at '${path}'; the cue stays silent.`);
+        }
         break;
       }
       default:
@@ -51,6 +70,7 @@ export function loadAssetBundle(scene: Phaser.Scene, bundleName: BundleName): vo
         break;
     }
   }
+  return queued;
 }
 
 /**
@@ -62,9 +82,14 @@ export function assertAssetBundleTextures(
   scene: Phaser.Scene,
   bundleName: BundleName,
 ): void {
+  assertAssetsLoaded(scene, getBundleAssetIds(bundleName), `Asset bundle '${bundleName}'`);
+}
+
+/** Like `assertAssetBundleTextures`, for any list of assets (`what` names them in the error). */
+export function assertAssetsLoaded(scene: Phaser.Scene, assetIds: readonly AssetId[], what: string): void {
   const missing: string[] = [];
 
-  for (const assetId of getBundleAssetIds(bundleName)) {
+  for (const assetId of assetIds) {
     const asset = getAsset(assetId);
 
     if (asset.source.kind === 'derived') {
@@ -83,6 +108,6 @@ export function assertAssetBundleTextures(
   }
 
   if (missing.length > 0) {
-    throw new Error(`Asset bundle '${bundleName}' failed to load: ${missing.join(', ')}`);
+    throw new Error(`${what} failed to load: ${missing.join(', ')}`);
   }
 }

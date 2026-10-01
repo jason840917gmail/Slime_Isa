@@ -7,7 +7,15 @@
  * so source art and experiments never enter Vite's asset graph.
  */
 const ASSET_URLS = import.meta.glob(
-  ['/asset/**/*.png', '/asset/**/*.webp', '!/asset/Originals/**', '!/asset/MAPS/FOREST/ChatGPT*.png'],
+  [
+    '/asset/**/*.png',
+    '/asset/**/*.webp',
+    '!/asset/Originals/**',
+    '!/asset/characters/authored/npcs/128X128_6X5_village-elder-plop.png',
+    '!/asset/MAPS/enemies/64x64-8x10-spider_slime.png',
+    '!/asset/MAPS/FOREST/ChatGPT*.png',
+    '!/asset/MAPS/walls/stone-wall-networks-source.png',
+  ],
   { eager: true, query: '?url', import: 'default' },
 ) as Record<string, string>;
 

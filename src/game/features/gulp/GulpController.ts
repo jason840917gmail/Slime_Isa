@@ -1,4 +1,5 @@
 import { GULP_FORMS, gulpFormForMaterial, type GulpFormDefinition } from '../../content/gulp/gulpForms';
+import { controlLabel } from '../player/ControlLabels';
 
 export interface GulpPoint {
   readonly x: number;
@@ -10,7 +11,7 @@ export interface GulpSpot extends GulpPoint {
   readonly materialItemId: string;
   /** Distance from the spot within which W eats from it. */
   readonly radius: number;
-  /** How far above the spot its "[W] Gulp" hint floats. */
+  /** How far above the spot its "[Q] Gulp" hint floats. */
   readonly badgeRise?: number;
 }
 
@@ -41,10 +42,10 @@ export interface GulpWheelEntry {
 export type GulpEatResult = 'spot' | 'inventory' | 'burp' | 'nothing';
 
 /**
- * The slime's mouth (W). Tap near a Gulp spot to eat from the world for free;
- * tap elsewhere to eat the last-used Gulp material from the inventory; tap
- * while in a form, away from a spot, to burp the form away. Holding W opens the
- * quick wheel (`wheelEntries`, `eatMaterial`). A form ends by itself after
+ * The slime's mouth (the `eat` control, Q). Tap near a Gulp spot to eat from the world for free;
+ * tap while in a form, away from a spot, to burp the form away; a tap anywhere
+ * else only says how to gulp. Carried materials are eaten from the quick wheel
+ * (hold W: `wheelEntries`, `eatMaterial`). A form ends by itself after
  * `formDurationMs`.
  */
 export class GulpController {
@@ -75,12 +76,10 @@ export class GulpController {
       this.end('burp');
       return 'burp';
     }
-    const carried = this.carriedMaterial();
-    if (!carried || this.eatMaterial(carried) === 'nothing') {
-      this.ctx.showMessage('Nothing to gulp');
-      return 'nothing';
-    }
-    return 'inventory';
+    // Carried materials are only eaten from the quick wheel (hold W), never by a
+    // stray tap: the owner kept turning Heavy far from any rock (2026-09-30).
+    this.ctx.showMessage(this.carriedMaterial() ? `No Gulp spot here. Hold ${controlLabel('eat')} to eat what you carry` : 'Nothing to gulp here');
+    return 'nothing';
   }
 
   /**
@@ -101,7 +100,7 @@ export class GulpController {
       .filter((entry) => entry.count > 0);
   }
 
-  /** The material a tap of W would eat from the inventory (the wheel's starting choice). */
+  /** The last-used carried Gulp material (the quick wheel's starting choice). */
   get preferredMaterial(): string | undefined {
     return this.carriedMaterial();
   }

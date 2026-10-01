@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { DEPTH_BANDS } from '../../presentation/WorldDepth';
+import { controlLabel } from '../player/ControlLabels';
 
 /** How an object scene is drawn and how much floor it blocks, relative to its root. */
 export interface PlaceableVisual {
@@ -52,7 +53,8 @@ const INVALID_TINT = 0xff7a7a;
 /**
  * Mouse-aimed furniture placement: a translucent preview follows the pointer,
  * snapped to the grid, green where the footprint is free and within reach, red
- * otherwise. Left click places, R cycles variants, Escape cancels.
+ * otherwise. The scene feeds it the player's controls: the attack button
+ * places, the weapon wheel switches variants, and interact or Escape cancels.
  */
 export class FurniturePlacementController {
   private itemId?: string;
@@ -62,11 +64,7 @@ export class FurniturePlacementController {
   private ghost?: Phaser.GameObjects.Image;
   private outline?: Phaser.GameObjects.Graphics;
   private target?: { readonly x: number; readonly y: number; readonly valid: boolean };
-  private readonly rotateKey?: Phaser.Input.Keyboard.Key;
-
-  constructor(private readonly ctx: FurniturePlacementContext) {
-    this.rotateKey = ctx.scene.input.keyboard?.addKey('R', false);
-  }
+  constructor(private readonly ctx: FurniturePlacementContext) {}
 
   get active(): boolean {
     return this.itemId !== undefined;
@@ -83,7 +81,11 @@ export class FurniturePlacementController {
       return false;
     }
     this.ctx.onActiveChange(true);
-    this.ctx.showHint(sceneIds.length > 1 ? 'Click to place · R to switch · Esc to cancel' : 'Click to place · Esc to cancel');
+    const place = controlLabel('attack');
+    const cancel = `${controlLabel('interact')} or ${controlLabel('pause')}`;
+    this.ctx.showHint(sceneIds.length > 1
+      ? `${place} to place · ${controlLabel('weapon-next')} to switch · ${cancel} to cancel`
+      : `${place} to place · ${cancel} to cancel`);
     return true;
   }
 
@@ -102,10 +104,6 @@ export class FurniturePlacementController {
   /** Called every frame while the world runs. */
   update(): void {
     if (!this.active || !this.visual || !this.ghost) return;
-    if (this.rotateKey && Phaser.Input.Keyboard.JustDown(this.rotateKey) && this.sceneIds.length > 1) {
-      this.variantIndex = (this.variantIndex + 1) % this.sceneIds.length;
-      this.showVariant();
-    }
     const camera = this.ctx.scene.cameras.main;
     const pointer = this.ctx.scene.input.activePointer;
     const world = camera.getWorldPoint(pointer.x, pointer.y);
@@ -125,7 +123,15 @@ export class FurniturePlacementController {
     }
   }
 
-  /** Pointer press from the scene; returns true when placement consumed it. */
+  /** Shows the next (`step` 1) or previous (-1) variant of the item, if it has several. */
+  cycleVariant(step: 1 | -1): void {
+    if (!this.active || this.sceneIds.length < 2) return;
+    const count = this.sceneIds.length;
+    this.variantIndex = (this.variantIndex + step + count) % count;
+    this.showVariant();
+  }
+
+  /** The place button; returns true when placement consumed it. */
   handlePointerDown(): boolean {
     if (!this.active) return false;
     const target = this.target;
@@ -140,7 +146,6 @@ export class FurniturePlacementController {
 
   destroy(): void {
     this.cancel();
-    if (this.rotateKey) this.ctx.scene.input.keyboard?.removeKey(this.rotateKey);
   }
 
   private showVariant(): boolean {

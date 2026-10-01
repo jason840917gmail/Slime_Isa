@@ -101,7 +101,8 @@
           "resourceId": "tree-world-solid.tree-autumn-01.animations"
         },
         "domain": "physics",
-        "autoplay": "object.tree.autumn.idle"
+        "autoplay": "object.tree.autumn.idle",
+        "randomizeStart": true
       }
     },
     {

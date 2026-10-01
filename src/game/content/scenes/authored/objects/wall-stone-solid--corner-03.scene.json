@@ -55,7 +55,7 @@
         ],
         "visualOffset": [
           0,
-          4
+          0
         ],
         "depthMode": "world-sorted",
         "depthBand": "world-entities",

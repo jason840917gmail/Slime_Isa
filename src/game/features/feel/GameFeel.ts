@@ -1,9 +1,13 @@
 /**
  * Game feel (roadmap 9.1): named screen-shake and hit-stop presets per event,
  * so every shake in the game goes through one place that respects the player's
- * Screen shake slider and Reduce motion. Hit-stop freezes the simulation for a
- * few milliseconds (the world scene advances it by zero) while rendering, the
- * camera shake and particles keep going.
+ * Screen shake slider and Reduce motion. Hit-stop freezes the world for a few
+ * frames: the scene runtime, physics, tweens and sprite animation all hold
+ * still (WorldScene), while rendering, the camera shake and particles keep
+ * going.
+ *
+ * Timings (2026-09-30, owner could not see the first ones): a light hit holds
+ * about four frames, heavy hits five to six, defeats about ten.
  *
  * Feel values are presentation, owned here rather than in game-constants.json.
  */
@@ -30,17 +34,17 @@ export interface FeelPreset {
 
 export const FEEL_PRESETS: Readonly<Record<FeelEvent, FeelPreset>> = Object.freeze({
   // Light hit: the weapon connects with a creature.
-  hit: { shakeMs: 0, shakeIntensity: 0, hitStopMs: 35 },
+  hit: { shakeMs: 0, shakeIntensity: 0, hitStopMs: 65 },
   // Heavy hits.
-  'critical-hit': { shakeMs: 80, shakeIntensity: 0.006, hitStopMs: 60 },
-  'combo-finisher': { shakeMs: 120, shakeIntensity: 0.008, hitStopMs: 70 },
-  slam: { shakeMs: 150, shakeIntensity: 0.01, hitStopMs: 60 },
-  'player-hurt': { shakeMs: 110, shakeIntensity: 0.005, hitStopMs: 50 },
+  'critical-hit': { shakeMs: 80, shakeIntensity: 0.006, hitStopMs: 95 },
+  'combo-finisher': { shakeMs: 120, shakeIntensity: 0.008, hitStopMs: 100 },
+  slam: { shakeMs: 150, shakeIntensity: 0.01, hitStopMs: 90 },
+  'player-hurt': { shakeMs: 110, shakeIntensity: 0.005, hitStopMs: 70 },
   // Boss slam (Fatty lands); the boss scene can author its own numbers.
   'boss-landing': { shakeMs: 100, shakeIntensity: 0.003, hitStopMs: 0 },
   // Defeats.
-  'boss-defeated': { shakeMs: 450, shakeIntensity: 0.012, hitStopMs: 140 },
-  'player-defeated': { shakeMs: 400, shakeIntensity: 0.012, hitStopMs: 120 },
+  'boss-defeated': { shakeMs: 450, shakeIntensity: 0.012, hitStopMs: 180 },
+  'player-defeated': { shakeMs: 400, shakeIntensity: 0.012, hitStopMs: 150 },
   // World moments.
   'ground-crack': { shakeMs: 260, shakeIntensity: 0.012, hitStopMs: 0 },
   'building-restored': { shakeMs: 320, shakeIntensity: 0.006, hitStopMs: 0 },

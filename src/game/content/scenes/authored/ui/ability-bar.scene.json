@@ -19,11 +19,11 @@
           1
         ],
         "offsetMin": [
-          -164,
+          -180,
           -84
         ],
         "offsetMax": [
-          164,
+          180,
           -12
         ],
         "theme": {
@@ -55,7 +55,7 @@
           8
         ],
         "offsetMax": [
-          80,
+          72,
           -8
         ],
         "text": "Lv 2\nJump",
@@ -66,12 +66,12 @@
         "wrap": true,
         "disabled": true,
         "ariaLabel": "Jump ability",
-        "tooltip": "Space: Jump"
+        "tooltip": "Jump"
       }
     },
     {
-      "id": "squash-slam",
-      "name": "Slam",
+      "id": "dodge",
+      "name": "Dodge",
       "type": "Button",
       "parentId": "surface",
       "order": 1,
@@ -85,22 +85,22 @@
           1
         ],
         "offsetMin": [
-          88,
+          78,
           8
         ],
         "offsetMax": [
-          160,
+          142,
           -8
         ],
-        "text": "Lv 3\nSlam",
+        "text": "Quest\nDodge",
         "tone": "special",
         "fontSize": 12,
         "fontWeight": 700,
         "textAlign": "center",
         "wrap": true,
         "disabled": true,
-        "ariaLabel": "Slam ability",
-        "tooltip": "T: Slam"
+        "ariaLabel": "Dodge ability",
+        "tooltip": "Dodge"
       }
     },
     {
@@ -119,11 +119,11 @@
           1
         ],
         "offsetMin": [
-          168,
+          148,
           8
         ],
         "offsetMax": [
-          240,
+          212,
           -8
         ],
         "text": "Lv 4\nLash",
@@ -134,12 +134,12 @@
         "wrap": true,
         "disabled": true,
         "ariaLabel": "Lash ability",
-        "tooltip": "R: Lash"
+        "tooltip": "Lash"
       }
     },
     {
-      "id": "teleport",
-      "name": "Teleport",
+      "id": "squash-slam",
+      "name": "Slam",
       "type": "Button",
       "parentId": "surface",
       "order": 3,
@@ -153,11 +153,45 @@
           1
         ],
         "offsetMin": [
-          248,
+          218,
           8
         ],
         "offsetMax": [
-          320,
+          282,
+          -8
+        ],
+        "text": "Lv 3\nSlam",
+        "tone": "special",
+        "fontSize": 12,
+        "fontWeight": 700,
+        "textAlign": "center",
+        "wrap": true,
+        "disabled": true,
+        "ariaLabel": "Slam ability",
+        "tooltip": "Slam"
+      }
+    },
+    {
+      "id": "teleport",
+      "name": "Teleport",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          1
+        ],
+        "offsetMin": [
+          288,
+          8
+        ],
+        "offsetMax": [
+          352,
           -8
         ],
         "text": "Lv 5\nTeleport",
@@ -168,7 +202,7 @@
         "wrap": true,
         "disabled": true,
         "ariaLabel": "Teleport ability",
-        "tooltip": "Y: Teleport"
+        "tooltip": "Teleport"
       }
     },
     {
@@ -177,7 +211,7 @@
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 4,
+      "order": 5,
       "properties": {
         "surfaceId": "ability-bar",
         "modal": false,
@@ -191,6 +225,16 @@
             "nodePath": "../Jump",
             "property": "disabled",
             "model": "jumpDisabled"
+          },
+          {
+            "nodePath": "../Dodge",
+            "property": "text",
+            "model": "dodgeLabel"
+          },
+          {
+            "nodePath": "../Dodge",
+            "property": "disabled",
+            "model": "dodgeDisabled"
           },
           {
             "nodePath": "../Slam",
@@ -225,8 +269,9 @@
         ],
         "actions": {
           "on_jump_action": "jump",
-          "on_slam_action": "squash-slam",
+          "on_dodge_action": "dodge",
           "on_lash_action": "stretch-lash",
+          "on_slam_action": "squash-slam",
           "on_teleport_action": "teleport"
         }
       }
@@ -236,7 +281,7 @@
       "name": "ClickSfx",
       "type": "AudioStreamPlayer",
       "parentId": "surface",
-      "order": 5,
+      "order": 6,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.click"
@@ -256,6 +301,16 @@
         "nodeId": "script"
       },
       "handler": "on_jump_action"
+    },
+    {
+      "source": {
+        "nodeId": "dodge"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_dodge_action"
     },
     {
       "source": {
@@ -320,6 +375,16 @@
     {
       "source": {
         "nodeId": "teleport"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "dodge"
       },
       "signal": "pressed",
       "target": {

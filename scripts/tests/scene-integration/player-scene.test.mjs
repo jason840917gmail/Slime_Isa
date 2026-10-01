@@ -94,14 +94,42 @@ test('player scene exposes node-backed runtime ports, dodge immunity, and one ro
   assert.equal(script.consumeActionPress('attack'), true);
   assert.equal(script.consumeActionPress('attack'), false);
   script.clearInput();
+
+  // A press that waits longer than input.bufferMs (150 ms) is dropped, not fired late.
+  fixture.tree.dispatchInput({ handled: false, type: 'key-down', action: 'dodge', pressed: true, released: false });
+  fixture.tree.dispatchInput({ handled: false, type: 'key-up', action: 'dodge', pressed: false, released: true });
+  fixture.tree.physicsProcess(0.2);
+  assert.equal(script.consumeActionPress('dodge'), false, 'a stale press expires');
+  fixture.tree.dispatchInput({ handled: false, type: 'key-down', action: 'dodge', pressed: true, released: false });
+  fixture.tree.physicsProcess(0.1);
+  assert.equal(script.consumeActionPress('dodge'), true, 'a fresh press is used');
+  script.clearInput();
+
+  // The wheel moves one step per notch, then waits for the wheel to go quiet.
+  const wheel = (timestamp, wheelDelta = 100, action = 'weapon-next') => fixture.tree.dispatchInput({ handled: false, type: 'wheel', action, wheelDelta, timestamp, pressed: false, released: false });
+  wheel(1000);
+  assert.equal(script.consumeActionPress('weapon-next'), true);
+  wheel(1050);
+  wheel(1100);
+  assert.equal(script.consumeActionPress('weapon-next'), false, 'one swipe is one step');
+  wheel(1400, 20);
+  wheel(1410, 20);
+  assert.equal(script.consumeActionPress('weapon-next'), false, 'small trackpad deltas add up first');
+  wheel(1420, 20);
+  assert.equal(script.consumeActionPress('weapon-next'), true);
+  script.clearInput();
   assert.deepEqual(script.getMovementInput(), { x: 0, y: 0 });
 
   assert.equal(script.move({ x: 3, y: 4 }, 100), true);
   assert.deepEqual(fixture.root.velocity, { x: 60, y: 80 });
   script.stopMovement();
   assert.deepEqual(fixture.root.velocity, { x: 0, y: 0 });
-  assert.equal(script.beginDodge({ x: 1, y: 0 }, 300, 400), true);
+  assert.equal(script.beginDodge({ x: 1, y: 0 }, 300, 500, 400), true);
   assert.equal(script.isDodging(), true);
+  assert.equal(script.isRolling(), true);
+  assert.equal(script.move({ x: 0, y: 1 }, 100), false, 'the roll owns the body');
+  assert.deepEqual(fixture.root.velocity, { x: 300, y: 0 });
+  assert.equal(script.beginDodge({ x: -1, y: 0 }, 300, 500, 400), false, 'no new roll mid-roll');
   const blockedActivation = fixture.activations.begin('enemy', ['enemy-attack']);
   const blocked = fixture.router.routeStep([damageRequest(blockedActivation, damageArea.runtimeId)], 0);
   assert.equal(blocked[0].result.reason, 'state-blocked');
@@ -112,6 +140,9 @@ test('player scene exposes node-backed runtime ports, dodge immunity, and one ro
   const accepted = fixture.router.routeStep([damageRequest(acceptedActivation, damageArea.runtimeId)], 400);
   assert.equal(accepted[0].result.status, 'accepted');
   assert.equal(fixture.getHp(), 90);
+  assert.equal(script.isDodging(), false, 'the last 100 ms of the roll is recovery');
+  fixture.tree.physicsProcess(0.1);
+  assert.equal(script.isRolling(), false);
 
   script.applyKnockback({ x: 1, y: 0 }, 200, 160);
   assert.equal(script.move({ x: 0, y: 1 }, 100), false);

@@ -297,16 +297,18 @@ function cellsTouched(
   originY: number,
   tileSize: number,
 ): { x: number; y: number }[] {
-  const seen = new Set<string>();
+  // Numeric keys: this runs for every sample of every layer, and string keys dominated planning.
+  const seen = new Set<number>();
   const cells: { x: number; y: number }[] = [];
+  const offsets = [[-step, -step], [step, -step], [-step, step], [step, step]] as const;
   for (let sy = 0; sy < samplesY; sy += 1) {
     for (let sx = 0; sx < samplesX; sx += 1) {
       if (alpha[sy * samplesX + sx] === 0) continue;
       // Bilinear upscaling spreads a sample half a step, so include its footprint.
-      for (const [ox, oy] of [[-step, -step], [step, -step], [-step, step], [step, step]] as const) {
+      for (const [ox, oy] of offsets) {
         const cellX = Math.floor((originX + (sx + 0.5) * step + ox) / tileSize);
         const cellY = Math.floor((originY + (sy + 0.5) * step + oy) / tileSize);
-        const key = `${cellX},${cellY}`;
+        const key = (cellY + 0x8000) * 0x10000 + (cellX + 0x8000);
         if (seen.has(key)) continue;
         seen.add(key);
         cells.push({ x: cellX, y: cellY });

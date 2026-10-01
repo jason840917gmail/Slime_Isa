@@ -23,9 +23,10 @@ export const PARTICLE_PRESETS: Readonly<Record<ParticleEvent, ParticlePreset>> =
     texture: 'fx-goo-drop', count: 9, layer: 'ground',
     config: { lifespan: 420, speed: { min: 50, max: 140 }, angle: { min: 200, max: 340 }, gravityY: 420, scale: { start: 0.8, end: 0.3 }, alpha: { start: 1, end: 0 } },
   },
+  // A puff of sandy dust at the slime's feet (was tiny goo dots at 40 % alpha, too faint to see).
   'dodge-dust': {
-    texture: 'goo-dust', count: 6, layer: 'ground',
-    config: { lifespan: 280, speed: { min: 10, max: 40 }, scale: { start: 0.2, end: 0 }, alpha: { start: 0.4, end: 0 } },
+    texture: 'dust-puff', count: 9, layer: 'ground',
+    config: { lifespan: 460, speed: { min: 30, max: 95 }, gravityY: -30, scale: { start: 0.9, end: 0.25 }, alpha: { start: 0.8, end: 0 }, rotate: { min: 0, max: 360 } },
   },
   'loot-sparkle': {
     texture: 'fx-sparkle', count: 6, layer: 'over',

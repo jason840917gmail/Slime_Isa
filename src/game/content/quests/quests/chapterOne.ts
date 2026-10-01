@@ -38,7 +38,7 @@ export const aPlaceToWork: QuestDefinition = {
     {
       id: 'place-workbench',
       title: 'Set it up',
-      description: 'Open your inventory (Tab), choose the Workbench, and place it somewhere handy.',
+      description: 'Open your bag, choose the Workbench, and place it somewhere handy.',
       objectives: [
         { id: 'place-workbench', kind: 'place-item', label: 'Place the Workbench', target: 1, itemIds: ['workbench'] },
       ],
@@ -100,6 +100,7 @@ export const stoneTools: QuestDefinition = {
     coins: 20,
     items: [{ itemId: 'wood', count: 10 }],
     recipeIds: ['craft-wooden-spear'],
+    abilityIds: ['dodge'],
   },
   dialogue: {
     offer: [
@@ -109,6 +110,7 @@ export const stoneTools: QuestDefinition = {
     progress: ['Trees need an axe, rocks need a pickaxe. No amount of bouncing will do it, trust me.'],
     complete: [
       'Now you are a real gatherer!',
+      'One more lesson before you go: a slime that stands still gets squashed. When something swings at you, tuck in and roll away!',
       'Worms have been creeping close to the clearing. It is time you learned to make a spear.',
     ],
   },
@@ -127,7 +129,7 @@ export const wormTrouble: QuestDefinition = {
     {
       id: 'arm-yourself',
       title: 'Arm yourself',
-      description: 'Craft a Wooden Spear at your workbench and equip it (1–6).',
+      description: 'Craft a Wooden Spear at your workbench and equip it from your bag.',
       objectives: [
         { id: 'craft-wooden-spear', kind: 'craft-item', label: 'Craft a Wooden Spear', target: 1, itemIds: ['wooden-spear'] },
       ],
@@ -158,7 +160,7 @@ export const wormTrouble: QuestDefinition = {
     progress: ['Keep your distance and let the spear do the work. Worms hate reach.'],
     complete: [
       'Ha! That will teach them.',
-      'You fought well, but you move like a puddle. Watch me: squish down, then spring! That is how a slime jumps. Press Space to try it.',
+      'You fought well, but you move like a puddle. Watch me: squish down, then spring! That is how a slime jumps. Go on, try it!',
       'I have seen something much bigger in the east. A one-eyed blob guarding a chest. Wood will not be enough for that. Here is how to make a stone spear.',
     ],
   },
@@ -227,7 +229,7 @@ export const theOldWorkshop: QuestDefinition = {
     {
       id: 'restore-workshop',
       title: 'Rebuild the Workshop',
-      description: 'Gather 60 wood and 40 stone, then press F at the ruined Workshop north of the plaza.',
+      description: 'Gather 60 wood and 40 stone, then restore the ruined Workshop north of the plaza.',
       objectives: [
         { id: 'restore-workshop', kind: 'activate-object', label: 'Restore the Workshop (60 wood, 40 stone)', target: 1, objectIds: ['workshop'] },
       ],

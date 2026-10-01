@@ -9,11 +9,11 @@ const numeric = (key, domains = ['physics', 'render']) => ({ key, label: key, va
 const step = (key, kind = 'boolean', domains = ['physics', 'render']) => ({ key, label: key, value: { kind }, serialized: true, inspector: 'checkbox', animation: { interpolation: 'step', domains }, overridable: true });
 const track = (property, keys) => ({ binding: 'target', property, keys });
 
-function fixture(animations, domain = 'physics', source) {
+function fixture(animations, domain = 'physics', source, options = {}) {
   const target = new Node2D({ runtimeId: `animation/target-${Math.random()}`, name: 'Target', rotation: 2, visible: true });
   const descriptors = { rotation: numeric('rotation'), visible: step('visible') };
   const player = new AnimationPlayerNode({
-    runtimeId: `animation/player-${Math.random()}`, name: 'Player', domain, animations, advanceSource: source,
+    runtimeId: `animation/player-${Math.random()}`, name: 'Player', domain, animations, advanceSource: source, ...options,
     resolveBinding: (_player, binding, property) => {
       assert.equal(binding, 'target');
       return new AnimationBinding(target, property, descriptors[property]);
@@ -56,6 +56,22 @@ test('one shared clock drives numeric and step tracks plus deterministic events 
   assert.deepEqual(finished, ['run']);
   assert.equal(player.currentAnimation, undefined);
   tree.shutdown();
+});
+
+test('randomizeStart begins a looping autoplay clip at a random frame', () => {
+  const animation = { durationSeconds: 4, framesPerSecond: 1, loop: true, tracks: [track('rotation', [{ at: 0, value: 0 }, { at: 3, value: 30 }])] };
+  const { target, player, tree } = fixture({ idle: animation }, 'physics', undefined, { autoplay: 'idle', randomizeStart: true, random: () => 0.5 });
+  tree.flushMutations();
+  assert.equal(player.currentAnimation, 'idle');
+  assert.equal(player.playbackState.timelineFrame, 2);
+  assert.equal(target.rotation, 20);
+  tree.shutdown();
+
+  const once = { durationSeconds: 4, framesPerSecond: 1, loop: false, tracks: [track('rotation', [{ at: 0, value: 0 }, { at: 3, value: 30 }])] };
+  const oneShot = fixture({ once }, 'physics', undefined, { autoplay: 'once', randomizeStart: true, random: () => 0.9 });
+  oneShot.tree.flushMutations();
+  assert.equal(oneShot.player.playbackState.timelineFrame, 0, 'non-looping clips always start at frame 0');
+  oneShot.tree.shutdown();
 });
 
 test('loop boundaries fire exact events, while seek previews silently and stop restores baselines', () => {

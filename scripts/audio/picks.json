@@ -118,6 +118,7 @@
     "world.anvil-loop": "synth",
     "world.area-title": "synth",
     "world.area-transition": "synth",
+    "world.bell-ring": "library",
     "world.campfire-loop": "synth",
     "world.cauldron-loop": "synth",
     "world.chest-close": "library",
@@ -154,5 +155,18 @@
     "status.burn": "short flame sound",
     "weapon.equip-blade": "una espada siendo desenvainada",
     "weapon.hit-stab": "a pear stabbing sound , more metallic sound "
+  },
+  "round2": {
+    "decidedAt": "2026-09-30T15:54:44.347Z",
+    "note": "Owner kept the new Magnific takes for all 20 replaced cues. Takes dropped (1-based, asset/Originals/audio/magnific/<category>-<cue>-<n>.wav); each cue ships its first kept takes, except pickup.stone, which ships take 2 because take 1 is a faint 40 ms tick.",
+    "dropped": {
+      "boss.fatty-death": [2, 3],
+      "boss.fatty-land": [2, 3],
+      "boss.fatty-recover": [1, 2],
+      "enemy.arrow-hit": [1, 2],
+      "enemy.bow-draw": [2, 3],
+      "footstep.stone": [3],
+      "player.sleep-breath": [2, 3]
+    }
   }
 }

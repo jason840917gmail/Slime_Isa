@@ -91,6 +91,16 @@ regenerating with another model. Only full-frame art that is intentionally
 edge-to-edge (concept art, backgrounds, opaque UI backplates) may omit
 `transparentBackground`.
 
+> **Known issue (2026-09-30):** `gpt-2` requests with `transparentBackground:
+> true` currently fail with "Transparent background is not supported for this
+> model", with or without references, even though the catalog still lists the
+> flag. Until that is fixed, generate on "a plain flat pure white background"
+> and cut the white away locally (a border flood fill keeps white details
+> inside dark outlines; see `cut_out` in
+> `scripts/art/build-water-life-sheets.py`), or chain
+> `images_remove_background`. Try `transparentBackground` first, since the
+> service may be fixed.
+
 ### Style references
 
 Every generation attaches one reference sheet from the style guide's
@@ -98,10 +108,10 @@ Every generation attaches one reference sheet from the style guide's
 
 | Asset | Reference sheet |
 | --- | --- |
-| Slime characters and NPCs | `village-elder-plop.png` or `lili.png` |
+| Slime characters and NPCs | `village-elder-plop.webp` or `lili.webp` |
 | Enemies | the same character sheets; enemies keep the painting and light but may look meaner |
-| Objects, props, and buildings | `192x192-tile_8x8-interior-mushroom-furniture-props.png` |
-| Directional objects | `256x256-tile_6x8-interior-beds-directional.png` |
+| Objects, props, and buildings | `192x192-tile_8x8-interior-mushroom-furniture-props.webp` |
+| Directional objects | `256x256-tile_6x8-interior-beds-directional.webp` |
 
 Upload the sheet once per session and reuse its creation identifier for every
 generation in that session. Pass references as creation identifiers returned

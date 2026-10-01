@@ -31,7 +31,7 @@ interface UiBinding {
 /** Menu entries by position: menus map each to an action (`{ "on_menu_1": "resume" }`). */
 export const MENU_HANDLERS = ['on_menu_1', 'on_menu_2', 'on_menu_3', 'on_menu_4', 'on_menu_5', 'on_menu_6', 'on_menu_7', 'on_menu_8'] as const;
 
-const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected', 'on_jump_action', 'on_slam_action', 'on_lash_action', 'on_teleport_action', 'on_assign_slot', 'on_quantity_minus_10', 'on_quantity_minus_1', 'on_quantity_plus_1', 'on_quantity_plus_10', 'on_drop_all', 'on_remove', 'on_remove_all', 'on_item_secondary', 'on_quantity_max', 'on_value_changed', ...MENU_HANDLERS] as const;
+const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected', 'on_jump_action', 'on_dodge_action', 'on_slam_action', 'on_lash_action', 'on_teleport_action', 'on_assign_slot', 'on_quantity_minus_10', 'on_quantity_minus_1', 'on_quantity_plus_1', 'on_quantity_plus_10', 'on_drop_all', 'on_remove', 'on_remove_all', 'on_item_secondary', 'on_quantity_max', 'on_value_changed', ...MENU_HANDLERS] as const;
 
 export class UiSurfaceScript extends ScriptNode {
   readonly surfaceId: string;

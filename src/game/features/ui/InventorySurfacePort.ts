@@ -1,5 +1,6 @@
 import type { JsonValue } from '../../content/scenes/types';
 import { gameEvents } from '../../core/EventBus';
+import { WEAPON_HOTBAR_SLOT_COUNT } from '../../core/types';
 import { playerInventory, itemRegistry } from '../../systems/Inventory';
 import { playerWeaponLoadout } from '../../systems/WeaponLoadout';
 import type { ModalHandle, ModalStack } from '../../ui/ModalStack';
@@ -97,14 +98,14 @@ export class InventorySurfacePort implements UiSurfacePort {
         `${def.category} · x${slot.count}`,
         '',
         def.description,
-        ...(equipment ? ['', equipped ? 'EQUIPPED' : assignedIndex >= 0 ? `HOTBAR SLOT ${assignedIndex + 1}` : 'NOT ON HOTBAR', 'Assign number key below.'] : []),
+        ...(equipment ? ['', equipped ? 'EQUIPPED' : assignedIndex >= 0 ? `HOTBAR SLOT ${assignedIndex + 1}` : 'NOT ON HOTBAR', 'Pick its hotbar slot below; the mouse wheel switches between them.'] : []),
         ...(effects ? ['', effects] : []),
       ].join('\n') : 'Select an item',
       quantity: `Quantity: ${this.quantity}`,
       primaryLabel: equipment ? 'Equip Now' : def?.placeable ? 'Place' : 'Use',
       primaryDisabled: !def || (!equipment && !def.use && !def.placeable),
       hotbarVisible: !!equipment,
-      hotbarSlots: Array.from({ length: 5 }, (_, index) => ({ id: `assign-${index + 1}`, label: `${index + 1}` })),
+      hotbarSlots: Array.from({ length: WEAPON_HOTBAR_SLOT_COUNT }, (_, index) => ({ id: `assign-${index + 1}`, label: `${index + 1}` })),
       hotbarSelectedIndex: assignedIndex,
       quantityVisible: !!def && !equipment,
       actionsVisible: !!def && !equipment,
@@ -146,7 +147,7 @@ export class InventorySurfacePort implements UiSurfacePort {
       } else if (def.use) this.actions.onUseItem(def.id);
     } else if (actionId === 'assign-slot' && def.equipment) {
       const index = selectionIndex(payload);
-      if (index !== undefined && index >= 0 && index < 5) this.actions.onAssignWeapon(def.equipment.weaponId, index);
+      if (index !== undefined && index >= 0 && index < WEAPON_HOTBAR_SLOT_COUNT) this.actions.onAssignWeapon(def.equipment.weaponId, index);
     } else if (actionId === 'quantity-minus-10') this.adjustQuantity(-10, selected.count);
     else if (actionId === 'quantity-minus-1') this.adjustQuantity(-1, selected.count);
     else if (actionId === 'quantity-plus-1') this.adjustQuantity(1, selected.count);

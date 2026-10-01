@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 
 import { GULP_FORM_ICON_TEXTURE, type GulpFormDefinition } from '../../content/gulp/gulpForms';
 import { UI_THEME } from '../../presentation/theme';
+import { controlLabel } from '../player/ControlLabels';
 import type { GulpPoint, GulpSpot } from './GulpController';
 
 /** Draw above every world object: the texts float over the player and spots. */
@@ -11,7 +12,7 @@ const BADGE_SIZE = 36;
 
 /**
  * Gulp presentation: the form's badge and time left float over the slime
- * ("[badge] 0:42"), and a "[W] Gulp" hint floats over the Gulp spot in reach.
+ * ("[badge] 0:42"), and a "[Q] Gulp" hint (the mouth key from the binding table) floats over the Gulp spot in reach.
  */
 export class GulpHud {
   private readonly timer: Phaser.GameObjects.Text;
@@ -29,7 +30,7 @@ export class GulpHud {
     this.timer = scene.add.text(0, 0, '', style).setOrigin(0, 1).setDepth(HUD_DEPTH).setVisible(false);
     this.badge = scene.add.image(0, 0, GULP_FORM_ICON_TEXTURE, 0).setOrigin(1, 1).setDepth(HUD_DEPTH).setVisible(false);
     this.badge.setScale(BADGE_SIZE / Math.max(this.badge.width, 1));
-    this.hint = scene.add.text(0, 0, '[W] Gulp', { ...style, color: '#ffe89a' }).setOrigin(0.5, 1).setDepth(HUD_DEPTH).setVisible(false);
+    this.hint = scene.add.text(0, 0, `[${controlLabel('eat')}] Gulp`, { ...style, color: '#ffe89a' }).setOrigin(0.5, 1).setDepth(HUD_DEPTH).setVisible(false);
   }
 
   update(player: GulpPoint, form: GulpFormDefinition | undefined, remainingMs: number, spot: GulpSpot | undefined): void {

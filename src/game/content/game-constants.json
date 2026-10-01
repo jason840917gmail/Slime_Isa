@@ -32,6 +32,10 @@
   "gulp": {
     "formDurationMs": 60000
   },
+  "input": {
+    "bufferMs": 150,
+    "weaponWheelStepLockMs": 150
+  },
   "character": {
     "player": {
       "initialAttributes": {
@@ -44,7 +48,9 @@
         "baseSpeed": 200,
         "boostSpeed": 300,
         "dodgeSpeed": 380,
+        "dodgeDurationMs": 500,
         "dodgeInvulnerabilityMs": 400,
+        "dodgeCooldownMs": 250,
         "movementSpeedCap": 480
       },
       "hitInvulnerabilityMs": 500,

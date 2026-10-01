@@ -1,6 +1,9 @@
 ﻿import Phaser from 'phaser';
 import proceduralWeaponIcons from '../../content/weapons/procedural-weapon-icons.json';
-import { assertAssetBundleTextures, loadAssetBundle } from './AssetLoader';
+import { assertAssetBundleTextures, assertAssetsLoaded, loadAssetBundle, queueAssets } from './AssetLoader';
+import { createLoadingBar } from './LoadingBar';
+import { removeBootLoader } from '../../presentation/BootLoader';
+import { bootImageAssetIds } from './WorldAssetSets';
 
 export class ProceduralAssetScene extends Phaser.Scene {
   /**
@@ -11,17 +14,34 @@ export class ProceduralAssetScene extends Phaser.Scene {
     super('boot');
   }
 
+  /** Embedded hosts (Scene Studio) load every image; the game leaves each world's own images to MapLoadScene. */
+  private get loadsEverything(): boolean {
+    return this.nextSceneKey !== undefined;
+  }
+
   preload(): void {
-    loadAssetBundle(this, 'boot');
-    loadAssetBundle(this, 'interiors');
+    removeBootLoader();
+    const bar = createLoadingBar(this, 'Loading Slime Isa…');
+    this.load.on(Phaser.Loader.Events.PROGRESS, (value: number) => bar.setProgress(value));
+    this.load.once(Phaser.Loader.Events.COMPLETE, () => bar.destroy());
+    if (this.loadsEverything) {
+      loadAssetBundle(this, 'boot');
+      loadAssetBundle(this, 'interiors');
+    } else {
+      queueAssets(this, bootImageAssetIds());
+    }
     loadAssetBundle(this, 'audio');
     loadAssetBundle(this, 'music');
   }
 
   create(): void {
     this.createProceduralTextures();
-    assertAssetBundleTextures(this, 'boot');
-    assertAssetBundleTextures(this, 'interiors');
+    if (this.loadsEverything) {
+      assertAssetBundleTextures(this, 'boot');
+      assertAssetBundleTextures(this, 'interiors');
+    } else {
+      assertAssetsLoaded(this, bootImageAssetIds(), 'Boot images');
+    }
     assertAssetBundleTextures(this, 'audio');
     assertAssetBundleTextures(this, 'music');
     if (this.nextSceneKey) {

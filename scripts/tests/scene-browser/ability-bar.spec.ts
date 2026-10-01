@@ -21,8 +21,12 @@ test('authored ability bar follows unlock, cooldown, energy, input, and cleanup 
   const jump = bar.getByRole('button', { name: 'Jump ability' });
   const slam = bar.getByRole('button', { name: 'Slam ability' });
   const teleport = bar.getByRole('button', { name: 'Teleport ability' });
+  const dodge = bar.getByRole('button', { name: 'Dodge ability' });
   await expect(bar).toBeVisible();
-  await expect(buttons).toHaveCount(4);
+  await expect(buttons).toHaveCount(5);
+  // Dodge is learned in the story too (Stone Tools), not known from the start.
+  await expect(dodge).toBeDisabled();
+  await expect(dodge).toContainText('Quest');
   await expect(jump).toBeDisabled();
   // Locked abilities say how they are earned; the story teaches them, not levels.
   await expect(jump).toContainText('Quest');
@@ -33,6 +37,9 @@ test('authored ability bar follows unlock, cooldown, energy, input, and cleanup 
   await expect(jump).toBeEnabled();
   await expect(jump).toContainText('Space');
   await expect(slam).toBeDisabled();
+  await page.evaluate(() => window.sceneFixture.learnProductionAbilities(['dodge']));
+  await expect(dodge).toBeEnabled();
+  await expect(dodge).toContainText('1');
 
   await jump.click();
   await expect.poll(() => page.evaluate(() => window.sceneFixture.snapshot().jumpCooldownMs ?? 0)).toBeGreaterThan(0);

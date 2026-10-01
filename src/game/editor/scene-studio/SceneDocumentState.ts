@@ -28,6 +28,14 @@ export type DeleteNodeResult =
 
 const clone = <T>(value: T): T => structuredClone(value);
 
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const nested of Object.values(value as Record<string, unknown>)) deepFreeze(nested);
+  }
+  return value;
+}
+
 function removedSubtree(document: SceneDocument, nodeId: AuthoredNodeId): ReadonlySet<AuthoredNodeId> {
   const removed = new Set<AuthoredNodeId>([nodeId]);
   let changed = true;
@@ -67,6 +75,8 @@ export class SceneDocumentState {
   private readonly validation: SceneValidationState;
   private diskHashValue?: string;
   private revisionValue = 0;
+  /** Frozen copy handed to readers; rebuilt once per content change, not per access. */
+  private documentView?: SceneDocument;
 
   constructor(document: SceneDocument, validationContext: SceneValidationContext, diskHash?: string) {
     this.documentValue = clone(document);
@@ -76,7 +86,12 @@ export class SceneDocumentState {
   }
 
   get sceneId(): SceneId { return this.documentValue.sceneId; }
-  get document(): SceneDocument { return clone(this.documentValue); }
+  /**
+   * The document as a shared, deep-frozen snapshot. Large worlds are over a
+   * megabyte of JSON and the studio reads this inside per-node loops, so it
+   * must not clone on every access.
+   */
+  get document(): SceneDocument { return this.documentView ??= deepFreeze(clone(this.documentValue)); }
   get selection(): SceneSelection { return this.selectionState.value; }
   get issues(): readonly SceneValidationIssue[] { return this.validation.issues; }
   get repairMode(): boolean { return this.validation.repairMode; }
@@ -128,6 +143,7 @@ export class SceneDocumentState {
 
   private restore(snapshot: SceneHistorySnapshot): void {
     this.documentValue = clone(snapshot.document);
+    this.documentView = undefined;
     this.revisionValue += 1;
     this.selectionState.restore(snapshot.selection);
     this.validation.update(this.documentValue);

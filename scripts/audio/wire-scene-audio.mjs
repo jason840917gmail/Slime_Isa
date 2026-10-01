@@ -205,7 +205,7 @@ const RULES = [
       ['StatusBurn', 'status/burn'], ['StatusPoison', 'status/poison'], ['StatusSlow', 'status/slow'],
       ['StatusSticky', 'status/sticky'], ['StatusBouncy', 'status/bouncy'], ['StatusFrenzy', 'status/frenzy'],
       ['StatusExpire', 'status/expire'], ['EquipBlade', 'weapon/equip-blade'], ['EquipTool', 'weapon/equip-tool'],
-      ['CraftSuccess', 'ui/craft-success'], ['CraftFail', 'ui/craft-fail'], ['GroundCrack', 'resource/stone-crumble'], ['BuildingRestored', 'world/restore-building'], ['WebTear', 'pickup/silk'], ['NpcBlip', 'world/npc-blip'], ['QuestAccept', 'ui/quest-accept'],
+      ['CraftSuccess', 'ui/craft-success'], ['CraftFail', 'ui/craft-fail'], ['GroundCrack', 'resource/stone-crumble'], ['BuildingRestored', 'world/restore-building'], ['WebTear', 'pickup/silk'], ['BellRing', 'world/bell-ring'], ['NpcBlip', 'world/npc-blip'], ['QuestAccept', 'ui/quest-accept'],
       ['QuestProgress', 'ui/quest-progress'], ['QuestComplete', 'ui/quest-complete'], ['QuestFailed', 'ui/quest-failed'],
       ['Victory', 'boss/victory'], ['AreaTransition', 'world/area-transition'], ['MenuOpen', 'ui/open'],
       ['MenuClose', 'ui/close'], ['JournalOpen', 'ui/journal-open'], ['Crit', 'weapon/crit'],
@@ -239,7 +239,31 @@ function stripGenerated(scene) {
   const nodes = scene.nodes.filter((node) => !node.id.startsWith('sfx-'));
   const connections = (scene.connections ?? []).filter((connection) => !connection.target.nodeId?.startsWith('sfx-'));
   const subresources = (scene.subresources ?? []).filter((resource) => !resource.resourceId.startsWith('sfx.') && !resource.resourceId.startsWith('music.'));
-  return { ...scene, nodes, connections, subresources };
+  return compactOrders({ ...scene, nodes, connections, subresources });
+}
+
+/**
+ * Scene children need a dense order (0..n-1) per parent. Removing the generated
+ * audio nodes can leave a gap when authored nodes were added after them (an
+ * AnimationPlayer, say), so the remaining children are renumbered in their
+ * existing order before the audio nodes are appended again.
+ */
+function compactOrders(scene) {
+  const parents = new Set([
+    ...scene.nodes.map((node) => node.parentId),
+    ...(scene.instances ?? []).map((instance) => instance.parentNodeId),
+  ]);
+  const nodes = scene.nodes.map((node) => ({ ...node }));
+  const instances = (scene.instances ?? []).map((instance) => ({ ...instance }));
+  for (const parentId of parents) {
+    if (parentId === null || parentId === undefined) continue;
+    const children = [
+      ...nodes.filter((node) => node.parentId === parentId),
+      ...instances.filter((instance) => instance.parentNodeId === parentId),
+    ].sort((left, right) => left.order - right.order);
+    children.forEach((child, index) => { child.order = index; });
+  }
+  return { ...scene, nodes, instances };
 }
 
 function scriptNodeId(scene) {

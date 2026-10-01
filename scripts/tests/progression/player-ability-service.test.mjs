@@ -69,7 +69,7 @@ test('ability unlock, cooldown, energy, and busy checks preserve their decision 
   assert.deepEqual(actionLocked.service.tryBegin('jump', request), { accepted: false, reason: 'action-locked' });
 });
 
-test('direction normalization and terrain tracing preserve jump and teleport endpoints', () => {
+test('a moving jump follows the movement; a jump from standing still lands where it started', () => {
   const open = fixture();
   const jump = open.service.tryBegin('jump', request);
   assert.equal(jump.accepted, true);
@@ -77,20 +77,48 @@ test('direction normalization and terrain tracing preserve jump and teleport end
   assert.deepEqual(jump.intent.target, { x: 110.8, y: 154.4 });
   open.service.complete(jump.intent.sequenceId);
 
-  const blocked = fixture({ blocked: (x) => x >= 26 });
-  const teleport = blocked.service.tryBegin('teleport', {
-    position: { x: 10, y: 20 }, direction: { x: 1, y: 0 }, facing: { x: 0, y: 1 },
+  const standing = fixture({ blocked: () => true });
+  const inPlace = standing.service.tryBegin('jump', {
+    position: { x: 10, y: 20 }, direction: { x: 0, y: 0 }, facing: { x: 0, y: -1 },
   });
-  assert.equal(teleport.accepted, true);
-  assert.deepEqual(teleport.intent.target, { x: 18, y: 20 });
+  assert.equal(inPlace.accepted, true);
+  assert.deepEqual(inPlace.intent.target, { x: 10, y: 20 }, 'no movement input: up and down on the spot');
 
-  const immediateWall = fixture({ blocked: () => true });
-  const shortJump = immediateWall.service.tryBegin('jump', {
-    position: { x: 10, y: 20 }, direction: { x: 0, y: 0 }, facing: { x: 0, y: 0 },
+  const wall = fixture({ blocked: (x) => x >= 26 });
+  const shortJump = wall.service.tryBegin('jump', {
+    position: { x: 10, y: 20 }, direction: { x: 1, y: 0 }, facing: { x: 1, y: 0 },
   });
   assert.equal(shortJump.accepted, true);
-  assert.deepEqual(shortJump.intent.direction, { x: 0, y: -1 });
-  assert.deepEqual(shortJump.intent.target, { x: 10, y: 8 });
+  assert.deepEqual(shortJump.intent.target, { x: 18, y: 20 }, 'a moving jump still stops before water');
+});
+
+test('teleport lands on the farthest safe spot, across a river or a thin wall, and fails without one', () => {
+  const river = fixture({ blocked: (x) => x >= 100 && x < 180 });
+  const across = river.service.tryBegin('teleport', {
+    position: { x: 10, y: 20 }, direction: { x: 1, y: 0 }, facing: { x: 1, y: 0 },
+  });
+  assert.equal(across.accepted, true);
+  assert.deepEqual(across.intent.target, { x: 250, y: 20 }, 'the full 240 px, on the far bank');
+
+  const farBankWater = fixture({ blocked: (x) => x >= 100 });
+  const shortOfRiver = farBankWater.service.tryBegin('teleport', {
+    position: { x: 10, y: 20 }, direction: { x: 1, y: 0 }, facing: { x: 1, y: 0 },
+  });
+  assert.deepEqual(shortOfRiver.intent.target, { x: 98, y: 20 }, 'water all the way: the farthest safe spot before it');
+
+  const occupied = new PlayerAbilityService({
+    nowMs: () => 0,
+    state: { isLearned: () => true, getEnergy: () => 100, isActionLocked: () => false, setActionLocked: () => {}, spendEnergy: () => true },
+    terrain: { isBlocked: () => false, isOccupied: (x) => x > 200 },
+  });
+  const wall = occupied.tryBegin('teleport', { position: { x: 10, y: 20 }, direction: { x: 1, y: 0 }, facing: { x: 1, y: 0 } });
+  assert.deepEqual(wall.intent.target, { x: 194, y: 20 }, 'never inside a wall, house or tree');
+
+  const nowhere = fixture({ blocked: (x) => x > 10 });
+  assert.deepEqual(nowhere.service.tryBegin('teleport', {
+    position: { x: 10, y: 20 }, direction: { x: 1, y: 0 }, facing: { x: 1, y: 0 },
+  }), { accepted: false, reason: 'blocked' });
+  assert.equal(nowhere.energy, 100, 'a failed teleport costs nothing');
 });
 
 test('cancel releases the action lock without clearing cooldown or charging twice', () => {

@@ -15,7 +15,14 @@ export interface GameSettings {
   readonly screenShake: number;
   /** Turns off shake, hit-stop and other strong motion, and softens squash and stretch. */
   readonly reduceMotion: boolean;
+  /**
+   * Where a left click swings: toward the pointer or the way the slime last
+   * moved. Under test (roadmap 4.10); only the development panel changes it.
+   */
+  readonly attackAim: AttackAim;
 }
+
+export type AttackAim = 'pointer' | 'facing';
 
 export const DEFAULT_GAME_SETTINGS: GameSettings = Object.freeze({
   master: 0.8,
@@ -24,6 +31,7 @@ export const DEFAULT_GAME_SETTINGS: GameSettings = Object.freeze({
   muted: false,
   screenShake: 1,
   reduceMotion: false,
+  attackAim: 'pointer',
 });
 
 interface StoredGameSettings extends GameSettings { readonly version: 1 }
@@ -39,6 +47,7 @@ function parse(value: Partial<GameSettings>): GameSettings {
     muted: value.muted === true,
     screenShake: unitInterval(value.screenShake, DEFAULT_GAME_SETTINGS.screenShake),
     reduceMotion: value.reduceMotion === true,
+    attackAim: value.attackAim === 'facing' ? 'facing' : 'pointer',
   };
 }
 

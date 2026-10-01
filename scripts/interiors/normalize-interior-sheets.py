@@ -27,6 +27,10 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 ORIGINALS = ROOT / "asset" / "Originals" / "interiors"
@@ -274,7 +278,7 @@ def normalize(entry) -> dict:
     NORMALIZED.mkdir(parents=True, exist_ok=True)
     PROMOTED.mkdir(parents=True, exist_ok=True)
     save_atomic(sheet, NORMALIZED / f"{out_stem}.png")
-    promoted_name = f"{frame}x{frame}-tile_{cols}x{grid_rows}-interior-{slug}.png"
+    promoted_name = f"{frame}x{frame}-tile_{cols}x{grid_rows}-interior-{slug}.webp"
     save_atomic(sheet, PROMOTED / promoted_name)
 
     print(f"{atlas_id}: {len(flat)} sprites -> {cols}x{grid_rows} @ {frame}px (scale {scale:.3f}) -> {promoted_name}")
@@ -296,12 +300,12 @@ def normalize(entry) -> dict:
 # The frame's drawn outline is trimmed; organic textures are also cross-faded with
 # a half-offset copy of themselves so their edges wrap without a visible grid.
 FLOOR_TILES = [
-    ("128x128-interior-floor-wood-a.png", "interior.structure", 3, 4, False),
-    ("128x128-interior-floor-wood-b.png", "interior.structure", 59, 4, False),
-    ("128x128-interior-floor-mushroom-earth-a.png", "interior.mushroom.structure", 0, 10, True),
-    ("128x128-interior-floor-mushroom-earth-b.png", "interior.mushroom.structure", 56, 10, True),
-    ("128x128-interior-floor-mushroom-clover-a.png", "interior.mushroom.structure", 1, 10, True),
-    ("128x128-interior-floor-mushroom-clover-b.png", "interior.mushroom.structure", 57, 10, True),
+    ("128x128-interior-floor-wood-a.webp", "interior.structure", 3, 4, False),
+    ("128x128-interior-floor-wood-b.webp", "interior.structure", 59, 4, False),
+    ("128x128-interior-floor-mushroom-earth-a.webp", "interior.mushroom.structure", 0, 10, True),
+    ("128x128-interior-floor-mushroom-earth-b.webp", "interior.mushroom.structure", 56, 10, True),
+    ("128x128-interior-floor-mushroom-clover-a.webp", "interior.mushroom.structure", 1, 10, True),
+    ("128x128-interior-floor-mushroom-clover-b.webp", "interior.mushroom.structure", 57, 10, True),
 ]
 
 
@@ -333,7 +337,7 @@ def export_floor_tiles(atlases: list[dict]) -> None:
 # Plain floor textures generated whole: (output name, source stem, crop box, target RGB mean,
 # contrast gain). The crop is recoloured to match the concept room's earth, then made seamless.
 TEXTURE_TILES = [
-    ("128x128-interior-floor-mushroom-plain.png", "mushroom-07-floor-earth", (384, 384, 640, 640), (148, 90, 42), 1.8),
+    ("128x128-interior-floor-mushroom-plain.webp", "mushroom-07-floor-earth", (384, 384, 640, 640), (148, 90, 42), 1.8),
 ]
 
 
@@ -387,7 +391,7 @@ def export_room_shell(entry) -> dict:
     cleaned[cleaned[:, :, 3] < 8] = 0
     sheet = Image.fromarray(cleaned, "RGBA")
     save_atomic(sheet, NORMALIZED / f"{out_stem}.png")
-    promoted_name = f"{cell}x{cell}-tile_{cols}x{rows + 1}-interior-{slug}.png"
+    promoted_name = f"{cell}x{cell}-tile_{cols}x{rows + 1}-interior-{slug}.webp"
     save_atomic(sheet, PROMOTED / promoted_name)
     filled = [i for i in range(cols * (rows + 1))
               if sheet.crop(((i % cols) * cell, (i // cols) * cell, (i % cols + 1) * cell, (i // cols + 1) * cell)).getbbox()]
@@ -412,10 +416,16 @@ WRITTEN: set[Path] = set()
 
 def save_atomic(image: Image.Image, path: Path) -> None:
     """Write next to the target, then swap it in, so a running dev server or
-    Scene Studio never sees a missing or half-written runtime texture."""
+    Scene Studio never sees a missing or half-written runtime texture. Runtime
+    textures (asset/MAPS/interiors) are WebP; the normalized copies stay PNG."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.tmp")
-    image.save(temporary, format="PNG", optimize=True)
+    if path.parent.resolve() == PROMOTED.resolve():
+        path = path.with_suffix(".webp")
+        temporary = path.with_name(f".{path.stem}.tmp.webp")
+        save_game_webp(image, temporary)
+    else:
+        temporary = path.with_name(f".{path.name}.tmp")
+        image.save(temporary, format="PNG", optimize=True)
     os.replace(temporary, path)
     WRITTEN.add(path.resolve())
 
@@ -425,8 +435,8 @@ def main() -> None:
     atlases += [export_room_shell(entry) for entry in ROOM_SHELLS]
     export_floor_tiles(atlases)
     export_texture_tiles()
-    # Only after every texture is in place: drop runtime PNGs this run no longer produces.
-    for stale in PROMOTED.glob("*.png"):
+    # Only after every texture is in place: drop runtime textures this run no longer produces.
+    for stale in [*PROMOTED.glob("*.png"), *PROMOTED.glob("*.webp")]:
         if stale.resolve() not in WRITTEN:
             stale.unlink()
     index_path = ORIGINALS / "atlas-index.json"

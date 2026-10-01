@@ -9,7 +9,7 @@ structure, rules) is [`AGENTS.md`](../AGENTS.md) at the repository root.
 - [AUTHORED_MAPS.md](./AUTHORED_MAPS.md) — authored worlds: world scenes, map JSON, areas, exits, and spawns.
 - [TOOLING.md](./TOOLING.md) — what each `pnpm` script and generator/pack tool touches.
 - [TERRAIN_TRANSITIONS.md](./TERRAIN_TRANSITIONS.md) — how logical terrain tiles are blended into organic regions.
-- [camera-and-minimap-guide.md](./camera-and-minimap-guide.md) — responsive camera, wheel zoom, and minimap.
+- [camera-and-minimap-guide.md](./camera-and-minimap-guide.md) — responsive camera, zoom, and minimap.
 - [GAME_GUIDELINES.md](./GAME_GUIDELINES.md) — agreed game design direction (living draft).
 - [GAME_ROADMAP.md](./GAME_ROADMAP.md) — the road to Release 1: ordered milestones, task status, needed assets, and the post-release idea parking lot.
 

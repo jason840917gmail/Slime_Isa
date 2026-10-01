@@ -44,7 +44,7 @@
         "texture": {
           "resourceId": "decoration-world-solid.lantern-post.sprite"
         },
-        "frame": 6,
+        "frame": 16,
         "origin": [
           0.5,
           1
@@ -60,6 +60,21 @@
         "depthMode": "world-sorted",
         "depthBand": "world-entities"
       }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "decoration-world-solid.lantern-post.ambient-animations"
+        },
+        "domain": "render",
+        "autoplay": "object.ambient.idle",
+        "randomizeStart": true
+      }
     }
   ],
   "instances": [],
@@ -68,7 +83,7 @@
       "version": 1,
       "resourceId": "decoration-world-solid.lantern-post.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.decorations.8x3",
+      "assetId": "sheet.decorations.ambient.8x5",
       "frameWidth": 128,
       "frameHeight": 128
     },
@@ -80,6 +95,59 @@
         "shape": "rectangle",
         "width": 22,
         "height": 28
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "decoration-world-solid.lantern-post.ambient-animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.ambient.idle": {
+          "durationSeconds": 1.3333333333333333,
+          "framesPerSecond": 6,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 16
+                },
+                {
+                  "at": 1,
+                  "value": 17
+                },
+                {
+                  "at": 2,
+                  "value": 18
+                },
+                {
+                  "at": 3,
+                  "value": 19
+                },
+                {
+                  "at": 4,
+                  "value": 20
+                },
+                {
+                  "at": 5,
+                  "value": 21
+                },
+                {
+                  "at": 6,
+                  "value": 22
+                },
+                {
+                  "at": 7,
+                  "value": 23
+                }
+              ]
+            }
+          ]
+        }
       }
     }
   ]

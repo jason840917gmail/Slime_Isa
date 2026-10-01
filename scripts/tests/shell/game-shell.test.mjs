@@ -178,6 +178,6 @@ test('credits read every section and CC0 source from the data file; controls lis
   for (const section of shell.CREDIT_SECTIONS) assert.match(text, new RegExp(section.heading.toUpperCase()));
   assert.match(text, /Home Town/);
   assert.match(text, /CC0 1\.0/);
-  const keys = shell.CONTROL_ROWS.map(([key]) => key);
-  for (const key of ['E / Click', 'F', 'W', 'Tab', 'Esc']) assert.ok(keys.includes(key), key);
+  const keys = shell.controlRows().map(([key]) => key);
+  for (const key of ['WASD', 'Left click', 'Right click', 'Space', '1', 'Q', 'E', 'Mouse wheel', 'Esc']) assert.ok(keys.includes(key), key);
 });

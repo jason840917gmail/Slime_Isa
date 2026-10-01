@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "sceneId": "object.water-life.bubbles",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "bubbles",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "water-life.bubbles.sprite"
+        },
+        "frame": 32,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.7,
+          0.7
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "alpha": 0.9,
+        "depthMode": "world-sorted",
+        "depthBand": "ground-decals"
+      }
+    },
+    {
+      "id": "ambient-animation",
+      "name": "AmbientAnimation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "water-life.bubbles.animations"
+        },
+        "domain": "render",
+        "autoplay": "object.water-life.idle",
+        "randomizeStart": true
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "water-life.bubbles.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.water.plants.8x5",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "water-life.bubbles.animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.water-life.idle": {
+          "durationSeconds": 1.3333333333333333,
+          "framesPerSecond": 6,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 32
+                },
+                {
+                  "at": 1,
+                  "value": 33
+                },
+                {
+                  "at": 2,
+                  "value": 34
+                },
+                {
+                  "at": 3,
+                  "value": 35
+                },
+                {
+                  "at": 4,
+                  "value": 36
+                },
+                {
+                  "at": 5,
+                  "value": 37
+                },
+                {
+                  "at": 6,
+                  "value": 38
+                },
+                {
+                  "at": 7,
+                  "value": 39
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

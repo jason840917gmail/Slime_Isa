@@ -48,20 +48,24 @@ test('W in a form away from any spot burps it; W with nothing to eat says so', (
   assert.equal(h.controller.eat(), 'burp');
   assert.equal(h.controller.activeForm, undefined);
   assert.equal(h.controller.eat(), 'nothing');
-  assert.deepEqual(h.messages, ['Nothing to gulp']);
+  assert.deepEqual(h.messages, ['Nothing to gulp here']);
   assert.deepEqual(h.changes.at(-1), [null, 'burp']);
 });
 
-test('W away from spots eats one carried material', () => {
+test('a tap of W away from spots never eats a carried material; the quick wheel does', () => {
   const h = harness({ stone: 2 });
-  assert.equal(h.controller.eat(), 'inventory');
+  assert.equal(h.controller.eat(), 'nothing');
+  assert.equal(h.controller.activeForm, undefined, 'no stray Heavy far from any rock');
+  assert.equal(h.inventory.stone, 2);
+  assert.deepEqual(h.messages, ['No Gulp spot here. Hold Q to eat what you carry']);
+  assert.equal(h.controller.eatMaterial('stone'), 'inventory');
   assert.equal(h.controller.activeForm?.id, 'heavy');
   assert.equal(h.inventory.stone, 1);
 });
 
 test('a form ends by itself when its time is up, and clear() drops it without a burp', () => {
   const h = harness({ stone: 1 });
-  h.controller.eat();
+  h.controller.eatMaterial('stone');
   h.advance(59_999);
   h.controller.update();
   assert.equal(h.controller.activeForm?.id, 'heavy');
@@ -95,7 +99,7 @@ test('silk makes the slime Sticky (crosses webs), and eating stone switches to H
   assert.equal(h.controller.activeForm?.pressesPlates, false);
   h.player.x = 500;
   assert.equal(h.controller.eat(), 'burp', 'W away from a spot burps the form');
-  assert.equal(h.controller.eat(), 'inventory', 'then W eats the carried stone');
+  assert.equal(h.controller.eatMaterial('stone'), 'inventory', 'then the wheel eats the carried stone');
   assert.equal(h.controller.activeForm?.id, 'heavy');
   assert.equal(h.controller.activeForm?.crossesWebs, false);
 });

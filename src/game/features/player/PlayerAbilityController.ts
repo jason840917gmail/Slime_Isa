@@ -65,6 +65,16 @@ export class PlayerAbilityController {
           const tileId = grid[tileY]?.[tileX];
           return tileId !== undefined && isTileCollidable(tileId);
         },
+        isOccupied: (x, y) => {
+          // The slime's own body, moved to (x, y), against every solid object.
+          const player = context.getPlayer();
+          const body = player.body as Phaser.Physics.Arcade.Body | null;
+          if (!body) return false;
+          const centerX = x + (body.center.x - player.x);
+          const centerY = y + (body.center.y - player.y);
+          const hits = context.scene.physics.overlapRect(centerX - body.width / 2, centerY - body.height / 2, body.width, body.height, false, true);
+          return hits.some((hit) => hit.enable);
+        },
       },
     });
     this.presentation = new PlayerAbilityPresentation(new LegacyPlayerAbilityPresentation(context));
@@ -103,16 +113,30 @@ export class PlayerAbilityController {
     return this.tryAbility('jump', direction);
   }
 
-  tryTeleport(direction: Phaser.Math.Vector2): boolean {
-    return this.tryAbility('teleport', direction);
+  /** Lands toward `direction`, at most `reach` px away (the pointer's distance) and the ability's range. */
+  tryTeleport(direction: Readonly<{ x: number; y: number }>, reach?: number): boolean {
+    return this.tryAbility('teleport', direction, reach);
   }
 
   trySquashSlam(): boolean {
     return this.tryAbility('squash-slam');
   }
 
-  tryStretchLash(): boolean {
-    return this.tryAbility('stretch-lash');
+  tryStretchLash(direction?: Readonly<{ x: number; y: number }>): boolean {
+    return this.tryAbility('stretch-lash', direction);
+  }
+
+  /**
+   * The dodge is learned and cools down like any ability, but the roll itself
+   * is body motion: `roll` performs it once the ability rules allow.
+   */
+  tryDodge(roll: () => boolean): boolean {
+    const rejection = this.decisions.tryInstant('dodge');
+    if (rejection) {
+      if (rejection !== 'cooldown') this.presentation.notifyRejected('dodge', rejection);
+      return false;
+    }
+    return roll();
   }
 
   update(): void {}
@@ -122,13 +146,14 @@ export class PlayerAbilityController {
     this.decisions.cancel();
   }
 
-  private tryAbility(abilityId: PlayerAbilityId, direction?: Phaser.Math.Vector2): boolean {
+  private tryAbility(abilityId: PlayerAbilityId, direction?: Readonly<{ x: number; y: number }>, reach?: number): boolean {
     const player = this.context.getPlayer();
     const facing = this.context.getFacing();
     const decision = this.decisions.tryBegin(abilityId, {
       position: { x: player.x, y: player.y },
       direction: direction ? { x: direction.x, y: direction.y } : { x: 0, y: 0 },
       facing: { x: facing.x, y: facing.y },
+      ...(reach === undefined ? {} : { reach }),
     });
     if (!decision.accepted) {
       this.presentation.notifyRejected(abilityId, decision.reason);

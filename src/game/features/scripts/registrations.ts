@@ -21,6 +21,9 @@ import { DoorScript } from './DoorScript';
 import { GateScript } from './GateScript';
 import { GulpSpotScript } from './GulpSpotScript';
 import { PressurePlateScript } from './PressurePlateScript';
+import { LashBellScript } from './LashBellScript';
+import { AbilityLessonScript } from './AbilityLessonScript';
+import { TrainingDummyScript } from './TrainingDummyScript';
 import { GooHeartScript } from './GooHeartScript';
 import { StoryVariantScript } from './StoryVariantScript';
 import { CrackedGroundScript } from './CrackedGroundScript';
@@ -519,6 +522,60 @@ export const PRESSURE_PLATE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   signals: [{ id: 'pressed', payload: 'PlateEvent' }, { id: 'released', payload: 'PlateEvent' }],
 };
 
+export const LASH_BELL_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.lash-bell',
+  displayName: 'Lash Bell Script',
+  description: 'A bell post rung from a distance: the Stretch Lash hooking it rings it (and, with Lash Only off, so does a weapon hit on its Damage Area); it emits rung and opens every gate with Opens Gate ID. It never breaks. Put it across water or a gap so only the lash reaches it.',
+  sourcePath: 'src/game/features/scripts/LashBellScript.ts',
+  capabilities: ['lash-bell'],
+  exclusiveCapabilities: ['lash-bell'],
+  references: [
+    { key: 'damageArea', label: 'Damage Area', required: true, expectedCapability: 'area' },
+    { key: 'visual', label: 'Bell Sprite', required: false, expectedNodeType: 'Sprite2D' },
+  ],
+  properties: [
+    stringProperty('bellId', 'Bell ID', 'Bell'),
+    { key: 'gateId', label: 'Opens Gate ID', group: 'Bell', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+    { key: 'lashOnly', label: 'Lash Only', group: 'Bell', value: { kind: 'boolean' }, defaultValue: true, serialized: true, inspector: 'checkbox', overridable: true },
+    nodeReference('damageArea', 'Damage Area', 'area'),
+    { ...nodeReference('visual', 'Bell Sprite'), required: false },
+  ],
+  signals: [{ id: 'rung', payload: 'LashBellEvent' }],
+};
+
+export const ABILITY_LESSON_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.ability-lesson',
+  displayName: 'Ability Lesson Script',
+  description: 'Teaches its abilities once the player walks within Radius (test areas; the story teaches abilities through quest rewards). Emits taught.',
+  sourcePath: 'src/game/features/scripts/AbilityLessonScript.ts',
+  capabilities: ['ability-lesson'],
+  exclusiveCapabilities: ['ability-lesson'],
+  references: [],
+  properties: [
+    jsonProperty('abilityIds', 'Abilities', 'Lesson', []),
+    numberProperty('radius', 'Radius', 96, 'Lesson'),
+  ],
+  signals: [{ id: 'taught', payload: 'AbilityLessonEvent' }],
+};
+
+export const TRAINING_DUMMY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.training-dummy',
+  displayName: 'Training Dummy Script',
+  description: 'A straw dummy for trying attacks: any hit on its Damage Area shows the damage and wobbles the Dummy Sprite, with the usual hit feedback. It never breaks and never fights back. Emits hit.',
+  sourcePath: 'src/game/features/scripts/TrainingDummyScript.ts',
+  capabilities: ['training-dummy'],
+  exclusiveCapabilities: ['training-dummy'],
+  references: [
+    { key: 'damageArea', label: 'Damage Area', required: true, expectedCapability: 'area' },
+    { key: 'visual', label: 'Dummy Sprite', required: false, expectedNodeType: 'Sprite2D' },
+  ],
+  properties: [
+    nodeReference('damageArea', 'Damage Area', 'area'),
+    { ...nodeReference('visual', 'Dummy Sprite'), required: false },
+  ],
+  signals: [{ id: 'hit', payload: 'TrainingDummyHit' }],
+};
+
 export const GOO_HEART_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.goo-heart',
   displayName: 'Goo Heart Script',
@@ -621,7 +678,7 @@ export const BED_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const WORKBENCH_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.workbench',
   displayName: 'Workbench Script',
-  description: 'Crafting station: press F nearby to craft its recipes. Recipe Context is the station (workbench, workshop, forge); recipes above its tier show as locked.',
+  description: 'Crafting station: interact nearby (right click) to craft its recipes. Recipe Context is the station (workbench, workshop, forge); recipes above its tier show as locked.',
   sourcePath: 'src/game/features/scripts/WorkbenchScript.ts',
   capabilities: ['crafting-station', 'interactable'],
   exclusiveCapabilities: ['station-controller'],
@@ -637,7 +694,7 @@ export const WORKBENCH_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const RESTORATION_SITE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.restoration-site',
   displayName: 'Restoration Site Script',
-  description: 'A ruined building: press F nearby to pay its materials (Cost, e.g. {"wood": 60}). Restoring sets the story flag (pair it with a Story Variant on the same flag) and reports Object ID to quests. With Quest ID set, only a player on that quest can restore it.',
+  description: 'A ruined building: interact nearby (right click) to pay its materials (Cost, e.g. {"wood": 60}). Restoring sets the story flag (pair it with a Story Variant on the same flag) and reports Object ID to quests. With Quest ID set, only a player on that quest can restore it.',
   sourcePath: 'src/game/features/scripts/RestorationSiteScript.ts',
   capabilities: ['restoration-site', 'interactable'],
   exclusiveCapabilities: ['restoration-controller'],
@@ -726,6 +783,7 @@ export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'on_item_selected', payload: 'UiListSelection' },
     { id: 'on_item_secondary', payload: 'UiListSelection' },
     { id: 'on_jump_action' },
+    { id: 'on_dodge_action' },
     { id: 'on_slam_action' },
     { id: 'on_lash_action' },
     { id: 'on_teleport_action' },
@@ -763,6 +821,9 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   GATE_SCRIPT_DESCRIPTOR,
   GULP_SPOT_SCRIPT_DESCRIPTOR,
   PRESSURE_PLATE_SCRIPT_DESCRIPTOR,
+  LASH_BELL_SCRIPT_DESCRIPTOR,
+  ABILITY_LESSON_SCRIPT_DESCRIPTOR,
+  TRAINING_DUMMY_SCRIPT_DESCRIPTOR,
   GOO_HEART_SCRIPT_DESCRIPTOR,
   STORY_VARIANT_SCRIPT_DESCRIPTOR,
   CRACKED_GROUND_SCRIPT_DESCRIPTOR,
@@ -797,6 +858,9 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: GATE_SCRIPT_DESCRIPTOR, factory: (context) => new GateScript(context) })
     .registerDefinition({ descriptor: GULP_SPOT_SCRIPT_DESCRIPTOR, factory: (context) => new GulpSpotScript(context) })
     .registerDefinition({ descriptor: PRESSURE_PLATE_SCRIPT_DESCRIPTOR, factory: (context) => new PressurePlateScript(context) })
+    .registerDefinition({ descriptor: LASH_BELL_SCRIPT_DESCRIPTOR, factory: (context) => new LashBellScript(context) })
+    .registerDefinition({ descriptor: ABILITY_LESSON_SCRIPT_DESCRIPTOR, factory: (context) => new AbilityLessonScript(context) })
+    .registerDefinition({ descriptor: TRAINING_DUMMY_SCRIPT_DESCRIPTOR, factory: (context) => new TrainingDummyScript(context) })
     .registerDefinition({ descriptor: GOO_HEART_SCRIPT_DESCRIPTOR, factory: (context) => new GooHeartScript(context) })
     .registerDefinition({ descriptor: STORY_VARIANT_SCRIPT_DESCRIPTOR, factory: (context) => new StoryVariantScript(context) })
     .registerDefinition({ descriptor: CRACKED_GROUND_SCRIPT_DESCRIPTOR, factory: (context) => new CrackedGroundScript(context) })

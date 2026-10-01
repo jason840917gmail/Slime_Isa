@@ -326,6 +326,7 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
         animations: parseAnimationLibrary(library.animations),
         advanceSource: context,
         autoplay: typeof construction.properties.autoplay === 'string' && construction.properties.autoplay.length > 0 ? construction.properties.autoplay : undefined,
+        randomizeStart: construction.properties.randomizeStart === true,
         resolveBinding: (player, binding, property) => services.resolveAnimationBinding?.(player, binding, property)
           ?? (() => { throw new Error(`No animation binding resolver is configured for '${binding}.${property}'`); })(),
       });

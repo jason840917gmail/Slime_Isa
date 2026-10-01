@@ -6,7 +6,7 @@ animated characters.
 ## Sheet format
 
 - Asset ID: `character.player.slime`; texture key `slime`
-- File: `asset/characters/slime_normalized.png`
+- File: `asset/characters/slime_normalized.webp`
 - Sheet: `2048 x 2048 px`, `8 columns x 8 rows` of `256 x 256 px` frames
 - Index rule: `frame = row * 8 + column`
 - Default art facing: left (flipped at runtime when moving right)

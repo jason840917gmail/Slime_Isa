@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite --port 3000",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p scripts/tests/scene-browser/tsconfig.json",
-    "assets:check": "node scripts/check-assets.mjs",
+    "assets:check": "node scripts/check-assets.mjs && node scripts/assets/build-world-asset-sets.mjs --check",
+    "assets:worlds": "node scripts/assets/build-world-asset-sets.mjs",
     "visuals:check": "node scripts/check-visuals.mjs",
     "characters:check": "node scripts/check-characters.mjs",
     "projectiles:check": "node scripts/check-projectiles.mjs",

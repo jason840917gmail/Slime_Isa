@@ -16,7 +16,7 @@ Frame 5: goo-heart       (collectible: +max HP for the run)
 Frame 6: plate-up        (pressure plate, raised)
 Frame 7: plate-down      (pressure plate, held down: its rune glows)
 
-Form icons (asset/UI/ui-gulp-form-icons-2x1.png, sources in asset/Originals/ui/gulp/):
+Form icons (asset/UI/ui-gulp-form-icons-2x1.webp, sources in asset/Originals/ui/gulp/):
 Frame 0: heavy, frame 1: sticky (the Gulp HUD timer and the quick wheel).
 
 Usage: python scripts/props/pack-gulp-props.py
@@ -27,12 +27,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from PIL import Image
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "asset" / "Originals" / "props" / "gulp"
-OUTPUT = ROOT / "asset" / "MAPS" / "props" / "256x256-tile_8x1-gulp-props.png"
+OUTPUT = ROOT / "asset" / "MAPS" / "props" / "256x256-tile_8x1-gulp-props.webp"
 ICON_SOURCES = ROOT / "asset" / "Originals" / "ui" / "gulp"
-ICON_OUTPUT = ROOT / "asset" / "UI" / "ui-gulp-form-icons-2x1.png"
+ICON_OUTPUT = ROOT / "asset" / "UI" / "ui-gulp-form-icons-2x1.webp"
 ICON_SIZE = 128
 ICON_STEMS = ["form-heavy", "form-sticky"]
 # Later generations carry faint alpha noise around the art; below this it is cleared.
@@ -83,7 +87,7 @@ def main() -> None:
     for index, frame in enumerate(frames):
         sheet.alpha_composite(frame, (index * FRAME_W, 0))
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    sheet.save(OUTPUT, optimize=True)
+    save_game_webp(sheet, OUTPUT)
     print(f"wrote {OUTPUT.relative_to(ROOT)} {sheet.width}x{sheet.height}")
     pack_icons()
 
@@ -98,7 +102,7 @@ def pack_icons() -> None:
     for index, icon in enumerate(icons):
         art = icon.crop(box).convert("RGBa").resize(size, Image.LANCZOS).convert("RGBA")
         sheet.alpha_composite(art, (index * ICON_SIZE + (ICON_SIZE - art.width) // 2, (ICON_SIZE - art.height) // 2))
-    sheet.save(ICON_OUTPUT, optimize=True)
+    save_game_webp(sheet, ICON_OUTPUT)
     print(f"wrote {ICON_OUTPUT.relative_to(ROOT)} {sheet.width}x{sheet.height}")
 
 
