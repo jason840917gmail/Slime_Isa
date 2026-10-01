@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terrain blend playground</title>
+<!--
+  Standalone explainer for docs/TERRAIN_BLEND_MATH.md. It re-implements the math in
+  src/game/features/world/TerrainBlendField.ts (hash2, valueNoise, warp, kernel,
+  priority bias, sharpening, over-alpha). Keep the defaults and formulas in sync
+  when those constants change. Open this file directly in a browser; no build needed.
+-->
+<style>
+:root{--bg:#ffffff;--surface:#f7f6f2;--text:#1f1f1d;--muted:#6b6a65;--border:rgba(0,0,0,.14);--accent:#E24B4A}
+@media (prefers-color-scheme: dark){:root{--bg:#1c1c1b;--surface:#262624;--text:#ecebe6;--muted:#a3a29c;--border:rgba(255,255,255,.16)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+p.lead{color:var(--muted);margin:0 0 16px}
+button{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:.5px solid var(--border);background:transparent;color:var(--text);cursor:pointer}
+button.on{background:var(--surface);border-color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;align-items:start}
+@media (max-width:640px){.layout{grid-template-columns:minmax(0,1fr)}}
+.row{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px;color:var(--muted)}
+.row label{min-width:82px}
+.row input{flex:1;min-width:0}
+.row span{min-width:36px;font-weight:500;color:var(--text);text-align:right}
+canvas{width:100%;border-radius:8px;cursor:crosshair;display:block}
+.hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+.info{margin-top:14px;font-size:13px;color:var(--muted);overflow-x:auto}
+table{width:100%;min-width:480px;font:12px/1.4 ui-monospace,Consolas,monospace;border-collapse:collapse}
+td,th{padding:4px 6px;text-align:right;border-bottom:.5px solid var(--border);color:var(--text);font-weight:400}
+th{color:var(--muted)}
+td:first-child,th:first-child{text-align:left}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;border:.5px solid var(--border);vertical-align:-1px}
+</style>
+</head>
+<body>
+<main>
+<h1>Terrain blend playground</h1>
+<p class="lead">The formulas from <code>TerrainBlendField.ts</code> running live on a 12×8 grid. See <a href="../TERRAIN_BLEND_MATH.md" style="color:inherit">TERRAIN_BLEND_MATH.md</a> for the explanation.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px">
+  <button id="mBlend" class="on">Blended</button><button id="mHard">Hard cells</button><button id="mLines">Border lines</button><button id="mReset">Reset grid</button>
+</div>
+<div class="layout">
+  <div>
+    <canvas id="cv" width="480" height="320"></canvas>
+    <p class="hint">Click a cell to cycle water → sand → grass → snow. Hover to inspect the math at that pixel.</p>
+  </div>
+  <div>
+    <div class="row"><label for="sh">Sharpness k</label><input type="range" id="sh" min="1" max="12" step="1" value="4"><span id="shv">4</span></div>
+    <div class="row"><label for="pb">Priority bias</label><input type="range" id="pb" min="0" max="0.5" step="0.01" value="0.14"><span id="pbv">0.14</span></div>
+    <div class="row"><label for="kr">Kernel R</label><input type="range" id="kr" min="0.72" max="1.6" step="0.01" value="1.05"><span id="krv">1.05</span></div>
+    <div class="row"><label for="wc">Warp coarse</label><input type="range" id="wc" min="0" max="1" step="0.01" value="0.45"><span id="wcv">0.45</span></div>
+    <div class="row"><label for="wf">Warp fine</label><input type="range" id="wf" min="0" max="0.4" step="0.01" value="0.10"><span id="wfv">0.10</span></div>
+    <div class="row"><label for="sd">Seed</label><input type="range" id="sd" min="1" max="50" step="1" value="7"><span id="sdv">7</span></div>
+    <p class="hint">Defaults match the game: k = 4, bias = 0.14, R = 1.05, warp 0.45 @ 0.45 and 0.10 @ 2.2.</p>
+  </div>
+</div>
+<div id="info" class="info">Hover the map.</div>
+</main>
+<script>
+const T = 40, C = 12, R = 8, STEP = 4;
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+// Ascending priority, so array index == rank (as in buildChunk when all four are present).
+const MATS = [
+  { n: 'water', p: 5, c: [55, 138, 221] },
+  { n: 'sand', p: 8, c: [239, 196, 120] },
+  { n: 'grass', p: 10, c: [99, 153, 34] },
+  { n: 'snow', p: 20, c: [235, 238, 240] },
+];
+function initGrid() {
+  const g = [];
+  for (let y = 0; y < R; y++) {
+    const row = [];
+    for (let x = 0; x < C; x++) {
+      let m = 2;
+      if (x < 3 || (x < 5 && y > 4)) m = 0;
+      else if (x < 4 || (x === 5 && y > 5)) m = 1;
+      if (x > 8 && y < 4) m = 3;
+      if (x === 7 && y === 2) m = 3;
+      if (x === 6 && y === 6) m = 0;
+      row.push(m);
+    }
+    g.push(row);
+  }
+  return g;
+}
+let grid = initGrid(), mode = 'blend';
+const P = { sh: 4, pb: 0.14, kr: 1.05, wc: 0.45, wf: 0.1, sd: 7 };
+
+// Same as TerrainBlendField.ts
+function hash2(x, y, s) {
+  let h = Math.imul(x, 0x27d4eb2d) ^ Math.imul(y, 0x165667b1) ^ Math.imul(s, 0x45d9f3b);
+  h = Math.imul(h ^ (h >>> 15), 0x2c1b3c6d);
+  h = Math.imul(h ^ (h >>> 12), 0x297a2d39);
+  return ((h ^ (h >>> 15)) >>> 0) / 4294967295;
+}
+function valueNoise(x, y, s) {
+  const x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0;
+  const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const top = hash2(x0, y0, s) + (hash2(x0 + 1, y0, s) - hash2(x0, y0, s)) * sx;
+  const bottom = hash2(x0, y0 + 1, s) + (hash2(x0 + 1, y0 + 1, s) - hash2(x0, y0 + 1, s)) * sx;
+  return (top + (bottom - top) * sy) * 2 - 1;
+}
+function warp(u, v) {
+  const s = P.sd;
+  return [
+    u + valueNoise(u * 0.45, v * 0.45, s) * P.wc + valueNoise(u * 2.2, v * 2.2, s + 11) * P.wf,
+    v + valueNoise(u * 0.45, v * 0.45, s + 101) * P.wc + valueNoise(u * 2.2, v * 2.2, s + 131) * P.wf,
+  ];
+}
+const tileAt = (x, y) => (y >= 0 && y < R && x >= 0 && x < C ? grid[y][x] : -1);
+
+function sample(wx, wy) {
+  const u0 = wx / T, v0 = wy / T, own = tileAt(Math.floor(u0), Math.floor(v0));
+  const [u, v] = warp(u0, v0);
+  const W = [0, 0, 0, 0], bx = Math.floor(u), by = Math.floor(v), R2 = P.kr * P.kr;
+  for (let cy = by - 1; cy <= by + 1; cy++) {
+    for (let cx = bx - 1; cx <= bx + 1; cx++) {
+      const m = tileAt(cx, cy);
+      if (m < 0) continue;
+      const du = u - (cx + 0.5), dv = v - (cy + 0.5), ratio = (du * du + dv * dv) / R2;
+      if (ratio < 1) W[m] += (1 - ratio) * (1 - ratio);
+    }
+  }
+  const B = W.map((w, i) => w * (1 + P.pb * i));
+  const S = B.map((b) => b ** P.sh);
+  let total = S.reduce((a, b) => a + b, 0), fallback = false;
+  if (total <= 0) { S.fill(0); S[own] = 1; total = 1; fallback = true; }
+  const shares = S.map((s) => s / total);
+  let cumulative = 0;
+  const A = shares.map((s) => { cumulative += s; return s > 0 ? s / cumulative : 0; });
+  return { u, v, W, B, S, shares, A, own, fallback };
+}
+
+function draw() {
+  const img = ctx.createImageData(cv.width, cv.height), d = img.data;
+  for (let sy = 0; sy < cv.height / STEP; sy++) {
+    for (let sx = 0; sx < cv.width / STEP; sx++) {
+      const wx = (sx + 0.5) * STEP, wy = (sy + 0.5) * STEP;
+      let col;
+      if (mode === 'hard') {
+        col = MATS[tileAt(Math.floor(wx / T), Math.floor(wy / T))].c;
+      } else {
+        const s = sample(wx, wy);
+        col = [0, 0, 0];
+        // Source-over in ascending priority, exactly like the canvas bake.
+        for (let i = 0; i < 4; i++) {
+          const a = s.A[i];
+          if (a <= 0) continue;
+          col = col.map((c, k) => c * (1 - a) + MATS[i].c[k] * a);
+        }
+        if (mode === 'lines' && Math.max(...s.shares) < 0.75) col = col.map((c) => c * 0.55);
+      }
+      for (let py = 0; py < STEP; py++) {
+        for (let px = 0; px < STEP; px++) {
+          const o = ((sy * STEP + py) * cv.width + sx * STEP + px) * 4;
+          d[o] = col[0]; d[o + 1] = col[1]; d[o + 2] = col[2]; d[o + 3] = 255;
+        }
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= C; x++) { ctx.beginPath(); ctx.moveTo(x * T + 0.5, 0); ctx.lineTo(x * T + 0.5, R * T); ctx.stroke(); }
+  for (let y = 0; y <= R; y++) { ctx.beginPath(); ctx.moveTo(0, y * T + 0.5); ctx.lineTo(C * T, y * T + 0.5); ctx.stroke(); }
+}
+
+const fmt = (x) => (x === 0 ? '0' : x < 0.001 ? x.toExponential(1) : x.toFixed(3));
+function inspect(wx, wy) {
+  const s = sample(wx, wy);
+  draw();
+  const ox = s.u * T, oy = s.v * T;
+  ctx.strokeStyle = '#E24B4A'; ctx.fillStyle = '#E24B4A'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(wx, wy, 4, 0, 7); ctx.stroke();
+  ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(ox, oy); ctx.stroke(); ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(ox, oy, P.kr * T, 0, 7); ctx.stroke();
+  ctx.beginPath(); ctx.arc(ox, oy, 3, 0, 7); ctx.fill();
+  let h = `<div style="margin-bottom:6px">Sample in cell (${Math.floor(wx / T)}, ${Math.floor(wy / T)}) = ${MATS[s.own].n} · warped to (u, v) = (${s.u.toFixed(2)}, ${s.v.toFixed(2)}) tiles${s.fallback ? ' · fallback to own material' : ''}</div>`;
+  h += '<table><tr><th>material · rank</th><th>W = Σk(d)</th><th>W·(1+b·rank)</th><th>^k</th><th>share</th><th>α byte</th></tr>';
+  MATS.forEach((m, i) => {
+    h += `<tr><td><span class="sw" style="background:rgb(${m.c})"></span>${m.n} · ${i}</td><td>${fmt(s.W[i])}</td><td>${fmt(s.B[i])}</td><td>${fmt(s.S[i])}</td><td>${fmt(s.shares[i])}</td><td>${Math.round(s.A[i] * 255)}</td></tr>`;
+  });
+  h += '</table><p class="hint">Red dashed line: domain warp. Red circle: kernel reach R around the warped point. Layers paint water → snow.</p>';
+  document.getElementById('info').innerHTML = h;
+}
+
+function toCanvas(e) {
+  const r = cv.getBoundingClientRect();
+  return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height];
+}
+cv.addEventListener('mousemove', (e) => inspect(...toCanvas(e)));
+cv.addEventListener('mouseleave', draw);
+cv.addEventListener('click', (e) => {
+  const [x, y] = toCanvas(e);
+  const cx = Math.floor(x / T), cy = Math.floor(y / T);
+  grid[cy][cx] = (grid[cy][cx] + 1) % 4;
+  inspect(x, y);
+});
+[['sh', 0], ['pb', 2], ['kr', 2], ['wc', 2], ['wf', 2], ['sd', 0]].forEach(([k, dp]) => {
+  const el = document.getElementById(k);
+  el.addEventListener('input', () => { P[k] = +el.value; document.getElementById(k + 'v').textContent = (+el.value).toFixed(dp); draw(); });
+});
+const modeButtons = { blend: 'mBlend', hard: 'mHard', lines: 'mLines' };
+Object.entries(modeButtons).forEach(([m, id]) => {
+  document.getElementById(id).addEventListener('click', () => {
+    mode = m;
+    Object.values(modeButtons).forEach((b) => document.getElementById(b).classList.toggle('on', b === id));
+    draw();
+  });
+});
+document.getElementById('mReset').addEventListener('click', () => { grid = initGrid(); draw(); });
+draw();
+</script>
+</body>
+</html>
