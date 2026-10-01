@@ -56,6 +56,7 @@ test('every authored home bed resolves against the real world scenes', async () 
   const scenes = [
     await readScene('worlds/slime-home.scene.json'),
     await readScene('worlds/mushroom-home.scene.json'),
+    await readScene('worlds/gloop-hut.scene.json'),
     await readScene('objects/interiors/beds/interior-beds-straw-nest-s.scene.json'),
     await readScene('objects/interiors/mushroom-large/interior-mushroom-large-bed-mushroom-cap-s.scene.json'),
   ];
@@ -63,5 +64,6 @@ test('every authored home bed resolves against the real world scenes', async () 
   assert.equal(worldHasBed(real, 'slime-home', 'world.slime-home.west-bed'), true);
   assert.equal(worldHasBed(real, 'slime-home', 'world.slime-home.east-bed'), true);
   assert.equal(worldHasBed(real, 'mushroom-home', 'world.mushroom-home.bed'), true);
+  assert.equal(worldHasBed(real, 'gloop-hut', 'world.gloop-hut.west-bed'), true);
   assert.equal(worldHasBed(real, 'slime-home', 'world.slime-home.west-bed-rug'), false);
 });

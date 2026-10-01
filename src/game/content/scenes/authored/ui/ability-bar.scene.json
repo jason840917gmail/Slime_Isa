@@ -354,7 +354,7 @@
     },
     {
       "source": {
-        "nodeId": "squash-slam"
+        "nodeId": "dodge"
       },
       "signal": "pressed",
       "target": {
@@ -374,7 +374,7 @@
     },
     {
       "source": {
-        "nodeId": "teleport"
+        "nodeId": "squash-slam"
       },
       "signal": "pressed",
       "target": {
@@ -384,7 +384,7 @@
     },
     {
       "source": {
-        "nodeId": "dodge"
+        "nodeId": "teleport"
       },
       "signal": "pressed",
       "target": {

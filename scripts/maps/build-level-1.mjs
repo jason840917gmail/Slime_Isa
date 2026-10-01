@@ -459,9 +459,10 @@ function placeTown() {
   force(G, 'wood-table', 8.9 * TILE, 17.1 * TILE);
   force(G, 'cooking-cauldron', 5.3 * TILE, 13.4 * TILE);
   force(G, 'hay-bale', 3.6 * TILE, 11.9 * TILE);
-  // forge yard next to the slime home (the red forge house)
-  force(G, 'anvil', 19.6 * TILE, 15.9 * TILE);
-  force(G, 'grindstone', 20.9 * TILE, 16.8 * TILE);
+  // forge yard beside the slime home (the red forge house): the Forge furnace is hand-placed (level-1-forge,
+  // a ruin until Chapter 2) between the home's door and the pond, with the anvil and grindstone east of it
+  force(G, 'anvil', 20.6 * TILE, 16.6 * TILE);
+  force(G, 'grindstone', 22.4 * TILE, 17 * TILE);
   force(G, 'tool-bench', 19.4 * TILE, 13.3 * TILE);
   // woodcutter yard around the loose wood piles; the ruined Workshop (hand-placed, level-1-workshop) stands behind it
   force(G, 'haystack', 3.5 * TILE, 7.7 * TILE);

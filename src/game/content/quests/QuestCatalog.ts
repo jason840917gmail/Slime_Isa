@@ -1,9 +1,11 @@
 import { validateQuestCatalog } from './validateQuestCatalog';
 import type { QuestDefinition, QuestState } from './types';
 import { CHAPTER_ONE_QUESTS } from './quests/chapterOne';
+import { CHAPTER_TWO_QUESTS } from './quests/chapterTwo';
 
 export const QUEST_DEFINITIONS: readonly QuestDefinition[] = [
   ...CHAPTER_ONE_QUESTS,
+  ...CHAPTER_TWO_QUESTS,
 ];
 
 validateQuestCatalog(QUEST_DEFINITIONS);

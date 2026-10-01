@@ -105,6 +105,9 @@ const RULES = [
   ['weapons/stone-axe.scene.json', [sfx('SwingSfx', 'weapon/swing-tool', [{ signal: 'attack_started' }], ONE_SHOT, false)]],
   ['weapons/pickaxe.scene.json', [sfx('SwingSfx', 'weapon/swing-tool', [{ signal: 'attack_started' }], ONE_SHOT, false)]],
   ['weapons/stone-pickaxe.scene.json', [sfx('SwingSfx', 'weapon/swing-tool', [{ signal: 'attack_started' }], ONE_SHOT, false)]],
+  ['weapons/reinforced-pickaxe.scene.json', [sfx('SwingSfx', 'weapon/swing-tool', [{ signal: 'attack_started' }], ONE_SHOT, false)]],
+  ['weapons/iron-spear.scene.json', [sfx('SwingSfx', 'weapon/thrust', [{ signal: 'attack_started' }], ONE_SHOT, false)]],
+  ['weapons/iron-axe.scene.json', [sfx('SwingSfx', 'weapon/swing-tool', [{ signal: 'attack_started' }], ONE_SHOT, false)]],
 
   // Characters.
   ['characters/player-slime.scene.json', [
@@ -125,6 +128,14 @@ const RULES = [
     sfx('DeathSfx', 'enemy/spider-death', [{ signal: 'defeated' }], DETACHED),
     sfx('AlertSfx', 'enemy/spider-hiss', [{ signal: 'alerted' }], { ...ONE_SHOT, volume: 0.8 }),
   ]],
+  // The Matron (8.7): the spider's voice pitched lower until she has her own; a hiss marks each web volley.
+  ['characters/orb-weaver-matron.scene.json', [
+    sfx('HurtSfx', 'enemy/spider-hurt', [{ signal: 'damaged' }], { ...ONE_SHOT, minIntervalMs: 150, pitch: 0.6 }),
+    sfx('DeathSfx', 'enemy/spider-death', [{ signal: 'defeated' }], { ...DETACHED, pitch: 0.55, maxDistance: 1400 }),
+    sfx('AlertSfx', 'enemy/spider-hiss', [{ signal: 'alerted' }], { ...ONE_SHOT, volume: 0.9, pitch: 0.6 }),
+    sfx('VolleySfx', 'enemy/spider-hiss', [{ signal: 'phase_changed', filter: 'phase=volley-telegraph' }], { volume: 1, pitch: 0.45, maxDistance: 1400 }),
+    sfx('SpitSfx', 'enemy/web-spit', [{ signal: 'phase_changed', filter: 'phase=volley-rest' }], { volume: 0.9, pitch: 0.7 }),
+  ]],
   ['characters/fatty-one-eye.scene.json', [
     sfx('HurtSfx', 'boss/fatty-hurt', [{ signal: 'damaged' }], { ...ONE_SHOT, minIntervalMs: 150 }),
     sfx('HopSfx', 'boss/fatty-hop', [{ signal: 'phase_changed', filter: 'phase=contact-hop|small-hop' }], ONE_SHOT),
@@ -133,6 +144,9 @@ const RULES = [
     sfx('LandSfx', 'boss/fatty-land', [{ signal: 'phase_changed', filter: 'phase=landing' }], { maxDistance: 1400 }),
     sfx('RecoverSfx', 'boss/fatty-recover', [{ signal: 'phase_changed', filter: 'phase=recovery' }], { volume: 0.7 }),
     sfx('DeathSfx', 'boss/fatty-death', [{ signal: 'phase_changed', filter: 'phase=dead' }], { detached: true, maxDistance: 1400 }),
+  ]],
+  ['encounters/gloop-matron-nest.scene.json', [
+    sfx('RoarSfx', 'enemy/spider-hiss', [{ signal: 'boss_spawn_requested' }], { maxDistance: 1600, pitch: 0.4, volume: 1 }),
   ]],
   ['encounters/level-1-fatty-camp.scene.json', [
     sfx('RoarSfx', 'boss/fatty-roar', [{ signal: 'boss_spawn_requested' }], { maxDistance: 1600 }),
@@ -150,9 +164,12 @@ const RULES = [
   ['objects/collectible-energy-potion.scene.json', PICKUP('pickup/potion')],
   ['objects/collectible-hp-potion.scene.json', PICKUP('pickup/potion')],
   ['objects/collectible-green-key.scene.json', PICKUP('pickup/key')],
+  ['objects/collectible-crystal-key.scene.json', PICKUP('pickup/key')],
   ['objects/collectible-iron-ore-pile.scene.json', PICKUP('pickup/ore')],
   ['objects/collectible-purple-berry.scene.json', PICKUP('pickup/berry')],
   ['objects/collectible-silk-clump.scene.json', PICKUP('pickup/silk')],
+  ['objects/collectible-weaver-fang.scene.json', PICKUP('pickup/ore')],
+  ['objects/collectible-iron-bar.scene.json', PICKUP('pickup/ore')],
   ['objects/collectible-small-stone-pile.scene.json', PICKUP('pickup/stone')],
   ['objects/collectible-stone-pile.scene.json', PICKUP('pickup/stone')],
   ['objects/collectible-small-wood-pile.scene.json', PICKUP('pickup/wood')],
@@ -164,7 +181,7 @@ const RULES = [
     sfx('WrongToolSfx', 'resource/wrong-tool', [{ signal: 'harvest_blocked' }], { ...ONE_SHOT, minIntervalMs: 200 }),
     sfx('CrumbleSfx', 'resource/stone-crumble', [{ signal: 'drops_requested' }], DETACHED),
   ]],
-  ['objects/rock-amber-ore-mineable.scene.json', [
+  [(file) => file === 'objects/rock-amber-ore-mineable.scene.json' || file.startsWith('objects/resource-iron-node'), [
     sfx('ClinkSfx', 'resource/ore-clink', [{ signal: 'resource_hit' }], ONE_SHOT),
     sfx('WrongToolSfx', 'resource/wrong-tool', [{ signal: 'harvest_blocked' }], { ...ONE_SHOT, minIntervalMs: 200 }),
     sfx('ShatterSfx', 'resource/ore-shatter', [{ signal: 'drops_requested' }], DETACHED),
@@ -175,6 +192,11 @@ const RULES = [
     sfx('ReleaseSfx', 'enemy/arrow-release', [{ signal: 'launched' }], ONE_SHOT),
     sfx('ThunkSfx', 'enemy/arrow-thunk', [{ signal: 'expired' }], DETACHED),
   ]],
+  // The Matron's web patches (8.7): a splat where each lands, a silk tear when the Sticky slime walks through.
+  ['effects/matron-web-patch.scene.json', [
+    sfx('SplatSfx', 'enemy/web-splat', [], { ...IMPACT, volume: 0.7 }),
+    sfx('TearSfx', 'pickup/silk', [{ signal: 'torn', source: 'patch' }], ONE_SHOT),
+  ]],
   ['projectiles/spider-web.scene.json', [
     sfx('SpitSfx', 'enemy/web-spit', [{ signal: 'launched' }], ONE_SHOT),
   ]],
@@ -184,15 +206,24 @@ const RULES = [
     sfx('MusicPlayer', 'music/level-1-home-town', [], { bus: 'music', loop: true, autoplay: true, volume: 0.55, polyphony: 1 }, false),
     sfx('Ambience', 'world/meadow-ambience', [], AMBIENCE_BED, false),
   ]],
+  ['worlds/gloop-forest.scene.json', [
+    sfx('MusicPlayer', 'music/gloop-forest', [], { bus: 'music', loop: true, autoplay: true, volume: 0.5, polyphony: 1 }, false),
+    sfx('Ambience', 'music/gloop-forest-ambience', [], AMBIENCE_BED, false),
+  ]],
   // Interiors: a quiet room bed (hearth crackle) instead of music.
   ['worlds/slime-home.scene.json', [sfx('Ambience', 'world/interior-ambience', [], AMBIENCE_BED, false)]],
+  ['worlds/gloop-hut.scene.json', [sfx('Ambience', 'world/interior-ambience', [], AMBIENCE_BED, false)]],
   ['worlds/mushroom-home.scene.json', [sfx('Ambience', 'world/interior-ambience', [], AMBIENCE_BED, false)]],
 
   // Props that sound while you are near them: looping, positional, on the ambience bus.
   ['objects/decoration-world-solid--campfire.scene.json', [sfx('LoopSfx', 'world/campfire-loop', [], PROP_LOOP)]],
   ['objects/decoration-world-solid--cooking-cauldron.scene.json', [sfx('LoopSfx', 'world/cauldron-loop', [], PROP_LOOP)]],
   ['objects/decoration-world-solid--grindstone.scene.json', [sfx('LoopSfx', 'world/grindstone-loop', [], { ...PROP_LOOP, volume: 0.45 })]],
-  ['objects/decoration-world-solid--anvil.scene.json', [sfx('LoopSfx', 'world/anvil-loop', [], { ...PROP_LOOP, volume: 0.4 })]],
+  // The Forge (8.5) only sounds once restored: fire and anvil live in its restored variant.
+  ['objects/forge.scene.json', [
+    { ...sfx('FireLoop', 'world/campfire-loop', [], PROP_LOOP), parent: 'restored' },
+    { ...sfx('AnvilLoop', 'world/anvil-loop', [], { ...PROP_LOOP, volume: 0.4 }), parent: 'restored' },
+  ]],
 
   // Global cues driven by features/audio/AudioEventBridge (names must match its cue names).
   ['audio/global.scene.json', [

@@ -52,6 +52,7 @@ Which flavour each cue ships is in `scripts/audio/picks.json`.
 | Swishes Sound Pack | artisticdude | CC0 1.0 | https://opengameart.org/content/swishes-sound-pack |
 | Home Town (JRPG Pack 2: Towns), the Slimeshire music | Juhani Junkala | CC0 1.0 | https://archive.org/details/JuhaniJunkala-JRPGpack2Town |
 | Generated sound effects (22 cues) | Magnific (ElevenLabs sound effects), for Slime Isa | generated | `asset/Originals/audio/magnific/` |
+| Gloop Forest music and ambience | Magnific (ElevenLabs music and sound effects), for Slime Isa | generated | `asset/audio/music/gloop-forest*.mp3` |
 | Synthesized effects and ambience (50 cues) | made for Slime Isa | own | `scripts/audio/cues.mjs`, `pnpm audio:bake` |
 
 ## Art
@@ -63,6 +64,7 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 
 | Family | Runtime files | Made with | Evidence |
 |---|---|---|---|
+| Player slime Gulp form skins | `characters/slime-form-{heavy,sticky}` | the owner's player sheet re-textured with Magnific GPT-2 stone and silk textures | `scripts/characters/build-gulp-form-skins.py` |
 | Player slime | `characters/slime_normalized` | owner, with AI | in the first commit (2026-04-25), no source or metadata |
 | NPCs: Elder Plop, Mossy Scout | `characters/authored/npcs/` | OpenAI image model | C2PA on their first versions |
 | NPCs: Lili, Red Slime Boy, Yellow-Blond Slime Girl, Fisherman | `characters/authored/npcs/` | owner, with AI | no source or metadata |
@@ -75,7 +77,8 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 | Crystal clusters | `MAPS/rocks/128x128-tile_8x2-crystal-clusters` | OpenAI image model | C2PA on `Originals/props/crystal-clusters-*` |
 | Stone walls | `MAPS/walls/` | OpenAI image model | C2PA on `Originals/walls/stone-wall-networks-source.png` |
 | Houses (the old 3x1 sheet) | `MAPS/Houses/320-3x1` | owner, with AI | no source |
-| Mushroom houses, the Workshop | `MAPS/Houses/320-mushroom-2x1`, `320-workshop-2x1` | Magnific GPT-2 | manifest notes, C2PA |
+| Mushroom houses, the Workshop, the Forge | `MAPS/Houses/320-mushroom-2x1`, `320-workshop-2x1`, `256-forge-2x1` | Magnific GPT-2 | manifest notes, C2PA |
+| Chapter 2 icons, iron ore node, iron weapons | `MAPS/items/chapter-2-5x2`, `MAPS/rocks/128x128-tile_2x1-iron-ore`, `MAPS/weapons/128x128-tile_4x1-iron-tools` | Magnific GPT-2 (cut out of a white background) | manifest notes, sources in `Originals/items/chapter-2/`, `Originals/props/iron-ore/`, `Originals/weapon/iron-tools/` |
 | Stone-and-oak interiors | `MAPS/interiors/*-interior-{structure,seating,beds,tables,storage,kitchen,workshop,decor,specialty}*` | ChatGPT | C2PA on `Originals/interiors/generated-sheets/interior-0*` |
 | Mushroom-cottage interiors | `MAPS/interiors/*-interior-mushroom-*` | Magnific GPT-2 | manifest notes, C2PA |
 | Decorations (8x3) | `MAPS/decorations/128x128-tile_8x3` | owner, with AI | no source |

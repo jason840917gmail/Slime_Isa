@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.crystal-key",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "sheet.items.keys.5x4",
+    "frames": [{ "visualId": "crystal-key", "frame": 1, "displayName": "Crystal Key", "scale": 1 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "crystal-key", "quantity": 1 },
+  "tags": ["collectible", "key"]
+}

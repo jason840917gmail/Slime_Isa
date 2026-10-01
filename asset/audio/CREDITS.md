@@ -34,6 +34,8 @@ Hand-authored manifest entries (`audio.music.*`, bundle `music`); `pnpm audio:ba
 | File | Track | Author | License | Source |
 |---|---|---|---|---|
 | `level-1-home-town.ogg` | Home Town (JRPG Pack 2: Towns) | Juhani Junkala | CC0 1.0 | https://archive.org/details/JuhaniJunkala-JRPGpack2Town |
+| `gloop-forest.mp3` | Gloop Forest (120 s loop) | generated for Slime Isa with Magnific (ElevenLabs music v2) | the project | Magnific, 2026-10-01 |
+| `gloop-forest-ambience.mp3` | Gloop Forest ambience bed (20 s loop) | generated for Slime Isa with Magnific (ElevenLabs sound effects) | the project | Magnific, 2026-10-01 |
 
 ## One flavour per cue
 Each cue ships only the flavour picked in `scripts/audio/picks.json` (library sample or synthesized take); there is

@@ -1,0 +1,292 @@
+{
+  "version": 1,
+  "sceneId": "object.forge",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "forge",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "forge.shape"
+        },
+        "position": [
+          0,
+          -26
+        ]
+      }
+    },
+    {
+      "id": "variant",
+      "name": "StoryVariantScript",
+      "type": "ScriptNode",
+      "scriptId": "game.story-variant",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "flagId": "forge.restored",
+        "whenSet": {
+          "nodeId": "restored"
+        },
+        "whenUnset": {
+          "nodeId": "ruined"
+        }
+      }
+    },
+    {
+      "id": "ruined",
+      "name": "Ruined",
+      "type": "Node2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "ruined-visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "ruined",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "forge.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 150,
+          "height": 96,
+          "offsetX": 53,
+          "offsetY": 105
+        },
+        "depthBounds": {
+          "width": 174,
+          "height": 60,
+          "offsetX": 41,
+          "offsetY": 193
+        }
+      }
+    },
+    {
+      "id": "site",
+      "name": "RestorationSite",
+      "type": "Node2D",
+      "parentId": "ruined",
+      "order": 1,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "site-script",
+      "name": "RestorationSiteScript",
+      "type": "ScriptNode",
+      "scriptId": "game.restoration-site",
+      "parentId": "site",
+      "order": 0,
+      "properties": {
+        "prompt": "Restore the Forge (40 stone, 20 wood, 6 iron ore)",
+        "flagId": "forge.restored",
+        "objectId": "forge",
+        "questId": "rekindle-the-forge",
+        "cost": {
+          "stone": 40,
+          "wood": 20,
+          "iron-ore": 6
+        },
+        "lockedMessage": "The Forge has gone cold. Pip, the smith's son, wants it lit again.",
+        "restoredMessage": "The Forge burns again!",
+        "interactRadius": 130,
+        "badgeRise": 130
+      }
+    },
+    {
+      "id": "restored",
+      "name": "Restored",
+      "type": "Node2D",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "restored-visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "restored",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "forge.sprite"
+        },
+        "frame": 1,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 150,
+          "height": 96,
+          "offsetX": 53,
+          "offsetY": 105
+        },
+        "depthBounds": {
+          "width": 174,
+          "height": 60,
+          "offsetX": 41,
+          "offsetY": 193
+        }
+      }
+    },
+    {
+      "id": "station",
+      "name": "Station",
+      "type": "Node2D",
+      "parentId": "restored",
+      "order": 1,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "station-script",
+      "name": "WorkbenchScript",
+      "type": "ScriptNode",
+      "scriptId": "game.workbench",
+      "parentId": "station",
+      "order": 0,
+      "properties": {
+        "prompt": "Use the Forge",
+        "recipeContext": "forge",
+        "tier": 1,
+        "interactRadius": 130,
+        "badgeRise": 130
+      }
+    },
+    {
+      "id": "sfx-fire-loop",
+      "name": "FireLoop",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "restored",
+      "order": 2,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.world.campfire-loop"
+        },
+        "bus": "ambience",
+        "loop": true,
+        "autoplay": true,
+        "volume": 0.55,
+        "maxDistance": 420,
+        "polyphony": 1
+      }
+    },
+    {
+      "id": "sfx-anvil-loop",
+      "name": "AnvilLoop",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "restored",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.world.anvil-loop"
+        },
+        "bus": "ambience",
+        "loop": true,
+        "autoplay": true,
+        "volume": 0.4,
+        "maxDistance": 420,
+        "polyphony": 1
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "forge.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.houses.forge.2x1",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "forge.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 140,
+        "height": 44
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.world.campfire-loop",
+      "kind": "audio",
+      "assetId": "audio.sfx.world.campfire-loop.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.world.anvil-loop",
+      "kind": "audio",
+      "assetId": "audio.sfx.world.anvil-loop.1"
+    }
+  ]
+}

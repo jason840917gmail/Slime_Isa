@@ -9,7 +9,7 @@ const { characterContentModulesPlugin } = await loadTypescriptModule('src/game/c
 test('converted combat entities declare Scene Studio as their writer', async () => {
   const ledger = JSON.parse(await readFile('scripts/migrations/universal-scene-conversion-ledger.json', 'utf8'));
   const entities = ledger.rows.filter((row) => ['weapon', 'projectile', 'effect'].includes(row.family) && row.classification === 'convert');
-  assert.equal(entities.length, 16);
+  assert.equal(entities.length, 19);
   assert.deepEqual([...new Set(entities.map((row) => row.writerState))], ['scene']);
 });
 

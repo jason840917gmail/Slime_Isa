@@ -45,18 +45,18 @@ export const NPC_DEFINITIONS: readonly NpcDefinition[] = [
   {
     id: 'red-slime-boy',
     characterId: 'red-slime-boy',
-    displayName: 'Red Slime Boy',
-    description: 'Race you to the next patch of grass! Ready, steady... squish!',
+    displayName: 'Pip',
+    description: "The smith's son. He has wanted to light the Forge again since the worms came.",
     dialogue: [
-      'Race you to the next patch of grass!',
-      'Ready, steady... squish!',
-      "Hey, no fair, you didn't even start running!",
+      "I'm Pip! My dad was Slimeshire's smith, before the worms chased him off.",
+      'The Forge in the yard by your house has been cold ever since.',
+      'One day I am going to light it again. You will see!',
     ],
   },
   {
     id: 'yellow-blond-slime-girl',
     characterId: 'yellow-blond-slime-girl',
-    displayName: 'Yellow Blond Slime Girl',
+    displayName: 'Sunny',
     description: 'A little sunshine makes every adventure brighter!',
     dialogue: [
       'A little sunshine makes every adventure brighter!',

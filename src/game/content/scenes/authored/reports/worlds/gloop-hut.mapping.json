@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "mapId": "gloop-hut",
+  "sceneId": "world.gloop-hut",
+  "sourceCounts": {
+    "objects": 0,
+    "bossCamps": 0,
+    "playerMarkers": 2,
+    "exits": 0,
+    "enemySafeZones": 0,
+    "enemySpawnAreas": 0,
+    "npcWanderAreas": 0
+  },
+  "worldInstanceCount": 0,
+  "placements": [],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        448,
+        624
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.south",
+      "nodeId": "player-entry-south",
+      "position": [
+        448,
+        624
+      ],
+      "direction": "south"
+    }
+  ],
+  "areas": []
+}

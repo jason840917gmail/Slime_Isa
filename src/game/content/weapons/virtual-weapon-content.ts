@@ -8,6 +8,9 @@ import woodenSpear from './wooden-spear/weapon.json';
 import stoneSpear from './stone-spear/weapon.json';
 import stoneAxe from './stone-axe/weapon.json';
 import stonePickaxe from './stone-pickaxe/weapon.json';
+import reinforcedPickaxe from './reinforced-pickaxe/weapon.json';
+import ironSpear from './iron-spear/weapon.json';
+import ironAxe from './iron-axe/weapon.json';
 
 export const weaponDefinitions = [
   gooGauntlet,
@@ -20,4 +23,7 @@ export const weaponDefinitions = [
   stoneSpear,
   stoneAxe,
   stonePickaxe,
+  reinforcedPickaxe,
+  ironSpear,
+  ironAxe,
 ];

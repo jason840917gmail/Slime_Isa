@@ -57,6 +57,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('object.resource-stone-node'),
           sceneId('object.resource-stone-node.big-stone-mine'),
           sceneId('object.rock-amber-ore-mineable'),
+          sceneId('object.resource-iron-node'),
           ...sceneDocuments
             .filter((document) => document.sceneId.startsWith('object.tree-world-solid'))
             .map((document) => sceneId(document.sceneId)),
@@ -83,6 +84,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('effect.wood-impact'),
           sceneId('effect.enemy-worm-brawler-hit'),
           sceneId('effect.boss-ground-crack'),
+          sceneId('effect.matron-web-patch'),
           sceneId('weapon.basic-spear'),
           sceneId('weapon.basic-sword'),
           sceneId('weapon.goo-gauntlet'),
@@ -90,6 +92,9 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('weapon.slam-hammer'),
           sceneId('weapon.stone-axe'),
           sceneId('weapon.stone-pickaxe'),
+          sceneId('weapon.reinforced-pickaxe'),
+          sceneId('weapon.iron-spear'),
+          sceneId('weapon.iron-axe'),
           sceneId('weapon.stone-spear'),
           sceneId('weapon.wooden-axe'),
           sceneId('weapon.wooden-spear'),

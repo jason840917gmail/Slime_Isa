@@ -73,6 +73,24 @@
     "description": "Clumpy silk from a spider-slime.",
     "worldDrop": { "objectId": "collectible.silk-clump", "visualId": "silk-clump" }
   },
+  "weaver-fang": {
+    "id": "weaver-fang",
+    "name": "Weaver Fang",
+    "category": "material",
+    "icon": "items-chapter-2-5x2",
+    "iconFrame": 0,
+    "description": "A hooked fang from a Gloop Forest orb-weaver, hard enough to bite into iron.",
+    "worldDrop": { "objectId": "collectible.weaver-fang", "visualId": "weaver-fang" }
+  },
+  "iron-bar": {
+    "id": "iron-bar",
+    "name": "Iron Bar",
+    "category": "material",
+    "icon": "items-chapter-2-5x2",
+    "iconFrame": 1,
+    "description": "Smelted iron from the Forge, ready to be shaped into gear at the workbench.",
+    "worldDrop": { "objectId": "collectible.iron-bar", "visualId": "iron-bar" }
+  },
   "shard": {
     "id": "shard",
     "name": "Crystal Shard",
@@ -90,6 +108,15 @@
     "iconFrame": 0,
     "description": "A leaf-shaped green key carried by Fatty One Eye's guarded chest.",
     "worldDrop": { "objectId": "collectible.green-key", "visualId": "green-key" }
+  },
+  "crystal-key": {
+    "id": "crystal-key",
+    "name": "Crystal Key",
+    "category": "key",
+    "icon": "items-keys-5x4",
+    "iconFrame": 1,
+    "description": "A key of living crystal. It opens the sealed way into the Crystal Caverns (Chapter 3).",
+    "worldDrop": { "objectId": "collectible.crystal-key", "visualId": "crystal-key" }
   },
   "workbench": {
     "id": "workbench",
