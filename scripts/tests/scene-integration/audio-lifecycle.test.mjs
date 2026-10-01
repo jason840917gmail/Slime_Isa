@@ -44,7 +44,7 @@ test('audio waits for the shared gesture gate, applies preferences, and destroys
   const audio = new t.AudioStreamPlayerNode({ runtimeId: 'audio/ui', name: 'Audio', scene, assetId: 'click', autoplay: true, volume: 0.5, pitch: 1.25, preferences, unlock: unlock.service });
   const tree = new t.SceneTree();
   tree.setRoot(audio);
-  assert.equal(handles[0].plays, 0);
+  assert.equal(handles.length, 0, 'no sound object exists before the gesture');
   assert.equal(unlock.pending, 1);
   unlock.unlock();
   assert.equal(handles[0].plays, 1);
@@ -73,8 +73,8 @@ test('explicit loops resume after detach/re-entry, while one-shots and pending u
   assert.equal(loop.playing, true);
   assert.equal(oneShot.playing, false);
   root.add_child(loop); root.add_child(oneShot); tree.flushMutations();
-  assert.equal(handles.length, 4);
-  assert.deepEqual(handles.map((handle) => handle.plays), [1, 1, 1, 0]);
+  assert.equal(handles.length, 3, 'only the resumed loop allocates a voice on re-entry');
+  assert.deepEqual(handles.map((handle) => handle.plays), [1, 1, 1]);
   tree.shutdown();
 
   const locked = unlockFixture(false);
@@ -84,7 +84,7 @@ test('explicit loops resume after detach/re-entry, while one-shots and pending u
   pendingTree.shutdown();
   assert.equal(locked.pending, 0);
   locked.unlock();
-  assert.equal(handles.at(-1).plays, 0);
+  assert.equal(handles.some((handle) => handle.assetId === 'late'), false);
 });
 
 test('AudioStreamPlayer2D synchronizes attenuation and pan from logical world position', () => {
@@ -119,16 +119,17 @@ test('one-shots layer up to polyphony, pick variants, jitter pitch, and throttle
     unlock: unlockFixture(true).service, random: () => rolls.shift() ?? 0.5, now: () => now,
   });
   const tree = new t.SceneTree(); tree.setRoot(audio);
+  assert.equal(handles.length, 0, 'an idle node owns no voice');
   audio.play();
-  assert.deepEqual(handles.map((handle) => [handle.assetId, handle.plays]), [['hit-1', 0], ['hit-2', 1]]);
-  assert.equal(handles[1].rate, 1);
+  assert.deepEqual(handles.map((handle) => [handle.assetId, handle.plays]), [['hit-2', 1]]);
+  assert.equal(handles[0].rate, 1);
   now = 10; audio.play();
   assert.equal(handles.reduce((sum, handle) => sum + handle.plays, 0), 1, 'retrigger inside minIntervalMs is dropped');
   now = 100; audio.play();
-  assert.deepEqual(handles.map((handle) => [handle.assetId, handle.plays]), [['hit-1', 1], ['hit-2', 1]]);
+  assert.deepEqual(handles.map((handle) => [handle.assetId, handle.plays]), [['hit-2', 1], ['hit-1', 1]]);
   now = 200; audio.play();
   assert.equal(handles.length, 3, 'the oldest voice is recycled once polyphony is exhausted');
-  assert.equal(handles[1].destroyed, true);
+  assert.equal(handles[0].destroyed, true);
   assert.equal(handles[2].plays, 1);
   assert.ok(Math.abs(handles[2].rate - 1.1) < 1e-6, 'pitch jitter scales the base pitch');
   tree.shutdown();
@@ -151,7 +152,7 @@ test('play/stop signal handlers honour the payload filter', () => {
   const audio = new t.AudioStreamPlayerNode({ runtimeId: 'audio/phase', name: 'Land', scene, assetId: 'land', payloadFilter: 'phase=landing|dead', unlock: unlockFixture(true).service });
   const tree = new t.SceneTree(); tree.setRoot(audio);
   audio._invokeSignalHandler('play', { phase: 'airborne' });
-  assert.equal(handles[0].plays, 0);
+  assert.equal(handles.length, 0);
   audio._invokeSignalHandler('play', { phase: 'landing' });
   assert.equal(handles[0].plays, 1);
   tree.shutdown();

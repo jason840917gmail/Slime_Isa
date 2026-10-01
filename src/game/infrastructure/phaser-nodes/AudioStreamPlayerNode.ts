@@ -113,7 +113,9 @@ function validated(value: number | undefined, fallback: number, label: string, v
 /**
  * Voice pool behind both audio node types. A loop owns one voice; one-shots
  * allocate up to `polyphony` overlapping voices so rapid triggers (combo hits,
- * multi-target swings) layer instead of cutting each other off.
+ * multi-target swings) layer instead of cutting each other off. Voices are
+ * allocated on the first accepted play, not on tree entry: most authored audio
+ * nodes sit idle, and an idle node owns no Phaser sound.
  */
 export class AudioPlaybackController {
   private readonly voices: Voice[] = [];
@@ -157,7 +159,6 @@ export class AudioPlaybackController {
 
   enter(pan?: number, attenuation = 1): void {
     this.entered = true;
-    this.createVoice(this.options.assetId);
     this.owner.entryDisposables.add(() => this.releaseVoices());
     if (this.options.autoplay) this.desiredPlaying = true;
     this.synchronize(pan, attenuation);
@@ -218,8 +219,8 @@ export class AudioPlaybackController {
   private startVoice(): void {
     const basePitch = this.options.pitch ?? 1;
     if (this.options.loop) {
-      const voice = this.voices[0];
-      if (!voice || voice.playing) return;
+      const voice = this.voices[0] ?? this.createVoice(this.options.assetId);
+      if (voice.playing) return;
       voice.rate = basePitch;
       this.synchronize(this.lastPan, this.lastAttenuation);
       voice.playing = voice.handle.play({ loop: true, rate: voice.rate });

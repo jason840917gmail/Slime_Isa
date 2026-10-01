@@ -7,7 +7,8 @@ test('shared handled input suppresses gameplay and a real Phaser sound follows g
   await page.waitForFunction(() => window.sceneFixture?.ready() === true);
 
   const before = await page.evaluate(() => window.sceneFixture.snapshot());
-  expect(before).toMatchObject({ controlCount: 0, gameplayInputCount: 0, audioUnlocked: false, audioObjectCount: 1, audioIsPlaying: false });
+  // The autoplay loop allocates its Phaser sound only once the gesture unlocks audio.
+  expect(before).toMatchObject({ controlCount: 0, gameplayInputCount: 0, audioUnlocked: false, audioObjectCount: 0, audioIsPlaying: false });
 
   await page.locator('#fixture-control').click();
   await page.evaluate(() => window.sceneFixture.step(0));
