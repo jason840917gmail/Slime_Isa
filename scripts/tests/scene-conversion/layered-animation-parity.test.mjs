@@ -6,17 +6,43 @@
  * rendered it (`resolveLayeredAnimationFrame` + `composeAnimationVisualTransform`
  * with the host transform from the old `WeaponVisual` / `WorldEffectAdapter`),
  * and compared with the value the generated AnimationPlayer tracks produce.
+ * The scenes are generated fresh: the authored copies are Scene Studio's to
+ * retune (combat-entity-conversion checks they keep the generated structure).
  */
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { effectSceneAdapter, weaponSceneAdapter } from '../../lib/scene-conversion/combat-entities.mjs';
+import { ConversionRunner } from '../../lib/scene-conversion/ConversionRunner.mjs';
 import { loadAnimationSampling } from '../../lib/scene-conversion/load-animation-sampling.mjs';
+import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene-write-set.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
-const authoredRoot = path.join(repositoryRoot, 'src/game/content/scenes/authored');
+const generatedRoot = await generateCombatScenes();
+
+/** Replays the weapon and effect conversion into a temporary root. */
+async function generateCombatScenes() {
+  const productionLedger = await readJsonFile('scripts/migrations/universal-scene-conversion-ledger.json');
+  const unitKeys = productionLedger.rows
+    .filter((row) => ['weapon', 'effect'].includes(row.family) && row.classification === 'convert')
+    .map((row) => row.key);
+  const selected = new Set(unitKeys);
+  const manifest = await readJsonFile('asset/assets.json');
+  const runner = new ConversionRunner({
+    repositoryRoot,
+    ledger: { ...productionLedger, rows: productionLedger.rows.map((row) => selected.has(row.key) ? { ...row, writerState: 'legacy' } : row) },
+    adapters: { weapon: weaponSceneAdapter, effect: effectSceneAdapter },
+    outputRoot: await mkdtemp(path.join(os.tmpdir(), 'layered-animation-parity-')),
+    validateWriteSet: (outputs) => validateSceneWriteSet(outputs, { hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId) }),
+  });
+  await runner.run({ unitKeys, mode: 'apply' });
+  return runner.outputRoot;
+}
+
 const DIRECTIONS = ['right', 'left', 'up', 'down'];
 /** Old `CombatController`: `getDepth: () => player.depth + 0.01`. */
 const OLD_WEAPON_BASE_DEPTH = 0.01;
@@ -141,7 +167,7 @@ test('generated weapon scenes reproduce the old layered weapon visuals and hitbo
   let mirroredDirections = 0;
   for (const file of await contentFiles('src/game/content/weapons', 'weapon.json')) {
     const weapon = sampling.normalizeWeaponDefinition(await readJsonFile(file));
-    const scene = JSON.parse(await readFile(path.join(authoredRoot, `weapons/${weapon.weaponId}.scene.json`), 'utf8'));
+    const scene = JSON.parse(await readFile(path.join(generatedRoot, `weapons/${weapon.weaponId}.scene.json`), 'utf8'));
     const model = sceneModel(scene);
     compared += assertClipParity(sampling, model, 'idle', weapon.animations.idle, {
       x: 0, y: 0, baseDepth: OLD_WEAPON_BASE_DEPTH, rotationRad: 0, mirrorX: false, mirrorY: false,
@@ -183,7 +209,7 @@ test('generated effect scenes reproduce the old layered effect visuals for every
   let compared = 0;
   for (const file of await contentFiles('src/game/content/effects', 'effect.json')) {
     const effect = await readJsonFile(file);
-    const scene = JSON.parse(await readFile(path.join(authoredRoot, `effects/${effect.effectId}.scene.json`), 'utf8'));
+    const scene = JSON.parse(await readFile(path.join(generatedRoot, `effects/${effect.effectId}.scene.json`), 'utf8'));
     const model = sceneModel(scene);
     const root = scene.nodes.find((node) => node.id === scene.rootNodeId);
     assert.deepEqual(root.properties.depthAnchor, [0, 0], `${effect.effectId}: the effect root is its layers' depth source`);

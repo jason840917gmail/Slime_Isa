@@ -103,6 +103,7 @@ const sliceUnitKeys = [
   'map:jk',
   'map:level-1',
   'map:meadow-crossing',
+  'map:mushroom-home',
   'map:slime-home',
   'map:test-rectangle',
   'map:tiktok',

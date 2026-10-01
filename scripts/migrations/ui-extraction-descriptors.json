@@ -27,7 +27,7 @@
         ]
       },
       "themeValues": {
-        "buttons": 4,
+        "buttons": 5,
         "gap": 8,
         "tone": "special",
         "surface": "ability-bar"
@@ -42,6 +42,16 @@
           "nodePath": "../Jump",
           "property": "disabled",
           "model": "jumpDisabled"
+        },
+        {
+          "nodePath": "../Dodge",
+          "property": "text",
+          "model": "dodgeLabel"
+        },
+        {
+          "nodePath": "../Dodge",
+          "property": "disabled",
+          "model": "dodgeDisabled"
         },
         {
           "nodePath": "../Slam",
@@ -76,8 +86,9 @@
       ],
       "actions": {
         "on_jump_action": "jump",
-        "on_slam_action": "squash-slam",
+        "on_dodge_action": "dodge",
         "on_lash_action": "stretch-lash",
+        "on_slam_action": "squash-slam",
         "on_teleport_action": "teleport"
       },
       "controls": [
@@ -113,6 +124,40 @@
             "tooltip": "Space: Jump"
           },
           "handler": "on_jump_action",
+          "signal": "pressed"
+        },
+        {
+          "id": "dodge",
+          "name": "Dodge",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              0,
+              1
+            ],
+            "offsetMin": [
+              8,
+              8
+            ],
+            "offsetMax": [
+              80,
+              -8
+            ],
+            "text": "Quest\nDodge",
+            "tone": "special",
+            "fontSize": 12,
+            "fontWeight": 700,
+            "textAlign": "center",
+            "wrap": true,
+            "disabled": true,
+            "ariaLabel": "Dodge ability",
+            "tooltip": "Dodge"
+          },
+          "handler": "on_dodge_action",
           "signal": "pressed"
         },
         {

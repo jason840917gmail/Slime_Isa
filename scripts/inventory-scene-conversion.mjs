@@ -450,7 +450,31 @@ export function writeInventory(repositoryRoot = REPOSITORY_ROOT) {
   return ledger;
 }
 
+/**
+ * Adds a default row for every newly discovered unit and drops rows whose unit
+ * no longer exists. Existing rows (writer states, reclassifications, outputs)
+ * and the frozen writer/route inventory are kept as they are.
+ */
+export function syncInventory(repositoryRoot = REPOSITORY_ROOT) {
+  const ledger = json(repositoryRoot, LEDGER_PATH);
+  const discovered = discoverInventory(repositoryRoot);
+  const existing = new Map(ledger.rows.map((entry) => [entry.key, entry]));
+  const discoveredKeys = new Set(discovered.rows.map((entry) => entry.key));
+  const added = discovered.rows.filter((entry) => !existing.has(entry.key));
+  const removed = ledger.rows.filter((entry) => !discoveredKeys.has(entry.key));
+  const rows = discovered.rows.map((entry) => existing.get(entry.key) ?? entry);
+  writeFileSync(absolute(repositoryRoot, LEDGER_PATH), `${JSON.stringify({ ...ledger, rows }, null, 2)}\n`, 'utf8');
+  return { ledger: { ...ledger, rows }, added, removed };
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const ledger = process.argv.includes('--write') ? writeInventory() : discoverInventory();
-  console.log(`Universal scene inventory: ${ledger.rows.length} row(s), ${ledger.writerEndpoints.length} writer endpoint(s), ${ledger.editorRoutes.length} category route(s).`);
+  if (process.argv.includes('--sync')) {
+    const { ledger, added, removed } = syncInventory();
+    for (const entry of added) console.log(`+ ${entry.key} (${entry.classification})`);
+    for (const entry of removed) console.log(`- ${entry.key}`);
+    console.log(`Synced ${ledger.rows.length} row(s): ${added.length} added, ${removed.length} removed.`);
+  } else {
+    const ledger = process.argv.includes('--write') ? writeInventory() : discoverInventory();
+    console.log(`Universal scene inventory: ${ledger.rows.length} row(s), ${ledger.writerEndpoints.length} writer endpoint(s), ${ledger.editorRoutes.length} category route(s).`);
+  }
 }

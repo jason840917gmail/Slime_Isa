@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { effectSceneAdapter, projectileSceneAdapter, weaponSceneAdapter } from '../../lib/scene-conversion/combat-entities.mjs';
 import { ConversionRunner } from '../../lib/scene-conversion/ConversionRunner.mjs';
 import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene-write-set.mjs';
+import { assertKeepsConvertedStructure } from '../helpers/converted-structure.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const unitKeys = [
@@ -57,12 +58,13 @@ test('converted combat scenes own timelines, collision geometry, and runtime scr
   const hammer = await load('weapons/slam-hammer.scene.json');
   assert.ok(hammer.nodes.filter((node) => node.type === 'CollisionShape2D').every((node) => node.properties.rotation === 0));
   assert.equal(hammer.nodes.find((node) => node.scriptId === 'game.weapon').properties.attackPlans.right.hitboxSpans[0].knockbackMultiplier, 1.35);
+  // Hitboxes, sprite scales and clips are retuned in Scene Studio; authored scenes keep the converted structure.
   for (const key of unitKeys.filter((candidate) => candidate.startsWith('weapon:'))) {
     const weaponId = key.slice('weapon:'.length);
-    assert.deepEqual(
+    assertKeepsConvertedStructure(
       JSON.parse(await readFile(path.join(repositoryRoot, `src/game/content/scenes/authored/weapons/${weaponId}.scene.json`), 'utf8')),
       await load(`weapons/${weaponId}.scene.json`),
-      `${weaponId} authored scene must match deterministic conversion`,
+      `${weaponId} authored scene`,
     );
   }
 
@@ -72,9 +74,10 @@ test('converted combat scenes own timelines, collision geometry, and runtime scr
   assert.equal(arrow.nodes.filter((node) => node.type === 'AnimationPlayer').length, 1);
   assert.ok(arrow.nodes.some((node) => node.id === 'attack-area'));
   assert.deepEqual(arrow.connections, [{ source: { nodeId: 'attack-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' }]);
-  assert.deepEqual(
+  assertKeepsConvertedStructure(
     JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/projectiles/worm-arrow.scene.json'), 'utf8')),
     arrow,
+    'worm-arrow authored scene',
   );
 
   const impact = await load('effects/basic-sword-impact.scene.json');
