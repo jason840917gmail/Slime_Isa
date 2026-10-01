@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { ConversionRunner } from '../../lib/scene-conversion/ConversionRunner.mjs';
 import { uiSceneAdapter } from '../../lib/scene-conversion/ui.mjs';
 import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene-write-set.mjs';
-import { withoutSceneAudio } from '../helpers/scene-audio.mjs';
+import { assertKeepsConvertedStructure } from '../helpers/converted-structure.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const authoredRoot = path.join(repositoryRoot, 'src/game/content/scenes/authored');
@@ -91,12 +91,15 @@ test('UI scenes preserve layout, theme, typed bindings, actions, and common cont
   assert.ok(chest.connections.some((connection) => connection.signal === 'item_secondary' && connection.handler === 'on_item_secondary'));
   assert.equal(chest.nodes.find((node) => node.name === 'Items').parentId, 'content');
 
+  // Layout and text are edited in Scene Studio (the journal is titled "Quest Book");
+  // authored surfaces keep the converted controls and their typed bindings and actions.
+  const surfaceScript = (scene) => scene.nodes.find((node) => node.scriptId === 'game.ui-surface').properties;
   for (const key of unitKeys) {
     const name = key.slice('ui:'.length);
-    assert.deepEqual(
-      withoutSceneAudio(JSON.parse(await readFile(path.join(authoredRoot, `ui/${name}.scene.json`), 'utf8'))),
-      await load(name),
-    );
+    const authored = JSON.parse(await readFile(path.join(authoredRoot, `ui/${name}.scene.json`), 'utf8'));
+    const converted = await load(name);
+    assertKeepsConvertedStructure(authored, converted, `${name} authored scene`);
+    assert.deepEqual(surfaceScript(authored), surfaceScript(converted), `${name} bindings and actions`);
   }
 });
 

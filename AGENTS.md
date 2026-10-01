@@ -8,7 +8,7 @@ Top-down open-world slime game: Phaser 3 + TypeScript + Vite (ES2022, ESNext mod
 - Do not rebuild after every change — it wastes compute. After an edit run `pnpm typecheck` plus the targeted check or test for the area you touched (see below). Run `pnpm build` or `pnpm check` only when the user asks, or once before committing a broad change.
 - Never run `pnpm scenes:regenerate`, `pnpm maps:bake`, or a `--write` map script unless the task calls for it: they overwrite authored content.
 - While `pnpm dev` is running, Scene Studio saves into `src/game/content/scenes/authored/` through a dev endpoint (and `/__game-constants` can write `game-constants.json`); an open Studio tab can overwrite files you edit by hand.
-- Editing a conversion input (`asset/assets.json`, `items.json`, `enemy-types.json`, `NpcDefinitions.ts`, `RecipeCatalog.ts`, `game-constants.json`) invalidates the scene conversion ledger; re-hash it as described in [docs/TOOLING.md](docs/TOOLING.md#scene-conversion).
+- Editing a conversion input (`asset/assets.json`, `items.json`, `enemy-types.json`, `NpcDefinitions.ts`, `RecipeCatalog.ts`, `game-constants.json`) invalidates the scene conversion ledger; re-hash it, and sync its rows after adding or removing content units, as described in [docs/TOOLING.md](docs/TOOLING.md#scene-conversion).
 - Keep docs truthful: when you change behavior, paths, or commands, update the doc that describes them in the same change.
 
 ## Commands
