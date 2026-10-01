@@ -1,7 +1,7 @@
 import type { JsonValue } from '../../content/scenes/types';
 import { gameEvents } from '../../core/EventBus';
 import { WEAPON_HOTBAR_SLOT_COUNT } from '../../core/types';
-import { playerInventory, itemRegistry } from '../../systems/Inventory';
+import { playerInventory, itemRegistry, weaponItemFor } from '../../systems/Inventory';
 import { playerWeaponLoadout } from '../../systems/WeaponLoadout';
 import type { ModalHandle, ModalStack } from '../../ui/ModalStack';
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
@@ -69,43 +69,76 @@ export class InventorySurfacePort implements UiSurfacePort {
     const slot = this.selectedSlotIndex === undefined ? undefined : slots[this.selectedSlotIndex];
     const def = slot ? itemRegistry.get(slot.itemId) : undefined;
     const equipment = def?.equipment;
-    const assignedIndex = equipment ? playerWeaponLoadout.slots().indexOf(equipment.weaponId) : -1;
-    const equipped = equipment ? playerWeaponLoadout.equippedWeaponId() === equipment.weaponId : false;
+    const belt = playerWeaponLoadout.slots();
+    const inHand = playerWeaponLoadout.equippedWeaponId();
+    const assignedIndex = equipment ? belt.indexOf(equipment.weaponId) : -1;
+    const equipped = equipment ? inHand === equipment.weaponId : false;
     const effects = def?.use ? [
       def.use.healHp ? `Heal HP +${def.use.healHp}` : '',
       def.use.healEnergy ? `Energy +${def.use.healEnergy}` : '',
       def.use.cureStatus?.length ? `Cures ${def.use.cureStatus.join(', ')}` : '',
     ].filter(Boolean).join(' · ') : '';
+    const status = !def || !slot ? { text: '', color: STATUS_COLOR.muted }
+      : equipment ? equipped
+        ? { text: `In your hand · belt slot ${assignedIndex + 1}`, color: STATUS_COLOR.inHand }
+        : assignedIndex >= 0
+          ? { text: `On belt slot ${assignedIndex + 1} · not in your hand`, color: STATUS_COLOR.onBelt }
+          : { text: 'In the bag · not on your belt', color: STATUS_COLOR.muted }
+        : { text: `${capitalize(def.category)} · ${slot.count} in the bag`, color: STATUS_COLOR.muted };
     const width = Math.min(1000, Math.max(320, this.actions.uiRoot.clientWidth - 32));
     const height = Math.min(640, Math.max(1, this.actions.uiRoot.clientHeight - 32));
     return {
       open: this.openValue,
       offsetMin: [-Math.round(width / 2), -Math.round(height / 2)],
       offsetMax: [Math.round(width / 2), Math.round(height / 2)],
+      belt: belt.map((weaponId, index) => {
+        const item = weaponId && playerWeaponLoadout.ownsWeapon(weaponId) ? weaponItemFor(weaponId) : undefined;
+        return {
+          id: `belt-${index + 1}`,
+          label: item ? item.name : `Slot ${index + 1}\nEmpty`,
+          ...(item ? { metadata: { iconKey: item.icon, iconFrame: item.iconFrame ?? 0, showLabel: true, shortcut: String(index + 1), draggable: true } } : {}),
+        };
+      }),
+      beltSelectedIndex: inHand ? belt.indexOf(inHand) : -1,
       items: Array.from({ length: playerInventory.maxSlots() }, (_, index) => {
         const stack = slots[index];
         const item = stack ? itemRegistry.get(stack.itemId) : undefined;
+        // Weapons say where they are: in hand, on a belt slot, or nothing (only in the bag).
+        const beltIndex = item?.equipment ? belt.indexOf(item.equipment.weaponId) : -1;
+        const tag = item?.equipment
+          ? item.equipment.weaponId === inHand ? 'in hand' : beltIndex >= 0 ? `belt ${beltIndex + 1}` : ''
+          : stack && stack.count > 1 ? `×${stack.count}` : '';
         return {
           id: `slot-${index + 1}`,
-          label: item ? `${item.name}${stack!.count > 1 ? ` ×${stack!.count}` : ''}` : 'Empty',
+          label: item ? item.name : 'Empty',
           disabled: !item,
-          ...(item ? { metadata: { iconKey: item.icon, iconFrame: item.iconFrame ?? 0, shortcut: stack!.count > 1 ? String(stack!.count) : '' } } : {}),
+          ...(item ? {
+            metadata: {
+              iconKey: item.icon,
+              iconFrame: item.iconFrame ?? 0,
+              showLabel: true,
+              shortcut: tag,
+              ...(item.equipment ? { draggable: true } : {}),
+            },
+          } : {}),
         };
       }),
       selectedIndex: this.selectedSlotIndex ?? -1,
+      detailsName: def ? def.name : 'Your bag is empty',
+      detailsStatus: status.text,
+      detailsStatusColor: status.color,
       details: def && slot ? [
-        def.name,
-        `${def.category} · x${slot.count}`,
-        '',
         def.description,
-        ...(equipment ? ['', equipped ? 'EQUIPPED' : assignedIndex >= 0 ? `HOTBAR SLOT ${assignedIndex + 1}` : 'NOT ON HOTBAR', 'Pick its hotbar slot below; the mouse wheel switches between them.'] : []),
         ...(effects ? ['', effects] : []),
-      ].join('\n') : 'Select an item',
+      ].join('\n') : 'Pick things up in the world and they land here.',
       quantity: `Quantity: ${this.quantity}`,
-      primaryLabel: equipment ? 'Equip Now' : def?.placeable ? 'Place' : 'Use',
-      primaryDisabled: !def || (!equipment && !def.use && !def.placeable),
+      primaryLabel: equipment ? (equipped ? 'In your hand' : 'Hold in hand') : def?.placeable ? 'Place' : 'Use',
+      primaryDisabled: !def || equipped || (!equipment && !def.use && !def.placeable),
       hotbarVisible: !!equipment,
-      hotbarSlots: Array.from({ length: WEAPON_HOTBAR_SLOT_COUNT }, (_, index) => ({ id: `assign-${index + 1}`, label: `${index + 1}` })),
+      hotbarSlots: belt.map((weaponId, index) => {
+        const item = weaponId && playerWeaponLoadout.ownsWeapon(weaponId) ? weaponItemFor(weaponId) : undefined;
+        return { id: `assign-${index + 1}`, label: `${index + 1}: ${item?.name ?? 'empty'}` };
+      }),
       hotbarSelectedIndex: assignedIndex,
       quantityVisible: !!def && !equipment,
       actionsVisible: !!def && !equipment,
@@ -134,7 +167,28 @@ export class InventorySurfacePort implements UiSurfacePort {
       this.publish();
       return;
     }
-    const selected = this.selectedSlotIndex === undefined ? undefined : playerInventory.getSlots()[this.selectedSlotIndex];
+    if (actionId === 'hold-belt-slot') {
+      // A belt slot click holds that weapon and shows it in the details.
+      const index = selectionIndex(payload);
+      const weaponId = index === undefined ? null : playerWeaponLoadout.weaponAt(index);
+      if (weaponId) {
+        this.selectItemById(weaponItemFor(weaponId)?.id);
+        this.actions.onEquipWeapon(weaponId);
+      }
+      this.publish();
+      return;
+    }
+    if (actionId === 'drop-on-belt') {
+      const drop = beltDrop(payload);
+      const weaponId = drop ? this.draggedWeaponId(drop.sourceItemId, drop.sourceIndex) : undefined;
+      if (drop && weaponId) {
+        this.selectItemById(weaponItemFor(weaponId)?.id);
+        this.actions.onAssignWeapon(weaponId, drop.index);
+      }
+      this.publish();
+      return;
+    }
+    const selected =this.selectedSlotIndex === undefined ? undefined : playerInventory.getSlots()[this.selectedSlotIndex];
     if (!selected || selected.itemId !== this.selectedItemId) return;
     const def = itemRegistry.get(selected.itemId);
     if (!def) return;
@@ -177,6 +231,22 @@ export class InventorySurfacePort implements UiSurfacePort {
     this.listeners.clear();
   }
 
+  /** The weapon behind a dragged bag slot (`slot-N`) or belt slot (`belt-N`). */
+  private draggedWeaponId(sourceItemId: string, sourceIndex: number): string | undefined {
+    if (sourceItemId.startsWith('belt-')) return playerWeaponLoadout.weaponAt(sourceIndex) ?? undefined;
+    if (!sourceItemId.startsWith('slot-')) return undefined;
+    const stack = playerInventory.getSlots()[sourceIndex];
+    return stack ? itemRegistry.get(stack.itemId)?.equipment?.weaponId : undefined;
+  }
+
+  private selectItemById(itemId: string | undefined): void {
+    const index = itemId ? playerInventory.getSlots().findIndex((stack) => stack?.itemId === itemId) : -1;
+    if (index < 0) return;
+    this.selectedSlotIndex = index;
+    this.selectedItemId = itemId;
+    this.quantity = 1;
+  }
+
   private adjustQuantity(delta: number, available: number): void {
     this.quantity = Math.max(1, Math.min(available, this.quantity + delta));
   }
@@ -198,6 +268,22 @@ export class InventorySurfacePort implements UiSurfacePort {
     const model = this.snapshot('inventory-ui');
     for (const listener of this.listeners) listener(model);
   };
+}
+
+/** Status line colors: the weapon in hand (gold), on the belt (green), anything else (muted). */
+const STATUS_COLOR = { inHand: '#ffd277', onBelt: '#86f0c3', muted: '#a9c4b4' } as const;
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function beltDrop(payload: JsonValue | undefined): { index: number; sourceItemId: string; sourceIndex: number } | undefined {
+  const index = selectionIndex(payload);
+  if (index === undefined || index >= WEAPON_HOTBAR_SLOT_COUNT) return undefined;
+  const record = payload as Readonly<Record<string, JsonValue>>;
+  const { sourceItemId, sourceIndex } = record;
+  if (typeof sourceItemId !== 'string' || typeof sourceIndex !== 'number' || !Number.isSafeInteger(sourceIndex) || sourceIndex < 0) return undefined;
+  return { index, sourceItemId, sourceIndex };
 }
 
 function selectionIndex(payload: JsonValue | undefined): number | undefined {

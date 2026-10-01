@@ -5,6 +5,7 @@ import type { Node } from '../../runtime/scene/Node';
 import { Node2D } from '../../runtime/scene/Node2D';
 import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlayerNode';
 import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
+import type { SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 import { resolveWorldDepth } from '../../presentation/WorldDepth';
 import type { AttackActivation } from '../combat/AttackActivation';
@@ -31,6 +32,13 @@ export interface ManagedWeaponTarget {
   readonly depth?: number;
   readonly attackDirection: WeaponAttackDirection;
   readonly targetTags?: readonly string[];
+}
+
+/** The swing the dev overlay draws: its open hitbox shapes and how the swing has gone so far. */
+export interface WeaponDebugSwing {
+  readonly shapes: readonly SensorShape[];
+  /** `hit` once anything took damage, `refused` when every touch was rejected, else `open`. */
+  readonly outcome: 'open' | 'hit' | 'refused';
 }
 
 export interface PlayerWeaponCombatPort {
@@ -94,6 +102,7 @@ export class WeaponScript extends ScriptNode {
   private simulationTimeMs = 0;
   private readyAtMs = 0;
   private activeDirection?: WeaponAttackDirection;
+  private debugOutcome: WeaponDebugSwing['outcome'] = 'open';
   private activePlan?: WeaponAttackPlan;
   private activeSinceMs = 0;
   private readonly windows = new Map<number, HitboxWindow>();
@@ -152,6 +161,14 @@ export class WeaponScript extends ScriptNode {
     this.set_physics_process(false);
   }
 
+  /** The hitbox shapes open right now (none between hit windows), for the dev overlay. */
+  debugSwing(): WeaponDebugSwing | undefined {
+    if (this.windows.size === 0) return undefined;
+    const area = this.getReference<Node>('attackArea')?.configuredTarget as Partial<{ contactShapes(): readonly SensorShape[] }> | undefined;
+    const shapes = area?.contactShapes?.() ?? [];
+    return shapes.length > 0 ? { shapes, outcome: this.debugOutcome } : undefined;
+  }
+
   tryBeginAttack(direction: WeaponAttackDirection, damage?: WeaponDamagePayload): boolean {
     if (!this.canBeginAttack()) return false;
     return this.beginAttack(direction, damage);
@@ -166,6 +183,7 @@ export class WeaponScript extends ScriptNode {
     const plan = this.attackPlan(direction);
     if (!plan) return false;
     this.activeDirection = direction;
+    this.debugOutcome = 'open';
     this.activePlan = plan;
     this.activeSinceMs = this.simulationTimeMs;
     this.readyAtMs = this.simulationTimeMs + (damage?.cooldownMs ?? this.cooldownMs);
@@ -316,7 +334,11 @@ export class WeaponScript extends ScriptNode {
         impact: { x: target.x, y: target.y, knockX: knock.x, knockY: knock.y },
       }], this.simulationTimeMs);
       const outcome = outcomes[0];
-      if (outcome) combat.onOutcome(outcome, target);
+      if (outcome) {
+        if (outcome.result.status === 'accepted') this.debugOutcome = 'hit';
+        else if (this.debugOutcome === 'open') this.debugOutcome = 'refused';
+        combat.onOutcome(outcome, target);
+      }
       // Routing can end the attack (e.g. a defeat handler); stop using stale state.
       if (this.damage !== damage) return;
     }

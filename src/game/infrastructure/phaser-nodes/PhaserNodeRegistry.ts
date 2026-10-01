@@ -305,6 +305,7 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
     .replace('ItemList', (construction) => new ItemListControlNode({
       ...controlOptions(construction, services), items: uiItems(construction.properties.items), selectedIndex: numberValue(construction.properties.selectedIndex, -1),
       columns: numberValue(construction.properties.columns, 1), gap: numberValue(construction.properties.gap, 8),
+      dropTarget: construction.properties.dropTarget === true,
     }))
     .replace('GridContainer', (construction) => new GridContainerControlNode({
       ...containerOptions(construction, services), columns: numberValue(construction.properties.columns, 1),

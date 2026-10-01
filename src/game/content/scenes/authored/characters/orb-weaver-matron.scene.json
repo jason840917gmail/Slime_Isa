@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "sceneId": "character.slime-spider",
+  "sceneId": "character.orb-weaver-matron",
   "rootNodeId": "body",
   "nodes": [
     {
       "id": "body",
-      "name": "SlimeSpider",
+      "name": "orb-weaver",
       "type": "CharacterBody2D",
       "parentId": null,
       "order": 0,
@@ -23,7 +23,7 @@
         ],
         "depthAnchor": [
           0,
-          12
+          30
         ]
       }
     },
@@ -35,7 +35,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "slime-spider.body-shape"
+          "resourceId": "orb-weaver-matron.body-shape"
         },
         "position": [
           0,
@@ -51,7 +51,7 @@
       "order": 1,
       "properties": {
         "texture": {
-          "resourceId": "enemy.slime.spider.sprite"
+          "resourceId": "orb-weaver-matron.sprite"
         },
         "frame": 0,
         "origin": [
@@ -59,14 +59,15 @@
           0.5
         ],
         "scale": [
-          1,
-          1
+          2.6,
+          2.6
         ],
         "position": [
           0,
           0
         ],
-        "depthMode": "relative"
+        "depthMode": "relative",
+        "tint": "#b98cff"
       }
     },
     {
@@ -90,7 +91,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "slime-spider.body-shape"
+          "resourceId": "orb-weaver-matron.body-shape"
         },
         "position": [
           0,
@@ -119,7 +120,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "slime-spider.attack-shape"
+          "resourceId": "orb-weaver-matron.attack-shape"
         },
         "disabled": true
       }
@@ -132,7 +133,7 @@
       "order": 4,
       "properties": {
         "library": {
-          "resourceId": "enemy.slime.spider.animations"
+          "resourceId": "orb-weaver-matron.animations"
         },
         "domain": "physics",
         "autoplay": "idle-side"
@@ -142,7 +143,7 @@
       "id": "script",
       "name": "EnemyScript",
       "type": "ScriptNode",
-      "scriptId": "game.enemy",
+      "scriptId": "game.matron",
       "parentId": "body",
       "order": 5,
       "properties": {
@@ -162,43 +163,54 @@
           "nodeId": "attack-area"
         },
         "faction": "hostile",
-        "rank": "ordinary",
-        "maxHealth": 40,
-        "targetingRadius": 280,
-        "attackRange": 220,
-        "movementSpeed": 80,
+        "rank": "boss",
+        "maxHealth": 300,
+        "targetingRadius": 560,
+        "attackRange": 300,
+        "movementSpeed": 58,
         "attackCooldownMs": 2200,
         "attributes": {
-          "wanderSpeed": 30,
-          "attackWindupMs": 600,
-          "attackRecoveryMs": 350,
-          "contactDamage": 22,
-          "knockbackStrength": 180,
-          "knockbackResist": 0,
+          "wanderSpeed": 24,
+          "attackWindupMs": 700,
+          "attackRecoveryMs": 400,
+          "contactDamage": 30,
+          "knockbackStrength": 220,
+          "effectImmunities": [
+            "knockback"
+          ],
           "behavior": "slime-spider",
-          "fleeRange": 120,
+          "fleeRange": 90,
           "isRanged": true,
-          "projectileSpeed": 180
+          "projectileSpeed": 240
         },
         "damageRule": {
-          "priority": 0,
-          "damageMultiplier": 1
-        },
-        "rewards": {
-          "coins": 10,
-          "items": [
-            {
-              "itemId": "shard",
-              "chance": 0.15
+          "priority": 100,
+          "damageMultiplier": 1,
+          "effectResponses": {
+            "knockback": {
+              "mode": "immune"
             }
-          ]
+          }
         },
+        "rewards": {},
         "projectile": {
           "projectileId": "spider-web",
           "assetId": "enemy.projectile.spider-web",
-          "damage": 50,
-          "stickMs": 1000
-        }
+          "damage": 18,
+          "stickMs": 900
+        },
+        "displayName": "Orb-Weaver Matron",
+        "firstVolleyDelayMs": 3500,
+        "volleyCadenceMs": 6500,
+        "volleyTelegraphMs": 900,
+        "volleyRestMs": 1300,
+        "volleyPoints": 4,
+        "volleySpread": 170,
+        "volleyRadius": 56,
+        "volleyDamage": 20,
+        "volleyKnockbackStrength": 120,
+        "patchEffectId": "matron-web-patch",
+        "arenaRecoveryMs": 60000
       }
     },
     {
@@ -212,7 +224,8 @@
           "resourceId": "sfx.enemy.spider-hurt"
         },
         "pitchRandomness": 0.06,
-        "minIntervalMs": 90
+        "minIntervalMs": 150,
+        "pitch": 0.6
       }
     },
     {
@@ -226,7 +239,9 @@
           "resourceId": "sfx.enemy.spider-death"
         },
         "pitchRandomness": 0.06,
-        "detached": true
+        "detached": true,
+        "pitch": 0.55,
+        "maxDistance": 1400
       }
     },
     {
@@ -240,7 +255,39 @@
           "resourceId": "sfx.enemy.spider-hiss"
         },
         "pitchRandomness": 0.06,
-        "volume": 0.8
+        "volume": 0.9,
+        "pitch": 0.6
+      }
+    },
+    {
+      "id": "sfx-volley-sfx",
+      "name": "VolleySfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 9,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.spider-hiss"
+        },
+        "volume": 1,
+        "pitch": 0.45,
+        "maxDistance": 1400,
+        "payloadFilter": "phase=volley-telegraph"
+      }
+    },
+    {
+      "id": "sfx-spit-sfx",
+      "name": "SpitSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 10,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.web-spit"
+        },
+        "volume": 0.9,
+        "pitch": 0.7,
+        "payloadFilter": "phase=volley-rest"
       }
     }
   ],
@@ -248,7 +295,7 @@
   "subresources": [
     {
       "version": 1,
-      "resourceId": "enemy.slime.spider.animations",
+      "resourceId": "orb-weaver-matron.animations",
       "kind": "animation-library",
       "animations": {
         "idle-down": {
@@ -844,30 +891,30 @@
     },
     {
       "version": 1,
-      "resourceId": "enemy.slime.spider.sprite",
+      "resourceId": "orb-weaver-matron.sprite",
       "kind": "sprite-sheet",
-      "assetId": "character.enemy.meadow-spider",
+      "assetId": "character.enemy.slime-spider",
       "frameWidth": 64,
       "frameHeight": 64,
       "frameCount": 80
     },
     {
       "version": 1,
-      "resourceId": "slime-spider.attack-shape",
+      "resourceId": "orb-weaver-matron.attack-shape",
       "kind": "collision-shape",
       "value": {
         "shape": "circle",
-        "radius": 297
+        "radius": 340
       }
     },
     {
       "version": 1,
-      "resourceId": "slime-spider.body-shape",
+      "resourceId": "orb-weaver-matron.body-shape",
       "kind": "collision-shape",
       "value": {
         "shape": "ellipse",
-        "radiusX": 15,
-        "radiusY": 12
+        "radiusX": 40,
+        "radiusY": 30
       }
     },
     {
@@ -890,6 +937,15 @@
       "resourceId": "sfx.enemy.spider-hiss",
       "kind": "audio",
       "assetId": "audio.sfx.enemy.spider-hiss.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.web-spit",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.web-spit.1",
+      "variants": [
+        "audio.sfx.enemy.web-spit.2"
+      ]
     }
   ],
   "connections": [
@@ -920,6 +976,26 @@
       "signal": "alerted",
       "target": {
         "nodeId": "sfx-alert-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-volley-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-spit-sfx"
       },
       "handler": "play"
     }

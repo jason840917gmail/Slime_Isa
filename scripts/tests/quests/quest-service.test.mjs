@@ -103,6 +103,7 @@ test('chapter 1 plays through from the workbench to Gloop Forest, each quest ope
 
   service.handleEvent('area.enter', { areaId: 'level-1' });
   assert.equal(service.get('a-place-to-work').status, 'available');
+  assert.equal(service.get('slime-basics').status, 'active', 'the tutorial starts by itself beside the first quest');
   assert.equal(service.offersForNpc('village-elder-plop')[0].quest.questId, 'a-place-to-work');
   assert.equal(service.accept('a-place-to-work', 'village-elder-plop').ok, true);
 
@@ -121,7 +122,14 @@ test('chapter 1 plays through from the workbench to Gloop Forest, each quest ope
   craft('stone-pickaxe');
   collect('wood', 20);
   collect('stone', 20);
+  assert.equal(service.get('stone-tools').readyToTurnIn, false, 'the tools must be switched on the belt');
+  service.handleEvent('control.used', { controlId: 'weapon-switch' });
   turnIn('stone-tools', 'village-elder-plop');
+
+  for (const controlId of ['menu:inventory', 'menu:crafting', 'menu:journal', 'menu:map', 'sprint']) service.handleEvent('control.used', { controlId });
+  assert.equal(service.get('slime-basics').status, 'active');
+  service.handleEvent('control.used', { controlId: 'pause' });
+  assert.equal(service.get('slime-basics').status, 'completed', 'every menu, a sprint and the pause menu finish the basics');
 
   service.accept('worm-trouble', 'level-1-spider-giver');
   craft('wooden-spear');

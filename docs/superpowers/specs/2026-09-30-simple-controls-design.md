@@ -185,7 +185,9 @@ In both modes, the dodge, Stretch Lash and Teleport aim at the pointer.
 - **Old saves:** a saved belt with more than 3 weapons keeps the equipped
   weapon plus the next filled slots, up to 3. The rest stay owned in the
   inventory, so nothing is lost. The belt is fixed up when the save loads.
-- **Tools pick themselves.** Left-clicking a tree, rock or other resource node
+- **Tools pick themselves.** (Removed after the 2026-10-01 playtest: the
+  swap lost fights against enemies behind a tree; the weapon in hand always
+  swings and the belt has four slots. Roadmap 4.11.) Left-clicking a tree, rock or other resource node
   within reach swings the best owned tool that can harvest it, then the
   equipped weapon comes back.
   - The tool can be anywhere in the inventory, not only on the belt.

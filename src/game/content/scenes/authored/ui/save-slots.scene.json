@@ -20,11 +20,11 @@
         ],
         "offsetMin": [
           -290,
-          -170
+          -195
         ],
         "offsetMax": [
           290,
-          170
+          195
         ],
         "theme": {
           "resourceId": "ui.field-kit.theme"
@@ -68,9 +68,11 @@
       "order": 0
     },
     {
-      "id": "slot-1",
-      "name": "Slot1",
+      "id": "autosave",
+      "name": "Autosave",
       "type": "Button",
+      "parentId": "surface",
+      "order": 1,
       "properties": {
         "anchorMin": [
           0,
@@ -88,16 +90,14 @@
           -24,
           102
         ],
-        "text": "Slot 1",
-        "tone": "default",
+        "text": "Autosave",
+        "tone": "accent",
         "textAlign": "center"
-      },
-      "parentId": "surface",
-      "order": 1
+      }
     },
     {
-      "id": "slot-2",
-      "name": "Slot2",
+      "id": "slot-1",
+      "name": "Slot1",
       "type": "Button",
       "properties": {
         "anchorMin": [
@@ -116,7 +116,7 @@
           -24,
           152
         ],
-        "text": "Slot 2",
+        "text": "Slot 1",
         "tone": "default",
         "textAlign": "center"
       },
@@ -124,8 +124,8 @@
       "order": 2
     },
     {
-      "id": "slot-3",
-      "name": "Slot3",
+      "id": "slot-2",
+      "name": "Slot2",
       "type": "Button",
       "properties": {
         "anchorMin": [
@@ -144,12 +144,40 @@
           -24,
           202
         ],
-        "text": "Slot 3",
+        "text": "Slot 2",
         "tone": "default",
         "textAlign": "center"
       },
       "parentId": "surface",
       "order": 3
+    },
+    {
+      "id": "slot-3",
+      "name": "Slot3",
+      "type": "Button",
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          24,
+          210
+        ],
+        "offsetMax": [
+          -24,
+          252
+        ],
+        "text": "Slot 3",
+        "tone": "default",
+        "textAlign": "center"
+      },
+      "parentId": "surface",
+      "order": 4
     },
     {
       "id": "status",
@@ -166,11 +194,11 @@
         ],
         "offsetMin": [
           24,
-          214
+          264
         ],
         "offsetMax": [
           -24,
-          246
+          296
         ],
         "text": "",
         "tone": "muted",
@@ -179,7 +207,7 @@
         "wrap": true
       },
       "parentId": "surface",
-      "order": 4
+      "order": 5
     },
     {
       "id": "confirm",
@@ -196,18 +224,18 @@
         ],
         "offsetMin": [
           120,
-          252
+          302
         ],
         "offsetMax": [
           -300,
-          288
+          338
         ],
         "text": "Overwrite",
         "tone": "danger",
         "textAlign": "center"
       },
       "parentId": "surface",
-      "order": 5
+      "order": 6
     },
     {
       "id": "cancel",
@@ -224,18 +252,18 @@
         ],
         "offsetMin": [
           300,
-          252
+          302
         ],
         "offsetMax": [
           -120,
-          288
+          338
         ],
         "text": "Cancel",
         "tone": "muted",
         "textAlign": "center"
       },
       "parentId": "surface",
-      "order": 6
+      "order": 7
     },
     {
       "id": "close",
@@ -263,7 +291,7 @@
         "textAlign": "center"
       },
       "parentId": "surface",
-      "order": 7
+      "order": 8
     },
     {
       "id": "script",
@@ -271,7 +299,7 @@
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 8,
+      "order": 9,
       "properties": {
         "surfaceId": "save-slots",
         "modal": true,
@@ -330,6 +358,21 @@
             "nodePath": "../Slot3",
             "property": "disabled",
             "model": "slot3Disabled"
+          },
+          {
+            "nodePath": "../Autosave",
+            "property": "text",
+            "model": "autosaveLabel"
+          },
+          {
+            "nodePath": "../Autosave",
+            "property": "disabled",
+            "model": "autosaveDisabled"
+          },
+          {
+            "nodePath": "../Autosave",
+            "property": "visible",
+            "model": "autosaveVisible"
           }
         ],
         "actions": {
@@ -338,7 +381,8 @@
           "on_menu_3": "slot-3",
           "on_menu_4": "confirm",
           "on_menu_5": "cancel",
-          "on_close_action": "close"
+          "on_close_action": "close",
+          "on_menu_6": "autosave"
         }
       }
     },
@@ -347,7 +391,7 @@
       "name": "ClickSfx",
       "type": "AudioStreamPlayer",
       "parentId": "surface",
-      "order": 9,
+      "order": 10,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.click"
@@ -427,6 +471,26 @@
         "nodeId": "script"
       },
       "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "autosave"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_menu_6"
+    },
+    {
+      "source": {
+        "nodeId": "autosave"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
     },
     {
       "source": {

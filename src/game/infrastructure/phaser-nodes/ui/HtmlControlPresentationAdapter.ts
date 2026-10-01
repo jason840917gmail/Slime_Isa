@@ -13,6 +13,7 @@ import {
   SliderControlNode,
   StyledControlNode,
   TextureRectControlNode,
+  type UiListItem,
   type UiTone,
 } from './ControlNodes';
 
@@ -306,6 +307,9 @@ function synchronizeList(
   control: ItemListControlNode,
   resolveAssetUrl: HtmlControlPresentationOptions['resolveAssetUrl'],
 ): void {
+  // The base adapter resets `display` whenever the layout changes (a window resizing on open),
+  // so the grid is reasserted every frame rather than only when the items change.
+  setStyle(element, 'display', control.visible ? 'grid' : 'none');
   const signature = JSON.stringify([control.items, control.columns, control.gap]);
   if (element.dataset.sceneListSignature === signature) {
     [...element.children].forEach((child, index) => setAttribute(child, 'aria-selected', String(index === control.selectedIndex)));
@@ -314,7 +318,6 @@ function synchronizeList(
   element.dataset.sceneListSignature = signature;
   element.replaceChildren();
   element.setAttribute('role', 'listbox');
-  element.style.display = 'grid';
   element.style.gridTemplateColumns = `repeat(${control.columns}, minmax(0, 1fr))`;
   element.style.gap = `${control.gap}px`;
   control.items.forEach((item, index) => {
@@ -353,8 +356,53 @@ function synchronizeList(
     option.oncontextmenu = (event) => {
       if (control.secondarySelect(index)) { event.preventDefault(); event.stopPropagation(); }
     };
+    wireListDrag(option, control, item, index);
     element.append(option);
   });
+  if (control.dropTarget) setAttribute(element, 'data-drop-target', 'true');
+}
+
+/**
+ * The entry being dragged, if any. Native drag data cannot be read until the
+ * drop, so the source is kept here; lists from any surface can exchange entries.
+ */
+let activeListDrag: { readonly itemId: string; readonly index: number } | undefined;
+const LIST_DRAGGING_CLASS = 'scene-list-dragging';
+const DROP_OVER_CLASS = 'scene-item--drop-over';
+
+function wireListDrag(option: HTMLButtonElement, control: ItemListControlNode, item: UiListItem, index: number): void {
+  if (metadataFlag(item.metadata, 'draggable') && !item.disabled) {
+    option.draggable = true;
+    option.ondragstart = (event) => {
+      activeListDrag = { itemId: item.id, index };
+      event.dataTransfer?.setData('text/plain', item.label);
+      if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+      document.documentElement.classList.add(LIST_DRAGGING_CLASS);
+      option.classList.add('scene-item--dragging');
+    };
+    option.ondragend = () => {
+      activeListDrag = undefined;
+      document.documentElement.classList.remove(LIST_DRAGGING_CLASS);
+      option.classList.remove('scene-item--dragging');
+      document.querySelectorAll(`.${DROP_OVER_CLASS}`).forEach((over) => over.classList.remove(DROP_OVER_CLASS));
+    };
+  }
+  if (!control.dropTarget) return;
+  option.ondragover = (event) => {
+    if (!activeListDrag) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    option.classList.add(DROP_OVER_CLASS);
+  };
+  option.ondragleave = () => { option.classList.remove(DROP_OVER_CLASS); };
+  option.ondrop = (event) => {
+    option.classList.remove(DROP_OVER_CLASS);
+    const source = activeListDrag;
+    if (!source) return;
+    event.preventDefault();
+    event.stopPropagation();
+    control.dropOnto(index, source);
+  };
 }
 
 function isLockedItem(metadata: unknown): boolean {

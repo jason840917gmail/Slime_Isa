@@ -2,7 +2,7 @@
   "$schema": "../../visuals/visual-set.schema.json",
   "version": 1,
   "visualSetId": "enemy.slime.spider",
-  "assetId": "character.enemy.slime-spider",
+  "assetId": "character.enemy.meadow-spider",
   "defaults": {
     "origin": [
       0.5,

@@ -164,12 +164,45 @@
       }
     },
     {
+      "id": "coach",
+      "name": "Coach",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -20,
+          12
+        ],
+        "offsetMax": [
+          20,
+          74
+        ],
+        "text": "",
+        "tone": "warning",
+        "fontSize": 15,
+        "fontWeight": 700,
+        "textAlign": "center",
+        "wrap": true,
+        "styleClass": "menu-tabs-coach",
+        "visible": false
+      }
+    },
+    {
       "id": "script",
       "name": "UiSurfaceScript",
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 4,
+      "order": 5,
       "properties": {
         "surfaceId": "menu-tabs",
         "modal": false,
@@ -198,6 +231,16 @@
             "nodePath": "../Map",
             "property": "disabled",
             "model": "mapDisabled"
+          },
+          {
+            "nodePath": "../Coach",
+            "property": "visible",
+            "model": "coachVisible"
+          },
+          {
+            "nodePath": "../Coach",
+            "property": "text",
+            "model": "coachText"
           }
         ],
         "actions": {
@@ -213,7 +256,7 @@
       "name": "ClickSfx",
       "type": "AudioStreamPlayer",
       "parentId": "surface",
-      "order": 5,
+      "order": 6,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.click"

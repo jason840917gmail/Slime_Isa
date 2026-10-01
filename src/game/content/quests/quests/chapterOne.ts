@@ -30,7 +30,7 @@ export const aPlaceToWork: QuestDefinition = {
     {
       id: 'build-workbench',
       title: 'Build a workbench',
-      description: 'Pick up the wood lying around the clearing and craft a Workbench (C).',
+      description: 'Pick up the wood lying around the clearing, then open your bag and craft a Workbench in the Crafting tab.',
       objectives: [
         { id: 'craft-workbench', kind: 'craft-item', label: 'Craft a Workbench (40 wood)', target: 1, itemIds: ['workbench'] },
       ],
@@ -65,6 +65,47 @@ export const aPlaceToWork: QuestDefinition = {
   },
 };
 
+/**
+ * The tutorial beside the first quest (playtest 2026-10-01: the opening quests
+ * teach everything a slime can do). It starts by itself with A Place to Work
+ * and asks for what the main line does not: each menu tab, the map, sprinting
+ * and the pause menu. The tracker adds each key, so the text never names one.
+ * Runs already past A Place to Work never get it.
+ */
+export const slimeBasics: QuestDefinition = {
+  id: 'slime-basics',
+  definitionVersion: 1,
+  title: 'Slime Basics',
+  description: 'A first look at everything a slime can use: the bag and its tabs, the map, sprinting and the pause menu.',
+  category: 'optional',
+  prerequisites: [
+    { kind: 'area-entered', areaIds: ['level-1'] },
+    { kind: 'quest-status', questId: 'a-place-to-work', status: 'available' },
+  ],
+  acquisition: { kind: 'automatic' },
+  stages: [
+    {
+      id: 'learn-the-basics',
+      title: 'Learn the basics',
+      description: 'Open each menu once and try a sprint.',
+      objectives: [
+        { id: 'open-bag', kind: 'use-control', label: 'Open your bag', target: 1, controlIds: ['menu:inventory'] },
+        { id: 'see-crafting', kind: 'use-control', label: 'Look at the Crafting tab', target: 1, controlIds: ['menu:crafting'] },
+        { id: 'read-journal', kind: 'use-control', label: 'Read your Journal', target: 1, controlIds: ['menu:journal'] },
+        { id: 'open-map', kind: 'use-control', label: 'Open the map', target: 1, controlIds: ['menu:map'] },
+        { id: 'sprint', kind: 'use-control', label: 'Sprint', target: 1, controlIds: ['sprint'] },
+        { id: 'pause', kind: 'use-control', label: 'Pause to save or change settings', target: 1, controlIds: ['pause'] },
+      ],
+    },
+  ],
+  completion: { kind: 'automatic' },
+  failurePolicy: { kind: 'permanent' },
+  abandonmentPolicy: { kind: 'retryable', reset: 'quest' },
+  rewards: {
+    coins: 10,
+  },
+};
+
 export const stoneTools: QuestDefinition = {
   id: 'stone-tools',
   definitionVersion: 1,
@@ -77,7 +118,7 @@ export const stoneTools: QuestDefinition = {
     {
       id: 'craft-tools',
       title: 'Make your tools',
-      description: 'Use the Workbench (F) to craft both stone tools.',
+      description: 'Use your Workbench to craft both stone tools.',
       objectives: [
         { id: 'craft-axe', kind: 'craft-item', label: 'Craft a Stone Axe', target: 1, itemIds: ['stone-axe'] },
         { id: 'craft-pickaxe', kind: 'craft-item', label: 'Craft a Stone Pickaxe', target: 1, itemIds: ['stone-pickaxe'] },
@@ -86,8 +127,9 @@ export const stoneTools: QuestDefinition = {
     {
       id: 'use-tools',
       title: 'Put them to work',
-      description: 'Chop trees with the axe and break rocks with the pickaxe.',
+      description: 'Hold the axe to chop trees and the pickaxe to break rocks: switch between them on your belt.',
       objectives: [
+        { id: 'switch-tools', kind: 'use-control', label: 'Switch tools on your belt', target: 1, controlIds: ['weapon-switch'] },
         { id: 'chop-wood', kind: 'collect', label: 'Chop wood from trees', target: 20, itemIds: ['wood'] },
         { id: 'mine-stone', kind: 'collect', label: 'Mine stone from rocks', target: 20, itemIds: ['stone'] },
       ],
@@ -107,7 +149,7 @@ export const stoneTools: QuestDefinition = {
       'With a bench you can make proper tools. An axe for the trees, a pickaxe for the rocks.',
       'Craft both, then show me you can use them.',
     ],
-    progress: ['Trees need an axe, rocks need a pickaxe. No amount of bouncing will do it, trust me.'],
+    progress: ['Trees need an axe, rocks need a pickaxe, and only the one in your hand works. No amount of bouncing will do it, trust me.'],
     complete: [
       'Now you are a real gatherer!',
       'One more lesson before you go: a slime that stands still gets squashed. When something swings at you, tuck in and roll away!',
@@ -217,13 +259,19 @@ export const theOneEyedGuardian: QuestDefinition = {
   },
 };
 
+/**
+ * Parked until after Chapter 2 (owner, 2026-09-30: the Workshop is a later
+ * upgrade of the workbench, once the Forge makes iron). Nothing sets
+ * `chapter-2-complete` yet, so the quest stays unavailable; saves that had it
+ * active or done keep it.
+ */
 export const theOldWorkshop: QuestDefinition = {
   id: 'the-old-workshop',
   definitionVersion: 1,
   title: 'The Old Workshop',
   description: 'The Workshop in the woodcutter yard fell to ruin when the worms came. Bring wood and stone and rebuild it.',
   category: 'optional',
-  prerequisites: [{ kind: 'quest-status', questId: 'stone-tools', status: 'completed' }],
+  prerequisites: [{ kind: 'world-flag', flagId: 'chapter-2-complete' }],
   acquisition: { kind: 'npc', npcIds: [ELDER] },
   stages: [
     {
@@ -263,7 +311,7 @@ export const aTonicForLili: QuestDefinition = {
     {
       id: 'brew-tonic',
       title: 'Brew a tonic',
-      description: 'Find purple berries in the clearing and brew a Slime Tonic (C).',
+      description: 'Find purple berries in the clearing and brew a Slime Tonic in the Crafting tab.',
       objectives: [
         { id: 'brew-tonic', kind: 'craft-item', label: 'Brew a Slime Tonic (3 purple berries)', target: 1, itemIds: ['hp-potion'] },
       ],
@@ -300,7 +348,7 @@ export const snackForTheRoad: QuestDefinition = {
     {
       id: 'cook-snack',
       title: 'Pack a snack',
-      description: 'Weave a small basket of berries (C).',
+      description: 'Weave a small basket of berries in the Crafting tab.',
       objectives: [
         { id: 'cook-berry-basket', kind: 'craft-item', label: 'Make a Berry Basket', target: 1, itemIds: ['berry-basket'] },
       ],
@@ -328,6 +376,7 @@ export const snackForTheRoad: QuestDefinition = {
 
 export const CHAPTER_ONE_QUESTS: readonly QuestDefinition[] = [
   aPlaceToWork,
+  slimeBasics,
   stoneTools,
   wormTrouble,
   theOneEyedGuardian,

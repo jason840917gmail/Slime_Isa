@@ -7,7 +7,7 @@ import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurface
 
 type ModelListener = (model: UiPresentationModel) => void;
 
-/** Adapts inventory and loadout state to the authored field belt (three slots, switched with the mouse wheel). */
+/** Adapts inventory and loadout state to the authored field belt (four slots, switched with the mouse wheel or a click). */
 export class WeaponHotbarSurfacePort implements UiSurfacePort {
   private readonly listeners = new Set<ModelListener>();
   private stopped = false;

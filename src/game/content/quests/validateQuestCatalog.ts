@@ -9,6 +9,7 @@ import type {
   QuestState,
   QuestStatus,
 } from './types';
+import { TUTORIAL_CONTROL_IDS } from './types';
 
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const QUEST_STATUSES: readonly QuestStatus[] = ['locked', 'available', 'active', 'completed', 'failed', 'abandoned'];
@@ -133,6 +134,12 @@ function validateObjective(objective: QuestObjectiveDefinition, path: string, is
     case 'place-item':
       validateValues(objective.itemIds, 'itemIds');
       for (const itemId of objective.itemIds ?? []) if (!isKnownItemId(itemId)) issues.push(`${path}.itemIds: unknown item '${itemId}'`);
+      break;
+    case 'use-control':
+      validateValues(objective.controlIds, 'controlIds');
+      for (const controlId of objective.controlIds ?? []) {
+        if (!(TUTORIAL_CONTROL_IDS as readonly string[]).includes(controlId)) issues.push(`${path}.controlIds: unknown control '${controlId}'`);
+      }
       break;
     default:
       issues.push(`${path}.kind: unknown objective kind`);

@@ -65,6 +65,7 @@ test('Esc opens the pause menu only when nothing else is open and play allows it
       canOpen: () => allowed,
       openJournal: () => calls.push('journal'), openInventory: () => calls.push('inventory'), openMap: () => calls.push('map'),
       openSettings: () => calls.push('settings'), openSaves: () => calls.push('saves'), quitToTitle: () => calls.push('quit'),
+      openLoad: () => calls.push('load'), hasLoadable: () => true,
     },
   });
   target.press('Escape');
@@ -79,8 +80,10 @@ test('Esc opens the pause menu only when nothing else is open and play allows it
   pause.invoke('pause-menu', 'journal');
   assert.equal(pause.isOpen(), false, 'journal replaces the menu');
   pause.open();
+  pause.invoke('pause-menu', 'load');
+  assert.equal(pause.isOpen(), true, 'load opens on top of the menu');
   pause.invoke('pause-menu', 'quit');
-  assert.deepEqual(calls, ['settings', 'journal', 'quit']);
+  assert.deepEqual(calls, ['settings', 'journal', 'load', 'quit']);
   pause.destroy();
   assert.equal(target.listeners.size, 0);
 });
@@ -93,6 +96,9 @@ test('save slots save to empty slots, ask before overwriting, and only load fill
     create: (name) => { saves.push({ saveId: `id-${name}`, name, updatedAt: 0, currentMapId: 'level-1', playTimeMs: 125 * 60_000 }); log.push(['create', name]); return { ok: true }; },
     overwrite: (saveId) => { log.push(['overwrite', saveId]); return { ok: true }; },
     load: async (saveId) => { log.push(['load', saveId]); return { ok: false, message: 'The authored map is unavailable.' }; },
+    unreadable: () => [],
+    autosave: () => undefined,
+    loadAutosave: () => ({ ok: false, message: 'There is no autosave yet.' }),
   };
   const port = new shell.SaveSlotsSurfacePort({ modalStack: modalStack(), storage, placeName: () => 'Slimeshire Meadow', formatTime: () => 'today' });
   port.openFor('save');
@@ -114,6 +120,36 @@ test('save slots save to empty slots, ask before overwriting, and only load fill
   assert.equal(port.snapshot('save-slots').status, 'The authored map is unavailable.');
 });
 
+test('loading lists the autosave first, says why a slot cannot be read, and recovers from a thrown load', async () => {
+  const log = [];
+  const storage = {
+    list: () => [{ saveId: 'id-2', name: 'Slot 2', updatedAt: 0, currentMapId: 'level-1', playTimeMs: 60_000 }],
+    unreadable: () => [{ name: 'Slot 1', reason: 'The snapshot failed schema validation.' }],
+    create: () => ({ ok: true }),
+    overwrite: () => ({ ok: true }),
+    load: async (saveId) => { log.push(['load', saveId]); throw new Error('storage exploded'); },
+    autosave: () => ({ mapId: 'gloop-forest', playTimeMs: 3 * 60_000 }),
+    loadAutosave: () => { log.push(['autosave']); return { ok: true }; },
+  };
+  const port = new shell.SaveSlotsSurfacePort({ modalStack: modalStack(), storage, placeName: (mapId) => mapId === 'gloop-forest' ? 'Gloop Forest' : 'Slimeshire Meadow', formatTime: () => 'today' });
+  port.openFor('save');
+  assert.equal(port.snapshot('save-slots').autosaveVisible, false, 'saving never offers the autosave');
+  port.openFor('load');
+  let model = port.snapshot('save-slots');
+  assert.equal(model.autosaveVisible, true);
+  assert.equal(model.autosaveLabel, 'Autosave (latest)  ·  Gloop Forest  ·  0:03 played');
+  assert.equal(model.slot1Label, "Slot 1  ·  Can't be loaded: The snapshot failed schema validation.");
+  assert.equal(model.slot1Disabled, true);
+  port.invoke('save-slots', 'slot-2');
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  model = port.snapshot('save-slots');
+  assert.equal(model.status, 'storage exploded', 'a thrown load reports instead of staying busy');
+  assert.equal(model.slot2Disabled, false);
+  port.invoke('save-slots', 'autosave');
+  assert.deepEqual(log, [['load', 'id-2'], ['autosave']]);
+  assert.equal(port.snapshot('save-slots').status, 'Loading the autosave…');
+});
+
 test('the title screen confirms a new game over an autosave and cannot be dismissed with Escape', () => {
   const stackTarget = quietTarget();
   const stack = new shell.ModalStack(stackTarget);
@@ -121,7 +157,7 @@ test('the title screen confirms a new game over an autosave and cannot be dismis
   const title = new shell.TitleSurfacePort({
     modalStack: stack, version: '0.1.0',
     actions: {
-      canContinue: () => true, hasSlots: () => false, hasAutosave: () => true,
+      canContinue: () => true, hasLoadable: () => false, hasAutosave: () => true,
       newGame: () => calls.push('new'), continueGame: () => calls.push('continue'),
       openLoad: () => calls.push('load'), openSettings: () => calls.push('settings'), openCredits: () => calls.push('credits'),
     },
@@ -141,7 +177,7 @@ test('the title screen confirms a new game over an autosave and cannot be dismis
 
 test('game over names the cause and waking closes it exactly once', () => {
   const calls = [];
-  const over = new shell.GameOverSurfacePort({ modalStack: modalStack(), actions: { wake: () => calls.push('wake'), openLoad: () => calls.push('load'), hasSlots: () => true } });
+  const over = new shell.GameOverSurfacePort({ modalStack: modalStack(), actions: { wake: () => calls.push('wake'), openLoad: () => calls.push('load'), hasLoadable: () => true } });
   over.show({ cause: 'Worm Brawler', playTimeMs: 61 * 60_000, hasBed: true });
   const model = over.snapshot('game-over');
   assert.equal(model.cause, 'Defeated by Worm Brawler');

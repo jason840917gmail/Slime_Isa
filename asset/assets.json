@@ -11,6 +11,8 @@
   "bundles": {
     "boot": [
       "character.player.slime",
+      "character.player.slime.heavy",
+      "character.player.slime.sticky",
       "character.npc.village-elder-plop",
       "character.npc.mossy-scout",
       "character.npc.lili",
@@ -54,6 +56,7 @@
       "sheet.houses.3x1",
       "sheet.houses.mushroom.2x1",
       "sheet.houses.workshop.2x1",
+      "sheet.houses.forge.2x1",
       "enemy.worm.archer",
       "enemy.worm.swordsman",
       "enemy.worm.brawler",
@@ -62,6 +65,7 @@
       "effect.enemy.spider-web-cover",
       "effect.enemy.worm-brawler-hit",
       "character.enemy.slime-spider",
+      "character.enemy.meadow-spider",
       "character.boss.fatty-one-eye",
       "sheet.objects.chest-wooden.2x1",
       "sheet.items.keys.5x4",
@@ -69,6 +73,8 @@
       "sheet.items.gems.5x2",
       "sheet.items.materials.5x2",
       "sheet.items.forage.5x2",
+      "sheet.items.chapter-2.5x2",
+      "sheet.rocks.iron-ore.2x1",
       "effect.boss.ground-crack",
       "effect.player.stretch-lash",
       "object.lash-bell-post",
@@ -77,6 +83,7 @@
       "effect.weapon.hit-tiles",
       "weapon.player.wooden-axe-tiles",
       "weapon.player.stone-tools-tiles",
+      "weapon.player.iron-tools-tiles",
       "effect.resource.impact-tiles",
       "weapon.player.starter-spears-tiles",
       "weapon.player.hammer-spear-tiles",
@@ -120,7 +127,9 @@
       "terrain.interior.floor-mushroom-plain"
     ],
     "music": [
-      "audio.music.level-1-home-town"
+      "audio.music.level-1-home-town",
+      "audio.music.gloop-forest",
+      "audio.music.gloop-forest-ambience"
     ],
     "audio": [
       "audio.sfx.weapon.swing-light.1",
@@ -312,6 +321,72 @@
     ]
   },
   "assets": {
+    "character.player.slime.heavy": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/slime-form-heavy.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 2048,
+          "h": 2048
+        }
+      },
+      "runtime": {
+        "textureKey": "slime-form-heavy"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "character",
+        "player",
+        "gulp"
+      ],
+      "status": "ready",
+      "notes": "The slime's Heavy Gulp form skin: the player sheet re-textured frame by frame (same layout), built by scripts/characters/build-gulp-form-skins.py from Magnific GPT-2 textures in asset/Originals/characters/gulp-forms/."
+    },
+    "character.player.slime.sticky": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/slime-form-sticky.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 2048,
+          "h": 2048
+        }
+      },
+      "runtime": {
+        "textureKey": "slime-form-sticky"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "character",
+        "player",
+        "gulp"
+      ],
+      "status": "ready",
+      "notes": "The slime's Sticky Gulp form skin: the player sheet re-textured frame by frame (same layout), built by scripts/characters/build-gulp-form-skins.py from Magnific GPT-2 textures in asset/Originals/characters/gulp-forms/."
+    },
     "character.player.slime": {
       "source": {
         "kind": "spritesheet",
@@ -1761,6 +1836,39 @@
       "status": "draft",
       "notes": "Slimeshire Workshop exterior (frame 0 ruined, frame 1 restored) generated with Magnific GPT-2; sources in asset/Originals/houses/generated/, packed by scripts/houses/pack-workshop.py."
     },
+    "sheet.houses.forge.2x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/Houses/256-forge-2x1.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 2,
+          "rows": 1
+        },
+        "expect": {
+          "w": 512,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "houses-forge-2x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "house",
+        "forge"
+      ],
+      "status": "ready",
+      "notes": "Slimeshire Forge, an outdoor smelting furnace in the forge yard beside the home: frame 0 ruined, frame 1 restored. Magnific GPT-2 on white (the ruin made from the restored render), cut out and packed by scripts/houses/pack-forge.py; sources in asset/Originals/houses/generated/forge-furnace-*."
+    },
     "sheet.rocks.3x1": {
       "source": {
         "kind": "spritesheet",
@@ -2585,6 +2693,32 @@
       ],
       "status": "ready"
     },
+    "character.enemy.meadow-spider": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/64x64-8x10-meadow-spider-slime.webp",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 8,
+          "rows": 10,
+          "count": 80
+        },
+        "expect": {
+          "w": 512,
+          "h": 640
+        }
+      },
+      "runtime": {
+        "textureKey": "character-character-enemy-meadow-spider"
+      },
+      "tags": [
+        "character",
+        "enemy"
+      ],
+      "notes": "The Meadow spider of level 1 (the original yellow spider sheet, same 8x10 layout as the orb-weaver's), so it is never mistaken for a Gloop Forest orb-weaver (playtest 2026-10-01).",
+      "status": "ready"
+    },
     "character.boss.fatty-one-eye": {
       "source": {
         "kind": "spritesheet",
@@ -2793,6 +2927,76 @@
         "inventory"
       ],
       "status": "ready"
+    },
+    "sheet.items.chapter-2.5x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/items/chapter-2-5x2.webp",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 5,
+          "rows": 2,
+          "count": 5
+        },
+        "expect": {
+          "w": 320,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "items-chapter-2-5x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "item",
+        "icon",
+        "weapon",
+        "chapter-2"
+      ],
+      "status": "ready",
+      "notes": "Chapter 2 item icons: 0 weaver fang, 1 iron bar, 2 Reinforced Pickaxe, 3 iron spear, 4 iron axe (5-9 free). Magnific GPT-2 on white, cut out and packed by scripts/items/pack-chapter-2-art.py."
+    },
+    "sheet.rocks.iron-ore.2x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/rocks/128x128-tile_2x1-iron-ore.webp",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 2,
+          "rows": 1,
+          "count": 2
+        },
+        "expect": {
+          "w": 256,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "rocks-iron-ore-2x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "resource",
+        "rock",
+        "iron",
+        "chapter-2"
+      ],
+      "status": "ready",
+      "notes": "Iron ore node (frame 0) and its mined-out rubble (frame 1); only the Reinforced Pickaxe breaks it. Magnific GPT-2 on white, cut out and packed by scripts/items/pack-chapter-2-art.py."
     },
     "sheet.items.forage.5x2": {
       "source": {
@@ -3071,6 +3275,56 @@
         "animated"
       ],
       "status": "ready"
+    },
+    "weapon.player.iron-tools-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/128x128-tile_4x1-iron-tools.webp",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 4,
+          "rows": 1,
+          "count": 4
+        },
+        "expect": {
+          "w": 512,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "weapon-player-iron-tools-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "frames": {
+        "0": {
+          "name": "iron-spear"
+        },
+        "1": {
+          "name": "iron-spear-thrust"
+        },
+        "2": {
+          "name": "iron-axe"
+        },
+        "3": {
+          "name": "reinforced-pickaxe"
+        }
+      },
+      "tags": [
+        "weapon",
+        "tool",
+        "iron",
+        "animated",
+        "chapter-2"
+      ],
+      "status": "ready",
+      "notes": "Chapter 2 weapon art: the iron spear (diagonal, plain and thrust) like starter-spears, the iron axe and the Reinforced Pickaxe upright like stone-tools. Magnific GPT-2 on white, cut out and packed by scripts/weapons/pack-iron-tools.py."
     },
     "weapon.player.stone-tools-tiles": {
       "source": {
@@ -3670,6 +3924,38 @@
       ],
       "status": "ready",
       "notes": "Area title banner; title and biome subtitle stay dynamic."
+    },
+    "audio.music.gloop-forest": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/music/gloop-forest.mp3"
+      },
+      "runtime": {
+        "textureKey": "music-gloop-forest"
+      },
+      "tags": [
+        "audio",
+        "music",
+        "loop"
+      ],
+      "status": "ready",
+      "notes": "Gloop Forest's music (roadmap 8, Chapter 2): generated for Slime Isa with Magnific (ElevenLabs music v2, 120 s, instrumental). See asset/audio/CREDITS.md."
+    },
+    "audio.music.gloop-forest-ambience": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/music/gloop-forest-ambience.mp3"
+      },
+      "runtime": {
+        "textureKey": "music-gloop-forest-ambience"
+      },
+      "tags": [
+        "audio",
+        "ambience",
+        "loop"
+      ],
+      "status": "ready",
+      "notes": "Gloop Forest's ambience bed (wind, birds, insects): generated for Slime Isa with Magnific (ElevenLabs sound effects, 20 s loop). Hand-authored like the music, so pnpm audio:bake leaves it alone."
     },
     "audio.music.level-1-home-town": {
       "source": {

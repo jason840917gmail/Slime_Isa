@@ -426,6 +426,16 @@ export class SaveRepository {
     return [...this.issues];
   }
 
+  /** Named saves in the index that cannot be read, with the reason (shown instead of an empty slot). */
+  unreadable(): readonly { readonly saveId: string; readonly name: string; readonly reason: string }[] {
+    this.issues = [];
+    return readIndex(this.storage).flatMap((entry) => {
+      if (this.read(entry.saveId)) return [];
+      const issue = this.issues.find((candidate) => candidate.saveId === entry.saveId);
+      return [{ saveId: entry.saveId, name: entry.name, reason: issue?.reason ?? 'The save is missing.' }];
+    });
+  }
+
   create(name: string, data: GameSaveData): NamedSaveMetadata {
     const normalizedName = this.validateName(name);
     this.assertData(data);

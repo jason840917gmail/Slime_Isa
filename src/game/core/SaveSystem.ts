@@ -14,6 +14,7 @@ import {
 } from '../infrastructure/persistence/SaveSchema';
 import { playerInventory } from '../systems/Inventory';
 import { questTracker } from '../quests/QuestTracker';
+import { repairQuestStates } from '../infrastructure/persistence/quests/QuestStateRepair';
 import { worldProgress } from '../features/progression/WorldProgress';
 import { storyProgress } from '../features/progression/StoryProgress';
 import { gameEvents } from './EventBus';
@@ -89,9 +90,14 @@ class SaveSystem {
   install(data: GameSaveData): void {
     // Validate and install the quest snapshot before mutating the other run
     // stores. QuestService.load is atomic, so malformed quest data is rejected
-    // before player, inventory, or world state is touched.
-    questTracker.load([...data.quests]);
+    // before player, inventory, or world state is touched. Quest states from an
+    // older build are first fitted to the current catalog, so they load.
+    const { states, repairs } = repairQuestStates(data.quests);
+    if (repairs.length > 0) console.warn(`Saved quest progress was adjusted to this version:\n  ${repairs.join('\n  ')}`);
+    questTracker.load([...states]);
     gameState.load(data.player);
+    // A run saved at the moment of defeat wakes with full health rather than dead.
+    if (gameState.hp <= 0) gameState.revive();
     playerInventory.load(data.inventory);
     worldProgress.load(data.world);
     storyProgress.load(data.story);
@@ -140,6 +146,11 @@ class SaveSystem {
     return saveRepository.list();
   }
 
+  /** Named saves that exist but cannot be read, with why. */
+  unreadableNamedSaves(): readonly { readonly saveId: string; readonly name: string; readonly reason: string }[] {
+    return saveRepository.unreadable();
+  }
+
   namedSaveValidationIssues(): readonly SaveValidationIssue[] {
     return saveRepository.validationIssues();
   }
@@ -162,16 +173,42 @@ class SaveSystem {
       const issue = saveRepository.validationIssues().find((entry) => entry.saveId === saveId);
       return { ok: false, saveId, message: issue?.reason ?? 'That save could not be found.' };
     }
-    const loadedMap = await mapRepository.load(snapshot.data.location.mapId);
-    if (!loadedMap) {
-      return { ok: false, saveId, message: `The authored map '${snapshot.data.location.mapId}' is unavailable.` };
+    const result = await this.loadSaveData(snapshot.data);
+    return result.ok ? { ok: true, snapshot } : { ok: false, saveId, message: result.message };
+  }
+
+  /** Summary of the recovery autosave for the Load window, if there is one. */
+  autosaveSummary(): { readonly mapId: string; readonly playTimeMs: number } | undefined {
+    const data = saveRepository.readRecovery();
+    return data ? { mapId: data.location.mapId, playTimeMs: data.playTimeMs } : undefined;
+  }
+
+  /** Travels into the recovery autosave (Continue, or its row in the Load window). */
+  loadAutosave(): { readonly ok: true } | { readonly ok: false; readonly message: string } {
+    const recovery = saveRepository.readRecovery();
+    if (!recovery) return { ok: false, message: 'There is no autosave yet.' };
+    saveRepository.markLegacyMigrationComplete();
+    return this.queueNavigation(recovery, 'load', recovery.location.mapId)
+      ? { ok: true }
+      : { ok: false, message: 'The autosave could not be opened.' };
+  }
+
+  /** Checks a save against its map, then travels into it (the page reloads into the saved world). */
+  private async loadSaveData(data: GameSaveData): Promise<{ readonly ok: true } | { readonly ok: false; readonly message: string }> {
+    const { mapId } = data.location;
+    let loadedMap: Awaited<ReturnType<typeof mapRepository.load>>;
+    try {
+      loadedMap = await mapRepository.load(mapId);
+    } catch (error) {
+      return { ok: false, message: `The saved map '${mapId}' could not be read: ${error instanceof Error ? error.message : String(error)}` };
     }
-    if (!this.isLocationInsideMap(snapshot.data.location, loadedMap.dimensions.width, loadedMap.dimensions.height)) {
-      return { ok: false, saveId, message: 'The saved player location is invalid.' };
+    if (!loadedMap) return { ok: false, message: `The authored map '${mapId}' is unavailable.` };
+    if (!this.isLocationInsideMap(data.location, loadedMap.dimensions.width, loadedMap.dimensions.height)) {
+      return { ok: false, message: 'The saved player location is invalid.' };
     }
-    return this.queueNavigation(snapshot.data, 'load', loadedMap.map.mapId)
-      ? { ok: true, snapshot }
-      : { ok: false, saveId, message: 'The load request could not be started.' };
+    return this.queueNavigation(data, 'load', loadedMap.map.mapId)
+      ? { ok: true }
+      : { ok: false, message: 'The load request could not be started.' };
   }
 
   /** Play time of the installed run so far. */
@@ -189,13 +226,7 @@ class SaveSystem {
    * play), or else the most recently updated named save.
    */
   async continueLatest(): Promise<LoadResult | { readonly ok: true }> {
-    const recovery = saveRepository.readRecovery();
-    if (recovery) {
-      saveRepository.markLegacyMigrationComplete();
-      return this.queueNavigation(recovery, 'load', recovery.location.mapId)
-        ? { ok: true }
-        : { ok: false, message: 'The autosave could not be opened.' };
-    }
+    if (saveRepository.readRecovery()) return this.loadAutosave();
     const newest = [...this.listNamedSaves()].sort((left, right) => right.updatedAt - left.updatedAt)[0];
     if (!newest) return { ok: false, message: 'There is no saved game yet.' };
     return this.loadNamedSave(newest.saveId);
@@ -222,6 +253,9 @@ class SaveSystem {
       window.clearTimeout(this.autoSaveTimer);
       this.autoSaveTimer = undefined;
     }
+    // A defeated slime is never autosaved: loading the autosave (from the
+    // defeat screen too) returns to the last moment it was alive.
+    if (gameState.hp <= 0) return false;
     const saved = saveRepository.writeRecovery(this.captureCurrentState(location));
     if (saved) gameEvents.emit('save.done', { slot: 'recovery' });
     return saved;

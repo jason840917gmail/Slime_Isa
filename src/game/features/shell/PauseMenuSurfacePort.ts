@@ -9,6 +9,9 @@ export interface PauseMenuActions {
   openMap(): void;
   openSettings(): void;
   openSaves(): void;
+  openLoad(): void;
+  /** True when the Load window has something to show. */
+  hasLoadable(): boolean;
   quitToTitle(): void;
 }
 
@@ -22,9 +25,9 @@ export const PAUSE_MENU_SURFACE_ID = 'pause-menu';
 
 /**
  * Escape with nothing else open pauses the game and shows Resume, Journal,
- * Inventory, Map, Settings, Save, and Quit to Title. Journal, Inventory and Map
- * replace the menu; Settings and Save open on top of it, so closing them
- * returns here.
+ * Inventory, Map, Settings, Save, Load, and Quit to Title. Journal, Inventory
+ * and Map replace the menu; Settings, Save and Load open on top of it, so
+ * closing them returns here.
  */
 export class PauseMenuSurfacePort extends MenuSurface {
   private readonly keyTarget: Pick<Document, 'addEventListener' | 'removeEventListener'>;
@@ -36,7 +39,7 @@ export class PauseMenuSurfacePort extends MenuSurface {
   }
 
   protected model(): UiPresentationModel {
-    return { hint: 'Esc resumes' };
+    return { hint: 'Esc resumes', loadDisabled: !this.options.actions.hasLoadable() };
   }
 
   protected act(actionId: string): void {
@@ -48,6 +51,7 @@ export class PauseMenuSurfacePort extends MenuSurface {
       case 'map': this.close(); actions.openMap(); break;
       case 'settings': actions.openSettings(); break;
       case 'save': actions.openSaves(); break;
+      case 'load': actions.openLoad(); break;
       case 'quit': this.close(); actions.quitToTitle(); break;
       default: break;
     }

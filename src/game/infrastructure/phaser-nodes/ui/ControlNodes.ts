@@ -285,11 +285,16 @@ export class ButtonControlNode extends LabelControlNode {
 
 export interface UiListItem { readonly id: string; readonly label: string; readonly disabled?: boolean; readonly metadata?: JsonValue }
 
+/** An entry dragged from any list (`metadata.draggable`) and dropped onto entry `index` of a drop-target list. */
+export interface UiListDrop { readonly index: number; readonly item: UiListItem; readonly sourceItemId: string; readonly sourceIndex: number }
+
 export interface ItemListControlOptions extends StyledControlOptions {
   readonly items?: readonly UiListItem[];
   readonly selectedIndex?: number;
   readonly columns?: number;
   readonly gap?: number;
+  /** Entries accept items dragged from any list (emits `item_dropped`). */
+  readonly dropTarget?: boolean;
 }
 
 export class ItemListControlNode extends StyledControlNode {
@@ -297,6 +302,7 @@ export class ItemListControlNode extends StyledControlNode {
   selectedIndex: number;
   readonly columns: number;
   readonly gap: number;
+  readonly dropTarget: boolean;
 
   constructor(protected readonly listOptions: ItemListControlOptions) {
     super(listOptions);
@@ -304,6 +310,7 @@ export class ItemListControlNode extends StyledControlNode {
     this.selectedIndex = listOptions.selectedIndex ?? -1;
     this.columns = listOptions.columns ?? 1;
     this.gap = finiteNonNegative(listOptions.gap ?? 8, 'ItemList gap');
+    this.dropTarget = listOptions.dropTarget ?? false;
     if (!Number.isSafeInteger(this.columns) || this.columns < 1) throw new Error('ItemList columns must be a positive integer');
     if (!Number.isSafeInteger(this.selectedIndex) || this.selectedIndex < -1 || this.selectedIndex >= this.items.length) throw new Error('ItemList selectedIndex is out of range');
   }
@@ -313,6 +320,14 @@ export class ItemListControlNode extends StyledControlNode {
     if (!item || item.disabled) return false;
     this.selectedIndex = index;
     this.getSignal<Readonly<{ index: number; item: UiListItem }>>('item_selected')?.emit({ index, item });
+    return true;
+  }
+
+  /** A dragged entry (`source`, from this list or another) landed on entry `index`. */
+  dropOnto(index: number, source: Readonly<{ itemId: string; index: number }>): boolean {
+    const item = this.items[index];
+    if (!this.dropTarget || !item) return false;
+    this.getSignal<UiListDrop>('item_dropped')?.emit({ index, item, sourceItemId: source.itemId, sourceIndex: source.index });
     return true;
   }
 
@@ -354,7 +369,7 @@ export class ItemListControlNode extends StyledControlNode {
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): ItemListControlNode {
-    return new ItemListControlNode({ ...this.listOptions, ...this.duplicateOptions(runtimeId), items: this.items, selectedIndex: this.selectedIndex, columns: this.columns, gap: this.gap });
+    return new ItemListControlNode({ ...this.listOptions, ...this.duplicateOptions(runtimeId), items: this.items, selectedIndex: this.selectedIndex, columns: this.columns, gap: this.gap, dropTarget: this.dropTarget });
   }
 }
 

@@ -86,12 +86,6 @@ export class ResourceNodeScript extends DestructibleScript {
     return this.harvestRequirement()?.targetTag;
   }
 
-  /** The tool tag and tier needed to harvest it, if it needs a tool at all. */
-  get harvestNeed(): Readonly<{ targetTag: string; minimumTier: number }> | undefined {
-    const requirement = this.harvestRequirement();
-    return requirement ? { targetTag: requirement.targetTag, minimumTier: requirement.minimumTier } : undefined;
-  }
-
   /** Where the node stands in the world. */
   get position(): Readonly<{ x: number; y: number }> {
     return this.worldPosition();

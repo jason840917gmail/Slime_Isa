@@ -16,7 +16,7 @@ from the title screen to an end-of-Chapter-2 card: a first-time player takes
 - finish Chapter 1 in Slimeshire Meadow (playable today), then Chapter 2 in
   Gloop Forest: a new enemy, iron, an enemy-only material, the Forge, metal
   gear, and a second boss;
-- restore two Slimeshire buildings, the Workshop and the Forge, and use them
+- restore a Slimeshire building, the Forge, and use it
   to craft the recipes they unlock;
 - grow stronger through crafted gear, Goo Hearts, and story-unlocked
   abilities (no XP or levels);
@@ -71,7 +71,7 @@ are ordered but not sized or dated (decided 2026-09-29).
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
 | 4 | Game shell | Title, continue, pause, game over, settings, credits, simple controls | `[~]` |
 | 5 | Gear-based progression | XP and levels are gone; gear, Goo Hearts, and story unlocks make you stronger | `[~]` |
-| 6 | Rebuild Slimeshire: the Workshop | Restore a ruined building and craft at the Workshop | `[~]` |
+| 6 | Rebuild Slimeshire: restoration | Ruined buildings can be restored and become stations (the Forge uses it in Chapter 2; the Workshop waits until after Chapter 2) | `[~]` |
 | 7 | Gulp | Swallow a material to take its form and solve a puzzle | `[~]` |
 | 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss | `[~]` |
 | 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[~]` |
@@ -342,6 +342,45 @@ below exist.
 - Done when: on a fresh save each of the six hints appears once, disappears
   after the player performs that action, and never returns on reload.
 
+### [~] 4.11 — Owner playtest fixes, 2026-10-01
+
+- Built 2026-10-01 after the owner played Chapter 2, waiting for the owner:
+  - **Tutorial:** the first time the menu opens, a pointer under the tab strip
+    names the Bag, Crafting, Journal and Map tabs until one is clicked. A new
+    automatic quest, **Slime Basics** (`slime-basics`, beside A Place to Work),
+    asks to open the bag, the Crafting tab, the Journal and the map, to sprint
+    and to pause; its objectives are the new `use-control` kind and the
+    tracker adds each key. Stone Tools asks to switch tools on the belt. Four
+    more first-time hints (switch weapons, sprint, map, pause), and quest text
+    no longer names unbound keys ("(C)", "(F)", "U · Quest book").
+  - **Belt:** four slots, and the weapon in hand always swings (tools no longer
+    swap in by themselves, which lost fights against enemies behind a tree). A
+    tree or rock the weapon cannot harvest says where the right tool is.
+  - **Bag:** the weapon belt is always shown at the top with each slot's
+    weapon and an IN HAND tag; weapons drag from the bag onto a slot (the
+    weapon there goes back to the bag); bigger cells with names, a status line
+    (in hand / on belt slot N / in the bag), bigger buttons.
+  - **Fangs:** level 1 has no orb-weavers; its Meadow spiders now use the
+    yellow spider sheet (`character.enemy.meadow-spider`), and a tinted enemy
+    keeps its tint after a hit flash. A drop that does not fit in the bag says
+    so instead of vanishing.
+  - **Load:** the Load window (title, pause menu, defeat screen) lists the
+    autosave, shows why an unreadable slot cannot load, fits stale quest
+    progress instead of failing the load (that left a blank screen), and
+    returns to the title with the reason if a save still cannot be installed.
+    The autosave no longer records a defeated slime.
+  - **Dev panel:** "Weapon hitboxes" draws the slime's live swing (yellow
+    open, green hit, red refused) and "Hurtboxes" where the slime, enemies and
+    bosses take damage, bosses labelled with the weapons they accept. Ticking
+    a box no longer scrolls the page (the game was cut in half).
+  - **Fatty:** his eye hurtbox follows the drawn eye in every clip (it missed
+    the landing and recovery punish windows), every spear reaches it (the Iron
+    Spear did not), hits flash and show damage, and he heals to full after a
+    minute with the slime outside his arena (the Matron too).
+- Played headless (Brave): the bag drag, belt click, tab pointer, Slime
+  Basics progress, a stale-quest save loading, the defeat-screen load, the
+  overlays and a spear hit on Fatty.
+
 ### [x] 4.7 — Credits screen and end-card component, verified 2026-09-29
 
 - Done: credits read `src/game/content/credits/credits.json`. End cards
@@ -431,7 +470,9 @@ below exist.
   - every control comes from one binding table
     (`features/player/PlayerInputActions.ts`), and so does every key label;
   - Dodge is a learned ability (Stone Tools), and Jump is on Space;
-  - the belt has three slots on the mouse wheel, and tools pick themselves;
+  - the belt has three slots on the mouse wheel, and tools pick themselves
+    (both changed by the 2026-10-01 playtest, 4.11: four slots, no automatic
+    tools);
   - right click interacts with what the pointer is on, and holding it picks
     up placed furniture;
   - E opens the menu with tabs;
@@ -629,6 +670,16 @@ and story unlocks, and Chapter 1 still plays as it did. The systems are in
       perk-choose sound.
 
 ## 6. Rebuild Slimeshire: The Workshop
+
+- **2026-09-30 (owner: the Workshop comes too early):** the Workshop is now a
+  later upgrade of the workbench, after Chapter 2 at the earliest, once the
+  Forge makes iron bars. **The Old Workshop** now needs the
+  `chapter-2-complete` flag, so Chapters 1 and 2 never offer it. The ruin
+  stays in Slimeshire ("Rebuilding it will take iron from a working Forge."),
+  and saves that already restored it keep it. Everything built here (story
+  variants, station-aware crafting, restoration sites, recipes unlocked by a
+  building) stays, and the Forge (8.5) uses it in Chapter 2. The Workshop's
+  return is in the [parking lot](#after-release-1--idea-parking-lot).
 
 Crafting buildings are ruined buildings in Slimeshire. Restoring one turns it
 into a station the player uses directly and unlocks its recipes; no NPC runs
@@ -908,7 +959,8 @@ materials), 8 (Forge), and 13 (progression pass).
   within its radius through the damage router (30 damage, pushed outwards);
   before, like the lash, it only hit the Shift+8 target dummy. Measured in
   the playground: a worm archer went from 40 to 10.
-- Owner's answers 2026-09-30: The Old Workshop becomes required in Chapter 2;
+- Owner's answers 2026-09-30: The Old Workshop becomes required in Chapter 2
+  (superseded the same day: the Workshop moved after Chapter 2, see 6);
   Pip and Sunny reuse the existing sheets (new art for further characters);
   the Matron's web-volley design is approved for now. Stretch Lash: option B,
   a tool as well as a hit, so the main line teaches it (the outline has it
@@ -942,7 +994,8 @@ materials), 8 (Forge), and 13 (progression pass).
 
 - Built 2026-09-30 (owner: "use the orb-weaver for now"): `orb-weaver`
   (`content/characters/orb-weaver/`, `character.orb-weaver`) shares the
-  orb-weaver sheet with the Meadow spider for now, drawn 1.3× larger and
+  orb-weaver sheet (the Meadow spider went back to its yellow sheet on
+  2026-10-01, so the two never look alike), drawn 1.3× larger and
   tinted darker. It is tougher (70 HP, knockback resist 0.3), sees and shoots
   farther (300 / 240 px), keeps its distance and roots with webs (30 damage,
   1.3 s), and drops silk (50 %) and shards (20 %). Its voice is the spider's,
@@ -959,42 +1012,114 @@ materials), 8 (Forge), and 13 (progression pass).
   passes, and Gloop Forest has at least two orb-weaver spawn areas outside its
   safe zones.
 
-### [ ] 8.3 — An enemy-only material
+### [x] 8.3 — An enemy-only material, verified 2026-09-30
 
+- Built 2026-09-30: the **weaver fang** (`weaver-fang`, icon frame 0 of
+  `sheet.items.chapter-2.5x2`, stacks to 99, drops as its own pile
+  `collectible.weaver-fang`). Orb-weavers drop it 60 % of the time
+  (`orb-weaver/character.json` and its scene); nothing else does. Enemy drops
+  now count as collected, so a quest can ask for "3 weaver fangs", and the drop
+  pop-up shows the item's own icon frame. Played headless on a fresh
+  playground save: two orb-weaver kills gave two fangs (plus silk and a
+  shard), and five fangs saved and reloaded as one stack of five.
 - Build: the orb-weaver drops a material that the Reinforced Pickaxe (8.4)
   needs. Nothing else in the game drops it.
 - Player proof: fighting has a purpose beyond coins.
 - Done when: defeating orb-weavers on a fresh save yields the material at its
   configured rate, and it stacks, saves, and reloads with the right count.
 
-### [ ] 8.4 — Iron and the Reinforced Pickaxe
+### [x] 8.4 — Iron and the Reinforced Pickaxe, verified 2026-09-30
 
+- Built 2026-09-30: `object.resource-iron-node` (Magnific art, 120 HP, tags
+  `iron` first, two 5-ore piles, ore clink and shatter sounds) needs harvest
+  tier 2 on `iron`. The **Reinforced Pickaxe** (`weapon.reinforced-pickaxe`,
+  15 damage, harvests stone and iron at tier 2, icon frame 2; it swings the
+  Stone Pickaxe art for now) is a workbench recipe: 10 wood, 15 stone, 3 weaver
+  fangs. It is not quest-locked yet; quest Q2 (8.10) decides. Iron nodes stand
+  in the playground grove and in Gloop Forest's south-east, the future iron
+  hollow. The quest waypoint now finds a node by what its piles give
+  (`iron-ore`), not by its tag. The dev panel gained "Learn all recipes".
+  Played headless: the Stone Pickaxe showed "Requires a Reinforced Pickaxe" and
+  dealt no damage; the Reinforced Pickaxe broke the node in five hits into
+  two piles (10 ore); the workbench crafted it from the materials. Open: the
+  node's rubble frame is unused (broken nodes vanish, as stone nodes do), and
+  the pickaxe has no swing art of its own.
 - Build: iron ore nodes in Gloop Forest that need the Reinforced Pickaxe
-  (stone plus the enemy material, crafted at the Workshop). The `iron-ore`
+  (stone plus the enemy material, crafted at the workbench). The `iron-ore`
   item and its loose pile already exist.
 - Player proof: the stone pickaxe fails clearly, the new one succeeds.
 - Done when: hitting an iron node with the Stone Pickaxe shows the
   Reinforced Pickaxe hint and deals no damage; the Reinforced Pickaxe breaks it
   into `iron-ore`; the node respawns (5.5).
 
-### [ ] 8.5 — Restore the Forge
+### [~] 8.5 — Restore the Forge
 
+- Built 2026-09-30: `object.forge` (`objects/forge.scene.json`, the Workshop
+  pattern) is an outdoor smelting furnace in the forge yard, between the home's
+  door and the pond (the anvil and grindstone moved a little east). The red
+  forge house stays the player's home: its door leads to the Slime Home, so it
+  could not become the ruin the outline suggested. Until the `forge.restored`
+  flag the furnace is a cold ruin (new Magnific art, `sheet.houses.forge.2x1`,
+  packed by `scripts/houses/pack-forge.py`) with a restoration site (40
+  stone, 20 wood, 6 iron ore) that only a player on the quest
+  `rekindle-the-forge` (8.10) can use; anyone else reads "The Forge has gone
+  cold…". Restored, it is a `forge` crafting station with Smelt Charcoal (5
+  wood → 2 charcoal) and Smelt Iron Bar (2 ore + 1 charcoal → 1 bar), and its
+  fire and anvil loops play (the anvil prop no longer clangs while the Forge is
+  cold). New item `iron-bar` (icon frame 1, stacks to 99). Played headless
+  with the flag set: 10 wood made 4 charcoal, 6 ore made 3 bars, and bars,
+  charcoal and the flag survived a reload. The quest (Rekindle the Forge, Pip,
+  8.10) was then played headless: the restoration paid 40 stone, 20 wood and 6
+  ore through the site and the furnace lit. Open: the owner's acceptance on a
+  fresh save.
 - Build: a second restoration using 6.1: a ruined Forge in Slimeshire and a
   Chapter 2 quest to rebuild it. The player uses the restored Forge directly to
   smelt iron ore and charcoal into iron bars; it never outputs weapons.
 - Done when: bars are crafted, stacked, and saved correctly.
 
-### [ ] 8.6 — Metal gear and the Workshop's second tier
+### [~] 8.6 — Metal gear
 
-- Build: upgrade the Workshop to tier 2 with bars, then craft an iron spear or
-  sword and an iron axe.
-- Player proof: ore → Forge → bar → Workshop → stronger weapon.
-- Done when: the tier-2 recipes stay locked until the upgrade, the upgrade
-  persists, and the iron weapon defeats an orb-weaver in fewer hits than the
-  Stone Spear.
+- Built 2026-09-30: the **Iron Spear** (`weapon.iron-spear`, 10 damage,
+  800 ms; the Stone Spear's swing) and the **Iron Axe** (`weapon.iron-axe`,
+  16 damage, fells trees at tier 2 and deals 60 % to enemies, where the Stone
+  Axe deals none) are workbench recipes (10 wood + 4 bars, 10 wood + 3 bars),
+  locked until a quest teaches them (`learnedByQuest`, Q3 and Q4 in 8.10).
+  New weapon art (Magnific, `weapon.player.iron-tools-tiles`, packed by
+  `scripts/weapons/pack-iron-tools.py`): the iron spear with a silver thrust
+  trail, the iron axe, and a fang-bound Reinforced Pickaxe, which now swings
+  its own art. Measured on the playground dummies: the Stone Spear hits for 9,
+  the Iron Spear for 14, so an orb-weaver (70 HP) takes 5 hits instead of 8.
+  Rekindle the Forge teaches the spear and Iron Gear the axe (8.10), both
+  played headless. Open: the owner's acceptance on a fresh save.
+- Build: craft an iron spear and an iron axe at the workbench from iron bars
+  (the Workshop's second tier moved after Chapter 2 with the Workshop).
+- Player proof: ore → Forge → bar → workbench → stronger weapon.
+- Done when: the iron recipes stay locked until the quest teaches them, and
+  the iron weapon defeats an orb-weaver in fewer hits than the Stone Spear.
 
-### [ ] 8.7 — The Chapter 2 boss
+### [~] 8.7 — The Chapter 2 boss
 
+- Built 2026-10-01 to the spec
+  [The Orb-Weaver Matron](./superpowers/specs/2026-10-01-orb-weaver-matron.md):
+  `encounter.gloop-matron-nest` in Gloop Forest's north-east (the north-east
+  thicket moved west to keep its weavers out of her arena). `MatronScript`
+  (`game.matron`) fights like an orb-weaver (web spit, 0.7 s wind-up) and every
+  6.5 s stops for a **web volley**: four circles marked for 0.9 s, 20 damage
+  inside them, then each becomes a web patch (`effect.matron-web-patch`,
+  `game.web-patch`) that catches a normal slime and lets the Sticky form
+  through; she rests 1.3 s after. 300 HP, immune to knockback, boss bar,
+  arena leash (and a full heal after a minute alone outside it), a guarded
+  chest (3 iron bars, 2 tonics), respawn after 5
+  minutes, and a silk cocoon Gulp spot inside the arena. Quest 6, **The
+  Matron's Nest** (Mossy, after Iron Gear), completes on her defeat: 100
+  coins, Squash Slam and `chapter-2-complete` (the end card); a Goo Heart then
+  appears in the nest. Played headless: the circles showed for about a second
+  before landing, the patches caught the normal slime and not the Sticky one,
+  21 Iron Spear swings defeated her, and the quest, Squash Slam, the flag and
+  the end card followed. Open: her own art and sounds (the orb-weaver sheet,
+  2.6× and purple, and the spider's voice pitched down are placeholders),
+  arena dressing, the owner's fight, and tuning (standing still in her
+  volleys is deadly).
 - Build: one boss on the Fatty model: a telegraphed signature attack, boss
   bar, arena leash, guarded reward, and persisted defeat. Proposal: the
   **Orb-Weaver Matron** webs the arena, and Sticky form lets you cross her
@@ -1005,8 +1130,17 @@ materials), 8 (Forge), and 13 (progression pass).
   reset or persist her as the spec says; the heart and Squash Slam are granted
   exactly once.
 
-### [ ] 8.8 — A second home in Gloop Forest
+### [~] 8.8 — A second home in Gloop Forest
 
+- Built 2026-10-01: the blue cottage in Gloop Forest's walled camp is the hut.
+  A door (`hut-door`) leads to `world.gloop-hut`, a one-bed room in the
+  Slime Home's plaster-and-beam style with the interior ambience, and back.
+  Played headless: in, sleep (the respawn point became the hut's bed), out. The
+  room was copied from the Slime Home's scene by a script, not furnished in
+  Scene Studio; the steps, including the Studio route, are in
+  [Adding an interior](./knowledge/adding-an-interior.md). Open: the Studio
+  route is untried (no blocker found), and the room reuses the Slime Home's
+  layout.
 - Build: a hut exterior and furnished interior with a bed, so Chapter 2 has its
   own respawn point. Build the interior with Scene Studio as it is today (this
   replaces the old interior-authoring task 4.3); write the steps in a short
@@ -1015,15 +1149,49 @@ materials), 8 (Forge), and 13 (progression pass).
   respawn point, and the room was built without hand-editing JSON (or the
   blockers are listed with their fixes).
 
-### [ ] 8.9 — Gulp puzzles and hearts in the world
+### [~] 8.9 — Gulp puzzles and hearts in the world
 
+- Built 2026-10-01 in Gloop Forest (playground pieces reused):
+  - **Iron hollow** (Heavy), south-east of the camp: a walled pen around the
+    three iron nodes and two ore piles; its gate opens while something heavy
+    stands on the plate below it, with a stone Gulp spot beside the plate.
+  - **Silk nook** (Sticky), north-west: a Goo Heart (`gloop-silk-nook`) behind
+    a spider web, a silk cocoon Gulp spot outside.
+  - **Cracked clearing** (Heavy), south-west of the camp: cracked ground with a
+    stone Gulp spot; the sinkhole leads down to `world.gloop-cavern` (crystal
+    walls, shards, a chest with iron ore and charcoal, the second Goo Heart
+    `gloop-cavern`, the ladder back up).
+  - **Sunny's stream** (Stretch Lash, quest 5): a moat against the north edge
+    with her basket on the far side.
+  - A third orb-weaver thicket south of the camp, a workbench and a campfire in
+    the camp, and Mossy and Sunny there (both leave Slimeshire once Chapter 1
+    is done).
+  Played headless: the stone form opened the hollow's gate and the slime walked
+  in; the silk form walked through the nook's web to its heart; the stone form's
+  jump broke the cracked ground, the sinkhole led down to the cavern's heart and
+  the ladder back up; the lash pulled the basket across the moat while the bank
+  stopped the slime. Open: no playtester has tried the puzzles without a hint.
 - Build: at least three Gulp puzzles in Gloop Forest, each with its Gulp spot
   beside it, and at least two hidden Goo Hearts, one of them behind a puzzle.
 - Done when: a playtester solves each puzzle without a hint, and each heart is
   collectable once and persists.
 
-### [ ] 8.10 — Build the Chapter 2 quests
+### [~] 8.10 — Build the Chapter 2 quests
 
+- Built 2026-10-01 (`content/quests/quests/chapterTwo.ts`): **Beyond the
+  Verdant Gate** (Mossy at the forest camp: defeat 3 orb-weavers; teaches the
+  Stretch Lash and the Reinforced Pickaxe), **A Harder Pick** (Mossy: 3 weaver
+  fangs, craft the pickaxe, mine 6 iron ore), **Rekindle the Forge** (Pip:
+  restore the Forge, smelt 2 charcoal and 3 bars; teaches the Iron Spear),
+  **Iron Gear** (Elder Plop: craft an Iron Spear; teaches the Iron Axe) and
+  **Sunny's Basket** (optional, Sunny at the camp: pull her basket across the
+  stream). Red Slime Boy is now Pip and the Yellow-Blond Slime Girl is Sunny
+  (`NpcDefinitions.ts`). Played headless on a post-Chapter-1 state, quest by
+  quest, with real kills, crafting at the camp workbench and the Forge, the
+  Heavy plate gate, mining, the Forge restoration and the lash; Forge, quests
+  and recipes survived a reload. Also fixed: an NPC that a story variant takes
+  out of the world no longer breaks the quest waypoint or its name tag. Open:
+  the Matron quest (with 8.7), the end card (8.11), and a full fresh-save run.
 - Build: turn the 8.1 stubs into full quests in `chapterTwo.ts`, alongside
   8.2–8.9: givers (existing NPC sheets unless the outline asks for new art),
   dialogue, objectives, rewards, the Stretch Lash grant, a chapter banner, and
@@ -1034,8 +1202,14 @@ materials), 8 (Forge), and 13 (progression pass).
   every quest can be accepted and completed in order without debug grants;
   and Stretch Lash is granted exactly once and survives save/load.
 
-### [ ] 8.11 — Close the chapter
+### [~] 8.11 — Close the chapter
 
+- Built 2026-10-01: Gloop Forest's east exit to the Crystal Caverns is locked
+  by a crystal key that Release 1 never gives (`crystal-key`, "The way into
+  the Crystal Caverns is sealed with crystal. (Chapter 3)"), and the
+  `chapter-2-complete` flag shows an **End of Chapter 2** card
+  (`content/story/endCards.ts`). Played headless: defeating the Matron set the
+  flag and opened the card. Open: a fresh run from the title to the card.
 - Build: the exit to Crystal Caverns stays locked with a "Chapter 3" hint, and
   finishing Chapter 2 sets the flag that shows the end card (4.7).
 - Done when: a fresh run reaches the end card without debug grants.
@@ -1045,18 +1219,20 @@ card, and the gear path wood → stone → iron is complete.
 
 **Assets**
 
-- Reuse: `64x64-8x10-forest-orb-weaver-slime.webp`, `house-world-solid--forge-red`
-  (the restored Forge), `collectible-iron-ore-pile`, `collectible-charcoal-pile`,
+- Reuse: `64x64-8x10-forest-orb-weaver-slime.webp`, `collectible-iron-ore-pile`, `collectible-charcoal-pile`,
   `rock-amber-ore-mineable` (as a style reference), the interior catalog.
-- [ ] Iron ore node (intact and depleted).
-- [ ] Icons: enemy material, iron bar, Reinforced Pickaxe, iron weapons.
-- [ ] Weapon art for the iron spear or sword and iron axe (directional swing
-      art like the stone weapons).
-- [ ] Ruined Forge exterior.
+- [x] Iron ore node (intact and depleted; the depleted frame is not shown yet).
+- [x] Icons: enemy material, iron bar, Reinforced Pickaxe, iron weapons.
+- [x] Weapon art for the iron spear and iron axe (and the Reinforced
+      Pickaxe), drawn like the stone weapons so they reuse their swings.
+- [x] Ruined Forge exterior.
 - [ ] Boss sprite sheet, web projectile and web-ground effects, and arena
-      dressing.
-- [ ] Gloop Forest hut exterior.
-- [ ] Gloop Forest music and ambience; Forge fire and anvil loops.
+      dressing (placeholders today: the orb-weaver sheet scaled and tinted,
+      the web-cover effect as the ground web, no dressing).
+- [x] Gloop Forest hut exterior (the blue cottage already in the camp).
+- [x] Gloop Forest music and ambience (Magnific, `audio.music.gloop-forest*`);
+      Forge fire and anvil loops (the campfire and anvil loops, on the
+      restored Forge).
 
 ## 9. Game Feel
 
@@ -1299,6 +1475,12 @@ numbered milestone and task tiles.
 
 ### First update candidates
 
+- **The Workshop** (moved out of Chapter 1 on 2026-09-30): an upgrade of the
+  workbench once the Forge makes iron bars, after Chapter 2. Its art, story
+  variant, restoration site, quest (The Old Workshop) and first recipe (the
+  Slam Hammer) are built and waiting; the restoration cost should take iron
+  bars then, and its second tier brings the heavier gear.
+
 - **Kitchen** (was milestones 9 and 10): a third restorable building; fishing
   at the lake feeds it; healing and buff meals, then potions and antidotes from monster
   materials. The two parked `kitchen` recipes return here.
@@ -1382,10 +1564,22 @@ on its assets and the owner's acceptance. Waiting on the owner:
 
 - 4.9: play the second round of fixes (tearing webs, Heavy jump on cracked
   ground, enemy territories), then a second new player.
-- 6: accept the Workshop art and restoration sound; play The Old Workshop.
 - 7: try the Heavy plate gate, the Sticky web nook, the hold-W quick wheel and
   the cracked-ground cavern in the playground (`?map=playground`); accept the
   new plate and form-badge art.
+- Owner's feedback 2026-09-30 (round 5), done:
+  - **Quest tracker, WoW style:** the card under the HUD lists up to four
+    quests at once, main story first (gold), then side quests, each with its
+    objectives; clicking a quest points the gold arrow at it, and more quests
+    are counted "+N in the book" (`QuestTrackerSurfacePort`,
+    `ui/quest-tracker.scene.json`).
+  - **The Workshop moved after Chapter 2** (see 6): The Old Workshop waits for
+    `chapter-2-complete`; Chapter 2 crafts at the workbench.
+  - **Gulp forms have their own sprites:** Heavy draws the slime as a mosaic of
+    grey pebbles, Sticky as a slime wrapped in silk, every frame of the player
+    sheet re-textured (`slime-form-heavy`, `slime-form-sticky`, built by
+    `scripts/characters/build-gulp-form-skins.py`); the face and outline stay,
+    and the form's tint is only a fallback.
 - Owner's playtest fixes 2026-09-30: Jump from standing still hops in place
   (a moving jump still follows the movement); Teleport lands on the farthest
   safe spot in reach, across rivers and thin walls, and says "No safe spot

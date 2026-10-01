@@ -72,7 +72,7 @@ test('fresh initial runs do not share mutable state and use the authored Level 1
   assert.notEqual(second.player.equipment.weaponSlots[0], 'changed-for-test');
   assert.deepEqual(second.player.equipment, {
     weaponId: null,
-    weaponSlots: [null, null, null],
+    weaponSlots: [null, null, null, null],
   });
   assert.deepEqual(second.inventory, { maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots, slots: [] });
   assert.equal(second.world.discoveredAreas.includes('changed-for-test'), false);

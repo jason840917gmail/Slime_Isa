@@ -13,7 +13,7 @@ import {
 import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
 import { UI_THEME } from '../../presentation/theme';
 import { getStats } from '../../systems/PlayerStats';
-import { playerInventory } from '../../systems/Inventory';
+import { itemRegistry, playerInventory } from '../../systems/Inventory';
 import { floatingText } from '../../ui/FloatingText';
 import { gameFeel } from '../feel/sharedFeel';
 import { particleFx } from '../feel/ParticlePresets';
@@ -30,6 +30,9 @@ import type {
   WeaponAttackDirection,
   WeaponDamagePayload,
 } from '../scripts/WeaponScript';
+
+/** How often a boss can say a weapon cannot hurt it. */
+const IMMUNE_MESSAGE_COOLDOWN_MS = 2500;
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -72,9 +75,8 @@ export interface ManagedEnemyDefeat {
 export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
   private weapon?: NormalizedWeaponDefinition;
-  /** Set while a picked harvest tool swings: the weapon to put back when the swing ends. */
-  private restoreAfterToolSwing?: { readonly weaponId: string | null };
   private combo: ComboSystem;
+  private nextImmuneMessageAt = 0;
   private spawner?: AuthoredEnemyPopulationController;
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
@@ -173,33 +175,6 @@ export class CombatController {
     return attacked;
   }
 
-  /**
-   * One swing of a harvest tool picked for the tree or rock in front (roadmap
-   * 4.10): the tool is mounted for this swing only, then the equipped weapon
-   * comes back. The belt and the HUD never change.
-   */
-  tryToolAttack(toolId: string): boolean {
-    if (this.attacking || !this.ctx.canAttack()) return false;
-    const previous = this.weapon?.weaponId ?? null;
-    if (previous === toolId) return this.tryAttack();
-    if (!this.equipWeapon(toolId)) return false;
-    if (this.tryAttack()) {
-      this.restoreAfterToolSwing = { weaponId: previous };
-      return true;
-    }
-    this.restoreWeapon(previous);
-    return false;
-  }
-
-  private restoreWeapon(weaponId: string | null): void {
-    if (weaponId) {
-      this.equipWeapon(weaponId);
-      return;
-    }
-    this.weapon = undefined;
-    this.ctx.clearManagedWeapon();
-  }
-
   equipWeapon(weaponId: string): boolean {
     if (this.attacking || weaponId === this.weapon?.weaponId) return !this.attacking;
     let next: NormalizedWeaponDefinition;
@@ -224,7 +199,15 @@ export class CombatController {
   }
 
   onManagedWeaponOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined): void {
-    if (outcome.result.status !== 'accepted') return;
+    if (outcome.result.status !== 'accepted') {
+      // A boss that only takes some weapons (Fatty: spears) says so instead of shrugging hits off silently.
+      const now = this.ctx.nowMs();
+      if (outcome.result.reason === 'source-blocked' && target?.targetTags?.includes('boss') && now >= this.nextImmuneMessageAt) {
+        this.nextImmuneMessageAt = now + IMMUNE_MESSAGE_COOLDOWN_MS;
+        floatingText.spawn(this.ctx.scene, target.x, target.y - 70, 'This weapon cannot hurt it!', 'white', true);
+      }
+      return;
+    }
     const targetTags = target?.targetTags ?? [];
     if (targetTags.includes('resource')) return;
     if (this.criticalAttack && outcome.result.actualDamage > 0) {
@@ -281,9 +264,6 @@ export class CombatController {
     this.attacking = false;
     this.ctx.setActionLocked(false);
     this.ctx.playCharacterAction('idle');
-    const restore = this.restoreAfterToolSwing;
-    this.restoreAfterToolSwing = undefined;
-    if (restore) this.restoreWeapon(restore.weaponId);
   }
 
   private safeZones(): MapEnemySafeZone[] {
@@ -316,7 +296,21 @@ export class CombatController {
     const itemDrops = (drop.items ?? []).filter((item) => Math.random() < item.chance);
     itemDrops.forEach((item, index) => {
       const added = playerInventory.add(item.itemId, item.count ?? 1);
-      if (added > 0) this.ctx.spawnItemDropIcon(enemy.x, enemy.y, item.itemId, added, index, itemDrops.length);
+      if (added <= 0) {
+        // Never lose a drop silently: say the bag had no room for it.
+        const name = itemRegistry.get(item.itemId)?.name ?? item.itemId;
+        floatingText.spawn(scene, enemy.x, enemy.y - 44 - index * 18, `Bag full: ${name} lost`, 'white', true);
+        return;
+      }
+      this.ctx.spawnItemDropIcon(enemy.x, enemy.y, item.itemId, added, index, itemDrops.length);
+      // Drops go straight into the bag, so they count as collected ("Collect 3 weaver fangs").
+      gameEvents.emit('collectible.collected', {
+        mapId: this.ctx.areaId,
+        instanceId: `enemy-${enemy.enemyId}-drop-${index + 1}`,
+        objectId: `enemy-drop.${enemy.config.id}`,
+        itemId: item.itemId,
+        quantity: added,
+      });
     });
   }
 }

@@ -106,13 +106,14 @@ and tier.
 
 | Station | Crafts | Main inputs | When |
 |---|---|---|---|
-| **Placeable workbench** | Chapter 1 tier-1 tools and spears | Wood, stone | Today |
-| **Workshop** | Everything the workbench does, plus weapons, tools, bombs, storage, building parts, and repairs | Wood, stone, metal bars, enemy materials | Release 1: restored in Chapter 1 (The Old Workshop, optional), tier 2 in Chapter 2 |
+| **Placeable workbench** | Tools and spears in Chapters 1 and 2, including the Reinforced Pickaxe and iron gear | Wood, stone, iron bars, enemy materials | Today |
+| **Workshop** | An upgrade of the workbench: everything it does, plus heavier weapons, bombs, storage, building parts, and repairs | Wood, stone, metal bars, enemy materials | After Chapter 2, once the Forge makes bars (moved 2026-09-30) |
 | **Forge** | Smelts ore into metal bars, later alloys; never outputs weapons | Ore and fuel | Release 1 (Chapter 2) |
 | **Kitchen** | Food, healing and buff meals, potions, and antidotes | Forage, fish, crops, monster materials | After Release 1 |
 | **Builder's table** | Furniture, storage, and defenses for homes | Building parts, bars | After Release 1 |
 
-- Metal gear goes ore → Forge (bars) → Workshop.
+- Metal gear goes ore → Forge (bars) → workbench in Chapter 2; the Workshop
+  takes over the heavier gear after Chapter 2.
 - A station lists the recipes of the station that builds on it as locked ("At
   the Workshop"), so the player knows what restoring it would give.
 - The workbench recipe itself, Slime Tonic, and Berry Basket stay portable so a
@@ -165,13 +166,18 @@ starter piles and quest rewards keep the chain softlock-free.
   [Future Enemy Types](./task/ideas/open/future-enemy-types.md).
 - **The boss model** is Fatty One Eye: a telegraphed signature attack, a boss
   bar, an arena leash, a guarded reward, persisted defeat, and a timed respawn.
-  Telegraphs make the dodge a skill, not a stat.
+  Telegraphs make the dodge a skill, not a stat. A boss left alone outside its
+  arena for a minute heals to full (`arenaRecoveryMs`), so it cannot be worn
+  down in visits. Every landed hit flashes and shows its damage, and a weapon
+  a boss refuses says so.
 - Ordinary enemies keep a territory: they notice the slime by sight (walls,
   houses and trees hide it) or when hit, chase within a leash that shrinks
   the farther they are from home, search for three seconds where they lost
   sight of the slime, then walk home and heal. Standing just outside a camp
   and poking its enemies never works.
-- Fatty One Eye is the finished Chapter 1 boss; his fight does not change.
+- Fatty One Eye is the finished Chapter 1 boss. Since the 2026-10-01 playtest
+  his eye (the only place he takes damage) follows the drawn eye in every
+  animation, and every spear reaches it.
 - Each boss should teach something: a weapon, a form, or a way to move.
 
 ## Game Feel
@@ -198,7 +204,8 @@ The left hand stays on WASD and the right hand stays on the mouse (agreed
 [design](./superpowers/specs/2026-09-30-simple-controls-design.md)):
 
 - **The mouse:** left click uses (attack, chop, mine); right click interacts
-  with what the pointer is on.
+  with what the pointer is on. Tools never switch by themselves: the weapon in
+  hand swings, and the four-slot belt switches with the mouse wheel or a click.
 - **Abilities:** the story teaches them, and they sit on Space (Jump) and the
   number keys (1 Dodge, 2–4 the rest). Those that aim, aim at the pointer.
 - **Shift is only ever held** (sprint), and Ctrl and Alt are never used.

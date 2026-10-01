@@ -18,6 +18,7 @@ export interface DevToolsState {
   depthAnchors: boolean;
   interactionZones: boolean;
   attackBoxes: boolean;
+  hurtboxes: boolean;
   enemyBoundaries: boolean;
   bossBattleAreas: boolean;
   enemyAttackAreas: boolean;
@@ -33,7 +34,8 @@ const TOGGLES: Array<{ key: DevToolKey; label: string; description: string }> = 
   { key: 'depthBounds', label: 'Depth bounds', description: 'Object regions that set front/behind sorting' },
   { key: 'depthAnchors', label: 'Depth anchors', description: 'Ground points used for front/behind sorting' },
   { key: 'interactionZones', label: 'Interaction zones', description: 'Doors, pickups, transitions' },
-  { key: 'attackBoxes', label: 'Active attack hitboxes', description: 'Live authored collision shapes and timing' },
+  { key: 'attackBoxes', label: 'Weapon hitboxes', description: 'The slime’s swing while it can hit: yellow open, green hit, red refused' },
+  { key: 'hurtboxes', label: 'Hurtboxes', description: 'Where the slime, enemies and bosses take damage; bosses name the weapons that hurt them' },
   { key: 'enemyBoundaries', label: 'Enemy boundaries', description: 'Stay and pursue perimeters' },
   { key: 'bossBattleAreas', label: 'Boss battle areas', description: 'Activation and combat arena perimeters' },
   { key: 'enemyAttackAreas', label: 'Enemy attack areas', description: 'Authored contact and landing zones; red while the player is inside' },
@@ -49,6 +51,7 @@ export const devToolsState: DevToolsState = {
   depthAnchors: false,
   interactionZones: true,
   attackBoxes: true,
+  hurtboxes: true,
   enemyBoundaries: false,
   bossBattleAreas: false,
   enemyAttackAreas: false,
@@ -82,6 +85,7 @@ const CHEAT_BUTTONS: ReadonlyArray<{ cheat: string; label: string }> = [
   { cheat: 'burn', label: 'Burn' },
   { cheat: 'slow', label: 'Slow' },
   { cheat: 'dummy', label: 'Spawn dummy' },
+  { cheat: 'recipes', label: 'Learn all recipes' },
 ];
 
 let displayedCameraZoom = 1;
@@ -169,7 +173,12 @@ export function createDevToolsPanel(): string {
         <p><span class="swatch swatch-depth-bounds"></span> Depth bounds</p>
         <p><span class="swatch swatch-depth-anchor"></span> Depth anchors</p>
         <p><span class="swatch swatch-interaction"></span> Interactions</p>
-        <p><span class="swatch swatch-attack"></span> Active attack hitboxes</p>
+        <p><span class="swatch swatch-swing"></span> Weapon swing (open)</p>
+        <p><span class="swatch swatch-swing-hit"></span> Weapon swing that hit</p>
+        <p><span class="swatch swatch-swing-refused"></span> Weapon swing refused</p>
+        <p><span class="swatch swatch-hurt-player"></span> Slime hurtbox</p>
+        <p><span class="swatch swatch-hurt-enemy"></span> Enemy hurtbox</p>
+        <p><span class="swatch swatch-hurt-boss"></span> Boss hurtbox</p>
         <p><span class="swatch swatch-enemy-stay"></span> Enemy stay</p>
         <p><span class="swatch swatch-enemy-pursue"></span> Enemy pursue</p>
         <p><span class="swatch swatch-boss-activation"></span> Boss activation</p>

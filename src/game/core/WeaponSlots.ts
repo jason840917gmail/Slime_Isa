@@ -2,7 +2,7 @@ import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
 
 /**
  * A saved weapon belt fitted to `WEAPON_HOTBAR_SLOT_COUNT` slots. A belt from
- * before the three-slot belt (roadmap 4.10) that holds more weapons than fit
+ * an older save (six slots, then three) that holds more weapons than fit
  * keeps the equipped weapon and the filled slots after it, in belt order and
  * wrapping around; the rest stay owned in the bag, so nothing is lost.
  */

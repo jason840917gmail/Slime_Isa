@@ -69,6 +69,8 @@ function colorNumber(value: string | undefined): number | undefined {
 export class Sprite2DNode extends Node2D implements PresentationParticipant, WorldVisual {
   readonly effects: WorldVisualEffects = { scaleX: 1, scaleY: 1, alpha: 1, offsetX: 0, offsetY: 0 };
   private sprite?: Phaser.GameObjects.Sprite;
+  /** A Gulp form's skin texture drawn instead of the sprite's own (same frame layout). */
+  private skinTextureKey?: string;
   private currentFrame?: number;
   private currentAlpha: number;
   private currentFlipX: boolean;
@@ -194,7 +196,31 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   }
   setTintFill(color: number): this { this.sprite?.setTintFill(color); return this; }
   setTint(color: number): this { this.sprite?.setTint(color); return this; }
-  clearTint(): this { this.sprite?.clearTint(); return this; }
+  /** Ends a flash or effect tint; the authored `tint` (an orb-weaver's blue) stays. */
+  clearTint(): this {
+    this.sprite?.clearTint();
+    if (this.tint !== undefined) this.sprite?.setTint(this.tint);
+    return this;
+  }
+
+  /**
+   * Draws the sprite from another texture with the same frame layout (a Gulp
+   * form's skin), or from its own again with `undefined`. Frames keep coming
+   * from the animation player, so the skin animates exactly like the art.
+   */
+  setSkin(textureKey: string | undefined): this {
+    this.skinTextureKey = textureKey;
+    const sprite = this.sprite;
+    if (sprite?.active) sprite.setTexture(this.textureKeyFor(), this.currentFrame);
+    return this;
+  }
+
+  private textureKeyFor(): string {
+    const resource = this.spriteOptions.context.resource(this.spriteOptions.texture);
+    const own = resource.kind === 'texture' || resource.kind === 'sprite-sheet' ? this.spriteOptions.context.assetKey(resource.assetId) : '';
+    const skin = this.skinTextureKey;
+    return skin && this.spriteOptions.context.scene.textures.exists(skin) ? skin : own;
+  }
 
   resetEffects(): this {
     this.effects.scaleX = 1;
@@ -244,7 +270,7 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     if (resource.kind !== 'texture' && resource.kind !== 'sprite-sheet') throw new Error(`Resource '${resource.resourceId}' cannot back Sprite2D`);
     const frame = this.currentFrame ?? (resource.kind === 'texture' ? resource.frame : undefined);
     if (frame !== undefined) this.currentFrame = frame;
-    const sprite = this.spriteOptions.context.scene.add.sprite(0, 0, this.spriteOptions.context.assetKey(resource.assetId), frame);
+    const sprite = this.spriteOptions.context.scene.add.sprite(0, 0, this.textureKeyFor(), frame);
     this.sprite = sprite;
     this.lastPresentation = undefined;
     sprite.setName(this.runtimeId);

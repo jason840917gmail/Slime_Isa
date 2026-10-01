@@ -1,7 +1,7 @@
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
 import { controlLabel, controlVerb, movementLabel } from '../player/ControlLabels';
 
-export type ControlHintId = 'move' | 'interact' | 'attack' | 'dodge' | 'inventory' | 'crafting';
+export type ControlHintId = 'move' | 'interact' | 'attack' | 'dodge' | 'inventory' | 'crafting' | 'weapon-switch' | 'sprint' | 'map' | 'pause';
 
 export interface ControlHintDefinition {
   readonly id: ControlHintId;
@@ -21,6 +21,10 @@ export const CONTROL_HINTS: readonly ControlHintDefinition[] = Object.freeze([
   hint('dodge', () => `Press ${controlLabel('dodge')} to roll out of danger`),
   hint('inventory', () => `Press ${controlLabel('menu')} to open your bag`),
   hint('crafting', () => `Press ${controlLabel('menu')}, then Crafting, to craft`),
+  hint('weapon-switch', () => `Use the ${controlLabel('weapon-next').toLowerCase()} to switch weapons: tools only work in hand`),
+  hint('sprint', () => `Hold ${controlLabel('sprint')} to sprint`),
+  hint('map', () => `Press ${controlLabel('map')} for the map`),
+  hint('pause', () => `Press ${controlLabel('pause')} to pause, save or change settings`),
 ]);
 
 export interface ControlHintState {

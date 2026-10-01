@@ -21,9 +21,10 @@ export interface InputRouterOptions {
 
 const DOM_INPUT_TYPES = ['keydown', 'keyup', 'pointerdown', 'pointerup', 'pointermove'] as const;
 
-function isNativeFormField(target: EventTarget | null): boolean {
+/** Form fields and draggable entries (a weapon dragged onto the belt) need the browser's own pointer handling. */
+function needsNativePointer(target: EventTarget | null): boolean {
   const element = target as { closest?: (selector: string) => unknown } | null;
-  return typeof element?.closest === 'function' && element.closest('input, select, textarea') !== null;
+  return typeof element?.closest === 'function' && element.closest('input, select, textarea, [draggable="true"]') !== null;
 }
 
 export class InputRouter {
@@ -34,9 +35,9 @@ export class InputRouter {
     if (!event) return;
     this.route(event);
     if (event.handled) {
-      // A consumed pointer press on a native form field (range slider, text box) still needs
-      // its browser default, or the field never receives mousedown/drag/input.
-      if (!(event.type.startsWith('pointer') && isNativeFormField(nativeEvent.target))) nativeEvent.preventDefault();
+      // A consumed pointer press on a native form field (range slider, text box) or a draggable
+      // entry still needs its browser default, or it never receives mousedown/drag/input.
+      if (!(event.type.startsWith('pointer') && needsNativePointer(nativeEvent.target))) nativeEvent.preventDefault();
       nativeEvent.stopPropagation();
     }
     this.options.sink.enqueueInput(event);

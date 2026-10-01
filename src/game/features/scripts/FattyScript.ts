@@ -29,6 +29,7 @@ export class FattyScript extends EnemyScript {
    * the raw knockback strength and no resistance scaling (legacy boss rule).
    */
   protected override reactToDamage(commit: DamageCommit, defeated: boolean): void {
+    this.showHitFeedback(commit);
     if (defeated || this.phaseValue !== 'chase') return;
     const potency = commit.result.appliedEffects
       .filter((effect) => effect.effectId === 'knockback')
