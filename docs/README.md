@@ -18,6 +18,7 @@ structure, rules) is [`AGENTS.md`](../AGENTS.md) at the repository root.
 
 - [assets/](./assets/README.md) — creating, packing, registering, and integrating art. Start here for any new media.
 - [knowledge/](./knowledge/README.md) — focused how-to notes (quest authoring).
+- [story/](./story/README.md) — the story script (draft): direction, premise, world, characters, chapter beats, the unlock map, and open questions.
 - `superpowers/` — dated historical specs and implementation plans. Not maintained; may describe retired systems.
 - `task/` — bug reports (`task/bugs/`) and idea/plan notes (`task/ideas/`).
 
