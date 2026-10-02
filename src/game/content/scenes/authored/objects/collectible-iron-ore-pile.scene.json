@@ -40,7 +40,12 @@
           0
         ],
         "depthMode": "world-sorted",
-        "depthBand": "world-entities"
+        "depthBand": "world-entities",
+        "position": [
+          1,
+          65
+        ],
+        "rotation": 0
       }
     },
     {
@@ -53,7 +58,11 @@
         "collisionLayer": 64,
         "collisionMask": 32,
         "monitoring": false,
-        "monitorable": true
+        "monitorable": true,
+        "position": [
+          0,
+          0
+        ]
       }
     },
     {
