@@ -423,8 +423,8 @@
                 {
                   "at": 0,
                   "value": [
-                    -2,
-                    -33
+                    2,
+                    -28
                   ]
                 },
                 {
@@ -858,15 +858,6 @@
     },
     {
       "version": 1,
-      "resourceId": "fatty-one-eye.eye-shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "circle",
-        "radius": 19.5
-      }
-    },
-    {
-      "version": 1,
       "resourceId": "fatty-one-eye.landing-shape",
       "kind": "collision-shape",
       "value": {
@@ -932,6 +923,15 @@
       "resourceId": "sfx.boss.fatty-death",
       "kind": "audio",
       "assetId": "audio.sfx.boss.fatty-death.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "fatty-one-eye.eye-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 23.5
+      }
     }
   ],
   "connections": [

@@ -70,7 +70,7 @@
           "resourceId": "weapon.wooden-spear.right.spear.shape"
         },
         "position": [
-          65,
+          75,
           8
         ],
         "rotation": 0,
@@ -88,7 +88,7 @@
           "resourceId": "weapon.wooden-spear.left.spear.shape"
         },
         "position": [
-          -65,
+          -75,
           8
         ],
         "rotation": 0,
@@ -1022,6 +1022,19 @@
                   "value": 0.01
                 }
               ]
+            },
+            {
+              "binding": "../AttackArea/right--spear",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 6,
+                  "value": [
+                    75,
+                    5
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -1380,6 +1393,19 @@
                 {
                   "at": 7,
                   "value": 0.01
+                }
+              ]
+            },
+            {
+              "binding": "../AttackArea/left--spear",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 7,
+                  "value": [
+                    -75,
+                    6
+                  ]
                 }
               ]
             }
@@ -2112,9 +2138,9 @@
       "resourceId": "weapon.wooden-spear.right.spear.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 50,
-        "height": 22
+        "shape": "ellipse",
+        "radiusX": 29,
+        "radiusY": 6
       }
     },
     {
@@ -2122,9 +2148,9 @@
       "resourceId": "weapon.wooden-spear.left.spear.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 50,
-        "height": 22
+        "shape": "ellipse",
+        "radiusX": 29,
+        "radiusY": 6
       }
     },
     {
@@ -2132,9 +2158,9 @@
       "resourceId": "weapon.wooden-spear.up.spear.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 22,
-        "height": 50
+        "shape": "ellipse",
+        "radiusX": 6,
+        "radiusY": 29
       }
     },
     {
@@ -2142,9 +2168,9 @@
       "resourceId": "weapon.wooden-spear.down.spear.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 22,
-        "height": 50
+        "shape": "ellipse",
+        "radiusX": 6,
+        "radiusY": 29
       }
     },
     {

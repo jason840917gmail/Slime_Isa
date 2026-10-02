@@ -6,7 +6,7 @@
     "respawnMs": 600000
   },
   "inventory": {
-    "initialMaxSlots": 10,
+    "initialMaxSlots": 20,
     "maxStackByItem": {
       "wood": 25,
       "stone": 25,

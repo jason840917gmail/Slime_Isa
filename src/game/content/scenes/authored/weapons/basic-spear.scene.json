@@ -70,8 +70,8 @@
           "resourceId": "weapon.basic-spear.right.primary.shape"
         },
         "position": [
-          65,
-          10
+          75,
+          8
         ],
         "rotation": 0,
         "disabled": true
@@ -88,8 +88,8 @@
           "resourceId": "weapon.basic-spear.left.primary.shape"
         },
         "position": [
-          -65,
-          10
+          -75,
+          8
         ],
         "rotation": 0,
         "disabled": true
@@ -161,8 +161,8 @@
         "animation": {
           "nodeId": "animation"
         },
-        "baseDamage": 10,
-        "cooldownMs": 800,
+        "baseDamage": 30,
+        "cooldownMs": 500,
         "knockStrength": 200,
         "damageModifiers": [
           {
@@ -912,6 +912,19 @@
                   "value": 0.01
                 }
               ]
+            },
+            {
+              "binding": "../AttackArea/right--primary",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 7,
+                  "value": [
+                    75,
+                    5
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -1422,6 +1435,19 @@
                 {
                   "at": 11,
                   "value": 0.01
+                }
+              ]
+            },
+            {
+              "binding": "../AttackArea/left--primary",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 8,
+                  "value": [
+                    -75,
+                    6
+                  ]
                 }
               ]
             }
@@ -2458,9 +2484,9 @@
       "resourceId": "weapon.basic-spear.right.primary.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 50,
-        "height": 22
+        "shape": "ellipse",
+        "radiusX": 29,
+        "radiusY": 6
       }
     },
     {
@@ -2468,9 +2494,9 @@
       "resourceId": "weapon.basic-spear.left.primary.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 50,
-        "height": 22
+        "shape": "ellipse",
+        "radiusX": 29,
+        "radiusY": 6
       }
     },
     {
@@ -2478,9 +2504,9 @@
       "resourceId": "weapon.basic-spear.up.primary.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 22,
-        "height": 50
+        "shape": "ellipse",
+        "radiusX": 6,
+        "radiusY": 29
       }
     },
     {
@@ -2488,9 +2514,9 @@
       "resourceId": "weapon.basic-spear.down.primary.shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 22,
-        "height": 50
+        "shape": "ellipse",
+        "radiusX": 6,
+        "radiusY": 29
       }
     },
     {
