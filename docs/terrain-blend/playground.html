@@ -17,7 +17,17 @@
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
 h1{font-size:22px;font-weight:500;margin:0 0 4px}
+h2{font-size:17px;font-weight:600;margin:28px 0 8px}
+h3{font-size:14px;font-weight:600;margin:0 0 3px}
 p.lead{color:var(--muted);margin:0 0 16px}
+.explanation{margin:22px 0 28px;border-top:.5px solid var(--border);border-bottom:.5px solid var(--border);padding:0 0 20px}
+.steps{list-style:none;margin:12px 0 0;padding:0;counter-reset:step}
+.steps li{position:relative;padding:12px 0 12px 42px;border-top:.5px solid var(--border);counter-increment:step}
+.steps li::before{content:counter(step);position:absolute;left:0;top:12px;width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--text);color:var(--bg);font:600 12px/1 ui-monospace,Consolas,monospace}
+.steps p{margin:0;color:var(--muted);font-size:13px}
+.formula{display:block;margin:7px 0 5px;color:var(--text);font:12px/1.55 ui-monospace,Consolas,monospace;white-space:normal}
+.decision{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:13px}
+.decision li{margin:5px 0}
 button{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:.5px solid var(--border);background:transparent;color:var(--text);cursor:pointer}
 button.on{background:var(--surface);border-color:var(--muted)}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;align-items:start}
@@ -39,7 +49,43 @@ td:first-child,th:first-child{text-align:left}
 <body>
 <main>
 <h1>Terrain blend playground</h1>
-<p class="lead">The formulas from <code>TerrainBlendField.ts</code> running live on a 12×8 grid. See <a href="../TERRAIN_BLEND_MATH.md" style="color:inherit">TERRAIN_BLEND_MATH.md</a> for the explanation.</p>
+<p class="lead">The formulas from <code>TerrainBlendField.ts</code> running live on a 12×8 grid.</p>
+<section class="explanation" aria-labelledby="how-it-works">
+  <h2 id="how-it-works">How a sample is decided</h2>
+  <p>The map already supplies one logical tile for each cell. Blending never changes that tile, collision, or walkability. Instead, this calculation decides how much of each nearby terrain material is visible at every sampled pixel.</p>
+  <ol class="steps">
+    <li>
+      <h3>Warp the sample position</h3>
+      <code class="formula">u′ = u + 0.45N(0.45u, 0.45v) + 0.10N(2.2u, 2.2v)<br>v′ = v + 0.45N′(0.45u, 0.45v) + 0.10N′(2.2u, 2.2v)</code>
+      <p>Deterministic value noise moves the lookup point away from the rigid grid. The same map and seed always produce the same wandering border.</p>
+    </li>
+    <li>
+      <h3>Collect votes from nearby tiles</h3>
+      <code class="formula">k(d) = (1 − d²/R²)² when d &lt; R, otherwise 0<br>W<sub>m</sub> = Σ k(d<sub>cell</sub>), with R = 1.05 tiles</code>
+      <p>The 3×3 cells around the warped point vote for their material. A cell centre has the strongest vote; influence fades smoothly to zero at the kernel radius.</p>
+    </li>
+    <li>
+      <h3>Bias, sharpen, and normalize</h3>
+      <code class="formula">s<sub>m</sub> = [W<sub>m</sub> · (1 + 0.14 · rank<sub>m</sub>)]⁴<br>share<sub>m</sub> = s<sub>m</sub> / Σ s<sub>j</sub></code>
+      <p>Priority rank nudges higher materials into lower ones. Raising the result to the fourth power makes the strongest vote dominate, while normalization turns all votes into shares that sum to 1.</p>
+    </li>
+    <li>
+      <h3>Turn shares into painted layers</h3>
+      <code class="formula">α<sub>m</sub> = share<sub>m</sub> / Σ<sub>j ≤ m</sub> share<sub>j</sub></code>
+      <p>Materials paint from lowest to highest priority using source-over compositing. This alpha conversion makes the final pixel reproduce the calculated shares.</p>
+    </li>
+  </ol>
+  <h3>Decision workflow</h3>
+  <ol class="decision">
+    <li>Read the sample’s logical cell and warp its position.</li>
+    <li>Find the surrounding blend-enabled cells and total their votes by material.</li>
+    <li>Apply rank bias and sharpness; if no tile reaches the point, use the logical cell’s material.</li>
+    <li>Normalize the votes. The largest share is the visually dominant material, but every non-zero share contributes to the final blended pixel.</li>
+    <li>Paint the material layers in priority order. Non-blending logical tiles are cleared back to their original hard-edged tile.</li>
+  </ol>
+  <p class="hint">For implementation details, chunk baking, and constant names, see <a href="../TERRAIN_BLEND_MATH.md" style="color:inherit">TERRAIN_BLEND_MATH.md</a>.</p>
+</section>
+<h2>Try the playground</h2>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px">
   <button id="mBlend" class="on">Blended</button><button id="mHard">Hard cells</button><button id="mLines">Border lines</button><button id="mReset">Reset grid</button>
 </div>
