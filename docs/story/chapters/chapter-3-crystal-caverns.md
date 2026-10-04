@@ -5,7 +5,7 @@
 | **Region** | Crystal Caverns (`crystal-caverns` exists; its exit from Gloop Forest is locked: "sealed with crystal") |
 | **Goal** | Light the dark, free the smith, rebuild the Workshop, and break the Colossus |
 | **Boss** | Crystal Colossus (Idea: armored, weak to hammers, teaches weapon switching) |
-| **Earned** | Glow Armor, the Workshop, the Slam Hammer; Proposal: Pearl 3 and a boss heart |
+| **Earned** | Glow Armor, the Workshop and the Slam Hammer; Proposal: Pearl 3 with an Open ability, and a boss heart |
 | **Status** | Sketch. Everything here is an Idea or a Proposal. |
 
 This sketch ties together pieces that already wait in the roadmap's parking
@@ -33,8 +33,9 @@ chapter.
    glance off its armor, and the Slam Hammer cracks it. The fight teaches
    weapon switching: crack the armor with the hammer, then switch to the spear
    on the soft core.
-6. **Pearl 3.** Plop tells the second piece of the story, and Gorge's rumbling
-   grows louder.
+6. **Pearl 3.** It grants its unique ability permanently; which ability is
+   Open. Plop tells the second piece of the story, and Gorge's rumbling grows
+   louder.
 
 ## Questions for later
 
