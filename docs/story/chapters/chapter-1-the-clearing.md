@@ -5,7 +5,7 @@
 | **Region** | Slimeshire Meadow (`level-1`, `slime-home`, `mushroom-home`) |
 | **Goal** | Grow from a newborn puddle into a slime that can leave home, and open the Verdant Gate |
 | **Boss** | Fatty One Eye |
-| **Earned** | First bag, stone tools, Dodge, home and vault, spears, Jump, the green key; Proposal: Pearl 1 and a boss heart |
+| **Earned** | First bag, stone tools, Dodge, home and vault, spears, the green key; Planned: Pearl 1 with Jump, and a boss heart |
 | **Status** | Built. The beats below mark each Planned change and Proposal. |
 
 Quest IDs are in brackets. Their dialogue lives in
@@ -93,9 +93,9 @@ alternative, Open).
 
 - **The player does:** crafts a Wooden Spear (Planned: hammered), then clears
   the worm camp south-east of the clearing (3 worm swordsmen).
-- **Reward:** **Jump** (ceremony), the Stone Spear recipe, 30 coins.
-  - Mossy: "You move like a puddle. Watch me: squish down, then spring!"
-    *(in game)*
+- **Reward:** the Stone Spear recipe and 30 coins.
+- **Planned change:** remove Jump from this reward and replace Mossy's current
+  jump lesson. Jump comes from Fatty One Eye's Pearl instead.
 - **Proposal, a story hint:** the worms are not raiders, they are refugees.
   - Mossy: "Funny thing. They fight like something chased them out of their
     own burrows."
@@ -110,6 +110,8 @@ alternative, Open).
 - **Proposal, Pearl 1:** Fatty's eye glows because a Pearl is lodged behind it.
   - Beaten, he shrinks and the Pearl pops free. This is the full ceremony and
     the first time the player sees a Pearl.
+  - The Pearl transfers **Jump** permanently into the slime. The ability stays
+    when the Pearl later returns to the Wellspring.
   - Plop explains what it is when the slime next returns to Slimeshire, which
     the Forge quest in Chapter 2 makes happen.
 - **Proposal, boss heart:** Fatty also leaves one full heart (+20 max HP).
@@ -136,8 +138,8 @@ alternative, Open).
 | Dodge | 2 | Built |
 | Home (bed) and vault | 3 | Planned |
 | Wooden Spear, Stone Spear | 2–5 | Built (hammering Planned) |
-| Jump | 4 | Built |
+| Jump | 5 | Built at Beat 4; relocation Planned |
 | Green key | 5 | Built |
-| Pearl 1 | 5 | Proposal |
+| Pearl 1 | 5 | Planned |
 | Boss heart (Fatty) | 5 | Proposal |
 | 4 heart quarters | Secrets | Planned |

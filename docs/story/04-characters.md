@@ -6,8 +6,9 @@ quest files. Everything about where a character is going is a Proposal.
 ## The hero
 
 **The slime.** A newborn from the Wellspring's last drop (Proposal), and a
-silent hero. It learns everything from the townsfolk, and its gift is the Gulp.
-Its name is Open. See [Premise](./02-premise.md#the-slime).
+silent hero. The townsfolk teach it survival, crafting and combat, while each
+Pearl grants one permanent ability. Its own gift is the Gulp. Its name is Open.
+See [Premise](./02-premise.md#the-slime).
 
 ## Slimeshire
 
@@ -34,9 +35,10 @@ Its name is Open. See [Premise](./02-premise.md#the-slime).
 - **Who:** a purple scout, always a step ahead. "Psst! Over here. Keep your
   voice down."
 - **Role:** the main quest giver at the front line. In Chapter 1 Mossy gives
-  Worm Trouble, which teaches Jump. In Chapter 2 Mossy moves to the forest camp
-  and gives Beyond the Verdant Gate (Stretch Lash), A Harder Pick, and The
-  Matron's Nest.
+  Worm Trouble, which prepares the slime to face Fatty One Eye. In Chapter 2
+  Mossy moves to the forest camp and gives Beyond the Verdant Gate, A Harder
+  Pick, and The Matron's Nest. Fatty's Pearl grants Jump, and the Matron's
+  Pearl grants Stretch Lash.
 - **Proposal:** the recurring scout. Mossy arrives in every new region first,
   sets up a camp, and is waiting there when the slime arrives. This is a little
   like the owl in Zelda. Mossy tracks the Pearls' trail toward Volcano Ridge.
@@ -92,8 +94,8 @@ villains.
 
 | Boss | Region | Fight today | Story (Proposal) | Status |
 |---|---|---|---|---|
-| **Fatty One Eye** | Slimeshire Meadow | Leaps, and takes damage only in the eye; guards the green key | A blob that swallowed a Pearl and grew huge. His glowing eye is the Pearl's light. Beaten, he shrinks and the Pearl pops free. | Built |
-| **Orb-Weaver Matron** | Gloop Forest | Web spit, web volley, web patches | Nested on a Pearl and became the mother of every orb-weaver. Planned: new art, three-web spread, and webs only the Silk Armor passes. | Built; changes Planned |
+| **Fatty One Eye** | Slimeshire Meadow | Leaps, and takes damage only in the eye; guards the green key | One of Gorge's eight vassals. Beaten, he releases the Pearl that grants Jump. | Built; story changes Planned |
+| **Orb-Weaver Matron** | Gloop Forest | Web spit, web volley, web patches | One of Gorge's eight vassals. Planned: her three-way Stretch Lash damages, pulls and traps targets without the Silk Armor; her Pearl grants Stretch Lash when she falls. | Built; changes Planned |
 | **Crystal Colossus** | Crystal Caverns | — | Armored and weak to hammers; teaches weapon switching (roadmap). A golem of crystal grown around a Pearl. | Idea |
 | **Gorge** | Volcano Ridge | — | The final boss: the greedy slime who shattered the Wellspring. See [Premise](./02-premise.md). | Proposal |
 

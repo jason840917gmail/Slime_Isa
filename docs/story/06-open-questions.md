@@ -13,6 +13,7 @@ Decisions waiting on the owner. When one is answered:
    armors, the webs, the vault, the timed crafting and the HUD orbs. The
    roadmap's rule is that a new idea goes to the parking lot unless it replaces
    work of the same size.
+  response 10/02/2026 All decisions go into release 1 and should affet the road map , most of them ar importan fro the game and the story so they need to be implemented when approved.
 
 ## Story
 
@@ -51,7 +52,7 @@ Decisions waiting on the owner. When one is answered:
       power is used (passing a web, breaking ground)?
     - How does the slime switch armors? Q is the Gulp key today.
 16. **The sprint roll.**
-    - In which chapter is it learned, and who teaches it?
+  - Which of the remaining six Pearls grants it, and in which chapter?
     - Should it share one button with Dodge (tap to dodge, hold to keep
       rolling), with the hold unlocked mid-game as an upgrade of the Dodge?
 17. **Boss hearts.** Does each boss also give a full heart (+20) on top of the
@@ -74,6 +75,10 @@ These are proposals from the planning talk that have not been answered:
 
 ## Answered
 
+- **2026-10-02:** each of the eight Pearls grants one unique permanent ability
+  before returning to the Wellspring. Pearl 1 grants Jump; Pearl 2 grants
+  Stretch Lash. Dodge remains basic training from Plop. Squash Slam belongs to
+  a later Pearl; the other five Pearl abilities are Open.
 - **2026-10-02:** adventure first, with a little crafting.
 - **2026-10-02:** heart quarters, four to a heart, and four quarters per map
   for now.

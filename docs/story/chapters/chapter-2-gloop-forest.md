@@ -5,7 +5,7 @@
 | **Region** | Gloop Forest (`gloop-forest`, `gloop-hut`, `gloop-cavern`), plus Slimeshire for the Forge |
 | **Goal** | Make iron gear, earn the Silk Armor, and break the Matron's hold on the forest |
 | **Boss** | Orb-Weaver Matron |
-| **Earned** | Stretch Lash, Reinforced Pickaxe, Stone Armor, the Forge, iron gear, 20-slot bag, Silk Armor, Squash Slam; Proposal: Pearl 2 and a boss heart |
+| **Earned** | Reinforced Pickaxe, Stone Armor, the Forge, iron gear, 20-slot bag and Silk Armor; Planned: Pearl 2 with Stretch Lash, and a boss heart. Squash Slam moves to a later Pearl. |
 | **Status** | Built and in progress (roadmap 8.3–8.11). The beats below mark each Planned change and Proposal. |
 
 Quest IDs are in brackets. Their dialogue lives in
@@ -22,17 +22,18 @@ and [the Matron spec](../../superpowers/specs/2026-10-01-orb-weaver-matron.md).
 - Mossy: "I set up camp here, behind these old walls. The hut is ours to use:
   sleep in its bed and you will wake here, not back home." *(in game)*
 - **The player does:** defeats 5 orb-weavers and picks up 3 weaver fangs.
-- **Reward:** **Stretch Lash** (ceremony), the Reinforced Pickaxe recipe, 30
-  coins.
+- **Reward:** the Reinforced Pickaxe recipe and 30 coins.
+- **Planned change:** remove Stretch Lash from this reward. The Matron's Pearl
+  grants it at the end of the chapter.
 - **Proposal, the trail:** Mossy has been following something. "The webs got
   thick about the same time the ground started shaking. Strange, isn't it?"
 
-## Beat 2 — Sunny's Basket [`sunnys-basket`] (Built, optional)
+## Beat 2 — Sunny's Basket [`sunnys-basket`] (Built, moves after Beat 9)
 
 **Giver:** Sunny, at the forest camp.
 
-- **The player does:** pulls her basket back across the north stream with the
-  Stretch Lash.
+- **The player does:** after earning Stretch Lash from the Matron's Pearl,
+  returns to pull Sunny's basket across the north stream.
 - **Reward:** 2 purple berries and 20 coins.
 
 ## Beat 3 — The Stone Armor (Planned; where is Open)
@@ -117,8 +118,7 @@ web secrets all over the forest. **It must be hard to get.**
 web-choked den inside the largest thicket:
 
 1. **Getting in.** The way in has no webs; it is a fight through weaver waves.
-   Its puzzles use what the slime already has: the Stretch Lash, Jump and the
-   Stone Armor.
+  Its puzzles use what the slime already has: Jump and the Stone Armor.
 2. **The cocoon.** At its heart hangs a giant silk cocoon. Gulping it teaches
    the **Silk Armor** for good. Full ceremony.
 3. **Getting out.** The way back out goes *through* webs, so the new armor is
@@ -147,8 +147,10 @@ removed, or become energy refills for the Silk Armor.
   slime passes it in the Silk Armor, and the passage costs energy.
 - **Planned: the fight.**
   - **New art** for the Matron.
-  - Her **normal attack** throws **three webs at different angles**, spread
-    wide enough to dodge between.
+  - Her **normal attack is Stretch Lash in three directions**, spread wide
+    enough to dodge between. A hit deals damage and pulls the slime toward
+    her. Without the Silk Armor it also traps the slime; the armor prevents
+    the trap.
   - Her **web volley** marks four circles. The webs it leaves trap the slime the
     same way all webs do: only the Silk Armor passes them, and passing costs
     energy.
@@ -158,13 +160,17 @@ removed, or become energy refills for the Silk Armor.
   - Planned: her bar also hides while the slime is outside and comes back on
     return.
 - **Reward:**
-  - **Squash Slam** (ceremony), 100 coins and `chapter-2-complete`.
+  - 100 coins and `chapter-2-complete`.
+  - Planned: remove today's **Squash Slam** reward. A later boss's Pearl will
+    grant it.
   - The end card, then the Crystal Caverns exit, still sealed with crystal.
   - Today a Goo Heart appears in the nest. Proposal: it becomes a full heart
     (+20), the boss's own reward on top of the map's four quarters.
 - **Proposal, Pearl 2:** her nest was woven around a Pearl. Beaten, she shrinks
   back into an ordinary (big) orb-weaver and scuttles off. The Pearl lies in
   the silk.
+  - The Pearl transfers **Stretch Lash** permanently into the slime during its
+    ceremony. The slime keeps the ability after returning the Pearl.
   - Mossy: "Two of them now. And the shaking is worse. Whatever is under that
     mountain is waking up."
 
@@ -181,14 +187,14 @@ removed, or become energy refills for the Silk Armor.
 
 | Item | Beat | Status |
 |---|---|---|
-| Stretch Lash | 1 | Built |
+| Stretch Lash | 9 | Built at Beat 1; relocation Planned |
 | Reinforced Pickaxe | 1, 4 | Built (hammering Planned) |
 | Stone Armor | 3 | Planned (where is Open) |
 | Forge, smelting with a timer | 5 | Built (timer Planned) |
 | Iron Spear, Iron Axe | 5–6 | Built (hammering Planned) |
 | 20-slot bag | 7 | Planned |
 | Silk Armor | 8 | Planned (where is Open) |
-| Squash Slam | 9 | Built |
-| Pearl 2 | 9 | Proposal |
+| Squash Slam | Later (Open) | Built at Beat 9; relocation Planned |
+| Pearl 2 | 9 | Planned |
 | Boss heart (Matron) | 9 | Built as a Goo Heart; full heart is a Proposal |
 | 4 heart quarters | Secrets | Planned |
