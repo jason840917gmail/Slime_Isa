@@ -1,0 +1,478 @@
+{
+  "style": "desert",
+  "sheet": "sheet.elevation.wall-rings.desert",
+  "bandPx": 20,
+  "southBandPx": 64,
+  "strokes": {
+    "outline": true,
+    "rim": false,
+    "ledges": false,
+    "facingTint": false
+  },
+  "pieces": [
+    {
+      "direction": "n",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "n",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 34,
+        "w": 512,
+        "h": 16
+      }
+    },
+    {
+      "direction": "n",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 52,
+        "w": 512,
+        "h": 16
+      }
+    },
+    {
+      "direction": "n",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 70,
+        "w": 512,
+        "h": 16
+      }
+    },
+    {
+      "direction": "n",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 88,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "ne",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 122,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "ne",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 156,
+        "w": 512,
+        "h": 18
+      }
+    },
+    {
+      "direction": "ne",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 176,
+        "w": 512,
+        "h": 18
+      }
+    },
+    {
+      "direction": "ne",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 196,
+        "w": 512,
+        "h": 18
+      }
+    },
+    {
+      "direction": "ne",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 216,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "e",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 250,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "e",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 284,
+        "w": 512,
+        "h": 20
+      }
+    },
+    {
+      "direction": "e",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 306,
+        "w": 512,
+        "h": 20
+      }
+    },
+    {
+      "direction": "e",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 328,
+        "w": 512,
+        "h": 20
+      }
+    },
+    {
+      "direction": "e",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 350,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "se",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 384,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "se",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 418,
+        "w": 512,
+        "h": 22
+      }
+    },
+    {
+      "direction": "se",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 442,
+        "w": 512,
+        "h": 22
+      }
+    },
+    {
+      "direction": "se",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 466,
+        "w": 512,
+        "h": 22
+      }
+    },
+    {
+      "direction": "se",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 490,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "s",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 524,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "s",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 558,
+        "w": 512,
+        "h": 64
+      }
+    },
+    {
+      "direction": "s",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 624,
+        "w": 512,
+        "h": 64
+      }
+    },
+    {
+      "direction": "s",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 690,
+        "w": 512,
+        "h": 64
+      }
+    },
+    {
+      "direction": "s",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 756,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "sw",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 790,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "sw",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 824,
+        "w": 512,
+        "h": 22
+      }
+    },
+    {
+      "direction": "sw",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 848,
+        "w": 512,
+        "h": 22
+      }
+    },
+    {
+      "direction": "sw",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 872,
+        "w": 512,
+        "h": 22
+      }
+    },
+    {
+      "direction": "sw",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 896,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "w",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 930,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "w",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 964,
+        "w": 512,
+        "h": 20
+      }
+    },
+    {
+      "direction": "w",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 986,
+        "w": 512,
+        "h": 20
+      }
+    },
+    {
+      "direction": "w",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 1008,
+        "w": 512,
+        "h": 20
+      }
+    },
+    {
+      "direction": "w",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 1030,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "nw",
+      "kind": "top",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 1064,
+        "w": 512,
+        "h": 32
+      }
+    },
+    {
+      "direction": "nw",
+      "kind": "band",
+      "tiles": "along",
+      "band": 0,
+      "rect": {
+        "x": 0,
+        "y": 1098,
+        "w": 512,
+        "h": 18
+      }
+    },
+    {
+      "direction": "nw",
+      "kind": "band",
+      "tiles": "along",
+      "band": 1,
+      "rect": {
+        "x": 0,
+        "y": 1118,
+        "w": 512,
+        "h": 18
+      }
+    },
+    {
+      "direction": "nw",
+      "kind": "band",
+      "tiles": "along",
+      "band": 2,
+      "rect": {
+        "x": 0,
+        "y": 1138,
+        "w": 512,
+        "h": 18
+      }
+    },
+    {
+      "direction": "nw",
+      "kind": "foot",
+      "tiles": "along",
+      "rect": {
+        "x": 0,
+        "y": 1158,
+        "w": 512,
+        "h": 32
+      }
+    }
+  ]
+}
