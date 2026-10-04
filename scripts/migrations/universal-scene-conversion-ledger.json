@@ -179,7 +179,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.music.gloop-forest",
@@ -221,7 +221,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.music.gloop-forest-ambience",
@@ -263,7 +263,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.music.level-1-home-town",
@@ -305,7 +305,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-death.1",
@@ -347,7 +347,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-fall.1",
@@ -389,7 +389,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-hop.1",
@@ -431,7 +431,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-hop.2",
@@ -473,7 +473,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-hurt.1",
@@ -515,7 +515,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-hurt.2",
@@ -557,7 +557,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-land.1",
@@ -599,7 +599,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-leap.1",
@@ -641,7 +641,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-recover.1",
@@ -683,7 +683,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-roar.1",
@@ -725,7 +725,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-step.1",
@@ -767,7 +767,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.fatty-step.2",
@@ -809,7 +809,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.boss.victory.1",
@@ -851,7 +851,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.arrow-hit.1",
@@ -893,7 +893,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.arrow-release.1",
@@ -935,7 +935,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.arrow-release.2",
@@ -977,7 +977,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.arrow-thunk.1",
@@ -1019,7 +1019,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.arrow-thunk.2",
@@ -1061,7 +1061,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.bow-draw.1",
@@ -1103,7 +1103,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.spider-death.1",
@@ -1145,7 +1145,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.spider-hiss.1",
@@ -1187,7 +1187,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.spider-hurt.1",
@@ -1229,7 +1229,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.spider-hurt.2",
@@ -1271,7 +1271,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.telegraph.1",
@@ -1313,7 +1313,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.web-spit.1",
@@ -1355,7 +1355,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.web-spit.2",
@@ -1397,7 +1397,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.web-splat.1",
@@ -1439,7 +1439,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.web-splat.2",
@@ -1481,7 +1481,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.worm-alert.1",
@@ -1523,7 +1523,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.worm-death.1",
@@ -1565,7 +1565,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.worm-death.2",
@@ -1607,7 +1607,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.worm-hurt.1",
@@ -1649,7 +1649,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.worm-hurt.2",
@@ -1691,7 +1691,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.worm-hurt.3",
@@ -1733,7 +1733,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.enemy.worm-windup.1",
@@ -1775,7 +1775,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.forest.1",
@@ -1817,7 +1817,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.forest.2",
@@ -1859,7 +1859,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.forest.3",
@@ -1901,7 +1901,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.grass.1",
@@ -1943,7 +1943,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.grass.2",
@@ -1985,7 +1985,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.grass.3",
@@ -2027,7 +2027,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.sand.1",
@@ -2069,7 +2069,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.sand.2",
@@ -2111,7 +2111,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.sand.3",
@@ -2153,7 +2153,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.snow.1",
@@ -2195,7 +2195,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.snow.2",
@@ -2237,7 +2237,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.snow.3",
@@ -2279,7 +2279,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.stone.1",
@@ -2321,7 +2321,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.stone.2",
@@ -2363,7 +2363,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.stone.3",
@@ -2405,7 +2405,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.water.1",
@@ -2447,7 +2447,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.footstep.water.2",
@@ -2489,7 +2489,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.berry.1",
@@ -2531,7 +2531,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.generic.1",
@@ -2573,7 +2573,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.inventory-full.1",
@@ -2615,7 +2615,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.key.1",
@@ -2657,7 +2657,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.ore.1",
@@ -2699,7 +2699,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.potion.1",
@@ -2741,7 +2741,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.silk.1",
@@ -2783,7 +2783,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.stone.1",
@@ -2825,7 +2825,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.pickup.wood.1",
@@ -2867,7 +2867,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.ability-learned.1",
@@ -2909,7 +2909,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.coin.1",
@@ -2951,7 +2951,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.coin.2",
@@ -2993,7 +2993,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.death.1",
@@ -3035,7 +3035,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.dodge.1",
@@ -3077,7 +3077,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.dodge.2",
@@ -3119,7 +3119,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.eat.1",
@@ -3161,7 +3161,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.eat.2",
@@ -3203,7 +3203,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.energy-restore.1",
@@ -3245,7 +3245,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.heal.1",
@@ -3287,7 +3287,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.hurt.1",
@@ -3329,7 +3329,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.hurt.2",
@@ -3371,7 +3371,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.hurt.3",
@@ -3413,7 +3413,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.jump.1",
@@ -3455,7 +3455,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.jump.2",
@@ -3497,7 +3497,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.land.1",
@@ -3539,7 +3539,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.land.2",
@@ -3581,7 +3581,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.lash.1",
@@ -3623,7 +3623,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.lash.2",
@@ -3665,7 +3665,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.potion-drink.1",
@@ -3707,7 +3707,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.respawn.1",
@@ -3749,7 +3749,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.rested.1",
@@ -3791,7 +3791,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.slam-impact.1",
@@ -3833,7 +3833,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.slam-windup.1",
@@ -3875,7 +3875,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.sleep-breath.1",
@@ -3917,7 +3917,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.teleport-in.1",
@@ -3959,7 +3959,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.teleport-out.1",
@@ -4001,7 +4001,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.player.web-struggle.1",
@@ -4043,7 +4043,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.drop-land.1",
@@ -4085,7 +4085,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.drop-land.2",
@@ -4127,7 +4127,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.drop-pop.1",
@@ -4169,7 +4169,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.drop-pop.2",
@@ -4211,7 +4211,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.leaf-rustle.1",
@@ -4253,7 +4253,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.leaf-rustle.2",
@@ -4295,7 +4295,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.ore-clink.1",
@@ -4337,7 +4337,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.ore-clink.2",
@@ -4379,7 +4379,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.ore-clink.3",
@@ -4421,7 +4421,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.ore-shatter.1",
@@ -4463,7 +4463,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.stone-crumble.1",
@@ -4505,7 +4505,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.tree-fall.1",
@@ -4547,7 +4547,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.wrong-tool.1",
@@ -4589,7 +4589,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.resource.wrong-tool.2",
@@ -4631,7 +4631,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.status.bouncy.1",
@@ -4673,7 +4673,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.status.burn.1",
@@ -4715,7 +4715,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.status.expire.1",
@@ -4757,7 +4757,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.status.frenzy.1",
@@ -4799,7 +4799,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.status.poison.1",
@@ -4841,7 +4841,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.status.slow.1",
@@ -4883,7 +4883,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.status.sticky.1",
@@ -4925,7 +4925,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.ability-denied.1",
@@ -4967,7 +4967,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.ability-ready.1",
@@ -5009,7 +5009,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.cancel.1",
@@ -5051,7 +5051,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.click.1",
@@ -5093,7 +5093,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.close.1",
@@ -5135,7 +5135,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.confirm.1",
@@ -5177,7 +5177,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.craft-fail.1",
@@ -5219,7 +5219,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.craft-success.1",
@@ -5261,7 +5261,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.error.1",
@@ -5303,7 +5303,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.hotbar-switch.1",
@@ -5345,7 +5345,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.hover.1",
@@ -5387,7 +5387,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.journal-open.1",
@@ -5429,7 +5429,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.open.1",
@@ -5471,7 +5471,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.quest-accept.1",
@@ -5513,7 +5513,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.quest-complete.1",
@@ -5555,7 +5555,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.quest-failed.1",
@@ -5597,7 +5597,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.quest-progress.1",
@@ -5639,7 +5639,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.ui.toast.1",
@@ -5681,7 +5681,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.chop-wood.1",
@@ -5723,7 +5723,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.chop-wood.2",
@@ -5765,7 +5765,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.chop-wood.3",
@@ -5807,7 +5807,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.combo-1.1",
@@ -5849,7 +5849,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.combo-2.1",
@@ -5891,7 +5891,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.combo-3.1",
@@ -5933,7 +5933,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.combo-finisher.1",
@@ -5975,7 +5975,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.crit.1",
@@ -6017,7 +6017,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.equip-blade.1",
@@ -6059,7 +6059,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.equip-tool.1",
@@ -6101,7 +6101,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-blocked.1",
@@ -6143,7 +6143,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-blocked.2",
@@ -6185,7 +6185,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-dull.1",
@@ -6227,7 +6227,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-dull.2",
@@ -6269,7 +6269,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-heavy.1",
@@ -6311,7 +6311,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-heavy.2",
@@ -6353,7 +6353,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-punch.1",
@@ -6395,7 +6395,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-punch.2",
@@ -6437,7 +6437,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-punch.3",
@@ -6479,7 +6479,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-slash.1",
@@ -6521,7 +6521,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-slash.2",
@@ -6563,7 +6563,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-stab.1",
@@ -6605,7 +6605,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-stab.2",
@@ -6647,7 +6647,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.hit-stab.3",
@@ -6689,7 +6689,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.mine-stone.1",
@@ -6731,7 +6731,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.mine-stone.2",
@@ -6773,7 +6773,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.mine-stone.3",
@@ -6815,7 +6815,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.mine-stone.4",
@@ -6857,7 +6857,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-blade.1",
@@ -6899,7 +6899,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-blade.2",
@@ -6941,7 +6941,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-blade.3",
@@ -6983,7 +6983,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-heavy.1",
@@ -7025,7 +7025,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-heavy.2",
@@ -7067,7 +7067,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-light.1",
@@ -7109,7 +7109,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-light.2",
@@ -7151,7 +7151,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-tool.1",
@@ -7193,7 +7193,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.swing-tool.2",
@@ -7235,7 +7235,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.weapon.thrust.1",
@@ -7277,7 +7277,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.anvil-loop.1",
@@ -7319,7 +7319,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.area-title.1",
@@ -7361,7 +7361,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.area-transition.1",
@@ -7403,7 +7403,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.bell-ring.1",
@@ -7445,7 +7445,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.campfire-loop.1",
@@ -7487,7 +7487,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.cauldron-loop.1",
@@ -7529,7 +7529,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.chest-close.1",
@@ -7571,7 +7571,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.chest-locked.1",
@@ -7613,7 +7613,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.chest-open.1",
@@ -7655,7 +7655,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.gate-locked.1",
@@ -7697,7 +7697,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.gate-unlock.1",
@@ -7739,7 +7739,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.grindstone-loop.1",
@@ -7781,7 +7781,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.interact.1",
@@ -7823,7 +7823,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.interior-ambience.1",
@@ -7865,7 +7865,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.meadow-ambience.1",
@@ -7907,7 +7907,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.npc-blip.1",
@@ -7949,7 +7949,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.npc-blip.2",
@@ -7991,7 +7991,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.npc-blip.3",
@@ -8033,7 +8033,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.restore-building.1",
@@ -8075,7 +8075,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "audio.sfx.world.save.1",
@@ -8117,7 +8117,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.boss.fatty-one-eye",
@@ -8159,7 +8159,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.enemy.meadow-spider",
@@ -8201,7 +8201,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.enemy.slime-spider",
@@ -8243,7 +8243,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.fisherman-slime",
@@ -8285,7 +8285,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.lili",
@@ -8327,7 +8327,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.mossy-scout",
@@ -8369,7 +8369,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.red-slime-boy",
@@ -8411,7 +8411,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.village-elder-plop",
@@ -8453,7 +8453,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.yellow-blond-slime-girl",
@@ -8495,7 +8495,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.player.slime",
@@ -8537,7 +8537,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.player.slime.heavy",
@@ -8579,7 +8579,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.player.slime.sticky",
@@ -8621,7 +8621,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.boss.ground-crack",
@@ -8663,7 +8663,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -8705,7 +8705,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.enemy.worm-brawler-hit",
@@ -8747,7 +8747,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.player.stretch-lash",
@@ -8789,7 +8789,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.resource.impact-tiles",
@@ -8831,7 +8831,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.resource.stone-impact-tiles",
@@ -8873,7 +8873,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.weapon.hit-tiles",
@@ -8915,7 +8915,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -8957,7 +8957,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -8999,7 +8999,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.archer",
@@ -9041,7 +9041,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.brawler",
@@ -9083,7 +9083,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.swordsman",
@@ -9095,6 +9095,90 @@
         {
           "path": "$",
           "owner": "asset://enemy.worm.swordsman"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:image.elevation.waterfall-curtain",
+      "family": "asset",
+      "stableId": "image.elevation.waterfall-curtain",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://image.elevation.waterfall-curtain",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "image.elevation.waterfall-curtain",
+        "targetId": "asset://image.elevation.waterfall-curtain"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://image.elevation.waterfall-curtain"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:image.elevation.waterfall-foam",
+      "family": "asset",
+      "stableId": "image.elevation.waterfall-foam",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://image.elevation.waterfall-foam",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "image.elevation.waterfall-foam",
+        "targetId": "asset://image.elevation.waterfall-foam"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://image.elevation.waterfall-foam"
         }
       ],
       "writerState": "legacy"
@@ -9125,7 +9209,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "object.lash-bell-post",
@@ -9167,7 +9251,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "object.training-dummy",
@@ -9209,7 +9293,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.decorations.8x3",
@@ -9251,7 +9335,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.decorations.ambient.8x5",
@@ -9263,6 +9347,468 @@
         {
           "path": "$",
           "owner": "asset://sheet.decorations.ambient.8x5"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.cave-entrances",
+      "family": "asset",
+      "stableId": "sheet.elevation.cave-entrances",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.cave-entrances",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.cave-entrances",
+        "targetId": "asset://sheet.elevation.cave-entrances"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.cave-entrances"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.cliff-decor",
+      "family": "asset",
+      "stableId": "sheet.elevation.cliff-decor",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.cliff-decor",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.cliff-decor",
+        "targetId": "asset://sheet.elevation.cliff-decor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.cliff-decor"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.cliff-face.desert",
+      "family": "asset",
+      "stableId": "sheet.elevation.cliff-face.desert",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.cliff-face.desert",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.cliff-face.desert",
+        "targetId": "asset://sheet.elevation.cliff-face.desert"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.cliff-face.desert"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.cliff-faces",
+      "family": "asset",
+      "stableId": "sheet.elevation.cliff-faces",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.cliff-faces",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.cliff-faces",
+        "targetId": "asset://sheet.elevation.cliff-faces"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.cliff-faces"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.cliff-lips",
+      "family": "asset",
+      "stableId": "sheet.elevation.cliff-lips",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.cliff-lips",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.cliff-lips",
+        "targetId": "asset://sheet.elevation.cliff-lips"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.cliff-lips"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.editor-tiles",
+      "family": "asset",
+      "stableId": "sheet.elevation.editor-tiles",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.editor-tiles",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.editor-tiles",
+        "targetId": "asset://sheet.elevation.editor-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.editor-tiles"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.interior-entrances",
+      "family": "asset",
+      "stableId": "sheet.elevation.interior-entrances",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.interior-entrances",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.interior-entrances",
+        "targetId": "asset://sheet.elevation.interior-entrances"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.interior-entrances"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.interior-flames",
+      "family": "asset",
+      "stableId": "sheet.elevation.interior-flames",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.interior-flames",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.interior-flames",
+        "targetId": "asset://sheet.elevation.interior-flames"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.interior-flames"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.interior-props",
+      "family": "asset",
+      "stableId": "sheet.elevation.interior-props",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.interior-props",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.interior-props",
+        "targetId": "asset://sheet.elevation.interior-props"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.interior-props"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.wall-rings.desert",
+      "family": "asset",
+      "stableId": "sheet.elevation.wall-rings.desert",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.wall-rings.desert",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.wall-rings.desert",
+        "targetId": "asset://sheet.elevation.wall-rings.desert"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.wall-rings.desert"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.elevation.wall-rings.meadow",
+      "family": "asset",
+      "stableId": "sheet.elevation.wall-rings.meadow",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.elevation.wall-rings.meadow",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.elevation.wall-rings.meadow",
+        "targetId": "asset://sheet.elevation.wall-rings.meadow"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.elevation.wall-rings.meadow"
         }
       ],
       "writerState": "legacy"
@@ -9293,7 +9839,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.amberleaf",
@@ -9305,6 +9851,174 @@
         {
           "path": "$",
           "owner": "asset://sheet.grounds.19x19.amberleaf"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.black-ashlands",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.black-ashlands",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.black-ashlands",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.black-ashlands",
+        "targetId": "asset://sheet.grounds.19x19.black-ashlands"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.black-ashlands"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.castle-floor",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.castle-floor",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.castle-floor",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.castle-floor",
+        "targetId": "asset://sheet.grounds.19x19.castle-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.castle-floor"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.castle-wall-top",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.castle-wall-top",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.castle-wall-top",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.castle-wall-top",
+        "targetId": "asset://sheet.grounds.19x19.castle-wall-top"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.castle-wall-top"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.cave-rock-top",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.cave-rock-top",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.cave-rock-top",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.cave-rock-top",
+        "targetId": "asset://sheet.grounds.19x19.cave-rock-top"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.cave-rock-top"
         }
       ],
       "writerState": "legacy"
@@ -9335,7 +10049,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.cavern-floor",
@@ -9377,7 +10091,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.crystal-floor",
@@ -9419,7 +10133,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.deep-water",
@@ -9431,6 +10145,90 @@
         {
           "path": "$",
           "owner": "asset://sheet.grounds.19x19.deep-water"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.dungeon-floor",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.dungeon-floor",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.dungeon-floor",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.dungeon-floor",
+        "targetId": "asset://sheet.grounds.19x19.dungeon-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.dungeon-floor"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.dungeon-wall-top",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.dungeon-wall-top",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.dungeon-wall-top",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.dungeon-wall-top",
+        "targetId": "asset://sheet.grounds.19x19.dungeon-wall-top"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.dungeon-wall-top"
         }
       ],
       "writerState": "legacy"
@@ -9461,7 +10259,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.forest-floor",
@@ -9503,7 +10301,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.forest-moss",
@@ -9545,7 +10343,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.frozen",
@@ -9587,7 +10385,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.highland-green",
@@ -9599,6 +10397,48 @@
         {
           "path": "$",
           "owner": "asset://sheet.grounds.19x19.highland-green"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.royal-carpet",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.royal-carpet",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.royal-carpet",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.royal-carpet",
+        "targetId": "asset://sheet.grounds.19x19.royal-carpet"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.royal-carpet"
         }
       ],
       "writerState": "legacy"
@@ -9629,7 +10469,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.sanddessert",
@@ -9671,7 +10511,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.town-cobble",
@@ -9713,7 +10553,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.water",
@@ -9755,7 +10595,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.houses.3x1",
@@ -9797,7 +10637,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.houses.forge.2x1",
@@ -9839,7 +10679,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.houses.mushroom.2x1",
@@ -9881,7 +10721,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.houses.workshop.2x1",
@@ -9923,7 +10763,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.beds-directional.6x8",
@@ -9965,7 +10805,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.decor-lighting-utility.8x8",
@@ -10007,7 +10847,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.kitchen-hearth.8x8",
@@ -10049,7 +10889,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.mushroom-decor-lighting.8x8",
@@ -10091,7 +10931,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.mushroom-floor-decor.8x8",
@@ -10133,7 +10973,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.mushroom-furniture-props.8x8",
@@ -10175,7 +11015,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.mushroom-large-furniture.4x4",
@@ -10217,7 +11057,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.mushroom-room-shell.8x7",
@@ -10259,7 +11099,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.mushroom-structure.8x8",
@@ -10301,7 +11141,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.seating-directional.8x8",
@@ -10343,7 +11183,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.specialty-rooms.8x8",
@@ -10385,7 +11225,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.storage-states.8x8",
@@ -10427,7 +11267,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.structure.8x8",
@@ -10469,7 +11309,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.tables-directional.5x9",
@@ -10511,7 +11351,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.interiors.workshop-crafting.8x8",
@@ -10553,7 +11393,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.chapter-2.5x2",
@@ -10595,7 +11435,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.forage.5x2",
@@ -10637,7 +11477,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.gems.5x2",
@@ -10679,7 +11519,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.keys.5x4",
@@ -10721,7 +11561,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.materials.5x2",
@@ -10763,7 +11603,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.potions.5x2",
@@ -10805,7 +11645,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.landmarks.level-1.4x1",
@@ -10847,7 +11687,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.objects.chest-wooden.2x1",
@@ -10889,7 +11729,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.props.gulp.8x1",
@@ -10931,7 +11771,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.props.web-decor.4x3",
@@ -10973,7 +11813,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.resources.4x2",
@@ -11015,7 +11855,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.resources.starter-materials.2x1",
@@ -11057,7 +11897,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.3x1",
@@ -11099,7 +11939,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.8x3",
@@ -11141,7 +11981,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.crystal-clusters.8x2",
@@ -11183,7 +12023,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.iron-ore.2x1",
@@ -11225,7 +12065,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.3x1",
@@ -11267,7 +12107,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.3x1.sway.8x3",
@@ -11309,7 +12149,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.8x6",
@@ -11351,7 +12191,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.autumn.6x2",
@@ -11393,7 +12233,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.sway.16x22",
@@ -11435,7 +12275,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.corners.4x2",
@@ -11477,7 +12317,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.horizontal.8x1",
@@ -11519,7 +12359,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.t-junctions.7x1",
@@ -11561,7 +12401,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.vertical.1x8",
@@ -11603,7 +12443,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.water.fish.8x5",
@@ -11645,7 +12485,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.water.frog.8x1",
@@ -11687,7 +12527,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.water.lilypads.8x4",
@@ -11729,7 +12569,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.water.plants.8x5",
@@ -11771,7 +12611,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.water.reeds.8x4",
@@ -11813,7 +12653,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "terrain.interior.floor-mushroom-clover-a",
@@ -11855,7 +12695,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "terrain.interior.floor-mushroom-clover-b",
@@ -11897,7 +12737,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "terrain.interior.floor-mushroom-earth-a",
@@ -11939,7 +12779,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "terrain.interior.floor-mushroom-earth-b",
@@ -11981,7 +12821,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "terrain.interior.floor-mushroom-plain",
@@ -12023,7 +12863,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "terrain.interior.floor-wood-a",
@@ -12065,7 +12905,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "terrain.interior.floor-wood-b",
@@ -12107,7 +12947,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.crafting-detail-workbench",
@@ -12149,7 +12989,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.inventory",
@@ -12191,7 +13031,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.quest-journal",
@@ -12233,7 +13073,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.banner.area-title",
@@ -12275,7 +13115,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.boss-health",
@@ -12317,7 +13157,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-compact",
@@ -12359,7 +13199,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-minimap",
@@ -12401,7 +13241,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.quest-offer-scroll",
@@ -12443,7 +13283,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.icons.gulp-forms.2x1",
@@ -12485,7 +13325,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.illustration.game-over",
@@ -12527,7 +13367,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.logo.slime-isa",
@@ -12569,7 +13409,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.surface.map-journal-paper",
@@ -12611,7 +13451,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.hammer-spear-tiles",
@@ -12653,7 +13493,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.iron-tools-tiles",
@@ -12695,7 +13535,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.pickaxe-tiles",
@@ -12737,7 +13577,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.starter-spears-tiles",
@@ -12779,7 +13619,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.stone-tools-tiles",
@@ -12821,7 +13661,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.sword-tiles",
@@ -12863,7 +13703,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "38886c15b6609769e080efcb5091159dcc01dd7431bf6cd066bbe9e8ea50380f",
+      "sourceHash": "df1eedc8fd559aaad23b2892aea459c54059f3bedba36d307df0542367becc98",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.wooden-axe-tiles",
@@ -14318,7 +15158,7 @@
         "test:game-constants"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "3b527c836f359ac2c45f4ce2a5a5e23039485add73364e17454f0dab48c78e1c",
+      "sourceHash": "77c45df9d963acdd27298ad5e26b1929176abe34f854b828d3283cab1a73ef73",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "global",
