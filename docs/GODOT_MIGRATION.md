@@ -126,7 +126,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
 - Not yet (updated 2026-10-05): terrain blending (hand-made edge tiles are on trial in the
   [terrain lab](./godot/TERRAIN_LAB.md)), the reference-laptop measurement, the owner's feel
-  check, and Phase 5's fresh-save playthrough of Chapter 1. Every scene script id the authored scenes use is ported except `game.ui-surface`,
+  check, and Phase 5's fresh-save playthrough of Chapter 1 by hand (an automated run of its main line,
+  `test_chapter_one_main_line`, passes). Every scene script id the authored scenes use is ported except `game.ui-surface`,
   which Godot-owned windows replace. A headless Brave run of the web build on 2026-10-05 held
   58-59 fps in level-1, the Fatty fight and the Matron's nest (pack 46.1 MB).
 - World objects are ported (2026-10-05, [godot/specs/world-objects.md](./godot/specs/world-objects.md)):
