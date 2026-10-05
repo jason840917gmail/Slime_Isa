@@ -1226,7 +1226,7 @@ owner decides), I4 kept, I5 sleep ported now.
 | # | Question | Recommendation |
 |---|---|---|
 | I1 | Chest without its Phase 3 window: take-all stand-in (§8.6) or nothing? | Take-all: level-1's green key lives in a chest. **Resolved** 2026-10-05: the chest window is ported, the stand-in is gone |
-| I2 | NPC talk without the dialogue box: floating first page, or no NPC candidates? | Floating first page, so prompts and priorities already match Phaser |
+| I2 | NPC talk without the dialogue box: floating first page, or no NPC candidates? | Floating first page, so prompts and priorities already match Phaser. **Resolved** 2026-10-05: the dialogue box is ported (quests spec), the stand-in is gone |
 | I3 | Keep quirk 1 (id tie-break) or use the nearest NPC? | Fix in the port (nearest, then id), like O3's combo fix - it is what `inReach` clearly intended |
 | I4 | Keep quirk 4 (plate gates accept the key and plate openings reset)? | Keep for parity now; revisit with the puzzle design |
 | I5 | Sleep in Phase 2 or with the rest/respawn work? | Phase 2 (beds are behind the first doors; clips exist); bed respawn after death stays with the player spec |
