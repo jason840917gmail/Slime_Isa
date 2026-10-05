@@ -6,7 +6,7 @@ should be able to port or change this without opening the TypeScript.
 
 Godot targets: `res://game/world/water_surface.gd` (node `WaterSurface`, a child of the ground
 TileMapLayer, mounted by `WorldService.register_world`) and `res://game/world/water_surface.gdshader`.
-The water life stays converted: `res://generated/scenes/objects/water-life--*.tscn`.
+The water life stays converted: `res://game/scenes/objects/water-life--*.tscn`.
 
 ---
 

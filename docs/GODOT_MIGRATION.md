@@ -29,7 +29,7 @@ owner on 2026-10-04.
 |---|---|
 | Art and audio in `asset/` | Used as they are (WebP, OGG, WAV import directly) |
 | `asset/assets.json` | Read by the converter for frame grids, origins and paths |
-| Scene JSON (`content/scenes/authored/`) | Converted by a script into `.tscn` scenes, tile sets and animation libraries |
+| Scene JSON (`content/scenes/authored/`) | Converted by a script into `.tscn` scenes, tile sets and animation libraries; since Phase 1 (2026-10-05) the scenes are Godot's (`godot/game/scenes/`) and the JSON is frozen |
 | `game-constants.json`, items, enemy types, recipes, quests | Kept as data; read by GDScript or converted to Resources |
 | Scene scripts (`features/scripts/`) and pure logic (combat, AI, quests, crafting, inventory, saves) | Ported by hand to GDScript |
 | UI scenes (HTML/CSS today) | Structure converted to Control nodes; styling redone as a Godot Theme |
@@ -71,6 +71,8 @@ owner on 2026-10-04.
    - the web build holds 60 fps in level-1 on the reference laptop.
 1. **Full conversion.** All worlds, objects, characters, weapons and effects.
    From here the Godot scenes are the source of truth and scene JSON is frozen.
+   Done for the scenes on 2026-10-05 (below); the game data (constants, items, quests,
+   recipes) still comes from `src/game/content/` through `pnpm godot:convert`.
 2. **Gameplay.** Every scene script and service; services become autoloads.
 3. **UI.** HUD, menus, inventory, crafting, quests and dialogue as Control
    scenes with one Theme.
@@ -96,14 +98,15 @@ pnpm godot:convert
 ```
 
 `godot:sync` copies the mapped assets into `godot/asset/`; `godot:convert`
-(`scripts/godot/convert-scenes.mjs`) writes `godot/generated/` from the scene
-JSON (`--check` exits 1 when that output is stale). Then open `godot/` in the
-Godot editor and press F5, or run headless checks:
+(`scripts/godot/convert-scenes.mjs`) exports the game data into `godot/generated/data/`
+(`--check` exits 1 when that output is stale). The scenes are committed in
+`godot/game/scenes/`. Then open `godot/` in the Godot editor and press F5, or run headless
+checks:
 
 - `--headless --path godot --import` imports the assets;
-- `--headless --path godot -s res://tools/verify_generated.gd` loads and
-  instantiates every converted scene, checks every property, node reference and
-  tile against the JSON, and plays level-1 for 30 frames;
+- `--headless --path godot -s res://tools/verify_scenes.gd` loads and
+  instantiates every scene in `game/scenes/scene_index.json`, checks every
+  property and node reference, and plays level-1 for 30 frames;
 - `--headless --path godot --quit-after 600` boots the game for ten seconds.
 
 Web build: `--headless --path godot --export-release "Web" export/web/index.html`,
@@ -183,8 +186,14 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   direction. New art is made at 128 px per 64-unit cell (2 px per world unit;
   the grid does not change), and terrain transitions are tried as hand-made
   tiles instead of a code blend ([godot/TERRAIN_LAB.md](./godot/TERRAIN_LAB.md)).
-- Phase 1 has started with the player: `character.player-slime` is the first
-  scene Godot owns ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)),
+- Phase 1 is done for the scenes (2026-10-05): all 1,160 scenes the game loads (21 worlds,
+  1,098 objects, 14 characters, 13 weapons, 9 effects, 2 projectiles, 2 encounters and the
+  global audio scene) are Godot's, in `godot/game/scenes/` with `scene_index.json`, and the
+  terrain TileSet is `game/world/terrain_tileset.tres`. Scene JSON is frozen: Scene Studio no
+  longer reaches the game, and `godot:convert` only exports data
+  ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)). The converter's UI scenes
+  were not kept (Godot-owned windows replace them).
+- The player was the first scene Godot owned (`character.player-slime`),
   with page 1 of the new slime (idle and walk facing down, up and side; idle
   keeps the last facing). The playground runs with F6 from `game/dev/playground.tscn`.
   Page 2 (2026-10-05) adds the roll and the attack swing for every direction, then the
@@ -235,6 +244,7 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
 
 ## Rules while it runs
 
-- Until Phase 1 ends, scene JSON stays the source: fix content there and
-  re-run the converter; never hand-edit converted output.
+- Scenes are edited in Godot; scene JSON and Scene Studio are frozen (Phase 1, 2026-10-05).
+- Game data still comes from `src/game/content/`: change it there and re-run
+  `pnpm godot:convert`; never hand-edit `godot/generated/`.
 - After the trial passes, new gameplay is built in Godot only.

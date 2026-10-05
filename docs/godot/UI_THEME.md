@@ -5,9 +5,8 @@ Phaser game's HTML/CSS look (`src/styles.css`, the field-kit theme resource
 `content/scenes/authored/resources/ui/field-kit.theme.resource.json`) as Godot styleboxes,
 colours, fonts and **type variations**. Every Control screen uses it: the shell (title, pause,
 settings, controls, credits, game over, end card, area banner), the HUD, and the game windows
-(inventory, chest, crafting, quests, dialogue, saves, map). The converted UI scenes under
-`godot/generated/scenes/ui/` still point at the converter's minimal
-`generated/resources/ui_theme.tres`; screens that Godot owns use this theme instead.
+(inventory, chest, crafting, quests, dialogue, saves, map). (The converter's UI scenes and its minimal
+`ui_theme.tres` were not kept when the scenes became Godot's.)
 
 ## Files and how to change the theme
 

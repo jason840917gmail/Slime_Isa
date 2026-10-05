@@ -1,6 +1,6 @@
 extends SceneTree
 ## Builds the terrain lab (docs/godot/TERRAIN_LAB.md): res://game/dev/terrain_lab/terrain_lab.tscn,
-## one ground on the converted terrain tile set (res://generated/resources/terrain_tileset.tres)
+## one ground on the converted terrain tile set (res://game/world/terrain_tileset.tres)
 ## painted with every ground pair and water shore the worlds have. Its `Ground` runs
 ## terrain_lab_ground.gd, which mounts the water surface and the hand-made terrain edges the way
 ## WorldService does for a world, in the editor too. Cells use Phaser's sheet-wrap frames.
@@ -13,7 +13,7 @@ const LAB_DIR := "res://game/dev/terrain_lab/"
 const SCENE_PATH := LAB_DIR + "terrain_lab.tscn"
 const LAB_SCRIPT := LAB_DIR + "terrain_lab.gd"
 const GROUND_SCRIPT := LAB_DIR + "terrain_lab_ground.gd"
-const TERRAIN_TILESET := "res://generated/resources/terrain_tileset.tres"
+const TERRAIN_TILESET := "res://game/world/terrain_tileset.tres"
 const TILE_ID_DATA_LAYER := "tile_id"
 const CELL := 64
 const SHEET_CELLS := 19

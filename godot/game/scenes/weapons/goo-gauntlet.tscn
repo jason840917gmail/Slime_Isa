@@ -1,0 +1,273 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="1"]
+[ext_resource type="Script" path="res://game/scripts/weapon.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/weapon/swing-light-1.wav" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/weapon/swing-light-2.wav" id="5"]
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_1"]
+points = PackedVector2Array(0, 0, 53.0881, -42.493, 55.7082, -38.9948, 58.0982, -35.3355, 60.2482, -31.5302, 62.1493, -27.5946, 63.7937, -23.545, 65.1745, -19.3982, 66.286, -15.1712, 67.1237, -10.8816, 67.6841, -6.547, 67.9649, -2.1853, 67.9649, 2.1853, 67.6841, 6.547, 67.1237, 10.8816, 66.286, 15.1712, 65.1745, 19.3982, 63.7937, 23.545, 62.1493, 27.5946, 60.2482, 31.5302, 58.0982, 35.3355, 55.7082, 38.9948, 53.0881, 42.493)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2"]
+radius = 18.0
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_3"]
+points = PackedVector2Array(0, 0, 53.0881, -42.493, 55.7082, -38.9948, 58.0982, -35.3355, 60.2482, -31.5302, 62.1493, -27.5946, 63.7937, -23.545, 65.1745, -19.3982, 66.286, -15.1712, 67.1237, -10.8816, 67.6841, -6.547, 67.9649, -2.1853, 67.9649, 2.1853, 67.6841, 6.547, 67.1237, 10.8816, 66.286, 15.1712, 65.1745, 19.3982, 63.7937, 23.545, 62.1493, 27.5946, 60.2482, 31.5302, 58.0982, 35.3355, 55.7082, 38.9948, 53.0881, 42.493)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_4"]
+radius = 18.0
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_5"]
+points = PackedVector2Array(0, 0, 53.0881, -42.493, 55.7082, -38.9948, 58.0982, -35.3355, 60.2482, -31.5302, 62.1493, -27.5946, 63.7937, -23.545, 65.1745, -19.3982, 66.286, -15.1712, 67.1237, -10.8816, 67.6841, -6.547, 67.9649, -2.1853, 67.9649, 2.1853, 67.6841, 6.547, 67.1237, 10.8816, 66.286, 15.1712, 65.1745, 19.3982, 63.7937, 23.545, 62.1493, 27.5946, 60.2482, 31.5302, 58.0982, 35.3355, 55.7082, 38.9948, 53.0881, 42.493)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6"]
+radius = 18.0
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_7"]
+points = PackedVector2Array(0, 0, 53.0881, -42.493, 55.7082, -38.9948, 58.0982, -35.3355, 60.2482, -31.5302, 62.1493, -27.5946, 63.7937, -23.545, 65.1745, -19.3982, 66.286, -15.1712, 67.1237, -10.8816, 67.6841, -6.547, 67.9649, -2.1853, 67.9649, 2.1853, 67.6841, 6.547, 67.1237, 10.8816, 66.286, 15.1712, 65.1745, 19.3982, 63.7937, 23.545, 62.1493, 27.5946, 60.2482, 31.5302, 58.0982, 35.3355, 55.7082, 38.9948, 53.0881, 42.493)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8"]
+radius = 18.0
+
+[sub_resource type="Animation" id="Animation_9"]
+resource_name = "idle"
+length = 0.125
+loop_mode = 1
+step = 0.125
+
+[sub_resource type="Animation" id="Animation_10"]
+resource_name = "attack-right"
+length = 0.357143
+loop_mode = 0
+step = 0.071429
+
+[sub_resource type="Animation" id="Animation_11"]
+resource_name = "attack-left"
+length = 0.357143
+loop_mode = 0
+step = 0.071429
+
+[sub_resource type="Animation" id="Animation_12"]
+resource_name = "attack-up"
+length = 0.357143
+loop_mode = 0
+step = 0.071429
+
+[sub_resource type="Animation" id="Animation_13"]
+resource_name = "attack-down"
+length = 0.357143
+loop_mode = 0
+step = 0.071429
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_14"]
+_data = {
+&"idle": SubResource("Animation_9"),
+&"attack-right": SubResource("Animation_10"),
+&"attack-left": SubResource("Animation_11"),
+&"attack-up": SubResource("Animation_12"),
+&"attack-down": SubResource("Animation_13")
+}
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_15"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("5")
+stream_1/weight = 1.0
+
+[node name="GooGauntlet" type="Node2D"]
+y_sort_enabled = true
+
+[node name="AttackArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 16
+collision_mask = 8
+monitoring = false
+monitorable = false
+
+[node name="right--punch" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_1")
+position = Vector2(36, 0)
+disabled = true
+
+[node name="right--impact" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_2")
+position = Vector2(52, 0)
+disabled = true
+
+[node name="left--punch" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_3")
+position = Vector2(-36, 0)
+rotation = 3.141592653589793
+disabled = true
+
+[node name="left--impact" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_4")
+position = Vector2(-52, 0)
+disabled = true
+
+[node name="up--punch" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_5")
+position = Vector2(0, -36)
+rotation = -1.5707963267948966
+disabled = true
+
+[node name="up--impact" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_6")
+position = Vector2(0, -52)
+disabled = true
+
+[node name="down--punch" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_7")
+position = Vector2(0, 36)
+rotation = 1.5707963267948966
+disabled = true
+
+[node name="down--impact" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_8")
+position = Vector2(0, 52)
+disabled = true
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+script = ExtResource("1")
+libraries/ = SubResource("AnimationLibrary_14")
+callback_mode_process = 0
+autoplay = &"idle"
+
+[node name="WeaponScript" type="Node" parent="." node_paths=PackedStringArray("attack_area", "animation")]
+script = ExtResource("2")
+weapon_id = "goo-gauntlet"
+category = "melee"
+attack_area = NodePath("../AttackArea")
+animation = NodePath("../Animation")
+base_damage = 12.0
+cooldown_ms = 320.0
+knock_strength = 200.0
+damage_modifiers = [{
+"targetTag": "stone",
+"modifier": 0
+}, {
+"targetTag": "resource",
+"modifier": 0.1
+}]
+harvest_capabilities = {}
+scaling = {
+"damage": {
+"strength": 0.65,
+"agility": 0.1
+},
+"cooldown": {
+"agility": 0.35
+},
+"knockback": {
+"strength": 0.35
+}
+}
+attack_plans = {
+"right": {
+"animationId": "attack-right",
+"durationMs": 357.14285714285717,
+"framesPerSecond": 14,
+"hitboxSpans": [{
+"hitboxId": "punch",
+"from": 1,
+"through": 2,
+"damageMultiplier": 1,
+"knockbackMultiplier": 1
+}, {
+"hitboxId": "impact",
+"from": 3,
+"through": 3,
+"damageMultiplier": 0.35,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+},
+"left": {
+"animationId": "attack-left",
+"durationMs": 357.14285714285717,
+"framesPerSecond": 14,
+"hitboxSpans": [{
+"hitboxId": "punch",
+"from": 1,
+"through": 2,
+"damageMultiplier": 1,
+"knockbackMultiplier": 1
+}, {
+"hitboxId": "impact",
+"from": 3,
+"through": 3,
+"damageMultiplier": 0.35,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": true,
+"y": false
+}
+},
+"up": {
+"animationId": "attack-up",
+"durationMs": 357.14285714285717,
+"framesPerSecond": 14,
+"hitboxSpans": [{
+"hitboxId": "punch",
+"from": 1,
+"through": 2,
+"damageMultiplier": 1,
+"knockbackMultiplier": 1
+}, {
+"hitboxId": "impact",
+"from": 3,
+"through": 3,
+"damageMultiplier": 0.35,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+},
+"down": {
+"animationId": "attack-down",
+"durationMs": 357.14285714285717,
+"framesPerSecond": 14,
+"hitboxSpans": [{
+"hitboxId": "punch",
+"from": 1,
+"through": 2,
+"damageMultiplier": 1,
+"knockbackMultiplier": 1
+}, {
+"hitboxId": "impact",
+"from": 3,
+"through": 3,
+"damageMultiplier": 0.35,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+}
+}
+
+[node name="SwingSfx" type="AudioStreamPlayer" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_15")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+
+[connection signal="area_entered" from="AttackArea" to="WeaponScript" method="on_area_entered"]
+[connection signal="attack_started" from="WeaponScript" to="SwingSfx" method="play_cue"]

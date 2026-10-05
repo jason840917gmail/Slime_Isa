@@ -6,7 +6,7 @@ without opening the TypeScript.
 
 Godot targets (from the conventions): script `game.enemy` → `res://game/scripts/enemy.gd` (node name
 `EnemyScript`, a child `Node` of the `CharacterBody2D` root); scene `character.worm-swordsman` →
-`res://generated/scenes/characters/worm-swordsman.tscn`; world areas `game.world-area` →
+`res://game/scenes/characters/worm-swordsman.tscn`; world areas `game.world-area` →
 `res://game/scripts/world_area.gd`.
 
 ---
@@ -232,7 +232,7 @@ position: spawn `min(8, area.maxPopulation)` = 3 immediately. (Does NOT set `are
    any safe zone (inclusive rect test against `enemySafeZones`); none found → return null.
    Rectangle: `(x + randf()*w, y + randf()*h)`; circle: `angle = randf()*TAU, d = sqrt(randf())*r`
    (`content/maps/agentAreaGeometry.ts:35-38`). No collision check: a worm may spawn overlapping a tree.
-4. Instantiate scene `character.<type>` (via `res://generated/scene_index.json`) at the point
+4. Instantiate scene `character.<type>` (via `res://game/scenes/scene_index.json`) at the point
    (`UniversalSceneWorldController.ts:1444-1468`) and hand the enemy its navigation: the spawn area record
    and the world's safe-zone list (`:2073-2085`).
    **Feet origin:** the point is the Phaser body *centre*; place the Godot root at

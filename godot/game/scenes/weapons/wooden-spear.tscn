@@ -1,0 +1,643 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/weapons/128x128-tile_2x2-starter-spears.webp" id="1"]
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/weapon.gd" id="3"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/weapon/thrust.wav" id="5"]
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_1"]
+points = PackedVector2Array(29, 0, 28.4428, 1.1705, 26.7925, 2.2961, 24.1126, 3.3334, 20.5061, 4.2426, 16.1115, 4.9888, 11.0978, 5.5433, 5.6576, 5.8847, 0, 6, -5.6576, 5.8847, -11.0978, 5.5433, -16.1115, 4.9888, -20.5061, 4.2426, -24.1126, 3.3334, -26.7925, 2.2961, -28.4428, 1.1705, -29, 0, -28.4428, -1.1705, -26.7925, -2.2961, -24.1126, -3.3334, -20.5061, -4.2426, -16.1115, -4.9888, -11.0978, -5.5433, -5.6576, -5.8847, 0, -6, 5.6576, -5.8847, 11.0978, -5.5433, 16.1115, -4.9888, 20.5061, -4.2426, 24.1126, -3.3334, 26.7925, -2.2961, 28.4428, -1.1705)
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_2"]
+points = PackedVector2Array(29, 0, 28.4428, 1.1705, 26.7925, 2.2961, 24.1126, 3.3334, 20.5061, 4.2426, 16.1115, 4.9888, 11.0978, 5.5433, 5.6576, 5.8847, 0, 6, -5.6576, 5.8847, -11.0978, 5.5433, -16.1115, 4.9888, -20.5061, 4.2426, -24.1126, 3.3334, -26.7925, 2.2961, -28.4428, 1.1705, -29, 0, -28.4428, -1.1705, -26.7925, -2.2961, -24.1126, -3.3334, -20.5061, -4.2426, -16.1115, -4.9888, -11.0978, -5.5433, -5.6576, -5.8847, 0, -6, 5.6576, -5.8847, 11.0978, -5.5433, 16.1115, -4.9888, 20.5061, -4.2426, 24.1126, -3.3334, 26.7925, -2.2961, 28.4428, -1.1705)
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_3"]
+points = PackedVector2Array(6, 0, 5.8847, 5.6576, 5.5433, 11.0978, 4.9888, 16.1115, 4.2426, 20.5061, 3.3334, 24.1126, 2.2961, 26.7925, 1.1705, 28.4428, 0, 29, -1.1705, 28.4428, -2.2961, 26.7925, -3.3334, 24.1126, -4.2426, 20.5061, -4.9888, 16.1115, -5.5433, 11.0978, -5.8847, 5.6576, -6, 0, -5.8847, -5.6576, -5.5433, -11.0978, -4.9888, -16.1115, -4.2426, -20.5061, -3.3334, -24.1126, -2.2961, -26.7925, -1.1705, -28.4428, 0, -29, 1.1705, -28.4428, 2.2961, -26.7925, 3.3334, -24.1126, 4.2426, -20.5061, 4.9888, -16.1115, 5.5433, -11.0978, 5.8847, -5.6576)
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_4"]
+points = PackedVector2Array(6, 0, 5.8847, 5.6576, 5.5433, 11.0978, 4.9888, 16.1115, 4.2426, 20.5061, 3.3334, 24.1126, 2.2961, 26.7925, 1.1705, 28.4428, 0, 29, -1.1705, 28.4428, -2.2961, 26.7925, -3.3334, 24.1126, -4.2426, 20.5061, -4.9888, 16.1115, -5.5433, 11.0978, -5.8847, 5.6576, -6, 0, -5.8847, -5.6576, -5.5433, -11.0978, -4.9888, -16.1115, -4.2426, -20.5061, -3.3334, -24.1126, -2.2961, -26.7925, -1.1705, -28.4428, 0, -29, 1.1705, -28.4428, 2.2961, -26.7925, 3.3334, -24.1126, 4.2426, -20.5061, 4.9888, -16.1115, 5.5433, -11.0978, 5.8847, -5.6576)
+
+[sub_resource type="Animation" id="Animation_5"]
+resource_name = "idle"
+length = 1.0
+loop_mode = 1
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Spear1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 0, 0, 0, 0, 0, 0, 0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Spear1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Spear1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, 0), Vector2(0, 0), Vector2(0, 0), Vector2(0, 0), Vector2(0, 0), Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Spear1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Spear1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Spear1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Spear1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+
+[sub_resource type="Animation" id="Animation_6"]
+resource_name = "attack-right"
+length = 0.4
+loop_mode = 0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Spear1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 0, 0, 0, 1, 1, 1, 0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Spear1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Spear1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-20, 10), Vector2(0, 10), Vector2(20, 10), Vector2(40, 10), Vector2(60, 8), Vector2(60, 8), Vector2(60, 8), Vector2(40, 10)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Spear1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Spear1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.8377580409572781, 0.8377580409572781, 0.8377580409572781, 0.8377580409572781, 0.8028514559173915, 0.8028514559173915, 0.8028514559173915, 0.8377580409572781]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Spear1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Spear1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("AttackArea/right--spear:position")
+tracks/7/interp = 1
+tracks/7/loop_wrap = false
+tracks/7/keys = {
+"times": PackedFloat32Array(0.3),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(75, 5)]
+}
+
+[sub_resource type="Animation" id="Animation_7"]
+resource_name = "attack-left"
+length = 0.4
+loop_mode = 0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Spear1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 0, 0, 0, 1, 1, 1, 0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Spear1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Spear1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(20, 10), Vector2(0, 10), Vector2(-20, 10), Vector2(-40, 10), Vector2(-60, 8), Vector2(-60, 8), Vector2(-60, 8), Vector2(-40, 10)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Spear1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Spear1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.8377580409572781, -0.8377580409572781, -0.8377580409572781, -0.8377580409572781, -0.8028514559173915, -0.8028514559173915, -0.8028514559173915, -0.8377580409572781]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Spear1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, true, true, true, true, true, true, true]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Spear1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("AttackArea/left--spear:position")
+tracks/7/interp = 1
+tracks/7/loop_wrap = false
+tracks/7/keys = {
+"times": PackedFloat32Array(0.35),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-75, 6)]
+}
+
+[sub_resource type="Animation" id="Animation_8"]
+resource_name = "attack-up"
+length = 0.4
+loop_mode = 0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Spear1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 0, 0, 0, 1, 1, 1, 0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Spear1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Spear1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 40), Vector2(0, 20), Vector2(0, 0), Vector2(0, -20), Vector2(0, -40), Vector2(0, -40), Vector2(0, -40), Vector2(0, -20)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Spear1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Spear1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [-2.443460952792061, -2.443460952792061, -2.443460952792061, -2.443460952792061, -2.356194490192345, -2.356194490192345, -2.356194490192345, -2.443460952792061]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Spear1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Spear1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, true, true, true, true, true, true, true]
+}
+
+[sub_resource type="Animation" id="Animation_9"]
+resource_name = "attack-down"
+length = 0.4
+loop_mode = 0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Spear1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 0, 0, 0, 1, 1, 1, 0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Spear1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Spear1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, -20), Vector2(0, 0), Vector2(0, 20), Vector2(0, 40), Vector2(0, 60), Vector2(0, 60), Vector2(0, 60), Vector2(0, 40)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Spear1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6), Vector2(0.6, 0.6)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Spear1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [2.443460952792061, 2.443460952792061, 2.443460952792061, 2.443460952792061, 2.356194490192345, 2.356194490192345, 2.356194490192345, 2.443460952792061]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Spear1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Spear1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_10"]
+_data = {
+&"idle": SubResource("Animation_5"),
+&"attack-right": SubResource("Animation_6"),
+&"attack-left": SubResource("Animation_7"),
+&"attack-up": SubResource("Animation_8"),
+&"attack-down": SubResource("Animation_9")
+}
+
+[node name="WoodenSpear" type="Node2D"]
+
+[node name="Spear1" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-64, -64)
+hframes = 2
+vframes = 2
+
+[node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 8
+monitoring = false
+monitorable = false
+
+[node name="right--spear" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_1")
+position = Vector2(75, 8)
+disabled = true
+
+[node name="left--spear" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_2")
+position = Vector2(-75, 8)
+disabled = true
+
+[node name="up--spear" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_3")
+position = Vector2(0, -65)
+disabled = true
+
+[node name="down--spear" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("ConvexPolygonShape2D_4")
+position = Vector2(0, 65)
+disabled = true
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+script = ExtResource("2")
+libraries/ = SubResource("AnimationLibrary_10")
+callback_mode_process = 0
+autoplay = &"idle"
+
+[node name="WeaponScript" type="Node" parent="." node_paths=PackedStringArray("attack_area", "animation")]
+script = ExtResource("3")
+weapon_id = "wooden-spear"
+category = "melee"
+attack_area = NodePath("../AttackArea")
+animation = NodePath("../Animation")
+base_damage = 5.0
+cooldown_ms = 760.0
+knock_strength = 50.0
+damage_modifiers = [{
+"targetTag": "resource",
+"modifier": 0
+}]
+harvest_capabilities = {}
+scaling = {}
+on_hit_effect_id = "basic-spear-impact"
+attack_plans = {
+"right": {
+"animationId": "attack-right",
+"durationMs": 400,
+"framesPerSecond": 20,
+"hitboxSpans": [{
+"hitboxId": "spear",
+"from": 3,
+"through": 7,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+},
+"left": {
+"animationId": "attack-left",
+"durationMs": 400,
+"framesPerSecond": 20,
+"hitboxSpans": [{
+"hitboxId": "spear",
+"from": 3,
+"through": 7,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": true,
+"y": false
+}
+},
+"up": {
+"animationId": "attack-up",
+"durationMs": 400,
+"framesPerSecond": 20,
+"hitboxSpans": [{
+"hitboxId": "spear",
+"from": 3,
+"through": 7,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": true
+}
+},
+"down": {
+"animationId": "attack-down",
+"durationMs": 400,
+"framesPerSecond": 20,
+"hitboxSpans": [{
+"hitboxId": "spear",
+"from": 3,
+"through": 7,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.6
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+}
+}
+
+[node name="SwingSfx" type="AudioStreamPlayer" parent="."]
+script = ExtResource("4")
+process_mode = 3
+stream = ExtResource("5")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+
+[connection signal="area_entered" from="AttackArea" to="WeaponScript" method="on_area_entered"]
+[connection signal="attack_started" from="WeaponScript" to="SwingSfx" method="play_cue"]

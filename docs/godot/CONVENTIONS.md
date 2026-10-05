@@ -11,32 +11,45 @@ behaviour per area is in [specs/](./specs/).
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
 | `godot/asset/` | `pnpm godot:sync`, git-ignored | copies of every file `asset/assets.json` maps, at `res://asset/<source.path>` |
-| `godot/generated/` | `pnpm godot:convert`, git-ignored | converted scenes (`scenes/<path under content/scenes/authored>.tscn`), `resources/terrain_tileset.tres`, `resources/ui_theme.tres`, `scene_index.json` (scene id → path), `data/` copies of `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json` plus the exports `npc-definitions.json`, `recipes.json`, `weapons.json` (names, icons, stats) and `item-icons.json` (texture key → sheet, frame size, grid), and `conversion_report.json` |
-| `godot/game/runtime/` | hand, owned with the converter | helper scripts the converter attaches: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
-| `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`); the converter attaches it and writes the exports it declares |
+| `godot/generated/` | `pnpm godot:convert`, git-ignored | `data/` copies of `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json` plus the exports `npc-definitions.json`, `recipes.json`, `weapons.json` (names, icons, stats) and `item-icons.json` (texture key → sheet, frame size, grid). Scenes are no longer generated (below) |
+| `godot/game/scenes/` | hand (Godot editor), from the converter on 2026-10-05 | every world, object, character, weapon, effect, projectile and encounter scene (`<kind>s/<path>.tscn`, the scene JSON's layout) and `scene_index.json` (scene id → path); see "Scenes Godot owns" |
+| `godot/game/world/terrain_tileset.tres` | hand, from the converter | the terrain TileSet (one atlas source per tile id, `tile_id` custom data) |
+| `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
+| `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`), attached to the scenes that use it; a new `@export` gets its value in the editor |
 | `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
 | `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below) and the [terrain lab](./TERRAIN_LAB.md) |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
-| `godot/tools/` | hand | headless tools such as `verify_generated.gd`, `build_player_clips.gd` and `build_terrain_lab.gd`; excluded from exports |
+| `godot/tools/` | hand | headless tools such as `verify_scenes.gd`, `build_player_clips.gd` and `build_terrain_lab.gd`; excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
 | `godot/addons/godot_ai/` | the Godot AI plugin (4.3.0, MIT), committed | the editor plugin (MCP bridge) that lets Claude drive the open editor, plus its `_mcp_game_helper` autoload for running-game inspection; disabled by itself in headless runs and excluded from exports. Update it from its dock, then commit |
 
-Until Phase 1 of the migration ends, scene JSON is the source of truth: change
-content there and re-run the converter. Never hand-edit `godot/generated/`.
+Scenes are Godot's: edit them in the Godot editor (or with a tool in `godot/tools/`). The scene
+JSON under `src/game/content/scenes/authored/` is frozen and Scene Studio no longer reaches the
+game. Game data (constants, items, quests, recipes) still comes from `src/game/content/` through
+`pnpm godot:convert`; never hand-edit `godot/generated/`.
 
 ## Scenes Godot owns
 
-Phase 1 moves scenes to Godot one at a time. To take one over, copy its converted
-`.tscn` from `godot/generated/scenes/` into `godot/game/` (characters go in
-`game/characters/`) and add its scene id to `OWNED_SCENES` in
-`game/autoload/world_service.gd`; `WorldService.scene_path` then returns the owned copy
-instead of the generated one. From then on edit it in the Godot editor (or with a tool in
-`godot/tools/`); the converter keeps writing the old generated copy, which nothing loads.
+Every scene is Godot's since Phase 1 of the migration (2026-10-05). The converter's last output
+was copied into `godot/game/scenes/` with the scene JSON's folder layout (`worlds/level-1.tscn`,
+`objects/interiors/beds/...`), and `game/scenes/scene_index.json` maps every scene id to its file;
+`WorldService.scene_path(id)` reads it. The converter's UI scenes were not kept: Godot-owned
+windows built on the theme replace them (table below).
+
+- Edit a scene in the Godot editor. A scene file that moves or is renamed must be updated in
+  `scene_index.json` (and in the scenes that instance it; the editor's move does both for `.tscn`
+  references, not for the JSON).
+- A new scene the game loads by id (`object.<name>`, `character.<name>`, `world.<id>`, ...) needs a
+  line in `scene_index.json`; a new world also needs a world exit that leads to it.
+- `res://tools/verify_scenes.gd` loads and instantiates every indexed scene and plays level-1
+  ("Checking your work").
+
+Scenes that differ from the converter's copy or replace it:
 
 | Scene id | Owned scene | Since |
 |---|---|---|
 | `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll, sword-swing and ability clips, plus doze, sleep and defeat facing down, built by `tools/build_player_clips.gd`; no old side-view clip is left) |
-| `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](./specs/shell.md)). Loaded by path from the Shell and the title, so they are not in `OWNED_SCENES` |
+| `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](./specs/shell.md)). Loaded by path from the Shell and the title, not through the scene index |
 | `ui.save-slots` | `res://game/saves/save_slots_menu.tscn` | 2026-10-05: the save slots window, mounted on the Shell by `RunState` (`Shell.mount_menu`); loaded by path |
 | `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](./specs/map.md)), made by `MapUi` under the HUD; loaded by path |
 | `ui.inventory-ui`, `ui.crafting-ui`, `ui.menu-tabs`, `ui.weapon-hotbar` | `res://game/ui/screens/inventory_screen.gd`, `crafting_screen.gd`, `menu_tabs.gd` (built in code; made by `menu_windows.gd` on GameWindows), `res://game/ui/weapon_hotbar.gd` (built in code under the HUD) | 2026-10-05: the bag, the crafting window, the menu tab strip and the HUD weapon belt ([specs/crafting.md](./specs/crafting.md)); the converted copies stay unused |
@@ -55,7 +68,7 @@ position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest ac
 (default the first) when the first world is built (`QuestService.debug_activate`: earlier stages
 done, no rewards), to reach quest steps whose systems are not ported yet; it does not skip the
 title by itself (add `map` or `skip-title`). A new run starts empty-handed (Phaser); the playground
-hands out every weapon. `?weapon=<id>` / `-- --weapon=<id>` gives a new run that weapon (bag, belt
+hands out every weapon and every ability. `?weapon=<id>` / `-- --weapon=<id>` gives a new run that weapon (bag, belt
 slot 1, hand); `?recipes` / `-- --recipes` makes every
 recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six development weapons
 at a new run ([specs/crafting.md](./specs/crafting.md) C2, C3, 8.2).
@@ -112,7 +125,7 @@ at a new run ([specs/crafting.md](./specs/crafting.md) C2, C3, 8.2).
 ```bash
 pnpm godot:sync && pnpm godot:convert
 "<Godot 4.7.2 console exe>" --headless --path godot --import
-"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_generated.gd
+"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd
 "<Godot 4.7.2 console exe>" --headless --path godot --check-only -s res://game/<file>.gd
 "<Godot 4.7.2 console exe>" --headless --path godot --quit-after 600
 pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godot from $GODOT

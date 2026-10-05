@@ -84,7 +84,7 @@ for this is in 12.8.
 Until the ports exist, the converter attaches `res://game/runtime/unported_script.gd` to the
 `ResourceNodeScript` and `CollectibleScript` nodes (raw `properties`, `signal_names` registered as
 user signals so the SFX connections load). Example:
-`godot/generated/scenes/objects/tree-world-solid--tree-autumn-01.tscn`.
+`godot/game/scenes/objects/tree-world-solid--tree-autumn-01.tscn`.
 
 ### 1.2 Script properties (descriptor `features/scripts/registrations.ts:370-442`) and Godot exports
 
@@ -158,7 +158,7 @@ Hit effects (`content/scenes/authored/effects/wood-impact.scene.json`, `stone-im
 a Node2D root with `Impact1` (Sprite2D, scale 0.65, base alpha 0), clips `right/left/up/down`
 (0.333 s at 12 fps), `EffectScript` with `lifetimeMs` 333.33, and `ImpactSfx` (autoplay,
 detached, pitch randomness 0.07: `chop-wood` 3 variants, or `mine-stone` 4 variants). Both
-are converted (`godot/generated/scenes/effects/`).
+are converted (`godot/game/scenes/effects/`).
 
 ### 1.4 Authored collectibles (every `game.collectible` scene)
 
@@ -274,7 +274,7 @@ Level-1 objects nearest the spawn (640, 704) (old Phaser positions = Godot posit
 | `level-1-purple-berry-03` | purple berry | (550.4, 1363.2) | 665 |
 | `level-1-tree-01` | tree-autumn-01 | (281.6, 1356.8) | 745 |
 
-In the converted `generated/scenes/worlds/level-1.tscn` each instance root is a child of the
+In the converted `game/scenes/worlds/level-1.tscn` each instance root is a child of the
 world root named after its instance id, with `metadata/instance_id` and `metadata/persistence_key`
 (`"level-1.<id>"`). Phaser keys records by the script's `mapId` and `instanceId`, not by the
 persistence key.
@@ -960,7 +960,7 @@ A stone node (persistHealth false) has no record until it breaks; then
   connections to the SFX fail to load.
 - After adding the files: `pnpm godot:convert`. Check that `conversion_report.json` has no
   `undeclared-script-property` / `script-property-type-mismatch` warnings for these ids, and that
-  `generated/scenes/objects/tree-world-solid--tree-autumn-01.tscn` now attaches
+  `game/scenes/objects/tree-world-solid--tree-autumn-01.tscn` now attaches
   `res://game/scripts/resource_node.gd` with `node_paths=PackedStringArray("damage_area", "animation")`.
 
 ### 12.3 Files

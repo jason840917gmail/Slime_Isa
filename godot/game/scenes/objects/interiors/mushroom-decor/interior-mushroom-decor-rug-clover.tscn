@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/192x192-tile_8x8-interior-mushroom-decor-lighting.webp" id="1"]
+
+[node name="rug-clover" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+z_index = -1
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-96, -192)
+hframes = 8
+vframes = 8
+frame = 18

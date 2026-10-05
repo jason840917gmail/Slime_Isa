@@ -135,7 +135,7 @@ GameWindows (CanvasLayer 40, game/ui/screens/game_windows.gd; main's child)
   `world_registered`, or when something opens it), because the HUD is ready before main makes
   GameWindows. `MapUi._exit_tree` closes and frees the window and unregisters the Shell action.
 - Both are Godot-owned (CONVENTIONS "Scenes Godot owns"): the converted `ui.minimap` and
-  `ui.world-map-ui` scenes under `generated/scenes/ui/` are not loaded.
+  `ui.world-map-ui` scenes were never loaded and were not kept when the scenes became Godot's.
 
 ### 3.2 Minimap
 - **[IN]** Size and place as §1.1 from the HUD viewport's visible size, re-laid out on

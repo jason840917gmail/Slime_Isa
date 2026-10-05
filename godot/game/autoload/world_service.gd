@@ -22,7 +22,8 @@ const Perimeter := preload("res://game/shared/perimeter.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
 const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
 
-const SCENE_INDEX_PATH := "res://generated/scene_index.json"
+## Scene id -> scene path for every scene Godot owns (docs/godot/CONVENTIONS.md "Scenes Godot owns").
+const SCENE_INDEX_PATH := "res://game/scenes/scene_index.json"
 ## Area kinds (WorldAreaScript.ts); anything else is a content error.
 const AREA_ENEMY_SAFE_ZONE := "enemy-safe-zone"
 const AREA_ENEMY_SPAWN := "enemy-spawn"
@@ -30,8 +31,8 @@ const AREA_NPC_WANDER := "npc-wander"
 ## Pause reasons. The tree is paused while any reason is active.
 const PAUSE_HIT_STOP := &"hit-stop"
 const PAUSE_MODAL := &"modal"
-## The converter's terrain TileSet (contract C6): the ground layer is the TileMapLayer using it.
-const TERRAIN_TILESET_PATH := "res://generated/resources/terrain_tileset.tres"
+## The terrain TileSet (contract C6): the ground layer is the TileMapLayer using it.
+const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 ## Name of the spawn marker Node2D in world scenes (WorldSceneLoader.ts:90-96).
 const PLAYER_SPAWN_MARKER := "player-spawn"
 ## Custom data layer of the converted terrain TileSet that holds the terrain tile id.
@@ -60,13 +61,6 @@ var player_body: CharacterBody2D
 ## Null until register_camera().
 var camera: WorldCamera
 
-## Scenes Godot owns (Phase 1 of the migration, docs/godot/CONVENTIONS.md "Scenes Godot owns"):
-## made once from the converter's output, then edited in the Godot editor and never regenerated.
-## They take precedence over the converter's scene index for the same scene id.
-const OWNED_SCENES := {
-	"character.player-slime": "res://game/characters/player_slime.tscn",
-}
-
 var _scene_index: Dictionary = {}
 var _areas: Array[Dictionary] = []
 var _pause_reasons: Dictionary = {}
@@ -75,14 +69,14 @@ var _dimensions: Dictionary = {}
 var _packed: Dictionary = {}
 
 
-## Loads res://generated/scene_index.json into `_scene_index` (push_error when missing).
+## Loads SCENE_INDEX_PATH into `_scene_index` (push_error when missing).
 func _ready() -> void:
 	_load_scene_index()
 
 
 func _load_scene_index() -> void:
 	if not FileAccess.file_exists(SCENE_INDEX_PATH):
-		push_error("WorldService: %s is missing (run the scene converter)" % SCENE_INDEX_PATH)
+		push_error("WorldService: %s is missing" % SCENE_INDEX_PATH)
 		return
 	var json := JSON.new()
 	if json.parse(FileAccess.get_file_as_string(SCENE_INDEX_PATH)) != OK or not (json.data is Dictionary):
@@ -93,18 +87,16 @@ func _load_scene_index() -> void:
 
 # --- scene index -------------------------------------------------------------------------
 
-## The scene for `scene_id` (e.g. "character.worm-swordsman"), "" when unknown: a scene Godot
-## owns (OWNED_SCENES) first, else `res://generated/scene_index.json[scene_id]`.
+## The scene for `scene_id` (e.g. "character.worm-swordsman"), "" when unknown:
+## `SCENE_INDEX_PATH[scene_id]`.
 func scene_path(scene_id: String) -> String:
-	if OWNED_SCENES.has(scene_id):
-		return OWNED_SCENES[scene_id]
 	if _scene_index.is_empty():
 		_load_scene_index()
 	var path: Variant = _scene_index.get(scene_id, "")
 	return path if path is String else ""
 
 
-## Loads and instantiates the converted scene for `scene_id`; null + push_error() when unknown.
+## Loads and instantiates the scene for `scene_id`; null + push_error() when unknown.
 ## The instance is NOT added to the tree. The PackedScene is cached (see packed_scene()), so
 ## repeated spawns (camp enemies, hit effects) never re-read the .tscn mid-step.
 func instantiate_scene(scene_id: String) -> Node:

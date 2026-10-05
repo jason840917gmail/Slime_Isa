@@ -552,8 +552,8 @@ your inventory can hold.`; Slime Tonic: `Slime Tonic\nCONSUMABLE · ×1\n\nResto
 | `godot/tests/test_quest_journal.gd`, `test_chest_window.gd` | tests | §3.7 |
 
 Both windows are built in code like `crafting_screen.gd` (no `.tscn`), Godot-owned copies of
-`ui.quest-journal` and `ui.chest-inventory-panel`; the converted `generated/scenes/ui/` copies stay
-unused. Neither file lives in `game/scripts/`.
+`ui.quest-journal` and `ui.chest-inventory-panel`; the converted copies were unused and
+were not kept when the scenes became Godot's. Neither file lives in `game/scripts/`.
 
 ### 3.3 The journal
 

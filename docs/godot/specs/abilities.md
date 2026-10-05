@@ -23,7 +23,7 @@ SquashStretch,ParticlePresets,SlimeTrail}.ts`, `src/game/features/audio/AudioEve
 world scenes, `asset/assets.json`; on the Godot side `godot/game/scripts/player.gd`,
 `godot/game/player/*`, `godot/game/combat/*`, `godot/game/feel/*`, `godot/game/autoload/*`
 (including `run_state.gd`), `godot/game/characters/player_slime.tscn`, `godot/project.godot`,
-`godot/tests/**`, and the converted `godot/generated/scenes/objects/*.tscn`.
+`godot/tests/**`, and the converted `godot/game/scenes/objects/*.tscn`.
 
 Line numbers are `file:line` in the current `feat/godot-migration` tree. Paths without a folder are
 under `src/game/`.
@@ -800,7 +800,7 @@ the story; it needs enemy status effects.
 All script roots below are **not** re-anchored (no `depthAnchor` in their scenes), so a Godot
 root's `global_position` equals the Phaser position. Every distance test compares the **player's
 old centre** with the script's **parent root** (`get_parent().global_position`) [CENTRE].
-Converted scenes already exist in `godot/generated/scenes/objects/` with the placeholder
+Converted scenes already exist in `godot/game/scenes/objects/` with the placeholder
 `unported_script.gd` (e.g. `pressure-plate.tscn`: `Visual` offset `(−128, −207)` = visualOffset
 (0, 49) − origin·frame, `hframes 8`, `frame 6`).
 

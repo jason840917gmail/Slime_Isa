@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/256x256-tile_4x4-interior-mushroom-large-furniture.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/bed.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(165.4224, 44)
+
+[node name="hammock-leaf" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(-0.39, -25.12)
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.78, 0.78)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -256)
+hframes = 4
+vframes = 4
+frame = 3
+
+[node name="BedScript" type="Node" parent="."]
+script = ExtResource("2")
+prompt = "Sleep"
+interact_radius = 133.99
+badge_rise = 164.78
+sleep_point = Vector2(-0.39, -87.633)
+wake_point = Vector2(-0.39, 16)
