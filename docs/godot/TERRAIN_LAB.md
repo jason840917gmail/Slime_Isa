@@ -74,6 +74,17 @@ its middle, a single cell lost a corner, snow spilt half a cell past what was pa
 edges had to be painted on a separate layer from the gameplay ground. The dual grid is the usual
 fix: you paint the ground, the tiles follow.
 
+**Comparison lab:** `game/dev/terrain_lab/terrain_layers_lab.tscn` (built by
+`tools/build_terrain_layers_lab.gd`) draws the lab's layout with Godot's Terrains only. Its tile
+set (`terrain_layers_tileset.tres`) is one Match Corners terrain set, with each ground's 16 edge
+tiles tagged by corner peering bits, and every ground has its own TileMapLayer in `ORDER`, painted
+in Connect mode as the Terrains tab does. Stacking keeps grounds from replacing each other where
+they meet. But Connect sets a corner only where all four cells around it have the ground, so every
+ground shrinks half a cell into its own cells, and one-cell-wide features (the cobble road, the
+moss and leaf rings) disappear. Copy A paints each ground only on its own cells, which leaves
+gaps between grounds. Copy B also paints each ground under the grounds above it, which fills the
+gaps with the lower ground, showing on half of every border cell.
+
 ### Why the grounds are drawn in world space
 
 In the first try each edge tile carried its own painted ground: that showed a lighter band around
@@ -139,5 +150,6 @@ The 2026-10-05 sets (9 grounds) used about 4,000 Magnific credits.
 | `godot/game/world/terrain_edges/terrain_edge.gdshader`, `terrain_edge_water.gdshader` | Land edges and the water fill |
 | `godot/game/world/water_surface.gdshaderinc` | The water maths shared by the surface and the shores |
 | `godot/tools/build_terrain_lab.gd` | Builds the lab scene |
+| `godot/tools/build_terrain_layers_lab.gd` | Builds the comparison lab (Godot Terrains, a layer per ground) and its tile set |
 | `godot/game/dev/terrain_lab/` | The lab (`terrain_lab.gd` camera and T toggle, `terrain_lab_ground.gd`) |
 | `godot/tests/test_terrain_edges.gd` | Coverage, stacking, shores, hard edges, level-1 |
