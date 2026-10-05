@@ -41,7 +41,7 @@
     50,
     51
    ],
-   "loop_score": 0.188,
+   "loop_score": 0.1881,
    "touches_cell_edge": false
   },
   "roll-side": {
@@ -63,6 +63,74 @@
    ],
    "loop_score": 0.0,
    "touches_cell_edge": false
+  },
+  "stretch-down": {
+   "row": 3,
+   "first_frame": 24,
+   "fps": 29.63,
+   "loop": false,
+   "loop_start": 22,
+   "loop_length": 59,
+   "source_frames": [
+    22,
+    37,
+    43,
+    44,
+    44,
+    43,
+    80,
+    81
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": true,
+   "shift": [
+    0,
+    -37
+   ]
+  },
+  "stretch-up": {
+   "row": 4,
+   "first_frame": 32,
+   "fps": 29.63,
+   "loop": false,
+   "loop_start": 2,
+   "loop_length": 86,
+   "source_frames": [
+    2,
+    40,
+    44,
+    48,
+    54,
+    58,
+    60,
+    88
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  },
+  "stretch-side": {
+   "row": 5,
+   "first_frame": 40,
+   "fps": 29.63,
+   "loop": false,
+   "loop_start": 4,
+   "loop_length": 92,
+   "source_frames": [
+    4,
+    18,
+    20,
+    22,
+    24,
+    22,
+    18,
+    96
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false,
+   "shift": [
+    -26,
+    -3
+   ]
   }
  }
 }

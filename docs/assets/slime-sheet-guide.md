@@ -65,11 +65,15 @@ are in `asset/Originals/characters/slime-v2/README.md`.
   side art faces right and is mirrored for left. Rows never move once filled, so adding a
   page or a row never renumbers existing frames.
 - Page 1: rows 0-5 = idle down/up/side, walk down/up/side; rows 6-7 free.
-- Page 2: rows 0-2 = roll down/up/side (one-shot, timed to the 500 ms dodge); rows 3-7 free.
+- Page 2: rows 0-2 = roll down/up/side (one-shot, timed to the 500 ms dodge); rows 3-5 = stretch
+  (the lash) down/up/side (one-shot, 270 ms; hand-picked frames, the down and side rows drawn
+  shifted in their cells, see the slime-v2 README); rows 6-7 free.
 - The sword swing (`attack-1-down/-up/-side/-left`) has no rows: it reuses page 1's idle art
   and carries a wind-up and a lunge toward the slash in animation keys (`Visual:offset`, plus
-  `Visual:skew` for the side). A `-left` clip exists only when keyed motion has a direction,
-  because flip_h mirrors the art but not an offset.
+  `Visual:skew` for the side). A `-left` clip exists only when keyed motion or a shifted row
+  has a direction, because flip_h mirrors the art but not an offset.
+- The other abilities, eating and knockback (`hop`, `squash`, `teleport`, `eat`, `knockback`) have
+  no rows either: keyed clips pick page 1's cells by pose (`build_player_clips.gd`, `ACTIONS`).
 - Build a page with `python scripts/characters/pack-slime-v2-page.py --page <n>`, then add its
   clips to the Godot player scene with `tools/build_player_clips.gd` (see docs/TOOLING.md). The
   player script plays every clip in the version for its facing (`<clip>-down/-up/-side`, or

@@ -27,6 +27,9 @@ func begin(player: Node, intent: Dictionary, now_ms: float) -> void:
 	_started_ms = now_ms
 	AbilityFx.flash(intent["start"], OUT_COLOR)
 	_player.call(&"action_cue", &"TeleportOut")
+	# The slime turns toward the landing, so it arrives facing the way it went (Phaser keeps the
+	# facing; its side-view art did not show it).
+	_player.call(&"face", intent["direction"])
 	_player.call(&"play_animation", "teleport")
 	_player.call(&"stop_movement")
 	_player.call(&"reset_effects")

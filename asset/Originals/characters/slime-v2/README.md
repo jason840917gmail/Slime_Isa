@@ -11,7 +11,7 @@ adventure games, and is built page by page.
 |---|---|
 | `turnaround-e.png` | The approved reference (candidate E of the second round, about a 55° camera): down, side (facing right), up. Magnific GPT 2.5 with the current slime, Lili and the directional beds sheet as references |
 | `start-down.png`, `start-side.png`, `start-up.png` | Each view of E, scaled to 440 px tall and placed on a flat #FF00FF 1024 px square: the start AND end frame of every clip |
-| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up` |
+| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side` |
 | `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops |
 
 Rebuild a runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` with
@@ -46,7 +46,10 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
 | 0 | roll-down | 16 fps, once (the 500 ms dodge roll) |
 | 1 | roll-up | 16 fps, once |
 | 2 | roll-side | 16 fps, once |
-| 3-7 | free | |
+| 3 | stretch-down | 29.63 fps, once (the lash's 270 ms reach); drawn 37 px higher in its cells |
+| 4 | stretch-up | 29.63 fps, once |
+| 5 | stretch-side | 29.63 fps, once; drawn 26 px left and 3 px higher in its cells |
+| 6, 7 | free | |
 
 - **roll-down and roll-up** are cut from their videos' tumbling stretch (source frames 25-46
   and 30-66). The clips drift sideways and bob, so every frame is centred and stood on the
@@ -60,9 +63,18 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
   Godot `attack-1-<direction>` clips reuse page 1's idle art and carry the swing in keys: a
   wind-up on the row's most squashed frame, then a lunge toward the slash on its most stretched
   frame (`build_player_clips.gd`, `ATTACKS`).
-- **The abilities have no sheet rows either** (owner decision 2026-10-05: keys from the new art,
-  only the stretch lash filmed). `hop`, `squash`, `teleport`, `stretch`, `eat` and `knockback`,
-  each `-down`, `-up` and `-side`, pick page 1's idle and walk cells by pose (`POSES`: rest; low,
+- **The stretch lash is filmed** (rows 3-5). Each take reaches twice and wobbles in between, so
+  the packer uses hand-picked source frames (`PICKS`): neutral, reach, hold, back to neutral (the
+  side pulls back through its reach frames reversed). The down arm hangs below the baseline and
+  the side arm reaches past the cell, so those rows are drawn shifted in their cells (`SHIFTS`,
+  recorded as `shift` in page-2.json) and `build_player_clips.gd` keys `Visual:offset` back by
+  the shift; the shifted side row also gets a mirrored `stretch-left` clip. Down frames whose
+  stretched body and hanging arm span more than a cell (about 270 px) are left out. The up take
+  stretches the sprout itself into the lash. The first side take slid the whole slime off-frame
+  along a long arm; the second ("a short, stubby, rounded jelly arm ... the body itself stays
+  exactly where it is") was kept and the first was not.
+- **The other abilities have no sheet rows** (owner decision 2026-10-05: keys from the new art,
+  only the stretch lash filmed). `hop`, `squash`, `teleport`, `eat` and `knockback`, each `-down`, `-up` and `-side`, pick page 1's idle and walk cells by pose (`POSES`: rest; low,
   the widest cell; tall, the narrowest; an open mouth and a chew for eating) at keyed times
   (`ACTIONS`). The ability sequences' tweens carry the squash, stretch, arc and fade. Measured
   width / height per cell: down low `walk-down` 1 (1.18), tall `idle-down` 3 (0.71); up low
@@ -87,4 +99,5 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
   frame 58, so the packer only uses its frames 58-96.
 
 Cost: 7,080 Magnific credits for page 1, including both turnaround rounds and the discarded
-first batch; 2,640 for page 2's six videos (three rolls, three rejected attacks).
+first batch; 2,640 for page 2's six videos (three rolls, three rejected attacks); 1,760 for the
+four lash videos (one rejected side take).

@@ -16,9 +16,10 @@ For each clip:
    slime sheet's frame 0) and align each clip by its first frame: centred at x 128, bottom at y 251
    of a 256 px cell, so the motion inside the clip is kept.
 
-Pages (PAGES below): 1 = idle and walk, 2 = roll, each facing down, up and side.
-Looping rows (idle, walk) play at 8 * 24 / loop length fps; one-shot rows (roll, attack-1) cut one
-neutral-to-neutral action and are timed to their gameplay duration (ONE_SHOT_MS).
+Pages (PAGES below): 1 = idle and walk, 2 = roll and the stretch lash, each facing down, up and
+side. Looping rows (idle, walk) play at 8 * 24 / loop length fps; one-shot rows (roll, stretch)
+cut one neutral-to-neutral action and are timed to their gameplay duration (ONE_SHOT_MS). The lash
+rows use hand-picked frames (PICKS) and some sit shifted in their cells (SHIFTS) so the reach fits.
 Writes asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp (8 x 8 cells of 256 px, one row per
 clip, unused rows empty) and slime-v2/page-<n>.json (loop choice, fps and looping per row, which
 godot/tools/build_player_clips.gd turns into the player scene's clips).
@@ -55,13 +56,14 @@ BOTTOM = 251
 CENTRE_X = 128
 PAGES = {
     1: ["idle-down", "idle-up", "idle-side", "walk-down", "walk-up", "walk-side"],
-    2: ["roll-down", "roll-up", "roll-side"],
+    2: ["roll-down", "roll-up", "roll-side", "stretch-down", "stretch-up", "stretch-side"],
 }
 # Loop (or one-shot action) length range in source frames, by clip (the row name minus its direction).
 LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24), "roll": (8, 30), "attack-1": (8, 30)}
-# One-shot clips are timed to gameplay: the dodge roll lasts 500 ms (player spec 5.2) and a sword
-# swing 416.67 ms (the basic sword's attack plans).
-ONE_SHOT_MS = {"roll": 500.0, "attack-1": 416.67}
+# One-shot clips are timed to gameplay: the dodge roll lasts 500 ms (player spec 5.2), a sword
+# swing 416.67 ms (the basic sword's attack plans), and the stretch lash's reach 270 ms (a lash that
+# catches nothing is done at 270 ms, abilities spec 8).
+ONE_SHOT_MS = {"roll": 500.0, "attack-1": 416.67, "stretch": 270.0}
 # Source frames a row's loop may use: the side walk turns toward the viewer before frame 58; the
 # down and up rolls tumble only in these stretches.
 WINDOWS = {"walk-side": (58, 97), "roll-down": (25, 46), "roll-up": (30, 66)}
@@ -73,6 +75,19 @@ RECENTRED = {"roll-down", "roll-up"}
 # steps (a right-facing profile rolling right; mirrored, it rolls left), tucked to fit the cell.
 SPINS = {"roll-side": "start-side.png"}
 SPIN_TUCK = 0.88
+# Rows whose 8 source frames are picked by hand: the lash takes reach twice and wobble in between, so
+# no neutral-to-neutral stretch is a clean single lash. Each runs neutral, reach, hold, back to
+# neutral (the side pulls back through its reach frames reversed), and leaves out frames that would
+# not fit a cell or point the wrong way (README, page 2).
+PICKS = {
+    "stretch-down": [22, 37, 43, 44, 44, 43, 80, 81],
+    "stretch-up": [2, 40, 44, 48, 54, 58, 60, 88],
+    "stretch-side": [4, 18, 20, 22, 24, 22, 18, 96],
+}
+# Rows drawn shifted in their cells by (x, y) px so the reach fits: the down lash's arm hangs below
+# the baseline and the side lash's arm reaches past the cell's right edge. The manifest records the
+# shift; build_player_clips.gd keys Visual:offset back by it, so the slime stays where it stands.
+SHIFTS = {"stretch-down": (0, -37), "stretch-side": (-26, -3)}
 
 
 def keyed(path: Path) -> np.ndarray:
@@ -215,11 +230,16 @@ def main() -> None:
             start, length, score, picks = 0, COLUMNS, 0.0, [0] * COLUMNS
             cells = spin_cells(frames[0], still_scale)
         else:
-            start, length, score = best_loop(frames, clip_of(name), WINDOWS.get(name))
-            picks = [start + round(i * length / COLUMNS) for i in range(COLUMNS)]
+            if name in PICKS:
+                picks = PICKS[name]
+                start, length, score = picks[0], picks[-1] - picks[0], 0.0
+            else:
+                start, length, score = best_loop(frames, clip_of(name), WINDOWS.get(name))
+                picks = [start + round(i * length / COLUMNS) for i in range(COLUMNS)]
             row_scale = scale
+            shift = SHIFTS.get(name, (0, 0))
             fx0, _, fx1, fy1 = bbox(frames[start][..., 3])
-            offset = (round(CENTRE_X - (fx0 + fx1) / 2 * row_scale), round(BOTTOM - fy1 * row_scale))
+            offset = (round(CENTRE_X - (fx0 + fx1) / 2 * row_scale) + shift[0], round(BOTTOM - fy1 * row_scale) + shift[1])
             cells = []
             for index in picks:
                 if name in RECENTRED:
@@ -237,6 +257,8 @@ def main() -> None:
             "row": row, "first_frame": row * COLUMNS, "fps": fps, "loop": one_shot_ms is None, "loop_start": start,
             "loop_length": length, "source_frames": picks, "loop_score": round(score, 4), "touches_cell_edge": bool(touches_edge),
         }
+        if name in SHIFTS:
+            manifest["rows"][name]["shift"] = list(SHIFTS[name])
         previews[name] = (cells, fps)
         print(f"{name:10s} loop {start}+{length} ({length / SOURCE_FPS:.2f} s) -> {fps} fps, score {score:.4f}{', TOUCHES CELL EDGE' if touches_edge else ''}")
 

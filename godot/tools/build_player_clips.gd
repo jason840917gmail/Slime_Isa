@@ -6,8 +6,11 @@ extends SceneTree
 ## (asset/Originals/characters/slime-v2/page-N.json, written by
 ## scripts/characters/pack-slime-v2-page.py) and builds one clip per row, named after the row
 ## (`idle-down`, `roll-side`, ...): a discrete `Visual:frame` track over the row's 8 cells at the
-## row's playback fps, looping unless the row says `"loop": false` (the rolls), and a discrete
-## `Visual:texture` track selecting that page.
+## row's playback fps, looping unless the row says `"loop": false` (the rolls, the lash), and a
+## discrete `Visual:texture` track selecting that page. A row the packer drew shifted in its cells
+## (`"shift": [x, y]`, the down and side lash, whose reach would not fit) keys `Visual:offset` back
+## by the shift; a shifted `-side` row also gets a `-left` clip, mirrored with its offset mirrored
+## too (flip_h mirrors the art but not the offset).
 ##
 ## Keyed clips (ATTACKS): `attack-1-down`, `-up`, `-side` and `-left` reuse page 1's idle art and
 ## carry the swing in keys: a wind-up on the row's most squashed frame with a short pull back, then
@@ -15,12 +18,12 @@ extends SceneTree
 ## for the side). `-left` exists because flip_h mirrors the art but not the offset: it is the side
 ## clip mirrored, with a `Visual:flip_h` key so it previews right in the editor.
 ##
-## Keyed action clips (ACTIONS): `hop`, `squash`, `teleport`, `stretch`, `eat` and `knockback`, each
-## `-down`, `-up` and `-side`, pick page 1's idle and walk frames by pose (POSES: rest, low, tall,
-## and for eating an open mouth and a chew). They key frames only: the ability sequences already
-## squash, stretch, lift and fade the art with tweens (game/player/abilities/), so these clips just
-## keep the slime on its top-down art with a matching pose (owner decision 2026-10-05: keys from
-## the new art, a filmed stretch lash later).
+## Keyed action clips (ACTIONS): `hop`, `squash`, `teleport`, `eat` and `knockback`, each `-down`,
+## `-up` and `-side`, pick page 1's idle and walk frames by pose (POSES: rest, low, tall, and for
+## eating an open mouth and a chew). They key frames only: the ability sequences already squash,
+## stretch, lift and fade the art with tweens (game/player/abilities/), so these clips just keep the
+## slime on its top-down art with a matching pose (owner decision 2026-10-05: keys from the new art;
+## only the stretch lash is filmed, page 2's `stretch-*` rows).
 ##
 ## Every other clip, still drawn from the old side-view sheet, gets a `Visual:texture` key for that
 ## sheet, so switching clips always switches to the right texture.
@@ -97,8 +100,6 @@ const ACTIONS := {
 	# Teleport (300 ms; shrinks out by 120 ms, pops back in by 300 ms).
 	"teleport": {"length": 0.3, "keys": [[0.0, "low"], [0.04, "tall"], [0.12, "tall"], [0.2, "low"],
 			[0.26, "rest"]]},
-	# Stretch Lash (the slime leans toward the throw and holds; a filmed lash replaces it).
-	"stretch": {"length": 0.4, "keys": [[0.0, "low"], [0.06, "tall"]]},
 	# Eating (Phaser's clip: 167 ms, the action lock): mouth open, gulp, settle.
 	"eat": {"length": 0.16667, "keys": [[0.0, "open"], [0.07, "chew"], [0.13, "rest"]]},
 	# Knockback (Phaser's clip: 125 ms; the hit flash and the push carry the hit).
@@ -145,13 +146,27 @@ func _build(only: PackedStringArray) -> bool:
 			var row: Dictionary = rows[clip_name]
 			page_rows[clip_name] = {"first_frame": int(row["first_frame"]), "texture": texture}
 			owned.append(clip_name)
+			var shift := Vector2.ZERO
+			if row.has("shift"):
+				shift = Vector2(float(row["shift"][0]), float(row["shift"][1]))
+			var left_name := ""
+			if shift.x != 0.0 and clip_name.ends_with("-side"):
+				left_name = clip_name.trim_suffix("-side") + "-left"
+				owned.append(left_name)
 			if not _selected(clip_name, only):
 				continue
 			var looping := bool(row.get("loop", true))
-			_replace(library, clip_name, _row_clip(int(row["first_frame"]), columns, float(row["fps"]), looping, texture))
+			_replace(library, clip_name, _row_clip(int(row["first_frame"]), columns, float(row["fps"]), looping,
+					texture, visual, shift, false))
 			built += 1
-			print("build_player_clips: %s (frames %d-%d at %s fps%s)" % [clip_name, int(row["first_frame"]),
-					int(row["first_frame"]) + columns - 1, row["fps"], "" if looping else ", once"])
+			print("build_player_clips: %s (frames %d-%d at %s fps%s%s)" % [clip_name, int(row["first_frame"]),
+					int(row["first_frame"]) + columns - 1, row["fps"], "" if looping else ", once",
+					"" if shift == Vector2.ZERO else ", shifted %s" % shift])
+			if not left_name.is_empty():
+				_replace(library, left_name, _row_clip(int(row["first_frame"]), columns, float(row["fps"]), looping,
+						texture, visual, shift, true))
+				built += 1
+				print("build_player_clips: %s (%s mirrored)" % [left_name, clip_name])
 
 	for direction: String in ATTACKS:
 		var clip_name := "%s-%s" % [ATTACK_CLIP, direction]
@@ -208,8 +223,11 @@ func _build(only: PackedStringArray) -> bool:
 	return true
 
 
-## One clip over a page row: `columns` frames at `fps`, starting at `first_frame`.
-func _row_clip(first_frame: int, columns: int, fps: float, looping: bool, texture: Texture2D) -> Animation:
+## One clip over a page row: `columns` frames at `fps`, starting at `first_frame`. A `shift` (texture
+## px the art sits shifted in its cells) is keyed back on `Visual:offset`; `mirrored` makes the
+## `-left` version (flip_h on, the x shift mirrored).
+func _row_clip(first_frame: int, columns: int, fps: float, looping: bool, texture: Texture2D,
+		visual: Sprite2D, shift: Vector2, mirrored: bool) -> Animation:
 	var animation := Animation.new()
 	animation.length = columns / fps
 	animation.loop_mode = Animation.LOOP_LINEAR if looping else Animation.LOOP_NONE
@@ -217,6 +235,11 @@ func _row_clip(first_frame: int, columns: int, fps: float, looping: bool, textur
 	var frames := _discrete_track(animation, "Visual:frame")
 	for column in columns:
 		animation.track_insert_key(frames, column / fps, first_frame + column)
+	if shift != Vector2.ZERO:
+		var back := Vector2(shift.x if mirrored else -shift.x, -shift.y)
+		animation.track_insert_key(_discrete_track(animation, "Visual:offset"), 0.0, visual.offset + back)
+	if mirrored:
+		animation.track_insert_key(_discrete_track(animation, "Visual:flip_h"), 0.0, true)
 	_set_texture_track(animation, texture)
 	return animation
 

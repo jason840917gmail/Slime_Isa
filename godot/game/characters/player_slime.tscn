@@ -1187,8 +1187,8 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_d1ekt"]
-length = 0.4
-step = 0.01
+length = 0.26999662504218697
+step = 0.033749577
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -1196,27 +1196,39 @@ tracks/0/path = NodePath("Visual:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = false
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.06),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.033749577, 0.06749915, 0.10124873, 0.1349983, 0.16874789, 0.20249747, 0.23624705),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [25, 3]
+"values": [24, 25, 26, 27, 28, 29, 30, 31]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Visual:texture")
+tracks/1/path = NodePath("Visual:offset")
 tracks/1/interp = 0
 tracks/1/loop_wrap = false
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("1_yx5q0")]
+"values": [Vector2(-128, -91)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Visual:texture")
+tracks/2/interp = 0
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("3_awx17")]
 }
 
 [sub_resource type="Animation" id="Animation_g3eac"]
-length = 0.4
-step = 0.01
+length = 0.26999662504218697
+step = 0.033749577
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -1224,27 +1236,51 @@ tracks/0/path = NodePath("Visual:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = false
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.06),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.033749577, 0.06749915, 0.10124873, 0.1349983, 0.16874789, 0.20249747, 0.23624705),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [40, 42]
+"values": [40, 41, 42, 43, 44, 45, 46, 47]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Visual:texture")
+tracks/1/path = NodePath("Visual:offset")
 tracks/1/interp = 0
 tracks/1/loop_wrap = false
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("1_yx5q0")]
+"values": [Vector2(-154, -125)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Visual:flip_h")
+tracks/2/interp = 0
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Visual:texture")
+tracks/3/interp = 0
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("3_awx17")]
 }
 
 [sub_resource type="Animation" id="Animation_cgxnl"]
-length = 0.4
-step = 0.01
+length = 0.26999662504218697
+step = 0.033749577
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -1252,10 +1288,50 @@ tracks/0/path = NodePath("Visual:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = false
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.06),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.033749577, 0.06749915, 0.10124873, 0.1349983, 0.16874789, 0.20249747, 0.23624705),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [32, 36]
+"values": [40, 41, 42, 43, 44, 45, 46, 47]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Visual:offset")
+tracks/1/interp = 0
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2(-102, -125)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Visual:texture")
+tracks/2/interp = 0
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("3_awx17")]
+}
+
+[sub_resource type="Animation" id="Animation_4a6xs"]
+length = 0.26999662504218697
+step = 0.033749577
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:frame")
+tracks/0/interp = 0
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.033749577, 0.06749915, 0.10124873, 0.1349983, 0.16874789, 0.20249747, 0.23624705),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [32, 33, 34, 35, 36, 37, 38, 39]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -1267,7 +1343,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("1_yx5q0")]
+"values": [ExtResource("3_awx17")]
 }
 
 [sub_resource type="Animation" id="Animation_9"]
@@ -1570,8 +1646,9 @@ _data = {
 &"squash-up": SubResource("Animation_o3mhb"),
 &"stretch": SubResource("Animation_6"),
 &"stretch-down": SubResource("Animation_d1ekt"),
-&"stretch-side": SubResource("Animation_g3eac"),
-&"stretch-up": SubResource("Animation_cgxnl"),
+&"stretch-left": SubResource("Animation_g3eac"),
+&"stretch-side": SubResource("Animation_cgxnl"),
+&"stretch-up": SubResource("Animation_4a6xs"),
 &"teleport": SubResource("Animation_9"),
 &"teleport-down": SubResource("Animation_3tcyk"),
 &"teleport-side": SubResource("Animation_b8aib"),
