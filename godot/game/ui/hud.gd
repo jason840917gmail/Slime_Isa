@@ -3,7 +3,8 @@ class_name GameHud
 ## Minimal top-left HUD for the trial (Phaser `ui.hud` scene + `HudSurfacePort.ts`). World spec 6.2.
 ## Built by hand: `Coins` label, `Health` bar ("HP %d / %d"), `Energy` bar ("Energy %d / %d") at
 ## (16,16), 284 x 68 CSS px, styles per the spec. Also owns the floating PlayerHealthBar (world
-## spec 6.3). layer = 10, PROCESS_MODE_ALWAYS, every Control `mouse_filter = IGNORE`.
+## spec 6.3) and the BossHealthBar (boss spec 5). layer = 10, PROCESS_MODE_ALWAYS, every Control
+## `mouse_filter = IGNORE`.
 ##
 ## Data: `player.get_hud_snapshot()` once on bind, then on every `player.health_changed`.
 ## Renders new-run defaults (hp/energy at their maxima from game-constants, coins 50) when no
@@ -15,6 +16,7 @@ const Services := preload("res://game/shared/services.gd")
 const PlayerScript := preload("res://game/scripts/player.gd")
 const PlayerHealthBar := preload("res://game/ui/player_health_bar.gd")
 const HudBar := preload("res://game/ui/hud_bar.gd")
+const BossHealthBar := preload("res://game/ui/boss_health_bar.gd")
 
 ## Layout (CSS px; `offsetMin [16,16]`, `offsetMax [300,84]` in ui/hud.scene.json).
 const ROOT_POSITION := Vector2(16.0, 16.0)
@@ -37,6 +39,7 @@ var _coins_label: Label
 var _health_bar: HudBar
 var _energy_bar: HudBar
 var _floating_bar: PlayerHealthBar
+var _boss_bar: BossHealthBar
 
 
 ## Builds the controls and the PlayerHealthBar child; layer 10; PROCESS_MODE_ALWAYS.
@@ -45,6 +48,11 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
 	refresh(_default_snapshot())
+
+
+## The boss health bar (res://game/ui/boss_health_bar.gd).
+func get_boss_bar() -> BossHealthBar:
+	return _boss_bar
 
 
 ## Subscribes to `player.health_changed` and `player.respawned`, reads the snapshot, binds the
@@ -148,6 +156,11 @@ func _build() -> void:
 	_floating_bar = PlayerHealthBar.new()
 	_floating_bar.name = "PlayerHealthBar"
 	add_child(_floating_bar)
+
+	# The boss health bar (boss spec 5); it binds itself to every camp in the "boss_camp" group.
+	_boss_bar = BossHealthBar.new()
+	_boss_bar.name = "BossHealthBar"
+	add_child(_boss_bar)
 
 
 func _make_bar(node_name: String, rect: Rect2, label: String, tone: Color) -> HudBar:

@@ -31,9 +31,12 @@ res://game/main.tscn (main.gd)                         bootstrap
            BasicSword (weapon.basic-sword)          <- mounted by PlayerCombat.equip(), last child, at (0,-27.56)
                ... WeaponScript (weapon.gd), SwingSfx
        WormSwordsman xN (character.worm-swordsman)  <- EnemyPopulation, EnemyScript (enemy.gd)
+       level-1-fatty-one-eye-camp (encounter) > BossCampScript (boss_camp.gd)
+       FattyOneEye (character.fatty-one-eye)        <- spawned by the camp, FattyScript (fatty.gd)
+       AttackTelegraph (attack_telegraph.gd, z -1)  <- a boss's ground warning while it lasts
        effect holders (Node2D) > BasicSwordImpact (effect.gd)  <- EffectSpawner
   WorldCamera (world_camera.gd, ALWAYS, priority 100)
-  Hud (CanvasLayer 10, hud.gd) > PlayerHealthBar (player_health_bar.gd)
+  Hud (CanvasLayer 10, hud.gd) > PlayerHealthBar (player_health_bar.gd), BossHealthBar (boss_health_bar.gd)
   FpsReadout (CanvasLayer 100, fps_readout.gd)
   ArrivalFade (CanvasLayer 5, runtime)      EnemyPopulation (enemy_population.gd, runtime)
 GameFeel children: FloatingTextLayer (CanvasLayer 8), ParticleFx (Node2D, high z)
@@ -41,7 +44,7 @@ GameFeel children: FloatingTextLayer (CanvasLayer 8), ParticleFx (Node2D, high z
 
 Design rules:
 - **Scene scripts** live in `game/scripts/` and only there. A file there is a converter-visible script id (`game.<kebab>` → `<snake>.gd`). The converter attaches the file and writes exactly the `@export`s it declares. Do not add or remove files in `game/scripts/` without the architect or integrator.
-- **No inheritance between scene scripts.** The converter reads only the target file's `@export var` lines, so every export is declared in the file itself. `character.gd` is therefore deliberately absent. Shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
+- **Inheritance between scene scripts only where Phaser has it.** The converter merges the `@export`s along a script's `extends` chain, so a port may extend another scene script exactly when the Phaser script does: `fatty.gd` extends `enemy.gd` (FattyScript extends EnemyScript) and overrides its hooks (`_after_enemy_step`, `_attack_area_reach`, `_can_run_common_attack`, ...). There is still no `character.gd`: shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
 - **Static helpers** are `extends RefCounted` files with static funcs: perimeter, directions, feet anchor, resolver, scaling, AI, wander policy, aim and bounds. Small stateful helpers are RefCounted instances: input buffer, squash, territory, attack lifecycle, combo and activations.
 - **Autoloads are reached only through `res://game/shared/services.gd`**, as `Services.router()`, `Services.world()`, `Services.feel()`, `Services.constants()`, `Services.clock()`, `Services.run()` and `Services.now_ms()`. This was verified on 4.7.2: the headless `--check-only -s` does **not** know autoload names, so a bare `DamageRouter.route(...)` fails the check with "Identifier not found". The getters are typed, so calls are still statically checked.
 - **Cross-file types**: `const X := preload("res://...")`, where X equals the file's `class_name`. Autoload scripts have no `class_name`, because a class_name equal to an autoload name is an error. Preload cycles (`player.gd` ↔ `player_combat.gd`, `services.gd` ↔ the autoloads) were tested and are fine.
@@ -108,8 +111,12 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.world-definition` → `scripts/world_definition.gd` | `map_id, tile_size, columns, rows, metadata, camera_mode` | — | — |
 | `game.world-area` → `scripts/world_area.gd` | `area_kind, area_id, area, data, shape, stay_shape` | — | — |
 | `game.world-exit` → `scripts/world_exit.gd` | `map_id, exit_id, target_area_id, entry, area, gate`; *`arrival_grace_ms`=-1* | `navigation_resolved` | `on_body_entered(body)` |
+| `game.fatty` → `scripts/fatty.gd` (extends `enemy.gd`; `character.fatty-one-eye`) | the `game.enemy` exports + `contact_attack, landing_zone, contact_hop_cooldown_ms, contact_hop_duration_ms, leap_cadence_ms, small_hop_count, small_hop_duration_ms, between_hops_ms, air_time_ms, recovery_ms, landing_damage, landing_knockback_strength, landing_effect_id, landing_shake_ms, landing_shake_intensity` | the enemy signals + `phase_changed` | — |
+| `game.boss-camp` → `scripts/boss_camp.gd` (`encounter.level-1-fatty-camp`) | `map_id, camp_id, boss_id, boss_scene, activation_area, arena_area, active_bosses, guarded_chest, guarded_chest_instance_id, respawn_ms, spawn` | `boss_spawn_requested, boss_defeated, guard_changed`; *`boss_engaged, boss_disengaged`* | — |
 
-Every other script id stays on the converter's `unported_script.gd`. In level-1 that covers `game.door`, `game.story-variant`, the encounter's `game.boss-camp`, collectibles and resource nodes. `game.matron` and `game.fatty` are separate ids. `game.web-patch` and `game.projectile` are not ported.
+Every other script id stays on the converter's `unported_script.gd`. In level-1 that covers `game.door`, `game.story-variant`, the guarded chest's `game.chest`, collectibles and resource nodes. `game.matron` (a separate boss id), `game.web-patch` and `game.projectile` are not ported.
+
+Boss camps ([specs/boss.md](./specs/boss.md)) spawn their boss under the world root when the player centre enters the activation circle, hand it the arena (`EnemyScript.configure_arena`), keep their respawn timer and the defeated boss ids in RunState (`map_record(map_id)["boss_camps"]`, `world["defeated_boss_ids"]`), reset the fight when the player's `defeated` fires, and join the group `boss_camp`; the HUD's `BossHealthBar` binds itself to every camp in that group, and a later quest system listens to `boss_defeated` there.
 
 ## 7. Bootstrap (main.gd `_ready`, world spec 1.2)
 
@@ -201,6 +208,12 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/enemy/camp_territory.gd` | enemy | |
 | `game/enemy/attack_lifecycle.gd` | enemy | |
 | `game/enemy/enemy_population.gd` | enemy | |
+| `game/scripts/fatty.gd` | boss | Fatty One Eye's phases on top of `enemy.gd` ([specs/boss.md](./specs/boss.md)) |
+| `game/scripts/boss_camp.gd` | boss | Activation, spawn, defeat, respawn and reset of a boss camp |
+| `game/bosses/boss_arena.gd` | boss | `BossCampBehavior.ts`: perimeters, clamp, containment, spawn eligibility |
+| `game/bosses/area_shapes.gd` | boss | World-space shapes of an Area2D and their overlap tests (attack areas vs the player's hurtbox) |
+| `game/bosses/attack_telegraph.gd` | boss | Ground warnings (`AttackTelegraphs.ts`), one per attacker |
+| `game/ui/boss_health_bar.gd` | boss | The boss bar on the HUD layer (`BossHealthSurfacePort.ts`) |
 | `game/combat/damage_router.gd` | combat | Autoload |
 | `game/combat/damage_resolver.gd` | combat | |
 | `game/combat/attack_activations.gd` | combat | |
@@ -224,6 +237,7 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 
 - **player →** combat (`Services.router().register_area/unregister_area`, `PlayerCombat.try_attack`, `HitFlash.*`, `GameFeel.play/floating_text/particles/audio_cue`); world (`Services.world().player_spawn_point()`, `Services.constants()`, `Services.now_ms()`).
 - **enemy →** combat (router `register_area/unregister_area/begin_activation/end_activation/route`, `HitFlash.*`, `GameFeel.floating_text`); world (`primary_target`, `line_of_sight`, `spawn_at_phaser_position`, `Perimeter.*`, `FeetAnchor.*`); player (via `primary_target`: `hurtbox`, `active`).
+- **boss →** enemy (`fatty.gd` extends `enemy.gd`; the camp calls `configure_arena`); combat (router `begin_activation/route/end_activation` through `_route_immediate_attack`); world (`spawn_at_phaser_position`, `entities_root`, `primary_target`, `player_registered`, `Services.run()` records); feel (`shake`, `particles`, `floating_text`, `audio_cue`, `play`); player (its `defeated` signal resets the fight). The HUD's `BossHealthBar` reads the camps (group `boss_camp`) and the boss's `get_damage_state`.
 - **combat →** player (`get_facing`, `is_dead`, `is_action_locked`, `set_action_locked`, `stop_movement`, `play_animation`, `get_damage_area`; PlayerScript is the wielder receiver); world (`instantiate_scene`, `entities_root`, `set_pause_reason`, `camera.shake`, `constants`).
 - **world →** player (`get_centre`, `is_dead`, `get_hud_snapshot`, `health_changed`, `respawned`, `set_combat`, `RESPAWN_PAN_MS`); combat (`PlayerCombat.new/setup/equip`); enemy (`EnemyPopulation.setup/allowed_types/seed_initial`).
 
