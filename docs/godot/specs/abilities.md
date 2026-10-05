@@ -1479,6 +1479,5 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
   the restoration candidate (priority 89); `interact` dispatch precedes the abilities (§3.2).
 - **combat** (`combat.md`): router listing (optional), `PlayerCombat` shares `_action_locked`.
 - **Quests [OUT]**: ability rewards, restoration `questId`, `object.activated`.
-- **Art**: done (keyed ability clips, the filmed stretch lash, the shader form skins O-G1). The
-  player's `die`, `doze` and `sleep` still draw the old side-view sheet: they need closed-eye
-  top-down art.
+- **Art**: done (keyed ability clips, the filmed stretch lash, the shader form skins O-G1); the
+  player's doze, sleep and defeat are filmed too, so no player clip uses the old sheet.

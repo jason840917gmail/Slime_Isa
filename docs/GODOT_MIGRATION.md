@@ -187,7 +187,9 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   scene Godot owns ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)),
   with page 1 of the new slime (idle and walk facing down, up and side; idle
   keeps the last facing). The playground runs with F6 from `game/dev/playground.tscn`.
-  Page 2 (2026-10-05) adds the roll and the attack swing for every direction.
+  Page 2 (2026-10-05) adds the roll and the attack swing for every direction, then the
+  abilities, the stretch lash, the doze, sleep and defeat: no player clip uses the old
+  side-view sheet any more.
 - The player's abilities are ported (2026-10-05, [godot/specs/abilities.md](./godot/specs/abilities.md)):
   energy, jump, dodge, stretch lash, squash slam, teleport, Gulp forms (eat stone to turn Heavy or silk to
   turn Sticky for a while), the Goo Trail passive, and their puzzle pieces (training dummy,

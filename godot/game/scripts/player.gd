@@ -1297,6 +1297,8 @@ func _die() -> void:
 	_close_eat_hold()
 	_dead = true
 	_knockback_anim_until_ms = 0.0
+	# The top-down defeat faces the viewer only (die-down): the slime turns to the camera as it falls.
+	face(Vector2.DOWN)
 	play_animation(CLIP_DIE, true)
 	stop_movement()
 	var feel := Services.feel()

@@ -64,10 +64,12 @@ are in `asset/Originals/characters/slime-v2/README.md`.
 - One row per clip and direction, 8 frames, named `<clip>-down`, `<clip>-up`, `<clip>-side`;
   side art faces right and is mirrored for left. Rows never move once filled, so adding a
   page or a row never renumbers existing frames.
-- Page 1: rows 0-5 = idle down/up/side, walk down/up/side; rows 6-7 free.
+- Page 1: rows 0-5 = idle down/up/side, walk down/up/side; row 6 = doze-down (one-shot, 1 s);
+  row 7 = sleep-down (loop).
 - Page 2: rows 0-2 = roll down/up/side (one-shot, timed to the 500 ms dodge); rows 3-5 = stretch
   (the lash) down/up/side (one-shot, 270 ms; hand-picked frames, the down and side rows drawn
-  shifted in their cells, see the slime-v2 README); rows 6-7 free.
+  shifted in their cells, see the slime-v2 README); row 6 = die-down (one-shot, 1 s, drawn at
+  0.9 scale so the puddle fits); row 7 free.
 - The sword swing (`attack-1-down/-up/-side/-left`) has no rows: it reuses page 1's idle art
   and carries a wind-up and a lunge toward the slash in animation keys (`Visual:offset`, plus
   `Visual:skew` for the side). A `-left` clip exists only when keyed motion or a shifted row
@@ -77,4 +79,6 @@ are in `asset/Originals/characters/slime-v2/README.md`.
 - Build a page with `python scripts/characters/pack-slime-v2-page.py --page <n>`, then add its
   clips to the Godot player scene with `tools/build_player_clips.gd` (see docs/TOOLING.md). The
   player script plays every clip in the version for its facing (`<clip>-down/-up/-side`, or
-  `-left`) and keeps that facing when idle; clips without one still draw the old sheet.
+  `-left`) and keeps that facing when idle. Doze, sleep and the defeat exist facing down only,
+  and the player turns to the camera before them. The old sheet is no longer used by the player
+  (every clip of `player_slime.tscn` draws a v2 page).

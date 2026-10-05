@@ -16,10 +16,13 @@ For each clip:
    slime sheet's frame 0) and align each clip by its first frame: centred at x 128, bottom at y 251
    of a 256 px cell, so the motion inside the clip is kept.
 
-Pages (PAGES below): 1 = idle and walk, 2 = roll and the stretch lash, each facing down, up and
-side. Looping rows (idle, walk) play at 8 * 24 / loop length fps; one-shot rows (roll, stretch)
-cut one neutral-to-neutral action and are timed to their gameplay duration (ONE_SHOT_MS). The lash
-rows use hand-picked frames (PICKS) and some sit shifted in their cells (SHIFTS) so the reach fits.
+Pages (PAGES below): 1 = idle and walk (each facing down, up and side), then doze and sleep
+(facing down); 2 = roll and the stretch lash (down, up, side), then the defeat (facing down).
+Looping rows (idle, walk, sleep) play at 8 * 24 / loop length fps; one-shot rows (roll, stretch,
+doze, die) cut one action and are timed to their gameplay duration (ONE_SHOT_MS). Rows in PICKS use
+hand-picked frames (the lash, the doze and the defeat), and some sit shifted in their cells
+(SHIFTS) so the reach fits. A page is always packed whole from its clips: the sheet is a lossy
+WebP, so redrawing rows into an existing sheet would re-encode (and degrade) the others.
 Writes asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp (8 x 8 cells of 256 px, one row per
 clip, unused rows empty) and slime-v2/page-<n>.json (loop choice, fps and looping per row, which
 godot/tools/build_player_clips.gd turns into the player scene's clips).
@@ -55,18 +58,19 @@ TARGET_WIDTH = 186
 BOTTOM = 251
 CENTRE_X = 128
 PAGES = {
-    1: ["idle-down", "idle-up", "idle-side", "walk-down", "walk-up", "walk-side"],
-    2: ["roll-down", "roll-up", "roll-side", "stretch-down", "stretch-up", "stretch-side"],
+    1: ["idle-down", "idle-up", "idle-side", "walk-down", "walk-up", "walk-side", "doze-down", "sleep-down"],
+    2: ["roll-down", "roll-up", "roll-side", "stretch-down", "stretch-up", "stretch-side", "die-down"],
 }
 # Loop (or one-shot action) length range in source frames, by clip (the row name minus its direction).
-LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24), "roll": (8, 30), "attack-1": (8, 30)}
+LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24), "roll": (8, 30), "attack-1": (8, 30), "sleep": (30, 72)}
 # One-shot clips are timed to gameplay: the dodge roll lasts 500 ms (player spec 5.2), a sword
 # swing 416.67 ms (the basic sword's attack plans), and the stretch lash's reach 270 ms (a lash that
-# catches nothing is done at 270 ms, abilities spec 8).
-ONE_SHOT_MS = {"roll": 500.0, "attack-1": 416.67, "stretch": 270.0}
+# catches nothing is done at 270 ms, abilities spec 8); the doze and the defeat keep Phaser's 1 s
+# clips (the sleep controller dozes for the doze clip's length).
+ONE_SHOT_MS = {"roll": 500.0, "attack-1": 416.67, "stretch": 270.0, "doze": 1000.0, "die": 1000.0}
 # Source frames a row's loop may use: the side walk turns toward the viewer before frame 58; the
-# down and up rolls tumble only in these stretches.
-WINDOWS = {"walk-side": (58, 97), "roll-down": (25, 46), "roll-up": (30, 66)}
+# down and up rolls tumble only in these stretches; the sleeper perks its sprout up after frame 72.
+WINDOWS = {"walk-side": (58, 97), "roll-down": (25, 46), "roll-up": (30, 66), "sleep-down": (0, 72)}
 # Rows whose clip drifts sideways (the rolls): each frame is centred and stood on the baseline on
 # its own (in play the body moves during a dodge anyway). They keep the page scale: a tumble changes
 # the slime's shape, not its size.
@@ -83,7 +87,15 @@ PICKS = {
     "stretch-down": [22, 37, 43, 44, 44, 43, 80, 81],
     "stretch-up": [2, 40, 44, 48, 54, 58, 60, 88],
     "stretch-side": [4, 18, 20, 22, 24, 22, 18, 96],
+    # Awake, a blink, heavy eyes, closed, the yawn, settling, the leaves drooping, asleep (the sleep
+    # still the sleep row loops on).
+    "doze-down": [4, 12, 34, 38, 56, 70, 80, 96],
+    # The take opens with a hand poking the slime (frames 2-20), so the defeat starts at frame 56:
+    # the flinch, the squeezed > < eyes, the melt and the puddle it ends on.
+    "die-down": [56, 62, 66, 68, 70, 72, 76, 96],
 }
+# Rows drawn smaller than the page scale: the defeat's puddle (276 px at page scale) must fit a cell.
+ROW_SCALES = {"die-down": 0.9}
 # Rows drawn shifted in their cells by (x, y) px so the reach fits: the down lash's arm hangs below
 # the baseline and the side lash's arm reaches past the cell's right edge. The manifest records the
 # shift; build_player_clips.gd keys Visual:offset back by it, so the slime stays where it stands.
@@ -236,7 +248,7 @@ def main() -> None:
             else:
                 start, length, score = best_loop(frames, clip_of(name), WINDOWS.get(name))
                 picks = [start + round(i * length / COLUMNS) for i in range(COLUMNS)]
-            row_scale = scale
+            row_scale = scale * ROW_SCALES.get(name, 1.0)
             shift = SHIFTS.get(name, (0, 0))
             fx0, _, fx1, fy1 = bbox(frames[start][..., 3])
             offset = (round(CENTRE_X - (fx0 + fx1) / 2 * row_scale) + shift[0], round(BOTTOM - fy1 * row_scale) + shift[1])
@@ -259,6 +271,8 @@ def main() -> None:
         }
         if name in SHIFTS:
             manifest["rows"][name]["shift"] = list(SHIFTS[name])
+        if name in ROW_SCALES:
+            manifest["rows"][name]["row_scale"] = ROW_SCALES[name]
         previews[name] = (cells, fps)
         print(f"{name:10s} loop {start}+{length} ({length / SOURCE_FPS:.2f} s) -> {fps} fps, score {score:.4f}{', TOUCHES CELL EDGE' if touches_edge else ''}")
 
@@ -268,11 +282,13 @@ def main() -> None:
 
     if args.preview:
         ticks = []
-        for tick in range(72):  # 3 s at 24 fps, six loops in a 3 x 2 grid on the meadow green
-            canvas = Image.new("RGBA", (CELL * 3, CELL * 2), (58, 74, 52, 255))
+        for tick in range(72):  # 3 s at 24 fps, the clips three to a row on the meadow green
+            canvas = Image.new("RGBA", (CELL * 3, CELL * ((len(rows) + 2) // 3)), (58, 74, 52, 255))
             for slot, name in enumerate(rows):
                 cells, fps = previews[name]
-                canvas.alpha_composite(cells[int(tick / 24 * fps) % COLUMNS], ((slot % 3) * CELL, (slot // 3) * CELL))
+                cells_shown = int(tick / 24 * fps)
+                column = cells_shown % COLUMNS if manifest["rows"][name]["loop"] else min(cells_shown, COLUMNS - 1)
+                canvas.alpha_composite(cells[column], ((slot % 3) * CELL, (slot // 3) * CELL))
             ticks.append(canvas.convert("RGB").quantize(colors=255, method=Image.Quantize.MEDIANCUT))
         ticks[0].save(args.preview, save_all=True, append_images=ticks[1:], duration=42, loop=0)
 

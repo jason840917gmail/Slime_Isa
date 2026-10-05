@@ -67,6 +67,9 @@ func sleep(request: Dictionary) -> bool:
 	var sleep_point: Vector2 = request["sleep_point"]
 	_player.call(&"teleport", wake_point)
 	_player.call(&"set_art_offset", sleep_point - wake_point)
+	# The top-down doze and sleep clips face the viewer only (doze-down, sleep-down): the sleeper
+	# turns to the camera, and wakes facing it.
+	_player.call(&"face", Vector2.DOWN)
 	_phase = "dozing"
 	_phase_ends_at = _started_at + float(_player.call(&"clip_length_ms_of", CLIP_DOZE))
 	_player.call(&"play_animation", CLIP_DOZE, true)
