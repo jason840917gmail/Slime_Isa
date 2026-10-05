@@ -54,9 +54,16 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
 | 6 | die-down | 8 fps, once (Phaser's 1 s defeat): a flinch, squeezed > < eyes, the melt into a puddle; drawn at 0.9 of the page scale so the puddle fits a cell |
 | 7 | free | |
 
-- **roll-down and roll-up** are cut from their videos' tumbling stretch (source frames 25-46
-  and 30-66). The clips drift sideways and bob, so every frame is centred and stood on the
-  baseline on its own (in play the body moves during a dodge anyway).
+- **roll-down and roll-up are true front and back rolls** (re-filmed 2026-10-05: the first takes
+  spun the slime sideways like a wheel, its sprout swinging round to the side). A ball rolling
+  toward the camera moves everything on it DOWN the screen: the sprout folds over the face, the
+  face slides under, the back rolls over, the face comes back from the top. Rolling away moves
+  everything UP. The prompts said so in screen terms ("everything on the ball moves straight down
+  the screen ... never a sideways spin"); of two takes each, the down take rolled the right way
+  only backwards (its features slide up), so `PICKS` plays its frames in reverse
+  (36, 33, 30, 27, 22, 15, 10, 4); the up take's first roll is used as filmed (8-34). The other
+  takes (a sprout that came off, sparkles) were not kept. Every frame is centred and stood on the
+  baseline on its own (`RECENTRED`): the takes bob and hop, and in play the body moves anyway.
 - **roll-side is baked, not filmed.** Its video turned the slime toward the camera mid-roll, so
   the packer spins `start-side.png` clockwise in 45° steps (tucked to 88 % so the turned shape
   fits the cell): a right-facing slime rolling right; mirrored, it rolls left. The rejected take
@@ -113,4 +120,4 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
 Cost: 7,080 Magnific credits for page 1, including both turnaround rounds and the discarded
 first batch; 2,640 for page 2's six videos (three rolls, three rejected attacks); 1,760 for the
 four lash videos (one rejected side take); 1,720 for the rest and the defeat (four stills at 100,
-three videos).
+three videos); 1,760 for the re-filmed down and up rolls (two takes each).

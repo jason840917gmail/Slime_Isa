@@ -66,7 +66,8 @@ are in `asset/Originals/characters/slime-v2/README.md`.
   page or a row never renumbers existing frames.
 - Page 1: rows 0-5 = idle down/up/side, walk down/up/side; row 6 = doze-down (one-shot, 1 s);
   row 7 = sleep-down (loop).
-- Page 2: rows 0-2 = roll down/up/side (one-shot, timed to the 500 ms dodge); rows 3-5 = stretch
+- Page 2: rows 0-2 = roll down/up/side (one-shot, timed to the 500 ms dodge; down and up are
+  true front and back rolls, the side roll is spun in the picture); rows 3-5 = stretch
   (the lash) down/up/side (one-shot, 270 ms; hand-picked frames, the down and side rows drawn
   shifted in their cells, see the slime-v2 README); row 6 = die-down (one-shot, 1 s, drawn at
   0.9 scale so the puddle fits); row 7 free.
