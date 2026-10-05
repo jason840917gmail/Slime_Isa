@@ -88,6 +88,17 @@ func play_cue(payload: Variant = null) -> void:
 func stop_cue(payload: Variant = null) -> void:
 	if not CueRules.payload_matches(payload_filter, payload):
 		return
+	_stop_all()
+
+
+## Stops every voice and forgets the last accepted one-shot, so `min_interval_ms` cannot drop the
+## next `play_cue` (`stop()` keeps it); see SfxPlayer.reset_cue (tests).
+func reset_cue() -> void:
+	_last_accepted_ms = -1
+	_stop_all()
+
+
+func _stop_all() -> void:
 	_loop_wanted = false
 	stop()
 	for clone in _clones:

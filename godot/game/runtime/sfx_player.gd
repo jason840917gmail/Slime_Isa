@@ -73,3 +73,12 @@ func stop_cue(payload: Variant = null) -> void:
 		return
 	_loop_wanted = false
 	stop()
+
+
+## Stops every voice and forgets the last accepted one-shot, so `min_interval_ms` cannot drop the
+## next `play_cue` (`stop()` keeps it). Tests start a "did it play?" check from here: a shared
+## player can carry a cue from the previous test that a fast run puts within the interval.
+func reset_cue() -> void:
+	_last_accepted_ms = -1
+	_loop_wanted = false
+	stop()

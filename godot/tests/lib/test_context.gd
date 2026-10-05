@@ -124,6 +124,20 @@ func disconnect_all() -> void:
 	_connections.clear()
 
 
+# --- audio -------------------------------------------------------------------------------------
+
+## Stops a cue player before a "did it play?" check. A cue player (SfxPlayer, SfxPlayer2D) also
+## forgets its last cue, so its `min_interval_ms` cannot drop the next one: a player shared across
+## tests can carry a cue from the previous test that a fast run puts within the interval.
+static func silence(player: Node) -> void:
+	if player.has_method(&"reset_cue"):
+		player.call(&"reset_cue")
+	elif player is AudioStreamPlayer:
+		(player as AudioStreamPlayer).stop()
+	elif player is AudioStreamPlayer2D:
+		(player as AudioStreamPlayer2D).stop()
+
+
 # --- input -------------------------------------------------------------------------------------
 
 ## Pushes a press of `action` through the root viewport (reaches `_unhandled_input`).

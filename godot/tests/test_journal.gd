@@ -278,7 +278,7 @@ func test_open_paths_and_close(t: TestContext) -> void:
 	t.check(bool(_quests(t).accept(PLACE, ELDER_ID).get("ok")), "accept refused")
 	journal.open()
 	var select_cue := journal.select_sfx
-	select_cue.stop()
+	TestContext.silence(select_cue)
 	var row := _row(journal, 1)
 	if t.check(row != null, "no second row"):
 		row.pressed.emit()
@@ -390,7 +390,7 @@ static func _cue(cue: StringName) -> AudioStreamPlayer:
 	feel.warm_up()
 	var player := feel.get_node_or_null(NodePath("GlobalAudio/Effects/" + String(cue))) as AudioStreamPlayer
 	if player != null:
-		player.stop()
+		TestContext.silence(player)
 	return player
 
 

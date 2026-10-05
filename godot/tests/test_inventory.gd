@@ -193,7 +193,7 @@ func test_use_potion(t: TestContext) -> void:
 		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), player.get_centre() - Vector2(0.0, 30.0), 0.01, "heal text position")
 	t.check(heal != null and heal.playing, "Heal did not play")
 	if heal != null:
-		heal.stop()
+		TestContext.silence(heal)
 	player.restore_run_state({"hp": 100})
 	bag.primary_button.pressed.emit()
 	t.equal(player.get_hp(), 100, "HP at full health")
@@ -216,7 +216,7 @@ func test_berry_basket_and_energy(t: TestContext) -> void:
 	t.check(restore != null and restore.playing, "EnergyRestore did not play")
 	t.equal(run.item_count("berry-basket"), 0, "baskets left")
 	if restore != null:
-		restore.stop()
+		TestContext.silence(restore)
 	player.set_energy(95.0)
 	t.equal(str(bag.model()["details_name"]), "Fizzy Brew", "the selection after the basket")
 	bag.primary_button.pressed.emit()
@@ -381,7 +381,7 @@ static func _cue(cue: StringName) -> AudioStreamPlayer:
 	feel.warm_up()
 	var player := feel.get_node_or_null(NodePath("GlobalAudio/Effects/" + String(cue))) as AudioStreamPlayer
 	if player != null:
-		player.stop()
+		TestContext.silence(player)
 	return player
 
 

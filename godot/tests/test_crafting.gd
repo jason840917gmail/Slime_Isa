@@ -364,5 +364,5 @@ static func _cue(cue: StringName) -> AudioStreamPlayer:
 	feel.warm_up()
 	var player := feel.get_node_or_null(NodePath("GlobalAudio/Effects/" + String(cue))) as AudioStreamPlayer
 	if player != null:
-		player.stop()
+		TestContext.silence(player)
 	return player
