@@ -8,7 +8,8 @@
  *   resources/terrain_tileset.tres   the `terrain.tiles` TileSet
  *   resources/ui_theme.tres          a minimal Theme from `ui.field-kit.theme`
  *   scene_index.json                 { sceneId: res:// path }
- *   data/*.json                      game constants, enemy types, items, layers
+ *   data/*.json                      game constants, enemy types, items, layers, and data
+ *                                    exported from TS content modules (NPC definitions)
  *   conversion_report.json           dropped properties, unported scripts, warnings
  *
  * Scene JSON stays the source of truth until Phase 1 ends: fix content there
@@ -23,7 +24,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { dirname, join, relative, sep } from 'node:path';
 import {
   DATA_COPIES, GENERATED_ROOT, GODOT_ROOT, loadAssetManifest, loadCollisionLayers, loadScenes,
-  loadSharedResources, readDataCopy, sceneResPath,
+  loadSharedResources, readDataCopy, readTsDataExports, sceneResPath,
 } from './lib/inputs.mjs';
 import { AssetCatalog } from './lib/assets.mjs';
 import { ScriptIndex, scriptResPath } from './lib/gdscript.mjs';
@@ -37,6 +38,8 @@ import { scriptIdOf } from './lib/script-props.mjs';
 import { writeTres } from './lib/tscn.mjs';
 
 const checkOnly = process.argv.includes('--check');
+/** Data exported from TS content modules (`TS_DATA_EXPORTS`), loaded once before `generate`. */
+const TS_DATA = await readTsDataExports();
 
 /** Everything a scene conversion may look up, shared across scenes. */
 function createProject() {
@@ -142,6 +145,7 @@ function generate() {
   for (const [sceneId, sceneReport] of reports) sceneReport.setExpectedTreeNodes(treeSize(sceneId));
   outputs.set('scene_index.json', json(Object.fromEntries(Object.entries(index).sort(([a], [b]) => a.localeCompare(b)))));
   for (const [source, target] of DATA_COPIES) outputs.set(`data/${target}`, readDataCopy(source));
+  for (const [target, text] of TS_DATA) outputs.set(`data/${target}`, text);
   outputs.set('conversion_report.json', json(report.toJSON()));
   return { outputs, report: report.toJSON() };
 }

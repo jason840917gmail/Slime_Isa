@@ -5,7 +5,7 @@
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 export const AUTHORED_ROOT = join(REPO_ROOT, 'src', 'game', 'content', 'scenes', 'authored');
@@ -78,6 +78,28 @@ export function readDataCopy(source) {
   const path = join(CONTENT_ROOT, source);
   if (!existsSync(path)) throw new Error(`Data file '${source}' is missing under src/game/content`);
   return readFileSync(path, 'utf8');
+}
+
+/**
+ * Data the port reads from TypeScript content modules: [module under src/game/content, exported
+ * constant, target name in `generated/data/`]. Only self-contained modules (no imports): Node 24
+ * strips their types on import.
+ */
+export const TS_DATA_EXPORTS = [
+  ['npcs/NpcDefinitions.ts', 'NPC_DEFINITIONS', 'npc-definitions.json'],
+];
+
+/** `TS_DATA_EXPORTS` as [target, JSON text] pairs. */
+export async function readTsDataExports() {
+  const outputs = [];
+  for (const [source, exportName, target] of TS_DATA_EXPORTS) {
+    const path = join(CONTENT_ROOT, source);
+    if (!existsSync(path)) throw new Error(`Data module '${source}' is missing under src/game/content`);
+    const module = await import(pathToFileURL(path).href);
+    if (!(exportName in module)) throw new Error(`Data module '${source}' has no export '${exportName}'`);
+    outputs.push([target, `${JSON.stringify(module[exportName], null, 2)}\n`]);
+  }
+  return outputs;
 }
 
 export function loadCollisionLayers() {
