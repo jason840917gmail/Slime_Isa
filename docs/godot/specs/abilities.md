@@ -44,16 +44,15 @@ plates and cracked ground, the tint fallback, the timer and `[Q] Gulp` hint), an
 scripts of section 13 (gulp spot, pressure plate, cracked ground, lash bell, ability lesson,
 training dummy, Goo Heart, restoration site; the last two use the interaction controller).
 Later the same day: the status effects with the web root (`game/player/status_effects.gd`), the Goo
-Trail passive (`game/player/goo_trail.gd`) and the ability bar on the HUD (`game/ui/ability_bar.gd`,
-§2.6).
+Trail passive (`game/player/goo_trail.gd`), the ability bar on the HUD (`game/ui/ability_bar.gd`,
+§2.6), the Gulp quick wheel (`game/player/gulp/gulp_wheel.gd`, §11.6; the hold runs on the
+simulation clock and a window closes it) and the form badge on the Gulp timer.
 Tests: `test_abilities.gd`, `test_gulp.gd`, `test_world_puzzles.gd` (the last two run in the
 playground through the runner's per-file `MAP_ID`), `test_status.gd`, `test_goo_trail.gd`,
 `test_ability_bar.gd`.
 
 Differences from this spec's Phaser behaviour, until decided otherwise:
 - Sequence milestones run on the simulation clock (O-A4), so hit-stop and menus pause them.
-- The quick wheel is not ported: any release of Q eats as a tap (Phaser opens the wheel after
-  250 ms and then eats from the bag, or does nothing when nothing is carried).
 - Restoration quests: `RunState.is_quest_active` is false until the quest phase, so the two
   level-1 ruins show their locked message (tests list the quest in
   `RunState.debug_active_quests`).
