@@ -60,6 +60,14 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
   Godot `attack-1-<direction>` clips reuse page 1's idle art and carry the swing in keys: a
   wind-up on the row's most squashed frame, then a lunge toward the slash on its most stretched
   frame (`build_player_clips.gd`, `ATTACKS`).
+- **The abilities have no sheet rows either** (owner decision 2026-10-05: keys from the new art,
+  only the stretch lash filmed). `hop`, `squash`, `teleport`, `stretch`, `eat` and `knockback`,
+  each `-down`, `-up` and `-side`, pick page 1's idle and walk cells by pose (`POSES`: rest; low,
+  the widest cell; tall, the narrowest; an open mouth and a chew for eating) at keyed times
+  (`ACTIONS`). The ability sequences' tweens carry the squash, stretch, arc and fade. Measured
+  width / height per cell: down low `walk-down` 1 (1.18), tall `idle-down` 3 (0.71); up low
+  `walk-up` 0 (1.27), tall `walk-up` 4 (0.71); side low `walk-side` 0 (0.99), tall `walk-side` 2
+  (0.70).
 
 ## What worked (2026-10-05)
 

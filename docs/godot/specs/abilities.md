@@ -56,8 +56,11 @@ Differences from this spec's Phaser behaviour, until decided otherwise:
 - Restoration quests: `RunState.is_quest_active` is false until the quest phase, so the two
   level-1 ruins show their locked message (tests list the quest in
   `RunState.debug_active_quests`).
-- No new top-down clips yet for hop, squash, stretch, teleport, eat (the old side-view clips
-  play). The Heavy and Sticky skins are painted by a shader over the new frames
+- The hop, squash (slam), teleport, stretch (lash), eat and knockback clips are keyed on page 1's
+  top-down frames, per direction (`tools/build_player_clips.gd`, `ACTIONS` and `POSES`; owner
+  decision 2026-10-05: keys from the new art). They only choose frames (crouch, spring, brace,
+  open mouth...); the sequences' tweens still squash, stretch, lift and fade the art. A filmed
+  stretch lash (Seedance, down/up/side) will replace the keyed `stretch-*`. The Heavy and Sticky skins are painted by a shader over the new frames
   (`game/player/gulp/form_skin.gdshader`: grey cobbles, cream silk; owner decision 2026-10-05)
   instead of Phaser's redrawn side-view sheets.
 
@@ -389,9 +392,9 @@ unchanged.
 
 Next jump: allowed at t = 700 (280 ms after landing). Energy 0.
 
-Godot clip: only the old side-view `hop` exists (`player_slime.tscn`; it keys `Visual:texture`
-back to the old sheet). New top-down ability art is an owner item (decision O1 "then attacks and
-abilities").
+Godot clip: `hop-down`, `-up` and `-side` (420 ms, once) key page 1's frames: a crouch, a spring
+up, the rest pose at the top of the arc and a brace for the landing (`tools/build_player_clips.gd`,
+owner decision 2026-10-05); the tweens above carry the arc and the squash and stretch.
 
 ---
 
@@ -698,11 +701,11 @@ A form is lost silently on a map change (the controller is per world) and on dea
 - **Look**: in Phaser the skin sheets exist, so the whole slime is drawn from the re-textured
   sheet (same frame layout as the **old side-view** `character.player.slime` sheet); the tint is
   the fallback. Reapplied after the hit flash (`WorldScene.ts:1914`).
-  **[QUIRK]/owner item O-G1**: the Godot player now draws idle/walk/roll/swing from the new
-  three-quarter top-down sheet, which has no Heavy/Sticky skins. Port the tint fallback
-  (`visual.self_modulate` = tint; the player scene is Godot-owned and has no authored tint) until
-  new skins exist; the old skins could still apply to the old side-view clips (hop, squash, …)
-  but would mix two looks.
+  **[QUIRK]/owner item O-G1**: the Godot player draws from the new three-quarter top-down sheet,
+  which has no Heavy/Sticky skins. Decided 2026-10-05: a shader paints the form over the slime's
+  own frames (`game/player/gulp/form_skin.gdshader`: grey cobbles for Heavy, cream silk for
+  Sticky; only the green body changes). The tint (`visual.self_modulate`) stays as the fallback
+  when the Visual has no skin material.
 
 ### 11.4 The eat press, tap and hold (`WorldScene.ts:913-969, 1821-1826, 1855-1877`)
 
@@ -1286,7 +1289,7 @@ sprite (asset `effect.player.stretch-lash`, synced by `pnpm godot:sync`).
 | O-A5 | Dodge on cooldown is silent; other abilities on cooldown play `AbilityDenied` | Parity |
 | O-A6 | A rooted slime can lash and be pulled | Parity |
 | O-A7 | `EnergyRestore` cue on every respawn | Parity (cheap) or drop; ask |
-| O-G1 | Gulp skins re-texture the old side-view sheet; the Godot player uses new top-down art | Tint fallback (`self_modulate`) now; new form skins later (art) |
+| O-G1 | Gulp skins re-texture the old side-view sheet; the Godot player uses new top-down art | Decided 2026-10-05: a shader skin over the new frames (`form_skin.gdshader`); the tint is the fallback |
 | O-G2 | Holding Q near a spot eats from the inventory, or nothing when nothing is carried | Parity |
 | O-G3 | "W" in descriptor/comments, binding is Q | Use the binding; fix the Phaser text separately (not in this port) |
 | O-P1 | Plate/bell gate openings and latched plates are not saved | Parity now; a persistence decision belongs to world objects |
@@ -1470,5 +1473,5 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
   the restoration candidate (priority 89); `interact` dispatch precedes the abilities (§3.2).
 - **combat** (`combat.md`): router listing (optional), `PlayerCombat` shares `_action_locked`.
 - **Quests [OUT]**: ability rewards, restoration `questId`, `object.activated`.
-- **Art**: top-down ability clips (hop/squash/stretch/teleport/eat exist only as old side-view
-  clips) and Gulp form skins for the new sheet (O-G1).
+- **Art**: the filmed stretch lash (Seedance, down/up/side) to replace the keyed `stretch-*`
+  clips. The keyed ability clips and the shader form skins (O-G1) are done.
