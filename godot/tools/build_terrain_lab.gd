@@ -5,7 +5,7 @@ extends SceneTree
 ## terrain_lab_ground.gd, which mounts the water surface and the hand-made terrain edges the way
 ## WorldService does for a world, in the editor too. Cells use Phaser's sheet-wrap frames.
 ##
-## Run with the Godot 4.7.2 console exe (needs `pnpm godot:convert` and imported art):
+## Run with the Godot 4.7.2 console exe (needs `pnpm godot:sync` and imported art):
 ##     --headless --path godot -s res://tools/build_terrain_lab.gd
 ## Safe to re-run: it rewrites the lab scene (paint you added is lost).
 
@@ -51,7 +51,7 @@ func _initialize() -> void:
 func _build() -> bool:
 	for path: String in [TERRAIN_TILESET, LAB_SCRIPT, GROUND_SCRIPT]:
 		if not ResourceLoader.exists(path):
-			push_error("build_terrain_lab: %s is missing (run pnpm godot:convert?)" % path)
+			push_error("build_terrain_lab: %s is missing (run pnpm godot:sync?)" % path)
 			return false
 	var tile_set := load(TERRAIN_TILESET) as TileSet
 	var source_of := _sources_by_tile_id(tile_set)

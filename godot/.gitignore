@@ -2,7 +2,5 @@
 .godot/
 # Copies of the mapped assets, made by `pnpm godot:sync` from ../asset (the source of truth until cutover).
 /asset/
-# Converter output, made by `pnpm godot:convert` from the scene JSON (the source of truth until Phase 1 ends).
-/generated/
 # Export builds.
 /export/

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "description": "Project-wide named 2D physics layers (Godot 'Layer Names'). Layer N occupies bit value 2^(N-1). Scenes, converters and the editor reference these names; collisionLayer/collisionMask values may only use bits defined here.",
+  "characterBodyRequiredMaskLayer": "world",
+  "layers": [
+    { "layer": 1, "name": "world", "description": "Solid world geometry: wall tiles and StaticBody2D props (trees, houses, rocks, chests)." },
+    { "layer": 2, "name": "player", "description": "The player CharacterBody2D." },
+    { "layer": 3, "name": "enemy", "description": "Hostile CharacterBody2D bodies, including bosses." },
+    { "layer": 4, "name": "hurtbox", "description": "Area2D that can receive damage." },
+    { "layer": 5, "name": "hitbox", "description": "Area2D that deals damage." },
+    { "layer": 6, "name": "pickup-seeker", "description": "Area2D that collects pickups (the player's pickup radius)." },
+    { "layer": 7, "name": "pickup", "description": "Area2D of a collectible that can be picked up." },
+    { "layer": 8, "name": "npc", "description": "Friendly NPC CharacterBody2D bodies." },
+    { "layer": 9, "name": "projectile", "description": "Projectile CharacterBody2D bodies." },
+    { "layer": 10, "name": "trigger", "description": "World trigger Area2Ds (exits, navigation and encounter areas)." },
+    { "layer": 11, "name": "water", "description": "Water tiles. Blocks walking bodies (player, enemies, NPCs include it in their mask) but not projectiles, which fly over water." }
+  ]
+}

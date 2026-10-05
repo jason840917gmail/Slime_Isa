@@ -20,7 +20,7 @@ const MusicDirectorType := preload("res://game/audio/music_director.gd")
 const ShellType := preload("res://game/shell/shell.gd")
 
 
-## Autoload `GameConstants` (res://generated/data/*.json).
+## Autoload `GameConstants` (res://game/data/*.json).
 static func constants() -> GameConstantsType:
 	return _autoload(&"GameConstants") as GameConstantsType
 

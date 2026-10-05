@@ -1,6 +1,6 @@
 extends Node
-## Autoload `GameConstants`: read-only access to the converter's data copies in
-## res://generated/data/ (game-constants.json, enemy-types.json, items.json,
+## Autoload `GameConstants`: read-only access to the game data in
+## res://game/data/ (game-constants.json, enemy-types.json, items.json,
 ## collision-layers.json). Replaces Phaser `src/game/Constant.ts`.
 ##
 ## Rules (conventions "GDScript rules"): cross-feature gameplay values come only from here or
@@ -11,7 +11,7 @@ extends Node
 ##
 ## Owner: world builder.
 
-const DATA_DIR := "res://generated/data/"
+const DATA_DIR := "res://game/data/"
 const CONSTANTS_FILE := "game-constants.json"
 
 var _constants: Dictionary = {}
@@ -80,7 +80,7 @@ func dictionary(path: String) -> Dictionary:
 	return {}
 
 
-## Parsed contents of res://generated/data/<file_name> (e.g. "enemy-types.json"), cached after
+## Parsed contents of res://game/data/<file_name> (e.g. "enemy-types.json"), cached after
 ## the first read; null + push_error() when missing or invalid JSON.
 func data_file(file_name: String) -> Variant:
 	if _files.has(file_name):

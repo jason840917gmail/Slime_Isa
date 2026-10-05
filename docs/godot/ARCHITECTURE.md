@@ -13,7 +13,7 @@ disagree about structure (files, names, who calls whom) this file wins; about be
 
 ```
 project.godot [autoload]  (registered in this order; tree order = process order)
-  GameConstants  res://game/autoload/game_constants.gd   data: generated/data/*.json
+  GameConstants  res://game/autoload/game_constants.gd   data: game/data/*.json
   SimClock       res://game/autoload/sim_clock.gd        gameplay ms clock (pausable, priority -1000)
   WorldService   res://game/autoload/world_service.gd    world/player/camera/areas/scene index/pause reasons
   DamageRouter   res://game/combat/damage_router.gd      receiver registry + activations + route()
@@ -291,7 +291,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/map/map_ui.gd`, `minimap.gd`, `map_terrain.gd`, `map_markers.gd`, `world_map_window.gd`, `.tscn` | map | The HUD minimap (a small map of the world's ground, owner decision; `terrain_alpha = 0` = Phaser's see-through; markers, view) and the world map window on GameWindows; the `map` key, the pause menu's Map action and the marker API ([specs/map.md](./specs/map.md)) |
 | `game/quests/quest_events.gd` | quests | `QuestEvents.emit(event, payload)` for world scripts and features |
 | `game/quests/quest_service.gd` | quests | Child "Quests" of main (group `quests`), kept across worlds: the quest state machine over `RunState.quests`, commands, queries, NPC candidates and markers, load validation, the `quest` launch option; mounts the dialogue box and the offer window in GameWindows ([specs/quests.md](./specs/quests.md)) |
-| `game/quests/quest_catalog.gd`, `quest_objectives.gd` | quests | The 14 definitions (`generated/data/quests-chapter-*.json`), recipe and NPC lookups, reward and objective texts; the objective matchers |
+| `game/quests/quest_catalog.gd`, `quest_objectives.gd` | quests | The 14 definitions (`game/data/quests-chapter-*.json`), recipe and NPC lookups, reward and objective texts; the objective matchers |
 | `game/quests/quest_npc_talk.gd`, `quest_notifications.gd`, `quest_waypoint.gd` | quests | NPC conversations (offer, turn-in, reoffer, plain talk); toasts, chapter and ability banners, quest cues; the waypoint target resolver |
 | `game/ui/screens/dialogue_box.tscn/.gd`, `quest_offer_window.tscn/.gd` | quests | The NPC dialogue box and the quest offer / turn-in window (Godot-owned copies of `ui.npc-dialogue`, `ui.quest-offer-modal`) on GameWindows |
 | `game/ui/quest_tracker.tscn/.gd`, `npc_quest_markers.gd`, `quest_waypoint_view.gd` | quests | The HUD quest tracker (copy of `ui.quest-tracker`), the "!"/"?" markers over NPCs (main's "QuestMarkers", z 1) and the gold waypoint (main's "QuestWaypoint", z 2) |

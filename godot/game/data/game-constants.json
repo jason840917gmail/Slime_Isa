@@ -1,0 +1,74 @@
+{
+  "$schema": "./game-constants.schema.json",
+  "version": 1,
+  "resources": {
+    "tags": ["wood", "stone", "iron", "charcoal", "grain"],
+    "respawnMs": 600000
+  },
+  "inventory": {
+    "initialMaxSlots": 20,
+    "maxStackByItem": {
+      "wood": 25,
+      "stone": 25,
+      "iron-ore": 99,
+      "charcoal": 99,
+      "hp-potion": 9,
+      "energy-potion": 9,
+      "purple-berry-mat": 99,
+      "silk-clump": 99,
+      "weaver-fang": 99,
+      "iron-bar": 99,
+      "shard": 99,
+      "green-key": 1,
+      "crystal-key": 1,
+      "workbench": 1,
+      "berry-basket": 9
+    },
+    "weaponMaxStack": 1
+  },
+  "worldNavigation": {
+  "edgeTransitionGraceMs": 650
+  },
+  "rest": {
+    "sleepHpRegenPerSec": 2
+  },
+  "gulp": {
+    "formDurationMs": 60000
+  },
+  "input": {
+    "bufferMs": 150,
+    "weaponWheelStepLockMs": 150
+  },
+  "character": {
+    "player": {
+      "initialAttributes": {
+        "strength": 10,
+        "vitality": 10,
+        "agility": 10,
+        "intellect": 10
+      },
+      "movement": {
+        "baseSpeed": 200,
+        "boostSpeed": 300,
+        "dodgeSpeed": 380,
+        "dodgeDurationMs": 500,
+        "dodgeInvulnerabilityMs": 400,
+        "dodgeCooldownMs": 250,
+        "movementSpeedCap": 480
+      },
+      "hitInvulnerabilityMs": 500,
+      "stats": {
+        "maxHp": 100,
+        "maxEnergy": 100,
+        "attack": 12,
+        "defense": 3,
+        "critChance": 0.05,
+        "critMultiplier": 1.75,
+        "energyRegenPerSecond": 8
+      },
+      "gooHeart": {
+        "maxHpBonus": 10
+      }
+    }
+  }
+}

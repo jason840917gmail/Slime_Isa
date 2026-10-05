@@ -983,7 +983,7 @@ an Axe: switch with the mouse wheel".
 
 ---
 
-## 10. Data the port needs in `generated/data/`
+## 10. Data the port needs in `game/data/`
 
 ### 10.1 Recipes: a `TS_DATA_EXPORTS` entry [IN]
 
@@ -1385,7 +1385,7 @@ Godot's default focus navigation (no Home / End).
   §2 RunState API (belt, recipes, transactions, drops); §7 bootstrap step 6 (`equip_run_weapon`)
   and the drop restore; §10 file map rows for every file of §11.2; §11 call map (crafting →
   RunState, PlayerCombat; interaction → GameWindows).
-- CONVENTIONS.md: `generated/data/` gains `recipes.json`, `weapons.json`, `item-icons.json`,
+- CONVENTIONS.md: `game/data/` gains `recipes.json`, `weapons.json`, `item-icons.json`,
   `npc-definitions.json`; "Scenes Godot owns" gains `ui.inventory-ui`, `ui.crafting-ui`,
   `ui.weapon-hotbar`, `ui.menu-tabs`; the `arsenal` / `recipes` launch options.
 - interaction.md §3.6 / §8.6: the workbench opens the crafting window.

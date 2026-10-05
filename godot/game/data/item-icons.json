@@ -1,0 +1,149 @@
+{
+  "interior-kitchen-hearth-8x8": {
+    "path": "res://asset/MAPS/interiors/128x128-tile_8x8-interior-kitchen-hearth.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 8,
+    "rows": 8
+  },
+  "interior-workshop-crafting-8x8": {
+    "path": "res://asset/MAPS/interiors/128x128-tile_8x8-interior-workshop-crafting.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 8,
+    "rows": 8
+  },
+  "items-chapter-2-5x2": {
+    "path": "res://asset/MAPS/items/chapter-2-5x2.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 5,
+    "rows": 2
+  },
+  "items-forage-5x2": {
+    "path": "res://asset/MAPS/items/forage-5x2.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 5,
+    "rows": 2
+  },
+  "items-gems-5x2": {
+    "path": "res://asset/MAPS/items/gems-5x2.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 5,
+    "rows": 2
+  },
+  "items-keys-5x4": {
+    "path": "res://asset/MAPS/items/keys-5x4.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 5,
+    "rows": 4
+  },
+  "items-materials-5x2": {
+    "path": "res://asset/MAPS/items/materials-5x2.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 5,
+    "rows": 2
+  },
+  "items-potions-5x2": {
+    "path": "res://asset/MAPS/items/potions-5x2.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 5,
+    "rows": 2
+  },
+  "resources-4x2": {
+    "path": "res://asset/MAPS/resources/128x128-tile_4x2-resource-piles.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 4,
+    "rows": 2
+  },
+  "resources-starter-materials-2x1": {
+    "path": "res://asset/MAPS/resources/128x128-tile_2x1-starter-materials.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 2,
+    "rows": 1
+  },
+  "weapon-gauntlet": {
+    "procedural": true
+  },
+  "weapon-player-hammer-spear-tiles": {
+    "path": "res://asset/MAPS/weapons/126x126_2x2_HammerAndSpear.webp",
+    "frame": [
+      126,
+      126
+    ],
+    "columns": 2,
+    "rows": 2
+  },
+  "weapon-player-pickaxe-tiles": {
+    "path": "res://asset/MAPS/weapons/128x128-tile_3x1-pickaxe.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 3,
+    "rows": 1
+  },
+  "weapon-player-starter-spears-tiles": {
+    "path": "res://asset/MAPS/weapons/128x128-tile_2x2-starter-spears.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 2,
+    "rows": 2
+  },
+  "weapon-player-stone-tools-tiles": {
+    "path": "res://asset/MAPS/weapons/128x128-tile_4x1-stone-tools.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 4,
+    "rows": 1
+  },
+  "weapon-player-sword-tiles": {
+    "path": "res://asset/MAPS/weapons/120x120_9x2_swordTiles.webp",
+    "frame": [
+      120,
+      120
+    ],
+    "columns": 9,
+    "rows": 2
+  },
+  "weapon-player-wooden-axe-tiles": {
+    "path": "res://asset/MAPS/weapons/128x128-tile_3x1-wooden-axe.webp",
+    "frame": [
+      128,
+      128
+    ],
+    "columns": 3,
+    "rows": 1
+  }
+}

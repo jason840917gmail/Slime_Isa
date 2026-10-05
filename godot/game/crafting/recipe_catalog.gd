@@ -1,6 +1,6 @@
 extends RefCounted
 ## The recipe table and the crafting stations (Phaser `content/recipes/RecipeCatalog.ts`):
-## `generated/data/recipes.json` (15 recipes, catalogue order, camelCase keys: id, name, station,
+## `game/data/recipes.json` (15 recipes, catalogue order, camelCase keys: id, name, station,
 ## tier, description, ingredients [{itemId, count}], output {itemId, count}, uniqueOutput?,
 ## learnedByQuest?). A crafting site is {"station", "tier"}; the portable site is the Crafting tab
 ## of the menu (there is no C key, crafting spec K1). Crafting spec 1.1-1.2.

@@ -668,7 +668,7 @@ Only what interaction needs; inventory internals belong to `world-objects.md`.
 |---|---|---|
 | Player position, actions, lock | `PlayerScript.getPosition`, `consumeActionPress`, `actionLocked` | `player.get_centre()`, `consume_action_press()`, `is_action_locked()` - have. **Missing**: `interact` in `PlayerInputBuffer.ACTIONS`; the interact step in `_handle_action_input` (§8.3) |
 | NPC position / lock / active | `NpcScript.getPosition`, `acquireInteractionLock`, `isActive` | `get_phaser_position()`, `acquire_interaction_lock()`, `is_inside_tree()` - have |
-| NPC display name, dialogue pages | `content/npcs/NpcDefinitions.ts` | **Missing**: no `npc-definitions.json` in `generated/data/` (converter copies only constants, enemy types, items, layers) |
+| NPC display name, dialogue pages | `content/npcs/NpcDefinitions.ts` | **Missing**: no `npc-definitions.json` in `game/data/` (converter copies only constants, enemy types, items, layers) |
 | Item count / remove (gate key) | `playerInventory.count`, transaction remove | `RunState.item_count`, `remove_item`, `unlock_gate(map, gate, item, consume) -> bool` - have (bool only; the gate needs the 4-way result, §6.2) |
 | Item add with stacking (chest) | `prepareTransaction` + `installTransactionSnapshot` | Planned in [world-objects.md](./world-objects.md) §12.6: `RunState.item_capacity(item_id)`, `add_item(item_id, count) -> int`, signals `inventory_changed` / `world_progress_changed`, `ItemCatalog.item_name(id)`. **Missing** here: `transfer_chest_stack(...)` (§8.5) |
 | Gate record | `WorldProgress.isGateUnlocked`, `prepareGateUnlockSnapshot` | `RunState.is_gate_unlocked`, `mark_gate_unlocked` - have |
@@ -1161,7 +1161,7 @@ takes from the last slots; only which stack shrinks differs).
 
 ### 8.7 Converter / data dependencies
 
-- `generated/data/npc-definitions.json` from `content/npcs/NpcDefinitions.ts` (`id`,
+- `game/data/npc-definitions.json` from `content/npcs/NpcDefinitions.ts` (`id`,
   `displayName`, `description`, `dialogue`) - needed for "Talk to <name>" and pages.
 - Handler renames already exist (`set` -> `on_set`); handler `open` and the four chest signals
   need nothing. After the scripts exist, re-run `pnpm godot:convert` so the converter writes the
