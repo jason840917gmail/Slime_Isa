@@ -193,6 +193,8 @@ func _build() -> void:
 	_ability_bar = AbilityBar.new()
 	_ability_bar.theme = _root.theme
 	add_child(_ability_bar)
+	# The minimap and the world map window (res://game/ui/map/, docs/godot/specs/map.md).
+	add_child(preload("res://game/ui/map/map_ui.gd").new())
 
 
 func _make_bar(node_name: String, rect: Rect2, label: String, tone: Color) -> HudBar:

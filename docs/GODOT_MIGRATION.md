@@ -194,6 +194,11 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
 - Enemy rewards are ported (2026-10-05): coins ("+10c") and loot piles scattered round the corpse,
   kept on the ground across visits until picked up. A slime defeated far from its bed wakes at the
   bed in that bed's world.
+- The minimap and the world map are ported (2026-10-05, [godot/specs/map.md](./godot/specs/map.md)):
+  the framed minimap in the HUD's corner is see-through as in Phaser (the approved artwork-first HUD;
+  `Minimap.terrain_alpha` can draw the world's ground under it instead) and shows the slime, the
+  camera view and markers; the world map window (M or the pause menu's Map) lists the
+  discovered areas and the ways between them. Other features place markers through `MapUi.set_marker`.
 
 ## Rules while it runs
 
