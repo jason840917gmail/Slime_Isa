@@ -124,11 +124,12 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the owner's machine held 60 fps (16.7 ms frames, 17 ms worst) idle, walking
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
-- Not yet: terrain blending (hand-made edge tiles are on trial in the
-  [terrain lab](./godot/TERRAIN_LAB.md)), the remaining scene scripts (of the
-  35 Phaser script ids, `game.ui-surface` for the 26 UI scenes, plus the abilities'
-  puzzle pieces until their ports land), the game windows' styling, saves, the
-  reference-laptop measurement, and the owner's feel check.
+- Not yet (updated 2026-10-05): terrain blending (hand-made edge tiles are on trial in the
+  [terrain lab](./godot/TERRAIN_LAB.md)), the quest journal and chest windows (in progress), the
+  reference-laptop measurement, the owner's feel check, and Phase 5's fresh-save playthrough of
+  Chapter 1. Every scene script id the authored scenes use is ported except `game.ui-surface`,
+  which Godot-owned windows replace. A headless Brave run of the web build on 2026-10-05 held
+  58-59 fps in level-1, the Fatty fight and the Matron's nest (pack 46.1 MB).
 - World objects are ported (2026-10-05, [godot/specs/world-objects.md](./godot/specs/world-objects.md)):
   trees, stone and iron take tool hits (the sword shows "Requires an Axe"), break into
   piles that fly out and can be walked over into the bag, and regrow 10 minutes after
