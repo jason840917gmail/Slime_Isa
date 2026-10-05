@@ -31,7 +31,7 @@ const HEIGHT := 196.0
 const BOTTOM_GAP := 24.0
 const HINT_TEXT := "Space / Enter  continue   ·   Esc  close"
 const Glyphs := preload("res://game/ui/glyphs.gd")
-## Phaser "Next  ▸", "Skip  ▸▸", "Done  ✓" with font-safe glyphs (game/ui/glyphs.gd).
+## Phaser "Next  ▸", "Skip  ▸▸", "Done  ✓" (glyphs: game/ui/glyphs.gd).
 const NEXT_LABEL := "Next  " + Glyphs.NEXT
 const SKIP_LABEL := "Skip  " + Glyphs.NEXT + Glyphs.NEXT
 const DONE_LABEL := "Done  " + Glyphs.CHECK
@@ -78,6 +78,7 @@ func _ready() -> void:
 	if bold != null:
 		next_button.add_theme_font_override(&"font", bold)
 	next_button.pressed.connect(_on_next_pressed)
+	close_button.text = Glyphs.CLOSE
 	close_button.pressed.connect(_on_close_pressed)
 	get_tree().root.size_changed.connect(_layout)
 

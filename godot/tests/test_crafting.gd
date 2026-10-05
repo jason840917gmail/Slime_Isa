@@ -208,7 +208,7 @@ func test_refusal_clears_on_bag_change(t: TestContext) -> void:
 	var model := crafting.model()
 	t.equal(model["status"], "", "status after the wood")
 	t.equal((model["recipes"] as Array)[0]["label"], "Workbench\nReady to craft", "workbench row")
-	t.equal(_labels(model["materials"]), ["Wood\n40 / 40  √"], "materials")
+	t.equal(_labels(model["materials"]), ["Wood\n40 / 40  ✓"], "materials")
 	t.equal(model["quantity"], "Amount: 1  ·  MAX 1", "amount")
 	crafting.close()
 
