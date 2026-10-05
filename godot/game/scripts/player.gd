@@ -64,8 +64,9 @@ const RECEIVER_TAGS: Array[String] = ["player"]
 @export var body: CharacterBody2D
 ## JSON `visual`: the slime Sprite2D (authored scale 0.28125; hit flash + squash target).
 @export var visual: Sprite2D
-## JSON `animation`: the AnimationPlayer (clips idle, walk, hop, stretch, roll, attack-1,
-## knockback, die, ... - player spec 1.1).
+## JSON `animation`: the AnimationPlayer. Clips from the three-quarter top-down sheet come per
+## direction (`idle-down`, `walk-side`, ...; see `_directional_clip`); the rest (roll, attack-1,
+## knockback, die, ... - player spec 1.1) still draw the old side-view sheet.
 @export var animation: AnimationPlayer
 ## JSON `damageArea`: the hurtbox Area2D (layer hurtbox, mask hitbox).
 @export var damage_area: Area2D
@@ -73,11 +74,8 @@ const RECEIVER_TAGS: Array[String] = ["player"]
 @export var player_name: String = ""
 ## Trial setting (not in JSON): the dodge counts as learned (player spec 5.1 trial note).
 @export var dodge_learned: bool = true
-## Player spec 4.3 [QUIRK]: false = live Phaser look (`walk` in every direction); true = intended
-## hop (down) / stretch (up). Owner decision pending.
-@export var use_vertical_walk_clips: bool = false
 ## Player spec 9.1 [QUIRK]: aim origin height above the OLD CENTRE. 28 = literal Phaser parity
-## (feet - 55.56); set 0.44 to get the intended "feet - 28". Owner decision pending.
+## (feet - 55.56), kept by the owner (decision O2, 2026-10-05); 0.44 would give "feet - 28".
 @export var aim_rise_px: float = 28.0
 
 ## Phaser `health_changed`. Payload: {"hp": int, "maxHp": int}.
@@ -115,11 +113,10 @@ var _was_moving: bool = false
 var _still_since_ms: float = 0.0
 var _pointer_seen: bool = false
 
-## Clip names (player spec 1.1).
+## Clip names (player spec 1.1). Idle and walk resolve to their directional versions when the
+## scene has them (`_directional_clip`).
 const CLIP_IDLE := "idle"
 const CLIP_WALK := "walk"
-const CLIP_HOP := "hop"
-const CLIP_STRETCH := "stretch"
 const CLIP_ROLL := "roll"
 const CLIP_KNOCKBACK := "knockback"
 const CLIP_DIE := "die"
@@ -173,7 +170,7 @@ func _ready() -> void:
 	if body != null:
 		body.motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_register_receiver()
-	play_animation(CLIP_IDLE)
+	_play_idle()
 	_still_since_ms = _real_now_ms()
 
 
@@ -418,7 +415,7 @@ func respawn() -> void:
 		FeetAnchor.place_at_phaser_position(body, spawn)
 		body.reset_physics_interpolation()
 	_knockback_anim_until_ms = 0.0
-	play_animation(CLIP_IDLE, true)
+	_play_idle(true)
 	_flash_until_real_ms = 0.0
 	if visual != null:
 		HitFlash.clear(visual)
@@ -537,20 +534,52 @@ func _move(direction: Vector2) -> void:
 	var speed: float = _resolve_movement_speed(base)
 	if direction == Vector2.ZERO:
 		body.velocity = Vector2.ZERO
-		# Standing still always shows the art's default facing (contract O4, ported as live).
+		var idle := _directional_clip(CLIP_IDLE)
 		if visual != null:
-			visual.flip_h = false
-		_play_direct(CLIP_IDLE)
+			# The top-down art keeps the last facing (owner decision O4); the old side-view art
+			# always showed its default facing.
+			visual.flip_h = _flip_for(idle) if idle != CLIP_IDLE else false
+		_play_direct(idle)
 		return
 	var unit: Vector2 = direction.normalized()
 	body.velocity = unit * speed
 	_facing = unit
+	var walk := _directional_clip(CLIP_WALK)
 	if visual != null:
-		visual.flip_h = Directions.slime_flip_h(direction)
-	if use_vertical_walk_clips and absf(direction.y) > absf(direction.x):
-		play_animation(CLIP_STRETCH if direction.y < 0.0 else CLIP_HOP)
-	else:
-		_play_direct(CLIP_WALK)
+		visual.flip_h = _flip_for(walk)
+	_play_direct(walk)
+
+
+## Idle for the current facing, flipped to match; `force` restarts it (respawn).
+func _play_idle(force: bool = false) -> void:
+	var idle := _directional_clip(CLIP_IDLE)
+	if visual != null:
+		visual.flip_h = _flip_for(idle) if idle != CLIP_IDLE else false
+	play_animation(idle, force)
+
+
+## `<clip>-down`, `-up` or `-side` for the current facing when the scene has it (the
+## three-quarter top-down sheet, docs/assets/slime-sheet-guide.md), else `clip` itself.
+## Mostly vertical facings pick down/up; diagonals and horizontals pick side.
+func _directional_clip(clip: String) -> String:
+	if animation == null:
+		return clip
+	var suffix := "side"
+	if absf(_facing.y) > absf(_facing.x):
+		suffix = "down" if _facing.y > 0.0 else "up"
+	var directional := "%s-%s" % [clip, suffix]
+	return directional if animation.has_animation(directional) else clip
+
+
+## Horizontal flip for `clip` at the current facing. The top-down side art faces right, so it
+## mirrors for left; its down/up art never mirrors. Old side-view clips keep their rule (that art
+## faces left and mirrors for right, `Directions.slime_flip_h`).
+func _flip_for(clip: String) -> bool:
+	if clip.ends_with("-side"):
+		return _facing.x < 0.0
+	if clip.ends_with("-down") or clip.ends_with("-up"):
+		return false
+	return Directions.slime_flip_h(_facing)
 
 
 ## Player spec 5.1 / 5.2: dodge rules (learned, cooldown 500+250 ms from roll start) and the roll

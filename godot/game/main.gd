@@ -57,6 +57,10 @@ const WORLD_SCENE_PREFIX := "world."
 const PLAYER_SCRIPT_NODE := "PlayerScript"
 const NPC_GROUP := &"npc"
 
+## World to load when no launch option names one ("" = level-1). res://game/dev/playground.tscn
+## inherits this scene with "playground" so the testbed runs with F6 (Run Current Scene).
+@export var map_id: String = ""
+
 @onready var world_container: Node2D = $World
 @onready var world_camera: WorldCamera = $WorldCamera
 @onready var hud: GameHud = $Hud
@@ -114,10 +118,14 @@ func apply_viewport_scale() -> void:
 		root.content_scale_size = base
 
 
-## "level-1"; optional overrides: web `?map=` (JavaScriptBridge), desktop user arg `--map=<id>`
-## (after `--` on the command line). An unknown id falls back to "level-1" with a warning.
+## "level-1"; overrides, strongest first: web `?map=` (JavaScriptBridge) or desktop user arg
+## `--map=<id>` (after `--` on the command line), then the `map_id` export (set by
+## res://game/dev/playground.tscn, which runs the playground with F6). An unknown id falls back to
+## "level-1" with a warning.
 func resolve_map_id() -> String:
 	var requested := launch_option("map")
+	if requested.is_empty():
+		requested = map_id.strip_edges()
 	if requested.is_empty() or requested == TRIAL_MAP_ID:
 		return TRIAL_MAP_ID
 	var world_service := Services.world()

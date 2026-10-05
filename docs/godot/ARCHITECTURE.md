@@ -97,7 +97,7 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 
 | Script id → file | Exports (snake_case of the JSON keys the scenes set; *italic* = extra, not in JSON) | Signals (1 Dictionary arg) | Handlers |
 |---|---|---|---|
-| `game.player` → `scripts/player.gd` | `body, visual, animation, damage_area, player_name`; *`dodge_learned`=true, `use_vertical_walk_clips`=false, `aim_rise_px`=28* | `health_changed, damaged, defeated, damage_feedback`; *`respawned`* | `on_pickup_area_entered(area)` (stub) |
+| `game.player` → `scripts/player.gd` | `body, visual, animation, damage_area, player_name`; *`dodge_learned`=true, `aim_rise_px`=28* | `health_changed, damaged, defeated, damage_feedback`; *`respawned`* | `on_pickup_area_entered(area)` (stub) |
 | `game.enemy` → `scripts/enemy.gd` (worm swordsman, archer, brawler, slime spider, orb weaver) | `body, visual, animation, damage_area, attack_area, faction, rank, max_health, targeting_radius, attack_range, movement_speed, attack_cooldown_ms, attributes, damage_rule, rewards, projectile, impact_effect`; *`display_name, arena_recovery_ms`* | `health_changed, damaged, defeated, alerted, attack_started, reward_requested, damage_feedback` | — |
 | `game.weapon` → `scripts/weapon.gd` (13 weapon scenes) | `weapon_id, category, attack_area, animation, base_damage, cooldown_ms, knock_strength, damage_modifiers, harvest_capabilities, scaling, on_hit_effect_id, attack_plans` | `attack_started, attack_finished` | `on_area_entered(area)` |
 | `game.effect` → `scripts/effect.gd` (all 9 `effects/*` scenes) | `effect_id, animation, lifetime_ms` | `finished` | — |
@@ -184,7 +184,9 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/hud.gd` | world | |
 | `game/ui/player_health_bar.gd` | world | |
 | `game/ui/fps_readout.gd` | world | |
-| `game/scripts/player.gd` | player | |
+| `game/scripts/player.gd` | player | Picks directional clips (`_directional_clip`, `_flip_for`) |
+| `game/characters/player_slime.tscn` | player | Godot-owned player scene (CONVENTIONS "Scenes Godot owns"); clips rebuilt by `tools/build_player_clips.gd` |
+| `game/dev/playground.tscn` | world | `main.tscn` with `map_id = "playground"`; run with F6 |
 | `game/player/player_input_buffer.gd` | player | |
 | `game/player/pointer_aim.gd` | player | |
 | `game/player/squash_stretch.gd` | player | |
@@ -225,10 +227,10 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 
 | # | Question | Decision |
 |---|---|---|
-| O1 | Moving vertically: the live look (`walk` in every direction) or the intended `hop`/`stretch`? (player spec 4.3) | **New art.** The slime sheet is side-view and has no real up/down walk, so the owner wants a new three-quarter top-down player sheet with idle and walk per direction (then attacks and abilities), built piece by piece. Until it exists the live look stays (`use_vertical_walk_clips = false`) |
+| O1 | Moving vertically: the live look (`walk` in every direction) or the intended `hop`/`stretch`? (player spec 4.3) | **New art.** The slime sheet is side-view and has no real up/down walk, so the owner wants a new three-quarter top-down player sheet with idle and walk per direction (then attacks and abilities), built piece by piece. Page 1 (idle and walk per direction) is in since 2026-10-05: the player scene is Godot-owned and `player.gd` picks `<clip>-down/-up/-side` for its facing |
 | O2 | Pointer aim origin. The player spec recommends the intended feet − 28; the combat spec says port as is (centre − 28 = feet − 55.56). The specs disagree | **Keep the live aim**: `aim_rise_px = 28` above the old centre (top of the head) |
 | O3 | Combo off-by-one: every lone sword hit does 28, not 24 | **Fixed in the port**: the multiplier is the hit's own tier (×1.0, ×1.15, ×1.5), so a lone sword hit does 24 (crit 42); the Phaser game keeps its bug until it is retired |
-| O4 | Standing still always un-flips the slime (faces left) | **Comes with the new art** (O1): idle clips per direction keep the last facing. Until then, as live |
+| O4 | Standing still always un-flips the slime (faces left) | **Done with the new art** (2026-10-05): idle clips per direction keep the last facing |
 | O5 | Trial setup: dodge learned, sword equipped, respawn at spawn after 1.4 s with no defeat screen, only the worm-swordsman camp active (the other three camps are skipped by `allowed_types`) | As listed |
 | O6 | Godot bodies do not shove each other (Arcade did, slightly) | Accept for the trial |
 

@@ -51,3 +51,21 @@ Scene Studio animation dock.
 - Keep a shared baseline guide visible while animating.
 - Test idle, walk, and special frames together before exporting the sheet.
 - Avoid frame-to-frame anchor drift in the lower body.
+
+## Three-quarter top-down sheet (v2, Godot)
+
+Since 2026-10-05 the player is being redrawn for the three-quarter top-down camera, page by
+page, for the Godot port (the Phaser game keeps the sheet above). Sources, prompts and lessons
+are in `asset/Originals/characters/slime-v2/README.md`.
+
+- Pages: `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` (`character.player.slime.v2.page-<n>`),
+  8 x 8 cells of 256 px, same placement as the old sheet (186 px wide, centred at x 128,
+  standing on y 251) so the slime keeps its size and body.
+- One row per clip and direction, 8 frames, named `<clip>-down`, `<clip>-up`, `<clip>-side`;
+  side art faces right and is mirrored for left. Rows never move once filled, so adding a
+  page or a row never renumbers existing frames.
+- Page 1: rows 0-5 = idle down/up/side, walk down/up/side; rows 6-7 free.
+- Build a page with `python scripts/characters/pack-slime-v2-page.py`, then add its clips to
+  the Godot player scene with `tools/build_player_clips.gd` (see docs/TOOLING.md). The player
+  script picks the directional clip for its facing and keeps that facing when idle; clips
+  without a directional version still draw the old sheet.

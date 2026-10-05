@@ -69,6 +69,32 @@ func test_diagonal_walk_slides_along_a_wall_like_arcade(t: TestContext) -> void:
 	wall.queue_free()
 
 
+## The three-quarter top-down sheet: walking picks the clip for the facing (down, up, side; the
+## side art faces right and mirrors for left), and stopping keeps that facing in the idle clip
+## (owner decisions O1/O4). The player starts facing down.
+func test_directional_walk_and_idle_clips(t: TestContext) -> void:
+	var player := t.player()
+	t.equal(String(player.animation.assigned_animation), "idle-down", "clip at spawn")
+	var cases := [
+		[[&"move_up"], "walk-up", "idle-up", false],
+		[[&"move_down"], "walk-down", "idle-down", false],
+		[[&"move_right"], "walk-side", "idle-side", false],
+		[[&"move_left"], "walk-side", "idle-side", true],
+		[[&"move_left", &"move_up"], "walk-side", "idle-side", true],
+	]
+	for case: Array in cases:
+		for action: StringName in case[0]:
+			t.press(action)
+		await t.steps(4)
+		var label := "%s" % [case[0]]
+		t.equal(String(player.animation.assigned_animation), case[1], "%s walk clip" % label)
+		t.equal(player.visual.flip_h, case[3], "%s walk flip" % label)
+		t.release_all()
+		await t.steps(3)
+		t.equal(String(player.animation.assigned_animation), case[2], "%s idle clip after stopping" % label)
+		t.equal(player.visual.flip_h, case[3], "%s idle keeps the facing's flip" % label)
+
+
 func test_releasing_keys_stops_the_player(t: TestContext) -> void:
 	t.press(&"move_right")
 	await t.steps(5)
