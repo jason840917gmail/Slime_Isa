@@ -220,11 +220,13 @@ func test_feature_windows_mount_on_the_shell(t: TestContext) -> void:
 	t.check(shell.open_pause(), "open_pause refused in level-1")
 	shell.open_menu(mounted)
 	t.equal(shell.top_menu(), mounted, "the mounted window is not on top")
+	t.check(shell.pause_menu.is_open() and not shell.pause_menu.visible, "the covered pause menu still shows through")
 	if mounted.pauses_game:
 		t.check(t.world().has_pause_reason(StringName("shell:" + String(mounted.surface_id))), "no pause reason for the mounted window")
 	if mounted.closable_by_escape:
 		t.tap(&"pause")
 		t.check(not mounted.is_open() and shell.pause_menu.is_open(), "Escape did not close only the mounted window")
+		t.check(shell.pause_menu.visible, "the pause menu did not show again under a closed window")
 		shell.open_menu(mounted)
 	shell.close_all_menus()
 	t.check(not shell.is_any_open(), "close_all_menus left a window open")

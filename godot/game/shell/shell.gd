@@ -322,6 +322,10 @@ func _open(menu: ShellMenu) -> void:
 func _on_menu_opened(menu: ShellMenu) -> void:
 	_stack.erase(menu)
 	_stack.append(menu)
+	# Only the top window shows: a covered one would show through the top panel and could take
+	# keyboard focus. It stays open and shows again when the windows above it close.
+	for other: ShellMenu in _stack:
+		other.visible = other == menu
 	if menu.pauses_game:
 		_set_paused(StringName(PAUSE_REASON_PREFIX + String(menu.surface_id)), true)
 	menu_opened.emit(menu.surface_id)
@@ -334,7 +338,9 @@ func _on_menu_closed(menu: ShellMenu) -> void:
 	if _stack.is_empty():
 		_clear_player_input()
 	else:
-		(_stack.back() as ShellMenu).focus_initial()
+		var top := _stack.back() as ShellMenu
+		top.visible = true
+		top.focus_initial()
 	menu_closed.emit(menu.surface_id)
 
 
