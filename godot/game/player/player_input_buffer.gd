@@ -36,6 +36,12 @@ func capture(event: InputEvent, now_ms: float) -> bool:
 	return matched
 
 
+## Records a press of `action` at `now_ms` without a held state: the mouse wheel's weapon steps
+## (`weapon_next` / `weapon_previous`, game/player/wheel_stepper.gd), which are not in ACTIONS.
+func mark_pressed(action: StringName, now_ms: float) -> void:
+	_pressed_at[action] = now_ms
+
+
 ## True while `action` is held (sprint, movement).
 func is_held(action: StringName) -> bool:
 	return _held.has(action)

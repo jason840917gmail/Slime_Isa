@@ -912,6 +912,26 @@ Gate to chapter 2: guardian at stage `verdant-gate` â†’ travel through exit-1 â†
 
 ## 10. Godot port plan
 
+### 10.0 As built (2026-10-05)
+
+The port follows this plan with these differences (structure only; behaviour as specified):
+
+- No `QuestWindows` CanvasLayer: the dialogue box and the offer window are Controls on main's
+  `GameWindows` (`game/ui/screens/game_windows.gd`, layer 40), which owns the `modal` pause, the
+  MenuOpen / MenuClose cues and Escape for the top window; they push `npc-dialogue` / `quest-offer`.
+  The quest service mounts them and keeps them as `dialogue` / `offer_window`.
+- The tracker is `game/ui/quest_tracker.tscn` mounted by the HUD; it finds the service on its own.
+- The `control.used sprint` edge is watched by the quest service (as the control hints do), not by
+  `player.gd`. Menu ids come from `GameWindows.window_opened` and `Shell.menu_opened`.
+- No new `class_name`s (headless runs know only scanned ones): everything is reached by preload.
+- Owner decisions: Q1 parity (documented by `test_quests_gloop.gd`), Q2 parity, Q3 `debug_*` plus
+  the `quest` launch option, Q4 the interact button advances the dialogue, Q5 toasts shown in the
+  same frame stack 22 px apart, Q6 markers at `z_index` 1, Q7 a broken record resets with a warning.
+- The ability banner ("<title> learned: press <key>", #9ff0c8) lives in
+  `quest_notifications.gd` on `RunState.ability_learned`; the AbilityLearned cue for quest rewards
+  plays in the reward grant (ability lessons play their own).
+- The waypoint target is also the maps' `waypoint` marker (`MapUi.set_marker`, id `quest-waypoint`).
+
 ### 10.1 Files
 
 | File | Kind | Content |

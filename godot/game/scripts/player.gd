@@ -45,6 +45,8 @@ const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const GulpHud := preload("res://game/player/gulp/gulp_hud.gd")
 const StatusEffects := preload("res://game/player/status_effects.gd")
 const GooTrail := preload("res://game/player/goo_trail.gd")
+const WheelStepper := preload("res://game/player/wheel_stepper.gd")
+const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -105,6 +107,10 @@ signal energy_changed(payload: Dictionary)
 signal jump_landed(payload: Dictionary)
 
 var _input: PlayerInputBuffer = PlayerInputBuffer.new()
+## Mouse-wheel notches -> single weapon steps (crafting spec 8.5).
+var _wheel: WheelStepper = WheelStepper.new()
+## The bag / belt glue (game/inventory/inventory_actions.gd, group "inventory_actions").
+var _inventory_actions: Node
 var _squash: SquashStretch = SquashStretch.new()
 var _combat: PlayerCombat
 var _facing: Vector2 = Vector2(0.0, 1.0)
@@ -179,6 +185,7 @@ const CLIP_DIE := "die"
 const WAKE_ACTIONS: Array[StringName] = [&"interact", &"attack", &"jump", &"dodge", &"stretch_lash",
 	&"squash_slam", &"teleport", &"eat"]
 const INTERACTION_GROUP := &"interaction"
+const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
 ## InitialRun.ts:15 new-run coins (coins are OUT; the HUD snapshot shows the new-run value).
 const NEW_RUN_COINS := 50
 ## Global audio cues (AudioEventBridge.ts:31-42).
@@ -285,8 +292,34 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton:
 		_pointer_seen = true
+	if _capture_wheel(event):
+		get_viewport().set_input_as_handled()
+		return
 	if _input.capture(event, Services.now_ms()):
 		get_viewport().set_input_as_handled()
+
+
+## The mouse wheel switches weapons (crafting spec 8.5): `weapon_next` (wheel down) and
+## `weapon_previous` (wheel up), as mouse buttons or InputEventActions (tests). Each scroll adds a
+## notch (× the event's factor) to the WheelStepper; a completed step is a buffered press at the
+## simulation time, consumed by `_handle_action_input`. True when the event was a wheel action.
+func _capture_wheel(event: InputEvent) -> bool:
+	var action := &""
+	if event.is_action(&"weapon_next"):
+		action = &"weapon_next"
+	elif event.is_action(&"weapon_previous"):
+		action = &"weapon_previous"
+	else:
+		return false
+	if not event.is_pressed():
+		return true
+	var delta_px := WheelStepper.NOTCH_PX
+	var mouse := event as InputEventMouseButton
+	if mouse != null and mouse.factor > 0.0:
+		delta_px *= mouse.factor
+	if _wheel.step(action, delta_px, _real_now_ms()):
+		_input.mark_pressed(action, Services.now_ms())
+	return true
 
 
 ## Returns while the tree is paused. Otherwise runs the per-step state machine of player spec
@@ -515,9 +548,10 @@ func apply_knockback(direction: Vector2, strength: float, duration_ms: float) ->
 	play_animation(CLIP_KNOCKBACK, true)
 
 
-## Empties held keys and pending presses (pause / scene exit).
+## Empties held keys and pending presses (pause / scene exit), and the wheel's partial notch.
 func clear_input() -> void:
 	_input.clear()
+	_wheel.reset()
 	# A menu or window closes the eat hold too (Phaser closes it while paused).
 	_close_eat_hold()
 
@@ -743,6 +777,19 @@ func spend_energy(amount: float) -> bool:
 	return true
 
 
+## GameState.regenEnergy (a Fizzy Brew, a Berry Basket): adds up to `amount`, capped at the
+## maximum; reports the gain on `energy_changed` (when there is one) and returns it.
+func restore_energy(amount: float) -> float:
+	if amount <= 0.0:
+		return 0.0
+	var before := _energy
+	_energy = minf(float(_max_energy), _energy + amount)
+	var gained := _energy - before
+	if gained > 0.0:
+		energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": gained})
+	return gained
+
+
 ## Test and dev aid: sets energy (clamped) and reports it.
 func set_energy(value: float) -> void:
 	var before := _energy
@@ -962,6 +1009,11 @@ func play_action_clip(clip: String) -> void:
 ## consumed press wins and ends the step. Returns true when an action was consumed.
 func _handle_action_input() -> bool:
 	var now: float = Services.now_ms()
+	# The wheel's weapon steps come first and do not end the step (WorldScene.ts:1788-1793): the
+	# slime keeps walking and an attack can follow in the same step.
+	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
+		if _input.consume(step[0], now, _buffer_ms):
+			_switch_weapon(int(step[1]))
 	# Interact comes first (WorldScene.handleActionInput, interaction spec 2.7) and ends the step
 	# even without a target.
 	if _input.consume(&"interact", now, _buffer_ms):
@@ -1497,6 +1549,18 @@ func _interaction_controller() -> Node:
 	if _interaction == null or not is_instance_valid(_interaction):
 		_interaction = get_tree().get_first_node_in_group(INTERACTION_GROUP)
 	return _interaction
+
+
+## The belt's next (+1) or previous (-1) weapon into the hand (`WeaponLoadout.cycle_slot`, then
+## `InventoryActions.switch_weapon_slot`); nothing when no other weapon is on the belt.
+func _switch_weapon(step: int) -> void:
+	var slot := WeaponLoadout.cycle_slot(step)
+	if slot < 0:
+		return
+	if _inventory_actions == null or not is_instance_valid(_inventory_actions):
+		_inventory_actions = get_tree().get_first_node_in_group(INVENTORY_ACTIONS_GROUP)
+	if _inventory_actions != null:
+		_inventory_actions.call(&"switch_weapon_slot", slot)
 
 
 func _audio_cue(cue: StringName) -> void:

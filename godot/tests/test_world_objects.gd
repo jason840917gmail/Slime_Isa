@@ -32,6 +32,8 @@ const RESPAWN_MS := 600000.0
 
 func test_inventory_capacity_and_stacking(t: TestContext) -> void:
 	var run := Services.run()
+	# An empty bag: the trial sword (crafting spec C3) set aside.
+	_fill(run, 0, {})
 	t.equal(run.item_capacity("wood"), 500, "wood capacity in 20 empty slots (25 each)")
 	t.equal(run.item_capacity("unknown-thing"), 0, "capacity of an unknown item")
 	t.equal(run.item_capacity("green-key"), 20, "green key capacity (max stack 1)")
@@ -173,6 +175,7 @@ func test_stone_needs_pickaxe_and_forgets_damage(t: TestContext) -> void:
 
 func test_walk_over_pickup(t: TestContext) -> void:
 	var run := Services.run()
+	_fill(run, 0, {})
 	var pile := _collectible(t, WOOD_PILE)
 	if not t.check(pile != null, "no %s" % WOOD_PILE):
 		return

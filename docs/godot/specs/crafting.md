@@ -1364,6 +1364,19 @@ slot" list covers assignment); saves (`RunState` already holds every value).
 | C5 | Keep K13 (slam hammer reconcile) and K4 (tabs lose the station)? | Drop K13 (arsenal logic is dead-code residue); keep K4 for parity |
 | C6 | Add number keys for the belt? | No for parity (1-4 are abilities) |
 
+Owner decisions (2026-10-05), as ported: **C1** the Workbench stays in the bag ("Crafted:
+Workbench", the window stays open, the bag's "Place" is disabled until placement). **C2** launch
+option `recipes` (`?recipes` / `-- --recipes`) sets `debug_all_recipes_known`; tests use
+`learn_recipes`. **C3** a new run gets the trial weapon (`basic-sword` or `?weapon=<id>`) in the
+bag, on belt slot 1 and in hand (`RunState.trial_weapon_pending`, `InventoryActions.
+grant_trial_weapon`); every world build reconciles the belt and mounts the hand. **C4** parity:
+K10 and K11 kept. **C5** K13 dropped (`reconcile` only cleans the belt and the hand; `arsenal`
+launch option grants the six ids into the bag and empty belt slots), K4 kept. **C6** no number
+keys. Port notes: the windows are built in code (no `.tscn`); `BeltSlot` / `HotbarSlot` theme
+variations do not exist yet, so the hotbar uses per-node StyleBoxes and the belt cells the
+`SlotButton` look (no dashed border); drag and drop onto the belt is ported; arrow keys use
+Godot's default focus navigation (no Home / End).
+
 ### 11.12 Docs to update with the port
 
 - ARCHITECTURE.md: §1 tree (main's `InventoryActions`, `GameWindows` layer 40, the HUD hotbar);

@@ -140,7 +140,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   right click on doors (travel between houses and the world), gates (with the key),
   chests, beds (sleep heals and sets the respawn point) and NPCs, with Phaser's prompt
   and key badge. Until the Phase 3 screens exist, a chest gives everything at once, an
-  NPC says its first line as floating text and a workbench does nothing.
+  NPC says its first line as floating text and a workbench does nothing (the dialogue box came
+  with the quests, the crafting window with crafting).
 - The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
   the animated surface over `water` and `deep-water` tiles, with the water life
   drawn and animated as in Phaser. Until terrain blending lands, shores keep
@@ -199,6 +200,22 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   `Minimap.terrain_alpha` can draw the world's ground under it instead) and shows the slime, the
   camera view and markers; the world map window (M or the pause menu's Map) lists the
   discovered areas and the ways between them. Other features place markers through `MapUi.set_marker`.
+- Quests are ported (2026-10-05, [godot/specs/quests.md](./godot/specs/quests.md)): the 14 quests
+  of chapters 1 and 2 with their stages, objectives, rewards and chapter flags, saved with the run;
+  NPCs offer, take back and talk about quests through the dialogue box and the offer / turn-in
+  window, wear "!" / "?" markers, and the HUD tracker lists the quests (a click shows the gold
+  waypoint, also on the maps). Pickups, ordinary enemy deaths, boss defeats, restorations, arrivals,
+  sprinting, the menus, crafting and belt switches count; furniture placement counts once it is
+  ported. The journal window is not ported yet. `?quest=<id>[:<stage>]` starts a
+  quest at a stage for testing.
+- Crafting, the bag and the weapon belt are ported (2026-10-05, [godot/specs/crafting.md](./godot/specs/crafting.md)):
+  E opens the bag (belt, cells, details; Use, Hold in hand, belt assignment, drag onto the belt,
+  Drop on the ground, Destroy), and its tab strip switches to Crafting; workbenches, the Workshop
+  and the Forge open the crafting window for their recipes. A crafted weapon goes onto the belt
+  and into an empty hand; the mouse wheel and the HUD hotbar switch belt weapons; tonics, brews
+  and baskets heal. The trial sword now starts in the bag, on belt slot 1 and in hand
+  (`?weapon=<id>` gives another). Until quests teach recipes, `?recipes` makes every recipe known;
+  a crafted Workbench waits in the bag ("Place" is disabled) until furniture placement is ported.
 
 ## Rules while it runs
 
