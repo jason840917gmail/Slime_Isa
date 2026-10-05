@@ -243,10 +243,14 @@ func _damage_number_top() -> float:
 	return get_centre().y
 
 
-## Godot deviation (boss spec 4.4): the dead body stays until its `death` clip has played; Phaser
-## removes it the step it dies.
+## Godot deviation (boss spec 4.4, owner decision 2026-10-05): the dead body stays 2 s (its
+## `death` clip, then the last frame) and fades out at the end; Phaser removes it the step it dies.
 func _dispose_delay_ms() -> float:
-	return _clip_length_ms(CLIP_DEATH)
+	return maxf(BOSS_CORPSE_MS, _clip_length_ms(CLIP_DEATH))
+
+
+func _corpse_fade_ms() -> float:
+	return BOSS_CORPSE_FADE_MS
 
 
 # --- phases (FattyScript.ts:117-196) ----------------------------------------------------------------

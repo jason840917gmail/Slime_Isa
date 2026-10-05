@@ -393,9 +393,10 @@ the player has been outside the activation circle since the defeat, re-enters, a
 clock have passed.
 
 **Godot deviation (requested):** Phaser disposes the boss in the step it dies, so its `death`
-clip is never seen. The port keeps the dead body (collision off, hurtbox rejecting `dead`) until
-the `death` clip has played (0.66 s on the gameplay clock), then frees it. Everything else in the
-list above happens on the defeat step, as in Phaser.
+clip is never seen. The port keeps the dead body (collision off, hurtbox rejecting `dead`) for
+2 s on the gameplay clock (owner decision 2026-10-05, `EnemyScript.BOSS_CORPSE_MS`): the `death`
+clip (0.66 s), then its last frame, fading out over the last 0.3 s (`BOSS_CORPSE_FADE_MS`); then
+frees it. Everything else in the list above happens on the defeat step, as in Phaser.
 
 ### 4.5 Reset when the player dies (`scenes/WorldScene.ts:1920-1924` → `resetActiveFights`)
 `reset_active_fight()` (`BossCampScript.ts:134-141`): if a boss lives: remove it, hide the bar

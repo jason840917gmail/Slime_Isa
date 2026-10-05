@@ -296,10 +296,16 @@ func test_defeat_death_clip_rewards_and_respawn_rule(t: TestContext) -> void:
 		var camps: Dictionary = run.map_record("level-1")["boss_camps"]
 		t.near(float((camps.get(CAMP_ID, {}) as Dictionary).get("respawn_ready_at_epoch_ms", -1.0)), ready_at, 0.01,
 			"RunState boss_camps respawn time")
-	# The body stays for the death clip (0.66 s), then frees itself.
+	# The body stays 2 s (owner decision: the death clip, then its last frame), fades out over the
+	# last 0.3 s, then frees itself.
+	var corpse := instance_from_id(root_id) as CanvasItem
+	if corpse != null:
+		await t.until(func() -> bool: return not is_instance_id_valid(root_id) or t.now() - died_at >= 1850.0, 2500.0)
+		if is_instance_id_valid(root_id):
+			t.check(corpse.modulate.a < 0.99, "the dead boss is not fading out near the end")
 	await t.until(func() -> bool: return not is_instance_id_valid(root_id), 1000.0)
 	t.check(not is_instance_id_valid(root_id), "the defeated boss was never freed")
-	t.between(t.now() - died_at, 660.0 - SLACK, 660.0 + 2.0 * SLACK, "dead body lifetime (ms)")
+	t.between(t.now() - died_at, 2000.0 - SLACK, 2000.0 + 2.0 * SLACK, "dead body lifetime (ms)")
 	# Respawn: never while the player stays inside; needs a visit outside and the 180 s timer.
 	await t.steps(10)
 	t.check(not camp.has_live_boss(), "the boss respawned with the player still inside")
