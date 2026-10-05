@@ -60,7 +60,7 @@ Design rules:
 - **Real time** (`Time.get_ticks_msec()`) is only for what Phaser ran on scene time: the player's 120 ms hit flash, the 1400 ms defeat→respawn delay, floating text, health-bar visibility, camera damping and shake, and the end of a hit-stop.
 - **Hit-stop = tree pause.** `GameFeel.hit_stop(ms)` calls `WorldService.set_pause_reason(&"hit-stop", true)`. The tree is paused while any reason is active, so a hit-stop ending never unpauses a menu. While paused, physics, SimClock, AnimationPlayers, tweens and every pausable script stop. These keep running with `PROCESS_MODE_ALWAYS`: GameFeel and its text/particles, WorldCamera, Hud, FpsReadout, and **PlayerScript**.
 - **PlayerScript is ALWAYS** so `_unhandled_input` keeps buffering presses, stamped with the frozen SimClock time. Its `_physics_process` must `return` at the top while `get_tree().paused`. Its `_process` drives the real-time flash and the respawn delay. `Engine.time_scale` is never used.
-- **One `move_and_slide()` caller per body.** `player.gd` moves the player, `enemy.gd` moves each enemy (every path except defeated), and `npc.gd` moves each NPC. Velocity persists between steps: read it back after `move_and_slide()` and never reset it blindly.
+- **One mover call per body.** `player.gd` moves the player, `enemy.gd` moves each enemy (every path except defeated), and `npc.gd` moves each NPC, always with `ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`), never `move_and_slide()`: in floating mode that slides along walls at full speed (about 41 % faster on a diagonal than Arcade), stops dead near head-on and never cuts `velocity`. Velocity persists between steps: read it back after the move (the blocked component is zeroed, as in Arcade) and never reset it blindly.
 - **Step order** inside one physics tick follows tree order: SimClock (priority -1000), then the autoloads, then Main → World children. Within the player that is PlayerScript (state machine, attack start), then PlayerCombat, then WeaponScript (overlap resolve, windows). This matches Phaser: player state machine → node scripts → physics → contacts. EnemyPopulation runs after the world nodes (one step later than Phaser; acceptable per the enemy spec).
 - The weapon resolves `attack_area.get_overlapping_areas()` at the **start** of its step. That keeps Phaser's one-step hit latency.
 
@@ -172,6 +172,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/shared/feet_anchor.gd` | world | **Complete** |
 | `game/shared/directions.gd` | world | **Complete** |
 | `game/shared/perimeter.gd` | world | **Complete** |
+| `game/shared/arcade_mover.gd` | shared | The one way bodies move (Arcade-style slide; never `move_and_slide()`) |
+| `godot/tests/**` | tests | Headless integration tests, `pnpm test:godot` |
 | `game/world/world_camera.gd` | world | |
 | `game/world/world_bounds.gd` | world | |
 | `game/world/npc_wander_policy.gd` | world | |

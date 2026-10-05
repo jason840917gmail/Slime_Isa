@@ -249,6 +249,8 @@ When the view is wider/taller than the world, Phaser pins the view's **left/top*
 
 Bounds are removed in fixed mode (§4.6).
 
+Integer zoom (roundPixels on, §4.4): `Camera.preRender` (`node_modules/phaser/src/cameras/2d/Camera.js:557-571`) floors the scroll (`centre - viewport/2`, screen px) **before** the clamp and stores it back, so the next follow update reads the floored value. Port: when rounding, `p = (p - vp * 0.5).floor() + vp * 0.5` before clamping, and keep that value in `center` (the damped catch-up truncates; moving right/down the camera settles a few px short of the deadzone edge, as in Phaser).
+
 ### 4.6 Fixed camera [OUT for level-1, documented]
 
 `cameraMode == "fixed"` (interiors): `holdFixed({centerX: W/2, centerY: H/2, width: W, height: H})` (`:96-103`): stop following, remove bounds, `zoom = min(1, vp.x / W, vp.y / H)` (`fixedCameraZoom`, `CameraZoom.ts:54-55`; non-positive area → 1), centre on the world centre. `refitFixed()` on viewport resize. `resetZoom()` in fixed mode re-holds. `startFollow` is a no-op in fixed mode.
@@ -263,7 +265,7 @@ Bounds are removed in fixed mode (§4.6).
 
 ### 4.9 Shake (hook only) [OUT for trial behaviour, expose the API]
 
-Combat/feel uses `gameFeel.play(event)` → `camera.shake(ms, intensity * shakeScale)` (`features/feel/GameFeel.ts:37-50,83-94`; default `screenShake` setting 1). Presets: hit 0/0; critical-hit 80 ms/0.006; combo-finisher 120/0.008; slam 150/0.01; player-hurt 110/0.005; boss-landing 100/0.003; boss-defeated 450/0.012; player-defeated 400/0.012; ground-crack 260/0.012; building-restored 320/0.006. Phaser shake: each frame while running, offset = `uniform(-1,1) * intensity * viewport_size` (per axis, roughly ×zoom), rounded when roundPixels. Expose `shake(duration_ms: float, intensity: float)` on the camera applying `Camera2D.offset` with that formula so the combat spec can call it; whether the trial calls it is the combat spec's choice.
+Combat/feel uses `gameFeel.play(event)` → `camera.shake(ms, intensity * shakeScale)` (`features/feel/GameFeel.ts:37-50,83-94`; default `screenShake` setting 1). Presets: hit 0/0; critical-hit 80 ms/0.006; combo-finisher 120/0.008; slam 150/0.01; player-hurt 110/0.005; boss-landing 100/0.003; boss-defeated 450/0.012; player-defeated 400/0.012; ground-crack 260/0.012; building-restored 320/0.006. Phaser shake (`Shake.js:242-250`): each frame while running, offset = `uniform(-1,1) * intensity * viewport_size * zoom` (per axis), rounded when roundPixels, applied as `camera.matrix.translate` after the matrix is already scaled by zoom, so the on-screen shift is `intensity * viewport_size * zoom²`. Godot: `Camera2D.offset` (world units) = that same `* zoom` value. Expose `shake(duration_ms: float, intensity: float)` on the camera applying `Camera2D.offset` with that formula so the combat spec can call it; whether the trial calls it is the combat spec's choice.
 
 ### 4.10 Title-mode drift [OUT]
 
@@ -370,11 +372,11 @@ func _physics_process(delta: float) -> void:
 		_state = r.state
 		body.velocity = r.velocity
 		_play(r.animation)
-	body.move_and_slide()   # Phaser's Arcade step moves the body after scripts; here the NPC script owns the move
+	ArcadeMover.move(body, delta)   # Phaser's Arcade step moves the body after scripts; here the NPC script owns the move
 ```
 
 - `_anchor = body.get_meta("depth_anchor", Vector2.ZERO)`; the target and domain stay in old-root space, the direction/velocity is identical in both spaces.
-- Who calls `move_and_slide()` must match the player/enemy specs' rule (one caller per body). The NPC root has no other script, so `npc.gd` calls it.
+- Who moves the body must match the player/enemy specs' rule (one mover call per body, `ArcadeMover.move`). The NPC root has no other script, so `npc.gd` moves it.
 - `_enter_tree`/`_ready` (`:253-274`): resolve refs, add to groups `npc` and `interactable`, `_play("idle")`. `_exit_tree`: velocity 0.
 - `_play(id)` (`:353-359`): skip if `animation.current_animation == id`; skip if `not animation.has_animation(id)`; else `animation.play(id)`.
 - `_paused() = simulation_paused or interaction_locks > 0` [OUT: modals/dialogue set these; keep the two fields so dialogue can use them later: `set_simulation_paused(bool)` zeroes velocity; `acquire_interaction_lock() -> Callable` (increments, velocity 0, `idle`, emits signal `interaction_lock_changed({locked, lockCount})`, returned callable decrements once)].

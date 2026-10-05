@@ -62,6 +62,8 @@ var _scene_index: Dictionary = {}
 var _areas: Array[Dictionary] = []
 var _pause_reasons: Dictionary = {}
 var _dimensions: Dictionary = {}
+## PackedScene cache: res:// path -> PackedScene (packed_scene()). Emptied by clear().
+var _packed: Dictionary = {}
 
 
 ## Loads res://generated/scene_index.json into `_scene_index` (push_error when missing).
@@ -91,20 +93,39 @@ func scene_path(scene_id: String) -> String:
 
 
 ## Loads and instantiates the converted scene for `scene_id`; null + push_error() when unknown.
-## The instance is NOT added to the tree.
+## The instance is NOT added to the tree. The PackedScene is cached (see packed_scene()), so
+## repeated spawns (camp enemies, hit effects) never re-read the .tscn mid-step.
 func instantiate_scene(scene_id: String) -> Node:
-	var path := scene_path(scene_id)
-	if path.is_empty():
-		push_error("WorldService: unknown scene id '%s'" % scene_id)
-		return null
-	var packed := load(path) as PackedScene
+	var packed := packed_scene(scene_id)
 	if packed == null:
-		push_error("WorldService: could not load %s for '%s'" % [path, scene_id])
 		return null
+	var path := packed.resource_path
 	var instance := packed.instantiate()
 	if instance == null:
 		push_error("WorldService: could not instantiate %s" % path)
 	return instance
+
+
+## The converted PackedScene for `scene_id`, loaded once and kept in `_packed` (an instance
+## holds no reference to its PackedScene, so without this the ResourceLoader cache drops it
+## and every spawn re-parses the file and reloads its textures and sounds). Phaser has every
+## scene document and media file in memory before the world starts (MapLoadScene.ts:56-67);
+## main.gd warms the trial's runtime-spawned scenes through this at bootstrap.
+## Null + push_error() when the id is unknown or the file does not load.
+func packed_scene(scene_id: String) -> PackedScene:
+	var path := scene_path(scene_id)
+	if path.is_empty():
+		push_error("WorldService: unknown scene id '%s'" % scene_id)
+		return null
+	var cached: PackedScene = _packed.get(path) as PackedScene
+	if cached != null:
+		return cached
+	var packed := load(path) as PackedScene
+	if packed == null:
+		push_error("WorldService: could not load %s for '%s'" % [path, scene_id])
+		return null
+	_packed[path] = packed
+	return packed
 
 
 ## Instantiates `scene_id`, places its root so its old Phaser root position is `phaser_point`
@@ -429,8 +450,10 @@ func _apply_pause() -> void:
 		get_tree().paused = should_pause
 
 
-## Forgets the world, player, camera, areas and pause reasons (world unload / reload).
+## Forgets the world, player, camera, areas, pause reasons and the PackedScene cache (world
+## unload / reload).
 func clear() -> void:
+	_packed.clear()
 	world_root = null
 	definition = null
 	ground_layer = null

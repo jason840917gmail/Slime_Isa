@@ -11,8 +11,10 @@ class_name EnemyScript
 ## Node: `EnemyScript` (plain Node child of the CharacterBody2D root, re-anchored to the feet;
 ## worm `metadata/depth_anchor = (0, 22)`). ALL AI maths use old Phaser centres
 ## (`get_centre()`, `primary_target().centre`; enemy spec 9).
-## This script is the only caller of `body.move_and_slide()` for its body (every path except
-## the defeated one). Timers use `Services.now_ms()` (SimClock), which freezes in hit-stop.
+## This script is the only mover of its body: `ArcadeMover.move(body, delta)` (every path except
+## the defeated one) stands in for Phaser Arcade - a wall hit zeroes the blocked velocity component
+## and keeps the tangential one, and that cut velocity is read back next step (enemy spec 4.2).
+## Timers use `Services.now_ms()` (SimClock), which freezes in hit-stop.
 ## The attack-side `animation_event` hitbox events are deliberately ignored (enemy spec 2.1).
 ##
 ## Owner: enemy builder.
@@ -23,6 +25,7 @@ const HitFlash := preload("res://game/feel/hit_flash.gd")
 const EnemyAI := preload("res://game/enemy/enemy_ai.gd")
 const CampTerritory := preload("res://game/enemy/camp_territory.gd")
 const EnemyAttackLifecycle := preload("res://game/enemy/attack_lifecycle.gd")
+const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 
 ## EnemyScript.ts literals (enemy spec 1.2).
 const SIGHT_CHECK_MS := 150.0
@@ -176,8 +179,8 @@ func _exit_tree() -> void:
 
 
 ## Enemy spec 4.2 step order exactly (flash update, defeated, stun slide, no target, territory,
-## attack in flight, AI loop, alerted, facing/clip), then `body.move_and_slide()` on every path
-## except defeated. When defeated: velocity 0 and `body.queue_free()` once
+## attack in flight, AI loop, alerted, facing/clip), then `ArcadeMover.move(body, delta)` on
+## every path except defeated. When defeated: velocity 0 and `body.queue_free()` once
 ## `now >= dispose_at` (enemy spec 7, self-dispose replaces the world-side cleanup).
 func _physics_process(delta: float) -> void:
 	if body == null:
@@ -194,7 +197,7 @@ func _physics_process(delta: float) -> void:
 	# Knockback / hit-stun: slide with decay; no AI, no territory, no attack, no clip change.
 	if now < _hit_stun_until:
 		body.velocity *= pow(HIT_STUN_VELOCITY_DECAY, delta * 60.0)
-		body.move_and_slide()
+		ArcadeMover.move(body, delta)
 		return
 
 	var target := _primary_target()
@@ -204,7 +207,7 @@ func _physics_process(delta: float) -> void:
 		_runtime_state = EnemyAI.STATE_IDLE
 		body.velocity = Vector2.ZERO
 		_play_facing("idle")
-		body.move_and_slide()
+		ArcadeMover.move(body, delta)
 		return
 
 	var origin := get_centre()
@@ -231,7 +234,7 @@ func _physics_process(delta: float) -> void:
 		body.velocity = walk
 		_update_facing(walk)
 		_play_facing("walk" if walk.length() > WALK_SPEED_THRESHOLD else "idle")
-		body.move_and_slide()
+		ArcadeMover.move(body, delta)
 		return
 	if not territory.is_empty() and territory["mode"] == CampTerritory.MODE_ENGAGED \
 			and (_ai_state == EnemyAI.STATE_IDLE or _ai_state == EnemyAI.STATE_WANDER):
@@ -277,7 +280,7 @@ func _physics_process(delta: float) -> void:
 	if _active_sequence_id == NO_ID:
 		_update_facing(velocity)
 		_play_facing("walk" if velocity.length() > WALK_SPEED_THRESHOLD else "idle")
-	body.move_and_slide()
+	ArcadeMover.move(body, delta)
 
 
 # --- API for the spawner / world ---------------------------------------------------------------

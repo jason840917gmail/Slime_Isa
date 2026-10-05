@@ -120,7 +120,7 @@ Non-looping clips hold their last frame when they end (same in Godot).
 ## 3. Clocks and step order [IN]
 
 - Gameplay time is a **simulation clock in ms advanced only by fixed physics steps** (`PlayerScript.ts:93-95`, `UniversalSceneWorldController.ts:692-694`). It stands still while paused and during hit-stop. Every timer below (roll, i-frames, knockback, cooldowns, input buffer, action-animation unlock) uses it. In Godot: accumulate `delta * 1000.0` in `_physics_process` into one `sim_time_ms` (Phaser has two copies one step apart, `PlayerScript.simulationTimeMs` and the world's; the difference is not meaningful). Do **not** use `Time.get_ticks_msec()` for these.
-- Per fixed step (`PhaserSceneTreeHost.ts:96-111`): 1) world clock += dt; `WorldScene.updateGameplay` (the player state machine, §4) 2) physics-domain animations advance 3) nodes' `_physics_process` (PlayerScript clock += dt) 4) velocities pushed to Arcade, physics step, positions/velocities read back 5) attacks/contacts resolved (damage to the player arrives here, §6). Godot equivalent: do the state machine at the top of `_physics_process`, then `move_and_slide()`.
+- Per fixed step (`PhaserSceneTreeHost.ts:96-111`): 1) world clock += dt; `WorldScene.updateGameplay` (the player state machine, §4) 2) physics-domain animations advance 3) nodes' `_physics_process` (PlayerScript clock += dt) 4) velocities pushed to Arcade, physics step, positions/velocities read back 5) attacks/contacts resolved (damage to the player arrives here, §6). Godot equivalent: do the state machine at the top of `_physics_process`, then `ArcadeMover.move(body, delta)`.
 - Input events are queued and dispatched once per rendered frame **before** the fixed steps (`drainInput`, `PhaserSceneTreeHost.ts:157-163`), sorted by timestamp.
 - Rendering interpolates physics positions between steps (`presentation/PhysicsPresentation.ts`). Godot: enable 2D physics interpolation (`physics/common/physics_interpolation = true`) to get the same smoothness on >60 Hz screens.
 
@@ -236,7 +236,7 @@ control hint 'dodge' learned                  # [OUT] hints UI
 ```
 Distance on open ground: 380 × 0.5 = **190 px**. During the roll:
 - Movement keys are ignored and the velocity is never rewritten (§4.1); action presses are buffered but expire (roll 500 ms > buffer 150 ms, so only presses made in the last 150 ms of the roll fire when it ends).
-- Hitting a wall: Arcade zeroes the blocked axis and the read-back velocity keeps it zero for the rest of the roll. Godot: keep the persistent `velocity` and let `move_and_slide()` update it — same effect.
+- Hitting a wall: Arcade zeroes the blocked axis and the read-back velocity keeps it zero for the rest of the roll. Godot: keep the persistent `velocity` and move with `ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`), which zeroes the blocked component the same way. (`move_and_slide()` in floating mode does not: it keeps the velocity and slides at full speed.)
 - i-frames: `isDodging() = sim < dodgeUntilMs` → `canReceiveDamage` returns `state-blocked` (`PlayerScript.ts:218-221`). From 400 to 500 ms the slime is still rolling but can be hit; a hit then sets the knockback velocity (overrides the roll) and extends suppression.
 - When the roll ends the next normal step's `move()` restores walk/idle.
 - No squash, no trail, no tint during the roll.
@@ -389,7 +389,7 @@ return sim_time − t <= 150          # older presses are DROPPED, not fired lat
 | `hit` (sword lands on a creature — weapon spec) | 0 | 0 | 65 |
 | `critical-hit` (crit swing begins — `CombatController.ts:173`) | 80 | 0.006 | 95 |
 
-Phaser shake (3.90 `Shake.js:244-245`): each frame camera offset = `U(−1,1) × intensity × viewport_width` (x) and `× viewport_height` (y), times zoom; a new shake while one runs is ignored. Godot: `Camera2D.offset = Vector2(randf_range(-1,1)*i*vw, randf_range(-1,1)*i*vh)` per frame (Camera2D offset is in world units and is then zoomed, matching Phaser's × zoom).
+Phaser shake (3.90 `Shake.js:244-245`): each frame camera offset = `U(−1,1) × intensity × viewport_width` (x) and `× viewport_height` (y), times zoom; a new shake while one runs is ignored. Godot: `Camera2D.offset = Vector2(randf_range(-1,1)*i*vw, randf_range(-1,1)*i*vh) * zoom` per frame. The offset is in world units and the camera zooms it again, so the on-screen shift is `× zoom²`, which is what Phaser's scroll offset does (`world_camera.gd` `_advance_shake`; corrected by the 2026-10-04 review, which found the earlier formula missing the `× zoom`).
 Godot hit-stop suggestion: `Engine.time_scale = 0.0` and restore with `get_tree().create_timer(ms/1000.0, true, false, true)` (ignore_time_scale = true); make shake/particles/flash use unscaled time.
 
 Squash and stretch (`SquashStretch.ts:122-185`): the event snaps the Visual's extra scale to the preset, then tweens back to 1; a new event replaces the running one; skipped while an ability sequence is busy (unless forced). Reduce motion keeps 35 %: `start = 1 + (preset − 1) × 0.35`. Effective scale = authored 0.28125 × effect scale.
@@ -478,7 +478,7 @@ Jump (Space, 700 ms cd, 168 px, 420 ms, arc 54 px), Stretch Lash (2, 2000 ms cd,
 ## 13. Suggested Godot shape (non-binding; architect decides)
 
 - `res://game/scripts/player.gd` on the `PlayerScript` Node: exports per §1, signals `health_changed`, `damaged`, `defeated`, `damage_feedback` (one Dictionary each), `on_pickup_area_entered(area)` stub. Holds `sim_time_ms`, held/pressed input, `facing`, timers (`dodge_until`, `roll_until`, `suppressed_until`, `knockback_anim_until`, `iframe_until`, `dodge_cooldown_until`), `action_locked`, `dead`, `current_clip_key`.
-- `_physics_process(delta)`: advance clock → state machine §4.1 → `body.move_and_slide()` (the body itself has no script from the converter; the player script drives it). World-bounds clamp after moving (converter drops `collideWorldBounds`).
+- `_physics_process(delta)`: advance clock → state machine §4.1 → `ArcadeMover.move(body, delta)` (the body itself has no script from the converter; the player script drives it). World-bounds clamp after moving (converter drops `collideWorldBounds`).
 - Receiver API for the combat router: `get_damage_state()`, `can_receive_damage(input)`, `mitigate_damage(input)`, `commit_damage(commit)`, `publish_damage_feedback(commit)`, plus `apply_knockback(dir, strength, ms)`.
 - Values from the constants autoload (`character.player.*`, `input.bufferMs`); the literals in §2 marked "literal" may stay as named `const`s in the script with a comment pointing to the Phaser source (they are not in `game-constants.json`).
 

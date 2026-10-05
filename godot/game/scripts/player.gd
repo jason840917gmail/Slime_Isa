@@ -7,7 +7,8 @@ class_name PlayerScript
 ## Node: `PlayerScript` (plain Node child of the `PlayerSlime` CharacterBody2D root). The root is
 ## re-anchored to the feet (`metadata/depth_anchor = (0, 27.56)`); everything Phaser did on the
 ## body position uses `get_centre()` (player spec section 11).
-## This script is the only caller of `body.move_and_slide()` for the player body.
+## This script is the only code that moves the player body (`ArcadeMover.move`, never
+## `move_and_slide()`).
 ##
 ## Process model:
 ## - `process_mode = PROCESS_MODE_ALWAYS` (set in `_ready`) so `_unhandled_input` keeps capturing
@@ -15,8 +16,9 @@ class_name PlayerScript
 ##   hit flash / defeat delay keep running. `_physics_process` returns immediately while
 ##   `get_tree().paused` (hit-stop or modal), which freezes the state machine like Phaser.
 ## - Every gameplay timer uses `Services.now_ms()` (SimClock).
-## - Per physics step: state machine (player spec 4.1) at the top, then `body.move_and_slide()`
-##   (velocity persists between steps; a roll/knockback velocity is only rewritten when it ends).
+## - Per physics step: state machine (player spec 4.1) at the top, then `ArcadeMover.move()`
+##   (Arcade-style resolution; velocity persists between steps; a roll/knockback velocity is
+##   only rewritten when it ends, apart from a blocked axis being zeroed).
 ##
 ## Collaborators: PlayerCombat (res://game/combat/player_combat.gd, set by main.gd through
 ## `set_combat`) for the attack; DamageRouter (receiver registration); GameFeel (feel presets,
@@ -25,6 +27,7 @@ class_name PlayerScript
 ## Owner: player builder.
 
 const Services := preload("res://game/shared/services.gd")
+const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Directions := preload("res://game/shared/directions.gd")
 const PlayerInputBuffer := preload("res://game/player/player_input_buffer.gd")
@@ -209,8 +212,8 @@ func _unhandled_input(event: InputEvent) -> void:
 ## 4.1 in this order: dead -> stop; read direction; movement suppressed (roll/knockback) -> keep
 ## velocity; action locked (weapon swing) -> velocity 0; handle_action_input() consumed ->
 ## keep last velocity this step; else move-start squash + move(direction) (player spec 4.3,
-## 4.5). Then `body.move_and_slide()`.
-func _physics_process(_delta: float) -> void:
+## 4.5). Then `ArcadeMover.move(body, delta)`.
+func _physics_process(delta: float) -> void:
 	if get_tree().paused or body == null:
 		return
 	if _dead:
@@ -227,7 +230,9 @@ func _physics_process(_delta: float) -> void:
 		else:
 			_squash_on_move_start(direction)
 			_move(direction)
-	body.move_and_slide()
+	# Arcade-style step (player spec 5.2): a wall hit zeroes the blocked velocity component, which
+	# then stays zero for the rest of a roll or knockback (CharacterBody2DNode.ts:61-66).
+	ArcadeMover.move(body, delta)
 
 
 ## Real-time work (runs during hit-stop): ends the 120 ms hit flash; after a death, respawns
@@ -586,7 +591,7 @@ func _begin_roll(direction: Vector2) -> bool:
 	var now: float = Services.now_ms()
 	_dodge_until_ms = maxf(_dodge_until_ms, now + minf(_dodge_iframes_ms, _dodge_duration_ms))
 	_roll_until_ms = maxf(_roll_until_ms, now + _dodge_duration_ms)
-	# Set once; persists for the whole roll (a wall hit zeroes the blocked axis via move_and_slide).
+	# Set once; persists for the whole roll (a wall hit zeroes the blocked axis via ArcadeMover.move).
 	body.velocity = roll_direction * _resolve_movement_speed(_dodge_speed)
 	_play_direct(CLIP_ROLL)
 	face(roll_direction)
@@ -683,12 +688,14 @@ func _play_direct(clip: String) -> void:
 ## `force` restarts the clip from its first frame. Otherwise the clip starts only when it is not
 ## the assigned one; an assigned looping clip that was stopped is resumed, and a finished one-shot
 ## clip keeps holding its last frame (Phaser behaviour).
+## A (re)started clip shows its first key on the same step (Phaser `AnimationClock.start`
+## dispatches frame 0 synchronously, clock.ts:104-120): `seek(0.0, true)` applies it at once, so a
+## hit-stop that pauses the tree right after still shows the new pose. No `stop()` before a forced
+## restart: it would snap the outgoing clip to its own frame 0 first.
 func _play_clip(clip: String, force: bool) -> void:
-	if force:
-		animation.stop()
+	if force or animation.assigned_animation != clip:
 		animation.play(clip)
-	elif animation.assigned_animation != clip:
-		animation.play(clip)
+		animation.seek(0.0, true)
 	elif not animation.is_playing() and _is_looping(clip):
 		animation.play(clip)
 
