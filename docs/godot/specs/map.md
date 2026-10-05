@@ -143,11 +143,10 @@ GameWindows (CanvasLayer 40, game/ui/screens/game_windows.gd; main's child)
   and the waypoint pin as §1.2, in the same colours and sizes. Order: terrain, tint and border (the
   Minimap's own `_draw`) < Frame < Overlay (markers, view rectangle, player on top, as Phaser's
   canvas draws over its frame). The missing-texture fallback of §1.4.
-- **Terrain (option, off by default).** By default the interior is Phaser's: see-through under the
-  16 % tint, as the approved artwork-first HUD asks (docs/GAME_GUIDELINES.md "UI Style",
-  2026-09-04: "terrain remains visible through it"; never the old near-opaque square). Setting
-  `Minimap.terrain_alpha` above 0 (a **[DIFF]** for the owner to choose) draws the world's ground
-  under the tint and bakes it on the spot: `MapTerrain.bake(ground)`
+- **[DIFF] Terrain (owner decision 2026-10-05: on).** Phaser's interior is see-through under the
+  16 % tint (the artwork-first HUD of 2026-09-04); the owner found that minimap underdeveloped and
+  chose a drawn map. `Minimap.terrain_alpha` (default 1) draws the world's ground under the tint;
+  0 gives Phaser's see-through interior back. The bake: `MapTerrain.bake(ground)`
   makes one `Image` of one pixel per tile (each tile's average colour: its atlas texture shrunk to the
   atlas grid with trilinear filtering, i.e. a box average, cached per texture for the whole run;
   empty cells transparent; level-1 bakes in about 130 ms the first time, a few ms once its atlases
@@ -156,7 +155,8 @@ GameWindows (CanvasLayer 40, game/ui/screens/game_windows.gd; main's child)
   Baked on `WorldService.world_registered`, dropped when that world root leaves the tree (travel,
   load, quit), so nothing per world outlives its world and nothing is per tile at draw time. (The
   2026-09-03 skin design had code-drawn terrain inside this frame; the 2026-09-04 artwork-first
-  design replaced it with the see-through tint, which is why it is off.) Walls and trees are
+  design replaced it with the see-through tint; the owner brought the drawn map back on
+  2026-10-05.) Walls and trees are
   objects, not ground, and are not drawn (stamping their collision shapes was tried: it only adds
   speckle at this scale).
 - **[DIFF] Frame art.** The 1254 px painting has no mipmaps, so the frame shows it shrunk once to
