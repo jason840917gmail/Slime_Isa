@@ -205,8 +205,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   NPCs offer, take back and talk about quests through the dialogue box and the offer / turn-in
   window, wear "!" / "?" markers, and the HUD tracker lists the quests (a click shows the gold
   waypoint, also on the maps). Pickups, ordinary enemy deaths, boss defeats, restorations, arrivals,
-  sprinting, the menus, crafting and belt switches count; furniture placement counts once it is
-  ported. The journal window is not ported yet. `?quest=<id>[:<stage>]` starts a
+  sprinting, the menus, crafting, belt switches and placing furniture count. The journal window is
+  not ported yet. `?quest=<id>[:<stage>]` starts a
   quest at a stage for testing.
 - Crafting, the bag and the weapon belt are ported (2026-10-05, [godot/specs/crafting.md](./godot/specs/crafting.md)):
   E opens the bag (belt, cells, details; Use, Hold in hand, belt assignment, drag onto the belt,
@@ -214,8 +214,14 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   and the Forge open the crafting window for their recipes. A crafted weapon goes onto the belt
   and into an empty hand; the mouse wheel and the HUD hotbar switch belt weapons; tonics, brews
   and baskets heal. The trial sword now starts in the bag, on belt slot 1 and in hand
-  (`?weapon=<id>` gives another). Until quests teach recipes, `?recipes` makes every recipe known;
-  a crafted Workbench waits in the bag ("Place" is disabled) until furniture placement is ported.
+  (`?weapon=<id>` gives another). `?recipes` makes every recipe known (a dev aid).
+- Furniture placement is ported (2026-10-05, [godot/specs/furniture.md](./godot/specs/furniture.md)):
+  crafting a Workbench (or "Place" in the bag) shows a ghost that follows the pointer on a 32 px
+  grid, green within reach on free ground and red elsewhere; left click places it (the wheel
+  switches to the bench with a vise, right click or Esc cancels) while the slime keeps walking. A
+  placed bench is a crafting station, comes back with the world, and a 450 ms hold of the interact
+  button picks it up. "A Place to Work" can now be finished in play. Placement ends if the slime
+  is defeated (owner decision F1 as recommended).
 
 ## Rules while it runs
 

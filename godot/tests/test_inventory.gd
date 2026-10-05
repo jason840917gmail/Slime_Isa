@@ -322,7 +322,7 @@ func test_drop_disabled_for_workbench(t: TestContext) -> void:
 	t.check(bag.drop_button.disabled and bag.drop_all_button.disabled, "the workbench can be dropped")
 	t.check(not bag.remove_button.disabled, "the workbench cannot be destroyed (K7)")
 	t.equal(bag.primary_button.text, "Place", "primary label")
-	t.check(bag.primary_button.disabled, "Place is enabled before furniture placement (C1)")
+	t.check(not bag.primary_button.disabled, "Place is disabled (furniture placement is ported)")
 	t.equal(bag.model()["details_status"], "Furniture · 1 in the bag", "status")
 	bag.close()
 

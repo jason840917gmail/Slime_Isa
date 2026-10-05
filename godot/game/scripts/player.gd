@@ -159,6 +159,10 @@ var _gulp_wheel: GulpWheel
 var _status: StatusEffects = StatusEffects.new(_status_damage)
 ## The world's interaction controller (group "interaction"), looked up on the first press.
 var _interaction: Node
+## Furniture placement (game/building/furniture_placement.gd, group "furniture_placement").
+var _furniture: Node
+## The interact press on a target with a hold action (a placed bench): its start (sim ms), -1 = none.
+var _interact_hold_since_ms: float = -1.0
 ## Simulation-time deadlines (ms).
 var _dodge_until_ms: float = 0.0
 var _roll_until_ms: float = 0.0
@@ -186,6 +190,11 @@ const WAKE_ACTIONS: Array[StringName] = [&"interact", &"attack", &"jump", &"dodg
 	&"squash_slam", &"teleport", &"eat"]
 const INTERACTION_GROUP := &"interaction"
 const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
+const FURNITURE_GROUP := &"furniture_placement"
+## INTERACT_HOLD_MS (WorldScene.ts:151): holding interact this long runs the target's hold action.
+const INTERACT_HOLD_MS := 450.0
+## Presses placement mode throws away (WorldScene.ts:1773-1786).
+const PLACEMENT_DROPPED_ACTIONS: Array[StringName] = [&"jump", &"dodge", &"stretch_lash", &"squash_slam", &"teleport", &"eat"]
 ## InitialRun.ts:15 new-run coins (coins are OUT; the HUD snapshot shows the new-run value).
 const NEW_RUN_COINS := 50
 ## Global audio cues (AudioEventBridge.ts:31-42).
@@ -554,6 +563,7 @@ func clear_input() -> void:
 	_wheel.reset()
 	# A menu or window closes the eat hold too (Phaser closes it while paused).
 	_close_eat_hold()
+	_interact_hold_since_ms = -1.0
 
 
 ## `PlayerScript.consumeActionPress` (player spec 7.3): uses a pending press of `action` if it is
@@ -1009,17 +1019,38 @@ func play_action_clip(clip: String) -> void:
 ## consumed press wins and ends the step. Returns true when an action was consumed.
 func _handle_action_input() -> bool:
 	var now: float = Services.now_ms()
-	# The wheel's weapon steps come first and do not end the step (WorldScene.ts:1788-1793): the
+	# Placing furniture comes first (furniture spec 5): left click places, the wheel switches the
+	# variant, right click cancels, other actions are dropped; the step goes on (the slime walks).
+	var furniture := _furniture_placement()
+	if furniture != null and bool(furniture.call(&"is_active")):
+		if _input.consume(&"attack", now, _buffer_ms):
+			furniture.call(&"press_place")
+		if _input.consume(&"weapon_next", now, _buffer_ms):
+			furniture.call(&"cycle_variant", 1)
+		if _input.consume(&"weapon_previous", now, _buffer_ms):
+			furniture.call(&"cycle_variant", -1)
+		if _input.consume(&"interact", now, _buffer_ms):
+			furniture.call(&"cancel")
+		for action in PLACEMENT_DROPPED_ACTIONS:
+			_input.consume(action, now, _buffer_ms)
+		return false
+	# The wheel's weapon steps come next and do not end the step (WorldScene.ts:1788-1793): the
 	# slime keeps walking and an attack can follow in the same step.
 	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
 		if _input.consume(step[0], now, _buffer_ms):
 			_switch_weapon(int(step[1]))
+	if _update_interact_hold(now):
+		return true
 	# Interact comes first (WorldScene.handleActionInput, interaction spec 2.7) and ends the step
-	# even without a target.
+	# even without a target. A target with a hold action (a placed bench: "Hold: Pick up") waits
+	# for the release (its main action) or 450 ms held (the hold action).
 	if _input.consume(&"interact", now, _buffer_ms):
 		var interaction := _interaction_controller()
 		if interaction != null and bool(interaction.call(&"has_candidate")):
-			interaction.call(&"handle_interact")
+			if bool(interaction.call(&"has_secondary")):
+				_interact_hold_since_ms = now
+			else:
+				interaction.call(&"handle_interact")
 		return true
 	# Abilities in Phaser's dispatch order: jump, dodge, stretch-lash, squash-slam, teleport.
 	for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
@@ -1549,6 +1580,31 @@ func _interaction_controller() -> Node:
 	if _interaction == null or not is_instance_valid(_interaction):
 		_interaction = get_tree().get_first_node_in_group(INTERACTION_GROUP)
 	return _interaction
+
+
+func _furniture_placement() -> Node:
+	if _furniture == null or not is_instance_valid(_furniture):
+		_furniture = get_tree().get_first_node_in_group(FURNITURE_GROUP)
+	return _furniture
+
+
+## `updateInteractHold` (WorldScene.ts:1836-1853): true while the hold owns the step.
+func _update_interact_hold(now: float) -> bool:
+	if _interact_hold_since_ms < 0.0:
+		return false
+	var interaction := _interaction_controller()
+	if interaction == null or not bool(interaction.call(&"has_secondary")):
+		_interact_hold_since_ms = -1.0
+		return false
+	if now - _interact_hold_since_ms >= INTERACT_HOLD_MS:
+		_interact_hold_since_ms = -1.0
+		interaction.call(&"handle_secondary")
+		return true
+	if _input.is_held(&"interact"):
+		return true
+	_interact_hold_since_ms = -1.0
+	interaction.call(&"handle_interact")
+	return true
 
 
 ## The belt's next (+1) or previous (-1) weapon into the hand (`WeaponLoadout.cycle_slot`, then

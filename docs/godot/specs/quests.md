@@ -368,7 +368,7 @@ turnInsForNpc(npcId)     active + readyToTurnIn + completion npc-turn-in + npcId
 | `object.activated` | `WorldScene.ts:2114` (`restoreSite`) | `{objectId, instanceId (persistence key of the enclosing instance, e.g. `level-1.level-1-forge`), areaId}` | after the cost is paid and the flag set | `restoration_site.gd restore()` |
 | `area.enter` | `WorldScene.ts:515` | `{areaId}` (= map id for every current world) | every world arrival (boot, travel, door, load), not in title mode | `main.gd _build_world` end |
 | `control.used` | `WorldScene.ts:596-602` (modal opened: `inventory`→`menu:inventory`, `crafting`→`menu:crafting`, `quest-journal`→`menu:journal`, `world-map`→`menu:map`, `pause-menu`→`pause`, `MENU_CONTROL_IDS :141-147`), `:620-624` (sprint rising edge: moving and sprint held, while playing), `:2157-2161` (belt switch) | `{controlId}` | as listed | Shell `menu_opened(&"pause-menu")`, `player.gd` sprint edge; menus/belt [BLOCKED] |
-| `furniture.placed` | `WorldScene.ts:1248-1250` | `{mapId, placementId, itemId, sceneId, x, y}` | after a successful placement | furniture placement [BLOCKED] |
+| `furniture.placed` | `WorldScene.ts:1248-1250` | `{mapId, placementId, itemId, sceneId, x, y}` | after a successful placement | `furniture_placement.gd` `place` |
 | `escort.completed`, `survival.completed` | none | — | never emitted [OUT] | — |
 
 - `workbench.opened {mapId, context}` (`WorldScene.ts:1283`) is **not** a quest input and has **no
@@ -810,7 +810,7 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 
 | Quest | Needs | State in Godot |
 |---|---|---|
-| a-place-to-work | crafting (`craft-workbench`, portable), furniture placement (`place-item`) | **[BLOCKED]**: the first main quest cannot complete; every main quest after it has a craft stage |
+| a-place-to-work | crafting (`craft-workbench`, portable), furniture placement (`place-item`) | ported 2026-10-05: completable in play |
 | slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | sprint and pause portable now (Shell `menu_opened`); 4 of 6 objectives [BLOCKED] |
 | stone-tools | crafting at a workbench (placed bench or restored Workshop), belt weapon switch, axe/pickaxe as weapons, pile pickups | crafting/belt [BLOCKED]; pickups ported (`collectible.gd`) |
 | worm-trouble | crafting; `enemy.died` for worm swordsmen | enemy defeat award: other engineer (hook §10.4) |

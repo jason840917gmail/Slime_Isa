@@ -38,6 +38,18 @@ static func definition(item_id: String) -> Dictionary:
 	}
 
 
+## Ids of the items.json items that can be placed in the world (`placeable.sceneIds`).
+static func placeable_item_ids() -> PackedStringArray:
+	var ids := PackedStringArray()
+	var constants := Services.constants()
+	var items: Variant = constants.data_file(ITEMS_FILE) if constants != null else null
+	if items is Dictionary:
+		for item_id: Variant in items:
+			if (items[item_id] as Dictionary).get("placeable") is Dictionary:
+				ids.append(str(item_id))
+	return ids
+
+
 ## The items.json entry of `item_id`, {} when it is not a plain item.
 static func base_definition(item_id: String) -> Dictionary:
 	var constants := Services.constants()

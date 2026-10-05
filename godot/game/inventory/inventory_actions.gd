@@ -163,7 +163,14 @@ func on_crafted(result: Dictionary) -> void:
 	var output := str((recipe.get("output", {}) as Dictionary).get("itemId", ""))
 	var crafted_text := "Crafted: %s" % str(recipe.get("name", output))
 	if ItemCatalog.definition(output).has("placeable"):
-		# Furniture placement is not ported (owner decision C1): the bench waits in the bag.
+		# WorldScene.ts:2296-2300: the crafting window closes and placement starts.
+		var menus := get_tree().get_first_node_in_group(&"menu_windows")
+		var crafting: Variant = menus.get(&"crafting") if menus != null else null
+		if crafting != null and is_instance_valid(crafting) and bool((crafting as Node).call(&"is_open")):
+			(crafting as Node).call(&"close")
+		var furniture := get_tree().get_first_node_in_group(&"furniture_placement")
+		if furniture != null:
+			furniture.call(&"start", output)
 		_text(CRAFTED_TEXT_RISE, crafted_text, &"green", true)
 		return
 	var weapon_id := ItemCatalog.weapon_id_of(output)

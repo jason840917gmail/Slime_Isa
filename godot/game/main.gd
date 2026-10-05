@@ -12,7 +12,9 @@ extends Node2D
 ## (game/quests/quest_service.gd: the quest service, which mounts the dialogue box and the offer
 ## window in GameWindows; `on_world_built(map_id)` at the end of every build, its conversations
 ## closed on teardown), QuestMarkers (game/ui/npc_quest_markers.gd) and QuestWaypoint
-## (game/ui/quest_waypoint_view.gd), both cleared on teardown. InventoryActions
+## (game/ui/quest_waypoint_view.gd), both cleared on teardown. FurniturePlacement
+## (game/building/furniture_placement.gd: placing benches, picking them up; placed furniture is
+## mounted again on every build). InventoryActions
 ## (game/inventory/inventory_actions.gd: belt, consumables and craft glue) and GameWindows'
 ## MenuWindows child (game/ui/screens/menu_windows.gd: the menu key, the bag, the crafting window
 ## and the tab strip) are made once too. Launch options `recipes` (every recipe known) and
@@ -68,6 +70,8 @@ const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
 const LaunchOptions := preload("res://game/shell/launch_options.gd")
 const ControlHints := preload("res://game/hints/control_hints.gd")
+const FurniturePlacement := preload("res://game/building/furniture_placement.gd")
+const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const QuestService := preload("res://game/quests/quest_service.gd")
 const NpcQuestMarkers := preload("res://game/ui/npc_quest_markers.gd")
 const QuestWaypointView := preload("res://game/ui/quest_waypoint_view.gd")
@@ -124,6 +128,8 @@ var menu_windows: MenuWindows
 var quests: QuestService
 var quest_markers: NpcQuestMarkers
 var quest_waypoint: QuestWaypointView
+## Furniture placement and the placed benches (game/building/furniture_placement.gd), made once.
+var furniture: FurniturePlacement
 
 var _transitioning: bool = false
 var _next_gate_message_ms: int = 0
@@ -158,6 +164,8 @@ func _ready() -> void:
 	if run != null and has_launch_option("recipes"):
 		run.debug_all_recipes_known = true
 	add_child(ControlHints.new())
+	furniture = FurniturePlacement.new()
+	add_child(furniture)
 	# After GameWindows: the service mounts the dialogue box and the offer window there.
 	quests = QuestService.new()
 	quests.name = "Quests"
@@ -188,6 +196,9 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	if run != null:
 		run.mark_area_discovered(target_map_id)
 	WorldBounds.build(world_root, world_service.world_rect())
+	# Placed furniture comes back before the player spawns (furniture spec 7.3).
+	if furniture != null:
+		furniture.restore_world(target_map_id)
 	player = spawn_player(navigation)
 	if player == null:
 		push_error("Main: could not spawn the player")
@@ -351,6 +362,8 @@ func _teardown_world() -> void:
 		quest_markers.clear()
 	if quest_waypoint != null:
 		quest_waypoint.clear()
+	if furniture != null:
+		furniture.clear()
 	if enemy_population != null and is_instance_valid(enemy_population):
 		remove_child(enemy_population)
 		enemy_population.queue_free()
@@ -592,6 +605,11 @@ func warm_runtime_scenes() -> void:
 		var drop: Variant = node.get(&"drop")
 		if drop is Dictionary and (drop as Dictionary).get("objectId") is String:
 			world_service.packed_scene("object." + str(drop["objectId"]).replace(".", "-"))
+	# Placeable furniture scenes (Phaser config.ts:75-76 preloads them with every world).
+	for item_id: String in ItemCatalog.placeable_item_ids():
+		var placeable: Dictionary = ItemCatalog.definition(item_id)["placeable"]
+		for scene_id: Variant in placeable.get("sceneIds", []):
+			world_service.packed_scene(str(scene_id))
 	var feel := Services.feel()
 	if feel != null:
 		feel.warm_up()
