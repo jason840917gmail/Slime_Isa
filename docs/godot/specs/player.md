@@ -185,6 +185,7 @@ Other rules:
 - Updated by: moving (8-way, normalized), `face(dir)` (attack in pointer mode, dodge; `PlayerController.ts:104-108`: ignores zero, sets facing + flip with the same rule). Not updated by standing still, knockback, or the roll's motion.
 - Consumers: attack direction (§9), dodge fallback direction (§5), save (cardinal: `|x| > |y|` → left/right, else up/down — note strict `>` here vs `>=` elsewhere).
 - Flip rule everywhere: `flip_h = abs(x) >= abs(y) and x > 0` (exact tie such as (1,1) normalized → flips right).
+- **Godot port (owner decisions O1/O4, 2026-10-05):** the three-quarter top-down sheet replaces this for every clip it has. `player.gd` plays a requested clip as `<clip>-down` / `-up` (mostly vertical facing) or `-side` (right art, mirrored for left), or `<clip>-left` where one exists (the keyed sword swing), and sets the flip for that clip on every play and in `face()`; clips without a directional version (knockback, die, ...) keep the rule above. The roll faces before it plays (Phaser plays, then faces) so it picks the roll's row.
 
 ### 4.5 Move-start squash (`WorldScene.ts:905-911`)
 

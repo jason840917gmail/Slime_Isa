@@ -1,4 +1,4 @@
-"""Packs page 1 of the three-quarter top-down player slime (v2): idle and walk facing down, up and side.
+"""Packs a page of the three-quarter top-down player slime (v2) from its Seedance clips.
 
 Sources (asset/Originals/characters/slime-v2/): `videos/<row>.mp4`, one Seedance 1.5 Pro clip per
 row, each made with the same start and end frame (`start-<direction>.png`, cut from the approved
@@ -16,11 +16,14 @@ For each clip:
    slime sheet's frame 0) and align each clip by its first frame: centred at x 128, bottom at y 251
    of a 256 px cell, so the motion inside the clip is kept.
 
-Writes asset/characters/256x256-tile_8x8-slime-v2-page-1.webp (8 x 8 cells of 256 px; rows 0-5 are
-idle down/up/side and walk down/up/side, rows 6-7 free) and slime-v2/page-1.json (loop choice and
-playback fps per row, which the Godot player scene's clips use).
+Pages (PAGES below): 1 = idle and walk, 2 = roll, each facing down, up and side.
+Looping rows (idle, walk) play at 8 * 24 / loop length fps; one-shot rows (roll, attack-1) cut one
+neutral-to-neutral action and are timed to their gameplay duration (ONE_SHOT_MS).
+Writes asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp (8 x 8 cells of 256 px, one row per
+clip, unused rows empty) and slime-v2/page-<n>.json (loop choice, fps and looping per row, which
+godot/tools/build_player_clips.gd turns into the player scene's clips).
 
-usage: python scripts/characters/pack-slime-v2-page.py [--preview preview.gif]
+usage: python scripts/characters/pack-slime-v2-page.py [--page N] [--preview preview.gif]
 Needs Pillow, numpy, Node and Brave (BRAVE_PATH to override its path).
 """
 from __future__ import annotations
@@ -40,20 +43,36 @@ sys.path.insert(0, str(REPO / "scripts" / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
 SOURCES = REPO / "asset" / "Originals" / "characters" / "slime-v2"
-OUTPUT = REPO / "asset" / "characters" / "256x256-tile_8x8-slime-v2-page-1.webp"
 EXTRACTOR = REPO / "scripts" / "characters" / "extract-video-frames.mjs"
 
 CELL = 256
 COLUMNS = 8
 SOURCE_FPS = 24
 EXTRACT_SIZE = 512
+START_FRAME_SIZE = 1024  # the start-<direction>.png canvases the clips begin from
 TARGET_WIDTH = 186
 BOTTOM = 251
 CENTRE_X = 128
-ROWS = ["idle-down", "idle-up", "idle-side", "walk-down", "walk-up", "walk-side"]
-LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24)}  # loop length, in source frames
-# Source frames a row's loop may use: the side walk turns toward the viewer before frame 58.
-WINDOWS = {"walk-side": (58, 97)}
+PAGES = {
+    1: ["idle-down", "idle-up", "idle-side", "walk-down", "walk-up", "walk-side"],
+    2: ["roll-down", "roll-up", "roll-side"],
+}
+# Loop (or one-shot action) length range in source frames, by clip (the row name minus its direction).
+LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24), "roll": (8, 30), "attack-1": (8, 30)}
+# One-shot clips are timed to gameplay: the dodge roll lasts 500 ms (player spec 5.2) and a sword
+# swing 416.67 ms (the basic sword's attack plans).
+ONE_SHOT_MS = {"roll": 500.0, "attack-1": 416.67}
+# Source frames a row's loop may use: the side walk turns toward the viewer before frame 58; the
+# down and up rolls tumble only in these stretches.
+WINDOWS = {"walk-side": (58, 97), "roll-down": (25, 46), "roll-up": (30, 66)}
+# Rows whose clip drifts sideways (the rolls): each frame is centred and stood on the baseline on
+# its own (in play the body moves during a dodge anyway). They keep the page scale: a tumble changes
+# the slime's shape, not its size.
+RECENTRED = {"roll-down", "roll-up"}
+# Rows baked from a still instead of a clip: the side roll is the side pose spun clockwise in 45°
+# steps (a right-facing profile rolling right; mirrored, it rolls left), tucked to fit the cell.
+SPINS = {"roll-side": "start-side.png"}
+SPIN_TUCK = 0.88
 
 
 def keyed(path: Path) -> np.ndarray:
@@ -132,57 +151,104 @@ def place(frame: Image.Image, offset: tuple[int, int]) -> Image.Image:
     return canvas.crop((pad - offset[0], pad - offset[1], pad - offset[0] + CELL, pad - offset[1] + CELL))
 
 
-def extract(frames_dir: Path) -> None:
-    clips = [f"{row}={SOURCES / 'videos' / f'{row}.mp4'}" for row in ROWS]
+def clip_of(row: str) -> str:
+    """The clip a row belongs to: its name without the direction suffix ("attack-1-side" -> "attack-1")."""
+    return row.rsplit("-", 1)[0]
+
+
+def spin_cells(still: np.ndarray, scale: float) -> list[Image.Image]:
+    """Eight cells of `still` (a keyed frame) rotated clockwise by 0, 45, ... 315 degrees about its
+    body centre, scaled by `scale` and SPIN_TUCK, the body centre at the neutral pose's centre."""
+    x0, y0, x1, y1 = bbox(still[..., 3])
+    body = Image.fromarray((still * 255).astype(np.uint8), "RGBA").crop((x0, y0, x1, y1))
+    size = (round(body.width * scale * SPIN_TUCK), round(body.height * scale * SPIN_TUCK))
+    body = body.resize(size, Image.LANCZOS)
+    centre = (CENTRE_X, BOTTOM - round((y1 - y0) * scale) / 2)
+    cells = []
+    for step in range(COLUMNS):
+        turned = body.rotate(-45 * step, resample=Image.BICUBIC, expand=True)
+        cell = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
+        cell.alpha_composite(place(turned, (round(centre[0] - turned.width / 2), round(centre[1] - turned.height / 2))))
+        cells.append(cell)
+    return cells
+
+
+def extract(frames_dir: Path, rows: list[str]) -> None:
+    clips = [f"{row}={SOURCES / 'videos' / f'{row}.mp4'}" for row in rows if row not in SPINS]
     subprocess.run(["node", str(EXTRACTOR), str(frames_dir), str(SOURCE_FPS), str(EXTRACT_SIZE), *clips], check=True)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--preview", type=Path, help="also write an animated GIF of the six loops")
+    parser.add_argument("--page", type=int, default=1, choices=sorted(PAGES), help="page to pack (default 1)")
+    parser.add_argument("--preview", type=Path, help="also write an animated GIF of the page's clips")
     args = parser.parse_args()
+    rows = PAGES[args.page]
+    output = REPO / "asset" / "characters" / f"256x256-tile_8x8-slime-v2-page-{args.page}.webp"
+    manifest_path = SOURCES / f"page-{args.page}.json"
 
     with tempfile.TemporaryDirectory(prefix="slime-v2-frames-") as tmp:
         frames_dir = Path(tmp)
-        extract(frames_dir)
-        clips = {row: [keyed(p) for p in sorted((frames_dir / row).glob("f*.png"))] for row in ROWS}
+        extract(frames_dir, rows)
+        clips = {row: [keyed(p) for p in sorted((frames_dir / row).glob("f*.png"))] for row in rows if row not in SPINS}
+    for row in rows:
+        if row in SPINS:
+            clips[row] = [keyed(SOURCES / SPINS[row])]
 
-    x0, _, x1, _ = bbox(clips["idle-down"][0][..., 3])
-    scale = TARGET_WIDTH / (x1 - x0)
+    # Every clip starts on the same start image (turnaround E's view), so the first frame of the
+    # page's first clip sets one scale for every page: 186 px wide, the old sheet's frame 0. Spin rows
+    # use the start stills themselves (START_FRAME_SIZE px canvases, twice the extracted frames).
+    first_clip = next((r for r in rows if r not in SPINS), None)
+    if first_clip is not None:
+        x0, _, x1, _ = bbox(clips[first_clip][0][..., 3])
+        scale = TARGET_WIDTH / (x1 - x0)
+        still_scale = scale * EXTRACT_SIZE / START_FRAME_SIZE
+    else:
+        x0, _, x1, _ = bbox(keyed(SOURCES / "start-down.png")[..., 3])
+        still_scale = scale = TARGET_WIDTH / (x1 - x0)
     page = Image.new("RGBA", (CELL * COLUMNS, CELL * COLUMNS), (0, 0, 0, 0))
     manifest = {"cell": CELL, "columns": COLUMNS, "source_fps": SOURCE_FPS, "scale": round(scale, 4), "rows": {}}
     previews: dict[str, tuple[list[Image.Image], float]] = {}
-    for row, name in enumerate(ROWS):
+    for row, name in enumerate(rows):
         frames = clips[name]
-        start, length, score = best_loop(frames, name.split("-")[0], WINDOWS.get(name))
-        picks = [start + round(i * length / COLUMNS) for i in range(COLUMNS)]
-        fx0, _, fx1, fy1 = bbox(frames[start][..., 3])
-        offset = (round(CENTRE_X - (fx0 + fx1) / 2 * scale), round(BOTTOM - fy1 * scale))
-        cells = []
-        for column, index in enumerate(picks):
-            frame = Image.fromarray((frames[index] * 255).astype(np.uint8), "RGBA")
-            frame = frame.resize((round(frame.width * scale), round(frame.height * scale)), Image.LANCZOS)
-            cell = place(frame, offset)
-            cells.append(cell)
+        if name in SPINS:
+            start, length, score, picks = 0, COLUMNS, 0.0, [0] * COLUMNS
+            cells = spin_cells(frames[0], still_scale)
+        else:
+            start, length, score = best_loop(frames, clip_of(name), WINDOWS.get(name))
+            picks = [start + round(i * length / COLUMNS) for i in range(COLUMNS)]
+            row_scale = scale
+            fx0, _, fx1, fy1 = bbox(frames[start][..., 3])
+            offset = (round(CENTRE_X - (fx0 + fx1) / 2 * row_scale), round(BOTTOM - fy1 * row_scale))
+            cells = []
+            for index in picks:
+                if name in RECENTRED:
+                    gx0, _, gx1, gy1 = bbox(frames[index][..., 3])
+                    offset = (round(CENTRE_X - (gx0 + gx1) / 2 * row_scale), round(BOTTOM - gy1 * row_scale))
+                frame = Image.fromarray((frames[index] * 255).astype(np.uint8), "RGBA")
+                frame = frame.resize((round(frame.width * row_scale), round(frame.height * row_scale)), Image.LANCZOS)
+                cells.append(place(frame, offset))
+        for column, cell in enumerate(cells):
             page.alpha_composite(cell, (column * CELL, row * CELL))
         touches_edge = any(np.asarray(c)[[0, -1], :, 3].max() > 0 or np.asarray(c)[:, [0, -1], 3].max() > 0 for c in cells)
-        fps = round(COLUMNS * SOURCE_FPS / length, 2)
+        one_shot_ms = ONE_SHOT_MS.get(clip_of(name))
+        fps = round(COLUMNS * 1000.0 / one_shot_ms, 2) if one_shot_ms else round(COLUMNS * SOURCE_FPS / length, 2)
         manifest["rows"][name] = {
-            "row": row, "first_frame": row * COLUMNS, "fps": fps, "loop_start": start,
+            "row": row, "first_frame": row * COLUMNS, "fps": fps, "loop": one_shot_ms is None, "loop_start": start,
             "loop_length": length, "source_frames": picks, "loop_score": round(score, 4), "touches_cell_edge": bool(touches_edge),
         }
         previews[name] = (cells, fps)
         print(f"{name:10s} loop {start}+{length} ({length / SOURCE_FPS:.2f} s) -> {fps} fps, score {score:.4f}{', TOUCHES CELL EDGE' if touches_edge else ''}")
 
-    save_game_webp(page, OUTPUT)
-    (SOURCES / "page-1.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
-    print(f"wrote {OUTPUT.relative_to(REPO)} and {(SOURCES / 'page-1.json').relative_to(REPO)}")
+    save_game_webp(page, output)
+    manifest_path.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+    print(f"wrote {output.relative_to(REPO)} and {manifest_path.relative_to(REPO)}")
 
     if args.preview:
         ticks = []
         for tick in range(72):  # 3 s at 24 fps, six loops in a 3 x 2 grid on the meadow green
             canvas = Image.new("RGBA", (CELL * 3, CELL * 2), (58, 74, 52, 255))
-            for slot, name in enumerate(ROWS):
+            for slot, name in enumerate(rows):
                 cells, fps = previews[name]
                 canvas.alpha_composite(cells[int(tick / 24 * fps) % COLUMNS], ((slot % 3) * CELL, (slot // 3) * CELL))
             ticks.append(canvas.convert("RGB").quantize(colors=255, method=Image.Quantize.MEDIANCUT))

@@ -155,6 +155,45 @@ func test_dodge_distance_duration_iframes_cooldown(t: TestContext) -> void:
 	t.near_vec(body.velocity, Vector2.LEFT * DODGE_SPEED, 0.01, "second roll velocity")
 
 
+## Page 2 and the keyed swings: a roll and a sword swing play the row for their direction (the
+## side art mirrors for left; the swing has its own `-left` clip because its lunge has a
+## direction), the swing lunges toward its direction, and the art is back at rest after it.
+func test_roll_and_swing_pick_the_facing_row(t: TestContext) -> void:
+	var player := t.player()
+	var combat = player.get_combat()
+	var rest_offset: Vector2 = player.visual.offset
+	var cases := [
+		[Vector2.DOWN, "roll-down", "attack-1-down", false],
+		[Vector2.UP, "roll-up", "attack-1-up", false],
+		[Vector2.RIGHT, "roll-side", "attack-1-side", false],
+		[Vector2.LEFT, "roll-side", "attack-1-left", true],
+	]
+	for case: Array in cases:
+		var toward: Vector2 = case[0]
+		var label := "facing %s" % [toward]
+		player.face(toward)
+		t.tap(&"dodge")
+		if not t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0), "%s: the dodge press did not start a roll" % label):
+			return
+		t.equal(String(player.animation.assigned_animation), case[1], "%s roll clip" % label)
+		t.equal(player.visual.flip_h, case[3], "%s roll flip" % label)
+		# The next roll needs the dodge cooldown; this swing needs the last one's weapon cooldown.
+		await t.sim_wait(DODGE_COOLDOWN_FROM_START_MS + 50.0)
+		await t.until(func() -> bool: return combat.get_weapon().can_begin_attack(), 2000.0)
+		t.tap(&"attack")
+		if not t.check(await t.until(func() -> bool: return combat.is_attacking(), 300.0), "%s: the swing did not start" % label):
+			return
+		t.equal(String(player.animation.assigned_animation), case[2], "%s swing clip" % label)
+		t.equal(player.visual.flip_h, case[3], "%s swing flip" % label)
+		await t.sim_wait(200.0)
+		var reach: Vector2 = player.visual.offset - rest_offset
+		t.check(reach.dot(toward) > 0.0, "%s: the swing does not lunge toward its direction (offset %s)" % [label, reach])
+		await t.until(func() -> bool: return not combat.is_attacking(), 1500.0)
+		await t.steps(2)
+		t.near_vec(player.visual.offset, rest_offset, 0.001, "%s offset after the swing" % label)
+		t.equal(player.visual.skew, 0.0, "%s skew after the swing" % label)
+
+
 ## Holds `actions`, lets the speed settle, then checks the velocity and the distance covered over
 ## MEASURE_STEPS ticks against `speed` along `direction`.
 func _check_speed(t: TestContext, actions: Array, direction: Vector2, speed: float, label: String) -> void:

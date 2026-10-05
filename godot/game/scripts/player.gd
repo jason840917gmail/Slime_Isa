@@ -65,8 +65,8 @@ const RECEIVER_TAGS: Array[String] = ["player"]
 ## JSON `visual`: the slime Sprite2D (authored scale 0.28125; hit flash + squash target).
 @export var visual: Sprite2D
 ## JSON `animation`: the AnimationPlayer. Clips from the three-quarter top-down sheet come per
-## direction (`idle-down`, `walk-side`, ...; see `_directional_clip`); the rest (roll, attack-1,
-## knockback, die, ... - player spec 1.1) still draw the old side-view sheet.
+## direction (`idle-down`, `roll-side`, `attack-1-up`, ...; see `_directional_clip`); the rest
+## (knockback, die, ... - player spec 1.1) still draw the old side-view sheet.
 @export var animation: AnimationPlayer
 ## JSON `damageArea`: the hurtbox Area2D (layer hurtbox, mask hitbox).
 @export var damage_area: Area2D
@@ -94,6 +94,10 @@ var _input: PlayerInputBuffer = PlayerInputBuffer.new()
 var _squash: SquashStretch = SquashStretch.new()
 var _combat: PlayerCombat
 var _facing: Vector2 = Vector2(0.0, 1.0)
+## The Visual's authored offset and skew. The attack clips key both for their lunge; a clip that
+## replaces one mid-swing starts from these (`_play_clip`).
+var _visual_rest_offset: Vector2 = Vector2.ZERO
+var _visual_rest_skew: float = 0.0
 var _hp: int = 0
 var _max_hp: int = 0
 var _dead: bool = false
@@ -113,8 +117,8 @@ var _was_moving: bool = false
 var _still_since_ms: float = 0.0
 var _pointer_seen: bool = false
 
-## Clip names (player spec 1.1). Idle and walk resolve to their directional versions when the
-## scene has them (`_directional_clip`).
+## Clip names (player spec 1.1). Every clip resolves to its directional version when the scene
+## has one (`_directional_clip`).
 const CLIP_IDLE := "idle"
 const CLIP_WALK := "walk"
 const CLIP_ROLL := "roll"
@@ -167,6 +171,8 @@ func _ready() -> void:
 	if visual != null:
 		HitFlash.install(visual)
 		_squash.setup(visual)
+		_visual_rest_offset = visual.offset
+		_visual_rest_skew = visual.skew
 	if body != null:
 		body.motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_register_receiver()
@@ -260,13 +266,18 @@ func get_facing() -> Vector2:
 	return _facing
 
 
-## `PlayerController.face` (player spec 4.4): ignores zero; sets facing (normalized) and
-## `visual.flip_h = Directions.slime_flip_h(dir)`.
+## `PlayerController.face` (player spec 4.4): ignores zero; sets facing (normalized) and the flip
+## for the clip on screen (`_flip_for`; `Directions.slime_flip_h(dir)` for the old side-view art).
+## The clip itself changes with the next play: facing down mid-swing keeps the swing's row.
 func face(direction: Vector2) -> void:
 	if direction == Vector2.ZERO:
 		return
 	_facing = direction.normalized()
-	if visual != null:
+	if visual == null:
+		return
+	if animation != null:
+		visual.flip_h = _flip_for(String(animation.assigned_animation))
+	else:
 		visual.flip_h = Directions.slime_flip_h(direction)
 
 
@@ -352,9 +363,10 @@ func stop_movement() -> void:
 ## `WorldScene.playAnimation` gate (player spec 4.3 "Other rules"): while dead only "die"
 ## passes; while `sim < knockback_anim_until` only "die" and a forced "knockback" pass; otherwise
 ## skip if it is the current clip and not forced. `force` restarts the clip (stop + play).
+## `clip` plays as its directional version when the scene has one (`_directional_clip`).
 ## Returns false when the clip was refused or does not exist.
 func play_animation(clip: String, force: bool = false) -> bool:
-	if animation == null or not animation.has_animation(clip):
+	if animation == null or not animation.has_animation(_directional_clip(clip)):
 		return false
 	if _dead and clip != CLIP_DIE:
 		return false
@@ -534,50 +546,47 @@ func _move(direction: Vector2) -> void:
 	var speed: float = _resolve_movement_speed(base)
 	if direction == Vector2.ZERO:
 		body.velocity = Vector2.ZERO
-		var idle := _directional_clip(CLIP_IDLE)
-		if visual != null:
-			# The top-down art keeps the last facing (owner decision O4); the old side-view art
-			# always showed its default facing.
-			visual.flip_h = _flip_for(idle) if idle != CLIP_IDLE else false
-		_play_direct(idle)
+		_play_direct(CLIP_IDLE)
 		return
 	var unit: Vector2 = direction.normalized()
 	body.velocity = unit * speed
 	_facing = unit
-	var walk := _directional_clip(CLIP_WALK)
-	if visual != null:
-		visual.flip_h = _flip_for(walk)
-	_play_direct(walk)
+	_play_direct(CLIP_WALK)
 
 
-## Idle for the current facing, flipped to match; `force` restarts it (respawn).
+## Idle for the current facing; `force` restarts it (respawn).
 func _play_idle(force: bool = false) -> void:
-	var idle := _directional_clip(CLIP_IDLE)
-	if visual != null:
-		visual.flip_h = _flip_for(idle) if idle != CLIP_IDLE else false
-	play_animation(idle, force)
+	play_animation(CLIP_IDLE, force)
 
 
 ## `<clip>-down`, `-up` or `-side` for the current facing when the scene has it (the
 ## three-quarter top-down sheet, docs/assets/slime-sheet-guide.md), else `clip` itself.
-## Mostly vertical facings pick down/up; diagonals and horizontals pick side.
+## Mostly vertical facings pick down/up; diagonals and horizontals pick side, or `<clip>-left`
+## when facing left and the scene has one (a clip whose keyed motion has a direction, such as the
+## attack lunge: flip_h mirrors the art but not a keyed offset).
 func _directional_clip(clip: String) -> String:
 	if animation == null:
 		return clip
 	var suffix := "side"
 	if absf(_facing.y) > absf(_facing.x):
 		suffix = "down" if _facing.y > 0.0 else "up"
+	elif _facing.x < 0.0 and animation.has_animation("%s-left" % clip):
+		suffix = "left"
 	var directional := "%s-%s" % [clip, suffix]
 	return directional if animation.has_animation(directional) else clip
 
 
 ## Horizontal flip for `clip` at the current facing. The top-down side art faces right, so it
-## mirrors for left; its down/up art never mirrors. Old side-view clips keep their rule (that art
-## faces left and mirrors for right, `Directions.slime_flip_h`).
+## mirrors for left (always, in a `-left` clip); its down/up art never mirrors, and it keeps the
+## last facing when idle (owner decision O4). Old side-view clips keep their rule (that art faces
+## left and mirrors for right, `Directions.slime_flip_h`), except its idle, which always showed
+## its default facing.
 func _flip_for(clip: String) -> bool:
 	if clip.ends_with("-side"):
 		return _facing.x < 0.0
-	if clip.ends_with("-down") or clip.ends_with("-up"):
+	if clip.ends_with("-left"):
+		return true
+	if clip.ends_with("-down") or clip.ends_with("-up") or clip == CLIP_IDLE:
 		return false
 	return Directions.slime_flip_h(_facing)
 
@@ -622,8 +631,9 @@ func _begin_roll(direction: Vector2) -> bool:
 	_roll_until_ms = maxf(_roll_until_ms, now + _dodge_duration_ms)
 	# Set once; persists for the whole roll (a wall hit zeroes the blocked axis via ArcadeMover.move).
 	body.velocity = roll_direction * _resolve_movement_speed(_dodge_speed)
-	_play_direct(CLIP_ROLL)
+	# Phaser plays the clip, then faces; facing first picks the roll's directional row.
 	face(roll_direction)
+	_play_direct(CLIP_ROLL)
 	_audio_cue(CUE_DODGE)
 	var centre: Vector2 = get_centre()
 	var feel := Services.feel()
@@ -709,7 +719,7 @@ func _present_hit(actual: int) -> void:
 ## Phaser port rule (`PlayerNodePorts.play`, used directly by `PlayerScript.move` / `beginDodge`):
 ## no gate; restarts only when the clip differs from the assigned one.
 func _play_direct(clip: String) -> void:
-	if animation == null or not animation.has_animation(clip):
+	if animation == null or not animation.has_animation(_directional_clip(clip)):
 		return
 	_play_clip(clip, false)
 
@@ -721,8 +731,17 @@ func _play_direct(clip: String) -> void:
 ## dispatches frame 0 synchronously, clock.ts:104-120): `seek(0.0, true)` applies it at once, so a
 ## hit-stop that pauses the tree right after still shows the new pose. No `stop()` before a forced
 ## restart: it would snap the outgoing clip to its own frame 0 first.
-func _play_clip(clip: String, force: bool) -> void:
+## `base_clip` resolves to its directional version (`_directional_clip`) and sets the flip for it.
+## A (re)started clip starts from the Visual's rest offset and skew, so one that cuts a swing's
+## lunge short does not keep it.
+func _play_clip(base_clip: String, force: bool) -> void:
+	var clip := _directional_clip(base_clip)
+	if visual != null:
+		visual.flip_h = _flip_for(clip)
 	if force or animation.assigned_animation != clip:
+		if visual != null:
+			visual.offset = _visual_rest_offset
+			visual.skew = _visual_rest_skew
 		animation.play(clip)
 		animation.seek(0.0, true)
 	elif not animation.is_playing() and _is_looping(clip):

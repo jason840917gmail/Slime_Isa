@@ -1,0 +1,68 @@
+{
+ "cell": 256,
+ "columns": 8,
+ "source_fps": 24,
+ "scale": 0.8087,
+ "rows": {
+  "roll-down": {
+   "row": 0,
+   "first_frame": 0,
+   "fps": 16.0,
+   "loop": false,
+   "loop_start": 25,
+   "loop_length": 16,
+   "source_frames": [
+    25,
+    27,
+    29,
+    31,
+    33,
+    35,
+    37,
+    39
+   ],
+   "loop_score": 0.2157,
+   "touches_cell_edge": false
+  },
+  "roll-up": {
+   "row": 1,
+   "first_frame": 8,
+   "fps": 16.0,
+   "loop": false,
+   "loop_start": 41,
+   "loop_length": 12,
+   "source_frames": [
+    41,
+    43,
+    44,
+    45,
+    47,
+    49,
+    50,
+    51
+   ],
+   "loop_score": 0.188,
+   "touches_cell_edge": false
+  },
+  "roll-side": {
+   "row": 2,
+   "first_frame": 16,
+   "fps": 16.0,
+   "loop": false,
+   "loop_start": 0,
+   "loop_length": 8,
+   "source_frames": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  }
+ }
+}

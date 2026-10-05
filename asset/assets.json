@@ -421,6 +421,39 @@
       "status": "draft",
       "notes": "Three-quarter top-down player slime (v2), page 1: rows 0-5 are idle down/up/side and walk down/up/side (8 frames each; left mirrors side), rows 6-7 free. Used by the Godot port only (no Phaser bundle). Built by scripts/characters/pack-slime-v2-page.py from the clips in asset/Originals/characters/slime-v2/ (README there)."
     },
+    "character.player.slime.v2.page-2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/256x256-tile_8x8-slime-v2-page-2.webp",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 2048,
+          "h": 2048
+        }
+      },
+      "runtime": {
+        "textureKey": "slime-v2-page-2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "character",
+        "player",
+        "animated"
+      ],
+      "status": "draft",
+      "notes": "Three-quarter top-down player slime (v2), page 2: rows 0-2 are the dodge roll down/up/side (8 frames each, one-shot; left mirrors side), rows 3-7 free. Used by the Godot port only (no Phaser bundle). Built by scripts/characters/pack-slime-v2-page.py --page 2 (README in asset/Originals/characters/slime-v2/)."
+    },
     "character.player.slime": {
       "source": {
         "kind": "spritesheet",

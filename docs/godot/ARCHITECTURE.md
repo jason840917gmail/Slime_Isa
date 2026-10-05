@@ -184,7 +184,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/hud.gd` | world | |
 | `game/ui/player_health_bar.gd` | world | |
 | `game/ui/fps_readout.gd` | world | |
-| `game/scripts/player.gd` | player | Picks directional clips (`_directional_clip`, `_flip_for`) |
+| `game/scripts/player.gd` | player | Plays every clip in its version for the facing (`_directional_clip`, `_flip_for`) |
 | `game/characters/player_slime.tscn` | player | Godot-owned player scene (CONVENTIONS "Scenes Godot owns"); clips rebuilt by `tools/build_player_clips.gd` |
 | `game/dev/playground.tscn` | world | `main.tscn` with `map_id = "playground"`; run with F6 |
 | `game/player/player_input_buffer.gd` | player | |
@@ -227,7 +227,7 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 
 | # | Question | Decision |
 |---|---|---|
-| O1 | Moving vertically: the live look (`walk` in every direction) or the intended `hop`/`stretch`? (player spec 4.3) | **New art.** The slime sheet is side-view and has no real up/down walk, so the owner wants a new three-quarter top-down player sheet with idle and walk per direction (then attacks and abilities), built piece by piece. Page 1 (idle and walk per direction) is in since 2026-10-05: the player scene is Godot-owned and `player.gd` picks `<clip>-down/-up/-side` for its facing |
+| O1 | Moving vertically: the live look (`walk` in every direction) or the intended `hop`/`stretch`? (player spec 4.3) | **New art.** The slime sheet is side-view and has no real up/down walk, so the owner wants a new three-quarter top-down player sheet with idle and walk per direction (then attacks and abilities), built piece by piece. Page 1 (idle and walk per direction) and page 2 (rolls) are in since 2026-10-05, with keyed sword swings on page 1's art: the player scene is Godot-owned and `player.gd` plays `<clip>-down/-up/-side` (or `-left`) for its facing |
 | O2 | Pointer aim origin. The player spec recommends the intended feet − 28; the combat spec says port as is (centre − 28 = feet − 55.56). The specs disagree | **Keep the live aim**: `aim_rise_px = 28` above the old centre (top of the head) |
 | O3 | Combo off-by-one: every lone sword hit does 28, not 24 | **Fixed in the port**: the multiplier is the hit's own tier (×1.0, ×1.15, ×1.5), so a lone sword hit does 24 (crit 42); the Phaser game keeps its bug until it is retired |
 | O4 | Standing still always un-flips the slime (faces left) | **Done with the new art** (2026-10-05): idle clips per direction keep the last facing |

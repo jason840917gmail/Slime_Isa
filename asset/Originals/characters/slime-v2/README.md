@@ -11,11 +11,12 @@ adventure games, and is built page by page.
 |---|---|
 | `turnaround-e.png` | The approved reference (candidate E of the second round, about a 55° camera): down, side (facing right), up. Magnific GPT 2.5 with the current slime, Lili and the directional beds sheet as references |
 | `start-down.png`, `start-side.png`, `start-up.png` | Each view of E, scaled to 440 px tall and placed on a flat #FF00FF 1024 px square: the start AND end frame of every clip |
-| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per page row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side` |
-| `page-1.json` | The packer's choice per row: loop start and length in source frames, the 8 sampled frames, and the playback fps the Godot clips use |
+| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up` |
+| `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops |
 
-Rebuild the runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-1.webp` with
-`python scripts/characters/pack-slime-v2-page.py` (see that file for the keying and loop rules).
+Rebuild a runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` with
+`python scripts/characters/pack-slime-v2-page.py --page <n>` (see that file for the keying and
+loop rules), then its clips with `godot/tools/build_player_clips.gd` (docs/TOOLING.md).
 
 ## Page 1 layout
 
@@ -31,7 +32,34 @@ size and fits the same 30 x 26 body.
 | 3 | walk-down | 14.77 fps |
 | 4 | walk-up | 16 fps |
 | 5 | walk-side | 13.71 fps |
-| 6, 7 | free (next: roll, attack) | |
+| 6, 7 | free | |
+
+`idle-down` was retimed in the Godot editor on 2026-10-05 (8 fps, ping-pong, without column 2);
+rebuild other clips with `build_player_clips.gd --only=<prefix>` so that tuning stays.
+
+## Page 2 layout
+
+Same cells, scale and baseline as page 1 (one scale for every page, from page 1's first frame).
+
+| Row | Clip | Playback |
+|---|---|---|
+| 0 | roll-down | 16 fps, once (the 500 ms dodge roll) |
+| 1 | roll-up | 16 fps, once |
+| 2 | roll-side | 16 fps, once |
+| 3-7 | free | |
+
+- **roll-down and roll-up** are cut from their videos' tumbling stretch (source frames 25-46
+  and 30-66). The clips drift sideways and bob, so every frame is centred and stood on the
+  baseline on its own (in play the body moves during a dodge anyway).
+- **roll-side is baked, not filmed.** Its video turned the slime toward the camera mid-roll, so
+  the packer spins `start-side.png` clockwise in 45° steps (tucked to 88 % so the turned shape
+  fits the cell): a right-facing slime rolling right; mirrored, it rolls left. The rejected take
+  was not kept.
+- **The sword swing has no sheet rows.** Three attack takes failed (the slime inflated like a
+  balloon and grew fists; sparkles and a tall stretch; a stretch far beyond the cell), so the
+  Godot `attack-1-<direction>` clips reuse page 1's idle art and carry the swing in keys: a
+  wind-up on the row's most squashed frame, then a lunge toward the slash on its most stretched
+  frame (`build_player_clips.gd`, `ATTACKS`).
 
 ## What worked (2026-10-05)
 
@@ -50,4 +78,5 @@ size and fits the same 30 x 26 body.
   stretched upward; the third take ("glides like a slug, does not jump") still turned before
   frame 58, so the packer only uses its frames 58-96.
 
-Cost: 7,080 Magnific credits including both turnaround rounds and the discarded first batch.
+Cost: 7,080 Magnific credits for page 1, including both turnaround rounds and the discarded
+first batch; 2,640 for page 2's six videos (three rolls, three rejected attacks).
