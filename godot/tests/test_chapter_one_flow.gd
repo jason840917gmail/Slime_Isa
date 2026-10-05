@@ -7,12 +7,14 @@ extends RefCounted
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const RecipeCatalog := preload("res://game/crafting/recipe_catalog.gd")
+const QuestEvents := preload("res://game/quests/quest_events.gd")
 
 const CENTRE := Vector2(900.0, 1200.0)
 const NPC_OFFSET := Vector2(40.0, 0.0)
 const ELDER := "level-1-npc-village-elder-plop"
 const LILI := "level-1-npc-lili"
 const FISHER := "level-1-npc-fisherman-slime"
+const SPIDER_GIVER := "level-1-npc-mossy-scout"
 const PLACE := "a-place-to-work"
 ## The clearing's loose wood piles (10 each).
 const WOOD_PILES := {"level-1-loose-wood-03": Vector2(704.0, 512.0), "level-1-loose-wood-04": Vector2(608.0, 576.0)}
@@ -278,3 +280,124 @@ func test_slime_basics_with_the_keys(t: TestContext) -> void:
 	await t.steps(2)
 	t.equal(quests.call(&"status", "slime-basics"), "completed", "Slime Basics after every control (progress %s)" % [quests.call(&"state", "slime-basics").get("progress")])
 	t.equal(run.coins(), coins + 10, "Slime Basics' reward")
+
+
+## Chapter 1's main line in order, every quest offered by its real giver once the one before is
+## turned in (no debug_activate): A Place to Work, Stone Tools, Worm Trouble, The One-Eyed Guardian,
+## ending with chapter-1-complete on arrival in gloop-forest. Crafting, placing, switching tools,
+## killing worms and travelling are real; the slow harvest pickups (covered by
+## test_stone_tools_by_hand) and Fatty's defeat (covered by the boss tests) are sent as their events.
+func test_chapter_one_main_line(t: TestContext) -> void:
+	var run := Services.run()
+	var quests: Node = t.main.quests
+	var menus: Node = t.main.menu_windows
+	var crafting: Node = menus.get(&"crafting")
+	var dialogue: Node = t.tree.get_first_node_in_group(&"dialogue_box")
+	var offer: Node = t.tree.get_first_node_in_group(&"quest_offer_window")
+	# A Place to Work.
+	if not await _accept_from(t, ELDER, "a-place-to-work", dialogue, offer):
+		return
+	run.add_item("wood", 40)
+	t.teleport_player(Vector2(640.0, 704.0))
+	await t.steps(2)
+	menus.call(&"open_crafting")
+	crafting.call(&"select_recipe", 0)
+	crafting.call(&"craft")
+	await t.steps(2)
+	var placement: Node = t.tree.get_first_node_in_group(&"furniture_placement")
+	placement.set(&"aim_override", Vector2(700.0, 650.0))
+	await t.steps(2)
+	t.tap(&"attack")
+	await t.steps(3)
+	if not await _turn_in_to(t, ELDER, "a-place-to-work", dialogue, offer):
+		return
+	# Stone Tools: the tools at the placed bench, a belt switch, then 20 wood and 20 stone picked up.
+	if not await _accept_from(t, ELDER, "stone-tools", dialogue, offer):
+		return
+	run.add_item("wood", 20)
+	run.add_item("stone", 20)
+	await _craft_at_bench(t, ["craft-stone-axe", "craft-stone-pickaxe"])
+	t.tap(&"weapon_next")
+	await t.steps(3)
+	for item_id: String in ["wood", "stone"]:
+		QuestEvents.emit(QuestEvents.COLLECTIBLE_COLLECTED, {"mapId": "level-1", "instanceId": "stand-in-" + item_id,
+			"objectId": "collectible.%s-pile" % item_id, "itemId": item_id, "quantity": 20})
+	if not await _turn_in_to(t, ELDER, "stone-tools", dialogue, offer):
+		return
+	t.check(run.has_learned_ability("dodge"), "Stone Tools did not teach the dodge")
+	# Worm Trouble: the spider-giver, a wooden spear, three worm swordsmen.
+	if not await _accept_from(t, SPIDER_GIVER, "worm-trouble", dialogue, offer):
+		return
+	run.add_item("wood", 20)
+	await _craft_at_bench(t, ["craft-wooden-spear"])
+	t.teleport_player(Vector2(900.0, 1200.0))
+	await t.steps(2)
+	for index in 3:
+		var worm := t.spawn_worm(Vector2(160.0 + 60.0 * index, 0.0), true)
+		await t.steps(1)
+		_kill(t, worm.damage_area)
+		await t.steps(2)
+	if not await _turn_in_to(t, SPIDER_GIVER, "worm-trouble", dialogue, offer):
+		return
+	t.check(run.has_learned_ability("jump"), "Worm Trouble did not teach the jump")
+	# The One-Eyed Guardian: a stone spear, Fatty's camp reports his defeat, then the Verdant Gate.
+	if not await _accept_from(t, ELDER, "the-one-eyed-guardian", dialogue, offer):
+		return
+	run.add_item("wood", 20)
+	run.add_item("stone", 20)
+	await _craft_at_bench(t, ["craft-stone-spear"])
+	var camp: Node = null
+	for node: Node in t.tree.get_nodes_in_group(&"boss_camp"):
+		if str(node.get(&"camp_id")) == "level-1-fatty-one-eye-camp":
+			camp = node
+	if not t.check(camp != null, "no Fatty camp in level-1"):
+		return
+	camp.emit_signal(&"boss_defeated", {"campId": "level-1-fatty-one-eye-camp", "bossId": "fatty-one-eye"})
+	t.equal(str(quests.call(&"state", "the-one-eyed-guardian").get("active_stage_id")), "verdant-gate", "the guardian's last stage")
+	t.check(bool(t.main.travel_to("gloop-forest", "west")), "the travel to gloop-forest was refused")
+	await t.until(func() -> bool:
+		return not t.main.is_transitioning() and t.world().map_id() == "gloop-forest" and t.player() != null, 3000.0, 6000.0)
+	t.equal(quests.call(&"status", "the-one-eyed-guardian"), "completed", "The One-Eyed Guardian")
+	t.check(run.has_flag("chapter-1-complete"), "chapter-1-complete is not set")
+	t.equal(quests.call(&"status", "beyond-the-verdant-gate"), "available", "chapter 2's first quest")
+	var shell := Services.shell()
+	if shell != null and shell.end_card.is_open():
+		shell.end_card.close()
+
+
+## Talks to the giver, reads the lines and accepts `quest_id`. False (with a failure) when the
+## offer did not come.
+func _accept_from(t: TestContext, instance_id: String, quest_id: String, dialogue: Node, offer: Node) -> bool:
+	await _talk_to(t, instance_id)
+	_read_through(dialogue)
+	if not t.check(bool(offer.call(&"is_open")) and str(offer.call(&"title_text")) == str(t.main.quests.call(&"view", quest_id).get("definition", {}).get("title", "")),
+			"%s did not offer %s (window '%s')" % [instance_id, quest_id, offer.call(&"title_text")]):
+		return false
+	offer.call(&"invoke", "accept")
+	return t.check(t.main.quests.call(&"status", quest_id) == "active", "%s was not accepted" % quest_id)
+
+
+## Talks to the giver and turns `quest_id` in. False (with a failure) when it did not complete.
+func _turn_in_to(t: TestContext, instance_id: String, quest_id: String, dialogue: Node, offer: Node) -> bool:
+	await _talk_to(t, instance_id)
+	_read_through(dialogue)
+	if not t.check(bool(offer.call(&"is_open")), "no turn-in window for %s" % quest_id):
+		return false
+	offer.call(&"invoke", "accept")
+	return t.check(t.main.quests.call(&"status", quest_id) == "completed", "%s was not completed" % quest_id)
+
+
+## Crafts `recipe_ids` in order at a workbench site.
+func _craft_at_bench(t: TestContext, recipe_ids: Array) -> void:
+	var menus: Node = t.main.menu_windows
+	menus.call(&"open_station", {"station": "workbench", "tier": 1})
+	var crafting: Node = menus.get(&"crafting")
+	var ids: Array[String] = []
+	for recipe: Dictionary in RecipeCatalog.recipes_at(crafting.call(&"site")):
+		ids.append(str(recipe["id"]))
+	for recipe_id: Variant in recipe_ids:
+		crafting.call(&"select_recipe", ids.find(str(recipe_id)))
+		crafting.call(&"craft")
+		t.check(Services.run().item_count(str(RecipeCatalog.find(str(recipe_id))["output"]["itemId"])) > 0, "%s was not crafted" % recipe_id)
+	crafting.call(&"close")
+	await t.steps(2)
