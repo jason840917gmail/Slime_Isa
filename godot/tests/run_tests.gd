@@ -28,7 +28,9 @@ const Services := preload("res://game/shared/services.gd")
 
 const TESTS_DIR := "res://tests/"
 const MAIN_SCENE := "res://game/main.tscn"
-const TEST_SAVE_ROOT := "user://test-saves"
+## Saves made by tests go here (one folder per runner process, so two runs at once do not empty each
+## other's saves); removed when the run ends.
+const TEST_SAVE_ROOT := "user://test-saves-%d"
 ## Real-time limit for one test, setup and teardown excluded.
 const TEST_TIMEOUT_MS := 120000
 ## The game's frame rate (vsync on a 60 Hz display). Headless runs otherwise render as fast as
@@ -81,6 +83,7 @@ var _collector := ErrorCollector.new()
 var _filter := ""
 var _strict := false
 var _counts := {"passed": 0, "failed": 0, "known": 0, "unexpected_pass": 0}
+var _save_root := TEST_SAVE_ROOT % OS.get_process_id()
 
 
 func _initialize() -> void:
@@ -107,6 +110,8 @@ func _run() -> void:
 		_counts["passed"], _counts["failed"], _counts["known"], _counts["unexpected_pass"]])
 	var failed: bool = _counts["failed"] > 0 or _counts["unexpected_pass"] > 0 \
 		or (_strict and _counts["known"] > 0)
+	_clear_test_saves()
+	DirAccess.remove_absolute(_save_root)
 	OS.remove_logger(_collector)
 	quit(1 if failed else 0)
 
@@ -173,7 +178,7 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 	if run != null:
 		# Saves made by tests go to a scratch folder, never over the player's own, and every test
 		# starts without any (main turns the autosave on once a world is built).
-		run.save_root = TEST_SAVE_ROOT
+		run.save_root = _save_root
 		run.autosave_enabled = false
 		_clear_test_saves()
 		run.new_run()
@@ -212,7 +217,7 @@ func _run_body(test_case: Dictionary, context: TestContext) -> void:
 
 
 func _clear_test_saves() -> void:
-	var dir := DirAccess.open(TEST_SAVE_ROOT)
+	var dir := DirAccess.open(_save_root)
 	if dir == null:
 		return
 	for file_name in dir.get_files():
