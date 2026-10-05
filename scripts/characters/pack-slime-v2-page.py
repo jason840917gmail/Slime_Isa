@@ -69,8 +69,8 @@ LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24), "roll": (8, 30), "attack-1": (
 # clips (the sleep controller dozes for the doze clip's length).
 ONE_SHOT_MS = {"roll": 500.0, "attack-1": 416.67, "stretch": 270.0, "doze": 1000.0, "die": 1000.0}
 # Source frames a row's loop may use: the side walk turns toward the viewer before frame 58; the
-# down and up rolls tumble only in these stretches; the sleeper perks its sprout up after frame 72.
-WINDOWS = {"walk-side": (58, 97), "roll-down": (25, 46), "roll-up": (30, 66), "sleep-down": (0, 72)}
+# sleeper perks its sprout up after frame 72.
+WINDOWS = {"walk-side": (58, 97), "sleep-down": (0, 72)}
 # Rows whose clip drifts sideways (the rolls): each frame is centred and stood on the baseline on
 # its own (in play the body moves during a dodge anyway). They keep the page scale: a tumble changes
 # the slime's shape, not its size.
@@ -84,6 +84,14 @@ SPIN_TUCK = 0.88
 # neutral (the side pulls back through its reach frames reversed), and leaves out frames that would
 # not fit a cell or point the wrong way (README, page 2).
 PICKS = {
+    # True front and back rolls (owner, 2026-10-05: the first takes spun sideways like a wheel).
+    # Toward the camera everything on the ball slides DOWN: the sprout folds over the face, the face
+    # goes under, the back rolls over, the face comes back from the top. The take does this
+    # backwards (its features slide up), so its frames play in reverse.
+    "roll-down": [36, 33, 30, 27, 22, 15, 10, 4],
+    # Away from the camera everything slides UP: a squash, the curled ball with the sprout at the
+    # bottom, the sprout climbing over the top, the landing.
+    "roll-up": [8, 13, 20, 22, 24, 26, 28, 34],
     "stretch-down": [22, 37, 43, 44, 44, 43, 80, 81],
     "stretch-up": [2, 40, 44, 48, 54, 58, 60, 88],
     "stretch-side": [4, 18, 20, 22, 24, 22, 18, 96],
@@ -244,7 +252,7 @@ def main() -> None:
         else:
             if name in PICKS:
                 picks = PICKS[name]
-                start, length, score = picks[0], picks[-1] - picks[0], 0.0
+                start, length, score = picks[0], abs(picks[-1] - picks[0]), 0.0
             else:
                 start, length, score = best_loop(frames, clip_of(name), WINDOWS.get(name))
                 picks = [start + round(i * length / COLUMNS) for i in range(COLUMNS)]
