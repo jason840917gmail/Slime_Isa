@@ -49,6 +49,11 @@ const Directions := preload("res://game/shared/directions.gd")
 ## "hitboxSpans": [{"hitboxId", "from", "through", "damageMultiplier", "knockbackMultiplier"}],
 ## "events", "mirrored"} (camelCase).
 @export var attack_plans: Dictionary = {}
+## Port setting (not in JSON): whether the weapon stays drawn between swings. Off by the owner's
+## decision of 2026-10-05: the sword held in the middle of the slime (or floating beside it)
+## looked wrong, so the weapon root is shown only while a swing plays. Hitboxes are unaffected
+## (physics ignores visibility).
+@export var show_when_idle: bool = false
 
 ## -> SwingSfx.play_cue. Payload {"weaponId": String, "direction": String}.
 signal attack_started(payload: Dictionary)
@@ -94,6 +99,7 @@ func _ready() -> void:
 	_set_attack_area_active(false, {})
 	if animation != null and animation.has_animation(&"idle"):
 		_play_clip(&"idle")
+	_show_weapon(show_when_idle)
 
 
 ## `cancel_attack()` when leaving the tree.
@@ -141,6 +147,7 @@ func try_begin_attack(direction: String, payload: Dictionary) -> bool:
 	var animation_id := StringName(str(plan["animationId"]))
 	if animation != null and animation.has_animation(animation_id):
 		_play_clip(animation_id)
+	_show_weapon(true)
 	attack_started.emit({"weaponId": weapon_id, "direction": direction})
 	return true
 
@@ -392,11 +399,19 @@ func _finish_attack() -> void:
 	if animation != null and is_instance_valid(animation) and animation.is_inside_tree() \
 			and animation.has_animation(&"idle"):
 		_play_clip(&"idle")
+	_show_weapon(show_when_idle)
 	if direction.is_empty():
 		return
 	if _has_combat():
 		_combat.call(&"on_attack_finished", weapon_id, direction)
 	attack_finished.emit({"weaponId": weapon_id, "direction": direction})
+
+
+## Shows or hides the weapon root (this script's parent) without touching its hitboxes.
+func _show_weapon(shown: bool) -> void:
+	var root := get_parent() as CanvasItem
+	if root != null and is_instance_valid(root):
+		root.visible = shown
 
 
 ## `setAttackAreaActive` (WeaponScript.ts:361-372) with the Godot rule of combat spec 6.2:
