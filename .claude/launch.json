@@ -18,6 +18,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["exec", "vite", "--port", "3007", "--strictPort"],
       "port": 3007
+    },
+    {
+      "name": "godot-web",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "3200", "--bind", "127.0.0.1", "--directory", "godot/export/web"],
+      "port": 3200
     }
   ]
 }

@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://game/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://game/world/world_camera.gd" id="2_camera"]
+[ext_resource type="Script" path="res://game/ui/hud.gd" id="3_hud"]
+[ext_resource type="Script" path="res://game/ui/fps_readout.gd" id="4_fps"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="WorldCamera" type="Camera2D" parent="."]
+process_mode = 3
+process_priority = 100
+script = ExtResource("2_camera")
+
+[node name="Hud" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 10
+script = ExtResource("3_hud")
+
+[node name="FpsReadout" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 100
+script = ExtResource("4_fps")

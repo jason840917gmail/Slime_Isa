@@ -13,11 +13,12 @@ structure, rules) is [`AGENTS.md`](../AGENTS.md) at the repository root.
 - [camera-and-minimap-guide.md](./camera-and-minimap-guide.md) — responsive camera, zoom, and minimap.
 - [GAME_GUIDELINES.md](./GAME_GUIDELINES.md) — agreed game design direction (living draft).
 - [GAME_ROADMAP.md](./GAME_ROADMAP.md) — the road to Release 1: ordered milestones, task status, needed assets, and the post-release idea parking lot.
-- [GODOT_MIGRATION.md](./GODOT_MIGRATION.md) — the move from Phaser to Godot 4.7: decisions, what carries over, the conversion map and the phases.
+- [GODOT_MIGRATION.md](./GODOT_MIGRATION.md) — the move from Phaser to Godot 4.7: decisions, what carries over, the conversion map, the phases, commands and trial status.
 
 ## Folders
 
 - [assets/](./assets/README.md) — creating, packing, registering, and integrating art. Start here for any new media.
+- [godot/](./godot/CONVENTIONS.md) — the Godot port: [conventions](./godot/CONVENTIONS.md), [architecture](./godot/ARCHITECTURE.md), and [specs/](./godot/specs/) recording the exact Phaser behaviour each ported area reproduces.
 - [knowledge/](./knowledge/README.md) — focused how-to notes (quest authoring).
 - [story/](./story/README.md) — the story script (draft): direction, premise, world, characters, chapter beats, the unlock map, and open questions.
 - `superpowers/` — dated historical specs and implementation plans. Not maintained; may describe retired systems.

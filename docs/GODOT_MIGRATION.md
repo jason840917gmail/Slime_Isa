@@ -43,18 +43,22 @@ owner on 2026-10-04.
 | Scene JSON | Godot |
 |---|---|
 | `Node2D`, `Sprite2D`, `Area2D`, `StaticBody2D`, `CharacterBody2D`, `CollisionShape2D`, `AnimationPlayer`, `AudioStreamPlayer(2D)` | Same node types |
-| `TileMapLayer2D` + `terrain.tiles` | `TileMapLayer` + a generated `TileSet` (one atlas per ground sheet) |
-| `ScriptNode` | A child `Node` with the ported script; unported scripts keep their id and properties as data |
+| `TileMapLayer2D` + `terrain.tiles` | `TileMapLayer` + a generated `TileSet` (one atlas source per tile id, Phaser's exact frame choice); solid tiles become merged rectangle bodies inset on their outer edges, as in Phaser |
+| `ScriptNode` | A child `Node` with the ported script (`game.<id>` → `game/scripts/<id>.gd`); unported scripts keep their id and properties as data |
 | Instances with overrides | Instanced scenes with overridden properties (editable children where a sub-node changes) |
-| Signal connections | `[connection]` entries |
+| Signal connections | `[connection]` entries; audio `play`/`stop` handlers call `play_cue`/`stop_cue` |
 | Sprite `origin` (0–1) and `visualOffset` | `centered = false` and a pixel `offset` |
-| `alpha`, `tint`, `flipX`/`flipY` | `modulate`, `flip_h`/`flip_v` |
-| Sprite-sheet resources | `hframes`/`vframes` on the Sprite2D |
-| Animation keys at frame `at` | Keys at `at / framesPerSecond` seconds; `alpha` → `modulate:a` |
+| `alpha`, `tint`, `flipX`/`flipY` | `self_modulate`, `flip_h`/`flip_v` |
+| Sprite-sheet resources | `hframes`/`vframes` on the Sprite2D, from `assets.json` |
+| Animation keys at frame `at` | Keys at `at / framesPerSecond` seconds; `alpha` → `self_modulate:a`; events → method keys emitting `animation_event` |
 | Collision layers and masks | Same bits; the eleven names from `collision-layers.json` become layer names |
 | Rectangle and circle shapes | `RectangleShape2D`, `CircleShape2D` |
 | Ellipse and sector shapes (30 in all) | Polygon approximations |
-| `depthMode`, `depthBand`, `occlusionBounds`, `depthBounds` | Dropped: the world is Y-sorted by node position (feet) |
+| `depthAnchor` on a scene root | The root is moved to the anchor (the feet) and keeps `metadata/depth_anchor`, so Y-sorting by node position matches Phaser's sort line |
+| `depthBand` | `z_index` (ground decals below, overhead art above); world containers are Y-sorted |
+| `depthBounds` (custom sort line) | A position/offset shift that puts the node origin on the sort line |
+| `depthOffset`, `occlusionBounds` | Dropped (weapon layering is handled in script; occlusion is not ported) |
+| UI Control scenes | Control nodes with anchors and offsets and a generated minimal Theme; the HTML/CSS styling is not converted |
 
 ## Phases
 
@@ -78,6 +82,54 @@ owner on 2026-10-04.
 After the cutover, elevation is designed natively: one collision layer per
 level switched on stairs, a height value for jumps and projectiles, and cliffs
 painted as tiles in the editor.
+
+## Working with the Godot project
+
+Use Godot **4.7.2** (the GDScript build). Project rules, layout and checks are in
+[godot/CONVENTIONS.md](./godot/CONVENTIONS.md); how the game is built is in
+[godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md); the exact Phaser behaviour each
+ported area reproduces is in [godot/specs/](./godot/specs/).
+
+```bash
+pnpm godot:sync
+pnpm godot:convert
+```
+
+`godot:sync` copies the mapped assets into `godot/asset/`; `godot:convert`
+(`scripts/godot/convert-scenes.mjs`) writes `godot/generated/` from the scene
+JSON (`--check` exits 1 when that output is stale). Then open `godot/` in the
+Godot editor and press F5, or run headless checks:
+
+- `--headless --path godot --import` imports the assets;
+- `--headless --path godot -s res://tools/verify_generated.gd` loads and
+  instantiates every converted scene, checks every property, node reference and
+  tile against the JSON, and plays level-1 for 30 frames;
+- `--headless --path godot --quit-after 600` boots the game for ten seconds.
+
+Web build: `--headless --path godot --export-release "Web" export/web/index.html`,
+then serve `godot/export/web` (the `godot-web` entry in `.claude/launch.json`
+serves it on port 3200). Launch options for testing: `?map=<world id>` and
+`?spawn=<x>,<y>` (old Phaser coordinates) on the web, `-- --map=<id>
+--spawn=<x>,<y>` on desktop.
+
+## Trial status (2026-10-04)
+
+- All 1,186 scenes convert in under a second and load in Godot 4.7.2 with no
+  errors; level-1's 1,670 sprites match Phaser's placement within 0.02 px and
+  all 332 animation clips match frame by frame.
+- Level-1 plays in the web build: the player moves and swings the basic
+  sword; worm swordsmen spawn at the starter camp, chase, attack and deal
+  damage; the HUD, damage numbers, death and respawn work. Dodge, sword hits on
+  worms and the damage numbers' values were checked in headless probes. Headless Brave on
+  the owner's machine held 60 fps (16.7 ms frames, 17 ms worst) idle, walking
+  and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
+  quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
+- Not yet: terrain blending, the water shader, the remaining 24 scene scripts
+  (doors, resource nodes, collectibles, chests, …), UI styling, saves, the
+  reference-laptop measurement, and the owner's feel check.
+- Owner decisions the trial defaulted (vertical walk clip, aim origin, the
+  sword's combo off-by-one, idle un-flip) are listed in
+  [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions).
 
 ## Rules while it runs
 
