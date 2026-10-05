@@ -67,6 +67,7 @@ are ordered but not sized or dated (decided 2026-09-29).
 | Q | Chapter 1 — The Clearing | Six NPC quests lead from an empty clearing to Gloop Forest | `[x]` |
 | P | Save, load, and reset | Named saves, recovery autosave, per-map progress | `[x]` |
 | S | Universal scene architecture | Every world, entity, UI, and audio surface is an authored scene | `[x]` |
+| **G** | **Godot migration** | **The game runs in Godot 4.7 with the same worlds and mechanics, edited in the Godot editor** ([plan](./GODOT_MIGRATION.md); trial first) | `[~]` |
 | **Release 1** | | | |
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
 | 4 | Game shell | Title, continue, pause, game over, settings, credits, simple controls | `[~]` |
@@ -77,6 +78,10 @@ are ordered but not sized or dated (decided 2026-09-29).
 | 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[~]` |
 | 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[~]` |
 | 11 | Playtest and ship | Blind playtest, fixes, `v0.1.0` published | `[ ]` |
+
+Milestone G (2026-10-04) moves the game from Phaser to Godot. Its
+[plan](./GODOT_MIGRATION.md) owns the phases; once its trial passes, the
+Release 1 milestones continue in Godot.
 
 Why this order: 3 closes the work already half done. 4 gives every later
 playtest a real start and end. 5 comes before new content so Chapter 2 is
@@ -1559,7 +1564,8 @@ numbered milestone and task tiles.
 - Gamepad support, key rebinding, colorblind-safe status colors, text size,
   photo mode. For rebinding, the 4.10 binding table is already the data; only
   the settings screen is missing.
-- The Android app in `MobileVersion/` stays frozen until after Release 1.
+- An Android export of the Godot project (the old `MobileVersion/` prototype
+  was removed on 2026-10-04).
 
 ### Tooling (frozen)
 

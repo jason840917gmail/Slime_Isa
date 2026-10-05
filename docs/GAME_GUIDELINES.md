@@ -229,7 +229,9 @@ refining the [Game UI Visual Skin System](./superpowers/specs/2026-09-03-game-ui
   a Release 1 milestone.
 - Scene Studio is feature-frozen until Release 1 ships: bug fixes and blockers
   only.
-- The Android app in `MobileVersion/` is frozen until after Release 1.
+- The old Android prototype (`MobileVersion/`) was removed on 2026-10-04;
+  Android becomes an export of the Godot project after Release 1
+  ([GODOT_MIGRATION.md](./GODOT_MIGRATION.md)).
 - New art is added only with an authored-scene home; reuse existing atlases and
   generated scene sets first.
 

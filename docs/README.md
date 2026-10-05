@@ -13,6 +13,7 @@ structure, rules) is [`AGENTS.md`](../AGENTS.md) at the repository root.
 - [camera-and-minimap-guide.md](./camera-and-minimap-guide.md) — responsive camera, zoom, and minimap.
 - [GAME_GUIDELINES.md](./GAME_GUIDELINES.md) — agreed game design direction (living draft).
 - [GAME_ROADMAP.md](./GAME_ROADMAP.md) — the road to Release 1: ordered milestones, task status, needed assets, and the post-release idea parking lot.
+- [GODOT_MIGRATION.md](./GODOT_MIGRATION.md) — the move from Phaser to Godot 4.7: decisions, what carries over, the conversion map and the phases.
 
 ## Folders
 
