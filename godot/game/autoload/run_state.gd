@@ -55,6 +55,10 @@ var play_time_ms: float = 0.0
 ## True after `new_run()` or a load; main.gd starts a new run on its first boot otherwise.
 var started: bool = false
 
+## Quests are not ported yet: a restoration site with a quest id stays locked unless its quest id
+## is listed here (tests and dev). The quest phase replaces `is_quest_active`.
+var debug_active_quests: Array[String] = []
+
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
 ## "entry_edge"?, "entry_door"?, "respawn_home"?}. Empty when none.
 var _navigation: Dictionary = {}
@@ -89,6 +93,7 @@ func new_run() -> void:
 	location = {"area_id": INITIAL_MAP_ID, "map_id": INITIAL_MAP_ID, "x": 0.0, "y": 0.0, "facing": "down"}
 	quests = []
 	play_time_ms = 0.0
+	debug_active_quests = []
 	_navigation = {}
 	started = true
 
@@ -109,11 +114,13 @@ func max_hp() -> int:
 
 
 ## Copies the live player's state into `player` and `location` (before a world is left).
-## `state` = {"hp": int, "facing": "up"|"down"|"left"|"right", "x": float, "y": float} with x/y
-## the old Phaser (centre) position.
+## `state` = {"hp": int, "energy": float, "facing": "up"|"down"|"left"|"right", "x": float,
+## "y": float} with x/y the old Phaser (centre) position.
 func capture_player(map_id: String, state: Dictionary) -> void:
 	if state.has("hp"):
 		player["hp"] = clampi(int(state["hp"]), 0, max_hp())
+	if state.has("energy"):
+		player["energy"] = float(state["energy"])
 	location = {
 		"area_id": map_id,
 		"map_id": map_id,
@@ -299,6 +306,18 @@ func learn_ability(ability_id: String) -> bool:
 	_story_list("learned_ability_ids").append(ability_id)
 	ability_learned.emit({"ability_id": ability_id})
 	return true
+
+
+# --- quests (stub until the quest phase) -------------------------------------------------------
+
+func is_quest_active(quest_id: String) -> bool:
+	return quest_id in debug_active_quests
+
+
+## One more Goo Heart (GameState.addGooHeart): max HP grows; the player fills its HP.
+func add_goo_heart() -> void:
+	player["goo_hearts"] = int(player.get("goo_hearts", 0)) + 1
+	player["hp"] = max_hp()
 
 
 # --- world progress ---------------------------------------------------------------------------

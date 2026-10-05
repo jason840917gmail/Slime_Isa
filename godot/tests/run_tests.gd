@@ -123,6 +123,8 @@ func _discover() -> Array[Dictionary]:
 			cases.append({"file": file, "script": null, "method": "<load>", "known_reason": ""})
 			continue
 		var known: Dictionary = script.get_script_constant_map().get("KNOWN_FAILURES", {})
+		# A test file may name the world its tests start in (`const MAP_ID := "playground"`).
+		var map_id := str(script.get_script_constant_map().get("MAP_ID", ""))
 		var methods: Array[String] = []
 		for method: Dictionary in script.get_script_method_list():
 			var method_name := String(method["name"])
@@ -134,7 +136,7 @@ func _discover() -> Array[Dictionary]:
 			if not _filter.is_empty() and not label.contains(_filter):
 				continue
 			cases.append({"file": file, "script": script, "method": method_name,
-				"known_reason": str(known.get(method_name, ""))})
+				"known_reason": str(known.get(method_name, "")), "map_id": map_id})
 	return cases
 
 
@@ -145,7 +147,7 @@ func _run_case(test_case: Dictionary) -> void:
 	if test_case["script"] == null:
 		context.fail("could not load %s%s" % [TESTS_DIR, test_case["file"]])
 	else:
-		await _setup(context)
+		await _setup(context, str(test_case.get("map_id", "")))
 		if context.failures.is_empty():
 			await _run_body(test_case, context)
 		await _teardown(context)
@@ -159,8 +161,9 @@ func _run_case(test_case: Dictionary) -> void:
 
 
 ## Fresh world: wait out any hit-stop, clear the world service, start a new run (RunState), reset
-## the clock, unpause, then instance main.tscn and let it run SETUP_STEPS physics ticks.
-func _setup(context: TestContext) -> void:
+## the clock, unpause, then instance main.tscn (in the test file's `MAP_ID` world when it names one,
+## else level-1) and let it run SETUP_STEPS physics ticks.
+func _setup(context: TestContext, map_id: String = "") -> void:
 	await _settle()
 	var world := Services.world()
 	if world != null:
@@ -177,6 +180,8 @@ func _setup(context: TestContext) -> void:
 		context.fail("could not load %s" % MAIN_SCENE)
 		return
 	context.main = packed.instantiate()
+	if not map_id.is_empty():
+		context.main.set(&"map_id", map_id)
 	root.add_child(context.main)
 	if context.player() == null:
 		context.fail("main.tscn did not register a player")

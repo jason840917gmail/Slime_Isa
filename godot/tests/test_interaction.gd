@@ -39,10 +39,10 @@ func test_door_prompt_and_badge(t: TestContext) -> void:
 	t.check(badge.visible, "the door badge is hidden")
 	t.equal(badge.global_position.x, 1081.0, "badge x")
 	t.between(badge.global_position.y, 845.0, 850.0, "badge y (847 with the bob)")
+	# 129.5 px from the door: out of its reach (the Forge ruin's restoration prompt may show there).
 	t.teleport_player(Vector2(1200.0, 954.0))
 	await t.steps(2)
-	t.check(not interaction.has_candidate(), "the door is still offered 129.5 px away")
-	t.check(not interaction.get_prompt().is_showing() and not badge.visible, "prompt or badge still showing")
+	t.check(interaction.current().get("id", "") != "world-doors:home-door", "the door is still offered 129.5 px away")
 
 
 func test_door_travel_round_trip(t: TestContext) -> void:

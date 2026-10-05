@@ -33,6 +33,30 @@ Legend: **[IN]** port now, **[OUT]** exists in Phaser, deferred (listed so later
 oddly; a decision may be needed. **[CENTRE]** uses the Phaser body position = the old sprite centre
 (Godot root = feet; use `get_centre()` / `FeetAnchor`, player spec §11).
 
+## Port status (2026-10-05)
+
+Ported: the shared rules and energy (`game/player/abilities/player_abilities.gd`,
+`ability_definitions.gd`; player.gd `energy_changed`, regen, respawn refill), Jump, Squash Slam,
+Teleport and Stretch Lash (`*_sequence.gd`, `ability_terrain.gd`, `ability_world.gd`,
+`ability_fx.gd`; the lash's light catch pulls piles now that collectibles exist), the dodge on the
+shared rules, Eat and the Heavy / Sticky forms (`game/player/gulp/`: speed, knockback immunity,
+plates and cracked ground, the tint fallback, the timer and `[Q] Gulp` hint), and the eight world
+scripts of section 13 (gulp spot, pressure plate, cracked ground, lash bell, ability lesson,
+training dummy, Goo Heart, restoration site; the last two use the interaction controller).
+Tests: `test_abilities.gd`, `test_gulp.gd`, `test_world_puzzles.gd` (the last two run in the
+playground through the runner's per-file `MAP_ID`).
+
+Differences from this spec's Phaser behaviour, until decided otherwise:
+- Sequence milestones run on the simulation clock (O-A4), so hit-stop and menus pause them.
+- The quick wheel is not ported: any release of Q eats as a tap (Phaser opens the wheel after
+  250 ms and then eats from the bag, or does nothing when nothing is carried).
+- `dust-puff` bursts from one point (Phaser spreads its emitters over a 280 x 120 rect).
+- Restoration quests: `RunState.is_quest_active` is false until the quest phase, so the two
+  level-1 ruins show their locked message (tests list the quest in
+  `RunState.debug_active_quests`).
+- No new top-down clips yet for hop, squash, stretch, teleport, eat (the old side-view clips
+  play), and no form skins (tint).
+
 ---
 
 ## 0. Ownership map in Phaser

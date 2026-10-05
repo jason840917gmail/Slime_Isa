@@ -47,6 +47,8 @@ const PRIORITY_WORKBENCH := 88
 const PRIORITY_BED := 85
 const PRIORITY_CHEST := 80
 const PRIORITY_TALK := 50
+const PRIORITY_RESTORATION := 89
+const PRIORITY_GULP := 60
 ## Message literals (UniversalSceneWorldController.ts:984-999, :909-915).
 const GATE_STUCK_MESSAGE := "The gate will not budge."
 const CHEST_GUARDED_PROMPT := "Chest locked by Fatty One Eye"
@@ -204,7 +206,26 @@ func _gather() -> Array[Dictionary]:
 	_append(out, _nearest(at, GateScript.GROUP, PRIORITY_GATE, "world-gates:", _gate_id, _gate_closed, _use_gate))
 	_append(out, _nearest(at, BedScript.GROUP, PRIORITY_BED, "world-beds:", _path_id, Callable(), _use_bed))
 	_append(out, _nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench))
+	_append(out, _nearest(at, &"restoration_site", PRIORITY_RESTORATION, "world-restorations:", _path_id, Callable(), _use_restoration))
+	_append(out, _gulp_candidate(player))
 	return out
+
+
+## A Gulp spot in reach (WorldScene.ts:1109-1128): "Gulp the Stone", no badge (the spot's own
+## "[Q] Gulp" hint floats over it), picked by pointer at the spot.
+func _gulp_candidate(player: Node) -> Dictionary:
+	var spot: Node = player.call(&"nearest_gulp_spot") if player.has_method(&"nearest_gulp_spot") else null
+	if spot == null:
+		return {}
+	var at: Vector2 = spot.call(&"origin")
+	var target := player
+	return {
+		"id": "gulp-spots:%d:%d" % [roundi(at.x), roundi(at.y)],
+		"prompt": "Gulp the " + ItemCatalog.item_name(str(spot.get(&"material_item_id"))),
+		"priority": PRIORITY_GULP,
+		"origin": func() -> Vector2: return at,
+		"execute": func() -> bool: return str(target.call(&"eat")) != "nothing",
+	}
 
 
 ## The nearest node of `group` within its own `interact_radius` (exact ties: the first found).
@@ -329,6 +350,13 @@ func _use_bed(bed: Node) -> bool:
 	if main != null and main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning")):
 		return false
 	return bool(player.call(&"sleep_in", bed.call(&"sleep_request")))
+
+
+func _use_restoration(site: Node) -> bool:
+	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
+	if get_tree().paused or (main != null and main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning"))):
+		return false
+	return bool(site.call(&"restore"))
 
 
 ## The crafting window is a later phase: nothing happens yet.

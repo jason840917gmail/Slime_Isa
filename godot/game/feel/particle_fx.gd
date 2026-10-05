@@ -15,6 +15,9 @@ class_name ParticleFx
 ##                 0-360, each particle tinted one of #ffe89a #86f0c3 #ffffff (boss spec 4.4)
 ##   loot-sparkle: 6, 520, 20-60, 220-320, 0, 0.9->0, 1->0, normal, "fx-sparkle", random rotation
 ##                 0-180 (world-objects spec 7.4: every pickup, over the slime)
+##   dust-puff:    60, 950 (Phaser 700-1200), 30-130, 180-360, 0, 2.2->0.6, 0.95->0, normal,
+##                 "dust-puff" (abilities spec 13.8: a restored building; Phaser spreads the
+##                 emitters over a 280 x 120 rect, here one point)
 ##
 ## Layers: "over" bursts stay under this node (z_index OVER_Z_INDEX, above every world object).
 ## "ground" bursts are moved under the y-sorted world entities root (holder at y + 2, emitter
@@ -24,7 +27,7 @@ class_name ParticleFx
 
 const Services := preload("res://game/shared/services.gd")
 
-const PRESET_IDS: Array[StringName] = [&"hit-spark", &"slime-splash", &"dodge-dust", &"boss-burst", &"loot-sparkle"]
+const PRESET_IDS: Array[StringName] = [&"hit-spark", &"slime-splash", &"dodge-dust", &"boss-burst", &"loot-sparkle", &"dust-puff"]
 
 ## Emitters per preset (round robin): a new burst restarts the oldest emitter, so up to this many
 ## bursts of one preset overlap (Phaser recycles particles of a single emitter).
@@ -62,6 +65,10 @@ const PRESETS := {
 		"speed_min": 20.0, "speed_max": 60.0, "angle_min": 220.0, "angle_max": 320.0, "gravity_y": 0.0,
 		"scale_start": 0.9, "scale_end": 0.0, "alpha_start": 1.0, "alpha_end": 0.0, "additive": false,
 		"rotate_min": 0.0, "rotate_max": 180.0},
+	&"dust-puff": {"texture": "dust-puff", "count": 60, "layer": LAYER_OVER, "lifespan_ms": 950.0,
+		"speed_min": 30.0, "speed_max": 130.0, "angle_min": 180.0, "angle_max": 360.0, "gravity_y": 0.0,
+		"scale_start": 2.2, "scale_end": 0.6, "alpha_start": 0.95, "alpha_end": 0.0, "additive": false,
+		"rotate_min": 0.0, "rotate_max": 0.0},
 }
 
 ## texture name -> ImageTexture
