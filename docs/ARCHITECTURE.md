@@ -90,4 +90,4 @@ Deterministic checks and browser fixtures verify specific contracts, but only a 
 
 ## Phaser and Godot
 
-`src/` is the Phaser/Vite application. `MobileVersion/` is an independent Godot application. They may share design documents and source art, but not engine-specific runtime code.
+`src/` is the Phaser/Vite application. It is being migrated to Godot 4.7; [GODOT_MIGRATION.md](./GODOT_MIGRATION.md) owns that plan. The old `MobileVersion/` prototype was removed on 2026-10-04.
