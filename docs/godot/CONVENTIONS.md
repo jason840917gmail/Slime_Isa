@@ -41,6 +41,7 @@ instead of the generated one. From then on edit it in the Godot editor (or with 
 | `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](./specs/map.md)), made by `MapUi` under the HUD; loaded by path |
 | `ui.inventory-ui`, `ui.crafting-ui`, `ui.menu-tabs`, `ui.weapon-hotbar` | `res://game/ui/screens/inventory_screen.gd`, `crafting_screen.gd`, `menu_tabs.gd` (built in code; made by `menu_windows.gd` on GameWindows), `res://game/ui/weapon_hotbar.gd` (built in code under the HUD) | 2026-10-05: the bag, the crafting window, the menu tab strip and the HUD weapon belt ([specs/crafting.md](./specs/crafting.md)); the converted copies stay unused |
 | `ui.npc-dialogue`, `ui.quest-offer-modal`, `ui.quest-tracker` | `res://game/ui/screens/dialogue_box.tscn`, `quest_offer_window.tscn`, `res://game/ui/quest_tracker.tscn` | 2026-10-05: the NPC dialogue box, the quest offer / turn-in window and the HUD quest tracker on the UI theme ([specs/quests.md](./specs/quests.md)); the quest service mounts the first two on GameWindows, the HUD the tracker; loaded by path |
+| `ui.quest-journal`, `ui.chest-inventory-panel` | `res://game/ui/screens/quest_journal_window.gd`, `chest_window.gd` (built in code; main adds them to GameWindows) | 2026-10-05: the quest journal and the chest window ([specs/journal-and-chest.md](./specs/journal-and-chest.md)); the converted copies stay unused |
 
 ## Running a world
 
@@ -129,7 +130,8 @@ gloop-forest's orb weavers), the quests (`test_quests.gd`, `test_quests_gloop.gd
 records, offer / turn-in conversations, the dialogue reveal and keys, rewards, known facts, the
 tracker, markers, toasts, waypoint targets, saves), crafting, the bag and the belt (`test_crafting.gd`,
 `test_inventory.gd`, `test_loadout.gd`: quotes and the status order, the crafting window, the menu
-key and tabs, consumables, drops, the wheel, the hotbar, the trial sword), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
+key and tabs, consumables, drops, the wheel, the hotbar, the trial sword), the quest journal and the chest window
+(`test_journal.gd`, `test_chest_window.gd`), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
 `--strict` to fail on known failures too.
 
 The `--check-only` pass reports one error per run and does **not** catch calls to

@@ -17,7 +17,8 @@ extends Node2D
 ## mounted again on every build). InventoryActions
 ## (game/inventory/inventory_actions.gd: belt, consumables and craft glue) and GameWindows'
 ## MenuWindows child (game/ui/screens/menu_windows.gd: the menu key, the bag, the crafting window
-## and the tab strip) are made once too. Launch options `recipes` (every recipe known) and
+## and the tab strip) are made once too, as are the quest journal and the chest window on
+## GameWindows (game/ui/screens/quest_journal_window.gd, chest_window.gd). Launch options `recipes` (every recipe known) and
 ## `arsenal` (the development weapons) are dev aids (crafting spec C2, 8.2).
 ##
 ## `_ready()` order (world spec 1.2):
@@ -76,6 +77,8 @@ const QuestService := preload("res://game/quests/quest_service.gd")
 const NpcQuestMarkers := preload("res://game/ui/npc_quest_markers.gd")
 const QuestWaypointView := preload("res://game/ui/quest_waypoint_view.gd")
 const NpcNameTags := preload("res://game/ui/npc_name_tags.gd")
+const QuestJournalWindow := preload("res://game/ui/screens/quest_journal_window.gd")
+const ChestWindow := preload("res://game/ui/screens/chest_window.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -171,6 +174,9 @@ func _ready() -> void:
 	quests = QuestService.new()
 	quests.name = "Quests"
 	add_child(quests)
+	# The quest journal (it finds the quest service by group) and the chest window, on GameWindows.
+	game_windows.add_window(QuestJournalWindow.new())
+	game_windows.add_window(ChestWindow.new())
 	quest_markers = NpcQuestMarkers.new()
 	quest_markers.name = "QuestMarkers"
 	add_child(quest_markers)

@@ -1,5 +1,13 @@
 # Spec: the quest journal and the chest window
 
+**As built (2026-10-05):** both windows are ported (`game/ui/screens/quest_journal_model.gd`,
+`quest_journal_window.gd`, `chest_model.gd`, `chest_window.gd`, `window_style.gd`; tests
+`test_journal.gd`, `test_chest_window.gd`). Differences from the plan below: main adds the journal
+to GameWindows (no `QuestService._mount_windows` hook; the window finds the service by the `quests`
+group), GameWindows is unchanged (each window pushes with `quiet` and plays its own cue: the journal
+`JournalOpen`, the chest window nothing), and the journal's marks use glyphs the default font has
+(`√ * ◊ » –` for `✓ ★ ◆ ▶ ○`, owner question J2).
+
 Two Phaser game windows the Godot 4.7.2 port does not have yet: the **quest journal** ("Quest
 Book", the Journal tab of the menu) and the **chest window** (what opens when the player uses a
 chest). The spec covers how the Phaser build behaves today, then how the Godot port builds both as

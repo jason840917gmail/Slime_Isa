@@ -2,7 +2,7 @@ extends CanvasLayer
 ## The game windows' owner (Phaser `ModalStack` + `setSimulationPaused` for the world's windows):
 ## a CanvasLayer (layer 40: above the HUD 10, below the Shell 50) made once as main's child
 ## "GameWindows", kept across worlds. Every game window (the bag, crafting, the menu tabs, the
-## dialogue box, the quest offer window, later the chest, journal and map) is a Control child of
+## dialogue box, the quest offer window, the journal, the chest window, the world map) is a Control child of
 ## it and reports itself with `push` when it opens and `pop` when it closes.
 ##
 ## While any window is open this node holds the `modal` pause reason (WorldService.PAUSE_MODAL):

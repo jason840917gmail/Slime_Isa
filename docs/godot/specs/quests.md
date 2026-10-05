@@ -69,7 +69,7 @@ working tree (boss/matron, ranged enemies, shell, audio, UI theme). `RunState` a
 | Offer / turn-in window | `features/ui/QuestOfferSurfacePort.ts` + `ui/quest-offer-modal.scene.json` |
 | Quest tracker (HUD) | `features/ui/QuestTrackerSurfacePort.ts` + `ui/quest-tracker.scene.json` |
 | Waypoint | `features/quests/QuestWaypoint.ts`, `QuestWaypointPresenter.ts`, `WorldScene.ts:1148-1189`, `UniversalSceneWorldController.ts:1145-1215` |
-| Journal [OUT] | `features/ui/QuestJournalSurfacePort.ts` |
+| Journal | `features/ui/QuestJournalSurfacePort.ts` (ported: [journal-and-chest.md](./journal-and-chest.md) §1, §3.3) |
 | Wiring | `WorldScene.ts:327-337` (controller), `:397-410` (presenter, story binding, `questTracker.start()`), `:515` (`area.enter`), `:750-772` (pause sources), `:2279-2285` (`quest-npc`, `npc-dialogue` sources) |
 | Legacy, not ported | `quests/Quest.ts`, `QuestCollectionProgress.ts`, `ui/QuestJournal.ts`, `ui/QuestOfferModal.ts` (deprecated views) |
 
@@ -533,12 +533,15 @@ round(dist / 64)`) at radius + 30, shown only when the target is off screen and 
 worm camp `(1130, 1514)`, Fatty's camp `(2528, 1472)`, exit to gloop-forest `(3552, 576)`, forge
 site `(1190, 1068)`, workshop site `(640, 392)`. The minimap also shows the target [OUT].
 
-### 4.7 Journal [OUT]
+### 4.7 Journal [IN]
 
-Menu tab (`QuestJournalSurfacePort.ts`): lists active, available, completed, failed/abandoned
-quests; actions Abandon (active optional retryable), Retry (failed retryable; abandoned automatic
-retryable), with `window.confirm`. It is the only way to abandon, so reoffers (§5.2) are
-unreachable until it exists. Opening it emits `control.used menu:journal` and plays `JournalOpen`.
+Menu tab and pause menu button (`QuestJournalSurfacePort.ts`): lists active, completed, failed and
+abandoned quests (**not** available ones: offers stay with their NPC); actions Abandon (active
+optional retryable), Retry (failed retryable; abandoned automatic retryable), with
+`window.confirm`. It is the only way to abandon, so reoffers (§5.2) come through it. Opening it
+emits `control.used menu:journal` and plays `JournalOpen`. Ported 2026-10-05 as
+`game/ui/screens/quest_journal_window.gd` (model `quest_journal_model.gd`) with an in-window
+confirm (owner decision J1); full behaviour in [journal-and-chest.md](./journal-and-chest.md).
 
 ---
 
@@ -811,7 +814,7 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 | Quest | Needs | State in Godot |
 |---|---|---|
 | a-place-to-work | crafting (`craft-workbench`, portable), furniture placement (`place-item`) | ported 2026-10-05: completable in play |
-| slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | bag, crafting tab, map, sprint and pause count; the journal is being ported |
+| slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | ported: every objective counts (the journal since 2026-10-05) |
 | stone-tools | crafting at a workbench (placed bench or restored Workshop), belt weapon switch, axe/pickaxe as weapons, pile pickups | ported (`test_chapter_one_flow.gd::test_stone_tools_by_hand`) |
 | worm-trouble | crafting; `enemy.died` for worm swordsmen | ported (`enemy_loot.gd` sends `enemy.died`; `test_worm_trouble_kills_count`) |
 | the-one-eyed-guardian | crafting; Fatty (ported, `boss_camp.gd boss_defeated`); travel to gloop-forest (ported); key from the guarded chest | ported (the chest window is being ported; the take-all stand-in works meanwhile) |
@@ -1284,8 +1287,8 @@ target in reach). Real-time reveal through `advance_reveal(ms)`.
 
 ### 10.11 Deferred
 
-[OUT] journal window and abandon/retry UI (service commands are ported), reoffer reachable only
-through it; minimap waypoint dot; NPC name tags; reconciliation of old definition versions; quest
+The journal window and its abandon/retry UI are ported (2026-10-05, [journal-and-chest.md](./journal-and-chest.md)).
+[OUT] minimap waypoint dot; NPC name tags; reconciliation of old definition versions; quest
 failure content; escort/survival objectives; control hints (`hint.*` flags). [BLOCKED] crafting,
 furniture placement, belt switching, menu windows (inventory/crafting/journal/map control ids),
 enemy loot and `enemy.died`, the Matron's camp in gloop-forest.

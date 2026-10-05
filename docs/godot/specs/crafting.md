@@ -41,7 +41,7 @@ feet − (0, 27.56)).
 | Wheel input | `features/player/WheelStepper.ts`, `features/scripts/PlayerScript.ts:100-104`, `game-constants.json` `input.weaponWheelStepLockMs` | [IN] |
 | HUD hotbar | `features/ui/WeaponHotbarSurfacePort.ts` + `ui/weapon-hotbar.scene.json` | [IN] |
 | Consumables | `scenes/WorldScene.ts:2005-2024` (`useItem`), `content/items/items.json` `use` | [IN] |
-| Menu key, tab strip | `scenes/WorldScene.ts:2045-2080`, `features/ui/MenuTabsSurfacePort.ts` + `ui/menu-tabs.scene.json` | [IN] (Journal / Map tabs disabled until those windows exist) |
+| Menu key, tab strip | `scenes/WorldScene.ts:2045-2080`, `features/ui/MenuTabsSurfacePort.ts` + `ui/menu-tabs.scene.json` | [IN] (the Journal and Map tabs work since their windows registered: `register_tab`) |
 | Harvest advice text | `scenes/WorldScene.ts:2188-2203`, `features/combat/HarvestAdvice.ts` | [IN] |
 | Furniture placement (placing a crafted workbench) | `features/building/FurniturePlacementController.ts`, `WorldScene.ts:1219-1253` | ported later: [furniture.md](./furniture.md) (C1 superseded) |
 | Control hints (`inventory`, `crafting`, `weapon-switch`) | `features/hints/ControlHints.ts:22-24`, `WorldScene.ts:571-609` | [OUT] (interaction spec §2.10) |

@@ -15,9 +15,9 @@ class_name InteractionController
 ## "Right-click: <prompt>" at the bottom of the screen and a key badge over it. The player's
 ## interact press (right click, buffered 150 ms) runs `handle_interact`.
 ##
-## Phase 3 screens are stand-ins until then: a chest gives everything at once ("Moved 1 × Verdant
-## Key"). An NPC opens its conversation (the quest service: dialogue box, offer and turn-in
-## window). A workbench opens the crafting window for its site (game/ui/screens/menu_windows.gd).
+## A chest opens the chest window (chest.gd hands itself to game/ui/screens/chest_window.gd). An
+## NPC opens its conversation (the quest service: dialogue box, offer and turn-in window). A
+## workbench opens the crafting window for its site (game/ui/screens/menu_windows.gd).
 ##
 ## Owner: interaction.
 
@@ -60,9 +60,6 @@ const CHEST_EMPTY_PROMPT := "Inspect empty chest"
 const CHEST_OPEN_PROMPT := "Open chest"
 const CHEST_GUARDED_MESSAGE := "Fatty One Eye is guarding this chest!"
 const CHEST_MESSAGE_RISE := 48.0
-## Chest stand-in texts: one line per stack, stacked upwards.
-const CHEST_LINE_SPACING := 18.0
-const NO_ROOM_MESSAGE := "No inventory space for that item."
 const NPC_DEFINITIONS_FILE := "npc-definitions.json"
 ## The quest service (game/quests/quest_service.gd) runs NPC conversations.
 const QUESTS_GROUP := &"quests"
@@ -389,21 +386,10 @@ func _use_gate(gate: Node) -> bool:
 	return true
 
 
-## Opens the chest; until the Phase 3 window exists, everything moves into the bag at once.
+## Opens the chest (its window shows it, also when empty); a live guard says so instead.
 func _use_chest(chest: ChestScript) -> bool:
-	var at := chest.origin() - Vector2(0.0, CHEST_MESSAGE_RISE)
 	if chest.request_open() == "guarded":
-		_message(at, CHEST_GUARDED_MESSAGE, &"white")
-		return true
-	var line := 0
-	for result: Dictionary in chest.take_all():
-		var line_at := at - Vector2(0.0, CHEST_LINE_SPACING * line)
-		if int(result["moved"]) > 0:
-			_message(line_at, "Moved %d × %s" % [int(result["moved"]), ItemCatalog.item_name(str(result["item_id"]))], &"cyan", false)
-		else:
-			_message(line_at, NO_ROOM_MESSAGE, &"white", false)
-		line += 1
-	chest.close()
+		_message(chest.origin() - Vector2(0.0, CHEST_MESSAGE_RISE), CHEST_GUARDED_MESSAGE, &"white")
 	return true
 
 
