@@ -6,6 +6,7 @@ extends RefCounted
 ## of it is open for the distances used here (a prop sits down-right).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
+const SquashStretch := preload("res://game/player/squash_stretch.gd")
 
 const WALK_SPEED := 200.0
 const SPRINT_SPEED := 300.0
@@ -212,3 +213,10 @@ func _check_speed(t: TestContext, actions: Array, direction: Vector2, speed: flo
 	t.near(moved.length() / seconds, speed, 0.5, "%s measured speed (px/s)" % label)
 	t.near(moved.normalized().dot(direction), 1.0, 0.0001, "%s direction (cos of the angle to the expected)" % label)
 	t.release_all()
+
+
+## Reduce motion keeps 35 % of a squash (SquashStretch.ts squashStart): the landing splat
+## (1.32, 0.72) starts at (1.112, 0.902).
+func test_reduce_motion_softens_the_squash(t: TestContext) -> void:
+	t.near_vec(SquashStretch.squash_start(Vector2(1.32, 0.72), false), Vector2(1.32, 0.72), 0.0001, "full squash")
+	t.near_vec(SquashStretch.squash_start(Vector2(1.32, 0.72), true), Vector2(1.112, 0.902), 0.0001, "reduced squash")
