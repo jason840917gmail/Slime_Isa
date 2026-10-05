@@ -22,7 +22,8 @@ extends Node2D
 ##  6. equip_trial_weapon(): PlayerCombat child "PlayerCombat" of the player root, setup, set_combat,
 ##     equip(TRIAL_WEAPON_ID, or the `weapon` launch option)
 ##  7. start_enemy_population(): EnemyPopulation with the enemy-spawn areas, safe zones,
-##     entities_root, allowed_types = TRIAL_ENEMY_TYPES, seed_initial()
+##     entities_root, every enemy type its camps name (the trial's worm-only filter is gone),
+##     seed_initial()
 ##  7b. warm_runtime_scenes(): cache the PackedScenes spawned mid-game (camp enemy types, the
 ##     weapon's hit effect, resource nodes' hit effects and drop piles) and mount the global
 ##     audio cue scene, so none of them is loaded on
@@ -51,10 +52,8 @@ const InteractionController := preload("res://game/interaction/interaction_contr
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
-## Trial settings (player spec 14 Q3, combat spec 3): sword equipped from the start; only the
-## worm swordsman spawns.
+## Trial setting (player spec 14 Q3, combat spec 3): the sword is equipped from the start.
 const TRIAL_WEAPON_ID := "basic-sword"
-const TRIAL_ENEMY_TYPES: PackedStringArray = ["worm-swordsman"]
 const PLAYER_SCENE_ID := "character.player-slime"
 ## `AREA_ARRIVE_FADE_MS` (WorldScene.ts:128) and the fade colour #0b1020.
 const ARRIVAL_FADE_MS := 400.0
@@ -461,7 +460,8 @@ func start_enemy_population() -> void:
 	enemy_population.name = "EnemyPopulation"
 	add_child(enemy_population)
 	enemy_population.setup(world_service.areas(world_service.AREA_ENEMY_SPAWN), world_service.safe_zones(), world_service.entities_root())
-	enemy_population.allowed_types = TRIAL_ENEMY_TYPES
+	# Every type the world's camps name (owner decision O5 limited the trial to worm swordsmen).
+	enemy_population.allowed_types = PackedStringArray()
 	enemy_population.seed_initial()
 
 

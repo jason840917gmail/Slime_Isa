@@ -42,6 +42,7 @@ const AbilityDefinitions := preload("res://game/player/abilities/ability_definit
 const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const GulpHud := preload("res://game/player/gulp/gulp_hud.gd")
+const StatusEffects := preload("res://game/player/status_effects.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -141,6 +142,8 @@ var _gulp_hud: GulpHud
 ## the press and of the last step that saw it held; < 0 when no press is pending.
 var _eat_since_ms: float = -1.0
 var _eat_last_seen_ms: float = -1.0
+## Status effects (game/player/status_effects.gd): sticky roots the slime, slow scales walking.
+var _status: StatusEffects = StatusEffects.new(_status_damage)
 ## The world's interaction controller (group "interaction"), looked up on the first press.
 var _interaction: Node
 ## Simulation-time deadlines (ms).
@@ -177,6 +180,8 @@ const CUE_ABILITY_DENIED := &"AbilityDenied"
 const CUE_RESPAWN := &"Respawn"
 const CUE_ENERGY_RESTORE := &"EnergyRestore"
 const CUE_EAT := &"Eat"
+const EFFECT_WEB := "web"
+const WEB_COVER_SCENE := "effect.spider-web-cover"
 ## Gulp form texts (WorldScene.ts:1093-1100): centre - 56.
 const GULP_TEXT_RISE_PX := 56.0
 ## An eat press older than this without a step seeing it held is dropped (WorldScene.ts:913-969).
@@ -286,6 +291,7 @@ func _physics_process(delta: float) -> void:
 			_play_idle()
 	_abilities.advance(Services.now_ms())
 	_gulp.update()
+	_status.update(delta * 1000.0)
 	if not _dead:
 		_regen_energy(delta * 1000.0)
 	if _dead:
@@ -612,6 +618,10 @@ func publish_damage_feedback(commit: Dictionary) -> void:
 	if actual > 0:
 		_present_hit(actual)
 	if not bool(result.get("defeated", false)):
+		# A web hit roots the slime first (PlayerHealthController.ts:130-131).
+		var web_ms: float = _applied_potency(result, EFFECT_WEB)
+		if web_ms > 0.0:
+			apply_web(web_ms)
 		var strength: float = _applied_potency(result, EFFECT_KNOCKBACK)
 		if strength > 0.0:
 			var request: Dictionary = _dict(commit.get("request"))
@@ -650,6 +660,9 @@ func use_ability(id: StringName) -> bool:
 	var aim := _pointer_aim_with_distance()
 	var toward: Vector2 = aim["direction"] if aim["direction"] != Vector2.ZERO else _facing
 	var request := {"position": get_centre(), "direction": toward, "facing": _facing}
+	# A rooted (webbed) slime cannot jump, dodge or teleport; the press is spent silently.
+	if _status.is_rooted() and id in [AbilityDefinitions.JUMP, AbilityDefinitions.DODGE, AbilityDefinitions.TELEPORT]:
+		return false
 	match id:
 		AbilityDefinitions.JUMP:
 			request["direction"] = _input.movement_vector()
@@ -821,9 +834,44 @@ func grant_goo_heart() -> void:
 	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
 
 
-## Rooted by a spider web (status effects are not ported yet).
+## Rooted by a spider web (the `sticky` status).
 func is_rooted() -> bool:
-	return false
+	return _status.is_rooted()
+
+
+## `WorldScene.applyWeb`: roots the slime for `duration_ms` (the longer of two webs wins) and, when
+## it was not stuck yet, covers it with the web effect, which follows it.
+func apply_web(duration_ms: float) -> void:
+	var already := _status.is_rooted()
+	_status.apply(&"sticky", duration_ms)
+	if already or body == null:
+		return
+	var world := Services.world()
+	var cover := world.instantiate_scene(WEB_COVER_SCENE) as Node2D if world != null else null
+	if cover == null:
+		return
+	cover.position = Vector2(0.0, -FeetAnchor.depth_anchor(body).y) if FeetAnchor.depth_anchor(body) != Vector2.ZERO else Vector2(0.0, -27.56)
+	cover.z_index = 1
+	body.add_child(cover)
+
+
+## A status effect on the player ("burn", "poison", "slow", "sticky", "bouncy", "frenzy").
+func apply_status(kind: StringName, duration_ms: float = -1.0) -> void:
+	_status.apply(kind, duration_ms)
+
+
+func get_status() -> StatusEffects:
+	return _status
+
+
+## Damage over time from a status (GameState.damage): HP down, death at 0.
+func _status_damage(amount: float, _kind: StringName) -> void:
+	if _dead or amount <= 0.0:
+		return
+	_hp = maxi(0, _hp - roundi(amount))
+	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+	if _hp <= 0:
+		_die()
 
 
 ## The Gulp controller's form change (WorldScene.ts:1093-1100): the tint, the gulp squash and
@@ -921,8 +969,13 @@ func _move(direction: Vector2) -> void:
 	var sprinting: bool = _input.is_held(&"sprint")
 	var base: float = _boost_speed if sprinting else _resolve_movement_speed(_base_speed)
 	# A Gulp form scales the capped speed (PlayerController.ts:69-70): Heavy 0.6, Sticky 0.9.
-	var speed: float = _resolve_movement_speed(base) * float(_gulp.form.get("speed", 1.0))
+	var speed: float = _resolve_movement_speed(base, 0.0, _status.speed_multiplier()) * float(_gulp.form.get("speed", 1.0))
 	if direction == Vector2.ZERO:
+		body.velocity = Vector2.ZERO
+		_play_direct(CLIP_IDLE)
+		return
+	# Rooted (a web): no walking, the slime idles (PlayerController.ts:72-77).
+	if _status.is_rooted():
 		body.velocity = Vector2.ZERO
 		_play_direct(CLIP_IDLE)
 		return
@@ -1121,6 +1174,7 @@ func _die() -> void:
 		return
 	_sleep.wake("death")
 	_gulp.clear()
+	_status.clear()
 	_eat_since_ms = -1.0
 	_dead = true
 	_knockback_anim_until_ms = 0.0
