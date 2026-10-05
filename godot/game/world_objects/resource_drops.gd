@@ -232,8 +232,9 @@ static func on_pile_changed(map_id: String, source_id: String, pile_id: String, 
 ## Mounts a pile (`spawnWorldDrop`): `object.<object id with "." -> "-">` under the world's
 ## entities root with its collectible overrides set before it enters the tree. `launch_from` (a
 ## Vector2) flies it there from the node, pickable only once it settles; null places it settled.
+## `source_id` names the resource node that dropped it, `inventory_drop_id` the loot or bag drop.
 static func spawn_pile(object_id: String, pile_id: String, map_id: String, amount: int, source_id: String,
-		destination: Vector2, launch_from: Variant, launch_index: int) -> Node2D:
+		destination: Vector2, launch_from: Variant, launch_index: int, inventory_drop_id: String = "") -> Node2D:
 	var world := Services.world()
 	if world == null:
 		return null
@@ -254,6 +255,7 @@ static func spawn_pile(object_id: String, pile_id: String, map_id: String, amoun
 	script.instance_id = pile_id
 	script.quantity = amount
 	script.source_resource_instance_id = source_id
+	script.source_inventory_drop_id = inventory_drop_id
 	var start: Vector2 = launch_from if launch_from is Vector2 else destination
 	root.position = _local_point(parent, start)
 	if launch_from is Vector2:

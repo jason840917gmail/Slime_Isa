@@ -527,6 +527,15 @@ func is_action_held(action: StringName) -> bool:
 ## port keeps: `world.find_spawn_point(world.player_spawn_marker())`.
 func respawn() -> void:
 	_respawn_at_real_ms = -1.0
+	# The last bed is in another world: main rebuilds that world with the slime at the bed
+	# (Phaser `navigateToRespawnPoint` reloads into it).
+	var run := Services.run()
+	var world := Services.world()
+	var bed: Dictionary = run.respawn_point() if run != null else {}
+	if not bed.is_empty() and world != null and str(bed.get("map_id", "")) != world.map_id():
+		var main := get_tree().get_first_node_in_group(&"world_main")
+		if main != null and main.has_method(&"respawn_in_world") and bool(main.call(&"respawn_in_world", bed)):
+			return
 	_hp = _max_hp
 	_dead = false
 	_iframe_until_ms = 0.0

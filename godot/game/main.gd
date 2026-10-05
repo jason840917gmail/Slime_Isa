@@ -49,6 +49,7 @@ const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
+const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -89,6 +90,8 @@ var player_combat: PlayerCombat
 var enemy_population: EnemyPopulation
 ## The interact button, prompt and badge (game/interaction/), made once, kept across worlds.
 var interaction: InteractionController
+## Enemy rewards: coins and loot piles (game/world_objects/enemy_loot.gd), made once.
+var loot: EnemyLoot
 
 var _transitioning: bool = false
 var _next_gate_message_ms: int = 0
@@ -110,6 +113,9 @@ func _ready() -> void:
 	interaction = InteractionController.new()
 	interaction.name = "Interaction"
 	add_child(interaction)
+	loot = EnemyLoot.new()
+	loot.name = "EnemyLoot"
+	add_child(loot)
 	var navigation := run.consume_navigation() if run != null else {}
 	var target := str(navigation.get("map_id", ""))
 	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
@@ -143,6 +149,8 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	setup_ui()
 	_transitioning = false
 	_start_autosave()
+	# Uncollected loot comes back once the world's entities root exists.
+	loot.restore_world.call_deferred()
 	return true
 
 
@@ -157,6 +165,24 @@ func load_run(slot: int) -> bool:
 	_transitioning = true
 	_teardown_world()
 	return _build_world(str(navigation.get("map_id", TRIAL_MAP_ID)), navigation)
+
+
+## A defeated slime whose last bed is in another world wakes there (WorldScene
+## `navigateToRespawnPoint`): full HP and energy, the bed's world rebuilt with the slime at the
+## bed's wake point. False when that world is unknown or a travel is under way.
+func respawn_in_world(bed: Dictionary) -> bool:
+	var run := Services.run()
+	var world_service := Services.world()
+	var target := str(bed.get("map_id", ""))
+	if _transitioning or run == null or world_service == null or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
+		return false
+	run.player["hp"] = run.max_hp()
+	run.player["energy"] = float(Services.constants().number("character.player.stats.maxEnergy")) if Services.constants() != null else 100.0
+	run.location = {"area_id": target, "map_id": target, "x": float(bed.get("x", 0.0)), "y": float(bed.get("y", 0.0)), "facing": "down"}
+	run.request_navigation("load", target)
+	_transitioning = true
+	_teardown_world()
+	return _build_world(target, run.consume_navigation())
 
 
 ## The recovery autosave follows the run while this world is played (SaveSystem.startAutoSave):

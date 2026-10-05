@@ -83,3 +83,19 @@ func test_unreadable_and_newer_saves_are_refused(t: TestContext) -> void:
 	newer.close()
 	t.check(not run.load_slot(SLOT), "a save from a newer version loaded")
 	run.delete_slot(SLOT)
+
+
+## A defeated slime whose last bed is in slime-home wakes there, full HP.
+func test_respawn_at_bed_in_another_world(t: TestContext) -> void:
+	var run := Services.run()
+	run.set_respawn_point({"area_id": "slime-home", "map_id": "slime-home", "x": 160.0, "y": 356.0, "bed_id": "world.slime-home.west-bed"})
+	var player := t.player()
+	player.restore_run_state({"hp": 1})
+	player.call(&"_die")
+	var arrived := await t.until(func() -> bool:
+		return t.world().map_id() == "slime-home" and t.player() != null and not t.main.is_transitioning(), 4000.0, 8000.0)
+	if not t.check(arrived, "the slime did not wake in slime-home"):
+		return
+	await t.steps(2)
+	t.equal(t.player().get_hp(), t.player().get_max_hp(), "HP at the bed")
+	t.check(t.player().get_centre().distance_to(Vector2(160.0, 356.0)) < 40.0, "not at the bed: %s" % [t.player().get_centre()])
