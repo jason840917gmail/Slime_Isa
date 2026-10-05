@@ -897,6 +897,8 @@ func _rebind(run: Services.RunStateType) -> void:
 	source.clear()
 	source.append_array(ordered)
 	_bound = source
+	# A new run or a load replaced the records: views kept across worlds (tracker, markers) rebuild.
+	quest_changed.emit({"questId": ""})
 
 
 ## `validateQuestState` (validateQuestCatalog.ts:284-317): [] when the record is sound.

@@ -887,6 +887,11 @@ func install(data: Dictionary) -> bool:
 	_navigation = {}
 	trial_weapon_pending = false
 	started = true
+	# Views kept across worlds (the HUD belt and coins) follow the loaded run; the quest service
+	# rebinds on its next call and reports it with `quest_changed`.
+	inventory_changed.emit({})
+	weapon_loadout_changed.emit({"slots": weapon_slots()})
+	coins_changed.emit({"coins": coins(), "delta": 0})
 	return true
 
 
@@ -948,8 +953,14 @@ func inspect_slot(slot: int) -> Dictionary:
 	if not parsed is Dictionary:
 		return {"exists": true, "record": {}, "problem": "not a save file"}
 	var record: Dictionary = _integers(parsed)
-	if int(record.get("schema_version", 0)) > SAVE_SCHEMA_VERSION or not record.get("data") is Dictionary:
+	if int(record.get("schema_version", 0)) > SAVE_SCHEMA_VERSION:
 		return {"exists": true, "record": {}, "problem": "made by a newer version"}
+	var data: Variant = record.get("data")
+	if not data is Dictionary:
+		return {"exists": true, "record": {}, "problem": "not a save file"}
+	for key: String in ["player", "inventory", "location", "world", "story"]:
+		if not (data as Dictionary).get(key) is Dictionary:
+			return {"exists": true, "record": {}, "problem": "not a save file"}
 	return {"exists": true, "record": record, "problem": ""}
 
 

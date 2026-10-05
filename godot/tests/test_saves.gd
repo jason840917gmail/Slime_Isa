@@ -99,3 +99,43 @@ func test_respawn_at_bed_in_another_world(t: TestContext) -> void:
 	await t.steps(2)
 	t.equal(t.player().get_hp(), t.player().get_max_hp(), "HP at the bed")
 	t.check(t.player().get_centre().distance_to(Vector2(160.0, 356.0)) < 40.0, "not at the bed: %s" % [t.player().get_centre()])
+
+
+## A load in a running game refreshes the views main keeps across worlds: the HUD weapon belt and
+## the quest tracker show the loaded run, not the one before it.
+func test_load_in_game_refreshes_the_hud_views(t: TestContext) -> void:
+	var run := Services.run()
+	await t.steps(2)
+	t.check(run.save_slot(SLOT), "save_slot failed")
+	run.add_item("stone-axe", 1)
+	run.set_weapon_slots(["basic-sword", "stone-axe", null, null])
+	t.main.quests.debug_activate("a-place-to-work")
+	await t.steps(2)
+	var hotbar: Node = null
+	var tracker: Node = null
+	for child: Node in t.main.get_node("Hud").get_children():
+		var path := str(child.get_script().resource_path) if child.get_script() != null else ""
+		if path.ends_with("weapon_hotbar.gd"):
+			hotbar = child
+		elif path.ends_with("quest_tracker.gd"):
+			tracker = child
+	if not t.check(hotbar != null and tracker != null, "no hotbar or tracker on the HUD"):
+		return
+	t.equal(str(hotbar.call(&"model")["weapons"][1]["item_id"]), "stone-axe", "belt slot 2 before the load")
+	var before := str(tracker.call(&"model").get("quest1Objectives", ""))
+	t.check(t.main.load_run(SLOT), "load_run failed")
+	await t.steps(3)
+	t.equal(str(hotbar.call(&"model")["weapons"][1]["item_id"]), "", "belt slot 2 after the load")
+	t.check(str(tracker.call(&"model").get("quest1Objectives", "")) != before, "the tracker still shows the run before the load")
+
+
+## A slot file without the run's sections is unreadable, not loadable (it would crash the load).
+func test_slot_without_sections_is_unreadable(t: TestContext) -> void:
+	var run := Services.run()
+	DirAccess.make_dir_recursive_absolute(run.save_root)
+	var file := FileAccess.open(run.save_root.path_join("slot-%d.json" % SLOT), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"schema_version": 1, "data": {}}))
+	file.close()
+	t.equal(run.inspect_slot(SLOT)["problem"], "not a save file", "an empty data section")
+	t.check(not run.load_slot(SLOT), "an empty save loaded")
+	t.equal(run.list_saves().size(), 0, "listed saves")

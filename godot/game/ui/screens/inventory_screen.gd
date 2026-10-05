@@ -8,7 +8,7 @@ extends "res://game/ui/screens/game_window.gd"
 ## InventoryActions (group `inventory_actions`) and InventoryDrops.
 ##
 ## Dropping closes the bag (also when it failed, K8). Destroy has no confirmation (K7). "Place"
-## stays disabled until furniture placement is ported (owner decision C1).
+## closes the bag and starts furniture placement.
 ##
 ## Owner: inventory (UI).
 
