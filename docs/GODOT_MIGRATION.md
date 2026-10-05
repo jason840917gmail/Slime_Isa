@@ -150,8 +150,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   contact-hops, leaps with a ground telegraph, lands for damage with the ground
   crack and a camera shake, walks home and heals when the player leaves the arena,
   shows the boss health bar, and dies with its death clip (kept on screen for the
-  clip, which Phaser never showed). Only spears hurt it, and the trial still equips
-  the sword, so killing it in play needs a spear (tests use one).
+  clip, which Phaser never showed). Only spears hurt it: craft one, or start with
+  `--weapon=basic-spear`.
 - Every enemy the worlds spawn is ported (2026-10-05, [godot/specs/enemy.md](./godot/specs/enemy.md)
   part 2): worm archers shoot arrows and keep their distance, slime spiders and orb weavers
   spiral in and spit webs, worm brawlers punch with their hit effect; projectiles fly, stop at
@@ -159,8 +159,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   Phaser. Every camp type spawns in play (the trial's worm-swordsman-only filter is lifted).
 - The gloop-forest boss is ported (2026-10-05, [godot/specs/matron.md](./godot/specs/matron.md)):
   the Orb-Weaver Matron's nest camp, her spit, her web volleys with their ground marks, the web
-  patches they leave and the spider-web barriers, with the boss bar and the camp records. The
-  web root on the slime and the Sticky form that tears webs wait for the player's abilities port.
+  patches they leave and the spider-web barriers, with the boss bar and the camp records. Webs
+  root the slime (`apply_web`), and the Sticky form tears patches and barriers.
 - The music director is ported (2026-10-05, [godot/specs/audio.md](./godot/specs/audio.md)):
   world music fades in on arrival and out before a travel,
   crossfades to the boss music while a boss fight lasts, ducks under a pause menu, waits for the
