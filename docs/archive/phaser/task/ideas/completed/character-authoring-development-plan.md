@@ -62,8 +62,8 @@ This plan follows:
 - [`2026-07-27-character-studio-design.md`](../../../superpowers/specs/2026-07-27-character-studio-design.md)
 - [`adding-assets.md`](../../../assets/adding-assets.md)
 - [`2026-07-23-animated-worm-enemy-roster-design.md`](2026-07-23-animated-worm-enemy-roster-design.md)
-- [`future-enemy-types.md`](../open/future-enemy-types.md)
-- [`2026-07-24-combat-hit-feedback-and-parry-design.md`](../open/2026-07-24-combat-hit-feedback-and-parry-design.md)
+- [`future-enemy-types.md`](../../../../../task/ideas/open/future-enemy-types.md)
+- [`2026-07-24-combat-hit-feedback-and-parry-design.md`](../../../../../task/ideas/open/2026-07-24-combat-hit-feedback-and-parry-design.md)
 
 ## Goal
 

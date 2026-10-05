@@ -89,5 +89,5 @@ A healthy responsive canvas has matching backing and CSS dimensions and a CSS
 ratio of `1.0000` on both axes. The remaining device-pixel-ratio behavior is a
 browser/output-scaling concern, not a reason to rescale source spritesheets.
 
-See [World Motion Rendering Instability](./task/bugs/world-motion-rendering-instability.md)
+See [World Motion Rendering Instability](task/bugs/world-motion-rendering-instability.md)
 for the diagnosis, acceptance matrix, and future high-DPI experiments.

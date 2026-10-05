@@ -4,11 +4,11 @@ Area owner: quests (the quest service, objectives and rewards, NPC offer / turn-
 dialogue box, the offer window, the quest tracker, NPC quest markers, the waypoint, quest
 notifications). Binding inputs: [GODOT_MIGRATION.md](../../GODOT_MIGRATION.md),
 [CONVENTIONS.md](../CONVENTIONS.md), [ARCHITECTURE.md](../ARCHITECTURE.md),
-[UI_THEME.md](../UI_THEME.md). Related specs: [interaction.md](./interaction.md) (router, NPC talk
-candidate, the stand-ins this spec replaces), [abilities.md](./abilities.md) (ability rewards,
-restoration sites), [world-objects.md](./world-objects.md) (collectibles), [boss.md](./boss.md) /
-[matron.md](./matron.md) (`boss_defeated`), [enemy.md](./enemy.md) (enemy defeat award),
-[shell.md](./shell.md) (banners, end cards, pause menu), [audio.md](./audio.md) (cues).
+[UI_THEME.md](../UI_THEME.md). Related specs: [interaction.md](interaction.md) (router, NPC talk
+candidate, the stand-ins this spec replaces), [abilities.md](abilities.md) (ability rewards,
+restoration sites), [world-objects.md](world-objects.md) (collectibles), [boss.md](boss.md) /
+[matron.md](matron.md) (`boss_defeated`), [enemy.md](enemy.md) (enemy defeat award),
+[shell.md](shell.md) (banners, end cards, pause menu), [audio.md](audio.md) (cues).
 
 Sources read (read-only): `src/game/content/quests/{types,QuestCatalog,validateQuestCatalog}.ts`,
 `content/quests/quests/{chapterOne,chapterTwo}.ts`, `src/game/quests/{QuestService,QuestTracker,
@@ -69,7 +69,7 @@ working tree (boss/matron, ranged enemies, shell, audio, UI theme). `RunState` a
 | Offer / turn-in window | `features/ui/QuestOfferSurfacePort.ts` + `ui/quest-offer-modal.scene.json` |
 | Quest tracker (HUD) | `features/ui/QuestTrackerSurfacePort.ts` + `ui/quest-tracker.scene.json` |
 | Waypoint | `features/quests/QuestWaypoint.ts`, `QuestWaypointPresenter.ts`, `WorldScene.ts:1148-1189`, `UniversalSceneWorldController.ts:1145-1215` |
-| Journal | `features/ui/QuestJournalSurfacePort.ts` (ported: [journal-and-chest.md](./journal-and-chest.md) §1, §3.3) |
+| Journal | `features/ui/QuestJournalSurfacePort.ts` (ported: [journal-and-chest.md](journal-and-chest.md) §1, §3.3) |
 | Wiring | `WorldScene.ts:327-337` (controller), `:397-410` (presenter, story binding, `questTracker.start()`), `:515` (`area.enter`), `:750-772` (pause sources), `:2279-2285` (`quest-npc`, `npc-dialogue` sources) |
 | Legacy, not ported | `quests/Quest.ts`, `QuestCollectionProgress.ts`, `ui/QuestJournal.ts`, `ui/QuestOfferModal.ts` (deprecated views) |
 
@@ -541,7 +541,7 @@ optional retryable), Retry (failed retryable; abandoned automatic retryable), wi
 `window.confirm`. It is the only way to abandon, so reoffers (§5.2) come through it. Opening it
 emits `control.used menu:journal` and plays `JournalOpen`. Ported 2026-10-05 as
 `game/ui/screens/quest_journal_window.gd` (model `quest_journal_model.gd`) with an in-window
-confirm (owner decision J1); full behaviour in [journal-and-chest.md](./journal-and-chest.md).
+confirm (owner decision J1); full behaviour in [journal-and-chest.md](journal-and-chest.md).
 
 ---
 
@@ -1287,7 +1287,7 @@ target in reach). Real-time reveal through `advance_reveal(ms)`.
 
 ### 10.11 Deferred
 
-The journal window and its abandon/retry UI are ported (2026-10-05, [journal-and-chest.md](./journal-and-chest.md)).
+The journal window and its abandon/retry UI are ported (2026-10-05, [journal-and-chest.md](journal-and-chest.md)).
 [OUT] minimap waypoint dot; NPC name tags; reconciliation of old definition versions; quest
 failure content; escort/survival objectives; control hints (`hint.*` flags). [BLOCKED] crafting,
 furniture placement, belt switching, menu windows (inventory/crafting/journal/map control ids),

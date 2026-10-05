@@ -31,7 +31,7 @@ Godot targets (from the conventions): script `game.enemy` → `res://game/script
 | Ranged / projectile enemies | `EnemyScript.ts:754-770`, `900-908`, `UniversalSceneWorldController.spawnEnemyProjectile` | **Ported 2026-10-05, §12.** `projectile` property, `projectileSpeed`, `stickMs` (spider web). Worm archer, slime spider, orb weaver. |
 | `fleeRange` keep-distance behaviour | `EnemyAI.ts:284-286`, `317-335`; `EnemyScript.ts:441-442` | **Ported, §13.** Archers/spiders. Worm has no `fleeRange` (but see safe-zone flee, which IS in scope). |
 | Slime spider AI | `enemies/ai/SlimeSpiderAI.ts` | **Ported 2026-10-05, §14.** `attributes.behavior == "slime-spider"`: orbit/approach, keep distance, retreat, fire. |
-| Fatty / Matron bosses, boss arena leash, `arenaRecoveryMs`, telegraphs, camera shake, `routeImmediateAttack`, `attackAreaReach` overrides | `FattyScript.ts`, `MatronScript.ts`, `EnemyScript.ts:392-409, 598-610, 619, 675-716`, `features/effects/AttackTelegraphs.ts` | Ground telegraphs are **only** used by bosses; the worm has no telegraph besides its windup clip + SFX. Fatty and the arena leash are ported since 2026-10-05 ([boss.md](./boss.md)), the Matron too ([matron.md](./matron.md)) |
+| Fatty / Matron bosses, boss arena leash, `arenaRecoveryMs`, telegraphs, camera shake, `routeImmediateAttack`, `attackAreaReach` overrides | `FattyScript.ts`, `MatronScript.ts`, `EnemyScript.ts:392-409, 598-610, 619, 675-716`, `features/effects/AttackTelegraphs.ts` | Ground telegraphs are **only** used by bosses; the worm has no telegraph besides its windup clip + SFX. Fatty and the arena leash are ported since 2026-10-05 ([boss.md](boss.md)), the Matron too ([matron.md](matron.md)) |
 | `impactEffect` spawn on hit | `EnemyScript.ts:797-806` | **Ported 2026-10-05, §16.** Worm brawler only (`effect.enemy-worm-brawler-hit`). Worm swordsman has none. |
 | Slow (goo trail) | `EnemyScript.ts:205-209, 425-426, 449, 486-487, 934-944` | **Ported 2026-10-05 (enemy side), §15.** `applySlow(multiplier, durationMs)`; the goo trail that calls it is the player's (abilities spec 12, OUT). |
 | Effect immunities / `damageRule.effectResponses`, `acceptedSources`, `blockedWeaponTags` | `combat/DamageResolver.ts` | **Ported, §17** (the resolver had them since the Fatty port). Worm rule is `{priority:0, damageMultiplier:1}` only. |
@@ -610,7 +610,7 @@ centre to centre. Godot targets: `game.enemy` stays `res://game/scripts/enemy.gd
 → `res://game/scripts/projectile.gd` (node `ProjectileScript`); helpers in `res://game/enemy/`:
 `enemy_projectiles.gd` (the world's `spawnEnemyProjectile`), `slime_spider_ai.gd`,
 `spider_web_port.gd` (the world's `world.spider-web` port and `applyWeb`, see
-[matron.md](./matron.md) §5) and `enemy_population.gd` (legacy spawning, `slowEnemiesNear`).
+[matron.md](matron.md) §5) and `enemy_population.gd` (legacy spawning, `slowEnemiesNear`).
 
 ## 11. Enemy types the worlds spawn
 

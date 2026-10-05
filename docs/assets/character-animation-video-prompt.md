@@ -3,7 +3,7 @@
 Create a clean character-animation video intended for frame extraction and
 sprite-sheet creation in Slime Isa's cozy storybook woodland style. Start the
 prompt with the style block from the
-[art style guide](./visual-style-guide.md#generating-assets).
+[art style guide](visual-style-guide.md#generating-assets).
 
 ### Visual Style Contract
 

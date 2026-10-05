@@ -1,6 +1,6 @@
 # Handoff: Chapter 2 iron path (roadmap 8.3–8.6), 2026-09-30
 
-> **Superseded** by [the 2026-10-01 handoff](./2026-10-01-chapter-2-built-handoff.md):
+> **Superseded** by [the 2026-10-01 handoff](2026-10-01-chapter-2-built-handoff.md):
 > 8.3–8.11 are built. One correction to the plan below: the red forge house is
 > the player's home, so the Forge became a separate furnace beside it.
 

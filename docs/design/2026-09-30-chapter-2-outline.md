@@ -7,7 +7,7 @@ played and what is open). Where the build differs from this draft, the
 draft below has been corrected: the camp is the walled clearing at the forest's
 heart, the Forge is an outdoor furnace beside the player's home (the red forge
 house is the home), Sunny's stream is at the north edge, and the Matron has her
-own spec ([2026-10-01-orb-weaver-matron.md](./2026-10-01-orb-weaver-matron.md)).
+own spec ([2026-10-01-orb-weaver-matron.md](2026-10-01-orb-weaver-matron.md)).
 
 Draft, 2026-09-30, for the owner's review before 8.2–8.11 are built. Nothing
 here is registered in the quest catalog yet: `validateQuestCatalog` requires

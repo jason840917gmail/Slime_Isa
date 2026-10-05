@@ -1,6 +1,6 @@
 # Abilities, Gulp forms and ability puzzles: spec for the Godot port
 
-Covers what [player.md](./player.md) skipped as **[OUT]** (its §12): Jump, Stretch Lash, Squash Slam,
+Covers what [player.md](player.md) skipped as **[OUT]** (its §12): Jump, Stretch Lash, Squash Slam,
 Teleport, the shared ability rules and energy, Eat/Gulp and the Gulp forms (Heavy, Sticky), the
 passive Goo Trail, and the world scripts that react to abilities: `game.gulp-spot`,
 `game.pressure-plate`, `game.cracked-ground`, `game.lash-bell`, `game.ability-lesson`,

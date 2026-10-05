@@ -20,10 +20,10 @@ current tree. Godot files that were uncommitted work in progress when this was w
 are cited by function name.
 
 Binding inputs: [ARCHITECTURE.md](../ARCHITECTURE.md), [CONVENTIONS.md](../CONVENTIONS.md),
-[UI_THEME.md](../UI_THEME.md); [quests.md](./quests.md) (§2.8 commands, §2.9 views, §4.4 tracker
-texts, §4.7 journal [OUT], §10 port plan), [interaction.md](./interaction.md) (§3.4 chest, §8.6
-stand-ins, §10 I1), [crafting.md](./crafting.md) (§5 menu key and tab strip, §11.7 window rules),
-[map.md](./map.md) (the world map window, the same pattern), [audio.md](./audio.md) §5.
+[UI_THEME.md](../UI_THEME.md); [quests.md](quests.md) (§2.8 commands, §2.9 views, §4.4 tracker
+texts, §4.7 journal [OUT], §10 port plan), [interaction.md](interaction.md) (§3.4 chest, §8.6
+stand-ins, §10 I1), [crafting.md](crafting.md) (§5 menu key and tab strip, §11.7 window rules),
+[map.md](map.md) (the world map window, the same pattern), [audio.md](audio.md) §5.
 
 Legend: **[IN]** port now. **[OUT]** deferred. **[QUIRK]** Phaser behaviour that looks unintended;
 port it as is unless the owner decides otherwise (§6). **[DIFF]** a deliberate Godot difference.

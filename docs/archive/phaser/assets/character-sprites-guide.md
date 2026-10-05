@@ -75,8 +75,8 @@ edited through a studio.
 
 ## Adding another animated thing
 
-1. Export a uniform-grid PNG ([sheet rules](./asset-sheet-spec.md)) and register
-   it in `asset/assets.json` ([Adding Game Assets](./adding-assets.md)).
+1. Export a uniform-grid PNG ([sheet rules](../../../assets/asset-sheet-spec.md)) and register
+   it in `asset/assets.json` ([Adding Game Assets](adding-assets.md)).
 2. In Scene Studio, duplicate a similar scene (for example an existing NPC or
    worm) or create one, then point its `sprite-sheet` subresource at the new
    `assetId` with the matching frame size.

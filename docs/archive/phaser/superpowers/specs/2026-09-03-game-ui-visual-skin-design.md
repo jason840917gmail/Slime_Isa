@@ -32,7 +32,7 @@ minimap, and weapon hotbar; inventory and crafting are excluded from the pass,
 and `AbilityBar` remains deferred until it is mounted in `WorldScene`.
 
 The narrower implementation contract lives in
-[World HUD Artwork-First Presentation](./2026-09-04-world-hud-artwork-first-design.md).
+[World HUD Artwork-First Presentation](2026-09-04-world-hud-artwork-first-design.md).
 
 ## Scope
 

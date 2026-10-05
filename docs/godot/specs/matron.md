@@ -8,11 +8,11 @@ Phaser body position; Godot roots sit at the feet (conventions, *Feet origin*). 
 Godot targets: script `game.matron` → `res://game/scripts/matron.gd` (node `EnemyScript`, a child
 `Node` of the Matron's CharacterBody2D; it extends `game/scripts/enemy.gd` as `MatronScript`
 extends `EnemyScript` in Phaser); the camp is the ported `game.boss-camp`
-(`res://game/scripts/boss_camp.gd`, [boss.md](./boss.md) §4) in `encounter.gloop-matron-nest`;
+(`res://game/scripts/boss_camp.gd`, [boss.md](boss.md) §4) in `encounter.gloop-matron-nest`;
 `game.web-patch` → `res://game/scripts/web_patch.gd`; `game.spider-web` →
 `res://game/scripts/spider_web.gd`; the world side of webs (`world.spider-web` port, `catchInWeb`,
-`applyWeb`) → `res://game/enemy/spider_web_port.gd`. Read with the [enemy spec](./enemy.md)
-(part 2: projectiles §12, the slime-spider AI §14) and [boss.md](./boss.md): the Matron runs the
+`applyWeb`) → `res://game/enemy/spider_web_port.gd`. Read with the [enemy spec](enemy.md)
+(part 2: projectiles §12, the slime-spider AI §14) and [boss.md](boss.md): the Matron runs the
 whole base enemy step first (arena leash included) and only the differences are written here.
 
 ---

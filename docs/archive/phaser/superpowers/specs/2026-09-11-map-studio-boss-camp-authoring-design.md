@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-11  
 **Status:** Approved for implementation  
-**Related:** [Fatty One Eye guarded chest design](./2026-09-11-fatty-one-eye-guarded-chest-design.md), [Level 1 milestone 2 verification checklist](../../task/ideas/open/level-1-milestone-2-verification-checklist.md)
+**Related:** [Fatty One Eye guarded chest design](2026-09-11-fatty-one-eye-guarded-chest-design.md), [Level 1 milestone 2 verification checklist](../../../../task/ideas/open/level-1-milestone-2-verification-checklist.md)
 
 ## Problem
 

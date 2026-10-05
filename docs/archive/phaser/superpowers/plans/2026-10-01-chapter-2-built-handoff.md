@@ -1,6 +1,6 @@
 # Handoff: Chapter 2 built (roadmap 8.3–8.11), 2026-10-01
 
-Supersedes [the 2026-09-30 iron-path handoff](./2026-09-30-chapter-2-iron-path-handoff.md).
+Supersedes [the 2026-09-30 iron-path handoff](2026-09-30-chapter-2-iron-path-handoff.md).
 Read `AGENTS.md`, then this, then the milestone 8 entries in
 `docs/GAME_ROADMAP.md` (each says what was built, what was played headless and
 what is open).
@@ -31,7 +31,7 @@ All checks and every Node test suite pass, the production build works, and
   (`weapon.player.iron-tools-tiles`, which also gives the Reinforced Pickaxe its
   art).
 - **8.7** the Orb-Weaver Matron
-  ([spec](../specs/2026-10-01-orb-weaver-matron.md)): `MatronScript`,
+  ([spec](../../../../design/2026-10-01-orb-weaver-matron.md)): `MatronScript`,
   `WebPatchScript`, `effect.matron-web-patch`, `encounter.gloop-matron-nest`.
 - **8.8** the hut: the camp's blue cottage has a door to `world.gloop-hut` (one
   bed). Recipe in [Adding an interior](../../knowledge/adding-an-interior.md).

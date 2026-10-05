@@ -1,7 +1,7 @@
 # Game Roadmap — Road to Release 1
 
 > **Status: active living checklist.** Design direction lives in
-> [Game Guidelines](./GAME_GUIDELINES.md); this file owns task order and
+> [Game Guidelines](GAME_GUIDELINES.md); this file owns task order and
 > status. Reorganized on 2026-09-29 around **Release 1**. The former
 > `BETA_PLAN.md` was folded into this file and the guidelines, then removed.
 
@@ -25,7 +25,7 @@ from the title screen to an end-of-Chapter-2 card: a first-time player takes
 
 **Not in Release 1:** the Kitchen, farming, hats, Crystal Caverns beyond a
 locked teaser, the unconnected `icege`/`emberleef`/`hot` maps, the mobile app,
-and new Scene Studio features. They wait in
+and custom editor tooling. They wait in
 [After Release 1](#after-release-1--idea-parking-lot).
 
 **No target date.** Release 1 ships when it is ready. By choice, milestones
@@ -36,14 +36,15 @@ are ordered but not sized or dated (decided 2026-09-29).
 - **New ideas go to the [parking lot](#after-release-1--idea-parking-lot)**,
   never straight into a Release 1 milestone. An idea moves in only by replacing
   work of the same size.
-- **Scene Studio is feature-frozen.** Fix bugs and real blockers for Release 1
-  content only. Tooling is not progress unless a player can see the result.
+- **Tooling is not progress unless a player can see the result.** Levels and
+  scenes are built in the Godot editor; Scene Studio was retired with the Phaser
+  app (2026-10-05).
 - **Every milestone lists its art and audio.** Placeholders are fine while
   building; a milestone is `[x]` only when its assets are final or explicitly
   accepted as final. All new art follows the
-  [art style guide](./assets/visual-style-guide.md) and is generated with
-  Magnific following the [Magnific MCP guide](./assets/magnific-mcp-guide.md),
-  then packed and registered through [docs/assets/](./assets/README.md).
+  [art style guide](assets/visual-style-guide.md) and is generated with
+  Magnific following the [Magnific MCP guide](assets/magnific-mcp-guide.md),
+  then packed and registered through [docs/assets/](assets/README.md).
 - **New features prove they are fun first.** A new mechanic (Gulp, the slime
   trail, a new enemy behavior) is built in the dev-only `playground` map
   (3.7). It enters chapter content only after the user accepts it there.
@@ -67,7 +68,7 @@ are ordered but not sized or dated (decided 2026-09-29).
 | Q | Chapter 1 — The Clearing | Six NPC quests lead from an empty clearing to Gloop Forest | `[x]` |
 | P | Save, load, and reset | Named saves, recovery autosave, per-map progress | `[x]` |
 | S | Universal scene architecture | Every world, entity, UI, and audio surface is an authored scene | `[x]` |
-| **G** | **Godot migration** | **The game runs in Godot 4.7 with the same worlds and mechanics, edited in the Godot editor** ([plan](./GODOT_MIGRATION.md); trial first) | `[~]` |
+| **G** | **Godot migration** | **The game runs in Godot 4.7 with the same worlds and mechanics, edited in the Godot editor** ([plan](GODOT_MIGRATION.md); trial first) | `[~]` |
 | **Release 1** | | | |
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
 | 4 | Game shell | Title, continue, pause, game over, settings, credits, simple controls | `[~]` |
@@ -80,8 +81,10 @@ are ordered but not sized or dated (decided 2026-09-29).
 | 11 | Playtest and ship | Blind playtest, fixes, `v0.1.0` published | `[ ]` |
 
 Milestone G (2026-10-04) moves the game from Phaser to Godot. Its
-[plan](./GODOT_MIGRATION.md) owns the phases; once its trial passes, the
-Release 1 milestones continue in Godot.
+[plan](GODOT_MIGRATION.md) owns the phases. Done 2026-10-05: the owner played
+Chapter 1 through in Godot and the Phaser app was removed; the Release 1
+milestones continue in Godot (entries dated before the cutover describe the
+Phaser build).
 
 Why this order: 3 closes the work already half done. 4 gives every later
 playtest a real start and end. 5 comes before new content so Chapter 2 is
@@ -95,7 +98,7 @@ balanced once, against gear. 6 and 7 build the systems Chapter 2 uses. 10 and
 - After each milestone, do a short fresh-save playtest and note what became
   possible.
 - Unresolved design choices go to the guidelines'
-  [open questions](./GAME_GUIDELINES.md#open-questions), not into silent rules.
+  [open questions](GAME_GUIDELINES.md#open-questions), not into silent rules.
 
 Task tile format:
 
@@ -108,7 +111,7 @@ Task tile format:
 ```
 
 Each milestone ends with an **Assets** list: what can be reused and which new
-art or audio must be made. See [docs/assets/](./assets/README.md) for sizes,
+art or audio must be made. See [docs/assets/](assets/README.md) for sizes,
 packing, and registration.
 
 ## 3. Finish Homes, Interiors, And Audio
@@ -243,7 +246,7 @@ today, and only real blockers get fixed.
   track is sourced.
 
 The cue list, hooks, and sourcing rules are in the
-[Audio & SFX implementation plan](./superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
+[Audio & SFX implementation plan](archive/phaser/superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
 
 **Milestone 3 complete when:** the home and bed loop works across defeat,
 save/load, and map changes, and today's content has final sound and music.
@@ -251,7 +254,7 @@ save/load, and map changes, and today's content has final sound and music.
 **Assets**
 
 - Reuse: interior catalog, `house-*` exteriors, the CC0 library packs listed in
-  `asset/audio/CREDITS.md`, `level-1-home-town.ogg`.
+  `godot/asset/audio/CREDITS.md`, `level-1-home-town.ogg`.
 - [ ] Ambience loops: meadow day, forest, interior (synth placeholders for
       meadow and interior are wired).
 - [ ] Prop loops: campfire, cauldron, grindstone, anvil (synth placeholders
@@ -415,7 +418,7 @@ below exist.
   node; the card appeared and returned to the title.
 
 - Build: a credits screen, opened from the title, that reads its entries from
-  one credits data file (today: the audio packs in `asset/audio/CREDITS.md`
+  one credits data file (today: the audio packs in `godot/asset/audio/CREDITS.md`
   and Magnific-generated art), and a reusable end-card screen that any story
   flag can trigger. Chapter 2 hooks the card up in 8.11; 10.3 completes the
   credits list.
@@ -434,7 +437,7 @@ below exist.
 
 - Build: apply the approved artwork-first treatment to the `hud`, `minimap`,
   and `weapon-hotbar` UI scenes. See
-  [World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md).
+  [World HUD Artwork-First Presentation](archive/phaser/superpowers/specs/2026-09-04-world-hud-artwork-first-design.md).
 - Done when: the world art shows through the widgets and every value fits at
   wide, medium, and narrow viewports.
 
@@ -489,7 +492,7 @@ below exist.
 
 ### [~] 4.10 — Simple mouse-and-keyboard controls
 
-- Plan: [Simple controls design](./superpowers/specs/2026-09-30-simple-controls-design.md),
+- Plan: [Simple controls design](archive/phaser/superpowers/specs/2026-09-30-simple-controls-design.md),
   agreed 2026-09-30 after the owner feedback in 4.9.
 - Built 2026-09-30, waiting for the owner's playtest:
   - every control comes from one binding table
@@ -503,7 +506,7 @@ below exist.
   - E opens the menu with tabs;
   - cheats are dev-panel buttons.
   - Two headless playtests passed 34 of 34 checks. See
-    [As Built](./superpowers/specs/2026-09-30-simple-controls-design.md#as-built-2026-09-30).
+    [As Built](archive/phaser/superpowers/specs/2026-09-30-simple-controls-design.md#as-built-2026-09-30).
 - Open:
   - the owner picks the attack direction (pointer or facing; the dev panel's
     "Controls test" switch);
@@ -535,14 +538,14 @@ below.
 
 - Reuse: `ui-map-journal-paper`, the existing UI
   sound cues, the player's defeat clip.
-- [~] Game logo: Magnific GPT-2 (`asset/UI/ui-slime-isa-logo.webp`,
+- [~] Game logo: Magnific GPT-2 (`godot/asset/UI/ui-slime-isa-logo.webp`,
       `ui.logo.slime-isa`), shown at the top of the title panel; owner to
       accept. Open: the browser tab icon and store page.
 - [ ] Menu button states (normal, hover, pressed, disabled), matching the
       organic frame style.
 - [ ] Title music (CC0 or commissioned).
 - [~] Game-over illustration: a melted-slime puddle, Magnific GPT-2
-      (`asset/UI/ui-game-over-puddle.webp`, `ui.illustration.game-over`), above
+      (`godot/asset/UI/ui-game-over-puddle.webp`, `ui.illustration.game-over`), above
       "Defeated"; owner to accept.
 - [ ] Control-hint key and mouse glyphs: left click, right click, wheel, and
       a keycap (4.10).
@@ -551,7 +554,7 @@ below.
 
 Decided 2026-09-29: the player gets stronger through gear, not experience.
 XP, levels, and perks are removed. See
-[Progression](./GAME_GUIDELINES.md#progression-gear-not-levels).
+[Progression](GAME_GUIDELINES.md#progression-gear-not-levels).
 
 Built 2026-09-29 (5.1–5.5). The player has flat base stats
 (`character.player.stats` in `game-constants.json`), Goo Hearts raise max HP,
@@ -732,7 +735,7 @@ recipes stay portable so a fresh save cannot softlock.
 
 ### [x] 6.2 — Station-aware crafting (was UX.2), verified 2026-09-29
 
-- Done ([spec](./superpowers/specs/2026-09-29-station-aware-crafting-design.md)):
+- Done ([spec](archive/phaser/superpowers/specs/2026-09-29-station-aware-crafting-design.md)):
   recipes name a `station` (`portable`, `workbench`, `workshop`, `forge`,
   `kitchen`) and a tier; a site is a station plus its tier, authored on the
   `game.workbench` script (`recipeContext`, `tier`). `recipesAt(site)` lists a
@@ -808,7 +811,7 @@ accept the Workshop art and restoration sound.
 - Reuse: `decoration-world-solid--tool-bench`, `--anvil`, `--grindstone`, the
   crafting backplates.
 - [~] Ruined Workshop exterior (320 × 320 house frame): Magnific GPT-2,
-  `asset/MAPS/Houses/320-workshop-2x1.webp` frame 0
+  `godot/asset/MAPS/Houses/320-workshop-2x1.webp` frame 0
   (`scripts/houses/pack-workshop.py`); owner to accept.
 - [~] Restored Workshop exterior: frame 1 of the same sheet; owner to accept.
 - [~] Restoration effect and a construction sound: a procedural dust cloud and
@@ -820,7 +823,7 @@ accept the Workshop art and restoration sound.
 
 The slime eats a Gulp material and takes its form for a while. Each form has a
 look and one rule. See
-[Gulp](./GAME_GUIDELINES.md#signature-mechanic-gulp).
+[Gulp](GAME_GUIDELINES.md#signature-mechanic-gulp).
 
 **Controls (decided 2026-09-29): one key is the slime's mouth.** It was W
 until 4.10 moved movement to WASD; it is now Q (the `eat` control, with a
@@ -954,7 +957,7 @@ fun.
       overlay effect.
 - [ ] Heavy and Sticky form overlays (stone flecks, silk strands).
 - [~] Two form icons for the HUD timer and the quick wheel: Magnific GPT-2
-      badges (`asset/UI/ui-gulp-form-icons-2x1.webp`, frame per form via
+      badges (`godot/asset/UI/ui-gulp-form-icons-2x1.webp`, frame per form via
       `GulpFormDefinition.iconFrame`); owner to accept.
 - [~] Gulp spots: a stone spot and a silk cocoon, clearly different from
       loose piles.
@@ -974,7 +977,7 @@ materials), 8 (Forge), and 13 (progression pass).
 ### [~] 8.1 — Write the Chapter 2 outline
 
 - Draft 2026-09-30, waiting on the owner:
-  [Chapter 2 outline](./superpowers/specs/2026-09-30-chapter-2-outline.md)
+  [Chapter 2 outline](design/2026-09-30-chapter-2-outline.md)
   (six quests, places, characters from existing sheets, materials with
   renewable sources, recipes, the Matron built around Sticky, three Gulp
   puzzles, build order, and five questions). The quests are not stubbed in the
@@ -1125,7 +1128,7 @@ materials), 8 (Forge), and 13 (progression pass).
 ### [~] 8.7 — The Chapter 2 boss
 
 - Built 2026-10-01 to the spec
-  [The Orb-Weaver Matron](./superpowers/specs/2026-10-01-orb-weaver-matron.md):
+  [The Orb-Weaver Matron](design/2026-10-01-orb-weaver-matron.md):
   `encounter.gloop-matron-nest` in Gloop Forest's north-east (the north-east
   thicket moved west to keep its weavers out of her arena). `MatronScript`
   (`game.matron`) fights like an orb-weaver (web spit, 0.7 s wind-up) and every
@@ -1163,7 +1166,7 @@ materials), 8 (Forge), and 13 (progression pass).
   Played headless: in, sleep (the respawn point became the hut's bed), out. The
   room was copied from the Slime Home's scene by a script, not furnished in
   Scene Studio; the steps, including the Studio route, are in
-  [Adding an interior](./knowledge/adding-an-interior.md). Open: the Studio
+  [Adding an interior](archive/phaser/knowledge/adding-an-interior.md). Open: the Studio
   route is untried (no blocker found), and the room reuses the Slime Home's
   layout.
 - Build: a hut exterior and furnished interior with a bed, so Chapter 2 has its
@@ -1400,7 +1403,10 @@ reduce motion turns the strong effects off.
   The Vite asset glob now mirrors every manifest `ignore` pattern, so the two
   unused PNGs no longer ship. `pnpm build`: `dist/` went from 89 MB to 43 MB.
 
-- Build: `dist/` is 70 MB today: a 5.4 MB main script and UI backplates of
+- 2026-10-05 (Godot): the web export is one data pack (46.6 MB, textures
+  imported as lossy WebP) plus the engine (about 9 MB compressed). It loads the
+  whole pack at start; the Phaser build's per-area loading was not ported.
+- Build (Phaser, before the cutover): `dist/` was 70 MB: a 5.4 MB main script and UI backplates of
   2–5 MB each. Compress and resize images to their display size, load area art
   when the area loads, and show a loading bar.
 - Done when: the first load is under about 25 MB and a cold start on a normal
@@ -1427,7 +1433,7 @@ reduce motion turns the strong effects off.
 
 ### [~] 10.3 — Licenses and credits
 
-- 2026-09-30: [Credits and licenses](./CREDITS.md) lists every shipped
+- 2026-09-30: [Credits and licenses](CREDITS.md) lists every shipped
   library, sound and image family with its source, license and evidence
   (C2PA metadata on the generated sources), and what the credits screen must
   show. The credits screen names the generated sound effects and the
@@ -1445,7 +1451,7 @@ reduce motion turns the strong effects off.
 - Build: test Chrome, Edge, Firefox, and Safari; hold 60 fps on the reference
   laptop (a mid-range laptop with integrated graphics; record its model here
   the first time this task runs) in Level 1 and Gloop Forest; close the
-  [motion rendering](./task/bugs/world-motion-rendering-instability.md) work or
+  [motion rendering](archive/phaser/task/bugs/world-motion-rendering-instability.md) work or
   accept its current state.
 - Done when: a fresh run through Chapter 1 works in all four browsers, the
   frame rate stays at 60 fps in the busiest spot of each map on the reference
@@ -1490,8 +1496,8 @@ reduce motion turns the strong effects off.
 ### [ ] 11.3 — Tag and publish
 
 - Build: tag `v0.1.0`, publish, and record the release in this file.
-- Done when: `pnpm check` passes on the tagged commit, the store page is
-  public, and the published build runs in a fresh browser.
+- Done when: `pnpm test:godot` passes on the tagged commit, the store page is
+  public, and the published build (the Godot "Web" export) runs in a fresh browser.
 
 ## After Release 1 — Idea Parking Lot
 
@@ -1543,7 +1549,7 @@ numbered milestone and task tiles.
   shopkeeper, which also gives coins a use.
 - A mimic slime; see-through slimes that show the loot inside them;
   companions; a rideable mount.
-- More enemies from [Future Enemy Types](./task/ideas/open/future-enemy-types.md);
+- More enemies from [Future Enemy Types](task/ideas/open/future-enemy-types.md);
   each needs authored art, animation, behavior, and validation.
 - Boss extras: HP phases, intro name cards and camera pans, victory sequences.
 
@@ -1559,7 +1565,7 @@ numbered milestone and task tiles.
 ### Interface and platform
 
 - Unified action dashboard (was UX.1):
-  [Player action dashboard and loadout](./task/ideas/open/player-action-dashboard-and-loadout.md).
+  [Player action dashboard and loadout](task/ideas/open/player-action-dashboard-and-loadout.md).
 - Weapon dropping and pickup (was UX.3).
 - Gamepad support, key rebinding, colorblind-safe status colors, text size,
   photo mode. For rebinding, the 4.10 binding table is already the data; only
@@ -1570,9 +1576,9 @@ numbered milestone and task tiles.
 ### Tooling (frozen)
 
 - Shared world graph and all-map organizer (was E.1):
-  [Shared world map and Map Studio graph](./task/ideas/open/global-map-and-map-joining.md).
+  [Shared world map and Map Studio graph](task/ideas/open/global-map-and-map-joining.md).
 - Remaining shared gameplay defaults (was C.5).
-- New Scene Studio features of any kind.
+- Custom editor tooling beyond the Godot editor (Scene Studio was retired with the Phaser app).
 
 ### Dropped
 
@@ -1650,10 +1656,10 @@ with hit feedback, the starter axe, and a verified five-minute fresh-game loop.
   key, a three-minute respawn, and the Verdant Gate.
 - Animation packages and the New Object dialog (2.4, 2.5) were superseded by
   Scene Studio.
-- Plans: [Stone and starter tools](./superpowers/plans/2026-08-23-stone-and-starter-tools-implementation-plan.md),
-  [Walk-over collectibles](./superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md),
-  [Fatty One Eye design](./superpowers/specs/2026-09-11-fatty-one-eye-guarded-chest-design.md),
-  [verification checklist](./task/ideas/completed/level-1-milestone-2-verification-checklist.md).
+- Plans: [Stone and starter tools](archive/phaser/superpowers/plans/2026-08-23-stone-and-starter-tools-implementation-plan.md),
+  [Walk-over collectibles](archive/phaser/superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md),
+  [Fatty One Eye design](archive/phaser/superpowers/specs/2026-09-11-fatty-one-eye-guarded-chest-design.md),
+  [verification checklist](archive/phaser/task/ideas/completed/level-1-milestone-2-verification-checklist.md).
 
 ### [x] Q — Chapter 1 — The Clearing
 
@@ -1664,37 +1670,37 @@ Lili, and Lily the Fishergirl give six quests (`a-place-to-work`,
 the `chapter-1-complete` flag. Slimeshire Meadow (`level-1`, built by
 `scripts/maps/build-level-1.mjs`) holds the town, river and lake, Fatty's hedge
 maze, the worm ruins, the Webwood, and the Verdant Gate. See the
-[Quest authoring guide](./knowledge/quest-authoring-guide.md).
+[Quest authoring guide](archive/phaser/knowledge/quest-authoring-guide.md).
 
 ### [x] P — Save, load, and reset (P.1–P.5), verified 2026-09-28
 
 Immutable initial run state, map-keyed progress, independent named saves with
 explicit overwrite, a recovery autosave, save schema v9 with migrations, and
 Save/Load/Reset controls. Plan:
-[Named save, load, and reset](./superpowers/plans/2026-08-24-named-save-load-reset-implementation-plan.md).
+[Named save, load, and reset](archive/phaser/superpowers/plans/2026-08-24-named-save-load-reset-implementation-plan.md).
 
 ### [x] S — Universal scene architecture (S.1–S.5)
 
 Worlds, UI, and audio are authored scenes; behavior lives in ScriptNodes;
 Scene Studio (`?studio=scenes`) is the only editor; `pnpm check` and 43
 browser cases pass. Design:
-[universal scene architecture](./superpowers/specs/2026-09-12-godot-inspired-universal-scene-node-architecture-design.md);
-evidence: [final report](./superpowers/plans/evidence/universal-scene-final-report.md).
+[universal scene architecture](archive/phaser/superpowers/specs/2026-09-12-godot-inspired-universal-scene-node-architecture-design.md);
+evidence: [final report](archive/phaser/superpowers/plans/evidence/universal-scene-final-report.md).
 
 ### [x] Audio foundation (A.0–A.3)
 
 Audio loads from `asset/assets.json`; audio nodes support variants, pitch
 randomness, polyphony, and buses; every P1 cue exists; `pnpm audio:wire` and
 `audio:check` keep scene wiring in sync. Plan:
-[Audio & SFX](./superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
+[Audio & SFX](archive/phaser/superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
 
 ### [x] Other finished cross-cutting work
 
 - **C.1–C.4 — Central gameplay configuration:** `game-constants.json` with a
   strict schema and a frozen runtime gateway
-  ([plan](./superpowers/plans/2026-08-26-central-game-constants-implementation-plan.md)).
+  ([plan](archive/phaser/superpowers/plans/2026-08-26-central-game-constants-implementation-plan.md)).
   Edit the JSON directly and run `pnpm constants:check`.
 - **UX.0 — Escape closes the topmost surface** through the shared `ModalStack`
-  ([design](./superpowers/specs/2026-08-26-escape-closes-overlays-design.md)).
+  ([design](archive/phaser/superpowers/specs/2026-08-26-escape-closes-overlays-design.md)).
 - **E.2 — Terrain is ground; walls are placed objects:** crystal clusters and
   forest trees are object scenes, and water collision is merged.

@@ -4,7 +4,7 @@
 
 Approved visual direction on 2026-09-04. This is the implementation spec for
 the next in-world HUD polish pass. It refines the broader
-[Game UI Visual Skin System](./2026-09-03-game-ui-visual-skin-design.md)
+[Game UI Visual Skin System](2026-09-03-game-ui-visual-skin-design.md)
 without changing inventory or crafting.
 
 ## Goal

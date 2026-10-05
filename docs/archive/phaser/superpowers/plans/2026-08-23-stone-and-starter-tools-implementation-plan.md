@@ -157,7 +157,7 @@ context, and crafted-weapon assignment.
 ### 3. Author the no-softlock starter economy
 
 Use the generic walk-over collectible path defined in the
-[Walk-over Collectibles and Editor Attributes plan](./2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md).
+[Walk-over Collectibles and Editor Attributes plan](2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md).
 Do not keep or create an `F`-based loose-material pickup path. Author loose wood
 and loose stone collectibles near the Meadow spawn with a guaranteed budget of
 at least `40 wood + 20 stone`. This funds the

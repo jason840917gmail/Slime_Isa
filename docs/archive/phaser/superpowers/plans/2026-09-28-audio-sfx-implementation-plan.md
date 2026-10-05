@@ -13,7 +13,7 @@ A dev toggle (`?sfx=synth|library`, default `synth`) picks the flavour at boot. 
 is deleted per category (or globally).
 
 > 2026-09-30: the flavours were picked per cue (`scripts/audio/picks.json`) and the `?sfx` toggle was removed; see
-> [GAME_ROADMAP 3.8](../../GAME_ROADMAP.md).
+> [GAME_ROADMAP 3.8](../../../../GAME_ROADMAP.md).
 
 ## Status (2026-09-28)
 - **Done:**

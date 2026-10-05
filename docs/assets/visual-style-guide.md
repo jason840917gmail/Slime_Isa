@@ -16,10 +16,10 @@ When in doubt, put the new asset next to these and compare.
 
 | Reference | File | What it defines |
 |---|---|---|
-| Village Elder Plop | `asset/characters/authored/npcs/village-elder-plop.webp` | Slime characters: translucent jelly body, painted shading, one or two props |
-| Lili | `asset/characters/authored/npcs/lili.webp` | Cute slime faces: big glossy eyes, blush, a small accessory |
-| Mushroom furniture and props | `asset/MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.webp` | Objects and props: materials, detail level, palette |
-| Beds | `asset/MAPS/interiors/256x256-tile_6x8-interior-beds-directional.webp` | Camera angle, directional variants, the sprout motif |
+| Village Elder Plop | `godot/asset/characters/authored/npcs/village-elder-plop.webp` | Slime characters: translucent jelly body, painted shading, one or two props |
+| Lili | `godot/asset/characters/authored/npcs/lili.webp` | Cute slime faces: big glossy eyes, blush, a small accessory |
+| Mushroom furniture and props | `godot/asset/MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.webp` | Objects and props: materials, detail level, palette |
+| Beds | `godot/asset/MAPS/interiors/256x256-tile_6x8-interior-beds-directional.webp` | Camera angle, directional variants, the sprout motif |
 
 ## Camera And Form
 
@@ -104,21 +104,21 @@ Each slime character owns one body hue that no other main character shares.
 - [ ] At least one cozy detail (leaf, moss, flower, sprout, rope) when it
       suits the object.
 - [ ] Every needed direction and state in one sheet, at the frame size in
-      [asset-sheet-spec.md](./asset-sheet-spec.md).
+      [asset-sheet-spec.md](asset-sheet-spec.md).
 - [ ] Next to the reference sheets, it looks like it belongs.
 
 ## UI
 
 The approved artwork-first HUD keeps the world visible behind the HUD, minimap,
 and hotbar (see the
-[HUD spec](../superpowers/specs/2026-09-04-world-hud-artwork-first-design.md)).
-Menus and panels use the organic frames in `asset/UI/` (wood, paper, and leaf
+[HUD spec](../archive/phaser/superpowers/specs/2026-09-04-world-hud-artwork-first-design.md)).
+Menus and panels use the organic frames in `godot/asset/UI/` (wood, paper, and leaf
 edges), cream paper for reading surfaces, and the same warm palette. Accents:
 mint for interaction, gold for rewards, coral red for danger.
 
 ## Generating Assets
 
-Follow the [Magnific MCP guide](./magnific-mcp-guide.md) for models and call
+Follow the [Magnific MCP guide](magnific-mcp-guide.md) for models and call
 order. This style block is the single source of the style wording: start every
 image and video prompt with it, then describe the asset.
 

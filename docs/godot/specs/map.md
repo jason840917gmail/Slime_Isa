@@ -36,7 +36,7 @@ the pause menu's Map button.
   At 1280 × 720: size 172.8, margin 16, box (16, 531)–(189, 704), 173 px square. The authored
   defaults are the same box at 180 px (`minimap.scene.json:13-28`).
 - Frame (`minimap.scene.json:38-69`): TextureRect `ui.frame.organic-minimap`
-  (`asset/UI/ui-organic-minimap-frame.webp`, 1254 px square, a vine-and-slime ring with a
+  (`godot/asset/UI/ui-organic-minimap-frame.webp`, 1254 px square, a vine-and-slime ring with a
   transparent middle about 11 % in from each edge) filling the box grown by 6 px on every side,
   drawn **under** the canvas host (order 0 vs 1). The surface has no background, border or shadow
   and takes no pointer events (`styles.css:3686-3689`).

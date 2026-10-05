@@ -31,4 +31,4 @@ the art, behavior, balance, and validation package for a concept is complete.
 
 ## Reintroduction rule
 
-The three entries in `src/game/content/enemies/enemy-types.json` are the source of truth for real enemies. A future concept must not be added to a map, generator, or editor choice until its complete visual package and runtime definition are added there and pass `pnpm enemies:check`.
+The three entries in `godot/game/data/enemy-types.json` are the source of truth for real enemies. A future concept must not be added to a map, generator, or editor choice until its complete visual package and runtime definition are added there and pass `pnpm enemies:check`.
