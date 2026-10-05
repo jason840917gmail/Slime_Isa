@@ -135,6 +135,11 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   `RunState` autoload; world exits travel between areas, gated exits take their key, and
   story variants swap with their flags. `?weapon=<id>` / `-- --weapon=<id>` holds
   another weapon (a stone axe to harvest, a spear for Fatty).
+- Interaction is ported (2026-10-05, [godot/specs/interaction.md](./godot/specs/interaction.md)):
+  right click on doors (travel between houses and the world), gates (with the key),
+  chests, beds (sleep heals and sets the respawn point) and NPCs, with Phaser's prompt
+  and key badge. Until the Phase 3 screens exist, a chest gives everything at once, an
+  NPC says its first line as floating text and a workbench does nothing.
 - The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
   the animated surface over `water` and `deep-water` tiles, with the water life
   drawn and animated as in Phaser. Until terrain blending lands, shores keep

@@ -281,6 +281,13 @@ func set_flag(flag: String) -> bool:
 	return true
 
 
+## `storyProgress.recordTalk`: remembers that the player talked to `npc_id`.
+func record_talk(npc_id: String) -> void:
+	var talked := _story_list("talked_npc_ids")
+	if not npc_id.is_empty() and not npc_id in talked:
+		talked.append(npc_id)
+
+
 func has_learned_ability(ability_id: String) -> bool:
 	return ability_id in _story_list("learned_ability_ids")
 
@@ -361,6 +368,53 @@ func set_collectible_record(map_id: String, instance_id: String, record: Diction
 
 func _collectibles(map_id: String) -> Dictionary:
 	return map_record(map_id)["collectibles"]
+
+
+## A copy of what is left in a chest ({item_id: count}); {} when empty or unknown.
+func chest_remaining(map_id: String, instance_id: String) -> Dictionary:
+	var record: Variant = (map_record(map_id)["chests"] as Dictionary).get(instance_id)
+	if not record is Dictionary:
+		return {}
+	return ((record as Dictionary).get("remaining", {}) as Dictionary).duplicate()
+
+
+## `WorldProgress.ensureChestInitialized`: creates the record from `contents` only when none
+## exists (counts > 0 kept).
+func ensure_chest(map_id: String, instance_id: String, contents: Dictionary) -> void:
+	var chests: Dictionary = map_record(map_id)["chests"]
+	if chests.has(instance_id):
+		return
+	chests[instance_id] = {"remaining": _positive(contents)}
+	world_progress_changed.emit({"map_id": map_id})
+
+
+## Replaces a chest's contents (counts <= 0 dropped).
+func set_chest_remaining(map_id: String, instance_id: String, contents: Dictionary) -> void:
+	(map_record(map_id)["chests"] as Dictionary)[instance_id] = {"remaining": _positive(contents)}
+	world_progress_changed.emit({"map_id": map_id})
+
+
+## `InventoryWorldTransaction.transferChestStack`: moves as much of the chest's `item_id` as fits
+## into the bag; returns the count moved (0 when nothing fits or the chest has none).
+func transfer_chest_stack(map_id: String, instance_id: String, item_id: String) -> int:
+	var contents := chest_remaining(map_id, instance_id)
+	var moved := mini(int(contents.get(item_id, 0)), item_capacity(item_id))
+	if moved <= 0:
+		return 0
+	_insert(item_id, moved)
+	contents[item_id] = int(contents[item_id]) - moved
+	(map_record(map_id)["chests"] as Dictionary)[instance_id] = {"remaining": _positive(contents)}
+	inventory_changed.emit({})
+	world_progress_changed.emit({"map_id": map_id})
+	return moved
+
+
+static func _positive(contents: Dictionary) -> Dictionary:
+	var out := {}
+	for key: Variant in contents:
+		if int(contents[key]) > 0:
+			out[str(key)] = int(contents[key])
+	return out
 
 
 ## The persistent record of `map_id`, created empty on first use (MapRuntimeStateData).

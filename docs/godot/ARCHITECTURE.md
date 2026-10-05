@@ -119,7 +119,13 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.story-flag` → `scripts/story_flag.gd` | `flag_id` | — | `on_set(payload)` (JSON handler `set`) |
 | `game.story-variant` → `scripts/story_variant.gd` | `flag_id, when_set, when_unset` | `switched` | `on_set(payload)` |
 
-`game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). Every other script id stays on the converter's `unported_script.gd`. In level-1 that covers `game.door` and the guarded chest's `game.chest`. `game.matron` (a separate boss id), `game.web-patch` and `game.projectile` are not ported.
+| `game.door` → `scripts/door.gd` (10 doors; interaction spec) | `map_id, door_id, target_area_id, target_door_id, prompt, interact_radius, badge_rise` | — | — (`use()`, `arrival_point()`, group `door`) |
+| `game.gate` → `scripts/gate.gd` | `map_id, gate_id, required_item_id, consume_on_unlock, prompt, locked_prompt, locked_message, unlocked_message, interact_radius, badge_rise, closed_frame, open_frame, visual, doors` | `opened` | `open(payload)` (plates, bells; not saved) |
+| `game.chest` → `scripts/chest.gd` | `map_id, instance_id, initial_contents` | `guard_blocked, open_requested, stack_transferred, closed` | — |
+| `game.bed` → `scripts/bed.gd` | `prompt, interact_radius, badge_rise, sleep_point, wake_point` | — | — (`sleep_request()`) |
+| `game.workbench` → `scripts/workbench.gd` | `prompt, recipe_context, tier, interact_radius, badge_rise` | — | — (`site()`) |
+
+`game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). `game.interaction` has no scenes and no service behind it in Phaser, so it is not ported. Every other script id stays on the converter's `unported_script.gd`. `game.matron` (a separate boss id), `game.web-patch` and `game.projectile` are not ported.
 
 Boss camps ([specs/boss.md](./specs/boss.md)) spawn their boss under the world root when the player centre enters the activation circle, hand it the arena (`EnemyScript.configure_arena`), keep their respawn timer and the defeated boss ids in RunState (`map_record(map_id)["boss_camps"]`, `world["defeated_boss_ids"]`), reset the fight when the player's `defeated` fires, and join the group `boss_camp`; the HUD's `BossHealthBar` binds itself to every camp in that group, and a later quest system listens to `boss_defeated` there.
 
@@ -200,6 +206,10 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/scripts/resource_node.gd`, `game/scripts/collectible.gd` | world objects | Spec world-objects.md |
 | `game/scripts/story_flag.gd`, `game/scripts/story_variant.gd` | world objects | Flags in `RunState.story` |
 | `game/world_objects/item_catalog.gd` | world objects | items.json + max stacks; weapons are items |
+| `game/interaction/interaction_controller.gd` | interaction | Child "Interaction" of main, kept across worlds: targets (gates, doors, workbenches, beds, chests, NPC talk), choice, execute, Phase 3 stand-ins |
+| `game/interaction/interaction_prompt.gd`, `interaction_badge.gd` | interaction | "Right-click: <prompt>" (CanvasLayer 9) and the key badge (world, z 1) |
+| `game/rest/sleep_controller.gd` | interaction | Sleeping in a bed, owned by player.gd |
+| `game/scripts/door.gd`, `gate.gd`, `chest.gd`, `bed.gd`, `workbench.gd` | interaction | Spec interaction.md |
 | `game/world_objects/destructible_health.gd` | world objects | HP, records, regrow timer (the `game.destructible` logic) |
 | `game/world_objects/resource_respawn.gd` | world objects | Regrow rule on the wall clock (`epoch_override_ms` for tests) |
 | `game/world_objects/resource_drops.gd` | world objects | Drop cells, scatter, pile launch, restore, pile bookkeeping |

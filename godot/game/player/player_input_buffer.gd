@@ -8,9 +8,11 @@ class_name PlayerInputBuffer
 ##
 ## Owner: player builder.
 
-## Actions the trial captures (snake_case of PlayerInputActions.ts; others are OUT).
+## Actions the player captures (snake_case of PlayerInputActions.ts): movement, sprint, the
+## actions and the abilities, and `interact` (right click, interaction spec 2.7).
 const ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"move_right",
-	&"attack", &"sprint", &"dodge"]
+	&"attack", &"sprint", &"dodge", &"interact", &"jump", &"stretch_lash", &"squash_slam",
+	&"teleport", &"eat"]
 
 var _held: Dictionary = {}
 var _pressed_at: Dictionary = {}
