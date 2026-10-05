@@ -22,6 +22,7 @@ project.godot [autoload]  (registered in this order; tree order = process order)
 
 res://game/main.tscn (main.gd)                         bootstrap
   World (Node2D)      <- world.level-1 instanced here (converter root, y-sorted)
+       ground (TileMapLayer, z -2) > TileCollision, WaterSurface (water_surface.gd)  <- mounted by register_world
        ...converted props/NPCs (npc.gd), world areas (world_area.gd), exits (world_exit.gd)
        WorldBounds (StaticBody2D, built at runtime)
        PlayerSlime (character.player-slime)  <- spawned at runtime
@@ -178,6 +179,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `godot/tests/**` | tests | Headless integration tests, `pnpm test:godot` |
 | `game/world/world_camera.gd` | world | |
 | `game/world/world_bounds.gd` | world | |
+| `game/world/water_surface.gd`, `water_surface.gdshader` | world | Animated water over the ground's water tiles ([specs/water.md](./specs/water.md)); mounted by `WorldService.register_world` |
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |
 | `game/scripts/world_area.gd` | world | |
@@ -244,5 +246,6 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 - Solid terrain tiles carry a `tile_id` custom data layer; their collision is merged rectangle bodies under `ground/TileCollision` (Phaser's outer-edge inset), which `WorldService.is_solid_tile` reads.
 - Re-anchored scenes placed in worlds (NPCs) get `depth_anchor` added to their position; instance roots carry `metadata/instance_id` and `metadata/persistence_key`.
 - The ground layer is the TileMapLayer whose `tile_set` is `res://generated/resources/terrain_tileset.tres`.
+- The water surface is the ground layer's child `WaterSurface` (z -2, drawn right after the tiles); underwater life (z -2) y-sorts after it. When terrain blending is ported it must draw between the tiles and the surface, and the shader's interim `smooth_water_ground` goes off (water spec 6.1).
 - Physics interpolation is on; the camera blends its target between ticks itself.
 - `*.gd.uid` files are committed.

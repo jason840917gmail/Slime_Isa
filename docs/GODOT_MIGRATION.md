@@ -124,9 +124,13 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the owner's machine held 60 fps (16.7 ms frames, 17 ms worst) idle, walking
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
-- Not yet: terrain blending, the water shader, the remaining 24 scene scripts
+- Not yet: terrain blending, the remaining 24 scene scripts
   (doors, resource nodes, collectibles, chests, …), UI styling, saves, the
   reference-laptop measurement, and the owner's feel check.
+- The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
+  the animated surface over `water` and `deep-water` tiles, with the water life
+  drawn and animated as in Phaser. Until terrain blending lands, shores keep
+  square tile edges, and an interim shader step smooths the deep/shallow ground.
 - Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
   keep the live aim origin; the sword's combo off-by-one is fixed in the port
   (24 per hit); the player gets new three-quarter top-down art with clips per
