@@ -221,14 +221,14 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 
 ## 12. Open questions
 
-### Owner decisions. The defaults below are coded so the trial can run.
+### Owner decisions (answered 2026-10-05 unless noted)
 
-| # | Question | Default in the skeleton |
+| # | Question | Decision |
 |---|---|---|
-| O1 | Moving vertically: the live look (`walk` in every direction) or the intended `hop`/`stretch`? (player spec 4.3) | Live look: `use_vertical_walk_clips = false` |
-| O2 | Pointer aim origin. The player spec recommends the intended feet − 28; the combat spec says port as is (centre − 28 = feet − 55.56). The specs disagree | Literal parity: `aim_rise_px = 28` above the old centre. Set it to 0.44 for "feet − 28" |
-| O3 | Combo off-by-one: every lone sword hit does 28, not 24 | Ported as live (28) |
-| O4 | Standing still always un-flips the slime (faces left) | Ported as live |
+| O1 | Moving vertically: the live look (`walk` in every direction) or the intended `hop`/`stretch`? (player spec 4.3) | **New art.** The slime sheet is side-view and has no real up/down walk, so the owner wants a new three-quarter top-down player sheet with idle and walk per direction (then attacks and abilities), built piece by piece. Until it exists the live look stays (`use_vertical_walk_clips = false`) |
+| O2 | Pointer aim origin. The player spec recommends the intended feet − 28; the combat spec says port as is (centre − 28 = feet − 55.56). The specs disagree | **Keep the live aim**: `aim_rise_px = 28` above the old centre (top of the head) |
+| O3 | Combo off-by-one: every lone sword hit does 28, not 24 | **Fixed in the port**: the multiplier is the hit's own tier (×1.0, ×1.15, ×1.5), so a lone sword hit does 24 (crit 42); the Phaser game keeps its bug until it is retired |
+| O4 | Standing still always un-flips the slime (faces left) | **Comes with the new art** (O1): idle clips per direction keep the last facing. Until then, as live |
 | O5 | Trial setup: dodge learned, sword equipped, respawn at spawn after 1.4 s with no defeat screen, only the worm-swordsman camp active (the other three camps are skipped by `allowed_types`) | As listed |
 | O6 | Godot bodies do not shove each other (Arcade did, slightly) | Accept for the trial |
 

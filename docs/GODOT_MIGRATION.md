@@ -127,9 +127,10 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
 - Not yet: terrain blending, the water shader, the remaining 24 scene scripts
   (doors, resource nodes, collectibles, chests, …), UI styling, saves, the
   reference-laptop measurement, and the owner's feel check.
-- Owner decisions the trial defaulted (vertical walk clip, aim origin, the
-  sword's combo off-by-one, idle un-flip) are listed in
-  [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions).
+- Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
+  keep the live aim origin; the sword's combo off-by-one is fixed in the port
+  (24 per hit); the up/down walk and idle facing wait for new three-quarter
+  top-down player art with clips per direction.
 
 ## Rules while it runs
 
