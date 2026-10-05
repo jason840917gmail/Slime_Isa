@@ -161,13 +161,13 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the Orb-Weaver Matron's nest camp, her spit, her web volleys with their ground marks, the web
   patches they leave and the spider-web barriers, with the boss bar and the camp records. The
   web root on the slime and the Sticky form that tears webs wait for the player's abilities port.
-- The music director is ported (2026-10-05, [godot/specs/audio.md](./godot/specs/audio.md)),
-  pending its autoload registration: world music fades in on arrival and out before a travel,
+- The music director is ported (2026-10-05, [godot/specs/audio.md](./godot/specs/audio.md)):
+  world music fades in on arrival and out before a travel,
   crossfades to the boss music while a boss fight lasts, ducks under a pause menu, waits for the
   web audio unlock, and plays the arrival cue; `apply_mix` gives the settings their bus mix.
 - The UI theme and the game shell are ported (2026-10-05, [godot/UI_THEME.md](./godot/UI_THEME.md),
-  [godot/specs/shell.md](./godot/specs/shell.md)), pending the `Shell` autoload, the title as main
-  scene and the theme as project theme: one Theme built from the CSS tokens with type variations
+  [godot/specs/shell.md](./godot/specs/shell.md)); the `Shell` autoload is registered, the title is
+  the main scene and the theme is the project theme: one Theme built from the CSS tokens with type variations
   for every recurring role, the title screen over the drifting level-1 (launch options skip it),
   the pause menu, settings saved to `user://settings.cfg` and applied to the buses and screen
   shake, the controls list, credits, area title cards, game over and end cards; the HUD uses the
@@ -182,6 +182,18 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   scene Godot owns ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)),
   with page 1 of the new slime (idle and walk facing down, up and side; idle
   keeps the last facing). The playground runs with F6 from `game/dev/playground.tscn`.
+  Page 2 (2026-10-05) adds the roll and the attack swing for every direction.
+- The player's abilities are ported (2026-10-05, [godot/specs/abilities.md](./godot/specs/abilities.md)):
+  energy, jump, dodge, stretch lash, squash slam, teleport, Gulp forms (eat stone to turn Heavy or silk to
+  turn Sticky for a while), the Goo Trail passive, and their puzzle pieces (training dummy,
+  pressure plates, cracked ground, lash bells, ability lessons, Goo Hearts, restoration sites).
+  Status effects on the slime (burn, poison, slow, webs that root it) work too. There is no quick
+  wheel for Gulp materials yet.
+- Saves are ported (2026-10-05): the run saves to `user://saves/slot-<n>.json`, slot 0 being a
+  recovery autosave written shortly after every change (never while dead) and when the window closes.
+- Enemy rewards are ported (2026-10-05): coins ("+10c") and loot piles scattered round the corpse,
+  kept on the ground across visits until picked up. A slime defeated far from its bed wakes at the
+  bed in that bed's world.
 
 ## Rules while it runs
 
