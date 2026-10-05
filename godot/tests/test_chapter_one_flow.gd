@@ -164,3 +164,36 @@ func test_stone_tools_by_hand(t: TestContext) -> void:
 	var gained := run.item_count("wood") - before
 	t.check(gained > 0, "no wood picked up from the felled tree")
 	t.equal(int((quests.call(&"state", "stone-tools").get("progress") as Dictionary).get("chop-wood", 0)), mini(gained, 20), "chop-wood after picking the piles up")
+
+## Worm Trouble's camp stage: three worm swordsmen defeated in the world count (an archer does
+## not), through the enemy's death, its reward and the quest event.
+func test_worm_trouble_kills_count(t: TestContext) -> void:
+	var quests: Node = t.main.quests
+	quests.call(&"debug_activate", "worm-trouble", "clear-camp")
+	t.teleport_player(Vector2(900.0, 1200.0))
+	await t.steps(2)
+	for index in 3:
+		var worm := t.spawn_worm(Vector2(160.0 + 60.0 * index, 0.0), true)
+		if not t.check(worm != null, "no worm"):
+			return
+		await t.steps(1)
+		_kill(t, worm.damage_area)
+		await t.steps(2)
+	t.equal(int((quests.call(&"state", "worm-trouble").get("progress") as Dictionary).get("defeat-worms", 0)), 3, "worms counted")
+	t.check(bool(quests.call(&"view", "worm-trouble").get("ready_to_turn_in", false)), "Worm Trouble is not ready to turn in")
+
+
+## One big router hit (a stand-in activation), enough to defeat any ordinary enemy.
+func _kill(t: TestContext, target_area: Area2D) -> void:
+	var router := Services.router()
+	var source := Node2D.new()
+	var attack := Area2D.new()
+	t.main.add_child(source)
+	t.main.add_child(attack)
+	var activation := router.begin_activation(source, [attack])
+	router.route({"activation_id": activation, "source": source, "attack_area": attack, "target_area": target_area,
+		"weapon_id": "test-blade", "weapon_tags": ["weapon"], "damage_types": ["physical"], "base_damage": 999.0,
+		"effects": [], "impact": {"position": target_area.global_position, "knock": Vector2.RIGHT}})
+	router.end_activation(activation)
+	source.queue_free()
+	attack.queue_free()
