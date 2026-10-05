@@ -820,7 +820,7 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 | the-one-eyed-guardian | crafting; Fatty (ported, `boss_camp.gd boss_defeated`); travel to gloop-forest (ported); key from the guarded chest | ported (the chest window is being ported; the take-all stand-in works meanwhile) |
 | the-old-workshop | restoration site (ported) | reachable only after chapter 2 |
 | a-tonic-for-lili, snack-for-the-road | crafting | ported (`test_lili_tonic_and_snack`) |
-| beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | systems ported; not played end to end yet |
+| beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | ported (`test_beyond_the_verdant_gate_weavers_and_fangs`) |
 | a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | ported (`test_chapter_two_gloop.gd`) |
 | rekindle-the-forge | restoration (ported); forge crafting | ported (`test_chapter_two_flow.gd`) |
 | iron-gear | crafting | ported (`test_chapter_two_flow.gd`) |
