@@ -54,10 +54,10 @@ static func flash(at: Vector2, tint: Color) -> Node2D:
 	var node := _spawn(at, KIND_CIRCLE, Color(tint, 0.9))
 	if node == null:
 		return null
-	var tween := node.create_tween().set_parallel(true)
+	var tween := node.create_tween()
 	tween.tween_property(node, "scale", Vector2(6.0, 6.0), 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(node, "modulate:a", 0.0, 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.chain().tween_callback(node.queue_free)
+	tween.parallel().tween_property(node, "modulate:a", 0.0, 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(node.queue_free)
 	return node
 
 
@@ -67,10 +67,10 @@ static func ring(at: Vector2, ring_radius: float) -> Node2D:
 	if node == null:
 		return null
 	var grow := ring_radius / 10.0
-	var tween := node.create_tween().set_parallel(true)
+	var tween := node.create_tween()
 	tween.tween_property(node, "scale", Vector2(grow, grow), 0.3)
-	tween.tween_property(node, "modulate:a", 0.0, 0.3)
-	tween.chain().tween_callback(node.queue_free)
+	tween.parallel().tween_property(node, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(node.queue_free)
 	return node
 
 
@@ -81,13 +81,11 @@ static func jump_shadow(at: Vector2, half_ms: float) -> Node2D:
 	if node == null:
 		return null
 	var tween := node.create_tween()
-	tween.set_parallel(true)
 	tween.tween_property(node, "modulate:a", 0.12 / 0.35, half_ms / 1000.0)
-	tween.tween_property(node, "scale", Vector2(0.7, 0.7), half_ms / 1000.0)
-	tween.chain().set_parallel(true)
+	tween.parallel().tween_property(node, "scale", Vector2(0.7, 0.7), half_ms / 1000.0)
 	tween.tween_property(node, "modulate:a", 1.0, half_ms / 1000.0)
-	tween.tween_property(node, "scale", Vector2.ONE, half_ms / 1000.0)
-	tween.chain().tween_callback(node.queue_free)
+	tween.parallel().tween_property(node, "scale", Vector2.ONE, half_ms / 1000.0)
+	tween.tween_callback(node.queue_free)
 	return node
 
 
