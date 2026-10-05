@@ -1,6 +1,4 @@
 # Godot's import cache and editor state.
 .godot/
-# Copies of the mapped assets, made by `pnpm godot:sync` from ../asset (the source of truth until cutover).
-/asset/
 # Export builds.
 /export/

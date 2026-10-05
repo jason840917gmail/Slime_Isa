@@ -64,7 +64,6 @@
     "build": "pnpm typecheck && vite build",
     "check": "pnpm constants:check && pnpm assets:check && pnpm scenes:check && pnpm audio:check && pnpm scene-ownership:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm quests:check && pnpm test:scene-content && pnpm test:scene-runtime && pnpm test:scene-integration && pnpm test:scene-conversion && pnpm test:scene-studio && pnpm test:game-constants && pnpm test:progression && pnpm test:gulp && pnpm test:feel && pnpm test:audio && pnpm test:shell && pnpm test:character-studio && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:bosses && pnpm test:rendering && pnpm test:world-content && pnpm test:persistence && pnpm test:collectibles && pnpm test:quests && pnpm test:npcs && pnpm test:ui && pnpm test:depth && pnpm typecheck && pnpm build && pnpm test:scene-browser",
     "preview": "vite preview --port 3000",
-    "godot:sync": "node scripts/godot/sync-assets.mjs",
     "test:godot": "node scripts/godot/run-tests.mjs"
   },
   "dependencies": {
