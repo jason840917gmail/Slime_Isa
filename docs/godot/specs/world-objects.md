@@ -1385,7 +1385,7 @@ physics signal callback (Godot blocks adding Area2Ds there). The weapon already 
   `effect.wood-impact`, `effect.stone-impact`, `object.collectible-wood-pile`,
   `object.collectible-stone-pile` in level-1, plus `object.collectible-iron-ore-pile` in
   gloop-forest. Optional dev launch option `--weapon=<id>` / `?weapon=<id>` for
-  `equip_trial_weapon()`, so harvesting can be tried by hand (tests use `PlayerCombat.equip`).
+  `equip_run_start()` (the `weapon` launch option), so harvesting can be tried by hand (tests use `PlayerCombat.equip`).
 - Enemy sight and movement: trees and stones are layer 1, so felling one opens sight lines
   (`WorldService.line_of_sight` mask 1) and paths, as in Phaser. Nothing to do.
 

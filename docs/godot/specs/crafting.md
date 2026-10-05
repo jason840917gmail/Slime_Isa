@@ -1368,9 +1368,10 @@ Owner decisions (2026-10-05), as ported: **C1** superseded the same day by the f
 ([furniture.md](./furniture.md)): crafting a Workbench closes the window and starts placement, and
 the bag's "Place" is enabled. **C2** launch
 option `recipes` (`?recipes` / `-- --recipes`) sets `debug_all_recipes_known`; tests use
-`learn_recipes`. **C3** a new run gets the trial weapon (`basic-sword` or `?weapon=<id>`) in the
-bag, on belt slot 1 and in hand (`RunState.trial_weapon_pending`, `InventoryActions.
-grant_trial_weapon`); every world build reconciles the belt and mounts the hand. **C4** parity:
+`learn_recipes`. **C3** superseded by the owner on 2026-10-05: a new run starts empty-handed, as in
+Phaser; the playground hands out every weapon (`InventoryActions.grant_playground_weapons`); the
+`weapon` launch option and `RunState.start_weapon_id` (tests) give a start weapon; every world build
+reconciles the belt and mounts the hand. **C4** parity:
 K10 and K11 kept. **C5** K13 dropped (`reconcile` only cleans the belt and the hand; `arsenal`
 launch option grants the six ids into the bag and empty belt slots), K4 kept. **C6** no number
 keys. Port notes: the windows are built in code (no `.tscn`); `BeltSlot` / `HotbarSlot` theme

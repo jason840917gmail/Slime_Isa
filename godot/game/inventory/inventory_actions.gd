@@ -13,7 +13,8 @@ extends Node
 ##   then "Crafted: <recipe name>" (green, big, 44 px up). A crafted Workbench closes the crafting
 ##   window and starts furniture placement (game/building/furniture_placement.gd).
 ## - `harvest_message`: a resource node's "Requires an Axe" plus where the right tool is.
-## - World build: `grant_trial_weapon` (a new run, owner decision C3) and `equip_run_weapon`.
+## - World build: `grant_start_weapon` (dev / tests: a weapon at a new run), `grant_playground_weapons`
+##   (the testbed gets every weapon) and `equip_run_weapon`.
 ## Every text also goes out on `message_shown` (test hook).
 ##
 ## Owner: crafting / inventory.
@@ -35,6 +36,8 @@ const CRAFTED_TEXT_RISE := 44.0
 const HEAL_TEXT_RISE := 30.0
 ## AudioEventBridge: `energy.changed` plays EnergyRestore from a gain of 20.
 const ENERGY_CUE_MIN_DELTA := 20.0
+## The playground's belt; every other weapon goes into the bag.
+const PLAYGROUND_BELT: Array[String] = ["basic-sword", "stone-axe", "stone-pickaxe", "stone-spear"]
 ## AudioEventBridge.ts:60: `/sword|spear/` weapons play EquipBlade, the rest EquipTool.
 const BLADE_PATTERNS: PackedStringArray = ["sword", "spear"]
 const CUE_EQUIP_BLADE := &"EquipBlade"
@@ -200,15 +203,13 @@ func harvest_message(payload: Dictionary) -> String:
 
 # --- world build -----------------------------------------------------------------------------------
 
-## The trial weapon (owner decision C3): `weapon_id` into the bag (when not owned), onto the belt
-## (slot 1 at a new run) and into the hand, without a cue. An unknown id falls back to
-## `fallback_id`. Returns the weapon put in hand ("" when none could be).
-func grant_trial_weapon(weapon_id: String, fallback_id: String = "") -> String:
+## A start weapon (dev / tests: the `weapon` launch option, RunState.start_weapon_id): `weapon_id`
+## into the bag (when not owned), onto the belt (slot 1 at a new run) and into the hand, without a
+## cue. Returns the weapon put in hand ("" when none could be).
+func grant_start_weapon(weapon_id: String) -> String:
 	var chosen := weapon_id
 	if not ItemCatalog.is_weapon(chosen):
-		push_warning("InventoryActions: unknown trial weapon '%s'" % chosen)
-		chosen = fallback_id
-	if chosen.is_empty() or not ItemCatalog.is_weapon(chosen):
+		push_warning("InventoryActions: unknown start weapon '%s'" % chosen)
 		return ""
 	_quiet = true
 	WeaponLoadout.grant([chosen])
@@ -217,6 +218,21 @@ func grant_trial_weapon(weapon_id: String, fallback_id: String = "") -> String:
 		Services.run().set_equipped_weapon(chosen)
 	_quiet = false
 	return chosen if slot >= 0 else ""
+
+
+## The playground's kit (owner decision 2026-10-05): every weapon the bag lacks, the belt filled with
+## PLAYGROUND_BELT (sword, stone axe, pickaxe and spear), the rest in the bag; the sword in an empty
+## hand. Silent (no equip cue).
+func grant_playground_weapons() -> void:
+	var ids: Array = PLAYGROUND_BELT.duplicate()
+	for weapon_id: String in WeaponCatalog.ids():
+		if not weapon_id in ids:
+			ids.append(weapon_id)
+	_quiet = true
+	WeaponLoadout.grant(ids)
+	if Services.run().equipped_weapon_id() == null and WeaponLoadout.owns_weapon(str(PLAYGROUND_BELT[0])):
+		Services.run().set_equipped_weapon(str(PLAYGROUND_BELT[0]))
+	_quiet = false
 
 
 ## Every world build (`WeaponLoadout.reconcile`, then the hand mounted on the new PlayerCombat;
