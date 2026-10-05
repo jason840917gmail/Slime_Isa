@@ -21,6 +21,21 @@ to the game.
 6. For animated characters, continue with the [character sprites guide](./character-sprites-guide.md).
 7. Run the checks below before placing the asset in a world.
 
+## Asset folders
+
+| Folder | Holds | Loaded by the game? |
+| --- | --- | --- |
+| `asset/Originals/` | Sources and concepts only: generated renders, Seedance clips, start and end stills, concept sheets, intermediate cut-outs, packer manifests and notes | **Never.** `assets.json` ignores `Originals/**`, the Phaser asset URLs exclude it, `pnpm godot:sync` copies only mapped files, and `pnpm assets:check` fails if a manifest path points into it |
+| `asset/MAPS/<kind>/` | World art: grounds, rocks, trees, resources, props, houses, interiors, landmarks, effects, decorations | Yes (mapped in `assets.json`, synced into `godot/asset/`) |
+| `asset/characters/`, `asset/UI/`, `asset/audio/` | Character sheets, UI art, sound and music | Yes (same) |
+| `godot/game/world/terrain_edges/art/` | The terrain edge sheets `build-terrain-edge-tiles.py` writes for Godot | Yes (Godot only; the one runtime image folder outside `asset/`) |
+
+A game-ready sheet never lives in `asset/Originals/`: pack it into the runtime folder of its kind,
+register it in `asset/assets.json` and keep its sources next to the others in `Originals/`.
+Checked on 2026-10-05: every image the game loads is in a runtime folder (the manifest maps nothing
+under `Originals/`, and the Godot scenes reference only `res://asset/{MAPS,characters,UI}/` and the
+terrain edge art), so nothing had to move.
+
 ## Pack and generator scripts
 
 The Python tools need Python 3 with Pillow (and numpy for most of them).
@@ -34,6 +49,7 @@ The Python tools need Python 3 with Pillow (and numpy for most of them).
 | `pnpm interiors:scenes` | `scripts/interiors/interior_catalog.py` + manifest | one `object.interior-*` scene per sprite (`interiors:check` detects drift) |
 | `python scripts/props/generate-wall-prop-scenes.py` | manifest sheets | `object.crystal-cluster-wall.*` / `object.tree-forest-wall.*` scenes |
 | `python scripts/props/pack-level-1-landmarks.py` | `asset/Originals/props/level-1/` | `asset/MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.webp` |
+| `python scripts/props/pack-resource-piles.py` | `asset/Originals/props/resources/resource-{heaps,pickups}.png` | `asset/MAPS/resources/128x128-tile_4x2-resource-piles.webp` (mine heaps, then pickups) and `128x128-tile_2x1-starter-materials.webp` (wood and stone pickups), each item fitted into the old frame's footprint |
 | `python scripts/houses/normalize-mushroom-houses.py` | `asset/Originals/houses/` | mushroom house sheet in `asset/MAPS/Houses/` |
 | `python scripts/art/build-ambient-decoration-sheets.py` | decoration sheet + `asset/Originals/decorations/ambient/` | `asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp` ([ambient animation](./AMBIENT_ANIMATION.md)) |
 | `node scripts/props/wire-ambient-animations.mjs [--write]` | object scenes | ambient idle `AnimationPlayer` on animated decorations and trees |

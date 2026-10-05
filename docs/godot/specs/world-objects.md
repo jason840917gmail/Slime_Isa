@@ -647,6 +647,15 @@ The controller (`CollectibleController.ts:46-49`) remembers `quantity` as the in
 At world mount, authored collectibles with `remaining ≤ 0` are freed (4.7). There is no
 respawn.
 
+**Godot addition (owner decision 2026-10-05): the pickup bounce.** A collectible that is not
+already taken hops about 6 world px (`BOUNCE_HEIGHT`) up and back down, with a small squash on
+landing, then rests 1.1-1.9 s and hops again; the first hop comes 0.2-1.6 s after it appears, and a
+pile still flying in (not monitorable yet) waits. The tween moves the `Visual`'s offset and scale
+relative to their own values, on the Visual (it pauses with the tree and ends with the pile).
+Resource nodes never move, so a pile that can be picked up reads apart from the node it came from.
+`bounce = false` on the CollectibleScript turns it off. Test: `test_world_objects.gd`
+`test_pickups_bounce_and_resource_nodes_stay_still`.
+
 ### 7.2 Pickup flow (walk-over, edge-triggered)
 
 1. Contact pass after physics: the player's `PickupArea` (monitoring) gains a contact with a
@@ -839,6 +848,7 @@ A stone node (persistHealth false) has no record until it breaks; then
 | tool hit | Visual solid `#ffd277` 110 ms; hit effect (wood/stone impact, 333 ms); autumn tree leaf-fall then idle | `-N` white small at (x, y − 54) | trees: rustle + chop; stone: mine; iron: clink + mine | none |
 | tool hit on the amber ore | as above, no hit effect, plus `hit-spark` and the weapon impact effect | `-N` | clink (+ sword impact sound) | 65 ms hit-stop (crit sting if crit) |
 | node breaks | node disappears at the end of the step; piles arc out (280 ms + rebound) | depletion message yellow big at (x, y − 46) | fall / crumble / shatter (detached) | none |
+| a pile waiting | hops about 6 px every 1-2 s (Godot addition, 7.1) | | | |
 | pickup | pile disappears; `loot-sparkle` over the slime; berry: `eat` clip | `+N Item` yellow small at (x, y − 34) | per-item pickup sound (detached; berry basket silent) | none |
 | bag full | none | `Inventory full` white big (≤ 1 per s) | inventory-full (min 600 ms) | none |
 

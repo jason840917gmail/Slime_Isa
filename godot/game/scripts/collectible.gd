@@ -9,6 +9,13 @@ class_name CollectibleScript
 ## and on again). As much as fits moves into the bag (RunState.collect_world_item); the rest stays.
 ## An emptied pile is freed; an authored pile already taken frees itself when the world loads.
 ##
+## The pickup bounce (owner decision 2026-10-05, not in Phaser): every walk-over pickup hops a few
+## pixels now and then, so it catches the eye and reads apart from resource nodes (stone, iron,
+## trees), which never move. A tween on the Visual relative to its own offset and scale (worlds
+## override both per instance), starting at a random moment so neighbouring piles never hop
+## together, and only while the pile can be picked up (a dropped pile's flight owns the Visual until
+## it lands). `bounce = false` turns it off for a pickup.
+##
 ## Owner: world objects.
 
 const Services := preload("res://game/shared/services.gd")
@@ -33,6 +40,8 @@ const QuestEvents := preload("res://game/quests/quest_events.gd")
 @export var source_inventory_drop_id: String = ""
 ## JSON `pickupArea`: the Area2D (layer 64, monitorable) the player's PickupArea overlaps.
 @export var pickup_area: Area2D
+## The pickup bounce (see the file comment).
+@export var bounce: bool = true
 
 ## Every pickup request. Payload: {"status": "collected"|"partial", "moved", "remaining"} or
 ## {"status": "rejected", "moved": 0, "remaining", "reason"}.
@@ -48,6 +57,16 @@ const PURPLE_BERRY := "purple-berry-mat"
 ## CollectibleReactionController.ts:33.
 const BERRY_COINS := 5
 const GROUP := &"collectible"
+## The bounce: the hop's height in world px, its rise and fall, the squash on landing, and the rest
+## between hops (a random time in the range).
+const BOUNCE_HEIGHT := 6.0
+const BOUNCE_UP_S := 0.16
+const BOUNCE_DOWN_S := 0.13
+const BOUNCE_SQUASH := Vector2(1.1, 0.9)
+const BOUNCE_SQUASH_S := 0.1
+const BOUNCE_REST_S := Vector2(1.1, 1.9)
+## The first hop comes this long after the pile appears (random in the range).
+const BOUNCE_FIRST_S := Vector2(0.2, 1.6)
 
 ## One "Inventory full" hint per second for every pile (Phaser: one per world controller).
 static var _inventory_hint_ready_at_ms: float = 0.0
@@ -60,6 +79,9 @@ func _ready() -> void:
 	if remaining() <= 0:
 		# Authored and already taken (mountAuthoredWorld frees it).
 		_free_owner()
+		return
+	if bounce:
+		_queue_bounce(randf_range(BOUNCE_FIRST_S.x, BOUNCE_FIRST_S.y))
 
 
 ## The saved record's remaining, else the authored or spawned quantity.
@@ -137,6 +159,50 @@ func _on_collected(player: Node, moved: int, recovered: bool) -> void:
 	if recovered:
 		event["recovered"] = true
 	QuestEvents.emit(QuestEvents.COLLECTIBLE_COLLECTED, event)
+
+
+## The pile's art: the first Sprite2D under its root (the `Visual`).
+func _visual() -> Sprite2D:
+	var root := get_parent()
+	if root == null:
+		return null
+	var visual := root.get_node_or_null(^"Visual") as Sprite2D
+	if visual != null:
+		return visual
+	var sprites := root.find_children("*", "Sprite2D", true, false)
+	return sprites[0] as Sprite2D if not sprites.is_empty() else null
+
+
+## The next hop after `delay_s` (the tween lives on the Visual, so it pauses with the tree and ends
+## with the pile).
+func _queue_bounce(delay_s: float) -> void:
+	var visual := _visual()
+	if visual == null or not visual.is_inside_tree():
+		return
+	var wait := visual.create_tween()
+	wait.tween_interval(delay_s)
+	wait.tween_callback(_bounce_once)
+
+
+## One hop: up, down, a squash on landing, back to rest; then the next one. A pile that cannot be
+## picked up yet (still flying) waits.
+func _bounce_once() -> void:
+	var visual := _visual()
+	if visual == null or not is_inside_tree():
+		return
+	if pickup_area != null and not pickup_area.monitorable:
+		_queue_bounce(0.3)
+		return
+	var base_offset := visual.offset
+	var base_scale := visual.scale
+	var lift := Vector2(0.0, BOUNCE_HEIGHT / maxf(absf(base_scale.y), 0.001))
+	var hop := visual.create_tween()
+	hop.tween_property(visual, ^"offset", base_offset - lift, BOUNCE_UP_S).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	hop.tween_property(visual, ^"offset", base_offset, BOUNCE_DOWN_S).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	hop.tween_property(visual, ^"scale", base_scale * BOUNCE_SQUASH, BOUNCE_SQUASH_S * 0.4)
+	hop.tween_property(visual, ^"scale", base_scale, BOUNCE_SQUASH_S).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	hop.tween_interval(randf_range(BOUNCE_REST_S.x, BOUNCE_REST_S.y))
+	hop.tween_callback(_bounce_once)
 
 
 func _rejected(left: int, reason: String) -> Dictionary:

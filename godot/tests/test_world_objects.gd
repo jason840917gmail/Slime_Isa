@@ -302,6 +302,30 @@ func test_purple_berry_coins(t: TestContext) -> void:
 
 # --- helpers ----------------------------------------------------------------------------------
 
+## The pickup bounce (owner decision 2026-10-05): a walk-over pile hops about 6 world px now and then
+## and settles back where it was; a resource node never moves.
+func test_pickups_bounce_and_resource_nodes_stay_still(t: TestContext) -> void:
+	var pile := _collectible(t, WOOD_PILE)
+	var stone := _resource(t, STONE)
+	if not t.check(pile != null and stone != null, "no %s or %s" % [WOOD_PILE, STONE]):
+		return
+	var visual := pile.get_parent().get_node(^"Visual") as Sprite2D
+	var stone_visual := stone.get_parent().get_node(^"Visual") as Sprite2D
+	var rest := visual.offset
+	var stone_rest := stone_visual.offset
+	var highest := 0.0
+	var stone_moved := false
+	var started := t.now()
+	while t.now() - started < 4000.0 and not t.aborted:
+		await t.steps(1)
+		highest = maxf(highest, (rest.y - visual.offset.y) * absf(visual.scale.y))
+		stone_moved = stone_moved or stone_visual.offset != stone_rest
+	t.between(highest, 4.0, CollectibleScript.BOUNCE_HEIGHT + 0.5, "the pile's highest hop (world px)")
+	t.check(not stone_moved, "the stone node moved")
+	await t.until(func() -> bool: return visual.offset == rest, 3000.0)
+	t.equal(visual.offset, rest, "the pile settles back where it was")
+
+
 func _resource(t: TestContext, instance_id: String) -> ResourceNodeScript:
 	for node: Node in t.tree.get_nodes_in_group(&"resource_node"):
 		var script := node as ResourceNodeScript

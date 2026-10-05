@@ -13,6 +13,14 @@ This is the standard for idle ("ambient") motion on world objects.
 
 Gates, doors and the grindstone get interaction clips (open, spin), not idle loops.
 
+**Walk-over pickups bounce** (owner decision 2026-10-05): every collectible pile (wood, stone, ore,
+charcoal, berries, keys, tonics, shards...) hops about 6 px every 1-2 s, so it catches the eye and
+reads apart from the resource nodes it came from (trees, stone and iron nodes), which stay still.
+It is code, not a clip: `game/scripts/collectible.gd` tweens the `Visual`'s offset and a small
+landing squash relative to its own values (so instance overrides survive), each pile starting at a
+random moment, and only once the pile can be picked up (a dropped pile lands first). A pickup that
+should stay still sets `bounce = false` on its CollectibleScript.
+
 ## Rules
 
 - **Never in sync.** Every ambient `AnimationPlayer` autoplays with

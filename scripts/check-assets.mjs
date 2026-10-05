@@ -6,7 +6,8 @@
  *   1. Manifest parses and matches the v1 structural contract.
  *   2. runtime.textureKey values are unique.
  *   3. Bundles reference existing asset IDs.
- *   4. source paths exist under asset/ with exact casing (no '..' escapes).
+ *   4. source paths exist under asset/ with exact casing (no '..' escapes), and never under
+ *      asset/Originals/ (sources and concepts only; the game loads runtime folders, docs/assets).
  *   5. source.expect dimensions match the real PNG header; spritesheet
  *      frames divide the image evenly; grid cut-lines are ascending and
  *      in bounds.
@@ -310,6 +311,11 @@ for (const [id, asset] of Object.entries(assets)) {
 
   if (path.includes('\\') || path.startsWith('/') || path.split('/').includes('..')) {
     fail(id, 'source.path', `must be forward-slash, relative to asset/, no '..': '${path}'`);
+    continue;
+  }
+
+  if (path.startsWith('Originals/')) {
+    fail(id, 'source.path', `'${path}' is in asset/Originals/, which holds sources and concepts only: pack the runtime file into asset/MAPS/, characters/, UI/ or audio/ (docs/assets/README.md, "Asset folders")`);
     continue;
   }
 
