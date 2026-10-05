@@ -43,7 +43,7 @@ func eat() -> String:
 	return "nothing"
 
 
-## The quick wheel's release (wheel OUT): eats one `item_id` from the bag. "inventory" | "nothing".
+## The quick wheel's release: eats one `item_id` from the bag. "inventory" | "nothing".
 func eat_material(item_id: String) -> String:
 	var material_form := GulpForms.for_material(item_id)
 	var run := Services.run()
@@ -91,6 +91,20 @@ func nearest_spot() -> Node:
 			best = spot
 			best_distance = distance
 	return best
+
+
+## The quick wheel's entries (`wheelEntries`): [{"item_id", "form", "count"}] for every form whose
+## material is carried, in table order.
+func wheel_entries() -> Array:
+	var run := Services.run()
+	var entries: Array = []
+	if run == null:
+		return entries
+	for entry in GulpForms.FORMS:
+		var count := run.item_count(entry["material"])
+		if count > 0:
+			entries.append({"item_id": entry["material"], "form": entry, "count": count})
+	return entries
 
 
 ## The last eaten material if carried, else the first carried in table order; "" when none.

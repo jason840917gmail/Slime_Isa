@@ -138,3 +138,42 @@ func _gate(t: TestContext, gate_id: String) -> Node:
 		if str(node.get(&"gate_id")) == gate_id:
 			return node
 	return null
+
+
+func test_quick_wheel_eats_from_the_bag(t: TestContext) -> void:
+	var player := t.player()
+	var run := Services.run()
+	run.add_item("stone", 3)
+	run.add_item("silk-clump", 2)
+	t.teleport_player(Vector2(1280.0, 1536.0))
+	await t.steps(2)
+	t.press(&"eat")
+	await t.sim_wait(320.0)
+	var wheel: Node = player.get_gulp_wheel()
+	if not t.check(wheel != null and bool(wheel.call(&"is_open")), "the quick wheel did not open after a 250 ms hold"):
+		t.release_all()
+		return
+	t.equal((wheel.get(&"entries") as Array).size(), 2, "wheel entries (stone, silk)")
+	t.equal(wheel.call(&"title_text"), "HEAVY", "the preferred material (stone) is chosen first")
+	t.press(&"move_down")
+	await t.steps(2)
+	t.equal(wheel.call(&"title_text"), "STICKY", "down picks the bottom slot")
+	t.near_vec(t.player_body().velocity, Vector2.ZERO, 0.01, "the slime stands still while the wheel is open")
+	t.release(&"move_down")
+	t.release(&"eat")
+	await t.until(func() -> bool: return player.current_form_id() == &"sticky", 300.0)
+	t.equal(player.current_form_id(), &"sticky", "the release eats the chosen material")
+	t.equal(run.item_count("silk-clump"), 1, "silk left after eating one")
+	t.check(not bool(wheel.call(&"is_open")), "the wheel stays open after the release")
+
+
+func test_long_hold_with_nothing_carried_does_nothing(t: TestContext) -> void:
+	var player := t.player()
+	t.teleport_player(STONE_SPOT_STAND)
+	await t.steps(2)
+	t.press(&"eat")
+	await t.sim_wait(320.0)
+	t.release(&"eat")
+	await t.sim_wait(100.0)
+	t.equal(player.current_form_id(), &"", "a long hold with nothing carried ate the spot (Phaser does nothing)")
+	t.check(player.get_gulp_wheel() == null or not bool(player.get_gulp_wheel().call(&"is_open")), "a wheel opened with nothing carried")

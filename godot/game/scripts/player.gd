@@ -32,6 +32,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Directions := preload("res://game/shared/directions.gd")
 const PlayerInputBuffer := preload("res://game/player/player_input_buffer.gd")
 const PointerAim := preload("res://game/player/pointer_aim.gd")
+const GulpWheel := preload("res://game/player/gulp/gulp_wheel.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
@@ -143,6 +144,11 @@ var _gulp_hud: GulpHud
 ## the press and of the last step that saw it held; < 0 when no press is pending.
 var _eat_since_ms: float = -1.0
 var _eat_last_seen_ms: float = -1.0
+## The quick wheel of the current eat hold: open, or found nothing to show (`empty`).
+var _eat_wheel_open: bool = false
+var _eat_wheel_empty: bool = false
+var _eat_wheel_pointer_start: Vector2 = Vector2.ZERO
+var _gulp_wheel: GulpWheel
 ## Status effects (game/player/status_effects.gd): sticky roots the slime, slow scales walking.
 var _status: StatusEffects = StatusEffects.new(_status_damage)
 ## The world's interaction controller (group "interaction"), looked up on the first press.
@@ -187,6 +193,11 @@ const WEB_COVER_SCENE := "effect.spider-web-cover"
 const GULP_TEXT_RISE_PX := 56.0
 ## An eat press older than this without a step seeing it held is dropped (WorldScene.ts:913-969).
 const EAT_HOLD_DROP_MS := 600.0
+## Gulp messages over the slime (GulpController `showMessage`: centre - 56).
+const GULP_MESSAGE_RISE := 56.0
+## The pointer picks a wheel slot once it moved this far, aimed from the centre - 28.
+const GULP_WHEEL_POINTER_SLACK := 10.0
+const GULP_WHEEL_POINTER_RISE := 28.0
 ## Feel / particle / squash event ids.
 const FEEL_PLAYER_HURT := &"player-hurt"
 const FEEL_PLAYER_DEFEATED := &"player-defeated"
@@ -507,6 +518,8 @@ func apply_knockback(direction: Vector2, strength: float, duration_ms: float) ->
 ## Empties held keys and pending presses (pause / scene exit).
 func clear_input() -> void:
 	_input.clear()
+	# A menu or window closes the eat hold too (Phaser closes it while paused).
+	_close_eat_hold()
 
 
 ## `PlayerScript.consumeActionPress` (player spec 7.3): uses a pending press of `action` if it is
@@ -1186,7 +1199,7 @@ func _die() -> void:
 	_sleep.wake("death")
 	_gulp.clear()
 	_status.clear()
-	_eat_since_ms = -1.0
+	_close_eat_hold()
 	_dead = true
 	_knockback_anim_until_ms = 0.0
 	play_animation(CLIP_DIE, true)
@@ -1339,21 +1352,82 @@ func _floating_text(world_position: Vector2, text: String, color: StringName, bi
 		feel.floating_text(world_position, text, color, big)
 
 
-## The eat press (WorldScene.updateEatHold): released -> one tap of `eat()`. The quick wheel a
-## long hold opens is not ported, so any release eats. Returns true only while the wheel would be
-## open (never yet).
+## The eat press (WorldScene.updateEatHold; abilities spec 11.4). A release before 250 ms is a tap
+## (`eat()`: a spot's form, a burp, or a message). Held 250 ms, the quick wheel opens with the
+## carried Gulp materials ("No Gulp materials carried" when none, and the release then does
+## nothing); while it is open the slime stands still, a movement direction (else the pointer, once
+## it moved 10 px) picks a slot, and the release eats that material from the bag. Returns true
+## while the wheel is open.
 func _update_eat_hold() -> bool:
 	if _eat_since_ms < 0.0:
 		return false
 	var now: float = Services.now_ms()
 	if now - _eat_last_seen_ms > EAT_HOLD_DROP_MS:
-		_eat_since_ms = -1.0
+		_close_eat_hold()
 		return false
 	_eat_last_seen_ms = now
 	if not _input.is_held(&"eat"):
-		_eat_since_ms = -1.0
-		eat()
-	return false
+		var was_open := _eat_wheel_open
+		var empty := _eat_wheel_empty
+		var item_id := ""
+		if was_open and _gulp_wheel != null and _gulp_wheel.selected >= 0 and _gulp_wheel.selected < _gulp_wheel.entries.size():
+			item_id = str(_gulp_wheel.entries[_gulp_wheel.selected]["item_id"])
+		_close_eat_hold()
+		if was_open:
+			if not item_id.is_empty() and _gulp.eat_material(item_id) != "nothing":
+				play_action_clip("eat")
+		elif not empty:
+			eat()
+		return false
+	if not _eat_wheel_open and not _eat_wheel_empty and now - _eat_since_ms >= GulpWheel.HOLD_MS:
+		var entries := _gulp.wheel_entries()
+		if entries.is_empty():
+			_eat_wheel_empty = true
+			var feel := Services.feel()
+			if feel != null:
+				feel.floating_text(get_centre() - Vector2(0.0, GULP_MESSAGE_RISE), "No Gulp materials carried", &"white", false)
+		else:
+			_eat_wheel_open = true
+			_eat_wheel_pointer_start = body.get_global_mouse_position() if body != null and body.is_inside_tree() else Vector2.ZERO
+			var chosen := 0
+			var preferred := _gulp.preferred_material()
+			for index in entries.size():
+				if str(entries[index]["item_id"]) == preferred:
+					chosen = index
+			_ensure_gulp_wheel()
+			_gulp_wheel.open(entries, chosen)
+	if not _eat_wheel_open or _gulp_wheel == null:
+		return false
+	var pick := GulpWheel.pick_slot(_input.movement_vector(), _gulp_wheel.entries.size())
+	if pick < 0 and body != null and body.is_inside_tree():
+		var pointer := body.get_global_mouse_position()
+		if pointer.distance_to(_eat_wheel_pointer_start) > GULP_WHEEL_POINTER_SLACK:
+			pick = GulpWheel.pick_slot(pointer - (get_centre() - Vector2(0.0, GULP_WHEEL_POINTER_RISE)), _gulp_wheel.entries.size())
+	_gulp_wheel.follow(get_centre(), pick if pick >= 0 else _gulp_wheel.selected)
+	return true
+
+
+## The Gulp quick wheel (null until the first long hold).
+func get_gulp_wheel() -> GulpWheel:
+	return _gulp_wheel
+
+
+## Ends the eat hold and hides the quick wheel.
+func _close_eat_hold() -> void:
+	_eat_since_ms = -1.0
+	_eat_wheel_open = false
+	_eat_wheel_empty = false
+	if _gulp_wheel != null:
+		_gulp_wheel.close()
+
+
+## The quick wheel lives beside the Gulp HUD under the body (drawn top-level over everything).
+func _ensure_gulp_wheel() -> void:
+	if _gulp_wheel != null or body == null:
+		return
+	_gulp_wheel = GulpWheel.new()
+	_gulp_wheel.name = "GulpWheel"
+	body.add_child(_gulp_wheel)
 
 
 ## The Goo Trail passive (game/player/goo_trail.gd) in the world, where its smears stay.
