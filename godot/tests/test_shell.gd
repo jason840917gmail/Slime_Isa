@@ -246,12 +246,13 @@ func test_title_skip_logic_for_launch_options(t: TestContext) -> void:
 	for args: PackedStringArray in [
 		PackedStringArray(["--map=level-1"]), PackedStringArray(["--spawn=1130,1300"]),
 		PackedStringArray(["--weapon=spear"]), PackedStringArray(["--skip-title"]),
+		PackedStringArray(["--quest=slime-basics"]), PackedStringArray(["--recipes"]), PackedStringArray(["--arsenal"]),
 		PackedStringArray(["--strict", "--map=playground"])]:
 		t.check(LaunchOptions.should_skip_title_args(args), "%s did not skip the title" % [args])
 	for args: PackedStringArray in [PackedStringArray(), PackedStringArray(["--filter=test_shell"]),
 		PackedStringArray(["--mapx=1"]), PackedStringArray(["map=level-1"])]:
 		t.check(not LaunchOptions.should_skip_title_args(args), "%s skipped the title" % [args])
-	for query: String in ["?map=level-1", "spawn=1,2&x=y", "?skip-title", "?a=1&weapon=spear"]:
+	for query: String in ["?map=level-1", "spawn=1,2&x=y", "?skip-title", "?a=1&weapon=spear", "?quest=slime-basics:2", "?recipes", "?arsenal"]:
 		t.check(LaunchOptions.should_skip_title_query(query), "query '%s' did not skip the title" % query)
 	for query: String in ["", "?", "?mapping=1", "?x=map"]:
 		t.check(not LaunchOptions.should_skip_title_query(query), "query '%s' skipped the title" % query)

@@ -7,8 +7,10 @@ class_name LaunchOptions
 ##
 ## Owner: shell.
 
-## Options that start the game at once, skipping the title screen. `skip-title` takes no value.
-const SKIP_TITLE_OPTIONS: PackedStringArray = ["map", "spawn", "weapon", "skip-title"]
+## Options that start the game at once, skipping the title screen: every development launch option
+## main.gd reads (`quest`, `recipes`, `arsenal` included; they make no sense from the title).
+## `skip-title`, `recipes` and `arsenal` take no value.
+const SKIP_TITLE_OPTIONS: PackedStringArray = ["map", "spawn", "weapon", "quest", "recipes", "arsenal", "skip-title"]
 
 
 ## True when this launch carries any SKIP_TITLE_OPTIONS (web query or desktop user args).
@@ -19,7 +21,7 @@ static func should_skip_title() -> bool:
 	return should_skip_title_args(OS.get_cmdline_user_args())
 
 
-## Desktop form: `--map=<id>`, `--spawn=<x>,<y>`, `--weapon=<id>` or `--skip-title` among `args`.
+## Desktop form: any SKIP_TITLE_OPTIONS flag among `args` (`--map=<id>`, `--recipes`, ...).
 static func should_skip_title_args(args: PackedStringArray) -> bool:
 	for option: String in SKIP_TITLE_OPTIONS:
 		if has_arg_option(args, option):

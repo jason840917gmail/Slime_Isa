@@ -105,7 +105,10 @@ static func event_label(event: InputEvent) -> String:
 	if code >= KEY_KP_0 and code <= KEY_KP_9:
 		return "Num %d" % (code - KEY_KP_0)
 	var printed := code
-	if key.physical_keycode != KEY_NONE and DisplayServer.get_name() != "headless":
+	# The layout's own label (an AZERTY "A" on the physical Q) where the display server has one;
+	# headless and the web display server do not (on the web the call only logs an error), so
+	# there the physical key names the key, as Phaser's `event.code` labels do.
+	if key.physical_keycode != KEY_NONE and DisplayServer.get_name() != "headless" and not OS.has_feature("web"):
 		var layout_key := DisplayServer.keyboard_get_label_from_physical(code)
 		if layout_key != KEY_NONE:
 			printed = layout_key

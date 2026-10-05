@@ -57,9 +57,9 @@ Phaser:
   and Credits open those windows on top.
 
 Godot:
-- **[IN]** `title.gd` skips straight to `res://game/main.tscn` when the launch has `--map`,
-  `--spawn`, `--weapon` or `--skip-title` (desktop user args after `--`) or `?map=`, `?spawn=`,
-  `?weapon=`, `?skip-title` (web) (`LaunchOptions.should_skip_title`; main.gd reads the values).
+- **[IN]** `title.gd` skips straight to `res://game/main.tscn` when the launch has any development
+  option main.gd reads: `map`, `spawn`, `weapon`, `quest`, `recipes`, `arsenal` or `skip-title`
+  (desktop `-- --map=level-1`, web `?map=level-1`; `LaunchOptions.SKIP_TITLE_OPTIONS`).
 - **[IN]** The backdrop: `world.level-1` instanced under `Title/Backdrop` and registered with
   WorldService (water, areas; the Shell shows no area card because no `world_main` node exists),
   NPCs wander (**[DIFF]** Phaser's title is a pause source, so its world stands still), the
