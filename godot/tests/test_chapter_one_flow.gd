@@ -11,6 +11,8 @@ const RecipeCatalog := preload("res://game/crafting/recipe_catalog.gd")
 const CENTRE := Vector2(900.0, 1200.0)
 const NPC_OFFSET := Vector2(40.0, 0.0)
 const ELDER := "level-1-npc-village-elder-plop"
+const LILI := "level-1-npc-lili"
+const FISHER := "level-1-npc-fisherman-slime"
 const PLACE := "a-place-to-work"
 ## The clearing's loose wood piles (10 each).
 const WOOD_PILES := {"level-1-loose-wood-03": Vector2(704.0, 512.0), "level-1-loose-wood-04": Vector2(608.0, 576.0)}
@@ -86,11 +88,16 @@ func test_a_place_to_work_end_to_end(t: TestContext) -> void:
 
 ## The Elder 40 px right of the player at CENTRE, then the interact button.
 func _talk_to_elder(t: TestContext) -> void:
+	await _talk_to(t, ELDER)
+
+
+## NPC `instance_id` 40 px right of the player at CENTRE, then the interact button.
+func _talk_to(t: TestContext, instance_id: String) -> void:
 	var npc: Node = null
 	for node: Node in t.tree.get_nodes_in_group(&"npc"):
-		if str(node.call(&"get_instance_id_key")) == ELDER:
+		if str(node.call(&"get_instance_id_key")) == instance_id:
 			npc = node
-	if not t.check(npc != null, "no Elder in level-1"):
+	if not t.check(npc != null, "no %s in level-1" % instance_id):
 		return
 	npc.call(&"configure_wander", {})
 	var body := npc.get(&"body") as CharacterBody2D
@@ -197,3 +204,39 @@ func _kill(t: TestContext, target_area: Area2D) -> void:
 	router.end_activation(activation)
 	source.queue_free()
 	attack.queue_free()
+
+
+## A Tonic for Lili, then Snack for the Road (from the fisher slime): each is offered after the one
+## before, the tonic and the basket are made in the Crafting tab, and the giver takes them back
+## through the turn-in window.
+func test_lili_tonic_and_snack(t: TestContext) -> void:
+	var run := Services.run()
+	var quests: Node = t.main.quests
+	quests.call(&"debug_mark_completed", PLACE)
+	t.equal(quests.call(&"status", "a-tonic-for-lili"), "available", "the tonic quest after A Place to Work")
+	var dialogue: Node = t.tree.get_first_node_in_group(&"dialogue_box")
+	var offer: Node = t.tree.get_first_node_in_group(&"quest_offer_window")
+	for step: Array in [["a-tonic-for-lili", 0, {"purple-berry-mat": 3}, LILI], ["snack-for-the-road", 1, {"purple-berry-mat": 2, "wood": 5}, FISHER]]:
+		var quest_id: String = step[0]
+		var giver: String = step[3]
+		await _talk_to(t, giver)
+		_read_through(dialogue)
+		if not t.check(bool(offer.call(&"is_open")), "%s offered no %s" % [giver, quest_id]):
+			return
+		offer.call(&"invoke", "accept")
+		t.equal(quests.call(&"status", quest_id), "active", "%s after accepting" % quest_id)
+		for item_id: String in step[2]:
+			run.add_item(item_id, int(step[2][item_id]))
+		var menus: Node = t.main.menu_windows
+		menus.call(&"open_crafting")
+		var crafting: Node = menus.get(&"crafting")
+		crafting.call(&"select_recipe", 1 + int(step[1]))
+		crafting.call(&"craft")
+		crafting.call(&"close")
+		t.check(bool(quests.call(&"view", quest_id).get("ready_to_turn_in", false)), "%s is not ready after crafting" % quest_id)
+		await _talk_to(t, giver)
+		_read_through(dialogue)
+		if not t.check(bool(offer.call(&"is_open")), "no turn-in window for %s" % quest_id):
+			return
+		offer.call(&"invoke", "accept")
+		t.equal(quests.call(&"status", quest_id), "completed", "%s after turning in" % quest_id)
