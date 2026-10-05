@@ -56,7 +56,7 @@ var _navigation: Dictionary = {}
 ## Phaser `createInitialRunState()` (content/initial-state/InitialRun.ts).
 func new_run() -> void:
 	var constants := Services.constants()
-	var max_hp := _constant_int(constants, "character.player.stats.maxHp")
+	var full_hp := _constant_int(constants, "character.player.stats.maxHp")
 	var max_energy := _constant_int(constants, "character.player.stats.maxEnergy")
 	var attributes: Dictionary = constants.dictionary("character.player.initialAttributes").duplicate(true) if constants != null else {}
 	var weapon_slots: Array = []
@@ -64,7 +64,7 @@ func new_run() -> void:
 	player = {
 		"coins": NEW_RUN_COINS,
 		"boost_bonus": 0,
-		"hp": max_hp,
+		"hp": full_hp,
 		"energy": max_energy,
 		"goo_hearts": 0,
 		"attributes": attributes,
