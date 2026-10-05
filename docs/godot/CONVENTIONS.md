@@ -35,7 +35,7 @@ instead of the generated one. From then on edit it in the Godot editor (or with 
 
 | Scene id | Owned scene | Since |
 |---|---|---|
-| `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle/walk clips, built by `tools/build_player_clips.gd`) |
+| `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll and sword-swing clips, built by `tools/build_player_clips.gd`) |
 
 ## Running a world
 

@@ -65,7 +65,12 @@ are in `asset/Originals/characters/slime-v2/README.md`.
   side art faces right and is mirrored for left. Rows never move once filled, so adding a
   page or a row never renumbers existing frames.
 - Page 1: rows 0-5 = idle down/up/side, walk down/up/side; rows 6-7 free.
-- Build a page with `python scripts/characters/pack-slime-v2-page.py`, then add its clips to
-  the Godot player scene with `tools/build_player_clips.gd` (see docs/TOOLING.md). The player
-  script picks the directional clip for its facing and keeps that facing when idle; clips
-  without a directional version still draw the old sheet.
+- Page 2: rows 0-2 = roll down/up/side (one-shot, timed to the 500 ms dodge); rows 3-7 free.
+- The sword swing (`attack-1-down/-up/-side/-left`) has no rows: it reuses page 1's idle art
+  and carries a wind-up and a lunge toward the slash in animation keys (`Visual:offset`, plus
+  `Visual:skew` for the side). A `-left` clip exists only when keyed motion has a direction,
+  because flip_h mirrors the art but not an offset.
+- Build a page with `python scripts/characters/pack-slime-v2-page.py --page <n>`, then add its
+  clips to the Godot player scene with `tools/build_player_clips.gd` (see docs/TOOLING.md). The
+  player script plays every clip in the version for its facing (`<clip>-down/-up/-side`, or
+  `-left`) and keeps that facing when idle; clips without one still draw the old sheet.
