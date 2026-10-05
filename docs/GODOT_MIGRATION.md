@@ -202,8 +202,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   energy, jump, dodge, stretch lash, squash slam, teleport, Gulp forms (eat stone to turn Heavy or silk to
   turn Sticky for a while), the Goo Trail passive, and their puzzle pieces (training dummy,
   pressure plates, cracked ground, lash bells, ability lessons, Goo Hearts, restoration sites).
-  Status effects on the slime (burn, poison, slow, webs that root it) work too. There is no quick
-  wheel for Gulp materials yet.
+  Status effects on the slime (burn, poison, slow, webs that root it) work too, and holding Q opens
+  the quick wheel to eat a carried Gulp material.
 - Saves are ported (2026-10-05): the run saves to `user://saves/slot-<n>.json`, slot 0 being a
   recovery autosave written shortly after every change (never while dead) and when the window closes.
 - Enemy rewards are ported (2026-10-05): coins ("+10c") and loot piles scattered round the corpse,
