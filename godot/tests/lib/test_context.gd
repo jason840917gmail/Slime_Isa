@@ -138,6 +138,18 @@ static func silence(player: Node) -> void:
 		(player as AudioStreamPlayer2D).stop()
 
 
+## Whether `player` played since `silence`. A cue player counts the cues it started: a short cue can
+## already have finished (`playing` false) when a starved headless audio mixer catches up, which
+## made "is it playing?" checks flaky in full runs. A plain player falls back to `playing`.
+static func played(player: Node) -> bool:
+	if player == null:
+		return false
+	var count: Variant = player.get(&"cues_played")
+	if count != null:
+		return int(count) > 0
+	return bool(player.get(&"playing"))
+
+
 # --- input -------------------------------------------------------------------------------------
 
 ## Pushes a press of `action` through the root viewport (reaches `_unhandled_input`).

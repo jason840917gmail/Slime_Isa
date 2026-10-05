@@ -23,6 +23,10 @@ const CueRules := preload("res://game/runtime/audio_cue_rules.gd")
 @export var loop: bool = false
 @export var autoplay_cue: bool = false
 
+## Cues started since `reset_cue` (one-shots accepted, loops started). Tests ask this rather than
+## `playing`: a short cue can already have finished when a starved headless mixer catches up.
+var cues_played: int = 0
+
 var _base_pitch: float = 1.0
 var _last_accepted_ms: int = -1
 var _loop_wanted: bool = false
@@ -57,12 +61,14 @@ func play_cue(payload: Variant = null) -> void:
 	if loop:
 		_loop_wanted = true
 		if not playing:
+			cues_played += 1
 			play()
 		return
 	var now := CueRules.now_ms()
 	if min_interval_ms > 0.0 and _last_accepted_ms >= 0 and now - _last_accepted_ms < int(min_interval_ms):
 		return
 	_last_accepted_ms = now
+	cues_played += 1
 	pitch_scale = CueRules.randomized_pitch(_base_pitch, pitch_randomness)
 	play()
 
@@ -80,5 +86,6 @@ func stop_cue(payload: Variant = null) -> void:
 ## player can carry a cue from the previous test that a fast run puts within the interval.
 func reset_cue() -> void:
 	_last_accepted_ms = -1
+	cues_played = 0
 	_loop_wanted = false
 	stop()

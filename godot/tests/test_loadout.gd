@@ -49,7 +49,7 @@ func test_wheel_switches(t: TestContext) -> void:
 	var weapon = t.player().get_combat().get_weapon()
 	t.check(weapon != null and weapon.weapon_id == "stone-pickaxe", "the pickaxe is not mounted")
 	t.equal(messages.map(func(m: Dictionary) -> Array: return [m["text"], m["color"]]), [["Stone Pickaxe equipped", "yellow"]], "messages")
-	t.check(equip != null and equip.playing, "EquipTool did not play")
+	t.check(equip != null and TestContext.played(equip), "EquipTool did not play")
 	t.release(&"move_right")
 
 
@@ -80,7 +80,7 @@ func test_assign_swap_and_replace_hand(t: TestContext) -> void:
 	t.equal(run.weapon_slots(), ["stone-spear", null, null, null], "belt after replacing the hand's slot")
 	t.equal(run.equipped_weapon_id(), "stone-spear", "hand after replacing its slot")
 	t.equal(messages.map(func(m: Dictionary) -> String: return m["text"]), ["Stone Spear equipped"], "messages")
-	t.check(blade != null and blade.playing, "EquipBlade did not play")
+	t.check(blade != null and TestContext.played(blade), "EquipBlade did not play")
 	t.equal(run.item_count("stone-axe"), 1, "the replaced weapon left the bag")
 
 

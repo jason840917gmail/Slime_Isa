@@ -5,7 +5,8 @@ extends SceneTree
 ## Run from the repository root:
 ##   "<Godot 4.7.2 console exe>" --headless --path godot -s res://tests/run_tests.gd
 ##   pnpm test:godot          (scripts/godot/run-tests.mjs; finds Godot through $GODOT)
-## Options after `--`: `--filter=<text>` runs only tests whose "<file>::<test>" contains the text;
+## Options after `--`: `--filter=<text>` runs only tests whose "<file>::<test>" contains the text
+## (`a|b` matches either, to run a few files together, say to find which one leaves state behind);
 ## `--strict` also fails the run on known failures.
 ##
 ## Discovery: every res://tests/test_*.gd; each `func test_*(t)` in it (alphabetical) is one test.
@@ -139,7 +140,7 @@ func _discover() -> Array[Dictionary]:
 		methods.sort()
 		for method_name in methods:
 			var label := "%s::%s" % [file, method_name]
-			if not _filter.is_empty() and not label.contains(_filter):
+			if not _filter.is_empty() and not _matches_filter(label):
 				continue
 			cases.append({"file": file, "script": script, "method": method_name,
 				"known_reason": str(known.get(method_name, "")), "map_id": map_id})
@@ -301,3 +302,11 @@ static func _unique(lines: PackedStringArray, limit: int = 12) -> PackedStringAr
 	if seen.size() > limit:
 		result.append("... %d more distinct" % (seen.size() - limit))
 	return result
+
+
+## `--filter`: the label contains the filter text, or one of its `|`-separated alternatives.
+func _matches_filter(label: String) -> bool:
+	for part in _filter.split("|", false):
+		if label.contains(part):
+			return true
+	return false
