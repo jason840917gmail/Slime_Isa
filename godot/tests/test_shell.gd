@@ -205,6 +205,39 @@ func test_pause_menu_pauses_the_tree_only_in_a_world(t: TestContext) -> void:
 	_restore_mix(saved)
 
 
+## A feature's window mounted with `mount_menu` joins the shell's stack: it opens on top of the
+## pause menu with its own `shell:<surface id>` pause reason, Escape closes it first, the quit fade
+## stays above it, `close_all_menus` closes everything, and a scene that is not a ShellMenu is
+## refused.
+func test_feature_windows_mount_on_the_shell(t: TestContext) -> void:
+	var shell := _make_shell(t)
+	var mounted := shell.mount_menu(load("res://game/shell/credits_menu.tscn") as PackedScene)
+	t.check(mounted != null, "mount_menu refused a ShellMenu scene")
+	if mounted == null:
+		_free_shell(shell)
+		return
+	t.check(mounted.get_index() < shell.fade.get_index(), "a mounted window sits above the quit fade")
+	t.check(shell.open_pause(), "open_pause refused in level-1")
+	shell.open_menu(mounted)
+	t.equal(shell.top_menu(), mounted, "the mounted window is not on top")
+	if mounted.pauses_game:
+		t.check(t.world().has_pause_reason(StringName("shell:" + String(mounted.surface_id))), "no pause reason for the mounted window")
+	if mounted.closable_by_escape:
+		t.tap(&"pause")
+		t.check(not mounted.is_open() and shell.pause_menu.is_open(), "Escape did not close only the mounted window")
+		shell.open_menu(mounted)
+	shell.close_all_menus()
+	t.check(not shell.is_any_open(), "close_all_menus left a window open")
+	t.check(not t.tree.paused, "close_all_menus left the game paused")
+
+	var plain := PackedScene.new()
+	var plain_root := Control.new()
+	plain.pack(plain_root)
+	plain_root.free()
+	t.check(shell.mount_menu(plain) == null, "mount_menu accepted a scene that is not a ShellMenu")
+	_free_shell(shell)
+
+
 # --- title ----------------------------------------------------------------------------------------
 
 func test_title_skip_logic_for_launch_options(t: TestContext) -> void:

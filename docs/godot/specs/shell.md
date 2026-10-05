@@ -24,6 +24,14 @@ Tags: **[IN]** ported, **[OUT]** not yet (with the reason), **[DIFF]** deliberat
 | `EndCardSurfacePort.ts`, `content/story/endCards.ts` + `ui/end-card.scene.json` | `end_card.tscn` / `.gd` |
 | `SaveSlotsSurfacePort.ts` + `ui/save-slots.scene.json` | **[OUT]** owned by the saves work; it plugs in with `Shell.set_action(&"save"/&"load", ...)` |
 
+**Feature windows on the shell.** A feature whose window belongs to the shell's stack (the
+save-slots window) mounts it once with `Shell.mount_menu(scene: PackedScene) -> ShellMenu` (the
+scene's root must extend `shell_menu.gd`; null otherwise or before the Shell's `_ready`), opens it
+with `open_menu(menu)` and can close every shell window with `close_all_menus()` (top first, e.g.
+before `Main.load_run`). Mounted windows get Escape, focus and the `shell:<surface id>` pause
+reason like the shell's own, and sit below the quit fade. Game windows that are not part of the
+shell (bag, crafting, journal, world map) go through `GameWindows` instead.
+
 All shell scenes are Godot-owned (hand-made from the converted `ui.*` scenes, CONVENTIONS "Scenes
 Godot owns"); they are loaded by path, not by scene id. Each window is a full-screen Control that
 stops the mouse (the world behind takes no clicks) around a `ModalPanel` panel with Phaser's size.
