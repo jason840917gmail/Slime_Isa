@@ -354,7 +354,9 @@ func _on_player_registered(payload: Dictionary) -> void:
 
 ## Listens to the player's `defeated` (WorldScene.onPlayerDeath -> resetActiveFights).
 func _bind_player(player: Variant) -> void:
-	if not (player is Object) or not is_instance_valid(player):
+	# typeof + is_instance_valid first: `is` on a freed player (a stale WorldService.player while a
+	# new world is built) raises a script error.
+	if typeof(player) != TYPE_OBJECT or not is_instance_valid(player):
 		return
 	var player_object := player as Object
 	if player_object.get_instance_id() == _player_bound_id or not player_object.has_signal(&"defeated"):
