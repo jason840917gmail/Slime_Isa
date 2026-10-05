@@ -8,6 +8,7 @@ extends RefCounted
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const InventoryDrops := preload("res://game/inventory/inventory_drops.gd")
+const WeaponCatalog := preload("res://game/inventory/weapon_catalog.gd")
 const InventoryModel := preload("res://game/ui/screens/inventory_model.gd")
 const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 const InventoryScreen := preload("res://game/ui/screens/inventory_screen.gd")
@@ -110,14 +111,15 @@ func test_bag_model_new_run(t: TestContext) -> void:
 	bag.close()
 
 
-func test_new_run_holds_the_trial_sword(t: TestContext) -> void:
+## The runner's start weapon (RunState.start_weapon_id "basic-sword"): bag, belt slot 1, hand.
+func test_start_weapon_goes_to_bag_belt_and_hand(t: TestContext) -> void:
 	var run := Services.run()
 	t.equal(run.slots(), [{"item_id": "basic-sword", "count": 1}], "bag at a new run")
 	t.equal(run.weapon_slots(), ["basic-sword", null, null, null], "belt at a new run")
 	t.equal(run.equipped_weapon_id(), "basic-sword", "hand at a new run")
 	var weapon = t.player().get_combat().get_weapon()
 	t.check(weapon != null and weapon.weapon_id == "basic-sword", "the sword is not mounted")
-	t.check(not run.trial_weapon_pending, "the trial grant is still pending")
+	t.check(not run.start_kit_pending, "the start kit is still pending")
 	var bag := _open_bag(t)
 	var cell: Dictionary = (bag.model()["items"] as Array)[0]
 	t.equal([cell["label"], cell["tag"]], ["Basic sword", "in hand"], "the sword's cell")
@@ -381,3 +383,38 @@ static func _cue(cue: StringName) -> AudioStreamPlayer:
 	if player != null:
 		player.stop()
 	return player
+
+
+## A game's new run starts empty-handed, as in Phaser (owner decision 2026-10-05): nothing in the
+## bag, on the belt or in hand.
+func test_new_run_starts_empty_handed(t: TestContext) -> void:
+	var run := Services.run()
+	run.new_run()
+	run.start_weapon_id = ""
+	await _rebuild(t, "level-1")
+	t.equal(run.slots(), [], "bag at a new run")
+	t.equal(run.weapon_slots(), [null, null, null, null], "belt at a new run")
+	t.equal(run.equipped_weapon_id(), null, "hand at a new run")
+	t.check(t.player().get_combat().get_weapon() == null, "a weapon is mounted")
+
+
+## The playground hands out every weapon: the sword, stone axe, pickaxe and spear on the belt, the
+## sword in hand, the rest in the bag.
+func test_playground_has_every_weapon(t: TestContext) -> void:
+	var run := Services.run()
+	run.new_run()
+	run.start_weapon_id = ""
+	await _rebuild(t, "playground")
+	for weapon_id: String in WeaponCatalog.ids():
+		t.check(run.item_count(weapon_id) == 1, "%s is not in the bag" % weapon_id)
+	t.equal(run.weapon_slots(), ["basic-sword", "stone-axe", "stone-pickaxe", "stone-spear"], "the playground belt")
+	t.equal(run.equipped_weapon_id(), "basic-sword", "hand in the playground")
+
+
+## Rebuilds the world as `map_id` through a travel and waits for the arrival.
+func _rebuild(t: TestContext, map_id: String) -> void:
+	t.main.travel_to(map_id, "south")
+	await t.until(func() -> bool: return t.main.is_transitioning(), 100.0)
+	await t.until(func() -> bool:
+		return not t.main.is_transitioning() and t.world().map_id() == map_id and t.player() != null, 3000.0, 6000.0)
+	await t.steps(2)

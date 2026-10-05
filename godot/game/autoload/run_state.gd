@@ -96,9 +96,12 @@ var debug_active_quests: Array[String] = []
 ## Dev stand-in until quests teach recipes (crafting spec C2, launch option `recipes`): every
 ## recipe counts as known. `new_run()` clears it.
 var debug_all_recipes_known: bool = false
-## Trial (crafting spec C3): true from `new_run()` until main.gd hands out the trial weapon (bag,
-## belt slot 1, hand) at the run's first world build. A loaded run never has it.
-var trial_weapon_pending: bool = false
+## True from `new_run()` until main.gd's first world build of the run hands out the start kit
+## (nothing in Phaser; `start_weapon_id` or the `weapon` launch option). A loaded run never has it.
+var start_kit_pending: bool = false
+## Dev and tests: a weapon put in the bag, on belt slot 1 and in hand at a new run's first world
+## build ("" = none, Phaser: a run starts empty-handed). The test runner sets "basic-sword".
+var start_weapon_id: String = ""
 
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
 ## "entry_edge"?, "entry_door"?, "respawn_home"?}. Empty when none.
@@ -137,7 +140,7 @@ func new_run() -> void:
 	_play_started_ms = Time.get_ticks_msec()
 	debug_active_quests = []
 	debug_all_recipes_known = false
-	trial_weapon_pending = true
+	start_kit_pending = true
 	_navigation = {}
 	started = true
 
@@ -885,7 +888,7 @@ func install(data: Dictionary) -> bool:
 	_play_time_base_ms = float(fresh.get("play_time_ms", 0.0))
 	_play_started_ms = Time.get_ticks_msec()
 	_navigation = {}
-	trial_weapon_pending = false
+	start_kit_pending = false
 	started = true
 	# Views kept across worlds (the HUD belt and coins) follow the loaded run; the quest service
 	# rebinds on its next call and reports it with `quest_changed`.

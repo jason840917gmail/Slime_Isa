@@ -32,8 +32,9 @@ extends Node2D
 ##  4. WorldBounds.build(world_root, world_rect)
 ##  5. spawn_player(): `spawn_at_phaser_position("character.player-slime",
 ##     Services.world().player_spawn_point(), world_root)`; register_player(PlayerScript node)
-##  6. equip_trial_weapon(): PlayerCombat child "PlayerCombat" of the player root, setup, set_combat;
-##     at a new run the trial weapon (TRIAL_WEAPON_ID, or the `weapon` launch option) into the bag,
+##  6. equip_run_start(): PlayerCombat child "PlayerCombat" of the player root, setup, set_combat;
+##     a new run starts empty-handed (Phaser) unless the `weapon` launch option or
+##     RunState.start_weapon_id names a weapon, which goes into the bag,
 ##     belt slot 1 and the hand; then InventoryActions.equip_run_weapon() (belt reconciled, the
 ##     run's hand mounted)
 ##  7. start_enemy_population(): EnemyPopulation with the enemy-spawn areas, safe zones,
@@ -83,7 +84,8 @@ const ChestWindow := preload("res://game/ui/screens/chest_window.gd")
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
 ## Trial setting (player spec 14 Q3, combat spec 3): the sword is equipped from the start.
-const TRIAL_WEAPON_ID := "basic-sword"
+## The playground (dev testbed) hands out every weapon (owner decision 2026-10-05).
+const PLAYGROUND_MAP_ID := "playground"
 const PLAYER_SCENE_ID := "character.player-slime"
 ## `AREA_ARRIVE_FADE_MS` (WorldScene.ts:128) and the fade colour #0b1020.
 const ARRIVAL_FADE_MS := 400.0
@@ -211,7 +213,7 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	if player == null:
 		push_error("Main: could not spawn the player")
 	else:
-		equip_trial_weapon()
+		equip_run_start()
 	start_enemy_population()
 	warm_runtime_scenes()
 	configure_npcs()
@@ -552,10 +554,12 @@ func _find_player_script(root: Node) -> PlayerScript:
 ## Creates PlayerCombat under the player root and mounts the run's weapon in hand
 ## (InventoryActions.equip_run_weapon: the belt reconciled, then the hand mounted; travel and loads
 ## keep it, an empty hand mounts nothing). While the trial lasts (owner decision C3) a new run gets
-## TRIAL_WEAPON_ID, or the `weapon` launch option, in the bag, on belt slot 1 and in hand; a run
-## saved before the belt existed (the sword in hand but not in the bag) gets it too. `?arsenal`
-## adds the six development weapons (WeaponLoadout.ARSENAL) at a new run.
-func equip_trial_weapon() -> void:
+## A new run starts empty-handed, as in Phaser (owner decision 2026-10-05, replacing the trial's
+## sword). At the run's first world build the `weapon` launch option, else RunState.start_weapon_id
+## (tests), goes into the bag, onto belt slot 1 and into the hand; `?arsenal` adds the six
+## development weapons (WeaponLoadout.ARSENAL). The playground hands out every weapon on every
+## build (the testbed needs them all).
+func equip_run_start() -> void:
 	if player == null or player_root == null:
 		return
 	player_combat = PlayerCombat.new()
@@ -565,15 +569,21 @@ func equip_trial_weapon() -> void:
 	player.set_combat(player_combat)
 	var run := Services.run()
 	if run != null and inventory_actions != null:
-		# Dev aid: `?weapon=<id>` / `-- --weapon=<id>` holds another weapon (an axe or pickaxe to
-		# harvest, a spear for Fatty) instead of the trial sword; given when the bag lacks it.
+		# Dev aid: `?weapon=<id>` / `-- --weapon=<id>` starts with that weapon in hand (an axe or a
+		# pickaxe to harvest, a spear for Fatty); given when the bag lacks it.
 		var option := launch_option("weapon")
-		var legacy: bool = run.equipped_weapon_id() == TRIAL_WEAPON_ID and not WeaponLoadout.owns_weapon(TRIAL_WEAPON_ID)
-		if run.trial_weapon_pending or legacy or (not option.is_empty() and not WeaponLoadout.owns_weapon(option)):
-			inventory_actions.grant_trial_weapon(option if not option.is_empty() else TRIAL_WEAPON_ID, TRIAL_WEAPON_ID)
-			if run.trial_weapon_pending and has_launch_option("arsenal"):
+		var start := option if not option.is_empty() else run.start_weapon_id
+		if run.start_kit_pending:
+			if not start.is_empty():
+				inventory_actions.grant_start_weapon(start)
+			if has_launch_option("arsenal"):
 				WeaponLoadout.grant(Array(WeaponLoadout.ARSENAL))
-		run.trial_weapon_pending = false
+		elif not option.is_empty() and not WeaponLoadout.owns_weapon(option):
+			inventory_actions.grant_start_weapon(option)
+		run.start_kit_pending = false
+		var world_service := Services.world()
+		if world_service != null and world_service.map_id() == PLAYGROUND_MAP_ID:
+			inventory_actions.grant_playground_weapons()
 	if inventory_actions != null:
 		inventory_actions.equip_run_weapon()
 

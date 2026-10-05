@@ -182,6 +182,9 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 		run.autosave_enabled = false
 		_clear_test_saves()
 		run.new_run()
+		# Tests start armed with the sword (most fight at once); a game's new run starts
+		# empty-handed (test_inventory.gd::test_new_run_starts_empty_handed clears this).
+		run.start_weapon_id = "basic-sword"
 	var clock := Services.clock()
 	if clock != null:
 		clock.reset()

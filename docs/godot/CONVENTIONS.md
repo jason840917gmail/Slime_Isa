@@ -54,8 +54,9 @@ set `map_id` on a scene like it, or launch with `?map=<id>` (web) / `-- --map=<i
 position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest active at that stage
 (default the first) when the first world is built (`QuestService.debug_activate`: earlier stages
 done, no rewards), to reach quest steps whose systems are not ported yet; it does not skip the
-title by itself (add `map` or `skip-title`). `?weapon=<id>` / `-- --weapon=<id>` gives a new run that
-weapon instead of the trial sword (bag, belt slot 1, hand); `?recipes` / `-- --recipes` makes every
+title by itself (add `map` or `skip-title`). A new run starts empty-handed (Phaser); the playground
+hands out every weapon. `?weapon=<id>` / `-- --weapon=<id>` gives a new run that weapon (bag, belt
+slot 1, hand); `?recipes` / `-- --recipes` makes every
 recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six development weapons
 at a new run ([specs/crafting.md](./specs/crafting.md) C2, C3, 8.2).
 
