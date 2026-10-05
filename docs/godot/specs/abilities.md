@@ -57,7 +57,9 @@ Differences from this spec's Phaser behaviour, until decided otherwise:
   level-1 ruins show their locked message (tests list the quest in
   `RunState.debug_active_quests`).
 - No new top-down clips yet for hop, squash, stretch, teleport, eat (the old side-view clips
-  play), and no form skins (tint).
+  play). The Heavy and Sticky skins are painted by a shader over the new frames
+  (`game/player/gulp/form_skin.gdshader`: grey cobbles, cream silk; owner decision 2026-10-05)
+  instead of Phaser's redrawn side-view sheets.
 
 ---
 

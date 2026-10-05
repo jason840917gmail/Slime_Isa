@@ -24,7 +24,7 @@ const GREYSCALE_SHADER := """
 shader_type canvas_item;
 uniform float brightness = 0.8;
 void fragment() {
-	vec4 c = texture(TEXTURE, UV) * COLOR;
+	vec4 c = COLOR; // texture x modulate already (Godot 4)
 	float g = dot(c.rgb, vec3(0.299, 0.587, 0.114)) * brightness;
 	COLOR = vec4(vec3(g), c.a);
 }
