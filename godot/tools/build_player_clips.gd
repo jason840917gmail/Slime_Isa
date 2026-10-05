@@ -15,6 +15,13 @@ extends SceneTree
 ## for the side). `-left` exists because flip_h mirrors the art but not the offset: it is the side
 ## clip mirrored, with a `Visual:flip_h` key so it previews right in the editor.
 ##
+## Keyed action clips (ACTIONS): `hop`, `squash`, `teleport`, `stretch`, `eat` and `knockback`, each
+## `-down`, `-up` and `-side`, pick page 1's idle and walk frames by pose (POSES: rest, low, tall,
+## and for eating an open mouth and a chew). They key frames only: the ability sequences already
+## squash, stretch, lift and fade the art with tweens (game/player/abilities/), so these clips just
+## keep the slime on its top-down art with a matching pose (owner decision 2026-10-05: keys from
+## the new art, a filmed stretch lash later).
+##
 ## Every other clip, still drawn from the old side-view sheet, gets a `Visual:texture` key for that
 ## sheet, so switching clips always switches to the right texture.
 ##
@@ -65,6 +72,38 @@ const SWING_KEYS := [
 	[1.4, 0, 10.0, 0.1, -2.0],
 	[2.0, 0, 0.0, 0.0, 1.0],
 ]
+
+
+## Per direction, the page-1 cell each pose draws: [row clip, column]. Picked from the cells'
+## bounding boxes (width / height: low is the widest, tall the narrowest) and by eye for the
+## faces (open: the widest open mouth; chew: a closed smile).
+const POSES := {
+	"down": {"rest": ["idle-down", 0], "low": ["walk-down", 1], "tall": ["idle-down", 3],
+			"open": ["walk-down", 4], "chew": ["idle-down", 5]},
+	"up": {"rest": ["idle-up", 0], "low": ["walk-up", 0], "tall": ["walk-up", 4],
+			"open": ["walk-up", 4], "chew": ["idle-up", 2]},
+	"side": {"rest": ["idle-side", 0], "low": ["walk-side", 0], "tall": ["walk-side", 2],
+			"open": ["walk-side", 2], "chew": ["walk-side", 0]},
+}
+## Keyed action clips, played once: their length in seconds (the sequence's or Phaser's clip's,
+## which sets an action lock) and [time in seconds, pose] keys. The last pose holds.
+const ACTIONS := {
+	# Jump (420 ms; the art arcs, stretching up and squashing into the landing): crouch, spring
+	# up, float at the top, brace for the landing.
+	"hop": {"length": 0.42, "keys": [[0.0, "low"], [0.05, "tall"], [0.26, "rest"], [0.36, "low"]]},
+	# Squash Slam (470 ms; stretch to 200 ms, squash to the 320 ms impact, spring back).
+	"squash": {"length": 0.47, "keys": [[0.0, "rest"], [0.04, "tall"], [0.2, "low"], [0.38, "tall"],
+			[0.43, "rest"]]},
+	# Teleport (300 ms; shrinks out by 120 ms, pops back in by 300 ms).
+	"teleport": {"length": 0.3, "keys": [[0.0, "low"], [0.04, "tall"], [0.12, "tall"], [0.2, "low"],
+			[0.26, "rest"]]},
+	# Stretch Lash (the slime leans toward the throw and holds; a filmed lash replaces it).
+	"stretch": {"length": 0.4, "keys": [[0.0, "low"], [0.06, "tall"]]},
+	# Eating (Phaser's clip: 167 ms, the action lock): mouth open, gulp, settle.
+	"eat": {"length": 0.16667, "keys": [[0.0, "open"], [0.07, "chew"], [0.13, "rest"]]},
+	# Knockback (Phaser's clip: 125 ms; the hit flash and the push carry the hit).
+	"knockback": {"length": 0.125, "keys": [[0.0, "low"]]},
+}
 
 
 func _initialize() -> void:
@@ -128,6 +167,21 @@ func _build(only: PackedStringArray) -> bool:
 		_replace(library, clip_name, _swing_clip(spec, source, visual))
 		built += 1
 		print("build_player_clips: %s (keyed swing on %s)" % [clip_name, spec["row"]])
+
+	for action: String in ACTIONS:
+		for direction: String in POSES:
+			var clip_name := "%s-%s" % [action, direction]
+			owned.append(clip_name)
+			if not _selected(clip_name, only):
+				continue
+			var clip := _pose_clip(ACTIONS[action], POSES[direction], page_rows)
+			if clip == null:
+				push_error("build_player_clips: %s draws rows missing from the pages or from two pages" % clip_name)
+				root.free()
+				return false
+			_replace(library, clip_name, clip)
+			built += 1
+			print("build_player_clips: %s (keyed poses)" % clip_name)
 
 	for clip_name: StringName in library.get_animation_list():
 		if String(clip_name) in owned:
@@ -196,6 +250,26 @@ func _swing_clip(spec: Dictionary, source: Dictionary, visual: Sprite2D) -> Anim
 	_set_texture_track(animation, source["texture"])
 	if bool(spec["flip"]):
 		animation.track_insert_key(_discrete_track(animation, "Visual:flip_h"), 0.0, true)
+	return animation
+
+
+## A one-shot clip of posed frames (see POSES and ACTIONS); null when a pose's row is missing or
+## the poses span two pages.
+func _pose_clip(spec: Dictionary, poses: Dictionary, page_rows: Dictionary) -> Animation:
+	var animation := Animation.new()
+	animation.length = spec["length"]
+	animation.loop_mode = Animation.LOOP_NONE
+	animation.step = 0.01
+	var frames := _discrete_track(animation, "Visual:frame")
+	var texture: Texture2D = null
+	for key: Array in spec["keys"]:
+		var pose: Array = poses[key[1]]
+		var source: Dictionary = page_rows.get(pose[0], {})
+		if source.is_empty() or (texture != null and source["texture"] != texture):
+			return null
+		texture = source["texture"]
+		animation.track_insert_key(frames, float(key[0]), int(source["first_frame"]) + int(pose[1]))
+	_set_texture_track(animation, texture)
 	return animation
 
 
