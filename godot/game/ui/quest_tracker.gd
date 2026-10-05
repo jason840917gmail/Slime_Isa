@@ -19,6 +19,7 @@ extends Panel
 ## Owner: quests.
 
 const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
+const Glyphs := preload("res://game/ui/glyphs.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 
 const GROUP := &"quest_tracker"
@@ -164,7 +165,7 @@ static func describe(quest: Dictionary) -> Dictionary:
 			var target := int(objective["target"])
 			var current := mini(target, int(progress.get(str(objective["id"]), 0)))
 			var count := "  %d/%d" % [current, target] if target > 1 else ""
-			lines.append("%s %s%s" % ["✓" if current >= target else "•", QuestCatalog.objective_label(objective), count])
+			lines.append("%s %s%s" % [Glyphs.CHECK if current >= target else "•", QuestCatalog.objective_label(objective), count])
 		if lines.is_empty():
 			lines.append(str(stage_definition.get("description", "")))
 	return {"quest_id": str(quest["quest_id"]), "main": main_story, "title": str(definition.get("title", quest["quest_id"])),

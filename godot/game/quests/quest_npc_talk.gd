@@ -18,8 +18,10 @@ const Services := preload("res://game/shared/services.gd")
 const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const QuestEvents := preload("res://game/quests/quest_events.gd")
 
-const TURN_IN_FINISH := "Claim reward  ▸"
-const OFFER_FINISH := "Continue  ▸"
+const Glyphs := preload("res://game/ui/glyphs.gd")
+## Phaser "Claim reward  ▸" / "Continue  ▸" with font-safe glyphs (game/ui/glyphs.gd).
+const TURN_IN_FINISH := "Claim reward  " + Glyphs.NEXT
+const OFFER_FINISH := "Continue  " + Glyphs.NEXT
 ## A refused reoffer: red big text 52 px over the NPC, the NPC released 700 ms later.
 const MESSAGE_RISE := 52.0
 const MESSAGE_RELEASE_MS := 700.0
