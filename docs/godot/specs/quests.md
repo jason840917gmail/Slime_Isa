@@ -814,7 +814,7 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 | Quest | Needs | State in Godot |
 |---|---|---|
 | a-place-to-work | crafting (`craft-workbench`, portable), furniture placement (`place-item`) | ported 2026-10-05: completable in play |
-| slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | ported: every objective counts (the journal since 2026-10-05) |
+| slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | ported: every objective counts (`test_slime_basics_with_the_keys`) |
 | stone-tools | crafting at a workbench (placed bench or restored Workshop), belt weapon switch, axe/pickaxe as weapons, pile pickups | ported (`test_chapter_one_flow.gd::test_stone_tools_by_hand`) |
 | worm-trouble | crafting; `enemy.died` for worm swordsmen | ported (`enemy_loot.gd` sends `enemy.died`; `test_worm_trouble_kills_count`) |
 | the-one-eyed-guardian | crafting; Fatty (ported, `boss_camp.gd boss_defeated`); travel to gloop-forest (ported); key from the guarded chest | ported (the chest window is being ported; the take-all stand-in works meanwhile) |

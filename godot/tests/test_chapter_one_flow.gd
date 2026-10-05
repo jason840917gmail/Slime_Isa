@@ -240,3 +240,41 @@ func test_lili_tonic_and_snack(t: TestContext) -> void:
 			return
 		offer.call(&"invoke", "accept")
 		t.equal(quests.call(&"status", quest_id), "completed", "%s after turning in" % quest_id)
+
+
+## Slime Basics with the player's own keys: E opens the bag, its tabs show Crafting and the
+## Journal, M opens the map, Shift sprints, Esc pauses; the quest then completes by itself.
+func test_slime_basics_with_the_keys(t: TestContext) -> void:
+	var run := Services.run()
+	var quests: Node = t.main.quests
+	var coins := run.coins()
+	t.tap(&"menu")
+	await t.steps(2)
+	var menus: Node = t.main.menu_windows
+	t.equal(menus.call(&"current_tab"), &"inventory", "E opened the bag")
+	menus.call(&"switch_tab", &"crafting")
+	menus.call(&"switch_tab", &"journal")
+	t.equal(menus.call(&"current_tab"), &"journal", "the Journal tab")
+	t.tap(&"menu")
+	await t.steps(2)
+	t.equal(menus.call(&"current_tab"), &"", "E closed the journal")
+	t.tap(&"map")
+	await t.steps(3)
+	var map_ui: Node = t.tree.get_first_node_in_group(&"map_ui")
+	if map_ui != null:
+		t.check(bool(map_ui.call(&"is_world_map_open")), "M did not open the world map")
+		map_ui.call(&"close_world_map")
+		await t.steps(2)
+	t.press(&"move_right")
+	t.press(&"sprint")
+	await t.steps(3)
+	t.release_all()
+	await t.steps(2)
+	t.tap(&"pause")
+	await t.steps(2)
+	var shell := Services.shell()
+	if shell != null and shell.is_any_open():
+		shell.pause_menu.close()
+	await t.steps(2)
+	t.equal(quests.call(&"status", "slime-basics"), "completed", "Slime Basics after every control (progress %s)" % [quests.call(&"state", "slime-basics").get("progress")])
+	t.equal(run.coins(), coins + 10, "Slime Basics' reward")
