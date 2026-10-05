@@ -41,6 +41,12 @@ Tiles without a `natural-ground` transition (`rock-wall`, `wood-floor`, the `mus
 - **Shader / splat-map blending:** a custom WebGL pipeline with per-cell material weights. Smooth and scalable, but WebGL-specific and harder to keep in editor/runtime parity.
 - **Manual transition tiles in maps:** tedious, fragile, and contradicts derived presentation. Only for exceptional hand-composed landmarks.
 
+## Godot port
+
+The Godot port does not reuse this blend. It is trialling the authored-tile route
+instead: hand-made snow edge tiles on a dual grid, with 128 px art per cell. See
+[godot/TERRAIN_LAB.md](./godot/TERRAIN_LAB.md).
+
 ## Recommended evolution
 
 1. Keep region blending as the generic default.

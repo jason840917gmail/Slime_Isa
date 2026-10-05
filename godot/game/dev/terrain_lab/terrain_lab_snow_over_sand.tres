@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://game/world/terrain_edges/terrain_edges.gdshader" id="1_cl5rl"]
+[ext_resource type="Texture2D" path="res://game/dev/terrain_lab/art/128x128-tile_19x19_sanddessert.webp" id="2_87ee8"]
+[ext_resource type="Texture2D" path="res://game/dev/terrain_lab/art/128x128-tile_4x4_snow-edges-rim.png" id="3_yi60y"]
+[ext_resource type="Texture2D" path="res://game/dev/terrain_lab/art/128x128-tile_19x19_frozen.webp" id="4_kppor"]
+
+[resource]
+shader = ExtResource("1_cl5rl")
+shader_parameter/upper_texture = ExtResource("4_kppor")
+shader_parameter/lower_texture = ExtResource("2_87ee8")
+shader_parameter/rim_weight = ExtResource("3_yi60y")
+shader_parameter/ground_period = 1216.0
