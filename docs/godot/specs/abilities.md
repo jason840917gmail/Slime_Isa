@@ -54,7 +54,6 @@ Differences from this spec's Phaser behaviour, until decided otherwise:
 - Sequence milestones run on the simulation clock (O-A4), so hit-stop and menus pause them.
 - The quick wheel is not ported: any release of Q eats as a tap (Phaser opens the wheel after
   250 ms and then eats from the bag, or does nothing when nothing is carried).
-- `dust-puff` bursts from one point (Phaser spreads its emitters over a 280 x 120 rect).
 - Restoration quests: `RunState.is_quest_active` is false until the quest phase, so the two
   level-1 ruins show their locked message (tests list the quest in
   `RunState.debug_active_quests`).

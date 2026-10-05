@@ -15,9 +15,12 @@ class_name ParticleFx
 ##                 0-360, each particle tinted one of #ffe89a #86f0c3 #ffffff (boss spec 4.4)
 ##   loot-sparkle: 6, 520, 20-60, 220-320, 0, 0.9->0, 1->0, normal, "fx-sparkle", random rotation
 ##                 0-180 (world-objects spec 7.4: every pickup, over the slime)
-##   dust-puff:    60, 950 (Phaser 700-1200), 30-130, 180-360, 0, 2.2->0.6, 0.95->0, normal,
-##                 "dust-puff" (abilities spec 13.8: a restored building; Phaser spreads the
-##                 emitters over a 280 x 120 rect, here one point)
+##   dust-puff:    60, 700-1200, 30-130, 180-360, 0, 2.2->0.6, 0.95->0, normal, "dust-puff",
+##                 spawned anywhere in the rect (-140, -90, 280, 120) around the point (abilities
+##                 spec 13.8: a restored building; WorldScene.ts:2117-2126)
+##
+## Optional preset keys: "lifespan_min_ms" (a random lifespan between it and "lifespan_ms") and
+## "emit_rect" (a Rect2 around the burst point that particles start in; Phaser `emitZone`).
 ##
 ## Layers: "over" bursts stay under this node (z_index OVER_Z_INDEX, above every world object).
 ## "ground" bursts are moved under the y-sorted world entities root (holder at y + 2, emitter
@@ -65,7 +68,8 @@ const PRESETS := {
 		"speed_min": 20.0, "speed_max": 60.0, "angle_min": 220.0, "angle_max": 320.0, "gravity_y": 0.0,
 		"scale_start": 0.9, "scale_end": 0.0, "alpha_start": 1.0, "alpha_end": 0.0, "additive": false,
 		"rotate_min": 0.0, "rotate_max": 180.0},
-	&"dust-puff": {"texture": "dust-puff", "count": 60, "layer": LAYER_OVER, "lifespan_ms": 950.0,
+	&"dust-puff": {"texture": "dust-puff", "count": 60, "layer": LAYER_OVER, "lifespan_ms": 1200.0,
+		"lifespan_min_ms": 700.0, "emit_rect": Rect2(-140.0, -90.0, 280.0, 120.0),
 		"speed_min": 30.0, "speed_max": 130.0, "angle_min": 180.0, "angle_max": 360.0, "gravity_y": 0.0,
 		"scale_start": 2.2, "scale_end": 0.6, "alpha_start": 0.95, "alpha_end": 0.0, "additive": false,
 		"rotate_min": 0.0, "rotate_max": 0.0},
@@ -124,15 +128,16 @@ func emit_burst(preset: StringName, world_position: Vector2) -> void:
 		holder = _make_holder(preset, index)
 		pool[index] = holder
 	var emitter := holder.get_node(^"Emitter") as CPUParticles2D
+	var zone_centre: Vector2 = (config["emit_rect"] as Rect2).get_center() if config.has("emit_rect") else Vector2.ZERO
 	if config["layer"] == LAYER_GROUND:
 		_attach_ground(holder)
 		holder.global_position = world_position + Vector2(0.0, GROUND_SORT_OFFSET_Y)
-		emitter.position = Vector2(0.0, -GROUND_SORT_OFFSET_Y)
+		emitter.position = zone_centre - Vector2(0.0, GROUND_SORT_OFFSET_Y)
 	else:
 		if holder.get_parent() != self:
 			_reparent(holder, self)
 		holder.global_position = world_position
-		emitter.position = Vector2.ZERO
+		emitter.position = zone_centre
 	emitter.restart()
 
 
@@ -153,7 +158,14 @@ func _make_holder(preset: StringName, index: int) -> Node2D:
 	emitter.explosiveness = 1.0
 	emitter.amount = int(config["count"])
 	emitter.lifetime = float(config["lifespan_ms"]) / 1000.0
-	emitter.local_coords = false
+	if config.has("lifespan_min_ms"):
+		emitter.lifetime_randomness = clampf(1.0 - float(config["lifespan_min_ms"]) / float(config["lifespan_ms"]), 0.0, 1.0)
+	if config.has("emit_rect"):
+		emitter.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+		emitter.emission_rect_extents = (config["emit_rect"] as Rect2).size / 2.0
+	# Local coordinates: the holder never moves during a burst, and a one-shot burst in global
+	# coordinates draws nothing on 4.7.2 with physics interpolation on (checked in the running game).
+	emitter.local_coords = true
 	emitter.texture = _textures.get(config["texture"])
 	# Phaser angle range [min, max] (clockwise from +x, y down) -> centre direction + half spread.
 	var angle_min := float(config["angle_min"])
