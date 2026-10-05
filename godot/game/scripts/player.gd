@@ -43,6 +43,7 @@ const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const GulpHud := preload("res://game/player/gulp/gulp_hud.gd")
 const StatusEffects := preload("res://game/player/status_effects.gd")
+const GooTrail := preload("res://game/player/goo_trail.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -236,6 +237,7 @@ func _ready() -> void:
 	_energy = float(_max_energy)
 	_make_slam_area()
 	_make_gulp_hud()
+	_make_goo_trail.call_deferred()
 	if body != null:
 		body.motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_register_receiver()
@@ -1352,6 +1354,18 @@ func _update_eat_hold() -> bool:
 		_eat_since_ms = -1.0
 		eat()
 	return false
+
+
+## The Goo Trail passive (game/player/goo_trail.gd) in the world, where its smears stay.
+func _make_goo_trail() -> void:
+	var world := Services.world()
+	var parent: Node = world.entities_root() if world != null else null
+	if parent == null or not is_inside_tree():
+		return
+	var trail := GooTrail.new()
+	trail.name = "GooTrail"
+	trail.player = self
+	parent.add_child(trail)
 
 
 func _make_gulp_hud() -> void:
