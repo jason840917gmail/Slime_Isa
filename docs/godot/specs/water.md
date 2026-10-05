@@ -280,9 +280,10 @@ Every pixel Phaser could draw is inside it (section 3.2), so the image is identi
 run the shader.
 
 ### 6.7 Ambient clips and pauses
-Converted AnimationPlayers are pausable, so water life freezes during a hit-stop (65–100 ms) or a
-modal pause, while Phaser's render-domain clips keep running. To match, the converter would give
-render-domain players `PROCESS_MODE_ALWAYS`.
+Phaser's render-domain clips keep running through a hit-stop (65–100 ms) or a modal pause. The
+converter gives render-domain AnimationPlayers `PROCESS_MODE_ALWAYS`
+(`scripts/godot/lib/animation.mjs`, 2026-10-05), so water life does too; physics-domain players
+(characters) still pause with the tree.
 
 ---
 
