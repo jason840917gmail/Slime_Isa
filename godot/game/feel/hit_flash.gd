@@ -54,8 +54,10 @@ static func is_flashing(visual: CanvasItem) -> bool:
 	return material != null and float(material.get_shader_parameter(PARAM_AMOUNT)) > 0.0
 
 
+## A ShaderMaterial with this shader, or another shader that keeps its parameters and says so with
+## the `hit_flash` meta (the player's form skin, game/player/gulp/form_skin.gdshader).
 static func _material_of(visual: CanvasItem) -> ShaderMaterial:
 	var material := visual.material as ShaderMaterial
-	if material != null and material.shader == SHADER:
+	if material != null and (material.shader == SHADER or bool(material.get_meta(&"hit_flash", false))):
 		return material
 	return null

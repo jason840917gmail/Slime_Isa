@@ -35,6 +35,8 @@ const PointerAim := preload("res://game/player/pointer_aim.gd")
 const GulpWheel := preload("res://game/player/gulp/gulp_wheel.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
+## The Visual's material: Gulp form skins + the hit flash (owner decision 2026-10-05).
+const FORM_SKIN_SHADER := preload("res://game/player/gulp/form_skin.gdshader")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
 const SleepController := preload("res://game/rest/sleep_controller.gd")
@@ -253,6 +255,10 @@ func _ready() -> void:
 	_load_constants()
 	_hp = _max_hp
 	if visual != null:
+		var skin_material := ShaderMaterial.new()
+		skin_material.shader = FORM_SKIN_SHADER
+		skin_material.set_meta(&"hit_flash", true)
+		visual.material = skin_material
 		HitFlash.install(visual)
 		_squash.setup(visual)
 		_squash.busy = is_ability_busy
@@ -959,7 +965,13 @@ func _status_damage(amount: float, _kind: StringName) -> void:
 ## the floating text.
 func on_gulp_form_changed(form: Dictionary, reason: String) -> void:
 	if visual != null:
-		visual.self_modulate = form.get("tint", Color.WHITE)
+		# The form's skin is painted by the Visual's shader; the tint is the fallback without it.
+		var skin_material := visual.material as ShaderMaterial
+		if skin_material != null and skin_material.shader == FORM_SKIN_SHADER:
+			skin_material.set_shader_parameter(&"skin", int(form.get("skin", 0)))
+			visual.self_modulate = Color.WHITE
+		else:
+			visual.self_modulate = form.get("tint", Color.WHITE)
 	if reason == "started" or reason == "refreshed":
 		_squash.play(&"gulp")
 	var text := ""

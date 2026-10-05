@@ -177,3 +177,23 @@ func test_long_hold_with_nothing_carried_does_nothing(t: TestContext) -> void:
 	await t.sim_wait(100.0)
 	t.equal(player.current_form_id(), &"", "a long hold with nothing carried ate the spot (Phaser does nothing)")
 	t.check(player.get_gulp_wheel() == null or not bool(player.get_gulp_wheel().call(&"is_open")), "a wheel opened with nothing carried")
+
+
+## The form skin (form_skin.gdshader on the Visual): Heavy paints cobbles (skin 1), Sticky silk
+## (skin 2), the end of a form clears it; the tint fallback stays off.
+func test_form_skin_follows_the_form(t: TestContext) -> void:
+	var player := t.player()
+	var visual := player.visual as CanvasItem
+	var skin_material := visual.material as ShaderMaterial
+	if not t.check(skin_material != null, "the Visual has no skin material"):
+		return
+	var run := Services.run()
+	run.add_item("stone", 1)
+	run.add_item("silk-clump", 1)
+	player.get_gulp().eat_material("stone")
+	t.equal(int(skin_material.get_shader_parameter(&"skin")), 1, "Heavy's skin")
+	t.equal(visual.self_modulate, Color.WHITE, "no tint over the skin")
+	player.get_gulp().eat_material("silk-clump")
+	t.equal(int(skin_material.get_shader_parameter(&"skin")), 2, "Sticky's skin")
+	player.get_gulp().end("burp")
+	t.equal(int(skin_material.get_shader_parameter(&"skin")), 0, "no skin after the form")
