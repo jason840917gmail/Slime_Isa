@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://34qabs6v0026"
-path="res://.godot/imported/128x128-tile_4x4_snow-edges.png-ba3623ddc062a42b521804240fbd0152.ctex"
+uid="uid://bgb4ax72vjw8d"
+path="res://.godot/imported/sanddessert-edges-rim.png-893c3e128953f806109f449a21e6fb88.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://game/dev/terrain_lab/art/128x128-tile_4x4_snow-edges.png"
-dest_files=["res://.godot/imported/128x128-tile_4x4_snow-edges.png-ba3623ddc062a42b521804240fbd0152.ctex"]
+source_file="res://game/world/terrain_edges/art/sanddessert-edges-rim.png"
+dest_files=["res://.godot/imported/sanddessert-edges-rim.png-893c3e128953f806109f449a21e6fb88.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.9
 compress/uastc_level=0

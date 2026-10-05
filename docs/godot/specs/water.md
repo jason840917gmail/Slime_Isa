@@ -21,7 +21,7 @@ The water life stays converted: `res://generated/scenes/objects/water-life--*.ts
 ### OUT (exist in Phaser; ported elsewhere or later)
 | Feature | Where | Notes |
 |---|---|---|
-| Terrain blending (baked transition chunks under the surface) | `features/world/TerrainTransitionLayer.ts`, `TerrainTransitionRenderer.ts` | Known gap of the port. It is what rounds the shores in Phaser (section 6.2) |
+| Terrain blending (baked transition chunks under the surface) | `features/world/TerrainTransitionLayer.ts`, `TerrainTransitionRenderer.ts` | Not ported: replaced by hand-made terrain edges drawn over the surface (section 6.2, [../TERRAIN_LAB.md](../TERRAIN_LAB.md)) |
 | Water collision | `TileMapLayer2DNode.mountCollision` | Already converted: merged bodies under `ground/TileCollision`, layer `water` (world spec) |
 | Canvas-renderer fallback | `WaterSurfaceLayer.ts:154` | Phaser draws no water on the Canvas renderer; Godot always runs Compatibility (GLES3 / WebGL 2) |
 | Water ambience audio | world scene audio emitters | Converted with the worlds |
@@ -243,21 +243,24 @@ Fish and shadows have origin (0.5, 0.5); the rest (0.5, 1). None of them collide
 
 ## 6. Differences from Phaser
 
-### 6.1 Interim: smooth water ground (until terrain blending is ported)
+### 6.1 Smooth water ground
 Under the 10–18 % transparent surface, Phaser shows its blended terrain. Godot shows the raw tiles,
 which have a hard edge between a `water` and a `deep-water` tile, so tile steps appeared along
 every deep/shallow border. The shader's `smooth_water_ground` uniform (default on) handles this: on
 a pixel whose own tile is water (`texelFetch` of the mask), it composites the two sheets at `uv`
 (exactly the texel that tile shows, see section 1), mixed by `deep`, under the surface and draws
-opaque. Away from deep/shallow borders this equals what the tile shows, so nothing else changes. It
-must be **turned off when terrain blending lands**, or it hides the blend inside water tiles. The
-blend must also draw between the tiles and the surface (Phaser: chunks at +0.2, surface at +0.5),
-e.g. as a ground-layer child placed before `WaterSurface`.
+opaque. Away from deep/shallow borders this equals what the tile shows, so nothing else changes.
+It stays on with the terrain edges: Godot does not port Phaser's blend (below).
 
-### 6.2 Shores keep hard tile edges
-Phaser's shores look round mainly because the baked terrain blend rounds the ground under the
-surface. The surface itself only reaches about 13 px past a water tile in both engines (section
-3.2). Godot shows the same surface over square tiles until terrain blending is ported.
+### 6.2 Shores: hand-made terrain edges instead of the blend
+Phaser's shores look round because its baked terrain blend rounds the ground under the surface
+(chunks at +0.2, surface at +0.5). Godot replaces the blend with hand-made edge tiles drawn **over**
+the surface ([../TERRAIN_LAB.md](../TERRAIN_LAB.md), 2026-10-05): at a corner where land meets water
+the edge layer first fills the tile with water, using the same maths (`water_surface.gdshaderinc`,
+shared with `water_surface.gdshader`), the surface's own mask and sheets and the same opaque water
+ground, so it is pixel-identical to the surface next to it, then draws the land's edge tile with its
+painted rim on top. The shore foam therefore shows only on the water side of the land's rim. Water
+and deep water still blend inside the surface (its deep factor), not with tiles.
 
 ### 6.3 Order inside the underwater band
 Phaser orders shadows (+0.55) < plants (+0.6) < fish (+0.65). The converter maps all three to

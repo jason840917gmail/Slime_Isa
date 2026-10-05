@@ -38,7 +38,7 @@ The Python tools need Python 3 with Pillow (and numpy for most of them).
 | `python scripts/art/build-ambient-decoration-sheets.py` | decoration sheet + `asset/Originals/decorations/ambient/` | `asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp` ([ambient animation](./AMBIENT_ANIMATION.md)) |
 | `node scripts/props/wire-ambient-animations.mjs [--write]` | object scenes | ambient idle `AnimationPlayer` on animated decorations and trees |
 | `python scripts/art/despill-magenta-fringe.py [--all] [--write] <image>...` | runtime images | the same files with magenta chroma-key fringe removed |
-| `python scripts/art/build-terrain-edge-tiles.py [--preview <png>]` | `asset/Originals/grounds/generated/terrain-edges/` | Godot terrain-lab art in `godot/game/dev/terrain_lab/art/`: 128 px frozen/sand sheets and the 16 snow edge tiles ([terrain lab](../godot/TERRAIN_LAB.md)) |
+| `python scripts/art/build-terrain-edge-tiles.py [ground ...] [--preview DIR] [--grounds-2x]` | `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png`, `<ground>-hole.png` | Godot terrain edge art in `godot/game/world/terrain_edges/art/`: 16 edge tiles + rim weights per ground; with `--grounds-2x`, 128 px ground sheets from padded upscales ([terrain edges](../godot/TERRAIN_LAB.md)) |
 
 None of these edit `asset/assets.json`; add or update the manifest entry by hand.
 

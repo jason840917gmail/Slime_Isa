@@ -124,8 +124,7 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the owner's machine held 60 fps (16.7 ms frames, 17 ms worst) idle, walking
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
-- Not yet (updated 2026-10-05): terrain blending (hand-made edge tiles are on trial in the
-  [terrain lab](./godot/TERRAIN_LAB.md)), the reference-laptop measurement, the owner's feel
+- Not yet (updated 2026-10-05): the reference-laptop measurement, the owner's feel
   check, and Phase 5's fresh-save playthrough of Chapter 1 by hand (an automated run of its main line,
   `test_chapter_one_main_line`, passes). Every scene script id the authored scenes use is ported except `game.ui-surface`,
   which Godot-owned windows replace. A headless Brave run of the web build on 2026-10-05 held
@@ -146,8 +145,11 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   workbenches open the crafting window (with crafting).
 - The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
   the animated surface over `water` and `deep-water` tiles, with the water life
-  drawn and animated as in Phaser. Until terrain blending lands, shores keep
-  square tile edges, and an interim shader step smooths the deep/shallow ground.
+  drawn and animated as in Phaser. Shores are rounded by the terrain edges (next item), which
+  draw over the surface with the same water maths; a shader step smooths the deep/shallow ground.
+- Terrain edges replace Phaser's code blend (2026-10-05, [godot/TERRAIN_LAB.md](./godot/TERRAIN_LAB.md)):
+  hand-made edge tiles (Magnific art) for every natural ground, drawn on a dual grid over the ground
+  layer in every world, water shores included. The terrain lab (F6, T toggles) shows every pair.
 - The level-1 boss fight is ported (2026-10-05, [godot/specs/boss.md](./godot/specs/boss.md)):
   the Fatty One Eye camp spawns the boss when the player walks in; it chases,
   contact-hops, leaps with a ground telegraph, lands for damage with the ground

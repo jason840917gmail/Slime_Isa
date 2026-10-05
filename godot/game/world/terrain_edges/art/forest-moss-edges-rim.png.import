@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://i5omshd8ikbk"
-path="res://.godot/imported/128x128-tile_4x4_snow-edges-rim.png-bd69f69dc482c5aa04b84cace181dff9.ctex"
+uid="uid://dpymoonybbyib"
+path="res://.godot/imported/forest-moss-edges-rim.png-3f000e7b96a82f025968cb84b743dc85.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://game/dev/terrain_lab/art/128x128-tile_4x4_snow-edges-rim.png"
-dest_files=["res://.godot/imported/128x128-tile_4x4_snow-edges-rim.png-bd69f69dc482c5aa04b84cace181dff9.ctex"]
+source_file="res://game/world/terrain_edges/art/forest-moss-edges-rim.png"
+dest_files=["res://.godot/imported/forest-moss-edges-rim.png-3f000e7b96a82f025968cb84b743dc85.ctex"]
 
 [params]
 

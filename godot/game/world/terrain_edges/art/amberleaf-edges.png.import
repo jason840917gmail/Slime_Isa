@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://7yghseaqs6x4"
-path="res://.godot/imported/128x128-tile_19x19_frozen.webp-f9ac8059ad3fe1ef05604a4c488db6f8.ctex"
+uid="uid://cgojvoyc1shvg"
+path="res://.godot/imported/amberleaf-edges.png-026d413d843bc05741db571bac0accf9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://game/dev/terrain_lab/art/128x128-tile_19x19_frozen.webp"
-dest_files=["res://.godot/imported/128x128-tile_19x19_frozen.webp-f9ac8059ad3fe1ef05604a4c488db6f8.ctex"]
+source_file="res://game/world/terrain_edges/art/amberleaf-edges.png"
+dest_files=["res://.godot/imported/amberleaf-edges.png-026d413d843bc05741db571bac0accf9.ctex"]
 
 [params]
 
-compress/mode=1
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.9
 compress/uastc_level=0
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
