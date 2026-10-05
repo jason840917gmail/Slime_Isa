@@ -47,6 +47,7 @@ res://game/main.tscn (main.gd)                         bootstrap
        SlamArea / ability effects                  <- the player's abilities (game/player/abilities/)
   WorldCamera (world_camera.gd, ALWAYS, priority 100)
   Hud (CanvasLayer 10, hud.gd) > PlayerHealthBar (player_health_bar.gd), BossHealthBar (boss_health_bar.gd), AbilityBar (ability_bar.gd)
+      MapUi (map_ui.gd, group map_ui) > Minimap (minimap.gd)   <- its WorldMap window lives under GameWindows
   FpsReadout (CanvasLayer 100, fps_readout.gd)
   ArrivalFade (CanvasLayer 5, runtime)      EnemyPopulation (enemy_population.gd, runtime)
   Interaction (interaction_controller.gd)   EnemyLoot (enemy_loot.gd)   ControlHints (CanvasLayer 10)   <- made once in _ready, kept across worlds
@@ -259,6 +260,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
 | `game/hints/control_hints.gd` | interaction | Child "ControlHints" of main (CanvasLayer 10): first-time control hints, learned by use as `hint.<id>` story flags |
 | `game/ui/ability_bar.gd` | abilities | The HUD's ability bar (bottom centre): labels from `player.ability_status`, clicks run `activate_ability_from_ui` |
+| `game/ui/map/map_ui.gd`, `minimap.gd`, `map_terrain.gd`, `map_markers.gd`, `world_map_window.gd`, `.tscn` | map | The HUD minimap (see-through as in Phaser; `terrain_alpha` bakes the world's ground instead; markers, view) and the world map window on GameWindows; the `map` key, the pause menu's Map action and the marker API ([specs/map.md](./specs/map.md)) |
 | `game/scripts/training_dummy.gd`, `gulp_spot.gd`, `pressure_plate.gd`, `cracked_ground.gd`, `lash_bell.gd`, `ability_lesson.gd`, `goo_heart.gd`, `restoration_site.gd` | abilities | The abilities' puzzle pieces (§6) |
 | `game/saves/save_slots_menu.gd`, `.tscn` | saves | The save slots window (three slots and the autosave) on the Shell's stack; RunState mounts it and registers the Shell's `save` / `load` actions |
 | `game/world_objects/enemy_loot.gd` | world objects | Child "EnemyLoot" of main: enemy coins, loot piles scattered round the corpse, their records and restore |
