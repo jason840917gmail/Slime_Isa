@@ -344,6 +344,29 @@ func is_movement_suppressed() -> bool:
 	return now < _movement_suppressed_until_ms or now < _roll_until_ms
 
 
+## Freezes walking and buffered actions for `ms` of simulation time (the area travel's leave fade).
+func suppress_movement(ms: float) -> void:
+	_movement_suppressed_until_ms = maxf(_movement_suppressed_until_ms, Services.now_ms() + ms)
+
+
+## What RunState keeps of the player when it leaves a world: {"hp", "facing", "x", "y"}, x/y the
+## old Phaser (centre) position, facing "up"|"down"|"left"|"right".
+func run_snapshot() -> Dictionary:
+	var centre: Vector2 = get_centre()
+	return {"hp": _hp, "facing": Directions.cardinal_name(_facing), "x": centre.x, "y": centre.y}
+
+
+## Takes the run's HP (`RunState.player`, GameState semantics: max HP grows with Goo Hearts).
+## HP is clamped to the maximum; a dead or missing value starts full (Phaser revives on load).
+func restore_run_state(state: Dictionary) -> void:
+	var run := Services.run()
+	if run != null:
+		_max_hp = run.max_hp()
+	var hp := int(state.get("hp", _max_hp))
+	_hp = clampi(hp, 1, _max_hp) if hp > 0 else _max_hp
+	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+
+
 ## `sim < dodge_until` (dodge i-frames).
 func is_dodging() -> bool:
 	return Services.now_ms() < _dodge_until_ms

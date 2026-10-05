@@ -443,7 +443,9 @@ Visible by default in trial builds (it is the 60-fps test instrument); toggle wi
 
 ---
 
-## 8. Exits, doors and other world behaviour [OUT] — recorded for later phases
+## 8. Exits, doors and other world behaviour — recorded for later phases
+
+**Ported since 2026-10-05:** world exits and area travel (`world_exit.gd`, `Main.request_exit` / `travel_to`, `game/world/area_travel.gd`, run state in the `RunState` autoload). Phaser reloads the page with a save handoff; the port keeps main and rebuilds the world in place, carrying the run in `RunState`. Doors and the rest below follow in their own specs (`interaction.md`, `world-objects.md`).
 
 - **World exit** (`features/scripts/WorldExitScript.ts`): ScriptNode under an `Area2D` (level-1 `exit-1` at (3552,576), rect 64×128, layer 512, mask 130 = player|npc, monitoring). Properties `mapId`, `exitId`, `targetAreaId "gloop-forest"`, `entry "west"`, `gate {id "level-1-east-verdant-gate", requiredItemId "green-key", consumeOnUnlock true, lockedMessage "The eastern gate needs a green key."}`, `arrivalGraceMs` (default `game-constants.json worldNavigation.edgeTransitionGraceMs` = 650). Level-triggered: on `body_entered` and on every physics tick for every overlapping character body, after the grace period and until queued, call the exit service; only the player body counts (`UniversalSceneWorldController.ts:648-655`). `WorldScene.requestAuthoredExit` (`:1018-1067`): ignore if wrong map or already transitioning; gate locked and no key → floating text (throttled 900 ms) + `blocked`; key → unlock (consumes), "The Verdant Gate unlocks!"; then `transitionTo`: stop player, music fade + camera fade out 320 ms to `#0b1020`, then navigate (Phaser reloads the page with a save handoff). Emits `navigation_resolved(result)`. In the trial the exit stays the unported placeholder (inert).
 - **Doors** (`DoorScript`, `doorCandidate :919-960`): interaction candidate when the player's old-root position is within `interactRadius` (home-door 90, default 96) of the door node; prompt "Enter house"; execute → `requestExit({targetDoorId})`; arrival at the door's `arrival` child.

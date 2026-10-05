@@ -23,6 +23,7 @@ WorldService="*res://game/autoload/world_service.gd"
 DamageRouter="*res://game/combat/damage_router.gd"
 GameFeel="*res://game/feel/game_feel.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+RunState="*res://game/autoload/run_state.gd"
 
 [display]
 
