@@ -35,10 +35,11 @@ func _initialize() -> void:
 	quit(0)
 
 
-## The whole theme. Static so tests can build it without writing the file.
-static func build() -> Theme:
+## The whole theme. Static so tests can build it without writing the file. `font_paths` overrides
+## UiTokens' font paths ({"regular", "bold", "symbols"}; the font preview uses it).
+static func build(font_paths: Dictionary = {}) -> Theme:
 	var theme := Theme.new()
-	var fonts := _fonts()
+	var fonts := _fonts(font_paths)
 	if fonts["regular"] != null:
 		theme.default_font = fonts["regular"]
 	theme.default_font_size = UiTokens.FONT_SIZE
@@ -59,25 +60,54 @@ static func build() -> Theme:
 
 # --- fonts ------------------------------------------------------------------------------------
 
-## {"regular": Font or null (= Godot's default font), "bold": Font, "mono": Font}.
-static func _fonts() -> Dictionary:
+## {"regular": Font or null (= Godot's default font), "bold": Font, "mono": Font}. Regular and
+## bold are FontVariations carrying the symbol fallback (UiTokens.SYMBOL_FONT_PATH) when set.
+static func _fonts(paths: Dictionary = {}) -> Dictionary:
+	var regular_path: String = paths.get("regular", UiTokens.FONT_PATH)
+	var bold_path: String = paths.get("bold", UiTokens.BOLD_FONT_PATH)
+	var symbols_path: String = paths.get("symbols", UiTokens.SYMBOL_FONT_PATH)
+	var fallbacks: Array[Font] = []
+	if not symbols_path.is_empty():
+		var symbols := load(symbols_path) as Font
+		if symbols != null:
+			fallbacks.append(symbols)
+	var file: Font = load(regular_path) as Font if not regular_path.is_empty() else null
+
+	# Regular: the font file (at REGULAR_WEIGHT when variable); with no file but a symbol fallback,
+	# a variation of Godot's default font (a FontVariation without a base font draws with it).
 	var regular: Font = null
-	if not UiTokens.FONT_PATH.is_empty():
-		regular = load(UiTokens.FONT_PATH) as Font
-	var bold: Font
-	if not UiTokens.BOLD_FONT_PATH.is_empty():
-		bold = load(UiTokens.BOLD_FONT_PATH) as Font
-	else:
-		# A FontVariation without a base font draws with Godot's default font.
+	if file != null or not fallbacks.is_empty():
 		var variation := FontVariation.new()
-		variation.resource_name = "Bold"
-		variation.base_font = regular
-		variation.variation_embolden = UiTokens.BOLD_EMBOLDEN
-		bold = variation
+		variation.resource_name = "Regular"
+		variation.base_font = file
+		variation.fallbacks = fallbacks
+		if file != null and _has_weight_axis(file):
+			variation.variation_opentype = {_weight_tag(): UiTokens.REGULAR_WEIGHT}
+		regular = variation
+
+	var bold := FontVariation.new()
+	bold.resource_name = "Bold"
+	bold.fallbacks = fallbacks
+	if not bold_path.is_empty():
+		bold.base_font = load(bold_path) as Font
+	elif file != null and _has_weight_axis(file):
+		bold.base_font = file
+		bold.variation_opentype = {_weight_tag(): UiTokens.BOLD_WEIGHT}
+	else:
+		bold.base_font = file
+		bold.variation_embolden = UiTokens.BOLD_EMBOLDEN
 	var mono := SystemFont.new()
 	mono.resource_name = "Monospace"
 	mono.font_names = UiTokens.MONOSPACE_FONTS
 	return {"regular": regular, "bold": bold, "mono": mono}
+
+
+static func _weight_tag() -> int:
+	return TextServerManager.get_primary_interface().name_to_tag("wght")
+
+
+static func _has_weight_axis(font: Font) -> bool:
+	return font.get_supported_variation_list().has(_weight_tag())
 
 
 # --- palette ----------------------------------------------------------------------------------
