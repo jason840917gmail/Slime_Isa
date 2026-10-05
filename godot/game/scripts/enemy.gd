@@ -5,8 +5,10 @@ class_name EnemyScript
 ## facing/clips (4.5), timer-driven melee (5), hit reaction (6), death and despawn (7).
 ##
 ## Used by every scene with script id `game.enemy` (worm swordsman, worm archer, worm brawler,
-## slime spider, orb weaver). The trial only spawns the worm swordsman; ranged attacks, fleeRange,
-## slime-spider AI, slow, impactEffect and effect immunities are OUT (enemy spec 0).
+## slime spider, orb weaver). Part 2 of the enemy spec (2026-10-05) adds the ranged attack (the
+## common attack fires `projectile.<id>` through res://game/enemy/enemy_projectiles.gd, §12), the
+## keep-distance `fleeRange` rules (§13), the slime-spider AI (`attributes.behavior`,
+## res://game/enemy/slime_spider_ai.gd, §14), `apply_slow` (§15) and the `impactEffect` (§16).
 ##
 ## Node: `EnemyScript` (plain Node child of the CharacterBody2D root, re-anchored to the feet;
 ## worm `metadata/depth_anchor = (0, 22)`). ALL AI maths use old Phaser centres
@@ -17,12 +19,13 @@ class_name EnemyScript
 ## Timers use `Services.now_ms()` (SimClock), which freezes in hit-stop.
 ## The attack-side `animation_event` hitbox events are deliberately ignored (enemy spec 2.1).
 ##
-## Bosses (`game.fatty` -> res://game/scripts/fatty.gd) extend this script as Phaser's FattyScript
-## extends EnemyScript. For them it also carries the arena leash (`configure_arena`, boss spec
-## 3.3), `_route_immediate_attack` and the overridable hooks `_after_enemy_step`,
-## `_attack_area_reach`, `_can_run_common_attack`, `_mirrors_side_facing`, `_receiver_tags`,
-## `_damage_number_top`, `_dispose_delay_ms`, `_react_to_damage` and `can_receive_damage`. Their
-## defaults keep the worm's behaviour.
+## Bosses (`game.fatty` -> res://game/scripts/fatty.gd, `game.matron` -> matron.gd) extend this
+## script as Phaser's FattyScript / MatronScript extend EnemyScript. For them it also carries the
+## arena leash (`configure_arena`, boss spec 3.3), `_route_immediate_attack`, the EnemyScript
+## helpers `_spawn_effect_at`, `_shake_camera`, `_target_overlaps`, and the overridable hooks
+## `_after_enemy_step`, `_attack_area_reach`, `_can_run_common_attack`, `_mirrors_side_facing`,
+## `_receiver_tags`, `_damage_number_top`, `_dispose_delay_ms`, `_react_to_damage` and
+## `can_receive_damage`. Their defaults keep the worm's behaviour.
 ##
 ## Owner: enemy builder.
 
@@ -34,6 +37,10 @@ const CampTerritory := preload("res://game/enemy/camp_territory.gd")
 const EnemyAttackLifecycle := preload("res://game/enemy/attack_lifecycle.gd")
 const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 const BossArena := preload("res://game/bosses/boss_arena.gd")
+const AreaShapes := preload("res://game/bosses/area_shapes.gd")
+const SlimeSpiderAI := preload("res://game/enemy/slime_spider_ai.gd")
+const EnemyProjectiles := preload("res://game/enemy/enemy_projectiles.gd")
+const GameFeelType := preload("res://game/feel/game_feel.gd")
 
 ## EnemyScript.ts literals (enemy spec 1.2).
 const SIGHT_CHECK_MS := 150.0
@@ -55,6 +62,12 @@ const IMPORTANT_DAMAGE := 15.0
 const DAMAGE_NUMBER_RISE_PX := 8.0
 ## Router target tags of an ordinary enemy hurtbox (UniversalSceneWorldController.ts:2195-2206).
 const RECEIVER_TAGS: Array[String] = ["enemy"]
+## EnemyScript.ts:762: projectile speed when `attributes.projectileSpeed` is missing.
+const DEFAULT_PROJECTILE_SPEED := 200.0
+## `shakeCamera` plays this feel preset with the caller's shake (UniversalSceneWorldController.ts:586).
+const BOSS_LANDING_FEEL := &"boss-landing"
+## `rank` of bosses: never slowed (EnemyScript.ts:935).
+const RANK_BOSS := "boss"
 
 ## JSON `body`: the CharacterBody2D root.
 @export var body: CharacterBody2D
@@ -90,9 +103,9 @@ const RECEIVER_TAGS: Array[String] = ["enemy"]
 @export var damage_rule: Dictionary = {}
 ## JSON `rewards` ({coins, items[{itemId, chance}]}); emitted with reward_requested (OUT).
 @export var rewards: Dictionary = {}
-## JSON `projectile` (ranged enemies, OUT).
+## JSON `projectile` (ranged enemies: {projectileId, assetId, damage, stickMs?}; enemy spec 12.1).
 @export var projectile: Dictionary = {}
-## JSON `impactEffect` (worm brawler, OUT).
+## JSON `impactEffect` (worm brawler: {effectId, distance}; enemy spec 16).
 @export var impact_effect: Dictionary = {}
 ## JSON `arenaRecoveryMs` (bosses with an arena: heal to full once the player has stayed outside
 ## the arena this long; 0 = never).
@@ -156,6 +169,11 @@ var _arena: Dictionary = {}
 var _returning_to_arena: bool = false
 var _arena_left: bool = false
 var _arena_left_at_ms: float = 0.0
+## Slow (the slime's goo trail, enemy spec 15): movement x `_slow_multiplier` until `_slowed_until`;
+## `_applied_slow` is the factor the last written velocity carries.
+var _slowed_until: float = 0.0
+var _slow_multiplier: float = 1.0
+var _applied_slow: float = 1.0
 
 
 ## Clamps max_health, sets hp; push_error when damage_area / attack_area are missing; registers
@@ -180,6 +198,7 @@ func _ready() -> void:
 	if router != null and damage_area != null:
 		router.register_area(damage_area, self, _receiver_rule(), _receiver_tags())
 		_registered_area = damage_area
+	_warm_attack_scenes()
 
 
 ## `cancel_attack()` and unregister the hurtbox.
@@ -211,6 +230,9 @@ func _physics_process(delta: float) -> void:
 ## once `now >= dispose_at` (enemy spec 7, self-dispose replaces the world-side cleanup).
 func _step_enemy(delta: float) -> bool:
 	var now := Services.now_ms()
+	# Only the territory walk and the AI path write a slowed velocity (enemy spec 15).
+	var slow_written := _applied_slow
+	_applied_slow = 1.0
 	_update_hit_flash(now)
 	if _defeated:
 		body.velocity = Vector2.ZERO
@@ -273,7 +295,8 @@ func _step_enemy(delta: float) -> bool:
 			var to_spot: Vector2 = (territory["move_to"] as Vector2) - origin
 			if to_spot.length() > 0.0 and speed > 0.0:
 				walk = to_spot.normalized() * speed
-		body.velocity = walk
+		_applied_slow = _current_slow(now)
+		body.velocity = walk * _applied_slow
 		_update_facing(walk)
 		_play_facing("walk" if walk.length() > WALK_SPEED_THRESHOLD else "idle")
 		return true
@@ -305,12 +328,15 @@ func _step_enemy(delta: float) -> bool:
 		"flee_range": maxf(0.0, _optional_attribute("fleeRange")),
 		"may_engage": bool(territory["may_engage"]) if not territory.is_empty() else distance <= targeting_radius,
 		"safe_zones": _safe_zones,
+		"behavior": _attribute_string("behavior"),
+		"preferred_distance": SlimeSpiderAI.preferred_distance(_optional_attribute("fleeRange"), attack_range),
 	}
 	# Authored attack-area reach replaces the attack_range distance rules (EnemyScript.ts:464).
 	var reach: Variant = _attack_area_reach(target)
 	if reach is bool:
 		context["in_attack_reach"] = reach
-	var outcome := EnemyAI.run(_ai_state, body.velocity, context)
+	# The AI reads back its own unslowed velocity (EnemyScript.ts:449).
+	var outcome := EnemyAI.run(_ai_state, body.velocity / slow_written, context)
 	var velocity: Vector2 = outcome["velocity"]
 	if bool(outcome["attack_requested"]) and _can_run_common_attack():
 		_begin_attack(outcome["attack_dir"])
@@ -321,7 +347,8 @@ func _step_enemy(delta: float) -> bool:
 		alerted.emit({"state": next_state})
 	_ai_state = next_state
 	_runtime_state = EnemyAI.STATE_ATTACK if _active_sequence_id != NO_ID else next_state
-	body.velocity = velocity
+	_applied_slow = _current_slow(now)
+	body.velocity = velocity if _applied_slow == 1.0 else velocity * _applied_slow
 	if _active_sequence_id == NO_ID:
 		_update_facing(velocity)
 		_play_facing("walk" if velocity.length() > WALK_SPEED_THRESHOLD else "idle")
@@ -383,6 +410,28 @@ func get_runtime_state() -> String:
 ## The spawn area record given by configure_navigation ({} when none).
 func get_spawn_area() -> Dictionary:
 	return _spawn_area
+
+
+## True while a common attack sequence runs (Phaser `attacking`).
+func is_attacking() -> bool:
+	return _active_sequence_id != NO_ID
+
+
+## `applySlow` (EnemyScript.ts:934-939, enemy spec 15): movement x `multiplier` for `duration_ms`
+## (the slime's goo trail). Bosses, defeated enemies, a multiplier outside (0, 1) and a duration
+## <= 0 are ignored; a fresh slow replaces a weaker or expired one and never shortens it.
+func apply_slow(multiplier: float, duration_ms: float) -> void:
+	if rank == RANK_BOSS or _defeated or not (multiplier > 0.0 and multiplier < 1.0) or not (duration_ms > 0.0):
+		return
+	var now := Services.now_ms()
+	if now >= _slowed_until or multiplier <= _slow_multiplier:
+		_slow_multiplier = multiplier
+	_slowed_until = maxf(_slowed_until, now + duration_ms)
+
+
+## True while a slow holds this enemy back.
+func is_slowed() -> bool:
+	return Services.now_ms() < _slowed_until
 
 
 ## Lifecycle cancel + end_attack (enemy spec 5.4): called on non-lethal hit, death, target lost,
@@ -457,14 +506,15 @@ func _begin_attack(direction: Vector2) -> void:
 	_attack_resolved = false
 	_set_attack_area_active(true)
 	_play_facing("attack", true)
-	attack_started.emit({"ranged": not projectile.is_empty(), "windupMs": windup_ms})
+	attack_started.emit({"ranged": not _projectile_config().is_empty(), "windupMs": windup_ms})
 
 
 ## Enemy spec 5.3: one impact check per swing; centre distance <= attack_range * 1.35 routes a
 ## request to the player hurtbox (weapon_id "enemy-contact", tags ["contact", "enemy"], base
 ## damage attributes.contactDamage, knockback potency attributes.knockbackStrength, impact at the
-## enemy centre, knock = normalized(player centre - enemy centre)).
-## Ranged enemies (`projectile` set) are OUT of the trial: their swing resolves to nothing.
+## enemy centre, knock = normalized(player centre - enemy centre)); an accepted hit with damage
+## spawns the impact effect (spec 16). Ranged enemies fire their projectile instead, from the
+## centre along the attack direction, whatever the distance (spec 12.2).
 func _resolve_attack(target: Dictionary, origin: Vector2) -> void:
 	_attack_resolved = true
 	var router := Services.router()
@@ -472,8 +522,9 @@ func _resolve_attack(target: Dictionary, origin: Vector2) -> void:
 		return
 	if not bool(target.get("active", false)) or not bool(target.get("hostile", false)):
 		return
-	if not projectile.is_empty():
-		push_warning("EnemyScript '%s': ranged attacks are not ported (projectile ignored)." % get_path())
+	var ranged := _projectile_config()
+	if not ranged.is_empty():
+		_fire_projectile(origin, ranged)
 		return
 	var target_area := target.get("hurtbox") as Area2D
 	if target_area == null:
@@ -504,8 +555,68 @@ func _resolve_attack(target: Dictionary, origin: Vector2) -> void:
 		"effects": effects,
 		"impact": {"position": origin, "knock": knock},
 	}
-	router.route(request)
-	# An accepted hit would spawn `impact_effect` here (worm brawler only; OUT of the trial).
+	var result := router.route(request)
+	if str(result.get("status", "")) == "accepted" and int(result.get("actual_damage", 0)) > 0:
+		_spawn_impact_effect(origin)
+
+
+## `fireProjectile` (EnemyScript.ts:758-768): the world's `spawnEnemyProjectile` (enemy spec 12.3).
+func _fire_projectile(origin: Vector2, config: Dictionary) -> void:
+	EnemyProjectiles.fire({
+		"source": self,
+		"position": origin,
+		"direction": _attack_direction,
+		"speed": _attribute("projectileSpeed", DEFAULT_PROJECTILE_SPEED),
+		"damage": float(config["damage"]),
+		"knockback_strength": _attribute("knockbackStrength"),
+		"projectile_id": str(config["projectile_id"]),
+		"asset_id": str(config["asset_id"]),
+		"stick_ms": float(config["stick_ms"]),
+	})
+
+
+## `projectileConfiguration` (EnemyScript.ts:900-908, enemy spec 12.1): {} unless `projectile`
+## has a numeric `damage` and a `projectileId` or `assetId`; else {"projectile_id", "asset_id",
+## "damage", "stick_ms" (0 unless > 0)}.
+func _projectile_config() -> Dictionary:
+	var damage: Variant = projectile.get("damage")
+	if not (damage is float or damage is int):
+		return {}
+	var projectile_id: Variant = projectile.get("projectileId")
+	var asset_id: Variant = projectile.get("assetId")
+	var id_text := str(projectile_id) if projectile_id is String else ""
+	var asset_text := str(asset_id) if asset_id is String else ""
+	if id_text.is_empty() and asset_text.is_empty():
+		return {}
+	var stick: Variant = projectile.get("stickMs")
+	var stick_ms := float(stick) if (stick is float or stick is int) and float(stick) > 0.0 else 0.0
+	return {"projectile_id": id_text, "asset_id": asset_text, "damage": float(damage), "stick_ms": stick_ms}
+
+
+## `spawnImpactEffect` (EnemyScript.ts:797-806, enemy spec 16): `effect.<effectId>` at the centre
+## pushed `distance` along the attack direction; nothing without a string `effectId`.
+func _spawn_impact_effect(origin: Vector2) -> void:
+	var effect_id: Variant = impact_effect.get("effectId")
+	if not effect_id is String:
+		return
+	var distance_value: Variant = impact_effect.get("distance")
+	var distance := float(distance_value) if (distance_value is float or distance_value is int) \
+		and is_finite(float(distance_value)) else 0.0
+	_spawn_effect_at(effect_id, origin + _attack_direction * distance)
+
+
+## Loads the projectile scene and the impact effect this enemy spawns, so the first shot or hit
+## does not read them from disk mid-fight (enemy spec 19).
+func _warm_attack_scenes() -> void:
+	var world := Services.world()
+	if world == null:
+		return
+	var ranged := _projectile_config()
+	if not ranged.is_empty() and not str(ranged["projectile_id"]).is_empty():
+		world.packed_scene("projectile." + str(ranged["projectile_id"]))
+	var effect_id: Variant = impact_effect.get("effectId")
+	if effect_id is String and not (effect_id as String).is_empty():
+		world.packed_scene("effect." + effect_id)
 
 
 ## Phaser `finishAttack(seq)`: lifecycle finish, then end the runtime attack when it is current.
@@ -660,6 +771,17 @@ func _optional_attribute(key: String) -> float:
 	return _attribute(key, -1.0)
 
 
+## `attributes[key]` when it is a String, else "".
+func _attribute_string(key: String) -> String:
+	var value: Variant = attributes.get(key)
+	return value if value is String else ""
+
+
+## The movement factor of a slow at `now` (1 when not slowed).
+func _current_slow(now: float) -> float:
+	return _slow_multiplier if now < _slowed_until else 1.0
+
+
 ## Enemy spec 4.5: ignore |v| < 1e-6; |x| > |y| -> "side", flipped = x < 0; else up/down.
 func _update_facing(velocity: Vector2) -> void:
 	if velocity.length() < FACING_EPSILON:
@@ -803,9 +925,10 @@ func _velocity_toward_arena_centre(origin: Vector2, delta: float) -> Vector2:
 ## `routeImmediateAttack` (EnemyScript.ts:675-699, boss spec 3.4): one hit on the player's hurtbox
 ## outside the timed melee, in its own activation. Knock = unit(player centre - centre) (zero when
 ## they coincide); `max_range >= 0` skips a target further than that. Returns true when the hit
-## was accepted with damage > 0. (Phaser's optional impact effect is OUT, as for the melee.)
+## was accepted with damage > 0; then the impact effect plays unless `impact_effect` is false
+## (Fatty's landing and the Matron's volley pass false, as in Phaser).
 func _route_immediate_attack(target: Dictionary, base_damage: float, knockback_strength: float,
-		max_range: float = -1.0) -> bool:
+		max_range: float = -1.0, impact_effect_on_hit: bool = true) -> bool:
 	var router := Services.router()
 	if attack_area == null or router == null or body == null:
 		return false
@@ -836,5 +959,39 @@ func _route_immediate_attack(target: Dictionary, base_damage: float, knockback_s
 		"effects": effects,
 		"impact": {"position": origin, "knock": knock},
 	})
+	var hit := str(result.get("status", "")) == "accepted" and int(result.get("actual_damage", 0)) > 0
+	if hit and impact_effect_on_hit:
+		_spawn_impact_effect(origin)
 	router.end_activation(activation_id)
-	return str(result.get("status", "")) == "accepted" and int(result.get("actual_damage", 0)) > 0
+	return hit
+
+
+## `spawnEffectAt` (EnemyScript.ts:702-704): `effect.<id>` (direction "right") with its root at an
+## old Phaser point; nothing for "".
+func _spawn_effect_at(effect_id: String, point: Vector2) -> void:
+	if effect_id.is_empty():
+		return
+	var world := Services.world()
+	if world != null:
+		world.spawn_at_phaser_position("effect." + effect_id, point)
+
+
+## `shakeCamera` (EnemyScript.ts:714-716): nothing unless both values are > 0, else the
+## "boss-landing" feel with this shake (its hit-stop, 0, from the preset).
+func _shake_camera(duration_ms: float, intensity: float) -> void:
+	if duration_ms <= 0.0 or intensity <= 0.0:
+		return
+	var feel := Services.feel()
+	if feel == null:
+		return
+	feel.shake(duration_ms, intensity)
+	feel.hit_stop(float((GameFeelType.PRESETS[BOSS_LANDING_FEEL] as Dictionary)["hit_stop_ms"]))
+
+
+## `targetOverlapsShapes` (EnemyScript.ts:635-639) against the player's hurtbox (its centre when it
+## has no shapes).
+func _target_overlaps(shapes: Array[Dictionary], target: Dictionary) -> bool:
+	if target.is_empty():
+		return false
+	var hurtbox := target.get("hurtbox") as Area2D
+	return AreaShapes.overlaps_area(shapes, hurtbox, target.get("centre", Vector2.INF))

@@ -15,9 +15,7 @@ class_name FattyScript
 ##
 ## Owner: boss port.
 
-const AreaShapes := preload("res://game/bosses/area_shapes.gd")
 const AttackTelegraph := preload("res://game/bosses/attack_telegraph.gd")
-const GameFeelType := preload("res://game/feel/game_feel.gd")
 
 const PHASE_CHASE := "chase"
 const PHASE_RETURN := "return-to-center"
@@ -40,7 +38,6 @@ const LANDING_PHASE_MS := 360.0
 ## Bosses are hit as enemies and bosses (UniversalSceneWorldController.ts:2199-2201).
 const BOSS_RECEIVER_TAGS: Array[String] = ["enemy", "boss"]
 const STATE_BLOCKED_REASON := "state-blocked"
-const LANDING_FEEL := &"boss-landing"
 
 ## JSON `contactAttack`: the contact-hop area (its shapes decide reach and the hop telegraph).
 @export var contact_attack: Area2D
@@ -302,7 +299,7 @@ func _land(now: float) -> bool:
 	var splash := AreaShapes.of_area(landing_zone)
 	var target := _primary_target()
 	if not target.is_empty() and bool(target.get("active", false)) and _target_overlaps(splash, target):
-		_route_immediate_attack(target, landing_damage, landing_knockback_strength)
+		_route_immediate_attack(target, landing_damage, landing_knockback_strength, -1.0, false)
 	_spawn_effect_at(landing_effect_id, get_centre())
 	_shake_camera(landing_shake_ms, landing_shake_intensity)
 	return true
@@ -358,32 +355,3 @@ func _set_body_collision(enabled: bool, deferred: bool = false) -> void:
 	else:
 		body.collision_layer = layer
 		body.collision_mask = mask
-
-
-## `targetOverlapsShapes` against the player's hurtbox (its centre when it has no shapes).
-func _target_overlaps(shapes: Array[Dictionary], target: Dictionary) -> bool:
-	if target.is_empty():
-		return false
-	var hurtbox := target.get("hurtbox") as Area2D
-	return AreaShapes.overlaps_area(shapes, hurtbox, target.get("centre", Vector2.INF))
-
-
-## `spawnEffectAt` (EnemyScript.ts:702-704): `effect.<id>` at an old Phaser point, nothing for "".
-func _spawn_effect_at(effect_id: String, point: Vector2) -> void:
-	if effect_id.is_empty():
-		return
-	var world := Services.world()
-	if world != null:
-		world.spawn_at_phaser_position("effect." + effect_id, point)
-
-
-## `shakeCamera` (EnemyScript.ts:714-716): feel "boss-landing" with this boss's shake (hit-stop
-## from the preset, 0).
-func _shake_camera(duration_ms: float, intensity: float) -> void:
-	if duration_ms <= 0.0 or intensity <= 0.0:
-		return
-	var feel := Services.feel()
-	if feel == null:
-		return
-	feel.shake(duration_ms, intensity)
-	feel.hit_stop(float((GameFeelType.PRESETS[LANDING_FEEL] as Dictionary)["hit_stop_ms"]))
