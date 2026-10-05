@@ -132,8 +132,8 @@ red, no text.
 
 For slime characters, add: `glossy translucent jelly slime body with rim
 light, cute big glossy eyes`. Then add the background line for the output
-type from the Magnific guide: a transparent background for sprites, or the
-`#FF00FF` chroma background for animation videos.
+type from the Magnific guide: a transparent background for every image, or
+the `#FF00FF` chroma background for animation videos.
 
 Always attach one reference sheet from the [Reference Art](#reference-art)
 table as a style reference (upload steps are in the Magnific guide): Elder
