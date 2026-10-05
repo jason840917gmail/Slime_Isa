@@ -23,7 +23,7 @@ doze, die) cut one action and are timed to their gameplay duration (ONE_SHOT_MS)
 hand-picked frames (the lash, the doze and the defeat), and some sit shifted in their cells
 (SHIFTS) so the reach fits. A page is always packed whole from its clips: the sheet is a lossy
 WebP, so redrawing rows into an existing sheet would re-encode (and degrade) the others.
-Writes asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp (8 x 8 cells of 256 px, one row per
+Writes godot/asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp (8 x 8 cells of 256 px, one row per
 clip, unused rows empty) and slime-v2/page-<n>.json (loop choice, fps and looping per row, which
 godot/tools/build_player_clips.gd turns into the player scene's clips).
 
@@ -219,7 +219,7 @@ def main() -> None:
     parser.add_argument("--preview", type=Path, help="also write an animated GIF of the page's clips")
     args = parser.parse_args()
     rows = PAGES[args.page]
-    output = REPO / "asset" / "characters" / f"256x256-tile_8x8-slime-v2-page-{args.page}.webp"
+    output = REPO / "godot" / "asset" / "characters" / f"256x256-tile_8x8-slime-v2-page-{args.page}.webp"
     manifest_path = SOURCES / f"page-{args.page}.json"
 
     with tempfile.TemporaryDirectory(prefix="slime-v2-frames-") as tmp:

@@ -6,7 +6,7 @@ a goo splat. The tendril is cut into stump, rope and tip; every frame keeps the
 stump and tip proportions and stretches only the rope, so the lash reads the
 same at every length.
 
-Output: asset/MAPS/effects/384x96-tile_4x2-stretch-lash.webp, eight 384x96
+Output: godot/asset/MAPS/effects/384x96-tile_4x2-stretch-lash.webp, eight 384x96
 frames drawn at twice the display size (the game shows them at scale 0.5, so a
 full frame is 192 px long). The stump sits at x=0, the tendril's centre line at
 y=CENTRE_LINE (52): the game anchors the sprite at (0, 52/96) on the slime and
@@ -26,7 +26,7 @@ from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'asset' / 'Originals' / 'effects' / 'stretch-lash'
-OUTPUT = ROOT / 'asset' / 'MAPS' / 'effects' / '384x96-tile_4x2-stretch-lash.webp'
+OUTPUT = ROOT / 'godot' / 'asset' / 'MAPS' / 'effects' / '384x96-tile_4x2-stretch-lash.webp'
 
 FRAME_W, FRAME_H = 384, 96
 # The tendril's centre line; a little below the middle so the stump's top fits.

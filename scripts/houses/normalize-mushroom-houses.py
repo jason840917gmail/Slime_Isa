@@ -26,7 +26,7 @@ from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "asset" / "Originals" / "houses"
-OUTPUT = ROOT / "asset" / "MAPS" / "Houses" / "320-mushroom-2x1.webp"
+OUTPUT = ROOT / "godot" / "asset" / "MAPS" / "Houses" / "320-mushroom-2x1.webp"
 
 FRAME = 320
 TARGET = 300  # longest side of the house art inside its frame, like the existing houses
