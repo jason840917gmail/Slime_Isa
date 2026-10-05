@@ -196,6 +196,9 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 	context.main = packed.instantiate()
 	if not map_id.is_empty():
 		context.main.set(&"map_id", map_id)
+	# Playground tests start like a new run: no abilities learned, nothing to gulp (main grants the
+	# playground every ability otherwise; its weapons still come).
+	context.main.set(&"playground_abilities", false)
 	root.add_child(context.main)
 	if context.player() == null:
 		context.fail("main.tscn did not register a player")

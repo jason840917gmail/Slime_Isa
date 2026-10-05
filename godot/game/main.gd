@@ -80,12 +80,17 @@ const QuestWaypointView := preload("res://game/ui/quest_waypoint_view.gd")
 const NpcNameTags := preload("res://game/ui/npc_name_tags.gd")
 const QuestJournalWindow := preload("res://game/ui/screens/quest_journal_window.gd")
 const ChestWindow := preload("res://game/ui/screens/chest_window.gd")
+const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
 ## Trial setting (player spec 14 Q3, combat spec 3): the sword is equipped from the start.
-## The playground (dev testbed) hands out every weapon (owner decision 2026-10-05).
+## The playground (dev testbed) hands out every weapon and every ability (owner decisions
+## 2026-10-05).
 const PLAYGROUND_MAP_ID := "playground"
+## Each Gulp form's material the playground keeps in the bag.
+const PLAYGROUND_GULP_MATERIALS := 10
 const PLAYER_SCENE_ID := "character.player-slime"
 ## `AREA_ARRIVE_FADE_MS` (WorldScene.ts:128) and the fade colour #0b1020.
 const ARRIVAL_FADE_MS := 400.0
@@ -108,6 +113,9 @@ const GATE_UNLOCKED_TEXT := "The Verdant Gate unlocks!"
 ## World to load when no launch option names one ("" = level-1). res://game/dev/playground.tscn
 ## inherits this scene with "playground" so the testbed runs with F6 (Run Current Scene).
 @export var map_id: String = ""
+## The playground learns every ability and carries Gulp materials (`grant_playground_abilities`).
+## The test runner turns it off: playground tests start like a new run, with nothing learned.
+var playground_abilities := true
 
 @onready var world_container: Node2D = $World
 @onready var world_camera: WorldCamera = $WorldCamera
@@ -557,8 +565,8 @@ func _find_player_script(root: Node) -> PlayerScript:
 ## A new run starts empty-handed, as in Phaser (owner decision 2026-10-05, replacing the trial's
 ## sword). At the run's first world build the `weapon` launch option, else RunState.start_weapon_id
 ## (tests), goes into the bag, onto belt slot 1 and into the hand; `?arsenal` adds the six
-## development weapons (WeaponLoadout.ARSENAL). The playground hands out every weapon on every
-## build (the testbed needs them all).
+## development weapons (WeaponLoadout.ARSENAL). The playground hands out every weapon and every
+## ability on every build (the testbed needs them all; `grant_playground_abilities`).
 func equip_run_start() -> void:
 	if player == null or player_root == null:
 		return
@@ -584,9 +592,28 @@ func equip_run_start() -> void:
 		var world_service := Services.world()
 		if world_service != null and world_service.map_id() == PLAYGROUND_MAP_ID:
 			inventory_actions.grant_playground_weapons()
+			if playground_abilities:
+				grant_playground_abilities()
 	if inventory_actions != null:
 		inventory_actions.equip_run_weapon()
 
+
+## The playground's abilities (owner decision 2026-10-05): every ability learned, quietly (no
+## "learned" banners), and PLAYGROUND_GULP_MATERIALS of each Gulp form's material in the bag so
+## both forms can be eaten from the quick wheel.
+func grant_playground_abilities() -> void:
+	var run := Services.run()
+	if run == null:
+		return
+	var ids: Array = AbilityDefinitions.TABLE.keys()
+	ids.append(AbilityDefinitions.GOO_TRAIL)
+	for id: StringName in ids:
+		run.learn_ability(String(id), true)
+	for form: Dictionary in GulpForms.FORMS:
+		var material := str(form["material"])
+		var missing := PLAYGROUND_GULP_MATERIALS - run.item_count(material)
+		if missing > 0:
+			run.add_item(material, missing)
 
 ## Creates and seeds the EnemyPopulation (enemy spec 3).
 func start_enemy_population() -> void:
