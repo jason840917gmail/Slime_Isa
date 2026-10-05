@@ -118,7 +118,7 @@ pnpm godot:sync && pnpm godot:convert
 pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godot from $GODOT
 ```
 
-`pnpm test:godot` (about a minute) checks the trial's numbers from [specs/](./specs/): walk,
+Run the tests only when the user asks or after a really big, breaking change ([AGENTS.md](../../AGENTS.md)). `pnpm test:godot` (about ten minutes for the full suite; `--filter=<text>` runs one file) checks the trial's numbers from [specs/](./specs/): walk,
 sprint and dodge, sword and worm damage, i-frames, knockback, worm death, the starter camp's
 spawning, respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
 clips, the Fatty One Eye fight (camp spawn and reset, hop and leap timings, landing damage, arena
