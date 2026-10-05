@@ -8,7 +8,7 @@ World scenes store one logical terrain ID per cell in a `TileMapLayer2D`. They d
 - `features/world/TerrainBlendField.ts` plans the blend (pure, no Phaser).
 - `features/world/TerrainTransitionLayer.ts` bakes the plan into canvas-texture chunks; `TerrainTransitionRenderer.ts` wires the two together.
 - `infrastructure/phaser-nodes/TileMapLayer2DNode.ts` mounts the blend over the base tiles, so the game and Scene Studio render identical terrain.
-- `features/world/WaterSurfaceLayer.ts` draws animated water over `water` and `deep-water` tiles: one WebGL shader quad per tile layer, just above the baked chunks (`ground-decals + 0.5`), re-sampling the water ground textures with a moving refraction, crossing caustics, soft sun glints and shoreline foam. Deep water is darker and slower with broad swells. A one-texel-per-tile mask places it; Canvas renderers skip it. Pond and deep-water wildlife is described in [assets/AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md#water).
+- `features/world/WaterSurfaceLayer.ts` draws animated water over `water` and `deep-water` tiles: one WebGL shader quad per tile layer, just above the baked chunks (`ground-decals + 0.5`), re-sampling the water ground textures with a moving refraction, crossing caustics, soft sun glints and shoreline foam. Deep water is darker and slower with broad swells. A one-texel-per-tile mask places it; Canvas renderers skip it. Pond and deep-water wildlife is described in [assets/AMBIENT_ANIMATION.md](../../assets/AMBIENT_ANIMATION.md#water).
 - Physics, walkability, and decoration rules use only the logical tile. Blending never changes gameplay or map data.
 
 ## Current strategy: organic region blending
@@ -26,7 +26,7 @@ Only `group`, `material`, and `priority` drive rendering; `edgeWidth` and `style
 3. Weights are sharpened and normalized into shares, then painted as per-material alpha masks in ascending priority. Higher priority nudges a border into the lower material; straight borders stay near the cell edge while convex corners and lone cells round off.
 4. Chunks outside the camera are culled.
 
-Formulas, a pipeline diagram, and an interactive playground: [TERRAIN_BLEND_MATH.md](./TERRAIN_BLEND_MATH.md).
+Formulas, a pipeline diagram, and an interactive playground: [TERRAIN_BLEND_MATH.md](TERRAIN_BLEND_MATH.md).
 
 Tiles without a `natural-ground` transition (`rock-wall`, `wood-floor`, the `mushroom-*` floors) keep hard cell edges. `water` and `deep-water` do participate (priorities 5 and 4) while remaining solid. `grass-a`/`grass-b` share the `highland` material, so their ID difference does not produce a seam. Blending applies only to unrotated, unscaled layers.
 
@@ -45,7 +45,7 @@ Tiles without a `natural-ground` transition (`rock-wall`, `wood-floor`, the `mus
 
 The Godot port does not reuse this blend. It is trialling the authored-tile route
 instead: hand-made snow edge tiles on a dual grid, with 128 px art per cell. See
-[godot/TERRAIN_LAB.md](./godot/TERRAIN_LAB.md).
+[godot/TERRAIN_LAB.md](../../godot/TERRAIN_LAB.md).
 
 ## Recommended evolution
 

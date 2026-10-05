@@ -10,10 +10,10 @@ Source of truth: the Phaser app on `feat/godot-migration` (read 2026-10-05). Pat
 current tree. Godot files are cited by function name where they were uncommitted work in progress.
 
 Binding inputs: [ARCHITECTURE.md](../ARCHITECTURE.md), [CONVENTIONS.md](../CONVENTIONS.md),
-[UI_THEME.md](../UI_THEME.md); [world-objects.md](./world-objects.md) (inventory internals §8, the
-`RunState` inventory API §12.6, pile spawning §5.4), [interaction.md](./interaction.md) (the
-workbench candidate §3.6, §8.6), [shell.md](./shell.md) (pause rules, `Shell.set_action`),
-[audio.md](./audio.md) §5 (global cues), [combat.md](./combat.md) (`PlayerCombat.equip`).
+[UI_THEME.md](../UI_THEME.md); [world-objects.md](world-objects.md) (inventory internals §8, the
+`RunState` inventory API §12.6, pile spawning §5.4), [interaction.md](interaction.md) (the
+workbench candidate §3.6, §8.6), [shell.md](shell.md) (pause rules, `Shell.set_action`),
+[audio.md](audio.md) §5 (global cues), [combat.md](combat.md) (`PlayerCombat.equip`).
 
 Legend: **[IN]** port now. **[OUT]** exists in Phaser, deferred (listed so later phases know).
 **[QUIRK]** the Phaser build behaves in a way its code or content probably did not intend; port it
@@ -43,7 +43,7 @@ feet − (0, 27.56)).
 | Consumables | `scenes/WorldScene.ts:2005-2024` (`useItem`), `content/items/items.json` `use` | [IN] |
 | Menu key, tab strip | `scenes/WorldScene.ts:2045-2080`, `features/ui/MenuTabsSurfacePort.ts` + `ui/menu-tabs.scene.json` | [IN] (the Journal and Map tabs work since their windows registered: `register_tab`) |
 | Harvest advice text | `scenes/WorldScene.ts:2188-2203`, `features/combat/HarvestAdvice.ts` | [IN] |
-| Furniture placement (placing a crafted workbench) | `features/building/FurniturePlacementController.ts`, `WorldScene.ts:1219-1253` | ported later: [furniture.md](./furniture.md) (C1 superseded) |
+| Furniture placement (placing a crafted workbench) | `features/building/FurniturePlacementController.ts`, `WorldScene.ts:1219-1253` | ported later: [furniture.md](furniture.md) (C1 superseded) |
 | Control hints (`inventory`, `crafting`, `weapon-switch`) | `features/hints/ControlHints.ts:22-24`, `WorldScene.ts:571-609` | [OUT] (interaction spec §2.10) |
 | Quest hooks: `craft.completed`, `workbench.opened`, `control.used {weapon-switch}`, `furniture.placed` | `quests/QuestEventBridge.ts` | [OUT] (emit Godot signals now, §11) |
 | Gulp quick wheel (eats Gulp materials from the bag) | `WorldScene.ts:913-969` | [OUT] (abilities spec §11.6) |
@@ -1365,7 +1365,7 @@ slot" list covers assignment); saves (`RunState` already holds every value).
 | C6 | Add number keys for the belt? | No for parity (1-4 are abilities) |
 
 Owner decisions (2026-10-05), as ported: **C1** superseded the same day by the furniture port
-([furniture.md](./furniture.md)): crafting a Workbench closes the window and starts placement, and
+([furniture.md](furniture.md)): crafting a Workbench closes the window and starts placement, and
 the bag's "Place" is enabled. **C2** launch
 option `recipes` (`?recipes` / `-- --recipes`) sets `debug_all_recipes_known`; tests use
 `learn_recipes`. **C3** superseded by the owner on 2026-10-05: a new run starts empty-handed, as in

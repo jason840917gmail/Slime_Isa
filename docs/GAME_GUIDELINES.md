@@ -1,7 +1,7 @@
 # Game Guidelines
 
 > **Status: living draft.** This document records the agreed design direction.
-> Task order and status live in the [Game Roadmap](./GAME_ROADMAP.md).
+> Task order and status live in the [Game Roadmap](GAME_ROADMAP.md).
 > Updated 2026-09-29: it absorbed the useful parts of the former
 > `BETA_PLAN.md`, which was removed.
 
@@ -24,7 +24,7 @@ One Eye for the green key, and open the Verdant Gate into Gloop Forest. Quests
 guide each step and teach the next recipe.
 
 **Release 1** is Chapters 1 and 2 as a free web build; its scope and order are
-in the [roadmap](./GAME_ROADMAP.md#release-1-v01--the-target).
+in the [roadmap](GAME_ROADMAP.md#release-1-v01--the-target).
 
 ## Progression: Gear, Not Levels
 
@@ -163,7 +163,7 @@ starter piles and quest rewards keep the chain softlock-free.
 
 - A new enemy needs authored art, an animation set, behavior, and validation
   before it enters the roster. Archived concepts are in
-  [Future Enemy Types](./task/ideas/open/future-enemy-types.md).
+  [Future Enemy Types](task/ideas/open/future-enemy-types.md).
 - **The boss model** is Fatty One Eye: a telegraphed signature attack, a boss
   bar, an arena leash, a guarded reward, persisted defeat, and a timed respawn.
   Telegraphs make the dodge a skill, not a stat. A boss left alone outside its
@@ -195,13 +195,13 @@ starter piles and quest rewards keep the chain softlock-free.
 
 **Cozy storybook woodland, hand-painted miniatures**, defined from the NPC and
 interior sprites. Every new asset follows the
-[art style guide](./assets/visual-style-guide.md).
+[art style guide](assets/visual-style-guide.md).
 
 ## Controls
 
 The left hand stays on WASD and the right hand stays on the mouse (agreed
 2026-09-30, roadmap 4.10;
-[design](./superpowers/specs/2026-09-30-simple-controls-design.md)):
+[design](archive/phaser/superpowers/specs/2026-09-30-simple-controls-design.md)):
 
 - **The mouse:** left click uses (attack, chop, mine); right click interacts
   with what the pointer is on. Tools never switch by themselves: the weapon in
@@ -219,19 +219,19 @@ world stays visible, and the HUD, minimap, and weapon hotbar use transparent
 interiors with restrained outlines, text shadows, and state accents instead of
 opaque dark boxes. Inventory and crafting are excluded and get their own
 redesign; the ability bar's skin is deferred. Details:
-[World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md),
-refining the [Game UI Visual Skin System](./superpowers/specs/2026-09-03-game-ui-visual-skin-design.md).
+[World HUD Artwork-First Presentation](archive/phaser/superpowers/specs/2026-09-04-world-hud-artwork-first-design.md),
+refining the [Game UI Visual Skin System](archive/phaser/superpowers/specs/2026-09-03-game-ui-visual-skin-design.md).
 
 ## Scope Discipline
 
 - New ideas go to the roadmap's
-  [parking lot](./GAME_ROADMAP.md#after-release-1--idea-parking-lot), not into
+  [parking lot](GAME_ROADMAP.md#after-release-1--idea-parking-lot), not into
   a Release 1 milestone.
-- Scene Studio is feature-frozen until Release 1 ships: bug fixes and blockers
-  only.
+- Levels and scenes are built in the Godot editor; no custom editor tooling until
+  Release 1 ships (Scene Studio was retired with the Phaser app on 2026-10-05).
 - The old Android prototype (`MobileVersion/`) was removed on 2026-10-04;
   Android becomes an export of the Godot project after Release 1
-  ([GODOT_MIGRATION.md](./GODOT_MIGRATION.md)).
+  ([GODOT_MIGRATION.md](GODOT_MIGRATION.md)).
 - New art is added only with an authored-scene home; reuse existing atlases and
   generated scene sets first.
 

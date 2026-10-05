@@ -1,14 +1,14 @@
 # Terrain Blend Math
 
-How the organic ground merge described in [TERRAIN_TRANSITIONS.md](./TERRAIN_TRANSITIONS.md) is computed. It is a presentation-only pass: the map keeps one logical tile per cell, physics and walkability use that cell, and blended images are painted over chunks where materials meet.
+How the organic ground merge described in [TERRAIN_TRANSITIONS.md](TERRAIN_TRANSITIONS.md) is computed. It is a presentation-only pass: the map keeps one logical tile per cell, physics and walkability use that cell, and blended images are painted over chunks where materials meet.
 
-- Math (pure, no Phaser): [`features/world/TerrainBlendField.ts`](../src/game/features/world/TerrainBlendField.ts)
-- Canvas bake: [`features/world/TerrainTransitionLayer.ts`](../src/game/features/world/TerrainTransitionLayer.ts)
-- Interactive playground: open [`terrain-blend/playground.html`](./terrain-blend/playground.html) directly in a browser (no build). Hover a pixel to see every intermediate value; the sliders change the constants below.
+- Math (pure, no Phaser): [`features/world/TerrainBlendField.ts`](../../../src/game/features/world/TerrainBlendField.ts)
+- Canvas bake: [`features/world/TerrainTransitionLayer.ts`](../../../src/game/features/world/TerrainTransitionLayer.ts)
+- Interactive playground: open [`terrain-blend/playground.html`](terrain-blend/playground.html) directly in a browser (no build). Hover a pixel to see every intermediate value; the sliders change the constants below.
 
 In one line: every sample point runs a **domain-warped, kernel-smoothed vote between neighbouring cells**, with a bonus for higher-priority materials, and each material's texture is painted through its own alpha mask.
 
-![Terrain blend pipeline](./terrain-blend/pipeline.svg)
+![Terrain blend pipeline](terrain-blend/pipeline.svg)
 
 ## Inputs
 

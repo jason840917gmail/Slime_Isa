@@ -284,8 +284,8 @@ Final evidence/notes:
 
 ## Related documents
 
-- [`docs/GAME_ROADMAP.md`](../../../GAME_ROADMAP.md)
+- [`docs/GAME_ROADMAP.md`](../../../../../GAME_ROADMAP.md)
 - [`docs/superpowers/plans/2026-08-23-stone-and-starter-tools-implementation-plan.md`](../../../superpowers/plans/2026-08-23-stone-and-starter-tools-implementation-plan.md)
 - [`docs/superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md`](../../../superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md)
 - [`docs/superpowers/plans/2026-08-24-named-save-load-reset-implementation-plan.md`](../../../superpowers/plans/2026-08-24-named-save-load-reset-implementation-plan.md)
-- [`docs/task/ideas/open/starter-stone-age-progression.md`](./starter-stone-age-progression.md)
+- [`docs/task/ideas/open/starter-stone-age-progression.md`](../../../../../task/ideas/completed/starter-stone-age-progression.md)

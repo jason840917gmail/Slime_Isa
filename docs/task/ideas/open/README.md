@@ -7,6 +7,6 @@ are complete. Everything here waits in the roadmap's
 
 ## Gameplay and authoring
 
-- [Player action dashboard and loadout assignment](./player-action-dashboard-and-loadout.md)
-- [Shared world map and Map Studio graph](./global-map-and-map-joining.md)
-- [Future enemy types](./future-enemy-types.md)
+- [Player action dashboard and loadout assignment](player-action-dashboard-and-loadout.md)
+- [Shared world map and Map Studio graph](global-map-and-map-joining.md)
+- [Future enemy types](future-enemy-types.md)

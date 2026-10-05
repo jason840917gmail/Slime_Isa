@@ -18,7 +18,7 @@ Decisions waiting on the owner. When one is answered:
 ## Story
 
 2. **The premise.** The Wellspring, the Pearls and Gorge in the
-   [Premise](./02-premise.md): keep them, change them, or use something else?
+   [Premise](02-premise.md): keep them, change them, or use something else?
 3. **The hero's name.** "The slime", or Isa?
 4. **Does the hero talk?** This draft proposes a silent hero.
 5. **Where is the Wellspring?** In the plaza, or in the clearing where the
@@ -28,7 +28,7 @@ Decisions waiting on the owner. When one is answered:
    smaller rematch version?
 7. **Lili and Lily.** The names are too close. Rename one?
 8. **Pip's dad.** Is he found in Chapter 3, as the
-   [sketch](./chapters/chapter-3-crystal-caverns.md) proposes?
+   [sketch](chapters/chapter-3-crystal-caverns.md) proposes?
 9. **The midpoint.** In which chapter does Gorge wake, and what does he do
    first?
 10. **How many regions?** Also: what order for Sticky Swamp and Frostpeak, and
@@ -89,4 +89,4 @@ These are proposals from the planning talk that have not been answered:
 - **2026-10-02:** webs trap the slime, and only the Silk Armor passes them,
   spending energy. A web door closes the Matron's camp.
 - **2026-10-02:** the item ceremony, the timed crafting ideas, and the orb HUD
-  ideas are accepted. See [Direction](./01-direction.md).
+  ideas are accepted. See [Direction](01-direction.md).

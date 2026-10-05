@@ -7,7 +7,7 @@ current tree. Godot files under `godot/game/` are cited the same way; `run_state
 cite them by function name rather than line.
 
 Binding inputs: [ARCHITECTURE.md](../ARCHITECTURE.md), [CONVENTIONS.md](../CONVENTIONS.md),
-[combat.md](./combat.md) (the damage pipeline this spec plugs into) and [runtime.md](./runtime.md)
+[combat.md](combat.md) (the damage pipeline this spec plugs into) and [runtime.md](runtime.md)
 (payload filters, audio helpers).
 
 Legend: **[IN]** port now. **[OUT]** exists in Phaser but is deferred (listed so later phases
@@ -47,7 +47,7 @@ this spec is the player (`loot-sparkle` at the player centre, 7.4).
   writing them to `user://` is the save phase.
 - ~~Inventory UI (`ui.inventory-ui`), dropping items from the bag (`InventoryDropController.dropFromSlot`),
   restoring bag drops (`InventoryDropController.restore`, `WorldScene.ts:2389`), the `recovered` flag.~~
-  Done with crafting (2026-10-05, [crafting.md](./crafting.md) §6): the bag window, drops
+  Done with crafting (2026-10-05, [crafting.md](crafting.md) §6): the bag window, drops
   (`game/inventory/inventory_drops.gd`), restored with the loot records (`EnemyLoot.restore_world`).
 - Enemy loot piles (`InventoryDropController.dropLoot`; worm swordsman drops a `shard` 20 % of
   the time, `enemy-types.json`). Enemy rewards are OUT in the combat spec. The collectible

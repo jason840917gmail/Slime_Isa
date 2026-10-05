@@ -27,24 +27,24 @@ named "GPT 2.5" that flags `transparentBackground`) and
 ## Art style
 
 Every generated asset follows the [Slime Isa Art Style
-Guide](./visual-style-guide.md): **cozy storybook woodland, hand-painted 2D
+Guide](visual-style-guide.md): **cozy storybook woodland, hand-painted 2D
 miniatures**, seen from a three-quarter top-down view with warm light from the
 upper left. It is not pixel art, not 3D, and never uses cold shadows or flat
 black outlines.
 
 - **Style block:** start every image and video prompt with the style block
   from the style guide's
-  [Generating Assets](./visual-style-guide.md#generating-assets) section.
+  [Generating Assets](visual-style-guide.md#generating-assets) section.
   Copy it from there, not from older prompts, so the wording has one source.
 - **Background line:** add the one for the output type. Every image uses the
   transparent-background line (below). Animation videos use the `#FF00FF`
   chroma background from the
-  [character-animation prompt](./character-animation-video-prompt.md).
+  [character-animation prompt](character-animation-video-prompt.md).
 - **Style reference:** attach one reference sheet from the style guide's
   Reference Art table to every generation (see
   [Style references](#style-references)).
 - **Style check:** before packing a result, compare it with the style guide's
-  [checklist](./visual-style-guide.md#checklist-for-a-new-asset). Regenerate
+  [checklist](visual-style-guide.md#checklist-for-a-new-asset). Regenerate
   results that fail it instead of painting over them.
 
 ## Standard call sequence
@@ -113,7 +113,7 @@ sprites, sprite sheets, props, item icons, effects, and also full-frame art
 ### Style references
 
 Every generation attaches one reference sheet from the style guide's
-[Reference Art](./visual-style-guide.md#reference-art) table:
+[Reference Art](visual-style-guide.md#reference-art) table:
 
 | Asset | Reference sheet |
 | --- | --- |
@@ -176,8 +176,8 @@ focused on one action, one facing direction, and one fixed camera view.
 
 For character animation, use the project prompt guide:
 
-- [Character Animation Video Prompt](./character-animation-video-prompt.md)
-- [Character Animation Video Prompt Template](./character-animation-video-prompt-template.md)
+- [Character Animation Video Prompt](character-animation-video-prompt.md)
+- [Character Animation Video Prompt Template](character-animation-video-prompt-template.md)
 
 That guide is the source for the character-animation constraints: fixed
 direction, centered in-place motion, unchanged proportions and equipment,
@@ -209,7 +209,6 @@ Generated source art belongs under `asset/Originals/<family>/` (for example
 `grounds/generated/`, `props/`, `items/`, `houses/`, `interiors/generated-sheets/`).
 Keep experimental or future enemy art in `asset/Originals/enemies/future/`
 unless the task names another folder. `asset/Originals/**` is ignored by the
-manifest; only the packed runtime file in `asset/MAPS/` (or `asset/characters/`,
-`asset/UI/`) is registered in `asset/assets.json`, once it passes
-`pnpm assets:check`. See [Asset Creation And Integration](./README.md) for the
+manifest; only the packed runtime file in `godot/asset/MAPS/` (or `godot/asset/characters/`,
+`godot/asset/UI/`) is imported by the Godot editor (commit its `.import` file). See [Asset Creation And Integration](README.md) for the
 pack scripts.

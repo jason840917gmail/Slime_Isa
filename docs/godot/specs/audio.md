@@ -59,7 +59,7 @@ World scenes (`content/scenes/authored/worlds/*.scene.json`); every node is a di
 world root, `loop: true`, `autoplay: true`, `polyphony: 1`:
 | World | `MusicPlayer` (bus `music`) | `Ambience` (bus `ambience`) |
 |---|---|---|
-| `level-1` | `audio.music.level-1-home-town` (`asset/audio/music/level-1-home-town.ogg`), volume 0.55 | `audio.sfx.world.meadow-ambience.1`, volume 0.35 |
+| `level-1` | `audio.music.level-1-home-town` (`godot/asset/audio/music/level-1-home-town.ogg`), volume 0.55 | `audio.sfx.world.meadow-ambience.1`, volume 0.35 |
 | `gloop-forest` | `audio.music.gloop-forest` (`gloop-forest.mp3`), volume 0.5 | `audio.music.gloop-forest-ambience` (mp3), volume 0.35 |
 | `gloop-hut`, `mushroom-home`, `slime-home` | — | `audio.sfx.world.interior-ambience.1`, volume 0.35 |
 | every other world | — | — |
@@ -208,7 +208,7 @@ Godot: `GameFeel.audio_cue(cue)` plays the same node (it searches the whole `Glo
 | `player.respawn` (`core/GameState.ts:216-219`) | `Respawn` | `player.gd` (ported) |
 | `weapon.critical-hit` (`features/combat/CombatController.ts:216`) | `Crit` | `player_combat.gd:223` (ported) |
 | `player.action {anim}` (`AudioEventBridge.ts:30-42`): `dodge` → `Dodge`, `ability-denied` → `AbilityDenied` | as listed | `player.gd` (ported) |
-| `player.action`: `eat` → `Eat`, `ability-jump` → `Jump`, `jump-land` → `Land`, `ability-teleport` → `TeleportOut`, `teleport-in` → `TeleportIn`, `ability-squash-slam` → `SlamWindup`, `slam-impact` → `SlamImpact`, `ability-stretch-lash` → `Lash` | as listed | abilities ([abilities.md](./abilities.md) §16) |
+| `player.action`: `eat` → `Eat`, `ability-jump` → `Jump`, `jump-land` → `Land`, `ability-teleport` → `TeleportOut`, `teleport-in` → `TeleportIn`, `ability-squash-slam` → `SlamWindup`, `slam-impact` → `SlamImpact`, `ability-stretch-lash` → `Lash` | as listed | abilities ([abilities.md](abilities.md) §16) |
 | `ability.learned` (`features/progression/StoryProgress.ts`) | `AbilityLearned` | abilities |
 | `ground.cracked`, `lash-bell.rung`, `web.torn`, `building.restored`, `building.restore-refused {reason:'missing-materials'}`, `goo-heart.collected` (`WorldScene.ts`) | `GroundCrack`, `BellRing`, `WebTear`, `BuildingRestored`, `CraftFail`, `Heal` (placeholder) | abilities / world objects |
 | `energy.changed {delta ≥ 20}` (`GameState.ts`) | `EnergyRestore` (also on every respawn refill) | abilities (energy) |

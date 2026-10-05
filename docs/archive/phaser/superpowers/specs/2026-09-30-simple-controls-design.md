@@ -19,7 +19,7 @@ Revised the same day:
   [Attack direction](#attack-direction-under-test)).
 
 Out of scope, and parked in the roadmap's
-[Interface and platform](../../GAME_ROADMAP.md#interface-and-platform) list:
+[Interface and platform](../../../../GAME_ROADMAP.md#interface-and-platform) list:
 gamepad, touch, a key-rebinding screen, and choosing which ability sits on
 which number. The binding table below is built so that rebinding later only
 needs a settings screen.
@@ -30,7 +30,7 @@ In the owner playtest of 2026-09-30, attacking with clicks while walking with
 the arrows felt odd, and too many keys each did only one thing. Today's code:
 
 - **17 separate controls**
-  ([ControlsSurfacePort.ts](../../../src/game/features/shell/ControlsSurfacePort.ts)).
+  ([ControlsSurfacePort.ts](../../../../../src/game/features/shell/ControlsSurfacePort.ts)).
   - Movement (arrows or IJKL) and clicking both need the right hand.
   - WASD does not move the slime, because W is Gulp.
 - **Clicks don't aim.** A click attacks toward the facing (the last move
@@ -226,7 +226,7 @@ In both modes, the dodge, Stretch Lash and Teleport aim at the pointer.
 ## Q Is The Mouth
 
 Gulp keeps every rule in
-[Game Guidelines](../../GAME_GUIDELINES.md): one key is the slime's mouth, and
+[Game Guidelines](../../../../GAME_GUIDELINES.md): one key is the slime's mouth, and
 no menu ever opens to eat. Only the key changes. W is now movement, so the
 mouth moves to Q, right next to it.
 
@@ -360,16 +360,16 @@ When this ships, the guideline and the Gulp controls table in the roadmap
   the schema edit, run `pnpm constants:generate`.
 - `items.json`, `RecipeCatalog.ts` and `game-constants.json` are
   scene-conversion inputs, so re-hash the ledger afterwards
-  ([TOOLING.md](../../TOOLING.md#scene-conversion)).
+  ([TOOLING.md](../../../../TOOLING.md#scene-conversion)).
 
 **Docs:**
 
-- [GAME_GUIDELINES.md](../../GAME_GUIDELINES.md): the mouth is Q.
-- [GAME_ROADMAP.md](../../GAME_ROADMAP.md): the Gulp controls table, and this
+- [GAME_GUIDELINES.md](../../../../GAME_GUIDELINES.md): the mouth is Q.
+- [GAME_ROADMAP.md](../../../../GAME_ROADMAP.md): the Gulp controls table, and this
   task.
 - [ARCHITECTURE.md](../../ARCHITECTURE.md): keys 1–6 and Shift+1–8.
 - [camera-and-minimap-guide.md](../../camera-and-minimap-guide.md): zoom keys.
-- [Player action dashboard](../../task/ideas/open/player-action-dashboard-and-loadout.md):
+- [Player action dashboard](../../../../task/ideas/open/player-action-dashboard-and-loadout.md):
   3 belt slots, and the number keys belong to abilities.
 
 **Art:** the control-hint key and mouse glyphs from the Milestone 4 asset
@@ -507,4 +507,4 @@ These points differ from the sections above.
 - Gamepad and touch.
 - A rebinding screen.
 - Choosing which ability or potion sits on 5–0, and quick-use potions. See the
-  [action dashboard idea](../../task/ideas/open/player-action-dashboard-and-loadout.md).
+  [action dashboard idea](../../../../task/ideas/open/player-action-dashboard-and-loadout.md).

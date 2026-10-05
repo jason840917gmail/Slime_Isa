@@ -2,31 +2,31 @@
 
 Rules for working in `godot/` during the migration. The plan and phases are in
 [GODOT_MIGRATION.md](../GODOT_MIGRATION.md); the game's structure (autoloads,
-data flow, file map) is in [ARCHITECTURE.md](./ARCHITECTURE.md); exact Phaser
-behaviour per area is in [specs/](./specs/).
+data flow, file map) is in [ARCHITECTURE.md](ARCHITECTURE.md); exact Phaser
+behaviour per area is in [specs/](specs).
 
 ## Layout
 
 | Path | Made by | Content |
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
-| `godot/asset/` | `pnpm godot:sync`, git-ignored | copies of every file `asset/assets.json` maps, at `res://asset/<source.path>` |
+| `godot/asset/` | art tools in `scripts/` (or by hand), committed with their `.import` files | the runtime art and audio, at `res://asset/...` (moved from the repository's `asset/` at the cutover; sources stay in `asset/Originals/`) |
 | `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, `npc-definitions.json`, `recipes.json`, `quests-chapter-1.json` / `-2.json`, `weapons.json` (names, icons, stats) and `item-icons.json` (texture key → sheet, frame size, grid), read through `GameConstants` (`Services.constants()`) |
 | `godot/game/scenes/` | hand (Godot editor), from the converter on 2026-10-05 | every world, object, character, weapon, effect, projectile and encounter scene (`<kind>s/<path>.tscn`, the scene JSON's layout) and `scene_index.json` (scene id → path); see "Scenes Godot owns" |
 | `godot/game/world/terrain_tileset.tres` | hand, from the converter | the terrain TileSet (one atlas source per tile id, `tile_id` custom data) |
 | `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`), attached to the scenes that use it; a new `@export` gets its value in the editor |
 | `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
-| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below) and the [terrain lab](./TERRAIN_LAB.md) |
+| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below) and the [terrain lab](TERRAIN_LAB.md) |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_scenes.gd`, `build_player_clips.gd` and `build_terrain_lab.gd`; excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
 | `godot/addons/godot_ai/` | the Godot AI plugin (4.3.0, MIT), committed | the editor plugin (MCP bridge) that lets Claude drive the open editor, plus its `_mcp_game_helper` autoload for running-game inspection; disabled by itself in headless runs and excluded from exports. Update it from its dock, then commit |
 
-Scenes are Godot's: edit them in the Godot editor (or with a tool in `godot/tools/`). The scene
-JSON under `src/game/content/scenes/authored/` is frozen and Scene Studio no longer reaches the
-game. The game data is Godot's too (`godot/game/data/`, 2026-10-05): edit items, quests, recipes and
-constants there; `src/game/content/` no longer reaches Godot.
+Scenes, game data and art are Godot's: edit scenes in the Godot editor (or with a tool in
+`godot/tools/`), items, quests, recipes and constants in `godot/game/data/`, and art through the tools
+in `scripts/` ([TOOLING.md](../TOOLING.md)). The Phaser app they came from was removed at the cutover
+(2026-10-05).
 
 ## Scenes Godot owns
 
@@ -49,12 +49,12 @@ Scenes that differ from the converter's copy or replace it:
 | Scene id | Owned scene | Since |
 |---|---|---|
 | `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll, sword-swing and ability clips, plus doze, sleep and defeat facing down, built by `tools/build_player_clips.gd`; no old side-view clip is left) |
-| `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](./specs/shell.md)). Loaded by path from the Shell and the title, not through the scene index |
+| `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](specs/shell.md)). Loaded by path from the Shell and the title, not through the scene index |
 | `ui.save-slots` | `res://game/saves/save_slots_menu.tscn` | 2026-10-05: the save slots window, mounted on the Shell by `RunState` (`Shell.mount_menu`); loaded by path |
-| `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](./specs/map.md)), made by `MapUi` under the HUD; loaded by path |
-| `ui.inventory-ui`, `ui.crafting-ui`, `ui.menu-tabs`, `ui.weapon-hotbar` | `res://game/ui/screens/inventory_screen.gd`, `crafting_screen.gd`, `menu_tabs.gd` (built in code; made by `menu_windows.gd` on GameWindows), `res://game/ui/weapon_hotbar.gd` (built in code under the HUD) | 2026-10-05: the bag, the crafting window, the menu tab strip and the HUD weapon belt ([specs/crafting.md](./specs/crafting.md)); the converted copies stay unused |
-| `ui.npc-dialogue`, `ui.quest-offer-modal`, `ui.quest-tracker` | `res://game/ui/screens/dialogue_box.tscn`, `quest_offer_window.tscn`, `res://game/ui/quest_tracker.tscn` | 2026-10-05: the NPC dialogue box, the quest offer / turn-in window and the HUD quest tracker on the UI theme ([specs/quests.md](./specs/quests.md)); the quest service mounts the first two on GameWindows, the HUD the tracker; loaded by path |
-| `ui.quest-journal`, `ui.chest-inventory-panel` | `res://game/ui/screens/quest_journal_window.gd`, `chest_window.gd` (built in code; main adds them to GameWindows) | 2026-10-05: the quest journal and the chest window ([specs/journal-and-chest.md](./specs/journal-and-chest.md)); the converted copies stay unused |
+| `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](specs/map.md)), made by `MapUi` under the HUD; loaded by path |
+| `ui.inventory-ui`, `ui.crafting-ui`, `ui.menu-tabs`, `ui.weapon-hotbar` | `res://game/ui/screens/inventory_screen.gd`, `crafting_screen.gd`, `menu_tabs.gd` (built in code; made by `menu_windows.gd` on GameWindows), `res://game/ui/weapon_hotbar.gd` (built in code under the HUD) | 2026-10-05: the bag, the crafting window, the menu tab strip and the HUD weapon belt ([specs/crafting.md](specs/crafting.md)); the converted copies stay unused |
+| `ui.npc-dialogue`, `ui.quest-offer-modal`, `ui.quest-tracker` | `res://game/ui/screens/dialogue_box.tscn`, `quest_offer_window.tscn`, `res://game/ui/quest_tracker.tscn` | 2026-10-05: the NPC dialogue box, the quest offer / turn-in window and the HUD quest tracker on the UI theme ([specs/quests.md](specs/quests.md)); the quest service mounts the first two on GameWindows, the HUD the tracker; loaded by path |
+| `ui.quest-journal`, `ui.chest-inventory-panel` | `res://game/ui/screens/quest_journal_window.gd`, `chest_window.gd` (built in code; main adds them to GameWindows) | 2026-10-05: the quest journal and the chest window ([specs/journal-and-chest.md](specs/journal-and-chest.md)); the converted copies stay unused |
 
 ## Running a world
 
@@ -71,15 +71,15 @@ title by itself (add `map` or `skip-title`). A new run starts empty-handed (Phas
 hands out every weapon and every ability. `?weapon=<id>` / `-- --weapon=<id>` gives a new run that weapon (bag, belt
 slot 1, hand); `?recipes` / `-- --recipes` makes every
 recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six development weapons
-at a new run ([specs/crafting.md](./specs/crafting.md) C2, C3, 8.2).
+at a new run ([specs/crafting.md](specs/crafting.md) C2, C3, 8.2).
 
 ## Input and physics
 
-- Input actions are the snake_case of `src/game/features/player/PlayerInputActions.ts`:
+- Input actions are the snake_case of Phaser's `PlayerInputActions.ts` (removed at the cutover):
   `move_up/down/left/right`, `attack` (LMB), `interact` (RMB), `sprint`, `jump`, `dodge`,
   `stretch_lash`, `squash_slam`, `teleport`, `eat`, `weapon_next/previous` (wheel),
   `menu`, `map`, `zoom_in/out`, `pause`.
-- Physics layers keep the bits and names of `src/game/content/physics/collision-layers.json`.
+- Physics layers keep the bits and names of `game/data/collision-layers.json` (Phaser's layers).
   60 physics ticks per second (enemy AI rolls per step depend on it); physics
   interpolation is on.
 - Audio buses: Master, Effects, Music, Ambience.
@@ -123,15 +123,14 @@ at a new run ([specs/crafting.md](./specs/crafting.md) C2, C3, 8.2).
 ## Checking your work
 
 ```bash
-pnpm godot:sync
-"<Godot 4.7.2 console exe>" --headless --path godot --import
+"<Godot 4.7.2 console exe>" --headless --path godot --import    # not while an editor has the project open
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd
 "<Godot 4.7.2 console exe>" --headless --path godot --check-only -s res://game/<file>.gd
 "<Godot 4.7.2 console exe>" --headless --path godot --quit-after 600
 pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godot from $GODOT
 ```
 
-Run the tests only when the user asks or after a really big, breaking change ([AGENTS.md](../../AGENTS.md)). `pnpm test:godot` (about ten minutes for the full suite; `--filter=<text>` runs one file) checks the trial's numbers from [specs/](./specs/): walk,
+Run the tests only when the user asks or after a really big, breaking change ([AGENTS.md](../../AGENTS.md)). `pnpm test:godot` (about ten minutes for the full suite; `--filter=<text>` runs one file) checks the trial's numbers from [specs/](specs): walk,
 sprint and dodge, sword and worm damage, i-frames, knockback, worm death, the starter camp's
 spawning, respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
 clips, the Fatty One Eye fight (camp spawn and reset, hop and leap timings, landing damage, arena

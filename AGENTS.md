@@ -1,60 +1,83 @@
 # Slime Isa — Agent Guide
 
-Top-down open-world slime game: Phaser 3 + TypeScript + Vite (ES2022, ESNext modules, Bundler resolution). pnpm is required.
+Top-down open-world slime game in **Godot 4.7.2** with statically typed GDScript, Compatibility
+renderer (WebGL 2), exported to the web first. The project is `godot/`. pnpm runs the test runner and
+a few art tools; Python tools need Pillow (several also numpy).
+
+The game was ported from a Phaser 3 + TypeScript app, which was removed on 2026-10-05 (the cutover in
+[docs/GODOT_MIGRATION.md](docs/GODOT_MIGRATION.md)); its docs are in `docs/archive/phaser/` and
+its code is in git history.
 
 ## Working Rules
 
 - Work on the current branch. Do not create new branches unless the user asks for one.
-- Do not run tests after every change — it wastes compute and time. Run tests (`pnpm test:*`, `pnpm test:godot`, Playwright), `pnpm build` and `pnpm check` only when the user asks, or once after a really big, breaking change. A quick `pnpm typecheck` after TypeScript edits is fine.
-- Never run `pnpm scenes:regenerate`, `pnpm maps:bake`, or a `--write` map script unless the task calls for it: they overwrite authored content.
-- While `pnpm dev` is running, Scene Studio saves into `src/game/content/scenes/authored/` through a dev endpoint (and `/__game-constants` can write `game-constants.json`); an open Studio tab can overwrite files you edit by hand.
-- Editing a conversion input (`asset/assets.json`, `items.json`, `enemy-types.json`, `NpcDefinitions.ts`, `RecipeCatalog.ts`, `game-constants.json`) invalidates the scene conversion ledger; re-hash it, and sync its rows after adding or removing content units, as described in [docs/TOOLING.md](docs/TOOLING.md#scene-conversion).
-- Keep docs truthful: when you change behavior, paths, or commands, update the doc that describes them in the same change.
+- Do not run tests after every change — it wastes compute and time. Run `pnpm test:godot`,
+  `tools/verify_scenes.gd` or a web export only when the user asks, or once after a really big,
+  breaking change. A `--check-only` compile of an edited script is fine.
+- Scenes, data and art are edited in the Godot project. An open Godot editor holds its own copy of
+  every open scene: a "save all" there writes it back over files changed on disk, so reload changed
+  scenes in the editor (or close them) before saving.
+- Avoid headless `--import` runs while someone has the editor open (they share the import cache).
+- Commit the `*.import` and `*.gd.uid` files Godot creates next to assets and scripts.
+- Keep docs truthful: when you change behavior, paths, or commands, update the doc that describes
+  them in the same change.
 
 ## Commands
 
-- `pnpm dev` — Vite on port 3000. Game: `http://localhost:3000`; Scene Studio (dev only): `?studio=scenes[&scene=<sceneId>]`; world preview: `?map=<id>` (including dev-only worlds such as the `playground` testbed, listed in `src/game/content/scenes/devOnlyWorlds.ts` and left out of production builds)
-- `pnpm typecheck` — strict `tsc` over `src/`, `vite.config.ts`, and the Playwright specs
-- Targeted checks: `scenes:check` (scene JSON), `assets:check` (`asset/assets.json`), `constants:check`, `audio:check`, `quests:check`, `scene-ownership:check`, and per-domain `visuals|characters|weapons|projectiles|effects|enemies|objects:check`
-- Targeted tests: `pnpm test:<suite>` (Node `--test` suites in `scripts/tests/`, e.g. `test:combat`, `test:quests`, `test:scene-runtime`, `test:persistence`); `test:scene-browser` runs Playwright
-- `pnpm build` — typecheck + production build to `dist/`
-- `pnpm check` — every check, every test suite, build and Playwright; slow
-
-Content/art/audio generators (map builders, sheet packers, audio bake, interior scenes) are documented in [docs/TOOLING.md](docs/TOOLING.md).
+- Godot editor: open `godot/` in Godot 4.7.2. F5 runs the title screen; `game/dev/playground.tscn`
+  with F6 runs the playground testbed (every weapon and ability).
+- Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
+  `?recipes`, `?arsenal` on the web; `-- --map=<id> ...` on desktop
+  ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world)).
+- `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
+  (about ten minutes for the full suite).
+- `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd` — loads every
+  scene in `godot/game/scenes/scene_index.json` and plays level-1.
+- Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
+  (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
+- Art tools (`pnpm items:pack`, `grounds:pack`, `props:pack`, `audio:bake` and the Python scripts in
+  `scripts/`) turn sources in `asset/Originals/` into runtime sheets in `godot/asset/`:
+  [docs/TOOLING.md](docs/TOOLING.md).
 
 ## Project Map
 
-- Entry: `src/main.ts` → `src/game/config.ts`; Phaser scenes `BootScene`, `MapLoadScene`, `WorldScene` in `src/game/scenes/`
-- `src/game/content/` — immutable definitions and balancing; `content/scenes/authored/` holds every authored scene (worlds, characters, objects, encounters, weapons, effects, UI, audio) edited by Scene Studio
-- `src/game/features/` — feature controllers; ScriptNode behavior is registered in `features/scripts/registrations.ts`
-- `src/game/runtime/scene/` — Node/SceneTree/ScriptNode contracts; `infrastructure/scenes/` and `infrastructure/phaser-nodes/` host them in Phaser
-- `src/game/infrastructure/` — persistence, procedural textures, audio, map loading
-- `src/game/presentation/` (UI tokens), `src/game/shared/` (small cross-feature utilities)
-- `src/game/editor/scene-studio/` — Scene Studio
-- Older runtime folders still in use: `core`, `systems`, `combat`, `enemies`, `ui`, `world`, `quests`, `crafting`, `dev`. New orchestration goes in `features/`
-- `asset/assets.json` (+ `assets.schema.json`) — runtime media catalog with stable IDs; `asset/Originals/` holds sources and concepts only and is never loaded (`assets:check` rejects a manifest path in it; [docs/assets/README.md](docs/assets/README.md#asset-folders))
-- `scripts/` — checks, tests, generators; `tools/` is unrelated to the game build
-- The game is being migrated to Godot 4.7 (milestone G): plan and phases in [docs/GODOT_MIGRATION.md](docs/GODOT_MIGRATION.md). The Godot project is `godot/` (rules: [docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md)); `pnpm godot:sync` copies assets into it. Since Phase 1 (2026-10-05) every scene and the game data are Godot's (`godot/game/scenes/`, `godot/game/data/`): scene JSON, Scene Studio and `src/game/content/` no longer reach the Godot game. Use Godot 4.7.2
+- `godot/project.godot` — settings, input map, physics layer names, autoloads.
+- `godot/game/main.tscn` — the world bootstrap; `game/shell/title.tscn` is the main scene.
+- `godot/game/autoload/` — `WorldService`, `RunState` (the run and saves), `GameConstants` (data)
+  and `SimClock`; the other autoloads (`DamageRouter`, `GameFeel`, `MusicDirector`, `Shell`) live
+  with their areas. Reach every autoload through `res://game/shared/services.gd`.
+- `godot/game/scenes/` — every world, object, character, weapon, effect, projectile and encounter
+  scene, with `scene_index.json` (scene id → path; add a line for a scene the game loads by id).
+- `godot/game/data/` — game constants, items, enemy types, recipes, quests, NPC definitions,
+  weapons and item icons (JSON read through `GameConstants`).
+- `godot/game/scripts/` — scene scripts (`game.<id>` → `<snake_id>.gd`); the rest of `godot/game/`
+  holds gameplay, UI, shell, audio and world systems by area.
+- `godot/asset/` — runtime art and audio (`res://asset/...`); `asset/Originals/` (sources and
+  concepts) and `asset/project/` (sprite-sheet projects) stay outside the Godot project.
+- `godot/tools/` — headless tools (scene verifier, clip and theme builders, labs);
+  `godot/tests/` — the test suite; `godot/addons/godot_ai/` — the editor plugin (MCP bridge).
+- `scripts/` — art and audio tools and the test runner; `tools/` is unrelated to the game build.
 
 ## Architecture Rules
 
-Full rules and rationale: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md); project rules:
+[docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md); the exact behaviour each area reproduces:
+[docs/godot/specs/](docs/godot/specs/).
 
-- `WorldScene` is a composition root; keep feature implementations out of it. Feature controllers get dependencies through context interfaces and never import `WorldScene`.
-- Worlds are scenes: the game loads `content/scenes/authored/worlds/<id>.scene.json` (`world.<id>`). NPCs, houses, props, walls, gates and interactions are instances in that scene JSON — never injected by code. `content/maps/*.map.json` are legacy conversion inputs (still used for new-run spawn and save validation). See [docs/AUTHORED_MAPS.md](docs/AUTHORED_MAPS.md).
-- Production gameplay never invokes procedural world generation; `scripts/lib/procedural-map-generator.mjs` is tooling only.
-- Cross-feature gameplay values live only in `content/game-constants.json` (+ schema; run `pnpm constants:generate` after a schema edit) and are read through `src/game/Constant.ts`. Don't add other global constants files or fallback balance literals.
-- Browser storage belongs exclusively to `infrastructure/persistence/`; save through `SaveSystem` and the versioned repository.
-- `assets.json` owns media-loading metadata only. Collision, animation, AI, stats and biome rules stay in TypeScript or scene JSON.
-- Global events, input bindings, DOM listeners and controllers need explicit cleanup; use `DisposableBag` for scene-owned callbacks.
-- Terrain is ground only and blending never changes physics; walls are placed object instances (`object.crystal-cluster-wall.*`, `object.tree-forest-wall.*`). Details: [docs/TERRAIN_TRANSITIONS.md](docs/TERRAIN_TRANSITIONS.md).
-
-## Build Gotchas
-
-- `tsconfig.json` includes only `src/`; strict mode also rejects unused locals/parameters and switch fallthrough.
-- `vite.config.ts` must keep `base: './'` for deployed asset paths. Phaser ships as a separate vendor chunk.
-- Python tools need Pillow (several also numpy).
+- Static typing everywhere, tabs, snake_case, one class per file; reference scripts with `preload`.
+- Autoloads only through `Services` (`Services.world()`, `.run()`, `.constants()`, `.now_ms()`, ...).
+- One gameplay clock: `Services.now_ms()`; real time only for presentation.
+- Bodies move only through their own scene script with `ArcadeMover.move(body, delta)`, never
+  `move_and_slide()`.
+- Gameplay values come from `godot/game/data/game-constants.json` or scene properties, never new
+  literals.
+- Worlds are scenes: NPCs, houses, props, walls, gates and interactions are instances in the world
+  scene; the player and enemies are spawned by code.
+- Terrain is ground only; transitions between grounds are hand-made edge tiles
+  ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); walls are placed object instances.
+- Saves go through `RunState` to `user://saves/`.
 
 ## Status
 
-No CI. Automated coverage is the Node test suites and Playwright specs above; interactive feel (movement, combat, visuals) still needs a manual playthrough.
+No CI. Automated coverage is `pnpm test:godot` and `tools/verify_scenes.gd`; interactive feel
+(movement, combat, visuals) still needs a manual playthrough.

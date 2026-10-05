@@ -1,9 +1,9 @@
 # Godot Migration
 
-> **Status: in progress** on branch `feat/godot-migration` (started
-> 2026-10-04). Phase 0, the trial port, decides whether the migration goes
-> ahead. This file owns the plan; [GAME_ROADMAP.md](./GAME_ROADMAP.md) tracks
-> it as milestone **G**.
+> **Status: done** (2026-10-05) on branch `feat/godot-migration` (started
+> 2026-10-04). The owner played Chapter 1 through in Godot and the Phaser app was
+> removed (the cutover below). This file records the plan and what was done;
+> [GAME_ROADMAP.md](GAME_ROADMAP.md) tracks it as milestone **G**.
 
 ## Why
 
@@ -20,15 +20,15 @@ owner on 2026-10-04.
   C# project cannot export to the web, and Release 1 is a free web build.
 - **Compatibility renderer** (WebGL 2) on every platform, so the web build looks
   like the desktop one. One project exports web, desktop and Android.
-- The Godot project lives in `godot/` beside the Phaser app until it matches
-  today's build. Then the Phaser app (`src/`, Vite, Scene Studio) is removed.
+- The Godot project lived in `godot/` beside the Phaser app until it matched
+  the Phaser build; then the Phaser app (`src/`, Vite, Scene Studio) was removed (2026-10-05).
 
 ## What happens to each part
 
 | Part | Fate |
 |---|---|
-| Art and audio in `asset/` | Used as they are (WebP, OGG, WAV import directly) |
-| `asset/assets.json` | Read by the converter for frame grids, origins and paths |
+| Art and audio in `asset/` | Used as they are (WebP, OGG, WAV import directly); the runtime folders moved to `godot/asset/` at the cutover, sources stay in `asset/Originals/` |
+| `asset/assets.json` | Read by the converter for frame grids, origins and paths; retired at the cutover |
 | Scene JSON (`content/scenes/authored/`) | Converted by a script into `.tscn` scenes, tile sets and animation libraries; since Phase 1 (2026-10-05) the scenes are Godot's (`godot/game/scenes/`) and the JSON is frozen |
 | `game-constants.json`, items, enemy types, recipes, quests | Kept as data: copied to `godot/game/data/` (2026-10-05), Godot's since, read by GDScript |
 | Scene scripts (`features/scripts/`) and pure logic (combat, AI, quests, crafting, inventory, saves) | Ported by hand to GDScript |
@@ -87,18 +87,13 @@ painted as tiles in the editor.
 ## Working with the Godot project
 
 Use Godot **4.7.2** (the GDScript build). Project rules, layout and checks are in
-[godot/CONVENTIONS.md](./godot/CONVENTIONS.md); how the game is built is in
-[godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md); the exact Phaser behaviour each
-ported area reproduces is in [godot/specs/](./godot/specs/).
+[godot/CONVENTIONS.md](godot/CONVENTIONS.md); how the game is built is in
+[godot/ARCHITECTURE.md](godot/ARCHITECTURE.md); the exact Phaser behaviour each
+ported area reproduces is in [godot/specs/](godot/specs).
 
-```bash
-pnpm godot:sync
-```
-
-`godot:sync` copies the mapped assets into `godot/asset/` (`asset/` stays the media source
-until cutover). The scenes (`godot/game/scenes/`) and the game data (`godot/game/data/`) are
-committed in the Godot project. Then open `godot/` in the Godot editor and press F5, or run headless
-checks:
+Everything the game needs is in the Godot project: scenes (`godot/game/scenes/`), game data
+(`godot/game/data/`) and art (`godot/asset/`). Open `godot/` in the Godot editor and press F5, or run
+headless checks:
 
 - `--headless --path godot --import` imports the assets;
 - `--headless --path godot -s res://tools/verify_scenes.gd` loads and
@@ -129,66 +124,66 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   `test_chapter_one_main_line`, passes). Every scene script id the authored scenes use is ported except `game.ui-surface`,
   which Godot-owned windows replace. A headless Brave run of the web build on 2026-10-05 held
   58-59 fps in level-1, the Fatty fight and the Matron's nest (pack 46.1 MB).
-- World objects are ported (2026-10-05, [godot/specs/world-objects.md](./godot/specs/world-objects.md)):
+- World objects are ported (2026-10-05, [godot/specs/world-objects.md](godot/specs/world-objects.md)):
   trees, stone and iron take tool hits (the sword shows "Requires an Axe"), break into
   piles that fly out and can be walked over into the bag, and regrow 10 minutes after
   their last pile is taken. The run (inventory, coins, records, story flags) lives in the
   `RunState` autoload; world exits travel between areas, gated exits take their key, and
   story variants swap with their flags. `?weapon=<id>` / `-- --weapon=<id>` holds
   another weapon (a stone axe to harvest, a spear for Fatty).
-- Interaction is ported (2026-10-05, [godot/specs/interaction.md](./godot/specs/interaction.md)):
+- Interaction is ported (2026-10-05, [godot/specs/interaction.md](godot/specs/interaction.md)):
   right click on doors (travel between houses and the world), gates (with the key),
   chests, beds (sleep heals and sets the respawn point) and NPCs, with Phaser's prompt
   and key badge. A chest opens the chest window (2026-10-05,
-  [godot/specs/journal-and-chest.md](./godot/specs/journal-and-chest.md)): its stacks, Take Stack
+  [godot/specs/journal-and-chest.md](godot/specs/journal-and-chest.md)): its stacks, Take Stack
   and a right click to take one; NPCs talk through the dialogue box (with the quests) and
   workbenches open the crafting window (with crafting).
-- The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
+- The water shader is ported (2026-10-05, [godot/specs/water.md](godot/specs/water.md)):
   the animated surface over `water` and `deep-water` tiles, with the water life
   drawn and animated as in Phaser. Shores are rounded by the terrain edges (next item), which
   draw over the surface with the same water maths; a shader step smooths the deep/shallow ground.
-- Terrain edges replace Phaser's code blend (2026-10-05, [godot/TERRAIN_LAB.md](./godot/TERRAIN_LAB.md)):
+- Terrain edges replace Phaser's code blend (2026-10-05, [godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)):
   hand-made edge tiles (Magnific art) for every natural ground, drawn on a dual grid over the ground
   layer in every world, water shores included. The terrain lab (F6, T toggles) shows every pair.
-- The level-1 boss fight is ported (2026-10-05, [godot/specs/boss.md](./godot/specs/boss.md)):
+- The level-1 boss fight is ported (2026-10-05, [godot/specs/boss.md](godot/specs/boss.md)):
   the Fatty One Eye camp spawns the boss when the player walks in; it chases,
   contact-hops, leaps with a ground telegraph, lands for damage with the ground
   crack and a camera shake, walks home and heals when the player leaves the arena,
   shows the boss health bar, and dies with its death clip (the body stays 2 s and
   fades out, owner decision; Phaser removed it at once). Only spears hurt it: craft one, or start with
   `--weapon=basic-spear`.
-- Every enemy the worlds spawn is ported (2026-10-05, [godot/specs/enemy.md](./godot/specs/enemy.md)
+- Every enemy the worlds spawn is ported (2026-10-05, [godot/specs/enemy.md](godot/specs/enemy.md)
   part 2): worm archers shoot arrows and keep their distance, slime spiders and orb weavers
   spiral in and spit webs, worm brawlers punch with their hit effect; projectiles fly, stop at
   walls and hit once; enemies can be slowed; crystal-caverns spawns around the player as in
   Phaser. Every camp type spawns in play (the trial's worm-swordsman-only filter is lifted).
-- The gloop-forest boss is ported (2026-10-05, [godot/specs/matron.md](./godot/specs/matron.md)):
+- The gloop-forest boss is ported (2026-10-05, [godot/specs/matron.md](godot/specs/matron.md)):
   the Orb-Weaver Matron's nest camp, her spit, her web volleys with their ground marks, the web
   patches they leave and the spider-web barriers, with the boss bar and the camp records. Webs
   root the slime (`apply_web`), and the Sticky form tears patches and barriers.
-- The music director is ported (2026-10-05, [godot/specs/audio.md](./godot/specs/audio.md)):
+- The music director is ported (2026-10-05, [godot/specs/audio.md](godot/specs/audio.md)):
   world music fades in on arrival and out before a travel,
   crossfades to the boss music while a boss fight lasts, ducks under a pause menu, waits for the
   web audio unlock, and plays the arrival cue; `apply_mix` gives the settings their bus mix.
-- The UI theme and the game shell are ported (2026-10-05, [godot/UI_THEME.md](./godot/UI_THEME.md),
-  [godot/specs/shell.md](./godot/specs/shell.md)); the `Shell` autoload is registered, the title is
+- The UI theme and the game shell are ported (2026-10-05, [godot/UI_THEME.md](godot/UI_THEME.md),
+  [godot/specs/shell.md](godot/specs/shell.md)); the `Shell` autoload is registered, the title is
   the main scene and the theme is the project theme: one Theme built from the CSS tokens with type variations
   for every recurring role, the title screen over the drifting level-1 (launch options skip it),
   the pause menu, settings saved to `user://settings.cfg` and applied to the buses and screen
   shake, the controls list, credits, area title cards, game over and end cards; the HUD uses the
   theme. The UI font is Source Sans 3 (owner pick) with Noto Sans Symbols 2 for symbols.
-- Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
+- Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](godot/ARCHITECTURE.md#12-open-questions)):
   keep the live aim origin; the sword's combo off-by-one is fixed in the port
   (24 per hit); the player gets new three-quarter top-down art with clips per
   direction. New art is made at 128 px per 64-unit cell (2 px per world unit;
   the grid does not change), and terrain transitions are tried as hand-made
-  tiles instead of a code blend ([godot/TERRAIN_LAB.md](./godot/TERRAIN_LAB.md)).
+  tiles instead of a code blend ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)).
 - Phase 1 is done for the scenes (2026-10-05): all 1,160 scenes the game loads (21 worlds,
   1,098 objects, 14 characters, 13 weapons, 9 effects, 2 projectiles, 2 encounters and the
   global audio scene) are Godot's, in `godot/game/scenes/` with `scene_index.json`, and the
   terrain TileSet is `game/world/terrain_tileset.tres`. Scene JSON is frozen: Scene Studio no
   longer reaches the game
-  ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)). The game data followed the same day:
+  ([godot/CONVENTIONS.md](godot/CONVENTIONS.md#scenes-godot-owns)). The game data followed the same day:
   constants, enemy types, items, collision layers, NPC definitions, recipes, quests, weapons and
   item icons are `godot/game/data/*.json`, and the converter (`pnpm godot:convert`) is gone. The converter's UI scenes
   were not kept (Godot-owned windows replace them).
@@ -198,7 +193,7 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   Page 2 (2026-10-05) adds the roll and the attack swing for every direction, then the
   abilities, the stretch lash, the doze, sleep and defeat: no player clip uses the old
   side-view sheet any more.
-- The player's abilities are ported (2026-10-05, [godot/specs/abilities.md](./godot/specs/abilities.md)):
+- The player's abilities are ported (2026-10-05, [godot/specs/abilities.md](godot/specs/abilities.md)):
   energy, jump, dodge, stretch lash, squash slam, teleport, Gulp forms (eat stone to turn Heavy or silk to
   turn Sticky for a while), the Goo Trail passive, and their puzzle pieces (training dummy,
   pressure plates, cracked ground, lash bells, ability lessons, Goo Hearts, restoration sites).
@@ -209,22 +204,22 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
 - Enemy rewards are ported (2026-10-05): coins ("+10c") and loot piles scattered round the corpse,
   kept on the ground across visits until picked up. A slime defeated far from its bed wakes at the
   bed in that bed's world.
-- The minimap and the world map are ported (2026-10-05, [godot/specs/map.md](./godot/specs/map.md)):
+- The minimap and the world map are ported (2026-10-05, [godot/specs/map.md](godot/specs/map.md)):
   the framed minimap in the HUD's corner draws a small map of the world's ground (owner decision;
   Phaser's was see-through, `Minimap.terrain_alpha = 0` brings that back) and shows the slime, the
   camera view and markers; the world map window (M or the pause menu's Map) lists the
   discovered areas and the ways between them. Other features place markers through `MapUi.set_marker`.
-- Quests are ported (2026-10-05, [godot/specs/quests.md](./godot/specs/quests.md)): the 14 quests
+- Quests are ported (2026-10-05, [godot/specs/quests.md](godot/specs/quests.md)): the 14 quests
   of chapters 1 and 2 with their stages, objectives, rewards and chapter flags, saved with the run;
   NPCs offer, take back and talk about quests through the dialogue box and the offer / turn-in
   window, wear "!" / "?" markers, and the HUD tracker lists the quests (a click shows the gold
   waypoint, also on the maps). Pickups, ordinary enemy deaths, boss defeats, restorations, arrivals,
   sprinting, the menus, crafting, belt switches and placing furniture count. The quest journal
   (the menu's Journal tab or the pause menu's Journal) lists the quests taken on with their steps
-  and abandons or retries side quests ([godot/specs/journal-and-chest.md](./godot/specs/journal-and-chest.md)).
+  and abandons or retries side quests ([godot/specs/journal-and-chest.md](godot/specs/journal-and-chest.md)).
   `?quest=<id>[:<stage>]` starts a
   quest at a stage for testing.
-- Crafting, the bag and the weapon belt are ported (2026-10-05, [godot/specs/crafting.md](./godot/specs/crafting.md)):
+- Crafting, the bag and the weapon belt are ported (2026-10-05, [godot/specs/crafting.md](godot/specs/crafting.md)):
   E opens the bag (belt, cells, details; Use, Hold in hand, belt assignment, drag onto the belt,
   Drop on the ground, Destroy), and its tab strip switches to Crafting; workbenches, the Workshop
   and the Forge open the crafting window for their recipes. A crafted weapon goes onto the belt
@@ -233,7 +228,7 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   2026-10-05); the playground hands out all 13 weapons and every ability (jump, dodge, lash, slam, teleport, goo trail; plus 10 stone and 10 silk clumps for the Gulp forms), and `?weapon=<id>` starts with one in hand.
   `?recipes` makes every recipe known (a dev aid). The release web export ("Web") leaves out
   `game/dev/` (playground wrapper, terrain lab) and the dev-only worlds; "Web (dev)" keeps them.
-- Furniture placement is ported (2026-10-05, [godot/specs/furniture.md](./godot/specs/furniture.md)):
+- Furniture placement is ported (2026-10-05, [godot/specs/furniture.md](godot/specs/furniture.md)):
   crafting a Workbench (or "Place" in the bag) shows a ghost that follows the pointer on a 32 px
   grid, green within reach on free ground and red elsewhere; left click places it (the wheel
   switches to the bench with a vise, right click or Esc cancels) while the slime keeps walking. A
@@ -241,38 +236,27 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   button picks it up. "A Place to Work" can now be finished in play. Placement ends if the slime
   is defeated (owner decision F1 as recommended).
 
-## Cutover checklist (Phase 5)
+## Cutover (Phase 5, done 2026-10-05)
 
-Waits for the owner's fresh-save playthrough of Chapter 1 in Godot (owner decision 2026-10-05:
-the Phaser app stays runnable until then). Scenes and game data are already Godot's; what links
-`godot/` to the Phaser repo is the art (`pnpm godot:sync`) and the Phaser app itself.
+The owner played Chapter 1 through in Godot from a new game ("everything seems the same") and the
+reference-laptop measurement was dropped. Then:
 
-1. **Playthrough** (owner): F5 → New Game → Chapter 1 to the end card; note anything that differs
-   from the Phaser build.
-2. **Art into the Godot project.** `godot/asset/` already sits at `res://asset/`, so moving the
-   runtime folders there keeps every `res://` path:
-   - `git mv` `asset/MAPS`, `asset/audio`, `asset/characters`, `asset/UI` and `asset/project` into
-     `godot/asset/`; drop `/asset/` from `godot/.gitignore`; delete `scripts/godot/sync-assets.mjs`
-     and `pnpm godot:sync`.
-   - Source art stays outside the Godot project (`asset/Originals/`, about 660 MB, so Godot never
-     imports it).
-   - Point the art tools that write runtime sheets (`scripts/art/`, `scripts/props/`,
-     `scripts/houses/`, `scripts/interiors/`, `scripts/characters/`, the `*:pack` commands) at
-     `godot/asset/`; `asset/assets.json` and its checks retire with the Phaser app (Godot imports
-     files directly; `godot/game/data/item-icons.json` already holds the icon frames).
-3. **Remove the Phaser app**: `src/`, `index.html`, `vite.config.ts`, `tsconfig*.json`, the
-   Playwright specs, Scene Studio, the Phaser-only checks, tests and map/scene tools in `scripts/`,
-   and their `package.json` scripts and dependencies (keep `pnpm test:godot`).
-4. **Docs**: rewrite `AGENTS.md` and `README.md` for the Godot project (editor, `pnpm test:godot`,
-   `tools/verify_scenes.gd`, web export); retire the Phaser docs (`docs/ARCHITECTURE.md`,
-   `docs/AUTHORED_MAPS.md`, Scene Studio guides, ...) or mark them historical.
-5. **Release**: the "Web" export preset replaces the Phaser `dist/` build wherever the game is
-   published.
-6. **Saves**: Phaser saves live in the browser's storage; the Godot build saves to `user://`. Decide
-   whether to import them or start Release 1 fresh.
+1. **Art into the Godot project.** `asset/MAPS`, `asset/audio`, `asset/characters` and `asset/UI` moved
+   to `godot/asset/` (the same `res://asset/...` paths) with their Godot `.import` files, now committed;
+   `pnpm godot:sync` is gone. Source art stays outside the Godot project: `asset/Originals/` and
+   `asset/project/` (sprite-sheet projects). The art tools in `scripts/` write to `godot/asset/`.
+2. **Phaser app removed:** `src/`, `index.html`, Vite and TypeScript config, `asset/assets.json`, the
+   Playwright specs and Node test suites, the Phaser checks and the scene, map and ledger tools in
+   `scripts/`, and their `package.json` scripts and dependencies (`pnpm test:godot` and the art tools stay).
+3. **Docs:** `AGENTS.md`, `README.md`, `docs/README.md` and `docs/TOOLING.md` describe the Godot project;
+   the Phaser-era docs moved to `docs/archive/phaser/`, and two engine-neutral design notes to
+   `docs/design/`.
+4. **Still open:** where the web build is published (the "Web" export preset replaces the Phaser
+   `dist/` build), and whether Phaser saves (browser storage) are imported or Release 1 starts fresh
+   (the Godot build saves to `user://`).
 
-## Rules while it runs
+## Rules after the migration
 
-- Scenes are edited in Godot; scene JSON and Scene Studio are frozen (Phase 1, 2026-10-05).
-- Game data is edited in `godot/game/data/`; `src/game/content/` no longer reaches Godot.
-- After the trial passes, new gameplay is built in Godot only.
+- Scenes, game data and art are edited in the Godot project (`godot/game/scenes/`,
+  `godot/game/data/`, `godot/asset/`); sources stay in `asset/Originals/`.
+- New gameplay is built in Godot; the Phaser code is only in git history.

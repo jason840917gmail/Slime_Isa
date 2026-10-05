@@ -10,9 +10,9 @@ current tree. Godot files are cited by function name, because several were uncom
 progress when this was written (the crafting, bag and quest agents were editing them).
 
 Binding inputs: [ARCHITECTURE.md](../ARCHITECTURE.md), [CONVENTIONS.md](../CONVENTIONS.md);
-[crafting.md](./crafting.md) §3.1 (placeable output), §6.3-6.4 (the bag's Place button) and owner
-decision C1; [interaction.md](./interaction.md) §2.2-2.7 (candidates, prompt, the interact press),
-§3.6 and §8.6 (the workbench); [quests.md](./quests.md) §7.6 (a-place-to-work is blocked on this).
+[crafting.md](crafting.md) §3.1 (placeable output), §6.3-6.4 (the bag's Place button) and owner
+decision C1; [interaction.md](interaction.md) §2.2-2.7 (candidates, prompt, the interact press),
+§3.6 and §8.6 (the workbench); [quests.md](quests.md) §7.6 (a-place-to-work is blocked on this).
 
 **Port status (2026-10-05):** ported as planned in §11: `game/building/furniture_placement.gd`
 (child "FurniturePlacement" of main), `game/building/placed_furniture.gd`, the RunState records,

@@ -12,7 +12,7 @@ Godot targets: script `game.fatty` → `res://game/scripts/fatty.gd` (node `Fatt
 extends `EnemyScript` in Phaser); script `game.boss-camp` → `res://game/scripts/boss_camp.gd`
 (node `BossCampScript` in the encounter `encounter.level-1-fatty-camp`); helpers in
 `res://game/bosses/`; the bar in `res://game/ui/boss_health_bar.gd`. Read with the
-[enemy spec](./enemy.md): Fatty runs the whole base enemy step first, and only the differences are
+[enemy spec](enemy.md): Fatty runs the whole base enemy step first, and only the differences are
 written here.
 
 ---
@@ -37,7 +37,7 @@ written here.
 |---|---|---|
 | Writing the camp (`respawnReadyAtEpochMs`) and `defeatedBossIds` to disk | `features/progression/WorldProgress.ts:362-371, 519-533`, `infrastructure/persistence/SaveSchema.ts` | Godot keeps both in RunState (`map_record(map_id)["boss_camps"][campId] = {"respawn_ready_at_epoch_ms"}`, `world["defeated_boss_ids"]`), so they survive world travel; saving RunState is Phase 4 |
 | Quests reacting to the defeat (`defeat-boss` objective of `chapter-one` "defeat-fatty") | `quests/QuestEventBridge.ts:18, 62`, `quests/matchers/ObjectiveMatchers.ts:84-85, 123`, `quests/QuestService.ts:399-401` | Godot emits the camp's `boss_defeated({campId, bossId})` where Phaser emits `gameEvents 'boss.defeated' {bossId}`; nothing listens yet |
-| Boss music (`boss.engaged` / `boss.disengaged` → `MusicDirector.setBossFight`) | `features/world/UniversalSceneWorldController.ts:548-557, 765-771` | Godot emits the camp's `boss_engaged` / `boss_disengaged`; `MusicDirector` listens to them ([audio.md](./audio.md)) |
+| Boss music (`boss.engaged` / `boss.disengaged` → `MusicDirector.setBossFight`) | `features/world/UniversalSceneWorldController.ts:548-557, 765-771` | Godot emits the camp's `boss_engaged` / `boss_disengaged`; `MusicDirector` listens to them ([audio.md](audio.md)) |
 | The guarded chest (`isChestGuarded`, "Chest locked by Fatty One Eye", "Fatty One Eye is guarding this chest!") | `BossCampScript.ts:143-146`, `UniversalSceneWorldController.ts:899-915` | Chests are not ported; `is_chest_guarded()` and `guard_changed` are |
 | Quest waypoint to the camp (`bossCampPosition`) | `UniversalSceneWorldController.ts:1145`, `features/quests/QuestWaypoint.ts` | |
 | Occlusion silhouette of the boss | `UniversalSceneWorldController.ts:2008` | Dropped by plan |

@@ -9,7 +9,7 @@
 | **Status** | Built. The beats below mark each Planned change and Proposal. |
 
 Quest IDs are in brackets. Their dialogue lives in
-`src/game/content/quests/quests/chapterOne.ts`. Lines quoted here that already
+`godot/game/data/quests-chapter-1.json`. Lines quoted here that already
 exist are marked *(in game)*; every other line is a draft.
 
 ---

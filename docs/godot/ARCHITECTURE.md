@@ -3,8 +3,8 @@
 How the Godot port is put together: autoloads, the time and pause model, coordinates, data
 shapes, the scene-script contract, bootstrap and the two damage flows. Written for the Phase 0
 trial (level-1, player slime, worm swordsman, basic sword) and kept current as the port grows.
-Read it with [CONVENTIONS.md](./CONVENTIONS.md) and the [migration plan](../GODOT_MIGRATION.md).
-The exact Phaser behaviour each part ports is in [specs/](./specs/): when this file and a spec
+Read it with [CONVENTIONS.md](CONVENTIONS.md) and the [migration plan](../GODOT_MIGRATION.md).
+The exact Phaser behaviour each part ports is in [specs/](specs): when this file and a spec
 disagree about structure (files, names, who calls whom) this file wins; about behaviour, the spec wins.
 
 ---
@@ -82,8 +82,8 @@ Design rules:
 | `DamageRouter` | `register_area(area, receiver, rule, tags=[])`, `unregister_area`, `receiver_for_area`, `tags_for_area`, `begin_activation(source, areas) -> int`, `end_activation`, `is_activation_active`, `route(request) -> result`. Signal `routed` | default |
 | `GameFeel` | `play(event)`, `shake(ms, intensity)`, `hit_stop(ms)`, `is_frozen()`, `floating_text(world_pos, text, color_name, big, duration_ms=-1)`, `particles(preset, world_pos)`, `audio_cue(cue, payload)` | ALWAYS |
 | `RunState` | Phaser's `GameSaveData` in one place (snake_case): vars `player`, `inventory`, `world`, `story`, `location`, `quests`; `new_run()` (sets `start_kit_pending`; `start_weapon_id` is a dev / test start weapon), `ensure_started()`, `max_hp()`, `capture_player(map_id, snapshot)`; coins (`add_coins`, `spend_coins`); the bag (`item_count`, `item_capacity`, `add_item` all or nothing, `remove_item`, `transact_items`, `remove_from_slot`, `slots`, `collect_world_item`, `unlock_gate`); the belt (`weapon_slots`, `set_weapon_slots`, `equipped_weapon_id`, `set_equipped_weapon`); story (`has_flag`/`set_flag`, `learn_ability`, `knows_recipe`/`learn_recipes` and the dev flag `debug_all_recipes_known`, `record_talk`/`has_talked_to`); quests (`quest_status`, `is_quest_active`, `notify_quests_changed`); `map_record(map_id)` (resources, collectibles, inventory drops, placed furniture, chests, gates, object_states, ...), `placed_furniture`/`place_furniture`/`remove_placed_furniture`, `inventory_drops`/`create_inventory_drop`/`set_inventory_drop_amount`, `object_state`/`set_object_state`, `respawn_point`, `request_navigation`/`consume_navigation`; saves (`save_slot`, `load_slot`, `read_slot`, `list_saves`, `delete_slot`, the recovery autosave in slot 0, `serialize`/`install`). Signals for every change (`inventory_changed`, `coins_changed`, `story_flag_changed`, `ability_learned`, `weapon_loadout_changed`, `weapon_equipped`, `recipes_learned`, `recipe_crafted`, `craft_failed`, `quests_changed`, `world_progress_changed`, `saved`, `loaded`); each schedules the autosave. Outlives worlds | ALWAYS |
-| `MusicDirector` (after `RunState`) | `set_boss_fight(active, camp_id)`, `fade_out(ms)`, `set_menu_paused(paused)`, `advance(ms)`, `world_gain/boss_gain/duck()`, `world_track/boss_track()`, vars `audio_unlocked`, `play_arrival_cue`; static `apply_mix(master, effects, music, muted)`, `set_bus_volume_linear(bus, v)` for the shell. Claims the world's music-bus player on `world_registered` and listens to the `boss_camp` group ([specs/audio.md](./specs/audio.md)) | ALWAYS |
-| `Shell` (after `MusicDirector`) | `get_settings()` (GameSettings: `values()`, `update(change)`, `reset()`, `shake_scale()`, ... in user://settings.cfg), `open_pause()`, `can_open_pause()`, `open_settings/controls/credits()`, `handle_escape()`, `is_any_open()`, `show_area_title(text, colour)`, `show_defeat(info)`, `quit_to_title()`, `set_action(id, callable)` / `run_action(id)` for the windows other features own (`journal`, `inventory`, `map`, `save`, `load`, `wake`). Each open window holds the pause reason `shell:<surface id>`. Listens to `world_registered` (area card while a `world_main` node exists), `story_flag_changed` (end cards), `player_registered` ([specs/shell.md](./specs/shell.md)) | ALWAYS |
+| `MusicDirector` (after `RunState`) | `set_boss_fight(active, camp_id)`, `fade_out(ms)`, `set_menu_paused(paused)`, `advance(ms)`, `world_gain/boss_gain/duck()`, `world_track/boss_track()`, vars `audio_unlocked`, `play_arrival_cue`; static `apply_mix(master, effects, music, muted)`, `set_bus_volume_linear(bus, v)` for the shell. Claims the world's music-bus player on `world_registered` and listens to the `boss_camp` group ([specs/audio.md](specs/audio.md)) | ALWAYS |
+| `Shell` (after `MusicDirector`) | `get_settings()` (GameSettings: `values()`, `update(change)`, `reset()`, `shake_scale()`, ... in user://settings.cfg), `open_pause()`, `can_open_pause()`, `open_settings/controls/credits()`, `handle_escape()`, `is_any_open()`, `show_area_title(text, colour)`, `show_defeat(info)`, `quit_to_title()`, `set_action(id, callable)` / `run_action(id)` for the windows other features own (`journal`, `inventory`, `map`, `save`, `load`, `wake`). Each open window holds the pause reason `shell:<surface id>`. Listens to `world_registered` (area card while a `world_main` node exists), `story_flag_changed` (end cards), `player_registered` ([specs/shell.md](specs/shell.md)) | ALWAYS |
 
 ## 3. Time, pause and process model
 
@@ -165,9 +165,9 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 
 `game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). `game.interaction` has no scenes and no service behind it in Phaser, so it is not ported. Every other script id stays on the converter's `unported_script.gd`.
 
-Enemies fire projectiles through `game/enemy/enemy_projectiles.gd` (Phaser's world `spawnEnemyProjectile`): the projectile goes under the world root and hits only the player's hurtbox ([specs/enemy.md](./specs/enemy.md) §12). Webs (`spider_web.gd`, `web_patch.gd`) reach the player through `game/enemy/spider_web_port.gd`, which calls player.gd's `crosses_webs()` and `teleport(centre)` and duck-types `apply_web(ms)` (a stop-and-suppress fallback until it exists) ([specs/matron.md](./specs/matron.md) §5).
+Enemies fire projectiles through `game/enemy/enemy_projectiles.gd` (Phaser's world `spawnEnemyProjectile`): the projectile goes under the world root and hits only the player's hurtbox ([specs/enemy.md](specs/enemy.md) §12). Webs (`spider_web.gd`, `web_patch.gd`) reach the player through `game/enemy/spider_web_port.gd`, which calls player.gd's `crosses_webs()` and `teleport(centre)` and duck-types `apply_web(ms)` (a stop-and-suppress fallback until it exists) ([specs/matron.md](specs/matron.md) §5).
 
-Boss camps ([specs/boss.md](./specs/boss.md)) spawn their boss under the world root when the player centre enters the activation circle, hand it the arena (`EnemyScript.configure_arena`), keep their respawn timer and the defeated boss ids in RunState (`map_record(map_id)["boss_camps"]`, `world["defeated_boss_ids"]`), reset the fight when the player's `defeated` fires, and join the group `boss_camp`; the HUD's `BossHealthBar` binds itself to every camp in that group, and a later quest system listens to `boss_defeated` there.
+Boss camps ([specs/boss.md](specs/boss.md)) spawn their boss under the world root when the player centre enters the activation circle, hand it the arena (`EnemyScript.configure_arena`), keep their respawn timer and the defeated boss ids in RunState (`map_record(map_id)["boss_camps"]`, `world["defeated_boss_ids"]`), reset the fight when the player's `defeated` fires, and join the group `boss_camp`; the HUD's `BossHealthBar` binds itself to every camp in that group, and a later quest system listens to `boss_defeated` there.
 
 ## 7. Bootstrap (main.gd `_ready`, world spec 1.2)
 
@@ -237,8 +237,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `godot/tests/**` | tests | Headless integration tests, `pnpm test:godot` |
 | `game/world/world_camera.gd` | world | |
 | `game/world/world_bounds.gd` | world | |
-| `game/world/water_surface.gd`, `water_surface.gdshader`, `water_surface.gdshaderinc` | world | Animated water over the ground's water tiles ([specs/water.md](./specs/water.md)); mounted by `WorldService.register_world`; the `.gdshaderinc` holds the water maths the shoreline edges share |
-| `game/world/terrain_edges/terrain_edges.gd`, `terrain_materials.gd`, `terrain_edge.gdshader`, `terrain_edge_water.gdshader`, `art/` | world | Hand-made terrain edges on a dual grid over the ground, shores included ([TERRAIN_LAB.md](./TERRAIN_LAB.md)); mounted by `WorldService.register_world` after the water |
+| `game/world/water_surface.gd`, `water_surface.gdshader`, `water_surface.gdshaderinc` | world | Animated water over the ground's water tiles ([specs/water.md](specs/water.md)); mounted by `WorldService.register_world`; the `.gdshaderinc` holds the water maths the shoreline edges share |
+| `game/world/terrain_edges/terrain_edges.gd`, `terrain_materials.gd`, `terrain_edge.gdshader`, `terrain_edge_water.gdshader`, `art/` | world | Hand-made terrain edges on a dual grid over the ground, shores included ([TERRAIN_LAB.md](TERRAIN_LAB.md)); mounted by `WorldService.register_world` after the water |
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |
 | `game/scripts/world_area.gd` | world | |
@@ -247,7 +247,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/scripts/resource_node.gd`, `game/scripts/collectible.gd` | world objects | Spec world-objects.md |
 | `game/scripts/story_flag.gd`, `game/scripts/story_variant.gd` | world objects | Flags in `RunState.story` |
 | `game/world_objects/item_catalog.gd` | world objects | items.json + max stacks; weapons are items (names, icons, descriptions from `weapons.json`) |
-| `game/crafting/recipe_catalog.gd`, `crafting_service.gd` | crafting | Recipes (`recipes.json`), stations and site lists; quotes, the status order and crafts on `RunState.transact_items` ([specs/crafting.md](./specs/crafting.md) §1-2) |
+| `game/crafting/recipe_catalog.gd`, `crafting_service.gd` | crafting | Recipes (`recipes.json`), stations and site lists; quotes, the status order and crafts on `RunState.transact_items` ([specs/crafting.md](specs/crafting.md) §1-2) |
 | `game/inventory/weapon_catalog.gd`, `item_icons.gd` | crafting | Weapon names, descriptions, icons, stats (`weapons.json`); item icons as atlas frames (`item-icons.json`) |
 | `game/inventory/inventory_drops.gd` | crafting | Dropping bag items on the ground: placement, records, pile launch (restore is `EnemyLoot.restore_world`) |
 | `game/inventory/inventory_actions.gd` | crafting | Child "InventoryActions" of main (group `inventory_actions`): the belt glue (switch, equip, assign, hold), consumables, after-craft, harvest advice, the trial grant and `equip_run_weapon` |
@@ -270,13 +270,13 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/player_health_bar.gd` | world | Styled by `FloatingHealthBar` |
 | `game/ui/fps_readout.gd` | world | Styled by `DebugPanel` / `DebugLabel` |
 | `game/scripts/player.gd` | player | Plays every clip in its version for the facing (`_directional_clip`, `_flip_for`); energy, effects channel, statuses, Gulp forms and abilities hang off it |
-| `game/player/abilities/ability_definitions.gd`, `player_abilities.gd` | abilities | Ability table, energy costs and cooldowns on the sim clock, the dispatch order ([specs/abilities.md](./specs/abilities.md)) |
+| `game/player/abilities/ability_definitions.gd`, `player_abilities.gd` | abilities | Ability table, energy costs and cooldowns on the sim clock, the dispatch order ([specs/abilities.md](specs/abilities.md)) |
 | `game/player/abilities/jump_sequence.gd`, `slam_sequence.gd`, `teleport_sequence.gd`, `lash_sequence.gd` | abilities | One sequence per ability (tween steps chained with `parallel()`) |
 | `game/player/abilities/ability_terrain.gd`, `ability_world.gd`, `ability_fx.gd` | abilities | Landing and line checks against the world, strike areas, lash probes, the shared effects |
 | `game/player/gulp/gulp_forms.gd`, `gulp_controller.gd`, `gulp_hud.gd` | abilities | Gulp forms (eating materials): timers, tint, speed and the form HUD |
 | `game/player/status_effects.gd` | player | Burn, poison, slow, sticky, bouncy, frenzy, and the web root (`apply_web`) |
 | `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
-| `game/building/furniture_placement.gd`, `placed_furniture.gd` | world objects | Child "FurniturePlacement" of main: placing furniture (ghost, free test, records, quest event), picking it up, mounting placed benches on every world build ([specs/furniture.md](./specs/furniture.md)) |
+| `game/building/furniture_placement.gd`, `placed_furniture.gd` | world objects | Child "FurniturePlacement" of main: placing furniture (ghost, free test, records, quest event), picking it up, mounting placed benches on every world build ([specs/furniture.md](specs/furniture.md)) |
 | `game/ui/glyphs.gd` | UI | The text symbols of the UI, Phaser's ✓ ▸ ✕ ★ ◆ ▶ ○, in one place (drawn by Source Sans 3 and its Noto Sans Symbols 2 fallback; UI_THEME.md "Symbols") |
 | `game/ui/npc_name_tags.gd` | world | Child "NpcNameTags" of main: a "NameTag" (display name, 14 px, outlined) on every NPC body with a definition, sorted with the NPC |
 | `game/hints/control_hints.gd` | interaction | Child "ControlHints" of main (CanvasLayer 10): first-time control hints, learned by use as `hint.<id>` story flags |
@@ -285,12 +285,12 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/saves/save_slots_menu.gd`, `.tscn` | saves | The save slots window (three slots and the autosave) on the Shell's stack; RunState mounts it and registers the Shell's `save` / `load` actions |
 | `game/world_objects/enemy_loot.gd` | world objects | Child "EnemyLoot" of main: enemy coins, loot piles scattered round the corpse, their records and restore |
 | `game/ui/screens/game_windows.gd` | UI | Child "GameWindows" of main (CanvasLayer 40): the game windows' parent, the one `modal` pause owner, Escape for the top window |
-| `game/ui/screens/quest_journal_window.gd`, `quest_journal_model.gd` | quests (UI) | The quest journal "Quest Book" on GameWindows (group `quest_journal`, surface `quest-journal`): the menu's Journal tab and the pause menu's Journal action, abandon (in-window confirm) and retry ([specs/journal-and-chest.md](./specs/journal-and-chest.md)) |
-| `game/ui/screens/chest_window.gd`, `chest_model.gd` | interaction (UI) | The chest window on GameWindows (group `chest_window`, surface `chest-inventory`, silent): `chest.gd` opens it with `open_chest` and closes it with `close_for`; Take Stack, right click ([specs/journal-and-chest.md](./specs/journal-and-chest.md)) |
+| `game/ui/screens/quest_journal_window.gd`, `quest_journal_model.gd` | quests (UI) | The quest journal "Quest Book" on GameWindows (group `quest_journal`, surface `quest-journal`): the menu's Journal tab and the pause menu's Journal action, abandon (in-window confirm) and retry ([specs/journal-and-chest.md](specs/journal-and-chest.md)) |
+| `game/ui/screens/chest_window.gd`, `chest_model.gd` | interaction (UI) | The chest window on GameWindows (group `chest_window`, surface `chest-inventory`, silent): `chest.gd` opens it with `open_chest` and closes it with `close_for`; Take Stack, right click ([specs/journal-and-chest.md](specs/journal-and-chest.md)) |
 | `game/ui/screens/window_style.gd` | UI | Corner radii and line heights for windows built in code (journal, chest) |
-| `game/ui/map/map_ui.gd`, `minimap.gd`, `map_terrain.gd`, `map_markers.gd`, `world_map_window.gd`, `.tscn` | map | The HUD minimap (a small map of the world's ground, owner decision; `terrain_alpha = 0` = Phaser's see-through; markers, view) and the world map window on GameWindows; the `map` key, the pause menu's Map action and the marker API ([specs/map.md](./specs/map.md)) |
+| `game/ui/map/map_ui.gd`, `minimap.gd`, `map_terrain.gd`, `map_markers.gd`, `world_map_window.gd`, `.tscn` | map | The HUD minimap (a small map of the world's ground, owner decision; `terrain_alpha = 0` = Phaser's see-through; markers, view) and the world map window on GameWindows; the `map` key, the pause menu's Map action and the marker API ([specs/map.md](specs/map.md)) |
 | `game/quests/quest_events.gd` | quests | `QuestEvents.emit(event, payload)` for world scripts and features |
-| `game/quests/quest_service.gd` | quests | Child "Quests" of main (group `quests`), kept across worlds: the quest state machine over `RunState.quests`, commands, queries, NPC candidates and markers, load validation, the `quest` launch option; mounts the dialogue box and the offer window in GameWindows ([specs/quests.md](./specs/quests.md)) |
+| `game/quests/quest_service.gd` | quests | Child "Quests" of main (group `quests`), kept across worlds: the quest state machine over `RunState.quests`, commands, queries, NPC candidates and markers, load validation, the `quest` launch option; mounts the dialogue box and the offer window in GameWindows ([specs/quests.md](specs/quests.md)) |
 | `game/quests/quest_catalog.gd`, `quest_objectives.gd` | quests | The 14 definitions (`game/data/quests-chapter-*.json`), recipe and NPC lookups, reward and objective texts; the objective matchers |
 | `game/quests/quest_npc_talk.gd`, `quest_notifications.gd`, `quest_waypoint.gd` | quests | NPC conversations (offer, turn-in, reoffer, plain talk); toasts, chapter and ability banners, quest cues; the waypoint target resolver |
 | `game/ui/screens/dialogue_box.tscn/.gd`, `quest_offer_window.tscn/.gd` | quests | The NPC dialogue box and the quest offer / turn-in window (Godot-owned copies of `ui.npc-dialogue`, `ui.quest-offer-modal`) on GameWindows |
@@ -304,13 +304,13 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/enemy/enemy_ai.gd` | enemy | |
 | `game/enemy/camp_territory.gd` | enemy | |
 | `game/enemy/attack_lifecycle.gd` | enemy | |
-| `game/enemy/enemy_population.gd` | enemy | Camps and legacy `metadata.spawns`, `slow_enemies_near` ([specs/enemy.md](./specs/enemy.md) §18, §15) |
+| `game/enemy/enemy_population.gd` | enemy | Camps and legacy `metadata.spawns`, `slow_enemies_near` ([specs/enemy.md](specs/enemy.md) §18, §15) |
 | `game/enemy/slime_spider_ai.gd` | enemy | `SlimeSpiderAI.ts` (enemy spec §14) |
 | `game/enemy/enemy_projectiles.gd` | enemy | The world's `spawnEnemyProjectile` (enemy spec §12.3) |
 | `game/scripts/projectile.gd` | enemy | `game.projectile`: flight, lifetime, wall stop, one hit on the player |
-| `game/enemy/spider_web_port.gd` | enemy | The world's `world.spider-web` port, `catchInWeb`, `applyWeb` (duck-typed player hooks, [specs/matron.md](./specs/matron.md) §5) |
-| `game/scripts/fatty.gd` | boss | Fatty One Eye's phases on top of `enemy.gd` ([specs/boss.md](./specs/boss.md)) |
-| `game/scripts/matron.gd` | boss | The Orb-Weaver Matron's volleys on top of `enemy.gd` ([specs/matron.md](./specs/matron.md)) |
+| `game/enemy/spider_web_port.gd` | enemy | The world's `world.spider-web` port, `catchInWeb`, `applyWeb` (duck-typed player hooks, [specs/matron.md](specs/matron.md) §5) |
+| `game/scripts/fatty.gd` | boss | Fatty One Eye's phases on top of `enemy.gd` ([specs/boss.md](specs/boss.md)) |
+| `game/scripts/matron.gd` | boss | The Orb-Weaver Matron's volleys on top of `enemy.gd` ([specs/matron.md](specs/matron.md)) |
 | `game/scripts/web_patch.gd`, `game/scripts/spider_web.gd` | boss | Web patches and web barriers (matron spec §5) |
 | `game/scripts/boss_camp.gd` | boss | Activation, spawn, defeat, respawn and reset of a boss camp |
 | `game/bosses/boss_arena.gd` | boss | `BossCampBehavior.ts`: perimeters, clamp, containment, spawn eligibility |
@@ -334,12 +334,12 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/runtime/**` | converter | Helpers the converted scenes use (audio, animation, placeholders, UI) |
 | `game/scenes/**`, `game/scenes/scene_index.json` | scenes | Every world, object, character, weapon, effect, projectile and encounter scene, Godot's since Phase 1 (CONVENTIONS "Scenes Godot owns"); checked by `tools/verify_scenes.gd` |
 | `game/world/terrain_tileset.tres` | scenes | The terrain TileSet the world scenes' ground layers use |
-| `game/audio/music_director.gd` | audio | Autoload `MusicDirector`: world and boss music, leave/arrival fades, menu duck, `AreaTransition` cue, the mix hook ([specs/audio.md](./specs/audio.md)) |
-| `game/shell/shell.gd` | shell | Autoload `Shell`: window stack, Escape and pause, area titles, game over, end cards, quit to title ([specs/shell.md](./specs/shell.md)) |
+| `game/audio/music_director.gd` | audio | Autoload `MusicDirector`: world and boss music, leave/arrival fades, menu duck, `AreaTransition` cue, the mix hook ([specs/audio.md](specs/audio.md)) |
+| `game/shell/shell.gd` | shell | Autoload `Shell`: window stack, Escape and pause, area titles, game over, end cards, quit to title ([specs/shell.md](specs/shell.md)) |
 | `game/shell/title.tscn`, `title.gd` | shell | The title screen (the main scene): launch-option skip, level-1 backdrop, New Game / Continue / Load / Settings / Credits |
 | `game/shell/*_menu.tscn/.gd`, `game_over.*`, `end_card.*`, `area_title_card.*` | shell | The shell windows (Godot-owned copies of the `ui.*` scenes) on `shell_menu.gd` |
 | `game/shell/game_settings.gd`, `control_labels.gd`, `area_titles.gd`, `launch_options.gd` | shell | Settings (user://settings.cfg, bus mix, GameFeel), InputMap key labels, area names / colours, launch options |
-| `game/ui/theme/ui_tokens.gd`, `slime_theme.tres` | UI theme | Design tokens and the one UI Theme, built by `tools/build_ui_theme.gd` ([UI_THEME.md](./UI_THEME.md)) |
+| `game/ui/theme/ui_tokens.gd`, `slime_theme.tres` | UI theme | Design tokens and the one UI Theme, built by `tools/build_ui_theme.gd` ([UI_THEME.md](UI_THEME.md)) |
 
 Only ported scene scripts live in `game/scripts/`: every file there is a scene-script id
 (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting that script.
@@ -373,6 +373,6 @@ Only ported scene scripts live in `game/scripts/`: every file there is a scene-s
 - Solid terrain tiles carry a `tile_id` custom data layer; their collision is merged rectangle bodies under `ground/TileCollision` (Phaser's outer-edge inset), which `WorldService.is_solid_tile` reads.
 - Re-anchored scenes placed in worlds (NPCs) get `depth_anchor` added to their position; instance roots carry `metadata/instance_id` and `metadata/persistence_key`.
 - The ground layer is the TileMapLayer whose `tile_set` is `res://game/world/terrain_tileset.tres`.
-- The water surface is the ground layer's child `WaterSurface` (z -2, drawn right after the tiles); underwater life (z -2) y-sorts after it. The terrain edges are the next child, `TerrainEdges`, drawn over the surface: at a shore they fill with the same water (shared `water_surface.gdshaderinc`, the surface's own mask) and the land's edge tile on top, so `smooth_water_ground` stays on ([TERRAIN_LAB.md](./TERRAIN_LAB.md)).
+- The water surface is the ground layer's child `WaterSurface` (z -2, drawn right after the tiles); underwater life (z -2) y-sorts after it. The terrain edges are the next child, `TerrainEdges`, drawn over the surface: at a shore they fill with the same water (shared `water_surface.gdshaderinc`, the surface's own mask) and the land's edge tile on top, so `smooth_water_ground` stays on ([TERRAIN_LAB.md](TERRAIN_LAB.md)).
 - Physics interpolation is on; the camera blends its target between ticks itself.
 - `*.gd.uid` files are committed.

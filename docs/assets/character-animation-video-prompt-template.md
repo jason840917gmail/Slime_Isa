@@ -3,7 +3,7 @@
 Copy this template into the generation tool and replace every `[MARKER]` before
 submitting it. Keep the camera, background, and output rules unchanged so the
 result can be converted into a predictable sprite sheet. The style wording
-comes from the [art style guide](./visual-style-guide.md#generating-assets);
+comes from the [art style guide](visual-style-guide.md#generating-assets);
 if that guide changes, update `[STYLE_BLOCK]` from it.
 
 ## Replacement markers
@@ -222,7 +222,8 @@ grew, and side walks turned to face the camera. What worked
 3. Place every frame on a uniform grid with identical cell dimensions.
 4. Keep the character centered and grounded consistently across frames.
 5. Confirm frame `0` is valid; scenes use it as the default sprite frame.
-6. Register the finished PNG sheet through [Adding Game Assets](./adding-assets.md).
-7. For a character or enemy, continue with [Character Sprites And Animated Visuals](./character-sprites-guide.md) and build its scene in Scene Studio.
-8. Run `pnpm assets:check`, `pnpm scenes:check`, and the relevant content
-   checks before placing the asset in a world.
+6. Save the finished sheet as WebP in `godot/asset/` ([Asset Creation And Integration](README.md)).
+7. For a character or enemy, build its scene in the Godot editor (a `Sprite2D` with the sheet's
+   `hframes`/`vframes` and an `AnimationPlayer`; the player's clips are built by
+   `godot/tools/build_player_clips.gd`).
+8. Check it in the game (the playground) before placing it in a world.

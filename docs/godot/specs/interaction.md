@@ -10,7 +10,7 @@ Legend: **[IN]** = port now (Phase 2 gameplay). **[OUT]** = exists in Phaser, de
 screens, saves, quests, furniture placement, ...); recorded so later phases know. **[QUIRK]** =
 Phaser behaviour that looks unintended; port it as is unless the owner decides otherwise (§9).
 **[FEET]** = a place where Phaser measures from a root that is not the feet; convert as in
-[world.md §0](./world.md).
+[world.md §0](world.md).
 
 Godot state this spec was written against: the committed trial (`765436d`) plus the uncommitted
 world-travel work in the working tree (`godot/game/main.gd` `request_exit` / `travel_to`,
@@ -33,7 +33,7 @@ trigger). Those files were still changing; §8.4 says what doors need from them.
 | Persisted gate and chest records | `features/progression/WorldProgress.ts:535-575` |
 | Story flags | `features/progression/StoryProgress.ts` |
 | Sleep | `features/rest/SleepController.ts`, `features/rest/RespawnDestination.ts` |
-| Chest window | `features/ui/ChestInventorySurfacePort.ts` (ported: [journal-and-chest.md](./journal-and-chest.md) §2, §3.4) |
+| Chest window | `features/ui/ChestInventorySurfacePort.ts` (ported: [journal-and-chest.md](journal-and-chest.md) §2, §3.4) |
 | Scene scripts | `features/scripts/{Interaction,Door,Gate,Chest,Bed,Workbench,StoryFlag,StoryVariant}Script.ts` |
 | Descriptors | `features/scripts/registrations.ts` (line numbers in §3) |
 | Input binding | `features/player/PlayerInputActions.ts:16` (`interact: ['Mouse2']`), `features/player/ControlLabels.ts` |
@@ -253,7 +253,7 @@ the target origin the badge's bottom edge floats"; the badge's top is 22 px high
   true only if the press is at most `input.bufferMs` = **150** ms old on the simulation clock;
   an older press is dropped, never fired late.
 - Order inside `handleActionInput` (`WorldScene.ts:1773-1829`), first match ends the step:
-  1. furniture placement mode: interact cancels placement (ported: [furniture.md](./furniture.md) §5);
+  1. furniture placement mode: interact cancels placement (ported: [furniture.md](furniture.md) §5);
   2. weapon wheel switching (no early return) (ported with the belt);
   3. `updateInteractHold()` (secondary hold, `INTERACT_HOLD_MS = 450`, `:151, :1836-1853`) (ported
      with furniture: a placed bench's "Hold: Pick up");
@@ -291,7 +291,7 @@ the target origin the badge's bottom edge floats"; the badge's top is 22 px high
   differs; turn-in is "Return to <name>", reoffer "Resume quest with <name>". **Ported with the
   quests** (2026-10-05): the controller asks the quest service (group `quests`,
   `npc_candidate(npc_id)`) for the kind and priority and runs `talk_to(npc, kind)`
-  ([quests.md](./quests.md) §5, §10.5).
+  ([quests.md](quests.md) §5, §10.5).
 - Talk execute (`:193-208`):
   ```
   pages = active npc quest waiting ? quest.dialogue.progress + progressLine [OUT]
@@ -537,7 +537,7 @@ Provider (`UniversalSceneWorldController.ts:891-917`):
   `(o.x, o.y - 48)`, white, important. Returns true. [QUIRK] An empty guarded chest prompts
   "Inspect empty chest" but the press reports the guard.
 
-Chest window (`ChestInventorySurfacePort.ts`; ported with [journal-and-chest.md](./journal-and-chest.md),
+Chest window (`ChestInventorySurfacePort.ts`; ported with [journal-and-chest.md](journal-and-chest.md),
 which holds the full behaviour; Godot `chest.gd` leaves the tree silently, owner decision K4): opening pauses
 gameplay (`setChestPaused`) and opens modal `chest-inventory` (Esc closes); list of
 `"<name> ×<count>"` entries; intents `select-item {index}`, `take-selected-stack {index}` (right
@@ -612,7 +612,7 @@ bed's world) is [OUT] here (player spec owns respawn; the Godot trial respawns a
 get a "Hold: Pick up" secondary [OUT]). Execute: `openCraftingStation(site)`
 (`WorldScene.ts:1279-1285`): refuses when paused or the crafting or inventory window is open;
 else opens the crafting window for the site and emits `workbench.opened {mapId, context}`. Ported
-with crafting (2026-10-05, [crafting.md](./crafting.md) §4.1): `MenuWindows.open_station(site)`
+with crafting (2026-10-05, [crafting.md](crafting.md) §4.1): `MenuWindows.open_station(site)`
 and the InteractionController signal `workbench_opened` (no quest listens to it). Authored instances: workshop station "Use the Workshop" (workshop, tier
 1, r 150, rise 150), forge station "Use the Forge" (forge, tier 1, r 130, rise 130), interior
 benches "Use workbench" (r 90, rise 76-76.85). Placeable workbench items [OUT].
@@ -670,7 +670,7 @@ Only what interaction needs; inventory internals belong to `world-objects.md`.
 | NPC position / lock / active | `NpcScript.getPosition`, `acquireInteractionLock`, `isActive` | `get_phaser_position()`, `acquire_interaction_lock()`, `is_inside_tree()` - have |
 | NPC display name, dialogue pages | `content/npcs/NpcDefinitions.ts` | **Missing**: no `npc-definitions.json` in `game/data/` (converter copies only constants, enemy types, items, layers) |
 | Item count / remove (gate key) | `playerInventory.count`, transaction remove | `RunState.item_count`, `remove_item`, `unlock_gate(map, gate, item, consume) -> bool` - have (bool only; the gate needs the 4-way result, §6.2) |
-| Item add with stacking (chest) | `prepareTransaction` + `installTransactionSnapshot` | Planned in [world-objects.md](./world-objects.md) §12.6: `RunState.item_capacity(item_id)`, `add_item(item_id, count) -> int`, signals `inventory_changed` / `world_progress_changed`, `ItemCatalog.item_name(id)`. **Missing** here: `transfer_chest_stack(...)` (§8.5) |
+| Item add with stacking (chest) | `prepareTransaction` + `installTransactionSnapshot` | Planned in [world-objects.md](world-objects.md) §12.6: `RunState.item_capacity(item_id)`, `add_item(item_id, count) -> int`, signals `inventory_changed` / `world_progress_changed`, `ItemCatalog.item_name(id)`. **Missing** here: `transfer_chest_stack(...)` (§8.5) |
 | Gate record | `WorldProgress.isGateUnlocked`, `prepareGateUnlockSnapshot` | `RunState.is_gate_unlocked`, `mark_gate_unlocked` - have |
 | Chest record | `WorldProgress.chestState / ensureChestInitialized / setChestRemaining` | `RunState.map_record(map)["chests"]` exists; **missing** accessors `chest_remaining`, `ensure_chest`, `set_chest_remaining` |
 | Story flags | `storyProgress.hasFlag / setFlags` | `RunState.has_flag / set_flag`, signal `story_flag_changed` - have |
@@ -1041,7 +1041,7 @@ func _gather() -> Array[Dictionary]:
 | gate | `r = gate.try_unlock()`; `at = gate.origin() - (0, gate.badge_rise)`; `r in ["unlocked", "already-unlocked"]` -> `gate.open()`, message `unlocked_message` green big; else message `locked_message` (missing-item) or `"The gate will not budge."`, white big; true |
 | chest | `if chest.request_open() == "guarded": message "Fatty One Eye is guarding this chest!" at origin - (0, 48), white big`; true. Prompt: `"Chest locked by Fatty One Eye"` if `not empty and guarded`, `"Inspect empty chest"` if empty, else `"Open chest"` |
 | bed | refuse (false) when paused, `main.is_transitioning()`, `player.is_action_locked()`, dead or already sleeping; else `_sleep.sleep(bed.sleep_request())` |
-| workbench | refuse (false) when paused or a game window is open; else `MenuWindows.open_station(bench.site())` (group `menu_windows`; false when refused) and emit `workbench_opened {mapId, context}`; true ([crafting.md](./crafting.md) §4.1) |
+| workbench | refuse (false) when paused or a game window is open; else `MenuWindows.open_station(bench.site())` (group `menu_windows`; false when refused) and emit `workbench_opened {mapId, context}`; true ([crafting.md](crafting.md) §4.1) |
 | NPC talk | the quest service's `talk_to(npc, kind)` (quests spec §5.2-5.4, §10.5): lock the NPC, then the dialogue box / offer / turn-in window, the talk recorded at open (plain talk) or after the decision (offer, turn-in); false while paused or without the service |
 
 Messages go through one helper: `Services.feel().floating_text(at, text, color, true)` and
@@ -1140,7 +1140,7 @@ walk); Godot rebuilds synchronously (no loading screen); no recovery save; no ar
 
 ### 8.5 RunState additions (world-objects builder)
 
-On top of [world-objects.md](./world-objects.md) §12.6 (`item_capacity`, `add_item`,
+On top of [world-objects.md](world-objects.md) §12.6 (`item_capacity`, `add_item`,
 `inventory_changed`, `world_progress_changed`): `chest_remaining(map_id, instance_id) ->
 Dictionary` (copy), `ensure_chest(map_id, instance_id, contents)` (only when absent; emits
 `world_progress_changed` when it creates the record), `set_chest_remaining(...)` (drops counts
@@ -1155,9 +1155,9 @@ takes from the last slots; only which stack shrinks differs).
 
 | Screen | Phaser | Proposed until Phase 3 |
 |---|---|---|
-| Chest window | `ChestInventorySurfacePort` (pauses) | ~~take everything at once~~ replaced by the real chest window (2026-10-05, [journal-and-chest.md](./journal-and-chest.md) §2, §3.4; `chest.gd` lost `take_all`) |
-| Dialogue box | `NpcDialogueSurfacePort` (pauses) | ~~first page as floating text~~ replaced by the real dialogue box with the quests (2026-10-05, [quests.md](./quests.md) §6) |
-| Crafting window | `CraftingSurfacePort` | ~~nothing~~ the real crafting window (2026-10-05, [crafting.md](./crafting.md) §4) |
+| Chest window | `ChestInventorySurfacePort` (pauses) | ~~take everything at once~~ replaced by the real chest window (2026-10-05, [journal-and-chest.md](journal-and-chest.md) §2, §3.4; `chest.gd` lost `take_all`) |
+| Dialogue box | `NpcDialogueSurfacePort` (pauses) | ~~first page as floating text~~ replaced by the real dialogue box with the quests (2026-10-05, [quests.md](quests.md) §6) |
+| Crafting window | `CraftingSurfacePort` | ~~nothing~~ the real crafting window (2026-10-05, [crafting.md](crafting.md) §4) |
 
 ### 8.7 Converter / data dependencies
 
@@ -1196,7 +1196,7 @@ rebuild), then `await t.steps(2)`; `t.player()` is a new instance after travel.
 | `test_workshop_station_appears` | `set_flag("workshop.restored")`, 2 frames, teleport (640, 470) | candidate id starts with `world-workbenches:`, prompt `Right-click: Use the Workshop`, priority 88 |
 | `test_chest_domain` | level-1 chest script (`instance_id == "level-1-fatty-guarded-chest"`) | `remaining() == {"green-key": 1}`; `transfer_stack("green-key") == 1`; `item_count("green-key") == 1`; `remaining() == {}`; `stack_transferred` `{"itemId": "green-key", "moved": 1}`; Visual frame 1 after the next step; second transfer returns 0 and emits nothing |
 | `test_chest_prompt` | teleport (2528, 1140) with no live boss (or boss camp absent) | id `managed-chests:level-1-fatty-guarded-chest`, priority 80, prompt `Right-click: Open chest`; with a live Fatty: `Right-click: Chest locked by Fatty One Eye`, tap -> `guard_blocked` and message `Fatty One Eye is guarding this chest!` at (2528, 1029) |
-| `test_use_chest_opens_window` | `_use_chest` on the level-1 chest | the chest window opens on it (`GameWindows.is_open(&"chest-inventory")`, `current_chest()`); the bag and messages unchanged; `closed {instanceId}` only after Close. The window itself: `test_chest_window.gd` ([journal-and-chest.md](./journal-and-chest.md) §3.7) |
+| `test_use_chest_opens_window` | `_use_chest` on the level-1 chest | the chest window opens on it (`GameWindows.is_open(&"chest-inventory")`, `current_chest()`); the bag and messages unchanged; `closed {instanceId}` only after Close. The window itself: `test_chest_window.gd` ([journal-and-chest.md](journal-and-chest.md) §3.7) |
 | `test_bed_sleep_and_wake` | travel to slime-home, teleport (160, 400) | prompt `Right-click: Sleep` (priority 85); tap -> centre (159.625, 356), action locked, prompt hidden, respawn point `{"area_id": "slime-home", "map_id": "slime-home", "x": 160, "y": 356, "bed_id": "world.slime-home.west-bed"}`; a move press before 400 ms keeps sleeping, after 400 ms wakes at (159.625, 356) and the prompt returns |
 | `test_sleep_heals` | as above with hp 50 | after 1000 ms doze + 3000 ms sleep: hp 56 +- 1 (2 HP/s from the end of the doze, whole points, fraction carried) |
 | `test_story_flag_on_set` (playground) | `travel_to("playground")`; call `on_set({})` on `end-card-flag` | `has_flag("playground-end-card-test")` |
