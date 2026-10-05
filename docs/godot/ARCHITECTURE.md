@@ -46,7 +46,7 @@ res://game/main.tscn (main.gd)                         bootstrap
        GooTrail (goo_trail.gd, y 0)                <- the player's Goo Trail passive (ground decal)
        SlamArea / ability effects                  <- the player's abilities (game/player/abilities/)
   WorldCamera (world_camera.gd, ALWAYS, priority 100)
-  Hud (CanvasLayer 10, hud.gd) > PlayerHealthBar (player_health_bar.gd), BossHealthBar (boss_health_bar.gd)
+  Hud (CanvasLayer 10, hud.gd) > PlayerHealthBar (player_health_bar.gd), BossHealthBar (boss_health_bar.gd), AbilityBar (ability_bar.gd)
   FpsReadout (CanvasLayer 100, fps_readout.gd)
   ArrivalFade (CanvasLayer 5, runtime)      EnemyPopulation (enemy_population.gd, runtime)
   Interaction (interaction_controller.gd)   EnemyLoot (enemy_loot.gd)   <- made once in _ready, kept across worlds
@@ -257,6 +257,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/player/gulp/gulp_forms.gd`, `gulp_controller.gd`, `gulp_hud.gd` | abilities | Gulp forms (eating materials): timers, tint, speed and the form HUD |
 | `game/player/status_effects.gd` | player | Burn, poison, slow, sticky, bouncy, frenzy, and the web root (`apply_web`) |
 | `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
+| `game/ui/ability_bar.gd` | abilities | The HUD's ability bar (bottom centre): labels from `player.ability_status`, clicks run `activate_ability_from_ui` |
 | `game/scripts/training_dummy.gd`, `gulp_spot.gd`, `pressure_plate.gd`, `cracked_ground.gd`, `lash_bell.gd`, `ability_lesson.gd`, `goo_heart.gd`, `restoration_site.gd` | abilities | The abilities' puzzle pieces (§6) |
 | `game/world_objects/enemy_loot.gd` | world objects | Child "EnemyLoot" of main: enemy coins, loot piles scattered round the corpse, their records and restore |
 | `game/ui/screens/game_windows.gd` | UI | Child "GameWindows" of main (CanvasLayer 40): the game windows' parent, the one `modal` pause owner, Escape for the top window |
