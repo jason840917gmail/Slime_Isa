@@ -1,7 +1,7 @@
-[gd_resource type="Theme" format=4]
+[gd_resource type="Theme" format=4 uid="uid://dxkby6wrgva6s"]
 
-[ext_resource type="FontFile" path="res://game/ui/theme/fonts/source-sans-3/SourceSans3[wght].ttf" id="1_h1e2w"]
-[ext_resource type="FontFile" path="res://game/ui/theme/fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf" id="2_8xysc"]
+[ext_resource type="FontFile" uid="uid://dbnbmckjlrx5l" path="res://game/ui/theme/fonts/source-sans-3/SourceSans3[wght].ttf" id="1_h1e2w"]
+[ext_resource type="FontFile" uid="uid://bguookd6d345h" path="res://game/ui/theme/fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf" id="2_8xysc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o6qol"]
 content_margin_left = 16.0
