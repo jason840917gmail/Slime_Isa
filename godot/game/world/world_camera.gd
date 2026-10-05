@@ -70,6 +70,12 @@ var _target_curr: Vector2 = Vector2.ZERO
 var _has_snapshot: bool = false
 
 
+## Interpolation OFF before the node enters the tree: Camera2D checks it on tree entry and
+## would otherwise warn "overridden to physics process mode" (main.tscn sets it too).
+func _init() -> void:
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+
+
 ## Node setup as described above.
 func _ready() -> void:
 	anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
@@ -78,8 +84,8 @@ func _ready() -> void:
 	drag_horizontal_enabled = false
 	drag_vertical_enabled = false
 	ignore_rotation = true
-	process_callback = Camera2D.CAMERA2D_PROCESS_IDLE
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	process_callback = Camera2D.CAMERA2D_PROCESS_IDLE
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	process_priority = 100
 	process_physics_priority = 100
@@ -163,15 +169,23 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Phaser `centerOn` + bounds clamp (world spec 4.5): when the view is larger than the world the
 ## view's left/top edge is pinned to the bounds (no centring). Sets `center` and `global_position`.
+## At integer zoom (roundPixels) Phaser `Camera.preRender` (Camera.js:557-571) floors the scroll
+## (`centre - vp / 2`, screen px) BEFORE clamping and stores it back, so the next follow update
+## starts from the floored value (sub-pixel catch-up steps truncate: the camera settles up to a
+## few px short of the deadzone edge moving right/down). Same here: `center` keeps the floored,
+## clamped value and the view's top-left lands on a whole pixel.
 func center_on(point: Vector2) -> void:
 	var p := point
+	if _round_pixels:
+		var half_vp := _viewport_size() * 0.5
+		p = (p - half_vp).floor() + half_vp
 	if use_bounds and bounds.size.x > 0.0 and bounds.size.y > 0.0:
 		var view := _viewport_size() / maxf(target_zoom, ZOOM_EPSILON)
 		var min_c := bounds.position + view * 0.5
 		var max_c := Vector2(maxf(min_c.x, bounds.end.x - view.x * 0.5), maxf(min_c.y, bounds.end.y - view.y * 0.5))
 		p = Vector2(clampf(p.x, min_c.x, max_c.x), clampf(p.y, min_c.y, max_c.y))
 	center = p
-	global_position = p.round() if _round_pixels else p
+	global_position = p
 
 
 ## Phaser `setZoom` (world spec 4.4): ignore non-finite or <= 0; set target and `zoom`;
@@ -249,8 +263,11 @@ func hold_fixed() -> void:
 
 ## Phaser `camera.shake(ms, intensity)` (world spec 4.9, player spec 8): ignored while a shake
 ## runs (Phaser force = false); each frame `offset = (randf_range(-1,1) * i * vp.x,
-## randf_range(-1,1) * i * vp.y) / zoom` (screen px to world units), reset to zero at the end.
-## Runs on real time. Called by GameFeel.shake().
+## randf_range(-1,1) * i * vp.y) * zoom` in world units, rounded at integer zoom, reset to zero
+## at the end. Phaser (Shake.js:242-250) computes the same `* zoom` value and translates the
+## already zoom-scaled camera matrix by it, so the on-screen shift is `i * vp * zoom^2`
+## (Camera2D.offset is world units, scaled once more by zoom on screen). Runs on real time.
+## Called by GameFeel.shake().
 func shake(duration_ms: float, intensity: float) -> void:
 	if duration_ms <= 0.0 or intensity <= 0.0 or not is_finite(duration_ms) or not is_finite(intensity):
 		return
@@ -362,7 +379,7 @@ func _advance_shake(now: float) -> void:
 		var vp := _viewport_size()
 		var z := maxf(target_zoom, ZOOM_EPSILON)
 		var shake_offset := Vector2(randf_range(-1.0, 1.0) * _shake_intensity * vp.x,
-			randf_range(-1.0, 1.0) * _shake_intensity * vp.y) / z
+			randf_range(-1.0, 1.0) * _shake_intensity * vp.y) * z
 		offset = shake_offset.round() if _round_pixels else shake_offset
 	elif offset != Vector2.ZERO:
 		offset = Vector2.ZERO

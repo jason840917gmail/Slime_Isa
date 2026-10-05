@@ -175,7 +175,7 @@ Runtime-only Phaser API that gameplay ports must replace: `effects {scaleX, scal
 - Blocking rule (`blockingPairAccepts`): a mover is blocked when `mover.mask & other.layer`. Two dynamic bodies interact when *either* mask accepts the other, and Arcade **pushes both apart** (default pushable bodies). Godot CharacterBody2D does not push other kinematic bodies, so player ↔ enemy contact no longer shoves the enemy. This is a feel difference for the gameplay port.
 
 ### 4.7 CharacterBody2D → `CharacterBody2D` (16: 14 characters, 2 projectiles)
-- `velocity` → `velocity` (all authored [0,0]). **Arcade integrates the velocity by itself every physics step.** Godot scripts must call `move_and_slide()` from `_physics_process`. Phaser reads the post-step velocity back (slides reduce it), as `move_and_slide` does.
+- `velocity` → `velocity` (all authored [0,0]). **Arcade integrates the velocity by itself every physics step.** Godot scripts must move the body from `_physics_process` with `ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`). Phaser reads the post-step velocity back with the blocked component zeroed; floating-mode `move_and_slide()` does not (it keeps the velocity and slides at full speed), so it must not be used.
 - Write `motion_mode = 1` (MOTION_MODE_FLOATING).
 - `collideWorldBounds` (10 authored; projectiles false) is dropped. Runtime world bounds clamp only bodies whose flag was true, so carry it as `metadata/collide_world_bounds` to let the world builder skip projectiles.
 - `allowWorldPassThrough` is never authored and is validation only.
@@ -399,7 +399,7 @@ They keep the TS names (descriptor list: player `health_changed`, `damaged`, `da
 
 ## 8. Behaviour differences script porters must know
 
-1. Bodies move on their own in Arcade (velocity integration). Godot needs `move_and_slide()`.
+1. Bodies move on their own in Arcade (velocity integration). Godot needs `ArcadeMover.move(body, delta)` (not `move_and_slide()`).
 2. Arcade pushes dynamic bodies apart symmetrically. Godot CharacterBody2D does not push.
 3. Phaser Node2D visibility is not inherited; Godot's is.
 4. Phaser `AnimationPlayer.play(name)` always restarts and stop or switch restores baselines; use `play_clip` and `stop_clip`.

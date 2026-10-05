@@ -269,10 +269,13 @@ knockback has priority), emit `attack_finished {weaponId, direction}`.
 tree (`_exit_tree`). `playAttack` (force restart) is not used by the sword path.
 
 Timing at 60 Hz (elapsed after the k-th step is k·16.667 ms): right/left shapes
-on at step ≈10, off at step 23, swing ends step 25. Because contacts are
-resolved one step after enabling, the earliest hit is the step after the window
-opens. Keep this 1-step latency in Godot by resolving at the *start* of the
-step (see 6.2). Floating-point frame boundaries (e.g. 166.666…) may land on
+on at step ≈10, off at step 23, swing ends step 25. A target already inside the
+sector is hit **in the step the window opens**: Phaser resolves new contacts in
+the same fixed step (`collectManagedContacts` → `area_entered`,
+`PhaserSceneTreeHost.ts:101-107`); `currentContacts` only keeps contact going
+across window changes. (Corrected by the 2026-10-04 review; an earlier version of
+this spec claimed a one-step latency.) Godot reproduces it with a deferred
+`intersect_shape` pass at the end of the weapon's step (see 6.2). Floating-point frame boundaries (e.g. 166.666…) may land on
 either step; do not special-case.
 
 ### 5.3 Hitbox shapes (`AttackArea` children; positions relative to the weapon root = player centre)
@@ -334,8 +337,10 @@ player's re-anchoring; placing the weapon root at (0,−27.56) (§3) keeps them 
   (avoids "can't change monitoring during flush" errors; use `set_deferred` if
   ever toggled from a signal callback).
 - At the start of each `_physics_process` while swinging, iterate
-  `attack_area.get_overlapping_areas()` — this is Phaser's level-triggered
-  `currentContacts`, with the same one-step latency. Do not also connect
+  `attack_area.get_overlapping_areas()` — Phaser's level-triggered
+  `currentContacts` — and, after opening windows, queue a deferred
+  `PhysicsDirectSpaceState2D.intersect_shape` pass over the enabled shapes so a
+  target inside a window is hit in the step it opens (as `weapon.gd` does). Do not also connect
   `area_entered` (the converted connection to `on_area_entered(area)` may stay;
   make the handler call the same resolve function — the per-window set dedupes).
 - Shape identity: for the sword only the current direction's single `primary`
@@ -449,7 +454,7 @@ Requires `attackArea` reference too.
   emit hit_reaction {durationMs: stunMs, strength}      # no listeners in the worm scene
   ```
 - Hit-stun in `_physics_process` (`:374-378`): while `simTime < hitStunUntil`:
-  `velocity *= 0.94 ^ (delta*60)` and **return** (no AI, no attack). Worm drift ≈ 143/60 · (1−0.94²²)/(1−0.94) ≈ 30 px over 22 steps. Bodies collide with the world/player normally (use `move_and_slide`).
+  `velocity *= 0.94 ^ (delta*60)` and **return** (no AI, no attack). Worm drift ≈ 143/60 · (1−0.94²²)/(1−0.94) ≈ 30 px over 22 steps. Bodies collide with the world/player normally (move with `ArcadeMover.move`).
 - `showHitFeedback` (`:307-312`): `hitFlashUntil = simTime + 120`; Visual `setTintFill(0xff6f88)` (solid fill, §11); damage number request `{x, y = body position (centre), amount: actualDamage}` (§12). `updateHitFlash` (`:863-867`, first thing in `_physics_process`) clears the tint when `simTime >= hitFlashUntil`. Enemy sim time stops in hit-stop → the flash lasts 65 ms (frozen) + 120 ms.
 - `defeat()` (`:515-533`): `defeated = true`, `hp = 0`, `cancelAttack()`, state `dead`, velocity 0 and **body collision disabled**, attack area off, play `die-<facing>` (restart), emit `health_changed {0, maxHp}`, `defeated {receiverNodeId}` (→ `DeathSfx`, detached so it survives the free), `reward_requested` once (OUT). Every later `_physics_process` keeps velocity 0. The DamageArea stays registered; further hits are rejected `dead` (no feedback).
 - Removal (`UniversalSceneWorldController.ts:2050-2063`, after each fixed step): first time `defeated` is seen → notify (rewards, OUT) and `disposeAt = enemySimTime + 800`; free the enemy when its sim time reaches that (`die-*` clips last 0.571 s).
@@ -655,7 +660,7 @@ Phaser damage); flag the off-by-one to the owner as a probable Phaser bug.
 | `player-defeated` | 400 | 0.012 | 150 | player death |
 
 `play(event)`: `shake(ms, intensity)` then `hitStop(ms)`.
-- `shake`: skipped if no stage, `ms <= 0`, `intensity <= 0`, or `shakeScale <= 0`; else camera shake with `intensity * shakeScale`. `shakeScale` = setting `screenShake` (0..1, default 1) or 0 under Reduce motion. Phaser `camera.shake` **does not replace a running shake** (force = false). Phaser offset each frame: `x = rand(−1,1) · intensity · viewportWidth · zoom`, `y = rand(−1,1) · intensity · viewportHeight · zoom`, constant amplitude, reset at the end (`node_modules/phaser/src/cameras/2d/effects/Shake.js:236-246`). Godot: a shake script on the Camera2D setting `offset` per frame; convert screen px to world units by `/ zoom`; tune by eye.
+- `shake`: skipped if no stage, `ms <= 0`, `intensity <= 0`, or `shakeScale <= 0`; else camera shake with `intensity * shakeScale`. `shakeScale` = setting `screenShake` (0..1, default 1) or 0 under Reduce motion. Phaser `camera.shake` **does not replace a running shake** (force = false). Phaser offset each frame: `x = rand(−1,1) · intensity · viewportWidth · zoom`, `y = rand(−1,1) · intensity · viewportHeight · zoom`, constant amplitude, reset at the end (`node_modules/phaser/src/cameras/2d/effects/Shake.js:236-246`). Godot: a shake script on the Camera2D setting `offset` per frame, in world units `rand · intensity · viewport · zoom`, so the on-screen shift is `· zoom²` as in Phaser (`world_camera.gd` `_advance_shake`).
 - `hitStop(ms)`: skipped under Reduce motion; `frozenUntil = max(frozenUntil, realNow + ms)` — overlapping stops do not add. Clock: **real time** (`scene.time.now`).
 - While frozen (`WorldScene.ts:792-799, 735-748`): the world advances with delta 0 — no fixed steps (no sim time, no scripts, no physics), physics paused, tweens time-scale 0, sprite animations paused. Rendering, camera shake, particles, the floating text (real-time clock) and the player's real-time flash timer keep going.
 

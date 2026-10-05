@@ -113,6 +113,8 @@ function convertCharacterBody(ctx) {
   ctx.node2d(props, { position: nodePosition(ctx) });
   collisionObjectProps(ctx, props, { layer: p.collisionLayer ?? 1, mask: p.collisionMask ?? 1 });
   props.push(['motion_mode', 1]);
+  // Arcade keeps the tangential velocity at any angle into a wall; Godot's default 15° would stop it dead.
+  props.push(['wall_min_slide_angle', gd.float(0)]);
   const [vx, vy] = vec(p.velocity, [0, 0]);
   if (vx || vy) props.push(['velocity', gd.vec2(vx, vy)]);
   if (p.collideWorldBounds !== undefined) props.push(['metadata/collide_world_bounds', Boolean(p.collideWorldBounds)]);

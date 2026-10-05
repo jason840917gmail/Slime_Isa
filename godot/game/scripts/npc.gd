@@ -5,12 +5,13 @@ class_name NpcScript
 ##
 ## Lifecycle: `_ready` adds the NPC to groups "npc" and "interactable" and plays "idle". Until
 ## main.gd calls `configure_wander()` the NPC has no agent and idles forever (world spec 5.3).
-## This script is the only caller of `body.move_and_slide()` for its body.
+## This script is the only mover of its body (`ArcadeMover.move`, never `move_and_slide()`).
 ## Coordinates: wander targets and domains are old Phaser root positions (sprite bottom), see
 ## FeetAnchor; velocity is identical in both spaces.
 ##
 ## Owner: world builder.
 
+const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 const NpcWanderPolicy := preload("res://game/world/npc_wander_policy.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
@@ -84,7 +85,7 @@ func _ready() -> void:
 ## World spec 5.5: if paused or no agent -> velocity 0, "idle"; else step the wander policy from
 ## the old root position with `delta * 1000` and `wander_speed`, write `body.velocity`, play the
 ## returned clip, then on an arrival/stuck/no-domain pause start a fresh random pause
-## (world spec 5.3). Always ends with `body.move_and_slide()`.
+## (world spec 5.3). Always ends with `ArcadeMover.move(body, delta)`.
 func _physics_process(delta: float) -> void:
 	if body == null:
 		return
@@ -101,7 +102,7 @@ func _physics_process(delta: float) -> void:
 		_state = next_state
 		body.velocity = result["velocity"]
 		_play(clip)
-	body.move_and_slide()
+	ArcadeMover.move(body, delta)
 
 
 ## Velocity 0 when leaving the tree.

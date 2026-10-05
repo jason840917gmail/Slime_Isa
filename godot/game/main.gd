@@ -18,6 +18,9 @@ extends Node2D
 ##     equip(TRIAL_WEAPON_ID)
 ##  7. start_enemy_population(): EnemyPopulation with the enemy-spawn areas, safe zones,
 ##     entities_root, allowed_types = TRIAL_ENEMY_TYPES, seed_initial()
+##  7b. warm_runtime_scenes(): cache the PackedScenes spawned mid-game (camp enemy types, the
+##     weapon's hit effect) and mount the global audio cue scene, so none of them is loaded on
+##     a gameplay frame (Phaser loads everything in MapLoadScene before the world starts)
 ##  8. configure_npcs(): for every node in group "npc": configure_wander(npc_wander_area(
 ##     npc.get_instance_id_key()).get("perimeter", {}))
 ##  9. setup_camera(): $WorldCamera.setup(world_rect, camera_mode); start_follow(player root);
@@ -87,6 +90,7 @@ func _ready() -> void:
 	else:
 		equip_trial_weapon()
 	start_enemy_population()
+	warm_runtime_scenes()
 	configure_npcs()
 	setup_camera()
 	start_arrival_fade()
@@ -219,6 +223,26 @@ func start_enemy_population() -> void:
 	enemy_population.seed_initial()
 
 
+## Preloads what the trial spawns during play (Phaser MapLoadScene.ts:56-67 loads all world
+## media before WorldScene starts): `character.<type>` for every allowed enemy type, the
+## equipped weapon's `effect.<on_hit_effect_id>`, and GameFeel's global audio cue scene
+## (otherwise mounted on the first dodge / crit / respawn cue).
+func warm_runtime_scenes() -> void:
+	var world_service := Services.world()
+	if world_service == null:
+		return
+	if enemy_population != null:
+		for type_id: String in enemy_population.allowed_types:
+			world_service.packed_scene("character." + type_id)
+	if player_combat != null:
+		var weapon := player_combat.get_weapon()
+		if weapon != null and not weapon.on_hit_effect_id.is_empty():
+			world_service.packed_scene("effect." + weapon.on_hit_effect_id)
+	var feel := Services.feel()
+	if feel != null:
+		feel.warm_up()
+
+
 ## Gives every NPC its wander perimeter (world spec 5.3).
 func configure_npcs() -> void:
 	var world_service := Services.world()
@@ -270,8 +294,12 @@ func setup_ui() -> void:
 	fps_readout.bind_camera(world_camera)
 
 
-## Respawn camera pan: `world_camera.pan_to(Vector2(payload.x, payload.y), PlayerScript.RESPAWN_PAN_MS)`.
+## Respawn camera (WorldScene.respawnPlayer, WorldScene.ts:1975-1979):
+## `world_camera.pan_to(Vector2(payload.x, payload.y), PlayerScript.RESPAWN_PAN_MS)`, then
+## `world_camera.reset_zoom()` (zoom back to 1 in follow mode; re-holds a fixed camera, where
+## pan_to is a no-op). Following resumes when the pan ends.
 func _on_player_respawned(payload: Dictionary) -> void:
 	if not payload.has("x") or not payload.has("y"):
 		return
 	world_camera.pan_to(Vector2(float(payload["x"]), float(payload["y"])), PlayerScript.RESPAWN_PAN_MS)
+	world_camera.reset_zoom()

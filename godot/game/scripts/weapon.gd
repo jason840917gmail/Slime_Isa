@@ -7,11 +7,16 @@ class_name WeaponScript
 ## The weapon root is mounted on the player by PlayerCombat; the node "WeaponScript" is a plain
 ## Node child of it. Swing clock: SimClock (frozen by hit-stop).
 ## Hit detection (combat spec 6.2): `attack_area.monitoring` stays true while mounted; only the
-## CollisionShape2D children named "<direction>--<hitboxId>" are toggled (`disabled`). At the
-## START of each physics step while swinging, `attack_area.get_overlapping_areas()` (contacts
-## from the previous physics step: Phaser's level-triggered currentContacts, same one-step
-## latency) is resolved for every open window; `on_area_entered` funnels into the same resolver
-## (the per-window receiver set dedupes).
+## CollisionShape2D children named "<direction>--<hitboxId>" are toggled (`disabled`). Three
+## paths feed one resolver (the per-window receiver set dedupes them):
+## - same-step shape query: after the windows update, a deferred `intersect_shape` per enabled
+##   shape (run once every script has moved its body this step) stands in for Phaser's
+##   `collectManagedContacts` -> `area_entered` in the SAME fixed step
+##   (PhaserSceneTreeHost.ts:101-107), so a target already inside the sector is hit in the step
+##   the window opens, and a target entering an open window is hit in the step it enters;
+## - at the START of each physics step while swinging, `attack_area.get_overlapping_areas()`
+##   (Phaser's level-triggered `currentContacts` poll: continuity across window changes);
+## - `on_area_entered` (Godot emits it only at the next step's query flush; kept as a fallback).
 ##
 ## Owner: combat builder.
 
@@ -75,6 +80,8 @@ var _weapon_time: float = 0.0
 ## Bumped whenever a swing starts or ends; lets `_resolve_contact` notice a swing ended while
 ## routing (WeaponScript.ts:342-343).
 var _swing_serial: int = 0
+## True while a deferred same-step shape query is queued (one per physics step).
+var _shape_query_queued: bool = false
 
 
 ## Disables every attack shape, sets `attack_area.monitoring = true`, plays "idle".
@@ -86,7 +93,7 @@ func _ready() -> void:
 		attack_area.monitoring = true
 	_set_attack_area_active(false, {})
 	if animation != null and animation.has_animation(&"idle"):
-		animation.play(&"idle")
+		_play_clip(&"idle")
 
 
 ## `cancel_attack()` when leaving the tree.
@@ -133,7 +140,7 @@ func try_begin_attack(direction: String, payload: Dictionary) -> bool:
 		_combat.call(&"on_attack_started", weapon_id, direction)
 	var animation_id := StringName(str(plan["animationId"]))
 	if animation != null and animation.has_animation(animation_id):
-		animation.play(animation_id)
+		_play_clip(animation_id)
 	attack_started.emit({"weaponId": weapon_id, "direction": direction})
 	return true
 
@@ -172,6 +179,9 @@ func _physics_process(_delta: float) -> void:
 		_finish_attack()
 		return
 	_update_windows(floori(elapsed / 1000.0 * float(plan["framesPerSecond"])))
+	# Phaser resolves new contacts later in the same fixed step (collectManagedContacts ->
+	# area_entered); Godot's own area_entered only arrives at the next step's query flush.
+	_queue_shape_query()
 
 
 ## Converted connection `AttackArea.area_entered -> on_area_entered`: same resolver as the
@@ -190,6 +200,62 @@ func _resolve_contact_deferred(area_id: int) -> void:
 	var area := instance_from_id(area_id) as Area2D
 	if area != null and area.is_inside_tree():
 		_resolve_contact(area)
+
+
+func _queue_shape_query() -> void:
+	if _shape_query_queued or _windows.is_empty() or attack_area == null:
+		return
+	_shape_query_queued = true
+	_resolve_shape_query.call_deferred(_swing_serial)
+
+
+## Same-step contact pass (Phaser `collectManagedContacts` -> `area_entered` -> `resolveContact`):
+## runs from the deferred-call flush at the end of this physics step's process pass, after every
+## script has moved its body and before the physics server steps. Queries each enabled attack
+## shape against the space (areas only, `attack_area.collision_mask`, monitorable areas, the
+## attack area itself excluded) and resolves every hit hurtbox; skipped when the swing that
+## queued it has ended.
+func _resolve_shape_query(serial: int) -> void:
+	_shape_query_queued = false
+	if serial != _swing_serial or _windows.is_empty() or _payload.is_empty():
+		return
+	if attack_area == null or not is_instance_valid(attack_area) or not attack_area.is_inside_tree() \
+			or not attack_area.monitoring:
+		return
+	var space := attack_area.get_world_2d().direct_space_state
+	if space == null:
+		return
+	var areas: Array[Area2D] = []
+	var seen: Dictionary = {}
+	var exclude: Array[RID] = [attack_area.get_rid()]
+	var area_transform := attack_area.global_transform
+	# Shape owners cover CollisionShape2D and CollisionPolygon2D children alike.
+	for owner_id in attack_area.get_shape_owners():
+		if attack_area.is_shape_owner_disabled(owner_id):
+			continue
+		var owner_transform := area_transform * attack_area.shape_owner_get_transform(owner_id)
+		for shape_index in attack_area.shape_owner_get_shape_count(owner_id):
+			var shape := attack_area.shape_owner_get_shape(owner_id, shape_index)
+			if shape == null:
+				continue
+			var query := PhysicsShapeQueryParameters2D.new()
+			query.shape = shape
+			query.transform = owner_transform
+			query.collide_with_areas = true
+			query.collide_with_bodies = false
+			query.collision_mask = attack_area.collision_mask
+			query.exclude = exclude
+			for hit: Dictionary in space.intersect_shape(query):
+				var area := hit.get("collider") as Area2D
+				if area == null or not area.monitorable or seen.has(area.get_instance_id()):
+					continue
+				seen[area.get_instance_id()] = true
+				areas.append(area)
+	for area in areas:
+		if _swing_serial != serial:
+			return
+		if is_instance_valid(area) and area.is_inside_tree():
+			_resolve_contact(area)
 
 
 func _resolve_current_overlaps() -> void:
@@ -325,7 +391,7 @@ func _finish_attack() -> void:
 	_swing_serial += 1
 	if animation != null and is_instance_valid(animation) and animation.is_inside_tree() \
 			and animation.has_animation(&"idle"):
-		animation.play(&"idle")
+		_play_clip(&"idle")
 	if direction.is_empty():
 		return
 	if _has_combat():
@@ -386,6 +452,17 @@ func _attack_plan(direction: String) -> Dictionary:
 		"framesPerSecond": float(fps),
 		"hitboxSpans": hitbox_spans,
 	}
+
+
+## Starts `clip` from frame 0 and applies that frame at once, like Phaser's
+## `AnimationPlayerNode.play` (clock.start dispatches frame 0 immediately): the converter
+## runtime's `play_clip` when present, else play + seek(0, true).
+func _play_clip(clip: StringName) -> void:
+	if animation.has_method(&"play_clip"):
+		animation.call(&"play_clip", clip)
+	else:
+		animation.play(clip)
+		animation.seek(0.0, true)
 
 
 func _has_combat() -> bool:

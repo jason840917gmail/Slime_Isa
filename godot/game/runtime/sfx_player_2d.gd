@@ -6,9 +6,13 @@ extends AudioStreamPlayer2D
 ## - `detached`: a one-shot outlives its node (death and pickup sounds). Each
 ##   play spawns a one-shot clone at the node's global position under the tree
 ##   root, which frees itself when done; `max_polyphony` caps the live clones.
-## - `pan_distance`: Phaser pans `(x − camera_x) / pan_distance` (clamped ±1).
-##   Godot pans `dx / viewport_width · panning_strength · 2d_panning_strength`,
-##   so `panning_strength` is set at each play to match. Attenuation is already
+## - `pan_distance`: Phaser pans `(x − camera_x) / pan_distance` (clamped ±1)
+##   every frame, in world units, so zoom does not change it
+##   (`AudioStreamPlayer2DNode.ts` 351-363). Godot pans the screen-space offset
+##   `dx · zoom / viewport_width · panning_strength · 2d_panning_strength`, so
+##   `panning_strength` is recomputed every frame while a voice plays (and on
+##   each play), dividing out the canvas zoom; running loops and live detached
+##   clones follow camera zoom and viewport size changes. Attenuation is already
 ##   Phaser's linear `1 − d / max_distance` (`attenuation = 1`).
 ##
 ## Owner: converter builder.
@@ -38,7 +42,14 @@ func _ready() -> void:
 
 func _enter_tree() -> void:
 	if _prepared and loop and _loop_wanted and not playing:
+		_update_panning()
 		play()
+
+
+# Runs while paused too: the converter sets PROCESS_MODE_ALWAYS on audio players.
+func _process(_delta: float) -> void:
+	if playing or not _clones.is_empty():
+		_update_panning()
 
 
 func _prepare() -> void:
@@ -114,9 +125,23 @@ func _play_detached(pitch: float) -> void:
 func _update_panning() -> void:
 	if not is_inside_tree() or pan_distance <= 0.0:
 		return
-	var viewport_width := get_viewport().get_visible_rect().size.x
+	var viewport := get_viewport()
+	var viewport_width := viewport.get_visible_rect().size.x
 	var global_strength: float = ProjectSettings.get_setting("audio/general/2d_panning_strength", 0.5)
-	if global_strength <= 0.0:
+	# Godot measures the source offset through the same transform: screen dx = world dx · zoom.
+	var zoom := absf((viewport.get_global_canvas_transform() * viewport.get_canvas_transform()).get_scale().x)
+	if global_strength <= 0.0 or zoom <= 0.0:
 		return
-	# Godot: pan offset = dx / width · strength · global · 0.5 (half of the ±1 swing).
-	panning_strength = viewport_width / (pan_distance * global_strength)
+	# Godot: pan offset = dx·zoom / width · strength · global · 0.5 (half of the ±1 swing);
+	# Phaser: dx / pan_distance on the same ±1 swing.
+	var strength := viewport_width / (pan_distance * zoom * global_strength)
+	if not is_equal_approx(panning_strength, strength):
+		panning_strength = strength
+	if _clones.is_empty():
+		return
+	var live: Array[AudioStreamPlayer2D] = []
+	for clone in _clones:
+		if is_instance_valid(clone) and not clone.is_queued_for_deletion():
+			live.append(clone)
+			clone.panning_strength = strength
+	_clones = live

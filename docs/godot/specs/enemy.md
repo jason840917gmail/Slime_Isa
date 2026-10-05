@@ -296,9 +296,9 @@ if active_sequence_id != null: return               # facing/anim frozen while a
 update_facing(velocity); play_facing("walk" if |velocity| > 2 else "idle")
 ```
 Then the body moves: Phaser Arcade integrates `velocity` after scripts. In Godot call
-`body.move_and_slide()` at the end of **every** path above except `defeated` (the stun path must move
+`ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`) at the end of **every** path above except `defeated` (the stun path must move
 too, it is the knockback slide). The AI reads back `body.velocity` the next step, so keep using the
-post-`move_and_slide` velocity (Arcade likewise zeroes the blocked axis on collision).
+post-move velocity (the mover zeroes the blocked component on collision, as Arcade does; `move_and_slide()` would not).
 
 ### 4.3 Territory (`enemies/ai/Territory.ts:115-169`, called from `EnemyScript.ts:548-571`)
 Inputs: `now = sim_ms`, `enemy = origin`, `player = player centre`, `home = area.stayPerimeter`,
@@ -558,7 +558,7 @@ and the enemy finds the player and router through an autoload/world service (arc
 
 Fixed-step order in Phaser: world sim clock += dt → population update → scripts `_physics_process`
 (enemy) → Arcade physics moves bodies → defeated-enemy cleanup. Godot: spawner in its own
-`_physics_process` (or the world's), enemy script calls `move_and_slide()` itself; order differences
+`_physics_process` (or the world's), enemy script moves its body itself (`ArcadeMover.move`); order differences
 of one step are acceptable.
 
 ---

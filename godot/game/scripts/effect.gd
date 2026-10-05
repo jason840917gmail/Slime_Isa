@@ -41,9 +41,18 @@ func is_playing() -> bool:
 
 
 ## Plays clip `variant` when present, age = 0, playing.
+## Like Phaser's `AnimationPlayerNode.play` (clock.start dispatches frame 0 at once), the clip's
+## first frame is applied immediately through the converter runtime's `play_clip` (stop, play,
+## seek(0, true)), so e.g. a "left" impact spawned inside a hit step shows flipped through the
+## hit-stop freeze instead of on the first step after it.
 func play(variant: String) -> void:
 	if animation != null and is_instance_valid(animation) and animation.has_animation(variant):
-		animation.play(variant)
+		var clip := StringName(variant)
+		if animation.has_method(&"play_clip"):
+			animation.call(&"play_clip", clip)
+		else:
+			animation.play(clip)
+			animation.seek(0.0, true)
 	_started_at = Services.now_ms()
 	_age_ms = 0.0
 	_playing = true

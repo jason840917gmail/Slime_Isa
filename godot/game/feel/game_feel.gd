@@ -176,6 +176,12 @@ func _set_hit_stop_pause(active: bool) -> void:
 		get_tree().paused = active
 
 
+## Mounts the global audio scene (`audio.global`) now instead of on the first cue, so the
+## first dodge or hit does not stall on loading it. Safe to call more than once.
+func warm_up() -> void:
+	_ensure_global_audio()
+
+
 func _ensure_global_audio() -> Node:
 	if _global_audio != null and is_instance_valid(_global_audio):
 		return _global_audio

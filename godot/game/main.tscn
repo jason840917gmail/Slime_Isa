@@ -13,6 +13,7 @@ script = ExtResource("1_main")
 [node name="WorldCamera" type="Camera2D" parent="."]
 process_mode = 3
 process_priority = 100
+physics_interpolation_mode = 2
 script = ExtResource("2_camera")
 
 [node name="Hud" type="CanvasLayer" parent="."]

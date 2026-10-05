@@ -16,6 +16,7 @@ behaviour per area is in [specs/](./specs/).
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`); the converter attaches it and writes the exports it declares |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_generated.gd`; excluded from exports |
+| `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
 | `godot/addons/godot_ai/` | per machine, git-ignored | the Godot AI editor plugin (MCP bridge) that lets Claude drive the open editor; enabled in `project.godot`, disabled by itself in headless runs, excluded from exports. On a machine without it Godot reports the plugin missing: install it (version 4.3.0) or untick it in Project Settings → Plugins |
 
 Until Phase 1 of the migration ends, scene JSON is the source of truth: change
@@ -63,7 +64,7 @@ content there and re-run the converter. Never hand-edit `godot/generated/`.
 - One gameplay clock: `Services.now_ms()`. Real time only for presentation
   (flashes, floating text, camera). Hit-stop pauses the tree; scripts that must keep
   running (input buffering, camera, HUD) use `PROCESS_MODE_ALWAYS`.
-- Each body has one `move_and_slide()` caller (its own scene script).
+- Each body is moved only by its own scene script, with `ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`); never `move_and_slide()`, whose floating-mode slide differs from Phaser's Arcade.
 - Gameplay values come from `generated/data/game-constants.json` (through
   `Services.constants()`) or from scene properties, never new literals.
 - Commit the `*.gd.uid` files Godot creates next to scripts.
@@ -76,7 +77,13 @@ pnpm godot:sync && pnpm godot:convert
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_generated.gd
 "<Godot 4.7.2 console exe>" --headless --path godot --check-only -s res://game/<file>.gd
 "<Godot 4.7.2 console exe>" --headless --path godot --quit-after 600
+pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godot from $GODOT
 ```
+
+`pnpm test:godot` (about a minute) checks the trial's numbers from [specs/](./specs/): walk,
+sprint and dodge, sword and worm damage, i-frames, knockback, worm death, the starter camp's
+spawning, respawn, the camera follow, level-1's tiles and a 600-frame run without engine
+errors. Add `--filter=<text>` to run some tests, `--strict` to fail on known failures too.
 
 The `--check-only` pass reports one error per run and does **not** catch calls to
 methods that do not exist on autoloads, so always also boot the game headless.
