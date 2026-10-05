@@ -64,7 +64,7 @@ grow_horizontal = 0
 tooltip_text = "Close conversation"
 focus_mode = 0
 theme_type_variation = &"MutedButton"
-text = "×"
+text = "✕"
 
 [node name="Text" type="Label" parent="."]
 layout_mode = 1

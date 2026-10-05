@@ -7,9 +7,8 @@ extends RefCounted
 ## Only quests the player has taken on are listed: active, then completed (each main story first,
 ## then the newest accepted), then failed, then abandoned. Available offers stay with their NPC.
 ##
-## Glyphs (owner decision J2): the theme's default font has none of Phaser's ✓ ★ ◆ ▶ ○, so the
-## journal uses the look-alikes of game/ui/glyphs.gd (the MARK_* constants below; `•`, `×` and `·`
-## are Phaser's own).
+## Glyphs (owner decision J2): Phaser's ✓ ★ ◆ ▶ ○ from game/ui/glyphs.gd (the MARK_* constants
+## below), drawn by the theme's font and its symbol fallback; `•`, `×` and `·` are Phaser's own.
 ##
 ## Owner: quests (UI).
 

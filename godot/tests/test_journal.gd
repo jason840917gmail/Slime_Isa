@@ -16,10 +16,10 @@ const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 const PLACE := "a-place-to-work"
 const ELDER_ID := "village-elder-plop"
 const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1", "sceneId": "", "x": 0, "y": 0}
-const SLIME_BASICS_ROW := "◊ Slime Basics\nSide · In progress"
-const SLIME_BASICS_DETAILS := "A first look at everything a slime can use: the bag and its tabs, the map, sprinting and the pause menu.\n\n   • Open your bag (E)\n   • Look at the Crafting tab (E, then its tab)\n   √ Read your Journal (E, then its tab)\n   • Open the map (M)\n   • Sprint (hold Shift)\n   • Pause to save or change settings (Esc)\n\nReward: 10 coins"
-const STONE_TOOLS_DETAILS := "Craft a stone axe and pickaxe at your workbench, then put them to work on trees and rocks.\n\n√ Step 1: Make your tools\n   √ Craft a Stone Axe\n   √ Craft a Stone Pickaxe\n\n» Step 2: Put them to work\n   • Switch tools on your belt (Mouse wheel)\n   • Chop wood from trees  7/20\n   • Mine stone from rocks  0/20\n\nReward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Dodge"
-const PLACE_READY_DETAILS := "Every good slime needs a workbench. Build one and set it up in the clearing.\n\n√ Step 1: Build a workbench\n   √ Craft a Workbench (40 wood)\n\n» Step 2: Set it up\n   √ Place the Workbench\n\n? Return to Village Elder Plop for your reward.\n\nReward: 20× Wood · New recipe: Stone Axe · New recipe: Stone Pickaxe"
+const SLIME_BASICS_ROW := "◆ Slime Basics\nSide · In progress"
+const SLIME_BASICS_DETAILS := "A first look at everything a slime can use: the bag and its tabs, the map, sprinting and the pause menu.\n\n   • Open your bag (E)\n   • Look at the Crafting tab (E, then its tab)\n   ✓ Read your Journal (E, then its tab)\n   • Open the map (M)\n   • Sprint (hold Shift)\n   • Pause to save or change settings (Esc)\n\nReward: 10 coins"
+const STONE_TOOLS_DETAILS := "Craft a stone axe and pickaxe at your workbench, then put them to work on trees and rocks.\n\n✓ Step 1: Make your tools\n   ✓ Craft a Stone Axe\n   ✓ Craft a Stone Pickaxe\n\n▶ Step 2: Put them to work\n   • Switch tools on your belt (Mouse wheel)\n   • Chop wood from trees  7/20\n   • Mine stone from rocks  0/20\n\nReward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Dodge"
+const PLACE_READY_DETAILS := "Every good slime needs a workbench. Build one and set it up in the clearing.\n\n✓ Step 1: Build a workbench\n   ✓ Craft a Workbench (40 wood)\n\n▶ Step 2: Set it up\n   ✓ Place the Workbench\n\n? Return to Village Elder Plop for your reward.\n\nReward: 20× Wood · New recipe: Stone Axe · New recipe: Stone Pickaxe"
 const TONIC_ABANDONED_DETAILS := "Lili wants to learn how berries become a healing tonic. Brew one to show her.\n\n   • Brew a Slime Tonic (3 purple berries)\n\nReward: 2× Purple Berry\n\nReturn to the quest giver to continue."
 
 
@@ -87,8 +87,8 @@ func test_row_order(t: TestContext) -> void:
 	_record(t, "a-tonic-for-lili")["accepted_at"] = 3000
 	var journal := _journal(t)
 	journal.open()
-	t.equal(_row_labels(journal), ["* Stone Tools\nMain · In progress · Step 1/2", "◊ A Tonic for Lili\nSide · In progress",
-		SLIME_BASICS_ROW, "√ A Place to Work\nMain · Done"], "rows")
+	t.equal(_row_labels(journal), ["★ Stone Tools\nMain · In progress · Step 1/2", "◆ A Tonic for Lili\nSide · In progress",
+		SLIME_BASICS_ROW, "✓ A Place to Work\nMain · Done"], "rows")
 	var alphas: Array = []
 	for index in journal.quest_list.get_child_count():
 		alphas.append(_row(journal, index).modulate.a)
@@ -104,7 +104,7 @@ func test_multi_stage_details(t: TestContext) -> void:
 	(_record(t, "stone-tools")["progress"] as Dictionary)["chop-wood"] = 7
 	var journal := _journal(t)
 	journal.open()
-	t.equal(_row_labels(journal)[0], "* Stone Tools\nMain · In progress · Step 2/2", "row 0")
+	t.equal(_row_labels(journal)[0], "★ Stone Tools\nMain · In progress · Step 2/2", "row 0")
 	t.equal(journal.details_status_label.text, "Main · In progress · Step 2/2", "details status")
 	t.equal(journal.details_label.text, STONE_TOOLS_DETAILS, "details")
 	t.equal(journal.action_button.text, "No action", "action label")
@@ -118,7 +118,7 @@ func test_ready_to_turn_in(t: TestContext) -> void:
 	quests.handle_event(QuestEvents.FURNITURE_PLACED, WORKBENCH_PLACED)
 	var journal := _journal(t)
 	journal.open()
-	t.equal(_row_labels(journal)[0], "* A Place to Work\nMain · Ready to turn in", "row 0")
+	t.equal(_row_labels(journal)[0], "★ A Place to Work\nMain · Ready to turn in", "row 0")
 	t.equal(journal.details_label.text, PLACE_READY_DETAILS, "details")
 	journal.close()
 
@@ -141,7 +141,7 @@ func test_abandon_and_retry(t: TestContext) -> void:
 	var record := _record(t, "slime-basics")
 	t.equal(record["status"], "abandoned", "status")
 	t.equal(record.get("resume_stage_id"), "learn-the-basics", "resume stage")
-	t.equal(_row_labels(journal), ["◊ Slime Basics\nSide · Abandoned"], "rows after Abandon")
+	t.equal(_row_labels(journal), ["◆ Slime Basics\nSide · Abandoned"], "rows after Abandon")
 	t.check(_row(journal, 0).is_selected(), "the abandoned row is not selected")
 	t.equal(_row(journal, 0).modulate.a, 0.5, "abandoned row alpha")
 	t.equal(journal.action_button.text, "Retry", "action after Abandon")
@@ -210,7 +210,7 @@ func test_retry_quirk_after_accept(t: TestContext) -> void:
 	journal.quest_action()
 	t.equal(journal.status_label.text, "Quest restarted.", "status")
 	t.equal(quests.status("slime-basics"), "locked", "slime-basics")
-	t.equal(_row_labels(journal), ["* A Place to Work\nMain · In progress · Step 1/2"], "rows")
+	t.equal(_row_labels(journal), ["★ A Place to Work\nMain · In progress · Step 1/2"], "rows")
 	t.equal(int(journal.model()["selected_index"]), 0, "selected index")
 	journal.close()
 
@@ -221,7 +221,7 @@ func test_abandoned_npc_quest(t: TestContext) -> void:
 	var journal := _journal(t)
 	journal.confirm_abandon = func(_title: String) -> bool: return true
 	journal.open()
-	var index := _row_labels(journal).find("◊ A Tonic for Lili\nSide · In progress")
+	var index := _row_labels(journal).find("◆ A Tonic for Lili\nSide · In progress")
 	if not t.check(index >= 0, "no Tonic row in %s" % [_row_labels(journal)]):
 		return
 	journal.select_quest(index)

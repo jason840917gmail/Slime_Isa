@@ -11,7 +11,7 @@ class_name WorldMapWindow
 ## Escape calls `close()`. While open, `_input` closes it on the `map` and `menu` keys.
 ##
 ## The Chart control draws the area discs, the links between discovered neighbours and the marker
-## badges (MapMarkers), since the UI font has no `◉ ● ━` glyphs.
+## badges (MapMarkers) as shapes; the UI fonts have no `━` (map.md §3.4).
 ##
 ## Owner: map (game/ui/map).
 

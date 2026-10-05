@@ -62,10 +62,9 @@ Source Sans 3's line metrics: `python scripts/godot/fit-symbol-font-metrics.py` 
 allows the modified copy; Noto has no Reserved Font Name) and `--check` verifies them. Rerun it
 after replacing either font.
 The web build has no system fonts, so a glyph missing from both draws as a box: check new symbols
-with `Font.has_char`. UI text still uses the look-alikes chosen for Godot's default font
-(`√ * ◊ » – · … − • ×`), all in one place, `res://game/ui/glyphs.gd` (CHECK √, NEXT », CLOSE ×,
-...): setting them back to Phaser's ✓ ▸ ✕ ★ ◆ ▶ ○ there restores them everywhere. The key names
-spell out Up / Down / Left / Right (`ControlLabels`).
+with `Font.has_char`. UI text uses Phaser's symbols again, all in one place,
+`res://game/ui/glyphs.gd` (CHECK ✓, NEXT ▸, CLOSE ✕, MAIN ★, SIDE ◆, CURRENT ▶, PENDING ○), and the
+key names use the arrows ↑ ↓ ← → (`ControlLabels`), as in Phaser.
 
 ## Tokens
 

@@ -5,8 +5,8 @@
 `test_journal.gd`, `test_chest_window.gd`). Differences from the plan below: main adds the journal
 to GameWindows (no `QuestService._mount_windows` hook; the window finds the service by the `quests`
 group), GameWindows is unchanged (each window pushes with `quiet` and plays its own cue: the journal
-`JournalOpen`, the chest window nothing), and the journal's marks use glyphs the default font has
-(`√ * ◊ » –` for `✓ ★ ◆ ▶ ○`, owner question J2).
+`JournalOpen`, the chest window nothing), and the journal's marks are Phaser's `✓ ★ ◆ ▶ ○`
+(game/ui/glyphs.gd; the stand-ins `√ * ◊ » –` were used until the symbol font came, J2).
 
 Two Phaser game windows the Godot 4.7.2 port does not have yet: the **quest journal** ("Quest
 Book", the Journal tab of the menu) and the **chest window** (what opens when the player uses a

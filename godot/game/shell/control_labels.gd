@@ -7,20 +7,18 @@ class_name ControlLabels
 ##
 ## Owner: shell.
 
-## CODE_NAMES (ControlLabels.ts:4-24), by physical keycode. Phaser names the arrow keys with
-## arrows (↑ ↓ ← →); Godot's default font has no arrow glyphs and the web build has no system
-## font to fall back on (they would draw as boxes), so the port spells them out until the theme
-## bundles a symbol font (docs/godot/UI_THEME.md, "Font").
+## CODE_NAMES (ControlLabels.ts:4-24), by physical keycode. The arrow keys are arrows, as in Phaser
+## (the theme's Source Sans 3 has ↑ ↓ ← →; docs/godot/UI_THEME.md, "Symbols").
 const KEY_NAMES := {
 	KEY_SPACE: "Space",
 	KEY_SHIFT: "Shift",
 	KEY_ESCAPE: "Esc",
 	KEY_ENTER: "Enter",
 	KEY_TAB: "Tab",
-	KEY_UP: "Up",
-	KEY_DOWN: "Down",
-	KEY_LEFT: "Left",
-	KEY_RIGHT: "Right",
+	KEY_UP: "↑",
+	KEY_DOWN: "↓",
+	KEY_LEFT: "←",
+	KEY_RIGHT: "→",
 	KEY_EQUAL: "+",
 	KEY_MINUS: "−",
 	KEY_KP_ADD: "+",
