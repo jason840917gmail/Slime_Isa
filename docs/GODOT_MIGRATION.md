@@ -124,7 +124,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the owner's machine held 60 fps (16.7 ms frames, 17 ms worst) idle, walking
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
-- Not yet: terrain blending, the remaining 20 scene scripts
+- Not yet: terrain blending (hand-made edge tiles are on trial in the
+  [terrain lab](./godot/TERRAIN_LAB.md)), the remaining 20 scene scripts
   (doors, resource nodes, collectibles, chests, the Matron, …), UI styling, saves, the
   reference-laptop measurement, and the owner's feel check.
 - The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
@@ -141,7 +142,9 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
 - Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
   keep the live aim origin; the sword's combo off-by-one is fixed in the port
   (24 per hit); the player gets new three-quarter top-down art with clips per
-  direction.
+  direction. New art is made at 128 px per 64-unit cell (2 px per world unit;
+  the grid does not change), and terrain transitions are tried as hand-made
+  tiles instead of a code blend ([godot/TERRAIN_LAB.md](./godot/TERRAIN_LAB.md)).
 - Phase 1 has started with the player: `character.player-slime` is the first
   scene Godot owns ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)),
   with page 1 of the new slime (idle and walk facing down, up and side; idle

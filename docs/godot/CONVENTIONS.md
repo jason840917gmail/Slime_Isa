@@ -15,9 +15,9 @@ behaviour per area is in [specs/](./specs/).
 | `godot/game/runtime/` | hand, owned with the converter | helper scripts the converter attaches: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`); the converter attaches it and writes the exports it declares |
 | `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
-| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below) |
+| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below) and the [terrain lab](./TERRAIN_LAB.md) |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
-| `godot/tools/` | hand | headless tools such as `verify_generated.gd` and `build_player_clips.gd`; excluded from exports |
+| `godot/tools/` | hand | headless tools such as `verify_generated.gd`, `build_player_clips.gd` and `build_terrain_lab.gd`; excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
 | `godot/addons/godot_ai/` | the Godot AI plugin (4.3.0, MIT), committed | the editor plugin (MCP bridge) that lets Claude drive the open editor, plus its `_mcp_game_helper` autoload for running-game inspection; disabled by itself in headless runs and excluded from exports. Update it from its dock, then commit |
 

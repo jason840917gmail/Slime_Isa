@@ -237,7 +237,11 @@ export function convertAnimationPlayerProps(ctx) {
       ctx.warn('missing-autoplay-clip', `${ctx.label}: autoplay clip '${p.autoplay}' is not in the library`);
     }
   }
+  // Physics-domain clips step with the physics tick and pause with the tree. Render-domain
+  // clips (ambient life, decorations, effects) keep running through hit-stops and modal
+  // pauses, as Phaser advances them every rendered frame (PhaserSceneTreeHost.ts:121-124).
   if ((p.domain ?? 'render') === 'physics') props.push(['callback_mode_process', 0]);
+  else props.push(['process_mode', 3]);
   if (hasEvents) props.push(['callback_mode_method', 1]);
   if (p.autoplay) props.push(['autoplay', gd.stringName(p.autoplay)]);
   if (p.randomizeStart) props.push(['randomize_start', true]);
