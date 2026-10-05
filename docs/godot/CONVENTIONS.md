@@ -37,10 +37,12 @@ instead of the generated one. From then on edit it in the Godot editor (or with 
 |---|---|---|
 | `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll and sword-swing clips, built by `tools/build_player_clips.gd`) |
 | `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](./specs/shell.md)). Loaded by path from the Shell and the title, so they are not in `OWNED_SCENES` |
+| `ui.save-slots` | `res://game/saves/save_slots_menu.tscn` | 2026-10-05: the save slots window, mounted on the Shell by `RunState` (`Shell.mount_menu`); loaded by path |
 
 ## Running a world
 
-F5 runs `game/main.tscn`, which loads level-1. To test in the playground (the testbed
+F5 runs the title screen (`game/shell/title.tscn`, the main scene); New Game and Continue start
+`game/main.tscn`, which loads level-1, and a `map` launch option skips the title. To test in the playground (the testbed
 where new mechanics are tried first), open `game/dev/playground.tscn` and press F6 (Run
 Current Scene); it inherits `main.tscn` with `map_id = "playground"`. Any other world:
 set `map_id` on a scene like it, or launch with `?map=<id>` (web) / `-- --map=<id>`

@@ -259,6 +259,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
 | `game/ui/ability_bar.gd` | abilities | The HUD's ability bar (bottom centre): labels from `player.ability_status`, clicks run `activate_ability_from_ui` |
 | `game/scripts/training_dummy.gd`, `gulp_spot.gd`, `pressure_plate.gd`, `cracked_ground.gd`, `lash_bell.gd`, `ability_lesson.gd`, `goo_heart.gd`, `restoration_site.gd` | abilities | The abilities' puzzle pieces (§6) |
+| `game/saves/save_slots_menu.gd`, `.tscn` | saves | The save slots window (three slots and the autosave) on the Shell's stack; RunState mounts it and registers the Shell's `save` / `load` actions |
 | `game/world_objects/enemy_loot.gd` | world objects | Child "EnemyLoot" of main: enemy coins, loot piles scattered round the corpse, their records and restore |
 | `game/ui/screens/game_windows.gd` | UI | Child "GameWindows" of main (CanvasLayer 40): the game windows' parent, the one `modal` pause owner, Escape for the top window |
 | `game/quests/quest_events.gd` | quests | `QuestEvents.emit(event, payload)` for world scripts and features |
