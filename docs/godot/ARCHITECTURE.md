@@ -19,10 +19,10 @@ project.godot [autoload]  (registered in this order; tree order = process order)
   DamageRouter   res://game/combat/damage_router.gd      receiver registry + activations + route()
   GameFeel       res://game/feel/game_feel.gd            hit-stop, shake, floating text, particles, audio cues (ALWAYS)
   RunState       res://game/autoload/run_state.gd        the run: player stats, inventory, world records, story, travel handoff
-  MusicDirector  res://game/audio/music_director.gd      world/boss music, fades, menu duck, arrival cue (ALWAYS; pending registration)
-  Shell          res://game/shell/shell.gd               pause/settings/controls/credits windows, area titles, game over, end cards, settings (ALWAYS; pending registration)
+  MusicDirector  res://game/audio/music_director.gd      world/boss music, fades, menu duck, arrival cue (ALWAYS)
+  Shell          res://game/shell/shell.gd               pause/settings/controls/credits windows, area titles, game over, end cards, settings (ALWAYS)
 
-res://game/shell/title.tscn (title.gd)                 title screen; the main scene once registered (level-1 drifts behind; launch options skip it)
+res://game/shell/title.tscn (title.gd)                 title screen, the main scene (level-1 drifts behind; launch options skip it)
 
 res://game/main.tscn (main.gd)                         bootstrap
   World (Node2D)      <- world.level-1 instanced here (converter root, y-sorted)
@@ -43,10 +43,14 @@ res://game/main.tscn (main.gd)                         bootstrap
        MatronWebPatch (effect) > WebPatchScript     <- the Matron's volley; spider-web (object) > SpiderWebScript
        AttackTelegraph (attack_telegraph.gd, z -1)  <- a boss's ground warning while it lasts
        effect holders (Node2D) > BasicSwordImpact (effect.gd)  <- EffectSpawner
+       GooTrail (goo_trail.gd, y 0)                <- the player's Goo Trail passive (ground decal)
+       SlamArea / ability effects                  <- the player's abilities (game/player/abilities/)
   WorldCamera (world_camera.gd, ALWAYS, priority 100)
   Hud (CanvasLayer 10, hud.gd) > PlayerHealthBar (player_health_bar.gd), BossHealthBar (boss_health_bar.gd)
   FpsReadout (CanvasLayer 100, fps_readout.gd)
   ArrivalFade (CanvasLayer 5, runtime)      EnemyPopulation (enemy_population.gd, runtime)
+  Interaction (interaction_controller.gd)   EnemyLoot (enemy_loot.gd)   <- made once in _ready, kept across worlds
+  GameWindows (CanvasLayer 40, game_windows.gd) > Root > the game windows (bag, crafting, dialogue, offer, map, ...)
 GameFeel children: FloatingTextLayer (CanvasLayer 8), ParticleFx (Node2D, high z)
 MusicDirector children: WorldMusic (the world's MusicPlayer, moved here), BossMusic (audio.global), FadingMusic
 Shell children: ShellLayer (CanvasLayer 50) > Root > AreaTitleCard, PauseMenu, GameOver, SettingsMenu, CreditsMenu, ControlsMenu, EndCard, Fade
@@ -68,9 +72,9 @@ Design rules:
 | `WorldService` | `scene_path`, `instantiate_scene`, `spawn_at_phaser_position(scene_id, phaser_point, parent=null)`, `register_world`, `entities_root`, `dimensions`, `world_rect`, `map_id`, `camera_mode`, `areas(kind)`, `safe_zones`, `npc_wander_area(instance_id)`, `is_solid_tile`, `player_spawn_marker`, `player_spawn_point`, `find_spawn_point`, `register_player`, `primary_target`, `line_of_sight(from,to,exclude)`, `register_camera`, `set_pause_reason(reason, active)`, `has_pause_reason`, `clear`. Vars: `world_root`, `definition`, `ground_layer`, `player`, `player_body`, `camera`. Signals `world_registered`, `player_registered` | default |
 | `DamageRouter` | `register_area(area, receiver, rule, tags=[])`, `unregister_area`, `receiver_for_area`, `tags_for_area`, `begin_activation(source, areas) -> int`, `end_activation`, `is_activation_active`, `route(request) -> result`. Signal `routed` | default |
 | `GameFeel` | `play(event)`, `shake(ms, intensity)`, `hit_stop(ms)`, `is_frozen()`, `floating_text(world_pos, text, color_name, big, duration_ms=-1)`, `particles(preset, world_pos)`, `audio_cue(cue, payload)` | ALWAYS |
-| `RunState` | Phaser's `GameSaveData` in one place (snake_case): vars `player`, `inventory`, `world`, `story`, `location`; `new_run()`, `ensure_started()`, `max_hp()`, `capture_player(map_id, snapshot)`, `item_count`, `remove_item`, `unlock_gate`, `has_flag`/`set_flag`, `learn_ability`, `map_record(map_id)` (resources, collectibles, chests, gates, object_states, ...), `object_state`/`set_object_state`, `respawn_point`, `request_navigation`/`consume_navigation`. Signals `story_flag_changed`, `ability_learned`. Outlives worlds; the save phase writes it to user:// | default |
-| `MusicDirector` (pending registration, after `RunState`) | `set_boss_fight(active, camp_id)`, `fade_out(ms)`, `set_menu_paused(paused)`, `advance(ms)`, `world_gain/boss_gain/duck()`, `world_track/boss_track()`, vars `audio_unlocked`, `play_arrival_cue`; static `apply_mix(master, effects, music, muted)`, `set_bus_volume_linear(bus, v)` for the shell. Claims the world's music-bus player on `world_registered` and listens to the `boss_camp` group ([specs/audio.md](./specs/audio.md)) | ALWAYS |
-| `Shell` (pending registration, after `MusicDirector`) | `get_settings()` (GameSettings: `values()`, `update(change)`, `reset()`, `shake_scale()`, ... in user://settings.cfg), `open_pause()`, `can_open_pause()`, `open_settings/controls/credits()`, `handle_escape()`, `is_any_open()`, `show_area_title(text, colour)`, `show_defeat(info)`, `quit_to_title()`, `set_action(id, callable)` / `run_action(id)` for the windows other features own (`journal`, `inventory`, `map`, `save`, `load`, `wake`). Each open window holds the pause reason `shell:<surface id>`. Listens to `world_registered` (area card while a `world_main` node exists), `story_flag_changed` (end cards), `player_registered` ([specs/shell.md](./specs/shell.md)) | ALWAYS |
+| `RunState` | Phaser's `GameSaveData` in one place (snake_case): vars `player`, `inventory`, `world`, `story`, `location`, `quests`; `new_run()`, `ensure_started()`, `max_hp()`, `capture_player(map_id, snapshot)`; coins (`add_coins`, `spend_coins`); the bag (`item_count`, `item_capacity`, `add_item` all or nothing, `remove_item`, `transact_items`, `remove_from_slot`, `slots`, `collect_world_item`, `unlock_gate`); the belt (`weapon_slots`, `set_weapon_slots`, `equipped_weapon_id`, `set_equipped_weapon`); story (`has_flag`/`set_flag`, `learn_ability`, `knows_recipe`/`learn_recipes`, `record_talk`/`has_talked_to`); quests (`quest_status`, `is_quest_active`, `notify_quests_changed`); `map_record(map_id)` (resources, collectibles, inventory drops, chests, gates, object_states, ...), `inventory_drops`/`create_inventory_drop`/`set_inventory_drop_amount`, `object_state`/`set_object_state`, `respawn_point`, `request_navigation`/`consume_navigation`; saves (`save_slot`, `load_slot`, `read_slot`, `list_saves`, `delete_slot`, the recovery autosave in slot 0, `serialize`/`install`). Signals for every change (`inventory_changed`, `coins_changed`, `story_flag_changed`, `ability_learned`, `weapon_loadout_changed`, `weapon_equipped`, `recipes_learned`, `recipe_crafted`, `craft_failed`, `quests_changed`, `world_progress_changed`, `saved`, `loaded`); each schedules the autosave. Outlives worlds | ALWAYS |
+| `MusicDirector` (after `RunState`) | `set_boss_fight(active, camp_id)`, `fade_out(ms)`, `set_menu_paused(paused)`, `advance(ms)`, `world_gain/boss_gain/duck()`, `world_track/boss_track()`, vars `audio_unlocked`, `play_arrival_cue`; static `apply_mix(master, effects, music, muted)`, `set_bus_volume_linear(bus, v)` for the shell. Claims the world's music-bus player on `world_registered` and listens to the `boss_camp` group ([specs/audio.md](./specs/audio.md)) | ALWAYS |
+| `Shell` (after `MusicDirector`) | `get_settings()` (GameSettings: `values()`, `update(change)`, `reset()`, `shake_scale()`, ... in user://settings.cfg), `open_pause()`, `can_open_pause()`, `open_settings/controls/credits()`, `handle_escape()`, `is_any_open()`, `show_area_title(text, colour)`, `show_defeat(info)`, `quit_to_title()`, `set_action(id, callable)` / `run_action(id)` for the windows other features own (`journal`, `inventory`, `map`, `save`, `load`, `wake`). Each open window holds the pause reason `shell:<surface id>`. Listens to `world_registered` (area card while a `world_main` node exists), `story_flag_changed` (end cards), `player_registered` ([specs/shell.md](./specs/shell.md)) | ALWAYS |
 
 ## 3. Time, pause and process model
 
@@ -140,6 +144,15 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.chest` → `scripts/chest.gd` | `map_id, instance_id, initial_contents` | `guard_blocked, open_requested, stack_transferred, closed` | — |
 | `game.bed` → `scripts/bed.gd` | `prompt, interact_radius, badge_rise, sleep_point, wake_point` | — | — (`sleep_request()`) |
 | `game.workbench` → `scripts/workbench.gd` | `prompt, recipe_context, tier, interact_radius, badge_rise` | — | — (`site()`) |
+
+| `game.training-dummy` → `scripts/training_dummy.gd` (abilities spec) | `damage_area, visual` | `hit` | — (damage receiver API) |
+| `game.gulp-spot` → `scripts/gulp_spot.gd` | `material_item_id, radius, badge_rise` | — | — (`origin()`; the interaction controller offers "Eat") |
+| `game.pressure-plate` → `scripts/pressure_plate.gd` | `plate_id, radius, sink_px, pressed_frame, gate_id, latch, visual` | `pressed, released` | — (`is_down()`; pressed by a heavy slime) |
+| `game.cracked-ground` → `scripts/cracked_ground.gd` | `flag_id, radius, requires_landing` | `cracked` | — (`is_broken()`; a squash slam or a heavy landing) |
+| `game.lash-bell` → `scripts/lash_bell.gd` | `bell_id, gate_id, lash_only, damage_area, visual` | `rung` | — (`ring()`, damage receiver API) |
+| `game.ability-lesson` → `scripts/ability_lesson.gd` | `ability_ids, radius` | `taught` | — |
+| `game.goo-heart` → `scripts/goo_heart.gd` | `heart_id, radius, bob_px, visual` | `collected` | — (`is_taken()`) |
+| `game.restoration-site` → `scripts/restoration_site.gd` | `prompt, flag_id, object_id, quest_id, cost, locked_message, restored_message, interact_radius, badge_rise` | — | — (`origin()`, `cost_entries()`, `restore()`) |
 
 `game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). `game.interaction` has no scenes and no service behind it in Phaser, so it is not ported. Every other script id stays on the converter's `unported_script.gd`.
 
@@ -237,7 +250,17 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/hud_bar.gd` | world | One labelled HUD bar drawn from its theme variation (`HudBar`, `BossBar`) |
 | `game/ui/player_health_bar.gd` | world | Styled by `FloatingHealthBar` |
 | `game/ui/fps_readout.gd` | world | Styled by `DebugPanel` / `DebugLabel` |
-| `game/scripts/player.gd` | player | Plays every clip in its version for the facing (`_directional_clip`, `_flip_for`) |
+| `game/scripts/player.gd` | player | Plays every clip in its version for the facing (`_directional_clip`, `_flip_for`); energy, effects channel, statuses, Gulp forms and abilities hang off it |
+| `game/player/abilities/ability_definitions.gd`, `player_abilities.gd` | abilities | Ability table, energy costs and cooldowns on the sim clock, the dispatch order ([specs/abilities.md](./specs/abilities.md)) |
+| `game/player/abilities/jump_sequence.gd`, `slam_sequence.gd`, `teleport_sequence.gd`, `lash_sequence.gd` | abilities | One sequence per ability (tween steps chained with `parallel()`) |
+| `game/player/abilities/ability_terrain.gd`, `ability_world.gd`, `ability_fx.gd` | abilities | Landing and line checks against the world, strike areas, lash probes, the shared effects |
+| `game/player/gulp/gulp_forms.gd`, `gulp_controller.gd`, `gulp_hud.gd` | abilities | Gulp forms (eating materials): timers, tint, speed and the form HUD |
+| `game/player/status_effects.gd` | player | Burn, poison, slow, sticky, bouncy, frenzy, and the web root (`apply_web`) |
+| `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
+| `game/scripts/training_dummy.gd`, `gulp_spot.gd`, `pressure_plate.gd`, `cracked_ground.gd`, `lash_bell.gd`, `ability_lesson.gd`, `goo_heart.gd`, `restoration_site.gd` | abilities | The abilities' puzzle pieces (§6) |
+| `game/world_objects/enemy_loot.gd` | world objects | Child "EnemyLoot" of main: enemy coins, loot piles scattered round the corpse, their records and restore |
+| `game/ui/screens/game_windows.gd` | UI | Child "GameWindows" of main (CanvasLayer 40): the game windows' parent, the one `modal` pause owner, Escape for the top window |
+| `game/quests/quest_events.gd` | quests | `QuestEvents.emit(event, payload)` for world scripts and features |
 | `game/characters/player_slime.tscn` | player | Godot-owned player scene (CONVENTIONS "Scenes Godot owns"); clips rebuilt by `tools/build_player_clips.gd` |
 | `game/dev/playground.tscn` | world | `main.tscn` with `map_id = "playground"`; run with F6 |
 | `game/player/player_input_buffer.gd` | player | |
@@ -275,9 +298,9 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/feel/floating_text_layer.gd` | combat | |
 | `game/feel/particle_fx.gd` | combat | |
 | `game/runtime/**` | converter | Helpers the converter attaches (audio, animation, placeholders, UI) |
-| `game/audio/music_director.gd` | audio | Autoload `MusicDirector` (pending registration): world and boss music, leave/arrival fades, menu duck, `AreaTransition` cue, the mix hook ([specs/audio.md](./specs/audio.md)) |
-| `game/shell/shell.gd` | shell | Autoload `Shell` (pending registration): window stack, Escape and pause, area titles, game over, end cards, quit to title ([specs/shell.md](./specs/shell.md)) |
-| `game/shell/title.tscn`, `title.gd` | shell | The title screen (main scene once registered): launch-option skip, level-1 backdrop, New Game / Continue / Load / Settings / Credits |
+| `game/audio/music_director.gd` | audio | Autoload `MusicDirector`: world and boss music, leave/arrival fades, menu duck, `AreaTransition` cue, the mix hook ([specs/audio.md](./specs/audio.md)) |
+| `game/shell/shell.gd` | shell | Autoload `Shell`: window stack, Escape and pause, area titles, game over, end cards, quit to title ([specs/shell.md](./specs/shell.md)) |
+| `game/shell/title.tscn`, `title.gd` | shell | The title screen (the main scene): launch-option skip, level-1 backdrop, New Game / Continue / Load / Settings / Credits |
 | `game/shell/*_menu.tscn/.gd`, `game_over.*`, `end_card.*`, `area_title_card.*` | shell | The shell windows (Godot-owned copies of the `ui.*` scenes) on `shell_menu.gd` |
 | `game/shell/game_settings.gd`, `control_labels.gd`, `area_titles.gd`, `launch_options.gd` | shell | Settings (user://settings.cfg, bus mix, GameFeel), InputMap key labels, area names / colours, launch options |
 | `game/ui/theme/ui_tokens.gd`, `slime_theme.tres` | UI theme | Design tokens and the one UI Theme, built by `tools/build_ui_theme.gd` ([UI_THEME.md](./UI_THEME.md)) |
