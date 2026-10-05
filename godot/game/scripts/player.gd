@@ -35,6 +35,7 @@ const PointerAim := preload("res://game/player/pointer_aim.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
+const CollectibleScript := preload("res://game/scripts/collectible.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -102,6 +103,8 @@ var _hp: int = 0
 var _max_hp: int = 0
 var _dead: bool = false
 var _action_locked: bool = false
+## Simulation time an action clip (`play_action_clip`) ends and unlocks; < 0 when none.
+var _action_clip_until_ms: float = -1.0
 ## Simulation-time deadlines (ms).
 var _dodge_until_ms: float = 0.0
 var _roll_until_ms: float = 0.0
@@ -219,6 +222,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	if get_tree().paused or body == null:
 		return
+	if _action_clip_until_ms >= 0.0 and Services.now_ms() >= _action_clip_until_ms:
+		_action_clip_until_ms = -1.0
+		set_action_locked(false)
+		if not _dead:
+			_play_idle()
 	if _dead:
 		# No input is consumed while dead; pending presses simply age out.
 		body.velocity = Vector2.ZERO
@@ -296,15 +304,14 @@ func get_max_hp() -> int:
 
 
 ## HUD data in Phaser keys: {"hp", "maxHp", "energy", "maxEnergy", "coins"}. Energy is
-## `character.player.stats.maxEnergy` (full; energy is OUT); coins = new-run 50
-## (InitialRun.ts:15, coins are OUT).
+## `character.player.stats.maxEnergy` (full; energy is OUT); coins = RunState's (new run: 50).
 func get_hud_snapshot() -> Dictionary:
 	return {
 		"hp": _hp,
 		"maxHp": _max_hp,
 		"energy": _max_energy,
 		"maxEnergy": _max_energy,
-		"coins": NEW_RUN_COINS,
+		"coins": Services.run().coins() if Services.run() != null else NEW_RUN_COINS,
 	}
 
 
@@ -538,9 +545,41 @@ func publish_damage_feedback(commit: Dictionary) -> void:
 	damage_feedback.emit(commit)
 
 
-## Built-in `PickupArea.area_entered` handler wired by the converter. Pickups are OUT: no-op.
-func on_pickup_area_entered(_area: Node) -> void:
-	pass
+## `PickupArea.area_entered` (PlayerScript.ts:52-56, world-objects spec 7.2): the first
+## CollectibleScript among the entered area's siblings gets a pickup request from this player's
+## PickupArea. Edge-triggered: standing on a pile does not retry.
+func on_pickup_area_entered(area: Node) -> void:
+	var root := area.get_parent() if area != null else null
+	if root == null:
+		return
+	for child: Node in root.get_children():
+		if child is CollectibleScript:
+			(child as CollectibleScript).request_pickup(get_pickup_area())
+			return
+
+
+## The body's `PickupArea` (layer 32, monitoring the collectibles' layer 64).
+func get_pickup_area() -> Area2D:
+	return body.get_node_or_null(^"PickupArea") as Area2D if body != null else null
+
+
+## `WorldScene.playActionAnimation` (WorldScene.ts:1855-1877), e.g. the purple berry's `eat`:
+## skipped while dead or while knockback has priority; otherwise action lock, stop, play the clip,
+## and after its length (simulation time) unlock and go back to idle.
+func play_action_clip(clip: String) -> void:
+	if _dead or Services.now_ms() < _knockback_anim_until_ms or animation == null:
+		return
+	if not animation.has_animation(_directional_clip(clip)):
+		return
+	set_action_locked(true)
+	stop_movement()
+	play_animation(clip, true)
+	var length_ms := 0.0
+	if animation.has_method(&"clip_length_ms"):
+		length_ms = float(animation.call(&"clip_length_ms", StringName(_directional_clip(clip))))
+	else:
+		length_ms = animation.get_animation(_directional_clip(clip)).length * 1000.0
+	_action_clip_until_ms = Services.now_ms() + length_ms
 
 
 # --- private steps -------------------------------------------------------------------------------

@@ -103,7 +103,7 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 
 | Script id → file | Exports (snake_case of the JSON keys the scenes set; *italic* = extra, not in JSON) | Signals (1 Dictionary arg) | Handlers |
 |---|---|---|---|
-| `game.player` → `scripts/player.gd` | `body, visual, animation, damage_area, player_name`; *`dodge_learned`=true, `aim_rise_px`=28* | `health_changed, damaged, defeated, damage_feedback`; *`respawned`* | `on_pickup_area_entered(area)` (stub) |
+| `game.player` → `scripts/player.gd` | `body, visual, animation, damage_area, player_name`; *`dodge_learned`=true, `aim_rise_px`=28* | `health_changed, damaged, defeated, damage_feedback`; *`respawned`* | `on_pickup_area_entered(area)` (asks the pile's CollectibleScript) |
 | `game.enemy` → `scripts/enemy.gd` (worm swordsman, archer, brawler, slime spider, orb weaver) | `body, visual, animation, damage_area, attack_area, faction, rank, max_health, targeting_radius, attack_range, movement_speed, attack_cooldown_ms, attributes, damage_rule, rewards, projectile, impact_effect`; *`display_name, arena_recovery_ms`* | `health_changed, damaged, defeated, alerted, attack_started, reward_requested, damage_feedback` | — |
 | `game.weapon` → `scripts/weapon.gd` (13 weapon scenes) | `weapon_id, category, attack_area, animation, base_damage, cooldown_ms, knock_strength, damage_modifiers, harvest_capabilities, scaling, on_hit_effect_id, attack_plans` | `attack_started, attack_finished` | `on_area_entered(area)` |
 | `game.effect` → `scripts/effect.gd` (all 9 `effects/*` scenes) | `effect_id, animation, lifetime_ms` | `finished` | — |
@@ -114,7 +114,12 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.fatty` → `scripts/fatty.gd` (extends `enemy.gd`; `character.fatty-one-eye`) | the `game.enemy` exports + `contact_attack, landing_zone, contact_hop_cooldown_ms, contact_hop_duration_ms, leap_cadence_ms, small_hop_count, small_hop_duration_ms, between_hops_ms, air_time_ms, recovery_ms, landing_damage, landing_knockback_strength, landing_effect_id, landing_shake_ms, landing_shake_intensity` | the enemy signals + `phase_changed` | — |
 | `game.boss-camp` → `scripts/boss_camp.gd` (`encounter.level-1-fatty-camp`) | `map_id, camp_id, boss_id, boss_scene, activation_area, arena_area, active_bosses, guarded_chest, guarded_chest_instance_id, respawn_ms, spawn` | `boss_spawn_requested, boss_defeated, guard_changed`; *`boss_engaged, boss_disengaged`* | — |
 
-Every other script id stays on the converter's `unported_script.gd`. In level-1 that covers `game.door`, `game.story-variant`, the guarded chest's `game.chest`, collectibles and resource nodes. `game.matron` (a separate boss id), `game.web-patch` and `game.projectile` are not ported.
+| `game.resource-node` → `scripts/resource_node.gd` (49 scenes: trees, stone, iron, amber ore; world-objects spec) | the `game.destructible` keys `map_id, instance_id, object_id, damage_area, max_health, initial_health, tags, damage_rule` + `drop, idle_animation_id, hit_effect_id, on_hit_animation_id, persist_health`=true, `depletion_message, harvest_requirement, animation` | `health_changed, damaged, damage_feedback, destroyed, resource_hit, harvest_blocked, drops_requested` | — (damage receiver API) |
+| `game.collectible` → `scripts/collectible.gd` (16 scenes; spawned piles too) | `map_id, instance_id, object_id, item_id, quantity, source_resource_instance_id, source_inventory_drop_id, pickup_area` | `pickup_resolved, depleted` | — (`request_pickup(collector)`) |
+| `game.story-flag` → `scripts/story_flag.gd` | `flag_id` | — | `on_set(payload)` (JSON handler `set`) |
+| `game.story-variant` → `scripts/story_variant.gd` | `flag_id, when_set, when_unset` | `switched` | `on_set(payload)` |
+
+`game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). Every other script id stays on the converter's `unported_script.gd`. In level-1 that covers `game.door` and the guarded chest's `game.chest`. `game.matron` (a separate boss id), `game.web-patch` and `game.projectile` are not ported.
 
 Boss camps ([specs/boss.md](./specs/boss.md)) spawn their boss under the world root when the player centre enters the activation circle, hand it the arena (`EnemyScript.configure_arena`), keep their respawn timer and the defeated boss ids in RunState (`map_record(map_id)["boss_camps"]`, `world["defeated_boss_ids"]`), reset the fight when the player's `defeated` fires, and join the group `boss_camp`; the HUD's `BossHealthBar` binds itself to every camp in that group, and a later quest system listens to `boss_defeated` there.
 
@@ -192,6 +197,12 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/scripts/world_area.gd` | world | |
 | `game/scripts/world_exit.gd` | world objects | Level-triggered after the arrival grace; asks `Main.request_exit` |
 | `game/autoload/run_state.gd` | world objects | Autoload `RunState` |
+| `game/scripts/resource_node.gd`, `game/scripts/collectible.gd` | world objects | Spec world-objects.md |
+| `game/scripts/story_flag.gd`, `game/scripts/story_variant.gd` | world objects | Flags in `RunState.story` |
+| `game/world_objects/item_catalog.gd` | world objects | items.json + max stacks; weapons are items |
+| `game/world_objects/destructible_health.gd` | world objects | HP, records, regrow timer (the `game.destructible` logic) |
+| `game/world_objects/resource_respawn.gd` | world objects | Regrow rule on the wall clock (`epoch_override_ms` for tests) |
+| `game/world_objects/resource_drops.gd` | world objects | Drop cells, scatter, pile launch, restore, pile bookkeeping |
 | `game/world/area_travel.gd` | world objects | Arrival point (door, entry edge, spawn), travel fades, music fade-out; `Main.travel_to` / `request_exit` drive it |
 | `game/scripts/npc.gd` | world | |
 | `game/ui/hud.gd` | world | |
