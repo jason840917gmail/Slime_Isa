@@ -4,7 +4,9 @@ extends Node2D
 ##
 ## main.tscn children (static): World (Node2D, the world is instanced under it), WorldCamera
 ## (world_camera.gd), Hud (hud.gd, CanvasLayer 10), FpsReadout (fps_readout.gd, CanvasLayer 100).
-## Runtime children: ArrivalFade (CanvasLayer 5 + ColorRect), EnemyPopulation.
+## Runtime children: ArrivalFade (CanvasLayer 5 + ColorRect), EnemyPopulation, Interaction
+## (game/interaction/interaction_controller.gd: the interact button, prompt and key badge; made
+## once in `_ready`, cleared on every world teardown).
 ##
 ## `_ready()` order (world spec 1.2):
 ##  1. apply_viewport_scale() and connect `get_tree().root.size_changed` to it
@@ -45,6 +47,7 @@ const NpcScript := preload("res://game/scripts/npc.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
+const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -85,6 +88,8 @@ var player: PlayerScript
 var player_root: CharacterBody2D
 var player_combat: PlayerCombat
 var enemy_population: EnemyPopulation
+## The interact button, prompt and badge (game/interaction/), made once, kept across worlds.
+var interaction: InteractionController
 
 var _transitioning: bool = false
 var _next_gate_message_ms: int = 0
@@ -103,6 +108,9 @@ func _ready() -> void:
 	var run := Services.run()
 	if run != null:
 		run.ensure_started()
+	interaction = InteractionController.new()
+	interaction.name = "Interaction"
+	add_child(interaction)
 	var navigation := run.consume_navigation() if run != null else {}
 	var target := str(navigation.get("map_id", ""))
 	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
@@ -208,6 +216,8 @@ func _finish_travel(target_map_id: String, entry_edge: String, entry_door: Strin
 ## Frees the current world (and the player in it), the enemy population and the world service's
 ## registrations, keeping main, the camera and the HUD.
 func _teardown_world() -> void:
+	if interaction != null:
+		interaction.clear()
 	if enemy_population != null and is_instance_valid(enemy_population):
 		remove_child(enemy_population)
 		enemy_population.queue_free()

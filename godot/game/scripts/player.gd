@@ -36,6 +36,7 @@ const SquashStretch := preload("res://game/player/squash_stretch.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
+const SleepController := preload("res://game/rest/sleep_controller.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -105,6 +106,12 @@ var _dead: bool = false
 var _action_locked: bool = false
 ## Simulation time an action clip (`play_action_clip`) ends and unlocks; < 0 when none.
 var _action_clip_until_ms: float = -1.0
+## Sleeping in a bed (game/rest/sleep_controller.gd).
+var _sleep: SleepController = SleepController.new(self)
+var _art_rest_position: Vector2 = Vector2.ZERO
+var _art_rest_position_known: bool = false
+## The world's interaction controller (group "interaction"), looked up on the first press.
+var _interaction: Node
 ## Simulation-time deadlines (ms).
 var _dodge_until_ms: float = 0.0
 var _roll_until_ms: float = 0.0
@@ -127,6 +134,10 @@ const CLIP_WALK := "walk"
 const CLIP_ROLL := "roll"
 const CLIP_KNOCKBACK := "knockback"
 const CLIP_DIE := "die"
+## Presses that wake a sleeper (SleepController consumeWakeInput).
+const WAKE_ACTIONS: Array[StringName] = [&"interact", &"attack", &"jump", &"dodge", &"stretch_lash",
+	&"squash_slam", &"teleport", &"eat"]
+const INTERACTION_GROUP := &"interaction"
 ## InitialRun.ts:15 new-run coins (coins are OUT; the HUD snapshot shows the new-run value).
 const NEW_RUN_COINS := 50
 ## Global audio cues (AudioEventBridge.ts:31-42).
@@ -191,6 +202,7 @@ func _enter_tree() -> void:
 
 ## Unregisters the hurtbox and clears input (scene exit).
 func _exit_tree() -> void:
+	_sleep.wake("teardown")
 	_unregister_receiver()
 	clear_input()
 
@@ -230,6 +242,10 @@ func _physics_process(delta: float) -> void:
 	if _dead:
 		# No input is consumed while dead; pending presses simply age out.
 		body.velocity = Vector2.ZERO
+	elif _sleep.is_sleeping():
+		# Sleep replaces player control (WorldScene.updateGameplay): presses only wake.
+		body.velocity = Vector2.ZERO
+		_sleep.update(delta * 1000.0, _wake_input())
 	else:
 		var direction: Vector2 = _input.movement_vector()
 		if is_movement_suppressed():
@@ -588,6 +604,13 @@ func play_action_clip(clip: String) -> void:
 ## consumed press wins and ends the step. Returns true when an action was consumed.
 func _handle_action_input() -> bool:
 	var now: float = Services.now_ms()
+	# Interact comes first (WorldScene.handleActionInput, interaction spec 2.7) and ends the step
+	# even without a target.
+	if _input.consume(&"interact", now, _buffer_ms):
+		var interaction := _interaction_controller()
+		if interaction != null and bool(interaction.call(&"has_candidate")):
+			interaction.call(&"handle_interact")
+		return true
 	if _input.consume(&"dodge", now, _buffer_ms):
 		_try_dodge()
 		return true
@@ -744,6 +767,61 @@ func _squash_on_move_start(direction: Vector2) -> void:
 	_was_moving = moving
 
 
+## Sleeping in a bed: `request` from `BedScript.sleep_request()`. Refused (false) while dead,
+## action-locked or already asleep (WorldScene.requestSleep; the pause and travel checks are the
+## interaction controller's).
+func sleep_in(request: Dictionary) -> bool:
+	if _dead or _action_locked or _sleep.is_sleeping():
+		return false
+	return _sleep.sleep(request)
+
+
+func is_sleeping() -> bool:
+	return _sleep.is_sleeping()
+
+
+## The sleep controller (tests read its phase).
+func get_sleep() -> SleepController:
+	return _sleep
+
+
+## Quiet healing (rest): adds up to `amount` HP; 0 when dead or full. Emits `health_changed`.
+func heal(amount: int) -> int:
+	if _dead or amount <= 0 or _hp >= _max_hp:
+		return 0
+	var healed := mini(amount, _max_hp - _hp)
+	_hp += healed
+	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+	return healed
+
+
+## Puts the player's old Phaser centre at `centre` and stops it.
+func teleport(centre: Vector2) -> void:
+	if body == null:
+		return
+	body.velocity = Vector2.ZERO
+	FeetAnchor.place_at_phaser_position(body, centre)
+	body.reset_physics_interpolation()
+
+
+## Draws the art `offset` world px away from the body without moving it (sleeping on a mattress).
+func set_art_offset(offset: Vector2) -> void:
+	if visual == null:
+		return
+	if not _art_rest_position_known:
+		_art_rest_position = visual.position
+		_art_rest_position_known = true
+	visual.position = _art_rest_position + offset
+
+
+## A clip's length in ms (its directional version when the scene has one); 0 when missing.
+func clip_length_ms_of(clip: String) -> float:
+	var resolved := _directional_clip(clip)
+	if animation == null or not animation.has_animation(resolved):
+		return 0.0
+	return animation.get_animation(resolved).length * 1000.0
+
+
 ## Player spec 6.6 (`WorldScene.onPlayerDeath`); idempotent. Runs synchronously inside the
 ## commit, before the `damaged` / `defeated` signals and the hit presentation.
 ## Phaser's `resetActiveFights` has no call here: enemies disengage through
@@ -751,6 +829,7 @@ func _squash_on_move_start(direction: Vector2) -> void:
 func _die() -> void:
 	if _dead:
 		return
+	_sleep.wake("death")
 	_dead = true
 	_knockback_anim_until_ms = 0.0
 	play_animation(CLIP_DIE, true)
@@ -764,6 +843,7 @@ func _die() -> void:
 
 ## `WorldScene.onPlayerHit` (player spec 6.5), only for `actual > 0`.
 func _present_hit(actual: int) -> void:
+	_sleep.wake("damage")
 	var feel := Services.feel()
 	if feel != null:
 		feel.play(FEEL_PLAYER_HURT)
@@ -890,6 +970,23 @@ func _floating_text(world_position: Vector2, text: String, color: StringName, bi
 	var feel := Services.feel()
 	if feel != null:
 		feel.floating_text(world_position, text, color, big)
+
+
+## Sleep's wake input (SleepController `consumeWakeInput`): drains every action press and reports
+## whether one was pressed or a direction is held.
+func _wake_input() -> bool:
+	var now: float = Services.now_ms()
+	var pressed := false
+	for action: StringName in WAKE_ACTIONS:
+		if _input.consume(action, now, INF):
+			pressed = true
+	return pressed or _input.movement_vector() != Vector2.ZERO
+
+
+func _interaction_controller() -> Node:
+	if _interaction == null or not is_instance_valid(_interaction):
+		_interaction = get_tree().get_first_node_in_group(INTERACTION_GROUP)
+	return _interaction
 
 
 func _audio_cue(cue: StringName) -> void:

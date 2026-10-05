@@ -1208,6 +1208,10 @@ rebuild), then `await t.steps(2)`; `t.player()` is a new instance after travel.
 
 ## 10. Open questions for the owner
 
+Interim choices made in the port on 2026-10-05 (the owner can change them): I1 take-all
+stand-in, I2 first page as floating text, I3 **kept** as Phaser (id tie-break; parity until the
+owner decides), I4 kept, I5 sleep ported now.
+
 | # | Question | Recommendation |
 |---|---|---|
 | I1 | Chest without its Phase 3 window: take-all stand-in (§8.6) or nothing? | Take-all: level-1's green key lives in a chest |
