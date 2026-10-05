@@ -52,11 +52,11 @@ const FALLBACK_FRAME_COLOR := Color(0x9be8b8b8)
 const FALLBACK_FRAME_WIDTH := 1.5
 const FALLBACK_FRAME_RADIUS := 8
 
-## Opacity of the baked ground. 0 (default) = Phaser's see-through interior: the world shows
-## through the 16 % tint, the approved artwork-first HUD (docs/GAME_GUIDELINES.md "UI Style",
-## 2026-09-04). Above 0 the world's ground is baked and drawn under the tint ([DIFF], an option for
-## the owner); turning it on bakes the current world.
-@export_range(0.0, 1.0) var terrain_alpha: float = 0.0:
+## Opacity of the baked ground: the world's ground drawn as a small map under the tint (owner
+## decision 2026-10-05, [DIFF]: Phaser's minimap was see-through and the owner found it
+## underdeveloped). 0 = Phaser's see-through interior (the artwork-first HUD of 2026-09-04);
+## turning it above 0 bakes the current world.
+@export_range(0.0, 1.0) var terrain_alpha: float = 1.0:
 	set(value):
 		var was_off := terrain_alpha <= 0.0
 		terrain_alpha = value

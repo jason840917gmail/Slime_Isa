@@ -35,15 +35,10 @@ func test_minimap_box_and_level_1_terrain(t: TestContext) -> void:
 	var frame := minimap.get_node_or_null(^"Frame") as TextureRect
 	t.check(frame != null and frame.texture != null, "the minimap has no frame texture")
 
-	# Phaser's see-through interior by default (artwork-first HUD): nothing baked, nothing drawn.
-	t.near(minimap.terrain_alpha, 0.0, 0.0001, "the minimap is not see-through by default")
-	t.check(minimap.terrain_image() == null, "terrain baked while the minimap is see-through")
-
-	# The ground option: one pixel per tile, each the tile's average colour.
-	minimap.terrain_alpha = 1.0
+	# The drawn map by default (owner decision): one pixel per tile, each the tile's average colour.
+	t.near(minimap.terrain_alpha, 1.0, 0.0001, "the minimap does not draw the map by default")
 	var image := minimap.terrain_image()
 	if not t.check(image != null, "no terrain baked for level-1"):
-		minimap.terrain_alpha = 0.0
 		return
 	t.equal(image.get_size(), Vector2i(56, 56), "level-1 terrain size (tiles)")
 	t.check(minimap.terrain_texture() != null and Vector2i(minimap.terrain_texture().get_size()) == Vector2i(minimap.map_rect().size.round()),
@@ -265,7 +260,6 @@ func test_travel_rebuilds_the_minimap_and_world_map(t: TestContext) -> void:
 	if map_ui == null:
 		return
 	var minimap := map_ui.minimap
-	minimap.terrain_alpha = 1.0   # the ground option: its bake must follow the world
 	var old_texture: WeakRef = weakref(minimap.terrain_texture())
 	var old_image: WeakRef = weakref(minimap.terrain_image())
 	map_ui.set_marker(&"meadow-quest", Vector2(1130.0, 1514.0))
