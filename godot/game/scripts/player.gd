@@ -37,6 +37,11 @@ const HitFlash := preload("res://game/feel/hit_flash.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
 const SleepController := preload("res://game/rest/sleep_controller.gd")
+const PlayerAbilities := preload("res://game/player/abilities/player_abilities.gd")
+const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
+const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
+const GulpHud := preload("res://game/player/gulp/gulp_hud.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -91,6 +96,10 @@ signal damage_feedback(commit: Dictionary)
 ## Godot-only: emitted after a respawn. Payload: {"x": float, "y": float} (old centre). main.gd
 ## pans the camera on it.
 signal respawned(payload: Dictionary)
+## Energy changed (GameState `energy.changed`). Payload: {"energy", "maxEnergy", "delta"}.
+signal energy_changed(payload: Dictionary)
+## A jump landed. Payload: {"x", "y" (old centre), "heavy": bool, "id": int}.
+signal jump_landed(payload: Dictionary)
 
 var _input: PlayerInputBuffer = PlayerInputBuffer.new()
 var _squash: SquashStretch = SquashStretch.new()
@@ -110,6 +119,28 @@ var _action_clip_until_ms: float = -1.0
 var _sleep: SleepController = SleepController.new(self)
 var _art_rest_position: Vector2 = Vector2.ZERO
 var _art_rest_position_known: bool = false
+## Abilities (game/player/abilities/): rules, cooldowns and the running sequence.
+var _abilities: PlayerAbilities = PlayerAbilities.new(self)
+## The art's offsets in world px: sleeping on a mattress, and the ability effects channel
+## (Phaser `visual.effects`: offset, scale and alpha on top of the authored values).
+var _art_offset: Vector2 = Vector2.ZERO
+var _effect_offset: Vector2 = Vector2.ZERO
+var _visual_base_scale: Vector2 = Vector2.ONE
+## Energy (GameState): spent by abilities, refilled 8 per second.
+var _energy: float = 0.0
+var _energy_regen: float = 0.0
+## The last jump landing in a plate-pressing (Heavy) form: {} or {"x", "y", "id"}.
+var _heavy_landing: Dictionary = {}
+var _landing_id: int = 0
+## Squash Slam's attack area for the router (no shape needed: the strike queries physics).
+var _slam_area: Area2D
+## Eating and the Gulp form (game/player/gulp/).
+var _gulp: GulpController = GulpController.new(self)
+var _gulp_hud: GulpHud
+## The eat press waits for its release (a tap eats; WorldScene.updateEatHold): simulation ms of
+## the press and of the last step that saw it held; < 0 when no press is pending.
+var _eat_since_ms: float = -1.0
+var _eat_last_seen_ms: float = -1.0
 ## The world's interaction controller (group "interaction"), looked up on the first press.
 var _interaction: Node
 ## Simulation-time deadlines (ms).
@@ -144,6 +175,12 @@ const NEW_RUN_COINS := 50
 const CUE_DODGE := &"Dodge"
 const CUE_ABILITY_DENIED := &"AbilityDenied"
 const CUE_RESPAWN := &"Respawn"
+const CUE_ENERGY_RESTORE := &"EnergyRestore"
+const CUE_EAT := &"Eat"
+## Gulp form texts (WorldScene.ts:1093-1100): centre - 56.
+const GULP_TEXT_RISE_PX := 56.0
+## An eat press older than this without a step seeing it held is dropped (WorldScene.ts:913-969).
+const EAT_HOLD_DROP_MS := 600.0
 ## Feel / particle / squash event ids.
 const FEEL_PLAYER_HURT := &"player-hurt"
 const FEEL_PLAYER_DEFEATED := &"player-defeated"
@@ -185,8 +222,15 @@ func _ready() -> void:
 	if visual != null:
 		HitFlash.install(visual)
 		_squash.setup(visual)
+		_squash.busy = is_ability_busy
 		_visual_rest_offset = visual.offset
 		_visual_rest_skew = visual.skew
+		_art_rest_position = visual.position
+		_art_rest_position_known = true
+		_visual_base_scale = visual.scale
+	_energy = float(_max_energy)
+	_make_slam_area()
+	_make_gulp_hud()
 	if body != null:
 		body.motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_register_receiver()
@@ -203,6 +247,7 @@ func _enter_tree() -> void:
 ## Unregisters the hurtbox and clears input (scene exit).
 func _exit_tree() -> void:
 	_sleep.wake("teardown")
+	_abilities.cancel()
 	_unregister_receiver()
 	clear_input()
 
@@ -239,6 +284,10 @@ func _physics_process(delta: float) -> void:
 		set_action_locked(false)
 		if not _dead:
 			_play_idle()
+	_abilities.advance(Services.now_ms())
+	_gulp.update()
+	if not _dead:
+		_regen_energy(delta * 1000.0)
 	if _dead:
 		# No input is consumed while dead; pending presses simply age out.
 		body.velocity = Vector2.ZERO
@@ -252,14 +301,18 @@ func _physics_process(delta: float) -> void:
 			pass # Roll / knockback own the body: their velocity persists, presses stay buffered.
 		elif _action_locked:
 			body.velocity = Vector2.ZERO
+		elif _update_eat_hold():
+			body.velocity = Vector2.ZERO
 		elif _handle_action_input():
 			pass # An action was used this step: velocity keeps the last step's value once.
 		else:
 			_squash_on_move_start(direction)
 			_move(direction)
 	# Arcade-style step (player spec 5.2): a wall hit zeroes the blocked velocity component, which
-	# then stays zero for the rest of a roll or knockback (CharacterBody2DNode.ts:61-66).
-	ArcadeMover.move(body, delta)
+	# then stays zero for the rest of a roll or knockback (CharacterBody2DNode.ts:61-66). The lash
+	# pull places the body itself.
+	if not _abilities.owns_body():
+		ArcadeMover.move(body, delta)
 
 
 ## Real-time work (runs during hit-stop): ends the 120 ms hit flash; after a death, respawns
@@ -325,7 +378,7 @@ func get_hud_snapshot() -> Dictionary:
 	return {
 		"hp": _hp,
 		"maxHp": _max_hp,
-		"energy": _max_energy,
+		"energy": _energy,
 		"maxEnergy": _max_energy,
 		"coins": Services.run().coins() if Services.run() != null else NEW_RUN_COINS,
 	}
@@ -376,7 +429,7 @@ func suppress_movement(ms: float) -> void:
 ## old Phaser (centre) position, facing "up"|"down"|"left"|"right".
 func run_snapshot() -> Dictionary:
 	var centre: Vector2 = get_centre()
-	return {"hp": _hp, "facing": Directions.cardinal_name(_facing), "x": centre.x, "y": centre.y}
+	return {"hp": _hp, "energy": _energy, "facing": Directions.cardinal_name(_facing), "x": centre.x, "y": centre.y}
 
 
 ## Takes the run's HP (`RunState.player`, GameState semantics: max HP grows with Goo Hearts).
@@ -388,6 +441,8 @@ func restore_run_state(state: Dictionary) -> void:
 	var hp := int(state.get("hp", _max_hp))
 	_hp = clampi(hp, 1, _max_hp) if hp > 0 else _max_hp
 	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+	_energy = clampf(float(state.get("energy", _max_energy)), 0.0, float(_max_energy))
+	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": 0.0})
 
 
 ## `sim < dodge_until` (dodge i-frames).
@@ -429,6 +484,9 @@ func play_animation(clip: String, force: bool = false) -> bool:
 ## force-play "knockback". Ignored for a zero direction or strength <= 0.
 func apply_knockback(direction: Vector2, strength: float, duration_ms: float) -> void:
 	if direction == Vector2.ZERO or strength <= 0.0 or duration_ms < 0.0:
+		return
+	# The Heavy form shrugs knockback off entirely (WorldScene.ts:341-350).
+	if bool(_gulp.form.get("knockback_immune", false)):
 		return
 	var now: float = Services.now_ms()
 	_knockback_anim_until_ms = maxf(_knockback_anim_until_ms, now + duration_ms)
@@ -480,6 +538,10 @@ func respawn() -> void:
 		visual.modulate = Color.WHITE
 	_floating_text(spawn - Vector2(0.0, DEFEAT_TEXT_RISE_PX), "Respawned", &"green", true)
 	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+	# GameState.revive: energy full; the refill plays EnergyRestore (delta >= 20), as in Phaser.
+	_energy = float(_max_energy)
+	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": float(_max_energy)})
+	_audio_cue(CUE_ENERGY_RESTORE)
 	respawned.emit({"x": spawn.x, "y": spawn.y})
 
 
@@ -579,6 +641,227 @@ func get_pickup_area() -> Area2D:
 	return body.get_node_or_null(^"PickupArea") as Area2D if body != null else null
 
 
+## `WorldScene.useAbility` (abilities spec 3.2): the jump goes where the movement keys point (in
+## place without keys); the lash, slam and teleport toward the pointer aim or the facing; the
+## teleport as far as the pointer (from the aim origin), at most its range.
+func use_ability(id: StringName) -> bool:
+	if body == null:
+		return false
+	var aim := _pointer_aim_with_distance()
+	var toward: Vector2 = aim["direction"] if aim["direction"] != Vector2.ZERO else _facing
+	var request := {"position": get_centre(), "direction": toward, "facing": _facing}
+	match id:
+		AbilityDefinitions.JUMP:
+			request["direction"] = _input.movement_vector()
+			return _abilities.try_begin(id, request)
+		AbilityDefinitions.DODGE:
+			return _try_dodge()
+		AbilityDefinitions.TELEPORT:
+			if aim["direction"] != Vector2.ZERO:
+				request["reach"] = aim["distance"]
+			return _abilities.try_begin(id, request)
+		AbilityDefinitions.STRETCH_LASH, AbilityDefinitions.SQUASH_SLAM:
+			return _abilities.try_begin(id, request)
+	return false
+
+
+## The ability bar's click (`activateAbilityFromUi`): refused while dead or rolling/knocked back.
+func activate_ability_from_ui(id: StringName) -> bool:
+	if _dead or is_movement_suppressed() or get_tree().paused:
+		return false
+	return use_ability(id)
+
+
+## The ability bar's model of `id` (PlayerAbilityController.status, camelCase keys).
+func ability_status(id: StringName) -> Dictionary:
+	return _abilities.status(id)
+
+
+func is_ability_busy() -> bool:
+	return _abilities.is_busy()
+
+
+func is_learned(id: StringName) -> bool:
+	return _abilities.is_learned(id)
+
+
+func get_abilities() -> PlayerAbilities:
+	return _abilities
+
+
+func get_energy() -> float:
+	return _energy
+
+
+func get_max_energy() -> float:
+	return float(_max_energy)
+
+
+## GameState.useEnergy: false (and nothing taken) when there is too little.
+func spend_energy(amount: float) -> bool:
+	if _energy < amount:
+		return false
+	_energy -= amount
+	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": -amount})
+	return true
+
+
+## Test and dev aid: sets energy (clamped) and reports it.
+func set_energy(value: float) -> void:
+	var before := _energy
+	_energy = clampf(value, 0.0, float(_max_energy))
+	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": _energy - before})
+
+
+## The Phaser `player.action` audio cue of an ability step (Jump, Land, SlamImpact, ...).
+func action_cue(cue: StringName) -> void:
+	_audio_cue(cue)
+
+
+## A squash preset; `force` plays it even while an ability runs (the landing).
+func squash(preset: StringName, force: bool = false) -> void:
+	_squash.play(preset, force)
+
+
+## The ability effects channel on the art (offset in world px, scale and alpha multiplied).
+func set_effect_offset(offset: Vector2) -> void:
+	_effect_offset = offset
+	_place_art()
+
+
+func set_effect_scale(factor: Vector2) -> void:
+	if visual != null:
+		visual.scale = _visual_base_scale * factor
+
+
+func set_effect_alpha(alpha: float) -> void:
+	if visual != null:
+		visual.modulate.a = alpha
+
+
+func reset_effects() -> void:
+	_effect_offset = Vector2.ZERO
+	_place_art()
+	if visual != null:
+		visual.scale = _visual_base_scale
+		visual.modulate.a = 1.0
+
+
+## A tween on the art (it pauses with the tree, like Phaser's scene tweens); null without art.
+func effect_tween() -> Tween:
+	return visual.create_tween() if visual != null and visual.is_inside_tree() else null
+
+
+## A jump landed at `centre`: `jump_landed`, and the Heavy landing record cracked ground reads.
+func record_landing(centre: Vector2) -> void:
+	_landing_id += 1
+	var heavy := presses_plates()
+	if heavy:
+		_heavy_landing = {"x": centre.x, "y": centre.y, "id": _landing_id}
+	jump_landed.emit({"x": centre.x, "y": centre.y, "heavy": heavy, "id": _landing_id})
+
+
+## {} or {"x", "y", "id"} of the last jump landing made in a Heavy form.
+func last_heavy_landing() -> Dictionary:
+	return _heavy_landing
+
+
+## The current form presses plates and cracks ground (Heavy). Set by the Gulp forms.
+func presses_plates() -> bool:
+	return bool(_gulp.form.get("presses_plates", false))
+
+
+## The current form walks through spider webs (Sticky).
+func crosses_webs() -> bool:
+	return bool(_gulp.form.get("crosses_webs", false))
+
+
+func is_sticky_form() -> bool:
+	return current_form_id() == GulpForms.STICKY
+
+
+## {} or the form row (game/player/gulp/gulp_forms.gd).
+func current_form() -> Dictionary:
+	return _gulp.form
+
+
+## &"" when none, else &"heavy" / &"sticky".
+func current_form_id() -> StringName:
+	return _gulp.form.get("id", &"")
+
+
+func form_remaining_ms() -> float:
+	return _gulp.remaining_ms()
+
+
+func get_gulp() -> GulpController:
+	return _gulp
+
+
+## The nearest Gulp spot in reach, or null.
+func nearest_gulp_spot() -> Node:
+	return _gulp.nearest_spot()
+
+
+## A tap of Q (or a right click on a spot): eat, and the eat clip when something happened.
+func eat() -> String:
+	var result := _gulp.eat()
+	if result != "nothing":
+		play_action_clip("eat")
+	return result
+
+
+## A Goo Heart (WorldScene.collectGooHeart): max HP grows for the run and HP fills.
+func grant_goo_heart() -> void:
+	var run := Services.run()
+	if run != null:
+		run.add_goo_heart()
+		_max_hp = run.max_hp()
+	_hp = _max_hp
+	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+
+
+## Rooted by a spider web (status effects are not ported yet).
+func is_rooted() -> bool:
+	return false
+
+
+## The Gulp controller's form change (WorldScene.ts:1093-1100): the tint, the gulp squash and
+## the floating text.
+func on_gulp_form_changed(form: Dictionary, reason: String) -> void:
+	if visual != null:
+		visual.self_modulate = form.get("tint", Color.WHITE)
+	if reason == "started" or reason == "refreshed":
+		_squash.play(&"gulp")
+	var text := ""
+	var color := &"white"
+	match reason:
+		"started":
+			text = "%s!" % str(form["name"]).to_upper()
+			color = &"cyan"
+		"refreshed":
+			text = "%s refreshed" % str(form["name"])
+			color = &"cyan"
+		"burp":
+			text = "Burp!"
+		"expired":
+			text = "The form wore off"
+	if not text.is_empty():
+		_floating_text(get_centre() - Vector2(0.0, GULP_TEXT_RISE_PX), text, color, true)
+
+
+## Physics RIDs of the player's own bodies (excluded from ability queries).
+func body_rids() -> Array[RID]:
+	var rids: Array[RID] = []
+	if body != null:
+		rids.append(body.get_rid())
+	return rids
+
+
+func get_slam_area() -> Area2D:
+	return _slam_area
+
+
 ## `WorldScene.playActionAnimation` (WorldScene.ts:1855-1877), e.g. the purple berry's `eat`:
 ## skipped while dead or while knockback has priority; otherwise action lock, stop, play the clip,
 ## and after its length (simulation time) unlock and go back to idle.
@@ -589,6 +872,9 @@ func play_action_clip(clip: String) -> void:
 		return
 	set_action_locked(true)
 	stop_movement()
+	# `player.action {anim}`: the eat clip's Eat cue (AudioEventBridge).
+	if clip == "eat":
+		_audio_cue(CUE_EAT)
 	play_animation(clip, true)
 	var length_ms := 0.0
 	if animation.has_method(&"clip_length_ms"):
@@ -611,11 +897,17 @@ func _handle_action_input() -> bool:
 		if interaction != null and bool(interaction.call(&"has_candidate")):
 			interaction.call(&"handle_interact")
 		return true
-	if _input.consume(&"dodge", now, _buffer_ms):
-		_try_dodge()
-		return true
+	# Abilities in Phaser's dispatch order: jump, dodge, stretch-lash, squash-slam, teleport.
+	for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
+		if _input.consume(AbilityDefinitions.action(id), now, _buffer_ms):
+			use_ability(id)
+			return true
 	if _input.consume(&"attack", now, _buffer_ms):
 		_attack()
+		return true
+	if _input.consume(&"eat", now, _buffer_ms):
+		_eat_since_ms = now
+		_eat_last_seen_ms = now
 		return true
 	return false
 
@@ -628,7 +920,8 @@ func _move(direction: Vector2) -> void:
 		return
 	var sprinting: bool = _input.is_held(&"sprint")
 	var base: float = _boost_speed if sprinting else _resolve_movement_speed(_base_speed)
-	var speed: float = _resolve_movement_speed(base)
+	# A Gulp form scales the capped speed (PlayerController.ts:69-70): Heavy 0.6, Sticky 0.9.
+	var speed: float = _resolve_movement_speed(base) * float(_gulp.form.get("speed", 1.0))
 	if direction == Vector2.ZERO:
 		body.velocity = Vector2.ZERO
 		_play_direct(CLIP_IDLE)
@@ -683,19 +976,11 @@ func _flip_for(clip: String) -> bool:
 func _try_dodge() -> bool:
 	var aim: Vector2 = _pointer_aim()
 	var toward: Vector2 = aim if aim != Vector2.ZERO else _facing
-	# PlayerAbilityService order: busy (OUT) -> locked -> cooldown (silent) -> action-locked.
-	if not dodge_learned:
-		_floating_text(get_centre() - Vector2(0.0, TEXT_RISE_PX), "Not learned yet", &"red", false)
-		_audio_cue(CUE_ABILITY_DENIED)
+	# The shared ability rules (busy silent, locked, cooldown silent, action-locked, energy); the
+	# cooldown (roll duration + post-roll cooldown) runs from now.
+	if not _abilities.try_instant(AbilityDefinitions.DODGE):
 		return false
-	var now: float = Services.now_ms()
-	if now < _dodge_cooldown_until_ms:
-		return false
-	if _action_locked:
-		_audio_cue(CUE_ABILITY_DENIED)
-		return false
-	# PlayerAbilityDefinitions.ts:214: cooldown = roll duration + post-roll cooldown, from now.
-	_dodge_cooldown_until_ms = now + _dodge_duration_ms + _dodge_cooldown_ms
+	_dodge_cooldown_until_ms = _abilities.cooldown_until(AbilityDefinitions.DODGE)
 	return _begin_roll(Directions.snap_to_cardinal(toward))
 
 
@@ -806,12 +1091,17 @@ func teleport(centre: Vector2) -> void:
 
 ## Draws the art `offset` world px away from the body without moving it (sleeping on a mattress).
 func set_art_offset(offset: Vector2) -> void:
+	_art_offset = offset
+	_place_art()
+
+
+func _place_art() -> void:
 	if visual == null:
 		return
 	if not _art_rest_position_known:
 		_art_rest_position = visual.position
 		_art_rest_position_known = true
-	visual.position = _art_rest_position + offset
+	visual.position = _art_rest_position + _art_offset + _effect_offset
 
 
 ## A clip's length in ms (its directional version when the scene has one); 0 when missing.
@@ -830,6 +1120,8 @@ func _die() -> void:
 	if _dead:
 		return
 	_sleep.wake("death")
+	_gulp.clear()
+	_eat_since_ms = -1.0
 	_dead = true
 	_knockback_anim_until_ms = 0.0
 	play_animation(CLIP_DIE, true)
@@ -944,6 +1236,7 @@ func _load_constants() -> void:
 	_defense = _number("character.player.stats.defense")
 	_max_hp = roundi(_number("character.player.stats.maxHp"))
 	_max_energy = roundi(_number("character.player.stats.maxEnergy"))
+	_energy_regen = _number("character.player.stats.energyRegenPerSecond")
 	_buffer_ms = _number("input.bufferMs")
 
 
@@ -970,6 +1263,63 @@ func _floating_text(world_position: Vector2, text: String, color: StringName, bi
 	var feel := Services.feel()
 	if feel != null:
 		feel.floating_text(world_position, text, color, big)
+
+
+## The eat press (WorldScene.updateEatHold): released -> one tap of `eat()`. The quick wheel a
+## long hold opens is not ported, so any release eats. Returns true only while the wheel would be
+## open (never yet).
+func _update_eat_hold() -> bool:
+	if _eat_since_ms < 0.0:
+		return false
+	var now: float = Services.now_ms()
+	if now - _eat_last_seen_ms > EAT_HOLD_DROP_MS:
+		_eat_since_ms = -1.0
+		return false
+	_eat_last_seen_ms = now
+	if not _input.is_held(&"eat"):
+		_eat_since_ms = -1.0
+		eat()
+	return false
+
+
+func _make_gulp_hud() -> void:
+	if body == null or _gulp_hud != null:
+		return
+	_gulp_hud = GulpHud.new()
+	_gulp_hud.name = "GulpHud"
+	_gulp_hud.player = self
+	body.add_child.call_deferred(_gulp_hud)
+
+
+## Energy regen (WorldScene.ts:833-837): `energyRegenPerSecond` per second of simulation, capped.
+func _regen_energy(delta_ms: float) -> void:
+	if _energy >= float(_max_energy) or delta_ms <= 0.0:
+		return
+	var before := _energy
+	_energy = minf(float(_max_energy), _energy + _energy_regen * delta_ms / 1000.0)
+	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": _energy - before})
+
+
+## The pointer aim as {"direction": unit or ZERO, "distance": from the aim origin}.
+func _pointer_aim_with_distance() -> Dictionary:
+	var direction := _pointer_aim()
+	if direction == Vector2.ZERO or body == null or not body.is_inside_tree():
+		return {"direction": Vector2.ZERO, "distance": 0.0}
+	var origin: Vector2 = get_centre() - Vector2(0.0, aim_rise_px)
+	return {"direction": direction, "distance": origin.distance_to(body.get_global_mouse_position())}
+
+
+func _make_slam_area() -> void:
+	if body == null or _slam_area != null:
+		return
+	_slam_area = Area2D.new()
+	_slam_area.name = "SlamArea"
+	_slam_area.collision_layer = 0
+	_slam_area.collision_mask = 0
+	_slam_area.monitoring = false
+	_slam_area.monitorable = false
+	_slam_area.position = Vector2(0.0, -27.56)
+	body.add_child.call_deferred(_slam_area)
 
 
 ## Sleep's wake input (SleepController `consumeWakeInput`): drains every action press and reports
