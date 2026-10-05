@@ -127,6 +127,23 @@ func test_low_energy_refuses_and_regen(t: TestContext) -> void:
 	t.near(player.get_energy() - before, 8.0 * (t.now() - from) / 1000.0, 0.2, "regen 8 per second")
 
 
+func test_lash_faces_its_direction(t: TestContext) -> void:
+	var player := t.player()
+	Services.run().learn_ability("stretch-lash")
+	t.teleport_player(Vector2(640.0, 704.0))
+	player.face(Vector2.DOWN)
+	await t.steps(2)
+	# A pointer aim to the left while facing down (headless runs have no pointer: request it).
+	var started: bool = player.get_abilities().try_begin(&"stretch-lash",
+			{"position": player.get_centre(), "direction": Vector2.LEFT, "facing": player.get_facing()})
+	if not t.check(started, "the lash did not start"):
+		return
+	await t.steps(1)
+	t.near_vec(player.get_facing(), Vector2.LEFT, 0.001, "facing after a lash to the left")
+	t.equal(String(player.animation.assigned_animation), "stretch-left", "the lash clip")
+	await t.until(func() -> bool: return not player.is_ability_busy(), 1000.0)
+
+
 func test_lash_into_nothing_retracts(t: TestContext) -> void:
 	var player := t.player()
 	Services.run().learn_ability("stretch-lash")
@@ -139,6 +156,11 @@ func test_lash_into_nothing_retracts(t: TestContext) -> void:
 	if not t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "the lash did not start"):
 		return
 	var began := t.now()
+	var tendril := Services.world().entities_root().get_node_or_null("LashTendril") as Sprite2D
+	if t.check(tendril != null, "no lash tendril"):
+		t.near_vec(tendril.global_position, start, 1.0, "the tendril starts at the slime")
+		t.near(tendril.rotation, Vector2.DOWN.angle(), 0.01, "the tendril points down")
+		t.near(tendril.scale.x * 384.0, 180.0, 1.0, "the tendril reaches the full 180 px")
 	await t.until(func() -> bool: return not player.is_ability_busy(), 1000.0)
 	var length := t.now() - began
 	t.check(length <= 300.0 + STEP, "the lash lasted %d ms (expected 270 into nothing, 280 heavy without pull)" % roundi(length))

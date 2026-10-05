@@ -60,6 +60,9 @@ func begin(player: Node, intent: Dictionary, now_ms: float) -> void:
 	var definition: Dictionary = intent["definition"]
 	_probe = AbilityWorld.lash_probe(_from, _from + _direction * float(definition["distance"]), _player.call(&"body_rids"))
 	_player.call(&"action_cue", &"Lash")
+	# The slime turns toward the throw so its directional lash clip reaches where the tendril goes
+	# (Phaser keeps the facing; its side-view art did not show it).
+	_player.call(&"face", _direction)
 	_player.call(&"play_animation", "stretch")
 	_player.call(&"stop_movement")
 	_player.call(&"reset_effects")
@@ -177,6 +180,9 @@ func _make_tendril() -> Sprite2D:
 	sprite.centered = false
 	sprite.offset = Vector2(0.0, -TENDRIL_ORIGIN_Y)
 	parent.add_child(sprite)
+	# Assigned before placing it: `_place_tendril` places `_tendril` (until 2026-10-05 it ran on null,
+	# so every lash but a pull drew its tendril unplaced at the world origin).
+	_tendril = sprite
 	var caught: Vector2 = _probe.get("at", _from)
 	_place_tendril(_from, caught)
 	return sprite

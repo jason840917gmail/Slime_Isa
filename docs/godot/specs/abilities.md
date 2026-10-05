@@ -56,11 +56,15 @@ Differences from this spec's Phaser behaviour, until decided otherwise:
 - Restoration quests: `RunState.is_quest_active` is false until the quest phase, so the two
   level-1 ruins show their locked message (tests list the quest in
   `RunState.debug_active_quests`).
-- The hop, squash (slam), teleport, stretch (lash), eat and knockback clips are keyed on page 1's
-  top-down frames, per direction (`tools/build_player_clips.gd`, `ACTIONS` and `POSES`; owner
-  decision 2026-10-05: keys from the new art). They only choose frames (crouch, spring, brace,
-  open mouth...); the sequences' tweens still squash, stretch, lift and fade the art. A filmed
-  stretch lash (Seedance, down/up/side) will replace the keyed `stretch-*`. The Heavy and Sticky skins are painted by a shader over the new frames
+- The hop, squash (slam), teleport, eat and knockback clips are keyed on page 1's top-down
+  frames, per direction (`tools/build_player_clips.gd`, `ACTIONS` and `POSES`; owner decision
+  2026-10-05: keys from the new art). They only choose frames (crouch, spring, brace, open
+  mouth...); the sequences' tweens still squash, stretch, lift and fade the art. The lash is
+  filmed (Seedance): `stretch-down`, `-up`, `-side` and `-left` are page 2's rows 3-5, a 270 ms
+  reach and pull back (the slime's own short jelly arm; the up lash stretches its sprout). The
+  lash and the teleport turn the slime toward their direction (§3.2). The lash tendril was drawn
+  unplaced at the world origin for every lash but a pull until 2026-10-05 (fixed; tested). The
+  Heavy and Sticky skins are painted by a shader over the new frames
   (`game/player/gulp/form_skin.gdshader`: grey cobbles, cream silk; owner decision 2026-10-05)
   instead of Phaser's redrawn side-view sheets.
 
@@ -307,7 +311,9 @@ teleport:      if not stuck: try_teleport(toward, aim?.distance)
 ```
 
 A stuck press of jump/dodge/teleport is consumed with no feedback. No ability changes the facing
-(only the dodge's `face()`).
+(only the dodge's `face()`). **Godot deviation (2026-10-05):** the lash and the teleport also
+`face()` their direction, because their top-down clips are directional: a lash aimed down while
+facing left would otherwise reach left while its tendril goes down.
 
 Godot `PlayerInputBuffer.ACTIONS` must add `jump`, `stretch_lash`, `squash_slam`, `teleport`,
 `eat` (and `interact` with the interaction spec). `PointerAim` must also return the distance
@@ -539,7 +545,7 @@ return {kind: heavy, at: reach} if blocked else {kind: none, at: reach}
 
 | t (ms) | All kinds |
 |---|---|
-| 0 | cue `Lash` (`ability-stretch-lash`). Clip `stretch` (loop 12 fps 0.667 s). Stop. Lean: effects offset → dir·8, scale → (1.14, 0.88) over 110 ms Quad.Out, yoyo (back at 220). Tendril sprite frame 0 at `from`. |
+| 0 | cue `Lash` (`ability-stretch-lash`). Clip `stretch` (loop 12 fps 0.667 s; Godot: the filmed `stretch-<direction>`, once, 270 ms, after `face(dir)`). Stop. Lean: effects offset → dir·8, scale → (1.14, 0.88) over 110 ms Quad.Out, yoyo (back at 220). Tendril sprite frame 0 at `from`. |
 | 40 / 80 | Tendril frames 1 / 2. |
 | 120 | Act on the catch: |
 
@@ -1473,5 +1479,6 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
   the restoration candidate (priority 89); `interact` dispatch precedes the abilities (§3.2).
 - **combat** (`combat.md`): router listing (optional), `PlayerCombat` shares `_action_locked`.
 - **Quests [OUT]**: ability rewards, restoration `questId`, `object.activated`.
-- **Art**: the filmed stretch lash (Seedance, down/up/side) to replace the keyed `stretch-*`
-  clips. The keyed ability clips and the shader form skins (O-G1) are done.
+- **Art**: done (keyed ability clips, the filmed stretch lash, the shader form skins O-G1). The
+  player's `die`, `doze` and `sleep` still draw the old side-view sheet: they need closed-eye
+  top-down art.
