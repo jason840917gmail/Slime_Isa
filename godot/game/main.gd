@@ -143,7 +143,51 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	start_arrival_fade()
 	setup_ui()
 	_transitioning = false
+	_start_autosave()
 	return true
+
+
+## Loads save `slot` into the running game (a pause-menu load): installs the run and rebuilds the
+## saved world with the player at the saved spot. False when the save cannot be loaded or a travel
+## is under way. (From the title screen, `RunState.load_slot` then main.tscn does the same.)
+func load_run(slot: int) -> bool:
+	var run := Services.run()
+	if _transitioning or run == null or not run.load_slot(slot):
+		return false
+	var navigation := run.consume_navigation()
+	_transitioning = true
+	_teardown_world()
+	return _build_world(str(navigation.get("map_id", TRIAL_MAP_ID)), navigation)
+
+
+## The recovery autosave follows the run while this world is played (SaveSystem.startAutoSave):
+## RunState schedules it on its own changes, the player's HP changes schedule it too, and it is
+## written once on arrival.
+func _start_autosave() -> void:
+	var run := Services.run()
+	if run == null:
+		return
+	run.location_provider = _live_location
+	run.autosave_enabled = true
+	if player != null and not player.health_changed.is_connected(_on_player_health_changed):
+		player.health_changed.connect(_on_player_health_changed)
+	run.schedule_autosave()
+
+
+func _on_player_health_changed(_payload: Dictionary) -> void:
+	var run := Services.run()
+	if run != null:
+		run.schedule_autosave()
+
+
+## The live player for saves: {"map_id", "hp", "energy", "x", "y", "facing"}; {} without one.
+func _live_location() -> Dictionary:
+	var world_service := Services.world()
+	if player == null or not is_instance_valid(player) or world_service == null:
+		return {}
+	var snapshot: Dictionary = player.run_snapshot()
+	snapshot["map_id"] = world_service.map_id()
+	return snapshot
 
 
 ## True from a travel request until the next world is built (WorldScene `transitioning`).
@@ -353,7 +397,12 @@ func load_world(map_id: String) -> Node2D:
 func spawn_player(navigation: Dictionary = {}) -> PlayerScript:
 	var world_service := Services.world()
 	var spawn_point := spawn_override(world_service.player_spawn_point())
-	if not navigation.is_empty():
+	var saved_spot: Variant = null
+	if str(navigation.get("kind", "")) == "load":
+		saved_spot = AreaTravel.saved_location(Services.run().location if Services.run() != null else {})
+	if saved_spot is Vector2:
+		spawn_point = saved_spot
+	elif not navigation.is_empty():
 		spawn_point = AreaTravel.arrival_point(navigation, world_service.player_spawn_point())
 	var root := world_service.spawn_at_phaser_position(PLAYER_SCENE_ID, spawn_point, world_root)
 	if root == null:
@@ -367,6 +416,8 @@ func spawn_player(navigation: Dictionary = {}) -> PlayerScript:
 	var run := Services.run()
 	if run != null:
 		script_node.restore_run_state(run.player)
+		if saved_spot is Vector2:
+			script_node.face(AreaTravel.facing_vector(str(run.location.get("facing", "down"))))
 	return script_node
 
 

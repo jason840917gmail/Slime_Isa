@@ -45,6 +45,36 @@ static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 	return world.find_spawn_point(anchor)
 
 
+## A loaded save's spot (`WorldScene.isValidSavedPosition`): the saved old Phaser centre when it
+## belongs to the registered world and stands on an open tile inside it, else null.
+static func saved_location(location: Dictionary) -> Variant:
+	var world := Services.world()
+	if world == null or location.is_empty() or str(location.get("map_id", "")) != world.map_id():
+		return null
+	var point := Vector2(float(location.get("x", NAN)), float(location.get("y", NAN)))
+	var dims := world.dimensions()
+	if not point.is_finite() or dims.is_empty():
+		return null
+	if point.x < 0.0 or point.y < 0.0 or point.x >= float(dims["width"]) or point.y >= float(dims["height"]):
+		return null
+	var tile_size := float(dims["tile_size"])
+	if world.is_solid_tile(floori(point.x / tile_size), floori(point.y / tile_size)):
+		return null
+	return point
+
+
+## "up" / "down" / "left" / "right" as a unit vector (a saved facing); down otherwise.
+static func facing_vector(facing: String) -> Vector2:
+	match facing:
+		"up":
+			return Vector2.UP
+		"left":
+			return Vector2.LEFT
+		"right":
+			return Vector2.RIGHT
+	return Vector2.DOWN
+
+
 ## The arrival point of the door `door_id` in `world_root`, or null when no door has that id.
 static func door_arrival(world_root: Node, door_id: String) -> Variant:
 	var tree := world_root.get_tree()

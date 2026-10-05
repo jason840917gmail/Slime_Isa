@@ -13,7 +13,8 @@ extends Node
 ## - `world` [WorldProgressData]: discovered_areas, defeated_boss_ids, completed_dungeon_ids,
 ##   maps {map_id: map record}, respawn_point.
 ## - `story` [StorySaveData]: world_flags, learned_recipe_ids, learned_ability_ids, talked_npc_ids.
-## - `location` [GameLocationData], `play_time_ms`; quests stay empty until the quest phase.
+## - `location` [GameLocationData], play time (`current_play_time_ms()`); quests stay empty until
+##   the quest phase.
 ##
 ## A map record [MapRuntimeStateData] has: resources, collectibles, inventory_drops,
 ## next_inventory_drop_sequence, placed_furniture, next_placed_furniture_sequence, boss_camps,
@@ -51,9 +52,28 @@ var world: Dictionary = {}
 var story: Dictionary = {}
 var location: Dictionary = {}
 var quests: Array = []
-var play_time_ms: float = 0.0
 ## True after `new_run()` or a load; main.gd starts a new run on its first boot otherwise.
 var started: bool = false
+
+## Saves (section "saves" below).
+const SAVE_SCHEMA_VERSION := 1
+const AUTOSAVE_SLOT := 0
+const AUTOSAVE_DELAY_MS := 250.0
+const SLOT_PREFIX := "slot-"
+## Where saves live; the test runner points it at a scratch folder.
+var save_root: String = "user://saves"
+## The recovery autosave runs only while a world is being played (main.gd turns it on).
+var autosave_enabled: bool = false
+## main.gd: returns the live player's {"map_id", "hp", "energy", "x", "y", "facing"} for saves.
+var location_provider: Callable = Callable()
+var _autosave_timer: Timer
+var _play_time_base_ms: float = 0.0
+var _play_started_ms: float = 0.0
+
+## A save was written. Payload: {"slot": int}.
+signal saved(payload: Dictionary)
+## A save was installed. Payload: {"slot": int}.
+signal loaded(payload: Dictionary)
 
 ## Quests are not ported yet: a restoration site with a quest id stays locked unless its quest id
 ## is listed here (tests and dev). The quest phase replaces `is_quest_active`.
@@ -92,7 +112,8 @@ func new_run() -> void:
 	story = {"world_flags": [], "learned_recipe_ids": [], "learned_ability_ids": [], "talked_npc_ids": []}
 	location = {"area_id": INITIAL_MAP_ID, "map_id": INITIAL_MAP_ID, "x": 0.0, "y": 0.0, "facing": "down"}
 	quests = []
-	play_time_ms = 0.0
+	_play_time_base_ms = 0.0
+	_play_started_ms = Time.get_ticks_msec()
 	debug_active_quests = []
 	_navigation = {}
 	started = true
@@ -534,18 +555,198 @@ static func _constant_int(constants: Services.GameConstantsType, path: String) -
 	return constants.integer(path) if constants != null else 0
 
 
-# --- saves (phase 4; stubs until then) ----------------------------------------------------------
+# --- saves (Phaser SaveSystem.ts + SaveRepository.ts) ------------------------------------------
+## Files under `save_root`: slot 0 is the recovery autosave (written 250 ms after the run changes,
+## never while the slime is dead, and when the window closes); slots 1+ are named saves. Each file
+## is {"schema_version", "saved_at" (unix ms), "data": `serialize()`}. Loading installs the run
+## and queues a "load" navigation, so main.tscn boots in the saved world at the saved spot.
 
-## True when save slot `slot` holds a run. Saves are not written yet.
-func has_save(_slot: int = 0) -> bool:
-	return false
+## The run as Phaser's GameSaveData (snake_case keys), ready for JSON.
+func serialize() -> Dictionary:
+	_capture_live_player()
+	return {
+		"player": player.duplicate(true),
+		"inventory": inventory.duplicate(true),
+		"quests": quests.duplicate(true),
+		"location": location.duplicate(true),
+		"world": world.duplicate(true),
+		"story": story.duplicate(true),
+		"play_time_ms": current_play_time_ms(),
+	}
 
 
-## Installs the run saved in `slot`; main.tscn then boots at the saved location. Not yet.
-func load_slot(_slot: int = 0) -> bool:
-	return false
+## Replaces the run with `data` (a `serialize()` result); false (and nothing changed) when it is
+## not one. A run saved at the moment of defeat wakes with full health.
+func install(data: Dictionary) -> bool:
+	for key: String in ["player", "inventory", "location", "world", "story"]:
+		if not data.get(key) is Dictionary:
+			return false
+	var fresh := data.duplicate(true)
+	player = fresh["player"]
+	inventory = fresh["inventory"]
+	location = fresh["location"]
+	world = fresh["world"]
+	story = fresh["story"]
+	quests = fresh.get("quests", []) if fresh.get("quests") is Array else []
+	if int(player.get("hp", 0)) <= 0:
+		player["hp"] = max_hp()
+	world.get_or_add("maps", {})
+	world.get_or_add("discovered_areas", [])
+	_play_time_base_ms = float(fresh.get("play_time_ms", 0.0))
+	_play_started_ms = Time.get_ticks_msec()
+	_navigation = {}
+	started = true
+	return true
 
 
-## Writes the run to `slot`. Not yet.
-func save_slot(_slot: int = 0) -> bool:
-	return false
+func has_save(slot: int = 0) -> bool:
+	return FileAccess.file_exists(_slot_path(slot))
+
+
+## Writes the run to `slot` (0 = the autosave). False when it could not be written.
+func save_slot(slot: int = 0) -> bool:
+	if not started:
+		return false
+	DirAccess.make_dir_recursive_absolute(save_root)
+	var file := FileAccess.open(_slot_path(slot), FileAccess.WRITE)
+	if file == null:
+		push_warning("RunState: cannot write %s (%s)" % [_slot_path(slot), error_string(FileAccess.get_open_error())])
+		return false
+	file.store_string(JSON.stringify({"schema_version": SAVE_SCHEMA_VERSION,
+		"saved_at": Time.get_unix_time_from_system() * 1000.0, "data": serialize()}, "\t"))
+	file.close()
+	saved.emit({"slot": slot})
+	return true
+
+
+## Installs the run in `slot` and queues a "load" navigation into its world; false when the file
+## is missing, unreadable, from a newer schema, or names a world that does not exist.
+func load_slot(slot: int = 0) -> bool:
+	var record := read_slot(slot)
+	if record.is_empty():
+		return false
+	var data: Dictionary = record["data"]
+	var map_id := str((data["location"] as Dictionary).get("map_id", ""))
+	var world_service := Services.world()
+	if map_id.is_empty() or (world_service != null and world_service.scene_path("world." + map_id).is_empty()):
+		return false
+	if not install(data):
+		return false
+	request_navigation("load", map_id)
+	loaded.emit({"slot": slot})
+	return true
+
+
+## {"schema_version", "saved_at", "data"} of `slot`, or {} when missing or unreadable.
+func read_slot(slot: int) -> Dictionary:
+	var path := _slot_path(slot)
+	if not FileAccess.file_exists(path):
+		return {}
+	var json := JSON.new()
+	var parsed: Variant = json.data if json.parse(FileAccess.get_file_as_string(path)) == OK else null
+	if not parsed is Dictionary:
+		push_warning("RunState: %s is not a save" % path)
+		return {}
+	var record: Dictionary = _integers(parsed)
+	if int(record.get("schema_version", 0)) > SAVE_SCHEMA_VERSION or not record.get("data") is Dictionary:
+		push_warning("RunState: %s has an unknown save version" % path)
+		return {}
+	return record
+
+
+func delete_slot(slot: int) -> bool:
+	return has_save(slot) and DirAccess.remove_absolute(_slot_path(slot)) == OK
+
+
+## Every readable save: [{"slot", "saved_at", "map_id", "play_time_ms"}], slot order.
+func list_saves() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var dir := DirAccess.open(save_root)
+	if dir == null:
+		return out
+	var slots: Array[int] = []
+	for file_name in dir.get_files():
+		if file_name.begins_with(SLOT_PREFIX) and file_name.ends_with(".json"):
+			var number := file_name.trim_prefix(SLOT_PREFIX).trim_suffix(".json")
+			if number.is_valid_int():
+				slots.append(int(number))
+	slots.sort()
+	for slot in slots:
+		var record := read_slot(slot)
+		if record.is_empty():
+			continue
+		var data: Dictionary = record["data"]
+		out.append({"slot": slot, "saved_at": float(record.get("saved_at", 0.0)),
+			"map_id": str((data["location"] as Dictionary).get("map_id", "")),
+			"play_time_ms": float(data.get("play_time_ms", 0.0))})
+	return out
+
+
+## Asks for the recovery autosave 250 ms from now (later changes push it back).
+func schedule_autosave() -> void:
+	if not autosave_enabled or not started or _autosave_timer == null:
+		return
+	_autosave_timer.start(AUTOSAVE_DELAY_MS / 1000.0)
+
+
+## Writes the recovery autosave now, unless the slime is dead (`SaveSystem.writeRecovery`).
+func write_recovery() -> bool:
+	if _autosave_timer != null:
+		_autosave_timer.stop()
+	if not autosave_enabled or not started:
+		return false
+	_capture_live_player()
+	if int(player.get("hp", 0)) <= 0:
+		return false
+	return save_slot(AUTOSAVE_SLOT)
+
+
+func current_play_time_ms() -> float:
+	return _play_time_base_ms + maxf(0.0, Time.get_ticks_msec() - _play_started_ms)
+
+
+func _capture_live_player() -> void:
+	if location_provider.is_valid():
+		var state: Variant = location_provider.call()
+		if state is Dictionary and not (state as Dictionary).is_empty():
+			capture_player(str(state.get("map_id", location.get("map_id", ""))), state)
+
+
+func _slot_path(slot: int) -> String:
+	return save_root.path_join("%s%d.json" % [SLOT_PREFIX, slot])
+
+
+## JSON numbers come back as floats: whole ones become ints again (counts, coins, HP, cells).
+static func _integers(value: Variant) -> Variant:
+	if value is float:
+		var number: float = value
+		return int(number) if is_finite(number) and number == floorf(number) and absf(number) < 9.0e15 else number
+	if value is Dictionary:
+		var out := {}
+		for key: Variant in value:
+			out[key] = _integers(value[key])
+		return out
+	if value is Array:
+		var items: Array = []
+		for item: Variant in value:
+			items.append(_integers(item))
+		return items
+	return value
+
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_autosave_timer = Timer.new()
+	_autosave_timer.name = "AutosaveTimer"
+	_autosave_timer.one_shot = true
+	_autosave_timer.process_callback = Timer.TIMER_PROCESS_IDLE
+	_autosave_timer.timeout.connect(write_recovery)
+	add_child(_autosave_timer)
+	for changed: Signal in [inventory_changed, world_progress_changed, coins_changed, story_flag_changed, ability_learned]:
+		changed.connect(func(_payload: Dictionary) -> void: schedule_autosave())
+
+
+## Window close (Phaser `pagehide`): the autosave is written at once.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
+		write_recovery()
