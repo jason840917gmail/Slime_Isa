@@ -25,8 +25,9 @@ extends SceneTree
 ## slime on its top-down art with a matching pose (owner decision 2026-10-05: keys from the new art;
 ## only the stretch lash is filmed, page 2's `stretch-*` rows).
 ##
-## Every other clip, still drawn from the old side-view sheet, gets a `Visual:texture` key for that
-## sheet, so switching clips always switches to the right texture.
+## Every other clip in the scene is removed: the old side-view sheet is gone from the player (owner
+## decision 2026-10-05, "replace all old player art"). Page rows that face down only (doze, sleep,
+## die) are played after the player turns to the camera.
 ##
 ## Run with the Godot 4.7.2 console exe (close the scene in an open editor first, then reload it):
 ##     --headless --path godot -s res://tools/build_player_clips.gd [-- --only=roll,attack-1]
@@ -35,7 +36,6 @@ extends SceneTree
 ## the sprite's default texture and the autoplay clip become page 1's `idle-down`.
 
 const SCENE_PATH := "res://game/characters/player_slime.tscn"
-const OLD_SHEET := "res://asset/characters/slime_normalized.webp"
 const PAGES := [
 	{
 		"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-1.webp",
@@ -127,9 +127,8 @@ func _build(only: PackedStringArray) -> bool:
 		root.free()
 		return false
 	var library := player.get_animation_library(LIBRARY)
-	var old_sheet := load(OLD_SHEET) as Texture2D
 
-	# Every clip this tool owns, built or kept, so the old-sheet pass below leaves them alone.
+	# Every clip this tool owns, built or kept; the pass below removes the rest.
 	var owned: Array[String] = []
 	var page_rows := {}
 	var built := 0
@@ -201,7 +200,8 @@ func _build(only: PackedStringArray) -> bool:
 	for clip_name: StringName in library.get_animation_list():
 		if String(clip_name) in owned:
 			continue
-		_set_texture_track(library.get_animation(clip_name), old_sheet)
+		library.remove_animation(clip_name)
+		print("build_player_clips: removed %s (old side-view art)" % clip_name)
 
 	if only.is_empty():
 		visual.texture = load(PAGES[0]["texture"]) as Texture2D

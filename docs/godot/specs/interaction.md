@@ -574,6 +574,8 @@ sleep(request):                                 # :74-93
   teleport player to wakePoint                  # the body lies in FRONT of the bed
   art offset = sleepPoint - wakePoint           # only the picture moves onto the mattress
   phase = dozing; phaseEndsAt = now + duration('doze') (1000 ms); play 'doze' (restart)
+                                                # Godot: face(DOWN) first; doze-down / sleep-down
+                                                # face the viewer only (top-down art, 2026-10-05)
   nextZzzAt = phaseEndsAt
   onFellAsleep: respawn point = {areaId, mapId, x: round(wake.x), y: round(wake.y), bedId}
                 floating "Respawn point set" cyan small at (sleep.x, sleep.y - 48)

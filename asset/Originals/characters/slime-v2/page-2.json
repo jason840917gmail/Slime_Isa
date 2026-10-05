@@ -131,6 +131,27 @@
     -26,
     -3
    ]
+  },
+  "die-down": {
+   "row": 6,
+   "first_frame": 48,
+   "fps": 8.0,
+   "loop": false,
+   "loop_start": 56,
+   "loop_length": 40,
+   "source_frames": [
+    56,
+    62,
+    66,
+    68,
+    70,
+    72,
+    76,
+    96
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false,
+   "row_scale": 0.9
   }
  }
 }

@@ -11,7 +11,8 @@ adventure games, and is built page by page.
 |---|---|
 | `turnaround-e.png` | The approved reference (candidate E of the second round, about a 55° camera): down, side (facing right), up. Magnific GPT 2.5 with the current slime, Lili and the directional beds sheet as references |
 | `start-down.png`, `start-side.png`, `start-up.png` | Each view of E, scaled to 440 px tall and placed on a flat #FF00FF 1024 px square: the start AND end frame of every clip |
-| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side` |
+| `end-sleep-down.png`, `end-defeated.png` | The end frames of the doze and the defeat (GPT 2.5 from `start-down.png` and Lili, transparent, placed like the start frames: centred, standing on the start's baseline, at 0.883 of the generated size); the sleep row loops on `end-sleep-down.png` |
+| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side`, `doze-down`, `sleep-down`, `die-down` |
 | `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops |
 
 Rebuild a runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` with
@@ -32,7 +33,8 @@ size and fits the same 30 x 26 body.
 | 3 | walk-down | 14.77 fps |
 | 4 | walk-up | 16 fps |
 | 5 | walk-side | 13.71 fps |
-| 6, 7 | free | |
+| 6 | doze-down | 8 fps, once (Phaser's 1 s doze): a blink, heavy eyes, a yawn, asleep |
+| 7 | sleep-down | 4.09 fps (one slow breath, 1.96 s), eyes closed, the sprout drooping |
 
 `idle-down` was retimed in the Godot editor on 2026-10-05 (8 fps, ping-pong, without column 2);
 rebuild other clips with `build_player_clips.gd --only=<prefix>` so that tuning stays.
@@ -49,7 +51,8 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
 | 3 | stretch-down | 29.63 fps, once (the lash's 270 ms reach); drawn 37 px higher in its cells |
 | 4 | stretch-up | 29.63 fps, once |
 | 5 | stretch-side | 29.63 fps, once; drawn 26 px left and 3 px higher in its cells |
-| 6, 7 | free | |
+| 6 | die-down | 8 fps, once (Phaser's 1 s defeat): a flinch, squeezed > < eyes, the melt into a puddle; drawn at 0.9 of the page scale so the puddle fits a cell |
+| 7 | free | |
 
 - **roll-down and roll-up** are cut from their videos' tumbling stretch (source frames 25-46
   and 30-66). The clips drift sideways and bob, so every frame is centred and stood on the
@@ -73,6 +76,15 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
   stretches the sprout itself into the lash. The first side take slid the whole slime off-frame
   along a long arm; the second ("a short, stubby, rounded jelly arm ... the body itself stays
   exactly where it is") was kept and the first was not.
+- **Rest and defeat face the viewer only** (owner decision 2026-10-05: replace all the old player
+  art). Doze, sleep and defeat are filmed facing down, from `start-down.png` to an end still
+  (`end-sleep-down.png`, `end-defeated.png`); the player turns to the camera before it dozes or
+  falls (`face(Vector2.DOWN)`), so no turning take is needed. The sleep loop is cut from frames
+  0-72 (the take perks its sprout up after that). The defeat take opens with a hand poking the
+  slime, so its picks start at frame 56.
+- **No old clip is left.** `build_player_clips.gd` removes every clip it does not build, so the
+  player scene no longer uses the old `slime_normalized` sheet (Phaser's `attack-2`, `attack-3`,
+  `cast`, `charge`, `hurt` and `trick` were never played by the port).
 - **The other abilities have no sheet rows** (owner decision 2026-10-05: keys from the new art,
   only the stretch lash filmed). `hop`, `squash`, `teleport`, `eat` and `knockback`, each `-down`, `-up` and `-side`, pick page 1's idle and walk cells by pose (`POSES`: rest; low,
   the widest cell; tall, the narrowest; an open mouth and a chew for eating) at keyed times
@@ -100,4 +112,5 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
 
 Cost: 7,080 Magnific credits for page 1, including both turnaround rounds and the discarded
 first batch; 2,640 for page 2's six videos (three rolls, three rejected attacks); 1,760 for the
-four lash videos (one rejected side take).
+four lash videos (one rejected side take); 1,720 for the rest and the defeat (four stills at 100,
+three videos).
