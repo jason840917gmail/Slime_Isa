@@ -27,6 +27,7 @@ extends Node
 
 const Services := preload("res://game/shared/services.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
+const SaveSlotsMenu := preload("res://game/saves/save_slots_menu.gd")
 
 ## InitialRun.ts:16 (a literal there too).
 const NEW_RUN_COINS := 50
@@ -875,21 +876,29 @@ func load_slot(slot: int = 0) -> bool:
 	return true
 
 
-## {"schema_version", "saved_at", "data"} of `slot`, or {} when missing or unreadable.
+## {"schema_version", "saved_at", "data"} of `slot`, or {} when missing or unreadable (with a
+## warning for an unreadable file).
 func read_slot(slot: int) -> Dictionary:
+	var inspected := inspect_slot(slot)
+	if not str(inspected["problem"]).is_empty():
+		push_warning("RunState: cannot load %s: %s" % [_slot_path(slot), inspected["problem"]])
+	return inspected["record"]
+
+
+## What is in `slot`, quietly: {"exists": bool, "record": the read_slot record or {}, "problem":
+## "" or why an existing file cannot be loaded ("not a save file", "made by a newer version")}.
+func inspect_slot(slot: int) -> Dictionary:
 	var path := _slot_path(slot)
 	if not FileAccess.file_exists(path):
-		return {}
+		return {"exists": false, "record": {}, "problem": ""}
 	var json := JSON.new()
 	var parsed: Variant = json.data if json.parse(FileAccess.get_file_as_string(path)) == OK else null
 	if not parsed is Dictionary:
-		push_warning("RunState: %s is not a save" % path)
-		return {}
+		return {"exists": true, "record": {}, "problem": "not a save file"}
 	var record: Dictionary = _integers(parsed)
 	if int(record.get("schema_version", 0)) > SAVE_SCHEMA_VERSION or not record.get("data") is Dictionary:
-		push_warning("RunState: %s has an unknown save version" % path)
-		return {}
-	return record
+		return {"exists": true, "record": {}, "problem": "made by a newer version"}
+	return {"exists": true, "record": record, "problem": ""}
 
 
 func delete_slot(slot: int) -> bool:
@@ -983,6 +992,13 @@ func _ready() -> void:
 	for changed: Signal in [inventory_changed, world_progress_changed, coins_changed, story_flag_changed, ability_learned,
 			weapon_loadout_changed, weapon_equipped, recipes_learned, quests_changed]:
 		changed.connect(func(_payload: Dictionary) -> void: schedule_autosave())
+	_install_save_slots.call_deferred()
+
+
+## The save slots window joins the Shell (once every autoload is ready) and takes over its "save"
+## and "load" actions (game/saves/save_slots_menu.gd).
+func _install_save_slots() -> void:
+	SaveSlotsMenu.install(Services.shell())
 
 
 ## Window close (Phaser `pagehide`): the autosave is written at once.
