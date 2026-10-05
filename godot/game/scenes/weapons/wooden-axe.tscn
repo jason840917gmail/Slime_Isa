@@ -1,0 +1,646 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/weapons/128x128-tile_3x1-wooden-axe.webp" id="1"]
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/weapon.gd" id="3"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/swing-tool-1.wav" id="5"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/swing-tool-2.wav" id="6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(26, 26)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(26, 26)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3"]
+size = Vector2(26, 26)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4"]
+size = Vector2(26, 26)
+
+[sub_resource type="Animation" id="Animation_5"]
+resource_name = "idle"
+length = 0.166667
+loop_mode = 1
+step = 0.166667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Axe1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [1]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Axe1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Axe1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(10, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Axe1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0.58, 0.58)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Axe1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Axe1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Axe1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_6"]
+resource_name = "attack-right"
+length = 0.666667
+loop_mode = 0
+step = 0.083333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Axe1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 1, 1, 1, 1, 1, 1, 1]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Axe1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Axe1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(8, -22), Vector2(16, -14), Vector2(20, -10), Vector2(28, -10), Vector2(35, 0), Vector2(35, 20), Vector2(35, 20), Vector2(35, 20)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Axe1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Axe1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [-1.1344640137963142, -0.7853981633974483, -0.3490658503988659, 0.17453292519943295, 0.8726646259971648, 1.3962634015954636, 1.3962634015954636, 1.3962634015954636]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Axe1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Axe1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+
+[sub_resource type="Animation" id="Animation_7"]
+resource_name = "attack-left"
+length = 0.666667
+loop_mode = 0
+step = 0.083333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Axe1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 1, 1, 1, 1, 1, 1, 1]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Axe1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Axe1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-8, -22), Vector2(-16, -14), Vector2(-20, -10), Vector2(-28, -10), Vector2(-35, 0), Vector2(-35, 20), Vector2(-35, 20), Vector2(-35, 20)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Axe1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Axe1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.1344640137963142, 0.7853981633974483, 0.3490658503988659, -0.17453292519943295, -0.8726646259971648, -1.3962634015954636, -1.3962634015954636, -1.3962634015954636]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Axe1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, true, true, true, true, true, true, true]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Axe1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+
+[sub_resource type="Animation" id="Animation_8"]
+resource_name = "attack-up"
+length = 0.666667
+loop_mode = 0
+step = 0.083333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Axe1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 1, 1, 1, 1, 1, 1, 1]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Axe1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Axe1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(30, 0), Vector2(30, 10), Vector2(30, 20), Vector2(20, 40), Vector2(0, 50), Vector2(-10, 50), Vector2(-10, 50), Vector2(-10, 50)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Axe1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Axe1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.8726646259971648, 1.2217304763960306, 1.5707963267948966, 2.0943951023931953, 2.792526803190927, 3.141592653589793, 3.141592653589793, 3.141592653589793]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Axe1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Axe1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+
+[sub_resource type="Animation" id="Animation_9"]
+resource_name = "attack-down"
+length = 0.666667
+loop_mode = 0
+step = 0.083333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Axe1:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 1, 1, 1, 1, 1, 1, 1]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Axe1:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Axe1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(30, 0), Vector2(30, 10), Vector2(30, 20), Vector2(20, 40), Vector2(0, 50), Vector2(-10, 50), Vector2(-10, 50), Vector2(-10, 50)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Axe1:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = false
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62), Vector2(0.62, 0.62)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Axe1:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = false
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.8726646259971648, 1.2217304763960306, 1.5707963267948966, 2.0943951023931953, 2.792526803190927, 3.141592653589793, 3.141592653589793, 3.141592653589793]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Axe1:flip_h")
+tracks/5/interp = 1
+tracks/5/loop_wrap = false
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Axe1:flip_v")
+tracks/6/interp = 1
+tracks/6/loop_wrap = false
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.083333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [false, false, false, false, false, false, false, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_10"]
+_data = {
+&"idle": SubResource("Animation_5"),
+&"attack-right": SubResource("Animation_6"),
+&"attack-left": SubResource("Animation_7"),
+&"attack-up": SubResource("Animation_8"),
+&"attack-down": SubResource("Animation_9")
+}
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_11"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("5")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("6")
+stream_1/weight = 1.0
+
+[node name="WoodenAxe" type="Node2D"]
+
+[node name="Axe1" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+scale = Vector2(0.58, 0.58)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-64, -64)
+hframes = 3
+
+[node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 8
+monitoring = false
+monitorable = false
+
+[node name="right--axe-head" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(60, 15)
+disabled = true
+
+[node name="left--axe-head" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("RectangleShape2D_2")
+position = Vector2(-60, 15)
+disabled = true
+
+[node name="up--axe-head" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("RectangleShape2D_3")
+position = Vector2(0, -60)
+disabled = true
+
+[node name="down--axe-head" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("RectangleShape2D_4")
+position = Vector2(0, 60)
+disabled = true
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+script = ExtResource("2")
+libraries/ = SubResource("AnimationLibrary_10")
+callback_mode_process = 0
+autoplay = &"idle"
+
+[node name="WeaponScript" type="Node" parent="." node_paths=PackedStringArray("attack_area", "animation")]
+script = ExtResource("3")
+weapon_id = "wooden-axe"
+category = "melee"
+attack_area = NodePath("../AttackArea")
+animation = NodePath("../Animation")
+base_damage = 12.0
+cooldown_ms = 900.0
+knock_strength = 70.0
+damage_modifiers = [{
+"targetTag": "stone",
+"modifier": 0
+}, {
+"targetTag": "wood",
+"modifier": 1
+}, {
+"targetTag": "resource",
+"modifier": 0.1
+}, {
+"targetTag": "enemy",
+"modifier": 0.2
+}]
+harvest_capabilities = {}
+scaling = {
+"damage": {
+"strength": 0.8
+},
+"cooldown": {
+"agility": 0.15
+},
+"knockback": {
+"strength": 0.2
+}
+}
+attack_plans = {
+"right": {
+"animationId": "attack-right",
+"durationMs": 666.6666666666666,
+"framesPerSecond": 12,
+"hitboxSpans": [{
+"hitboxId": "axe-head",
+"from": 5,
+"through": 6,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.35
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+},
+"left": {
+"animationId": "attack-left",
+"durationMs": 666.6666666666666,
+"framesPerSecond": 12,
+"hitboxSpans": [{
+"hitboxId": "axe-head",
+"from": 5,
+"through": 6,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.35
+}],
+"events": [],
+"mirrored": {
+"x": true,
+"y": false
+}
+},
+"up": {
+"animationId": "attack-up",
+"durationMs": 666.6666666666666,
+"framesPerSecond": 12,
+"hitboxSpans": [{
+"hitboxId": "axe-head",
+"from": 5,
+"through": 7,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.35
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+},
+"down": {
+"animationId": "attack-down",
+"durationMs": 666.6666666666666,
+"framesPerSecond": 12,
+"hitboxSpans": [{
+"hitboxId": "axe-head",
+"from": 5,
+"through": 7,
+"damageMultiplier": 1,
+"knockbackMultiplier": 0.35
+}],
+"events": [],
+"mirrored": {
+"x": false,
+"y": false
+}
+}
+}
+
+[node name="SwingSfx" type="AudioStreamPlayer" parent="."]
+script = ExtResource("4")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_11")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+
+[connection signal="area_entered" from="AttackArea" to="WeaponScript" method="on_area_entered"]
+[connection signal="attack_started" from="WeaponScript" to="SwingSfx" method="play_cue"]

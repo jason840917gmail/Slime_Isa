@@ -66,8 +66,8 @@ Shell children: ShellLayer (CanvasLayer 50) > Root > AreaTitleCard, PauseMenu, G
 ```
 
 Design rules:
-- **Scene scripts** live in `game/scripts/` and only there. A file there is a converter-visible script id (`game.<kebab>` → `<snake>.gd`). The converter attaches the file and writes exactly the `@export`s it declares. Do not add or remove files in `game/scripts/` without the architect or integrator.
-- **Inheritance between scene scripts only where Phaser has it.** The converter merges the `@export`s along a script's `extends` chain, so a port may extend another scene script exactly when the Phaser script does: `fatty.gd` extends `enemy.gd` (FattyScript extends EnemyScript) and overrides its hooks (`_after_enemy_step`, `_attack_area_reach`, `_can_run_common_attack`, ...). There is still no `character.gd`: shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
+- **Scene scripts** live in `game/scripts/` and only there. A file there is a scene-script id (`game.<kebab>` → `<snake>.gd`), attached to the scenes in `game/scenes/` that use it (the converter attached them and wrote exactly the `@export`s each declared; since Phase 1 a new export gets its values in the editor). Do not add or remove files in `game/scripts/` without the architect or integrator.
+- **Inheritance between scene scripts only where Phaser has it.** The converter merged the `@export`s along a script's `extends` chain, so a port may extend another scene script exactly when the Phaser script does: `fatty.gd` extends `enemy.gd` (FattyScript extends EnemyScript) and overrides its hooks (`_after_enemy_step`, `_attack_area_reach`, `_can_run_common_attack`, ...). There is still no `character.gd`: shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
 - **Static helpers** are `extends RefCounted` files with static funcs: perimeter, directions, feet anchor, resolver, scaling, AI, wander policy, aim and bounds. Small stateful helpers are RefCounted instances: input buffer, squash, territory, attack lifecycle, combo and activations.
 - **Autoloads are reached only through `res://game/shared/services.gd`**, as `Services.router()`, `Services.world()`, `Services.feel()`, `Services.constants()`, `Services.clock()`, `Services.run()`, `Services.music()`, `Services.shell()` and `Services.now_ms()`. This was verified on 4.7.2: the headless `--check-only -s` does **not** know autoload names, so a bare `DamageRouter.route(...)` fails the check with "Identifier not found". The getters are typed, so calls are still statically checked.
 - **Cross-file types**: `const X := preload("res://...")`, where X equals the file's `class_name`. Autoload scripts have no `class_name`, because a class_name equal to an autoload name is an error. Preload cycles (`player.gd` ↔ `player_combat.gd`, `services.gd` ↔ the autoloads) were tested and are fine.
@@ -331,7 +331,9 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/feel/hit_flash.gdshader` | combat | Already functional |
 | `game/feel/floating_text_layer.gd` | combat | |
 | `game/feel/particle_fx.gd` | combat | |
-| `game/runtime/**` | converter | Helpers the converter attaches (audio, animation, placeholders, UI) |
+| `game/runtime/**` | converter | Helpers the converted scenes use (audio, animation, placeholders, UI) |
+| `game/scenes/**`, `game/scenes/scene_index.json` | scenes | Every world, object, character, weapon, effect, projectile and encounter scene, Godot's since Phase 1 (CONVENTIONS "Scenes Godot owns"); checked by `tools/verify_scenes.gd` |
+| `game/world/terrain_tileset.tres` | scenes | The terrain TileSet the world scenes' ground layers use |
 | `game/audio/music_director.gd` | audio | Autoload `MusicDirector`: world and boss music, leave/arrival fades, menu duck, `AreaTransition` cue, the mix hook ([specs/audio.md](./specs/audio.md)) |
 | `game/shell/shell.gd` | shell | Autoload `Shell`: window stack, Escape and pause, area titles, game over, end cards, quit to title ([specs/shell.md](./specs/shell.md)) |
 | `game/shell/title.tscn`, `title.gd` | shell | The title screen (the main scene): launch-option skip, level-1 backdrop, New Game / Continue / Load / Settings / Credits |
@@ -339,8 +341,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/shell/game_settings.gd`, `control_labels.gd`, `area_titles.gd`, `launch_options.gd` | shell | Settings (user://settings.cfg, bus mix, GameFeel), InputMap key labels, area names / colours, launch options |
 | `game/ui/theme/ui_tokens.gd`, `slime_theme.tres` | UI theme | Design tokens and the one UI Theme, built by `tools/build_ui_theme.gd` ([UI_THEME.md](./UI_THEME.md)) |
 
-Only ported scene scripts live in `game/scripts/`: every file there is a script id the converter
-attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting that script.
+Only ported scene scripts live in `game/scripts/`: every file there is a scene-script id
+(`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting that script.
 
 ## 11. Call map between areas (who depends on whom)
 
@@ -367,10 +369,10 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 
 ### Converter and integration notes (resolved during the trial)
 
-- Node-typed exports resolve only when listed in the node header (`node_paths=PackedStringArray(...)`); the converter writes it.
+- Node-typed exports resolve only when listed in the node header (`node_paths=PackedStringArray(...)`); the converter wrote it, and the editor keeps it.
 - Solid terrain tiles carry a `tile_id` custom data layer; their collision is merged rectangle bodies under `ground/TileCollision` (Phaser's outer-edge inset), which `WorldService.is_solid_tile` reads.
 - Re-anchored scenes placed in worlds (NPCs) get `depth_anchor` added to their position; instance roots carry `metadata/instance_id` and `metadata/persistence_key`.
-- The ground layer is the TileMapLayer whose `tile_set` is `res://generated/resources/terrain_tileset.tres`.
+- The ground layer is the TileMapLayer whose `tile_set` is `res://game/world/terrain_tileset.tres`.
 - The water surface is the ground layer's child `WaterSurface` (z -2, drawn right after the tiles); underwater life (z -2) y-sorts after it. The terrain edges are the next child, `TerrainEdges`, drawn over the surface: at a shore they fill with the same water (shared `water_surface.gdshaderinc`, the surface's own mask) and the land's edge tile on top, so `smooth_water_ground` stays on ([TERRAIN_LAB.md](./TERRAIN_LAB.md)).
 - Physics interpolation is on; the camera blends its target between ticks itself.
 - `*.gd.uid` files are committed.

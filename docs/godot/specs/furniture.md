@@ -79,7 +79,7 @@ rectangle `CollisionShape2D`, one `Sprite2D` and one `game.workbench` ScriptNode
 | Collider size | 79.288 × 27.489 | 80.036 × 27.132 |
 | Script `game.workbench` | prompt "Use workbench", recipeContext `workbench`, interactRadius 90, badgeRise 76.85 | same, badgeRise 76 |
 
-Converted (`godot/generated/scenes/objects/interiors/workshop/interior-workshop-workbench{,-vise}.tscn`,
+Converted (`godot/game/scenes/objects/interiors/workshop/interior-workshop-workbench{,-vise}.tscn`,
 through `WorldService.scene_path`): root `StaticBody2D` "workbench" / "workbench-vise",
 `y_sort_enabled`, `collision_mask = 0` (layer 1 by default); `BodyShape` with a
 `RectangleShape2D` of the sizes above at the positions above; `Visual` `Sprite2D`

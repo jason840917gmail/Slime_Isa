@@ -1098,8 +1098,8 @@ copied by `pnpm godot:sync`. Values: §1.5.
 
 All new files are outside `game/scripts/` (no scene-script ids). The windows are Godot-owned
 scenes built by hand on the theme (like the shell), loaded by path; the converted
-`generated/scenes/ui/crafting-ui.tscn`, `inventory-ui.tscn`, `weapon-hotbar.tscn`,
-`menu-tabs.tscn` stay unused (list them in CONVENTIONS "Scenes Godot owns").
+`ui.crafting-ui`, `ui.inventory-ui`, `ui.weapon-hotbar` and `ui.menu-tabs` scenes were unused and were
+not kept when the scenes became Godot's (CONVENTIONS "Scenes Godot owns").
 
 ### 11.3 RunState additions (owner: world objects; snake_case keys)
 

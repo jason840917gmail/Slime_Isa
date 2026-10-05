@@ -1,0 +1,62 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/gate.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(84, 36)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(142, 30)
+
+[node name="verdant-gate" type="Node2D"]
+y_sort_enabled = true
+
+[node name="LeftPillar" type="StaticBody2D" parent="."]
+y_sort_enabled = true
+position = Vector2(-112, 0)
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="LeftPillar"]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -22)
+
+[node name="RightPillar" type="StaticBody2D" parent="."]
+y_sort_enabled = true
+position = Vector2(112, 0)
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="RightPillar"]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -22)
+
+[node name="Doors" type="StaticBody2D" parent="."]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="Doors"]
+shape = SubResource("RectangleShape2D_2")
+position = Vector2(0, -22)
+
+[node name="Visual" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-160, -256)
+hframes = 4
+
+[node name="GateScript" type="Node" parent="." node_paths=PackedStringArray("visual", "doors")]
+script = ExtResource("2")
+map_id = "level-1"
+gate_id = "level-1-east-verdant-gate"
+required_item_id = "green-key"
+consume_on_unlock = true
+prompt = "Unlock the Verdant Gate"
+locked_prompt = "Locked - needs the Green Key"
+locked_message = "The Verdant Gate is locked. Fatty One Eye guards the Green Key."
+unlocked_message = "The Verdant Gate swings open!"
+interact_radius = 150.0
+badge_rise = 120.0
+closed_frame = 0
+open_frame = 1
+visual = NodePath("../Visual")
+doors = NodePath("../Doors")

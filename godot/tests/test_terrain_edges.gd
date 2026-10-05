@@ -15,7 +15,7 @@ const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
 const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materials.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
 
-const TERRAIN_TILESET_PATH := "res://generated/resources/terrain_tileset.tres"
+const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 ## Terrain tiles that keep hard edges, as in Phaser (no natural-ground transition).
 const HARD_EDGED := ["rock-wall", "wood-floor", "mushroom-earth-floor", "mushroom-plain-floor", "mushroom-clover-floor"]
 ## Test map keys -> tile ids.

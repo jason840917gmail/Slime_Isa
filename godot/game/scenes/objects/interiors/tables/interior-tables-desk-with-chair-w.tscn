@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/256x256-tile_5x9-interior-tables-directional.webp" id="1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(101.376, 44)
+
+[node name="desk-with-chair-w" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -25.6)
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -256)
+hframes = 5
+vframes = 9
+frame = 23

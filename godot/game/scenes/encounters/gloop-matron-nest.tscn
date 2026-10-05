@@ -1,0 +1,76 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/boss_camp.gd" id="1"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/enemy/spider-hiss.wav" id="4"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 460.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2"]
+radius = 320.0
+
+[node name="Level1FattyCamp" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ActivationArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 512
+collision_mask = 4
+monitorable = false
+
+[node name="ActivationShape" type="CollisionShape2D" parent="ActivationArea"]
+shape = SubResource("CircleShape2D_1")
+
+[node name="ArenaArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 512
+collision_mask = 4
+monitorable = false
+
+[node name="ArenaShape" type="CollisionShape2D" parent="ArenaArea"]
+shape = SubResource("CircleShape2D_2")
+
+[node name="ActiveBosses" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="BossCampScript" type="Node" parent="." node_paths=PackedStringArray("activation_area", "arena_area", "active_bosses", "guarded_chest")]
+script = ExtResource("1")
+map_id = "gloop-forest"
+camp_id = "gloop-matron-nest"
+boss_id = "orb-weaver-matron"
+boss_scene = "character.orb-weaver-matron"
+activation_area = NodePath("../ActivationArea")
+arena_area = NodePath("../ArenaArea")
+active_bosses = NodePath("../ActiveBosses")
+guarded_chest = NodePath("../GuardedChest")
+guarded_chest_instance_id = "gloop-matron-guarded-chest"
+respawn_ms = 300000.0
+spawn = Vector2(0, 0)
+
+[node name="GuardedChest" parent="." instance=ExtResource("2")]
+position = Vector2(80, -232)
+metadata/instance_id = "guarded-chest"
+
+[node name="ChestScript" parent="GuardedChest"]
+map_id = "gloop-forest"
+instance_id = "gloop-matron-guarded-chest"
+initial_contents = {
+"iron-bar": 3,
+"hp-potion": 2
+}
+
+[node name="RoarSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("4")
+pitch_scale = 0.4
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 1600.0
+pan_distance = 400.0
+
+[connection signal="boss_spawn_requested" from="BossCampScript" to="RoarSfx" method="play_cue"]
+
+[editable path="GuardedChest"]

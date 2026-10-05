@@ -955,7 +955,7 @@ The port follows this plan with these differences (structure only; behaviour as 
 | `godot/tests/test_quests.gd` | tests | §10.10 |
 
 The three UI scenes join CONVENTIONS' "Scenes Godot owns" table like the shell windows (loaded by
-path, not in `OWNED_SCENES`). ARCHITECTURE §1 tree, §10 file map and the `game.npc` row need the new
+path, not through the scene index). ARCHITECTURE §1 tree, §10 file map and the `game.npc` row need the new
 nodes (architect).
 
 **Why a child of main, not an autoload:** the state lives in `RunState.quests` (saved with the run),

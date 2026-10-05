@@ -60,7 +60,7 @@ Proposed files (architect may rename; keep behaviour): `res://game/world/world_b
 
 Order in `world_bootstrap._ready()`:
 
-1. Resolve map id: `"level-1"` (= `STARTING_AREA_ID`). Optional: on web read `?map=` via `JavaScriptBridge.eval("new URLSearchParams(location.search).get('map')")`; desktop `OS.get_cmdline_user_args()`. Scene path from `res://generated/scene_index.json["world.<mapId>"]`.
+1. Resolve map id: `"level-1"` (= `STARTING_AREA_ID`). Optional: on web read `?map=` via `JavaScriptBridge.eval("new URLSearchParams(location.search).get('map')")`; desktop `OS.get_cmdline_user_args()`. Scene path from `res://game/scenes/scene_index.json["world.<mapId>"]`.
 2. `var world := load(path).instantiate()`; `add_child(world)` (under a `World` Node2D; the world root already has `y_sort_enabled = true` from the converter).
 3. Read the world definition (§2.1) from the `world_definition.gd` node; compute `WorldDimensions`.
 4. Build world bounds walls (§2.3).
@@ -403,7 +403,7 @@ The HUD reads player state (Phaser `core/GameState.ts:177-258`; owned by the pla
 
 ### 6.2 Top-left HUD (`ui.hud`)
 
-Phaser mechanism: `UiSurfaceScript` (`game.ui-surface`) pulls `snapshot('hud')` on enter and on every `hp/energy/coins` change, and applies `bindings` (`[{nodePath, property, model}]`, node paths relative to the script node) — `../Coins.text ← coinsLabel`, `../Health.value ← hp`, `../Health.max ← maxHp`, `../Energy.value ← energy`, `../Energy.max ← maxEnergy`. A port of `ui_surface.gd` belongs to Phase 3; for the trial either (a) instance the converted `res://generated/scenes/ui/hud.tscn` on a CanvasLayer (layer 10) and drive the three nodes from `hud.gd`, or (b) build the same three controls by hand. Target look (CSS px):
+Phaser mechanism: `UiSurfaceScript` (`game.ui-surface`) pulls `snapshot('hud')` on enter and on every `hp/energy/coins` change, and applies `bindings` (`[{nodePath, property, model}]`, node paths relative to the script node) — `../Coins.text ← coinsLabel`, `../Health.value ← hp`, `../Health.max ← maxHp`, `../Energy.value ← energy`, `../Energy.max ← maxEnergy`. A port of `ui_surface.gd` belongs to Phase 3; for the trial either (a) instance the converted `res://game/scenes/ui/hud.tscn` on a CanvasLayer (layer 10) and drive the three nodes from `hud.gd`, or (b) build the same three controls by hand. Target look (CSS px):
 
 - Root: position (16, 16), size 284 × 68 (`offsetMin [16,16]`, `offsetMax [300,84]`), no background/border, text shadow `0 1px 2px #081022, 0 0 6px #081022d9` (approximate with Label `font_shadow_color #081022`, offset (0,1), outline 0).
 - `Coins` Label: y 0–22, full width, text `"Coins " + format(coins)` (`formatHudCount`: `<10000` → integer with `,` thousands separators; `<1e6` → `"%.1fk" % min(999.9, n/1000)`; `<1e9` → `"%.1fm"`; else `"999m+"`; negative/fraction → `max(0, floor(n))`), font 12 px bold, colour warning `#ffd277`.

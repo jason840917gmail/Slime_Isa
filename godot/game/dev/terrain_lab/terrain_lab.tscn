@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://cnbfvymnl63tu"]
 
 [ext_resource type="Script" uid="uid://bb3ow3hj2mu53" path="res://game/dev/terrain_lab/terrain_lab.gd" id="1_d86gy"]
-[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://generated/resources/terrain_tileset.tres" id="2_ktca1"]
+[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://game/world/terrain_tileset.tres" id="2_ktca1"]
 [ext_resource type="Script" uid="uid://52wkftjcvrq" path="res://game/dev/terrain_lab/terrain_lab_ground.gd" id="3_etpjq"]
 
 [node name="TerrainLab" type="Node2D" unique_id=1055212650]

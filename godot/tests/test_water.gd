@@ -15,7 +15,7 @@ extends RefCounted
 const TestContext := preload("res://tests/lib/test_context.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
 
-const TERRAIN_TILESET_PATH := "res://generated/resources/terrain_tileset.tres"
+const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 const WATER_SHADER_PATH := "res://game/world/water_surface.gdshader"
 const LEVEL1_SHALLOW_TILES := 204
 const LEVEL1_DEEP_TILES := 58
@@ -216,7 +216,7 @@ func _collect_water_life(node: Node, found: Array[Node2D]) -> void:
 		_collect_water_life(child, found)
 
 
-## "fish-koi-lane" for an instance of res://generated/scenes/objects/water-life--fish-koi-lane.tscn.
+## "fish-koi-lane" for an instance of res://game/scenes/objects/water-life--fish-koi-lane.tscn.
 static func _scene_name(node: Node) -> String:
 	return node.scene_file_path.get_file().get_basename().trim_prefix(WATER_LIFE_SCENE_PREFIX)
 

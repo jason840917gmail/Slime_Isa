@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/256x256-tile_6x8-interior-beds-directional.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/bed.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(128.04, 80.025)
+
+[node name="canopy-n" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -43.0125)
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -256)
+hframes = 6
+vframes = 8
+frame = 19
+
+[node name="BedScript" type="Node" parent="."]
+script = ExtResource("2")
+prompt = "Sleep"
+interact_radius = 112.75
+badge_rise = 156.5
+sleep_point = Vector2(0, -83.025)
+wake_point = Vector2(0, 16)

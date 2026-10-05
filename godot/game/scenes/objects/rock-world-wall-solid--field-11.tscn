@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/rocks/96x96-tile_8x3.webp" id="1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(59, 23)
+
+[node name="field-11" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(-1.5, -32.5)
+
+[node name="Visual" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-48, -96)
+hframes = 8
+vframes = 3
+frame = 10
