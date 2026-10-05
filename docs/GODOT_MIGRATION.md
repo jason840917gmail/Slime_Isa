@@ -152,8 +152,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the Fatty One Eye camp spawns the boss when the player walks in; it chases,
   contact-hops, leaps with a ground telegraph, lands for damage with the ground
   crack and a camera shake, walks home and heals when the player leaves the arena,
-  shows the boss health bar, and dies with its death clip (kept on screen for the
-  clip, which Phaser never showed). Only spears hurt it: craft one, or start with
+  shows the boss health bar, and dies with its death clip (the body stays 2 s and
+  fades out, owner decision; Phaser removed it at once). Only spears hurt it: craft one, or start with
   `--weapon=basic-spear`.
 - Every enemy the worlds spawn is ported (2026-10-05, [godot/specs/enemy.md](./godot/specs/enemy.md)
   part 2): worm archers shoot arrows and keep their distance, slime spiders and orb weavers

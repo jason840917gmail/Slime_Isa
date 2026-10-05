@@ -245,9 +245,9 @@ func test_defeat_records_and_respawn_rule(t: TestContext) -> void:
 		var camps: Dictionary = run.map_record(MAP)["boss_camps"]
 		t.near(float((camps.get(CAMP_ID, {}) as Dictionary).get("respawn_ready_at_epoch_ms", -1.0)),
 			BossCampScript.epoch_now_ms() + 300000.0, 5000.0, "RunState respawn time (300 s)")
-	await t.until(func() -> bool: return not is_instance_id_valid(root_id), 1000.0)
+	await t.until(func() -> bool: return not is_instance_id_valid(root_id), 3000.0)
 	t.check(not is_instance_id_valid(root_id), "the defeated Matron was never freed")
-	t.between(t.now() - died_at, 285.7 - SLACK, 285.7 + 2.0 * SLACK, "dead body lifetime (the die clip, ms)")
+	t.between(t.now() - died_at, 2000.0 - SLACK, 2000.0 + 2.0 * SLACK, "dead body lifetime (2 s, owner decision, ms)")
 	t.check(not camp.evaluate_activation(true, camp.get_respawn_ready_at() + 1.0), "respawned without the player leaving first")
 
 

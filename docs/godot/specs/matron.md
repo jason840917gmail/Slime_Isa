@@ -237,8 +237,9 @@ again only after leaving the activation circle); the defeat bursts `boss-burst` 
 shows "Orb-Weaver Matron defeated!" at position − (0, 84) and lifts the chest guard.
 
 **Godot deviation (as for Fatty, boss spec 4.4):** Phaser disposes the boss the step it dies; the
-port keeps the dead body (collision off, hurtbox rejecting `dead`) for its `die-<facing>` clip
-(0.286 s on the gameplay clock), then frees it.
+port keeps the dead body (collision off, hurtbox rejecting `dead`) for 2 s on the gameplay clock
+(owner decision 2026-10-05): its `die-<facing>` clip (0.286 s), then the last frame, fading out
+over the last 0.3 s; then frees it.
 
 ---
 

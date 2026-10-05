@@ -204,10 +204,15 @@ func _damage_number_top() -> float:
 	return get_centre().y
 
 
-## Godot deviation (matron spec 4, as for Fatty): the dead body stays for its `die-<facing>` clip;
-## Phaser removes it the step it dies.
+## Godot deviation (matron spec 4, as for Fatty; owner decision 2026-10-05): the dead body stays
+## 2 s (its `die-<facing>` clip, then the last frame) and fades out at the end; Phaser removes it
+## the step it dies.
 func _dispose_delay_ms() -> float:
-	return _clip_length_ms("die-" + _facing)
+	return maxf(BOSS_CORPSE_MS, _clip_length_ms("die-" + _facing))
+
+
+func _corpse_fade_ms() -> float:
+	return BOSS_CORPSE_FADE_MS
 
 
 # --- phases -------------------------------------------------------------------------------------

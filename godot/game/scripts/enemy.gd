@@ -57,6 +57,10 @@ const MELEE_REACH_MULTIPLIER := 1.35
 const WALK_SPEED_THRESHOLD := 2.0
 ## UniversalSceneWorldController.ts:2052 - the enemy frees itself this long after defeat.
 const DISPOSE_AFTER_DEFEAT_MS := 800.0
+## Owner decision 2026-10-05: a defeated boss stays this long (its death clip, then its last
+## frame) and fades out over the last BOSS_CORPSE_FADE_MS. Phaser removed it the step it died.
+const BOSS_CORPSE_MS := 2000.0
+const BOSS_CORPSE_FADE_MS := 300.0
 ## UniversalSceneWorldController.ts:2043 - damage numbers above this are yellow and big.
 const IMPORTANT_DAMAGE := 15.0
 const DAMAGE_NUMBER_RISE_PX := 8.0
@@ -237,6 +241,9 @@ func _step_enemy(delta: float) -> bool:
 	if _defeated:
 		body.velocity = Vector2.ZERO
 		_runtime_state = EnemyAI.STATE_DEAD
+		var fade_ms := _corpse_fade_ms()
+		if fade_ms > 0.0 and _dispose_at_ms >= 0.0:
+			body.modulate.a = clampf((_dispose_at_ms - now) / fade_ms, 0.0, 1.0)
 		if _dispose_at_ms >= 0.0 and now >= _dispose_at_ms and not body.is_queued_for_deletion():
 			body.queue_free()
 		return false
@@ -908,6 +915,12 @@ func _damage_number_top() -> float:
 ## How long the defeated body stays before it frees itself (enemy spec 7).
 func _dispose_delay_ms() -> float:
 	return DISPOSE_AFTER_DEFEAT_MS
+
+
+## The defeated body fades out over this many ms before it frees itself; 0 = it just goes
+## (ordinary enemies, as in Phaser). Bosses return BOSS_CORPSE_FADE_MS.
+func _corpse_fade_ms() -> float:
+	return 0.0
 
 
 ## Toward the arena centre at movement speed, snapping onto it on the last step
