@@ -15,6 +15,7 @@ const Services := preload("res://game/shared/services.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const ResourceDrops := preload("res://game/world_objects/resource_drops.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
+const QuestEvents := preload("res://game/quests/quest_events.gd")
 
 ## JSON `mapId`.
 @export var map_id: String = ""
@@ -131,6 +132,11 @@ func _on_collected(player: Node, moved: int, recovered: bool) -> void:
 		if player.has_method(&"play_action_clip"):
 			player.play_action_clip("eat")
 		Services.run().add_coins(BERRY_COINS * moved)
+	# Quests (CollectibleController.ts:92-99): loot piles count, the player's own bag drop does not.
+	var event := {"mapId": map_id, "instanceId": instance_id, "objectId": object_id, "itemId": item_id, "quantity": moved}
+	if recovered:
+		event["recovered"] = true
+	QuestEvents.emit(QuestEvents.COLLECTIBLE_COLLECTED, event)
 
 
 func _rejected(left: int, reason: String) -> Dictionary:

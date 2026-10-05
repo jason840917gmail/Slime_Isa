@@ -13,6 +13,7 @@ extends Node
 const Services := preload("res://game/shared/services.gd")
 const ResourceDrops := preload("res://game/world_objects/resource_drops.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
+const QuestEvents := preload("res://game/quests/quest_events.gd")
 
 const GOLDEN_ANGLE := PI * (3.0 - sqrt(5.0))
 const LOOT_RINGS: Array[float] = [0.45, 0.6, 0.75]
@@ -20,6 +21,8 @@ const LOOT_VERTICAL_SCALE := 0.7
 const LOOT_TURNS := 8
 const COIN_TEXT_RISE := 20.0
 const ORIGIN_LOOT := "loot"
+## EnemyScript.RANK_BOSS: Fatty and the Matron.
+const RANK_BOSS := "boss"
 
 ## An enemy died and its rewards were paid. Payload: {"enemyId", "kind", "x", "y"} (quests).
 signal enemy_died(payload: Dictionary)
@@ -53,6 +56,10 @@ func _on_reward(payload: Dictionary, enemy: Node) -> void:
 	var root := enemy.get_parent()
 	var kind := root.scene_file_path.get_file().get_basename() if root != null else ""
 	enemy_died.emit({"enemyId": str(enemy.get_instance_id()), "kind": kind, "x": at.x, "y": at.y})
+	# Quests: `enemy.died` for ordinary enemies only (bosses, rank "boss", report through their camp).
+	if str(enemy.get(&"rank")) != RANK_BOSS:
+		QuestEvents.emit(QuestEvents.ENEMY_DIED, {"enemyId": enemy.get_instance_id(),
+			"areaId": world.map_id() if world != null else "", "kind": kind})
 	var coins := int(rewards.get("coins", 0))
 	if coins > 0 and run != null:
 		run.add_coins(coins)

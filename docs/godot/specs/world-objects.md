@@ -45,8 +45,10 @@ this spec is the player (`loot-sparkle` at the player centre, 7.4).
   authored scenes). Its behaviour is IN, inside the resource node (12.2).
 - Save files. The records live in the `RunState` autoload (in memory, kept across world swaps);
   writing them to `user://` is the save phase.
-- Inventory UI (`ui.inventory-ui`), dropping items from the bag (`InventoryDropController.dropFromSlot`),
-  restoring bag drops (`InventoryDropController.restore`, `WorldScene.ts:2389`), the `recovered` flag.
+- ~~Inventory UI (`ui.inventory-ui`), dropping items from the bag (`InventoryDropController.dropFromSlot`),
+  restoring bag drops (`InventoryDropController.restore`, `WorldScene.ts:2389`), the `recovered` flag.~~
+  Done with crafting (2026-10-05, [crafting.md](./crafting.md) §6): the bag window, drops
+  (`game/inventory/inventory_drops.gd`), restored with the loot records (`EnemyLoot.restore_world`).
 - Enemy loot piles (`InventoryDropController.dropLoot`; worm swordsman drops a `shard` 20 % of
   the time, `enemy-types.json`). Enemy rewards are OUT in the combat spec. The collectible
   script must still accept `source_inventory_drop_id` so these piles can come later.
@@ -54,8 +56,9 @@ this spec is the player (`loot-sparkle` at the player centre, 7.4).
   hints (`UniversalSceneWorldController.ts:1168-1187`).
 - Abilities touching these objects: Stretch Lash pulling a pile (`lashPull`, `:1350-1384`);
   Squash Slam skips every receiver tagged `resource` (`strikeArea`, `:1408`).
-- The belt/bag advice appended to the harvest message (`WorldScene.ts:2188-2203`): the trial
-  has no belt or bag UI, so the plain message is shown.
+- ~~The belt/bag advice appended to the harvest message (`WorldScene.ts:2188-2203`)~~: done with
+  the belt (crafting spec §8.8, `InventoryActions.harvest_message`); the `harvest_blocked` payload
+  keeps the plain message.
 - HUD coin flash (`flashHudCoins`, `UniversalSceneWorldController.ts:883-889`), occlusion
   silhouettes, the dev overlay, crafting (the stone axe and pickaxe cost 10 wood + 10 stone each
   at a workbench, `content/recipes/RecipeCatalog.ts:16-23`).
@@ -370,8 +373,8 @@ The weapon tags come from `CombatController.tryAttack` (`CombatController.ts:167
 Godot's `PlayerCombat.try_attack` already builds them from the weapon scene's
 `harvest_capabilities` (`player_combat.gd:140-142`, `_js_number` writes `1` and not `1.0`).
 
-Harvest message text (`WorldScene.ts:2188-2203`): `message` alone; with belt/bag OUT that is all
-the port shows. Phaser adds `": switch with the mouse wheel"` when a belt weapon could harvest,
+Harvest message text (`WorldScene.ts:2188-2203`): `message`, plus the belt/bag advice since the
+belt was ported (crafting spec §8.8). Phaser adds `": switch with the mouse wheel"` when a belt weapon could harvest,
 and `": put yours on the belt (E)"` when one is in the bag (labels from
 `player/ControlLabels.ts`: `weapon-next` = WheelDown = "Mouse wheel", lowercased; `menu` = KeyE).
 

@@ -11,7 +11,7 @@ behaviour per area is in [specs/](./specs/).
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
 | `godot/asset/` | `pnpm godot:sync`, git-ignored | copies of every file `asset/assets.json` maps, at `res://asset/<source.path>` |
-| `godot/generated/` | `pnpm godot:convert`, git-ignored | converted scenes (`scenes/<path under content/scenes/authored>.tscn`), `resources/terrain_tileset.tres`, `resources/ui_theme.tres`, `scene_index.json` (scene id → path), `data/` copies of `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, and `conversion_report.json` |
+| `godot/generated/` | `pnpm godot:convert`, git-ignored | converted scenes (`scenes/<path under content/scenes/authored>.tscn`), `resources/terrain_tileset.tres`, `resources/ui_theme.tres`, `scene_index.json` (scene id → path), `data/` copies of `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json` plus the exports `npc-definitions.json`, `recipes.json`, `weapons.json` (names, icons, stats) and `item-icons.json` (texture key → sheet, frame size, grid), and `conversion_report.json` |
 | `godot/game/runtime/` | hand, owned with the converter | helper scripts the converter attaches: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`); the converter attaches it and writes the exports it declares |
 | `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
@@ -37,8 +37,10 @@ instead of the generated one. From then on edit it in the Godot editor (or with 
 |---|---|---|
 | `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll and sword-swing clips, built by `tools/build_player_clips.gd`) |
 | `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](./specs/shell.md)). Loaded by path from the Shell and the title, so they are not in `OWNED_SCENES` |
-| `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](./specs/map.md)), made by `MapUi` under the HUD; loaded by path |
 | `ui.save-slots` | `res://game/saves/save_slots_menu.tscn` | 2026-10-05: the save slots window, mounted on the Shell by `RunState` (`Shell.mount_menu`); loaded by path |
+| `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](./specs/map.md)), made by `MapUi` under the HUD; loaded by path |
+| `ui.inventory-ui`, `ui.crafting-ui`, `ui.menu-tabs`, `ui.weapon-hotbar` | `res://game/ui/screens/inventory_screen.gd`, `crafting_screen.gd`, `menu_tabs.gd` (built in code; made by `menu_windows.gd` on GameWindows), `res://game/ui/weapon_hotbar.gd` (built in code under the HUD) | 2026-10-05: the bag, the crafting window, the menu tab strip and the HUD weapon belt ([specs/crafting.md](./specs/crafting.md)); the converted copies stay unused |
+| `ui.npc-dialogue`, `ui.quest-offer-modal`, `ui.quest-tracker` | `res://game/ui/screens/dialogue_box.tscn`, `quest_offer_window.tscn`, `res://game/ui/quest_tracker.tscn` | 2026-10-05: the NPC dialogue box, the quest offer / turn-in window and the HUD quest tracker on the UI theme ([specs/quests.md](./specs/quests.md)); the quest service mounts the first two on GameWindows, the HUD the tracker; loaded by path |
 
 ## Running a world
 
@@ -48,7 +50,13 @@ where new mechanics are tried first), open `game/dev/playground.tscn` and press 
 Current Scene); it inherits `main.tscn` with `map_id = "playground"`. Any other world:
 set `map_id` on a scene like it, or launch with `?map=<id>` (web) / `-- --map=<id>`
 (desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
-position.
+position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest active at that stage
+(default the first) when the first world is built (`QuestService.debug_activate`: earlier stages
+done, no rewards), to reach quest steps whose systems are not ported yet; it does not skip the
+title by itself (add `map` or `skip-title`). `?weapon=<id>` / `-- --weapon=<id>` gives a new run that
+weapon instead of the trial sword (bag, belt slot 1, hand); `?recipes` / `-- --recipes` makes every
+recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six development weapons
+at a new run ([specs/crafting.md](./specs/crafting.md) C2, C3, 8.2).
 
 ## Input and physics
 
@@ -117,7 +125,11 @@ lifetime, walls and hurtboxes, flee range, the spider AI and webs, the brawler's
 slow, knockback immunity, every world enemy type, crystal-caverns' legacy spawning), the
 Orb-Weaver Matron (`test_matron.gd`: nest camp and bar, spit, volley marks, landing and web
 patches, no stagger, arena leash, defeat records, reset, the web barrier and its torn flag,
-gloop-forest's orb weavers), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
+gloop-forest's orb weavers), the quests (`test_quests.gd`, `test_quests_gloop.gd`: new-run
+records, offer / turn-in conversations, the dialogue reveal and keys, rewards, known facts, the
+tracker, markers, toasts, waypoint targets, saves), crafting, the bag and the belt (`test_crafting.gd`,
+`test_inventory.gd`, `test_loadout.gd`: quotes and the status order, the crafting window, the menu
+key and tabs, consumables, drops, the wheel, the hotbar, the trial sword), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
 `--strict` to fail on known failures too.
 
 The `--check-only` pass reports one error per run and does **not** catch calls to

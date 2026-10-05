@@ -81,6 +81,7 @@ const HIT_TINT_MS := 110.0
 const HIT_TEXT_RISE := 54.0
 const BLOCKED_TEXT_RISE := 58.0
 const GROUP := &"resource_node"
+const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
 const HARVEST_PREFIX := "harvest:"
 
 var _health: DestructibleHealth
@@ -143,7 +144,7 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 		"x": pos.x, "y": pos.y}
 	var feel := Services.feel()
 	if feel != null:
-		feel.floating_text(pos - Vector2(0.0, BLOCKED_TEXT_RISE), blocked["message"], &"cyan", true)
+		feel.floating_text(pos - Vector2(0.0, BLOCKED_TEXT_RISE), _blocked_text(blocked), &"cyan", true)
 	harvest_blocked.emit(blocked)
 	return {"accepted": false, "reason": "state-blocked"}
 
@@ -263,6 +264,16 @@ func _tint_visual() -> void:
 		var target := instance_from_id(visual_id) as CanvasItem
 		if target != null:
 			HitFlash.clear(target))
+
+
+## The blocked text: the authored message plus where the right tool is ("Requires an Axe: switch
+## with the mouse wheel"; InventoryActions.harvest_message, crafting spec 8.8). The
+## `harvest_blocked` payload keeps the plain message.
+func _blocked_text(blocked: Dictionary) -> String:
+	var actions: Node = get_tree().get_first_node_in_group(INVENTORY_ACTIONS_GROUP) if is_inside_tree() else null
+	if actions != null and actions.has_method(&"harvest_message"):
+		return str(actions.call(&"harvest_message", blocked))
+	return str(blocked["message"])
 
 
 ## {targetTag, minimumTier, failureMessage} when authored with the right types, else {}.

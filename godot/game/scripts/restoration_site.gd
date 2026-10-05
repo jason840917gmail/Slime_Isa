@@ -5,14 +5,16 @@ class_name RestorationSiteScript
 ## interaction prompt by paying its `cost` from the bag: the story flag is set (the story variant
 ## on it swaps in the restored building, whose station then works), with a shake, dust and the
 ## restored message. Missing materials are listed ("Missing: 12 Stone, 3 Wood"). A site with a
-## `quest_id` needs that quest active; quests are not ported yet, so such a site shows its locked
-## message unless `RunState`'s debug override says the quest is active.
+## `quest_id` needs that quest active (`RunState.is_quest_active`: the quest record, or the debug
+## override), else it shows its locked message. A restore tells the quests
+## (`object.activated` {objectId, instanceId: the authored instance's persistence key, areaId}).
 ##
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
+const QuestEvents := preload("res://game/quests/quest_events.gd")
 
 const GROUP := &"restoration_site"
 const LABEL_RISE := 36.0
@@ -27,7 +29,7 @@ const CUE_REFUSED := &"CraftFail"
 @export var prompt: String = "Restore"
 ## JSON `flagId`: set when restored.
 @export var flag_id: String = ""
-## JSON `objectId` (reported to quests later).
+## JSON `objectId` (reported to quests).
 @export var object_id: String = ""
 ## JSON `questId`: the quest that must be active ("" = none).
 @export var quest_id: String = ""
@@ -54,6 +56,17 @@ func _ready() -> void:
 		interact_radius = 150.0
 	if not (is_finite(badge_rise) and badge_rise > 0.0):
 		badge_rise = 200.0
+
+
+## The `persistence_key` metadata of the nearest ancestor that has one (the authored instance,
+## e.g. "level-1.level-1-forge"); "" when none.
+func persistence_key() -> String:
+	var node := get_parent()
+	while node != null:
+		if node.has_meta(&"persistence_key"):
+			return str(node.get_meta(&"persistence_key"))
+		node = node.get_parent()
+	return ""
 
 
 ## Old Phaser position of the site (its parent).
@@ -97,7 +110,13 @@ func restore() -> bool:
 		return true
 	for entry: Array in cost_entries():
 		run.remove_item(entry[0], int(entry[1]))
+	# Read before the flag: its story variant takes this ruin out of the tree.
+	var instance_key := persistence_key()
 	run.set_flag(flag_id)
+	# Quests (WorldScene.ts:2114): "activate-object" objectives count the site once per instance.
+	var world := Services.world()
+	QuestEvents.emit(QuestEvents.OBJECT_ACTIVATED, {"objectId": object_id, "instanceId": instance_key,
+		"areaId": world.map_id() if world != null else ""})
 	if feel != null:
 		feel.audio_cue(CUE_RESTORED)
 		feel.play(&"building-restored")

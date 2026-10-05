@@ -3,9 +3,10 @@ class_name GameHud
 ## Minimal top-left HUD for the trial (Phaser `ui.hud` scene + `HudSurfacePort.ts`). World spec 6.2.
 ## Built by hand: `Coins` label, `Health` bar ("HP %d / %d"), `Energy` bar ("Energy %d / %d") at
 ## (16,16), 284 x 68 CSS px, styles per the spec. Also owns the floating PlayerHealthBar (world
-## spec 6.3), the BossHealthBar (boss spec 5) and the AbilityBar (abilities spec 2.6, bottom
-## centre). layer = 10, PROCESS_MODE_ALWAYS, every Control `mouse_filter = IGNORE` except the
-## ability bar's buttons.
+## spec 6.3), the BossHealthBar (boss spec 5), the AbilityBar (abilities spec 2.6, bottom
+## centre), the WeaponHotbar above it (crafting spec 8.6) and the QuestTracker under the card
+## (quests spec 4.4). layer = 10, PROCESS_MODE_ALWAYS, every Control `mouse_filter = IGNORE`
+## except the ability bar's, the hotbar's and the tracker's quest buttons.
 ##
 ## Data: `player.get_hud_snapshot()` once on bind, then on every `player.health_changed` and
 ## `player.energy_changed`; coins also follow `RunState.coins_changed`. Renders new-run defaults (hp/energy at their maxima from
@@ -193,8 +194,17 @@ func _build() -> void:
 	_ability_bar = AbilityBar.new()
 	_ability_bar.theme = _root.theme
 	add_child(_ability_bar)
+
+	# The weapon belt above it (crafting spec 8.6, res://game/ui/weapon_hotbar.gd).
+	var hotbar: Control = preload("res://game/ui/weapon_hotbar.gd").new()
+	hotbar.theme = _root.theme
+	add_child(hotbar)
+
 	# The minimap and the world map window (res://game/ui/map/, docs/godot/specs/map.md).
 	add_child(preload("res://game/ui/map/map_ui.gd").new())
+
+	# The quest tracker under the HUD card (quests spec 4.4, res://game/ui/quest_tracker.gd).
+	add_child(preload("res://game/ui/quest_tracker.tscn").instantiate())
 
 
 func _make_bar(node_name: String, rect: Rect2, label: String, tone: Color) -> HudBar:

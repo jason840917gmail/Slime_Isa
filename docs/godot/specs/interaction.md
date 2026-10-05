@@ -286,9 +286,11 @@ the target origin the badge's bottom edge floats"; the badge's top is 22 px high
   acquireInteractionLock}` for each `NpcScript` at mount and passes it to
   `QuestNpcController.register`.
 - Candidate kind is chosen per NPC by quest state: turn-in (100) > offer (90) > reoffer (85) >
-  talk (50). Quests are [OUT]; the port only needs **talk** (50). Prompt text is the same for
-  offer and talk ("Talk to <name>"), only the priority differs [note for parity checks once
-  quests come].
+  talk (50). Prompt text is the same for offer and talk ("Talk to <name>"), only the priority
+  differs; turn-in is "Return to <name>", reoffer "Resume quest with <name>". **Ported with the
+  quests** (2026-10-05): the controller asks the quest service (group `quests`,
+  `npc_candidate(npc_id)`) for the kind and priority and runs `talk_to(npc, kind)`
+  ([quests.md](./quests.md) §5, §10.5).
 - Talk execute (`:193-208`):
   ```
   pages = active npc quest waiting ? quest.dialogue.progress + progressLine [OUT]
@@ -298,9 +300,11 @@ the target origin the badge's bottom edge floats"; the badge's top is 22 px high
   talked(npcId): storyProgress.recordTalk(npcId); gameEvents 'npc.talked' {npcId}   # at OPEN, not close
   return true
   ```
-- The dialogue box (`NpcDialogueSurfacePort.ts`): reveal 45 chars/s, F/Space/Enter skip or
-  advance, Esc closes, pauses gameplay while open. [OUT] (Phase 3 UI).
-- Quest markers over NPCs, `npc.talked` listeners (quest objectives) [OUT].
+- The dialogue box (`NpcDialogueSurfacePort.ts`): reveal 45 chars/s, Space/Enter skip or
+  advance, Esc closes, pauses gameplay while open. Ported with the quests:
+  `game/ui/screens/dialogue_box.gd` (also the interact button advances, owner decision Q4).
+- Quest markers over NPCs and the `npc.talked` listeners: ported with the quests
+  (`game/ui/npc_quest_markers.gd`, `game/quests/quest_service.gd`).
 
 ### 2.10 Control hints [OUT]
 
@@ -589,7 +593,7 @@ While sleeping the router is suppressed (no prompt, no badge). Respawning at the
 (`planRespawn`, `RespawnDestination.ts`, `WorldScene.respawnPlayer :1942-1980`, may travel to the
 bed's world) is [OUT] here (player spec owns respawn; the Godot trial respawns at the spawn).
 
-### 3.6 `game.workbench` (`WorkbenchScript.ts`, descriptor `registrations.ts:717-731`) [IN candidate, OUT screen]
+### 3.6 `game.workbench` (`WorkbenchScript.ts`, descriptor `registrations.ts:717-731`) [IN]
 
 | Property | TS read (`WorkbenchScript.ts:29-41`) | Fallback | Godot export |
 |---|---|---|---|
@@ -602,8 +606,9 @@ bed's world) is [OUT] here (player spec owns respawn; the Godot trial respawns a
 `site = {station, tier}`. No signals or handlers. Candidate: §2.3 (priority 88; placed benches
 get a "Hold: Pick up" secondary [OUT]). Execute: `openCraftingStation(site)`
 (`WorldScene.ts:1279-1285`): refuses when paused or the crafting or inventory window is open;
-else opens the crafting window for the site [OUT] and emits `workbench.opened {mapId, context}`
-(tutorial quests) [OUT]. Authored instances: workshop station "Use the Workshop" (workshop, tier
+else opens the crafting window for the site and emits `workbench.opened {mapId, context}`. Ported
+with crafting (2026-10-05, [crafting.md](./crafting.md) §4.1): `MenuWindows.open_station(site)`
+and the InteractionController signal `workbench_opened` (no quest listens to it). Authored instances: workshop station "Use the Workshop" (workshop, tier
 1, r 150, rise 150), forge station "Use the Forge" (forge, tier 1, r 130, rise 130), interior
 benches "Use workbench" (r 90, rise 76-76.85). Placeable workbench items [OUT].
 
@@ -1017,9 +1022,11 @@ func _gather() -> Array[Dictionary]:
 - Bed/workbench ids: Phaser uses the runtime id; any unique, stable-per-load string works (the
   id only drives tie-breaks and the badge pop). The node path is unique and stable.
 - `_npc_candidates`: every node in group `npc` with `d = p.distance_to(npc.get_phaser_position())
-  <= 96` and a definition -> `{id: "quest-npcs:%s:talk" % npc.get_instance_id_key(), prompt:
-  "Talk to " + display_name, priority 50, anchor: pos + (30, -30), origin: pos - (0, 24),
-  execute: talk}`; anchor/origin re-read the NPC position on each call.
+  <= 96` and a definition -> `c = quests.npc_candidate(npc_id)` (talk 50 without a quest service),
+  `{id: "quest-npcs:%s:%s" % [npc.get_instance_id_key(), c.kind], prompt: "Talk to <name>" (offer,
+  talk) / "Return to <name>" (turn-in) / "Resume quest with <name>" (reoffer), priority c.priority,
+  anchor: pos + (30, -30), origin: pos - (0, 24), execute: quests.talk_to(npc, c.kind)}`;
+  anchor/origin re-read the NPC position on each call.
 
 ### 7.3 Execute per kind
 
@@ -1029,8 +1036,8 @@ func _gather() -> Array[Dictionary]:
 | gate | `r = gate.try_unlock()`; `at = gate.origin() - (0, gate.badge_rise)`; `r in ["unlocked", "already-unlocked"]` -> `gate.open()`, message `unlocked_message` green big; else message `locked_message` (missing-item) or `"The gate will not budge."`, white big; true |
 | chest | `if chest.request_open() == "guarded": message "Fatty One Eye is guarding this chest!" at origin - (0, 48), white big`; true. Prompt: `"Chest locked by Fatty One Eye"` if `not empty and guarded`, `"Inspect empty chest"` if empty, else `"Open chest"` |
 | bed | refuse (false) when paused, `main.is_transitioning()`, `player.is_action_locked()`, dead or already sleeping; else `_sleep.sleep(bed.sleep_request())` |
-| workbench | crafting window [OUT]: return false and do nothing (prompt still shows). Phaser parity point for later: refuse when paused or the crafting/inventory window is open; emit `workbench_opened {mapId, context}` |
-| NPC talk | `release = npc.acquire_interaction_lock()`; `Services.run().record_talk(npc_id)`; open the dialogue (§8.6) with `{speaker, pages, on_closed: release}`; true |
+| workbench | refuse (false) when paused or a game window is open; else `MenuWindows.open_station(bench.site())` (group `menu_windows`; false when refused) and emit `workbench_opened {mapId, context}`; true ([crafting.md](./crafting.md) §4.1) |
+| NPC talk | the quest service's `talk_to(npc, kind)` (quests spec §5.2-5.4, §10.5): lock the NPC, then the dialogue box / offer / turn-in window, the talk recorded at open (plain talk) or after the decision (offer, turn-in); false while paused or without the service |
 
 Messages go through one helper: `Services.feel().floating_text(at, text, color, true)` and
 `message_shown.emit({...})`.
@@ -1144,8 +1151,8 @@ takes from the last slots; only which stack shrinks differs).
 | Screen | Phaser | Proposed until Phase 3 |
 |---|---|---|
 | Chest window | `ChestInventorySurfacePort` (pauses) | **take everything**: for each item in `remaining()` order call `transfer_stack`; one small cyan floating text `"Moved <n> × <name>"` (`ItemCatalog.item_name`) per moved stack, 18 px apart upwards from chest origin - (0, 48); `"No inventory space for that item."` (white) for a stack that did not move; then `close()` (CloseSfx). Needed so level-1's green key is reachable. |
-| Dialogue box | `NpcDialogueSurfacePort` (pauses) | show `pages[0]` as small white floating text at the NPC position - (0, 52) for the normal 700 ms (no pause), call `release` at once |
-| Crafting window | `CraftingSurfacePort` | nothing (execute returns false) |
+| Dialogue box | `NpcDialogueSurfacePort` (pauses) | ~~first page as floating text~~ replaced by the real dialogue box with the quests (2026-10-05, [quests.md](./quests.md) §6) |
+| Crafting window | `CraftingSurfacePort` | ~~nothing~~ the real crafting window (2026-10-05, [crafting.md](./crafting.md) §4) |
 
 ### 8.7 Converter / data dependencies
 

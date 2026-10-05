@@ -8,7 +8,15 @@ extends Node2D
 ## (game/interaction/interaction_controller.gd: the interact button, prompt and key badge; made
 ## once in `_ready`, cleared on every world teardown), EnemyLoot (coins and loot piles) and
 ## GameWindows (game/ui/screens/game_windows.gd: CanvasLayer 40 holding the game windows and the
-## `modal` pause; made once, its windows closed on every world teardown).
+## `modal` pause; made once, its windows closed on every world teardown), Quests
+## (game/quests/quest_service.gd: the quest service, which mounts the dialogue box and the offer
+## window in GameWindows; `on_world_built(map_id)` at the end of every build, its conversations
+## closed on teardown), QuestMarkers (game/ui/npc_quest_markers.gd) and QuestWaypoint
+## (game/ui/quest_waypoint_view.gd), both cleared on teardown. InventoryActions
+## (game/inventory/inventory_actions.gd: belt, consumables and craft glue) and GameWindows'
+## MenuWindows child (game/ui/screens/menu_windows.gd: the menu key, the bag, the crafting window
+## and the tab strip) are made once too. Launch options `recipes` (every recipe known) and
+## `arsenal` (the development weapons) are dev aids (crafting spec C2, 8.2).
 ##
 ## `_ready()` order (world spec 1.2):
 ##  1. apply_viewport_scale() and connect `get_tree().root.size_changed` to it
@@ -21,8 +29,10 @@ extends Node2D
 ##  4. WorldBounds.build(world_root, world_rect)
 ##  5. spawn_player(): `spawn_at_phaser_position("character.player-slime",
 ##     Services.world().player_spawn_point(), world_root)`; register_player(PlayerScript node)
-##  6. equip_trial_weapon(): PlayerCombat child "PlayerCombat" of the player root, setup, set_combat,
-##     equip(TRIAL_WEAPON_ID, or the `weapon` launch option)
+##  6. equip_trial_weapon(): PlayerCombat child "PlayerCombat" of the player root, setup, set_combat;
+##     at a new run the trial weapon (TRIAL_WEAPON_ID, or the `weapon` launch option) into the bag,
+##     belt slot 1 and the hand; then InventoryActions.equip_run_weapon() (belt reconciled, the
+##     run's hand mounted)
 ##  7. start_enemy_population(): EnemyPopulation with the enemy-spawn areas, safe zones,
 ##     entities_root, every enemy type its camps name (the trial's worm-only filter is gone),
 ##     seed_initial()
@@ -53,7 +63,14 @@ const AreaTravel := preload("res://game/world/area_travel.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 const GameWindows := preload("res://game/ui/screens/game_windows.gd")
+const InventoryActions := preload("res://game/inventory/inventory_actions.gd")
+const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
+const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
+const LaunchOptions := preload("res://game/shell/launch_options.gd")
 const ControlHints := preload("res://game/hints/control_hints.gd")
+const QuestService := preload("res://game/quests/quest_service.gd")
+const NpcQuestMarkers := preload("res://game/ui/npc_quest_markers.gd")
+const QuestWaypointView := preload("res://game/ui/quest_waypoint_view.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -98,6 +115,15 @@ var interaction: InteractionController
 var loot: EnemyLoot
 ## The game windows' layer and pause owner (game/ui/screens/game_windows.gd), made once.
 var game_windows: GameWindows
+## The bag / belt / crafting glue "InventoryActions" (game/inventory/inventory_actions.gd) and the
+## menu key with the bag, crafting and tab windows, "GameWindows/MenuWindows"
+## (game/ui/screens/menu_windows.gd), made once.
+var inventory_actions: InventoryActions
+var menu_windows: MenuWindows
+## The quest service "Quests" (game/quests/quest_service.gd), its NPC markers and waypoint, made once.
+var quests: QuestService
+var quest_markers: NpcQuestMarkers
+var quest_waypoint: QuestWaypointView
 
 var _transitioning: bool = false
 var _next_gate_message_ms: int = 0
@@ -124,7 +150,24 @@ func _ready() -> void:
 	add_child(loot)
 	game_windows = GameWindows.new()
 	add_child(game_windows)
+	inventory_actions = InventoryActions.new()
+	add_child(inventory_actions)
+	menu_windows = MenuWindows.new()
+	game_windows.add_child(menu_windows)
+	# Dev stand-in until quests teach recipes (crafting owner decision C2): `?recipes` / `--recipes`.
+	if run != null and has_launch_option("recipes"):
+		run.debug_all_recipes_known = true
 	add_child(ControlHints.new())
+	# After GameWindows: the service mounts the dialogue box and the offer window there.
+	quests = QuestService.new()
+	quests.name = "Quests"
+	add_child(quests)
+	quest_markers = NpcQuestMarkers.new()
+	quest_markers.name = "QuestMarkers"
+	add_child(quest_markers)
+	quest_waypoint = QuestWaypointView.new()
+	quest_waypoint.name = "QuestWaypoint"
+	add_child(quest_waypoint)
 	var navigation := run.consume_navigation() if run != null else {}
 	var target := str(navigation.get("map_id", ""))
 	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
@@ -160,6 +203,9 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	_start_autosave()
 	# Uncollected loot comes back once the world's entities root exists.
 	loot.restore_world.call_deferred()
+	# Quests: the first world starts them; every arrival is an `area.enter` (WorldScene.ts:515).
+	if quests != null:
+		quests.on_world_built(target_map_id)
 	return true
 
 
@@ -294,10 +340,17 @@ func _finish_travel(target_map_id: String, entry_edge: String, entry_door: Strin
 ## Frees the current world (and the player in it), the enemy population and the world service's
 ## registrations, keeping main, the camera and the HUD.
 func _teardown_world() -> void:
+	# The conversations end first: their `on_closed` releases the NPC locks.
+	if quests != null:
+		quests.close_conversations()
 	if game_windows != null:
 		game_windows.close_all()
 	if interaction != null:
 		interaction.clear()
+	if quest_markers != null:
+		quest_markers.clear()
+	if quest_waypoint != null:
+		quest_waypoint.clear()
 	if enemy_population != null and is_instance_valid(enemy_population):
 		remove_child(enemy_population)
 		enemy_population.queue_free()
@@ -393,6 +446,14 @@ func launch_option(option: String) -> String:
 	return ""
 
 
+## True when the launch carries `option`, with or without a value (`?recipes`, `-- --recipes`).
+func has_launch_option(option: String) -> bool:
+	if OS.has_feature("web"):
+		var present: Variant = JavaScriptBridge.eval("new URLSearchParams(window.location.search).has('%s')" % option, true)
+		return present is bool and bool(present)
+	return LaunchOptions.has_arg_option(OS.get_cmdline_user_args(), option)
+
+
 ## Test aid for the trial: `?spawn=<x>,<y>` / `--spawn=<x>,<y>` starts the player at
 ## that old-Phaser (centre) world position instead of the world's spawn point.
 ## Returns `fallback` when the option is absent or malformed.
@@ -467,7 +528,12 @@ func _find_player_script(root: Node) -> PlayerScript:
 	return null
 
 
-## Creates PlayerCombat under the player root and equips TRIAL_WEAPON_ID.
+## Creates PlayerCombat under the player root and mounts the run's weapon in hand
+## (InventoryActions.equip_run_weapon: the belt reconciled, then the hand mounted; travel and loads
+## keep it, an empty hand mounts nothing). While the trial lasts (owner decision C3) a new run gets
+## TRIAL_WEAPON_ID, or the `weapon` launch option, in the bag, on belt slot 1 and in hand; a run
+## saved before the belt existed (the sword in hand but not in the bag) gets it too. `?arsenal`
+## adds the six development weapons (WeaponLoadout.ARSENAL) at a new run.
 func equip_trial_weapon() -> void:
 	if player == null or player_root == null:
 		return
@@ -476,18 +542,19 @@ func equip_trial_weapon() -> void:
 	player_root.add_child(player_combat)
 	player_combat.setup(player)
 	player.set_combat(player_combat)
-	# Dev aid: `?weapon=<id>` / `-- --weapon=<id>` holds another weapon (an axe or pickaxe to
-	# harvest, a spear for Fatty) instead of the trial sword.
-	var weapon_id := launch_option("weapon")
-	if weapon_id.is_empty():
-		weapon_id = TRIAL_WEAPON_ID
-	if not player_combat.equip(weapon_id):
-		push_warning("Main: could not equip '%s'" % weapon_id)
-		if weapon_id != TRIAL_WEAPON_ID and player_combat.equip(TRIAL_WEAPON_ID):
-			weapon_id = TRIAL_WEAPON_ID
 	var run := Services.run()
-	if run != null:
-		(run.player.get_or_add("equipment", {}) as Dictionary)["weapon_id"] = weapon_id
+	if run != null and inventory_actions != null:
+		# Dev aid: `?weapon=<id>` / `-- --weapon=<id>` holds another weapon (an axe or pickaxe to
+		# harvest, a spear for Fatty) instead of the trial sword; given when the bag lacks it.
+		var option := launch_option("weapon")
+		var legacy: bool = run.equipped_weapon_id() == TRIAL_WEAPON_ID and not WeaponLoadout.owns_weapon(TRIAL_WEAPON_ID)
+		if run.trial_weapon_pending or legacy or (not option.is_empty() and not WeaponLoadout.owns_weapon(option)):
+			inventory_actions.grant_trial_weapon(option if not option.is_empty() else TRIAL_WEAPON_ID, TRIAL_WEAPON_ID)
+			if run.trial_weapon_pending and has_launch_option("arsenal"):
+				WeaponLoadout.grant(Array(WeaponLoadout.ARSENAL))
+		run.trial_weapon_pending = false
+	if inventory_actions != null:
+		inventory_actions.equip_run_weapon()
 
 
 ## Creates and seeds the EnemyPopulation (enemy spec 3).
