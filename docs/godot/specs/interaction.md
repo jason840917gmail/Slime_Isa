@@ -33,7 +33,7 @@ trigger). Those files were still changing; §8.4 says what doors need from them.
 | Persisted gate and chest records | `features/progression/WorldProgress.ts:535-575` |
 | Story flags | `features/progression/StoryProgress.ts` |
 | Sleep | `features/rest/SleepController.ts`, `features/rest/RespawnDestination.ts` |
-| Chest window | `features/ui/ChestInventorySurfacePort.ts` [OUT] |
+| Chest window | `features/ui/ChestInventorySurfacePort.ts` (ported: [journal-and-chest.md](./journal-and-chest.md) §2, §3.4) |
 | Scene scripts | `features/scripts/{Interaction,Door,Gate,Chest,Bed,Workbench,StoryFlag,StoryVariant}Script.ts` |
 | Descriptors | `features/scripts/registrations.ts` (line numbers in §3) |
 | Input binding | `features/player/PlayerInputActions.ts:16` (`interact: ['Mouse2']`), `features/player/ControlLabels.ts` |
@@ -503,7 +503,8 @@ Services (`UniversalSceneWorldController.ts:607-613`):
   `isChestGuarded(instanceId)` = `liveBoss && guardedChestInstanceId === instanceId`
   (`BossCampScript.ts:143-146`). Fatty's camp guards `level-1-fatty-guarded-chest`, the matron's
   `gloop-matron-guarded-chest`. Godot: `boss_camp.gd.is_chest_guarded()` in group `boss_camp`.
-- `ui.chest-view`: the chest window [OUT].
+- `ui.chest-view`: the chest window. Godot: `game/ui/screens/chest_window.gd`, the first node of
+  group `chest_window` (`open_chest(chest)`, `close_for(instance_id)`).
 
 Script behaviour (`ChestScript.ts:53-96`):
 - `_enter_tree`: `ensureInitialized(mapId, instanceId, initialContents)`; on leaving the tree the
@@ -536,7 +537,8 @@ Provider (`UniversalSceneWorldController.ts:891-917`):
   `(o.x, o.y - 48)`, white, important. Returns true. [QUIRK] An empty guarded chest prompts
   "Inspect empty chest" but the press reports the guard.
 
-Chest window [OUT] (`ChestInventorySurfacePort.ts`), recorded for Phase 3: opening pauses
+Chest window (`ChestInventorySurfacePort.ts`; ported with [journal-and-chest.md](./journal-and-chest.md),
+which holds the full behaviour; Godot `chest.gd` leaves the tree silently, owner decision K4): opening pauses
 gameplay (`setChestPaused`) and opens modal `chest-inventory` (Esc closes); list of
 `"<name> ×<count>"` entries; intents `select-item {index}`, `take-selected-stack {index}` (right
 click on an entry), `take-stack` (button, selected entry), `close`; status
@@ -1151,7 +1153,7 @@ takes from the last slots; only which stack shrinks differs).
 
 | Screen | Phaser | Proposed until Phase 3 |
 |---|---|---|
-| Chest window | `ChestInventorySurfacePort` (pauses) | **take everything**: for each item in `remaining()` order call `transfer_stack`; one small cyan floating text `"Moved <n> × <name>"` (`ItemCatalog.item_name`) per moved stack, 18 px apart upwards from chest origin - (0, 48); `"No inventory space for that item."` (white) for a stack that did not move; then `close()` (CloseSfx). Needed so level-1's green key is reachable. |
+| Chest window | `ChestInventorySurfacePort` (pauses) | ~~take everything at once~~ replaced by the real chest window (2026-10-05, [journal-and-chest.md](./journal-and-chest.md) §2, §3.4; `chest.gd` lost `take_all`) |
 | Dialogue box | `NpcDialogueSurfacePort` (pauses) | ~~first page as floating text~~ replaced by the real dialogue box with the quests (2026-10-05, [quests.md](./quests.md) §6) |
 | Crafting window | `CraftingSurfacePort` | ~~nothing~~ the real crafting window (2026-10-05, [crafting.md](./crafting.md) §4) |
 
@@ -1192,6 +1194,7 @@ rebuild), then `await t.steps(2)`; `t.player()` is a new instance after travel.
 | `test_workshop_station_appears` | `set_flag("workshop.restored")`, 2 frames, teleport (640, 470) | candidate id starts with `world-workbenches:`, prompt `Right-click: Use the Workshop`, priority 88 |
 | `test_chest_domain` | level-1 chest script (`instance_id == "level-1-fatty-guarded-chest"`) | `remaining() == {"green-key": 1}`; `transfer_stack("green-key") == 1`; `item_count("green-key") == 1`; `remaining() == {}`; `stack_transferred` `{"itemId": "green-key", "moved": 1}`; Visual frame 1 after the next step; second transfer returns 0 and emits nothing |
 | `test_chest_prompt` | teleport (2528, 1140) with no live boss (or boss camp absent) | id `managed-chests:level-1-fatty-guarded-chest`, priority 80, prompt `Right-click: Open chest`; with a live Fatty: `Right-click: Chest locked by Fatty One Eye`, tap -> `guard_blocked` and message `Fatty One Eye is guarding this chest!` at (2528, 1029) |
+| `test_use_chest_opens_window` | `_use_chest` on the level-1 chest | the chest window opens on it (`GameWindows.is_open(&"chest-inventory")`, `current_chest()`); the bag and messages unchanged; `closed {instanceId}` only after Close. The window itself: `test_chest_window.gd` ([journal-and-chest.md](./journal-and-chest.md) §3.7) |
 | `test_bed_sleep_and_wake` | travel to slime-home, teleport (160, 400) | prompt `Right-click: Sleep` (priority 85); tap -> centre (159.625, 356), action locked, prompt hidden, respawn point `{"area_id": "slime-home", "map_id": "slime-home", "x": 160, "y": 356, "bed_id": "world.slime-home.west-bed"}`; a move press before 400 ms keeps sleeping, after 400 ms wakes at (159.625, 356) and the prompt returns |
 | `test_sleep_heals` | as above with hp 50 | after 1000 ms doze + 3000 ms sleep: hp 56 +- 1 (2 HP/s from the end of the doze, whole points, fraction carried) |
 | `test_story_flag_on_set` (playground) | `travel_to("playground")`; call `on_set({})` on `end-card-flag` | `has_flag("playground-end-card-test")` |
@@ -1222,7 +1225,7 @@ owner decides), I4 kept, I5 sleep ported now.
 
 | # | Question | Recommendation |
 |---|---|---|
-| I1 | Chest without its Phase 3 window: take-all stand-in (§8.6) or nothing? | Take-all: level-1's green key lives in a chest |
+| I1 | Chest without its Phase 3 window: take-all stand-in (§8.6) or nothing? | Take-all: level-1's green key lives in a chest. **Resolved** 2026-10-05: the chest window is ported, the stand-in is gone |
 | I2 | NPC talk without the dialogue box: floating first page, or no NPC candidates? | Floating first page, so prompts and priorities already match Phaser |
 | I3 | Keep quirk 1 (id tie-break) or use the nearest NPC? | Fix in the port (nearest, then id), like O3's combo fix - it is what `inReach` clearly intended |
 | I4 | Keep quirk 4 (plate gates accept the key and plate openings reset)? | Keep for parity now; revisit with the puzzle design |

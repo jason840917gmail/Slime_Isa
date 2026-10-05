@@ -125,9 +125,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
 - Not yet (updated 2026-10-05): terrain blending (hand-made edge tiles are on trial in the
-  [terrain lab](./godot/TERRAIN_LAB.md)), the quest journal and chest windows (in progress), the
-  reference-laptop measurement, the owner's feel check, and Phase 5's fresh-save playthrough of
-  Chapter 1. Every scene script id the authored scenes use is ported except `game.ui-surface`,
+  [terrain lab](./godot/TERRAIN_LAB.md)), the reference-laptop measurement, the owner's feel
+  check, and Phase 5's fresh-save playthrough of Chapter 1. Every scene script id the authored scenes use is ported except `game.ui-surface`,
   which Godot-owned windows replace. A headless Brave run of the web build on 2026-10-05 held
   58-59 fps in level-1, the Fatty fight and the Matron's nest (pack 46.1 MB).
 - World objects are ported (2026-10-05, [godot/specs/world-objects.md](./godot/specs/world-objects.md)):
@@ -140,9 +139,10 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
 - Interaction is ported (2026-10-05, [godot/specs/interaction.md](./godot/specs/interaction.md)):
   right click on doors (travel between houses and the world), gates (with the key),
   chests, beds (sleep heals and sets the respawn point) and NPCs, with Phaser's prompt
-  and key badge. Until the Phase 3 screens exist, a chest gives everything at once, an
-  NPC says its first line as floating text and a workbench does nothing (the dialogue box came
-  with the quests, the crafting window with crafting).
+  and key badge. A chest opens the chest window (2026-10-05,
+  [godot/specs/journal-and-chest.md](./godot/specs/journal-and-chest.md)): its stacks, Take Stack
+  and a right click to take one; NPCs talk through the dialogue box (with the quests) and
+  workbenches open the crafting window (with crafting).
 - The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
   the animated surface over `water` and `deep-water` tiles, with the water life
   drawn and animated as in Phaser. Until terrain blending lands, shores keep
@@ -206,8 +206,10 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   NPCs offer, take back and talk about quests through the dialogue box and the offer / turn-in
   window, wear "!" / "?" markers, and the HUD tracker lists the quests (a click shows the gold
   waypoint, also on the maps). Pickups, ordinary enemy deaths, boss defeats, restorations, arrivals,
-  sprinting, the menus, crafting, belt switches and placing furniture count. The journal window is
-  not ported yet. `?quest=<id>[:<stage>]` starts a
+  sprinting, the menus, crafting, belt switches and placing furniture count. The quest journal
+  (the menu's Journal tab or the pause menu's Journal) lists the quests taken on with their steps
+  and abandons or retries side quests ([godot/specs/journal-and-chest.md](./godot/specs/journal-and-chest.md)).
+  `?quest=<id>[:<stage>]` starts a
   quest at a stage for testing.
 - Crafting, the bag and the weapon belt are ported (2026-10-05, [godot/specs/crafting.md](./godot/specs/crafting.md)):
   E opens the bag (belt, cells, details; Use, Hold in hand, belt assignment, drag onto the belt,

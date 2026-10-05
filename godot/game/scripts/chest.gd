@@ -2,9 +2,11 @@ extends Node
 class_name ChestScript
 ## Scene script `game.chest` (Phaser `features/scripts/ChestScript.ts`; interaction spec 3.4, 6.3).
 ## Persistent contents in `RunState.map_record(map_id).chests` (created from `initial_contents`
-## on first sight); a live boss camp may guard the chest. Opening emits `open_requested`; each
-## stack moved into the bag emits `stack_transferred`; closing emits `closed`. The chest window is
-## a Phase 3 screen: until then the interaction controller takes everything (`take_all`).
+## on first sight); a live boss camp may guard the chest. Opening emits `open_requested` and hands
+## the chest to the chest window (`CHEST_VIEW_SERVICE`: the first node of group `chest_window`,
+## game/ui/screens/chest_window.gd, `open_chest`); each stack moved into the bag emits
+## `stack_transferred`; closing tells the window (`close_for`) and emits `closed`. Leaving the tree
+## while open closes the window without `closed` (Phaser's entry disposable, owner decision K4).
 ##
 ## Owner: interaction.
 
@@ -13,6 +15,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
 const GROUP := &"chest"
 const BOSS_CAMP_GROUP := &"boss_camp"
+const VIEW_GROUP := &"chest_window"
 
 ## JSON `mapId`.
 @export var map_id: String = ""
@@ -42,7 +45,10 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	if _open:
-		close()
+		_open = false
+		var view := _view()
+		if view != null:
+			view.call(&"close_for", instance_id)
 
 
 ## Old Phaser position of the chest (its parent).
@@ -69,13 +75,17 @@ func is_guarded() -> bool:
 	return false
 
 
-## "guarded" (emits `guard_blocked`) or "opened" (emits `open_requested`; an empty chest opens too).
+## "guarded" (emits `guard_blocked`) or "opened" (emits `open_requested`, then the chest window
+## shows this chest; an empty chest opens too).
 func request_open() -> String:
 	if is_guarded():
 		guard_blocked.emit({"instanceId": instance_id})
 		return "guarded"
 	_open = true
 	open_requested.emit({"mapId": map_id, "instanceId": instance_id, "contents": remaining()})
+	var view := _view()
+	if view != null:
+		view.call(&"open_chest", self)
 	return "opened"
 
 
@@ -88,20 +98,19 @@ func transfer_stack(item_id: String) -> int:
 	return moved
 
 
-## The stand-in for the chest window: every stack in turn. [{"item_id", "moved", "left"}].
-func take_all() -> Array[Dictionary]:
-	var results: Array[Dictionary] = []
-	var contents := remaining()
-	for item_id: String in contents:
-		var count := int(contents[item_id])
-		var moved := transfer_stack(item_id)
-		results.append({"item_id": item_id, "moved": moved, "left": count - moved})
-	return results
-
-
+## `ChestScript.close`: the window lets go of this chest (a no-op when it closed itself first),
+## then `closed`.
 func close() -> void:
 	_open = false
+	var view := _view()
+	if view != null:
+		view.call(&"close_for", instance_id)
 	closed.emit({"instanceId": instance_id})
+
+
+## The chest window (group `chest_window`), or null.
+func _view() -> Node:
+	return get_tree().get_first_node_in_group(VIEW_GROUP) if is_inside_tree() else null
 
 
 ## `syncChestFrame`: the first Sprite2D under the chest root shows frame 1 when empty, else 0.

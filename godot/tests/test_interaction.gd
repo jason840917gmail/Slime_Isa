@@ -147,8 +147,9 @@ func test_chest_domain(t: TestContext) -> void:
 	t.equal(moves.size(), 1, "a second stack_transferred")
 
 
-## The chest stand-in takes everything at once: "Moved 1 × Verdant Key".
-func test_chest_take_all_stand_in(t: TestContext) -> void:
+## Using a chest opens the chest window on it: nothing moves into the bag and no message shows
+## (the window itself is test_chest_window.gd).
+func test_use_chest_opens_window(t: TestContext) -> void:
 	var chest := _chest(t, CHEST_ID)
 	if not t.check(chest != null, "no %s" % CHEST_ID):
 		return
@@ -158,9 +159,16 @@ func test_chest_take_all_stand_in(t: TestContext) -> void:
 	var closed: Array = []
 	chest.closed.connect(func(payload: Dictionary) -> void: closed.append(payload))
 	t.check(interaction.call(&"_use_chest", chest), "using the chest failed")
-	t.equal(Services.run().item_count(KEY), 1, "keys in the bag")
-	t.check(messages.size() == 1 and messages[0]["text"] == "Moved 1 × Verdant Key", "chest messages %s" % [messages])
-	t.equal(closed.size(), 1, "closed signals")
+	var view := t.tree.get_first_node_in_group(&"chest_window")
+	if not t.check(view != null, "no chest window"):
+		return
+	t.check(view.call(&"current_chest") == chest, "the window does not show the chest")
+	t.check(t.tree.get_first_node_in_group(&"game_windows").call(&"is_open", &"chest-inventory"), "the chest window is not open")
+	t.equal(Services.run().item_count(KEY), 0, "keys in the bag")
+	t.equal(messages, [], "messages")
+	t.equal(closed.size(), 0, "closed signals")
+	view.call(&"close")
+	t.equal(closed, [{"instanceId": CHEST_ID}], "closed signals after Close")
 
 
 func test_bed_sleep_and_wake(t: TestContext) -> void:

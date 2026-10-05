@@ -54,7 +54,8 @@ res://game/main.tscn (main.gd)                         bootstrap
   ArrivalFade (CanvasLayer 5, runtime)      EnemyPopulation (enemy_population.gd, runtime)
   Interaction (interaction_controller.gd)   EnemyLoot (enemy_loot.gd)   ControlHints (CanvasLayer 10)   <- made once in _ready, kept across worlds
   FurniturePlacement (furniture_placement.gd, after World: the ghost draws over the world's z 0)
-  GameWindows (CanvasLayer 40, game_windows.gd) > Root > the game windows (bag, crafting, dialogue, offer, map, ...)
+  GameWindows (CanvasLayer 40, game_windows.gd) > Root > the game windows (bag, crafting, dialogue, offer, map, journal, chest, ...)
+      QuestJournal (quest_journal_window.gd, group quest_journal), ChestWindow (chest_window.gd, group chest_window)   <- added by main
       MenuWindows (menu_windows.gd, group menu_windows)  <- the menu key; makes InventoryScreen, CraftingScreen, MenuTabs under Root
   InventoryActions (inventory_actions.gd, group inventory_actions)  <- belt, consumables and craft glue; made once
       DialogueBox (dialogue_box.tscn), QuestOfferWindow (quest_offer_window.tscn)   <- mounted by Quests
@@ -254,7 +255,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/screens/game_window.gd`, `item_cell.gd` | crafting | Base of the bag and crafting windows (centred `WindowPanel`, push / pop, focus, click and select cues); the `SlotButton` list cell (icon, name, tag; drag and drop) |
 | `game/ui/screens/inventory_screen.gd`, `inventory_model.gd`, `crafting_screen.gd`, `crafting_model.gd`, `menu_tabs.gd` | crafting | The bag window, the crafting window (built in code, models with the exact texts) and the menu tab strip |
 | `game/ui/weapon_hotbar.gd` | crafting | The HUD weapon belt (bottom centre, above the ability bar), built by `hud.gd` |
-| `game/interaction/interaction_controller.gd` | interaction | Child "Interaction" of main, kept across worlds: targets (gates, doors, workbenches, beds, chests, NPCs), choice, execute; NPC candidates and conversations come from the quest service; the chest stand-in |
+| `game/interaction/interaction_controller.gd` | interaction | Child "Interaction" of main, kept across worlds: targets (gates, doors, workbenches, beds, chests, NPCs), choice, execute; NPC candidates and conversations come from the quest service; a chest opens the chest window |
 | `game/interaction/interaction_prompt.gd`, `interaction_badge.gd` | interaction | "Right-click: <prompt>" (CanvasLayer 9) and the key badge (world, z 1) |
 | `game/rest/sleep_controller.gd` | interaction | Sleeping in a bed, owned by player.gd |
 | `game/scripts/door.gd`, `gate.gd`, `chest.gd`, `bed.gd`, `workbench.gd` | interaction | Spec interaction.md |
@@ -282,6 +283,9 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/saves/save_slots_menu.gd`, `.tscn` | saves | The save slots window (three slots and the autosave) on the Shell's stack; RunState mounts it and registers the Shell's `save` / `load` actions |
 | `game/world_objects/enemy_loot.gd` | world objects | Child "EnemyLoot" of main: enemy coins, loot piles scattered round the corpse, their records and restore |
 | `game/ui/screens/game_windows.gd` | UI | Child "GameWindows" of main (CanvasLayer 40): the game windows' parent, the one `modal` pause owner, Escape for the top window |
+| `game/ui/screens/quest_journal_window.gd`, `quest_journal_model.gd` | quests (UI) | The quest journal "Quest Book" on GameWindows (group `quest_journal`, surface `quest-journal`): the menu's Journal tab and the pause menu's Journal action, abandon (in-window confirm) and retry ([specs/journal-and-chest.md](./specs/journal-and-chest.md)) |
+| `game/ui/screens/chest_window.gd`, `chest_model.gd` | interaction (UI) | The chest window on GameWindows (group `chest_window`, surface `chest-inventory`, silent): `chest.gd` opens it with `open_chest` and closes it with `close_for`; Take Stack, right click ([specs/journal-and-chest.md](./specs/journal-and-chest.md)) |
+| `game/ui/screens/window_style.gd` | UI | Corner radii and line heights for windows built in code (journal, chest) |
 | `game/ui/map/map_ui.gd`, `minimap.gd`, `map_terrain.gd`, `map_markers.gd`, `world_map_window.gd`, `.tscn` | map | The HUD minimap (see-through as in Phaser; `terrain_alpha` bakes the world's ground instead; markers, view) and the world map window on GameWindows; the `map` key, the pause menu's Map action and the marker API ([specs/map.md](./specs/map.md)) |
 | `game/quests/quest_events.gd` | quests | `QuestEvents.emit(event, payload)` for world scripts and features |
 | `game/quests/quest_service.gd` | quests | Child "Quests" of main (group `quests`), kept across worlds: the quest state machine over `RunState.quests`, commands, queries, NPC candidates and markers, load validation, the `quest` launch option; mounts the dialogue box and the offer window in GameWindows ([specs/quests.md](./specs/quests.md)) |
