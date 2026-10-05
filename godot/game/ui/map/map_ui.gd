@@ -27,6 +27,7 @@ const WORLD_MAP_SCENE := preload("res://game/ui/map/world_map_window.tscn")
 const GROUP := &"map_ui"
 const GAME_WINDOWS_GROUP := &"game_windows"
 const MENU_WINDOWS_GROUP := &"menu_windows"
+const FURNITURE_PLACEMENT_GROUP := &"furniture_placement"
 const MENU_TAB := &"map"
 const WORLD_MAIN_GROUP := &"world_main"
 const MAP_ACTION := &"map"
@@ -127,6 +128,10 @@ func can_open_from_key() -> bool:
 	var windows := get_tree().get_first_node_in_group(GAME_WINDOWS_GROUP)
 	if windows == null or (windows.has_method(&"is_any_open") and bool(windows.call(&"is_any_open"))):
 		return false
+	# Not while a furniture ghost is out (furniture spec 2.4; game/building/).
+	for placement: Node in get_tree().get_nodes_in_group(FURNITURE_PLACEMENT_GROUP):
+		if placement.has_method(&"is_active") and bool(placement.call(&"is_active")):
+			return false
 	return true
 
 
