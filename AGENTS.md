@@ -34,7 +34,7 @@ Content/art/audio generators (map builders, sheet packers, audio bake, interior 
 - Older runtime folders still in use: `core`, `systems`, `combat`, `enemies`, `ui`, `world`, `quests`, `crafting`, `dev`. New orchestration goes in `features/`
 - `asset/assets.json` (+ `assets.schema.json`) — runtime media catalog with stable IDs; source art in `asset/Originals/` stays unmapped
 - `scripts/` — checks, tests, generators; `tools/` is unrelated to the game build
-- The game is being migrated to Godot 4.7 (milestone G): plan and phases in [docs/GODOT_MIGRATION.md](docs/GODOT_MIGRATION.md)
+- The game is being migrated to Godot 4.7 (milestone G): plan and phases in [docs/GODOT_MIGRATION.md](docs/GODOT_MIGRATION.md). The Godot project is `godot/` (rules: [docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md)); `pnpm godot:sync` copies assets into it and `pnpm godot:convert` regenerates `godot/generated/` from the scene JSON. Use Godot 4.7.2 and never hand-edit `godot/generated/`
 
 ## Architecture Rules
 

@@ -1,0 +1,84 @@
+# Godot project conventions
+
+Rules for working in `godot/` during the migration. The plan and phases are in
+[GODOT_MIGRATION.md](../GODOT_MIGRATION.md); the game's structure (autoloads,
+data flow, file map) is in [ARCHITECTURE.md](./ARCHITECTURE.md); exact Phaser
+behaviour per area is in [specs/](./specs/).
+
+## Layout
+
+| Path | Made by | Content |
+|---|---|---|
+| `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
+| `godot/asset/` | `pnpm godot:sync`, git-ignored | copies of every file `asset/assets.json` maps, at `res://asset/<source.path>` |
+| `godot/generated/` | `pnpm godot:convert`, git-ignored | converted scenes (`scenes/<path under content/scenes/authored>.tscn`), `resources/terrain_tileset.tres`, `resources/ui_theme.tres`, `scene_index.json` (scene id → path), `data/` copies of `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, and `conversion_report.json` |
+| `godot/game/runtime/` | hand, owned with the converter | helper scripts the converter attaches: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
+| `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`); the converter attaches it and writes the exports it declares |
+| `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
+| `godot/tools/` | hand | headless tools such as `verify_generated.gd`; excluded from exports |
+| `godot/addons/godot_ai/` | per machine, git-ignored | the Godot AI editor plugin (MCP bridge); excluded from exports |
+
+Until Phase 1 of the migration ends, scene JSON is the source of truth: change
+content there and re-run the converter. Never hand-edit `godot/generated/`.
+
+## Input and physics
+
+- Input actions are the snake_case of `src/game/features/player/PlayerInputActions.ts`:
+  `move_up/down/left/right`, `attack` (LMB), `interact` (RMB), `sprint`, `jump`, `dodge`,
+  `stretch_lash`, `squash_slam`, `teleport`, `eat`, `weapon_next/previous` (wheel),
+  `menu`, `map`, `zoom_in/out`, `pause`.
+- Physics layers keep the bits and names of `src/game/content/physics/collision-layers.json`.
+  60 physics ticks per second (enemy AI rolls per step depend on it); physics
+  interpolation is on.
+- Audio buses: Master, Effects, Music, Ambience.
+
+## Scene conversion facts scripts rely on
+
+- **Feet origin.** A converted scene root that had a `depthAnchor` (characters,
+  projectiles, effects) now sits at its feet and carries `metadata/depth_anchor`.
+  The old Phaser position (the body centre for characters) is
+  `global_position - depth_anchor * scale`; use `shared/feet_anchor.gd`
+  (`FeetAnchor.phaser_position`, `place_at_phaser_position`) or the scripts'
+  `get_centre()`. Spawn with `WorldService.spawn_at_phaser_position`.
+- **Script exports.** JSON `camelCase` properties become `snake_case` exports. The
+  converter writes only exports the target script declares; typed Node exports are
+  listed in the node's `node_paths` header so they resolve on instantiate.
+  Dictionary values keep their JSON camelCase keys.
+- **Signals and handlers.** A script declares its JSON signals by name and emits one
+  Dictionary payload (camelCase keys, as in Phaser). Handlers keep the JSON handler id
+  and take one argument; Godot's own signals pass Godot's arguments.
+- **Audio and animation helpers.** Call `play_cue(payload)` / `stop_cue(payload)` on
+  audio players, and `play_clip` / `stop_clip` on converted AnimationPlayers (their
+  `animation_event(event: Dictionary)` signal carries `event_id`, `payload`,
+  `gameplay`, `animation`, `at`). Clips live in the default library, so names are
+  plain (`idle`, `attack-side`).
+
+## GDScript rules
+
+- Godot 4.7, static typing everywhere, tabs, snake_case, one class per file.
+- Reach autoloads only through `res://game/shared/services.gd`
+  (`Services.world()`, `.router()`, `.feel()`, `.constants()`, `.clock()`,
+  `.now_ms()`): the headless check does not know autoload names.
+- Reference other scripts with `const Foo := preload("res://game/....gd")`.
+- One gameplay clock: `Services.now_ms()`. Real time only for presentation
+  (flashes, floating text, camera). Hit-stop pauses the tree; scripts that must keep
+  running (input buffering, camera, HUD) use `PROCESS_MODE_ALWAYS`.
+- Each body has one `move_and_slide()` caller (its own scene script).
+- Gameplay values come from `generated/data/game-constants.json` (through
+  `Services.constants()`) or from scene properties, never new literals.
+- Commit the `*.gd.uid` files Godot creates next to scripts.
+
+## Checking your work
+
+```bash
+pnpm godot:sync && pnpm godot:convert
+"<Godot 4.7.2 console exe>" --headless --path godot --import
+"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_generated.gd
+"<Godot 4.7.2 console exe>" --headless --path godot --check-only -s res://game/<file>.gd
+"<Godot 4.7.2 console exe>" --headless --path godot --quit-after 600
+```
+
+The `--check-only` pass reports one error per run and does **not** catch calls to
+methods that do not exist on autoloads, so always also boot the game headless.
+Do not run headless `--import` while the Godot editor has the project open: they
+share the import cache.

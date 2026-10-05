@@ -30,6 +30,12 @@ Python tools need Pillow; the ones marked **numpy** also need numpy.
 - `scripts/migrations/universal-scene-conversion-ledger.json` stores content hashes of the conversion inputs (`asset/assets.json`, `items.json`, `enemy-types.json`, `NpcDefinitions.ts`, `RecipeCatalog.ts`, `game-constants.json`, …). After editing one of them, `pnpm scene-ownership:check` fails with "Source hash changed"; review the diff, then run `node scripts/rehash-scene-ledger.mjs` and, if it reports stale output metadata, `node scripts/reconcile-scene-ledger.mjs --write`.
 - The ledger also lists every legacy content unit (asset, item, recipe, quest, map, character, …); `pnpm test:scene-conversion` fails when one is added or removed. `node scripts/inventory-scene-conversion.mjs --sync` adds default rows for new units and drops rows for removed ones, keeping existing rows. A new `convert` row then needs an owner: register a converted unit (e.g. a new map) in `scripts/convert-scenes.mjs` and set its `writerState` to `scene`, or mark a unit whose scene is authored directly in Scene Studio `retain` (like `projectile:spider-web`); finish with `node scripts/reconcile-scene-ledger.mjs --write`. Don't use `--write` on the inventory script: it rebuilds the ledger from scratch and resets every writer state.
 
+## Godot port
+
+- `pnpm godot:sync [-- --check]` — copies every file `asset/assets.json` maps into `godot/asset/` (git-ignored); `--check` exits 1 when a copy is missing or stale.
+- `pnpm godot:convert [-- --check]` — `scripts/godot/convert-scenes.mjs` (helpers in `scripts/godot/lib/`) converts every authored scene into `godot/generated/` (`.tscn` scenes, the terrain TileSet, a UI Theme, `scene_index.json`, data copies and `conversion_report.json`). Deterministic; unchanged files are not rewritten. Re-run it after editing scene JSON or after adding `@export`s to a ported script in `godot/game/scripts/`.
+- `res://tools/verify_generated.gd` (run with Godot 4.7.2: `--headless --path godot -s res://tools/verify_generated.gd`) loads and instantiates every converted scene, checks properties, node references and tiles against the JSON, and plays level-1 for 30 frames. See [GODOT_MIGRATION.md](GODOT_MIGRATION.md#working-with-the-godot-project) for import, boot and web-export commands.
+
 ## Maps and worlds
 
 The game plays world scenes (`src/game/content/scenes/authored/worlds/<id>.scene.json`, scene ID `world.<id>`). See [AUTHORED_MAPS.md](AUTHORED_MAPS.md).
