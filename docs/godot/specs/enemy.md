@@ -28,17 +28,17 @@ Godot targets (from the conventions): script `game.enemy` → `res://game/script
 | Feature | Where | Notes |
 |---|---|---|
 | Loot drops & coins | `features/combat/CombatController.ts:281-301` (`awardEnemyDefeat`) | +`drop.coins` (worm: 10) via `enemy-types.json`, floating `+10c` text, items rolled by `chance` (worm: shard 20 %) dropped on the ground; emits `gameEvents 'enemy.died' {enemyId, areaId, kind}` used by **quest kill objectives** (`quests/matchers/ObjectiveMatchers.ts:55`). The scene `rewards` property and `reward_requested` signal are emitted but **nobody listens** (dead data). |
-| Ranged / projectile enemies | `EnemyScript.ts:754-770`, `900-908`, `UniversalSceneWorldController.spawnEnemyProjectile` | `projectile` property, `projectileSpeed`, `stickMs` (spider web). Worm archer, slime spider. |
-| `fleeRange` keep-distance behaviour | `EnemyAI.ts:284-286`, `317-335`; `EnemyScript.ts:441-442` | Archers/spiders. Worm has no `fleeRange` (but see safe-zone flee, which IS in scope). |
-| Slime spider AI | `enemies/ai/SlimeSpiderAI.ts` | `attributes.behavior == "slime-spider"`: orbit/approach, keep distance, retreat, fire. |
-| Fatty / Matron bosses, boss arena leash, `arenaRecoveryMs`, telegraphs, camera shake, `routeImmediateAttack`, `attackAreaReach` overrides | `FattyScript.ts`, `MatronScript.ts`, `EnemyScript.ts:392-409, 598-610, 619, 675-716`, `features/effects/AttackTelegraphs.ts` | Ground telegraphs are **only** used by bosses; the worm has no telegraph besides its windup clip + SFX. Fatty and the arena leash are ported since 2026-10-05 ([boss.md](./boss.md)); the Matron is not |
-| `impactEffect` spawn on hit | `EnemyScript.ts:797-806` | Worm brawler only (`effect.enemy.worm-brawler-hit`). Worm swordsman has none. |
-| Slow (goo trail) | `EnemyScript.ts:205-209, 425-426, 449, 486-487, 934-944` | `applySlow(multiplier, durationMs)`; treat slow factor as 1 in the trial. |
-| Effect immunities / `damageRule.effectResponses`, `acceptedSources`, `blockedWeaponTags` | `combat/DamageResolver.ts` | Worm rule is `{priority:0, damageMultiplier:1}` only. |
+| Ranged / projectile enemies | `EnemyScript.ts:754-770`, `900-908`, `UniversalSceneWorldController.spawnEnemyProjectile` | **Ported 2026-10-05, §12.** `projectile` property, `projectileSpeed`, `stickMs` (spider web). Worm archer, slime spider, orb weaver. |
+| `fleeRange` keep-distance behaviour | `EnemyAI.ts:284-286`, `317-335`; `EnemyScript.ts:441-442` | **Ported, §13.** Archers/spiders. Worm has no `fleeRange` (but see safe-zone flee, which IS in scope). |
+| Slime spider AI | `enemies/ai/SlimeSpiderAI.ts` | **Ported 2026-10-05, §14.** `attributes.behavior == "slime-spider"`: orbit/approach, keep distance, retreat, fire. |
+| Fatty / Matron bosses, boss arena leash, `arenaRecoveryMs`, telegraphs, camera shake, `routeImmediateAttack`, `attackAreaReach` overrides | `FattyScript.ts`, `MatronScript.ts`, `EnemyScript.ts:392-409, 598-610, 619, 675-716`, `features/effects/AttackTelegraphs.ts` | Ground telegraphs are **only** used by bosses; the worm has no telegraph besides its windup clip + SFX. Fatty and the arena leash are ported since 2026-10-05 ([boss.md](./boss.md)), the Matron too ([matron.md](./matron.md)) |
+| `impactEffect` spawn on hit | `EnemyScript.ts:797-806` | **Ported 2026-10-05, §16.** Worm brawler only (`effect.enemy-worm-brawler-hit`). Worm swordsman has none. |
+| Slow (goo trail) | `EnemyScript.ts:205-209, 425-426, 449, 486-487, 934-944` | **Ported 2026-10-05 (enemy side), §15.** `applySlow(multiplier, durationMs)`; the goo trail that calls it is the player's (abilities spec 12, OUT). |
+| Effect immunities / `damageRule.effectResponses`, `acceptedSources`, `blockedWeaponTags` | `combat/DamageResolver.ts` | **Ported, §17** (the resolver had them since the Fatty port). Worm rule is `{priority:0, damageMultiplier:1}` only. |
 | Elevation routing, `DamageRouter` reach gate | docs/ELEVATION.md | Not ported (elevation rejected; this router has no gate). |
 | Occlusion silhouette for enemies | `UniversalSceneWorldController.registerCharacterOcclusion` | Dropped by plan. |
 | Dev overlay attack areas | `EnemyScript.debugAttackAreas` | Debug only. |
-| Legacy player-relative spawning, `despawnRadius` | `AuthoredEnemyPopulationController.ts:96-98, 115-121, 140-143, 216-224` | Only when a world has no spawn areas but has `metadata.spawns`; level-1 has spawn areas and no `spawns`. |
+| Legacy player-relative spawning, `despawnRadius` | `AuthoredEnemyPopulationController.ts:96-98, 115-121, 140-143, 216-224` | **Ported 2026-10-05, §18.** Only when a world has no spawn areas but has `metadata.spawns` (crystal-caverns, icege); level-1 has spawn areas and no `spawns`. |
 | `enforceSpawnArea` (pursue-perimeter guard in the AI) | `EnemyAI.ts:142-206` | **Dead in practice**: `EnemyScript.ts:472` passes `spawnArea` to the AI only when there is no territory, and a territory exists exactly when there is a spawn area. Do not port. |
 | `hit_reaction`, `damage_feedback` signals | `EnemyScript.ts:303, 315` | `hit_reaction` is not even a declared signal (no-op); `damage_feedback` has no listener. Optional. |
 
@@ -599,3 +599,273 @@ every direction):
 - Godot `CharacterBody2D` does not push other bodies; Arcade separated dynamic bodies (player and worm
   shove each other slightly). Acceptable trial difference; mention to the owner if contact feels sticky.
 - Random: use `randf()` for every `Math.random()`; keep one call per check (do not pre-roll).
+
+---
+
+# Part 2 — ranged enemies, spiders, slow, impact effects, legacy spawning (ported 2026-10-05)
+
+Read from the Phaser code on `feat/godot-migration` (2026-10-05). Same conventions as part 1:
+`file:line` refs are to `src/game/...`, "centre" is the old Phaser body position, every distance is
+centre to centre. Godot targets: `game.enemy` stays `res://game/scripts/enemy.gd`; `game.projectile`
+→ `res://game/scripts/projectile.gd` (node `ProjectileScript`); helpers in `res://game/enemy/`:
+`enemy_projectiles.gd` (the world's `spawnEnemyProjectile`), `slime_spider_ai.gd`,
+`spider_web_port.gd` (the world's `world.spider-web` port and `applyWeb`, see
+[matron.md](./matron.md) §5) and `enemy_population.gd` (legacy spawning, `slowEnemiesNear`).
+
+## 11. Enemy types the worlds spawn
+
+Every `enemy-spawn` world area and every legacy `metadata.spawns` table (read from
+`content/scenes/authored/worlds/*.scene.json`):
+
+| World | Spawner | Types |
+|---|---|---|
+| level-1 | areas `level-1-starter-camp`, `-webwood`, `-autumn-grove`, `-south-meadow` | worm-swordsman (3); slime-spider (3); worm-archer (2) + worm-brawler (2); worm-brawler (2) + slime-spider (1) |
+| gloop-forest | areas `gloop-orb-weavers-north-east`, `-south-west`, `-south` (2 each, every 6000 ms) | orb-weaver |
+| crystal-caverns | legacy `metadata.spawns` (§18): radius 200–500, every 1500 ms, max 16 | worm-brawler 30, worm-swordsman 40, worm-archer 30 |
+| playground (dev) | area `playground-enemy-pen` (every 4000 ms, max 6) | worm-brawler (3), worm-archer (1), slime-spider (1), orb-weaver (2) |
+| meadow-crossing, cole, girls, tiktok (dev) | areas | slime-spider, worm-archer, worm-brawler, worm-swordsman |
+| icege (dev) | legacy `metadata.spawns` | worm-swordsman |
+
+gloop-forest also has `metadata.spawns`, unused because it has spawn areas
+(`AuthoredEnemyPopulationController.ts:88, 127`). So five types: **worm-swordsman** (part 1),
+**worm-archer**, **worm-brawler**, **slime-spider**, **orb-weaver**, all `game.enemy` with these
+script properties (`characters/<type>.scene.json`, node `script`; `projectileSpeed`, `fleeRange`,
+`behavior` and `isRanged` live in `attributes`):
+
+| | archer | brawler | slime spider | orb weaver |
+|---|---|---|---|---|
+| maxHealth | 40 | 55 | 40 | 70 |
+| targetingRadius (aggro) | 280 | 240 | 280 | 300 |
+| attackRange | 220 | 34 | 220 | 240 |
+| movementSpeed | 80 | 130 | 80 | 72 |
+| attackCooldownMs | 2200 | 1100 | 2200 | 2000 |
+| wanderSpeed | 30 | 50 | 30 | 28 |
+| attackWindupMs / RecoveryMs | 600 / 350 | 250 / 250 | 600 / 350 | 650 / 350 |
+| contactDamage | 22 (unused, ranged) | 52 | 22 (unused) | 26 (unused) |
+| knockbackStrength / Resist | 180 / 0 | 340 / 0.1 | 180 / 0 | 200 / 0.3 |
+| fleeRange | 120 | — | 120 | 140 |
+| behavior | standard | standard | `slime-spider` | `slime-spider` |
+| projectileSpeed | 180 | — | 180 | 200 |
+| projectile | `worm-arrow`, damage 22 | — | `spider-web`, damage 50, stickMs 1000 | `spider-web`, damage 30, stickMs 1300 |
+| impactEffect | — | `enemy-worm-brawler-hit`, distance 22 | — | — |
+| depthAnchor | (0, 22) | (0, 22) | (0, 12) | (0, 15) |
+| damageRule | priority 0, ×1 | same | same | same |
+
+Their SFX wiring is the worm's (`damaged` → HurtSfx, `defeated` → DeathSfx, `alerted` → AlertSfx,
+`attack_started` → WindupSfx: archer bow-draw, brawler worm-windup; the spiders have no WindupSfx).
+`rewards` stay unused (loot is OUT, part 1 §0).
+
+## 12. Ranged attack and enemy projectiles
+
+### 12.1 Projectile configuration (`EnemyScript.ts:900-908`)
+`projectile` counts only when it is a Dictionary with a numeric `damage` and at least one of a
+string `projectileId` / `assetId`; `stickMs` counts only when it is a number > 0. Otherwise the enemy
+is melee. `attack_started` carries `ranged = (that configuration exists)` (`:745`).
+
+### 12.2 Firing (`EnemyScript.ts:748-770`)
+The ranged attack is the common attack of part 1 §5 (same cooldown, windup, finish
+`min(2000, max(windup + recovery, clip) + 250)`, attack area toggle, cancel rules). At the impact
+moment (`now >= attack_impact_at`, once) `resolve_attack` does, in order:
+```
+attack_resolved = true
+if no activation, attack area or router: return
+if target not active or not hostile: return
+if projectile configuration:
+    fire {position: enemy centre now, direction: attack_direction (set at begin_attack, unit),
+          speed: attributes.projectileSpeed (fallback 200), damage: projectile.damage,
+          knockback_strength: attributes.knockbackStrength (fallback 0),
+          projectile_id, asset_id, stick_ms (when > 0)}
+    return                                  # no reach check: the flight decides
+(melee as part 1 §5.3)
+```
+The aim is where the player was when the attack **started** (`begin_attack` stores the unit
+direction); the origin is where the enemy stands at the impact moment.
+
+### 12.3 Spawning the projectile (`UniversalSceneWorldController.spawnEnemyProjectile`, `:2087-2114`)
+```
+projectile_id missing -> error (Phaser throws)
+mount scene "projectile.<projectile_id>" with its root at `position` (projectile roots have no depth anchor)
+script = its ProjectileScript (missing -> error)
+script.launch(direction, speed, {
+    source: the shooter, damage, knockback_strength,
+    weapon_id: projectile_id, weapon_tags: ["enemy", "projectile"], damage_types: ["physical"],
+    target_areas: [the player's hurtbox],
+    effects: [{effect_id: "web", potency: stick_ms}] when stick_ms > 0 })
+```
+The world disposes a projectile once it is no longer `launched` or its root is gone
+(`finishExpiredProjectiles`, `:2116-2122`); the script frees its own root on expiry (§12.4), so
+nothing else is needed in Godot.
+
+### 12.4 `game.projectile` (`features/scripts/ProjectileScript.ts`)
+Properties (`projectiles/*.scene.json`, node `ProjectileScript`): `projectileId` (fallback
+`"unknown-projectile"`), `body` (CharacterBody2D root), `visual`, `animation`, `attackArea`,
+`defaultSpeed` (`max(0, v)`, fallback 0), `lifetimeMs` (`max(0, v)`, fallback 0),
+`rotateToVelocity` (true only when `=== true`). Signals `launched {projectileId}`, `expired
+{projectileId}`; handler `on_area_entered` ← `AttackArea.area_entered`.
+
+State: `age_ms = 0`, `launched = false`, the damage payload, `activation_id`.
+
+- `launch(direction, speed = default_speed, damage = null)` (`:80-98`): error unless the speed is
+  finite and ≥ 0 and the direction non-zero. `body.velocity = unit(direction) × speed`; with
+  `rotate_to_velocity` the **Visual** (not the body) gets `rotation = atan2(vy, vx)`; `age = 0`,
+  `launched = true`, store the payload; with a payload begin an attack activation for
+  `(payload source, [attack_area])`; emit `launched` (→ ReleaseSfx / SpitSfx).
+- `_physics_process` (`:63-71`, scripts run before Arcade moves the body): not launched → nothing;
+  `age += delta`; the body touched a blocker in the last physics step (`blockingContacts`) →
+  `expire()`; else `age >= lifetime_ms` → `expire()`. Arcade then moves the body by its velocity
+  against its collision mask.
+- `on_area_entered(area)` (`:108-133`): ignore unless launched with a payload, an activation, a
+  router and an attack area; ignore areas not in `target_areas` (enemy hurtboxes, the shooter's
+  own included, are skipped and the projectile flies on). Route one request:
+  `{activation, source, attack_area, target_area: area, weapon_id (payload, else projectile_id),
+  weapon_tags (payload, else ["projectile"]), damage_types (payload, else ["physical"]),
+  base_damage: payload damage, effects: [knockback, potency knockback_strength, when > 0] + payload
+  effects, impact: {position (0, 0), knock: unit(body velocity) (length 1 when zero)}}`, then
+  `expire()` **whatever the result** (a dodged or i-framed hit still consumes the projectile).
+- `expire()` (`:100-106`): only when launched: `launched = false`, end the activation, emit
+  `expired` (→ the arrow's detached ThunkSfx), free the root.
+- `_exit_tree` (`:73-78`): `launched = false`, end the activation, drop the payload.
+The scenes' `impact` clip is never played.
+
+### 12.5 Projectile scenes
+| | `projectile.worm-arrow` | `projectile.spider-web` |
+|---|---|---|
+| root | CharacterBody2D `WormArrow`, layer 256 (projectile), mask 1 (world), `collideWorldBounds` false | `SpiderWeb`, same |
+| body / attack shape | rectangle 16 × 10 | circle r 7 |
+| AttackArea | layer 16 (hitbox), mask 8 (hurtbox), monitoring on | same |
+| clips | `move` (autoplay, loop), `impact` | `move` 6 fps ping-pong frames 0 → 4 → 6, `impact` |
+| script | defaultSpeed 180, lifetimeMs 3000, rotateToVelocity | defaultSpeed 170, lifetimeMs 3000, rotateToVelocity |
+| SFX | ReleaseSfx ← `launched`; ThunkSfx (detached) ← `expired` | SpitSfx ← `launched` |
+
+Water (layer 1024) is not in the mask: projectiles fly over water; walls, trees, houses, rocks and
+stakes (layer 1) stop them. The speed always comes from the shooter (`projectileSpeed`), never from
+`defaultSpeed`.
+
+### 12.6 The web effect on the player (player side)
+`PlayerHealthController.publishDamageFeedback` (`features/player/PlayerHealthController.ts:117-135`):
+after the hit presentation and unless the hit was lethal, an applied `web` effect with potency > 0
+calls `applyWeb(potency)` **before** the knockback. `WorldScene.applyWeb(ms)`
+(`scenes/WorldScene.ts:1758-1771`) applies the `sticky` status for `ms` (rooted: no walking, no
+jump/dodge/teleport; attacks and the lash still work; `systems/StatusEffects.ts:98`,
+`features/player/PlayerController.ts:72-77`) and, unless already stuck, spawns
+`effect.spider-web-cover` following the player. The knockback still plays first (movement
+suppression wins over the root, `PlayerController.ts:57-60`). This is `player.gd`'s job (abilities
+spec 13.9 / 19.3); the enemy side only routes the effect. Godot fallback until the player has
+`apply_web(ms)`: `spider_web_port.gd` shows the web cover at the player for an accepted web hit and
+skips the root.
+
+### 12.7 Derived numbers (player defense 3)
+- Archer: an arrow hits for max(1, 22 − 3) = **19**, knockback 180; fired 600 ms after the attack
+  starts; the sequence ends at +min(2000, max(950, 375) + 250) = **+1200 ms** (side clip 375 ms, up
+  500 ms); the next shot ≥ 2200 ms after the previous start. Speed 180 for 3000 ms = 540 px of flight.
+- Slime spider: a web hits for **47**, knockback 180, web 1000 ms. Orb weaver: **27**, knockback 200,
+  web 1300 ms, speed 200, windup 650 → finish +1250 ms.
+- Brawler: melee 52 → **49**, knockback 340; impact at +250, finish +min(2000, max(500, clip) + 250).
+
+## 13. `fleeRange` with the standard AI (`EnemyAI.ts:275-335`, `EnemyScript.ts:439-443`)
+Ported with the trial's AI (dormant for the worm). With `fleeRange` > 0 (archer 120):
+- chase: beyond aggro × 1.5 → wander; **then** `distance < fleeRange` → flee (velocity kept); then in
+  reach (`distance <= attackRange`) → velocity 0, attack; else run at the player.
+- flee: `distance >= fleeRange` → velocity 0, **attack**; beyond aggro × 1.5 → wander; else run
+  straight away from the player at `movementSpeed`.
+- attack: beyond attackRange × 1.3 (archer 286) → chase; else hold and request the attack. The
+  attack state never flees by itself.
+- When a sequence finishes, the AI state becomes flee when `fleeRange > 0` and `distance <
+  fleeRange`, else chase.
+So an archer keeps 120–286 px from the player and shoots whenever the cooldown allows.
+
+## 14. Slime-spider AI (`enemies/ai/SlimeSpiderAI.ts`)
+Used when `attributes.behavior == "slime-spider"` (slime spider, orb weaver, the Matron): after the
+safe-zone push (part 1 §4.4, unchanged) `runState` hands every state to `runSlimeSpiderState`
+(`EnemyAI.ts:116-123`). `preferred = max(1, fleeRange ?? attackRange × 0.55)` (`:33-35`: an absent
+`fleeRange` uses 0.55 × range, a present 0 gives 1). `notices` = `may_engage` (part 1 §4.4).
+
+| state | behaviour |
+|---|---|
+| idle (`:37-43`) | velocity 0; notices → chase; `randf() < 0.008` → wander; else continue |
+| wander (`:45-63`) | notices → velocity 0, chase; `randf() < 0.02` → velocity = (cos a, sin a) × wanderSpeed with `a = randf() × TAU`; `randf() < 0.004` → velocity 0, idle; else continue |
+| chase (`:65-78`) | beyond aggro × 1.5 → wander; `distance <= attackRange`: `distance < preferred` → flee (velocity kept), else velocity 0, attack; otherwise orbit (0.86, 0.52, movementSpeed), continue |
+| flee (`:80-91`) | beyond aggro × 1.5 → wander; `distance >= preferred` → attack when `distance <= attackRange`, else chase (velocity kept); otherwise orbit (−0.92, 0.44, movementSpeed × 1.08), continue |
+| attack (`:93-100`) | beyond attackRange × 1.3 → chase; `distance < preferred × 0.72` → flee; else velocity 0, request the attack, continue |
+| dead | continue |
+
+**Orbit** (`:102-120`): `d` = unit direction to the player (the attack direction when the distance
+is 0); `sign = 1 if sin(centre.x × 0.017 + centre.y × 0.013) >= 0 else −1`; `tangent = (−d.y × sign,
+d.x × sign)`; `v = d × radial + tangent × lateral`; velocity = `unit(v) × speed` (length 1 when 0).
+A spider spirals in toward the player, stops to spit between `preferred` and `attackRange`, and backs
+off spiralling when the player comes closer than `preferred` (closer than 0.72 × preferred while it
+holds to spit). After a sequence finishes the base rule of §13 applies (flee when closer than
+`fleeRange`, else chase).
+
+## 15. Slow (`EnemyScript.ts:205-209, 365-367, 425-426, 449, 486-487, 934-944`)
+`apply_slow(multiplier, duration_ms)`: ignored for `rank == "boss"`, a defeated enemy, a multiplier
+outside (0, 1) or a duration ≤ 0. Else `until = now + duration`; the multiplier is replaced when the
+old slow has run out (`now >= slowed_until`) or the new one is stronger (`multiplier <=
+slow_multiplier`); `slowed_until = max(slowed_until, until)`. `is_slowed() = now < slowed_until`.
+Per step: `slow_written = applied_slow; applied_slow = 1` first thing (the defeated, stun, no-target
+and arena paths write unslowed velocities). The territory walk writes `walk × applied_slow` with
+`applied_slow = slow multiplier while slowed, else 1` (facing and clip use the unslowed walk). The AI
+path reads the body velocity back divided by `slow_written` (the AI sees its own unslowed speed),
+runs, then writes `velocity × applied_slow` (same rule); facing and clip use the unslowed velocity.
+Caller: the goo trail (`WorldScene.ts:901` → `slowEnemiesNear(points, 26, 0.55, 400)`,
+`UniversalSceneWorldController.ts:1236-1249`: every live **ordinary** enemy whose centre is within
+the radius of any point; returns the count). Godot: `EnemyPopulation.slow_enemies_near(points,
+radius, multiplier, duration_ms)`; the trail itself is the player's (abilities spec 12, OUT).
+
+## 16. Impact effect (`EnemyScript.ts:792-806, 696`)
+`impactEffect = {effectId, distance}` (worm brawler: `enemy-worm-brawler-hit`, 22). After a melee
+impact whose route was **accepted with damage > 0**, and after an immediate attack that hit unless
+the caller passed `impactEffect: false` (Fatty's landing, the Matron's volley): spawn
+`effect.<effectId>` (direction `right`) with its root at `centre + attack_direction × distance`
+(`distance` 0 when not a finite number; a missing or non-string `effectId` spawns nothing). The
+brawler's effect: 3 frames at 12 fps (0.25 s), `hit-punch` sound.
+
+## 17. Effect immunities and damage rules
+Every enemy's `damageRule` goes to the router as authored (part 1 §6.1); the resolver
+(`combat/DamageResolver.ts`; Godot `damage_resolver.gd`, complete since the Fatty port) handles
+`acceptedSources`, `blockedWeaponTags`, `damageTypeMultipliers` and `effectResponses` (`immune` →
+the effect is rejected with reason `immune`; `multiplier`). The base reaction (part 1 §6.2) then uses
+strength 0 for an immune knockback (no shove, stun 320 ms only). The world's ordinary types have no
+immunities; the bosses do (Fatty, the Matron: `knockback` immune). `attributes.effectImmunities` is
+informational only (nothing reads it at run time).
+
+## 18. Legacy player-relative spawning (`AuthoredEnemyPopulationController.ts`, `features/combat/CombatController.ts:117-138, 269-274`)
+Only when the world has **no** enemy-spawn areas and has `metadata.spawns` (world definition
+`metadata`): `{enemies: [{type, weight, maxAlive?}], radius: {min, max}, intervalMs, maxPopulation,
+safeZones?}`. Spawn-point safe zones = the enemy-safe-zone areas + `spawns.safeZones`; enemy
+navigation keeps the area safe zones (`scenes/WorldScene.ts:1352, 2327`).
+- seed: `min(8, spawns.maxPopulation ?? 8)` spawns at once (with areas that count caps each area,
+  part 1 §3.2).
+- update, each fixed step: drop gone and dead members; a member **without** an area farther than
+  `despawnRadius = radius.max + 300` from the player centre is removed (freed); then when `now >
+  last_spawn_at + intervalMs` and fewer than `maxPopulation` live members: spawn one, `last_spawn_at
+  = now` (also when the spawn failed).
+- spawn one: candidates = table entries under their `maxAlive` (live members of that type without an
+  area), weighted pick as in part 1; spawn point: up to 32 tries of `angle = randf() × TAU`, `dist =
+  min + randf() × (max − min)`, `(clamp(player.x + cos × dist, 40, W − 40), clamp(player.y + sin ×
+  dist, 40, H − 40))`, rejected inside a safe zone; the enemy gets no spawn area (no territory,
+  `may_engage = distance <= aggro`) and the area safe zones.
+
+crystal-caverns: 8 enemies around the spawn at load, then one every 1.5 s up to 16, removed beyond
+800 px from the player.
+
+## 19. Godot notes and deviations
+- **Projectile source.** Phaser's request source is the shooter's id string, still valid after the
+  shooter died; the Godot router needs a live Object, so the projectile script itself is the
+  activation and request source (it lives exactly as long as it can hit). The payload keeps
+  `source_node_id`.
+- **Projectile step order.** `projectile.gd` reads its age from SimClock (`now − launched_at`),
+  expires on a blocking contact recorded by its last move (`ArcadeMover.move` returned true) or at
+  the lifetime, else moves. `area_entered` arrives at the start of the next physics tick (Godot
+  flushes area queries before the scripts): a hit lands at most one step later than in Phaser. A
+  projectile spawned during a step first moves in the next one (±1 step of flight).
+- **World bounds.** `collideWorldBounds` false: the projectile ignores the runtime `WorldBounds`
+  body (a collision exception) and leaves the world until its lifetime ends.
+- **Warm-up.** An enemy warms its projectile scene and impact effect in `_ready`; the population
+  warms `character.<type>` for every type it may spawn when it seeds (Phaser loads all media
+  before the world starts).
+- **Spawn timers.** Phaser's world simulation time starts at 0 when a world loads; SimClock keeps
+  running across travel, so `EnemyPopulation` measures `last_spawn_at` (camps and legacy) from its
+  `setup` time instead of 0.
+- **Trial filter.** `main.gd` sets `EnemyPopulation.allowed_types = ["worm-swordsman"]` (the world
+  session's file); emptied, every type above spawns. The tests clear it.

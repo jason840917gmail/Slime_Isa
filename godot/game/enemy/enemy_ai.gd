@@ -11,11 +11,17 @@ class_name EnemyAI
 ## Optional keys: "flee_range": float (> 0 enables the keep-distance rules of ranged enemies;
 ## absent or <= 0 for the worm swordsman); "in_attack_reach": bool (EnemyAI.ts:271-273, 309:
 ## an authored attack area decides reach, replacing the `attack_range` distance checks; absent
-## for the worm, set by bosses such as Fatty).
+## for the worm, set by bosses such as Fatty); "behavior": "slime-spider" hands every state to
+## res://game/enemy/slime_spider_ai.gd (with "preferred_distance"; enemy spec 14).
 ##
 ## Randomness: one `randf()` per `Math.random()` call, in the same order (enemy spec 10).
 ##
 ## Owner: enemy builder.
+
+const SlimeSpiderAI := preload("res://game/enemy/slime_spider_ai.gd")
+
+## `attributes.behavior` of the ranged spiders (EnemyScript.ts:883).
+const BEHAVIOR_SLIME_SPIDER := "slime-spider"
 
 ## EnemyAI.ts literals (per AI call; frame-rate dependent, keep physics at 60 Hz).
 const IDLE_TO_WANDER_CHANCE := 0.01
@@ -75,6 +81,10 @@ static func run_state(state: String, velocity: Vector2, ctx: Dictionary) -> Dict
 		if axis != Vector2.ZERO:
 			return _result(STATE_FLEE, axis * chase_speed * SAFE_ZONE_PUSH_MULTIPLIER)
 		# EnemyAI.ts enforceSpawnArea is dead in practice for camp enemies (enemy spec 0): not ported.
+
+	# Specialised controllers (EnemyAI.ts:123; enemy spec 14).
+	if ctx.get("behavior", "") == BEHAVIOR_SLIME_SPIDER:
+		return SlimeSpiderAI.run_state(state, velocity, ctx)
 
 	var distance: float = ctx.get("distance", 0.0)
 	var dir: Vector2 = ctx.get("dir", Vector2.ZERO)
