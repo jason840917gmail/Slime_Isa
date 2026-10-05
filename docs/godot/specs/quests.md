@@ -818,7 +818,7 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 | the-old-workshop | restoration site (ported) | reachable only after chapter 2 |
 | a-tonic-for-lili, snack-for-the-road | crafting | ported (`test_lili_tonic_and_snack`) |
 | beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | systems ported; not played end to end yet |
-| a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | systems ported; not played end to end yet |
+| a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | ported (`test_chapter_two_gloop.gd`) |
 | rekindle-the-forge | restoration (ported); forge crafting | ported (`test_chapter_two_flow.gd`) |
 | iron-gear | crafting | ported (`test_chapter_two_flow.gd`) |
 | sunnys-basket | Stretch Lash pull of a pile (ported) | portable now |
