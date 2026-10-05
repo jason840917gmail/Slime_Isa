@@ -14,6 +14,7 @@ class_name CollectibleScript
 const Services := preload("res://game/shared/services.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const ResourceDrops := preload("res://game/world_objects/resource_drops.gd")
+const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 
 ## JSON `mapId`.
 @export var map_id: String = ""
@@ -109,6 +110,8 @@ func _pickup(request: Dictionary, collector: Area2D, pos: Vector2) -> Dictionary
 	var source := str(next.get("source_resource_instance_id", source_resource_instance_id))
 	if not source.is_empty():
 		ResourceDrops.on_pile_changed(map_id, source, instance_id, rest)
+	if not source_inventory_drop_id.is_empty():
+		EnemyLoot.on_pile_changed(map_id, source_inventory_drop_id, rest)
 	if feel != null:
 		feel.floating_text(pos - Vector2(0.0, TEXT_RISE), "+%d %s" % [moved, ItemCatalog.item_name(item_id)], &"yellow", false)
 	_on_collected(player, moved)
@@ -121,7 +124,7 @@ func _on_collected(player: Node, moved: int) -> void:
 	var feel := Services.feel()
 	if feel != null and player.has_method(&"get_centre"):
 		feel.particles(&"loot-sparkle", player.get_centre() - Vector2(0.0, SPARKLE_RISE))
-	if item_id == PURPLE_BERRY and source_inventory_drop_id.is_empty():
+	if item_id == PURPLE_BERRY and not EnemyLoot.is_recovered(map_id, source_inventory_drop_id):
 		if player.has_method(&"play_action_clip"):
 			player.play_action_clip("eat")
 		Services.run().add_coins(BERRY_COINS * moved)
