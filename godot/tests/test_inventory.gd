@@ -191,7 +191,7 @@ func test_use_potion(t: TestContext) -> void:
 	if t.check(messages.size() == 1, "messages %s" % [messages]):
 		t.equal([messages[0]["text"], messages[0]["color"], messages[0]["big"]], ["+40", "green", true], "heal text")
 		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), player.get_centre() - Vector2(0.0, 30.0), 0.01, "heal text position")
-	t.check(heal != null and heal.playing, "Heal did not play")
+	t.check(heal != null and TestContext.played(heal), "Heal did not play")
 	if heal != null:
 		TestContext.silence(heal)
 	player.restore_run_state({"hp": 100})
@@ -199,7 +199,7 @@ func test_use_potion(t: TestContext) -> void:
 	t.equal(player.get_hp(), 100, "HP at full health")
 	t.equal(run.item_count("hp-potion"), 1, "a tonic was used at full health (K10)")
 	t.equal(messages.size(), 1, "a text at full health")
-	t.check(heal == null or not heal.playing, "Heal played at full health")
+	t.check(heal == null or not TestContext.played(heal), "Heal played at full health")
 	bag.close()
 
 
@@ -213,7 +213,7 @@ func test_berry_basket_and_energy(t: TestContext) -> void:
 	bag.primary_button.pressed.emit()
 	t.equal(player.get_hp(), 100, "HP after the basket")
 	t.near(player.get_energy(), 80.0, 0.001, "energy after the basket")
-	t.check(restore != null and restore.playing, "EnergyRestore did not play")
+	t.check(restore != null and TestContext.played(restore), "EnergyRestore did not play")
 	t.equal(run.item_count("berry-basket"), 0, "baskets left")
 	if restore != null:
 		TestContext.silence(restore)
@@ -221,7 +221,7 @@ func test_berry_basket_and_energy(t: TestContext) -> void:
 	t.equal(str(bag.model()["details_name"]), "Fizzy Brew", "the selection after the basket")
 	bag.primary_button.pressed.emit()
 	t.near(player.get_energy(), 100.0, 0.001, "energy after the brew")
-	t.check(restore == null or not restore.playing, "EnergyRestore played for a gain of 5")
+	t.check(restore == null or not TestContext.played(restore), "EnergyRestore played for a gain of 5")
 	t.equal(run.item_count("energy-potion"), 0, "brews left")
 	bag.close()
 

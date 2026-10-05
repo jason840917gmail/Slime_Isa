@@ -60,7 +60,7 @@ func test_workbench_from_wood(t: TestContext) -> void:
 	t.equal(result.get("output_quantity"), 1, "output quantity")
 	t.equal(run.slots(), [{"item_id": "workbench", "count": 1}], "bag after the craft")
 	t.equal(crafted, [{"recipeId": "craft-workbench", "itemId": "workbench", "quantity": 1}], "recipe_crafted payloads")
-	t.check(success != null and success.playing, "CraftSuccess did not play")
+	t.check(success != null and TestContext.played(success), "CraftSuccess did not play")
 
 
 func test_status_order(t: TestContext) -> void:
@@ -147,8 +147,8 @@ func test_crafted_weapon_to_belt_and_hand(t: TestContext) -> void:
 		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), centre - Vector2(0.0, 48.0), 0.01, "equip message position")
 		t.equal([messages[1]["text"], messages[1]["color"], messages[1]["big"]], ["Crafted: Stone Axe", "green", true], "crafted message")
 		t.near_vec(Vector2(messages[1]["x"], messages[1]["y"]), centre - Vector2(0.0, 44.0), 0.01, "crafted message position")
-	t.check(equip != null and equip.playing, "EquipTool did not play")
-	t.check(success != null and success.playing, "CraftSuccess did not play")
+	t.check(equip != null and TestContext.played(equip), "EquipTool did not play")
+	t.check(success != null and TestContext.played(success), "CraftSuccess did not play")
 	crafting.close()
 
 
@@ -193,7 +193,7 @@ func test_portable_window_new_run(t: TestContext) -> void:
 	model = crafting.model()
 	t.equal(model["status"], "Missing: 40 Wood.", "refused status")
 	t.equal(model["status_color"], UiTokens.DANGER, "refused colour")
-	t.check(fail != null and fail.playing, "CraftFail did not play")
+	t.check(fail != null and TestContext.played(fail), "CraftFail did not play")
 	t.equal(failed, [{"recipeId": "craft-workbench", "reason": "missing-materials"}], "craft_failed payloads")
 	crafting.close()
 	t.check(not t.tree.paused, "the world stayed paused after closing")

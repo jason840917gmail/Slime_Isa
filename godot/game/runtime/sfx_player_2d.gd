@@ -27,6 +27,9 @@ const CueRules := preload("res://game/runtime/audio_cue_rules.gd")
 @export var detached: bool = false
 @export var pan_distance: float = 400.0
 
+## Cues started since `reset_cue` (see SfxPlayer.cues_played).
+var cues_played: int = 0
+
 var _base_pitch: float = 1.0
 var _last_accepted_ms: int = -1
 var _loop_wanted: bool = false
@@ -70,12 +73,14 @@ func play_cue(payload: Variant = null) -> void:
 	if loop:
 		_loop_wanted = true
 		if not playing:
+			cues_played += 1
 			play()
 		return
 	var now := CueRules.now_ms()
 	if min_interval_ms > 0.0 and _last_accepted_ms >= 0 and now - _last_accepted_ms < int(min_interval_ms):
 		return
 	_last_accepted_ms = now
+	cues_played += 1
 	var pitch := CueRules.randomized_pitch(_base_pitch, pitch_randomness)
 	if detached and is_inside_tree():
 		_play_detached(pitch)
@@ -95,6 +100,7 @@ func stop_cue(payload: Variant = null) -> void:
 ## next `play_cue` (`stop()` keeps it); see SfxPlayer.reset_cue (tests).
 func reset_cue() -> void:
 	_last_accepted_ms = -1
+	cues_played = 0
 	_stop_all()
 
 

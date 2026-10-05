@@ -132,8 +132,10 @@ records, offer / turn-in conversations, the dialogue reveal and keys, rewards, k
 tracker, markers, toasts, waypoint targets, saves), crafting, the bag and the belt (`test_crafting.gd`,
 `test_inventory.gd`, `test_loadout.gd`: quotes and the status order, the crafting window, the menu
 key and tabs, consumables, drops, the wheel, the hotbar, the trial sword), the quest journal and the chest window
-(`test_journal.gd`, `test_chest_window.gd`), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
-`--strict` to fail on known failures too.
+(`test_journal.gd`, `test_chest_window.gd`), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests
+(`--filter=a|b` runs either; quote it in the shell), `--strict` to fail on known failures too. Sound
+checks ask `TestContext.played(player)` (cues started since `TestContext.silence(player)`), not
+`playing`: a short cue can already have ended when a starved headless mixer catches up.
 
 The `--check-only` pass reports one error per run and does **not** catch calls to
 methods that do not exist on autoloads, so always also boot the game headless.
