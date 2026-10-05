@@ -125,8 +125,9 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
 - Not yet: terrain blending (hand-made edge tiles are on trial in the
-  [terrain lab](./godot/TERRAIN_LAB.md)), the remaining scene scripts
-  (doors, chests, beds, the abilities' puzzle pieces, the Matron, …), UI styling, saves, the
+  [terrain lab](./godot/TERRAIN_LAB.md)), the remaining scene scripts (of the
+  35 Phaser script ids, `game.ui-surface` for the 26 UI scenes, plus the abilities'
+  puzzle pieces until their ports land), the game windows' styling, saves, the
   reference-laptop measurement, and the owner's feel check.
 - World objects are ported (2026-10-05, [godot/specs/world-objects.md](./godot/specs/world-objects.md)):
   trees, stone and iron take tool hits (the sword shows "Requires an Axe"), break into
@@ -151,6 +152,26 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   shows the boss health bar, and dies with its death clip (kept on screen for the
   clip, which Phaser never showed). Only spears hurt it, and the trial still equips
   the sword, so killing it in play needs a spear (tests use one).
+- Every enemy the worlds spawn is ported (2026-10-05, [godot/specs/enemy.md](./godot/specs/enemy.md)
+  part 2): worm archers shoot arrows and keep their distance, slime spiders and orb weavers
+  spiral in and spit webs, worm brawlers punch with their hit effect; projectiles fly, stop at
+  walls and hit once; enemies can be slowed; crystal-caverns spawns around the player as in
+  Phaser. Every camp type spawns in play (the trial's worm-swordsman-only filter is lifted).
+- The gloop-forest boss is ported (2026-10-05, [godot/specs/matron.md](./godot/specs/matron.md)):
+  the Orb-Weaver Matron's nest camp, her spit, her web volleys with their ground marks, the web
+  patches they leave and the spider-web barriers, with the boss bar and the camp records. The
+  web root on the slime and the Sticky form that tears webs wait for the player's abilities port.
+- The music director is ported (2026-10-05, [godot/specs/audio.md](./godot/specs/audio.md)),
+  pending its autoload registration: world music fades in on arrival and out before a travel,
+  crossfades to the boss music while a boss fight lasts, ducks under a pause menu, waits for the
+  web audio unlock, and plays the arrival cue; `apply_mix` gives the settings their bus mix.
+- The UI theme and the game shell are ported (2026-10-05, [godot/UI_THEME.md](./godot/UI_THEME.md),
+  [godot/specs/shell.md](./godot/specs/shell.md)), pending the `Shell` autoload, the title as main
+  scene and the theme as project theme: one Theme built from the CSS tokens with type variations
+  for every recurring role, the title screen over the drifting level-1 (launch options skip it),
+  the pause menu, settings saved to `user://settings.cfg` and applied to the buses and screen
+  shake, the controls list, credits, area title cards, game over and end cards; the HUD uses the
+  theme. Godot's default font stands in for Trebuchet MS until a font is bundled.
 - Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
   keep the live aim origin; the sword's combo off-by-one is fixed in the port
   (24 per hit); the player gets new three-quarter top-down art with clips per

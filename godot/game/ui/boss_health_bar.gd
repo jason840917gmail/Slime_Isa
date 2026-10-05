@@ -1,9 +1,19 @@
 extends Control
 class_name BossHealthBar
 ## The boss health bar (Phaser `ui/boss-health-bar.scene.json` + `features/ui/BossHealthSurfacePort.ts`).
-## Boss spec 2.5 and 5. Built by hand on the HUD layer (hud.gd adds it): a 548 x 72 panel anchored
-## bottom-centre at offsets (-274, -264) .. (274, -192), the boss name (16 px bold, danger tone)
-## and a bar "Boss health <hp> / <max>". Styling is minimal (the CSS gradient is a flat colour).
+## Boss spec 2.5 and 5. Built by hand on the HUD layer (hud.gd adds it): a card at the bottom
+## centre with the boss name (16 px bold, danger tone) and a bar "Boss health <hp> / <max>".
+## Styled by the UI theme (docs/godot/UI_THEME.md): the card is `BossPanel` (red border, radius 12;
+## the CSS gradient drawn flat), the name `BossName`, the bar `BossBar` (inset well, radius 5,
+## danger fill).
+##
+## Layout (ui/boss-health-bar.scene.json + styles.css:3396-3410, measured in the Phaser DOM): the
+## card is 548 px wide (at most the screen width - 24 px) and its bottom edge sits 192 px above the
+## screen's bottom, where Phaser stacks it above the weapon hotbar (116-172 px) and the ability bar
+## (12-84 px). The card follows the CSS rule's intent: 12 px side padding and a 16 px bar under the
+## 28 px name row, so it is 58 px tall instead of the authored 72 (Phaser's inline layout overrides
+## that rule and stretches the bar to 38 px). On a view shorter than the 720 px reference the card
+## never rises above `view centre + PLAYER_CLEARANCE`, so it stays below the player.
 ##
 ## Data (BossHealthSurfacePort): every camp in the `boss_camp` group is bound once (checked each
 ## frame, so camps of a newly loaded world bind themselves); `boss_engaged` stores
@@ -15,32 +25,29 @@ class_name BossHealthBar
 
 const BossCampScript := preload("res://game/scripts/boss_camp.gd")
 const HudBar := preload("res://game/ui/hud_bar.gd")
+const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 
-## ui/boss-health-bar.scene.json layout.
-const OFFSET_LEFT := -274.0
-const OFFSET_TOP := -264.0
-const OFFSET_RIGHT := 274.0
-const OFFSET_BOTTOM := -192.0
+## ui/boss-health-bar.scene.json: 548 px wide, bottom edge 192 px above the screen bottom.
+const CARD_WIDTH := 548.0
+const BOTTOM_GAP := 192.0
+## `max-width: calc(100% - 24px)`.
+const SCREEN_MARGIN := 24.0
 const NAME_HEIGHT := 28.0
 const BAR_TOP := 34.0
-## src/styles.css:3396-3410: padding 0 12 px, bar 16 px tall, border #8b2f2f radius 12,
-## background #261727 -> #101a31 (flat #101a31 here).
+## src/styles.css:3396-3410: padding 0 12 px, bar 16 px tall; 8 px under the bar.
 const PADDING_X := 12.0
 const BAR_HEIGHT := 16.0
-const BORDER_COLOR := Color("#8b2f2f")
-const BACKGROUND := Color("#101a31")
-const CORNER_RADIUS := 12
-const NAME_FONT_SIZE := 16
-## Field-kit danger tone (hud.gd TONE_DANGER).
-const TONE_DANGER := Color("#ff6f88")
-const SHADOW_COLOR := Color("#081022")
+const CARD_HEIGHT := BAR_TOP + BAR_HEIGHT + 8.0
+## The card's top stays this far below the view centre (where the camera keeps the player).
+const PLAYER_CLEARANCE := 96.0
+## Field-kit danger tone (the bar's fill).
+const TONE_DANGER := UiTokens.DANGER
 const BAR_LABEL := "Boss health"
 
 ## camp_id -> {"name": String, "boss": WeakRef} in show order.
 var _active: Dictionary = {}
 ## Instance ids of bound camps.
 var _bound: Dictionary = {}
-var _panel_box: StyleBoxFlat
 var _name_label: Label
 var _bar: HudBar
 
@@ -52,48 +59,56 @@ func _ready() -> void:
 	anchor_right = 0.5
 	anchor_top = 1.0
 	anchor_bottom = 1.0
-	offset_left = OFFSET_LEFT
-	offset_top = OFFSET_TOP
-	offset_right = OFFSET_RIGHT
-	offset_bottom = OFFSET_BOTTOM
-	_panel_box = StyleBoxFlat.new()
-	_panel_box.bg_color = BACKGROUND
-	_panel_box.border_color = BORDER_COLOR
-	_panel_box.set_border_width_all(1)
-	_panel_box.set_corner_radius_all(CORNER_RADIUS)
-	_panel_box.anti_aliasing = true
+	theme_type_variation = &"BossPanel"
 
 	_name_label = Label.new()
 	_name_label.name = "BossName"
 	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_name_label.position = Vector2(PADDING_X, 0.0)
-	_name_label.size = Vector2(OFFSET_RIGHT - OFFSET_LEFT - PADDING_X * 2.0, NAME_HEIGHT)
+	_name_label.anchor_right = 1.0
+	_name_label.offset_left = PADDING_X
+	_name_label.offset_right = -PADDING_X
+	_name_label.offset_bottom = NAME_HEIGHT
 	_name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var settings := LabelSettings.new()
-	var bold := FontVariation.new()
-	bold.base_font = ThemeDB.fallback_font
-	bold.variation_embolden = 0.7
-	settings.font = bold
-	settings.font_size = NAME_FONT_SIZE
-	settings.font_color = TONE_DANGER
-	settings.shadow_color = SHADOW_COLOR
-	settings.shadow_offset = Vector2(0.0, 1.0)
-	settings.shadow_size = 2
-	_name_label.label_settings = settings
+	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_name_label.theme_type_variation = &"BossName"
 	add_child(_name_label)
 
 	_bar = HudBar.new()
 	_bar.name = "Health"
-	_bar.position = Vector2(PADDING_X, BAR_TOP)
-	_bar.size = Vector2(OFFSET_RIGHT - OFFSET_LEFT - PADDING_X * 2.0, BAR_HEIGHT)
+	_bar.anchor_right = 1.0
+	_bar.offset_left = PADDING_X
+	_bar.offset_right = -PADDING_X
+	_bar.offset_top = BAR_TOP
+	_bar.offset_bottom = BAR_TOP + BAR_HEIGHT
+	_bar.theme_type_variation = &"BossBar"
 	_bar.configure(BAR_LABEL, TONE_DANGER)
 	add_child(_bar)
 	visible = false
+	place(get_viewport_rect().size)
 
 
 func _process(_delta: float) -> void:
 	_bind_new_camps()
 	_render(snapshot())
+	if visible:
+		place(get_viewport_rect().size)
+
+
+## Puts the card for a view of `view_size` (see the layout notes above).
+func place(view_size: Vector2) -> void:
+	var rect := card_rect(view_size)
+	offset_left = rect.position.x - view_size.x * 0.5
+	offset_right = rect.end.x - view_size.x * 0.5
+	offset_top = rect.position.y - view_size.y
+	offset_bottom = rect.end.y - view_size.y
+
+
+## The card's screen rectangle in a view of `view_size`.
+static func card_rect(view_size: Vector2) -> Rect2:
+	var width := minf(CARD_WIDTH, maxf(120.0, view_size.x - SCREEN_MARGIN))
+	var top := maxf(view_size.y - BOTTOM_GAP - CARD_HEIGHT, view_size.y * 0.5 + PLAYER_CLEARANCE)
+	top = minf(top, view_size.y - CARD_HEIGHT - 8.0)
+	return Rect2(roundf((view_size.x - width) * 0.5), roundf(top), roundf(width), CARD_HEIGHT)
 
 
 ## Binds `camp` (a BossCampScript): its `boss_engaged` / `boss_disengaged` drive this bar.
@@ -144,7 +159,7 @@ func snapshot() -> Dictionary:
 
 
 func _draw() -> void:
-	_panel_box.draw(get_canvas_item(), Rect2(Vector2.ZERO, size))
+	get_theme_stylebox(&"panel").draw(get_canvas_item(), Rect2(Vector2.ZERO, size))
 
 
 func _render(model: Dictionary) -> void:

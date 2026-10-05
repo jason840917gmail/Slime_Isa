@@ -16,6 +16,8 @@ const WorldServiceType := preload("res://game/autoload/world_service.gd")
 const DamageRouterType := preload("res://game/combat/damage_router.gd")
 const GameFeelType := preload("res://game/feel/game_feel.gd")
 const RunStateType := preload("res://game/autoload/run_state.gd")
+const MusicDirectorType := preload("res://game/audio/music_director.gd")
+const ShellType := preload("res://game/shell/shell.gd")
 
 
 ## Autoload `GameConstants` (res://generated/data/*.json).
@@ -46,6 +48,16 @@ static func feel() -> GameFeelType:
 ## Autoload `RunState` (the run's persistent state: player stats, inventory, world records, story).
 static func run() -> RunStateType:
 	return _autoload(&"RunState") as RunStateType
+
+
+## Autoload `MusicDirector` (world and boss music, fades, the menu duck; docs/godot/specs/audio.md).
+static func music() -> MusicDirectorType:
+	return _autoload(&"MusicDirector") as MusicDirectorType
+
+
+## Autoload `Shell` (title, pause, settings, area titles, game over, end cards; docs/godot/specs/shell.md).
+static func shell() -> ShellType:
+	return _autoload(&"Shell") as ShellType
 
 
 ## Current gameplay simulation time in ms (`SimClock.now_ms`), 0 when the clock is missing.

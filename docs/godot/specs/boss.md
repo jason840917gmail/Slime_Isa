@@ -37,7 +37,7 @@ written here.
 |---|---|---|
 | Writing the camp (`respawnReadyAtEpochMs`) and `defeatedBossIds` to disk | `features/progression/WorldProgress.ts:362-371, 519-533`, `infrastructure/persistence/SaveSchema.ts` | Godot keeps both in RunState (`map_record(map_id)["boss_camps"][campId] = {"respawn_ready_at_epoch_ms"}`, `world["defeated_boss_ids"]`), so they survive world travel; saving RunState is Phase 4 |
 | Quests reacting to the defeat (`defeat-boss` objective of `chapter-one` "defeat-fatty") | `quests/QuestEventBridge.ts:18, 62`, `quests/matchers/ObjectiveMatchers.ts:84-85, 123`, `quests/QuestService.ts:399-401` | Godot emits the camp's `boss_defeated({campId, bossId})` where Phaser emits `gameEvents 'boss.defeated' {bossId}`; nothing listens yet |
-| Boss music (`boss.engaged` / `boss.disengaged` → `MusicDirector.setBossFight`) | `features/world/UniversalSceneWorldController.ts:548-557, 765-771` | Godot emits the camp's `boss_engaged` / `boss_disengaged`; the music director is not ported |
+| Boss music (`boss.engaged` / `boss.disengaged` → `MusicDirector.setBossFight`) | `features/world/UniversalSceneWorldController.ts:548-557, 765-771` | Godot emits the camp's `boss_engaged` / `boss_disengaged`; `MusicDirector` listens to them ([audio.md](./audio.md)) |
 | The guarded chest (`isChestGuarded`, "Chest locked by Fatty One Eye", "Fatty One Eye is guarding this chest!") | `BossCampScript.ts:143-146`, `UniversalSceneWorldController.ts:899-915` | Chests are not ported; `is_chest_guarded()` and `guard_changed` are |
 | Quest waypoint to the camp (`bossCampPosition`) | `UniversalSceneWorldController.ts:1145`, `features/quests/QuestWaypoint.ts` | |
 | Occlusion silhouette of the boss | `UniversalSceneWorldController.ts:2008` | Dropped by plan |
@@ -188,6 +188,13 @@ bottom, label "Boss health", `showValue` → text `"Boss health <ceil(hp)> / <ce
 (`infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter.ts:268`). CSS
 (`src/styles.css:3396-3410`): border `#8b2f2f`, radius 12, padding 0 12 px, background gradient
 `#261727` → `#101a31`, bar 16 px tall with radius 5. Bindings: `name`, `hp`, `maxHp`, `visible`.
+In the live Phaser DOM a more specific `.scene-control--container.game-ui` rule and the inline
+layout override that rule: the card shows the standard window border, no padding, and the bar
+stretches 38 px to the card's bottom. The card sits 192-264 px above the screen bottom, above the
+weapon hotbar (116-172 px) and the ability bar (12-84 px). Godot (`game/ui/boss_health_bar.gd`,
+2026-10-05) follows the rule's intent: red border, 12 px padding, a 16 px bar, so the card is
+548 × 58 with its bottom edge at Phaser's 192 px; on views shorter than 720 px it stays at least
+96 px below the view centre (the player), and it is never wider than the screen − 24 px.
 
 ---
 
