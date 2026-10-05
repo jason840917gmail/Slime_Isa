@@ -14,6 +14,13 @@ Binding inputs: [ARCHITECTURE.md](../ARCHITECTURE.md), [CONVENTIONS.md](../CONVE
 decision C1; [interaction.md](./interaction.md) §2.2-2.7 (candidates, prompt, the interact press),
 §3.6 and §8.6 (the workbench); [quests.md](./quests.md) §7.6 (a-place-to-work is blocked on this).
 
+**Port status (2026-10-05):** ported as planned in §11: `game/building/furniture_placement.gd`
+(child "FurniturePlacement" of main), `game/building/placed_furniture.gd`, the RunState records,
+the player's placement branch and interact hold, the interaction controller's hold actions
+("Hold: Pick up"), crafting / the bag starting placement, and `test_furniture.gd` (12 tests).
+Owner questions: F1 applied as recommended (placement ends on defeat); F2-F6 kept as Phaser. The
+map key and `Shell.can_open_pause` checks while placing belong to the map and shell owners.
+
 Legend: **[IN]** port now. **[OUT]** exists in Phaser, not ported (reason given). **[QUIRK]** the
 Phaser build does something its code or content probably did not intend; port it as is unless the
 owner decides otherwise (§12). **[DIFF]** a deliberate Godot difference. **[CENTRE]** an old

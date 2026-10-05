@@ -147,7 +147,8 @@ func drop_on_belt(index: int, source_item_id: String, source_index: int) -> void
 	refresh()
 
 
-## `use-or-equip` (Primary): a weapon is held, a consumable used; "Place" waits for placement.
+## `use-or-equip` (Primary): a weapon is held, a consumable used; "Place" closes the bag and
+## starts furniture placement.
 func use_or_equip() -> void:
 	var slot := _selected_slot()
 	if slot.is_empty():
@@ -160,7 +161,11 @@ func use_or_equip() -> void:
 		if actions != null:
 			actions.call(&"equip_weapon_from_bag", weapon_id)
 	elif definition.has("placeable"):
-		pass # Furniture placement is not ported (owner decision C1).
+		close()
+		var furniture := get_tree().get_first_node_in_group(&"furniture_placement")
+		if furniture != null:
+			furniture.call(&"start", item_id)
+		return
 	elif definition.has("use") and actions != null:
 		actions.call(&"use_item", item_id)
 	refresh()

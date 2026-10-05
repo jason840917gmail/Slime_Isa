@@ -253,9 +253,10 @@ the target origin the badge's bottom edge floats"; the badge's top is 22 px high
   true only if the press is at most `input.bufferMs` = **150** ms old on the simulation clock;
   an older press is dropped, never fired late.
 - Order inside `handleActionInput` (`WorldScene.ts:1773-1829`), first match ends the step:
-  1. furniture placement mode: interact cancels placement [OUT];
-  2. weapon wheel switching (no early return) [OUT];
-  3. `updateInteractHold()` (secondary hold, `INTERACT_HOLD_MS = 450`, `:151, :1836-1853`) [OUT];
+  1. furniture placement mode: interact cancels placement (ported: [furniture.md](./furniture.md) §5);
+  2. weapon wheel switching (no early return) (ported with the belt);
+  3. `updateInteractHold()` (secondary hold, `INTERACT_HOLD_MS = 450`, `:151, :1836-1853`) (ported
+     with furniture: a placed bench's "Hold: Pick up");
   4. **interact**: if consumed -> `if router.hasCandidate(): hints.learn('interact'); if
      hasSecondary: start hold else router.handleInteract()`; **return true even without a
      candidate**;

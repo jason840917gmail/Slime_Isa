@@ -136,8 +136,7 @@ static func snapshot(state: Dictionary) -> Dictionary:
 		"details": details,
 		"quantity": "Quantity: %d" % int(state["quantity"]),
 		"primary_label": primary_label,
-		# A placeable item says "Place" but waits for furniture placement (owner decision C1).
-		"primary_disabled": definition.is_empty() or equipped or placeable or (not is_weapon and not definition.has("use")),
+		"primary_disabled": definition.is_empty() or equipped or (not is_weapon and not placeable and not definition.has("use")),
 		"hotbar_visible": is_weapon,
 		"hotbar_slots": assign_rows,
 		"hotbar_selected_index": assigned_index,

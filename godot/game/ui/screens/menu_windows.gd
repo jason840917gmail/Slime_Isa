@@ -115,6 +115,10 @@ func can_open_menu() -> bool:
 		return false
 	if _paused_by_menu():
 		return false
+	# Not while placing furniture (WorldScene.ts:2077).
+	var furniture := get_tree().get_first_node_in_group(&"furniture_placement")
+	if furniture != null and bool(furniture.call(&"is_active")):
+		return false
 	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
 	return main == null or not main.has_method(&"is_transitioning") or not bool(main.call(&"is_transitioning"))
 

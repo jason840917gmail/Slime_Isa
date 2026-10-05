@@ -35,6 +35,8 @@ const NEW_RUN_COINS := 50
 const INITIAL_MAP_ID := "level-1"
 ## WEAPON_HOTBAR_SLOT_COUNT (core/types.ts:17).
 const WEAPON_SLOT_COUNT := 4
+## Placed-furniture record ids: "placed-furniture-<n>" (WorldProgress.ts:481-509).
+const PLACED_FURNITURE_PREFIX := "placed-furniture-"
 
 ## A story flag was set (or cleared). Payload: {"flag": String, "set": bool}.
 signal story_flag_changed(payload: Dictionary)
@@ -749,6 +751,46 @@ func mark_area_discovered(area_id: String) -> void:
 		discovered.append(area_id)
 
 
+## Copies of the map's placed-furniture records ({"id", "item_id", "scene_id", "x", "y"}), in
+## placement order (WorldProgress.placedFurniture; furniture spec 6.3).
+func placed_furniture(map_id: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for record: Variant in (map_record(map_id).get_or_add("placed_furniture", {}) as Dictionary).values():
+		if record is Dictionary:
+			out.append((record as Dictionary).duplicate())
+	return out
+
+
+## `WorldProgress.placeFurniture`: records the furniture as "placed-furniture-<n>", n = max(the
+## map's sequence, 1 + the highest numeric id); the sequence becomes n + 1 and never goes down.
+## Returns a copy of the record.
+func place_furniture(map_id: String, item_id: String, scene_id: String, x: float, y: float) -> Dictionary:
+	var record_map := map_record(map_id)
+	var placed: Dictionary = record_map.get_or_add("placed_furniture", {})
+	var sequence := maxi(1, int(record_map.get("next_placed_furniture_sequence", 1)))
+	for id: Variant in placed:
+		var number := str(id).trim_prefix(PLACED_FURNITURE_PREFIX)
+		if number.is_valid_int():
+			sequence = maxi(sequence, int(number) + 1)
+	var record := {"id": "%s%d" % [PLACED_FURNITURE_PREFIX, sequence], "item_id": item_id, "scene_id": scene_id,
+		"x": x, "y": y}
+	placed[record["id"]] = record
+	record_map["next_placed_furniture_sequence"] = sequence + 1
+	world_progress_changed.emit({"map_id": map_id})
+	return record.duplicate()
+
+
+## `WorldProgress.removePlacedFurniture`: the removed record (a copy), {} when there was none.
+func remove_placed_furniture(map_id: String, placement_id: String) -> Dictionary:
+	var placed: Dictionary = map_record(map_id).get_or_add("placed_furniture", {})
+	if not placed.has(placement_id):
+		return {}
+	var record: Dictionary = (placed[placement_id] as Dictionary).duplicate()
+	placed.erase(placement_id)
+	world_progress_changed.emit({"map_id": map_id})
+	return record
+
+
 ## Where the player wakes after defeat (the last bed slept in); {} when none.
 func respawn_point() -> Dictionary:
 	return world.get("respawn_point", {})
@@ -757,6 +799,11 @@ func respawn_point() -> Dictionary:
 ## `point` = {"area_id", "map_id", "x", "y", "bed_id"?} (old Phaser coordinates).
 func set_respawn_point(point: Dictionary) -> void:
 	world["respawn_point"] = point.duplicate()
+
+
+## `WorldProgress.clearRespawnPoint` (a picked-up bed cannot be woken in).
+func clear_respawn_point() -> void:
+	world["respawn_point"] = {}
 
 
 # --- navigation handoff -----------------------------------------------------------------------

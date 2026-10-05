@@ -43,7 +43,7 @@ feet − (0, 27.56)).
 | Consumables | `scenes/WorldScene.ts:2005-2024` (`useItem`), `content/items/items.json` `use` | [IN] |
 | Menu key, tab strip | `scenes/WorldScene.ts:2045-2080`, `features/ui/MenuTabsSurfacePort.ts` + `ui/menu-tabs.scene.json` | [IN] (Journal / Map tabs disabled until those windows exist) |
 | Harvest advice text | `scenes/WorldScene.ts:2188-2203`, `features/combat/HarvestAdvice.ts` | [IN] |
-| Furniture placement (placing a crafted workbench) | `features/building/FurniturePlacementController.ts`, `WorldScene.ts:1219-1253` | [OUT] (§3.1, owner question C1) |
+| Furniture placement (placing a crafted workbench) | `features/building/FurniturePlacementController.ts`, `WorldScene.ts:1219-1253` | ported later: [furniture.md](./furniture.md) (C1 superseded) |
 | Control hints (`inventory`, `crafting`, `weapon-switch`) | `features/hints/ControlHints.ts:22-24`, `WorldScene.ts:571-609` | [OUT] (interaction spec §2.10) |
 | Quest hooks: `craft.completed`, `workbench.opened`, `control.used {weapon-switch}`, `furniture.placed` | `quests/QuestEventBridge.ts` | [OUT] (emit Godot signals now, §11) |
 | Gulp quick wheel (eats Gulp materials from the bag) | `WorldScene.ts:913-969` | [OUT] (abilities spec §11.6) |
@@ -1364,8 +1364,9 @@ slot" list covers assignment); saves (`RunState` already holds every value).
 | C5 | Keep K13 (slam hammer reconcile) and K4 (tabs lose the station)? | Drop K13 (arsenal logic is dead-code residue); keep K4 for parity |
 | C6 | Add number keys for the belt? | No for parity (1-4 are abilities) |
 
-Owner decisions (2026-10-05), as ported: **C1** the Workbench stays in the bag ("Crafted:
-Workbench", the window stays open, the bag's "Place" is disabled until placement). **C2** launch
+Owner decisions (2026-10-05), as ported: **C1** superseded the same day by the furniture port
+([furniture.md](./furniture.md)): crafting a Workbench closes the window and starts placement, and
+the bag's "Place" is enabled. **C2** launch
 option `recipes` (`?recipes` / `-- --recipes`) sets `debug_all_recipes_known`; tests use
 `learn_recipes`. **C3** a new run gets the trial weapon (`basic-sword` or `?weapon=<id>`) in the
 bag, on belt slot 1 and in hand (`RunState.trial_weapon_pending`, `InventoryActions.

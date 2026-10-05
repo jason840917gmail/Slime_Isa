@@ -30,9 +30,11 @@ const GateScript := preload("res://game/scripts/gate.gd")
 const ChestScript := preload("res://game/scripts/chest.gd")
 const BedScript := preload("res://game/scripts/bed.gd")
 const WorkbenchScript := preload("res://game/scripts/workbench.gd")
+const PlacedFurniture := preload("res://game/building/placed_furniture.gd")
 
 const GROUP := &"interaction"
 const MAIN_GROUP := &"world_main"
+const FURNITURE_GROUP := &"furniture_placement"
 ## InteractionRouter.ts:44.
 const POINTER_PICK_PX := 64.0
 ## UniversalSceneWorldController.ts:343-345.
@@ -102,7 +104,10 @@ func _input(event: InputEvent) -> void:
 
 func _physics_process(_delta: float) -> void:
 	var player := _player()
-	set_suppressed(player != null and bool(player.call(&"is_sleeping")))
+	# Sleeping or placing furniture offers nothing (WorldScene.ts:820).
+	var furniture := get_tree().get_first_node_in_group(FURNITURE_GROUP)
+	var placing := furniture != null and bool(furniture.call(&"is_active"))
+	set_suppressed((player != null and bool(player.call(&"is_sleeping"))) or placing)
 	refresh(get_global_mouse_position() if _pointer_seen else null)
 
 
@@ -168,6 +173,24 @@ func has_candidate() -> bool:
 	return not _current.is_empty()
 
 
+## True when the chosen target also has a hold action (`secondary`: a placed bench's "Pick up").
+func has_secondary() -> bool:
+	return not _suppressed and _current.get("secondary") is Dictionary
+
+
+## Runs the chosen target's hold action (Phaser `handleSecondary`). False when there is none.
+func handle_secondary() -> bool:
+	if not has_secondary():
+		return false
+	var target_id := str(_current.get("id", ""))
+	var execute: Callable = (_current["secondary"] as Dictionary).get("execute", Callable())
+	var done := bool(execute.call()) if execute.is_valid() else false
+	if done:
+		interacted.emit({"id": target_id})
+		refresh(null)
+	return done
+
+
 ## The chosen target: {"id", "prompt", "priority", "anchor", "origin", "execute"}; {} when none.
 func current() -> Dictionary:
 	return _current
@@ -187,9 +210,14 @@ func clear() -> void:
 	_set_none()
 
 
-## "Right-click: <prompt>" (the verb follows the `interact` binding).
+## "Right-click: <prompt>" (the verb follows the `interact` binding), plus "     Hold: <prompt>"
+## (five spaces, InteractionRouter.ts:27-31) for a target with a hold action.
 func prompt_text(candidate: Dictionary) -> String:
-	return "%s: %s" % [InteractionPrompt.interact_verb(), str(candidate.get("prompt", ""))]
+	var text := "%s: %s" % [InteractionPrompt.interact_verb(), str(candidate.get("prompt", ""))]
+	var secondary: Variant = candidate.get("secondary")
+	if secondary is Dictionary:
+		text += "     Hold: %s" % str((secondary as Dictionary).get("prompt", ""))
+	return text
 
 
 func get_prompt() -> InteractionPrompt:
@@ -214,10 +242,25 @@ func _gather() -> Array[Dictionary]:
 	_append(out, _nearest(at, DoorScript.GROUP, PRIORITY_DOOR, "world-doors:", _door_id, Callable(), _use_door))
 	_append(out, _nearest(at, GateScript.GROUP, PRIORITY_GATE, "world-gates:", _gate_id, _gate_closed, _use_gate))
 	_append(out, _nearest(at, BedScript.GROUP, PRIORITY_BED, "world-beds:", _path_id, Callable(), _use_bed))
-	_append(out, _nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench))
+	_append(out, _with_pick_up(_nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench)))
 	_append(out, _nearest(at, &"restoration_site", PRIORITY_RESTORATION, "world-restorations:", _path_id, Callable(), _use_restoration))
 	_append(out, _gulp_candidate(player))
 	return out
+
+
+## A placed station's candidate also offers "Hold: Pick up" (`pickUpAction`,
+## UniversalSceneWorldController.ts:1003-1008; furniture spec 8.1).
+func _with_pick_up(candidate: Dictionary) -> Dictionary:
+	if candidate.is_empty():
+		return candidate
+	var node: Variant = candidate.get("node")
+	var placement_id := PlacedFurniture.placement_of(node) if node is Node else ""
+	if placement_id.is_empty():
+		return candidate
+	candidate["secondary"] = {"prompt": "Pick up", "execute": func() -> bool:
+		var furniture := get_tree().get_first_node_in_group(FURNITURE_GROUP)
+		return furniture != null and bool(furniture.call(&"pick_up", placement_id))}
+	return candidate
 
 
 ## A Gulp spot in reach (WorldScene.ts:1109-1128): "Gulp the Stone", no badge (the spot's own
@@ -258,6 +301,7 @@ func _nearest(at: Vector2, group: StringName, priority: int, prefix: String, key
 		"anchor": func() -> Vector2: return (target.call(&"origin") as Vector2) - Vector2(0.0, float(target.get(&"badge_rise"))),
 		"origin": func() -> Vector2: return (target.call(&"origin") as Vector2) - Vector2(0.0, TARGET_BODY_RISE_PX),
 		"execute": func() -> bool: return bool(use.call(target)),
+		"node": target,
 	}
 
 
