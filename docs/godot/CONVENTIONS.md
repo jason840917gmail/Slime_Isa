@@ -106,8 +106,9 @@ pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godo
 
 `pnpm test:godot` (about a minute) checks the trial's numbers from [specs/](./specs/): walk,
 sprint and dodge, sword and worm damage, i-frames, knockback, worm death, the starter camp's
-spawning, respawn, the camera follow, level-1's tiles and a 600-frame run without engine
-errors. Add `--filter=<text>` to run some tests, `--strict` to fail on known failures too.
+spawning, respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
+clips, and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
+`--strict` to fail on known failures too.
 
 The `--check-only` pass reports one error per run and does **not** catch calls to
 methods that do not exist on autoloads, so always also boot the game headless.
