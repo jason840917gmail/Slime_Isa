@@ -12,7 +12,8 @@ config_version=5
 
 config/name="Slime Isa"
 config/description="Top-down slime adventure (Godot port)."
-run/main_scene="res://game/main.tscn"
+config/version="0.1.0"
+run/main_scene="res://game/shell/title.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]
@@ -24,6 +25,8 @@ DamageRouter="*res://game/combat/damage_router.gd"
 GameFeel="*res://game/feel/game_feel.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 RunState="*res://game/autoload/run_state.gd"
+MusicDirector="*res://game/audio/music_director.gd"
+Shell="*res://game/shell/shell.gd"
 
 [display]
 
@@ -35,6 +38,10 @@ window/stretch/aspect="expand"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
+
+[gui]
+
+theme/custom="res://game/ui/theme/slime_theme.tres"
 
 [importer_defaults]
 

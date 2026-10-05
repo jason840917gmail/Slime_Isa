@@ -2,7 +2,7 @@ extends RefCounted
 ## Saves (RunState `save_slot` / `load_slot` / `list_saves`, Main.load_run; Phaser SaveSystem):
 ## the run round-trips through a JSON file (counts come back as integers), a load rebuilds the
 ## saved world with the player at the saved spot, a dead slime is never autosaved, and a broken or
-## newer file is refused. The runner points `save_root` at user://test-saves.
+## newer file is refused. The runner points `save_root` at its per-process user://test-saves-<pid>.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
