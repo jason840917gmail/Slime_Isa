@@ -806,27 +806,27 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 - Weaver fangs drop from orb-weavers with chance 0.6 (`characters/orb-weaver/character.json:62-77`)
   as ground loot (origin `'loot'`, counts); 5 kills give 3 fangs on average.
 
-### 7.6 Dependencies on systems not ported (as of 2026-10-05)
+### 7.6 Dependencies on systems not ported (written 2026-10-05; state column updated the same evening)
 
 | Quest | Needs | State in Godot |
 |---|---|---|
 | a-place-to-work | crafting (`craft-workbench`, portable), furniture placement (`place-item`) | ported 2026-10-05: completable in play |
-| slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | sprint and pause portable now (Shell `menu_opened`); 4 of 6 objectives [BLOCKED] |
-| stone-tools | crafting at a workbench (placed bench or restored Workshop), belt weapon switch, axe/pickaxe as weapons, pile pickups | crafting/belt [BLOCKED]; pickups ported (`collectible.gd`) |
-| worm-trouble | crafting; `enemy.died` for worm swordsmen | enemy defeat award: other engineer (hook §10.4) |
-| the-one-eyed-guardian | crafting; Fatty (ported, `boss_camp.gd boss_defeated`); travel to gloop-forest (ported); key from the guarded chest (take-all stand-in) | only the craft stage blocked |
+| slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | bag, crafting tab, map, sprint and pause count; the journal is being ported |
+| stone-tools | crafting at a workbench (placed bench or restored Workshop), belt weapon switch, axe/pickaxe as weapons, pile pickups | ported (`test_chapter_one_flow.gd::test_stone_tools_by_hand`) |
+| worm-trouble | crafting; `enemy.died` for worm swordsmen | ported (`enemy_loot.gd` sends `enemy.died`; `test_worm_trouble_kills_count`) |
+| the-one-eyed-guardian | crafting; Fatty (ported, `boss_camp.gd boss_defeated`); travel to gloop-forest (ported); key from the guarded chest | ported (the chest window is being ported; the take-all stand-in works meanwhile) |
 | the-old-workshop | restoration site (ported) | reachable only after chapter 2 |
-| a-tonic-for-lili, snack-for-the-road | crafting | [BLOCKED] |
-| beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | enemy loot not ported (`enemy.gd reward_requested` has no listener) |
-| a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | [BLOCKED] |
-| rekindle-the-forge | restoration (ported); forge crafting | stage 2 [BLOCKED] |
-| iron-gear | crafting | [BLOCKED] |
+| a-tonic-for-lili, snack-for-the-road | crafting | systems ported; not played end to end yet |
+| beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | systems ported; not played end to end yet |
+| a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | systems ported; not played end to end yet |
+| rekindle-the-forge | restoration (ported); forge crafting | systems ported; not played end to end yet |
+| iron-gear | crafting | systems ported; not played end to end yet |
 | sunnys-basket | Stretch Lash pull of a pile (ported) | portable now |
-| the-matrons-nest | the Matron (`matron.gd`, other engineer) and its camp's `boss_defeated`; end card (Shell, pending registration) | portable once the camp is in |
+| the-matrons-nest | the Matron (`matron.gd`, other engineer) and its camp's `boss_defeated`; end card (Shell) | systems ported; not played end to end yet |
 | all | saves | `RunState.serialize/install` already carry `quests` |
 
-Consequence: until crafting and furniture placement exist the port needs a dev path to finish
-craft/place objectives (§10.9 `debug_*`, owner question Q3).
+Crafting and furniture placement are ported, so every chapter 1 and 2 quest can be finished in play;
+the `debug_*` helpers and `--quest=` stay as dev and test paths (§10.9, Q3).
 
 ---
 
