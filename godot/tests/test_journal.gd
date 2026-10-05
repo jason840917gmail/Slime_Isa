@@ -62,8 +62,8 @@ func test_layout_1280(t: TestContext) -> void:
 	journal.call(&"_layout", 940.0)
 	_near_rect(t, _content_rect(journal.title_label), _corners(20.0, 14.0, 920.0, 56.0), "Title")
 	_near_rect(t, _content_rect(journal.quest_scroll), _corners(20.0, 66.0, 382.8, 600.0), "Quests")
-	# A 22 px line is 31 px tall in the default font (one more than Phaser's 30 px row).
-	_near_rect(t, _content_rect(journal.details_name_label), _corners(413.6, 66.0, 920.0, 96.0), "DetailsName", 1.0)
+	# A 22 px line is 32 px tall in Source Sans 3 (two more than Phaser's 30 px row).
+	_near_rect(t, _content_rect(journal.details_name_label), _corners(413.6, 66.0, 920.0, 98.0), "DetailsName", 1.0)
 	_near_rect(t, _content_rect(journal.details_status_label), _corners(413.6, 98.0, 920.0, 120.0), "DetailsStatus")
 	_near_rect(t, _content_rect(journal.details_scroll), _corners(413.6, 126.0, 920.0, 488.0), "Details")
 	_near_rect(t, _content_rect(journal.status_label), _corners(413.6, 498.0, 920.0, 526.0), "Status")
