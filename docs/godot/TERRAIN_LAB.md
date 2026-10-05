@@ -61,6 +61,11 @@ the shore foam shows only on the water side of the land's rim.
 
 Visual only: the ground cells stay the gameplay truth (walkability, collision, footsteps).
 
+**Cost** (web build, headless Brave on the owner's machine, 2026-10-05): level-1 adds about 2,400
+edge tiles. Every measured view still holds 60 fps; uncapped, the busiest view (town) runs at
+211 fps (4.7 ms a frame). At the lake, draw calls go from 339 to 374, and the web pack grows by
+0.5 MB.
+
 ### Why a dual grid, not Godot's terrain brush
 
 Godot's "Match Corners" terrain mode decides each corner by the majority of the cells around it and
