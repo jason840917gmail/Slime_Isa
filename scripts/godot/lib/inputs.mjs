@@ -82,12 +82,64 @@ export function readDataCopy(source) {
 
 /**
  * Data the port reads from TypeScript content modules: [module under src/game/content, exported
- * constant, target name in `generated/data/`]. Only self-contained modules (no imports): Node 24
- * strips their types on import.
+ * constant, target name in `generated/data/`]. Only modules with no runtime imports (`import type`
+ * is erased): Node 24 strips their types on import.
  */
 export const TS_DATA_EXPORTS = [
   ['npcs/NpcDefinitions.ts', 'NPC_DEFINITIONS', 'npc-definitions.json'],
+  ['recipes/RecipeCatalog.ts', 'RECIPE_CATALOG', 'recipes.json'],
+  ['quests/quests/chapterOne.ts', 'CHAPTER_ONE_QUESTS', 'quests-chapter-1.json'],
+  ['quests/quests/chapterTwo.ts', 'CHAPTER_TWO_QUESTS', 'quests-chapter-2.json'],
 ];
+
+/** The `weapon.json` fields the port reads outside the weapon scenes (names, icons, stat lines). */
+const WEAPON_CATALOG_FIELDS = ['weaponId', 'displayName', 'description', 'category', 'iconKey', 'iconFrame',
+  'baseDamage', 'cooldownMs', 'harvestCapabilities'];
+
+/**
+ * `data/weapons.json`: every weapon in the definition order of `virtual-weapon-content.ts` (its
+ * `import … from './<dir>/weapon.json'` lines; that module imports JSON without import attributes,
+ * so it cannot be a TS export).
+ */
+export function readWeaponCatalog() {
+  const weaponsRoot = join(CONTENT_ROOT, 'weapons');
+  const index = readFileSync(join(weaponsRoot, 'virtual-weapon-content.ts'), 'utf8');
+  const dirs = [...index.matchAll(/from '\.\/([^/']+)\/weapon\.json'/g)].map((match) => match[1]);
+  if (dirs.length === 0) throw new Error('virtual-weapon-content.ts imports no weapon.json');
+  return dirs.map((dir) => {
+    const doc = readJson(join(weaponsRoot, dir, 'weapon.json'));
+    const entry = {};
+    for (const field of WEAPON_CATALOG_FIELDS) if (doc[field] !== undefined) entry[field] = doc[field];
+    return entry;
+  });
+}
+
+/**
+ * `data/item-icons.json`: for every item `icon` and weapon `iconKey`, the sheet it names in
+ * `asset/assets.json` ({path, frame [w, h], columns, rows}; an image is one frame), or
+ * {procedural: true} for a procedural weapon icon. An unknown key fails the conversion.
+ */
+export function buildItemIcons(items, weapons, manifest) {
+  const procedural = new Set(Object.values(readJson(join(CONTENT_ROOT, 'weapons', 'procedural-weapon-icons.json'))));
+  const assets = Array.isArray(manifest.assets) ? manifest.assets : Object.values(manifest.assets ?? {});
+  const byKey = new Map(assets.filter((asset) => asset.runtime?.textureKey).map((asset) => [asset.runtime.textureKey, asset]));
+  const keys = [...Object.values(items).map((item) => item.icon), ...weapons.map((weapon) => weapon.iconKey)]
+    .filter((key) => typeof key === 'string' && key.length > 0);
+  const icons = {};
+  for (const key of [...new Set(keys)].sort()) {
+    if (procedural.has(key)) {
+      icons[key] = { procedural: true };
+      continue;
+    }
+    const asset = byKey.get(key);
+    if (!asset) throw new Error(`Item icon '${key}' is not a textureKey in asset/assets.json`);
+    const frame = asset.source.kind === 'spritesheet'
+      ? asset.source.frame
+      : { w: asset.source.expect.w, h: asset.source.expect.h, cols: 1, rows: 1 };
+    icons[key] = { path: `res://asset/${asset.source.path}`, frame: [frame.w, frame.h], columns: frame.cols, rows: frame.rows };
+  }
+  return icons;
+}
 
 /** `TS_DATA_EXPORTS` as [target, JSON text] pairs. */
 export async function readTsDataExports() {
