@@ -24,7 +24,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { dirname, join, relative, sep } from 'node:path';
 import {
   DATA_COPIES, GENERATED_ROOT, GODOT_ROOT, loadAssetManifest, loadCollisionLayers, loadScenes,
-  loadSharedResources, readDataCopy, readTsDataExports, sceneResPath,
+  loadSharedResources, readDataCopy, readTsDataExports, readWeaponCatalog, buildItemIcons, sceneResPath,
 } from './lib/inputs.mjs';
 import { AssetCatalog } from './lib/assets.mjs';
 import { ScriptIndex, scriptResPath } from './lib/gdscript.mjs';
@@ -146,6 +146,9 @@ function generate() {
   outputs.set('scene_index.json', json(Object.fromEntries(Object.entries(index).sort(([a], [b]) => a.localeCompare(b)))));
   for (const [source, target] of DATA_COPIES) outputs.set(`data/${target}`, readDataCopy(source));
   for (const [target, text] of TS_DATA) outputs.set(`data/${target}`, text);
+  const weapons = readWeaponCatalog();
+  outputs.set('data/weapons.json', json(weapons));
+  outputs.set('data/item-icons.json', json(buildItemIcons(JSON.parse(readDataCopy('items/items.json')), weapons, loadAssetManifest())));
   outputs.set('conversion_report.json', json(report.toJSON()));
   return { outputs, report: report.toJSON() };
 }
