@@ -41,25 +41,31 @@ only what is really per node (a font size from the Phaser scene, a tone that cha
 ## Font
 
 Phaser asks for `"Trebuchet MS", "Segoe UI Variable", sans-serif`, which a web build cannot rely on
-(Trebuchet is not licensed for redistribution). The theme uses **Godot's built-in default font**
-(Open Sans SemiBold) for now: `UiTokens.FONT_PATH` is empty, so the theme's `default_font` is unset,
-and the bold roles use a `FontVariation` with no base font (the default font emboldened by
-`UiTokens.BOLD_EMBOLDEN`).
+(Trebuchet is not licensed for redistribution). The owner picked **Source Sans 3** (2026-10-05, from
+Fira Sans, Nunito, Fredoka and Source Sans 3; SIL OFL): `UiTokens.FONT_PATH` points at the variable
+font `res://game/ui/theme/fonts/source-sans-3/SourceSans3[wght].ttf`, drawn at weight 400
+(`REGULAR_WEIGHT`) and, for every bold role, 700 (`BOLD_WEIGHT`). The licence sits beside each font
+(`OFL.txt`); Source Sans has the Reserved Font Name "Source", so ship the file unmodified (no
+subsetting or renaming).
 
-Recommendation: bundle an open-licence humanist sans close to Trebuchet's feel, such as **Fira
-Sans** or **Source Sans 3** (both SIL OFL), regular and bold, under `res://game/ui/theme/fonts/`.
-Then set `FONT_PATH` (and `BOLD_FONT_PATH` for the real bold face) in `ui_tokens.gd` and rebuild:
+To change the font, put the file under `res://game/ui/theme/fonts/`, set `FONT_PATH` (and
+`BOLD_FONT_PATH` for a static bold face) in `ui_tokens.gd` and rebuild:
 the theme's `default_font` and every bold variation follow it. The editor imports the font files
 the first time it scans them.
 
-**Symbols.** The default font has no arrows (↑ ↓ ← →), check mark (✓), triangles (▸ ▶), star (★)
-or ◆ ○. Desktop builds borrow them from a system font; the **web build has no system fallback and
-draws them as boxes**. Until a symbol fallback font is bundled (an OFL font with those glyphs added
-as a fallback of the theme's fonts; it needs the owner's go-ahead), UI text uses words or glyphs
-the default font has: `√ * ◊ » – · … − • ×` are present (checked with `Font.has_char`). The
-look-alikes live in one place, `res://game/ui/glyphs.gd` (CHECK √, NEXT », CLOSE ×, ...): once a
-symbol font is bundled, editing that file brings Phaser's ✓ ▸ ✕ back everywhere. The key names
-spell out Up / Down / Left / Right (`ControlLabels`), and the world map draws its symbols as shapes.
+**Symbols.** Source Sans 3 has the arrows (↑ ↓ ← →), ✓ ▸ ▶ ◆ ○ ◉ ●, but not ✕ or ★. **Noto Sans
+Symbols 2** (SIL OFL, `UiTokens.SYMBOL_FONT_PATH`) is the fallback of both theme fonts and supplies
+those; neither font has the heavy rule `━` (map.md §3.4; the world map draws its symbols as shapes).
+Godot sizes a label by the tallest font in its chain (the font and its fallbacks), and Noto's deep
+descent made every label taller (a 22 px line 38 px instead of 32), so the bundled Noto file carries
+Source Sans 3's line metrics: `python scripts/godot/fit-symbol-font-metrics.py` writes them (OFL
+allows the modified copy; Noto has no Reserved Font Name) and `--check` verifies them. Rerun it
+after replacing either font.
+The web build has no system fonts, so a glyph missing from both draws as a box: check new symbols
+with `Font.has_char`. UI text still uses the look-alikes chosen for Godot's default font
+(`√ * ◊ » – · … − • ×`), all in one place, `res://game/ui/glyphs.gd` (CHECK √, NEXT », CLOSE ×,
+...): setting them back to Phaser's ✓ ▸ ✕ ★ ◆ ▶ ○ there restores them everywhere. The key names
+spell out Up / Down / Left / Right (`ControlLabels`).
 
 ## Tokens
 
@@ -173,7 +179,7 @@ as `hud_bar.gd` does in code.
 
 ## Differences from the Phaser look
 
-- The font (above); Godot's default font is a little wider and heavier than Trebuchet MS.
+- The font (above): Source Sans 3 is a little narrower and lighter than Trebuchet MS.
 - CSS gradients are drawn flat (the banner and boss card use their gradient's middle colour; the
   control hint and tracker use an average alpha); `text-shadow` blur becomes Godot's shadow outline.
 - The area banner and the boss card follow their CSS rules (accent / red border). In the Phaser

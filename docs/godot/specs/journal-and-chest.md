@@ -538,9 +538,8 @@ your inventory can hold.`; Slime Tonic: `Slime Tonic\nCONSUMABLE · ×1\n\nResto
   (`shell.gd:130-134, 384-386`).
 - No tab strip (`menu_tabs.gd`, crafting §5.2) and no menu-key owner exist yet; `WorldMapWindow`
   closes itself on `menu` / `map` in its own `_input`.
-- Fonts: the theme uses Godot's default font. Per map.md §3.4 it lacks `◉ ● ━`; it also lacks the
-  journal's `✓ ★ ◆ ▶ ○` (`•`, `×`, `·` are fine). Desktop builds fall back to a system font; the
-  web build shows boxes. Owner question J2.
+- Fonts (J2, settled 2026-10-05): the theme uses Source Sans 3 with Noto Sans Symbols 2 as the
+  fallback, which together have the journal's `✓ ★ ◆ ▶ ○` and `◉ ●`, not `━` (UI_THEME.md "Symbols").
 
 ### 3.2 Files
 

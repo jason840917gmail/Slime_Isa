@@ -176,7 +176,7 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   for every recurring role, the title screen over the drifting level-1 (launch options skip it),
   the pause menu, settings saved to `user://settings.cfg` and applied to the buses and screen
   shake, the controls list, credits, area title cards, game over and end cards; the HUD uses the
-  theme. Godot's default font stands in for Trebuchet MS until a font is bundled.
+  theme. The UI font is Source Sans 3 (owner pick) with Noto Sans Symbols 2 for symbols.
 - Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
   keep the live aim origin; the sword's combo off-by-one is fixed in the port
   (24 per hit); the player gets new three-quarter top-down art with clips per

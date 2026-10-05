@@ -15,12 +15,13 @@ class_name UiTokens
 ## The theme every UI scene uses (will become the project theme, gui/theme/custom).
 const THEME_PATH := "res://game/ui/theme/slime_theme.tres"
 
-## The UI font. Empty = Godot's built-in default font (Phaser asks for Trebuchet MS, which the
-## web build cannot rely on). To bundle a font, put the .ttf/.otf/.woff2 under
-## res://game/ui/theme/fonts/, set its path here (and BOLD_FONT_PATH for a static bold face) and
-## rebuild the theme: the theme's `default_font` and every bold variation follow it. A variable
-## font (a `wght` axis) is drawn at REGULAR_WEIGHT, and its bold at BOLD_WEIGHT.
-const FONT_PATH := ""
+## The UI font: Source Sans 3 (SIL OFL, variable `wght`; owner pick 2026-10-05). Phaser asks for
+## Trebuchet MS, which the web build cannot rely on. Empty = Godot's built-in default font. To
+## change it, put the .ttf/.otf/.woff2 under res://game/ui/theme/fonts/, set its path here (and
+## BOLD_FONT_PATH for a static bold face) and rebuild the theme: the theme's `default_font` and
+## every bold variation follow it. A variable font (a `wght` axis) is drawn at REGULAR_WEIGHT, and
+## its bold at BOLD_WEIGHT.
+const FONT_PATH := "res://game/ui/theme/fonts/source-sans-3/SourceSans3[wght].ttf"
 ## A static bold face; empty = the variable font at BOLD_WEIGHT, else the regular font emboldened
 ## by BOLD_EMBOLDEN.
 const BOLD_FONT_PATH := ""
@@ -28,8 +29,8 @@ const BOLD_EMBOLDEN := 0.55
 const REGULAR_WEIGHT := 400
 const BOLD_WEIGHT := 700
 ## A fallback font for the symbols the UI font lacks (✓ ▸ ✕ ★ ◆ ▶ ○; docs/godot/UI_THEME.md
-## "Symbols"). Empty = none.
-const SYMBOL_FONT_PATH := ""
+## "Symbols"): Noto Sans Symbols 2 (SIL OFL). Empty = none.
+const SYMBOL_FONT_PATH := "res://game/ui/theme/fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf"
 ## Fonts for the developer readouts (FPS panel); system fonts, never bundled.
 const MONOSPACE_FONTS: PackedStringArray = ["Consolas", "Menlo", "DejaVu Sans Mono", "Courier New", "monospace"]
 

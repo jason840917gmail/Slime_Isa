@@ -22,6 +22,10 @@ const SECTIONS: Array[Dictionary] = [
 		{"name": "Generated sound effects", "detail": "Magnific (ElevenLabs sound effects), made for Slime Isa"},
 		{"name": "Synthesized effects and ambience", "detail": "Made for Slime Isa (scripts/audio/cues.mjs)"},
 	]},
+	{"heading": "Fonts", "entries": [
+		{"name": "Source Sans 3", "detail": "Adobe", "license": "SIL Open Font License 1.1"},
+		{"name": "Noto Sans Symbols 2", "detail": "The Noto Project Authors", "license": "SIL Open Font License 1.1"},
+	]},
 	{"heading": "Built with", "entries": [
 		{"name": "Godot Engine", "detail": "godotengine.org", "license": "MIT"},
 	]},
