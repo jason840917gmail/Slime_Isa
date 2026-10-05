@@ -64,6 +64,27 @@ func test_sword_hit_damages_and_knocks_back_worm(t: TestContext) -> void:
 	t.check(hits.size() == 1, "one swing routed %d hits to the worm (expected 1)" % hits.size())
 
 
+## The sword is drawn only while it swings (owner decision 2026-10-05, `show_when_idle` off):
+## hidden after equipping, visible from the swing start, hidden again when the swing ends.
+func test_sword_shows_only_while_swinging(t: TestContext) -> void:
+	var combat = t.player().get_combat()
+	var weapon = combat.get_weapon()
+	var root := weapon.get_parent() as CanvasItem
+	await t.steps(2)
+	t.equal(root.visible, false, "sword visible after equipping")
+	t.player().face(Vector2.RIGHT)
+	t.tap(&"attack")
+	var started := await t.until(func() -> bool: return combat.is_attacking(), 300.0)
+	if not t.check(started, "the swing did not start"):
+		return
+	t.equal(root.visible, true, "sword visible during the swing")
+	var finished := await t.until(func() -> bool: return not combat.is_attacking(), 1500.0)
+	if not t.check(finished, "the swing did not finish"):
+		return
+	await t.steps(1)
+	t.equal(root.visible, false, "sword visible after the swing")
+
+
 func test_worm_dies_after_four_hits_and_is_freed(t: TestContext) -> void:
 	var worm := t.spawn_worm(SWORD_TARGET_OFFSET, true)
 	if worm == null:

@@ -202,7 +202,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/combat/combo_counter.gd` | combat | |
 | `game/combat/player_combat.gd` | combat | |
 | `game/combat/effect_spawner.gd` | combat | |
-| `game/scripts/weapon.gd` | combat | |
+| `game/scripts/weapon.gd` | combat | Shown only while swinging (`show_when_idle` off, owner decision 2026-10-05) |
 | `game/scripts/effect.gd` | combat | |
 | `game/feel/game_feel.gd` | combat | Autoload |
 | `game/feel/hit_flash.gd` | combat | |
