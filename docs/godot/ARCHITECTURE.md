@@ -18,10 +18,11 @@ project.godot [autoload]  (registered in this order; tree order = process order)
   WorldService   res://game/autoload/world_service.gd    world/player/camera/areas/scene index/pause reasons
   DamageRouter   res://game/combat/damage_router.gd      receiver registry + activations + route()
   GameFeel       res://game/feel/game_feel.gd            hit-stop, shake, floating text, particles, audio cues (ALWAYS)
+  RunState       res://game/autoload/run_state.gd        the run: player stats, inventory, world records, story, travel handoff
 
 res://game/main.tscn (main.gd)                         bootstrap
   World (Node2D)      <- world.level-1 instanced here (converter root, y-sorted)
-       ...converted props/NPCs (npc.gd), world areas (world_area.gd), exit (world_exit.gd stub)
+       ...converted props/NPCs (npc.gd), world areas (world_area.gd), exits (world_exit.gd)
        WorldBounds (StaticBody2D, built at runtime)
        PlayerSlime (character.player-slime)  <- spawned at runtime
            ... PlayerScript (player.gd), HurtSfx, DeathSfx
@@ -41,7 +42,7 @@ Design rules:
 - **Scene scripts** live in `game/scripts/` and only there. A file there is a converter-visible script id (`game.<kebab>` → `<snake>.gd`). The converter attaches the file and writes exactly the `@export`s it declares. Do not add or remove files in `game/scripts/` without the architect or integrator.
 - **No inheritance between scene scripts.** The converter reads only the target file's `@export var` lines, so every export is declared in the file itself. `character.gd` is therefore deliberately absent. Shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
 - **Static helpers** are `extends RefCounted` files with static funcs: perimeter, directions, feet anchor, resolver, scaling, AI, wander policy, aim and bounds. Small stateful helpers are RefCounted instances: input buffer, squash, territory, attack lifecycle, combo and activations.
-- **Autoloads are reached only through `res://game/shared/services.gd`**, as `Services.router()`, `Services.world()`, `Services.feel()`, `Services.constants()`, `Services.clock()` and `Services.now_ms()`. This was verified on 4.7.2: the headless `--check-only -s` does **not** know autoload names, so a bare `DamageRouter.route(...)` fails the check with "Identifier not found". The getters are typed, so calls are still statically checked.
+- **Autoloads are reached only through `res://game/shared/services.gd`**, as `Services.router()`, `Services.world()`, `Services.feel()`, `Services.constants()`, `Services.clock()`, `Services.run()` and `Services.now_ms()`. This was verified on 4.7.2: the headless `--check-only -s` does **not** know autoload names, so a bare `DamageRouter.route(...)` fails the check with "Identifier not found". The getters are typed, so calls are still statically checked.
 - **Cross-file types**: `const X := preload("res://...")`, where X equals the file's `class_name`. Autoload scripts have no `class_name`, because a class_name equal to an autoload name is an error. Preload cycles (`player.gd` ↔ `player_combat.gd`, `services.gd` ↔ the autoloads) were tested and are fine.
 
 ## 2. Autoloads (API summary; full docs in the files)
@@ -53,6 +54,7 @@ Design rules:
 | `WorldService` | `scene_path`, `instantiate_scene`, `spawn_at_phaser_position(scene_id, phaser_point, parent=null)`, `register_world`, `entities_root`, `dimensions`, `world_rect`, `map_id`, `camera_mode`, `areas(kind)`, `safe_zones`, `npc_wander_area(instance_id)`, `is_solid_tile`, `player_spawn_marker`, `player_spawn_point`, `find_spawn_point`, `register_player`, `primary_target`, `line_of_sight(from,to,exclude)`, `register_camera`, `set_pause_reason(reason, active)`, `has_pause_reason`, `clear`. Vars: `world_root`, `definition`, `ground_layer`, `player`, `player_body`, `camera`. Signals `world_registered`, `player_registered` | default |
 | `DamageRouter` | `register_area(area, receiver, rule, tags=[])`, `unregister_area`, `receiver_for_area`, `tags_for_area`, `begin_activation(source, areas) -> int`, `end_activation`, `is_activation_active`, `route(request) -> result`. Signal `routed` | default |
 | `GameFeel` | `play(event)`, `shake(ms, intensity)`, `hit_stop(ms)`, `is_frozen()`, `floating_text(world_pos, text, color_name, big, duration_ms=-1)`, `particles(preset, world_pos)`, `audio_cue(cue, payload)` | ALWAYS |
+| `RunState` | Phaser's `GameSaveData` in one place (snake_case): vars `player`, `inventory`, `world`, `story`, `location`; `new_run()`, `ensure_started()`, `max_hp()`, `capture_player(map_id, snapshot)`, `item_count`, `remove_item`, `unlock_gate`, `has_flag`/`set_flag`, `learn_ability`, `map_record(map_id)` (resources, collectibles, chests, gates, object_states, ...), `object_state`/`set_object_state`, `respawn_point`, `request_navigation`/`consume_navigation`. Signals `story_flag_changed`, `ability_learned`. Outlives worlds; the save phase writes it to user:// | default |
 
 ## 3. Time, pause and process model
 
@@ -104,17 +106,17 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.npc` → `scripts/npc.gd` (6 NPCs) | `body, visual, animation, character_id, npc_definition_id, wander_speed, pause_min_ms, pause_max_ms` | `interaction_lock_changed` | — |
 | `game.world-definition` → `scripts/world_definition.gd` | `map_id, tile_size, columns, rows, metadata, camera_mode` | — | — |
 | `game.world-area` → `scripts/world_area.gd` | `area_kind, area_id, area, data, shape, stay_shape` | — | — |
-| `game.world-exit` → `scripts/world_exit.gd` (stub) | `map_id, exit_id, target_area_id, entry, area, gate`; *`arrival_grace_ms`=-1* | `navigation_resolved` | `on_body_entered(body)` |
+| `game.world-exit` → `scripts/world_exit.gd` | `map_id, exit_id, target_area_id, entry, area, gate`; *`arrival_grace_ms`=-1* | `navigation_resolved` | `on_body_entered(body)` |
 
 Every other script id stays on the converter's `unported_script.gd`. In level-1 that covers `game.door`, `game.story-variant`, the encounter's `game.boss-camp`, collectibles and resource nodes. `game.matron` and `game.fatty` are separate ids. `game.web-patch` and `game.projectile` are not ported.
 
 ## 7. Bootstrap (main.gd `_ready`, world spec 1.2)
 
 1. `apply_viewport_scale()`: set `root.content_scale_size` so 1 game px = 1 CSS px, and re-apply on `size_changed`.
-2. `resolve_map_id()` returns `"level-1"`.
+2. `RunState.ensure_started()`; the map is the pending travel handoff's (`RunState.consume_navigation()`), else `resolve_map_id()` (`"level-1"`). Steps 3-11 are `_build_world(map_id, handoff)`, which `travel_to` runs again for the next world.
 3. `load_world()`: instance `world.level-1` under `$World`, then `WorldService.register_world(root)`.
 4. `WorldBounds.build(world_root, world_rect)`.
-5. `spawn_player()`: `spawn_at_phaser_position("character.player-slime", WorldService.player_spawn_point(), world_root)`, then `register_player(PlayerScript node)`. The feet land at (640, 731.56).
+5. `spawn_player(handoff)`: `spawn_at_phaser_position("character.player-slime", WorldService.player_spawn_point(), world_root)` (after a travel: `AreaTravel.arrival_point(handoff)`), then `register_player(PlayerScript node)` and `restore_run_state(RunState.player)` (HP). The feet land at (640, 731.56).
 6. `equip_trial_weapon()`: `PlayerCombat.new()` → child "PlayerCombat" of the player root → `setup(player)` → `player.set_combat(combat)` → `equip("basic-sword")`.
 7. `start_enemy_population()`: `EnemyPopulation.new()` → `setup(areas("enemy-spawn"), safe_zones(), entities_root())`, `allowed_types = ["worm-swordsman"]`, `seed_initial()`.
 8. `configure_npcs()`: for each node in group `"npc"`, call `configure_wander(npc_wander_area(npc.get_instance_id_key()).get("perimeter", {}))`.
@@ -179,7 +181,9 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |
 | `game/scripts/world_area.gd` | world | |
-| `game/scripts/world_exit.gd` | world | Stub stays inert |
+| `game/scripts/world_exit.gd` | world objects | Level-triggered after the arrival grace; asks `Main.request_exit` |
+| `game/autoload/run_state.gd` | world objects | Autoload `RunState` |
+| `game/world/area_travel.gd` | world objects | Arrival point (door, entry edge, spawn), travel fades, music fade-out; `Main.travel_to` / `request_exit` drive it |
 | `game/scripts/npc.gd` | world | |
 | `game/ui/hud.gd` | world | |
 | `game/ui/player_health_bar.gd` | world | |

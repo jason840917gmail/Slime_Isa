@@ -15,6 +15,7 @@ const SimClockType := preload("res://game/autoload/sim_clock.gd")
 const WorldServiceType := preload("res://game/autoload/world_service.gd")
 const DamageRouterType := preload("res://game/combat/damage_router.gd")
 const GameFeelType := preload("res://game/feel/game_feel.gd")
+const RunStateType := preload("res://game/autoload/run_state.gd")
 
 
 ## Autoload `GameConstants` (res://generated/data/*.json).
@@ -40,6 +41,11 @@ static func router() -> DamageRouterType:
 ## Autoload `GameFeel` (hit-stop, shake, floating text, particles, global audio cues).
 static func feel() -> GameFeelType:
 	return _autoload(&"GameFeel") as GameFeelType
+
+
+## Autoload `RunState` (the run's persistent state: player stats, inventory, world records, story).
+static func run() -> RunStateType:
+	return _autoload(&"RunState") as RunStateType
 
 
 ## Current gameplay simulation time in ms (`SimClock.now_ms`), 0 when the clock is missing.

@@ -158,13 +158,16 @@ func _run_case(test_case: Dictionary) -> void:
 	_report(label, test_case["known_reason"], context, warnings, Time.get_ticks_msec() - started)
 
 
-## Fresh world: wait out any hit-stop, clear the world service, reset the clock, unpause, then
-## instance main.tscn and let it run SETUP_STEPS physics ticks.
+## Fresh world: wait out any hit-stop, clear the world service, start a new run (RunState), reset
+## the clock, unpause, then instance main.tscn and let it run SETUP_STEPS physics ticks.
 func _setup(context: TestContext) -> void:
 	await _settle()
 	var world := Services.world()
 	if world != null:
 		world.clear()
+	var run := Services.run()
+	if run != null:
+		run.new_run()
 	var clock := Services.clock()
 	if clock != null:
 		clock.reset()

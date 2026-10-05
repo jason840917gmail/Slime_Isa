@@ -118,7 +118,8 @@ func listen(sig: Signal, callable: Callable) -> void:
 func disconnect_all() -> void:
 	for pair: Array in _connections:
 		var sig: Signal = pair[0]
-		if not sig.is_null() and sig.is_connected(pair[1]):
+		# The emitter may be gone (a world freed by a travel).
+		if not sig.is_null() and is_instance_valid(sig.get_object()) and sig.is_connected(pair[1]):
 			sig.disconnect(pair[1])
 	_connections.clear()
 

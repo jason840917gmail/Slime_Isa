@@ -8,7 +8,10 @@ extends Node2D
 ##
 ## `_ready()` order (world spec 1.2):
 ##  1. apply_viewport_scale() and connect `get_tree().root.size_changed` to it
-##  2. map id: resolve_map_id() ("level-1")
+##  2. RunState.ensure_started(); map id: the pending travel handoff's
+##     (RunState.consume_navigation()), else resolve_map_id() ("level-1"). Steps 3-11 are
+##     `_build_world()`, which `travel_to()` runs again for the next world after freeing this one
+##     (area travel: game/world/area_travel.gd; exits call `request_exit()` via group "world_main")
 ##  3. load_world(): instance `world.<map id>` (scene index) under $World;
 ##     `Services.world().register_world(world_root)`; abort with push_error on failure
 ##  4. WorldBounds.build(world_root, world_rect)
@@ -40,6 +43,7 @@ const PlayerScript := preload("res://game/scripts/player.gd")
 const NpcScript := preload("res://game/scripts/npc.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
+const AreaTravel := preload("res://game/world/area_travel.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -56,6 +60,14 @@ const FADE_LAYER := 5
 const WORLD_SCENE_PREFIX := "world."
 const PLAYER_SCRIPT_NODE := "PlayerScript"
 const NPC_GROUP := &"npc"
+## Scene scripts reach main through this group (`request_exit`, `travel_to`).
+const MAIN_GROUP := &"world_main"
+## The player stays frozen a little past the leave fade, until the next world replaces it.
+const TRAVEL_SUPPRESS_MARGIN_MS := 200.0
+## A locked exit repeats its message at most every 900 ms (WorldScene `nextGateMessageAt`).
+const GATE_MESSAGE_THROTTLE_MS := 900
+## The only unlock text Phaser has (WorldScene.ts:1059), whichever gate it is.
+const GATE_UNLOCKED_TEXT := "The Verdant Gate unlocks!"
 
 ## World to load when no launch option names one ("" = level-1). res://game/dev/playground.tscn
 ## inherits this scene with "playground" so the testbed runs with F6 (Run Current Scene).
@@ -72,23 +84,44 @@ var player_root: CharacterBody2D
 var player_combat: PlayerCombat
 var enemy_population: EnemyPopulation
 
+var _transitioning: bool = false
+var _next_gate_message_ms: int = 0
 
-## Runs the bootstrap steps above.
+
+## Runs the bootstrap steps above. The run (RunState) starts here on the first boot; a pending
+## area handoff (`travel_to`, RunState.consume_navigation) names the world and the arrival.
 func _ready() -> void:
+	add_to_group(MAIN_GROUP)
 	apply_viewport_scale()
 	get_tree().root.size_changed.connect(apply_viewport_scale)
 	var world_service := Services.world()
 	if world_service == null:
 		push_error("Main: the WorldService autoload is missing")
 		return
-	var map_id := resolve_map_id()
-	world_root = load_world(map_id)
+	var run := Services.run()
+	if run != null:
+		run.ensure_started()
+	var navigation := run.consume_navigation() if run != null else {}
+	var target := str(navigation.get("map_id", ""))
+	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
+		target = resolve_map_id()
+		navigation = {}
+	_build_world(target, navigation)
+
+
+## Steps 3-11 above for `target_map_id`; `navigation` is the area handoff ({} on a fresh boot).
+func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
+	var world_service := Services.world()
+	world_root = load_world(target_map_id)
 	if world_root == null:
-		push_error("Main: could not load world '%s'; the trial cannot start" % map_id)
+		push_error("Main: could not load world '%s'; the trial cannot start" % target_map_id)
 		fps_readout.bind_camera(world_camera)
-		return
+		return false
+	var run := Services.run()
+	if run != null:
+		run.mark_area_discovered(target_map_id)
 	WorldBounds.build(world_root, world_service.world_rect())
-	player = spawn_player()
+	player = spawn_player(navigation)
 	if player == null:
 		push_error("Main: could not spawn the player")
 	else:
@@ -99,6 +132,126 @@ func _ready() -> void:
 	setup_camera()
 	start_arrival_fade()
 	setup_ui()
+	_transitioning = false
+	return true
+
+
+## True from a travel request until the next world is built (WorldScene `transitioning`).
+func is_transitioning() -> bool:
+	return _transitioning
+
+
+## `WorldScene.requestAuthoredExit` (WorldScene.ts:1018-1067) for world exits and doors.
+## `request` = {"map_id", "target_area_id", "entry"? (edge), "target_door_id"?, "gate"? ({id,
+## requiredItemId, consumeOnUnlock, lockedMessage}, camelCase as authored)}.
+## Returns {"status": "ignored"|"blocked"|"queued", "message"?}.
+func request_exit(request: Dictionary) -> Dictionary:
+	var world_service := Services.world()
+	if world_service == null or str(request.get("map_id", "")) != world_service.map_id() or _transitioning:
+		return {"status": "ignored"}
+	var target_area := str(request.get("target_area_id", ""))
+	var entry_door := str(request.get("target_door_id", ""))
+	var entry_edge := str(request.get("entry", ""))
+	if not entry_door.is_empty():
+		entry_edge = ""
+	elif not entry_edge in AreaTravel.EDGES:
+		entry_edge = ""
+	if target_area.is_empty() or (entry_door.is_empty() and entry_edge.is_empty()):
+		return {"status": "blocked", "message": "Navigation unavailable"}
+	var gate: Variant = request.get("gate", {})
+	if gate is Dictionary and not (gate as Dictionary).is_empty():
+		var outcome := _pass_gate(str(request["map_id"]), gate)
+		if not outcome.is_empty():
+			return outcome
+	elif gate != null and not (gate is Dictionary):
+		return {"status": "blocked", "message": "Navigation unavailable"}
+	if not travel_to(target_area, entry_edge, entry_door):
+		return {"status": "ignored"}
+	return {"status": "queued"}
+
+
+## Leaves this world for `target_map_id` (WorldScene.transitionTo + the page reload): stops the
+## player, fades the picture and the music out over 320 ms, then records the player in RunState,
+## frees this world and builds the target, arriving at `entry_door`'s arrival point or the
+## `entry_edge` marker (AreaTravel.arrival_point). False when already travelling or unknown.
+func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "") -> bool:
+	var world_service := Services.world()
+	var run := Services.run()
+	if _transitioning or world_service == null or run == null:
+		return false
+	if world_service.scene_path(WORLD_SCENE_PREFIX + target_map_id).is_empty():
+		push_warning("Main: no world '%s' to travel to" % target_map_id)
+		return false
+	_transitioning = true
+	if player != null:
+		player.stop_movement()
+		player.clear_input()
+		player.suppress_movement(AreaTravel.LEAVE_FADE_MS + TRAVEL_SUPPRESS_MARGIN_MS)
+	AreaTravel.fade_out_music(world_root, AreaTravel.LEAVE_FADE_MS)
+	AreaTravel.fade(self, FADE_LAYER, 0.0, 1.0, AreaTravel.LEAVE_FADE_MS,
+			_finish_travel.bind(target_map_id, entry_edge, entry_door))
+	return true
+
+
+func _finish_travel(target_map_id: String, entry_edge: String, entry_door: String) -> void:
+	var run := Services.run()
+	var world_service := Services.world()
+	if player != null and is_instance_valid(player):
+		run.capture_player(world_service.map_id(), player.run_snapshot())
+	run.request_navigation("area", target_map_id, entry_edge, entry_door)
+	_teardown_world()
+	_build_world(target_map_id, run.consume_navigation())
+
+
+## Frees the current world (and the player in it), the enemy population and the world service's
+## registrations, keeping main, the camera and the HUD.
+func _teardown_world() -> void:
+	if enemy_population != null and is_instance_valid(enemy_population):
+		remove_child(enemy_population)
+		enemy_population.queue_free()
+	enemy_population = null
+	if world_root != null and is_instance_valid(world_root):
+		world_container.remove_child(world_root)
+		world_root.queue_free()
+	world_root = null
+	player = null
+	player_root = null
+	player_combat = null
+	var world_service := Services.world()
+	if world_service != null:
+		world_service.clear()
+
+
+## A locked gate on an exit: blocked with the throttled locked message without the key, else
+## unlocked through the key (consumed when the gate says so). {} when the way is open.
+func _pass_gate(map_id_value: String, gate: Dictionary) -> Dictionary:
+	var gate_id: Variant = gate.get("id")
+	var required: Variant = gate.get("requiredItemId")
+	var consume: Variant = gate.get("consumeOnUnlock")
+	var locked_message: Variant = gate.get("lockedMessage")
+	if not (gate_id is String and required is String and consume is bool and locked_message is String):
+		return {"status": "blocked", "message": "Navigation unavailable"}
+	var run := Services.run()
+	if run.is_gate_unlocked(map_id_value, gate_id):
+		return {}
+	if run.item_count(required) < 1:
+		var now := Time.get_ticks_msec()
+		if now >= _next_gate_message_ms:
+			_next_gate_message_ms = now + GATE_MESSAGE_THROTTLE_MS
+			_player_text(locked_message, &"white")
+		return {"status": "blocked", "message": locked_message}
+	if not run.unlock_gate(map_id_value, gate_id, required, consume):
+		return {"status": "blocked", "message": locked_message}
+	_player_text(GATE_UNLOCKED_TEXT, &"green")
+	return {}
+
+
+## Floating text 42 px above the player's old root position (WorldScene: `player.y - 42`).
+func _player_text(text: String, color: StringName) -> void:
+	var feel := Services.feel()
+	if feel == null or player == null:
+		return
+	feel.floating_text(player.get_centre() - Vector2(0.0, 42.0), text, color, true)
 
 
 ## World spec 1.2 "Viewport scale": 1 game px = 1 CSS px. Sets
@@ -181,10 +334,15 @@ func load_world(map_id: String) -> Node2D:
 	return root
 
 
-## Spawns and registers the player (world spec 2.2, feet = P + depth_anchor). Null on failure.
-func spawn_player() -> PlayerScript:
+## Spawns and registers the player (world spec 2.2, feet = P + depth_anchor) and gives it the
+## run's HP (RunState). After a travel it stands at the handoff's arrival point
+## (AreaTravel.arrival_point); on a fresh boot at the spawn marker or the `spawn` launch option.
+## Null on failure.
+func spawn_player(navigation: Dictionary = {}) -> PlayerScript:
 	var world_service := Services.world()
 	var spawn_point := spawn_override(world_service.player_spawn_point())
+	if not navigation.is_empty():
+		spawn_point = AreaTravel.arrival_point(navigation, world_service.player_spawn_point())
 	var root := world_service.spawn_at_phaser_position(PLAYER_SCENE_ID, spawn_point, world_root)
 	if root == null:
 		return null
@@ -194,6 +352,9 @@ func spawn_player() -> PlayerScript:
 		push_error("Main: '%s' has no PlayerScript node" % PLAYER_SCENE_ID)
 		return null
 	world_service.register_player(script_node)
+	var run := Services.run()
+	if run != null:
+		script_node.restore_run_state(run.player)
 	return script_node
 
 
