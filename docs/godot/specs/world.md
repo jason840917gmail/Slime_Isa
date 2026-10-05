@@ -386,6 +386,8 @@ Collisions: NPC mask world|player|water; Godot CharacterBody2D vs CharacterBody2
 
 ### 5.6 NPC extras [OUT]
 
+Name tags are ported (2026-10-05, `game/ui/npc_name_tags.gd`); the rest stays OUT.
+
 - Name tags (`features/npcs/NpcNameTags.ts`): label = displayName (table §5.1), 14 px, colour `#f5f7ff`, stroke `#081022` 4 px, origin (0.5,1) at `(sprite.x, sprite.y - displayHeight*originY - 2)` = old root y − 73.28 − 2 **[FEET]**; quest markers bob 3 px / 900 ms, 18 px above the tag. Nice for "looks like Phaser" if time allows.
 - Dialogue/quests/interaction (QuestNpcController, `registerNpcPlacement :1962-1987`), story variant `chapter-1-villagers` (flag `chapter-1-complete`, unset in the trial → villagers present; the unported placeholder leaves them in, which is correct).
 
