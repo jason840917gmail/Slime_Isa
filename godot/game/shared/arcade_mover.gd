@@ -16,7 +16,7 @@ extends RefCounted
 ## sliding along a surface equals Arcade's per-axis separation.
 ##
 ## Ellipse CharacterBody2D shapes (Fatty, the spiders) block as their bounding boxes,
-## as in Arcade: the converter writes them as rectangles (scripts/godot/lib/shapes.mjs).
+## as in Arcade: the converter wrote them as rectangles.
 ##
 ## Stateless; reference it with
 ## `const ArcadeMover := preload("res://game/shared/arcade_mover.gd")`.

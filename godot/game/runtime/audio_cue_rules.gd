@@ -3,7 +3,7 @@ extends RefCounted
 ## (runtime spec section 4.12): payload filters, min-interval gating, per-play
 ## pitch and looping streams.
 ##
-## Owner: converter builder (scripts/godot/convert-scenes.mjs attaches the players).
+## Owner: converter builder (the converter attached the players to the scenes).
 
 
 ## True when `payload` passes `filter` (`field.path=v1|v2`; empty accepts all).

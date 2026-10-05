@@ -21,7 +21,7 @@ const STROKE_WIDTH := 3.0
 const SHADOW := Color(Color("#07120e"), 0.38)
 const SHADOW_SIZE := Vector2(96.0, 34.0)
 const SHADOW_POINTS := 48
-## The converter's z_index for the `ground-decals` depth band (scripts/godot/lib/sprite.mjs).
+## The z_index of the `ground-decals` depth band (as the converter set it on the scenes).
 const GROUND_DECALS_Z := -1
 ## Metadata key on the attacker that holds its live warning.
 const OWNER_META := &"attack_telegraph"

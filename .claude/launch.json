@@ -2,27 +2,17 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "dev",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
-      "port": 3000
-    },
-    {
-      "name": "dev-verify",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "vite", "--port", "3005", "--strictPort"],
-      "port": 3005
-    },
-    {
-      "name": "dev-verify-b",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "vite", "--port", "3007", "--strictPort"],
-      "port": 3007
-    },
-    {
       "name": "godot-web",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "3200", "--bind", "127.0.0.1", "--directory", "godot/export/web"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "3200",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "godot/export/web"
+      ],
       "port": 3200
     }
   ]
