@@ -129,8 +129,12 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   reference-laptop measurement, and the owner's feel check.
 - Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
   keep the live aim origin; the sword's combo off-by-one is fixed in the port
-  (24 per hit); the up/down walk and idle facing wait for new three-quarter
-  top-down player art with clips per direction.
+  (24 per hit); the player gets new three-quarter top-down art with clips per
+  direction.
+- Phase 1 has started with the player: `character.player-slime` is the first
+  scene Godot owns ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)),
+  with page 1 of the new slime (idle and walk facing down, up and side; idle
+  keeps the last facing). The playground runs with F6 from `game/dev/playground.tscn`.
 
 ## Rules while it runs
 

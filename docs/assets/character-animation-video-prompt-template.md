@@ -195,6 +195,26 @@ logo. No watermark. No audio. No purple or magenta details that blend into
 #FF00FF.
 ```
 
+## What made the slime v2 clips usable (2026-10-05)
+
+The full prompt above, with only a start frame, drifted with Seedance 1.5 Pro: the
+backdrop became a lit pink gradient with light rays, shadows and ripples, idles melted or
+grew, and side walks turned to face the camera. What worked
+(`asset/Originals/characters/slime-v2/README.md` has the details):
+
+- Pass the **same image as start and end frame** (`keyframes.start` and `keyframes.end`,
+  4 s clips): the character stays in place and the loop closes.
+- Keep the video prompt short and **leave lighting words out** of it (no style block's
+  "warm golden light"): name the action and facing, "keeps its exact painted look, size and
+  position", and a "flat, unlit, solid #FF00FF chroma-key" background with what not to add.
+- Expect the backdrop to drift toward a duller pink and painted contact shadows anyway: key
+  each frame against its own border colour and drop shadows by hue
+  (`scripts/characters/pack-slime-v2-page.py`).
+- Side walks that stretch upward tend to turn toward the camera; ask for a low glide and
+  use only the frames that stay in profile.
+- Without ffmpeg, `scripts/characters/extract-video-frames.mjs` extracts frames with
+  headless Brave.
+
 ## Sprite-sheet handoff checklist
 
 1. Extract frames at `[FRAME_RATE]` and keep the original frame order.

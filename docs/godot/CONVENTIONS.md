@@ -14,13 +14,37 @@ behaviour per area is in [specs/](./specs/).
 | `godot/generated/` | `pnpm godot:convert`, git-ignored | converted scenes (`scenes/<path under content/scenes/authored>.tscn`), `resources/terrain_tileset.tres`, `resources/ui_theme.tres`, `scene_index.json` (scene id → path), `data/` copies of `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, and `conversion_report.json` |
 | `godot/game/runtime/` | hand, owned with the converter | helper scripts the converter attaches: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`); the converter attaches it and writes the exports it declares |
+| `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
+| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below) |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
-| `godot/tools/` | hand | headless tools such as `verify_generated.gd`; excluded from exports |
+| `godot/tools/` | hand | headless tools such as `verify_generated.gd` and `build_player_clips.gd`; excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
 | `godot/addons/godot_ai/` | per machine, git-ignored | the Godot AI editor plugin (MCP bridge) that lets Claude drive the open editor; enabled in `project.godot`, disabled by itself in headless runs, excluded from exports. On a machine without it Godot reports the plugin missing: install it (version 4.3.0) or untick it in Project Settings → Plugins |
 
 Until Phase 1 of the migration ends, scene JSON is the source of truth: change
 content there and re-run the converter. Never hand-edit `godot/generated/`.
+
+## Scenes Godot owns
+
+Phase 1 moves scenes to Godot one at a time. To take one over, copy its converted
+`.tscn` from `godot/generated/scenes/` into `godot/game/` (characters go in
+`game/characters/`) and add its scene id to `OWNED_SCENES` in
+`game/autoload/world_service.gd`; `WorldService.scene_path` then returns the owned copy
+instead of the generated one. From then on edit it in the Godot editor (or with a tool in
+`godot/tools/`); the converter keeps writing the old generated copy, which nothing loads.
+
+| Scene id | Owned scene | Since |
+|---|---|---|
+| `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle/walk clips, built by `tools/build_player_clips.gd`) |
+
+## Running a world
+
+F5 runs `game/main.tscn`, which loads level-1. To test in the playground (the testbed
+where new mechanics are tried first), open `game/dev/playground.tscn` and press F6 (Run
+Current Scene); it inherits `main.tscn` with `map_id = "playground"`. Any other world:
+set `map_id` on a scene like it, or launch with `?map=<id>` (web) / `-- --map=<id>`
+(desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
+position.
 
 ## Input and physics
 

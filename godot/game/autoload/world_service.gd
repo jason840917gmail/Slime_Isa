@@ -58,6 +58,13 @@ var player_body: CharacterBody2D
 ## Null until register_camera().
 var camera: WorldCamera
 
+## Scenes Godot owns (Phase 1 of the migration, docs/godot/CONVENTIONS.md "Scenes Godot owns"):
+## made once from the converter's output, then edited in the Godot editor and never regenerated.
+## They take precedence over the converter's scene index for the same scene id.
+const OWNED_SCENES := {
+	"character.player-slime": "res://game/characters/player_slime.tscn",
+}
+
 var _scene_index: Dictionary = {}
 var _areas: Array[Dictionary] = []
 var _pause_reasons: Dictionary = {}
@@ -84,8 +91,11 @@ func _load_scene_index() -> void:
 
 # --- scene index -------------------------------------------------------------------------
 
-## `res://generated/scene_index.json[scene_id]` (e.g. "character.worm-swordsman"), "" when unknown.
+## The scene for `scene_id` (e.g. "character.worm-swordsman"), "" when unknown: a scene Godot
+## owns (OWNED_SCENES) first, else `res://generated/scene_index.json[scene_id]`.
 func scene_path(scene_id: String) -> String:
+	if OWNED_SCENES.has(scene_id):
+		return OWNED_SCENES[scene_id]
 	if _scene_index.is_empty():
 		_load_scene_index()
 	var path: Variant = _scene_index.get(scene_id, "")

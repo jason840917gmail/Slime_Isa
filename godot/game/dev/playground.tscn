@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/main.tscn" id="1_main"]
+
+[node name="Playground" instance=ExtResource("1_main")]
+map_id = "playground"
