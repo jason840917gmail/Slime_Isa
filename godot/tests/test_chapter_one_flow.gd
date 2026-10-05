@@ -110,3 +110,57 @@ static func _read_through(dialogue: Node) -> void:
 	while bool(dialogue.call(&"is_open")) and guard > 0:
 		dialogue.call(&"advance")
 		guard -= 1
+
+## Stone Tools' second stage through play: the belt switch by the mouse wheel counts, and wood
+## from a tree felled with the crafted axe counts once it is picked up.
+func test_stone_tools_by_hand(t: TestContext) -> void:
+	var run := Services.run()
+	var quests: Node = t.main.quests
+	quests.call(&"debug_activate", "stone-tools")
+	run.learn_recipes(["craft-stone-axe", "craft-stone-pickaxe"])
+	run.add_item("wood", 20)
+	run.add_item("stone", 20)
+	t.teleport_player(Vector2(640.0, 704.0))
+	await t.steps(2)
+	var menus: Node = t.main.menu_windows
+	t.check(bool(menus.call(&"open_station", {"station": "workbench", "tier": 1})), "the workbench window did not open")
+	var crafting: Node = menus.get(&"crafting")
+	var ids: Array[String] = []
+	for recipe: Dictionary in RecipeCatalog.recipes_at(crafting.call(&"site")):
+		ids.append(str(recipe["id"]))
+	for recipe_id: String in ["craft-stone-axe", "craft-stone-pickaxe"]:
+		crafting.call(&"select_recipe", ids.find(recipe_id))
+		crafting.call(&"craft")
+	crafting.call(&"close")
+	await t.steps(2)
+	t.equal(str(quests.call(&"state", "stone-tools").get("active_stage_id")), "use-tools", "stage after crafting both tools")
+	t.equal(run.weapon_slots(), ["basic-sword", "stone-axe", "stone-pickaxe", null], "belt after crafting")
+	# The wheel: one notch down takes the axe.
+	t.tap(&"weapon_next")
+	await t.steps(3)
+	t.equal(run.equipped_weapon_id(), "stone-axe", "hand after one wheel notch")
+	t.equal(int((quests.call(&"state", "stone-tools").get("progress") as Dictionary).get("switch-tools", 0)), 1, "switch-tools")
+	# Fell the grove tree with the axe and pick its wood up.
+	var tree_base := Vector2(527.25, 1254.95)
+	t.teleport_player(tree_base + Vector2(-60.0, -30.0))
+	t.player().face(Vector2.RIGHT)
+	var felled := false
+	for swing in 6:
+		t.tap(&"attack")
+		await t.sim_wait(950.0)
+		if run.resource_record("level-1", "level-1-tree-004").get("stage", "node") != "node":
+			felled = true
+			break
+	if not t.check(felled, "the axe did not fell level-1-tree-004"):
+		return
+	await t.sim_wait(900.0)
+	var before := run.item_count("wood")
+	for node: Node in t.tree.get_nodes_in_group(&"collectible"):
+		if str(node.get(&"source_resource_instance_id")) != "level-1-tree-004":
+			continue
+		var pile := node.get_parent() as Node2D
+		t.teleport_player(pile.global_position - Vector2(0.0, 14.56))
+		await t.steps(3)
+	var gained := run.item_count("wood") - before
+	t.check(gained > 0, "no wood picked up from the felled tree")
+	t.equal(int((quests.call(&"state", "stone-tools").get("progress") as Dictionary).get("chop-wood", 0)), mini(gained, 20), "chop-wood after picking the piles up")
