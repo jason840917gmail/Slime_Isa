@@ -65,12 +65,10 @@ func begin(player: Node, intent: Dictionary, now_ms: float) -> void:
 	_player.call(&"reset_effects")
 	_tween = _player.call(&"effect_tween")
 	if _tween != null:
-		_tween.set_parallel(true)
 		_tween.tween_method(_offset, Vector2.ZERO, _direction * LEAN_PX, LEAN_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		_tween.tween_method(_scale, Vector2.ONE, LEAN_SCALE, LEAN_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		_tween.chain().set_parallel(true)
+		_tween.parallel().tween_method(_scale, Vector2.ONE, LEAN_SCALE, LEAN_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		_tween.tween_method(_offset, _direction * LEAN_PX, Vector2.ZERO, LEAN_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		_tween.tween_method(_scale, LEAN_SCALE, Vector2.ONE, LEAN_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		_tween.parallel().tween_method(_scale, LEAN_SCALE, Vector2.ONE, LEAN_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_tendril = _make_tendril()
 	_frames = [[40.0, 1], [80.0, 2]]
 

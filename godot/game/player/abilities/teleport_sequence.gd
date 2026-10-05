@@ -33,9 +33,8 @@ func begin(player: Node, intent: Dictionary, now_ms: float) -> void:
 	_tween = _player.call(&"effect_tween")
 	if _tween == null:
 		return
-	_tween.set_parallel(true)
 	_tween.tween_method(_alpha, 1.0, 0.0, ARRIVE_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	_tween.tween_method(_scale, 1.0, 0.36, ARRIVE_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_tween.parallel().tween_method(_scale, 1.0, 0.36, ARRIVE_MS / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 
 func advance(now_ms: float) -> bool:
@@ -61,9 +60,8 @@ func _arrive() -> void:
 	_tween = _player.call(&"effect_tween")
 	if _tween == null:
 		return
-	_tween.set_parallel(true)
 	_tween.tween_method(_alpha, 0.0, 1.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_tween.tween_method(_scale, 0.36, 1.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_tween.parallel().tween_method(_scale, 0.36, 1.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _alpha(value: float) -> void:

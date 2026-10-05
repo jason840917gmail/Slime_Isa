@@ -37,12 +37,11 @@ func begin(player: Node, intent: Dictionary, now_ms: float) -> void:
 	_tween = _player.call(&"effect_tween")
 	if _tween == null:
 		return
-	_tween.set_parallel(true)
+	# Two steps of two parallel tweeners: up to the arc's top, then down to the target.
 	_tween.tween_method(_offset, Vector2.ZERO, mid - start, half).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_tween.tween_method(_scale, Vector2.ONE, STRETCH, half).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_tween.chain().set_parallel(true)
+	_tween.parallel().tween_method(_scale, Vector2.ONE, STRETCH, half).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_tween.tween_method(_offset, mid - start, target - start, half).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	_tween.tween_method(_scale, STRETCH, SQUASH, half).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_tween.parallel().tween_method(_scale, STRETCH, SQUASH, half).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 
 func advance(now_ms: float) -> bool:
