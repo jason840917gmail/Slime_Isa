@@ -30,9 +30,11 @@ const SIDE_ROOM := 24.0
 const HEIGHT := 196.0
 const BOTTOM_GAP := 24.0
 const HINT_TEXT := "Space / Enter  continue   ·   Esc  close"
-const NEXT_LABEL := "Next  ▸"
-const SKIP_LABEL := "Skip  ▸▸"
-const DONE_LABEL := "Done  ✓"
+const Glyphs := preload("res://game/ui/glyphs.gd")
+## Phaser "Next  ▸", "Skip  ▸▸", "Done  ✓" with font-safe glyphs (game/ui/glyphs.gd).
+const NEXT_LABEL := "Next  " + Glyphs.NEXT
+const SKIP_LABEL := "Skip  " + Glyphs.NEXT + Glyphs.NEXT
+const DONE_LABEL := "Done  " + Glyphs.CHECK
 const EMPTY_PAGE := "..."
 const ADVANCE_KEYS: Array[Key] = [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]
 ## `npc-dialogue-nudge`: the Next button eases 3 px right and back every 1.2 s.

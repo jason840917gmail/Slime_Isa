@@ -276,6 +276,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/player/status_effects.gd` | player | Burn, poison, slow, sticky, bouncy, frenzy, and the web root (`apply_web`) |
 | `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
 | `game/building/furniture_placement.gd`, `placed_furniture.gd` | world objects | Child "FurniturePlacement" of main: placing furniture (ghost, free test, records, quest event), picking it up, mounting placed benches on every world build ([specs/furniture.md](./specs/furniture.md)) |
+| `game/ui/glyphs.gd` | UI | Text symbols the theme font has, standing in for Phaser's ✓ ▸ ✕ ★ ◆ ▶ ○ (missing from the font; boxes in the web build) until a symbol font is bundled |
 | `game/ui/npc_name_tags.gd` | world | Child "NpcNameTags" of main: a "NameTag" (display name, 14 px, outlined) on every NPC body with a definition, sorted with the NPC |
 | `game/hints/control_hints.gd` | interaction | Child "ControlHints" of main (CanvasLayer 10): first-time control hints, learned by use as `hint.<id>` story flags |
 | `game/ui/ability_bar.gd` | abilities | The HUD's ability bar (bottom centre): labels from `player.ability_status`, clicks run `activate_ability_from_ui` |

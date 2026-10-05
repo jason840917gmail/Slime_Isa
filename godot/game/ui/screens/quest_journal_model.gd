@@ -8,11 +8,13 @@ extends RefCounted
 ## then the newest accepted), then failed, then abandoned. Available offers stay with their NPC.
 ##
 ## Glyphs (owner decision J2): the theme's default font has none of Phaser's ✓ ★ ◆ ▶ ○, so the
-## journal uses look-alikes it has (the MARK_* constants below; `•`, `×` and `·` are Phaser's own).
+## journal uses the look-alikes of game/ui/glyphs.gd (the MARK_* constants below; `•`, `×` and `·`
+## are Phaser's own).
 ##
 ## Owner: quests (UI).
 
 const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
+const Glyphs := preload("res://game/ui/glyphs.gd")
 
 const TITLE := "Quest Book"
 const CLOSE_TEXT := "Close (Esc)"
@@ -29,15 +31,15 @@ const TURN_IN_FORMAT := "? Return to %s for your reward."
 const NO_GIVER := "the quest giver"
 const SEPARATOR := " · "
 ## Phaser ✓: a completed quest, a finished step or requirement.
-const MARK_DONE := "√"
+const MARK_DONE := Glyphs.CHECK
 ## Phaser ★: a main-story quest.
-const MARK_MAIN := "*"
+const MARK_MAIN := Glyphs.MAIN
 ## Phaser ◆: a side quest.
-const MARK_SIDE := "◊"
+const MARK_SIDE := Glyphs.SIDE
 ## Phaser ▶: the current step.
-const MARK_CURRENT := "»"
+const MARK_CURRENT := Glyphs.CURRENT
 ## Phaser ○: a step not reached (abandoned and failed quests show every step so).
-const MARK_PENDING := "–"
+const MARK_PENDING := Glyphs.PENDING
 ## A requirement still to do (Phaser's own glyph).
 const MARK_TODO := "•"
 ## Three spaces before each requirement, two before its count.

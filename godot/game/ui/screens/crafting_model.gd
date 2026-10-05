@@ -13,6 +13,7 @@ extends RefCounted
 ## Owner: crafting (UI).
 
 const RecipeCatalog := preload("res://game/crafting/recipe_catalog.gd")
+const Glyphs := preload("res://game/ui/glyphs.gd")
 const CraftingService := preload("res://game/crafting/crafting_service.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
@@ -124,7 +125,7 @@ static func material_rows(quote: Dictionary) -> Array:
 	for cost: Dictionary in quote.get("requirements", []):
 		var item_id := str(cost["itemId"])
 		var missing := int(cost["missing"])
-		var suffix := "  (need %d more)" % missing if missing > 0 else "  ✓"
+		var suffix := "  (need %d more)" % missing if missing > 0 else "  " + Glyphs.CHECK
 		rows.append({"id": "material-" + item_id,
 			"label": "%s\n%d / %d%s" % [ItemCatalog.item_name(item_id), int(cost["available"]), int(cost["required"]), suffix],
 			"item_id": item_id if not ItemCatalog.definition(item_id).is_empty() else "",
