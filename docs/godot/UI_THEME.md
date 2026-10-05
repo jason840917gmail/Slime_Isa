@@ -56,9 +56,10 @@ the first time it scans them.
 or ◆ ○. Desktop builds borrow them from a system font; the **web build has no system fallback and
 draws them as boxes**. Until a symbol fallback font is bundled (an OFL font with those glyphs added
 as a fallback of the theme's fonts; it needs the owner's go-ahead), UI text uses words or glyphs
-the default font has: `√ * ◊ » – · … − •` are present (checked with `Font.has_char`). The key
-names spell out Up / Down / Left / Right (`ControlLabels`), and the world map draws its symbols as
-shapes.
+the default font has: `√ * ◊ » – · … − • ×` are present (checked with `Font.has_char`). The
+look-alikes live in one place, `res://game/ui/glyphs.gd` (CHECK √, NEXT », CLOSE ×, ...): once a
+symbol font is bundled, editing that file brings Phaser's ✓ ▸ ✕ back everywhere. The key names
+spell out Up / Down / Left / Right (`ControlLabels`), and the world map draws its symbols as shapes.
 
 ## Tokens
 
