@@ -75,6 +75,7 @@ const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const QuestService := preload("res://game/quests/quest_service.gd")
 const NpcQuestMarkers := preload("res://game/ui/npc_quest_markers.gd")
 const QuestWaypointView := preload("res://game/ui/quest_waypoint_view.gd")
+const NpcNameTags := preload("res://game/ui/npc_name_tags.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -176,6 +177,7 @@ func _ready() -> void:
 	quest_waypoint = QuestWaypointView.new()
 	quest_waypoint.name = "QuestWaypoint"
 	add_child(quest_waypoint)
+	add_child(NpcNameTags.new())
 	var navigation := run.consume_navigation() if run != null else {}
 	var target := str(navigation.get("map_id", ""))
 	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
