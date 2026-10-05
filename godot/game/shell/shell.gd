@@ -302,10 +302,16 @@ func _build() -> void:
 
 func _add_menu(scene: PackedScene) -> ShellMenu:
 	var menu := scene.instantiate() as ShellMenu
+	_attach_menu(menu)
+	return menu
+
+
+func _attach_menu(menu: ShellMenu) -> void:
 	root.add_child(menu)
+	if fade != null and fade.get_parent() == root:
+		root.move_child(menu, fade.get_index())   # the quit fade stays on top of every window
 	menu.opened.connect(_on_menu_opened)
 	menu.closed.connect(_on_menu_closed)
-	return menu
 
 
 func _open(menu: ShellMenu) -> void:
@@ -408,12 +414,42 @@ func _load_save() -> void:
 		return
 	var main := get_tree().get_first_node_in_group(WORLD_MAIN_GROUP) if is_inside_tree() else null
 	if main != null and main.has_method(&"load_run"):
-		for menu: ShellMenu in _stack.duplicate():
-			menu.close()
+		close_all_menus()
 		main.call(&"load_run", AUTOSAVE_SLOT)
 		return
 	if run.load_slot(AUTOSAVE_SLOT):
 		go_to_scene(MAIN_SCENE)
+
+
+## Mounts a feature's window (a scene whose root is a ShellMenu) on the shell's layer and stack, so
+## Escape, focus and its `shell:<surface id>` pause reason work as for the shell's own windows.
+## Mount once (e.g. the save-slots window); it stays until the Shell leaves the tree. Null when the
+## Shell is not built yet (before its `_ready`) or the scene's root is not a ShellMenu.
+func mount_menu(scene: PackedScene) -> ShellMenu:
+	if root == null or scene == null:
+		push_warning("Shell.mount_menu: the shell is not ready or the scene is null")
+		return null
+	var node := scene.instantiate()
+	var menu := node as ShellMenu
+	if menu == null:
+		push_warning("Shell.mount_menu: %s is not a ShellMenu" % scene.resource_path)
+		node.free()
+		return null
+	_attach_menu(menu)
+	return menu
+
+
+## Opens a mounted window on top of the stack (ignored while quitting or when already open).
+func open_menu(menu: ShellMenu) -> void:
+	_open(menu)
+
+
+## Closes every open shell window, top first (e.g. before loading a run in place).
+func close_all_menus() -> void:
+	var open_now := _stack.duplicate()
+	open_now.reverse()
+	for menu: ShellMenu in open_now:
+		menu.close()
 
 
 ## Runs a registered action; false when none is registered.
