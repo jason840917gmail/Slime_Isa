@@ -220,7 +220,7 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   and the Forge open the crafting window for their recipes. A crafted weapon goes onto the belt
   and into an empty hand; the mouse wheel and the HUD hotbar switch belt weapons; tonics, brews
   and baskets heal. A new run starts empty-handed in level-1, as in Phaser (owner decision
-  2026-10-05); the playground hands out all 13 weapons, and `?weapon=<id>` starts with one in hand.
+  2026-10-05); the playground hands out all 13 weapons and every ability (jump, dodge, lash, slam, teleport, goo trail; plus 10 stone and 10 silk clumps for the Gulp forms), and `?weapon=<id>` starts with one in hand.
   `?recipes` makes every recipe known (a dev aid). The release web export ("Web") leaves out
   `game/dev/` (playground wrapper, terrain lab) and the dev-only worlds; "Web (dev)" keeps them.
 - Furniture placement is ported (2026-10-05, [godot/specs/furniture.md](./godot/specs/furniture.md)):

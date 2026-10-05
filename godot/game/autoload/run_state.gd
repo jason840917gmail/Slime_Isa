@@ -509,12 +509,14 @@ func has_learned_ability(ability_id: String) -> bool:
 	return ability_id in _story_list("learned_ability_ids")
 
 
-## Returns false when it was already learned.
-func learn_ability(ability_id: String) -> bool:
+## Returns false when it was already learned. `quiet` skips `ability_learned` (no banner; the
+## playground's kit).
+func learn_ability(ability_id: String, quiet := false) -> bool:
 	if ability_id.is_empty() or has_learned_ability(ability_id):
 		return false
 	_story_list("learned_ability_ids").append(ability_id)
-	ability_learned.emit({"ability_id": ability_id})
+	if not quiet:
+		ability_learned.emit({"ability_id": ability_id})
 	return true
 
 
