@@ -43,8 +43,12 @@ shared rules, Eat and the Heavy / Sticky forms (`game/player/gulp/`: speed, knoc
 plates and cracked ground, the tint fallback, the timer and `[Q] Gulp` hint), and the eight world
 scripts of section 13 (gulp spot, pressure plate, cracked ground, lash bell, ability lesson,
 training dummy, Goo Heart, restoration site; the last two use the interaction controller).
+Later the same day: the status effects with the web root (`game/player/status_effects.gd`), the Goo
+Trail passive (`game/player/goo_trail.gd`) and the ability bar on the HUD (`game/ui/ability_bar.gd`,
+§2.6).
 Tests: `test_abilities.gd`, `test_gulp.gd`, `test_world_puzzles.gd` (the last two run in the
-playground through the runner's per-file `MAP_ID`).
+playground through the runner's per-file `MAP_ID`), `test_status.gd`, `test_goo_trail.gd`,
+`test_ability_bar.gd`.
 
 Differences from this spec's Phaser behaviour, until decided otherwise:
 - Sequence milestones run on the simulation clock (O-A4), so hit-stop and menus pause them.

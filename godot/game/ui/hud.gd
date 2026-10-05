@@ -3,8 +3,9 @@ class_name GameHud
 ## Minimal top-left HUD for the trial (Phaser `ui.hud` scene + `HudSurfacePort.ts`). World spec 6.2.
 ## Built by hand: `Coins` label, `Health` bar ("HP %d / %d"), `Energy` bar ("Energy %d / %d") at
 ## (16,16), 284 x 68 CSS px, styles per the spec. Also owns the floating PlayerHealthBar (world
-## spec 6.3) and the BossHealthBar (boss spec 5). layer = 10, PROCESS_MODE_ALWAYS, every Control
-## `mouse_filter = IGNORE`.
+## spec 6.3), the BossHealthBar (boss spec 5) and the AbilityBar (abilities spec 2.6, bottom
+## centre). layer = 10, PROCESS_MODE_ALWAYS, every Control `mouse_filter = IGNORE` except the
+## ability bar's buttons.
 ##
 ## Data: `player.get_hud_snapshot()` once on bind, then on every `player.health_changed` and
 ## `player.energy_changed`; coins also follow `RunState.coins_changed`. Renders new-run defaults (hp/energy at their maxima from
@@ -17,6 +18,7 @@ const PlayerScript := preload("res://game/scripts/player.gd")
 const PlayerHealthBar := preload("res://game/ui/player_health_bar.gd")
 const HudBar := preload("res://game/ui/hud_bar.gd")
 const BossHealthBar := preload("res://game/ui/boss_health_bar.gd")
+const AbilityBar := preload("res://game/ui/ability_bar.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 
 ## Layout (CSS px; `offsetMin [16,16]`, `offsetMax [300,84]` in ui/hud.scene.json).
@@ -40,6 +42,7 @@ var _health_bar: HudBar
 var _energy_bar: HudBar
 var _floating_bar: PlayerHealthBar
 var _boss_bar: BossHealthBar
+var _ability_bar: AbilityBar
 
 
 ## Builds the controls and the PlayerHealthBar child; layer 10; PROCESS_MODE_ALWAYS.
@@ -74,6 +77,11 @@ func get_boss_bar() -> BossHealthBar:
 	return _boss_bar
 
 
+## The ability bar (res://game/ui/ability_bar.gd).
+func get_ability_bar() -> AbilityBar:
+	return _ability_bar
+
+
 ## Subscribes to `player.health_changed` and `player.respawned`, reads the snapshot, binds the
 ## floating health bar.
 func bind_player(player: PlayerScript) -> void:
@@ -93,6 +101,8 @@ func bind_player(player: PlayerScript) -> void:
 	refresh(player.get_hud_snapshot())
 	if _floating_bar != null:
 		_floating_bar.bind_player(player)
+	if _ability_bar != null:
+		_ability_bar.player = player
 
 
 ## Applies a snapshot {"hp", "maxHp", "energy", "maxEnergy", "coins"} (Phaser keys) to the
@@ -178,6 +188,11 @@ func _build() -> void:
 	_boss_bar.name = "BossHealthBar"
 	_boss_bar.theme = _root.theme
 	add_child(_boss_bar)
+
+	# The ability bar, bottom centre (abilities spec 2.6).
+	_ability_bar = AbilityBar.new()
+	_ability_bar.theme = _root.theme
+	add_child(_ability_bar)
 
 
 func _make_bar(node_name: String, rect: Rect2, label: String, tone: Color) -> HudBar:
