@@ -4,7 +4,7 @@
  * docs/godot/CONVENTIONS.md "Checking your work") and exits with their exit code.
  *
  * Godot: `$GODOT` (path to the Godot 4.7.2 console executable), else the default install path
- * below. Needs `pnpm godot:sync`, `pnpm godot:convert` and an imported project.
+ * below. Needs an imported project (open it in the editor once, or run `--headless --import`).
  * Extra arguments go to the runner: `pnpm test:godot --filter=camp`, `--strict`.
  */
 import { spawnSync } from 'node:child_process';

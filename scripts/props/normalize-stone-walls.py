@@ -6,13 +6,13 @@ Inside each 70x70 cell the wall band must sit at the same place:
   horizontal band (and every corner arm):         y = 7..63
 The script measures each piece's band and shifts it into place; corner legs
 that were painted narrower are stretched to the full width. Measuring first
-makes it idempotent. Afterwards every wall scene's visualOffset must be 0
-(this script resets them), and the T-junctions are rebuilt from the corners
-(`python scripts/props/build-wall-junctions.py`).
+makes it idempotent. Afterwards every wall scene's Visual sprite offset must be the
+plain cell (godot/game/scenes/objects/wall-stone-solid*.tscn; set it in the Godot
+editor, as this script did for the Phaser scenes before the cutover), and the
+T-junctions are rebuilt from the corners (`python scripts/props/build-wall-junctions.py`).
 
   python scripts/props/normalize-stone-walls.py
 """
-import json
 import sys
 from pathlib import Path
 
@@ -23,8 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
-WALLS = ROOT / "asset" / "MAPS" / "walls"
-SCENES = ROOT / "src" / "game" / "content" / "scenes" / "authored" / "objects"
+WALLS = ROOT / "godot" / "asset" / "MAPS" / "walls"
 CELL = 70
 V_BAND = (9, 61)
 H_BAND = (7, 63)
@@ -98,16 +97,6 @@ def main():
         if changed:
             save_game_webp(Image.fromarray(sheet, "RGBA"), path)
         print(f"{name}: {changed} frame(s) re-registered")
-
-    reset = 0
-    for scene_path in SCENES.glob("wall-stone-solid*.scene.json"):
-        scene = json.loads(scene_path.read_text(encoding="utf-8"))
-        for node in scene["nodes"]:
-            if node["id"] == "visual" and node["properties"].get("visualOffset", [0, 0]) != [0, 0]:
-                node["properties"]["visualOffset"] = [0, 0]
-                scene_path.write_text(json.dumps(scene, indent=2) + "\n", encoding="utf-8")
-                reset += 1
-    print(f"visualOffset reset on {reset} wall scene(s)")
 
 
 if __name__ == "__main__":

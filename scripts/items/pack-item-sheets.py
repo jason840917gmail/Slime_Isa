@@ -7,7 +7,7 @@ islands (sparkles, drips) to the nearest item, orders items in reading order
 (row, then column) and fits each one, centred, inside its own frame with a
 transparent safety margin so no pixel reaches a neighbouring frame.
 
-Writes asset/MAPS/items/<sheet>-5x2.webp and asset/Originals/items/atlas-index.json
+Writes godot/asset/MAPS/items/<sheet>-5x2.webp and asset/Originals/items/atlas-index.json
 (frame -> item name, so unused frames can be wired up later). Requires Pillow
 and numpy.
 
@@ -29,7 +29,7 @@ from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 ORIGINALS = ROOT / "asset" / "Originals" / "items"
-PROMOTED = ROOT / "asset" / "MAPS" / "items"
+PROMOTED = ROOT / "godot" / "asset" / "MAPS" / "items"
 
 FRAME = 64
 COLUMNS, ROWS = 5, 2

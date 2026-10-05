@@ -4,7 +4,7 @@ Source: asset/Originals/effects/stretch-lash/bell-post-b.png. Frame 0 is the
 post at rest; frames 1 and 2 swing the bell about its chain (the bell is cut out
 of the source and rotated), so ringing it plays 1, 2, 1, 0.
 
-Output: asset/MAPS/objects/256x256-tile_3x1-lash-bell-post.webp, three 256x256
+Output: godot/asset/MAPS/objects/256x256-tile_3x1-lash-bell-post.webp, three 256x256
 frames, the post's foot centred on the bottom edge.
 
 Usage: python scripts/effects/pack-lash-bell.py
@@ -19,7 +19,7 @@ from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'asset' / 'Originals' / 'effects' / 'stretch-lash' / 'bell-post-b.png'
-OUTPUT = ROOT / 'asset' / 'MAPS' / 'objects' / '256x256-tile_3x1-lash-bell-post.webp'
+OUTPUT = ROOT / 'godot' / 'asset' / 'MAPS' / 'objects' / '256x256-tile_3x1-lash-bell-post.webp'
 
 FRAME = 256
 # The bell hangs left of the post in the source: its box and its hanging point.

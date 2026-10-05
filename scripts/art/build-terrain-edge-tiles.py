@@ -8,7 +8,7 @@ generated images into one edge tile sheet; it does not run in the game.
 Inputs (asset/Originals/grounds/generated/terrain-edges/):
   <ground>-island.png   a patch of the ground on transparency (straight sides, convex corners)
   <ground>-hole.png     a field of the ground with a round transparent hole (concave corners)
-  The ground's own 64 px sheet (asset/MAPS/grounds/) is the colour reference.
+  The ground's own 64 px sheet (godot/asset/MAPS/grounds/) is the colour reference.
   Optional, with --grounds-2x: <ground>-2x-padded-upscale.jpg, a Magnific 2x upscale of the
   ground sheet padded by 152 px of wrapped content (1520 px in, 3040 px out).
 
@@ -42,7 +42,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "asset/Originals/grounds/generated/terrain-edges"
-GROUND_SHEETS = ROOT / "asset/MAPS/grounds"
+GROUND_SHEETS = ROOT / "godot/asset/MAPS/grounds"
 OUT = ROOT / "godot/game/world/terrain_edges/art"
 
 ## ground (the authored tile set's transition material) -> its 64 px sheet's file stem

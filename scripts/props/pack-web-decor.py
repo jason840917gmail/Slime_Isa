@@ -27,7 +27,7 @@ sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
 SOURCES = ROOT / "asset" / "Originals" / "props" / "webs"
-OUT = ROOT / "asset" / "MAPS" / "props" / "256x256-tile_4x3-web-decor.webp"
+OUT = ROOT / "godot" / "asset" / "MAPS" / "props" / "256x256-tile_4x3-web-decor.webp"
 CELL = 256
 MARGIN = 6
 COLS = 4

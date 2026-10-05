@@ -8,10 +8,10 @@ Sources (Magnific GPT 2.5, transparent, 2026-10-05) in asset/Originals/props/res
   game/scripts/collectible.gd).
 
 Writes, with the frame layouts the scenes, items.json icons and assets.json already use:
-- asset/MAPS/resources/128x128-tile_4x2-resource-piles.webp
+- godot/asset/MAPS/resources/128x128-tile_4x2-resource-piles.webp
     frames 0-3 heaps: wood, stone (the stone node), iron ore, charcoal;
     frames 4-7 pickups: small wood, small stone, iron ore, charcoal;
-- asset/MAPS/resources/128x128-tile_2x1-starter-materials.webp
+- godot/asset/MAPS/resources/128x128-tile_2x1-starter-materials.webp
     frame 0 wood pickup, frame 1 stone pickup (the wood and stone world drops, drawn at 0.6).
 
 Each item is split from its row by its columns of art, trimmed, and fitted inside the footprint
@@ -34,8 +34,8 @@ sys.path.insert(0, str(REPO / "scripts" / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
 SOURCES = REPO / "asset" / "Originals" / "props" / "resources"
-OUT_4X2 = REPO / "asset" / "MAPS" / "resources" / "128x128-tile_4x2-resource-piles.webp"
-OUT_2X1 = REPO / "asset" / "MAPS" / "resources" / "128x128-tile_2x1-starter-materials.webp"
+OUT_4X2 = REPO / "godot" / "asset" / "MAPS" / "resources" / "128x128-tile_4x2-resource-piles.webp"
+OUT_2X1 = REPO / "godot" / "asset" / "MAPS" / "resources" / "128x128-tile_2x1-starter-materials.webp"
 CELL = 128
 ALPHA = 16
 # Columns closer than this belong to one item (a pebble, a leaf beside it); the heaps stand only
