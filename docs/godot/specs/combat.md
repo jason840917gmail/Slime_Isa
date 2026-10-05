@@ -644,8 +644,9 @@ the third `[2] = 1.5` + finisher (`ComboSystem.ts:36-38, 45-63`). With the sword
 **every sword hit is ×1.15** → 24 → round(27.6) = **28** (crit: round(42×1.15) = 48).
 Hitting two worms in one swing: 28 then round(24×1.5) = 36; a third target in the
 same swing: 36 and the finisher (`gameFeel.play('combo-finisher')`: shake 120 ms
-@ 0.008, hit-stop 100 ms; text OUT). Port these exact semantics (it is the live
-Phaser damage); flag the off-by-one to the owner as a probable Phaser bug.
+@ 0.008, hit-stop 100 ms; text OUT). Port note (owner decision O3, 2026-10-05): the Godot port fixes the off-by-one
+(`combo_counter.gd` uses the hit's own tier), so a lone sword hit does **24**
+(crit 42), two worms in one swing take 24 then 28, a third 36 and the finisher.
 
 ---
 
@@ -746,7 +747,7 @@ pooled `CPUParticles2D` (`one_shot`, `explosiveness = 1`, `emitting` restart),
 
 | check | value |
 |---|---|
-| sword hit on a worm (no crit, single target) | 28 (24 × 1.15 combo, see 9.4); crit 48 |
+| sword hit on a worm (no crit, single target) | 24 in the port (Phaser: 28 = 24 × 1.15 off-by-one combo, see 9.4); crit 42 (Phaser 48) |
 | worm hits to kill (90 HP) | 4 (28, 56, 84, then 6) |
 | worm knockback from a sword hit | 143 px/s along the swing direction, stun 370 ms, ≈ 30 px drift, `knockback-<facing>` |
 | sword cadence | one swing per 1200 ms; swing locks movement 417 / 333 / 292 ms (side / up / down) |

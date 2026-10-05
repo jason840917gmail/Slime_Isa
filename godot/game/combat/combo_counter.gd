@@ -1,8 +1,10 @@
 extends RefCounted
 class_name ComboCounter
-## Combo damage multiplier (Phaser `combat/ComboSystem.ts`), ported with its live off-by-one:
-## the multiplier is read AFTER the increment, so a lone hit is x1.15 (sword 24 -> 28).
-## Combat spec 9.4. Clock: SimClock ms. The combo text is OUT.
+## Combo damage multiplier (Phaser `combat/ComboSystem.ts`): hits in a 600 ms chain are x1.0,
+## x1.15, then x1.5 with the finisher. Phaser reads the multiplier after counting the hit, so its
+## first hit is already x1.15 (a lone sword hit does 28, not 24); the owner chose the intended
+## chain for the port on 2026-10-05 (decision O3). Combat spec 9.4. Clock: SimClock ms. The combo
+## text is OUT.
 ##
 ## Owner: combat builder.
 
@@ -16,14 +18,14 @@ var last_hit_at: float = -INF
 
 
 ## Per routed target, before routing: reset when `now - last_hit_at > WINDOW_MS`; combo =
-## min(combo + 1, 3); multiplier = DAMAGE_MULTIPLIERS[min(combo, 2)]; at 3 -> finisher and reset.
-## Returns {"multiplier": float, "finisher": bool}.
+## min(combo + 1, 3); multiplier = DAMAGE_MULTIPLIERS[combo - 1] (the hit's own tier); at 3 ->
+## finisher and reset. Returns {"multiplier": float, "finisher": bool}.
 func register_hit(now_ms: float) -> Dictionary:
 	if now_ms - last_hit_at > WINDOW_MS:
 		combo = 0
 	combo = mini(combo + 1, FINISHER_COUNT)
 	last_hit_at = now_ms
-	var multiplier: float = DAMAGE_MULTIPLIERS[mini(combo, DAMAGE_MULTIPLIERS.size() - 1)]
+	var multiplier: float = DAMAGE_MULTIPLIERS[clampi(combo - 1, 0, DAMAGE_MULTIPLIERS.size() - 1)]
 	var finisher := combo >= FINISHER_COUNT
 	if finisher:
 		combo = 0

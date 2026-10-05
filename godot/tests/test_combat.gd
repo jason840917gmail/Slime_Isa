@@ -1,10 +1,10 @@
 extends RefCounted
 ## Sword vs worm swordsman and worm vs player (docs/godot/specs/combat.md section 15 "Expected
 ## trial numbers", enemy.md 5-7, player.md 6).
-## - A basic-sword hit does 28 (24 x 1.15 combo, owner default O3); a crit does 48 (5 % chance,
+## - A basic-sword hit does 24 (combo x1.0 on a lone hit, owner decision O3); a crit does 42 (5 % chance,
 ##   so both are accepted and the crit is noted). The worm (90 HP, knockback resist 0.45) is
 ##   knocked back at (140 + 120) x 0.55 = 143 px/s along the swing, stunned 370 ms, ~30 px drift.
-## - 90 HP takes 4 plain hits (28, 56, 84, then 6); the corpse is freed 800 ms (gameplay clock)
+## - 90 HP takes 4 plain hits (24, 48, 72, then 18); the corpse is freed 800 ms (gameplay clock)
 ##   after the killing blow.
 ## - A worm swing lands 400 ms after it starts and does max(1, 37 - 3) = 34; the player then has
 ##   500 ms of i-frames (a second worm's simultaneous swing is rejected "state-blocked") and is
@@ -16,8 +16,8 @@ const EnemyScript := preload("res://game/scripts/enemy.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
 const WORM_MAX_HP := 90.0
-const SWORD_HIT := 28
-const SWORD_CRIT_HIT := 48
+const SWORD_HIT := 24
+const SWORD_CRIT_HIT := 42
 const WORM_KNOCKBACK_SPEED := 143.0
 const WORM_STUN_MS := 370.0
 const WORM_WINDUP_MS := 400.0
