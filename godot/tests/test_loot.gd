@@ -42,7 +42,7 @@ func test_loot_pile_is_recorded_restored_and_collected(t: TestContext) -> void:
 	t.teleport_player((pile.get_parent() as Node2D).global_position - Vector2(0.0, 14.56))
 	await t.until(func() -> bool: return run.item_count("shard") > 0, 300.0)
 	t.equal(run.item_count("shard"), 1, "shards after the pickup")
-	t.equal(int(run.map_record("level-1")["inventory_drops"][record["id"]]["amount"]), 0, "loot record after the pickup")
+	t.check(not (run.map_record("level-1")["inventory_drops"] as Dictionary).has(record["id"]), "the loot record is gone after the pickup")
 
 
 func test_scatter_rings(t: TestContext) -> void:
