@@ -18,11 +18,12 @@ extends Node2D
 ##  5. spawn_player(): `spawn_at_phaser_position("character.player-slime",
 ##     Services.world().player_spawn_point(), world_root)`; register_player(PlayerScript node)
 ##  6. equip_trial_weapon(): PlayerCombat child "PlayerCombat" of the player root, setup, set_combat,
-##     equip(TRIAL_WEAPON_ID)
+##     equip(TRIAL_WEAPON_ID, or the `weapon` launch option)
 ##  7. start_enemy_population(): EnemyPopulation with the enemy-spawn areas, safe zones,
 ##     entities_root, allowed_types = TRIAL_ENEMY_TYPES, seed_initial()
 ##  7b. warm_runtime_scenes(): cache the PackedScenes spawned mid-game (camp enemy types, the
-##     weapon's hit effect) and mount the global audio cue scene, so none of them is loaded on
+##     weapon's hit effect, resource nodes' hit effects and drop piles) and mount the global
+##     audio cue scene, so none of them is loaded on
 ##     a gameplay frame (Phaser loads everything in MapLoadScene before the world starts)
 ##  8. configure_npcs(): for every node in group "npc": configure_wander(npc_wander_area(
 ##     npc.get_instance_id_key()).get("perimeter", {}))
@@ -62,6 +63,7 @@ const PLAYER_SCRIPT_NODE := "PlayerScript"
 const NPC_GROUP := &"npc"
 ## Scene scripts reach main through this group (`request_exit`, `travel_to`).
 const MAIN_GROUP := &"world_main"
+const RESOURCE_NODE_GROUP := &"resource_node"
 ## The player stays frozen a little past the leave fade, until the next world replaces it.
 const TRAVEL_SUPPRESS_MARGIN_MS := 200.0
 ## A locked exit repeats its message at most every 900 ms (WorldScene `nextGateMessageAt`).
@@ -377,8 +379,18 @@ func equip_trial_weapon() -> void:
 	player_root.add_child(player_combat)
 	player_combat.setup(player)
 	player.set_combat(player_combat)
-	if not player_combat.equip(TRIAL_WEAPON_ID):
-		push_warning("Main: could not equip '%s'" % TRIAL_WEAPON_ID)
+	# Dev aid: `?weapon=<id>` / `-- --weapon=<id>` holds another weapon (an axe or pickaxe to
+	# harvest, a spear for Fatty) instead of the trial sword.
+	var weapon_id := launch_option("weapon")
+	if weapon_id.is_empty():
+		weapon_id = TRIAL_WEAPON_ID
+	if not player_combat.equip(weapon_id):
+		push_warning("Main: could not equip '%s'" % weapon_id)
+		if weapon_id != TRIAL_WEAPON_ID and player_combat.equip(TRIAL_WEAPON_ID):
+			weapon_id = TRIAL_WEAPON_ID
+	var run := Services.run()
+	if run != null:
+		(run.player.get_or_add("equipment", {}) as Dictionary)["weapon_id"] = weapon_id
 
 
 ## Creates and seeds the EnemyPopulation (enemy spec 3).
@@ -407,6 +419,14 @@ func warm_runtime_scenes() -> void:
 		var weapon := player_combat.get_weapon()
 		if weapon != null and not weapon.on_hit_effect_id.is_empty():
 			world_service.packed_scene("effect." + weapon.on_hit_effect_id)
+	# Resource nodes: their hit effects and the piles they drop.
+	for node: Node in get_tree().get_nodes_in_group(RESOURCE_NODE_GROUP):
+		var effect_id := str(node.get(&"hit_effect_id"))
+		if not effect_id.is_empty():
+			world_service.packed_scene("effect." + effect_id)
+		var drop: Variant = node.get(&"drop")
+		if drop is Dictionary and (drop as Dictionary).get("objectId") is String:
+			world_service.packed_scene("object." + str(drop["objectId"]).replace(".", "-"))
 	var feel := Services.feel()
 	if feel != null:
 		feel.warm_up()

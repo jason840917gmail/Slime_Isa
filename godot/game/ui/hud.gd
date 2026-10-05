@@ -6,9 +6,9 @@ class_name GameHud
 ## spec 6.3) and the BossHealthBar (boss spec 5). layer = 10, PROCESS_MODE_ALWAYS, every Control
 ## `mouse_filter = IGNORE`.
 ##
-## Data: `player.get_hud_snapshot()` once on bind, then on every `player.health_changed`.
-## Renders new-run defaults (hp/energy at their maxima from game-constants, coins 50) when no
-## player is bound or the snapshot lacks a key.
+## Data: `player.get_hud_snapshot()` once on bind, then on every `player.health_changed`; coins
+## also follow `RunState.coins_changed`. Renders new-run defaults (hp/energy at their maxima from
+## game-constants, coins 50) when no player is bound or the snapshot lacks a key.
 ##
 ## Owner: world builder.
 
@@ -29,7 +29,7 @@ const TONE_DANGER := Color("#ff6f88")
 const TONE_WARNING := Color("#ffd277")
 const SHADOW_COLOR := Color("#081022")
 const COINS_FONT_SIZE := 12
-## Coins of a new run (content/initial-state/InitialRun.ts:15); coins are OUT in the trial.
+## Coins of a new run (content/initial-state/InitialRun.ts:15), shown until RunState has a run.
 const NEW_RUN_COINS := 50.0
 
 var _player: PlayerScript
@@ -48,6 +48,20 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
 	refresh(_default_snapshot())
+	var run := Services.run()
+	if run != null and not run.coins_changed.is_connected(_on_coins_changed):
+		run.coins_changed.connect(_on_coins_changed)
+
+
+func _exit_tree() -> void:
+	var run := Services.run()
+	if run != null and run.coins_changed.is_connected(_on_coins_changed):
+		run.coins_changed.disconnect(_on_coins_changed)
+
+
+## RunState coins changed (GameState `coins.changed`): {"coins", "delta"}.
+func _on_coins_changed(payload: Dictionary) -> void:
+	refresh({"coins": payload.get("coins", 0)})
 
 
 ## The boss health bar (res://game/ui/boss_health_bar.gd).

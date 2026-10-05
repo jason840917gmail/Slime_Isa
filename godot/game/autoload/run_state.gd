@@ -25,6 +25,7 @@ extends Node
 ## Owner: world objects.
 
 const Services := preload("res://game/shared/services.gd")
+const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 
 ## InitialRun.ts:16 (a literal there too).
 const NEW_RUN_COINS := 50
@@ -37,6 +38,12 @@ const WEAPON_SLOT_COUNT := 4
 signal story_flag_changed(payload: Dictionary)
 ## An ability was learned. Payload: {"ability_id": String}.
 signal ability_learned(payload: Dictionary)
+## The bag changed (Phaser `inventory.changed`). Payload: {}.
+signal inventory_changed(payload: Dictionary)
+## A world-object record changed (Phaser `world.progress.changed`). Payload: {"map_id": String}.
+signal world_progress_changed(payload: Dictionary)
+## Coins changed (GameState.addCoins / spendCoins). Payload: {"coins": int, "delta": int}.
+signal coins_changed(payload: Dictionary)
 
 var player: Dictionary = {}
 var inventory: Dictionary = {}
@@ -116,7 +123,31 @@ func capture_player(map_id: String, state: Dictionary) -> void:
 	}
 
 
-# --- inventory --------------------------------------------------------------------------------
+# --- coins ------------------------------------------------------------------------------------
+
+func coins() -> int:
+	return int(player.get("coins", 0))
+
+
+## GameState.addCoins: `max(0, coins + amount)`; nothing for 0.
+func add_coins(amount: int) -> void:
+	if amount == 0:
+		return
+	player["coins"] = maxi(0, coins() + amount)
+	coins_changed.emit({"coins": coins(), "delta": amount})
+
+
+## GameState.spendCoins: false (and nothing spent) when there are too few.
+func spend_coins(amount: int) -> bool:
+	if coins() < amount:
+		return false
+	player["coins"] = coins() - amount
+	coins_changed.emit({"coins": coins(), "delta": -amount})
+	return true
+
+
+# --- inventory (systems/Inventory.ts; world-objects spec 8) -----------------------------------
+## Slots are an ordered list with no holes: emptied slots are removed, new stacks are appended.
 
 ## How many of `item_id` the bag holds (PlayerInventory.count).
 func item_count(item_id: String) -> int:
@@ -127,8 +158,32 @@ func item_count(item_id: String) -> int:
 	return total
 
 
-## Takes `count` of `item_id` out of the bag, emptiest slots last; false (and nothing taken)
-## when the bag holds fewer.
+## How many more of `item_id` fit (world-objects spec 8.3): room left in its stacks below the
+## max stack plus a full stack per free slot; 0 for unknown items.
+func item_capacity(item_id: String) -> int:
+	var max_stack := ItemCatalog.max_stack(item_id)
+	if max_stack <= 0:
+		return 0
+	var slots: Array = inventory.get("slots", [])
+	var room := 0
+	for slot: Dictionary in slots:
+		if str(slot.get("item_id", "")) == item_id and int(slot.get("count", 0)) < max_stack:
+			room += max_stack - int(slot["count"])
+	return room + maxi(0, int(inventory.get("max_slots", 0)) - slots.size()) * max_stack
+
+
+## Inventory.add, all or nothing: fills the item's stacks in slot order up to the max stack, then
+## appends new stacks while slots are free. Returns `count`, or 0 when it does not all fit.
+func add_item(item_id: String, count: int) -> int:
+	if count <= 0 or item_capacity(item_id) < count:
+		return 0
+	_insert(item_id, count)
+	inventory_changed.emit({})
+	return count
+
+
+## Takes `count` of `item_id` from the first matching slot onward (Inventory.remove); false (and
+## nothing taken) when the bag holds fewer.
 func remove_item(item_id: String, count: int) -> bool:
 	if count <= 0:
 		return true
@@ -136,18 +191,66 @@ func remove_item(item_id: String, count: int) -> bool:
 		return false
 	var slots: Array = inventory.get("slots", [])
 	var left := count
-	for index in range(slots.size() - 1, -1, -1):
+	var index := 0
+	while index < slots.size() and left > 0:
 		var slot: Dictionary = slots[index]
 		if str(slot.get("item_id", "")) != item_id:
+			index += 1
 			continue
 		var taken := mini(left, int(slot["count"]))
 		slot["count"] = int(slot["count"]) - taken
 		left -= taken
 		if int(slot["count"]) <= 0:
 			slots.remove_at(index)
-		if left == 0:
-			break
+		else:
+			index += 1
+	inventory_changed.emit({})
 	return true
+
+
+## `InventoryWorldTransaction.collectWorldItem` (world-objects spec 8.3): moves as much of a world
+## pile as fits, writes its collectible record and returns the amount moved (0 = nothing fits).
+## The record's `remaining` wins over `remaining`; source ids already saved win over the given ones.
+func collect_world_item(map_id: String, instance_id: String, item_id: String, remaining: int,
+		requested: int = -1, source_resource_instance_id: String = "", source_inventory_drop_id: String = "") -> int:
+	var saved := collectible_record(map_id, instance_id)
+	var left := int(saved.get("remaining", remaining))
+	var asked := requested if requested >= 0 else left
+	if left <= 0 or asked <= 0:
+		return 0
+	var moved := mini(mini(left, asked), item_capacity(item_id))
+	if moved <= 0:
+		return 0
+	_insert(item_id, moved)
+	var record := {"remaining": left - moved}
+	var resource_source := str(saved.get("source_resource_instance_id", source_resource_instance_id))
+	var drop_source := str(saved.get("source_inventory_drop_id", source_inventory_drop_id))
+	if not resource_source.is_empty():
+		record["source_resource_instance_id"] = resource_source
+	if not drop_source.is_empty():
+		record["source_inventory_drop_id"] = drop_source
+	_collectibles(map_id)[instance_id] = record
+	inventory_changed.emit({})
+	world_progress_changed.emit({"map_id": map_id})
+	return moved
+
+
+func _insert(item_id: String, count: int) -> void:
+	var max_stack := ItemCatalog.max_stack(item_id)
+	var slots: Array = inventory.get_or_add("slots", [])
+	var left := count
+	for slot: Dictionary in slots:
+		if left <= 0:
+			break
+		if str(slot.get("item_id", "")) != item_id or int(slot.get("count", 0)) >= max_stack:
+			continue
+		var added := mini(left, max_stack - int(slot["count"]))
+		slot["count"] = int(slot["count"]) + added
+		left -= added
+	while left > 0 and slots.size() < int(inventory.get("max_slots", 0)):
+		var stack := mini(max_stack, left)
+		slots.append({"item_id": item_id, "count": stack})
+		left -= stack
 
 
 ## `playerInventoryWorldTransaction.unlockGate`: true when the gate is (or already was) unlocked;
@@ -192,6 +295,73 @@ func learn_ability(ability_id: String) -> bool:
 
 
 # --- world progress ---------------------------------------------------------------------------
+## Resource record (WorldProgress / SaveSchema ResourceProgressStateData, snake_case):
+## {"stage": "node"|"destroyed"|"depleted", "value": float >= 0, "piles"?: [{"id", "cell_x",
+## "cell_y", "amount", "offset_x"?, "offset_y"?, "object_id"?, "visual_id"?}],
+## "respawn_ready_at_epoch_ms"?}. Collectible record: {"remaining": int >= 0,
+## "source_resource_instance_id"?, "source_inventory_drop_id"?}. World-objects spec 9.
+
+## A copy of the resource record of `instance_id`; {} when none.
+func resource_record(map_id: String, instance_id: String) -> Dictionary:
+	var record: Variant = (map_record(map_id)["resources"] as Dictionary).get(instance_id)
+	return (record as Dictionary).duplicate(true) if record is Dictionary else {}
+
+
+## `setResourceState` (WorldProgress.ts:392-404): keeps the previous regrow timer when the new
+## stage is not "node" and the new record has none; clamps value and pile amounts at 0; omits an
+## empty pile list. No change, no signal.
+func set_resource_record(map_id: String, instance_id: String, record: Dictionary) -> void:
+	var resources: Dictionary = map_record(map_id)["resources"]
+	var previous: Dictionary = resources.get(instance_id, {})
+	var next := {"stage": str(record.get("stage", "node")), "value": maxf(0.0, float(record.get("value", 0.0)))}
+	var piles: Array = []
+	for pile: Dictionary in record.get("piles", []):
+		var copy := pile.duplicate()
+		copy["amount"] = maxi(0, int(copy.get("amount", 0)))
+		piles.append(copy)
+	if not piles.is_empty():
+		next["piles"] = piles
+	if record.has("respawn_ready_at_epoch_ms"):
+		next["respawn_ready_at_epoch_ms"] = float(record["respawn_ready_at_epoch_ms"])
+	elif next["stage"] != "node" and previous.has("respawn_ready_at_epoch_ms"):
+		next["respawn_ready_at_epoch_ms"] = previous["respawn_ready_at_epoch_ms"]
+	if previous == next:
+		return
+	resources[instance_id] = next
+	world_progress_changed.emit({"map_id": map_id})
+
+
+## `clearResourceState` (WorldProgress.ts:407-419): forgets the node and every collectible record
+## of its piles (sourced from it, or keyed "<node>-drop-..."), so a regrown node's piles start full.
+func clear_resource_record(map_id: String, instance_id: String) -> void:
+	var record := map_record(map_id)
+	(record["resources"] as Dictionary).erase(instance_id)
+	var collectibles: Dictionary = record["collectibles"]
+	var prefix := instance_id + "-drop-"
+	for key: String in collectibles.keys():
+		var entry: Dictionary = collectibles[key]
+		if str(entry.get("source_resource_instance_id", "")) == instance_id or key.begins_with(prefix):
+			collectibles.erase(key)
+	world_progress_changed.emit({"map_id": map_id})
+
+
+## A copy of the collectible record of `instance_id`; {} when none.
+func collectible_record(map_id: String, instance_id: String) -> Dictionary:
+	var record: Variant = _collectibles(map_id).get(instance_id)
+	return (record as Dictionary).duplicate() if record is Dictionary else {}
+
+
+## `setCollectibleState`: `remaining = max(0, floor(remaining))`.
+func set_collectible_record(map_id: String, instance_id: String, record: Dictionary) -> void:
+	var next := record.duplicate()
+	next["remaining"] = maxi(0, floori(float(record.get("remaining", 0))))
+	_collectibles(map_id)[instance_id] = next
+	world_progress_changed.emit({"map_id": map_id})
+
+
+func _collectibles(map_id: String) -> Dictionary:
+	return map_record(map_id)["collectibles"]
+
 
 ## The persistent record of `map_id`, created empty on first use (MapRuntimeStateData).
 func map_record(map_id: String) -> Dictionary:
@@ -289,3 +459,20 @@ func _story_list(key: String) -> Array:
 
 static func _constant_int(constants: Services.GameConstantsType, path: String) -> int:
 	return constants.integer(path) if constants != null else 0
+
+
+# --- saves (phase 4; stubs until then) ----------------------------------------------------------
+
+## True when save slot `slot` holds a run. Saves are not written yet.
+func has_save(_slot: int = 0) -> bool:
+	return false
+
+
+## Installs the run saved in `slot`; main.tscn then boots at the saved location. Not yet.
+func load_slot(_slot: int = 0) -> bool:
+	return false
+
+
+## Writes the run to `slot`. Not yet.
+func save_slot(_slot: int = 0) -> bool:
+	return false

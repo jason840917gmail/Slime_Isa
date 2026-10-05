@@ -125,9 +125,16 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
 - Not yet: terrain blending (hand-made edge tiles are on trial in the
-  [terrain lab](./godot/TERRAIN_LAB.md)), the remaining 20 scene scripts
-  (doors, resource nodes, collectibles, chests, the Matron, …), UI styling, saves, the
+  [terrain lab](./godot/TERRAIN_LAB.md)), the remaining scene scripts
+  (doors, chests, beds, the abilities' puzzle pieces, the Matron, …), UI styling, saves, the
   reference-laptop measurement, and the owner's feel check.
+- World objects are ported (2026-10-05, [godot/specs/world-objects.md](./godot/specs/world-objects.md)):
+  trees, stone and iron take tool hits (the sword shows "Requires an Axe"), break into
+  piles that fly out and can be walked over into the bag, and regrow 10 minutes after
+  their last pile is taken. The run (inventory, coins, records, story flags) lives in the
+  `RunState` autoload; world exits travel between areas, gated exits take their key, and
+  story variants swap with their flags. `?weapon=<id>` / `-- --weapon=<id>` holds
+  another weapon (a stone axe to harvest, a spear for Fatty).
 - The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
   the animated surface over `water` and `deep-water` tiles, with the water life
   drawn and animated as in Phaser. Until terrain blending lands, shores keep
