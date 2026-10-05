@@ -819,8 +819,8 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 | a-tonic-for-lili, snack-for-the-road | crafting | ported (`test_lili_tonic_and_snack`) |
 | beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | systems ported; not played end to end yet |
 | a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | systems ported; not played end to end yet |
-| rekindle-the-forge | restoration (ported); forge crafting | systems ported; not played end to end yet |
-| iron-gear | crafting | systems ported; not played end to end yet |
+| rekindle-the-forge | restoration (ported); forge crafting | ported (`test_chapter_two_flow.gd`) |
+| iron-gear | crafting | ported (`test_chapter_two_flow.gd`) |
 | sunnys-basket | Stretch Lash pull of a pile (ported) | portable now |
 | the-matrons-nest | the Matron (`matron.gd`, other engineer) and its camp's `boss_defeated`; end card (Shell) | systems ported; not played end to end yet |
 | all | saves | `RunState.serialize/install` already carry `quests` |
