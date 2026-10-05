@@ -124,8 +124,8 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the owner's machine held 60 fps (16.7 ms frames, 17 ms worst) idle, walking
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
-- Not yet (updated 2026-10-05): the reference-laptop measurement, the owner's feel
-  check, and Phase 5's fresh-save playthrough of Chapter 1 by hand (an automated run of its main line,
+- Not yet (updated 2026-10-05): the owner's feel check and Phase 5's fresh-save playthrough of
+  Chapter 1 by hand (the owner dropped the reference-laptop measurement on 2026-10-05) (an automated run of its main line,
   `test_chapter_one_main_line`, passes). Every scene script id the authored scenes use is ported except `game.ui-surface`,
   which Godot-owned windows replace. A headless Brave run of the web build on 2026-10-05 held
   58-59 fps in level-1, the Fatty fight and the Matron's nest (pack 46.1 MB).
@@ -240,6 +240,36 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   placed bench is a crafting station, comes back with the world, and a 450 ms hold of the interact
   button picks it up. "A Place to Work" can now be finished in play. Placement ends if the slime
   is defeated (owner decision F1 as recommended).
+
+## Cutover checklist (Phase 5)
+
+Waits for the owner's fresh-save playthrough of Chapter 1 in Godot (owner decision 2026-10-05:
+the Phaser app stays runnable until then). Scenes and game data are already Godot's; what links
+`godot/` to the Phaser repo is the art (`pnpm godot:sync`) and the Phaser app itself.
+
+1. **Playthrough** (owner): F5 → New Game → Chapter 1 to the end card; note anything that differs
+   from the Phaser build.
+2. **Art into the Godot project.** `godot/asset/` already sits at `res://asset/`, so moving the
+   runtime folders there keeps every `res://` path:
+   - `git mv` `asset/MAPS`, `asset/audio`, `asset/characters`, `asset/UI` and `asset/project` into
+     `godot/asset/`; drop `/asset/` from `godot/.gitignore`; delete `scripts/godot/sync-assets.mjs`
+     and `pnpm godot:sync`.
+   - Source art stays outside the Godot project (`asset/Originals/`, about 660 MB, so Godot never
+     imports it).
+   - Point the art tools that write runtime sheets (`scripts/art/`, `scripts/props/`,
+     `scripts/houses/`, `scripts/interiors/`, `scripts/characters/`, the `*:pack` commands) at
+     `godot/asset/`; `asset/assets.json` and its checks retire with the Phaser app (Godot imports
+     files directly; `godot/game/data/item-icons.json` already holds the icon frames).
+3. **Remove the Phaser app**: `src/`, `index.html`, `vite.config.ts`, `tsconfig*.json`, the
+   Playwright specs, Scene Studio, the Phaser-only checks, tests and map/scene tools in `scripts/`,
+   and their `package.json` scripts and dependencies (keep `pnpm test:godot`).
+4. **Docs**: rewrite `AGENTS.md` and `README.md` for the Godot project (editor, `pnpm test:godot`,
+   `tools/verify_scenes.gd`, web export); retire the Phaser docs (`docs/ARCHITECTURE.md`,
+   `docs/AUTHORED_MAPS.md`, Scene Studio guides, ...) or mark them historical.
+5. **Release**: the "Web" export preset replaces the Phaser `dist/` build wherever the game is
+   published.
+6. **Saves**: Phaser saves live in the browser's storage; the Godot build saves to `user://`. Decide
+   whether to import them or start Release 1 fresh.
 
 ## Rules while it runs
 
