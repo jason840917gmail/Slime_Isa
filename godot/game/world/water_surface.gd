@@ -1,3 +1,4 @@
+@tool
 extends Node2D
 class_name WaterSurface
 ## Animated water over the ground layer's `water` and `deep-water` tiles (visual only): Phaser

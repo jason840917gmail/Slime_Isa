@@ -1,9 +1,0 @@
-[gd_resource type="ShaderMaterial" format=3]
-
-[ext_resource type="Shader" path="res://game/world/terrain_edges/ground_world.gdshader" id="1_mljcf"]
-[ext_resource type="Texture2D" path="res://game/dev/terrain_lab/art/128x128-tile_19x19_frozen.webp" id="2_5nshy"]
-
-[resource]
-shader = ExtResource("1_mljcf")
-shader_parameter/ground_texture = ExtResource("2_5nshy")
-shader_parameter/ground_period = 1216.0

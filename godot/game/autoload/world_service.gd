@@ -20,6 +20,7 @@ const WorldCamera := preload("res://game/world/world_camera.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
+const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
 
 const SCENE_INDEX_PATH := "res://generated/scene_index.json"
 ## Area kinds (WorldAreaScript.ts); anything else is a content error.
@@ -173,7 +174,8 @@ func spawn_at_phaser_position(scene_id: String, phaser_point: Vector2, parent: N
 
 ## Registers the instanced world: finds the `world_definition.gd` node (exactly one; push_error
 ## and return false otherwise), validates it (world spec 2.1), finds the ground TileMapLayer,
-## mounts the animated water on it (`WaterSurface.mount`, docs/godot/specs/water.md),
+## mounts the animated water on it (`WaterSurface.mount`, docs/godot/specs/water.md) and the
+## hand-made terrain edges over both (`TerrainEdges.mount`, docs/godot/TERRAIN_LAB.md),
 ## and builds the area records from every `world_area.gd` node (world spec 3.1). Emits
 ## `world_registered`. The world must already be inside the tree (areas use global transforms).
 func register_world(root: Node2D) -> bool:
@@ -201,6 +203,8 @@ func register_world(root: Node2D) -> bool:
 	else:
 		# Animated water over the ground's water tiles (water spec 4.1); nothing on a dry world.
 		WaterSurface.mount(ground_layer)
+		# Hand-made edges where grounds meet, shores included: after the water, so they draw over it.
+		TerrainEdges.mount(ground_layer)
 	_areas.clear()
 	for node: Node in area_scripts:
 		var record: Dictionary = (node as WorldAreaScript).to_record()

@@ -1,141 +1,138 @@
-# Terrain lab: hand-made terrain transitions
+# Terrain edges: hand-made transitions between grounds
 
-> **Status: trial** (2026-10-05), in `godot/game/dev/terrain_lab/`. Nothing in the
-> game uses it yet; the converted worlds keep hard tile edges until the owner
-> approves the look and it is wired into worlds (see [Next steps](#next-steps)).
+> **Status:** in every world since 2026-10-05. The owner approved the terrain lab and asked for
+> edges on every ground, water shores included. The lab
+> (`godot/game/dev/terrain_lab/terrain_lab.tscn`) is the showcase and the place to try new art.
 
 ## Owner decisions (2026-10-05)
 
-- **Art density: 128 px of art per 64-unit cell** (2 px per world unit). The grid
-  stays 64 units, so maps, collision, speeds and coordinates do not change; only
-  the art gets sharper. New art is made at this density and drawn at scale 0.5.
-  256 px was considered and rejected: at the 1280×720 base view a cell covers
-  96–120 screen px on a 1080p screen (192–240 on 4K), so 128 px is already sharp
-  on 1080p at every zoom, while 256 px would cost 4× the memory and download
-  (a 19×19 ground sheet would be 4864 px, above the 4096 px texture limit of
-  many phones) for detail only a 4K screen shows.
-- **Transitions are hand-made tiles**, not a code blend like Phaser's
-  `TerrainBlendField`. The art is generated with Magnific (GPT 2.5) and cut into
-  tiles by a tool.
+- **Art density: 128 px of art per 64-unit cell** (2 px per world unit). The grid stays 64 units,
+  so maps, collision, speeds and coordinates do not change; only the art gets sharper. 256 px was
+  rejected: at the 1280×720 base view a cell covers 96–120 screen px on 1080p (192–240 on 4K), so
+  128 px is sharp on 1080p at every zoom, while 256 px would cost 4× the memory and download (a
+  19×19 ground sheet would be 4864 px, above many phones' 4096 px texture limit).
+- **Transitions are hand-made tiles**, not a code blend like Phaser's `TerrainBlendField`. The art
+  is generated with Magnific (GPT 2.5) and cut into tiles by a tool.
 
 ## What you see
 
-Run `godot/game/dev/terrain_lab/terrain_lab.tscn` with F6 (WASD or arrows pan,
-the mouse wheel zooms, Home resets). Left: today's look, 64 px sheets with hard
-cell edges. Right: the same cells with 128 px art and snow edge tiles: rounded
-corners, round one-cell holes, a frosty rim, and snow that runs on without seams.
+Where two grounds meet, the higher one's border is drawn as painted art over the lower one: grass
+tufts over sand, a sandy rim over water, fallen leaves over grass, crystal shards over cavern rock.
+Corners are rounded; a one-cell hole is round; the plain ground continues without seams.
 
-**Painting:** select `EdgeTiles/Ground`, open the TileMap panel's Tiles tab and
-paint with the frozen swatch (source 1) or the sand swatch (source 0). The
-`SnowEdges` layer updates by itself, in the editor too. You only ever paint the
-ground, so the ground cells stay the gameplay truth (walkability, footsteps).
+**The lab:** open `godot/game/dev/terrain_lab/terrain_lab.tscn` and press F6 (WASD or arrows pan,
+the mouse wheel zooms, Home resets, **T switches the edges off and on**). It has every pair the
+worlds have: a beach lake with a deep middle, ponds ringed by moss and fallen leaves, moss on
+forest soil, crystal in snow, a cobble road through grass, a cavern with crystal, deep water and a
+rock wall. To paint: select `Ground`, open the TileMap panel's Tiles tab and paint with any
+terrain source; the edges and the water follow, in the editor too (painted frames snap to the
+cell's sheet-wrap frame).
 
 ## How it works
 
-Two layers, both at scale 0.5 over 128 px tiles:
+`game/world/terrain_edges/terrain_edges.gd` (`TerrainEdges.mount(ground)`, called by
+`WorldService.register_world` right after the water surface) adds a `TerrainEdges` node under the
+ground layer with four TileMapLayers on a **dual grid**: half a cell up and left, so each of their
+cells covers the corner shared by four ground cells.
 
-1. **`Ground`**: one swatch tile per ground. Its tile material
-   (`game/world/terrain_edges/ground_world.gdshader`) draws the ground's seamless
-   19×19 sheet in world space: the same picture as Phaser's sheet-wrap frames
-   (cell x mod 19, y mod 19), but the painter picks one tile instead of the right frame.
-2. **`SnowEdges`**: a *dual grid*. The layer sits half a cell up and left, so each
-   of its cells covers a corner shared by four ground cells.
-   `game/world/terrain_edges/terrain_edges.gd` places the edge tile whose index is
-   `TL + 2·TR + 4·BL + 8·BR` (1 = that ground cell is snow), at atlas
-   `(index % 4, index / 4)`; corners with no snow cell or only snow cells get no
-   tile. The script only picks tiles. It rebuilds when the ground changes.
+1. Each ground cell's **ground** comes from its tile id (`TerrainMaterials.TILE_GROUNDS`: the
+   authored tile set's transition material; `water` and `deep-water` are one water ground).
+2. Grounds **stack** in `TerrainMaterials.ORDER`, bottom to top: water < cavern floor < forest
+   floor < sand < grass < fallen leaves < snow < cobble < moss < crystal. That keeps Phaser's
+   transition priorities (water 4–5 < natural grounds 10 < cobble 12 < moss, crystal 20) and breaks
+   the ties so the ground that "lies on top" wins.
+3. At a corner where grounds meet, **level 0** fills the corner with the lowest of them (its fully
+   covered tile, or the animated water), and **each higher ground** draws its edge tile on the next
+   level: index = TL + 2·TR + 4·BL + 8·BR, with 1 where the cell's ground stacks at least that
+   high. Corners with one ground, a hard-edged tile (rock wall, wood and mushroom floors) or the
+   map border get nothing.
 
-The edge tiles are art. Alpha is where snow covers, colour is the painted rim, and
-a second image with the same layout (`…-snow-edges-rim.png`) says where the
-painted rim shows. `terrain_edges.gdshader` draws, per pixel, sand or snow taken
-from their sheets in world space and mixed by the tile's alpha, with the painted
-rim on top. Both sheets line up with the `Ground` swatches, so an edge tile meets
-the plain cells around it with no seam. The overlay is opaque: where a tile rounds
-a corner away, it shows sand over the snow cell.
+The edge tiles are art. Alpha is where the ground covers, colour its painted rim, and a second
+image with the same layout (`…-edges-rim.png`) says where that rim shows.
+`terrain_edge.gdshader` draws the ground's own sheet there in world space, at the texel the ground
+layer shows (sheet-wrap: position mod 1216), so an edge tile meets the plain cells around it with
+no seam; uncovered pixels are transparent and the level below shows.
 
-### Why not Godot's terrain brush
+**Shores.** Water is the lowest ground, so land edge tiles draw over a water fill.
+`terrain_edge_water.gdshader` draws exactly what the water surface draws: both include
+`game/world/water_surface.gdshaderinc` and the fill copies the surface's mask, sheets and grid. The
+`TerrainEdges` node is a child of the ground after `WaterSurface`, so it draws over the surface and
+the shore foam shows only on the water side of the land's rim.
 
-Godot's "Match Corners" terrain mode decides each corner by the majority of the
-cells around it and places tiles on the painted cells themselves. In a probe, a
-painted 2×2 block came out with a hole in its middle, and a single cell lost one
-corner. Snow also spills half a cell past what you paint, and you would paint the
-edges on a separate layer from the gameplay ground. The dual grid is the usual fix
-for this in Godot: you paint the ground, and the 16 tiles follow from it.
+Visual only: the ground cells stay the gameplay truth (walkability, collision, footsteps).
 
-### Why the snow is drawn in world space
+### Why a dual grid, not Godot's terrain brush
 
-In the first try each edge tile carried its own painted snow. That gave a lighter
-band around every snow area, where the generated snow met the ground sheet, and
-square sand holes where a cell was surrounded. With world-space sheets, the tiles
-only decide where each ground shows and where the rim is.
+Godot's "Match Corners" terrain mode decides each corner by the majority of the cells around it and
+puts tiles on the painted cells themselves. In a probe a painted 2×2 block came out with a hole in
+its middle, a single cell lost a corner, snow spilt half a cell past what was painted, and the
+edges had to be painted on a separate layer from the gameplay ground. The dual grid is the usual
+fix: you paint the ground, the tiles follow.
 
-## Making edge art
+### Why the grounds are drawn in world space
 
-1. Generate two images with Magnific (`gpt-2-mini`, 1:1, 1k,
-   `transparentBackground: true`), following the
-   [Magnific guide](../assets/magnific-mcp-guide.md). Each prompt starts with the
-   style block, and the reference image is the two ground sheets side by side.
-   - **Island:** "Terrain overlay art for a ground tile set: one flat patch of
-     packed snow lying on the ground, seen from above, shaped as a square with
-     softly rounded corners, centered, filling about two thirds of the frame. …
-     The patch border is natural and irregular but runs straight along each side,
-     the same width all around: a thin slightly raised frosty crust … Terrain only,
-     no outline around the snow patch. Isolated on a transparent background …"
-   - **Hole:** the same snow as a field filling the frame, "with one round hole in
-     the exact center where the snow ends … about one third of the frame wide, and
-     inside the hole there is nothing: fully transparent".
-   Keep the raw images in `asset/Originals/grounds/generated/terrain-edges/`.
-2. `python scripts/art/build-terrain-edge-tiles.py [--preview out.png]` (needs
-   numpy and Pillow):
-   - finds the island's rim and the hole's circle;
+In the first try each edge tile carried its own painted ground: that showed a lighter band around
+every area, where the generated texture met the ground sheet, and square holes. With world-space
+sheets the tiles only decide where each ground shows and where its rim is.
+
+## Making edge art for a ground
+
+1. Generate two images with Magnific (`gpt-2-mini`, 1:1, 1k, `transparentBackground: true`;
+   [Magnific guide](../assets/magnific-mcp-guide.md)), each prompt starting with the style block,
+   with **two references**: a 1024 px crop of the ground's sheet, and the snow island (or snow hole)
+   as the composition reference, so every set shares the same geometry.
+   - **Island:** "one flat patch lying on the ground, seen from above, shaped as a square with
+     softly rounded corners, centered, filling about two thirds of the frame, its border running
+     straight along each side. The patch is made of <ground>… The patch border is natural and
+     irregular: <rim>…, the same width all around. Terrain only, no outline… Isolated on a
+     transparent background…"
+   - **Hole:** "a flat field that fills the whole frame edge to edge… with one round hole in the
+     exact center about one third of the frame wide; inside the hole there is nothing, fully
+     transparent…"
+   Generate two of each and keep the cleanest (a hole filled with a half-opaque fog is unusable;
+   a faint fog is cleaned by the tool). Save them as
+   `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png` and `<ground>-hole.png`.
+2. Add the ground to `MATERIALS` in `scripts/art/build-terrain-edge-tiles.py` (its 64 px sheet,
+   the colour reference) and run `python scripts/art/build-terrain-edge-tiles.py <ground>
+   [--preview DIR]` (needs numpy and Pillow). The tool:
+   - finds the island's rim and the hole's circle (clearing generator fog from the hole);
    - scales them so every border crosses a tile side at its midpoint;
-   - cuts the 16 tiles: convex corners and straight sides from the island, inner
-     corners from the hole, diagonals from two corners;
-   - picks the straight windows whose ends match, and blends every tile's border
-     strips to a shared join, so any two tiles that can touch match exactly;
-   - writes the 528 px sheets (2 px gutters) and the rim weights;
-   - also upscales and seams the 2× ground sheets from the padded Magnific upscales.
-3. Let the editor import the files, then rebuild the lab:
-   `"<Godot console exe>" --headless --path godot -s res://tools/build_terrain_lab.gd`.
+   - cuts the 16 tiles (convex corners and straight sides from the island, inner corners from the
+     hole, diagonals from two corners), picks straight windows whose ends match, and blends every
+     tile's border strips to a shared join, so any two tiles that can touch match exactly;
+   - writes `godot/game/world/terrain_edges/art/<ground>-edges.png` (528 px with 2 px gutters) and
+     `<ground>-edges-rim.png`.
+3. Let the editor import them (edge sheets lossless, `compress/mode=0`), add the ground to
+   `TerrainMaterials` (`ORDER`, `TILE_GROUNDS`) and run `pnpm test:godot --filter=terrain_edges`.
 
-The trial used 760 Magnific credits: two 2× upscales at 180 each and two
-generations of two images at 100 each.
+The 2026-10-05 sets (9 grounds) used about 4,000 Magnific credits.
 
 ## Limits
 
-- One edge layer joins **one upper ground to one lower ground** (here snow over
-  sand); the lower ground is a material parameter. Snow next to grass needs its
-  own material (an alternative tile per lower ground, or another layer). Where
-  three grounds meet at one corner, cells that are not snow all draw as the
-  layer's lower ground.
-- The rim follows the generated island, which is fairly regular. More variety
-  means more generated islands as alternative tiles; the tool already makes any
-  set join.
-- The lab does not cover water (solid, with its own surface shader on top),
-  elevation, or decorations along borders.
+- Three or four grounds at one corner: an intermediate ground is drawn under the higher ones over
+  their whole quadrant, so its rim can peek out between a higher ground and a lower one.
+- Very small features stay blocky: a one-cell strip is a cell wide with rounded ends.
+- Hard-edged tiles (rock wall, wood and mushroom floors) keep hard edges, as in Phaser.
+- Water and deep water blend inside the water surface itself (its deep factor), not with tiles.
 
 ## Next steps
 
-1. Owner review of the look (left vs right panel) and of painting in the editor.
-2. Edge sets for the other pairs that meet in the worlds. The tile set's
-   `transition.priority` gives the upper ground of each pair.
-3. Wire it into worlds: the converter would emit swatch tiles with world-space
-   materials and the 128 px sheets instead of sheet-wrap frames, plus an edge
-   layer per pair. Or the world loader adds the edge layers, as it does for
-   water (the [water spec](./specs/water.md) wants terrain edges drawn between
-   the tiles and the water surface).
-4. Regenerate the remaining ground sheets at 128 px (about 180 credits each) and
-   measure the web build's memory and frame time.
+1. Regenerate the ground sheets at 128 px per cell (about 180 credits each; the tool's
+   `--grounds-2x` turns padded Magnific upscales into seamless 2432 px sheets) and draw grounds and
+   edges from them.
+2. Variants: more islands per ground as alternative tiles, so long straight borders repeat less.
 
 ## Files
 
 | Path | What |
 |---|---|
-| `scripts/art/build-terrain-edge-tiles.py` | Art tool: 2× sheets and the 16 edge tiles |
-| `asset/Originals/grounds/generated/terrain-edges/` | Raw Magnific output (island, hole, padded upscales) |
-| `godot/game/dev/terrain_lab/art/` | Tool output (+ `.import` settings: mipmaps on the sheets, lossless edges) |
-| `godot/game/world/terrain_edges/terrain_edges.gd` | Dual-grid tile picker (`@tool`) |
-| `godot/game/world/terrain_edges/terrain_edges.gdshader` | Edge overlay shader |
-| `godot/game/world/terrain_edges/ground_world.gdshader` | World-space ground swatch shader |
-| `godot/tools/build_terrain_lab.gd` | Builds the lab scene, tile sets and materials |
-| `godot/game/dev/terrain_lab/terrain_lab.tscn`, `.gd`, `*.tres` | The lab (built; `terrain_lab.gd` is the camera) |
+| `scripts/art/build-terrain-edge-tiles.py` | Art tool: 16 edge tiles + rim weights per ground |
+| `asset/Originals/grounds/generated/terrain-edges/` | Generated islands and holes (and padded upscales) |
+| `godot/game/world/terrain_edges/art/` | Tool output (+ `.import`: edge sheets lossless) |
+| `godot/game/world/terrain_edges/terrain_edges.gd` | `TerrainEdges`: the dual-grid tile picker (`@tool`) |
+| `godot/game/world/terrain_edges/terrain_materials.gd` | Grounds, their stacking order and art paths |
+| `godot/game/world/terrain_edges/terrain_edge.gdshader`, `terrain_edge_water.gdshader` | Land edges and the water fill |
+| `godot/game/world/water_surface.gdshaderinc` | The water maths shared by the surface and the shores |
+| `godot/tools/build_terrain_lab.gd` | Builds the lab scene |
+| `godot/game/dev/terrain_lab/` | The lab (`terrain_lab.gd` camera and T toggle, `terrain_lab_ground.gd`) |
+| `godot/tests/test_terrain_edges.gd` | Coverage, stacking, shores, hard edges, level-1 |

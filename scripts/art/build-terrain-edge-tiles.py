@@ -1,38 +1,36 @@
 #!/usr/bin/env python3
-"""Builds the terrain-lab art: 2x ground sheets and the snow edge tile set.
+"""Builds the hand-made terrain edge tiles: 16 corner tiles per ground (docs/godot/TERRAIN_LAB.md).
 
-The owner chose 128 px of art per 64-unit tile (2 px per world unit) and hand-made
-transition tiles painted with Godot's terrain brush instead of the code blend
-(docs/godot/TERRAIN_LAB.md). This tool turns Magnific output into those tiles; it does
-not run in the game.
+The owner chose hand-made transition tiles (Magnific GPT 2.5 art) instead of a code blend,
+at 128 px of art per 64-unit cell. For every ground in MATERIALS this tool turns two
+generated images into one edge tile sheet; it does not run in the game.
 
 Inputs (asset/Originals/grounds/generated/terrain-edges/):
-  frozen-2x-padded-upscale.jpg, sanddessert-2x-padded-upscale.jpg
-      Magnific 2x upscales of the 64 px ground sheets after padding them with 152 px of
-      wrapped content on every side (1520 px in, 3040 px out). The centre 2432 px is the
-      new sheet; the padding lets the seams be blended so the sheet still wraps.
-  snow-island.png   GPT 2.5 snow patch on transparency (straight sides, convex corners).
-  snow-hole.png     GPT 2.5 snow field with a round transparent hole (concave corners).
+  <ground>-island.png   a patch of the ground on transparency (straight sides, convex corners)
+  <ground>-hole.png     a field of the ground with a round transparent hole (concave corners)
+  The ground's own 64 px sheet (asset/MAPS/grounds/) is the colour reference.
+  Optional, with --grounds-2x: <ground>-2x-padded-upscale.jpg, a Magnific 2x upscale of the
+  ground sheet padded by 152 px of wrapped content (1520 px in, 3040 px out).
 
-Outputs (all derived; re-run the tool instead of editing them):
-  godot/game/dev/terrain_lab/art/128x128-tile_19x19_{frozen,sanddessert}.webp
-  godot/game/dev/terrain_lab/art/128x128-tile_4x4_snow-edges.png
-      16 corner tiles: alpha = snow coverage, rgb = the painted rim. Tile index =
-      TL + 2*TR + 4*BL + 8*BR (1 = that corner is snow), at (index % 4, index // 4).
-      Index 0 is empty and 15 is fully covered. Each tile has a 2 px gutter of its own
-      edge pixels (atlas margins 2, separation 4: the sheet is 528 px).
-  godot/game/dev/terrain_lab/art/128x128-tile_4x4_snow-edges-rim.png
-      Same layout, greyscale: 1 where the painted rim shows, 0 where the overlay shader
-      (snow_edges.gdshader) draws the ice ground texture in world space instead. That is
-      what keeps the snow seamless across tiles and with the ice ground beside it.
+Outputs (derived; re-run the tool instead of editing them), in godot/game/world/terrain_edges/art/:
+  <ground>-edges.png
+      16 corner tiles. alpha = where this ground covers, rgb = its painted rim. Tile index =
+      TL + 2*TR + 4*BL + 8*BR (1 = that corner's cell is this ground), at (index % 4,
+      index // 4). Index 0 is empty and 15 fully covered. Each tile has a 2 px gutter of its
+      own edge pixels (atlas margins 2, separation 4: the sheet is 528 px).
+  <ground>-edges-rim.png
+      Same layout, greyscale: 1 where the painted rim shows, 0 where the shader
+      (terrain_edge.gdshader) draws the ground's own sheet in world space instead, which keeps
+      the ground seamless across tiles and with its plain cells.
+  With --grounds-2x: <ground>-2x.webp, the seamless 128 px-per-cell ground sheet (2432 px).
 
-Geometry: a snow/clear border crosses a tile side at its midpoint, so every tile joins
-its neighbours. Straight tiles are cut from the island's straight sides where both ends
-match best, then made exactly periodic; every other tile's border strips are blended to
-the straight tiles (rim crossings), full cover (all-snow sides) or nothing (all-clear
-sides), so any two tiles that can touch share the same border pixels.
+Geometry: a border crosses a tile side at its midpoint, so every tile joins its neighbours.
+Straight tiles are cut from the island's straight sides where both ends match best, then made
+exactly periodic; every other tile's border strips are blended to the straight tiles (rim
+crossings), full cover (covered sides) or nothing (uncovered sides), so any two tiles that can
+touch share the same border pixels.
 
-Usage: python scripts/art/build-terrain-edge-tiles.py [--preview out.png]
+Usage: python scripts/art/build-terrain-edge-tiles.py [ground ...] [--preview DIR] [--grounds-2x]
 """
 from __future__ import annotations
 
@@ -44,14 +42,29 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "asset/Originals/grounds/generated/terrain-edges"
-LAB_ART = ROOT / "godot/game/dev/terrain_lab/art"
+GROUND_SHEETS = ROOT / "asset/MAPS/grounds"
+OUT = ROOT / "godot/game/world/terrain_edges/art"
+
+## ground (the authored tile set's transition material) -> its 64 px sheet's file stem
+MATERIALS = {
+    "frozen": "frozen",
+    "sanddessert": "sanddessert",
+    "highland": "HighlandGreen",
+    "forest-floor": "forest-floor",
+    "forest-moss": "forest-moss",
+    "crystal-floor": "crystal-floor",
+    "cavern-floor": "cavern-floor",
+    "amberleaf": "amberleaf",
+    "town-cobble": "town-cobble",
+}
 
 TILE = 128            # art pixels per tile (64 world units at 2 px per unit)
 SHEET_TILES = 19      # ground sheets keep the 19x19 sheet-wrap layout
 PAD_OUT = 304         # 152 px of padding, doubled by the upscale
 SEAM = 48             # blend width for the ground sheet wrap seams
 BORDER = 20           # border strip blended to the canonical join
-RIM_SIGMA = 7.0       # how far the painted rim reaches into the snow (Gaussian sigma, px)
+RIM_SIGMA = 7.0       # how far the painted rim reaches into the ground (Gaussian sigma, px)
+HAZE_ALPHA = 0.15     # coverage below this is generator haze, not art
 GUTTER = 2            # edge-pixel gutter around each tile in the edge sheets
 TL, TR, BL, BR = 1, 2, 4, 8
 CHANNELS = 5          # premultiplied RGBA + rim weight
@@ -65,8 +78,9 @@ def smoothstep(x: np.ndarray) -> np.ndarray:
 
 
 def load_premul(path: Path) -> np.ndarray:
-    """RGBA file -> float premultiplied array (h, w, 4) in 0..1."""
+    """RGBA file -> float premultiplied array (h, w, 4) in 0..1, generator haze removed."""
     a = np.asarray(Image.open(path).convert("RGBA"), dtype=np.float64) / 255.0
+    a[a[..., 3] < HAZE_ALPHA] = 0.0
     a[..., :3] *= a[..., 3:4]
     return a
 
@@ -151,19 +165,50 @@ def rim_lines(alpha: np.ndarray) -> tuple[float, float, float, float]:
     return float(top), float(bottom), float(left), float(right)
 
 
-def hole_circle(alpha: np.ndarray) -> tuple[float, float, float]:
-    """Centre and radius of the transparent hole around the image centre."""
+def hole_region(alpha: np.ndarray) -> np.ndarray:
+    """The uncovered region connected to the image centre (the hole), as a boolean mask."""
     h, w = alpha.shape
     # copy(): an image made from a numpy buffer is read-only and floodfill would not stick
     clear = Image.fromarray(np.where(alpha < 0.5, 255, 0).astype(np.uint8), "L").copy()
     ImageDraw.floodfill(clear, (w // 2, h // 2), 128)
-    hole = np.asarray(clear) == 128
+    return np.asarray(clear) == 128
+
+
+def clear_hole(premul: np.ndarray) -> np.ndarray:
+    """Empties the hole: the generator often paints a pale fog into it that fades from opaque at
+    the art to clear at the centre. When the hole holds such fog, every fog-coloured pixel
+    connected to the centre is cleared (the art around it has other colours); else just the
+    uncovered region. Returns the cleared hole mask."""
+    alpha = premul[..., 3]
+    region = hole_region(alpha)
+    faint = region & (alpha > 0.02)
+    rgb = straight_rgba(premul)[..., :3]
+    fog = np.median(rgb[faint], axis=0) if faint.sum() > 2000 else None
+    art = np.median(rgb[alpha > 0.95], axis=0)
+    # Fog the colour of the art itself (a pale snow field) cannot be told apart: keep the region.
+    if fog is not None and np.linalg.norm(fog - art) > 0.25:
+        # A pixel is fog when it is closer to the fog colour than to the art's.
+        to_fog = np.linalg.norm(rgb - fog, axis=-1)
+        to_art = np.linalg.norm(rgb - art, axis=-1)
+        foggy = (to_fog < to_art * 0.8) | (alpha < 0.5)
+        h, w = alpha.shape
+        mask = Image.fromarray(np.where(foggy, 255, 0).astype(np.uint8), "L").copy()
+        ImageDraw.floodfill(mask, (w // 2, h // 2), 128)
+        region = np.asarray(mask) == 128
+    premul[region] = 0.0
+    return region
+
+
+def hole_circle(hole: np.ndarray) -> tuple[float, float, float]:
+    """Centre and radius of the hole region."""
     ys, xs = np.nonzero(hole)
+    if len(xs) == 0:
+        raise SystemExit("hole image: no transparent hole at the image centre")
     return float(xs.mean()), float(ys.mean()), float(np.sqrt(hole.sum() / np.pi))
 
 
 def match_colour(premul: np.ndarray, ref_rgb: np.ndarray) -> np.ndarray:
-    """Moves the opaque snow's colour statistics onto the ice ground's, so the painted rim
+    """Moves the opaque art's colour statistics onto the ground sheet's, so the painted rim
     blends into the ground texture the shader draws behind it."""
     alpha = premul[..., 3]
     solid = alpha > 0.98
@@ -210,11 +255,11 @@ def cut(canvas: np.ndarray, col: int, row: int) -> np.ndarray:
     return canvas[row * TILE:(row + 1) * TILE, col * TILE:(col + 1) * TILE].copy()
 
 
-def build_edges(island_path: Path, hole_path: Path, ice_rgb: np.ndarray) -> dict[int, np.ndarray]:
+def build_edges(island_path: Path, hole_path: Path, ground_rgb: np.ndarray) -> dict[int, np.ndarray]:
     tiles: dict[int, np.ndarray] = {}
 
     # Island: rims to the middle of the outer ring of a 3x3 tile canvas.
-    island = match_colour(load_premul(island_path), ice_rgb)
+    island = match_colour(load_premul(island_path), ground_rgb)
     top, bottom, left, right = rim_lines(island[..., 3])
     sx, sy = (right - left) / (2 * TILE), (bottom - top) / (2 * TILE)
     box = (left - TILE / 2 * sx, top - TILE / 2 * sy, left + 5 * TILE / 2 * sx, top + 5 * TILE / 2 * sy)
@@ -234,9 +279,12 @@ def build_edges(island_path: Path, hole_path: Path, ice_rgb: np.ndarray) -> dict
     o = best_window(isl[:, 2 * TILE:3 * TILE], False, lo, hi)
     tiles[TL | BL] = periodic(isl[o:o + TILE, 2 * TILE:3 * TILE], 0, 16)
 
-    # Hole: circle of radius TILE/2 centred on the middle corner of a 2x2 tile canvas.
-    hole = match_colour(load_premul(hole_path), ice_rgb)
-    cx, cy, r = hole_circle(hole[..., 3])
+    # Hole: circle of radius TILE/2 centred on the middle corner of a 2x2 tile canvas. Haze the
+    # generator left inside the hole is cleared first.
+    hole = load_premul(hole_path)
+    region = clear_hole(hole)
+    hole = match_colour(hole, ground_rgb)
+    cx, cy, r = hole_circle(region)
     s = r / (TILE / 2)
     hol = with_rim(resample(hole, (cx - TILE * s, cy - TILE * s, cx + TILE * s, cy + TILE * s), 2 * TILE))
     tiles[TL | TR | BL] = cut(hol, 0, 0)
@@ -250,7 +298,7 @@ def build_edges(island_path: Path, hole_path: Path, ice_rgb: np.ndarray) -> dict
 
     tiles[0] = np.zeros((TILE, TILE, CHANNELS))
     full = np.zeros((TILE, TILE, CHANNELS))
-    full[..., :3] = ice_rgb.reshape(-1, 3).mean(0)   # never shown (no rim), keeps blends neutral
+    full[..., :3] = ground_rgb.reshape(-1, 3).mean(0)   # never shown (no rim), keeps blends neutral
     full[..., 3] = 1.0   # covered, no rim: the shader shows only the ground texture
     tiles[15] = full
     return normalise_borders(tiles, full)
@@ -264,7 +312,7 @@ def normalise_borders(tiles: dict[int, np.ndarray], full: np.ndarray) -> dict[in
     straight: dict[int, np.ndarray] = {}
 
     def canon(side: str, a: bool, b: bool) -> np.ndarray | None:
-        # a, b: snow at the side's first and second end (top->bottom or left->right).
+        # a, b: covered at the side's first and second end (top->bottom or left->right).
         # None: a rim crosses this side and the straight tiles are not final yet.
         if a and b:
             return full
@@ -298,7 +346,7 @@ def normalise_borders(tiles: dict[int, np.ndarray], full: np.ndarray) -> dict[in
             t = t * (1.0 - w) + ref * w
         return t
 
-    # Straight tiles first (their all-snow and all-clear sides only: their rim sides already
+    # Straight tiles first (their covered and uncovered sides only: their rim sides already
     # wrap), then everything else against the finished straights.
     straight.update({index: normalise(index, tiles[index]) for index in straight_ids})
     out: dict[int, np.ndarray] = dict(straight)
@@ -320,83 +368,54 @@ def edge_sheet(tiles: dict[int, np.ndarray]) -> np.ndarray:
     return sheet
 
 
-# ---------------------------------------------------------------- preview
-
-PREVIEW_MAP = [
-    "................",
-    "..####..........",
-    "..#####.....##..",
-    "..######...###..",
-    "...#####...###..",
-    "....###.........",
-    "..........#.....",
-    "...####....#....",
-    "...#..#.........",
-    "...####.........",
-    "................",
-]
-
-
-def preview(frozen: np.ndarray, sand: np.ndarray, tiles: dict[int, np.ndarray], path: Path) -> None:
-    """Top: today's hard cell edges. Bottom: sand ground + the snow edge layer, drawn the way
-    snow_edges.gdshader draws it (ground texture in world space, painted rim on top)."""
-    rows, cols = len(PREVIEW_MAP), len(PREVIEW_MAP[0])
-    ice = {(x, y) for y, line in enumerate(PREVIEW_MAP) for x, ch in enumerate(line) if ch == "#"}
-
-    def frame(sheet: np.ndarray, x: int, y: int) -> np.ndarray:
-        fx, fy = x % SHEET_TILES, y % SHEET_TILES
-        return sheet[fy * TILE:(fy + 1) * TILE, fx * TILE:(fx + 1) * TILE] / 255.0
-
-    hard = np.zeros((rows * TILE, cols * TILE, 3))
-    soft = np.zeros_like(hard)
-    for y in range(rows):
-        for x in range(cols):
-            cell = np.s_[y * TILE:(y + 1) * TILE, x * TILE:(x + 1) * TILE]
-            hard[cell] = frame(frozen if (x, y) in ice else sand, x, y)
-            soft[cell] = frame(sand, x, y)
-
-    def corner(cx: int, cy: int) -> bool:   # a grid corner is snow if a painted cell touches it
-        return any((cx - dx, cy - dy) in ice for dx in (0, 1) for dy in (0, 1))
-
-    for y in range(rows):
-        for x in range(cols):
-            index = (TL * corner(x, y) + TR * corner(x + 1, y)
-                     + BL * corner(x, y + 1) + BR * corner(x + 1, y + 1))
-            t = tiles[index]
-            alpha, rim = t[..., 3:4], t[..., 4:5]
-            painted = straight_rgba(t)[..., :3]
-            colour = frame(frozen, x, y) * (1.0 - rim) + painted * rim
-            cell = np.s_[y * TILE:(y + 1) * TILE, x * TILE:(x + 1) * TILE]
-            soft[cell] = colour * alpha + soft[cell] * (1.0 - alpha)
-    both = np.concatenate([hard, soft], axis=0)
-    Image.fromarray(np.clip(both * 255 + 0.5, 0, 255).astype(np.uint8), "RGB").save(path)
+def preview(ground: str, tiles: dict[int, np.ndarray], ground_rgb: np.ndarray, path: Path) -> None:
+    """The 16 tiles over a neutral backdrop, drawn as the shader draws them."""
+    tile_bg = np.full((TILE, TILE, 3), (0.35, 0.33, 0.30))
+    out = np.zeros((4 * TILE, 4 * TILE, 3))
+    flat = ground_rgb[:TILE, :TILE]
+    for index, t in tiles.items():
+        alpha, rim = t[..., 3:4], t[..., 4:5]
+        colour = flat * (1.0 - rim) + straight_rgba(t)[..., :3] * rim
+        c, r = index % 4, index // 4
+        out[r * TILE:(r + 1) * TILE, c * TILE:(c + 1) * TILE] = colour * alpha + tile_bg * (1.0 - alpha)
+    Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8), "RGB").save(path / f"{ground}-preview.png")
 
 
 # ---------------------------------------------------------------- main
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--preview", type=Path, help="write a hard-edge vs edge-tile comparison PNG")
+    parser.add_argument("grounds", nargs="*", help="grounds to build (default: every ground with art)")
+    parser.add_argument("--preview", type=Path, help="write <ground>-preview.png sheets into this folder")
+    parser.add_argument("--grounds-2x", action="store_true", help="also write <ground>-2x.webp from padded upscales")
     args = parser.parse_args()
 
-    LAB_ART.mkdir(parents=True, exist_ok=True)
-    sheets = {}
-    for name in ("frozen", "sanddessert"):
-        sheet = seamless_sheet(SRC / f"{name}-2x-padded-upscale.jpg")
-        sheets[name] = sheet
-        im = Image.fromarray(np.clip(sheet + 0.5, 0, 255).astype(np.uint8), "RGB")
-        im.save(LAB_ART / f"128x128-tile_19x19_{name}.webp", quality=90, method=6)
-        print(f"ground {name}: {im.size[0]} px")
-
-    tiles = build_edges(SRC / "snow-island.png", SRC / "snow-hole.png", sheets["frozen"] / 255.0)
-    sheet = edge_sheet(tiles)
-    save_rgba(sheet[..., :4], LAB_ART / "128x128-tile_4x4_snow-edges.png")
-    Image.fromarray(np.clip(sheet[..., 4] * 255.0 + 0.5, 0, 255).astype(np.uint8), "L").save(
-        LAB_ART / "128x128-tile_4x4_snow-edges-rim.png", optimize=True)
-    print(f"snow edges: 16 tiles at {TILE} px (+ rim weights)")
+    OUT.mkdir(parents=True, exist_ok=True)
     if args.preview:
-        preview(sheets["frozen"], sheets["sanddessert"], tiles, args.preview)
-        print(f"preview: {args.preview}")
+        args.preview.mkdir(parents=True, exist_ok=True)
+    for ground in args.grounds or list(MATERIALS):
+        if ground not in MATERIALS:
+            raise SystemExit(f"unknown ground '{ground}' (known: {', '.join(MATERIALS)})")
+        island, hole = SRC / f"{ground}-island.png", SRC / f"{ground}-hole.png"
+        if not island.exists() or not hole.exists():
+            print(f"{ground}: no island/hole art, skipped")
+            continue
+        sheet_path = GROUND_SHEETS / f"64x64-tile_19x19_{MATERIALS[ground]}.webp"
+        ground_rgb = np.asarray(Image.open(sheet_path).convert("RGB"), dtype=np.float64) / 255.0
+        tiles = build_edges(island, hole, ground_rgb)
+        sheet = edge_sheet(tiles)
+        save_rgba(sheet[..., :4], OUT / f"{ground}-edges.png")
+        Image.fromarray(np.clip(sheet[..., 4] * 255.0 + 0.5, 0, 255).astype(np.uint8), "L").save(
+            OUT / f"{ground}-edges-rim.png", optimize=True)
+        print(f"{ground}: 16 edge tiles at {TILE} px (+ rim weights)")
+        if args.preview:
+            preview(ground, tiles, ground_rgb, args.preview)
+        upscale = SRC / f"{ground}-2x-padded-upscale.jpg"
+        if args.grounds_2x and upscale.exists():
+            sheet_2x = seamless_sheet(upscale)
+            Image.fromarray(np.clip(sheet_2x + 0.5, 0, 255).astype(np.uint8), "RGB").save(
+                OUT / f"{ground}-2x.webp", quality=90, method=6)
+            print(f"{ground}: 2x ground sheet")
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ res://game/shell/title.tscn (title.gd)                 title screen, the main sc
 
 res://game/main.tscn (main.gd)                         bootstrap
   World (Node2D)      <- world.level-1 instanced here (converter root, y-sorted)
-       ground (TileMapLayer, z -2) > TileCollision, WaterSurface (water_surface.gd)  <- mounted by register_world
+       ground (TileMapLayer, z -2) > TileCollision, WaterSurface (water_surface.gd), TerrainEdges (terrain_edges.gd) > Level0..3  <- mounted by register_world
        ...converted props/NPCs (npc.gd), world areas (world_area.gd), exits (world_exit.gd)
        WorldBounds (StaticBody2D, built at runtime)
        PlayerSlime (character.player-slime)  <- spawned at runtime
@@ -237,7 +237,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `godot/tests/**` | tests | Headless integration tests, `pnpm test:godot` |
 | `game/world/world_camera.gd` | world | |
 | `game/world/world_bounds.gd` | world | |
-| `game/world/water_surface.gd`, `water_surface.gdshader` | world | Animated water over the ground's water tiles ([specs/water.md](./specs/water.md)); mounted by `WorldService.register_world` |
+| `game/world/water_surface.gd`, `water_surface.gdshader`, `water_surface.gdshaderinc` | world | Animated water over the ground's water tiles ([specs/water.md](./specs/water.md)); mounted by `WorldService.register_world`; the `.gdshaderinc` holds the water maths the shoreline edges share |
+| `game/world/terrain_edges/terrain_edges.gd`, `terrain_materials.gd`, `terrain_edge.gdshader`, `terrain_edge_water.gdshader`, `art/` | world | Hand-made terrain edges on a dual grid over the ground, shores included ([TERRAIN_LAB.md](./TERRAIN_LAB.md)); mounted by `WorldService.register_world` after the water |
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |
 | `game/scripts/world_area.gd` | world | |
@@ -370,6 +371,6 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 - Solid terrain tiles carry a `tile_id` custom data layer; their collision is merged rectangle bodies under `ground/TileCollision` (Phaser's outer-edge inset), which `WorldService.is_solid_tile` reads.
 - Re-anchored scenes placed in worlds (NPCs) get `depth_anchor` added to their position; instance roots carry `metadata/instance_id` and `metadata/persistence_key`.
 - The ground layer is the TileMapLayer whose `tile_set` is `res://generated/resources/terrain_tileset.tres`.
-- The water surface is the ground layer's child `WaterSurface` (z -2, drawn right after the tiles); underwater life (z -2) y-sorts after it. When terrain blending is ported it must draw between the tiles and the surface, and the shader's interim `smooth_water_ground` goes off (water spec 6.1).
+- The water surface is the ground layer's child `WaterSurface` (z -2, drawn right after the tiles); underwater life (z -2) y-sorts after it. The terrain edges are the next child, `TerrainEdges`, drawn over the surface: at a shore they fill with the same water (shared `water_surface.gdshaderinc`, the surface's own mask) and the land's edge tile on top, so `smooth_water_ground` stays on ([TERRAIN_LAB.md](./TERRAIN_LAB.md)).
 - Physics interpolation is on; the camera blends its target between ticks itself.
 - `*.gd.uid` files are committed.
