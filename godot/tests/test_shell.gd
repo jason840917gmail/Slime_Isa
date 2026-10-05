@@ -33,6 +33,17 @@ const DOCUMENTED_VARIATIONS: PackedStringArray = [
 	"GhostButton", "BoldButton", "HudBar", "BossBar", "FloatingHealthBar",
 ]
 
+## Stands in for game/building's furniture placement (group `furniture_placement`, `is_active()`).
+class _FakePlacement extends Node:
+	var active := true
+
+	func _init() -> void:
+		add_to_group(&"furniture_placement")
+
+	func is_active() -> bool:
+		return active
+
+
 ## The registered `Shell` autoload (if any), out of the tree while a test uses its own.
 var _parked_shell: Node
 var _parked_index: int = -1
@@ -187,6 +198,14 @@ func test_pause_menu_pauses_the_tree_only_in_a_world(t: TestContext) -> void:
 	t.main.set(&"_transitioning", true)
 	t.check(not shell.can_open_pause(), "pause allowed while travelling")
 	t.main.set(&"_transitioning", false)
+
+	# Not while a furniture ghost is out (WorldScene.ts:543-544).
+	var placing := _FakePlacement.new()
+	t.main.add_child(placing)
+	t.check(not shell.can_open_pause(), "pause allowed while placing furniture")
+	placing.active = false
+	t.check(shell.can_open_pause(), "pause refused after placing furniture")
+	placing.free()
 
 	# Save writes the recovery autosave; Load reloads it in place (Main.load_run), unpaused.
 	var run := Services.run()

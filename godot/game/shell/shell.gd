@@ -51,6 +51,8 @@ const TITLE_SCENE := "res://game/shell/title.tscn"
 const MAIN_SCENE := "res://game/main.tscn"
 ## main.gd joins this group; the pause menu and area cards only work while it exists.
 const WORLD_MAIN_GROUP := &"world_main"
+## Furniture placement (game/building/); no pause menu while it has a ghost out.
+const FURNITURE_PLACEMENT_GROUP := &"furniture_placement"
 ## Above the HUD (10) and floating text (8), below the FPS readout (100).
 const LAYER := 50
 ## Pause reasons are `shell:<surface id>`.
@@ -156,8 +158,8 @@ func open_menus() -> Array[StringName]:
 	return ids
 
 
-## `canOpen` (WorldScene.ts:543): a world is running (group `world_main`), no shell window is open,
-## no travel or quit is under way and the player is not defeated.
+## `canOpen` (WorldScene.ts:543-544): a world is running (group `world_main`), no shell window is
+## open, no travel or quit is under way, no furniture is being placed and the player is not defeated.
 func can_open_pause() -> bool:
 	if is_any_open() or _quitting or not is_inside_tree():
 		return false
@@ -166,10 +168,22 @@ func can_open_pause() -> bool:
 		return false
 	if main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning")):
 		return false
+	if _is_placing_furniture():
+		return false
 	var world := Services.world()
 	if world != null and world.player != null and is_instance_valid(world.player) and world.player.is_dead():
 		return false
 	return true
+
+
+## True while furniture placement (group `furniture_placement`, game/building/) has a ghost out.
+func _is_placing_furniture() -> bool:
+	if not is_inside_tree():
+		return false
+	for placement: Node in get_tree().get_nodes_in_group(FURNITURE_PLACEMENT_GROUP):
+		if placement.has_method(&"is_active") and bool(placement.call(&"is_active")):
+			return true
+	return false
 
 
 ## Opens the pause menu when `can_open_pause()`; true if it opened.

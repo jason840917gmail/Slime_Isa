@@ -249,6 +249,14 @@ func test_map_key_refused_over_other_windows(t: TestContext) -> void:
 	t.check(not map_ui.can_open_from_key(), "the map key may open the world map while travelling")
 	t.main.set(&"_transitioning", false)
 	t.check(map_ui.can_open_from_key(), "the map key may not open the world map in level-1")
+	# Placing furniture (a node of group furniture_placement with is_active()).
+	var placing := Node.new()
+	placing.set_script(_placement_script())
+	placing.add_to_group(&"furniture_placement")
+	t.main.add_child(placing)
+	t.check(not map_ui.can_open_from_key(), "the map key may open the world map while placing furniture")
+	placing.free()
+	t.check(map_ui.can_open_from_key(), "the map key stays refused after placing furniture")
 	t.check(not t.tree.paused, "the tree is paused")
 
 
@@ -288,6 +296,14 @@ func test_travel_rebuilds_the_minimap_and_world_map(t: TestContext) -> void:
 
 
 # --- helpers --------------------------------------------------------------------------------------
+
+## A stand-in for game/building's furniture placement: `is_active()` is always true.
+func _placement_script() -> GDScript:
+	var script := GDScript.new()
+	script.source_code = "extends Node\nfunc is_active() -> bool:\n\treturn true\n"
+	script.reload()
+	return script
+
 
 func _map_ui(t: TestContext) -> MapUi:
 	var node := t.tree.get_first_node_in_group(MapUi.GROUP) as MapUi
