@@ -50,6 +50,8 @@ var _pan_ms: float = 0.0
 var _pan_anchor: Vector2 = Vector2.ZERO
 var _backdrop_world: Node2D
 var _leaving: bool = false
+## The menu button that opened the current shell window; focused again when it closes.
+var _return_focus: Button
 
 @onready var backdrop: Node2D = $Backdrop
 @onready var camera: Camera2D = $Camera
@@ -74,6 +76,10 @@ func _ready() -> void:
 	apply_viewport_scale()
 	get_tree().root.size_changed.connect(apply_viewport_scale)
 	_shell = _find_shell()
+	# A shell window (Settings, Credits, the save slots) hides the title's menu while it is open,
+	# so the menu does not show through it (shell windows hide the windows they cover likewise).
+	_shell.connect(&"menu_opened", _on_shell_menus_changed)
+	_shell.connect(&"menu_closed", _on_shell_menus_changed)
 	new_game_button.pressed.connect(_on_new_game)
 	continue_button.pressed.connect(_on_continue)
 	load_button.pressed.connect(_on_load)
@@ -96,6 +102,11 @@ func _exit_tree() -> void:
 	_set_music_ducked(false)
 	if get_tree().root.size_changed.is_connected(apply_viewport_scale):
 		get_tree().root.size_changed.disconnect(apply_viewport_scale)
+	# The Shell autoload outlives the title.
+	if _shell != null and is_instance_valid(_shell):
+		for signal_name: StringName in [&"menu_opened", &"menu_closed"]:
+			if _shell.is_connected(signal_name, _on_shell_menus_changed):
+				_shell.disconnect(signal_name, _on_shell_menus_changed)
 
 
 func _process(delta: float) -> void:
@@ -208,17 +219,38 @@ func _on_continue() -> void:
 
 func _on_load() -> void:
 	if _shell != null and bool(_shell.call(&"has_action", &"load")):
+		_return_focus = load_button
 		_shell.call(&"run_action", &"load")
 
 
 func _on_settings() -> void:
 	if _shell != null:
+		_return_focus = settings_button
 		_shell.call(&"open_settings")
 
 
 func _on_credits() -> void:
 	if _shell != null:
+		_return_focus = credits_button
 		_shell.call(&"open_credits")
+
+
+## Hides the menu while a shell window is open; when the last one closes, shows it again
+## refreshed (a save may have been written or deleted) with focus back on the button that
+## opened the window.
+func _on_shell_menus_changed(_surface_id: StringName) -> void:
+	if _leaving or not is_inside_tree():
+		return
+	var covered := bool(_shell.call(&"is_any_open"))
+	if menu_panel.visible != covered:
+		return
+	menu_panel.visible = not covered
+	if covered:
+		return
+	refresh()
+	var target := _return_focus if _return_focus != null and _return_focus.is_visible_in_tree() and not _return_focus.disabled else new_game_button
+	_return_focus = null
+	target.grab_focus.call_deferred()
 
 
 ## Leaves the title for main.tscn: the backdrop world is unregistered first.

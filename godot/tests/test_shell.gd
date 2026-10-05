@@ -304,7 +304,11 @@ func test_title_menu(t: TestContext) -> void:
 	if shell != null:
 		title.settings_button.pressed.emit()
 		t.check(shell.settings_menu.is_open(), "Settings did not open from the title")
+		t.check(not title.menu_panel.visible, "the title menu shows through Settings")
 		shell.settings_menu.close()
+		await t.steps(1)
+		t.check(title.menu_panel.visible, "the title menu did not come back after Settings")
+		t.check(title.settings_button.has_focus(), "focus did not return to Settings")
 		title.credits_button.pressed.emit()
 		t.check(shell.credits_menu.is_open(), "Credits did not open from the title")
 		t.check(shell.credits_menu.text_label.text.begins_with("SLIME ISA\nCreated by"), "credits text")
