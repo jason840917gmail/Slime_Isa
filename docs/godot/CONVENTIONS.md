@@ -36,6 +36,7 @@ instead of the generated one. From then on edit it in the Godot editor (or with 
 | Scene id | Owned scene | Since |
 |---|---|---|
 | `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll and sword-swing clips, built by `tools/build_player_clips.gd`) |
+| `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](./specs/shell.md)). Loaded by path from the Shell and the title, so they are not in `OWNED_SCENES` |
 
 ## Running a world
 
@@ -108,7 +109,12 @@ pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godo
 sprint and dodge, sword and worm damage, i-frames, knockback, worm death, the starter camp's
 spawning, respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
 clips, the Fatty One Eye fight (camp spawn and reset, hop and leap timings, landing damage, arena
-leash, health bar, defeat), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
+leash, health bar, defeat), the ranged enemies (`test_enemy_ranged.gd`: archer arrows, projectile
+lifetime, walls and hurtboxes, flee range, the spider AI and webs, the brawler's impact effect,
+slow, knockback immunity, every world enemy type, crystal-caverns' legacy spawning), the
+Orb-Weaver Matron (`test_matron.gd`: nest camp and bar, spit, volley marks, landing and web
+patches, no stagger, arena leash, defeat records, reset, the web barrier and its torn flag,
+gloop-forest's orb weavers), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests,
 `--strict` to fail on known failures too.
 
 The `--check-only` pass reports one error per run and does **not** catch calls to

@@ -1,0 +1,164 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/shell/title.gd" id="1_script"]
+[ext_resource type="Theme" path="res://game/ui/theme/slime_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://asset/UI/ui-slime-isa-logo.webp" id="3_logo"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="4_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/click.ogg" id="5_click"]
+
+[node name="Title" type="Node"]
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="Node2D" parent="."]
+
+[node name="Camera" type="Camera2D" parent="."]
+physics_interpolation_mode = 2
+position = Vector2(800, 824)
+
+[node name="Ui" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 1
+
+[node name="Screen" type="Control" parent="Ui"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+
+[node name="Menu" type="Panel" parent="Ui/Screen"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -300.0
+offset_right = 190.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Margin" type="MarginContainer" parent="Ui/Screen/Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="Rows" type="VBoxContainer" parent="Ui/Screen/Menu/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Logo" type="TextureRect" parent="Ui/Screen/Menu/Margin/Rows"]
+custom_minimum_size = Vector2(340, 176)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("3_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Tagline" type="Label" parent="Ui/Screen/Menu/Margin/Rows"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 13
+text = "A small slime. A ruined town. A long way to grow."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Gap" type="Control" parent="Ui/Screen/Menu/Margin/Rows"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Ui/Screen/Menu/Margin/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="NewGame" type="Button" parent="Ui/Screen/Menu/Margin/Rows/Buttons"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "New Game"
+
+[node name="Continue" type="Button" parent="Ui/Screen/Menu/Margin/Rows/Buttons"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+text = "Continue"
+
+[node name="Load" type="Button" parent="Ui/Screen/Menu/Margin/Rows/Buttons"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+text = "Load"
+
+[node name="Settings" type="Button" parent="Ui/Screen/Menu/Margin/Rows/Buttons"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+text = "Settings"
+
+[node name="Credits" type="Button" parent="Ui/Screen/Menu/Margin/Rows/Buttons"]
+custom_minimum_size = Vector2(240, 40)
+layout_mode = 2
+theme_type_variation = &"MutedButton"
+text = "Credits"
+
+[node name="Status" type="Label" parent="Ui/Screen/Menu/Margin/Rows"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_type_variation = &"WarningLabel"
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Confirm" type="HBoxContainer" parent="Ui/Screen/Menu/Margin/Rows"]
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="ConfirmNew" type="Button" parent="Ui/Screen/Menu/Margin/Rows/Confirm"]
+custom_minimum_size = Vector2(144, 36)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+text = "Start new game"
+
+[node name="Cancel" type="Button" parent="Ui/Screen/Menu/Margin/Rows/Confirm"]
+custom_minimum_size = Vector2(144, 36)
+layout_mode = 2
+theme_type_variation = &"MutedButton"
+text = "Cancel"
+
+[node name="Spacer" type="Control" parent="Ui/Screen/Menu/Margin/Rows"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Version" type="Label" parent="Ui/Screen/Menu/Margin/Rows"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ClickSfx" type="AudioStreamPlayer" parent="Ui"]
+process_mode = 3
+stream = ExtResource("5_click")
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("4_sfx")
+min_interval_ms = 40.0

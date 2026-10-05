@@ -19,6 +19,10 @@ project.godot [autoload]  (registered in this order; tree order = process order)
   DamageRouter   res://game/combat/damage_router.gd      receiver registry + activations + route()
   GameFeel       res://game/feel/game_feel.gd            hit-stop, shake, floating text, particles, audio cues (ALWAYS)
   RunState       res://game/autoload/run_state.gd        the run: player stats, inventory, world records, story, travel handoff
+  MusicDirector  res://game/audio/music_director.gd      world/boss music, fades, menu duck, arrival cue (ALWAYS; pending registration)
+  Shell          res://game/shell/shell.gd               pause/settings/controls/credits windows, area titles, game over, end cards, settings (ALWAYS; pending registration)
+
+res://game/shell/title.tscn (title.gd)                 title screen; the main scene once registered (level-1 drifts behind; launch options skip it)
 
 res://game/main.tscn (main.gd)                         bootstrap
   World (Node2D)      <- world.level-1 instanced here (converter root, y-sorted)
@@ -31,8 +35,12 @@ res://game/main.tscn (main.gd)                         bootstrap
            BasicSword (weapon.basic-sword)          <- mounted by PlayerCombat.equip(), last child, at (0,-27.56)
                ... WeaponScript (weapon.gd), SwingSfx
        WormSwordsman xN (character.worm-swordsman)  <- EnemyPopulation, EnemyScript (enemy.gd)
+           (archers, brawlers, spiders, orb weavers alike; slime_spider_ai.gd for the spiders)
+       WormArrow / SpiderWeb (projectile.*)         <- EnemyProjectiles.fire, ProjectileScript (projectile.gd)
        level-1-fatty-one-eye-camp (encounter) > BossCampScript (boss_camp.gd)
        FattyOneEye (character.fatty-one-eye)        <- spawned by the camp, FattyScript (fatty.gd)
+       orb-weaver (character.orb-weaver-matron)     <- gloop-forest's camp, MatronScript (matron.gd)
+       MatronWebPatch (effect) > WebPatchScript     <- the Matron's volley; spider-web (object) > SpiderWebScript
        AttackTelegraph (attack_telegraph.gd, z -1)  <- a boss's ground warning while it lasts
        effect holders (Node2D) > BasicSwordImpact (effect.gd)  <- EffectSpawner
   WorldCamera (world_camera.gd, ALWAYS, priority 100)
@@ -40,13 +48,15 @@ res://game/main.tscn (main.gd)                         bootstrap
   FpsReadout (CanvasLayer 100, fps_readout.gd)
   ArrivalFade (CanvasLayer 5, runtime)      EnemyPopulation (enemy_population.gd, runtime)
 GameFeel children: FloatingTextLayer (CanvasLayer 8), ParticleFx (Node2D, high z)
+MusicDirector children: WorldMusic (the world's MusicPlayer, moved here), BossMusic (audio.global), FadingMusic
+Shell children: ShellLayer (CanvasLayer 50) > Root > AreaTitleCard, PauseMenu, GameOver, SettingsMenu, CreditsMenu, ControlsMenu, EndCard, Fade
 ```
 
 Design rules:
 - **Scene scripts** live in `game/scripts/` and only there. A file there is a converter-visible script id (`game.<kebab>` → `<snake>.gd`). The converter attaches the file and writes exactly the `@export`s it declares. Do not add or remove files in `game/scripts/` without the architect or integrator.
 - **Inheritance between scene scripts only where Phaser has it.** The converter merges the `@export`s along a script's `extends` chain, so a port may extend another scene script exactly when the Phaser script does: `fatty.gd` extends `enemy.gd` (FattyScript extends EnemyScript) and overrides its hooks (`_after_enemy_step`, `_attack_area_reach`, `_can_run_common_attack`, ...). There is still no `character.gd`: shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
 - **Static helpers** are `extends RefCounted` files with static funcs: perimeter, directions, feet anchor, resolver, scaling, AI, wander policy, aim and bounds. Small stateful helpers are RefCounted instances: input buffer, squash, territory, attack lifecycle, combo and activations.
-- **Autoloads are reached only through `res://game/shared/services.gd`**, as `Services.router()`, `Services.world()`, `Services.feel()`, `Services.constants()`, `Services.clock()`, `Services.run()` and `Services.now_ms()`. This was verified on 4.7.2: the headless `--check-only -s` does **not** know autoload names, so a bare `DamageRouter.route(...)` fails the check with "Identifier not found". The getters are typed, so calls are still statically checked.
+- **Autoloads are reached only through `res://game/shared/services.gd`**, as `Services.router()`, `Services.world()`, `Services.feel()`, `Services.constants()`, `Services.clock()`, `Services.run()`, `Services.music()`, `Services.shell()` and `Services.now_ms()`. This was verified on 4.7.2: the headless `--check-only -s` does **not** know autoload names, so a bare `DamageRouter.route(...)` fails the check with "Identifier not found". The getters are typed, so calls are still statically checked.
 - **Cross-file types**: `const X := preload("res://...")`, where X equals the file's `class_name`. Autoload scripts have no `class_name`, because a class_name equal to an autoload name is an error. Preload cycles (`player.gd` ↔ `player_combat.gd`, `services.gd` ↔ the autoloads) were tested and are fine.
 
 ## 2. Autoloads (API summary; full docs in the files)
@@ -59,6 +69,8 @@ Design rules:
 | `DamageRouter` | `register_area(area, receiver, rule, tags=[])`, `unregister_area`, `receiver_for_area`, `tags_for_area`, `begin_activation(source, areas) -> int`, `end_activation`, `is_activation_active`, `route(request) -> result`. Signal `routed` | default |
 | `GameFeel` | `play(event)`, `shake(ms, intensity)`, `hit_stop(ms)`, `is_frozen()`, `floating_text(world_pos, text, color_name, big, duration_ms=-1)`, `particles(preset, world_pos)`, `audio_cue(cue, payload)` | ALWAYS |
 | `RunState` | Phaser's `GameSaveData` in one place (snake_case): vars `player`, `inventory`, `world`, `story`, `location`; `new_run()`, `ensure_started()`, `max_hp()`, `capture_player(map_id, snapshot)`, `item_count`, `remove_item`, `unlock_gate`, `has_flag`/`set_flag`, `learn_ability`, `map_record(map_id)` (resources, collectibles, chests, gates, object_states, ...), `object_state`/`set_object_state`, `respawn_point`, `request_navigation`/`consume_navigation`. Signals `story_flag_changed`, `ability_learned`. Outlives worlds; the save phase writes it to user:// | default |
+| `MusicDirector` (pending registration, after `RunState`) | `set_boss_fight(active, camp_id)`, `fade_out(ms)`, `set_menu_paused(paused)`, `advance(ms)`, `world_gain/boss_gain/duck()`, `world_track/boss_track()`, vars `audio_unlocked`, `play_arrival_cue`; static `apply_mix(master, effects, music, muted)`, `set_bus_volume_linear(bus, v)` for the shell. Claims the world's music-bus player on `world_registered` and listens to the `boss_camp` group ([specs/audio.md](./specs/audio.md)) | ALWAYS |
+| `Shell` (pending registration, after `MusicDirector`) | `get_settings()` (GameSettings: `values()`, `update(change)`, `reset()`, `shake_scale()`, ... in user://settings.cfg), `open_pause()`, `can_open_pause()`, `open_settings/controls/credits()`, `handle_escape()`, `is_any_open()`, `show_area_title(text, colour)`, `show_defeat(info)`, `quit_to_title()`, `set_action(id, callable)` / `run_action(id)` for the windows other features own (`journal`, `inventory`, `map`, `save`, `load`, `wake`). Each open window holds the pause reason `shell:<surface id>`. Listens to `world_registered` (area card while a `world_main` node exists), `story_flag_changed` (end cards), `player_registered` ([specs/shell.md](./specs/shell.md)) | ALWAYS |
 
 ## 3. Time, pause and process model
 
@@ -112,7 +124,11 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.world-area` → `scripts/world_area.gd` | `area_kind, area_id, area, data, shape, stay_shape` | — | — |
 | `game.world-exit` → `scripts/world_exit.gd` | `map_id, exit_id, target_area_id, entry, area, gate`; *`arrival_grace_ms`=-1* | `navigation_resolved` | `on_body_entered(body)` |
 | `game.fatty` → `scripts/fatty.gd` (extends `enemy.gd`; `character.fatty-one-eye`) | the `game.enemy` exports + `contact_attack, landing_zone, contact_hop_cooldown_ms, contact_hop_duration_ms, leap_cadence_ms, small_hop_count, small_hop_duration_ms, between_hops_ms, air_time_ms, recovery_ms, landing_damage, landing_knockback_strength, landing_effect_id, landing_shake_ms, landing_shake_intensity` | the enemy signals + `phase_changed` | — |
-| `game.boss-camp` → `scripts/boss_camp.gd` (`encounter.level-1-fatty-camp`) | `map_id, camp_id, boss_id, boss_scene, activation_area, arena_area, active_bosses, guarded_chest, guarded_chest_instance_id, respawn_ms, spawn` | `boss_spawn_requested, boss_defeated, guard_changed`; *`boss_engaged, boss_disengaged`* | — |
+| `game.boss-camp` → `scripts/boss_camp.gd` (`encounter.level-1-fatty-camp`, `encounter.gloop-matron-nest`) | `map_id, camp_id, boss_id, boss_scene, activation_area, arena_area, active_bosses, guarded_chest, guarded_chest_instance_id, respawn_ms, spawn` | `boss_spawn_requested, boss_defeated, guard_changed`; *`boss_engaged, boss_disengaged`* | — |
+| `game.matron` → `scripts/matron.gd` (extends `enemy.gd`; `character.orb-weaver-matron`, node `EnemyScript`) | the `game.enemy` exports + `first_volley_delay_ms, volley_cadence_ms, volley_telegraph_ms, volley_rest_ms, volley_points, volley_spread, volley_radius, volley_damage, volley_knockback_strength, patch_effect_id` | the enemy signals + `phase_changed` | — |
+| `game.projectile` → `scripts/projectile.gd` (`projectile.worm-arrow`, `projectile.spider-web`) | `projectile_id, body, visual, animation, attack_area, default_speed, lifetime_ms, rotate_to_velocity` | `launched, expired` | `on_area_entered(area)` (`launch(direction, speed, payload)`, `expire()`) |
+| `game.web-patch` → `scripts/web_patch.gd` (`effect.matron-web-patch`) | `radius, visual` | `caught, torn` | — |
+| `game.spider-web` → `scripts/spider_web.gd` (`object.spider-web`) | `width, depth, tears_when_crossed, visual` | `caught, torn` | — |
 
 | `game.resource-node` → `scripts/resource_node.gd` (49 scenes: trees, stone, iron, amber ore; world-objects spec) | the `game.destructible` keys `map_id, instance_id, object_id, damage_area, max_health, initial_health, tags, damage_rule` + `drop, idle_animation_id, hit_effect_id, on_hit_animation_id, persist_health`=true, `depletion_message, harvest_requirement, animation` | `health_changed, damaged, damage_feedback, destroyed, resource_hit, harvest_blocked, drops_requested` | — (damage receiver API) |
 | `game.collectible` → `scripts/collectible.gd` (16 scenes; spawned piles too) | `map_id, instance_id, object_id, item_id, quantity, source_resource_instance_id, source_inventory_drop_id, pickup_area` | `pickup_resolved, depleted` | — (`request_pickup(collector)`) |
@@ -125,7 +141,9 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.bed` → `scripts/bed.gd` | `prompt, interact_radius, badge_rise, sleep_point, wake_point` | — | — (`sleep_request()`) |
 | `game.workbench` → `scripts/workbench.gd` | `prompt, recipe_context, tier, interact_radius, badge_rise` | — | — (`site()`) |
 
-`game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). `game.interaction` has no scenes and no service behind it in Phaser, so it is not ported. Every other script id stays on the converter's `unported_script.gd`. `game.matron` (a separate boss id), `game.web-patch` and `game.projectile` are not ported.
+`game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). `game.interaction` has no scenes and no service behind it in Phaser, so it is not ported. Every other script id stays on the converter's `unported_script.gd`.
+
+Enemies fire projectiles through `game/enemy/enemy_projectiles.gd` (Phaser's world `spawnEnemyProjectile`): the projectile goes under the world root and hits only the player's hurtbox ([specs/enemy.md](./specs/enemy.md) §12). Webs (`spider_web.gd`, `web_patch.gd`) reach the player through `game/enemy/spider_web_port.gd`, which calls player.gd's `crosses_webs()` and `teleport(centre)` and duck-types `apply_web(ms)` (a stop-and-suppress fallback until it exists) ([specs/matron.md](./specs/matron.md) §5).
 
 Boss camps ([specs/boss.md](./specs/boss.md)) spawn their boss under the world root when the player centre enters the activation circle, hand it the arena (`EnemyScript.configure_arena`), keep their respawn timer and the defeated boss ids in RunState (`map_record(map_id)["boss_camps"]`, `world["defeated_boss_ids"]`), reset the fight when the player's `defeated` fires, and join the group `boss_camp`; the HUD's `BossHealthBar` binds itself to every camp in that group, and a later quest system listens to `boss_defeated` there.
 
@@ -137,7 +155,7 @@ Boss camps ([specs/boss.md](./specs/boss.md)) spawn their boss under the world r
 4. `WorldBounds.build(world_root, world_rect)`.
 5. `spawn_player(handoff)`: `spawn_at_phaser_position("character.player-slime", WorldService.player_spawn_point(), world_root)` (after a travel: `AreaTravel.arrival_point(handoff)`), then `register_player(PlayerScript node)` and `restore_run_state(RunState.player)` (HP). The feet land at (640, 731.56).
 6. `equip_trial_weapon()`: `PlayerCombat.new()` → child "PlayerCombat" of the player root → `setup(player)` → `player.set_combat(combat)` → `equip("basic-sword")`.
-7. `start_enemy_population()`: `EnemyPopulation.new()` → `setup(areas("enemy-spawn"), safe_zones(), entities_root())`, `allowed_types = ["worm-swordsman"]`, `seed_initial()`.
+7. `start_enemy_population()`: `EnemyPopulation.new()` → `setup(areas("enemy-spawn"), safe_zones(), entities_root())`, `allowed_types` empty (every type the world's camps name; the trial allowed only `worm-swordsman`), `seed_initial()`.
 8. `configure_npcs()`: for each node in group `"npc"`, call `configure_wander(npc_wander_area(npc.get_instance_id_key()).get("perimeter", {}))`.
 9. `setup_camera()`: `$WorldCamera.setup(world_rect, camera_mode)`, `start_follow(player_root)`, `register_camera`, and connect `player.respawned` → `pan_to`.
 10. `start_arrival_fade()`: 400 ms, `#0b1020`.
@@ -213,11 +231,12 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world_objects/destructible_health.gd` | world objects | HP, records, regrow timer (the `game.destructible` logic) |
 | `game/world_objects/resource_respawn.gd` | world objects | Regrow rule on the wall clock (`epoch_override_ms` for tests) |
 | `game/world_objects/resource_drops.gd` | world objects | Drop cells, scatter, pile launch, restore, pile bookkeeping |
-| `game/world/area_travel.gd` | world objects | Arrival point (door, entry edge, spawn), travel fades, music fade-out; `Main.travel_to` / `request_exit` drive it |
+| `game/world/area_travel.gd` | world objects | Arrival point (door, entry edge, spawn), travel fades, music fade-out (only ambience once `MusicDirector` holds the music); `Main.travel_to` / `request_exit` drive it |
 | `game/scripts/npc.gd` | world | |
-| `game/ui/hud.gd` | world | |
-| `game/ui/player_health_bar.gd` | world | |
-| `game/ui/fps_readout.gd` | world | |
+| `game/ui/hud.gd` | world | Coins label and bars styled by the UI theme (`HudLabel`, `HudBar`) |
+| `game/ui/hud_bar.gd` | world | One labelled HUD bar drawn from its theme variation (`HudBar`, `BossBar`) |
+| `game/ui/player_health_bar.gd` | world | Styled by `FloatingHealthBar` |
+| `game/ui/fps_readout.gd` | world | Styled by `DebugPanel` / `DebugLabel` |
 | `game/scripts/player.gd` | player | Plays every clip in its version for the facing (`_directional_clip`, `_flip_for`) |
 | `game/characters/player_slime.tscn` | player | Godot-owned player scene (CONVENTIONS "Scenes Godot owns"); clips rebuilt by `tools/build_player_clips.gd` |
 | `game/dev/playground.tscn` | world | `main.tscn` with `map_id = "playground"`; run with F6 |
@@ -228,8 +247,14 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/enemy/enemy_ai.gd` | enemy | |
 | `game/enemy/camp_territory.gd` | enemy | |
 | `game/enemy/attack_lifecycle.gd` | enemy | |
-| `game/enemy/enemy_population.gd` | enemy | |
+| `game/enemy/enemy_population.gd` | enemy | Camps and legacy `metadata.spawns`, `slow_enemies_near` ([specs/enemy.md](./specs/enemy.md) §18, §15) |
+| `game/enemy/slime_spider_ai.gd` | enemy | `SlimeSpiderAI.ts` (enemy spec §14) |
+| `game/enemy/enemy_projectiles.gd` | enemy | The world's `spawnEnemyProjectile` (enemy spec §12.3) |
+| `game/scripts/projectile.gd` | enemy | `game.projectile`: flight, lifetime, wall stop, one hit on the player |
+| `game/enemy/spider_web_port.gd` | enemy | The world's `world.spider-web` port, `catchInWeb`, `applyWeb` (duck-typed player hooks, [specs/matron.md](./specs/matron.md) §5) |
 | `game/scripts/fatty.gd` | boss | Fatty One Eye's phases on top of `enemy.gd` ([specs/boss.md](./specs/boss.md)) |
+| `game/scripts/matron.gd` | boss | The Orb-Weaver Matron's volleys on top of `enemy.gd` ([specs/matron.md](./specs/matron.md)) |
+| `game/scripts/web_patch.gd`, `game/scripts/spider_web.gd` | boss | Web patches and web barriers (matron spec §5) |
 | `game/scripts/boss_camp.gd` | boss | Activation, spawn, defeat, respawn and reset of a boss camp |
 | `game/bosses/boss_arena.gd` | boss | `BossCampBehavior.ts`: perimeters, clamp, containment, spawn eligibility |
 | `game/bosses/area_shapes.gd` | boss | World-space shapes of an Area2D and their overlap tests (attack areas vs the player's hurtbox) |
@@ -250,6 +275,12 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/feel/floating_text_layer.gd` | combat | |
 | `game/feel/particle_fx.gd` | combat | |
 | `game/runtime/**` | converter | Helpers the converter attaches (audio, animation, placeholders, UI) |
+| `game/audio/music_director.gd` | audio | Autoload `MusicDirector` (pending registration): world and boss music, leave/arrival fades, menu duck, `AreaTransition` cue, the mix hook ([specs/audio.md](./specs/audio.md)) |
+| `game/shell/shell.gd` | shell | Autoload `Shell` (pending registration): window stack, Escape and pause, area titles, game over, end cards, quit to title ([specs/shell.md](./specs/shell.md)) |
+| `game/shell/title.tscn`, `title.gd` | shell | The title screen (main scene once registered): launch-option skip, level-1 backdrop, New Game / Continue / Load / Settings / Credits |
+| `game/shell/*_menu.tscn/.gd`, `game_over.*`, `end_card.*`, `area_title_card.*` | shell | The shell windows (Godot-owned copies of the `ui.*` scenes) on `shell_menu.gd` |
+| `game/shell/game_settings.gd`, `control_labels.gd`, `area_titles.gd`, `launch_options.gd` | shell | Settings (user://settings.cfg, bus mix, GameFeel), InputMap key labels, area names / colours, launch options |
+| `game/ui/theme/ui_tokens.gd`, `slime_theme.tres` | UI theme | Design tokens and the one UI Theme, built by `tools/build_ui_theme.gd` ([UI_THEME.md](./UI_THEME.md)) |
 
 Only ported scene scripts live in `game/scripts/`: every file there is a script id the converter
 attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting that script.
@@ -257,8 +288,8 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 ## 11. Call map between areas (who depends on whom)
 
 - **player →** combat (`Services.router().register_area/unregister_area`, `PlayerCombat.try_attack`, `HitFlash.*`, `GameFeel.play/floating_text/particles/audio_cue`); world (`Services.world().player_spawn_point()`, `Services.constants()`, `Services.now_ms()`).
-- **enemy →** combat (router `register_area/unregister_area/begin_activation/end_activation/route`, `HitFlash.*`, `GameFeel.floating_text`); world (`primary_target`, `line_of_sight`, `spawn_at_phaser_position`, `Perimeter.*`, `FeetAnchor.*`); player (via `primary_target`: `hurtbox`, `active`).
-- **boss →** enemy (`fatty.gd` extends `enemy.gd`; the camp calls `configure_arena`); combat (router `begin_activation/route/end_activation` through `_route_immediate_attack`); world (`spawn_at_phaser_position`, `entities_root`, `primary_target`, `player_registered`, `Services.run()` records); feel (`shake`, `particles`, `floating_text`, `audio_cue`, `play`); player (its `defeated` signal resets the fight). The HUD's `BossHealthBar` reads the camps (group `boss_camp`) and the boss's `get_damage_state`.
+- **enemy →** combat (router `register_area/unregister_area/begin_activation/end_activation/route`, `HitFlash.*`, `GameFeel.floating_text`); world (`primary_target`, `line_of_sight`, `spawn_at_phaser_position`, `packed_scene`, `Perimeter.*`, `FeetAnchor.*`); player (via `primary_target`: `hurtbox`, `active`; webs through `spider_web_port.gd`: `get_centre`, `is_dead`, `crosses_webs`, `teleport`, optional `apply_web`, fallback `stop_movement`/`suppress_movement`).
+- **boss →** enemy (`fatty.gd` and `matron.gd` extend `enemy.gd`; the camp calls `configure_arena`); combat (router `begin_activation/route/end_activation` through `_route_immediate_attack`); world (`spawn_at_phaser_position`, `entities_root`, `primary_target`, `player_registered`, `Services.run()` records); feel (`shake`, `particles`, `floating_text`, `audio_cue`, `play`); player (its `defeated` signal resets the fight). The HUD's `BossHealthBar` reads the camps (group `boss_camp`) and the boss's `get_damage_state`.
 - **combat →** player (`get_facing`, `is_dead`, `is_action_locked`, `set_action_locked`, `stop_movement`, `play_animation`, `get_damage_area`; PlayerScript is the wielder receiver); world (`instantiate_scene`, `entities_root`, `set_pause_reason`, `camera.shake`, `constants`).
 - **world →** player (`get_centre`, `is_dead`, `get_hud_snapshot`, `health_changed`, `respawned`, `set_combat`, `RESPAWN_PAN_MS`); combat (`PlayerCombat.new/setup/equip`); enemy (`EnemyPopulation.setup/allowed_types/seed_initial`).
 
@@ -272,7 +303,7 @@ attaches (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting t
 | O2 | Pointer aim origin. The player spec recommends the intended feet − 28; the combat spec says port as is (centre − 28 = feet − 55.56). The specs disagree | **Keep the live aim**: `aim_rise_px = 28` above the old centre (top of the head) |
 | O3 | Combo off-by-one: every lone sword hit does 28, not 24 | **Fixed in the port**: the multiplier is the hit's own tier (×1.0, ×1.15, ×1.5), so a lone sword hit does 24 (crit 42); the Phaser game keeps its bug until it is retired |
 | O4 | Standing still always un-flips the slime (faces left) | **Done with the new art** (2026-10-05): idle clips per direction keep the last facing |
-| O5 | Trial setup: dodge learned, sword equipped, respawn at spawn after 1.4 s with no defeat screen, only the worm-swordsman camp active (the other three camps are skipped by `allowed_types`) | As listed |
+| O5 | Trial setup: dodge learned, sword equipped, respawn at spawn after 1.4 s with no defeat screen, only the worm-swordsman camp active (the other three camps are skipped by `allowed_types`) | As listed. Since 2026-10-05 every camp spawns: archers, brawlers, slime spiders and orb weavers are ported (`allowed_types` is empty) |
 | O6 | Godot bodies do not shove each other (Arcade did, slightly) | Accept for the trial |
 
 ### Converter and integration notes (resolved during the trial)

@@ -6,8 +6,9 @@ class_name PlayerHealthBar
 ## Visible for SHOW_MS of real time after any `health_changed`; hidden while the player is dead.
 ## Each frame: anchor = player old Phaser position + (0, -48); screen = canvas transform * anchor;
 ## rect (round(screen.x - 28), round(screen.y - 4), 56, 8). Fill tone: ratio <= 0.25 danger
-## #ff6f88, <= 0.5 warning #ffd277, else accent #86f0c3; background #182b46, border 1 px
-## #3b5c78 at 68 % alpha, corner radius 4. mouse_filter IGNORE, PROCESS_MODE_ALWAYS.
+## #ff6f88, <= 0.5 warning #ffd277, else accent #86f0c3. Background (#182b46, 1 px #3b5c78 border at
+## 68 %, radius 4) and fill shape come from the UI theme's `FloatingHealthBar` variation
+## (docs/godot/UI_THEME.md). mouse_filter IGNORE, PROCESS_MODE_ALWAYS.
 ## The player position is the one drawn this frame (the camera's interpolated follow point) and
 ## the screen mapping uses the camera's state of this frame (process_priority after the camera).
 ##
@@ -17,16 +18,14 @@ const Services := preload("res://game/shared/services.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const PlayerScript := preload("res://game/scripts/player.gd")
 const WorldCamera := preload("res://game/world/world_camera.gd")
+const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 
 const SHOW_MS := 1800.0
 const SIZE := Vector2(56.0, 8.0)
 const RISE_PX := 48.0
-const TONE_DANGER := Color("#ff6f88")
-const TONE_WARNING := Color("#ffd277")
-const TONE_ACCENT := Color("#86f0c3")
-const BACKGROUND_COLOR := Color("#182b46")
-const BORDER_COLOR := Color(59.0 / 255.0, 92.0 / 255.0, 120.0 / 255.0, 0.68)
-const CORNER_RADIUS := 4
+const TONE_DANGER := UiTokens.DANGER
+const TONE_WARNING := UiTokens.WARNING
+const TONE_ACCENT := UiTokens.ACCENT
 const DANGER_RATIO := 0.25
 const WARNING_RATIO := 0.5
 
@@ -34,7 +33,7 @@ var _player: PlayerScript
 var _visible_until_ms: float = 0.0
 var _hp: float = 0.0
 var _max_hp: float = 1.0
-var _background_box: StyleBoxFlat
+## The theme's fill, duplicated so its colour can follow the tone.
 var _fill_box: StyleBoxFlat
 
 
@@ -46,14 +45,13 @@ func _ready() -> void:
 	process_priority = 200
 	size = SIZE
 	visible = false
-	_background_box = StyleBoxFlat.new()
-	_background_box.bg_color = BACKGROUND_COLOR
-	_background_box.border_color = BORDER_COLOR
-	_background_box.set_border_width_all(1)
-	_background_box.set_corner_radius_all(CORNER_RADIUS)
-	_fill_box = StyleBoxFlat.new()
-	_fill_box.bg_color = TONE_ACCENT
-	_fill_box.set_corner_radius_all(CORNER_RADIUS - 1)
+	theme_type_variation = &"FloatingHealthBar"
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_THEME_CHANGED:
+		_fill_box = null
+		queue_redraw()
 
 
 ## Follows `player`; connects `health_changed` to `show_for_a_while()`.
@@ -93,7 +91,7 @@ func _process(_delta: float) -> void:
 		queue_redraw()
 
 
-## Draws background, fill and border.
+## Draws the theme background (well and border) and the tone fill inside the border.
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, SIZE)
 	var ratio := clampf(_hp / maxf(1.0, _max_hp), 0.0, 1.0)
@@ -102,15 +100,14 @@ func _draw() -> void:
 		tone = TONE_DANGER
 	elif ratio <= WARNING_RATIO:
 		tone = TONE_WARNING
-	_fill_box.bg_color = tone
-	_background_box.draw(get_canvas_item(), rect)
+	get_theme_stylebox(&"background").draw(get_canvas_item(), rect)
 	if ratio > 0.0:
-		var inner := rect.grow(-1.0)
-		_fill_box.draw(get_canvas_item(), Rect2(inner.position, Vector2(inner.size.x * ratio, inner.size.y)))
-	# Border on top of the fill.
-	var border := _background_box.duplicate() as StyleBoxFlat
-	border.draw_center = false
-	border.draw(get_canvas_item(), rect)
+		if _fill_box == null:
+			_fill_box = get_theme_stylebox(&"fill").duplicate() as StyleBoxFlat
+		if _fill_box != null:
+			_fill_box.bg_color = tone
+			var inner := rect.grow(-1.0)
+			_fill_box.draw(get_canvas_item(), Rect2(inner.position, Vector2(inner.size.x * ratio, inner.size.y)))
 
 
 ## Screen position of (player old Phaser position + (0, -48)).

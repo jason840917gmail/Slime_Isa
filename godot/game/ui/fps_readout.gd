@@ -1,8 +1,9 @@
 extends CanvasLayer
 class_name FpsReadout
 ## Trial performance readout (the 60-fps test instrument). World spec section 7.
-## Top-right panel on layer 100, PROCESS_MODE_ALWAYS, mouse_filter IGNORE, panel border 1 px
-## #72d8ff, background rgba(8,16,34,0.9), text #d7e7f8 11 px monospace, padding 9/11 px.
+## Top-right panel on layer 100, PROCESS_MODE_ALWAYS, mouse_filter IGNORE, styled by the UI theme's
+## `DebugPanel` (border 1 px #72d8ff, background rgba(8,16,34,0.9), padding 9/11 px) and `DebugLabel`
+## (#d7e7f8 11 px monospace) variations (docs/godot/UI_THEME.md).
 ## Refreshed every UPDATE_INTERVAL_MS with:
 ##   fps %.1f | frame ms %.2f (mean over the window) | worst ms %.2f
 ##   zoom %.3f  mode gameplay|overview | deadzone W x H
@@ -12,17 +13,11 @@ class_name FpsReadout
 ## Owner: world builder.
 
 const WorldCamera := preload("res://game/world/world_camera.gd")
+const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 
 const UPDATE_INTERVAL_MS := 200.0
-## dev/RenderingDiagnostics.ts panel style.
+## dev/RenderingDiagnostics.ts: the panel sits 10 px from the top-right corner.
 const PANEL_MARGIN := 10.0
-const PANEL_BORDER := Color("#72d8ff")
-const PANEL_BACKGROUND := Color(8.0 / 255.0, 16.0 / 255.0, 34.0 / 255.0, 0.9)
-const TEXT_COLOR := Color("#d7e7f8")
-const FONT_SIZE := 11
-const PADDING_X := 11
-const PADDING_Y := 9
-const MONOSPACE_FONTS: PackedStringArray = ["Consolas", "Menlo", "DejaVu Sans Mono", "Courier New", "monospace"]
 
 var _camera: WorldCamera
 var _panel: PanelContainer
@@ -41,6 +36,7 @@ func _ready() -> void:
 	anchor.name = "Anchor"
 	anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	anchor.set_anchors_preset(Control.PRESET_FULL_RECT)
+	anchor.theme = UiTokens.theme()
 	add_child(anchor)
 
 	_panel = PanelContainer.new()
@@ -52,28 +48,13 @@ func _ready() -> void:
 	_panel.offset_right = -PANEL_MARGIN
 	_panel.offset_top = PANEL_MARGIN
 	_panel.offset_bottom = PANEL_MARGIN
-	var style := StyleBoxFlat.new()
-	style.bg_color = PANEL_BACKGROUND
-	style.border_color = PANEL_BORDER
-	style.set_border_width_all(1)
-	style.content_margin_left = PADDING_X
-	style.content_margin_right = PADDING_X
-	style.content_margin_top = PADDING_Y
-	style.content_margin_bottom = PADDING_Y
-	_panel.add_theme_stylebox_override(&"panel", style)
+	_panel.theme_type_variation = &"DebugPanel"
 	anchor.add_child(_panel)
 
 	_label = Label.new()
 	_label.name = "Text"
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var settings := LabelSettings.new()
-	var mono := SystemFont.new()
-	mono.font_names = MONOSPACE_FONTS
-	mono.fallbacks = [ThemeDB.fallback_font]
-	settings.font = mono
-	settings.font_size = FONT_SIZE
-	settings.font_color = TEXT_COLOR
-	_label.label_settings = settings
+	_label.theme_type_variation = &"DebugLabel"
 	_label.text = "fps --"
 	_panel.add_child(_label)
 
