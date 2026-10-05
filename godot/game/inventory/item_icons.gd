@@ -1,6 +1,6 @@
 extends RefCounted
 ## Item icons for the bag, the belt, the crafting window and the HUD hotbar (Phaser draws the
-## sheet frame with `object-fit: contain`). `generated/data/item-icons.json` maps each texture key
+## sheet frame with `object-fit: contain`). `game/data/item-icons.json` maps each texture key
 ## to its sheet: {"path": "res://asset/...", "frame": [w, h], "columns", "rows"}, or
 ## {"procedural": true} for icons Phaser draws in code (the goo gauntlet). An item's icon is the
 ## frame `iconFrame` (row-major) of its `icon` key, as an AtlasTexture. A procedural or

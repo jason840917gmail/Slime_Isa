@@ -5,7 +5,7 @@ extends RefCounted
 ## reward and objective texts (`features/quests/QuestRewardText.ts`,
 ## `QuestTrackerSurfacePort.objectiveLabel`). Quests spec 1, 4.2, 4.4 and 8.
 ##
-## Data: `generated/data/quests-chapter-1.json` then `quests-chapter-2.json` (the catalogue order),
+## Data: `game/data/quests-chapter-1.json` then `quests-chapter-2.json` (the catalogue order),
 ## `recipes.json` and `npc-definitions.json`, read once through `GameConstants.data_file`. The
 ## definitions keep Phaser's camelCase keys; JSON numbers are turned back into ints on a private
 ## copy (the parsed files are shared and never mutated). Validation stays on the TS side

@@ -30,7 +30,7 @@ owner on 2026-10-04.
 | Art and audio in `asset/` | Used as they are (WebP, OGG, WAV import directly) |
 | `asset/assets.json` | Read by the converter for frame grids, origins and paths |
 | Scene JSON (`content/scenes/authored/`) | Converted by a script into `.tscn` scenes, tile sets and animation libraries; since Phase 1 (2026-10-05) the scenes are Godot's (`godot/game/scenes/`) and the JSON is frozen |
-| `game-constants.json`, items, enemy types, recipes, quests | Kept as data; read by GDScript or converted to Resources |
+| `game-constants.json`, items, enemy types, recipes, quests | Kept as data: copied to `godot/game/data/` (2026-10-05), Godot's since, read by GDScript |
 | Scene scripts (`features/scripts/`) and pure logic (combat, AI, quests, crafting, inventory, saves) | Ported by hand to GDScript |
 | UI scenes (HTML/CSS today) | Structure converted to Control nodes; styling redone as a Godot Theme |
 | Scene Studio, the TS scene runtime (`runtime/scene`, `infrastructure/phaser-nodes`), Phaser plumbing | Dropped: Godot provides them |
@@ -71,8 +71,7 @@ owner on 2026-10-04.
    - the web build holds 60 fps in level-1 on the reference laptop.
 1. **Full conversion.** All worlds, objects, characters, weapons and effects.
    From here the Godot scenes are the source of truth and scene JSON is frozen.
-   Done for the scenes on 2026-10-05 (below); the game data (constants, items, quests,
-   recipes) still comes from `src/game/content/` through `pnpm godot:convert`.
+   Done on 2026-10-05 (below): the scenes and the game data are Godot's.
 2. **Gameplay.** Every scene script and service; services become autoloads.
 3. **UI.** HUD, menus, inventory, crafting, quests and dialogue as Control
    scenes with one Theme.
@@ -94,13 +93,11 @@ ported area reproduces is in [godot/specs/](./godot/specs/).
 
 ```bash
 pnpm godot:sync
-pnpm godot:convert
 ```
 
-`godot:sync` copies the mapped assets into `godot/asset/`; `godot:convert`
-(`scripts/godot/convert-scenes.mjs`) exports the game data into `godot/generated/data/`
-(`--check` exits 1 when that output is stale). The scenes are committed in
-`godot/game/scenes/`. Then open `godot/` in the Godot editor and press F5, or run headless
+`godot:sync` copies the mapped assets into `godot/asset/` (`asset/` stays the media source
+until cutover). The scenes (`godot/game/scenes/`) and the game data (`godot/game/data/`) are
+committed in the Godot project. Then open `godot/` in the Godot editor and press F5, or run headless
 checks:
 
 - `--headless --path godot --import` imports the assets;
@@ -190,8 +187,10 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   1,098 objects, 14 characters, 13 weapons, 9 effects, 2 projectiles, 2 encounters and the
   global audio scene) are Godot's, in `godot/game/scenes/` with `scene_index.json`, and the
   terrain TileSet is `game/world/terrain_tileset.tres`. Scene JSON is frozen: Scene Studio no
-  longer reaches the game, and `godot:convert` only exports data
-  ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)). The converter's UI scenes
+  longer reaches the game
+  ([godot/CONVENTIONS.md](./godot/CONVENTIONS.md#scenes-godot-owns)). The game data followed the same day:
+  constants, enemy types, items, collision layers, NPC definitions, recipes, quests, weapons and
+  item icons are `godot/game/data/*.json`, and the converter (`pnpm godot:convert`) is gone. The converter's UI scenes
   were not kept (Godot-owned windows replace them).
 - The player was the first scene Godot owned (`character.player-slime`),
   with page 1 of the new slime (idle and walk facing down, up and side; idle
@@ -245,6 +244,5 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
 ## Rules while it runs
 
 - Scenes are edited in Godot; scene JSON and Scene Studio are frozen (Phase 1, 2026-10-05).
-- Game data still comes from `src/game/content/`: change it there and re-run
-  `pnpm godot:convert`; never hand-edit `godot/generated/`.
+- Game data is edited in `godot/game/data/`; `src/game/content/` no longer reaches Godot.
 - After the trial passes, new gameplay is built in Godot only.

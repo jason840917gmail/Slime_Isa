@@ -876,7 +876,7 @@ and reword the comment ("self-contained modules: no value imports; `import type`
 the retired list as a const. A new chapter file means one more row and one more file name in
 `quest_catalog.gd` (`CHAPTER_FILES`). Alternative if one file is preferred: let a row name several
 `[source, export]` pairs concatenated into one target (`quests.json`); not needed now. CONVENTIONS'
-`generated/data/` list needs the new files (doc owner). Validation stays on the TS side (it runs
+`game/data/` list needs the new files (doc owner). Validation stays on the TS side (it runs
 on import in the Phaser build and in `pnpm quests:check`); `quest_catalog.gd` only checks shape and
 push_errors.
 

@@ -1,7 +1,7 @@
 extends RefCounted
 ## Weapon names, descriptions, icons and stats for the bag, the belt and crafting (Phaser
 ## `content/weapons/<id>/weapon.json` through `virtual-weapon-content.ts`): the converted
-## `generated/data/weapons.json`, in definition order. The weapon scenes (`weapon.<id>`) carry the
+## `game/data/weapons.json`, in definition order. The weapon scenes (`weapon.<id>`) carry the
 ## combat numbers; this list is for what the windows show. Crafting spec 1.4, 10.2.
 ##
 ## Entries keep the JSON's camelCase keys: weaponId, displayName, description, category, iconKey,

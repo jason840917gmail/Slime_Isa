@@ -723,7 +723,7 @@ slots are removed and new stacks are appended at the end.
 
 ### 8.2 Item definitions
 
-`items.json` (copied to `godot/generated/data/items.json`) plus `maxStack` from
+`items.json` (copied to `godot/game/data/items.json`) plus `maxStack` from
 `inventory.maxStackByItem`. Weapons are items too (`Inventory.ts:35-45`: id = weaponId,
 category `weapon`, maxStack `weaponMaxStack` 1). An unknown id has no definition.
 
@@ -972,7 +972,7 @@ A stone node (persistHealth false) has no record until it breaks; then
 | `game/world_objects/destructible_health.gd` | RefCounted | HP, load with regrowth, save HP, mark destroyed (3.2-3.3) |
 | `game/world_objects/resource_respawn.gd` | static | `resolve(record, now_epoch_ms, respawn_ms) -> {record, changed}` (6), `now_epoch_ms()` with a test override |
 | `game/world_objects/resource_drops.gd` | static | cell search, scatter, pile position, spawn/launch, restore, pile bookkeeping (5) |
-| `game/world_objects/item_catalog.gd` | static | `max_stack(id)`, `item_name(id)`, `is_known(id)` from `generated/data/items.json` + `inventory.*` constants |
+| `game/world_objects/item_catalog.gd` | static | `max_stack(id)`, `item_name(id)`, `is_known(id)` from `game/data/items.json` + `inventory.*` constants |
 | `game/autoload/run_state.gd` (additions) | autoload | inventory add/capacity, world records, change signals (12.6) |
 | `game/scripts/player.gd` (edit) | — | `on_pickup_area_entered`, `get_pickup_area()`, optional eat reaction |
 | `game/feel/particle_fx.gd` (edit, combat owner) | — | `loot-sparkle` preset + `fx-sparkle` texture |

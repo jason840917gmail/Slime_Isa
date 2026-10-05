@@ -1,8 +1,8 @@
 extends RefCounted
 ## Item definitions (Phaser `content/items/ItemCatalog.ts` + `systems/Inventory.ts` registry):
-## `generated/data/items.json` (via GameConstants.data_file) with `maxStack` from game-constants
+## `game/data/items.json` (via GameConstants.data_file) with `maxStack` from game-constants
 ## `inventory.maxStackByItem`. Weapons are items too (Inventory.ts:35-45): id = weapon id, name =
-## its `displayName`, category "weapon", icon and description from `generated/data/weapons.json`
+## its `displayName`, category "weapon", icon and description from `game/data/weapons.json`
 ## (game/inventory/weapon_catalog.gd), `equipment: {weaponId}`, max stack
 ## `inventory.weaponMaxStack` (1). A weapon missing from weapons.json still counts when the scene
 ## index knows `weapon.<id>`. An unknown id has no definition (capacity 0).

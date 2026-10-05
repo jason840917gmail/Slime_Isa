@@ -3,7 +3,7 @@ extends "res://game/shell/shell_menu.gd"
 ## `ui/credits.scene.json`, text from `content/credits/credits.json`). One block per section: the
 ## heading in capitals, then one line per entry ("name  ·  detail  ·  license").
 ##
-## The sections are kept here until the converter copies credits.json to generated/data; the
+## The sections are kept here (Phaser's credits.json was never copied to game/data); the
 ## "Built with" section names the Godot port's engine instead of Phaser's libraries.
 ##
 ## Owner: shell.

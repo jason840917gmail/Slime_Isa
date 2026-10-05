@@ -313,7 +313,7 @@ extends Node
 | village-elder-plop | ellipse 34×24, offset (0,10) | −17 | 17 | −2 | 22 |
 | the other five | ellipse 36×24, offset (0,10) | −18 | 18 | −2 | 22 |
 
-Ask the integrator/converter to copy these bodies into `res://generated/data/` (e.g. `character-bodies.json`: `{characterId: {width, height, centerOffsetX, centerOffsetY, shape}}`); until then `npc.gd` may hold a const table citing the source file.
+Ask the integrator/converter to copy these bodies into `res://game/data/` (e.g. `character-bodies.json`: `{characterId: {width, height, centerOffsetX, centerOffsetY, shape}}`); until then `npc.gd` may hold a const table citing the source file.
 
 ### 5.2 Wander domain (where targets are sampled; old-root coordinates **[FEET]**)
 

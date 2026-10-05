@@ -11,7 +11,7 @@ behaviour per area is in [specs/](./specs/).
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
 | `godot/asset/` | `pnpm godot:sync`, git-ignored | copies of every file `asset/assets.json` maps, at `res://asset/<source.path>` |
-| `godot/generated/` | `pnpm godot:convert`, git-ignored | `data/` copies of `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json` plus the exports `npc-definitions.json`, `recipes.json`, `weapons.json` (names, icons, stats) and `item-icons.json` (texture key → sheet, frame size, grid). Scenes are no longer generated (below) |
+| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, `npc-definitions.json`, `recipes.json`, `quests-chapter-1.json` / `-2.json`, `weapons.json` (names, icons, stats) and `item-icons.json` (texture key → sheet, frame size, grid), read through `GameConstants` (`Services.constants()`) |
 | `godot/game/scenes/` | hand (Godot editor), from the converter on 2026-10-05 | every world, object, character, weapon, effect, projectile and encounter scene (`<kind>s/<path>.tscn`, the scene JSON's layout) and `scene_index.json` (scene id → path); see "Scenes Godot owns" |
 | `godot/game/world/terrain_tileset.tres` | hand, from the converter | the terrain TileSet (one atlas source per tile id, `tile_id` custom data) |
 | `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
@@ -25,8 +25,8 @@ behaviour per area is in [specs/](./specs/).
 
 Scenes are Godot's: edit them in the Godot editor (or with a tool in `godot/tools/`). The scene
 JSON under `src/game/content/scenes/authored/` is frozen and Scene Studio no longer reaches the
-game. Game data (constants, items, quests, recipes) still comes from `src/game/content/` through
-`pnpm godot:convert`; never hand-edit `godot/generated/`.
+game. The game data is Godot's too (`godot/game/data/`, 2026-10-05): edit items, quests, recipes and
+constants there; `src/game/content/` no longer reaches Godot.
 
 ## Scenes Godot owns
 
@@ -116,14 +116,14 @@ at a new run ([specs/crafting.md](./specs/crafting.md) C2, C3, 8.2).
   (flashes, floating text, camera). Hit-stop pauses the tree; scripts that must keep
   running (input buffering, camera, HUD) use `PROCESS_MODE_ALWAYS`.
 - Each body is moved only by its own scene script, with `ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`); never `move_and_slide()`, whose floating-mode slide differs from Phaser's Arcade.
-- Gameplay values come from `generated/data/game-constants.json` (through
+- Gameplay values come from `game/data/game-constants.json` (through
   `Services.constants()`) or from scene properties, never new literals.
 - Commit the `*.gd.uid` files Godot creates next to scripts.
 
 ## Checking your work
 
 ```bash
-pnpm godot:sync && pnpm godot:convert
+pnpm godot:sync
 "<Godot 4.7.2 console exe>" --headless --path godot --import
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd
 "<Godot 4.7.2 console exe>" --headless --path godot --check-only -s res://game/<file>.gd
