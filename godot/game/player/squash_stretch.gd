@@ -6,10 +6,16 @@ class_name SquashStretch
 ## The event snaps the Visual's extra scale to the preset, then tweens back to 1 with the preset's
 ## ease (Back.Out by default); a new event replaces the running tween. While an ability runs
 ## (`busy`) events are skipped unless forced (the jump's landing). Effective scale = authored
-## Visual scale (0.28125) * extra. Reduce motion (OUT, default off) would keep 35 %. The pivot is
-## the Visual node position (old sprite centre), same as Phaser.
+## Visual scale (0.28125) * extra. Under the Reduce motion setting (GameFeel.reduce_motion) the
+## deformation keeps 35 % (`squashStart`, SquashStretch.ts:30-36). The pivot is the Visual node
+## position (old sprite centre), same as Phaser.
 ##
 ## Owner: player builder.
+
+const Services := preload("res://game/shared/services.gd")
+
+## REDUCED_MOTION_SQUASH (SquashStretch.ts:30): reduce motion keeps a third of the deformation.
+const REDUCED_MOTION_SQUASH := 0.35
 
 ## event -> {"scale": Vector2, "ms": float}
 const PRESETS := {
@@ -44,7 +50,7 @@ func play(event: StringName, force: bool = false) -> void:
 	if not force and busy.is_valid() and bool(busy.call()):
 		return
 	var preset: Dictionary = PRESETS[event]
-	var start: Vector2 = preset["scale"]
+	var start: Vector2 = squash_start(preset["scale"], _reduce_motion())
 	var duration_s: float = float(preset["ms"]) / 1000.0
 	_kill_tween()
 	_visual.scale = _base_scale * start
@@ -54,6 +60,17 @@ func play(event: StringName, force: bool = false) -> void:
 	_tween = _visual.create_tween()
 	_tween.set_trans(int(preset.get("trans", Tween.TRANS_BACK))).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(_visual, "scale", _base_scale, duration_s)
+
+
+## `squashStart`: the scale a deformation starts from; reduce motion softens it toward rest.
+static func squash_start(scale: Vector2, reduce_motion: bool) -> Vector2:
+	var amount := REDUCED_MOTION_SQUASH if reduce_motion else 1.0
+	return Vector2.ONE + (scale - Vector2.ONE) * amount
+
+
+func _reduce_motion() -> bool:
+	var feel := Services.feel()
+	return feel != null and feel.reduce_motion
 
 
 ## Stops any running tween and restores the authored scale.
