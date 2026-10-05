@@ -31,6 +31,7 @@ const DOCUMENTED_VARIATIONS: PackedStringArray = [
 	"AreaTitle", "BossName", "DefeatTitle", "EndCardTitle", "DebugLabel",
 	"PrimaryButton", "MutedButton", "DangerButton", "WarningButton", "TabButton", "SlotButton",
 	"GhostButton", "BoldButton", "HudBar", "BossBar", "FloatingHealthBar",
+	"HotbarSlot", "BeltSlot", "BeltSlotFilled", "DialogueNextButton", "TrackerObjectiveLabel",
 ]
 
 ## Stands in for game/building's furniture placement (group `furniture_placement`, `is_active()`).

@@ -153,6 +153,12 @@ static func _labels(theme: Theme, fonts: Dictionary) -> void:
 	theme.set_constant(&"outline_size", &"EndCardTitle", 8)
 	# Developer readouts (FPS panel): 11 px monospace.
 	_label_variation(theme, &"DebugLabel", UiTokens.DEBUG_TEXT, 11, fonts["mono"])
+	# Quest tracker objective lines: 12 px regular text with the soft HUD shadow.
+	_label_variation(theme, &"TrackerObjectiveLabel", UiTokens.TEXT, UiTokens.FONT_SIZE_SMALL)
+	theme.set_color(&"font_shadow_color", &"TrackerObjectiveLabel", UiTokens.SHADOW)
+	theme.set_constant(&"shadow_offset_x", &"TrackerObjectiveLabel", 0)
+	theme.set_constant(&"shadow_offset_y", &"TrackerObjectiveLabel", 1)
+	theme.set_constant(&"shadow_outline_size", &"TrackerObjectiveLabel", 2)
 
 
 static func _label_variation(theme: Theme, variation: StringName, color: Color, size: int = -1,
@@ -205,6 +211,38 @@ static func _buttons(theme: Theme, fonts: Dictionary) -> void:
 	theme.set_color(&"font_pressed_color", &"SlotButton", UiTokens.WARNING)
 	theme.set_color(&"font_hover_pressed_color", &"SlotButton", UiTokens.WARNING)
 	theme.set_font_size(&"font_size", &"SlotButton", UiTokens.FONT_SIZE_SMALL)
+
+	# HUD weapon hotbar slots (artwork-first HUD): transparent, 1 px text-colour border at 38 %,
+	# radius 5; the selected slot (toggled) gets the warning border.
+	theme.set_type_variation(&"HotbarSlot", &"Button")
+	var hotbar_border := Color(UiTokens.TEXT, 0.38)
+	theme.set_stylebox(&"normal", &"HotbarSlot", _box(CLEAR, hotbar_border, 1, 5, 4.0, 2.0))
+	theme.set_stylebox(&"hover", &"HotbarSlot", _box(CLEAR, UiTokens.ACCENT, 1, 5, 4.0, 2.0))
+	theme.set_stylebox(&"disabled", &"HotbarSlot", _box(CLEAR, Color(hotbar_border, hotbar_border.a * UiTokens.DISABLED_ALPHA), 1, 5, 4.0, 2.0))
+	var hotbar_selected := _box(CLEAR, UiTokens.WARNING, 1, 5, 4.0, 2.0)
+	theme.set_stylebox(&"pressed", &"HotbarSlot", hotbar_selected)
+	theme.set_stylebox(&"hover_pressed", &"HotbarSlot", hotbar_selected)
+	theme.set_stylebox(&"focus", &"HotbarSlot", _outline(UiTokens.WARNING, UiTokens.FOCUS_WIDTH, 2.0, 5))
+	_button_colors(theme, &"HotbarSlot", UiTokens.TEXT)
+	theme.set_color(&"font_pressed_color", &"HotbarSlot", UiTokens.WARNING)
+	theme.set_color(&"font_hover_pressed_color", &"HotbarSlot", UiTokens.WARNING)
+	theme.set_font_size(&"font_size", &"HotbarSlot", UiTokens.FONT_SIZE_BAR)
+
+	# Belt slots in the bag window: SlotButton with a 60 % border while empty (`BeltSlot`) and a
+	# solid one once a weapon sits there (`BeltSlotFilled`).
+	for entry: Array in [[&"BeltSlot", 0.6], [&"BeltSlotFilled", 1.0]]:
+		var belt: StringName = entry[0]
+		theme.set_type_variation(belt, &"SlotButton")
+		theme.set_stylebox(&"normal", belt, _box(UiTokens.SURFACE_INSET, Color(UiTokens.BORDER, float(entry[1])), 1, 8, 8.0, 4.0))
+
+	# The dialogue box's Next button: accent, bold, radius 8.
+	theme.set_type_variation(&"DialogueNextButton", &"Button")
+	_button_styles(theme, &"DialogueNextButton", 8)
+	_button_colors(theme, &"DialogueNextButton", UiTokens.ACCENT)
+	theme.set_color(&"font_hover_color", &"DialogueNextButton", UiTokens.WARNING)
+	theme.set_color(&"font_pressed_color", &"DialogueNextButton", UiTokens.WARNING)
+	theme.set_color(&"font_hover_pressed_color", &"DialogueNextButton", UiTokens.WARNING)
+	theme.set_font(&"font", &"DialogueNextButton", fonts["bold"])
 
 	# Borderless clickable text (quest tracker "show the way" blocks, inline links).
 	theme.set_type_variation(&"GhostButton", &"Button")

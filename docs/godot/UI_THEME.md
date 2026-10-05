@@ -132,6 +132,7 @@ Panel variations work on both `Panel` and `PanelContainer`.
 | `DefeatTitle` | game-over "Defeated" (32 px, danger) | Defeat headings |
 | `EndCardTitle` | `.game-ui--end-card [/title]` (:3728) | Chapter end titles (34 px special, shadow and violet glow) |
 | `DebugLabel` | `RenderingDiagnostics` text | Developer readouts (11 px monospace) |
+| `TrackerObjectiveLabel` | quest tracker objective lines | Objective lines in the HUD tracker: 12 px regular text with the soft HUD shadow |
 
 ### Buttons
 
@@ -145,6 +146,9 @@ Panel variations work on both `Panel` and `PanelContainer`.
 | `SlotButton` | `.scene-control--itemlist > button` in the bag / chest / belt / crafting (:3434, 3234) | Item cells and selectable rows: radius 8, toggled = selected (warning border on the raised surface) |
 | `GhostButton` | `.game-ui--quest-tracker [/track-]` (:3708) | Borderless clickable text blocks (tracker "show the way", inline links) |
 | `BoldButton` | `.scene-control--modalroot .scene-control--button` weight 700 (:3620) | A button whose text should be bold |
+| `HotbarSlot` | HUD weapon hotbar slots (artwork-first HUD) | Belt slots over the world: transparent, 1 px text-colour border at 38 %, radius 5; toggled = selected (warning border) |
+| `BeltSlot`, `BeltSlotFilled` | belt slots in the bag window | `SlotButton` with a 60 % border while the slot is empty (`BeltSlot`) and a solid one once it holds a weapon (`BeltSlotFilled`) |
+| `DialogueNextButton` | the dialogue box's Next button | Accent, bold, radius 8 |
 
 ### Bars
 
