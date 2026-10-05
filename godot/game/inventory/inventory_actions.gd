@@ -10,8 +10,8 @@ extends Node
 ##   "Weapon is unavailable"). The hand changing plays EquipBlade (sword, spear) or EquipTool.
 ## - `use_item` (the bag's Use): heal, energy, then one taken from the item's first stack.
 ## - `on_crafted` (the crafting window): a crafted weapon goes onto the belt and into an empty hand,
-##   then "Crafted: <recipe name>" (green, big, 44 px up). A crafted Workbench stays in the bag
-##   (furniture placement is not ported, owner decision C1).
+##   then "Crafted: <recipe name>" (green, big, 44 px up). A crafted Workbench closes the crafting
+##   window and starts furniture placement (game/building/furniture_placement.gd).
 ## - `harvest_message`: a resource node's "Requires an Axe" plus where the right tool is.
 ## - World build: `grant_trial_weapon` (a new run, owner decision C3) and `equip_run_weapon`.
 ## Every text also goes out on `message_shown` (test hook).
