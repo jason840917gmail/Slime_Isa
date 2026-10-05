@@ -130,7 +130,7 @@ func floating_text(world_position: Vector2, text: String, color: StringName = &"
 
 
 ## One-shot particle burst (combat spec 13 / player spec 8): presets "hit-spark",
-## "slime-splash", "dodge-dust" at a world position.
+## "slime-splash", "dodge-dust", "boss-burst" at a world position.
 func particles(preset: StringName, world_position: Vector2) -> void:
 	if _particles == null:
 		return

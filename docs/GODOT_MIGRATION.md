@@ -124,13 +124,20 @@ serves it on port 3200). Launch options for testing: `?map=<world id>` and
   the owner's machine held 60 fps (16.7 ms frames, 17 ms worst) idle, walking
   and fighting. The web data pack is 44 MB (textures imported as lossy WebP at
   quality 0.9) plus the 39.5 MB engine (about 9 MB compressed).
-- Not yet: terrain blending, the remaining 24 scene scripts
-  (doors, resource nodes, collectibles, chests, …), UI styling, saves, the
+- Not yet: terrain blending, the remaining 20 scene scripts
+  (doors, resource nodes, collectibles, chests, the Matron, …), UI styling, saves, the
   reference-laptop measurement, and the owner's feel check.
 - The water shader is ported (2026-10-05, [godot/specs/water.md](./godot/specs/water.md)):
   the animated surface over `water` and `deep-water` tiles, with the water life
   drawn and animated as in Phaser. Until terrain blending lands, shores keep
   square tile edges, and an interim shader step smooths the deep/shallow ground.
+- The level-1 boss fight is ported (2026-10-05, [godot/specs/boss.md](./godot/specs/boss.md)):
+  the Fatty One Eye camp spawns the boss when the player walks in; it chases,
+  contact-hops, leaps with a ground telegraph, lands for damage with the ground
+  crack and a camera shake, walks home and heals when the player leaves the arena,
+  shows the boss health bar, and dies with its death clip (kept on screen for the
+  clip, which Phaser never showed). Only spears hurt it, and the trial still equips
+  the sword, so killing it in play needs a spear (tests use one).
 - Owner decisions (2026-10-05, [godot/ARCHITECTURE.md](./godot/ARCHITECTURE.md#12-open-questions)):
   keep the live aim origin; the sword's combo off-by-one is fixed in the port
   (24 per hit); the player gets new three-quarter top-down art with clips per

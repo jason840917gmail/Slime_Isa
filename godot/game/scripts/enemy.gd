@@ -17,6 +17,13 @@ class_name EnemyScript
 ## Timers use `Services.now_ms()` (SimClock), which freezes in hit-stop.
 ## The attack-side `animation_event` hitbox events are deliberately ignored (enemy spec 2.1).
 ##
+## Bosses (`game.fatty` -> res://game/scripts/fatty.gd) extend this script as Phaser's FattyScript
+## extends EnemyScript. For them it also carries the arena leash (`configure_arena`, boss spec
+## 3.3), `_route_immediate_attack` and the overridable hooks `_after_enemy_step`,
+## `_attack_area_reach`, `_can_run_common_attack`, `_mirrors_side_facing`, `_receiver_tags`,
+## `_damage_number_top`, `_dispose_delay_ms`, `_react_to_damage` and `can_receive_damage`. Their
+## defaults keep the worm's behaviour.
+##
 ## Owner: enemy builder.
 
 const Services := preload("res://game/shared/services.gd")
@@ -26,6 +33,7 @@ const EnemyAI := preload("res://game/enemy/enemy_ai.gd")
 const CampTerritory := preload("res://game/enemy/camp_territory.gd")
 const EnemyAttackLifecycle := preload("res://game/enemy/attack_lifecycle.gd")
 const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
+const BossArena := preload("res://game/bosses/boss_arena.gd")
 
 ## EnemyScript.ts literals (enemy spec 1.2).
 const SIGHT_CHECK_MS := 150.0
@@ -86,7 +94,8 @@ const RECEIVER_TAGS: Array[String] = ["enemy"]
 @export var projectile: Dictionary = {}
 ## JSON `impactEffect` (worm brawler, OUT).
 @export var impact_effect: Dictionary = {}
-## JSON `arenaRecoveryMs` (bosses, OUT).
+## JSON `arenaRecoveryMs` (bosses with an arena: heal to full once the player has stayed outside
+## the arena this long; 0 = never).
 @export var arena_recovery_ms: float = 0.0
 
 ## Payload {"hp": float, "maxHp": float}.
@@ -142,6 +151,11 @@ var _reward_published: bool = false
 ## Last value written to the attack area (scene default: monitoring off, shapes disabled).
 var _attack_area_active: bool = false
 var _registered_area: Area2D
+## Boss arena perimeter (BossArena shape, {} = no arena) and its leash state (boss spec 3.3).
+var _arena: Dictionary = {}
+var _returning_to_arena: bool = false
+var _arena_left: bool = false
+var _arena_left_at_ms: float = 0.0
 
 
 ## Clamps max_health, sets hp; push_error when damage_area / attack_area are missing; registers
@@ -164,7 +178,7 @@ func _ready() -> void:
 		HitFlash.install(visual)
 	var router := Services.router()
 	if router != null and damage_area != null:
-		router.register_area(damage_area, self, _receiver_rule(), RECEIVER_TAGS)
+		router.register_area(damage_area, self, _receiver_rule(), _receiver_tags())
 		_registered_area = damage_area
 
 
@@ -178,13 +192,24 @@ func _exit_tree() -> void:
 		_registered_area = null
 
 
-## Enemy spec 4.2 step order exactly (flash update, defeated, stun slide, no target, territory,
-## attack in flight, AI loop, alerted, facing/clip), then `ArcadeMover.move(body, delta)` on
-## every path except defeated. When defeated: velocity 0 and `body.queue_free()` once
-## `now >= dispose_at` (enemy spec 7, self-dispose replaces the world-side cleanup).
+## One physics step: the base enemy step (`_step_enemy`), then the subclass hook
+## `_after_enemy_step` (Phaser: FattyScript._physics_process after `super`), then the body moves
+## once with `ArcadeMover.move(body, delta)` on every path except defeated (Arcade integrates
+## after the scripts, enemy spec 4.2).
 func _physics_process(delta: float) -> void:
 	if body == null:
 		return
+	var moves := _step_enemy(delta)
+	_after_enemy_step(delta)
+	if moves and is_instance_valid(body) and not body.is_queued_for_deletion():
+		ArcadeMover.move(body, delta)
+
+
+## Enemy spec 4.2 step order exactly (flash update, defeated, stun slide, no target, arena leash
+## (bosses), territory, attack in flight, AI loop, alerted, facing/clip). Returns false only on
+## the defeated path (the body does not move). When defeated: velocity 0 and `body.queue_free()`
+## once `now >= dispose_at` (enemy spec 7, self-dispose replaces the world-side cleanup).
+func _step_enemy(delta: float) -> bool:
 	var now := Services.now_ms()
 	_update_hit_flash(now)
 	if _defeated:
@@ -192,13 +217,12 @@ func _physics_process(delta: float) -> void:
 		_runtime_state = EnemyAI.STATE_DEAD
 		if _dispose_at_ms >= 0.0 and now >= _dispose_at_ms and not body.is_queued_for_deletion():
 			body.queue_free()
-		return
+		return false
 
 	# Knockback / hit-stun: slide with decay; no AI, no territory, no attack, no clip change.
 	if now < _hit_stun_until:
 		body.velocity *= pow(HIT_STUN_VELOCITY_DECAY, delta * 60.0)
-		ArcadeMover.move(body, delta)
-		return
+		return true
 
 	var target := _primary_target()
 	if target.is_empty() or not bool(target.get("active", false)) or not bool(target.get("hostile", false)):
@@ -207,11 +231,29 @@ func _physics_process(delta: float) -> void:
 		_runtime_state = EnemyAI.STATE_IDLE
 		body.velocity = Vector2.ZERO
 		_play_facing("idle")
-		ArcadeMover.move(body, delta)
-		return
+		return true
 
 	var origin := get_centre()
 	var player_centre: Vector2 = target.get("centre", origin)
+	# Arena leash (boss camps, EnemyScript.ts:392-409): outside the arena the enemy drops the fight
+	# and walks home; left alone `arena_recovery_ms`, it heals to full.
+	if not _arena.is_empty() and not BossArena.contains(_arena, player_centre):
+		if not _arena_left:
+			_arena_left = true
+			_arena_left_at_ms = now
+		if arena_recovery_ms > 0.0 and now - _arena_left_at_ms >= arena_recovery_ms:
+			_restore_health(max_health)
+		cancel_attack()
+		_returning_to_arena = true
+		_ai_state = EnemyAI.STATE_IDLE
+		_runtime_state = EnemyAI.STATE_IDLE
+		var home := _velocity_toward_arena_centre(origin, delta)
+		body.velocity = home
+		_update_facing(home)
+		_play_facing("walk" if home.length() > WALK_SPEED_THRESHOLD else "idle")
+		return true
+	_returning_to_arena = false
+	_arena_left = false
 	var to_player := player_centre - origin
 	var distance := to_player.length()
 	var direction := to_player / distance if distance > 0.0 else _attack_direction
@@ -234,8 +276,7 @@ func _physics_process(delta: float) -> void:
 		body.velocity = walk
 		_update_facing(walk)
 		_play_facing("walk" if walk.length() > WALK_SPEED_THRESHOLD else "idle")
-		ArcadeMover.move(body, delta)
-		return
+		return true
 	if not territory.is_empty() and territory["mode"] == CampTerritory.MODE_ENGAGED \
 			and (_ai_state == EnemyAI.STATE_IDLE or _ai_state == EnemyAI.STATE_WANDER):
 		# Noticed by sight or a hit: the combat AI starts chasing even beyond its aggro range.
@@ -265,9 +306,13 @@ func _physics_process(delta: float) -> void:
 		"may_engage": bool(territory["may_engage"]) if not territory.is_empty() else distance <= targeting_radius,
 		"safe_zones": _safe_zones,
 	}
+	# Authored attack-area reach replaces the attack_range distance rules (EnemyScript.ts:464).
+	var reach: Variant = _attack_area_reach(target)
+	if reach is bool:
+		context["in_attack_reach"] = reach
 	var outcome := EnemyAI.run(_ai_state, body.velocity, context)
 	var velocity: Vector2 = outcome["velocity"]
-	if bool(outcome["attack_requested"]):
+	if bool(outcome["attack_requested"]) and _can_run_common_attack():
 		_begin_attack(outcome["attack_dir"])
 	var next_state: String = outcome["state"]
 	# Presentation hook (alert chirp): idle or wandering enemies that start pursuing or fleeing.
@@ -280,7 +325,7 @@ func _physics_process(delta: float) -> void:
 	if _active_sequence_id == NO_ID:
 		_update_facing(velocity)
 		_play_facing("walk" if velocity.length() > WALK_SPEED_THRESHOLD else "idle")
-	ArcadeMover.move(body, delta)
+	return true
 
 
 # --- API for the spawner / world ---------------------------------------------------------------
@@ -299,6 +344,25 @@ func configure_navigation(spawn_area: Dictionary, safe_zones: Array[Dictionary])
 		_territory.setup(stay, targeting_radius, attack_range, _optional_attribute("leashRange"))
 	elif not spawn_area.is_empty():
 		push_error("EnemyScript '%s': spawn area '%s' has no stay perimeter; no territory." % [get_path(), spawn_area.get("id", "")])
+
+
+## Called by a boss camp right after spawning its boss (Phaser navigation `{arena}`,
+## UniversalSceneWorldController.ts:2073-2079): the arena perimeter (BossArena shape) the enemy
+## does not pursue beyond (boss spec 3.3). {} removes the leash.
+func configure_arena(perimeter: Dictionary) -> void:
+	_arena = perimeter
+	_returning_to_arena = false
+	_arena_left = false
+
+
+## The arena perimeter given by configure_arena ({} when none).
+func get_arena() -> Dictionary:
+	return _arena
+
+
+## True while an arena-leashed enemy walks home because its target left the arena.
+func is_returning_to_arena() -> bool:
+	return _returning_to_arena
 
 
 ## Old Phaser body centre: FeetAnchor.phaser_position(body).
@@ -416,7 +480,12 @@ func _resolve_attack(target: Dictionary, origin: Vector2) -> void:
 		return
 	var player_centre: Vector2 = target.get("centre", origin)
 	var to_player := player_centre - origin
-	if to_player.length() > attack_range * MELEE_REACH_MULTIPLIER:
+	# An authored attack-area reach replaces the distance rule (EnemyScript.ts:771-773).
+	var reach: Variant = _attack_area_reach(target)
+	if reach is bool:
+		if not reach:
+			return
+	elif to_player.length() > attack_range * MELEE_REACH_MULTIPLIER:
 		return
 	var knock := to_player.normalized() if to_player.length() > 0.0 else _attack_direction
 	var effects: Array[Dictionary] = []
@@ -460,7 +529,7 @@ func _end_attack() -> void:
 
 ## Enemy spec 7: defeated, hp 0, cancel attack, velocity 0, body collision off (set_deferred),
 ## attack area off, "die-<facing>" restart, health_changed, defeated, reward_requested once,
-## dispose_at = now + DISPOSE_AFTER_DEFEAT_MS.
+## dispose_at = now + `_dispose_delay_ms()` (DISPOSE_AFTER_DEFEAT_MS).
 func _defeat() -> void:
 	if _defeated:
 		return
@@ -482,7 +551,7 @@ func _defeat() -> void:
 	if not _reward_published:
 		_reward_published = true
 		reward_requested.emit({"receiverNodeId": receiver_node_id, "rewards": rewards})
-	_dispose_at_ms = Services.now_ms() + DISPOSE_AFTER_DEFEAT_MS
+	_dispose_at_ms = Services.now_ms() + _dispose_delay_ms()
 
 
 ## Enemy spec 6.2 reaction (ordinary enemies): feedback always; on a non-lethal hit cancel the
@@ -515,7 +584,7 @@ func _react_to_damage(commit: Dictionary, is_dead: bool) -> void:
 
 
 ## Enemy spec 6.2 feedback: flash until now + 120 (HitFlash fill), damage number "-N" at
-## (centre.x, Visual global rect top - 8), yellow big when N > 15 else white small
+## (centre.x, `_damage_number_top()` - 8), yellow big when N > 15 else white small
 ## (`Services.feel().floating_text`).
 func _show_hit_feedback(commit: Dictionary) -> void:
 	_hit_flash_until = Services.now_ms() + HIT_FLASH_MS
@@ -527,10 +596,7 @@ func _show_hit_feedback(commit: Dictionary) -> void:
 	if feel == null or body == null:
 		return
 	var centre := get_centre()
-	var top := centre.y
-	if visual != null:
-		var rect := visual.get_global_transform() * visual.get_rect()
-		top = rect.position.y
+	var top := _damage_number_top()
 	var important := float(amount) > IMPORTANT_DAMAGE
 	feel.floating_text(Vector2(centre.x, top - DAMAGE_NUMBER_RISE_PX), "-%d" % amount,
 		&"yellow" if important else &"white", important)
@@ -604,7 +670,7 @@ func _update_facing(velocity: Vector2) -> void:
 	else:
 		_facing = "up" if velocity.y < 0.0 else "down"
 		_facing_flipped = false
-	if visual != null and visual.flip_h != _facing_flipped:
+	if _mirrors_side_facing() and visual != null and visual.flip_h != _facing_flipped:
 		visual.flip_h = _facing_flipped
 
 
@@ -677,3 +743,98 @@ func _receiver_node_id() -> String:
 
 func _health_payload() -> Dictionary:
 	return {"hp": _hp, "maxHp": max_health}
+
+
+# --- hooks for scripts that extend this one (bosses); the defaults are the base enemy ----------
+
+## Runs after the base step, before the body moves (Phaser: the subclass `_physics_process` body
+## after `super`). No-op here.
+func _after_enemy_step(_delta: float) -> void:
+	pass
+
+
+## Authored attack-area reach (EnemyScript.ts:614-619): null keeps the `attack_range` distance
+## rules; a bool replaces them for the AI and the impact (boss spec 3.3).
+func _attack_area_reach(_target: Dictionary) -> Variant:
+	return null
+
+
+## Whether the AI's attack request may start the common melee (EnemyScript.ts:612).
+func _can_run_common_attack() -> bool:
+	return true
+
+
+## Directional enemies mirror their side clips when facing left (EnemyScript.ts:663).
+func _mirrors_side_facing() -> bool:
+	return true
+
+
+## Target tags the router hands to weapons for this hurtbox (UniversalSceneWorldController.ts:2195-2206).
+func _receiver_tags() -> Array[String]:
+	return RECEIVER_TAGS
+
+
+## World y the damage number rises from (minus 8): the top of the Visual's bounds
+## (UniversalSceneWorldController.ts:2039-2045), the centre when there is no visual.
+func _damage_number_top() -> float:
+	if visual == null:
+		return get_centre().y
+	var rect := visual.get_global_transform() * visual.get_rect()
+	return rect.position.y
+
+
+## How long the defeated body stays before it frees itself (enemy spec 7).
+func _dispose_delay_ms() -> float:
+	return DISPOSE_AFTER_DEFEAT_MS
+
+
+## Toward the arena centre at movement speed, snapping onto it on the last step
+## (EnemyScript.ts:598-610). `origin` is the old centre.
+func _velocity_toward_arena_centre(origin: Vector2, delta: float) -> Vector2:
+	var centre := BossArena.centre(_arena)
+	var offset := centre - origin
+	var remaining := offset.length()
+	if remaining <= maxf(1.0, movement_speed * maxf(0.0, delta)):
+		FeetAnchor.place_at_phaser_position(body, centre)
+		return Vector2.ZERO
+	return offset / remaining * movement_speed
+
+
+## `routeImmediateAttack` (EnemyScript.ts:675-699, boss spec 3.4): one hit on the player's hurtbox
+## outside the timed melee, in its own activation. Knock = unit(player centre - centre) (zero when
+## they coincide); `max_range >= 0` skips a target further than that. Returns true when the hit
+## was accepted with damage > 0. (Phaser's optional impact effect is OUT, as for the melee.)
+func _route_immediate_attack(target: Dictionary, base_damage: float, knockback_strength: float,
+		max_range: float = -1.0) -> bool:
+	var router := Services.router()
+	if attack_area == null or router == null or body == null:
+		return false
+	var origin := get_centre()
+	var to_player: Vector2 = target.get("centre", origin) - origin
+	var knock := to_player.normalized() if to_player.length() > 0.0 else Vector2.ZERO
+	if not bool(target.get("active", false)) or not bool(target.get("hostile", false)):
+		return false
+	if max_range >= 0.0 and to_player.length() > max_range:
+		return false
+	var target_area := target.get("hurtbox") as Area2D
+	if target_area == null:
+		return false
+	var areas: Array[Area2D] = [attack_area]
+	var activation_id := router.begin_activation(self, areas)
+	var effects: Array[Dictionary] = []
+	if knockback_strength > 0.0:
+		effects.append({"effect_id": KNOCKBACK_EFFECT_ID, "potency": knockback_strength})
+	var result := router.route({
+		"activation_id": activation_id,
+		"source": self,
+		"attack_area": attack_area,
+		"target_area": target_area,
+		"weapon_id": CONTACT_WEAPON_ID,
+		"weapon_tags": CONTACT_WEAPON_TAGS.duplicate(),
+		"damage_types": CONTACT_DAMAGE_TYPES.duplicate(),
+		"base_damage": base_damage,
+		"effects": effects,
+		"impact": {"position": origin, "knock": knock},
+	})
+	router.end_activation(activation_id)
+	return str(result.get("status", "")) == "accepted" and int(result.get("actual_damage", 0)) > 0

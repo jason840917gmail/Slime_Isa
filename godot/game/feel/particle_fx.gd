@@ -11,6 +11,8 @@ class_name ParticleFx
 ##   hit-spark:    7, 220, 90-220, 0-360, 0, 0.9->0, 1->0, additive, "fx-spark" 16x16
 ##   slime-splash: 9, 420, 50-140, 200-340, +420, 0.8->0.3, 1->0, normal, "fx-goo-drop" 16x16
 ##   dodge-dust:   9, 460, 30-95, 0-360, -30, 0.9->0.25, 0.8->0, normal, "dust-puff"
+##   boss-burst:   36, 900, 120-320, 0-360, 0, 1.6->0, 1->0, normal, "fx-sparkle", random rotation
+##                 0-360, each particle tinted one of #ffe89a #86f0c3 #ffffff (boss spec 4.4)
 ##
 ## Layers: "over" bursts stay under this node (z_index OVER_Z_INDEX, above every world object).
 ## "ground" bursts are moved under the y-sorted world entities root (holder at y + 2, emitter
@@ -20,7 +22,7 @@ class_name ParticleFx
 
 const Services := preload("res://game/shared/services.gd")
 
-const PRESET_IDS: Array[StringName] = [&"hit-spark", &"slime-splash", &"dodge-dust"]
+const PRESET_IDS: Array[StringName] = [&"hit-spark", &"slime-splash", &"dodge-dust", &"boss-burst"]
 
 ## Emitters per preset (round robin): a new burst restarts the oldest emitter, so up to this many
 ## bursts of one preset overlap (Phaser recycles particles of a single emitter).
@@ -47,6 +49,12 @@ const PRESETS := {
 		"speed_min": 30.0, "speed_max": 95.0, "angle_min": 0.0, "angle_max": 360.0, "gravity_y": -30.0,
 		"scale_start": 0.9, "scale_end": 0.25, "alpha_start": 0.8, "alpha_end": 0.0, "additive": false,
 		"rotate_min": 0.0, "rotate_max": 360.0},
+	# ParticlePresets.ts:35-38; "tints" = Phaser `tint: [...]` (one picked per particle).
+	&"boss-burst": {"texture": "fx-sparkle", "count": 36, "layer": LAYER_OVER, "lifespan_ms": 900.0,
+		"speed_min": 120.0, "speed_max": 320.0, "angle_min": 0.0, "angle_max": 360.0, "gravity_y": 0.0,
+		"scale_start": 1.6, "scale_end": 0.0, "alpha_start": 1.0, "alpha_end": 0.0, "additive": false,
+		"rotate_min": 0.0, "rotate_max": 360.0,
+		"tints": [Color("#ffe89a"), Color("#86f0c3"), Color("#ffffff")]},
 }
 
 ## texture name -> ImageTexture
@@ -79,6 +87,7 @@ func _ready() -> void:
 			[16.0, 16.0, 6.0, Color(Color("#d9c8a4"), 0.5)],
 			[13.0, 13.0, 4.0, Color(Color("#f3ead6"), 0.45)],
 		]),
+		"fx-sparkle": _make_sparkle_texture(),
 	}
 	for preset: StringName in PRESET_IDS:
 		var pool: Array = []
@@ -155,6 +164,19 @@ func _make_holder(preset: StringName, index: int) -> Node2D:
 	ramp.set_color(0, Color(1, 1, 1, float(config["alpha_start"])))
 	ramp.set_color(1, Color(1, 1, 1, float(config["alpha_end"])))
 	emitter.color_ramp = ramp
+	var tints: Array = config.get("tints", [])
+	if not tints.is_empty():
+		# One tint per particle, picked uniformly (constant-interpolation ramp sampled at random).
+		var initial := Gradient.new()
+		initial.interpolation_mode = Gradient.GRADIENT_INTERPOLATE_CONSTANT
+		var offsets := PackedFloat32Array()
+		var colors := PackedColorArray()
+		for i in tints.size():
+			offsets.append(float(i) / float(tints.size()))
+			colors.append(tints[i])
+		initial.offsets = offsets
+		initial.colors = colors
+		emitter.color_initial_ramp = initial
 	if bool(config["additive"]):
 		var material := CanvasItemMaterial.new()
 		material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -203,6 +225,31 @@ static func _make_texture(width: int, height: int, circles: Array) -> ImageTextu
 				if dx * dx + dy * dy > radius * radius:
 					continue
 				image.set_pixel(x, y, _blend_over(image.get_pixel(x, y), color))
+	return ImageTexture.create_from_image(image)
+
+
+## The "fx-sparkle" texture (ProceduralAssetScene.ts:103-111): four #ffe89a triangles
+## (a four-point star) and a white circle r 2 at the centre of 16 x 16; a pixel is covered when
+## its centre is inside the shape.
+static func _make_sparkle_texture() -> ImageTexture:
+	var image := Image.create_empty(16, 16, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	var star := Color("#ffe89a")
+	var triangles: Array[PackedVector2Array] = [
+		PackedVector2Array([Vector2(8, 0), Vector2(10, 8), Vector2(6, 8)]),
+		PackedVector2Array([Vector2(8, 16), Vector2(10, 8), Vector2(6, 8)]),
+		PackedVector2Array([Vector2(0, 8), Vector2(8, 6), Vector2(8, 10)]),
+		PackedVector2Array([Vector2(16, 8), Vector2(8, 6), Vector2(8, 10)]),
+	]
+	for y in 16:
+		for x in 16:
+			var centre := Vector2(float(x) + 0.5, float(y) + 0.5)
+			for triangle: PackedVector2Array in triangles:
+				if Geometry2D.is_point_in_polygon(centre, triangle):
+					image.set_pixel(x, y, star)
+					break
+			if centre.distance_to(Vector2(8.0, 8.0)) <= 2.0:
+				image.set_pixel(x, y, Color(1, 1, 1, 1))
 	return ImageTexture.create_from_image(image)
 
 

@@ -9,7 +9,9 @@ class_name EnemyAI
 ##  "aggro": float, "attack_range": float, "wander_speed": float, "chase_speed": float,
 ##  "may_engage": bool, "safe_zones": Array[Dictionary] (rectangle perimeters)}
 ## Optional keys: "flee_range": float (> 0 enables the keep-distance rules of ranged enemies;
-## absent or <= 0 for the worm swordsman).
+## absent or <= 0 for the worm swordsman); "in_attack_reach": bool (EnemyAI.ts:271-273, 309:
+## an authored attack area decides reach, replacing the `attack_range` distance checks; absent
+## for the worm, set by bosses such as Fatty).
 ##
 ## Randomness: one `randf()` per `Math.random()` call, in the same order (enemy spec 10).
 ##
@@ -104,11 +106,14 @@ static func run_state(state: String, velocity: Vector2, ctx: Dictionary) -> Dict
 				return _result(STATE_WANDER, velocity)
 			if flee_range > 0.0 and distance < flee_range:
 				return _result(STATE_FLEE, velocity)
-			if distance <= attack_range:
+			var in_reach: bool = bool(ctx["in_attack_reach"]) if ctx.has("in_attack_reach") else distance <= attack_range
+			if in_reach:
 				return _result(STATE_ATTACK, Vector2.ZERO)
 			return _result(CONTINUE, dir * chase_speed)
 		STATE_ATTACK:
-			if distance > attack_range * ATTACK_KEEP_REACH_MULTIPLIER:
+			var out_of_reach: bool = not bool(ctx["in_attack_reach"]) if ctx.has("in_attack_reach") \
+				else distance > attack_range * ATTACK_KEEP_REACH_MULTIPLIER
+			if out_of_reach:
 				return _result(STATE_CHASE, velocity)
 			var attack := _result(CONTINUE, Vector2.ZERO)
 			attack["attack_requested"] = true

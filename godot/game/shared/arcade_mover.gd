@@ -15,8 +15,8 @@ extends RefCounted
 ## `velocity`. Walls in the converted worlds are rectangles (as Arcade's AABBs), so
 ## sliding along a surface equals Arcade's per-axis separation.
 ##
-## Note: the four ellipse CharacterBody2D shapes (Fatty, the spiders) are polygons
-## here but bounding boxes in Arcade; revisit when those creatures are ported.
+## Ellipse CharacterBody2D shapes (Fatty, the spiders) block as their bounding boxes,
+## as in Arcade: the converter writes them as rectangles (scripts/godot/lib/shapes.mjs).
 ##
 ## Stateless; reference it with
 ## `const ArcadeMover := preload("res://game/shared/arcade_mover.gd")`.
