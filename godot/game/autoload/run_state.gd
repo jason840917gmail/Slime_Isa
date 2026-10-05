@@ -1044,13 +1044,31 @@ func _ready() -> void:
 	for changed: Signal in [inventory_changed, world_progress_changed, coins_changed, story_flag_changed, ability_learned,
 			weapon_loadout_changed, weapon_equipped, recipes_learned, quests_changed]:
 		changed.connect(func(_payload: Dictionary) -> void: schedule_autosave())
-	_install_save_slots.call_deferred()
+	# The Shell autoload comes after this one: the window joins it right after the Shell's _ready,
+	# before the main scene (the title shows Load only when the action exists when it is built).
+	var shell := Services.shell()
+	if shell != null and shell.is_node_ready():
+		_install_save_slots()
+	elif shell != null:
+		shell.ready.connect(_install_save_slots, CONNECT_ONE_SHOT)
+	else:
+		get_tree().root.child_entered_tree.connect(_on_root_child_entered)
 
 
-## The save slots window joins the Shell (once every autoload is ready) and takes over its "save"
-## and "load" actions (game/saves/save_slots_menu.gd).
+## The save slots window joins the Shell and takes over its "save" and "load" actions
+## (game/saves/save_slots_menu.gd).
 func _install_save_slots() -> void:
 	SaveSlotsMenu.install(Services.shell())
+
+
+func _on_root_child_entered(node: Node) -> void:
+	if node.name != &"Shell":
+		return
+	get_tree().root.child_entered_tree.disconnect(_on_root_child_entered)
+	if node.is_node_ready():
+		_install_save_slots()
+	else:
+		node.ready.connect(_install_save_slots, CONNECT_ONE_SHOT)
 
 
 ## Window close (Phaser `pagehide`): the autosave is written at once.
