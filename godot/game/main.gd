@@ -53,6 +53,7 @@ const AreaTravel := preload("res://game/world/area_travel.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 const GameWindows := preload("res://game/ui/screens/game_windows.gd")
+const ControlHints := preload("res://game/hints/control_hints.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -123,6 +124,7 @@ func _ready() -> void:
 	add_child(loot)
 	game_windows = GameWindows.new()
 	add_child(game_windows)
+	add_child(ControlHints.new())
 	var navigation := run.consume_navigation() if run != null else {}
 	var target := str(navigation.get("map_id", ""))
 	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():

@@ -67,6 +67,8 @@ const NPC_DEFINITIONS_FILE := "npc-definitions.json"
 signal candidate_changed(payload: Dictionary)
 ## A message was shown. Payload: {"text", "color", "x", "y"} (test hook).
 signal message_shown(payload: Dictionary)
+## The interact button ran the chosen target (the control hint learns "interact"). Payload: {"id"}.
+signal interacted(payload: Dictionary)
 
 var _prompt: InteractionPrompt
 var _badge: InteractionBadge
@@ -152,7 +154,11 @@ func handle_interact() -> bool:
 	if _current.is_empty() or _suppressed:
 		return false
 	var execute: Callable = _current.get("execute", Callable())
-	return bool(execute.call()) if execute.is_valid() else false
+	var target_id := str(_current.get("id", ""))
+	var done := bool(execute.call()) if execute.is_valid() else false
+	if done:
+		interacted.emit({"id": target_id})
+	return done
 
 
 func has_candidate() -> bool:
