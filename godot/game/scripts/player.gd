@@ -1187,10 +1187,19 @@ func _is_looping(clip: String) -> bool:
 	return anim != null and anim.loop_mode != Animation.LOOP_NONE
 
 
+## Where a defeated slime wakes: the last bed slept in when it is in this world (its wake point,
+## `RunState.respawn_point`), else the spawn marker's open tile. A bed in another world is not
+## travelled to yet (Phaser reloads into the bed's world).
 func _respawn_point() -> Vector2:
 	var world := Services.world()
 	if world == null:
 		return get_centre()
+	var run := Services.run()
+	var bed: Dictionary = run.respawn_point() if run != null else {}
+	if not bed.is_empty() and str(bed.get("map_id", "")) == world.map_id():
+		var at := Vector2(float(bed.get("x", 0.0)), float(bed.get("y", 0.0)))
+		if at.is_finite():
+			return at
 	return world.find_spawn_point(world.player_spawn_marker())
 
 

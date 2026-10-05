@@ -28,6 +28,7 @@ const Services := preload("res://game/shared/services.gd")
 
 const TESTS_DIR := "res://tests/"
 const MAIN_SCENE := "res://game/main.tscn"
+const TEST_SAVE_ROOT := "user://test-saves"
 ## Real-time limit for one test, setup and teardown excluded.
 const TEST_TIMEOUT_MS := 120000
 ## The game's frame rate (vsync on a 60 Hz display). Headless runs otherwise render as fast as
@@ -170,6 +171,11 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 		world.clear()
 	var run := Services.run()
 	if run != null:
+		# Saves made by tests go to a scratch folder, never over the player's own, and every test
+		# starts without any (main turns the autosave on once a world is built).
+		run.save_root = TEST_SAVE_ROOT
+		run.autosave_enabled = false
+		_clear_test_saves()
 		run.new_run()
 	var clock := Services.clock()
 	if clock != null:
@@ -203,6 +209,14 @@ func _run_body(test_case: Dictionary, context: TestContext) -> void:
 			context.fail("timed out after %d ms (real time)" % TEST_TIMEOUT_MS)
 			return
 		await process_frame
+
+
+func _clear_test_saves() -> void:
+	var dir := DirAccess.open(TEST_SAVE_ROOT)
+	if dir == null:
+		return
+	for file_name in dir.get_files():
+		dir.remove(file_name)
 
 
 ## Releases held input, frees main and the world, and leaves the tree unpaused.
