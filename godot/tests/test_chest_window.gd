@@ -98,7 +98,7 @@ func test_take_stack(t: TestContext) -> void:
 	if window == null:
 		return
 	var take_sfx := _chest_sfx(chest, "TakeSfx")
-	window.click_sfx.stop()
+	TestContext.silence(window.click_sfx)
 	window.take_button.pressed.emit()
 	t.equal(Services.run().item_count(KEY), 1, "keys in the bag")
 	t.equal(chest.remaining(), {}, "chest contents")
@@ -122,7 +122,7 @@ func test_right_click_takes(t: TestContext) -> void:
 	t.equal(_counts(window), ["6", "3", "1"], "cells before")
 	t.equal(_tooltips(window), ["Iron Ore ×6", "Charcoal ×3", "Slime Tonic ×1"], "tooltips")
 	t.equal(window.details_label.text, IRON_DETAILS, "first details")
-	window.select_sfx.stop()
+	TestContext.silence(window.select_sfx)
 	_cell(window, 1).gui_input.emit(_right_click())
 	t.check(window.select_sfx.playing, "SelectSfx is not playing")
 	t.equal(Services.run().item_count("charcoal"), 3, "charcoal in the bag")
@@ -182,7 +182,7 @@ func test_close_button_and_escape(t: TestContext) -> void:
 	window.close_button.pressed.emit()
 	_check_closed(t, window, closed, close_sfx, menu_close, "Close")
 	closed.clear()
-	close_sfx.stop()
+	TestContext.silence(close_sfx)
 	_interaction(t).call(&"_use_chest", chest)
 	t.check(window.is_open(), "the chest did not open again")
 	menu_close = _cue(&"MenuClose")
@@ -346,7 +346,7 @@ static func _chest_sfx(chest: ChestScript, node_name: String) -> AudioStreamPlay
 		return null
 	var player := chest.get_parent().get_node_or_null(NodePath(node_name)) as AudioStreamPlayer2D
 	if player != null:
-		player.stop()
+		TestContext.silence(player)
 	return player
 
 
@@ -371,7 +371,7 @@ static func _cue(cue: StringName) -> AudioStreamPlayer:
 	feel.warm_up()
 	var player := feel.get_node_or_null(NodePath("GlobalAudio/Effects/" + String(cue))) as AudioStreamPlayer
 	if player != null:
-		player.stop()
+		TestContext.silence(player)
 	return player
 
 
