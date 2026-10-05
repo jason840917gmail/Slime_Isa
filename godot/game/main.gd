@@ -6,7 +6,9 @@ extends Node2D
 ## (world_camera.gd), Hud (hud.gd, CanvasLayer 10), FpsReadout (fps_readout.gd, CanvasLayer 100).
 ## Runtime children: ArrivalFade (CanvasLayer 5 + ColorRect), EnemyPopulation, Interaction
 ## (game/interaction/interaction_controller.gd: the interact button, prompt and key badge; made
-## once in `_ready`, cleared on every world teardown).
+## once in `_ready`, cleared on every world teardown), EnemyLoot (coins and loot piles) and
+## GameWindows (game/ui/screens/game_windows.gd: CanvasLayer 40 holding the game windows and the
+## `modal` pause; made once, its windows closed on every world teardown).
 ##
 ## `_ready()` order (world spec 1.2):
 ##  1. apply_viewport_scale() and connect `get_tree().root.size_changed` to it
@@ -50,6 +52,7 @@ const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
+const GameWindows := preload("res://game/ui/screens/game_windows.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -92,6 +95,8 @@ var enemy_population: EnemyPopulation
 var interaction: InteractionController
 ## Enemy rewards: coins and loot piles (game/world_objects/enemy_loot.gd), made once.
 var loot: EnemyLoot
+## The game windows' layer and pause owner (game/ui/screens/game_windows.gd), made once.
+var game_windows: GameWindows
 
 var _transitioning: bool = false
 var _next_gate_message_ms: int = 0
@@ -116,6 +121,8 @@ func _ready() -> void:
 	loot = EnemyLoot.new()
 	loot.name = "EnemyLoot"
 	add_child(loot)
+	game_windows = GameWindows.new()
+	add_child(game_windows)
 	var navigation := run.consume_navigation() if run != null else {}
 	var target := str(navigation.get("map_id", ""))
 	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
@@ -285,6 +292,8 @@ func _finish_travel(target_map_id: String, entry_edge: String, entry_door: Strin
 ## Frees the current world (and the player in it), the enemy population and the world service's
 ## registrations, keeping main, the camera and the HUD.
 func _teardown_world() -> void:
+	if game_windows != null:
+		game_windows.close_all()
 	if interaction != null:
 		interaction.clear()
 	if enemy_population != null and is_instance_valid(enemy_population):

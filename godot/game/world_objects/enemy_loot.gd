@@ -19,7 +19,6 @@ const LOOT_RINGS: Array[float] = [0.45, 0.6, 0.75]
 const LOOT_VERTICAL_SCALE := 0.7
 const LOOT_TURNS := 8
 const COIN_TEXT_RISE := 20.0
-const DROP_PREFIX := "inventory-drop-"
 const ORIGIN_LOOT := "loot"
 
 ## An enemy died and its rewards were paid. Payload: {"enemyId", "kind", "x", "y"} (quests).
@@ -112,26 +111,15 @@ func restore_world() -> void:
 
 ## A new drop record "inventory-drop-<n>" in `map_id` (WorldProgress.createInventoryDrop).
 static func create_drop(map_id: String, drop: Dictionary) -> Dictionary:
-	var run := Services.run()
-	var record_map := run.map_record(map_id)
-	var sequence := int(record_map.get("next_inventory_drop_sequence", 1))
-	var record := drop.duplicate()
-	record["id"] = "%s%d" % [DROP_PREFIX, sequence]
-	(record_map["inventory_drops"] as Dictionary)[record["id"]] = record
-	record_map["next_inventory_drop_sequence"] = sequence + 1
-	run.world_progress_changed.emit({"map_id": map_id})
-	return record
+	return Services.run().create_inventory_drop(map_id, drop)
 
 
-## After a pickup from drop pile `drop_id` (InventoryDropController.onCollectibleStateChanged).
+## After a pickup from drop pile `drop_id` (InventoryDropController.onCollectibleStateChanged):
+## the record keeps what is left and goes at 0.
 static func on_pile_changed(map_id: String, drop_id: String, remaining: int) -> void:
 	var run := Services.run()
-	if run == null:
-		return
-	var drops: Dictionary = run.map_record(map_id)["inventory_drops"]
-	if drops.has(drop_id):
-		drops[drop_id]["amount"] = maxi(0, remaining)
-		run.world_progress_changed.emit({"map_id": map_id})
+	if run != null:
+		run.set_inventory_drop_amount(map_id, drop_id, remaining)
 
 
 ## True when the drop is the player's own bag drop rather than enemy loot (it does not count as

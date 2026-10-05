@@ -13,8 +13,8 @@ extends Node
 ## - `world` [WorldProgressData]: discovered_areas, defeated_boss_ids, completed_dungeon_ids,
 ##   maps {map_id: map record}, respawn_point.
 ## - `story` [StorySaveData]: world_flags, learned_recipe_ids, learned_ability_ids, talked_npc_ids.
-## - `location` [GameLocationData], play time (`current_play_time_ms()`); quests stay empty until
-##   the quest phase.
+## - `location` [GameLocationData], play time (`current_play_time_ms()`).
+## - `quests` [QuestState[]]: one record per quest, written by the quest service.
 ##
 ## A map record [MapRuntimeStateData] has: resources, collectibles, inventory_drops,
 ## next_inventory_drop_sequence, placed_furniture, next_placed_furniture_sequence, boss_camps,
@@ -45,6 +45,18 @@ signal inventory_changed(payload: Dictionary)
 signal world_progress_changed(payload: Dictionary)
 ## Coins changed (GameState.addCoins / spendCoins). Payload: {"coins": int, "delta": int}.
 signal coins_changed(payload: Dictionary)
+## The weapon belt changed (Phaser `weapon.loadout.changed`). Payload: {"slots": Array}.
+signal weapon_loadout_changed(payload: Dictionary)
+## The weapon in hand changed (Phaser `weapon.equipped`). Payload: {"weapon_id": String or null}.
+signal weapon_equipped(payload: Dictionary)
+## Recipes were learned. Payload: {"recipe_ids": Array[String]} (the new ids only).
+signal recipes_learned(payload: Dictionary)
+## A craft succeeded (Phaser `craft.completed`). Payload: {"recipeId", "itemId", "quantity"}.
+signal recipe_crafted(payload: Dictionary)
+## The Craft button was refused (Phaser `craft.failed`). Payload: {"recipeId", "reason"}.
+signal craft_failed(payload: Dictionary)
+## A quest record changed (the quest service calls `notify_quests_changed`). Payload: {"quest_id"}.
+signal quests_changed(payload: Dictionary)
 
 var player: Dictionary = {}
 var inventory: Dictionary = {}
@@ -75,9 +87,12 @@ signal saved(payload: Dictionary)
 ## A save was installed. Payload: {"slot": int}.
 signal loaded(payload: Dictionary)
 
-## Quests are not ported yet: a restoration site with a quest id stays locked unless its quest id
-## is listed here (tests and dev). The quest phase replaces `is_quest_active`.
+## Dev and tests: quest ids that count as active whatever their record says (a restoration site
+## with a quest id stays locked unless its quest is active).
 var debug_active_quests: Array[String] = []
+## Dev stand-in until quests teach recipes (crafting spec C2, launch option `recipes`): every
+## recipe counts as known. `new_run()` clears it.
+var debug_all_recipes_known: bool = false
 
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
 ## "entry_edge"?, "entry_door"?, "respawn_home"?}. Empty when none.
@@ -115,6 +130,7 @@ func new_run() -> void:
 	_play_time_base_ms = 0.0
 	_play_started_ms = Time.get_ticks_msec()
 	debug_active_quests = []
+	debug_all_recipes_known = false
 	_navigation = {}
 	started = true
 
@@ -281,6 +297,146 @@ func _insert(item_id: String, count: int) -> void:
 		left -= stack
 
 
+## `Inventory.transact` (crafting spec 2.5): all or nothing, one `inventory_changed`. Removals
+## (summed per item, first-seen order) come out of the first matching slot onward; emptied slots
+## are dropped; then additions (summed) fill that item's stacks below the max stack in slot order
+## and append new stacks while slots are free. `removals` / `additions`: [{"item_id", "count"}]
+## with counts > 0. False (nothing changed) when anything is missing, unknown or does not fit.
+## `preview` (Inventory.previewTransact) only answers.
+func transact_items(removals: Array, additions: Array, preview: bool = false) -> bool:
+	var taken := _summed(removals)
+	var given := _summed(additions)
+	if taken.is_empty() and given.is_empty() and (not removals.is_empty() or not additions.is_empty()):
+		return false
+	var draft: Array = (inventory.get("slots", []) as Array).duplicate(true)
+	for item_id: String in taken:
+		var left: int = taken[item_id]
+		for slot: Dictionary in draft:
+			if left <= 0:
+				break
+			if str(slot.get("item_id", "")) != item_id:
+				continue
+			var take := mini(left, int(slot.get("count", 0)))
+			slot["count"] = int(slot.get("count", 0)) - take
+			left -= take
+		if left > 0:
+			return false
+	var compact: Array = []
+	for slot: Dictionary in draft:
+		if int(slot.get("count", 0)) > 0:
+			compact.append(slot)
+	var max_slots := int(inventory.get("max_slots", 0))
+	for item_id: String in given:
+		var max_stack := ItemCatalog.max_stack(item_id)
+		if max_stack <= 0:
+			return false
+		var left: int = given[item_id]
+		for slot: Dictionary in compact:
+			if left <= 0:
+				break
+			if str(slot.get("item_id", "")) != item_id or int(slot.get("count", 0)) >= max_stack:
+				continue
+			var added := mini(left, max_stack - int(slot["count"]))
+			slot["count"] = int(slot["count"]) + added
+			left -= added
+		while left > 0 and compact.size() < max_slots:
+			var stack := mini(max_stack, left)
+			compact.append({"item_id": item_id, "count": stack})
+			left -= stack
+		if left > 0:
+			return false
+	if preview:
+		return true
+	inventory["slots"] = compact
+	inventory_changed.emit({})
+	return true
+
+
+## `Inventory.removeFromSlot`: takes min(count, slot count) from slot `index` (the slot goes at 0).
+## Returns the amount taken (0 for a bad index or count).
+func remove_from_slot(index: int, count: int) -> int:
+	var slots: Array = inventory.get("slots", [])
+	if index < 0 or index >= slots.size() or count <= 0:
+		return 0
+	var slot: Dictionary = slots[index]
+	var taken := mini(count, int(slot.get("count", 0)))
+	slot["count"] = int(slot.get("count", 0)) - taken
+	if int(slot["count"]) <= 0:
+		slots.remove_at(index)
+	inventory_changed.emit({})
+	return taken
+
+
+## A copy of the bag slots ([{item_id, count}], slot order) for windows and tests.
+func slots() -> Array:
+	return (inventory.get("slots", []) as Array).duplicate(true)
+
+
+## {item_id: total count} for [{"item_id", "count"}] entries, first-seen order; {} when any entry
+## is malformed (blank id or count <= 0).
+static func _summed(entries: Array) -> Dictionary:
+	var totals := {}
+	for entry: Variant in entries:
+		if not entry is Dictionary:
+			return {}
+		var item_id := str(entry.get("item_id", ""))
+		var count := int(entry.get("count", 0))
+		if item_id.is_empty() or count <= 0:
+			return {}
+		totals[item_id] = int(totals.get(item_id, 0)) + count
+	return totals
+
+
+# --- weapon belt (GameState equipment; crafting spec 8.1) --------------------------------------
+## The belt names weapons that live in the bag (it never holds them); `weapon_id` is the weapon in
+## hand. The rules (owned checks, swaps, cycling) are in res://game/player/weapon_loadout.gd.
+
+## A copy of the 4 belt entries (String, or null when empty).
+func weapon_slots() -> Array:
+	var equipment: Dictionary = player.get_or_add("equipment", {})
+	return _normalised_slots(equipment.get("weapon_slots", []))
+
+
+## `GameState.setWeaponSlots`: blank or non-string entries become null, size 4; signals only on
+## a change.
+func set_weapon_slots(slots: Array) -> void:
+	var next := _normalised_slots(slots)
+	var equipment: Dictionary = player.get_or_add("equipment", {})
+	if equipment.get("weapon_slots") is Array and next == equipment["weapon_slots"]:
+		return
+	equipment["weapon_slots"] = next
+	weapon_loadout_changed.emit({"slots": next.duplicate()})
+
+
+## The weapon in hand (String), or null.
+func equipped_weapon_id() -> Variant:
+	var id: Variant = (player.get_or_add("equipment", {}) as Dictionary).get("weapon_id")
+	return id if id is String and not (id as String).strip_edges().is_empty() else null
+
+
+## `GameState.equipWeapon`: trims, "" -> null; false when unchanged, else stores and signals.
+func set_equipped_weapon(weapon_id: Variant) -> bool:
+	var next: Variant = null
+	if weapon_id is String and not (weapon_id as String).strip_edges().is_empty():
+		next = (weapon_id as String).strip_edges()
+	if next == equipped_weapon_id():
+		return false
+	(player.get_or_add("equipment", {}) as Dictionary)["weapon_id"] = next
+	weapon_equipped.emit({"weapon_id": next})
+	return true
+
+
+static func _normalised_slots(slots: Variant) -> Array:
+	var out: Array = []
+	out.resize(WEAPON_SLOT_COUNT)
+	if slots is Array:
+		for index in mini(WEAPON_SLOT_COUNT, (slots as Array).size()):
+			var entry: Variant = slots[index]
+			if entry is String and not (entry as String).strip_edges().is_empty():
+				out[index] = (entry as String).strip_edges()
+	return out
+
+
 ## `playerInventoryWorldTransaction.unlockGate`: true when the gate is (or already was) unlocked;
 ## the key is taken when `consume`. False without the key.
 func unlock_gate(map_id: String, gate_id: String, required_item_id: String, consume: bool) -> bool:
@@ -316,6 +472,29 @@ func record_talk(npc_id: String) -> void:
 		talked.append(npc_id)
 
 
+func has_talked_to(npc_id: String) -> bool:
+	return npc_id in _story_list("talked_npc_ids")
+
+
+## `StoryProgress.knowsRecipe` (or every recipe under `debug_all_recipes_known`).
+func knows_recipe(recipe_id: String) -> bool:
+	return debug_all_recipes_known or recipe_id in _story_list("learned_recipe_ids")
+
+
+## `StoryProgress.learnRecipes`: appends the ids not known yet and returns them; signals when any.
+func learn_recipes(recipe_ids: Array) -> Array[String]:
+	var learned := _story_list("learned_recipe_ids")
+	var added: Array[String] = []
+	for recipe_id: Variant in recipe_ids:
+		var id := str(recipe_id)
+		if not id.is_empty() and not id in learned and not id in added:
+			learned.append(id)
+			added.append(id)
+	if not added.is_empty():
+		recipes_learned.emit({"recipe_ids": added.duplicate()})
+	return added
+
+
 func has_learned_ability(ability_id: String) -> bool:
 	return ability_id in _story_list("learned_ability_ids")
 
@@ -329,10 +508,26 @@ func learn_ability(ability_id: String) -> bool:
 	return true
 
 
-# --- quests (stub until the quest phase) -------------------------------------------------------
+# --- quests --------------------------------------------------------------------------------------
+## `quests` holds one record per quest in catalog order (res://game/quests/quest_service.gd owns
+## the rules): {"quest_id", "definition_version", "status", "active_stage_id", "progress",
+## "consumed_fact_ids", "rewards_granted", "accepted_at"?, "completed_at"?, ...}.
+
+## The record's status ("locked" when the quest has no record).
+func quest_status(quest_id: String) -> String:
+	for record: Variant in quests:
+		if record is Dictionary and str(record.get("quest_id", "")) == quest_id:
+			return str(record.get("status", "locked"))
+	return "locked"
+
 
 func is_quest_active(quest_id: String) -> bool:
-	return quest_id in debug_active_quests
+	return quest_id in debug_active_quests or quest_status(quest_id) == "active"
+
+
+## The quest service calls this after every change to a record (autosave, HUD).
+func notify_quests_changed(quest_id: String) -> void:
+	quests_changed.emit({"quest_id": quest_id})
 
 
 ## One more Goo Heart (GameState.addGooHeart): max HP grows; the player fills its HP.
@@ -498,6 +693,49 @@ func object_state(map_id: String, key: String, fallback: Variant = null) -> Vari
 
 func set_object_state(map_id: String, key: String, value: Variant) -> void:
 	(map_record(map_id)["object_states"] as Dictionary)[key] = value
+
+
+func is_area_discovered(area_id: String) -> bool:
+	return area_id in (world.get("discovered_areas", []) as Array)
+
+
+func is_boss_defeated(boss_id: String) -> bool:
+	return boss_id in (world.get("defeated_boss_ids", []) as Array)
+
+
+## The map's bag and loot drops still on the ground: copies of {"id", "item_id", "amount",
+## "object_id", "visual_id", "x", "y", "origin"?} (WorldProgress.ts:444-479), sequence order.
+func inventory_drops(map_id: String) -> Array:
+	var out: Array = []
+	for record: Variant in (map_record(map_id)["inventory_drops"] as Dictionary).values():
+		if record is Dictionary and int(record.get("amount", 0)) > 0:
+			out.append((record as Dictionary).duplicate())
+	return out
+
+
+## `WorldProgress.createInventoryDrop`: records `drop` as "inventory-drop-<sequence>" (the
+## sequence then grows) and returns the record.
+func create_inventory_drop(map_id: String, drop: Dictionary) -> Dictionary:
+	var record_map := map_record(map_id)
+	var sequence := int(record_map.get("next_inventory_drop_sequence", 1))
+	var record := drop.duplicate()
+	record["id"] = "inventory-drop-%d" % sequence
+	(record_map["inventory_drops"] as Dictionary)[record["id"]] = record
+	record_map["next_inventory_drop_sequence"] = sequence + 1
+	world_progress_changed.emit({"map_id": map_id})
+	return record.duplicate()
+
+
+## `WorldProgress.setInventoryDropAmount`: floor, at least 0; the record goes at 0.
+func set_inventory_drop_amount(map_id: String, drop_id: String, amount: int) -> void:
+	var drops: Dictionary = map_record(map_id)["inventory_drops"]
+	if not drops.has(drop_id):
+		return
+	if amount <= 0:
+		drops.erase(drop_id)
+	else:
+		drops[drop_id]["amount"] = amount
+	world_progress_changed.emit({"map_id": map_id})
 
 
 func mark_area_discovered(area_id: String) -> void:
@@ -742,7 +980,8 @@ func _ready() -> void:
 	_autosave_timer.process_callback = Timer.TIMER_PROCESS_IDLE
 	_autosave_timer.timeout.connect(write_recovery)
 	add_child(_autosave_timer)
-	for changed: Signal in [inventory_changed, world_progress_changed, coins_changed, story_flag_changed, ability_learned]:
+	for changed: Signal in [inventory_changed, world_progress_changed, coins_changed, story_flag_changed, ability_learned,
+			weapon_loadout_changed, weapon_equipped, recipes_learned, quests_changed]:
 		changed.connect(func(_payload: Dictionary) -> void: schedule_autosave())
 
 

@@ -95,6 +95,8 @@ func _pickup(request: Dictionary, collector: Area2D, pos: Vector2) -> Dictionary
 	var left := remaining()
 	if left <= 0:
 		return _rejected(0, "depleted")
+	# Read before the pickup: an emptied drop's record goes with it.
+	var recovered := EnemyLoot.is_recovered(map_id, source_inventory_drop_id)
 	var run := Services.run()
 	var moved := run.collect_world_item(map_id, instance_id, item_id, left, int(request["requested"]),
 			source_resource_instance_id, source_inventory_drop_id)
@@ -114,17 +116,18 @@ func _pickup(request: Dictionary, collector: Area2D, pos: Vector2) -> Dictionary
 		EnemyLoot.on_pile_changed(map_id, source_inventory_drop_id, rest)
 	if feel != null:
 		feel.floating_text(pos - Vector2(0.0, TEXT_RISE), "+%d %s" % [moved, ItemCatalog.item_name(item_id)], &"yellow", false)
-	_on_collected(player, moved)
+	_on_collected(player, moved, recovered)
 	return {"status": "collected" if rest == 0 else "partial", "moved": moved, "remaining": rest}
 
 
 ## `collectible.collected` listeners: the loot sparkle over the slime (WorldScene.ts:435-437) and
 ## the purple berry reaction (eat clip, +5 coins per berry; CollectibleReactionController.ts).
-func _on_collected(player: Node, moved: int) -> void:
+## `recovered`: the pile was the player's own bag drop (no coins again).
+func _on_collected(player: Node, moved: int, recovered: bool) -> void:
 	var feel := Services.feel()
 	if feel != null and player.has_method(&"get_centre"):
 		feel.particles(&"loot-sparkle", player.get_centre() - Vector2(0.0, SPARKLE_RISE))
-	if item_id == PURPLE_BERRY and not EnemyLoot.is_recovered(map_id, source_inventory_drop_id):
+	if item_id == PURPLE_BERRY and not recovered:
 		if player.has_method(&"play_action_clip"):
 			player.play_action_clip("eat")
 		Services.run().add_coins(BERRY_COINS * moved)
