@@ -6,5 +6,3 @@
 /generated/
 # Export builds.
 /export/
-# Godot AI editor plugin (MCP bridge, installed per machine from its signed archive; not part of the game).
-/addons/godot_ai/

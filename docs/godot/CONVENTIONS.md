@@ -19,7 +19,7 @@ behaviour per area is in [specs/](./specs/).
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_generated.gd` and `build_player_clips.gd`; excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
-| `godot/addons/godot_ai/` | per machine, git-ignored | the Godot AI editor plugin (MCP bridge) that lets Claude drive the open editor; enabled in `project.godot`, disabled by itself in headless runs, excluded from exports. On a machine without it Godot reports the plugin missing: install it (version 4.3.0) or untick it in Project Settings → Plugins |
+| `godot/addons/godot_ai/` | the Godot AI plugin (4.3.0, MIT), committed | the editor plugin (MCP bridge) that lets Claude drive the open editor, plus its `_mcp_game_helper` autoload for running-game inspection; disabled by itself in headless runs and excluded from exports. Update it from its dock, then commit |
 
 Until Phase 1 of the migration ends, scene JSON is the source of truth: change
 content there and re-run the converter. Never hand-edit `godot/generated/`.
