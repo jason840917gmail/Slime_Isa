@@ -52,6 +52,14 @@ Then set `FONT_PATH` (and `BOLD_FONT_PATH` for the real bold face) in `ui_tokens
 the theme's `default_font` and every bold variation follow it. The editor imports the font files
 the first time it scans them.
 
+**Symbols.** The default font has no arrows (↑ ↓ ← →), check mark (✓), triangles (▸ ▶), star (★)
+or ◆ ○. Desktop builds borrow them from a system font; the **web build has no system fallback and
+draws them as boxes**. Until a symbol fallback font is bundled (an OFL font with those glyphs added
+as a fallback of the theme's fonts; it needs the owner's go-ahead), UI text uses words or glyphs
+the default font has: `√ * ◊ » – · … − •` are present (checked with `Font.has_char`). The key
+names spell out Up / Down / Left / Right (`ControlLabels`), and the world map draws its symbols as
+shapes.
+
 ## Tokens
 
 | CSS (`styles.css` `:root`, field-kit resource) | `UiTokens` | `Palette` | Value |
