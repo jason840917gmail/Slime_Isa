@@ -165,8 +165,8 @@ func test_stone_tools_by_hand(t: TestContext) -> void:
 	t.check(gained > 0, "no wood picked up from the felled tree")
 	t.equal(int((quests.call(&"state", "stone-tools").get("progress") as Dictionary).get("chop-wood", 0)), mini(gained, 20), "chop-wood after picking the piles up")
 
-## Worm Trouble's camp stage: three worm swordsmen defeated in the world count (an archer does
-## not), through the enemy's death, its reward and the quest event.
+## Worm Trouble's camp stage: three worm swordsmen defeated in the world count, through the
+## enemy's death, its reward and the quest event.
 func test_worm_trouble_kills_count(t: TestContext) -> void:
 	var quests: Node = t.main.quests
 	quests.call(&"debug_activate", "worm-trouble", "clear-camp")
