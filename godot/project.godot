@@ -22,6 +22,10 @@ WorldService="*res://game/autoload/world_service.gd"
 DamageRouter="*res://game/combat/damage_router.gd"
 GameFeel="*res://game/feel/game_feel.gd"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
+
 [importer_defaults]
 
 texture={

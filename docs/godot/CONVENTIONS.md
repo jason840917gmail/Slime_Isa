@@ -16,7 +16,7 @@ behaviour per area is in [specs/](./specs/).
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`); the converter attaches it and writes the exports it declares |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_generated.gd`; excluded from exports |
-| `godot/addons/godot_ai/` | per machine, git-ignored | the Godot AI editor plugin (MCP bridge); excluded from exports |
+| `godot/addons/godot_ai/` | per machine, git-ignored | the Godot AI editor plugin (MCP bridge) that lets Claude drive the open editor; enabled in `project.godot`, disabled by itself in headless runs, excluded from exports. On a machine without it Godot reports the plugin missing: install it (version 4.3.0) or untick it in Project Settings → Plugins |
 
 Until Phase 1 of the migration ends, scene JSON is the source of truth: change
 content there and re-run the converter. Never hand-edit `godot/generated/`.
