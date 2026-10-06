@@ -75,15 +75,31 @@ edges had to be painted on a separate layer from the gameplay ground. The dual g
 fix: you paint the ground, the tiles follow.
 
 **Comparison lab:** `game/dev/terrain_lab/terrain_layers_lab.tscn` (built by
-`tools/build_terrain_layers_lab.gd`) draws the lab's layout with Godot's Terrains only. Its tile
-set (`terrain_layers_tileset.tres`) is one Match Corners terrain set, with each ground's 16 edge
-tiles tagged by corner peering bits, and every ground has its own TileMapLayer in `ORDER`, painted
-in Connect mode as the Terrains tab does. Stacking keeps grounds from replacing each other where
-they meet. But Connect sets a corner only where all four cells around it have the ground, so every
-ground shrinks half a cell into its own cells, and one-cell-wide features (the cobble road, the
-moss and leaf rings) disappear. Copy A paints each ground only on its own cells, which leaves
-gaps between grounds. Copy B also paints each ground under the grounds above it, which fills the
-gaps with the lower ground, showing on half of every border cell.
+`tools/build_terrain_layers_lab.gd`) draws the lab's layout with Godot's Terrains only, with a free
+painting area at the top that the builder keeps. Its tile set (`terrain_layers_tileset.tres`) is one
+"Match Corners and Sides" terrain set, tagged the way the owner set up sand, snow and cobble in the
+TileSet editor (2026-10-05): a corner or a side is the ground where the art covers it, and only the
+tiles with three or four covered corners carry the ground as their centre. Every ground has its own
+TileMapLayer in `ORDER`, painted in Connect mode as the Terrains tab paints (empty cells vote:
+`ignore_empty_terrains = false`; GDScript's default `true` paints nothing for one-cell features).
+Copy A paints each ground only on its own cells; copy B also paints it under the grounds above it.
+
+`tools/compare_terrain_edges.gd` measures both systems on the same cells (run it windowed; it
+writes `report.md` and pictures). Results on 2026-10-05:
+
+- **Shapes:** the dual grid shows each cell's own ground on 99.5% of the drawing; Godot Terrains
+  on 88%. With the owner's tagging, Godot puts a rim on the cells around the painted ones, so every
+  ground grows about half a cell over its neighbours; one-cell-wide features survive but come out
+  two cells wide, and with only 16 tiles (the mode wants 47) neighbouring tiles disagree in places.
+- **Shores:** the visible shore sits +1 unit from the collision line with the dual grid, +16 to
+  +20 units into the water with Godot Terrains (half a cell is 32).
+- **Paint order:** the dual grid gives the same tiles in any order. Godot's depend on how you
+  paint: one stroke, a slow drag (cell by cell), going over twice, or erasing half a shape give
+  different tiles, and a slow drag leaves notches.
+- **level-1:** dual grid 2,448 edge tiles on 4 layers, built in 7 ms; Godot Terrains 5,197 tiles
+  on 11 layers in 553 ms (23,641 tiles and 2.4 s with every ground also under the higher ones). On
+  a game-sized view Godot's layers draw in 6 to 9 draw calls, the dual grid's view in 527, of which
+  396 are the plain ground layer and water: one layer per ground batches far better.
 
 ### Why the grounds are drawn in world space
 
@@ -151,5 +167,6 @@ The 2026-10-05 sets (9 grounds) used about 4,000 Magnific credits.
 | `godot/game/world/water_surface.gdshaderinc` | The water maths shared by the surface and the shores |
 | `godot/tools/build_terrain_lab.gd` | Builds the lab scene |
 | `godot/tools/build_terrain_layers_lab.gd` | Builds the comparison lab (Godot Terrains, a layer per ground) and its tile set |
+| `godot/tools/compare_terrain_edges.gd` | Measures the dual grid against Godot Terrains: shapes, shores, paint order, level-1 |
 | `godot/game/dev/terrain_lab/` | The lab (`terrain_lab.gd` camera and T toggle, `terrain_lab_ground.gd`) |
 | `godot/tests/test_terrain_edges.gd` | Coverage, stacking, shores, hard edges, level-1 |
