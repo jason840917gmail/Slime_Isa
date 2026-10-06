@@ -4,9 +4,6 @@
 [ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-amber-ore-mineable.tscn" id="3"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(108, 44)
-
 [node name="test-rectangle" type="Node2D"]
 y_sort_enabled = true
 
@@ -18,16 +15,6 @@ metadata/tile_seed = 2455619060
 metadata/source_cell_count = 40
 metadata/columns = 8
 metadata/rows = 5
-
-[node name="TileCollision" type="Node2D" parent="ground"]
-
-[node name="water_3_2" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(256, 160)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_3_2"]
-shape = SubResource("RectangleShape2D_1")
 
 [node name="world-definition" type="Node" parent="."]
 script = ExtResource("2")

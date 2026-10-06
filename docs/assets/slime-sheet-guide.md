@@ -72,6 +72,11 @@ are in `asset/Originals/characters/slime-v2/README.md`.
   (the lash) down/up/side (one-shot, 270 ms; hand-picked frames, the down and side rows drawn
   shifted in their cells, see the slime-v2 README); row 6 = die-down (one-shot, 1 s, drawn at
   0.9 scale so the puddle fits); row 7 free.
+- Page 3: rows 0-2 = swim down/up/side (loops, 6-7.4 fps): the slime treading water, squashing as it
+  sinks and stretching as it rises, every frame stood on the baseline. The whole body is drawn: the
+  swimmer (the Frog Gulp form, `game/player/gulp/player_swimming.gd`) hides its lower part under a
+  waterline 30 px above the baseline (keep it below about 40 px of the cell so the eyes of the
+  flattest down frames show). Rows 3-7 free.
 - The sword swing (`attack-1-down/-up/-side/-left`) has no rows: it reuses page 1's idle art
   and carries a wind-up and a lunge toward the slash in animation keys (`Visual:offset`, plus
   `Visual:skew` for the side). A `-left` clip exists only when keyed motion or a shifted row

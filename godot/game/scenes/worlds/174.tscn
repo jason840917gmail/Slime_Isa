@@ -39,15 +39,6 @@ size = Vector2(1080, 248)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7"]
 size = Vector2(1592, 248)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_8"]
-size = Vector2(492, 108)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_9"]
-size = Vector2(620, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_10"]
-size = Vector2(748, 236)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_11"]
 size = Vector2(1664, 1472)
 
@@ -160,46 +151,6 @@ collision_mask = 0
 
 [node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/rock-wall_0_32"]
 shape = SubResource("RectangleShape2D_1")
-
-[node name="deep-water_19_22" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(1472, 1472)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/deep-water_19_22"]
-shape = SubResource("RectangleShape2D_8")
-
-[node name="deep-water_18_24" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(1472, 1568)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/deep-water_18_24"]
-shape = SubResource("RectangleShape2D_9")
-
-[node name="deep-water_17_25" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(1472, 1728)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/deep-water_17_25"]
-shape = SubResource("RectangleShape2D_10")
-
-[node name="deep-water_18_29" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(1472, 1888)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/deep-water_18_29"]
-shape = SubResource("RectangleShape2D_9")
-
-[node name="deep-water_19_30" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(1472, 1984)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/deep-water_19_30"]
-shape = SubResource("RectangleShape2D_8")
 
 [node name="world-definition" type="Node" parent="."]
 script = ExtResource("2")

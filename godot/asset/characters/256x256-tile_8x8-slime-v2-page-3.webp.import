@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dfhf77adssf3j"
-path="res://.godot/imported/ui-gulp-form-icons-2x1.webp-8879a0b9a7f9a838b9611c7475fba95d.ctex"
+uid="uid://c6q7a2070j68p"
+path="res://.godot/imported/256x256-tile_8x8-slime-v2-page-3.webp-1663966fc5eacaa9962a03b715783852.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/UI/ui-gulp-form-icons-2x1.webp"
-dest_files=["res://.godot/imported/ui-gulp-form-icons-2x1.webp-8879a0b9a7f9a838b9611c7475fba95d.ctex"]
+source_file="res://asset/characters/256x256-tile_8x8-slime-v2-page-3.webp"
+dest_files=["res://.godot/imported/256x256-tile_8x8-slime-v2-page-3.webp-1663966fc5eacaa9962a03b715783852.ctex"]
 
 [params]
 

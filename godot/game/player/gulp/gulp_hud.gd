@@ -14,7 +14,7 @@ const TIMER_COLOR := Color("#e7fff5")
 const HINT_COLOR := Color("#ffe89a")
 const OUTLINE_COLOR := Color("#101a31")
 ## `ui.icons.gulp-forms.2x1`: frame 0 Heavy, 1 Sticky (128 px cells).
-const BADGE_SHEET := "res://asset/UI/ui-gulp-form-icons-2x1.webp"
+const BADGE_SHEET := "res://asset/UI/ui-gulp-form-icons-3x1.webp"
 const BADGE_CELL := 128
 const BADGE_SIZE := 36.0
 const BADGE_GAP := 40.0

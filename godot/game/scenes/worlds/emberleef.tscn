@@ -37,15 +37,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--frog-lilypad.tscn" id="35"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--lilypad-single.tscn" id="36"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(812, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
-size = Vector2(3436, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3"]
-size = Vector2(2732, 44)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4"]
 size = Vector2(1472, 1280)
 
@@ -81,32 +72,6 @@ metadata/tile_seed = 2899649345
 metadata/source_cell_count = 2916
 metadata/columns = 54
 metadata/rows = 54
-
-[node name="TileCollision" type="Node2D" parent="ground"]
-
-[node name="water_0_33" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(416, 2144)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_0_33"]
-shape = SubResource("RectangleShape2D_1")
-
-[node name="water_0_34" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(1728, 2208)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_0_34"]
-shape = SubResource("RectangleShape2D_2")
-
-[node name="water_11_35" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2080, 2272)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_11_35"]
-shape = SubResource("RectangleShape2D_3")
 
 [node name="world-definition" type="Node" parent="."]
 script = ExtResource("2")

@@ -45,6 +45,10 @@ const PAGES := [
 		"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-2.webp",
 		"manifest": "../asset/Originals/characters/slime-v2/page-2.json",
 	},
+	{
+		"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-3.webp",
+		"manifest": "../asset/Originals/characters/slime-v2/page-3.json",
+	},
 ]
 const LIBRARY := &""
 

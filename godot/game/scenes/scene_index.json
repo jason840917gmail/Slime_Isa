@@ -101,6 +101,7 @@
   "object.forge": "res://game/scenes/objects/forge.tscn",
   "object.gate-verdant": "res://game/scenes/objects/gate-verdant.tscn",
   "object.goo-heart": "res://game/scenes/objects/goo-heart.tscn",
+  "object.gulp-spot-frog": "res://game/scenes/objects/gulp-spot-frog.tscn",
   "object.gulp-spot-silk": "res://game/scenes/objects/gulp-spot-silk.tscn",
   "object.gulp-spot-stone": "res://game/scenes/objects/gulp-spot-stone.tscn",
   "object.house-mushroom": "res://game/scenes/objects/house-world-solid--house-mushroom.tscn",

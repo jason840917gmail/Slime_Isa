@@ -12,7 +12,7 @@ adventure games, and is built page by page.
 | `turnaround-e.png` | The approved reference (candidate E of the second round, about a 55° camera): down, side (facing right), up. Magnific GPT 2.5 with the current slime, Lili and the directional beds sheet as references |
 | `start-down.png`, `start-side.png`, `start-up.png` | Each view of E, scaled to 440 px tall and placed on a flat #FF00FF 1024 px square: the start AND end frame of every clip |
 | `end-sleep-down.png`, `end-defeated.png` | The end frames of the doze and the defeat (GPT 2.5 from `start-down.png` and Lili, transparent, placed like the start frames: centred, standing on the start's baseline, at 0.883 of the generated size); the sleep row loops on `end-sleep-down.png` |
-| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side`, `doze-down`, `sleep-down`, `die-down` |
+| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side`, `doze-down`, `sleep-down`, `die-down`, `swim-down`, `swim-up`, `swim-side` |
 | `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops |
 
 Rebuild a runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` with
@@ -100,6 +100,30 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
   `walk-up` 0 (1.27), tall `walk-up` 4 (0.71); side low `walk-side` 0 (0.99), tall `walk-side` 2
   (0.70).
 
+## Page 3 layout
+
+Same cells, scale and baseline as pages 1 and 2.
+
+| Row | Clip | Playback |
+|---|---|---|
+| 0 | swim-down | 7.38 fps |
+| 1 | swim-up | 6.19 fps |
+| 2 | swim-side | 6.0 fps |
+| 3-7 | free | |
+
+- **Swimming is treading water** (owner, 2026-10-06: the classic top-down games show the swimmer's
+  head and a ripple). The takes start and end on `start-<direction>.png` with "treads water in
+  place ... bobs gently down and up twice ... no water is shown"; the game draws the water (the
+  wake ripple, `game/world/water_wake.gd`) and will hide the lower body under a waterline.
+- **Every swim frame is stood on the baseline** (`RECENTRED`): the takes hop up to 60 px out of
+  the "water"; on the baseline their squash and stretch reads as sinking and rising under the
+  waterline. The down take squashes very flat (240 px wide), so its eyes sit about 50 px above the
+  baseline: the waterline must stay below that.
+- **swim-side is the second take.** The first turned the slime toward the camera halfway (like the
+  side walk); the second said "strict side view ... we see one eye and its profile, and it never
+  turns its face or body toward the viewer, not even for a moment ... does not jump" and held the
+  profile. The first was not kept.
+
 ## What worked (2026-10-05)
 
 - **Same start and end frame.** Clips with only a start frame drifted: the background became a
@@ -120,4 +144,4 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
 Cost: 7,080 Magnific credits for page 1, including both turnaround rounds and the discarded
 first batch; 2,640 for page 2's six videos (three rolls, three rejected attacks); 1,760 for the
 four lash videos (one rejected side take); 1,720 for the rest and the defeat (four stills at 100,
-three videos); 1,760 for the re-filmed down and up rolls (two takes each).
+three videos); 1,760 for the re-filmed down and up rolls (two takes each). Page 3: 1,760 for the four swim videos (one rejected side take).

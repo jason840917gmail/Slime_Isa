@@ -22,7 +22,7 @@ The water life stays converted: `res://game/scenes/objects/water-life--*.tscn`.
 | Feature | Where | Notes |
 |---|---|---|
 | Terrain blending (baked transition chunks under the surface) | `features/world/TerrainTransitionLayer.ts`, `TerrainTransitionRenderer.ts` | Not ported: replaced by hand-made terrain edges drawn over the surface (section 6.2, [../TERRAIN_LAB.md](../TERRAIN_LAB.md)) |
-| Water collision | `TileMapLayer2DNode.mountCollision` | Already converted: merged bodies under `ground/TileCollision`, layer `water` (world spec) |
+| Water collision | `TileMapLayer2DNode.mountCollision` | Changed by the owner (2026-10-06): shallow `water` is walkable; `deep-water` blocks (unless the slime swims: the Frog Gulp form, [abilities.md](abilities.md) §11.7) through a full-cell collision square on its tiles in `game/world/terrain_tileset.tres`, physics layer `water`. The converted merged bodies under `ground/TileCollision` were removed. A shore collision traced from the edge art was tried and rejected: its uneven outline made the slime stick, since `ArcadeMover` cuts the speed at every contact |
 | Canvas-renderer fallback | `WaterSurfaceLayer.ts:154` | Phaser draws no water on the Canvas renderer; Godot always runs Compatibility (GLES3 / WebGL 2) |
 | Water ambience audio | world scene audio emitters | Converted with the worlds |
 | Scene Studio preview | same `TileMapLayer2DNode` code | Godot's editor does not run the mount (runtime only) |
@@ -319,3 +319,35 @@ converter gives render-domain AnimationPlayers `PROCESS_MODE_ALWAYS`
   frog changes frame or position within about 1.2 s.
 - `test_travel_rebuilds_the_surface_for_the_next_world`: travelling to gloop-forest frees level-1's
   surface and mounts one with 181 deep tiles, with the deep sheet in both slots.
+
+## 9. Wading (Godot only)
+
+Owner request (2026-10-06), after the classic top-down adventure games: anyone walking in shallow
+water shows water at its feet, and a swimmer (the slime in the Frog Gulp form) shows calm rings.
+`res://game/world/water_wake.gd` (`WaterWake.mount(ground)`, node `WaterWake`, a child of the ground
+mounted by `WorldService.register_world` after the elevation) follows every walker body: a
+`CharacterBody2D` on the player, enemy or NPC layer, placed in the world or spawned later.
+
+- Each body gets two sprites from `godot/asset/MAPS/water/224x128-tile_4x2-water-wake.webp`: the
+  ring's back half as its first child (drawn behind its art) and its front half as its last child
+  (drawn in front), so it stands inside the ring.
+- Every physics tick the cell under the body's feet (2 units up, inside the body) decides the row:
+  `water` shows the wading splash (row 0: rising, highest, falling, settled), animating at 10 fps
+  while the body moves and 4 fps while it stands; `deep-water` shows the swim ripple (row 1, 6 fps).
+  Anything else, or a body in the air (a script child's `is_airborne()`, the player's jump), shows
+  nothing.
+- The ring is drawn for the player slime's 30-unit body (60 units across when wading, 70 when
+  swimming); other bodies scale it by their collision shape's width (0.6 to 3 times).
+- Presentation only: speed, collision and footsteps do not change.
+
+The art is two Magnific GPT 2.5 sheets (`asset/Originals/water/generated/wade-splash.png`,
+`swim-ripple.png`, transparent 2 x 2 grids, the water texture as colour reference), packed by
+`python scripts/art/build-water-wake-sheet.py`, which aligns every frame on its ring. Tests:
+`godot/tests/test_water_wake.gd` (shallow only, the frames animate, none in the air, enemies too)
+and `test_water_collision.gd` (shallow water walkable, deep water blocks).
+
+Swimming itself is the Frog Gulp form ([abilities.md](abilities.md) §11.7,
+`game/player/gulp/player_swimming.gd`): its body ignores the `water` layer, and in deep water the
+slime plays the swim clips (`swim-down`, `-up`, `-side`, page 3 of the slime sheet), which show the
+whole body treading water, so a waterline 30 px above the feet of the 256 px cell hides its lower
+part and the art sinks by as much onto the swim ripple. Tests: `godot/tests/test_frog_form.gd`.

@@ -45,6 +45,7 @@ const AbilityDefinitions := preload("res://game/player/abilities/ability_definit
 const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const GulpHud := preload("res://game/player/gulp/gulp_hud.gd")
+const PlayerSwimming := preload("res://game/player/gulp/player_swimming.gd")
 const StatusEffects := preload("res://game/player/status_effects.gd")
 const GooTrail := preload("res://game/player/goo_trail.gd")
 const WheelStepper := preload("res://game/player/wheel_stepper.gd")
@@ -136,6 +137,8 @@ var _abilities: PlayerAbilities = PlayerAbilities.new(self)
 ## (Phaser `visual.effects`: offset, scale and alpha on top of the authored values).
 var _art_offset: Vector2 = Vector2.ZERO
 var _effect_offset: Vector2 = Vector2.ZERO
+## How far the art sinks while swimming (player_swimming.gd).
+var _swim_offset: Vector2 = Vector2.ZERO
 var _visual_base_scale: Vector2 = Vector2.ONE
 ## Energy (GameState): spent by abilities, refilled 8 per second.
 var _energy: float = 0.0
@@ -147,6 +150,8 @@ var _landing_id: int = 0
 var _slam_area: Area2D
 ## Eating and the Gulp form (game/player/gulp/).
 var _gulp: GulpController = GulpController.new(self)
+## Swimming in deep water with a Gulp form that swims (the Frog).
+var _swim: PlayerSwimming = PlayerSwimming.new(self)
 var _gulp_hud: GulpHud
 ## The eat press waits for its release (a tap eats; WorldScene.updateEatHold): simulation ms of
 ## the press and of the last step that saw it held; < 0 when no press is pending.
@@ -184,6 +189,8 @@ var _pointer_seen: bool = false
 ## has one (`_directional_clip`).
 const CLIP_IDLE := "idle"
 const CLIP_WALK := "walk"
+## Swimming replaces idle and walk (page 3 of the slime sheet).
+const CLIP_SWIM := "swim"
 const CLIP_ROLL := "roll"
 const CLIP_KNOCKBACK := "knockback"
 const CLIP_DIE := "die"
@@ -352,6 +359,7 @@ func _physics_process(delta: float) -> void:
 			_play_idle()
 	_abilities.advance(Services.now_ms())
 	_gulp.update()
+	_swim.update()
 	_status.update(delta * 1000.0)
 	if not _dead:
 		_regen_energy(delta * 1000.0)
@@ -880,6 +888,22 @@ func is_sticky_form() -> bool:
 	return current_form_id() == GulpForms.STICKY
 
 
+## True while the slime swims (a form that swims, its feet in deep water).
+func is_swimming() -> bool:
+	return _swim.swimming
+
+
+## True when any part of the body is over deep water (a swimming form does not end there).
+func overlaps_deep_water() -> bool:
+	return _swim.overlaps_deep_water()
+
+
+## Sinks the art by `offset` while swimming (player_swimming.gd).
+func set_swim_offset(offset: Vector2) -> void:
+	_swim_offset = offset
+	_place_art()
+
+
 ## {} or the form row (game/player/gulp/gulp_forms.gd).
 func current_form() -> Dictionary:
 	return _gulp.form
@@ -1064,6 +1088,11 @@ func _handle_action_input() -> bool:
 			else:
 				interaction.call(&"handle_interact")
 		return true
+	# A swimming slime neither attacks nor uses abilities: those presses are dropped.
+	if _swim.swimming:
+		for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
+			_input.consume(AbilityDefinitions.action(id), now, _buffer_ms)
+		_input.consume(&"attack", now, _buffer_ms)
 	# Abilities in Phaser's dispatch order: jump, dodge, stretch-lash, squash-slam, teleport.
 	for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
 		if _input.consume(AbilityDefinitions.action(id), now, _buffer_ms):
@@ -1091,22 +1120,27 @@ func _move(direction: Vector2) -> void:
 	var speed: float = _resolve_movement_speed(base, 0.0, _status.speed_multiplier()) * float(_gulp.form.get("speed", 1.0))
 	if direction == Vector2.ZERO:
 		body.velocity = Vector2.ZERO
-		_play_direct(CLIP_IDLE)
+		_play_direct(_locomotion_clip(CLIP_IDLE))
 		return
 	# Rooted (a web): no walking, the slime idles (PlayerController.ts:72-77).
 	if _status.is_rooted():
 		body.velocity = Vector2.ZERO
-		_play_direct(CLIP_IDLE)
+		_play_direct(_locomotion_clip(CLIP_IDLE))
 		return
 	var unit: Vector2 = direction.normalized()
 	body.velocity = unit * speed
 	_facing = unit
-	_play_direct(CLIP_WALK)
+	_play_direct(_locomotion_clip(CLIP_WALK))
 
 
 ## Idle for the current facing; `force` restarts it (respawn).
 func _play_idle(force: bool = false) -> void:
-	play_animation(CLIP_IDLE, force)
+	play_animation(_locomotion_clip(CLIP_IDLE), force)
+
+
+## Idle or walk, or the swim clip while swimming.
+func _locomotion_clip(clip: String) -> String:
+	return CLIP_SWIM if _swim.swimming else clip
 
 
 ## `<clip>-down`, `-up` or `-side` for the current facing when the scene has it (the
@@ -1273,7 +1307,7 @@ func _place_art() -> void:
 	if not _art_rest_position_known:
 		_art_rest_position = visual.position
 		_art_rest_position_known = true
-	visual.position = _art_rest_position + _art_offset + _effect_offset
+	visual.position = _art_rest_position + _art_offset + _effect_offset + _swim_offset
 
 
 ## A clip's length in ms (its directional version when the scene has one); 0 when missing.

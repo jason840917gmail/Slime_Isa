@@ -24,9 +24,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--kelp-teal.tscn" id="22"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--kelp-olive.tscn" id="23"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(300, 300)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
 size = Vector2(768, 896)
 
@@ -50,16 +47,6 @@ metadata/tile_seed = 103501
 metadata/source_cell_count = 2916
 metadata/columns = 54
 metadata/rows = 54
-
-[node name="TileCollision" type="Node2D" parent="ground"]
-
-[node name="deep-water_40_33" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2720, 2272)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/deep-water_40_33"]
-shape = SubResource("RectangleShape2D_1")
 
 [node name="world-definition" type="Node" parent="."]
 script = ExtResource("2")

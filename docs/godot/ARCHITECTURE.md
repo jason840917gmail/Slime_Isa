@@ -26,7 +26,8 @@ res://game/shell/title.tscn (title.gd)                 title screen, the main sc
 
 res://game/main.tscn (main.gd)                         bootstrap
   World (Node2D)      <- world.level-1 instanced here (converter root, y-sorted)
-       ground (TileMapLayer, z -2) > TileCollision, WaterSurface (water_surface.gd), TerrainEdges (terrain_edges.gd) > Level0..3  <- mounted by register_world
+       ground (TileMapLayer, z -2) > TileCollision (rock walls, in 174), WaterSurface (water_surface.gd), TerrainEdges (terrain_edges.gd) > Level0..3  <- mounted by register_world
+           WaterWake (water_wake.gd)  <- mounted by register_world; puts the water wake sprites on every walker body (WaterWakeBack first, WaterWakeFront last)
        ...converted props/NPCs (npc.gd), world areas (world_area.gd), exits (world_exit.gd)
        WorldBounds (StaticBody2D, built at runtime)
        PlayerSlime (character.player-slime)  <- spawned at runtime
@@ -239,6 +240,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world/world_bounds.gd` | world | |
 | `game/world/water_surface.gd`, `water_surface.gdshader`, `water_surface.gdshaderinc` | world | Animated water over the ground's water tiles ([specs/water.md](specs/water.md)); mounted by `WorldService.register_world`; the `.gdshaderinc` holds the water maths the shoreline edges share |
 | `game/world/terrain_edges/terrain_edges.gd`, `terrain_materials.gd`, `terrain_edge.gdshader`, `terrain_edge_water.gdshader`, `art/` | world | Hand-made terrain edges on a dual grid over the ground, shores included ([TERRAIN_LAB.md](TERRAIN_LAB.md)); mounted by `WorldService.register_world` after the water |
+| `game/world/water_wake.gd` | world | Splash and ripple sprites at the feet of every walker in shallow or deep water ([specs/water.md](specs/water.md#9-wading-godot-only)); mounted by `WorldService.register_world` after the elevation |
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |
 | `game/scripts/world_area.gd` | world | |
@@ -274,6 +276,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/player/abilities/jump_sequence.gd`, `slam_sequence.gd`, `teleport_sequence.gd`, `lash_sequence.gd` | abilities | One sequence per ability (tween steps chained with `parallel()`) |
 | `game/player/abilities/ability_terrain.gd`, `ability_world.gd`, `ability_fx.gd` | abilities | Landing and line checks against the world, strike areas, lash probes, the shared effects |
 | `game/player/gulp/gulp_forms.gd`, `gulp_controller.gd`, `gulp_hud.gd` | abilities | Gulp forms (eating materials): timers, tint, speed and the form HUD |
+| `game/player/gulp/player_swimming.gd` | abilities | Swimming in a form that swims (the Frog): the `water` bit off the body's mask, swim clips, waterline and sunk art in deep water ([specs/abilities.md](specs/abilities.md#117-swimming-the-frog-form-godot-addition-owner-2026-10-06-in)) |
 | `game/player/status_effects.gd` | player | Burn, poison, slow, sticky, bouncy, frenzy, and the web root (`apply_web`) |
 | `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
 | `game/building/furniture_placement.gd`, `placed_furniture.gd` | world objects | Child "FurniturePlacement" of main: placing furniture (ghost, free test, records, quest event), picking it up, mounting placed benches on every world build ([specs/furniture.md](specs/furniture.md)) |
@@ -370,7 +373,7 @@ Only ported scene scripts live in `game/scripts/`: every file there is a scene-s
 ### Converter and integration notes (resolved during the trial)
 
 - Node-typed exports resolve only when listed in the node header (`node_paths=PackedStringArray(...)`); the converter wrote it, and the editor keeps it.
-- Solid terrain tiles carry a `tile_id` custom data layer; their collision is merged rectangle bodies under `ground/TileCollision` (Phaser's outer-edge inset), which `WorldService.is_solid_tile` reads.
+- Solid terrain tiles (`WorldService.SOLID_TILE_IDS`: deep water and rock wall; shallow water is walkable since 2026-10-06) carry a `tile_id` custom data layer, which `WorldService.is_solid_tile` reads. Deep water collides through a full-cell square on its tiles in `game/world/terrain_tileset.tres` (physics layer `water`); rock wall through merged rectangle bodies under `ground/TileCollision` (Phaser's outer-edge inset).
 - Re-anchored scenes placed in worlds (NPCs) get `depth_anchor` added to their position; instance roots carry `metadata/instance_id` and `metadata/persistence_key`.
 - The ground layer is the TileMapLayer whose `tile_set` is `res://game/world/terrain_tileset.tres`.
 - The water surface is the ground layer's child `WaterSurface` (z -2, drawn right after the tiles); underwater life (z -2) y-sorts after it. The terrain edges are the next child, `TerrainEdges`, drawn over the surface: at a shore they fill with the same water (shared `water_surface.gdshaderinc`, the surface's own mask) and the land's edge tile on top, so `smooth_water_ground` stays on ([TERRAIN_LAB.md](TERRAIN_LAB.md)).

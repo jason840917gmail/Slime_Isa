@@ -17,7 +17,8 @@ For each clip:
    of a 256 px cell, so the motion inside the clip is kept.
 
 Pages (PAGES below): 1 = idle and walk (each facing down, up and side), then doze and sleep
-(facing down); 2 = roll and the stretch lash (down, up, side), then the defeat (facing down).
+(facing down); 2 = roll and the stretch lash (down, up, side), then the defeat (facing down);
+3 = swim (down, up, side: treading water, the game hides the lower body under a waterline).
 Looping rows (idle, walk, sleep) play at 8 * 24 / loop length fps; one-shot rows (roll, stretch,
 doze, die) cut one action and are timed to their gameplay duration (ONE_SHOT_MS). Rows in PICKS use
 hand-picked frames (the lash, the doze and the defeat), and some sit shifted in their cells
@@ -60,9 +61,10 @@ CENTRE_X = 128
 PAGES = {
     1: ["idle-down", "idle-up", "idle-side", "walk-down", "walk-up", "walk-side", "doze-down", "sleep-down"],
     2: ["roll-down", "roll-up", "roll-side", "stretch-down", "stretch-up", "stretch-side", "die-down"],
+    3: ["swim-down", "swim-up", "swim-side"],
 }
 # Loop (or one-shot action) length range in source frames, by clip (the row name minus its direction).
-LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24), "roll": (8, 30), "attack-1": (8, 30), "sleep": (30, 72)}
+LOOP_RANGE = {"idle": (24, 72), "walk": (10, 24), "roll": (8, 30), "attack-1": (8, 30), "sleep": (30, 72), "swim": (24, 72)}
 # One-shot clips are timed to gameplay: the dodge roll lasts 500 ms (player spec 5.2), a sword
 # swing 416.67 ms (the basic sword's attack plans), and the stretch lash's reach 270 ms (a lash that
 # catches nothing is done at 270 ms, abilities spec 8); the doze and the defeat keep Phaser's 1 s
@@ -73,8 +75,9 @@ ONE_SHOT_MS = {"roll": 500.0, "attack-1": 416.67, "stretch": 270.0, "doze": 1000
 WINDOWS = {"walk-side": (58, 97), "sleep-down": (0, 72)}
 # Rows whose clip drifts sideways (the rolls): each frame is centred and stood on the baseline on
 # its own (in play the body moves during a dodge anyway). They keep the page scale: a tumble changes
-# the slime's shape, not its size.
-RECENTRED = {"roll-down", "roll-up"}
+# the slime's shape, not its size. The swim takes hop out of the "water" (up to 60 px above the
+# baseline): stood on the baseline, their squash and stretch is the bob under the game's waterline.
+RECENTRED = {"roll-down", "roll-up", "swim-down", "swim-up", "swim-side"}
 # Rows baked from a still instead of a clip: the side roll is the side pose spun clockwise in 45°
 # steps (a right-facing profile rolling right; mirrored, it rolls left), tucked to fit the cell.
 SPINS = {"roll-side": "start-side.png"}
