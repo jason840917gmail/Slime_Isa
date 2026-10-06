@@ -25,7 +25,8 @@ its code is in git history.
 ## Commands
 
 - Godot editor: open `godot/` in Godot 4.7.2. F5 runs the title screen; `game/dev/playground.tscn`
-  with F6 runs the playground testbed (every weapon and ability).
+  with F6 runs the playground testbed (every weapon and ability); F6 on a world scene runs the game
+  in that world.
 - Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
   `?recipes`, `?arsenal` on the web; `-- --map=<id> ...` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world)).
@@ -75,6 +76,8 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   scene; the player and enemies are spawned by code.
 - Terrain is ground only; transitions between grounds are hand-made edge tiles
   ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); walls are placed object instances.
+- Hills, holes and stairs are painted on a world's `elevation` layer; cliffs, their lips and feet
+  and each level's collision follow ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)).
 - Saves go through `RunState` to `user://saves/`.
 
 ## Status

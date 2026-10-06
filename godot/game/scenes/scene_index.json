@@ -1144,6 +1144,7 @@
   "world.cole": "res://game/scenes/worlds/cole.tscn",
   "world.crystal-caverns": "res://game/scenes/worlds/crystal-caverns.tscn",
   "world.depth-occlusion-test": "res://game/scenes/worlds/depth-occlusion-test.tscn",
+  "world.fence-park": "res://game/scenes/worlds/fence-park.tscn",
   "world.emberleef": "res://game/scenes/worlds/emberleef.tscn",
   "world.girls": "res://game/scenes/worlds/girls.tscn",
   "world.gloop-cavern": "res://game/scenes/worlds/gloop-cavern.tscn",

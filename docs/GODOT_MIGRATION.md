@@ -82,7 +82,9 @@ owner on 2026-10-04.
 
 After the cutover, elevation is designed natively: one collision layer per
 level switched on stairs, a height value for jumps and projectiles, and cliffs
-painted as tiles in the editor.
+painted as tiles in the editor. The first version (painted levels, cliffs, holes,
+stairs, per-level collision) is in the playground since 2026-10-05
+([godot/ELEVATION.md](godot/ELEVATION.md)).
 
 ## Working with the Godot project
 

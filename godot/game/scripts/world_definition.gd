@@ -10,6 +10,8 @@ class_name WorldDefinitionScript
 
 const CAMERA_FOLLOW := "follow"
 const CAMERA_FIXED := "fixed"
+## The game bootstrap that loads worlds by id (player, camera, HUD).
+const MAIN_SCENE := "res://game/main.tscn"
 
 ## JSON `mapId`.
 @export var map_id: String = ""
@@ -23,6 +25,23 @@ const CAMERA_FIXED := "fixed"
 @export var metadata: Dictionary = {}
 ## JSON `cameraMode`: "follow" (default, absent in level-1) or "fixed" (interiors).
 @export var camera_mode: String = "follow"
+
+
+## Run on its own (F6 with a world scene open in the editor), a world has no player, camera or
+## HUD: main.tscn brings those and loads the world by id. So a world that is the current scene
+## swaps itself for main.tscn with its own map id (the playground keeps its testbed kit: main grants
+## it by map id). Inside the game a world is never the current scene, so nothing changes there.
+func _ready() -> void:
+	var world := owner if owner != null else get_parent()
+	if world == null or get_tree().current_scene != world:
+		return
+	_run_in_main.call_deferred()
+
+
+func _run_in_main() -> void:
+	var main := (load(MAIN_SCENE) as PackedScene).instantiate()
+	main.set(&"map_id", map_id)
+	get_tree().change_scene_to_node(main)
 
 
 ## `{"tile_size", "columns", "rows", "width" = columns*tile_size, "height" = rows*tile_size}`.

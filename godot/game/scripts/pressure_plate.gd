@@ -63,11 +63,13 @@ func _physics_process(_delta: float) -> void:
 		released.emit({"plateId": plate_id})
 
 
-## A plate-pressing (Heavy) slime's centre is within `radius` of the plate root.
+## A plate-pressing (Heavy) slime's centre is within `radius` of the plate root, not in the air.
 func _loaded() -> bool:
 	var world := Services.world()
 	var player = world.player if world != null else null
 	if player == null or not is_instance_valid(player) or not bool(player.call(&"presses_plates")):
+		return false
+	if player.has_method(&"is_airborne") and bool(player.call(&"is_airborne")):
 		return false
 	var root := get_parent() as Node2D
 	return root != null and (player.call(&"get_centre") as Vector2).distance_to(root.global_position) <= radius

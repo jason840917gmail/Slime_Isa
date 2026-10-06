@@ -11,9 +11,12 @@
 // above the frame's baseline stay above water, with a thin foam line; the player lowers the art by
 // as much, so the waterline sits on its feet (game/player/gulp/player_swimming.gd).
 // The hit flash keeps hit_flash.gdshader's parameters (HitFlash finds this material by its
-// `hit_flash` meta), so a flash works over a skin.
+// `hit_flash` meta), so a flash works over a skin. Like hit_flash.gdshader it hides the slime
+// behind higher ground, as a silhouette (elevation_occlusion.gdshaderinc).
 // Owner: abilities.
 shader_type canvas_item;
+
+#include "res://game/world/elevation/elevation_occlusion.gdshaderinc"
 
 uniform vec4 flash_color : source_color = vec4(1.0, 0.435, 0.533, 1.0);
 uniform float flash_amount : hint_range(0.0, 1.0) = 0.0;
@@ -34,6 +37,7 @@ varying vec2 local_pos;
 
 void vertex() {
 	local_pos = VERTEX;
+	elevation_world = elevation_world_position(VERTEX, MODEL_MATRIX);
 }
 
 vec3 rgb2hsv(vec3 c) {
@@ -144,5 +148,5 @@ void fragment() {
 		c = mix(c, vec3(0.86, 0.97, 1.0), foam * 0.6);
 		alpha *= 1.0 - under;
 	}
-	COLOR = vec4(c, alpha);
+	COLOR = elevation_occlude(vec4(c, alpha));
 }

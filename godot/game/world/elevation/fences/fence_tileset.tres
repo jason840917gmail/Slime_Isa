@@ -1,0 +1,29 @@
+[gd_resource type="TileSet" format=3]
+
+[ext_resource type="Texture2D" path="res://game/world/elevation/fences/fence_paint_tiles.png" id="1_tiles"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fences"]
+texture = ExtResource("1_tiles")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+0:0/0/custom_data_0 = "auto"
+1:0/0 = 0
+1:0/0/custom_data_0 = "wood"
+2:0/0 = 0
+2:0/0/custom_data_0 = "snow"
+3:0/0 = 0
+3:0/0/custom_data_0 = "stone"
+4:0/0 = 0
+4:0/0/custom_data_0 = "sandstone"
+5:0/0 = 0
+5:0/0/custom_data_0 = "twig"
+6:0/0 = 0
+6:0/0/custom_data_0 = "picket"
+7:0/0 = 0
+7:0/0/custom_data_0 = "crystal"
+
+[resource]
+tile_size = Vector2i(64, 64)
+custom_data_layer_0/name = "fence_style"
+custom_data_layer_0/type = 4
+sources/0 = SubResource("TileSetAtlasSource_fences")

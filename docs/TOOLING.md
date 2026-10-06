@@ -48,6 +48,22 @@ See [assets/README.md](assets/README.md) for the art workflow.
   the hand-made terrain edges: reads `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png`
   and `-hole.png` (and the ground sheet in `godot/asset/MAPS/grounds/` as the colour reference) and writes
   `godot/game/world/terrain_edges/art/<ground>-edges.png` and `-edges-rim.png` ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)).
+- `python scripts/art/build-elevation-art.py [name ...] [--preview DIR]` (**numpy**) — the cliff art:
+  seamless walls, their corner-stone ends and the stairs kit (treads, risers, copings) per rock style, and each ground's cliff lip and foot, from
+  `asset/Originals/elevation/generated/` into `godot/game/world/elevation/art/`
+  ([godot/ELEVATION.md](godot/ELEVATION.md#making-the-art)); `scripts/art/build-elevation-paint-tiles.py` draws
+  the elevation layer's paint tiles.
+- `python scripts/maps/build-elevation-park.py` — rebuilds the playground's Elevation Park (its rows
+  of ground and water, its painted levels and stairs); close the playground in the editor first.
+- `python scripts/art/build-fence-art.py [style ...] [--preview DIR]` (**numpy**) — the fences along hill
+  rims: cuts each style's generated front view (`asset/Originals/elevation/fences/`) into its kit (posts,
+  a seamless rail strip, the rail seen from above, a JSON of measures) in
+  `godot/game/world/elevation/fences/art/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
+  draws the fences layer's paint tiles.
+- `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
+  (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
+  (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
+  prints collision, drop and hop probes against its fences.
 - `pnpm props:pack` (**numpy**) — packs `asset/Originals/props/` into bottom-anchored
   `godot/asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.webp` atlases (the crystal cluster art of the
   `crystal-cluster-wall` object scenes).

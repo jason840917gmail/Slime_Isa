@@ -41,6 +41,7 @@ const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
 const SleepController := preload("res://game/rest/sleep_controller.gd")
 const PlayerAbilities := preload("res://game/player/abilities/player_abilities.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
@@ -133,6 +134,12 @@ var _art_rest_position: Vector2 = Vector2.ZERO
 var _art_rest_position_known: bool = false
 ## Abilities (game/player/abilities/): rules, cooldowns and the running sequence.
 var _abilities: PlayerAbilities = PlayerAbilities.new(self)
+## Pushing against a rim (docs/godot/ELEVATION.md): since when, last seen, which way. A push that
+## stops for longer than LEDGE_PUSH_GAP_MS starts over.
+var _ledge_push_since_ms: float = -1.0
+var _ledge_push_seen_ms: float = -1.0
+var _ledge_push_dir: Vector2 = Vector2.ZERO
+const LEDGE_PUSH_GAP_MS := 120.0
 ## The art's offsets in world px: sleeping on a mattress, and the ability effects channel
 ## (Phaser `visual.effects`: offset, scale and alpha on top of the authored values).
 var _art_offset: Vector2 = Vector2.ZERO
@@ -860,6 +867,11 @@ func effect_tween() -> Tween:
 	return visual.create_tween() if visual != null and visual.is_inside_tree() else null
 
 
+## In the air (a jump or a ledge drop): plates do not feel the slime.
+func is_airborne() -> bool:
+	return _abilities.is_airborne()
+
+
 ## A jump landed at `centre`: `jump_landed`, and the Heavy landing record cracked ground reads.
 func record_landing(centre: Vector2) -> void:
 	_landing_id += 1
@@ -1131,6 +1143,36 @@ func _move(direction: Vector2) -> void:
 	body.velocity = unit * speed
 	_facing = unit
 	_play_direct(_locomotion_clip(CLIP_WALK))
+	_press_ledge(unit)
+
+
+## A rim holds the slime, as in Zelda, until it insists: pushing against one for
+## `elevation.dropPushMs` drops it over, whatever the rim's shape (`Elevation.ledge_below`, then
+## `drop_target`: down a south face, behind a back rim, down beside a side rim; jump_sequence.gd
+## flies it there).
+func _press_ledge(unit: Vector2) -> void:
+	var world := Services.world()
+	var elevation: Elevation = world.elevation if world != null else null
+	if elevation == null or body == null or _abilities.is_busy():
+		_ledge_push_since_ms = -1.0
+		return
+	var level := elevation.level_of(body)
+	if elevation.ledge_below(body.global_position, level, unit) == Elevation.NO_LEDGE:
+		_ledge_push_since_ms = -1.0
+		return
+	var now := Services.now_ms()
+	if _ledge_push_since_ms < 0.0 or now - _ledge_push_seen_ms > LEDGE_PUSH_GAP_MS or unit.dot(_ledge_push_dir) < 0.95:
+		_ledge_push_since_ms = now
+		_ledge_push_dir = unit
+	_ledge_push_seen_ms = now
+	if now - _ledge_push_since_ms < Elevation.setting("dropPushMs"):
+		return
+	_ledge_push_since_ms = -1.0
+	var target := elevation.drop_target(body.global_position, level, unit)
+	if target.is_empty():
+		return
+	var to_centre := get_centre() - body.global_position
+	_abilities.begin_drop(get_centre(), (target["feet"] as Vector2) + to_centre, level, int(target["level"]))
 
 
 ## Idle for the current facing; `force` restarts it (respawn).
