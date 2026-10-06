@@ -5,7 +5,11 @@
 // frames: only the green body (by hue and saturation) changes, keeping the outline, the eyes, the
 // highlights and the shading (the pattern is lit by the frame's own brightness). The pattern is
 // laid out in the sprite's local pixels, so it sticks to the body from frame to frame.
-//   skin 0: none; 1: Heavy (grey cobbles); 2: Sticky (cream silk strands).
+//   skin 0: none; 1: Heavy (grey cobbles); 2: Sticky (cream silk strands); 3: Frog (tree-frog
+//   green with darker spots and a pale belly, the Frog badge's colours).
+// Swimming (the Frog form in deep water) hides the art under a waterline: `waterline` cell pixels
+// above the frame's baseline stay above water, with a thin foam line; the player lowers the art by
+// as much, so the waterline sits on its feet (game/player/gulp/player_swimming.gd).
 // The hit flash keeps hit_flash.gdshader's parameters (HitFlash finds this material by its
 // `hit_flash` meta), so a flash works over a skin.
 // Owner: abilities.
@@ -18,6 +22,13 @@ uniform int skin = 0;
 uniform float stone_size = 34.0;
 // Strand spacing in texture pixels.
 uniform float strand_size = 16.0;
+// Frog spot spacing in texture pixels.
+uniform float spot_size = 30.0;
+// Swimming: how much of the art stays above water, in cell pixels above the baseline (0: no water).
+uniform float waterline = 0.0;
+// The slime sheets' cells and the baseline the slime stands on (docs/assets/slime-sheet-guide.md).
+const float CELL_PX = 256.0;
+const float BASELINE_PX = 251.0;
 
 varying vec2 local_pos;
 
@@ -87,6 +98,26 @@ vec3 silk(vec2 p) {
 	return mix(base * 0.88, vec3(1.0, 0.98, 0.93), strands);
 }
 
+// Frog: a vivid tree-frog green with darker rounded spots and a pale creamy belly toward the bottom
+// of the frame (sprite-local y grows downward; the slime stands near +123).
+vec3 frog(vec2 p) {
+	vec2 g = p / spot_size;
+	vec2 cell = floor(g);
+	float nearest = 8.0;
+	for (int y = -1; y <= 1; y++) {
+		for (int x = -1; x <= 1; x++) {
+			vec2 c = cell + vec2(float(x), float(y));
+			vec2 point = c + 0.2 + 0.6 * hash2(c);
+			float radius = 0.16 + 0.14 * hash1(c);
+			nearest = min(nearest, length(g - point) / radius);
+		}
+	}
+	float spot = 1.0 - smoothstep(0.8, 1.05, nearest);
+	vec3 green = mix(vec3(0.47, 0.74, 0.20), vec3(0.17, 0.39, 0.13), spot);
+	float belly = smoothstep(45.0, 108.0, p.y) * (1.0 - 0.6 * smoothstep(0.0, 1.0, abs(p.x) / 95.0));
+	return mix(green, vec3(0.90, 0.88, 0.58), belly * 0.75 * (1.0 - 0.8 * spot));
+}
+
 void fragment() {
 	// The art's own colour decides what is body; COLOR already holds texture x modulate (Godot 4).
 	vec4 raw = texture(TEXTURE, UV);
@@ -99,10 +130,19 @@ void fragment() {
 		float hue_match = 1.0 - smoothstep(0.07, 0.13, abs(hsv.x - 0.24));
 		float body = hue_match * smoothstep(0.25, 0.42, hsv.y) * smoothstep(0.12, 0.25, hsv.z);
 		float lum = dot(raw.rgb, vec3(0.299, 0.587, 0.114));
-		vec3 pattern = skin == 1 ? rock(local_pos) : silk(local_pos);
-		float light = skin == 1 ? 0.35 + 1.15 * lum : 0.55 + 0.75 * lum;
+		vec3 pattern = skin == 1 ? rock(local_pos) : (skin == 2 ? silk(local_pos) : frog(local_pos));
+		float light = skin == 1 ? 0.35 + 1.15 * lum : (skin == 2 ? 0.55 + 0.75 * lum : 0.45 + 0.95 * lum);
 		c = mix(c, pattern * light, body);
 	}
 	c = mix(c, flash_color.rgb, flash_amount);
-	COLOR = vec4(c, tex.a);
+	float alpha = tex.a;
+	if (waterline > 0.0) {
+		float cell_y = mod(UV.y * float(textureSize(TEXTURE, 0).y), CELL_PX);
+		float cut = BASELINE_PX - waterline;
+		float under = smoothstep(cut - 1.5, cut + 1.5, cell_y);
+		float foam = (1.0 - smoothstep(0.0, 4.0, abs(cell_y - (cut - 2.0)))) * (1.0 - under);
+		c = mix(c, vec3(0.86, 0.97, 1.0), foam * 0.6);
+		alpha *= 1.0 - under;
+	}
+	COLOR = vec4(c, alpha);
 }

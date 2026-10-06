@@ -4,6 +4,8 @@ extends RefCounted
 ## takes the spot's form for free; spots never run out. Away from spots a form burps; with no form
 ## the slime says why nothing happened. Eating the form it already has refreshes the timer. The
 ## form wears off after 60 s of simulation time, and is lost on death and on a map change.
+## A form that swims (the Frog) holds while the slime is over deep water (abilities spec 11.7): it
+## neither wears off nor burps nor changes into a form that cannot swim until the slime is out.
 ##
 ## Owner: abilities.
 
@@ -13,6 +15,7 @@ const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 
 const SPOT_GROUP := &"gulp-spot"
 const MESSAGE_RISE := 56.0
+const SWIM_MESSAGE := "Swim back to the shallows first"
 
 ## {} or the form row (gulp_forms.gd).
 var form: Dictionary = {}
@@ -33,9 +36,15 @@ func eat() -> String:
 		var spot_form := GulpForms.for_material(str(spot.get(&"material_item_id")))
 		if spot_form.is_empty():
 			return "nothing"
+		if _held_by_water() and not bool(spot_form.get("swims", false)):
+			_message(SWIM_MESSAGE)
+			return "nothing"
 		_become(spot_form)
 		return "spot"
 	if not form.is_empty():
+		if _held_by_water():
+			_message(SWIM_MESSAGE)
+			return "nothing"
 		end("burp")
 		return "burp"
 	var carried := not preferred_material().is_empty()
@@ -47,16 +56,23 @@ func eat() -> String:
 func eat_material(item_id: String) -> String:
 	var material_form := GulpForms.for_material(item_id)
 	var run := Services.run()
-	if material_form.is_empty() or run == null or run.item_count(item_id) < 1 or not run.remove_item(item_id, 1):
+	if material_form.is_empty() or (_held_by_water() and not bool(material_form.get("swims", false))):
+		return "nothing"
+	if run == null or run.item_count(item_id) < 1 or not run.remove_item(item_id, 1):
 		return "nothing"
 	_become(material_form)
 	return "inventory"
 
 
-## Ends an expired form (every step).
+## Ends an expired form (every step); a swimming form waits until the slime is out of deep water.
 func update() -> void:
-	if not form.is_empty() and Services.now_ms() >= ends_at:
+	if not form.is_empty() and Services.now_ms() >= ends_at and not _held_by_water():
 		end("expired")
+
+
+## True while a form that swims keeps the slime afloat: some of its body is over deep water.
+func _held_by_water() -> bool:
+	return bool(form.get("swims", false)) and bool(_player.call(&"overlaps_deep_water"))
 
 
 ## Death: the form goes without a word.

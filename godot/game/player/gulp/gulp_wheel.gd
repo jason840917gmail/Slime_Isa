@@ -20,7 +20,7 @@ const RING_PADDING := 8.0
 const CHOSEN_SCALE := 1.15
 ## GULP_WHEEL_HOLD_MS (GulpWheelLayout.ts:2).
 const HOLD_MS := 250.0
-const BADGE_SHEET := "res://asset/UI/ui-gulp-form-icons-2x1.webp"
+const BADGE_SHEET := "res://asset/UI/ui-gulp-form-icons-3x1.webp"
 const BADGE_CELL := 128
 const RING_FILL := Color(11.0 / 255.0, 20.0 / 255.0, 38.0 / 255.0, 0.58)
 const RING_EDGE := Color(1.0, 232.0 / 255.0, 154.0 / 255.0, 0.6)

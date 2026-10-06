@@ -19,27 +19,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--waterweed-eelgrass.tscn" id="17"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--reeds-rushes.tscn" id="18"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(236, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
-size = Vector2(300, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3"]
-size = Vector2(364, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_4"]
-size = Vector2(108, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_5"]
-size = Vector2(172, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_6"]
-size = Vector2(620, 44)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_7"]
-size = Vector2(492, 108)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8"]
 size = Vector2(640, 448)
 
@@ -78,80 +57,6 @@ metadata/tile_seed = 3393
 metadata/source_cell_count = 2916
 metadata/columns = 54
 metadata/rows = 54
-
-[node name="TileCollision" type="Node2D" parent="ground"]
-
-[node name="water_42_25" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2816, 1632)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_42_25"]
-shape = SubResource("RectangleShape2D_1")
-
-[node name="water_40_26" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2720, 1696)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_40_26"]
-shape = SubResource("RectangleShape2D_2")
-
-[node name="water_40_27" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2752, 1760)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_40_27"]
-shape = SubResource("RectangleShape2D_3")
-
-[node name="water_49_27" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(3200, 1760)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_49_27"]
-shape = SubResource("RectangleShape2D_4")
-
-[node name="water_41_28" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2816, 1824)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_41_28"]
-shape = SubResource("RectangleShape2D_3")
-
-[node name="water_48_28" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(3168, 1824)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_48_28"]
-shape = SubResource("RectangleShape2D_5")
-
-[node name="water_41_29" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2944, 1888)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_41_29"]
-shape = SubResource("RectangleShape2D_6")
-
-[node name="water_41_30" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2880, 1984)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_41_30"]
-shape = SubResource("RectangleShape2D_7")
-
-[node name="water_44_32" type="StaticBody2D" parent="ground/TileCollision"]
-position = Vector2(2976, 2080)
-collision_layer = 1024
-collision_mask = 0
-
-[node name="Shape" type="CollisionShape2D" parent="ground/TileCollision/water_44_32"]
-shape = SubResource("RectangleShape2D_2")
 
 [node name="world-definition" type="Node" parent="."]
 script = ExtResource("2")

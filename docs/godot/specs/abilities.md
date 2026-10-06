@@ -488,7 +488,7 @@ are not bodies in Phaser (handled by `is_blocked`), nor are the world bounds.
 
 Godot: `intersect_shape` with a `RectangleShape2D(30, 26)` at `(x, y + 14.56)` (= the feet-anchored
 `BodyShape` at `(0, −13)` for feet `(x, y + 27.56)`), mask 1, bodies only, excluding the player
-body, and ignoring results under `ground/TileCollision` and the runtime `WorldBounds` body
+body, and ignoring results under `ground/TileCollision`, the ground TileMapLayer (deep water's tile collision) and the runtime `WorldBounds` body
 (parity: Phaser never counts them).
 
 ### 7.3 Sequence (`LegacyPlayerAbilityPresentation.ts:206-234`)
@@ -528,8 +528,8 @@ return {kind: heavy, at: reach} if blocked else {kind: none, at: reach}
   short of the hit. `sightBlocked` (`PhaserNodeContext.ts:95-106`) checks only static bodies on
   layer 1 (walls, trees, houses, rocks, posts, gulp spots, dummies); **tiles never block** (water,
   cliffs), and bodies smaller than 20 px in both width and height are ignored. Godot: ray query
-  mask 1, bodies only, exclude the player; skip colliders under `ground/TileCollision` (water
-  tiles are on layer 1024 anyway, rock-wall tiles may be on 1) and shapes < 20×20; use the exact
+  mask 1, bodies only, exclude the player; skip colliders under `ground/TileCollision` and the
+  ground TileMapLayer (deep water's tile collision is on layer 1024 anyway, rock-wall tiles may be on 1) and shapes < 20×20; use the exact
   hit point or replicate the bisection (≤ 1.4 px difference).
 - `first_bell_along` (`:1307-1329`): for each `LashBellScript` (lash-only or not): skip unless a
   shape of its `damageArea` touches the whole segment (half width 16); then walk `along = 0, 4, 8,
@@ -634,12 +634,14 @@ Already in `player.gd` (player spec §5). Changes for the shared rules:
 
 ### 11.1 Forms (`content/gulp/gulpForms.ts:35-60`)
 
-| id | name | material item (items.json name) | skin texture (asset id) | tint fallback | speed × | knockback immune | presses plates (and cracks ground) | crosses webs | badge frame |
-|---|---|---|---|---|---|---|---|---|---|
-| `heavy` | Heavy | `stone` ("Stone") | `slime-form-heavy` (`character.player.slime.heavy`, `characters/slime-form-heavy.webp`, 8×8 of 256²) | `#9aa3ad` | 0.6 | yes | yes | no | 0 |
-| `sticky` | Sticky | `silk-clump` ("Sticky Silk") | `slime-form-sticky` (`character.player.slime.sticky`) | `#f1ecff` | 0.9 | no | no | yes | 1 |
+| id | name | material item (items.json name) | skin texture (asset id) | tint fallback | speed × | knockback immune | presses plates (and cracks ground) | crosses webs | swims | badge frame |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `heavy` | Heavy | `stone` ("Stone") | `slime-form-heavy` (`character.player.slime.heavy`, `characters/slime-form-heavy.webp`, 8×8 of 256²) | `#9aa3ad` | 0.6 | yes | yes | no | no | 0 |
+| `sticky` | Sticky | `silk-clump` ("Sticky Silk") | `slime-form-sticky` (`character.player.slime.sticky`) | `#f1ecff` | 0.9 | no | no | yes | no | 1 |
+| `frog` | Frog | `frog` (Gulp spot only, §11.7) | none: skin 3 of `form_skin.gdshader` | `#8fd14f` | 1.0 | no | no | no | yes | 2 |
 
-Duration `gulp.formDurationMs` = **60000** ms of simulation time, for both.
+Duration `gulp.formDurationMs` = **60000** ms of simulation time, for every form. The Frog is a
+Godot addition (owner, 2026-10-06; §11.7); the Godot table is `game/player/gulp/gulp_forms.gd`.
 `gulpFormForMaterial(itemId)` (`:62-64`): the form whose material it is.
 
 ### 11.2 `GulpController` (`features/gulp/GulpController.ts`)
@@ -710,7 +712,7 @@ A form is lost silently on a map change (the controller is per world) and on dea
   **[QUIRK]/owner item O-G1**: the Godot player draws from the new three-quarter top-down sheet,
   which has no Heavy/Sticky skins. Decided 2026-10-05: a shader paints the form over the slime's
   own frames (`game/player/gulp/form_skin.gdshader`: grey cobbles for Heavy, cream silk for
-  Sticky; only the green body changes). The tint (`visual.self_modulate`) stays as the fallback
+  Sticky, green with dark spots and a pale belly for the Frog; only the green body changes). The tint (`visual.self_modulate`) stays as the fallback
   when the Visual has no skin material.
 
 ### 11.4 The eat press, tap and hold (`WorldScene.ts:913-969, 1821-1826, 1855-1877`)
@@ -781,6 +783,34 @@ Ring of radius 72 around the slime centre, slots r 25, icons 46 px (form badge, 
 icon), count text at slot + (14, 12), title = chosen form name upper-case (or "GULP") at y
 +115 (72 + 25 + 18); slot `i` of `n` at angle `−90 + i·360/n` degrees (first at the top, clockwise); a direction
 picks the nearest slot angle. Drawn in the world; nothing pauses.
+
+### 11.7 Swimming: the Frog form (Godot addition, owner 2026-10-06) [IN]
+
+Deep water blocks the slime ([water.md](water.md) §1: its tiles collide on the `water` physics
+layer, 1024) until a form that `swims` lets it in. The only one is the **Frog**, gulped from a frog
+Gulp spot (`object.gulp-spot-frog`, `game/scenes/objects/gulp-spot-frog.tscn`: a frog on a lily
+pad, `material_item_id` `frog`, prompt "Gulp the Frog" from its `display_name`; no `frog` item
+exists, so the wheel never offers it). `game/player/gulp/player_swimming.gd`, run by `player.gd`
+every step after the Gulp controller:
+
+- **Mask**: while the form swims, the water bit is cleared from the body's `collision_mask`;
+  otherwise it is set again.
+- **Swimming** = the form swims and the cell 2 px above the feet is `deep-water` (shallow water is
+  wading, [water.md](water.md) §9). On the change:
+  - the `swim-down`/`-up`/`-side` clips (page 3 of the slime sheet, loops) replace idle and walk;
+  - `form_skin.gdshader`'s `waterline` = 30 px of the 256 px cell: everything lower is cut, with a
+    thin foam line, and the art is lowered by as much (`set_swim_offset`, 30 × the Visual's scale),
+    so the waterline sits on the feet, where the water wake draws its swim ripple;
+  - nothing else changes: same speed, same body, same hurtbox.
+- **No attacks or abilities while swimming** (the dodge included): `player.gd` consumes those
+  presses before the ability loop; eat and interact still work.
+- **The form holds over deep water** (`gulp_controller.gd`): while it swims and any corner of the
+  body rectangle (inset 1 px) is over deep water, it does not expire, a tap of eat away from spots
+  shows "Swim back to the shallows first" instead of a burp, and a spot or wheel form that does not
+  swim is refused with the same message. Once out, an expired form ends at the next step, and deep
+  water blocks the slime again.
+- The update runs every step, dead or alive: when the form ends (a death clears it, §11.2) the
+  next step drops the swim look.
 
 ---
 
@@ -1453,6 +1483,17 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
 - Nothing: no form, away from spots, nothing carried → "Nothing to gulp here", no clip.
 - `GulpController` unit test with a fake clock: expiry exactly at `ends_at` (60000), refresh
   resets to now + 60000, `remaining_ms` ceil formatting ("1:00", "0:01" at 1 ms).
+
+`test_frog_form.gd` (level-1's lake, row 46: shallow x 3-5, deep x 6-11; §11.7)
+- A frog spot placed at the slime, tap `eat` → form `frog`, skin 3, the body's mask without the
+  `water` bit.
+- Frog in deep water → swimming, waterline 30, a `swim-` clip while moving, the wake's swim row;
+  back in shallow water → not swimming, waterline 0.
+- Frog walking right from the shallows for 700 ms → past the middle of the first deep cell,
+  swimming (fails while the tiles' physics layer is also on the world layer, 1025).
+- Expired over deep water → still a frog, `eat()` = "nothing" (no burp); in the shallows → the
+  form ends and the mask has the `water` bit again.
+- Jump learned, tap `jump` while swimming → not airborne, no ability busy.
 
 `test_world_puzzles.gd` (playground unless noted)
 - Lesson: centre (1904, 1600) (80 px) → `stretch-lash` learned, `taught

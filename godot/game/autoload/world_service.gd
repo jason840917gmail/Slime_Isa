@@ -21,6 +21,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
 const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
+const WaterWake := preload("res://game/world/water_wake.gd")
 
 ## Scene id -> scene path for every scene Godot owns (docs/godot/CONVENTIONS.md "Scenes Godot owns").
 const SCENE_INDEX_PATH := "res://game/scenes/scene_index.json"
@@ -37,9 +38,10 @@ const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 const PLAYER_SPAWN_MARKER := "player-spawn"
 ## Custom data layer of the converted terrain TileSet that holds the terrain tile id.
 const TILE_ID_DATA_LAYER := "tile_id"
-## Terrain tiles whose `terrain.tiles` entry has `physics` (resources/terrain/
-## terrain.tile-set.resource.json; TileCatalog.isTileCollidable).
-const SOLID_TILE_IDS: PackedStringArray = ["water", "deep-water", "rock-wall"]
+## Terrain tiles that block. Phaser's list (the terrain entries with `physics`) had shallow `water`
+## too; the owner made shallow water walkable (2026-10-06): only deep water blocks, until the slime
+## can swim. The deep-water tiles carry their own collision square in the terrain tile set.
+const SOLID_TILE_IDS: PackedStringArray = ["deep-water", "rock-wall"]
 ## Collision mask used by line_of_sight: the "world" layer (bit 1).
 const SIGHT_COLLISION_MASK := 1
 
@@ -197,6 +199,8 @@ func register_world(root: Node2D) -> bool:
 		WaterSurface.mount(ground_layer)
 		# Hand-made edges where grounds meet, shores included: after the water, so they draw over it.
 		TerrainEdges.mount(ground_layer)
+		# Splashes and ripples at the feet of every walker in the water (specs/water.md "Wading").
+		WaterWake.mount(ground_layer)
 	_areas.clear()
 	for node: Node in area_scripts:
 		var record: Dictionary = (node as WorldAreaScript).to_record()
@@ -294,12 +298,12 @@ func npc_wander_area(instance_id: String) -> Dictionary:
 	return {}
 
 
-## True when cell (tx, ty) is outside the grid or holds a solid ground tile (water, deep-water,
-## rock-wall: the tiles whose terrain entry has `physics`). The converter tags every tile with
-## the custom data layer `tile_id` (its tile collisions are separate StaticBody2D nodes under
-## `ground/TileCollision`), so a cell is solid when its `tile_id` is in SOLID_TILE_IDS; a
-## TileSet collision polygon on any physics layer also counts (contract C3). An empty cell is
-## not solid (WorldScene.isSolidTile).
+## True when cell (tx, ty) is outside the grid or holds a solid ground tile (deep-water,
+## rock-wall; shallow water is walkable). The converter tags every tile with the custom data layer
+## `tile_id` (rock wall's collision is separate StaticBody2D nodes under `ground/TileCollision`; deep
+## water's is a collision square on its tiles), so a cell is solid when its `tile_id` is in
+## SOLID_TILE_IDS; a TileSet collision polygon on any physics layer also counts (contract C3). An
+## empty cell is not solid (WorldScene.isSolidTile).
 func is_solid_tile(tx: int, ty: int) -> bool:
 	if not _is_within_world(tx, ty):
 		return true

@@ -270,7 +270,7 @@ func _gulp_candidate(player: Node) -> Dictionary:
 	var target := player
 	return {
 		"id": "gulp-spots:%d:%d" % [roundi(at.x), roundi(at.y)],
-		"prompt": "Gulp the " + ItemCatalog.item_name(str(spot.get(&"material_item_id"))),
+		"prompt": "Gulp the " + (str(spot.call(&"prompt_name")) if spot.has_method(&"prompt_name") else ItemCatalog.item_name(str(spot.get(&"material_item_id")))),
 		"priority": PRIORITY_GULP,
 		"origin": func() -> Vector2: return at,
 		"execute": func() -> bool: return str(target.call(&"eat")) != "nothing",

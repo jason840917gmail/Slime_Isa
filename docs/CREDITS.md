@@ -95,7 +95,7 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 | Weapons: hammer and spear, wooden axe, pickaxe, resource and stone impacts | `MAPS/weapons/` | owner, with AI | no source |
 | UI frames and backplates (8 files) | `UI/` | OpenAI image model | C2PA on `Originals/ui/` |
 | UI crafting workbench backplate | `UI/ui-crafting-detail-workbench-backplate` | owner, with AI | no metadata |
-| Logo, game-over art, Gulp form badges | `UI/ui-slime-isa-logo`, `ui-game-over-puddle`, `ui-gulp-form-icons-2x1` | Magnific GPT-2 | manifest notes, roadmap |
+| Logo, game-over art, Gulp form badges | `UI/ui-slime-isa-logo`, `ui-game-over-puddle`, `ui-gulp-form-icons-3x1` | Magnific GPT-2 | manifest notes, roadmap |
 | Grounds (highland, amberleaf, frozen, desert) | `MAPS/grounds/` legacy sheets | probably OpenAI; direct source unverified | the named biome sources carry C2PA, the packed legacy sheets do not |
 | Grounds (forest floor, moss, cavern, crystal, water, cobble) | `MAPS/grounds/` | OpenAI image model; town cobble Magnific GPT-2 | C2PA on `Originals/grounds/generated/`, manifest note |
 

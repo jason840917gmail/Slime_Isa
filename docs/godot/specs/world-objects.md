@@ -529,7 +529,7 @@ Every grid cell `(cx, cy)`, `0 ≤ cx < columns`, `0 ≤ cy < rows`, is a candid
 - reserved (a cell holding a pile spawned or restored this session whose amount is still > 0,
   `reservedCells`, `:164`, cleared at `:61`);
 - blocked (`WorldScene.isResourceDropCellBlocked`, `WorldScene.ts:1673-1681`): outside the
-  world, a solid ground tile (water, deep-water, rock-wall), or a cell occupied by an **authored
+  world, a solid ground tile (deep-water, rock-wall; Phaser also had shallow water, walkable in Godot since 2026-10-06), or a cell occupied by an **authored
   root** other than the source node (`isAuthoredCellOccupied`, `UniversalSceneWorldController.ts:1576-1585`).
   Authored roots are the world's top-level instance roots (`directAuthoredInstanceRoots`,
   `:2233-2241`): trees, stones, houses, props, NPCs (at their current position), authored

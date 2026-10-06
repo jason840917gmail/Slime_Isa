@@ -60,7 +60,7 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/props/pack-gulp-props.py` — packs the Gulp and secret props (cracked ground, sinkhole,
   cave ladder, silk cocoon, spider web, Goo Heart, pressure plate up and down) from
   `asset/Originals/props/gulp/` into `godot/asset/MAPS/props/256x256-tile_8x1-gulp-props.webp`, and the
-  Gulp form badges from `asset/Originals/ui/gulp/` into `godot/asset/UI/ui-gulp-form-icons-2x1.webp`.
+  Gulp form badges from `asset/Originals/ui/gulp/` into `godot/asset/UI/ui-gulp-form-icons-3x1.webp` (Heavy, Sticky, Frog).
 - `python scripts/effects/pack-stretch-lash.py` — packs the Stretch Lash goo tendril from
   `asset/Originals/effects/stretch-lash/` into `godot/asset/MAPS/effects/384x96-tile_4x2-stretch-lash.webp`.
 - `python scripts/characters/build-gulp-form-skins.py` — builds the Gulp form skins
@@ -68,7 +68,7 @@ See [assets/README.md](assets/README.md) for the art workflow.
   top-down slime draws its forms with a shader instead).
 - `python scripts/characters/pack-slime-v2-page.py [--page N] [--preview out.gif]` (**numpy**, Node,
   Brave) — packs a page of the three-quarter top-down player slime (1 = idle, walk, doze and sleep; 2 =
-  rolls, the stretch lash and the defeat) from the Seedance clips in
+  rolls, the stretch lash and the defeat; 3 = swim) from the Seedance clips in
   `asset/Originals/characters/slime-v2/videos/` into
   `godot/asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` and `slime-v2/page-<n>.json` (loop
   choice, fps and looping per row). Rows listed in its `SPINS` are baked from a still, rows in `PICKS` use
@@ -102,6 +102,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `build-water-life-sheets.py` (**numpy**) — the idle-loop sheets (campfire, cauldron, lantern post,
   banner, birdbath; tree canopy sway; water life) in `godot/asset/MAPS/`; the scenes' AnimationPlayers
   are edited in Godot ([assets/AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md)).
+- `python scripts/art/build-water-wake-sheet.py` (**numpy**) — the water at walkers' feet: the wading
+  splash and the swim ripple (`asset/Originals/water/generated/wade-splash.png`, `swim-ripple.png`, 2 x 2
+  grids from Magnific), each frame aligned on its ring, into
+  `godot/asset/MAPS/water/224x128-tile_4x2-water-wake.webp`, which `game/world/water_wake.gd` draws
+  ([godot/specs/water.md](godot/specs/water.md#9-wading-godot-only)).
 - `python scripts/art/despill-magenta-fringe.py [--all] [--min-blue N] [--write] <image>...` (**numpy**) —
   removes magenta chroma-key fringe from sprite sheets. Dry run by default.
 
