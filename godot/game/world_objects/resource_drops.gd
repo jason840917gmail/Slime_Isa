@@ -29,6 +29,9 @@ const ARC_MIN := 28.0
 const ARC_MAX := 56.0
 ## ResourceDropPlacement.ts:11-19.
 const GOLDEN_ANGLE := 2.399963229728653
+## A pile leaving its source / landing (each staggered pile plays its own).
+const CUE_POP := &"DropPop"
+const CUE_LAND := &"DropLand"
 ## Depletion text: yellow, big, 46 px above the node (ResourceNodeController.ts:110).
 const DEPLETION_TEXT_RISE := 46.0
 const DEFAULT_DEPLETION_MESSAGE := "Resource depleted"
@@ -319,11 +322,13 @@ static func _launch(root: Node2D, area: Area2D, parent: Node, from: Vector2, to:
 			visual.scale = base_scale * scale
 	var tween := root.create_tween()
 	tween.tween_interval(launch_index * STAGGER_MS / 1000.0)
+	tween.tween_callback(func() -> void: _cue(CUE_POP))
 	tween.tween_method(func(t: float) -> void:
 		place.call(from + (to - from) * t - Vector2(0.0, 4.0 * height * t * (1.0 - t))), 0.0, 1.0, FLIGHT_MS / 1000.0)
 	tween.tween_callback(func() -> void:
 		place.call(to)
-		squash.call(Vector2(1.12, 0.82)))
+		squash.call(Vector2(1.12, 0.82))
+		_cue(CUE_LAND))
 	tween.tween_method(func(p: float) -> void:
 		place.call(to - Vector2(0.0, REBOUND_HEIGHT * p))
 		squash.call(Vector2(1.12 - 0.16 * p, 0.82 + 0.22 * p)), 0.0, 1.0, REBOUND_MS / 1000.0) \
@@ -337,3 +342,9 @@ static func _launch(root: Node2D, area: Area2D, parent: Node, from: Vector2, to:
 		squash.call(Vector2.ONE)
 		if is_instance_valid(area):
 			area.set_deferred(&"monitorable", true))
+
+
+static func _cue(cue: StringName) -> void:
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(cue)

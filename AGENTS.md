@@ -28,7 +28,7 @@ its code is in git history.
   with F6 runs the playground testbed (every weapon and ability); F6 on a world scene runs the game
   in that world.
 - Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
-  `?recipes`, `?arsenal` on the web; `-- --map=<id> ...` on desktop
+  `?recipes`, `?arsenal`, `?audition` on the web; `-- --map=<id> ...` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world)).
 - `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
   (about ten minutes for the full suite).

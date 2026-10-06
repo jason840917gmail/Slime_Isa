@@ -137,3 +137,39 @@ icon sheet would shift colour, then lossless; transparency always exact and veri
   `--library` re-imports the library takes listed in `godot/asset/audio/CREDITS.md` (the parent folder
   must also hold a `magnific` copy of `asset/Originals/audio/magnific/`). It removes takes it no longer
   produces, with their `.import` files. Scenes reference the takes by path, so cue file names must stay.
+
+### Sound Picker rounds
+
+New sounds are chosen on the
+[Slime Isa Sound Picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ) page before they ship. A
+round is one manifest, `scripts/audio/picker/round-<n>.json`: its cues, each with options (a label,
+a kind, source takes), the option the game plays meanwhile (`inGame`), the player node it drives
+and where it ships. These Python tools need `pip install miniaudio lameenc numpy`; none needs ffmpeg.
+
+- `python scripts/audio/slice-steps.py <out-prefix> <walk.mp3>...` — cuts single steps out of
+  generated walks (Magnific gives textures, not clean steps). It keeps the clearest onsets, each
+  shaped into one percussive step (`--count`, `--length`, `--decay`).
+- `python scripts/audio/prep-takes.py <manifest>` — writes each take as a trimmed, peak-normalised
+  mono WAV and a 96 kbps MP3 into the manifest's `takes` folder (`temp/` while a round is open).
+  One-shots keep only their loudest event.
+- `python scripts/audio/picker/build-picker.py <manifest> <out.html>` — builds the picker page from
+  `scripts/audio/picker/picker.html` with the takes embedded. It is published to the picker
+  artifact, which saves the owner's picks to its database document `picks/<round>`.
+- `python scripts/audio/stage-round.py <manifest> [--picks <picks.json>]` — ships each cue's game
+  option into `godot/asset/audio/sfx/library/` and writes the players. Files are named
+  `<cue>-<n>.wav`, or `<cue>.wav` for a single take, as the bake names them. It writes
+  `game/scenes/audio/footsteps.tscn` whole when the round has steps, and adds or updates the
+  players under `Effects` in `global.tscn`. Volumes come from measured loudness (`TARGET_DB`).
+  - Without `--picks`, it also copies every option's MP3s and `audition.json` to
+    `godot/asset/audio/sfx/audition/` for the in-game audition (`?audition`, F7/F8;
+    [audio spec §10](godot/specs/audio.md#10-steps-water-and-the-round-3-cues)). The release
+    Web export leaves that folder out.
+  - With the saved picks, it applies them. The picks are the `picks/<round>` document as JSON,
+    kept as `scripts/audio/picker/round-<n>-picks.json`.
+    - The shipped takes are also copied to
+      `asset/Originals/audio/magnific/<category>-<cue>-r<n>-<k>.wav`.
+    - Cues picked silent lose their players and files.
+    - The audition folder is removed. Stage the next open round afterwards.
+
+  After applying, register the shipped takes in `scripts/audio/cues.mjs` (library only, no synth
+  recipe) and `picks.json` so `pnpm audio:bake -- --library` keeps them.

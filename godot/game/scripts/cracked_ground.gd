@@ -19,6 +19,7 @@ const CREAK_TEXT_RISE := 50.0
 const CREAK_TEXT_MS := 2200.0
 const CREAK_INTERVAL_MS := 4000.0
 const CUE_CRACK := &"GroundCrack"
+const CUE_CREAK := &"GroundCreak"
 
 ## JSON `flagId`.
 @export var flag_id: String = ""
@@ -102,4 +103,5 @@ func _creak(at: Vector2) -> void:
 	_next_creak_ms = now + CREAK_INTERVAL_MS
 	var feel := Services.feel()
 	if feel != null:
+		feel.audio_cue(CUE_CREAK)
 		feel.floating_text(at - Vector2(0.0, CREAK_TEXT_RISE), CREAK_TEXT, &"yellow", true, CREAK_TEXT_MS)

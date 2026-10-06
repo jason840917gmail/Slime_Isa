@@ -155,6 +155,29 @@ func audio_cue(cue: StringName, payload: Variant = null) -> void:
 		(player as AudioStreamPlayer2D).play()
 
 
+## The mounted `audio.global` scene (its `Effects/<Cue>` players), or null without one. The sound
+## audition (game/dev/sound_audition.gd) swaps their takes.
+func global_audio() -> Node:
+	return _ensure_global_audio()
+
+
+## Stops a global cue started with `audio_cue` (a loop such as "SleepBreath"; Phaser
+## `GlobalAudioCuePort.stop`). Missing cue -> silently ignored.
+func stop_audio_cue(cue: StringName) -> void:
+	var root := _ensure_global_audio()
+	if root == null:
+		return
+	var player := root.find_child(String(cue), true, false)
+	if player == null:
+		return
+	if player.has_method("stop_cue"):
+		player.call("stop_cue")
+	elif player is AudioStreamPlayer:
+		(player as AudioStreamPlayer).stop()
+	elif player is AudioStreamPlayer2D:
+		(player as AudioStreamPlayer2D).stop()
+
+
 # --- private ---------------------------------------------------------------------------------
 
 func _now_real() -> float:

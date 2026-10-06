@@ -30,6 +30,8 @@ const DEFAULT_BADGE_RISE := 56.0
 @export var interact_radius: float = DEFAULT_RADIUS
 ## JSON `badgeRise`: how far above the door the key badge floats.
 @export var badge_rise: float = DEFAULT_BADGE_RISE
+## The global audio cue played when the door is used (the cracked-ground hole falls instead).
+@export var use_cue: StringName = &"DoorUse"
 
 
 func _enter_tree() -> void:

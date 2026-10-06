@@ -133,7 +133,7 @@ func assign_weapon_slot(weapon_id: String, index: int) -> void:
 
 # --- items ---------------------------------------------------------------------------------------
 
-## `useItem` (WorldScene.ts:2005-2024): heals ("+N", green, big, 30 px up, the Heal cue when HP
+## `useItem` (WorldScene.ts:2005-2024): plays the item's `use.cue`, heals ("+N", green, big, 30 px up, the Heal cue when HP
 ## rose), restores energy (EnergyRestore from a gain of 20), then takes one from the item's FIRST
 ## stack. A potion is used up even at full health (K10, kept: owner decision C4).
 func use_item(item_id: String) -> void:
@@ -143,6 +143,10 @@ func use_item(item_id: String) -> void:
 		return
 	var effects: Dictionary = use
 	var player := _player()
+	# The item's own sound (`use.cue`: the potions' drink, the basket's eat), before the heal.
+	var use_cue := str(effects.get("cue", ""))
+	if not use_cue.is_empty():
+		_cue(StringName(use_cue))
 	if float(effects.get("healHp", 0.0)) != 0.0:
 		var healed: int = player.heal(int(effects["healHp"])) if player != null else 0
 		if healed > 0:

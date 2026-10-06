@@ -14,6 +14,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
 ## Plates and bells find gates here by `gate_id`.
 const GROUP := &"gate"
+const CUE_OPEN := &"GateOpen"
 
 ## JSON `mapId`.
 @export var map_id: String = ""
@@ -79,6 +80,9 @@ func open(_payload: Variant = null) -> void:
 	if _opened:
 		return
 	_apply(true)
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_OPEN)
 	opened.emit({"gateId": gate_id})
 
 

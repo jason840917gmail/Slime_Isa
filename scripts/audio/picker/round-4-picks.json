@@ -1,0 +1,15 @@
+{
+ "round": "round-4",
+ "decidedAt": "2026-10-06T18:36:02.547Z",
+ "source": "Slime Isa Sound Picker, database document picks/round-4 (version 5), marked final by the owner",
+ "note": "",
+ "picks": {
+  "player.gulp-transform-frog": "a",
+  "player.gulp-transform-heavy": "a",
+  "player.gulp-transform-sticky": "a"
+ },
+ "dropped": {
+  "player.gulp-transform-heavy": {"a": [0]}
+ },
+ "wishes": {}
+}

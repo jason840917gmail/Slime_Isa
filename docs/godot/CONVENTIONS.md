@@ -72,7 +72,9 @@ title by itself (add `map` or `skip-title`). A new run starts empty-handed (Phas
 hands out every weapon and every ability. `?weapon=<id>` / `-- --weapon=<id>` gives a new run that weapon (bag, belt
 slot 1, hand); `?recipes` / `-- --recipes` makes every
 recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six development weapons
-at a new run ([specs/crafting.md](specs/crafting.md) C2, C3, 8.2).
+at a new run ([specs/crafting.md](specs/crafting.md) C2, C3, 8.2). `?audition` / `-- --audition`
+lets F8 and F7 switch the open Sound Picker round's options in the game
+([specs/audio.md](specs/audio.md) §10.3).
 
 ## Input and physics
 

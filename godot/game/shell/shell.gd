@@ -28,6 +28,9 @@ const GameSettings := preload("res://game/shell/game_settings.gd")
 const AreaTitles := preload("res://game/shell/area_titles.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const ShellMenu := preload("res://game/shell/shell_menu.gd")
+## The game windows' menu sounds, for the shell's own menus too.
+const CUE_MENU_OPEN := &"MenuOpen"
+const CUE_MENU_CLOSE := &"MenuClose"
 const PauseMenu := preload("res://game/shell/pause_menu.gd")
 const SettingsMenu := preload("res://game/shell/settings_menu.gd")
 const ControlsMenu := preload("res://game/shell/controls_menu.gd")
@@ -342,6 +345,7 @@ func _on_menu_opened(menu: ShellMenu) -> void:
 		other.visible = other == menu
 	if menu.pauses_game:
 		_set_paused(StringName(PAUSE_REASON_PREFIX + String(menu.surface_id)), true)
+	_menu_cue(CUE_MENU_OPEN)
 	menu_opened.emit(menu.surface_id)
 
 
@@ -355,7 +359,14 @@ func _on_menu_closed(menu: ShellMenu) -> void:
 		var top := _stack.back() as ShellMenu
 		top.visible = true
 		top.focus_initial()
+	_menu_cue(CUE_MENU_CLOSE)
 	menu_closed.emit(menu.surface_id)
+
+
+func _menu_cue(cue: StringName) -> void:
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(cue)
 
 
 ## WorldService pause reason; the tree directly when there is no WorldService.

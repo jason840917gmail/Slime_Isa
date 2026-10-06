@@ -1,0 +1,117 @@
+{
+ "round": "round-4",
+ "intro": "One transform sound per Gulp form, from your round-3 wish. The game already plays option A for each (for the Frog, the Bubbly pop take 3 you named). Pick one per form, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-4/takes",
+ "groups": [
+  {
+   "id": "transform",
+   "name": "A transform sound for each form",
+   "note": "From your round-3 wish: the Heavy like rock, the Frog with splashes or bubbles like Bubbly pop take 3. The Sticky had no wish, so it gets silk and glue takes. Each plays as the slime gulps into that form (the eat sound plays too)."
+  }
+ ],
+ "cues": [
+  {
+   "id": "player.gulp-transform-heavy",
+   "group": "transform",
+   "name": "Heavy",
+   "where": "Gulping stone: the slime turns into rock",
+   "node": "GulpTransformHeavy",
+   "ship": "player/gulp-transform-heavy",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Rock crunch",
+     "note": "A stone crunch and grinding shift ending in a low thud",
+     "kind": "oneshot",
+     "max": 1.4,
+     "takes": [
+      "temp/sound-round-3/raw/transform-heavy-a-1.mp3",
+      "temp/sound-round-3/raw/transform-heavy-a-2.mp3",
+      "temp/sound-round-3/raw/transform-heavy-a-3.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Boulder thunk",
+     "note": "A rocky rumble, clacking pebbles and a deep thunk",
+     "kind": "oneshot",
+     "max": 1.4,
+     "takes": [
+      "temp/sound-round-3/raw/transform-heavy-b-1.mp3",
+      "temp/sound-round-3/raw/transform-heavy-b-2.mp3",
+      "temp/sound-round-3/raw/transform-heavy-b-3.mp3"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.gulp-transform-sticky",
+   "group": "transform",
+   "name": "Sticky",
+   "where": "Gulping silk: the slime turns sticky",
+   "node": "GulpTransformSticky",
+   "ship": "player/gulp-transform-sticky",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Silk stretch",
+     "note": "A gooey squelch, strands pulling apart and a tacky snap",
+     "kind": "oneshot",
+     "max": 1.4,
+     "takes": [
+      "temp/sound-round-3/raw/transform-sticky-a-1.mp3",
+      "temp/sound-round-3/raw/transform-sticky-a-2.mp3",
+      "temp/sound-round-3/raw/transform-sticky-a-3.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Gluey boing",
+     "note": "A syrupy stretch, a sticky smack and a tiny boing",
+     "kind": "oneshot",
+     "max": 1.4,
+     "takes": [
+      "temp/sound-round-3/raw/transform-sticky-b-1.mp3",
+      "temp/sound-round-3/raw/transform-sticky-b-2.mp3",
+      "temp/sound-round-3/raw/transform-sticky-b-3.mp3"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.gulp-transform-frog",
+   "group": "transform",
+   "name": "Frog",
+   "where": "Gulping a frog: the slime can swim",
+   "node": "GulpTransformFrog",
+   "ship": "player/gulp-transform-frog",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Your pick: Bubbly pop 3",
+     "note": "Round 3's Bubbly pop take 3, as you asked",
+     "kind": "oneshot",
+     "max": 1.4,
+     "takes": [
+      "temp/sound-round-3/raw/gulp-transform-b-3.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Splash and bubbles",
+     "note": "A gloopy wobble, a small splash, rising bubbles and a pop",
+     "kind": "oneshot",
+     "max": 1.4,
+     "takes": [
+      "temp/sound-round-3/raw/transform-frog-c-1.mp3",
+      "temp/sound-round-3/raw/transform-frog-c-2.mp3",
+      "temp/sound-round-3/raw/transform-frog-c-3.mp3"
+     ]
+    }
+   ]
+  }
+ ]
+}

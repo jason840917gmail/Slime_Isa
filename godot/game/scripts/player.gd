@@ -49,6 +49,8 @@ const GulpHud := preload("res://game/player/gulp/gulp_hud.gd")
 const PlayerSwimming := preload("res://game/player/gulp/player_swimming.gd")
 const StatusEffects := preload("res://game/player/status_effects.gd")
 const GooTrail := preload("res://game/player/goo_trail.gd")
+## Steps, wading and swimming sounds (game/audio/footsteps.gd).
+const FootstepsScene := preload("res://game/scenes/audio/footsteps.tscn")
 const WheelStepper := preload("res://game/player/wheel_stepper.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
 
@@ -219,6 +221,9 @@ const CUE_ABILITY_DENIED := &"AbilityDenied"
 const CUE_RESPAWN := &"Respawn"
 const CUE_ENERGY_RESTORE := &"EnergyRestore"
 const CUE_EAT := &"Eat"
+const CUE_GULP_BURP := &"GulpBurp"
+const CUE_GULP_WEAR_OFF := &"GulpWearOff"
+const CUE_WEB_STRUGGLE := &"WebStruggle"
 const EFFECT_WEB := "web"
 const WEB_COVER_SCENE := "effect.spider-web-cover"
 ## Gulp form texts (WorldScene.ts:1093-1100): centre - 56.
@@ -285,6 +290,7 @@ func _ready() -> void:
 	_make_slam_area()
 	_make_gulp_hud()
 	_make_goo_trail.call_deferred()
+	_make_footsteps()
 	if body != null:
 		body.motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_register_receiver()
@@ -1010,6 +1016,13 @@ func on_gulp_form_changed(form: Dictionary, reason: String) -> void:
 			visual.self_modulate = form.get("tint", Color.WHITE)
 	if reason == "started" or reason == "refreshed":
 		_squash.play(&"gulp")
+		var transform_cue := StringName(form.get("transform_cue", &""))
+		if not transform_cue.is_empty():
+			_audio_cue(transform_cue)
+	elif reason == "burp":
+		_audio_cue(CUE_GULP_BURP)
+	elif reason == "expired":
+		_audio_cue(CUE_GULP_WEAR_OFF)
 	var text := ""
 	var color := &"white"
 	match reason:
@@ -1134,10 +1147,12 @@ func _move(direction: Vector2) -> void:
 		body.velocity = Vector2.ZERO
 		_play_direct(_locomotion_clip(CLIP_IDLE))
 		return
-	# Rooted (a web): no walking, the slime idles (PlayerController.ts:72-77).
+	# Rooted (a web): no walking, the slime idles (PlayerController.ts:72-77); pushing struggles
+	# (the cue's own minimum interval spaces the sound out).
 	if _status.is_rooted():
 		body.velocity = Vector2.ZERO
 		_play_direct(_locomotion_clip(CLIP_IDLE))
+		_audio_cue(CUE_WEB_STRUGGLE)
 		return
 	var unit: Vector2 = direction.normalized()
 	body.velocity = unit * speed
@@ -1613,6 +1628,12 @@ func _make_goo_trail() -> void:
 	trail.name = "GooTrail"
 	trail.player = self
 	parent.add_child(trail)
+
+
+func _make_footsteps() -> void:
+	var footsteps := FootstepsScene.instantiate()
+	footsteps.set(&"player", self)
+	add_child(footsteps)
 
 
 func _make_gulp_hud() -> void:

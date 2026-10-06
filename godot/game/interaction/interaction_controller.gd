@@ -55,6 +55,8 @@ const PRIORITY_RESTORATION := 89
 const PRIORITY_GULP := 60
 ## Message literals (UniversalSceneWorldController.ts:984-999, :909-915).
 const GATE_STUCK_MESSAGE := "The gate will not budge."
+const CUE_GATE_UNLOCK := &"GateUnlock"
+const CUE_GATE_LOCKED := &"GateLocked"
 const CHEST_GUARDED_PROMPT := "Chest locked by Fatty One Eye"
 const CHEST_EMPTY_PROMPT := "Inspect empty chest"
 const CHEST_OPEN_PROMPT := "Open chest"
@@ -370,18 +372,25 @@ func _npc_candidates(at: Vector2) -> Array[Dictionary]:
 
 func _use_door(door: Node) -> bool:
 	var result: Dictionary = door.call(&"use")
-	return str(result.get("status", "")) == "queued"
+	var queued := str(result.get("status", "")) == "queued"
+	if queued:
+		_cue(StringName(door.get(&"use_cue")))
+	return queued
 
 
 func _use_gate(gate: Node) -> bool:
 	var result := str(gate.call(&"try_unlock"))
 	var at: Vector2 = (gate.call(&"origin") as Vector2) - Vector2(0.0, float(gate.get(&"badge_rise")))
 	if result == "unlocked" or result == "already-unlocked":
+		if result == "unlocked":
+			_cue(CUE_GATE_UNLOCK)
 		gate.call(&"open")
 		_message(at, str(gate.get(&"unlocked_message")), &"green")
 	elif result == "missing-item":
+		_cue(CUE_GATE_LOCKED)
 		_message(at, str(gate.get(&"locked_message")), &"white")
 	else:
+		_cue(CUE_GATE_LOCKED)
 		_message(at, GATE_STUCK_MESSAGE, &"white")
 	return true
 
@@ -438,6 +447,12 @@ func _talk(npc: Node, kind: String) -> bool:
 
 
 # --- helpers -----------------------------------------------------------------------------------
+
+func _cue(cue: StringName) -> void:
+	var feel := Services.feel()
+	if feel != null and not cue.is_empty():
+		feel.audio_cue(cue)
+
 
 func _message(at: Vector2, text: String, color: StringName, big: bool = true) -> void:
 	var feel := Services.feel()

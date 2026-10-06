@@ -43,7 +43,7 @@
     "iconFrame": 0,
     "description": "Restores 40 HP.",
     "worldDrop": { "objectId": "collectible.hp-potion", "visualId": "hp-potion" },
-    "use": { "healHp": 40 }
+    "use": { "healHp": 40, "cue": "PotionDrink" }
   },
   "energy-potion": {
     "id": "energy-potion",
@@ -53,7 +53,7 @@
     "iconFrame": 6,
     "description": "Restores 50 energy.",
     "worldDrop": { "objectId": "collectible.energy-potion", "visualId": "energy-potion" },
-    "use": { "healEnergy": 50 }
+    "use": { "healEnergy": 50, "cue": "PotionDrink" }
   },
   "purple-berry-mat": {
     "id": "purple-berry-mat",
@@ -135,6 +135,6 @@
     "iconFrame": 50,
     "description": "A woven basket of sweet berries. Restores 20 HP and 30 energy.",
     "worldDrop": { "objectId": "collectible.berry-basket", "visualId": "berry-basket" },
-    "use": { "healHp": 20, "healEnergy": 30 }
+    "use": { "healHp": 20, "healEnergy": 30, "cue": "Eat" }
   }
 }

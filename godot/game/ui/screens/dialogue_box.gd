@@ -24,6 +24,8 @@ const SURFACE_ID := &"npc-dialogue"
 const GAME_WINDOWS_GROUP := &"game_windows"
 ## REVEAL_CHARS_PER_SECOND (NpcDialogueSurfacePort.ts).
 const REVEAL_CHARS_PER_SECOND := 45.0
+## A blip as letters appear (its player's minimum interval keeps it to about twelve a second).
+const CUE_TYPE := &"TalkBlip"
 ## Box: width min(760, viewport - 24), 196 tall, 24 above the bottom edge.
 const MAX_WIDTH := 760.0
 const SIDE_ROOM := 24.0
@@ -249,7 +251,12 @@ func _update_reveal() -> void:
 	var elapsed := float(clock.call()) - _page_started_ms
 	var target := mini(length, floori(maxf(0.0, elapsed) / 1000.0 * REVEAL_CHARS_PER_SECOND))
 	if target > _revealed:
+		var shown := _pages[_page].substr(_revealed, target - _revealed)
 		_revealed = target
+		if not shown.strip_edges().is_empty():
+			var feel := Services.feel()
+			if feel != null:
+				feel.audio_cue(CUE_TYPE)
 		_refresh()
 
 
