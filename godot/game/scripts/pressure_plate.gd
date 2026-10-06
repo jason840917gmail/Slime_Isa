@@ -11,6 +11,8 @@ class_name PressurePlateScript
 const Services := preload("res://game/shared/services.gd")
 
 const GATE_GROUP := &"gate"
+const CUE_PRESS := &"PlatePress"
+const CUE_RELEASE := &"PlateRelease"
 
 ## JSON `plateId`.
 @export var plate_id: String = ""
@@ -57,9 +59,11 @@ func _physics_process(_delta: float) -> void:
 	_down = loaded
 	_show_sunk(loaded)
 	if loaded:
+		_cue(CUE_PRESS)
 		_open_gates()
 		pressed.emit({"plateId": plate_id})
 	else:
+		_cue(CUE_RELEASE)
 		released.emit({"plateId": plate_id})
 
 
@@ -93,3 +97,8 @@ func _open_gates() -> void:
 	for gate: Node in get_tree().get_nodes_in_group(GATE_GROUP):
 		if str(gate.get(&"gate_id")) == gate_id:
 			gate.call(&"open")
+
+static func _cue(cue: StringName) -> void:
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(cue)

@@ -245,6 +245,29 @@ today, and only real blockers get fixed.
   Open: `BossMusic` is a placeholder (the town theme pitched up) until a boss
   track is sourced.
 
+### [x] 3.11 — Steps, water and the silent actions (Sound Picker rounds 3 and 4), applied 2026-10-06
+
+- Built 2026-10-06:
+  - Steps on every ground, wading, the waterline splashes and swim strokes
+    (`game/audio/footsteps.gd`).
+  - New cues for the Gulp forms (one transform sound per form), the lash catch, plates, gates,
+    doors, the training dummy, cracked ground and dialogue typing.
+  - Earlier picks that nothing played are now wired: coins, drops, potions, sleep, web struggle,
+    dull and blocked hits, save, the quest toast and the shell menus. Details:
+    [audio spec §10](godot/specs/audio.md#10-steps-water-and-the-round-3-cues).
+  - 42 sounds with options are on the
+    [Sound Picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ), round 3. Steps have a
+    Walk button in the slime's rhythm. `?audition` switches the options in the game (F7/F8).
+  - `godot/tests/test_footsteps.gd` covers the steps, water and new cues.
+- Round 3 picks applied 2026-10-06 (`scripts/audio/picker/round-3-picks.json`). Steps play well
+  under the rest, as the owner asked. A lash miss stays silent. The shipped takes are registered
+  in `cues.mjs` and `picks.json`.
+- Round 4 picks applied 2026-10-06 (`round-4-picks.json`): one transform sound per Gulp form.
+  The Heavy sounds like rock, the Frog plays round 3's Bubbly pop take 3 as the owner named it,
+  and the Sticky has a silk stretch. They are registered for the bake.
+- Not covered yet: enemy footsteps and strike whooshes, Fatty's chase steps (the takes exist),
+  the gulp wheel, the ability-ready sound, button hover.
+
 The cue list, hooks, and sourcing rules are in the
 [Audio & SFX implementation plan](archive/phaser/superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
 

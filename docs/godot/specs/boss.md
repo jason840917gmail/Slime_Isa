@@ -122,7 +122,8 @@ boss spawn = (2528, 1472) (Fatty's feet at (2528, 1514)). The chest sits at (252
 - Leap: first one 5000 ms after spawn; small hops 3 × (260 + 100) = **1080 ms**; flight 1000 ms;
   landing 360 ms; recovery 700 ms; the next leap 5000 ms after recovery ends (a full cycle is at
   least 8140 ms). Landing hit: max(1, 32 − 3) = **29**, knockback 280.
-- Spear only: the basic sword is rejected `source-blocked` (no flash, number or sound). A basic
+- Spear only: the basic sword is rejected `source-blocked` (no flash or number; since 2026-10-06
+  the `HitBlocked` clink, [audio.md](audio.md) §10.2). A basic
   spear hit does 30 (combo tiers ×1, ×1.15, ×1.5; crit 5 %), so about five hits.
 
 ---

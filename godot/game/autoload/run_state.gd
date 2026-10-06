@@ -183,12 +183,16 @@ func coins() -> int:
 	return int(player.get("coins", 0))
 
 
-## GameState.addCoins: `max(0, coins + amount)`; nothing for 0.
+## GameState.addCoins: `max(0, coins + amount)`; nothing for 0. A gain plays the `Coin` cue
+## (Phaser's AudioEventBridge played it on `coins.changed` with a positive delta).
 func add_coins(amount: int) -> void:
 	if amount == 0:
 		return
 	player["coins"] = maxi(0, coins() + amount)
 	coins_changed.emit({"coins": coins(), "delta": amount})
+	var feel := Services.feel()
+	if amount > 0 and feel != null:
+		feel.audio_cue(&"Coin")
 
 
 ## GameState.spendCoins: false (and nothing spent) when there are too few.

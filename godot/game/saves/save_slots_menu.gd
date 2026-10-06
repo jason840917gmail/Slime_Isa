@@ -26,6 +26,7 @@ const AUTOSAVE_SLOT := 0
 const MAIN_SCENE := "res://game/main.tscn"
 const WORLD_MAIN_GROUP := &"world_main"
 const SEPARATOR := "  ·  "
+const CUE_SAVED := &"Save"
 const SAVE_FAILED := "Could not save."
 const LOAD_FAILED := "That save could not be loaded."
 
@@ -164,6 +165,10 @@ func _on_cancel() -> void:
 
 func _report(saved: bool, slot: int) -> void:
 	_status = ("Saved to %s." % slot_name(slot)) if saved else SAVE_FAILED
+	if saved:
+		var feel := Services.feel()
+		if feel != null:
+			feel.audio_cue(CUE_SAVED)
 	refresh()
 
 

@@ -15,6 +15,8 @@ const Services := preload("res://game/shared/services.gd")
 const AbilityWorld := preload("res://game/player/abilities/ability_world.gd")
 const AbilityTerrain := preload("res://game/player/abilities/ability_terrain.gd")
 
+## The tendril hooks a pickup or an anchor (a miss snaps back silently: owner, Sound Picker round 3).
+const CUE_CATCH := &"LashCatch"
 const TENDRIL_TEXTURE := "res://asset/MAPS/effects/384x96-tile_4x2-stretch-lash.webp"
 const TENDRIL_FRAME_WIDTH := 384.0
 const TENDRIL_ORIGIN_Y := 52.0
@@ -105,11 +107,13 @@ func _catch() -> void:
 	match str(_probe.get("kind", "none")):
 		"light":
 			_set_frame(4)
+			_player.call(&"action_cue", CUE_CATCH)
 			_pull_pickup(_probe.get("pickup"))
 			_frames = [[CATCH_MS + 60.0, 6], [CATCH_MS + 120.0, 7], [CATCH_MS + 170.0, -1]]
 			_done_ms = CATCH_MS + 170.0
 		"heavy":
 			_set_frame(4)
+			_player.call(&"action_cue", CUE_CATCH)
 			var caught: Vector2 = _probe["at"]
 			AbilityWorld.lash_ring(_from, caught)
 			_landing = AbilityTerrain.lash_landing(_from, _probe.get("anchor", caught))

@@ -37,6 +37,11 @@ const ATTACK_STAT_BASELINE := 10.0
 const IDLE_CLIP := "idle"
 const RESOURCE_TAG := "resource"
 const CRIT_AUDIO_CUE := &"Crit"
+## A weapon without an impact effect (gauntlet, axes, pickaxes) still thuds on a hit; a hit the
+## target refuses (Fatty in the air, an immune target) clinks.
+const DULL_HIT_CUE := &"HitDull"
+const BLOCKED_HIT_CUE := &"HitBlocked"
+const BLOCKED_REASONS: Array[String] = ["source-blocked", "state-blocked", "immune"]
 
 var _player: PlayerScript
 var _weapon: WeaponScript
@@ -203,15 +208,19 @@ func transform_damage(damage: float, target: Dictionary) -> int:
 	return maxi(0, roundi(damage * modifier * float(combo["multiplier"])))
 
 
-## `onManagedWeaponOutcome` (combat spec 9): rejected -> nothing; actual > 0 -> crit sting once
+## `onManagedWeaponOutcome` (combat spec 9): rejected -> the HitBlocked clink for a refused hit
+## (BLOCKED_REASONS; Phaser was silent); actual > 0 -> crit sting once
 ## (audio cue "Crit"), `feel().play(&"hit")`, particles "hit-spark" at target centre - (0, 12),
-## impact effect `on_hit_effect_id` via EffectSpawner in front of the target.
+## impact effect `on_hit_effect_id` via EffectSpawner in front of the target (none: the HitDull cue).
 ## `target` = {"area": Area2D, "receiver": Object, "position": Vector2 (target centre =
 ## area.global_position), "attack_direction": String, "tags": Array[String]}.
 func on_outcome(outcome: Dictionary, target: Dictionary) -> void:
-	if outcome.get("status", "") != "accepted":
-		return
 	var tags: Array = target.get("tags", [])
+	if outcome.get("status", "") != "accepted":
+		var feel_rejected := Services.feel()
+		if feel_rejected != null and not tags.has(RESOURCE_TAG) and BLOCKED_REASONS.has(str(outcome.get("reason", ""))):
+			feel_rejected.audio_cue(BLOCKED_HIT_CUE)
+		return
 	if tags.has(RESOURCE_TAG):
 		return
 	var actual := int(outcome.get("actual_damage", 0))
@@ -229,6 +238,8 @@ func on_outcome(outcome: Dictionary, target: Dictionary) -> void:
 		feel.particles(&"hit-spark", centre - Vector2(0.0, HIT_SPARK_RISE_PX))
 	var weapon := get_weapon()
 	if weapon == null or weapon.on_hit_effect_id.is_empty():
+		if feel != null:
+			feel.audio_cue(DULL_HIT_CUE)
 		return
 	var direction := str(target.get("attack_direction", Directions.RIGHT))
 	var effect := EffectSpawner.spawn_in_front(weapon.on_hit_effect_id, direction, centre, _target_feet(target, centre))

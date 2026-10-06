@@ -25,6 +25,7 @@ const AbilityDefinitions := preload("res://game/player/abilities/ability_definit
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 
 const AVAILABLE_LIFT := 112.0
+const CUE_AVAILABLE := &"Toast"
 const TOAST_LIFT := 70.0
 const REWARD_TOP := 46.0
 const REWARD_STEP := 20.0
@@ -71,6 +72,9 @@ func disconnect_all() -> void:
 
 
 func _on_available(payload: Dictionary) -> void:
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_AVAILABLE)
 	_toast("New quest available: " + QuestCatalog.title(str(payload.get("questId", ""))), &"yellow", true, AVAILABLE_LIFT)
 
 

@@ -54,6 +54,7 @@ target_door_id = "ladder"
 prompt = "Climb down"
 interact_radius = 80.0
 badge_rise = 70.0
+use_cue = &"FallDown"
 
 [node name="arrival" type="Node2D" parent="Broken/Door"]
 y_sort_enabled = true

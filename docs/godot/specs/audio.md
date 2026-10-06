@@ -198,6 +198,7 @@ The bridge listens to `gameEvents` and plays `Effects/<Cue>` of `audio.global` t
 `createGlobalAudioCuePort` (`infrastructure/audio/GlobalAudioCuePort.ts:7-30`: only nodes under
 `Effects`, a missing cue warns once in dev and is otherwise silent; `stop(cue)` stops a loop).
 Positional and per-entity sounds stay in their own scenes, wired by scene connections (`:12-13`).
+The cues Godot added after the port (steps, water, Gulp forms, puzzles, typing) are in §10.
 Godot: `GameFeel.audio_cue(cue)` plays the same node (it searches the whole `GlobalAudio` tree,
 `game_feel.gd:143-155`; no cue name repeats outside `Effects`, so this is equivalent).
 
@@ -213,14 +214,14 @@ Godot: `GameFeel.audio_cue(cue)` plays the same node (it searches the whole `Glo
 | `ground.cracked`, `lash-bell.rung`, `web.torn`, `building.restored`, `building.restore-refused {reason:'missing-materials'}`, `goo-heart.collected` (`WorldScene.ts`) | `GroundCrack`, `BellRing`, `WebTear`, `BuildingRestored`, `CraftFail`, `Heal` (placeholder) | abilities / world objects |
 | `energy.changed {delta ≥ 20}` (`GameState.ts`) | `EnergyRestore` (also on every respawn refill) | abilities (energy) |
 | `player.heal {source ≠ 'rest'}` (`GameState.ts`) | `Heal` | inventory (consumables) |
-| `coins.changed {delta > 0}` (`GameState.ts:108-112`) | `Coin` | inventory |
+| `coins.changed {delta > 0}` (`GameState.ts:108-112`) | `Coin` | `run_state.gd` `add_coins` (a gain) |
 | `weapon.equipped {weaponId}` (`GameState.ts:169-173`, also on restore/reset `:82, 92`) | `EquipBlade` if the id matches `sword\|spear`, else `EquipTool`; nothing for `null` | inventory (weapon switching) |
 | `craft.completed` / `craft.failed` (`crafting/Crafting.ts`, `features/ui/CraftingSurfacePort.ts`) | `CraftSuccess` / `CraftFail` | crafting |
 | `npc.talked` (`features/interaction/QuestNpcController.ts`) | `NpcBlip` | dialogue |
 | `quest.accepted` / `.progressed` / `.stage-completed` / `.completed` / `.failed` (`quests/QuestService.ts`) | `QuestAccept` / `QuestProgress` / `QuestProgress` / `QuestComplete` / `QuestFailed` | quests |
-| `status.added {kind}` / `status.removed` (`systems/StatusEffects.ts`) | `StatusBurn` … `StatusFrenzy` / `StatusExpire` | status effects (not ported) |
-| `player.sleep {asleep}` / `player.rested` (`WorldScene.ts`) | `SleepBreath` play / stop, `Rested` | sleep (not ported) |
-| any modal opens / closes (`ui/ModalStack`, `AudioEventBridge.ts:104-109`) except `chest-inventory` and `furniture-placement` | `JournalOpen` for `quest-journal`, else `MenuOpen`; `MenuClose` | shell / UI (each menu that opens or closes) |
+| `status.added {kind}` / `status.removed` (`systems/StatusEffects.ts`) | `StatusBurn` … `StatusFrenzy` / `StatusExpire` | `player/status_effects.gd` (only `sticky` is applied today) |
+| `player.sleep {asleep}` / `player.rested` (`WorldScene.ts`) | `SleepBreath` play / stop, `Rested` | `rest/sleep_controller.gd`: the loop starts with deep sleep and stops on waking (`GameFeel.stop_audio_cue`) |
+| any modal opens / closes (`ui/ModalStack`, `AudioEventBridge.ts:104-109`) except `chest-inventory` and `furniture-placement` | `JournalOpen` for `quest-journal`, else `MenuOpen`; `MenuClose` | game windows (`game_windows.gd`) and the shell's menus (`shell.gd` `_on_menu_opened` / `_closed`) |
 
 No death cue is global: the player's `DeathSfx` and `HurtSfx` live in the player scene
 (connections `defeated` / `damaged` → `play`, player spec), and the defeat itself only plays
@@ -391,3 +392,89 @@ main leaves the tree) except the travel test, which runs on real time.
   `set_menu_paused` ducks too.
 - Locked audio freezes the gains (not the duck) and holds a wanted boss track until unlock.
 - `apply_mix`: bus volumes and the master mute as §6.1 (restored afterwards).
+
+---
+
+## 10. Steps, water and the round-3 cues
+
+Added 2026-10-06 (Sound Picker round 3): the actions the Phaser game left silent. The owner
+chose their takes on the [Sound Picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ):
+`scripts/audio/picker/round-3.json`, picks in `round-3-picks.json`. Round 4 added one transform
+sound per Gulp form (`round-4.json`, `round-4-picks.json`). Both rounds were applied 2026-10-06.
+The workflow is in [TOOLING.md](../../TOOLING.md#sound-picker-rounds).
+Steps, wading and strokes are mixed well under the one-shots, at the owner's request ("make steps
+softer than the rest"). The levels are the `TARGET_DB` of `scripts/audio/stage-round.py`.
+
+### 10.1 Steps, wading and swimming (`game/audio/footsteps.gd`)
+
+The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`. It has one
+`sfx_player.gd` per surface, on the Effects bus, holding its takes in an AudioStreamRandomizer.
+- **Step**: each time a `walk` clip starts or loops. Frame 0 of every walk row is the slime's
+  squash, the moment it lands, so a step comes about every 0.54 s. The surface is the `tile_id`
+  of the ground cell under the feet, mapped by `surface_by_ground`:
+
+  | Ground ids | Player |
+  |---|---|
+  | `grass-a`, `grass-b` | `Grass` |
+  | `forest-floor`, `forest-moss` | `Forest` |
+  | `amberleaf-ground` | `Leaves` |
+  | `sanddessert-ground` | `Sand` |
+  | `frozen-ground` | `Snow` |
+  | `town-cobble` | `Stone` |
+  | `cavern-floor`, `rock-wall` | `Cave` |
+  | `crystal-floor` | `Crystal` |
+  | `wood-floor` | `Wood` |
+  | `mushroom-earth-floor`, `mushroom-plain-floor`, `mushroom-clover-floor` | `Soft` |
+  | `water` (and `deep-water` under a walker) | `Shallow` (wading) |
+
+- **Stroke** (`Swim`): while swimming (the Frog form in deep water) and moving faster than
+  8 units/s. One plays as the slime starts to move and one at each loop of the swim clip (about
+  1.1 s). Floating still plays none, though the swim clip loops then too.
+- **Crossing the waterline**: land → shallows plays `WaterEnter`; starting to swim plays
+  `SwimEnter`; climbing out onto land plays `WaterExit`. Swimming back into the shallows is quiet.
+- Nothing plays in the air (`is_airborne`, the jump and ledge drops) or on a cell without a tile.
+- Each player's minimum interval (steps 180 ms, strokes 300 ms) absorbs a clip restart when the
+  facing changes.
+
+### 10.2 Global cues added (`Effects/<Cue>` in `global.tscn`)
+
+| Cue | Plays when | Where |
+|---|---|---|
+| `GulpTransformHeavy` / `GulpTransformSticky` / `GulpTransformFrog` | that form starts or is refreshed (the form's `transform_cue` in `gulp_forms.gd`; the eat sound plays too) | `player.gd` `on_gulp_form_changed` |
+| `GulpBurp` / `GulpWearOff` | a tap away from a spot ends the form / the form's time runs out | same |
+| `LashCatch` | the tendril hooks a pickup or an anchor (a miss stays silent, the owner's pick) | `lash_sequence.gd` `_catch` |
+| `WebStruggle` | a direction held while a web roots the slime (700 ms apart) | `player.gd` `_move` |
+| `FallDown` | climbing down the cracked-ground hole (that door's `use_cue`) | `interaction_controller.gd` `_use_door` |
+| `DoorUse` | any other door, hut or ladder (`door.gd` `use_cue` default) | same |
+| `PlatePress` / `PlateRelease` | a pressure plate goes down / comes back up | `pressure_plate.gd` |
+| `GateOpen` | a gate opens (plate, bell or key) | `gate.gd` `open` |
+| `GateUnlock` / `GateLocked` | a key unlocks a gate / a gate stays shut (no key, stuck) | `interaction_controller.gd` `_use_gate` |
+| `GroundCreak` | cracked ground creaks under a Heavy slime (with its text, 4 s apart) | `cracked_ground.gd` |
+| `DummyHit` | any hit on the training dummy | `training_dummy.gd` |
+| `DropPop` / `DropLand` | each loot or resource pile flies out / lands | `resource_drops.gd` `_launch` |
+| `PotionDrink` | the item's `use.cue` (both potions; the berry basket plays `Eat`) | `inventory_actions.gd` `use_item` |
+| `HitDull` | a player hit with a weapon that has no impact effect (gauntlet, axes, pickaxes) | `player_combat.gd` `on_outcome` |
+| `HitBlocked` | a player hit refused as `source-blocked`, `state-blocked` or `immune` (Fatty in the air; Phaser was silent) | same |
+| `Save` | a save to a slot succeeds | `save_slots_menu.gd` `_report` |
+| `Toast` | "New quest available" | `quest_notifications.gd` |
+| `TalkBlip` | letters appear in the dialogue box (80 ms apart at most) | `dialogue_box.gd` `_update_reveal` |
+
+### 10.3 Sound audition (dev)
+
+`?audition` on the web (Web (dev) export) or `-- --audition` on desktop adds
+`game/dev/sound_audition.gd`. F8 / F7 step through the option sets (what the game plays, A, B,
+round 2). Every staged cue that has the set's option plays those takes from
+`res://asset/audio/sfx/audition/` (MP3s plus `audition.json`, written by `stage-round.py`), at the
+volume measured for them. A corner panel names the set and the ground under the slime. The release
+Web export excludes the audition folder; applying the picks deletes it. It holds only the open
+round's cues. With no round open (since round 4 was applied) the folder is gone and the panel
+switches nothing.
+
+### 10.4 Tests
+
+`godot/tests/test_footsteps.gd` (level-1's lake) covers these:
+- steps once per walk cycle on the ground under the feet, and none standing;
+- one splash walking into the shallows, then wading;
+- the Frog's plunge, no strokes floating still, strokes swimming;
+- the form's own transform cue, the burp, and no lash-miss player;
+- every added cue has a player with takes.

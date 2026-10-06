@@ -18,7 +18,7 @@ required. The `magnific` pack was generated for this project.
 | `rubberduck-creature-2` | 80 CC0 creature SFX #2 | rubberduck | https://opengameart.org/content/80-cc0-creture-sfx-2 |
 | `rubberduck-slime` | 40 CC0 water/splash/slime SFX | rubberduck | https://opengameart.org/content/40-cc0-water-splash-slime-sfx |
 | `artisticdude-swishes` | Swishes Sound Pack | artisticdude | https://opengameart.org/content/swishes-sound-pack |
-| `magnific` | Generated for Slime Isa with Magnific (ElevenLabs sound effects), trimmed and normalized: the Workshop restoration and the 20 sounds replaced after the owner's picks | the project | `asset/Originals/audio/magnific/` (copy this folder in as `magnific`) |
+| `magnific` | Generated for Slime Isa with Magnific (ElevenLabs sound effects), trimmed and normalized: the Workshop restoration, the 20 sounds replaced after the owner's picks, and the round-3 steps, water and action sounds (2026-10-06; steps cut from generated walks by `scripts/audio/slice-steps.py`) | the project | `asset/Originals/audio/magnific/` (copy this folder in as `magnific`) |
 
 `scripts/audio/cues.mjs` lists the original file for every library take (the `library` field; `<pack-folder>/<name>`
 where a name exists in more than one pack). To re-import, unpack each zip into a folder named as above inside one

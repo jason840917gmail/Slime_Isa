@@ -71,6 +71,7 @@ const InventoryActions := preload("res://game/inventory/inventory_actions.gd")
 const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
 const LaunchOptions := preload("res://game/shell/launch_options.gd")
+const SOUND_AUDITION_SCRIPT := "res://game/dev/sound_audition.gd"
 const ControlHints := preload("res://game/hints/control_hints.gd")
 const FurniturePlacement := preload("res://game/building/furniture_placement.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
@@ -177,6 +178,10 @@ func _ready() -> void:
 	# Dev stand-in until quests teach recipes (crafting owner decision C2): `?recipes` / `--recipes`.
 	if run != null and has_launch_option("recipes"):
 		run.debug_all_recipes_known = true
+	# Dev: `?audition` / `--audition` switches the new sounds between the Sound Picker's options
+	# (game/dev/sound_audition.gd, loaded only when asked: release builds leave game/dev out).
+	if has_launch_option("audition") and ResourceLoader.exists(SOUND_AUDITION_SCRIPT):
+		add_child((load(SOUND_AUDITION_SCRIPT) as GDScript).new())
 	add_child(ControlHints.new())
 	furniture = FurniturePlacement.new()
 	add_child(furniture)

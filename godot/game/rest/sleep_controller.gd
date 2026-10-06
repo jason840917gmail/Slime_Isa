@@ -17,6 +17,9 @@ const ZZZ_INTERVAL_MS := 900.0
 const WAKE_INPUT_GRACE_MS := 400.0
 const CLIP_DOZE := "doze"
 const CLIP_SLEEP := "sleep"
+## The snore loop while deeply asleep, and the chime once health is full.
+const CUE_SLEEP_BREATH := &"SleepBreath"
+const CUE_RESTED := &"Rested"
 ## Presentation literals (WorldScene onFellAsleep / SleepController): texts relative to the sleep point.
 const RESPAWN_TEXT_RISE := 48.0
 const RESTED_TEXT_RISE := 36.0
@@ -92,6 +95,9 @@ func update(delta_ms: float, wake_requested: bool) -> void:
 			return
 		_phase = "sleeping"
 		_player.call(&"play_animation", CLIP_SLEEP, true)
+		var feel := Services.feel()
+		if feel != null:
+			feel.audio_cue(CUE_SLEEP_BREATH)
 	_restore_health(delta_ms)
 	if now >= _next_zzz_at:
 		_next_zzz_at = now + ZZZ_INTERVAL_MS
@@ -106,6 +112,9 @@ func wake(reason: String) -> void:
 	var request := _request
 	_phase = ""
 	_request = {}
+	var feel := Services.feel()
+	if feel != null:
+		feel.stop_audio_cue(CUE_SLEEP_BREATH)
 	_player.call(&"set_art_offset", Vector2.ZERO)
 	if reason == "teardown":
 		return
@@ -138,6 +147,7 @@ func _restore_health(delta_ms: float) -> void:
 			var feel := Services.feel()
 			if feel != null:
 				var at: Vector2 = _request["sleep_point"]
+				feel.audio_cue(CUE_RESTED)
 				feel.floating_text(at - Vector2(0.0, RESTED_TEXT_RISE), "Fully rested", &"green", false)
 		return
 	var constants := Services.constants()

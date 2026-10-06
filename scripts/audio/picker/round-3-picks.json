@@ -1,0 +1,31 @@
+{
+ "round": "round-3",
+ "decidedAt": "2026-10-06T18:24:50.974Z",
+ "source": "Slime Isa Sound Picker, database document picks/round-3 (version 97), marked final by the owner",
+ "note": "make steps softer than the rest i don't want to get annoying by the steps ",
+ "picks": {
+  "footstep.cave": "a", "footstep.crystal": "a", "footstep.forest": "r2", "footstep.grass": "a", "footstep.leaves": "a",
+  "footstep.sand": "a", "footstep.snow": "r2", "footstep.soft": "a", "footstep.stone": "a", "footstep.water": "b",
+  "footstep.wood": "a",
+  "player.burp": "a", "player.coin": "e", "player.fall": "a", "player.gulp-transform": "replace", "player.gulp-wear-off": "a",
+  "player.lash-catch": "a", "player.lash-miss": "replace", "player.potion-drink": "e", "player.rested": "e",
+  "player.sleep-breath": "e", "player.swim-enter": "a", "player.swim-stroke": "b", "player.water-enter": "a",
+  "player.water-exit": "a", "player.web-struggle": "e",
+  "resource.drop-land": "e", "resource.drop-pop": "e",
+  "ui.shell-menu": "e", "ui.talk-blip": "b", "ui.toast": "e",
+  "weapon.hit-blocked": "e", "weapon.hit-dull": "e",
+  "world.door": "a", "world.dummy-hit": "b", "world.gate-locked": "e", "world.gate-open": "a", "world.gate-unlock": "e",
+  "world.ground-creak": "a", "world.plate-press": "a", "world.save": "e"
+ },
+ "dropped": {
+  "footstep.cave": {"a": [3]}, "footstep.crystal": {"a": [0, 1]}, "footstep.forest": {"r2": [2]},
+  "footstep.grass": {"a": [2, 3], "r2": [2]}, "footstep.leaves": {"a": [3]}, "footstep.sand": {"a": [0], "r2": [1]},
+  "footstep.snow": {"r2": [0]}, "footstep.stone": {"r2": [0]}, "player.swim-stroke": {"b": [3]},
+  "world.ground-creak": {"a": [1, 2]}, "world.plate-release": {"a": [0, 1]}
+ },
+ "wishes": {
+  "player.gulp-transform": "the transformation sound should be unique for each form heavy is like a rock while frog can have splash or bubbles like number 3 option on Bubbly pop",
+  "player.lash-miss": "no sound if lash misses "
+ },
+ "applied": "world.plate-release was left on the game's option (a) with takes 1 and 2 dropped. player.lash-miss ships nothing and the lash no longer calls it. player.gulp-transform became one cue per form (round 4: GulpTransformHeavy, GulpTransformSticky, GulpTransformFrog; the frog's default is round-3 option b take 3). Steps (the wading too) play 6 dB softer and swim strokes 5 dB softer than staged (TARGET_DB in stage-round.py)."
+}

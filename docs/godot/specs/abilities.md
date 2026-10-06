@@ -699,8 +699,10 @@ preferred_material: last_material if carried, else the first carried in table or
 1. `restorePlayerTint()` (`:1191-1197`): skin texture if it exists, else the tint (multiply);
    no form → own texture, no tint.
 2. `gulp.changed {formId | null, reason}` → `started`/`refreshed`: squash `gulp` (1.24, 0.86 → 1
-   in 320 ms Elastic.Out; skipped while an ability is busy) (`:453`). No audio cue for
-   `gulp.changed` (the eat clip's `Eat` cue sounds).
+   in 320 ms Elastic.Out; skipped while an ability is busy) (`:453`). Phaser had no audio cue
+   for `gulp.changed` (only the eat clip's `Eat`); Godot adds the form's `transform_cue`
+   (`GulpTransformHeavy` / `Sticky` / `Frog`), and `GulpBurp` / `GulpWearOff` for `burp` /
+   `expired` ([audio.md](audio.md) §10.2).
 3. Floating text at (centre.x, centre.y − 56), big: started → `"HEAVY!"` / `"STICKY!"` cyan;
    refreshed → `"Heavy refreshed"` cyan; burp → `"Burp!"` white; expired → `"The form wore off"`
    white; switched / cleared → none.

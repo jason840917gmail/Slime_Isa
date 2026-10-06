@@ -11,6 +11,7 @@ const Services := preload("res://game/shared/services.gd")
 
 const RULE := {"priority": 0, "damageMultiplier": 1}
 const TEXT_RISE := 96.0
+const CUE_HIT := &"DummyHit"
 ## Wobble: 0.22 rad decaying by e^(-4.5 t), cos(6 pi t); stops under 0.004 rad.
 const WOBBLE_AMPLITUDE := 0.22
 const WOBBLE_DECAY := 4.5
@@ -64,6 +65,8 @@ func commit_damage(commit: Dictionary) -> void:
 	_side = -1.0 if knock.x < 0.0 else 1.0
 	var root := get_parent() as Node2D
 	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_HIT)
 	if feel != null and root != null:
 		feel.floating_text(root.global_position - Vector2(0.0, TEXT_RISE), str(roundi(actual)), &"orange", true)
 	hit.emit({"damage": actual})
