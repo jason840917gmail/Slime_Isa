@@ -1,22 +1,28 @@
 extends SceneTree
 ## Builds the terrain layers lab (docs/godot/TERRAIN_LAB.md): res://game/dev/terrain_lab/
 ## terrain_layers_lab.tscn, the terrain lab's layout drawn with Godot's own Terrains instead of
-## TerrainEdges, to compare the two.
+## TerrainEdges, to compare the two (tools/compare_terrain_edges.gd measures the difference).
 ##
-## Its tile set (terrain_layers_tileset.tres) has one terrain set in Match Corners mode with a
-## terrain per ground. Each ground's 16 hand-made edge tiles are tagged the way you would tag them
-## by hand in the TileSet editor: the centre is the ground, and a corner is the ground where the
-## tile's art covers it. Every ground has its own TileMapLayer, stacked in TerrainMaterials.ORDER
-## (water at the bottom, crystal on top). The cells are painted with set_cells_terrain_connect,
-## which is what the TileMap panel's Terrains tab does in Connect mode, so Godot picks every tile.
-## Water has no edge art: its layer holds plain full tiles (paint it from the Tiles tab).
+## Its tile set (terrain_layers_tileset.tres) has one terrain set in Match Corners and Sides mode
+## with a terrain per ground. Each ground's 16 hand-made edge tiles are tagged the way the owner
+## tagged sand, snow and cobble in the TileSet editor (2026-10-05): a corner is the ground where the
+## tile's art covers it, a side is the ground where both of its corners are covered, and only the
+## tiles with three or four covered corners carry the ground as their centre. Those are the cells
+## you paint; the other tiles are rims Godot puts on the cells around them.
 ##
-## Two copies of the layout: A paints each ground only on its own cells; B also paints every
-## ground under the grounds above it (a base layer under each patch).
+## Every ground has its own TileMapLayer, stacked in TerrainMaterials.ORDER (water at the bottom,
+## crystal on top). The cells are painted with set_cells_terrain_connect the way the TileMap
+## panel's Terrains tab paints in Connect mode, so Godot picks every tile. Water has no edge art:
+## its layer holds plain full tiles (paint it from the Tiles tab).
+##
+## The scene has three areas: free painting at the top (kept when this tool re-runs), then the
+## terrain lab's map twice: A paints each ground only on its own cells; B also paints every ground
+## under the grounds above it (a base layer under each patch).
 ##
 ## Run with the Godot 4.7.2 console exe (needs the art imported):
-##     --headless --path godot -s res://tools/build_terrain_layers_lab.gd
-## Safe to re-run: it rewrites the scene and its tile set (paint you added is lost).
+##     --headless --path godot -s res://tools/build_terrain_layers_lab.gd [-- --fresh]
+## It rewrites the tile set and the scene. Paint in the free area is kept (cells above row
+## FREE_ROWS on every layer); `--fresh` starts that area again as plain water.
 
 const TerrainLab := preload("res://tools/build_terrain_lab.gd")
 const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materials.gd")
@@ -32,7 +38,11 @@ const ART_TILE := 128
 const GUTTER := 2
 const SHEET_CELLS := 19
 const TERRAIN_SET := 0
-## Empty rows between copy A and copy B.
+## The Terrains tab paints with empty cells taking part in the vote (ignore_empty_terrains =
+## false). The script default (true) paints nothing at all for one-cell features with this tagging.
+const IGNORE_EMPTY := false
+## Rows of the free painting area; copy A starts GAP_ROWS below it, copy B GAP_ROWS below A.
+const FREE_ROWS := 17
 const GAP_ROWS := 3
 ## The full tile of a 4 x 4 edge sheet (all four corners covered); water uses it as a plain tile.
 const FULL := Vector2i(3, 3)
@@ -46,6 +56,11 @@ const CORNERS: Array[TileSet.CellNeighbor] = [
 	TileSet.CELL_NEIGHBOR_TOP_LEFT_CORNER, TileSet.CELL_NEIGHBOR_TOP_RIGHT_CORNER,
 	TileSet.CELL_NEIGHBOR_BOTTOM_LEFT_CORNER, TileSet.CELL_NEIGHBOR_BOTTOM_RIGHT_CORNER,
 ]
+## Side -> the two corner bits that must both be covered.
+const SIDES := {
+	TileSet.CELL_NEIGHBOR_TOP_SIDE: 1 | 2, TileSet.CELL_NEIGHBOR_BOTTOM_SIDE: 4 | 8,
+	TileSet.CELL_NEIGHBOR_LEFT_SIDE: 1 | 4, TileSet.CELL_NEIGHBOR_RIGHT_SIDE: 2 | 8,
+}
 ## Ground -> layer and terrain name.
 const NAMES := {
 	"water": "Water", "cavern-floor": "Cavern floor", "forest-floor": "Forest floor",
@@ -77,8 +92,9 @@ func _build() -> bool:
 		if ground != TerrainMaterials.WATER and not ResourceLoader.exists(TerrainMaterials.edges_path(ground)):
 			push_error("build_terrain_layers_lab: no edge art for '%s'" % ground)
 			return false
+	var kept := {} if "--fresh" in OS.get_cmdline_user_args() else _free_paint()
 
-	var built := _tile_set(sheets)
+	var built := build_tile_set(sheets)
 	var tile_set: TileSet = built.tile_set
 	var result := ResourceSaver.save(tile_set, TILESET_PATH)
 	if result != OK:
@@ -97,22 +113,36 @@ func _build() -> bool:
 	for order in TerrainMaterials.ORDER.size():
 		var ground := TerrainMaterials.ORDER[order]
 		var layer := TileMapLayer.new()
-		layer.name = "%d %s" % [order, NAMES[ground]]
+		layer.name = layer_name(ground)
 		layer.tile_set = tile_set
 		grounds.add_child(layer)
 		layers[ground] = layer
 
 	var size := Vector2i(TerrainLab.MAP[0].length(), TerrainLab.MAP.size())
-	var top_b := size.y + GAP_ROWS
-	_paint(layers, built, Vector2i.ZERO, false)
-	_paint(layers, built, Vector2i(0, top_b), true)
+	var top_a := FREE_ROWS + GAP_ROWS
+	var top_b := top_a + size.y + GAP_ROWS
+	if kept.is_empty():
+		var water: TileMapLayer = layers[TerrainMaterials.WATER]
+		for y in FREE_ROWS:
+			for x in size.x:
+				water.set_cell(Vector2i(x, y), built.water_source, FULL, SHALLOW)
+	else:
+		for ground: String in kept:
+			var layer: TileMapLayer = layers[ground]
+			for cell: Vector2i in kept[ground]:
+				var tile: Array = kept[ground][cell]
+				layer.set_cell(cell, tile[0], tile[1], tile[2])
+	var map := map_cells(TerrainLab.MAP, TerrainLab.KEY)
+	paint(layers, built, map, Vector2i(0, top_a), false)
+	paint(layers, built, map, Vector2i(0, top_b), true)
 
-	_add_label(root, "A: each ground painted only on its own cells", Vector2(0, -96))
+	_add_label(root, "Free painting (kept when the builder re-runs)", Vector2(0, -96))
+	_add_label(root, "A: the terrain lab's map, each ground painted only on its own cells", Vector2(0, top_a * CELL - 96))
 	_add_label(root, "B: each ground also painted under the grounds above it", Vector2(0, top_b * CELL - 96))
 	var camera := Camera2D.new()
 	camera.name = "Camera"
 	camera.position = Vector2(size.x * CELL * 0.5, (top_b + size.y) * CELL * 0.5 - 48)
-	camera.zoom = Vector2(0.32, 0.32)
+	camera.zoom = Vector2(0.21, 0.21)
 	# Physics interpolation is on: the camera would switch itself to physics mode with a warning.
 	camera.process_callback = Camera2D.CAMERA2D_PROCESS_PHYSICS
 	root.add_child(camera)
@@ -129,12 +159,39 @@ func _build() -> bool:
 	if result != OK:
 		push_error("build_terrain_layers_lab: saving the scene failed (%d)" % result)
 		return false
-	print("build_terrain_layers_lab: saved %s and %s" % [SCENE_PATH, TILESET_PATH])
+	print("build_terrain_layers_lab: saved %s and %s (%s free painting)" % [SCENE_PATH, TILESET_PATH, "kept the" if not kept.is_empty() else "fresh"])
 	return true
 
 
+static func layer_name(ground: String) -> String:
+	return "%d %s" % [TerrainMaterials.order_of(ground), NAMES[ground]]
+
+
+## The free painting area of the existing scene: ground -> {cell: [source, atlas, alternative]}.
+func _free_paint() -> Dictionary:
+	if not ResourceLoader.exists(SCENE_PATH):
+		return {}
+	var scene := ResourceLoader.load(SCENE_PATH, "", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
+	if scene == null:
+		return {}
+	var root := scene.instantiate()
+	var kept := {}
+	for ground: String in TerrainMaterials.ORDER:
+		var layer := root.get_node_or_null(NodePath("Grounds/" + layer_name(ground))) as TileMapLayer
+		if layer == null:
+			continue
+		var cells := {}
+		for cell: Vector2i in layer.get_used_cells():
+			if cell.y < FREE_ROWS:
+				cells[cell] = [layer.get_cell_source_id(cell), layer.get_cell_atlas_coords(cell), layer.get_cell_alternative_tile(cell)]
+		if not cells.is_empty():
+			kept[ground] = cells
+	root.free()
+	return kept
+
+
 ## Ground -> its 19 x 19 sheet in the converted terrain tile set, plus "deep-water".
-func _ground_sheets(terrain_tile_set: TileSet) -> Dictionary:
+static func _ground_sheets(terrain_tile_set: TileSet) -> Dictionary:
 	var sheets := {}
 	for i in terrain_tile_set.get_source_count():
 		var source := terrain_tile_set.get_source(terrain_tile_set.get_source_id(i)) as TileSetAtlasSource
@@ -147,14 +204,14 @@ func _ground_sheets(terrain_tile_set: TileSet) -> Dictionary:
 	return sheets
 
 
-## The lab's tile set: one Match Corners terrain set (a terrain per land ground), a source per land
-## ground with its 16 edge tiles tagged, and a water source (the full tile, shallow and deep).
-## Returns {tile_set, water_source, terrain_of (ground -> terrain index)}.
-func _tile_set(sheets: Dictionary) -> Dictionary:
+## The lab's tile set: one Match Corners and Sides terrain set (a terrain per land ground), a source
+## per land ground with its 16 edge tiles tagged, and a water source (the full tile, shallow and
+## deep). Returns {tile_set, water_source, terrain_of (ground -> terrain index)}.
+static func build_tile_set(sheets: Dictionary) -> Dictionary:
 	var tile_set := TileSet.new()
 	tile_set.tile_size = Vector2i(ART_TILE, ART_TILE)
 	tile_set.add_terrain_set()
-	tile_set.set_terrain_set_mode(TERRAIN_SET, TileSet.TERRAIN_MODE_MATCH_CORNERS)
+	tile_set.set_terrain_set_mode(TERRAIN_SET, TileSet.TERRAIN_MODE_MATCH_CORNERS_AND_SIDES)
 
 	var water_source := _add_source(tile_set, TerrainMaterials.edges_path(WATER_TILE_SHEET))
 	var water := tile_set.get_source(water_source) as TileSetAtlasSource
@@ -183,14 +240,25 @@ func _tile_set(sheets: Dictionary) -> Dictionary:
 			var data := source.get_tile_data(atlas, 0)
 			data.material = material
 			data.terrain_set = TERRAIN_SET
-			data.terrain = terrain
-			for bit in CORNERS.size():
-				if index & (1 << bit):
-					data.set_terrain_peering_bit(CORNERS[bit], terrain)
+			_tag(data, index, terrain)
 	return {"tile_set": tile_set, "water_source": water_source, "terrain_of": terrain_of}
 
 
-func _add_source(tile_set: TileSet, edges_path: String) -> int:
+## Peering bits of edge tile `index` (TL + 2 TR + 4 BL + 8 BR covered by `terrain`).
+static func _tag(data: TileData, index: int, terrain: int) -> void:
+	var covered := 0
+	for bit in CORNERS.size():
+		if index & (1 << bit):
+			data.set_terrain_peering_bit(CORNERS[bit], terrain)
+			covered += 1
+	for side: TileSet.CellNeighbor in SIDES:
+		if index & SIDES[side] == SIDES[side]:
+			data.set_terrain_peering_bit(side, terrain)
+	if covered >= 3:
+		data.terrain = terrain
+
+
+static func _add_source(tile_set: TileSet, edges_path: String) -> int:
 	var source := TileSetAtlasSource.new()
 	source.texture = load(edges_path) as Texture2D
 	source.texture_region_size = Vector2i(ART_TILE, ART_TILE)
@@ -202,7 +270,7 @@ func _add_source(tile_set: TileSet, edges_path: String) -> int:
 
 
 ## The edge shader on `sheet` (the ground drawn in world space), with `rim_ground`'s rim weights.
-func _material(sheet: Texture2D, rim_ground: String) -> ShaderMaterial:
+static func _material(sheet: Texture2D, rim_ground: String) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = load(EDGE_SHADER)
 	material.set_shader_parameter(&"ground_texture", sheet)
@@ -212,24 +280,29 @@ func _material(sheet: Texture2D, rim_ground: String) -> ShaderMaterial:
 	return material
 
 
-## Paints the terrain lab's map at `offset` (cells): water as plain tiles, every land ground with
-## Godot's terrain painter on its own layer. `under` also paints each ground under the grounds
-## stacked above it. Rock wall has no edge art and is painted as cavern floor.
-func _paint(layers: Dictionary, built: Dictionary, offset: Vector2i, under: bool) -> void:
-	var order_at := {}
-	var deep := {}
-	for y in TerrainLab.MAP.size():
-		var line: String = TerrainLab.MAP[y]
+## An ASCII map (`key` maps a character to a terrain tile id) as {cell: tile id}.
+static func map_cells(rows: Array, key: Dictionary) -> Dictionary:
+	var cells := {}
+	for y in rows.size():
+		var line: String = rows[y]
 		for x in line.length():
-			var tile_id: String = TerrainLab.KEY[line[x]]
-			var ground := TerrainMaterials.ground_of(tile_id)
-			var cell := offset + Vector2i(x, y)
-			order_at[cell] = TerrainMaterials.order_of(ground if ground != "" else "cavern-floor")
-			deep[cell] = tile_id == "deep-water"
+			cells[Vector2i(x, y)] = key[line[x]]
+	return cells
+
+
+## Paints `map` ({cell: tile id}) at `offset` (cells): water as plain tiles, every land ground with
+## Godot's terrain painter on its own layer, all of a ground's cells in one call (one stroke).
+## `under` also paints each ground under the grounds stacked above it. Tiles without edge art
+## (rock wall, floors) are painted as cavern floor.
+static func paint(layers: Dictionary, built: Dictionary, map: Dictionary, offset: Vector2i, under: bool) -> void:
+	var order_at := {}
+	for cell: Vector2i in map:
+		var ground := TerrainMaterials.ground_of(map[cell])
+		order_at[offset + cell] = TerrainMaterials.order_of(ground if ground != "" else "cavern-floor")
 	var water: TileMapLayer = layers[TerrainMaterials.WATER]
-	for cell: Vector2i in order_at:
-		if order_at[cell] == 0 or under:
-			water.set_cell(cell, built.water_source, FULL, DEEP if deep[cell] else SHALLOW)
+	for cell: Vector2i in map:
+		if order_at[offset + cell] == 0 or under:
+			water.set_cell(offset + cell, built.water_source, FULL, DEEP if map[cell] == "deep-water" else SHALLOW)
 	for order in range(1, TerrainMaterials.ORDER.size()):
 		var ground := TerrainMaterials.ORDER[order]
 		var cells: Array[Vector2i] = []
@@ -237,7 +310,7 @@ func _paint(layers: Dictionary, built: Dictionary, offset: Vector2i, under: bool
 			if order_at[cell] == order or (under and order_at[cell] > order):
 				cells.append(cell)
 		if not cells.is_empty():
-			(layers[ground] as TileMapLayer).set_cells_terrain_connect(cells, TERRAIN_SET, built.terrain_of[ground])
+			(layers[ground] as TileMapLayer).set_cells_terrain_connect(cells, TERRAIN_SET, built.terrain_of[ground], IGNORE_EMPTY)
 
 
 func _add_label(root: Node, text: String, at: Vector2) -> void:
