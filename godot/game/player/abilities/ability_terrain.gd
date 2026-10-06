@@ -5,6 +5,9 @@ extends RefCounted
 ##
 ## - The jump tests tiles only (water, deep water, rock walls; outside the world counts as
 ##   blocked): it crosses walls, gates and houses, which are placed objects (a Phaser quirk kept).
+## - Cliffs block every ability like solid tiles: a point whose feet are not on ground of the
+##   slime's own level (a cliff wall, higher or lower ground) is blocked, so no ability changes the
+##   slime's level (docs/godot/ELEVATION.md; stairs do).
 ## - The teleport also refuses a landing whose body rect (30 x 26 at centre + (0, 14.56)) would
 ##   overlap a static body on the world layer (walls, trees, houses, rocks, posts, closed gates).
 ## - The lash pull stops 30 px short of what it caught, on an open tile.
@@ -23,6 +26,8 @@ const MIN_TELEPORT_PX := 32.0
 ## The player's body rect relative to its old centre (player_slime.tscn BodyShape).
 const BODY_SIZE := Vector2(30.0, 26.0)
 const BODY_OFFSET := Vector2(0.0, 14.56)
+## The feet (the body rect's bottom) relative to the old centre.
+const FEET_OFFSET := Vector2(0.0, 27.56)
 ## Static bodies on the world layer block a landing.
 const WORLD_LAYER_MASK := 1
 ## Lash (WorldScene.ts:132).
@@ -36,7 +41,11 @@ static func is_blocked(point: Vector2) -> bool:
 	if world == null or world.dimensions().is_empty():
 		return true
 	var tile_size := float(world.dimensions()["tile_size"])
-	return world.is_solid_tile(floori(point.x / tile_size), floori(point.y / tile_size))
+	if world.is_solid_tile(floori(point.x / tile_size), floori(point.y / tile_size)):
+		return true
+	if world.elevation != null and world.player_body != null:
+		return not world.elevation.is_walkable(point + FEET_OFFSET, world.elevation.level_of(world.player_body))
+	return false
 
 
 ## The slime's body rect centred for `point` overlaps a static world body (not tiles, not the

@@ -74,19 +74,11 @@ static func ring(at: Vector2, ring_radius: float) -> Node2D:
 	return node
 
 
-## The jump shadow: a 40 x 16 black ellipse at 0.35 alpha at the jump's start (it never moves),
-## fading to 0.12 and shrinking to 0.7 for `half_ms`, then back, then gone.
-static func jump_shadow(at: Vector2, half_ms: float) -> Node2D:
-	var node := _spawn(at, KIND_ELLIPSE, Color(0, 0, 0, 0.35), false)
-	if node == null:
-		return null
-	var tween := node.create_tween()
-	tween.tween_property(node, "modulate:a", 0.12 / 0.35, half_ms / 1000.0)
-	tween.parallel().tween_property(node, "scale", Vector2(0.7, 0.7), half_ms / 1000.0)
-	tween.tween_property(node, "modulate:a", 1.0, half_ms / 1000.0)
-	tween.parallel().tween_property(node, "scale", Vector2.ONE, half_ms / 1000.0)
-	tween.tween_callback(node.queue_free)
-	return node
+## The jump shadow: a 40 x 16 black ellipse at 0.35 alpha at `at`. The flight that owns it moves
+## it along the ground under the slime, shrinks and fades it with height and frees it
+## (jump_sequence.gd; Phaser's stayed at the start and tweened itself).
+static func jump_shadow(at: Vector2) -> Node2D:
+	return _spawn(at, KIND_ELLIPSE, Color(0, 0, 0, 0.35), false)
 
 
 ## The landing's 8 goo dots: speed 20-60 any direction, 320 ms, shrinking and fading.

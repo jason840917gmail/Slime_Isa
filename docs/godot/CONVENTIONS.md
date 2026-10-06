@@ -61,9 +61,10 @@ Scenes that differ from the converter's copy or replace it:
 F5 runs the title screen (`game/shell/title.tscn`, the main scene); New Game and Continue start
 `game/main.tscn`, which loads level-1, and a `map` launch option skips the title. To test in the playground (the testbed
 where new mechanics are tried first), open `game/dev/playground.tscn` and press F6 (Run
-Current Scene); it inherits `main.tscn` with `map_id = "playground"`. Any other world:
-set `map_id` on a scene like it, or launch with `?map=<id>` (web) / `-- --map=<id>`
-(desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
+Current Scene); it inherits `main.tscn` with `map_id = "playground"`. F6 on a world scene
+itself (`game/scenes/worlds/<id>.tscn`) works too: run on its own, a world has no player, camera
+or HUD, so its `world_definition.gd` swaps it for `main.tscn` with its map id (the playground keeps
+its testbed kit). Or launch with `?map=<id>` (web) / `-- --map=<id>` (desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
 position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest active at that stage
 (default the first) when the first world is built (`QuestService.debug_activate`: earlier stages
 done, no rewards), to reach quest steps whose systems are not ported yet; it does not skip the
@@ -80,6 +81,8 @@ at a new run ([specs/crafting.md](specs/crafting.md) C2, C3, 8.2).
   `stretch_lash`, `squash_slam`, `teleport`, `eat`, `weapon_next/previous` (wheel),
   `menu`, `map`, `zoom_in/out`, `pause`.
 - Physics layers keep the bits and names of `game/data/collision-layers.json` (Phaser's layers).
+  Layers 12-18 (`level -3` … `level 3`) are the walls of each elevation level: a walking body
+  collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)).
   60 physics ticks per second (enemy AI rolls per step depend on it); physics
   interpolation is on.
 - Audio buses: Master, Effects, Music, Ambience.

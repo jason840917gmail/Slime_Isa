@@ -10,6 +10,10 @@ extends RefCounted
 ## it is done; then actions unlock and the slime idles. Sequence milestones run on the simulation
 ## clock (`advance`), so hit-stop and menus pause them; Phaser ran them on scene time.
 ##
+## With elevation (docs/godot/ELEVATION.md) the jump is a hop that never climbs: it lands where the
+## slime fits on its level, or drops over a rim it crosses (`Elevation.hop_target`). `begin_drop`
+## runs the same flight for a ledge drop (no cooldown, no energy).
+##
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
@@ -41,6 +45,11 @@ func is_busy() -> bool:
 ## The running sequence moves the body itself (the lash flight): skip the mover this step.
 func owns_body() -> bool:
 	return _sequence != null and _sequence.has_method(&"owns_body") and bool(_sequence.call(&"owns_body"))
+
+
+## In the air: a jump's or a drop's flight is running.
+func is_airborne() -> bool:
+	return _sequence is JumpSequence and bool(_sequence.call(&"owns_body"))
 
 
 ## `RunState` knows it; the dodge also when player.gd's `dodge_learned` (trial override) is on.
@@ -96,8 +105,11 @@ func try_begin(id: StringName, request: Dictionary) -> bool:
 		direction = Vector2.RIGHT if id == Definitions.STRETCH_LASH else Vector2.UP
 	var target := position
 	var definition := Definitions.entry(id)
-	if id == Definitions.JUMP and raw != Vector2.ZERO:
-		target = AbilityTerrain.trace(position, direction, float(definition["distance"]), true)
+	var levels := {}
+	if id == Definitions.JUMP:
+		var hop := _hop(position, raw, direction, float(definition["distance"]))
+		target = hop["target"]
+		levels = hop["levels"]
 	elif id == Definitions.TELEPORT:
 		var reach := float(definition["distance"])
 		var asked: Variant = request.get("reach")
@@ -119,12 +131,44 @@ func try_begin(id: StringName, request: Dictionary) -> bool:
 	_player.call(&"set_action_locked", true)
 	var intent := {"id": id, "seq": seq, "direction": direction, "start": position, "target": target,
 		"definition": definition}
+	intent.merge(levels)
 	_sequence = _make_sequence(id)
 	if _sequence == null:
 		complete(seq)
 		return true
 	_sequence.call(&"begin", _player, intent, now)
 	return true
+
+
+## A ledge drop: the jump's flight from the old centre `position` to the centre `target`, from
+## level `from_level` down to `to_level`, with no cooldown or energy. False while busy or locked.
+func begin_drop(position: Vector2, target: Vector2, from_level: int, to_level: int) -> bool:
+	if is_busy() or bool(_player.call(&"is_action_locked")):
+		return false
+	var seq := _next_seq
+	_next_seq += 1
+	_active_seq = seq
+	_player.call(&"set_action_locked", true)
+	_sequence = JumpSequence.new()
+	_sequence.call(&"begin", _player, {"id": JumpSequence.DROP, "seq": seq, "start": position, "target": target,
+		"level_from": from_level, "level_to": to_level}, Services.now_ms())
+	return true
+
+
+## The jump's landing from the old centre `position`: {"target", "levels"}. With elevation, a hop
+## (`Elevation.hop_target`; in place without a direction) that may drop to a lower level; without,
+## the tile trace of Phaser (abilities spec 5.2).
+func _hop(position: Vector2, raw: Vector2, direction: Vector2, distance: float) -> Dictionary:
+	var world := Services.world()
+	var elevation: Node = world.elevation if world != null else null
+	var body := _player.get(&"body") as CharacterBody2D
+	if elevation == null or body == null:
+		var traced := AbilityTerrain.trace(position, direction, distance, true) if raw != Vector2.ZERO else position
+		return {"target": traced, "levels": {}}
+	var to_feet := body.global_position - position
+	var level := int(elevation.call(&"level_of", body))
+	var hop: Dictionary = elevation.call(&"hop_target", body.global_position, level, raw, distance if raw != Vector2.ZERO else 0.0)
+	return {"target": (hop["feet"] as Vector2) - to_feet, "levels": {"level_from": level, "level_to": int(hop["level"])}}
 
 
 ## Runs the active sequence's milestones; completes it when it is done.

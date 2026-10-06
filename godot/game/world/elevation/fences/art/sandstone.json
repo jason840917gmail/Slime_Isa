@@ -1,0 +1,40 @@
+{
+  "style": "sandstone",
+  "source": "sandstone-front-a.png",
+  "px_per_unit": 2.0,
+  "post_height": 36.0,
+  "spacing": 80.0,
+  "inset": 12.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      40,
+      77
+    ],
+    "foot_row": 74.29,
+    "half_width": 6.24
+  },
+  "rails": {
+    "size": [
+      138,
+      46
+    ],
+    "top": 25.82,
+    "bottom": 2.73,
+    "rows": [
+      [
+        25.53,
+        3.16
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      28,
+      138
+    ],
+    "top": 25.53,
+    "bottom": 3.01,
+    "offset": 0.0
+  }
+}

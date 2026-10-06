@@ -54,7 +54,7 @@ func test_jump_in_place_and_cooldown(t: TestContext) -> void:
 	t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "a jump after the cooldown was refused")
 
 
-func test_jump_right_moves_body_only_at_landing(t: TestContext) -> void:
+func test_jump_right_carries_the_body_through_the_air(t: TestContext) -> void:
 	var player := t.player()
 	Services.run().learn_ability("jump")
 	var start := player.get_centre()
@@ -67,7 +67,8 @@ func test_jump_right_moves_body_only_at_landing(t: TestContext) -> void:
 	t.release_all()
 	start = player.get_centre()
 	await t.sim_wait(JUMP_MS / 2.0)
-	t.near(player.get_centre().x, start.x, 0.5, "body x mid-jump")
+	# The body travels evenly (the camera follows it); the art arcs over it.
+	t.between(player.get_centre().x - start.x, 168.0 * 0.5 - 16.0, 168.0 * 0.5 + 16.0, "body x mid-jump")
 	await t.until(func() -> bool: return not player.is_ability_busy(), 1000.0)
 	t.near(player.get_centre().x - start.x, 168.0, 0.5, "jump distance right")
 

@@ -1,0 +1,44 @@
+{
+  "style": "twig",
+  "source": "twig-front-a.png",
+  "px_per_unit": 2.0,
+  "post_height": 40.0,
+  "spacing": 64.0,
+  "inset": 10.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      34,
+      83
+    ],
+    "foot_row": 81.6,
+    "half_width": 5.27
+  },
+  "rails": {
+    "size": [
+      135,
+      48
+    ],
+    "top": 33.2,
+    "bottom": 9.33,
+    "rows": [
+      [
+        29.87,
+        24.13
+      ],
+      [
+        17.07,
+        11.2
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      14,
+      135
+    ],
+    "top": 29.87,
+    "bottom": 24.13,
+    "offset": 5.0
+  }
+}

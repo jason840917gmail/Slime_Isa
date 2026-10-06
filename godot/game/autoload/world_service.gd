@@ -1,6 +1,6 @@
 extends Node
 ## Autoload `WorldService`: the world-level service locator. Replaces the Phaser script-service
-## map (`ENEMY_TARGET_SERVICE`, world navigation, `world.elevation` [not ported], exit service)
+## map (`ENEMY_TARGET_SERVICE`, world navigation, `world.elevation` [redone: `elevation`], exit service)
 ## and the bits of `WorldScene` / `UniversalSceneWorldController` other systems query.
 ##
 ## Lifecycle: main.gd loads the world scene, then calls `register_world()`, `register_player()`
@@ -21,6 +21,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
 const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
 
 ## Scene id -> scene path for every scene Godot owns (docs/godot/CONVENTIONS.md "Scenes Godot owns").
@@ -56,6 +57,9 @@ var world_root: Node2D
 var definition: WorldDefinitionScript
 ## The ground TileMapLayer (the world's TileMapLayer whose tile_set is the terrain tileset).
 var ground_layer: TileMapLayer
+## The world's cliffs and ground levels (game/world/elevation/elevation.gd): `level_at`, `track`,
+## `level_of`. Null on a world without an elevation layer.
+var elevation: Elevation
 ## The player's PlayerScript node and its CharacterBody2D root. Null until register_player().
 var player: PlayerScript
 var player_body: CharacterBody2D
@@ -169,7 +173,8 @@ func spawn_at_phaser_position(scene_id: String, phaser_point: Vector2, parent: N
 ## Registers the instanced world: finds the `world_definition.gd` node (exactly one; push_error
 ## and return false otherwise), validates it (world spec 2.1), finds the ground TileMapLayer,
 ## mounts the animated water on it (`WaterSurface.mount`, docs/godot/specs/water.md) and the
-## hand-made terrain edges over both (`TerrainEdges.mount`, docs/godot/TERRAIN_LAB.md),
+## hand-made terrain edges over both (`TerrainEdges.mount`, docs/godot/TERRAIN_LAB.md) and the
+## cliffs of its elevation layer over everything (`Elevation.mount`, docs/godot/ELEVATION.md),
 ## and builds the area records from every `world_area.gd` node (world spec 3.1). Emits
 ## `world_registered`. The world must already be inside the tree (areas use global transforms).
 func register_world(root: Node2D) -> bool:
@@ -192,6 +197,7 @@ func register_world(root: Node2D) -> bool:
 	definition = found_definition
 	_dimensions = found_definition.dimensions()
 	ground_layer = _pick_ground_layer(tile_layers)
+	elevation = null
 	if ground_layer == null:
 		push_warning("WorldService.register_world: no ground TileMapLayer found; every tile counts as open")
 	else:
@@ -199,6 +205,8 @@ func register_world(root: Node2D) -> bool:
 		WaterSurface.mount(ground_layer)
 		# Hand-made edges where grounds meet, shores included: after the water, so they draw over it.
 		TerrainEdges.mount(ground_layer)
+		# Cliffs and holes from the world's elevation layer, over both (docs/godot/ELEVATION.md).
+		elevation = Elevation.mount(ground_layer, true)
 		# Splashes and ripples at the feet of every walker in the water (specs/water.md "Wading").
 		WaterWake.mount(ground_layer)
 	_areas.clear()
@@ -472,6 +480,7 @@ func clear() -> void:
 	world_root = null
 	definition = null
 	ground_layer = null
+	elevation = null
 	player = null
 	player_body = null
 	camera = null

@@ -29,6 +29,17 @@
   "worldNavigation": {
   "edgeTransitionGraceMs": 650
   },
+  "elevation": {
+    "behindDepth": 32,
+    "dropPushMs": 280,
+    "dropOutward": 22,
+    "dropBaseMs": 260,
+    "dropMsPerLevel": 90,
+    "hopArcHeight": 36
+  },
+  "fences": {
+    "clearance": 8
+  },
   "rest": {
     "sleepHpRegenPerSec": 2
   },

@@ -402,6 +402,22 @@ Godot clip: `hop-down`, `-up` and `-side` (420 ms, once) key page 1's frames: a 
 up, the rest pose at the top of the arc and a brace for the landing (`tools/build_player_clips.gd`,
 owner decision 2026-10-05); the tweens above carry the arc and the squash and stretch.
 
+### 5.4 Godot departs from Phaser (owner feedback 2026-10-06)
+
+The camera stood still in the air and snapped at the landing, and the shadow stayed at the start,
+so `jump_sequence.gd` flies the jump instead of teleporting at t = 420. The **body travels** evenly
+from start to target every step (camera, hurtbox, plate point and enemy targeting follow it), the
+art rides above it on a gravity arc (`4 · arc · t · (1 − t)` on one level) with the same stretch
+then squash, and the shadow moves along the ground under the slime, shrinking and fading with
+height. Cues, the forced `land` squash, the Heavy landing record, the goo dust, the 700 ms cooldown
+and the 420 ms duration on one level are unchanged. Pressure plates ignore a slime in the air.
+
+On a world with elevation ([ELEVATION.md](../ELEVATION.md) "Moving between levels") the target is
+`Elevation.hop_target` instead of §5.2's trace: the arc is `elevation.hopArcHeight` (36, below one
+level), the hop never climbs (it stops before higher ground and walls) and over a rim it drops to
+the lower level, taking `dropMsPerLevel` longer per level; the landing sets the body's level. The
+same flight runs a ledge drop (`PlayerAbilities.begin_drop`: no cue, no cooldown, no energy).
+
 ---
 
 ## 6. Squash Slam [IN]

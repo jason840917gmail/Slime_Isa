@@ -172,6 +172,13 @@ pause={
 2d_physics/layer_9="projectile"
 2d_physics/layer_10="trigger"
 2d_physics/layer_11="water"
+2d_physics/layer_12="level -3"
+2d_physics/layer_13="level -2"
+2d_physics/layer_14="level -1"
+2d_physics/layer_15="level 0"
+2d_physics/layer_16="level 1"
+2d_physics/layer_17="level 2"
+2d_physics/layer_18="level 3"
 
 [physics]
 

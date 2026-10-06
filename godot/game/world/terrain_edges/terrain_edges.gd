@@ -9,7 +9,9 @@ extends Node2D
 ## corner with the lowest of them (its fully covered tile, or the animated water) and each higher
 ## ground draws its edge tile on the next level: index = TL + 2*TR + 4*BL + 8*BR, with 1 where the
 ## cell's ground stacks at least that high (TerrainMaterials.ORDER). Corners touching a tile without
-## edges (walls, interior floors), the map's border, or a ground without art keep hard edges.
+## edges (walls, interior floors), the map's border, or a ground without art keep hard edges, and
+## so do corners where the elevation layer has different levels (the cliff draws its own rims there,
+## docs/godot/ELEVATION.md).
 ##
 ## This script only picks tiles; the art (scripts/art/build-terrain-edge-tiles.py) and the shaders
 ## (terrain_edge.gdshader, terrain_edge_water.gdshader) do the rest. Visual only: the ground cells
@@ -22,6 +24,7 @@ const Self := preload("res://game/world/terrain_edges/terrain_edges.gd")
 const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materials.gd")
 const LAND_SHADER := preload("res://game/world/terrain_edges/terrain_edge.gdshader")
 const WATER_SHADER := preload("res://game/world/terrain_edges/terrain_edge_water.gdshader")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 const NODE_NAME := "TerrainEdges"
 const WATER_SURFACE_NODE := "WaterSurface"
 ## The most grounds that can meet at one corner.
@@ -118,8 +121,11 @@ func rebuild() -> int:
 	var order_of := {}
 	for name_of_ground: String in sheets:
 		order_of[name_of_ground] = TerrainMaterials.order_of(name_of_ground) if sources.has(name_of_ground) else -1
+	var levels := Elevation.painted_levels(ground)
 	for cy in range(1, rows):
 		for cx in range(1, columns):
+			if not levels.is_empty() and not _same_level(levels, Vector2i(cx, cy)):
+				continue
 			var around: Array[int] = [
 				_order_at(cell_ground, order_of, Vector2i(cx - 1, cy - 1)), _order_at(cell_ground, order_of, Vector2i(cx, cy - 1)),
 				_order_at(cell_ground, order_of, Vector2i(cx - 1, cy)), _order_at(cell_ground, order_of, Vector2i(cx, cy)),
@@ -156,6 +162,15 @@ func queue_rebuild() -> void:
 		return
 	_queued = true
 	rebuild.call_deferred()
+
+
+## True when the four cells around corner `corner` share one painted elevation level.
+static func _same_level(levels: Dictionary, corner: Vector2i) -> bool:
+	var level := int(levels.get(corner, 0))
+	for cell: Vector2i in [corner + Vector2i(-1, -1), corner + Vector2i(0, -1), corner + Vector2i(-1, 0)]:
+		if int(levels.get(cell, 0)) != level:
+			return false
+	return true
 
 
 func _order_at(cell_ground: Dictionary, order_of: Dictionary, cell: Vector2i) -> int:
