@@ -18,6 +18,10 @@ extends CanvasLayer
 ## | map | "Press M for the map" | `inventory` was learned |
 ## | pause | "Press Esc to pause, save or change settings" | `inventory` was learned |
 ##
+## A mouse control scheme (game/player/mouse/control_scheme.gd) words move, interact and attack for
+## its buttons ("Click the ground to move", ...); walking a click order counts as moving. The
+## pointer scheme words move as "Hold W to walk toward the pointer".
+##
 ## Learning: moving (move), sprinting while moving (sprint), a swing starting (attack), a roll
 ## starting (dodge), the interact button running a target (interact, InteractionController
 ## `interacted`), the bag / crafting / world map / pause menu opening (inventory, crafting, map,
@@ -33,6 +37,7 @@ extends CanvasLayer
 
 const Services := preload("res://game/shared/services.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 const LAYER := 10
 const FLAG_PREFIX := "hint."
@@ -133,6 +138,19 @@ func is_learned(id: StringName) -> bool:
 
 ## The text of hint `id`, from the current key bindings.
 static func hint_text(id: StringName) -> String:
+	var scheme := ControlScheme.current()
+	if ControlScheme.uses_orders(scheme):
+		match id:
+			&"move":
+				return "%s the ground to move" % ControlScheme.order_verb(scheme)
+			&"interact":
+				return "%s people and things to talk, open or use" % ControlScheme.order_verb(scheme)
+			&"attack":
+				return "%s an enemy to attack; %s swings in place" % [ControlScheme.order_verb(scheme), ControlScheme.swing_verb(scheme)]
+	elif ControlScheme.faces_pointer(scheme) and id == &"move":
+		return "Hold %s to walk toward the pointer" % ControlLabels.control_label(&"move_up")
+	elif not ControlScheme.uses_mouse(scheme) and id == &"weapon-switch":
+		return "Press %s or %s to switch weapons: tools only work in hand" % [ControlLabels.control_label(&"weapon_previous"), ControlLabels.control_label(&"weapon_next")]
 	match id:
 		&"move":
 			return "Move with %s" % ControlLabels.movement_label()
@@ -216,6 +234,8 @@ func _learn_from_play(player: Node) -> void:
 	var moving := false
 	for action: StringName in [&"move_up", &"move_down", &"move_left", &"move_right"]:
 		moving = moving or bool(player.call(&"is_action_held", action))
+	if player.has_method(&"is_click_moving"):
+		moving = moving or bool(player.call(&"is_click_moving"))
 	if moving:
 		learn(&"move")
 	var sprinting := moving and bool(player.call(&"is_action_held", &"sprint"))

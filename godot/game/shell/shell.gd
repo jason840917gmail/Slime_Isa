@@ -107,6 +107,7 @@ func _ready() -> void:
 	if not test_run:
 		settings.read()
 	settings.apply_to_buses()
+	settings.apply_to_input()
 	_build()
 	_connect_services()
 

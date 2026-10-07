@@ -109,9 +109,12 @@ func update_body(body: CharacterBody2D, level: int, flight_depth: float = NAN) -
 		_dirty.erase(body)
 	var depth := flight_depth if not is_nan(flight_depth) else body.global_position.y + float(level) * LEVEL_UNITS
 	var silhouette := PLAYER_GHOST if body.collision_layer & PLAYER_LAYER != 0 else OTHER_GHOST
-	for sprite: CanvasItem in _sprites[body]:
-		if not is_instance_valid(sprite):
+	# Untyped: a sprite freed since the scan (a web cover, a wading splash) must be skipped before
+	# it is assigned to a typed variable, which errors on a freed instance.
+	for entry: Variant in _sprites[body]:
+		if not is_instance_valid(entry):
 			continue
+		var sprite := entry as CanvasItem
 		var material := sprite.material as ShaderMaterial
 		if material == null or not _has_uniforms(material.shader):
 			continue
@@ -129,9 +132,12 @@ func forget(body: Node) -> void:
 
 
 ## The body's sprites; ones without a material get the hit-flash material (neutral until a hit).
+## A child entering or leaving the body rescans it next time.
 func _scan(body: CharacterBody2D) -> Array:
 	if not body.child_entered_tree.is_connected(_on_child_entered):
 		body.child_entered_tree.connect(_on_child_entered.bind(body))
+	if not body.child_exiting_tree.is_connected(_on_child_entered):
+		body.child_exiting_tree.connect(_on_child_entered.bind(body))
 	var sprites := []
 	for node: Node in body.find_children("*", "", true, false):
 		if not (node is Sprite2D or node is AnimatedSprite2D):

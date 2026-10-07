@@ -117,6 +117,13 @@ func is_attacking() -> bool:
 	return _attacking
 
 
+## True when a swing toward `direction` ("right" | "left" | "up" | "down") would reach the hurtbox
+## `area` from where the slime stands now (WeaponScript.reaches). A click order walks until it does.
+func reaches(direction: String, area: Area2D) -> bool:
+	var weapon := get_weapon()
+	return weapon != null and weapon.reaches(direction, area)
+
+
 ## `CombatController.tryAttack` (combat spec 4.2): gates (weapon, not attacking, player not
 ## action-locked / dead, tree not paused, weapon.can_begin_attack()); direction =
 ## Directions.cardinal_name(player facing); payload {"damage": int, "knockback_strength": float,

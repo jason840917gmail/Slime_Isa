@@ -194,6 +194,8 @@ func choose(candidates: Array[Dictionary], pointer: Variant) -> Dictionary:
   (`ControlLabels.ts:19-21, 72-75`: code `Mouse2` -> "Right click" -> "Right-click"). With a
   secondary action: `"<main>     Hold: <secondary.prompt>"` (5 spaces) [OUT].
   Examples: `Right-click: Enter house`, `Right-click: Open chest`, `Right-click: Talk to Lili`.
+  Godot addition: a mouse control scheme names its order button instead ("Click: Open chest";
+  [../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)).
 - Style: Phaser Text, font `Trebuchet MS, Segoe UI Variable, sans-serif` 14 px, colour
   `#e7fff5`, background `#101a31cc` (alpha 0.8), padding left/right 12, top/bottom 7, origin
   (0.5, 0.5), `scrollFactor 0`, depth 250, drawn by the **UI camera** (zoom 1, never faded:

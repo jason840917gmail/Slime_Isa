@@ -1,13 +1,17 @@
 extends "res://game/shell/shell_menu.gd"
 ## The Settings window, from the title or the pause menu (Phaser `features/shell/
 ## SettingsSurfacePort.ts`, `ui/settings.scene.json`): master, effects and music volume, screen
-## shake, mute, reduce motion, defaults and the controls list. Edits go straight to the
+## shake, mute, reduce motion, the mouse control scheme, defaults and the controls list. Edits go straight to the
 ## GameSettings (`settings`), which saves and applies them; the window redraws on `changed`.
 ##
 ## Owner: shell.
 
 const GameSettings := preload("res://game/shell/game_settings.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
+## The control scheme row: its height, and how much taller the panel gets (row + separation).
+const SCHEME_ROW_HEIGHT := 38.0
+const SCHEME_ROW_GROWTH := 48.0
 
 ## "controls": the Controls button (the Shell opens the controls list on top).
 signal action_requested(action_id: StringName)
@@ -39,6 +43,8 @@ var settings: GameSettings:
 @onready var mute_button: Button = $Panel/Margin/Rows/Bottom/Mute
 @onready var reset_button: Button = $Panel/Margin/Rows/Bottom/Reset
 @onready var close_button: Button = $Panel/Margin/Rows/Bottom/Close
+## "Mouse: Click to move (Diablo)" (`_add_scheme_button`).
+var scheme_button: Button
 
 
 func _ready() -> void:
@@ -51,6 +57,7 @@ func _ready() -> void:
 	reset_button.pressed.connect(_on_reset)
 	controls_button.pressed.connect(func() -> void: action_requested.emit(&"controls"))
 	close_button.pressed.connect(close)
+	_add_scheme_button()
 
 
 ## SettingsSurfacePort.model: captions with percentages, the shake slider off under reduce motion,
@@ -72,6 +79,8 @@ func refresh() -> void:
 		(get_node(^"Panel/Margin/Rows/Sliders/Shake/Caption") as Label).text = "Screen shake  off (reduce motion)"
 	mute_button.text = "Unmute" if muted else "Mute all"
 	motion_button.text = "Reduce motion: On" if reduce_motion else "Reduce motion: Off"
+	if scheme_button != null:
+		scheme_button.text = "Mouse: %s" % ControlScheme.display_name(str(values.get("control_scheme", "")))
 	status_label.text = STATUS_MUTED if muted else STATUS_SAVED
 
 
@@ -96,6 +105,27 @@ func _on_slider_changed(value: float, key: String) -> void:
 func _toggle(key: String) -> void:
 	if settings != null:
 		settings.update({key: not bool(settings.value(key))})
+
+
+## The control scheme row under the toggles (game/player/mouse/control_scheme.gd): one button that
+## cycles keyboard -> click to move -> right-click to move. Built here, so the panel grows by it.
+func _add_scheme_button() -> void:
+	var toggles := get_node(^"Panel/Margin/Rows/Toggles") as Control
+	scheme_button = Button.new()
+	scheme_button.name = "ControlScheme"
+	scheme_button.custom_minimum_size = Vector2(toggles.custom_minimum_size.x, SCHEME_ROW_HEIGHT)
+	scheme_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	toggles.add_sibling(scheme_button)
+	scheme_button.pressed.connect(_on_scheme_pressed)
+	var panel := get_node(^"Panel") as Control
+	panel.offset_top -= SCHEME_ROW_GROWTH / 2.0
+	panel.offset_bottom += SCHEME_ROW_GROWTH / 2.0
+	refresh()
+
+
+func _on_scheme_pressed() -> void:
+	if settings != null:
+		settings.update({"control_scheme": ControlScheme.next(str(settings.value("control_scheme")))})
 
 
 func _on_reset() -> void:

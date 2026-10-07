@@ -143,7 +143,9 @@ Phaser (`GameSettingsStore.ts`, `GameSettingsService.ts`, `SettingsSurfacePort.t
 
 Godot:
 - **[IN]** `GameSettings` keeps the same keys in snake_case (`master`, `effects`, `music`, `muted`,
-  `screen_shake`, `reduce_motion`, `attack_aim`), defaults, ranges and parsing, in
+  `screen_shake`, `reduce_motion`, `attack_aim`), plus the Godot-only `control_scheme`
+  (`keyboard` default, `click`, `moba`, `pointer`, `keys`; the keys-only scheme also rebinds the InputMap, `apply_to_input`; [../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)), shown as
+  a "Mouse: ..." button under the toggles. Defaults, ranges and parsing are kept, in
   `user://settings.cfg` (ConfigFile: `[meta] version=1`, `[settings]`). `update()` clamps, saves,
   applies and emits `changed`; `reset()` is Defaults.
 - Test runs (`-s res://tests/run_tests.gd`) neither read nor depend on the player's file: the
@@ -186,7 +188,9 @@ Godot:
 - Controls (`ControlsSurfacePort.ts:9-27`): fifteen rows, key label then action, from the binding
   table. Key labels (`ControlLabels.ts:4-70`): named keys (Space, Shift, Esc, arrows, "+", "−",
   Left / Right / Middle click, Mouse wheel), letters and digits as printed by the keyboard layout,
-  movement as one label ("WASD"). **[IN]** from Godot's InputMap (`ControlLabels.control_rows()`,
+  movement as one label ("WASD"). Godot adds a last row, F2 "Switch the control scheme", and a
+  mouse control scheme lists its two buttons in place of move / attack / interact
+  ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). **[IN]** from Godot's InputMap (`ControlLabels.control_rows()`,
   the layout label through `DisplayServer.keyboard_get_label_from_physical`). **[DIFF]** One grid
   row per control in 13 px, so a wrapped description keeps its key on its row.
 - Credits (`CreditsSurfacePort.ts:22-27`): per section the heading in capitals, then

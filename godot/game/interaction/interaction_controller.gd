@@ -15,6 +15,10 @@ class_name InteractionController
 ## "Right-click: <prompt>" at the bottom of the screen and a key badge over it. The player's
 ## interact press (right click, buffered 150 ms) runs `handle_interact`.
 ##
+## The mouse control schemes (game/player/mouse/control_scheme.gd) click a target anywhere on
+## screen: `target_at` finds it around the pointer, and while the slime walks there the player keeps
+## it `set_preferred`, so it is chosen over everything else once it is in reach (`is_current`).
+##
 ## A chest opens the chest window (chest.gd hands itself to game/ui/screens/chest_window.gd). An
 ## NPC opens its conversation (the quest service: dialogue box, offer and turn-in window). A
 ## workbench opens the crafting window for its site (game/ui/screens/menu_windows.gd).
@@ -22,6 +26,7 @@ class_name InteractionController
 ## Owner: interaction.
 
 const Services := preload("res://game/shared/services.gd")
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd")
 const InteractionBadge := preload("res://game/interaction/interaction_badge.gd")
@@ -63,6 +68,8 @@ const CHEST_OPEN_PROMPT := "Open chest"
 const CHEST_GUARDED_MESSAGE := "Fatty One Eye is guarding this chest!"
 const CHEST_MESSAGE_RISE := 48.0
 const NPC_DEFINITIONS_FILE := "npc-definitions.json"
+## game/scripts/gulp_spot.gd GROUP.
+const GULP_SPOT_GROUP := &"gulp-spot"
 ## The quest service (game/quests/quest_service.gd) runs NPC conversations.
 const QUESTS_GROUP := &"quests"
 
@@ -81,6 +88,8 @@ var _current: Dictionary = {}
 var _suppressed: bool = false
 var _pointer_seen: bool = false
 var _npc_names: Dictionary = {}
+## The click order's target (`key_of`): chosen first whenever it is in reach; null when none.
+var _preferred: Variant = null
 
 
 func _ready() -> void:
@@ -107,7 +116,9 @@ func _physics_process(_delta: float) -> void:
 	var furniture := get_tree().get_first_node_in_group(FURNITURE_GROUP)
 	var placing := furniture != null and bool(furniture.call(&"is_active"))
 	set_suppressed((player != null and bool(player.call(&"is_sleeping"))) or placing)
-	refresh(get_global_mouse_position() if _pointer_seen else null)
+	# The keys-only control scheme picks without the pointer (by priority, as with no mouse).
+	var pointing := _pointer_seen and ControlScheme.uses_mouse(ControlScheme.current())
+	refresh(get_global_mouse_position() if pointing else null)
 
 
 ## InteractionRouter.update: gathers the targets, chooses one, updates the prompt and the badge.
@@ -132,8 +143,12 @@ func refresh(pointer: Variant = null) -> void:
 		candidate_changed.emit({"id": id, "prompt": str(chosen.get("prompt", ""))})
 
 
-## InteractionRouter.choose (spec 2.4).
+## InteractionRouter.choose (spec 2.4). A preferred target (a click order's) in reach wins first.
 func choose(candidates: Array[Dictionary], pointer: Variant) -> Dictionary:
+	if _preferred != null:
+		for candidate in candidates:
+			if matches(candidate, _preferred):
+				return candidate
 	var best := {}
 	if pointer is Vector2:
 		var best_distance := POINTER_PICK_PX
@@ -195,6 +210,54 @@ func current() -> Dictionary:
 	return _current
 
 
+## The usable thing under the pointer wherever the slime stands (the mouse schemes walk there):
+## the targets around `pointer` as if the slime stood on it, the nearest pick point within
+## POINTER_PICK_PX. {} when none, or while suppressed.
+func target_at(pointer: Vector2) -> Dictionary:
+	if _suppressed:
+		return {}
+	var best := {}
+	var best_distance := POINTER_PICK_PX
+	for candidate in _gather_at(pointer):
+		var at: Variant = _pick_point(candidate)
+		if at == null:
+			continue
+		var distance := (at as Vector2).distance_to(pointer)
+		if distance <= best_distance:
+			best = candidate
+			best_distance = distance
+	return best
+
+
+## What identifies `candidate` across polls: its node when it has one (an NPC keeps it while its
+## quest kind changes), else its id.
+static func key_of(candidate: Dictionary) -> Variant:
+	var node: Variant = candidate.get("node")
+	if node is Node and is_instance_valid(node):
+		return node
+	return str(candidate.get("id", ""))
+
+
+## True when `candidate` is the target `key` names (`key_of`).
+static func matches(candidate: Dictionary, key: Variant) -> bool:
+	if candidate.is_empty() or key == null:
+		return false
+	if key is Node:
+		var node: Variant = candidate.get("node")
+		return is_instance_valid(key) and node is Node and node == key
+	return str(candidate.get("id", "")) == str(key)
+
+
+## Keeps a click order's target chosen whenever it is in reach (null: none).
+func set_preferred(key: Variant) -> void:
+	_preferred = key
+
+
+## True when the chosen target is the one `key` names (the click order arrived).
+func is_current(key: Variant) -> bool:
+	return not _suppressed and matches(_current, key)
+
+
 ## Sleeping hides the prompt and the badge and offers nothing.
 func set_suppressed(value: bool) -> void:
 	if value == _suppressed:
@@ -231,11 +294,17 @@ func get_badge() -> InteractionBadge:
 
 ## Phaser provider order: quest NPCs, chests, doors, gates, beds, workbenches.
 func _gather() -> Array[Dictionary]:
-	var out: Array[Dictionary] = []
 	var player := _player()
 	if player == null:
+		return []
+	return _gather_at(player.call(&"get_centre"))
+
+
+## The targets in reach of `at` (the slime's centre, or the pointer for `target_at`).
+func _gather_at(at: Vector2) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if _player() == null:
 		return out
-	var at: Vector2 = player.call(&"get_centre")
 	out.append_array(_npc_candidates(at))
 	_append(out, _chest_candidate(at))
 	_append(out, _nearest(at, DoorScript.GROUP, PRIORITY_DOOR, "world-doors:", _door_id, Callable(), _use_door))
@@ -243,7 +312,7 @@ func _gather() -> Array[Dictionary]:
 	_append(out, _nearest(at, BedScript.GROUP, PRIORITY_BED, "world-beds:", _path_id, Callable(), _use_bed))
 	_append(out, _with_pick_up(_nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench)))
 	_append(out, _nearest(at, &"restoration_site", PRIORITY_RESTORATION, "world-restorations:", _path_id, Callable(), _use_restoration))
-	_append(out, _gulp_candidate(player))
+	_append(out, _gulp_candidate(at))
 	return out
 
 
@@ -263,19 +332,31 @@ func _with_pick_up(candidate: Dictionary) -> Dictionary:
 
 
 ## A Gulp spot in reach (WorldScene.ts:1109-1128): "Gulp the Stone", no badge (the spot's own
-## "[Q] Gulp" hint floats over it), picked by pointer at the spot.
-func _gulp_candidate(player: Node) -> Dictionary:
-	var spot: Node = player.call(&"nearest_gulp_spot") if player.has_method(&"nearest_gulp_spot") else null
+## "[Q] Gulp" hint floats over it), picked by pointer at the spot. The nearest spot with a
+## material within its own radius of `at` (GulpController.nearest_spot's rule).
+func _gulp_candidate(at: Vector2) -> Dictionary:
+	var spot: Node = null
+	var best_distance := INF
+	for node: Node in get_tree().get_nodes_in_group(GULP_SPOT_GROUP):
+		if str(node.get(&"material_item_id")).is_empty():
+			continue
+		var distance := at.distance_to(node.call(&"origin"))
+		if distance <= float(node.get(&"radius")) and distance < best_distance:
+			spot = node
+			best_distance = distance
 	if spot == null:
 		return {}
-	var at: Vector2 = spot.call(&"origin")
-	var target := player
+	var spot_at: Vector2 = spot.call(&"origin")
+	var eat := func() -> bool:
+		var player := _player()
+		return player != null and str(player.call(&"eat")) != "nothing"
 	return {
-		"id": "gulp-spots:%d:%d" % [roundi(at.x), roundi(at.y)],
+		"id": "gulp-spots:%d:%d" % [roundi(spot_at.x), roundi(spot_at.y)],
 		"prompt": "Gulp the " + (str(spot.call(&"prompt_name")) if spot.has_method(&"prompt_name") else ItemCatalog.item_name(str(spot.get(&"material_item_id")))),
 		"priority": PRIORITY_GULP,
-		"origin": func() -> Vector2: return at,
-		"execute": func() -> bool: return str(target.call(&"eat")) != "nothing",
+		"origin": func() -> Vector2: return spot_at,
+		"execute": eat,
+		"node": spot,
 	}
 
 
@@ -329,6 +410,7 @@ func _chest_candidate(at: Vector2) -> Dictionary:
 		"anchor": func() -> Vector2: return chest.origin() - Vector2(0.0, CHEST_BADGE_RISE),
 		"origin": func() -> Vector2: return chest.origin() - Vector2(0.0, TARGET_BODY_RISE_PX),
 		"execute": func() -> bool: return _use_chest(chest),
+		"node": chest,
 	}
 
 
@@ -364,6 +446,7 @@ func _npc_candidates(at: Vector2) -> Array[Dictionary]:
 			"anchor": func() -> Vector2: return (npc.call(&"get_phaser_position") as Vector2) + NPC_BADGE_OFFSET,
 			"origin": func() -> Vector2: return (npc.call(&"get_phaser_position") as Vector2) - Vector2(0.0, NPC_BODY_RISE),
 			"execute": func() -> bool: return _talk(npc, kind),
+			"node": npc,
 		})
 	return out
 

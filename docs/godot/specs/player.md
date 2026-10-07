@@ -352,6 +352,8 @@ Bed respawn / other-area respawn [OUT].
 
 Mouse buttons and the wheel count only when pressed over the game canvas, not over HUD/windows; a release always counts (`InputEvent.ts:52-55`). Godot: handle in `_unhandled_input` (GUI controls with `mouse_filter = STOP` already swallow clicks).
 
+Godot addition (experiment, branch `exp/mouse-controls`): the mouse control schemes ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). In the `click` and `moba` schemes the mouse buttons are read before the action capture: one button gives click orders (walk, attack, use); the other is the click scheme's use (an `interact` press, or a use order on what is under the pointer) or the moba scheme's `attack` press. In the `pointer` scheme the slime faces the pointer and only `move_up` walks, toward it. The `keys` scheme rebinds the InputMap (arrows walk, A attacks, W interacts, S / D switch weapons) and aims nothing with the pointer: what aims goes where the slime faces. F2 (`control_scheme_next`) cycles the scheme. The keyboard scheme (the default) is unchanged.
+
 ### 7.2 Capture (`PlayerScript._unhandled_input`, `PlayerScript.ts:97-111`)
 ```
 held: Set[action]            pressed: Dict[action → sim_time_ms of the press]
