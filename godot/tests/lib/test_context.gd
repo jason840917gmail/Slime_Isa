@@ -24,6 +24,9 @@ const WorldServiceType := preload("res://game/autoload/world_service.gd")
 ## One physics step at 60 Hz, in ms.
 const STEP_MS := 1000.0 / 60.0
 const WORM_SCENE_ID := "character.worm-swordsman"
+## The worm swordsman's health in the combat spec (Phaser's 90). The mechanics tests keep it, whatever
+## the scene is tuned to (the owner set the worm to 8 HP on 2026-10-06).
+const SPEC_WORM_HP := 90.0
 
 var tree: SceneTree
 var test_name: String
@@ -74,8 +77,9 @@ func teleport_player(centre: Vector2) -> void:
 
 
 ## Spawns a worm swordsman whose centre is `offset` from the player centre, the way the camp does
-## (`WorldService.spawn_at_phaser_position`), without a camp territory. `passive` sets its
-## targeting radius and attack range to 0, so it never chases or attacks (isolates player hits).
+## (`WorldService.spawn_at_phaser_position`), without a camp territory, with the spec's health
+## (SPEC_WORM_HP). `passive` sets its targeting radius and attack range to 0, so it never chases or
+## attacks (isolates player hits).
 func spawn_worm(offset: Vector2, passive: bool = false) -> EnemyScript:
 	var service := world()
 	var script := player()
@@ -89,12 +93,19 @@ func spawn_worm(offset: Vector2, passive: bool = false) -> EnemyScript:
 	for child in root.get_children():
 		if child is EnemyScript:
 			var enemy := child as EnemyScript
+			set_enemy_health(enemy, SPEC_WORM_HP)
 			if passive:
 				enemy.targeting_radius = 0.0
 				enemy.attack_range = 0.0
 			return enemy
 	fail("spawn_worm: %s has no EnemyScript" % WORM_SCENE_ID)
 	return null
+
+
+## Gives a spawned enemy `hp` as its maximum and current health (test setup only).
+func set_enemy_health(enemy: EnemyScript, hp: float) -> void:
+	enemy.max_health = hp
+	enemy.call(&"_restore_health", hp)
 
 
 ## Places a worm so its centre is `centre` and stops it (test setup only).

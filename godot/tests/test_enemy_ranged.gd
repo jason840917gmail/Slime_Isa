@@ -147,6 +147,7 @@ func test_projectile_lifetime_walls_world_bounds_and_hurtboxes(t: TestContext) -
 	out_script.expire()
 	# 4. Enemy hurtboxes are ignored: the arrow flies through a passive worm to the player.
 	var bystander := _spawn(t, "worm-swordsman", OPEN + Vector2(-120.0, 0.0), true)
+	t.set_enemy_health(bystander, TestContext.SPEC_WORM_HP)
 	await t.steps(1)
 	var hits := _player_hits(t)
 	_fire(t, shooter, OPEN + Vector2(-250.0, 0.0), Vector2.RIGHT, 300.0, 0.0)
