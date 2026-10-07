@@ -9,7 +9,8 @@
     "grounds:pack": "python scripts/grounds/pack-ground-sheets.py",
     "props:pack": "python scripts/props/pack-prop-sheets.py",
     "audio:bake": "node scripts/audio/bake-audio.mjs",
-    "test:godot": "node scripts/godot/run-tests.mjs"
+    "test:godot": "node scripts/godot/run-tests.mjs",
+    "story:map": "node scripts/story/world-map/server.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

@@ -923,7 +923,7 @@ A stone node (persistHealth false) has no record until it breaks; then
   already has `item_count`, `remove_item` and `unlock_gate`. Tests reset it with `new_run()`
   before each test (`tests/run_tests.gd`).
 - **World service**: `instantiate_scene(scene_id)`, `entities_root()` (the y-sorted world root),
-  `dimensions()` (level-1: ts 64, 56 × 56), `is_solid_tile(tx, ty)` (outside → true),
+  `dimensions()` (level-1: ts 64, 64 × 64), `is_solid_tile(tx, ty)` (outside → true),
   `world_root`, `player`. `entities_root()` and `is_solid_tile` work only after
   `register_world`, which runs **after** the world's `_ready` calls (main.gd `load_world`), so
   anything a node does at load that needs them must be deferred.

@@ -435,19 +435,14 @@ func _player_text(text: String, color: StringName) -> void:
 	feel.floating_text(player.get_centre() - Vector2(0.0, 42.0), text, color, true)
 
 
-## World spec 1.2 "Viewport scale": 1 game px = 1 CSS px. Sets
-## `get_tree().root.content_scale_size = Vector2i(root.size / dpr)` with
-## `dpr = DisplayServer.screen_get_scale()` on web and 1.0 elsewhere (stretch mode stays
-## canvas_items + expand in project.godot).
+## World spec 1.2 "Viewport scale": the screen shows a fixed number of tiles. Keeps
+## `get_tree().root.content_scale_size` at the project's base size (1024 x 896 = 16 x 14 tiles of
+## 64 px); stretch canvas_items + expand scales it to the window, and a wider window shows more
+## columns (docs/story/03-world.md "World size").
 func apply_viewport_scale() -> void:
 	var root := get_tree().root
-	var dpr := 1.0
-	if OS.has_feature("web"):
-		dpr = DisplayServer.screen_get_scale()
-		if not is_finite(dpr) or dpr <= 0.0:
-			dpr = 1.0
-	var window_size := Vector2(root.size)
-	var base := Vector2i(maxi(1, roundi(window_size.x / dpr)), maxi(1, roundi(window_size.y / dpr)))
+	var base := Vector2i(int(ProjectSettings.get_setting("display/window/size/viewport_width")),
+		int(ProjectSettings.get_setting("display/window/size/viewport_height")))
 	if root.content_scale_size != base:
 		root.content_scale_size = base
 

@@ -3,7 +3,7 @@ class_name WorldDefinitionScript
 ## Scene script `game.world-definition` (Phaser `features/scripts/WorldDefinitionScript.ts`):
 ## a data holder on every world scene (node `world-definition`). World spec 2.1.
 ##
-## level-1: map_id "level-1", tile_size 64, columns 56, rows 56, metadata.player.spawn (640,704).
+## level-1: map_id "level-1", tile_size 64, columns 64, rows 64, metadata.player.spawn (640,704).
 ## The spawn used at runtime is the `player-spawn` marker node, not metadata (world spec 2.1).
 ##
 ## Owner: world builder.

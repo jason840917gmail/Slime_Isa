@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Map Sketch</title>
+<style>
+:root {
+	--bg: #14161b; --panel: #1d2027; --panel2: #262a33; --line: #353a47;
+	--text: #e6e8ee; --muted: #98a0b3; --accent: #7cc35a; --warn: #e0a23a; --bad: #e0623a;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, "Segoe UI", sans-serif; }
+body { display: grid; grid-template-rows: auto 1fr; grid-template-columns: 220px 1fr 300px; height: 100vh; overflow: hidden; }
+header { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; padding: 6px 10px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+header .sep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
+header .grow { flex: 1; }
+aside { background: var(--panel); overflow-y: auto; padding: 10px; }
+aside.left { border-right: 1px solid var(--line); }
+aside.right { border-left: 1px solid var(--line); }
+main { position: relative; overflow: hidden; background: #0d0e12; }
+canvas#view { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+h3 { margin: 12px 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+h3:first-child { margin-top: 0; }
+button, select, input, textarea { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; }
+button { padding: 4px 9px; cursor: pointer; }
+button:hover { border-color: #566078; }
+button.on { background: #35502a; border-color: var(--accent); }
+button.primary { background: #35502a; border-color: var(--accent); }
+button.danger:hover { border-color: var(--bad); color: #ffb39b; }
+input, select, textarea { padding: 3px 6px; width: 100%; }
+input[type=range] { padding: 0; width: 90px; }
+input[type=checkbox] { width: auto; }
+input[type=color] { padding: 0 2px; height: 26px; width: 40px; }
+textarea { min-height: 54px; resize: vertical; }
+label.row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+label.row > span { width: 64px; flex: none; color: var(--muted); font-size: 12px; }
+.swatches { display: grid; grid-template-columns: 1fr; gap: 2px; }
+.sw { display: flex; align-items: center; gap: 8px; padding: 3px 6px; border-radius: 5px; cursor: pointer; border: 1px solid transparent; }
+.sw:hover { background: var(--panel2); }
+.sw.on { border-color: var(--accent); background: var(--panel2); }
+.sw i { width: 18px; height: 18px; border-radius: 3px; flex: none; border: 1px solid #0006; display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 11px; color: #fff; }
+.sw small { margin-left: auto; color: var(--muted); }
+.list { display: grid; gap: 4px; }
+.conn { padding: 5px 7px; background: var(--panel2); border-radius: 5px; border-left: 3px solid var(--line); }
+.conn.ok { border-left-color: var(--accent); }
+.conn.warn { border-left-color: var(--warn); }
+.conn small { color: var(--muted); display: block; }
+.muted { color: var(--muted); }
+.status { font-size: 12px; color: var(--muted); }
+.status.dirty { color: var(--warn); }
+.help { color: var(--muted); font-size: 12px; }
+.help kbd { background: var(--panel2); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; font-size: 11px; }
+#coords { position: absolute; left: 8px; bottom: 6px; font-size: 12px; color: var(--muted); background: #000a; padding: 2px 6px; border-radius: 4px; pointer-events: none; }
+#toast { position: absolute; right: 10px; bottom: 10px; background: #000c; padding: 6px 10px; border-radius: 5px; display: none; max-width: 420px; }
+</style>
+</head>
+<body>
+<header>
+	<strong>World map</strong>
+	<input id="title" style="width:180px" title="Map title">
+	<span class="sep"></span>
+	<span class="muted">Layer</span>
+	<button data-layer="terrain" title="1">Terrain</button>
+	<button data-layer="elev" title="2">Elevation</button>
+	<button data-layer="region" title="3">Regions</button>
+	<button data-layer="marker" title="4">Markers</button>
+	<span class="sep"></span>
+	<button data-tool="brush" title="B">Brush</button>
+	<button data-tool="rect" title="R">Rect</button>
+	<button data-tool="fill" title="F">Fill</button>
+	<span class="muted">Size</span><input id="size" type="range" min="1" max="12" value="3"><span id="sizeVal">3</span>
+	<span class="sep"></span>
+	<label class="muted"><input type="checkbox" id="showRegions" checked> regions</label>
+	<label class="muted"><input type="checkbox" id="showGrid" checked> grid</label>
+	<label class="muted"><input type="checkbox" id="showChunks" checked> chunks</label>
+	<label class="muted"><input type="checkbox" id="showLabels" checked> labels</label>
+	<span class="grow"></span>
+	<span id="status" class="status"></span>
+	<button id="undo" title="Ctrl+Z">Undo</button>
+	<button id="redo" title="Ctrl+Y">Redo</button>
+	<button id="save" class="primary" title="Ctrl+S">Save</button>
+	<button id="more">More…</button>
+</header>
+
+<aside class="left" id="palette"></aside>
+<main>
+	<canvas id="view"></canvas>
+	<div id="coords"></div>
+	<div id="toast"></div>
+</main>
+<aside class="right">
+	<div id="inspector"></div>
+	<h3>Connections</h3>
+	<div id="connections" class="list"></div>
+	<h3>Controls</h3>
+	<div class="help">
+		Left drag paints. Right or middle drag (or <kbd>Space</kbd> + drag) pans; wheel zooms.
+		<kbd>Alt</kbd> + click picks the value under the cursor.<br>
+		<kbd>1</kbd>–<kbd>4</kbd> layers, <kbd>B</kbd>/<kbd>R</kbd>/<kbd>F</kbd> tools, <kbd>[</kbd> <kbd>]</kbd> brush size,
+		<kbd>Ctrl+Z</kbd>/<kbd>Ctrl+Y</kbd>, <kbd>Ctrl+S</kbd> save, <kbd>Del</kbd> removes the selected marker.<br>
+		Markers layer: click empty ground to drop the chosen marker, drag one to move it.
+		A gate or cave connects the regions within two cells of it, plus its <em>Leads to</em> region.
+	</div>
+</aside>
+
+<div id="moreMenu" style="display:none;position:absolute;right:10px;top:42px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;z-index:5;width:240px">
+	<div class="list">
+		<button id="loadRef">Load reference image…</button>
+		<label class="row"><span>Ref opacity</span><input id="refAlpha" type="range" min="0" max="100" value="40"></label>
+		<button id="clearRef">Remove reference image</button>
+		<button id="resize">Resize map…</button>
+		<button id="setChunks">Chunk count…</button>
+		<button id="exportPng">Download PNG</button>
+		<button id="exportJson">Download JSON</button>
+		<button id="importJson">Open JSON…</button>
+		<button id="fit">Fit map to view</button>
+	</div>
+</div>
+<input type="file" id="fileRef" accept="image/*" hidden>
+<input type="file" id="fileJson" accept=".json,application/json" hidden>
+
+<script>
+"use strict";
+
+// ---------- definitions ----------
+const CELL = 16; // base canvas pixels per map cell
+const EXPORT_CELL = 8; // PNG pixels per map cell
+const MAX_ELEV = 4;
+const TERRAINS = [
+	{ ch: ".", name: "Unplanned", color: "#23262e" },
+	{ ch: "g", name: "Grass", color: "#5da544" },
+	{ ch: "f", name: "Forest", color: "#357a38", pattern: "trees" },
+	{ ch: "p", name: "Path / dirt", color: "#b98d55" },
+	{ ch: "t", name: "Town / paving", color: "#cfc6a8", pattern: "tiles" },
+	{ ch: "h", name: "Bridge", color: "#8a5a2b", pattern: "planks" },
+	{ ch: "b", name: "Sand / beach", color: "#e4d08e" },
+	{ ch: "d", name: "Desert", color: "#d6ad62", pattern: "dots" },
+	{ ch: "r", name: "Rock / badlands", color: "#9a7444" },
+	{ ch: "m", name: "Mountain (blocked)", color: "#5e4b3b", pattern: "peaks" },
+	{ ch: "s", name: "Shallow water", color: "#62a0e6" },
+	{ ch: "w", name: "Deep water", color: "#2f5cb8", pattern: "waves" },
+	{ ch: "x", name: "Swamp", color: "#5f6f3c", pattern: "dots" },
+	{ ch: "n", name: "Snow", color: "#e9f1f6" },
+	{ ch: "i", name: "Ice", color: "#a6dcec", pattern: "waves" },
+	{ ch: "l", name: "Lava", color: "#e2531f", pattern: "waves" },
+	{ ch: "k", name: "Crystal", color: "#b58be3", pattern: "dots" },
+	{ ch: "c", name: "Cave / dungeon", color: "#3d3548", pattern: "tiles" },
+	{ ch: "v", name: "Abyss / void", color: "#07070a" },
+];
+const TERRAIN_BY_CH = Object.fromEntries(TERRAINS.map((t, i) => [t.ch, i]));
+const MARKERS = {
+	gate:     { name: "Gate / passage", letter: "G", color: "#e8912c", passage: true },
+	cave:     { name: "Cave / stairs",  letter: "C", color: "#55456b", passage: true },
+	warp:     { name: "Warp",           letter: "W", color: "#3fb8c9", passage: true },
+	dungeon:  { name: "Dungeon",        letter: "D", color: "#c43c3c" },
+	boss:     { name: "Boss",           letter: "B", color: "#8e1f1f" },
+	town:     { name: "Town / hub",     letter: "T", color: "#d9b44a" },
+	house:    { name: "House / interior", letter: "H", color: "#a0663a" },
+	landmark: { name: "Landmark",       letter: "★", color: "#e3d35a" },
+	npc:      { name: "NPC",            letter: "N", color: "#5aa0e3" },
+	item:     { name: "Key item",       letter: "I", color: "#3fbf7f" },
+	secret:   { name: "Secret / heart", letter: "♥", color: "#e05aa0" },
+	note:     { name: "Note / idea",    letter: "?", color: "#9aa1b2" },
+};
+const REGION_COLORS = ["#ffd166", "#ef476f", "#06d6a0", "#118ab2", "#f78c6b", "#c77dff", "#90be6d", "#f9c74f", "#4cc9f0", "#ff70a6", "#b5838d", "#80ffdb"];
+const REGION_KEYS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const STATUSES = ["Idea", "Proposal", "Planned", "In progress", "Built"];
+const SERVER = location.protocol.startsWith("http");
+const DRAFT_KEY = "slime-isa-world-map-draft";
+
+// ---------- state ----------
+let S; // the map
+let base, bctx, regionLayer, rctx; // cached layers at CELL scale
+let regionInfo = { centroids: [], samples: [], adjacency: new Map() };
+let refImage = null;
+const ui = {
+	layer: "terrain", tool: "brush", size: 3,
+	terrain: TERRAIN_BY_CH.g, elev: 1, elevMode: "set", region: 1, markerType: "gate",
+	selected: null, // marker object
+	scale: 1, panX: 0, panY: 0,
+	dirty: false, savedName: "",
+};
+let undoStack = [], redoStack = [];
+
+function blankMap(cols, rows) {
+	return { title: "Slime Isa world", cols, rows, chunks: { cols: 8, rows: 8 },
+		terrain: new Uint8Array(cols * rows), elev: new Uint8Array(cols * rows), region: new Uint8Array(cols * rows),
+		regions: [], markers: [] };
+}
+
+// ---------- serialization ----------
+function toJSON() {
+	const grid = (arr, f) => {
+		const out = [];
+		for (let y = 0; y < S.rows; y++) {
+			let s = "";
+			for (let x = 0; x < S.cols; x++) s += f(arr[y * S.cols + x]);
+			out.push(s);
+		}
+		return out;
+	};
+	return {
+		format: "slime-isa-world-map", version: 1, title: S.title, cols: S.cols, rows: S.rows, chunks: S.chunks,
+		legend: {
+			terrain: Object.fromEntries(TERRAINS.map(t => [t.ch, t.name])),
+			chunks: "the map is cut into chunks.cols x chunks.rows chunks, named by column letter and row number (A1 is the north-west corner)",
+			elevation: "0 to 4, a higher digit is higher ground; cliffs are drawn where it drops",
+			regionCells: "one character per cell: a region's key, or '.' for none",
+			markers: Object.fromEntries(Object.entries(MARKERS).map(([k, m]) => [k, m.name])),
+		},
+		regions: S.regions.map(r => ({ ...r })),
+		markers: S.markers.map(m => {
+			const o = { type: m.type, x: m.x, y: m.y, label: m.label };
+			for (const k of ["to", "needs", "map", "notes"]) if (m[k]) o[k] = m[k];
+			return o;
+		}),
+		terrain: grid(S.terrain, v => TERRAINS[v].ch),
+		elevation: grid(S.elev, v => String(v)),
+		regionCells: grid(S.region, v => v ? S.regions[v - 1].key : "."),
+	};
+}
+
+function fromJSON(d) {
+	const m = blankMap(d.cols, d.rows);
+	m.title = d.title || m.title;
+	if (d.chunks?.cols > 0 && d.chunks?.rows > 0) m.chunks = { cols: d.chunks.cols, rows: d.chunks.rows };
+	m.regions = (d.regions || []).map(r => ({ key: r.key, name: r.name || "Region", color: r.color || "#ffd166",
+		chapter: r.chapter || "", status: r.status || "Idea", maps: r.maps || "", boss: r.boss || "", notes: r.notes || "" }));
+	const regionIndex = Object.fromEntries(m.regions.map((r, i) => [r.key, i + 1]));
+	for (let y = 0; y < m.rows; y++) for (let x = 0; x < m.cols; x++) {
+		const i = y * m.cols + x;
+		m.terrain[i] = TERRAIN_BY_CH[(d.terrain?.[y] || "")[x]] ?? 0;
+		m.elev[i] = Math.min(MAX_ELEV, +((d.elevation?.[y] || "")[x] || 0) || 0);
+		m.region[i] = regionIndex[(d.regionCells?.[y] || "")[x]] || 0;
+	}
+	m.markers = (d.markers || []).filter(k => MARKERS[k.type]).map(k => ({ ...k, label: k.label || "" }));
+	return m;
+}
+
+// ---------- chunks ----------
+// chunk k of n starts at cell round(k * size / n); chunks are named A1 (north-west) to H8 for 8 x 8
+function chunkEdge(k, n, size) { return Math.round(k * size / n); }
+function chunkOf(x, y) {
+	let cx = 0, cy = 0;
+	while (cx + 1 < S.chunks.cols && x >= chunkEdge(cx + 1, S.chunks.cols, S.cols)) cx++;
+	while (cy + 1 < S.chunks.rows && y >= chunkEdge(cy + 1, S.chunks.rows, S.rows)) cy++;
+	return { cx, cy, name: chunkName(cx, cy) };
+}
+function chunkName(cx, cy) { return String.fromCharCode(65 + cx) + (cy + 1); }
+
+// ---------- rendering of cached layers ----------
+function hash(x, y) { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; }
+function shade(hex, f) {
+	const n = parseInt(hex.slice(1), 16);
+	let r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+	if (f >= 0) { r += (255 - r) * f; g += (255 - g) * f; b += (255 - b) * f; }
+	else { r *= 1 + f; g *= 1 + f; b *= 1 + f; }
+	return `rgb(${r | 0},${g | 0},${b | 0})`;
+}
+
+function rebuildLayers() {
+	base = document.createElement("canvas");
+	base.width = S.cols * CELL; base.height = S.rows * CELL;
+	bctx = base.getContext("2d");
+	regionLayer = document.createElement("canvas");
+	regionLayer.width = base.width; regionLayer.height = base.height;
+	rctx = regionLayer.getContext("2d");
+	for (let y = 0; y < S.rows; y++) for (let x = 0; x < S.cols; x++) drawCell(x, y);
+	redrawRegions();
+}
+
+function drawCell(x, y) {
+	if (x < 0 || y < 0 || x >= S.cols || y >= S.rows) return;
+	const i = y * S.cols + x, t = TERRAINS[S.terrain[i]], e = S.elev[i];
+	const px = x * CELL, py = y * CELL, h = hash(x, y);
+	const c = bctx;
+	c.fillStyle = shade(t.color, e * 0.05);
+	c.fillRect(px, py, CELL, CELL);
+	if (t.ch === ".") {
+		c.fillStyle = "#2a2e37";
+		if ((x + y) & 1) c.fillRect(px, py, CELL, CELL);
+	}
+	const dark = shade(t.color, -0.28), light = shade(t.color, 0.3);
+	switch (t.pattern) {
+		case "trees":
+			c.fillStyle = dark;
+			c.beginPath(); c.arc(px + 5 + (h & 3), py + 6 + ((h >> 2) & 3), 4.5, 0, 7); c.fill();
+			c.beginPath(); c.arc(px + 11 - ((h >> 4) & 3), py + 11 - ((h >> 6) & 2), 4, 0, 7); c.fill();
+			c.fillStyle = light; c.fillRect(px + 4 + (h & 3), py + 4 + ((h >> 2) & 3), 2, 2);
+			break;
+		case "peaks":
+			c.fillStyle = dark;
+			c.beginPath(); c.moveTo(px + 2, py + 14); c.lineTo(px + 8, py + 2 + (h & 3)); c.lineTo(px + 14, py + 14); c.fill();
+			c.fillStyle = light;
+			c.beginPath(); c.moveTo(px + 6.3, py + 7); c.lineTo(px + 8, py + 2 + (h & 3)); c.lineTo(px + 9.7, py + 7); c.fill();
+			break;
+		case "waves":
+			c.strokeStyle = light; c.lineWidth = 1.2;
+			c.beginPath(); const wx = px + 2 + (h & 7), wy = py + 4 + ((h >> 3) & 7);
+			c.moveTo(wx, wy); c.quadraticCurveTo(wx + 2.5, wy - 2, wx + 5, wy); c.stroke();
+			break;
+		case "dots":
+			c.fillStyle = (h & 1) ? dark : light;
+			c.fillRect(px + 3 + (h & 7), py + 3 + ((h >> 3) & 7), 2, 2);
+			c.fillStyle = dark;
+			c.fillRect(px + 2 + ((h >> 6) & 7), py + 9 + ((h >> 9) & 3), 2, 2);
+			break;
+		case "planks":
+			c.fillStyle = dark;
+			for (let k = 3; k < CELL; k += 4) c.fillRect(px, py + k, CELL, 1);
+			break;
+		case "tiles":
+			c.fillStyle = dark;
+			c.fillRect(px, py + CELL - 1, CELL, 1); c.fillRect(px + CELL - 1, py, 1, CELL);
+			break;
+	}
+	// cliffs: a face on the south side, a rim on the other sides, wherever the ground drops
+	if (e > 0) {
+		const below = y + 1 < S.rows ? S.elev[i + S.cols] : e;
+		const rim = "#3a2816";
+		if (below < e) {
+			const fh = 6;
+			c.fillStyle = "#7a5432"; c.fillRect(px, py + CELL - fh, CELL, fh);
+			c.fillStyle = "#5c3d22";
+			for (let k = (h & 3); k < CELL; k += 4) c.fillRect(px + k, py + CELL - fh + 1, 1, fh - 1);
+			c.fillStyle = rim; c.fillRect(px, py + CELL - fh - 1, CELL, 1.5);
+		}
+		c.fillStyle = rim;
+		if (x > 0 && S.elev[i - 1] < e) c.fillRect(px, py, 2, CELL);
+		if (x + 1 < S.cols && S.elev[i + 1] < e) c.fillRect(px + CELL - 2, py, 2, CELL);
+		if (y > 0 && S.elev[i - S.cols] < e) c.fillRect(px, py, CELL, 2);
+	}
+}
+
+function redrawRegions() {
+	const c = rctx, { cols, rows } = S;
+	c.clearRect(0, 0, regionLayer.width, regionLayer.height);
+	const sums = S.regions.map(() => ({ x: 0, y: 0, n: 0 }));
+	const samples = S.regions.map(() => []);
+	const adjacency = new Map();
+	for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+		const i = y * cols + x, r = S.region[i];
+		const right = x + 1 < cols ? S.region[i + 1] : 0, down = y + 1 < rows ? S.region[i + cols] : 0;
+		if (r && right && right !== r) addAdj(adjacency, r, right);
+		if (r && down && down !== r) addAdj(adjacency, r, down);
+		if (!r) continue;
+		const col = S.regions[r - 1].color, px = x * CELL, py = y * CELL;
+		const s = sums[r - 1]; s.x += x; s.y += y; s.n++;
+		if (!(x & 1) && !(y & 1)) samples[r - 1].push(i);
+		c.globalAlpha = 0.16; c.fillStyle = col; c.fillRect(px, py, CELL, CELL);
+		c.globalAlpha = 0.95;
+		if (x === 0 || S.region[i - 1] !== r) c.fillRect(px, py, 3, CELL);
+		if (x + 1 === cols || right !== r) c.fillRect(px + CELL - 3, py, 3, CELL);
+		if (y === 0 || S.region[i - cols] !== r) c.fillRect(px, py, CELL, 3);
+		if (y + 1 === rows || down !== r) c.fillRect(px, py + CELL - 3, CELL, 3);
+	}
+	c.globalAlpha = 1;
+	regionInfo = { centroids: sums.map(s => s.n ? { x: s.x / s.n + 0.5, y: s.y / s.n + 0.5, n: s.n } : null), samples, adjacency };
+	renderSidebar();
+}
+function addAdj(map, a, b) { const k = a < b ? `${a}-${b}` : `${b}-${a}`; map.set(k, (map.get(k) || 0) + 1); }
+
+// ---------- view ----------
+const view = document.getElementById("view");
+const vctx = view.getContext("2d");
+let needsRender = true, hover = null, rectStart = null;
+function requestRender() { needsRender = true; }
+function loop() { if (needsRender) { needsRender = false; render(); } requestAnimationFrame(loop); }
+
+function resizeView() {
+	const r = view.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+	view.width = Math.round(r.width * dpr); view.height = Math.round(r.height * dpr);
+	requestRender();
+}
+
+function render() {
+	const dpr = window.devicePixelRatio || 1, c = vctx;
+	c.setTransform(1, 0, 0, 1, 0, 0);
+	c.fillStyle = "#0d0e12"; c.fillRect(0, 0, view.width, view.height);
+	const k = ui.scale * dpr;
+	c.setTransform(k, 0, 0, k, ui.panX * dpr, ui.panY * dpr);
+	c.imageSmoothingEnabled = ui.scale < 1;
+	c.drawImage(base, 0, 0);
+	if (refImage) {
+		c.globalAlpha = +document.getElementById("refAlpha").value / 100;
+		c.imageSmoothingEnabled = true;
+		c.drawImage(refImage, 0, 0, base.width, base.height);
+		c.globalAlpha = 1; c.imageSmoothingEnabled = ui.scale < 1;
+	}
+	if (document.getElementById("showRegions").checked || ui.layer === "region") {
+		c.globalAlpha = ui.layer === "region" ? 1 : 0.75;
+		c.drawImage(regionLayer, 0, 0); c.globalAlpha = 1;
+	}
+	if (document.getElementById("showGrid").checked && ui.scale * CELL >= 9) {
+		c.strokeStyle = "rgba(0,0,0,0.18)"; c.lineWidth = 1 / ui.scale;
+		c.beginPath();
+		for (let x = 0; x <= S.cols; x++) { c.moveTo(x * CELL, 0); c.lineTo(x * CELL, S.rows * CELL); }
+		for (let y = 0; y <= S.rows; y++) { c.moveTo(0, y * CELL); c.lineTo(S.cols * CELL, y * CELL); }
+		c.stroke();
+	}
+	if (document.getElementById("showChunks").checked) drawChunkLines(c, CELL, 0, 0, 1 / ui.scale);
+	c.strokeStyle = "#566078"; c.lineWidth = 2 / ui.scale; c.strokeRect(0, 0, S.cols * CELL, S.rows * CELL);
+	if (ui.layer === "elev" && ui.scale * CELL >= 14) {
+		c.font = `${CELL * 0.55}px system-ui`; c.textAlign = "center"; c.textBaseline = "middle";
+		c.fillStyle = "rgba(0,0,0,0.45)";
+		for (let y = 0; y < S.rows; y++) for (let x = 0; x < S.cols; x++) {
+			const e = S.elev[y * S.cols + x];
+			if (e) c.fillText(e, x * CELL + CELL / 2, y * CELL + CELL / 2);
+		}
+	}
+	// tool preview
+	if (rectStart && hover) {
+		const x0 = Math.min(rectStart.x, hover.x), y0 = Math.min(rectStart.y, hover.y);
+		const x1 = Math.max(rectStart.x, hover.x), y1 = Math.max(rectStart.y, hover.y);
+		c.fillStyle = "rgba(255,255,255,0.15)"; c.fillRect(x0 * CELL, y0 * CELL, (x1 - x0 + 1) * CELL, (y1 - y0 + 1) * CELL);
+		c.strokeStyle = "#fff"; c.strokeRect(x0 * CELL, y0 * CELL, (x1 - x0 + 1) * CELL, (y1 - y0 + 1) * CELL);
+	} else if (hover && ui.layer !== "marker" && ui.tool !== "fill") {
+		const n = ui.tool === "brush" ? ui.size : 1, o = Math.floor((n - 1) / 2);
+		c.strokeStyle = "#fff"; c.lineWidth = 1.5 / ui.scale;
+		c.strokeRect((hover.x - o) * CELL, (hover.y - o) * CELL, n * CELL, n * CELL);
+	}
+	c.setTransform(dpr, 0, 0, dpr, 0, 0);
+	drawOverlays(c, ui.scale * CELL, ui.panX, ui.panY, { labels: document.getElementById("showLabels").checked, chunks: document.getElementById("showChunks").checked, selected: ui.selected });
+}
+
+function drawChunkLines(c, cs, ox, oy, px) {
+	c.strokeStyle = "rgba(255,255,255,0.55)"; c.lineWidth = 1.5 * px;
+	c.setLineDash([6 * px, 4 * px]);
+	c.beginPath();
+	for (let k = 1; k < S.chunks.cols; k++) { const x = ox + chunkEdge(k, S.chunks.cols, S.cols) * cs; c.moveTo(x, oy); c.lineTo(x, oy + S.rows * cs); }
+	for (let k = 1; k < S.chunks.rows; k++) { const y = oy + chunkEdge(k, S.chunks.rows, S.rows) * cs; c.moveTo(ox, y); c.lineTo(ox + S.cols * cs, y); }
+	c.stroke(); c.setLineDash([]);
+}
+function drawChunkNames(c, cs, ox, oy) {
+	c.font = "600 10px system-ui, sans-serif"; c.textAlign = "left"; c.textBaseline = "top";
+	for (let cy = 0; cy < S.chunks.rows; cy++) for (let cx = 0; cx < S.chunks.cols; cx++) {
+		const x = ox + chunkEdge(cx, S.chunks.cols, S.cols) * cs + 3, y = oy + chunkEdge(cy, S.chunks.rows, S.rows) * cs + 3;
+		c.lineWidth = 3; c.strokeStyle = "rgba(0,0,0,0.6)"; c.strokeText(chunkName(cx, cy), x, y);
+		c.fillStyle = "rgba(255,255,255,0.8)"; c.fillText(chunkName(cx, cy), x, y);
+	}
+	c.textAlign = "center"; c.textBaseline = "middle";
+}
+
+// region names and markers, drawn in screen space so text stays sharp. `cs` = screen px per cell.
+function drawOverlays(c, cs, ox, oy, opt) {
+	c.lineJoin = "round";
+	if (opt.chunks) drawChunkNames(c, cs, ox, oy);
+	c.textAlign = "center"; c.textBaseline = "middle";
+	const rad = Math.max(6, Math.min(11, cs * 0.6));
+	if (opt.labels !== false) {
+		// boxes (in cells) the markers and their labels cover, so region names can stay clear of them
+		const taken = S.markers.map(m => {
+			c.font = `600 ${Math.max(10, rad * 1.05)}px system-ui, sans-serif`;
+			const text = m.label ? (m.needs ? `${m.label} [${m.needs}]` : m.label) : "";
+			const w = (rad * 1.4 + (text ? c.measureText(text).width : 0)) / cs;
+			return { x0: m.x + 0.5 - rad / cs, x1: m.x + 0.5 + w, y0: m.y + 0.5 - rad * 1.2 / cs, y1: m.y + 0.5 + rad * 1.2 / cs };
+		});
+		regionInfo.centroids.forEach((p, i) => {
+			if (!p) return;
+			const r = S.regions[i], size = Math.max(11, Math.min(22, Math.sqrt(p.n) * cs * 0.09));
+			c.font = `700 ${size}px system-ui, sans-serif`;
+			const hw = c.measureText(r.name).width / 2 / cs + 0.3, top = size * 0.6 / cs, bottom = (r.chapter ? size * 1.4 : size * 0.6) / cs;
+			let best = null, bestScore = Infinity;
+			for (const k of regionInfo.samples[i]) {
+				const cx = k % S.cols + 0.5, cy = ((k / S.cols) | 0) + 0.5;
+				let score = Math.hypot(cx - p.x, cy - p.y);
+				if (cx - hw < 0 || cx + hw > S.cols || cy - top < 0 || cy + bottom > S.rows) score += 200;
+				for (const [qx, qy] of [[cx - hw, cy], [cx + hw, cy], [cx, cy - top], [cx, cy + bottom]])
+					if (S.region[Math.min(S.rows - 1, Math.max(0, qy | 0)) * S.cols + Math.min(S.cols - 1, Math.max(0, qx | 0))] !== i + 1) score += 40;
+				for (const b of taken) if (b.x0 < cx + hw && b.x1 > cx - hw && b.y0 < cy + bottom && b.y1 > cy - top) score += 60;
+				if (score < bestScore) { bestScore = score; best = { x: cx, y: cy }; }
+			}
+			best ||= p;
+			const sx = ox + best.x * cs, sy = oy + best.y * cs;
+			c.lineWidth = 4; c.strokeStyle = "rgba(0,0,0,0.75)"; c.strokeText(r.name, sx, sy);
+			c.fillStyle = r.color; c.fillText(r.name, sx, sy);
+			if (r.chapter) {
+				c.font = `600 ${size * 0.62}px system-ui, sans-serif`;
+				c.strokeText(`Chapter ${r.chapter}`, sx, sy + size * 0.95);
+				c.fillStyle = "#fff"; c.fillText(`Chapter ${r.chapter}`, sx, sy + size * 0.95);
+			}
+		});
+	}
+	for (const m of S.markers) {
+		const def = MARKERS[m.type], sx = ox + (m.x + 0.5) * cs, sy = oy + (m.y + 0.5) * cs;
+		c.beginPath();
+		if (def.passage) { c.moveTo(sx, sy - rad * 1.2); c.lineTo(sx + rad * 1.2, sy); c.lineTo(sx, sy + rad * 1.2); c.lineTo(sx - rad * 1.2, sy); c.closePath(); }
+		else c.arc(sx, sy, rad, 0, 7);
+		c.fillStyle = def.color; c.fill();
+		c.lineWidth = m === opt.selected ? 3 : 1.5; c.strokeStyle = m === opt.selected ? "#fff" : "#000";
+		c.stroke();
+		c.fillStyle = "#fff"; c.font = `700 ${rad * 1.15}px system-ui, sans-serif`;
+		c.fillText(def.letter, sx, sy + 0.5);
+		if (opt.labels !== false && m.label) {
+			c.font = `600 ${Math.max(10, rad * 1.05)}px system-ui, sans-serif`; c.textAlign = "left";
+			c.lineWidth = 3; c.strokeStyle = "rgba(0,0,0,0.8)";
+			const text = m.needs ? `${m.label} [${m.needs}]` : m.label;
+			c.strokeText(text, sx + rad * 1.4, sy); c.fillStyle = "#fff"; c.fillText(text, sx + rad * 1.4, sy);
+			c.textAlign = "center";
+		}
+	}
+}
+
+function screenToCell(ev) {
+	const r = view.getBoundingClientRect();
+	const wx = (ev.clientX - r.left - ui.panX) / ui.scale / CELL, wy = (ev.clientY - r.top - ui.panY) / ui.scale / CELL;
+	return { x: Math.floor(wx), y: Math.floor(wy), fx: wx, fy: wy };
+}
+function inMap(p) { return p.x >= 0 && p.y >= 0 && p.x < S.cols && p.y < S.rows; }
+function fitView() {
+	const r = view.getBoundingClientRect();
+	if (!r.width || !r.height) return;
+	fitted = true;
+	ui.scale = Math.max(0.15, Math.min(r.width / base.width, r.height / base.height) * 0.96);
+	ui.panX = (r.width - base.width * ui.scale) / 2; ui.panY = (r.height - base.height * ui.scale) / 2;
+	requestRender();
+}
+
+// ---------- editing ----------
+function snapshot() {
+	return { terrain: S.terrain.slice(), elev: S.elev.slice(), region: S.region.slice(),
+		regions: JSON.stringify(S.regions), markers: JSON.stringify(S.markers), cols: S.cols, rows: S.rows };
+}
+function restore(s) {
+	const sel = ui.selected ? S.markers.indexOf(ui.selected) : -1;
+	const sizeChanged = s.cols !== S.cols || s.rows !== S.rows;
+	Object.assign(S, { terrain: s.terrain, elev: s.elev, region: s.region, cols: s.cols, rows: s.rows,
+		regions: JSON.parse(s.regions), markers: JSON.parse(s.markers) });
+	ui.selected = S.markers[sel] || null;
+	if (ui.region > S.regions.length) ui.region = S.regions.length ? 1 : 0;
+	rebuildLayers(); if (sizeChanged) fitView();
+	changed(); renderPalette();
+}
+function pushUndo() { undoStack.push(snapshot()); if (undoStack.length > 80) undoStack.shift(); redoStack = []; }
+function undo() { if (undoStack.length) { redoStack.push(snapshot()); restore(undoStack.pop()); } }
+function redo() { if (redoStack.length) { undoStack.push(snapshot()); restore(redoStack.pop()); } }
+
+let draftTimer = 0;
+function changed() {
+	ui.dirty = true; updateStatus(); requestRender();
+	clearTimeout(draftTimer);
+	draftTimer = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), map: toJSON() })); } catch {} }, 600);
+}
+
+function layerArray() { return ui.layer === "terrain" ? S.terrain : ui.layer === "elev" ? S.elev : S.region; }
+function layerValue() { return ui.layer === "terrain" ? ui.terrain : ui.layer === "elev" ? ui.elev : ui.region; }
+
+let strokeTouched = null;
+function setCell(x, y) {
+	if (x < 0 || y < 0 || x >= S.cols || y >= S.rows) return false;
+	const i = y * S.cols + x, arr = layerArray();
+	let v = layerValue();
+	if (ui.layer === "elev" && ui.elevMode !== "set") {
+		if (strokeTouched.has(i)) return false;
+		strokeTouched.add(i);
+		v = Math.max(0, Math.min(MAX_ELEV, arr[i] + (ui.elevMode === "raise" ? 1 : -1)));
+	}
+	if (arr[i] === v) return false;
+	arr[i] = v;
+	if (ui.layer !== "region") { drawCell(x, y); drawCell(x - 1, y); drawCell(x + 1, y); drawCell(x, y - 1); drawCell(x, y + 1); }
+	return true;
+}
+function stamp(cx, cy) {
+	const n = ui.size, o = Math.floor((n - 1) / 2);
+	let any = false;
+	for (let y = cy - o; y < cy - o + n; y++) for (let x = cx - o; x < cx - o + n; x++) any = setCell(x, y) || any;
+	return any;
+}
+function strokeLine(a, b) {
+	let any = false, x = a.x, y = a.y;
+	const dx = Math.abs(b.x - x), dy = -Math.abs(b.y - y), sx = x < b.x ? 1 : -1, sy = y < b.y ? 1 : -1;
+	let err = dx + dy;
+	for (;;) {
+		any = stamp(x, y) || any;
+		if (x === b.x && y === b.y) break;
+		const e2 = 2 * err;
+		if (e2 >= dy) { err += dy; x += sx; }
+		if (e2 <= dx) { err += dx; y += sy; }
+	}
+	if (any) { if (ui.layer === "region") redrawRegions(); changed(); }
+}
+function fillRect(a, b) {
+	strokeTouched = new Set();
+	const n = ui.size; ui.size = 1;
+	let any = false;
+	for (let y = Math.min(a.y, b.y); y <= Math.max(a.y, b.y); y++)
+		for (let x = Math.min(a.x, b.x); x <= Math.max(a.x, b.x); x++) any = setCell(x, y) || any;
+	ui.size = n;
+	if (any) { if (ui.layer === "region") redrawRegions(); changed(); }
+}
+function floodFill(p) {
+	strokeTouched = new Set();
+	const arr = layerArray(), start = p.y * S.cols + p.x, from = arr[start];
+	const seen = new Uint8Array(arr.length), stack = [start], cells = [];
+	seen[start] = 1;
+	while (stack.length) {
+		const i = stack.pop(); cells.push(i);
+		const x = i % S.cols, y = (i / S.cols) | 0;
+		for (const [nx, ny] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
+			if (nx < 0 || ny < 0 || nx >= S.cols || ny >= S.rows) continue;
+			const j = ny * S.cols + nx;
+			if (!seen[j] && arr[j] === from) { seen[j] = 1; stack.push(j); }
+		}
+	}
+	let any = false;
+	for (const i of cells) any = setCell(i % S.cols, (i / S.cols) | 0) || any;
+	if (any) { if (ui.layer === "region") redrawRegions(); changed(); }
+}
+function pick(p) {
+	const i = p.y * S.cols + p.x;
+	if (ui.layer === "terrain") ui.terrain = S.terrain[i];
+	else if (ui.layer === "elev") { ui.elev = S.elev[i]; ui.elevMode = "set"; }
+	else if (ui.layer === "region") ui.region = S.region[i];
+	renderPalette();
+}
+
+function markerAt(ev) {
+	const r = view.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top, cs = ui.scale * CELL;
+	const rad = Math.max(9, Math.min(13, cs * 0.7));
+	for (let k = S.markers.length - 1; k >= 0; k--) {
+		const m = S.markers[k], sx = ui.panX + (m.x + 0.5) * cs, sy = ui.panY + (m.y + 0.5) * cs;
+		if (Math.hypot(mx - sx, my - sy) <= rad) return m;
+	}
+	return null;
+}
+
+// ---------- pointer input ----------
+let drag = null, spaceDown = false;
+view.addEventListener("contextmenu", e => e.preventDefault());
+view.addEventListener("pointerdown", ev => {
+	view.setPointerCapture(ev.pointerId);
+	const p = screenToCell(ev);
+	if (ev.button === 1 || ev.button === 2 || spaceDown) {
+		drag = { kind: "pan", sx: ev.clientX, sy: ev.clientY, px: ui.panX, py: ui.panY }; return;
+	}
+	if (ev.button !== 0) return;
+	if (ui.layer === "marker") {
+		const m = markerAt(ev);
+		if (m) { ui.selected = m; pushUndo(); drag = { kind: "marker", m, moved: false }; renderSidebar(); requestRender(); return; }
+		if (!inMap(p)) return;
+		pushUndo();
+		const def = MARKERS[ui.markerType];
+		const nm = { type: ui.markerType, x: p.x, y: p.y, label: def.name.split(" ")[0] };
+		S.markers.push(nm); ui.selected = nm; changed(); renderSidebar();
+		setTimeout(() => document.getElementById("mLabel")?.select(), 0);
+		return;
+	}
+	if (!inMap(p)) return;
+	if (ev.altKey) { pick(p); return; }
+	if (ui.layer === "region" && !S.regions.length) { toast("Add a region first (left panel)."); return; }
+	pushUndo();
+	if (ui.tool === "fill") { floodFill(p); return; }
+	if (ui.tool === "rect") { rectStart = p; drag = { kind: "rect" }; requestRender(); return; }
+	strokeTouched = new Set();
+	drag = { kind: "paint", last: p };
+	strokeLine(p, p);
+});
+view.addEventListener("pointermove", ev => {
+	const p = screenToCell(ev);
+	hover = inMap(p) ? p : null;
+	document.getElementById("coords").textContent = hover ? cellInfo(p) : "";
+	if (drag?.kind === "pan") { ui.panX = drag.px + ev.clientX - drag.sx; ui.panY = drag.py + ev.clientY - drag.sy; }
+	else if (drag?.kind === "paint") { strokeLine(drag.last, p); drag.last = p; }
+	else if (drag?.kind === "marker") {
+		const x = Math.max(0, Math.min(S.cols - 1, p.x)), y = Math.max(0, Math.min(S.rows - 1, p.y));
+		if (x !== drag.m.x || y !== drag.m.y) { drag.m.x = x; drag.m.y = y; drag.moved = true; changed(); }
+	}
+	requestRender();
+});
+view.addEventListener("pointerup", ev => {
+	if (drag?.kind === "rect" && rectStart) {
+		const p = screenToCell(ev);
+		fillRect(rectStart, { x: Math.max(0, Math.min(S.cols - 1, p.x)), y: Math.max(0, Math.min(S.rows - 1, p.y)) });
+		rectStart = null;
+	}
+	if (drag?.kind === "marker") { if (!drag.moved) undoStack.pop(); renderSidebar(); }
+	drag = null; requestRender();
+});
+view.addEventListener("pointerleave", () => { hover = null; requestRender(); });
+view.addEventListener("wheel", ev => {
+	ev.preventDefault();
+	const r = view.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top;
+	const f = Math.exp(-ev.deltaY * 0.0015), ns = Math.max(0.15, Math.min(6, ui.scale * f));
+	ui.panX = mx - (mx - ui.panX) * ns / ui.scale; ui.panY = my - (my - ui.panY) * ns / ui.scale;
+	ui.scale = ns; requestRender();
+}, { passive: false });
+
+function cellInfo(p) {
+	const i = p.y * S.cols + p.x, r = S.region[i];
+	return `${chunkOf(p.x, p.y).name} · ${p.x}, ${p.y} · ${TERRAINS[S.terrain[i]].name} · height ${S.elev[i]}${r ? " · " + S.regions[r - 1].name : ""}`;
+}
+
+// ---------- keyboard ----------
+window.addEventListener("keydown", ev => {
+	const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) && document.activeElement.type !== "range" && document.activeElement.type !== "checkbox";
+	if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "s") { ev.preventDefault(); save(); return; }
+	if (typing) return;
+	if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "z") { ev.preventDefault(); ev.shiftKey ? redo() : undo(); return; }
+	if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "y") { ev.preventDefault(); redo(); return; }
+	if (ev.code === "Space") { spaceDown = true; ev.preventDefault(); return; }
+	const layers = { "1": "terrain", "2": "elev", "3": "region", "4": "marker" };
+	if (layers[ev.key]) setLayer(layers[ev.key]);
+	else if (ev.key === "b") setTool("brush");
+	else if (ev.key === "r") setTool("rect");
+	else if (ev.key === "f") setTool("fill");
+	else if (ev.key === "[") setSize(ui.size - 1);
+	else if (ev.key === "]") setSize(ui.size + 1);
+	else if ((ev.key === "Delete" || ev.key === "Backspace") && ui.selected) deleteMarker(ui.selected);
+	else if (ev.key === "Escape") { ui.selected = null; renderSidebar(); requestRender(); }
+});
+window.addEventListener("keyup", ev => { if (ev.code === "Space") spaceDown = false; });
+
+// ---------- UI panels ----------
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function setLayer(l) {
+	ui.layer = l;
+	document.querySelectorAll("[data-layer]").forEach(b => b.classList.toggle("on", b.dataset.layer === l));
+	renderPalette(); renderSidebar(); requestRender();
+}
+function setTool(t) {
+	ui.tool = t;
+	document.querySelectorAll("[data-tool]").forEach(b => b.classList.toggle("on", b.dataset.tool === t));
+	requestRender();
+}
+function setSize(n) { ui.size = Math.max(1, Math.min(12, n)); document.getElementById("size").value = ui.size; document.getElementById("sizeVal").textContent = ui.size; requestRender(); }
+
+function renderPalette() {
+	const el = document.getElementById("palette");
+	let html = "";
+	if (ui.layer === "terrain") {
+		html = `<h3>Terrain</h3><div class="swatches">` + TERRAINS.map((t, i) =>
+			`<div class="sw ${i === ui.terrain ? "on" : ""}" data-t="${i}"><i style="background:${t.color}"></i>${esc(t.name)}<small>${t.ch}</small></div>`).join("") + `</div>
+			<p class="help">Paint the ground. "Unplanned" is the eraser: it marks space still to design.</p>`;
+	} else if (ui.layer === "elev") {
+		const modes = [["raise", "Raise +1"], ["lower", "Lower −1"]];
+		html = `<h3>Height</h3><div class="swatches">` +
+			[0, 1, 2, 3, 4].map(e => `<div class="sw ${ui.elevMode === "set" && e === ui.elev ? "on" : ""}" data-e="${e}"><i style="background:${shade("#5da544", e * 0.12)}">${e}</i>${e === 0 ? "Low ground" : "Level " + e}</div>`).join("") +
+			modes.map(([m, n]) => `<div class="sw ${ui.elevMode === m ? "on" : ""}" data-em="${m}"><i style="background:#444">${m === "raise" ? "+" : "−"}</i>${n}</div>`).join("") +
+			`</div><p class="help">Hills and plateaus. A cliff is drawn wherever the height drops; leave a gap of equal height (or a Cave/Stairs marker) where the slime can climb. Raise/Lower change each cell once per stroke.</p>`;
+	} else if (ui.layer === "region") {
+		html = `<h3>Regions</h3><div class="swatches">
+			<div class="sw ${ui.region === 0 ? "on" : ""}" data-r="0"><i style="background:#333">×</i>No region (eraser)</div>` +
+			S.regions.map((r, i) => `<div class="sw ${ui.region === i + 1 ? "on" : ""}" data-r="${i + 1}"><i style="background:${r.color}"></i>${esc(r.name)}<small>${r.chapter ? "ch " + esc(r.chapter) : ""}</small></div>`).join("") +
+			`</div><p><button id="addRegion">+ Add region</button></p>
+			<p class="help">Paint which cells belong to each region. Borders between regions are found by themselves and listed on the right. The selected region is edited on the right.</p>`;
+	} else {
+		html = `<h3>Marker to place</h3><div class="swatches">` + Object.entries(MARKERS).map(([k, m]) =>
+			`<div class="sw ${k === ui.markerType ? "on" : ""}" data-m="${k}"><i style="background:${m.color};${m.passage ? "transform:rotate(45deg) scale(.8)" : "border-radius:50%"}"><span style="${m.passage ? "transform:rotate(-45deg)" : ""}">${m.letter}</span></i>${esc(m.name)}</div>`).join("") +
+			`</div><h3>All markers (${S.markers.length})</h3><div class="swatches">` +
+			S.markers.map((m, i) => `<div class="sw ${m === ui.selected ? "on" : ""}" data-mi="${i}"><i style="background:${MARKERS[m.type].color}">${MARKERS[m.type].letter}</i>${esc(m.label || "(no label)")}</div>`).join("") + `</div>`;
+	}
+	el.innerHTML = html;
+	el.querySelectorAll("[data-t]").forEach(d => d.onclick = () => { ui.terrain = +d.dataset.t; renderPalette(); });
+	el.querySelectorAll("[data-e]").forEach(d => d.onclick = () => { ui.elev = +d.dataset.e; ui.elevMode = "set"; renderPalette(); });
+	el.querySelectorAll("[data-em]").forEach(d => d.onclick = () => { ui.elevMode = d.dataset.em; renderPalette(); });
+	el.querySelectorAll("[data-r]").forEach(d => d.onclick = () => { ui.region = +d.dataset.r; renderPalette(); renderSidebar(); });
+	el.querySelectorAll("[data-m]").forEach(d => d.onclick = () => { ui.markerType = d.dataset.m; renderPalette(); });
+	el.querySelectorAll("[data-mi]").forEach(d => d.onclick = () => { ui.selected = S.markers[+d.dataset.mi]; centerOn(ui.selected.x, ui.selected.y); renderPalette(); renderSidebar(); });
+	const add = document.getElementById("addRegion");
+	if (add) add.onclick = addRegion;
+}
+
+function centerOn(x, y) {
+	const r = view.getBoundingClientRect();
+	ui.panX = r.width / 2 - (x + 0.5) * CELL * ui.scale; ui.panY = r.height / 2 - (y + 0.5) * CELL * ui.scale; requestRender();
+}
+
+function addRegion() {
+	const used = new Set(S.regions.map(r => r.key));
+	const key = [...REGION_KEYS].find(k => !used.has(k));
+	if (!key) { toast("No region keys left."); return; }
+	pushUndo();
+	S.regions.push({ key, name: `Region ${S.regions.length + 1}`, color: REGION_COLORS[S.regions.length % REGION_COLORS.length], chapter: "", status: "Idea", maps: "", boss: "", notes: "" });
+	ui.region = S.regions.length; changed(); renderPalette(); redrawRegions();
+	setTimeout(() => document.getElementById("rName")?.select(), 0);
+}
+function deleteRegion(idx) {
+	const r = S.regions[idx - 1];
+	if (!confirm(`Delete region "${r.name}" and clear its cells?`)) return;
+	pushUndo();
+	S.regions.splice(idx - 1, 1);
+	for (let i = 0; i < S.region.length; i++) {
+		if (S.region[i] === idx) S.region[i] = 0; else if (S.region[i] > idx) S.region[i]--;
+	}
+	S.markers.forEach(m => { if (m.to === r.key) delete m.to; });
+	ui.region = 0; changed(); renderPalette(); redrawRegions();
+}
+function deleteMarker(m) {
+	pushUndo();
+	S.markers.splice(S.markers.indexOf(m), 1);
+	ui.selected = null; changed(); renderPalette(); renderSidebar();
+}
+
+// regions a marker touches: every region within two cells of it, plus its "leads to" region
+function markerRegions(m) {
+	const set = new Set();
+	for (let y = m.y - 2; y <= m.y + 2; y++) for (let x = m.x - 2; x <= m.x + 2; x++) {
+		if (x < 0 || y < 0 || x >= S.cols || y >= S.rows) continue;
+		const r = S.region[y * S.cols + x]; if (r) set.add(r);
+	}
+	if (m.to) { const k = S.regions.findIndex(r => r.key === m.to); if (k >= 0) set.add(k + 1); }
+	return set;
+}
+function regionOfMarker(m) { const r = S.region[m.y * S.cols + m.x]; return r ? S.regions[r - 1] : null; }
+
+function connectionsModel() {
+	const passages = S.markers.filter(m => MARKERS[m.type].passage).map(m => ({ m, regions: markerRegions(m) }));
+	const pairs = [];
+	for (const [k, n] of regionInfo.adjacency) {
+		const [a, b] = k.split("-").map(Number);
+		pairs.push({ a, b, border: n, via: passages.filter(p => p.regions.has(a) && p.regions.has(b)).map(p => p.m) });
+	}
+	// passages linking regions that do not share a border (tunnels, warps)
+	for (const p of passages) {
+		const rs = [...p.regions];
+		for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) {
+			const a = Math.min(rs[i], rs[j]), b = Math.max(rs[i], rs[j]);
+			if (!pairs.some(q => q.a === a && q.b === b)) pairs.push({ a, b, border: 0, via: passages.filter(q => q.regions.has(a) && q.regions.has(b)).map(q => q.m) });
+		}
+	}
+	const inward = passages.filter(p => p.regions.size < 2).map(p => p.m); // caves into interiors, dead ends
+	return { pairs, inward };
+}
+function passageText(m) { return `${m.label || MARKERS[m.type].name}${m.needs ? ` (needs ${m.needs})` : ""}`; }
+
+function renderSidebar() {
+	// inspector
+	const ins = document.getElementById("inspector");
+	const m = ui.selected && S.markers.includes(ui.selected) ? ui.selected : null;
+	if (!m) ui.selected = null;
+	const regionOpts = (sel) => `<option value="">—</option>` + S.regions.map(r => `<option value="${r.key}" ${r.key === sel ? "selected" : ""}>${esc(r.name)}</option>`).join("");
+	if (m) {
+		ins.innerHTML = `<h3>Marker</h3>
+			<label class="row"><span>Type</span><select id="mType">${Object.entries(MARKERS).map(([k, d]) => `<option value="${k}" ${k === m.type ? "selected" : ""}>${d.name}</option>`).join("")}</select></label>
+			<label class="row"><span>Label</span><input id="mLabel" value="${esc(m.label)}"></label>
+			<label class="row"><span>Leads to</span><select id="mTo">${regionOpts(m.to)}</select></label>
+			<label class="row"><span>Needs</span><input id="mNeeds" value="${esc(m.needs)}" placeholder="item, ability or event"></label>
+			<label class="row"><span>Game map</span><input id="mMap" value="${esc(m.map)}" placeholder="world id, e.g. level-1"></label>
+			<label class="row"><span>Notes</span><textarea id="mNotes">${esc(m.notes)}</textarea></label>
+			<p class="muted">At ${m.x}, ${m.y} (chunk ${chunkOf(m.x, m.y).name})${regionOfMarker(m) ? " in " + esc(regionOfMarker(m).name) : ""}</p>
+			<button class="danger" id="mDel">Delete marker</button>`;
+		const bind = (id, key, after) => { const e = document.getElementById(id); e.oninput = e.onchange = () => { m[key] = e.value; if (!m[key] && key !== "type") delete m[key]; changed(); after?.(); }; };
+		bind("mType", "type", () => renderPalette()); bind("mLabel", "label", () => renderPalette()); bind("mTo", "to", renderConnections);
+		bind("mNeeds", "needs", renderConnections); bind("mMap", "map"); bind("mNotes", "notes");
+		document.getElementById("mLabel").addEventListener("focus", () => pushUndo(), { once: true });
+		document.getElementById("mDel").onclick = () => deleteMarker(m);
+	} else if (ui.layer === "region" && ui.region) {
+		const r = S.regions[ui.region - 1], c = regionInfo.centroids[ui.region - 1];
+		ins.innerHTML = `<h3>Region</h3>
+			<label class="row"><span>Name</span><input id="rName" value="${esc(r.name)}"></label>
+			<label class="row"><span>Color</span><input id="rColor" type="color" value="${r.color}"><span class="muted" style="width:auto">key <b>${r.key}</b> · ${c ? c.n : 0} cells</span></label>
+			<p class="muted" style="margin:2px 0 6px">Chunks: ${regionChunks(ui.region).join(", ") || "none"}</p>
+			<label class="row"><span>Chapter</span><input id="rChapter" value="${esc(r.chapter)}" placeholder="1, 2, ?, Finale"></label>
+			<label class="row"><span>Status</span><select id="rStatus">${STATUSES.map(s => `<option ${s === r.status ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+			<label class="row"><span>Game maps</span><input id="rMaps" value="${esc(r.maps)}" placeholder="level-1, slime-home"></label>
+			<label class="row"><span>Boss</span><input id="rBoss" value="${esc(r.boss)}"></label>
+			<label class="row"><span>Notes</span><textarea id="rNotes">${esc(r.notes)}</textarea></label>
+			<button class="danger" id="rDel">Delete region</button>`;
+		const bind = (id, key, redraw) => { const e = document.getElementById(id); e.oninput = () => { r[key] = e.value; changed(); if (redraw) { redrawRegions(); renderPalette(); } else renderConnections(); }; };
+		bind("rName", "name", true); bind("rColor", "color", true); bind("rChapter", "chapter", true);
+		bind("rStatus", "status"); bind("rMaps", "maps"); bind("rBoss", "boss"); bind("rNotes", "notes");
+		document.getElementById("rStatus").onchange = document.getElementById("rStatus").oninput;
+		document.getElementById("rDel").onclick = () => deleteRegion(ui.region);
+	} else {
+		ins.innerHTML = `<h3>Map</h3><p class="muted">${S.cols} × ${S.rows} cells in ${S.chunks.cols} × ${S.chunks.rows} chunks (${(S.cols / S.chunks.cols).toFixed(0)} × ${(S.rows / S.chunks.rows).toFixed(0)} cells each) · ${S.regions.length} regions · ${S.markers.length} markers.<br>
+			Select a marker, or a region on the Regions layer, to edit it here.</p>`;
+	}
+	renderConnections();
+}
+
+function renderConnections() {
+	const el = document.getElementById("connections");
+	const { pairs, inward } = connectionsModel();
+	if (!pairs.length && !inward.length) { el.innerHTML = `<p class="muted">Paint two regions next to each other, or place a gate.</p>`; return; }
+	const name = i => esc(S.regions[i - 1].name);
+	el.innerHTML = pairs.map(p => `<div class="conn ${p.via.length ? "ok" : "warn"}"><b>${name(p.a)}</b> ↔ <b>${name(p.b)}</b>
+		<small>${p.via.length ? p.via.map(m => esc(passageText(m))).join("<br>") : "Shared border, no passage marked: open, or walled off?"}${p.border ? "" : " · no shared border"}</small></div>`).join("") +
+		inward.map(m => `<div class="conn"><b>${esc(m.label || MARKERS[m.type].name)}</b><small>${regionOfMarker(m) ? esc(regionOfMarker(m).name) + " → " : ""}${esc(m.map || "an interior")}${m.needs ? " · needs " + esc(m.needs) : ""}</small></div>`).join("");
+}
+
+// chunks where region `idx` holds most of the cells
+function regionChunks(idx) {
+	const out = [];
+	for (let cy = 0; cy < S.chunks.rows; cy++) for (let cx = 0; cx < S.chunks.cols; cx++) {
+		const x0 = chunkEdge(cx, S.chunks.cols, S.cols), x1 = chunkEdge(cx + 1, S.chunks.cols, S.cols);
+		const y0 = chunkEdge(cy, S.chunks.rows, S.rows), y1 = chunkEdge(cy + 1, S.chunks.rows, S.rows);
+		const counts = new Map();
+		for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const r = S.region[y * S.cols + x]; counts.set(r, (counts.get(r) || 0) + 1); }
+		let best = 0, bestN = -1;
+		for (const [r, n] of counts) if (n > bestN) { best = r; bestN = n; }
+		if (best === idx) out.push({ cx, cy });
+	}
+	return out.sort((a, b) => a.cy - b.cy || a.cx - b.cx).map(k => chunkName(k.cx, k.cy));
+}
+
+// ---------- doc section (03-world.md) ----------
+function markdownSection() {
+	const { pairs, inward } = connectionsModel();
+	const cell = s => String(s ?? "").replace(/\|/g, "\\|").replace(/\n+/g, " ").trim();
+	const R = i => S.regions[i - 1];
+	const lines = [];
+	lines.push("<!-- Generated by the world map tool (pnpm story:map) from world-map.json. Draw on the map instead of editing this block. -->", "");
+	lines.push("![World map sketch](world-map.png)", "");
+	if (S.regions.length) {
+		lines.push(`The map is cut into ${S.chunks.cols} × ${S.chunks.rows} chunks, A1 in the north-west; a region's chunks are those where it holds most of the ground.`, "");
+		lines.push("| Region | Chapter | Status | Chunks | Borders | Game maps | Boss | Notes |", "|---|---|---|---|---|---|---|---|");
+		S.regions.forEach((r, k) => {
+			const i = k + 1;
+			const borders = pairs.filter(p => p.border && (p.a === i || p.b === i)).map(p => R(p.a === i ? p.b : p.a).name);
+			lines.push(`| **${cell(r.name)}** | ${cell(r.chapter) || "?"} | ${cell(r.status)} | ${regionChunks(i).join(", ") || "none"} | ${cell(borders.join(", ")) || "none"} | ${cell(r.maps)} | ${cell(r.boss)} | ${cell(r.notes)} |`);
+		});
+		lines.push("");
+	}
+	const rows = [];
+	for (const p of pairs) {
+		if (p.via.length) for (const m of p.via) rows.push(`| ${cell(m.label || MARKERS[m.type].name)} | ${MARKERS[m.type].name} | ${cell(R(p.a).name)} ↔ ${cell(R(p.b).name)} | ${cell(m.needs) || "nothing"} | ${cell(m.notes)} |`);
+		else rows.push(`| *none marked* | border | ${cell(R(p.a).name)} ↔ ${cell(R(p.b).name)} | | Open, or walled off? |`);
+	}
+	for (const m of inward) rows.push(`| ${cell(m.label || MARKERS[m.type].name)} | ${MARKERS[m.type].name} | ${cell(regionOfMarker(m)?.name || "?")} → ${cell(m.map || "interior")} | ${cell(m.needs) || "nothing"} | ${cell(m.notes)} |`);
+	if (rows.length) lines.push("**Connections**", "", "| Passage | Kind | Connects | Needs | Notes |", "|---|---|---|---|---|", ...rows, "");
+	const places = S.markers.filter(m => !MARKERS[m.type].passage);
+	if (places.length) {
+		lines.push("**Places on the map**", "", "| Place | Kind | Region | Chunk | Needs | Notes |", "|---|---|---|---|---|---|");
+		places.sort((a, b) => (regionOfMarker(a)?.name || "~").localeCompare(regionOfMarker(b)?.name || "~"))
+			.forEach(m => lines.push(`| ${cell(m.label)} | ${MARKERS[m.type].name} | ${cell(regionOfMarker(m)?.name || "none")} | ${chunkOf(m.x, m.y).name} | ${cell(m.needs)} | ${cell(m.notes)} |`));
+		lines.push("");
+	}
+	return lines.join("\n");
+}
+
+// ---------- export ----------
+function exportCanvas() {
+	const k = EXPORT_CELL / CELL, out = document.createElement("canvas");
+	out.width = S.cols * EXPORT_CELL; out.height = S.rows * EXPORT_CELL;
+	const c = out.getContext("2d");
+	c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
+	c.drawImage(base, 0, 0, out.width, out.height);
+	c.globalAlpha = 0.85; c.drawImage(regionLayer, 0, 0, out.width, out.height); c.globalAlpha = 1;
+	drawChunkLines(c, EXPORT_CELL, 0, 0, 1);
+	drawOverlays(c, EXPORT_CELL, 0, 0, { labels: true, chunks: true });
+	return out;
+}
+function download(name, blobOrUrl) {
+	const a = document.createElement("a");
+	a.href = typeof blobOrUrl === "string" ? blobOrUrl : URL.createObjectURL(blobOrUrl);
+	a.download = name; a.click();
+}
+
+// ---------- save / load ----------
+function updateStatus() {
+	const el = document.getElementById("status");
+	el.textContent = ui.dirty ? "Unsaved changes" : (ui.savedName ? `Saved ${ui.savedName}` : "");
+	el.classList.toggle("dirty", ui.dirty);
+}
+async function save() {
+	const map = toJSON(), png = exportCanvas().toDataURL("image/png");
+	if (!SERVER) {
+		download("world-map.json", new Blob([JSON.stringify(map, null, "\t")], { type: "application/json" }));
+		download("world-map.png", png);
+		toast("Downloaded world-map.json and world-map.png. Run `pnpm story:map` to save straight into docs/story/.");
+		return;
+	}
+	try {
+		const res = await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ map, png, section: markdownSection() }) });
+		const out = await res.json();
+		if (!res.ok) throw new Error(out.error || res.statusText);
+		ui.dirty = false; ui.savedName = new Date().toLocaleTimeString(); updateStatus();
+		try { localStorage.removeItem(DRAFT_KEY); } catch {}
+		toast(`Saved ${out.wrote.join(", ")}${out.docUpdated ? "" : " (03-world.md has no map block, so it was left alone)"}`);
+	} catch (e) { toast("Save failed: " + e.message); }
+}
+function load(map) {
+	S = map; undoStack = []; redoStack = []; ui.selected = null;
+	if (ui.region > S.regions.length) ui.region = S.regions.length ? 1 : 0;
+	document.getElementById("title").value = S.title;
+	rebuildLayers(); fitView(); renderPalette(); renderSidebar();
+}
+
+let toastTimer = 0;
+function toast(msg) {
+	const t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block";
+	clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = "none", 5000);
+}
+
+// ---------- header wiring ----------
+document.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => setLayer(b.dataset.layer));
+document.querySelectorAll("[data-tool]").forEach(b => b.onclick = () => setTool(b.dataset.tool));
+document.getElementById("size").oninput = e => setSize(+e.target.value);
+["showRegions", "showGrid", "showChunks", "showLabels"].forEach(id => document.getElementById(id).onchange = requestRender);
+document.getElementById("refAlpha").oninput = requestRender;
+document.getElementById("title").oninput = e => { S.title = e.target.value; changed(); };
+document.getElementById("undo").onclick = undo;
+document.getElementById("redo").onclick = redo;
+document.getElementById("save").onclick = save;
+const menu = document.getElementById("moreMenu");
+document.getElementById("more").onclick = () => menu.style.display = menu.style.display === "none" ? "block" : "none";
+document.addEventListener("pointerdown", e => { if (!menu.contains(e.target) && e.target.id !== "more") menu.style.display = "none"; });
+document.getElementById("loadRef").onclick = () => document.getElementById("fileRef").click();
+document.getElementById("fileRef").onchange = e => {
+	const f = e.target.files[0]; if (!f) return;
+	const img = new Image(); img.onload = () => { refImage = img; requestRender(); toast("Reference image stretched over the map (not saved)."); };
+	img.src = URL.createObjectURL(f); e.target.value = "";
+};
+document.getElementById("clearRef").onclick = () => { refImage = null; requestRender(); };
+document.getElementById("fit").onclick = fitView;
+document.getElementById("setChunks").onclick = () => {
+	const ans = prompt("Chunks across and down (\"8 8\" cuts the map like A Link to the Past):", `${S.chunks.cols} ${S.chunks.rows}`);
+	if (!ans) return;
+	const [cols, rows] = ans.trim().split(/[\s,x]+/).map(Number);
+	if (!(cols >= 1 && rows >= 1 && cols <= 26 && rows <= 26)) { toast("Use 1 to 26 chunks each way."); return; }
+	pushUndo(); S.chunks = { cols, rows }; changed(); renderSidebar();
+};
+document.getElementById("exportPng").onclick = () => exportCanvas().toBlob(b => download("world-map.png", b));
+document.getElementById("exportJson").onclick = () => download("world-map.json", new Blob([JSON.stringify(toJSON(), null, "\t")], { type: "application/json" }));
+document.getElementById("importJson").onclick = () => document.getElementById("fileJson").click();
+document.getElementById("fileJson").onchange = async e => {
+	const f = e.target.files[0]; if (!f) return;
+	try { pushUndo(); const prev = undoStack; load(fromJSON(JSON.parse(await f.text()))); undoStack = prev; changed(); } catch (err) { toast("Could not open: " + err.message); }
+	e.target.value = "";
+};
+document.getElementById("resize").onclick = () => {
+	const ans = prompt(`New size and shift, as "cols rows shiftX shiftY".\nShift moves the existing drawing right/down (use it to grow the map up or left).`, `${S.cols} ${S.rows} 0 0`);
+	if (!ans) return;
+	const [cols, rows, sx = 0, sy = 0] = ans.trim().split(/[\s,x]+/).map(Number);
+	if (!(cols > 4 && rows > 4 && cols <= 400 && rows <= 400)) { toast("Size must be 5 to 400 cells."); return; }
+	pushUndo();
+	const n = blankMap(cols, rows);
+	Object.assign(n, { title: S.title, regions: S.regions, chunks: S.chunks });
+	for (let y = 0; y < S.rows; y++) for (let x = 0; x < S.cols; x++) {
+		const nx = x + sx, ny = y + sy;
+		if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+		const i = y * S.cols + x, j = ny * cols + nx;
+		n.terrain[j] = S.terrain[i]; n.elev[j] = S.elev[i]; n.region[j] = S.region[i];
+	}
+	n.markers = S.markers.map(m => ({ ...m, x: m.x + sx, y: m.y + sy })).filter(m => m.x >= 0 && m.y >= 0 && m.x < cols && m.y < rows);
+	S = n; ui.selected = null; rebuildLayers(); fitView(); changed(); renderPalette();
+};
+let fitted = false;
+new ResizeObserver(() => { resizeView(); if (!fitted && S && view.clientWidth > 0) { fitted = true; fitView(); } }).observe(view);
+window.addEventListener("beforeunload", e => { if (ui.dirty && SERVER) { e.preventDefault(); e.returnValue = ""; } });
+
+// ---------- start ----------
+(async function start() {
+	resizeView();
+	let map = null;
+	if (SERVER) {
+		try { const r = await fetch("/api/map"); if (r.ok) map = fromJSON(await r.json()); } catch {}
+	}
+	let draft = null;
+	try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch {}
+	if (draft && confirm(`Restore the unsaved draft from ${new Date(draft.at).toLocaleString()}?`)) {
+		map = fromJSON(draft.map); load(map); ui.dirty = true; updateStatus();
+	} else {
+		try { localStorage.removeItem(DRAFT_KEY); } catch {}
+		load(map || blankMap(120, 90));
+	}
+	setLayer("terrain"); setTool("brush"); setSize(3);
+	requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

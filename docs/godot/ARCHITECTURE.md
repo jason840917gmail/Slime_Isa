@@ -174,7 +174,7 @@ Boss camps ([specs/boss.md](specs/boss.md)) spawn their boss under the world roo
 
 ## 7. Bootstrap (main.gd `_ready`, world spec 1.2)
 
-1. `apply_viewport_scale()`: set `root.content_scale_size` so 1 game px = 1 CSS px, and re-apply on `size_changed`.
+1. `apply_viewport_scale()`: keep `root.content_scale_size` at the base size 1024 × 896 (16 × 14 tiles), and re-apply on `size_changed`.
 2. `RunState.ensure_started()`; the map is the pending travel handoff's (`RunState.consume_navigation()`), else `resolve_map_id()` (`"level-1"`). Steps 3-11 are `_build_world(map_id, handoff)`, which `travel_to` runs again for the next world.
 3. `load_world()`: instance `world.level-1` under `$World`, then `WorldService.register_world(root)`.
 4. `WorldBounds.build(world_root, world_rect)`.

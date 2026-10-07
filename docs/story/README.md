@@ -12,8 +12,10 @@
    rules every chapter follows, and the decisions of 2026-10-02.
 2. [Premise](02-premise.md): the story on one page, covering the
    Wellspring, the newborn slime, the goal and the ending.
-3. [World](03-world.md): the regions in order, what has gone wrong in each,
-   and where dungeons go.
+3. [World](03-world.md): the regions in order, the world size and screen
+   rules (8 × 8 chunks of 32 × 32 tiles, 16 × 14 tiles on screen), what has
+   gone wrong in each region, where dungeons go, and the world map sketch
+   (`pnpm story:map`).
 4. [Characters](04-characters.md): the slime, the people of Slimeshire, the
    bosses and the villain.
 5. Chapters, one file each:

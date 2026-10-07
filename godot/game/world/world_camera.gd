@@ -400,7 +400,7 @@ static func _damping_factor(delta_ms: float) -> float:
 	return 1.0 - exp(-DAMPING_RATE * minf(delta_ms, MAX_DAMPING_DELTA_MS) / 1000.0)
 
 
-## Visible viewport size in canvas units (CSS px once main.gd set content_scale_size).
+## Visible viewport size in canvas units (the 1024 x 896 base, wider on wide windows; main.gd).
 func _viewport_size() -> Vector2:
 	if not is_inside_tree():
 		return Vector2(1280.0, 720.0)

@@ -14,6 +14,14 @@
         "godot/export/web"
       ],
       "port": 3200
+    },
+    {
+      "name": "world-map",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/story/world-map/server.mjs"
+      ],
+      "port": 3210
     }
   ]
 }

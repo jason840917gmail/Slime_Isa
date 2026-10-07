@@ -55,7 +55,7 @@ Water tiles (`content/scenes/authored/resources/terrain/terrain.tile-set.resourc
 Both use `selection: sheet-wrap`: tile (x, y) shows sheet tile (x mod 19, y mod 19), so a water
 tile's ground pixel at layer position `px` is the sheet texel at `px mod 1216`.
 
-Worlds with water (tile counts shallow / deep): level-1 204 / 58 (56 × 56), emberleef 110 / 0,
+Worlds with water (tile counts shallow / deep): level-1 204 / 58 (64 × 64), emberleef 110 / 0,
 jk 57 / 0, playground 12 / 0, test-rectangle 2 / 0, 174 0 / 100, crystal-caverns 0 / 120,
 gloop-forest 0 / 181, hot 0 / 25.
 
@@ -293,7 +293,7 @@ converter gives render-domain AnimationPlayers `PROCESS_MODE_ALWAYS`
 ## 7. Performance
 
 - One node and one draw call per world. No per-frame script: the shader reads `TIME`. The level-1
-  mask is 56 × 56 RGBA8 (12.5 KB). Mounting is one pass over the used cells at world load.
+  mask is 64 × 64 RGBA8 (16 KB). Mounting is one pass over the used cells at world load.
 - Per fragment inside the rectangle: one mask fetch and two value noises (8 `sin`). Land pixels
   are discarded there. Water pixels add 4 sheet fetches (plus 2 and a `texelFetch` for 6.1), two
   more noises, 3 hashes, about 10 `sin`/`cos` and a `pow`. Phaser ran the same program over the whole
