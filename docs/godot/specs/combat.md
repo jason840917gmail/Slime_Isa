@@ -77,7 +77,7 @@ Value sources used below:
 | attributes (strength, vitality, agility, intellect) | 10 each at a new run | `character.player.initialAttributes` |
 | input buffer | 150 ms | `input.bufferMs` |
 | player damage-taken multiplier | 1 | literal in `systems/PlayerStats.ts:50` |
-| worm HP | 90 | worm scene EnemyScript `maxHealth` (= `enemy-types.json` `maxHp`) |
+| worm HP | 90 | worm scene EnemyScript `maxHealth` (= `enemy-types.json` `maxHp`). The owner set the scene to **8** on 2026-10-06 (`enemy-types.json` still says 90); the tests keep 90 (`TestContext.SPEC_WORM_HP`) |
 | worm attack range / aggro | 38 / 220 | scene `attackRange` / `targetingRadius` |
 | worm attack cooldown | 1500 ms | scene `attackCooldownMs` |
 | worm windup / recovery | 400 / 400 ms | scene `attributes.attackWindupMs` / `attackRecoveryMs` |
