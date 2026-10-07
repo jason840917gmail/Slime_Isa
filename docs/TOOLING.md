@@ -173,3 +173,19 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
 
   After applying, register the shipped takes in `scripts/audio/cues.mjs` (library only, no synth
   recipe) and `picks.json` so `pnpm audio:bake -- --library` keeps them.
+
+## Story
+
+- `pnpm story:map` (`node scripts/story/world-map/server.mjs`, `--port=<n>`; also `.claude/launch.json`
+  "world-map") — the world map sketch tool at http://127.0.0.1:3210, for planning which region sits
+  where and what connects to what ([story/03-world.md](story/03-world.md#world-map)). It paints four
+  layers on a grid of cells: terrain (grass, forest, water, swamp, snow, lava, …), elevation (0–4; cliffs
+  are drawn where it drops), regions (each with its chapter, status, game maps and boss) and markers
+  (gates, caves, warps, dungeons, bosses, towns, NPCs, secrets, notes), over a chunk grid (8 × 8 by
+  default, named A1 in the north-west to H8; "More… → Chunk count" changes it). A gate, cave or warp connects
+  the regions within two cells of it plus its "leads to" region; the right panel lists every border and
+  passage, and flags shared borders with no passage marked. Save (Ctrl+S) writes
+  `docs/story/world-map.json` (one text row per grid row, so diffs stay readable), `world-map.png`, and
+  the generated block between the `world-map` markers in `03-world.md`. A reference image can be laid
+  over the map for tracing (not saved). Opened as a plain file, without the server, Save downloads the
+  JSON and PNG instead.

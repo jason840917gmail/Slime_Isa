@@ -43,6 +43,9 @@ windows built on the theme replace them (table below).
   line in `scene_index.json`; a new world also needs a world exit that leads to it.
 - `res://tools/verify_scenes.gd` loads and instantiates every indexed scene and plays level-1
   ("Checking your work").
+- World sizes follow the chunk grid in [docs/story/03-world.md](../story/03-world.md#world-size-and-screen):
+  64 px tiles, a screen of 16 × 14 tiles (the 1024 × 896 base view in `project.godot`), overworld
+  maps in whole chunks of 32 × 32 tiles (level-1 is 64 × 64), interiors no bigger than one screen.
 
 Scenes that differ from the converter's copy or replace it:
 

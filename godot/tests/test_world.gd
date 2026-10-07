@@ -1,7 +1,7 @@
 extends RefCounted
 ## level-1 world, camera and a long smoke run (docs/godot/specs/world.md sections 1-4,
 ## runtime.md 6.9).
-## - level-1 is 56 x 56 tiles of 64 px (3584 px square) and its ground layer is full: 3136 cells.
+## - level-1 is 64 x 64 tiles of 64 px (4096 px square) and its ground layer is full: 4096 cells.
 ## - The player spawns with its centre on the `player-spawn` marker (640, 704), feet at +27.56.
 ## - The camera centres on the player at start and then follows it, keeping it inside the
 ##   deadzone (clamp(vp.x * 0.18, 128, 224) x clamp(vp.y * 0.14, 96, 160) screen px).
@@ -12,8 +12,8 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
 const TILE_SIZE := 64
-const COLUMNS := 56
-const ROWS := 56
+const COLUMNS := 64
+const ROWS := 64
 const SPAWN_CENTRE := Vector2(640.0, 704.0)
 const PLAYER_DEPTH_ANCHOR := Vector2(0.0, 27.56)
 

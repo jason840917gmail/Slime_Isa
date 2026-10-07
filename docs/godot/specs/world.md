@@ -71,7 +71,7 @@ Order in `world_bootstrap._ready()`:
 9. Add UI: HUD CanvasLayer (§6), floating health bar (§6.3), FPS readout (§7).
 
 Integrator settings this area needs (report, do not edit `project.godot`):
-- **Viewport scale**: Phaser draws 1 world px = 1 CSS px at zoom 1 for any window size (RESIZE mode). `project.godot` currently has `stretch/mode="canvas_items"`, `aspect="expand"` at 1280x720, which would scale the world by `min(w/1280, h/720)` — **not** Phaser behaviour. Recommended: keep `canvas_items` + `expand` and in the bootstrap set `get_tree().root.content_scale_size = Vector2i(root.size / dpr)` on start and on `root.size_changed`, with `dpr = DisplayServer.screen_get_scale()` on web (devicePixelRatio; verify on the reference laptop) and `1.0` elsewhere. Result: 1 game px = 1 CSS px, UI px = CSS px, deadzone math (§4.3) gets CSS sizes exactly as Phaser. (Alternative `stretch/mode="disabled"` gives 1 game px = 1 *device* px, which shrinks everything on HiDPI screens.)
+- **Viewport scale**: the screen shows a fixed number of tiles, as in Zelda: A Link to the Past (16 × 14). `project.godot` sets the base size 1024 × 896 (16 × 14 tiles of 64 px) with `stretch/mode="canvas_items"`, `aspect="expand"`, and the bootstrap's `apply_viewport_scale()` keeps `get_tree().root.content_scale_size` at that base size (on start and on `root.size_changed`). Godot scales the base to the window: the view is always 14 tiles tall at least and 16 wide at least, a wider window shows more columns (16:9 → about 25 × 14), and the UI scales with the world. This replaced the Phaser rule (1 game px = 1 CSS px, the visible world grew with the window) on 2026-10-07; the rules are in [docs/story/03-world.md](../../story/03-world.md#world-size-and-screen).
 - `physics/common/physics_interpolation = true` (Phaser interpolates presentation between fixed steps: `presentation/PhysicsPresentation.ts:30-46`, `CameraMotion.ts:52-62`). `max_physics_steps_per_frame=5` is already set (matches `MAX_FIXED_STEPS_PER_FRAME = 5`).
 - Clear colour `#0b1020` already set.
 
@@ -89,15 +89,15 @@ extends Node
 @export var tile_size: int = 0
 @export var columns: int = 0
 @export var rows: int = 0
-@export var metadata: Dictionary = {}     # level-1: {objects: [], player: {spawn:{x:640,y:704}, entries:{east:{x:3360,y:569.6}, south:{x:1081,y:990}}}}
+@export var metadata: Dictionary = {}     # level-1: {objects: [], player: {spawn:{x:640,y:704}, entries:{east:{x:3872,y:569.6}, south:{x:1081,y:990}}}}
 @export var camera_mode: String = "follow" # absent in level-1 → "follow"; "fixed" in interiors
 ```
 
-level-1 values (`worlds/level-1.scene.json`, node `world-definition`): `mapId "level-1"`, `tileSize 64`, `columns 56`, `rows 56`. Validation as Phaser (`WorldSceneLoader.ts:57-60`, `WorldDimensions.ts:15-19`): positive integers, else push_error and abort. `camera_mode` other than follow/fixed → error.
+level-1 values (`worlds/level-1.scene.json`, node `world-definition`): `mapId "level-1"`, `tileSize 64`, `columns 64`, `rows 64`. Validation as Phaser (`WorldSceneLoader.ts:57-60`, `WorldDimensions.ts:15-19`): positive integers, else push_error and abort. `camera_mode` other than follow/fixed → error.
 
-`WorldDimensions` = `{tile_size: 64, columns: 56, rows: 56, width: columns*tile_size = 3584, height: rows*tile_size = 3584}`.
+`WorldDimensions` = `{tile_size: 64, columns: 64, rows: 64, width: columns*tile_size = 4096, height: rows*tile_size = 4096}`.
 
-Spawn source: Phaser uses the **`player-spawn` Node2D marker position**, not `metadata.player.spawn` (`WorldSceneLoader.ts:90-96`; they are equal in level-1: `(640, 704)`). Missing marker → error. Entries (`player-entry-east (3360,569.6)`, `player-entry-south (1081,990)`) and door arrivals (`home-door/arrival` global `(1083, 954)`, `mushroom-door/arrival` `(1493, 538)`, rounded) are [OUT] (only used when arriving through an exit/door).
+Spawn source: Phaser uses the **`player-spawn` Node2D marker position**, not `metadata.player.spawn` (`WorldSceneLoader.ts:90-96`; they are equal in level-1: `(640, 704)`). Missing marker → error. Entries (`player-entry-east (3872,569.6)`, `player-entry-south (1081,990)`) and door arrivals (`home-door/arrival` global `(1083, 954)`, `mushroom-door/arrival` `(1493, 538)`, rounded) are [OUT] (only used when arriving through an exit/door).
 
 ### 2.2 Spawn point resolution [IN]
 
@@ -122,7 +122,7 @@ The tile under the **centre** (not the feet) is what Phaser tests; keep that **[
 
 Phaser: `physics.world.setBounds(0, 0, width, height)` (`WorldScene.ts:1356`) and every `CharacterBody2DNode` has `collideWorldBounds` default `true` (`infrastructure/phaser-nodes/CharacterBody2DNode.ts:25`; player sets it explicitly). Arcade keeps each body's **collision rectangle** inside `[0,width]×[0,height]` regardless of collision masks. Camera bounds are the same rect (§4.5).
 
-Godot: one `StaticBody2D` "WorldBounds" under the world root with four `CollisionShape2D` rectangles placed just outside the rect, thickness `T = 256` (no tunnelling at dodge speed 380 px/s): left `Rect(-T, -T, T, H+2T)`, right `Rect(W, -T, T, H+2T)`, top `Rect(0, -T, W, T)`, bottom `Rect(0, H, W, T)` with W=H=3584. `collision_layer = 1` ("world"), `collision_mask = 0`. Every character body mask in level-1 includes bit 1 (player 1157, NPC 1027; enemy masks per the enemy spec), so the result matches Arcade. Because the shapes are fully outside the world, they never affect sight checks inside it. The converter drops `collideWorldBounds`; nothing else replaces it.
+Godot: one `StaticBody2D` "WorldBounds" under the world root with four `CollisionShape2D` rectangles placed just outside the rect, thickness `T = 256` (no tunnelling at dodge speed 380 px/s): left `Rect(-T, -T, T, H+2T)`, right `Rect(W, -T, T, H+2T)`, top `Rect(0, -T, W, T)`, bottom `Rect(0, H, W, T)` with W=H=4096. `collision_layer = 1` ("world"), `collision_mask = 0`. Every character body mask in level-1 includes bit 1 (player 1157, NPC 1027; enemy masks per the enemy spec), so the result matches Arcade. Because the shapes are fully outside the world, they never affect sight checks inside it. The converter drops `collideWorldBounds`; nothing else replaces it.
 
 ---
 
@@ -232,7 +232,7 @@ Effect: inside the deadzone rectangle (centred on the camera) the player moves w
 
 ### 4.5 `center_on` and camera bounds (Phaser `Camera.centerOn` + `clampX/clampY`)
 
-`WorldScene.ts:1482`: `cameras.main.setBounds(0, 0, width, height)` = `(0,0,3584,3584)` for level-1. Phaser clamps on `centerOn` and again before render, and the clamped value is what the next frame reads as `current`. Port:
+`WorldScene.ts:1482`: `cameras.main.setBounds(0, 0, width, height)` = `(0,0,4096,4096)` for level-1. Phaser clamps on `centerOn` and again before render, and the clamped value is what the next frame reads as `current`. Port:
 
 ```gdscript
 func center_on(p: Vector2) -> void:
@@ -459,9 +459,9 @@ Visible by default in trial builds (it is the 60-fps test instrument); toggle wi
 ## 9. Checklist for the engineer
 
 1. Player spawns with feet at (640, 731.56); camera starts centred on (640, 704) clamped to bounds (at 1280×720 zoom 1: centre (640, 704), no clamp needed since 640 ≥ 640 and 704 ≥ 360).
-2. Walking: the camera stays still while the slime is within ±112 × ±50.4 px of the camera centre (1280×720, zoom 1), then follows smoothly; it never shows outside (0,0)-(3584,3584).
+2. Walking: the camera stays still while the slime is within ±112 × ±50.4 px of the camera centre (1280×720, zoom 1), then follows smoothly; it never shows outside (0,0)-(4096,4096).
 3. `=`/`-` step through 0.5 … 1.25; each step snaps the camera onto the slime; at 1.25 `=` does nothing.
 4. The six NPCs idle, then walk inside their areas with `walk-<dir>` clips at their own speeds and pause with `idle`; the elder can pause up to 50 s.
 5. HUD top-left shows `Coins 50`, `HP 100 / 100`, `Energy 100 / 100`; a hit shows the 56×8 bar above the slime for 1.8 s.
 6. FPS panel top-right updates 5×/s.
-7. The slime cannot leave the 3584×3584 world (bounds walls on layer 1).
+7. The slime cannot leave the 4096×4096 world (bounds walls on layer 1).

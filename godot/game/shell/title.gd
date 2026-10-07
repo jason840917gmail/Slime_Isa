@@ -161,17 +161,12 @@ static func pan_position(anchor: Vector2, elapsed_ms: float) -> Vector2:
 	return anchor + TITLE_PAN_OFFSET + Vector2(drift, 0.0)
 
 
-## main.gd's `apply_viewport_scale` (world spec 1.2): 1 game px = 1 CSS px, so the title and the
-## game draw the UI at the same size.
+## main.gd's `apply_viewport_scale` (world spec 1.2): the base size of 16 x 14 tiles, so the title
+## and the game draw the UI at the same size.
 func apply_viewport_scale() -> void:
 	var root := get_tree().root
-	var dpr := 1.0
-	if OS.has_feature("web"):
-		dpr = DisplayServer.screen_get_scale()
-		if not is_finite(dpr) or dpr <= 0.0:
-			dpr = 1.0
-	var window_size := Vector2(root.size)
-	var base := Vector2i(maxi(1, roundi(window_size.x / dpr)), maxi(1, roundi(window_size.y / dpr)))
+	var base := Vector2i(int(ProjectSettings.get_setting("display/window/size/viewport_width")),
+		int(ProjectSettings.get_setting("display/window/size/viewport_height")))
 	if root.content_scale_size != base:
 		root.content_scale_size = base
 

@@ -40,7 +40,7 @@ func test_minimap_box_and_level_1_terrain(t: TestContext) -> void:
 	var image := minimap.terrain_image()
 	if not t.check(image != null, "no terrain baked for level-1"):
 		return
-	t.equal(image.get_size(), Vector2i(56, 56), "level-1 terrain size (tiles)")
+	t.equal(image.get_size(), Vector2i(64, 64), "level-1 terrain size (tiles)")
 	t.check(minimap.terrain_texture() != null and Vector2i(minimap.terrain_texture().get_size()) == Vector2i(minimap.map_rect().size.round()),
 		"the drawn terrain is not scaled to the map area")
 	var ground := t.world().ground_layer
@@ -86,8 +86,8 @@ func test_player_dot_and_view_follow(t: TestContext) -> void:
 	var minimap := map_ui.minimap
 	var area := minimap.map_rect()
 	t.near_vec(minimap.to_map(Vector2.ZERO), area.position, 0.001, "world origin on the minimap")
-	t.near_vec(minimap.to_map(Vector2(3584.0, 3584.0)), area.end, 0.001, "world corner on the minimap")
-	t.near_vec(minimap.to_map(Vector2(1792.0, 896.0)), area.position + area.size * Vector2(0.5, 0.25), 0.001, "a world point on the minimap")
+	t.near_vec(minimap.to_map(Vector2(4096.0, 4096.0)), area.end, 0.001, "world corner on the minimap")
+	t.near_vec(minimap.to_map(Vector2(2048.0, 1024.0)), area.position + area.size * Vector2(0.5, 0.25), 0.001, "a world point on the minimap")
 	await t.tree.process_frame
 	t.near_vec(minimap.drawn_player(), t.player().get_centre(), 0.01, "player dot at spawn")
 	for target: Vector2 in [Vector2(1200.0, 1900.0), Vector2(2400.0, 900.0)]:

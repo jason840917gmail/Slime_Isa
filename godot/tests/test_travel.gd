@@ -1,6 +1,6 @@
 extends RefCounted
 ## Area travel (docs/godot/specs/world.md section 8, game/world/area_travel.gd, Main.travel_to):
-## level-1's east exit (`exit-1`, centre (3552, 576), target gloop-forest entry "west") is gated
+## level-1's east exit (`exit-1`, centre (4064, 576), target gloop-forest entry "west") is gated
 ## by `level-1-east-verdant-gate` (green key, consumed). Without the key the player stays and the
 ## exit reports "blocked"; with it the key is used, the gate is remembered, the picture fades out
 ## and gloop-forest is built with the player on the tile centre at its `player-entry-west` marker,
@@ -10,7 +10,7 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
 
-const EXIT_CENTRE := Vector2(3552.0, 576.0)
+const EXIT_CENTRE := Vector2(4064.0, 576.0)
 const GATE_ID := "level-1-east-verdant-gate"
 const KEY_ID := "green-key"
 const TARGET_MAP := "gloop-forest"

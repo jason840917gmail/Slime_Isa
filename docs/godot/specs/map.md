@@ -242,7 +242,7 @@ map_ui.clear_markers()
 ## 4. Tests
 
 `godot/tests/test_map.gd`: the minimap's box at 1280 × 720 and the formula at other sizes; the baked
-level-1 terrain (56 × 56, water cells blue, meadow cells green, an empty cell transparent) and the
+level-1 terrain (64 × 64, water cells blue, meadow cells green, an empty cell transparent) and the
 frame; the player marker following a teleport; the marker API (set, move, clear, other worlds,
 both views); the world map from the `map` action and from the Shell's Map button (open, `modal`
 pause, labels, summary, discovered links, `window_opened(&"world-map")`, Escape, `map` and Close

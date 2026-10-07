@@ -1,7 +1,7 @@
 extends RefCounted
 ## The interact button, doors, gates, chests and beds (docs/godot/specs/interaction.md 8.8).
 ## level-1: `home-door` (origin (1081, 903), reach 90, "Enter house" -> slime-home), the Verdant
-## gate (origin (3264, 768), reach 150, green key), the guarded chest in Fatty's camp
+## gate (origin (3776, 768), reach 150, green key), the guarded chest in Fatty's camp
 ## (`level-1-fatty-guarded-chest`, a green key). slime-home: `house-door` ((448, 694), reach 80),
 ## the west bed ((160, 340): sleep at (159.625, 275.95), wake at (159.625, 356)).
 
@@ -13,7 +13,7 @@ const InteractionController := preload("res://game/interaction/interaction_contr
 
 const HOME_DOOR_ARRIVAL := Vector2(1083.0, 954.0)
 const GATE_ID := "level-1-east-verdant-gate"
-const GATE_STAND := Vector2(3264.0, 840.0)
+const GATE_STAND := Vector2(3776.0, 840.0)
 const KEY := "green-key"
 const CHEST_ID := "level-1-fatty-guarded-chest"
 const BED_STAND := Vector2(160.0, 400.0)
@@ -81,7 +81,7 @@ func test_gate_locked_without_key(t: TestContext) -> void:
 	if t.check(messages.size() == 1, "%d messages" % messages.size()):
 		t.equal(messages[0]["text"], "The Verdant Gate is locked. Fatty One Eye guards the Green Key.", "locked message")
 		t.equal(messages[0]["color"], "white", "locked message colour")
-		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), Vector2(3264.0, 648.0), 0.01, "locked message position")
+		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), Vector2(3776.0, 648.0), 0.01, "locked message position")
 	var gate := _gate(t)
 	t.check(gate != null and not gate.is_open(), "the gate opened without the key")
 	t.check(not Services.run().is_gate_unlocked("level-1", GATE_ID), "the gate record unlocked")
