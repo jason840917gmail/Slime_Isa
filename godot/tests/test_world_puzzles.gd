@@ -9,7 +9,9 @@ const Services := preload("res://game/shared/services.gd")
 
 const MAP_ID := "playground"
 const LESSON := Vector2(1904.0, 1520.0)
-const BELL_SHORE := Vector2(2340.0, 1465.0)
+## West of the lash bell, in the shallows before the lash yard's deep-water strip (x 2304-2368
+## since the playground's water was repainted, 2026-10-06): the pull carries the slime across it.
+const BELL_SHORE := Vector2(2285.0, 1465.0)
 const LASH_GATE := "playground-lash-gate"
 const DUMMY_STAND := Vector2(1480.0, 1440.0)
 

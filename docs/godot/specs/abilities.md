@@ -1516,10 +1516,12 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
 `test_world_puzzles.gd` (playground unless noted)
 - Lesson: centre (1904, 1600) (80 px) → `stretch-lash` learned, `taught
   {abilityIds:["stretch-lash"]}`, `AbilityLearned` cue; at (1904, 1700) (180 px) nothing.
-- Lash bell: lash learned, centre (2340, 1465), face right, tap `stretch_lash` → at +120 bell
+- Lash bell: lash learned, centre (2285, 1465) (the shallows west of the lash yard's deep-water
+  strip since the 2026-10-06 repaint), face right, tap `stretch_lash` → at +120 bell
   `rung {bellId:"playground-lash-bell"}` and gate `playground-lash-gate` open; catch at
-  (2428, 1465), anchor (2490, 1470); landing ≈ (2460.0, 1469.0) (± 1); flight 120.08 / 0.9 =
-  133.4 ms from +170; centre reaches the landing at ≈ +303; unlocked at ≈ +483; energy 80.
+  (2428, 1465), anchor (2490, 1470); landing ≈ (2460.0, 1469.0) (± 1); flight ≈ 175 / 0.9 ≈
+  194 ms from +170, across the deep water; centre reaches the landing at ≈ +364; unlocked at
+  ≈ +544; energy 80.
 - Lash none: centre (1280, 1536), face right (no layer-1 body or pickup within 180 px) → no
   movement, unlock at +270, cooldown 2000, energy 80.
 - Dummy sword hit: centre (1480, 1440), face up, tap `attack` → dummy 1 `hit {damage}` with 24
