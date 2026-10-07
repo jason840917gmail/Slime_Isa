@@ -48,7 +48,21 @@
   },
   "input": {
     "bufferMs": 150,
-    "weaponWheelStepLockMs": 150
+    "weaponWheelStepLockMs": 150,
+    "mouse": {
+      "pathCellPx": 24,
+      "pathMaxExpansions": 3000,
+      "pathMaxMs": 30,
+      "arrivePx": 6,
+      "repathMs": 250,
+      "followRepathMs": 120,
+      "followMaxMs": 8,
+      "stuckMs": 400,
+      "stillPx": 14,
+      "pickRadiusPx": 18,
+      "meleeFallbackPx": 52,
+      "ledgePushExtraMs": 200
+    }
   },
   "character": {
     "player": {

@@ -168,6 +168,35 @@ func get_active_direction() -> String:
 	return _active_direction
 
 
+## True when one of the attack shapes for `direction` ("<direction>--<hitboxId>") overlaps the
+## hurtbox `area` where it stands now (a physics query; the shapes are read even while disabled).
+## The mouse schemes' attack order walks the slime until this holds (game/player/mouse/).
+func reaches(direction: String, area: Area2D) -> bool:
+	if attack_area == null or not is_instance_valid(attack_area) or not attack_area.is_inside_tree():
+		return false
+	if area == null or not is_instance_valid(area):
+		return false
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.collision_mask = attack_area.collision_mask
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	var space := attack_area.get_world_2d().direct_space_state
+	for child in attack_area.get_children():
+		var shape_node := child as CollisionShape2D
+		if shape_node == null or shape_node.shape == null:
+			continue
+		var shape_name := String(shape_node.name)
+		var separator := shape_name.find(SHAPE_NAME_SEPARATOR)
+		if separator < 0 or shape_name.substr(0, separator) != direction:
+			continue
+		query.shape = shape_node.shape
+		query.transform = shape_node.global_transform
+		for hit: Dictionary in space.intersect_shape(query, 32):
+			if hit.get("collider") == area:
+				return true
+	return false
+
+
 ## Combat spec 5.2 order: resolve current overlaps for open windows; finish when elapsed >=
 ## durationMs; else frame = floor(elapsed / 1000 * fps), open/close windows
 ## (`Services.router().begin_activation/end_activation`), toggle shapes.

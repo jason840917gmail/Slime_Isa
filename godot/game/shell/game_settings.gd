@@ -12,6 +12,9 @@ class_name GameSettings
 ## Ambience = effects, Music; linear gains like Phaser's WebAudio) and GameFeel
 ## (`screen_shake_scale`, `reduce_motion`).
 ## `attack_aim` is stored only (Phaser changes it from the dev panel; the port aims at the pointer).
+## `control_scheme` is read by the player (game/player/mouse/control_scheme.gd) when it handles a
+## mouse button; the Settings window and F2 change it; the keys-only scheme also rebinds the
+## InputMap (`apply_to_input`).
 ##
 ## Owner: shell.
 
@@ -35,7 +38,14 @@ const DEFAULTS := {
 	"screen_shake": 1.0,
 	"reduce_motion": false,
 	"attack_aim": "pointer",
+	"control_scheme": "keyboard",
 }
+## How the mouse drives the slime (game/player/mouse/control_scheme.gd): the keyboard scheme (WASD
+## walks), click to move (Diablo), right-click to move (MOBA), face the pointer (W walks toward it)
+## or keys only (no mouse: the arrows walk, A attacks, W interacts).
+const CONTROL_SCHEMES: PackedStringArray = ["keyboard", "click", "moba", "pointer", "keys"]
+const KEYS_ONLY_SCHEME := "keys"
+const KeyBindings := preload("res://game/player/mouse/key_bindings.gd")
 ## Settings in [0, 1] (`unitInterval`).
 const UNIT_KEYS: PackedStringArray = ["master", "effects", "music", "screen_shake"]
 const ATTACK_AIM_FACING := "facing"
@@ -129,12 +139,19 @@ func reset() -> void:
 func apply() -> void:
 	apply_to_buses()
 	apply_to_feel()
+	apply_to_input()
 
 
 ## `applyMix` (SettingsSurfacePort.ts:81-87): Master = master volume and mute; Effects and
 ## Ambience = effects; Music = music (MusicDirector.apply_mix, static, no autoload needed).
 func apply_to_buses() -> void:
 	MusicDirector.apply_mix(master(), effects(), music(), muted())
+
+
+## The keys-only control scheme rebinds the InputMap (game/player/mouse/key_bindings.gd); any other
+## scheme puts it back.
+func apply_to_input() -> void:
+	KeyBindings.apply(str(_values["control_scheme"]) == KEYS_ONLY_SCHEME)
 
 
 ## GameFeel scales camera shake by `screen_shake` and skips shake and hit-stop under reduce motion.
@@ -157,5 +174,7 @@ static func parse(raw: Dictionary) -> Dictionary:
 	parsed["muted"] = typeof(raw.get("muted")) == TYPE_BOOL and bool(raw["muted"])
 	parsed["reduce_motion"] = typeof(raw.get("reduce_motion")) == TYPE_BOOL and bool(raw["reduce_motion"])
 	parsed["attack_aim"] = ATTACK_AIM_FACING if str(raw.get("attack_aim", "")) == ATTACK_AIM_FACING else ATTACK_AIM_POINTER
+	var scheme := str(raw.get("control_scheme", ""))
+	parsed["control_scheme"] = scheme if CONTROL_SCHEMES.has(scheme) else str(DEFAULTS["control_scheme"])
 	return parsed
 

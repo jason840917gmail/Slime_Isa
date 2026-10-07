@@ -15,6 +15,7 @@ const PADDING_Y := 7.0
 const BOTTOM_GAP := 42.0
 const LAYER := 9
 const INTERACT_ACTION := &"interact"
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 var _panel: PanelContainer
 var _label: Label
@@ -65,8 +66,11 @@ func get_text() -> String:
 
 
 ## "Right-click" for the right mouse button (ControlLabels `controlVerb('interact')`), following the
-## first event bound to `interact`.
+## first event bound to `interact`. A mouse control scheme names its order button instead ("Click").
 static func interact_verb() -> String:
+	var order_verb := ControlScheme.order_verb(ControlScheme.current())
+	if not order_verb.is_empty():
+		return order_verb
 	for event: InputEvent in InputMap.action_get_events(INTERACT_ACTION):
 		if event is InputEventMouseButton:
 			match (event as InputEventMouseButton).button_index:

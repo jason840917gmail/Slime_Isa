@@ -53,6 +53,11 @@ const GooTrail := preload("res://game/player/goo_trail.gd")
 const FootstepsScene := preload("res://game/scenes/audio/footsteps.tscn")
 const WheelStepper := preload("res://game/player/wheel_stepper.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
+## The mouse control schemes (click to move, right-click to move): game/player/mouse/.
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
+const ClickOrders := preload("res://game/player/mouse/click_orders.gd")
+const PointerTargets := preload("res://game/player/mouse/pointer_targets.gd")
+const ClickMarker := preload("res://game/player/mouse/click_marker.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -193,6 +198,21 @@ var _respawn_at_real_ms: float = -1.0
 var _was_moving: bool = false
 var _still_since_ms: float = 0.0
 var _pointer_seen: bool = false
+## The mouse control schemes (game/player/mouse/control_scheme.gd): the click order, whether its
+## button is down, a press waiting for the next physics step (seeing what was clicked needs
+## physics; simulation ms, < 0 when none), the same for the click scheme's use button (and whether
+## the order came from it), the ground marks, the cursor shape shown.
+var _orders: ClickOrders = ClickOrders.new()
+var _order_button_down: bool = false
+var _order_press_ms: float = -1.0
+var _use_button_down: bool = false
+var _use_press_ms: float = -1.0
+var _order_from_use: bool = false
+var _click_marker: ClickMarker
+var _cursor_shape: Input.CursorShape = Input.CURSOR_ARROW
+var _pick_radius_px: float = 0.0
+var _melee_fallback_px: float = 0.0
+var _ledge_push_extra_ms: float = 0.0
 
 ## Clip names (player spec 1.1). Every clip resolves to its directional version when the scene
 ## has one (`_directional_clip`).
@@ -291,6 +311,8 @@ func _ready() -> void:
 	_make_gulp_hud()
 	_make_goo_trail.call_deferred()
 	_make_footsteps()
+	_orders.configure(_number)
+	_orders.path.bind(body)
 	if body != null:
 		body.motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_register_receiver()
@@ -310,6 +332,7 @@ func _exit_tree() -> void:
 	_abilities.cancel()
 	_unregister_receiver()
 	clear_input()
+	_set_cursor(Input.CURSOR_ARROW)
 
 
 ## Window focus lost: no release events arrive for keys held at that moment, so forget them
@@ -320,18 +343,81 @@ func _notification(what: int) -> void:
 
 
 ## Player spec 7.2: feeds PlayerInputBuffer with the SimClock time; tracks
-## `InputEventMouseMotion` to set `_pointer_seen`; marks captured events handled.
+## `InputEventMouseMotion` to set `_pointer_seen`; marks captured events handled. F2 switches the
+## control scheme; a mouse scheme's buttons go to `_capture_order_buttons` first.
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_pointer_seen = true
 		return
 	if event is InputEventMouseButton:
 		_pointer_seen = true
+	if event.is_action_pressed(&"control_scheme_next"):
+		_cycle_control_scheme()
+		get_viewport().set_input_as_handled()
+		return
+	if _capture_order_buttons(event):
+		get_viewport().set_input_as_handled()
+		return
 	if _capture_wheel(event):
 		get_viewport().set_input_as_handled()
 		return
 	if _input.capture(event, Services.now_ms()):
 		get_viewport().set_input_as_handled()
+
+
+## An order scheme's buttons (game/player/mouse/control_scheme.gd), mouse events only (an
+## `attack` / `interact` InputEventAction keeps its keyboard-scheme job). The order button's press
+## and the click scheme's use button's wait for the next physics step (`_issue_click_order`); a
+## release lets the order that button gave go. Shift + the order button in the click scheme, and
+## the moba scheme's swing button, is an `attack` press (a swing in place toward the pointer).
+## Placing furniture keeps the keyboard scheme's buttons. True when the event was one of these
+## buttons.
+func _capture_order_buttons(event: InputEvent) -> bool:
+	var mouse := event as InputEventMouseButton
+	if mouse == null:
+		return false
+	var scheme := ControlScheme.current()
+	if not ControlScheme.uses_orders(scheme):
+		return false
+	var furniture := _furniture_placement()
+	if furniture != null and bool(furniture.call(&"is_active")):
+		return false
+	var now := Services.now_ms()
+	if mouse.button_index == ControlScheme.order_button(scheme):
+		if not mouse.pressed:
+			_order_button_down = false
+			if not _order_from_use:
+				_orders.release()
+		elif mouse.shift_pressed and scheme == ControlScheme.CLICK:
+			_input.mark_pressed(&"attack", now)
+		else:
+			_order_button_down = true
+			_order_press_ms = now
+		return true
+	if mouse.button_index == ControlScheme.use_button(scheme):
+		if not mouse.pressed:
+			_use_button_down = false
+			if _order_from_use:
+				_orders.release()
+		else:
+			_use_button_down = true
+			_use_press_ms = now
+		return true
+	if mouse.button_index == ControlScheme.swing_button(scheme):
+		if mouse.pressed:
+			_input.mark_pressed(&"attack", now)
+		return true
+	return false
+
+
+## F2 (`control_scheme_next`): the next control scheme, saved with the settings and named over
+## the slime.
+func _cycle_control_scheme() -> void:
+	var scheme := ControlScheme.next(ControlScheme.current())
+	ControlScheme.store(scheme)
+	clear_input()
+	if body != null and body.is_inside_tree():
+		_floating_text(get_centre() - Vector2(0.0, GULP_MESSAGE_RISE), "Controls: %s" % ControlScheme.display_name(scheme), &"white", false)
 
 
 ## The mouse wheel switches weapons (crafting spec 8.5): `weapon_next` (wheel down) and
@@ -362,6 +448,10 @@ func _capture_wheel(event: InputEvent) -> bool:
 ## velocity; action locked (weapon swing) -> velocity 0; handle_action_input() consumed ->
 ## keep last velocity this step; else move-start squash + move(direction) (player spec 4.3,
 ## 4.5). Then `ArcadeMover.move(body, delta)`.
+## The mouse schemes slot in: a pending order press becomes an order first; a movement key cancels
+## it; after the buffered actions the order may swing at or use its target (`_run_click_order`);
+## without movement keys it steers the walk (`_steer_click_order`). In the pointer scheme the slime
+## turns to the pointer first (`_face_pointer`) and only W walks (`_movement_input`).
 func _physics_process(delta: float) -> void:
 	if get_tree().paused or body == null:
 		return
@@ -384,7 +474,13 @@ func _physics_process(delta: float) -> void:
 		body.velocity = Vector2.ZERO
 		_sleep.update(delta * 1000.0, _wake_input())
 	else:
-		var direction: Vector2 = _input.movement_vector()
+		var scheme := ControlScheme.current()
+		if ControlScheme.faces_pointer(scheme):
+			_face_pointer()
+		var direction: Vector2 = _movement_input(scheme)
+		_issue_click_order()
+		if direction != Vector2.ZERO:
+			_orders.cancel() # The movement keys take over from a click order.
 		if is_movement_suppressed():
 			pass # Roll / knockback own the body: their velocity persists, presses stay buffered.
 		elif _action_locked:
@@ -393,9 +489,16 @@ func _physics_process(delta: float) -> void:
 			body.velocity = Vector2.ZERO
 		elif _handle_action_input():
 			pass # An action was used this step: velocity keeps the last step's value once.
+		elif _run_click_order():
+			pass # The click order swung at or used its target this step.
 		else:
+			if direction == Vector2.ZERO:
+				direction = _steer_click_order()
 			_squash_on_move_start(direction)
 			_move(direction)
+	if _dead:
+		_orders.cancel()
+	_update_pointer_hover()
 	# Arcade-style step (player spec 5.2): a wall hit zeroes the blocked velocity component, which
 	# then stays zero for the rest of a roll or knockback (CharacterBody2DNode.ts:61-66). The lash
 	# pull places the body itself.
@@ -415,6 +518,16 @@ func _process(_delta: float) -> void:
 		_respawn_at_real_ms = -1.0
 		respawn()
 	_update_modal_pause()
+	# A respawn in another world takes the slime out of the tree.
+	if not is_inside_tree():
+		return
+	# Menus and windows: the plain cursor over them (physics, which picks it, is paused). Hit-stop
+	# keeps it, so it does not flicker on every hit.
+	var world := Services.world()
+	var hit_stop_only := world != null and world.has_pause_reason(Services.WorldServiceType.PAUSE_HIT_STOP) \
+		and not world.has_pause_reason(Services.WorldServiceType.PAUSE_MODAL)
+	if get_tree().paused and not hit_stop_only and _cursor_shape != Input.CURSOR_ARROW:
+		_set_cursor(Input.CURSOR_ARROW)
 
 
 # --- queries used by other systems -------------------------------------------------------------
@@ -429,6 +542,16 @@ func get_centre() -> Vector2:
 ## Unit facing vector (initial (0,1)); 8-way from movement, cardinal after attack/dodge.
 func get_facing() -> Vector2:
 	return _facing
+
+
+## True while a click order walks the slime (the move hint learns from it).
+func is_click_moving() -> bool:
+	return _orders.is_active() and _orders.direction != Vector2.ZERO
+
+
+## The mouse schemes' current order (game/player/mouse/click_orders.gd).
+func get_click_orders() -> ClickOrders:
+	return _orders
 
 
 ## `PlayerController.face` (player spec 4.4): ignores zero; sets facing (normalized) and the flip
@@ -591,6 +714,13 @@ func clear_input() -> void:
 	# A menu or window closes the eat hold too (Phaser closes it while paused).
 	_close_eat_hold()
 	_interact_hold_since_ms = -1.0
+	# And ends a click order (a window it opened, alt-tab, a scheme switch).
+	_orders.cancel()
+	_order_button_down = false
+	_order_press_ms = -1.0
+	_use_button_down = false
+	_use_press_ms = -1.0
+	_order_from_use = false
 
 
 ## `PlayerScript.consumeActionPress` (player spec 7.3): uses a pending press of `action` if it is
@@ -760,7 +890,11 @@ func use_ability(id: StringName) -> bool:
 		return false
 	match id:
 		AbilityDefinitions.JUMP:
-			request["direction"] = _input.movement_vector()
+			# Without movement keys, a click order's walk is the way the jump goes; the order
+			# re-plans from the landing.
+			var keys := _movement_input(ControlScheme.current())
+			request["direction"] = keys if keys != Vector2.ZERO else _orders.direction
+			_orders.invalidate()
 			return _abilities.try_begin(id, request)
 		AbilityDefinitions.DODGE:
 			return _try_dodge()
@@ -1106,6 +1240,7 @@ func _handle_action_input() -> bool:
 	# even without a target. A target with a hold action (a placed bench: "Hold: Pick up") waits
 	# for the release (its main action) or 450 ms held (the hold action).
 	if _input.consume(&"interact", now, _buffer_ms):
+		_orders.cancel()
 		var interaction := _interaction_controller()
 		if interaction != null and bool(interaction.call(&"has_candidate")):
 			if bool(interaction.call(&"has_secondary")):
@@ -1118,15 +1253,20 @@ func _handle_action_input() -> bool:
 		for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
 			_input.consume(AbilityDefinitions.action(id), now, _buffer_ms)
 		_input.consume(&"attack", now, _buffer_ms)
-	# Abilities in Phaser's dispatch order: jump, dodge, stretch-lash, squash-slam, teleport.
+	# Abilities in Phaser's dispatch order: jump, dodge, stretch-lash, squash-slam, teleport. Each
+	# but the jump ends a click order (the slime jumps along its walk and walks on).
 	for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
 		if _input.consume(AbilityDefinitions.action(id), now, _buffer_ms):
+			if id != AbilityDefinitions.JUMP:
+				_orders.cancel()
 			use_ability(id)
 			return true
 	if _input.consume(&"attack", now, _buffer_ms):
+		_orders.cancel()
 		_attack()
 		return true
 	if _input.consume(&"eat", now, _buffer_ms):
+		_orders.cancel()
 		_eat_since_ms = now
 		_eat_last_seen_ms = now
 		return true
@@ -1296,9 +1436,10 @@ func _resolve_movement_speed(base: float, flat: float = 0.0, multiplier: float =
 
 
 ## Aim origin: `get_centre() - Vector2(0, aim_rise_px)`; pointer = `body.get_global_mouse_position()`.
-## Vector2.ZERO when there is no aim (pointer never seen, or within the dead zone).
+## Vector2.ZERO when there is no aim (pointer never seen, or within the dead zone), and always in
+## the keys-only control scheme (everything aimed then goes where the slime faces).
 func _pointer_aim() -> Vector2:
-	if body == null or not body.is_inside_tree():
+	if body == null or not body.is_inside_tree() or not ControlScheme.uses_mouse(ControlScheme.current()):
 		return Vector2.ZERO
 	var origin: Vector2 = get_centre() - Vector2(0.0, aim_rise_px)
 	return PointerAim.aim(origin, body.get_global_mouse_position(), _pointer_seen)
@@ -1347,6 +1488,7 @@ func heal(amount: int) -> int:
 func teleport(centre: Vector2) -> void:
 	if body == null:
 		return
+	_orders.cancel()
 	body.velocity = Vector2.ZERO
 	FeetAnchor.place_at_phaser_position(body, centre)
 	body.reset_physics_interpolation()
@@ -1386,6 +1528,7 @@ func _die() -> void:
 	_gulp.clear()
 	_status.clear()
 	_close_eat_hold()
+	_orders.cancel()
 	_dead = true
 	_knockback_anim_until_ms = 0.0
 	# The top-down defeat faces the viewer only (die-down): the slime turns to the camera as it falls.
@@ -1513,6 +1656,9 @@ func _load_constants() -> void:
 	_max_energy = roundi(_number("character.player.stats.maxEnergy"))
 	_energy_regen = _number("character.player.stats.energyRegenPerSecond")
 	_buffer_ms = _number("input.bufferMs")
+	_pick_radius_px = _number("input.mouse.pickRadiusPx")
+	_melee_fallback_px = _number("input.mouse.meleeFallbackPx")
+	_ledge_push_extra_ms = _number("input.mouse.ledgePushExtraMs")
 
 
 func _number(path: String) -> float:
@@ -1587,7 +1733,7 @@ func _update_eat_hold() -> bool:
 	if not _eat_wheel_open or _gulp_wheel == null:
 		return false
 	var pick := GulpWheel.pick_slot(_input.movement_vector(), _gulp_wheel.entries.size())
-	if pick < 0 and body != null and body.is_inside_tree():
+	if pick < 0 and body != null and body.is_inside_tree() and ControlScheme.uses_mouse(ControlScheme.current()):
 		var pointer := body.get_global_mouse_position()
 		if pointer.distance_to(_eat_wheel_pointer_start) > GULP_WHEEL_POINTER_SLACK:
 			pick = GulpWheel.pick_slot(pointer - (get_centre() - Vector2(0.0, GULP_WHEEL_POINTER_RISE)), _gulp_wheel.entries.size())
@@ -1684,6 +1830,10 @@ func _wake_input() -> bool:
 	for action: StringName in WAKE_ACTIONS:
 		if _input.consume(action, now, INF):
 			pressed = true
+	if _order_press_ms >= 0.0 or _use_press_ms >= 0.0:
+		_order_press_ms = -1.0
+		_use_press_ms = -1.0
+		pressed = true
 	return pressed or _input.movement_vector() != Vector2.ZERO
 
 
@@ -1711,11 +1861,242 @@ func _update_interact_hold(now: float) -> bool:
 		_interact_hold_since_ms = -1.0
 		interaction.call(&"handle_secondary")
 		return true
-	if _input.is_held(&"interact"):
+	if _input.is_held(&"interact") or _order_button_down or _use_button_down:
 		return true
 	_interact_hold_since_ms = -1.0
 	interaction.call(&"handle_interact")
 	return true
+
+
+# --- mouse control schemes (game/player/mouse/) ------------------------------------------------
+
+## A pending order-button press (`_capture_order_buttons`) becomes an order for what is under the
+## pointer (PointerTargets.at): an enemy or a resource -> walk into reach and swing; something
+## usable -> walk to it and use it (the interaction controller keeps it chosen meanwhile); the
+## ground -> walk there. A pending use-button press (the click scheme's right button) becomes the
+## use order when something usable is under the pointer, else an `interact` press (the target in
+## reach, as in the keyboard scheme; holding the button runs its hold action). A press older than
+## `input.bufferMs` is dropped, like any buffered press.
+func _issue_click_order() -> void:
+	# A release over the HUD never reaches `_unhandled_input`: let go when the button is up.
+	var scheme := ControlScheme.current()
+	if _order_button_down and _order_press_ms < 0.0 and not Input.is_mouse_button_pressed(ControlScheme.order_button(scheme)):
+		_order_button_down = false
+		if not _order_from_use:
+			_orders.release()
+	if _use_button_down and _use_press_ms < 0.0 and not Input.is_mouse_button_pressed(ControlScheme.use_button(scheme)):
+		_use_button_down = false
+		if _order_from_use:
+			_orders.release()
+	_issue_use()
+	if _order_press_ms < 0.0:
+		return
+	var pressed_at := _order_press_ms
+	_order_press_ms = -1.0
+	if Services.now_ms() - pressed_at > _buffer_ms or body == null or not body.is_inside_tree():
+		return
+	var pointer := body.get_global_mouse_position()
+	var target := _pointer_target(pointer)
+	var kind := str(target.get("kind", PointerTargets.KIND_GROUND))
+	var mark_at := pointer
+	match kind:
+		PointerTargets.KIND_ATTACK:
+			var node: Node = target["node"]
+			_orders.attack(node, func() -> Vector2: return PointerTargets.feet_of(node),
+				func() -> int: return PointerTargets.level_of(node))
+			mark_at = PointerTargets.feet_of(node)
+		PointerTargets.KIND_USE:
+			_orders.interact(target["key"], target["stand_at"])
+			mark_at = target["ring_at"]
+		_:
+			_orders.move_to(pointer)
+	_orders.held = _order_button_down
+	_order_from_use = false
+	_ping(mark_at, kind)
+
+
+## The use button's pending press (`_issue_click_order`).
+func _issue_use() -> void:
+	if _use_press_ms < 0.0:
+		return
+	var pressed_at := _use_press_ms
+	_use_press_ms = -1.0
+	if Services.now_ms() - pressed_at > _buffer_ms or body == null or not body.is_inside_tree():
+		return
+	var target := _pointer_target(body.get_global_mouse_position())
+	if str(target.get("kind", "")) != PointerTargets.KIND_USE:
+		_input.mark_pressed(&"interact", pressed_at)
+		return
+	_orders.interact(target["key"], target["stand_at"])
+	_orders.held = _use_button_down
+	_order_from_use = true
+	_ping(target["ring_at"], PointerTargets.KIND_USE)
+
+
+## The fading ring where an order was given (`kind`: PointerTargets' kinds, for its colour).
+func _ping(at: Vector2, kind: String) -> void:
+	var marker := _click_marker_node()
+	if marker != null:
+		marker.ping(at, ClickMarker.color_for(kind))
+
+
+## The walking direction the keys ask for: the movement keys; in the pointer scheme W (`move_up`)
+## alone, toward the pointer (the facing until the pointer has been seen; nothing while the pointer
+## is within the aim's dead zone, so the slime stops under it).
+func _movement_input(scheme: String) -> Vector2:
+	if not ControlScheme.faces_pointer(scheme):
+		return _input.movement_vector()
+	if not _input.is_held(&"move_up"):
+		return Vector2.ZERO
+	if not _pointer_seen:
+		return _facing
+	return _pointer_aim()
+
+
+## The pointer scheme: the slime turns to the pointer whenever it is free to (not rolling or
+## knocked back, swinging, or busy with an ability, which set their own facing).
+func _face_pointer() -> void:
+	if is_movement_suppressed() or _action_locked or _abilities.is_busy():
+		return
+	var aim := _pointer_aim()
+	if aim != Vector2.ZERO:
+		face(aim)
+
+
+## The order's own action once its target is in reach: the swing or the use. True when it owned
+## the step (the slime stands).
+func _run_click_order() -> bool:
+	match _orders.kind:
+		ClickOrders.Kind.ATTACK:
+			return _click_attack()
+		ClickOrders.Kind.INTERACT:
+			return _click_interact()
+	return false
+
+
+## The attack order: once a swing toward the target's side would reach its hurtbox
+## (PlayerCombat.reaches), or the slime stands within `input.mouse.meleeFallbackPx` of it, face that
+## side and swing; while the button is held, swing again as the weapon allows. Ends when the target
+## falls, after the swing once the button is up, or when there is no weapon.
+func _click_attack() -> bool:
+	var target := _orders.target
+	if not PointerTargets.is_alive(target) or _swim.swimming:
+		_orders.cancel()
+		return false
+	if _orders.swung and not _orders.held:
+		_orders.cancel()
+		return false
+	var at := PointerTargets.hurtbox_centre(target)
+	var side := Directions.snap_to_cardinal(at - (get_centre() - Vector2(0.0, aim_rise_px)))
+	var combat_ready := _combat != null and is_instance_valid(_combat)
+	var area := target.get(&"damage_area") as Area2D
+	var in_reach := combat_ready and _combat.reaches(Directions.cardinal_name(side), area)
+	if not in_reach and get_centre().distance_to(at) > _melee_fallback_px:
+		return false
+	face(side)
+	body.velocity = Vector2.ZERO
+	if not combat_ready or _combat.get_weapon() == null:
+		_orders.cancel()
+		return true
+	if _combat.try_attack():
+		_orders.swung = true
+	else:
+		_play_direct(_locomotion_clip(CLIP_IDLE))
+	return true
+
+
+## The use order: once the interaction controller offers the target (in reach), use it; a target
+## with a hold action ("Hold: Pick up") still held runs the hold path (`_update_interact_hold`).
+func _click_interact() -> bool:
+	var interaction := _interaction_controller()
+	if interaction == null:
+		_orders.cancel()
+		return false
+	if not bool(interaction.call(&"is_current", _orders.interact_key)):
+		return false
+	var held := _orders.held
+	_orders.cancel()
+	body.velocity = Vector2.ZERO
+	_play_direct(_locomotion_clip(CLIP_IDLE))
+	if held and bool(interaction.call(&"has_secondary")):
+		_interact_hold_since_ms = Services.now_ms()
+	else:
+		interaction.call(&"handle_interact")
+	return true
+
+
+## This step's walking direction from the click order (ZERO: stand).
+func _steer_click_order() -> Vector2:
+	if not _orders.is_active() or body == null or not body.is_inside_tree():
+		return Vector2.ZERO
+	var push_ms := Elevation.setting("dropPushMs") + _ledge_push_extra_ms
+	return _orders.steer(body, body.get_global_mouse_position(), Services.now_ms(), push_ms)
+
+
+## What the pointer is over (PointerTargets.at). Physics step only.
+func _pointer_target(pointer: Vector2) -> Dictionary:
+	if body == null or not body.is_inside_tree():
+		return {"kind": PointerTargets.KIND_GROUND}
+	return PointerTargets.at(get_tree(), body.get_world_2d().direct_space_state, pointer, _pick_radius_px, _interaction_controller())
+
+
+## Each physics step in a mouse scheme: the cursor (a cross over an enemy or a resource, a hand
+## over something usable), the ring under that target and under the order's target; the order's
+## usable target stays the interaction controller's preferred one. The keyboard scheme shows none.
+func _update_pointer_hover() -> void:
+	var interaction := _interaction_controller()
+	if interaction != null:
+		interaction.call(&"set_preferred", _orders.interact_key if _orders.kind == ClickOrders.Kind.INTERACT else null)
+	var scheme := ControlScheme.current()
+	var hover := {}
+	var hovered_control := get_viewport().gui_get_hovered_control()
+	var over_gui := hovered_control != null and hovered_control.mouse_filter == Control.MOUSE_FILTER_STOP
+	if ControlScheme.uses_orders(scheme) and _pointer_seen and not _dead and not over_gui and body != null and body.is_inside_tree():
+		hover = _pointer_target(body.get_global_mouse_position())
+	var kind := str(hover.get("kind", PointerTargets.KIND_GROUND))
+	match kind:
+		PointerTargets.KIND_ATTACK:
+			_set_cursor(Input.CURSOR_CROSS)
+		PointerTargets.KIND_USE:
+			_set_cursor(Input.CURSOR_POINTING_HAND)
+		_:
+			_set_cursor(Input.CURSOR_ARROW)
+	var marker := _click_marker_node() if ControlScheme.uses_orders(scheme) else _click_marker
+	if marker == null or not is_instance_valid(marker):
+		return
+	var hover_at: Variant = null
+	if kind == PointerTargets.KIND_ATTACK:
+		hover_at = PointerTargets.feet_of(hover["node"])
+	elif kind == PointerTargets.KIND_USE:
+		hover_at = hover["ring_at"]
+	marker.show_hover(hover_at, ClickMarker.color_for(kind))
+	var target_at: Variant = null
+	if _orders.kind == ClickOrders.Kind.ATTACK and PointerTargets.is_alive(_orders.target):
+		target_at = PointerTargets.feet_of(_orders.target)
+	elif _orders.kind == ClickOrders.Kind.MOVE and not _orders.held:
+		target_at = _orders.goal
+	marker.show_target(target_at, ClickMarker.color_for(PointerTargets.KIND_ATTACK if _orders.kind == ClickOrders.Kind.ATTACK else PointerTargets.KIND_GROUND))
+
+
+## The ground marks in the current world (made on first use, again after a world swap).
+func _click_marker_node() -> ClickMarker:
+	if _click_marker != null and is_instance_valid(_click_marker) and _click_marker.is_inside_tree():
+		return _click_marker
+	var world := Services.world()
+	var parent: Node = world.entities_root() if world != null else null
+	if parent == null or not is_inside_tree():
+		return null
+	_click_marker = ClickMarker.new()
+	_click_marker.name = "ClickMarker"
+	parent.add_child(_click_marker)
+	return _click_marker
+
+
+func _set_cursor(shape: Input.CursorShape) -> void:
+	if shape == _cursor_shape:
+		return
+	_cursor_shape = shape
+	Input.set_default_cursor_shape(shape)
 
 
 ## The belt's next (+1) or previous (-1) weapon into the hand (`WeaponLoadout.cycle_slot`, then

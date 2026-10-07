@@ -32,27 +32,52 @@ const MOUSE_NAMES := {
 	MOUSE_BUTTON_WHEEL_DOWN: "Mouse wheel",
 }
 const MOVEMENT_ACTIONS: Array[StringName] = [&"move_up", &"move_left", &"move_down", &"move_right"]
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 
-## `controlRows()` (ControlsSurfacePort.ts:9-27): [key label, what it does] per control.
+## `controlRows()` (ControlsSurfacePort.ts:9-27): [key label, what it does] per control. A mouse
+## control scheme (game/player/mouse/control_scheme.gd) lists its own buttons and walking first
+## instead of move / attack / interact; the last row switches the scheme.
 static func control_rows() -> Array[PackedStringArray]:
-	var rows: Array[PackedStringArray] = [
-		PackedStringArray([movement_label(), "Move"]),
-		PackedStringArray([control_label(&"attack"), "Attack, or chop and mine"]),
-		PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]),
+	var scheme := ControlScheme.current()
+	var rows: Array[PackedStringArray] = []
+	if ControlScheme.uses_orders(scheme):
+		var order := str(MOUSE_NAMES[ControlScheme.order_button(scheme)])
+		rows.append(PackedStringArray([order, "Walk there (hold to follow the pointer); attack, chop or mine what is under it; talk to, open or use it"]))
+		if scheme == ControlScheme.CLICK:
+			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.use_button(scheme)]), "Talk, open or use what is under the pointer (walking there), else what is in reach; hold to pick up placed furniture"]))
+			rows.append(PackedStringArray(["Shift + " + order.to_lower(), "Attack in place toward the pointer"]))
+		else:
+			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.swing_button(scheme)]), "Attack in place toward the pointer"]))
+		rows.append(PackedStringArray([movement_label(), "Move (stops a click order)"]))
+	elif ControlScheme.faces_pointer(scheme):
+		rows.append(PackedStringArray([control_label(&"move_up"), "Walk toward the pointer (the slime always faces it)"]))
+		rows.append(PackedStringArray([control_label(&"attack"), "Attack toward the pointer, or chop and mine"]))
+		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
+	else:
+		rows.append(PackedStringArray([movement_label(), "Move"]))
+		rows.append(PackedStringArray([control_label(&"attack"), "Attack, or chop and mine"]))
+		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
+	# Without the mouse (the keys-only scheme) what aims goes where the slime faces.
+	var keys_only := not ControlScheme.uses_mouse(scheme)
+	var toward := "the way the slime faces" if keys_only else "toward the pointer"
+	var previous := control_label(&"weapon_previous")
+	var next := control_label(&"weapon_next")
+	rows.append_array([
 		PackedStringArray([control_label(&"sprint"), "Hold to run"]),
 		PackedStringArray([control_label(&"jump"), "Jump (learned in the story)"]),
-		PackedStringArray([control_label(&"dodge"), "Dodge roll toward the pointer (learned in the story)"]),
-		PackedStringArray([control_label(&"stretch_lash"), "Stretch Lash toward the pointer"]),
+		PackedStringArray([control_label(&"dodge"), "Dodge roll %s (learned in the story)" % toward]),
+		PackedStringArray([control_label(&"stretch_lash"), "Stretch Lash %s" % toward]),
 		PackedStringArray([control_label(&"squash_slam"), "Squash Slam"]),
-		PackedStringArray([control_label(&"teleport"), "Teleport to the pointer"]),
+		PackedStringArray([control_label(&"teleport"), "Teleport %s" % ("as far as it goes the way the slime faces" if keys_only else "to the pointer")]),
 		PackedStringArray([control_label(&"eat"), "Gulp: tap to eat at a Gulp spot or burp a form; hold for the quick wheel"]),
-		PackedStringArray([control_label(&"weapon_next"), "Switch between equipped weapons"]),
+		PackedStringArray([next if next == previous else "%s / %s" % [previous, next], "Switch between equipped weapons"]),
 		PackedStringArray([control_label(&"menu"), "Bag, crafting, journal and map"]),
 		PackedStringArray([control_label(&"map"), "World map"]),
 		PackedStringArray(["%s / %s" % [control_label(&"zoom_in"), control_label(&"zoom_out")], "Zoom in / out"]),
 		PackedStringArray([control_label(&"pause"), "Pause menu, or close the open window"]),
-	]
+		PackedStringArray([control_label(&"control_scheme_next"), "Switch the control scheme (now: %s)" % ControlScheme.display_name(scheme)]),
+	])
 	return rows
 
 
