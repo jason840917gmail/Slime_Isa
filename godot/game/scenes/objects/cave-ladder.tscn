@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(110, 30)
+
+[node name="cave-ladder" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -256)
+hframes = 8
+frame = 2
+
+[node name="Wall" type="StaticBody2D" parent="."]
+y_sort_enabled = true
+position = Vector2(0, -20)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Wall"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="DoorScript" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "unassigned"
+door_id = "ladder"
+target_area_id = "unassigned"
+target_door_id = "sinkhole"
+prompt = "Climb up"
+interact_radius = 90.0
+badge_rise = 150.0
+
+[node name="arrival" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(0, 60)

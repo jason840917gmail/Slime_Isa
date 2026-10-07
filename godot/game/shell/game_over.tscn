@@ -1,0 +1,115 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/shell/game_over.gd" id="1_script"]
+[ext_resource type="Theme" path="res://game/ui/theme/slime_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://asset/UI/ui-game-over-puddle.webp" id="3_puddle"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="4_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/click.ogg" id="5_click"]
+
+[node name="GameOver" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+surface_id = &"game-over"
+closable_by_escape = false
+initial_focus = NodePath("Panel/Margin/Rows/Buttons/Wake")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -195.0
+offset_right = 200.0
+offset_bottom = 195.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="Rows" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Puddle" type="TextureRect" parent="Panel/Margin/Rows"]
+custom_minimum_size = Vector2(140, 124)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("3_puddle")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_type_variation = &"DefeatTitle"
+text = "Defeated"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Cause" type="Label" parent="Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "You were defeated"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayTime" type="Label" parent="Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "0:00 played"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="Panel/Margin/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Panel/Margin/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 10
+
+[node name="Wake" type="Button" parent="Panel/Margin/Rows/Buttons"]
+custom_minimum_size = Vector2(280, 42)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "Wake in Slimeshire"
+
+[node name="Load" type="Button" parent="Panel/Margin/Rows/Buttons"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Load a save"
+
+[node name="ClickSfx" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("5_click")
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("4_sfx")
+min_interval_ms = 40.0

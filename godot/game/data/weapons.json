@@ -1,0 +1,145 @@
+[
+  {
+    "weaponId": "goo-gauntlet",
+    "displayName": "Goo Gauntlet",
+    "description": "A gooey punch. Short range, solid knockback. Your starter weapon.",
+    "category": "melee",
+    "iconKey": "weapon-gauntlet",
+    "iconFrame": 0,
+    "baseDamage": 12,
+    "cooldownMs": 320
+  },
+  {
+    "weaponId": "basic-sword",
+    "displayName": "Basic sword",
+    "description": "A reusable weapon definition.",
+    "category": "melee",
+    "iconKey": "weapon-player-sword-tiles",
+    "iconFrame": 0,
+    "baseDamage": 20,
+    "cooldownMs": 1200
+  },
+  {
+    "weaponId": "basic-spear",
+    "displayName": "Basic Spear",
+    "description": "A reusable layered weapon definition.",
+    "category": "melee",
+    "iconKey": "weapon-player-hammer-spear-tiles",
+    "iconFrame": 0,
+    "baseDamage": 10,
+    "cooldownMs": 800
+  },
+  {
+    "weaponId": "slam-hammer",
+    "displayName": "Slam Hammer",
+    "description": "A slow, heavy tool with a compact arc and crushing knockback.",
+    "category": "melee",
+    "iconKey": "weapon-player-hammer-spear-tiles",
+    "iconFrame": 2,
+    "baseDamage": 14,
+    "cooldownMs": 1300
+  },
+  {
+    "weaponId": "wooden-axe",
+    "displayName": "Wooden Axe",
+    "description": "A practical starter hatchet. Good against wood, poor against enemies.",
+    "category": "melee",
+    "iconKey": "weapon-player-wooden-axe-tiles",
+    "iconFrame": 1,
+    "baseDamage": 12,
+    "cooldownMs": 900
+  },
+  {
+    "weaponId": "pickaxe",
+    "displayName": "Pickaxe",
+    "description": "A sturdy mining tool. Excellent against stone, poor against enemies.",
+    "category": "melee",
+    "iconKey": "weapon-player-pickaxe-tiles",
+    "iconFrame": 0,
+    "baseDamage": 12,
+    "cooldownMs": 900
+  },
+  {
+    "weaponId": "wooden-spear",
+    "displayName": "Wooden Spear",
+    "description": "A light field-made spear with a focused golden thrust trail.",
+    "category": "melee",
+    "iconKey": "weapon-player-starter-spears-tiles",
+    "iconFrame": 0,
+    "baseDamage": 5,
+    "cooldownMs": 760
+  },
+  {
+    "weaponId": "stone-spear",
+    "displayName": "Stone Spear",
+    "description": "A reinforced stone-tipped spear with a focused stone-blue thrust trail.",
+    "category": "melee",
+    "iconKey": "weapon-player-stone-tools-tiles",
+    "iconFrame": 1,
+    "baseDamage": 7,
+    "cooldownMs": 820
+  },
+  {
+    "weaponId": "stone-axe",
+    "displayName": "Stone Axe",
+    "description": "A chipped-stone axe made for harvesting trees.",
+    "category": "melee",
+    "iconKey": "weapon-player-stone-tools-tiles",
+    "iconFrame": 2,
+    "baseDamage": 12,
+    "cooldownMs": 900,
+    "harvestCapabilities": {
+      "wood": 1
+    }
+  },
+  {
+    "weaponId": "stone-pickaxe",
+    "displayName": "Stone Pickaxe",
+    "description": "A stone-headed pick made for breaking rock nodes.",
+    "category": "melee",
+    "iconKey": "weapon-player-stone-tools-tiles",
+    "iconFrame": 3,
+    "baseDamage": 12,
+    "cooldownMs": 900,
+    "harvestCapabilities": {
+      "stone": 1
+    }
+  },
+  {
+    "weaponId": "reinforced-pickaxe",
+    "displayName": "Reinforced Pickaxe",
+    "description": "A stone pick bound with weaver fangs. It bites through iron ore and breaks rock faster.",
+    "category": "melee",
+    "iconKey": "items-chapter-2-5x2",
+    "iconFrame": 2,
+    "baseDamage": 15,
+    "cooldownMs": 900,
+    "harvestCapabilities": {
+      "stone": 2,
+      "iron": 2
+    }
+  },
+  {
+    "weaponId": "iron-spear",
+    "displayName": "Iron Spear",
+    "description": "An iron-headed spear forged from Forge bars. Hits harder and faster than stone.",
+    "category": "melee",
+    "iconKey": "items-chapter-2-5x2",
+    "iconFrame": 3,
+    "baseDamage": 10,
+    "cooldownMs": 800
+  },
+  {
+    "weaponId": "iron-axe",
+    "displayName": "Iron Axe",
+    "description": "A heavy iron axe. Fells trees quickly and can hold its own in a fight.",
+    "category": "melee",
+    "iconKey": "items-chapter-2-5x2",
+    "iconFrame": 4,
+    "baseDamage": 16,
+    "cooldownMs": 850,
+    "harvestCapabilities": {
+      "wood": 2
+    }
+  }
+]

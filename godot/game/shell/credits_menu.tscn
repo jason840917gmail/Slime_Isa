@@ -1,0 +1,90 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/shell/credits_menu.gd" id="1_script"]
+[ext_resource type="Theme" path="res://game/ui/theme/slime_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="3_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/click.ogg" id="4_click"]
+
+[node name="CreditsMenu" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+surface_id = &"credits"
+initial_focus = NodePath("Panel/Margin/Rows/Bottom/Close")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -270.0
+offset_top = -265.0
+offset_right = 270.0
+offset_bottom = 265.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="Rows" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_type_variation = &"PanelTitle"
+text = "Credits"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Text" type="Label" parent="Panel/Margin/Rows/Scroll"]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 3
+
+[node name="Bottom" type="HBoxContainer" parent="Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+alignment = 2
+
+[node name="Close" type="Button" parent="Panel/Margin/Rows/Bottom"]
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+theme_type_variation = &"MutedButton"
+text = "Close"
+
+[node name="ClickSfx" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("4_click")
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("3_sfx")
+min_interval_ms = 40.0

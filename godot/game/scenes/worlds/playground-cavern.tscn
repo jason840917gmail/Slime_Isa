@@ -1,0 +1,452 @@
+[gd_scene format=3]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--01.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--02.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--03.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--04.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--06.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--07.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--08.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--09.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--10.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--11.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--12.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--13.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--14.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--15.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--16.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-ladder.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/collectible-crystal-shard.tscn" id="21"]
+
+[node name="playground-cavern" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+z_index = -2
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 6, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 7, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 9, 0, 0, 0, 1, 0, 9, 0, 0, 0, 0, 0, 10, 0, 0, 0, 1, 0, 10, 0, 0, 0, 0, 0, 11, 0, 0, 0, 2, 0, 11, 0, 0, 0, 0, 0, 12, 0, 0, 0, 1, 0, 12, 0, 0, 0, 0, 0, 13, 0, 0, 0, 1, 0, 13, 0, 0, 0, 0, 0, 14, 0, 0, 0, 1, 0, 14, 0, 0, 0, 0, 0, 15, 0, 0, 0, 1, 0, 15, 0, 0, 0, 0, 0, 16, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 17, 0, 0, 0, 1, 0, 17, 0, 0, 0, 0, 0, 18, 0, 0, 0, 1, 0, 18, 0, 0, 0, 0, 0, 19, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 21, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 3, 0, 1, 0, 1, 0, 3, 0, 1, 0, 0, 0, 4, 0, 1, 0, 1, 0, 4, 0, 1, 0, 0, 0, 5, 0, 1, 0, 1, 0, 5, 0, 1, 0, 0, 0, 6, 0, 1, 0, 1, 0, 6, 0, 1, 0, 0, 0, 7, 0, 1, 0, 1, 0, 7, 0, 1, 0, 0, 0, 8, 0, 1, 0, 1, 0, 8, 0, 1, 0, 0, 0, 9, 0, 1, 0, 2, 0, 9, 0, 1, 0, 0, 0, 10, 0, 1, 0, 1, 0, 10, 0, 1, 0, 0, 0, 11, 0, 1, 0, 1, 0, 11, 0, 1, 0, 0, 0, 12, 0, 1, 0, 1, 0, 12, 0, 1, 0, 0, 0, 13, 0, 1, 0, 1, 0, 13, 0, 1, 0, 0, 0, 14, 0, 1, 0, 1, 0, 14, 0, 1, 0, 0, 0, 15, 0, 1, 0, 1, 0, 15, 0, 1, 0, 0, 0, 16, 0, 1, 0, 1, 0, 16, 0, 1, 0, 0, 0, 17, 0, 1, 0, 1, 0, 17, 0, 1, 0, 0, 0, 18, 0, 1, 0, 1, 0, 18, 0, 1, 0, 0, 0, 19, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 20, 0, 1, 0, 2, 0, 1, 0, 1, 0, 0, 0, 21, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 2, 0, 1, 0, 1, 0, 2, 0, 0, 0, 2, 0, 2, 0, 1, 0, 2, 0, 2, 0, 0, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 0, 0, 4, 0, 2, 0, 1, 0, 4, 0, 2, 0, 0, 0, 5, 0, 2, 0, 1, 0, 5, 0, 2, 0, 0, 0, 6, 0, 2, 0, 1, 0, 6, 0, 2, 0, 0, 0, 7, 0, 2, 0, 2, 0, 7, 0, 2, 0, 0, 0, 8, 0, 2, 0, 1, 0, 8, 0, 2, 0, 0, 0, 9, 0, 2, 0, 1, 0, 9, 0, 2, 0, 0, 0, 10, 0, 2, 0, 1, 0, 10, 0, 2, 0, 0, 0, 11, 0, 2, 0, 1, 0, 11, 0, 2, 0, 0, 0, 12, 0, 2, 0, 1, 0, 12, 0, 2, 0, 0, 0, 13, 0, 2, 0, 1, 0, 13, 0, 2, 0, 0, 0, 14, 0, 2, 0, 1, 0, 14, 0, 2, 0, 0, 0, 15, 0, 2, 0, 1, 0, 15, 0, 2, 0, 0, 0, 16, 0, 2, 0, 1, 0, 16, 0, 2, 0, 0, 0, 17, 0, 2, 0, 1, 0, 17, 0, 2, 0, 0, 0, 18, 0, 2, 0, 2, 0, 18, 0, 2, 0, 0, 0, 19, 0, 2, 0, 1, 0, 0, 0, 2, 0, 0, 0, 20, 0, 2, 0, 1, 0, 1, 0, 2, 0, 0, 0, 21, 0, 2, 0, 1, 0, 2, 0, 2, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 1, 0, 1, 0, 3, 0, 0, 0, 2, 0, 3, 0, 1, 0, 2, 0, 3, 0, 0, 0, 3, 0, 3, 0, 1, 0, 3, 0, 3, 0, 0, 0, 4, 0, 3, 0, 1, 0, 4, 0, 3, 0, 0, 0, 5, 0, 3, 0, 2, 0, 5, 0, 3, 0, 0, 0, 6, 0, 3, 0, 1, 0, 6, 0, 3, 0, 0, 0, 7, 0, 3, 0, 1, 0, 7, 0, 3, 0, 0, 0, 8, 0, 3, 0, 1, 0, 8, 0, 3, 0, 0, 0, 9, 0, 3, 0, 1, 0, 9, 0, 3, 0, 0, 0, 10, 0, 3, 0, 1, 0, 10, 0, 3, 0, 0, 0, 11, 0, 3, 0, 1, 0, 11, 0, 3, 0, 0, 0, 12, 0, 3, 0, 1, 0, 12, 0, 3, 0, 0, 0, 13, 0, 3, 0, 1, 0, 13, 0, 3, 0, 0, 0, 14, 0, 3, 0, 1, 0, 14, 0, 3, 0, 0, 0, 15, 0, 3, 0, 1, 0, 15, 0, 3, 0, 0, 0, 16, 0, 3, 0, 2, 0, 16, 0, 3, 0, 0, 0, 17, 0, 3, 0, 1, 0, 17, 0, 3, 0, 0, 0, 18, 0, 3, 0, 1, 0, 18, 0, 3, 0, 0, 0, 19, 0, 3, 0, 1, 0, 0, 0, 3, 0, 0, 0, 20, 0, 3, 0, 1, 0, 1, 0, 3, 0, 0, 0, 21, 0, 3, 0, 1, 0, 2, 0, 3, 0, 0, 0, 0, 0, 4, 0, 1, 0, 0, 0, 4, 0, 0, 0, 1, 0, 4, 0, 1, 0, 1, 0, 4, 0, 0, 0, 2, 0, 4, 0, 1, 0, 2, 0, 4, 0, 0, 0, 3, 0, 4, 0, 2, 0, 3, 0, 4, 0, 0, 0, 4, 0, 4, 0, 1, 0, 4, 0, 4, 0, 0, 0, 5, 0, 4, 0, 1, 0, 5, 0, 4, 0, 0, 0, 6, 0, 4, 0, 1, 0, 6, 0, 4, 0, 0, 0, 7, 0, 4, 0, 1, 0, 7, 0, 4, 0, 0, 0, 8, 0, 4, 0, 1, 0, 8, 0, 4, 0, 0, 0, 9, 0, 4, 0, 1, 0, 9, 0, 4, 0, 0, 0, 10, 0, 4, 0, 1, 0, 10, 0, 4, 0, 0, 0, 11, 0, 4, 0, 1, 0, 11, 0, 4, 0, 0, 0, 12, 0, 4, 0, 1, 0, 12, 0, 4, 0, 0, 0, 13, 0, 4, 0, 1, 0, 13, 0, 4, 0, 0, 0, 14, 0, 4, 0, 2, 0, 14, 0, 4, 0, 0, 0, 15, 0, 4, 0, 1, 0, 15, 0, 4, 0, 0, 0, 16, 0, 4, 0, 1, 0, 16, 0, 4, 0, 0, 0, 17, 0, 4, 0, 1, 0, 17, 0, 4, 0, 0, 0, 18, 0, 4, 0, 1, 0, 18, 0, 4, 0, 0, 0, 19, 0, 4, 0, 1, 0, 0, 0, 4, 0, 0, 0, 20, 0, 4, 0, 1, 0, 1, 0, 4, 0, 0, 0, 21, 0, 4, 0, 1, 0, 2, 0, 4, 0, 0, 0, 0, 0, 5, 0, 1, 0, 0, 0, 5, 0, 0, 0, 1, 0, 5, 0, 2, 0, 1, 0, 5, 0, 0, 0, 2, 0, 5, 0, 1, 0, 2, 0, 5, 0, 0, 0, 3, 0, 5, 0, 1, 0, 3, 0, 5, 0, 0, 0, 4, 0, 5, 0, 1, 0, 4, 0, 5, 0, 0, 0, 5, 0, 5, 0, 1, 0, 5, 0, 5, 0, 0, 0, 6, 0, 5, 0, 1, 0, 6, 0, 5, 0, 0, 0, 7, 0, 5, 0, 1, 0, 7, 0, 5, 0, 0, 0, 8, 0, 5, 0, 1, 0, 8, 0, 5, 0, 0, 0, 9, 0, 5, 0, 1, 0, 9, 0, 5, 0, 0, 0, 10, 0, 5, 0, 1, 0, 10, 0, 5, 0, 0, 0, 11, 0, 5, 0, 1, 0, 11, 0, 5, 0, 0, 0, 12, 0, 5, 0, 2, 0, 12, 0, 5, 0, 0, 0, 13, 0, 5, 0, 1, 0, 13, 0, 5, 0, 0, 0, 14, 0, 5, 0, 1, 0, 14, 0, 5, 0, 0, 0, 15, 0, 5, 0, 1, 0, 15, 0, 5, 0, 0, 0, 16, 0, 5, 0, 1, 0, 16, 0, 5, 0, 0, 0, 17, 0, 5, 0, 1, 0, 17, 0, 5, 0, 0, 0, 18, 0, 5, 0, 1, 0, 18, 0, 5, 0, 0, 0, 19, 0, 5, 0, 1, 0, 0, 0, 5, 0, 0, 0, 20, 0, 5, 0, 1, 0, 1, 0, 5, 0, 0, 0, 21, 0, 5, 0, 1, 0, 2, 0, 5, 0, 0, 0, 0, 0, 6, 0, 1, 0, 0, 0, 6, 0, 0, 0, 1, 0, 6, 0, 1, 0, 1, 0, 6, 0, 0, 0, 2, 0, 6, 0, 1, 0, 2, 0, 6, 0, 0, 0, 3, 0, 6, 0, 1, 0, 3, 0, 6, 0, 0, 0, 4, 0, 6, 0, 1, 0, 4, 0, 6, 0, 0, 0, 5, 0, 6, 0, 1, 0, 5, 0, 6, 0, 0, 0, 6, 0, 6, 0, 1, 0, 6, 0, 6, 0, 0, 0, 7, 0, 6, 0, 1, 0, 7, 0, 6, 0, 0, 0, 8, 0, 6, 0, 1, 0, 8, 0, 6, 0, 0, 0, 9, 0, 6, 0, 1, 0, 9, 0, 6, 0, 0, 0, 10, 0, 6, 0, 2, 0, 10, 0, 6, 0, 0, 0, 11, 0, 6, 0, 1, 0, 11, 0, 6, 0, 0, 0, 12, 0, 6, 0, 1, 0, 12, 0, 6, 0, 0, 0, 13, 0, 6, 0, 1, 0, 13, 0, 6, 0, 0, 0, 14, 0, 6, 0, 1, 0, 14, 0, 6, 0, 0, 0, 15, 0, 6, 0, 1, 0, 15, 0, 6, 0, 0, 0, 16, 0, 6, 0, 1, 0, 16, 0, 6, 0, 0, 0, 17, 0, 6, 0, 1, 0, 17, 0, 6, 0, 0, 0, 18, 0, 6, 0, 1, 0, 18, 0, 6, 0, 0, 0, 19, 0, 6, 0, 1, 0, 0, 0, 6, 0, 0, 0, 20, 0, 6, 0, 1, 0, 1, 0, 6, 0, 0, 0, 21, 0, 6, 0, 2, 0, 2, 0, 6, 0, 0, 0, 0, 0, 7, 0, 1, 0, 0, 0, 7, 0, 0, 0, 1, 0, 7, 0, 1, 0, 1, 0, 7, 0, 0, 0, 2, 0, 7, 0, 1, 0, 2, 0, 7, 0, 0, 0, 3, 0, 7, 0, 1, 0, 3, 0, 7, 0, 0, 0, 4, 0, 7, 0, 1, 0, 4, 0, 7, 0, 0, 0, 5, 0, 7, 0, 1, 0, 5, 0, 7, 0, 0, 0, 6, 0, 7, 0, 1, 0, 6, 0, 7, 0, 0, 0, 7, 0, 7, 0, 1, 0, 7, 0, 7, 0, 0, 0, 8, 0, 7, 0, 2, 0, 8, 0, 7, 0, 0, 0, 9, 0, 7, 0, 1, 0, 9, 0, 7, 0, 0, 0, 10, 0, 7, 0, 1, 0, 10, 0, 7, 0, 0, 0, 11, 0, 7, 0, 1, 0, 11, 0, 7, 0, 0, 0, 12, 0, 7, 0, 1, 0, 12, 0, 7, 0, 0, 0, 13, 0, 7, 0, 1, 0, 13, 0, 7, 0, 0, 0, 14, 0, 7, 0, 2, 0, 14, 0, 7, 0, 0, 0, 15, 0, 7, 0, 2, 0, 15, 0, 7, 0, 0, 0, 16, 0, 7, 0, 2, 0, 16, 0, 7, 0, 0, 0, 17, 0, 7, 0, 2, 0, 17, 0, 7, 0, 0, 0, 18, 0, 7, 0, 2, 0, 18, 0, 7, 0, 0, 0, 19, 0, 7, 0, 2, 0, 0, 0, 7, 0, 0, 0, 20, 0, 7, 0, 2, 0, 1, 0, 7, 0, 0, 0, 21, 0, 7, 0, 2, 0, 2, 0, 7, 0, 0, 0, 0, 0, 8, 0, 1, 0, 0, 0, 8, 0, 0, 0, 1, 0, 8, 0, 1, 0, 1, 0, 8, 0, 0, 0, 2, 0, 8, 0, 1, 0, 2, 0, 8, 0, 0, 0, 3, 0, 8, 0, 1, 0, 3, 0, 8, 0, 0, 0, 4, 0, 8, 0, 1, 0, 4, 0, 8, 0, 0, 0, 5, 0, 8, 0, 1, 0, 5, 0, 8, 0, 0, 0, 6, 0, 8, 0, 2, 0, 6, 0, 8, 0, 0, 0, 7, 0, 8, 0, 1, 0, 7, 0, 8, 0, 0, 0, 8, 0, 8, 0, 1, 0, 8, 0, 8, 0, 0, 0, 9, 0, 8, 0, 1, 0, 9, 0, 8, 0, 0, 0, 10, 0, 8, 0, 1, 0, 10, 0, 8, 0, 0, 0, 11, 0, 8, 0, 1, 0, 11, 0, 8, 0, 0, 0, 12, 0, 8, 0, 1, 0, 12, 0, 8, 0, 0, 0, 13, 0, 8, 0, 1, 0, 13, 0, 8, 0, 0, 0, 14, 0, 8, 0, 2, 0, 14, 0, 8, 0, 0, 0, 15, 0, 8, 0, 2, 0, 15, 0, 8, 0, 0, 0, 16, 0, 8, 0, 2, 0, 16, 0, 8, 0, 0, 0, 17, 0, 8, 0, 2, 0, 17, 0, 8, 0, 0, 0, 18, 0, 8, 0, 2, 0, 18, 0, 8, 0, 0, 0, 19, 0, 8, 0, 2, 0, 0, 0, 8, 0, 0, 0, 20, 0, 8, 0, 2, 0, 1, 0, 8, 0, 0, 0, 21, 0, 8, 0, 2, 0, 2, 0, 8, 0, 0, 0, 0, 0, 9, 0, 1, 0, 0, 0, 9, 0, 0, 0, 1, 0, 9, 0, 1, 0, 1, 0, 9, 0, 0, 0, 2, 0, 9, 0, 1, 0, 2, 0, 9, 0, 0, 0, 3, 0, 9, 0, 1, 0, 3, 0, 9, 0, 0, 0, 4, 0, 9, 0, 2, 0, 4, 0, 9, 0, 0, 0, 5, 0, 9, 0, 1, 0, 5, 0, 9, 0, 0, 0, 6, 0, 9, 0, 1, 0, 6, 0, 9, 0, 0, 0, 7, 0, 9, 0, 1, 0, 7, 0, 9, 0, 0, 0, 8, 0, 9, 0, 1, 0, 8, 0, 9, 0, 0, 0, 9, 0, 9, 0, 1, 0, 9, 0, 9, 0, 0, 0, 10, 0, 9, 0, 1, 0, 10, 0, 9, 0, 0, 0, 11, 0, 9, 0, 1, 0, 11, 0, 9, 0, 0, 0, 12, 0, 9, 0, 1, 0, 12, 0, 9, 0, 0, 0, 13, 0, 9, 0, 1, 0, 13, 0, 9, 0, 0, 0, 14, 0, 9, 0, 2, 0, 14, 0, 9, 0, 0, 0, 15, 0, 9, 0, 2, 0, 15, 0, 9, 0, 0, 0, 16, 0, 9, 0, 2, 0, 16, 0, 9, 0, 0, 0, 17, 0, 9, 0, 2, 0, 17, 0, 9, 0, 0, 0, 18, 0, 9, 0, 2, 0, 18, 0, 9, 0, 0, 0, 19, 0, 9, 0, 2, 0, 0, 0, 9, 0, 0, 0, 20, 0, 9, 0, 2, 0, 1, 0, 9, 0, 0, 0, 21, 0, 9, 0, 2, 0, 2, 0, 9, 0, 0, 0, 0, 0, 10, 0, 1, 0, 0, 0, 10, 0, 0, 0, 1, 0, 10, 0, 1, 0, 1, 0, 10, 0, 0, 0, 2, 0, 10, 0, 2, 0, 2, 0, 10, 0, 0, 0, 3, 0, 10, 0, 1, 0, 3, 0, 10, 0, 0, 0, 4, 0, 10, 0, 1, 0, 4, 0, 10, 0, 0, 0, 5, 0, 10, 0, 1, 0, 5, 0, 10, 0, 0, 0, 6, 0, 10, 0, 1, 0, 6, 0, 10, 0, 0, 0, 7, 0, 10, 0, 1, 0, 7, 0, 10, 0, 0, 0, 8, 0, 10, 0, 1, 0, 8, 0, 10, 0, 0, 0, 9, 0, 10, 0, 1, 0, 9, 0, 10, 0, 0, 0, 10, 0, 10, 0, 1, 0, 10, 0, 10, 0, 0, 0, 11, 0, 10, 0, 1, 0, 11, 0, 10, 0, 0, 0, 12, 0, 10, 0, 1, 0, 12, 0, 10, 0, 0, 0, 13, 0, 10, 0, 2, 0, 13, 0, 10, 0, 0, 0, 14, 0, 10, 0, 2, 0, 14, 0, 10, 0, 0, 0, 15, 0, 10, 0, 2, 0, 15, 0, 10, 0, 0, 0, 16, 0, 10, 0, 2, 0, 16, 0, 10, 0, 0, 0, 17, 0, 10, 0, 2, 0, 17, 0, 10, 0, 0, 0, 18, 0, 10, 0, 2, 0, 18, 0, 10, 0, 0, 0, 19, 0, 10, 0, 2, 0, 0, 0, 10, 0, 0, 0, 20, 0, 10, 0, 2, 0, 1, 0, 10, 0, 0, 0, 21, 0, 10, 0, 2, 0, 2, 0, 10, 0, 0, 0, 0, 0, 11, 0, 2, 0, 0, 0, 11, 0, 0, 0, 1, 0, 11, 0, 1, 0, 1, 0, 11, 0, 0, 0, 2, 0, 11, 0, 1, 0, 2, 0, 11, 0, 0, 0, 3, 0, 11, 0, 1, 0, 3, 0, 11, 0, 0, 0, 4, 0, 11, 0, 1, 0, 4, 0, 11, 0, 0, 0, 5, 0, 11, 0, 1, 0, 5, 0, 11, 0, 0, 0, 6, 0, 11, 0, 1, 0, 6, 0, 11, 0, 0, 0, 7, 0, 11, 0, 1, 0, 7, 0, 11, 0, 0, 0, 8, 0, 11, 0, 1, 0, 8, 0, 11, 0, 0, 0, 9, 0, 11, 0, 1, 0, 9, 0, 11, 0, 0, 0, 10, 0, 11, 0, 1, 0, 10, 0, 11, 0, 0, 0, 11, 0, 11, 0, 2, 0, 11, 0, 11, 0, 0, 0, 12, 0, 11, 0, 1, 0, 12, 0, 11, 0, 0, 0, 13, 0, 11, 0, 1, 0, 13, 0, 11, 0, 0, 0, 14, 0, 11, 0, 2, 0, 14, 0, 11, 0, 0, 0, 15, 0, 11, 0, 2, 0, 15, 0, 11, 0, 0, 0, 16, 0, 11, 0, 2, 0, 16, 0, 11, 0, 0, 0, 17, 0, 11, 0, 2, 0, 17, 0, 11, 0, 0, 0, 18, 0, 11, 0, 2, 0, 18, 0, 11, 0, 0, 0, 19, 0, 11, 0, 2, 0, 0, 0, 11, 0, 0, 0, 20, 0, 11, 0, 2, 0, 1, 0, 11, 0, 0, 0, 21, 0, 11, 0, 2, 0, 2, 0, 11, 0, 0, 0, 0, 0, 12, 0, 1, 0, 0, 0, 12, 0, 0, 0, 1, 0, 12, 0, 1, 0, 1, 0, 12, 0, 0, 0, 2, 0, 12, 0, 1, 0, 2, 0, 12, 0, 0, 0, 3, 0, 12, 0, 1, 0, 3, 0, 12, 0, 0, 0, 4, 0, 12, 0, 1, 0, 4, 0, 12, 0, 0, 0, 5, 0, 12, 0, 1, 0, 5, 0, 12, 0, 0, 0, 6, 0, 12, 0, 1, 0, 6, 0, 12, 0, 0, 0, 7, 0, 12, 0, 1, 0, 7, 0, 12, 0, 0, 0, 8, 0, 12, 0, 1, 0, 8, 0, 12, 0, 0, 0, 9, 0, 12, 0, 2, 0, 9, 0, 12, 0, 0, 0, 10, 0, 12, 0, 1, 0, 10, 0, 12, 0, 0, 0, 11, 0, 12, 0, 1, 0, 11, 0, 12, 0, 0, 0, 12, 0, 12, 0, 1, 0, 12, 0, 12, 0, 0, 0, 13, 0, 12, 0, 1, 0, 13, 0, 12, 0, 0, 0, 14, 0, 12, 0, 2, 0, 14, 0, 12, 0, 0, 0, 15, 0, 12, 0, 2, 0, 15, 0, 12, 0, 0, 0, 16, 0, 12, 0, 2, 0, 16, 0, 12, 0, 0, 0, 17, 0, 12, 0, 2, 0, 17, 0, 12, 0, 0, 0, 18, 0, 12, 0, 2, 0, 18, 0, 12, 0, 0, 0, 19, 0, 12, 0, 2, 0, 0, 0, 12, 0, 0, 0, 20, 0, 12, 0, 2, 0, 1, 0, 12, 0, 0, 0, 21, 0, 12, 0, 2, 0, 2, 0, 12, 0, 0, 0, 0, 0, 13, 0, 1, 0, 0, 0, 13, 0, 0, 0, 1, 0, 13, 0, 1, 0, 1, 0, 13, 0, 0, 0, 2, 0, 13, 0, 1, 0, 2, 0, 13, 0, 0, 0, 3, 0, 13, 0, 1, 0, 3, 0, 13, 0, 0, 0, 4, 0, 13, 0, 1, 0, 4, 0, 13, 0, 0, 0, 5, 0, 13, 0, 1, 0, 5, 0, 13, 0, 0, 0, 6, 0, 13, 0, 1, 0, 6, 0, 13, 0, 0, 0, 7, 0, 13, 0, 2, 0, 7, 0, 13, 0, 0, 0, 8, 0, 13, 0, 1, 0, 8, 0, 13, 0, 0, 0, 9, 0, 13, 0, 1, 0, 9, 0, 13, 0, 0, 0, 10, 0, 13, 0, 1, 0, 10, 0, 13, 0, 0, 0, 11, 0, 13, 0, 1, 0, 11, 0, 13, 0, 0, 0, 12, 0, 13, 0, 1, 0, 12, 0, 13, 0, 0, 0, 13, 0, 13, 0, 1, 0, 13, 0, 13, 0, 0, 0, 14, 0, 13, 0, 2, 0, 14, 0, 13, 0, 0, 0, 15, 0, 13, 0, 2, 0, 15, 0, 13, 0, 0, 0, 16, 0, 13, 0, 2, 0, 16, 0, 13, 0, 0, 0, 17, 0, 13, 0, 2, 0, 17, 0, 13, 0, 0, 0, 18, 0, 13, 0, 2, 0, 18, 0, 13, 0, 0, 0, 19, 0, 13, 0, 2, 0, 0, 0, 13, 0, 0, 0, 20, 0, 13, 0, 2, 0, 1, 0, 13, 0, 0, 0, 21, 0, 13, 0, 2, 0, 2, 0, 13, 0, 0, 0)
+tile_set = ExtResource("1")
+metadata/tile_seed = 20260930
+metadata/source_cell_count = 308
+metadata/columns = 22
+metadata/rows = 14
+
+[node name="TileCollision" type="Node2D" parent="ground"]
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "playground-cavern"
+tile_size = 64
+columns = 22
+rows = 14
+metadata = {
+"objects": [],
+"player": {
+"spawn": {
+"x": 704,
+"y": 260
+},
+"entries": {}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(704, 260)
+
+[node name="crystal-walls" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="wall-top-0-1" parent="crystal-walls" instance=ExtResource("3")]
+position = Vector2(32, 118)
+metadata/instance_id = "playground-cavern-wall-top-0-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-0-1"
+
+[node name="wall-bottom-0-13" parent="crystal-walls" instance=ExtResource("4")]
+position = Vector2(32, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-0-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-0-13"
+
+[node name="wall-top-1-1" parent="crystal-walls" instance=ExtResource("5")]
+position = Vector2(96, 118)
+metadata/instance_id = "playground-cavern-wall-top-1-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-1-1"
+
+[node name="wall-bottom-1-13" parent="crystal-walls" instance=ExtResource("6")]
+position = Vector2(96, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-1-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-1-13"
+
+[node name="wall-top-2-1" parent="crystal-walls" instance=ExtResource("7")]
+position = Vector2(160, 118)
+metadata/instance_id = "playground-cavern-wall-top-2-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-2-1"
+
+[node name="wall-bottom-2-13" parent="crystal-walls" instance=ExtResource("8")]
+position = Vector2(160, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-2-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-2-13"
+
+[node name="wall-top-3-1" parent="crystal-walls" instance=ExtResource("9")]
+position = Vector2(224, 118)
+metadata/instance_id = "playground-cavern-wall-top-3-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-3-1"
+
+[node name="wall-bottom-3-13" parent="crystal-walls" instance=ExtResource("10")]
+position = Vector2(224, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-3-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-3-13"
+
+[node name="wall-top-4-1" parent="crystal-walls" instance=ExtResource("11")]
+position = Vector2(288, 118)
+metadata/instance_id = "playground-cavern-wall-top-4-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-4-1"
+
+[node name="wall-bottom-4-13" parent="crystal-walls" instance=ExtResource("12")]
+position = Vector2(288, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-4-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-4-13"
+
+[node name="wall-top-5-1" parent="crystal-walls" instance=ExtResource("13")]
+position = Vector2(352, 118)
+metadata/instance_id = "playground-cavern-wall-top-5-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-5-1"
+
+[node name="wall-bottom-5-13" parent="crystal-walls" instance=ExtResource("14")]
+position = Vector2(352, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-5-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-5-13"
+
+[node name="wall-top-6-1" parent="crystal-walls" instance=ExtResource("15")]
+position = Vector2(416, 118)
+metadata/instance_id = "playground-cavern-wall-top-6-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-6-1"
+
+[node name="wall-bottom-6-13" parent="crystal-walls" instance=ExtResource("16")]
+position = Vector2(416, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-6-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-6-13"
+
+[node name="wall-top-7-1" parent="crystal-walls" instance=ExtResource("17")]
+position = Vector2(480, 118)
+metadata/instance_id = "playground-cavern-wall-top-7-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-7-1"
+
+[node name="wall-bottom-7-13" parent="crystal-walls" instance=ExtResource("18")]
+position = Vector2(480, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-7-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-7-13"
+
+[node name="wall-top-8-1" parent="crystal-walls" instance=ExtResource("3")]
+position = Vector2(544, 118)
+metadata/instance_id = "playground-cavern-wall-top-8-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-8-1"
+
+[node name="wall-bottom-8-13" parent="crystal-walls" instance=ExtResource("4")]
+position = Vector2(544, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-8-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-8-13"
+
+[node name="wall-top-9-1" parent="crystal-walls" instance=ExtResource("5")]
+position = Vector2(608, 118)
+metadata/instance_id = "playground-cavern-wall-top-9-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-9-1"
+
+[node name="wall-bottom-9-13" parent="crystal-walls" instance=ExtResource("6")]
+position = Vector2(608, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-9-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-9-13"
+
+[node name="wall-top-10-1" parent="crystal-walls" instance=ExtResource("7")]
+position = Vector2(672, 118)
+metadata/instance_id = "playground-cavern-wall-top-10-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-10-1"
+
+[node name="wall-bottom-10-13" parent="crystal-walls" instance=ExtResource("8")]
+position = Vector2(672, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-10-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-10-13"
+
+[node name="wall-top-11-1" parent="crystal-walls" instance=ExtResource("9")]
+position = Vector2(736, 118)
+metadata/instance_id = "playground-cavern-wall-top-11-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-11-1"
+
+[node name="wall-bottom-11-13" parent="crystal-walls" instance=ExtResource("10")]
+position = Vector2(736, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-11-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-11-13"
+
+[node name="wall-top-12-1" parent="crystal-walls" instance=ExtResource("11")]
+position = Vector2(800, 118)
+metadata/instance_id = "playground-cavern-wall-top-12-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-12-1"
+
+[node name="wall-bottom-12-13" parent="crystal-walls" instance=ExtResource("12")]
+position = Vector2(800, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-12-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-12-13"
+
+[node name="wall-top-13-1" parent="crystal-walls" instance=ExtResource("13")]
+position = Vector2(864, 118)
+metadata/instance_id = "playground-cavern-wall-top-13-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-13-1"
+
+[node name="wall-bottom-13-13" parent="crystal-walls" instance=ExtResource("14")]
+position = Vector2(864, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-13-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-13-13"
+
+[node name="wall-top-14-1" parent="crystal-walls" instance=ExtResource("15")]
+position = Vector2(928, 118)
+metadata/instance_id = "playground-cavern-wall-top-14-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-14-1"
+
+[node name="wall-bottom-14-13" parent="crystal-walls" instance=ExtResource("16")]
+position = Vector2(928, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-14-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-14-13"
+
+[node name="wall-top-15-1" parent="crystal-walls" instance=ExtResource("17")]
+position = Vector2(992, 118)
+metadata/instance_id = "playground-cavern-wall-top-15-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-15-1"
+
+[node name="wall-bottom-15-13" parent="crystal-walls" instance=ExtResource("18")]
+position = Vector2(992, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-15-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-15-13"
+
+[node name="wall-top-16-1" parent="crystal-walls" instance=ExtResource("3")]
+position = Vector2(1056, 118)
+metadata/instance_id = "playground-cavern-wall-top-16-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-16-1"
+
+[node name="wall-bottom-16-13" parent="crystal-walls" instance=ExtResource("4")]
+position = Vector2(1056, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-16-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-16-13"
+
+[node name="wall-top-17-1" parent="crystal-walls" instance=ExtResource("5")]
+position = Vector2(1120, 118)
+metadata/instance_id = "playground-cavern-wall-top-17-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-17-1"
+
+[node name="wall-bottom-17-13" parent="crystal-walls" instance=ExtResource("6")]
+position = Vector2(1120, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-17-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-17-13"
+
+[node name="wall-top-18-1" parent="crystal-walls" instance=ExtResource("7")]
+position = Vector2(1184, 118)
+metadata/instance_id = "playground-cavern-wall-top-18-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-18-1"
+
+[node name="wall-bottom-18-13" parent="crystal-walls" instance=ExtResource("8")]
+position = Vector2(1184, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-18-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-18-13"
+
+[node name="wall-top-19-1" parent="crystal-walls" instance=ExtResource("9")]
+position = Vector2(1248, 118)
+metadata/instance_id = "playground-cavern-wall-top-19-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-19-1"
+
+[node name="wall-bottom-19-13" parent="crystal-walls" instance=ExtResource("10")]
+position = Vector2(1248, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-19-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-19-13"
+
+[node name="wall-top-20-1" parent="crystal-walls" instance=ExtResource("11")]
+position = Vector2(1312, 118)
+metadata/instance_id = "playground-cavern-wall-top-20-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-20-1"
+
+[node name="wall-bottom-20-13" parent="crystal-walls" instance=ExtResource("12")]
+position = Vector2(1312, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-20-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-20-13"
+
+[node name="wall-top-21-1" parent="crystal-walls" instance=ExtResource("13")]
+position = Vector2(1376, 118)
+metadata/instance_id = "playground-cavern-wall-top-21-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-top-21-1"
+
+[node name="wall-bottom-21-13" parent="crystal-walls" instance=ExtResource("14")]
+position = Vector2(1376, 886)
+metadata/instance_id = "playground-cavern-wall-bottom-21-13"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-bottom-21-13"
+
+[node name="wall-left-0-2" parent="crystal-walls" instance=ExtResource("15")]
+position = Vector2(32, 182)
+metadata/instance_id = "playground-cavern-wall-left-0-2"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-2"
+
+[node name="wall-right-21-2" parent="crystal-walls" instance=ExtResource("16")]
+position = Vector2(1376, 182)
+metadata/instance_id = "playground-cavern-wall-right-21-2"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-2"
+
+[node name="wall-left-0-3" parent="crystal-walls" instance=ExtResource("17")]
+position = Vector2(32, 246)
+metadata/instance_id = "playground-cavern-wall-left-0-3"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-3"
+
+[node name="wall-right-21-3" parent="crystal-walls" instance=ExtResource("18")]
+position = Vector2(1376, 246)
+metadata/instance_id = "playground-cavern-wall-right-21-3"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-3"
+
+[node name="wall-left-0-4" parent="crystal-walls" instance=ExtResource("3")]
+position = Vector2(32, 310)
+metadata/instance_id = "playground-cavern-wall-left-0-4"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-4"
+
+[node name="wall-right-21-4" parent="crystal-walls" instance=ExtResource("4")]
+position = Vector2(1376, 310)
+metadata/instance_id = "playground-cavern-wall-right-21-4"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-4"
+
+[node name="wall-left-0-5" parent="crystal-walls" instance=ExtResource("5")]
+position = Vector2(32, 374)
+metadata/instance_id = "playground-cavern-wall-left-0-5"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-5"
+
+[node name="wall-right-21-5" parent="crystal-walls" instance=ExtResource("6")]
+position = Vector2(1376, 374)
+metadata/instance_id = "playground-cavern-wall-right-21-5"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-5"
+
+[node name="wall-left-0-6" parent="crystal-walls" instance=ExtResource("7")]
+position = Vector2(32, 438)
+metadata/instance_id = "playground-cavern-wall-left-0-6"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-6"
+
+[node name="wall-right-21-6" parent="crystal-walls" instance=ExtResource("8")]
+position = Vector2(1376, 438)
+metadata/instance_id = "playground-cavern-wall-right-21-6"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-6"
+
+[node name="wall-left-0-7" parent="crystal-walls" instance=ExtResource("9")]
+position = Vector2(32, 502)
+metadata/instance_id = "playground-cavern-wall-left-0-7"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-7"
+
+[node name="wall-right-21-7" parent="crystal-walls" instance=ExtResource("10")]
+position = Vector2(1376, 502)
+metadata/instance_id = "playground-cavern-wall-right-21-7"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-7"
+
+[node name="wall-left-0-8" parent="crystal-walls" instance=ExtResource("11")]
+position = Vector2(32, 566)
+metadata/instance_id = "playground-cavern-wall-left-0-8"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-8"
+
+[node name="wall-right-21-8" parent="crystal-walls" instance=ExtResource("12")]
+position = Vector2(1376, 566)
+metadata/instance_id = "playground-cavern-wall-right-21-8"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-8"
+
+[node name="wall-left-0-9" parent="crystal-walls" instance=ExtResource("13")]
+position = Vector2(32, 630)
+metadata/instance_id = "playground-cavern-wall-left-0-9"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-9"
+
+[node name="wall-right-21-9" parent="crystal-walls" instance=ExtResource("14")]
+position = Vector2(1376, 630)
+metadata/instance_id = "playground-cavern-wall-right-21-9"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-9"
+
+[node name="wall-left-0-10" parent="crystal-walls" instance=ExtResource("15")]
+position = Vector2(32, 694)
+metadata/instance_id = "playground-cavern-wall-left-0-10"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-10"
+
+[node name="wall-right-21-10" parent="crystal-walls" instance=ExtResource("16")]
+position = Vector2(1376, 694)
+metadata/instance_id = "playground-cavern-wall-right-21-10"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-10"
+
+[node name="wall-left-0-11" parent="crystal-walls" instance=ExtResource("17")]
+position = Vector2(32, 758)
+metadata/instance_id = "playground-cavern-wall-left-0-11"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-11"
+
+[node name="wall-right-21-11" parent="crystal-walls" instance=ExtResource("18")]
+position = Vector2(1376, 758)
+metadata/instance_id = "playground-cavern-wall-right-21-11"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-11"
+
+[node name="wall-left-0-12" parent="crystal-walls" instance=ExtResource("3")]
+position = Vector2(32, 822)
+metadata/instance_id = "playground-cavern-wall-left-0-12"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-left-0-12"
+
+[node name="wall-right-21-12" parent="crystal-walls" instance=ExtResource("4")]
+position = Vector2(1376, 822)
+metadata/instance_id = "playground-cavern-wall-right-21-12"
+metadata/persistence_key = "playground-cavern.playground-cavern-wall-right-21-12"
+
+[node name="cave" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="ladder" parent="cave" instance=ExtResource("19")]
+position = Vector2(704, 200)
+metadata/instance_id = "playground-cavern-ladder"
+metadata/persistence_key = "playground-cavern.playground-cavern-ladder"
+
+[node name="DoorScript" parent="cave/ladder"]
+map_id = "playground-cavern"
+door_id = "playground-cavern-ladder"
+target_area_id = "playground"
+target_door_id = "playground-sinkhole"
+
+[node name="hidden-chest" parent="cave" instance=ExtResource("20")]
+position = Vector2(1088, 640)
+metadata/instance_id = "playground-cavern-hidden-chest"
+metadata/persistence_key = "playground-cavern.playground-cavern-hidden-chest"
+
+[node name="ChestScript" parent="cave/hidden-chest"]
+map_id = "playground-cavern"
+instance_id = "playground-cavern-hidden-chest"
+initial_contents = {
+"shard": 3,
+"silk-clump": 2,
+"hp-potion": 1
+}
+
+[node name="shard-1" parent="cave" instance=ExtResource("21")]
+position = Vector2(420, 520)
+metadata/instance_id = "playground-cavern-shard-1"
+metadata/persistence_key = "playground-cavern.playground-cavern-shard-1"
+
+[node name="CollectibleScript" parent="cave/shard-1"]
+map_id = "playground-cavern"
+instance_id = "playground-cavern-shard-1"
+
+[node name="shard-2" parent="cave" instance=ExtResource("21")]
+position = Vector2(520, 700)
+metadata/instance_id = "playground-cavern-shard-2"
+metadata/persistence_key = "playground-cavern.playground-cavern-shard-2"
+
+[node name="CollectibleScript" parent="cave/shard-2"]
+map_id = "playground-cavern"
+instance_id = "playground-cavern-shard-2"
+
+[node name="shard-3" parent="cave" instance=ExtResource("21")]
+position = Vector2(900, 420)
+metadata/instance_id = "playground-cavern-shard-3"
+metadata/persistence_key = "playground-cavern.playground-cavern-shard-3"
+
+[node name="CollectibleScript" parent="cave/shard-3"]
+map_id = "playground-cavern"
+instance_id = "playground-cavern-shard-3"
+
+[editable path="cave/ladder"]
+[editable path="cave/hidden-chest"]
+[editable path="cave/shard-1"]
+[editable path="cave/shard-2"]
+[editable path="cave/shard-3"]

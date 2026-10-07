@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
 SOURCES = ROOT / "asset" / "Originals" / "water" / "generated"
-OUT = ROOT / "asset" / "MAPS" / "water"
+OUT = ROOT / "godot" / "asset" / "MAPS" / "water"
 STEPS = 8
 
 

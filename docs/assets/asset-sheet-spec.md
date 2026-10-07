@@ -2,9 +2,9 @@
 
 The shared sheet contract. Continue with the focused guide for the asset type:
 
-- [Slime Sheet Guide](./slime-sheet-guide.md)
-- [Terrain And Tile Guide](./terrain-tile-guide.md)
-- [Houses And World Props Guide](./houses-and-world-props-guide.md)
+- [Slime Sheet Guide](slime-sheet-guide.md)
+- [Terrain And Tile Guide](terrain-tile-guide.md)
+- [Houses And World Props Guide](houses-and-world-props-guide.md)
 
 ## Sheet rules
 
@@ -40,7 +40,7 @@ Frame size is not hardcoded. A new size needs:
 - a manifest entry with the correct `frame` and `expect` values;
 - a scene whose sprite-sheet subresource uses the same `frameWidth`/`frameHeight`,
   and whose `scale`, `origin`, collision shape, and depth/occlusion bounds fit
-  the art (see [Adding Game Assets](./adding-assets.md)).
+  the art (see [Adding Game Assets](../archive/phaser/assets/adding-assets.md)).
 
 Changing the grid layout of an existing animated sheet also means updating the
 frame indices in that scene's `AnimationPlayer` library.

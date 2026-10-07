@@ -1,0 +1,151 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/ui/map/world_map_window.gd" id="1_script"]
+[ext_resource type="Theme" path="res://game/ui/theme/slime_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="3_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/click.ogg" id="4_click"]
+
+[node name="WorldMap" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = -170.0
+offset_right = 310.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"WindowPanel"
+
+[node name="Chart" type="Control" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 12.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_type_variation = &"PanelTitle"
+text = "World Map"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Icege" type="Label" parent="Panel"]
+layout_mode = 1
+anchor_left = 0.02
+anchor_top = 0.34
+anchor_right = 0.22
+anchor_bottom = 0.76
+offset_top = 46.0
+theme_type_variation = &"InfoLabel"
+theme_override_font_sizes/font_size = 15
+text = "Unknown"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Level1" type="Label" parent="Panel"]
+layout_mode = 1
+anchor_left = 0.26
+anchor_top = 0.34
+anchor_right = 0.46
+anchor_bottom = 0.76
+offset_top = 46.0
+theme_type_variation = &"InfoLabel"
+theme_override_font_sizes/font_size = 15
+text = "Unknown"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="GloopForest" type="Label" parent="Panel"]
+layout_mode = 1
+anchor_left = 0.52
+anchor_top = 0.34
+anchor_right = 0.72
+anchor_bottom = 0.76
+offset_top = 46.0
+theme_type_variation = &"InfoLabel"
+theme_override_font_sizes/font_size = 15
+text = "Unknown"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="CrystalCaverns" type="Label" parent="Panel"]
+layout_mode = 1
+anchor_left = 0.78
+anchor_top = 0.34
+anchor_right = 0.98
+anchor_bottom = 0.76
+offset_top = 46.0
+theme_type_variation = &"InfoLabel"
+theme_override_font_sizes/font_size = 15
+text = "Unknown"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Summary" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = -78.0
+offset_right = -18.0
+offset_bottom = -46.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"CaptionLabel"
+text = "1 discovered · Areas stay marked as you travel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Close" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -94.0
+offset_top = -42.0
+offset_right = -16.0
+offset_bottom = -10.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"MutedButton"
+text = "Close"
+
+[node name="ClickSfx" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("4_click")
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("3_sfx")
+min_interval_ms = 40.0
+
+[connection signal="pressed" from="Panel/Close" to="ClickSfx" method="play_cue"]

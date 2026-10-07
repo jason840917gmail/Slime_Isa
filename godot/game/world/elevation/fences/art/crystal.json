@@ -1,0 +1,44 @@
+{
+  "style": "crystal",
+  "source": "crystal-front-a.png",
+  "px_per_unit": 2.0,
+  "post_height": 44.0,
+  "spacing": 64.0,
+  "inset": 12.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      46,
+      93
+    ],
+    "foot_row": 90.96,
+    "half_width": 7.63
+  },
+  "rails": {
+    "size": [
+      117,
+      38
+    ],
+    "top": 32.15,
+    "bottom": 13.04,
+    "rows": [
+      [
+        31.56,
+        26.81
+      ],
+      [
+        18.22,
+        13.48
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      12,
+      117
+    ],
+    "top": 31.56,
+    "bottom": 26.81,
+    "offset": 0.0
+  }
+}

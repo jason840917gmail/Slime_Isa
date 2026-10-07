@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/256x256-tile_1x1-training-dummy.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/training_dummy.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(34, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(78, 96)
+
+[node name="training-dummy" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -10)
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -256)
+
+[node name="DamageArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_2")
+position = Vector2(0, -46)
+
+[node name="TrainingDummyScript" type="Node" parent="." node_paths=PackedStringArray("damage_area", "visual")]
+script = ExtResource("2")
+damage_area = NodePath("../DamageArea")
+visual = NodePath("../Visual")

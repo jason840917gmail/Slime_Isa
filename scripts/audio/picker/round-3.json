@@ -1,0 +1,1398 @@
+{
+ "round": "round-3",
+ "intro": "New sounds for actions that were silent: steps on every ground, wading, swimming, and more. Each sound has a few options. Play the single takes, and for steps press Walk to hear the option in the slime's own walking rhythm, the way the game repeats it.",
+ "takes": "temp/sound-round-3/takes",
+ "groups": [
+  {
+   "id": "steps",
+   "name": "Steps on each ground",
+   "note": "A step plays each time the slime lands in its walk cycle, about every 0.54 s. Walk plays nine steps in that rhythm with the game's small pitch changes."
+  },
+  {
+   "id": "water",
+   "name": "Water and swimming",
+   "note": "Shallow water is walkable; deep water needs the Frog form, which swims. A stroke plays once per swim cycle (about every 1.1 s)."
+  },
+  {
+   "id": "slime",
+   "name": "Gulp forms and the lash",
+   "note": "Transforming used to play only the eat sound, and the lash was silent after the throw."
+  },
+  {
+   "id": "world",
+   "name": "Puzzles, doors and the training dummy",
+   "note": "These played no sound at all."
+  },
+  {
+   "id": "talk",
+   "name": "Dialogue",
+   "note": "A soft blip as each letter appears (at most about twelve a second). Keep silent is a real option."
+  },
+  {
+   "id": "wired",
+   "name": "Made earlier, now played",
+   "note": "These sounds were picked in rounds 1 and 2 but nothing in the game played them. They play now; choose Neither for any that should change."
+  }
+ ],
+ "cues": [
+  {
+   "id": "footstep.grass",
+   "group": "steps",
+   "name": "Grass",
+   "where": "Meadows and Slimeshire (grass-a, grass-b)",
+   "rhythm": 540,
+   "node": "Footsteps/Grass",
+   "ship": "footstep/grass",
+   "inGame": "r2",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/grass-walk-1.src.wav",
+      "temp/sound-round-3/cut/grass-walk-2.src.wav",
+      "temp/sound-round-3/cut/grass-walk-3.src.wav",
+      "temp/sound-round-3/cut/grass-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/grass-slime-1.src.wav",
+      "temp/sound-round-3/cut/grass-slime-2.src.wav",
+      "temp/sound-round-3/cut/grass-slime-3.src.wav",
+      "temp/sound-round-3/cut/grass-slime-4.src.wav"
+     ]
+    },
+    {
+     "key": "r2",
+     "label": "Round 2 take",
+     "note": "The round-2 take you kept (never heard in game until now)",
+     "kind": "step",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/footstep/grass-1.wav",
+      "godot/asset/audio/sfx/library/footstep/grass-2.wav",
+      "godot/asset/audio/sfx/library/footstep/grass-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.forest",
+   "group": "steps",
+   "name": "Forest floor",
+   "where": "Gloop Forest earth and moss (forest-floor, forest-moss)",
+   "rhythm": 540,
+   "node": "Footsteps/Forest",
+   "ship": "footstep/forest",
+   "inGame": "r2",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/forest-walk-1.src.wav",
+      "temp/sound-round-3/cut/forest-walk-2.src.wav",
+      "temp/sound-round-3/cut/forest-walk-3.src.wav",
+      "temp/sound-round-3/cut/forest-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/forest-slime-1.src.wav",
+      "temp/sound-round-3/cut/forest-slime-2.src.wav",
+      "temp/sound-round-3/cut/forest-slime-3.src.wav",
+      "temp/sound-round-3/cut/forest-slime-4.src.wav"
+     ]
+    },
+    {
+     "key": "r2",
+     "label": "Round 2 take",
+     "note": "The round-2 take you kept (never heard in game until now)",
+     "kind": "step",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/footstep/forest-1.wav",
+      "godot/asset/audio/sfx/library/footstep/forest-2.wav",
+      "godot/asset/audio/sfx/library/footstep/forest-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.leaves",
+   "group": "steps",
+   "name": "Autumn leaves",
+   "where": "Emberleef's amber ground (amberleaf-ground)",
+   "rhythm": 540,
+   "node": "Footsteps/Leaves",
+   "ship": "footstep/leaves",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/leaves-walk-1.src.wav",
+      "temp/sound-round-3/cut/leaves-walk-2.src.wav",
+      "temp/sound-round-3/cut/leaves-walk-3.src.wav",
+      "temp/sound-round-3/cut/leaves-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/leaves-slime-1.src.wav",
+      "temp/sound-round-3/cut/leaves-slime-2.src.wav",
+      "temp/sound-round-3/cut/leaves-slime-3.src.wav",
+      "temp/sound-round-3/cut/leaves-slime-4.src.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.sand",
+   "group": "steps",
+   "name": "Sand",
+   "where": "Desert sand (sanddessert-ground)",
+   "rhythm": 540,
+   "node": "Footsteps/Sand",
+   "ship": "footstep/sand",
+   "inGame": "r2",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/sand-walk-1.src.wav",
+      "temp/sound-round-3/cut/sand-walk-2.src.wav",
+      "temp/sound-round-3/cut/sand-walk-3.src.wav",
+      "temp/sound-round-3/cut/sand-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/sand-slime-1.src.wav",
+      "temp/sound-round-3/cut/sand-slime-2.src.wav",
+      "temp/sound-round-3/cut/sand-slime-3.src.wav",
+      "temp/sound-round-3/cut/sand-slime-4.src.wav"
+     ]
+    },
+    {
+     "key": "r2",
+     "label": "Round 2 take",
+     "note": "The round-2 take you kept (never heard in game until now)",
+     "kind": "step",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/footstep/sand-1.wav",
+      "godot/asset/audio/sfx/library/footstep/sand-2.wav",
+      "godot/asset/audio/sfx/library/footstep/sand-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.snow",
+   "group": "steps",
+   "name": "Snow",
+   "where": "Frozen ground (frozen-ground)",
+   "rhythm": 540,
+   "node": "Footsteps/Snow",
+   "ship": "footstep/snow",
+   "inGame": "r2",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/snow-walk-1.src.wav",
+      "temp/sound-round-3/cut/snow-walk-2.src.wav",
+      "temp/sound-round-3/cut/snow-walk-3.src.wav",
+      "temp/sound-round-3/cut/snow-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/snow-slime-1.src.wav",
+      "temp/sound-round-3/cut/snow-slime-2.src.wav",
+      "temp/sound-round-3/cut/snow-slime-3.src.wav",
+      "temp/sound-round-3/cut/snow-slime-4.src.wav"
+     ]
+    },
+    {
+     "key": "r2",
+     "label": "Round 2 take",
+     "note": "The round-2 take you kept (never heard in game until now)",
+     "kind": "step",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/footstep/snow-1.wav",
+      "godot/asset/audio/sfx/library/footstep/snow-2.wav",
+      "godot/asset/audio/sfx/library/footstep/snow-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.stone",
+   "group": "steps",
+   "name": "Stone tiles",
+   "where": "Town cobble and tiles (town-cobble)",
+   "rhythm": 540,
+   "node": "Footsteps/Stone",
+   "ship": "footstep/stone",
+   "inGame": "r2",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/tiles-walk-1.src.wav",
+      "temp/sound-round-3/cut/tiles-walk-2.src.wav",
+      "temp/sound-round-3/cut/tiles-walk-3.src.wav",
+      "temp/sound-round-3/cut/tiles-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/tiles-slime-1.src.wav",
+      "temp/sound-round-3/cut/tiles-slime-2.src.wav",
+      "temp/sound-round-3/cut/tiles-slime-3.src.wav",
+      "temp/sound-round-3/cut/tiles-slime-4.src.wav"
+     ]
+    },
+    {
+     "key": "r2",
+     "label": "Round 2 take",
+     "note": "The round-2 take you kept (never heard in game until now)",
+     "kind": "step",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/footstep/stone-1.wav",
+      "godot/asset/audio/sfx/library/footstep/stone-2.wav",
+      "godot/asset/audio/sfx/library/footstep/stone-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.cave",
+   "group": "steps",
+   "name": "Cave floor",
+   "where": "Caverns (cavern-floor, rock-wall)",
+   "rhythm": 540,
+   "node": "Footsteps/Cave",
+   "ship": "footstep/cave",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/cave-walk-1.src.wav",
+      "temp/sound-round-3/cut/cave-walk-2.src.wav",
+      "temp/sound-round-3/cut/cave-walk-3.src.wav",
+      "temp/sound-round-3/cut/cave-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/cave-slime-1.src.wav",
+      "temp/sound-round-3/cut/cave-slime-2.src.wav",
+      "temp/sound-round-3/cut/cave-slime-3.src.wav",
+      "temp/sound-round-3/cut/cave-slime-4.src.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.crystal",
+   "group": "steps",
+   "name": "Crystal floor",
+   "where": "Crystal Caverns (crystal-floor)",
+   "rhythm": 540,
+   "node": "Footsteps/Crystal",
+   "ship": "footstep/crystal",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/crystal-walk-1.src.wav",
+      "temp/sound-round-3/cut/crystal-walk-2.src.wav",
+      "temp/sound-round-3/cut/crystal-walk-3.src.wav",
+      "temp/sound-round-3/cut/crystal-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/crystal-slime-1.src.wav",
+      "temp/sound-round-3/cut/crystal-slime-2.src.wav",
+      "temp/sound-round-3/cut/crystal-slime-3.src.wav",
+      "temp/sound-round-3/cut/crystal-slime-4.src.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.wood",
+   "group": "steps",
+   "name": "Wooden floor",
+   "where": "House interiors (wood-floor)",
+   "rhythm": 540,
+   "node": "Footsteps/Wood",
+   "ship": "footstep/wood",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/wood-walk-1.src.wav",
+      "temp/sound-round-3/cut/wood-walk-2.src.wav",
+      "temp/sound-round-3/cut/wood-walk-3.src.wav",
+      "temp/sound-round-3/cut/wood-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/wood-slime-1.src.wav",
+      "temp/sound-round-3/cut/wood-slime-2.src.wav",
+      "temp/sound-round-3/cut/wood-slime-3.src.wav",
+      "temp/sound-round-3/cut/wood-slime-4.src.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.soft",
+   "group": "steps",
+   "name": "Earth floor",
+   "where": "Mushroom houses (mushroom earth, clover and plain floors)",
+   "rhythm": 540,
+   "node": "Footsteps/Soft",
+   "ship": "footstep/soft",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Footsteps",
+     "note": "Real steps on the ground, cut from a generated walk",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/soft-walk-1.src.wav",
+      "temp/sound-round-3/cut/soft-walk-2.src.wav",
+      "temp/sound-round-3/cut/soft-walk-3.src.wav",
+      "temp/sound-round-3/cut/soft-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime hops",
+     "note": "A slime hopping on the ground, cut from a generated hop",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/soft-slime-1.src.wav",
+      "temp/sound-round-3/cut/soft-slime-2.src.wav",
+      "temp/sound-round-3/cut/soft-slime-3.src.wav",
+      "temp/sound-round-3/cut/soft-slime-4.src.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "footstep.water",
+   "group": "water",
+   "name": "Wading",
+   "where": "Each step in shallow water (water)",
+   "rhythm": 540,
+   "node": "Footsteps/Shallow",
+   "ship": "footstep/water",
+   "inGame": "r2",
+   "options": [
+    {
+     "key": "a",
+     "label": "Wading steps",
+     "note": "Light splash and slosh, cut from a generated wade",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/shallow-walk-1.src.wav",
+      "temp/sound-round-3/cut/shallow-walk-2.src.wav",
+      "temp/sound-round-3/cut/shallow-walk-3.src.wav",
+      "temp/sound-round-3/cut/shallow-walk-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Slime splashes",
+     "note": "A slime hopping through shallow water",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/shallow-slime-1.src.wav",
+      "temp/sound-round-3/cut/shallow-slime-2.src.wav",
+      "temp/sound-round-3/cut/shallow-slime-3.src.wav",
+      "temp/sound-round-3/cut/shallow-slime-4.src.wav"
+     ]
+    },
+    {
+     "key": "r2",
+     "label": "Round 1 take",
+     "note": "The splash picked in round 1 (never played until now)",
+     "kind": "step",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/footstep/water-1.ogg",
+      "godot/asset/audio/sfx/library/footstep/water-2.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.water-enter",
+   "group": "water",
+   "name": "Into the shallows",
+   "where": "Walking from land into shallow water",
+   "node": "Footsteps/WaterEnter",
+   "ship": "player/water-enter",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Light splash",
+     "note": "A small creature stepping into a pond",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/water-enter-a-1.mp3",
+      "temp/sound-round-3/raw/water-enter-a-2.mp3",
+      "temp/sound-round-3/raw/water-enter-a-3.mp3"
+     ],
+     "max": 0.9
+    },
+    {
+     "key": "b",
+     "label": "Slime plop",
+     "note": "A bubbly cartoon splash-plop",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/water-enter-b-1.mp3",
+      "temp/sound-round-3/raw/water-enter-b-2.mp3",
+      "temp/sound-round-3/raw/water-enter-b-3.mp3"
+     ],
+     "max": 0.9
+    }
+   ]
+  },
+  {
+   "id": "player.water-exit",
+   "group": "water",
+   "name": "Out of the water",
+   "where": "Climbing out of water onto land",
+   "node": "Footsteps/WaterExit",
+   "ship": "player/water-exit",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Slosh and drips",
+     "note": "One slosh and a few drips",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/water-exit-a-1.mp3",
+      "temp/sound-round-3/raw/water-exit-a-2.mp3",
+      "temp/sound-round-3/raw/water-exit-a-3.mp3"
+     ],
+     "max": 1.0
+    },
+    {
+     "key": "b",
+     "label": "Slime drips",
+     "note": "A wet squelch and cute drips",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/water-exit-b-1.mp3",
+      "temp/sound-round-3/raw/water-exit-b-2.mp3",
+      "temp/sound-round-3/raw/water-exit-b-3.mp3"
+     ],
+     "max": 1.0
+    }
+   ]
+  },
+  {
+   "id": "player.swim-enter",
+   "group": "water",
+   "name": "Starting to swim",
+   "where": "The Frog form slipping into deep water",
+   "node": "Footsteps/SwimEnter",
+   "ship": "player/swim-enter",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Gentle plunge",
+     "note": "A plunge with a swirl of bubbles",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/swim-enter-a-1.mp3",
+      "temp/sound-round-3/raw/swim-enter-a-2.mp3",
+      "temp/sound-round-3/raw/swim-enter-a-3.mp3"
+     ],
+     "max": 1.2
+    },
+    {
+     "key": "b",
+     "label": "Slime bloop",
+     "note": "A round cartoon bloop and rising bubbles",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/swim-enter-b-1.mp3",
+      "temp/sound-round-3/raw/swim-enter-b-2.mp3",
+      "temp/sound-round-3/raw/swim-enter-b-3.mp3"
+     ],
+     "max": 1.2
+    }
+   ]
+  },
+  {
+   "id": "player.swim-stroke",
+   "group": "water",
+   "name": "Swimming strokes",
+   "where": "Each swim cycle in deep water",
+   "rhythm": 1084,
+   "rhythmLabel": "▶ Swim",
+   "node": "Footsteps/Swim",
+   "ship": "player/swim-stroke",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Paddle strokes",
+     "note": "Soft swirling splashes, cut from a generated swim",
+     "kind": "step",
+     "max": 0.7,
+     "takes": [
+      "temp/sound-round-3/cut/swim-strokes-1.src.wav",
+      "temp/sound-round-3/cut/swim-strokes-2.src.wav",
+      "temp/sound-round-3/cut/swim-strokes-3.src.wav",
+      "temp/sound-round-3/cut/swim-strokes-4.src.wav"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Gloopy strokes",
+     "note": "Bubbly slime paddling",
+     "kind": "step",
+     "max": 0.7,
+     "takes": [
+      "temp/sound-round-3/cut/swim-slime-1.src.wav",
+      "temp/sound-round-3/cut/swim-slime-2.src.wav",
+      "temp/sound-round-3/cut/swim-slime-3.src.wav",
+      "temp/sound-round-3/cut/swim-slime-4.src.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.gulp-transform",
+   "group": "slime",
+   "name": "Transforming",
+   "where": "Gulping at a spot or from the wheel turns the slime into a form (the eat sound still plays too)",
+   "node": "GulpTransform",
+   "ship": "player/gulp-transform",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Gooey shimmer",
+     "note": "A wet squelch with a rising sparkle",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gulp-transform-a-1.mp3",
+      "temp/sound-round-3/raw/gulp-transform-a-2.mp3",
+      "temp/sound-round-3/raw/gulp-transform-a-3.mp3"
+     ],
+     "max": 1.4
+    },
+    {
+     "key": "b",
+     "label": "Bubbly pop",
+     "note": "A gloopy wobble that pops with a chime",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gulp-transform-b-1.mp3",
+      "temp/sound-round-3/raw/gulp-transform-b-2.mp3",
+      "temp/sound-round-3/raw/gulp-transform-b-3.mp3"
+     ],
+     "max": 1.4
+    }
+   ]
+  },
+  {
+   "id": "player.gulp-wear-off",
+   "group": "slime",
+   "name": "Form wears off",
+   "where": "The form's time runs out (\"The form wore off\")",
+   "node": "GulpWearOff",
+   "ship": "player/gulp-wear-off",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Deflating sparkle",
+     "note": "A soft deflate, a small pop and falling sparkle",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gulp-wear-off-a-1.mp3",
+      "temp/sound-round-3/raw/gulp-wear-off-a-2.mp3",
+      "temp/sound-round-3/raw/gulp-wear-off-a-3.mp3"
+     ],
+     "max": 1.4
+    },
+    {
+     "key": "b",
+     "label": "Rubbery shrink",
+     "note": "A wobbly deflate and a tiny pop",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gulp-wear-off-b-1.mp3",
+      "temp/sound-round-3/raw/gulp-wear-off-b-2.mp3",
+      "temp/sound-round-3/raw/gulp-wear-off-b-3.mp3"
+     ],
+     "max": 1.4
+    }
+   ]
+  },
+  {
+   "id": "player.burp",
+   "group": "slime",
+   "name": "Burp",
+   "where": "Pressing Q away from a spot ends the form with \"Burp!\"",
+   "node": "GulpBurp",
+   "ship": "player/burp",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Cute burp",
+     "note": "A short funny creature burp",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gulp-burp-a-1.mp3",
+      "temp/sound-round-3/raw/gulp-burp-a-2.mp3",
+      "temp/sound-round-3/raw/gulp-burp-a-3.mp3"
+     ],
+     "max": 0.8
+    },
+    {
+     "key": "b",
+     "label": "Bubbly burp",
+     "note": "A wet gurgle with a little pop",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gulp-burp-b-1.mp3",
+      "temp/sound-round-3/raw/gulp-burp-b-2.mp3",
+      "temp/sound-round-3/raw/gulp-burp-b-3.mp3"
+     ],
+     "max": 0.8
+    }
+   ]
+  },
+  {
+   "id": "player.lash-catch",
+   "group": "slime",
+   "name": "Lash catches",
+   "where": "The tendril hooks a post, wall or pickup",
+   "node": "LashCatch",
+   "ship": "player/lash-catch",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Sticky slap",
+     "note": "A wet thwap that sticks",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/lash-catch-a-1.mp3",
+      "temp/sound-round-3/raw/lash-catch-a-2.mp3",
+      "temp/sound-round-3/raw/lash-catch-a-3.mp3"
+     ],
+     "max": 0.6
+    },
+    {
+     "key": "b",
+     "label": "Elastic twang",
+     "note": "A rubbery twang and thwack",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/lash-catch-b-1.mp3",
+      "temp/sound-round-3/raw/lash-catch-b-2.mp3",
+      "temp/sound-round-3/raw/lash-catch-b-3.mp3"
+     ],
+     "max": 0.6
+    }
+   ]
+  },
+  {
+   "id": "player.lash-miss",
+   "group": "slime",
+   "name": "Lash misses",
+   "where": "The tendril catches nothing and snaps back",
+   "node": "LashMiss",
+   "ship": "player/lash-miss",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Wet slurp back",
+     "note": "A stretch and a quick slurp",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/lash-miss-a-1.mp3",
+      "temp/sound-round-3/raw/lash-miss-a-2.mp3",
+      "temp/sound-round-3/raw/lash-miss-a-3.mp3"
+     ],
+     "max": 0.7
+    },
+    {
+     "key": "b",
+     "label": "Sproing",
+     "note": "A cartoon rubber-band zip",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/lash-miss-b-1.mp3",
+      "temp/sound-round-3/raw/lash-miss-b-2.mp3",
+      "temp/sound-round-3/raw/lash-miss-b-3.mp3"
+     ],
+     "max": 0.7
+    }
+   ]
+  },
+  {
+   "id": "player.fall",
+   "group": "slime",
+   "name": "Dropping into a hole",
+   "where": "Climbing down the hole a Heavy slime cracked open",
+   "node": "FallDown",
+   "ship": "player/fall",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Whistle and plop",
+     "note": "A falling whistle and a distant gloopy thump",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/fall-hole-a-1.mp3",
+      "temp/sound-round-3/raw/fall-hole-a-2.mp3",
+      "temp/sound-round-3/raw/fall-hole-a-3.mp3"
+     ],
+     "max": 1.8
+    },
+    {
+     "key": "b",
+     "label": "Slide down",
+     "note": "A sliding scrape with pebbles and a soft landing",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/fall-hole-b-1.mp3",
+      "temp/sound-round-3/raw/fall-hole-b-2.mp3",
+      "temp/sound-round-3/raw/fall-hole-b-3.mp3"
+     ],
+     "max": 1.8
+    }
+   ]
+  },
+  {
+   "id": "world.plate-press",
+   "group": "world",
+   "name": "Pressure plate down",
+   "where": "A Heavy slime presses a plate",
+   "node": "PlatePress",
+   "ship": "world/plate-press",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Stone clunk",
+     "note": "A deep clunk with a click",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/plate-press-a-1.mp3",
+      "temp/sound-round-3/raw/plate-press-a-2.mp3",
+      "temp/sound-round-3/raw/plate-press-a-3.mp3"
+     ],
+     "max": 0.8
+    },
+    {
+     "key": "b",
+     "label": "Puzzle click",
+     "note": "A soft thunk and a bright click",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/plate-press-b-1.mp3",
+      "temp/sound-round-3/raw/plate-press-b-2.mp3",
+      "temp/sound-round-3/raw/plate-press-b-3.mp3"
+     ],
+     "max": 0.8
+    }
+   ]
+  },
+  {
+   "id": "world.plate-release",
+   "group": "world",
+   "name": "Pressure plate up",
+   "where": "The plate rises when the weight leaves",
+   "node": "PlateRelease",
+   "ship": "world/plate-release",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Stone clack",
+     "note": "A lighter clack and click",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/plate-release-a-1.mp3",
+      "temp/sound-round-3/raw/plate-release-a-2.mp3",
+      "temp/sound-round-3/raw/plate-release-a-3.mp3"
+     ],
+     "max": 0.6
+    },
+    {
+     "key": "b",
+     "label": "Soft tock",
+     "note": "A short tock and reverse click",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/plate-release-b-1.mp3",
+      "temp/sound-round-3/raw/plate-release-b-2.mp3",
+      "temp/sound-round-3/raw/plate-release-b-3.mp3"
+     ],
+     "max": 0.6
+    }
+   ]
+  },
+  {
+   "id": "world.gate-open",
+   "group": "world",
+   "name": "Gate opens",
+   "where": "A gate opens from a plate, a bell or a key",
+   "node": "GateOpen",
+   "ship": "world/gate-open",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Stone gate",
+     "note": "A rumbling stone grind ending in a thud",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gate-open-a-1.mp3",
+      "temp/sound-round-3/raw/gate-open-a-2.mp3",
+      "temp/sound-round-3/raw/gate-open-a-3.mp3"
+     ],
+     "max": 2.2
+    },
+    {
+     "key": "b",
+     "label": "Wooden gate",
+     "note": "A creak, a latch and a soft knock",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/gate-open-b-1.mp3",
+      "temp/sound-round-3/raw/gate-open-b-2.mp3",
+      "temp/sound-round-3/raw/gate-open-b-3.mp3"
+     ],
+     "max": 2.2
+    }
+   ]
+  },
+  {
+   "id": "world.door",
+   "group": "world",
+   "name": "Using a door",
+   "where": "Entering or leaving a house, hut or ladder",
+   "node": "DoorUse",
+   "ship": "world/door",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Cottage door",
+     "note": "A latch click and a warm creak",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/door-open-a-1.mp3",
+      "temp/sound-round-3/raw/door-open-a-2.mp3",
+      "temp/sound-round-3/raw/door-open-a-3.mp3"
+     ],
+     "max": 1.4
+    },
+    {
+     "key": "b",
+     "label": "Wooden hatch",
+     "note": "A latch clack and a soft thump",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/door-open-b-1.mp3",
+      "temp/sound-round-3/raw/door-open-b-2.mp3",
+      "temp/sound-round-3/raw/door-open-b-3.mp3"
+     ],
+     "max": 1.4
+    }
+   ]
+  },
+  {
+   "id": "world.dummy-hit",
+   "group": "world",
+   "name": "Training dummy hit",
+   "where": "Any weapon hitting the training dummy",
+   "node": "DummyHit",
+   "ship": "world/dummy-hit",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Straw thump",
+     "note": "A dry thump with a straw rustle",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/dummy-hit-a-1.mp3",
+      "temp/sound-round-3/raw/dummy-hit-a-2.mp3",
+      "temp/sound-round-3/raw/dummy-hit-a-3.mp3"
+     ],
+     "max": 0.7
+    },
+    {
+     "key": "b",
+     "label": "Sack thud",
+     "note": "A soft solid thud with a wooden knock",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/dummy-hit-b-1.mp3",
+      "temp/sound-round-3/raw/dummy-hit-b-2.mp3",
+      "temp/sound-round-3/raw/dummy-hit-b-3.mp3"
+     ],
+     "max": 0.7
+    }
+   ]
+  },
+  {
+   "id": "world.ground-creak",
+   "group": "world",
+   "name": "Cracked ground creaks",
+   "where": "A Heavy slime standing on cracked ground (\"creak...\")",
+   "node": "GroundCreak",
+   "ship": "world/ground-creak",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Low creak",
+     "note": "A creaking crackle with crumbling pebbles",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/ground-creak-a-1.mp3",
+      "temp/sound-round-3/raw/ground-creak-a-2.mp3",
+      "temp/sound-round-3/raw/ground-creak-a-3.mp3"
+     ],
+     "max": 1.4
+    },
+    {
+     "key": "b",
+     "label": "Sharp cracks",
+     "note": "Dry cracks spreading with a dusty crumble",
+     "kind": "oneshot",
+     "takes": [
+      "temp/sound-round-3/raw/ground-creak-b-1.mp3",
+      "temp/sound-round-3/raw/ground-creak-b-2.mp3",
+      "temp/sound-round-3/raw/ground-creak-b-3.mp3"
+     ],
+     "max": 1.4
+    }
+   ]
+  },
+  {
+   "id": "ui.talk-blip",
+   "group": "talk",
+   "name": "Text typing",
+   "where": "Letters appearing in the dialogue box",
+   "rhythm": 85,
+   "rhythmLabel": "▶ Type",
+   "node": "TalkBlip",
+   "ship": "ui/talk-blip",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Soft pop",
+     "note": "A gentle rounded blip",
+     "kind": "oneshot",
+     "max": 0.12,
+     "takes": [
+      "temp/sound-round-3/raw/talk-blip-a-1.mp3",
+      "temp/sound-round-3/raw/talk-blip-a-2.mp3",
+      "temp/sound-round-3/raw/talk-blip-a-3.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Wooden tick",
+     "note": "A tiny wooden bead tap",
+     "kind": "step",
+     "takes": [
+      "temp/sound-round-3/cut/talk-blip-b-1.src.wav",
+      "temp/sound-round-3/cut/talk-blip-b-2.src.wav",
+      "temp/sound-round-3/cut/talk-blip-b-3.src.wav",
+      "temp/sound-round-3/cut/talk-blip-b-4.src.wav"
+     ]
+    },
+    {
+     "key": "s",
+     "label": "Keep silent",
+     "note": "No typing sound",
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "world.gate-unlock",
+   "group": "wired",
+   "name": "Key unlocks a gate",
+   "where": "Using the right key on a locked gate (the gate-open sound follows)",
+   "node": "GateUnlock",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/world/gate-unlock.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world.gate-locked",
+   "group": "wired",
+   "name": "Gate is locked",
+   "where": "Trying a locked gate without its key",
+   "node": "GateLocked",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/world/gate-locked.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.coin",
+   "group": "wired",
+   "name": "Coins",
+   "where": "Gaining coins: enemy loot, purple berries, quest rewards",
+   "node": "Coin",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/player/coin-1.ogg",
+      "godot/asset/audio/sfx/library/player/coin-2.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "resource.drop-pop",
+   "group": "wired",
+   "name": "Loot pops out",
+   "where": "Each pile flying out of a tree, rock or enemy",
+   "node": "DropPop",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/synth/resource/drop-pop-1.wav",
+      "godot/asset/audio/sfx/synth/resource/drop-pop-2.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "resource.drop-land",
+   "group": "wired",
+   "name": "Loot lands",
+   "where": "Each pile landing on the ground",
+   "node": "DropLand",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/synth/resource/drop-land-1.wav",
+      "godot/asset/audio/sfx/synth/resource/drop-land-2.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.potion-drink",
+   "group": "wired",
+   "name": "Drinking a potion",
+   "where": "Using a health or energy potion (the heal sound follows)",
+   "node": "PotionDrink",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/synth/player/potion-drink.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.web-struggle",
+   "group": "wired",
+   "name": "Stuck in a web",
+   "where": "Pushing to move while a spider web holds the slime",
+   "node": "WebStruggle",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/player/web-struggle.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.sleep-breath",
+   "group": "wired",
+   "name": "Sleeping",
+   "where": "Snoring in bed until woken (loops)",
+   "node": "SleepBreath",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/player/sleep-breath.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.rested",
+   "group": "wired",
+   "name": "Fully rested",
+   "where": "Health is full while sleeping",
+   "node": "Rested",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/synth/player/rested.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "weapon.hit-dull",
+   "group": "wired",
+   "name": "Dull hit",
+   "where": "Hits with the goo gauntlet, axes and pickaxes (they had no impact sound)",
+   "node": "HitDull",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/synth/weapon/hit-dull-1.wav",
+      "godot/asset/audio/sfx/synth/weapon/hit-dull-2.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "weapon.hit-blocked",
+   "group": "wired",
+   "name": "Blocked hit",
+   "where": "A hit that does nothing (Fatty in the air, an immune target)",
+   "node": "HitBlocked",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/weapon/hit-blocked-1.ogg",
+      "godot/asset/audio/sfx/library/weapon/hit-blocked-2.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world.save",
+   "group": "wired",
+   "name": "Game saved",
+   "where": "Saving to a slot",
+   "node": "Save",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/world/save.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ui.toast",
+   "group": "wired",
+   "name": "New quest available",
+   "where": "The \"New quest available\" notice",
+   "node": "Toast",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/library/ui/toast.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ui.shell-menu",
+   "group": "wired",
+   "name": "Pause and settings menus",
+   "where": "Opening and closing the pause, settings, save, credits and game-over menus (the menu sounds the game windows already use)",
+   "node": "MenuOpen",
+   "inGame": "e",
+   "options": [
+    {
+     "key": "e",
+     "label": "Current take",
+     "note": "Picked in an earlier round",
+     "kind": "oneshot",
+     "existing": true,
+     "takes": [
+      "godot/asset/audio/sfx/synth/ui/open.wav"
+     ]
+    }
+   ]
+  }
+ ]
+}

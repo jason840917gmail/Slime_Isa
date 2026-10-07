@@ -1,0 +1,161 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/saves/save_slots_menu.gd" id="1_script"]
+[ext_resource type="Theme" path="res://game/ui/theme/slime_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="3_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/click.ogg" id="4_click"]
+
+[node name="SaveSlotsMenu" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+surface_id = &"save-slots"
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -290.0
+offset_top = -195.0
+offset_right = 290.0
+offset_bottom = 195.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Title" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 14.0
+offset_right = -24.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_type_variation = &"PanelTitle"
+text = "Save game"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Autosave" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 60.0
+offset_right = -24.0
+offset_bottom = 102.0
+grow_horizontal = 2
+theme_type_variation = &"PrimaryButton"
+text = "Autosave"
+clip_text = true
+
+[node name="Slot1" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 110.0
+offset_right = -24.0
+offset_bottom = 152.0
+grow_horizontal = 2
+text = "Slot 1"
+clip_text = true
+
+[node name="Slot2" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 160.0
+offset_right = -24.0
+offset_bottom = 202.0
+grow_horizontal = 2
+text = "Slot 2"
+clip_text = true
+
+[node name="Slot3" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 210.0
+offset_right = -24.0
+offset_bottom = 252.0
+grow_horizontal = 2
+text = "Slot 3"
+clip_text = true
+
+[node name="Status" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 264.0
+offset_right = -24.0
+offset_bottom = 296.0
+grow_horizontal = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Confirm" type="Button" parent="Panel"]
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 120.0
+offset_top = 302.0
+offset_right = -300.0
+offset_bottom = 338.0
+grow_horizontal = 2
+theme_type_variation = &"DangerButton"
+text = "Overwrite"
+
+[node name="Cancel" type="Button" parent="Panel"]
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 300.0
+offset_top = 302.0
+offset_right = -120.0
+offset_bottom = 338.0
+grow_horizontal = 2
+theme_type_variation = &"MutedButton"
+text = "Cancel"
+
+[node name="Close" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 452.0
+offset_top = -46.0
+offset_right = -16.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"MutedButton"
+text = "Close"
+
+[node name="ClickSfx" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("4_click")
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("3_sfx")
+min_interval_ms = 40.0

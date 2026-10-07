@@ -1,0 +1,320 @@
+[
+  {
+    "id": "craft-workbench",
+    "name": "Workbench",
+    "station": "portable",
+    "tier": 1,
+    "description": "A placeable crafting station. Place it from your bag, then use it to craft tools and weapons.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 40
+      }
+    ],
+    "output": {
+      "itemId": "workbench",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-wooden-spear",
+    "name": "Wooden Spear",
+    "station": "workbench",
+    "tier": 1,
+    "uniqueOutput": true,
+    "learnedByQuest": true,
+    "description": "A light starter weapon with a visible golden thrust.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 20
+      }
+    ],
+    "output": {
+      "itemId": "wooden-spear",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-stone-axe",
+    "name": "Stone Axe",
+    "station": "workbench",
+    "tier": 1,
+    "uniqueOutput": true,
+    "learnedByQuest": true,
+    "description": "Required to harvest trees efficiently.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 10
+      },
+      {
+        "itemId": "stone",
+        "count": 10
+      }
+    ],
+    "output": {
+      "itemId": "stone-axe",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-stone-pickaxe",
+    "name": "Stone Pickaxe",
+    "station": "workbench",
+    "tier": 1,
+    "uniqueOutput": true,
+    "learnedByQuest": true,
+    "description": "Required to break stone resource nodes.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 10
+      },
+      {
+        "itemId": "stone",
+        "count": 10
+      }
+    ],
+    "output": {
+      "itemId": "stone-pickaxe",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-stone-spear",
+    "name": "Stone Spear",
+    "station": "workbench",
+    "tier": 1,
+    "uniqueOutput": true,
+    "learnedByQuest": true,
+    "description": "A stronger spear with a cool stone-blue thrust.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 20
+      },
+      {
+        "itemId": "stone",
+        "count": 20
+      }
+    ],
+    "output": {
+      "itemId": "stone-spear",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-reinforced-pickaxe",
+    "name": "Reinforced Pickaxe",
+    "station": "workbench",
+    "tier": 1,
+    "uniqueOutput": true,
+    "learnedByQuest": true,
+    "description": "A stone pick bound with weaver fangs. Required to break iron ore nodes.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 10
+      },
+      {
+        "itemId": "stone",
+        "count": 15
+      },
+      {
+        "itemId": "weaver-fang",
+        "count": 3
+      }
+    ],
+    "output": {
+      "itemId": "reinforced-pickaxe",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-iron-spear",
+    "name": "Iron Spear",
+    "station": "workbench",
+    "tier": 1,
+    "uniqueOutput": true,
+    "learnedByQuest": true,
+    "description": "An iron-headed spear: more damage and a quicker thrust than stone.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 10
+      },
+      {
+        "itemId": "iron-bar",
+        "count": 4
+      }
+    ],
+    "output": {
+      "itemId": "iron-spear",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-iron-axe",
+    "name": "Iron Axe",
+    "station": "workbench",
+    "tier": 1,
+    "uniqueOutput": true,
+    "learnedByQuest": true,
+    "description": "Fells trees in a few strokes, and bites in a fight too.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 10
+      },
+      {
+        "itemId": "iron-bar",
+        "count": 3
+      }
+    ],
+    "output": {
+      "itemId": "iron-axe",
+      "count": 1
+    }
+  },
+  {
+    "id": "craft-slam-hammer",
+    "name": "Slam Hammer",
+    "station": "workshop",
+    "tier": 1,
+    "uniqueOutput": true,
+    "description": "A slow, heavy hammer: a short reach, but it knocks enemies far back.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 25
+      },
+      {
+        "itemId": "stone",
+        "count": 25
+      }
+    ],
+    "output": {
+      "itemId": "slam-hammer",
+      "count": 1
+    }
+  },
+  {
+    "id": "smelt-charcoal",
+    "name": "Smelt Charcoal",
+    "station": "forge",
+    "tier": 1,
+    "description": "Char wood slowly in the Forge into clean-burning fuel.",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "count": 5
+      }
+    ],
+    "output": {
+      "itemId": "charcoal",
+      "count": 2
+    }
+  },
+  {
+    "id": "smelt-iron-bar",
+    "name": "Smelt Iron Bar",
+    "station": "forge",
+    "tier": 1,
+    "description": "Melt iron ore over charcoal and cast it into a bar.",
+    "ingredients": [
+      {
+        "itemId": "iron-ore",
+        "count": 2
+      },
+      {
+        "itemId": "charcoal",
+        "count": 1
+      }
+    ],
+    "output": {
+      "itemId": "iron-bar",
+      "count": 1
+    }
+  },
+  {
+    "id": "brew-tonic",
+    "name": "Brew Slime Tonic",
+    "station": "portable",
+    "tier": 1,
+    "description": "Turn meadow berries into a reliable healing tonic.",
+    "ingredients": [
+      {
+        "itemId": "purple-berry-mat",
+        "count": 3
+      }
+    ],
+    "output": {
+      "itemId": "hp-potion",
+      "count": 1
+    }
+  },
+  {
+    "id": "cook-berry-basket",
+    "name": "Berry Basket",
+    "station": "portable",
+    "tier": 1,
+    "description": "A little woven basket of berries. Eat it for a quick boost of health and energy.",
+    "ingredients": [
+      {
+        "itemId": "purple-berry-mat",
+        "count": 2
+      },
+      {
+        "itemId": "wood",
+        "count": 5
+      }
+    ],
+    "output": {
+      "itemId": "berry-basket",
+      "count": 1
+    }
+  },
+  {
+    "id": "brew-fizzy",
+    "name": "Brew Fizzy Brew",
+    "station": "kitchen",
+    "tier": 1,
+    "description": "Charge berry juice with crystal shards for energy recovery.",
+    "ingredients": [
+      {
+        "itemId": "purple-berry-mat",
+        "count": 2
+      },
+      {
+        "itemId": "shard",
+        "count": 1
+      }
+    ],
+    "output": {
+      "itemId": "energy-potion",
+      "count": 1
+    }
+  },
+  {
+    "id": "weave-tonics",
+    "name": "Sticky Field Kit",
+    "station": "kitchen",
+    "tier": 1,
+    "description": "Use spider-silk binding to pack two tonics.",
+    "ingredients": [
+      {
+        "itemId": "purple-berry-mat",
+        "count": 2
+      },
+      {
+        "itemId": "silk-clump",
+        "count": 2
+      }
+    ],
+    "output": {
+      "itemId": "hp-potion",
+      "count": 2
+    }
+  }
+]

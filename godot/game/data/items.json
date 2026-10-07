@@ -1,0 +1,140 @@
+{
+  "wood": {
+    "id": "wood",
+    "name": "Wood",
+    "category": "material",
+    "icon": "resources-starter-materials-2x1",
+    "iconFrame": 0,
+    "description": "Freshly gathered timber for tools, weapons, and building.",
+    "worldDrop": { "objectId": "collectible.wood-pile", "visualId": "wood-pile" }
+  },
+  "stone": {
+    "id": "stone",
+    "name": "Stone",
+    "category": "material",
+    "icon": "resources-starter-materials-2x1",
+    "iconFrame": 1,
+    "description": "Rough stone gathered from broken rock nodes.",
+    "worldDrop": { "objectId": "collectible.stone-pile", "visualId": "stone-pile" }
+  },
+  "iron-ore": {
+    "id": "iron-ore",
+    "name": "Iron Ore",
+    "category": "material",
+    "icon": "resources-4x2",
+    "iconFrame": 6,
+    "description": "Dense iron-bearing ore ready to be refined into metal.",
+    "worldDrop": { "objectId": "collectible.iron-ore-pile", "visualId": "iron-ore-pile" }
+  },
+  "charcoal": {
+    "id": "charcoal",
+    "name": "Charcoal",
+    "category": "material",
+    "icon": "resources-4x2",
+    "iconFrame": 7,
+    "description": "A lightweight fuel used for smelting and advanced crafting.",
+    "worldDrop": { "objectId": "collectible.charcoal-pile", "visualId": "charcoal-pile" }
+  },
+  "hp-potion": {
+    "id": "hp-potion",
+    "name": "Slime Tonic",
+    "category": "consumable",
+    "icon": "items-potions-5x2",
+    "iconFrame": 0,
+    "description": "Restores 40 HP.",
+    "worldDrop": { "objectId": "collectible.hp-potion", "visualId": "hp-potion" },
+    "use": { "healHp": 40, "cue": "PotionDrink" }
+  },
+  "energy-potion": {
+    "id": "energy-potion",
+    "name": "Fizzy Brew",
+    "category": "consumable",
+    "icon": "items-potions-5x2",
+    "iconFrame": 6,
+    "description": "Restores 50 energy.",
+    "worldDrop": { "objectId": "collectible.energy-potion", "visualId": "energy-potion" },
+    "use": { "healEnergy": 50, "cue": "PotionDrink" }
+  },
+  "purple-berry-mat": {
+    "id": "purple-berry-mat",
+    "name": "Purple Berry",
+    "category": "material",
+    "icon": "items-forage-5x2",
+    "iconFrame": 0,
+    "description": "A sweet foraged berry. Used in brewing.",
+    "worldDrop": { "objectId": "collectible.purple-berry", "visualId": "purple-berry" }
+  },
+  "silk-clump": {
+    "id": "silk-clump",
+    "name": "Sticky Silk",
+    "category": "material",
+    "icon": "items-materials-5x2",
+    "iconFrame": 0,
+    "description": "Clumpy silk from a spider-slime.",
+    "worldDrop": { "objectId": "collectible.silk-clump", "visualId": "silk-clump" }
+  },
+  "weaver-fang": {
+    "id": "weaver-fang",
+    "name": "Weaver Fang",
+    "category": "material",
+    "icon": "items-chapter-2-5x2",
+    "iconFrame": 0,
+    "description": "A hooked fang from a Gloop Forest orb-weaver, hard enough to bite into iron.",
+    "worldDrop": { "objectId": "collectible.weaver-fang", "visualId": "weaver-fang" }
+  },
+  "iron-bar": {
+    "id": "iron-bar",
+    "name": "Iron Bar",
+    "category": "material",
+    "icon": "items-chapter-2-5x2",
+    "iconFrame": 1,
+    "description": "Smelted iron from the Forge, ready to be shaped into gear at the workbench.",
+    "worldDrop": { "objectId": "collectible.iron-bar", "visualId": "iron-bar" }
+  },
+  "shard": {
+    "id": "shard",
+    "name": "Crystal Shard",
+    "category": "collectible",
+    "icon": "items-gems-5x2",
+    "iconFrame": 0,
+    "description": "A glittering crystal. Could power something.",
+    "worldDrop": { "objectId": "collectible.crystal-shard", "visualId": "crystal-shard" }
+  },
+  "green-key": {
+    "id": "green-key",
+    "name": "Verdant Key",
+    "category": "key",
+    "icon": "items-keys-5x4",
+    "iconFrame": 0,
+    "description": "A leaf-shaped green key carried by Fatty One Eye's guarded chest.",
+    "worldDrop": { "objectId": "collectible.green-key", "visualId": "green-key" }
+  },
+  "crystal-key": {
+    "id": "crystal-key",
+    "name": "Crystal Key",
+    "category": "key",
+    "icon": "items-keys-5x4",
+    "iconFrame": 1,
+    "description": "A key of living crystal. It opens the sealed way into the Crystal Caverns (Chapter 3).",
+    "worldDrop": { "objectId": "collectible.crystal-key", "visualId": "crystal-key" }
+  },
+  "workbench": {
+    "id": "workbench",
+    "name": "Workbench",
+    "category": "furniture",
+    "icon": "interior-workshop-crafting-8x8",
+    "iconFrame": 8,
+    "description": "A sturdy bench for shaping wood and stone into tools and weapons. Place it anywhere, then use it to craft.",
+    "placeable": { "sceneIds": ["object.interior-workshop-workbench", "object.interior-workshop-workbench-vise"] }
+  },
+  "berry-basket": {
+    "id": "berry-basket",
+    "name": "Berry Basket",
+    "category": "consumable",
+    "icon": "interior-kitchen-hearth-8x8",
+    "iconFrame": 50,
+    "description": "A woven basket of sweet berries. Restores 20 HP and 30 energy.",
+    "worldDrop": { "objectId": "collectible.berry-basket", "visualId": "berry-basket" },
+    "use": { "healHp": 20, "healEnergy": 30, "cue": "Eat" }
+  }
+}

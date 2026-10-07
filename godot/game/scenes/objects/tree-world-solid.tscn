@@ -1,0 +1,120 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/trees/128X170-tiles_8x6.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/resource_node.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/leaf-rustle-1.wav" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/leaf-rustle-2.wav" id="5"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-1.wav" id="6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-2.wav" id="7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/tree-fall.wav" id="8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(68, 40)
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_2"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("5")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_3"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("6")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("7")
+stream_1/weight = 1.0
+
+[node name="shadow-pine-01" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(-2, -34)
+
+[node name="Visual" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-64, -170)
+hframes = 8
+vframes = 6
+
+[node name="DamageArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(-2, -34)
+
+[node name="ResourceNodeScript" type="Node" parent="." node_paths=PackedStringArray("damage_area")]
+script = ExtResource("2")
+map_id = "map-template"
+instance_id = "resource-template"
+object_id = "tree.world.solid"
+damage_area = NodePath("../DamageArea")
+max_health = 40.0
+tags = Array[String](["wood", "resource", "tree", "solid"])
+drop = {
+"objectId": "collectible.wood-pile",
+"visualId": "wood-pile",
+"pieces": 1
+}
+hit_effect_id = "wood-impact"
+on_hit_animation_id = ""
+persist_health = true
+depletion_message = "Tree felled"
+harvest_requirement = {
+"targetTag": "wood",
+"minimumTier": 1,
+"failureMessage": "Requires an Axe"
+}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+
+[node name="RustleSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_2")
+volume_db = -1.9382
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+pan_distance = 400.0
+
+[node name="WrongToolSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_3")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+min_interval_ms = 200.0
+pan_distance = 400.0
+
+[node name="FallSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("8")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+
+[connection signal="resource_hit" from="ResourceNodeScript" to="RustleSfx" method="play_cue"]
+[connection signal="harvest_blocked" from="ResourceNodeScript" to="WrongToolSfx" method="play_cue"]
+[connection signal="drops_requested" from="ResourceNodeScript" to="FallSfx" method="play_cue"]

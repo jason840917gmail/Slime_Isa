@@ -1,0 +1,44 @@
+{
+  "style": "wood",
+  "source": "wood-front-b.png",
+  "px_per_unit": 2.0,
+  "post_height": 40.0,
+  "spacing": 64.0,
+  "inset": 10.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      38,
+      84
+    ],
+    "foot_row": 82.11,
+    "half_width": 6.02
+  },
+  "rails": {
+    "size": [
+      149,
+      47
+    ],
+    "top": 31.28,
+    "bottom": 7.97,
+    "rows": [
+      [
+        30.68,
+        22.41
+      ],
+      [
+        16.24,
+        8.57
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      18,
+      149
+    ],
+    "top": 30.68,
+    "bottom": 22.41,
+    "offset": 5.0
+  }
+}

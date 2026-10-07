@@ -135,20 +135,40 @@ export const CUES = {
     // Once, when sleep has restored all HP: two soft, slow sine notes.
     rested: { synth: () => ({ echo: { delay: 0.14, feedback: 0.3, mix: 0.25 }, layers: notes([G5, C6], { step: 0.22, dur: 1.1, wave: 'sine', gain: 0.45, decay: 0.9 }) }) },
     'web-struggle': { library: ['rubberduck-slime/slime_09'], synth: () => ({ layers: [squelch({ dur: 0.12, gain: 0.6 }), squelch({ at: 0.14, dur: 0.12, gain: 0.5, cutoff: [1100, 400] }), { type: 'tone', wave: 'saw', dur: 0.3, freq: [180, 150], tremolo: { rate: 16, depth: 0.7 }, filter: { type: 'lp', cutoff: 800 }, env: { a: 0.02, d: 0.3 }, gain: 0.3 }] }) },
+    // Sound Picker round 3 (2026-10-06): Magnific takes, library only (no synth recipe).
+    'water-enter': { library: ['magnific/player-water-enter-r3-1', 'magnific/player-water-enter-r3-2', 'magnific/player-water-enter-r3-3'], variants: 3 },
+    'water-exit': { library: ['magnific/player-water-exit-r3-1', 'magnific/player-water-exit-r3-2', 'magnific/player-water-exit-r3-3'], variants: 3 },
+    'swim-enter': { library: ['magnific/player-swim-enter-r3-1', 'magnific/player-swim-enter-r3-2', 'magnific/player-swim-enter-r3-3'], variants: 3 },
+    'swim-stroke': { library: ['magnific/player-swim-stroke-r3-1', 'magnific/player-swim-stroke-r3-2', 'magnific/player-swim-stroke-r3-3'], variants: 3 },
+    'gulp-wear-off': { library: ['magnific/player-gulp-wear-off-r3-1', 'magnific/player-gulp-wear-off-r3-2', 'magnific/player-gulp-wear-off-r3-3'], variants: 3 },
+    burp: { library: ['magnific/player-burp-r3-1', 'magnific/player-burp-r3-2', 'magnific/player-burp-r3-3'], variants: 3 },
+    'lash-catch': { library: ['magnific/player-lash-catch-r3-1', 'magnific/player-lash-catch-r3-2', 'magnific/player-lash-catch-r3-3'], variants: 3 },
+    fall: { library: ['magnific/player-fall-r3-1', 'magnific/player-fall-r3-2', 'magnific/player-fall-r3-3'], variants: 3 },
+    // Sound Picker round 4 (2026-10-06): one transform sound per Gulp form (gulp_forms.gd `transform_cue`).
+    'gulp-transform-heavy': { library: ['magnific/player-gulp-transform-heavy-r4-1', 'magnific/player-gulp-transform-heavy-r4-2'], variants: 2 },
+    'gulp-transform-sticky': { library: ['magnific/player-gulp-transform-sticky-r4-1', 'magnific/player-gulp-transform-sticky-r4-2', 'magnific/player-gulp-transform-sticky-r4-3'], variants: 3 },
+    'gulp-transform-frog': { library: ['magnific/player-gulp-transform-frog-r4-1'], variants: 1 },
   },
 
   footstep: {
-    // Magnific takes (sound picks 2026-09-30, "this sound the same as forest, i don't know what it is").
-    grass: { library: ['magnific/footstep-grass-1', 'magnific/footstep-grass-2', 'magnific/footstep-grass-3'], variants: 3, synth: (k) => ({ layers: [squelch({ dur: 0.06, gain: 0.35, cutoff: [900 * k, 400] }), gravel({ dur: 0.07, rate: [400, 150], cutoff: 4000 * k, gain: 0.35, size: 0.003 })] }) },
-    // Magnific takes (sound picks 2026-09-30, "don't know what is this, doesn't sound like a forest").
-    forest: { library: ['magnific/footstep-forest-1', 'magnific/footstep-forest-2', 'magnific/footstep-forest-3'], variants: 3, synth: (k) => ({ layers: [squelch({ dur: 0.07, gain: 0.4, cutoff: [800 * k, 350] }), gravel({ dur: 0.09, rate: [250, 90], cutoff: 2200 * k, gain: 0.4 })] }) },
-    // Magnific takes (sound picks 2026-09-30, "does not sound like stone").
-    stone: { library: ['magnific/footstep-stone-1', 'magnific/footstep-stone-2', 'magnific/footstep-stone-4'], variants: 3, synth: (k) => ({ layers: [squelch({ dur: 0.05, gain: 0.35, cutoff: [900, 400] }), burst({ dur: 0.02, type: 'bp', cutoff: 2200 * k, q: 2, gain: 0.35 })] }) },
-    // Magnific takes (sound picks 2026-09-30, "softer like snow falling").
-    snow: { library: ['magnific/footstep-snow-1', 'magnific/footstep-snow-2', 'magnific/footstep-snow-3'], variants: 3, synth: (k) => ({ layers: [gravel({ dur: 0.12, rate: [500, 200], cutoff: 1600 * k, gain: 0.5, size: 0.004 })] }) },
-    // Magnific takes (sound picks 2026-09-30, "same as forest").
-    sand: { library: ['magnific/footstep-sand-1', 'magnific/footstep-sand-2', 'magnific/footstep-sand-3'], variants: 3, synth: (k) => ({ layers: [gravel({ dur: 0.1, rate: [600, 250], cutoff: 3500 * k, gain: 0.35, size: 0.003 }), squelch({ dur: 0.05, gain: 0.2 })] }) },
-    water: { library: ['rubberduck-slime/splash_09', 'rubberduck-slime/splash_10'], variants: 2, synth: (k) => ({ layers: [{ type: 'noise', dur: 0.14, gain: 0.5, env: { a: 0.005, d: 0.14 }, filter: { type: 'bp', cutoff: [900 * k, 2600], q: 1.4 } }, blip({ at: 0.03, f0: 500 * k, f1: 1100 * k, dur: 0.05, wave: 'sine', gain: 0.35 })] }) },
+    // Sound Picker round 3 (2026-10-06), steps cut from generated walks.
+    grass: { library: ['magnific/footstep-grass-r3-1', 'magnific/footstep-grass-r3-2'], variants: 2, synth: (k) => ({ layers: [squelch({ dur: 0.06, gain: 0.35, cutoff: [900 * k, 400] }), gravel({ dur: 0.07, rate: [400, 150], cutoff: 4000 * k, gain: 0.35, size: 0.003 })] }) },
+    // Sound Picker round 3 (2026-10-06), steps cut from generated walks.
+    forest: { library: ['magnific/footstep-forest-r3-1', 'magnific/footstep-forest-r3-2'], variants: 2, synth: (k) => ({ layers: [squelch({ dur: 0.07, gain: 0.4, cutoff: [800 * k, 350] }), gravel({ dur: 0.09, rate: [250, 90], cutoff: 2200 * k, gain: 0.4 })] }) },
+    // Sound Picker round 3 (2026-10-06), steps cut from generated walks.
+    stone: { library: ['magnific/footstep-stone-r3-1', 'magnific/footstep-stone-r3-2', 'magnific/footstep-stone-r3-3', 'magnific/footstep-stone-r3-4'], variants: 4, synth: (k) => ({ layers: [squelch({ dur: 0.05, gain: 0.35, cutoff: [900, 400] }), burst({ dur: 0.02, type: 'bp', cutoff: 2200 * k, q: 2, gain: 0.35 })] }) },
+    // Sound Picker round 3 (2026-10-06), steps cut from generated walks.
+    snow: { library: ['magnific/footstep-snow-r3-1', 'magnific/footstep-snow-r3-2'], variants: 2, synth: (k) => ({ layers: [gravel({ dur: 0.12, rate: [500, 200], cutoff: 1600 * k, gain: 0.5, size: 0.004 })] }) },
+    // Sound Picker round 3 (2026-10-06), steps cut from generated walks.
+    sand: { library: ['magnific/footstep-sand-r3-1', 'magnific/footstep-sand-r3-2', 'magnific/footstep-sand-r3-3'], variants: 3, synth: (k) => ({ layers: [gravel({ dur: 0.1, rate: [600, 250], cutoff: 3500 * k, gain: 0.35, size: 0.003 }), squelch({ dur: 0.05, gain: 0.2 })] }) },
+    // Sound Picker round 3 (2026-10-06), steps cut from generated walks.
+    water: { library: ['magnific/footstep-water-r3-1', 'magnific/footstep-water-r3-2', 'magnific/footstep-water-r3-3', 'magnific/footstep-water-r3-4'], variants: 4, synth: (k) => ({ layers: [{ type: 'noise', dur: 0.14, gain: 0.5, env: { a: 0.005, d: 0.14 }, filter: { type: 'bp', cutoff: [900 * k, 2600], q: 1.4 } }, blip({ at: 0.03, f0: 500 * k, f1: 1100 * k, dur: 0.05, wave: 'sine', gain: 0.35 })] }) },
+    // Sound Picker round 3 (2026-10-06): Magnific takes, library only (no synth recipe).
+    leaves: { library: ['magnific/footstep-leaves-r3-1', 'magnific/footstep-leaves-r3-2', 'magnific/footstep-leaves-r3-3'], variants: 3 },
+    cave: { library: ['magnific/footstep-cave-r3-1', 'magnific/footstep-cave-r3-2', 'magnific/footstep-cave-r3-3'], variants: 3 },
+    crystal: { library: ['magnific/footstep-crystal-r3-1', 'magnific/footstep-crystal-r3-2'], variants: 2 },
+    wood: { library: ['magnific/footstep-wood-r3-1', 'magnific/footstep-wood-r3-2', 'magnific/footstep-wood-r3-3', 'magnific/footstep-wood-r3-4'], variants: 4 },
+    soft: { library: ['magnific/footstep-soft-r3-1', 'magnific/footstep-soft-r3-2', 'magnific/footstep-soft-r3-3', 'magnific/footstep-soft-r3-4'], variants: 4 },
   },
 
   status: {
@@ -281,6 +301,13 @@ export const CUES = {
       { type: 'noise', color: 'brown', dur: 8.5, gain: 0.5, env: SUSTAIN, filter: { type: 'lp', cutoff: 220 } },
       { type: 'noise', dur: 8.5, gain: 0.7, env: SUSTAIN, grains: { rate: 6, size: 0.004, jitter: 1.6 }, filter: { type: 'hp', cutoff: 1600 } },
     ] }) },
+    // Sound Picker round 3 (2026-10-06): Magnific takes, library only (no synth recipe).
+    'plate-press': { library: ['magnific/world-plate-press-r3-1', 'magnific/world-plate-press-r3-2', 'magnific/world-plate-press-r3-3'], variants: 3 },
+    'plate-release': { library: ['magnific/world-plate-release-r3-1'], variants: 1 },
+    'gate-open': { library: ['magnific/world-gate-open-r3-1', 'magnific/world-gate-open-r3-2', 'magnific/world-gate-open-r3-3'], variants: 3 },
+    door: { library: ['magnific/world-door-r3-1', 'magnific/world-door-r3-2', 'magnific/world-door-r3-3'], variants: 3 },
+    'dummy-hit': { library: ['magnific/world-dummy-hit-r3-1', 'magnific/world-dummy-hit-r3-2', 'magnific/world-dummy-hit-r3-3'], variants: 3 },
+    'ground-creak': { library: ['magnific/world-ground-creak-r3-1'], variants: 1 },
   },
 
   ui: {
@@ -302,6 +329,8 @@ export const CUES = {
     'ability-ready': { library: ['select_002'], synth: () => ({ layers: [crystal({ freq: 1760, dur: 0.3, gain: 0.4 })] }) },
     'journal-open': { library: ['bookOpen'], synth: () => ({ layers: [whoosh({ dur: 0.2, from: 1500, peak: 4500, to: 2000, gain: 0.5, q: 0.7 }), burst({ at: 0.17, dur: 0.03, cutoff: 3000, gain: 0.3 })] }) },
     toast: { library: ['drop_004'], synth: () => ({ layers: [blip({ f0: 700, f1: 1050, dur: 0.07, wave: 'sine', gain: 0.5 })] }) },
+    // Sound Picker round 3 (2026-10-06): Magnific takes, library only (no synth recipe).
+    'talk-blip': { library: ['magnific/ui-talk-blip-r3-1', 'magnific/ui-talk-blip-r3-2', 'magnific/ui-talk-blip-r3-3', 'magnific/ui-talk-blip-r3-4'], variants: 4 },
   },
 };
 

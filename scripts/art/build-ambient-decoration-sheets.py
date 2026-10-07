@@ -9,7 +9,7 @@ Two sources:
 - procedural: frames derived from the original sprite itself (flame flicker,
   cloth wave, water shimmer), so no generation noise reaches the game.
 
-Output: asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp, one row
+Output: godot/asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp, one row
 of 8 frames per object in ROWS order. Needs Pillow + numpy.
   python scripts/art/build-ambient-decoration-sheets.py
 """
@@ -24,9 +24,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SHEET = os.path.join(ROOT, "asset", "MAPS", "decorations", "128x128-tile_8x3.webp")
+SHEET = os.path.join(ROOT, "godot", "asset", "MAPS", "decorations", "128x128-tile_8x3.webp")
 ORIGINALS = os.path.join(ROOT, "asset", "Originals", "decorations", "ambient")
-OUT = os.path.join(ROOT, "asset", "MAPS", "decorations", "128x128-tile_8x5-decorations-ambient.webp")
+OUT = os.path.join(ROOT, "godot", "asset", "MAPS", "decorations", "128x128-tile_8x5-decorations-ambient.webp")
 CELL, FRAMES = 128, 8
 
 # (name, source frame in the 8x3 decoration sheet, builder)

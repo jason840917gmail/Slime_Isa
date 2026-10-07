@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/pressure_plate.gd" id="2"]
+
+[node name="pressure-plate" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+z_index = -1
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -207)
+hframes = 8
+frame = 6
+
+[node name="PressurePlateScript" type="Node" parent="." node_paths=PackedStringArray("visual")]
+script = ExtResource("2")
+plate_id = "plate"
+radius = 44.0
+sink_px = 0.0
+latch = true
+visual = NodePath("../Visual")
+pressed_frame = 7

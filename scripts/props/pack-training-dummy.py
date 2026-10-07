@@ -2,7 +2,7 @@
 
 Source: asset/Originals/props/training-dummy/dummy-b.png (Magnific GPT-2 on a
 plain background, cut out with Magnific's background removal).
-Output: asset/MAPS/objects/256x256-tile_1x1-training-dummy.webp, one 256x256
+Output: godot/asset/MAPS/objects/256x256-tile_1x1-training-dummy.webp, one 256x256
 frame with the base on the bottom edge (the dummy wobbles about its base).
 
 Usage: python scripts/props/pack-training-dummy.py
@@ -17,7 +17,7 @@ from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'asset' / 'Originals' / 'props' / 'training-dummy' / 'dummy-b.png'
-OUTPUT = ROOT / 'asset' / 'MAPS' / 'objects' / '256x256-tile_1x1-training-dummy.webp'
+OUTPUT = ROOT / 'godot' / 'asset' / 'MAPS' / 'objects' / '256x256-tile_1x1-training-dummy.webp'
 FRAME = 256
 
 

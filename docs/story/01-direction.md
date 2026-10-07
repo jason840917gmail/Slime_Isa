@@ -63,4 +63,4 @@ a weapon found in a chest.
 
 Ideas from the same planning talk that the owner has not answered yet (energy
 details, merging dodge and roll on one button, where each armor is earned)
-are in [Open questions](./06-open-questions.md).
+are in [Open questions](06-open-questions.md).

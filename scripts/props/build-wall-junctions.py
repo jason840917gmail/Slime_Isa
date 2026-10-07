@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
-WALLS = ROOT / "asset" / "MAPS" / "walls"
+WALLS = ROOT / "godot" / "asset" / "MAPS" / "walls"
 CORNERS = WALLS / "70x70-4x2tiles_corners.webp"
 OUT = WALLS / "70x70-7x1tiles_Ts.webp"
 CELL = 70

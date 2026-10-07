@@ -1,0 +1,414 @@
+<title>Slime Isa Sound Picker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a mixing-desk list. One sticky summary strip, one panel per group, one card per sound with its options as channel rows. */
+:root {
+  --bg: #f3f5ef;
+  --panel: #ffffff;
+  --ink: #1d2a1f;
+  --muted: #5c6b5e;
+  --line: #d9e0d4;
+  --slime: #2f9e55;
+  --slime-soft: #dff2e4;
+  --amber: #b86a12;
+  --amber-soft: #fbead3;
+  --rep: #b3263e;
+  --rep-soft: #fbe7ea;
+  --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+  --body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121814; --panel: #1a221c; --ink: #e5eee4; --muted: #9aab9c; --line: #2c3a2f;
+    --slime: #5ccf7f; --slime-soft: #183424; --amber: #f0a54a; --amber-soft: #3a2a14;
+    --rep: #ff7d93; --rep-soft: #3a1820;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121814; --panel: #1a221c; --ink: #e5eee4; --muted: #9aab9c; --line: #2c3a2f;
+  --slime: #5ccf7f; --slime-soft: #183424; --amber: #f0a54a; --amber-soft: #3a2a14;
+  --rep: #ff7d93; --rep-soft: #3a1820;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 22px; }
+header { display: grid; gap: 8px; }
+header h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.1; margin: 0; text-wrap: balance; }
+header p { margin: 0; max-width: 68ch; color: var(--muted); }
+kbd { font: 600 12px/1 var(--mono); padding: 2px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--panel); color: var(--ink); }
+.strip { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; justify-content: space-between; }
+.tally { display: flex; flex-wrap: wrap; gap: 16px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.tally b { font-family: var(--display); font-size: 1.35rem; }
+.tally .p b { color: var(--slime); } .tally .r b { color: var(--rep); }
+.status { font-size: 13px; color: var(--muted); min-height: 1.5em; flex: 1 1 220px; }
+.status.ok { color: var(--slime); }
+.status.warn { color: var(--amber); }
+.final { font: 700 13px/1 var(--body); padding: 10px 14px; border-radius: 10px; border: 2px solid var(--slime); background: transparent; color: var(--slime); cursor: pointer; }
+.final[aria-pressed="true"] { background: var(--slime); color: var(--panel); }
+section.group { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.group-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.group-head h2 { font-family: var(--display); font-weight: 700; font-size: 1.25rem; margin: 0; }
+.group-head .count { color: var(--muted); font-size: 13px; margin-left: 8px; font-weight: 600; }
+.group-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; max-width: 70ch; }
+.bulk { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+.cue { display: grid; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); }
+.cue:first-child { border-top: 0; }
+.cue.replace { background: var(--rep-soft); }
+.cue-head { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; justify-content: space-between; }
+.cue-name { min-width: 0; }
+.cue-name strong { font-family: var(--display); font-size: 1.05rem; font-weight: 700; }
+.cue-name code { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: 8px; overflow-wrap: anywhere; }
+.cue-name small { display: block; color: var(--muted); font-size: 13px; }
+.chip { display: inline-flex; align-items: center; padding: 1px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; background: var(--amber-soft); color: var(--amber); white-space: nowrap; }
+.options { display: grid; gap: 6px; }
+.opt { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; padding: 6px 8px; border: 1px solid transparent; border-radius: 10px; }
+.opt.on { border-color: var(--slime); background: var(--slime-soft); }
+.pick { display: flex; gap: 10px; align-items: center; text-align: left; font: inherit; color: inherit; background: none; border: 0; padding: 4px; cursor: pointer; min-width: 0; border-radius: 8px; }
+.pick .dot { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); display: grid; place-items: center; }
+.opt.on .pick .dot { border-color: var(--slime); }
+.opt.on .pick .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--slime); }
+.pick .key { font: 700 12px/1 var(--mono); color: var(--muted); }
+.pick .lbl { font-weight: 700; display: block; }
+.pick .note { display: block; font-size: 12px; color: var(--muted); }
+.takes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
+.take { display: inline-flex; align-items: stretch; }
+.play, .walk { font: 600 13px/1 var(--mono); min-width: 38px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.play:hover, .play.on, .walk:hover, .walk.on { border-color: var(--slime); background: var(--slime-soft); color: var(--slime); }
+.take .play { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.take .drop { font: 700 12px/1 var(--body); width: 28px; border: 1px solid var(--line); border-left: 0; border-radius: 0 8px 8px 0; background: var(--bg); color: var(--muted); cursor: pointer; }
+.take .drop:hover { color: var(--rep); border-color: var(--rep); }
+.take.dropped .play { text-decoration: line-through; opacity: .45; }
+.take.dropped .drop { background: var(--rep); color: var(--panel); border-color: var(--rep); }
+.take .drop:disabled { cursor: not-allowed; opacity: .35; }
+.walk { font-family: var(--body); font-weight: 700; white-space: nowrap; }
+.neither { font: 700 12px/1 var(--body); letter-spacing: .04em; text-transform: uppercase; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.neither[aria-pressed="true"] { background: var(--rep); border-color: var(--rep); color: var(--panel); }
+.wish { display: grid; gap: 6px; }
+.wish label { font-size: 13px; font-weight: 700; color: var(--rep); }
+textarea { width: 100%; min-height: 56px; font: 14px/1.5 var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; resize: vertical; }
+.note-box { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 8px; }
+.note-box label { font-family: var(--display); font-weight: 700; }
+.small-btn { font: 700 12px/1 var(--body); padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.small-btn:hover { border-color: var(--slime); color: var(--slime); }
+button:focus-visible { outline: 3px solid var(--slime); outline-offset: 2px; }
+@media (max-width: 720px) {
+  .opt { grid-template-columns: minmax(0, 1fr) auto; }
+  .opt .takes { grid-column: 1 / -1; grid-row: 2; }
+}
+@media (prefers-reduced-motion: no-preference) { .play, .walk, .opt { transition: background-color .12s, color .12s, border-color .12s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 id="title">Sound picker</h1>
+    <p id="intro"></p>
+    <p>Pick one option per sound. Drop single takes you don't like with ✕, or choose <b>Neither</b> and say how it should sound. The game already plays the option marked <span class="chip">in game</span>; you can also try options in the playground (see the note at the bottom). Press <b>My picks are final</b> when you are done and Claude applies them.</p>
+  </header>
+
+  <div class="strip" role="status">
+    <div class="tally"><span class="p"><b id="tally-picked">0</b> picked</span><span class="r"><b id="tally-rep">0</b> neither</span><span><b id="tally-total">0</b> sounds</span></div>
+    <div class="status" id="save-status">Loading saved picks…</div>
+    <button type="button" class="final" id="final" aria-pressed="false">My picks are final</button>
+  </div>
+
+  <main id="groups"></main>
+
+  <div class="note-box">
+    <label for="note-text">Anything else Claude should know?</label>
+    <textarea id="note-text" placeholder="For example: steps are too loud next to the music, or use the slime hops everywhere except water."></textarea>
+    <p id="audition-note" style="margin:0;color:var(--muted);font-size:13px"></p>
+  </div>
+</div>
+
+<script>
+const ROUND = /*ROUND*/"round-3";
+const TITLE = /*TITLE*/"Sound picker";
+const INTRO = /*INTRO*/"";
+document.getElementById('title').textContent = TITLE;
+document.getElementById('intro').textContent = INTRO;
+const GROUPS = /*GROUPS*/[];
+const CUES = /*CUES*/[];
+
+const state = { picks: {}, wishes: {}, dropped: {}, note: '', final: false };
+let db = null, pickRef = null, saveTimer = null, dirty = false, saving = false;
+const statusEl = document.getElementById('save-status');
+const finalEl = document.getElementById('final');
+const noteEl = document.getElementById('note-text');
+const setStatus = (text, kind) => { statusEl.textContent = text; statusEl.className = 'status' + (kind ? ' ' + kind : ''); };
+document.getElementById('audition-note').textContent = /*AUDITION*/'';
+
+// --- playback (Web Audio: exact rhythm and per-step pitch, like the game) -----------------------
+let ctx = null;
+const buffers = new Map();
+let current = null; // { stop(), button }
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+async function buffer(src) {
+  if (!buffers.has(src)) {
+    buffers.set(src, (async () => {
+      const bytes = Uint8Array.from(atob(src.slice(src.indexOf(',') + 1)), (c) => c.charCodeAt(0));
+      return audio().decodeAudioData(bytes.buffer);
+    })());
+  }
+  return buffers.get(src);
+}
+function stopCurrent() {
+  if (!current) return;
+  current.stop();
+  current.button.classList.remove('on');
+  if (current.label) current.button.textContent = current.label;
+  current = null;
+}
+function voice(buf, when, rate) {
+  const node = audio().createBufferSource();
+  node.buffer = buf;
+  node.playbackRate.value = rate;
+  node.connect(audio().destination);
+  node.start(when);
+  return node;
+}
+async function playOne(src, button) {
+  stopCurrent();
+  const buf = await buffer(src);
+  const node = voice(buf, audio().currentTime + 0.01, 1);
+  current = { stop: () => { try { node.stop(); } catch {} }, button };
+  button.classList.add('on');
+  node.onended = () => { if (current && current.button === button) { button.classList.remove('on'); current = null; } };
+}
+/** Steps in the game's rhythm: a random take each beat (never the same twice running), pitch ±6 %. */
+async function playWalk(srcs, rhythmMs, button, loop) {
+  if (current && current.button === button) { stopCurrent(); return; }
+  stopCurrent();
+  const bufs = await Promise.all(srcs.map(buffer));
+  const nodes = [];
+  const label = button.textContent;
+  let stopped = false;
+  const ac = audio();
+  if (loop) {
+    const node = ac.createBufferSource();
+    node.buffer = bufs[0];
+    node.loop = true;
+    node.connect(ac.destination);
+    node.start();
+    nodes.push(node);
+  } else {
+    let last = -1;
+    const beats = Math.max(6, Math.round(5000 / rhythmMs));
+    const t0 = ac.currentTime + 0.05;
+    for (let i = 0; i < beats; i++) {
+      let pick = Math.floor(Math.random() * bufs.length);
+      if (bufs.length > 1 && pick === last) pick = (pick + 1) % bufs.length;
+      last = pick;
+      nodes.push(voice(bufs[pick], t0 + i * rhythmMs / 1000, 1 + (Math.random() * 2 - 1) * 0.06));
+    }
+    nodes[nodes.length - 1].onended = () => { if (!stopped && current && current.button === button) stopCurrent(); };
+  }
+  current = { stop: () => { stopped = true; nodes.forEach((n) => { try { n.stop(); } catch {} }); }, button, label };
+  button.classList.add('on');
+  button.textContent = '■ Stop';
+}
+
+// --- rendering ------------------------------------------------------------------------------------
+function keptTakes(cue, option) {
+  const dropped = (state.dropped[cue.id] && state.dropped[cue.id][option.key]) || [];
+  return option.takes.filter((_, i) => !dropped.includes(i));
+}
+function toggleDrop(cue, option, index) {
+  const entry = state.dropped[cue.id] || (state.dropped[cue.id] = {});
+  const list = entry[option.key] || (entry[option.key] = []);
+  const at = list.indexOf(index);
+  if (at >= 0) list.splice(at, 1); else list.push(index);
+  list.sort((a, b) => a - b);
+  changed();
+}
+function optionRow(cue, option) {
+  const row = document.createElement('div');
+  row.className = 'opt' + (state.picks[cue.id] === option.key ? ' on' : '');
+  const pick = document.createElement('button');
+  pick.type = 'button';
+  pick.className = 'pick';
+  pick.id = `pick-${cue.id}-${option.key}`;
+  pick.setAttribute('aria-pressed', String(state.picks[cue.id] === option.key));
+  const dot = document.createElement('span'); dot.className = 'dot';
+  const text = document.createElement('span');
+  const lbl = document.createElement('span'); lbl.className = 'lbl';
+  const key = document.createElement('span'); key.className = 'key'; key.textContent = option.key.toUpperCase() + ' · ';
+  lbl.append(key, document.createTextNode(option.label));
+  text.append(lbl);
+  if (option.note) { const note = document.createElement('span'); note.className = 'note'; note.textContent = option.note; text.append(note); }
+  if (cue.inGame === option.key) { const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = 'in game'; chip.style.marginLeft = '6px'; lbl.append(chip); }
+  pick.append(dot, text);
+  pick.addEventListener('click', () => { state.picks[cue.id] = option.key; changed(); });
+  const takes = document.createElement('div');
+  takes.className = 'takes';
+  const dropped = (state.dropped[cue.id] && state.dropped[cue.id][option.key]) || [];
+  option.takes.forEach((src, index) => {
+    const take = document.createElement('span');
+    const isDropped = dropped.includes(index);
+    take.className = 'take' + (isDropped ? ' dropped' : '');
+    const play = document.createElement('button');
+    play.type = 'button'; play.className = 'play'; play.textContent = '▶ ' + (index + 1);
+    play.setAttribute('aria-label', `Play ${cue.name}, option ${option.key.toUpperCase()}, take ${index + 1}`);
+    play.addEventListener('click', () => playOne(src, play));
+    take.append(play);
+    if (option.takes.length > 1 && !cue.loop) {
+      const drop = document.createElement('button');
+      drop.type = 'button'; drop.className = 'drop'; drop.textContent = '✕';
+      drop.setAttribute('aria-pressed', String(isDropped));
+      drop.title = isDropped ? 'Dropped: click to keep this take' : 'Drop just this take';
+      drop.setAttribute('aria-label', (isDropped ? 'Keep' : 'Drop') + ` take ${index + 1}`);
+      if (!isDropped && dropped.length >= option.takes.length - 1) drop.disabled = true;
+      drop.addEventListener('click', () => toggleDrop(cue, option, index));
+      take.append(drop);
+    }
+    takes.append(take);
+  });
+  row.append(pick, takes);
+  if ((cue.rhythm || cue.loop) && option.takes.length) {
+    const walk = document.createElement('button');
+    walk.type = 'button'; walk.className = 'walk';
+    walk.textContent = cue.loop ? '▶ Loop' : (cue.rhythmLabel || '▶ Walk');
+    walk.addEventListener('click', () => playWalk(keptTakes(cue, option), cue.rhythm, walk, cue.loop));
+    row.append(walk);
+  } else {
+    row.append(document.createElement('span'));
+  }
+  return row;
+}
+function cueCard(cue) {
+  const card = document.createElement('div');
+  const replace = state.picks[cue.id] === 'replace';
+  card.className = 'cue' + (replace ? ' replace' : '');
+  const head = document.createElement('div'); head.className = 'cue-head';
+  const name = document.createElement('div'); name.className = 'cue-name';
+  const strong = document.createElement('strong'); strong.textContent = cue.name;
+  const code = document.createElement('code'); code.textContent = cue.id;
+  const small = document.createElement('small'); small.textContent = cue.where;
+  name.append(strong, code, small);
+  const neither = document.createElement('button');
+  neither.type = 'button'; neither.className = 'neither'; neither.id = `neither-${cue.id}`;
+  neither.textContent = 'Neither';
+  neither.setAttribute('aria-pressed', String(replace));
+  neither.addEventListener('click', () => { state.picks[cue.id] = replace ? undefined : 'replace'; if (!state.picks[cue.id]) delete state.picks[cue.id]; changed(); });
+  head.append(name, neither);
+  const options = document.createElement('div'); options.className = 'options';
+  cue.options.forEach((option) => options.append(optionRow(cue, option)));
+  card.append(head, options);
+  if (replace) {
+    const wish = document.createElement('div'); wish.className = 'wish';
+    const label = document.createElement('label'); label.htmlFor = `wish-${cue.id}`; label.textContent = 'How should it sound?';
+    const area = document.createElement('textarea'); area.id = `wish-${cue.id}`;
+    area.placeholder = 'For example: a short wet squelch, softer and lower, no ringing tail.';
+    area.value = state.wishes[cue.id] || '';
+    area.addEventListener('input', () => { state.wishes[cue.id] = area.value; touch(); });
+    wish.append(label, area);
+    card.append(wish);
+  }
+  return card;
+}
+function render() {
+  const root = document.getElementById('groups');
+  const focusedId = document.activeElement && document.activeElement.id;
+  root.replaceChildren();
+  for (const group of GROUPS) {
+    const cues = CUES.filter((c) => c.group === group.id);
+    if (!cues.length) continue;
+    const section = document.createElement('section');
+    section.className = 'group';
+    section.style.marginBottom = '18px';
+    const head = document.createElement('div'); head.className = 'group-head';
+    const titles = document.createElement('div');
+    const h2 = document.createElement('h2'); h2.textContent = group.name;
+    const count = document.createElement('span'); count.className = 'count'; count.textContent = `${cues.length} sound${cues.length === 1 ? '' : 's'}`;
+    h2.append(count);
+    titles.append(h2);
+    if (group.note) { const p = document.createElement('p'); p.textContent = group.note; titles.append(p); }
+    head.append(titles);
+    // "Pick X for all" when every sound in the group offers that option.
+    const shared = cues[0].options.map((o) => o.key).filter((k) => cues.every((c) => c.options.some((o) => o.key === k)));
+    if (cues.length > 1 && shared.length) {
+      const bulk = document.createElement('div'); bulk.className = 'bulk';
+      bulk.append('All:');
+      for (const k of shared) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'small-btn'; b.id = `bulk-${group.id}-${k}`;
+        b.textContent = k.toUpperCase() + ' · ' + cues[0].options.find((o) => o.key === k).label;
+        b.addEventListener('click', () => { cues.forEach((c) => { state.picks[c.id] = k; }); changed(); });
+        bulk.append(b);
+      }
+      head.append(bulk);
+    }
+    const list = document.createElement('div');
+    cues.forEach((cue) => list.append(cueCard(cue)));
+    section.append(head, list);
+    root.append(section);
+  }
+  const values = CUES.map((c) => state.picks[c.id]);
+  document.getElementById('tally-picked').textContent = values.filter((v) => v && v !== 'replace').length;
+  document.getElementById('tally-rep').textContent = values.filter((v) => v === 'replace').length;
+  document.getElementById('tally-total').textContent = CUES.length;
+  finalEl.setAttribute('aria-pressed', String(state.final));
+  finalEl.textContent = state.final ? 'Final ✓ (click to keep editing)' : 'My picks are final';
+  if (focusedId) document.getElementById(focusedId)?.focus();
+}
+
+// --- saving -----------------------------------------------------------------------------------------
+function changed() { state.final = false; render(); touch(); }
+function touch() { dirty = true; scheduleSave(); }
+function scheduleSave() {
+  if (!pickRef) { setStatus('Picks are kept on this page only; saving is unavailable here.', 'warn'); return; }
+  setStatus('Saving…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 600);
+}
+async function save() {
+  if (saving) { scheduleSave(); return; }
+  saving = true; dirty = false;
+  try {
+    const picks = {};
+    for (const [id, v] of Object.entries(state.picks)) if (v) picks[id] = v;
+    const wishes = {};
+    for (const [id, text] of Object.entries(state.wishes)) if (picks[id] === 'replace' && text.trim()) wishes[id] = text;
+    await pickRef.set({ picks, wishes, dropped: JSON.parse(JSON.stringify(state.dropped)), note: state.note, final: state.final, updatedAt: new Date().toISOString() });
+    const left = CUES.length - Object.keys(picks).length;
+    setStatus(dirty ? 'Saving…' : state.final ? 'Saved as final. Claude will apply these picks.' : left ? `Saved. ${left} sound${left === 1 ? '' : 's'} still unpicked keep what the game plays now.` : 'Saved. Press "My picks are final" when you are done.', dirty ? '' : 'ok');
+  } catch (error) {
+    setStatus(error && error.code === 'invalid_argument' ? 'You can listen here, but only the owner can save picks.' : 'Could not save just now. Your next change will try again.', 'warn');
+  } finally { saving = false; }
+}
+noteEl.addEventListener('input', () => { state.note = noteEl.value; touch(); });
+finalEl.addEventListener('click', () => { state.final = !state.final; render(); touch(); });
+render();
+
+(async () => {
+  try { db = window.claude ? await window.claude.use('db') : null; } catch { db = null; }
+  if (!db) { setStatus('Picks are kept on this page only; saving is unavailable here.', 'warn'); return; }
+  pickRef = db.doc('picks/' + ROUND);
+  try {
+    const snap = await pickRef.get();
+    if (snap.exists) {
+      const data = snap.data() || {};
+      const known = new Set(CUES.map((c) => c.id));
+      for (const [id, v] of Object.entries(data.picks || {})) if (known.has(id) && typeof v === 'string') state.picks[id] = v;
+      for (const [id, text] of Object.entries(data.wishes || {})) if (typeof text === 'string') state.wishes[id] = text;
+      for (const [id, kinds] of Object.entries(data.dropped || {})) {
+        if (!kinds || typeof kinds !== 'object') continue;
+        state.dropped[id] = {};
+        for (const [k, list] of Object.entries(kinds)) if (Array.isArray(list)) state.dropped[id][k] = list.filter(Number.isInteger);
+      }
+      if (typeof data.note === 'string') { state.note = data.note; noteEl.value = data.note; }
+      state.final = data.final === true;
+      render();
+      setStatus(state.final ? 'Saved picks loaded (marked final).' : 'Saved picks loaded. Press "My picks are final" when you are done.', 'ok');
+    } else {
+      setStatus('Nothing picked yet. Every change saves.');
+    }
+  } catch { setStatus('Saved picks could not be loaded; new picks will still try to save.', 'warn'); }
+})();
+</script>

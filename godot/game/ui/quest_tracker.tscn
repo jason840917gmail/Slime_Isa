@@ -1,0 +1,236 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/ui/quest_tracker.gd" id="1_script"]
+[ext_resource type="Theme" path="res://game/ui/theme/slime_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="3_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/click.ogg" id="4_click"]
+
+[node name="QuestTracker" type="Panel"]
+process_mode = 3
+visible = false
+layout_mode = 3
+offset_left = 16.0
+offset_top = 96.0
+offset_right = 300.0
+offset_bottom = 336.0
+mouse_filter = 2
+theme = ExtResource("2_theme")
+theme_type_variation = &"TrackerPanel"
+script = ExtResource("1_script")
+
+[node name="Heading" type="Label" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = -12.0
+offset_bottom = 22.0
+grow_horizontal = 2
+theme_type_variation = &"HudLabel"
+theme_override_colors/font_color = Color(0.560784, 0.733333, 0.639216, 1)
+theme_override_font_sizes/font_size = 10
+vertical_alignment = 1
+
+[node name="BookHint" type="Label" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = -12.0
+offset_bottom = 22.0
+grow_horizontal = 2
+theme_type_variation = &"CaptionLabel"
+theme_override_colors/font_shadow_color = Color(0.031373, 0.062745, 0.133333, 1)
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Quest1" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = 26.0
+offset_right = -10.0
+offset_bottom = 64.0
+grow_horizontal = 2
+tooltip_text = "Show the way to quest 1"
+focus_mode = 0
+theme_type_variation = &"GhostButton"
+
+[node name="Title" type="Label" parent="Quest1"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 20.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_type_variation = &"HudLabel"
+theme_override_colors/font_color = Color(1, 0.823529, 0.466667, 1)
+theme_override_font_sizes/font_size = 14
+vertical_alignment = 1
+clip_text = true
+
+[node name="Objectives" type="Label" parent="Quest1"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0.031373, 0.062745, 0.133333, 1)
+theme_override_constants/shadow_outline_size = 2
+theme_override_constants/line_spacing = 2
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+clip_text = true
+
+[node name="Quest2" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = 26.0
+offset_right = -10.0
+offset_bottom = 64.0
+grow_horizontal = 2
+tooltip_text = "Show the way to quest 2"
+focus_mode = 0
+theme_type_variation = &"GhostButton"
+
+[node name="Title" type="Label" parent="Quest2"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 20.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_type_variation = &"HudLabel"
+theme_override_colors/font_color = Color(1, 0.823529, 0.466667, 1)
+theme_override_font_sizes/font_size = 14
+vertical_alignment = 1
+clip_text = true
+
+[node name="Objectives" type="Label" parent="Quest2"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0.031373, 0.062745, 0.133333, 1)
+theme_override_constants/shadow_outline_size = 2
+theme_override_constants/line_spacing = 2
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+clip_text = true
+
+[node name="Quest3" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = 26.0
+offset_right = -10.0
+offset_bottom = 64.0
+grow_horizontal = 2
+tooltip_text = "Show the way to quest 3"
+focus_mode = 0
+theme_type_variation = &"GhostButton"
+
+[node name="Title" type="Label" parent="Quest3"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 20.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_type_variation = &"HudLabel"
+theme_override_colors/font_color = Color(1, 0.823529, 0.466667, 1)
+theme_override_font_sizes/font_size = 14
+vertical_alignment = 1
+clip_text = true
+
+[node name="Objectives" type="Label" parent="Quest3"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0.031373, 0.062745, 0.133333, 1)
+theme_override_constants/shadow_outline_size = 2
+theme_override_constants/line_spacing = 2
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+clip_text = true
+
+[node name="Quest4" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = 26.0
+offset_right = -10.0
+offset_bottom = 64.0
+grow_horizontal = 2
+tooltip_text = "Show the way to quest 4"
+focus_mode = 0
+theme_type_variation = &"GhostButton"
+
+[node name="Title" type="Label" parent="Quest4"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 20.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_type_variation = &"HudLabel"
+theme_override_colors/font_color = Color(1, 0.823529, 0.466667, 1)
+theme_override_font_sizes/font_size = 14
+vertical_alignment = 1
+clip_text = true
+
+[node name="Objectives" type="Label" parent="Quest4"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0.031373, 0.062745, 0.133333, 1)
+theme_override_constants/shadow_outline_size = 2
+theme_override_constants/line_spacing = 2
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+clip_text = true
+
+[node name="Hint" type="Label" parent="."]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -24.0
+offset_right = -12.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"CaptionLabel"
+theme_override_colors/font_shadow_color = Color(0.031373, 0.062745, 0.133333, 1)
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1
+
+[node name="ClickSfx" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("4_click")
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("3_sfx")
+min_interval_ms = 40.0

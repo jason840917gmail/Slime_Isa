@@ -1,0 +1,383 @@
+[gd_scene format=3]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-wall-plaster-post.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-wall-plaster-end.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-beam-wood-vertical.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-beam-wood.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-post-wood.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-rug-green-small.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/kitchen/interior-kitchen-hearth-lit-s.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/kitchen/interior-kitchen-dish-shelf.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-barrel.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/kitchen/interior-kitchen-basket-fruit.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-firewood-basket.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/kitchen/interior-kitchen-herb-rack.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-banner-green.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-rug-round-green.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/beds/interior-beds-straw-nest-s.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/tables/interior-tables-low-round-emblem.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candle-lit.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-rug-green-large.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/tables/interior-tables-banquet-green-runner-s.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-chest-banded-closed-s.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-dish-cabinet-s.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-wash-stand.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/kitchen/interior-kitchen-bucket.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-plant-potted-large.tscn" id="27"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="28"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="29"]
+
+[node name="gloop-hut" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+z_index = -2
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 13, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 12, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 13, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 12, 0, 0, 0, 0, 0, 0, 0, 4, 0, 1, 0, 13, 0, 0, 0, 0, 0, 0, 0, 5, 0, 1, 0, 12, 0, 0, 0, 0, 0, 0, 0, 6, 0, 1, 0, 13, 0, 0, 0, 0, 0, 0, 0, 7, 0, 1, 0, 12, 0, 0, 0, 0, 0, 0, 0, 8, 0, 1, 0, 13, 0, 0, 0, 0, 0, 0, 0, 9, 0, 1, 0, 12, 0, 0, 0, 0, 0, 0, 0, 10, 0, 1, 0, 13, 0, 0, 0, 0, 0, 0, 0, 11, 0, 1, 0, 12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 1, 0, 13, 0, 0, 0, 0, 0, 0, 0, 13, 0, 1, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 13, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 13, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 0, 2, 0, 13, 0, 0, 0, 0, 0, 0, 0, 6, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 7, 0, 2, 0, 13, 0, 0, 0, 0, 0, 0, 0, 8, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 9, 0, 2, 0, 13, 0, 0, 0, 0, 0, 0, 0, 10, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 11, 0, 2, 0, 13, 0, 0, 0, 0, 0, 0, 0, 12, 0, 2, 0, 12, 0, 0, 0, 0, 0, 0, 0, 13, 0, 2, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 13, 0, 0, 0, 0, 0, 0, 0, 1, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 2, 0, 3, 0, 13, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 4, 0, 3, 0, 13, 0, 0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 6, 0, 3, 0, 13, 0, 0, 0, 0, 0, 0, 0, 7, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 8, 0, 3, 0, 13, 0, 0, 0, 0, 0, 0, 0, 9, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 10, 0, 3, 0, 13, 0, 0, 0, 0, 0, 0, 0, 11, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 3, 0, 13, 0, 0, 0, 0, 0, 0, 0, 13, 0, 3, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 12, 0, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 13, 0, 0, 0, 0, 0, 0, 0, 2, 0, 4, 0, 12, 0, 0, 0, 0, 0, 0, 0, 3, 0, 4, 0, 13, 0, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 0, 4, 0, 13, 0, 0, 0, 0, 0, 0, 0, 6, 0, 4, 0, 12, 0, 0, 0, 0, 0, 0, 0, 7, 0, 4, 0, 13, 0, 0, 0, 0, 0, 0, 0, 8, 0, 4, 0, 12, 0, 0, 0, 0, 0, 0, 0, 9, 0, 4, 0, 13, 0, 0, 0, 0, 0, 0, 0, 10, 0, 4, 0, 12, 0, 0, 0, 0, 0, 0, 0, 11, 0, 4, 0, 13, 0, 0, 0, 0, 0, 0, 0, 12, 0, 4, 0, 12, 0, 0, 0, 0, 0, 0, 0, 13, 0, 4, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 13, 0, 0, 0, 0, 0, 0, 0, 1, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 2, 0, 5, 0, 13, 0, 0, 0, 0, 0, 0, 0, 3, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0, 13, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 6, 0, 5, 0, 13, 0, 0, 0, 0, 0, 0, 0, 7, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 8, 0, 5, 0, 13, 0, 0, 0, 0, 0, 0, 0, 9, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 10, 0, 5, 0, 13, 0, 0, 0, 0, 0, 0, 0, 11, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 5, 0, 13, 0, 0, 0, 0, 0, 0, 0, 13, 0, 5, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 12, 0, 0, 0, 0, 0, 0, 0, 1, 0, 6, 0, 13, 0, 0, 0, 0, 0, 0, 0, 2, 0, 6, 0, 12, 0, 0, 0, 0, 0, 0, 0, 3, 0, 6, 0, 13, 0, 0, 0, 0, 0, 0, 0, 4, 0, 6, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 0, 6, 0, 13, 0, 0, 0, 0, 0, 0, 0, 6, 0, 6, 0, 12, 0, 0, 0, 0, 0, 0, 0, 7, 0, 6, 0, 13, 0, 0, 0, 0, 0, 0, 0, 8, 0, 6, 0, 12, 0, 0, 0, 0, 0, 0, 0, 9, 0, 6, 0, 13, 0, 0, 0, 0, 0, 0, 0, 10, 0, 6, 0, 12, 0, 0, 0, 0, 0, 0, 0, 11, 0, 6, 0, 13, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6, 0, 12, 0, 0, 0, 0, 0, 0, 0, 13, 0, 6, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 13, 0, 0, 0, 0, 0, 0, 0, 1, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 2, 0, 7, 0, 13, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 4, 0, 7, 0, 13, 0, 0, 0, 0, 0, 0, 0, 5, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 6, 0, 7, 0, 13, 0, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 8, 0, 7, 0, 13, 0, 0, 0, 0, 0, 0, 0, 9, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 10, 0, 7, 0, 13, 0, 0, 0, 0, 0, 0, 0, 11, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 7, 0, 13, 0, 0, 0, 0, 0, 0, 0, 13, 0, 7, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 1, 0, 8, 0, 13, 0, 0, 0, 0, 0, 0, 0, 2, 0, 8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 3, 0, 8, 0, 13, 0, 0, 0, 0, 0, 0, 0, 4, 0, 8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 0, 8, 0, 13, 0, 0, 0, 0, 0, 0, 0, 6, 0, 8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 7, 0, 8, 0, 13, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 9, 0, 8, 0, 13, 0, 0, 0, 0, 0, 0, 0, 10, 0, 8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 11, 0, 8, 0, 13, 0, 0, 0, 0, 0, 0, 0, 12, 0, 8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 13, 0, 8, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 13, 0, 0, 0, 0, 0, 0, 0, 1, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 2, 0, 9, 0, 13, 0, 0, 0, 0, 0, 0, 0, 3, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 4, 0, 9, 0, 13, 0, 0, 0, 0, 0, 0, 0, 5, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 0, 13, 0, 0, 0, 0, 0, 0, 0, 7, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 8, 0, 9, 0, 13, 0, 0, 0, 0, 0, 0, 0, 9, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 10, 0, 9, 0, 13, 0, 0, 0, 0, 0, 0, 0, 11, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 9, 0, 13, 0, 0, 0, 0, 0, 0, 0, 13, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 1, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0, 2, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 3, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0, 4, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0, 6, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 7, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0, 8, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 9, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0, 10, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 11, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0, 12, 0, 10, 0, 12, 0, 0, 0, 0, 0, 0, 0, 13, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0)
+tile_set = ExtResource("1")
+metadata/tile_seed = 7
+metadata/source_cell_count = 154
+metadata/columns = 14
+metadata/rows = 11
+
+[node name="TileCollision" type="Node2D" parent="ground"]
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "gloop-hut"
+tile_size = 64
+columns = 14
+rows = 11
+camera_mode = "fixed"
+metadata = {
+"objects": [],
+"player": {
+"spawn": {
+"x": 448,
+"y": 624
+},
+"entries": {
+"south": {
+"x": 448,
+"y": 624
+}
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(448, 624)
+
+[node name="player-entry-south" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(448, 624)
+
+[node name="house-door" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(448, 694)
+
+[node name="door-script" type="Node" parent="house-door"]
+script = ExtResource("3")
+map_id = "gloop-hut"
+door_id = "house-door"
+target_area_id = "gloop-forest"
+target_door_id = "hut-door"
+prompt = "Leave hut"
+interact_radius = 80.0
+badge_rise = 84.0
+
+[node name="arrival" type="Node2D" parent="house-door"]
+y_sort_enabled = true
+position = Vector2(0, -70)
+
+[node name="back-wall-1" parent="." instance=ExtResource("4")]
+position = Vector2(64, 150)
+metadata/instance_id = "gloop-hut-back-wall-1"
+metadata/persistence_key = "world.gloop-hut.back-wall-1"
+
+[node name="back-wall-2" parent="." instance=ExtResource("4")]
+position = Vector2(192, 150)
+metadata/instance_id = "gloop-hut-back-wall-2"
+metadata/persistence_key = "world.gloop-hut.back-wall-2"
+
+[node name="back-wall-3" parent="." instance=ExtResource("4")]
+position = Vector2(320, 150)
+metadata/instance_id = "gloop-hut-back-wall-3"
+metadata/persistence_key = "world.gloop-hut.back-wall-3"
+
+[node name="back-wall-4" parent="." instance=ExtResource("4")]
+position = Vector2(448, 150)
+metadata/instance_id = "gloop-hut-back-wall-4"
+metadata/persistence_key = "world.gloop-hut.back-wall-4"
+
+[node name="back-wall-5" parent="." instance=ExtResource("4")]
+position = Vector2(576, 150)
+metadata/instance_id = "gloop-hut-back-wall-5"
+metadata/persistence_key = "world.gloop-hut.back-wall-5"
+
+[node name="back-wall-6" parent="." instance=ExtResource("4")]
+position = Vector2(704, 150)
+metadata/instance_id = "gloop-hut-back-wall-6"
+metadata/persistence_key = "world.gloop-hut.back-wall-6"
+
+[node name="back-wall-7" parent="." instance=ExtResource("4")]
+position = Vector2(832, 150)
+metadata/instance_id = "gloop-hut-back-wall-7"
+metadata/persistence_key = "world.gloop-hut.back-wall-7"
+
+[node name="back-wall-end" parent="." instance=ExtResource("5")]
+position = Vector2(876, 150)
+metadata/instance_id = "gloop-hut-back-wall-end"
+metadata/persistence_key = "world.gloop-hut.back-wall-end"
+
+[node name="west-wall-1" parent="." instance=ExtResource("6")]
+position = Vector2(23, 210)
+metadata/instance_id = "gloop-hut-west-wall-1"
+metadata/persistence_key = "world.gloop-hut.west-wall-1"
+
+[node name="east-wall-1" parent="." instance=ExtResource("6")]
+position = Vector2(873, 210)
+metadata/instance_id = "gloop-hut-east-wall-1"
+metadata/persistence_key = "world.gloop-hut.east-wall-1"
+
+[node name="west-wall-2" parent="." instance=ExtResource("6")]
+position = Vector2(23, 326)
+metadata/instance_id = "gloop-hut-west-wall-2"
+metadata/persistence_key = "world.gloop-hut.west-wall-2"
+
+[node name="east-wall-2" parent="." instance=ExtResource("6")]
+position = Vector2(873, 326)
+metadata/instance_id = "gloop-hut-east-wall-2"
+metadata/persistence_key = "world.gloop-hut.east-wall-2"
+
+[node name="west-wall-3" parent="." instance=ExtResource("6")]
+position = Vector2(23, 442)
+metadata/instance_id = "gloop-hut-west-wall-3"
+metadata/persistence_key = "world.gloop-hut.west-wall-3"
+
+[node name="east-wall-3" parent="." instance=ExtResource("6")]
+position = Vector2(873, 442)
+metadata/instance_id = "gloop-hut-east-wall-3"
+metadata/persistence_key = "world.gloop-hut.east-wall-3"
+
+[node name="west-wall-4" parent="." instance=ExtResource("6")]
+position = Vector2(23, 558)
+metadata/instance_id = "gloop-hut-west-wall-4"
+metadata/persistence_key = "world.gloop-hut.west-wall-4"
+
+[node name="east-wall-4" parent="." instance=ExtResource("6")]
+position = Vector2(873, 558)
+metadata/instance_id = "gloop-hut-east-wall-4"
+metadata/persistence_key = "world.gloop-hut.east-wall-4"
+
+[node name="west-wall-5" parent="." instance=ExtResource("6")]
+position = Vector2(23, 674)
+metadata/instance_id = "gloop-hut-west-wall-5"
+metadata/persistence_key = "world.gloop-hut.west-wall-5"
+
+[node name="east-wall-5" parent="." instance=ExtResource("6")]
+position = Vector2(873, 674)
+metadata/instance_id = "gloop-hut-east-wall-5"
+metadata/persistence_key = "world.gloop-hut.east-wall-5"
+
+[node name="front-wall-1" parent="." instance=ExtResource("7")]
+position = Vector2(64, 702)
+metadata/instance_id = "gloop-hut-front-wall-1"
+metadata/persistence_key = "world.gloop-hut.front-wall-1"
+
+[node name="front-wall-2" parent="." instance=ExtResource("7")]
+position = Vector2(176, 702)
+metadata/instance_id = "gloop-hut-front-wall-2"
+metadata/persistence_key = "world.gloop-hut.front-wall-2"
+
+[node name="front-wall-3" parent="." instance=ExtResource("7")]
+position = Vector2(288, 702)
+metadata/instance_id = "gloop-hut-front-wall-3"
+metadata/persistence_key = "world.gloop-hut.front-wall-3"
+
+[node name="front-wall-4" parent="." instance=ExtResource("7")]
+position = Vector2(608, 702)
+metadata/instance_id = "gloop-hut-front-wall-4"
+metadata/persistence_key = "world.gloop-hut.front-wall-4"
+
+[node name="front-wall-5" parent="." instance=ExtResource("7")]
+position = Vector2(720, 702)
+metadata/instance_id = "gloop-hut-front-wall-5"
+metadata/persistence_key = "world.gloop-hut.front-wall-5"
+
+[node name="front-wall-6" parent="." instance=ExtResource("7")]
+position = Vector2(832, 702)
+metadata/instance_id = "gloop-hut-front-wall-6"
+metadata/persistence_key = "world.gloop-hut.front-wall-6"
+
+[node name="door-post-west" parent="." instance=ExtResource("8")]
+position = Vector2(372, 702)
+metadata/instance_id = "gloop-hut-door-post-west"
+metadata/persistence_key = "world.gloop-hut.door-post-west"
+
+[node name="door-post-east" parent="." instance=ExtResource("8")]
+position = Vector2(524, 702)
+metadata/instance_id = "gloop-hut-door-post-east"
+metadata/persistence_key = "world.gloop-hut.door-post-east"
+
+[node name="doormat" parent="." instance=ExtResource("9")]
+position = Vector2(448, 696)
+metadata/instance_id = "gloop-hut-doormat"
+metadata/persistence_key = "world.gloop-hut.doormat"
+
+[node name="Visual" parent="doormat"]
+scale = Vector2(0.8, 0.8)
+
+[node name="hearth" parent="." instance=ExtResource("10")]
+position = Vector2(448, 196)
+metadata/instance_id = "gloop-hut-hearth"
+metadata/persistence_key = "world.gloop-hut.hearth"
+
+[node name="hearth-rug" parent="." instance=ExtResource("9")]
+position = Vector2(448, 270)
+metadata/instance_id = "gloop-hut-hearth-rug"
+metadata/persistence_key = "world.gloop-hut.hearth-rug"
+
+[node name="Visual" parent="hearth-rug"]
+scale = Vector2(1.1, 1.1)
+
+[node name="dish-cabinet" parent="." instance=ExtResource("11")]
+position = Vector2(190, 184)
+metadata/instance_id = "gloop-hut-dish-cabinet"
+metadata/persistence_key = "world.gloop-hut.dish-cabinet"
+
+[node name="barrel" parent="." instance=ExtResource("12")]
+position = Vector2(292, 186)
+metadata/instance_id = "gloop-hut-barrel"
+metadata/persistence_key = "world.gloop-hut.barrel"
+
+[node name="apple-basket" parent="." instance=ExtResource("13")]
+position = Vector2(320, 230)
+metadata/instance_id = "gloop-hut-apple-basket"
+metadata/persistence_key = "world.gloop-hut.apple-basket"
+
+[node name="firewood" parent="." instance=ExtResource("14")]
+position = Vector2(575, 190)
+metadata/instance_id = "gloop-hut-firewood"
+metadata/persistence_key = "world.gloop-hut.firewood"
+
+[node name="pan-rack" parent="." instance=ExtResource("15")]
+position = Vector2(690, 152)
+metadata/instance_id = "gloop-hut-pan-rack"
+metadata/persistence_key = "world.gloop-hut.pan-rack"
+
+[node name="Visual" parent="pan-rack"]
+offset = Vector2(-64, -185.5)
+
+[node name="leaf-banner" parent="." instance=ExtResource("16")]
+position = Vector2(810, 152)
+metadata/instance_id = "gloop-hut-leaf-banner"
+metadata/persistence_key = "world.gloop-hut.leaf-banner"
+
+[node name="Visual" parent="leaf-banner"]
+offset = Vector2(-64, -178)
+
+[node name="west-bed-rug" parent="." instance=ExtResource("17")]
+position = Vector2(160, 360)
+metadata/instance_id = "gloop-hut-west-bed-rug"
+metadata/persistence_key = "world.gloop-hut.west-bed-rug"
+
+[node name="west-bed" parent="." instance=ExtResource("18")]
+position = Vector2(160, 340)
+metadata/instance_id = "gloop-hut-west-bed"
+metadata/persistence_key = "world.gloop-hut.west-bed"
+
+[node name="west-side-table" parent="." instance=ExtResource("19")]
+position = Vector2(275, 360)
+metadata/instance_id = "gloop-hut-west-side-table"
+metadata/persistence_key = "world.gloop-hut.west-side-table"
+
+[node name="west-candle" parent="." instance=ExtResource("20")]
+position = Vector2(275, 361)
+metadata/instance_id = "gloop-hut-west-candle"
+metadata/persistence_key = "world.gloop-hut.west-candle"
+
+[node name="Visual" parent="west-candle"]
+offset = Vector2(-64, -185.8)
+
+[node name="east-side-table" parent="." instance=ExtResource("19")]
+position = Vector2(640, 300)
+metadata/instance_id = "gloop-hut-east-side-table"
+metadata/persistence_key = "world.gloop-hut.east-side-table"
+
+[node name="east-candle" parent="." instance=ExtResource("20")]
+position = Vector2(640, 301)
+metadata/instance_id = "gloop-hut-east-candle"
+metadata/persistence_key = "world.gloop-hut.east-candle"
+
+[node name="Visual" parent="east-candle"]
+offset = Vector2(-64, -185.8)
+
+[node name="dining-rug" parent="." instance=ExtResource("21")]
+position = Vector2(448, 520)
+metadata/instance_id = "gloop-hut-dining-rug"
+metadata/persistence_key = "world.gloop-hut.dining-rug"
+
+[node name="Visual" parent="dining-rug"]
+scale = Vector2(1.5, 1.5)
+
+[node name="dining-table" parent="." instance=ExtResource("22")]
+position = Vector2(450, 490)
+metadata/instance_id = "gloop-hut-dining-table"
+metadata/persistence_key = "world.gloop-hut.dining-table"
+
+[node name="banded-chest" parent="." instance=ExtResource("23")]
+position = Vector2(790, 470)
+metadata/instance_id = "gloop-hut-banded-chest"
+metadata/persistence_key = "world.gloop-hut.banded-chest"
+
+[node name="pantry-shelf" parent="." instance=ExtResource("24")]
+position = Vector2(800, 630)
+metadata/instance_id = "gloop-hut-pantry-shelf"
+metadata/persistence_key = "world.gloop-hut.pantry-shelf"
+
+[node name="pantry-barrel" parent="." instance=ExtResource("12")]
+position = Vector2(715, 640)
+metadata/instance_id = "gloop-hut-pantry-barrel"
+metadata/persistence_key = "world.gloop-hut.pantry-barrel"
+
+[node name="wash-stand" parent="." instance=ExtResource("25")]
+position = Vector2(105, 560)
+metadata/instance_id = "gloop-hut-wash-stand"
+metadata/persistence_key = "world.gloop-hut.wash-stand"
+
+[node name="water-bucket" parent="." instance=ExtResource("26")]
+position = Vector2(95, 645)
+metadata/instance_id = "gloop-hut-water-bucket"
+metadata/persistence_key = "world.gloop-hut.water-bucket"
+
+[node name="potted-plant" parent="." instance=ExtResource("27")]
+position = Vector2(80, 440)
+metadata/instance_id = "gloop-hut-potted-plant"
+metadata/persistence_key = "world.gloop-hut.potted-plant"
+
+[node name="corner-plant" parent="." instance=ExtResource("27")]
+position = Vector2(240, 650)
+metadata/instance_id = "gloop-hut-corner-plant"
+metadata/persistence_key = "world.gloop-hut.corner-plant"
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+script = ExtResource("28")
+process_mode = 3
+stream = ExtResource("29")
+volume_db = -9.1186
+max_polyphony = 1
+bus = &"Ambience"
+loop = true
+autoplay_cue = true
+
+[editable path="doormat"]
+[editable path="hearth-rug"]
+[editable path="pan-rack"]
+[editable path="leaf-banner"]
+[editable path="west-candle"]
+[editable path="east-candle"]
+[editable path="dining-rug"]
