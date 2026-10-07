@@ -20,7 +20,7 @@ from white_cutout import cut_out  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / 'asset' / 'Originals' / 'houses' / 'generated'
-OUT = ROOT / 'asset' / 'MAPS' / 'Houses' / '256-forge-2x1.webp'
+OUT = ROOT / 'godot' / 'asset' / 'MAPS' / 'Houses' / '256-forge-2x1.webp'
 FRAME = 256
 ART_WIDTH = 172   # the restored furnace's width in the frame (under 3 tiles: it stands in the yard beside the home)
 BOTTOM_MARGIN = 3

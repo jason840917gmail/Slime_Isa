@@ -1,0 +1,76 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/chest.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/chest-locked.ogg" id="4"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/chest-open.ogg" id="5"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/chest-close.ogg" id="6"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/pickup/generic.ogg" id="7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(84, 39)
+
+[node name="WoodenChest" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -1.5)
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+
+[node name="ChestScript" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "level-1"
+instance_id = "chest-template"
+initial_contents = {}
+
+[node name="LockedSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("4")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+min_interval_ms = 400.0
+pan_distance = 400.0
+
+[node name="OpenSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("5")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pan_distance = 400.0
+
+[node name="CloseSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("6")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pan_distance = 400.0
+
+[node name="TakeSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("7")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+pan_distance = 400.0
+
+[connection signal="guard_blocked" from="ChestScript" to="LockedSfx" method="play_cue"]
+[connection signal="open_requested" from="ChestScript" to="OpenSfx" method="play_cue"]
+[connection signal="closed" from="ChestScript" to="CloseSfx" method="play_cue"]
+[connection signal="stack_transferred" from="ChestScript" to="TakeSfx" method="play_cue"]

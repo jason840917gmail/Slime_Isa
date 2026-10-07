@@ -6,8 +6,8 @@ top, plus a small ripple travelling up through the leaves. The trunk and roots
 are the original pixels in every frame, so the tree bends instead of rocking.
 
 Output frame index = source frame * 8 + step:
-  asset/MAPS/trees/128x170-tile_16x22-trees-sway.webp  (from 128X170-tiles_8x6)
-  asset/MAPS/trees/256x256-tile_8x3-trees-sway.webp     (from 256x256-Tile_3x1)
+  godot/asset/MAPS/trees/128x170-tile_16x22-trees-sway.webp  (from 128X170-tiles_8x6)
+  godot/asset/MAPS/trees/256x256-tile_8x3-trees-sway.webp     (from 256x256-Tile_3x1)
 
   python scripts/art/build-tree-sway-sheets.py
 """
@@ -22,11 +22,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 from game_webp import save_game_webp  # noqa: E402
 
-TREES = ROOT / "asset" / "MAPS" / "trees"
+TREES = ROOT / "godot" / "asset" / "MAPS" / "trees"
 STEPS = 8
 # Leafless trees (dead pines, twisted bare trees, the frosted tree) have no
-# canopy to sway: their frames are written as still copies. Keep in sync with
-# BARE_TREE_FRAMES in scripts/props/wire-ambient-animations.mjs.
+# canopy to sway: their frames are written as still copies (the Godot tree scenes
+# give them no sway animation).
 BARE = {"128X170-tiles_8x6.webp": set(range(0, 9))}
 # source, frame w/h, source cols, source frame count, output, output cols
 JOBS = [

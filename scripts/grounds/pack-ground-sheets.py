@@ -1,4 +1,4 @@
-"""Build the 19x19 ground sheets (64x64 tiles) in asset/MAPS/grounds/.
+"""Build the 19x19 ground sheets (64x64 tiles) in godot/asset/MAPS/grounds/.
 
 Every ground is one large 1216x1216 image cut row-major into 64x64 frames,
 saved as lossless WebP (identical pixels, about 45% smaller than PNG).
@@ -32,7 +32,7 @@ from PIL import Image, ImageEnhance
 
 ROOT = Path(__file__).resolve().parents[2]
 ORIGINALS = ROOT / "asset" / "Originals" / "grounds"
-PROMOTED = ROOT / "asset" / "MAPS" / "grounds"
+PROMOTED = ROOT / "godot" / "asset" / "MAPS" / "grounds"
 
 TILE = 64
 GRID = 19

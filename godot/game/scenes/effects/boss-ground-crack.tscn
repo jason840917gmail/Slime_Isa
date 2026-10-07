@@ -1,0 +1,78 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/effects/boss-ground-crack-4x1.webp" id="1"]
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/effect.gd" id="3"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="4"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/resource/stone-crumble.ogg" id="5"]
+
+[sub_resource type="Animation" id="Animation_1"]
+resource_name = "right"
+length = 0.65
+loop_mode = 0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Crack:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Crack:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.65),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2"]
+_data = {
+&"right": SubResource("Animation_1")
+}
+
+[node name="BossGroundCrack" type="Node2D"]
+metadata/depth_anchor = Vector2(0, 0)
+
+[node name="Crack" type="Sprite2D" parent="."]
+z_index = -1
+scale = Vector2(2, 2)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-48, -48)
+hframes = 4
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+script = ExtResource("2")
+libraries/ = SubResource("AnimationLibrary_2")
+callback_mode_process = 0
+autoplay = &"right"
+
+[node name="EffectScript" type="Node" parent="." node_paths=PackedStringArray("animation")]
+script = ExtResource("3")
+effect_id = "boss-ground-crack"
+animation = NodePath("../Animation")
+lifetime_ms = 650.0
+
+[node name="ImpactSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("4")
+process_mode = 3
+stream = ExtResource("5")
+volume_db = -4.437
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.07
+autoplay_cue = true
+detached = true
+pan_distance = 400.0

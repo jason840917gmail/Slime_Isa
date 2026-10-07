@@ -1,0 +1,85 @@
+[gd_scene format=3]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid--shadow-pine-02.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid--ancient-bare-01.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid--cottage-blue.tscn" id="7"]
+
+[node name="depth-occlusion-test" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+z_index = -2
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 7, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 7, 0, 2, 0, 0, 0, 0, 0, 3, 0, 0, 0, 7, 0, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 7, 0, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 7, 0, 5, 0, 0, 0, 0, 0, 6, 0, 0, 0, 7, 0, 6, 0, 0, 0, 0, 0, 7, 0, 0, 0, 7, 0, 7, 0, 0, 0, 0, 0, 8, 0, 0, 0, 7, 0, 8, 0, 0, 0, 0, 0, 9, 0, 0, 0, 7, 0, 9, 0, 0, 0, 0, 0, 10, 0, 0, 0, 7, 0, 10, 0, 0, 0, 0, 0, 11, 0, 0, 0, 7, 0, 11, 0, 0, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 7, 0, 1, 0, 1, 0, 0, 0, 2, 0, 1, 0, 7, 0, 2, 0, 1, 0, 0, 0, 3, 0, 1, 0, 7, 0, 3, 0, 1, 0, 0, 0, 4, 0, 1, 0, 7, 0, 4, 0, 1, 0, 0, 0, 5, 0, 1, 0, 7, 0, 5, 0, 1, 0, 0, 0, 6, 0, 1, 0, 7, 0, 6, 0, 1, 0, 0, 0, 7, 0, 1, 0, 7, 0, 7, 0, 1, 0, 0, 0, 8, 0, 1, 0, 7, 0, 8, 0, 1, 0, 0, 0, 9, 0, 1, 0, 7, 0, 9, 0, 1, 0, 0, 0, 10, 0, 1, 0, 7, 0, 10, 0, 1, 0, 0, 0, 11, 0, 1, 0, 7, 0, 11, 0, 1, 0, 0, 0, 0, 0, 2, 0, 7, 0, 0, 0, 2, 0, 0, 0, 1, 0, 2, 0, 7, 0, 1, 0, 2, 0, 0, 0, 2, 0, 2, 0, 7, 0, 2, 0, 2, 0, 0, 0, 3, 0, 2, 0, 7, 0, 3, 0, 2, 0, 0, 0, 4, 0, 2, 0, 7, 0, 4, 0, 2, 0, 0, 0, 5, 0, 2, 0, 7, 0, 5, 0, 2, 0, 0, 0, 6, 0, 2, 0, 7, 0, 6, 0, 2, 0, 0, 0, 7, 0, 2, 0, 7, 0, 7, 0, 2, 0, 0, 0, 8, 0, 2, 0, 7, 0, 8, 0, 2, 0, 0, 0, 9, 0, 2, 0, 7, 0, 9, 0, 2, 0, 0, 0, 10, 0, 2, 0, 7, 0, 10, 0, 2, 0, 0, 0, 11, 0, 2, 0, 7, 0, 11, 0, 2, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 7, 0, 1, 0, 3, 0, 0, 0, 2, 0, 3, 0, 7, 0, 2, 0, 3, 0, 0, 0, 3, 0, 3, 0, 7, 0, 3, 0, 3, 0, 0, 0, 4, 0, 3, 0, 7, 0, 4, 0, 3, 0, 0, 0, 5, 0, 3, 0, 7, 0, 5, 0, 3, 0, 0, 0, 6, 0, 3, 0, 7, 0, 6, 0, 3, 0, 0, 0, 7, 0, 3, 0, 7, 0, 7, 0, 3, 0, 0, 0, 8, 0, 3, 0, 7, 0, 8, 0, 3, 0, 0, 0, 9, 0, 3, 0, 7, 0, 9, 0, 3, 0, 0, 0, 10, 0, 3, 0, 7, 0, 10, 0, 3, 0, 0, 0, 11, 0, 3, 0, 7, 0, 11, 0, 3, 0, 0, 0, 0, 0, 4, 0, 7, 0, 0, 0, 4, 0, 0, 0, 1, 0, 4, 0, 7, 0, 1, 0, 4, 0, 0, 0, 2, 0, 4, 0, 7, 0, 2, 0, 4, 0, 0, 0, 3, 0, 4, 0, 7, 0, 3, 0, 4, 0, 0, 0, 4, 0, 4, 0, 7, 0, 4, 0, 4, 0, 0, 0, 5, 0, 4, 0, 7, 0, 5, 0, 4, 0, 0, 0, 6, 0, 4, 0, 7, 0, 6, 0, 4, 0, 0, 0, 7, 0, 4, 0, 7, 0, 7, 0, 4, 0, 0, 0, 8, 0, 4, 0, 7, 0, 8, 0, 4, 0, 0, 0, 9, 0, 4, 0, 7, 0, 9, 0, 4, 0, 0, 0, 10, 0, 4, 0, 7, 0, 10, 0, 4, 0, 0, 0, 11, 0, 4, 0, 7, 0, 11, 0, 4, 0, 0, 0, 0, 0, 5, 0, 7, 0, 0, 0, 5, 0, 0, 0, 1, 0, 5, 0, 7, 0, 1, 0, 5, 0, 0, 0, 2, 0, 5, 0, 7, 0, 2, 0, 5, 0, 0, 0, 3, 0, 5, 0, 7, 0, 3, 0, 5, 0, 0, 0, 4, 0, 5, 0, 7, 0, 4, 0, 5, 0, 0, 0, 5, 0, 5, 0, 7, 0, 5, 0, 5, 0, 0, 0, 6, 0, 5, 0, 7, 0, 6, 0, 5, 0, 0, 0, 7, 0, 5, 0, 7, 0, 7, 0, 5, 0, 0, 0, 8, 0, 5, 0, 7, 0, 8, 0, 5, 0, 0, 0, 9, 0, 5, 0, 7, 0, 9, 0, 5, 0, 0, 0, 10, 0, 5, 0, 7, 0, 10, 0, 5, 0, 0, 0, 11, 0, 5, 0, 7, 0, 11, 0, 5, 0, 0, 0, 0, 0, 6, 0, 7, 0, 0, 0, 6, 0, 0, 0, 1, 0, 6, 0, 7, 0, 1, 0, 6, 0, 0, 0, 2, 0, 6, 0, 7, 0, 2, 0, 6, 0, 0, 0, 3, 0, 6, 0, 7, 0, 3, 0, 6, 0, 0, 0, 4, 0, 6, 0, 7, 0, 4, 0, 6, 0, 0, 0, 5, 0, 6, 0, 7, 0, 5, 0, 6, 0, 0, 0, 6, 0, 6, 0, 7, 0, 6, 0, 6, 0, 0, 0, 7, 0, 6, 0, 7, 0, 7, 0, 6, 0, 0, 0, 8, 0, 6, 0, 7, 0, 8, 0, 6, 0, 0, 0, 9, 0, 6, 0, 7, 0, 9, 0, 6, 0, 0, 0, 10, 0, 6, 0, 7, 0, 10, 0, 6, 0, 0, 0, 11, 0, 6, 0, 7, 0, 11, 0, 6, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0, 0, 7, 0, 0, 0, 1, 0, 7, 0, 7, 0, 1, 0, 7, 0, 0, 0, 2, 0, 7, 0, 7, 0, 2, 0, 7, 0, 0, 0, 3, 0, 7, 0, 7, 0, 3, 0, 7, 0, 0, 0, 4, 0, 7, 0, 7, 0, 4, 0, 7, 0, 0, 0, 5, 0, 7, 0, 7, 0, 5, 0, 7, 0, 0, 0, 6, 0, 7, 0, 7, 0, 6, 0, 7, 0, 0, 0, 7, 0, 7, 0, 7, 0, 7, 0, 7, 0, 0, 0, 8, 0, 7, 0, 7, 0, 8, 0, 7, 0, 0, 0, 9, 0, 7, 0, 7, 0, 9, 0, 7, 0, 0, 0, 10, 0, 7, 0, 7, 0, 10, 0, 7, 0, 0, 0, 11, 0, 7, 0, 7, 0, 11, 0, 7, 0, 0, 0)
+tile_set = ExtResource("1")
+metadata/tile_seed = 452400412
+metadata/source_cell_count = 96
+metadata/columns = 12
+metadata/rows = 8
+
+[node name="TileCollision" type="Node2D" parent="ground"]
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "depth-occlusion-test"
+tile_size = 64
+columns = 12
+rows = 8
+metadata = {
+"objects": [],
+"player": {
+"spawn": {
+"x": 288,
+"y": 96
+},
+"entries": {}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(288, 96)
+
+[node name="depth-tree-north" parent="." instance=ExtResource("3")]
+position = Vector2(288, 192)
+metadata/instance_id = "depth-tree-north"
+metadata/persistence_key = "depth-occlusion-test.depth-tree-north"
+
+[node name="ResourceNodeScript" parent="depth-tree-north"]
+map_id = "depth-occlusion-test"
+instance_id = "depth-tree-north"
+
+[node name="depth-tree-south" parent="." instance=ExtResource("4")]
+position = Vector2(288, 384)
+metadata/instance_id = "depth-tree-south"
+metadata/persistence_key = "depth-occlusion-test.depth-tree-south"
+
+[node name="ResourceNodeScript" parent="depth-tree-south"]
+map_id = "depth-occlusion-test"
+instance_id = "depth-tree-south"
+
+[node name="depth-tree-equal-y" parent="." instance=ExtResource("5")]
+position = Vector2(480, 256)
+metadata/instance_id = "depth-tree-equal-y"
+metadata/persistence_key = "depth-occlusion-test.depth-tree-equal-y"
+
+[node name="ResourceNodeScript" parent="depth-tree-equal-y"]
+map_id = "depth-occlusion-test"
+instance_id = "depth-tree-equal-y"
+
+[node name="depth-house-west" parent="." instance=ExtResource("6")]
+position = Vector2(704, 320)
+metadata/instance_id = "depth-house-west"
+metadata/persistence_key = "depth-occlusion-test.depth-house-west"
+
+[node name="depth-house-east" parent="." instance=ExtResource("7")]
+position = Vector2(640, 320)
+metadata/instance_id = "depth-house-east"
+metadata/persistence_key = "depth-occlusion-test.depth-house-east"
+
+[editable path="depth-tree-north"]
+[editable path="depth-tree-south"]
+[editable path="depth-tree-equal-y"]

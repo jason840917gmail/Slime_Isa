@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/128x128-tile_8x8-interior-decor-lighting-utility.webp" id="1"]
+
+[node name="banner-green" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 24

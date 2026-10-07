@@ -11,7 +11,7 @@ empty slots still to fill.
 |---|---|---|---|---|---|---|
 | 1 | **Slimeshire Meadow** | `level-1`, `slime-home`, `mushroom-home` | 1 | Worms moved in, the smith fled, the Forge is cold and the Workshop is a ruin | Fatty One Eye | Built |
 | 2 | **Gloop Forest** | `gloop-forest`, `gloop-hut`, `gloop-cavern` | 2 | The forest is choked with webs; the Matron's brood spreads | Orb-Weaver Matron | Built, in progress |
-| 3 | **Crystal Caverns** | `crystal-caverns` (exists, locked) | 3 | Crystal grows over everything and has sealed the caves | Crystal Colossus | Idea, see the [sketch](./chapters/chapter-3-crystal-caverns.md) |
+| 3 | **Crystal Caverns** | `crystal-caverns` (exists, locked) | 3 | Crystal grows over everything and has sealed the caves | Crystal Colossus | Idea, see the [sketch](chapters/chapter-3-crystal-caverns.md) |
 | 4 | **Sticky Swamp** | none yet | ? | Slow mud, poison, rain, spider-slimes | ? | Idea |
 | 5 | **Frostpeak** | `icege` is a candidate | ? | Ice physics and snow | ? | Idea |
 | 6 | **Volcano Ridge** | `hot` and `emberleef` are candidates | Finale | Gorge's prison; the rumbling comes from here | Gorge | Idea / Proposal |

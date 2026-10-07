@@ -9,9 +9,9 @@
 | **Status** | Built and in progress (roadmap 8.3–8.11). The beats below mark each Planned change and Proposal. |
 
 Quest IDs are in brackets. Their dialogue lives in
-`src/game/content/quests/quests/chapterTwo.ts`. The older design is in
-[the Chapter 2 outline](../../superpowers/specs/2026-09-30-chapter-2-outline.md)
-and [the Matron spec](../../superpowers/specs/2026-10-01-orb-weaver-matron.md).
+`godot/game/data/quests-chapter-2.json`. The older design is in
+[the Chapter 2 outline](../../design/2026-09-30-chapter-2-outline.md)
+and [the Matron spec](../../design/2026-10-01-orb-weaver-matron.md).
 
 ---
 

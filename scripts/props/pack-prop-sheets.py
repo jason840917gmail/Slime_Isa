@@ -6,7 +6,7 @@ crystal chips attach to the nearest prop), read in row/column order, and placed
 bottom-centred in its own frame. One uniform scale per atlas keeps the props'
 relative sizes; a transparent margin keeps every pixel inside its own frame.
 
-Output: asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.webp (the rocks
+Output: godot/asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.webp (the rocks
 folder naming), used by the wall prop scenes (generate-wall-prop-scenes.py).
 
 Requires Pillow and numpy.
@@ -32,7 +32,7 @@ from game_webp import save_game_webp  # noqa: E402
 items = import_module("pack-item-sheets")  # reuse component detection
 
 ORIGINALS = ROOT / "asset" / "Originals" / "props"
-PROMOTED = ROOT / "asset" / "MAPS" / "rocks"
+PROMOTED = ROOT / "godot" / "asset" / "MAPS" / "rocks"
 
 FRAME = 128
 PADDING = 4

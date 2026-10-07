@@ -15,7 +15,7 @@ from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / 'asset' / 'Originals' / 'houses' / 'generated'
-OUT = ROOT / 'asset' / 'MAPS' / 'Houses' / '320-workshop-2x1.webp'
+OUT = ROOT / 'godot' / 'asset' / 'MAPS' / 'Houses' / '320-workshop-2x1.webp'
 FRAME = 320
 MAX_WIDTH = 300
 BOTTOM_MARGIN = 2

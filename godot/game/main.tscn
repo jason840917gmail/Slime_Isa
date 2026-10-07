@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://cobu7swaqyhxp"]
+
+[ext_resource type="Script" uid="uid://diosxx3i46rtg" path="res://game/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://pe0xybhu2oyk" path="res://game/world/world_camera.gd" id="2_camera"]
+[ext_resource type="Script" uid="uid://dvocurjgro6vr" path="res://game/ui/hud.gd" id="3_hud"]
+[ext_resource type="Script" uid="uid://baa4mfx7aoe8k" path="res://game/ui/fps_readout.gd" id="4_fps"]
+
+[node name="Main" type="Node2D" unique_id=267149908]
+script = ExtResource("1_main")
+
+[node name="World" type="Node2D" parent="." unique_id=1139272278]
+
+[node name="WorldCamera" type="Camera2D" parent="." unique_id=915993361]
+process_mode = 3
+process_priority = 100
+physics_interpolation_mode = 2
+script = ExtResource("2_camera")
+
+[node name="Hud" type="CanvasLayer" parent="." unique_id=483431382]
+process_mode = 3
+layer = 10
+script = ExtResource("3_hud")
+
+[node name="FpsReadout" type="CanvasLayer" parent="." unique_id=175660564]
+process_mode = 3
+layer = 100
+script = ExtResource("4_fps")

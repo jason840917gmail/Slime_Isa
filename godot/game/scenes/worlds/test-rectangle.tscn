@@ -1,0 +1,50 @@
+[gd_scene format=3]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-amber-ore-mineable.tscn" id="3"]
+
+[node name="test-rectangle" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+z_index = -2
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 7, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 7, 0, 2, 0, 0, 0, 0, 0, 3, 0, 0, 0, 7, 0, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 7, 0, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 7, 0, 5, 0, 0, 0, 0, 0, 6, 0, 0, 0, 7, 0, 6, 0, 0, 0, 0, 0, 7, 0, 0, 0, 7, 0, 7, 0, 0, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 7, 0, 1, 0, 1, 0, 0, 0, 2, 0, 1, 0, 7, 0, 2, 0, 1, 0, 0, 0, 3, 0, 1, 0, 7, 0, 3, 0, 1, 0, 0, 0, 4, 0, 1, 0, 7, 0, 4, 0, 1, 0, 0, 0, 5, 0, 1, 0, 7, 0, 5, 0, 1, 0, 0, 0, 6, 0, 1, 0, 7, 0, 6, 0, 1, 0, 0, 0, 7, 0, 1, 0, 7, 0, 7, 0, 1, 0, 0, 0, 0, 0, 2, 0, 7, 0, 0, 0, 2, 0, 0, 0, 1, 0, 2, 0, 7, 0, 1, 0, 2, 0, 0, 0, 2, 0, 2, 0, 7, 0, 2, 0, 2, 0, 0, 0, 3, 0, 2, 0, 11, 0, 3, 0, 2, 0, 0, 0, 4, 0, 2, 0, 11, 0, 4, 0, 2, 0, 0, 0, 5, 0, 2, 0, 7, 0, 5, 0, 2, 0, 0, 0, 6, 0, 2, 0, 7, 0, 6, 0, 2, 0, 0, 0, 7, 0, 2, 0, 7, 0, 7, 0, 2, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 7, 0, 1, 0, 3, 0, 0, 0, 2, 0, 3, 0, 7, 0, 2, 0, 3, 0, 0, 0, 3, 0, 3, 0, 7, 0, 3, 0, 3, 0, 0, 0, 4, 0, 3, 0, 7, 0, 4, 0, 3, 0, 0, 0, 5, 0, 3, 0, 7, 0, 5, 0, 3, 0, 0, 0, 6, 0, 3, 0, 7, 0, 6, 0, 3, 0, 0, 0, 7, 0, 3, 0, 7, 0, 7, 0, 3, 0, 0, 0, 0, 0, 4, 0, 7, 0, 0, 0, 4, 0, 0, 0, 1, 0, 4, 0, 7, 0, 1, 0, 4, 0, 0, 0, 2, 0, 4, 0, 7, 0, 2, 0, 4, 0, 0, 0, 3, 0, 4, 0, 7, 0, 3, 0, 4, 0, 0, 0, 4, 0, 4, 0, 7, 0, 4, 0, 4, 0, 0, 0, 5, 0, 4, 0, 7, 0, 5, 0, 4, 0, 0, 0, 6, 0, 4, 0, 7, 0, 6, 0, 4, 0, 0, 0, 7, 0, 4, 0, 7, 0, 7, 0, 4, 0, 0, 0)
+tile_set = ExtResource("1")
+metadata/tile_seed = 2455619060
+metadata/source_cell_count = 40
+metadata/columns = 8
+metadata/rows = 5
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "test-rectangle"
+tile_size = 64
+columns = 8
+rows = 5
+metadata = {
+"objects": [],
+"player": {
+"spawn": {
+"x": 96,
+"y": 96
+},
+"entries": {}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(96, 96)
+
+[node name="amber-rock-001" parent="." instance=ExtResource("3")]
+position = Vector2(288, 192)
+metadata/instance_id = "amber-rock-001"
+metadata/persistence_key = "test-rectangle.amber-rock-001"
+
+[node name="ResourceNodeScript" parent="amber-rock-001"]
+map_id = "test-rectangle"
+instance_id = "amber-rock-001"
+initial_health = 30.0
+
+[editable path="amber-rock-001"]

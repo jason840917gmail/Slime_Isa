@@ -1,0 +1,118 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/ui/screens/quest_offer_window.gd" id="1_script"]
+[ext_resource type="Theme" path="res://game/ui/theme/slime_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="3_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/click.ogg" id="4_click"]
+
+[node name="QuestOfferWindow" type="Panel"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -230.0
+offset_right = 360.0
+offset_bottom = 230.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+theme_type_variation = &"WindowPanel"
+script = ExtResource("1_script")
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Content" type="Control" parent="Scroll"]
+custom_minimum_size = Vector2(0, 460)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Scroll/Content"]
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_type_variation = &"PanelTitle"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Description" type="Label" parent="Scroll/Content"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 76.0
+offset_right = -28.0
+offset_bottom = -126.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"MutedLabel"
+theme_override_constants/line_spacing = 6
+autowrap_mode = 3
+clip_text = true
+
+[node name="Error" type="Label" parent="Scroll/Content"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -116.0
+offset_right = -28.0
+offset_bottom = -76.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"DangerLabel"
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+vertical_alignment = 1
+
+[node name="Accept" type="Button" parent="Scroll/Content"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -62.0
+offset_right = -8.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"PrimaryButton"
+text = "Accept quest"
+
+[node name="Decline" type="Button" parent="Scroll/Content"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -62.0
+offset_right = -28.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"MutedButton"
+text = "Decline / close"
+
+[node name="ClickSfx" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("4_click")
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("3_sfx")
+min_interval_ms = 40.0

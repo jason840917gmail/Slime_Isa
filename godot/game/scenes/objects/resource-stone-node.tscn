@@ -1,0 +1,99 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/resources/128x128-tile_4x2-resource-piles.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/resource_node.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-1.wav" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-2.wav" id="5"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/resource/stone-crumble.ogg" id="6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(105, 48)
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_2"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("5")
+stream_1/weight = 1.0
+
+[node name="Stone node" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(-1.5, -54)
+
+[node name="Visual" type="Sprite2D" parent="."]
+position = Vector2(0, -78)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-64, -50)
+hframes = 4
+vframes = 2
+frame = 1
+
+[node name="DamageArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(-1.5, -54)
+
+[node name="ResourceNodeScript" type="Node" parent="." node_paths=PackedStringArray("damage_area")]
+script = ExtResource("2")
+map_id = "map-template"
+instance_id = "resource-template"
+object_id = "resource.stone-node"
+damage_area = NodePath("../DamageArea")
+max_health = 80.0
+tags = Array[String](["stone", "resource", "solid"])
+drop = {
+"objectId": "collectible.stone-pile",
+"visualId": "stone-pile",
+"pieces": 3
+}
+hit_effect_id = "stone-impact"
+on_hit_animation_id = ""
+persist_health = false
+depletion_message = "Stone broken"
+harvest_requirement = {
+"targetTag": "stone",
+"minimumTier": 1,
+"failureMessage": "Requires a Pickaxe"
+}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+
+[node name="WrongToolSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_2")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+min_interval_ms = 200.0
+pan_distance = 400.0
+
+[node name="CrumbleSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("6")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+
+[connection signal="harvest_blocked" from="ResourceNodeScript" to="WrongToolSfx" method="play_cue"]
+[connection signal="drops_requested" from="ResourceNodeScript" to="CrumbleSfx" method="play_cue"]

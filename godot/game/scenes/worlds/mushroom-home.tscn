@@ -1,0 +1,615 @@
+[gd_scene format=3]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c0.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c1.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c2.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c3.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c4.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c5.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c6.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r0-c7.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c0.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c1.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c2.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c3.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c4.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c5.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c6.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r1-c7.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r2-c0.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r2-c1.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r2-c6.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r2-c7.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r3-c0.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r3-c7.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c0.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c1.tscn" id="27"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c2.tscn" id="28"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c3.tscn" id="29"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c4.tscn" id="30"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c5.tscn" id="31"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c6.tscn" id="32"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r4-c7.tscn" id="33"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c0.tscn" id="34"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c1.tscn" id="35"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c2.tscn" id="36"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c3.tscn" id="37"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c4.tscn" id="38"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c5.tscn" id="39"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c6.tscn" id="40"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-cell-r5-c7.tscn" id="41"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-doorway-floor-left.tscn" id="42"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-shell/interior-mushroom-shell-doorway-floor-right.tscn" id="43"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-5.tscn" id="44"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-2.tscn" id="45"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-6.tscn" id="46"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-clover-7.tscn" id="47"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-clover-5.tscn" id="48"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-clover-8.tscn" id="49"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-clover-4.tscn" id="50"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-clover-6.tscn" id="51"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-clover-3.tscn" id="52"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-clover-2.tscn" id="53"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-daisy.tscn" id="54"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-forget-me-not.tscn" id="55"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-white-clover.tscn" id="56"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-mixed.tscn" id="57"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-daisy-single.tscn" id="58"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-violet.tscn" id="59"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-buttercup.tscn" id="60"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-pink.tscn" id="61"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-moss-2.tscn" id="62"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-grass-moss-1.tscn" id="63"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-moss-4.tscn" id="64"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-3.tscn" id="65"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-1.tscn" id="66"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-3.tscn" id="67"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-6.tscn" id="68"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-brown.tscn" id="69"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-glow.tscn" id="70"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-leaves-fallen.tscn" id="71"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-acorns-leaves.tscn" id="72"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-rug-round-sprout.tscn" id="73"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-large/interior-mushroom-large-table-toadstool-dining.tscn" id="74"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-large/interior-mushroom-large-bed-mushroom-cap-s.tscn" id="75"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-furniture/interior-mushroom-furniture-nightstand-mushroom-candle.tscn" id="76"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-glow-mushroom-cluster.tscn" id="77"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-large/interior-mushroom-large-potion-shelf-tall.tscn" id="78"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-furniture/interior-mushroom-furniture-basket-mushrooms.tscn" id="79"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-large/interior-mushroom-large-hearth-root-lit.tscn" id="80"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-toadstool-candle-lit.tscn" id="81"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-firewood-logs.tscn" id="82"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-furniture/interior-mushroom-furniture-chest-vine-closed.tscn" id="83"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-glow-mushroom-tall.tscn" id="84"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-large/interior-mushroom-large-alchemy-workbench.tscn" id="85"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-large/interior-mushroom-large-water-basin-stump.tscn" id="86"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-plant-fern-pot.tscn" id="87"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-fern-basket-large.tscn" id="88"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="89"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="90"]
+
+[node name="mushroom-home" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+z_index = -2
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 2, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 3, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 4, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 5, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 6, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 7, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 8, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 2, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 4, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 5, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 6, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 7, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 8, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 9, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 10, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 11, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 12, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 13, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 14, 0, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0)
+tile_set = ExtResource("1")
+metadata/tile_seed = 11
+metadata/source_cell_count = 165
+metadata/columns = 16
+metadata/rows = 12
+
+[node name="TileCollision" type="Node2D" parent="ground"]
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "mushroom-home"
+tile_size = 64
+columns = 16
+rows = 12
+camera_mode = "fixed"
+metadata = {
+"objects": [],
+"player": {
+"spawn": {
+"x": 512,
+"y": 540
+},
+"entries": {
+"south": {
+"x": 512,
+"y": 540
+}
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(512, 540)
+
+[node name="player-entry-south" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(512, 540)
+
+[node name="house-door" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(512, 716)
+
+[node name="door-script" type="Node" parent="house-door"]
+script = ExtResource("3")
+map_id = "mushroom-home"
+door_id = "house-door"
+target_area_id = "level-1"
+target_door_id = "mushroom-home-door"
+prompt = "Leave house"
+interact_radius = 80.0
+badge_rise = 84.0
+
+[node name="arrival" type="Node2D" parent="house-door"]
+y_sort_enabled = true
+position = Vector2(0, -176)
+
+[node name="shell-r0-c0" parent="." instance=ExtResource("4")]
+position = Vector2(64, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c0"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c0"
+
+[node name="shell-r0-c1" parent="." instance=ExtResource("5")]
+position = Vector2(192, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c1"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c1"
+
+[node name="shell-r0-c2" parent="." instance=ExtResource("6")]
+position = Vector2(320, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c2"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c2"
+
+[node name="shell-r0-c3" parent="." instance=ExtResource("7")]
+position = Vector2(448, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c3"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c3"
+
+[node name="shell-r0-c4" parent="." instance=ExtResource("8")]
+position = Vector2(576, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c4"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c4"
+
+[node name="shell-r0-c5" parent="." instance=ExtResource("9")]
+position = Vector2(704, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c5"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c5"
+
+[node name="shell-r0-c6" parent="." instance=ExtResource("10")]
+position = Vector2(832, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c6"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c6"
+
+[node name="shell-r0-c7" parent="." instance=ExtResource("11")]
+position = Vector2(960, 128)
+metadata/instance_id = "mushroom-home-shell-r0-c7"
+metadata/persistence_key = "world.mushroom-home.shell-r0-c7"
+
+[node name="shell-r1-c0" parent="." instance=ExtResource("12")]
+position = Vector2(64, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c0"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c0"
+
+[node name="shell-r1-c1" parent="." instance=ExtResource("13")]
+position = Vector2(192, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c1"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c1"
+
+[node name="shell-r1-c2" parent="." instance=ExtResource("14")]
+position = Vector2(320, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c2"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c2"
+
+[node name="shell-r1-c3" parent="." instance=ExtResource("15")]
+position = Vector2(448, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c3"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c3"
+
+[node name="shell-r1-c4" parent="." instance=ExtResource("16")]
+position = Vector2(576, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c4"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c4"
+
+[node name="shell-r1-c5" parent="." instance=ExtResource("17")]
+position = Vector2(704, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c5"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c5"
+
+[node name="shell-r1-c6" parent="." instance=ExtResource("18")]
+position = Vector2(832, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c6"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c6"
+
+[node name="shell-r1-c7" parent="." instance=ExtResource("19")]
+position = Vector2(960, 256)
+metadata/instance_id = "mushroom-home-shell-r1-c7"
+metadata/persistence_key = "world.mushroom-home.shell-r1-c7"
+
+[node name="shell-r2-c0" parent="." instance=ExtResource("20")]
+position = Vector2(64, 384)
+metadata/instance_id = "mushroom-home-shell-r2-c0"
+metadata/persistence_key = "world.mushroom-home.shell-r2-c0"
+
+[node name="shell-r2-c1" parent="." instance=ExtResource("21")]
+position = Vector2(192, 384)
+metadata/instance_id = "mushroom-home-shell-r2-c1"
+metadata/persistence_key = "world.mushroom-home.shell-r2-c1"
+
+[node name="shell-r2-c6" parent="." instance=ExtResource("22")]
+position = Vector2(832, 384)
+metadata/instance_id = "mushroom-home-shell-r2-c6"
+metadata/persistence_key = "world.mushroom-home.shell-r2-c6"
+
+[node name="shell-r2-c7" parent="." instance=ExtResource("23")]
+position = Vector2(960, 384)
+metadata/instance_id = "mushroom-home-shell-r2-c7"
+metadata/persistence_key = "world.mushroom-home.shell-r2-c7"
+
+[node name="shell-r3-c0" parent="." instance=ExtResource("24")]
+position = Vector2(64, 512)
+metadata/instance_id = "mushroom-home-shell-r3-c0"
+metadata/persistence_key = "world.mushroom-home.shell-r3-c0"
+
+[node name="shell-r3-c7" parent="." instance=ExtResource("25")]
+position = Vector2(960, 512)
+metadata/instance_id = "mushroom-home-shell-r3-c7"
+metadata/persistence_key = "world.mushroom-home.shell-r3-c7"
+
+[node name="shell-r4-c0" parent="." instance=ExtResource("26")]
+position = Vector2(64, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c0"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c0"
+
+[node name="shell-r4-c1" parent="." instance=ExtResource("27")]
+position = Vector2(192, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c1"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c1"
+
+[node name="shell-r4-c2" parent="." instance=ExtResource("28")]
+position = Vector2(320, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c2"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c2"
+
+[node name="shell-r4-c3" parent="." instance=ExtResource("29")]
+position = Vector2(448, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c3"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c3"
+
+[node name="shell-r4-c4" parent="." instance=ExtResource("30")]
+position = Vector2(576, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c4"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c4"
+
+[node name="shell-r4-c5" parent="." instance=ExtResource("31")]
+position = Vector2(704, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c5"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c5"
+
+[node name="shell-r4-c6" parent="." instance=ExtResource("32")]
+position = Vector2(832, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c6"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c6"
+
+[node name="shell-r4-c7" parent="." instance=ExtResource("33")]
+position = Vector2(960, 640)
+metadata/instance_id = "mushroom-home-shell-r4-c7"
+metadata/persistence_key = "world.mushroom-home.shell-r4-c7"
+
+[node name="shell-r5-c0" parent="." instance=ExtResource("34")]
+position = Vector2(64, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c0"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c0"
+
+[node name="shell-r5-c1" parent="." instance=ExtResource("35")]
+position = Vector2(192, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c1"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c1"
+
+[node name="shell-r5-c2" parent="." instance=ExtResource("36")]
+position = Vector2(320, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c2"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c2"
+
+[node name="shell-r5-c3" parent="." instance=ExtResource("37")]
+position = Vector2(448, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c3"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c3"
+
+[node name="shell-r5-c4" parent="." instance=ExtResource("38")]
+position = Vector2(576, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c4"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c4"
+
+[node name="shell-r5-c5" parent="." instance=ExtResource("39")]
+position = Vector2(704, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c5"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c5"
+
+[node name="shell-r5-c6" parent="." instance=ExtResource("40")]
+position = Vector2(832, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c6"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c6"
+
+[node name="shell-r5-c7" parent="." instance=ExtResource("41")]
+position = Vector2(960, 768)
+metadata/instance_id = "mushroom-home-shell-r5-c7"
+metadata/persistence_key = "world.mushroom-home.shell-r5-c7"
+
+[node name="doorway-floor-left" parent="." instance=ExtResource("42")]
+position = Vector2(448, 768)
+metadata/instance_id = "mushroom-home-doorway-floor-left"
+metadata/persistence_key = "world.mushroom-home.doorway-floor-left"
+
+[node name="doorway-floor-right" parent="." instance=ExtResource("43")]
+position = Vector2(576, 768)
+metadata/instance_id = "mushroom-home-doorway-floor-right"
+metadata/persistence_key = "world.mushroom-home.doorway-floor-right"
+
+[node name="path-stone-1" parent="." instance=ExtResource("44")]
+position = Vector2(512, 604)
+metadata/instance_id = "mushroom-home-path-stone-1"
+metadata/persistence_key = "world.mushroom-home.path-stone-1"
+
+[node name="path-stone-2" parent="." instance=ExtResource("45")]
+position = Vector2(538, 566)
+metadata/instance_id = "mushroom-home-path-stone-2"
+metadata/persistence_key = "world.mushroom-home.path-stone-2"
+
+[node name="path-stone-3" parent="." instance=ExtResource("46")]
+position = Vector2(494, 530)
+metadata/instance_id = "mushroom-home-path-stone-3"
+metadata/persistence_key = "world.mushroom-home.path-stone-3"
+
+[node name="clover-1" parent="." instance=ExtResource("47")]
+position = Vector2(150, 262)
+metadata/instance_id = "mushroom-home-clover-1"
+metadata/persistence_key = "world.mushroom-home.clover-1"
+
+[node name="clover-2" parent="." instance=ExtResource("48")]
+position = Vector2(300, 418)
+metadata/instance_id = "mushroom-home-clover-2"
+metadata/persistence_key = "world.mushroom-home.clover-2"
+
+[node name="clover-3" parent="." instance=ExtResource("49")]
+position = Vector2(648, 382)
+metadata/instance_id = "mushroom-home-clover-3"
+metadata/persistence_key = "world.mushroom-home.clover-3"
+
+[node name="clover-4" parent="." instance=ExtResource("50")]
+position = Vector2(384, 584)
+metadata/instance_id = "mushroom-home-clover-4"
+metadata/persistence_key = "world.mushroom-home.clover-4"
+
+[node name="clover-5" parent="." instance=ExtResource("51")]
+position = Vector2(626, 566)
+metadata/instance_id = "mushroom-home-clover-5"
+metadata/persistence_key = "world.mushroom-home.clover-5"
+
+[node name="clover-6" parent="." instance=ExtResource("49")]
+position = Vector2(880, 474)
+metadata/instance_id = "mushroom-home-clover-6"
+metadata/persistence_key = "world.mushroom-home.clover-6"
+
+[node name="clover-7" parent="." instance=ExtResource("52")]
+position = Vector2(132, 470)
+metadata/instance_id = "mushroom-home-clover-7"
+metadata/persistence_key = "world.mushroom-home.clover-7"
+
+[node name="clover-8" parent="." instance=ExtResource("51")]
+position = Vector2(404, 232)
+metadata/instance_id = "mushroom-home-clover-8"
+metadata/persistence_key = "world.mushroom-home.clover-8"
+
+[node name="clover-9" parent="." instance=ExtResource("53")]
+position = Vector2(640, 236)
+metadata/instance_id = "mushroom-home-clover-9"
+metadata/persistence_key = "world.mushroom-home.clover-9"
+
+[node name="clover-10" parent="." instance=ExtResource("48")]
+position = Vector2(772, 424)
+metadata/instance_id = "mushroom-home-clover-10"
+metadata/persistence_key = "world.mushroom-home.clover-10"
+
+[node name="clover-11" parent="." instance=ExtResource("52")]
+position = Vector2(318, 250)
+metadata/instance_id = "mushroom-home-clover-11"
+metadata/persistence_key = "world.mushroom-home.clover-11"
+
+[node name="flowers-1" parent="." instance=ExtResource("54")]
+position = Vector2(360, 452)
+metadata/instance_id = "mushroom-home-flowers-1"
+metadata/persistence_key = "world.mushroom-home.flowers-1"
+
+[node name="flowers-2" parent="." instance=ExtResource("55")]
+position = Vector2(690, 474)
+metadata/instance_id = "mushroom-home-flowers-2"
+metadata/persistence_key = "world.mushroom-home.flowers-2"
+
+[node name="flowers-3" parent="." instance=ExtResource("56")]
+position = Vector2(142, 330)
+metadata/instance_id = "mushroom-home-flowers-3"
+metadata/persistence_key = "world.mushroom-home.flowers-3"
+
+[node name="flowers-4" parent="." instance=ExtResource("57")]
+position = Vector2(884, 362)
+metadata/instance_id = "mushroom-home-flowers-4"
+metadata/persistence_key = "world.mushroom-home.flowers-4"
+
+[node name="flowers-5" parent="." instance=ExtResource("58")]
+position = Vector2(606, 390)
+metadata/instance_id = "mushroom-home-flowers-5"
+metadata/persistence_key = "world.mushroom-home.flowers-5"
+
+[node name="flowers-6" parent="." instance=ExtResource("59")]
+position = Vector2(424, 396)
+metadata/instance_id = "mushroom-home-flowers-6"
+metadata/persistence_key = "world.mushroom-home.flowers-6"
+
+[node name="flowers-7" parent="." instance=ExtResource("60")]
+position = Vector2(820, 566)
+metadata/instance_id = "mushroom-home-flowers-7"
+metadata/persistence_key = "world.mushroom-home.flowers-7"
+
+[node name="flowers-8" parent="." instance=ExtResource("61")]
+position = Vector2(262, 566)
+metadata/instance_id = "mushroom-home-flowers-8"
+metadata/persistence_key = "world.mushroom-home.flowers-8"
+
+[node name="moss-1" parent="." instance=ExtResource("62")]
+position = Vector2(124, 526)
+metadata/instance_id = "mushroom-home-moss-1"
+metadata/persistence_key = "world.mushroom-home.moss-1"
+
+[node name="moss-2" parent="." instance=ExtResource("63")]
+position = Vector2(898, 560)
+metadata/instance_id = "mushroom-home-moss-2"
+metadata/persistence_key = "world.mushroom-home.moss-2"
+
+[node name="moss-3" parent="." instance=ExtResource("64")]
+position = Vector2(612, 214)
+metadata/instance_id = "mushroom-home-moss-3"
+metadata/persistence_key = "world.mushroom-home.moss-3"
+
+[node name="pebbles-1" parent="." instance=ExtResource("65")]
+position = Vector2(704, 404)
+metadata/instance_id = "mushroom-home-pebbles-1"
+metadata/persistence_key = "world.mushroom-home.pebbles-1"
+
+[node name="pebbles-2" parent="." instance=ExtResource("66")]
+position = Vector2(330, 504)
+metadata/instance_id = "mushroom-home-pebbles-2"
+metadata/persistence_key = "world.mushroom-home.pebbles-2"
+
+[node name="root-1" parent="." instance=ExtResource("67")]
+position = Vector2(874, 252)
+metadata/instance_id = "mushroom-home-root-1"
+metadata/persistence_key = "world.mushroom-home.root-1"
+
+[node name="root-2" parent="." instance=ExtResource("68")]
+position = Vector2(236, 470)
+metadata/instance_id = "mushroom-home-root-2"
+metadata/persistence_key = "world.mushroom-home.root-2"
+
+[node name="mushrooms-1" parent="." instance=ExtResource("69")]
+position = Vector2(350, 386)
+metadata/instance_id = "mushroom-home-mushrooms-1"
+metadata/persistence_key = "world.mushroom-home.mushrooms-1"
+
+[node name="mushrooms-2" parent="." instance=ExtResource("70")]
+position = Vector2(884, 318)
+metadata/instance_id = "mushroom-home-mushrooms-2"
+metadata/persistence_key = "world.mushroom-home.mushrooms-2"
+
+[node name="leaves-1" parent="." instance=ExtResource("71")]
+position = Vector2(628, 332)
+metadata/instance_id = "mushroom-home-leaves-1"
+metadata/persistence_key = "world.mushroom-home.leaves-1"
+
+[node name="acorns-1" parent="." instance=ExtResource("72")]
+position = Vector2(420, 316)
+metadata/instance_id = "mushroom-home-acorns-1"
+metadata/persistence_key = "world.mushroom-home.acorns-1"
+
+[node name="dining-rug" parent="." instance=ExtResource("73")]
+position = Vector2(512, 512)
+metadata/instance_id = "mushroom-home-dining-rug"
+metadata/persistence_key = "world.mushroom-home.dining-rug"
+
+[node name="Visual" parent="dining-rug"]
+scale = Vector2(2.1, 2.1)
+
+[node name="dining-table" parent="." instance=ExtResource("74")]
+position = Vector2(505, 436)
+metadata/instance_id = "mushroom-home-dining-table"
+metadata/persistence_key = "world.mushroom-home.dining-table"
+
+[node name="bed" parent="." instance=ExtResource("75")]
+position = Vector2(238, 352)
+metadata/instance_id = "mushroom-home-bed"
+metadata/persistence_key = "world.mushroom-home.bed"
+
+[node name="nightstand" parent="." instance=ExtResource("76")]
+position = Vector2(366, 330)
+metadata/instance_id = "mushroom-home-nightstand"
+metadata/persistence_key = "world.mushroom-home.nightstand"
+
+[node name="glow-cluster" parent="." instance=ExtResource("77")]
+position = Vector2(136, 384)
+metadata/instance_id = "mushroom-home-glow-cluster"
+metadata/persistence_key = "world.mushroom-home.glow-cluster"
+
+[node name="potion-shelf" parent="." instance=ExtResource("78")]
+position = Vector2(506, 254)
+metadata/instance_id = "mushroom-home-potion-shelf"
+metadata/persistence_key = "world.mushroom-home.potion-shelf"
+
+[node name="herb-basket" parent="." instance=ExtResource("79")]
+position = Vector2(614, 268)
+metadata/instance_id = "mushroom-home-herb-basket"
+metadata/persistence_key = "world.mushroom-home.herb-basket"
+
+[node name="hearth" parent="." instance=ExtResource("80")]
+position = Vector2(772, 316)
+metadata/instance_id = "mushroom-home-hearth"
+metadata/persistence_key = "world.mushroom-home.hearth"
+
+[node name="hearth-candle" parent="." instance=ExtResource("81")]
+position = Vector2(668, 318)
+metadata/instance_id = "mushroom-home-hearth-candle"
+metadata/persistence_key = "world.mushroom-home.hearth-candle"
+
+[node name="firewood" parent="." instance=ExtResource("82")]
+position = Vector2(880, 330)
+metadata/instance_id = "mushroom-home-firewood"
+metadata/persistence_key = "world.mushroom-home.firewood"
+
+[node name="chest" parent="." instance=ExtResource("83")]
+position = Vector2(860, 520)
+metadata/instance_id = "mushroom-home-chest"
+metadata/persistence_key = "world.mushroom-home.chest"
+
+[node name="tall-glow" parent="." instance=ExtResource("84")]
+position = Vector2(872, 420)
+metadata/instance_id = "mushroom-home-tall-glow"
+metadata/persistence_key = "world.mushroom-home.tall-glow"
+
+[node name="alchemy" parent="." instance=ExtResource("85")]
+position = Vector2(706, 572)
+metadata/instance_id = "mushroom-home-alchemy"
+metadata/persistence_key = "world.mushroom-home.alchemy"
+
+[node name="water-basin" parent="." instance=ExtResource("86")]
+position = Vector2(212, 574)
+metadata/instance_id = "mushroom-home-water-basin"
+metadata/persistence_key = "world.mushroom-home.water-basin"
+
+[node name="fern" parent="." instance=ExtResource("87")]
+position = Vector2(352, 566)
+metadata/instance_id = "mushroom-home-fern"
+metadata/persistence_key = "world.mushroom-home.fern"
+
+[node name="fern-basket" parent="." instance=ExtResource("88")]
+position = Vector2(128, 470)
+metadata/instance_id = "mushroom-home-fern-basket"
+metadata/persistence_key = "world.mushroom-home.fern-basket"
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+script = ExtResource("89")
+process_mode = 3
+stream = ExtResource("90")
+volume_db = -9.1186
+max_polyphony = 1
+bus = &"Ambience"
+loop = true
+autoplay_cue = true
+
+[editable path="dining-rug"]

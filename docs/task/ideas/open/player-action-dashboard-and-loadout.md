@@ -7,7 +7,7 @@ four-slot ability bar. This task consolidates their presentation and completes
 loadout assignment without creating another equipment state model.
 
 Roadmap task 4.10
-([simple controls](../../../superpowers/specs/2026-09-30-simple-controls-design.md))
+([simple controls](../../../archive/phaser/superpowers/specs/2026-09-30-simple-controls-design.md))
 changes the ground rules for this idea:
 
 - the belt shrinks to three weapon slots, switched with the mouse wheel;

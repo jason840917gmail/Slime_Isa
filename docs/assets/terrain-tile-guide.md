@@ -12,7 +12,7 @@ Ground tiles, tile physics, walls, and floor decorations.
 ## Ground sheets
 
 Each outdoor ground material is one `1216 x 1216` sheet: `19 x 19` cells of
-`64 x 64`, in `asset/MAPS/grounds/64x64-tile_19x19_<ground>.png`, registered as
+`64 x 64`, in `godot/asset/MAPS/grounds/64x64-tile_19x19_<ground>.png`, registered as
 `sheet.grounds.19x19.<ground>`.
 
 - Sources: large generations (2048 px) in `asset/Originals/grounds/generated/`
@@ -31,9 +31,10 @@ against copies of themselves.
 
 ## Tile set
 
-Tile IDs, their sheets, and their physics live in the shared `terrain.tiles`
-resource (`src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json`),
-edited in Scene Studio; `content/terrain/TileCatalog.ts` reads it. Per tile:
+Tile IDs, their sheets, and their physics live in the Godot TileSet
+`godot/game/world/terrain_tileset.tres` (one atlas source per tile id, the id in the `tile_id`
+custom data; converted from Phaser's `terrain.tiles` resource, whose fields are listed below).
+Per tile, as authored in Phaser:
 
 - `assetIds` and `selection` (`sheet-wrap`, `seeded-hash`, `sheet-order`, `ground-sheet-region`);
 - `physics`: `null` for walkable ground, or `{ "body": "static", "inset": {...}, "layer": "water" }`.
@@ -41,10 +42,10 @@ edited in Scene Studio; `content/terrain/TileCatalog.ts` reads it. Per tile:
 - `allowsDecorations` and `tags`;
 - optional `transition` (`group: "natural-ground"`, `material`, `priority`):
   higher priority blends into lower. Blending is visual only; see
-  [Terrain Transitions](../TERRAIN_TRANSITIONS.md).
+  [Terrain Transitions](../archive/phaser/TERRAIN_TRANSITIONS.md).
 
-A new ground material needs: source art, a `grounds:pack` entry, a manifest
-entry, and a tile in `terrain.tiles`.
+A new ground material needs: source art, a `grounds:pack` entry, an atlas source in
+`terrain_tileset.tres` with its `tile_id`, and edge art ([terrain edges](../godot/TERRAIN_LAB.md)).
 
 ## Walls
 

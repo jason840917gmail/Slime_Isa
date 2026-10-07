@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/water/128x64-tile_8x5-water-fish.webp" id="1"]
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
+
+[sub_resource type="Animation" id="Animation_1"]
+resource_name = "object.water-life.idle"
+length = 9.0
+loop_mode = 1
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 7, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 6.78), Vector2(5.44, 8.09), Vector2(10.86, 9.24), Vector2(16.22, 10.22), Vector2(21.5, 10.99), Vector2(26.68, 11.56), Vector2(31.73, 11.89), Vector2(36.62, 12), Vector2(41.33, 11.87), Vector2(45.85, 11.51), Vector2(50.14, 10.93), Vector2(54.18, 10.13), Vector2(57.97, 9.14), Vector2(61.46, 7.97), Vector2(64.66, 6.64), Vector2(67.55, 5.19), Vector2(70.11, 3.63), Vector2(72.32, 2.01), Vector2(74.18, 0.34), Vector2(75.68, -1.33), Vector2(76.82, -2.98), Vector2(77.57, -4.57), Vector2(77.95, -6.07), Vector2(77.95, -7.45), Vector2(77.57, -8.69), Vector2(76.82, -9.75), Vector2(75.68, -10.63), Vector2(74.18, -11.3), Vector2(72.32, -11.75), Vector2(70.11, -11.98), Vector2(67.55, -11.96), Vector2(64.66, -11.72), Vector2(61.46, -11.25), Vector2(57.97, -10.56), Vector2(54.18, -9.66), Vector2(50.14, -8.58), Vector2(45.85, -7.33), Vector2(41.33, -5.93), Vector2(36.62, -4.42), Vector2(31.73, -2.83), Vector2(26.68, -1.18), Vector2(21.5, 0.5), Vector2(16.22, 2.16), Vector2(10.86, 3.78), Vector2(5.44, 5.33), Vector2(0, 6.78), Vector2(-5.44, 8.09), Vector2(-10.86, 9.24), Vector2(-16.22, 10.22), Vector2(-21.5, 10.99), Vector2(-26.68, 11.56), Vector2(-31.73, 11.89), Vector2(-36.62, 12), Vector2(-41.33, 11.87), Vector2(-45.85, 11.51), Vector2(-50.14, 10.93), Vector2(-54.18, 10.13), Vector2(-57.97, 9.14), Vector2(-61.46, 7.97), Vector2(-64.66, 6.64), Vector2(-67.55, 5.19), Vector2(-70.11, 3.63), Vector2(-72.32, 2.01), Vector2(-74.18, 0.34), Vector2(-75.68, -1.33), Vector2(-76.82, -2.98), Vector2(-77.57, -4.57), Vector2(-77.95, -6.07), Vector2(-77.95, -7.45), Vector2(-77.57, -8.69), Vector2(-76.82, -9.75), Vector2(-75.68, -10.63), Vector2(-74.18, -11.3), Vector2(-72.32, -11.75), Vector2(-70.11, -11.98), Vector2(-67.55, -11.96), Vector2(-64.66, -11.72), Vector2(-61.46, -11.25), Vector2(-57.97, -10.56), Vector2(-54.18, -9.66), Vector2(-50.14, -8.58), Vector2(-45.85, -7.33), Vector2(-41.33, -5.93), Vector2(-36.62, -4.42), Vector2(-31.73, -2.83), Vector2(-26.68, -1.18), Vector2(-21.5, 0.5), Vector2(-16.22, 2.16), Vector2(-10.86, 3.78), Vector2(-5.44, 5.33)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Visual:flip_h")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 2.3, 6.7),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Visual:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = false
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 7, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2"]
+_data = {
+&"object.water-life.idle": SubResource("Animation_1")
+}
+
+[node name="fish-koi-lane" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+self_modulate = Color(0.72549, 0.862745, 0.937255, 0.72)
+z_index = -2
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-64, -32)
+hframes = 8
+vframes = 5
+
+[node name="AmbientAnimation" type="AnimationPlayer" parent="."]
+script = ExtResource("2")
+libraries/ = SubResource("AnimationLibrary_2")
+process_mode = 3
+autoplay = &"object.water-life.idle"
+randomize_start = true

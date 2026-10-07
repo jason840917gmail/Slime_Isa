@@ -1,0 +1,44 @@
+{
+  "style": "snow",
+  "source": "snow-front-a.png",
+  "px_per_unit": 2.0,
+  "post_height": 40.0,
+  "spacing": 64.0,
+  "inset": 10.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      36,
+      83
+    ],
+    "foot_row": 81.59,
+    "half_width": 5.78
+  },
+  "rails": {
+    "size": [
+      124,
+      51
+    ],
+    "top": 31.89,
+    "bottom": 6.51,
+    "rows": [
+      [
+        31.23,
+        22.72
+      ],
+      [
+        17.28,
+        9.44
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      18,
+      124
+    ],
+    "top": 31.23,
+    "bottom": 22.72,
+    "offset": 5.0
+  }
+}

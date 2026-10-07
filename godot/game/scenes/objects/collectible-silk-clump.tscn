@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/items/materials-5x2.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/collectible.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/pickup/silk.ogg" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/pickup/inventory-full.wav" id="5"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 12.0
+
+[node name="Sticky Silk" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-32, -32)
+hframes = 5
+vframes = 2
+
+[node name="PickupArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 64
+collision_mask = 32
+monitoring = false
+
+[node name="PickupShape" type="CollisionShape2D" parent="PickupArea"]
+shape = SubResource("CircleShape2D_1")
+
+[node name="CollectibleScript" type="Node" parent="." node_paths=PackedStringArray("pickup_area")]
+script = ExtResource("2")
+map_id = "map-template"
+instance_id = "collectible-template"
+object_id = "collectible.silk-clump"
+item_id = "silk-clump"
+quantity = 1
+pickup_area = NodePath("../PickupArea")
+
+[node name="PickupSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("4")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+payload_filter = "status=collected|partial"
+detached = true
+pan_distance = 400.0
+
+[node name="InventoryFullSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("5")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+min_interval_ms = 600.0
+payload_filter = "status=rejected"
+pan_distance = 400.0
+
+[connection signal="pickup_resolved" from="CollectibleScript" to="PickupSfx" method="play_cue"]
+[connection signal="pickup_resolved" from="CollectibleScript" to="InventoryFullSfx" method="play_cue"]

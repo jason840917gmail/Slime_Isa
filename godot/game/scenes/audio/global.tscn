@@ -1,0 +1,973 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="1"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/music/level-1-home-town.ogg" id="2"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/dodge-1.wav" id="3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/dodge-2.wav" id="4"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/eat-1.ogg" id="5"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/eat-2.ogg" id="6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/jump-1.wav" id="7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/jump-2.wav" id="8"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/land-1.ogg" id="9"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/land-2.ogg" id="10"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/teleport-out.ogg" id="11"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/teleport-in.ogg" id="12"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/slam-windup.ogg" id="13"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/slam-impact.wav" id="14"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/lash-1.wav" id="15"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/lash-2.wav" id="16"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/ability-denied.ogg" id="17"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/heal.wav" id="18"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/respawn.wav" id="19"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/energy-restore.ogg" id="20"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/coin-1.ogg" id="21"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/coin-2.ogg" id="22"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/ability-learned.wav" id="23"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/status/burn.wav" id="24"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/status/poison.wav" id="25"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/status/slow.wav" id="26"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/status/sticky.ogg" id="27"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/status/bouncy.wav" id="28"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/status/frenzy.ogg" id="29"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/status/expire.ogg" id="30"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/weapon/equip-blade.wav" id="31"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/weapon/equip-tool.ogg" id="32"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/craft-success.ogg" id="33"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/craft-fail.ogg" id="34"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/resource/stone-crumble.ogg" id="35"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/restore-building.wav" id="36"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/pickup/silk.ogg" id="37"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/bell-ring.wav" id="38"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/npc-blip-1.ogg" id="39"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/npc-blip-2.ogg" id="40"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/npc-blip-3.ogg" id="41"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/ui/quest-accept.wav" id="42"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/quest-progress.ogg" id="43"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/ui/quest-complete.wav" id="44"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/quest-failed.ogg" id="45"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/boss/victory.wav" id="46"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/area-transition.wav" id="47"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/ui/open.wav" id="48"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/ui/close.wav" id="49"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/journal-open.ogg" id="50"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/weapon/crit.ogg" id="51"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/sleep-breath.wav" id="52"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/rested.wav" id="53"]
+
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-wear-off-1.wav" id="sfx_350fc7e0"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-wear-off-2.wav" id="sfx_72afbd30"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-wear-off-3.wav" id="sfx_4fcf9480"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/burp-1.wav" id="sfx_d24748fd"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/burp-2.wav" id="sfx_95e7322d"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/burp-3.wav" id="sfx_a8871b9d"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/lash-catch-1.wav" id="sfx_959eea7a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/lash-catch-2.wav" id="sfx_d23e90aa"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/lash-catch-3.wav" id="sfx_ef5eb91a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/fall-1.wav" id="sfx_e3cf2e59"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/fall-2.wav" id="sfx_a46f5489"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/fall-3.wav" id="sfx_990f7d39"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/plate-press-1.wav" id="sfx_66ae6584"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/plate-press-2.wav" id="sfx_210e1f54"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/plate-press-3.wav" id="sfx_1c6e36e4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/gate-open-1.wav" id="sfx_fa30d366"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/gate-open-2.wav" id="sfx_bd90a9b6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/gate-open-3.wav" id="sfx_80f08006"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/door-1.wav" id="sfx_a96507e7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/door-2.wav" id="sfx_eec57d37"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/door-3.wav" id="sfx_d3a55487"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/dummy-hit-1.wav" id="sfx_70fc9f39"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/dummy-hit-2.wav" id="sfx_375ce5e9"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/dummy-hit-3.wav" id="sfx_0a3ccc59"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/talk-blip-1.wav" id="sfx_d68b3146"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/talk-blip-2.wav" id="sfx_912b4b96"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/talk-blip-3.wav" id="sfx_ac4b6226"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/gate-unlock.ogg" id="sfx_7ea882f1"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/gate-locked.ogg" id="sfx_cb0e7ee3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/drop-pop-1.wav" id="sfx_b749774b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/drop-pop-2.wav" id="sfx_f0e90d9b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/drop-land-1.wav" id="sfx_faa69a63"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/drop-land-2.wav" id="sfx_bd06e0b3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/potion-drink.wav" id="sfx_64afe6b3"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/web-struggle.ogg" id="sfx_242ea807"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-1.wav" id="sfx_b8ec9741"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-2.wav" id="sfx_ff4ced91"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/weapon/hit-blocked-1.ogg" id="sfx_ac30cd1c"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/weapon/hit-blocked-2.ogg" id="sfx_eb90b7cc"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/save.ogg" id="sfx_82ce3735"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/ui/toast.ogg" id="sfx_38a28c1a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/talk-blip-4.wav" id="sfx_1e6bbe36"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-heavy-1.wav" id="sfx_630f4507"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-heavy-2.wav" id="sfx_24af3fd7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-sticky-1.wav" id="sfx_c69c966c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-sticky-2.wav" id="sfx_813cecbc"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-sticky-3.wav" id="sfx_bc5cc50c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/plate-release.wav" id="sfx_e6914548"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/ground-creak.wav" id="sfx_37b1d6a9"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-frog.wav" id="sfx_49f66690"]
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("3")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("4")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_2"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("5")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("6")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_3"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("7")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("8")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_4"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("9")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("10")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_5"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("15")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("16")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_6"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("21")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("22")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_7"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("39")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("40")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("41")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_wear_off_GulpWearOff"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_350fc7e0")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_72afbd30")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_4fcf9480")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_burp_GulpBurp"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_d24748fd")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_95e7322d")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_a8871b9d")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_lash_catch_LashCatch"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_959eea7a")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_d23e90aa")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_ef5eb91a")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_fall_FallDown"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_e3cf2e59")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_a46f5489")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_990f7d39")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_plate_press_PlatePress"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_66ae6584")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_210e1f54")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_1c6e36e4")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_gate_open_GateOpen"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_fa30d366")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_bd90a9b6")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_80f08006")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_door_DoorUse"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_a96507e7")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_eec57d37")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_d3a55487")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_dummy_hit_DummyHit"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_70fc9f39")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_375ce5e9")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_0a3ccc59")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_ui_talk_blip_TalkBlip"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_d68b3146")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_912b4b96")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_ac4b6226")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_1e6bbe36")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_resource_drop_pop_DropPop"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_b749774b")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_f0e90d9b")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_resource_drop_land_DropLand"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_faa69a63")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_bd06e0b3")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_weapon_hit_dull_HitDull"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_b8ec9741")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_ff4ced91")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_weapon_hit_blocked_HitBlocked"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_ac30cd1c")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_eb90b7cc")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_transform_heavy_GulpTransformHeavy"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_630f4507")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_24af3fd7")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_transform_sticky_GulpTransformSticky"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_c69c966c")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_813cecbc")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_bc5cc50c")
+stream_2/weight = 1.0
+
+[node name="GlobalAudio" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Music" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="BossMusic" type="AudioStreamPlayer" parent="Music"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("2")
+volume_db = -6.0206
+pitch_scale = 1.12
+max_polyphony = 1
+bus = &"Music"
+loop = true
+
+[node name="Effects" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Dodge" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_1")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Eat" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_2")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Jump" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_3")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Land" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_4")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="TeleportOut" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("11")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="TeleportIn" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("12")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SlamWindup" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("13")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SlamImpact" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("14")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Lash" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_5")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="AbilityDenied" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("17")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Heal" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("18")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Respawn" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("19")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="EnergyRestore" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("20")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Coin" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_6")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="AbilityLearned" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("23")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StatusBurn" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("24")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StatusPoison" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("25")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StatusSlow" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("26")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StatusSticky" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("27")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StatusBouncy" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("28")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StatusFrenzy" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("29")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StatusExpire" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("30")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="EquipBlade" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("31")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="EquipTool" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("32")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="CraftSuccess" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("33")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="CraftFail" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("34")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GroundCrack" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("35")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BuildingRestored" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("36")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="WebTear" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("37")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BellRing" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("38")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="NpcBlip" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_7")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="QuestAccept" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("42")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="QuestProgress" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("43")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="QuestComplete" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("44")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="QuestFailed" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("45")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Victory" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("46")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="AreaTransition" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("47")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="MenuOpen" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("48")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="MenuClose" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("49")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="JournalOpen" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("50")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Crit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("51")
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SleepBreath" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("52")
+volume_db = -10.4576
+max_polyphony = 1
+bus = &"Effects"
+loop = true
+
+[node name="Rested" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("53")
+volume_db = -9.1186
+max_polyphony = 4
+bus = &"Effects"
+min_interval_ms = 1000.0
+[node name="GulpWearOff" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_gulp_wear_off_GulpWearOff")
+volume_db = -6.75
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GulpBurp" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_burp_GulpBurp")
+volume_db = -8.08
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="LashCatch" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_lash_catch_LashCatch")
+volume_db = -0.62
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="FallDown" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_fall_FallDown")
+volume_db = -12.15
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlatePress" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_plate_press_PlatePress")
+volume_db = -5.89
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 150.0
+
+[node name="PlateRelease" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_e6914548")
+volume_db = 1.94
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 150.0
+
+[node name="GateOpen" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_gate_open_GateOpen")
+volume_db = -7.66
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DoorUse" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_door_DoorUse")
+volume_db = -3.36
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DummyHit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_dummy_hit_DummyHit")
+volume_db = -5.66
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GroundCreak" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_37b1d6a9")
+volume_db = 3.58
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="TalkBlip" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_ui_talk_blip_TalkBlip")
+volume_db = -3.21
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.08
+min_interval_ms = 80.0
+
+[node name="GateUnlock" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_7ea882f1")
+volume_db = -4.08
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GateLocked" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_cb0e7ee3")
+volume_db = -4.63
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DropPop" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_resource_drop_pop_DropPop")
+volume_db = -2.30
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DropLand" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_resource_drop_land_DropLand")
+volume_db = -2.20
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PotionDrink" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_64afe6b3")
+volume_db = -3.62
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="WebStruggle" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_242ea807")
+volume_db = 1.76
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 700.0
+
+[node name="HitDull" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_weapon_hit_dull_HitDull")
+volume_db = -2.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="HitBlocked" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_weapon_hit_blocked_HitBlocked")
+volume_db = 0.66
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Save" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_82ce3735")
+volume_db = -11.07
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Toast" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_38a28c1a")
+volume_db = -0.87
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GulpTransformHeavy" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_gulp_transform_heavy_GulpTransformHeavy")
+volume_db = 4.05
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GulpTransformSticky" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_gulp_transform_sticky_GulpTransformSticky")
+volume_db = 0.71
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GulpTransformFrog" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_49f66690")
+volume_db = -8.99
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+

@@ -23,7 +23,7 @@ from white_cutout import cut_out  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'asset' / 'Originals' / 'weapon' / 'iron-tools' / 'iron-tools-source.png'
-OUT = ROOT / 'asset' / 'MAPS' / 'weapons' / '128x128-tile_4x1-iron-tools.webp'
+OUT = ROOT / 'godot' / 'asset' / 'MAPS' / 'weapons' / '128x128-tile_4x1-iron-tools.webp'
 FRAME = 128
 UPRIGHT_HEIGHT = 126  # the stone tools fill the frame height
 DIAGONAL_SPAN = 104   # the starter spears span about 100 px each way

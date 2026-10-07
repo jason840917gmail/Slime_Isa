@@ -1,0 +1,60 @@
+grass-walk O6pEFVfynm rgAX8Rhxtc
+grass-slime xSGBI2BjfW ovL6RxV829
+forest-walk w4VaETr7EI 1l2do2Jr4r
+forest-slime CqOncykEEy 0eHUJq5TfW
+leaves-walk gOcmaTgSXO yieuHBWPW9
+leaves-slime 3ztKraDREY 6A8bkhEiJO
+snow-walk 6A8bkvuiJO Ifl327MtvE
+snow-slime iGI51CY3uK 1l2doc2r4r
+tiles-walk xSGBIuSjfW gOcmab0SXO
+tiles-slime w4VaE1W7EI iGI51wf3uK
+cave-walk rgAX8Qpxtc 0eHUJZATfW
+cave-slime iGI51Ou3uK tCgRAeWmZJ
+crystal-walk BhjN3MDoQR eI1PNTQdqL
+crystal-slime 0eHUJnWTfW ksZeBbP16B
+wood-walk gOcmasBSXO aF7GYhcfSh
+wood-slime 1l2dokar4r VXb7yVpMMU
+soft-walk MB5J4C4DCm iGI5rDO3uK
+soft-slime xSGBtiwjfW Sy0hCGYUb8
+shallow-walk nVEsUh5YQD TdqwyE4VNR
+shallow-slime Ifl3AxAtvE KLRpBNCkqp
+swim-strokes tCgRGsbmZJ 6A8b1BtiJO
+swim-slime Xmx93rNBfo p8kyNkoehw
+swim-loop 3ztKxm0REY huU2nw6vqL
+water-enter-a VXb7ZQvMMU DoKOAHkpcl TdqwRuUVNR
+water-enter-b rgAXERbxtc 9ZBHldnNYZ ksZef3c16B
+water-exit-a 8asi0LTIrU xSGBuGSjfW Sy0h50zUb8
+water-exit-b MB5J2K9DCm 4RXFso69Aa EbyYB4xuuO
+swim-enter-a s7YIH0el8e gOcmbVkSXO p8kyGxpehw
+swim-enter-b jUzoQckLD0 tCgRVJqmZJ huU2DyPvqL
+gulp-transform-a ksZefYm16B 1l2dCcwr4r VXb7Zj5MMU
+gulp-transform-b MB5J2s2DCm N2oqgCd6D9 dtr4nw2XSL
+gulp-wear-off-a gOcmbKASXO yieujshPW9 BhjNW02oQR
+gulp-wear-off-b fHJzdoTCDY lJWtqKrgv9 ovL6cMb829
+gulp-burp-a iGI5Uyt3uK xSGBubXjfW Sy0h5x5Ub8
+gulp-burp-b VXb7ZYZMMU Lwn8F17swO JNDCrS0Oq4
+lash-catch-a 4RXFsOE9Aa BhjNWeWoQR O6pEx7Nynm
+lash-catch-b MB5J2VuDCm rgAXE1Dxtc WDQg6Y4cXe
+lash-miss-a fHJzdfBCDY lJWtbSwgv9 jUzoFsGLD0
+lash-miss-b fHJzXu8CDY dtr4Y8HXSL 8asiThOIrU
+plate-press-a 79MfrVkJAL 4RXFldP9Aa VXb72bCMMU
+plate-press-b 9ZBHgoWNYZ rgAXuGBxtc CqOnByCEEy
+plate-release-a cpFS3bQ0eP TdqwZKPVNR 8asiTSDIrU
+plate-release-b 79MfrdLJAL p8kyzjpehw gOcm5DiSXO
+gate-open-a aF7Gd9ufSh EbyYoisuuO bxiMvGA5Y2
+gate-open-b 0eHURrFTfW s7YIqDBl8e w4Va1Bk7EI
+door-open-a tCgRM4KmZJ DoKOGg7pcl w4Va18r7EI
+door-open-b KLRpf0Hkqp 3ztK7HTREY 6A8bUQaiJO
+dummy-hit-a aF7GdINfSh VXb72YRMMU O6pEjUPynm
+dummy-hit-b Ifl3VBFtvE CqOnBvZEEy u5PW8fCQLD
+ground-creak-a ksZeCKy16B p8kyzDSehw N2oqS9L6D9
+ground-creak-b ksZeEr416B p8kyndwehw YMuliczWeC
+fall-hole-a rgAXQs6xtc rgAXQsdxtc BhjN0tMoQR
+fall-hole-b Sy0hky7Ub8 rgAXQg3xtc s7YIb7Bl8e
+talk-blip-a gOcmKy5SXO 5j3Dfs4Kxe gOcmKPXSXO
+talk-blip-b ovL6TCw829 vQwAdqza47 fHJzB5vCDY
+transform-heavy-a rgABe2Oxtc 9ZBqQXINYZ rgABe2Fxtc
+transform-heavy-b ksZdDZv16B gOchI0JSXO gOchI00SXO
+transform-sticky-a s7YtocEl8e KLReMAjkqp CqOYG4gEEy
+transform-sticky-b IflR6UdtvE jUz8XcyLD0 UPTampTwny
+transform-frog-c WDQSs5kcXe xSGodcQjfW rgABecixtc
