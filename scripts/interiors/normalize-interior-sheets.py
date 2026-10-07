@@ -12,7 +12,7 @@ each sprite inside its own frame:
 - a transparent safety margin, so no pixel ever reaches a neighbouring frame;
 - structure floor/wall squares are fitted edge to edge so they tile.
 
-Writes the normalized working atlases, the promoted copies in asset/MAPS/interiors/
+Writes the normalized working atlases, the promoted copies in godot/asset/MAPS/interiors/
 and atlas-index.json. Requires Pillow and numpy.
 
 Usage: python scripts/interiors/normalize-interior-sheets.py
@@ -36,7 +36,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ORIGINALS = ROOT / "asset" / "Originals" / "interiors"
 SOURCES = ORIGINALS / "generated-sheets"
 NORMALIZED = ORIGINALS / "normalized-sheets"
-PROMOTED = ROOT / "asset" / "MAPS" / "interiors"
+PROMOTED = ROOT / "godot" / "asset" / "MAPS" / "interiors"
 
 ALPHA_THRESHOLD = 32  # opaque enough to belong to a sprite silhouette
 MIN_SPRITE_AREA = 150  # smaller islands are generation specks
@@ -324,7 +324,7 @@ def export_floor_tiles(atlases: list[dict]) -> None:
     for name, atlas_id, index, trim, seamless in FLOOR_TILES:
         atlas = by_id[atlas_id]
         frame, cols = atlas["frameWidth"], atlas["columns"]
-        sheet = Image.open(ROOT / "asset" / atlas["promoted"])
+        sheet = Image.open(ROOT / "godot" / "asset" / atlas["promoted"])
         x, y = (index % cols) * frame, (index // cols) * frame
         inner = sheet.crop((x + trim, y + trim, x + frame - trim, y + frame - trim))
         tile = inner.convert("RGB").resize((frame, frame), Image.LANCZOS)
@@ -415,9 +415,9 @@ WRITTEN: set[Path] = set()
 
 
 def save_atomic(image: Image.Image, path: Path) -> None:
-    """Write next to the target, then swap it in, so a running dev server or
-    Scene Studio never sees a missing or half-written runtime texture. Runtime
-    textures (asset/MAPS/interiors) are WebP; the normalized copies stay PNG."""
+    """Write next to the target, then swap it in, so an open Godot editor
+    never sees a missing or half-written runtime texture. Runtime
+    textures (godot/asset/MAPS/interiors) are WebP; the normalized copies stay PNG."""
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.parent.resolve() == PROMOTED.resolve():
         path = path.with_suffix(".webp")
@@ -439,6 +439,7 @@ def main() -> None:
     for stale in [*PROMOTED.glob("*.png"), *PROMOTED.glob("*.webp")]:
         if stale.resolve() not in WRITTEN:
             stale.unlink()
+            stale.with_name(stale.name + ".import").unlink(missing_ok=True)
     index_path = ORIGINALS / "atlas-index.json"
     index = json.loads(index_path.read_text(encoding="utf-8"))
     index["totalCells"] = sum(a["cellCount"] for a in atlases)

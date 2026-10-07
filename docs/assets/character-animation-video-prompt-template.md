@@ -3,7 +3,7 @@
 Copy this template into the generation tool and replace every `[MARKER]` before
 submitting it. Keep the camera, background, and output rules unchanged so the
 result can be converted into a predictable sprite sheet. The style wording
-comes from the [art style guide](./visual-style-guide.md#generating-assets);
+comes from the [art style guide](visual-style-guide.md#generating-assets);
 if that guide changes, update `[STYLE_BLOCK]` from it.
 
 ## Replacement markers
@@ -195,6 +195,26 @@ logo. No watermark. No audio. No purple or magenta details that blend into
 #FF00FF.
 ```
 
+## What made the slime v2 clips usable (2026-10-05)
+
+The full prompt above, with only a start frame, drifted with Seedance 1.5 Pro: the
+backdrop became a lit pink gradient with light rays, shadows and ripples, idles melted or
+grew, and side walks turned to face the camera. What worked
+(`asset/Originals/characters/slime-v2/README.md` has the details):
+
+- Pass the **same image as start and end frame** (`keyframes.start` and `keyframes.end`,
+  4 s clips): the character stays in place and the loop closes.
+- Keep the video prompt short and **leave lighting words out** of it (no style block's
+  "warm golden light"): name the action and facing, "keeps its exact painted look, size and
+  position", and a "flat, unlit, solid #FF00FF chroma-key" background with what not to add.
+- Expect the backdrop to drift toward a duller pink and painted contact shadows anyway: key
+  each frame against its own border colour and drop shadows by hue
+  (`scripts/characters/pack-slime-v2-page.py`).
+- Side walks that stretch upward tend to turn toward the camera; ask for a low glide and
+  use only the frames that stay in profile.
+- Without ffmpeg, `scripts/characters/extract-video-frames.mjs` extracts frames with
+  headless Brave.
+
 ## Sprite-sheet handoff checklist
 
 1. Extract frames at `[FRAME_RATE]` and keep the original frame order.
@@ -202,7 +222,8 @@ logo. No watermark. No audio. No purple or magenta details that blend into
 3. Place every frame on a uniform grid with identical cell dimensions.
 4. Keep the character centered and grounded consistently across frames.
 5. Confirm frame `0` is valid; scenes use it as the default sprite frame.
-6. Register the finished PNG sheet through [Adding Game Assets](./adding-assets.md).
-7. For a character or enemy, continue with [Character Sprites And Animated Visuals](./character-sprites-guide.md) and build its scene in Scene Studio.
-8. Run `pnpm assets:check`, `pnpm scenes:check`, and the relevant content
-   checks before placing the asset in a world.
+6. Save the finished sheet as WebP in `godot/asset/` ([Asset Creation And Integration](README.md)).
+7. For a character or enemy, build its scene in the Godot editor (a `Sprite2D` with the sheet's
+   `hframes`/`vframes` and an `AnimationPlayer`; the player's clips are built by
+   `godot/tools/build_player_clips.gd`).
+8. Check it in the game (the playground) before placing it in a world.

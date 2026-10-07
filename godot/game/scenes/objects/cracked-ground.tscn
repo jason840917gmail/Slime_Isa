@@ -1,0 +1,61 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/cracked_ground.gd" id="1"]
+[ext_resource type="Script" path="res://game/scripts/story_variant.gd" id="2"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="3"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="4"]
+
+[node name="cracked-ground" type="Node2D"]
+y_sort_enabled = true
+
+[node name="CrackedGroundScript" type="Node" parent="."]
+script = ExtResource("1")
+flag_id = "cracked.unassigned"
+radius = 52.0
+
+[node name="StoryVariantScript" type="Node" parent="." node_paths=PackedStringArray("when_set", "when_unset")]
+script = ExtResource("2")
+flag_id = "cracked.unassigned"
+when_set = NodePath("../Broken")
+when_unset = NodePath("../Intact")
+
+[node name="Intact" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="Intact"]
+z_index = -1
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(-128, -194)
+hframes = 8
+
+[node name="Broken" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="Broken"]
+z_index = -1
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("3")
+centered = false
+offset = Vector2(-128, -194)
+hframes = 8
+frame = 1
+
+[node name="Door" type="Node2D" parent="Broken"]
+y_sort_enabled = true
+
+[node name="DoorScript" type="Node" parent="Broken/Door"]
+script = ExtResource("4")
+map_id = "unassigned"
+door_id = "sinkhole"
+target_area_id = "unassigned"
+target_door_id = "ladder"
+prompt = "Climb down"
+interact_radius = 80.0
+badge_rise = 70.0
+use_cue = &"FallDown"
+
+[node name="arrival" type="Node2D" parent="Broken/Door"]
+y_sort_enabled = true
+position = Vector2(0, 96)

@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/goo_heart.gd" id="2"]
+
+[node name="goo-heart" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.46, 0.46)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -260)
+hframes = 8
+frame = 5
+
+[node name="GooHeartScript" type="Node" parent="." node_paths=PackedStringArray("visual")]
+script = ExtResource("2")
+heart_id = "unassigned"
+radius = 36.0
+bob_px = 4.0
+visual = NodePath("../Visual")

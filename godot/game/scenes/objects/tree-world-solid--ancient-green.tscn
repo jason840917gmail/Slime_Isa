@@ -1,0 +1,151 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/trees/256x256-tile_8x3-trees-sway.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/resource_node.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="3"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/leaf-rustle-1.wav" id="5"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/leaf-rustle-2.wav" id="6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-1.wav" id="7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-2.wav" id="8"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/tree-fall.wav" id="9"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(120, 58)
+
+[sub_resource type="Animation" id="Animation_2"]
+resource_name = "object.ambient.idle"
+length = 2.0
+loop_mode = 1
+step = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3"]
+_data = {
+&"object.ambient.idle": SubResource("Animation_2")
+}
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_4"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("5")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("6")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_5"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("7")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("8")
+stream_1/weight = 1.0
+
+[node name="ancient-green" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -37)
+
+[node name="Visual" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -256)
+hframes = 8
+vframes = 3
+
+[node name="DamageArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -37)
+
+[node name="ResourceNodeScript" type="Node" parent="." node_paths=PackedStringArray("damage_area")]
+script = ExtResource("2")
+map_id = "map-template"
+instance_id = "resource-template"
+object_id = "tree.world.solid"
+damage_area = NodePath("../DamageArea")
+max_health = 40.0
+tags = Array[String](["wood", "resource", "tree", "solid"])
+drop = {
+"objectId": "collectible.wood-pile",
+"visualId": "wood-pile",
+"pieces": 1
+}
+hit_effect_id = "wood-impact"
+on_hit_animation_id = ""
+persist_health = true
+depletion_message = "Tree felled"
+harvest_requirement = {
+"targetTag": "wood",
+"minimumTier": 1,
+"failureMessage": "Requires an Axe"
+}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+
+[node name="AmbientAnimation" type="AnimationPlayer" parent="."]
+script = ExtResource("3")
+libraries/ = SubResource("AnimationLibrary_3")
+process_mode = 3
+autoplay = &"object.ambient.idle"
+randomize_start = true
+
+[node name="RustleSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("4")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_4")
+volume_db = -1.9382
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+pan_distance = 400.0
+
+[node name="WrongToolSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("4")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_5")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+min_interval_ms = 200.0
+pan_distance = 400.0
+
+[node name="FallSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("4")
+process_mode = 3
+stream = ExtResource("9")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+
+[connection signal="resource_hit" from="ResourceNodeScript" to="RustleSfx" method="play_cue"]
+[connection signal="harvest_blocked" from="ResourceNodeScript" to="WrongToolSfx" method="play_cue"]
+[connection signal="drops_requested" from="ResourceNodeScript" to="FallSfx" method="play_cue"]

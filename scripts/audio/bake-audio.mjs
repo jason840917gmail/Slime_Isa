@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * audio:bake — renders the synthesized SFX catalog and syncs the manifest.
+ * audio:bake — renders the synthesized SFX catalog into the Godot project.
  *
  *   node scripts/audio/bake-audio.mjs [--library <dir-with-unpacked-kenney-packs>] [--report]
  *
@@ -8,15 +8,17 @@
  * roadmap 3.8): `synth` or `library`.
  *
  * 1. Renders the synth-picked cues' takes from scripts/audio/cues.mjs to
- *    asset/audio/sfx/synth/<category>/<cue>[-<n>].wav (deterministic).
+ *    godot/asset/audio/sfx/synth/<category>/<cue>[-<n>].wav (deterministic).
  * 2. With --library, copies the library-picked cues' files (Kenney, OpenGameArt,
- *    Magnific; see asset/audio/CREDITS.md) into
- *    asset/audio/sfx/library/<category>/<cue>[-<n>].ogg|wav. Without it, existing
+ *    Magnific; see godot/asset/audio/CREDITS.md) into
+ *    godot/asset/audio/sfx/library/<category>/<cue>[-<n>].ogg|wav. Without it, existing
  *    library files are kept as-is.
- * 3. Rewrites the generated `audio.sfx.*` block of asset/assets.json and the
- *    `audio` bundle, each entry pointing at its picked file.
+ * 3. Removes takes it no longer produces (and their Godot `.import` files); a take it
+ *    rewrites keeps its `.import` file, so Godot keeps its uid.
  *
- * Asset IDs: audio.sfx.<category>.<cue>.<n> (n starts at 1).
+ * Godot scenes reference the takes by path (res://asset/audio/sfx/...), so a cue's
+ * file name must not change. Until the Godot cutover (2026-10-05) this also wrote the
+ * `audio.sfx.*` entries of asset/assets.json.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -30,8 +32,7 @@ const PICKS = JSON.parse(readFileSync(new URL('./picks.json', import.meta.url), 
 import { describe, encodeWav, hashSeed, renderRecipe } from './synth.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
-const assetRoot = join(repoRoot, 'asset');
-const manifestPath = join(assetRoot, 'assets.json');
+const assetRoot = join(repoRoot, 'godot', 'asset');
 const synthRoot = join(assetRoot, 'audio', 'sfx', 'synth');
 const libraryRoot = join(assetRoot, 'audio', 'sfx', 'library');
 
@@ -66,9 +67,9 @@ if (libraryPackDir) {
     if (libraryIndex.has(name) && libraryIndex.get(name) !== file) ambiguousNames.add(name);
     else libraryIndex.set(name, file);
   }
-  rmSync(libraryRoot, { recursive: true, force: true });
 }
-rmSync(synthRoot, { recursive: true, force: true });
+/** Every take this run writes or keeps (absolute paths); anything else under the roots is stale. */
+const kept = new Set();
 
 const entries = [];
 const rows = [];
@@ -88,6 +89,7 @@ for (const [category, cues] of Object.entries(CUES)) {
         synthBytes += wav.length;
         mkdirSync(join(assetRoot, dirname(synthPath)), { recursive: true });
         writeFileSync(join(assetRoot, synthPath), wav);
+        kept.add(join(assetRoot, synthPath));
         rows.push({ id: `${category}/${stem}`, ...describe(samples) });
       }
 
@@ -104,6 +106,7 @@ for (const [category, cues] of Object.entries(CUES)) {
         ? LIBRARY_EXTENSIONS.map((extension) => `audio/sfx/library/${category}/${stem}${extension}`).find((candidate) => existsSync(join(assetRoot, candidate)))
         : undefined;
       if (pick === 'library' && !libraryPath) throw new Error(`${category}/${stem}: the picked library take is missing (run with --library)`);
+      if (libraryPath) kept.add(join(assetRoot, libraryPath));
 
       entries.push({
         id: `audio.sfx.${category}.${cue}.${variant + 1}`,
@@ -116,44 +119,19 @@ for (const [category, cues] of Object.entries(CUES)) {
   }
 }
 
-// ── Manifest sync (text splice keeps the hand-formatted manifest intact) ────
+// ── Stale takes: remove what this run no longer produces, with its Godot .import ────
 
-const raw = readFileSync(manifestPath, 'utf8');
-const crlf = raw.includes('\r\n');
-let text = raw.replace(/\r\n/g, '\n');
-
-/** Removes the generated `audio` bundle and every `audio.sfx.*` entry, leaving hand-authored entries (music) alone. */
-function removeGenerated(source) {
-  let result = source.replace(/,\n {4}"audio": \[[\s\S]*?\n {4}\]/, '');
-  const entryStart = /\n {4}"([^"]+)": \{/g;
-  const generated = [];
-  for (let match = entryStart.exec(result); match; match = entryStart.exec(result)) {
-    if (!match[1].startsWith('audio.sfx.')) continue;
-    const end = result.indexOf('\n    }', match.index) + '\n    }'.length;
-    const comma = result.lastIndexOf(',', match.index);
-    generated.push([comma, end]);
+/** Removes the files under `root` that are not in `kept` (and orphaned `.import` files). */
+function pruneStale(root) {
+  if (!existsSync(root)) return;
+  for (const file of listFiles(root)) {
+    const take = file.endsWith('.import') ? file.slice(0, -'.import'.length) : file;
+    if (kept.has(take)) continue;
+    rmSync(file, { force: true });
   }
-  for (const [start, end] of generated.reverse()) result = result.slice(0, start) + result.slice(end);
-  return result;
 }
-
-function sectionClose(source, key) {
-  const start = source.indexOf(`\n  "${key}": {`);
-  if (start < 0) throw new Error(`assets.json has no top-level "${key}" object`);
-  return source.indexOf('\n  }', start);
-}
-
-text = removeGenerated(text);
-const entryText = entries.map((entry) => {
-  return `    "${entry.id}": {\n      "source": {\n        "kind": "audio",\n        "path": "${entry.path}"\n      },\n      "runtime": { "textureKey": "${entry.textureKey}" },\n      "tags": ["audio", "sfx", "${entry.category}"],\n      "status": "draft",\n      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."\n    }`;
-}).join(',\n');
-const assetsClose = sectionClose(text, 'assets');
-text = `${text.slice(0, assetsClose)},\n${entryText}${text.slice(assetsClose)}`;
-const bundleText = `    "audio": [\n${entries.map((entry) => `      "${entry.id}"`).join(',\n')}\n    ]`;
-const bundlesClose = sectionClose(text, 'bundles');
-text = `${text.slice(0, bundlesClose)},\n${bundleText}${text.slice(bundlesClose)}`;
-JSON.parse(text);
-writeFileSync(manifestPath, crlf ? text.replace(/\n/g, '\r\n') : text);
+pruneStale(synthRoot);
+if (libraryPackDir) pruneStale(libraryRoot);
 
 const libraryCount = entries.filter((entry) => entry.library).length;
 const libraryBytes = existsSync(libraryRoot) ? listFiles(libraryRoot).reduce((sum, file) => sum + statSync(file).size, 0) : 0;
