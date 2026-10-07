@@ -1,0 +1,40 @@
+{
+  "style": "stone",
+  "source": "stone-front-a.png",
+  "px_per_unit": 2.0,
+  "post_height": 34.0,
+  "spacing": 80.0,
+  "inset": 12.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      40,
+      72
+    ],
+    "foot_row": 70.4,
+    "half_width": 6.52
+  },
+  "rails": {
+    "size": [
+      147,
+      46
+    ],
+    "top": 24.11,
+    "bottom": 0.9,
+    "rows": [
+      [
+        23.67,
+        1.2
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      28,
+      147
+    ],
+    "top": 23.81,
+    "bottom": 1.2,
+    "offset": 0.0
+  }
+}

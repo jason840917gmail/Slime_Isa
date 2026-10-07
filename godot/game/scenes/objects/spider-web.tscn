@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/spider_web.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(18, 18)
+
+[node name="spider-web" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.56, 0.56)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -256)
+hframes = 8
+frame = 4
+
+[node name="StakeLeft" type="StaticBody2D" parent="."]
+y_sort_enabled = true
+position = Vector2(-62, -8)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="StakeLeft"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="StakeRight" type="StaticBody2D" parent="."]
+y_sort_enabled = true
+position = Vector2(62, -8)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="StakeRight"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="SpiderWebScript" type="Node" parent="." node_paths=PackedStringArray("visual")]
+script = ExtResource("2")
+width = 112.0
+depth = 56.0
+visual = NodePath("../Visual")

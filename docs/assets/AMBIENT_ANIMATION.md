@@ -13,6 +13,14 @@ This is the standard for idle ("ambient") motion on world objects.
 
 Gates, doors and the grindstone get interaction clips (open, spin), not idle loops.
 
+**Walk-over pickups bounce** (owner decision 2026-10-05): every collectible pile (wood, stone, ore,
+charcoal, berries, keys, tonics, shards...) hops about 6 px every 1-2 s, so it catches the eye and
+reads apart from the resource nodes it came from (trees, stone and iron nodes), which stay still.
+It is code, not a clip: `game/scripts/collectible.gd` tweens the `Visual`'s offset and a small
+landing squash relative to its own values (so instance overrides survive), each pile starting at a
+random moment, and only once the pile can be picked up (a dropped pile lands first). A pickup that
+should stay still sets `bounce = false` on its CollectibleScript.
+
 ## Rules
 
 - **Never in sync.** Every ambient `AnimationPlayer` autoplays with
@@ -34,13 +42,13 @@ Gates, doors and the grindstone get interaction clips (open, spin), not idle loo
 ## Making a Tier 1 sheet
 
 `scripts/art/build-ambient-decoration-sheets.py` builds
-`asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp` (asset
+`godot/asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp` (asset
 `sheet.decorations.ambient.8x5`, one row per object) from the static
 decoration sheet. It has two methods:
 
 - **Video, fire pixels only** (campfire, cauldron fire). Render the static
   sprite 6x on `#FF00FF`, make a 5 s Seedance loop with the same image as start
-  and end keyframe ([Magnific guide](./magnific-mcp-guide.md)), extract 8 frames
+  and end keyframe ([Magnific guide](magnific-mcp-guide.md)), extract 8 frames
   and keep them in `asset/Originals/decorations/ambient/<name>/`. The script
   copies only the moving fire pixels into the original sprite. Video output
   adds light rays, cast shadows, smoke build-up and camera drift, so never pack
@@ -54,14 +62,14 @@ decoration sheet. It has two methods:
   so the cloth would not line up with the fixed stand.
 
 Trees use `scripts/art/build-tree-sway-sheets.py`, which bakes 8 canopy-sway
-frames per tree into `asset/MAPS/trees/128x170-tile_16x22-trees-sway.webp`
+frames per tree into `godot/asset/MAPS/trees/128x170-tile_16x22-trees-sway.webp`
 (`sheet.trees.sway.16x22`) and `256x256-tile_8x3-trees-sway.webp`
 (`sheet.trees.3x1.sway.8x3`); source frame `f` becomes frames `f*8 .. f*8+7`.
 Rows shift sideways by an amount that is 0 where the canopy leaves the trunk
 and grows toward the crown, so trunks and roots never move. Leafless trees
 (frames 0-8 of the 128x170 sheet: dead pines, twisted bare trees, the frosted
 tree) have no canopy, so they stay on the static sheet with no animation; the
-list lives in both the sheet builder and the wiring script.
+list lives in the sheet builder.
 
 After changing the sheet, re-run
 `python scripts/art/despill-magenta-fringe.py` on it if it came from a chroma
@@ -69,19 +77,16 @@ key.
 
 ## Wiring
 
-`node scripts/props/wire-ambient-animations.mjs [--write]` adds the ambient
-player and library (`<prefix>.ambient-animations`, clip `object.ambient.idle`)
-to the decoration scenes that have a sheet row. Tree scenes on the static tree
-sheets are switched to the sway sheets and play their 8 frames. Trees with
-their own authored frame animation (the autumn tree) keep it and only get
-`randomizeStart`.
-It is idempotent. Re-run it after anything that regenerates object scenes,
-such as `python scripts/props/generate-wall-prop-scenes.py`.
+Each animated decoration or tree scene has an ambient `AnimationPlayer` (clip `idle`, random start)
+on its `Visual` sprite; trees on the sway sheets play their 8 frames, and trees with their own
+authored frame animation (the autumn tree) keep it. The players were wired in the Phaser scene JSON
+by a script and converted with the scenes; a new animated object gets its player in the Godot editor
+(copy one from a similar scene in `godot/game/scenes/objects/`).
 
 ## Water
 
-Water itself animates in a shader (`features/world/WaterSurfaceLayer.ts`, see
-[Terrain Transitions](../TERRAIN_TRANSITIONS.md)). Wildlife sits on top as
+Water itself animates in a shader (`godot/game/world/water_surface.gdshader`;
+shores: [terrain edges](../godot/TERRAIN_LAB.md)). Wildlife sits on top as
 ordinary object scenes, `object.water-life.*`:
 
 | Where | What | Depth |
@@ -99,12 +104,9 @@ these objects collide, so they never catch the Stretch Lash hook or block a
 teleport.
 
 - `python scripts/art/build-water-life-sheets.py` packs the five sheets in
-  `asset/MAPS/water/` from `asset/Originals/water/generated/`.
-- `node scripts/props/generate-water-life-scenes.mjs [--write]` writes the
-  object scenes (paths, timing, tint and depth live in its catalog).
-- `node scripts/maps/scatter-water-life.mjs <world-id>... [--write]` places them
-  under a `water-life` node: fish only where their whole path stays over water,
-  a big shadow only where its path is deep, and nothing near bridges. Re-running
-  replaces the previous water life. It currently runs on level-1, emberleef, jk,
-  174, crystal-caverns, gloop-forest and hot (not the playground). Afterwards run
-  `pnpm audio:wire` and `pnpm assets:worlds`.
+  `godot/asset/MAPS/water/` from `asset/Originals/water/generated/`.
+- The object scenes (`godot/game/scenes/objects/water-life--*.tscn`) and their placement under each
+  world's `water-life` node (level-1, emberleef, jk, 174, crystal-caverns, gloop-forest and hot:
+  fish only where their whole path stays over water, a big shadow only where its path is deep,
+  nothing near bridges) were generated by Phaser-era scripts and converted; new water life is
+  placed in the Godot editor.

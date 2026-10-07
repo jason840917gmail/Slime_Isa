@@ -27,12 +27,17 @@
     "enemy.worm-death": "library",
     "enemy.worm-hurt": "library",
     "enemy.worm-windup": "library",
+    "footstep.cave": "library",
+    "footstep.crystal": "library",
     "footstep.forest": "library",
     "footstep.grass": "library",
+    "footstep.leaves": "library",
     "footstep.sand": "library",
     "footstep.snow": "library",
+    "footstep.soft": "library",
     "footstep.stone": "library",
     "footstep.water": "library",
+    "footstep.wood": "library",
     "pickup.berry": "synth",
     "pickup.generic": "library",
     "pickup.inventory-full": "synth",
@@ -43,24 +48,35 @@
     "pickup.stone": "library",
     "pickup.wood": "library",
     "player.ability-learned": "synth",
+    "player.burp": "library",
     "player.coin": "library",
     "player.death": "synth",
     "player.dodge": "synth",
     "player.eat": "library",
     "player.energy-restore": "library",
+    "player.fall": "library",
+    "player.gulp-transform-frog": "library",
+    "player.gulp-transform-heavy": "library",
+    "player.gulp-transform-sticky": "library",
+    "player.gulp-wear-off": "library",
     "player.heal": "synth",
     "player.hurt": "library",
     "player.jump": "synth",
     "player.land": "library",
     "player.lash": "synth",
+    "player.lash-catch": "library",
     "player.potion-drink": "synth",
     "player.respawn": "synth",
     "player.rested": "synth",
     "player.slam-impact": "synth",
     "player.slam-windup": "library",
     "player.sleep-breath": "library",
+    "player.swim-enter": "library",
+    "player.swim-stroke": "library",
     "player.teleport-in": "library",
     "player.teleport-out": "library",
+    "player.water-enter": "library",
+    "player.water-exit": "library",
     "player.web-struggle": "library",
     "resource.drop-land": "synth",
     "resource.drop-pop": "synth",
@@ -94,6 +110,7 @@
     "ui.quest-complete": "synth",
     "ui.quest-failed": "library",
     "ui.quest-progress": "library",
+    "ui.talk-blip": "library",
     "ui.toast": "library",
     "weapon.chop-wood": "library",
     "weapon.combo-1": "synth",
@@ -124,13 +141,19 @@
     "world.chest-close": "library",
     "world.chest-locked": "library",
     "world.chest-open": "library",
+    "world.door": "library",
+    "world.dummy-hit": "library",
     "world.gate-locked": "library",
+    "world.gate-open": "library",
     "world.gate-unlock": "library",
     "world.grindstone-loop": "synth",
+    "world.ground-creak": "library",
     "world.interact": "library",
     "world.interior-ambience": "synth",
     "world.meadow-ambience": "synth",
     "world.npc-blip": "library",
+    "world.plate-press": "library",
+    "world.plate-release": "library",
     "world.restore-building": "library",
     "world.save": "library"
   },
@@ -160,13 +183,41 @@
     "decidedAt": "2026-09-30T15:54:44.347Z",
     "note": "Owner kept the new Magnific takes for all 20 replaced cues. Takes dropped (1-based, asset/Originals/audio/magnific/<category>-<cue>-<n>.wav); each cue ships its first kept takes, except pickup.stone, which ships take 2 because take 1 is a faint 40 ms tick.",
     "dropped": {
-      "boss.fatty-death": [2, 3],
-      "boss.fatty-land": [2, 3],
-      "boss.fatty-recover": [1, 2],
-      "enemy.arrow-hit": [1, 2],
-      "enemy.bow-draw": [2, 3],
-      "footstep.stone": [3],
-      "player.sleep-breath": [2, 3]
+      "boss.fatty-death": [
+        2,
+        3
+      ],
+      "boss.fatty-land": [
+        2,
+        3
+      ],
+      "boss.fatty-recover": [
+        1,
+        2
+      ],
+      "enemy.arrow-hit": [
+        1,
+        2
+      ],
+      "enemy.bow-draw": [
+        2,
+        3
+      ],
+      "footstep.stone": [
+        3
+      ],
+      "player.sleep-breath": [
+        2,
+        3
+      ]
     }
+  },
+  "round3": {
+    "decidedAt": "2026-10-06T18:24:50.974Z",
+    "note": "Sound Picker round 3: picks, dropped takes and wishes in scripts/audio/picker/round-3-picks.json; shipped takes are asset/Originals/audio/magnific/<category>-<cue>-r3-<n>.wav. player.lash-miss stays silent; player.gulp-transform became one cue per form (round 4)."
+  },
+  "round4": {
+    "decidedAt": "2026-10-06T18:36:02.547Z",
+    "note": "Sound Picker round 4: option A for each form (the Frog's is round 3's Bubbly pop take 3, as the owner named it); Heavy take 1 dropped. Record: scripts/audio/picker/round-4-picks.json; takes asset/Originals/audio/magnific/player-gulp-transform-<form>-r4-<n>.wav."
   }
 }

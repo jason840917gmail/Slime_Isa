@@ -1,0 +1,101 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/story_variant.gd" id="1"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/Houses/256-forge-2x1.webp" id="2"]
+[ext_resource type="Script" path="res://game/scripts/restoration_site.gd" id="3"]
+[ext_resource type="Script" path="res://game/scripts/workbench.gd" id="4"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="5"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/campfire-loop.wav" id="6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/anvil-loop.wav" id="7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(140, 44)
+
+[node name="forge" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -26)
+
+[node name="StoryVariantScript" type="Node" parent="." node_paths=PackedStringArray("when_set", "when_unset")]
+script = ExtResource("1")
+flag_id = "forge.restored"
+when_set = NodePath("../Restored")
+when_unset = NodePath("../Ruined")
+
+[node name="Ruined" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="Ruined"]
+position = Vector2(0, -3)
+texture = ExtResource("2")
+centered = false
+offset = Vector2(-128, -253)
+hframes = 2
+
+[node name="RestorationSite" type="Node2D" parent="Ruined"]
+y_sort_enabled = true
+
+[node name="RestorationSiteScript" type="Node" parent="Ruined/RestorationSite"]
+script = ExtResource("3")
+prompt = "Restore the Forge (40 stone, 20 wood, 6 iron ore)"
+flag_id = "forge.restored"
+object_id = "forge"
+quest_id = "rekindle-the-forge"
+cost = {
+"stone": 40,
+"wood": 20,
+"iron-ore": 6
+}
+locked_message = "The Forge has gone cold. Pip, the smith's son, wants it lit again."
+restored_message = "The Forge burns again!"
+interact_radius = 130.0
+badge_rise = 130.0
+
+[node name="Restored" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="Restored"]
+position = Vector2(0, -3)
+texture = ExtResource("2")
+centered = false
+offset = Vector2(-128, -253)
+hframes = 2
+frame = 1
+
+[node name="Station" type="Node2D" parent="Restored"]
+y_sort_enabled = true
+
+[node name="WorkbenchScript" type="Node" parent="Restored/Station"]
+script = ExtResource("4")
+prompt = "Use the Forge"
+recipe_context = "forge"
+tier = 1
+interact_radius = 130.0
+badge_rise = 130.0
+
+[node name="FireLoop" type="AudioStreamPlayer2D" parent="Restored"]
+script = ExtResource("5")
+process_mode = 3
+stream = ExtResource("6")
+volume_db = -5.1927
+max_polyphony = 1
+bus = &"Ambience"
+max_distance = 420.0
+loop = true
+autoplay_cue = true
+pan_distance = 400.0
+
+[node name="AnvilLoop" type="AudioStreamPlayer2D" parent="Restored"]
+script = ExtResource("5")
+process_mode = 3
+stream = ExtResource("7")
+volume_db = -7.9588
+max_polyphony = 1
+bus = &"Ambience"
+max_distance = 420.0
+loop = true
+autoplay_cue = true
+pan_distance = 400.0

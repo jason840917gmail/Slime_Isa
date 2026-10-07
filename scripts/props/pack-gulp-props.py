@@ -16,8 +16,8 @@ Frame 5: goo-heart       (collectible: +max HP for the run)
 Frame 6: plate-up        (pressure plate, raised)
 Frame 7: plate-down      (pressure plate, held down: its rune glows)
 
-Form icons (asset/UI/ui-gulp-form-icons-2x1.webp, sources in asset/Originals/ui/gulp/):
-Frame 0: heavy, frame 1: sticky (the Gulp HUD timer and the quick wheel).
+Form icons (godot/asset/UI/ui-gulp-form-icons-3x1.webp, sources in asset/Originals/ui/gulp/):
+Frame 0: heavy, frame 1: sticky, frame 2: frog (the Gulp HUD timer and the quick wheel).
 
 Usage: python scripts/props/pack-gulp-props.py
 """
@@ -34,11 +34,11 @@ from game_webp import save_game_webp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "asset" / "Originals" / "props" / "gulp"
-OUTPUT = ROOT / "asset" / "MAPS" / "props" / "256x256-tile_8x1-gulp-props.webp"
+OUTPUT = ROOT / "godot" / "asset" / "MAPS" / "props" / "256x256-tile_8x1-gulp-props.webp"
 ICON_SOURCES = ROOT / "asset" / "Originals" / "ui" / "gulp"
-ICON_OUTPUT = ROOT / "asset" / "UI" / "ui-gulp-form-icons-2x1.webp"
+ICON_OUTPUT = ROOT / "godot" / "asset" / "UI" / "ui-gulp-form-icons-3x1.webp"
 ICON_SIZE = 128
-ICON_STEMS = ["form-heavy", "form-sticky"]
+ICON_STEMS = ["form-heavy", "form-sticky", "form-frog"]
 # Later generations carry faint alpha noise around the art; below this it is cleared.
 NOISE_ALPHA = 12
 

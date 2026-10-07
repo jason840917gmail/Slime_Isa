@@ -14,7 +14,7 @@ tiles (Magnific GPT-2) mapped once per frame, so they never seam inside one.
 
 Sources: asset/Originals/characters/slime_normalized.png (the lossless player
 sheet) and asset/Originals/characters/gulp-forms/{stone,silk}-texture.png.
-Output: asset/characters/slime-form-{heavy,sticky}.webp.
+Output: godot/asset/characters/slime-form-{heavy,sticky}.webp.
 
 Usage: python scripts/characters/build-gulp-form-skins.py
 """
@@ -79,7 +79,7 @@ def main() -> None:
         out_rgb = rgb * (1 - weight * blend) + material * weight * blend
         out = np.concatenate([out_rgb, alpha[..., None]], axis=-1)
         image = Image.fromarray(np.round(out * 255).astype(np.uint8), 'RGBA')
-        target = ROOT / 'asset' / 'characters' / f'slime-form-{form}.webp'
+        target = ROOT / 'godot' / 'asset' / 'characters' / f'slime-form-{form}.webp'
         kind = save_game_webp(image, target)
         print(f'wrote {target.relative_to(ROOT)} ({kind})')
 

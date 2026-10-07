@@ -1,11 +1,12 @@
 # Credits And Licenses
 
 Everything Slime Isa ships that someone else made, or that a tool generated,
-and what the in-game credits screen (`src/game/content/credits/credits.json`,
+and what the in-game credits screen (`godot/game/shell/credits_menu.gd`,
 roadmap 4.7) must say about it. Roadmap task: 10.3.
 
-Status: first draft, 2026-09-30. The origin of each image family was traced
-from `asset/assets.json` notes, the sources in `asset/Originals/` (most still
+Status: first draft, 2026-09-30; engine and fonts updated for the Godot build on 2026-10-05.
+The origin of each image family was traced from the Phaser asset manifest's notes (retired at the
+cutover), the sources in `asset/Originals/` (most still
 carry C2PA "Content Credentials" metadata naming the generator) and git
 history. The older art with no recorded source was made by the owner with AI
 image tools (confirmed 2026-09-30); those rows say "owner, with AI".
@@ -14,7 +15,8 @@ image tools (confirmed 2026-09-30); those rows say "owner, with AI".
 
 | Must show | Why |
 |---|---|
-| Phaser 3 (MIT), eventemitter3 (MIT, bundled inside Phaser), ajv (MIT) and fast-deep-equal (MIT) | MIT asks for the copyright and permission notice to ship with the game. Only Phaser's `@license` comment survives in `dist/`, so the build also needs a third-party notices file (see [Still to do](#still-to-do)). |
+| Godot Engine (MIT) and the third-party components it bundles | MIT asks for the copyright and permission notice to ship with the game; Godot's own notice and its third-party licences (`Engine.get_license_info()`, `get_copyright_info()`) belong in a notices screen or file (see [Still to do](#still-to-do)). |
+| Source Sans 3 and Noto Sans Symbols 2 (SIL OFL 1.1) | The UI fonts; OFL asks for the licence to ship with the font (`OFL.txt` beside each font in `godot/game/ui/theme/fonts/`). |
 | "Art made by the Slime Isa team with AI image tools (ChatGPT, Magnific and others)" | Honest disclosure of AI-generated art: part was made in the ChatGPT app, part with Magnific, and the older art by the owner with AI tools. |
 | "Sound effects generated with Magnific (ElevenLabs), made for Slime Isa" | 35 generated takes ship across 22 cues (the 20 replaced sounds, the Workshop restoration, the bell). This line was missing. |
 
@@ -22,27 +24,29 @@ Credit that is not required but kept, because the authors ask for it kindly:
 the CC0 audio packs (Kenney, rubberduck, artisticdude) and the CC0 music
 (Juhani Junkala).
 
-Not needed on the screen: TypeScript, Vite, esbuild and Playwright are build
-and test tools; none of their code ships in the game.
+Not needed on the screen: Python, Pillow, numpy, Node and Playwright are art and test tools;
+none of their code ships in the game. The Phaser build (until 2026-10-05) shipped Phaser 3,
+eventemitter3, ajv and fast-deep-equal (all MIT); the Godot build ships none of them.
 
 ## Code shipped in the build
 
-| Package | Version | License | How it ships |
+| Component | Version | License | How it ships |
 |---|---|---|---|
-| phaser | 3.90.0 | MIT | the `phaser-*.js` vendor chunk |
-| eventemitter3 | 5.0.4 | MIT | bundled inside Phaser's ESM build |
-| ajv | 8.20.0 | MIT | only `ajv/dist/runtime/equal.js`, used by the generated game-constants validator |
-| fast-deep-equal | 3.1.3 | MIT | wrapped by that ajv runtime file |
+| Godot Engine | 4.7.2 | MIT | the web export's engine (`index.wasm`, `index.js`) |
+| Godot's bundled third-party libraries (FreeType, HarfBuzz, ...) | with the engine | various permissive (listed by `Engine.get_license_info()`) | inside the engine |
 
 ## Fonts
 
-None ship. The game uses system font stacks only (Trebuchet MS, Segoe UI
-Variable, Aptos, Bahnschrift, Palatino Linotype, Georgia, Arial, Courier New
-and monospace for the debug overlay); there are no web fonts or font files.
+| Font | Author | License | Where |
+|---|---|---|---|
+| Source Sans 3 (variable) | Adobe | SIL OFL 1.1 (Reserved Font Name "Source": shipped unmodified) | `godot/game/ui/theme/fonts/source-sans-3/` |
+| Noto Sans Symbols 2 | The Noto Project Authors | SIL OFL 1.1 (no Reserved Font Name; line metrics fitted by `scripts/godot/fit-symbol-font-metrics.py`) | `godot/game/ui/theme/fonts/noto-sans-symbols-2/` |
+
+The debug FPS readout uses system monospace fonts (never bundled).
 
 ## Audio
 
-Details and re-import steps: [asset/audio/CREDITS.md](../asset/audio/CREDITS.md).
+Details and re-import steps: [godot/asset/audio/CREDITS.md](../godot/asset/audio/CREDITS.md).
 Which flavour each cue ships is in `scripts/audio/picks.json`.
 
 | What | Author | License | Source |
@@ -52,12 +56,12 @@ Which flavour each cue ships is in `scripts/audio/picks.json`.
 | Swishes Sound Pack | artisticdude | CC0 1.0 | https://opengameart.org/content/swishes-sound-pack |
 | Home Town (JRPG Pack 2: Towns), the Slimeshire music | Juhani Junkala | CC0 1.0 | https://archive.org/details/JuhaniJunkala-JRPGpack2Town |
 | Generated sound effects (22 cues) | Magnific (ElevenLabs sound effects), for Slime Isa | generated | `asset/Originals/audio/magnific/` |
-| Gloop Forest music and ambience | Magnific (ElevenLabs music and sound effects), for Slime Isa | generated | `asset/audio/music/gloop-forest*.mp3` |
+| Gloop Forest music and ambience | Magnific (ElevenLabs music and sound effects), for Slime Isa | generated | `godot/asset/audio/music/gloop-forest*.mp3` |
 | Synthesized effects and ambience (50 cues) | made for Slime Isa | own | `scripts/audio/cues.mjs`, `pnpm audio:bake` |
 
 ## Art
 
-All runtime images are WebP under `asset/` (10.1); their sources stay in
+All runtime images are WebP under `godot/asset/` (10.1); their sources stay in
 `asset/Originals/`. "OpenAI image model" means the source carries OpenAI's
 C2PA metadata ("OpenAI Media Service API … gpt-image"); Magnific calls the same
 API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app.
@@ -82,7 +86,7 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 | Stone-and-oak interiors | `MAPS/interiors/*-interior-{structure,seating,beds,tables,storage,kitchen,workshop,decor,specialty}*` | ChatGPT | C2PA on `Originals/interiors/generated-sheets/interior-0*` |
 | Mushroom-cottage interiors | `MAPS/interiors/*-interior-mushroom-*` | Magnific GPT-2 | manifest notes, C2PA |
 | Decorations (8x3) | `MAPS/decorations/128x128-tile_8x3` | owner, with AI | no source |
-| Ambient decorations (8x5) | `MAPS/decorations/128x128-tile_8x5-decorations-ambient` | built from the 8x3 sheet; fire from a Magnific (Seedance) video | [AMBIENT_ANIMATION.md](./assets/AMBIENT_ANIMATION.md) |
+| Ambient decorations (8x5) | `MAPS/decorations/128x128-tile_8x5-decorations-ambient` | built from the 8x3 sheet; fire from a Magnific (Seedance) video | [AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md) |
 | Gulp props, landmarks, bell post, training dummy, Stretch Lash | `MAPS/props/`, `MAPS/landmarks/`, `MAPS/objects/*lash-bell-post`, `MAPS/objects/*training-dummy`, `MAPS/effects/*stretch-lash` | Magnific GPT-2 (the dummy cut out with Magnific's background removal) | manifest notes, C2PA (the pressure-plate frames have no metadata) |
 | Resource piles (4x2) | `MAPS/resources/128x128-tile_4x2-resource-piles` | owner, with AI | no source |
 | Starter materials | `MAPS/resources/128x128-tile_2x1-starter-materials` | OpenAI image model | inferred from `Originals/weapon/stone_stools and resourses.png` |
@@ -91,7 +95,7 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 | Weapons: hammer and spear, wooden axe, pickaxe, resource and stone impacts | `MAPS/weapons/` | owner, with AI | no source |
 | UI frames and backplates (8 files) | `UI/` | OpenAI image model | C2PA on `Originals/ui/` |
 | UI crafting workbench backplate | `UI/ui-crafting-detail-workbench-backplate` | owner, with AI | no metadata |
-| Logo, game-over art, Gulp form badges | `UI/ui-slime-isa-logo`, `ui-game-over-puddle`, `ui-gulp-form-icons-2x1` | Magnific GPT-2 | manifest notes, roadmap |
+| Logo, game-over art, Gulp form badges | `UI/ui-slime-isa-logo`, `ui-game-over-puddle`, `ui-gulp-form-icons-3x1` | Magnific GPT-2 | manifest notes, roadmap |
 | Grounds (highland, amberleaf, frozen, desert) | `MAPS/grounds/` legacy sheets | probably OpenAI; direct source unverified | the named biome sources carry C2PA, the packed legacy sheets do not |
 | Grounds (forest floor, moss, cavern, crystal, water, cobble) | `MAPS/grounds/` | OpenAI image model; town cobble Magnific GPT-2 | C2PA on `Originals/grounds/generated/`, manifest note |
 
@@ -104,9 +108,10 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 - [ ] Check the terms of use of OpenAI (ChatGPT and API), Magnific and
       ElevenLabs for redistributing generated images and sounds in a free
       web game.
-- [ ] Ship the MIT notices of Phaser, eventemitter3, ajv and fast-deep-equal
-      in the build (a `THIRD_PARTY_NOTICES.txt` next to `index.html`, linked
-      from the credits screen).
+- [ ] Ship Godot's MIT notice and its third-party licences with the build
+      (a notices screen from `Engine.get_license_info()`, or a
+      `THIRD_PARTY_NOTICES.txt` next to the web export, linked from the
+      credits screen).
 - [x] Credits screen: the art line names both ChatGPT and Magnific, the
       generated sound effects have their own line, and the shipped libraries
       are listed (2026-09-30).

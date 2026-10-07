@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/ability_lesson.gd" id="1"]
+
+[node name="ability-lesson" type="Node2D"]
+y_sort_enabled = true
+
+[node name="AbilityLessonScript" type="Node" parent="."]
+script = ExtResource("1")
+ability_ids = []
+radius = 96.0

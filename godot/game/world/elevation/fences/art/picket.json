@@ -1,0 +1,40 @@
+{
+  "style": "picket",
+  "source": "picket-front-a.png",
+  "px_per_unit": 2.0,
+  "post_height": 42.0,
+  "spacing": 64.0,
+  "inset": 10.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      36,
+      89
+    ],
+    "foot_row": 85.88,
+    "half_width": 5.64
+  },
+  "rails": {
+    "size": [
+      132,
+      50
+    ],
+    "top": 31.4,
+    "bottom": 6.17,
+    "rows": [
+      [
+        29.25,
+        6.98
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      14,
+      132
+    ],
+    "top": 31.0,
+    "bottom": 22.54,
+    "offset": 3.0
+  }
+}

@@ -1,0 +1,118 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/rocks/96x96-tile_8x3.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/resource_node.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/ore-clink-1.wav" id="4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/ore-clink-2.wav" id="5"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/ore-clink-3.wav" id="6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-1.wav" id="7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/resource/wrong-tool-2.wav" id="8"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/resource/ore-shatter.wav" id="9"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(42, 16)
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_2"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("5")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("6")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_3"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("7")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("8")
+stream_1/weight = 1.0
+
+[node name="amber-ore" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(1, -29)
+
+[node name="Visual" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-48, -96)
+hframes = 8
+vframes = 3
+
+[node name="DamageArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(1, -29)
+
+[node name="ResourceNodeScript" type="Node" parent="." node_paths=PackedStringArray("damage_area")]
+script = ExtResource("2")
+map_id = "map-template"
+instance_id = "resource-template"
+object_id = "rock.amber-ore.mineable"
+damage_area = NodePath("../DamageArea")
+max_health = 30.0
+tags = Array[String](["rock", "solid", "mineable"])
+drop = {
+"objectId": "collectible.crystal-shard",
+"visualId": "crystal-shard",
+"pieces": 1
+}
+hit_effect_id = ""
+on_hit_animation_id = ""
+persist_health = true
+depletion_message = "Ore depleted"
+harvest_requirement = {}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+
+[node name="ClinkSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_2")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+pan_distance = 400.0
+
+[node name="WrongToolSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_3")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+min_interval_ms = 200.0
+pan_distance = 400.0
+
+[node name="ShatterSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("9")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+
+[connection signal="resource_hit" from="ResourceNodeScript" to="ClinkSfx" method="play_cue"]
+[connection signal="harvest_blocked" from="ResourceNodeScript" to="WrongToolSfx" method="play_cue"]
+[connection signal="drops_requested" from="ResourceNodeScript" to="ShatterSfx" method="play_cue"]

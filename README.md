@@ -1,83 +1,37 @@
 # Slime Isa
 
-An open-world game built with Phaser 3, TypeScript, and Vite. Still early in development.
+A top-down open-world slime adventure built with [Godot 4.7](https://godotengine.org/) (GDScript),
+released first as a web build. Still early in development.
 
-## Stack
+## Run it
 
-- [Phaser 3](https://phaser.io/) — game engine
-- TypeScript + Vite — build tooling
+1. Install Godot **4.7.2** (the standard GDScript build).
+2. Open the `godot/` folder in Godot and press **F5**: the title screen starts.
+3. To try mechanics, open `godot/game/dev/playground.tscn` and press **F6** (every weapon and ability).
 
-## Run locally
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Then open `http://localhost:3000`.
+Web build: export the "Web" preset (`--headless --path godot --export-release "Web" export/web/index.html`)
+and serve `godot/export/web/`.
 
 ## Development
 
-- `pnpm dev` starts Vite on port 3000.
-- `pnpm typecheck` runs strict TypeScript validation (game, Vite config, and browser-test configs).
-- Targeted checks and tests: `pnpm scenes:check`, `pnpm maps:check`, `pnpm assets:check`, `pnpm test:<suite>` (see `package.json`).
-- `pnpm build` type-checks and creates the production build in `dist/`.
-- `pnpm check` runs every check, all Node test suites, the build, and the Playwright browser tests (slow; use before releases or broad commits).
+- `pnpm install` once, then `pnpm test:godot` runs the headless integration tests (`GODOT` points at
+  the Godot 4.7.2 console executable when it is not in the default place).
+- Scenes (`godot/game/scenes/`), game data (`godot/game/data/`) and art (`godot/asset/`) are edited
+  in the Godot project; source art lives in `asset/Originals/`, and the art tools in `scripts/` turn
+  it into runtime sheets ([docs/TOOLING.md](docs/TOOLING.md)).
 
-See [AGENTS.md](AGENTS.md) for the full command list and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for dependency rules, ownership, and persistence. Asset authors start with [docs/assets/README.md](docs/assets/README.md).
+See [AGENTS.md](AGENTS.md) for commands, structure and rules, [docs/godot/](docs/godot/CONVENTIONS.md)
+for how the game is built, and [docs/assets/README.md](docs/assets/README.md) for making art.
 
-Open `http://localhost:3000/?studio=scenes` (dev server only) for Scene Studio, the editor for every authored scene: worlds, characters, weapons, objects, effects, UI, and audio, plus shared resources. It provides a scene tree, inspector, animation timeline, tile painting, undo/redo, and saves straight to `src/game/content/scenes/authored/`. Old editor URLs (including `?editor=<map>`) redirect to it. In development, `http://localhost:3000/?map=<map-id>` starts directly in a world.
+## History
 
-## Android Build And Deploy
-
-The Android version is the separate Godot project in `MobileVersion/`. The paths below are from one developer machine; adjust them to your JDK, Android SDK, Godot, and checkout locations.
-
-Use an Android virtual device with **API 35**. For emulator testing, the debug export includes `x86_64` and `arm64-v8a`.
-
-### Export Debug APK
-
-PowerShell:
-
-```powershell
-$env:JAVA_HOME = "C:\Program Files\Microsoft\jdk-17.0.18.8-hotspot"
-$env:ANDROID_HOME = "C:\Users\User\AppData\Local\Android\Sdk"
-$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
-$env:Path = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\build-tools\35.0.0;$env:Path"
-
-& "C:\Users\User\Downloads\Godot_v4.6.2-stable_win64.exe\Godot_v4.6.2-stable_win64_console.exe" `
-  --headless `
-  --path "D:\projects\Slime isa\MobileVersion" `
-  --export-debug "Android Debug" `
-  "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
-```
-
-APK output:
-
-```text
-MobileVersion/export/android/slime-isa-debug.apk
-```
-
-### Deploy To Virtual Device
-
-Start the Android emulator first, then run:
-
-```powershell
-adb devices
-adb install -r "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
-```
-
-If more than one device is connected, install to a specific emulator:
-
-```powershell
-adb -s emulator-5554 install -r "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
-```
-
-### Verify APK Signature
-
-```powershell
-& "C:\Users\User\AppData\Local\Android\Sdk\build-tools\35.0.0\apksigner.bat" verify --verbose "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
-```
+The game began as a Phaser 3 + TypeScript + Vite app with its own scene editor (Scene Studio). It
+moved to Godot in October 2026 ([docs/GODOT_MIGRATION.md](docs/GODOT_MIGRATION.md)); the Phaser app
+was removed at the cutover, and its docs are kept in [docs/archive/phaser/](docs/archive/phaser/).
+Android will be an export preset of the Godot project after Release 1.
 
 ## Status
 
-Work in progress. Playable today: the Slimeshire Meadow level-1 world and several other areas, combat with a six-slot weapon hotbar, enemies and bosses, harvesting, crafting, quests and NPCs, house interiors, named saves, and sound effects. Gameplay tuning and visual polish are ongoing, and there is no CI.
+Work in progress. Playable today: the Slimeshire Meadow level-1 world and several other areas, combat
+with a weapon belt, enemies and bosses, harvesting, crafting, quests and NPCs, house interiors, named
+saves, music and sound effects. Gameplay tuning and visual polish are ongoing, and there is no CI.

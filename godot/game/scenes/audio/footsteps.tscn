@@ -1,0 +1,367 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/audio/footsteps.gd" id="1"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="2"]
+
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/grass-1.wav" id="sfx_9d7910cc"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/grass-2.wav" id="sfx_dad96a1c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/forest-1.wav" id="sfx_9f6b7d17"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/forest-2.wav" id="sfx_d8cb07c7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/leaves-1.wav" id="sfx_b1548f8f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/leaves-2.wav" id="sfx_f6f4f55f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/leaves-3.wav" id="sfx_cb94dcef"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/sand-1.wav" id="sfx_03948dfd"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/sand-2.wav" id="sfx_4434f72d"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/sand-3.wav" id="sfx_7954de9d"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/snow-1.wav" id="sfx_46b1c4e1"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/snow-2.wav" id="sfx_0111be31"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stone-1.wav" id="sfx_a53a815e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stone-2.wav" id="sfx_e29afb8e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stone-3.wav" id="sfx_dffad23e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stone-4.wav" id="sfx_6dda0e2e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/cave-1.wav" id="sfx_2d132d3f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/cave-2.wav" id="sfx_6ab357ef"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/cave-3.wav" id="sfx_57d37e5f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/crystal-1.wav" id="sfx_e1ee0950"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/crystal-2.wav" id="sfx_a64e7380"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/wood-1.wav" id="sfx_0e17f68b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/wood-2.wav" id="sfx_49b78c5b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/wood-3.wav" id="sfx_74d7a5eb"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/wood-4.wav" id="sfx_c6f779fb"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/soft-1.wav" id="sfx_7f6dd114"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/soft-2.wav" id="sfx_38cdabc4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/soft-3.wav" id="sfx_05ad8274"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/soft-4.wav" id="sfx_b78d5e64"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/water-1.wav" id="sfx_05e2daca"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/water-2.wav" id="sfx_4242a01a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/water-3.wav" id="sfx_7f2289aa"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/water-4.wav" id="sfx_cd0255ba"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/water-enter-1.wav" id="sfx_994c519b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/water-enter-2.wav" id="sfx_deec2b4b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/water-enter-3.wav" id="sfx_e38c02fb"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/water-exit-1.wav" id="sfx_1f337b6f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/water-exit-2.wav" id="sfx_589301bf"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/water-exit-3.wav" id="sfx_65f3280f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-1.wav" id="sfx_2e1ef64e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-2.wav" id="sfx_69be8c9e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-3.wav" id="sfx_54dea52e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-stroke-1.wav" id="sfx_e4fbafbe"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-stroke-2.wav" id="sfx_a35bd56e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-stroke-3.wav" id="sfx_9e3bfcde"]
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_grass_Grass"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_9d7910cc")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_dad96a1c")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_forest_Forest"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_9f6b7d17")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_d8cb07c7")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_leaves_Leaves"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_b1548f8f")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_f6f4f55f")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_cb94dcef")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_sand_Sand"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_03948dfd")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_4434f72d")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_7954de9d")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_snow_Snow"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_46b1c4e1")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_0111be31")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_stone_Stone"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_a53a815e")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_e29afb8e")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_dffad23e")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_6dda0e2e")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_cave_Cave"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_2d132d3f")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_6ab357ef")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_57d37e5f")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_crystal_Crystal"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_e1ee0950")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_a64e7380")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_wood_Wood"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_0e17f68b")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_49b78c5b")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_74d7a5eb")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_c6f779fb")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_soft_Soft"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_7f6dd114")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_38cdabc4")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_05ad8274")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_b78d5e64")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_water_Shallow"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_05e2daca")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_4242a01a")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_7f2289aa")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_cd0255ba")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_water_enter_WaterEnter"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_994c519b")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_deec2b4b")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_e38c02fb")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_water_exit_WaterExit"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_1f337b6f")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_589301bf")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_65f3280f")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_swim_enter_SwimEnter"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_2e1ef64e")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_69be8c9e")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_54dea52e")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_swim_stroke_Swim"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_e4fbafbe")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_a35bd56e")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_9e3bfcde")
+stream_2/weight = 1.0
+
+[node name="Footsteps" type="Node"]
+script = ExtResource("1")
+[node name="Grass" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_grass_Grass")
+volume_db = -19.44
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Forest" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_forest_Forest")
+volume_db = -8.07
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Leaves" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_leaves_Leaves")
+volume_db = -10.38
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Sand" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_sand_Sand")
+volume_db = -13.15
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Snow" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_snow_Snow")
+volume_db = -9.61
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Stone" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_stone_Stone")
+volume_db = -5.74
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Cave" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_cave_Cave")
+volume_db = -9.27
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Crystal" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_crystal_Crystal")
+volume_db = -8.88
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Wood" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_wood_Wood")
+volume_db = -11.36
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Soft" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_soft_Soft")
+volume_db = -19.88
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="Shallow" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_footstep_water_Shallow")
+volume_db = -6.72
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 180.0
+
+[node name="WaterEnter" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_player_water_enter_WaterEnter")
+volume_db = 0.96
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="WaterExit" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_player_water_exit_WaterExit")
+volume_db = -2.73
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SwimEnter" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_player_swim_enter_SwimEnter")
+volume_db = -8.58
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Swim" type="AudioStreamPlayer" parent="."]
+script = ExtResource("2")
+process_mode = 3
+stream = SubResource("Rnd_player_swim_stroke_Swim")
+volume_db = -8.43
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.05
+min_interval_ms = 300.0
+

@@ -1,0 +1,68 @@
+{
+ "cell": 256,
+ "columns": 8,
+ "source_fps": 24,
+ "scale": 0.8087,
+ "rows": {
+  "swim-down": {
+   "row": 0,
+   "first_frame": 0,
+   "fps": 7.38,
+   "loop": true,
+   "loop_start": 22,
+   "loop_length": 26,
+   "source_frames": [
+    22,
+    25,
+    28,
+    32,
+    35,
+    38,
+    42,
+    45
+   ],
+   "loop_score": 0.0244,
+   "touches_cell_edge": false
+  },
+  "swim-up": {
+   "row": 1,
+   "first_frame": 8,
+   "fps": 6.19,
+   "loop": true,
+   "loop_start": 33,
+   "loop_length": 31,
+   "source_frames": [
+    33,
+    37,
+    41,
+    45,
+    49,
+    52,
+    56,
+    60
+   ],
+   "loop_score": 0.0476,
+   "touches_cell_edge": false
+  },
+  "swim-side": {
+   "row": 2,
+   "first_frame": 16,
+   "fps": 6.0,
+   "loop": true,
+   "loop_start": 34,
+   "loop_length": 32,
+   "source_frames": [
+    34,
+    38,
+    42,
+    46,
+    50,
+    54,
+    58,
+    62
+   ],
+   "loop_score": 0.0376,
+   "touches_cell_edge": false
+  }
+ }
+}

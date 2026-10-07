@@ -1,6 +1,6 @@
 # Characters
 
-Built descriptions come from `src/game/content/npcs/NpcDefinitions.ts` and the
+Built descriptions come from `godot/game/data/npc-definitions.json` and the
 quest files. Everything about where a character is going is a Proposal.
 
 ## The hero
@@ -8,7 +8,7 @@ quest files. Everything about where a character is going is a Proposal.
 **The slime.** A newborn from the Wellspring's last drop (Proposal), and a
 silent hero. The townsfolk teach it survival, crafting and combat, while each
 Pearl grants one permanent ability. Its own gift is the Gulp. Its name is Open.
-See [Premise](./02-premise.md#the-slime).
+See [Premise](02-premise.md#the-slime).
 
 ## Slimeshire
 
@@ -97,7 +97,7 @@ villains.
 | **Fatty One Eye** | Slimeshire Meadow | Leaps, and takes damage only in the eye; guards the green key | One of Gorge's eight vassals. Beaten, he releases the Pearl that grants Jump. | Built; story changes Planned |
 | **Orb-Weaver Matron** | Gloop Forest | Web spit, web volley, web patches | One of Gorge's eight vassals. Planned: her three-way Stretch Lash damages, pulls and traps targets without the Silk Armor; her Pearl grants Stretch Lash when she falls. | Built; changes Planned |
 | **Crystal Colossus** | Crystal Caverns | — | Armored and weak to hammers; teaches weapon switching (roadmap). A golem of crystal grown around a Pearl. | Idea |
-| **Gorge** | Volcano Ridge | — | The final boss: the greedy slime who shattered the Wellspring. See [Premise](./02-premise.md). | Proposal |
+| **Gorge** | Volcano Ridge | — | The final boss: the greedy slime who shattered the Wellspring. See [Premise](02-premise.md). | Proposal |
 
 ## Ordinary enemies
 
