@@ -1,0 +1,108 @@
+{
+ "cell": 256,
+ "columns": 8,
+ "source_fps": 24,
+ "scale": 0.8087,
+ "rows": {
+  "full-down": {
+   "row": 0,
+   "first_frame": 0,
+   "fps": 8.0,
+   "loop": true,
+   "loop_start": 9,
+   "loop_length": 72,
+   "source_frames": [
+    9,
+    18,
+    27,
+    36,
+    45,
+    54,
+    63,
+    72
+   ],
+   "loop_score": 0.0908,
+   "touches_cell_edge": false
+  },
+  "full-up": {
+   "row": 1,
+   "first_frame": 8,
+   "fps": 8.0,
+   "loop": true,
+   "loop_start": 7,
+   "loop_length": 72,
+   "source_frames": [
+    7,
+    16,
+    25,
+    34,
+    43,
+    52,
+    61,
+    70
+   ],
+   "loop_score": 0.1468,
+   "touches_cell_edge": false
+  },
+  "full-side": {
+   "row": 2,
+   "first_frame": 16,
+   "fps": 8.0,
+   "loop": true,
+   "loop_start": 63,
+   "loop_length": 24,
+   "source_frames": [
+    63,
+    66,
+    69,
+    72,
+    75,
+    78,
+    81,
+    84
+   ],
+   "loop_score": 0.3715,
+   "touches_cell_edge": false
+  },
+  "ball-down": {
+   "row": 3,
+   "first_frame": 24,
+   "fps": 24.0,
+   "loop": true,
+   "loop_start": 0,
+   "loop_length": 8,
+   "source_frames": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  },
+  "ball-up": {
+   "row": 4,
+   "first_frame": 32,
+   "fps": 24.0,
+   "loop": true,
+   "loop_start": 0,
+   "loop_length": 8,
+   "source_frames": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  }
+ }
+}

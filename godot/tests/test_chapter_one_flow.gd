@@ -17,7 +17,7 @@ const FISHER := "level-1-npc-fisherman-slime"
 const SPIDER_GIVER := "level-1-npc-mossy-scout"
 const PLACE := "a-place-to-work"
 ## The clearing's loose wood piles (10 each).
-const WOOD_PILES := {"level-1-loose-wood-03": Vector2(704.0, 512.0), "level-1-loose-wood-04": Vector2(608.0, 576.0)}
+const WOOD_PILES := {"level-1-loose-wood-03": Vector2(899.0, 311.0), "level-1-loose-wood-04": Vector2(943.25, 348.9)}
 
 
 func test_a_place_to_work_end_to_end(t: TestContext) -> void:
@@ -339,7 +339,7 @@ func test_chapter_one_main_line(t: TestContext) -> void:
 		await t.steps(2)
 	if not await _turn_in_to(t, SPIDER_GIVER, "worm-trouble", dialogue, offer):
 		return
-	t.check(run.has_learned_ability("jump"), "Worm Trouble did not teach the jump")
+	t.check(not run.has_learned_ability("jump"), "Worm Trouble taught the jump (removed 2026-10-08)")
 	# The One-Eyed Guardian: a stone spear, Fatty's camp reports his defeat, then the Verdant Gate.
 	if not await _accept_from(t, ELDER, "the-one-eyed-guardian", dialogue, offer):
 		return
@@ -359,6 +359,7 @@ func test_chapter_one_main_line(t: TestContext) -> void:
 		return not t.main.is_transitioning() and t.world().map_id() == "gloop-forest" and t.player() != null, 3000.0, 6000.0)
 	t.equal(quests.call(&"status", "the-one-eyed-guardian"), "completed", "The One-Eyed Guardian")
 	t.check(run.has_flag("chapter-1-complete"), "chapter-1-complete is not set")
+	t.check(run.has_learned_ability("squash-slam"), "The One-Eyed Guardian did not teach Squash Slam")
 	t.equal(quests.call(&"status", "beyond-the-verdant-gate"), "available", "chapter 2's first quest")
 	var shell := Services.shell()
 	if shell != null and shell.end_card.is_open():

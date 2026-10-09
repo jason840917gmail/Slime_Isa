@@ -131,7 +131,7 @@ origin (§1), `p` the player centre.
 | `world-beds` | `:1097-1125` | out of tree | `bed.interactRadius` (90) | **85** | `world-beds:<runtimeId>` | `bed.prompt` | o + (0, -badgeRise) | o + (0, -24) | [IN] |
 | `quest-npcs` reoffer | `QuestNpcController.ts:152-188` | | 96 | **85** | `quest-npcs:<instanceId>:reoffer` | `Resume quest with <name>` | as above | as above | [OUT] |
 | `managed-chests` | `:891-917` | (no tree check) | **112** (literal) | **80** | `managed-chests:<instanceId>` | see §3.4 | o + (0, -56) | o + (0, -24) | [IN] |
-| `gulp-spots` | `WorldScene.ts:1109-1128` | | spot radius | **60** | `gulp-spots:<round x>:<round y>` | `Gulp the <material>` | none (no badge) | spot | [OUT] |
+| `gulp-spots` (Godot since 2026-10-08: `essences`, "Pick up <essence>", into the bag) | `WorldScene.ts:1109-1128` | | spot radius | **60** | `gulp-spots:<round x>:<round y>` | `Gulp the <material>` | none (no badge) | spot | [OUT] |
 | `quest-npcs` talk | `QuestNpcController.ts:189-209` | | 96 | **50** | `quest-npcs:<instanceId>:talk` | `Talk to <name>` | NPC + (30, -30) | NPC + (0, -24) | [IN] (§2.9) |
 | `placed-furniture` | `:1074-1095` | furniture with its own script | 90 (literal) | **40** | `placed-furniture:<placementId>` | `Pick up` | (x, y - 72) | (x, y - 24) | [OUT] |
 

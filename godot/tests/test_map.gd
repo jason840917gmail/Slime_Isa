@@ -28,8 +28,11 @@ func test_minimap_box_and_level_1_terrain(t: TestContext) -> void:
 	t.equal(Minimap.box_for(Vector2(800.0, 600.0)), Rect2(15.0, 441.0, 144.0, 144.0), "box at 800 x 600")
 	t.equal(Minimap.box_for(Vector2(390.0, 720.0)), Rect2(12.0, 580.0, 128.0, 128.0), "box at 390 x 720 (minimum)")
 	t.equal(Minimap.box_for(Vector2(1920.0, 1080.0)), Rect2(16.0, 884.0, 180.0, 180.0), "box at 1920 x 1080 (maximum)")
-	var viewport := minimap.get_viewport().get_visible_rect().size
-	t.equal(Rect2(minimap.position, minimap.size), Minimap.box_for(viewport), "minimap box for the %s viewport" % viewport)
+	# In the game the minimap is docked in the HUD console (roadmap 4.12): its rect, the frame inside.
+	var console: Node = t.main.get_node(^"Hud").call(&"get_console")
+	var dock: Rect2 = (console.call(&"rects") as Dictionary)["minimap"]
+	t.equal(minimap.dock, dock, "the minimap is docked on the console's minimap rect")
+	t.equal(Rect2(minimap.position, minimap.size), dock.grow(-Minimap.FRAME_OUTSET), "minimap box in the console")
 	t.check(minimap.visible, "the minimap is hidden in level-1")
 	t.check(minimap.get_parent() == map_ui and map_ui.get_parent() == t.main.get_node(^"Hud"), "the minimap is not under the HUD")
 	var frame := minimap.get_node_or_null(^"Frame") as TextureRect
@@ -97,10 +100,11 @@ func test_player_dot_and_view_follow(t: TestContext) -> void:
 		# The dot is read in `_process`; a player still sliding moves a little after it.
 		t.near_vec(minimap.drawn_player(), t.player().get_centre(), 1.0, "player dot after a teleport to %s" % target)
 		t.near_vec(minimap.drawn_player(), target, 40.0, "player dot near the teleport target")
-	# The view: this frame's camera centre ± viewport / (2 · zoom) (read after the camera moved).
+	# The view: this frame's camera centre ± play area / (2 · zoom), the play area being the viewport
+	# above the HUD console (read after the camera moved).
 	await t.tree.process_frame
 	var camera := t.world().camera
-	var view := camera.get_viewport_rect().size / camera.target_zoom
+	var view := (camera.get_viewport_rect().size - Vector2(0.0, camera.bottom_inset)) / camera.target_zoom
 	var drawn := minimap.drawn_view()
 	t.near_vec(drawn.size, view, 0.01, "view size")
 	t.near_vec(drawn.get_center(), camera.center, 0.01, "view centre")

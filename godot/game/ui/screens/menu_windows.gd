@@ -5,11 +5,13 @@ extends Node
 ## crafting window (crafting_screen.gd) and the tab strip (menu_tabs.gd) and adds them to
 ## GameWindows, which holds the pause and Escape.
 ##
-## Menu key (`menu`, E; heard in `_input`, so it works while a window holds the focus): ignored
+## Menu key (`menu`, B; heard in `_input`, so it works while a window holds the focus): ignored
 ## with Ctrl / Alt / Meta, on echo and with no world; with a shell window open nothing happens; an
 ## open tab window (bag, crafting, journal, map) closes; else the bag opens unless the slime is
 ## mid-swing, the game is paused by another window or menu, or a travel runs (it opens while dead,
 ## K15). The pause menu's Inventory button opens the bag (Shell action "inventory").
+## Journal key (`journal`, J; owner, 2026-10-08): the same rules, for the Journal tab: an open
+## Journal closes, another open tab window switches to it, else it opens where the bag could.
 ##
 ## Tabs: Bag and Crafting (the Crafting tab opens the portable site: a station is not reached
 ## back through the tabs, K4); Journal and Map stay disabled until their windows are registered
@@ -77,14 +79,15 @@ func _exit_tree() -> void:
 
 ## The menu key (crafting spec 5.1, 11.7).
 func _input(event: InputEvent) -> void:
-	if not event.is_action_pressed(&"menu") or event.is_echo():
+	var journal := InputMap.has_action(&"journal") and event.is_action_pressed(&"journal")
+	if not (journal or event.is_action_pressed(&"menu")) or event.is_echo():
 		return
 	var modifiers := event as InputEventWithModifiers
 	if modifiers != null and (modifiers.ctrl_pressed or modifiers.alt_pressed or modifiers.meta_pressed):
 		return
 	if get_tree().get_first_node_in_group(MAIN_GROUP) == null:
 		return
-	if toggle_menu():
+	if toggle_journal() if journal else toggle_menu():
 		get_viewport().set_input_as_handled()
 
 
@@ -102,6 +105,28 @@ func toggle_menu() -> bool:
 	if not can_open_menu():
 		return false
 	return open_bag()
+
+
+## The journal key: closes the open Journal, switches another open tab window to it, else opens it
+## when the bag could open. True when it acted.
+func toggle_journal() -> bool:
+	var shell := Services.shell()
+	if shell != null and shell.is_any_open():
+		return false
+	var journal := _tab(&"journal")
+	if journal.is_empty():
+		return false
+	var open_tab := current_tab()
+	if open_tab == &"journal":
+		(journal["close"] as Callable).call()
+		return true
+	if open_tab != &"":
+		switch_tab(&"journal")
+		return true
+	if not can_open_menu():
+		return false
+	(journal["open"] as Callable).call()
+	return bool((journal["is_open"] as Callable).call())
 
 
 ## The menu key may open the bag: a player that is not mid-swing, no other window or menu

@@ -200,6 +200,9 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 	# Playground tests start like a new run: no abilities learned, nothing to gulp (main grants the
 	# playground every ability otherwise; its weapons still come).
 	context.main.set(&"playground_abilities", false)
+	# The ability ceremony pauses the world until a key; tests see the banner instead (a test that
+	# wants the ceremony turns it back on).
+	context.main.set(&"ability_ceremonies", false)
 	root.add_child(context.main)
 	if context.player() == null:
 		context.fail("main.tscn did not register a player")

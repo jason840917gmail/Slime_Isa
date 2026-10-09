@@ -301,10 +301,9 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 	t.near_vec(t.player().get_centre(), Vector2(NOOK_ZONE.x - 10.0, NOOK_ZONE.y + 28.0 + 30.0), 0.5, "set back below the web")
 	# The Sticky form (player.gd, abilities port) tears the web open for good.
 	var gulp: Object = t.player().call(&"get_gulp") if t.player().has_method(&"get_gulp") else null
-	if gulp != null and gulp.has_method(&"eat_material"):
-		Services.run().add_item("silk-clump", 1)
-		gulp.call(&"eat_material", "silk-clump")
-		if t.check(t.player().crosses_webs() and t.player().is_sticky_form(), "eating silk did not give the Sticky form"):
+	if gulp != null and gulp.has_method(&"swallow"):
+		gulp.call(&"swallow", "silk-essence")
+		if t.check(t.player().crosses_webs() and t.player().is_sticky_form(), "swallowing silk did not give the Silk form"):
 			var torn: Array = []
 			web.torn.connect(func(payload: Dictionary) -> void: torn.append(payload))
 			await t.sim_wait(1000.0)
@@ -366,12 +365,11 @@ func test_web_patch_catches_a_slime_and_tears_quietly_for_the_sticky_one(t: Test
 		t.check(t.player().is_movement_suppressed(), "the caught slime can still walk (fallback root)")
 	# The Sticky slime walks through and tears it quietly.
 	var gulp: Object = t.player().call(&"get_gulp") if t.player().has_method(&"get_gulp") else null
-	if gulp == null or not gulp.has_method(&"eat_material"):
-		t.note("player.gd has no Sticky form yet: the tear is untested")
+	if gulp == null or not gulp.has_method(&"swallow"):
+		t.note("player.gd has no Silk form yet: the tear is untested")
 		return
 	await t.sim_wait(1000.0)
-	Services.run().add_item("silk-clump", 1)
-	gulp.call(&"eat_material", "silk-clump")
+	gulp.call(&"swallow", "silk-essence")
 	t.teleport_player(at)
 	await t.steps(2)
 	t.equal((events["torn"] as Array).size(), 1, "tears by the Sticky slime")
@@ -388,13 +386,15 @@ func test_gloop_forest_orb_weavers_spawn_from_their_areas(t: TestContext) -> voi
 	if not t.check(population != null, "main has no enemy_population"):
 		return
 	population.allowed_types = PackedStringArray()
+	# The Clod Stompers' camps (roadmap 8.12, 2026-10-09) are spawn areas too; they spawn stompers.
 	var areas := t.world().areas("enemy-spawn")
-	t.equal(areas.size(), 3, "gloop-forest enemy-spawn areas")
+	t.equal(areas.size(), 5, "gloop-forest enemy-spawn areas")
 	for area: Dictionary in areas:
 		var root := population.spawn_one(area)
 		if not t.check(root != null, "'%s' spawned nothing" % area["id"]):
 			continue
-		t.equal(root.scene_file_path.get_file().get_basename(), "orb-weaver", "type spawned by '%s'" % area["id"])
+		var expected := "clod-stomper" if str(area["id"]).begins_with("gloop-clod-stompers") else "orb-weaver"
+		t.equal(root.scene_file_path.get_file().get_basename(), expected, "type spawned by '%s'" % area["id"])
 	t.equal(population.alive_count(str(areas[0]["id"])), 1, "alive orb weavers in the first area")
 
 

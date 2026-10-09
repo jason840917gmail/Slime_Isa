@@ -1,0 +1,25 @@
+{
+ "round": "round-5",
+ "decidedAt": "2026-10-09T00:00:00.000Z",
+ "source": "Owner in chat, 2026-10-09: \"sound the defaults are ok\" (option A, the in-game default, for every cue)",
+ "note": "",
+ "picks": {
+  "player.gulp-suck": "a",
+  "player.gulp-catch": "a",
+  "player.gulp-spit": "a",
+  "world.break-clay": "a",
+  "world.break-glass": "a",
+  "world.break-wood": "a",
+  "world.break-metal": "a",
+  "world.break-stone": "a",
+  "world.break-soft": "a",
+  "world.break-ice": "a",
+  "player.roll-rev": "a",
+  "player.roll-launch": "a",
+  "player.roll-bonk": "a",
+  "enemy.stomper-slam": "a",
+  "ui.ceremony": "a"
+ },
+ "dropped": {},
+ "wishes": {}
+}

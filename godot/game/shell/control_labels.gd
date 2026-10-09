@@ -61,18 +61,16 @@ static func control_rows() -> Array[PackedStringArray]:
 	# Without the mouse (the keys-only scheme) what aims goes where the slime faces.
 	var keys_only := not ControlScheme.uses_mouse(scheme)
 	var toward := "the way the slime faces" if keys_only else "toward the pointer"
-	var previous := control_label(&"weapon_previous")
-	var next := control_label(&"weapon_next")
 	rows.append_array([
-		PackedStringArray([control_label(&"sprint"), "Hold to run"]),
-		PackedStringArray([control_label(&"jump"), "Jump (learned in the story)"]),
-		PackedStringArray([control_label(&"dodge"), "Dodge roll %s (learned in the story)" % toward]),
+		PackedStringArray([control_label(&"dodge"), "Roll %s: spin up, then dash straight on while held; bonk into walls (learned in the story)" % toward]),
 		PackedStringArray([control_label(&"stretch_lash"), "Stretch Lash %s" % toward]),
 		PackedStringArray([control_label(&"squash_slam"), "Squash Slam"]),
 		PackedStringArray([control_label(&"teleport"), "Teleport %s" % ("as far as it goes the way the slime faces" if keys_only else "to the pointer")]),
-		PackedStringArray([control_label(&"eat"), "Gulp: tap to eat at a Gulp spot or burp a form; hold for the quick wheel"]),
-		PackedStringArray([next if next == previous else "%s / %s" % [previous, next], "Switch between equipped weapons"]),
+		PackedStringArray([control_label(&"eat"), "Hold to suck in an essence or a light thing (a pot, a rock, a pumpkin...); press again to throw it"]),
+		PackedStringArray([control_label(&"swallow"), "Swallow the essence you hold to take its form; with nothing held, spit the form out"]),
+		PackedStringArray([control_labels(&"weapon_next"), "Switch between equipped weapons"]),
 		PackedStringArray([control_label(&"menu"), "Bag, crafting, journal and map"]),
+		PackedStringArray([control_label(&"journal"), "Journal"]),
 		PackedStringArray([control_label(&"map"), "World map"]),
 		PackedStringArray(["%s / %s" % [control_label(&"zoom_in"), control_label(&"zoom_out")], "Zoom in / out"]),
 		PackedStringArray([control_label(&"pause"), "Pause menu, or close the open window"]),
@@ -81,7 +79,7 @@ static func control_rows() -> Array[PackedStringArray]:
 	return rows
 
 
-## The label of an action's main (first) binding, e.g. "Space" for `jump`; "" when unbound.
+## The label of an action's main (first) binding, e.g. "2" for `dodge` (the Roll); "" when unbound.
 static func control_label(action: StringName) -> String:
 	if not InputMap.has_action(action):
 		return ""

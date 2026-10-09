@@ -75,12 +75,83 @@
         "And bring me three of their fangs. They are hard as iron, and I have a use for them."
       ],
       "progress": [
-        "They hang back and spit. Close the gap fast, and dodge when you see them wind up. Their fangs drop where they fall: just walk over them."
+        "They hang back and spit. Close the gap fast, and roll aside when you see them wind up. Their fangs drop where they fall: just walk over them."
       ],
       "complete": [
         "Not bad at all! And three fangs, hard as iron.",
         "Bind them to a stone pick at the workbench and it will bite through iron ore. There is iron in this forest, south-east of the camp.",
         "One more thing. Watch: stretch out a strand of goo, catch something, and pull! Light things come to you. Heavy things pull you to them."
+      ]
+    }
+  },
+  {
+    "id": "tom-in-the-web",
+    "definitionVersion": 2,
+    "title": "Tom in the Web",
+    "description": "Tom went into the spider thicket after silk and never came back. Find him and cut him out of the web.",
+    "category": "mandatory",
+    "prerequisites": [
+      {
+        "kind": "quest-status",
+        "questId": "beyond-the-verdant-gate",
+        "status": "completed"
+      }
+    ],
+    "acquisition": {
+      "kind": "npc",
+      "npcIds": [
+        "level-1-spider-giver"
+      ]
+    },
+    "stages": [
+      {
+        "id": "free-tom",
+        "title": "Wrapped up",
+        "description": "Tom is caught in a web in the spider thicket south-west of the camp. Hit the web with your weapon until it tears, then meet him back at the camp.",
+        "objectives": [
+          {
+            "id": "tear-tom-web",
+            "kind": "activate-object",
+            "label": "Cut Tom out of the web",
+            "target": 1,
+            "objectIds": [
+              "tom-web"
+            ]
+          }
+        ]
+      }
+    ],
+    "completion": {
+      "kind": "npc-turn-in",
+      "npcIds": [
+        "tom"
+      ]
+    },
+    "failurePolicy": {
+      "kind": "permanent"
+    },
+    "abandonmentPolicy": {
+      "kind": "forbidden"
+    },
+    "rewards": {
+      "coins": 20,
+      "abilityIds": [
+        "swallow"
+      ]
+    },
+    "dialogue": {
+      "offer": [
+        "Have you seen Tom? Round fellow, blue, never stops grinning.",
+        "He went into the spider thicket south-west of here to swallow some silk, the fool, and he has not come back.",
+        "The weavers will have him wrapped up by now. Cut him loose with your weapon, but mind the webs on the paths: they catch slimes too."
+      ],
+      "progress": [
+        "The thicket is south-west of the camp. Look for the biggest knot of silk."
+      ],
+      "complete": [
+        "Phew! I thought I'd be a weaver's snack. You pulled me out, so here is how it is done.",
+        "Suck a thing in and hold it. When it is an essence and it feels right, swallow it, and you become what it was made of.",
+        "A stone essence makes you heavy enough to press any plate. The Clod Stompers by the iron hollow are made of the stuff."
       ]
     }
   },
@@ -93,7 +164,7 @@
     "prerequisites": [
       {
         "kind": "quest-status",
-        "questId": "beyond-the-verdant-gate",
+        "questId": "tom-in-the-web",
         "status": "completed"
       }
     ],
@@ -457,9 +528,6 @@
     },
     "rewards": {
       "coins": 100,
-      "abilityIds": [
-        "squash-slam"
-      ],
       "flags": [
         "chapter-2-complete"
       ]

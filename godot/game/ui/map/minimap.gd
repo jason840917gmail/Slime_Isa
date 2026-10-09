@@ -5,7 +5,9 @@ class_name Minimap
 ## (CanvasLayer 10, PROCESS_MODE_ALWAYS); takes no mouse input.
 ##
 ## Box: `size = clamp(short side · 0.24, 128, 180)` at `margin = clamp(short side · 0.025, 12, 16)`
-## from the left and bottom edges, both rounded as Phaser does. Drawn bottom to top:
+## from the left and bottom edges, both rounded as Phaser does; or, docked in the HUD console
+## (`dock`, set by hud.gd from HudConsole.layout; roadmap 4.12), that rect with the frame inside it.
+## Drawn bottom to top:
 ##   this node's `_draw`: the world's ground (MapTerrain: one pixel per tile, scaled once to the map
 ##     area with cubic filtering into one ImageTexture; `terrain_alpha`), the 16 % `#182b46` tint and
 ##     the 1 px `#b9efca` 42 % border;
@@ -36,6 +38,12 @@ const FRAME_OUTSET := 6.0
 const FRAME_TEXTURE := "res://asset/UI/ui-organic-minimap-frame.webp"
 ## [DIFF] The map sits this far inside the box so the frame's vines do not hide the world's edges.
 const MAP_INSET := 12.0
+## Docked in the HUD console (owner, 2026-10-08: no see-through gaps around the map): the map
+## reaches under the frame's vines, and an opaque backing fills the frame's inside and the thin
+## spots of its ring.
+const DOCKED_MAP_INSET := 2.0
+const DOCKED_BACKING := Color("#1f3324")
+const DOCKED_BACKING_RADIUS := 16
 ## `_process` after the WorldCamera's (100): the view rectangle is the frame's own.
 const PROCESS_PRIORITY := 200
 ## Canvas colours (MinimapSurfacePort.ts:64-108).
@@ -66,6 +74,11 @@ const FALLBACK_FRAME_RADIUS := 8
 
 ## The shared markers (set by MapUi before the node enters the tree).
 var markers: MapMarkers
+## The HUD console's minimap rect (canvas units, the frame included); empty = Phaser's corner box.
+var dock: Rect2 = Rect2():
+	set(value):
+		dock = value
+		_layout()
 
 var _frame: TextureRect
 ## The frame art, decoded once per run; `_frame` shows it shrunk to the frame's size with Lanczos
@@ -144,7 +157,8 @@ static func box_for(viewport_size: Vector2) -> Rect2:
 
 ## The map area inside the box (local coordinates).
 func map_rect() -> Rect2:
-	return Rect2(Vector2(MAP_INSET, MAP_INSET), (size - Vector2(MAP_INSET, MAP_INSET) * 2.0).max(Vector2.ONE))
+	var inset := DOCKED_MAP_INSET if dock.has_area() else MAP_INSET
+	return Rect2(Vector2(inset, inset), (size - Vector2(inset, inset) * 2.0).max(Vector2.ONE))
 
 
 ## Local position of a world point (old Phaser space) on the minimap.
@@ -212,10 +226,17 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	var area := map_rect()
+	if dock.has_area():
+		var backing := StyleBoxFlat.new()
+		backing.bg_color = DOCKED_BACKING
+		backing.set_corner_radius_all(DOCKED_BACKING_RADIUS)
+		draw_style_box(backing, Rect2(Vector2.ZERO, size).grow(1.0))
 	if _terrain_texture != null and terrain_alpha > 0.0:
 		draw_texture_rect(_terrain_texture, area, false, Color(1.0, 1.0, 1.0, terrain_alpha))
 	draw_rect(Rect2(Vector2.ZERO, size), TINT_COLOR)
-	draw_rect(Rect2(Vector2(0.5, 0.5), size - Vector2.ONE), BORDER_COLOR, false, 1.0)
+	# Docked, the frame alone edges the map (the square border would show past its round corners).
+	if not dock.has_area():
+		draw_rect(Rect2(Vector2(0.5, 0.5), size - Vector2.ONE), BORDER_COLOR, false, 1.0)
 	if _frame.texture == null:
 		var pad := clampf(size.x * 0.033, 4.0, 6.0)
 		var box := StyleBoxFlat.new()
@@ -279,7 +300,7 @@ func _build() -> void:
 func _layout() -> void:
 	if not is_inside_tree():
 		return
-	var box := box_for(get_viewport().get_visible_rect().size)
+	var box := dock.grow(-FRAME_OUTSET) if dock.has_area() else box_for(get_viewport().get_visible_rect().size)
 	position = box.position
 	size = box.size
 	_shrink_frame(Vector2i(box.size + Vector2(FRAME_OUTSET, FRAME_OUTSET) * 2.0))
@@ -323,13 +344,15 @@ func _player_point() -> Vector2:
 	return world.player.get_centre()
 
 
-## The camera's view in world pixels: `center ± viewport / (2 · zoom)`, the camera without its shake.
+## The camera's view in world pixels: `center ± play area / (2 · zoom)`, the camera without its
+## shake (the play area: the viewport above the HUD console's `bottom_inset`).
 func _view_rect() -> Rect2:
 	var world := Services.world()
 	var camera: WorldCamera = world.camera if world != null else null
 	if camera == null or not is_instance_valid(camera) or not camera.is_inside_tree():
 		return Rect2()
-	var view := camera.get_viewport_rect().size / maxf(camera.target_zoom, 0.000001)
+	var play := camera.get_viewport_rect().size - Vector2(0.0, camera.bottom_inset)
+	var view := play / maxf(camera.target_zoom, 0.000001)
 	return Rect2(camera.center - view * 0.5, view)
 
 

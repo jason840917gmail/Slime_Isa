@@ -35,6 +35,13 @@ cell's sheet-wrap frame).
 ground layer with four TileMapLayers on a **dual grid**: half a cell up and left, so each of their
 cells covers the corner shared by four ground cells.
 
+**In the editor** (since 2026-10-08): every world's `ground` layer carries
+`game/world/world_ground.gd`, which mounts the water surface and the edges in the editor too and
+rebuilds them as you paint, so a world looks as it does in the game. The mounted nodes have no
+owner and are never saved; in the game the script does nothing. A new world's ground needs the
+script (select `ground`, Inspector → Script → Load). The lab's ground (`terrain_lab_ground.gd`)
+extends it and also mounts in the game, since the lab has no WorldService.
+
 1. Each ground cell's **ground** comes from its tile id (`TerrainMaterials.TILE_GROUNDS`: the
    authored tile set's transition material; `water` and `deep-water` are one water ground).
 2. Grounds **stack** in `TerrainMaterials.ORDER`, bottom to top: water < cavern floor < forest
@@ -133,7 +140,7 @@ sheets the tiles only decide where each ground shows and where its rim is.
    - cuts the 16 tiles (convex corners and straight sides from the island, inner corners from the
      hole, diagonals from two corners), picks straight windows whose ends match, and blends every
      tile's border strips to a shared join, so any two tiles that can touch match exactly;
-   - writes `godot/game/world/terrain_edges/art/<ground>-edges.png` (528 px with 2 px gutters) and
+   - writes `godot/asset/MAPS/terrain-edges/<ground>-edges.png` (528 px with 2 px gutters) and
      `<ground>-edges-rim.png`.
 3. Let the editor import them (edge sheets lossless, `compress/mode=0`), add the ground to
    `TerrainMaterials` (`ORDER`, `TILE_GROUNDS`) and run `pnpm test:godot --filter=terrain_edges`.
@@ -161,9 +168,10 @@ The 2026-10-05 sets (9 grounds) used about 4,000 Magnific credits.
 |---|---|
 | `scripts/art/build-terrain-edge-tiles.py` | Art tool: 16 edge tiles + rim weights per ground |
 | `asset/Originals/grounds/generated/terrain-edges/` | Generated islands and holes (and padded upscales) |
-| `godot/game/world/terrain_edges/art/` | Tool output (+ `.import`: edge sheets lossless) |
+| `godot/asset/MAPS/terrain-edges/` | Tool output (+ `.import`: edge sheets lossless) |
 | `godot/game/world/terrain_edges/terrain_edges.gd` | `TerrainEdges`: the dual-grid tile picker (`@tool`) |
 | `godot/game/world/terrain_edges/terrain_materials.gd` | Grounds, their stacking order and art paths |
+| `godot/game/world/world_ground.gd` | The script on every world's ground layer: mounts the water and the edges in the editor (`@tool`) |
 | `godot/game/world/terrain_edges/terrain_edge.gdshader`, `terrain_edge_water.gdshader` | Land edges and the water fill |
 | `godot/game/world/water_surface.gdshaderinc` | The water maths shared by the surface and the shores |
 | `godot/tools/build_terrain_lab.gd` | Builds the lab scene |

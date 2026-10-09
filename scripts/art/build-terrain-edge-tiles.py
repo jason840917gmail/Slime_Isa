@@ -12,7 +12,7 @@ Inputs (asset/Originals/grounds/generated/terrain-edges/):
   Optional, with --grounds-2x: <ground>-2x-padded-upscale.jpg, a Magnific 2x upscale of the
   ground sheet padded by 152 px of wrapped content (1520 px in, 3040 px out).
 
-Outputs (derived; re-run the tool instead of editing them), in godot/game/world/terrain_edges/art/:
+Outputs (derived; re-run the tool instead of editing them), in godot/asset/MAPS/terrain-edges/:
   <ground>-edges.png
       16 corner tiles. alpha = where this ground covers, rgb = its painted rim. Tile index =
       TL + 2*TR + 4*BL + 8*BR (1 = that corner's cell is this ground), at (index % 4,
@@ -43,7 +43,7 @@ from PIL import Image, ImageDraw, ImageFilter
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "asset/Originals/grounds/generated/terrain-edges"
 GROUND_SHEETS = ROOT / "godot/asset/MAPS/grounds"
-OUT = ROOT / "godot/game/world/terrain_edges/art"
+OUT = ROOT / "godot/asset/MAPS/terrain-edges"
 
 ## ground (the authored tile set's transition material) -> its 64 px sheet's file stem
 MATERIALS = {

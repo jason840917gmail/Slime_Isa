@@ -1,8 +1,8 @@
 extends RefCounted
 ## Resource nodes, drops, collectibles and the inventory (docs/godot/specs/world-objects.md 12.9).
 ## level-1 objects: `level-1-tree-004` (grove tree, 40 HP, base (527.25, 1254.95)),
-## `level-1-stone-node-01` (80 HP, (1056, 352)), `level-1-loose-wood-04` (wood pile of 10 at
-## (608, 576)), `level-1-purple-berry-03` ((550.4, 1363.2)). Router-level hits use a stand-in
+## `level-1-stone-node-01` (80 HP, (1042, 258)), `level-1-loose-wood-04` (wood pile of 10 at
+## (943.25, 348.9)), `level-1-purple-berry-03` ((550.4, 1363.2)). Router-level hits use a stand-in
 ## activation (one per hit) so the damage is exact: a stone axe does 14 (base 12 x 1.2).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
@@ -16,7 +16,7 @@ const TREE := "level-1-tree-004"
 const TREE_BASE := Vector2(527.25, 1254.95)
 const STONE := "level-1-stone-node-01"
 const WOOD_PILE := "level-1-loose-wood-04"
-const WOOD_PILE_AT := Vector2(608.0, 576.0)
+const WOOD_PILE_AT := Vector2(943.25, 348.9)
 const BERRY := "level-1-purple-berry-03"
 const BERRY_AT := Vector2(550.4, 1363.2)
 ## Player pickup rect centre = old Phaser centre + (0, 14.56) (player_slime.tscn PickupShape).

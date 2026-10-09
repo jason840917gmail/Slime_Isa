@@ -38,12 +38,19 @@ through:
   (`character.player.gooHeart.maxHpBonus`, 10 each), hidden in secrets and
   dropped by bosses. Exploration pays off in strength. Each heart has a unique
   ID and can be taken once per run.
-- **Story-unlocked abilities:** quests and bosses teach abilities (Jump, Squash
-  Slam, Stretch Lash, Teleport, and later ones), the same way they teach
-  recipes. The Stretch Lash is a hook, not a weapon: light things come to the
-  slime, heavy things pull the slime to them. Chapter 1's Worm Trouble teaches Jump; a locked ability says on the
-  ability bar how it is earned.
-- **Gulp forms:** temporary forms that change how the slime plays (see below).
+- **Story-unlocked abilities:** quests and bosses teach abilities (Squash Slam,
+  Stretch Lash, Teleport, and later ones; the jump was removed on 2026-10-08),
+  the same way they teach recipes. The Stretch Lash is a hook, not a weapon:
+  light things come to the slime, heavy things pull the slime to them. Chapter
+  1's The One-Eyed Guardian teaches Squash Slam (Fatty One Eye's Pearl will,
+  once it exists); a locked ability says on the ability bar how it is earned.
+  Learning an ability is a moment of its own, the ability ceremony (built
+  2026-10-09, roadmap 4.13): the world dims around the slime, a goo bubble
+  with the ability's icon rises out of it, a card says what the ability does
+  and its key, and the slime gulps the bubble back down. Items get their
+  ceremony later.
+- **Gulp forms:** forms taken by swallowing essences, which are found and spent
+  (see below).
 
 Enemies are worth fighting for their drops, which gate recipes, and for access
 to places, never for XP. Each region's difficulty is tuned to the gear a player
@@ -53,32 +60,122 @@ old perks gave, such as crit, life steal, and speed, as gear.
 
 ## Signature Mechanic: Gulp
 
-The slime eats a Gulp material and takes its form for a while. Each form has a
-clear look and exactly one rule.
+**Redesigned 2026-10-08** (owner). This replaces the one-minute forms of
+2026-09-29 and the armors of 2026-10-02. "The build today" below says what is
+built (roadmap 7.5–7.7, 8.12 and 8.13).
 
-- **One key, Q, is the slime's mouth, and no menu ever opens to eat.**
-  - Tap Q near a Gulp spot to eat from the world. Right-clicking the spot does
-    the same.
-  - Hold Q for a quick wheel of carried Gulp materials; the game keeps running.
-  - In a form, tapping Q away from a Gulp spot burps the form away.
-  - Anywhere else, a tap only says how to gulp.
-  - It was W until the controls moved to WASD and the mouse (roadmap 4.10).
-- **Gulp spots** (a mossy boulder, a silk cocoon) never run out and look
-  different from walk-over piles. Every Gulp puzzle has its spot beside it, so
-  a puzzle never depends on what the player carries. Carried materials are for
-  freedom: using a form in a fight, for a secret, or anywhere else.
-- A form lasts **1 minute** to start with (a tunable constant). Eating a
-  different material switches straight to that form; eating the same one at a
-  Gulp spot resets the timer.
+The slime sucks things into its body, then throws them or swallows them.
+Swallowing an **essence** turns the slime into that essence's form. Each form
+has a clear look and exactly one rule.
+
+- **Suck (hold Q).** At short range the slime pulls in an essence, or a light
+  object made to be lifted: pots and 60-odd other light things for every kind
+  of place, such as a crate in a kitchen, a rune urn in a dungeon, an ice
+  block in the snow or a pumpkin in a garden. Pots are fine as long as they
+  are the game's own, not copies of Zelda's (owner, 2026-10-09). It never
+  sucks in a live enemy. A tap with nothing in reach is only a puff. Two
+  upgrades later let it suck in heavy rocks, like Zelda's gloves, and each
+  gets the full item ceremony.
+- **Holding.** What was sucked in sits inside the slime, which swells up and
+  waddles, at 70% of its speed (owner, 2026-10-09). While it holds something it
+  cannot attack or use abilities; it can only throw or swallow.
+- **Throw (Q).** It spits a light thing as a projectile, aimed at the pointer
+  (where the slime faces in the keys-only scheme). The thing breaks where it
+  lands, by what it is made of: a pot shatters into shards, a crate splinters,
+  a kettle clangs, a pumpkin splats, each with its own sound. It hits for
+  damage, harder for metal and stone. An essence is never thrown (owner,
+  2026-10-09): Q spits it out whole a step ahead, where it stays, as a form
+  released with Swallow does.
+- **Swallow** (key 1). A learned ability:
+  Tom teaches it in Chapter 2, with the full ceremony, and it takes the jump's
+  old place on the HUD. Swallowing an essence gives its form. Only essences
+  can be swallowed, not pots, rocks or other things.
+- **Forms.** One at a time, with no timer and no energy cost: the essence is
+  the cost. A form lasts until:
+  - a hit pops it out as a blob the slime can suck back for a moment. The pop
+    takes the hit's side effect, so the Matron's lash pops the silk instead of
+    trapping the slime;
+  - the slime swallows another essence (the old form pops out);
+  - the slime presses Swallow with nothing held. The essence drops out whole,
+    not thrown and not broken, and it stays on the ground until it is taken
+    again.
+  A form, and anything held, survives doors and saves. A new form gets no
+  ceremony: the challenge is finding essences.
+- **Essences** are consumable items.
+  - Some beaten enemies drop one: by chance for common enemies, always for
+    special ones. A dropped essence fades after about 30 s.
+  - Some are placed in maps, and those come back when the map is entered again,
+    so a puzzle can never be lost by wasting its essence. Today's Gulp spots
+    become placed essences.
+  - Walking over an essence never picks it up: Interact puts it in the bag,
+    Suck puts it in the slime. From the bag, "Use" puts it back in the slime.
+    Recipes can use essences.
+- **Release 1 forms:** **Stone** (Heavy: no knockback, holds pressure plates
+  down, moves slower; a Squash Slam in it breaks cracked ground), dropped by the
+  **Clod Stomper**, a new enemy. **Silk** (Sticky: passes the spider webs that
+  trap a normal slime), dropped by spiders.
+- **Swim** crosses deep water. Its essence will drop from an aquatic monster
+  (not designed yet) and can be placed by hand anywhere. The frog on its lily
+  pad is decoration now.
+- **Later forms:** **Glow** lights dark caves; **Bouncy**; biome essences such
+  as ice and lava for later regions. New enemies are designed around the
+  essence they drop.
+- **The Roll replaces the Dodge** (key 2; built 2026-10-09, roadmap 7.7). It
+  feels like Zelda's Pegasus Boots dash (owner, 2026-10-09). The slime curls
+  into a ball and spins in place for about a quarter second, laying skid
+  streaks and kicking dust like screeching tires; it does not move and is not
+  yet safe from hits. Then it shoots off in a straight line toward the
+  pointer (the held movement keys or the facing without one), fast at first
+  and easing down, safe from hits for 0.4 s from the launch. It cannot turn
+  or slide sideways. Holding 2 keeps it rolling for as long as the key is
+  held and energy lasts; only this held part costs energy. Running into a
+  wall, a rock or an enemy is a bonk: the screen shakes, things nearby
+  wobble, an enemy there is hit, and the slime bounces back with a little
+  hop. The slime learns all of it at once, with no later upgrade (owner,
+  2026-10-09). The owner still judges the feel.
+- **Keys (owner, 2026-10-09):** Q sucks and throws; 1 swallows; 2 rolls;
+  Stretch Lash, Squash Slam and Teleport move to 3, 4 and 5; interact stays on
+  right-click (W in the keys-only scheme).
 - New forms are tried in the dev-only `playground` map and enter chapter
   content only after the user accepts them as fun.
-- **Release 1 forms:** **Heavy** (stone): no knockback, holds pressure plates
-  down, breaks cracked ground to open hidden caverns, moves slower. **Sticky**
-  (silk): crosses spider webs that would catch a normal slime.
-- **Later forms:** **Glow** (crystal shard) lights dark caves; **Bouncy**
-  (berry); biome forms such as ice and lava for later regions.
 - Forms open traversal puzzles and secrets. A fight requires a form only when
   that fight exists to teach it.
+
+### The build today
+
+Built 2026-10-09 as a playground prototype (roadmap 7.5): suck, hold, throw
+and Swallow; essences on the ground, in the bag and from spider drops; the hit
+pop and spitting out; 67 kinds of things to lift, from pots to pumpkins, each
+breaking by its material with its own sound (the playground's liftable
+gallery shows them all); the Stone, Silk and Swim forms. The old Gulp spots
+are placed essences now, and the frog is decoration. The same day brought the
+art, which the owner accepted: the slime's suck, spit and full-slime clips
+(the held thing shows inside, on its belly), the Roll's ball, the first three
+liftables and the essences (on the ground, in the mouth and in the bag). The
+64 newer liftables wait for the owner. The suction lines are still
+placeholder streaks. The new sounds (Sound Picker round 5) wait for the
+owner's picks.
+
+Also built 2026-10-09, waiting for the owner:
+
+- **Tom** teaches Swallow in Chapter 2 (roadmap 8.13): Mossy's quest Tom in
+  the Web sends the slime to cut him out of a web in the forest's south-west
+  spider thicket, and he gives Swallow at the camp, with the ability
+  ceremony. Beyond the Verdant Gate no longer teaches Swallow.
+- **The ceremony** (roadmap 4.13) plays for every active ability the slime
+  learns, the first time each weapon, tool and key comes into the bag, and for
+  every Goo Heart: the game pauses, the thing rises out of the slime in a goo
+  bubble with light rays and a fanfare, a card says what it is and how to use
+  it, and any key lets the slime gulp it back. Bags, heart quarters and story
+  items will end in it when they are built.
+- **The Clod Stomper** (roadmap 8.12) crouches behind a ring telegraph, hops
+  and slams, breaking cracked ground near its feet, and always drops a stone
+  essence. It camps by the iron hollow and the cracked clearing in Gloop
+  Forest, and in the playground's enemy pen.
+- **The Roll** (roadmap 7.7), above.
+
+Not built yet: the lift upgrades and the rest of the art (the roadmap's
+Milestone 7 assets).
 
 Gulp replaces the old "slime forms" idea: one system, many forms, each form
 added as data plus art.
@@ -206,9 +303,13 @@ The left hand stays on WASD and the right hand stays on the mouse (agreed
 - **The mouse:** left click uses (attack, chop, mine); right click interacts
   with what the pointer is on. Tools never switch by themselves: the weapon in
   hand swings, and the four-slot belt switches with the mouse wheel or a click.
-- **Abilities:** the story teaches them, and they sit on Space (Jump) and the
-  number keys (1 Dodge, 2–4 the rest). Those that aim, aim at the pointer.
-- **Shift is only ever held** (sprint), and Ctrl and Alt are never used.
+- **Abilities:** the story teaches them, and they sit on the number keys
+  (since 2026-10-09: 1 Swallow, 2 the Roll, 3 Stretch Lash, 4 Squash Slam,
+  5 Teleport); Q is the mouth (suck and throw). Space has been
+  free since the jump was removed (2026-10-08). Those that aim, aim at the
+  pointer.
+- **Shift, Ctrl and Alt are not used.** Shift sprinted until 2026-10-08; the
+  Roll on 2 took its place (roadmap 7.7).
 - **Key names:** every key name the player reads comes from one binding
   table, so content text never names a key.
 

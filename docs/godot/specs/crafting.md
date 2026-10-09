@@ -907,6 +907,12 @@ accumulated = 0; quiet_until = t + 150; return true                           # 
 
 ### 8.6 The HUD hotbar (`WeaponHotbarSurfacePort.ts` + `ui.weapon-hotbar`)
 
+Replaced on 2026-10-08 (roadmap 4.12, the HUD console): `weapon_hotbar.gd` shows only the weapon in
+hand, in one slot on the console with the weapon scroll's key (E); a click puts the next belt
+weapon in hand, like a scroll. When the hand changes, a carousel of the belt's weapons slides in
+over the slot (the new one in the middle with its name, the others faded) and fades away. The model
+(`snapshot()`) still lists the four belt slots. The Phaser layout below is history.
+
 - Always mounted with the HUD (`UniversalSceneWorldController.ts:716`). Container 256 × 56
   anchored bottom centre: `(−128, −172)–(128, −116)` from `(0.5, 1)` (above the ability bar at
   −84…−12); zIndex 20; transparent (`.game-ui--weapon-hotbar`, no background, border or shadow;
@@ -948,12 +954,12 @@ When a tree, stone or ore blocks the weapon in hand (world-objects §4.2), the c
 ```
 belt = owned weapons on the belt; bag = every owned weapon (registry order)
 if any belt weapon has harvestCapabilities[targetTag] >= minimumTier: "<message>: switch with the mouse wheel"
-elif any bag weapon has it: "<message>: put yours on the belt (E)"
+elif any bag weapon has it: "<message>: put yours on the belt (B)"
 else: "<message>"
 ```
 
 The labels come from the bindings (`controlLabel('weapon-next').toLowerCase()` = "mouse wheel",
-`controlLabel('menu')` = "E"). Example: holding the sword with a stone axe on the belt → "Requires
+`controlLabel('menu')` = "B" since 2026-10-08, "E" in Phaser). Example: holding the sword with a stone axe on the belt → "Requires
 an Axe: switch with the mouse wheel".
 
 ---
@@ -1071,7 +1077,7 @@ copied by `pnpm godot:sync`. Values: §1.5.
   `source_inventory_drop_id`.
 - UI: the theme (`UiTokens.theme()`, variations in UI_THEME.md) is not yet the project theme, so a
   screen root sets `theme` itself, like the shell scenes. `ControlLabels.control_label(&"menu")` =
-  "E", `(&"weapon_next")` = "Mouse wheel". Layers: arrival fade 5, floating text 8, interaction
+  "B" (since 2026-10-08), `(&"weapon_next")` = "Mouse wheel" (E is its second key). Layers: arrival fade 5, floating text 8, interaction
   prompt 9, HUD 10, Shell 50.
 
 ### 11.2 Files
@@ -1337,7 +1343,7 @@ hand" first undo the trial grant (C3): `set_weapon_slots([null, null, null, null
 | `test_busy_refusal` | mid-swing, hotbar click on another slot | message "Finish the attack first" (white, small, centre − (0, 42)); hand unchanged; hotbar selection back on the hand |
 | `test_reconcile` | belt ["stone-axe", "stone-axe", "ghost", null], hand "iron-spear" (owned, off-belt) | belt [stone-axe, iron-spear, null, null]; hand iron-spear. Hand "ghost" (not owned) → hand = first owned belt weapon. Owned slam-hammer off-belt → placed at index 2 (K13) |
 | `test_hotbar_model` | belt [stone-axe, null, null, null], hand axe | 4 cells; cell 0 icon + tooltip "Stone Axe", cells 1-3 "Empty" disabled; selected 0 |
-| `test_harvest_advice` | sword in hand, stone-axe on the belt, hit `level-1-tree-004` | text "Requires an Axe: switch with the mouse wheel"; axe only in the bag → "Requires an Axe: put yours on the belt (E)"; none → "Requires an Axe" |
+| `test_harvest_advice` | sword in hand, stone-axe on the belt, hit `level-1-tree-004` | text "Requires an Axe: switch with the mouse wheel"; axe only in the bag → "Requires an Axe: put yours on the belt (B)"; none → "Requires an Axe" |
 | `test_weapon_names` | — | `ItemCatalog.item_name("basic-sword") == "Basic sword"`, `("stone-axe") == "Stone Axe"`, `max_stack("iron-axe") == 1`; `ItemIcons.icon("stone-axe")` region (256, 0, 128, 128) |
 | `test_travel_keeps_weapon` | stone-axe in hand, travel to slime-home | the new player's `PlayerCombat` holds stone-axe; belt unchanged |
 

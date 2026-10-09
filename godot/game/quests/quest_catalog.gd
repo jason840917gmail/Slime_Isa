@@ -32,7 +32,7 @@ const NO_REWARD_SUMMARY := "Reward: the elder's gratitude"
 const CONTROL_KEYS := {
 	"menu:inventory": [&"menu", "%s"],
 	"menu:crafting": [&"menu", "%s, then its tab"],
-	"menu:journal": [&"menu", "%s, then its tab"],
+	"menu:journal": [&"journal", "%s"],
 	"menu:map": [&"map", "%s"],
 	"sprint": [&"sprint", "hold %s"],
 	"weapon-switch": [&"weapon_next", "%s"],
@@ -200,7 +200,7 @@ static func reward_summary(rewards: Dictionary) -> String:
 	return "Reward: " + " · ".join(lines) if not lines.is_empty() else NO_REWARD_SUMMARY
 
 
-## `objectiveLabel`: a `use-control` objective names its key, e.g. "Open your bag (E)".
+## `objectiveLabel`: a `use-control` objective names its key, e.g. "Open your bag (B)".
 static func objective_label(entry: Dictionary) -> String:
 	var label := str(entry.get("label", ""))
 	if str(entry.get("kind", "")) != "use-control":

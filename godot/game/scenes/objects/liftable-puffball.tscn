@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="1"]
+
+[node name="liftable-puffball" instance=ExtResource("1")]
+
+[node name="Visual" parent="."]
+frame = 66
+
+[node name="LiftableScript" parent="."]
+kind = "puffball"

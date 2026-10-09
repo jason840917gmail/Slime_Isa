@@ -16,6 +16,9 @@
       "energy-potion": 9,
       "purple-berry-mat": 99,
       "silk-clump": 99,
+      "stone-essence": 9,
+      "silk-essence": 9,
+      "swim-essence": 9,
       "weaver-fang": 99,
       "iron-bar": 99,
       "shard": 99,
@@ -44,7 +47,24 @@
     "sleepHpRegenPerSec": 2
   },
   "gulp": {
-    "formDurationMs": 60000
+    "suckRangePx": 80,
+    "suckNearPx": 40,
+    "suckConeDeg": 75,
+    "suckPullMs": 220,
+    "throwSpeed": 560,
+    "throwRangePx": 280,
+    "throwHitRadiusPx": 30,
+    "throwDamage": 20,
+    "throwDamageByMaterial": { "clay": 1, "glass": 0.8, "wood": 1, "metal": 1.5, "stone": 1.3, "soft": 0.6, "ice": 1.1, "snow": 0.4, "crystal": 1.2 },
+    "holdingSpeedMultiplier": 0.7,
+    "throwKnockback": 260,
+    "popGrabMs": 3000,
+    "dropFadeMs": 30000,
+    "essenceDrops": {
+      "clod-stomper": { "essence": "stone", "chance": 1 },
+      "orb-weaver": { "essence": "silk", "chance": 0.35 },
+      "slime-spider": { "essence": "silk", "chance": 0.35 }
+    }
   },
   "input": {
     "bufferMs": 150,
@@ -75,10 +95,23 @@
       "movement": {
         "baseSpeed": 200,
         "boostSpeed": 300,
-        "dodgeSpeed": 380,
-        "dodgeDurationMs": 500,
-        "dodgeInvulnerabilityMs": 400,
-        "dodgeCooldownMs": 250,
+        "rollSpinUpMs": 260,
+        "rollLaunchSpeed": 460,
+        "rollSpeed": 340,
+        "rollMinMs": 450,
+        "rollInvulnerabilityMs": 400,
+        "rollCooldownMs": 250,
+        "rollEnergyPerSecond": 12,
+        "rollBonkShakeMs": 220,
+        "rollBonkShakeIntensity": 0.008,
+        "rollBonkHitStopMs": 60,
+        "rollBonkWobbleRadiusPx": 140,
+        "rollBonkDamage": 10,
+        "rollBonkKnockback": 300,
+        "rollBonkHitRadiusPx": 34,
+        "rollBounceSpeed": 400,
+        "rollBounceMs": 360,
+        "rollBounceHopPx": 18,
         "movementSpeedCap": 480
       },
       "hitInvulnerabilityMs": 500,

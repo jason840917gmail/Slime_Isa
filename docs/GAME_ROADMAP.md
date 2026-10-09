@@ -18,9 +18,12 @@ from the title screen to an end-of-Chapter-2 card: a first-time player takes
   gear, and a second boss;
 - restore a Slimeshire building, the Forge, and use it
   to craft the recipes they unlock;
-- grow stronger through crafted gear, Goo Hearts, and story-unlocked
+- grow stronger through crafted gear, heart quarters, and story-unlocked
   abilities (no XP or levels);
-- use **Gulp**, the signature mechanic, to solve Chapter 2 puzzles;
+- use **Gulp**, the signature mechanic, to solve Chapter 2 puzzles (being
+  redesigned: [the 2026-10-08 decisions](#the-2026-10-08-decisions));
+- earn bags, a vault and abilities, each with the item ceremony
+  ([the 2026-10-02 decisions](#the-2026-10-02-decisions));
 - hear music and ambience in every area and feel every hit.
 
 **Not in Release 1:** the Kitchen, farming, hats, Crystal Caverns beyond a
@@ -59,6 +62,76 @@ are ordered but not sized or dated (decided 2026-09-29).
   run alongside 6–8. No task's check depends on a later milestone; work that
   needs later content lives in the milestone that builds that content.
 
+### The 2026-10-02 Decisions
+
+On 2026-10-02 the owner made a set of design decisions
+([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built))
+and answered that all of them go into Release 1
+([open question 1](story/06-open-questions.md#scope)). They came in by the
+owner's choice, not through the parking-lot rule above. Their tasks were added
+on 2026-10-07, each in the milestone it changes; none is built yet, and
+several are large (the bottom console HUD, the armors, the place where the Silk
+Armor is earned). Where a task depends on a question that is still open, it
+says "Open:" and links the question; nothing here decides one.
+
+| Decision | Roadmap tasks |
+|---|---|
+| Getting an item (the item ceremony) | 4.13 (new) |
+| Life and energy display, as a bottom console (shape chosen 2026-10-07) | 4.12 (new); the heart display in Milestone 5's assets |
+| Boss reset: the bar hides outside the arena | 4.12 (new) |
+| Hearts: heart quarters | 5.3 (reopened), 8.7, 8.9 |
+| Energy | 5.6 (new) |
+| Bags | 5.7 (new), 8.9 |
+| Vault, found in a house quest that teaches sleeping | 5.8 (new), 8.8 |
+| Each boss's Pearl grants an ability ([answered](story/06-open-questions.md#answered) the same day) | 5.9 (new), 8.7, 8.10 |
+| Crafting time | 6.5 (new), 8.5, 8.6 |
+| Gulp armors (replaced 2026-10-08 by essences: [the 2026-10-08 decisions](#the-2026-10-08-decisions)) | 7.5 (new), 7.4, 8.9, 8.12 (new), 8.13 (new) |
+| Webs | 7.6 (new), 8.7, 8.9 |
+| Sprint becomes a mid-game roll | 7.7 (new), 4.10, 4.11 |
+| The Weaver (Matron) | 8.7, 8.10 |
+| Dropping weapons | Removed from the plan: [Dropped](#dropped) (was UX.3) |
+
+The first step is the owner's approval of the HUD mockup (4.12). The order of
+the other tasks is not set.
+
+### The 2026-10-08 Decisions
+
+On 2026-10-08 the owner removed the jump and redesigned Gulp.
+
+- **The jump is removed from the game** (done 2026-10-08). It was stronger than
+  the other abilities (its landing check ignores placed objects, so it hopped
+  over walls and gates), it did not fit the game, it was needed only for the
+  Heavy landing on cracked ground, and it misbehaved around elevation. Its
+  logic stays: the `jump` action has no key (Space is free), no HUD slot or
+  Controls row shows it, nothing in the story teaches it, and ledge drops
+  still use its flight. Tasks: 4.10, 5.2, 5.9, 7.4.
+- **Fatty One Eye's Pearl grants Squash Slam** instead of the jump: his fight
+  is a leap that lands hard. Until the Pearls exist (5.9), finishing The
+  One-Eyed Guardian teaches the slam, and The Matron's Nest no longer does
+  (done 2026-10-08; 8.7).
+- **Cracked ground breaks under a Heavy Squash Slam**, not a Heavy jump
+  landing (done 2026-10-08). A Heavy slime standing on it hears it creak and,
+  once the slam is learned, is told to slam it. Tasks: 7.4, 8.9.
+- **Gulp is redesigned around essences**, replacing the armors (the design is
+  in [Gulp](GAME_GUIDELINES.md#signature-mechanic-gulp)).
+  - Holding Q sucks in an essence or a light object (pots and dozens of other
+    things for every kind of place), and Q throws it. A thrown thing breaks by
+    what it is made of. Pots are fine as long as they are the game's own, not
+    copies of Zelda's (owner, 2026-10-09).
+  - Swallow, learned from Tom in Chapter 2, turns a held essence into its form.
+  - Some enemies drop essences and some maps hold them.
+  - A hit pops the form out as a blob.
+  - Tasks: 7.5, 7.6, 8.12 (the Clod Stomper, the stone essence's enemy) and
+    8.13 (Tom and the Swallow lesson).
+- **The Roll replaces the Dodge** on key 2: it spins up in place, then dashes
+  straight on while held, like Zelda's Pegasus Boots, and bonks back off
+  walls. Built 2026-10-09, waiting for the owner's feel. Task 7.7.
+- **New keys** (changed by the owner on 2026-10-09, applied with 7.5): Q sucks
+  and throws; 1 swallows; 2 rolls; Stretch Lash, Squash Slam and Teleport
+  move to 3, 4 and 5; interact stays on right-click (W in the keys-only
+  scheme). The 2026-10-08 plan (R swallows, Space
+  interacts) was dropped. Task 4.10.
+
 ## Progress Board
 
 | # | Milestone | Player-visible result | Status |
@@ -72,9 +145,9 @@ are ordered but not sized or dated (decided 2026-09-29).
 | **Release 1** | | | |
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
 | 4 | Game shell | Title, continue, pause, game over, settings, credits, simple controls | `[~]` |
-| 5 | Gear-based progression | XP and levels are gone; gear, Goo Hearts, and story unlocks make you stronger | `[~]` |
+| 5 | Gear-based progression | XP and levels are gone; gear, heart quarters, and story unlocks make you stronger | `[~]` |
 | 6 | Rebuild Slimeshire: restoration | Ruined buildings can be restored and become stations (the Forge uses it in Chapter 2; the Workshop waits until after Chapter 2) | `[~]` |
-| 7 | Gulp | Swallow a material to take its form and solve a puzzle | `[~]` |
+| 7 | Gulp | Suck, throw and swallow essences; their forms solve puzzles and pass webs | `[~]` |
 | 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss | `[~]` |
 | 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[~]` |
 | 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[~]` |
@@ -267,6 +340,10 @@ today, and only real blockers get fixed.
   and the Sticky has a silk stretch. They are registered for the bake.
 - Not covered yet: enemy footsteps and strike whooshes, Fatty's chase steps (the takes exist),
   the gulp wheel, the ability-ready sound, button hover.
+- Round 5 (2026-10-09, applied the same day): 15 cues for the essence Gulp, things breaking, the
+  Roll, the Clod Stomper and the ceremony. The owner accepted the defaults ("sound the defaults
+  are ok"), so option A of each ships (`scripts/audio/picker/round-5-picks.json`), registered for
+  the bake (Milestone 7's assets, [audio spec §11](godot/specs/audio.md#11-round-5-the-gulp-the-breaks-the-roll-the-clod-stomper-and-the-ceremony)).
 
 The cue list, hooks, and sourcing rules are in the
 [Audio & SFX implementation plan](archive/phaser/superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
@@ -411,6 +488,9 @@ below exist.
 - Played headless (Brave): the bag drag, belt click, tab pointer, Slime
   Basics progress, a stale-quest save loading, the defeat-screen load, the
   overlays and a spear hit on Fatty.
+- Planned 2026-10-02: Slime Basics drops its Sprint step and the sprint hint
+  goes, because sprinting becomes a mid-game ability (7.7); its bag step comes
+  after Elder Plop's bag (5.7).
 - Second list, built 2026-10-01:
   - **Loot on the ground:** an enemy's item drops scatter around where it
     fell and are picked up by walking over them, like resource piles; they
@@ -457,6 +537,9 @@ below exist.
   0.16-alpha interior. Checked at 1280×720, 800×600 and 390×720 (hotbar
   350 px wide at 390). Label and button text alignment now works in every
   UI scene (it was ignored before).
+- Planned 2026-10-07: the bottom console HUD (4.12) replaces this layout. It
+  was built for the old rule of 1 game pixel to 1 CSS pixel; the HUD now
+  scales with the 16 × 14 tile view and crowds it.
 
 - Build: apply the approved artwork-first treatment to the `hud`, `minimap`,
   and `weapon-hotbar` UI scenes. See
@@ -491,7 +574,8 @@ below exist.
     on the far side: the web now tears open for good when the Sticky slime
     pushes through (remembered per placement).
   - Cracked ground broke too easily: the Heavy form now has to land a jump on
-    it; standing on it only makes it creak, with a hint.
+    it; standing on it only makes it creak, with a hint. (Since 2026-10-08 a
+    Heavy Squash Slam breaks it: 7.4.)
   - Enemies could be killed from just outside their pursue area, where they
     stood passive: camp enemies now keep a territory
     (`enemies/ai/Territory.ts`): sight blocked by walls, houses and trees, a
@@ -520,27 +604,36 @@ below exist.
 - Built 2026-09-30, waiting for the owner's playtest:
   - every control comes from one binding table
     (`features/player/PlayerInputActions.ts`), and so does every key label;
-  - Dodge is a learned ability (Stone Tools), and Jump is on Space;
+  - Dodge is a learned ability (Stone Tools), and Jump was on Space (the jump
+    was removed on 2026-10-08, and Space is free);
   - the belt has three slots on the mouse wheel, and tools pick themselves
     (both changed by the 2026-10-01 playtest, 4.11: four slots, no automatic
     tools);
   - right click interacts with what the pointer is on, and holding it picks
     up placed furniture;
-  - E opens the menu with tabs;
+  - E opens the menu with tabs (since 2026-10-08 B does, J opens the journal
+    and E is the weapon scroll: 4.12);
   - cheats are dev-panel buttons.
   - Two headless playtests passed 34 of 34 checks. See
     [As Built](archive/phaser/superpowers/specs/2026-09-30-simple-controls-design.md#as-built-2026-09-30).
 - Open:
   - the owner picks the attack direction (pointer or facing; the dev panel's
     "Controls test" switch);
-  - the key and mouse glyph art.
+  - the key and mouse glyph art;
+  - planned 2026-10-02: Shift no longer sprints from the start; a mid-game
+    roll replaces sprinting (7.7).
+- Decided 2026-10-09 (owner), applied with 7.5: Q sucks and throws; 1
+  swallows; 2 rolls (the Roll, built 2026-10-09, 7.7); 3 Stretch Lash, 4 Squash Slam,
+  5 Teleport; interact stays on right-click (W in the keys-only scheme).
 - Build: the left hand on WASD, the right hand on the mouse.
   - Left click attacks, and the right tool is picked automatically for trees
     and rocks. Whether attacks aim at the pointer or the facing is under test,
     with a switch.
   - Right click interacts with whatever the pointer is on.
-  - Space is Jump. 1 is Dodge, a roll of 0.5 s toward the pointer (4
-    directions) that Stone Tools now teaches. Holding Shift sprints.
+  - Space is Jump (removed 2026-10-08; Space is free). 1 is Dodge, a roll of
+    0.5 s toward the pointer (4 directions) that Stone Tools now teaches (the
+    Roll on 2 since 2026-10-09, 7.7).
+    Holding Shift sprints.
   - Q is the mouth (Gulp), and 2–4 are the other abilities.
   - The mouse wheel switches between up to 3 equipped weapons.
   - E opens one menu with tabs.
@@ -551,11 +644,159 @@ below exist.
 - Done when: the plan's "Done When" checks pass on a fresh save, and the owner
   accepts the feel in the playground and in a Chapter 1 run.
 
+### [~] 4.12 — Bottom console HUD: life and energy orbs
+
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Life and energy display" and "Boss reset"): two goo orbs, one on each side
+  of the weapon belt, in slime-styled frames (Diablo-like). The life orb shows
+  its number and a ring of pips for the hearts found. The boss bar moves to
+  the top of the screen and hides while the slime is outside the boss's arena.
+  A mockup comes before the build.
+- Decided 2026-10-07: the screen shows 16 × 14 tiles (base 1024 × 896,
+  [World size and screen](story/03-world.md#world-size-and-screen)) and the HUD
+  scales with it, so today's HUD crowds the view. The chosen direction, pending
+  the mockup, is a Diablo-style bottom console.
+- Today: HP and energy bars at the top left, the weapon hotbar and ability bar
+  (4.8), a quest tracker card with up to four quests, hint banners above the
+  hotbar (4.6), a boss bar that stays on screen when the slime leaves the
+  arena, and the FPS panel (`game/ui/fps_readout.gd`) shown by default.
+- Build, in order:
+  1. Done 2026-10-08: the owner approved the direction of the
+     [HUD console mockup](design/2026-10-07-hud-console-mockup.md) and
+     answered its questions (the steps below carry the answers). Still open
+     there: the menu buttons (keep, move or remove).
+  2. One centred console along the bottom, about 2 tiles (128 units) tall and
+     about 890 units wide: the minimap (never bigger than the orbs), the life
+     orb, one slot for the weapon in hand, the ability buttons, the energy orb
+     and the menu buttons. The belt keeps its four weapons; a scroll (the
+     wheel, or E) opens a carousel over the slot that slides by one weapon per
+     scroll, shows the other weapons faded and fades away a moment after the
+     last scroll. Every console action has a key in every control scheme
+     (owner, 2026-10-08; built the same day): E scrolls the weapon (the mouse
+     wheel too, except in the keys-only scheme, where only E cycles the belt),
+     B opens the bag (it was E) and J the journal
+     ([MOUSE_CONTROLS](godot/MOUSE_CONTROLS.md#the-keys-only-scheme)).
+  3. Its height is reserved: the base view becomes 1024 × 1024, so 16 × 14
+     world tiles stay clear above the console. The world camera
+     (`godot/game/world/world_camera.gd`, `_viewport_size()`) reports the play
+     area above the console and shifts the centre to match. Update
+     [World size and screen](story/03-world.md#world-size-and-screen) in the
+     same change.
+  4. The orbs show their numbers only when the value changes (a hit, a heal,
+     energy spent or refilled), the life orb with the change beside it, then
+     the numbers fade. The life orb's ring shows the hearts: none at the
+     start, each heart quarter (5.3) as a quarter of a pip, a whole pip per
+     whole heart.
+  5. The quest tracker shrinks to one line for the current goal; the full list
+     stays in the journal. Tutorial prompts become short messages above the
+     console. The FPS panel is off by default.
+  6. The boss bar moves to the top. It hides while the slime is outside the
+     arena and comes back on return, for Fatty One Eye and the Matron (their
+     full heal after 60 s outside is built, 4.11). This step does not wait for
+     the mockup.
+- Built 2026-10-08 (steps 2-6, `godot/game/ui/console/`): the base view
+  1024 x 1024 and the camera's play area; the console with the minimap (no
+  see-through gaps), the goo orbs (numbers on a change, heart pips), the
+  weapon slot and its carousel, the ability icon slots (from BAR_SLOTS, no
+  Jump) and the menu buttons; the one-line goal tracker ("+n" for the next
+  quest); the hints above the console, a J hint for the Journal, no sprint
+  hint (sprint has no key: owner, 2026-10-08); the boss bar at the top,
+  hidden outside the arena; the FPS panel off. Open: the owner's playtest, and
+  the heart pips' quarters once 5.3 builds them.
+- Replaces: the 4.8 layout (its four belt slots become one slot and the
+  carousel), the four-quest tracker card, the hint banner of
+  4.6, and the "HUD heart or max-HP growth display" in Milestone 5's assets.
+- Player proof: the whole 16 × 14 tile view is clear, and life, energy,
+  weapons and abilities are read in one console at the bottom.
+- Done when: the owner has approved the mockup; at the 1024 × 1024 base and
+  in a 16:9 window no HUD covers the 16 × 14 tiles above the console except
+  the goal line, the boss bar and the short messages, and the slime is centred in that play
+  area; the orbs follow HP and energy and show their numbers only on a
+  change; the pips show each quarter found; a scroll opens the weapon
+  carousel; the tracker is
+  one line; in both boss fights the bar is at the top, hides when
+  the slime leaves the arena and returns when it comes back; a fresh profile
+  shows no FPS panel.
+
+### [~] 4.13 — The item ceremony
+
+- Built 2026-10-09 for abilities, then the same day for permanent items and
+  Goo Hearts ("implement the ceremony so i can test in level 1"), waiting for
+  the owner. The owner asked for the slime to raise what it learned, "or
+  something original but exciting". Code: `game/ui/ceremony/ability_ceremony.gd`
+  and `ceremony_stage.gd`.
+  - The world pauses (pause reason `ceremony`) and dims around the slime,
+    like a spotlight. The slime squashes and stretches up, and the fanfare
+    plays (cue `Ceremony`).
+  - A glossy goo bubble carrying the thing's icon (an ability's HUD console
+    `ability-<id>.webp`, an item's bag icon, the heart's own picture) wells
+    out of the top of the slime and floats above it, wobbling, with 14
+    turning light rays and sparkles.
+  - A card slides up: what it is ("New ability", "New weapon", "New tool" for
+    a weapon that harvests, "Key item", "Goo Heart"), the name, one line of
+    what it does, and how to use it (an ability's `AbilityDefinitions.CEREMONY`;
+    a weapon's "It goes on your belt: swing it with <attack>", a tool adding
+    what it harvests; a key's "it opens a lock somewhere"), with the keys from
+    the 4.10 binding table. A key counts after 1.6 s, and "Press any key"
+    shows at 1.8 s.
+  - Any key: the bubble sinks back into the slime, which gulps it down (cue
+    `GulpCatch`, a squash, a burst of sparkles). The dim lifts and the game
+    goes on.
+  - It waits while a window is open (a crafted tool plays once the crafting
+    window closes) and queues when several things come at once.
+  - `game/quests/quest_notifications.gd` plays it for every active ability
+    `RunState` learns while main's `ability_ceremonies` is on (the default).
+    The test runner turns it off, so tests still see the old banner. The
+    passive Goo Trail keeps its banner.
+  - Items: the first time a weapon or tool or a key (`RunState`
+    `PERMANENT_ITEM_CATEGORIES`) comes into the bag, by any way in (a pickup,
+    a chest, a craft, a reward), `RunState` remembers it in the save
+    (`story.celebrated_item_ids`) and emits `permanent_item_gained`, and
+    `quest_notifications.gd` plays its ceremony. It plays once per item and
+    never again after save and load. Quiet grants (the start weapon, the
+    playground's kit, `?arsenal`) count without one, and so does whatever an
+    older save already holds.
+  - Every Goo Heart plays it too ("+10 max HP", `goo_heart.gd`); the floating
+    text stays.
+  - Tests: `godot/tests/test_ceremony.gd` (`pnpm test:godot -- --filter=test_ceremony`).
+  - `godot/tools/render_ceremony.gd` renders it in the running playground for
+    tuning.
+- Not done: bags (5.7), heart quarters (5.3), energy upgrades, the lift
+  upgrades and story items (they end in it when they are built), the smaller
+  recipe sting and the owner's acceptance. The fanfare is Sound Picker round
+  5's option A (the owner accepted the defaults on 2026-10-09).
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Getting an item"): the game pauses, the item rises out of the slime with
+  light rays and a fanfare, and a card shows the name, one line of text and
+  how to use it. Permanent items get the full ceremony the first time. New
+  recipes get a smaller sting, and materials get nothing. New player
+  animations are welcome when they improve the game.
+- Today: a learned ability, the first of each weapon, tool and key, and every
+  Goo Heart play the ceremony above (the passive Goo Trail shows its banner);
+  everything else shows floating text. In level 1: the Stone Axe and Stone
+  Pickaxe from the workbench, the Roll from Elder Plop, the Verdant Key at
+  Fatty's camp and the lakeside Goo Heart.
+- Build: one reusable ceremony. Permanent things are those in
+  [Direction](story/01-direction.md#the-rule-behind-every-chapter): weapons
+  and tools, abilities, the lift upgrades, bags and vaults, hearts, heart quarters and
+  energy upgrades, keys and story items. The [unlock map](story/05-unlock-map.md)'s
+  Ceremony column is the checklist. The card's "how to use it" takes its key
+  labels from the 4.10 binding table. Wire it to what exists today (crafted
+  weapons and tools, the Roll, Squash Slam, Stretch Lash, Swallow from Tom
+  (8.13), the green key, Goo Hearts); the bags (5.7), the vault (5.8), the
+  Pearls (5.9) and hammering (6.5) end in it when they are built.
+- Player proof: earning something permanent is a moment, like a Zelda chest.
+- Done when: on a fresh save the first Stone Axe, the Roll and the green key
+  each play the full ceremony once and never again after save and load; a
+  learned recipe plays the smaller sting; picking up wood plays neither; the
+  game stays paused under the card and resumes cleanly.
+
 **Milestone 4 complete when:** boot → title → new game → play → defeat →
 wake → pause → settings → save → quit → title → continue works end to end,
-two new players have played Chapter 1 (4.9), and the new controls are in
-(4.10). The loop works (headless, 2026-09-29); open: 4.9, 4.10 and the assets
-below.
+two new players have played Chapter 1 (4.9), the new controls are in (4.10),
+and the bottom console HUD and the item ceremony are in (4.12, 4.13, added
+2026-10-07). The loop works (headless, 2026-09-29); open: 4.9, 4.10, 4.12,
+4.13 and the assets below.
 
 **Assets**
 
@@ -572,6 +813,17 @@ below.
       "Defeated"; owner to accept.
 - [ ] Control-hint key and mouse glyphs: left click, right click, wheel, and
       a keycap (4.10).
+- [ ] The bottom console (4.12), drawn from the approved mockup: the console
+      frame, the life and energy orb frames and goo fills, the heart pips,
+      and the menu buttons.
+- [~] The item ceremony (4.13): light rays, the card, a fanfare and the
+      smaller recipe sting; a new player animation if it helps. Since
+      2026-10-09 the ability ceremony draws its rays, goo bubble and sparkles
+      in code (`ceremony_stage.gd`) and its spotlight with a shader. Its card
+      uses the theme's `BannerPanel`, and the slime squashes and stretches
+      (no new clip). Its fanfare is the `Ceremony` cue of Sound Picker
+      round 5 (Harp and bells, option A, accepted with the round's defaults
+      on 2026-10-09). Open: the recipe sting; owner to accept.
 
 ## 5. Gear-Based Progression
 
@@ -583,6 +835,10 @@ Built 2026-09-29 (5.1–5.5). The player has flat base stats
 (`character.player.stats` in `game-constants.json`), Goo Hearts raise max HP,
 and quests teach abilities the way they teach recipes. The work is verified in
 the running game with placeholder art and sound; the assets below are open.
+
+Reopened 2026-10-07 for the [2026-10-02 decisions](#the-2026-10-02-decisions):
+heart quarters (5.3), an energy cost for every ability (5.6), bags (5.7), the
+vault and its house quest (5.8), and the bosses' Pearls (5.9).
 
 ### [x] 5.1 — Retire XP, levels, and perks, verified 2026-09-29
 
@@ -622,6 +878,12 @@ the running game with placeholder art and sound; the assets below are open.
   "Quest", Teleport "Later". Played headless from a save at the Worm Trouble
   hand-in: Jump was locked, the turn-in taught it, Space jumped, and it
   survived Continue. The full Chapter 1 run is part of the 4.9 playtest.
+- Planned 2026-10-02: Jump moves from Worm Trouble to Fatty One Eye's Pearl
+  (5.9), and Stretch Lash to the Matron's (8.7).
+- Changed 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions)):
+  the jump is removed, so Worm Trouble no longer teaches it and Mossy's jump
+  line is gone. The One-Eyed Guardian teaches Squash Slam in its place (until
+  Fatty's Pearl exists, 5.9), and The Matron's Nest no longer teaches it.
 
 - Build: quest and boss rewards can grant abilities, like they grant recipes.
   A Chapter 1 quest teaches Jump (players reach level 2 during Chapter 1
@@ -634,7 +896,30 @@ the running game with placeholder art and sound; the assets below are open.
   survives save/load, and the reward type is covered by the quest tests
   (`pnpm test:quests`).
 
-### [x] 5.3 — Goo Hearts, verified 2026-09-29
+### [~] 5.3 — Goo Hearts (verified 2026-09-29), reopened for heart quarters
+
+- Reopened 2026-10-07 for the decision of 2026-10-02
+  ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Hearts"): heart quarters replace the Goo Hearts. Four quarters make one
+  heart, worth +20 max HP. For now each map hides four quarters, and secrets
+  are spread across the whole game.
+  - Today: five Goo Hearts of +10 each: the two below in Slimeshire Meadow,
+    two in Gloop Forest (8.9) and one in the Matron's nest (8.7).
+  - Build: a heart-quarter pickup with the item ceremony (4.13), its values in
+    `game-constants.json` (today `character.player.gooHeart.maxHpBonus`).
+    Hide four quarters in Slimeshire Meadow; today's two Meadow hearts become
+    quarter spots or move to harder ones
+    ([Chapter 1](story/chapters/chapter-1-the-clearing.md), Secrets). Gloop
+    Forest's four are placed in 8.9.
+  - Decided 2026-10-08: a quarter adds no life on its own; the fourth
+    quarter completes a heart, and only a whole heart adds +20 max HP. The
+    run starts with no hearts, and the life orb's ring shows each quarter
+    found (4.12).
+  - Open: whether bosses also give a full heart
+    ([question 17](story/06-open-questions.md#progression)).
+  - Done when: each Meadow quarter is taken once per run and stays taken
+    after save and load; four quarters give exactly +20 max HP; the life orb's
+    pips (4.12) show what was found; saves that took Goo Hearts still load.
 
 - Done: `object.goo-heart` (script `game.goo-heart`) is a walk-over pickup;
   each one raises max HP by `character.player.gooHeart.maxHpBonus` (10) and
@@ -702,9 +987,113 @@ the running game with placeholder art and sound; the assets below are open.
 - Done when: a harvested node respawns after its timer across map changes and
   save/load, and never respawns early.
 
+### [ ] 5.6 — Every ability costs energy
+
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Energy"): every ability costs energy, some per use (Dodge, Squash Slam),
+  others over time (rolling, 7.7). Energy is not too easy to recover, so
+  cooldowns get shorter. Max energy grows over the game.
+- Today: only Stretch Lash (20), Squash Slam (30) and Teleport (35) cost
+  energy per use; the Roll costs nothing to start, and only its held part
+  drains 12 per second (`rollEnergyPerSecond`, 7.7; energy does not refill
+  while rolling). Max energy is 100 and refills 8 per second
+  (`character.player.stats` in `game-constants.json`). The costs and cooldowns
+  are literals in `game/player/abilities/ability_definitions.gd`.
+- Build: an energy cost for every ability, per use or per second; the costs
+  and cooldowns move into `game-constants.json`; a slower refill and shorter
+  cooldowns; max energy that can grow (saved with the run, like the max HP
+  that hearts add). The Roll (7.7) uses the same costs; Gulp forms cost no
+  energy (2026-10-08, 7.5).
+  Tune in the playground first.
+- Open: the refill pause, free basic attacks, tiny cooldowns, a minimum to
+  start rolling, and energy drops
+  ([questions 20–24](story/06-open-questions.md#energy-rework-details)); the
+  item that raises max energy and where it is found
+  ([question 19](story/06-open-questions.md#progression)).
+- Player proof: the slime has to choose when to dodge, lash or slam.
+- Done when: in the playground each learned ability spends its configured
+  energy and shows "Low energy" when there is not enough; the refill is slower
+  and the cooldowns shorter than today, with every value in
+  `game-constants.json`; a fresh Chapter 1 run still beats Fatty One Eye; the
+  owner accepts the feel.
+
+### [ ] 5.7 — Bags: 10 slots from Elder Plop, 20 in the Gloop Cavern
+
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Bags"): the slime starts with no bag. Elder Plop gives a 10-slot bag when
+  the player accepts the first quest. A 20-slot bag waits in a coffer in the
+  Gloop Cavern. A new bag replaces the old one.
+- Today: 20 slots from the start (`inventory.initialMaxSlots`).
+- Build: the bag is a permanent item that sets the number of slots, and a
+  fresh run has none. Accepting A Place to Work hands over the 10-slot bag
+  with the item ceremony (4.13), the game's first
+  ([Chapter 1](story/chapters/chapter-1-the-clearing.md), Beat 1). The 20-slot
+  bag exists as an item for the cavern coffer, which is placed in 8.9. Slime
+  Basics' bag step comes after the bag (4.11). Check that nothing before
+  Plop's quest needs carrying.
+- Player proof: the first thing the slime is given is somewhere to carry
+  things.
+- Done when: on a fresh save there are no bag slots until A Place to Work is
+  accepted, then 10, with the ceremony; an eleventh stack says the bag is full
+  (the 4.11 message); the 20-slot bag replaces the 10-slot one and keeps every
+  item; the bag survives save and load; saves made before the change still
+  load with nothing lost.
+
+### [ ] 5.8 — A Home of Your Own: sleeping and the vault
+
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Vault"): the vault is found inside a house during a quest that also
+  teaches sleeping to recover. It has 50 slots, all vaults share one storage,
+  and weapons can be stored. The vault screen shows the vault on the right and
+  the bag on the left, with drag and drop both ways. Weapons go into the vault
+  instead of being dropped ([Dropped](#dropped), was UX.3).
+- Today: there is no storage, and chests are take-only. Beds work (3.4, 3.5),
+  but nothing teaches them.
+- Build: the new Chapter 1 quest **A Home of Your Own**, after Stone Tools
+  ([Chapter 1](story/chapters/chapter-1-the-clearing.md), Beat 3): the slime
+  explores the house, sleeps in its bed (rest to recover, and wake here after
+  a defeat), and finds the vault with the full ceremony (4.13). The vault
+  object, one shared vault storage saved through `RunState`, and the
+  two-panel vault screen.
+- Open: which house, and whether Elder Plop gives the quest
+  ([question 11](story/06-open-questions.md#progression)); whether more vaults
+  can be crafted after the first
+  ([question 12](story/06-open-questions.md#progression)).
+- Depends on: 4.13 and 5.7.
+- Player proof: the slime has a home to rest in and somewhere to keep what the
+  bag cannot hold.
+- Done when: on a fresh save the quest follows Stone Tools; sleeping in the
+  house's bed completes its step and sets the respawn point; the vault's
+  ceremony plays once; items and a weapon dragged into the vault and back
+  stay where they were put through a map change and save and load; a second
+  vault in the playground shows the same contents.
+
+### [ ] 5.9 — A boss's Pearl grants its ability
+
+- Answered 2026-10-02 ([Open questions](story/06-open-questions.md#answered)):
+  each of the eight Pearls grants one unique permanent ability. Pearl 1 grants
+  Squash Slam (it was Jump until the jump was removed on 2026-10-08); Pearl 2,
+  the Matron's, grants Stretch Lash (8.7). Dodge (the Roll since 2026-10-09)
+  stays basic training from Elder Plop.
+- Today: finishing The One-Eyed Guardian teaches Squash Slam (since
+  2026-10-08, 5.2).
+- Build: a Pearl that a beaten boss leaves; taking it plays the full ceremony
+  (4.13) and grants the boss's ability for good (the reward type of 5.2).
+  Fatty One Eye leaves Pearl 1, which grants Squash Slam; The One-Eyed
+  Guardian's reward no longer teaches it
+  ([Chapter 1](story/chapters/chapter-1-the-clearing.md), Beat 5).
+- Open: the premise around the Pearls
+  ([question 2](story/06-open-questions.md#story)), where the Wellspring is
+  ([question 5](story/06-open-questions.md#story)), and what a boss does once
+  its Pearl is gone ([question 6](story/06-open-questions.md#story)).
+- Done when: on a fresh save Squash Slam is locked until Fatty One Eye is
+  beaten; his Pearl grants it once, with the ceremony; it survives save and
+  load; older saves keep the abilities they have.
+
 **Milestone 5 complete when:** the player grows only through gear, Goo Hearts,
 and story unlocks, and Chapter 1 still plays as it did. The systems are in
-(2026-09-29); open: the assets below and a human Chapter 1 run (4.9).
+(2026-09-29); open: the assets below and a human Chapter 1 run (4.9). Since
+2026-10-07 it also needs 5.3 (heart quarters) and 5.6–5.9.
 
 **Assets**
 
@@ -713,8 +1102,13 @@ and story unlocks, and Chapter 1 still plays as it did. The systems are in
 - [~] Goo Heart world sprite: generated 2026-09-30 (Magnific GPT-2, a glossy
       goo heart, `sheet.props.gulp.8x1` frame 5). Open: a pickup effect and
       sound (the heal chime stands in).
-- [ ] HUD heart or max-HP growth display. Placeholder: the longer HP bar and
-      the "Goo Heart! Max HP 110" banner.
+- [ ] HUD heart or max-HP growth display. Since 2026-10-02 this is the life
+      orb's ring of heart pips in the bottom console (4.12, mockup first).
+      Placeholder: the longer HP bar and the "Goo Heart! Max HP 110" banner.
+- [ ] Heart quarter sprite and pickup effect (5.3).
+- [ ] Bag icons for the 10-slot and 20-slot bags (5.7).
+- [ ] Vault object, its sounds, and the two-panel vault screen (5.8).
+- [ ] Pearl sprite (5.9).
 - [ ] Ability-learned sting. Placeholder: the old level-up jingle
       (`audio.sfx.player.ability-learned.1`).
 - [x] Retired: `ui-levelup-crest-frame` (2.2 MB), the eight perk icons, and the
@@ -825,9 +1219,29 @@ recipes stay portable so a fresh save cannot softlock.
 - Done when: before restoration the Workshop recipes show as locked with the
   reason, afterwards they are craftable, and the unlock survives save/load.
 
+### [ ] 6.5 — Weapons and tools are hammered at the bench
+
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Crafting time"): weapons and tools are made by staying at the bench and
+  hammering: a few timed strikes and a new hammering animation, ending in the
+  item ceremony. Quick recipes stay instant. Forge materials cook in the
+  background instead (8.5).
+- Today: every recipe is instant.
+- Build: a hammering session at the workbench for every weapon and tool recipe
+  (the stone tools and spears, the Reinforced Pickaxe, the iron gear), the
+  slime's hammering animation, and the ceremony (4.13) at the end. Every other
+  recipe (the workbench itself, the tonics, the berry basket) stays instant.
+  Write a short spec first (how many strikes, their timing, what a missed
+  strike does) and get the owner's yes.
+- Player proof: forging a weapon is the moment the player earns it.
+- Done when: on a fresh save the Stone Axe is made by hammering and ends in
+  the ceremony; walking away before the last strike uses no materials (the
+  6.2 rule); quick recipes are still instant; the owner accepts the feel.
+
 **Milestone 6 complete when:** the player restores the Workshop and crafts
 there, and the town visibly changed. Built 2026-09-30; waiting on the owner to
-accept the Workshop art and restoration sound.
+accept the Workshop art and restoration sound. Reopened 2026-10-07 for
+hammering (6.5).
 
 **Assets**
 
@@ -841,6 +1255,7 @@ accept the Workshop art and restoration sound.
   camera shake; `world/restore-building` has a Magnific take (library) and a
   synth take, both in the next picker round; owner to accept.
 - [ ] Workshop header art for the crafting popup (optional).
+- [ ] The slime's hammering animation and strike sounds (6.5).
 
 ## 7. Gulp — The Signature Mechanic
 
@@ -865,6 +1280,20 @@ Gulp spot resets the timer. **Gulp spots** are world objects (a mossy
 boulder, a silk cocoon) that never run out and look different from walk-over
 piles, which are collected on contact. Every Gulp puzzle has its spot beside
 it, so a puzzle never depends on what the player carries.
+
+**Replaced 2026-10-09:** the table above is the old eating; 7.5 built the essence
+Gulp in its place.
+
+**Planned 2026-10-02, not built** ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built)):
+the forms become armors the slime keeps (7.5), webs trap the slime and only the
+Silk Armor passes them (7.6), and sprint becomes a mid-game roll that breaks
+cracked walls in the Stone Armor (7.7). The table above and tasks 7.0–7.4
+describe the game today.
+
+**Since 2026-10-08** Gulp is redesigned around essences instead of armors
+([the 2026-10-08 decisions](#the-2026-10-08-decisions),
+[Gulp](GAME_GUIDELINES.md#signature-mechanic-gulp)). 7.5–7.7, 8.12 and 8.13
+build it.
 
 ### [x] 7.0 — Rough Gulp prototype, verdict 2026-09-29: keep
 
@@ -900,6 +1329,8 @@ it, so a puzzle never depends on what the player carries.
   is not saved: it ends cleanly on a map change and on save and load (played
   headless: Heavy through the Slime Home door and after a reload, the stone
   stays spent). The owner accepted Gulp as fun (7.0 verdict).
+- Planned 2026-10-02: the Heavy form becomes the Stone Armor, kept for good
+  and costing energy (7.5).
 
 - Build: the W controls above for stone, with a proper Gulp spot. Heavy lasts
   **1 minute** (a `game-constants.json` value, tuned after playtests): no
@@ -930,6 +1361,9 @@ it, so a puzzle never depends on what the player carries.
   playground: tap → Heavy, hold + Down → Sticky, hold + Up → Heavy, 700 ms of
   simulation passed while the wheel was open. `pnpm test:gulp` covers the
   entries, the switch and the slot picking.
+- Planned 2026-10-02: the Sticky form becomes the Silk Armor and the quick
+  wheel of carried materials changes with the armors (7.5); webs trap the
+  slime until the Silk Armor passes them (7.6).
 
 - Build: eating silk makes the slime Sticky: it crosses spider webs that would
   catch it normally. Holding W opens the quick wheel of carried Gulp materials.
@@ -951,6 +1385,8 @@ it, so a puzzle never depends on what the player carries.
   (played headless: a light slime does nothing, the Heavy form opens it).
   `pnpm test:scene-integration` covers the plate frames, the latch and the
   gate link.
+- Planned 2026-10-02: the web barrier traps the slime and only the Silk Armor
+  passes it (7.6); what the Gulp spots become with the armors is open (7.5).
 
 - Build: stone and silk Gulp spots, a pressure plate linked to a gate (reuse
   `game.gate`), and a web barrier or bridge, all authored in world scenes.
@@ -968,10 +1404,230 @@ it, so a puzzle never depends on what the player carries.
   crystal shards), and the cave ladder climbs back up beside the hole.
   Played headless both ways; the hole stays open after returning.
 - Next: the owner tries it; then a first real cavern secret in Chapter 1 or 2.
+- Changed 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions)):
+  with the jump removed, a Squash Slam in the Heavy form breaks it (the slam's
+  impact counts as the Heavy landing did; `requires_impact` off restores the
+  standing rule). The creak hint names the slam and its key once the slam is
+  learned. Tests: `test_gulp.gd`.
+- Planned 2026-10-02: the Stone Armor (7.5) breaks the cracked ground instead
+  of the one-minute Heavy form, and rolling in the Stone Armor breaks cracked
+  walls (7.7).
+
+### [~] 7.5 — Suck, throw and swallow essences
+
+- Built 2026-10-09 as a playground prototype, waiting for the owner's
+  playtest; its art came the same day and the owner accepted it. A second
+  round the same day, after the owner's feedback, brought 64 more things to
+  lift (67 kinds in all), breaking by material, and sounds. Try it with F6 on
+  `game/dev/playground.tscn` (the playground teaches Swallow and puts essences
+  in the bag):
+  - The **gulp yard**, north-west of the spawn, has mossy rocks, puffballs and
+    pinecones, and a stone, a silk and a swim essence. The old stone spot (by
+    the heavy plate) and silk spot (by the web nook) are placed essences now.
+  - The **liftable gallery**, east of the spawn (x 1600–2084, y 1540–1780),
+    has all 67 kinds in rows of 12, to suck, throw and break.
+  - Hold Q facing something to suck it in. Q throws it at the pointer: try the
+    training dummies east of the spawn. 1 swallows a held essence; 1 with
+    nothing held spits the form out. A right click (W in the keys-only scheme)
+    on an essence puts it in the bag, and Use in the bag puts it back in the
+    mouth. The suck reaches 80 px (`gulp.suckRangePx`, shortened 2026-10-09).
+  - A hit pops the form out for about 3 s. Orb-weavers and slime-spiders drop a
+    silk essence a third of the time; the Clod Stomper (8.12) always drops a
+    stone essence.
+  - Code: `game/player/gulp/` (`mouth.gd`, `thrown_object.gd`,
+    `break_burst.gd`, `gulp_controller.gd`), `game/scripts/essence.gd` and
+    `liftable.gd`, `game/data/liftables.json`, the `gulp.*` game constants.
+    Tests: `test_gulp.gd`.
+  - Art (2026-10-09, accepted by the owner the same day): sucking plays the
+    `suck` clip; a throw faces the aim and plays `spit` (300 ms); while the
+    mouth holds something the slime idles and walks as the full slime
+    (`full-idle`, `full`), and the held thing shows inside, on its belly. The
+    liftables and the essences have their own sheets (Assets below). The
+    first pot (`object.liftable-pot`, `pot_art.gd`), a copy of a Zelda
+    vessel, is gone. Still placeholder: the suction lines are pale streaks
+    (`suction_fx.gd`). `godot/tools/render_gulp_art.gd` draws all of it on one
+    sheet with the game's scenes.
+  - **67 liftables** (second round, 2026-10-09). The owner asked for at least
+    8 by 8 things to suck and throw, for dungeons, terrains and interiors,
+    pots included as long as they are original. They cover home and kitchen,
+    dungeon, forest, cave and crystal, snow and ice, desert, beach and swamp,
+    garden and lava, plus four spares. Each kind has a name and a material
+    (clay, glass, wood, metal, stone, soft, ice, snow or crystal) in
+    `game/data/liftables.json`. One scene, `object.liftable`, serves every
+    kind: set `kind` on the placed instance (and the Visual's `frame`, so the
+    editor shows it); the frame and the body's footprint follow the kind.
+    `object.liftable-rock`, `-puffball` and `-pinecone` preset the kind.
+  - **Breaking:** a thrown liftable bursts into 3 × 3 chunks of its own
+    picture that fly, tumble, skip once and fade (0.7 s, `break_burst.gd`),
+    with its material's particles and sound: a pot shatters, a crate
+    splinters, a kettle clangs, a pumpkin splats. Since the owner's third round
+    (2026-10-09) essences are never thrown: Q spits one out whole 44 px ahead,
+    where it stays (`mouth.gd`); the thrown stone's stun and silk's slow patch
+    are gone. A full slime walks at 70% (`gulp.holdingSpeedMultiplier`).
+    It hits for `gulp.throwDamage` times its
+    material's `gulp.throwDamageByMaterial` (metal 1.5, stone 1.3, crystal
+    1.2, ice 1.1, clay, wood and essences 1, glass 0.8, soft 0.6, snow
+    0.4). A hit that knocks the held thing out breaks it the same way at the
+    slime's feet.
+  - **Sounds** (Sound Picker round 5; the game plays option A until the owner
+    picks): the suck `GulpSuck`, the catch `GulpCatch`, the throw `GulpSpit`,
+    and one break per material (`BreakClay`, `BreakGlass`, `BreakWood`,
+    `BreakMetal`, `BreakStone`, `BreakSoft`, `BreakIce`).
+  - Since 2026-10-09 Tom teaches Swallow (8.13). Beyond the Verdant Gate no
+    longer does (it was a stand-in).
+- Decided 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions);
+  the design is in [Gulp](GAME_GUIDELINES.md#signature-mechanic-gulp)). It
+  replaces the armors of 2026-10-02, and it answers owner questions 13–15.
+- Before 2026-10-09: one-minute forms eaten from Gulp spots or carried
+  materials, chosen on the hold-Q quick wheel (7.1, 7.2).
+- Build, in the playground first:
+  - **Suck** (hold Q, short range). An essence or a light liftable object (a
+    pot, a rock, a pumpkin and dozens more; original pots are fine, owner
+    2026-10-09) flies into the slime; never a live enemy. A tap with nothing
+    in reach puffs.
+  - **Holding.** The slime swells up and waddles. It cannot attack or use
+    abilities. Q throws what it holds, aimed at the pointer (the facing in
+    keys-only); it breaks where it lands, by its material, for damage. Stone
+    also stuns, and silk leaves a patch that slows enemies.
+  - **Swallow**, a learned ability (`swallow`) on 1, in the
+    jump's old HUD place. A held essence becomes its form. With nothing held,
+    the current form drops out as a whole essence.
+  - **Forms.** One at a time, no timer, no energy. A hit pops the form out as a
+    blob the slime can suck back for a moment, and the pop takes the hit's
+    side effect. Swallowing another essence pops the old one out. A form and a
+    held thing survive doors and saves.
+  - **Essences** are items: stone, silk and swim.
+    - Today's Gulp spots become placed essences, which come back when the map
+      is entered again.
+    - Enemy drops fade after about 30 s.
+    - Interact puts an essence in the bag, and "Use" in the bag puts it in the
+      slime. Walking over one does nothing. Recipes can use them.
+  - **Forms:** Stone (today's Heavy), Silk (Sticky) and Swim (today's Frog).
+    The frog on its lily pad becomes decoration, and swim essences are placed
+    by hand until an aquatic monster drops them.
+  - The quick wheel and eating carried materials go away.
+  - Keys: Q, and 1 for Swallow (4.10).
+- Later: two upgrades that let the slime suck in heavy rocks, like Zelda's
+  gloves, each with the full ceremony. What they are and where they are found
+  is Open.
+- Depends on: 4.13 (Swallow's ceremony).
+- Player proof: the slime eats the world and becomes it, and a puzzle's
+  essence is something to find.
+- Done when:
+  - in the playground the slime sucks, throws and swallows, and each form does
+    its rule;
+  - a hit pops the blob, and the blob can be taken back;
+  - a form and a held thing survive a door and a save;
+  - a wasted placed essence is back after re-entering the map;
+  - the owner accepts the feel.
+
+### [ ] 7.6 — Webs trap; only the Silk form passes
+
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Webs"): a web blocks the path and traps the slime in place. Only the Silk
+  Armor passes a web, and passing costs energy; when the energy runs out
+  while the armor is passing, the armor comes off at that moment. The
+  Matron's special-attack webs work the same way, as do some webs in spider
+  camps. A web door closes the Matron's camp.
+- Changed 2026-10-08 (7.5): the **Silk form**, from a silk essence, passes
+  webs. Forms cost no energy, so the energy rule is gone. Tom's web (8.13) is
+  different: a weapon tears it.
+- Today: a web holds the slime 0.9 s and pushes it back; the one-minute
+  Sticky form passes it and, since the 2026-09-30 feedback (4.9), tears it
+  open for good.
+- Build: one web rule for world webs, the Matron's volley patches (8.7) and
+  the spider-camp webs chosen in 8.9. Without the Silk form the slime is
+  trapped in place; in it, the slime passes. Also a web door object for the
+  Matron's camp (8.7).
+- Not decided: how a trapped slime gets free, and whether a web stays after
+  the Silk form passes (it tears open today, a fix made for the timed form).
+  Ask the owner before building.
+- Depends on: 7.5.
+- Done when: in the playground a web traps the slime without the Silk form (in
+  the Stone form too) and lets the Silk slime through; a Matron volley patch
+  behaves the same.
+
+### [~] 7.7 — The Roll replaces the Dodge
+
+- Built 2026-10-09 and reworked the same day after the owner's feedback ("the
+  roll should feel like the Zelda sprint"): a dash like Zelda's Pegasus
+  Boots. Waiting for the owner's feel. Try it on 2 with F6 on
+  `game/dev/playground.tscn`. It keeps the ability id and input action
+  `dodge` (saves, quests and the HUD slot are unchanged) and shows as "Roll";
+  Stone Tools still teaches it ("curl up, spin, and roll away! Keep holding it
+  and you keep rolling.").
+  - **Spin-up:** the slime curls into the ball and spins in place for 260 ms
+    (`rollSpinUpMs`), laying two dark skid streaks and kicking dust back like
+    screeching tires (cue `RollRev`). It does not move and has no i-frames.
+  - **Launch:** it shoots off along one of eight directions: the pointer aim,
+    else the held movement keys, else the facing, snapped. 460 px/s
+    (`rollLaunchSpeed`) easing to 340 (`rollSpeed`) over 450 ms
+    (`rollMinMs`), with 400 ms of i-frames from the launch
+    (`rollInvulnerabilityMs`); cue `RollLaunch`.
+  - **Straight:** the movement keys do nothing while it rolls. It cannot turn
+    or slide sideways (`rollTurnRadPerS` was removed).
+  - **Held:** after that it keeps rolling while 2 is held and drains 12 energy
+    per second (`rollEnergyPerSecond`; energy does not refill while rolling).
+    Letting go or running out of energy stops it.
+  - **Bonk:** when a wall, a rock or an enemy stops the ball, it bonks (cue
+    `RollBonk`). The screen shakes (220 ms at 0.008, `rollBonkShakeMs`,
+    `rollBonkShakeIntensity`) with a 60 ms hit-stop (`rollBonkHitStopMs`).
+    Things standing within 140 px of the impact wobble
+    (`rollBonkWobbleRadiusPx`). An enemy within 34 px takes 10 damage and 300
+    knockback (`rollBonkHitRadiusPx`, `rollBonkDamage`, `rollBonkKnockback`;
+    damage 0 turns this off). The slime bounces back off it in the knockback
+    pose with an 18 px hop, at 400 px/s easing out over 360 ms, 72 px back:
+    at least a tile (owner, 2026-10-09; `rollBounceHopPx`, `rollBounceSpeed`,
+    `rollBounceMs`), and then the roll
+    ends.
+  - A knockback, a death, a door or an opened window ends it at once. The
+    next roll can start 250 ms after one ends (`rollCooldownMs`). Holding
+    something in the mouth or swimming still blocks it.
+  - Everything comes with the lesson (owner, 2026-10-09: once learned, the
+    slime learns everything about it). There is no later upgrade.
+  - Values in `character.player.movement` of `game-constants.json` (the
+    `dodge*` values are gone). Code: `game/player/roll/player_roll.gd` and
+    `roll_fx.gd`. Art: the `ball-side` row of slime v2 page 4 (Assets below).
+    Sounds: Sound Picker round 5 (the game plays option A until the owner
+    picks). Tests: `test_player_movement.gd` (updated for the dash, not run
+    yet).
+- Open (for the owner): the feel and the numbers; its energy cost (5.6
+  decides per-use costs; only the held part drains today); and whether a roll
+  in the Stone form breaks cracked walls (not built).
+- Decided 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions)):
+  the Dodge becomes the Roll, on key 2 (owner, 2026-10-09). The slime curls into a ball with a
+  swirl, like the roll in the old sheet
+  (`godot/asset/characters/slime_normalized.webp`, row 6). It first spins in
+  place, like tires screeching, then shoots off, and it keeps rolling while
+  the key is held. On 2026-10-09 the owner set the rest: it goes straight
+  like Zelda's dash and cannot move sideways, hitting a wall shakes things
+  and the screen and bounces the slime back, and it comes whole with its
+  lesson.
+- Done 2026-10-08 (in the HUD session, for the owner): Shift no longer sprints,
+  and Slime Basics' sprint step and the sprint hint are gone.
+- Decided 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Sprint"): sprint is not available at the start. An Open Pearl grants it
+  mid-game as a powerful milestone, and it is a fast roll. It combines with
+  armors: rolling in the Stone Armor breaks cracked walls. Since 2026-10-08
+  the Roll takes the Dodge's place instead, and since 2026-10-09 the slime
+  learns all of it at once.
+- Today: the Roll (key 2, taught by Stone Tools) spins up, dashes straight on
+  while held and bonks back off walls (built 2026-10-09, above). The old
+  dodge's 0.5 s roll is gone; its page-2 `roll-*` rows are still built but no
+  longer played.
+- Build: the Roll in the Dodge's place (`roll`, key 2, taught where the Dodge
+  was): the curled ball, the spin-up in place, the launch, rolling straight
+  on while the key is held, and the bonk. It is built and tried in the
+  playground first.
+- Depends on: 5.6 for its energy cost.
+- Done when: on a fresh save Stone Tools teaches the Roll on 2; it spins up,
+  dashes straight on while held and bonks back off a wall; the owner accepts
+  the feel.
 
 **Milestone 7 complete when:** the playground has one Heavy and one Sticky
 puzzle that a player solves without a hint, and the user has accepted Gulp as
-fun.
+fun. Since 2026-10-08 it also needs the essence Gulp, the web rule and the Roll
+(7.5–7.7) accepted in the playground.
 
 **Assets**
 
@@ -979,9 +1635,9 @@ fun.
 - [ ] Player form-end (burp) clip: new frames on the player sheet or an
       overlay effect.
 - [ ] Heavy and Sticky form overlays (stone flecks, silk strands).
-- [~] Two form icons for the HUD timer and the quick wheel: Magnific GPT-2
-      badges (`godot/asset/UI/ui-gulp-form-icons-2x1.webp`, frame per form via
-      `GulpFormDefinition.iconFrame`); owner to accept.
+- [~] Form icons for the HUD: Magnific GPT-2 badges
+      (`godot/asset/UI/ui-gulp-form-icons-3x1.webp`, read by
+      `game/ui/console/hud_console.gd`); owner to accept.
 - [~] Gulp spots: a stone spot and a silk cocoon, clearly different from
       loose piles.
 - [~] Pressure plate (up and down) and web barrier or bridge sprites: the
@@ -990,6 +1646,78 @@ fun.
       shows `pressedFrame` while held) were generated 2026-09-30
       (`scripts/props/pack-gulp-props.py`, frames 0–7); owner to accept.
 - [ ] Eat, burp, plate click, and web tear sounds.
+- [ ] A slime-trapped-in-web effect (7.6).
+- [ ] A cracked wall with its broken frame (7.7, if the Stone roll breaks
+      walls).
+- New for the essence Gulp (owner, 2026-10-08), each in the three player
+  directions. The player clips of 2026-10-09 are Seedance 1.5 Pro videos of
+  the three-quarter slime v2 (sources in `asset/Originals/characters/slime-v2/`,
+  packed by `scripts/characters/pack-slime-v2-page.py --page 4|5`, aliases in
+  `godot/tools/build_player_clips.gd`):
+  - [~] **Suck:** the slime opens wide and pulls, with suction lines. The
+        suck-down, suck-up and suck-side rows of
+        `godot/asset/characters/256x256-tile_8x8-slime-v2-page-4.webp` loop
+        while Q sucks (accepted by the owner 2026-10-09); the suction lines
+        are still placeholder streaks.
+  - [~] **Spit:** the throw, plus an arc and break effects for a rock, a
+        puffball, a pinecone and an essence. The spit-down, spit-up and
+        spit-side rows of page 4 play once (300 ms) on a throw, starting full
+        and popping empty (accepted by the owner 2026-10-09). The arc and the
+        break are drawn in code: a low arc with a shadow
+        (`thrown_object.gd`), and a burst of 3 × 3 chunks of the thing's own
+        picture with its material's particles (`break_burst.gd`, second round
+        of 2026-10-09). Owner to judge the break.
+  - [x] **The full slime:** swollen with the held thing showing inside, and
+        walking funny (a waddle); idle and walk. The full-down, full-up and
+        full-side rows of
+        `godot/asset/characters/256x256-tile_8x8-slime-v2-page-5.webp` (an
+        8 fps waddle), and the full-idle clips (the same rows at 2.67 fps, a
+        slow sway). Accepted by the owner 2026-10-09.
+  - [x] **The Roll:** a green ball with a swirl, like row 6 of
+        `godot/asset/characters/slime_normalized.webp`. A spin-up in place with
+        dust and skid marks, like screeching tires, then the launch and the
+        rolling loop. The ball-side row of page 4 (from `start-ball.png`, spun
+        clockwise in 45° steps) and, since the owner's third round (2026-10-09:
+        "good on the side but not on top and down"), ball-down and ball-up on
+        page 5 (the same still rolled on a sphere toward and away from the
+        camera, `ROLLS` in the packer), with skid
+        streaks and dust from `roll_fx.gd`. Accepted by the owner 2026-10-09.
+        The bounce after a bonk reuses the `knockback` clip.
+  - [ ] Swallow: the `eat` clip may do; a new gulp-down if it does not read.
+- [x] Essence sprites on the ground, in the mouth and as bag icons (stone,
+      silk, swim): `godot/asset/MAPS/items/128x128-tile_3x1-gulp-essences.webp`
+      (item-icons key `gulp-essences-3x1`). Accepted by the owner 2026-10-09.
+- [ ] The popped blob.
+- [~] Liftables: 67 kinds on one sheet,
+      `godot/asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp` (8
+      columns × 9 rows of 192 px; it replaced the 6 × 1 sheet on 2026-10-09).
+      Rows 0–7 hold 64 objects for every kind of place: home and kitchen,
+      dungeon, forest, cave and crystal, snow and ice, desert, beach and
+      swamp, garden and lava, and four spares. Row 8 holds the first three, a
+      mossy rock, a puffball mushroom and a pinecone, two variants each
+      (frames 64–69; accepted by the owner 2026-10-09). The 64 come from four
+      Magnific GPT 2.5 grids of 16 (`grid-1.png` .. `grid-4.png`, 400
+      credits). Pots are fine as long as they are original (owner,
+      2026-10-09). `scripts/props/pack-gulp-art.py` packs the liftables and
+      the essences from the stills in `asset/Originals/gulp/generated/` and
+      writes `godot/game/data/liftables.json`. Owner to accept the 64. No
+      break frames are needed: a thing bursts into chunks of its own picture.
+- [x] Sounds for the Gulp, the breaks and the Roll (Sound Picker round 5,
+      2026-10-09): the suck, catch and spit (`GulpSuck`, `GulpCatch`,
+      `GulpSpit`), one break per material (`BreakClay`, `BreakGlass`,
+      `BreakWood`, `BreakMetal`, `BreakStone`, `BreakSoft`, `BreakIce`), and
+      the Roll's spin-up, launch and bonk (`RollRev`, `RollLaunch`,
+      `RollBonk`). Magnific (ElevenLabs) sound effects, three takes per
+      option; option A of each ships (the owner accepted the defaults on
+      2026-10-09; [Sound Picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ))
+      ([audio spec §11](godot/specs/audio.md#11-round-5-the-gulp-the-breaks-the-roll-the-clod-stomper-and-the-ceremony)).
+- [ ] The Stone, Silk and Swim looks: today's shader skins (Heavy, Sticky,
+      Frog) are the start.
+- [~] HUD icons for Swallow and the Roll: the console's `ability-swallow.webp` and
+      `ability-dodge.webp` exist (the HUD session's, `godot/asset/UI/hud-console/`); the ability
+      ceremony shows them too. Owner to accept. A held-thing indicator (4.12) is not built.
+- Superseded 2026-10-08: the Stone and Silk Armor looks and icons, and the
+  quick wheel.
 
 ## 8. Chapter 2 — Gloop Forest
 
@@ -1034,7 +1762,7 @@ materials), 8 (Forge), and 13 (progression pass).
 - Build: 5–6 quests in `chapterTwo.ts` form, with givers, objectives,
   rewards, flags, and material sources (resources respawn after 5.5). Assign
   the chapter's abilities: Stretch Lash from a quest, Squash Slam from the boss
-  (8.7). Plan the Gulp puzzles and the boss's use of Sticky form around the
+  (8.7; since 2026-10-08 Squash Slam comes from Fatty One Eye instead, 5.9). Plan the Gulp puzzles and the boss's use of Sticky form around the
   Gulp prototype's verdict (7.0) and the fresh-eyes playtest notes (4.9).
 - Done when: the outline is written, every recipe in the chapter has a
   reachable source, it follows the 7.0 verdict, and `pnpm quests:check` passes
@@ -1123,6 +1851,14 @@ materials), 8 (Forge), and 13 (progression pass).
   8.10) was then played headless: the restoration paid 40 stone, 20 wood and 6
   ore through the site and the furnace lit. Open: the owner's acceptance on a
   fresh save.
+- Planned 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "Crafting time"): smelting takes time. Charcoal and iron bars cook in the
+  background with a progress bar on the Forge, and the slime claims them
+  later ([Chapter 2](story/chapters/chapter-2-gloop-forest.md), Beat 5). Today
+  both recipes are instant. Done when: a batch started at the Forge shows its
+  progress, finishes while the slime is away, is claimed on return, and
+  survives save and load; Rekindle the Forge counts the claimed charcoal and
+  bars.
 - Build: a second restoration using 6.1: a ruined Forge in Slimeshire and a
   Chapter 2 quest to rebuild it. The player uses the restored Forge directly to
   smelt iron ore and charcoal into iron bars; it never outputs weapons.
@@ -1142,6 +1878,8 @@ materials), 8 (Forge), and 13 (progression pass).
   the Iron Spear for 14, so an orb-weaver (70 HP) takes 5 hits instead of 8.
   Rekindle the Forge teaches the spear and Iron Gear the axe (8.10), both
   played headless. Open: the owner's acceptance on a fresh save.
+- Planned 2026-10-02: the Iron Spear and Iron Axe are hammered at the
+  workbench and end in the item ceremony (6.5).
 - Build: craft an iron spear and an iron axe at the workbench from iron bars
   (the Workshop's second tier moved after Chapter 2 with the Workshop).
 - Player proof: ore → Forge → bar → workbench → stronger weapon.
@@ -1163,7 +1901,8 @@ materials), 8 (Forge), and 13 (progression pass).
   chest (3 iron bars, 2 tonics), respawn after 5
   minutes, and a silk cocoon Gulp spot inside the arena. Quest 6, **The
   Matron's Nest** (Mossy, after Iron Gear), completes on her defeat: 100
-  coins, Squash Slam and `chapter-2-complete` (the end card); a Goo Heart then
+  coins, Squash Slam (until 2026-10-08, when it moved to The One-Eyed
+  Guardian) and `chapter-2-complete` (the end card); a Goo Heart then
   appears in the nest. Played headless: the circles showed for about a second
   before landing, the patches caught the normal slime and not the Sticky one,
   21 Iron Spear swings defeated her, and the quest, Squash Slam, the flag and
@@ -1171,6 +1910,35 @@ materials), 8 (Forge), and 13 (progression pass).
   2.6× and purple, and the spider's voice pitched down are placeholders),
   the owner's fight, and tuning (standing still in her
   volleys is deadly).
+- Planned 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
+  "The Weaver (Matron)", "Webs", "Hearts" and "Boss reset";
+  [Chapter 2](story/chapters/chapter-2-gloop-forest.md), Beat 9):
+  - New art (the boss sprite sheet in the Assets below).
+  - Her normal attack becomes Stretch Lash in three directions, in place of
+    the web spit. A hit deals damage, pulls the slime toward her and traps it,
+    unless the slime is in the Silk form (7.5); then the hit pops the silk
+    out instead.
+  - Her volley webs follow the web rule (7.6).
+  - A web door (7.6) closes her camp's only entrance (today a web-draped
+    opening, 4.11).
+  - Her Pearl (5.9) grants Stretch Lash after the fight (it leaves Beyond the
+    Verdant Gate, 8.10). Squash Slam left her reward on 2026-10-08: Fatty One
+    Eye's Pearl grants it.
+  - Her bar hides while the slime is outside the arena (4.12).
+  - Recheck her damage (18 to 30 a hit, tuned for 100–150 HP) against the
+    heart-quarter totals (5.3,
+    [unlock map](story/05-unlock-map.md#health-and-energy-totals)).
+  - Open: whether she also gives a full heart (+20) on top of the map's
+    quarters ([question 17](story/06-open-questions.md#progression)); today a
+    +10 Goo Heart appears in the nest.
+  - Update the [Matron spec](design/2026-10-01-orb-weaver-matron.md) first.
+    Depends on: 5.9, 7.5, 7.6.
+  - Done when: the user beats her in the Silk form with Chapter 2 gear (the
+    Silk Armor until 2026-10-08); a lash hit pulls the slime, traps it only
+    without the form, and pops the form when it has one; the web door lets
+    only the Silk slime in; her Pearl grants Stretch Lash
+    exactly once. This replaces the "heart is granted exactly once" check
+    below.
 - Build: one boss on the Fatty model: a telegraphed signature attack, boss
   bar, arena leash, guarded reward, and persisted defeat. Proposal: the
   **Orb-Weaver Matron** webs the arena, and Sticky form lets you cross her
@@ -1178,8 +1946,8 @@ materials), 8 (Forge), and 13 (progression pass).
   first.
 - Done when: every attack has a telegraph of at least half a second; the
   user beats her with Chapter 2 gear; defeat, save/load, and leaving the arena
-  reset or persist her as the spec says; the heart and Squash Slam are granted
-  exactly once.
+  reset or persist her as the spec says; the heart is granted exactly once
+  (Squash Slam left her reward on 2026-10-08).
 
 ### [~] 8.8 — A second home in Gloop Forest
 
@@ -1192,6 +1960,8 @@ materials), 8 (Forge), and 13 (progression pass).
   [Adding an interior](archive/phaser/knowledge/adding-an-interior.md). Open: the Studio
   route is untried (no blocker found), and the room reuses the Slime Home's
   layout.
+- Open since 2026-10-02: whether the hut gets a vault too, sharing the first
+  vault's storage (5.8, [question 12](story/06-open-questions.md#progression)).
 - Build: a hut exterior and furnished interior with a bed, so Chapter 2 has its
   own respawn point. Build the interior with Scene Studio as it is today (this
   replaces the old interior-authoring task 4.3); write the steps in a short
@@ -1219,9 +1989,26 @@ materials), 8 (Forge), and 13 (progression pass).
     is done).
   Played headless: the stone form opened the hollow's gate and the slime walked
   in; the silk form walked through the nook's web to its heart; the stone form's
-  jump broke the cracked ground, the sinkhole led down to the cavern's heart and
+  jump broke the cracked ground (a Heavy Squash Slam since 2026-10-08, 7.4),
+  the sinkhole led down to the cavern's heart and
   the ladder back up; the lash pulled the basket across the moat while the bank
   stopped the slime. Open: no playtester has tried the puzzles without a hint.
+- Planned 2026-10-02 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built);
+  [Chapter 2](story/chapters/chapter-2-gloop-forest.md), Beat 7 and Secrets):
+  - Hearts: four heart quarters in Gloop Forest (5.3). Today's silk nook and
+    cavern Goo Hearts become quarter spots. Open: whether the Gloop Cavern
+    has its own four ([question 18](story/06-open-questions.md#progression)).
+  - Bags: a coffer in the Gloop Cavern holds the 20-slot bag (5.7), with the
+    ceremony.
+  - Forms (since 2026-10-08): the iron hollow's plate and the cracked clearing
+    need the Stone form, and the silk nook's web the Silk form (7.5, 7.6). The
+    Gulp spots beside them become placed essences, which come back when the
+    map is entered again.
+  - Webs: choose the spider-camp webs in the orb-weaver thickets that trap
+    (7.6).
+  - Done when: each quarter is taken once and persists; the coffer's bag
+    replaces the 10-slot bag once; each puzzle opens with its form and not
+    without it.
 - Build: at least three Gulp puzzles in Gloop Forest, each with its Gulp spot
   beside it, and at least two hidden Goo Hearts, one of them behind a puzzle.
 - Done when: a playtester solves each puzzle without a hint, and each heart is
@@ -1243,6 +2030,19 @@ materials), 8 (Forge), and 13 (progression pass).
   and recipes survived a reload. Also fixed: an NPC that a story variant takes
   out of the world no longer breaks the quest waypoint or its name tag. Open:
   the Matron quest (with 8.7), the end card (8.11), and a full fresh-save run.
+- Planned 2026-10-02 ([Chapter 2](story/chapters/chapter-2-gloop-forest.md)):
+  - Beyond the Verdant Gate no longer teaches Stretch Lash; the Matron's Pearl
+    does (5.9, 8.7). Sunny's Basket, which needs the lash, moves after The
+    Matron's Nest.
+  - Since 2026-10-08: Tom's rescue teaches Swallow before A Harder Pick
+    sends the slime into the iron hollow (8.13), and Clod Stompers near the
+    hollow drop the stone essence (8.12). Spiders drop silk. Built 2026-10-09:
+    Tom in the Web comes between Beyond the Verdant Gate and A Harder Pick,
+    and Clod Stompers camp by the hollow and the cracked clearing.
+  - Rekindle the Forge smelts on the Forge's timer (8.5), and Iron Gear's
+    spear is hammered (6.5).
+  - Done when: the "Stretch Lash is granted exactly once" check below holds
+    for the Matron's Pearl instead of a quest.
 - Build: turn the 8.1 stubs into full quests in `chapterTwo.ts`, alongside
   8.2–8.9: givers (existing NPC sheets unless the outline asks for new art),
   dialogue, objectives, rewards, the Stretch Lash grant, a chapter banner, and
@@ -1265,8 +2065,103 @@ materials), 8 (Forge), and 13 (progression pass).
   finishing Chapter 2 sets the flag that shows the end card (4.7).
 - Done when: a fresh run reaches the end card without debug grants.
 
+### [~] 8.12 — The Clod Stomper drops the stone essence
+
+- Built 2026-10-09, waiting for the owner: `character.clod-stomper`
+  (`game/scripts/clod_stomper.gd`, on the enemy script), a camp enemy with
+  90 HP, aggro range 230, speed 70 and knockback resist 0.8.
+  - In reach (70 px) it never swings: it crouches 700 ms behind a ring
+    telegraph (an ellipse 168×100 at its feet), hops 30 px for 340 ms and
+    slams. A slime in the ring takes 26 damage and 300 knockback; the screen
+    shakes, the ground cracks, and cracked ground within 90 px of its feet
+    (`crack_radius`, plus the cracked ground's own radius) breaks. Then it is dazed 700 ms (the time to hit it) and
+    stomps again 1400 ms later. Hits never break a stomp; a rolling slime's
+    i-frames dodge it.
+  - It drops a stone essence every time (`gulp.essenceDrops`), and 10 coins.
+  - Placed: the playground's enemy pen; Gloop Forest camps
+    `gloop-clod-stompers-hollow` (2560, 3160), south of the iron hollow's
+    plate, and `gloop-clod-stompers-clearing` (1700, 2370), east of the
+    cracked clearing. That camp keeps it about 260 px from the cracked ground,
+    so it breaks the ground only for a slime that lures it over.
+  - Art: `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp`
+    (idle, crouch, air, slam, defeated) from Magnific GPT 2.5 stills in
+    `asset/Originals/enemies/clod-stomper/`, packed by
+    `scripts/characters/pack-clod-stomper.py`. Tests: `test_clod_stomper.gd`.
+- Decided 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions)).
+  It replaces "Earn the Stone Armor"; the armors were dropped.
+- **The Clod Stomper** is a squat golem of mud and pebbles, a small Fatty One
+  Eye. It jumps in place and slams the ground behind a ring telegraph, and its
+  slam cracks weak ground near it. The player sees the enemy do what a stone
+  essence plus Squash Slam will let them do. Beaten, it drops a stone essence.
+- The slime meets it before A Harder Pick sends it into the iron hollow
+  ([Chapter 2](story/chapters/chapter-2-gloop-forest.md), Beat 4), and after
+  Tom has taught Swallow (8.13).
+- Today: the Clod Stomper is built (above). Its slam plays its own
+  `StomperSlam` (Mud stomp, Sound Picker round 5, 2026-10-09) instead of
+  SlamImpact. Not done: the owner's acceptance, and its other sounds (it
+  reuses SlamWindup, Jump, hit-dull and stone-crumble).
+- Build: the enemy (scene, AI on the enemy model, art), its stone essence drop,
+  and its camps near the iron hollow and the cracked clearing. It is tried in
+  the playground first.
+- Depends on: 7.5.
+- Done when: in the playground and in Gloop Forest the Clod Stomper
+  telegraphs, slams and drops its essence; a slime that swallows the essence
+  opens the iron hollow's plate; the owner accepts it.
+
+### [~] 8.13 — Tom in the web: learning Swallow
+
+- Built 2026-10-09, waiting for the owner: the quest **Tom in the Web**
+  (`tom-in-the-web`, in `quests-chapter-2.json`). Mossy gives it after Beyond
+  the Verdant Gate; its one stage asks to "Cut Tom out of the web"; Tom takes
+  the turn-in and gives 20 coins and Swallow. A Harder Pick now requires it.
+  - **Tom** (`tom` in `npc-definitions.json`, `character.tom`, idles in
+    place): a round blue jelly slime with a moss-green scarf and a small bottle
+    of glowing essence (`godot/asset/characters/authored/npcs/tom.webp`). The
+    prompt asked for amber-orange; the blue was kept because it reads well and
+    differs from the other NPCs.
+  - **The web** (`object.tom-web`, `game/scripts/tom_web.gd`) hangs in Gloop
+    Forest's south-west spider thicket at (860, 2470). Three weapon hits tear
+    it; thrown things and abilities only shake it; it tears only while the
+    quest is active (before that, Tom mumbles). Torn, it sets `tom-freed` and
+    Tom calls "I'm free! Thank you! Meet me at Mossy's camp!". Story variants
+    then show the torn web and Tom by the camp fire (`camp/tom-at-camp`). The
+    quest arrow finds the web.
+  - Art: `godot/asset/MAPS/props/256x256-tile_2x1-tom-web.webp` (Tom in the
+    cocoon, the torn web); sources in `asset/Originals/characters/tom/`,
+    packed by `scripts/characters/pack-tom.py`. Tests: `test_tom.gd`.
+- Decided 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions)).
+  It replaces "Earn the Silk Armor"; the armors were dropped.
+- The story:
+  - Mossy asks the slime to rescue **Tom**, a new NPC.
+  - Tom already knew how to swallow. He went to a spider thicket in Gloop
+    Forest to swallow silk and got caught in its web.
+  - The slime frees him by hitting the web around him with a weapon. It cannot
+    swallow yet, and a path web would trap it.
+  - Back at Mossy's forest camp, Tom teaches **Swallow** with the full
+    ceremony.
+  - The owner may add more to this story later.
+- Spiders drop silk essences (7.5), so silk is no longer a hard-to-get key
+  item. Swallow is Chapter 2's key item: the Matron and the web secrets need
+  the forms it opens.
+- Today: Tom teaches Swallow (built 2026-10-09, above), and learning it plays
+  the ability ceremony (4.13, built later the same day). Beyond the Verdant
+  Gate no longer teaches it (it was a stand-in). Not done: the owner's
+  acceptance; the owner may add more story later.
+- Build:
+  - Tom: NPC art, and dialogue in `quests-chapter-2.json`.
+  - Mossy's quest, after Beyond the Verdant Gate and before A Harder Pick.
+  - Tom's web, which weapon hits tear.
+  - The Swallow lesson at the camp.
+- Open: the Weaver Hollow proposal (Beat 8) no longer earns an armor. Keep it
+  as a small dungeon, or drop it.
+- Depends on: 7.5 and 4.13.
+- Done when: on a fresh save Mossy's quest leads to Tom; the web tears under
+  weapon hits; Tom teaches Swallow at the camp, with the ceremony, before A
+  Harder Pick; Swallow survives save and load.
+
 **Milestone 8 complete when:** Chapter 2 plays from the Verdant Gate to the end
-card, and the gear path wood → stone → iron is complete.
+card, and the gear path wood → stone → iron is complete. Since 2026-10-08 Tom
+teaches Swallow and the Clod Stomper drops stone on the way (8.12, 8.13).
 
 **Assets**
 
@@ -1280,6 +2175,18 @@ card, and the gear path wood → stone → iron is complete.
 - [ ] Boss sprite sheet, web projectile and web-ground effects, and arena
       dressing (placeholders today: the orb-weaver sheet scaled and tinted,
       the web-cover effect as the ground web, no dressing).
+- [ ] The Matron's lash in three directions (8.7); the Stretch Lash tendril
+      art is the starting point.
+- [ ] The web door (8.7) and the cavern coffer for the 20-slot bag (8.9).
+- [~] The Clod Stomper's sprite sheet (8.12):
+      `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp` (idle,
+      crouch, air, slam, defeated); accepted by the owner 2026-10-09 ("the art is fine"). Its slam has its own
+      sound since 2026-10-09 (`StomperSlam`, Sound Picker round 5, owner to
+      pick); the rest are reused (SlamWindup, Jump, hit-dull and
+      stone-crumble).
+- [~] Tom's NPC sheet and the web around him (8.13):
+      `godot/asset/characters/authored/npcs/tom.webp` and
+      `godot/asset/MAPS/props/256x256-tile_2x1-tom-web.webp`; accepted by the owner 2026-10-09.
 - [x] Gloop Forest hut exterior (the blue cottage already in the camp).
 - [x] Gloop Forest music and ambience (Magnific, `audio.music.gloop-forest*`);
       Forge fire and anvil loops (the campfire and anvil loops, on the
@@ -1551,7 +2458,8 @@ numbered milestone and task tiles.
   table for furniture, storage, and defenses.
 - **Home storage and safety rules** (was milestone 12).
 - **More Gulp forms:** Glow (crystal shard, lights dark caves), Bouncy
-  (berry), and later biome forms such as ice and lava.
+  (berry), and later biome forms such as ice and lava. Since 2026-10-08 each
+  comes from an essence (7.5), dropped by an enemy designed around it.
 
 ### World
 
@@ -1589,7 +2497,6 @@ numbered milestone and task tiles.
 
 - Unified action dashboard (was UX.1):
   [Player action dashboard and loadout](task/ideas/open/player-action-dashboard-and-loadout.md).
-- Weapon dropping and pickup (was UX.3).
 - Gamepad support, key rebinding, colorblind-safe status colors, text size,
   photo mode. For rebinding, the 4.10 binding table is already the data; only
   the settings screen is missing.
@@ -1611,14 +2518,18 @@ numbered milestone and task tiles.
 - `[—]` The Alchemy table: potions belong to the Kitchen, bombs to the
   Workshop.
 - `[—]` XP, levels, and perks: replaced by gear-based progression (Milestone 5).
+- `[—]` Weapon dropping and pickup (was UX.3), removed 2026-10-02: weapons go
+  into the vault instead (5.8,
+  [Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built)).
 
 ## Immediate Next Sprint
 
 Milestones 3 to 7 and 9 are built and played headless (2026-09-30); each waits
 on its assets and the owner's acceptance. Waiting on the owner:
 
-- 4.9: play the second round of fixes (tearing webs, Heavy jump on cracked
-  ground, enemy territories), then a second new player.
+- 4.9: play the second round of fixes (tearing webs, the Heavy cracked ground
+  (a Squash Slam since 2026-10-08), enemy territories), then a second new
+  player.
 - 7: try the Heavy plate gate, the Sticky web nook, the hold-W quick wheel and
   the cracked-ground cavern in the playground (`?map=playground`); accept the
   new plate and form-badge art.
@@ -1655,9 +2566,12 @@ on its assets and the owner's acceptance. Waiting on the owner:
   playground's training dummies and with the panel's game-feel buttons. The
   goo trail is now a learned ability (9.4) that no quest teaches yet.
 
-Next to build: 8.3 (the weaver fang) and 8.4 (iron nodes and the Reinforced
-Pickaxe), then 8.5 (the Forge) and 8.6 (iron gear), following the outline;
-art keeps coming from Magnific (GPT-2) as each task needs it.
+Next (2026-10-07): the owner approves the
+[HUD console mockup](design/2026-10-07-hud-console-mockup.md), the first step
+of the bottom console (4.12) and of the
+[2026-10-02 decisions](#the-2026-10-02-decisions); the order of the other
+decision tasks is not set. Art keeps coming from Magnific (GPT-2) as each task
+needs it. (The next step named here before, 8.3–8.6, was built on 2026-09-30.)
 
 ## Done — Foundations
 

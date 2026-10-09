@@ -1,0 +1,105 @@
+{
+ "round": "round-5",
+ "intro": "Sounds for the new Gulp, the Roll, the Clod Stomper and the ability ceremony (2026-10-09). The game already plays option A of each. Pick one per sound, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-5/takes",
+ "groups": [
+  {"id": "gulp", "name": "Suck, catch and spit", "note": "Q held sucks a thing in; it pops into the mouth; Q again spits it out as a throw."},
+  {"id": "break", "name": "Thrown things breaking", "note": "Each thing breaks by what it is made of: pots and shells as clay, jars, crystals and obsidian as glass, crates and logs as wood, kettles and lanterns as metal, rocks as stone, pumpkins, sacks, mud and snow as soft, ice as ice."},
+  {"id": "roll", "name": "The Roll", "note": "Key 2: the ball spins in place like screeching tires, shoots off, and bonks into walls and bounces back."},
+  {"id": "stomper", "name": "The Clod Stomper", "note": "Its slam after the hop."},
+  {"id": "ceremony", "name": "Learning an ability", "note": "The ceremony when the slime learns something new."}
+ ],
+ "cues": [
+  {"id": "player.gulp-suck", "group": "gulp", "name": "Suck", "where": "Q held: the slime inhales", "node": "GulpSuck", "ship": "player/gulp-suck", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Jelly vacuum", "note": "A rising airy suction whoosh with a gloopy wobble underneath", "kind": "oneshot", "max": 2.0,
+     "takes": ["temp/sound-round-5/raw/suck-a-1.mp3", "temp/sound-round-5/raw/suck-a-2.mp3", "temp/sound-round-5/raw/suck-a-3.mp3"]},
+    {"key": "b", "label": "Whistling slurp", "note": "A high slurp through a straw, rising, with bubbly gurgles", "kind": "oneshot", "max": 2.0,
+     "takes": ["temp/sound-round-5/raw/suck-b-1.mp3", "temp/sound-round-5/raw/suck-b-2.mp3", "temp/sound-round-5/raw/suck-b-3.mp3"]}
+   ]},
+  {"id": "player.gulp-catch", "group": "gulp", "name": "Catch", "where": "The thing pops into the mouth", "node": "GulpCatch", "ship": "player/gulp-catch", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Gloop plop", "note": "A wet muffled squishy pop with a short wobble", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/catch-a-1.mp3", "temp/sound-round-5/raw/catch-a-2.mp3", "temp/sound-round-5/raw/catch-a-3.mp3"]},
+    {"key": "b", "label": "Cork plunk", "note": "A hollow plunk into thick jelly and a tiny bubbly wobble", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/catch-b-1.mp3", "temp/sound-round-5/raw/catch-b-2.mp3", "temp/sound-round-5/raw/catch-b-3.mp3"]}
+   ]},
+  {"id": "player.gulp-spit", "group": "gulp", "name": "Spit", "where": "Q again: the thing flies out", "node": "GulpSpit", "ship": "player/gulp-spit", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Ptoo", "note": "Puffed cheeks bursting in a quick wet blow and a whoosh", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/spit-a-1.mp3", "temp/sound-round-5/raw/spit-a-2.mp3", "temp/sound-round-5/raw/spit-a-3.mp3"]},
+    {"key": "b", "label": "Boing pop", "note": "A springy jelly pop that launches it, then a short whoosh", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/spit-b-1.mp3", "temp/sound-round-5/raw/spit-b-2.mp3", "temp/sound-round-5/raw/spit-b-3.mp3"]}
+   ]},
+  {"id": "world.break-clay", "group": "break", "name": "Clay", "where": "Pots, jugs, urns, shells", "node": "BreakClay", "ship": "world/break-clay", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Pot shatter", "note": "A sharp ceramic crack and scattering shards", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-clay-a-1.mp3", "temp/sound-round-5/raw/break-clay-a-2.mp3", "temp/sound-round-5/raw/break-clay-a-3.mp3"]},
+    {"key": "b", "label": "Jar pop and tinkle", "note": "A hollow ceramic pop, then little bits tinkling as they settle", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-clay-b-1.mp3", "temp/sound-round-5/raw/break-clay-b-2.mp3", "temp/sound-round-5/raw/break-clay-b-3.mp3"]}
+   ]},
+  {"id": "world.break-glass", "group": "break", "name": "Glass and crystal", "where": "Jars, bottles, floats, crystals, obsidian", "node": "BreakGlass", "ship": "world/break-glass", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Glass shatter", "note": "A bright glass break with tinkling bits", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-glass-a-1.mp3", "temp/sound-round-5/raw/break-glass-a-2.mp3", "temp/sound-round-5/raw/break-glass-a-3.mp3"]}
+   ]},
+  {"id": "world.break-wood", "group": "break", "name": "Wood", "where": "Crates, kegs, buckets, logs, coconuts", "node": "BreakWood", "ship": "world/break-wood", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Crate smash", "note": "Splintering planks cracking and clattering", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-wood-a-1.mp3", "temp/sound-round-5/raw/break-wood-a-2.mp3", "temp/sound-round-5/raw/break-wood-a-3.mp3"]}
+   ]},
+  {"id": "world.break-metal", "group": "break", "name": "Metal", "where": "Kettles, lanterns, the iron ball", "node": "BreakMetal", "ship": "world/break-metal", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Clang", "note": "A metallic clang and a short rattling bounce", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-metal-a-1.mp3", "temp/sound-round-5/raw/break-metal-a-2.mp3", "temp/sound-round-5/raw/break-metal-a-3.mp3"]}
+   ]},
+  {"id": "world.break-stone", "group": "break", "name": "Stone", "where": "Rocks, bricks, urns of stone, coral", "node": "BreakStone", "ship": "world/break-stone", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Rock crack", "note": "A crunchy stone crack and a scatter of gravel", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-stone-a-1.mp3", "temp/sound-round-5/raw/break-stone-a-2.mp3", "temp/sound-round-5/raw/break-stone-a-3.mp3"]}
+   ]},
+  {"id": "world.break-soft", "group": "break", "name": "Soft", "where": "Pumpkins, cabbages, sacks, mud, snow, thrown essences", "node": "BreakSoft", "ship": "world/break-soft", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Splat", "note": "A wet splat with a soft puff of air", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-soft-a-1.mp3", "temp/sound-round-5/raw/break-soft-a-2.mp3", "temp/sound-round-5/raw/break-soft-a-3.mp3"]}
+   ]},
+  {"id": "world.break-ice", "group": "break", "name": "Ice", "where": "Ice blocks, icicles, frost crystals, frosted jars", "node": "BreakIce", "ship": "world/break-ice", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Ice shatter", "note": "A crisp icy crack and tinkling shards", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/break-ice-a-1.mp3", "temp/sound-round-5/raw/break-ice-a-2.mp3", "temp/sound-round-5/raw/break-ice-a-3.mp3"]}
+   ]},
+  {"id": "player.roll-rev", "group": "roll", "name": "Spin-up", "where": "The ball spins in place before it shoots off", "node": "RollRev", "ship": "player/roll-rev", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Squeaky screech", "note": "A rubbery tire screech rising in pitch", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/roll-rev-a-1.mp3", "temp/sound-round-5/raw/roll-rev-a-2.mp3", "temp/sound-round-5/raw/roll-rev-a-3.mp3"]},
+    {"key": "b", "label": "Peel-out", "note": "A cartoon wind-up whirr with squeaky skidding, like feet spinning before a dash", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/roll-rev-b-1.mp3", "temp/sound-round-5/raw/roll-rev-b-2.mp3", "temp/sound-round-5/raw/roll-rev-b-3.mp3"]}
+   ]},
+  {"id": "player.roll-launch", "group": "roll", "name": "Launch", "where": "The ball shoots off", "node": "RollLaunch", "ship": "player/roll-launch", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Zip", "note": "A short bright airy swoosh", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/roll-launch-a-1.mp3", "temp/sound-round-5/raw/roll-launch-a-2.mp3", "temp/sound-round-5/raw/roll-launch-a-3.mp3"]},
+    {"key": "b", "label": "Boing whoosh", "note": "A springy boing stretching into a fast whoosh", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/roll-launch-b-1.mp3", "temp/sound-round-5/raw/roll-launch-b-2.mp3", "temp/sound-round-5/raw/roll-launch-b-3.mp3"]}
+   ]},
+  {"id": "player.roll-bonk", "group": "roll", "name": "Bonk", "where": "The ball hits a wall and bounces back", "node": "RollBonk", "ship": "player/roll-bonk", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Thud bonk", "note": "A heavy thud with a cartoon bonk and a springy wobble", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/roll-bonk-a-1.mp3", "temp/sound-round-5/raw/roll-bonk-a-2.mp3", "temp/sound-round-5/raw/roll-bonk-a-3.mp3"]},
+    {"key": "b", "label": "Crash and boing", "note": "A dull thump, pebbles rattling down, a boing as it bounces back", "kind": "oneshot", "max": 1.8,
+     "takes": ["temp/sound-round-5/raw/roll-bonk-b-1.mp3", "temp/sound-round-5/raw/roll-bonk-b-2.mp3", "temp/sound-round-5/raw/roll-bonk-b-3.mp3"]}
+   ]},
+  {"id": "enemy.stomper-slam", "group": "stomper", "name": "Slam", "where": "The Clod Stomper lands its stomp", "node": "StomperSlam", "ship": "enemy/stomper-slam", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Mud stomp", "note": "A heavy squelchy thump with a rocky crunch and a rumble", "kind": "oneshot", "max": 1.0,
+     "takes": ["temp/sound-round-5/raw/stomper-slam-a-1.mp3", "temp/sound-round-5/raw/stomper-slam-a-2.mp3", "temp/sound-round-5/raw/stomper-slam-a-3.mp3"]}
+   ]},
+  {"id": "ui.ceremony", "group": "ceremony", "name": "Ceremony", "where": "The slime learns a new ability", "node": "Ceremony", "ship": "ui/ceremony", "inGame": "a",
+   "options": [
+    {"key": "a", "label": "Harp and bells", "note": "A rising harp glissando into bright chimes and a bubbly pop", "kind": "oneshot", "max": 3.2,
+     "takes": ["temp/sound-round-5/raw/ceremony-a-1.mp3", "temp/sound-round-5/raw/ceremony-a-2.mp3", "temp/sound-round-5/raw/ceremony-a-3.mp3"]},
+    {"key": "b", "label": "Marimba jingle", "note": "A cheerful marimba and glockenspiel jingle with a rising bubble", "kind": "oneshot", "max": 3.2,
+     "takes": ["temp/sound-round-5/raw/ceremony-b-1.mp3", "temp/sound-round-5/raw/ceremony-b-2.mp3", "temp/sound-round-5/raw/ceremony-b-3.mp3"]}
+   ]}
+ ]
+}

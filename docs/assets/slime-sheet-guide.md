@@ -71,12 +71,20 @@ are in `asset/Originals/characters/slime-v2/README.md`.
   true front and back rolls, the side roll is spun in the picture); rows 3-5 = stretch
   (the lash) down/up/side (one-shot, 270 ms; hand-picked frames, the down and side rows drawn
   shifted in their cells, see the slime-v2 README); row 6 = die-down (one-shot, 1 s, drawn at
-  0.9 scale so the puddle fits); row 7 free.
+  0.9 scale so the puddle fits); row 7 free. Since 2026-10-09 the roll rows are no longer played
+  (the Dodge became the Roll, which spins page 4's ball).
 - Page 3: rows 0-2 = swim down/up/side (loops, 6-7.4 fps): the slime treading water, squashing as it
   sinks and stretching as it rises, every frame stood on the baseline. The whole body is drawn: the
   swimmer (the Frog Gulp form, `game/player/gulp/player_swimming.gd`) hides its lower part under a
   waterline 30 px above the baseline (keep it below about 40 px of the cell so the eyes of the
   flattest down frames show). Rows 3-7 free.
+- Page 4 (2026-10-09): rows 0-2 = suck down/up/side (loops while Q sucks); rows 3-5 = spit
+  down/up/side (one-shot, 300 ms: the take starts full and pops empty); row 6 = ball-side (the
+  Roll's ball, spun in the picture from `start-ball.png`); row 7 free.
+- Page 5 (2026-10-09): rows 0-2 = full down/up/side, the full slime's waddle (loops, 8 fps), drawn
+  at page 1's scale and so bigger than the slime; `full-idle-<direction>` play the same rows at
+  2.67 fps, a slow sway at rest; rows 3-4 = ball-down and ball-up (the Roll's ball rolled on a
+  sphere toward and away from the camera, 2026-10-09). Rows 5-7 free.
 - The sword swing (`attack-1-down/-up/-side/-left`) has no rows: it reuses page 1's idle art
   and carries a wind-up and a lunge toward the slash in animation keys (`Visual:offset`, plus
   `Visual:skew` for the side). A `-left` clip exists only when keyed motion or a shifted row

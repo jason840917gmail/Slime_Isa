@@ -13,7 +13,8 @@ extends RefCounted
 ##   camp of the first boss on this map; discover-area -> the nearest exit or door into the area;
 ##   collect -> the nearest pile with some left or standing resource node that drops the item;
 ##   craft-item -> the nearest station serving the recipe (portable recipes: nothing);
-##   activate-object -> the nearest restoration site; talk-to-npc -> the nearest NPC.
+##   activate-object -> the nearest restoration site or quest object (group "quest_object", with
+##   an `object_id`); talk-to-npc -> the nearest NPC.
 ##
 ## Owner: quests.
 
@@ -202,7 +203,10 @@ static func _nearest_station(station: String, from: Vector2) -> Variant:
 ## The nearest in-tree restoration site of one of `object_ids` (its parent).
 static func _restoration_site(object_ids: Array[String], from: Vector2) -> Variant:
 	var best: Variant = null
-	for site: Node in _tree().get_nodes_in_group(&"restoration_site"):
+	var sites := _tree().get_nodes_in_group(&"restoration_site")
+	# Other things an activate-object objective names (Tom's web, game/scripts/tom_web.gd).
+	sites.append_array(_tree().get_nodes_in_group(&"quest_object"))
+	for site: Node in sites:
 		if not str(site.get(&"object_id")) in object_ids or not site.get_parent() is Node2D:
 			continue
 		var point := FeetAnchor.phaser_position(site.get_parent() as Node2D)

@@ -11,10 +11,10 @@ extends CanvasLayer
 ## | interact | "Right-click to talk, open or use" | the interact button has a target |
 ## | attack | "Left-click to attack" | a weapon is in hand |
 ## | dodge | "Press 1 to roll out of danger" | the dodge is learned and an enemy is within 360 px |
-## | inventory | "Press E to open your bag" | the bag holds something |
-## | crafting | "Press E, then Crafting, to craft" | the bag holds 40 wood |
-## | weapon-switch | "Use the mouse wheel to switch weapons: tools only work in hand" | two owned weapons on the belt |
-## | sprint | "Hold Shift to sprint" | `move` was learned |
+## | inventory | "Press B to open your bag" | the bag holds something |
+## | crafting | "Press B, then Crafting, to craft" | the bag holds 40 wood |
+## | journal | "Press J to read your Journal" | `inventory` was learned (2026-10-08: the quest list lives there since the one-line tracker) |
+## | weapon-switch | "Use the mouse wheel or E to switch weapons: tools only work in hand" | two owned weapons on the belt |
 ## | map | "Press M for the map" | `inventory` was learned |
 ## | pause | "Press Esc to pause, save or change settings" | `inventory` was learned |
 ##
@@ -22,16 +22,19 @@ extends CanvasLayer
 ## its buttons ("Click the ground to move", ...); walking a click order counts as moving. The
 ## pointer scheme words move as "Hold W to walk toward the pointer".
 ##
-## Learning: moving (move), sprinting while moving (sprint), a swing starting (attack), a roll
+## (No sprint hint since 2026-10-08: sprint is not available from the start, owner.)
+##
+## Learning: moving (move), a swing starting (attack), a roll
 ## starting (dodge), the interact button running a target (interact, InteractionController
 ## `interacted`), the bag / crafting / world map / pause menu opening (inventory, crafting, map,
 ## pause), and the hand changing while two belt weapons are owned (weapon-switch; Phaser learns it
 ## only on a wheel or hotbar switch). Hidden (fading out) while the game is paused by a menu, the
 ## slime is dead or asleep, or there is no player.
 ##
-## Look (styles.css .game-ui--control-hint): `HintPanel` pill, offsets (-230, -218)-(230, -180)
-## from (0.5, 1), 16 px bold label with a dark shadow; opacity fades over 320 ms (none under
-## reduce motion).
+## Look (styles.css .game-ui--control-hint): `HintPanel` pill, offsets (-230, -262)-(230, -224)
+## from (0.5, 1) (Phaser's (-230, -218)-(230, -180), raised on 2026-10-08 above the HUD console and
+## its weapon carousel, roadmap 4.12), 16 px bold label with a dark shadow; opacity fades over
+## 320 ms (none under reduce motion).
 ##
 ## Owner: interaction (hints).
 
@@ -45,23 +48,23 @@ const FLAG_PREFIX := "hint."
 const DODGE_ENEMY_RANGE_PX := 360.0
 const CRAFTING_WOOD := 40
 const FADE_MS := 320.0
-const OFFSET_MIN := Vector2(-230.0, -218.0)
-const OFFSET_MAX := Vector2(230.0, -180.0)
+const OFFSET_MIN := Vector2(-230.0, -262.0)
+const OFFSET_MAX := Vector2(230.0, -224.0)
 const FONT_SIZE := 16
 const MAIN_GROUP := &"world_main"
 
 ## In priority order (CONTROL_HINTS).
 const HINT_IDS: Array[StringName] = [&"move", &"interact", &"attack", &"dodge", &"inventory", &"crafting",
-	&"weapon-switch", &"sprint", &"map", &"pause"]
+	&"journal", &"weapon-switch", &"map", &"pause"]
 ## Game windows and shell menus whose opening learns a hint.
-const MENU_HINTS := {&"inventory": &"inventory", &"crafting": &"crafting", &"world-map": &"map", &"pause-menu": &"pause"}
+const MENU_HINTS := {&"inventory": &"inventory", &"crafting": &"crafting", &"quest-journal": &"journal",
+	&"world-map": &"map", &"pause-menu": &"pause"}
 
 ## The hint showing now (&"" when none).
 var current: StringName = &""
 
 var _panel: PanelContainer
 var _label: Label
-var _sprinting: bool = false
 var _attacking: bool = false
 var _rolling: bool = false
 var _opacity: float = 0.0
@@ -150,7 +153,7 @@ static func hint_text(id: StringName) -> String:
 	elif ControlScheme.faces_pointer(scheme) and id == &"move":
 		return "Hold %s to walk toward the pointer" % ControlLabels.control_label(&"move_up")
 	elif not ControlScheme.uses_mouse(scheme) and id == &"weapon-switch":
-		return "Press %s or %s to switch weapons: tools only work in hand" % [ControlLabels.control_label(&"weapon_previous"), ControlLabels.control_label(&"weapon_next")]
+		return "Press %s to switch weapons: tools only work in hand" % ControlLabels.control_label(&"weapon_next")
 	match id:
 		&"move":
 			return "Move with %s" % ControlLabels.movement_label()
@@ -164,10 +167,13 @@ static func hint_text(id: StringName) -> String:
 			return "Press %s to open your bag" % ControlLabels.control_label(&"menu")
 		&"crafting":
 			return "Press %s, then Crafting, to craft" % ControlLabels.control_label(&"menu")
+		&"journal":
+			return "Press %s to read your Journal" % ControlLabels.control_label(&"journal")
 		&"weapon-switch":
-			return "Use the %s to switch weapons: tools only work in hand" % ControlLabels.control_label(&"weapon_next").to_lower()
-		&"sprint":
-			return "Hold %s to sprint" % ControlLabels.control_label(&"sprint")
+			var labels := ControlLabels.control_labels(&"weapon_next").split(" / ")
+			if labels.size() > 1:
+				return "Use the %s or %s to switch weapons: tools only work in hand" % [labels[0].to_lower(), labels[1]]
+			return "Use the %s to switch weapons: tools only work in hand" % labels[0].to_lower()
 		&"map":
 			return "Press %s for the map" % ControlLabels.control_label(&"map")
 		&"pause":
@@ -200,9 +206,7 @@ func is_relevant(id: StringName, player: Node) -> bool:
 			return run != null and run.item_count("wood") >= CRAFTING_WOOD
 		&"weapon-switch":
 			return _owned_belt_weapons() >= 2
-		&"sprint":
-			return is_learned(&"move")
-		&"map", &"pause":
+		&"journal", &"map", &"pause":
 			return is_learned(&"inventory")
 	return false
 
@@ -238,10 +242,6 @@ func _learn_from_play(player: Node) -> void:
 		moving = moving or bool(player.call(&"is_click_moving"))
 	if moving:
 		learn(&"move")
-	var sprinting := moving and bool(player.call(&"is_action_held", &"sprint"))
-	if sprinting and not _sprinting:
-		learn(&"sprint")
-	_sprinting = sprinting
 	var combat: Variant = player.call(&"get_combat") if player.has_method(&"get_combat") else null
 	var attacking := combat != null and is_instance_valid(combat) and bool((combat as Node).call(&"is_attacking"))
 	if attacking and not _attacking:

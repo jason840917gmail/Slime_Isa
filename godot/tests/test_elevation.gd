@@ -3,7 +3,7 @@ extends RefCounted
 ## 45° edges from single-cell steps, walls one cell per level, holes whose near rim hides the
 ## wall), flights of stairs (a landing, steps, railings; levels and depth along them), the 3D
 ## ground (a capped strip behind a hill and under a hole's near rim) and, in the playground's
-## Elevation Park, walls that block, stairs on every side that change the player's level between
+## Elevation Park, wall styles by paint and by ground, walls that block, stairs on every side that change the player's level between
 ## their railings, rims that hold the player until it insists and then drop it where the picture
 ## says it falls, a jump that never climbs, walking behind a hill and the player ghosted there.
 
@@ -28,6 +28,9 @@ const SHOWCASE := Rect2(0.0, 125 * 64.0, 17 * 64.0, 20 * 64.0)
 const SHOWCASE_WIDE := Rect2(18 * 64.0, 125 * 64.0, 20 * 64.0, 20 * 64.0)
 const WEST_X := 15.5 * 64.0
 const BELOW_WALL := Vector2(WEST_X, 39.5 * 64.0)
+## Every wall style the park shows (by its grounds and the `cliffs` layer).
+const WALL_STYLES := ["meadow-rock", "snow-rock", "sandstone", "cave-rock", "crystal-rock", "mossy-rock",
+		"masonry", "root-rock", "red-rock"]
 ## game-constants.json elevation.behindDepth.
 const BEHIND := 32.0
 const JUMP_DISTANCE := 168.0
@@ -192,9 +195,10 @@ func test_park_mounts_cliffs_and_collision(t: TestContext) -> void:
 	if not t.check(elevation != null, "no elevation in the playground"):
 		return
 	t.check(elevation.grid.bands.size() > 100, "few walls in the park")
-	for mesh_name in ["meadow-rock", "meadow-rock:end-right", "meadow-rock:end-left"]:
-		t.check(_has_mesh(elevation, "Walls", mesh_name), "no '%s' mesh (walls, wall ends)" % mesh_name)
-	t.check(_has_mesh(elevation, "Stairs", "stairs"), "no stairs mesh")
+	for style: String in WALL_STYLES:
+		for mesh_name in [style, style + ":end-right", style + ":end-left"]:
+			t.check(_has_mesh(elevation, "Walls", mesh_name), "no '%s' mesh (walls, wall ends)" % mesh_name)
+	t.check(elevation.has_node("Stairs") and elevation.get_node("Stairs").get_child_count() > 0, "no stairs mesh")
 	t.check(elevation.stairs.size() >= 30, "few flights of stairs in the park (%d)" % elevation.stairs.size())
 	t.check(_has_mesh(elevation, "Water", "water"), "no water at the foot of the lake's cliff")
 	for ground in ["highland", "frozen", "sanddessert", "forest-floor", "forest-moss", "amberleaf", "cavern-floor", "crystal-floor", "town-cobble"]:
@@ -205,6 +209,36 @@ func test_park_mounts_cliffs_and_collision(t: TestContext) -> void:
 	t.check(elevation.occlusion != null and elevation.occlusion.texture != null, "no depth map")
 	t.equal(elevation.level_of(t.player_body()), 0, "player level at the spawn")
 	t.check(t.player_body().collision_mask & Elevation.level_bit(0) != 0, "player does not collide with level 0")
+
+
+## A wall takes the style painted on the `cliffs` layer over its top, else its ground's; a flight's
+## railings take the style of the top it leaves (scripts/maps/build-elevation-park.py `cliffs`).
+func test_wall_styles_follow_paint_and_ground(t: TestContext) -> void:
+	var elevation := t.world().elevation
+	if not t.check(elevation != null, "no elevation in the playground"):
+		return
+	# [cell x, the wall's first row, style]
+	for probe: Array in [
+		[3, 35, "meadow-rock"],    # the level-1 square: grass, unpainted
+		[17, 84, "sandstone"],     # the sand plateau: its ground
+		[30, 85, "snow-rock"],     # the snow plateau: its ground
+		[2, 120, "root-rock"],     # the ground row's forest floor
+		[33, 120, "masonry"],      # the ground row's cobble
+		[23, 94, "masonry"],       # the ridge's level-2 block: painted
+		[34, 94, "sandstone"],     # the ridge's level-3 block: painted
+		[17, 94, "cave-rock"],     # the ridge's level-1 block: painted
+		[30, 103, "mossy-rock"],   # the lake cliff's east half: painted
+		[10, 103, "meadow-rock"],  # its west half
+	]:
+		var tri := elevation.grid.column_tri(int(probe[0]) * 2, int(probe[1]) * 4)
+		var band := elevation.grid.tri_band[tri]
+		if t.check(band >= 0, "no wall at cell (%d, %d)" % [probe[0], probe[1]]):
+			t.equal(elevation.band_styles[band], str(probe[2]), "wall style at cell (%d, %d)" % [probe[0], probe[1]])
+	var showcase_styles := {}
+	for flight: ElevationStairs in elevation.stairs:
+		if SHOWCASE.has_point(flight.rim + elevation.global_position):
+			showcase_styles[elevation.stairs_styles[flight]] = true
+	t.equal(showcase_styles.keys(), ["red-rock"], "railings of the showcase's level-2 octagon")
 
 
 func test_wall_blocks_the_lower_ground(t: TestContext) -> void:

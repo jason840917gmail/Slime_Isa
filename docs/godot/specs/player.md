@@ -88,10 +88,16 @@ Non-looping clips hold their last frame when they end (same in Godot).
 | Walk speed | 200 px/s | `game-constants.json` `character.player.movement.baseSpeed` |
 | Sprint speed | 300 px/s (+ `gameState.boostBonus`, 0 in a new run, **[OUT]** boost items) | `movement.boostSpeed` |
 | Speed cap | 480 px/s | `movement.movementSpeedCap` |
-| Dodge speed | 380 px/s | `movement.dodgeSpeed` |
-| Dodge roll duration | 500 ms | `movement.dodgeDurationMs` |
-| Dodge i-frames | 400 ms (first part of the roll) | `movement.dodgeInvulnerabilityMs` |
-| Dodge cooldown after roll | 250 ms → ability cooldown = 500 + 250 = **750 ms from roll start** | `movement.dodgeCooldownMs`; sum in `PlayerAbilityDefinitions.ts:214` |
+| Roll spin-up (Godot, 2026-10-09; §5) | 260 ms, in place, no i-frames | `movement.rollSpinUpMs` |
+| Roll launch speed → cruise speed | 460 → 340 px/s, eased over the shortest roll | `movement.rollLaunchSpeed`, `movement.rollSpeed` |
+| Shortest roll | 450 ms from the launch | `movement.rollMinMs` |
+| Roll i-frames | 400 ms from the launch | `movement.rollInvulnerabilityMs` |
+| Pause after a roll | 250 ms → ability cooldown = 260 + 450 + 250 = **960 ms from the press** | `movement.rollCooldownMs`; sum in `ability_definitions.gd` `cooldown_ms()` |
+| Roll energy (held part only) | 12 per second | `movement.rollEnergyPerSecond` |
+| Roll bonk shake and hit-stop | 220 ms at 0.008, then a 60 ms hit-stop | `movement.rollBonkShakeMs`, `rollBonkShakeIntensity`, `rollBonkHitStopMs` |
+| Roll bonk wobble | things within 140 px of the impact | `movement.rollBonkWobbleRadiusPx` |
+| Roll bonk hit | 10 damage and 300 knockback within 34 px of the impact (damage 0 turns it off) | `movement.rollBonkDamage`, `rollBonkKnockback`, `rollBonkHitRadiusPx` |
+| Roll bounce back | 400 px/s easing out to 0 over 360 ms (72 px, at least a tile), with an 18 px hop | `movement.rollBounceSpeed`, `rollBounceMs`, `rollBounceHopPx` |
 | Hit i-frames | 500 ms | `character.player.hitInvulnerabilityMs` |
 | Max HP | 100 (+10 per Goo Heart, **[OUT]**) | `character.player.stats.maxHp`, `gooHeart.maxHpBonus` |
 | Defense | 3 | `stats.defense` |
@@ -114,6 +120,10 @@ Non-looping clips hold their last frame when they end (same in Godot).
 | Default attack aim | `pointer` | `GameSettingsStore.ts:34` (settings `attackAim`, dev panel can switch to `facing`) |
 
 `resolveMovementSpeed(base, flat=0, mult=1) = min(480, max(0, (base + flat) * max(0, mult)))` (`PlayerStats.ts:53-56`).
+
+Phaser's dodge constants `dodgeSpeed` (380), `dodgeDurationMs` (500), `dodgeInvulnerabilityMs`
+(400) and `dodgeCooldownMs` (250) were removed from `game-constants.json` on 2026-10-09, when the
+Dodge became the Roll; §5.1-5.2 still quote them for the record.
 
 ---
 
@@ -171,7 +181,7 @@ Visual.flip_h = |x| >= |y| and x > 0
 clip: if |y| > |x|: (y < 0 ? 'stretch' : 'hop') else 'walk'      # see QUIRK below
 ```
 
-Sprint: hold Shift; no energy cost, no stamina, no animation change (same walk clips, faster). Works in any direction. Sprint has no effect on the dodge.
+Sprint: hold Shift (since 2026-10-08 the `sprint` action has no key: no sprint from the start, owner; the Roll on key 2 replaces it, roadmap 7.7); no energy cost, no stamina, no animation change (same walk clips, faster). Works in any direction. Sprint has no effect on the dodge.
 
 **[QUIRK] vertical clips are effectively never shown.** Two paths play clips each step: `PlayerScript.move()` plays `walk`/`idle` directly on the AnimationPlayer (`PlayerScript.ts:139-145`), then `PlayerController` asks `WorldScene.playAnimation('slime-hop'|'slime-stretch'|'slime-walk'|'slime-idle')`, which returns early when its own cached key is unchanged (`WorldScene.ts:1696-1698`). Result per step while moving vertically: step N plays `hop` (cache changes), step N+1 `PlayerScript.move` switches back to `walk` and the cached `slime-hop` is ignored. So the live game shows **`walk` for every moving direction** (with a one-step flash of `hop`/`stretch` when the direction class changes) and `idle` when still. Recommendation: port the live look (`walk` always) behind a bool `use_vertical_walk_clips := false`, and ask the owner; the intended rule is the one in the pseudo-code.
 
@@ -193,7 +203,50 @@ Only on the normal move path: if moving now, was not moving last step, and has b
 
 ---
 
-## 5. Dodge roll [IN] (learned-gated; see trial note)
+## 5. Dodge roll, the Roll since 2026-10-09 [IN] (learned-gated; see trial note)
+
+> **The Dodge became the Roll on 2026-10-09** (owner; roadmap 7.7; built, awaiting the owner's
+> feel). The same day the owner asked for it to feel like Zelda's Pegasus Boots dash: it goes
+> straight, nothing steers it, and running into something is a bonk. Key 2. The ability id and
+> the input action stay `dodge`, so saves, quests and the HUD slot are unchanged; the player sees
+> "Roll" (`AbilityDefinitions` title and bar name). Code: `godot/game/player/roll/player_roll.gd`
+> (owned by `player.gd`, `get_roll()`) and `roll_fx.gd` (skid streaks and dust, a ground decal).
+> Values: `character.player.movement` (§2).
+> - **Spin-up:** the slime curls into the ball (the `ball` clip) and spins in place for
+>   `rollSpinUpMs` (260) at 3x clip speed, laying two dark skid streaks and kicking dust backward;
+>   cue `RollRev`. It does not move and has no i-frames.
+> - **Launch:** along one of eight directions; `rollLaunchSpeed` 460 px/s, easing to `rollSpeed`
+>   340 over `rollMinMs` (450); i-frames for `rollInvulnerabilityMs` (400) from the launch; cue
+>   `RollLaunch` and `dodge-dust`.
+> - **Straight:** the movement keys do nothing while it rolls: no steering, no sideways slide.
+> - **Held:** after `rollMinMs` it keeps rolling while 2 is held, draining `rollEnergyPerSecond`
+>   (12); energy does not refill while it rolls. It ends when 2 is released or the energy runs
+>   out. Everything comes with the lesson (owner, 2026-10-09): there is no later upgrade.
+> - **Bonk:** when the mover leaves less than half of the speed asked on either axis (a wall, a
+>   rock, an enemy body: the player collides with enemies), it bonks: cue `RollBonk`, `hit-spark`
+>   at the impact (18 px ahead of the centre) and dust; `GameFeel.shake(rollBonkShakeMs 220,
+>   rollBonkShakeIntensity 0.008)` and `hit_stop(rollBonkHitStopMs 60)`. Every thing under the
+>   entities root with a `Visual` within `rollBonkWobbleRadiusPx` (140) of the impact wobbles (its
+>   Visual rocks and settles; presentation only). `AbilityWorld.strike_area` hits what is within
+>   `rollBonkHitRadiusPx` (34) of the impact for `rollBonkDamage` (10; 0 turns it off) with
+>   `rollBonkKnockback` (300). The i-frames end. The slime faces the roll, plays `knockback` and
+>   bounces back at `rollBounceSpeed` (400) easing out to 0 over `rollBounceMs` (360), 72 px, with an
+>   `rollBounceHopPx` (18) hop through the effects channel (`set_effect_offset`); then the roll
+>   ends. `is_bouncing()` is true during the bounce.
+> - **Cooldown:** the next roll can start `rollCooldownMs` (250) after a roll ends; the ability
+>   cooldown from the press is 260 + 450 + 250 = 960 ms. A knockback, a death or
+>   `stop_movement()` (a door's leave fade, an opened window) ends a roll at once.
+> - **Direction:** the pointer aim, else the held movement keys, else the facing, snapped to eight
+>   directions.
+> - Holding something in the mouth or swimming still blocks it. Stone Tools still teaches it.
+> - Open for the owner: the feel and the numbers; its energy cost (only the held part drains
+>   today); a Stone-form roll breaking cracked walls (not built). Tests: `test_player_movement.gd`
+>   (`test_a_tapped_roll_spins_up_launches_and_stops`,
+>   `test_a_held_roll_goes_straight_and_drains_energy`,
+>   `test_rolling_into_a_wall_bonks_and_bounces_back`; updated for the dash, not run yet).
+>
+> §5.1-5.2 below describe Phaser's dodge (pointer snapped to 4 directions, 380 px/s for 500 ms,
+> 750 ms cooldown), kept for the record.
 
 ### 5.1 Input → rules
 
@@ -352,7 +405,7 @@ Bed respawn / other-area respawn [OUT].
 
 Mouse buttons and the wheel count only when pressed over the game canvas, not over HUD/windows; a release always counts (`InputEvent.ts:52-55`). Godot: handle in `_unhandled_input` (GUI controls with `mouse_filter = STOP` already swallow clicks).
 
-Godot addition (experiment, branch `exp/mouse-controls`): the mouse control schemes ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). In the `click` and `moba` schemes the mouse buttons are read before the action capture: one button gives click orders (walk, attack, use); the other is the click scheme's use (an `interact` press, or a use order on what is under the pointer) or the moba scheme's `attack` press. In the `pointer` scheme the slime faces the pointer and only `move_up` walks, toward it. The `keys` scheme rebinds the InputMap (arrows walk, A attacks, W interacts, S / D switch weapons) and aims nothing with the pointer: what aims goes where the slime faces. F2 (`control_scheme_next`) cycles the scheme. The keyboard scheme (the default) is unchanged.
+Godot addition (experiment, branch `exp/mouse-controls`): the mouse control schemes ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). In the `click` and `moba` schemes the mouse buttons are read before the action capture: one button gives click orders (walk, attack, use); the other is the click scheme's use (an `interact` press, or a use order on what is under the pointer) or the moba scheme's `attack` press. In the `pointer` scheme the slime faces the pointer and only `move_up` walks, toward it. The `keys` scheme rebinds the InputMap (arrows walk, A attacks, W interacts, only E cycles the weapons) and aims nothing with the pointer: what aims goes where the slime faces. In every scheme E is also `weapon_next` (the weapon scroll, owner 2026-10-08), B opens the bag and J the journal. F2 (`control_scheme_next`) cycles the scheme. The keyboard scheme (the default) is unchanged.
 
 ### 7.2 Capture (`PlayerScript._unhandled_input`, `PlayerScript.ts:97-111`)
 ```

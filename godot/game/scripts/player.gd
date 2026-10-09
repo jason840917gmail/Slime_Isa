@@ -32,7 +32,6 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Directions := preload("res://game/shared/directions.gd")
 const PlayerInputBuffer := preload("res://game/player/player_input_buffer.gd")
 const PointerAim := preload("res://game/player/pointer_aim.gd")
-const GulpWheel := preload("res://game/player/gulp/gulp_wheel.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
 ## The Visual's material: Gulp form skins + the hit flash (owner decision 2026-10-05).
@@ -47,6 +46,8 @@ const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const GulpHud := preload("res://game/player/gulp/gulp_hud.gd")
 const PlayerSwimming := preload("res://game/player/gulp/player_swimming.gd")
+const Mouth := preload("res://game/player/gulp/mouth.gd")
+const PlayerRoll := preload("res://game/player/roll/player_roll.gd")
 const StatusEffects := preload("res://game/player/status_effects.gd")
 const GooTrail := preload("res://game/player/goo_trail.gd")
 ## Steps, wading and swimming sounds (game/audio/footsteps.gd).
@@ -116,6 +117,9 @@ signal respawned(payload: Dictionary)
 signal energy_changed(payload: Dictionary)
 ## A jump landed. Payload: {"x", "y" (old centre), "heavy": bool, "id": int}.
 signal jump_landed(payload: Dictionary)
+## What the slime holds changed (the Gulp mouth). Payload: {} or {"kind":
+## <liftable kind>|"essence", "essence": "stone"|"silk"|"swim"|"", "variant"}.
+signal held_changed(payload: Dictionary)
 
 var _input: PlayerInputBuffer = PlayerInputBuffer.new()
 ## Mouse-wheel notches -> single weapon steps (crafting spec 8.5).
@@ -157,25 +161,22 @@ var _visual_base_scale: Vector2 = Vector2.ONE
 ## Energy (GameState): spent by abilities, refilled 8 per second.
 var _energy: float = 0.0
 var _energy_regen: float = 0.0
-## The last jump landing in a plate-pressing (Heavy) form: {} or {"x", "y", "id"}.
-var _heavy_landing: Dictionary = {}
-var _landing_id: int = 0
+## The last Heavy impact (a Squash Slam, or a jump landing, made in a plate-pressing form): {} or
+## {"x", "y", "id"}. Cracked ground reads it.
+var _heavy_impact: Dictionary = {}
+var _impact_id: int = 0
 ## Squash Slam's attack area for the router (no shape needed: the strike queries physics).
 var _slam_area: Area2D
-## Eating and the Gulp form (game/player/gulp/).
+## The Gulp form and the mouth that sucks, holds and throws (game/player/gulp/).
 var _gulp: GulpController = GulpController.new(self)
+var _mouth: Mouth = Mouth.new(self)
+## The Roll on key 2 (the `dodge` ability, roadmap 7.7).
+var _roll: PlayerRoll = PlayerRoll.new(self)
+## The hit being committed popped the form: its feedback skips the knockback and the web.
+var _hit_popped: bool = false
 ## Swimming in deep water with a Gulp form that swims (the Frog).
 var _swim: PlayerSwimming = PlayerSwimming.new(self)
 var _gulp_hud: GulpHud
-## The eat press waits for its release (a tap eats; WorldScene.updateEatHold): simulation ms of
-## the press and of the last step that saw it held; < 0 when no press is pending.
-var _eat_since_ms: float = -1.0
-var _eat_last_seen_ms: float = -1.0
-## The quick wheel of the current eat hold: open, or found nothing to show (`empty`).
-var _eat_wheel_open: bool = false
-var _eat_wheel_empty: bool = false
-var _eat_wheel_pointer_start: Vector2 = Vector2.ZERO
-var _gulp_wheel: GulpWheel
 ## Status effects (game/player/status_effects.gd): sticky roots the slime, slow scales walking.
 var _status: StatusEffects = StatusEffects.new(_status_damage)
 ## The world's interaction controller (group "interaction"), looked up on the first press.
@@ -185,12 +186,9 @@ var _furniture: Node
 ## The interact press on a target with a hold action (a placed bench): its start (sim ms), -1 = none.
 var _interact_hold_since_ms: float = -1.0
 ## Simulation-time deadlines (ms).
-var _dodge_until_ms: float = 0.0
-var _roll_until_ms: float = 0.0
 var _movement_suppressed_until_ms: float = 0.0
 var _knockback_anim_until_ms: float = 0.0
 var _iframe_until_ms: float = 0.0
-var _dodge_cooldown_until_ms: float = 0.0
 ## Real-time deadlines (Time.get_ticks_msec()).
 var _flash_until_real_ms: float = 0.0
 var _respawn_at_real_ms: float = -1.0
@@ -220,41 +218,39 @@ const CLIP_IDLE := "idle"
 const CLIP_WALK := "walk"
 ## Swimming replaces idle and walk (page 3 of the slime sheet).
 const CLIP_SWIM := "swim"
-const CLIP_ROLL := "roll"
+## The Gulp (page 4 and 5 of the slime sheet): sucking, the spit of a throw, and the full slime's
+## idle sway and walking waddle while it holds something.
+const CLIP_SUCK := "suck"
+const CLIP_SPIT := "spit"
+const CLIP_FULL_IDLE := "full-idle"
+const CLIP_FULL_WALK := "full"
 const CLIP_KNOCKBACK := "knockback"
 const CLIP_DIE := "die"
 ## Presses that wake a sleeper (SleepController consumeWakeInput).
 const WAKE_ACTIONS: Array[StringName] = [&"interact", &"attack", &"jump", &"dodge", &"stretch_lash",
-	&"squash_slam", &"teleport", &"eat"]
+	&"squash_slam", &"teleport", &"eat", &"swallow"]
 const INTERACTION_GROUP := &"interaction"
 const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
 const FURNITURE_GROUP := &"furniture_placement"
 ## INTERACT_HOLD_MS (WorldScene.ts:151): holding interact this long runs the target's hold action.
 const INTERACT_HOLD_MS := 450.0
 ## Presses placement mode throws away (WorldScene.ts:1773-1786).
-const PLACEMENT_DROPPED_ACTIONS: Array[StringName] = [&"jump", &"dodge", &"stretch_lash", &"squash_slam", &"teleport", &"eat"]
+const PLACEMENT_DROPPED_ACTIONS: Array[StringName] = [&"jump", &"dodge", &"stretch_lash", &"squash_slam", &"teleport", &"eat", &"swallow"]
 ## InitialRun.ts:15 new-run coins (coins are OUT; the HUD snapshot shows the new-run value).
 const NEW_RUN_COINS := 50
 ## Global audio cues (AudioEventBridge.ts:31-42).
-const CUE_DODGE := &"Dodge"
 const CUE_ABILITY_DENIED := &"AbilityDenied"
 const CUE_RESPAWN := &"Respawn"
 const CUE_ENERGY_RESTORE := &"EnergyRestore"
 const CUE_EAT := &"Eat"
 const CUE_GULP_BURP := &"GulpBurp"
-const CUE_GULP_WEAR_OFF := &"GulpWearOff"
 const CUE_WEB_STRUGGLE := &"WebStruggle"
 const EFFECT_WEB := "web"
 const WEB_COVER_SCENE := "effect.spider-web-cover"
 ## Gulp form texts (WorldScene.ts:1093-1100): centre - 56.
 const GULP_TEXT_RISE_PX := 56.0
-## An eat press older than this without a step seeing it held is dropped (WorldScene.ts:913-969).
-const EAT_HOLD_DROP_MS := 600.0
 ## Gulp messages over the slime (GulpController `showMessage`: centre - 56).
 const GULP_MESSAGE_RISE := 56.0
-## The pointer picks a wheel slot once it moved this far, aimed from the centre - 28.
-const GULP_WHEEL_POINTER_SLACK := 10.0
-const GULP_WHEEL_POINTER_RISE := 28.0
 ## Feel / particle / squash event ids.
 const FEEL_PLAYER_HURT := &"player-hurt"
 const FEEL_PLAYER_DEFEATED := &"player-defeated"
@@ -269,10 +265,6 @@ const EFFECT_KNOCKBACK := "knockback"
 var _base_speed: float = 0.0
 var _boost_speed: float = 0.0
 var _speed_cap: float = 0.0
-var _dodge_speed: float = 0.0
-var _dodge_duration_ms: float = 0.0
-var _dodge_iframes_ms: float = 0.0
-var _dodge_cooldown_ms: float = 0.0
 var _hit_iframes_ms: float = 0.0
 var _defense: float = 0.0
 var _max_energy: int = 0
@@ -461,7 +453,8 @@ func _physics_process(delta: float) -> void:
 		if not _dead:
 			_play_idle()
 	_abilities.advance(Services.now_ms())
-	_gulp.update()
+	if not _dead:
+		_mouth.update(Services.now_ms(), _input.is_held(&"eat"), _gulp_aim())
 	_swim.update()
 	_status.update(delta * 1000.0)
 	if not _dead:
@@ -481,12 +474,15 @@ func _physics_process(delta: float) -> void:
 		_issue_click_order()
 		if direction != Vector2.ZERO:
 			_orders.cancel() # The movement keys take over from a click order.
+		if _roll.is_active():
+			_roll.update(Services.now_ms(), delta, _input.is_held(&"dodge"))
 		if is_movement_suppressed():
 			pass # Roll / knockback own the body: their velocity persists, presses stay buffered.
 		elif _action_locked:
 			body.velocity = Vector2.ZERO
-		elif _update_eat_hold():
-			body.velocity = Vector2.ZERO
+		elif _mouth.is_sucking():
+			body.velocity = Vector2.ZERO # The slime stands still while it sucks.
+			_play_direct(CLIP_SUCK)
 		elif _handle_action_input():
 			pass # An action was used this step: velocity keeps the last step's value once.
 		elif _run_click_order():
@@ -625,10 +621,9 @@ func is_action_locked() -> bool:
 	return _action_locked
 
 
-## `sim < movement_suppressed_until or sim < roll_until` (PlayerScript.ts:135-137).
+## `sim < movement_suppressed_until` (PlayerScript.ts:135-137), or a Roll on (its spin-up too).
 func is_movement_suppressed() -> bool:
-	var now: float = Services.now_ms()
-	return now < _movement_suppressed_until_ms or now < _roll_until_ms
+	return Services.now_ms() < _movement_suppressed_until_ms or _roll.is_active()
 
 
 ## Freezes walking and buffered actions for `ms` of simulation time (the area travel's leave fade).
@@ -636,11 +631,12 @@ func suppress_movement(ms: float) -> void:
 	_movement_suppressed_until_ms = maxf(_movement_suppressed_until_ms, Services.now_ms() + ms)
 
 
-## What RunState keeps of the player when it leaves a world: {"hp", "facing", "x", "y"}, x/y the
-## old Phaser (centre) position, facing "up"|"down"|"left"|"right".
+## What RunState keeps of the player when it leaves a world: {"hp", "energy", "facing", "x", "y",
+## "gulp_form", "held"}, x/y the old Phaser (centre) position, facing "up"|"down"|"left"|"right".
 func run_snapshot() -> Dictionary:
 	var centre: Vector2 = get_centre()
-	return {"hp": _hp, "energy": _energy, "facing": Directions.cardinal_name(_facing), "x": centre.x, "y": centre.y}
+	return {"hp": _hp, "energy": _energy, "facing": Directions.cardinal_name(_facing), "x": centre.x, "y": centre.y,
+		"gulp_form": String(current_form_id()), "held": _mouth.held.duplicate()}
 
 
 ## Takes the run's HP (`RunState.player`, GameState semantics: max HP grows with Goo Hearts).
@@ -654,20 +650,32 @@ func restore_run_state(state: Dictionary) -> void:
 	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
 	_energy = clampf(float(state.get("energy", _max_energy)), 0.0, float(_max_energy))
 	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": 0.0})
+	# The Gulp form and what the mouth holds go through doors and saves (owner, 2026-10-08).
+	_gulp.restore(str(state.get("gulp_form", "")))
+	var held_state: Variant = state.get("held", {})
+	if held_state is Dictionary:
+		_mouth.restore(held_state)
 
 
-## `sim < dodge_until` (dodge i-frames).
+## The Roll's i-frames (`rollInvulnerabilityMs` from its launch).
 func is_dodging() -> bool:
-	return Services.now_ms() < _dodge_until_ms
+	return _roll.is_invulnerable(Services.now_ms())
 
 
-## `sim < roll_until`: the whole roll, including the vulnerable tail after the i-frames.
+## A Roll is on: the spin-up, the launch and rolling on, including the vulnerable part after the
+## i-frames.
 func is_rolling() -> bool:
-	return Services.now_ms() < _roll_until_ms
+	return _roll.is_active()
 
 
-## Sets `body.velocity = Vector2.ZERO`.
+## The Roll (game/player/roll/player_roll.gd).
+func get_roll() -> PlayerRoll:
+	return _roll
+
+
+## Sets `body.velocity = Vector2.ZERO`, and ends a Roll (a door's leave fade, a window, death).
 func stop_movement() -> void:
+	_roll.cancel()
 	if body != null:
 		body.velocity = Vector2.ZERO
 
@@ -699,6 +707,7 @@ func apply_knockback(direction: Vector2, strength: float, duration_ms: float) ->
 	# The Heavy form shrugs knockback off entirely (WorldScene.ts:341-350).
 	if bool(_gulp.form.get("knockback_immune", false)):
 		return
+	_roll.cancel()
 	var now: float = Services.now_ms()
 	_knockback_anim_until_ms = maxf(_knockback_anim_until_ms, now + duration_ms)
 	_movement_suppressed_until_ms = maxf(_movement_suppressed_until_ms, now + duration_ms)
@@ -711,8 +720,6 @@ func apply_knockback(direction: Vector2, strength: float, duration_ms: float) ->
 func clear_input() -> void:
 	_input.clear()
 	_wheel.reset()
-	# A menu or window closes the eat hold too (Phaser closes it while paused).
-	_close_eat_hold()
 	_interact_hold_since_ms = -1.0
 	# And ends a click order (a window it opened, alt-tab, a scheme switch).
 	_orders.cancel()
@@ -816,10 +823,16 @@ func commit_damage(commit: Dictionary) -> void:
 	var actual: int = int(result.get("actual_damage", 0))
 	# GameState.damage: ignores amount <= 0 or an already dead player; clamps at 0; reaching 0
 	# runs the death synchronously.
+	_hit_popped = false
 	if actual > 0 and not _dead:
 		_hp = maxi(0, _hp - actual)
 		if _hp <= 0:
 			_die()
+		else:
+			# A hit pops the Gulp form out (it takes the hit's knockback and web) and makes the slime
+			# drop what it holds (owner, 2026-10-08).
+			_hit_popped = _gulp.pop()
+			_mouth.drop()
 	if bool(result.get("defeated", false)):
 		_die()
 	elif actual > 0:
@@ -835,14 +848,17 @@ func commit_damage(commit: Dictionary) -> void:
 ## Player spec 6.4 / 6.5: emit damage_feedback; if actual > 0 the hit presentation (feel
 ## "player-hurt", squash "hit", "slime-splash" particles at the centre, red "-N" text at
 ## centre - 30, real-time flash unless one is running); return if defeated; knockback with the
-## applied "knockback" potency along `request.impact.knock` for KNOCKBACK_DURATION_MS.
+## applied "knockback" potency along `request.impact.knock` for KNOCKBACK_DURATION_MS. A hit that
+## popped the Gulp form has neither knockback nor web (the pop took them).
 ## Order follows PlayerScript.publishDamageFeedback: health feedback first, then the signal.
 func publish_damage_feedback(commit: Dictionary) -> void:
 	var result: Dictionary = _dict(commit.get("result"))
 	var actual: int = int(result.get("actual_damage", 0))
 	if actual > 0:
 		_present_hit(actual)
-	if not bool(result.get("defeated", false)):
+	var popped := _hit_popped
+	_hit_popped = false
+	if not bool(result.get("defeated", false)) and not popped:
 		# A web hit roots the slime first (PlayerHealthController.ts:130-131).
 		var web_ms: float = _applied_potency(result, EFFECT_WEB)
 		if web_ms > 0.0:
@@ -904,6 +920,8 @@ func use_ability(id: StringName) -> bool:
 			return _abilities.try_begin(id, request)
 		AbilityDefinitions.STRETCH_LASH, AbilityDefinitions.SQUASH_SLAM:
 			return _abilities.try_begin(id, request)
+		AbilityDefinitions.SWALLOW:
+			return _swallow()
 	return false
 
 
@@ -1012,18 +1030,27 @@ func is_airborne() -> bool:
 	return _abilities.is_airborne()
 
 
-## A jump landed at `centre`: `jump_landed`, and the Heavy landing record cracked ground reads.
+## A jump landed at `centre`: `jump_landed`; in a Heavy form it is also a Heavy impact. (The jump
+## is hidden since 2026-10-08: nothing teaches it and no key runs it; ledge drops do not land here.)
 func record_landing(centre: Vector2) -> void:
-	_landing_id += 1
+	_impact_id += 1
 	var heavy := presses_plates()
 	if heavy:
-		_heavy_landing = {"x": centre.x, "y": centre.y, "id": _landing_id}
-	jump_landed.emit({"x": centre.x, "y": centre.y, "heavy": heavy, "id": _landing_id})
+		_heavy_impact = {"x": centre.x, "y": centre.y, "id": _impact_id}
+	jump_landed.emit({"x": centre.x, "y": centre.y, "heavy": heavy, "id": _impact_id})
 
 
-## {} or {"x", "y", "id"} of the last jump landing made in a Heavy form.
-func last_heavy_landing() -> Dictionary:
-	return _heavy_landing
+## A Squash Slam struck at `centre` (slam_sequence.gd); in a Heavy form it is a Heavy impact.
+func record_slam(centre: Vector2) -> void:
+	_impact_id += 1
+	if presses_plates():
+		_heavy_impact = {"x": centre.x, "y": centre.y, "id": _impact_id}
+
+
+## {} or {"x", "y", "id"} of the last Heavy impact: a Squash Slam (or a jump landing) made in a
+## Heavy form. Cracked ground breaks under one.
+func last_heavy_impact() -> Dictionary:
+	return _heavy_impact
 
 
 ## The current form presses plates and cracks ground (Heavy). Set by the Gulp forms.
@@ -1061,11 +1088,12 @@ func current_form() -> Dictionary:
 	return _gulp.form
 
 
-## &"" when none, else &"heavy" / &"sticky".
+## &"" when none, else &"heavy" (Stone) / &"sticky" (Silk) / &"frog" (Swim).
 func current_form_id() -> StringName:
 	return _gulp.form.get("id", &"")
 
 
+## Forms have no timer since 2026-10-08: always 0.
 func form_remaining_ms() -> float:
 	return _gulp.remaining_ms()
 
@@ -1074,17 +1102,33 @@ func get_gulp() -> GulpController:
 	return _gulp
 
 
-## The nearest Gulp spot in reach, or null.
-func nearest_gulp_spot() -> Node:
-	return _gulp.nearest_spot()
+func get_mouth() -> Mouth:
+	return _mouth
 
 
-## A tap of Q (or a right click on a spot): eat, and the eat clip when something happened.
-func eat() -> String:
-	var result := _gulp.eat()
-	if result != "nothing":
-		play_action_clip("eat")
-	return result
+## {} or what the mouth holds: {"kind": <liftable kind>|"essence", "essence", "variant"}.
+func held() -> Dictionary:
+	return _mouth.held
+
+
+## The thing a suck would take now (the HUD's "[Q] Suck" hint), or null.
+func nearest_suckable() -> Node:
+	if _dead or _mouth.is_holding():
+		return null
+	return _mouth.find_target(_gulp_aim())
+
+
+## The bag's "Use" on an essence: into the mouth. False when the mouth is busy.
+func take_into_mouth(item_id: String) -> bool:
+	if _dead:
+		return false
+	return _mouth.take_item(item_id)
+
+
+## The mouth's change: `held_changed`. The full slime's clips (`_locomotion_clip`) take over on the
+## next step.
+func on_held_changed(state: Dictionary) -> void:
+	held_changed.emit(state.duplicate())
 
 
 ## A Goo Heart (WorldScene.collectGooHeart): max HP grows for the run and HP fills.
@@ -1137,8 +1181,10 @@ func _status_damage(amount: float, _kind: StringName) -> void:
 		_die()
 
 
-## The Gulp controller's form change (WorldScene.ts:1093-1100): the tint, the gulp squash and
-## the floating text.
+## The Gulp controller's form change (WorldScene.ts:1093-1100): the skin (or tint), the gulp
+## squash, the cue and the floating text. Reasons: started, switched (an essence swallowed), popped
+## (a hit), spat (Swallow with nothing held), cleared (death), restored (a door or a load: the skin
+## only).
 func on_gulp_form_changed(form: Dictionary, reason: String) -> void:
 	if visual != null:
 		# The form's skin is painted by the Visual's shader; the tint is the fallback without it.
@@ -1148,28 +1194,23 @@ func on_gulp_form_changed(form: Dictionary, reason: String) -> void:
 			visual.self_modulate = Color.WHITE
 		else:
 			visual.self_modulate = form.get("tint", Color.WHITE)
-	if reason == "started" or reason == "refreshed":
+	if reason == "started" or reason == "switched":
 		_squash.play(&"gulp")
 		var transform_cue := StringName(form.get("transform_cue", &""))
 		if not transform_cue.is_empty():
 			_audio_cue(transform_cue)
-	elif reason == "burp":
+	elif reason == "popped" or reason == "spat":
 		_audio_cue(CUE_GULP_BURP)
-	elif reason == "expired":
-		_audio_cue(CUE_GULP_WEAR_OFF)
 	var text := ""
 	var color := &"white"
 	match reason:
-		"started":
+		"started", "switched":
 			text = "%s!" % str(form["name"]).to_upper()
 			color = &"cyan"
-		"refreshed":
-			text = "%s refreshed" % str(form["name"])
-			color = &"cyan"
-		"burp":
-			text = "Burp!"
-		"expired":
-			text = "The form wore off"
+		"popped":
+			text = "Pop!"
+		"spat":
+			text = "Ptoo!"
 	if not text.is_empty():
 		_floating_text(get_centre() - Vector2(0.0, GULP_TEXT_RISE_PX), text, color, true)
 
@@ -1248,8 +1289,14 @@ func _handle_action_input() -> bool:
 			else:
 				interaction.call(&"handle_interact")
 		return true
-	# A swimming slime neither attacks nor uses abilities: those presses are dropped.
-	if _swim.swimming:
+	# Swallow (the Gulp, owner 2026-10-08): what the mouth holds becomes the form.
+	if _input.consume(&"swallow", now, _buffer_ms):
+		_orders.cancel()
+		use_ability(AbilityDefinitions.SWALLOW)
+		return true
+	# A swimming slime, or one holding something in its mouth, neither attacks nor uses abilities:
+	# those presses are dropped (Q still throws).
+	if _swim.swimming or _mouth.is_holding():
 		for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
 			_input.consume(AbilityDefinitions.action(id), now, _buffer_ms)
 		_input.consume(&"attack", now, _buffer_ms)
@@ -1265,10 +1312,17 @@ func _handle_action_input() -> bool:
 		_orders.cancel()
 		_attack()
 		return true
+	# Q, the mouth: a press throws what the slime holds, else starts a suck that lasts while Q is
+	# held (game/player/gulp/mouth.gd).
 	if _input.consume(&"eat", now, _buffer_ms):
 		_orders.cancel()
-		_eat_since_ms = now
-		_eat_last_seen_ms = now
+		if _mouth.is_holding():
+			var aim := _gulp_aim()
+			face(aim)
+			if _mouth.throw(aim):
+				play_action_clip(CLIP_SPIT)
+		else:
+			_mouth.begin_suck()
 		return true
 	return false
 
@@ -1281,8 +1335,11 @@ func _move(direction: Vector2) -> void:
 		return
 	var sprinting: bool = _input.is_held(&"sprint")
 	var base: float = _boost_speed if sprinting else _resolve_movement_speed(_base_speed)
-	# A Gulp form scales the capped speed (PlayerController.ts:69-70): Heavy 0.6, Sticky 0.9.
+	# A Gulp form scales the capped speed (PlayerController.ts:69-70): Heavy 0.6, Sticky 0.9; a full
+	# mouth slows the slime to `gulp.holdingSpeedMultiplier` (owner, 2026-10-09: 70%).
 	var speed: float = _resolve_movement_speed(base, 0.0, _status.speed_multiplier()) * float(_gulp.form.get("speed", 1.0))
+	if _mouth.is_holding():
+		speed *= _number("gulp.holdingSpeedMultiplier")
 	if direction == Vector2.ZERO:
 		body.velocity = Vector2.ZERO
 		_play_direct(_locomotion_clip(CLIP_IDLE))
@@ -1335,9 +1392,14 @@ func _play_idle(force: bool = false) -> void:
 	play_animation(_locomotion_clip(CLIP_IDLE), force)
 
 
-## Idle or walk, or the swim clip while swimming.
+## Idle or walk, the swim clip while swimming, or the full slime's sway and waddle while the mouth
+## holds something.
 func _locomotion_clip(clip: String) -> String:
-	return CLIP_SWIM if _swim.swimming else clip
+	if _swim.swimming:
+		return CLIP_SWIM
+	if _mouth.is_holding():
+		return CLIP_FULL_WALK if clip == CLIP_WALK else CLIP_FULL_IDLE
+	return clip
 
 
 ## `<clip>-down`, `-up` or `-side` for the current facing when the scene has it (the
@@ -1372,49 +1434,23 @@ func _flip_for(clip: String) -> bool:
 	return Directions.slime_flip_h(_facing)
 
 
-## Player spec 5.1 / 5.2: dodge rules (learned, cooldown 500+250 ms from roll start) and the roll
-## (pointer aim snapped to a cardinal, else facing; 380 px/s for 500 ms, i-frames 400 ms),
-## "roll" clip, audio cue "Dodge", "dodge-dust" at the feet, cyan "DODGE" at centre - 30.
-## Returns true when the roll started.
+## The Roll (roadmap 7.7, game/player/roll/player_roll.gd) on the dodge's rules: learned, not
+## busy, its cooldown (`AbilityDefinitions.cooldown_ms`) and the last roll's own pause after it.
+## It rolls toward the pointer aim, else the held movement keys, else the facing. Returns true
+## when the spin-up started.
 func _try_dodge() -> bool:
-	var aim: Vector2 = _pointer_aim()
-	var toward: Vector2 = aim if aim != Vector2.ZERO else _facing
+	if not _roll.can_begin(Services.now_ms()) or body == null:
+		return false
+	var toward: Vector2 = _pointer_aim()
+	if toward == Vector2.ZERO:
+		toward = _movement_input(ControlScheme.current())
+	if toward == Vector2.ZERO:
+		toward = _facing
 	# The shared ability rules (busy silent, locked, cooldown silent, action-locked, energy); the
-	# cooldown (roll duration + post-roll cooldown) runs from now.
+	# cooldown runs from now.
 	if not _abilities.try_instant(AbilityDefinitions.DODGE):
 		return false
-	_dodge_cooldown_until_ms = _abilities.cooldown_until(AbilityDefinitions.DODGE)
-	return _begin_roll(Directions.snap_to_cardinal(toward))
-
-
-## `PlayerController.tryDodge` + `PlayerScript.beginDodge` (player spec 5.2).
-func _begin_roll(direction: Vector2) -> bool:
-	if body == null:
-		return false
-	var roll_direction: Vector2 = direction
-	if roll_direction == Vector2.ZERO:
-		roll_direction = _facing
-	if roll_direction == Vector2.ZERO:
-		roll_direction = Vector2.RIGHT
-	roll_direction = roll_direction.normalized()
-	if is_movement_suppressed() or _dodge_duration_ms <= 0.0 or _dodge_iframes_ms < 0.0:
-		return false
-	var now: float = Services.now_ms()
-	_dodge_until_ms = maxf(_dodge_until_ms, now + minf(_dodge_iframes_ms, _dodge_duration_ms))
-	_roll_until_ms = maxf(_roll_until_ms, now + _dodge_duration_ms)
-	# Set once; persists for the whole roll (a wall hit zeroes the blocked axis via ArcadeMover.move).
-	body.velocity = roll_direction * _resolve_movement_speed(_dodge_speed)
-	# Phaser plays the clip, then faces; facing first picks the roll's directional row.
-	face(roll_direction)
-	_play_direct(CLIP_ROLL)
-	_audio_cue(CUE_DODGE)
-	var centre: Vector2 = get_centre()
-	var feel := Services.feel()
-	if feel != null:
-		# Phaser resolveBodyBottom = the feet = the Godot root origin.
-		feel.particles(PARTICLES_DODGE_DUST, Vector2(centre.x, body.global_position.y))
-	_floating_text(centre - Vector2(0.0, TEXT_RISE_PX), "DODGE", &"cyan", false)
-	return true
+	return _roll.begin(toward, Services.now_ms())
 
 
 ## Player spec 9.1: face the pointer aim (snapped) when there is one, then `_combat.try_attack()`.
@@ -1525,9 +1561,10 @@ func _die() -> void:
 	if _dead:
 		return
 	_sleep.wake("death")
+	_roll.cancel()
 	_gulp.clear()
+	_mouth.clear()
 	_status.clear()
-	_close_eat_hold()
 	_orders.cancel()
 	_dead = true
 	_knockback_anim_until_ms = 0.0
@@ -1646,10 +1683,6 @@ func _load_constants() -> void:
 	_base_speed = _number("character.player.movement.baseSpeed")
 	_boost_speed = _number("character.player.movement.boostSpeed")
 	_speed_cap = _number("character.player.movement.movementSpeedCap")
-	_dodge_speed = _number("character.player.movement.dodgeSpeed")
-	_dodge_duration_ms = _number("character.player.movement.dodgeDurationMs")
-	_dodge_iframes_ms = _number("character.player.movement.dodgeInvulnerabilityMs")
-	_dodge_cooldown_ms = _number("character.player.movement.dodgeCooldownMs")
 	_hit_iframes_ms = _number("character.player.hitInvulnerabilityMs")
 	_defense = _number("character.player.stats.defense")
 	_max_hp = roundi(_number("character.player.stats.maxHp"))
@@ -1686,82 +1719,34 @@ func _floating_text(world_position: Vector2, text: String, color: StringName, bi
 		feel.floating_text(world_position, text, color, big)
 
 
-## The eat press (WorldScene.updateEatHold; abilities spec 11.4). A release before 250 ms is a tap
-## (`eat()`: a spot's form, a burp, or a message). Held 250 ms, the quick wheel opens with the
-## carried Gulp materials ("No Gulp materials carried" when none, and the release then does
-## nothing); while it is open the slime stands still, a movement direction (else the pointer, once
-## it moved 10 px) picks a slot, and the release eats that material from the bag. Returns true
-## while the wheel is open.
-func _update_eat_hold() -> bool:
-	if _eat_since_ms < 0.0:
+## Where the mouth sucks and throws: the pointer's aim in the mouse schemes, else the facing.
+func _gulp_aim() -> Vector2:
+	var aim := _pointer_aim()
+	return aim if aim != Vector2.ZERO else _facing
+
+
+## The Swallow ability (the shared rules: learned, not busy; no cost). Holding an essence, the slime
+## swallows it and takes its form (the old form pops out); holding a liftable, it cannot;
+## holding nothing, its form drops out whole.
+func _swallow() -> bool:
+	if not _abilities.try_instant(AbilityDefinitions.SWALLOW):
 		return false
-	var now: float = Services.now_ms()
-	if now - _eat_last_seen_ms > EAT_HOLD_DROP_MS:
-		_close_eat_hold()
-		return false
-	_eat_last_seen_ms = now
-	if not _input.is_held(&"eat"):
-		var was_open := _eat_wheel_open
-		var empty := _eat_wheel_empty
-		var item_id := ""
-		if was_open and _gulp_wheel != null and _gulp_wheel.selected >= 0 and _gulp_wheel.selected < _gulp_wheel.entries.size():
-			item_id = str(_gulp_wheel.entries[_gulp_wheel.selected]["item_id"])
-		_close_eat_hold()
-		if was_open:
-			if not item_id.is_empty() and _gulp.eat_material(item_id) != "nothing":
-				play_action_clip("eat")
-		elif not empty:
-			eat()
-		return false
-	if not _eat_wheel_open and not _eat_wheel_empty and now - _eat_since_ms >= GulpWheel.HOLD_MS:
-		var entries := _gulp.wheel_entries()
-		if entries.is_empty():
-			_eat_wheel_empty = true
-			var feel := Services.feel()
-			if feel != null:
-				feel.floating_text(get_centre() - Vector2(0.0, GULP_MESSAGE_RISE), "No Gulp materials carried", &"white", false)
-		else:
-			_eat_wheel_open = true
-			_eat_wheel_pointer_start = body.get_global_mouse_position() if body != null and body.is_inside_tree() else Vector2.ZERO
-			var chosen := 0
-			var preferred := _gulp.preferred_material()
-			for index in entries.size():
-				if str(entries[index]["item_id"]) == preferred:
-					chosen = index
-			_ensure_gulp_wheel()
-			_gulp_wheel.open(entries, chosen)
-	if not _eat_wheel_open or _gulp_wheel == null:
-		return false
-	var pick := GulpWheel.pick_slot(_input.movement_vector(), _gulp_wheel.entries.size())
-	if pick < 0 and body != null and body.is_inside_tree() and ControlScheme.uses_mouse(ControlScheme.current()):
-		var pointer := body.get_global_mouse_position()
-		if pointer.distance_to(_eat_wheel_pointer_start) > GULP_WHEEL_POINTER_SLACK:
-			pick = GulpWheel.pick_slot(pointer - (get_centre() - Vector2(0.0, GULP_WHEEL_POINTER_RISE)), _gulp_wheel.entries.size())
-	_gulp_wheel.follow(get_centre(), pick if pick >= 0 else _gulp_wheel.selected)
-	return true
-
-
-## The Gulp quick wheel (null until the first long hold).
-func get_gulp_wheel() -> GulpWheel:
-	return _gulp_wheel
-
-
-## Ends the eat hold and hides the quick wheel.
-func _close_eat_hold() -> void:
-	_eat_since_ms = -1.0
-	_eat_wheel_open = false
-	_eat_wheel_empty = false
-	if _gulp_wheel != null:
-		_gulp_wheel.close()
-
-
-## The quick wheel lives beside the Gulp HUD under the body (drawn top-level over everything).
-func _ensure_gulp_wheel() -> void:
-	if _gulp_wheel != null or body == null:
-		return
-	_gulp_wheel = GulpWheel.new()
-	_gulp_wheel.name = "GulpWheel"
-	body.add_child(_gulp_wheel)
+	var holding := _mouth.held
+	if not holding.is_empty():
+		if str(holding.get("kind", "")) != "essence":
+			_floating_text(get_centre() - Vector2(0.0, GULP_MESSAGE_RISE), "Too big to swallow", &"white", false)
+			return false
+		var form := GulpForms.for_essence(str(holding.get("essence", "")))
+		if _gulp.swallow(str(form.get("essence_item", ""))) == "nothing":
+			return false
+		_mouth.clear_held()
+		play_action_clip("eat")
+		return true
+	if _gulp.spit_out() != "nothing":
+		_squash.play(&"gulp")
+		return true
+	_floating_text(get_centre() - Vector2(0.0, GULP_MESSAGE_RISE), "Nothing to swallow", &"white", false)
+	return false
 
 
 ## The Goo Trail passive (game/player/goo_trail.gd) in the world, where its smears stay.
@@ -1793,7 +1778,7 @@ func _make_gulp_hud() -> void:
 
 ## Energy regen (WorldScene.ts:833-837): `energyRegenPerSecond` per second of simulation, capped.
 func _regen_energy(delta_ms: float) -> void:
-	if _energy >= float(_max_energy) or delta_ms <= 0.0:
+	if _energy >= float(_max_energy) or delta_ms <= 0.0 or _roll.is_active():
 		return
 	var before := _energy
 	_energy = minf(float(_max_energy), _energy + _energy_regen * delta_ms / 1000.0)

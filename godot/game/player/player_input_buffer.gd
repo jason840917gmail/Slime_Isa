@@ -12,7 +12,7 @@ class_name PlayerInputBuffer
 ## actions and the abilities, and `interact` (right click, interaction spec 2.7).
 const ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"move_right",
 	&"attack", &"sprint", &"dodge", &"interact", &"jump", &"stretch_lash", &"squash_slam",
-	&"teleport", &"eat"]
+	&"teleport", &"eat", &"swallow"]
 
 var _held: Dictionary = {}
 var _pressed_at: Dictionary = {}

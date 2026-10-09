@@ -48,11 +48,13 @@ Wellspring and sets out to bring back the Wellspring's scattered Pearls before a
   the slime frees a Pearl from a boss, that ability passes permanently into
   the slime during the item ceremony. The Pearl can then return to the
   Wellspring without taking the ability back. Fatty One Eye's Pearl grants
-  Jump, and the Matron's Pearl grants Stretch Lash. The other six abilities
-  are Open.
+  Squash Slam (Jump until the jump was removed on 2026-10-08), and the
+  Matron's Pearl grants Stretch Lash. The other six abilities are Open.
 - **The Gulp is its gift**, the same power that ruined Gorge. That gives the
   story its question: can a slime gulp without becoming greedy? The hero gulps
-  to *learn* (each armor is gulped once and kept). Gorge gulped to *own*.
+  only what it needs and lets it go: an essence is swallowed, used and spent
+  (since 2026-10-08, see [Direction](01-direction.md#decisions-of-2026-10-08)).
+  Gorge gulped to *own*.
 
 ## Goal and shape of the story
 

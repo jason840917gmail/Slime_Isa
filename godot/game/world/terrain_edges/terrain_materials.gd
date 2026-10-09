@@ -35,7 +35,7 @@ const TILE_GROUNDS := {
 	"water": "water",
 }
 ## Edge art, built by scripts/art/build-terrain-edge-tiles.py.
-const ART_DIR := "res://game/world/terrain_edges/art/"
+const ART_DIR := "res://asset/MAPS/terrain-edges/"
 
 
 ## The ground of terrain tile `tile_id`, or "" when it keeps hard edges.

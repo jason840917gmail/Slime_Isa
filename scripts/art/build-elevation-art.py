@@ -3,18 +3,21 @@
 
 The art is generated with Magnific (GPT 2.5) and turned into runtime textures here; this tool does
 not run in the game. Inputs are in asset/Originals/elevation/generated/, outputs (derived; re-run
-the tool instead of editing them) in godot/game/world/elevation/art/.
+the tool instead of editing them) in godot/asset/MAPS/elevation/.
 
-Walls (WALLS: style -> source, courses asked for): a full-frame front view of a rock wall whose
-courses are separated by dark straight crevices. The complete courses between the first and last
-crevice are each resampled to exactly 128 px (one level = 64 world units at 2 px per unit), cut
-through the middle of their crevices (stacked courses meet in a full crevice; a wall's top and foot
-show half of one), and made horizontally periodic with a minimum-error seam (image quilting).
+Walls (WALLS: style -> source, courses in the source): a full-frame front view of a rock wall whose
+courses are separated by dark straight crevices. The two complete courses after the first crevice
+are each resampled to exactly 128 px (one level = 64 world units at 2 px per unit), cut through the
+middle of their crevices (stacked courses meet in a full crevice; a wall's top and foot show half
+of one), and made horizontally periodic with a minimum-error seam (image quilting). A wall texture
+is always two courses tall: stacked walls alternate them (elevation.gd, the level of a wall's top
+mod 2). The courses in a source may be a fraction (4.4: a course is 1024 / 4.4 px).
   -> <style>-wall.png
 
 Wall ends (WALL_ENDS: style -> right and left end sources): the end of the same wall in a column
-of rounded corner stones. The column is cut from the crevice beside it to just past the stones'
-bulge, its courses resampled like the wall's and its colours matched to the wall.
+of rounded corner stones. The column is cut from the crevice beside it (given, or None: the darkest
+column END_CREVICE_SEARCH px inside the art's edge) to just past the stones' bulge, its courses
+resampled like the wall's and its colours matched to the wall.
   -> <style>-wall-end-right.png, <style>-wall-end-left.png
 
 Strips (STRIPS: ground -> its sheet and a lip and a foot source): one ground's cliff top and foot.
@@ -38,12 +41,16 @@ units at 2 px per unit), made opaque and horizontally periodic. Risers are baked
 the coping is the riser row tinted halfway to the style's wall rock, COPING_LIGHT lighter. A
 flight's railings and posts use the wall itself.
   -> <style>-stairs-tread.png, <style>-stairs-riser.png, <style>-stairs-coping.png
+Every other wall style gets its own coping from the kit's riser row (STAIRS_KIT), tinted the same
+way towards its own wall, so a flight's railings are of the rock of the cliff it leaves.
+  -> <style>-stairs-coping.png
 
 Usage: python scripts/art/build-elevation-art.py [name ...] [--preview DIR]
 """
 from __future__ import annotations
 
 import argparse
+import math
 from pathlib import Path
 
 import numpy as np
@@ -52,20 +59,69 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "asset/Originals/elevation/generated"
 GROUND_SHEETS = ROOT / "godot/asset/MAPS/grounds"
-OUT = ROOT / "godot/game/world/elevation/art"
+OUT = ROOT / "godot/asset/MAPS/elevation"
 
-## style -> (source file, number of courses the source was asked for)
+## style -> (source file, number of courses in the source, even out its light). A cliff's style is
+## painted on the world's `cliffs` layer or picked by the ground on top (elevation.gd
+## GROUND_WALL_STYLES). The generator paints the light falling off from the upper left over the whole
+## frame, which would repeat as a bright patch every period of the wall: evened out for every style
+## but meadow-rock (approved as it is on 2026-10-05).
 WALLS = {
-    "meadow-rock": ("wall-rock-a.png", 4),
+    "meadow-rock": ("wall-rock-a.png", 4, False),
+    "snow-rock": ("snow-rock-wall-a.png", 4, True),
+    "sandstone": ("sandstone-wall-a.png", 4, True),
+    "cave-rock": ("cave-rock-wall-a.png", 4, True),
+    "crystal-rock": ("crystal-rock-wall-b.png", 4, True),
+    "mossy-rock": ("mossy-rock-wall-a.png", 4, True),
+    "masonry": ("masonry-wall-d.png", 4.4, True),
+    "root-rock": ("root-rock-wall-a.png", 4, True),
+    "red-rock": ("red-rock-wall-a.png", 4, True),
 }
-## style -> per end ("right", "left"): (source file, courses asked for, source column of the crevice
-## between the wall and its corner stones)
+## Evening out the light: the source's brightness averaged over LIGHT_CELLS x LIGHT_CELLS blocks
+## (a stone or two each), smoothed, is divided out.
+LIGHT_CELLS = 4
+## style -> per end ("right", "left"): (source file, courses in the source, source column of the
+## crevice between the wall and its corner stones, or None to find it)
 WALL_ENDS = {
     "meadow-rock": {
         "right": ("wall-corner-b.png", 4, 555),
         "left": ("wall-corner-left-a.png", 4, 320),
     },
+    "snow-rock": {
+        "right": ("snow-rock-end-right-a.png", 4, None),
+        "left": ("snow-rock-end-left-b.png", 4, None),
+    },
+    "sandstone": {
+        "right": ("sandstone-end-right-a.png", 4, None),
+        "left": ("sandstone-end-left-a.png", 4, None),
+    },
+    "cave-rock": {
+        "right": ("cave-rock-end-right-a.png", 4, None),
+        "left": ("cave-rock-end-left-a.png", 4, None),
+    },
+    "crystal-rock": {
+        "right": ("crystal-rock-end-right-a.png", 4, None),
+        "left": ("crystal-rock-end-left-a.png", 4, None),
+    },
+    "mossy-rock": {
+        "right": ("mossy-rock-end-right-a.png", 4, None),
+        "left": ("mossy-rock-end-left-a.png", 4, None),
+    },
+    "root-rock": {
+        "right": ("root-rock-end-right-a.png", 4, None),
+        "left": ("root-rock-end-left-b.png", 4, None),
+    },
+    "red-rock": {
+        "right": ("red-rock-end-right-b.png", 4, None),
+        "left": ("red-rock-end-left-b.png", 4, None),
+    },
+    "masonry": {
+        "right": ("masonry-end-right-b.png", 6.75, None),
+        "left": ("masonry-end-left-a.png", 6.12, None),
+    },
 }
+## Where a wall end's crevice is looked for: from this many px inside the art's edge to this many.
+END_CREVICE_SEARCH = (230, 50)
 ## Wall end strip: px of art kept outside the wall's end line (the stones' rounded bulge).
 WALL_END_OUTSIDE = 10
 ## style -> stairs kit: per part, (source file, first row, last row) of one step, crevice to crevice
@@ -75,6 +131,8 @@ STAIRS = {
         "riser": ("stairs-riser-b.png", 322, 471),
     },
 }
+## The kit every flight's treads and risers come from (elevation.gd STAIRS_STYLE).
+STAIRS_KIT = "meadow-rock"
 ## One step's row at game size: a rise of 64 / 3 world units at 2 px per unit.
 STEP_PX = 43
 RISER_TONE = 0.80
@@ -193,23 +251,42 @@ def tiled_preview(image: Image.Image, path: Path, tiles_x: int = 3, tiles_y: int
 
 # --- walls ---------------------------------------------------------------------------------
 
-def find_joints(rgb: np.ndarray, courses: int) -> list[int]:
+def find_joints(rgb: np.ndarray, courses: float) -> list[int]:
     """Rows of the dark crevices between courses (the darkest row near each expected one)."""
     lum = rgb.mean(axis=2).mean(axis=1)
     height = rgb.shape[0]
     joints = []
-    for k in range(1, courses):
+    for k in range(1, math.ceil(courses)):
         expected = round(k * height / courses)
         lo, hi = max(0, expected - JOINT_SEARCH), min(height, expected + JOINT_SEARCH)
         joints.append(lo + int(np.argmin(lum[lo:hi])))
     return joints
 
 
+def course_spans(joints: list[int]) -> list[tuple[int, int]]:
+    """The two complete courses after the first crevice (a wall texture is two courses tall)."""
+    spans = list(zip(joints, joints[1:]))[:2]
+    assert len(spans) == 2, f"two complete courses needed, crevices at {joints}"
+    return spans
+
+
+def even_light(rgb: np.ndarray) -> np.ndarray:
+    """Divides out the source's broad light (its brightness over LIGHT_CELLS² blocks, smoothed back
+    to full size), keeping its mean brightness; the shading of each stone stays."""
+    height, width = rgb.shape[:2]
+    lum = Image.fromarray(rgb.mean(axis=2).astype(np.float32), "F")
+    broad = lum.resize((LIGHT_CELLS, LIGHT_CELLS), Image.BOX).resize((width, height), Image.BICUBIC)
+    broad = np.maximum(np.asarray(broad, dtype=np.float64), 1.0)
+    return rgb * (broad.mean() / broad)[..., None]
+
+
 def build_wall(style: str, preview: Path | None) -> None:
-    source, courses = WALLS[style]
+    source, courses, flatten = WALLS[style]
     rgb = np.asarray(Image.open(SRC / source).convert("RGB")).astype(np.float64)
+    if flatten:
+        rgb = even_light(rgb)
     joints = find_joints(rgb, courses)
-    spans = list(zip(joints, joints[1:]))
+    spans = course_spans(joints)
     # One horizontal scale for every course (the mean), so stones keep their proportions.
     scale = float(np.mean([COURSE_PX / (bottom - top) for top, bottom in spans]))
     width = round(rgb.shape[1] * scale)
@@ -303,13 +380,16 @@ def build_wall_end(style: str, side: str, preview: Path | None) -> None:
     rgba = np.asarray(Image.open(SRC / source).convert("RGBA")).astype(np.float64) / 255.0
     if side == "left":
         rgba = rgba[:, ::-1]
-        crevice = rgba.shape[1] - 1 - crevice
+        if crevice is not None:
+            crevice = rgba.shape[1] - 1 - crevice
     joints = find_joints(rgba[..., :3] * 255.0, courses)
-    spans = list(zip(joints, joints[1:]))
+    spans = course_spans(joints)
     scale = float(np.mean([COURSE_PX / (bottom - top) for top, bottom in spans]))
     opaque = rgba[..., 3] > 0.5
     edges = [int(np.nonzero(row)[0].max()) for row in opaque if row.any()]
     edge = int(round(np.mean(edges)))
+    if crevice is None:
+        crevice = find_end_crevice(rgba, opaque, edge)
     right = edge + round(WALL_END_OUTSIDE / scale)
     width = round((right - crevice) * scale)
     wall = np.asarray(Image.open(OUT / f"{style}-wall.png").convert("RGB"), dtype=np.float64) / 255.0
@@ -336,9 +416,20 @@ def build_wall_end(style: str, side: str, preview: Path | None) -> None:
         straight = straight[:, ::-1]
     out = Image.fromarray(np.clip(straight * 255.0 + 0.5, 0, 255).astype(np.uint8), "RGBA")
     out.save(OUT / f"{style}-wall-end-{side}.png", optimize=True)
-    print(f"wall end {style} {side}: crevices at {joints}, {out.size[0]}x{out.size[1]} px, end line {WALL_END_OUTSIDE} px from its outer side")
+    print(f"wall end {style} {side}: crevices at {joints}, stones from column {crevice}, {out.size[0]}x{out.size[1]} px, end line {WALL_END_OUTSIDE} px from its outer side")
     if preview is not None:
         tiled_preview(out, preview / f"{style}-wall-end-{side}-tiled.png", 1, 3)
+
+
+def find_end_crevice(rgba: np.ndarray, opaque: np.ndarray, edge: int) -> int:
+    """The column of the crevice between a wall and its corner stones (worked on as a right end):
+    the darkest column, lightly smoothed, END_CREVICE_SEARCH px inside the art's mean edge `edge`,
+    over the rows that are opaque there."""
+    lo, hi = edge - END_CREVICE_SEARCH[0], edge - END_CREVICE_SEARCH[1]
+    rows = opaque[:, lo:hi].all(axis=1)
+    profile = rgba[rows][:, lo:hi, :3].mean(axis=2).mean(axis=0)
+    smooth = np.convolve(profile, np.ones(5) / 5.0, mode="same")
+    return lo + 3 + int(np.argmin(smooth[3:-3]))
 
 
 def stairs_row(source: str, first: int, last: int) -> np.ndarray:
@@ -355,18 +446,33 @@ def save_rgb(image: np.ndarray, path: Path) -> Image.Image:
     return out
 
 
+def coping_for(riser: np.ndarray, style: str) -> np.ndarray:
+    """The riser row tinted halfway to the mean colour of `style`'s wall, COPING_LIGHT lighter."""
+    wall = np.asarray(Image.open(OUT / f"{style}-wall.png").convert("RGB")).astype(np.float64)
+    tint = wall.reshape(-1, 3).mean(0) / riser.reshape(-1, 3).mean(0)
+    return riser * (0.5 + 0.5 * tint)[None, None, :] * COPING_LIGHT
+
+
 def build_stairs(style: str, preview: Path | None) -> None:
     kit = STAIRS[style]
     tread = stairs_row(*kit["tread"])
     riser = stairs_row(*kit["riser"])
-    wall = np.asarray(Image.open(OUT / f"{style}-wall.png").convert("RGB")).astype(np.float64)
-    tint = wall.reshape(-1, 3).mean(0) / riser.reshape(-1, 3).mean(0)
-    coping = riser * (0.5 + 0.5 * tint)[None, None, :] * COPING_LIGHT
+    coping = coping_for(riser, style)
     for part, image in (("tread", tread), ("riser", riser * RISER_TONE), ("coping", coping)):
         out = save_rgb(image, OUT / f"{style}-stairs-{part}.png")
         print(f"stairs {style} {part}: {out.size[0]}x{out.size[1]} px")
         if preview is not None:
             tiled_preview(out, preview / f"{style}-stairs-{part}-tiled.png", 3, 3)
+
+
+def build_coping(style: str, preview: Path | None) -> None:
+    """The railings' coping of a wall style without a stairs kit: STAIRS_KIT's riser row, tinted
+    towards this style's wall."""
+    coping = coping_for(stairs_row(*STAIRS[STAIRS_KIT]["riser"]), style)
+    out = save_rgb(coping, OUT / f"{style}-stairs-coping.png")
+    print(f"stairs {style} coping: {out.size[0]}x{out.size[1]} px")
+    if preview is not None:
+        tiled_preview(out, preview / f"{style}-stairs-coping-tiled.png", 3, 3)
 
 
 def main() -> None:
@@ -385,6 +491,8 @@ def main() -> None:
             build_wall_ends(name, args.preview)
         if name in STAIRS:
             build_stairs(name, args.preview)
+        elif name in WALLS:
+            build_coping(name, args.preview)
         if name in STRIPS:
             build_strip(name, "lip", args.preview)
             build_strip(name, "foot", args.preview)

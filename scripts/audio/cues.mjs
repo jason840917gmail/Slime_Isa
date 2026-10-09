@@ -148,6 +148,13 @@ export const CUES = {
     'gulp-transform-heavy': { library: ['magnific/player-gulp-transform-heavy-r4-1', 'magnific/player-gulp-transform-heavy-r4-2'], variants: 2 },
     'gulp-transform-sticky': { library: ['magnific/player-gulp-transform-sticky-r4-1', 'magnific/player-gulp-transform-sticky-r4-2', 'magnific/player-gulp-transform-sticky-r4-3'], variants: 3 },
     'gulp-transform-frog': { library: ['magnific/player-gulp-transform-frog-r4-1'], variants: 1 },
+    // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Gulp's suck, catch and spit and the Roll's rev, launch and bonk.
+    'gulp-suck': { library: ['magnific/player-gulp-suck-r5-1', 'magnific/player-gulp-suck-r5-2', 'magnific/player-gulp-suck-r5-3'], variants: 3 },
+    'gulp-catch': { library: ['magnific/player-gulp-catch-r5-1', 'magnific/player-gulp-catch-r5-2', 'magnific/player-gulp-catch-r5-3'], variants: 3 },
+    'gulp-spit': { library: ['magnific/player-gulp-spit-r5-1', 'magnific/player-gulp-spit-r5-2', 'magnific/player-gulp-spit-r5-3'], variants: 3 },
+    'roll-rev': { library: ['magnific/player-roll-rev-r5-1', 'magnific/player-roll-rev-r5-2', 'magnific/player-roll-rev-r5-3'], variants: 3 },
+    'roll-launch': { library: ['magnific/player-roll-launch-r5-1', 'magnific/player-roll-launch-r5-2', 'magnific/player-roll-launch-r5-3'], variants: 3 },
+    'roll-bonk': { library: ['magnific/player-roll-bonk-r5-1', 'magnific/player-roll-bonk-r5-2', 'magnific/player-roll-bonk-r5-3'], variants: 3 },
   },
 
   footstep: {
@@ -201,6 +208,8 @@ export const CUES = {
     // Magnific takes (sound picks 2026-09-30, "if this is being trapped by a web it should look more dramatic").
     'web-splat': { library: ['magnific/enemy-web-splat-1', 'magnific/enemy-web-splat-2'], variants: 2, synth: (k) => ({ layers: [squelch({ dur: 0.26, gain: 0.9, cutoff: [1300 * k, 280] }), thump({ f0: 160 * k, f1: 60, dur: 0.16, gain: 0.6 }), ...[0.06, 0.12].map((at) => blip({ at, f0: 300, f1: 600, dur: 0.05, wave: 'sine', gain: 0.25 }))] }) },
     telegraph: { library: ['question_001'], synth: () => ({ layers: [blip({ f0: 1400, f1: 1400, dur: 0.07, wave: 'square', gain: 0.25 }), blip({ at: 0.11, f0: 1400, f1: 1400, dur: 0.07, wave: 'square', gain: 0.25 })] }) },
+    // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Clod Stomper's slam.
+    'stomper-slam': { library: ['magnific/enemy-stomper-slam-r5-1', 'magnific/enemy-stomper-slam-r5-2', 'magnific/enemy-stomper-slam-r5-3'], variants: 3 },
   },
 
   boss: {
@@ -308,6 +317,14 @@ export const CUES = {
     door: { library: ['magnific/world-door-r3-1', 'magnific/world-door-r3-2', 'magnific/world-door-r3-3'], variants: 3 },
     'dummy-hit': { library: ['magnific/world-dummy-hit-r3-1', 'magnific/world-dummy-hit-r3-2', 'magnific/world-dummy-hit-r3-3'], variants: 3 },
     'ground-creak': { library: ['magnific/world-ground-creak-r3-1'], variants: 1 },
+    // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): a thrown liftable breaking, per material (thrown_object.gd BREAK_CUES).
+    'break-clay': { library: ['magnific/world-break-clay-r5-1', 'magnific/world-break-clay-r5-2', 'magnific/world-break-clay-r5-3'], variants: 3 },
+    'break-glass': { library: ['magnific/world-break-glass-r5-1', 'magnific/world-break-glass-r5-2', 'magnific/world-break-glass-r5-3'], variants: 3 },
+    'break-wood': { library: ['magnific/world-break-wood-r5-1', 'magnific/world-break-wood-r5-2', 'magnific/world-break-wood-r5-3'], variants: 3 },
+    'break-metal': { library: ['magnific/world-break-metal-r5-1', 'magnific/world-break-metal-r5-2', 'magnific/world-break-metal-r5-3'], variants: 3 },
+    'break-stone': { library: ['magnific/world-break-stone-r5-1', 'magnific/world-break-stone-r5-2', 'magnific/world-break-stone-r5-3'], variants: 3 },
+    'break-soft': { library: ['magnific/world-break-soft-r5-1', 'magnific/world-break-soft-r5-2', 'magnific/world-break-soft-r5-3'], variants: 3 },
+    'break-ice': { library: ['magnific/world-break-ice-r5-1', 'magnific/world-break-ice-r5-2', 'magnific/world-break-ice-r5-3'], variants: 3 },
   },
 
   ui: {
@@ -331,6 +348,8 @@ export const CUES = {
     toast: { library: ['drop_004'], synth: () => ({ layers: [blip({ f0: 700, f1: 1050, dur: 0.07, wave: 'sine', gain: 0.5 })] }) },
     // Sound Picker round 3 (2026-10-06): Magnific takes, library only (no synth recipe).
     'talk-blip': { library: ['magnific/ui-talk-blip-r3-1', 'magnific/ui-talk-blip-r3-2', 'magnific/ui-talk-blip-r3-3', 'magnific/ui-talk-blip-r3-4'], variants: 4 },
+    // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the ceremony's fanfare (game/ui/ceremony/).
+    ceremony: { library: ['magnific/ui-ceremony-r5-1', 'magnific/ui-ceremony-r5-2', 'magnific/ui-ceremony-r5-3'], variants: 3 },
   },
 };
 

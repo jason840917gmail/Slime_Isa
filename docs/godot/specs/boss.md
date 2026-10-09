@@ -194,8 +194,10 @@ layout override that rule: the card shows the standard window border, no padding
 stretches 38 px to the card's bottom. The card sits 192-264 px above the screen bottom, above the
 weapon hotbar (116-172 px) and the ability bar (12-84 px). Godot (`game/ui/boss_health_bar.gd`,
 2026-10-05) follows the rule's intent: red border, 12 px padding, a 16 px bar, so the card is
-548 × 58 with its bottom edge at Phaser's 192 px; on views shorter than 720 px it stays at least
-96 px below the view centre (the player), and it is never wider than the screen − 24 px.
+548 × 58 and never wider than the screen − 24 px. Since 2026-10-08 (roadmap 4.12; the owner's
+decision of 2026-10-02) it sits at the top centre, 14 units below the top edge (the HUD console
+holds the bottom), and it hides while the slime's centre is outside the boss's arena and comes back
+on return (the arena test of the boss's 60 s heal).
 
 ---
 

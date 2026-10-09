@@ -11,7 +11,6 @@ extends RefCounted
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
-const FROG_SPOT := "res://game/scenes/objects/gulp-spot-frog.tscn"
 
 const MAP_ID := "level-1"
 const CELL := 64.0
@@ -86,11 +85,11 @@ func test_the_frog_plunges_and_strokes(t: TestContext) -> void:
 	t.equal(footsteps.last_surface, &"Swim", "the stroke is a swim stroke")
 
 
-func test_burping_plays_the_burp(t: TestContext) -> void:
+func test_spitting_the_form_out_plays_the_burp(t: TestContext) -> void:
 	var burp := Services.feel().global_audio().find_child("GulpBurp", true, false)
 	await _gulp_frog(t)
 	burp.reset_cue()
-	t.equal(t.player().eat(), "burp", "a tap away from a spot burps")
+	t.equal(t.player().get_gulp().spit_out(), "spat", "the form spat out on dry ground")
 	t.equal(burp.cues_played, 1, "the burp sounds")
 
 
@@ -107,14 +106,10 @@ func _footsteps(t: TestContext) -> Node:
 	return t.player().get_node_or_null(^"Footsteps")
 
 
+## The Swim form (the frog spot's before 2026-10-08), from a swim essence.
 func _gulp_frog(t: TestContext) -> void:
-	var spot := (load(FROG_SPOT) as PackedScene).instantiate() as Node2D
-	t.main.add_child(spot)
-	spot.global_position = t.player().get_centre() + Vector2(24.0, 0.0)
-	await t.steps(1)
-	t.equal(t.player().eat(), "spot", "gulped the frog")
-	spot.queue_free()
-	await t.sim_wait(300.0)
+	t.equal(t.player().get_gulp().swallow("swim-essence"), "started", "swallowed a swim essence")
+	await t.steps(2)
 
 
 func _centre(cell: Vector2i) -> Vector2:

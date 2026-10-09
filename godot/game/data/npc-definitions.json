@@ -62,5 +62,16 @@
       "Shh... you'll scare the fish.",
       "Patience, friend. The big one always bites right after you give up."
     ]
+  },
+  {
+    "id": "tom",
+    "characterId": "tom",
+    "displayName": "Tom",
+    "description": "A round blue slime who can swallow just about anything, and learn from it.",
+    "dialogue": [
+      "Every essence tastes of what it was. Stone is gritty, silk is fluffy, swim is... wet.",
+      "Hold it in your mouth first. Swallow when you are sure: you cannot spit a form back up halfway.",
+      "Next time I go after silk, I'm bringing you."
+    ]
   }
 ]

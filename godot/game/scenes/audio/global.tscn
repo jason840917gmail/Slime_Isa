@@ -104,6 +104,51 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/plate-release.wav" id="sfx_e6914548"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/ground-creak.wav" id="sfx_37b1d6a9"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-frog.wav" id="sfx_49f66690"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-suck-1.wav" id="sfx_8b891286"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-suck-2.wav" id="sfx_cc296856"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-suck-3.wav" id="sfx_f14941e6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-catch-1.wav" id="sfx_df79c6c6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-catch-2.wav" id="sfx_98d9bc16"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-catch-3.wav" id="sfx_a5b995a6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-1.wav" id="sfx_c148a726"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-2.wav" id="sfx_86e8ddf6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-3.wav" id="sfx_bb88f446"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-clay-1.wav" id="sfx_d97e68df"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-clay-2.wav" id="sfx_9ede120f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-clay-3.wav" id="sfx_a3be3bbf"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-glass-1.wav" id="sfx_12abaec6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-glass-2.wav" id="sfx_550bd416"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-glass-3.wav" id="sfx_686bfda6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-1.wav" id="sfx_dd359ab4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-2.wav" id="sfx_9a95e064"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-3.wav" id="sfx_a7f5c9d4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-metal-1.wav" id="sfx_454e00c7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-metal-2.wav" id="sfx_02ee7a17"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-metal-3.wav" id="sfx_3f8e53a7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-1.wav" id="sfx_138f8e0f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-2.wav" id="sfx_542ff4df"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-3.wav" id="sfx_694fdd6f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-1.wav" id="sfx_ac4fbd2b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-2.wav" id="sfx_ebefc7fb"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-3.wav" id="sfx_d68fee4b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-ice-1.wav" id="sfx_d94a9d1c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-ice-2.wav" id="sfx_9eeae7cc"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-ice-3.wav" id="sfx_a38ace7c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-rev-1.wav" id="sfx_260ebfee"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-rev-2.wav" id="sfx_61aec53e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-rev-3.wav" id="sfx_5cceec8e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-launch-1.wav" id="sfx_be59f59a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-launch-2.wav" id="sfx_f9f98f4a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-launch-3.wav" id="sfx_c499a6fa"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-bonk-1.wav" id="sfx_2b7c4220"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-bonk-2.wav" id="sfx_6cdc38f0"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-bonk-3.wav" id="sfx_51bc1140"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/stomper-slam-1.wav" id="sfx_acf5e576"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/stomper-slam-2.wav" id="sfx_eb559fa6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/stomper-slam-3.wav" id="sfx_d635b616"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-1.wav" id="sfx_8d334f26"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-2.wav" id="sfx_ca9335f6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-3.wav" id="sfx_f7f31c46"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -324,6 +369,171 @@ stream_0/weight = 1.0
 stream_1/stream = ExtResource("sfx_813cecbc")
 stream_1/weight = 1.0
 stream_2/stream = ExtResource("sfx_bc5cc50c")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_suck_GulpSuck"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_8b891286")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_cc296856")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_f14941e6")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_catch_GulpCatch"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_df79c6c6")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_98d9bc16")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_a5b995a6")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_spit_GulpSpit"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_c148a726")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_86e8ddf6")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_bb88f446")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_clay_BreakClay"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_d97e68df")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_9ede120f")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_a3be3bbf")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_glass_BreakGlass"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_12abaec6")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_550bd416")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_686bfda6")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_wood_BreakWood"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_dd359ab4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_9a95e064")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_a7f5c9d4")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_metal_BreakMetal"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_454e00c7")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_02ee7a17")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_3f8e53a7")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_stone_BreakStone"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_138f8e0f")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_542ff4df")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_694fdd6f")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_soft_BreakSoft"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_ac4fbd2b")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_ebefc7fb")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_d68fee4b")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_ice_BreakIce"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_d94a9d1c")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_9eeae7cc")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_a38ace7c")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_roll_rev_RollRev"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_260ebfee")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_61aec53e")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_5cceec8e")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_roll_launch_RollLaunch"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_be59f59a")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_f9f98f4a")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_c499a6fa")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_roll_bonk_RollBonk"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_2b7c4220")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_6cdc38f0")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_51bc1140")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_stomper_slam_StomperSlam"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_acf5e576")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_eb559fa6")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_d635b616")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_ui_ceremony_Ceremony"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_8d334f26")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_ca9335f6")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_f7f31c46")
 stream_2/weight = 1.0
 
 [node name="GlobalAudio" type="Node2D"]
@@ -966,6 +1176,155 @@ script = ExtResource("1")
 process_mode = 3
 stream = ExtResource("sfx_49f66690")
 volume_db = -8.99
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+[node name="GulpSuck" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_gulp_suck_GulpSuck")
+volume_db = -6.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GulpCatch" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_gulp_catch_GulpCatch")
+volume_db = -2.22
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GulpSpit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_gulp_spit_GulpSpit")
+volume_db = -7.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakClay" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_clay_BreakClay")
+volume_db = -4.74
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakGlass" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_glass_BreakGlass")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakWood" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_wood_BreakWood")
+volume_db = -5.02
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakMetal" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_metal_BreakMetal")
+volume_db = -5.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakStone" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_stone_BreakStone")
+volume_db = 4.12
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakSoft" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_soft_BreakSoft")
+volume_db = 2.01
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakIce" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_ice_BreakIce")
+volume_db = 3.42
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RollRev" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_roll_rev_RollRev")
+volume_db = -4.95
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RollLaunch" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_roll_launch_RollLaunch")
+volume_db = -8.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RollBonk" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_roll_bonk_RollBonk")
+volume_db = -8.06
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StomperSlam" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_stomper_slam_StomperSlam")
+volume_db = -5.58
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="Ceremony" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_ui_ceremony_Ceremony")
+volume_db = -11.23
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06

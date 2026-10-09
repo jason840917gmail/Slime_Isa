@@ -25,32 +25,16 @@ const HIT_SPARK_RISE := 12.0
 
 
 ## Squash Slam's strike: every registered hurtbox (not the player's, not a "resource") whose shape
-## meets the circle gets one router hit of `damage` with a knockback away from the centre.
+## meets the circle gets one router hit of `damage` with a knockback away from the centre. A thrown
+## rock, pot or essence strikes the same way (`weapon_id` "thrown-<kind>").
 ## Returns the number of accepted hits.
-static func strike_area(player: Node, centre: Vector2, radius: float, damage: float, knockback: float, weapon_tags: Array) -> int:
+static func strike_area(player: Node, centre: Vector2, radius: float, damage: float, knockback: float, weapon_tags: Array, weapon_id: String = "squash-slam") -> int:
 	var router := Services.router()
 	var world := Services.world()
 	var attack_area := player.call(&"get_slam_area") as Area2D if player.has_method(&"get_slam_area") else null
 	if router == null or world == null or attack_area == null or not is_instance_valid(world.world_root):
 		return 0
-	var space := world.world_root.get_world_2d().direct_space_state
-	var shape := CircleShape2D.new()
-	shape.radius = radius
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, centre)
-	query.collision_mask = HURTBOX_MASK
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	var targets: Array[Area2D] = []
-	for hit: Dictionary in space.intersect_shape(query, 64):
-		var area := hit.get("collider") as Area2D
-		if area == null or area in targets:
-			continue
-		var receiver := router.receiver_for_area(area)
-		if receiver == null or receiver == player or "resource" in router.tags_for_area(area):
-			continue
-		targets.append(area)
+	var targets := hurtboxes_at(player, centre, radius)
 	if targets.is_empty():
 		return 0
 	var activation := router.begin_activation(player, [attack_area])
@@ -61,7 +45,7 @@ static func strike_area(player: Node, centre: Vector2, radius: float, damage: fl
 		var distance := at.distance_to(centre)
 		var knock := (at - centre) / distance if distance > 0.0 else Vector2.ZERO
 		var result := router.route({"activation_id": activation, "source": player, "attack_area": attack_area,
-			"target_area": area, "weapon_id": "squash-slam", "weapon_tags": weapon_tags,
+			"target_area": area, "weapon_id": weapon_id, "weapon_tags": weapon_tags,
 			"damage_types": ["physical"], "base_damage": damage,
 			"effects": [{"effect_id": "knockback", "potency": knockback}],
 			"impact": {"position": at, "knock": knock}})
@@ -73,6 +57,33 @@ static func strike_area(player: Node, centre: Vector2, radius: float, damage: fl
 	if accepted > 0 and feel != null:
 		feel.play(&"hit")
 	return accepted
+
+
+## The hurtboxes (not the player's, not a "resource") whose shape meets the circle at `centre`.
+static func hurtboxes_at(player: Node, centre: Vector2, radius: float) -> Array[Area2D]:
+	var targets: Array[Area2D] = []
+	var router := Services.router()
+	var world := Services.world()
+	if router == null or world == null or not is_instance_valid(world.world_root):
+		return targets
+	var space := world.world_root.get_world_2d().direct_space_state
+	var shape := CircleShape2D.new()
+	shape.radius = radius
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.transform = Transform2D(0.0, centre)
+	query.collision_mask = HURTBOX_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	for hit: Dictionary in space.intersect_shape(query, 64):
+		var area := hit.get("collider") as Area2D
+		if area == null or area in targets:
+			continue
+		var receiver := router.receiver_for_area(area)
+		if receiver == null or receiver == player or "resource" in router.tags_for_area(area):
+			continue
+		targets.append(area)
+	return targets
 
 
 ## `lineReach`: how far the line from `from` to `to` gets before a static world body (tiles and

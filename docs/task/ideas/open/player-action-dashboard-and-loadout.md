@@ -11,7 +11,7 @@ Roadmap task 4.10
 changes the ground rules for this idea:
 
 - the belt shrinks to three weapon slots, switched with the mouse wheel;
-- Space is Jump, and keys 1–0 belong to abilities (1 Dodge, 2 Stretch Lash,
+- Space was Jump (removed 2026-10-08; Space is free), and keys 1–0 belong to abilities (1 Dodge, 2 Stretch Lash,
   3 Squash Slam, 4 Teleport);
 - every key label comes from one binding table.
 

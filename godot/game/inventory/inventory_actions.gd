@@ -32,6 +32,8 @@ const GROUP := &"inventory_actions"
 ## WorldScene.ts floating-text heights above the old centre.
 const EQUIP_TEXT_RISE := 48.0
 const FAIL_TEXT_RISE := 42.0
+## An essence used while the mouth already holds something (owner, 2026-10-08).
+const MOUTH_FULL_TEXT := "Your mouth is full"
 const CRAFTED_TEXT_RISE := 44.0
 const HEAL_TEXT_RISE := 30.0
 ## AudioEventBridge: `energy.changed` plays EnergyRestore from a gain of 20.
@@ -143,6 +145,14 @@ func use_item(item_id: String) -> void:
 		return
 	var effects: Dictionary = use
 	var player := _player()
+	# An essence (`use.gulp`, owner 2026-10-08) goes into the slime's mouth, to throw or swallow; it
+	# stays in the bag when the mouth is busy.
+	if bool(effects.get("gulp", false)):
+		if player != null and bool(player.call(&"take_into_mouth", item_id)):
+			run.remove_item(item_id, 1)
+		else:
+			_text(FAIL_TEXT_RISE, MOUTH_FULL_TEXT, &"white", false)
+		return
 	# The item's own sound (`use.cue`: the potions' drink, the basket's eat), before the heal.
 	var use_cue := str(effects.get("cue", ""))
 	if not use_cue.is_empty():
@@ -190,7 +200,7 @@ func on_crafted(result: Dictionary) -> void:
 
 ## `harvestBlockedMessage` (WorldScene.ts:2188-2203, HarvestAdvice.ts): `payload` is a resource
 ## node's `harvest_blocked` payload ({targetTag, minimumTier, message, ...}). Adds ": switch with the
-## mouse wheel" when an owned belt weapon can harvest it, ": put yours on the belt (E)" when only a
+## mouse wheel" when an owned belt weapon can harvest it, ": put yours on the belt (B)" when only a
 ## bag weapon can, nothing when none can.
 func harvest_message(payload: Dictionary) -> String:
 	var message := str(payload.get("message", ""))
@@ -216,7 +226,9 @@ func grant_start_weapon(weapon_id: String) -> String:
 		push_warning("InventoryActions: unknown start weapon '%s'" % chosen)
 		return ""
 	_quiet = true
+	Services.run().quiet_items = true
 	WeaponLoadout.grant([chosen])
+	Services.run().quiet_items = false
 	var slot := WeaponLoadout.ensure_assigned(chosen)
 	if slot >= 0:
 		Services.run().set_equipped_weapon(chosen)
@@ -233,7 +245,9 @@ func grant_playground_weapons() -> void:
 		if not weapon_id in ids:
 			ids.append(weapon_id)
 	_quiet = true
+	Services.run().quiet_items = true
 	WeaponLoadout.grant(ids)
+	Services.run().quiet_items = false
 	if Services.run().equipped_weapon_id() == null and WeaponLoadout.owns_weapon(str(PLAYGROUND_BELT[0])):
 		Services.run().set_equipped_weapon(str(PLAYGROUND_BELT[0]))
 	_quiet = false

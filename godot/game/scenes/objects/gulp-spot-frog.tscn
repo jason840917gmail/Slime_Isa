@@ -2,7 +2,6 @@
 
 [ext_resource type="Texture2D" path="res://asset/MAPS/water/128x128-tile_8x1-water-frog.webp" id="1"]
 [ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
-[ext_resource type="Script" path="res://game/scripts/gulp_spot.gd" id="3"]
 
 [sub_resource type="Animation" id="Animation_1"]
 resource_name = "object.water-life.idle"
@@ -44,10 +43,3 @@ libraries/ = SubResource("AnimationLibrary_2")
 process_mode = 3
 autoplay = &"object.water-life.idle"
 randomize_start = true
-
-[node name="GulpSpotScript" type="Node" parent="."]
-script = ExtResource("3")
-material_item_id = "frog"
-display_name = "Frog"
-radius = 96.0
-badge_rise = 92.0

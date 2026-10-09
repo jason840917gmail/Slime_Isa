@@ -11,7 +11,7 @@ behaviour per area is in [specs/](specs).
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
 | `godot/asset/` | art tools in `scripts/` (or by hand), committed with their `.import` files | the runtime art and audio, at `res://asset/...` (moved from the repository's `asset/` at the cutover; sources stay in `asset/Originals/`) |
-| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, `npc-definitions.json`, `recipes.json`, `quests-chapter-1.json` / `-2.json`, `weapons.json` (names, icons, stats) and `item-icons.json` (texture key → sheet, frame size, grid), read through `GameConstants` (`Services.constants()`) |
+| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, `npc-definitions.json`, `recipes.json`, `quests-chapter-1.json` / `-2.json`, `weapons.json` (names, icons, stats), `item-icons.json` (texture key → sheet, frame size, grid) and `liftables.json` (the 67 liftable kinds: name, material, frames, art size; written by `scripts/props/pack-gulp-art.py` since 2026-10-09, so edit the kinds there), read through `GameConstants` (`Services.constants()`) |
 | `godot/game/scenes/` | hand (Godot editor), from the converter on 2026-10-05 | every world, object, character, weapon, effect, projectile and encounter scene (`<kind>s/<path>.tscn`, the scene JSON's layout) and `scene_index.json` (scene id → path); see "Scenes Godot owns" |
 | `godot/game/world/terrain_tileset.tres` | hand, from the converter | the terrain TileSet (one atlas source per tile id, `tile_id` custom data) |
 | `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
@@ -40,11 +40,14 @@ windows built on the theme replace them (table below).
   `scene_index.json` (and in the scenes that instance it; the editor's move does both for `.tscn`
   references, not for the JSON).
 - A new scene the game loads by id (`object.<name>`, `character.<name>`, `world.<id>`, ...) needs a
-  line in `scene_index.json`; a new world also needs a world exit that leads to it.
+  line in `scene_index.json`; a new world also needs a world exit that leads to it, and its
+  `ground` layer needs the script `res://game/world/world_ground.gd` (so the editor shows its water
+  and terrain edges; [TERRAIN_LAB.md](TERRAIN_LAB.md#how-it-works)).
 - `res://tools/verify_scenes.gd` loads and instantiates every indexed scene and plays level-1
   ("Checking your work").
 - World sizes follow the chunk grid in [docs/story/03-world.md](../story/03-world.md#world-size-and-screen):
-  64 px tiles, a screen of 16 × 14 tiles (the 1024 × 896 base view in `project.godot`), overworld
+  64 px tiles, a screen of 16 × 14 tiles (the 1024 × 896 play area; with the HUD console's 128-unit
+  strip under it, the 1024 × 1024 base view in `project.godot`), overworld
   maps in whole chunks of 32 × 32 tiles (level-1 is 64 × 64), interiors no bigger than one screen.
 
 Scenes that differ from the converter's copy or replace it:
@@ -72,7 +75,8 @@ position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest ac
 (default the first) when the first world is built (`QuestService.debug_activate`: earlier stages
 done, no rewards), to reach quest steps whose systems are not ported yet; it does not skip the
 title by itself (add `map` or `skip-title`). A new run starts empty-handed (Phaser); the playground
-hands out every weapon and every ability. `?weapon=<id>` / `-- --weapon=<id>` gives a new run that weapon (bag, belt
+hands out every weapon and every ability, and it never writes the autosave, so the title's Continue
+never starts there (manual saves still work). `?weapon=<id>` / `-- --weapon=<id>` gives a new run that weapon (bag, belt
 slot 1, hand); `?recipes` / `-- --recipes` makes every
 recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six development weapons
 at a new run ([specs/crafting.md](specs/crafting.md) C2, C3, 8.2). `?audition` / `-- --audition`
@@ -82,7 +86,9 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
 ## Input and physics
 
 - Input actions are the snake_case of Phaser's `PlayerInputActions.ts` (removed at the cutover):
-  `move_up/down/left/right`, `attack` (LMB), `interact` (RMB), `sprint`, `jump`, `dodge`,
+  `move_up/down/left/right`, `attack` (LMB), `interact` (RMB), `sprint` (no key since 2026-10-08:
+  no sprint from the start), `jump` (no key since the jump was hidden, 2026-10-08), `dodge` (key 2: the Roll since
+  2026-10-09),
   `stretch_lash`, `squash_slam`, `teleport`, `eat`, `weapon_next/previous` (wheel),
   `menu`, `map`, `zoom_in/out`, `pause`.
 - Physics layers keep the bits and names of `game/data/collision-layers.json` (Phaser's layers).
@@ -139,7 +145,7 @@ pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godo
 ```
 
 Run the tests only when the user asks or after a really big, breaking change ([AGENTS.md](../../AGENTS.md)). `pnpm test:godot` (about ten minutes for the full suite; `--filter=<text>` runs one file) checks the trial's numbers from [specs/](specs): walk,
-sprint and dodge, sword and worm damage, i-frames, knockback, worm death, the starter camp's
+sprint and the roll, sword and worm damage, i-frames, knockback, worm death, the starter camp's
 spawning, respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
 clips, the Fatty One Eye fight (camp spawn and reset, hop and leap timings, landing damage, arena
 leash, health bar, defeat), the ranged enemies (`test_enemy_ranged.gd`: archer arrows, projectile

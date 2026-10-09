@@ -11,8 +11,12 @@ extends RefCounted
 ## 2400 ms, at p - (0, 46) + 20 px per line). Owner decision Q5: toasts shown in the same frame
 ## stack 22 px apart instead of overlapping.
 ##
-## Banners use the Shell's area title card: chapters in #ffd277; "<title> learned: press <key>" in
-## #9ff0c8 for every ability RunState learns (passive Goo Trail: its own line).
+## Banners use the Shell's area title card: chapters in #ffd277. An ability RunState learns plays
+## the ceremony (game/ui/ceremony/ability_ceremony.gd, owner 2026-10-09) while main's
+## `ability_ceremonies` is on (the test runner turns it off); otherwise, and for the passive Goo
+## Trail, its banner "<title> learned: press <key>" in #9ff0c8. A permanent item's first arrival
+## (RunState `permanent_item_gained`: a weapon, a tool, a key) plays its ceremony too (no banner
+## when they are off: the bag's own pickup text says it).
 ##
 ## Cues: npc talked NpcBlip, accepted QuestAccept, progressed / stage completed QuestProgress,
 ## completed QuestComplete, failed QuestFailed.
@@ -23,6 +27,8 @@ const Services := preload("res://game/shared/services.gd")
 const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
+const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
+const WORLD_MAIN_GROUP := &"world_main"
 
 const AVAILABLE_LIFT := 112.0
 const CUE_AVAILABLE := &"Toast"
@@ -42,6 +48,8 @@ const PASSIVE_TEXTS := {"goo-trail": "Goo Trail learned: enemies on your goo slo
 signal toast_shown(payload: Dictionary)
 ## A banner was shown. Payload: {"text", "color" (Color)}.
 signal banner_shown(payload: Dictionary)
+## A ceremony was asked for. Payload: {"ability_id"} or {"item_id"}.
+signal ceremony_requested(payload: Dictionary)
 
 var _service: Node
 ## Lifts used by toasts this frame (Q5 stacking); the frame is the pair (process, physics frame).
@@ -62,6 +70,8 @@ func _init(service: Node) -> void:
 	var run := Services.run()
 	if run != null and not run.ability_learned.is_connected(_on_ability_learned):
 		run.ability_learned.connect(_on_ability_learned)
+	if run != null and not run.permanent_item_gained.is_connected(_on_permanent_item_gained):
+		run.permanent_item_gained.connect(_on_permanent_item_gained)
 
 
 ## The service leaves: forget the autoload connection.
@@ -69,6 +79,8 @@ func disconnect_all() -> void:
 	var run := Services.run()
 	if run != null and run.ability_learned.is_connected(_on_ability_learned):
 		run.ability_learned.disconnect(_on_ability_learned)
+	if run != null and run.permanent_item_gained.is_connected(_on_permanent_item_gained):
+		run.permanent_item_gained.disconnect(_on_permanent_item_gained)
 
 
 func _on_available(payload: Dictionary) -> void:
@@ -129,6 +141,11 @@ func _on_ability_learned(payload: Dictionary) -> void:
 		return
 	if not AbilityDefinitions.has(StringName(ability_id)):
 		return
+	var tree := _tree()
+	if AbilityCeremony.enabled(tree):
+		AbilityCeremony.request(tree, StringName(ability_id))
+		ceremony_requested.emit({"ability_id": ability_id})
+		return
 	var key := ControlLabels.control_label(AbilityDefinitions.action(StringName(ability_id)))
 	_banner("%s learned: press %s" % [AbilityDefinitions.title(StringName(ability_id)), key], ABILITY_COLOR)
 
@@ -180,3 +197,17 @@ static func _cue(cue: StringName) -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(cue)
+
+
+## RunState's `permanent_item_gained`: a weapon, a tool or a key came into the bag for the first time.
+func _on_permanent_item_gained(payload: Dictionary) -> void:
+	var item_id := str(payload.get("item_id", ""))
+	var tree := _tree()
+	if item_id.is_empty() or not AbilityCeremony.enabled(tree):
+		return
+	AbilityCeremony.request_item(tree, item_id)
+	ceremony_requested.emit({"item_id": item_id})
+
+
+func _tree() -> SceneTree:
+	return _service.get_tree() if _service != null and _service.is_inside_tree() else null

@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/characters/authored/npcs/tom.webp" id="1"]
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/npc.gd" id="3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(30, 22)
+
+[sub_resource type="Animation" id="Animation_idle"]
+resource_name = "idle"
+length = 1.6
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0.32, 0.32), Vector2(0.3312, 0.3088), Vector2(0.32, 0.32)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_1"]
+_data = {
+&"idle": SubResource("Animation_idle"),
+&"walk-down": SubResource("Animation_idle"),
+&"walk-up": SubResource("Animation_idle"),
+&"walk-left": SubResource("Animation_idle"),
+&"walk-right": SubResource("Animation_idle")
+}
+
+[node name="Tom" type="CharacterBody2D"]
+position = Vector2(0, -6)
+collision_layer = 128
+collision_mask = 1027
+motion_mode = 1
+wall_min_slide_angle = 0.0
+metadata/depth_anchor = Vector2(0, -6)
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+position = Vector2(0, -11)
+
+[node name="Visual" type="Sprite2D" parent="."]
+position = Vector2(0, 6)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -252)
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+script = ExtResource("2")
+libraries/ = SubResource("AnimationLibrary_1")
+callback_mode_process = 0
+autoplay = &"idle"
+
+[node name="NpcScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "animation")]
+script = ExtResource("3")
+body = NodePath("..")
+visual = NodePath("../Visual")
+animation = NodePath("../Animation")
+character_id = "tom"
+npc_definition_id = "tom"

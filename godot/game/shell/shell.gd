@@ -241,8 +241,9 @@ func quit_to_title() -> void:
 	for menu: ShellMenu in _stack.duplicate():
 		menu.close()
 	_set_paused(PAUSE_REASON_QUIT, true)
+	# The recovery autosave, where the world keeps one (not in the playground: main.gd).
 	var run := Services.run()
-	if run != null:
+	if run != null and run.autosave_enabled:
 		run.save_slot(AUTOSAVE_SLOT)
 	# `leaveAreaThen` fades the music with the picture (MusicDirector.fadeOut).
 	var music := Services.music()

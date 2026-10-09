@@ -897,8 +897,21 @@ func _rebind(run: Services.RunStateType) -> void:
 	source.clear()
 	source.append_array(ordered)
 	_bound = source
+	_learn_completed_ability_rewards(run)
 	# A new run or a load replaced the records: views kept across worlds (tracker, markers) rebuild.
 	quest_changed.emit({"questId": ""})
+
+
+## Every completed quest's ability rewards are learned, quietly, even when one moved to the quest
+## after the save was made (Squash Slam moved from The Matron's Nest to The One-Eyed Guardian on
+## 2026-10-08, so a run past Chapter 1 would otherwise never get it).
+func _learn_completed_ability_rewards(run: Services.RunStateType) -> void:
+	for record: Dictionary in run.quests:
+		if str(record.get("status", "")) != "completed":
+			continue
+		var quest := QuestCatalog.definition(str(record.get("quest_id", "")))
+		for ability_id: String in QuestCatalog.ids(quest.get("rewards", {}), "abilityIds"):
+			run.learn_ability(ability_id, true)
 
 
 ## `validateQuestState` (validateQuestCatalog.ts:284-317): [] when the record is sound.

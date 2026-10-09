@@ -113,7 +113,8 @@ Godot:
   (`ui.save-slots`, built on `RunState.list_saves()`) belongs to the saves work and is out of the
   shell's scope; it takes over Save and Load by registering those actions.
 - **[IN]** Quit to Title: closes the windows, holds the pause (`shell:quit`), calls
-  `RunState.save_slot(0)` (the recovery autosave's place), fades to `#0b1020` and the music out
+  `RunState.save_slot(0)` (the recovery autosave's place) unless `RunState.autosave_enabled` is
+  off (the playground keeps no autosave: Continue never starts there), fades to `#0b1020` and the music out
 (`MusicDirector.fade_out(320)`) over 320 ms, then
   `WorldService.clear()`, unpauses and changes to `title.tscn`, fading back in.
 

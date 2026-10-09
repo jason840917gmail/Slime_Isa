@@ -12,7 +12,8 @@ adventure games, and is built page by page.
 | `turnaround-e.png` | The approved reference (candidate E of the second round, about a 55° camera): down, side (facing right), up. Magnific GPT 2.5 with the current slime, Lili and the directional beds sheet as references |
 | `start-down.png`, `start-side.png`, `start-up.png` | Each view of E, scaled to 440 px tall and placed on a flat #FF00FF 1024 px square: the start AND end frame of every clip |
 | `end-sleep-down.png`, `end-defeated.png` | The end frames of the doze and the defeat (GPT 2.5 from `start-down.png` and Lili, transparent, placed like the start frames: centred, standing on the start's baseline, at 0.883 of the generated size); the sleep row loops on `end-sleep-down.png` |
-| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side`, `doze-down`, `sleep-down`, `die-down`, `swim-down`, `swim-up`, `swim-side` |
+| `start-ball.png` | The Roll's ball (2026-10-09): the slime curled into a ball, its sprout lying flat on it (`asset/Originals/gulp/generated/ball-b.png`, GPT 2.5), on a flat #FF00FF 1024 px square; the packer spins it into page 4's `ball-side` |
+| `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side`, `doze-down`, `sleep-down`, `die-down`, `swim-down`, `swim-up`, `swim-side`, and since 2026-10-09 `suck-down`, `suck-up`, `suck-side`, `spit-down`, `spit-up`, `spit-side`, `full-down`, `full-up`, `full-side`. The full slime's start stills are `asset/Originals/gulp/generated/start-full-<direction>.png` (1.15 times the start slime's width, on the same baseline); the spit takes start full and pop empty |
 | `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops |
 
 Rebuild a runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` with
@@ -54,6 +55,8 @@ Same cells, scale and baseline as page 1 (one scale for every page, from page 1'
 | 6 | die-down | 8 fps, once (Phaser's 1 s defeat): a flinch, squeezed > < eyes, the melt into a puddle; drawn at 0.9 of the page scale so the puddle fits a cell |
 | 7 | free | |
 
+- **The roll rows are no longer played** (2026-10-09): the Dodge became the Roll, which spins
+  page 4's ball. Rows 0-2 are still packed and built into clips.
 - **roll-down and roll-up are true front and back rolls** (re-filmed 2026-10-05: the first takes
   spun the slime sideways like a wheel, its sprout swinging round to the side). A ball rolling
   toward the camera moves everything on it DOWN the screen: the sprout folds over the face, the
@@ -124,6 +127,67 @@ Same cells, scale and baseline as pages 1 and 2.
   turns its face or body toward the viewer, not even for a moment ... does not jump" and held the
   profile. The first was not kept.
 
+## Page 4 layout
+
+The Gulp (2026-10-09, roadmap 7.5) and the Roll's ball (roadmap 7.7); the video prompts are in
+[asset/Originals/gulp/README.md](../../gulp/README.md#prompts). Same cells and baseline as page 1; its takes do not start on a standard start frame, so it takes page 1's scale from its
+manifest (`PAGE_1_SCALE`).
+
+| Row | Clip | Playback |
+|---|---|---|
+| 0 | suck-down | 19.2 fps, loops while Q sucks |
+| 1 | suck-up | 8.73 fps |
+| 2 | suck-side | 24 fps |
+| 3 | spit-down | 26.67 fps, once (the 300 ms throw): starts full, pops empty |
+| 4 | spit-up | 26.67 fps, once |
+| 5 | spit-side | 26.67 fps, once |
+| 6 | ball-side | 24 fps, loops (the Roll's ball; in play its speed follows the roll's, three times faster during the spin-up) |
+| 7 | free | |
+
+- **The sucks hold their open mouth.** The loop is 8-36 source frames long (`LOOP_RANGE`) and
+  taken from where the mouth stays open (`WINDOWS`): down 14-54, up 6-30 (the up take leans
+  sideways after frame 30), side 20-50. The packer chose down 39-48, up 6-27 and side 34-41.
+- **The spits are picked by hand** (`PICKS`) and timed to 300 ms (`ONE_SHOT_MS`). Down (62, 65,
+  68, 72, 81, 83, 86, 90): the cheeks puff, the slime stretches up, bursts wide and stands empty.
+  Up (40, 52, 60, 64, 66, 68, 72, 78): squashed flat, it springs up tall and empty. Side (16, 22,
+  26, 28, 29, 30, 76, 84): the cheeks bulge and the mouth opens on a short puff; the long blast of
+  air is left out (it runs past the cell), then the empty slime.
+- **ball-side is baked, not filmed** (owner, 2026-10-09: the old sheet's ball roll). The packer
+  spins `start-ball.png` clockwise in 45° steps like `roll-side` (`SPINS`), not tucked
+  (`SPIN_TUCKS` 1.0: a ball keeps its size when it turns). Rolling down and up have their own
+  rows on page 5 since the owner found this spin wrong for them (2026-10-09).
+- suck-side, spit-down and spit-side touch the cell edge (`touches_cell_edge` in page-4.json).
+
+## Page 5 layout
+
+The full slime (2026-10-09): what idle and walk become while the mouth holds something. Page 1's
+scale (`PAGE_1_SCALE`), so the full slime is drawn bigger than the slime, because it is.
+
+| Row | Clip | Playback |
+|---|---|---|
+| 0 | full-down | 8 fps (the waddle while it walks) |
+| 1 | full-up | 8 fps |
+| 2 | full-side | 8 fps |
+| 3 | ball-down | 24 fps (the Roll toward the camera) |
+| 4 | ball-up | 24 fps (the Roll away from the camera) |
+| 5-7 | free | |
+
+- **Played faster than filmed** (`LOOP_FPS` full 8.0): the takes rock left and right over three
+  seconds, too slow for a walk; at 8 fps the slime waddles once a second. Loops of 24-72 source
+  frames (`LOOP_RANGE`): down 9-81, up 7-79, and side 63-87 from its frames 52-97 (`WINDOWS`; the
+  side take turns to the camera around frame 44).
+- **Stood on the spot** (`RECENTRED`): the takes waddle across the frame; with every frame stood
+  on the baseline the sway is a rocking tilt.
+- **ball-down and ball-up are rolled, not filmed** (owner, 2026-10-09: the side spin looked good,
+  the down and up views did not). The packer wraps the inner 80% of `start-ball.png` round the
+  ball like a band about the horizontal axis (the back half mirrors the front) and turns it 45
+  degrees a frame (`ROLLS`, `roll_cells`; the band scrolls by angle, so the picture never smears
+  into streaks at the sides mid-roll): the swirl rolls down the screen for ball-down and up for ball-up, while
+  the still's own soft shading, outline ring and shine spots stay put in every frame.
+- **At rest** the same rows sway slowly: `build_player_clips.gd` adds `full-idle-down`, `-up`
+  and `-side` on them at 2.67 fps (`ALIASES`). The held thing is drawn inside, on the belly
+  (`game/player/gulp/mouth.gd`).
+
 ## What worked (2026-10-05)
 
 - **Same start and end frame.** Clips with only a start frame drifted: the background became a
@@ -144,4 +208,5 @@ Same cells, scale and baseline as pages 1 and 2.
 Cost: 7,080 Magnific credits for page 1, including both turnaround rounds and the discarded
 first batch; 2,640 for page 2's six videos (three rolls, three rejected attacks); 1,760 for the
 four lash videos (one rejected side take); 1,720 for the rest and the defeat (four stills at 100,
-three videos); 1,760 for the re-filmed down and up rolls (two takes each). Page 3: 1,760 for the four swim videos (one rejected side take).
+three videos); 1,760 for the re-filmed down and up rolls (two takes each). Page 3: 1,760 for the four swim videos (one rejected side take). Pages 4 and 5
+(2026-10-09): 3,960 for the nine suck, spit and full videos (440 each).

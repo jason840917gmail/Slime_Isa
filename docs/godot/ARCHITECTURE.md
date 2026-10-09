@@ -26,7 +26,7 @@ res://game/shell/title.tscn (title.gd)                 title screen, the main sc
 
 res://game/main.tscn (main.gd)                         bootstrap
   World (Node2D)      <- world.level-1 instanced here (converter root, y-sorted)
-       ground (TileMapLayer, z -2) > TileCollision (rock walls, in 174), WaterSurface (water_surface.gd), TerrainEdges (terrain_edges.gd) > Level0..3  <- mounted by register_world
+       ground (TileMapLayer, z -2, world_ground.gd: mounts the two below in the editor too) > TileCollision (rock walls, in 174), WaterSurface (water_surface.gd), TerrainEdges (terrain_edges.gd) > Level0..3  <- mounted by register_world
            Elevation (elevation.gd) > Patches, Shade, Walls, Rims, Feet, Lips, Collision > Level<n>  <- mounted by register_world when the world has an elevation layer
            WaterWake (water_wake.gd)  <- mounted by register_world; puts the water wake sprites on every walker body (WaterWakeBack first, WaterWakeFront last)
        elevation (TileMapLayer, elevation_layer.gd)  <- painted levels and stairs; hidden in the game
@@ -47,10 +47,11 @@ res://game/main.tscn (main.gd)                         bootstrap
        AttackTelegraph (attack_telegraph.gd, z -1)  <- a boss's ground warning while it lasts
        effect holders (Node2D) > BasicSwordImpact (effect.gd)  <- EffectSpawner
        GooTrail (goo_trail.gd, y 0)                <- the player's Goo Trail passive (ground decal)
+       RollFx (roll_fx.gd, y 0)                    <- the Roll's skid streaks and dust (ground decal; made by player_roll.gd)
        SlamArea / ability effects                  <- the player's abilities (game/player/abilities/)
   WorldCamera (world_camera.gd, ALWAYS, priority 100)
-  Hud (CanvasLayer 10, hud.gd) > PlayerHealthBar (player_health_bar.gd), BossHealthBar (boss_health_bar.gd), AbilityBar (ability_bar.gd)
-      WeaponHotbar (weapon_hotbar.gd)         <- the belt's 4 slots above the ability bar (crafting spec 8.6)
+  Hud (CanvasLayer 10, hud.gd) > HudConsole (console/hud_console.gd: the bottom console, its orbs and menu buttons), PlayerHealthBar (player_health_bar.gd), BossHealthBar (boss_health_bar.gd), AbilityBar (ability_bar.gd, placed on the console)
+      WeaponHotbar (weapon_hotbar.gd)         <- the weapon in hand and its carousel, placed on the console (crafting spec 8.6)
       MapUi (map_ui.gd, group map_ui) > Minimap (minimap.gd)   <- its WorldMap window lives under GameWindows
       QuestTracker (quest_tracker.tscn, group quest_tracker)   <- binds to Quests on its own
   FpsReadout (CanvasLayer 100, fps_readout.gd)
@@ -70,7 +71,7 @@ Shell children: ShellLayer (CanvasLayer 50) > Root > AreaTitleCard, PauseMenu, G
 
 Design rules:
 - **Scene scripts** live in `game/scripts/` and only there. A file there is a scene-script id (`game.<kebab>` → `<snake>.gd`), attached to the scenes in `game/scenes/` that use it (the converter attached them and wrote exactly the `@export`s each declared; since Phase 1 a new export gets its values in the editor). Do not add or remove files in `game/scripts/` without the architect or integrator.
-- **Inheritance between scene scripts only where Phaser has it.** The converter merged the `@export`s along a script's `extends` chain, so a port may extend another scene script exactly when the Phaser script does: `fatty.gd` extends `enemy.gd` (FattyScript extends EnemyScript) and overrides its hooks (`_after_enemy_step`, `_attack_area_reach`, `_can_run_common_attack`, ...). There is still no `character.gd`: shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
+- **Inheritance between scene scripts only where Phaser has it, or for a new enemy.** The converter merged the `@export`s along a script's `extends` chain, so a port may extend another scene script exactly when the Phaser script does: `fatty.gd` extends `enemy.gd` (FattyScript extends EnemyScript) and overrides its hooks (`_after_enemy_step`, `_attack_area_reach`, `_can_run_common_attack`, ...). An enemy made in Godot extends `enemy.gd` the same way (`clod_stomper.gd`, 2026-10-09). There is still no `character.gd`: shared character maths lives in static helpers (`shared/feet_anchor.gd`, `shared/directions.gd`).
 - **Static helpers** are `extends RefCounted` files with static funcs: perimeter, directions, feet anchor, resolver, scaling, AI, wander policy, aim and bounds. Small stateful helpers are RefCounted instances: input buffer, squash, territory, attack lifecycle, combo and activations.
 - **Autoloads are reached only through `res://game/shared/services.gd`**, as `Services.router()`, `Services.world()`, `Services.feel()`, `Services.constants()`, `Services.clock()`, `Services.run()`, `Services.music()`, `Services.shell()` and `Services.now_ms()`. This was verified on 4.7.2: the headless `--check-only -s` does **not** know autoload names, so a bare `DamageRouter.route(...)` fails the check with "Identifier not found". The getters are typed, so calls are still statically checked.
 - **Cross-file types**: `const X := preload("res://...")`, where X equals the file's `class_name`. Autoload scripts have no `class_name`, because a class_name equal to an autoload name is an error. Preload cycles (`player.gd` ↔ `player_combat.gd`, `services.gd` ↔ the autoloads) were tested and are fine.
@@ -135,13 +136,14 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.enemy` → `scripts/enemy.gd` (worm swordsman, archer, brawler, slime spider, orb weaver) | `body, visual, animation, damage_area, attack_area, faction, rank, max_health, targeting_radius, attack_range, movement_speed, attack_cooldown_ms, attributes, damage_rule, rewards, projectile, impact_effect`; *`display_name, arena_recovery_ms`* | `health_changed, damaged, defeated, alerted, attack_started, reward_requested, damage_feedback` | — |
 | `game.weapon` → `scripts/weapon.gd` (13 weapon scenes) | `weapon_id, category, attack_area, animation, base_damage, cooldown_ms, knock_strength, damage_modifiers, harvest_capabilities, scaling, on_hit_effect_id, attack_plans` | `attack_started, attack_finished` | `on_area_entered(area)` |
 | `game.effect` → `scripts/effect.gd` (all 9 `effects/*` scenes) | `effect_id, animation, lifetime_ms` | `finished` | — |
-| `game.npc` → `scripts/npc.gd` (6 NPCs) | `body, visual, animation, character_id, npc_definition_id, wander_speed, pause_min_ms, pause_max_ms` | `interaction_lock_changed` | — (`get_phaser_position()`, `get_instance_id_key()`, `acquire_interaction_lock()`: a conversation holds the NPC still until its release runs; the quest service reads `npc_definition_id`) |
+| `game.npc` → `scripts/npc.gd` (7 NPCs; Tom since 2026-10-09, idling in place) | `body, visual, animation, character_id, npc_definition_id, wander_speed, pause_min_ms, pause_max_ms` | `interaction_lock_changed` | — (`get_phaser_position()`, `get_instance_id_key()`, `acquire_interaction_lock()`: a conversation holds the NPC still until its release runs; the quest service reads `npc_definition_id`) |
 | `game.world-definition` → `scripts/world_definition.gd` | `map_id, tile_size, columns, rows, metadata, camera_mode` | — | — |
 | `game.world-area` → `scripts/world_area.gd` | `area_kind, area_id, area, data, shape, stay_shape` | — | — |
 | `game.world-exit` → `scripts/world_exit.gd` | `map_id, exit_id, target_area_id, entry, area, gate`; *`arrival_grace_ms`=-1* | `navigation_resolved` | `on_body_entered(body)` |
 | `game.fatty` → `scripts/fatty.gd` (extends `enemy.gd`; `character.fatty-one-eye`) | the `game.enemy` exports + `contact_attack, landing_zone, contact_hop_cooldown_ms, contact_hop_duration_ms, leap_cadence_ms, small_hop_count, small_hop_duration_ms, between_hops_ms, air_time_ms, recovery_ms, landing_damage, landing_knockback_strength, landing_effect_id, landing_shake_ms, landing_shake_intensity` | the enemy signals + `phase_changed` | — |
 | `game.boss-camp` → `scripts/boss_camp.gd` (`encounter.level-1-fatty-camp`, `encounter.gloop-matron-nest`) | `map_id, camp_id, boss_id, boss_scene, activation_area, arena_area, active_bosses, guarded_chest, guarded_chest_instance_id, respawn_ms, spawn` | `boss_spawn_requested, boss_defeated, guard_changed`; *`boss_engaged, boss_disengaged`* | — |
 | `game.matron` → `scripts/matron.gd` (extends `enemy.gd`; `character.orb-weaver-matron`, node `EnemyScript`) | the `game.enemy` exports + `first_volley_delay_ms, volley_cadence_ms, volley_telegraph_ms, volley_rest_ms, volley_points, volley_spread, volley_radius, volley_damage, volley_knockback_strength, patch_effect_id` | the enemy signals + `phase_changed` | — |
+| `game.clod-stomper` → `scripts/clod_stomper.gd` (extends `enemy.gd`; `character.clod-stomper`, 2026-10-09) | the `game.enemy` exports + `slam_zone, crouch_ms, air_ms, hop_px, recovery_ms, stomp_cooldown_ms, slam_damage, slam_knockback, crack_radius, landing_effect_id, landing_shake_ms, landing_shake_intensity` | the enemy signals + `phase_changed` | — (crouch, hop, slam in its ring, dazed; the slam breaks cracked ground near its feet) |
 | `game.projectile` → `scripts/projectile.gd` (`projectile.worm-arrow`, `projectile.spider-web`) | `projectile_id, body, visual, animation, attack_area, default_speed, lifetime_ms, rotate_to_velocity` | `launched, expired` | `on_area_entered(area)` (`launch(direction, speed, payload)`, `expire()`) |
 | `game.web-patch` → `scripts/web_patch.gd` (`effect.matron-web-patch`) | `radius, visual` | `caught, torn` | — |
 | `game.spider-web` → `scripts/spider_web.gd` (`object.spider-web`) | `width, depth, tears_when_crossed, visual` | `caught, torn` | — |
@@ -158,13 +160,15 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.workbench` → `scripts/workbench.gd` | `prompt, recipe_context, tier, interact_radius, badge_rise` | — | — (`site()`) |
 
 | `game.training-dummy` → `scripts/training_dummy.gd` (abilities spec) | `damage_area, visual` | `hit` | — (damage receiver API) |
-| `game.gulp-spot` → `scripts/gulp_spot.gd` | `material_item_id, radius, badge_rise` | — | — (`origin()`; the interaction controller offers "Eat") |
+| `game.essence` → `scripts/essence.gd` | `essence, fade_ms, interact_radius` | — | — (`origin()`, `suck_info()`, `can_take()`, `take()`, `pick_up()`; Q sucks it in, the interaction controller offers "Pick up"; `spawn()` drops one) |
+| `game.liftable` → `scripts/liftable.gd` (`object.liftable`, `scenes/objects/liftable.tscn`: one scene for the 67 kinds of the catalog `game/data/liftables.json`; `object.liftable-rock`, `-puffball`, `-pinecone` preset the kind) | `kind, variant, heavy` | — | — (`origin()`, `suck_info()`, `can_take()`, `take()`; static `catalog()`, `kinds()`, `entry()`, `frames_of()`, `frame_of()`, `material_of()`, `display_name()`, `art_size()`; Q sucks it in; on `_ready` the Visual's frame and the body's footprint (70 % of the art's width × 12 px) follow `kind`; `variant` -1 picks one of two looks from the position for the kinds that have two) |
 | `game.pressure-plate` → `scripts/pressure_plate.gd` | `plate_id, radius, sink_px, pressed_frame, gate_id, latch, visual` | `pressed, released` | — (`is_down()`; pressed by a heavy slime) |
-| `game.cracked-ground` → `scripts/cracked_ground.gd` | `flag_id, radius, requires_landing` | `cracked` | — (`is_broken()`; a squash slam or a heavy landing) |
+| `game.cracked-ground` → `scripts/cracked_ground.gd` | `flag_id, radius, requires_impact` | `cracked` | — (`is_broken()`, `break_open()`, group `cracked_ground`; a Squash Slam (or a jump landing) in the Stone form, or a Clod Stomper's slam) |
 | `game.lash-bell` → `scripts/lash_bell.gd` | `bell_id, gate_id, lash_only, damage_area, visual` | `rung` | — (`ring()`, damage receiver API) |
 | `game.ability-lesson` → `scripts/ability_lesson.gd` | `ability_ids, radius` | `taught` | — |
 | `game.goo-heart` → `scripts/goo_heart.gd` | `heart_id, radius, bob_px, visual` | `collected` | — (`is_taken()`) |
 | `game.restoration-site` → `scripts/restoration_site.gd` | `prompt, flag_id, object_id, quest_id, cost, locked_message, restored_message, interact_radius, badge_rise` | — | — (`origin()`, `cost_entries()`, `restore()`, `persistence_key()`; a restore sends `QuestEvents` `object.activated`) |
+| `game.tom-web` → `scripts/tom_web.gd` (`object.tom-web`, 2026-10-09) | `damage_area, visual, hits_to_tear, quest_id, freed_flag, object_id` | `torn` | — (damage receiver API: weapon hits tear it while its quest is active, then flag `tom-freed` and `QuestEvents` `object.activated`; group `quest_object` for the quest arrow) |
 
 `game.destructible` has no scenes: its logic is `game/world_objects/destructible_health.gd`, owned by `resource_node.gd` (which declares the destructible exports itself). `game.interaction` has no scenes and no service behind it in Phaser, so it is not ported. Every other script id stays on the converter's `unported_script.gd`.
 
@@ -174,7 +178,7 @@ Boss camps ([specs/boss.md](specs/boss.md)) spawn their boss under the world roo
 
 ## 7. Bootstrap (main.gd `_ready`, world spec 1.2)
 
-1. `apply_viewport_scale()`: keep `root.content_scale_size` at the base size 1024 × 896 (16 × 14 tiles), and re-apply on `size_changed`.
+1. `apply_viewport_scale()`: keep `root.content_scale_size` at the base size 1024 × 1024 (the 16 × 14 tile play area and the HUD console's 128-unit strip), and re-apply on `size_changed`; `setup_camera()` gives the WorldCamera the console's height as `bottom_inset`.
 2. `RunState.ensure_started()`; the map is the pending travel handoff's (`RunState.consume_navigation()`), else `resolve_map_id()` (`"level-1"`). Steps 3-11 are `_build_world(map_id, handoff)`, which `travel_to` runs again for the next world.
 3. `load_world()`: instance `world.level-1` under `$World`, then `WorldService.register_world(root)`.
 4. `WorldBounds.build(world_root, world_rect)`.
@@ -242,7 +246,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world/world_bounds.gd` | world | |
 | `game/world/water_surface.gd`, `water_surface.gdshader`, `water_surface.gdshaderinc` | world | Animated water over the ground's water tiles ([specs/water.md](specs/water.md)); mounted by `WorldService.register_world`; the `.gdshaderinc` holds the water maths the shoreline edges share |
 | `game/world/terrain_edges/terrain_edges.gd`, `terrain_materials.gd`, `terrain_edge.gdshader`, `terrain_edge_water.gdshader`, `art/` | world | Hand-made terrain edges on a dual grid over the ground, shores included ([TERRAIN_LAB.md](TERRAIN_LAB.md)); mounted by `WorldService.register_world` after the water |
-| `game/world/elevation/elevation.gd`, `elevation_grid.gd`, `elevation_stairs.gd`, `elevation_rims.gd`, `elevation_occlusion.gd`, `elevation_mesh.gd`, `elevation_layer.gd`, `elevation_tileset.tres`, `*.gdshader`, `art/` | world | Hills, holes, flights of stairs and ground levels from a world's painted `elevation` layer: the model and its 3D ground, the cliff and stairs drawing, cast shadows, per-level collision, body levels and hiding bodies behind higher ground; mounted by `WorldService.register_world` after the terrain edges ([ELEVATION.md](ELEVATION.md)) |
+| `game/world/world_ground.gd` | world | The script on every world's `ground` layer (`@tool`): in the editor it mounts the water surface and the terrain edges, so a world looks as it does in the game; does nothing in the game ([TERRAIN_LAB.md](TERRAIN_LAB.md#how-it-works)) |
+| `game/world/elevation/elevation.gd`, `elevation_grid.gd`, `elevation_stairs.gd`, `elevation_rims.gd`, `elevation_occlusion.gd`, `elevation_mesh.gd`, `elevation_layer.gd`, `elevation_tileset.tres`, `cliffs/`, `*.gdshader`, `art/` | world | Hills, holes, flights of stairs and ground levels from a world's painted `elevation` layer: the model and its 3D ground, the cliff and stairs drawing (each wall in the style painted on the `cliffs` layer or its ground's), cast shadows, per-level collision, body levels and hiding bodies behind higher ground; mounted by `WorldService.register_world` after the terrain edges ([ELEVATION.md](ELEVATION.md)) |
 | `game/world/water_wake.gd` | world | Splash and ripple sprites at the feet of every walker in shallow or deep water ([specs/water.md](specs/water.md#9-wading-godot-only)); mounted by `WorldService.register_world` after the elevation |
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |
@@ -260,7 +265,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/screens/menu_windows.gd` | crafting | GameWindows' child "MenuWindows" (group `menu_windows`): the menu key, `open_bag` / `open_crafting` / `open_station`, the tab strip state and coach, `register_tab` for the journal and map windows, the pause menu's Inventory action |
 | `game/ui/screens/game_window.gd`, `item_cell.gd` | crafting | Base of the bag and crafting windows (centred `WindowPanel`, push / pop, focus, click and select cues); the `SlotButton` list cell (icon, name, tag; drag and drop) |
 | `game/ui/screens/inventory_screen.gd`, `inventory_model.gd`, `crafting_screen.gd`, `crafting_model.gd`, `menu_tabs.gd` | crafting | The bag window, the crafting window (built in code, models with the exact texts) and the menu tab strip |
-| `game/ui/weapon_hotbar.gd` | crafting | The HUD weapon belt (bottom centre, above the ability bar), built by `hud.gd` |
+| `game/ui/weapon_hotbar.gd` | crafting | The weapon in hand on the HUD console and the weapon carousel, built by `hud.gd` |
+| `game/ui/console/` | UI | The HUD console (roadmap 4.12): `hud_console.gd` (layout, orbs, menu buttons, form badge), `goo_orb.gd` + `goo_orb.gdshader` (an orb), `console_style.gd` (the slot frame and key badges) |
 | `game/interaction/interaction_controller.gd` | interaction | Child "Interaction" of main, kept across worlds: targets (gates, doors, workbenches, beds, chests, NPCs), choice, execute; NPC candidates and conversations come from the quest service; a chest opens the chest window |
 | `game/interaction/interaction_prompt.gd`, `interaction_badge.gd` | interaction | "Right-click: <prompt>" (CanvasLayer 9) and the key badge (world, z 1) |
 | `game/rest/sleep_controller.gd` | interaction | Sleeping in a bed, owned by player.gd |
@@ -270,7 +276,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world_objects/resource_drops.gd` | world objects | Drop cells, scatter, pile launch, restore, pile bookkeeping |
 | `game/world/area_travel.gd` | world objects | Arrival point (door, entry edge, spawn), travel fades, music fade-out (only ambience once `MusicDirector` holds the music); `Main.travel_to` / `request_exit` drive it |
 | `game/scripts/npc.gd` | world | |
-| `game/ui/hud.gd` | world | Coins label and bars styled by the UI theme (`HudLabel`, `HudBar`) |
+| `game/ui/hud.gd` | world | The HUD: the coin chip, the console and the pieces it places on it (weapon slot, ability bar, minimap) |
 | `game/ui/hud_bar.gd` | world | One labelled HUD bar drawn from its theme variation (`HudBar`, `BossBar`) |
 | `game/ui/player_health_bar.gd` | world | Styled by `FloatingHealthBar` |
 | `game/ui/fps_readout.gd` | world | Styled by `DebugPanel` / `DebugLabel` |
@@ -278,7 +284,9 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/player/abilities/ability_definitions.gd`, `player_abilities.gd` | abilities | Ability table, energy costs and cooldowns on the sim clock, the dispatch order ([specs/abilities.md](specs/abilities.md)) |
 | `game/player/abilities/jump_sequence.gd`, `slam_sequence.gd`, `teleport_sequence.gd`, `lash_sequence.gd` | abilities | One sequence per ability (tween steps chained with `parallel()`) |
 | `game/player/abilities/ability_terrain.gd`, `ability_world.gd`, `ability_fx.gd` | abilities | Landing and line checks against the world, strike areas, lash probes, the shared effects |
-| `game/player/gulp/gulp_forms.gd`, `gulp_controller.gd`, `gulp_hud.gd` | abilities | Gulp forms (eating materials): timers, tint, speed and the form HUD |
+| `game/player/gulp/gulp_forms.gd`, `gulp_controller.gd`, `gulp_hud.gd` | abilities | Gulp forms (2026-10-08: swallowed essences, no timer): skin, speed, the pop on a hit, spitting out, and the "[Q] Suck" / "[Q] Throw" hints |
+| `game/player/gulp/mouth.gd`, `thrown_object.gd`, `break_burst.gd`, `held_look.gd`, `suction_fx.gd` | abilities | The mouth: hold Q to suck in an essence or a liftable (one of the 67 kinds: a pot, a rock, a pumpkin, ...), hold it (drawn inside, on the belly), throw it (it strikes for `gulp.throwDamage` × its material's multiplier and breaks by its material: `break_burst.gd` bursts a liftable into 3 × 3 chunks of its own picture, with the material's particles and cue); an essence is never thrown: Q spits it out whole 44 px ahead, where it stays (owner, 2026-10-09); a full slime walks at `gulp.holdingSpeedMultiplier` (70%); a hit that knocks a liftable out breaks it at the feet; `held_look.gd` shows each as its frame of the liftables or essences sheet (2026-10-09; the first `game/world_objects/pot_art.gd` and its pot were removed); the suction streaks are still a placeholder. `tools/render_gulp_art.gd` renders the Gulp art on one sheet |
+| `game/player/roll/player_roll.gd`, `roll_fx.gd` | abilities | The Roll (2026-10-09, the `dodge` ability on key 2, a Pegasus-boots dash): spin-up, a straight launch in one of eight directions, hold to keep rolling, the bonk (shake, hit-stop, wobble, a hit on an enemy) and the bounce back, its cooldown; the skid streaks and dust ([specs/player.md](specs/player.md) §5) |
 | `game/player/gulp/player_swimming.gd` | abilities | Swimming in a form that swims (the Frog): the `water` bit off the body's mask, swim clips, waterline and sunk art in deep water ([specs/abilities.md](specs/abilities.md#117-swimming-the-frog-form-godot-addition-owner-2026-10-06-in)) |
 | `game/player/status_effects.gd` | player | Burn, poison, slow, sticky, bouncy, frenzy, and the web root (`apply_web`) |
 | `game/player/goo_trail.gd` | abilities | The Goo Trail passive: smears under the slime that slow enemies |
@@ -287,7 +295,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/npc_name_tags.gd` | world | Child "NpcNameTags" of main: a "NameTag" (display name, 14 px, outlined) on every NPC body with a definition, sorted with the NPC |
 | `game/hints/control_hints.gd` | interaction | Child "ControlHints" of main (CanvasLayer 10): first-time control hints, learned by use as `hint.<id>` story flags |
 | `game/ui/ability_bar.gd` | abilities | The HUD's ability bar (bottom centre): labels from `player.ability_status`, clicks run `activate_ability_from_ui` |
-| `game/scripts/training_dummy.gd`, `gulp_spot.gd`, `pressure_plate.gd`, `cracked_ground.gd`, `lash_bell.gd`, `ability_lesson.gd`, `goo_heart.gd`, `restoration_site.gd` | abilities | The abilities' puzzle pieces (§6) |
+| `game/scripts/training_dummy.gd`, `essence.gd`, `liftable.gd`, `pressure_plate.gd`, `cracked_ground.gd`, `lash_bell.gd`, `ability_lesson.gd`, `goo_heart.gd`, `restoration_site.gd` | abilities | The abilities' puzzle pieces (§6) |
 | `game/saves/save_slots_menu.gd`, `.tscn` | saves | The save slots window (three slots and the autosave) on the Shell's stack; RunState mounts it and registers the Shell's `save` / `load` actions |
 | `game/world_objects/enemy_loot.gd` | world objects | Child "EnemyLoot" of main: enemy coins, loot piles scattered round the corpse, their records and restore |
 | `game/ui/screens/game_windows.gd` | UI | Child "GameWindows" of main (CanvasLayer 40): the game windows' parent, the one `modal` pause owner, Escape for the top window |
@@ -297,8 +305,10 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/map/map_ui.gd`, `minimap.gd`, `map_terrain.gd`, `map_markers.gd`, `world_map_window.gd`, `.tscn` | map | The HUD minimap (a small map of the world's ground, owner decision; `terrain_alpha = 0` = Phaser's see-through; markers, view) and the world map window on GameWindows; the `map` key, the pause menu's Map action and the marker API ([specs/map.md](specs/map.md)) |
 | `game/quests/quest_events.gd` | quests | `QuestEvents.emit(event, payload)` for world scripts and features |
 | `game/quests/quest_service.gd` | quests | Child "Quests" of main (group `quests`), kept across worlds: the quest state machine over `RunState.quests`, commands, queries, NPC candidates and markers, load validation, the `quest` launch option; mounts the dialogue box and the offer window in GameWindows ([specs/quests.md](specs/quests.md)) |
-| `game/quests/quest_catalog.gd`, `quest_objectives.gd` | quests | The 14 definitions (`game/data/quests-chapter-*.json`), recipe and NPC lookups, reward and objective texts; the objective matchers |
-| `game/quests/quest_npc_talk.gd`, `quest_notifications.gd`, `quest_waypoint.gd` | quests | NPC conversations (offer, turn-in, reoffer, plain talk); toasts, chapter and ability banners, quest cues; the waypoint target resolver |
+| `game/quests/quest_catalog.gd`, `quest_objectives.gd` | quests | The 15 definitions (`game/data/quests-chapter-*.json`), recipe and NPC lookups, reward and objective texts; the objective matchers |
+| `game/quests/quest_npc_talk.gd`, `quest_notifications.gd`, `quest_waypoint.gd` | quests | NPC conversations (offer, turn-in, reoffer, plain talk); toasts, chapter and ability banners (an active ability plays the ceremony instead while main's `ability_ceremonies` is on, and so does a permanent item's first arrival, RunState `permanent_item_gained`), quest cues; the waypoint target resolver (also quest objects, group `quest_object`) |
+| `game/ui/ceremony/ability_ceremony.gd`, `ceremony_stage.gd` | UI | The ceremony (2026-10-09, roadmap 4.13): a CanvasLayer (95) made once under the tree's root by `AbilityCeremony.request(tree, id)` (an ability), `request_item(tree, item_id)` (a weapon, tool or key the first time, from RunState `permanent_item_gained`; RunState keeps `story.celebrated_item_ids` and its `quiet_items` grants count without one) or `request_heart(tree, bonus, icon)` (`goo_heart.gd`). It pauses the world (reason `ceremony`), dims around the slime, raises a goo bubble with the thing's icon (an ability's HUD console `ability-<id>.webp`, an item's bag icon) with light rays and sparkles (`ceremony_stage.gd`), shows the card (kicker, name, line, how-to: `AbilityDefinitions.CEREMONY`, an item's description, key labels from `control_labels.gd`) and waits for a key; requests queue and wait while a window is open (reason `modal`). main's `ability_ceremonies` (default on; the test runner turns it off) lets `quest_notifications.gd` request it. `tools/render_ceremony.gd` renders it in the running playground for tuning ([specs/quests.md](specs/quests.md#43-ability-banner-and-audio)) |
+| `game/scripts/tom_web.gd` | quests | The web Tom is caught in (2026-10-09, roadmap 8.13; quest `tom-in-the-web`): weapon hits tear it, then flag `tom-freed` |
 | `game/ui/screens/dialogue_box.tscn/.gd`, `quest_offer_window.tscn/.gd` | quests | The NPC dialogue box and the quest offer / turn-in window (Godot-owned copies of `ui.npc-dialogue`, `ui.quest-offer-modal`) on GameWindows |
 | `game/ui/quest_tracker.tscn/.gd`, `npc_quest_markers.gd`, `quest_waypoint_view.gd` | quests | The HUD quest tracker (copy of `ui.quest-tracker`), the "!"/"?" markers over NPCs (main's "QuestMarkers", z 1) and the gold waypoint (main's "QuestWaypoint", z 2) |
 | `game/characters/player_slime.tscn` | player | Godot-owned player scene (CONVENTIONS "Scenes Godot owns"); clips rebuilt by `tools/build_player_clips.gd` |
@@ -315,6 +325,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/enemy/slime_spider_ai.gd` | enemy | `SlimeSpiderAI.ts` (enemy spec §14) |
 | `game/enemy/enemy_projectiles.gd` | enemy | The world's `spawnEnemyProjectile` (enemy spec §12.3) |
 | `game/scripts/projectile.gd` | enemy | `game.projectile`: flight, lifetime, wall stop, one hit on the player |
+| `game/scripts/clod_stomper.gd` | enemy | The Clod Stomper (2026-10-09, roadmap 8.12) on top of `enemy.gd`: a camp enemy that stomps instead of swinging (ring telegraph, hop, slam, dazed), breaks cracked ground near its feet and always drops a stone essence |
 | `game/enemy/spider_web_port.gd` | enemy | The world's `world.spider-web` port, `catchInWeb`, `applyWeb` (duck-typed player hooks, [specs/matron.md](specs/matron.md) §5) |
 | `game/scripts/fatty.gd` | boss | Fatty One Eye's phases on top of `enemy.gd` ([specs/boss.md](specs/boss.md)) |
 | `game/scripts/matron.gd` | boss | The Orb-Weaver Matron's volleys on top of `enemy.gd` ([specs/matron.md](specs/matron.md)) |

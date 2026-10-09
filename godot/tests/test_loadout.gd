@@ -113,7 +113,8 @@ func test_busy_refusal(t: TestContext) -> void:
 	var swinging := await t.until(func() -> bool: return t.player().get_combat().is_attacking(), 200.0)
 	t.check(swinging, "the sword swing did not start")
 	var hotbar := _hotbar(t)
-	hotbar.cells[1].pressed.emit()
+	# A click on the weapon slot asks for the next belt weapon, like a scroll.
+	hotbar.slot.pressed.emit()
 	t.equal(run.equipped_weapon_id(), "basic-sword", "hand after a refused switch")
 	if t.check(messages.size() == 1, "messages %s" % [messages]):
 		t.equal([messages[0]["text"], messages[0]["color"], messages[0]["big"]], ["Finish the attack first", "white", false], "refusal")
@@ -141,12 +142,26 @@ func test_hotbar_model(t: TestContext) -> void:
 	var hotbar := _hotbar(t)
 	var model := hotbar.model()
 	var weapons: Array = model["weapons"]
-	t.equal(weapons.size(), 4, "cells")
-	t.equal([hotbar.cells[0].tooltip_text, hotbar.cells[0].disabled, hotbar.icons[0].texture != null], ["Stone Axe", false, true], "cell 0")
+	t.equal(weapons.size(), 4, "belt slots in the model")
 	for index in range(1, 4):
-		t.equal([hotbar.cells[index].text, hotbar.cells[index].disabled], ["Empty", true], "cell %d" % index)
-	t.equal(model["selected_index"], 0, "selected cell")
-	t.equal(hotbar.cells[0].focus_mode, Control.FOCUS_NONE, "a hotbar cell takes focus")
+		t.equal([weapons[index]["label"], weapons[index]["disabled"]], ["Empty", true], "belt slot %d" % index)
+	t.equal(model["selected_index"], 0, "selected belt slot")
+	# The console shows only the weapon in hand (roadmap 4.12).
+	t.equal([hotbar.slot.tooltip_text, hotbar.slot.text, hotbar.icon.texture != null], ["Stone Axe", "", true], "the weapon slot")
+	t.equal(hotbar.key_badge.text, "E", "the weapon scroll's key on the slot")
+	t.equal(hotbar.slot.focus_mode, Control.FOCUS_NONE, "the weapon slot takes focus")
+	t.check(not hotbar.is_carousel_open(), "the carousel opened without a switch")
+
+
+## Switching weapons opens the carousel over the weapon slot; one weapon alone never does.
+func test_weapon_carousel(t: TestContext) -> void:
+	_loadout(t, [{"item_id": "stone-axe", "count": 1}, {"item_id": "stone-pickaxe", "count": 1}],
+		["stone-axe", "stone-pickaxe", null, null], "stone-axe")
+	var hotbar := _hotbar(t)
+	var actions := t.tree.get_first_node_in_group(&"inventory_actions")
+	t.check(bool(actions.call(&"switch_weapon_slot", 1)), "the switch to the pickaxe was refused")
+	t.check(hotbar.is_carousel_open(), "the carousel did not open on a switch")
+	t.equal(hotbar.slot.tooltip_text, "Stone Pickaxe", "the weapon slot after the switch")
 
 
 func test_harvest_advice(t: TestContext) -> void:
@@ -163,7 +178,7 @@ func test_harvest_advice(t: TestContext) -> void:
 		t.check(blocked.size() == 1 and blocked[0]["message"] == AXE_ADVICE, "the payload keeps the plain message (%s)" % [blocked])
 		t.check(_floating_texts().has("Requires an Axe: switch with the mouse wheel"), "the tree did not show the advice")
 	run.set_weapon_slots(["basic-sword", null, null, null])
-	t.equal(actions.harvest_message(BLOCKED_TREE), "Requires an Axe: put yours on the belt (E)", "axe in the bag")
+	t.equal(actions.harvest_message(BLOCKED_TREE), "Requires an Axe: put yours on the belt (B)", "axe in the bag")
 	run.remove_item("stone-axe", 1)
 	t.equal(actions.harvest_message(BLOCKED_TREE), "Requires an Axe", "no axe")
 

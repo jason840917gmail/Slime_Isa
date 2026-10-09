@@ -3,7 +3,8 @@ extends RefCounted
 ## winds up (stretches to 1.36 tall over 200 ms, squashes to 0.64 over 120 ms) and at 320 ms
 ## strikes everything in 90 px around its centre for 30 (knockback 320; not trees or rocks), with
 ## the ring, the `slam` feel (shake and a 90 ms hit-stop) and the SlamImpact cue; it springs back
-## and is done at 470 ms.
+## and is done at 470 ms. The impact is also the player's Heavy impact in a Heavy form
+## (`record_slam`): cracked ground breaks under it.
 ##
 ## Owner: abilities.
 
@@ -61,6 +62,7 @@ func _impact() -> void:
 		feel.play(&"slam")
 	_player.call(&"action_cue", &"SlamImpact")
 	AbilityWorld.strike_area(_player, centre, radius, float(definition["damage"]), KNOCKBACK, ["slam"])
+	_player.call(&"record_slam", centre)
 	_kill()
 	_tween = _player.call(&"effect_tween")
 	if _tween != null:

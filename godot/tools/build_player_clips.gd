@@ -25,6 +25,11 @@ extends SceneTree
 ## slime on its top-down art with a matching pose (owner decision 2026-10-05: keys from the new art;
 ## only the stretch lash is filmed, page 2's `stretch-*` rows).
 ##
+## Alias clips (ALIASES): another clip over a page row already built, at its own fps: the full slime
+## at rest sways at the takes' own slow pace (`full-idle-<direction>` on the `full-<direction>`
+## rows, which play at a walk's pace). The Roll's `ball-down` and `ball-up` are page 5 rows of their
+## own since 2026-10-09 (the ball rolled on a sphere), no longer aliases of `ball-side`.
+##
 ## Every other clip in the scene is removed: the old side-view sheet is gone from the player (owner
 ## decision 2026-10-05, "replace all old player art"). Page rows that face down only (doze, sleep,
 ## die) are played after the player turns to the camera.
@@ -49,8 +54,22 @@ const PAGES := [
 		"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-3.webp",
 		"manifest": "../asset/Originals/characters/slime-v2/page-3.json",
 	},
+	{
+		"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-4.webp",
+		"manifest": "../asset/Originals/characters/slime-v2/page-4.json",
+	},
+	{
+		"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-5.webp",
+		"manifest": "../asset/Originals/characters/slime-v2/page-5.json",
+	},
 ]
 const LIBRARY := &""
+## Alias clip -> [page row, fps, looping] (see the header).
+const ALIASES := {
+	"full-idle-down": ["full-down", 2.67, true],
+	"full-idle-up": ["full-up", 2.67, true],
+	"full-idle-side": ["full-side", 2.67, true],
+}
 
 ## The basic sword's `characterActionId` for every direction (combat spec 1).
 const ATTACK_CLIP := "attack-1"
@@ -170,6 +189,21 @@ func _build(only: PackedStringArray) -> bool:
 						texture, visual, shift, true))
 				built += 1
 				print("build_player_clips: %s (%s mirrored)" % [left_name, clip_name])
+
+	for alias: String in ALIASES:
+		owned.append(alias)
+		if not _selected(alias, only):
+			continue
+		var spec: Array = ALIASES[alias]
+		var source_row: Dictionary = page_rows.get(spec[0], {})
+		if source_row.is_empty():
+			push_error("build_player_clips: %s needs the %s row" % [alias, spec[0]])
+			root.free()
+			return false
+		_replace(library, alias, _row_clip(int(source_row["first_frame"]), 8, float(spec[1]), bool(spec[2]),
+				source_row["texture"], visual, Vector2.ZERO, false))
+		built += 1
+		print("build_player_clips: %s (the %s row at %s fps)" % [alias, spec[0], spec[1]])
 
 	for direction: String in ATTACKS:
 		var clip_name := "%s-%s" % [ATTACK_CLIP, direction]

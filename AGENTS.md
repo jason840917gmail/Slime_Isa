@@ -77,7 +77,8 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
 - Terrain is ground only; transitions between grounds are hand-made edge tiles
   ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); walls are placed object instances.
 - Hills, holes and stairs are painted on a world's `elevation` layer; cliffs, their lips and feet
-  and each level's collision follow ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)).
+  and each level's collision follow; a wall's rock follows its ground unless a style is painted on
+  the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)).
 - Saves go through `RunState` to `user://saves/`.
 
 ## Status

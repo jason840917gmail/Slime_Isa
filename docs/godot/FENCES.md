@@ -123,7 +123,7 @@ the spare).
 `python scripts/art/build-fence-art.py [style ...] [--preview DIR]` (numpy, Pillow) finds the posts
 (the most opaque columns, `post_share` of the most opaque one) and the rails (rows opaque between the
 posts), scales the post to `post_height` (40 units for wood) at 2 px per unit and writes the kit into
-`godot/game/world/elevation/fences/art/`: `<style>-posts.png` (every post, feet on one row, the rails
+`godot/asset/MAPS/fences/`: `<style>-posts.png` (every post, feet on one row, the rails
 behind them removed, moss kept), `<style>-rails.png` (the rails between posts joined into a strip that
 repeats sideways), `<style>-rails-side.png` (the upper rail turned a quarter left: seen from above,
 lit on its left; for a wall its whole band, for pickets their tips, squeezed to `side_width`) and
@@ -183,7 +183,7 @@ and `styles-review.jpg` (every style, and bodies behind fences) are its output. 
 | `godot/game/world/elevation/fences/elevation_fences.gd` | Runs, pieces, shadows, depth silhouettes, collision, `blocks_point` (`@tool`) |
 | `godot/game/world/elevation/fences/elevation_fence.gdshader`, `elevation_fence_depth.gdshader` | The fence art; its silhouette in the depth map |
 | `godot/game/world/elevation/fences/fence_layer.gd`, `fence_tileset.tres`, `fence_paint_tiles.png` | The painted layer and its tiles |
-| `godot/game/world/elevation/fences/art/` | Kits (`scripts/art/build-fence-art.py`) |
+| `godot/asset/MAPS/fences/` | Kits (`scripts/art/build-fence-art.py`) |
 | `asset/Originals/elevation/fences/` | Generated sources and the review sheet |
 | `scripts/maps/build-fence-park.py`, `godot/game/scenes/worlds/fence-park.tscn` | The Fence Park |
 | `godot/tools/render_fence_park.gd` | Renders and probes the Fence Park |

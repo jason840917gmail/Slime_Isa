@@ -416,6 +416,22 @@ Exact values per quest in §7.
 - `ability.learned` (from rewards) → banner `"<title> learned: press <key>"` in `#9ff0c8`
   (`WorldScene.ts:483-491`), e.g. "Dodge learned: press 1", "Jump learned: press Space", "Stretch
   Lash learned: press 2", "Squash Slam learned: press 3"; cue `AbilityLearned` (abilities spec §1.1).
+  Godot since 2026-10-09: "Roll learned: press 2" (Stone Tools) and "Swallow learned: press 1"
+  (Tom in the Web).
+- Godot since 2026-10-09 (later that day): the banner became the **ability ceremony**
+  (`game/ui/ceremony/ability_ceremony.gd`, roadmap 4.13). While main's `ability_ceremonies` is on
+  (the default), every active ability `RunState` learns plays it instead of the banner:
+  `quest_notifications.gd` calls `AbilityCeremony.request(tree, id)` and emits
+  `ceremony_requested {"ability_id"}`. The test runner (`tests/run_tests.gd`) turns the flag off,
+  so tests still see the banner. The passive Goo Trail keeps its banner. The reward grant still
+  plays `AbilityLearned`, and the ceremony adds its fanfare (`Ceremony`).
+- Godot since 2026-10-09 (the owner's next request): the first time a weapon or tool or a key
+  comes into the bag, by any way in, `RunState` adds it to `story.celebrated_item_ids` and emits
+  `permanent_item_gained {"item_id"}` (not for `quiet_items` grants: the start weapon, the
+  playground's kit, `?arsenal`; an older save's bag counts as celebrated on install). While the
+  flag is on, `quest_notifications.gd` calls `AbilityCeremony.request_item(tree, item_id)` and
+  emits `ceremony_requested {"item_id"}`; with it off nothing extra shows (the pickup's own text
+  stays). Tests: `tests/test_ceremony.gd`.
 - Cues (`AudioEventBridge.ts:95-109`, all `audio.global` players, pitch ±0.06, `minIntervalMs 60`):
   `npc.talked` → `NpcBlip`; `quest.accepted` → `QuestAccept`; `quest.progressed` and
   `quest.stage-completed` → `QuestProgress` (the second within 60 ms is dropped); `quest.completed`
@@ -425,6 +441,13 @@ Exact values per quest in §7.
   shell spec §6), and every pause source ducks the music to 0.35 (audio spec §3.2).
 
 ### 4.4 Quest tracker (HUD) (`QuestTrackerSurfacePort.ts`, `ui/quest-tracker.scene.json`)
+
+Replaced on 2026-10-08 by the goal line (roadmap 4.12, the HUD console,
+`game/ui/quest_tracker.gd`): one quest at a time under the coin chip, the one the waypoint follows
+(the selected quest, else the first tracked view): its title in small capitals and its next step
+(the first unfinished line below, without its bullet). "+n" shows the next tracked quest; the full
+list is in the Journal (J). A click shows or hides the way, as before. The four-quest card below is
+the Phaser history the goal line's lines come from.
 
 Always-visible card under the HUD; hidden when it has no entry and on the title screen.
 
@@ -440,9 +463,10 @@ Per entry (`describe :80-98`):
   `(progress >= target ? "✓" : "•") + " " + objectiveLabel + (target > 1 ? "  <p>/<t>" : "")`
   with `p = min(target, progress)` and two spaces before the count;
 - `objectiveLabel` (`:53-57`): a `use-control` objective appends its key:
-  `menu:inventory` → `(E)`, `menu:crafting` / `menu:journal` → `(E, then its tab)`, `menu:map` →
+  `menu:inventory` → `(B)`, `menu:crafting` → `(B, then its tab)`, `menu:journal` → `(J)` (the
+  journal's own key since 2026-10-08; Phaser `(E, then its tab)`), `menu:map` →
   `(M)`, `sprint` → `(hold Shift)`, `weapon-switch` → `(Mouse wheel)`, `pause` → `(Esc)` (labels from
-  the binding table, `controlLabel(menu|map|sprint|weapon-next|pause)`).
+  the binding table, `controlLabel(menu|journal|map|sprint|weapon-next|pause)`).
 - Title = quest title (prefixed `"➜ "` while the waypoint points at it); colour `#ffd277` for
   mandatory, `#d9ecff` for optional.
 
@@ -460,7 +484,7 @@ hint     waypoint off: "Click a quest to show the way"
          on and found:  "➜ Follow the gold arrow · click it again to hide"
          on, not found: "Nothing to point at on this map"
          + "  (+<n> in the book)" when more than 4 entries
-bookHint "E · Journal tab"                       # controlLabel('menu') + " · Journal tab"
+bookHint "J · Journal"                           # controlLabel('journal') + " · Journal" (Phaser: menu + " · Journal tab")
 ```
 
 Scene styling: heading 10 px bold muted (letter-spacing 0.12 em), book hint 10 px muted right
@@ -476,7 +500,7 @@ Fresh run (keys E/M/Shift/Esc): entries `a-place-to-work` (rank 1) then `slime-b
 | Slot | Title (colour) | Lines (rows) | Rect |
 |---|---|---|---|
 | 1 | A Place to Work (#ffd277) | `! Talk to Village Elder Plop` (1) | [10, 26] .. [-10, 64] |
-| 2 | Slime Basics (#d9ecff) | `• Open your bag (E)` (1), `• Look at the Crafting tab (E, then its tab)` (44 chars, 2), `• Read your Journal (E, then its tab)` (1), `• Open the map (M)` (1), `• Sprint (hold Shift)` (1), `• Pause to save or change settings (Esc)` (40 chars, 1) | [10, 72] .. [-10, 218] |
+| 2 | Slime Basics (#d9ecff) | `• Open your bag (B)` (1), `• Look at the Crafting tab (B, then its tab)` (44 chars, 2), `• Read your Journal (J)` (1), `• Open the map (M)` (1), `• Pause to save or change settings (Esc)` (40 chars, 1) | [10, 72] .. [-10, 218] |
 
 Card [16, 96] .. [300, 336], heading `QUESTS · 2`.
 
@@ -733,16 +757,17 @@ Givers and where they stand (old Phaser NPC positions = sprite bottom; they wand
 | `fisherman-slime` | Lily the Fishergirl | level-1 `level-1-npc-fisherman-slime` | (1350.4, 742.4) |
 | `level-1-spider-giver` | Mossy | level-1 `level-1-npc-mossy-scout` (in `chapter-1-villagers`, parked once `chapter-1-complete` is set); gloop-forest `gloop-ch2-npc-mossy` (camp) | (857.6, 697.6); (1816, 1768) |
 | `yellow-blond-slime-girl` | Sunny | level-1 `level-1-npc-yellow-blond-slime-girl` (same variant); gloop-forest `gloop-ch2-npc-sunny` | (857.6, 947.2); (1952, 1904) |
+| `tom` (Godot, 2026-10-09) | Tom | gloop-forest: wrapped in `object.tom-web` in the south-west spider thicket until freed, then the camp's story variant `camp/tom-at-camp` (`character.tom`, idles in place) | web (860, 2470); camp (1764, 1858) |
 
 ### 7.1 Chapter 1 (`chapterOne.ts`), catalog order
 
 | # | Id / title / v | Giver → turn-in | Cat. | Prerequisites | Stages: objectives (target) | Rewards | Policies | Unlocks |
 |---|---|---|---|---|---|---|---|---|
 | 1 | `a-place-to-work` "A Place to Work" v1, chapter "Chapter 1 — The Clearing" | Elder → Elder | mandatory | area-entered level-1 (true on a new run) | `build-workbench`: `craft-workbench` craft-item `workbench` (1) "Craft a Workbench (40 wood)"; `place-workbench`: `place-workbench` place-item `workbench` (1) | 20 wood; recipes `craft-stone-axe`, `craft-stone-pickaxe` | fail permanent, abandon forbidden | stone-tools, a-tonic-for-lili |
-| 2 | `slime-basics` "Slime Basics" v1 | automatic → automatic | optional | area-entered level-1 **and** a-place-to-work `available` | `learn-the-basics`: use-control `open-bag` menu:inventory, `see-crafting` menu:crafting, `read-journal` menu:journal, `open-map` menu:map, `sprint` sprint, `pause` pause (1 each) | 10 coins | abandon retryable (quest) | — |
+| 2 | `slime-basics` "Slime Basics" v2 (no sprint step since 2026-10-08) | automatic → automatic | optional | area-entered level-1 **and** a-place-to-work `available` | `learn-the-basics`: use-control `open-bag` menu:inventory, `see-crafting` menu:crafting, `read-journal` menu:journal, `open-map` menu:map, `sprint` sprint, `pause` pause (1 each) | 10 coins | abandon retryable (quest) | — |
 | 3 | `stone-tools` "Stone Tools" v1 | Elder → Elder | mandatory | a-place-to-work completed | `craft-tools`: `craft-axe` stone-axe (1), `craft-pickaxe` stone-pickaxe (1); `use-tools`: `switch-tools` use-control weapon-switch (1), `chop-wood` collect wood (20), `mine-stone` collect stone (20) | 20 coins, 10 wood, recipe `craft-wooden-spear`, ability `dodge` | forbidden | worm-trouble |
-| 4 | `worm-trouble` "Worm Trouble" v2 | Mossy → Mossy | mandatory | stone-tools completed | `arm-yourself`: `craft-wooden-spear` (1); `clear-camp`: `defeat-worms` kill `worm-swordsman` (3) | 30 coins, recipe `craft-stone-spear`, ability `jump` | forbidden | the-one-eyed-guardian |
-| 5 | `the-one-eyed-guardian` "The One-Eyed Guardian" v1 | Elder → **automatic** | mandatory | worm-trouble completed | `stone-spear`: `craft-stone-spear` stone-spear (1); `defeat-fatty`: `defeat-fatty` defeat-boss `fatty-one-eye` (1); `verdant-gate`: `enter-gloop-forest` discover-area `gloop-forest` (1) | 100 coins, flag **`chapter-1-complete`** | forbidden; no `complete` pages | beyond-the-verdant-gate |
+| 4 | `worm-trouble` "Worm Trouble" v2 | Mossy → Mossy | mandatory | stone-tools completed | `arm-yourself`: `craft-wooden-spear` (1); `clear-camp`: `defeat-worms` kill `worm-swordsman` (3) | 30 coins, recipe `craft-stone-spear` (ability `jump` until the jump was removed, 2026-10-08) | forbidden | the-one-eyed-guardian |
+| 5 | `the-one-eyed-guardian` "The One-Eyed Guardian" v1 | Elder → **automatic** | mandatory | worm-trouble completed | `stone-spear`: `craft-stone-spear` stone-spear (1); `defeat-fatty`: `defeat-fatty` defeat-boss `fatty-one-eye` (1); `verdant-gate`: `enter-gloop-forest` discover-area `gloop-forest` (1) | 100 coins, flag **`chapter-1-complete`**, ability `squash-slam` (since 2026-10-08) | forbidden; no `complete` pages | beyond-the-verdant-gate |
 | 6 | `the-old-workshop` "The Old Workshop" v1 | Elder → automatic | optional | world-flag `chapter-2-complete` (parked until then) | `restore-workshop`: activate-object `workshop` (1) "Restore the Workshop (60 wood, 40 stone)" | 25 coins | abandon retryable (quest) | — |
 | 7 | `a-tonic-for-lili` "A Tonic for Lili" v1 | Lili → Lili | optional | a-place-to-work completed | `brew-tonic`: craft-item `hp-potion` (1) | 2 purple berries (`purple-berry-mat`) | retryable (quest) | snack-for-the-road |
 | 8 | `snack-for-the-road` "Snack for the Road" v1 | Lily → Lily | optional | a-tonic-for-lili completed | `cook-snack`: `cook-berry-basket` craft-item `berry-basket` (1) | 25 coins, 1 `hp-potion` | retryable (quest) | — |
@@ -751,12 +776,13 @@ Givers and where they stand (old Phaser NPC positions = sprite bottom; they wand
 
 | # | Id / title / v | Giver → turn-in | Cat. | Prerequisites | Stages: objectives (target) | Rewards | Policies | Unlocks |
 |---|---|---|---|---|---|---|---|---|
-| 9 | `beyond-the-verdant-gate` "Beyond the Verdant Gate" v2, chapter "Chapter 2 — Gloop Forest" | Mossy → Mossy | mandatory | the-one-eyed-guardian completed | `thin-the-weavers`: `defeat-orb-weavers` kill `orb-weaver` (5), `collect-fangs` collect `weaver-fang` (3) | 30 coins, ability `stretch-lash`, recipe `craft-reinforced-pickaxe` | forbidden | a-harder-pick, sunnys-basket |
-| 10 | `a-harder-pick` "A Harder Pick" v2 | Mossy → Mossy | mandatory | beyond completed | `craft-pickaxe`: craft-item `reinforced-pickaxe` (1); `mine-iron`: collect `iron-ore` (6) | 20 coins | forbidden | rekindle-the-forge |
+| 9 | `beyond-the-verdant-gate` "Beyond the Verdant Gate" v2, chapter "Chapter 2 — Gloop Forest" | Mossy → Mossy | mandatory | the-one-eyed-guardian completed | `thin-the-weavers`: `defeat-orb-weavers` kill `orb-weaver` (5), `collect-fangs` collect `weaver-fang` (3) | 30 coins, ability `stretch-lash`, recipe `craft-reinforced-pickaxe` (no longer `swallow`, a stand-in until 2026-10-09) | forbidden | tom-in-the-web (a-harder-pick until 2026-10-09), sunnys-basket |
+| 9b | `tom-in-the-web` "Tom in the Web" v2 (Godot, 2026-10-09; roadmap 8.13) | Mossy → **Tom** (`tom`) | mandatory | beyond completed | `free-tom`: `tear-tom-web` activate-object `tom-web` (1) "Cut Tom out of the web" | 20 coins, ability `swallow` | forbidden | a-harder-pick |
+| 10 | `a-harder-pick` "A Harder Pick" v2 | Mossy → Mossy | mandatory | tom-in-the-web completed (beyond until 2026-10-09) | `craft-pickaxe`: craft-item `reinforced-pickaxe` (1); `mine-iron`: collect `iron-ore` (6) | 20 coins | forbidden | rekindle-the-forge |
 | 11 | `rekindle-the-forge` "Rekindle the Forge" v1 | Pip → Pip | mandatory | a-harder-pick completed | `restore-forge`: activate-object `forge` (1); `smelt`: `smelt-charcoal` craft-item charcoal (2), `smelt-iron-bars` craft-item iron-bar (3) | 40 coins, recipe `craft-iron-spear` | forbidden | iron-gear |
 | 12 | `iron-gear` "Iron Gear" v1 | Elder → Elder | mandatory | rekindle completed | `iron-spear`: craft-item `iron-spear` (1) | 40 coins, recipe `craft-iron-axe` | forbidden | the-matrons-nest |
 | 13 | `sunnys-basket` "Sunny's Basket" v1 | Sunny → Sunny | optional | beyond completed | `fetch-basket`: `collect-basket` collect `berry-basket` (1) | 20 coins, 2 purple berries | retryable (quest) | — |
-| 14 | `the-matrons-nest` "The Matron's Nest" v1 | Mossy → **automatic** | mandatory | iron-gear completed | `defeat-matron`: defeat-boss `orb-weaver-matron` (1) | 100 coins, ability `squash-slam`, flag **`chapter-2-complete`** | forbidden; no `complete` pages | the-old-workshop |
+| 14 | `the-matrons-nest` "The Matron's Nest" v1 | Mossy → **automatic** | mandatory | iron-gear completed | `defeat-matron`: defeat-boss `orb-weaver-matron` (1) | 100 coins, flag **`chapter-2-complete`** (ability `squash-slam` until 2026-10-08) | forbidden; no `complete` pages | the-old-workshop |
 
 Every quest has `failurePolicy: permanent` (none can fail in practice). Every NPC quest has
 `offer` and `progress` pages; every `npc-turn-in` quest has `complete` pages.
@@ -767,18 +793,19 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 |---|---|
 | a-place-to-work | Reward: 20× Wood · New recipe: Stone Axe · New recipe: Stone Pickaxe |
 | slime-basics | Reward: 10 coins |
-| stone-tools | Reward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Dodge |
-| worm-trouble | Reward: 30 coins · New recipe: Stone Spear · New ability: Jump |
-| the-one-eyed-guardian | Reward: 100 coins |
+| stone-tools | Reward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Roll (Dodge until 2026-10-09) |
+| worm-trouble | Reward: 30 coins · New recipe: Stone Spear (· New ability: Jump until 2026-10-08) |
+| the-one-eyed-guardian | Reward: 100 coins · New ability: Squash Slam (since 2026-10-08) |
 | the-old-workshop | Reward: 25 coins |
 | a-tonic-for-lili | Reward: 2× Purple Berry |
 | snack-for-the-road | Reward: 25 coins · Slime Tonic |
 | beyond-the-verdant-gate | Reward: 30 coins · New recipe: Reinforced Pickaxe · New ability: Stretch Lash |
+| tom-in-the-web | Reward: 20 coins · New ability: Swallow |
 | a-harder-pick | Reward: 20 coins |
 | rekindle-the-forge | Reward: 40 coins · New recipe: Iron Spear |
 | iron-gear | Reward: 40 coins · New recipe: Iron Axe |
 | sunnys-basket | Reward: 20 coins · 2× Purple Berry |
-| the-matrons-nest | Reward: 100 coins · New ability: Squash Slam |
+| the-matrons-nest | Reward: 100 coins (· New ability: Squash Slam until 2026-10-08) |
 
 ### 7.4 Chapter flags and what reads them
 
@@ -814,13 +841,14 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 | Quest | Needs | State in Godot |
 |---|---|---|
 | a-place-to-work | crafting (`craft-workbench`, portable), furniture placement (`place-item`) | ported 2026-10-05: completable in play |
-| slime-basics | inventory, crafting tab, journal, world map windows; sprint; pause menu | ported: every objective counts (`test_slime_basics_with_the_keys`) |
+| slime-basics | inventory, crafting tab, journal, world map windows; pause menu (the sprint step went on 2026-10-08) | ported: every objective counts (`test_slime_basics_with_the_keys`) |
 | stone-tools | crafting at a workbench (placed bench or restored Workshop), belt weapon switch, axe/pickaxe as weapons, pile pickups | ported (`test_chapter_one_flow.gd::test_stone_tools_by_hand`) |
 | worm-trouble | crafting; `enemy.died` for worm swordsmen | ported (`enemy_loot.gd` sends `enemy.died`; `test_worm_trouble_kills_count`) |
 | the-one-eyed-guardian | crafting; Fatty (ported, `boss_camp.gd boss_defeated`); travel to gloop-forest (ported); key from the guarded chest | ported (the chest window is being ported; the take-all stand-in works meanwhile) |
 | the-old-workshop | restoration site (ported) | reachable only after chapter 2 |
 | a-tonic-for-lili, snack-for-the-road | crafting | ported (`test_lili_tonic_and_snack`) |
 | beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | ported (`test_beyond_the_verdant_gate_weavers_and_fangs`) |
+| tom-in-the-web (Godot, 2026-10-09) | the web `object.tom-web` (`game/scripts/tom_web.gd`: 3 weapon hits tear it while the quest is active, `object.activated` counts, flag `tom-freed`); Tom's turn-in at the camp | built (`test_tom.gd`); awaiting the owner |
 | a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | ported (`test_chapter_two_gloop.gd`) |
 | rekindle-the-forge | restoration (ported); forge crafting | ported (`test_chapter_two_flow.gd`) |
 | iron-gear | crafting | ported (`test_chapter_two_flow.gd`) |
@@ -925,14 +953,16 @@ The port follows this plan with these differences (structure only; behaviour as 
   The quest service mounts them and keeps them as `dialogue` / `offer_window`.
 - The tracker is `game/ui/quest_tracker.tscn` mounted by the HUD; it finds the service on its own.
 - The `control.used sprint` edge is watched by the quest service (as the control hints do), not by
-  `player.gd`. Menu ids come from `GameWindows.window_opened` and `Shell.menu_opened`.
+  `player.gd` (no quest uses it since Slime Basics lost its sprint step on 2026-10-08, and the
+  `sprint` action has no key). Menu ids come from `GameWindows.window_opened` and `Shell.menu_opened`.
 - No new `class_name`s (headless runs know only scanned ones): everything is reached by preload.
 - Owner decisions: Q1 parity (documented by `test_quests_gloop.gd`), Q2 parity, Q3 `debug_*` plus
   the `quest` launch option, Q4 the interact button advances the dialogue, Q5 toasts shown in the
   same frame stack 22 px apart, Q6 markers at `z_index` 1, Q7 a broken record resets with a warning.
 - The ability banner ("<title> learned: press <key>", #9ff0c8) lives in
-  `quest_notifications.gd` on `RunState.ability_learned`; the AbilityLearned cue for quest rewards
-  plays in the reward grant (ability lessons play their own).
+  `quest_notifications.gd` on `RunState.ability_learned`; since 2026-10-09 it asks for the ability
+  ceremony instead while main's `ability_ceremonies` is on (§4.3). The AbilityLearned cue for quest
+  rewards plays in the reward grant (ability lessons play their own).
 - The waypoint target is also the maps' `waypoint` marker (`MapUi.set_marker`, id `quest-waypoint`).
 
 ### 10.1 Files
@@ -944,7 +974,7 @@ The port follows this plan with these differences (structure only; behaviour as 
 | `game/quests/quest_service.gd` | `Node`, `class_name QuestService`, child **"Quests"** of main (made once in `_ready`, kept across worlds), group `quests` | §2 state machine over `RunState.quests`; commands; queries; NPC candidate kind; signals (§10.2) |
 | `game/quests/quest_events.gd` | static, `class_name QuestEvents` | the event API world scripts call (§10.4); finds the service by group and does nothing when there is none (title screen) |
 | `game/quests/quest_npc_talk.gd` | `RefCounted` owned by the service | §5.2-5.4: candidate kind, `execute(kind, npc)`, converse, progress line |
-| `game/quests/quest_notifications.gd` | `RefCounted` owned by the service | §4.1-4.3 toasts, banner, cues, QUEST COMPLETE lines |
+| `game/quests/quest_notifications.gd` | `RefCounted` owned by the service | §4.1-4.3 toasts, banner or ceremony request (abilities, permanent items), cues, QUEST COMPLETE lines |
 | `game/quests/quest_waypoint.gd` | static | §4.6 resolver over Godot groups/areas |
 | `game/ui/screens/dialogue_box.tscn` / `.gd` | Godot-owned copy of `ui.npc-dialogue` on the UI theme (`DialoguePanel`, `NamePlate`, `PrimaryButton`, `MutedButton`, `CaptionLabel`) | §6.1-6.2 |
 | `game/ui/screens/quest_offer_window.tscn` / `.gd` | copy of `ui.quest-offer-modal` (`WindowPanel`, `PanelTitle`, `MutedLabel`, `DangerLabel`) | §6.4 |
@@ -1203,8 +1233,8 @@ func accept_label() -> String; func decline_label() -> String
 
 - Tracker: rebuild on `quest_changed`, and on `world_registered` (labels); `visible` false with no
   entry; CSS sizes as §4.4 (1 CSS px = 1 game px under `apply_viewport_scale`). Objective text from
-  `ControlLabels.control_label(&"menu"|&"map"|&"sprint"|&"weapon_next"|&"pause")` with Phaser's
-  wrappers (`(E)`, `(E, then its tab)`, `(hold Shift)`, …). Rows by `ceil(text.length() / 40)`
+  `ControlLabels.control_label(&"menu"|&"journal"|&"map"|&"sprint"|&"weapon_next"|&"pause")` with
+  Phaser's wrappers (`(B)`, `(B, then its tab)`, `(J)`, `(hold Shift)`, …). Rows by `ceil(text.length() / 40)`
   (Phaser's estimate; Godot's own wrap may differ slightly with the theme font: keep the computed
   rects so slots never overlap). The four `GhostButton`s toggle the waypoint; mouse clicks on them
   are consumed by the GUI, so no sword swing. Only the buttons take the mouse
@@ -1240,6 +1270,11 @@ save; Godot saves are new and a broken record should not lose the run); `definit
 mismatch → `push_warning`, keep the record (no reconciler yet). Missing quests are appended as
 `locked`. Then `evaluate_prerequisites()` on the next `on_world_built`.
 
+Since 2026-10-08 the rebind also learns, quietly, every ability reward of every `completed`
+quest that the run has not learned yet. Squash Slam moved from The Matron's Nest to The
+One-Eyed Guardian that day, and a run saved past Chapter 1 would otherwise never get it
+(`test_load_learns_completed_quest_abilities`).
+
 ### 10.9 Dev and test helpers
 
 - `debug_activate(quest_id, stage_id = "")`: status `active` at that stage (default first),
@@ -1262,7 +1297,7 @@ target in reach). Real-time reveal through `advance_reveal(ms)`.
 
 | Test | Setup and action | Expected |
 |---|---|---|
-| `test_new_run_states` | fresh level-1, 2 steps | `RunState.quests.size() == 14` in catalog order; `a-place-to-work` `available`; `slime-basics` `active`, stage `learn-the-basics`, progress `{open-bag:0, see-crafting:0, read-journal:0, open-map:0, sprint:0, pause:0}`; the other 12 `locked`; `RunState.is_quest_active("slime-basics")` true |
+| `test_new_run_states` | fresh level-1, 2 steps | `RunState.quests.size() == 15` (every quest of the catalog, since 2026-10-09 with `tom-in-the-web`) in catalog order; `a-place-to-work` `available`; `slime-basics` `active`, stage `learn-the-basics`, progress `{open-bag:0, see-crafting:0, read-journal:0, open-map:0, sprint:0, pause:0}`; the other 13 `locked`; `RunState.is_quest_active("slime-basics")` true |
 | `test_elder_offer_candidate_and_marker` | place the Elder | candidate id `quest-npcs:level-1-npc-village-elder-plop:offer`, priority 90, prompt `Right-click: Talk to Village Elder Plop`; `marker_for("village-elder-plop") == "main-offer"`; Lili `""` |
 | `test_offer_conversation_accept` | as above; `interaction.handle_interact()` | dialogue open, speaker `Village Elder Plop`, `page_label() == "1 / 3"`, `next_label() == "Skip  ▸▸"`; `t.tree.paused`; `has_pause_reason(&"modal")`; NPC `is_interaction_locked()`. `advance()` → whole page shown, `next_label() == "Next  ▸"`; advance through pages 2 and 3 (last label `Continue  ▸`) → dialogue closed, offer open: title `A Place to Work`, `accept_label() == "Accept quest"`, description as §6.4 example; still paused. `invoke("accept")` → `status == "active"`, stage `build-workbench`, `quest_accepted {"questId": "a-place-to-work", "source": "npc"}` once, `npc_talked {"npcId": "village-elder-plop"}`, `"village-elder-plop" in story.talked_npc_ids`, window closed, tree unpaused, NPC unlocked; marker `in-progress` |
 | `test_escape_during_lines_changes_nothing` | open the offer conversation; push `pause` (Escape) | dialogue closed, offer never opened, status still `available`, talked ids empty, NPC unlocked, unpaused, no pause menu (`Services.shell()` has no open window when present) |
@@ -1274,7 +1309,8 @@ target in reach). Real-time reveal through `advance_reveal(ms)`.
 | `test_reward_items_must_fit` | ready a-place-to-work; fill the bag (every slot a full stack of something else) | `turn_in` → `{"ok": false, "code": "reward-items", "reason": "Could not grant all reward items for quest 'a-place-to-work'."}`; window stays open with that error; still `active` and ready; no recipe learned |
 | `test_collect_only_in_current_stage` | `debug_activate("stone-tools")` (stage `craft-tools`); pick up `level-1-loose-wood-04` (10 wood at (608, 576): teleport to `(608, 576) - (0, 14.56)`) | `chop-wood` absent / 0; then `debug_activate("stone-tools", "use-tools")`, pick up `level-1-loose-wood-03` ((704, 512)) → `chop-wood == 10`; payload had `quantity 10`, no `recovered` |
 | `test_kill_counts_kind_only` | `debug_activate("worm-trouble", "clear-camp")` | `enemy.died {kind "worm-archer"}` → 0; three `worm-swordsman` → 3, stage done, ready; a fourth → no `quest_progressed` |
-| `test_known_boss_fact_on_accept` | `defeated_boss_ids = ["orb-weaver-matron"]`; `debug_mark_completed("iron-gear")` (Matron's nest `available`); `accept("the-matrons-nest", "level-1-spider-giver")` | `completed` at once; `has_learned_ability("squash-slam")`; `has_flag("chapter-2-complete")`; coins +100; `the-old-workshop` `available` |
+| `test_known_boss_fact_on_accept` | `defeated_boss_ids = ["orb-weaver-matron"]`; `debug_mark_completed("iron-gear")` (Matron's nest `available`); `accept("the-matrons-nest", "level-1-spider-giver")` | `completed` at once; not `has_learned_ability("squash-slam")` (the slam left this reward on 2026-10-08); `has_flag("chapter-2-complete")`; coins +100; `the-old-workshop` `available` |
+| `test_load_learns_completed_quest_abilities` | `debug_mark_completed("the-one-eyed-guardian")` (no rewards granted); replace `RunState.quests` with a copy (a load) | `squash-slam` learned after the next call rebinds |
 | `test_known_facts_skip_later_stages` | `defeated_boss_ids = ["fatty-one-eye"]`; `debug_activate("the-one-eyed-guardian")`; `craft.completed stone-spear` | stage `defeat-fatty` with `defeat-fatty == 0` (no fact applied); emitting the level-1 camp's `boss_defeated({"campId": "level-1-fatty-one-eye-camp", "bossId": "fatty-one-eye"})` → stage `verdant-gate` |
 | `test_guardian_completes_on_gloop_forest_arrival` | guardian at `verdant-gate`; `t.main.travel_to("gloop-forest", "west")`, wait for arrival | `completed`; coins +100; `has_flag("chapter-1-complete")`; `beyond-the-verdant-gate` `available`; `"gloop-forest" in discovered_areas`; Mossy (`gloop-ch2-npc-mossy`) marker `main-offer` |
 | `test_restoration_progresses_forge_quest` | `debug_activate("rekindle-the-forge")`; add stone 40, wood 20, iron-ore 6; call `restore()` on the site with `quest_id == "rekindle-the-forge"` (debug list empty) | flag `forge.restored`; stage `smelt`, progress `{restore-forge: 1, smelt-charcoal: 0, smelt-iron-bars: 0}`; `consumed_fact_ids["restore-forge"] == ["level-1.level-1-forge"]` |

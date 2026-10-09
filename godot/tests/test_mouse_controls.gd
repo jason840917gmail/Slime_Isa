@@ -21,6 +21,10 @@ const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd
 const HOME_DOOR_PICK := Vector2(1081.0, 879.0)
 ## Where the slime stands beside the home door, in its reach (tests/test_interaction.gd).
 const HOME_DOOR_ARRIVAL := Vector2(1083.0, 954.0)
+## Where a ground click may land around the slime, tried in order: the first the pointer reads as
+## plain ground (nothing usable, no enemy or resource under it; NPCs wander, the well is usable).
+const CLICK_GOAL_OFFSETS: Array[Vector2] = [Vector2(-160.0, -60.0), Vector2(0.0, -150.0), Vector2(-160.0, 80.0),
+	Vector2(160.0, -60.0), Vector2(0.0, 150.0), Vector2(160.0, 80.0)]
 
 
 func test_walk_order_goes_around_a_wall(t: TestContext) -> void:
@@ -93,7 +97,15 @@ func test_unreachable_goal_stays_within_the_budget(t: TestContext) -> void:
 
 func test_click_on_the_ground_walks_there(t: TestContext) -> void:
 	var body := t.player_body()
+	# The headless pointer stays wherever the last mouse event left it: put it on open ground near
+	# the slime, as a player would (where it rests otherwise depends on the view size), and put it
+	# back after the click (later tests read it).
+	var viewport := body.get_viewport()
+	var resting_pointer := viewport.get_screen_transform() * viewport.get_mouse_position()
+	var point := _open_ground_near(t, body.global_position)
+	_point_at(t, point)
 	var goal := body.get_global_mouse_position()
+	t.near_vec(goal, point, 1.0, "the pointer is on the clicked point")
 	_use_scheme(ControlScheme.CLICK)
 	for pressed: bool in [true, false]:
 		var click := InputEventMouseButton.new()
@@ -105,12 +117,13 @@ func test_click_on_the_ground_walks_there(t: TestContext) -> void:
 	var orders := t.player().get_click_orders()
 	t.equal(orders.kind, ClickOrders.Kind.MOVE, "order kind after a click on the ground")
 	t.near_vec(orders.goal, goal, 0.01, "order goal: the pointer")
+	# The order has its goal: the pointer can go back.
+	_move_pointer(resting_pointer)
 	var start_distance := body.global_position.distance_to(goal)
 	if not t.check(await t.until(func() -> bool: return not orders.is_active(), 3000.0),
 			"the click did not walk the slime there within 3 s (feet %s)" % [body.global_position]):
 		return
-	# The point the headless pointer reads lies in a prop near the spawn: the slime stops at the
-	# nearest open spot, within two path cells.
+	# The slime stops on the point, or at the nearest open spot within two path cells.
 	t.between(body.global_position.distance_to(goal), 0.0, 32.0, "distance left to the clicked point")
 	t.check(body.global_position.distance_to(goal) < start_distance * 0.6, "the slime hardly moved toward the click")
 
@@ -225,10 +238,10 @@ func test_pointer_scheme_faces_the_pointer_and_w_walks_there(t: TestContext) -> 
 	_use_scheme(ControlScheme.KEYBOARD)
 
 
-## The keys-only scheme rebinds the InputMap (arrows walk, A attacks, W interacts, S / D switch
-## weapons, no mouse) and another scheme puts every event back.
+## The keys-only scheme rebinds the InputMap (arrows walk, A attacks, W interacts, E alone cycles
+## the weapons, no mouse; Swallow keeps 1) and another scheme puts every event back.
 func test_keys_scheme_rebinds_the_keys_and_puts_them_back(t: TestContext) -> void:
-	var actions: Array[StringName] = [&"move_up", &"move_left", &"attack", &"interact", &"weapon_next", &"weapon_previous"]
+	var actions: Array[StringName] = [&"move_up", &"move_left", &"attack", &"interact", &"swallow", &"weapon_next", &"weapon_previous", &"menu"]
 	var before := {}
 	for action: StringName in actions:
 		before[action] = InputMap.action_get_events(action)
@@ -241,8 +254,10 @@ func test_keys_scheme_rebinds_the_keys_and_puts_them_back(t: TestContext) -> voi
 	t.equal(bound[&"move_left"], [KEY_LEFT], "move left")
 	t.equal(bound[&"attack"], [KEY_A], "attack")
 	t.equal(bound[&"interact"], [KEY_W], "interact")
-	t.equal(bound[&"weapon_next"], [KEY_D], "next weapon")
-	t.equal(bound[&"weapon_previous"], [KEY_S], "previous weapon")
+	t.equal(bound[&"swallow"], [KEY_1], "swallow keeps project.godot's 1")
+	t.equal(bound[&"weapon_next"], [KEY_E], "next weapon: the weapon scroll")
+	t.equal(bound[&"weapon_previous"], [], "no key goes back")
+	t.equal(bound[&"menu"], [KEY_B], "the bag (project.godot's)")
 	for action: StringName in actions:
 		t.equal(InputMap.action_get_events(action), before[action], "%s put back" % action)
 	await t.steps(1)
@@ -355,6 +370,31 @@ static func _keycodes(action: StringName) -> Array:
 
 
 ## The unit vector from the slime's aim origin to the pointer.
+## Moves the pointer onto `world_point`: a mouse motion through Input, at the window position the
+## viewport's screen and canvas transforms give that point.
+func _point_at(t: TestContext, world_point: Vector2) -> void:
+	var viewport := t.player_body().get_viewport()
+	_move_pointer(viewport.get_screen_transform() * (viewport.get_canvas_transform() * world_point))
+
+
+## A mouse motion to `window_point` through Input.
+static func _move_pointer(window_point: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = window_point
+	motion.global_position = window_point
+	Input.parse_input_event(motion)
+	Input.flush_buffered_events()
+
+
+## The first of CLICK_GOAL_OFFSETS around `centre` the pointer reads as plain ground.
+func _open_ground_near(t: TestContext, centre: Vector2) -> Vector2:
+	for offset: Vector2 in CLICK_GOAL_OFFSETS:
+		var target: Dictionary = t.player().call(&"_pointer_target", centre + offset)
+		if target.get("kind") == PointerTargets.KIND_GROUND:
+			return centre + offset
+	return centre + CLICK_GOAL_OFFSETS[0]
+
+
 func _pointer_aim(t: TestContext) -> Vector2:
 	var player := t.player()
 	var origin := player.get_centre() - Vector2(0.0, player.aim_rise_px)

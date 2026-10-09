@@ -7,7 +7,7 @@ extends RefCounted
 ## | click (Diablo) | click the ground (hold to follow the pointer) | order: walk / attack / use | use: what is under the pointer (walking there), else the target in reach |
 ## | moba | right-click the ground (hold to follow) | swing in place toward the pointer | order: walk / attack / use |
 ## | pointer | W (or ↑) walks toward the pointer; the slime always faces it | swing toward the pointer | use the target in reach |
-## | keys | the arrows; no mouse at all (A swings where the slime faces, W uses, S / D switch weapons) | nothing | nothing |
+## | keys | the arrows; no mouse at all (A swings where the slime faces, W uses, E switches weapons) | nothing | nothing |
 ##
 ## An order (game/player/mouse/click_orders.gd) is what the button was pressed on: an enemy or a
 ## resource -> walk into weapon reach and swing (hold to keep swinging); something usable (a door,
