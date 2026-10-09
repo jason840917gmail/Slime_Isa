@@ -68,8 +68,8 @@ const CHEST_OPEN_PROMPT := "Open chest"
 const CHEST_GUARDED_MESSAGE := "Fatty One Eye is guarding this chest!"
 const CHEST_MESSAGE_RISE := 48.0
 const NPC_DEFINITIONS_FILE := "npc-definitions.json"
-## game/scripts/gulp_spot.gd GROUP.
-const GULP_SPOT_GROUP := &"gulp-spot"
+## game/scripts/essence.gd GROUP: essences on the ground.
+const ESSENCE_GROUP := &"essence"
 ## The quest service (game/quests/quest_service.gd) runs NPC conversations.
 const QUESTS_GROUP := &"quests"
 
@@ -312,7 +312,7 @@ func _gather_at(at: Vector2) -> Array[Dictionary]:
 	_append(out, _nearest(at, BedScript.GROUP, PRIORITY_BED, "world-beds:", _path_id, Callable(), _use_bed))
 	_append(out, _with_pick_up(_nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench)))
 	_append(out, _nearest(at, &"restoration_site", PRIORITY_RESTORATION, "world-restorations:", _path_id, Callable(), _use_restoration))
-	_append(out, _gulp_candidate(at))
+	_append(out, _essence_candidate(at))
 	return out
 
 
@@ -331,32 +331,29 @@ func _with_pick_up(candidate: Dictionary) -> Dictionary:
 	return candidate
 
 
-## A Gulp spot in reach (WorldScene.ts:1109-1128): "Gulp the Stone", no badge (the spot's own
-## "[Q] Gulp" hint floats over it), picked by pointer at the spot. The nearest spot with a
-## material within its own radius of `at` (GulpController.nearest_spot's rule).
-func _gulp_candidate(at: Vector2) -> Dictionary:
-	var spot: Node = null
+## An essence on the ground in reach (owner, 2026-10-08): "Pick up Stone Essence" puts it in the
+## bag (walking over it never does; Q sucks it into the slime instead). The nearest takeable
+## essence within its own `interact_radius` of `at`.
+func _essence_candidate(at: Vector2) -> Dictionary:
+	var essence: Node = null
 	var best_distance := INF
-	for node: Node in get_tree().get_nodes_in_group(GULP_SPOT_GROUP):
-		if str(node.get(&"material_item_id")).is_empty():
+	for node: Node in get_tree().get_nodes_in_group(ESSENCE_GROUP):
+		if not bool(node.call(&"can_take")):
 			continue
 		var distance := at.distance_to(node.call(&"origin"))
-		if distance <= float(node.get(&"radius")) and distance < best_distance:
-			spot = node
+		if distance <= float(node.get(&"interact_radius")) and distance < best_distance:
+			essence = node
 			best_distance = distance
-	if spot == null:
+	if essence == null:
 		return {}
-	var spot_at: Vector2 = spot.call(&"origin")
-	var eat := func() -> bool:
-		var player := _player()
-		return player != null and str(player.call(&"eat")) != "nothing"
+	var essence_at: Vector2 = essence.call(&"origin")
 	return {
-		"id": "gulp-spots:%d:%d" % [roundi(spot_at.x), roundi(spot_at.y)],
-		"prompt": "Gulp the " + (str(spot.call(&"prompt_name")) if spot.has_method(&"prompt_name") else ItemCatalog.item_name(str(spot.get(&"material_item_id")))),
+		"id": "essences:%d" % essence.get_instance_id(),
+		"prompt": "Pick up " + str(essence.call(&"display_name")),
 		"priority": PRIORITY_GULP,
-		"origin": func() -> Vector2: return spot_at,
-		"execute": eat,
-		"node": spot,
+		"origin": func() -> Vector2: return essence_at,
+		"execute": func() -> bool: return is_instance_valid(essence) and bool(essence.call(&"pick_up")),
+		"node": essence,
 	}
 
 

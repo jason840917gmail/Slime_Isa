@@ -10,6 +10,12 @@ class_name WorldCamera
 ## The script keeps its own `center` and writes `global_position = center`, `zoom = (z, z)`.
 ## Presentation literals stay here as consts (not balance values).
 ##
+## The play area (HUD console, docs/design/2026-10-07-hud-console-mockup.md): `bottom_inset` screen
+## units at the bottom of the view belong to the HUD console (main.gd sets it). Everything the
+## camera decides (follow, deadzone, bounds, the fixed hold, pixel rounding) works on the play area
+## above it, and `center` is the play area's centre; the Camera2D itself sits half the inset lower,
+## so the console covers only what lies under it and a map's south edge stops at its top.
+##
 ## Owner: world builder.
 
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
@@ -52,6 +58,13 @@ var follow_target: Node2D
 ## Camera bounds (world rect). Removed in fixed mode.
 var bounds: Rect2 = Rect2()
 var use_bounds: bool = true
+## Screen units at the bottom of the view kept for the HUD console (0 = the whole view).
+var bottom_inset: float = 0.0:
+	set(value):
+		bottom_inset = maxf(0.0, value)
+		if is_inside_tree():
+			_update_deadzone()
+			center_on(center)
 
 var _deadzone: Vector2 = Vector2.ZERO
 var _round_pixels: bool = false
@@ -169,6 +182,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Phaser `centerOn` + bounds clamp (world spec 4.5): when the view is larger than the world the
 ## view's left/top edge is pinned to the bounds (no centring). Sets `center` and `global_position`.
+## "The view" is the play area above `bottom_inset`; `global_position` is `center` lowered by half
+## the inset (in world units).
 ## At integer zoom (roundPixels) Phaser `Camera.preRender` (Camera.js:557-571) floors the scroll
 ## (`centre - vp / 2`, screen px) BEFORE clamping and stores it back, so the next follow update
 ## starts from the floored value (sub-pixel catch-up steps truncate: the camera settles up to a
@@ -176,16 +191,17 @@ func _unhandled_input(event: InputEvent) -> void:
 ## clamped value and the view's top-left lands on a whole pixel.
 func center_on(point: Vector2) -> void:
 	var p := point
+	var z := maxf(target_zoom, ZOOM_EPSILON)
 	if _round_pixels:
-		var half_vp := _viewport_size() * 0.5
+		var half_vp := _play_size() * 0.5
 		p = (p - half_vp).floor() + half_vp
 	if use_bounds and bounds.size.x > 0.0 and bounds.size.y > 0.0:
-		var view := _viewport_size() / maxf(target_zoom, ZOOM_EPSILON)
+		var view := _play_size() / z
 		var min_c := bounds.position + view * 0.5
 		var max_c := Vector2(maxf(min_c.x, bounds.end.x - view.x * 0.5), maxf(min_c.y, bounds.end.y - view.y * 0.5))
 		p = Vector2(clampf(p.x, min_c.x, max_c.x), clampf(p.y, min_c.y, max_c.y))
 	center = p
-	global_position = p
+	global_position = p + Vector2(0.0, bottom_inset * 0.5 / z)
 
 
 ## Phaser `setZoom` (world spec 4.4): ignore non-finite or <= 0; set target and `zoom`;
@@ -248,12 +264,12 @@ static func is_integer_zoom(z: float) -> bool:
 
 
 ## Fixed camera for interiors (OUT for level-1): stop following, no bounds,
-## `zoom = min(1, vp.x / W, vp.y / H)`, centre on the world centre.
+## `zoom = min(1, vp.x / W, vp.y / H)` on the play area, centre on the world centre.
 func hold_fixed() -> void:
 	following = false
 	_pan_duration_ms = 0.0
 	use_bounds = false
-	var vp := _viewport_size()
+	var vp := _play_size()
 	var z := 1.0
 	if bounds.size.x > 0.0 and bounds.size.y > 0.0:
 		z = minf(1.0, minf(vp.x / bounds.size.x, vp.y / bounds.size.y))
@@ -387,7 +403,7 @@ func _advance_shake(now: float) -> void:
 
 
 func _update_deadzone() -> void:
-	var vp := _viewport_size()
+	var vp := _play_size()
 	_deadzone = Vector2(
 		clampf(vp.x * DEADZONE_WIDTH_RATIO, DEADZONE_WIDTH_MIN, DEADZONE_WIDTH_MAX),
 		clampf(vp.y * DEADZONE_HEIGHT_RATIO, DEADZONE_HEIGHT_MIN, DEADZONE_HEIGHT_MAX))
@@ -400,8 +416,15 @@ static func _damping_factor(delta_ms: float) -> float:
 	return 1.0 - exp(-DAMPING_RATE * minf(delta_ms, MAX_DAMPING_DELTA_MS) / 1000.0)
 
 
-## Visible viewport size in canvas units (the 1024 x 896 base, wider on wide windows; main.gd).
+## Visible viewport size in canvas units (the 1024 x 1024 base, wider on wide windows; main.gd).
 func _viewport_size() -> Vector2:
 	if not is_inside_tree():
 		return Vector2(1280.0, 720.0)
 	return get_viewport().get_visible_rect().size
+
+
+## The play area: the visible viewport above the HUD console's `bottom_inset` (1024 x 896 at the
+## base size).
+func _play_size() -> Vector2:
+	var vp := _viewport_size()
+	return Vector2(vp.x, maxf(1.0, vp.y - bottom_inset))

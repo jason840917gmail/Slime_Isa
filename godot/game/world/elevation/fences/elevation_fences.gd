@@ -8,7 +8,7 @@ extends Node2D
 ## follows the rim around every corner, on all 8 directions a rim can take. Stairs leave a gap.
 ##
 ## Elevation mounts this node as its child "Fences" after the cliffs (`mount`). A fence is drawn
-## from its style's kit (scripts/art/build-fence-art.py, art/<style>-*.png and <style>.json): posts
+## from its style's kit (scripts/art/build-fence-art.py, asset/MAPS/fences/<style>-*.png and <style>.json): posts
 ## at every corner and evenly along each straight stretch, rails between them. Front runs (north
 ## and south rims) show the rails as painted; diagonal runs shear them, so posts stay upright and
 ## the face looking south-west is lit, the one looking south-east shaded; east and west runs show
@@ -52,7 +52,7 @@ const GROUND_STYLES := {
 	"town-cobble": "stone",
 }
 ## A style's kit: art/<style>-posts.png, -rails.png, -rails-side.png and <style>.json.
-const KIT := "res://game/world/elevation/fences/art/%s%s"
+const KIT := "res://asset/MAPS/fences/%s%s"
 ## Gameplay values (game-constants.json `fences`); these defaults serve the editor preview.
 const DEFAULTS := {"clearance": 8.0}
 ## Rails shading by the way a run's face looks (the art is painted facing south).

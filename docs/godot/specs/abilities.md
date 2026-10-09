@@ -67,6 +67,13 @@ Differences from this spec's Phaser behaviour, until decided otherwise:
   Heavy and Sticky skins are painted by a shader over the new frames
   (`game/player/gulp/form_skin.gdshader`: grey cobbles, cream silk; owner decision 2026-10-05)
   instead of Phaser's redrawn side-view sheets.
+- **The jump is hidden** (owner, 2026-10-08). §5 still describes its logic, which stays (tests run
+  it, and ledge drops use its flight), but the `jump` action has no key, the HUD shows
+  `AbilityDefinitions.BAR_SLOTS` (swallow, roll, lash, slam, teleport: key order since 2026-10-09), the Controls list has no Jump
+  row, and no quest teaches it (Worm Trouble did). Squash Slam is taught by finishing The
+  One-Eyed Guardian, no longer by The Matron's Nest (8.7 in the roadmap).
+- **Cracked ground breaks under a Heavy Squash Slam** (2026-10-08), not a Heavy jump landing:
+  §13.3's Godot notes.
 
 ---
 
@@ -106,7 +113,7 @@ feature "until promoted into game constants"). Only the dodge reads `game-consta
 | id | title | action (key) | earnedBy (ability bar) | cooldownMs | energyCost | distance | durationMs | radius | damage |
 |---|---|---|---|---|---|---|---|---|---|
 | `jump` | Jump | `jump` (Space) | Quest | 700 | 0 | 168 | 420 | — | — |
-| `dodge` | Dodge | `dodge` (1) | Quest | `dodgeDurationMs + dodgeCooldownMs` = 500 + 250 = **750** | 0 | — | 500 | — | — |
+| `dodge` | Roll (Phaser: Dodge; the Roll since 2026-10-09, player spec §5) | `dodge` (Phaser 1; Godot 2) | Quest | `rollSpinUpMs + rollMinMs + rollCooldownMs` = 260 + 450 + 250 = **960** (Phaser: `dodgeDurationMs + dodgeCooldownMs` = 500 + 250 = 750) | 0 (the held part drains `rollEnergyPerSecond` 12) | — | — (Phaser 500) | — | — |
 | `teleport` | Teleport | `teleport` (4) | Later | 1800 | 35 | 240 | — | — | — |
 | `squash-slam` | Squash Slam | `squash-slam` (3) | Boss | 2500 | 30 | — | — | 90 | 30 |
 | `stretch-lash` | Stretch Lash | `stretch-lash` (2) | Quest | 2000 | 20 | 180 | — | — | — (no damage, `:44`) |
@@ -142,6 +149,10 @@ as physical keycodes 32, 49, 50, 51, 52, 81).
 - Godot: read and write through `RunState` (`has_learned_ability`, `learn_ability`, signal
   `ability_learned {"ability_id"}`; `run_state.gd`). Keep `player.gd`'s `dodge_learned` export as
   the trial override (`is_learned(&"dodge")` = RunState or `dodge_learned`).
+- Godot since 2026-10-09: a learned active ability plays the ability ceremony
+  (`game/ui/ceremony/ability_ceremony.gd`, roadmap 4.13) instead of the banner while main's
+  `ability_ceremonies` is on; its card takes its line and how-to from `AbilityDefinitions.CEREMONY`
+  and its icon from the HUD console's `ability-<id>.webp` ([quests spec §4.3](quests.md#43-ability-banner-and-audio)).
 
 ---
 
@@ -235,6 +246,12 @@ status(id) = {
 ```
 
 ### 2.6 Ability bar data contract (`features/ui/AbilityBarSurfacePort.ts`) — screen [OUT], data [IN]
+
+The screen since 2026-10-08 (roadmap 4.12, `game/ui/ability_bar.gd`): the HUD console's icon slots,
+one 46-unit slot per ability of `ability_definitions.gd` BAR_SLOTS (no Jump), the ability's icon
+(`asset/UI/hud-console/ability-<id>.webp`) and key badge; locked greys the icon, too little energy
+dims it and shows the cost in the badge, a cooldown darkens a shrinking sweep with the seconds. The
+labels below are the slots' tooltips and the model the tests read.
 
 The `ui.ability-bar` surface (`content/scenes/authored/ui/ability-bar.scene.json`: five Buttons
 Jump/Dodge/Lash/Slam/Teleport, bottom-centre, offsets −180..180 × −84..−12) reads a model every
@@ -617,6 +634,11 @@ return from
 
 ## 9. Dodge: how it fits [IN, already ported]
 
+> Since 2026-10-09 the dodge is the Roll (player spec §5, `game/player/roll/player_roll.gd`): it
+> keeps the id, the shared rules and the dispatch order below, but it spins up, dashes straight at
+> its own speeds, can be held, and bonks and bounces back off what stops it. The 380 px/s × 500 ms
+> below is the old dodge.
+
 Already in `player.gd` (player spec §5). Changes for the shared rules:
 - Route the rule check through the shared ability rules: `try_instant(&"dodge")` (busy → silent;
   locked → "Not learned yet" + cue; cooldown → silent; action-locked → cue; energy cost 0).
@@ -647,6 +669,30 @@ Already in `player.gd` (player spec §5). Changes for the shared rules:
 ---
 
 ## 11. Eat and the Gulp forms [IN; quick wheel OUT]
+
+> **Redesigned 2026-10-08; the prototype was built 2026-10-09** ([Gulp](../../GAME_GUIDELINES.md#signature-mechanic-gulp),
+> roadmap 7.5). Suck, throw and swallow essences replace eating and the timed forms. The Heavy,
+> Sticky and Frog forms are Stone, Silk and Swim (ids kept), the Frog spot is decoration, and the
+> quick wheel is gone. The code: `game/player/gulp/` (`mouth.gd` sucks, holds and throws;
+> `thrown_object.gd`; `gulp_controller.gd` swallows, pops and spits out; `gulp_hud.gd` the hints),
+> `game/scripts/essence.gd` and `liftable.gd`, the `swallow` ability (player.gd `_swallow`), the
+> `gulp.*` game constants and `test_gulp.gd`. Below, §11.1-11.6 describe Phaser's eating, kept for
+> the record; §11.7's swimming is unchanged, with the Swim form in place of the Frog.
+> Liftables (2026-10-09, second round): 67 kinds for every kind of place, from pots and crates to
+> pumpkins and ice blocks, on one 8 × 9 sheet, with the catalog `game/data/liftables.json` (per
+> kind its name, material, frames and art size; written by `scripts/props/pack-gulp-art.py`). One
+> scene, `object.liftable`, serves every kind (`liftable.gd` `kind`; on `_ready` the frame and the
+> body's footprint follow it); `object.liftable-rock`, `-puffball` and `-pinecone` preset the kind,
+> and their `variant` -1 picks one of two looks from the position. A thrown one breaks by its
+> material (clay, glass, wood, metal, stone, soft, ice, snow, crystal): it bursts into 3 × 3 chunks
+> of its own picture (`break_burst.gd`) with the material's particles and cue
+> (`thrown_object.gd` `BREAK_PARTICLES`, `BREAK_CUES`), and hits for `gulp.throwDamage` ×
+> `gulp.throwDamageByMaterial`. A hit that knocks the held thing out breaks it the same way at the
+> slime's feet. The suck plays `GulpSuck`, the catch `GulpCatch`, the throw `GulpSpit`
+> ([audio spec §11](audio.md#11-round-5-the-gulp-the-breaks-the-roll-the-clod-stomper-and-the-ceremony)).
+> Art (2026-10-09): the essences have their own sheet (ground, mouth and bag icon); the slime
+> plays `suck` while Q sucks, `spit` (300 ms) when it throws, and `full-idle` / `full` while the
+> mouth holds something, which is drawn inside on its belly.
 
 ### 11.1 Forms (`content/gulp/gulpForms.ts:35-60`)
 
@@ -959,10 +1005,18 @@ crack():  broken = true; set_flags([flag_id]); ground_cracked(root); emit cracke
 - The flag makes the story variant swap to the hole and its door (`story_variant.gd`, world
   objects); the door leads to the cavern (`game.door`, interaction spec).
 
-Godot: the player keeps `heavy_landing = {}` / `{"x","y","id"}` (ids from 1, per player
-instance); expose `last_heavy_landing()`; the ground takes `seen` lazily on its first physics
-step that sees a player (in Godot the world loads before the player spawns). Flags through
-`RunState.set_flag`.
+Godot: the player keeps the last Heavy impact, `{}` / `{"x","y","id"}` (ids from 1, per player
+instance, shared by every landing and slam), and exposes `last_heavy_impact()`; the ground takes
+`seen` lazily on its first physics step that sees a player (in Godot the world loads before the
+player spawns). Flags through `RunState.set_flag`.
+
+Godot since 2026-10-08 (the jump is hidden): a **Squash Slam in a Heavy form** is the impact that
+breaks the ground. At the slam's impact (§6.1, t = 320) `slam_sequence.gd` calls
+`player.record_slam(centre)`, which records a Heavy impact when the form presses plates; a Heavy
+jump landing (`record_landing`) still records one too. The export is `requires_impact` (Phaser's
+`requiresLanding`; off, standing Heavy on it breaks it). The creak reads "It creaks under you...
+slam it! (3)" with the slam's key label once Squash Slam is learned, and "It creaks under
+you..." before that (`CrackedGroundScript.creak_text`).
 
 ### 13.4 `game.lash-bell` → `scripts/lash_bell.gd` [IN]
 
@@ -1222,7 +1276,8 @@ Puzzle groups (all at offset 0):
 - **heavy-puzzle**: stone spot (1120, 800) → Heavy → plate (1344, 780) opens the heavy gate
   (1344, 576) in the bottom wall of a stone-wall pen (walls x 1152–1536, y 256–576) holding the
   reward chest (1344, 420) and the end-card plate (1210, 380).
-- **gulp-secrets**: cracked ground (1600, 1040): Heavy + jump landing → sinkhole door to
+- **gulp-secrets**: cracked ground (1600, 1040): Heavy + jump landing (in Godot since
+  2026-10-08: Heavy + Squash Slam) → sinkhole door to
   `playground-cavern`.
 - **web-puzzle**: silk spot (680, 1660) → Sticky → the web (384, 1760) in the bottom wall of a pen
   (x 224–544, y 1504–1760) with a chest (384, 1624).
@@ -1241,12 +1296,18 @@ Nothing in the playground teaches jump, slam or teleport; tests teach them throu
 
 | Path | Value | Use |
 |---|---|---|
-| `gulp.formDurationMs` | 60000 | Form length (§11) |
+| `gulp.formDurationMs` | removed 2026-10-08 | Forms have no timer since the essence Gulp (§11 banner); the Phaser value was 60000 |
 | `character.player.stats.maxEnergy` | 100 | Energy cap, respawn refill |
 | `character.player.stats.energyRegenPerSecond` | 8 | Regen (§4) |
 | `character.player.stats.maxHp` | 100 | Base max HP (Goo Hearts add) |
 | `character.player.gooHeart.maxHpBonus` | 10 | Per heart (§13.7) |
-| `character.player.movement.dodgeDurationMs` / `dodgeCooldownMs` | 500 / 250 | Dodge cooldown 750 (§1) |
+| `character.player.movement.rollSpinUpMs` / `rollMinMs` / `rollCooldownMs` | 260 / 450 / 250 | Roll cooldown 960 (§1); replaced `dodgeDurationMs` / `dodgeCooldownMs` (500 / 250) on 2026-10-09 |
+| `character.player.movement.rollLaunchSpeed` / `rollSpeed` / `rollInvulnerabilityMs` / `rollEnergyPerSecond` | 460 / 340 / 400 / 12 | The Roll itself (player spec §5); `rollTurnRadPerS` was removed on 2026-10-09 (the Roll goes straight) |
+| `character.player.movement.rollBonkShakeMs` / `rollBonkShakeIntensity` / `rollBonkHitStopMs` / `rollBonkWobbleRadiusPx` | 220 / 0.008 / 60 / 140 | The Roll's bonk: shake, hit-stop, the things that wobble (player spec §5) |
+| `character.player.movement.rollBonkDamage` / `rollBonkKnockback` / `rollBonkHitRadiusPx` | 10 / 300 / 34 | The bonk's hit on an enemy (damage 0 turns it off) |
+| `character.player.movement.rollBounceSpeed` / `rollBounceMs` / `rollBounceHopPx` | 400 / 360 / 18 | The bounce back after a bonk: 72 px, at least a tile (owner, 2026-10-09) |
+| `gulp.holdingSpeedMultiplier` | 0.7 | A full slime's walking speed (owner, 2026-10-09) |
+| `gulp.throwDamage` / `gulp.throwDamageByMaterial` | 20 / clay 1, glass 0.8, wood 1, metal 1.5, stone 1.3, soft 0.6, ice 1.1, snow 0.4, crystal 1.2, essence 1 | A thrown thing's damage, by its material (§11) |
 | `character.player.movement.baseSpeed` / `boostSpeed` / `movementSpeedCap` | 200 / 300 / 480 | Speeds the form multiplies (§11.3) |
 | `input.bufferMs` | 150 | Every ability and eat press (player spec §7.3) |
 
@@ -1305,7 +1366,7 @@ Floating texts (Godot `GameFeel.floating_text(pos, text, colour, big, duration_m
 | Burp! / The form wore off | white | yes | default | centre − 56 |
 | No Gulp spot here. Hold Q to eat what you carry / Nothing to gulp here / No Gulp materials carried | white | no | default | centre − 56 |
 | The ground gives way! | yellow | yes | 1800 | ground root − 60 |
-| It creaks under you... jump on it! (Space) | yellow | yes | 2200 | ground root − 50 |
+| It creaks under you... jump on it! (Space) (Godot since 2026-10-08: "...slam it! (3)", §13.3) | yellow | yes | 2200 | ground root − 50 |
 | `<damage>` (dummy) | orange | yes | default | dummy root − 96 |
 | +10 max HP | green | yes | 2000 | heart root − 40 |
 | locked message / Missing: … / restored message | white / red / green | yes | 2400 / 2400 / 2600 | site root − 36 |
@@ -1411,7 +1472,7 @@ if not _abilities.owns_body(): ArcadeMover.move(body, delta)     # the lash flig
 | `current_form() -> Dictionary` (`{}` or the §11.1 row), `current_form_id() -> StringName`, `form_remaining_ms() -> float` | §11 | HUD, tests |
 | `presses_plates() -> bool` | Heavy | `pressure_plate.gd`, `cracked_ground.gd` |
 | `crosses_webs() -> bool` | Sticky | spider-web / web-patch owner |
-| `last_heavy_landing() -> Dictionary` (`{}` or `{"x","y","id"}`); signal `jump_landed {"x","y","heavy","id"}` | §5.3 | `cracked_ground.gd` |
+| `last_heavy_impact() -> Dictionary` (`{}` or `{"x","y","id"}`; was `last_heavy_landing` until 2026-10-08), `record_slam(centre)`; signal `jump_landed {"x","y","heavy","id"}` | §5.3, §13.3 | `cracked_ground.gd`, `slam_sequence.gd` |
 | `eat() -> String` (`spot`/`burp`/`nothing`), `eat_material(item_id) -> String` | §11.2 (+ eat clip) | interaction candidate, wheel [OUT] |
 | `nearest_gulp_spot() -> Node` | §11.2 | interaction candidate, HUD |
 | `teleport_to(centre: Vector2)` | stop + place + reset interpolation | webs |
@@ -1492,9 +1553,10 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
   `released` (latch). Not Heavy at the same spot → nothing.
 - End-card plate: Heavy at (1210, 400) → flag `playground-end-card-test` set (through the scene
   connection to `story_flag.gd`).
-- Cracked ground: learn `jump`, Heavy, centre (1600, 1060), tap jump → at +420 flag
-  `cracked.playground-sinkhole` set, `cracked` emitted, `ground-crack` shake; not Heavy → no
-  crack; Heavy standing without a jump → creak text once, no crack.
+- Cracked ground (since 2026-10-08): learn `squash-slam`, Heavy, centre (1600, 1060), tap
+  `squash_slam` → at the impact (+320) flag `cracked.playground-sinkhole` set; standing Heavy
+  without a slam → no crack; a slam without a form → no crack. (Phaser's version: a Heavy jump
+  landing at +420.)
 - Burp: Heavy, centre far from spots, tap `eat` → form none, "Burp!", eat clip.
 - Switch: Heavy, then eat at the silk spot (centre (680, 1720)) → `switched` then `started`
   sticky; walk speed 180; `crosses_webs()` true.

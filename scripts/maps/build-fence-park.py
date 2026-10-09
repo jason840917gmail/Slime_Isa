@@ -153,6 +153,7 @@ def main() -> None:
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1"]
 [ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
+[ext_resource type="Script" path="res://game/world/world_ground.gd" id="world_ground"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="elevation_tiles"]
 [ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="elevation_layer"]
 [ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="fence_tiles"]
@@ -165,6 +166,7 @@ y_sort_enabled = true
 z_index = -2
 tile_map_data = PackedByteArray({tile_data(ground)})
 tile_set = ExtResource("1")
+script = ExtResource("world_ground")
 metadata/source_cell_count = {COLUMNS * ROWS}
 metadata/columns = {COLUMNS}
 metadata/rows = {ROWS}

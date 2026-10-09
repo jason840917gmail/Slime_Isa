@@ -5,7 +5,7 @@ Every style's source is one Magnific image of a straight fence seen from the fro
 rails that run behind them, on a transparent background), in `asset/Originals/elevation/fences/`.
 The tool finds its posts (tall opaque columns) and its rails (the rows that are opaque between
 the posts), scales everything so a post is `post_height` world units tall at 2 px per unit, and
-writes the style's kit into `godot/game/world/elevation/fences/art/`:
+writes the style's kit into `godot/asset/MAPS/fences/`:
 
 - `<style>-posts.png`: every post of the source side by side, one cell each, their feet on one row
   (the rails that ran behind them removed; green moss at their feet kept).
@@ -29,7 +29,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "asset/Originals/elevation/fences"
-OUT = ROOT / "godot/game/world/elevation/fences/art"
+OUT = ROOT / "godot/asset/MAPS/fences"
 ## Art px per world unit.
 PX = 2.0
 

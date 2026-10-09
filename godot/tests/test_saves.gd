@@ -122,11 +122,11 @@ func test_load_in_game_refreshes_the_hud_views(t: TestContext) -> void:
 	if not t.check(hotbar != null and tracker != null, "no hotbar or tracker on the HUD"):
 		return
 	t.equal(str(hotbar.call(&"model")["weapons"][1]["item_id"]), "stone-axe", "belt slot 2 before the load")
-	var before := str(tracker.call(&"model").get("quest1Objectives", ""))
+	var before := str(tracker.call(&"model").get("step", ""))
 	t.check(t.main.load_run(SLOT), "load_run failed")
 	await t.steps(3)
 	t.equal(str(hotbar.call(&"model")["weapons"][1]["item_id"]), "", "belt slot 2 after the load")
-	t.check(str(tracker.call(&"model").get("quest1Objectives", "")) != before, "the tracker still shows the run before the load")
+	t.check(str(tracker.call(&"model").get("step", "")) != before, "the tracker still shows the run before the load")
 
 
 ## A slot file without the run's sections is unreadable, not loadable (it would crash the load).

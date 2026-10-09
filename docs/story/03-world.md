@@ -36,7 +36,7 @@ each, Death Mountain about 4 × 2.
 | Unit | Tiles | Pixels (64 px tiles) |
 |---|---|---|
 | Tile | 1 | 64 × 64 |
-| Screen | 16 × 14 | 1024 × 896 |
+| Screen (play area) | 16 × 14 | 1024 × 896 |
 | Chunk | 32 × 32 (2 × 2.3 screens) | 2048 × 2048 |
 | Region, usual size | 64 × 64 (2 × 2 chunks, 4 × 4.6 screens) | 4096 × 4096 |
 | Whole overworld | 256 × 256 (8 × 8 chunks) | 16384 × 16384 |
@@ -45,10 +45,12 @@ Rules for every map:
 
 1. **One tile is 64 × 64 px, and everything is sized in tiles.** The slime is
    about one tile, a tree 2 tiles wide and about 2.7 tall, a house 5 × 5.
-2. **The screen shows 16 × 14 tiles**, as Zelda does. The game's base view is
-   1024 × 896 px, and Godot scales it to fit the window: the view is never
-   smaller than 16 × 14 tiles, and a wider window shows more columns (a 16:9
-   window shows about 25 × 14). The menus and the HUD scale with it.
+2. **The screen shows 16 × 14 tiles**, as Zelda does. The play area is
+   1024 × 896 px, and under it the HUD console takes a 128 px strip (2 tiles,
+   since 2026-10-08), so the game's base view is 1024 × 1024 px. Godot scales
+   it to fit the window: the play area is never smaller than 16 × 14 tiles,
+   and a wider window shows more columns (a 16:9 window shows about 28 × 14).
+   The menus and the HUD scale with it.
 3. **An overworld map is a whole number of chunks**: its columns and rows are
    multiples of 32. A small area is one chunk (32 × 32), a region is usually
    2 × 2 chunks (64 × 64), and a large one, like Death Mountain, 4 × 2

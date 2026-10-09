@@ -16,7 +16,15 @@ plateaus, the ridge and two of the holes. Water: the diamond hole is flooded, an
 two-level cliff stands in a lake with a small island (water at the foot of a wall laps against
 it). Then a row of plateaus on forest floor, moss, fallen leaves, cavern, crystal and cobble shows
 those grounds' cliff tops and feet. Last, the stairs showcase: a level-2 octagon with a flight on
-each of its 8 sides, and a level-1 octagon with flights two cells wide and open landings. A flight
+each of its 8 sides, and a level-1 octagon with flights two cells wide and open landings.
+
+Wall styles (docs/godot/ELEVATION.md "Wall styles"): the plateaus' walls take their ground's style
+(sandstone, snow rock, and the ground row's root rock, mossy rock, red rock, cave rock, crystal rock
+and masonry); the tool paints other styles on the `cliffs` layer (cliff_tileset.tres +
+cliff_layer.gd) over grass hills: the diamonds, the octagons, the octagon hole's surroundings, the
+ridge (three styles meeting on one edge), the east half of the lake cliff and the stairs showcase
+(railings in their cliff's rock). The square hills, the terraces and the other holes keep
+meadow rock. A flight
 is painted as one stairs cell per cell of width: the first cell past the rim, on the lower ground,
 in its direction; it needs a cell of lower ground per level beyond the wall (1.5 to the north).
 The water needs no bodies of
@@ -59,6 +67,11 @@ LEVEL_ATLAS = {-3: (0, 0), -2: (1, 0), -1: (2, 0), 1: (3, 0), 2: (4, 0), 3: (5, 
 STAIRS_COLUMN = {"s": 0, "sw": 1, "w": 2, "nw": 3, "n": 4, "ne": 5, "e": 6, "se": 7}
 TILESET_ID = "elevation_tiles"
 SCRIPT_ID = "elevation_layer"
+## Cliffs layer: atlas column of each wall style (cliff_tileset.tres).
+CLIFF_ATLAS = {"meadow-rock": 0, "snow-rock": 1, "sandstone": 2, "cave-rock": 3, "crystal-rock": 4,
+               "mossy-rock": 5, "masonry": 6, "root-rock": 7, "red-rock": 8}
+CLIFF_TILESET_ID = "cliff_tiles"
+CLIFF_SCRIPT_ID = "cliff_layer"
 
 
 def rect(x0: int, y0: int, x1: int, y1: int) -> set[tuple[int, int]]:
@@ -188,6 +201,36 @@ def park() -> tuple[dict[tuple[int, int], int | str], dict[tuple[int, int], int]
     return levels, grounds
 
 
+def cliffs() -> dict[tuple[int, int], str]:
+    """Wall styles painted over grass tops (the plateaus keep their ground's style)."""
+    styles: dict[tuple[int, int], str] = {}
+
+    def paint(cells: set[tuple[int, int]], style: str) -> None:
+        for cell in cells:
+            styles[cell] = style
+
+    # Diamond hills: sandstone, mossy rock, crystal rock.
+    paint(diamond(6, 45, 3), "sandstone")
+    paint(diamond(19, 45, 3), "mossy-rock")
+    paint(diamond(32, 45, 3), "crystal-rock")
+    # Octagon hills: masonry, red rock, cave rock.
+    paint(octagon(1, 54, 10, 60, 2), "masonry")
+    paint(octagon(14, 54, 24, 60, 3), "red-rock")
+    paint(octagon(28, 54, 38, 60, 3), "cave-rock")
+    # The octagon hole's far wall hangs from the ground around it.
+    paint(rect(27, 63, 39, 76), "root-rock")
+    # The ridge: three styles meeting on one south edge.
+    paint(rect(15, 90, 21, 93), "cave-rock")
+    paint(rect(22, 89, 29, 93), "masonry")
+    paint(rect(30, 88, 37, 93), "sandstone")
+    # The lake cliff's east half, the water lapping at another rock.
+    paint(rect(20, 98 + SHIFT, 38, 99 + SHIFT), "mossy-rock")
+    # The stairs showcase: railings in their cliff's rock.
+    paint(octagon(4, 131, 14, 139, 3), "red-rock")
+    paint(octagon(22, 131, 34, 139, 3), "masonry")
+    return styles
+
+
 def decode(data: bytes) -> tuple[bytes, list[tuple[int, int, int, int, int, int]]]:
     header, body = data[:2], data[2:]
     cells = [struct.unpack_from("<hhHHHH", body, i) for i in range(0, len(body), 12)]
@@ -214,6 +257,25 @@ def write_bytes(data: bytes, as_base64: bool) -> str:
 def node_header(name: str, node_type: str, parent: str) -> str:
     """Regex of a node's header line, whatever else the editor writes in it (unique_id, ...)."""
     return r'\[node name="' + re.escape(name) + r'" type="' + node_type + r'" parent="' + re.escape(parent) + r'"[^\]\n]*\]\n'
+
+
+def write_layer(text: str, name: str, cells: list[tuple[int, int, int, int, int, int]], as_base64: bool,
+                tileset_id: str, script_id: str, before: str) -> str:
+    """Writes the TileMapLayer `name` (its tile data, tile set and script), keeping its header line;
+    a new one goes before the node header `before`."""
+    existing = re.search('(' + node_header(name, "TileMapLayer", ".") + r')(?:[^\[\n].*\n|\n)*', text)
+    data = write_bytes(encode(b"\x00\x00", cells), as_base64)
+    node = (
+        (existing.group(1) if existing else f'[node name="{name}" type="TileMapLayer" parent="."]\n')
+        + "z_index = -1\n"
+        f"tile_map_data = PackedByteArray({data})\n"
+        f'tile_set = ExtResource("{tileset_id}")\n'
+        f'script = ExtResource("{script_id}")\n\n'
+    )
+    if existing:
+        return text[: existing.start()] + node + text[existing.end():]
+    anchor = text.index(before)
+    return text[:anchor] + node + text[anchor:]
 
 
 def main() -> None:
@@ -247,29 +309,26 @@ def main() -> None:
             return STAIRS_COLUMN[level[1]], 2 if level[2] else 1
         return LEVEL_ATLAS[level]
 
-    elevation_cells = [(x, y, 0, *atlas(level), 0) for (x, y), level in sorted(levels.items(), key=lambda kv: (kv[0][1], kv[0][0]))]
-    elevation_data = encode(b"\x00\x00", elevation_cells)
-    if f'id="{TILESET_ID}"' not in text:
-        last_ext = list(re.finditer(r"\[ext_resource [^\n]*\]\n", text))[-1]
-        text = text[: last_ext.end()] + (
-            f'[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="{TILESET_ID}"]\n'
-            f'[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="{SCRIPT_ID}"]\n'
-        ) + text[last_ext.end():]
-    existing = re.search('(' + node_header("elevation", "TileMapLayer", ".") + r')(?:[^\[\n].*\n|\n)*', text)
-    node = (
-        (existing.group(1) if existing else '[node name="elevation" type="TileMapLayer" parent="."]\n')
-        + "z_index = -1\n"
-        f"tile_map_data = PackedByteArray({write_bytes(elevation_data, as_base64)})\n"
-        f'tile_set = ExtResource("{TILESET_ID}")\n'
-        f'script = ExtResource("{SCRIPT_ID}")\n\n'
-    )
-    if existing:
-        text = text[: existing.start()] + node + text[existing.end():]
-    else:
-        anchor = text.index('[node name="world-definition"')
-        text = text[:anchor] + node + text[anchor:]
+    def by_row(cells: dict) -> list:
+        return sorted(cells.items(), key=lambda kv: (kv[0][1], kv[0][0]))
+
+    elevation_cells = [(x, y, 0, *atlas(level), 0) for (x, y), level in by_row(levels)]
+    resources = [
+        ("TileSet", "res://game/world/elevation/elevation_tileset.tres", TILESET_ID),
+        ("Script", "res://game/world/elevation/elevation_layer.gd", SCRIPT_ID),
+        ("TileSet", "res://game/world/elevation/cliffs/cliff_tileset.tres", CLIFF_TILESET_ID),
+        ("Script", "res://game/world/elevation/cliffs/cliff_layer.gd", CLIFF_SCRIPT_ID),
+    ]
+    for kind, path, resource_id in resources:
+        if f'id="{resource_id}"' not in text:
+            last_ext = list(re.finditer(r"\[ext_resource [^\n]*\]\n", text))[-1]
+            text = text[: last_ext.end()] + f'[ext_resource type="{kind}" path="{path}" id="{resource_id}"]\n' + text[last_ext.end():]
+    text = write_layer(text, "elevation", elevation_cells, as_base64, TILESET_ID, SCRIPT_ID, '[node name="world-definition"')
+    styles = cliffs()
+    cliff_cells = [(x, y, 0, CLIFF_ATLAS[style], 0, 0) for (x, y), style in by_row(styles)]
+    text = write_layer(text, "cliffs", cliff_cells, as_base64, CLIFF_TILESET_ID, CLIFF_SCRIPT_ID, '[node name="world-definition"')
     SCENE.write_text(text, encoding="utf-8", newline="\n")
-    print(f"playground: {COLUMNS}x{ROWS} cells, {len(levels)} elevation cells")
+    print(f"playground: {COLUMNS}x{ROWS} cells, {len(levels)} elevation cells, {len(styles)} cliffs cells")
 
 
 if __name__ == "__main__":

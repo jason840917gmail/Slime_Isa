@@ -58,6 +58,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const WorldBounds := preload("res://game/world/world_bounds.gd")
 const WorldCamera := preload("res://game/world/world_camera.gd")
 const GameHud := preload("res://game/ui/hud.gd")
+const HudConsole := preload("res://game/ui/console/hud_console.gd")
 const FpsReadout := preload("res://game/ui/fps_readout.gd")
 const PlayerScript := preload("res://game/scripts/player.gd")
 const NpcScript := preload("res://game/scripts/npc.gd")
@@ -117,6 +118,9 @@ const GATE_UNLOCKED_TEXT := "The Verdant Gate unlocks!"
 ## The playground learns every ability and carries Gulp materials (`grant_playground_abilities`).
 ## The test runner turns it off: playground tests start like a new run, with nothing learned.
 var playground_abilities := true
+## A learned ability plays its ceremony (game/ui/ceremony/ability_ceremony.gd); the test runner turns
+## it off (the ceremony waits for a key), and the banner shows instead.
+var ability_ceremonies := true
 
 @onready var world_container: Node2D = $World
 @onready var world_camera: WorldCamera = $WorldCamera
@@ -276,13 +280,18 @@ func respawn_in_world(bed: Dictionary) -> bool:
 
 ## The recovery autosave follows the run while this world is played (SaveSystem.startAutoSave):
 ## RunState schedules it on its own changes, the player's HP changes schedule it too, and it is
-## written once on arrival.
+## written once on arrival. Not in the playground (owner, 2026-10-08): the dev testbed never writes
+## the autosave (slot 0), so the title's Continue never starts there; Quit to Title follows
+## `autosave_enabled` too. Manual saves still work there.
 func _start_autosave() -> void:
 	var run := Services.run()
 	if run == null:
 		return
 	run.location_provider = _live_location
-	run.autosave_enabled = true
+	var world_service := Services.world()
+	run.autosave_enabled = world_service == null or world_service.map_id() != PLAYGROUND_MAP_ID
+	if not run.autosave_enabled:
+		return
 	if player != null and not player.health_changed.is_connected(_on_player_health_changed):
 		player.health_changed.connect(_on_player_health_changed)
 	run.schedule_autosave()
@@ -436,9 +445,10 @@ func _player_text(text: String, color: StringName) -> void:
 
 
 ## World spec 1.2 "Viewport scale": the screen shows a fixed number of tiles. Keeps
-## `get_tree().root.content_scale_size` at the project's base size (1024 x 896 = 16 x 14 tiles of
-## 64 px); stretch canvas_items + expand scales it to the window, and a wider window shows more
-## columns (docs/story/03-world.md "World size").
+## `get_tree().root.content_scale_size` at the project's base size (1024 x 1024: the 16 x 14 tiles
+## of 64 px of the play area, and the HUD console's 128-unit strip under them, roadmap 4.12);
+## stretch canvas_items + expand scales it to the window, and a wider window shows more columns
+## (docs/story/03-world.md "World size").
 func apply_viewport_scale() -> void:
 	var root := get_tree().root
 	var base := Vector2i(int(ProjectSettings.get_setting("display/window/size/viewport_width")),
@@ -585,7 +595,9 @@ func equip_run_start() -> void:
 			if not start.is_empty():
 				inventory_actions.grant_start_weapon(start)
 			if has_launch_option("arsenal"):
+				run.quiet_items = true
 				WeaponLoadout.grant(Array(WeaponLoadout.ARSENAL))
+				run.quiet_items = false
 		elif not option.is_empty() and not WeaponLoadout.owns_weapon(option):
 			inventory_actions.grant_start_weapon(option)
 		run.start_kit_pending = false
@@ -599,8 +611,8 @@ func equip_run_start() -> void:
 
 
 ## The playground's abilities (owner decision 2026-10-05): every ability learned, quietly (no
-## "learned" banners), and PLAYGROUND_GULP_MATERIALS of each Gulp form's material in the bag so
-## both forms can be eaten from the quick wheel.
+## "learned" banners), and PLAYGROUND_GULP_MATERIALS of each Gulp essence in the bag, so every form
+## can be put in the mouth from the bag ("Use") and swallowed.
 func grant_playground_abilities() -> void:
 	var run := Services.run()
 	if run == null:
@@ -610,7 +622,7 @@ func grant_playground_abilities() -> void:
 	for id: StringName in ids:
 		run.learn_ability(String(id), true)
 	for form: Dictionary in GulpForms.FORMS:
-		var material := str(form["material"])
+		var material := str(form["essence_item"])
 		var missing := PLAYGROUND_GULP_MATERIALS - run.item_count(material)
 		if missing > 0:
 			run.add_item(material, missing)
@@ -675,6 +687,8 @@ func configure_npcs() -> void:
 ## Camera setup and follow (world spec 4).
 func setup_camera() -> void:
 	var world_service := Services.world()
+	# The HUD console's strip at the bottom is not part of the play area (roadmap 4.12).
+	world_camera.bottom_inset = HudConsole.HEIGHT
 	world_camera.setup(world_service.world_rect(), world_service.camera_mode())
 	if player_root != null:
 		world_camera.start_follow(player_root, true)

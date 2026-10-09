@@ -420,7 +420,8 @@ func test_end_card_opens_once_for_a_new_story_flag(t: TestContext) -> void:
 	t.check(t.world().has_pause_reason(ShellScript.PAUSE_REASON_QUIT), "the quit fade does not hold the game")
 	t.check(shell.fade.visible, "no fade towards the title")
 	_free_shell(shell)
-	# Quit to Title wrote the autosave (into the runner's user://test-saves); leave none behind.
+	# Quit to Title writes the autosave when the run keeps one (into the runner's user://test-saves);
+	# leave none behind.
 	run.delete_slot(0)
 	t.check(not t.tree.paused, "the tree stayed paused after the shell left")
 	_restore_mix(saved)
@@ -428,20 +429,20 @@ func test_end_card_opens_once_for_a_new_story_flag(t: TestContext) -> void:
 
 # --- HUD --------------------------------------------------------------------------------------------
 
-func test_hud_uses_the_theme_and_the_boss_card_stays_low(t: TestContext) -> void:
+func test_hud_uses_the_theme_and_the_boss_card_sits_at_the_top(t: TestContext) -> void:
 	var hud: Node = t.main.get_node_or_null(^"Hud")
 	if not t.check(hud != null, "main.tscn has no Hud"):
 		return
 	var coins := hud.find_child("Coins", true, false) as Label
 	t.check(coins != null and coins.theme_type_variation == &"HudLabel", "the coins label does not use HudLabel")
-	var health := hud.find_child("Health", true, false) as Control
-	t.check(health != null and health.theme_type_variation == &"HudBar", "the HP bar does not use HudBar")
+	var console: Node = hud.call(&"get_console")
+	t.check(console != null and console.get(&"life_orb") != null and console.get(&"energy_orb") != null,
+		"the HUD console has no life and energy orbs")
 	var boss_bar: Control = hud.call(&"get_boss_bar")
 	t.check(boss_bar.theme_type_variation == &"BossPanel", "the boss card does not use BossPanel")
-	# Phaser's place at the 1280 x 720 reference: bottom edge 192 px above the screen bottom.
-	t.equal(BossHealthBar.card_rect(Vector2(1280.0, 720.0)), Rect2(366.0, 470.0, 548.0, 58.0), "boss card at 1280 x 720")
-	# A short view keeps it below the player (view centre + 96).
-	t.equal(BossHealthBar.card_rect(Vector2(960.0, 540.0)), Rect2(206.0, 366.0, 548.0, 58.0), "boss card at 960 x 540")
+	# Top centre (the HUD console holds the bottom, roadmap 4.12).
+	t.equal(BossHealthBar.card_rect(Vector2(1280.0, 720.0)), Rect2(366.0, 14.0, 548.0, 58.0), "boss card at 1280 x 720")
+	t.equal(BossHealthBar.card_rect(Vector2(960.0, 540.0)), Rect2(206.0, 14.0, 548.0, 58.0), "boss card at 960 x 540")
 	t.equal(BossHealthBar.card_rect(Vector2(400.0, 700.0)).size.x, 376.0, "boss card width on a narrow view")
 
 

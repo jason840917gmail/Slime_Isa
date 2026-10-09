@@ -17,8 +17,8 @@ const PLACE := "a-place-to-work"
 const ELDER_ID := "village-elder-plop"
 const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1", "sceneId": "", "x": 0, "y": 0}
 const SLIME_BASICS_ROW := "◆ Slime Basics\nSide · In progress"
-const SLIME_BASICS_DETAILS := "A first look at everything a slime can use: the bag and its tabs, the map, sprinting and the pause menu.\n\n   • Open your bag (E)\n   • Look at the Crafting tab (E, then its tab)\n   ✓ Read your Journal (E, then its tab)\n   • Open the map (M)\n   • Sprint (hold Shift)\n   • Pause to save or change settings (Esc)\n\nReward: 10 coins"
-const STONE_TOOLS_DETAILS := "Craft a stone axe and pickaxe at your workbench, then put them to work on trees and rocks.\n\n✓ Step 1: Make your tools\n   ✓ Craft a Stone Axe\n   ✓ Craft a Stone Pickaxe\n\n▶ Step 2: Put them to work\n   • Switch tools on your belt (Mouse wheel)\n   • Chop wood from trees  7/20\n   • Mine stone from rocks  0/20\n\nReward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Dodge"
+const SLIME_BASICS_DETAILS := "A first look at everything a slime can use: the bag and its tabs, the map and the pause menu.\n\n   • Open your bag (B)\n   • Look at the Crafting tab (B, then its tab)\n   ✓ Read your Journal (J)\n   • Open the map (M)\n   • Pause to save or change settings (Esc)\n\nReward: 10 coins"
+const STONE_TOOLS_DETAILS := "Craft a stone axe and pickaxe at your workbench, then put them to work on trees and rocks.\n\n✓ Step 1: Make your tools\n   ✓ Craft a Stone Axe\n   ✓ Craft a Stone Pickaxe\n\n▶ Step 2: Put them to work\n   • Switch tools on your belt (Mouse wheel)\n   • Chop wood from trees  7/20\n   • Mine stone from rocks  0/20\n\nReward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Roll"
 const PLACE_READY_DETAILS := "Every good slime needs a workbench. Build one and set it up in the clearing.\n\n✓ Step 1: Build a workbench\n   ✓ Craft a Workbench (40 wood)\n\n▶ Step 2: Set it up\n   ✓ Place the Workbench\n\n? Return to Village Elder Plop for your reward.\n\nReward: 20× Wood · New recipe: Stone Axe · New recipe: Stone Pickaxe"
 const TONIC_ABANDONED_DETAILS := "Lili wants to learn how berries become a healing tonic. Brew one to show her.\n\n   • Brew a Slime Tonic (3 purple berries)\n\nReward: 2× Purple Berry\n\nReturn to the quest giver to continue."
 
@@ -311,6 +311,26 @@ func test_journal_tab(t: TestContext) -> void:
 	menu.tabs.buttons[&"inventory"].pressed.emit()
 	t.check(menu.bag.is_open() and not journal.is_open(), "the Bag tab did not switch back")
 	menu.bag.close()
+
+
+## The journal key (J, owner 2026-10-08): opens the Journal, closes it, and switches the open bag
+## to it.
+func test_journal_key(t: TestContext) -> void:
+	var menu := t.tree.get_first_node_in_group(&"menu_windows") as MenuWindows
+	var journal := _journal(t)
+	if not t.check(menu != null, "no MenuWindows"):
+		return
+	t.tap(&"journal")
+	await t.steps(1)
+	t.check(journal.is_open(), "the journal key did not open the journal")
+	t.tap(&"journal")
+	await t.steps(1)
+	t.check(not journal.is_open(), "the journal key did not close the journal")
+	menu.open_bag()
+	t.tap(&"journal")
+	await t.steps(1)
+	t.check(journal.is_open() and not menu.bag.is_open(), "the journal key did not switch the bag to the journal")
+	journal.close()
 
 
 ## Up / down on a focused row select the neighbour and move the focus there; End / Home the ends.

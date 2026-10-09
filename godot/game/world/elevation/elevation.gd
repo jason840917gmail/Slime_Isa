@@ -12,7 +12,8 @@ extends Node2D
 ##   Shadows  what raised ground casts on lower ground, towards the lower right, longer for a
 ##            taller drop (elevation_cast_shadow.gdshader);
 ##   Walls    the cliff faces, one stone course per level (elevation_wall.gdshader, world space),
-##            and rounded corner stones where a wall ends;
+##            and rounded corner stones where a wall ends, in the wall style of the top they hang
+##            from (painted on the `cliffs` layer, else picked by its ground: `band_styles`);
 ##   Rims     the light a top edge facing the upper left catches;
 ##   Water    water lapping at the foot of walls that stand in water (elevation_water_foot.gdshader);
 ##   Feet     the lower ground's border growing up the foot of each wall;
@@ -21,7 +22,7 @@ extends Node2D
 ##   Stairs   the flights of stairs (elevation_stairs.gd), back to front in one mesh
 ##            (elevation_stairs.gdshader), and StairsFeet: the ground growing up their railings.
 ## The terrain is the master of every cliff top and foot: a ground's own cliff fringes
-## (`art/<ground>-lip.png`, `art/<ground>-foot.png`, scripts/art/build-elevation-art.py,
+## (`asset/MAPS/elevation/<ground>-lip.png`, `-foot.png`, scripts/art/build-elevation-art.py,
 ## elevation_fringe.gdshader) or, for a ground without them, its terrain edge art (the straight
 ## tiles of `<ground>-edges.png`, elevation_strip.gdshader). A ground without either keeps hard edges.
 ##
@@ -103,20 +104,32 @@ const HOP_STEP := 8.0
 ## How far a landing may be moved to find room (world units).
 const LANDING_SEARCH_STEP := 4.0
 
-## Wall and stairs art per style (scripts/art/build-elevation-art.py) and the style every cliff uses;
-## the stairs kit: "<style>", "tread" / "riser" / "coping".
-const WALL_ART := "res://game/world/elevation/art/%s-wall.png"
-const STAIRS_ART := "res://game/world/elevation/art/%s-stairs-%s.png"
+## Wall and stairs art per style (scripts/art/build-elevation-art.py); the stairs kit: "<style>",
+## "tread" / "riser" / "coping".
+const WALL_ART := "res://asset/MAPS/elevation/%s-wall.png"
+const STAIRS_ART := "res://asset/MAPS/elevation/%s-stairs-%s.png"
+## A wall's style: the one painted on the world's `cliffs` layer (cliffs/cliff_layer.gd, data layer
+## WALL_STYLE_DATA_LAYER) over the top it hangs from, else the ground on top's (GROUND_WALL_STYLES),
+## else DEFAULT_WALL_STYLE; a style without wall art falls back to DEFAULT_WALL_STYLE.
+const WALL_STYLE_DATA_LAYER := "wall_style"
+const DEFAULT_WALL_STYLE := "meadow-rock"
+const GROUND_WALL_STYLES := {
+	"highland": "meadow-rock", "frozen": "snow-rock", "sanddessert": "sandstone",
+	"forest-floor": "root-rock", "forest-moss": "mossy-rock", "amberleaf": "red-rock",
+	"cavern-floor": "cave-rock", "crystal-floor": "crystal-rock", "town-cobble": "masonry",
+}
+## The kit of every flight's treads and risers (its railings and posts are its cliff's wall, capped
+## with that style's coping).
+const STAIRS_STYLE := "meadow-rock"
 ## Corner stones where a wall ends ("<style>", "right" or "left"); their end line lies
 ## WALL_END_OUTSIDE world units inside the art's outer side (build-elevation-art.py WALL_END_OUTSIDE,
 ## 10 px), and the wall's foot reaches WALL_END_FRINGE past it.
-const WALL_END_ART := "res://game/world/elevation/art/%s-wall-end-%s.png"
+const WALL_END_ART := "res://asset/MAPS/elevation/%s-wall-end-%s.png"
 const WALL_END_OUTSIDE := 5.0
 const WALL_END_FRINGE := 8.0
 ## The end stones turn away from the light on a wall's east end, towards it on its west end.
 const SHADE_END_EAST := 0.9
 const SHADE_END_WEST := 1.04
-const WALL_STYLE := "meadow-rock"
 ## Wall shading by the way a face looks: south-west faces catch the upper-left light.
 const SHADE_SOUTH := 0.86
 const SHADE_SOUTH_WEST := 1.0
@@ -145,7 +158,7 @@ const RIM_WATER_COVER := 30.0
 const DEPTH_MARGIN := 3
 ## Cliff fringe art per ground and kind ("lip", "foot"), the strip row its edge line runs on and
 ## the strip's height (scripts/art/build-elevation-art.py EDGE_ROWS, LAYOUT).
-const FRINGE_ART := "res://game/world/elevation/art/%s-%s.png"
+const FRINGE_ART := "res://asset/MAPS/elevation/%s-%s.png"
 const FRINGE_EDGE_ROW := {"lip": 96.0, "foot": 80.0}
 const FRINGE_HEIGHT := {"lip": 160.0, "foot": 128.0}
 ## Mesh key suffix of fringe strips (the rest is the ground).
@@ -175,8 +188,13 @@ var occlusion: ElevationOcclusion
 var flights: Dictionary = {}
 ## The fences along painted rims (fences/elevation_fences.gd, docs/godot/FENCES.md), null without.
 var fences: ElevationFences
+## The wall style of each wall (index into `grid.bands`) and of each flight of stairs' railings.
+var band_styles := PackedStringArray()
+var stairs_styles: Dictionary = {}
 
 var _queued := false
+## style -> whether its wall art exists.
+var _wall_art: Dictionary = {}
 var _collide := false
 ## ground name -> its 19x19 sheet texture.
 var _sheets: Dictionary = {}
@@ -210,15 +228,38 @@ static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 ## The elevation layer beside `ground_layer` (a sibling TileMapLayer whose tile set has the
 ## `elevation_level` data layer), or null.
 static func find_layer(ground_layer: TileMapLayer) -> TileMapLayer:
+	return _sibling_with_data(ground_layer, LEVEL_DATA_LAYER)
+
+
+## The cliffs layer beside `ground_layer` (a sibling TileMapLayer whose tile set has the
+## `wall_style` data layer, cliffs/cliff_tileset.tres), or null.
+static func find_cliff_layer(ground_layer: TileMapLayer) -> TileMapLayer:
+	return _sibling_with_data(ground_layer, WALL_STYLE_DATA_LAYER)
+
+
+static func _sibling_with_data(ground_layer: TileMapLayer, data_layer: String) -> TileMapLayer:
 	var parent := ground_layer.get_parent() if ground_layer != null else null
 	if parent == null:
 		return null
 	for child: Node in parent.get_children():
 		var candidate := child as TileMapLayer
 		if candidate != null and candidate != ground_layer and candidate.tile_set != null \
-				and candidate.tile_set.has_custom_data_layer_by_name(LEVEL_DATA_LAYER):
+				and candidate.tile_set.has_custom_data_layer_by_name(data_layer):
 			return candidate
 	return null
+
+
+## Wall styles painted beside `ground_layer`: Vector2i cell -> style (only painted cells).
+static func painted_wall_styles(ground_layer: TileMapLayer) -> Dictionary:
+	var painted := find_cliff_layer(ground_layer)
+	var styles := {}
+	if painted == null:
+		return styles
+	for cell_pos: Vector2i in painted.get_used_cells():
+		var data := painted.get_cell_tile_data(cell_pos)
+		if data != null:
+			styles[cell_pos] = str(data.get_custom_data(WALL_STYLE_DATA_LAYER))
+	return styles
 
 
 ## The ground layer beside an elevation layer (the sibling using the terrain tile set), or null.
@@ -345,6 +386,7 @@ func rebuild() -> void:
 	var rows := int(ground.get_meta("rows", used.end.y))
 	grid = ElevationGrid.build(columns, rows, painted_levels(ground), _ground_names(), setting("behindDepth") / cell)
 	_build_stairs()
+	_build_wall_styles()
 	_build_drawing()
 	if _collide:
 		_build_collision()
@@ -656,7 +698,7 @@ func _build_drawing() -> void:
 		if level < 0 and grid.tri_band[tri] < 0:
 			_arrays_for(shade, "holes").add_flat(_world(grid.tri_points(tri)), Vector2.ZERO, Color(_level_channel(level), 0.0, 0.0, 1.0))
 	for index in grid.bands.size():
-		_add_band(_arrays_for(walls, WALL_STYLE), index)
+		_add_band(_arrays_for(walls, band_styles[index]), index)
 		_add_foot(feet, water, index)
 	_add_wall_ends(walls)
 	var rims_builder := ElevationRims.new()
@@ -665,10 +707,18 @@ func _build_drawing() -> void:
 			func(level: int, dy: float) -> Color: return ElevationOcclusion.encode(level, dy))
 	_add_plain_rims(leftover, lips)
 	_add_water_covers(rims_builder, patches)
-	var stairs_mesh := MeshData.new()
+	# Flights are drawn back to front; a run of flights whose railings share a style shares a mesh
+	# ("<style>-<run>").
+	var stairs_meshes := {}
 	var stairs_feet := {}
+	var run_style := ""
+	var run_key := ""
 	for flight: ElevationStairs in stairs:
-		flight.add_mesh(stairs_mesh)
+		var style := str(stairs_styles.get(flight, DEFAULT_WALL_STYLE))
+		if style != run_style:
+			run_style = style
+			run_key = "%s-%d" % [style, stairs_meshes.size()]
+		flight.add_mesh(_arrays_for(stairs_meshes, run_key))
 		for foot: Array in flight.feet:
 			_add_stairs_foot(stairs_feet, foot)
 	var depth_rect := _add_depth(depth)
@@ -686,7 +736,7 @@ func _build_drawing() -> void:
 	_add_group("Water", water, func(_key: String) -> Material: return _water_foot_material())
 	_add_group("Feet", feet, func(key: String) -> Material: return _strip_material(key, true))
 	_add_group("Lips", lips, func(key: String) -> Material: return _strip_material(key, false))
-	_add_group("Stairs", {"stairs": stairs_mesh}, func(_key: String) -> Material: return _stairs_material())
+	_add_group("Stairs", stairs_meshes, func(key: String) -> Material: return _stairs_material(key.left(key.rfind("-"))))
 	_add_group("StairsFeet", stairs_feet, func(key: String) -> Material: return _strip_material(key, true))
 
 
@@ -732,6 +782,43 @@ func _build_stairs() -> void:
 		flight.occlude(_tops_around(flight.bounds, top))
 		stairs.append(flight)
 	stairs.sort_custom(func(a: ElevationStairs, b: ElevationStairs) -> bool: return a.bounds.end.y < b.bounds.end.y)
+
+
+## The wall style of every wall (`band_styles`) and of every flight's railings (`stairs_styles`):
+## the style of the top the wall hangs from, or the flight leaves.
+func _build_wall_styles() -> void:
+	var painted := painted_wall_styles(ground)
+	band_styles.resize(grid.bands.size())
+	for index in grid.bands.size():
+		var band: Dictionary = grid.bands[index]
+		# The middle of the wall's top edge, in its half-column.
+		var middle := Vector2(int(band["column"]) * 0.5 + 0.25, float(band["y_left"]) + float(band["slope"]) * 0.25)
+		band_styles[index] = _wall_style_at(middle, Vector2.UP, int(band["top"]), painted)
+	stairs_styles.clear()
+	for flight: ElevationStairs in stairs:
+		stairs_styles[flight] = _wall_style_at(flight.rim / cell, -flight.dir, flight.top, painted)
+
+
+## The wall style of the top of `level` that begins at `edge` (cells) and lies towards `into`: the
+## style painted on its cell (a little in, else half a cell in: a corner triangle a chamfer raised
+## belongs to the painted cell across the corner), else its ground's; DEFAULT_WALL_STYLE for a style
+## without wall art.
+func _wall_style_at(edge: Vector2, into: Vector2, level: int, painted: Dictionary) -> String:
+	var style := ""
+	for reach: float in [0.05, 0.5]:
+		var point := edge + into * reach
+		var at := Vector2i(floori(point.x), floori(point.y))
+		if painted.has(at) and grid.has_cell(at) and grid.cell_level[grid.cell_index(at)] == level:
+			style = str(painted[at])
+			break
+	if style == "":
+		var tri := grid.tri_at(edge + into * 0.05)
+		style = str(GROUND_WALL_STYLES.get(grid.tri_ground[tri] if tri >= 0 else "", DEFAULT_WALL_STYLE))
+	if not _wall_art.has(style):
+		_wall_art[style] = ResourceLoader.exists(WALL_ART % style)
+		if not bool(_wall_art[style]):
+			push_warning("Elevation: no wall art for the style '%s' (%s)" % [style, WALL_ART % style])
+	return style if bool(_wall_art[style]) else DEFAULT_WALL_STYLE
 
 
 ## The tops of `level` or higher in `rect` (Elevation space) and a cell around it, merged (screen
@@ -877,7 +964,8 @@ func _add_wall_ends(walls: Dictionary) -> void:
 		if grid.tri_level[other] >= int(band["top"]):
 			continue
 		var side := "right" if outward > 0.0 else "left"
-		var texture := _wall_end_texture(side)
+		var style := band_styles[band_index]
+		var texture := _wall_end_texture(style, side)
 		if texture == null:
 			continue
 		var width := float(texture.get_width())
@@ -892,12 +980,13 @@ func _add_wall_ends(walls: Dictionary) -> void:
 		var u_out := width if outward > 0.0 else 0.0
 		var face := SHADE_SOUTH if is_zero_approx(float(band["slope"])) else (SHADE_SOUTH_WEST if float(band["slope"]) > 0.0 else SHADE_SOUTH_EAST)
 		var shade := face * (SHADE_END_EAST if outward > 0.0 else SHADE_END_WEST)
-		var arrays := _arrays_for(walls, WALL_STYLE + ":end-" + side)
+		var arrays := _arrays_for(walls, style + ":end-" + side)
 		var corners := [[x_in, p0.y, u_in], [x_out, p0.y, u_out], [x_out, p1.y, u_out],
 				[x_in, p0.y, u_in], [x_out, p1.y, u_out], [x_in, p1.y, u_in]]
 		for corner: Array in corners:
 			var x := float(corner[0])
-			var y := float(corner[1])
+			# Never above the wall's top edge (a 45° face's top drops away from its end).
+			var y := maxf(float(corner[1]), _band_top(band, x / cell))
 			var uv := _band_uv(band, x / cell, y)
 			arrays.add(Vector2(x, y * cell), Vector2(float(corner[2]), uv.y),
 					Color(shade, _level_channel(float(band["top"]) - uv.x), uv.x * cell / 256.0, 1.0))
@@ -906,13 +995,19 @@ func _add_wall_ends(walls: Dictionary) -> void:
 ## A wall's (depth below its top edge in cells, texture v in world units) at point (x, y) in cells,
 ## its top edge carried on in a straight line past its own half-column.
 func _band_uv(band: Dictionary, x: float, y: float) -> Vector2:
-	var depth := y - (float(band["y_left"]) + float(band["slope"]) * (x - int(band["column"]) * 0.5))
+	var depth := y - _band_top(band, x)
 	return Vector2(depth, depth * cell + float(posmod(int(band["top"]), 2)) * cell)
 
 
-## The corner stones of a wall's `side` ("right" or "left") end, null without art.
-func _wall_end_texture(side: String) -> Texture2D:
-	var path := WALL_END_ART % [WALL_STYLE, side]
+## The y (cells) of a wall's top edge at x (cells), carried on in a straight line past its own
+## half-column.
+func _band_top(band: Dictionary, x: float) -> float:
+	return float(band["y_left"]) + float(band["slope"]) * (x - int(band["column"]) * 0.5)
+
+
+## The corner stones of the `side` ("right" or "left") end of a wall of `style`, null without art.
+func _wall_end_texture(style: String, side: String) -> Texture2D:
+	var path := WALL_END_ART % [style, side]
 	if ResourceLoader.exists(path):
 		return load(path) as Texture2D
 	return null
@@ -1225,7 +1320,7 @@ func _cast_shadow_material() -> Material:
 ## `style` is a wall style, or "<style>:end-right" / ":end-left" for its corner stones.
 func _wall_material(style: String) -> Material:
 	if style.contains(":end-"):
-		var texture := _wall_end_texture(style.get_slice(":end-", 1))
+		var texture := _wall_end_texture(style.get_slice(":end-", 0), style.get_slice(":end-", 1))
 		if texture == null:
 			return null
 		var end_material := ShaderMaterial.new()
@@ -1246,12 +1341,15 @@ func _wall_material(style: String) -> Material:
 	return material_of
 
 
-## The flights of stairs: the stairs kit and the wall of WALL_STYLE (null without their art).
-func _stairs_material() -> Material:
+## Flights of stairs: the STAIRS_STYLE kit's treads and risers, railings and posts of the wall of
+## `style` capped with its coping (the kit's, when `style` has none); null without their art.
+func _stairs_material(style: String) -> Material:
 	var material_of := ShaderMaterial.new()
 	material_of.shader = STAIRS_SHADER
 	for part: String in ["tread", "riser", "coping", "wall"]:
-		var path := WALL_ART % WALL_STYLE if part == "wall" else STAIRS_ART % [WALL_STYLE, part]
+		var path := WALL_ART % style if part == "wall" else STAIRS_ART % [STAIRS_STYLE, part]
+		if part == "coping" and ResourceLoader.exists(STAIRS_ART % [style, part]):
+			path = STAIRS_ART % [style, part]
 		if not ResourceLoader.exists(path):
 			push_warning("Elevation: no stairs art '%s'" % path)
 			return null

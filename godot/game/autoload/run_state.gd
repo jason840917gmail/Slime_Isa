@@ -12,7 +12,8 @@ extends Node
 ## - `inventory` [InventorySaveData]: max_slots, slots [{item_id, count}].
 ## - `world` [WorldProgressData]: discovered_areas, defeated_boss_ids, completed_dungeon_ids,
 ##   maps {map_id: map record}, respawn_point.
-## - `story` [StorySaveData]: world_flags, learned_recipe_ids, learned_ability_ids, talked_npc_ids.
+## - `story` [StorySaveData]: world_flags, learned_recipe_ids, learned_ability_ids, talked_npc_ids;
+##   and (Godot) celebrated_item_ids: the permanent items whose ceremony has played.
 ## - `location` [GameLocationData], play time (`current_play_time_ms()`).
 ## - `quests` [QuestState[]]: one record per quest, written by the quest service.
 ##
@@ -42,6 +43,10 @@ const PLACED_FURNITURE_PREFIX := "placed-furniture-"
 signal story_flag_changed(payload: Dictionary)
 ## An ability was learned. Payload: {"ability_id": String}.
 signal ability_learned(payload: Dictionary)
+## A permanent item (a weapon or tool, a key: PERMANENT_ITEM_CATEGORIES) came into the bag for the
+## first time in the run, outside a quiet grant: its ceremony plays (game/ui/ceremony/). Payload:
+## {"item_id": String}.
+signal permanent_item_gained(payload: Dictionary)
 ## The bag changed (Phaser `inventory.changed`). Payload: {}.
 signal inventory_changed(payload: Dictionary)
 ## A world-object record changed (Phaser `world.progress.changed`). Payload: {"map_id": String}.
@@ -102,6 +107,13 @@ var start_kit_pending: bool = false
 ## Dev and tests: a weapon put in the bag, on belt slot 1 and in hand at a new run's first world
 ## build ("" = none, Phaser: a run starts empty-handed). The test runner sets "basic-sword".
 var start_weapon_id: String = ""
+## Grants that are no news (a dev or test start weapon, the playground's kit, `?arsenal`) set this
+## around their adds: a permanent item they give counts as celebrated without a ceremony.
+var quiet_items: bool = false
+
+## Item categories that are permanent things, celebrated once when first gained (roadmap 4.13).
+const PERMANENT_ITEM_CATEGORIES: Array[String] = ["weapon", "key"]
+const CELEBRATED_ITEMS := "celebrated_item_ids"
 
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
 ## "entry_edge"?, "entry_door"?, "respawn_home"?}. Empty when none.
@@ -168,6 +180,11 @@ func capture_player(map_id: String, state: Dictionary) -> void:
 		player["hp"] = clampi(int(state["hp"]), 0, max_hp())
 	if state.has("energy"):
 		player["energy"] = float(state["energy"])
+	# The Gulp form and what the mouth holds (owner, 2026-10-08) go through doors and saves.
+	if state.has("gulp_form"):
+		player["gulp_form"] = str(state["gulp_form"])
+	if state.has("held"):
+		player["held"] = (state["held"] as Dictionary).duplicate() if state["held"] is Dictionary else {}
 	location = {
 		"area_id": map_id,
 		"map_id": map_id,
@@ -240,6 +257,27 @@ func add_item(item_id: String, count: int) -> int:
 	return count
 
 
+## True when `item_id` is a permanent thing (a weapon or tool, a key).
+static func is_permanent_item(item_id: String) -> bool:
+	return str(ItemCatalog.definition(item_id).get("category", "")) in PERMANENT_ITEM_CATEGORIES
+
+
+## True once `item_id`'s ceremony has played (or a quiet grant or an old save counted it).
+func is_item_celebrated(item_id: String) -> bool:
+	return item_id in _story_list(CELEBRATED_ITEMS)
+
+
+## A permanent item seen for the first time: remembered, and announced unless the grant is quiet.
+## Every way into the bag comes here: `_insert` (adds, world pickups, chest stacks) and crafting's
+## `transact_items`.
+func _note_permanent(item_id: String) -> void:
+	if not is_permanent_item(item_id) or is_item_celebrated(item_id):
+		return
+	_story_list(CELEBRATED_ITEMS).append(item_id)
+	if not quiet_items:
+		permanent_item_gained.emit({"item_id": item_id})
+
+
 ## Takes `count` of `item_id` from the first matching slot onward (Inventory.remove); false (and
 ## nothing taken) when the bag holds fewer.
 func remove_item(item_id: String, count: int) -> bool:
@@ -309,6 +347,8 @@ func _insert(item_id: String, count: int) -> void:
 		var stack := mini(max_stack, left)
 		slots.append({"item_id": item_id, "count": stack})
 		left -= stack
+	if left < count:
+		_note_permanent(item_id)
 
 
 ## `Inventory.transact` (crafting spec 2.5): all or nothing, one `inventory_changed`. Removals
@@ -362,6 +402,8 @@ func transact_items(removals: Array, additions: Array, preview: bool = false) ->
 	if preview:
 		return true
 	inventory["slots"] = compact
+	for item_id: String in given:
+		_note_permanent(item_id)
 	inventory_changed.emit({})
 	return true
 
@@ -896,6 +938,11 @@ func install(data: Dictionary) -> bool:
 	_navigation = {}
 	start_kit_pending = false
 	started = true
+	# Saves from before the ceremony: what the bag already holds is no news.
+	for slot: Variant in inventory.get("slots", []):
+		var item_id := str((slot as Dictionary).get("item_id", "")) if slot is Dictionary else ""
+		if is_permanent_item(item_id) and not is_item_celebrated(item_id):
+			_story_list(CELEBRATED_ITEMS).append(item_id)
 	# Views kept across worlds (the HUD belt and coins) follow the loaded run; the quest service
 	# rebinds on its next call and reports it with `quest_changed`.
 	inventory_changed.emit({})

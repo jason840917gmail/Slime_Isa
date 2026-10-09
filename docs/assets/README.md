@@ -29,7 +29,7 @@ to the game (Godot; `godot/`).
 | `asset/project/` | Sprite-sheet tool projects (`.sscproj`) | Never (sources) |
 | `godot/asset/MAPS/<kind>/` | World art: grounds, rocks, trees, resources, props, houses, interiors, landmarks, effects, decorations | Yes (`res://asset/MAPS/...`) |
 | `godot/asset/characters/`, `godot/asset/UI/`, `godot/asset/audio/` | Character sheets, UI art, sound and music | Yes (same) |
-| `godot/game/world/terrain_edges/art/` | The terrain edge sheets `build-terrain-edge-tiles.py` writes | Yes |
+| `godot/asset/MAPS/terrain-edges/` | The terrain edge sheets `build-terrain-edge-tiles.py` writes | Yes |
 
 A game-ready sheet never lives in `asset/Originals/`: pack it into the runtime folder of its kind in
 `godot/asset/` and keep its sources next to the others in `Originals/`. Until the cutover
@@ -52,7 +52,7 @@ reads and writes: [TOOLING.md](../TOOLING.md#art-pipelines).
 | `python scripts/houses/normalize-mushroom-houses.py` | `asset/Originals/houses/` | mushroom house sheet in `godot/asset/MAPS/Houses/` |
 | `python scripts/art/build-ambient-decoration-sheets.py` | decoration sheet + `asset/Originals/decorations/ambient/` | `godot/asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp` ([ambient animation](AMBIENT_ANIMATION.md)) |
 | `python scripts/art/despill-magenta-fringe.py [--all] [--write] <image>...` | runtime images | the same files with magenta chroma-key fringe removed |
-| `python scripts/art/build-terrain-edge-tiles.py [ground ...] [--preview DIR] [--grounds-2x]` | `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png`, `<ground>-hole.png` | terrain edge art in `godot/game/world/terrain_edges/art/`: 16 edge tiles + rim weights per ground; with `--grounds-2x`, 128 px ground sheets from padded upscales ([terrain edges](../godot/TERRAIN_LAB.md)) |
+| `python scripts/art/build-terrain-edge-tiles.py [ground ...] [--preview DIR] [--grounds-2x]` | `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png`, `<ground>-hole.png` | terrain edge art in `godot/asset/MAPS/terrain-edges/`: 16 edge tiles + rim weights per ground; with `--grounds-2x`, 128 px ground sheets from padded upscales ([terrain edges](../godot/TERRAIN_LAB.md)) |
 
 ## Which file owns what?
 

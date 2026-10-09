@@ -2,8 +2,8 @@ extends RefCounted
 ## Quests, NPC quest talk, the dialogue box, the offer / turn-in window, the tracker, the NPC
 ## markers, the toasts and the waypoint (docs/godot/specs/quests.md 10.10). level-1: the Elder
 ## (`level-1-npc-village-elder-plop`, A Place to Work), Pip (`level-1-npc-red-slime-boy`, plain
-## talk), the forge ruin (`level-1-forge`), Fatty's camp, the loose wood piles 03 (704, 512) and 04
-## (608, 576). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
+## talk), the forge ruin (`level-1-forge`), Fatty's camp, the loose wood piles 03 (899, 311) and 04
+## (943.25, 348.9). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
 ## and stop wandering (no lock, so the conversation's lock is the only one).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
@@ -30,12 +30,12 @@ const PIP := "level-1-npc-red-slime-boy"
 const PLACE := "a-place-to-work"
 const CATALOG_ORDER: Array[String] = ["a-place-to-work", "slime-basics", "stone-tools", "worm-trouble",
 	"the-one-eyed-guardian", "the-old-workshop", "a-tonic-for-lili", "snack-for-the-road",
-	"beyond-the-verdant-gate", "a-harder-pick", "rekindle-the-forge", "iron-gear", "sunnys-basket",
+	"beyond-the-verdant-gate", "tom-in-the-web", "a-harder-pick", "rekindle-the-forge", "iron-gear", "sunnys-basket",
 	"the-matrons-nest"]
 const OFFER_DESCRIPTION := "Every good slime needs a workbench. Build one and set it up in the clearing.\n\n• Craft a Workbench (40 wood) (0/1)\n\nReward: 20× Wood · New recipe: Stone Axe · New recipe: Stone Pickaxe"
 const PLACE_PROGRESS_PAGES: Array[String] = ["A workbench is the heart of every camp. Wood is scattered all over the clearing.",
 	"Still to do for \"A Place to Work\":\n• Craft a Workbench (40 wood) (0/1)"]
-const SLIME_BASICS_LINES := "• Open your bag (E)\n• Look at the Crafting tab (E, then its tab)\n• Read your Journal (E, then its tab)\n• Open the map (M)\n• Sprint (hold Shift)\n• Pause to save or change settings (Esc)"
+const SLIME_BASICS_LINES := "• Open your bag (B)\n• Look at the Crafting tab (B, then its tab)\n• Read your Journal (J)\n• Open the map (M)\n• Pause to save or change settings (Esc)"
 const WORKBENCH_CRAFT := {"recipeId": "craft-workbench", "itemId": "workbench", "quantity": 1}
 const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1", "sceneId": "", "x": 0, "y": 0}
 
@@ -43,7 +43,7 @@ const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": 
 func test_new_run_states(t: TestContext) -> void:
 	await t.steps(2)
 	var run := Services.run()
-	t.equal(run.quests.size(), 14, "quest records")
+	t.equal(run.quests.size(), CATALOG_ORDER.size(), "quest records")
 	var ids: Array[String] = []
 	for record: Dictionary in run.quests:
 		ids.append(str(record["quest_id"]))
@@ -53,13 +53,13 @@ func test_new_run_states(t: TestContext) -> void:
 	var basics := quests.state("slime-basics")
 	t.equal(basics.get("status"), "active", "slime-basics status")
 	t.equal(basics.get("active_stage_id"), "learn-the-basics", "slime-basics stage")
-	t.equal(basics.get("progress"), {"open-bag": 0, "see-crafting": 0, "read-journal": 0, "open-map": 0, "sprint": 0, "pause": 0},
+	t.equal(basics.get("progress"), {"open-bag": 0, "see-crafting": 0, "read-journal": 0, "open-map": 0, "pause": 0},
 		"slime-basics progress")
 	var locked := 0
 	for record: Dictionary in run.quests:
 		if record["status"] == "locked":
 			locked += 1
-	t.equal(locked, 12, "locked quests")
+	t.equal(locked, CATALOG_ORDER.size() - 2, "locked quests")
 	t.check(run.is_quest_active("slime-basics"), "RunState does not see slime-basics active")
 	t.check(not run.is_quest_active(PLACE), "an available quest counts as active")
 
@@ -344,12 +344,12 @@ func test_collect_only_in_current_stage(t: TestContext) -> void:
 	quests.debug_activate("stone-tools")
 	var progressed: Array = []
 	quests.quest_progressed.connect(func(payload: Dictionary) -> void: progressed.append(payload))
-	if not await _pick_up(t, "level-1-loose-wood-04", Vector2(608.0, 576.0)):
+	if not await _pick_up(t, "level-1-loose-wood-04", Vector2(943.25, 348.9)):
 		return
 	t.equal(int((quests.state("stone-tools")["progress"] as Dictionary).get("chop-wood", 0)), 0, "chop-wood during craft-tools")
 	t.equal(progressed, [], "progress during craft-tools")
 	quests.debug_activate("stone-tools", "use-tools")
-	if not await _pick_up(t, "level-1-loose-wood-03", Vector2(704.0, 512.0)):
+	if not await _pick_up(t, "level-1-loose-wood-03", Vector2(899.0, 311.0)):
 		return
 	t.equal(int((quests.state("stone-tools")["progress"] as Dictionary).get("chop-wood", 0)), 10, "chop-wood during use-tools")
 	t.equal(progressed, [{"questId": "stone-tools", "stageId": "use-tools", "objectiveId": "chop-wood", "before": 0, "after": 10}],
@@ -393,11 +393,23 @@ func test_known_boss_fact_on_accept(t: TestContext) -> void:
 	var result := quests.accept("the-matrons-nest", "level-1-spider-giver")
 	t.check(bool(result.get("ok")), "accept refused: %s" % [result])
 	t.equal(quests.status("the-matrons-nest"), "completed", "completed on accept")
-	t.check(run.has_learned_ability("squash-slam"), "Squash Slam not learned")
+	t.check(not run.has_learned_ability("squash-slam"), "the Matron's Nest taught Squash Slam (The One-Eyed Guardian does)")
 	t.check(run.has_flag("chapter-2-complete"), "chapter-2-complete not set")
 	t.equal(run.coins(), coins + 100, "coins")
 	t.equal(quests.status("the-old-workshop"), "available", "the old workshop")
 	_close_end_card()
+
+
+## A run saved before Squash Slam moved to The One-Eyed Guardian (2026-10-08) learns it on load:
+## rebinding the records learns every completed quest's ability rewards, quietly.
+func test_load_learns_completed_quest_abilities(t: TestContext) -> void:
+	var quests := _quests(t)
+	var run := Services.run()
+	quests.debug_mark_completed("the-one-eyed-guardian")
+	t.check(not run.has_learned_ability("squash-slam"), "marking the quest completed granted its rewards")
+	run.quests = run.quests.duplicate(true)
+	t.equal(quests.status("the-one-eyed-guardian"), "completed", "the guardian after the rebind")
+	t.check(run.has_learned_ability("squash-slam"), "the loaded run did not learn Squash Slam")
 
 
 func test_known_facts_skip_later_stages(t: TestContext) -> void:
@@ -466,20 +478,25 @@ func test_tracker_fresh_run(t: TestContext) -> void:
 		return
 	var model := tracker.model()
 	t.check(tracker.visible, "the tracker is hidden")
-	t.equal(model.get("heading"), "QUESTS · 2", "heading")
-	t.equal(model.get("quest1Title"), "A Place to Work", "slot 1 title")
-	t.equal((model.get("quest1Color") as Color).to_html(false), "ffd277", "slot 1 colour")
-	t.equal(model.get("quest1Objectives"), "! Talk to Village Elder Plop", "slot 1 lines")
-	t.equal([model.get("quest1OffsetMin"), model.get("quest1OffsetMax")], [Vector2(10, 26), Vector2(-10, 64)], "slot 1 rect")
-	t.equal(model.get("quest2Title"), "Slime Basics", "slot 2 title")
-	t.equal((model.get("quest2Color") as Color).to_html(false), "d9ecff", "slot 2 colour")
-	t.equal(model.get("quest2Objectives"), SLIME_BASICS_LINES, "slot 2 lines")
-	t.equal([model.get("quest2OffsetMin"), model.get("quest2OffsetMax")], [Vector2(10, 72), Vector2(-10, 218)], "slot 2 rect")
-	t.check(not bool(model.get("quest3Visible")), "slot 3 shows")
-	t.equal([model.get("offsetMin"), model.get("offsetMax")], [Vector2(16, 96), Vector2(300, 336)], "card rect")
-	t.equal(model.get("hint"), "Click a quest to show the way", "hint")
-	t.equal(model.get("bookHint"), "E · Journal tab", "book hint")
-	t.equal([tracker.offset_left, tracker.offset_top, tracker.offset_right, tracker.offset_bottom], [16.0, 96.0, 300.0, 336.0], "card offsets")
+	# One goal line (roadmap 4.12): the first tracked quest and its next step; the rest in the Journal.
+	t.equal(model.get("title"), "A Place to Work", "the line's quest")
+	t.equal((model.get("color") as Color).to_html(false), "ffd277", "main story colour")
+	t.equal(model.get("step"), "Talk to Village Elder Plop", "the next step")
+	t.equal([model.get("count"), model.get("more")], [2, 1], "tracked quests")
+	t.equal(tracker.title_label.text, "A PLACE TO WORK", "the title in small capitals")
+	t.check(tracker.more_button.visible and tracker.more_button.text == "+1", "no +1 for the other quest")
+	t.equal(model.get("hint"), "Click to show the way", "hint")
+	t.equal(model.get("bookHint"), "J · Journal", "book hint")
+	var rect: Rect2 = model.get("rect")
+	t.equal([tracker.position, tracker.size], [rect.position, rect.size], "the line's rect")
+	t.equal(rect.position, Vector2(14, 46), "the line sits under the coin chip")
+	t.check(rect.size.x >= QuestTracker.MIN_WIDTH and rect.size.x <= QuestTracker.MAX_WIDTH, "line width %s" % rect.size.x)
+	# The "+1" shows the next quest: Slime Basics, its first step.
+	tracker.show_next()
+	t.equal(tracker.model().get("title"), "Slime Basics", "the next quest")
+	t.equal(tracker.model().get("step"), SLIME_BASICS_LINES.get_slice("\n", 0).substr(2), "Slime Basics' first step")
+	tracker.show_next()
+	t.equal(tracker.model().get("title"), "A Place to Work", "back to the first quest")
 
 
 func test_tracker_order_after_accept(t: TestContext) -> void:
@@ -487,28 +504,15 @@ func test_tracker_order_after_accept(t: TestContext) -> void:
 	t.check(bool(quests.accept(PLACE, ELDER_ID).get("ok")), "accept refused")
 	await t.steps(1)
 	var model := _tracker(t).model()
-	t.equal(model.get("quest1Title"), "A Place to Work", "slot 1")
-	t.equal(model.get("quest1Objectives"), "• Craft a Workbench (40 wood)", "slot 1 lines")
-	t.equal(model.get("quest2Title"), "Slime Basics", "slot 2")
+	t.equal(model.get("title"), "A Place to Work", "the line's quest")
+	t.equal(model.get("step"), "Craft a Workbench (40 wood)", "the next step")
+	t.equal(model.get("more"), 1, "Slime Basics behind the +1")
 
 
-func test_sprint_and_pause_controls(t: TestContext) -> void:
+## Slime Basics has no sprint step since 2026-10-08 (no sprint from the start); pausing counts.
+func test_pause_control(t: TestContext) -> void:
 	var quests := _quests(t)
-	var progressed: Array = []
-	quests.quest_progressed.connect(func(payload: Dictionary) -> void: progressed.append(payload))
-	t.press(&"move_right")
-	t.press(&"sprint")
-	await t.steps(3)
-	var state := quests.state("slime-basics")
-	t.equal((state["progress"] as Dictionary).get("sprint"), 1, "sprint")
-	t.equal((state["consumed_fact_ids"] as Dictionary).get("sprint"), ["sprint"], "sprint fact")
-	t.release(&"sprint")
-	await t.steps(2)
-	t.press(&"sprint")
-	await t.steps(2)
-	t.release_all()
-	var sprint_events := progressed.filter(func(payload: Dictionary) -> bool: return payload["objectiveId"] == "sprint")
-	t.equal(sprint_events.size(), 1, "sprint progress events")
+	t.check(not (quests.state("slime-basics")["progress"] as Dictionary).has("sprint"), "Slime Basics still has a sprint step")
 	var shell := Services.shell()
 	if shell == null:
 		t.note("no Shell autoload: the pause objective was not driven")
@@ -527,7 +531,7 @@ func test_menu_windows_count_for_the_tutorial(t: TestContext) -> void:
 	for surface_id: StringName in [&"inventory", &"crafting", &"quest-journal", &"world-map"]:
 		windows.window_opened.emit(surface_id)
 	t.equal(quests.state("slime-basics")["progress"], {"open-bag": 1, "see-crafting": 1, "read-journal": 1, "open-map": 1,
-		"sprint": 0, "pause": 0}, "tutorial progress")
+		"pause": 0}, "tutorial progress")
 
 
 func test_save_round_trip(t: TestContext) -> void:
@@ -560,7 +564,7 @@ func test_broken_record_resets(t: TestContext) -> void:
 	run.install(data)
 	t.equal(quests.status("slime-basics"), "locked", "the broken record")
 	t.equal(quests.status(PLACE), "available", "a sound record")
-	t.equal(run.quests.size(), 14, "records after the load")
+	t.equal(run.quests.size(), CATALOG_ORDER.size(), "records after the load")
 
 
 func test_teardown_releases_npc(t: TestContext) -> void:
@@ -607,7 +611,7 @@ func test_toasts_banner_and_stacking(t: TestContext) -> void:
 	banners.clear()
 	Services.run().learn_ability("dodge")
 	if t.equal(banners.size(), 1, "ability banners"):
-		t.equal(banners[0]["text"], "Dodge learned: press 1", "ability banner")
+		t.equal(banners[0]["text"], "Roll learned: press 2", "ability banner")
 		t.equal((banners[0]["color"] as Color).to_html(false), "9ff0c8", "ability colour")
 
 
@@ -619,24 +623,24 @@ func test_waypoint_points_at_the_giver(t: TestContext) -> void:
 	var waypoint := t.tree.get_first_node_in_group(QuestWaypointView.GROUP) as QuestWaypointView
 	if not t.check(tracker != null and waypoint != null, "no tracker or waypoint"):
 		return
-	tracker.invoke_track(1)
+	tracker.invoke_track()
 	t.check(tracker.showing_way(), "the waypoint is off after a click")
-	t.equal(tracker.model().get("quest1Title"), "➜ A Place to Work", "pointing title")
+	t.equal(tracker.model().get("title"), "➜ A Place to Work", "pointing title")
 	await t.steps(3)
 	var target := waypoint.target()
 	if t.check(not target.is_empty(), "no waypoint target"):
 		t.near_vec(target["position"], elder.get_phaser_position(), 0.01, "waypoint position")
 		t.equal(target["label"], "Talk to Village Elder Plop", "waypoint label")
-	t.equal(tracker.model().get("hint"), "➜ Follow the gold arrow · click it again to hide", "hint while pointing")
+	t.equal(tracker.model().get("hint"), "➜ Follow the gold arrow · click again to hide", "hint while pointing")
 	t.check(waypoint.is_showing_marker(), "no waypoint pin")
 	var map_ui := t.tree.get_first_node_in_group(&"map_ui")
 	var markers: Variant = map_ui.get(&"markers") if map_ui != null else null
 	if markers is Object and (markers as Object).has_method(&"marker"):
 		var pin: Dictionary = (markers as Object).call(&"marker", &"quest-waypoint")
 		t.check(not pin.is_empty() and (pin["point"] as Vector2).is_equal_approx(elder.get_phaser_position()), "map marker %s" % [pin])
-	tracker.invoke_track(1)
+	tracker.invoke_track()
 	t.check(not tracker.showing_way(), "a second click kept the waypoint")
-	t.equal(tracker.model().get("hint"), "Click a quest to show the way", "hint after hiding")
+	t.equal(tracker.model().get("hint"), "Click to show the way", "hint after hiding")
 	# `process_frame` fires before the nodes' `_process`: wait for two.
 	await t.tree.process_frame
 	await t.tree.process_frame
@@ -686,7 +690,7 @@ func test_waypoint_targets_on_level_1(t: TestContext) -> void:
 	var cases := [
 		["worm-trouble", "clear-camp", Vector2(1130.0, 1514.0)],
 		["the-one-eyed-guardian", "defeat-fatty", Vector2(2528.0, 1472.0)],
-		["the-one-eyed-guardian", "verdant-gate", Vector2(3552.0, 576.0)],
+		["the-one-eyed-guardian", "verdant-gate", Vector2(4064.0, 576.0)],   # level-1 grew to 64 columns (2026-10-07)
 		["rekindle-the-forge", "", Vector2(1190.0, 1068.0)],
 		["the-old-workshop", "", Vector2(640.0, 392.0)],
 	]

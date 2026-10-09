@@ -22,12 +22,9 @@ func test_move_first_then_learned_by_moving(t: TestContext) -> void:
 	t.release_all()
 	t.check(Services.run().has_flag("hint.move"), "moving did not learn the move hint")
 	t.check(hints.get(&"current") != &"move", "the move hint still shows after moving")
-	t.press(&"move_right")
-	t.press(&"sprint")
-	await t.steps(2)
-	await _frames(t)
-	t.release_all()
-	t.check(Services.run().has_flag("hint.sprint"), "sprinting did not learn the sprint hint")
+	# No sprint hint since 2026-10-08 (no sprint from the start).
+	var hint_ids: Array = (hints.get_script() as Script).get_script_constant_map()["HINT_IDS"]
+	t.check(not hint_ids.has(&"sprint"), "the sprint hint is back")
 
 
 func test_hidden_under_a_window_and_menus_learn(t: TestContext) -> void:

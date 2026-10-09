@@ -1,0 +1,31 @@
+[gd_resource type="TileSet" format=3 uid="uid://swf1wl4i15uu"]
+
+[ext_resource type="Texture2D" uid="uid://dpc3g1pmvldyy" path="res://game/world/elevation/cliffs/cliff_paint_tiles.png" id="1_tiles"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cliffs"]
+texture = ExtResource("1_tiles")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+0:0/0/custom_data_0 = "meadow-rock"
+1:0/0 = 0
+1:0/0/custom_data_0 = "snow-rock"
+2:0/0 = 0
+2:0/0/custom_data_0 = "sandstone"
+3:0/0 = 0
+3:0/0/custom_data_0 = "cave-rock"
+4:0/0 = 0
+4:0/0/custom_data_0 = "crystal-rock"
+5:0/0 = 0
+5:0/0/custom_data_0 = "mossy-rock"
+6:0/0 = 0
+6:0/0/custom_data_0 = "masonry"
+7:0/0 = 0
+7:0/0/custom_data_0 = "root-rock"
+8:0/0 = 0
+8:0/0/custom_data_0 = "red-rock"
+
+[resource]
+tile_size = Vector2i(64, 64)
+custom_data_layer_0/name = "wall_style"
+custom_data_layer_0/type = 4
+sources/0 = SubResource("TileSetAtlasSource_cliffs")

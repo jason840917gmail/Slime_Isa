@@ -377,6 +377,7 @@ Harvest message text (`WorldScene.ts:2188-2203`): `message`, plus the belt/bag a
 belt was ported (crafting spec §8.8). Phaser adds `": switch with the mouse wheel"` when a belt weapon could harvest,
 and `": put yours on the belt (E)"` when one is in the bag (labels from
 `player/ControlLabels.ts`: `weapon-next` = WheelDown = "Mouse wheel", lowercased; `menu` = KeyE).
+Godot binds `menu` to B since 2026-10-08, so it reads `(B)`.
 
 Because the rejection is `state-blocked` (retryable), the activation records nothing
 (combat 7.1 step 7). The sword's per-window receiver set (combat 6.1) still limits it to **one

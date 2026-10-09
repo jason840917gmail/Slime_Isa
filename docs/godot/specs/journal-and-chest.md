@@ -66,8 +66,8 @@ that split, as the crafting window does: a pure static model builder per window,
 |---|---|---|
 | Pause menu "Journal" button | closes the pause menu (MenuClose), then `questJournalSurface.open()` | `PauseMenuSurfacePort.ts:49`, `WorldScene.ts:545` |
 | Menu tab strip "Journal" tab | only while a tab window is open; closes the open tab window, then opens the journal | `MenuTabsSurfacePort.ts:74-83`, `WorldScene.ts:215-225` |
-| Menu key (E) | never opens the journal (it opens the bag); while the journal is open it **closes** it, like any tab window | `WorldScene.ts:2067-2080` |
-| A journal key | **none**: `PlayerInputActions.ts:34-35` binds only `menu` (KeyE) and `map` (KeyM); no `KeyJ` anywhere in `src/game` | — |
+| Menu key (B since 2026-10-08; KeyE in Phaser) | never opens the journal (it opens the bag); while the journal is open it **closes** it, like any tab window | `WorldScene.ts:2067-2080` |
+| Journal key (J) | Godot addition (owner, 2026-10-08): `journal` opens the journal where the bag could open, closes it when it is open, and switches another open tab window to it (`MenuWindows.toggle_journal`). Phaser has none (`PlayerInputActions.ts:34-35` binds only `menu` KeyE and `map` KeyM) | — |
 | Escape | the modal stack closes the top window (capture phase, before the pause menu's own Escape) | `ModalStack.ts:55-61, 130-144` |
 | Close button / ModalRoot `close_requested` | `invoke('close')` | `quest-journal.scene.json:411-451` |
 
@@ -210,7 +210,7 @@ details = lines joined with "\n"
 ```
 
 Three leading spaces before each requirement; two spaces before a count. `objectiveLabel` appends
-the key to `use-control` objectives: `(E)`, `(E, then its tab)`, `(M)`, `(hold Shift)`,
+the key to `use-control` objectives: `(B)`, `(B, then its tab)`, `(J)`, `(M)`, `(hold Shift)`,
 `(Mouse wheel)`, `(Esc)` (`QuestTrackerSurfacePort.ts:40-57`). `questRewardSummary` =
 `"Reward: " + lines.join(" · ")` or `Reward: the elder's gratitude` (`QuestRewardText.ts:15-28`).
 NPC names fall back to the id; `the quest giver` when no id (`:169-171`). For an abandoned quest
@@ -261,13 +261,12 @@ rows:           ["◆ Slime Basics\nSide · In progress"]        selected 0
 detailsName:    Slime Basics
 detailsStatus:  Side · In progress
 details:
-A first look at everything a slime can use: the bag and its tabs, the map, sprinting and the pause menu.
+A first look at everything a slime can use: the bag and its tabs, the map and the pause menu.
 
-   • Open your bag (E)
-   • Look at the Crafting tab (E, then its tab)
-   ✓ Read your Journal (E, then its tab)
+   • Open your bag (B)
+   • Look at the Crafting tab (B, then its tab)
+   ✓ Read your Journal (J)
    • Open the map (M)
-   • Sprint (hold Shift)
    • Pause to save or change settings (Esc)
 
 Reward: 10 coins
@@ -835,7 +834,7 @@ Journal tests set `journal.confirm_abandon` unless they test the confirm.
 | J1 | Abandon asks with the browser's native `window.confirm`. Godot: an in-window confirm (§3.3), a Godot `ConfirmationDialog`, or no confirm? Which button has focus? | In-window confirm on the theme, Cancel focused (a destructive default is easy to hit with Enter) |
 | J2 | `✓ ★ ◆ ▶ ○` are not in the UI font (web shows boxes; the tracker, dialogue and crafting windows use `✓ ▸` too). Add a symbol fallback font to the theme, draw icons, or ASCII? | One OFL fallback (e.g. Noto Sans Symbols 2, subset) in `ui_tokens.gd` / `build_ui_theme.gd` `fallbacks`: fixes every window at once and keeps Phaser's strings |
 | J3 | Retrying `slime-basics` after accepting A Place to Work says "Quest restarted." but the quest goes `locked` and vanishes (§1.7.1). Keep? | Keep for parity (one tutorial quest, harmless); revisit with the quest content |
-| J4 | Add a journal key (J)? Phaser has none: E then the Journal tab, or the pause menu | No (parity); the tracker's "E · Journal tab" hint already teaches the way |
+| J4 | Add a journal key (J)? Phaser has none: E then the Journal tab, or the pause menu | Yes (owner, 2026-10-08): J opens the journal, and the bag moved from E to B; the tracker's hint reads "J · Journal" |
 | J5 | List available NPC offers in the journal (quests.md §4.7 assumed it does)? | No (parity); fix quests.md instead |
 | K1 | Chest cells show only an icon and a count, the name is a tooltip (§2.7.1). Show the name? | Keep for parity now; the `TILE` cell can show "Iron Ore" with the count as a tag later |
 | K2 | Add "Take all"? | Not now (parity) |

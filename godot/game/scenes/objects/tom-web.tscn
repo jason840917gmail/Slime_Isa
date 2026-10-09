@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_2x1-tom-web.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/story_variant.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/tom_web.gd" id="3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(64, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_twigs"]
+size = Vector2(70, 14)
+
+[node name="tom-web" type="Node2D"]
+y_sort_enabled = true
+
+[node name="StoryVariantScript" type="Node" parent="." node_paths=PackedStringArray("when_set", "when_unset")]
+script = ExtResource("2")
+flag_id = "tom-freed"
+when_set = NodePath("../Freed")
+when_unset = NodePath("../Trapped")
+
+[node name="Trapped" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="Trapped"]
+position = Vector2(0, -7)
+shape = SubResource("RectangleShape2D_twigs")
+
+[node name="Visual" type="Sprite2D" parent="Trapped"]
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -252)
+hframes = 2
+
+[node name="DamageArea" type="Area2D" parent="Trapped"]
+position = Vector2(0, -36)
+collision_layer = 8
+collision_mask = 16
+
+[node name="DamageShape" type="CollisionShape2D" parent="Trapped/DamageArea"]
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="Freed" type="Node2D" parent="."]
+
+[node name="Visual" type="Sprite2D" parent="Freed"]
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -252)
+hframes = 2
+frame = 1
+
+[node name="TomWebScript" type="Node" parent="." node_paths=PackedStringArray("damage_area", "visual")]
+script = ExtResource("3")
+damage_area = NodePath("../Trapped/DamageArea")
+visual = NodePath("../Trapped/Visual")

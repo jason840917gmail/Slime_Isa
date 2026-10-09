@@ -1,11 +1,11 @@
 extends RefCounted
-## The Frog Gulp form and swimming (abilities spec 11.7; game/player/gulp/player_swimming.gd).
-## - Gulping the frog spot gives the Frog form: its skin, and a body that no longer collides with
-##   the `water` layer (deep water's tile collision).
+## The Swim Gulp form (id `frog`) and swimming (abilities spec 11.7; game/player/gulp/player_swimming.gd).
+## - Swallowing a swim essence gives the Swim form: its skin, and a body that no longer collides
+##   with the `water` layer (deep water's tile collision).
 ## - The frog swims into deep water: the swim clip, the waterline, the art sunk, the swim ripple.
 ## - The frog walks from the shallows into deep water: the tiles' collision no longer stops it.
-## - The form holds over deep water: it neither wears off nor burps there, and ends once the slime
-##   is back in the shallows (then deep water blocks it again).
+## - The form holds over deep water: it can be neither spat out nor popped by a hit there; back in
+##   the shallows it can, and then deep water blocks the slime again.
 ## - No abilities while swimming.
 ##
 ## level-1's lake, row 46: shallow water at x = 3..5, deep water at x = 6..11 (open water, south of
@@ -16,7 +16,6 @@ const Services := preload("res://game/shared/services.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const PlayerSwimming := preload("res://game/player/gulp/player_swimming.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
-const FROG_SPOT := "res://game/scenes/objects/gulp-spot-frog.tscn"
 
 const MAP_ID := "level-1"
 const CELL := 64.0
@@ -27,10 +26,10 @@ const DEEP := Vector2i(8, ROW)
 const WALK_MS := 700.0
 
 
-func test_gulping_the_frog_gives_the_frog_form(t: TestContext) -> void:
+func test_swallowing_a_swim_essence_gives_the_swim_form(t: TestContext) -> void:
 	var player := t.player()
 	await _gulp_frog(t)
-	t.equal(player.current_form_id(), GulpForms.FROG, "the frog form")
+	t.equal(player.current_form_id(), GulpForms.FROG, "the swim form")
 	var material := player.get_visual().material as ShaderMaterial
 	t.equal(int(material.get_shader_parameter(&"skin")), 3, "the frog skin")
 	t.equal(t.player_body().collision_mask & PlayerSwimming.WATER_LAYER_BIT, 0, "the frog ignores the water layer")
@@ -80,14 +79,14 @@ func test_the_form_holds_over_deep_water(t: TestContext) -> void:
 	t.teleport_player(_centre(DEEP))
 	await t.steps(3)
 	var gulp := player.get_gulp()
-	gulp.ends_at = Services.now_ms() - 1.0
-	await t.steps(3)
-	t.equal(player.current_form_id(), GulpForms.FROG, "the form does not wear off over deep water")
-	t.equal(player.eat(), "nothing", "no burp over deep water")
-	t.equal(player.current_form_id(), GulpForms.FROG, "still a frog")
+	t.equal(gulp.spit_out(), "nothing", "no spitting out over deep water")
+	t.check(not gulp.pop(), "no pop over deep water")
+	t.equal(player.current_form_id(), GulpForms.FROG, "still swimming")
 	t.teleport_player(_centre(SHALLOW))
 	await t.steps(3)
-	t.equal(player.current_form_id(), &"", "the form wears off once out of deep water")
+	t.equal(gulp.spit_out(), "spat", "spat out in the shallows")
+	await t.steps(2)
+	t.equal(player.current_form_id(), &"", "no form after spitting it out")
 	t.check(body.collision_mask & PlayerSwimming.WATER_LAYER_BIT != 0, "deep water blocks the slime again")
 
 
@@ -102,16 +101,10 @@ func test_no_abilities_while_swimming(t: TestContext) -> void:
 	t.check(not player.is_airborne() and not player.is_ability_busy(), "no jump while swimming")
 
 
-## Puts a frog Gulp spot at the slime and gulps it.
+## Swallows a swim essence (the form the frog spot gave before 2026-10-08).
 func _gulp_frog(t: TestContext) -> void:
-	var spot := (load(FROG_SPOT) as PackedScene).instantiate() as Node2D
-	t.main.add_child(spot)
-	spot.global_position = t.player().get_centre() + Vector2(24.0, 0.0)
-	await t.steps(1)
-	t.equal(t.player().eat(), "spot", "gulped the frog")
-	spot.queue_free()
-	# The gulp plays the eat clip, which holds the slime for a moment.
-	await t.sim_wait(300.0)
+	t.equal(t.player().get_gulp().swallow("swim-essence"), "started", "swallowed a swim essence")
+	await t.steps(2)
 
 
 func _centre(cell: Vector2i) -> Vector2:

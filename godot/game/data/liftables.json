@@ -1,0 +1,749 @@
+{
+  "_comment": "Written by scripts/props/pack-gulp-art.py; edit GRIDS and FIRST there, not here.",
+  "sheet": "res://asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp",
+  "cell": 192,
+  "columns": 8,
+  "rows": 9,
+  "kinds": {
+    "clay-pot": {
+      "name": "Clay pot",
+      "material": "clay",
+      "frames": [
+        0
+      ],
+      "art": [
+        180,
+        173
+      ]
+    },
+    "honey-jar": {
+      "name": "Honey jar",
+      "material": "glass",
+      "frames": [
+        1
+      ],
+      "art": [
+        156,
+        180
+      ]
+    },
+    "bucket": {
+      "name": "Bucket",
+      "material": "wood",
+      "frames": [
+        2
+      ],
+      "art": [
+        152,
+        180
+      ]
+    },
+    "crate": {
+      "name": "Crate",
+      "material": "wood",
+      "frames": [
+        3
+      ],
+      "art": [
+        180,
+        172
+      ]
+    },
+    "wicker-basket": {
+      "name": "Wicker basket",
+      "material": "wood",
+      "frames": [
+        4
+      ],
+      "art": [
+        176,
+        180
+      ]
+    },
+    "flour-sack": {
+      "name": "Flour sack",
+      "material": "soft",
+      "frames": [
+        5
+      ],
+      "art": [
+        153,
+        180
+      ]
+    },
+    "kettle": {
+      "name": "Kettle",
+      "material": "metal",
+      "frames": [
+        6
+      ],
+      "art": [
+        163,
+        180
+      ]
+    },
+    "keg": {
+      "name": "Keg",
+      "material": "wood",
+      "frames": [
+        7
+      ],
+      "art": [
+        164,
+        180
+      ]
+    },
+    "rune-urn": {
+      "name": "Rune urn",
+      "material": "stone",
+      "frames": [
+        8
+      ],
+      "art": [
+        147,
+        180
+      ]
+    },
+    "candle-jar": {
+      "name": "Candle jar",
+      "material": "glass",
+      "frames": [
+        9
+      ],
+      "art": [
+        133,
+        180
+      ]
+    },
+    "lantern": {
+      "name": "Lantern",
+      "material": "metal",
+      "frames": [
+        10
+      ],
+      "art": [
+        113,
+        180
+      ]
+    },
+    "amphora": {
+      "name": "Cracked amphora",
+      "material": "clay",
+      "frames": [
+        11
+      ],
+      "art": [
+        141,
+        180
+      ]
+    },
+    "mossy-brick": {
+      "name": "Mossy brick",
+      "material": "stone",
+      "frames": [
+        12
+      ],
+      "art": [
+        171,
+        180
+      ]
+    },
+    "iron-ball": {
+      "name": "Iron ball",
+      "material": "metal",
+      "frames": [
+        13
+      ],
+      "art": [
+        180,
+        143
+      ]
+    },
+    "gargoyle-head": {
+      "name": "Gargoyle head",
+      "material": "stone",
+      "frames": [
+        14
+      ],
+      "art": [
+        165,
+        180
+      ]
+    },
+    "fancy-pot": {
+      "name": "Fancy pot",
+      "material": "clay",
+      "frames": [
+        15
+      ],
+      "art": [
+        180,
+        180
+      ]
+    },
+    "log": {
+      "name": "Log",
+      "material": "wood",
+      "frames": [
+        16
+      ],
+      "art": [
+        180,
+        143
+      ]
+    },
+    "acorn": {
+      "name": "Giant acorn",
+      "material": "wood",
+      "frames": [
+        17
+      ],
+      "art": [
+        140,
+        180
+      ]
+    },
+    "toadstool": {
+      "name": "Toadstool",
+      "material": "soft",
+      "frames": [
+        18
+      ],
+      "art": [
+        174,
+        170
+      ]
+    },
+    "bird-nest": {
+      "name": "Bird nest",
+      "material": "wood",
+      "frames": [
+        19
+      ],
+      "art": [
+        180,
+        149
+      ]
+    },
+    "crystal-cluster": {
+      "name": "Crystal cluster",
+      "material": "crystal",
+      "frames": [
+        20
+      ],
+      "art": [
+        144,
+        180
+      ]
+    },
+    "geode": {
+      "name": "Geode",
+      "material": "crystal",
+      "frames": [
+        21
+      ],
+      "art": [
+        180,
+        180
+      ]
+    },
+    "stalagmite": {
+      "name": "Stalagmite",
+      "material": "stone",
+      "frames": [
+        22
+      ],
+      "art": [
+        141,
+        180
+      ]
+    },
+    "ore-rock": {
+      "name": "Ore rock",
+      "material": "stone",
+      "frames": [
+        23
+      ],
+      "art": [
+        180,
+        171
+      ]
+    },
+    "glow-mushrooms": {
+      "name": "Glow mushrooms",
+      "material": "soft",
+      "frames": [
+        24
+      ],
+      "art": [
+        180,
+        174
+      ]
+    },
+    "glowworm-pot": {
+      "name": "Glowworm pot",
+      "material": "clay",
+      "frames": [
+        25
+      ],
+      "art": [
+        165,
+        180
+      ]
+    },
+    "amethyst": {
+      "name": "Amethyst",
+      "material": "crystal",
+      "frames": [
+        26
+      ],
+      "art": [
+        180,
+        173
+      ]
+    },
+    "coal": {
+      "name": "Coal lump",
+      "material": "stone",
+      "frames": [
+        27
+      ],
+      "art": [
+        180,
+        170
+      ]
+    },
+    "snowball": {
+      "name": "Snowball",
+      "material": "snow",
+      "frames": [
+        28
+      ],
+      "art": [
+        177,
+        180
+      ]
+    },
+    "ice-block": {
+      "name": "Ice block",
+      "material": "ice",
+      "frames": [
+        29
+      ],
+      "art": [
+        173,
+        180
+      ]
+    },
+    "frosted-jar": {
+      "name": "Frosted jar",
+      "material": "ice",
+      "frames": [
+        30
+      ],
+      "art": [
+        137,
+        180
+      ]
+    },
+    "snowy-log": {
+      "name": "Snowy log",
+      "material": "wood",
+      "frames": [
+        31
+      ],
+      "art": [
+        180,
+        147
+      ]
+    },
+    "icicle": {
+      "name": "Icicle",
+      "material": "ice",
+      "frames": [
+        32
+      ],
+      "art": [
+        150,
+        180
+      ]
+    },
+    "snowy-rock": {
+      "name": "Snowy rock",
+      "material": "stone",
+      "frames": [
+        33
+      ],
+      "art": [
+        180,
+        172
+      ]
+    },
+    "frost-crystal": {
+      "name": "Frost crystal",
+      "material": "ice",
+      "frames": [
+        34
+      ],
+      "art": [
+        143,
+        180
+      ]
+    },
+    "snow-brick": {
+      "name": "Snow brick",
+      "material": "snow",
+      "frames": [
+        35
+      ],
+      "art": [
+        180,
+        154
+      ]
+    },
+    "sandstone": {
+      "name": "Sandstone block",
+      "material": "stone",
+      "frames": [
+        36
+      ],
+      "art": [
+        180,
+        176
+      ]
+    },
+    "water-jug": {
+      "name": "Water jug",
+      "material": "clay",
+      "frames": [
+        37
+      ],
+      "art": [
+        113,
+        180
+      ]
+    },
+    "dry-gourd": {
+      "name": "Dry gourd",
+      "material": "soft",
+      "frames": [
+        38
+      ],
+      "art": [
+        163,
+        179
+      ]
+    },
+    "tumbleweed": {
+      "name": "Tumbleweed",
+      "material": "soft",
+      "frames": [
+        39
+      ],
+      "art": [
+        180,
+        172
+      ]
+    },
+    "potted-cactus": {
+      "name": "Potted cactus",
+      "material": "clay",
+      "frames": [
+        40
+      ],
+      "art": [
+        110,
+        180
+      ]
+    },
+    "desert-urn": {
+      "name": "Desert urn",
+      "material": "clay",
+      "frames": [
+        41
+      ],
+      "art": [
+        136,
+        180
+      ]
+    },
+    "sandbag": {
+      "name": "Sandbag",
+      "material": "soft",
+      "frames": [
+        42
+      ],
+      "art": [
+        168,
+        180
+      ]
+    },
+    "fossil-stone": {
+      "name": "Fossil stone",
+      "material": "stone",
+      "frames": [
+        43
+      ],
+      "art": [
+        178,
+        180
+      ]
+    },
+    "coconut": {
+      "name": "Coconut",
+      "material": "wood",
+      "frames": [
+        44
+      ],
+      "art": [
+        170,
+        180
+      ]
+    },
+    "seashell": {
+      "name": "Seashell",
+      "material": "clay",
+      "frames": [
+        45
+      ],
+      "art": [
+        180,
+        159
+      ]
+    },
+    "driftwood": {
+      "name": "Driftwood",
+      "material": "wood",
+      "frames": [
+        46
+      ],
+      "art": [
+        180,
+        155
+      ]
+    },
+    "coral": {
+      "name": "Coral",
+      "material": "stone",
+      "frames": [
+        47
+      ],
+      "art": [
+        178,
+        180
+      ]
+    },
+    "mud-ball": {
+      "name": "Mud ball",
+      "material": "soft",
+      "frames": [
+        48
+      ],
+      "art": [
+        177,
+        177
+      ]
+    },
+    "swamp-gourd": {
+      "name": "Swamp gourd",
+      "material": "soft",
+      "frames": [
+        49
+      ],
+      "art": [
+        152,
+        180
+      ]
+    },
+    "glass-float": {
+      "name": "Glass float",
+      "material": "glass",
+      "frames": [
+        50
+      ],
+      "art": [
+        144,
+        180
+      ]
+    },
+    "message-bottle": {
+      "name": "Bottle",
+      "material": "glass",
+      "frames": [
+        51
+      ],
+      "art": [
+        108,
+        180
+      ]
+    },
+    "pumpkin": {
+      "name": "Pumpkin",
+      "material": "soft",
+      "frames": [
+        52
+      ],
+      "art": [
+        180,
+        169
+      ]
+    },
+    "cabbage": {
+      "name": "Cabbage",
+      "material": "soft",
+      "frames": [
+        53
+      ],
+      "art": [
+        180,
+        167
+      ]
+    },
+    "watermelon": {
+      "name": "Watermelon",
+      "material": "soft",
+      "frames": [
+        54
+      ],
+      "art": [
+        173,
+        180
+      ]
+    },
+    "hay-bundle": {
+      "name": "Hay bundle",
+      "material": "soft",
+      "frames": [
+        55
+      ],
+      "art": [
+        128,
+        180
+      ]
+    },
+    "turnip": {
+      "name": "Turnip",
+      "material": "soft",
+      "frames": [
+        56
+      ],
+      "art": [
+        134,
+        180
+      ]
+    },
+    "flower-pot": {
+      "name": "Flower pot",
+      "material": "clay",
+      "frames": [
+        57
+      ],
+      "art": [
+        143,
+        180
+      ]
+    },
+    "obsidian": {
+      "name": "Obsidian",
+      "material": "crystal",
+      "frames": [
+        58
+      ],
+      "art": [
+        175,
+        180
+      ]
+    },
+    "lava-rock": {
+      "name": "Lava rock",
+      "material": "stone",
+      "frames": [
+        59
+      ],
+      "art": [
+        180,
+        178
+      ]
+    },
+    "grain-basket": {
+      "name": "Grain basket",
+      "material": "wood",
+      "frames": [
+        60
+      ],
+      "art": [
+        169,
+        180
+      ]
+    },
+    "teapot": {
+      "name": "Teapot",
+      "material": "clay",
+      "frames": [
+        61
+      ],
+      "art": [
+        180,
+        164
+      ]
+    },
+    "stone-lantern": {
+      "name": "Stone lantern",
+      "material": "stone",
+      "frames": [
+        62
+      ],
+      "art": [
+        150,
+        180
+      ]
+    },
+    "piggy-bank": {
+      "name": "Piggy bank",
+      "material": "clay",
+      "frames": [
+        63
+      ],
+      "art": [
+        176,
+        180
+      ]
+    },
+    "rock": {
+      "name": "Mossy rock",
+      "material": "stone",
+      "frames": [
+        64,
+        65
+      ],
+      "art": [
+        180,
+        167
+      ]
+    },
+    "puffball": {
+      "name": "Puffball",
+      "material": "soft",
+      "frames": [
+        66,
+        67
+      ],
+      "art": [
+        180,
+        149
+      ]
+    },
+    "pinecone": {
+      "name": "Pinecone",
+      "material": "wood",
+      "frames": [
+        68,
+        69
+      ],
+      "art": [
+        180,
+        141
+      ]
+    }
+  }
+}

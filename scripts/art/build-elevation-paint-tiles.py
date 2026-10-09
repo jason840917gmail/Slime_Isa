@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Draws the editor-only paint tiles of the elevation layer (docs/godot/ELEVATION.md).
 
-64 px tiles in godot/game/world/elevation/elevation_paint_tiles.png (the atlas of
+64 px tiles in godot/asset/MAPS/elevation/elevation_paint_tiles.png (the atlas of
 elevation_tileset.tres, same order): row 0, a see-through coloured square per level with the level
 written on it (TILES, then the old stairs "S"); row 1, stairs with a railed landing, one arrow per
 direction pointing down the stairs (STAIRS order); row 2, the same with an open landing (a dashed
@@ -16,7 +16,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "godot/game/world/elevation/elevation_paint_tiles.png"
+OUT = ROOT / "godot/asset/MAPS/elevation/elevation_paint_tiles.png"
 SIZE = 64
 ## (label, rgb): holes in blues, raised ground in warm colours, then stairs ("S"); atlas order =
 ## elevation_tileset.tres.

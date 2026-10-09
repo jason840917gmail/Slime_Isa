@@ -25,12 +25,17 @@
   it). Jumping on and off hills broke the collisions, the camera snapped at landing and the shadow
   stayed behind; the jump also reached level-1 tops. The owner is unsure the jump fits the game: it
   stays as a low hop that never climbs (below), easy to drop later.
+- 2026-10-08: the jump is removed from the game. Its code stays (no key runs it and nothing
+  teaches it), so stairs and ledge drops are the only ways between levels in play. Ledge drops
+  still fly with the jump's flight (`jump_sequence.gd`).
 
 ## What you see
 
 A raised area is drawn where it is painted. Below its south-facing edges hangs a rock wall, **one
 stone course (one cell, 64 units) per level of drop**, so a 3-level wall shows three courses with
-their joints lined up across every face. The higher ground's **lip** (grass tufts, soil and roots;
+their joints lined up across every face. The wall is of one of nine **wall styles** (meadow rock,
+snow rock, sandstone, cave rock, crystal rock, mossy rock, masonry, root rock, red rock): the one
+painted over its top, else its ground's ([Wall styles](#wall-styles)). The higher ground's **lip** (grass tufts, soil and roots;
 a snow cornice with icicles; a crumbling sandy edge) hangs over the wall's top; the lower ground's
 **foot** (tufts and ferns, a snow drift, a sand drift) grows up its base. All nine grounds have
 their own (grass, snow, sand, forest soil, moss, fallen leaves, cavern rock, crystal rock, cobble
@@ -48,7 +53,8 @@ hole and the lower courses of its walls darken with every level of depth.
 
 **Stairs** are stone flights that leave a rim in any of 8 directions: a landing on the higher
 ground, 3 steps per level down onto the lower ground, railings on both sides with a newel post at
-each end (flush with the walkway, standing proud on the outside only), in sandstone with railings of the cliff's own rock (approved mockups:
+each end (flush with the walkway, standing proud on the outside only), in sandstone with railings of the
+rock of the cliff they leave, capped with a coping of that rock (approved mockups:
 `asset/Originals/elevation/stairs-mockups/`). Front flights run out a cell per level past the wall
 (45°), side flights a cell per level beside the hill (seen from the side), back flights are
 foreshortened (north 1.5 cells per level, 45° ones a diagonal cell) and what of them lies behind the
@@ -79,9 +85,10 @@ hide nothing (the camera looks north).
   nearest spot that has, up towards the rim or further out, so a side drop past a wall lands beside
   it, not hidden behind the hill; with no room at all the rim keeps holding. Nothing drops up a
   wall, from the strip behind a hill into the hill, or off stairs (their railings are solid).
-- **The jump** is a low hop (`hopArcHeight` 36 units, below one level) that **never climbs**: it
-  stops before higher ground and walls, and over a rim it drops to the lower ground, landing as far
-  out as the hop carries it. Without elevation it is Phaser's jump.
+- **The jump** (hidden since 2026-10-08: no key runs it; tests still do) is a low hop
+  (`hopArcHeight` 36 units, below one level) that **never climbs**: it stops before higher ground
+  and walls, and over a rim it drops to the lower ground, landing as far out as the hop carries
+  it. Without elevation it is Phaser's jump.
 - **The flight** (`jump_sequence.gd`, for both) is worked out in 3D: the point on the ground moves
   evenly from take-off to landing and the height falls under gravity. The body travels on screen
   with it, so the camera and the hurtbox follow smoothly; the art rides above the body, rising first
@@ -103,7 +110,11 @@ hole, a two-level cliff standing in a lake (with an island and a deep pool), and
 forest soil, moss, fallen leaves, cavern, crystal and cobble. Every square and octagon hill, the
 terraces, the plateaus, the ridge, the lake cliff and two holes have stairs. At the bottom, the
 stairs showcase: a level-2 octagon with a flight on each of its 8 sides, and a level-1 octagon with
-flights two cells wide and open landings.
+flights two cells wide and open landings. Every wall style shows: the plateaus take their ground's,
+and the `cliffs` layer paints the diamonds (sandstone, mossy rock, crystal rock), the octagons
+(masonry, red rock, cave rock), the octagon hole's far wall (root rock), the ridge (cave rock,
+masonry and sandstone meeting on one edge), the lake cliff's east half (mossy rock) and the
+showcase (red rock, masonry). The square hills, the terraces and the other holes keep meadow rock.
 
 ## Authoring
 
@@ -126,6 +137,8 @@ flights two cells wide and open landings.
    down to) and needs room on that ground: a cell per level beyond the wall (front, sides, 45°),
    1.5 cells per level to the north, keep other hills out of it. The old `S` tile is a front flight.
 5. The ground on top and below is the ground layer's: paint sand on a plateau and its lip is sand.
+6. The **wall style** follows the ground on top; to choose another, paint it on a `cliffs` layer
+   ([Wall styles](#wall-styles)).
 
 In the editor the cliffs follow the paint at once (the layer's script mounts the drawing under the
 ground layer, never saved with the scene); hide the `elevation` layer (eye icon) to see the result
@@ -136,6 +149,40 @@ playground's park rows, so hand edits to the park are lost when it runs again.
 
 **Fences** that stop the player dropping off a rim are painted on their own `fences` layer and
 documented in [FENCES.md](FENCES.md).
+
+## Wall styles
+
+A wall, its corner stones and the railings of the flights leaving its top are of one wall style
+(2026-10-08; before, every cliff was meadow rock). The style of a wall is, in order:
+
+1. the one painted on the world's **`cliffs` layer** over the top it hangs from: a TileMapLayer
+   named `cliffs` beside the `ground` and `elevation` layers (same grid), with the tile set
+   `game/world/elevation/cliffs/cliff_tileset.tres` and the script
+   `game/world/elevation/cliffs/cliff_layer.gd`. Paint the cells of a hill's top (all of them, or
+   only those along the walls you want to change). A hole's far wall hangs from the ground around
+   the hole: paint those cells. Like the other layers it follows in the editor at once and hides
+   itself in the game;
+2. else the style of the **ground on top** (`GROUND_WALL_STYLES` in `elevation.gd`, below);
+3. else meadow rock (`DEFAULT_WALL_STYLE`); a style without wall art also falls back to it.
+
+| Style | Tile | Look | Ground on top |
+|---|---|---|---|
+| `meadow-rock` | M | warm grey-brown boulders with tufts of moss | grass (`highland`), and any ground not listed |
+| `snow-rock` | S | cold blue-grey granite with ice crystals in the cracks | snow (`frozen`) |
+| `sandstone` | D | ochre and peach wind-smoothed blocks with layered strata | sand (`sanddessert`) |
+| `cave-rock` | C | dark slate-blue slabs, pale cave mushrooms, specks of glowing moss | `cavern-floor` |
+| `crystal-rock` | K | indigo slabs with violet and cyan crystal clusters | `crystal-floor` |
+| `mossy-rock` | G | grey-green stones under cushions of moss, ferns | `forest-moss` |
+| `masonry` | B | cut limestone blocks in a running bond, quoins at the ends | `town-cobble` |
+| `root-rock` | R | dark umber stones in forest soil, threaded with roots | `forest-floor` |
+| `red-rock` | A | terracotta and rust-red stones with fallen autumn leaves | `amberleaf` |
+
+Exactly where: a wall's style is read at the middle of its top edge, a little into its top (half a
+cell in when the cell there is a corner triangle a chamfer raised, so it belongs to the painted cell
+across the corner); a flight's at its rim, into the top it leaves. Each half-cell column of wall
+takes its own style, so two styles meet on a straight vertical line where a top's paint (or its
+ground) changes along a wall. The style of every wall is `Elevation.band_styles` (per `grid.bands`)
+and of every flight `Elevation.stairs_styles`.
 
 ## How it works
 
@@ -193,12 +240,12 @@ shadow per level), so shapes, corners and heights all come out right without per
 | `Patches` | chamfered corner triangles that take the ground across the corner; the top's ground over the water surface's soft edge along a rim over water | the ground's sheet (`elevation_ground.gdshader`) |
 | `Shade` | the ground of holes, darker per level of depth | multiply (`elevation_shade.gdshader`) |
 | `Shadows` | what raised ground casts on lower ground | multiply (`elevation_cast_shadow.gdshader`, reads the depth map) |
-| `Walls` | covered tris, UV = (world x, depth below the top edge + the course of the top level), shaded by face; corner stones at every wall end (beside lower ground) on the wall's own UV | `art/<style>-wall.png` (`elevation_wall.gdshader`), `art/<style>-wall-end-right.png` / `-left.png` (`elevation_wall_end.gdshader`) |
+| `Walls` | covered tris, UV = (world x, depth below the top edge + the course of the top level), shaded by face, one mesh per wall style; corner stones at every wall end (beside lower ground) on the wall's own UV, never above its top edge | `art/<style>-wall.png` (`elevation_wall.gdshader`), `art/<style>-wall-end-right.png` / `-left.png` (`elevation_wall_end.gdshader`) |
 | `Rims` | the light a rim facing the upper left catches | vertex colours, `elevation_glow.gdshader` |
 | `Water` | water at the foot of walls standing in water: the water surface's own maths sampled in front of the wall, its line lapping up the rock, foam, wet rock | `elevation_water_foot.gdshader` (shares `water_surface.gdshaderinc`) |
 | `Feet` | the lower ground's foot along each wall foot | `art/<ground>-foot.png` (`elevation_fringe.gdshader`), else the ground's terrain edge tiles |
 | `Lips` | every top's border as one strip (`elevation_rims.gd`): lip over its walls, rim of tufts elsewhere | `art/<ground>-lip.png` (`elevation_fringe.gdshader`), else `<ground>-edges.png` per edge (`elevation_strip.gdshader`) |
-| `Stairs` | every flight's faces, back to front in one mesh: treads, landing, risers, railings and posts | `art/<style>-stairs-tread.png`, `-riser.png`, `-coping.png` and the wall (`elevation_stairs.gdshader`) |
+| `Stairs` | every flight's faces, back to front: treads, landing, risers, railings and posts; flights in a row whose railings share a style share a mesh (`<style>-<n>`) | meadow rock's `art/meadow-rock-stairs-tread.png` and `-riser.png`, the railings' style's `-coping.png` and wall (`elevation_stairs.gdshader`) |
 | `StairsFeet` | the lower ground's foot where a flight's railings and posts stand on it in sight | `art/<ground>-foot.png` (`elevation_fringe.gdshader`) |
 
 **Rims** (`elevation_rims.gd`): a top's boundary edges (where it meets lower ground, or a wall at
@@ -271,12 +318,25 @@ footsteps and water.
 All art is generated with Magnific (`gpt-2-mini`, `transparentBackground: true`,
 [Magnific guide](../assets/magnific-mcp-guide.md)), saved in `asset/Originals/elevation/generated/`
 and turned into runtime textures by `python scripts/art/build-elevation-art.py [name ...] [--preview
-DIR]` (numpy, Pillow) into `godot/game/world/elevation/art/`.
+DIR]` (numpy, Pillow) into `godot/asset/MAPS/elevation/`.
 
 - **Wall** (1:1): "a seamless tileable texture of a natural stone cliff wall seen straight from the
   front … exactly four horizontal courses … separated by thin dark straight crevices", references:
   the rock props sheet (`asset/MAPS/rocks/96x96-tile_8x3.webp`) and the style sheet. The tool finds
-  the crevices, resamples each complete course to 128 px and makes it periodic (`WALLS`).
+  the crevices, resamples two complete courses to 128 px each and makes them periodic (`WALLS`: the
+  source, its courses, whether to even out its light). The other wall styles (2026-10-08) were made
+  the same way with meadow rock's source (`wall-rock-a.png`) as the only reference: the style block,
+  then "a seamless tileable texture of a <snowy mountain rock / desert sandstone / …> cliff wall seen
+  straight from the front, like the reference wall … exactly four horizontal courses of equal
+  height, separated by three thin dark straight horizontal crevices … at one quarter, one half and
+  three quarters of the height; these crevices are the darkest lines in the image and nothing
+  crosses them. <the rock> … Same painting, size of stones, camera and light as the reference",
+  two candidates each (`<style>-wall-a.png`, `-b.png`). Masonry needed a second try without the
+  reference (it copied the boulders) asking for "a single row of chunky rectangular cut stone
+  blocks … laid in a running bond" (`masonry-wall-c.png`, `-d.png`); it came out with about 4.4
+  courses, so its entry gives that count. The generator paints the light falling off from the upper
+  left across the frame, which would repeat as a bright patch every period: the tool evens it out
+  (divides out the brightness averaged over 4 × 4 blocks) for every style but meadow rock.
 - **Lip and foot per ground** (2:1): "the straight front edge of a flat <ground> cliff top … ends in
   a <fringe> hanging over the edge … below it fully transparent" and "<ground> … rising into a
   <fringe> against a wall that is not shown … above it fully transparent", references: a 1024 px
@@ -287,18 +347,37 @@ DIR]` (numpy, Pillow) into `godot/game/world/elevation/art/`.
 - **Wall ends** (1:1, one per side): "the right-hand (left-hand) end of a natural stone cliff wall
   … the courses end in a vertical column of rounded corner stones that turn away from the viewer …
   beyond the corner fully transparent", with the wall as reference (and the right end for the left
-  one). In `WALL_ENDS` give each the source column of the crevice between the wall and its stones;
-  the tool cuts the column, fits its courses to the wall's and matches its colours.
+  one). In `WALL_ENDS` give each the source column of the crevice between the wall and its stones,
+  or None to let the tool find it (the darkest column 50-230 px inside the art's edge); the tool
+  cuts the column, fits its courses to the wall's and matches its colours. The 2026-10-08 ends had
+  the style's chosen wall and meadow rock's right end (`wall-corner-b.png`; mirrored for a left end)
+  as references: "the right-hand (left-hand) end of a <rock> cliff wall … built of the same stones,
+  colours and painting as the first reference image. Composition exactly like the second reference
+  image: the wall fills the left (right) two thirds of the frame … the courses end in a vertical
+  column of rounded corner stones that turn away from the viewer, two stones per course. Beyond the
+  corner the right (left) third of the frame is fully transparent and empty"
+  (`<style>-end-right-a.png`, …). Masonry's ends ask for "a chunky cut corner block (a quoin)" per
+  course.
 - **Stairs** (2026-10-06, the stairs session): rows of cut sandstone with the wall and the old stairs
   as references, `stairs-tread-a.png` (treads seen from above) and `stairs-riser-b.png` (risers and
   copings). In `STAIRS` give each part the source rows of one step, crevice to crevice; the tool
   makes it opaque, periodic and one rise (43 px) tall, darkens the risers and tints the coping
   towards the wall (`<style>-stairs-tread.png`, `-riser.png`, `-coping.png`). Railings and posts use
-  the wall.
-- The editor's paint tiles: `python scripts/art/build-elevation-paint-tiles.py`.
+  the wall. Every other wall style gets its own coping (`<style>-stairs-coping.png`): meadow rock's
+  riser row tinted towards that style's wall, so the railings' caps match the cliff.
+- The editor's paint tiles: `python scripts/art/build-elevation-paint-tiles.py`, and for the
+  `cliffs` layer `python scripts/art/build-cliff-paint-tiles.py` (a swatch of each wall).
 
 Then let the editor import them. The 2026-10-05 sets (one wall, its two ends, stairs, nine grounds'
-lips and feet, with spare candidates) used about 4,300 credits. The rims reuse the lips' art.
+lips and feet, with spare candidates) used about 4,300 credits; the eight wall styles of 2026-10-08
+(a wall and two ends each, two candidates of everything) 5,000. The rims reuse the lips' art.
+A new wall style: generate its wall and ends as above, add it to `WALLS` and `WALL_ENDS`, run the
+tool with its name, add it to `build-cliff-paint-tiles.py` `TILES` and a tile in
+`cliff_tileset.tres` (the same order), and to `GROUND_WALL_STYLES` if a ground should take it.
+
+`res://tools/render_elevation_park.gd` (windowed: `--path godot -s
+res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few close-ups
+with the game's own drawing, for checking new art in place.
 
 ## Why this approach (what other games do)
 
@@ -331,8 +410,10 @@ lips and feet, with spare candidates) used about 4,300 credits. The rims reuse t
   a hill. Two bodies on different levels that overlap on screen sort by their feet only.
 - Depth and shadows use a 2-unit grid: their edges step by 2 units (hidden under the rims' tufts).
   Measured at about 1 ms a frame in the park on the owner's desktop GPU; phones are not measured.
-- One wall style (`meadow-rock`) for every cliff. Next: styles per biome (snow rock, sandstone,
-  cave), picked by the ground on top.
+- Two wall styles side by side meet on a straight vertical line (no corner stones between them).
+  Every flight keeps meadow rock's sandstone treads and risers; only its railings follow the cliff.
+  Masonry on a one-level wall shows a single row of large pale blocks with faint joints; the
+  generated wall styles still await the owner's verdict (2026-10-08).
 - A flight needs room on the lower ground: one that runs into another hill or a hole is built
   anyway and looks wrong. Two flights side by side along one rim must share a kind to be one; two
   of different kinds that touch work but each keeps its own railings.
@@ -340,7 +421,8 @@ lips and feet, with spare candidates) used about 4,300 credits. The rims reuse t
   few units against a tread (a third of a level at most).
 - A body may stand behind a flight where the flight only hides it (its footprint at the body's
   level blocks it, not its picture): there is no cap like the strip behind a hill.
-- Only the player changes level (stairs, ledge drops, a jump off a rim); nothing climbs but stairs.
+- Only the player changes level (stairs, ledge drops, and the hidden jump off a rim); nothing climbs
+  but stairs.
   Bodies walk the stairs (enemies too, when they get there), but no path finding knows them.
   Enemies collide with their level but neither drop nor path to stairs. Projectiles, melee reach,
   sight, interactions and spawns do not know levels yet. These are the next gameplay steps (the
@@ -365,9 +447,11 @@ lips and feet, with spare candidates) used about 4,300 credits. The rims reuse t
 | `godot/game/world/elevation/elevation_mesh.gd` | Mesh data the builders fill |
 | `godot/game/world/elevation/elevation_layer.gd` | The painted layer: hides itself in the game, previews the cliffs in the editor (`@tool`) |
 | `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 3 and stairs in 8 directions, railed or open landing (`elevation_level`, `elevation_kind`) |
+| `godot/game/world/elevation/cliffs/cliff_layer.gd`, `cliff_tileset.tres`, `cliff_paint_tiles.png` | The `cliffs` layer: wall styles painted over tops (`wall_style`; tiles by `scripts/art/build-cliff-paint-tiles.py`) |
 | `godot/game/world/elevation/*.gdshader`, `elevation_light.gdshaderinc` | Wall, wall end, fringe, strip, water foot, ground, shade, cast shadow and glow shaders |
-| `godot/game/world/elevation/art/` | Tool output (`scripts/art/build-elevation-art.py`) |
+| `godot/asset/MAPS/elevation/` | Tool output (`scripts/art/build-elevation-art.py`) |
 | `asset/Originals/elevation/generated/` | Generated sources |
 | `asset/Originals/elevation/stairs-mockups/` | The approved stairs design: spec (README.md), renderer, mockups |
-| `scripts/maps/build-elevation-park.py` | Builds the park in the playground |
-| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels, stairs on every side (railings, landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight, the capped strip, closed collision outlines (stairs included), the park's walls, wall ends, water foot, lips, shadows, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), sliding down a back face past a tip, walking behind a hill and the ghost |
+| `scripts/maps/build-elevation-park.py` | Builds the park in the playground (levels, stairs, its `cliffs` paint) |
+| `godot/tools/render_elevation_park.gd` | Renders the park's rows and close-ups with the game's drawing |
+| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels, stairs on every side (railings, landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight, the capped strip, closed collision outlines (stairs included), the park's walls in every style (painted or by ground, railings too), wall ends, water foot, lips, shadows, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), sliding down a back face past a tip, walking behind a hill and the ghost |

@@ -11,7 +11,7 @@ default.
 | `click` — Diablo | click the ground; hold to follow the pointer | **order** | **use**: what's under the pointer (walking there), else the target in reach |
 | `moba` — Dota / LoL | right-click the ground; hold to follow | swing in place toward the pointer | **order** |
 | `pointer` — face the pointer | **W** (or ↑) walks toward the pointer; A, S, D and clicks never move | swing toward the pointer | use the target in reach |
-| `keys` — keys only | the **arrows**; **A** attacks, **W** interacts, **S** / **D** switch weapons | nothing | nothing |
+| `keys` — keys only | the **arrows**; **A** attacks, **Space** interacts, **W** swallows, **E** switches weapons | nothing | nothing |
 
 **Switching:** press **F2** in game (`control_scheme_next`; the new scheme's name floats over the
 slime), or use the **Mouse** button in Settings. The choice is saved with the other settings in
@@ -29,8 +29,8 @@ What the order button is pressed on decides what happens
    within `meleeFallbackPx`. Then it faces that side and swings. While the button is held it keeps
    swinging as fast as the weapon allows; once the button is up, the order ends after that swing.
    The cursor shows a cross and a red ring lies under the target.
-2. **Something usable** (a door, a gate, a chest, an NPC, a bed, a bench, a restoration site or a
-   Gulp spot, picked like the keyboard scheme's pointer pick but anywhere on screen,
+2. **Something usable** (a door, a gate, a chest, an NPC, a bed, a bench, a restoration site or an
+   essence on the ground, picked like the keyboard scheme's pointer pick but anywhere on screen,
    `InteractionController.target_at`): the slime walks there. The interaction controller keeps
    that target chosen (`set_preferred`) and uses it as soon as it is in reach. If the button is
    still held, a target with a hold action ("Hold: Pick up") does its hold action. The cursor
@@ -44,11 +44,12 @@ Also:
   something usable under the pointer it walks there and uses it, like a left click. Otherwise it
   uses the target in reach, as the keyboard scheme's right click does, and holding it runs the
   target's hold action ("Hold: Pick up"). Shift + left click is the click scheme's swing in place.
-- **Keys still work:** WASD, Space, 1–4, Q, the wheel and the rest do what they do in the keyboard
+- **Keys still work:** WASD, 1–4, Q, the wheel and the rest do what they do in the keyboard
   scheme. A movement key ends the order.
-- **Actions end the order:** dodge, lash, slam, teleport, eat, interact and a swing in place
+- **Actions end the order:** the roll, lash, slam, teleport, eat, interact and a swing in place
   end the order. A jump does not: without movement keys it goes the way the slime is walking,
-  and the walk goes on from where it lands.
+  and the walk goes on from where it lands (the jump is hidden since 2026-10-08; the code
+  stays).
 - **Placing furniture** keeps the keyboard scheme's buttons: left click places, right click
   cancels.
 - **Prompts and hints follow the scheme:** prompts read "Click: Open chest" in the click scheme
@@ -66,11 +67,11 @@ keyboard scheme.
   from the aim origin), except while it rolls, is knocked back, swings or is busy with an
   ability: those set their own facing. Idle and walk clips follow it (down, up or side).
 - **Walking:** W walks along the pointer's direction (`_movement_input`) at the normal speed
-  (Shift sprints). The slime stops when the pointer is within the aim's dead zone (16 px), so it
+  The slime stops when the pointer is within the aim's dead zone (16 px), so it
   stands under the pointer instead of turning around over it. Before the pointer has ever been
   seen, W walks the way the slime faces.
-- **Jump:** with W held, the jump goes toward the pointer. The dodge, lash and teleport aim at the
-  pointer as in every scheme.
+- **Jump** (hidden since 2026-10-08): with W held, the jump goes toward the pointer. The roll,
+  lash and teleport aim at the pointer as in every scheme.
 
 ## The keys-only scheme
 
@@ -85,21 +86,28 @@ show the new keys by themselves ("Press W: Open chest").
 | Walk | ↑ ← ↓ → | WASD or the arrows |
 | Attack | A | left click |
 | Interact (hold to pick up furniture) | W | right click |
-| Previous / next weapon | S / D | the mouse wheel |
-| Sprint, jump, dodge, lash, slam, teleport, eat, bag, map, zoom, pause | unchanged: Shift, Space, 1, 2, 3, 4, Q, E, M, = / -, Esc | |
+| Next weapon (the weapon scroll; no key goes back) | E | the mouse wheel, and E |
+| Swallow, roll (the `dodge` action), lash, slam, teleport, suck and throw (eat), bag, journal, map, zoom, pause | unchanged: 1, 2, 3, 4, 5, Q, B, J, M, = / -, Esc (sprint and jump have no key since 2026-10-08) | |
+
+Owner, 2026-10-08: every action of the planned HUD console has a letter in every scheme
+([HUD console mockup](../design/2026-10-07-hud-console-mockup.md#keys), roadmap 4.12): B opens the
+bag (it was E), J the journal, and E is the weapon scroll (next to the mouse wheel in the other
+schemes). In this scheme only E cycles the belt, so S and D do nothing.
 
 What needed the mouse, and what it does without it:
 
-- **Aiming:** the swing, the dodge and the Stretch Lash go the way the slime faces, which is the
-  last direction it walked: 8 ways, with the swing and the dodge snapped to 4. The pointer aims
-  nothing in this scheme (`player.gd` `_pointer_aim`).
+- **Aiming:** the swing and the Stretch Lash go the way the slime faces, which is the last
+  direction it walked: 8 ways, with the swing snapped to 4. The Roll (2026-10-09) goes the way the
+  held arrows point, else the way the slime faces, not snapped. The pointer aims nothing in this
+  scheme (`player.gd` `_pointer_aim`).
 - **Teleport:** it always goes its full range the way the slime faces. With a mouse it stops at
   the pointer.
 - **Choosing what to interact with:** the pointer no longer picks among several targets in
   reach. The highest priority wins, as with no mouse (the interaction controller).
 - **Placing furniture:** the bench's ghost stands 80 px in front of the slime, and walking moves
-  it (`furniture_placement.gd` `_aim_point`). A places, S / D switch the variant, W or Esc cancels.
-- **The Gulp quick wheel** (hold Q): the arrows pick the slot.
+  it (`furniture_placement.gd` `_aim_point`). A places, E switches the variant, W or Esc cancels.
+- **The Gulp** (2026-10-09): Q sucks and throws where the slime faces, and 1 swallows, as in the
+  other schemes.
 - **Windows** (bag, crafting, chest, journal, map, dialogue): they already had keyboard focus.
   The arrows move between buttons, Enter or Space presses them, and Esc closes. Dialogue also
   advances on W. The bag's belt can be filled from its assignment buttons, so the drag and drop
@@ -176,9 +184,10 @@ Tuning is in `game-constants.json` under `input.mouse`.
 
 - **Default:** should a mouse scheme become the default on PC? Keyboard stays the default for now,
   and the tests run in it.
-- **Jump:** should Space jump toward the pointer in the mouse schemes (it follows the walk now)?
-- **Dodge:** should dodge move to the right button or Space, ARPG style, with jump moving
-  elsewhere?
+- **Jump:** answered 2026-10-08: the jump is removed from the game, and Space is free.
+- **Dodge:** should dodge move to the right button or Space, ARPG style? (2026-10-08: the owner
+  turns Dodge into a Roll that keeps rolling while held. Built 2026-10-09 on key 2, the dodge's
+  key; whether it moves is still open.)
 - **Abilities:** should the four abilities move from 1–4 to Q/W/E/R in the moba scheme? Q is eat
   and E is the bag today.
 - **Attack-move:** is an "A + click" attack-move (walk, and fight whatever comes in reach) worth

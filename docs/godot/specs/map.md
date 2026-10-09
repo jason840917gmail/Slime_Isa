@@ -34,7 +34,10 @@ the pause menu's Map button.
   `margin = min(16, max(12, short · 0.025))`; anchored to the bottom-left corner with
   `offsetMin = [round(margin), -round(margin + size)]`, `offsetMax = [round(margin + size), -round(margin)]`.
   At 1280 × 720: size 172.8, margin 16, box (16, 531)–(189, 704), 173 px square. The authored
-  defaults are the same box at 180 px (`minimap.scene.json:13-28`).
+  defaults are the same box at 180 px (`minimap.scene.json:13-28`). Godot, since 2026-10-08: the
+  minimap is docked in the HUD console (roadmap 4.12): `Minimap.dock` is the console's 128-unit
+  minimap rect (the frame inside it, the box 6 units in), and the view rectangle shows the camera's
+  play area (the viewport above the console's `bottom_inset`). `box_for` stays the undocked place.
 - Frame (`minimap.scene.json:38-69`): TextureRect `ui.frame.organic-minimap`
   (`godot/asset/UI/ui-organic-minimap-frame.webp`, 1254 px square, a vine-and-slime ring with a
   transparent middle about 11 % in from each edge) filling the box grown by 6 px on every side,
@@ -109,8 +112,9 @@ paused or frozen by a hit-stop (`PhaserSceneTreeHost.ts:97-101`, `WorldScene.ts:
   bag, dialogue, title, game over…) or while focus is in a text field; otherwise it toggles.
 - Escape closes it through the modal stack (`ModalStack.ts:130-144`).
 - The pause menu's Map button closes the pause menu and calls `openMap` (`WorldScene.ts:547`).
-- The world map is the Map tab of the menu tab strip (`WorldScene.ts:215-225`): the menu key (E)
-  closes it like any open tab (`toggleMenu`, `WorldScene.ts:2066-2077`).
+- The world map is the Map tab of the menu tab strip (`WorldScene.ts:215-225`): the menu key (B;
+  KeyE in Phaser) closes it like any open tab (`toggleMenu`, `WorldScene.ts:2066-2077`), and the
+  journal key (J, 2026-10-08) switches it to the Journal.
 - Opening: `MenuOpen` cue, closing `MenuClose` (`AudioEventBridge.ts:104-109`); the first opening
   teaches the `map` control hint and reports `control.used {controlId: "menu:map"}` to tutorial
   quests (`WorldScene.ts:141-147, 596-602`).

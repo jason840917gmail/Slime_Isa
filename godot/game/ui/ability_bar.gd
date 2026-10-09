@@ -1,77 +1,77 @@
-extends PanelContainer
-## The HUD's ability bar (Phaser `features/ui/AbilityBarSurfacePort.ts` + `ui.ability-bar`;
-## abilities spec 2.6): five buttons, Jump, Dodge, Lash, Slam, Teleport (key order: Space, then
-## 1-4), bottom centre, offsets (-180, -84)-(180, -12) from (0.5, 1); 64 px buttons 6 px apart
-## inside an 8 px margin.
+extends Control
+## The HUD's ability buttons (Phaser `features/ui/AbilityBarSurfacePort.ts` + `ui.ability-bar`;
+## abilities spec 2.6), drawn since 2026-10-08 as the HUD console's icon slots (roadmap 4.12,
+## docs/design/2026-10-07-hud-console-mockup.md): one 46-unit wooden slot per ability in a row,
+## 4 apart, placed on the console by hud.gd. The abilities and their order come from
+## `ability_definitions.gd` BAR_SLOTS (key order; Jump left the interface on 2026-10-08); a slot
+## shows the ability's icon (`asset/UI/hud-console/ability-<id>.webp`, its name
+## while there is none) and its key in a corner badge.
 ##
-## Each button reads the player's `ability_status(id)` every frame. Label, first match:
-## - locked → "<earnedBy>\n<name>";
-## - cooling down → "<s>s\n<name>" (s = ceil(ms / 100) / 10 with one decimal: 1234 ms → "1.3s");
-## - too little energy → "Need <cost>E\n<name>";
-## - busy or action-locked → "Busy\n<name>";
-## - else "<key label>\n<name>" ("Space\nJump", "2\nLash").
-## A button is disabled unless the game is playing (no menu pause, not dead) and the ability can
-## run. A click on an enabled button runs the ability through `player.activate_ability_from_ui`
-## (ClickSfx plays first). The buttons never take keyboard focus.
+## Each slot reads the player's `ability_status(id)` every frame. Its label (the tooltip; tests read
+## it), first match:
+## - locked → "<earnedBy>\n<name>" (the icon greyed);
+## - cooling down → "<s>s\n<name>" (s = ceil(ms / 100) / 10 with one decimal: 1234 ms → "1.3s";
+##   a dark sweep over the slot shrinks as the cooldown runs out, the seconds in the middle);
+## - too little energy → "Need <cost>E\n<name>" (the icon dimmed, the cost in the badge);
+## - busy or action-locked → "Busy\n<name>" (the icon dimmed);
+## - else "<key label>\n<name>" ("2\nLash").
+## A slot is disabled unless the game is playing (no menu pause, not dead) and the ability can run.
+## A click on an enabled slot runs the ability through `player.activate_ability_from_ui` (ClickSfx
+## plays first). The slots never take keyboard focus.
 ##
-## Look (styles.css .game-ui--ability-bar): the window panel with radius 10; buttons with padding
-## 4, radius 6, 12 px bold special text, a special border at 65 % while enabled.
-##
-## Owner: abilities.
+## Owner: abilities (the look: UI, HUD console).
 
 const Services := preload("res://game/shared/services.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const Definitions := preload("res://game/player/abilities/ability_definitions.gd")
+const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
+const SfxPlayer := preload("res://game/runtime/sfx_player.gd")
 
-## Phaser `ABILITIES` (AbilityBarSurfacePort.ts:8-14): bar order and short names.
-const SLOTS: Array[StringName] = [&"jump", &"dodge", &"stretch-lash", &"squash-slam", &"teleport"]
-const OFFSET_MIN := Vector2(-180.0, -84.0)
-const OFFSET_MAX := Vector2(180.0, -12.0)
-const BUTTON_WIDTH := 64.0
-const BUTTON_GAP := 6.0
-const MARGIN := 8.0
-const FONT_SIZE := 12
-const PANEL_RADIUS := 10
-const BUTTON_RADIUS := 6
-const BUTTON_PADDING := 4.0
-const ENABLED_BORDER_ALPHA := 0.65
+const SLOT_SIZE := 46.0
+const SLOT_GAP := 4.0
+const ICON_SHARE := 0.8
+const ICON_PATH := "res://asset/UI/hud-console/ability-%s.webp"
+const NAME_FONT_SIZE := 10
+const COOLDOWN_FONT_SIZE := 15
+const SWEEP_COLOR := Color(0.03, 0.05, 0.08, 0.6)
+const LOCKED_MODULATE := Color(0.5, 0.5, 0.5, 0.6)
+const DIM_MODULATE := Color(1.0, 1.0, 1.0, 0.5)
 ## `sfx.ui.click` (min interval 40 ms), played through the converter's cue player.
 const CLICK_STREAM := "res://asset/audio/sfx/library/ui/click.ogg"
 const CLICK_MIN_INTERVAL_MS := 40.0
-const SfxPlayer := preload("res://game/runtime/sfx_player.gd")
 
 ## The player script (ability_status, activate_ability_from_ui, is_dead), or null.
 var player: Node
-var _buttons: Dictionary = {}
-## The theme's own button styles per state (before any override), the base of every restyle.
-var _button_styles: Dictionary = {}
+var _slots: Array[StringName] = []
+## id -> {"button": Button, "icon": TextureRect, "key": Label, "sweep": Control}.
+var _views: Dictionary = {}
+var _model: Dictionary = {}
 var _signature: String = ""
 var _click: AudioStreamPlayer
+
+
+## The bar's abilities in order (`ability_definitions.gd` BAR_SLOTS).
+static func slots() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for id: Variant in Definitions.BAR_SLOTS:
+		ids.append(StringName(id))
+	return ids
+
+
+## The row's size for `count` slots.
+static func row_size(count: int) -> Vector2:
+	return Vector2(count * SLOT_SIZE + maxf(0.0, count - 1.0) * SLOT_GAP, SLOT_SIZE)
 
 
 func _ready() -> void:
 	name = "AbilityBar"
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	anchor_left = 0.5
-	anchor_right = 0.5
-	anchor_top = 1.0
-	anchor_bottom = 1.0
-	offset_left = OFFSET_MIN.x
-	offset_top = OFFSET_MIN.y
-	offset_right = OFFSET_MAX.x
-	offset_bottom = OFFSET_MAX.y
-	_style_panel()
-	var row := HBoxContainer.new()
-	row.name = "Buttons"
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override(&"separation", int(BUTTON_GAP))
-	add_child(row)
-	for id in SLOTS:
-		var button := _make_button(id)
-		row.add_child(button)
-		_buttons[id] = button
+	_slots = slots()
+	size = row_size(_slots.size())
+	for index in _slots.size():
+		_make_slot(_slots[index], index)
 	_click = AudioStreamPlayer.new()
 	_click.name = "ClickSfx"
 	_click.set_script(SfxPlayer)
@@ -89,30 +89,39 @@ func _process(_delta: float) -> void:
 	refresh()
 
 
-## Rebuilds the labels and the disabled states from the player (cheap; skips unchanged models).
+## Rebuilds the slots from the player (cheap; skips unchanged models).
 func refresh() -> void:
-	var model := snapshot()
-	var signature := str(model)
+	_model = snapshot()
+	var signature := str(_model)
 	if signature == _signature:
 		return
 	_signature = signature
-	for id in SLOTS:
-		var button: Button = _buttons[id]
-		var entry: Dictionary = model[id]
-		button.text = str(entry["label"])
-		button.disabled = bool(entry["disabled"])
-		_style_button(button, not button.disabled)
+	for id in _slots:
+		_show(id, _model[id])
 
 
-## {id: {"label": String, "disabled": bool}} for the five slots (tests read it).
+## {id: {"label", "disabled", "state", "key", "cooldown"}} per slot; `state` is "locked",
+## "cooldown", "energy", "busy" or "ready"; `cooldown` the share of the cooldown left (tests read it).
 func snapshot() -> Dictionary:
 	var live := player != null and is_instance_valid(player)
 	var interactive := live and not bool(player.call(&"is_dead")) and not _menu_paused()
+	var constants := Services.constants()
 	var model := {}
-	for id in SLOTS:
+	for id in (_slots if not _slots.is_empty() else slots()):
 		var name_text := str(Definitions.BAR_NAMES.get(id, id))
 		var status: Dictionary = player.call(&"ability_status", id) if live else {}
-		model[id] = {"label": _label(id, name_text, status), "disabled": not interactive or not bool(status.get("canActivate", false))}
+		var state := _state(status)
+		var cooldown := float(status.get("cooldownRemainingMs", 0.0))
+		var total := Definitions.cooldown_ms(id, constants) if constants != null else 0.0
+		model[id] = {
+			"label": _label(id, name_text, status),
+			"disabled": not interactive or not bool(status.get("canActivate", false)),
+			"state": state,
+			"key": ControlLabels.control_label(Definitions.action(id)),
+			"cooldown": clampf(cooldown / total, 0.0, 1.0) if total > 0.0 else (1.0 if cooldown > 0.0 else 0.0),
+			"cost": roundi(Definitions.energy_cost(id)),
+			"seconds": ceilf(cooldown / 100.0) / 10.0,
+		}
 	return model
 
 
@@ -126,6 +135,18 @@ func activate(id: StringName) -> bool:
 	var used := bool(player.call(&"activate_ability_from_ui", id))
 	_signature = ""
 	return used
+
+
+static func _state(status: Dictionary) -> String:
+	if not bool(status.get("unlocked", false)):
+		return "locked"
+	if float(status.get("cooldownRemainingMs", 0.0)) > 0.0:
+		return "cooldown"
+	if bool(status.get("insufficientEnergy", false)):
+		return "energy"
+	if bool(status.get("busy", false)) or bool(status.get("actionLocked", false)):
+		return "busy"
+	return "ready"
 
 
 static func _label(id: StringName, name_text: String, status: Dictionary) -> String:
@@ -150,56 +171,91 @@ func _menu_paused() -> bool:
 		or not world.has_pause_reason(Services.WorldServiceType.PAUSE_HIT_STOP)
 
 
-func _make_button(id: StringName) -> Button:
+func _make_slot(id: StringName, index: int) -> void:
 	var button := Button.new()
 	button.name = str(Definitions.BAR_NAMES.get(id, id))
-	button.custom_minimum_size = Vector2(BUTTON_WIDTH, 0.0)
-	button.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	button.position = Vector2(index * (SLOT_SIZE + SLOT_GAP), 0.0)
+	button.size = Vector2(SLOT_SIZE, SLOT_SIZE)
 	button.focus_mode = Control.FOCUS_NONE
-	button.tooltip_text = str(Definitions.BAR_NAMES.get(id, id))
-	button.theme_type_variation = &"BoldButton"
-	button.add_theme_font_size_override(&"font_size", FONT_SIZE)
-	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	button.clip_text = false
-	for color_name: StringName in [&"font_color", &"font_hover_color", &"font_pressed_color", &"font_focus_color", &"font_hover_pressed_color"]:
-		button.add_theme_color_override(color_name, UiTokens.SPECIAL)
-	button.add_theme_color_override(&"font_disabled_color", Color(UiTokens.SPECIAL, 0.45))
+	button.clip_text = true
+	button.add_theme_font_size_override(&"font_size", NAME_FONT_SIZE)
+	ConsoleStyle.style_slot_button(button)
 	button.pressed.connect(_on_pressed.bind(id))
-	return button
+	add_child(button)
+	var icon := TextureRect.new()
+	icon.name = "Icon"
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var inset := SLOT_SIZE * (1.0 - ICON_SHARE) * 0.5
+	icon.position = Vector2(inset, inset)
+	icon.size = Vector2.ONE * SLOT_SIZE * ICON_SHARE
+	var path := ICON_PATH % str(id)
+	if ResourceLoader.exists(path):
+		icon.texture = load(path) as Texture2D
+	else:
+		button.text = str(Definitions.BAR_NAMES.get(id, id))
+	button.add_child(icon)
+	var sweep := Control.new()
+	sweep.name = "Cooldown"
+	sweep.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sweep.size = button.size
+	sweep.draw.connect(_draw_sweep.bind(id, sweep))
+	button.add_child(sweep)
+	var key := ConsoleStyle.make_key_badge()
+	button.add_child(key)
+	_views[id] = {"button": button, "icon": icon, "key": key, "sweep": sweep}
+
+
+func _show(id: StringName, entry: Dictionary) -> void:
+	var view: Dictionary = _views[id]
+	var button: Button = view["button"]
+	var icon: TextureRect = view["icon"]
+	var key: Label = view["key"]
+	var state := str(entry["state"])
+	button.disabled = bool(entry["disabled"])
+	button.tooltip_text = str(entry["label"]).replace("\n", " · ")
+	match state:
+		"locked":
+			icon.modulate = LOCKED_MODULATE
+		"energy", "busy":
+			icon.modulate = DIM_MODULATE
+		_:
+			icon.modulate = Color.WHITE
+	var badge := "%dE" % int(entry["cost"]) if state == "energy" else str(entry["key"])
+	ConsoleStyle.place_key(key, badge, button.size)
+	key.add_theme_color_override(&"font_color", UiTokens.WARNING if state == "energy" else UiTokens.TEXT)
+	(view["sweep"] as Control).queue_redraw()
+
+
+## The cooldown: a dark sweep over the share of the cooldown left, and the seconds.
+func _draw_sweep(id: StringName, sweep: Control) -> void:
+	var entry: Dictionary = _model.get(id, {})
+	if str(entry.get("state", "")) != "cooldown":
+		return
+	var share := float(entry["cooldown"])
+	var centre := sweep.size * 0.5
+	var radius := sweep.size.x * 0.62
+	var points := PackedVector2Array([centre])
+	var steps := 24
+	for step in steps + 1:
+		var angle := -PI * 0.5 + TAU * share * step / steps
+		points.append(centre + Vector2(cos(angle), sin(angle)) * radius)
+	var clip := Rect2(Vector2.ONE * 4.0, sweep.size - Vector2.ONE * 8.0)
+	var box := PackedVector2Array([clip.position, Vector2(clip.end.x, clip.position.y), clip.end, Vector2(clip.position.x, clip.end.y)])
+	for piece: PackedVector2Array in Geometry2D.intersect_polygons(points, box):
+		sweep.draw_colored_polygon(piece, SWEEP_COLOR)
+	var font := sweep.get_theme_default_font()
+	if font == null:
+		return
+	var text := "%.1f" % float(entry["seconds"])
+	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, COOLDOWN_FONT_SIZE).x
+	var baseline := centre + Vector2(-width * 0.5, COOLDOWN_FONT_SIZE * 0.35)
+	sweep.draw_string_outline(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, COOLDOWN_FONT_SIZE, 4, ConsoleStyle.OUTLINE)
+	sweep.draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, COOLDOWN_FONT_SIZE, UiTokens.TEXT)
 
 
 func _on_pressed(id: StringName) -> void:
 	if _click != null and _click.stream != null:
 		_click.call(&"play_cue")
 	activate(id)
-
-
-func _style_panel() -> void:
-	var base := get_theme_stylebox(&"panel", &"PanelContainer")
-	var style: StyleBoxFlat = (base.duplicate() as StyleBoxFlat) if base is StyleBoxFlat else StyleBoxFlat.new()
-	style.set_corner_radius_all(PANEL_RADIUS)
-	style.content_margin_left = MARGIN
-	style.content_margin_right = MARGIN
-	style.content_margin_top = MARGIN
-	style.content_margin_bottom = MARGIN
-	add_theme_stylebox_override(&"panel", style)
-
-
-## Radius 6 and padding 4 on every state; a special border at 65 % while enabled.
-func _style_button(button: Button, enabled: bool) -> void:
-	if _button_styles.is_empty():
-		for state: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"focus"]:
-			_button_styles[state] = button.get_theme_stylebox(state, &"Button")
-	for state: StringName in _button_styles:
-		var base: Variant = _button_styles[state]
-		if not base is StyleBoxFlat:
-			continue
-		var style := (base as StyleBoxFlat).duplicate() as StyleBoxFlat
-		style.set_corner_radius_all(BUTTON_RADIUS)
-		style.content_margin_left = BUTTON_PADDING
-		style.content_margin_right = BUTTON_PADDING
-		style.content_margin_top = BUTTON_PADDING
-		style.content_margin_bottom = BUTTON_PADDING
-		if enabled and state != &"focus":
-			style.border_color = Color(UiTokens.SPECIAL, ENABLED_BORDER_ALPHA)
-		button.add_theme_stylebox_override(state, style)

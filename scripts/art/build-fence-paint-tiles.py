@@ -2,7 +2,7 @@
 """Draws the editor-only paint tiles of the fences layer (docs/godot/FENCES.md).
 
 One 64 px tile per entry of TILES, left to right, in
-godot/game/world/elevation/fences/fence_paint_tiles.png (the atlas of fence_tileset.tres, in that
+godot/asset/MAPS/fences/fence_paint_tiles.png (the atlas of fence_tileset.tres, in that
 order): a see-through coloured square with a fence mark and the style's letter. The game never
 draws them (the fences layer hides itself at run time).
 
@@ -15,7 +15,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "godot/game/world/elevation/fences/fence_paint_tiles.png"
+OUT = ROOT / "godot/asset/MAPS/fences/fence_paint_tiles.png"
 SIZE = 64
 ## (label, rgb) per style, atlas order = fence_tileset.tres: "A" = auto (the ground's style).
 TILES = [

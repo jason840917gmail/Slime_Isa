@@ -71,7 +71,7 @@ Order in `world_bootstrap._ready()`:
 9. Add UI: HUD CanvasLayer (§6), floating health bar (§6.3), FPS readout (§7).
 
 Integrator settings this area needs (report, do not edit `project.godot`):
-- **Viewport scale**: the screen shows a fixed number of tiles, as in Zelda: A Link to the Past (16 × 14). `project.godot` sets the base size 1024 × 896 (16 × 14 tiles of 64 px) with `stretch/mode="canvas_items"`, `aspect="expand"`, and the bootstrap's `apply_viewport_scale()` keeps `get_tree().root.content_scale_size` at that base size (on start and on `root.size_changed`). Godot scales the base to the window: the view is always 14 tiles tall at least and 16 wide at least, a wider window shows more columns (16:9 → about 25 × 14), and the UI scales with the world. This replaced the Phaser rule (1 game px = 1 CSS px, the visible world grew with the window) on 2026-10-07; the rules are in [docs/story/03-world.md](../../story/03-world.md#world-size-and-screen).
+- **Viewport scale**: the screen shows a fixed number of tiles, as in Zelda: A Link to the Past (16 × 14). `project.godot` sets the base size 1024 × 1024 (16 × 14 tiles of 64 px for the play area, and the HUD console's 128-unit strip under it since 2026-10-08; the WorldCamera's `bottom_inset` keeps the camera on the play area) with `stretch/mode="canvas_items"`, `aspect="expand"`, and the bootstrap's `apply_viewport_scale()` keeps `get_tree().root.content_scale_size` at that base size (on start and on `root.size_changed`). Godot scales the base to the window: the view is always 14 tiles tall at least and 16 wide at least, a wider window shows more columns (16:9 → about 25 × 14), and the UI scales with the world. This replaced the Phaser rule (1 game px = 1 CSS px, the visible world grew with the window) on 2026-10-07; the rules are in [docs/story/03-world.md](../../story/03-world.md#world-size-and-screen).
 - `physics/common/physics_interpolation = true` (Phaser interpolates presentation between fixed steps: `presentation/PhysicsPresentation.ts:30-46`, `CameraMotion.ts:52-62`). `max_physics_steps_per_frame=5` is already set (matches `MAX_FIXED_STEPS_PER_FRAME = 5`).
 - Clear colour `#0b1020` already set.
 
@@ -403,6 +403,11 @@ The HUD reads player state (Phaser `core/GameState.ts:177-258`; owned by the pla
 
 ### 6.2 Top-left HUD (`ui.hud`)
 
+Replaced on 2026-10-08 by the HUD console (roadmap 4.12, `game/ui/console/`,
+[the mockup](../../design/2026-10-07-hud-console-mockup.md)): the HP and energy bars became the
+console's goo orbs (the number shows only when the value changes), and the coins a small chip at
+the top left (`Coins`, the count alone). The Phaser layout below is history.
+
 Phaser mechanism: `UiSurfaceScript` (`game.ui-surface`) pulls `snapshot('hud')` on enter and on every `hp/energy/coins` change, and applies `bindings` (`[{nodePath, property, model}]`, node paths relative to the script node) — `../Coins.text ← coinsLabel`, `../Health.value ← hp`, `../Health.max ← maxHp`, `../Energy.value ← energy`, `../Energy.max ← maxEnergy`. A port of `ui_surface.gd` belongs to Phase 3; for the trial either (a) instance the converted `res://game/scenes/ui/hud.tscn` on a CanvasLayer (layer 10) and drive the three nodes from `hud.gd`, or (b) build the same three controls by hand. Target look (CSS px):
 
 - Root: position (16, 16), size 284 × 68 (`offsetMin [16,16]`, `offsetMax [300,84]`), no background/border, text shadow `0 1px 2px #081022, 0 0 6px #081022d9` (approximate with Label `font_shadow_color #081022`, offset (0,1), outline 0).
@@ -441,7 +446,7 @@ Trial: `fps_readout.gd` on its own CanvasLayer (layer 100), **top-right** (the H
 - `zoom %.3f  mode gameplay|overview`, `deadzone W x H` (from the camera state)
 - `draw calls` = `Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)`, `objects` = `RENDER_TOTAL_OBJECTS_IN_FRAME`, `nodes` = `OBJECT_NODE_COUNT`
 
-Visible by default in trial builds (it is the 60-fps test instrument); toggle with F3 (raw `KEY_F3` in `_unhandled_input`, or ask the integrator for an action).
+Hidden by default since 2026-10-08 (the HUD console; it was visible in trial builds as the 60-fps test instrument); toggle with F3 (raw `KEY_F3` in `_unhandled_input`).
 
 ---
 
@@ -462,6 +467,6 @@ Visible by default in trial builds (it is the 60-fps test instrument); toggle wi
 2. Walking: the camera stays still while the slime is within ±112 × ±50.4 px of the camera centre (1280×720, zoom 1), then follows smoothly; it never shows outside (0,0)-(4096,4096).
 3. `=`/`-` step through 0.5 … 1.25; each step snaps the camera onto the slime; at 1.25 `=` does nothing.
 4. The six NPCs idle, then walk inside their areas with `walk-<dir>` clips at their own speeds and pause with `idle`; the elder can pause up to 50 s.
-5. HUD top-left shows `Coins 50`, `HP 100 / 100`, `Energy 100 / 100`; a hit shows the 56×8 bar above the slime for 1.8 s.
+5. The coin chip top-left shows `50`; the console's orbs are full; a hit shows the 56×8 bar above the slime for 1.8 s and the life orb's number with the damage.
 6. FPS panel top-right updates 5×/s.
 7. The slime cannot leave the 4096×4096 world (bounds walls on layer 1).

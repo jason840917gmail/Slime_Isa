@@ -26,11 +26,16 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
   plus the keyed sword swings (`attack-1-<direction>`) and the keyed action clips (`hop`, `squash`,
   `teleport`, `eat` and `knockback`, each `-down`/`-up`/`-side`: page-1 frames chosen by pose); a row with
   a `shift` keys `Visual:offset` back by it, and a shifted `-side` row also gets a mirrored `-left` clip.
-  Every other clip in the scene is removed. `--only` rebuilds just the clips with those name prefixes, so
+  Alias clips (`ALIASES`) play a row already built at their own fps: `full-idle-down/-up/-side` on page 5's
+  full rows at 2.67 fps (a slow sway at rest). Every other clip in the scene is removed. `--only` rebuilds just the clips with those name prefixes, so
   clips tuned in the editor (idle-down) stay as they are. Save or close the scene in an open editor
   first and reload it afterwards.
 - `res://tools/build_ui_theme.gd` — rebuilds `game/ui/theme/slime_theme.tres` from `ui_tokens.gd`
   ([godot/UI_THEME.md](godot/UI_THEME.md)).
+- `res://tools/render_ceremony.gd` (windowed: `--path godot -s res://tools/render_ceremony.gd -- --out=<dir>
+  [--ability=swallow]`) — starts the playground like a new run, learns an ability (the Roll by default) and
+  saves `<dir>/ceremony-<n>.png` as the ability ceremony plays (the bubble rising, the card, the gulp after a
+  key press), for tuning it without playing to a quest.
 - `res://tools/build_terrain_lab.gd` — rebuilds the terrain lab scene ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)).
 - `python scripts/godot/fit-symbol-font-metrics.py [--check]` — copies the UI font's line metrics
   (Source Sans 3) into the symbol fallback font (Noto Sans Symbols 2), so the fallback does not make every
@@ -47,23 +52,37 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/art/build-terrain-edge-tiles.py [ground ...] [--preview DIR] [--grounds-2x]` (**numpy**) —
   the hand-made terrain edges: reads `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png`
   and `-hole.png` (and the ground sheet in `godot/asset/MAPS/grounds/` as the colour reference) and writes
-  `godot/game/world/terrain_edges/art/<ground>-edges.png` and `-edges-rim.png` ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)).
+  `godot/asset/MAPS/terrain-edges/<ground>-edges.png` and `-edges-rim.png` ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)).
 - `python scripts/art/build-elevation-art.py [name ...] [--preview DIR]` (**numpy**) — the cliff art:
-  seamless walls, their corner-stone ends and the stairs kit (treads, risers, copings) per rock style, and each ground's cliff lip and foot, from
-  `asset/Originals/elevation/generated/` into `godot/game/world/elevation/art/`
+  seamless walls and their corner-stone ends per wall style (nine: meadow rock, snow rock, sandstone,
+  cave rock, crystal rock, mossy rock, masonry, root rock, red rock), the stairs kit (treads, risers, a
+  coping per wall style), and each ground's cliff lip and foot, from
+  `asset/Originals/elevation/generated/` into `godot/asset/MAPS/elevation/`
   ([godot/ELEVATION.md](godot/ELEVATION.md#making-the-art)); `scripts/art/build-elevation-paint-tiles.py` draws
-  the elevation layer's paint tiles.
+  the elevation layer's paint tiles and `scripts/art/build-cliff-paint-tiles.py` the cliffs layer's
+  (one swatch per wall style; run it after the walls).
 - `python scripts/maps/build-elevation-park.py` — rebuilds the playground's Elevation Park (its rows
-  of ground and water, its painted levels and stairs); close the playground in the editor first.
+  of ground and water, its painted levels and stairs, the wall styles on its `cliffs` layer); close the
+  playground in the editor first. `res://tools/render_elevation_park.gd` (windowed:
+  `--path godot -s res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few
+  close-ups with the game's own drawing and prints how many walls each style has.
 - `python scripts/art/build-fence-art.py [style ...] [--preview DIR]` (**numpy**) — the fences along hill
   rims: cuts each style's generated front view (`asset/Originals/elevation/fences/`) into its kit (posts,
   a seamless rail strip, the rail seen from above, a JSON of measures) in
-  `godot/game/world/elevation/fences/art/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
+  `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
   draws the fences layer's paint tiles.
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
   (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
   prints collision, drop and hop probes against its fences.
+- `python scripts/art/pack-hud-console.py` — packs the HUD console's art from `asset/Originals/ui/hud-console/` into
+  `godot/asset/UI/hud-console/` (the orb ring, the bar, the slot, an icon per ability and per menu button) and prints the
+  measures `game/ui/console/` keeps as constants (the ring's hole, the bar's panel and ends).
+- `res://tools/render_hud_mockup.gd` (windowed: `--path godot -s res://tools/render_hud_mockup.gd -- --map=level-1
+  --out=<dir>`) renders level-1 at 2x with today's HUD and without it (the views of the console layout), and
+  `python scripts/art/build-hud-console-mockup.py --frames <dir> [--out DIR]` (**numpy**) draws the proposed
+  bottom console over those frames into `docs/design/hud-console/`, from the art in
+  `asset/Originals/ui/hud-console/` ([the mockup](design/2026-10-07-hud-console-mockup.md)).
 - `pnpm props:pack` (**numpy**) — packs `asset/Originals/props/` into bottom-anchored
   `godot/asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.webp` atlases (the crystal cluster art of the
   `crystal-cluster-wall` object scenes).
@@ -76,7 +95,25 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/props/pack-gulp-props.py` — packs the Gulp and secret props (cracked ground, sinkhole,
   cave ladder, silk cocoon, spider web, Goo Heart, pressure plate up and down) from
   `asset/Originals/props/gulp/` into `godot/asset/MAPS/props/256x256-tile_8x1-gulp-props.webp`, and the
-  Gulp form badges from `asset/Originals/ui/gulp/` into `godot/asset/UI/ui-gulp-form-icons-3x1.webp` (Heavy, Sticky, Frog).
+  Gulp form badges from `asset/Originals/ui/gulp/` into `godot/asset/UI/ui-gulp-form-icons-3x1.webp` (Heavy, Sticky, Frog;
+  the HUD's form badge).
+- `python scripts/props/pack-gulp-art.py` (**numpy**) — the Gulp's things to suck and throw (2026-10-09), from the
+  Magnific stills in `asset/Originals/gulp/generated/` ([its README](../asset/Originals/gulp/README.md)):
+  - the liftables into `godot/asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp` (8 columns × 9 rows of
+    192 px). Rows 0-7 are the 64 objects of `grid-1.png` .. `grid-4.png` (4 x 4 grids, two grid rows per sheet
+    row): each grid cell is cut out (the see-through haze over grid-4's background is keyed out) and cleared
+    of specks under 40 px. Row 8 is the mossy rock, puffball and pinecone, two variants each (frames 64-69). Every
+    object is trimmed, fitted into its cell (never upscaled) and stood on the cell's bottom centre. It deletes
+    the old 6 x 1 sheet;
+  - the catalog `godot/game/data/liftables.json` that `game/scripts/liftable.gd` reads: per kind its name,
+    material, frames and art size. The kinds, names and materials are authored in the script's `GRIDS` and
+    `FIRST`, not in the JSON;
+  - the essences into `godot/asset/MAPS/items/128x128-tile_3x1-gulp-essences.webp` (stone, silk, swim: on the
+    ground, in the mouth and as bag icons).
+
+  `res://tools/render_gulp_art.gd` (windowed: `--path godot -s res://tools/render_gulp_art.gd -- --out=<dir>`)
+  renders the Gulp art with the game's own scenes on one sheet (`<dir>/gulp-art.png`): the slime's suck, spit,
+  full and ball clips, the Clod Stomper, Tom and his web, a sample of the liftables and the essences.
 - `python scripts/effects/pack-stretch-lash.py` — packs the Stretch Lash goo tendril from
   `asset/Originals/effects/stretch-lash/` into `godot/asset/MAPS/effects/384x96-tile_4x2-stretch-lash.webp`.
 - `python scripts/characters/build-gulp-form-skins.py` — builds the Gulp form skins
@@ -84,7 +121,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   top-down slime draws its forms with a shader instead).
 - `python scripts/characters/pack-slime-v2-page.py [--page N] [--preview out.gif]` (**numpy**, Node,
   Brave) — packs a page of the three-quarter top-down player slime (1 = idle, walk, doze and sleep; 2 =
-  rolls, the stretch lash and the defeat; 3 = swim) from the Seedance clips in
+  rolls, the stretch lash and the defeat; 3 = swim; 4 = the Gulp's suck and spit and the Roll's ball; 5 =
+  the full slime's waddle; pages 4 and 5 take page 1's scale from its manifest, `PAGE_1_SCALE`) from the Seedance clips in
   `asset/Originals/characters/slime-v2/videos/` into
   `godot/asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` and `slime-v2/page-<n>.json` (loop
   choice, fps and looping per row). Rows listed in its `SPINS` are baked from a still, rows in `PICKS` use
@@ -92,6 +130,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   shift) and rows in `ROW_SCALES` smaller than the page scale. A page is always packed whole. It extracts
   frames with `node scripts/characters/extract-video-frames.mjs <outDir> <fps> <size> <name>=<file.mp4> ...`
   (headless Brave through Playwright; no ffmpeg needed). Then run `tools/build_player_clips.gd`.
+- `python scripts/characters/pack-clod-stomper.py` (**numpy**) — the Clod Stomper's five poses (idle, crouch,
+  air, slam, defeated; one scale for all) from `asset/Originals/enemies/clod-stomper/` into
+  `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp`.
+- `python scripts/characters/pack-tom.py` (**numpy**) — Tom from `asset/Originals/characters/tom/` into
+  `godot/asset/characters/authored/npcs/tom.webp`, and the web he is caught in (the cocoon, then the torn web
+  at the cocoon's scale) into `godot/asset/MAPS/props/256x256-tile_2x1-tom-web.webp`.
 - `python scripts/props/pack-training-dummy.py` — the playground's training dummy into
   `godot/asset/MAPS/objects/256x256-tile_1x1-training-dummy.webp`.
 - `python scripts/effects/pack-lash-bell.py` — the lash bell post (at rest and swung both ways) into

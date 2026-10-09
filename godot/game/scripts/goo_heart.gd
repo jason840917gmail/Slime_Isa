@@ -4,11 +4,13 @@ class_name GooHeartScript
 ## 13.7). A hidden Goo Heart that bobs until the living player's centre comes within `radius`:
 ## then it vanishes, max HP grows by `character.player.gooHeart.maxHpBonus` (10) for the rest of
 ## the run, HP fills, "+10 max HP" shows and `collected` fires. The story flag
-## "goo-heart.<heart_id>" keeps it gone everywhere (heart ids are unique across maps).
+## "goo-heart.<heart_id>" keeps it gone everywhere (heart ids are unique across maps). Every heart
+## plays the ceremony (game/ui/ceremony/, roadmap 4.13) while main's `ability_ceremonies` is on.
 ##
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
+const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
 
 const UNASSIGNED := "unassigned"
 const FLAG_PREFIX := "goo-heart."
@@ -91,9 +93,22 @@ func _collect(player: Node, at: Vector2) -> void:
 		return
 	run.set_flag(FLAG_PREFIX + heart_id)
 	player.call(&"grant_goo_heart")
+	var constants := Services.constants()
+	var bonus := constants.integer("character.player.gooHeart.maxHpBonus") if constants != null else 0
 	var feel := Services.feel()
 	if feel != null:
-		var constants := Services.constants()
-		var bonus := constants.integer("character.player.gooHeart.maxHpBonus") if constants != null else 0
 		feel.audio_cue(CUE)
 		feel.floating_text(at - Vector2(0.0, TEXT_RISE), "+%d max HP" % bonus, &"green", true, TEXT_MS)
+	if is_inside_tree() and AbilityCeremony.enabled(get_tree()):
+		AbilityCeremony.request_heart(get_tree(), bonus, _heart_icon())
+
+
+## The heart's first frame, for the ceremony's bubble.
+func _heart_icon() -> Texture2D:
+	if visual == null or visual.texture == null:
+		return null
+	var icon := AtlasTexture.new()
+	icon.atlas = visual.texture
+	var frame := visual.texture.get_size() / Vector2(maxi(1, visual.hframes), maxi(1, visual.vframes))
+	icon.region = Rect2(Vector2.ZERO, frame)
+	return icon

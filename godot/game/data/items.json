@@ -73,6 +73,33 @@
     "description": "Clumpy silk from a spider-slime.",
     "worldDrop": { "objectId": "collectible.silk-clump", "visualId": "silk-clump" }
   },
+  "stone-essence": {
+    "id": "stone-essence",
+    "name": "Stone Essence",
+    "category": "material",
+    "icon": "gulp-essences-3x1",
+    "iconFrame": 0,
+    "description": "Swallow it for the Stone form: heavy, no knockback, holds plates down.",
+    "use": { "gulp": true }
+  },
+  "silk-essence": {
+    "id": "silk-essence",
+    "name": "Silk Essence",
+    "category": "material",
+    "icon": "gulp-essences-3x1",
+    "iconFrame": 1,
+    "description": "Swallow it for the Silk form: spider webs let you through.",
+    "use": { "gulp": true }
+  },
+  "swim-essence": {
+    "id": "swim-essence",
+    "name": "Swim Essence",
+    "category": "material",
+    "icon": "gulp-essences-3x1",
+    "iconFrame": 2,
+    "description": "Swallow it for the Swim form: deep water lets you in.",
+    "use": { "gulp": true }
+  },
   "weaver-fang": {
     "id": "weaver-fang",
     "name": "Weaver Fang",

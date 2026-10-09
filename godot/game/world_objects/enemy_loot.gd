@@ -2,7 +2,9 @@ extends Node
 ## Enemy rewards (Phaser `CombatController.awardEnemyDefeat` + `InventoryDropController.dropLoot`
 ## / `restore` + `LootDropPlacement.ts`). A child of main that hears every enemy's
 ## `reward_requested` (it connects to each enemy as it enters the tree): the coins are paid at
-## once ("+10c", yellow, 20 px above the corpse), and each loot item that wins its chance roll
+## once ("+10c", yellow, 20 px above the corpse), a Gulp essence may fall (the enemy kind's
+## `gulp.essenceDrops` entry in game-constants: its essence and chance, owner 2026-10-08; it is not
+## saved and fades after `gulp.dropFadeMs`), and each loot item that wins its chance roll
 ## falls as a pile scattered around the corpse (golden-angle rings of 0.45 / 0.6 / 0.75 tiles,
 ## squashed 0.7 vertically, skipping blocked cells; on the corpse when all are blocked). Each pile
 ## is recorded in its map's `inventory_drops` before it flies, so it is back on the next load until
@@ -14,12 +16,16 @@ const Services := preload("res://game/shared/services.gd")
 const ResourceDrops := preload("res://game/world_objects/resource_drops.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const QuestEvents := preload("res://game/quests/quest_events.gd")
+const EssenceScript := preload("res://game/scripts/essence.gd")
 
 const GOLDEN_ANGLE := PI * (3.0 - sqrt(5.0))
 const LOOT_RINGS: Array[float] = [0.45, 0.6, 0.75]
 const LOOT_VERTICAL_SCALE := 0.7
 const LOOT_TURNS := 8
 const COIN_TEXT_RISE := 20.0
+## An essence lands this far below the corpse's centre, up to this far to either side.
+const ESSENCE_DROP_PX := 30.0
+const ESSENCE_SCATTER_PX := 20.0
 const ORIGIN_LOOT := "loot"
 ## EnemyScript.RANK_BOSS: Fatty and the Matron.
 const RANK_BOSS := "boss"
@@ -74,6 +80,20 @@ func _on_reward(payload: Dictionary, enemy: Node) -> void:
 			items.append({"item_id": str(entry.get("itemId", "")), "count": int(entry.get("count", 1))})
 	if not items.is_empty() and world != null:
 		drop_loot(world.map_id(), at, items)
+	_drop_essence(kind, at)
+
+
+## The enemy kind's Gulp essence, if its chance roll wins: it hops out of the corpse (`at`, the old
+## centre) to the ground just below.
+func _drop_essence(kind: String, at: Vector2) -> void:
+	var constants := Services.constants()
+	if constants == null:
+		return
+	var entry: Variant = constants.dictionary("gulp.essenceDrops").get(kind)
+	if not entry is Dictionary or randf() >= float((entry as Dictionary).get("chance", 0.0)):
+		return
+	var landing := at + Vector2(randf_range(-ESSENCE_SCATTER_PX, ESSENCE_SCATTER_PX), ESSENCE_DROP_PX)
+	EssenceScript.spawn(str((entry as Dictionary).get("essence", "")), landing, at, constants.number("gulp.dropFadeMs"))
 
 
 ## `dropLoot`: one pile per item around `at` (old centre of the corpse).

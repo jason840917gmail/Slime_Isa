@@ -198,7 +198,9 @@ The bridge listens to `gameEvents` and plays `Effects/<Cue>` of `audio.global` t
 `createGlobalAudioCuePort` (`infrastructure/audio/GlobalAudioCuePort.ts:7-30`: only nodes under
 `Effects`, a missing cue warns once in dev and is otherwise silent; `stop(cue)` stops a loop).
 Positional and per-entity sounds stay in their own scenes, wired by scene connections (`:12-13`).
-The cues Godot added after the port (steps, water, Gulp forms, puzzles, typing) are in §10.
+The cues Godot added after the port (steps, water, Gulp forms, puzzles, typing) are in §10, and
+those of Sound Picker round 5 (the Gulp's suck and throw, breaks, the Roll, the Clod Stomper, the
+ceremony) in §11.
 Godot: `GameFeel.audio_cue(cue)` plays the same node (it searches the whole `GlobalAudio` tree,
 `game_feel.gd:143-155`; no cue name repeats outside `Effects`, so this is equivalent).
 
@@ -208,7 +210,7 @@ Godot: `GameFeel.audio_cue(cue)` plays the same node (it searches the whole `Glo
 | `boss.defeated` (`UniversalSceneWorldController.ts:596-600`) | `Victory` | `boss_camp.gd:319-330` (ported) |
 | `player.respawn` (`core/GameState.ts:216-219`) | `Respawn` | `player.gd` (ported) |
 | `weapon.critical-hit` (`features/combat/CombatController.ts:216`) | `Crit` | `player_combat.gd:223` (ported) |
-| `player.action {anim}` (`AudioEventBridge.ts:30-42`): `dodge` → `Dodge`, `ability-denied` → `AbilityDenied` | as listed | `player.gd` (ported) |
+| `player.action {anim}` (`AudioEventBridge.ts:30-42`): `dodge` → `Dodge`, `ability-denied` → `AbilityDenied` | as listed | `player.gd` (ported). Since 2026-10-09 the Roll plays its own cues (§11) and nothing plays `Dodge` (its player stays) |
 | `player.action`: `eat` → `Eat`, `ability-jump` → `Jump`, `jump-land` → `Land`, `ability-teleport` → `TeleportOut`, `teleport-in` → `TeleportIn`, `ability-squash-slam` → `SlamWindup`, `slam-impact` → `SlamImpact`, `ability-stretch-lash` → `Lash` | as listed | abilities ([abilities.md](abilities.md) §16) |
 | `ability.learned` (`features/progression/StoryProgress.ts`) | `AbilityLearned` | abilities |
 | `ground.cracked`, `lash-bell.rung`, `web.torn`, `building.restored`, `building.restore-refused {reason:'missing-materials'}`, `goo-heart.collected` (`WorldScene.ts`) | `GroundCrack`, `BellRing`, `WebTear`, `BuildingRestored`, `CraftFail`, `Heal` (placeholder) | abilities / world objects |
@@ -427,7 +429,7 @@ The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`
   | `mushroom-earth-floor`, `mushroom-plain-floor`, `mushroom-clover-floor` | `Soft` |
   | `water` (and `deep-water` under a walker) | `Shallow` (wading) |
 
-- **Stroke** (`Swim`): while swimming (the Frog form in deep water) and moving faster than
+- **Stroke** (`Swim`): while swimming (the Swim form, id `frog`, in deep water) and moving faster than
   8 units/s. One plays as the slime starts to move and one at each loop of the swim clip (about
   1.1 s). Floating still plays none, though the swim clip loops then too.
 - **Crossing the waterline**: land → shallows plays `WaterEnter`; starting to swim plays
@@ -467,8 +469,8 @@ round 2). Every staged cue that has the set's option plays those takes from
 `res://asset/audio/sfx/audition/` (MP3s plus `audition.json`, written by `stage-round.py`), at the
 volume measured for them. A corner panel names the set and the ground under the slime. The release
 Web export excludes the audition folder; applying the picks deletes it. It holds only the open
-round's cues. With no round open (since round 4 was applied) the folder is gone and the panel
-switches nothing.
+round's cues. Round 4 was applied on 2026-10-06 and round 5 (§11) on 2026-10-09, so no round is
+open and the folder is gone until the next one is staged.
 
 ### 10.4 Tests
 
@@ -478,3 +480,38 @@ switches nothing.
 - the Frog's plunge, no strokes floating still, strokes swimming;
 - the form's own transform cue, the burp, and no lash-miss player;
 - every added cue has a player with takes.
+
+---
+
+## 11. Round 5: the Gulp, the breaks, the Roll, the Clod Stomper and the ceremony
+
+Added 2026-10-09 (Sound Picker round 5, `scripts/audio/picker/round-5.json`): 15 cues for the
+essence Gulp's suck and throw, the liftables breaking by material, the Roll's Pegasus-boots dash,
+the Clod Stomper's slam and the ability ceremony. They are Magnific (ElevenLabs) sound effects,
+three takes per option; eight cues also had an option B on the picker. The owner accepted the
+defaults on 2026-10-09 ("sound the defaults are ok"): option A of each ships, applied with
+`stage-round.py --picks scripts/audio/picker/round-5-picks.json`. That wrote the library files
+(`godot/asset/audio/sfx/library/<player|world|enemy|ui>/<cue>-<n>.wav`) and the players under
+`Effects` in `global.tscn`, kept the takes in `asset/Originals/audio/magnific/`
+(`<category>-<cue>-r5-<n>.wav`) and removed the audition copies; the takes are registered in
+`cues.mjs` and `picks.json` ([TOOLING.md](../../TOOLING.md#sound-picker-rounds)).
+
+| Cue | Options (A / B) | Plays when | Where |
+|---|---|---|---|
+| `GulpSuck` | Jelly vacuum / Whistling slurp | Q starts a suck | `mouth.gd` `begin_suck` |
+| `GulpCatch` | Gloop plop / Cork plunk | the sucked thing reaches the mouth, or the bag's Use puts an essence in it; also the slime gulping down the ceremony's bubble | `mouth.gd`; `ability_ceremony.gd` |
+| `GulpSpit` | Ptoo / Boing pop | Q throws what the mouth holds | `mouth.gd` `throw` |
+| `BreakClay` | Pot shatter / Jar pop and tinkle | a clay thing breaks (pots, jugs, urns, shells) | `thrown_object.gd` `BREAK_CUES` (a throw), `mouth.gd` `drop` (knocked out by a hit) |
+| `BreakGlass` | Glass shatter | glass and crystal (jars, bottles, floats, crystals, obsidian) | same |
+| `BreakWood` | Crate smash | wood (crates, kegs, buckets, logs, coconuts) | same |
+| `BreakMetal` | Clang | metal (kettles, lanterns, the iron ball) | same |
+| `BreakStone` | Rock crack | stone (rocks, bricks, stone urns, coral) | same |
+| `BreakSoft` | Splat | soft and snow (pumpkins, sacks, mud, snow) | same |
+| `BreakIce` | Ice shatter | ice (ice blocks, icicles, frost crystals, frosted jars) | same |
+| `RollRev` | Squeaky screech / Peel-out | the Roll's spin-up | `player_roll.gd` `begin` |
+| `RollLaunch` | Zip / Boing whoosh | the ball shoots off | `player_roll.gd` `_launch` |
+| `RollBonk` | Thud bonk / Crash and boing | the ball bonks into a wall, a rock or an enemy | `player_roll.gd` `_bonk` |
+| `StomperSlam` | Mud stomp | the Clod Stomper lands its stomp (it played `SlamImpact` before) | `clod_stomper.gd` |
+| `Ceremony` | Harp and bells / Marimba jingle | the ceremony's fanfare (an ability, a permanent item's first arrival, a Goo Heart) | `ability_ceremony.gd` |
+
+A material with no cue falls back to `HitDull` (`thrown_object.gd` `CUE_FALLBACK`).

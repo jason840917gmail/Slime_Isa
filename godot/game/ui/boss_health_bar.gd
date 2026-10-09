@@ -1,35 +1,38 @@
 extends Control
 class_name BossHealthBar
 ## The boss health bar (Phaser `ui/boss-health-bar.scene.json` + `features/ui/BossHealthSurfacePort.ts`).
-## Boss spec 2.5 and 5. Built by hand on the HUD layer (hud.gd adds it): a card at the bottom
-## centre with the boss name (16 px bold, danger tone) and a bar "Boss health <hp> / <max>".
+## Boss spec 2.5 and 5. Built by hand on the HUD layer (hud.gd adds it): a card at the top centre
+## (since 2026-10-08, roadmap 4.12: the HUD console holds the bottom) with the boss name (16 px
+## bold, danger tone) and a bar "Boss health <hp> / <max>".
 ## Styled by the UI theme (docs/godot/UI_THEME.md): the card is `BossPanel` (red border, radius 12;
 ## the CSS gradient drawn flat), the name `BossName`, the bar `BossBar` (inset well, radius 5,
 ## danger fill).
 ##
 ## Layout (ui/boss-health-bar.scene.json + styles.css:3396-3410, measured in the Phaser DOM): the
-## card is 548 px wide (at most the screen width - 24 px) and its bottom edge sits 192 px above the
-## screen's bottom, where Phaser stacks it above the weapon hotbar (116-172 px) and the ability bar
-## (12-84 px). The card follows the CSS rule's intent: 12 px side padding and a 16 px bar under the
-## 28 px name row, so it is 58 px tall instead of the authored 72 (Phaser's inline layout overrides
-## that rule and stretches the bar to 38 px). On a view shorter than the 720 px reference the card
-## never rises above `view centre + PLAYER_CLEARANCE`, so it stays below the player.
+## card is 548 px wide (at most the screen width - 24 px), TOP_MARGIN below the top edge (Phaser put
+## it 192 px above the bottom, over its hotbar and ability bar). The card follows the CSS rule's
+## intent: 12 px side padding and a 16 px bar under the 28 px name row, so it is 58 px tall instead
+## of the authored 72 (Phaser's inline layout overrides that rule and stretches the bar to 38 px).
 ##
 ## Data (BossHealthSurfacePort): every camp in the `boss_camp` group is bound once (checked each
 ## frame, so camps of a newly loaded world bind themselves); `boss_engaged` stores
-## {name, boss} for the camp, `boss_disengaged` removes it. Each frame the bar shows the LAST
-## stored camp: name, hp = max(0, hp), max = max(1, max_hp), visible while any is stored.
+## {name, boss, camp} for the camp, `boss_disengaged` removes it. Each frame the bar shows the LAST
+## stored camp: name, hp = max(0, hp), max = max(1, max_hp), visible while any is stored and the
+## slime's centre is inside that camp's arena (owner, 2026-10-02: the bar hides while the slime is
+## outside and comes back on return; the boss's 60 s heal uses the same test, enemy.gd).
 ## PROCESS_MODE_ALWAYS (HUD), real-time presentation; mouse_filter IGNORE.
 ##
 ## Owner: boss port.
 
+const Services := preload("res://game/shared/services.gd")
 const BossCampScript := preload("res://game/scripts/boss_camp.gd")
+const BossArena := preload("res://game/bosses/boss_arena.gd")
 const HudBar := preload("res://game/ui/hud_bar.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 
-## ui/boss-health-bar.scene.json: 548 px wide, bottom edge 192 px above the screen bottom.
+## ui/boss-health-bar.scene.json: 548 px wide; the card's top this far below the screen's top.
 const CARD_WIDTH := 548.0
-const BOTTOM_GAP := 192.0
+const TOP_MARGIN := 14.0
 ## `max-width: calc(100% - 24px)`.
 const SCREEN_MARGIN := 24.0
 const NAME_HEIGHT := 28.0
@@ -38,8 +41,6 @@ const BAR_TOP := 34.0
 const PADDING_X := 12.0
 const BAR_HEIGHT := 16.0
 const CARD_HEIGHT := BAR_TOP + BAR_HEIGHT + 8.0
-## The card's top stays this far below the view centre (where the camera keeps the player).
-const PLAYER_CLEARANCE := 96.0
 ## Field-kit danger tone (the bar's fill).
 const TONE_DANGER := UiTokens.DANGER
 const BAR_LABEL := "Boss health"
@@ -106,9 +107,7 @@ func place(view_size: Vector2) -> void:
 ## The card's screen rectangle in a view of `view_size`.
 static func card_rect(view_size: Vector2) -> Rect2:
 	var width := minf(CARD_WIDTH, maxf(120.0, view_size.x - SCREEN_MARGIN))
-	var top := maxf(view_size.y - BOTTOM_GAP - CARD_HEIGHT, view_size.y * 0.5 + PLAYER_CLEARANCE)
-	top = minf(top, view_size.y - CARD_HEIGHT - 8.0)
-	return Rect2(roundf((view_size.x - width) * 0.5), roundf(top), roundf(width), CARD_HEIGHT)
+	return Rect2(roundf((view_size.x - width) * 0.5), TOP_MARGIN, roundf(width), CARD_HEIGHT)
 
 
 ## Binds `camp` (a BossCampScript): its `boss_engaged` / `boss_disengaged` drive this bar.
@@ -124,10 +123,10 @@ func bind_camp(camp: Node) -> void:
 
 
 ## `BossHealthSurfacePort.showBoss` for a camp's live boss.
-func show_boss(camp_id: String, boss_name: String, boss: Object) -> void:
+func show_boss(camp_id: String, boss_name: String, boss: Object, camp: Node = null) -> void:
 	if boss == null:
 		return
-	_active[camp_id] = {"name": boss_name, "boss": weakref(boss)}
+	_active[camp_id] = {"name": boss_name, "boss": weakref(boss), "camp": weakref(camp) if camp != null else null}
 	_render(snapshot())
 
 
@@ -154,8 +153,23 @@ func snapshot() -> Dictionary:
 		"name": str(source.get("name", "")),
 		"hp": maxf(0.0, hp),
 		"maxHp": maxf(1.0, max_hp),
-		"visible": not source.is_empty(),
+		"visible": not source.is_empty() and _player_in_arena(source),
 	}
+
+
+## True when the slime's centre is inside the stored camp's arena (or nothing says otherwise: no
+## camp, no arena, no player).
+static func _player_in_arena(source: Dictionary) -> bool:
+	var camp_ref: WeakRef = source.get("camp")
+	var camp: Object = camp_ref.get_ref() if camp_ref != null else null
+	if camp == null or not camp.has_method(&"arena_perimeter"):
+		return true
+	var arena: Dictionary = camp.call(&"arena_perimeter")
+	var world := Services.world()
+	var player: Node = world.player if world != null else null
+	if arena.is_empty() or player == null or not is_instance_valid(player) or not player.has_method(&"get_centre"):
+		return true
+	return BossArena.contains(arena, player.call(&"get_centre"))
 
 
 func _draw() -> void:
@@ -182,7 +196,7 @@ func _on_boss_engaged(payload: Dictionary, camp: Node) -> void:
 		return
 	var boss: Object = camp.call(&"get_live_boss")
 	var boss_id := str(payload.get("bossId", ""))
-	show_boss(str(payload.get("campId", "")), BossCampScript.display_name_for(boss, boss_id), boss)
+	show_boss(str(payload.get("campId", "")), BossCampScript.display_name_for(boss, boss_id), boss, camp)
 
 
 func _on_boss_disengaged(payload: Dictionary) -> void:

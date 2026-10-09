@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/items/128x128-tile_3x1-gulp-essences.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/essence.gd" id="2"]
+
+[node name="essence-swim" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+position = Vector2(0, -22)
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("1")
+hframes = 3
+frame = 2
+
+[node name="EssenceScript" type="Node" parent="."]
+script = ExtResource("2")
+essence = "swim"

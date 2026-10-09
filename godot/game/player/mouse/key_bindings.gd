@@ -1,9 +1,11 @@
 extends RefCounted
 ## The keys-only control scheme's bindings (game/player/mouse/control_scheme.gd, `keys`): while it is
 ## on, the InputMap is rebound so every action, prompt, hint and the Controls list follow at once
-## (they read the InputMap): the arrows walk, A attacks, W interacts, S and D switch weapons (the
-## mouse wheel's job), and no mouse button or wheel does anything in play. Switching to another
-## scheme puts every action's events back exactly as project.godot has them.
+## (they read the InputMap): the arrows walk, A attacks, W interacts, E alone cycles the weapons
+## (the weapon scroll, the mouse wheel's job; no key goes back: owner, 2026-10-08), and no mouse
+## button or wheel does anything in play. The other keys are project.godot's (B the bag, J the
+## journal, M the map). Switching to another scheme puts every action's events back exactly as
+## project.godot has them.
 ## GameSettings applies it (`apply_to_input`) at start-up and on every change.
 ##
 ## Owner: player builder.
@@ -16,8 +18,8 @@ const LAYOUT := {
 	&"move_right": [KEY_RIGHT],
 	&"attack": [KEY_A],
 	&"interact": [KEY_W],
-	&"weapon_previous": [KEY_S],
-	&"weapon_next": [KEY_D],
+	&"weapon_previous": [],
+	&"weapon_next": [KEY_E],
 }
 
 ## Action -> its events before the keys-only scheme rebound it; empty while it is off.

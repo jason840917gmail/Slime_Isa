@@ -161,8 +161,8 @@ static func pan_position(anchor: Vector2, elapsed_ms: float) -> Vector2:
 	return anchor + TITLE_PAN_OFFSET + Vector2(drift, 0.0)
 
 
-## main.gd's `apply_viewport_scale` (world spec 1.2): the base size of 16 x 14 tiles, so the title
-## and the game draw the UI at the same size.
+## main.gd's `apply_viewport_scale` (world spec 1.2): the base size (16 x 14 tiles and the HUD
+## console's strip), so the title and the game draw the UI at the same size.
 func apply_viewport_scale() -> void:
 	var root := get_tree().root
 	var base := Vector2i(int(ProjectSettings.get_setting("display/window/size/viewport_width")),

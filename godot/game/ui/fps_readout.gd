@@ -8,7 +8,8 @@ class_name FpsReadout
 ##   fps %.1f | frame ms %.2f (mean over the window) | worst ms %.2f
 ##   zoom %.3f  mode gameplay|overview | deadzone W x H
 ##   draw calls (RENDER_TOTAL_DRAW_CALLS_IN_FRAME), objects, nodes (OBJECT_NODE_COUNT)
-## Visible by default; F3 (raw KEY_F3 in `_unhandled_input`) toggles it.
+## Hidden by default since 2026-10-08 (the HUD console, roadmap 4.12; it was on in trial builds);
+## F3 (raw KEY_F3 in `_unhandled_input`) toggles it.
 ##
 ## Owner: world builder.
 
@@ -57,6 +58,7 @@ func _ready() -> void:
 	_label.theme_type_variation = &"DebugLabel"
 	_label.text = "fps --"
 	_panel.add_child(_label)
+	visible = false
 
 
 ## Camera whose zoom/mode/deadzone are shown (`get_zoom_mode()`, `get_deadzone_size()`).
