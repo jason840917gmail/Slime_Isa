@@ -233,7 +233,7 @@ grows as Pearls return.
 | **Gloop Cavern** | Today a chest, a Goo Heart and a ladder; Planned: the coffer with the 20-slot bag | Built; bag Planned |
 | North stream | Sunny's basket and the lash bell post | Built |
 | **The Matron's nest**, north-east | The boss arena; Planned: a **web door** closes it | Built; web door Planned |
-| Crystal Caverns exit, east | Sealed with crystal: "Chapter 3" | Built (locked) |
+| Crystal Caverns exit, east | Open without a key for now (the crystal-key gate was removed 2026-10-10) | Built |
 
 ## Webs (Planned)
 
