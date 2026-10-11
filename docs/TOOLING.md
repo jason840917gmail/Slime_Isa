@@ -73,6 +73,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   a seamless rail strip, the rail seen from above, a JSON of measures) in
   `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
   draws the fences layer's paint tiles.
+- `python scripts/art/build-forest-paint-tiles.py` (**numpy**) — the forest layer's palette: a tile per mix and
+  per tree of the trees sway sheet, into `godot/asset/MAPS/forest/forest_paint_tiles.png` and
+  `godot/game/world/forest/forest_tileset.tres` ([godot/FORESTS.md](godot/FORESTS.md)).
 - `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits: scales the approved
   cliff paintings (`asset/Originals/elevation/cliff-concepts/`) to 128 px per cell, cuts the outside ground
   away and labels every cell, into `godot/asset/MAPS/cliffs/kit-<name>.png` and `.json`, drawn by the cliff

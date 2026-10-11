@@ -30,6 +30,7 @@ res://game/main.tscn (main.gd)                         bootstrap
            Elevation (elevation.gd) > Patches, Shade, Walls, Rims, Feet, Lips, Collision > Level<n>  <- mounted by register_world when the world has an elevation layer
            WaterWake (water_wake.gd)  <- mounted by register_world; puts the water wake sprites on every walker body (WaterWakeBack first, WaterWakeFront last)
        elevation (TileMapLayer, elevation_layer.gd)  <- painted levels and stairs; hidden in the game
+       forest (TileMapLayer, forest_layer.gd) > Trees, Collision  <- painted tree walls (FORESTS.md); builds its own trees
        ...converted props/NPCs (npc.gd), world areas (world_area.gd), exits (world_exit.gd)
        WorldBounds (StaticBody2D, built at runtime)
        PlayerSlime (character.player-slime)  <- spawned at runtime
@@ -250,6 +251,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world/ground_shade.gd`, `ground_shade.gdshader` | world | Light by height: low ground darker than hand-painted cliff tops; mounted by `WorldService.register_world` after the terrain edges ([CLIFFS.md](CLIFFS.md#light)) |
 | `game/world/world_ground.gd` | world | The script on every world's `ground` layer (`@tool`): in the editor it mounts the water surface and the terrain edges, so a world looks as it does in the game; does nothing in the game ([TERRAIN_LAB.md](TERRAIN_LAB.md#how-it-works)) |
 | `game/world/elevation/elevation.gd`, `elevation_grid.gd`, `elevation_stairs.gd`, `elevation_rims.gd`, `elevation_occlusion.gd`, `elevation_mesh.gd`, `elevation_layer.gd`, `elevation_tileset.tres`, `cliffs/`, `*.gdshader`, `art/` | world | Hills, holes, flights of stairs and ground levels from a world's painted `elevation` layer: the model and its 3D ground, the cliff and stairs drawing (each wall in the style painted on the `cliffs` layer or its ground's), cast shadows, per-level collision, body levels and hiding bodies behind higher ground; mounted by `WorldService.register_world` after the terrain edges ([ELEVATION.md](ELEVATION.md)) |
+| `game/world/forest/forest_layer.gd`, `forest_tileset.tres` | world | Tree walls painted on a `ForestLayer`: one seeded tree per painted cell, sway, trunk-line collision, "Absorb trees" for placed wall trees ([FORESTS.md](FORESTS.md)) |
 | `game/world/water_wake.gd` | world | Splash and ripple sprites at the feet of every walker in shallow or deep water ([specs/water.md](specs/water.md#9-wading-godot-only)); mounted by `WorldService.register_world` after the elevation |
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |
