@@ -56,7 +56,8 @@ its code is in git history.
   holds gameplay, UI, shell, audio and world systems by area.
 - `godot/asset/` — runtime art and audio (`res://asset/...`); `asset/Originals/` (sources and
   concepts) and `asset/project/` (sprite-sheet projects) stay outside the Godot project.
-- `godot/tools/` — headless tools (scene verifier, clip and theme builders, labs);
+- `godot/tools/` — headless tools (scene verifier, clip and theme builders, labs, the region world
+  builder);
   `godot/tests/` — the test suite; `godot/addons/godot_ai/` — the editor plugin (MCP bridge).
 - `scripts/` — art and audio tools and the test runner; `tools/` is unrelated to the game build.
 

@@ -1158,8 +1158,10 @@
   "world.cliff-pieces-lab": "res://game/scenes/worlds/cliff-pieces-lab.tscn",
   "world.cliff-shapes-lab": "res://game/scenes/worlds/cliff-shapes-lab.tscn",
   "world.cliff-lab": "res://game/scenes/worlds/cliff-lab.tscn",
+  "world.desert": "res://game/scenes/worlds/desert.tscn",
   "world.fence-park": "res://game/scenes/worlds/fence-park.tscn",
   "world.emberleef": "res://game/scenes/worlds/emberleef.tscn",
+  "world.frostpeak": "res://game/scenes/worlds/frostpeak.tscn",
   "world.girls": "res://game/scenes/worlds/girls.tscn",
   "world.gloop-cavern": "res://game/scenes/worlds/gloop-cavern.tscn",
   "world.gloop-forest": "res://game/scenes/worlds/gloop-forest.tscn",
@@ -1170,9 +1172,15 @@
   "world.level-1": "res://game/scenes/worlds/level-1.tscn",
   "world.meadow-crossing": "res://game/scenes/worlds/meadow-crossing.tscn",
   "world.mushroom-home": "res://game/scenes/worlds/mushroom-home.tscn",
+  "world.north-wilds": "res://game/scenes/worlds/north-wilds.tscn",
+  "world.northern-ruins": "res://game/scenes/worlds/northern-ruins.tscn",
   "world.playground": "res://game/scenes/worlds/playground.tscn",
   "world.playground-cavern": "res://game/scenes/worlds/playground-cavern.tscn",
   "world.slime-home": "res://game/scenes/worlds/slime-home.tscn",
+  "world.south-wilds": "res://game/scenes/worlds/south-wilds.tscn",
+  "world.sticky-swamp": "res://game/scenes/worlds/sticky-swamp.tscn",
   "world.test-rectangle": "res://game/scenes/worlds/test-rectangle.tscn",
-  "world.tiktok": "res://game/scenes/worlds/tiktok.tscn"
+  "world.tiktok": "res://game/scenes/worlds/tiktok.tscn",
+  "world.volcano-ridge": "res://game/scenes/worlds/volcano-ridge.tscn",
+  "world.west-village": "res://game/scenes/worlds/west-village.tscn"
 }

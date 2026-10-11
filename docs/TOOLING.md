@@ -296,3 +296,11 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   - **Trying it on a copy.** `--map=<file> --png=<file> --doc=<file>` point the server at copies,
     so it can be tried without touching the real files:
     `node scripts/story/world-map/server.mjs --port=3299 --map=<copy>.json --png=<copy>.png --doc=<copy>.md`.
+- `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_region_worlds.gd
+  [-- --only=<region key or world id>,... --dry-run --force]` — builds the placeholder region worlds
+  from the layout (every region with `"placeholder": true`): ground, heights, tree borders with one
+  opening per shared border, roads, stairs, bridges, no dead-end ledge drops, exits both ways
+  between placeholders (one-way into a hand-made world until it has its own exit there); writes the
+  layout's `passages`,
+  `scene_index.json` and the release export's exclude list ([godot/WORLD_ATLAS.md](godot/WORLD_ATLAS.md)).
+  It never touches a hand-made world.
