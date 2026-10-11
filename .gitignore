@@ -2,3 +2,6 @@ node_modules/
 .pnpm-store/
 __pycache__/
 *.pyc
+
+# The world layout's backup, written on every save (docs/godot/WORLD_ATLAS.md)
+godot/game/data/world-map.json.bak

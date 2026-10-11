@@ -50,7 +50,8 @@ its code is in git history.
 - `godot/game/scenes/` — every world, object, character, weapon, effect, projectile and encounter
   scene, with `scene_index.json` (scene id → path; add a line for a scene the game loads by id).
 - `godot/game/data/` — game constants, items, enemy types, recipes, quests, NPC definitions,
-  weapons and item icons (JSON read through `GameConstants`).
+  weapons and item icons (JSON read through `GameConstants`), and the world layout
+  `world-map.json` (read through `game/world/atlas/world_map_data.gd`).
 - `godot/game/scripts/` — scene scripts (`game.<id>` → `<snake_id>.gd`); the rest of `godot/game/`
   holds gameplay, UI, shell, audio and world systems by area.
 - `godot/asset/` — runtime art and audio (`res://asset/...`); `asset/Originals/` (sources and

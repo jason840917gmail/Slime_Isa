@@ -243,15 +243,56 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
 ## Story
 
 - `pnpm story:map` (`node scripts/story/world-map/server.mjs`, `--port=<n>`; also `.claude/launch.json`
-  "world-map") — the world map sketch tool at http://127.0.0.1:3210, for planning which region sits
-  where and what connects to what ([story/03-world.md](story/03-world.md#world-map)). It paints four
-  layers on a grid of cells: terrain (grass, forest, water, swamp, snow, lava, …), elevation (0–4; cliffs
-  are drawn where it drops), regions (each with its chapter, status, game maps and boss) and markers
-  (gates, caves, warps, dungeons, bosses, towns, NPCs, secrets, notes), over a chunk grid (8 × 8 by
-  default, named A1 in the north-west to H8; "More… → Chunk count" changes it). A gate, cave or warp connects
-  the regions within two cells of it plus its "leads to" region; the right panel lists every border and
-  passage, and flags shared borders with no passage marked. Save (Ctrl+S) writes
-  `docs/story/world-map.json` (one text row per grid row, so diffs stay readable), `world-map.png`, and
-  the generated block between the `world-map` markers in `03-world.md`. A reference image can be laid
-  over the map for tracing (not saved). Opened as a plain file, without the server, Save downloads the
-  JSON and PNG instead.
+  "world-map") — the world map sketch tool at http://127.0.0.1:3210. It edits the world layout,
+  `godot/game/data/world-map.json` (format version 2; read in Godot through
+  `godot/game/world/atlas/world_map_data.gd`), and is used to plan which region sits where and what
+  connects to what ([story/03-world.md](story/03-world.md#world-map)).
+  - **Layers.** It paints four layers on a grid of cells:
+    - terrain (grass, forest, water, swamp, snow, lava, …);
+    - elevation (0–4; cliffs are drawn where it drops);
+    - regions, each with its chapter, status, `id`, `world` (the overworld scene id), `interiors`,
+      `placeholder` (built by `godot/tools/build_region_worlds.gd`, safe to rebuild), `theme` and boss;
+    - markers (gates, caves, warps, dungeons, bosses, towns, NPCs, secrets, notes).
+
+    The layers sit over a chunk grid: 8 × 8 by default, named A1 in the north-west to H8, and
+    "More… → Chunk count" changes it.
+  - **Connections.** A gate, cave or warp connects the regions within two cells of it, plus its
+    "leads to" region. The `passages` the region builder writes (the openings between touching
+    regions) are drawn as white gaps on the borders; the "passages" checkbox hides them. The tool never
+    edits them by hand. The right panel lists every border with its passages and openings, flags a
+    shared border with neither, and flags an opening whose regions no longer touch.
+  - **Layout tools.** These move whole blocks of chunks with every layer, marker and passage on them,
+    exactly as `world_map_data.gd` does, and Ctrl+Z undoes each one.
+    - The region inspector's Move buttons slide a region one chunk. The strip of chunks it slides
+      onto goes to the side it left.
+    - Its "Swap with" control exchanges two regions of the same size.
+    - The Swap chunks tool (X) swaps two blocks: drag block A, then drag a block of the same size
+      (or click its north-west chunk). Escape cancels.
+
+    A move is refused, with the reason, when the region does not fill a rectangle of whole chunks,
+    when it would leave the map, or when it would cut another region apart (leave it in more pieces
+    than it had, or a rectangle of whole chunks no longer whole). The Swap chunks tool swaps anyway
+    and says which regions it cut apart.
+  - **Saving.** Save (Ctrl+S) writes three things:
+    - `godot/game/data/world-map.json`, with one text row per grid row so diffs stay readable;
+    - `docs/story/world-map.png`;
+    - the generated block between the `world-map` markers in `docs/story/03-world.md`.
+
+    Keys and fields the tool does not know are written back unchanged. Grid values it does not know
+    (a terrain character, a height above 4, a region key with no region) are not: it says so when it
+    opens the file, and a save writes them as unplanned ground, height 4 (0 for a height that is not
+    a digit) and no region. A version 1 file (the old `docs/story/world-map.json`, whose regions had
+    a `maps` text) still opens: a list of plain ids becomes the region's `world` and `interiors`,
+    anything else (candidates) goes to its notes and leaves `world` empty.
+
+    Save asks before overwriting the file when it changed on disk since the page loaded it (the
+    Godot world atlas or the region builder wrote it), and when the page could not load it (a
+    half-written or broken file: the page starts blank, says why and shows "Map file not loaded").
+    With no file yet, the page starts blank and Save writes one. "More… → Reload from disk" loads
+    the file again, and Undo brings the drawing back. The server takes saves only from its own page
+    (a JSON request from `http://127.0.0.1:<port>` or `http://localhost:<port>`).
+  - **Other features.** A reference image can be laid over the map for tracing (it is not saved).
+    Opened as a plain file, without the server, Save downloads the JSON and PNG instead.
+  - **Trying it on a copy.** `--map=<file> --png=<file> --doc=<file>` point the server at copies,
+    so it can be tried without touching the real files:
+    `node scripts/story/world-map/server.mjs --port=3299 --map=<copy>.json --png=<copy>.png --doc=<copy>.md`.
