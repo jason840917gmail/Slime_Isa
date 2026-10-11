@@ -317,6 +317,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/ui/quest_tracker.tscn/.gd`, `npc_quest_markers.gd`, `quest_waypoint_view.gd` | quests | The HUD quest tracker (copy of `ui.quest-tracker`), the "!"/"?" markers over NPCs (main's "QuestMarkers", z 1) and the gold waypoint (main's "QuestWaypoint", z 2) |
 | `game/characters/player_slime.tscn` | player | Godot-owned player scene (CONVENTIONS "Scenes Godot owns"); clips rebuilt by `tools/build_player_clips.gd` |
 | `game/dev/playground.tscn` | world | `main.tscn` with `map_id = "playground"`; run with F6 |
+| `tools/build_region_worlds.gd`, `tools/region_worlds/`, `tools/render_world_atlas.gd` | world | Builds the placeholder region worlds from the layout; renders the atlas ([WORLD_ATLAS.md](WORLD_ATLAS.md)) |
 | `game/player/player_input_buffer.gd` | player | |
 | `game/player/pointer_aim.gd` | player | |
 | `game/player/mouse/control_scheme.gd`, `key_bindings.gd`, `click_orders.gd`, `click_path.gd`, `pointer_targets.gd`, `click_marker.gd` | player | The control schemes (experiment): click / right-click to walk, attack or use, face the pointer, or keys only (InputMap rebound); shortest routes over every ground level (any-angle A* queried from physics: narrow gaps, stairs, drops); hover targets and ground rings ([MOUSE_CONTROLS.md](MOUSE_CONTROLS.md)) |

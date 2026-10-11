@@ -2,7 +2,8 @@
 
 > **Status:** 2026-10-06, seven styles (wood first, then the other six the same day when the owner
 > asked for more examples), in the dev world **Fence Park** only (`?map=fence-park`,
-> `-- --map=fence-park`). No real world uses fences yet.
+> `-- --map=fence-park`). No hand-made world uses fences yet; the generated placeholder worlds fence
+> their pits and the rims of dead-end drops in stone ([WORLD_ATLAS.md](WORLD_ATLAS.md)).
 
 ## Owner request (2026-10-06)
 
