@@ -229,10 +229,13 @@ func _clear() -> void:
 ## Painted cells: Vector2i -> style ("auto" kept as is).
 func _painted_styles(painted: TileMapLayer) -> Dictionary:
 	var styles := {}
+	# In the elevation grid's cells (rows painted above the map shift it, elevation.gd cell_offset).
+	var elevation := get_parent()
+	var offset: Vector2i = elevation.get("cell_offset") if elevation != null and "cell_offset" in elevation else Vector2i.ZERO
 	for cell_pos: Vector2i in painted.get_used_cells():
 		var data := painted.get_cell_tile_data(cell_pos)
 		if data != null:
-			styles[cell_pos] = str(data.get_custom_data(STYLE_DATA_LAYER))
+			styles[cell_pos + offset] = str(data.get_custom_data(STYLE_DATA_LAYER))
 	return styles
 
 
