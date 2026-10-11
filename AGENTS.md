@@ -36,6 +36,10 @@ its code is in git history.
   scene in `godot/game/scenes/scene_index.json` and plays level-1.
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
+- World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
+  `game/dev/world_atlas.tscn` shows every region's world on it in the editor and moves regions;
+  `"<Godot console exe>" --headless --path godot -s res://tools/build_region_worlds.gd` rebuilds the
+  placeholder regions ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md)).
 - Art tools (`pnpm items:pack`, `grounds:pack`, `props:pack`, `audio:bake` and the Python scripts in
   `scripts/`) turn sources in `asset/Originals/` into runtime sheets in `godot/asset/`:
   [docs/TOOLING.md](docs/TOOLING.md).

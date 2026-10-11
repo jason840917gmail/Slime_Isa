@@ -17,7 +17,7 @@ behaviour per area is in [specs/](specs).
 | `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`), attached to the scenes that use it; a new `@export` gets its value in the editor |
 | `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
-| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below) and the [terrain lab](TERRAIN_LAB.md) |
+| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below), the [terrain lab](TERRAIN_LAB.md) and the [world atlas](WORLD_ATLAS.md) (`world_atlas.tscn`) |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_scenes.gd`, `build_player_clips.gd`, `build_terrain_lab.gd` and `build_region_worlds.gd` (with `region_worlds/`; [WORLD_ATLAS.md](WORLD_ATLAS.md)); excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
@@ -49,6 +49,14 @@ windows built on the theme replace them (table below).
   64 px tiles, a screen of 16 × 14 tiles (the 1024 × 896 play area; with the HUD console's 128-unit
   strip under it, the 1024 × 1024 base view in `project.godot`), overworld
   maps in whole chunks of 32 × 32 tiles (level-1 is 64 × 64), interiors no bigger than one screen.
+- Where the worlds sit is the layout `godot/game/data/world-map.json` ([WORLD_ATLAS.md](WORLD_ATLAS.md)):
+  each region names its overworld scene (`world`) and interiors. Touching regions connect only at
+  designated openings (one per stretch of shared border, its exit on both sides, `entry_marker`
+  naming the arrival marker; an opening into a hand-made world is one-way until that world gets
+  its own exit and `arrive-from-<world>-1` marker there: the atlas shows which). See and rearrange the whole world in `game/dev/world_atlas.tscn`;
+  rebuild the placeholder regions with `tools/build_region_worlds.gd` after a layout change; a
+  region you start building by hand: set its `placeholder` to false (or drop the scene root's
+  `world_map_placeholder` metadata) so the tool leaves it alone.
 
 Scenes that differ from the converter's copy or replace it:
 
