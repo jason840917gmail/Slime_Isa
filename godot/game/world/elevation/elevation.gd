@@ -99,6 +99,9 @@ const BODY_SIDES: Array[Vector2] = [Vector2(-1, -1), Vector2(0, -1), Vector2(1, 
 		Vector2(1, 1), Vector2(0, 1), Vector2(-1, 1), Vector2(-1, 0)]
 ## `ledge_below` when there is no ledge.
 const NO_LEDGE := -100
+## Rows above the map a painted top may lie on (`cell_offset`): the highest wall (MAX_LEVEL −
+## MIN_LEVEL courses) reaches no further.
+const MAX_ROWS_ABOVE := 6
 ## Hop path samples (world units).
 const HOP_STEP := 8.0
 ## How far a landing may be moved to find room (world units).
@@ -199,6 +202,9 @@ var fences: ElevationFences
 var band_styles := PackedStringArray()
 var stairs_styles: Dictionary = {}
 
+## Rows painted above the map (off-map tops whose walls hang into the map): the grid starts this
+## many rows above the map's first row, and this node sits as far up (grid cell = map cell + offset).
+var cell_offset := Vector2i.ZERO
 var _queued := false
 ## style -> whether its wall art exists.
 var _wall_art: Dictionary = {}
@@ -391,7 +397,21 @@ func rebuild() -> void:
 	var used := ground.get_used_rect()
 	var columns := int(ground.get_meta("columns", used.end.x))
 	var rows := int(ground.get_meta("rows", used.end.y))
-	grid = ElevationGrid.build(columns, rows, painted_levels(ground), _ground_names(), setting("behindDepth") / cell)
+	var levels := painted_levels(ground)
+	# Tops painted above the map: only their walls (and lips) reach into it.
+	var above := 0
+	for c: Vector2i in levels:
+		if c.y < 0 and c.x >= 0 and c.x < columns:
+			above = maxi(above, -c.y)
+	above = mini(above, MAX_ROWS_ABOVE)
+	cell_offset = Vector2i(0, above)
+	position = Vector2(0.0, -above * cell)
+	var names := _ground_names()
+	for x in columns:
+		if names.has(Vector2i(x, 0)):
+			for y in range(-above, 0):
+				names[Vector2i(x, y)] = names[Vector2i(x, 0)]
+	grid = ElevationGrid.build(columns, rows + above, _shifted(levels), _shifted(names), setting("behindDepth") / cell)
 	_build_stairs()
 	_build_wall_styles()
 	_build_drawing()
@@ -686,6 +706,16 @@ func _ground_origin() -> Vector2:
 	return ground.global_position if ground.is_inside_tree() else ground.position
 
 
+## `painted` (map cell -> value) in grid cells (`cell_offset`).
+func _shifted(painted: Dictionary) -> Dictionary:
+	if cell_offset == Vector2i.ZERO:
+		return painted
+	var out := {}
+	for c: Vector2i in painted:
+		out[c + cell_offset] = painted[c]
+	return out
+
+
 # --- drawing -------------------------------------------------------------------------------
 
 func _build_drawing() -> void:
@@ -740,7 +770,8 @@ func _build_drawing() -> void:
 		occlusion = ElevationOcclusion.new()
 		occlusion.name = "Occlusion"
 		add_child(occlusion)
-	occlusion.build(depth, depth_rect, _ground_origin())
+	# The depth is drawn in this node's space (moved up by rows painted above the map).
+	occlusion.build(depth, depth_rect, _ground_origin() + position)
 	_add_group("Patches", patches, func(key: String) -> Material: return _ground_material(key))
 	_add_group("Shade", shade, func(_key: String) -> Material: return _shade_material())
 	_add_group("Shadows", shadows, func(_key: String) -> Material: return _cast_shadow_material())
@@ -758,7 +789,7 @@ func _build_drawing() -> void:
 ## begins, from that ground's level down to theirs; a column of old-style stairs cells counts once.
 func _build_stairs() -> void:
 	stairs.clear()
-	var cells := painted_stairs(ground)
+	var cells := _shifted(painted_stairs(ground))
 	var done := {}
 	var keys := cells.keys()
 	keys.sort()
@@ -800,7 +831,7 @@ func _build_stairs() -> void:
 ## The wall style of every wall (`band_styles`) and of every flight's railings (`stairs_styles`):
 ## the style of the top the wall hangs from, or the flight leaves.
 func _build_wall_styles() -> void:
-	var painted := painted_wall_styles(ground)
+	var painted := _shifted(painted_wall_styles(ground))
 	band_styles.resize(grid.bands.size())
 	for index in grid.bands.size():
 		var band: Dictionary = grid.bands[index]

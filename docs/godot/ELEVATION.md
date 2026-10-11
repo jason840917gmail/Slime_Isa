@@ -4,8 +4,9 @@
 > in [CLIFFS.md](CLIFFS.md) (the cliff lab). This automatic system stays in the code.
 
 > **Status:** first version, 2026-10-05, in the playground only (the **Elevation Park**, rows
-> 28-121 south of the old playground). No real world uses it yet. The owner asked to retake
-> elevation after the Phaser-era attempt (branch `feat/elevation-levels`, not merged) failed on
+> 28-121 south of the old playground). Since 2026-10-09 level-1 paints it too (its village plateaus,
+> two flights of stairs, and from 2026-10-10 a wall along its north edge painted above the map). The
+> owner asked to retake elevation after the Phaser-era attempt (branch `feat/elevation-levels`, not merged) failed on
 > art that did not join at the top and foot of 2- and 3-level walls.
 
 ## Owner decisions (2026-10-05)
@@ -127,7 +128,10 @@ showcase (red rock, masonry). The square hills, the terraces and the other holes
 2. Paint the **top you walk on** with a level tile (−3 … 3; unpainted cells are level 0). The wall
    appears by itself below the area's south edges and covers the cells there: leave as many free
    rows below a south edge as the levels it drops. A hole is painted the same way with a negative
-   level; its far wall covers its first rows.
+   level; its far wall covers its first rows. A wall along the map's north edge with its top off
+   the map: paint the top on the rows **above the map** (row −1 and up, at most `MAX_ROWS_ABOVE` =
+   6): the elevation starts its grid that many rows higher (`cell_offset`; its node moves up as far),
+   so only the wall and the lip hang into the map. Its top takes the ground of the map's first row.
 3. Shapes come from the steps of the paint: **single-cell steps make a straight 45° edge**, steps
    of two cells or more keep a square corner. A staircase of single steps is a diamond's side; a
    rectangle with its corners cut by single steps is an octagon.
