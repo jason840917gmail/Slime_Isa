@@ -1,5 +1,8 @@
 # Elevation: hills, holes and ground levels
 
+> **Alternative (2026-10-09):** cliffs painted by hand with Godot terrains, without heights, are
+> in [CLIFFS.md](CLIFFS.md) (the cliff lab). This automatic system stays in the code.
+
 > **Status:** first version, 2026-10-05, in the playground only (the **Elevation Park**, rows
 > 28-121 south of the old playground). No real world uses it yet. The owner asked to retake
 > elevation after the Phaser-era attempt (branch `feat/elevation-levels`, not merged) failed on

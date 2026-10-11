@@ -73,6 +73,17 @@ See [assets/README.md](assets/README.md) for the art workflow.
   a seamless rail strip, the rail seen from above, a JSON of measures) in
   `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
   draws the fences layer's paint tiles.
+- `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits: scales the approved
+  cliff paintings (`asset/Originals/elevation/cliff-concepts/`) to 128 px per cell, cuts the outside ground
+  away and labels every cell, into `godot/asset/MAPS/cliffs/kit-<name>.png` and `.json`, drawn by the cliff
+  shape and cliff builder nodes; `--headless --path godot -s res://tools/build_cliff_kit_lab.gd` rebuilds the
+  cliff kit lab ([godot/CLIFFS.md](godot/CLIFFS.md)).
+- `python scripts/art/build-cliff-tiles.py [--preview DIR]` (**numpy**) — the hand-painted cliffs: cuts the
+  generated border, lip, foot, wall and ground decorations (`asset/Originals/elevation/cliff-tiles/`) and the
+  128 px grass into one sheet of cell-sized tiles and its tile list in `godot/asset/MAPS/cliffs/`, and the
+  labelled guide `docs/godot/cliffs-sheet-guide.png`; then, after the editor imports the sheet,
+  `--headless --path godot -s res://tools/build_cliff_lab.gd` writes the cliff TileSet (one terrain set,
+  collision) and rebuilds the cliff lab ([godot/CLIFFS.md](godot/CLIFFS.md)).
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
   (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
