@@ -52,7 +52,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/art/build-terrain-edge-tiles.py [ground ...] [--preview DIR] [--grounds-2x]` (**numpy**) —
   the hand-made terrain edges: reads `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png`
   and `-hole.png` (and the ground sheet in `godot/asset/MAPS/grounds/` as the colour reference) and writes
-  `godot/asset/MAPS/terrain-edges/<ground>-edges.png` and `-edges-rim.png` ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)).
+  `godot/asset/MAPS/terrain-edges/<ground>-edges.png` and `-edges-rim.png` ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md));
+  `--grounds-2x` also turns `<ground>-2x-padded-upscale.jpg` into the 128 px ground sheet
+  `godot/asset/MAPS/grounds/128x128-tile_19x19_<sheet>.webp`.
 - `python scripts/art/build-elevation-art.py [name ...] [--preview DIR]` (**numpy**) — the cliff art:
   seamless walls and their corner-stone ends per wall style (nine: meadow rock, snow rock, sandstone,
   cave rock, crystal rock, mossy rock, masonry, root rock, red rock), the stairs kit (treads, risers, a

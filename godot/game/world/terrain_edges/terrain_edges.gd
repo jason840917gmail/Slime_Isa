@@ -25,6 +25,7 @@ const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materi
 const LAND_SHADER := preload("res://game/world/terrain_edges/terrain_edge.gdshader")
 const WATER_SHADER := preload("res://game/world/terrain_edges/terrain_edge_water.gdshader")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
+const GroundSurface := preload("res://game/world/ground_surface.gd")
 const NODE_NAME := "TerrainEdges"
 const WATER_SURFACE_NODE := "WaterSurface"
 ## The most grounds that can meet at one corner.
@@ -112,7 +113,9 @@ func rebuild() -> int:
 			if name_of_ground != "" and not sheets.has(name_of_ground):
 				var source := ground.tile_set.get_source(source_id) as TileSetAtlasSource
 				if source != null:
-					sheets[name_of_ground] = source.texture
+					# The 128 px sheet where there is one, as the ground surface draws it.
+					var sharp := GroundSurface.sharp_sheet(source.texture)
+					sheets[name_of_ground] = sharp if sharp != null else source.texture
 		cell_ground[cell] = ground_by_source[source_id]
 
 	var tile_set := _edge_tile_set(sheets)

@@ -22,7 +22,8 @@ Outputs (derived; re-run the tool instead of editing them), in godot/asset/MAPS/
       Same layout, greyscale: 1 where the painted rim shows, 0 where the shader
       (terrain_edge.gdshader) draws the ground's own sheet in world space instead, which keeps
       the ground seamless across tiles and with its plain cells.
-  With --grounds-2x: <ground>-2x.webp, the seamless 128 px-per-cell ground sheet (2432 px).
+  With --grounds-2x, in godot/asset/MAPS/grounds/: 128x128-tile_19x19_<sheet>.webp, the
+      seamless 128 px-per-cell ground sheet (2432 px), drawn by game/world/ground_surface.gd.
 
 Geometry: a border crosses a tile side at its midpoint, so every tile joins its neighbours.
 Straight tiles are cut from the island's straight sides where both ends match best, then made
@@ -387,7 +388,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("grounds", nargs="*", help="grounds to build (default: every ground with art)")
     parser.add_argument("--preview", type=Path, help="write <ground>-preview.png sheets into this folder")
-    parser.add_argument("--grounds-2x", action="store_true", help="also write <ground>-2x.webp from padded upscales")
+    parser.add_argument("--grounds-2x", action="store_true", help="also write the 128 px ground sheets from padded upscales")
     args = parser.parse_args()
 
     OUT.mkdir(parents=True, exist_ok=True)
@@ -413,8 +414,13 @@ def main() -> None:
         upscale = SRC / f"{ground}-2x-padded-upscale.jpg"
         if args.grounds_2x and upscale.exists():
             sheet_2x = seamless_sheet(upscale)
+            # The upscale drifts a little lighter: keep the 64 px sheet's colour statistics, so the
+            # sharp ground matches the grounds still drawn at 64 px.
+            ref = ground_rgb.reshape(-1, 3) * 255.0
+            flat = sheet_2x.reshape(-1, 3)
+            sheet_2x = ((sheet_2x - flat.mean(0)) / np.maximum(flat.std(0), 1e-6) * ref.std(0) + ref.mean(0)).clip(0, 255)
             Image.fromarray(np.clip(sheet_2x + 0.5, 0, 255).astype(np.uint8), "RGB").save(
-                OUT / f"{ground}-2x.webp", quality=90, method=6)
+                GROUND_SHEETS / f"128x128-tile_19x19_{MATERIALS[ground]}.webp", quality=90, method=6)
             print(f"{ground}: 2x ground sheet")
 
 
