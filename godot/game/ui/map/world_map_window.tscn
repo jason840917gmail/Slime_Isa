@@ -24,15 +24,33 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -310.0
-offset_top = -170.0
-offset_right = 310.0
-offset_bottom = 170.0
+offset_left = -360.0
+offset_top = -408.0
+offset_right = 360.0
+offset_bottom = 408.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_type_variation = &"WindowPanel"
 
 [node name="Chart" type="Control" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Regions" type="Control" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Overlay" type="Control" parent="Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -55,56 +73,18 @@ text = "World Map"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Icege" type="Label" parent="Panel"]
-layout_mode = 1
-anchor_left = 0.02
-anchor_top = 0.34
-anchor_right = 0.22
-anchor_bottom = 0.76
-offset_top = 46.0
-theme_type_variation = &"InfoLabel"
-theme_override_font_sizes/font_size = 15
-text = "Unknown"
+[node name="Message" type="Label" parent="Panel"]
+visible = false
+layout_mode = 0
+offset_left = 24.0
+offset_top = 58.0
+offset_right = 696.0
+offset_bottom = 730.0
+mouse_filter = 2
+theme_type_variation = &"MutedLabel"
+text = "The world layout could not be read."
 horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="Level1" type="Label" parent="Panel"]
-layout_mode = 1
-anchor_left = 0.26
-anchor_top = 0.34
-anchor_right = 0.46
-anchor_bottom = 0.76
-offset_top = 46.0
-theme_type_variation = &"InfoLabel"
-theme_override_font_sizes/font_size = 15
-text = "Unknown"
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="GloopForest" type="Label" parent="Panel"]
-layout_mode = 1
-anchor_left = 0.52
-anchor_top = 0.34
-anchor_right = 0.72
-anchor_bottom = 0.76
-offset_top = 46.0
-theme_type_variation = &"InfoLabel"
-theme_override_font_sizes/font_size = 15
-text = "Unknown"
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="CrystalCaverns" type="Label" parent="Panel"]
-layout_mode = 1
-anchor_left = 0.78
-anchor_top = 0.34
-anchor_right = 0.98
-anchor_bottom = 0.76
-offset_top = 46.0
-theme_type_variation = &"InfoLabel"
-theme_override_font_sizes/font_size = 15
-text = "Unknown"
-horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="Summary" type="Label" parent="Panel"]
@@ -120,7 +100,7 @@ offset_bottom = -46.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_type_variation = &"CaptionLabel"
-text = "1 discovered · Areas stay marked as you travel"
+text = "1 of 11 regions discovered · Areas stay marked as you travel"
 horizontal_alignment = 1
 vertical_alignment = 1
 
