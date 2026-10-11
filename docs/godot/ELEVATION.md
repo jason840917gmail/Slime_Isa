@@ -165,8 +165,15 @@ A wall, its corner stones and the railings of the flights leaving its top are of
    only those along the walls you want to change). A hole's far wall hangs from the ground around
    the hole: paint those cells. Like the other layers it follows in the editor at once and hides
    itself in the game;
-2. else the style of the **ground on top** (`GROUND_WALL_STYLES` in `elevation.gd`, below);
+2. else the style of the **ground on top**: the world's own choice for that ground, if its ground
+   layer has the metadata `cliff_wall_styles` (a Dictionary, ground → style, e.g.
+   `{"highland": "storybook-rock"}`), else `GROUND_WALL_STYLES` in `elevation.gd` (below);
 3. else meadow rock (`DEFAULT_WALL_STYLE`); a style without wall art also falls back to it.
+
+The lips, rims and feet are their ground's (`<ground>-lip.png`, `-foot.png`) unless the ground
+layer's metadata `cliff_fringe` (ground → art name, e.g. `{"highland": "storybook-grass"}`) names
+other art. Both metadata are per world, so a world can try a style without changing the others
+(the cliff shapes lab does, [CLIFFS.md](CLIFFS.md#painted-elevation-2026-10-10)).
 
 | Style | Tile | Look | Ground on top |
 |---|---|---|---|
@@ -179,6 +186,7 @@ A wall, its corner stones and the railings of the flights leaving its top are of
 | `masonry` | B | cut limestone blocks in a running bond, quoins at the ends | `town-cobble` |
 | `root-rock` | R | dark umber stones in forest soil, threaded with roots | `forest-floor` |
 | `red-rock` | A | terracotta and rust-red stones with fallen autumn leaves | `amberleaf` |
+| `storybook-rock` | – | rounded grey-brown stones of the approved H plateau painting, cut from it (with `storybook-grass` lips and feet) | none; a world picks it by metadata |
 
 Exactly where: a wall's style is read at the middle of its top edge, a little into its top (half a
 cell in when the cell there is a corner triangle a chamfer raised, so it belongs to the painted cell
@@ -257,7 +265,9 @@ the strip is the lip, swept straight down (also on diagonal faces, so it follows
 every other edge it is the rim, swept perpendicular to the edge, its art cut below the soil line
 (vertex colour b; `rim_cut` in the shader). The art's u runs on along the chain, convex corners turn
 in a round fan and concave ones meet in a mitre, so lip and rim flow into each other around every
-corner. The feet and the wall's texture are swept vertically: a diagonal face continues the same
+corner. The part over the top meets the same way: at a convex corner in a mitre, at a concave one
+both strips run on past the corner until they meet (a single triangle only where that point would
+lie more than `MITRE_LIMIT` reaches out). The feet and the wall's texture are swept vertically: a diagonal face continues the same
 strip as a straight one, its course joints bending at the corner; a foot reaches `WALL_END_FRINGE`
 past a wall end. Depth darkening is shared by every shader (`elevation_light.gdshaderinc`).
 
@@ -368,6 +378,14 @@ DIR]` (numpy, Pillow) into `godot/asset/MAPS/elevation/`.
   towards the wall (`<style>-stairs-tread.png`, `-riser.png`, `-coping.png`). Railings and posts use
   the wall. Every other wall style gets its own coping (`<style>-stairs-coping.png`): meadow rock's
   riser row tinted towards that style's wall, so the railings' caps match the cliff.
+- **Cut from a painting** (2026-10-10): `storybook-rock` (wall, ends, coping) and `storybook-grass`
+  (lip, foot) are not generated: `python scripts/art/build-elevation-art-from-painting.py
+  [--preview DIR]` cuts them from the approved H plateau paintings as aligned by
+  `build-cliff-kit.py` (`godot/asset/MAPS/cliffs/kit-h3.png`, `kit-h2.png`): the wall from the clean
+  middle course of the three-course painting (two spans, one joint each, joined and made periodic
+  through stone faces; the second row mirrored and shifted), the ends from the same course's end
+  stones, the lip and foot from the two-course painting's fern bands at 0.75 scale (the stone
+  between the hanging plants cut away). [CLIFFS.md](CLIFFS.md#painted-elevation-2026-10-10)
 - The editor's paint tiles: `python scripts/art/build-elevation-paint-tiles.py`, and for the
   `cliffs` layer `python scripts/art/build-cliff-paint-tiles.py` (a swatch of each wall).
 
@@ -452,7 +470,7 @@ with the game's own drawing, for checking new art in place.
 | `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 3 and stairs in 8 directions, railed or open landing (`elevation_level`, `elevation_kind`) |
 | `godot/game/world/elevation/cliffs/cliff_layer.gd`, `cliff_tileset.tres`, `cliff_paint_tiles.png` | The `cliffs` layer: wall styles painted over tops (`wall_style`; tiles by `scripts/art/build-cliff-paint-tiles.py`) |
 | `godot/game/world/elevation/*.gdshader`, `elevation_light.gdshaderinc` | Wall, wall end, fringe, strip, water foot, ground, shade, cast shadow and glow shaders |
-| `godot/asset/MAPS/elevation/` | Tool output (`scripts/art/build-elevation-art.py`) |
+| `godot/asset/MAPS/elevation/` | Tool output (`scripts/art/build-elevation-art.py`; `storybook-*` by `scripts/art/build-elevation-art-from-painting.py`) |
 | `asset/Originals/elevation/generated/` | Generated sources |
 | `asset/Originals/elevation/stairs-mockups/` | The approved stairs design: spec (README.md), renderer, mockups |
 | `scripts/maps/build-elevation-park.py` | Builds the park in the playground (levels, stairs, its `cliffs` paint) |

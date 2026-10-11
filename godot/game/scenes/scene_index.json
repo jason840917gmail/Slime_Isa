@@ -1156,6 +1156,7 @@
   "world.depth-occlusion-test": "res://game/scenes/worlds/depth-occlusion-test.tscn",
   "world.cliff-kit-lab": "res://game/scenes/worlds/cliff-kit-lab.tscn",
   "world.cliff-pieces-lab": "res://game/scenes/worlds/cliff-pieces-lab.tscn",
+  "world.cliff-shapes-lab": "res://game/scenes/worlds/cliff-shapes-lab.tscn",
   "world.cliff-lab": "res://game/scenes/worlds/cliff-lab.tscn",
   "world.fence-park": "res://game/scenes/worlds/fence-park.tscn",
   "world.emberleef": "res://game/scenes/worlds/emberleef.tscn",

@@ -78,6 +78,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   away and labels every cell, into `godot/asset/MAPS/cliffs/kit-<name>.png` and `.json`, drawn by the cliff
   shape and cliff builder nodes; `--headless --path godot -s res://tools/build_cliff_kit_lab.gd` rebuilds the
   cliff kit lab ([godot/CLIFFS.md](godot/CLIFFS.md)).
+- `python scripts/art/build-elevation-art-from-painting.py [--preview DIR]` (**numpy**) — elevation art cut from
+  the aligned H paintings (`godot/asset/MAPS/cliffs/kit-h3.png`, `kit-h2.png`) instead of generated: the wall
+  style `storybook-rock` (wall, end stones, stairs coping) and the fringe `storybook-grass` (lip, foot) in
+  `godot/asset/MAPS/elevation/`; a world picks them with its ground layer's metadata `cliff_wall_styles` /
+  `cliff_fringe`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd -- --force` rebuilds the
+  cliff shapes lab that shows them ([godot/CLIFFS.md](godot/CLIFFS.md#painted-elevation-2026-10-10)).
 - `python scripts/art/build-cliff-tiles.py [--preview DIR]` (**numpy**) — the hand-painted cliffs: cuts the
   generated border, lip, foot, wall and ground decorations (`asset/Originals/elevation/cliff-tiles/`) and the
   128 px grass into one sheet of cell-sized tiles and its tile list in `godot/asset/MAPS/cliffs/`, and the
