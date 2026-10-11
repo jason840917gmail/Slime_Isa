@@ -116,7 +116,8 @@ const PERMANENT_ITEM_CATEGORIES: Array[String] = ["weapon", "key"]
 const CELEBRATED_ITEMS := "celebrated_item_ids"
 
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
-## "entry_edge"?, "entry_door"?, "respawn_home"?}. Empty when none.
+## "entry_edge"?, "entry_door"?, "entry_marker"?, "respawn_home"?}. Empty when none. Never saved:
+## a loaded save queues a fresh "load" handoff.
 var _navigation: Dictionary = {}
 
 
@@ -860,13 +861,17 @@ func clear_respawn_point() -> void:
 # --- navigation handoff -----------------------------------------------------------------------
 
 ## Queues the next world for main.gd (RunNavigationStore.writeRunNavigation). `entry_edge` is
-## "north"|"east"|"south"|"west" or "", `entry_door` a door id in the target world or "".
-func request_navigation(kind: String, map_id: String, entry_edge: String = "", entry_door: String = "", respawn_home: bool = false) -> void:
+## "north"|"east"|"south"|"west" or "", `entry_door` a door id in the target world or "",
+## `entry_marker` the name of a Node2D in the target world or "" (a world exit's `entry_marker`;
+## not in Phaser).
+func request_navigation(kind: String, map_id: String, entry_edge: String = "", entry_door: String = "", respawn_home: bool = false, entry_marker: String = "") -> void:
 	_navigation = {"kind": kind, "map_id": map_id}
 	if not entry_edge.is_empty():
 		_navigation["entry_edge"] = entry_edge
 	if not entry_door.is_empty():
 		_navigation["entry_door"] = entry_door
+	if not entry_marker.is_empty():
+		_navigation["entry_marker"] = entry_marker
 	if respawn_home:
 		_navigation["respawn_home"] = true
 

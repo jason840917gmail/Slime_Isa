@@ -140,7 +140,7 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.npc` → `scripts/npc.gd` (7 NPCs; Tom since 2026-10-09, idling in place) | `body, visual, animation, character_id, npc_definition_id, wander_speed, pause_min_ms, pause_max_ms` | `interaction_lock_changed` | — (`get_phaser_position()`, `get_instance_id_key()`, `acquire_interaction_lock()`: a conversation holds the NPC still until its release runs; the quest service reads `npc_definition_id`) |
 | `game.world-definition` → `scripts/world_definition.gd` | `map_id, tile_size, columns, rows, metadata, camera_mode` | — | — |
 | `game.world-area` → `scripts/world_area.gd` | `area_kind, area_id, area, data, shape, stay_shape` | — | — |
-| `game.world-exit` → `scripts/world_exit.gd` | `map_id, exit_id, target_area_id, entry, area, gate`; *`arrival_grace_ms`=-1* | `navigation_resolved` | `on_body_entered(body)` |
+| `game.world-exit` → `scripts/world_exit.gd` | `map_id, exit_id, target_area_id, entry, entry_marker, area, gate`; *`arrival_grace_ms`=-1* | `navigation_resolved` | `on_body_entered(body)` |
 | `game.fatty` → `scripts/fatty.gd` (extends `enemy.gd`; `character.fatty-one-eye`) | the `game.enemy` exports + `contact_attack, landing_zone, contact_hop_cooldown_ms, contact_hop_duration_ms, leap_cadence_ms, small_hop_count, small_hop_duration_ms, between_hops_ms, air_time_ms, recovery_ms, landing_damage, landing_knockback_strength, landing_effect_id, landing_shake_ms, landing_shake_intensity` | the enemy signals + `phase_changed` | — |
 | `game.boss-camp` → `scripts/boss_camp.gd` (`encounter.level-1-fatty-camp`, `encounter.gloop-matron-nest`) | `map_id, camp_id, boss_id, boss_scene, activation_area, arena_area, active_bosses, guarded_chest, guarded_chest_instance_id, respawn_ms, spawn` | `boss_spawn_requested, boss_defeated, guard_changed`; *`boss_engaged, boss_disengaged`* | — |
 | `game.matron` → `scripts/matron.gd` (extends `enemy.gd`; `character.orb-weaver-matron`, node `EnemyScript`) | the `game.enemy` exports + `first_volley_delay_ms, volley_cadence_ms, volley_telegraph_ms, volley_rest_ms, volley_points, volley_spread, volley_radius, volley_damage, volley_knockback_strength, patch_effect_id` | the enemy signals + `phase_changed` | — |
@@ -278,7 +278,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world_objects/destructible_health.gd` | world objects | HP, records, regrow timer (the `game.destructible` logic) |
 | `game/world_objects/resource_respawn.gd` | world objects | Regrow rule on the wall clock (`epoch_override_ms` for tests) |
 | `game/world_objects/resource_drops.gd` | world objects | Drop cells, scatter, pile launch, restore, pile bookkeeping |
-| `game/world/area_travel.gd` | world objects | Arrival point (door, entry edge, spawn), travel fades, music fade-out (only ambience once `MusicDirector` holds the music); `Main.travel_to` / `request_exit` drive it |
+| `game/world/area_travel.gd` | world objects | Arrival point (door, named marker, entry edge, spawn), travel fades, music fade-out (only ambience once `MusicDirector` holds the music); `Main.travel_to` / `request_exit` drive it |
 | `game/scripts/npc.gd` | world | |
 | `game/ui/hud.gd` | world | The HUD: the coin chip, the console and the pieces it places on it (weapon slot, ability bar, minimap) |
 | `game/ui/hud_bar.gd` | world | One labelled HUD bar drawn from its theme variation (`HudBar`, `BossBar`) |

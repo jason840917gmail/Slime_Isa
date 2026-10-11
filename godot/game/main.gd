@@ -319,8 +319,10 @@ func is_transitioning() -> bool:
 
 
 ## `WorldScene.requestAuthoredExit` (WorldScene.ts:1018-1067) for world exits and doors.
-## `request` = {"map_id", "target_area_id", "entry"? (edge), "target_door_id"?, "gate"? ({id,
-## requiredItemId, consumeOnUnlock, lockedMessage}, camelCase as authored)}.
+## `request` = {"map_id", "target_area_id", "entry"? (edge), "entry_marker"? (a Node2D's name in
+## the target world; not in Phaser), "target_door_id"?, "gate"? ({id, requiredItemId,
+## consumeOnUnlock, lockedMessage}, camelCase as authored)}. A request needs a door, a valid edge
+## or a marker to arrive at.
 ## Returns {"status": "ignored"|"blocked"|"queued", "message"?}.
 func request_exit(request: Dictionary) -> Dictionary:
 	var world_service := Services.world()
@@ -329,11 +331,12 @@ func request_exit(request: Dictionary) -> Dictionary:
 	var target_area := str(request.get("target_area_id", ""))
 	var entry_door := str(request.get("target_door_id", ""))
 	var entry_edge := str(request.get("entry", ""))
+	var entry_marker := str(request.get("entry_marker", ""))
 	if not entry_door.is_empty():
 		entry_edge = ""
 	elif not entry_edge in AreaTravel.EDGES:
 		entry_edge = ""
-	if target_area.is_empty() or (entry_door.is_empty() and entry_edge.is_empty()):
+	if target_area.is_empty() or (entry_door.is_empty() and entry_edge.is_empty() and entry_marker.is_empty()):
 		return {"status": "blocked", "message": "Navigation unavailable"}
 	var gate: Variant = request.get("gate", {})
 	if gate is Dictionary and not (gate as Dictionary).is_empty():
@@ -342,16 +345,17 @@ func request_exit(request: Dictionary) -> Dictionary:
 			return outcome
 	elif gate != null and not (gate is Dictionary):
 		return {"status": "blocked", "message": "Navigation unavailable"}
-	if not travel_to(target_area, entry_edge, entry_door):
+	if not travel_to(target_area, entry_edge, entry_door, entry_marker):
 		return {"status": "ignored"}
 	return {"status": "queued"}
 
 
 ## Leaves this world for `target_map_id` (WorldScene.transitionTo + the page reload): stops the
 ## player, fades the picture and the music out over 320 ms, then records the player in RunState,
-## frees this world and builds the target, arriving at `entry_door`'s arrival point or the
-## `entry_edge` marker (AreaTravel.arrival_point). False when already travelling or unknown.
-func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "") -> bool:
+## frees this world and builds the target, arriving at `entry_door`'s arrival point, else the
+## Node2D named `entry_marker`, else the `entry_edge` marker (AreaTravel.arrival_point). False
+## when already travelling or unknown.
+func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "") -> bool:
 	var world_service := Services.world()
 	var run := Services.run()
 	if _transitioning or world_service == null or run == null:
@@ -366,16 +370,16 @@ func travel_to(target_map_id: String, entry_edge: String = "", entry_door: Strin
 		player.suppress_movement(AreaTravel.LEAVE_FADE_MS + TRAVEL_SUPPRESS_MARGIN_MS)
 	AreaTravel.fade_out_music(world_root, AreaTravel.LEAVE_FADE_MS)
 	AreaTravel.fade(self, FADE_LAYER, 0.0, 1.0, AreaTravel.LEAVE_FADE_MS,
-			_finish_travel.bind(target_map_id, entry_edge, entry_door))
+			_finish_travel.bind(target_map_id, entry_edge, entry_door, entry_marker))
 	return true
 
 
-func _finish_travel(target_map_id: String, entry_edge: String, entry_door: String) -> void:
+func _finish_travel(target_map_id: String, entry_edge: String, entry_door: String, entry_marker: String) -> void:
 	var run := Services.run()
 	var world_service := Services.world()
 	if player != null and is_instance_valid(player):
 		run.capture_player(world_service.map_id(), player.run_snapshot())
-	run.request_navigation("area", target_map_id, entry_edge, entry_door)
+	run.request_navigation("area", target_map_id, entry_edge, entry_door, false, entry_marker)
 	_teardown_world()
 	_build_world(target_map_id, run.consume_navigation())
 

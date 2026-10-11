@@ -7,7 +7,8 @@ extends RefCounted
 ## page with the run handed over in session storage. The new page puts the player at, in order:
 ## the arrival child of the door named by the handoff, the world's `player-entry-<edge>` marker,
 ## the `player-spawn` marker; and always snaps that anchor to the centre of the nearest open tile
-## (`findSpawnPoint`), so an arrival lands on a tile centre even when the marker is open.
+## (`findSpawnPoint`), so an arrival lands on a tile centre even when the marker is open. The port
+## adds a named marker after the door (a world exit's `entry_marker`: any Node2D in the world).
 ## The run's saved location wins instead when it belongs to the target map and is valid (a bed
 ## respawn or a loaded save).
 ##
@@ -27,6 +28,8 @@ const EDGES: PackedStringArray = ["north", "east", "south", "west"]
 
 ## The old Phaser (centre) position the player arrives at in the registered world for a
 ## navigation handoff (`RunState.consume_navigation()`); `fallback` when the handoff is empty.
+## Anchor: the `entry_door`'s arrival, else the Node2D named `entry_marker`, else the
+## `entry_edge` marker, else `player-spawn`; then `find_spawn_point`.
 static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 	var world := Services.world()
 	if world == null or not is_instance_valid(world.world_root):
@@ -37,6 +40,11 @@ static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 	var door_id := str(navigation.get("entry_door", ""))
 	if not door_id.is_empty():
 		anchor = door_arrival(world.world_root, door_id)
+	var marker_name := str(navigation.get("entry_marker", ""))
+	if anchor == null and not marker_name.is_empty():
+		anchor = named_marker(world.world_root, marker_name)
+		if anchor == null:
+			push_warning("AreaTravel: world '%s' has no Node2D '%s' to arrive at" % [world.map_id(), marker_name])
 	var edge := str(navigation.get("entry_edge", ""))
 	if anchor == null and not edge.is_empty():
 		anchor = entry_marker(world.world_root, edge)
@@ -94,6 +102,15 @@ static func entry_marker(world_root: Node, edge: String) -> Variant:
 		return null
 	var marker := world_root.find_child(ENTRY_MARKER_PREFIX + edge, true, false) as Node2D
 	return marker.global_position if marker != null else null
+
+
+## The global position of the first Node2D named `marker_name` anywhere under `world_root` (a world
+## exit's `entry_marker`), or null when there is none.
+static func named_marker(world_root: Node, marker_name: String) -> Variant:
+	if marker_name.is_empty():
+		return null
+	var found := world_root.find_children(marker_name, "Node2D", true, false)
+	return (found[0] as Node2D).global_position if not found.is_empty() else null
 
 
 ## A full-screen fade on its own CanvasLayer (above the world, below the HUD), from `from_alpha`

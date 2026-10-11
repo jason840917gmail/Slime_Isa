@@ -719,7 +719,7 @@ level-1 interactables (old Phaser positions; "o" = origin):
 | `home-door` (world node `home-door`) | o (1081, 903), `arrival` child (2, 51) -> (1083, 954) | r 90, rise 56 (default), "Enter house" -> `slime-home` / `house-door` |
 | `mushroom-home-door` (node `mushroom-door-level-1`) | o (1492.2, 489.6), arrival (1, 48) -> (1493.2, 537.6) -> rounded (1493, 538) | r 96 (default), rise 56, "Enter house" -> `mushroom-home` / `house-door` |
 | Verdant gate (`level-1-verdant-gate`, `object.gate-verdant`) | o (3776, 768) | gate `level-1-east-verdant-gate`, `green-key` consumed, r 150, rise 120 -> badge/messages at (3776, 648); prompt "Unlock the Verdant Gate"; locked "The Verdant Gate is locked. Fatty One Eye guards the Green Key."; unlocked "The Verdant Gate swings open!" |
-| exit-1 (same gate record) | Area2D (3552, 576) | locked message "The eastern gate needs a green key." -> `gloop-forest` west |
+| exit-1 (same gate record) | Area2D (4064, 576) | locked message "The eastern gate needs a green key." -> `gloop-forest` west |
 | Guarded chest (`level-1-fatty-one-eye-camp/guarded-chest`) | o (2528, 1077) = camp (2528, 1472) + (0, -395) | `level-1-fatty-guarded-chest`, contents `{green-key: 1}`; inside Fatty's activation circle (r 440), so it is guarded whenever the player stands near it with Fatty alive |
 | Workshop station (`level-1-workshop/station-script`) | o (640, 392) | in the `restored` variant (`workshop.restored`) - absent in a new run |
 | Forge station (`level-1-forge/station-script`) | o (1190, 1068) | in the `restored` variant (`forge.restored`) - absent in a new run |
@@ -1117,10 +1117,11 @@ opens the browser menu over the canvas (Phaser calls `disableContextMenu`).
 
 Already there (working tree, uncommitted): `main.request_exit(request)` (map check, transitioning
 check, `target_door_id` wins over `entry`, gate check via `_pass_gate`, `travel_to`),
-`travel_to(target, edge, door)` (stop + clear input + `suppress_movement(520)`, music fade, 320 ms
+`travel_to(target, edge, door, marker = "")` (stop + clear input + `suppress_movement(520)`, music fade, 320 ms
 `#0b1020` fade on layer 5, then `RunState.capture_player`, `request_navigation`,
 `_teardown_world`, `_build_world`), `AreaTravel.arrival_point(navigation, fallback)` (door arrival
-via group `door` -> `door_id` / `arrival_point()`, else `player-entry-<edge>`, else spawn marker,
+via group `door` -> `door_id` / `arrival_point()`, else the exit's `entry_marker` (a Node2D of that
+name; 2026-10-10, [specs/world.md](world.md)), else `player-entry-<edge>`, else spawn marker,
 then `find_spawn_point`), fixed camera (`world_camera.hold_fixed`), HUD rebinding, the new player
 instance facing down. That is exactly the Phaser flow minus the page reload, so a door only needs:
 
