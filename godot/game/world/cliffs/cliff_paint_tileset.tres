@@ -1,0 +1,29 @@
+[gd_resource type="TileSet" format=3 uid="uid://cjuj6yetlpjxb"]
+
+[ext_resource type="Texture2D" uid="uid://1d4xd3pde10p" path="res://asset/MAPS/cliffs/cliff_paint_tiles.png" id="1_tiles"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_levels"]
+texture = ExtResource("1_tiles")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+0:0/0/custom_data_0 = 1
+1:0/0 = 0
+1:0/0/custom_data_0 = 2
+2:0/0 = 0
+2:0/0/custom_data_0 = 3
+3:0/0 = 0
+3:0/0/custom_data_0 = 4
+4:0/0 = 0
+4:0/0/custom_data_0 = 5
+5:0/0 = 0
+5:0/0/custom_data_0 = 6
+6:0/0 = 0
+6:0/0/custom_data_0 = 7
+7:0/0 = 0
+7:0/0/custom_data_0 = 8
+
+[resource]
+tile_size = Vector2i(64, 64)
+custom_data_layer_0/name = "elevation_level"
+custom_data_layer_0/type = 2
+sources/0 = SubResource("TileSetAtlasSource_levels")
