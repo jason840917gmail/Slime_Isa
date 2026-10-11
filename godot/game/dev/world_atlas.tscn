@@ -1,0 +1,141 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/world/atlas/world_atlas.gd" id="1_7qk4t"]
+[ext_resource type="Script" path="res://game/world/atlas/atlas_region.gd" id="2_6eg5u"]
+
+[node name="WorldAtlas" type="Node2D" unique_id=931484850]
+script = ExtResource("1_7qk4t")
+
+[node name="volcano-ridge" type="Node2D" parent="." unique_id=1547797535]
+position = Vector2(10240, 0)
+script = ExtResource("2_6eg5u")
+region_key = "d"
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="Hit" type="ColorRect" parent="volcano-ridge" unique_id=411737157]
+offset_right = 6144.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="north-wilds" type="Node2D" parent="." unique_id=1062060906]
+script = ExtResource("2_6eg5u")
+region_key = "j"
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="Hit" type="ColorRect" parent="north-wilds" unique_id=1203678985]
+offset_right = 16384.0
+offset_bottom = 6144.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="south-wilds" type="Node2D" parent="." unique_id=1239677998]
+position = Vector2(0, 10240)
+script = ExtResource("2_6eg5u")
+region_key = "k"
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="Hit" type="ColorRect" parent="south-wilds" unique_id=1943356967]
+offset_right = 16384.0
+offset_bottom = 6144.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="slimeshire-meadow" type="Node2D" parent="." unique_id=1996699406]
+position = Vector2(4096, 6144)
+script = ExtResource("2_6eg5u")
+region_key = "a"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="slimeshire-meadow" unique_id=1295499699]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="gloop-forest" type="Node2D" parent="." unique_id=1653471496]
+position = Vector2(8192, 6144)
+script = ExtResource("2_6eg5u")
+region_key = "b"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="gloop-forest" unique_id=229496659]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="crystal-caverns" type="Node2D" parent="." unique_id=10288307]
+position = Vector2(12288, 6144)
+script = ExtResource("2_6eg5u")
+region_key = "c"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="crystal-caverns" unique_id=2025041714]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="frostpeak" type="Node2D" parent="." unique_id=1396779584]
+position = Vector2(10240, 12288)
+script = ExtResource("2_6eg5u")
+region_key = "e"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="frostpeak" unique_id=724737586]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="sticky-swamp" type="Node2D" parent="." unique_id=547070894]
+position = Vector2(6144, 12288)
+script = ExtResource("2_6eg5u")
+region_key = "f"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="sticky-swamp" unique_id=457956072]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="west-village" type="Node2D" parent="." unique_id=620024008]
+position = Vector2(0, 6144)
+script = ExtResource("2_6eg5u")
+region_key = "g"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="west-village" unique_id=542268203]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="northern-ruins" type="Node2D" parent="." unique_id=1675667487]
+position = Vector2(6144, 0)
+script = ExtResource("2_6eg5u")
+region_key = "h"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="northern-ruins" unique_id=1493514276]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="desert" type="Node2D" parent="." unique_id=1568385670]
+position = Vector2(0, 12288)
+script = ExtResource("2_6eg5u")
+region_key = "i"
+metadata/_edit_group_ = true
+
+[node name="Hit" type="ColorRect" parent="desert" unique_id=54859602]
+offset_right = 4096.0
+offset_bottom = 4096.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)

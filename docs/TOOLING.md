@@ -304,3 +304,6 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   layout's `passages`,
   `scene_index.json` and the release export's exclude list ([godot/WORLD_ATLAS.md](godot/WORLD_ATLAS.md)).
   It never touches a hand-made world.
+- `"<Godot 4.7.2 console exe>" --path godot -s res://tools/render_world_atlas.gd -- --out=<dir>`
+  (windowed: it renders) — draws the world atlas (`godot/game/dev/world_atlas.tscn`: every region's
+  world on the chunk grid) to PNGs and prints its warnings.
