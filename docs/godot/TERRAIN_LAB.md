@@ -147,6 +147,22 @@ sheets the tiles only decide where each ground shows and where its rim is.
 
 The 2026-10-05 sets (9 grounds) used about 4,000 Magnific credits.
 
+## Ground at 128 px
+
+Since 2026-10-09 grass (`HighlandGreen`), sand (`sanddessert`) and snow (`frozen`) have 128 px
+sheets: `godot/asset/MAPS/grounds/128x128-tile_19x19_<sheet>.webp`, the same 19 x 19 sheet-wrap
+layout at twice the pixels. The ground TileMapLayer stays the 64-unit gameplay grid on its 64 px
+sheets; `game/world/ground_surface.gd` (mounted first under the ground by
+`WorldService.register_world`, and in the editor by `world_ground.gd`) draws every cell whose ground
+has a 128 px sheet over it, in world space, from a one-texel-per-cell map
+(`ground_surface.gdshader`, up to 8 sheets). The terrain edges sample the 128 px sheet too
+(`GroundSurface.sharp_sheet`). Water is left to the water surface.
+
+To add a ground: pad its 64 px sheet by 152 px of wrapped content (1520 px), upscale it 2x with
+Magnific (creative, "VideoGameAssets", "subtle"; about 180 credits), save it as
+`asset/Originals/grounds/generated/terrain-edges/<ground>-2x-padded-upscale.jpg` and run
+`python scripts/art/build-terrain-edge-tiles.py <ground> --grounds-2x`.
+
 ## Limits
 
 - Three or four grounds at one corner: an intermediate ground is drawn under the higher ones over
@@ -157,9 +173,8 @@ The 2026-10-05 sets (9 grounds) used about 4,000 Magnific credits.
 
 ## Next steps
 
-1. Regenerate the ground sheets at 128 px per cell (about 180 credits each; the tool's
-   `--grounds-2x` turns padded Magnific upscales into seamless 2432 px sheets) and draw grounds and
-   edges from them.
+1. 128 px sheets for the six grounds that still have none (forest floor and moss, crystal,
+   cavern, amberleaf, cobble): [Ground at 128 px](#ground-at-128-px).
 2. Variants: more islands per ground as alternative tiles, so long straight borders repeat less.
 
 ## Files

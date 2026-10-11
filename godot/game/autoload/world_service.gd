@@ -20,6 +20,8 @@ const WorldCamera := preload("res://game/world/world_camera.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
+const GroundSurface := preload("res://game/world/ground_surface.gd")
+const GroundShade := preload("res://game/world/ground_shade.gd")
 const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
@@ -172,7 +174,9 @@ func spawn_at_phaser_position(scene_id: String, phaser_point: Vector2, parent: N
 
 ## Registers the instanced world: finds the `world_definition.gd` node (exactly one; push_error
 ## and return false otherwise), validates it (world spec 2.1), finds the ground TileMapLayer,
-## mounts the animated water on it (`WaterSurface.mount`, docs/godot/specs/water.md) and the
+## mounts the 128 px ground (`GroundSurface.mount`), the animated water on it
+## (`WaterSurface.mount`, docs/godot/specs/water.md), the light by height of hand-painted cliffs
+## (`GroundShade.mount`, docs/godot/CLIFFS.md) and the
 ## hand-made terrain edges over both (`TerrainEdges.mount`, docs/godot/TERRAIN_LAB.md) and the
 ## cliffs of its elevation layer over everything (`Elevation.mount`, docs/godot/ELEVATION.md),
 ## and builds the area records from every `world_area.gd` node (world spec 3.1). Emits
@@ -201,10 +205,14 @@ func register_world(root: Node2D) -> bool:
 	if ground_layer == null:
 		push_warning("WorldService.register_world: no ground TileMapLayer found; every tile counts as open")
 	else:
+		# The ground at 128 px per cell where a sharp sheet exists (docs/godot/TERRAIN_LAB.md).
+		GroundSurface.mount(ground_layer)
 		# Animated water over the ground's water tiles (water spec 4.1); nothing on a dry world.
 		WaterSurface.mount(ground_layer)
 		# Hand-made edges where grounds meet, shores included: after the water, so they draw over it.
 		TerrainEdges.mount(ground_layer)
+		# Low ground darker than the hand-painted cliff tops (docs/godot/CLIFFS.md "Light").
+		GroundShade.mount(ground_layer)
 		# Cliffs and holes from the world's elevation layer, over both (docs/godot/ELEVATION.md).
 		elevation = Elevation.mount(ground_layer, true)
 		# Splashes and ripples at the feet of every walker in the water (specs/water.md "Wading").
