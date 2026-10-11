@@ -15,7 +15,7 @@ difference.
 | `features/ui/MinimapSurfacePort.ts` (canvas renderer) + `content/scenes/authored/ui/minimap.scene.json` (Control host, frame) | yes | `game/ui/map/minimap.gd` (`Minimap`), `map_terrain.gd` (`MapTerrain`) |
 | `features/ui/WorldMapSurfacePort.ts` (model, `map` key, pause) + `ui/world-map-ui.scene.json` (window) | yes | `game/ui/map/world_map_window.tscn` / `.gd` (`WorldMapWindow`) |
 | `features/progression/WorldProgress.ts:350-360` (`discoverArea`, `discovered`) | yes | `RunState.world["discovered_areas"]`, `RunState.mark_area_discovered` |
-| `world/Area.ts:24-72` (`AREAS`: name, biome, `mapX`, neighbours), `world/Biome.ts:11-40` | yes | `game/shell/area_titles.gd` (names, biome colours) + `WorldMapWindow.AREA_ORDER` / `LINKS` |
+| `world/Area.ts:24-72` (`AREAS`: name, biome, `mapX`, neighbours), `world/Biome.ts:11-40` | yes | **[DIFF]** the world layout `game/data/world-map.json` (regions, their cells and maps, passages; read through `game/world/atlas/world_map_data.gd`) for the world map; `game/shell/area_titles.gd` (names, biome colours) for the area banner |
 | `src/game/Minimap.ts` (Phaser Graphics minimap) and `src/game/ui/WorldMapUI.ts` (area-node graph) | **no**: nothing mounts them since the DOM surfaces (`8187b2b`); kept only as a converter input list (`scripts/inventory-scene-conversion.mjs:15`) | not ported; `Minimap.ts` documents the frame fallback reused below |
 | quest waypoint pin (`features/quests/QuestWaypoint.ts`, `WorldScene.ts:1148-1164`) | yes | **[OUT]** quests session; the pin's look is ported as the marker kind `waypoint` (§3) |
 
@@ -131,8 +131,9 @@ Hud (CanvasLayer 10, hud.gd)
       Frame (TextureRect, the organic frame)        Overlay (Control: markers, player, view)
 GameWindows (CanvasLayer 40, game/ui/screens/game_windows.gd; main's child)
   Root > WorldMap (world_map_window.tscn, WorldMapWindow, group "world_map")
-           Panel (WindowPanel) > Title, Chart, Icege, Level1, GloopForest, CrystalCaverns,
-           Summary, Close; ClickSfx
+           Panel (WindowPanel) > Chart (grid, regions, edges, links, current ring),
+             Regions (one Label per region, made from the layout), Overlay (player dot, badges),
+             Title, Message (hidden unless the layout is missing), Summary, Close; ClickSfx
 ```
 - **[IN]** `MapUi` builds the minimap at once and the window lazily: the window is handed to
   `GameWindows.add_window()` the first time the `game_windows` group has a node (on
@@ -193,29 +194,78 @@ map_ui.clear_markers()
   `WorldService.areas()`, spawn points, `primary_target().centre` and `player.get_centre()`: a plain
   Node2D's `global_position` (the world root sits at the origin), and for a re-anchored character
   `FeetAnchor.phaser_position(root)`. `map_id` = the world it belongs to, default the current world.
-  Markers outlive travel: the minimap draws only the current world's; the world map badges the area
-  of each.
+  Markers outlive travel: the minimap draws only the current world's; the world map badges the
+  region of each waypoint.
 - `clear_marker(id)`, `clear_markers()`, `has_marker(id)`, `marker(id) -> {point, kind, map_id}`,
   `marker_ids()`.
 - Kinds (look on the minimap): `waypoint` = Phaser's gold quest pin (§1.2 item 4); **[DIFF]** extra
   kinds for later use, dark-rimmed dots like the player's: `npc` r 3 `#ffb347` (the old friend dot),
   `exit` r 3 accent `#86f0c3`, `boss` r 4 danger `#ff6f88`, `point` r 3 text `#f5f7ff`; an unknown
   kind draws as `point`. Drawn in insertion order under the player dot.
-- The world map shows the waypoint pin (1.5×, deep-gold teardrop for the dark panel) on the upper
-  right of the disc of every area holding a `waypoint` marker; the other kinds show only on the
-  minimap.
+- The world map shows the waypoint pin (1.5×, deep-gold teardrop for the dark panel), its tip at
+  the upper right of the name of every region holding a `waypoint` marker in one of its maps (its
+  overworld or an interior), once per region; the other kinds show only on the minimap.
 
 ### 3.4 World map window
-- **[IN]** Layout of §2.1 in `world_map_window.tscn` on the UI theme: `WindowPanel` (radius 12 and
-  shadow), `PanelTitle`, `InfoLabel` at 15 px (10 px at ≤ 520 px), `CaptionLabel` summary,
-  `MutedButton` Close with the bold font and radius 6. Re-laid out on viewport resize.
-- **[DIFF] Discs and lines instead of glyphs.** `◉`, `●` and `━` are not in the UI font (and the
-  web build has no system fallback), so the Chart control draws them: per column a disc above the
-  name (discovered: the biome's title colour from `AreaTitles` with a dark rim; the current area also
-  gets a 2.5 px warning ring; unknown: an inset disc with a dim ring and a `?`), and between
-  discovered neighbours a 4 px border-colour line under a 1.5 px accent line at 55 % (the colours of
-  the legacy `WorldMapUI.ts:112-115`). The labels then read `<name>` / `<name>\nCurrent area` /
-  `Unknown`.
+- **[IN]** The window of §2.1 in `world_map_window.tscn` on the UI theme: `WindowPanel` (radius 12
+  and shadow), `PanelTitle` "World Map", `CaptionLabel` summary, `MutedButton` Close with the bold
+  font and radius 6. Re-laid out on viewport resize.
+- **[DIFF] Panel size (2026-10-10).** `WindowPanel` at most 720 × 816 (Phaser 620 × 340), `w − 32`
+  across and `h − 88` down (44 px above and below: the menu tab strip ends 40 px down), and no
+  bigger than the square grid those leave needs (`WorldMapWindow.panel_size_for`: 720 × 816 at the
+  1024 × 1024 base view, 448 × 544 at 480 × 900). The grid sits 24 px from the panel's sides, 58 px
+  from its top (under the title) and 86 px from its bottom (over the summary and Close), at whole
+  pixels per chunk (84 px at the base view).
+- **[DIFF] The world layout instead of four columns (2026-10-10).** Phaser's row of four area
+  columns (`◉` / `●` glyphs, `━` links) became the overworld of `game/data/world-map.json`
+  (`WorldMapData`, read once for the run by `WorldMapWindow.map_data()`): its chunk grid (8 × 8)
+  drawn on the Chart control, each region over its own cells (`regionCells`, so the irregular Wilds
+  and the L-shaped Volcano Ridge keep their shapes), in this order: the well (`SHADOW`) under
+  unplanned cells; each region's cells, in `SURFACE_INSET` fog until it is discovered, then its
+  colour mixed half into `SURFACE_INSET`; the chunk lines (border at 35 %); every region's edge
+  (1.5 px border at 95 %); the two-way passages' links; the well's frame; and the current region's
+  edge as a 2.5 px warning ring. Interiors are not drawn.
+  - A region is **discovered** when one of its maps (its overworld `world` or one of its
+    `interiors`) is in `RunState.world.discovered_areas`, and **current** when the current world is
+    one of them (an interior rings its region too).
+  - **Names**: one Label per region (under `Regions`), in the largest rectangle of whole chunks the
+    region holds (its cells' bounds without one), 4 px in: discovered `HudLabel` at 14 px (10 px at
+    ≤ 520 px) reading `<name>` or `<name>\nCurrent area`; undiscovered a `MutedLabel` `?` at 22 px
+    (14 px). `region_text(key or map id)` returns a region's label text. The names are the
+    layout's (`regions[].name`) as `AreaTitles.region_name` gives them, the same as the area
+    banner and the save slots: without a trailing note in parentheses (the sketch tool's planning
+    note on an open design slot, "Desert (open)" reads "Desert"; the file keeps it).
+  - **Links**: each entry of the layout's `passages` (`{a, b, x, y, w, h}` in cells, written by
+    `godot/tools/build_region_worlds.gd`: 18 openings in the current layout) whose two regions are
+    discovered and that can be travelled both ways (`passage_shown`) gets a short bar across their
+    border at the middle of its opening (0.18 of a chunk each way): a 2 px accent line on a 5 px
+    dark one (the legacy `WorldMapUI.ts:112-115` link, darker and stronger to read on the tinted
+    regions). It runs sideways when the cells left and right of the opening belong to its two
+    regions, downwards when those above and below do, else across the opening's long side.
+    `link_shown(a, b, discovered)` and `has_passage(a, b)` take region keys or map ids.
+  - **[DIFF] Two-way passages only (2026-10-11).** The map does not read the world scenes' exits
+    (loading level-1's scene alone takes about a second), so `is_two_way` decides from the regions'
+    `placeholder` flags: two placeholders (the region builder gives each side of every opening its
+    exit) or two hand-made worlds (their own exits: Slimeshire Meadow – Gloop Forest and Gloop
+    Forest – Crystal Caverns work both ways) get a link; a placeholder next to a hand-made world
+    does not, because only the placeholder's exit is built and level-1, gloop-forest and
+    crystal-caverns have no exit back yet (seven openings: [WORLD_ATLAS.md](../WORLD_ATLAS.md),
+    "Openings on hand-made worlds"). When a hand-made world gets its exit at such an opening, this
+    rule has to change with it (for example the region builder marking the passages whose
+    hand-made side has no exit). A release build can discover only Slimeshire Meadow, Gloop Forest
+    and Crystal Caverns (the placeholders ship only in "Web (dev)"), so it shows those two links.
+  - **Player**: when the current world is a region's overworld, the minimap's player dot
+    (`#72d8ff` r 4 on a dark r 5.25) at the player's place in the world (`player.get_centre()` over
+    `WorldService.world_rect()`) mapped onto the region's chunk block (`player_dot()`), drawn on the
+    Overlay control over the names. No dot in an interior.
+  - **Summary**: `"<n> of <m> regions discovered · Areas stay marked as you travel"`, `n` the
+    discovered regions, `m` all the layout's regions.
+  - **No layout**: a missing or unreadable `world-map.json` (a warning, or WorldMapData's error)
+    leaves an empty framed well with the `Message` label "The world layout could not be read." and
+    Phaser's summary (`"<n> discovered · ..."`, every discovered map id); nothing else changes.
+    `WorldMapWindow.use_map(map)` (tools and tests; null = none) and `reload_map()` replace the
+    cached layout.
+  - Every text is in the theme fonts (`?` and `·` are in Source Sans 3).
 - **[IN]** `open() -> bool`: true when already open; refuses (false) without GameWindows or a
   registered world; marks the current world discovered (`RunState.mark_area_discovered`), lays out,
   refreshes and shows, then `GameWindows.push(self, &"world-map")` (the `modal` pause, the MenuOpen
@@ -249,8 +299,18 @@ map_ui.clear_markers()
 level-1 terrain (64 × 64, water cells blue, meadow cells green, an empty cell transparent) and the
 frame; the player marker following a teleport; the marker API (set, move, clear, other worlds,
 both views); the world map from the `map` action and from the Shell's Map button (open, `modal`
-pause, labels, summary, discovered links, `window_opened(&"world-map")`, Escape, `map` and Close
-closing it); refusal while a Shell window or another game window is open; and a travel to
-gloop-forest rebuilding the terrain (54 × 54) and freeing level-1's image and texture, the world map showing
-both areas discovered and the link between them. (Headless runs have a 64 × 64 viewport, so sizes are
-checked against the formulas, not against 1280 × 720.)
+pause, the region labels: Slimeshire Meadow current, Gloop Forest and Crystal Caverns `?`; the
+player dot on level-1's block, the summary, no link yet, the panel size and `panel_size_for` at
+1024 × 1024 and 480 × 900, `window_opened(&"world-map")`, Escape, `map` and Close closing it);
+refusal while a Shell window or another game window is open; the regions of the layout (by map id,
+interior and key; labels in an interior and undiscovered; names without a trailing planning note,
+on the map and in `AreaTitles.area_name`, for every region) and the passage links on a copy of the
+layout (level-1 / gloop-forest linked once both are discovered; a hand-made world next to a
+placeholder never linked, two placeholders linked); the missing-layout message and summary
+(`use_map(null)`, then `reload_map()`); and a travel to gloop-forest rebuilding the terrain
+(54 × 54) and freeing level-1's image and texture, the world map showing Gloop Forest current,
+Slimeshire Meadow named, Crystal Caverns `?`, two regions discovered, the dot on gloop-forest's
+block and the level-1 / gloop-forest link exactly when the layout has a passage there. Headless
+runs keep the 1024 × 1024 base view (`display/window/size/viewport_*`), so the live panel check
+runs at `panel_size_for(1024 × 1024)` = 720 × 816; the 480 × 900 size is checked against the
+formula only.

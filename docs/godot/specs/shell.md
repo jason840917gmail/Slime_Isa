@@ -182,7 +182,10 @@ Godot:
 - **[IN]** `Shell.show_area_title(text, colour)` for other banners. **[OUT]** The "learned"
   banners are the abilities port's to call (its spec marks them OUT).
 - Area names and biome colours are kept in `area_titles.gd` until the converter exports
-  `Area.ts` / `Biome.ts` as data.
+  `Area.ts` / `Biome.ts` as data; a world it does not list that is a region's world in
+  `game/data/world-map.json` takes the region's name and a lightened region colour. The name is
+  `AreaTitles.region_name(region)`, which the save slots and the world map show too: without a
+  trailing note in parentheses (the sketch tool's planning note, "Desert (open)" reads "Desert").
 
 ## 5. Controls and credits
 

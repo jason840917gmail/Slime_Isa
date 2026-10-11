@@ -1,8 +1,10 @@
 extends RefCounted
 ## The minimap and the world map (docs/godot/specs/map.md): the minimap's box and level-1's baked
 ## ground, the player dot and the camera view, the shared marker API, the world map opened by the
-## `map` action and the pause menu's Map button (GameWindows' `modal` pause, labels, Escape, `map`,
-## `menu` and Close), refused over other windows, and both rebuilt after a travel to gloop-forest.
+## `map` action and the pause menu's Map button (GameWindows' `modal` pause, the region labels of
+## res://game/data/world-map.json, Escape, `map`, `menu` and Close), refused over other windows,
+## its regions (names without planning notes, shared with the area banner), the links of two-way
+## passages and the missing-layout message, and both rebuilt after a travel to gloop-forest.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -11,9 +13,10 @@ const Minimap := preload("res://game/ui/map/minimap.gd")
 const MapTerrain := preload("res://game/ui/map/map_terrain.gd")
 const MapMarkers := preload("res://game/ui/map/map_markers.gd")
 const WorldMapWindow := preload("res://game/ui/map/world_map_window.gd")
+const AreaTitles := preload("res://game/shell/area_titles.gd")
 
-const SUMMARY_ONE := "1 discovered · Areas stay marked as you travel"
-const SUMMARY_TWO := "2 discovered · Areas stay marked as you travel"
+const SUMMARY_FORMAT := "%d of %d regions discovered · Areas stay marked as you travel"
+const SUMMARY_NO_LAYOUT := "%d discovered · Areas stay marked as you travel"
 
 
 # --- minimap ------------------------------------------------------------------------------------
@@ -163,16 +166,20 @@ func test_world_map_opens_from_the_map_action_and_closes(t: TestContext) -> void
 	t.check(windows.call(&"is_open", &"world-map"), "GameWindows does not list world-map")
 	t.check(t.tree.paused and t.world().has_pause_reason(Services.WorldServiceType.PAUSE_MODAL), "the world map did not pause with the modal reason")
 	t.check(world_map.close_button.has_focus(), "Close is not focused")
-	t.equal(_label(world_map, "Level1"), "Slimeshire Meadow\nCurrent area", "level-1 label")
-	t.equal(_label(world_map, "Icege"), "Unknown", "icege label")
-	t.equal(_label(world_map, "GloopForest"), "Unknown", "gloop-forest label")
-	t.equal(_label(world_map, "CrystalCaverns"), "Unknown", "crystal-caverns label")
-	t.equal(world_map.summary_label.text, SUMMARY_ONE, "summary")
+	t.check(WorldMapWindow.map_data() != null, "no world layout (res://game/data/world-map.json)")
+	t.equal(world_map.region_text("level-1"), "Slimeshire Meadow\nCurrent area", "level-1's region label")
+	t.equal(world_map.region_text("gloop-forest"), "?", "gloop-forest's region label")
+	t.equal(world_map.region_text("crystal-caverns"), "?", "crystal-caverns' region label")
+	t.equal(world_map.current_region().get("world"), "level-1", "the current region's world")
+	t.check(world_map.region_rect("level-1").grow(1.0).has_point(world_map.player_dot()), "the player dot is not on level-1's block")
+	t.check(not world_map.message_label.visible, "the missing-layout message shows")
+	t.equal(world_map.summary_label.text, _summary(1), "summary")
 	t.equal(world_map.title_label.text, "World Map", "title")
-	t.check(not WorldMapWindow.is_link_shown(0, WorldMapWindow.discovered_areas()), "a link shows with one area discovered")
+	t.check(not WorldMapWindow.link_shown("level-1", "gloop-forest", WorldMapWindow.discovered_areas()), "a link shows with one region discovered")
 	var viewport := world_map.get_viewport_rect().size
-	var expected_panel := Vector2(minf(620.0, maxf(1.0, viewport.x - 32.0)), minf(340.0, maxf(1.0, viewport.y - 32.0)))
-	t.near_vec(world_map.panel.size, expected_panel, 1.0, "panel size at %s" % viewport)
+	t.near_vec(world_map.panel.size, WorldMapWindow.panel_size_for(viewport), 1.0, "panel size at %s" % viewport)
+	t.equal(WorldMapWindow.panel_size_for(Vector2(1024.0, 1024.0)), Vector2(720.0, 816.0), "panel size at 1024 x 1024")
+	t.equal(WorldMapWindow.panel_size_for(Vector2(480.0, 900.0)), Vector2(448.0, 544.0), "panel size at 480 x 900 (fits its grid)")
 	# The menu's tab strip (game/ui/screens/menu_windows.gd, when present) has the map as its Map tab.
 	var menu := t.tree.get_first_node_in_group(&"menu_windows")
 	if menu != null and menu.has_method(&"current_tab"):
@@ -284,13 +291,85 @@ func test_travel_rebuilds_the_minimap_and_world_map(t: TestContext) -> void:
 
 	t.check(map_ui.open_world_map(), "the world map did not open in gloop-forest")
 	var world_map := map_ui.world_map
-	t.equal(_label(world_map, "Level1"), "Slimeshire Meadow", "level-1 label after travel")
-	t.equal(_label(world_map, "GloopForest"), "Gloop Forest\nCurrent area", "gloop-forest label after travel")
-	t.equal(world_map.summary_label.text, SUMMARY_TWO, "summary after travel")
+	t.equal(world_map.region_text("level-1"), "Slimeshire Meadow", "level-1's region label after travel")
+	t.equal(world_map.region_text("gloop-forest"), "Gloop Forest\nCurrent area", "gloop-forest's region label after travel")
+	t.equal(world_map.region_text("crystal-caverns"), "?", "crystal-caverns' region label after travel")
+	t.equal(world_map.summary_label.text, _summary(2), "summary after travel")
+	t.check(world_map.region_rect("gloop-forest").grow(1.0).has_point(world_map.player_dot()), "the player dot is not on gloop-forest's block")
 	var discovered := WorldMapWindow.discovered_areas()
-	t.check(WorldMapWindow.is_link_shown(0, discovered), "no link between level-1 and gloop-forest")
-	t.check(not WorldMapWindow.is_link_shown(1, discovered), "a link to the undiscovered crystal caverns")
+	t.equal(WorldMapWindow.link_shown("level-1", "gloop-forest", discovered), WorldMapWindow.has_passage("level-1", "gloop-forest"),
+		"the level-1 / gloop-forest link shows exactly when the layout has a passage there")
+	t.check(not WorldMapWindow.link_shown("gloop-forest", "crystal-caverns", discovered), "a link to the undiscovered crystal caverns")
 	map_ui.close_world_map()
+
+
+func test_world_map_regions_and_passages(t: TestContext) -> void:
+	var map := WorldMapWindow.map_data()
+	if not t.check(map != null, "no world layout (res://game/data/world-map.json)"):
+		return
+	var meadow := WorldMapWindow.region_of("level-1")
+	var forest := WorldMapWindow.region_of("gloop-forest")
+	t.equal(meadow.get("name"), "Slimeshire Meadow", "level-1's region")
+	t.equal(WorldMapWindow.region_of("gloop-hut"), forest, "an interior's region")
+	t.equal(WorldMapWindow.region_of(str(forest.get("key", ""))), forest, "a region by its key")
+	t.equal(WorldMapWindow.region_of("playground"), {}, "a world off the layout has a region")
+	# A region is discovered by any of its maps, and current in any of them (its interiors too).
+	t.equal(WorldMapWindow.region_label(forest, PackedStringArray(["gloop-hut"]), "gloop-hut"), "Gloop Forest\nCurrent area", "label in an interior")
+	t.equal(WorldMapWindow.region_label(forest, PackedStringArray(["level-1"]), "level-1"), "?", "label of an undiscovered region")
+	# Names: the layout's without a trailing planning note ("Desert (open)"), on the map and the banner.
+	var open_slot := {"key": "i", "name": "Desert (open)", "world": "desert"}
+	t.equal(WorldMapWindow.region_label(open_slot, PackedStringArray(["desert"]), ""), "Desert", "a planning note in a region label")
+	t.equal(AreaTitles.region_name({"name": "West village (open)"}), "West village", "a planning note in a region name")
+	t.equal(AreaTitles.region_name({"name": "(open)"}), "(open)", "a name that is only a note")
+	t.equal(AreaTitles.region_name({}), "", "a region without a name")
+	for region: Dictionary in map.regions():
+		var world := str(region.get("world", ""))
+		var label := WorldMapWindow.region_label(region, WorldMapWindow.region_maps(region), "")
+		t.check(not label.ends_with(")") and not AreaTitles.area_name(world).ends_with(")"),
+			"%s shows a planning note (map %s, banner %s)" % [world, label, AreaTitles.area_name(world)])
+	# Links: only for a passage of the layout that can be travelled both ways (both regions hand-made,
+	# or both placeholders), once both of its regions are discovered.
+	var copy := map.duplicate_map()
+	var passages: Array = [{"a": meadow.get("key"), "b": forest.get("key"), "x": 0, "y": 0, "w": 1, "h": 1}]
+	var placeholders := map.regions().filter(func(region: Dictionary) -> bool: return bool(region.get("placeholder", false)))
+	if placeholders.size() >= 2:
+		passages.append({"a": meadow.get("key"), "b": placeholders[0].get("key"), "x": 0, "y": 0, "w": 1, "h": 1})
+		passages.append({"a": placeholders[0].get("key"), "b": placeholders[1].get("key"), "x": 0, "y": 0, "w": 1, "h": 1})
+	copy.head["passages"] = passages
+	WorldMapWindow.use_map(copy)
+	t.check(WorldMapWindow.has_passage("gloop-forest", "level-1"), "the passage was not found from either end")
+	t.check(not WorldMapWindow.has_passage("level-1", "crystal-caverns"), "a passage that the layout does not have")
+	t.check(not WorldMapWindow.link_shown("level-1", "gloop-forest", PackedStringArray(["level-1"])), "a link to an undiscovered region")
+	t.check(WorldMapWindow.link_shown("level-1", "gloop-forest", PackedStringArray(["level-1", "gloop-hut"])), "no link once both regions are discovered")
+	if placeholders.size() >= 2:
+		var first := str(placeholders[0].get("world", ""))
+		var second := str(placeholders[1].get("world", ""))
+		t.check(WorldMapWindow.has_passage("level-1", first) and not WorldMapWindow.is_two_way(meadow, placeholders[0]),
+			"level-1 / %s is not a one-way passage" % first)
+		t.check(not WorldMapWindow.link_shown("level-1", first, PackedStringArray(["level-1", first])),
+			"a link between hand-made level-1 and the placeholder %s (no exit back)" % first)
+		t.check(WorldMapWindow.link_shown(first, second, PackedStringArray([first, second])),
+			"no link between the placeholders %s and %s once both are discovered" % [first, second])
+	WorldMapWindow.reload_map()
+
+
+func test_world_map_without_a_layout(t: TestContext) -> void:
+	var map_ui := _map_ui(t)
+	if map_ui == null:
+		return
+	var world_map := map_ui.world_map
+	WorldMapWindow.use_map(null)
+	t.check(map_ui.open_world_map(), "the world map did not open without a layout")
+	t.check(world_map.message_label.visible, "no message without a layout")
+	t.equal(world_map.summary_label.text, SUMMARY_NO_LAYOUT % WorldMapWindow.discovered_areas().size(), "summary without a layout")
+	t.equal(world_map.region_text("level-1"), "", "a region label without a layout")
+	t.check(not world_map.player_dot().is_finite(), "a player dot without a layout")
+	await t.steps(2)
+	map_ui.close_world_map()
+	WorldMapWindow.reload_map()
+	world_map.refresh()
+	t.check(WorldMapWindow.map_data() != null and not world_map.message_label.visible, "the layout did not come back")
+	t.equal(world_map.region_text("level-1"), "Slimeshire Meadow\nCurrent area", "level-1's region label with the layout back")
 
 
 # --- helpers --------------------------------------------------------------------------------------
@@ -315,6 +394,7 @@ func _game_windows(t: TestContext) -> Node:
 	return node
 
 
-func _label(world_map: WorldMapWindow, node_name: String) -> String:
-	var label := world_map.get_node_or_null(NodePath("Panel/" + node_name)) as Label
-	return label.text if label != null else "<missing %s>" % node_name
+## The summary with `count` of the layout's regions discovered.
+func _summary(count: int) -> String:
+	var map := WorldMapWindow.map_data()
+	return SUMMARY_FORMAT % [count, map.regions().size() if map != null else 0]
