@@ -35,6 +35,9 @@ input[type=color] { padding: 0 2px; height: 26px; width: 40px; }
 textarea { min-height: 54px; resize: vertical; }
 label.row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
 label.row > span { width: 64px; flex: none; color: var(--muted); font-size: 12px; }
+label.row > small { flex: 1; color: var(--muted); }
+label.row > button { flex: none; }
+.btnrow { display: flex; gap: 4px; flex-wrap: wrap; margin: 4px 0; }
 .swatches { display: grid; grid-template-columns: 1fr; gap: 2px; }
 .sw { display: flex; align-items: center; gap: 8px; padding: 3px 6px; border-radius: 5px; cursor: pointer; border: 1px solid transparent; }
 .sw:hover { background: var(--panel2); }
@@ -69,12 +72,14 @@ label.row > span { width: 64px; flex: none; color: var(--muted); font-size: 12px
 	<button data-tool="brush" title="B">Brush</button>
 	<button data-tool="rect" title="R">Rect</button>
 	<button data-tool="fill" title="F">Fill</button>
+	<button data-tool="swap" title="X: drag a block of chunks, then a block of the same size, and they trade places with everything on them">Swap chunks</button>
 	<span class="muted">Size</span><input id="size" type="range" min="1" max="12" value="3"><span id="sizeVal">3</span>
 	<span class="sep"></span>
 	<label class="muted"><input type="checkbox" id="showRegions" checked> regions</label>
 	<label class="muted"><input type="checkbox" id="showGrid" checked> grid</label>
 	<label class="muted"><input type="checkbox" id="showChunks" checked> chunks</label>
 	<label class="muted"><input type="checkbox" id="showLabels" checked> labels</label>
+	<label class="muted" title="The openings between touching regions, written by godot/tools/build_region_worlds.gd"><input type="checkbox" id="showPassages" checked> passages</label>
 	<span class="grow"></span>
 	<span id="status" class="status"></span>
 	<button id="undo" title="Ctrl+Z">Undo</button>
@@ -97,10 +102,13 @@ label.row > span { width: 64px; flex: none; color: var(--muted); font-size: 12px
 	<div class="help">
 		Left drag paints. Right or middle drag (or <kbd>Space</kbd> + drag) pans; wheel zooms.
 		<kbd>Alt</kbd> + click picks the value under the cursor.<br>
-		<kbd>1</kbd>–<kbd>4</kbd> layers, <kbd>B</kbd>/<kbd>R</kbd>/<kbd>F</kbd> tools, <kbd>[</kbd> <kbd>]</kbd> brush size,
+		<kbd>1</kbd>–<kbd>4</kbd> layers, <kbd>B</kbd>/<kbd>R</kbd>/<kbd>F</kbd>/<kbd>X</kbd> tools, <kbd>[</kbd> <kbd>]</kbd> brush size,
 		<kbd>Ctrl+Z</kbd>/<kbd>Ctrl+Y</kbd>, <kbd>Ctrl+S</kbd> save, <kbd>Del</kbd> removes the selected marker.<br>
 		Markers layer: click empty ground to drop the chosen marker, drag one to move it.
-		A gate or cave connects the regions within two cells of it, plus its <em>Leads to</em> region.
+		A gate or cave connects the regions within two cells of it, plus its <em>Leads to</em> region.<br>
+		Swap chunks (<kbd>X</kbd>): drag block A, then drag a block of the same size (or click its north-west chunk);
+		the two trade places with every layer, marker and passage on them. <kbd>Esc</kbd> cancels.
+		A region that fills whole chunks moves or swaps from its inspector (Regions layer).
 	</div>
 </aside>
 
@@ -114,6 +122,7 @@ label.row > span { width: 64px; flex: none; color: var(--muted); font-size: 12px
 		<button id="exportPng">Download PNG</button>
 		<button id="exportJson">Download JSON</button>
 		<button id="importJson">Open JSON…</button>
+		<button id="reloadMap" title="Load world-map.json again, for example after the Godot world atlas or region builder changed it">Reload from disk</button>
 		<button id="fit">Fit map to view</button>
 	</div>
 </div>
@@ -163,11 +172,24 @@ const MARKERS = {
 	secret:   { name: "Secret / heart", letter: "♥", color: "#e05aa0" },
 	note:     { name: "Note / idea",    letter: "?", color: "#9aa1b2" },
 };
+// a marker type this tool does not know (another tool wrote it) is kept and drawn plainly
+function markerDef(type) { return MARKERS[type] || { name: String(type), letter: "?", color: "#6b7080" }; }
 const REGION_COLORS = ["#ffd166", "#ef476f", "#06d6a0", "#118ab2", "#f78c6b", "#c77dff", "#90be6d", "#f9c74f", "#4cc9f0", "#ff70a6", "#b5838d", "#80ffdb"];
 const REGION_KEYS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const STATUSES = ["Idea", "Proposal", "Planned", "In progress", "Built"];
+// the look godot/tools/build_region_worlds.gd gives a placeholder region world
+const THEMES = ["meadow", "forest", "crystal", "volcano", "frost", "swamp", "village", "ruins", "desert", "wilds"];
+const FORMAT = "slime-isa-world-map", VERSION = 2;
+const GRIDS = ["terrain", "elevation", "regionCells"];
+const LEGEND = {
+	chunks: "the map is cut into chunks.cols x chunks.rows chunks, named by column letter and row number (A1 is the north-west corner)",
+	elevation: "0 to 4, a higher digit is higher ground; cliffs are drawn where it drops",
+	regionCells: "one character per cell: a region's key, or '.' for none",
+	regions: "key, id, name, color, chapter, status, world (the overworld scene id: world.<id>), interiors (scene ids off the grid), placeholder (true: built by godot/tools/build_region_worlds.gd and safe to rebuild), theme, boss, notes",
+	passages: "written by godot/tools/build_region_worlds.gd: the openings between touching regions {a, b, x, y, w, h} in cells",
+};
 const SERVER = location.protocol.startsWith("http");
-const DRAFT_KEY = "slime-isa-world-map-draft";
+const DRAFT_KEY = "slime-isa-world-map-draft-v2"; // v1 drafts held the old docs/story layout: never offer them
 
 // ---------- state ----------
 let S; // the map
@@ -182,11 +204,33 @@ const ui = {
 	dirty: false, savedName: "",
 };
 let undoStack = [], redoStack = [];
+let mapVersion = ""; // the server's version of the file this drawing started from (save refuses if it changed)
+let mapPath = "";
+let loadError = ""; // why the file on disk could not be loaded (save then asks before replacing it)
 
+// `head` is every key of the file but the grids, in file order: keys this tool does not edit
+// (tilesPerCell, tileSize, keys added later) go back out unchanged
+function blankHead() {
+	return { format: FORMAT, version: VERSION, title: "", cols: 0, rows: 0, chunks: {}, tilesPerCell: 2, tileSize: 64,
+		legend: {}, regions: [], markers: [], passages: [] };
+}
 function blankMap(cols, rows) {
-	return { title: "Slime Isa world", cols, rows, chunks: { cols: 8, rows: 8 },
+	return { title: "Slime Isa world", cols, rows, chunks: { cols: 8, rows: 8 }, head: blankHead(),
 		terrain: new Uint8Array(cols * rows), elev: new Uint8Array(cols * rows), region: new Uint8Array(cols * rows),
-		regions: [], markers: [] };
+		regions: [], markers: [], passages: [] };
+}
+function regionDefaults() {
+	return { key: "", name: "Region", color: "#ffd166", chapter: "", status: "Idea", id: "", world: "", interiors: [],
+		placeholder: false, theme: "", boss: "", notes: "" };
+}
+function slug(s) { return String(s ?? "").toLowerCase().replace(/\(.*?\)/g, " ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+// "slime-home, mushroom-home" -> ["slime-home", "mushroom-home"] (the first id-like word of each part)
+function mapIds(s) { return String(s ?? "").split(",").map(p => (p.match(/[A-Za-z0-9_.-]+/) || [""])[0]).filter(Boolean); }
+// "level-1, slime-home" -> ["level-1", "slime-home"]; null when a part is not a plain id, as in
+// "hot, emberleef (candidates)": candidates are not the region's maps yet
+function plainIds(s) {
+	const parts = String(s ?? "").split(",").map(p => p.trim()).filter(Boolean);
+	return parts.every(p => /^[A-Za-z0-9_.-]+$/.test(p)) ? parts : null;
 }
 
 // ---------- serialization ----------
@@ -200,42 +244,87 @@ function toJSON() {
 		}
 		return out;
 	};
-	return {
-		format: "slime-isa-world-map", version: 1, title: S.title, cols: S.cols, rows: S.rows, chunks: S.chunks,
-		legend: {
-			terrain: Object.fromEntries(TERRAINS.map(t => [t.ch, t.name])),
-			chunks: "the map is cut into chunks.cols x chunks.rows chunks, named by column letter and row number (A1 is the north-west corner)",
-			elevation: "0 to 4, a higher digit is higher ground; cliffs are drawn where it drops",
-			regionCells: "one character per cell: a region's key, or '.' for none",
-			markers: Object.fromEntries(Object.entries(MARKERS).map(([k, m]) => [k, m.name])),
-		},
-		regions: S.regions.map(r => ({ ...r })),
+	const legend = { ...(S.head.legend || {}),
+		terrain: Object.fromEntries(TERRAINS.map(t => [t.ch, t.name])),
+		chunks: LEGEND.chunks, elevation: LEGEND.elevation, regionCells: LEGEND.regionCells,
+		markers: Object.fromEntries(Object.entries(MARKERS).map(([k, m]) => [k, m.name])),
+		regions: LEGEND.regions, passages: LEGEND.passages,
+	};
+	const optional = ["to", "needs", "map", "notes"];
+	// keys keep their place in the file; keys this tool does not know are written back as they came
+	return Object.assign({ ...S.head }, {
+		format: FORMAT, version: VERSION, title: S.title, cols: S.cols, rows: S.rows, chunks: { ...S.chunks },
+		legend,
+		regions: S.regions.map(r => ({ ...r, interiors: [...(r.interiors || [])] })),
 		markers: S.markers.map(m => {
 			const o = { type: m.type, x: m.x, y: m.y, label: m.label };
-			for (const k of ["to", "needs", "map", "notes"]) if (m[k]) o[k] = m[k];
+			for (const k of optional) if (m[k] !== undefined) o[k] = m[k];
+			for (const [k, v] of Object.entries(m)) if (!(k in o) && !optional.includes(k) && v !== undefined) o[k] = v;
 			return o;
 		}),
+		passages: S.passages.map(p => ({ ...p })),
 		terrain: grid(S.terrain, v => TERRAINS[v].ch),
 		elevation: grid(S.elev, v => String(v)),
 		regionCells: grid(S.region, v => v ? S.regions[v - 1].key : "."),
-	};
+	});
 }
 
+// Reads version 2 and version 1 (docs/story/world-map.json before 2026-10-10, whose regions had a
+// "maps" text instead of world and interiors). Throws when `d` is not a world map. `notices` says
+// what the drawing will not keep as it came: grid values the tool does not know (saved as unplanned
+// ground, height 4 or 0 and no region) and a version 1 file's region worlds to check.
 function fromJSON(d) {
-	const m = blankMap(d.cols, d.rows);
+	if (d?.format !== FORMAT) throw new Error(`not a world map (format "${FORMAT}")`);
+	const m = blankMap(d.cols, d.rows), v1 = !(d.version >= 2);
+	const head = Object.fromEntries(Object.entries(d).filter(([k]) => !GRIDS.includes(k)));
+	m.head = v1 ? Object.assign(blankHead(), head) : head;
 	m.title = d.title || m.title;
 	if (d.chunks?.cols > 0 && d.chunks?.rows > 0) m.chunks = { cols: d.chunks.cols, rows: d.chunks.rows };
-	m.regions = (d.regions || []).map(r => ({ key: r.key, name: r.name || "Region", color: r.color || "#ffd166",
-		chapter: r.chapter || "", status: r.status || "Idea", maps: r.maps || "", boss: r.boss || "", notes: r.notes || "" }));
+	m.regions = (d.regions || []).map(r => readRegion(r, v1));
 	const regionIndex = Object.fromEntries(m.regions.map((r, i) => [r.key, i + 1]));
+	const unknown = { terrain: new Set(), high: new Set(), height: new Set(), region: new Set() };
 	for (let y = 0; y < m.rows; y++) for (let x = 0; x < m.cols; x++) {
-		const i = y * m.cols + x;
-		m.terrain[i] = TERRAIN_BY_CH[(d.terrain?.[y] || "")[x]] ?? 0;
-		m.elev[i] = Math.min(MAX_ELEV, +((d.elevation?.[y] || "")[x] || 0) || 0);
-		m.region[i] = regionIndex[(d.regionCells?.[y] || "")[x]] || 0;
+		const i = y * m.cols + x, t = (d.terrain?.[y] || "")[x], e = (d.elevation?.[y] || "")[x], r = (d.regionCells?.[y] || "")[x];
+		m.terrain[i] = TERRAIN_BY_CH[t] ?? 0;
+		m.elev[i] = Math.min(MAX_ELEV, +(e || 0) || 0);
+		m.region[i] = regionIndex[r] || 0;
+		// a short row is padded with "." and "0", as world_map_data.gd does
+		if (t !== undefined && TERRAIN_BY_CH[t] === undefined) unknown.terrain.add(t);
+		if (e !== undefined && !/^[0-9]$/.test(e)) unknown.height.add(e);
+		else if (+e > MAX_ELEV) unknown.high.add(e);
+		if (r !== undefined && r !== "." && !regionIndex[r]) unknown.region.add(r);
 	}
-	m.markers = (d.markers || []).filter(k => MARKERS[k.type]).map(k => ({ ...k, label: k.label || "" }));
+	m.markers = (d.markers || []).map(k => ({ ...k, label: k.label || "" }));
+	m.passages = Array.isArray(d.passages) ? d.passages.map(p => ({ ...p })) : [];
+	const chars = set => [...set].map(c => JSON.stringify(c)).join(" ");
+	const lost = [
+		unknown.terrain.size && `terrain ${chars(unknown.terrain)} as unplanned`,
+		unknown.high.size && `heights ${chars(unknown.high)} as ${MAX_ELEV}`,
+		unknown.height.size && `heights ${chars(unknown.height)} as 0`,
+		unknown.region.size && `region keys ${chars(unknown.region)} (no such region) as no region`,
+	].filter(Boolean);
+	m.notices = [];
+	if (lost.length) m.notices.push(`The file has grid values this tool does not know; a save writes ${lost.join(", ")}.`);
+	if (v1) m.notices.push("A version 1 file: check each region's World before saving (a region whose maps were only candidates has none; the text is in its notes).");
 	return m;
+}
+// a region keeps every field it came with; missing ones get their defaults
+function readRegion(r, v1) {
+	const out = Object.assign(v1 ? regionDefaults() : {}, r);
+	if (v1) {
+		// only a list of plain ids names the region's maps; anything else (candidates) goes to the notes
+		const ids = plainIds(r.maps);
+		out.id = r.id || slug(r.name);
+		out.world = ids?.[0] || "";
+		out.interiors = ids ? ids.slice(1) : [];
+		if (!ids) out.notes = [r.notes, `Maps (version 1): ${r.maps}`].filter(Boolean).join(" ");
+		delete out.maps;
+	}
+	for (const [k, v] of Object.entries(regionDefaults()))
+		if (out[k] == null || ((k === "name" || k === "color" || k === "status") && !out[k])) out[k] = v;
+	if (!Array.isArray(out.interiors)) out.interiors = mapIds(out.interiors);
+	out.placeholder = out.placeholder === true;
+	return out;
 }
 
 // ---------- chunks ----------
@@ -248,6 +337,166 @@ function chunkOf(x, y) {
 	return { cx, cy, name: chunkName(cx, cy) };
 }
 function chunkName(cx, cy) { return String.fromCharCode(65 + cx) + (cy + 1); }
+
+// ---------- layout ----------
+// The twin of godot/game/world/atlas/world_map_data.gd (region_is_rect, region_pieces, swap_blocks,
+// shift_block, move_region, preview_move), so the sketch and the Godot world atlas move regions the
+// same way. Layout edits move whole blocks of chunks with everything on them (the three grids, the
+// markers and the passages), so nothing is lost. A block is { x, y, w, h } in chunks. The functions
+// take the map (S, or a copy to try an edit on first).
+function chunkCells(m) { return { w: Math.floor(m.cols / m.chunks.cols), h: Math.floor(m.rows / m.chunks.rows) }; }
+// layout edits need chunks of equal size (the overworld is 8 x 8 chunks of 16 x 16 cells)
+function wholeChunks(m) { return m.cols % m.chunks.cols === 0 && m.rows % m.chunks.rows === 0; }
+function blockInside(m, b) { return b.x >= 0 && b.y >= 0 && b.x + b.w <= m.chunks.cols && b.y + b.h <= m.chunks.rows; }
+function blocksOverlap(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
+function sameBlock(a, b) { return a === b || (!!a && !!b && a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h); }
+function blockName(b) { return chunkName(b.x, b.y) + (b.w * b.h > 1 ? ":" + chunkName(b.x + b.w - 1, b.y + b.h - 1) : ""); }
+function copyMap(m) {
+	return { ...m, chunks: { ...m.chunks }, terrain: m.terrain.slice(), elev: m.elev.slice(), region: m.region.slice(),
+		markers: m.markers.map(k => ({ ...k })), passages: m.passages.map(p => ({ ...p })) };
+}
+
+// the chunks region `idx` holds more than half of, in reading order
+function layoutChunks(m, idx) {
+	const { w, h } = chunkCells(m), counts = new Map();
+	for (let y = 0; y < m.rows; y++) for (let x = 0; x < m.cols; x++) {
+		if (m.region[y * m.cols + x] !== idx) continue;
+		const cx = Math.floor(x / w), cy = Math.floor(y / h), k = `${cx},${cy}`;
+		const c = counts.get(k) || { x: cx, y: cy, n: 0 };
+		c.n++; counts.set(k, c);
+	}
+	const half = Math.floor(w * h / 2);
+	return [...counts.values()].filter(c => c.n > half).sort((a, b) => a.y - b.y || a.x - b.x);
+}
+// the bounding block of region `idx`'s chunks (null when it has none)
+function regionBlock(m, idx) {
+	const chunks = layoutChunks(m, idx);
+	if (!chunks.length) return null;
+	const xs = chunks.map(c => c.x), ys = chunks.map(c => c.y);
+	const x = Math.min(...xs), y = Math.min(...ys);
+	return { x, y, w: Math.max(...xs) + 1 - x, h: Math.max(...ys) + 1 - y };
+}
+// true when region `idx` fills every cell of its block and has no cell outside it (a rectangle of
+// whole chunks): such a region can be moved and swapped
+function regionIsRect(m, idx) {
+	const b = regionBlock(m, idx);
+	if (!b) return false;
+	const { w, h } = chunkCells(m);
+	let cells = 0;
+	for (const v of m.region) if (v === idx) cells++;
+	if (cells !== b.w * b.h * w * h) return false;
+	for (let y = b.y * h; y < (b.y + b.h) * h; y++) for (let x = b.x * w; x < (b.x + b.w) * w; x++)
+		if (m.region[y * m.cols + x] !== idx) return false;
+	return true;
+}
+// how many separate pieces (4-connected groups of cells) each region has: region index -> count
+function regionPieces(m) {
+	const counts = new Map(), seen = new Uint8Array(m.cols * m.rows);
+	for (let start = 0; start < seen.length; start++) {
+		const r = m.region[start];
+		if (!r || seen[start]) continue;
+		counts.set(r, (counts.get(r) || 0) + 1);
+		const stack = [start];
+		seen[start] = 1;
+		while (stack.length) {
+			const i = stack.pop(), x = i % m.cols, y = (i - x) / m.cols;
+			for (const [nx, ny] of [[x + 1, y], [x, y + 1], [x - 1, y], [x, y - 1]]) {
+				if (nx < 0 || ny < 0 || nx >= m.cols || ny >= m.rows) continue;
+				const j = ny * m.cols + nx;
+				if (!seen[j] && m.region[j] === r) { seen[j] = 1; stack.push(j); }
+			}
+		}
+	}
+	return counts;
+}
+
+// exchanges two equal, non-overlapping blocks; false when they differ in size, overlap or leave the map
+function swapBlocks(m, a, b) {
+	if (a.w !== b.w || a.h !== b.h || blocksOverlap(a, b) || !blockInside(m, a) || !blockInside(m, b) || !(a.w > 0 && a.h > 0)) return false;
+	const { w, h } = chunkCells(m), dx = (b.x - a.x) * w, dy = (b.y - a.y) * h, moves = new Map();
+	for (let y = a.y * h; y < (a.y + a.h) * h; y++) for (let x = a.x * w; x < (a.x + a.w) * w; x++) {
+		const i = y * m.cols + x, j = (y + dy) * m.cols + x + dx;
+		moves.set(i, j); moves.set(j, i);
+	}
+	applyMoves(m, moves);
+	return true;
+}
+// slides `block` one chunk towards `step` ({x, y}, a unit step); the strip of chunks it slides onto
+// goes to the side it left. False when the block would leave the map.
+function shiftBlock(m, block, step) {
+	if (Math.abs(step.x) + Math.abs(step.y) !== 1 || !(block.w > 0 && block.h > 0) || !blockInside(m, block)) return false;
+	const union = { x: Math.min(block.x, block.x + step.x), y: Math.min(block.y, block.y + step.y),
+		w: block.w + Math.abs(step.x), h: block.h + Math.abs(step.y) };
+	if (!blockInside(m, union)) return false;
+	const { w, h } = chunkCells(m), x0 = union.x * w, y0 = union.y * h, x1 = x0 + union.w * w, y1 = y0 + union.h * h;
+	const across = step.x !== 0, along = across ? x1 - x0 : y1 - y0, by = (across ? w : h) * (step.x + step.y > 0 ? 1 : -1);
+	const moves = new Map();
+	for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+		const moved = (((across ? x - x0 : y - y0) + by) % along + along) % along;
+		moves.set(y * m.cols + x, across ? y * m.cols + x0 + moved : (y0 + moved) * m.cols + x);
+	}
+	applyMoves(m, moves);
+	return true;
+}
+// moves region `idx`'s block so its north-west chunk lands on `to`: onto a block it does not overlap
+// by swapping the two blocks, else by sliding it chunk by chunk along one axis (a diagonal slide is
+// refused: its opposite would not undo it). False when the region is not a rectangle of whole
+// chunks or the move leaves the map.
+function moveRegion(m, idx, to) {
+	if (!regionIsRect(m, idx)) return false;
+	const from = regionBlock(m, idx), target = { x: to.x, y: to.y, w: from.w, h: from.h };
+	if (sameBlock(target, from)) return true;
+	if (!blockInside(m, target)) return false;
+	if (!blocksOverlap(target, from)) return swapBlocks(m, from, target);
+	if (to.x !== from.x && to.y !== from.y) return false;
+	const block = { ...from };
+	while (block.x !== to.x) {
+		const step = { x: Math.sign(to.x - block.x), y: 0 };
+		if (!shiftBlock(m, block, step)) return false;
+		block.x += step.x;
+	}
+	while (block.y !== to.y) {
+		const step = { x: 0, y: Math.sign(to.y - block.y) };
+		if (!shiftBlock(m, block, step)) return false;
+		block.y += step.y;
+	}
+	return true;
+}
+// what `edit(copy)` would do, without doing it: { ok, broken (the other regions it would tear apart:
+// in more pieces than before, or no longer a whole rectangle of chunks when they were one), why (for
+// each broken region, how, as text), swapped (the other regions whose block would move) }
+function previewEdit(m, edit, skip = 0) {
+	const copy = copyMap(m), before = new Map();
+	m.regions.forEach((r, k) => { if (k + 1 !== skip) before.set(k + 1, { rect: regionIsRect(m, k + 1), block: regionBlock(m, k + 1) }); });
+	const piecesBefore = regionPieces(m);
+	const ok = edit(copy), broken = [], why = [], swapped = [];
+	if (ok) {
+		const piecesAfter = regionPieces(copy);
+		for (const [k, b] of before) {
+			const was = piecesBefore.get(k) || 0, now = piecesAfter.get(k) || 0;
+			if (now > was || (b.rect && !regionIsRect(copy, k))) {
+				broken.push(k);
+				why.push(`${m.regions[k - 1].name} (${now > was ? `${now} pieces, was ${was}` : "no longer a rectangle of whole chunks"})`);
+			} else if (!sameBlock(regionBlock(copy, k), b.block)) swapped.push(k);
+		}
+	}
+	return { ok, broken, why, swapped };
+}
+function previewMove(m, idx, to) { return previewEdit(m, c => moveRegion(c, idx, to), idx); }
+
+// moves every cell `from` to `moves.get(from)` (cell indices) in all grids, and the markers and passages on them
+function applyMoves(m, moves) {
+	for (const key of ["terrain", "elev", "region"]) {
+		const arr = m[key], old = arr.slice();
+		for (const [from, to] of moves) arr[to] = old[from];
+	}
+	for (const item of [...m.markers, ...m.passages]) {
+		const x = Math.trunc(+item.x || 0), y = Math.trunc(+item.y || 0);
+		if (x < 0 || y < 0 || x >= m.cols || y >= m.rows) continue;
+		const to = moves.get(y * m.cols + x);
+		if (to !== undefined) { item.x = to % m.cols; item.y = Math.floor(to / m.cols); }
+	}
+}
 
 // ---------- rendering of cached layers ----------
 function hash(x, y) { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; }
@@ -333,7 +582,8 @@ function drawCell(x, y) {
 	}
 }
 
-function redrawRegions() {
+// `sidebar` false keeps the inspector as it is (an edit in it must not rebuild it and lose focus)
+function redrawRegions(sidebar = true) {
 	const c = rctx, { cols, rows } = S;
 	c.clearRect(0, 0, regionLayer.width, regionLayer.height);
 	const sums = S.regions.map(() => ({ x: 0, y: 0, n: 0 }));
@@ -357,7 +607,7 @@ function redrawRegions() {
 	}
 	c.globalAlpha = 1;
 	regionInfo = { centroids: sums.map(s => s.n ? { x: s.x / s.n + 0.5, y: s.y / s.n + 0.5, n: s.n } : null), samples, adjacency };
-	renderSidebar();
+	if (sidebar) renderSidebar();
 }
 function addAdj(map, a, b) { const k = a < b ? `${a}-${b}` : `${b}-${a}`; map.set(k, (map.get(k) || 0) + 1); }
 
@@ -392,6 +642,7 @@ function render() {
 		c.globalAlpha = ui.layer === "region" ? 1 : 0.75;
 		c.drawImage(regionLayer, 0, 0); c.globalAlpha = 1;
 	}
+	if (document.getElementById("showPassages").checked) drawPassages(c, CELL, 0, 0, 1 / ui.scale);
 	if (document.getElementById("showGrid").checked && ui.scale * CELL >= 9) {
 		c.strokeStyle = "rgba(0,0,0,0.18)"; c.lineWidth = 1 / ui.scale;
 		c.beginPath();
@@ -410,7 +661,8 @@ function render() {
 		}
 	}
 	// tool preview
-	if (rectStart && hover) {
+	if (ui.tool === "swap") drawChunkSwap(c);
+	else if (rectStart && hover) {
 		const x0 = Math.min(rectStart.x, hover.x), y0 = Math.min(rectStart.y, hover.y);
 		const x1 = Math.max(rectStart.x, hover.x), y1 = Math.max(rectStart.y, hover.y);
 		c.fillStyle = "rgba(255,255,255,0.15)"; c.fillRect(x0 * CELL, y0 * CELL, (x1 - x0 + 1) * CELL, (y1 - y0 + 1) * CELL);
@@ -422,6 +674,36 @@ function render() {
 	}
 	c.setTransform(dpr, 0, 0, dpr, 0, 0);
 	drawOverlays(c, ui.scale * CELL, ui.panX, ui.panY, { labels: document.getElementById("showLabels").checked, chunks: document.getElementById("showChunks").checked, selected: ui.selected });
+}
+
+// the passages (openings between touching regions, written by the Godot region builder) as gaps on the borders
+function drawPassages(c, cs, ox, oy, px) {
+	c.fillStyle = "rgba(255,255,255,0.9)"; c.strokeStyle = "#000"; c.lineWidth = 1.5 * px;
+	for (const p of S.passages) {
+		const x = ox + (+p.x || 0) * cs, y = oy + (+p.y || 0) * cs, w = Math.max(1, +p.w || 1) * cs, h = Math.max(1, +p.h || 1) * cs;
+		c.fillRect(x, y, w, h); c.strokeRect(x, y, w, h);
+	}
+}
+// the swap tool's blocks: A (green), B (orange), and where a click would put B
+function drawChunkSwap(c) {
+	const box = (b, fill, stroke, letter, dashed) => {
+		const x0 = chunkEdge(b.x, S.chunks.cols, S.cols) * CELL, x1 = chunkEdge(b.x + b.w, S.chunks.cols, S.cols) * CELL;
+		const y0 = chunkEdge(b.y, S.chunks.rows, S.rows) * CELL, y1 = chunkEdge(b.y + b.h, S.chunks.rows, S.rows) * CELL;
+		c.fillStyle = fill; c.fillRect(x0, y0, x1 - x0, y1 - y0);
+		c.strokeStyle = stroke; c.lineWidth = 3 / ui.scale;
+		if (dashed) c.setLineDash([8 / ui.scale, 6 / ui.scale]);
+		c.strokeRect(x0, y0, x1 - x0, y1 - y0); c.setLineDash([]);
+		if (letter) {
+			c.font = `700 ${18 / ui.scale}px system-ui, sans-serif`; c.textAlign = "left"; c.textBaseline = "top";
+			c.lineWidth = 4 / ui.scale; c.strokeStyle = "rgba(0,0,0,0.8)"; c.strokeText(letter, x0 + 6 / ui.scale, y0 + 6 / ui.scale);
+			c.fillStyle = stroke; c.fillText(letter, x0 + 6 / ui.scale, y0 + 6 / ui.scale);
+		}
+	};
+	const at = hover ? chunkAt(hover) : null;
+	if (!chunkSwap) { if (at) box({ x: at.x, y: at.y, w: 1, h: 1 }, "rgba(255,255,255,0.08)", "#fff", "", true); return; }
+	box(chunkSwap.a, "rgba(124,195,90,0.22)", "#7cc35a", "A");
+	if (chunkSwap.b) box(chunkSwap.b, "rgba(224,162,58,0.22)", "#e0a23a", "B");
+	else if (chunkSwap.stage === "pick" && at) box({ x: at.x, y: at.y, w: chunkSwap.a.w, h: chunkSwap.a.h }, "rgba(224,162,58,0.1)", "#e0a23a", "B", true);
 }
 
 function drawChunkLines(c, cs, ox, oy, px) {
@@ -483,7 +765,7 @@ function drawOverlays(c, cs, ox, oy, opt) {
 		});
 	}
 	for (const m of S.markers) {
-		const def = MARKERS[m.type], sx = ox + (m.x + 0.5) * cs, sy = oy + (m.y + 0.5) * cs;
+		const def = markerDef(m.type), sx = ox + (m.x + 0.5) * cs, sy = oy + (m.y + 0.5) * cs;
 		c.beginPath();
 		if (def.passage) { c.moveTo(sx, sy - rad * 1.2); c.lineTo(sx + rad * 1.2, sy); c.lineTo(sx, sy + rad * 1.2); c.lineTo(sx - rad * 1.2, sy); c.closePath(); }
 		else c.arc(sx, sy, rad, 0, 7);
@@ -519,14 +801,15 @@ function fitView() {
 
 // ---------- editing ----------
 function snapshot() {
-	return { terrain: S.terrain.slice(), elev: S.elev.slice(), region: S.region.slice(),
-		regions: JSON.stringify(S.regions), markers: JSON.stringify(S.markers), cols: S.cols, rows: S.rows };
+	return { terrain: S.terrain.slice(), elev: S.elev.slice(), region: S.region.slice(), chunks: { ...S.chunks },
+		regions: JSON.stringify(S.regions), markers: JSON.stringify(S.markers), passages: JSON.stringify(S.passages),
+		cols: S.cols, rows: S.rows };
 }
 function restore(s) {
 	const sel = ui.selected ? S.markers.indexOf(ui.selected) : -1;
 	const sizeChanged = s.cols !== S.cols || s.rows !== S.rows;
-	Object.assign(S, { terrain: s.terrain, elev: s.elev, region: s.region, cols: s.cols, rows: s.rows,
-		regions: JSON.parse(s.regions), markers: JSON.parse(s.markers) });
+	Object.assign(S, { terrain: s.terrain, elev: s.elev, region: s.region, cols: s.cols, rows: s.rows, chunks: s.chunks,
+		regions: JSON.parse(s.regions), markers: JSON.parse(s.markers), passages: JSON.parse(s.passages) });
 	ui.selected = S.markers[sel] || null;
 	if (ui.region > S.regions.length) ui.region = S.regions.length ? 1 : 0;
 	rebuildLayers(); if (sizeChanged) fitView();
@@ -540,7 +823,22 @@ let draftTimer = 0;
 function changed() {
 	ui.dirty = true; updateStatus(); requestRender();
 	clearTimeout(draftTimer);
-	draftTimer = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), map: toJSON() })); } catch {} }, 600);
+	draftTimer = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), version: mapVersion, map: toJSON() })); } catch {} }, 600);
+}
+// after a layout edit: every cell may have moved, so redraw them all (cliffs at a block's edge follow its new neighbours)
+function layoutChanged() { rebuildLayers(); changed(); renderPalette(); }
+
+// An inspector field: its first edit after each focus pushes one undo step (a select or checkbox:
+// each change), so typing a name is one step.
+function bindField(e, apply) {
+	const discrete = e.tagName === "SELECT" || e.type === "checkbox";
+	let armed = true;
+	e.addEventListener("focus", () => { armed = true; });
+	e.addEventListener(discrete ? "change" : "input", () => {
+		if (armed || discrete) pushUndo();
+		armed = false;
+		apply(e); changed();
+	});
 }
 
 function layerArray() { return ui.layer === "terrain" ? S.terrain : ui.layer === "elev" ? S.elev : S.region; }
@@ -625,6 +923,48 @@ function markerAt(ev) {
 	return null;
 }
 
+// ---------- swap chunks tool ----------
+// Drag block A, then drag block B of the same size (or click B's north-west chunk): they swap.
+// chunkSwap.stage is "a" (dragging A), "pick" (A chosen, waiting for B) or "b" (dragging B).
+let chunkSwap = null;
+function chunkAt(p) {
+	const c = chunkOf(Math.max(0, Math.min(S.cols - 1, p.x)), Math.max(0, Math.min(S.rows - 1, p.y)));
+	return { x: c.cx, y: c.cy };
+}
+function chunkSpan(a, b) { return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(a.x - b.x) + 1, h: Math.abs(a.y - b.y) + 1 }; }
+function swapPointer(p, phase) {
+	if (phase === "down") {
+		if (!wholeChunks(S)) { toast("The map is not a whole number of chunks (More… → Chunk count), so chunks cannot swap."); return false; }
+		const c = chunkAt(p);
+		if (!chunkSwap) chunkSwap = { stage: "a", start: c, a: chunkSpan(c, c), b: null };
+		else Object.assign(chunkSwap, { stage: "b", start: c, b: chunkSpan(c, c) });
+	} else if (chunkSwap && phase === "move") {
+		if (chunkSwap.stage === "a" || chunkSwap.stage === "b") chunkSwap[chunkSwap.stage] = chunkSpan(chunkSwap.start, chunkAt(p));
+	} else if (chunkSwap && phase === "up") {
+		if (chunkSwap.stage === "a") {
+			chunkSwap.stage = "pick";
+			toast(`A is ${blockName(chunkSwap.a)}. Now drag a block of ${chunkSwap.a.w} × ${chunkSwap.a.h} chunks, or click its north-west chunk. Esc cancels.`);
+		} else if (chunkSwap.stage === "b") finishChunkSwap();
+	}
+	requestRender();
+	return true;
+}
+function finishChunkSwap() {
+	const a = chunkSwap.a;
+	let b = chunkSwap.b;
+	Object.assign(chunkSwap, { stage: "pick", b: null });
+	if (b.w === 1 && b.h === 1) b = { ...b, w: a.w, h: a.h }; // a click: B's north-west chunk
+	if (b.w !== a.w || b.h !== a.h) { toast(`B is ${b.w} × ${b.h} chunks but A is ${a.w} × ${a.h}: drag B the same size, or click its north-west chunk.`); return; }
+	if (!blockInside(S, b)) { toast(`B would leave the map: ${a.w} × ${a.h} chunks from ${chunkName(b.x, b.y)} do not fit.`); return; }
+	if (blocksOverlap(a, b)) { toast("A and B overlap: pick B elsewhere."); return; }
+	chunkSwap = null;
+	const p = previewEdit(S, c => swapBlocks(c, a, b));
+	pushUndo();
+	swapBlocks(S, a, b);
+	layoutChanged();
+	toast(`Swapped ${blockName(a)} and ${blockName(b)}${p.broken.length ? `; this cut apart ${p.why.join(", ")} (Ctrl+Z undoes it)` : ""}.`);
+}
+
 // ---------- pointer input ----------
 let drag = null, spaceDown = false;
 view.addEventListener("contextmenu", e => e.preventDefault());
@@ -635,6 +975,7 @@ view.addEventListener("pointerdown", ev => {
 		drag = { kind: "pan", sx: ev.clientX, sy: ev.clientY, px: ui.panX, py: ui.panY }; return;
 	}
 	if (ev.button !== 0) return;
+	if (ui.tool === "swap") { if (swapPointer(p, "down")) drag = { kind: "swap" }; return; }
 	if (ui.layer === "marker") {
 		const m = markerAt(ev);
 		if (m) { ui.selected = m; pushUndo(); drag = { kind: "marker", m, moved: false }; renderSidebar(); requestRender(); return; }
@@ -662,6 +1003,7 @@ view.addEventListener("pointermove", ev => {
 	document.getElementById("coords").textContent = hover ? cellInfo(p) : "";
 	if (drag?.kind === "pan") { ui.panX = drag.px + ev.clientX - drag.sx; ui.panY = drag.py + ev.clientY - drag.sy; }
 	else if (drag?.kind === "paint") { strokeLine(drag.last, p); drag.last = p; }
+	else if (drag?.kind === "swap") swapPointer(p, "move");
 	else if (drag?.kind === "marker") {
 		const x = Math.max(0, Math.min(S.cols - 1, p.x)), y = Math.max(0, Math.min(S.rows - 1, p.y));
 		if (x !== drag.m.x || y !== drag.m.y) { drag.m.x = x; drag.m.y = y; drag.moved = true; changed(); }
@@ -675,6 +1017,7 @@ view.addEventListener("pointerup", ev => {
 		rectStart = null;
 	}
 	if (drag?.kind === "marker") { if (!drag.moved) undoStack.pop(); renderSidebar(); }
+	if (drag?.kind === "swap") swapPointer(screenToCell(ev), "up");
 	drag = null; requestRender();
 });
 view.addEventListener("pointerleave", () => { hover = null; requestRender(); });
@@ -688,7 +1031,9 @@ view.addEventListener("wheel", ev => {
 
 function cellInfo(p) {
 	const i = p.y * S.cols + p.x, r = S.region[i];
-	return `${chunkOf(p.x, p.y).name} · ${p.x}, ${p.y} · ${TERRAINS[S.terrain[i]].name} · height ${S.elev[i]}${r ? " · " + S.regions[r - 1].name : ""}`;
+	const gap = S.passages.find(q => p.x >= q.x && p.y >= q.y && p.x < q.x + Math.max(1, +q.w || 1) && p.y < q.y + Math.max(1, +q.h || 1));
+	return `${chunkOf(p.x, p.y).name} · ${p.x}, ${p.y} · ${TERRAINS[S.terrain[i]].name} · height ${S.elev[i]}${r ? " · " + S.regions[r - 1].name : ""}` +
+		(gap ? ` · passage${gap.label ? ` "${gap.label}"` : ""} ${regionLabel(gap.a)} ↔ ${regionLabel(gap.b)}` : "");
 }
 
 // ---------- keyboard ----------
@@ -704,9 +1049,11 @@ window.addEventListener("keydown", ev => {
 	else if (ev.key === "b") setTool("brush");
 	else if (ev.key === "r") setTool("rect");
 	else if (ev.key === "f") setTool("fill");
+	else if (ev.key === "x") setTool("swap");
 	else if (ev.key === "[") setSize(ui.size - 1);
 	else if (ev.key === "]") setSize(ui.size + 1);
 	else if ((ev.key === "Delete" || ev.key === "Backspace") && ui.selected) deleteMarker(ui.selected);
+	else if (ev.key === "Escape" && chunkSwap) { chunkSwap = null; toast("Swap cancelled."); requestRender(); }
 	else if (ev.key === "Escape") { ui.selected = null; renderSidebar(); requestRender(); }
 });
 window.addEventListener("keyup", ev => { if (ev.code === "Space") spaceDown = false; });
@@ -719,10 +1066,12 @@ function setLayer(l) {
 	renderPalette(); renderSidebar(); requestRender();
 }
 function setTool(t) {
-	ui.tool = t;
+	ui.tool = t; chunkSwap = null;
 	document.querySelectorAll("[data-tool]").forEach(b => b.classList.toggle("on", b.dataset.tool === t));
 	requestRender();
 }
+function regionNames(idxs) { return idxs.map(k => S.regions[k - 1].name).join(", "); }
+function regionLabel(key) { return S.regions.find(r => r.key === key)?.name || `region ${key}`; }
 function setSize(n) { ui.size = Math.max(1, Math.min(12, n)); document.getElementById("size").value = ui.size; document.getElementById("sizeVal").textContent = ui.size; requestRender(); }
 
 function renderPalette() {
@@ -743,12 +1092,12 @@ function renderPalette() {
 			<div class="sw ${ui.region === 0 ? "on" : ""}" data-r="0"><i style="background:#333">×</i>No region (eraser)</div>` +
 			S.regions.map((r, i) => `<div class="sw ${ui.region === i + 1 ? "on" : ""}" data-r="${i + 1}"><i style="background:${r.color}"></i>${esc(r.name)}<small>${r.chapter ? "ch " + esc(r.chapter) : ""}</small></div>`).join("") +
 			`</div><p><button id="addRegion">+ Add region</button></p>
-			<p class="help">Paint which cells belong to each region. Borders between regions are found by themselves and listed on the right. The selected region is edited on the right.</p>`;
+			<p class="help">Paint which cells belong to each region. Borders between regions are found by themselves and listed on the right. The selected region is edited on the right, where a region that fills whole chunks can also move or swap places.</p>`;
 	} else {
 		html = `<h3>Marker to place</h3><div class="swatches">` + Object.entries(MARKERS).map(([k, m]) =>
 			`<div class="sw ${k === ui.markerType ? "on" : ""}" data-m="${k}"><i style="background:${m.color};${m.passage ? "transform:rotate(45deg) scale(.8)" : "border-radius:50%"}"><span style="${m.passage ? "transform:rotate(-45deg)" : ""}">${m.letter}</span></i>${esc(m.name)}</div>`).join("") +
 			`</div><h3>All markers (${S.markers.length})</h3><div class="swatches">` +
-			S.markers.map((m, i) => `<div class="sw ${m === ui.selected ? "on" : ""}" data-mi="${i}"><i style="background:${MARKERS[m.type].color}">${MARKERS[m.type].letter}</i>${esc(m.label || "(no label)")}</div>`).join("") + `</div>`;
+			S.markers.map((m, i) => `<div class="sw ${m === ui.selected ? "on" : ""}" data-mi="${i}"><i style="background:${markerDef(m.type).color}">${markerDef(m.type).letter}</i>${esc(m.label || "(no label)")}</div>`).join("") + `</div>`;
 	}
 	el.innerHTML = html;
 	el.querySelectorAll("[data-t]").forEach(d => d.onclick = () => { ui.terrain = +d.dataset.t; renderPalette(); });
@@ -771,7 +1120,9 @@ function addRegion() {
 	const key = [...REGION_KEYS].find(k => !used.has(k));
 	if (!key) { toast("No region keys left."); return; }
 	pushUndo();
-	S.regions.push({ key, name: `Region ${S.regions.length + 1}`, color: REGION_COLORS[S.regions.length % REGION_COLORS.length], chapter: "", status: "Idea", maps: "", boss: "", notes: "" });
+	const name = `Region ${S.regions.length + 1}`;
+	S.regions.push({ ...regionDefaults(), key, name, color: REGION_COLORS[S.regions.length % REGION_COLORS.length],
+		id: slug(name), world: slug(name), placeholder: true, theme: "wilds" });
 	ui.region = S.regions.length; changed(); renderPalette(); redrawRegions();
 	setTimeout(() => document.getElementById("rName")?.select(), 0);
 }
@@ -792,6 +1143,36 @@ function deleteMarker(m) {
 	ui.selected = null; changed(); renderPalette(); renderSidebar();
 }
 
+// Slides region `idx` one chunk (world_map_data.gd move_region); refused, with the reason, when it
+// is not a rectangle of whole chunks, would leave the map or would cut another region apart (into
+// more pieces than it has, or a rectangle of whole chunks no longer whole).
+function moveRegionBy(idx, dx, dy) {
+	const r = S.regions[idx - 1], dir = dx < 0 ? "left" : dx > 0 ? "right" : dy < 0 ? "up" : "down";
+	if (!wholeChunks(S)) { toast("The map is not a whole number of chunks (More… → Chunk count), so regions cannot move."); return; }
+	if (!regionIsRect(S, idx)) { toast(`${r.name} is not a rectangle of whole chunks, so it cannot move: paint it to fill whole chunks first.`); return; }
+	const from = regionBlock(S, idx), to = { x: from.x + dx, y: from.y + dy };
+	if (!blockInside(S, { ...to, w: from.w, h: from.h })) { toast(`${r.name} cannot move ${dir}: it is at the edge of the map.`); return; }
+	const p = previewMove(S, idx, to);
+	if (!p.ok) { toast(`${r.name} cannot move ${dir}.`); return; }
+	if (p.broken.length) { toast(`Moving ${r.name} ${dir} would cut apart ${p.why.join(", ")}, so it stays.`); return; }
+	pushUndo();
+	moveRegion(S, idx, to);
+	layoutChanged();
+	toast(`Moved ${r.name} ${dir} to ${blockName(regionBlock(S, idx))}${p.swapped.length ? `; ${regionNames(p.swapped)} moved to make room` : ""}.`);
+}
+// Swaps the blocks of two regions that are rectangles of whole chunks of the same size.
+function swapRegions(a, b) {
+	const ra = S.regions[a - 1], rb = S.regions[b - 1];
+	if (!wholeChunks(S) || !regionIsRect(S, a) || !regionIsRect(S, b)) { toast("Only regions that fill whole chunks can swap."); return; }
+	const ba = regionBlock(S, a), bb = regionBlock(S, b);
+	if (ba.w !== bb.w || ba.h !== bb.h) { toast(`${ra.name} is ${ba.w} × ${ba.h} chunks and ${rb.name} ${bb.w} × ${bb.h}: only blocks of the same size swap.`); return; }
+	if (blocksOverlap(ba, bb)) { toast(`${ra.name} and ${rb.name} overlap.`); return; }
+	pushUndo();
+	swapBlocks(S, ba, bb);
+	layoutChanged();
+	toast(`Swapped ${ra.name} (now ${blockName(bb)}) and ${rb.name} (now ${blockName(ba)}).`);
+}
+
 // regions a marker touches: every region within two cells of it, plus its "leads to" region
 function markerRegions(m) {
 	const set = new Set();
@@ -804,25 +1185,37 @@ function markerRegions(m) {
 }
 function regionOfMarker(m) { const r = S.region[m.y * S.cols + m.x]; return r ? S.regions[r - 1] : null; }
 
+// Pairs of regions joined by a border, a passage marker or a generated opening (S.passages,
+// written by godot/tools/build_region_worlds.gd, whose a and b are region keys).
 function connectionsModel() {
-	const passages = S.markers.filter(m => MARKERS[m.type].passage).map(m => ({ m, regions: markerRegions(m) }));
+	const passages = S.markers.filter(m => markerDef(m.type).passage).map(m => ({ m, regions: markerRegions(m) }));
+	const index = Object.fromEntries(S.regions.map((r, i) => [r.key, i + 1]));
+	const gaps = S.passages.map(p => ({ p, a: index[p.a] || 0, b: index[p.b] || 0 }));
+	const openings = (a, b) => gaps.filter(g => (g.a === a && g.b === b) || (g.a === b && g.b === a)).map(g => g.p);
 	const pairs = [];
+	const add = (a, b, border) => pairs.push({ a, b, border, via: passages.filter(p => p.regions.has(a) && p.regions.has(b)).map(p => p.m), openings: openings(a, b) });
 	for (const [k, n] of regionInfo.adjacency) {
 		const [a, b] = k.split("-").map(Number);
-		pairs.push({ a, b, border: n, via: passages.filter(p => p.regions.has(a) && p.regions.has(b)).map(p => p.m) });
+		add(a, b, n);
 	}
-	// passages linking regions that do not share a border (tunnels, warps)
-	for (const p of passages) {
-		const rs = [...p.regions];
-		for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) {
-			const a = Math.min(rs[i], rs[j]), b = Math.max(rs[i], rs[j]);
-			if (!pairs.some(q => q.a === a && q.b === b)) pairs.push({ a, b, border: 0, via: passages.filter(q => q.regions.has(a) && q.regions.has(b)).map(q => q.m) });
-		}
+	// passages linking regions that do not share a border (tunnels, warps), and openings left on a
+	// border that is gone (the layout changed since the regions were built)
+	const links = passages.flatMap(p => { const rs = [...p.regions]; return rs.flatMap((x, i) => rs.slice(i + 1).map(y => [x, y])); });
+	for (const g of gaps) if (g.a && g.b && g.a !== g.b) links.push([g.a, g.b]);
+	for (const [x, y] of links) {
+		const a = Math.min(x, y), b = Math.max(x, y);
+		if (!pairs.some(q => q.a === a && q.b === b)) add(a, b, 0);
 	}
 	const inward = passages.filter(p => p.regions.size < 2).map(p => p.m); // caves into interiors, dead ends
-	return { pairs, inward };
+	const stray = gaps.filter(g => !g.a || !g.b).map(g => g.p); // openings naming a region that is gone
+	return { pairs, inward, stray };
 }
-function passageText(m) { return `${m.label || MARKERS[m.type].name}${m.needs ? ` (needs ${m.needs})` : ""}`; }
+function openingsText(p) {
+	const n = p.openings.length;
+	const at = o => (o.label ? `${o.label} ` : "") + `(${o.x}, ${o.y})`;
+	return `${n} opening${n === 1 ? "" : "s"} (generated): ${p.openings.map(at).join("; ")}${p.border ? "" : ", out of date: the regions no longer touch"}`;
+}
+function passageText(m) { return `${m.label || markerDef(m.type).name}${m.needs ? ` (needs ${m.needs})` : ""}`; }
 
 function renderSidebar() {
 	// inspector
@@ -831,8 +1224,9 @@ function renderSidebar() {
 	if (!m) ui.selected = null;
 	const regionOpts = (sel) => `<option value="">—</option>` + S.regions.map(r => `<option value="${r.key}" ${r.key === sel ? "selected" : ""}>${esc(r.name)}</option>`).join("");
 	if (m) {
+		const types = MARKERS[m.type] ? Object.entries(MARKERS) : [[m.type, markerDef(m.type)], ...Object.entries(MARKERS)];
 		ins.innerHTML = `<h3>Marker</h3>
-			<label class="row"><span>Type</span><select id="mType">${Object.entries(MARKERS).map(([k, d]) => `<option value="${k}" ${k === m.type ? "selected" : ""}>${d.name}</option>`).join("")}</select></label>
+			<label class="row"><span>Type</span><select id="mType">${types.map(([k, d]) => `<option value="${esc(k)}" ${k === m.type ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
 			<label class="row"><span>Label</span><input id="mLabel" value="${esc(m.label)}"></label>
 			<label class="row"><span>Leads to</span><select id="mTo">${regionOpts(m.to)}</select></label>
 			<label class="row"><span>Needs</span><input id="mNeeds" value="${esc(m.needs)}" placeholder="item, ability or event"></label>
@@ -840,43 +1234,93 @@ function renderSidebar() {
 			<label class="row"><span>Notes</span><textarea id="mNotes">${esc(m.notes)}</textarea></label>
 			<p class="muted">At ${m.x}, ${m.y} (chunk ${chunkOf(m.x, m.y).name})${regionOfMarker(m) ? " in " + esc(regionOfMarker(m).name) : ""}</p>
 			<button class="danger" id="mDel">Delete marker</button>`;
-		const bind = (id, key, after) => { const e = document.getElementById(id); e.oninput = e.onchange = () => { m[key] = e.value; if (!m[key] && key !== "type") delete m[key]; changed(); after?.(); }; };
-		bind("mType", "type", () => renderPalette()); bind("mLabel", "label", () => renderPalette()); bind("mTo", "to", renderConnections);
-		bind("mNeeds", "needs", renderConnections); bind("mMap", "map"); bind("mNotes", "notes");
-		document.getElementById("mLabel").addEventListener("focus", () => pushUndo(), { once: true });
+		// the inspector is not rebuilt while typing (that would drop the focus)
+		const field = (id, key, after) => bindField(document.getElementById(id), e => {
+			m[key] = e.value;
+			if (!m[key] && key !== "type" && key !== "label") delete m[key];
+			after?.();
+		});
+		field("mType", "type", () => renderPalette()); field("mLabel", "label", () => renderPalette()); field("mTo", "to", renderConnections);
+		field("mNeeds", "needs", renderConnections); field("mMap", "map"); field("mNotes", "notes");
 		document.getElementById("mDel").onclick = () => deleteMarker(m);
 	} else if (ui.layer === "region" && ui.region) {
-		const r = S.regions[ui.region - 1], c = regionInfo.centroids[ui.region - 1];
+		const idx = ui.region, r = S.regions[idx - 1], c = regionInfo.centroids[idx - 1];
+		const themes = r.theme && !THEMES.includes(r.theme) ? [...THEMES, r.theme] : THEMES;
+		const block = wholeChunks(S) && regionIsRect(S, idx) ? regionBlock(S, idx) : null;
+		const partners = block ? S.regions.map((o, k) => k + 1).filter(k => {
+			if (k === idx || !regionIsRect(S, k)) return false;
+			const b = regionBlock(S, k);
+			return b.w === block.w && b.h === block.h;
+		}) : [];
 		ins.innerHTML = `<h3>Region</h3>
 			<label class="row"><span>Name</span><input id="rName" value="${esc(r.name)}"></label>
-			<label class="row"><span>Color</span><input id="rColor" type="color" value="${r.color}"><span class="muted" style="width:auto">key <b>${r.key}</b> · ${c ? c.n : 0} cells</span></label>
-			<p class="muted" style="margin:2px 0 6px">Chunks: ${regionChunks(ui.region).join(", ") || "none"}</p>
+			<label class="row"><span>Color</span><input id="rColor" type="color" value="${esc(r.color)}"><span class="muted" style="width:auto">key <b>${esc(r.key)}</b> · ${c ? c.n : 0} cells</span></label>
+			<p class="muted" style="margin:2px 0 6px">Chunks: ${regionChunks(idx).join(", ") || "none"}</p>
 			<label class="row"><span>Chapter</span><input id="rChapter" value="${esc(r.chapter)}" placeholder="1, 2, ?, Finale"></label>
 			<label class="row"><span>Status</span><select id="rStatus">${STATUSES.map(s => `<option ${s === r.status ? "selected" : ""}>${s}</option>`).join("")}</select></label>
-			<label class="row"><span>Game maps</span><input id="rMaps" value="${esc(r.maps)}" placeholder="level-1, slime-home"></label>
+			<label class="row"><span>Id</span><input id="rId" value="${esc(r.id)}" placeholder="slimeshire-meadow"></label>
+			<label class="row" title="The overworld scene: res://game/scenes/worlds/&lt;world&gt;.tscn, scene id world.&lt;world&gt;"><span>World</span><input id="rWorld" value="${esc(r.world)}" placeholder="scene id, e.g. level-1"></label>
+			<label class="row" title="Maps off the grid (houses, caves, dungeons), comma separated"><span>Interiors</span><input id="rInteriors" value="${esc(r.interiors.join(", "))}" placeholder="slime-home, mushroom-home"></label>
+			<label class="row"><span>Theme</span><select id="rTheme"><option value="">—</option>${themes.map(t => `<option value="${esc(t)}" ${t === r.theme ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></label>
+			<label class="row" title="Placeholder worlds are built by godot/tools/build_region_worlds.gd and safe to rebuild"><span>Placeholder</span><input id="rPlaceholder" type="checkbox" ${r.placeholder ? "checked" : ""}><small>built by the region builder</small></label>
 			<label class="row"><span>Boss</span><input id="rBoss" value="${esc(r.boss)}"></label>
 			<label class="row"><span>Notes</span><textarea id="rNotes">${esc(r.notes)}</textarea></label>
-			<button class="danger" id="rDel">Delete region</button>`;
-		const bind = (id, key, redraw) => { const e = document.getElementById(id); e.oninput = () => { r[key] = e.value; changed(); if (redraw) { redrawRegions(); renderPalette(); } else renderConnections(); }; };
-		bind("rName", "name", true); bind("rColor", "color", true); bind("rChapter", "chapter", true);
-		bind("rStatus", "status"); bind("rMaps", "maps"); bind("rBoss", "boss"); bind("rNotes", "notes");
-		document.getElementById("rStatus").onchange = document.getElementById("rStatus").oninput;
-		document.getElementById("rDel").onclick = () => deleteRegion(ui.region);
+			<h3>Layout</h3>
+			<p class="muted" style="margin:2px 0 6px">${block ? `Block ${blockName(block)}, ${block.w} × ${block.h} chunks. A move takes every layer, marker and passage on it along.`
+				: "Not a rectangle of whole chunks, so it cannot move or swap: paint it to fill whole chunks first."}</p>
+			<div class="btnrow">
+				<button data-move="-1,0" title="Slide one chunk left; the column it slides onto goes to its right">← Left</button>
+				<button data-move="0,-1" title="Slide one chunk up; the row it slides onto goes below it">↑ Up</button>
+				<button data-move="0,1" title="Slide one chunk down; the row it slides onto goes above it">↓ Down</button>
+				<button data-move="1,0" title="Slide one chunk right; the column it slides onto goes to its left">→ Right</button>
+			</div>
+			<label class="row"><span>Swap with</span><select id="rSwap">${partners.length
+				? partners.map(k => `<option value="${k}">${esc(S.regions[k - 1].name)} (${blockName(regionBlock(S, k))})</option>`).join("")
+				: `<option value="">${block ? `no other ${block.w} × ${block.h} region` : "—"}</option>`}</select><button id="rSwapGo">Swap</button></label>
+			<p><button class="danger" id="rDel">Delete region</button></p>`;
+		// the inspector is not rebuilt while typing (that would drop the focus): only what shows the value is redrawn
+		const field = (id, apply, after = renderConnections) => bindField(document.getElementById(id), e => { apply(e); after(); });
+		field("rName", e => r.name = e.value, () => { renderPalette(); renderConnections(); });
+		field("rColor", e => r.color = e.value, () => { redrawRegions(false); renderPalette(); });
+		field("rChapter", e => r.chapter = e.value, () => renderPalette());
+		field("rStatus", e => r.status = e.value);
+		field("rId", e => r.id = e.value.trim());
+		field("rWorld", e => r.world = e.value.trim());
+		field("rInteriors", e => r.interiors = e.value.split(",").map(s => s.trim()).filter(Boolean));
+		field("rTheme", e => r.theme = e.value);
+		field("rPlaceholder", e => r.placeholder = e.checked);
+		field("rBoss", e => r.boss = e.value);
+		field("rNotes", e => r.notes = e.value);
+		ins.querySelectorAll("[data-move]").forEach(b => b.onclick = () => { const [dx, dy] = b.dataset.move.split(",").map(Number); moveRegionBy(idx, dx, dy); });
+		document.getElementById("rSwapGo").onclick = () => {
+			const k = +document.getElementById("rSwap").value;
+			if (k) swapRegions(idx, k);
+			else toast(block ? `No other region fills a block of ${block.w} × ${block.h} chunks.` : `${r.name} is not a rectangle of whole chunks, so it cannot swap.`);
+		};
+		document.getElementById("rDel").onclick = () => deleteRegion(idx);
 	} else {
-		ins.innerHTML = `<h3>Map</h3><p class="muted">${S.cols} × ${S.rows} cells in ${S.chunks.cols} × ${S.chunks.rows} chunks (${(S.cols / S.chunks.cols).toFixed(0)} × ${(S.rows / S.chunks.rows).toFixed(0)} cells each) · ${S.regions.length} regions · ${S.markers.length} markers.<br>
-			Select a marker, or a region on the Regions layer, to edit it here.</p>`;
+		const tiles = +S.head.tilesPerCell || 0, cells = chunkCells(S);
+		ins.innerHTML = `<h3>Map</h3><p class="muted">${S.cols} × ${S.rows} cells in ${S.chunks.cols} × ${S.chunks.rows} chunks (${(S.cols / S.chunks.cols).toFixed(0)} × ${(S.rows / S.chunks.rows).toFixed(0)} cells each`
+			+ `${tiles ? `; a cell is ${tiles} × ${tiles} tiles, a chunk ${cells.w * tiles} × ${cells.h * tiles}` : ""}) · ${S.regions.length} regions · ${S.markers.length} markers · ${S.passages.length} passages.<br>
+			Select a marker, or a region on the Regions layer, to edit it here.${mapPath ? `<br>File: ${esc(mapPath)}` : ""}</p>`;
 	}
 	renderConnections();
 }
 
 function renderConnections() {
 	const el = document.getElementById("connections");
-	const { pairs, inward } = connectionsModel();
-	if (!pairs.length && !inward.length) { el.innerHTML = `<p class="muted">Paint two regions next to each other, or place a gate.</p>`; return; }
+	const { pairs, inward, stray } = connectionsModel();
+	if (!pairs.length && !inward.length && !stray.length) { el.innerHTML = `<p class="muted">Paint two regions next to each other, or place a gate.</p>`; return; }
 	const name = i => esc(S.regions[i - 1].name);
-	el.innerHTML = pairs.map(p => `<div class="conn ${p.via.length ? "ok" : "warn"}"><b>${name(p.a)}</b> ↔ <b>${name(p.b)}</b>
-		<small>${p.via.length ? p.via.map(m => esc(passageText(m))).join("<br>") : "Shared border, no passage marked: open, or walled off?"}${p.border ? "" : " · no shared border"}</small></div>`).join("") +
-		inward.map(m => `<div class="conn"><b>${esc(m.label || MARKERS[m.type].name)}</b><small>${regionOfMarker(m) ? esc(regionOfMarker(m).name) + " → " : ""}${esc(m.map || "an interior")}${m.needs ? " · needs " + esc(m.needs) : ""}</small></div>`).join("");
+	el.innerHTML = pairs.map(p => {
+		const lines = p.via.map(m => esc(passageText(m)));
+		if (p.openings.length) lines.push(esc(openingsText(p)));
+		const ok = p.via.length || (p.openings.length && p.border);
+		return `<div class="conn ${ok ? "ok" : "warn"}"><b>${name(p.a)}</b> ↔ <b>${name(p.b)}</b>
+		<small>${lines.length ? lines.join("<br>") : "Shared border, no passage marked: open, or walled off?"}${p.border ? "" : " · no shared border"}</small></div>`;
+	}).join("") +
+		inward.map(m => `<div class="conn"><b>${esc(m.label || markerDef(m.type).name)}</b><small>${regionOfMarker(m) ? esc(regionOfMarker(m).name) + " → " : ""}${esc(m.map || "an interior")}${m.needs ? " · needs " + esc(m.needs) : ""}</small></div>`).join("") +
+		stray.map(o => `<div class="conn warn"><b>Opening at ${esc(o.x)}, ${esc(o.y)}</b><small>between ${esc(regionLabel(o.a))} and ${esc(regionLabel(o.b))}: a region key that is gone</small></div>`).join("");
 }
 
 // chunks where region `idx` holds most of the cells
@@ -900,30 +1344,35 @@ function markdownSection() {
 	const cell = s => String(s ?? "").replace(/\|/g, "\\|").replace(/\n+/g, " ").trim();
 	const R = i => S.regions[i - 1];
 	const lines = [];
-	lines.push("<!-- Generated by the world map tool (pnpm story:map) from world-map.json. Draw on the map instead of editing this block. -->", "");
+	lines.push("<!-- Generated by the world map tool (pnpm story:map) from godot/game/data/world-map.json. Draw on the map instead of editing this block. -->", "");
 	lines.push("![World map sketch](world-map.png)", "");
 	if (S.regions.length) {
 		lines.push(`The map is cut into ${S.chunks.cols} × ${S.chunks.rows} chunks, A1 in the north-west; a region's chunks are those where it holds most of the ground.`, "");
-		lines.push("| Region | Chapter | Status | Chunks | Borders | Game maps | Boss | Notes |", "|---|---|---|---|---|---|---|---|");
+		lines.push("| Region | Chapter | Status | Chunks | Borders | World | Interiors | Boss | Notes |", "|---|---|---|---|---|---|---|---|---|");
 		S.regions.forEach((r, k) => {
 			const i = k + 1;
 			const borders = pairs.filter(p => p.border && (p.a === i || p.b === i)).map(p => R(p.a === i ? p.b : p.a).name);
-			lines.push(`| **${cell(r.name)}** | ${cell(r.chapter) || "?"} | ${cell(r.status)} | ${regionChunks(i).join(", ") || "none"} | ${cell(borders.join(", ")) || "none"} | ${cell(r.maps)} | ${cell(r.boss)} | ${cell(r.notes)} |`);
+			const world = r.world ? cell(r.world) + (r.placeholder ? " (placeholder)" : "") : "";
+			lines.push(`| **${cell(r.name)}** | ${cell(r.chapter) || "?"} | ${cell(r.status)} | ${regionChunks(i).join(", ") || "none"} | ${cell(borders.join(", ")) || "none"} | ${world} | ${cell(r.interiors.join(", "))} | ${cell(r.boss)} | ${cell(r.notes)} |`);
 		});
 		lines.push("");
 	}
 	const rows = [];
 	for (const p of pairs) {
-		if (p.via.length) for (const m of p.via) rows.push(`| ${cell(m.label || MARKERS[m.type].name)} | ${MARKERS[m.type].name} | ${cell(R(p.a).name)} ↔ ${cell(R(p.b).name)} | ${cell(m.needs) || "nothing"} | ${cell(m.notes)} |`);
-		else rows.push(`| *none marked* | border | ${cell(R(p.a).name)} ↔ ${cell(R(p.b).name)} | | Open, or walled off? |`);
+		const between = `${cell(R(p.a).name)} ↔ ${cell(R(p.b).name)}`;
+		for (const m of p.via) rows.push(`| ${cell(m.label || markerDef(m.type).name)} | ${markerDef(m.type).name} | ${between} | ${cell(m.needs) || "nothing"} | ${cell(m.notes)} |`);
+		const n = p.openings.length;
+		const named = p.openings.map(o => o.label).filter(Boolean);
+		if (n) rows.push(`| ${named.length ? cell(named.join(", ")) : n === 1 ? "Opening" : `${n} openings`} | Opening (generated) | ${between} | nothing | ${p.border ? "Cut by the region builder" : "Out of date: the regions no longer touch"} |`);
+		if (!p.via.length && !n) rows.push(`| *none marked* | border | ${between} | | Open, or walled off? |`);
 	}
-	for (const m of inward) rows.push(`| ${cell(m.label || MARKERS[m.type].name)} | ${MARKERS[m.type].name} | ${cell(regionOfMarker(m)?.name || "?")} → ${cell(m.map || "interior")} | ${cell(m.needs) || "nothing"} | ${cell(m.notes)} |`);
+	for (const m of inward) rows.push(`| ${cell(m.label || markerDef(m.type).name)} | ${markerDef(m.type).name} | ${cell(regionOfMarker(m)?.name || "?")} → ${cell(m.map || "interior")} | ${cell(m.needs) || "nothing"} | ${cell(m.notes)} |`);
 	if (rows.length) lines.push("**Connections**", "", "| Passage | Kind | Connects | Needs | Notes |", "|---|---|---|---|---|", ...rows, "");
-	const places = S.markers.filter(m => !MARKERS[m.type].passage);
+	const places = S.markers.filter(m => !markerDef(m.type).passage);
 	if (places.length) {
 		lines.push("**Places on the map**", "", "| Place | Kind | Region | Chunk | Needs | Notes |", "|---|---|---|---|---|---|");
 		places.sort((a, b) => (regionOfMarker(a)?.name || "~").localeCompare(regionOfMarker(b)?.name || "~"))
-			.forEach(m => lines.push(`| ${cell(m.label)} | ${MARKERS[m.type].name} | ${cell(regionOfMarker(m)?.name || "none")} | ${chunkOf(m.x, m.y).name} | ${cell(m.needs)} | ${cell(m.notes)} |`));
+			.forEach(m => lines.push(`| ${cell(m.label)} | ${markerDef(m.type).name} | ${cell(regionOfMarker(m)?.name || "none")} | ${chunkOf(m.x, m.y).name} | ${cell(m.needs)} | ${cell(m.notes)} |`));
 		lines.push("");
 	}
 	return lines.join("\n");
@@ -937,6 +1386,7 @@ function exportCanvas() {
 	c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
 	c.drawImage(base, 0, 0, out.width, out.height);
 	c.globalAlpha = 0.85; c.drawImage(regionLayer, 0, 0, out.width, out.height); c.globalAlpha = 1;
+	drawPassages(c, EXPORT_CELL, 0, 0, 1);
 	drawChunkLines(c, EXPORT_CELL, 0, 0, 1);
 	drawOverlays(c, EXPORT_CELL, 0, 0, { labels: true, chunks: true });
 	return out;
@@ -950,25 +1400,65 @@ function download(name, blobOrUrl) {
 // ---------- save / load ----------
 function updateStatus() {
 	const el = document.getElementById("status");
-	el.textContent = ui.dirty ? "Unsaved changes" : (ui.savedName ? `Saved ${ui.savedName}` : "");
-	el.classList.toggle("dirty", ui.dirty);
+	const text = ui.dirty ? "Unsaved changes" : (ui.savedName ? `Saved ${ui.savedName}` : "");
+	el.textContent = loadError ? [text, "Map file not loaded"].filter(Boolean).join(" · ") : text;
+	el.title = loadError ? `${mapPath || "The map file"} could not be loaded: ${loadError}` : "";
+	el.classList.toggle("dirty", ui.dirty || !!loadError);
 }
-async function save() {
+// `force` overwrites the file even when it changed on disk since this drawing was loaded, or was
+// never loaded
+async function save(force = false) {
 	const map = toJSON(), png = exportCanvas().toDataURL("image/png");
 	if (!SERVER) {
 		download("world-map.json", new Blob([JSON.stringify(map, null, "\t")], { type: "application/json" }));
 		download("world-map.png", png);
-		toast("Downloaded world-map.json and world-map.png. Run `pnpm story:map` to save straight into docs/story/.");
+		toast("Downloaded world-map.json and world-map.png. Run `pnpm story:map` to save straight into godot/game/data/ and docs/story/.");
 		return;
 	}
+	if (loadError && !force) {
+		// the file on disk was never read (it was half-written, not JSON or unreadable): a save must not
+		// silently replace it with a drawing that did not start from it
+		if (!confirm(`${mapPath || "The map file"} could not be loaded (${loadError}), so this drawing did not start from it.\n\nReplace the file with this drawing? Cancel keeps the file as it is; More… → Reload from disk loads it once it can be read.`)) {
+			toast("Not saved: the map file on disk was never loaded.");
+			return;
+		}
+		force = true;
+	}
 	try {
-		const res = await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ map, png, section: markdownSection() }) });
+		const res = await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ map, png, section: markdownSection(), version: mapVersion, force }) });
 		const out = await res.json();
+		if (res.status === 409 && !force) {
+			// the Godot world atlas or region builder wrote the file since this page read it, or this
+			// drawing did not start from the file (a draft from before it existed)
+			if (confirm(`${out.error}\n\nOverwrite it with this drawing? Cancel keeps the file as it is; More… → Reload from disk loads it.`)) return save(true);
+			toast("Not saved: the map file on disk is not the one this drawing started from.");
+			return;
+		}
 		if (!res.ok) throw new Error(out.error || res.statusText);
+		mapVersion = out.version || mapVersion;
+		loadError = "";
 		ui.dirty = false; ui.savedName = new Date().toLocaleTimeString(); updateStatus();
 		try { localStorage.removeItem(DRAFT_KEY); } catch {}
 		toast(`Saved ${out.wrote.join(", ")}${out.docUpdated ? "" : " (03-world.md has no map block, so it was left alone)"}`);
 	} catch (e) { toast("Save failed: " + e.message); }
+}
+// the map on disk (through the server), remembering its version for the next save. Throws when it
+// cannot be read as a world map; the error's `missing` is true when there is no file yet.
+async function fetchMap() {
+	const r = await fetch("/api/map");
+	const header = r.headers.get("X-Map-Path");
+	if (header) mapPath = decodeURIComponent(header);
+	if (!r.ok) {
+		const body = await r.json().catch(() => ({}));
+		throw Object.assign(new Error(body.error || r.statusText || `error ${r.status}`), { missing: r.status === 404 });
+	}
+	let parsed;
+	try { parsed = JSON.parse(await r.text()); }
+	catch (e) { throw new Error(`it is not valid JSON (${e.message})`); }
+	const map = fromJSON(parsed);
+	mapVersion = r.headers.get("X-Map-Version") || "";
+	return map;
 }
 function load(map) {
 	S = map; undoStack = []; redoStack = []; ui.selected = null;
@@ -976,23 +1466,25 @@ function load(map) {
 	document.getElementById("title").value = S.title;
 	rebuildLayers(); fitView(); renderPalette(); renderSidebar();
 }
+// what `fromJSON` could not keep, appended to a toast
+function noticesText(map) { return map.notices?.length ? " " + map.notices.join(" ") : ""; }
 
 let toastTimer = 0;
 function toast(msg) {
 	const t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block";
-	clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = "none", 5000);
+	clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = "none", Math.max(5000, msg.length * 60));
 }
 
 // ---------- header wiring ----------
 document.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => setLayer(b.dataset.layer));
 document.querySelectorAll("[data-tool]").forEach(b => b.onclick = () => setTool(b.dataset.tool));
 document.getElementById("size").oninput = e => setSize(+e.target.value);
-["showRegions", "showGrid", "showChunks", "showLabels"].forEach(id => document.getElementById(id).onchange = requestRender);
+["showRegions", "showGrid", "showChunks", "showLabels", "showPassages"].forEach(id => document.getElementById(id).onchange = requestRender);
 document.getElementById("refAlpha").oninput = requestRender;
 document.getElementById("title").oninput = e => { S.title = e.target.value; changed(); };
 document.getElementById("undo").onclick = undo;
 document.getElementById("redo").onclick = redo;
-document.getElementById("save").onclick = save;
+document.getElementById("save").onclick = () => save();
 const menu = document.getElementById("moreMenu");
 document.getElementById("more").onclick = () => menu.style.display = menu.style.display === "none" ? "block" : "none";
 document.addEventListener("pointerdown", e => { if (!menu.contains(e.target) && e.target.id !== "more") menu.style.display = "none"; });
@@ -1016,8 +1508,22 @@ document.getElementById("exportJson").onclick = () => download("world-map.json",
 document.getElementById("importJson").onclick = () => document.getElementById("fileJson").click();
 document.getElementById("fileJson").onchange = async e => {
 	const f = e.target.files[0]; if (!f) return;
-	try { pushUndo(); const prev = undoStack; load(fromJSON(JSON.parse(await f.text()))); undoStack = prev; changed(); } catch (err) { toast("Could not open: " + err.message); }
+	try {
+		const map = fromJSON(JSON.parse(await f.text()));
+		pushUndo(); const prev = undoStack; load(map); undoStack = prev; changed();
+		toast(`Opened ${f.name}.${noticesText(map)}`);
+	} catch (err) { toast("Could not open: " + err.message); }
 	e.target.value = "";
+};
+document.getElementById("reloadMap").onclick = async () => {
+	if (!SERVER) { toast("Run `pnpm story:map` to read the map from disk."); return; }
+	try {
+		const map = await fetchMap();
+		pushUndo(); const prev = undoStack; load(map); undoStack = prev;
+		loadError = "";
+		ui.dirty = false; updateStatus();
+		toast(`Reloaded ${mapPath || "the map"} from disk; Undo brings the drawing before it back.${noticesText(map)}`);
+	} catch (err) { toast("Could not reload: " + err.message); }
 };
 document.getElementById("resize").onclick = () => {
 	const ans = prompt(`New size and shift, as "cols rows shiftX shiftY".\nShift moves the existing drawing right/down (use it to grow the map up or left).`, `${S.cols} ${S.rows} 0 0`);
@@ -1026,14 +1532,15 @@ document.getElementById("resize").onclick = () => {
 	if (!(cols > 4 && rows > 4 && cols <= 400 && rows <= 400)) { toast("Size must be 5 to 400 cells."); return; }
 	pushUndo();
 	const n = blankMap(cols, rows);
-	Object.assign(n, { title: S.title, regions: S.regions, chunks: S.chunks });
+	Object.assign(n, { title: S.title, regions: S.regions, chunks: S.chunks, head: S.head });
 	for (let y = 0; y < S.rows; y++) for (let x = 0; x < S.cols; x++) {
 		const nx = x + sx, ny = y + sy;
 		if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
 		const i = y * S.cols + x, j = ny * cols + nx;
 		n.terrain[j] = S.terrain[i]; n.elev[j] = S.elev[i]; n.region[j] = S.region[i];
 	}
-	n.markers = S.markers.map(m => ({ ...m, x: m.x + sx, y: m.y + sy })).filter(m => m.x >= 0 && m.y >= 0 && m.x < cols && m.y < rows);
+	const shifted = list => list.map(m => ({ ...m, x: m.x + sx, y: m.y + sy })).filter(m => m.x >= 0 && m.y >= 0 && m.x < cols && m.y < rows);
+	n.markers = shifted(S.markers); n.passages = shifted(S.passages);
 	S = n; ui.selected = null; rebuildLayers(); fitView(); changed(); renderPalette();
 };
 let fitted = false;
@@ -1045,16 +1552,27 @@ window.addEventListener("beforeunload", e => { if (ui.dirty && SERVER) { e.preve
 	resizeView();
 	let map = null;
 	if (SERVER) {
-		try { const r = await fetch("/api/map"); if (r.ok) map = fromJSON(await r.json()); } catch {}
+		// no file yet: start a blank map. Any other failure: start blank too, but Save asks before
+		// replacing the file it could not read
+		try { map = await fetchMap(); } catch (err) { if (!err.missing) loadError = err.message || String(err); }
 	}
-	let draft = null;
+	let draft = null, restored = false;
 	try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch {}
 	if (draft && confirm(`Restore the unsaved draft from ${new Date(draft.at).toLocaleString()}?`)) {
-		map = fromJSON(draft.map); load(map); ui.dirty = true; updateStatus();
+		// a save then refuses (and asks) if the file changed on disk since the draft began; a draft
+		// with no version did not start from the file, so the save asks too
+		try {
+			const d = fromJSON(draft.map);
+			mapVersion = typeof draft.version === "string" ? draft.version : "";
+			load(d); ui.dirty = true; restored = true;
+		} catch (err) { toast("Could not restore the draft: " + err.message); }
 	} else {
 		try { localStorage.removeItem(DRAFT_KEY); } catch {}
-		load(map || blankMap(120, 90));
 	}
+	if (!restored) load(map || blankMap(128, 128));
+	updateStatus();
+	if (loadError) toast(`Could not load ${mapPath || "the map file"}: ${loadError}. ${restored ? "This is the draft" : "This is a blank map"}; Save asks before replacing the file. Fix the file, then More… → Reload from disk.`);
+	else if (!restored && map?.notices.length) toast(noticesText(map).trim());
 	setLayer("terrain"); setTool("brush"); setSize(3);
 	requestAnimationFrame(loop);
 })();

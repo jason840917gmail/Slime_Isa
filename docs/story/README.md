@@ -14,8 +14,10 @@
    Wellspring, the newborn slime, the goal and the ending.
 3. [World](03-world.md): the regions in order, the world size and screen
    rules (8 × 8 chunks of 32 × 32 tiles, 16 × 14 tiles on screen), what has
-   gone wrong in each region, where dungeons go, and the world map sketch
-   (`pnpm story:map`).
+   gone wrong in each region, where dungeons go, and the world map sketch.
+   The sketch is drawn with `pnpm story:map` and saved as the game's world
+   layout, `godot/game/data/world-map.json`; its picture,
+   `world-map.png`, stays in this folder.
 4. [Characters](04-characters.md): the slime, the people of Slimeshire, the
    bosses and the villain.
 5. Chapters, one file each:

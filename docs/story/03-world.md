@@ -11,10 +11,18 @@ empty slots still to fill.
 |---|---|---|---|---|---|---|
 | 1 | **Slimeshire Meadow** | `level-1`, `slime-home`, `mushroom-home` | 1 | Worms moved in, the smith fled, the Forge is cold and the Workshop is a ruin | Fatty One Eye | Built |
 | 2 | **Gloop Forest** | `gloop-forest`, `gloop-hut`, `gloop-cavern` | 2 | The forest is choked with webs; the Matron's brood spreads | Orb-Weaver Matron | Built, in progress |
-| 3 | **Crystal Caverns** | `crystal-caverns` (exists, locked) | 3 | Crystal grows over everything and has sealed the caves | Crystal Colossus | Idea, see the [sketch](chapters/chapter-3-crystal-caverns.md) |
-| 4 | **Sticky Swamp** | none yet | ? | Slow mud, poison, rain, spider-slimes | ? | Idea |
-| 5 | **Frostpeak** | `icege` is a candidate | ? | Ice physics and snow | ? | Idea |
-| 6 | **Volcano Ridge** | `hot` and `emberleef` are candidates | Finale | Gorge's prison; the rumbling comes from here | Gorge | Idea / Proposal |
+| 3 | **Crystal Caverns** | `crystal-caverns` (exists; open without a key for now) | 3 | Crystal grows over everything and has sealed the caves | Crystal Colossus | Idea, see the [sketch](chapters/chapter-3-crystal-caverns.md) |
+| 4 | **Sticky Swamp** | `sticky-swamp` (placeholder) | ? | Slow mud, poison, rain, spider-slimes | ? | Idea |
+| 5 | **Frostpeak** | `frostpeak` (placeholder); `icege` is a candidate | ? | Ice physics and snow | ? | Idea |
+| 6 | **Volcano Ridge** | `volcano-ridge` (placeholder); `hot` and `emberleef` are candidates | Finale | Gorge's prison; the rumbling comes from here | Gorge | Idea / Proposal |
+
+The first map of each row is the region's world scene in the layout,
+`godot/game/data/world-map.json`. A placeholder world is generated from the
+layout by `godot/tools/build_region_worlds.gd` and stands in until the region
+is built ([WORLD_ATLAS.md](../godot/WORLD_ATLAS.md)). The layout's other
+regions are open slots with placeholder worlds too: West village
+(`west-village`), Northern ruins (`northern-ruins`), Desert (`desert`), and
+the North and South Wilds (`north-wilds`, `south-wilds`) between the regions.
 
 **Proposal: "What has gone wrong" always traces back to a Pearl.** It swelled
 the boss, or it drove creatures out of their homes. This gives every region a
@@ -69,85 +77,127 @@ Rules for every map:
 |---|---|---|---|
 | `level-1` (Slimeshire Meadow) | 64 × 64 | 2 × 2 | Follows the grid |
 | `gloop-forest` | 54 × 54 | not whole | To resize to 64 × 64 |
-| `crystal-caverns`, `icege`, `hot`, `emberleef` and the other candidates | 54 × 54 | not whole | To resize when they are used |
+| `crystal-caverns` | 54 × 54 | not whole | To resize to 64 × 64 |
+| Placeholder regions: `west-village`, `northern-ruins`, `desert`, `sticky-swamp`, `frostpeak` | 64 × 64 | 2 × 2 | Built from the sketch by `godot/tools/build_region_worlds.gd` ([WORLD_ATLAS.md](../godot/WORLD_ATLAS.md)) |
+| Placeholder regions: `volcano-ridge` (L-shaped), `north-wilds`, `south-wilds` | 96 × 64, 256 × 96, 256 × 96 | their block | Only their own chunks are walkable |
+| `icege`, `hot`, `emberleef` and the other dev candidates | 54 × 54 | not whole | Not on the map |
 | `slime-home`, `mushroom-home`, `gloop-hut` | 14 × 11, 16 × 12, 14 × 11 | interior | Fit on one screen |
 | `gloop-cavern` | 22 × 14 | interior | Two screens wide |
 
 Each region's chunks (A1 in the north-west to H8 in the south-east) are in the
-world map below. Slimeshire Meadow holds D4, E4, D5 and E5, so `level-1`'s
-64 × 64 tiles are exactly those four chunks.
+world map below, and the layout itself is the game's
+`godot/game/data/world-map.json`. Slimeshire Meadow holds C4, D4, C5 and D5,
+so `level-1`'s 64 × 64 tiles are exactly those four chunks.
 
 ## World map
 
 A rough sketch of the whole world: which region sits where, its ground and
 hills, and what connects to what. It is drawn with the world map tool
 (`pnpm story:map`, then open http://127.0.0.1:3210; see
-[TOOLING](../TOOLING.md#story)), which saves the drawing to
-[world-map.json](world-map.json), the picture to `world-map.png`, and rewrites
-the block below. The sketch is 128 × 128 cells, so one cell is 2 × 2 tiles
-and one chunk 16 × 16 cells. Its ground, water and cliffs were traced from the
-A Link to the Past reference, and its regions take the reference's places:
-Slimeshire in the middle (the castle's place), Gloop Forest in the north-west,
-the Crystal Caverns and Volcano Ridge on the great mountain to the north,
-Sticky Swamp and a frozen-lake Frostpeak to the south, three empty slots
-(a west village, eastern ruins, a south-west desert), and **The Wilds**, the
-connecting zones between them all. The layout is a **Proposal**.
+[TOOLING](../TOOLING.md#story)).
+
+The tool saves three things:
+
+- the drawing to
+  [`godot/game/data/world-map.json`](../../godot/game/data/world-map.json);
+- the picture to `world-map.png`;
+- the block below, which it rewrites on each save.
+
+That file is also the game's world layout. Each region names its overworld
+scene (`world`) and its interiors. The in-game world map and the Godot world
+atlas read the file. The region builder (`godot/tools/build_region_worlds.gd`)
+makes the placeholder regions from it and writes back the openings between
+touching regions. The tool's layout tools move whole regions or blocks of
+chunks with everything on them.
+
+The sketch is 128 × 128 cells, so one cell is 2 × 2 tiles and one chunk is
+16 × 16 cells. Its ground, water and cliffs were traced from the A Link to the
+Past reference, and its regions started in the reference's places. On
+2026-10-10 the middle row was laid out as in the game, from west to east:
+
+1. a west village;
+2. Slimeshire Meadow;
+3. Gloop Forest, through the Verdant Gate on `level-1`'s east edge;
+4. the Crystal Caverns.
+
+The other regions:
+
+- Northern ruins and Volcano Ridge are on the great mountain to the north.
+- Sticky Swamp and a frozen-lake Frostpeak are to the south.
+- A desert is in the south-west.
+- The **North Wilds** and **South Wilds** are the connecting zones between
+  them all.
+
+The village, the ruins and the desert are empty slots. The layout is a
+**Proposal**.
 
 <!-- world-map:start -->
-<!-- Generated by the world map tool (pnpm story:map) from world-map.json. Draw on the map instead of editing this block. -->
+<!-- Generated by the world map tool (pnpm story:map) from godot/game/data/world-map.json. Draw on the map instead of editing this block. -->
 
 ![World map sketch](world-map.png)
 
 The map is cut into 8 × 8 chunks, A1 in the north-west; a region's chunks are those where it holds most of the ground.
 
-| Region | Chapter | Status | Chunks | Borders | Game maps | Boss | Notes |
-|---|---|---|---|---|---|---|---|
-| **Slimeshire Meadow** | 1 | Built | D4, E4, D5, E5 | The Wilds | level-1, slime-home, mushroom-home | Fatty One Eye | The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith fled, the Forge is cold. |
-| **Gloop Forest** | 2 | In progress | A1, B1, A2, B2 | The Wilds | gloop-forest, gloop-hut, gloop-cavern | Orb-Weaver Matron | North-west woods (the Lost Woods' place). Choked with webs; the Matron's brood spreads. |
-| **Crystal Caverns** | 3 | Idea | D1, E1, D2, E2 | The Wilds, Volcano Ridge | crystal-caverns | Crystal Colossus | The west half of the great mountain, east of Gloop Forest: caves through the rock, crystal sealing them. First dungeon: a dark maze the Glow armor lights. |
-| **Volcano Ridge** | Finale | Idea | F1, G1, H1, F2, G2 | Crystal Caverns, The Wilds | hot, emberleef (candidates) | Gorge | The east half of the great mountain, around the crater. Gorge's prison; the rumbling comes from here. |
-| **Frostpeak** | ? | Idea | F7, G7, F8, G8 | The Wilds, Sticky Swamp | icege (candidate) |  | Proposal: the great lake in the south-east, frozen, with snowy cliffs: ice physics and snow. |
-| **Sticky Swamp** | ? | Idea | D7, E7, D8, E8 | The Wilds, Frostpeak |  |  | South of the hub (the Great Swamp's place). Slow mud, poison, rain, spider-slimes. |
-| **West village (open)** | ? | Idea | A4, B4, A5, B5 | The Wilds |  |  | Empty slot: a second town (Kakariko's place). Who lives here? |
-| **Eastern ruins (open)** | ? | Idea | G4, H4, G5, H5 | The Wilds |  |  | Empty slot: a ruin maze on a plateau (the Eastern Palace's place). A dungeon region. |
-| **Desert (open)** | ? | Idea | A7, B7, A8, B8 | The Wilds |  |  | Empty slot: a desert walled by cliffs (the Desert of Mystery's place). |
-| **The Wilds** | ? | Idea | C1, C2, H2, A3, B3, C3, D3, E3, F3, G3, H3, C4, F4, C5, F5, A6, B6, C6, D6, E6, F6, G6, H6, C7, H7, C8, H8 | Gloop Forest, Crystal Caverns, Volcano Ridge, West village (open), Slimeshire Meadow, Eastern ruins (open), Desert (open), Sticky Swamp, Frostpeak |  |  | The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them. |
+| Region | Chapter | Status | Chunks | Borders | World | Interiors | Boss | Notes |
+|---|---|---|---|---|---|---|---|---|
+| **Slimeshire Meadow** | 1 | Built | C4, D4, C5, D5 | North Wilds, West village (open), Gloop Forest, South Wilds | level-1 | slime-home, mushroom-home | Fatty One Eye | The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith fled, the Forge is cold. |
+| **Gloop Forest** | 2 | In progress | E4, F4, E5, F5 | North Wilds, Slimeshire Meadow, Crystal Caverns, South Wilds | gloop-forest | gloop-hut, gloop-cavern | Orb-Weaver Matron | East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. |
+| **Crystal Caverns** | 3 | Idea | G4, H4, G5, H5 | North Wilds, Gloop Forest, South Wilds | crystal-caverns |  | Crystal Colossus | East of Gloop Forest, as in the game (moved 2026-10-10; open without a key for now). The west half of the great mountain, east of Gloop Forest: caves through the rock, crystal sealing them. First dungeon: a dark maze the Glow armor lights. |
+| **Volcano Ridge** | Finale | Idea | F1, G1, H1, F2, G2 | Northern ruins (open), North Wilds | volcano-ridge (placeholder) |  | Gorge | The east half of the great mountain, around the crater. Gorge's prison; the rumbling comes from here. |
+| **Frostpeak** | ? | Idea | F7, G7, F8, G8 | South Wilds, Sticky Swamp | frostpeak (placeholder) |  |  | Proposal: the great lake in the south-east, frozen, with snowy cliffs: ice physics and snow. |
+| **Sticky Swamp** | ? | Idea | D7, E7, D8, E8 | South Wilds, Frostpeak | sticky-swamp (placeholder) |  |  | South of the hub (the Great Swamp's place). Slow mud, poison, rain, spider-slimes. |
+| **West village (open)** | ? | Idea | A4, B4, A5, B5 | North Wilds, Slimeshire Meadow, South Wilds | west-village (placeholder) |  |  | Empty slot: a second town (Kakariko's place). Who lives here? |
+| **Northern ruins (open)** | ? | Idea | D1, E1, D2, E2 | North Wilds, Volcano Ridge | northern-ruins (placeholder) |  |  | Moved north 2026-10-10 (Crystal Caverns took the east). Empty slot: a ruin maze on a plateau (the Eastern Palace's place). A dungeon region. |
+| **Desert (open)** | ? | Idea | A7, B7, A8, B8 | South Wilds | desert (placeholder) |  |  | Empty slot: a desert walled by cliffs (the Desert of Mystery's place). |
+| **North Wilds** | ? | Idea | A1, B1, C1, A2, B2, C2, H2, A3, B3, C3, D3, E3, F3, G3, H3 | Northern ruins (open), Volcano Ridge, West village (open), Slimeshire Meadow, Gloop Forest, Crystal Caverns | north-wilds (placeholder) |  |  | The connecting fields north of the middle row (the Wilds split in two 2026-10-10). The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them. |
+| **South Wilds** | ? | Idea | A6, B6, C6, D6, E6, F6, G6, H6, C7, H7, C8, H8 | West village (open), Slimeshire Meadow, Gloop Forest, Crystal Caverns, Desert (open), Sticky Swamp, Frostpeak | south-wilds (placeholder) |  |  | The connecting fields south of the middle row: roads to the swamp, the desert and Frostpeak. |
 
 **Connections**
 
 | Passage | Kind | Connects | Needs | Notes |
 |---|---|---|---|---|
-| Verdant Gate | Gate / passage | Gloop Forest ↔ The Wilds | Green key |  |
-| Crystal seal | Gate / passage | Gloop Forest ↔ The Wilds | Beat the Matron | Reached from Gloop Forest's east road |
-| Crystal seal | Gate / passage | Crystal Caverns ↔ The Wilds | Beat the Matron | Reached from Gloop Forest's east road |
-| *none marked* | border | Crystal Caverns ↔ Volcano Ridge | | Open, or walled off? |
-| Ridge path | Gate / passage | Volcano Ridge ↔ The Wilds | ? |  |
-| *none marked* | border | West village (open) ↔ The Wilds | | Open, or walled off? |
-| Plaza bridge | Gate / passage | Slimeshire Meadow ↔ The Wilds | nothing | The way out of Slimeshire into the Wilds |
-| *none marked* | border | Eastern ruins (open) ↔ The Wilds | | Open, or walled off? |
-| *none marked* | border | Desert (open) ↔ The Wilds | | Open, or walled off? |
-| Swamp road | Gate / passage | Sticky Swamp ↔ The Wilds | ? |  |
-| Lake bridge | Gate / passage | Frostpeak ↔ The Wilds | ? |  |
-| *none marked* | border | Frostpeak ↔ Sticky Swamp | | Open, or walled off? |
-| Crystal seal | Gate / passage | Gloop Forest ↔ Crystal Caverns | Beat the Matron | Reached from Gloop Forest's east road |
+| Opening | Opening (generated) | Northern ruins (open) ↔ North Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Volcano Ridge ↔ Northern ruins (open) | nothing | Cut by the region builder |
+| Ridge path | Gate / passage | Volcano Ridge ↔ North Wilds | ? |  |
+| Opening | Opening (generated) | Volcano Ridge ↔ North Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | West village (open) ↔ North Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Slimeshire Meadow ↔ North Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Gloop Forest ↔ North Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Crystal Caverns ↔ North Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Slimeshire Meadow ↔ West village (open) | nothing | Cut by the region builder |
+| Verdant Gate | Gate / passage | Slimeshire Meadow ↔ Gloop Forest | Green key | level-1's east exit into Gloop Forest (the gate object stands at (3776, 768)) |
+| Verdant Gate | Opening (generated) | Slimeshire Meadow ↔ Gloop Forest | nothing | Cut by the region builder |
+| Crystal seal | Gate / passage | Gloop Forest ↔ Crystal Caverns | nothing | gloop-forest's east exit into the Crystal Caverns: open without a key for now (the story wants it sealed until the Matron is beaten) |
+| Crystal seal | Opening (generated) | Gloop Forest ↔ Crystal Caverns | nothing | Cut by the region builder |
+| Opening | Opening (generated) | West village (open) ↔ South Wilds | nothing | Cut by the region builder |
+| Plaza bridge | Gate / passage | Slimeshire Meadow ↔ South Wilds | nothing | The way out of Slimeshire into the Wilds |
+| Plaza bridge | Opening (generated) | Slimeshire Meadow ↔ South Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Gloop Forest ↔ South Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Crystal Caverns ↔ South Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Desert (open) ↔ South Wilds | nothing | Cut by the region builder |
+| Swamp road | Gate / passage | Sticky Swamp ↔ South Wilds | ? |  |
+| Swamp road | Opening (generated) | Sticky Swamp ↔ South Wilds | nothing | Cut by the region builder |
+| Lake bridge | Gate / passage | Frostpeak ↔ South Wilds | ? |  |
+| Lake bridge | Opening (generated) | Frostpeak ↔ South Wilds | nothing | Cut by the region builder |
+| Opening | Opening (generated) | Frostpeak ↔ Sticky Swamp | nothing | Cut by the region builder |
 | Gloop Cavern | Cave / stairs | Gloop Forest → gloop-cavern | Heavy |  |
 
 **Places on the map**
 
 | Place | Kind | Region | Chunk | Needs | Notes |
 |---|---|---|---|---|---|
-| Crystal Caverns | Dungeon | Crystal Caverns | D2 |  |  |
-| Crystal Colossus | Boss | Crystal Caverns | E1 |  |  |
+| Crystal Caverns | Dungeon | Crystal Caverns | G5 |  |  |
+| Crystal Colossus | Boss | Crystal Caverns | H4 |  |  |
 | Desert ruin? | Note / idea | Desert (open) | A7 |  | Empty slot |
-| Ruin maze? | Note / idea | Eastern ruins (open) | H4 |  | Empty slot: a dungeon |
-| Forest camp | Town / hub | Gloop Forest | B2 |  |  |
-| Orb-Weaver Matron | Boss | Gloop Forest | B1 | web door: Silk Armor (Planned) |  |
-| Slimeshire plaza | Town / hub | Slimeshire Meadow | D4 |  | The middle of the world |
-| The Wellspring | Landmark | Slimeshire Meadow | D4 |  | Proposal: plaza or clearing (Open) |
-| Your house | House / interior | Slimeshire Meadow | D4 |  |  |
-| Mushroom house | House / interior | Slimeshire Meadow | E4 |  |  |
-| Lily the Fishergirl | NPC | Slimeshire Meadow | D5 |  | At the water around the plaza |
-| Fatty One Eye | Boss | Slimeshire Meadow | E4 |  | Guards the chest with the green key |
+| Forest camp | Town / hub | Gloop Forest | F5 |  |  |
+| Orb-Weaver Matron | Boss | Gloop Forest | F4 | web door: Silk Armor (Planned) |  |
+| Ruin maze? | Note / idea | Northern ruins (open) | E1 |  | Empty slot: a dungeon |
+| Slimeshire plaza | Town / hub | Slimeshire Meadow | C4 |  | The middle of the world |
+| The Wellspring | Landmark | Slimeshire Meadow | C4 |  | Proposal: plaza or clearing (Open) |
+| Your house | House / interior | Slimeshire Meadow | C4 |  |  |
+| Mushroom house | House / interior | Slimeshire Meadow | D4 |  |  |
+| Lily the Fishergirl | NPC | Slimeshire Meadow | C5 |  | At the water around the plaza |
+| Fatty One Eye | Boss | Slimeshire Meadow | D4 |  | Guards the chest with the green key |
 | Gorge | Boss | Volcano Ridge | F2 |  | Finale, in the crater |
 | Second town? | Note / idea | West village (open) | B4 |  | Empty slot |
 <!-- world-map:end -->
