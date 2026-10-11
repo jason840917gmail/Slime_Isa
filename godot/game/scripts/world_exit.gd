@@ -23,6 +23,10 @@ const MAIN_GROUP := &"world_main"
 @export var target_area_id: String = ""
 ## JSON `entry`: arrival edge in the target world ("west", ...).
 @export var entry: String = ""
+## Not in Phaser (world map, 2026-10-10): the name of a Node2D anywhere in the target world where
+## the player arrives (`AreaTravel.arrival_point`). It wins over `entry`'s `player-entry-<edge>`
+## marker, and an exit with a marker and no valid `entry` travels too. Empty = arrive by `entry`.
+@export var entry_marker: String = ""
 ## JSON `area`: the Area2D (layer trigger, mask player|npc) whose bodies are tested.
 @export var area: Area2D
 ## JSON `gate` (camelCase keys: id, requiredItemId, consumeOnUnlock, lockedMessage).
@@ -83,6 +87,7 @@ func _evaluate(body: Node) -> void:
 			"exit_id": exit_id,
 			"target_area_id": target_area_id,
 			"entry": entry,
+			"entry_marker": entry_marker,
 			"gate": gate,
 		})
 	if str(result.get("status", "")) == "queued":

@@ -256,7 +256,7 @@ func entities_root() -> Node2D:
 
 
 ## `{"tile_size": int, "columns": int, "rows": int, "width": float, "height": float}`
-## (level-1: 64, 56, 56, 3584, 3584). {} before register_world().
+## (level-1: 64, 64, 64, 4096, 4096). {} before register_world().
 func dimensions() -> Dictionary:
 	return _dimensions.duplicate()
 
