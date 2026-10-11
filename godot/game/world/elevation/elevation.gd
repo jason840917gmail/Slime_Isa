@@ -109,10 +109,16 @@ const LANDING_SEARCH_STEP := 4.0
 const WALL_ART := "res://asset/MAPS/elevation/%s-wall.png"
 const STAIRS_ART := "res://asset/MAPS/elevation/%s-stairs-%s.png"
 ## A wall's style: the one painted on the world's `cliffs` layer (cliffs/cliff_layer.gd, data layer
-## WALL_STYLE_DATA_LAYER) over the top it hangs from, else the ground on top's (GROUND_WALL_STYLES),
-## else DEFAULT_WALL_STYLE; a style without wall art falls back to DEFAULT_WALL_STYLE.
+## WALL_STYLE_DATA_LAYER) over the top it hangs from, else the ground on top's (the world's own
+## choice, WORLD_WALL_STYLES_META, else GROUND_WALL_STYLES), else DEFAULT_WALL_STYLE; a style
+## without wall art falls back to DEFAULT_WALL_STYLE.
 const WALL_STYLE_DATA_LAYER := "wall_style"
 const DEFAULT_WALL_STYLE := "meadow-rock"
+## Ground layer metadata giving a world its own wall style per ground ({"highland": "storybook-rock"})
+## and its own fringe art per ground ({"highland": "storybook-grass"}, FRINGE_ART): other worlds keep
+## the defaults.
+const WORLD_WALL_STYLES_META := &"cliff_wall_styles"
+const WORLD_FRINGE_META := &"cliff_fringe"
 const GROUND_WALL_STYLES := {
 	"highland": "meadow-rock", "frozen": "snow-rock", "sanddessert": "sandstone",
 	"forest-floor": "root-rock", "forest-moss": "mossy-rock", "amberleaf": "red-rock",
@@ -156,8 +162,9 @@ const WATER_FOOT_OUT := 34.0
 const RIM_WATER_COVER := 30.0
 ## The depth map covers the elevated part of the world and this many cells around it.
 const DEPTH_MARGIN := 3
-## Cliff fringe art per ground and kind ("lip", "foot"), the strip row its edge line runs on and
-## the strip's height (scripts/art/build-elevation-art.py EDGE_ROWS, LAYOUT).
+## Cliff fringe art per ground (or the world's choice, WORLD_FRINGE_META) and kind ("lip", "foot"),
+## the strip row its edge line runs on and the strip's height (scripts/art/build-elevation-art.py
+## EDGE_ROWS, LAYOUT).
 const FRINGE_ART := "res://asset/MAPS/elevation/%s-%s.png"
 const FRINGE_EDGE_ROW := {"lip": 96.0, "foot": 80.0}
 const FRINGE_HEIGHT := {"lip": 160.0, "foot": 128.0}
@@ -666,7 +673,13 @@ func _has_edge_art(name_of_ground: String) -> bool:
 
 
 func _has_fringe(name_of_ground: String, kind: String) -> bool:
-	return name_of_ground != "" and ResourceLoader.exists(FRINGE_ART % [name_of_ground, kind])
+	return name_of_ground != "" and ResourceLoader.exists(FRINGE_ART % [_fringe_art(name_of_ground), kind])
+
+
+## The fringe art of a ground: the world's choice (WORLD_FRINGE_META), else the ground's own.
+func _fringe_art(name_of_ground: String) -> String:
+	var own: Dictionary = ground.get_meta(WORLD_FRINGE_META, {}) if ground != null else {}
+	return str(own.get(name_of_ground, name_of_ground))
 
 
 func _ground_origin() -> Vector2:
@@ -801,8 +814,8 @@ func _build_wall_styles() -> void:
 
 ## The wall style of the top of `level` that begins at `edge` (cells) and lies towards `into`: the
 ## style painted on its cell (a little in, else half a cell in: a corner triangle a chamfer raised
-## belongs to the painted cell across the corner), else its ground's; DEFAULT_WALL_STYLE for a style
-## without wall art.
+## belongs to the painted cell across the corner), else its ground's (the world's choice first);
+## DEFAULT_WALL_STYLE for a style without wall art.
 func _wall_style_at(edge: Vector2, into: Vector2, level: int, painted: Dictionary) -> String:
 	var style := ""
 	for reach: float in [0.05, 0.5]:
@@ -813,7 +826,9 @@ func _wall_style_at(edge: Vector2, into: Vector2, level: int, painted: Dictionar
 			break
 	if style == "":
 		var tri := grid.tri_at(edge + into * 0.05)
-		style = str(GROUND_WALL_STYLES.get(grid.tri_ground[tri] if tri >= 0 else "", DEFAULT_WALL_STYLE))
+		var name_of_ground := grid.tri_ground[tri] if tri >= 0 else ""
+		var own: Dictionary = ground.get_meta(WORLD_WALL_STYLES_META, {}) if ground != null else {}
+		style = str(own.get(name_of_ground, GROUND_WALL_STYLES.get(name_of_ground, DEFAULT_WALL_STYLE)))
 	if not _wall_art.has(style):
 		_wall_art[style] = ResourceLoader.exists(WALL_ART % style)
 		if not bool(_wall_art[style]):
@@ -1380,7 +1395,7 @@ func _strip_material(key: String, foot: bool) -> Material:
 
 
 func _fringe_material(name_of_ground: String, kind: String) -> Material:
-	var texture := load(FRINGE_ART % [name_of_ground, kind]) as Texture2D
+	var texture := load(FRINGE_ART % [_fringe_art(name_of_ground), kind]) as Texture2D
 	if texture == null:
 		return null
 	var material_of := ShaderMaterial.new()

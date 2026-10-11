@@ -321,13 +321,29 @@ func _add_fan(arrays: MeshData, a: Dictionary, b: Dictionary, u: float, lip_shad
 	return u + arc
 
 
-## Inner gap of a concave corner: one triangle from the shared point to both inner reaches.
+## Inner gap of a concave corner: both strips carried on past the shared point until they meet
+## (a mitre, so the art runs on into the corner); one triangle from the shared point to both inner
+## reaches where that point lies too far out (MITRE_LIMIT).
 func _add_bevel(arrays: MeshData, a: Dictionary, b: Dictionary, inner_a: Vector2, inner_b: Vector2, u: float) -> void:
 	var v: Vector2 = a["to"]
 	var rim := 1.0 if int(a["mode"]) == RIM or int(b["mode"]) == RIM else 0.0
 	var level := float(a["level"])
+	var e_a: Vector2 = a["dir"]
+	var e_b: Vector2 = b["dir"]
+	var meet := _intersect(inner_a, e_a, inner_b, e_b, Vector2.INF)
+	if meet == Vector2.INF or meet.distance_to(v) > MITRE_LIMIT * IN:
+		arrays.add(v, Vector2(u, EDGE_ROW), _color(0.0, 0.0, rim, level))
+		arrays.add(inner_a, Vector2(u, 0.0), _color(0.0, -IN, rim, level))
+		arrays.add(inner_b, Vector2(u, 0.0), _color(0.0, -IN, rim, level))
+		return
+	# Art u: 2 px per world unit along each strip.
+	var past_a := (meet - inner_a).dot(e_a) * 2.0
+	var before_b := (inner_b - meet).dot(e_b) * 2.0
 	arrays.add(v, Vector2(u, EDGE_ROW), _color(0.0, 0.0, rim, level))
 	arrays.add(inner_a, Vector2(u, 0.0), _color(0.0, -IN, rim, level))
+	arrays.add(meet, Vector2(u + past_a, 0.0), _color(0.0, -IN, rim, level))
+	arrays.add(v, Vector2(u, EDGE_ROW), _color(0.0, 0.0, rim, level))
+	arrays.add(meet, Vector2(u - before_b, 0.0), _color(0.0, -IN, rim, level))
 	arrays.add(inner_b, Vector2(u, 0.0), _color(0.0, -IN, rim, level))
 
 
