@@ -241,7 +241,7 @@ func _painted_styles(painted: TileMapLayer) -> Dictionary:
 
 ## Every fenced stretch of rim: {style, level, loop, rim (PackedVector2Array, ground-layer space,
 ## the top on the left of the way along it)}. A fence leaves a gap where a flight of stairs leaves
-## the rim (its landing and railings take the fence line's place).
+## the rim (the flight and the way onto it from the top take the fence line's place).
 func _runs(styles: Dictionary, flights: Array) -> Array[Dictionary]:
 	var rims := ElevationRims.new()
 	rims.grid = grid
@@ -301,7 +301,8 @@ func _style_of(edge: Dictionary, styles: Dictionary) -> String:
 
 
 ## True when the fence line along `edge` (cells) would cross a flight of stairs
-## (elevation_stairs.gd `occupies`: its landing, steps, railings or posts).
+## (elevation_stairs.gd `occupies`: its steps, posts or side walls, or the top's ground just behind
+## its rim).
 func _crosses_stairs(edge: Dictionary, inset: float, flights: Array) -> bool:
 	if flights.is_empty():
 		return false

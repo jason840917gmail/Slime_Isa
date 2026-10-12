@@ -1,10 +1,12 @@
-# Stairs on every side: approved design (2026-10-06)
+# Stairs on every side: approved design (2026-10-06, replaced 2026-10-11)
 
-The mockups the elevation stairs were built from. The game draws them with
-`godot/game/world/elevation/elevation_stairs.gd` (geometry after `stairs_mockup.py`'s `Flight`)
-and `elevation_stairs.gdshader`; how they are painted and how they work is in
-[docs/godot/ELEVATION.md](../../../../docs/godot/ELEVATION.md). This folder keeps the approved
-design and the tools that drew it.
+The mockups the elevation stairs were first built from. **Replaced on 2026-10-11**: the owner asked
+for simpler stairs after A Link to the Past (front flights set into the cliff's face from its top
+edge to its foot, no landings, no railings, one style coloured by the road or ground they lead to);
+the game's stairs are now described in [docs/godot/ELEVATION.md](../../../../docs/godot/ELEVATION.md)
+and drawn by `godot/game/world/elevation/elevation_stairs.gd` and `elevation_stairs.gdshader`. This
+folder keeps the 2026-10-06 design and the tools that drew it; the code that drew it in the game is
+in git history.
 
 - `stairs-overview.png`: an octagon hill at level 1 and 2, a flight on each of its 8 sides,
   one cell and two cells wide.

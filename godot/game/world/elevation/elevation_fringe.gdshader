@@ -9,7 +9,10 @@ shader_type canvas_item;
 // distance from the edge ((d + 64) / 128, world units), b = rim (1: cut below `rim_cut`), a = the
 // ground's level ((level + 4) / 8, elevation_light.gdshaderinc). Beyond the art the fringe casts a
 // soft shadow (on the wall top under a lip, up the wall base above a foot); a foot also darkens its
-// own ground near the wall.
+// own ground near the wall. A ramp's foot (RampFeet) ends on the face's top edge, where the art's cut
+// fern tips would draw a ruled line: its material sets `top_fade` (art rows, 0 = off) to fade out
+// the art's top rows, and `fade_by_b`: colour b is then its opacity (it fades in as the face grows
+// from nothing at the ramp's top end) instead of the rim flag.
 
 #include "res://game/world/elevation/elevation_light.gdshaderinc"
 
@@ -21,6 +24,8 @@ uniform float inner_width = 14.0;
 // Art row below which a rim shows nothing (the lip's soil band starts at its edge row, 96).
 uniform float rim_cut = 104.0;
 uniform float rim_fade = 8.0;
+uniform float top_fade = 0.0;
+uniform bool fade_by_b = false;
 
 varying vec4 data;
 
@@ -33,7 +38,11 @@ void fragment() {
 	vec2 uv = vec2(UV.x / strip_size.x, clamp(UV.y, 0.5, strip_size.y - 0.5) / strip_size.y);
 	vec4 art = texture(strip, uv);
 	float alpha = inside ? art.a : 0.0;
-	alpha *= 1.0 - data.b * smoothstep(rim_cut - rim_fade, rim_cut, UV.y);
+	if (fade_by_b) {
+		alpha *= data.b * smoothstep(0.0, top_fade, UV.y);
+	} else {
+		alpha *= 1.0 - data.b * smoothstep(rim_cut - rim_fade, rim_cut, UV.y);
+	}
 	float d = data.g * 128.0 - 64.0;
 	vec3 rgb = art.rgb * level_light(decode_level(data.a));
 	rgb *= 1.0 - inner_shade * (1.0 - smoothstep(0.0, inner_width, -d)) * step(d, 0.0);

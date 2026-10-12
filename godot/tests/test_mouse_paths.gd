@@ -14,10 +14,11 @@ const CELL := 64.0
 const BELOW_WALL := Vector2(15.5 * CELL, 39.5 * CELL)
 ## On the hill top, straight above BELOW_WALL (level 2).
 const ON_TOP := Vector2(15.5 * CELL, 32.5 * CELL)
-## The flight of stairs: x, and from the rim (y) to its foot.
+## The flight of stairs: x, and from the rim (y) to its foot (the wall's: it is set into the wall),
+## with the ground just before it.
 const STAIRS_X := 18.5 * CELL
 const HILL_RIM := 36.0 * CELL
-const FLIGHT_END := 36.0 * CELL + 4.0 * CELL + 11.0
+const FLIGHT_END := 38.0 * CELL + 24.0
 
 
 func test_route_climbs_the_stairs_to_a_hill_top(t: TestContext) -> void:

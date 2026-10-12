@@ -54,8 +54,8 @@ right and a contact shadow at each post's foot. A fence in a hole darkens with d
 3. Tiles: **`A`** auto, the style of the ground on top (`GROUND_STYLES` in `elevation_fences.gd`,
    the table in [Styles](#styles)); **`W`** wood, **`S`** snowy wood, **`B`** stone blocks, **`D`**
    sandstone, **`T`** twigs (vine branches), **`P`** pickets, **`C`** crystal.
-4. A flight of stairs leaves a gap by itself: where its landing, railings or posts would stand on
-   the fence line, the fence ends in a post beside them. Where only part of a rim is painted, the
+4. A flight of stairs leaves a gap by itself: where it or the way onto it from the top (the top's
+   ground just behind its rim) would cross the fence line, the fence ends in a post beside it. Where only part of a rim is painted, the
    fence ends in a post and the rest of the rim still drops.
 
 In the editor the fences follow the paint at once (the layer's script rebuilds the elevation drawing);

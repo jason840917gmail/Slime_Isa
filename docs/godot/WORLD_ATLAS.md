@@ -142,7 +142,7 @@ once, `region_canvas.gd` paints one region, `region_scene.gd` writes the scene):
   the middle of the longest run of open ground on one level. Both regions leave the same gap, so
   the openings line up. An opening has a clear corridor of road on each side.
 - **Roads** join a region's openings and its landmarks (cheapest path on the cells): stairs where a
-  road climbs one level (two tiles wide, open landing), a bridge over one to three cells of deep
+  road climbs one level (two tiles wide), a bridge over one to three cells of deep
   water (the wooden footbridge prop on east-west crossings), fords through shallow water. In the
   Wilds, trails reach every chunk.
 - **No dead ends:** every place a ledge drop (any unfenced rim) leads to has a way back to an
