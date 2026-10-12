@@ -22,7 +22,7 @@ The water life stays converted: `res://game/scenes/objects/water-life--*.tscn`.
 | Feature | Where | Notes |
 |---|---|---|
 | Terrain blending (baked transition chunks under the surface) | `features/world/TerrainTransitionLayer.ts`, `TerrainTransitionRenderer.ts` | Not ported: replaced by hand-made terrain edges drawn over the surface (section 6.2, [../TERRAIN_LAB.md](../TERRAIN_LAB.md)) |
-| Water collision | `TileMapLayer2DNode.mountCollision` | Changed by the owner (2026-10-06): shallow `water` is walkable; `deep-water` blocks (unless the slime swims: the Frog Gulp form, [abilities.md](abilities.md) §11.7) through a full-cell collision square on its tiles in `game/world/terrain_tileset.tres`, physics layer `water`. The converted merged bodies under `ground/TileCollision` were removed. A shore collision traced from the edge art was tried and rejected: its uneven outline made the slime stick, since `ArcadeMover` cuts the speed at every contact |
+| Water collision | `TileMapLayer2DNode.mountCollision` | Changed by the owner (2026-10-06): shallow `water` is walkable; `deep-water` blocks (unless the slime swims: the Frog Gulp form, [abilities.md](abilities.md) §11.7) through a full-cell collision square on its tiles in `game/world/terrain_tileset.tres`, physics layer `water`, except under a bridge deck (§10). The converted merged bodies under `ground/TileCollision` were removed. A shore collision traced from the edge art was tried and rejected: its uneven outline made the slime stick, since `ArcadeMover` cuts the speed at every contact |
 | Canvas-renderer fallback | `WaterSurfaceLayer.ts:154` | Phaser draws no water on the Canvas renderer; Godot always runs Compatibility (GLES3 / WebGL 2) |
 | Water ambience audio | world scene audio emitters | Converted with the worlds |
 | Scene Studio preview | same `TileMapLayer2DNode` code | Godot's editor does not run the mount (runtime only) |
@@ -334,8 +334,8 @@ mounted by `WorldService.register_world` after the elevation) follows every walk
 - Every physics tick the cell under the body's feet (2 units up, inside the body) decides the row:
   `water` shows the wading splash (row 0: rising, highest, falling, settled), animating at 10 fps
   while the body moves and 4 fps while it stands; `deep-water` shows the swim ripple (row 1, 6 fps).
-  Anything else, or a body in the air (a script child's `is_airborne()`, the player's jump), shows
-  nothing.
+  Anything else, a body in the air (a script child's `is_airborne()`, the player's jump) or a body
+  on a bridge deck (§10) shows nothing.
 - The ring is drawn for the player slime's 30-unit body (60 units across when wading, 70 when
   swimming); other bodies scale it by their collision shape's width (0.6 to 3 times).
 - Presentation only: speed, collision and footsteps do not change.
@@ -351,3 +351,27 @@ Swimming itself is the Frog Gulp form ([abilities.md](abilities.md) §11.7,
 slime plays the swim clips (`swim-down`, `-up`, `-side`, page 3 of the slime sheet), which show the
 whole body treading water, so a waterline 30 px above the feet of the 256 px cell hides its lower
 part and the art sinks by as much onto the swim ripple. Tests: `godot/tests/test_frog_form.gd`.
+
+## 10. Bridges (Godot only)
+
+Owner request (2026-10-12): a footbridge crosses deep water while the river stays painted under it.
+Erasing the deep-water tiles under a bridge opened the way but cut the river (no water surface, a
+shore drawn around the hole), so the bridge now opens the water itself.
+
+- The bridge's root carries `res://game/world/bridge_deck.gd` (the wooden footbridge,
+  `decoration-world-floor--wooden-footbridge.tscn`, does). Its `deck` (a rectangle in the bridge's
+  own coordinates; default the footbridge's planks, `Rect2(-144, -117, 288, 80)`) decides the lane:
+  every ground cell whose centre is inside it. So the lane is whole cells: one row for the
+  footbridge's 80-unit planks (two when the planks straddle a row line), its banks included.
+- `WorldService.register_world` hands the lane cells of every bridge in the world to the ground
+  layer (`BridgeDeck.lay`). `world_ground.gd` drops their collision through the layer's runtime
+  tile data (`_use_tile_data_runtime_update` / `_tile_data_runtime_update`), so their tiles still
+  draw and the water surface and shores are unchanged. The deep-water squares beside the lane keep
+  their collision, so they are the bridge's rails: a walker cannot step off the deck into the river.
+- On a lane cell `WorldService.is_bridged(tx, ty)` is true and `is_solid_tile` false, the water
+  wake shows nothing, the footsteps play `bridge_surface` (wood), and the Frog form does not swim
+  (`player_swimming.gd` counts a lane cell as the deck, not deep water).
+- In the editor each bridge outlines the cells of its lane, so moving a bridge shows where the lane
+  goes. Place a bridge so its planks sit on the lane: the slime walks the lane, its feet anywhere in
+  the row.
+- Collision stays tile squares, as §0 requires; nothing is traced.

@@ -1,10 +1,10 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dg63vo8185e5r"]
 
-[ext_resource type="Texture2D" path="res://asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp" id="1"]
-[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://dnxc8j866v2my" path="res://asset/MAPS/decorations/128x128-tile_8x5-decorations-ambient.webp" id="1"]
+[ext_resource type="Script" uid="uid://6hvt1qli863k" path="res://game/runtime/animation_player.gd" id="2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(22, 28)
+size = Vector2(19, 11)
 
 [sub_resource type="Animation" id="Animation_2"]
 resource_name = "object.ambient.idle"
@@ -29,15 +29,15 @@ _data = {
 &"object.ambient.idle": SubResource("Animation_2")
 }
 
-[node name="lantern-post" type="StaticBody2D"]
+[node name="lantern-post" type="StaticBody2D" unique_id=1533170820]
 y_sort_enabled = true
 collision_mask = 0
 
-[node name="BodyShape" type="CollisionShape2D" parent="."]
+[node name="BodyShape" type="CollisionShape2D" parent="." unique_id=835400426]
+position = Vector2(15.5, -17.5)
 shape = SubResource("RectangleShape2D_1")
-position = Vector2(39, -21)
 
-[node name="Visual" type="Sprite2D" parent="."]
+[node name="Visual" type="Sprite2D" parent="." unique_id=183499581]
 texture = ExtResource("1")
 centered = false
 offset = Vector2(-64, -128)
@@ -45,9 +45,9 @@ hframes = 8
 vframes = 5
 frame = 16
 
-[node name="AmbientAnimation" type="AnimationPlayer" parent="."]
-script = ExtResource("2")
-libraries/ = SubResource("AnimationLibrary_3")
+[node name="AmbientAnimation" type="AnimationPlayer" parent="." unique_id=1549280375]
 process_mode = 3
+libraries/ = SubResource("AnimationLibrary_3")
 autoplay = &"object.ambient.idle"
+script = ExtResource("2")
 randomize_start = true

@@ -24,6 +24,7 @@ const GroundSurface := preload("res://game/world/ground_surface.gd")
 const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
+const BridgeDeck := preload("res://game/world/bridge_deck.gd")
 
 ## Scene id -> scene path for every scene Godot owns (docs/godot/CONVENTIONS.md "Scenes Godot owns").
 const SCENE_INDEX_PATH := "res://game/scenes/scene_index.json"
@@ -213,6 +214,8 @@ func register_world(root: Node2D) -> bool:
 		elevation = Elevation.mount(ground_layer, true)
 		# Splashes and ripples at the feet of every walker in the water (specs/water.md "Wading").
 		WaterWake.mount(ground_layer)
+		# The cells under bridge decks keep their water but lose its collision (specs/water.md §10).
+		BridgeDeck.lay(root, ground_layer)
 	_areas.clear()
 	for node: Node in area_scripts:
 		var record: Dictionary = (node as WorldAreaScript).to_record()
@@ -315,11 +318,13 @@ func npc_wander_area(instance_id: String) -> Dictionary:
 ## `tile_id` (rock wall's collision is separate StaticBody2D nodes under `ground/TileCollision`; deep
 ## water's is a collision square on its tiles), so a cell is solid when its `tile_id` is in
 ## SOLID_TILE_IDS; a TileSet collision polygon on any physics layer also counts (contract C3). An
-## empty cell is not solid (WorldScene.isSolidTile).
+## empty cell is not solid (WorldScene.isSolidTile), nor is a cell under a bridge deck.
 func is_solid_tile(tx: int, ty: int) -> bool:
 	if not _is_within_world(tx, ty):
 		return true
 	if not is_instance_valid(ground_layer) or ground_layer.tile_set == null:
+		return false
+	if BridgeDeck.is_bridged(ground_layer, Vector2i(tx, ty)):
 		return false
 	var tile_data := ground_layer.get_cell_tile_data(Vector2i(tx, ty))
 	if tile_data == null:
@@ -332,6 +337,12 @@ func is_solid_tile(tx: int, ty: int) -> bool:
 		if tile_data.get_collision_polygons_count(layer_index) > 0:
 			return true
 	return false
+
+
+## True when cell (tx, ty) is under a bridge deck (game/world/bridge_deck.gd): whatever its tile, it
+## is the deck there (no collision, no wading, wooden steps).
+func is_bridged(tx: int, ty: int) -> bool:
+	return is_instance_valid(ground_layer) and BridgeDeck.is_bridged(ground_layer, Vector2i(tx, ty))
 
 
 func _is_within_world(tx: int, ty: int) -> bool:

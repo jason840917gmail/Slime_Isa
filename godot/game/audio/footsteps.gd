@@ -7,7 +7,8 @@ extends Node
 ##
 ## - A step plays each time the walk clip starts or loops: frame 0 of every walk row is the slime's
 ##   squash, the moment it lands. Its surface is the ground tile under the feet (`tile_id` of the
-##   world's ground layer, mapped by `surface_by_ground`); shallow `water` wades.
+##   world's ground layer, mapped by `surface_by_ground`); shallow `water` wades, and a cell under a
+##   bridge deck is `bridge_surface` (wood).
 ## - While swimming (player_swimming.gd) and moving, a stroke plays as the slime starts to move and
 ##   at each loop of the swim clip (floating still plays none: the swim clip also loops then).
 ## - Crossing into shallow water splashes, starting to swim plunges, and climbing out of either
@@ -46,6 +47,8 @@ const MOVING_SPEED := 8.0
 	"water": &"Shallow",
 	"deep-water": &"Shallow",
 }
+## The child player that steps on a bridge deck (game/world/bridge_deck.gd), whatever is under it.
+@export var bridge_surface: StringName = &"Wood"
 ## The child player for a stroke while swimming.
 @export var swim_surface: StringName = &"Swim"
 ## The surface that counts as being in shallow water (for the splash in and the drip out).
@@ -114,7 +117,10 @@ func surface_at(world_point: Vector2) -> StringName:
 		return &""
 	if not ground.tile_set.has_custom_data_layer_by_name(TILE_ID_DATA_LAYER):
 		return &""
-	var tile_data := ground.get_cell_tile_data(ground.local_to_map(ground.to_local(world_point)))
+	var cell := ground.local_to_map(ground.to_local(world_point))
+	if world.is_bridged(cell.x, cell.y):
+		return bridge_surface
+	var tile_data := ground.get_cell_tile_data(cell)
 	if tile_data == null:
 		return &""
 	return StringName(surface_by_ground.get(str(tile_data.get_custom_data(TILE_ID_DATA_LAYER)), &""))
