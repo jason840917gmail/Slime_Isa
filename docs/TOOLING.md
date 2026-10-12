@@ -76,23 +76,17 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/art/build-forest-paint-tiles.py` (**numpy**) — the forest layer's palette: a tile per mix and
   per tree of the trees sway sheet, into `godot/asset/MAPS/forest/forest_paint_tiles.png` and
   `godot/game/world/forest/forest_tileset.tres` ([godot/FORESTS.md](godot/FORESTS.md)).
-- `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits: scales the approved
-  cliff paintings (`asset/Originals/elevation/cliff-concepts/`) to 128 px per cell, cuts the outside ground
-  away and labels every cell, into `godot/asset/MAPS/cliffs/kit-<name>.png` and `.json`, drawn by the cliff
-  shape and cliff builder nodes; `--headless --path godot -s res://tools/build_cliff_kit_lab.gd` rebuilds the
-  cliff kit lab ([godot/CLIFFS.md](godot/CLIFFS.md)).
+- `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits the elevation's
+  storybook art is cut from: aligns the approved H plateau paintings (`asset/Originals/elevation/cliff-concepts/`)
+  to 128 px per cell, cuts the outside ground away, matches their colours and labels every cell, into
+  `godot/asset/MAPS/cliffs/kit-h2.png`, `kit-h3.png` and their `.json`
+  ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
 - `python scripts/art/build-elevation-art-from-painting.py [--preview DIR]` (**numpy**) — elevation art cut from
   the aligned H paintings (`godot/asset/MAPS/cliffs/kit-h3.png`, `kit-h2.png`) instead of generated: the wall
   style `storybook-rock` (wall, end stones, stairs coping) and the fringe `storybook-grass` (lip, foot) in
   `godot/asset/MAPS/elevation/`; a world picks them with its ground layer's metadata `cliff_wall_styles` /
   `cliff_fringe`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd -- --force` rebuilds the
-  cliff shapes lab that shows them ([godot/CLIFFS.md](godot/CLIFFS.md#painted-elevation-2026-10-10)).
-- `python scripts/art/build-cliff-tiles.py [--preview DIR]` (**numpy**) — the hand-painted cliffs: cuts the
-  generated border, lip, foot, wall and ground decorations (`asset/Originals/elevation/cliff-tiles/`) and the
-  128 px grass into one sheet of cell-sized tiles and its tile list in `godot/asset/MAPS/cliffs/`, and the
-  labelled guide `docs/godot/cliffs-sheet-guide.png`; then, after the editor imports the sheet,
-  `--headless --path godot -s res://tools/build_cliff_lab.gd` writes the cliff TileSet (one terrain set,
-  collision) and rebuilds the cliff lab ([godot/CLIFFS.md](godot/CLIFFS.md)).
+  cliff shapes lab that shows them ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
   (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and

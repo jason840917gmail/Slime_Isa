@@ -3,9 +3,12 @@
 
 64 px tiles in godot/asset/MAPS/elevation/elevation_paint_tiles.png (the atlas of
 elevation_tileset.tres, same order): row 0, a see-through coloured square per level with the level
-written on it (TILES, then the old stairs "S"); row 1, stairs with a railed landing, one arrow per
-direction pointing down the stairs (STAIRS order); row 2, the same with an open landing (a dashed
-square). The game never draws them (the elevation layer hides itself at run time).
+written on it (TILES, then the old stairs "S"); row 1, stairs, one arrow per direction pointing
+down the stairs (STAIRS order); row 2, the same in a dashed square (once a railed and an open
+landing; since 2026-10-11 no flight has a landing and both rows paint the same flights, kept for
+the worlds already painted with them); row 3, ramps (green, a wedge falling along the arrow: the
+slope, the arrow pointing down it; STAIRS order). The game never draws them (the elevation layer
+hides itself at run time).
 
 Usage: python scripts/art/build-elevation-paint-tiles.py
 """
@@ -31,11 +34,13 @@ TILES = [
 ]
 
 
-## Stairs directions in atlas order (row 1 railed, row 2 open landing): the direction down the stairs.
+## Stairs directions in atlas order (rows 1 and 2): the direction down the stairs.
 STAIRS = [("s", (0, 1)), ("sw", (-1, 1)), ("w", (-1, 0)), ("nw", (-1, -1)), ("n", (0, -1)), ("ne", (1, -1)),
           ("e", (1, 0)), ("se", (1, 1))]
 STAIRS_RGB = (150, 150, 150)
+RAMP_RGB = (110, 170, 80)
 COLUMNS = max(len(TILES), len(STAIRS))
+ROWS = 4
 
 
 def stairs_tile(draw: ImageDraw.ImageDraw, x0: int, y0: int, direction: tuple[int, int], open_landing: bool) -> None:
@@ -63,8 +68,25 @@ def stairs_tile(draw: ImageDraw.ImageDraw, x0: int, y0: int, direction: tuple[in
     draw.polygon(head, fill=(255, 255, 255, 235), outline=(20, 20, 30, 235))
 
 
+def ramp_tile(draw: ImageDraw.ImageDraw, x0: int, y0: int, direction: tuple[int, int]) -> None:
+    rgb = RAMP_RGB
+    draw.rectangle((x0, y0, x0 + SIZE - 1, y0 + SIZE - 1), fill=rgb + (90,), outline=rgb + (230,), width=3)
+    dx, dy = direction
+    length = (dx * dx + dy * dy) ** 0.5
+    ux, uy = dx / length, dy / length
+    cx, cy = x0 + SIZE / 2, y0 + SIZE / 2
+    tail = (cx - ux * 20, cy - uy * 20)
+    tip = (cx + ux * 20, cy + uy * 20)
+    # The slope: a wedge, high at the top end (the arrow's tail), falling to nothing at its tip.
+    wedge = [(tail[0] - uy * 13, tail[1] + ux * 13), (tail[0] + uy * 13, tail[1] - ux * 13), tip]
+    draw.polygon(wedge, fill=(30, 60, 20, 170))
+    draw.line((tail, tip), fill=(255, 255, 255, 235), width=4)
+    head = [tip, (tip[0] - ux * 11 - uy * 8, tip[1] - uy * 11 + ux * 8), (tip[0] - ux * 11 + uy * 8, tip[1] - uy * 11 - ux * 8)]
+    draw.polygon(head, fill=(255, 255, 255, 235), outline=(20, 20, 30, 235))
+
+
 def main() -> None:
-    image = Image.new("RGBA", (SIZE * COLUMNS, SIZE * 3), (0, 0, 0, 0))
+    image = Image.new("RGBA", (SIZE * COLUMNS, SIZE * ROWS), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     try:
         font = ImageFont.truetype("arialbd.ttf", 30)
@@ -80,9 +102,11 @@ def main() -> None:
     for row, open_landing in ((1, False), (2, True)):
         for i, (_name, direction) in enumerate(STAIRS):
             stairs_tile(draw, i * SIZE, row * SIZE, direction, open_landing)
+    for i, (_name, direction) in enumerate(STAIRS):
+        ramp_tile(draw, i * SIZE, 3 * SIZE, direction)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUT)
-    print(f"wrote {OUT.relative_to(ROOT)} ({len(TILES)} level tiles, {2 * len(STAIRS)} stairs tiles)")
+    print(f"wrote {OUT.relative_to(ROOT)} ({len(TILES)} level tiles, {2 * len(STAIRS)} stairs tiles, {len(STAIRS)} ramp tiles)")
 
 
 if __name__ == "__main__":

@@ -1,14 +1,15 @@
-"""Builds the cliff kits (docs/godot/CLIFFS.md "Cliff builder") from the approved concept paintings
-(asset/Originals/elevation/cliff-concepts/): each painting scaled to 128 px per 64-unit cell, the
-ground outside the cliff made transparent (so the world's own ground shows there), and its slice
-lines: the columns and rows that can be repeated to make the cliff any size.
+"""Builds the cliff kits from the approved H plateau paintings (asset/Originals/elevation/cliff-concepts/):
+each painting scaled to 128 px per 64-unit cell, one stone course to a cell, aligned to the cell
+lines and colour-matched to h2, the ground outside the cliff made transparent. The elevation's
+storybook art is cut from kit-h2 and kit-h3 (scripts/art/build-elevation-art-from-painting.py,
+docs/godot/ELEVATION.md "Storybook art").
 
 Usage: python scripts/art/build-cliff-kit.py [--preview DIR]
 
 Outputs (derived; re-run the tool instead of editing them), in godot/asset/MAPS/cliffs/:
   kit-<name>.png    the scaled painting with the outside ground cut away
-  kit-<name>.json   {"cells": [cols, rows], "columns": [a, b], "rows": [c, d]}: columns a..b-1 and
-                    rows c..d-1 are the straight middle that repeats; the rest are the corners
+  kit-<name>.json   {"cells": [cols, rows], "columns": [a, b], "rows": [c, d], "labels": [...]}: the
+                    straight middle (columns a..b-1, rows c..d-1) and every cell's label
 Needs numpy and Pillow.
 """
 from __future__ import annotations
@@ -74,8 +75,7 @@ def h23_labels(leg_walls: int, notch_walls: int) -> list[str]:
 
 def labels_from_top(top: dict, wall_rows: int, cells: int = 18, column_walls: dict | None = None) -> list[str]:
     """Cell labels from the rows of a painting's raised top ({row: (first column, last column)}):
-    under every column's lowest top cell the wall's courses, then the foot (the cliff builder's own
-    rule, game/world/cliffs/cliff_shape.gd)."""
+    under every column's lowest top cell the wall's courses, then the foot."""
     grid = [["L"] * cells for _ in range(cells)]
     for y, spans in top.items():
         for a, b in (spans if isinstance(spans, list) else [spans]):
@@ -97,19 +97,6 @@ def wall_label(course: int, count: int) -> str:
 
 
 KITS = {
-    "plateau": {
-        # Stretching (godot/game/world/cliffs/cliff_builder.gd): cells [0, a) are the head, [a, b)
-        # repeat, [tail, end) are the tail; the same for rows.
-        "file": "octagon-plateau-b.png", "columns": [8, 15], "rows": [8, 13], "tails": [15, 13],
-        "align": {"course": 100, "stone_top": 1560, "wall_left": 560},
-        # The top's rim line (painting px) and the wall courses under its south edges.
-        "top": [(570, 250), (1480, 250), (1820, 590), (1820, 1250), (1500, 1560), (560, 1560), (230, 1250), (230, 590)],
-        "courses": 2,
-        # Measured on the 18 x 18 grid: its 45 degree sides step one cell per row.
-        "labels": labels_from_top({2: (5, 12), 3: (4, 13), 4: (3, 14), **{y: (2, 15) for y in range(5, 11)},
-                                   11: (3, 14), 12: (4, 13)}, 2),
-        "hull": [(560, 150), (1480, 150), (1990, 640), (1990, 1250), (1560, 1930), (480, 1930), (40, 1250), (40, 640)],
-    },
     "h2": {
         # Stretched, an H is a rectangle: its left leg, the leg's middle repeated, its right leg.
         "file": "h-plateau-a.png", "columns": [6, 8], "rows": [9, 17], "tails": [15, 17], "labels": h_labels(2),
@@ -117,14 +104,6 @@ KITS = {
         "top": [(230, 230), (820, 230), (820, 560), (1220, 560), (1220, 230), (1850, 230), (1850, 1640), (1210, 1640),
                           (1210, 1270), (830, 1270), (830, 1640), (230, 1640)],
         "courses": 2, "notch": [830, 1210, 2],
-        "hull": [(120, 120), (1930, 120), (1930, 1960), (120, 1960)],
-    },
-    "h1": {
-        "file": "h-plateau-level1.png", "cells": 23, "columns": [6, 9], "rows": [9, 18], "tails": [17, 18], "labels": h23_labels(1, 1),
-        "align": {"course": 90, "stone_top": 1655, "wall_left": 189},
-        "top": [(230, 230), (820, 230), (820, 560), (1220, 560), (1220, 230), (1850, 230), (1850, 1655), (1210, 1655),
-                          (1210, 1290), (830, 1290), (830, 1655), (230, 1655)],
-        "courses": 1, "notch": [830, 1210, 1],
         "hull": [(120, 120), (1930, 120), (1930, 1960), (120, 1960)],
     },
     "h3": {
@@ -135,10 +114,6 @@ KITS = {
                           (1210, 1260), (830, 1260), (830, 1620), (230, 1620)],
         "courses": 3, "notch": [830, 1210, 2],
         "hull": [(120, 120), (1930, 120), (1930, 1960), (120, 1960)],
-    },
-    "dip": {
-        "file": "octagon-dip-a.png", "columns": [6, 12], "rows": [6, 12],
-        "hull": [(480, 60), (1520, 60), (2000, 560), (2000, 1460), (1500, 1960), (520, 1960), (20, 1440), (20, 560)],
     },
 }
 
@@ -305,26 +280,19 @@ def main() -> None:
     for name in sorted(KITS, key=lambda n: n != "h2"):   # h2 first: the colour reference
         kit = KITS[name]
         src = Image.open(CONCEPTS / kit["file"]).convert("RGB")
-        if "align" in kit:
-            rgb, scale, tx, ty, cells = aligned(src, kit["align"])
-            size = cells * TILE
-            # The cut is made on the painting itself (its border is its own ground) and moved along.
-            src_alpha = cut_outside(np.asarray(src, dtype=np.float64) / 255.0, kit["hull"], 1.0)
-            moved = Image.fromarray(np.clip(src_alpha * 255 + 0.5, 0, 255).astype(np.uint8), "L").transform(
-                (size, size), Image.AFFINE, (1 / scale, 0, -tx / scale, 0, 1 / scale, -ty / scale),
-                resample=Image.BILINEAR, fillcolor=0)
-            alpha = np.asarray(moved, dtype=np.float64) / 255.0
-            kit = dict(kit, labels=geo_labels(kit, scale, tx, ty, cells))
-            rgb, stats = match_colours(rgb, kit["labels"], ref)
-            kit["labels"] = drop_busy_interior(rgb, kit["labels"])
-            if ref is None:
-                ref = stats
-        else:
-            cells = kit.get("cells", CELLS)
-            size = cells * TILE
-            scale = size / src.width
-            rgb = np.asarray(src.resize((size, size), Image.LANCZOS), dtype=np.float64) / 255.0
-            alpha = cut_outside(rgb, kit["hull"], scale)
+        rgb, scale, tx, ty, cells = aligned(src, kit["align"])
+        size = cells * TILE
+        # The cut is made on the painting itself (its border is its own ground) and moved along.
+        src_alpha = cut_outside(np.asarray(src, dtype=np.float64) / 255.0, kit["hull"], 1.0)
+        moved = Image.fromarray(np.clip(src_alpha * 255 + 0.5, 0, 255).astype(np.uint8), "L").transform(
+            (size, size), Image.AFFINE, (1 / scale, 0, -tx / scale, 0, 1 / scale, -ty / scale),
+            resample=Image.BILINEAR, fillcolor=0)
+        alpha = np.asarray(moved, dtype=np.float64) / 255.0
+        kit = dict(kit, labels=geo_labels(kit, scale, tx, ty, cells))
+        rgb, stats = match_colours(rgb, kit["labels"], ref)
+        kit["labels"] = drop_busy_interior(rgb, kit["labels"])
+        if ref is None:
+            ref = stats
         rgba = np.concatenate([rgb, alpha[..., None]], axis=-1)
         Image.fromarray(np.clip(rgba * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA").save(OUT / f"kit-{name}.png", optimize=True)
         data = {"cells": [cells, cells], "columns": kit["columns"], "rows": kit["rows"]}

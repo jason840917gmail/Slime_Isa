@@ -10,8 +10,8 @@ extends RefCounted
 ##    caves, bosses, notes), and in the Wilds trails reach into every chunk, along the cheapest
 ##    walkable way (Dijkstra on cells): sketch paths are
 ##    cheap, forests and fords dear; never through deep water, mountains or pits, and never up a
-##    step of 2 levels or more. A 1-level step is climbed by a flight of stairs two tiles wide (open
-##    landing on the higher cell, the flight on the lower one, its foot on the next); a crossing of
+##    step of 2 levels or more. A 1-level step is climbed by a flight of stairs two tiles wide (the
+##    top it leaves on the higher cell, the flight on the lower one, its foot on the next); a crossing of
 ##    1-3 cells of deep water is a bridge (path, and the wooden footbridge over east-west ones).
 ##    An opening no road reaches gets its corridor on the level beyond it, then a flight where only
 ##    higher ground beside the flight was in the way, that ground lowered (`_carve_flights`); one
@@ -72,7 +72,8 @@ const LIGHT_GREEN := 3
 const AUTUMN := 4
 const DEAD := 5
 const SNOW := 6
-## Stairs with an open landing (game/world/elevation/elevation_tileset.tres row 2) per direction.
+## Stairs (game/world/elevation/elevation_tileset.tres row 2, once an open landing: since
+## 2026-10-11 the same flights as row 1) per direction.
 const STAIRS_ROW := 2
 const STAIRS_COLUMNS := {"s": 0, "sw": 1, "w": 2, "nw": 3, "n": 4, "ne": 5, "e": 6, "se": 7}
 ## The fence painted around pits (game/world/elevation/fences/fence_tileset.tres: stone).
@@ -203,7 +204,7 @@ var corridor := PackedByteArray()
 var ring := PackedByteArray()
 ## Stairs flights: lower cell (block cells) -> direction down the flight ("s", "n", "e", "w").
 var flights := {}
-## Cells a flight stands on or leaves (its landing, its cell, its foot): no trees or props.
+## Cells a flight stands on or leaves (the top behind it, its cell, its foot): no trees or props.
 var flight_cells := {}
 ## Bridges: {cells (block cells of the deep water crossed), step (Vector2i)}.
 var bridges: Array[Dictionary] = []
@@ -499,7 +500,7 @@ func _road_cost(cell: Vector2i) -> float:
 	return cost
 
 
-## A flight from `top` (the landing, a level above) down `step` onto the next cell, its foot on the
+## A flight from `top` (the top it leaves, a level above) down `step` onto the next cell, its foot on the
 ## one after: both on one level, nothing higher beside the flight or over it.
 func _flight_fits(top: Vector2i, step: Vector2i) -> bool:
 	return _flight_room(top, step) == FLIGHT_FITS

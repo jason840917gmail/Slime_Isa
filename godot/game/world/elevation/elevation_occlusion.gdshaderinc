@@ -12,8 +12,9 @@
 //
 // Texel: r = level ((L + 4) / 8), g = (dy + 128) / 512 where depth = y − dy + 64·L (dy: how far
 // below the wall's top edge, or past a rim's edge), b = 1 terrain, 0.5 a structure (stairs: it hides
-// like terrain; the cast shadows read its height, level − dy / 64), 0 = level-0 ground (outside the
-// map's elevated part). a = 0.5 marks a fence (fences/elevation_fences.gd, docs/godot/FENCES.md): a
+// like terrain; the cast shadows read its height, level − dy / 64), 0.875 a ramp's slope (hides like
+// ground of level L; g holds its height above L, 8 · g levels, for the cast shadows), 0 = level-0
+// ground (outside the map's elevated part). a = 0.5 marks a fence (fences/elevation_fences.gd, docs/godot/FENCES.md): a
 // body behind one is cut out where the fence stands instead of ghosted, so the fence shows in front
 // of it whichever of the two Y-sorts first (a body behind a fence on higher ground sorts after it).
 //
@@ -52,7 +53,8 @@ float elevation_terrain_depth(vec2 world) {
 		return world.y;
 	}
 	float level = floor(texel.r * 8.0 - 4.0 + 0.5);
-	float dy = texel.g * 512.0 - 128.0;
+	// A ramp's slope (b = 0.875) hides as ground of its level; its g is a height, not a dy.
+	float dy = abs(texel.b - 0.875) < 0.0625 ? 0.0 : texel.g * 512.0 - 128.0;
 	return world.y - dy + level * ELEVATION_LEVEL_UNITS;
 }
 
