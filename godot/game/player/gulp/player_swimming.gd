@@ -53,7 +53,7 @@ func can_swim() -> bool:
 
 
 ## True when any corner of the body's collision rectangle is over deep water (where it would be
-## stuck if deep water blocked it again).
+## stuck if deep water blocked it again). A cell under a bridge deck is the deck, not deep water.
 func overlaps_deep_water() -> bool:
 	var body := _body()
 	if body == null:
@@ -80,7 +80,10 @@ func _deep_at(point: Vector2) -> bool:
 	var ground: TileMapLayer = world.ground_layer if world != null else null
 	if ground == null or not is_instance_valid(ground):
 		return false
-	var data := ground.get_cell_tile_data(ground.local_to_map(ground.to_local(point)))
+	var cell := ground.local_to_map(ground.to_local(point))
+	if world.is_bridged(cell.x, cell.y):
+		return false
+	var data := ground.get_cell_tile_data(cell)
 	return data != null and str(data.get_custom_data(TILE_ID_DATA_LAYER)) == DEEP_TILE_ID
 
 
