@@ -1,17 +1,15 @@
 [gd_scene format=4]
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_15j5g"]
-[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_6vgad"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_6vgad"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="3_liyj2"]
-[ext_resource type="Script" path="res://game/world/forest/forest_layer.gd" id="4_uxvqh"]
+[ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="4_uxvqh"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_ij1wp"]
-[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="6_j4hqg"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="7_7qvhu"]
-[ext_resource type="Script" path="res://game/scripts/world_exit.gd" id="8_tilvn"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-17.tscn" id="9_cnqhs"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-24.tscn" id="10_6u1bu"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-22.tscn" id="11_8umvh"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-21.tscn" id="12_74wwo"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="6_j4hqg"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="7_7qvhu"]
+[ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="7_t3741"]
+[ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="8_tilvn"]
+[ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="8_tu5td"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_south"]
 size = Vector2(2048, 24)
@@ -45,6 +43,12 @@ z_index = -1
 tile_map_data = PackedByteArray("AAAaABYAAAADAAAAAAAbABYAAAADAAAAAAAaABcAAAADAAAAAAAbABcAAAADAAAAAAA=")
 tile_set = ExtResource("5_ij1wp")
 script = ExtResource("6_j4hqg")
+
+[node name="walls" type="TileMapLayer" parent="." unique_id=831129526]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAATAAgAAQAAAAEAAAAWABAAAQAHAAEAAAAMABIAAQAFAAEAAAAdAB0AAQAEAAEAAAA=")
+tile_set = ExtResource("7_t3741")
+script = ExtResource("8_tu5td")
 
 [node name="world-definition" type="Node" parent="." unique_id=2116175750]
 script = ExtResource("7_7qvhu")
@@ -135,21 +139,6 @@ target_area_id = "desert-a7"
 entry = "east"
 keep_along = true
 area = NodePath("..")
-
-[node name="props" type="Node2D" parent="." unique_id=466006492]
-y_sort_enabled = true
-
-[node name="rock-004" parent="props" unique_id=32115740 instance=ExtResource("9_cnqhs")]
-position = Vector2(1248, 568)
-
-[node name="rock-006" parent="props" unique_id=77310526 instance=ExtResource("10_6u1bu")]
-position = Vector2(1440, 1080)
-
-[node name="rock-007" parent="props" unique_id=553472946 instance=ExtResource("11_8umvh")]
-position = Vector2(800, 1208)
-
-[node name="rock-009" parent="props" unique_id=1484186376 instance=ExtResource("12_74wwo")]
-position = Vector2(1888, 1912)
 
 [node name="notes" type="Node2D" parent="." unique_id=467537937]
 

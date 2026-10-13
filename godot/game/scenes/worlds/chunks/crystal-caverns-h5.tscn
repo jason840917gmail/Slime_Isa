@@ -1,26 +1,14 @@
 [gd_scene format=4]
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_acl8a"]
-[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_keohf"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="3_f8mvm"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="4_lg1af"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--06.tscn" id="5_vc718"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--10.tscn" id="6_21hos"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--15.tscn" id="7_ei3rf"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--03.tscn" id="8_4hq8e"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--04.tscn" id="9_udyv2"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--11.tscn" id="10_0aptr"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--16.tscn" id="11_ju5bu"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--12.tscn" id="12_mlkjr"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--14.tscn" id="13_yug8m"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--13.tscn" id="14_txaql"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--02.tscn" id="15_pps25"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--kelp-teal.tscn" id="16_2w5ea"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--kelp-olive.tscn" id="17_17et5"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--bubbles.tscn" id="18_2crqw"]
-[ext_resource type="Script" path="res://game/scripts/world_exit.gd" id="19_6rovj"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_keohf"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="3_f8mvm"]
+[ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="5_23477"]
+[ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="6_w4p3u"]
+[ext_resource type="TileSet" path="res://game/world/props/props_tileset.tres" id="7_5ax8r"]
+[ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="19_6rovj"]
+[ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="forest_layer"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="forest_tileset"]
-[ext_resource type="Script" path="res://game/world/forest/forest_layer.gd" id="forest_layer"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_north"]
 size = Vector2(2048, 24)
@@ -44,11 +32,22 @@ metadata/source_cell_count = 2916
 metadata/columns = 32
 metadata/rows = 32
 
-[node name="forest" type="TileMapLayer" parent="."]
+[node name="forest" type="TileMapLayer" parent="." unique_id=1216981900]
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAFABcAAAAOAAAAAAAGABUAAAAOAAAAAAAGABYAAAAOAAAAAAAGABcAAAAOAAAAAAAGABgAAAAOAAAAAAAGABkAAAAOAAAAAAAHABUAAAAOAAAAAAAHABYAAAAOAAAAAAAHABcAAAAOAAAAAAAHABgAAAAOAAAAAAAHABkAAAAOAAAAAAAIABUAAAAOAAAAAAAIABYAAAAOAAAAAAAIABcAAAAOAAAAAAAIABgAAAAOAAAAAAAIABkAAAAOAAAAAAAJABUAAAAOAAAAAAAJABYAAAAOAAAAAAAJABcAAAAOAAAAAAAJABgAAAAOAAAAAAAJABkAAAAOAAAAAAAKABYAAAAOAAAAAAAKABcAAAAOAAAAAAAKABgAAAAOAAAAAAANABwAAAAOAAAAAAAOABsAAAAOAAAAAAAOABwAAAAOAAAAAAAOAB0AAAAOAAAAAAAPABsAAAAOAAAAAAAPABwAAAAOAAAAAAAPAB0AAAAOAAAAAAAQABsAAAAOAAAAAAAQABwAAAAOAAAAAAAQAB0AAAAOAAAAAAARABsAAAAOAAAAAAARABwAAAAOAAAAAAARAB0AAAAOAAAAAAASABsAAAAOAAAAAAASABwAAAAOAAAAAAASAB0AAAAOAAAAAAATABwAAAAOAAAAAAAVAAQAAAAOAAAAAAAVAAUAAAAOAAAAAAAVAAYAAAAOAAAAAAAVAAcAAAAOAAAAAAAWAAQAAAAOAAAAAAAWAAUAAAAOAAAAAAAWAAYAAAAOAAAAAAAWAAcAAAAOAAAAAAAWAAgAAAAOAAAAAAAXAAQAAAAOAAAAAAAXAAUAAAAOAAAAAAAXAAYAAAAOAAAAAAAXAAcAAAAOAAAAAAAXAAgAAAAOAAAAAAAXABYAAAAOAAAAAAAYAAQAAAAOAAAAAAAYAAUAAAAOAAAAAAAYAAYAAAAOAAAAAAAYAAcAAAAOAAAAAAAYAAgAAAAOAAAAAAAYABQAAAAOAAAAAAAYABUAAAAOAAAAAAAYABYAAAAOAAAAAAAYABcAAAAOAAAAAAAYABgAAAAOAAAAAAAZAAUAAAAOAAAAAAAZAAYAAAAOAAAAAAAZAAcAAAAOAAAAAAAZABMAAAAOAAAAAAAZABQAAAAOAAAAAAAZABUAAAAOAAAAAAAZABYAAAAOAAAAAAAZABcAAAAOAAAAAAAZABgAAAAOAAAAAAAaABMAAAAOAAAAAAAaABQAAAAOAAAAAAAaABUAAAAOAAAAAAAaABYAAAAOAAAAAAAaABcAAAAOAAAAAAAaABgAAAAOAAAAAAAaABkAAAAOAAAAAAAbABQAAAAOAAAAAAAbABUAAAAOAAAAAAAbABYAAAAOAAAAAAAbABcAAAAOAAAAAAAbABgAAAAOAAAAAAAbABkAAAAOAAAAAAAcABQAAAAOAAAAAAAcABUAAAAOAAAAAAAcABYAAAAOAAAAAAAcABcAAAAOAAAAAAAcABgAAAAOAAAAAAAdABcAAAAOAAAAAAA=")
 tile_set = ExtResource("forest_tileset")
 script = ExtResource("forest_layer")
+
+[node name="walls" type="TileMapLayer" parent="." unique_id=1770811129]
+y_sort_enabled = true
+tile_set = ExtResource("5_23477")
+script = ExtResource("6_w4p3u")
+
+[node name="props" type="TileMapLayer" parent="." unique_id=78829136]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD7/x8AFQAHAAQAABALAB8AFQAHAAUAAAATAB4AFQAFAAkAABD8/yYAFQAFAAkAAAAFACcAFQAFAA4AAAALACcAFQAHAAIAABB1ACcAFQAFAAMAABB9ACgAFQAHAAoAAAD7/zAAFQAFAA8AAABzAC8AFQAFAAsAABBrADYAFQAHAAUAABD9/z8AFQAHAA0AABBkAD8AFQAFAAMAAAD8/0cAFQAHAAwAABBrAEYAFQAHAAwAABB7AEYAFQAGAAEAABANAE8AFQAFAAEAAAAUAE4AFQAHAAEAAAB1AE8AFQAHAA8AABAMAFcAFQAGAAoAABB1AFYAFQAHAAMAABB8AFcAFQAHAA4AABBsAF8AFQAFAAIAABBLABgAAgANAAAAABBEAB4AAgAMAAAAABArACcAAgANAAAAABAlAEUAAgAMAAAAAAA8AEMAAgAAAAAAAAA=")
+tile_set = ExtResource("7_5ax8r")
+script = ExtResource("6_w4p3u")
 
 [node name="world-definition" type="Node" parent="." unique_id=422975598]
 script = ExtResource("3_f8mvm")
@@ -85,266 +84,6 @@ metadata = {
 "safeZones": []
 }
 }
-
-[node name="crystal-cluster-wall-5be879be" parent="." unique_id=888005878 instance=ExtResource("4_lg1af")]
-position = Vector2(-32, 246)
-metadata/instance_id = "crystal-cluster-wall-5be879be"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-5be879be"
-
-[node name="Visual" parent="crystal-cluster-wall-5be879be" index="1"]
-scale = Vector2(1.16, 1.16)
-offset = Vector2(-71.02, -125.46)
-flip_h = true
-
-[node name="crystal-cluster-wall-525ce718" parent="." unique_id=459419353 instance=ExtResource("5_vc718")]
-position = Vector2(96, 246)
-metadata/instance_id = "crystal-cluster-wall-525ce718"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-525ce718"
-
-[node name="Visual" parent="crystal-cluster-wall-525ce718" index="1"]
-scale = Vector2(1.17, 1.17)
-offset = Vector2(-72.42, -128.77)
-
-[node name="crystal-cluster-wall-4f8daf8b" parent="." unique_id=1390920888 instance=ExtResource("6_21hos")]
-position = Vector2(160, 246)
-metadata/instance_id = "crystal-cluster-wall-4f8daf8b"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-4f8daf8b"
-
-[node name="Visual" parent="crystal-cluster-wall-4f8daf8b" index="1"]
-scale = Vector2(1.03, 1.03)
-offset = Vector2(-69.28, -132.71)
-flip_h = true
-
-[node name="crystal-cluster-wall-5ae8782b" parent="." unique_id=1049549391 instance=ExtResource("6_21hos")]
-position = Vector2(-32, 310)
-metadata/instance_id = "crystal-cluster-wall-5ae8782b"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-5ae8782b"
-
-[node name="Visual" parent="crystal-cluster-wall-5ae8782b" index="1"]
-scale = Vector2(0.96, 0.96)
-offset = Vector2(-68.12, -131.35)
-
-[node name="crystal-cluster-wall-462cac00" parent="." unique_id=2048031 instance=ExtResource("7_ei3rf")]
-position = Vector2(32, 310)
-metadata/instance_id = "crystal-cluster-wall-462cac00"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-462cac00"
-
-[node name="Visual" parent="crystal-cluster-wall-462cac00" index="1"]
-scale = Vector2(1.03, 1.03)
-offset = Vector2(-59.08, -127.74)
-
-[node name="crystal-cluster-wall-555cebd1" parent="." unique_id=1728445419 instance=ExtResource("8_4hq8e")]
-position = Vector2(96, 310)
-metadata/instance_id = "crystal-cluster-wall-555cebd1"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-555cebd1"
-
-[node name="Visual" parent="crystal-cluster-wall-555cebd1" index="1"]
-scale = Vector2(1.17, 1.17)
-offset = Vector2(-73.34, -123.71)
-flip_h = true
-
-[node name="crystal-cluster-wall-68d274e1" parent="." unique_id=491190053 instance=ExtResource("9_udyv2")]
-position = Vector2(928, 310)
-metadata/instance_id = "crystal-cluster-wall-68d274e1"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-68d274e1"
-
-[node name="Visual" parent="crystal-cluster-wall-68d274e1" index="1"]
-scale = Vector2(0.99, 0.99)
-offset = Vector2(-57.76, -129.87)
-flip_h = true
-
-[node name="crystal-cluster-wall-59a23510" parent="." unique_id=1379299316 instance=ExtResource("10_0aptr")]
-position = Vector2(992, 310)
-metadata/instance_id = "crystal-cluster-wall-59a23510"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-59a23510"
-
-[node name="Visual" parent="crystal-cluster-wall-59a23510" index="1"]
-scale = Vector2(1.21, 1.21)
-offset = Vector2(-59.75, -122.22)
-
-[node name="crystal-cluster-wall-59e87698" parent="." unique_id=1579936916 instance=ExtResource("11_ju5bu")]
-position = Vector2(-32, 374)
-metadata/instance_id = "crystal-cluster-wall-59e87698"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-59e87698"
-
-[node name="Visual" parent="crystal-cluster-wall-59e87698" index="1"]
-scale = Vector2(1.04, 1.04)
-offset = Vector2(-69.35, -122.2)
-
-[node name="crystal-cluster-wall-67d2734e" parent="." unique_id=810794177 instance=ExtResource("12_mlkjr")]
-position = Vector2(928, 374)
-metadata/instance_id = "crystal-cluster-wall-67d2734e"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-67d2734e"
-
-[node name="Visual" parent="crystal-cluster-wall-67d2734e" index="1"]
-scale = Vector2(0.97, 0.97)
-offset = Vector2(-72.41, -127.2)
-flip_h = true
-
-[node name="crystal-cluster-wall-bb6d3958" parent="." unique_id=792725112 instance=ExtResource("5_vc718")]
-position = Vector2(864, 438)
-metadata/instance_id = "crystal-cluster-wall-bb6d3958"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-bb6d3958"
-
-[node name="Visual" parent="crystal-cluster-wall-bb6d3958" index="1"]
-scale = Vector2(1.22, 1.22)
-offset = Vector2(-72.75, -132.9)
-flip_h = true
-
-[node name="crystal-cluster-wall-57e87372" parent="." unique_id=2069645286 instance=ExtResource("13_yug8m")]
-position = Vector2(-32, 502)
-metadata/instance_id = "crystal-cluster-wall-57e87372"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-57e87372"
-
-[node name="Visual" parent="crystal-cluster-wall-57e87372" index="1"]
-scale = Vector2(1.24, 1.24)
-offset = Vector2(-58.42, -126.84)
-flip_h = true
-
-[node name="crystal-cluster-wall-6b5dfc82" parent="." unique_id=402196461 instance=ExtResource("9_udyv2")]
-position = Vector2(800, 502)
-metadata/instance_id = "crystal-cluster-wall-6b5dfc82"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-6b5dfc82"
-
-[node name="Visual" parent="crystal-cluster-wall-6b5dfc82" index="1"]
-scale = Vector2(0.98, 0.98)
-offset = Vector2(-60.4, -123.08)
-
-[node name="crystal-cluster-wall-4ee1a982" parent="." unique_id=341432706 instance=ExtResource("14_txaql")]
-position = Vector2(-32, 566)
-metadata/instance_id = "crystal-cluster-wall-4ee1a982"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-4ee1a982"
-
-[node name="Visual" parent="crystal-cluster-wall-4ee1a982" index="1"]
-scale = Vector2(1.24, 1.24)
-offset = Vector2(-62.13, -126.52)
-flip_h = true
-
-[node name="crystal-cluster-wall-bd7e859f" parent="." unique_id=587521334 instance=ExtResource("14_txaql")]
-position = Vector2(864, 566)
-metadata/instance_id = "crystal-cluster-wall-bd7e859f"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-bd7e859f"
-
-[node name="Visual" parent="crystal-cluster-wall-bd7e859f" index="1"]
-scale = Vector2(1.22, 1.22)
-offset = Vector2(-72.33, -131.54)
-flip_h = true
-
-[node name="crystal-cluster-wall-71a9169d" parent="." unique_id=146262835 instance=ExtResource("15_pps25")]
-position = Vector2(992, 566)
-metadata/instance_id = "crystal-cluster-wall-71a9169d"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-71a9169d"
-
-[node name="Visual" parent="crystal-cluster-wall-71a9169d" index="1"]
-scale = Vector2(1.12, 1.12)
-offset = Vector2(-71.73, -132.38)
-flip_h = true
-
-[node name="crystal-cluster-wall-4e4b97ab" parent="." unique_id=2019417749 instance=ExtResource("15_pps25")]
-position = Vector2(96, 630)
-metadata/instance_id = "crystal-cluster-wall-4e4b97ab"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-4e4b97ab"
-
-[node name="Visual" parent="crystal-cluster-wall-4e4b97ab" index="1"]
-scale = Vector2(1.04, 1.04)
-offset = Vector2(-55.17, -128.34)
-
-[node name="crystal-cluster-wall-4b8b6aa8" parent="." unique_id=36958767 instance=ExtResource("15_pps25")]
-position = Vector2(160, 630)
-metadata/instance_id = "crystal-cluster-wall-4b8b6aa8"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-4b8b6aa8"
-
-[node name="Visual" parent="crystal-cluster-wall-4b8b6aa8" index="1"]
-scale = Vector2(1.16, 1.16)
-offset = Vector2(-62.91, -130.81)
-
-[node name="crystal-cluster-wall-61c120bb" parent="." unique_id=179236283 instance=ExtResource("11_ju5bu")]
-position = Vector2(928, 630)
-metadata/instance_id = "crystal-cluster-wall-61c120bb"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-61c120bb"
-
-[node name="Visual" parent="crystal-cluster-wall-61c120bb" index="1"]
-scale = Vector2(1.18, 1.18)
-offset = Vector2(-57.98, -129.45)
-flip_h = true
-
-[node name="crystal-cluster-wall-4f4b993e" parent="." unique_id=2075151927 instance=ExtResource("10_0aptr")]
-position = Vector2(96, 694)
-metadata/instance_id = "crystal-cluster-wall-4f4b993e"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-4f4b993e"
-
-[node name="Visual" parent="crystal-cluster-wall-4f4b993e" index="1"]
-scale = Vector2(1.07, 1.07)
-offset = Vector2(-64.64, -123.5)
-flip_h = true
-
-[node name="crystal-cluster-wall-62c1224e" parent="." unique_id=1380536940 instance=ExtResource("9_udyv2")]
-position = Vector2(928, 694)
-metadata/instance_id = "crystal-cluster-wall-62c1224e"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-62c1224e"
-
-[node name="Visual" parent="crystal-cluster-wall-62c1224e" index="1"]
-scale = Vector2(1.19, 1.19)
-offset = Vector2(-57.76, -130.44)
-flip_h = true
-
-[node name="crystal-cluster-wall-6fa91377" parent="." unique_id=497810585 instance=ExtResource("7_ei3rf")]
-position = Vector2(992, 694)
-metadata/instance_id = "crystal-cluster-wall-6fa91377"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-6fa91377"
-
-[node name="Visual" parent="crystal-cluster-wall-6fa91377" index="1"]
-scale = Vector2(1.18, 1.18)
-offset = Vector2(-63.48, -126.84)
-flip_h = true
-
-[node name="crystal-cluster-wall-be7e8732" parent="." unique_id=1413827568 instance=ExtResource("8_4hq8e")]
-position = Vector2(864, 758)
-metadata/instance_id = "crystal-cluster-wall-be7e8732"
-metadata/persistence_key = "crystal-caverns.crystal-cluster-wall-be7e8732"
-
-[node name="Visual" parent="crystal-cluster-wall-be7e8732" index="1"]
-scale = Vector2(1.03, 1.03)
-offset = Vector2(-67.49, -126.74)
-flip_h = true
-
-[node name="Water Life" type="Node2D" parent="." unique_id=1807038695]
-y_sort_enabled = true
-position = Vector2(-2048, -2048)
-
-[node name="water-life-bb48e529" parent="Water Life" unique_id=2010328442 instance=ExtResource("16_2w5ea")]
-position = Vector2(2644.14, 2238.97)
-metadata/instance_id = "water-life-bb48e529"
-metadata/persistence_key = "crystal-caverns.water-life-bb48e529"
-
-[node name="Visual" parent="Water Life/water-life-bb48e529" index="0"]
-flip_h = true
-
-[node name="water-life-da68b432" parent="Water Life" unique_id=653638603 instance=ExtResource("17_17et5")]
-position = Vector2(2591.43, 2290.45)
-metadata/instance_id = "water-life-da68b432"
-metadata/persistence_key = "crystal-caverns.water-life-da68b432"
-
-[node name="Visual" parent="Water Life/water-life-da68b432" index="0"]
-flip_h = true
-
-[node name="water-life-4ea152a9" parent="Water Life" unique_id=1447257457 instance=ExtResource("16_2w5ea")]
-position = Vector2(2394.56, 2362.4)
-metadata/instance_id = "water-life-4ea152a9"
-metadata/persistence_key = "crystal-caverns.water-life-4ea152a9"
-
-[node name="Visual" parent="Water Life/water-life-4ea152a9" index="0"]
-flip_h = true
-
-[node name="water-life-7a01f29b" parent="Water Life" unique_id=198561366 instance=ExtResource("17_17et5")]
-position = Vector2(2341.34, 2597.35)
-metadata/instance_id = "water-life-7a01f29b"
-metadata/persistence_key = "crystal-caverns.water-life-7a01f29b"
-
-[node name="water-life-a76db7bf" parent="Water Life" unique_id=1476228013 instance=ExtResource("18_2crqw")]
-position = Vector2(2527.69, 2587.75)
-metadata/instance_id = "water-life-a76db7bf"
-metadata/persistence_key = "crystal-caverns.water-life-a76db7bf"
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=1487620930]
 y_sort_enabled = true
@@ -388,30 +127,3 @@ area = NodePath("..")
 
 [connection signal="body_entered" from="edge-north" to="edge-north/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-west" to="edge-west/world-exit-script" method="on_body_entered"]
-
-[editable path="crystal-cluster-wall-5be879be"]
-[editable path="crystal-cluster-wall-525ce718"]
-[editable path="crystal-cluster-wall-4f8daf8b"]
-[editable path="crystal-cluster-wall-5ae8782b"]
-[editable path="crystal-cluster-wall-462cac00"]
-[editable path="crystal-cluster-wall-555cebd1"]
-[editable path="crystal-cluster-wall-68d274e1"]
-[editable path="crystal-cluster-wall-59a23510"]
-[editable path="crystal-cluster-wall-59e87698"]
-[editable path="crystal-cluster-wall-67d2734e"]
-[editable path="crystal-cluster-wall-bb6d3958"]
-[editable path="crystal-cluster-wall-57e87372"]
-[editable path="crystal-cluster-wall-6b5dfc82"]
-[editable path="crystal-cluster-wall-4ee1a982"]
-[editable path="crystal-cluster-wall-bd7e859f"]
-[editable path="crystal-cluster-wall-71a9169d"]
-[editable path="crystal-cluster-wall-4e4b97ab"]
-[editable path="crystal-cluster-wall-4b8b6aa8"]
-[editable path="crystal-cluster-wall-61c120bb"]
-[editable path="crystal-cluster-wall-4f4b993e"]
-[editable path="crystal-cluster-wall-62c1224e"]
-[editable path="crystal-cluster-wall-6fa91377"]
-[editable path="crystal-cluster-wall-be7e8732"]
-[editable path="Water Life/water-life-bb48e529"]
-[editable path="Water Life/water-life-da68b432"]
-[editable path="Water Life/water-life-4ea152a9"]

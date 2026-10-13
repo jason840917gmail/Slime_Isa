@@ -1,16 +1,15 @@
 [gd_scene format=4]
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_0yssy"]
-[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_kkvs0"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_kkvs0"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="3_wgw83"]
-[ext_resource type="Script" path="res://game/world/forest/forest_layer.gd" id="4_hfm4i"]
+[ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="4_hfm4i"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_avyqy"]
-[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="6_ygco2"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="7_a3do7"]
-[ext_resource type="Script" path="res://game/scripts/world_exit.gd" id="8_cpccp"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-19.tscn" id="9_q44ao"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-22.tscn" id="10_svstd"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-18.tscn" id="11_yqcpu"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="6_ygco2"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="7_a3do7"]
+[ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="7_dbiql"]
+[ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="8_0yssy"]
+[ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="8_cpccp"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_south_wilds_1"]
 size = Vector2(32, 256)
@@ -47,6 +46,12 @@ z_index = -1
 tile_map_data = PackedByteArray("AAAWABAAAAADAAAAAAAXABAAAAADAAAAAAAYABAAAAADAAAAAAAZABAAAAADAAAAAAAWABEAAAADAAAAAAAXABEAAAADAAAAAAAYABEAAAADAAAAAAAZABEAAAADAAAAAAAYABIAAAADAAAAAAAZABIAAAADAAAAAAAYABMAAAADAAAAAAAZABMAAAADAAAAAAAUABwAAAADAAAAAAAVABwAAAADAAAAAAAWABwAAAADAAAAAAAXABwAAAADAAAAAAAYABwAAAADAAAAAAAZABwAAAADAAAAAAAaABwAAAADAAAAAAAbABwAAAADAAAAAAAcABwAAAADAAAAAAAdABwAAAADAAAAAAAeABwAAAADAAAAAAAfABwAAAADAAAAAAAUAB0AAAADAAAAAAAVAB0AAAADAAAAAAAWAB0AAAADAAAAAAAXAB0AAAADAAAAAAAYAB0AAAADAAAAAAAZAB0AAAADAAAAAAAaAB0AAAADAAAAAAAbAB0AAAADAAAAAAAcAB0AAAADAAAAAAAdAB0AAAADAAAAAAAeAB0AAAADAAAAAAAfAB0AAAADAAAAAAAAAB4AAAADAAAAAAABAB4AAAADAAAAAAAIAB4AAAADAAAAAAAJAB4AAAADAAAAAAAKAB4AAAADAAAAAAALAB4AAAADAAAAAAAMAB4AAAADAAAAAAANAB4AAAADAAAAAAAOAB4AAAADAAAAAAAPAB4AAAADAAAAAAAQAB4AAAADAAAAAAARAB4AAAADAAAAAAASAB4AAAADAAAAAAATAB4AAAADAAAAAAAUAB4AAAADAAAAAAAVAB4AAAADAAAAAAAWAB4AAAADAAAAAAAXAB4AAAADAAAAAAAYAB4AAAADAAAAAAAZAB4AAAADAAAAAAAaAB4AAAADAAAAAAAbAB4AAAADAAAAAAAcAB4AAAADAAAAAAAdAB4AAAADAAAAAAAeAB4AAAADAAAAAAAfAB4AAAADAAAAAAAAAB8AAAADAAAAAAABAB8AAAADAAAAAAAIAB8AAAADAAAAAAAJAB8AAAADAAAAAAAKAB8AAAADAAAAAAALAB8AAAADAAAAAAAMAB8AAAADAAAAAAANAB8AAAADAAAAAAAOAB8AAAADAAAAAAAPAB8AAAADAAAAAAAQAB8AAAADAAAAAAARAB8AAAADAAAAAAASAB8AAAADAAAAAAATAB8AAAADAAAAAAAUAB8AAAADAAAAAAAVAB8AAAADAAAAAAAWAB8AAAADAAAAAAAXAB8AAAADAAAAAAAYAB8AAAADAAAAAAAZAB8AAAADAAAAAAAaAB8AAAADAAAAAAAbAB8AAAADAAAAAAAcAB8AAAADAAAAAAAdAB8AAAADAAAAAAAeAB8AAAADAAAAAAAfAB8AAAADAAAAAAA=")
 tile_set = ExtResource("5_avyqy")
 script = ExtResource("6_ygco2")
+
+[node name="walls" type="TileMapLayer" parent="." unique_id=1936656062]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAYAAgAAQACAAEAAAAaAAsAAQAFAAEAAAACAB0AAQABAAEAAAA=")
+tile_set = ExtResource("7_dbiql")
+script = ExtResource("8_0yssy")
 
 [node name="world-definition" type="Node" parent="." unique_id=1006894184]
 script = ExtResource("7_a3do7")
@@ -159,18 +164,6 @@ target_area_id = "desert-a8"
 entry = "east"
 keep_along = true
 area = NodePath("..")
-
-[node name="props" type="Node2D" parent="." unique_id=1041739877]
-y_sort_enabled = true
-
-[node name="rock-010" parent="props" unique_id=207493616 instance=ExtResource("9_q44ao")]
-position = Vector2(1568, 568)
-
-[node name="rock-011" parent="props" unique_id=396688586 instance=ExtResource("10_svstd")]
-position = Vector2(1696, 760)
-
-[node name="rock-014" parent="props" unique_id=1321045557 instance=ExtResource("11_yqcpu")]
-position = Vector2(160, 1912)
 
 [node name="notes" type="Node2D" parent="." unique_id=609976560]
 

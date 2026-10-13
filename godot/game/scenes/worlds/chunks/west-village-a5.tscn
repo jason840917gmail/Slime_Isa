@@ -1,17 +1,15 @@
 [gd_scene format=4]
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_pw6pv"]
-[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_uut82"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_uut82"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="3_3rd8y"]
-[ext_resource type="Script" path="res://game/world/forest/forest_layer.gd" id="4_dgjf1"]
+[ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="4_dgjf1"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_a4cju"]
-[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="6_yku0e"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="7_avi6a"]
-[ext_resource type="Script" path="res://game/scripts/world_exit.gd" id="8_n8gp8"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-23.tscn" id="9_4le3m"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-24.tscn" id="10_l2vac"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-20.tscn" id="11_uylxe"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--large-02.tscn" id="12_ogmhr"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="6_yku0e"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="7_avi6a"]
+[ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="7_lc74q"]
+[ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="8_kcxcq"]
+[ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="8_n8gp8"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_north"]
 size = Vector2(2048, 24)
@@ -45,6 +43,12 @@ z_index = -1
 tile_map_data = PackedByteArray("AAAAABoAAAADAAAAAAABABoAAAADAAAAAAACABoAAAADAAAAAAADABoAAAADAAAAAAAEABoAAAADAAAAAAAFABoAAAADAAAAAAAAABsAAAADAAAAAAABABsAAAADAAAAAAACABsAAAADAAAAAAADABsAAAADAAAAAAAEABsAAAADAAAAAAAFABsAAAADAAAAAAAAABwAAAADAAAAAAABABwAAAADAAAAAAACABwAAAADAAAAAAADABwAAAADAAAAAAAEABwAAAADAAAAAAAFABwAAAADAAAAAAAGABwAAAADAAAAAAAHABwAAAADAAAAAAAAAB0AAAADAAAAAAABAB0AAAADAAAAAAACAB0AAAADAAAAAAADAB0AAAADAAAAAAAEAB0AAAADAAAAAAAFAB0AAAADAAAAAAAGAB0AAAADAAAAAAAHAB0AAAADAAAAAAAAAB4AAAADAAAAAAABAB4AAAADAAAAAAACAB4AAAADAAAAAAADAB4AAAADAAAAAAAEAB4AAAADAAAAAAAFAB4AAAADAAAAAAAGAB4AAAADAAAAAAAHAB4AAAADAAAAAAAAAB8AAAADAAAAAAABAB8AAAADAAAAAAACAB8AAAADAAAAAAADAB8AAAADAAAAAAAEAB8AAAADAAAAAAAFAB8AAAADAAAAAAAGAB8AAAADAAAAAAAHAB8AAAADAAAAAAA=")
 tile_set = ExtResource("5_a4cju")
 script = ExtResource("6_yku0e")
+
+[node name="walls" type="TileMapLayer" parent="." unique_id=78155171]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAeAAEAAQAGAAEAAAAgAA0AAQAHAAEAAAAVABUAAQADAAEAAAAGABwAAQAIAAEAAAA=")
+tile_set = ExtResource("7_lc74q")
+script = ExtResource("8_kcxcq")
 
 [node name="world-definition" type="Node" parent="." unique_id=240823559]
 script = ExtResource("7_avi6a")
@@ -135,21 +139,6 @@ target_area_id = "west-village-b5"
 entry = "west"
 keep_along = true
 area = NodePath("..")
-
-[node name="props" type="Node2D" parent="." unique_id=1974389294]
-y_sort_enabled = true
-
-[node name="rock-013" parent="props" unique_id=831984481 instance=ExtResource("9_4le3m")]
-position = Vector2(1952, 120)
-
-[node name="rock-017" parent="props" unique_id=1341806349 instance=ExtResource("10_l2vac")]
-position = Vector2(2080, 888)
-
-[node name="rock-019" parent="props" unique_id=1203524653 instance=ExtResource("11_uylxe")]
-position = Vector2(1376, 1400)
-
-[node name="boulder-020" parent="props" unique_id=846469233 instance=ExtResource("12_ogmhr")]
-position = Vector2(384, 1848)
 
 [node name="notes" type="Node2D" parent="." unique_id=1493406565]
 
