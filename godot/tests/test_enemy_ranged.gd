@@ -340,7 +340,7 @@ func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
 func test_legacy_spawning_in_crystal_caverns(t: TestContext) -> void:
 	if not t.check(t.main.travel_to("crystal-caverns", "west"), "travel to crystal-caverns was refused"):
 		return
-	var arrived := await t.until(func() -> bool: return t.world().map_id() == "crystal-caverns" and t.player() != null, 3000.0, 6000.0)
+	var arrived := await t.until(func() -> bool: return t.in_world("crystal-caverns") and t.player() != null, 3000.0, 6000.0)
 	if not t.check(arrived, "the player did not reach crystal-caverns"):
 		return
 	await t.steps(2)

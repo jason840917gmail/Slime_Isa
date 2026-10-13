@@ -72,6 +72,14 @@ const LIGHT_GREEN := 3
 const AUTUMN := 4
 const DEAD := 5
 const SNOW := 6
+## The regions' own trees (docs/godot/FORESTS.md): cacti, ember and ash trees, cypress and
+## mangrove, crystal trees and cave mushrooms, apple and cherry trees, gnarled and ivy trees.
+const DESERT := 11
+const VOLCANO := 12
+const SWAMP := 13
+const CRYSTAL := 14
+const VILLAGE := 15
+const RUINS := 16
 ## Stairs (game/world/elevation/elevation_tileset.tres row 2, once an open landing: since
 ## 2026-10-11 the same flights as row 1) per direction.
 const STAIRS_ROW := 2
@@ -1060,7 +1068,7 @@ func _paint_levels() -> void:
 					flags[_tile_index(c * per_cell + Vector2i(dx, dy))] |= STAIRS
 
 
-## The forest mix of a tree at `tile` (block tiles): the theme's, the Wilds' and swamps' by noise.
+## The forest mix of a tree at `tile` (block tiles): the theme's own trees, the Wilds' by noise.
 func _mix_at(tile: Vector2i) -> int:
 	var value := _mix_noise.get_noise_2d(tile.x + block.position.x * per_cell, tile.y + block.position.y * per_cell)
 	match theme:
@@ -1075,17 +1083,19 @@ func _mix_at(tile: Vector2i) -> int:
 		"forest", "meadow":
 			return GREEN if value < 0.0 else MIXED
 		"village":
-			return LIGHT_GREEN
+			return VILLAGE
 		"ruins":
-			return MIXED
+			return RUINS
 		"crystal":
-			return PINE
+			return CRYSTAL
 		"frost":
 			return SNOW
-		"volcano", "desert":
-			return DEAD
+		"volcano":
+			return VOLCANO
+		"desert":
+			return DESERT
 		"swamp":
-			return DEAD if value < 0.0 else GREEN
+			return SWAMP
 	return GREEN
 
 

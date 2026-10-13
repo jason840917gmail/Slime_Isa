@@ -44,6 +44,7 @@ signal worlds_ready
 const WorldMapData := preload("res://game/world/atlas/world_map_data.gd")
 const AtlasRegion := preload("res://game/world/atlas/atlas_region.gd")
 const WorldSurvey := preload("res://game/world/atlas/atlas_world_survey.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 
 ## The sketch's colour of each terrain (TERRAINS of the sketch tool, scripts/story/world-map/index.html).
 const TERRAIN_COLORS := {
@@ -225,6 +226,7 @@ func _get_configuration_warnings() -> PackedStringArray:
 
 ## Reads the world map again and rebuilds everything (pending moves are dropped).
 func reload() -> void:
+	WorldChunks.reload()
 	var loaded := WorldMapData.load_file(map_path)
 	if loaded == null:
 		_warnings = PackedStringArray(["Cannot read the world map %s." % map_path])
@@ -331,9 +333,10 @@ func _adopt(loaded: WorldMapData) -> void:
 ## Reads every world scene again from disk and instances it anew (after editing one).
 func refresh_worlds() -> void:
 	_index = WorldSurvey.scene_index()
+	WorldChunks.reload()
 	for holder in holders():
 		var slot := holder as AtlasRegion
-		slot.scene_path = WorldSurvey.scene_path(slot.map_id, _index)
+		_assign_scene(slot)
 		slot.clear_world()
 	_surveys.clear()
 	_check()
@@ -386,7 +389,7 @@ func sync_slots(source: WorldMapData, scene_owner: Node) -> void:
 		var block: Dictionary = blocks[key]
 		var rect: Rect2i = block["rect"]
 		slot.map_id = str(source.region(key).get("world", ""))
-		slot.scene_path = WorldSurvey.scene_path(slot.map_id, _index)
+		_assign_scene(slot)
 		slot.chunk_units = source.chunk_units()
 		slot.block_size = rect.size
 		slot.grid_size = Vector2i(source.chunk_cols, source.chunk_rows)
@@ -443,7 +446,7 @@ func _sync_shelf() -> void:
 		_shelf.add_child(slot)
 	for child: Node in _shelf.get_children():
 		var slot := child as AtlasRegion
-		slot.scene_path = WorldSurvey.scene_path(slot.map_id, _index)
+		_assign_scene(slot)
 
 
 ## Interiors stand on the shelf under the grid, one per chunk width, from their region's column
@@ -600,8 +603,23 @@ func _queue(slot: AtlasRegion) -> void:
 	set_process(true)
 
 
+## The scene a slot shows: its world's, or its chunk worlds' when the world was cut (WorldChunks).
+func _assign_scene(slot: AtlasRegion) -> void:
+	var scenes := {}
+	var chunks := WorldChunks.chunks(slot.map_id)
+	for id: String in chunks:
+		var path := WorldChunks.scene_path(id)
+		if ResourceLoader.exists(path):
+			scenes[str(chunks[id])] = path
+	slot.chunk_scenes = scenes
+	slot.scene_path = "" if not scenes.is_empty() else WorldSurvey.scene_path(slot.map_id, _index)
+
+
 ## Reads one world scene (fresh from disk), checks it and, when wanted, instances it on its slot.
 func _load(slot: AtlasRegion) -> void:
+	if not slot.chunk_scenes.is_empty():
+		_load_chunks(slot)
+		return
 	var packed: PackedScene = null
 	if slot.scene_path != "":
 		packed = ResourceLoader.load(slot.scene_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
@@ -616,10 +634,46 @@ func _load(slot: AtlasRegion) -> void:
 	_marks.queue_redraw()
 
 
+## Reads the chunk worlds of a cut region (fresh from disk), checks them as one world laid out on
+## the region's block and, when wanted, instances them on its slot.
+func _load_chunks(slot: AtlasRegion) -> void:
+	var corner := Vector2i(1 << 20, 1 << 20)
+	for chunk_name: String in slot.chunk_scenes:
+		corner = corner.min(_chunk_coords(chunk_name))
+	var parts: Array = []
+	var surveys: Array = []
+	for chunk_name: String in slot.chunk_names():
+		var packed := ResourceLoader.load(slot.chunk_scenes[chunk_name], "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
+		if packed == null:
+			continue
+		var offset := Vector2(_chunk_coords(chunk_name) - corner) * slot.chunk_units
+		parts.append({"packed": packed, "offset": offset})
+		surveys.append({"survey": WorldSurvey.read(packed), "offset": offset})
+	_surveys[slot.map_id] = WorldSurvey.merge(slot.map_id, surveys) if not surveys.is_empty() else {}
+	if not parts.is_empty() and _wants_world(slot):
+		var whole := bool(_plan_blocks.get(slot.region_key, {}).get("whole", true))
+		slot.show_chunks(parts, Callable() if whole else _trim_chunk.bind(slot.region_key))
+	else:
+		slot.clear_world()
+	_check()
+	_build_sketch()
+	_marks.queue_redraw()
+
+
+## Chunk "C6" as grid coordinates (2, 5).
+static func _chunk_coords(chunk_name: String) -> Vector2i:
+	return Vector2i(WorldMapData.COLUMN_LETTERS.find(chunk_name.left(1)), int(chunk_name.substr(1)) - 1)
+
+
+## `_trim_to_region` for one chunk world of a cut region, `offset` (world units) into its block.
+func _trim_chunk(world: Node2D, offset: Vector2, key: String) -> void:
+	_trim_to_region(world, key, Vector2i((offset / float(plan.tile_size)).round()))
+
+
 ## The world of a region that is not a rectangle of chunks spans its whole bounding block: the
 ## atlas's copy keeps only the tiles on the region's own cells, so it does not cover the worlds of
 ## the regions around it.
-func _trim_to_region(world: Node2D, key: String) -> void:
+func _trim_to_region(world: Node2D, key: String, offset_tiles: Vector2i = Vector2i.ZERO) -> void:
 	var cells := plan.chunk_rect_cells(_plan_blocks[key]["rect"])
 	var per := plan.tiles_per_cell
 	var code := key.unicode_at(0)
@@ -629,7 +683,8 @@ func _trim_to_region(world: Node2D, key: String) -> void:
 		if layer == null:
 			continue
 		for tile: Vector2i in layer.get_used_cells():
-			var cell := cells.position + Vector2i(floori(float(tile.x) / per), floori(float(tile.y) / per))
+			var at := tile + offset_tiles
+			var cell := cells.position + Vector2i(floori(float(at.x) / per), floori(float(at.y) / per))
 			if not plan.has_cell(cell) or (rows_of[cell.y] as PackedByteArray)[cell.x] != code:
 				layer.erase_cell(tile)
 
@@ -969,7 +1024,7 @@ func _check_region(entry: Dictionary) -> PackedStringArray:
 	var rect: Rect2i = _plan_blocks[key]["rect"]
 	if world_id == "":
 		notes.append("%s has no world id." % region_name)
-	elif WorldSurvey.scene_path(world_id, _index) == "":
+	elif WorldSurvey.scene_path(world_id, _index) == "" and not WorldChunks.is_cut(world_id):
 		notes.append("%s has no scene yet (%s%s.tscn): the sketch shows it." % [region_name, WorldSurvey.WORLDS_DIR, world_id])
 	elif not (_surveys.get(world_id, {}) as Dictionary).is_empty():
 		var survey: Dictionary = _surveys[world_id]
@@ -1137,7 +1192,7 @@ func _build_sketch() -> void:
 	if not sketch_under_worlds:
 		for holder in get_children():
 			var slot := holder as AtlasRegion
-			if slot == null or slot.scene_path == "" or not _wants_world(slot):
+			if slot == null or not slot.has_scene() or not _wants_world(slot):
 				continue
 			var whole := bool(_plan_blocks.get(slot.region_key, {}).get("whole", true))
 			var code := slot.region_key.unicode_at(0)
@@ -1243,10 +1298,10 @@ func _paint_world_frame(canvas: Node2D, font: Font, slot: AtlasRegion) -> void:
 			return
 		var card := Rect2(slot.position, size)
 		canvas.draw_rect(card, _region_color(slot.region_key), false, OUTLINE)
-		var title := slot.map_id + ("" if slot.scene_path != "" else " (no scene)")
+		var title := slot.map_id + ("" if slot.has_scene() else " (no scene)")
 		_text(canvas, font, card.position + Vector2(0, -PAD * 0.5), title, INFO_FONT, TEXT_COLOR)
 		return
-	if slot.scene_path == "" or (_surveys.get(slot.map_id, {}) as Dictionary).is_empty():
+	if not slot.has_scene() or (_surveys.get(slot.map_id, {}) as Dictionary).is_empty():
 		return
 	var whole := bool(_plan_blocks.get(slot.region_key, {}).get("whole", true))
 	var block := Rect2(slot.position, Vector2(slot.block_size) * slot.chunk_units)

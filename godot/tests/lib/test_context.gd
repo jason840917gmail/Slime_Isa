@@ -20,6 +20,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const PlayerScript := preload("res://game/scripts/player.gd")
 const EnemyScript := preload("res://game/scripts/enemy.gd")
 const WorldServiceType := preload("res://game/autoload/world_service.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 
 ## One physics step at 60 Hz, in ms.
 const STEP_MS := 1000.0 / 60.0
@@ -49,6 +50,16 @@ func _init(scene_tree: SceneTree, name: String) -> void:
 
 func world() -> WorldServiceType:
 	return Services.world()
+
+
+## True when the registered world is `world_id` or one of its chunk worlds (a region cut into chunk
+## worlds is entered at one of them: WorldChunks, docs/godot/WORLD_ATLAS.md).
+func in_world(world_id: String) -> bool:
+	var service := world()
+	if service == null:
+		return false
+	var current := service.map_id()
+	return current == world_id or WorldChunks.world_of(current) == world_id
 
 
 func player() -> PlayerScript:

@@ -9,7 +9,9 @@ extends Node2D
 ##
 ## When `live`, the slot shows its region's world scene as it is saved: an instance with no owner,
 ## so it is never saved with the atlas and nothing in it can be selected. Edit the world in its
-## own scene ("Open world"), save it, then "Refresh worlds" on the atlas. The atlas also makes
+## own scene ("Open world"), save it, then "Refresh worlds" on the atlas. A region cut into chunk
+## worlds (WorldChunks) shows its chunk scenes, each in its place on the block, and "Open world"
+## opens the chunk picked in `open_chunk`. The atlas also makes
 ## slots without an owner for the interiors on its shelf (locked groups, like the shelf itself).
 ##
 ## Owner: world (atlas).
@@ -32,13 +34,20 @@ const WORLD_GROUND := "res://game/world/world_ground.gd"
 		live = value
 		if is_node_ready():
 			live_changed.emit(self)
+## For a region cut into chunk worlds: the chunk "Open world" opens (a list of its chunks; not saved).
+@export var open_chunk: String = ""
 @export_tool_button("Open world", "PackedScene") var open_button: Callable = open_world
 
 ## Problems the atlas found with this region (shown on the slot in the Scene dock).
 var warnings := PackedStringArray()
-## The world (map id) this slot shows and its scene ("" when it has none yet).
+## The world (map id) this slot shows and its scene ("" when it has none yet, or is cut into chunk
+## worlds: `chunk_scenes`, chunk name ("C6") -> its scene).
 var map_id := ""
 var scene_path := ""
+var chunk_scenes: Dictionary = {}:
+	set(value):
+		chunk_scenes = value
+		notify_property_list_changed()
 ## A slot on the interior shelf (no owner, never dragged).
 var interior := false
 var chunk_units := Vector2(2048.0, 2048.0)
@@ -74,6 +83,32 @@ func _notification(what: int) -> void:
 
 func _get_configuration_warnings() -> PackedStringArray:
 	return warnings
+
+
+func _validate_property(property: Dictionary) -> void:
+	if property["name"] != "open_chunk":
+		return
+	if chunk_scenes.is_empty():
+		property["usage"] = PROPERTY_USAGE_NO_EDITOR
+		return
+	property["usage"] = PROPERTY_USAGE_EDITOR
+	property["hint"] = PROPERTY_HINT_ENUM
+	property["hint_string"] = ",".join(chunk_names())
+
+
+## The chunks of a region cut into chunk worlds, in reading order (rows, then columns).
+func chunk_names() -> PackedStringArray:
+	var names := PackedStringArray(chunk_scenes.keys())
+	var order := func(a: String, b: String) -> bool:
+		return int(a.substr(1)) < int(b.substr(1)) or (int(a.substr(1)) == int(b.substr(1)) and a < b)
+	var sorted := Array(names)
+	sorted.sort_custom(order)
+	return PackedStringArray(sorted)
+
+
+## True when the slot has something to show: its world's scene or its chunk worlds.
+func has_scene() -> bool:
+	return scene_path != "" or not chunk_scenes.is_empty()
 
 
 ## The chunk under `at` (rounded), kept so the block stays on the grid.
@@ -112,6 +147,29 @@ func ensure_hit(scene_owner: Node) -> void:
 
 func world() -> Node2D:
 	return get_node_or_null(WORLD_NODE) as Node2D
+
+
+## Shows the chunk worlds of a cut region, replacing the last world: `parts` = [{"packed":
+## PackedScene, "offset": Vector2 (its place on the block, world units)}]; `prepare` (when valid)
+## gets each instance and its offset before it enters the tree.
+func show_chunks(parts: Array, prepare: Callable = Callable()) -> void:
+	clear_world()
+	var holder := Node2D.new()
+	holder.name = WORLD_NODE
+	holder.y_sort_enabled = true
+	for part: Dictionary in parts:
+		var instance := (part["packed"] as PackedScene).instantiate() as Node2D
+		if instance == null:
+			continue
+		_unlink(instance)
+		instance.position = part["offset"]
+		if prepare.is_valid():
+			prepare.call(instance, part["offset"])
+		holder.add_child(instance)
+	built_at = position
+	add_child(holder)
+	for instance: Node in holder.get_children():
+		hide_painting_aids(instance)
 
 
 ## Shows an instance of `packed` (built here, so its drawing lines up), replacing the last one;
@@ -157,9 +215,12 @@ static func hide_painting_aids(instance: Node) -> void:
 
 
 func open_world() -> void:
-	if scene_path == "":
+	var path := scene_path
+	if not chunk_scenes.is_empty():
+		path = str(chunk_scenes.get(open_chunk, chunk_scenes[chunk_names()[0]]))
+	if path == "":
 		push_warning("World atlas: %s has no scene yet." % (map_id if map_id != "" else region_key))
 		return
 	var editor := Engine.get_singleton(&"EditorInterface") if Engine.is_editor_hint() and Engine.has_singleton(&"EditorInterface") else null
 	if editor != null:
-		editor.call(&"open_scene_from_path", scene_path)
+		editor.call(&"open_scene_from_path", path)

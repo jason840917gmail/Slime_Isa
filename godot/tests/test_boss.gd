@@ -374,7 +374,7 @@ func test_world_travel_removes_the_fight(t: TestContext) -> void:
 	t.equal(bool(_bar(t).snapshot()["visible"]), true, "boss bar before travelling")
 	if not t.check(t.main.travel_to(TRAVEL_MAP, "west"), "travel to %s was refused" % TRAVEL_MAP):
 		return
-	var travelled := await t.until(func() -> bool: return t.world().map_id() == TRAVEL_MAP and t.player() != null, 3000.0, 6000.0)
+	var travelled := await t.until(func() -> bool: return t.in_world(TRAVEL_MAP) and t.player() != null, 3000.0, 6000.0)
 	if not t.check(travelled, "the player did not reach %s" % TRAVEL_MAP):
 		return
 	await t.steps(3)

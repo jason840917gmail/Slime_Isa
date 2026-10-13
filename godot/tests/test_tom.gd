@@ -1,16 +1,19 @@
 extends RefCounted
 ## Tom in the Web (roadmap 8.13) in gloop-forest: the web holding Tom (`object.tom-web`, south-west
-## thicket at (860, 2470)) only tears while Mossy's quest is active and only under weapon hits;
+## thicket, in chunk E5 at (860, 422): gloop-forest is cut into chunk worlds, docs/godot/WORLD_ATLAS.md)
+## only tears while Mossy's quest is active and only under weapon hits;
 ## torn, it frees Tom (`tom-freed`), counts the quest's objective and shows Tom at the camp, where
 ## turning the quest in to him teaches Swallow. A Harder Pick waits for this quest.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 
-const MAP_ID := "gloop-forest"
+const MAP_ID := "gloop-forest-e5"
+## The camp's chunk, where Tom shows once freed.
+const CAMP_MAP := "gloop-forest-e4"
 const QUEST := "tom-in-the-web"
 const FLAG := "tom-freed"
-const WEB := Vector2(860.0, 2470.0)
+const WEB := Vector2(860.0, 422.0)
 
 
 func test_the_web_tears_only_under_weapon_hits_while_the_quest_is_on(t: TestContext) -> void:
@@ -34,6 +37,12 @@ func test_the_web_tears_only_under_weapon_hits_while_the_quest_is_on(t: TestCont
 		await t.steps(1)
 	t.check(run.has_flag(FLAG), "the web did not tear after %d weapon hits" % int(web.get(&"hits_to_tear")))
 	t.check(bool(quests.call(&"view", QUEST).get("ready_to_turn_in", false)), "the quest is not ready to turn in")
+	await t.steps(3)
+	if not t.check(t.main.travel_to(CAMP_MAP, "west"), "travel to the camp's chunk was refused"):
+		return
+	if not t.check(await t.until(func() -> bool: return t.world().map_id() == CAMP_MAP and t.player() != null, 3000.0, 6000.0),
+			"the player did not reach %s" % CAMP_MAP):
+		return
 	await t.steps(3)
 	t.check(_tom_at_camp(t) != null, "Tom is not at the camp after he was freed")
 

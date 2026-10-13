@@ -729,6 +729,12 @@ level-1 interactables (old Phaser positions; "o" = origin):
 
 ### 5.2 Door pairs and arrival points
 
+> **Chunk worlds (2026-10-12):** gloop-forest is cut into four chunk worlds, `gloop-forest-e4`
+> (origin (0, 0)), `-f4` (2048, 0), `-e5` (0, 2048) and `-f5` (2048, 2048); positions quoted here
+> for gloop-forest are the whole forest's, before the cut: a chunk's own are the forest's less its
+> origin, and the camp's (the hut door, the workbench, Mossy, Sunny, Tom at camp) also moved 256
+> west ([WORLD_ATLAS.md](../WORLD_ATLAS.md#chunk-worlds-2026-10-12)).
+
 Arrival = the target door's `arrival` point (rounded); spawn = `findSpawnPoint(arrival)` = centre
 of its tile (no arrival tile is solid). "In reach on arrival" = the arriving player already sees
 that world's door prompt.

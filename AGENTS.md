@@ -39,7 +39,8 @@ its code is in git history.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
   `game/dev/world_atlas.tscn` shows every region's world on it in the editor and moves regions;
   `"<Godot console exe>" --headless --path godot -s res://tools/build_region_worlds.gd` rebuilds the
-  placeholder regions ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md)).
+  placeholder regions and `res://tools/split_region_chunks.gd -- --region=<ids>` cuts regions into
+  one scene per chunk, the scenes to edit ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md)).
 - Art tools (`pnpm items:pack`, `grounds:pack`, `props:pack`, `audio:bake` and the Python scripts in
   `scripts/`) turn sources in `asset/Originals/` into runtime sheets in `godot/asset/`:
   [docs/TOOLING.md](docs/TOOLING.md).

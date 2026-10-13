@@ -1,13 +1,16 @@
 extends RefCounted
 ## Chapter 2 in gloop-forest through play: A Harder Pick (the reinforced pickaxe crafted at the
 ## workbench, put in hand, iron ore mined from gloop-forest's iron nodes and picked up) and Beyond
-## the Verdant Gate (orb weavers defeated, their weaver fangs picked up).
+## the Verdant Gate (orb weavers defeated, their weaver fangs picked up). gloop-forest is cut into
+## chunk worlds (docs/godot/WORLD_ATLAS.md): the tests start in E4 (the camp), the iron nodes are in
+## F5 (Iron Hollow).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const RecipeCatalog := preload("res://game/crafting/recipe_catalog.gd")
 
-const MAP_ID := "gloop-forest"
+const MAP_ID := "gloop-forest-e4"
+const IRON_MAP := "gloop-forest-f5"
 const IRON_NODES: Array[String] = ["gloop-iron-1", "gloop-iron-2", "gloop-iron-3"]
 
 
@@ -33,6 +36,13 @@ func test_a_harder_pick_mines_iron(t: TestContext) -> void:
 	t.main.inventory_actions.equip_weapon_from_bag("reinforced-pickaxe")
 	await t.steps(2)
 	t.equal(run.equipped_weapon_id(), "reinforced-pickaxe", "hand")
+	# Iron Hollow is in chunk F5.
+	if not t.check(t.main.travel_to(IRON_MAP, "west"), "travel to %s was refused" % IRON_MAP):
+		return
+	if not t.check(await t.until(func() -> bool: return t.world().map_id() == IRON_MAP and t.player() != null, 3000.0, 6000.0),
+			"the player did not reach %s" % IRON_MAP):
+		return
+	await t.steps(2)
 	var mined := 0
 	for instance_id in IRON_NODES:
 		var node := _resource(t, instance_id)
@@ -44,9 +54,9 @@ func test_a_harder_pick_mines_iron(t: TestContext) -> void:
 		for swing in 8:
 			t.tap(&"attack")
 			await t.sim_wait(950.0)
-			if str(run.resource_record(MAP_ID, instance_id).get("stage", "node")) != "node":
+			if str(run.resource_record(IRON_MAP, instance_id).get("stage", "node")) != "node":
 				break
-		if str(run.resource_record(MAP_ID, instance_id).get("stage", "node")) == "node":
+		if str(run.resource_record(IRON_MAP, instance_id).get("stage", "node")) == "node":
 			continue
 		await t.sim_wait(900.0)
 		for pile: Node in t.tree.get_nodes_in_group(&"collectible"):

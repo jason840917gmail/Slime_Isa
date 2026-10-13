@@ -1,53 +1,32 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://asset/MAPS/trees/128x170-tile_16x22-trees-sway.webp" id="1"]
-[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
+[ext_resource type="Texture2D" path="res://game/world/forest/tree_shadow.tres" id="1_qcrbl"]
+[ext_resource type="Material" path="res://game/world/forest/tree_sway_material.tres" id="2_wvhvx"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/trees/sets/forest.webp" id="3_xhkdf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(48, 44)
 
-[sub_resource type="Animation" id="Animation_2"]
-resource_name = "object.ambient.idle"
-length = 2.0
-loop_mode = 1
-step = 0.25
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Visual:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = false
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [160, 161, 162, 163, 164, 165, 166, 167]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_3"]
-_data = {
-&"object.ambient.idle": SubResource("Animation_2")
-}
-
-[node name="Body" type="StaticBody2D"]
+[node name="Body" type="StaticBody2D" unique_id=365255533]
 y_sort_enabled = true
 collision_mask = 0
 
-[node name="BodyShape" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_1")
+[node name="Shadow" type="Sprite2D" parent="." unique_id=694410035]
+modulate = Color(0.03, 0.05, 0.02, 0.5)
+z_index = -1
+position = Vector2(13.355999, -20.033998)
+scale = Vector2(2.6085937, 1.617328)
+texture = ExtResource("1_qcrbl")
+
+[node name="BodyShape" type="CollisionShape2D" parent="." unique_id=1519315596]
 position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_1")
 
-[node name="Visual" type="Sprite2D" parent="."]
-texture = ExtResource("1")
+[node name="Visual" type="Sprite2D" parent="." unique_id=632159635]
+material = ExtResource("2_wvhvx")
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_xhkdf")
 centered = false
-offset = Vector2(-64, -170)
-hframes = 16
-vframes = 22
-frame = 160
-
-[node name="AmbientAnimation" type="AnimationPlayer" parent="."]
-script = ExtResource("2")
-libraries/ = SubResource("AnimationLibrary_3")
-process_mode = 3
-autoplay = &"object.ambient.idle"
-randomize_start = true
+offset = Vector2(-157, -447)
+region_enabled = true
+region_rect = Rect2(1194, 0, 318, 479)

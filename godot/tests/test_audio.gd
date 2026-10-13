@@ -150,7 +150,7 @@ func test_travel_fades_out_then_the_next_world_fades_in(t: TestContext) -> void:
 		return
 	var seen := {"gain": 1.0, "cue": false, "arrival_gain": -1.0}
 	var arrived := func() -> bool:
-		if t.world().map_id() == TRAVEL_MAP and t.player() != null:
+		if t.in_world(TRAVEL_MAP) and t.player() != null:
 			seen["cue"] = arrival != null and arrival.playing
 			seen["arrival_gain"] = director.world_gain()
 			return true

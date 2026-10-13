@@ -356,7 +356,7 @@ func test_chapter_one_main_line(t: TestContext) -> void:
 	t.equal(str(quests.call(&"state", "the-one-eyed-guardian").get("active_stage_id")), "verdant-gate", "the guardian's last stage")
 	t.check(bool(t.main.travel_to("gloop-forest", "west")), "the travel to gloop-forest was refused")
 	await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.world().map_id() == "gloop-forest" and t.player() != null, 3000.0, 6000.0)
+		return not t.main.is_transitioning() and t.in_world("gloop-forest") and t.player() != null, 3000.0, 6000.0)
 	t.equal(quests.call(&"status", "the-one-eyed-guardian"), "completed", "The One-Eyed Guardian")
 	t.check(run.has_flag("chapter-1-complete"), "chapter-1-complete is not set")
 	t.check(run.has_learned_ability("squash-slam"), "The One-Eyed Guardian did not teach Squash Slam")
