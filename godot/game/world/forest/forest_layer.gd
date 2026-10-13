@@ -3,43 +3,49 @@ class_name ForestLayer
 extends TileMapLayer
 ## A tree wall painted like a terrain (docs/godot/FORESTS.md): Add Node > ForestLayer in a world
 ## scene (beside the ground layer, on the same grid), then paint cells with the palette of
-## forest_tileset.tres. Every painted cell grows one tree, standing where the old wall trees stood
-## in their cell, with a small seeded shift, size and flip (`variation` rerolls them all). The top
-## row of the palette holds mixes (each cell picks a tree of the mix); the rows below hold single
-## trees (the cell takes exactly that tree). Erase cells to cut gaps and paths.
+## forest_tileset.tres. The top row of the palette holds mixes (each tree picks a tree of its
+## cell's mix); the rows below hold single trees (the cell takes exactly that tree). Erase cells to
+## cut gaps and paths.
+##
+## The trees are the big trees of the region sets (BigTrees: forest, autumn, frost, desert cacti,
+## volcano, swamp, crystal, ruins, village), two to three cells wide, so they grow on about one
+## painted cell in three: one candidate per 2 x 2 block, never two side by side, and every painted
+## cell has one in or around it, so a one-cell row still reads as a wall. A single tree painted from
+## the palette always grows. A tree stands where the old wall trees stood in their cell, with a
+## seeded shift, size and flip (`variation` rerolls them all), casts a soft shade on the ground, and
+## sways in tree_sway.gdshader unless it is rigid (cacti, crystals, mushrooms, bare trees).
 ##
 ## The trees are drawn by this layer and saved nowhere: the scene stores only the painted cells.
-## In the game the painted area is solid along its trunk line (one shape per run of cells) and the
-## trees sway. The squares are a painting aid, drawn at `paint_opacity` in the editor and hidden in
-## the game.
+## In the game the whole painted area is solid along its trunk line (one shape per run of cells).
+## The squares are a painting aid, drawn at `paint_opacity` in the editor and hidden in the game.
 ##
-## "Absorb trees" turns tree instances already in the scene (wall trees from the trees sway sheet,
-## the children of the node `absorb_from`, like a world's "Forest Border") into painted cells of
-## the same tree, and removes them (undoable).
+## "Absorb trees" turns placed wall trees (tree-forest-wall--* instances, the children of the node
+## `absorb_from`) into painted cells of the mix `absorb_into_mix`, and removes them (undoable);
+## tools/absorb_wall_trees.gd does the same without the editor.
 ##
 ## Owner: world (forest).
 
 const TILESET := "res://game/world/forest/forest_tileset.tres"
-const SHEET := "res://asset/MAPS/trees/128x170-tile_16x22-trees-sway.webp"
+const BigTrees := preload("res://game/world/forest/big_trees.gd")
 const MIX_DATA_LAYER := "forest_mix"
 const TREES_DATA_LAYER := "forest_trees"
-const SHEET_COLUMNS := 16
-const SHEET_ROWS := 22
-const SWAY_FRAMES := 8
-## Sway frames per second (presentation only, real time).
-const SWAY_FPS := 4.0
-## Where a tree stands in its cell (its trunk's foot), and the trunk's height above it: the wall
-## tree scenes (tree-forest-wall--*.tscn: frame offset (-64, -170), trunk box 48 x 44 above the
-## foot) placed on the grid.
+## One candidate cell per block of this many cells a side.
+const BLOCK := 2
+## Where a tree stands in its cell (its trunk's foot), and the trunk's height above it: the old
+## wall tree scenes (trunk box 48 x 44 above the foot) placed on the grid.
 const FOOT := Vector2(32.0, 54.0)
 const TRUNK_HEIGHT := 44.0
-const FRAME_OFFSET := Vector2(-64.0, -170.0)
-## Palette tile of a single tree: first frame 8k at (k % 16, 1 + k / 16).
-const SINGLE_ROW := 1
+## Trees may stand this much further across than `shift` says (they have room).
+const SHIFT_SCALE := Vector2(1.6, 1.0)
+## Placed wall tree scenes "Absorb trees" takes.
+const WALL_SCENE_PREFIX := "tree-forest-wall--"
 const HOLDER := "Trees"
+## The holder of the trees' shades (each shade draws at BigTrees.SHADOW_Z).
+const SHADOWS := "Shadows"
 const COLLISION := "Collision"
 
-## Another number shifts, sizes and flips every tree (and picks other trees of a mix) anew.
+## Another number shifts, sizes and flips every tree, picks other trees of a mix and other cells
+## to grow them.
 @export var variation: int = 0:
 	set(value):
 		variation = value
@@ -62,13 +68,12 @@ const COLLISION := "Collision"
 @export_group("Absorb trees")
 ## The node whose children (wall tree instances) "Absorb trees" turns into painted cells.
 @export_node_path("Node2D") var absorb_from: NodePath
+## The mix the absorbed trees' cells are painted with: its column in the palette's top row (0 mixed,
+## 1 pine, 2 green... 17 forest medium).
+@export var absorb_into_mix: int = 0
 @export_tool_button("Absorb trees", "Add") var absorb_button: Callable = _absorb_pressed
 
 var _queued := false
-## Per tree sprite: its first sway frame and its phase.
-var _sway: Array[Array] = []
-var _sheet: Texture2D
-var _tick := -1
 
 
 func _ready() -> void:
@@ -78,19 +83,7 @@ func _ready() -> void:
 	_apply_opacity()
 	if not changed.is_connected(_queue_rebuild):
 		changed.connect(_queue_rebuild)
-	set_process(not Engine.is_editor_hint())
 	_rebuild()
-
-
-func _process(_delta: float) -> void:
-	var tick := int(Time.get_ticks_msec() * SWAY_FPS / 1000.0)
-	var holder := get_node_or_null(HOLDER)
-	if holder == null or tick == _tick:
-		return
-	_tick = tick
-	var sprites := holder.get_children()
-	for i in mini(sprites.size(), _sway.size()):
-		(sprites[i] as Sprite2D).frame = int(_sway[i][0]) + (tick + int(_sway[i][1])) % SWAY_FRAMES
 
 
 func _apply_opacity() -> void:
@@ -104,58 +97,97 @@ func _queue_rebuild() -> void:
 	_rebuild.call_deferred()
 
 
-## The trees of a painted cell's tile: their first sway frames.
-func trees_of(cell: Vector2i) -> PackedInt32Array:
+## The trees of a painted cell's tile, by name (BigTrees).
+func trees_of(cell: Vector2i) -> PackedStringArray:
 	var data := get_cell_tile_data(cell)
-	var out := PackedInt32Array()
 	if data == null or not tile_set.has_custom_data_layer_by_name(TREES_DATA_LAYER):
-		return out
-	for part in str(data.get_custom_data(TREES_DATA_LAYER)).split(",", false):
-		out.append(int(part))
-	return out
+		return PackedStringArray()
+	return str(data.get_custom_data(TREES_DATA_LAYER)).split(",", false)
 
 
 func _rebuild() -> void:
 	_queued = false
 	if not is_inside_tree() or tile_set == null:
 		return
-	if _sheet == null:
-		_sheet = load(SHEET) as Texture2D
-	var holder := get_node_or_null(HOLDER) as Node2D
+	var holder := _holder(HOLDER, true)
+	var shadows := _holder(SHADOWS, false)
+	var cells := get_used_cells()
+	cells.sort()
+	var growing := _growing_cells(cells)
+	for cell in cells:
+		if not growing.has(cell):
+			continue
+		var trees := trees_of(cell)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash([cell.x, cell.y, variation])
+		var sprite := Sprite2D.new()
+		if not BigTrees.configure(sprite, trees[rng.randi_range(0, trees.size() - 1)]):
+			sprite.free()
+			continue
+		sprite.flip_h = rng.randf() < 0.5
+		sprite.scale *= rng.randf_range(size_range.x, size_range.y)
+		var reach := shift * SHIFT_SCALE
+		sprite.position = Vector2(cell) * Vector2(tile_set.tile_size) + FOOT \
+				+ Vector2(rng.randf_range(-reach.x, reach.x), rng.randf_range(-reach.y, reach.y))
+		holder.add_child(sprite)
+		shadows.add_child(BigTrees.shadow_for(sprite))
+	if not Engine.is_editor_hint():
+		_build_collision(cells)
+
+
+## The child `holder_name` (unowned, so never saved), emptied.
+func _holder(holder_name: String, y_sorted: bool) -> Node2D:
+	var holder := get_node_or_null(holder_name) as Node2D
 	if holder == null:
 		holder = Node2D.new()
-		holder.name = HOLDER
-		holder.y_sort_enabled = true
+		holder.name = holder_name
+		holder.y_sort_enabled = y_sorted
 		add_child(holder)
 	for child in holder.get_children():
 		child.free()
-	_sway.clear()
-	var cells := get_used_cells()
-	cells.sort()
+	return holder
+
+
+## The painted cells that grow a tree: one candidate per BLOCK x BLOCK block (seeded), kept when no
+## tree grows beside it (diagonal neighbours may), then every cell still without one in or around
+## it (so thin rows fill); single trees always grow.
+func _growing_cells(cells: Array[Vector2i]) -> Dictionary:
+	var growing := {}
+	var painted := {}
 	for cell in cells:
 		var trees := trees_of(cell)
 		if trees.is_empty():
 			continue
+		painted[cell] = true
+		if trees.size() == 1:
+			growing[cell] = true
+	var blocks := {}
+	for cell: Vector2i in painted:
+		blocks[Vector2i(floori(cell.x / float(BLOCK)), floori(cell.y / float(BLOCK)))] = true
+	var order := blocks.keys()
+	order.sort()
+	for block: Vector2i in order:
 		var rng := RandomNumberGenerator.new()
-		rng.seed = hash([cell.x, cell.y, variation])
-		var first := trees[rng.randi_range(0, trees.size() - 1)]
-		var sprite := Sprite2D.new()
-		sprite.texture = _sheet
-		sprite.hframes = SHEET_COLUMNS
-		sprite.vframes = SHEET_ROWS
-		sprite.centered = false
-		sprite.offset = FRAME_OFFSET
-		sprite.flip_h = rng.randf() < 0.5
-		var size := rng.randf_range(size_range.x, size_range.y)
-		sprite.scale = Vector2(size, size)
-		sprite.position = Vector2(cell) * Vector2(tile_set.tile_size) + FOOT \
-				+ Vector2(rng.randf_range(-shift.x, shift.x), rng.randf_range(-shift.y, shift.y))
-		var phase := rng.randi_range(0, SWAY_FRAMES - 1)
-		sprite.frame = first + phase
-		holder.add_child(sprite)
-		_sway.append([first, phase])
-	if not Engine.is_editor_hint():
-		_build_collision(cells)
+		rng.seed = hash([block.x, block.y, variation, "block"])
+		var cell := block * BLOCK + Vector2i(rng.randi_range(0, BLOCK - 1), rng.randi_range(0, BLOCK - 1))
+		if painted.has(cell) and not growing.has(cell) and not _tree_near(growing, cell, false):
+			growing[cell] = true
+	for cell in cells:
+		if painted.has(cell) and not growing.has(cell) and not _tree_near(growing, cell, true):
+			growing[cell] = true
+	return growing
+
+
+## True when a tree grows beside `cell` (the four cells across and up/down, and the diagonal ones
+## too when `diagonals`).
+static func _tree_near(growing: Dictionary, cell: Vector2i, diagonals: bool) -> bool:
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			if (dx != 0 and dy != 0 and not diagonals) or (dx == 0 and dy == 0):
+				continue
+			if growing.has(cell + Vector2i(dx, dy)):
+				return true
+	return false
 
 
 ## Solid along the trunk line: per painted cell from its trees' trunk tops (from the cell's top
@@ -205,24 +237,24 @@ func _build_collision(cells: Array[Vector2i]) -> void:
 # --- absorbing placed trees ----------------------------------------------------------------
 
 ## What "Absorb trees" would do with the children of `group`: {cells: {Vector2i: atlas coords},
-## nodes: [the trees taken], skipped: [names of children that are no wall tree of the sheet]}.
-## A tree's cell is the one whose tree place is nearest its foot; the first tree in a cell wins.
-func absorb_plan(group: Node) -> Dictionary:
+## nodes: [the trees taken], skipped: [names of children that are no wall tree]}. A wall tree is a
+## tree-forest-wall--* instance; its cell is the one whose tree place is nearest its foot
+## (`foot_of(tree)` in this layer's space when given, for tools working outside the scene tree) and
+## takes the mix `absorb_into_mix`; the first tree in a cell wins.
+func absorb_plan(group: Node, foot_of := Callable()) -> Dictionary:
 	var cells := {}
 	var nodes: Array[Node] = []
 	var skipped: PackedStringArray = []
 	var size := Vector2(tile_set.tile_size)
 	for child in group.get_children():
 		var tree := child as Node2D
-		var visual := tree.get_node_or_null(^"Visual") as Sprite2D if tree != null else null
-		if visual == null or visual.texture == null or visual.texture.resource_path != SHEET:
+		if tree == null or not tree.scene_file_path.get_file().begins_with(WALL_SCENE_PREFIX):
 			skipped.append(str(child.name))
 			continue
-		var foot := to_local(tree.global_position)
+		var foot: Vector2 = foot_of.call(tree) if foot_of.is_valid() else to_local(tree.global_position)
 		var cell := Vector2i(((foot - FOOT) / size + Vector2(0.5, 0.5)).floor())
 		if not cells.has(cell):
-			var k := int(visual.frame) / SWAY_FRAMES
-			cells[cell] = Vector2i(k % SHEET_COLUMNS, SINGLE_ROW + k / SHEET_COLUMNS)
+			cells[cell] = Vector2i(maxi(absorb_into_mix, 0), 0)
 		nodes.append(child)
 	return {"cells": cells, "nodes": nodes, "skipped": skipped}
 
@@ -258,7 +290,7 @@ func _absorb_pressed() -> void:
 			(plan["skipped"] as PackedStringArray).size(), plan["skipped"]])
 
 
-## Applies an `absorb_plan` without undo (tools): paints its cells and frees its trees.
+## Applies an `absorb_plan` without undo: paints its cells and frees its trees.
 func apply_absorb(plan: Dictionary) -> void:
 	for cell: Vector2i in plan["cells"]:
 		set_cell(cell, 0, plan["cells"][cell])

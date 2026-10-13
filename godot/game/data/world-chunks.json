@@ -1,0 +1,275 @@
+{
+  "format": "slime-isa-world-chunks",
+  "worlds": {
+    "crystal-caverns": {
+      "chunks": {
+        "crystal-caverns-g4": "G4",
+        "crystal-caverns-h4": "H4",
+        "crystal-caverns-g5": "G5",
+        "crystal-caverns-h5": "H5"
+      },
+      "arrivals": {
+        "player-entry-west": "crystal-caverns-g4",
+        "player-entry-east": "crystal-caverns-h4"
+      },
+      "doors": {},
+      "spawn": "crystal-caverns-g4",
+      "written": {
+        "crystal-caverns-g4": 3080491969,
+        "crystal-caverns-h4": 3268578188,
+        "crystal-caverns-g5": 572336200,
+        "crystal-caverns-h5": 2433420887
+      }
+    },
+    "desert": {
+      "chunks": {
+        "desert-a7": "A7",
+        "desert-b7": "B7",
+        "desert-a8": "A8",
+        "desert-b8": "B8"
+      },
+      "arrivals": {
+        "player-entry-east": "desert-b8",
+        "arrive-from-south-wilds-1": "desert-b8"
+      },
+      "doors": {},
+      "spawn": "desert-b8",
+      "written": {
+        "desert-a7": 445029881.0,
+        "desert-b7": 2692380360.0,
+        "desert-a8": 50359241.0,
+        "desert-b8": 2669954581.0
+      }
+    },
+    "frostpeak": {
+      "chunks": {
+        "frostpeak-f7": "F7",
+        "frostpeak-g7": "G7",
+        "frostpeak-f8": "F8",
+        "frostpeak-g8": "G8"
+      },
+      "arrivals": {
+        "player-entry-north": "frostpeak-f7",
+        "arrive-from-south-wilds-1": "frostpeak-f7",
+        "player-entry-west": "frostpeak-f8",
+        "arrive-from-sticky-swamp-1": "frostpeak-f8"
+      },
+      "doors": {},
+      "spawn": "frostpeak-f8",
+      "written": {
+        "frostpeak-f7": 2885318797.0,
+        "frostpeak-g7": 2074394718.0,
+        "frostpeak-f8": 3246420458.0,
+        "frostpeak-g8": 851178648.0
+      }
+    },
+    "gloop-forest": {
+      "chunks": {
+        "gloop-forest-e4": "E4",
+        "gloop-forest-f4": "F4",
+        "gloop-forest-e5": "E5",
+        "gloop-forest-f5": "F5"
+      },
+      "arrivals": {
+        "player-entry-west": "gloop-forest-e4",
+        "player-entry-east": "gloop-forest-f4"
+      },
+      "doors": {
+        "hut-door": "gloop-forest-e4",
+        "gloop-sinkhole": "gloop-forest-e5"
+      },
+      "spawn": "gloop-forest-e4",
+      "written": {
+        "gloop-forest-e4": 2634954258,
+        "gloop-forest-f4": 1004219237,
+        "gloop-forest-e5": 3387564473,
+        "gloop-forest-f5": 1916923627
+      }
+    },
+    "north-wilds": {
+      "chunks": {
+        "north-wilds-a1": "A1",
+        "north-wilds-b1": "B1",
+        "north-wilds-c1": "C1",
+        "north-wilds-a2": "A2",
+        "north-wilds-b2": "B2",
+        "north-wilds-c2": "C2",
+        "north-wilds-h2": "H2",
+        "north-wilds-a3": "A3",
+        "north-wilds-b3": "B3",
+        "north-wilds-c3": "C3",
+        "north-wilds-d3": "D3",
+        "north-wilds-e3": "E3",
+        "north-wilds-f3": "F3",
+        "north-wilds-g3": "G3",
+        "north-wilds-h3": "H3"
+      },
+      "arrivals": {
+        "player-entry-east": "north-wilds-c2",
+        "arrive-from-northern-ruins-1": "north-wilds-c2",
+        "player-entry-west": "north-wilds-h2",
+        "arrive-from-volcano-ridge-1": "north-wilds-h2",
+        "arrive-from-west-village-1": "north-wilds-a3",
+        "player-entry-south": "north-wilds-c3",
+        "arrive-from-level-1-1": "north-wilds-c3",
+        "arrive-from-gloop-forest-1": "north-wilds-f3",
+        "arrive-from-crystal-caverns-1": "north-wilds-h3"
+      },
+      "doors": {},
+      "spawn": "north-wilds-c3",
+      "written": {
+        "north-wilds-a1": 3463696532.0,
+        "north-wilds-b1": 3344133368.0,
+        "north-wilds-c1": 1623970194.0,
+        "north-wilds-a2": 926477381.0,
+        "north-wilds-b2": 365784883.0,
+        "north-wilds-c2": 1007802150.0,
+        "north-wilds-h2": 2461208865.0,
+        "north-wilds-a3": 3888253000.0,
+        "north-wilds-b3": 3749706449.0,
+        "north-wilds-c3": 2185922661.0,
+        "north-wilds-d3": 1633213573.0,
+        "north-wilds-e3": 2525585676.0,
+        "north-wilds-f3": 3808587684.0,
+        "north-wilds-g3": 780426820.0,
+        "north-wilds-h3": 1687070857.0
+      }
+    },
+    "northern-ruins": {
+      "chunks": {
+        "northern-ruins-d1": "D1",
+        "northern-ruins-e1": "E1",
+        "northern-ruins-d2": "D2",
+        "northern-ruins-e2": "E2"
+      },
+      "arrivals": {
+        "player-entry-west": "northern-ruins-d2",
+        "arrive-from-north-wilds-1": "northern-ruins-d2",
+        "player-entry-east": "northern-ruins-e2",
+        "arrive-from-volcano-ridge-1": "northern-ruins-e2"
+      },
+      "doors": {},
+      "spawn": "northern-ruins-e2",
+      "written": {
+        "northern-ruins-d1": 382495353.0,
+        "northern-ruins-e1": 1510084163.0,
+        "northern-ruins-d2": 1306145330.0,
+        "northern-ruins-e2": 1756056196.0
+      }
+    },
+    "south-wilds": {
+      "chunks": {
+        "south-wilds-a6": "A6",
+        "south-wilds-b6": "B6",
+        "south-wilds-c6": "C6",
+        "south-wilds-d6": "D6",
+        "south-wilds-e6": "E6",
+        "south-wilds-f6": "F6",
+        "south-wilds-g6": "G6",
+        "south-wilds-h6": "H6",
+        "south-wilds-c7": "C7",
+        "south-wilds-h7": "H7",
+        "south-wilds-c8": "C8",
+        "south-wilds-h8": "H8"
+      },
+      "arrivals": {
+        "arrive-from-west-village-1": "south-wilds-b6",
+        "player-entry-north": "south-wilds-d6",
+        "arrive-from-level-1-1": "south-wilds-d6",
+        "arrive-from-gloop-forest-1": "south-wilds-e6",
+        "arrive-from-sticky-swamp-1": "south-wilds-e6",
+        "player-entry-south": "south-wilds-f6",
+        "arrive-from-frostpeak-1": "south-wilds-f6",
+        "arrive-from-crystal-caverns-1": "south-wilds-h6",
+        "player-entry-west": "south-wilds-c8",
+        "arrive-from-desert-1": "south-wilds-c8"
+      },
+      "doors": {},
+      "spawn": "south-wilds-d6",
+      "written": {
+        "south-wilds-a6": 2462256660.0,
+        "south-wilds-b6": 1636508933.0,
+        "south-wilds-c6": 3067278544.0,
+        "south-wilds-d6": 2845434581.0,
+        "south-wilds-e6": 4091745508.0,
+        "south-wilds-f6": 2450809966.0,
+        "south-wilds-g6": 3231091704.0,
+        "south-wilds-h6": 1862287476.0,
+        "south-wilds-c7": 2195709022.0,
+        "south-wilds-h7": 3119352499.0,
+        "south-wilds-c8": 304520403.0,
+        "south-wilds-h8": 2333945665.0
+      }
+    },
+    "sticky-swamp": {
+      "chunks": {
+        "sticky-swamp-d7": "D7",
+        "sticky-swamp-e7": "E7",
+        "sticky-swamp-d8": "D8",
+        "sticky-swamp-e8": "E8"
+      },
+      "arrivals": {
+        "player-entry-north": "sticky-swamp-e7",
+        "arrive-from-south-wilds-1": "sticky-swamp-e7",
+        "player-entry-east": "sticky-swamp-e8",
+        "arrive-from-frostpeak-1": "sticky-swamp-e8"
+      },
+      "doors": {},
+      "spawn": "sticky-swamp-e8",
+      "written": {
+        "sticky-swamp-d7": 1101111652.0,
+        "sticky-swamp-e7": 1964053401.0,
+        "sticky-swamp-d8": 50715486.0,
+        "sticky-swamp-e8": 2570058481.0
+      }
+    },
+    "volcano-ridge": {
+      "chunks": {
+        "volcano-ridge-f1": "F1",
+        "volcano-ridge-g1": "G1",
+        "volcano-ridge-h1": "H1",
+        "volcano-ridge-f2": "F2",
+        "volcano-ridge-g2": "G2"
+      },
+      "arrivals": {
+        "player-entry-west": "volcano-ridge-f2",
+        "arrive-from-northern-ruins-1": "volcano-ridge-f2",
+        "player-entry-east": "volcano-ridge-g2",
+        "arrive-from-north-wilds-1": "volcano-ridge-g2"
+      },
+      "doors": {},
+      "spawn": "volcano-ridge-f2",
+      "written": {
+        "volcano-ridge-f1": 2810835362.0,
+        "volcano-ridge-g1": 3242010522.0,
+        "volcano-ridge-h1": 3789052556.0,
+        "volcano-ridge-f2": 427626682.0,
+        "volcano-ridge-g2": 499286550.0
+      }
+    },
+    "west-village": {
+      "chunks": {
+        "west-village-a4": "A4",
+        "west-village-b4": "B4",
+        "west-village-a5": "A5",
+        "west-village-b5": "B5"
+      },
+      "arrivals": {
+        "player-entry-north": "west-village-a4",
+        "arrive-from-north-wilds-1": "west-village-a4",
+        "player-entry-east": "west-village-b4",
+        "arrive-from-level-1-1": "west-village-b4",
+        "player-entry-south": "west-village-b5",
+        "arrive-from-south-wilds-1": "west-village-b5"
+      },
+      "doors": {},
+      "spawn": "west-village-b4",
+      "written": {
+        "west-village-a4": 1563426300.0,
+        "west-village-b4": 2606926302.0,
+        "west-village-a5": 2277599516.0,
+        "west-village-b5": 2201542441.0
+      }
+    }
+  }
+}

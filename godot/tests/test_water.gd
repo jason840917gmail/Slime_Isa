@@ -6,7 +6,8 @@ extends RefCounted
 ##   right after its tiles, z -2), below the underwater life (z -2, y-sorted after the ground), the
 ##   world-sorted decals (z -1: lily pads, bubbles) and the entities (z 0: reeds).
 ## - Travel (Main.travel_to) frees the old world's surface with its ground layer and mounts a new
-##   one for the next world: gloop-forest has 181 deep tiles and no shallow ones, so both texture
+##   one for the next world: gloop-forest's chunk E4 (where its west entry is; gloop-forest is cut into
+##   chunk worlds, docs/godot/WORLD_ATLAS.md) has 106 deep tiles and no shallow ones, so both texture
 ##   slots hold the deep-water sheet.
 ## - level-1's 65 water-life instances play their looping `object.water-life.idle` clip with the
 ##   authored tint and alpha (fish #b9dcef at 0.72, kelp #7ea4bf at 0.5, waterweed #a9d2e3 at 0.6,
@@ -20,7 +21,7 @@ const WATER_SHADER_PATH := "res://game/world/water_surface.gdshader"
 const LEVEL1_SHALLOW_TILES := 204
 const LEVEL1_DEEP_TILES := 58
 const LEVEL1_WATER_LIFE := 65
-const GLOOP_FOREST_DEEP_TILES := 181
+const GLOOP_FOREST_DEEP_TILES := 106
 const IDLE_CLIP := &"object.water-life.idle"
 const WATER_LIFE_SCENE_PREFIX := "water-life--"
 ## Phaser presentation per water-life scene (scene JSON `tint`, `alpha`, depth band):
@@ -167,7 +168,7 @@ func test_travel_rebuilds_the_surface_for_the_next_world(t: TestContext) -> void
 		return
 	if not t.check(t.main.travel_to("gloop-forest", "west"), "travel to gloop-forest was refused"):
 		return
-	var travelled := await t.until(func() -> bool: return t.world().map_id() == "gloop-forest" and t.player() != null, 3000.0, 6000.0)
+	var travelled := await t.until(func() -> bool: return t.in_world("gloop-forest") and t.player() != null, 3000.0, 6000.0)
 	if not t.check(travelled, "the player did not reach gloop-forest"):
 		return
 	await t.steps(2)

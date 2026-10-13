@@ -276,14 +276,14 @@ func test_travel_rebuilds_the_minimap_and_world_map(t: TestContext) -> void:
 	map_ui.set_marker(&"meadow-quest", Vector2(1130.0, 1514.0))
 	t.check(t.main.travel_to("gloop-forest", "west"), "travel_to gloop-forest refused")
 	var arrived := await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.world().map_id() == "gloop-forest" and t.player() != null, 4000.0, 10000.0)
+		return not t.main.is_transitioning() and t.in_world("gloop-forest") and t.player() != null, 4000.0, 10000.0)
 	if not t.check(arrived, "did not arrive in gloop-forest"):
 		return
 	await t.tree.process_frame
 	await t.tree.process_frame
 	t.check(old_texture.get_ref() == null and old_image.get_ref() == null, "level-1's minimap terrain outlived level-1")
 	var image := minimap.terrain_image()
-	t.check(image != null and image.get_size() == Vector2i(54, 54), "gloop-forest terrain not baked (%s)" % [image.get_size() if image != null else null])
+	t.check(image != null and image.get_size() == Vector2i(32, 32), "gloop-forest terrain (its chunk E4) not baked (%s)" % [image.get_size() if image != null else null])
 	t.check(minimap.visible, "the minimap is hidden in gloop-forest")
 	t.near_vec(minimap.drawn_player(), t.player().get_centre(), 0.01, "player dot in gloop-forest")
 	t.equal(map_ui.markers.markers_in("gloop-forest").size(), 0, "level-1's marker is drawn in gloop-forest")

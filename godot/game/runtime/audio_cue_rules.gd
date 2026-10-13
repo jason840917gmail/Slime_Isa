@@ -52,6 +52,8 @@ static func looping_copy(stream: AudioStream) -> AudioStream:
 	if stream == null:
 		return null
 	var copy: AudioStream = stream.duplicate()
+	# The file it plays, for telling two copies of one track apart from two tracks (MusicDirector).
+	copy.set_meta(&"source_path", stream.get_meta(&"source_path", stream.resource_path))
 	if copy is AudioStreamOggVorbis:
 		(copy as AudioStreamOggVorbis).loop = true
 	elif copy is AudioStreamMP3:

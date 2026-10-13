@@ -85,7 +85,9 @@ character.orb-weaver-matron`, activation circle r **460**, arena circle r **320*
 `RoarSfx` (spider-hiss, pitch 0.4, range 1600) ← `boss_spawn_requested`. Instanced in
 `worlds/gloop-forest.scene.json` as `gloop-ch2-matron-nest` at **(3120, 940)** (under the
 `matron-nest` Node2D at (0, 0)): activation = circle (3120, 940, r 460), arena = circle (3120, 940,
-r 320), the Matron spawns at (3120, 940) (feet at (3120, 970)).
+r 320), the Matron spawns at (3120, 940) (feet at (3120, 970)). Since 2026-10-12 gloop-forest is
+cut into chunk worlds: the nest is in `gloop-forest-f4` (origin (2048, 0)), at **(1072, 940)**
+there, its camp's `mapId` `gloop-forest-f4` ([WORLD_ATLAS.md](../WORLD_ATLAS.md#chunk-worlds-2026-10-12)).
 
 ### 1.3 Code literals
 | Name | Value | Source |

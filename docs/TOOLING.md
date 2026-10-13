@@ -73,9 +73,21 @@ See [assets/README.md](assets/README.md) for the art workflow.
   a seamless rail strip, the rail seen from above, a JSON of measures) in
   `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
   draws the fences layer's paint tiles.
-- `python scripts/art/build-forest-paint-tiles.py` (**numpy**) — the forest layer's palette: a tile per mix and
-  per tree of the trees sway sheet, into `godot/asset/MAPS/forest/forest_paint_tiles.png` and
-  `godot/game/world/forest/forest_tileset.tres` ([godot/FORESTS.md](godot/FORESTS.md)).
+- `python scripts/art/build-tree-sets.py [set ...]` (**numpy**) — the trees of every region set (forest,
+  autumn, frost, desert, volcano, swamp, crystal, ruins, village): cuts the Magnific renders in
+  `asset/Originals/trees/<set>/generated/` (a medium and a tall tree each), grades leaves where set,
+  sizes them at 2 px per unit and packs `godot/asset/MAPS/trees/sets/<set>.webp` with the shared
+  `trees.json` (each tree's atlas, rectangle, foot and whether it sways). Run
+  `build-forest-paint-tiles.py` after it ([godot/FORESTS.md](godot/FORESTS.md)). Godot tools:
+  `res://tools/render_forest.gd` (windowed: `--path godot -s res://tools/render_forest.gd --
+  --scene=<world scene> --out=<dir>`) renders a world's forest with the game's own drawing;
+  `res://tools/retree_scenes.gd` (headless) gives the placed tree scenes their trees from the table;
+  `res://tools/absorb_wall_trees.gd` (headless, `-- --scene=<world> "--groups=<node>:<mix>,..."`) turns
+  placed wall trees into forest paint.
+- `python scripts/art/build-forest-paint-tiles.py` — the forest layer's palette: a tile per mix and per
+  tree, into
+  `godot/asset/MAPS/forest/forest_paint_tiles.png` and `godot/game/world/forest/forest_tileset.tres`
+  ([godot/FORESTS.md](godot/FORESTS.md)).
 - `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits the elevation's
   storybook art is cut from: aligns the approved H plateau paintings (`asset/Originals/elevation/cliff-concepts/`)
   to 128 px per cell, cuts the outside ground away, matches their colours and labels every cell, into
@@ -174,9 +186,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/asset/MAPS/rocks/128x128-tile_2x1-iron-ore.webp`.
 - `python scripts/weapons/pack-iron-tools.py` (**numpy**) — the Chapter 2 weapon art into
   `godot/asset/MAPS/weapons/128x128-tile_4x1-iron-tools.webp`.
-- `python scripts/art/build-ambient-decoration-sheets.py`, `build-tree-sway-sheets.py` and
-  `build-water-life-sheets.py` (**numpy**) — the idle-loop sheets (campfire, cauldron, lantern post,
-  banner, birdbath; tree canopy sway; water life) in `godot/asset/MAPS/`; the scenes' AnimationPlayers
+- `python scripts/art/build-ambient-decoration-sheets.py` and `build-water-life-sheets.py` (**numpy**) —
+  the idle-loop sheets (campfire, cauldron, lantern post, banner, birdbath; water life) in `godot/asset/MAPS/`; the scenes' AnimationPlayers
   are edited in Godot ([assets/AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md)).
 - `python scripts/art/build-water-wake-sheet.py` (**numpy**) — the water at walkers' feet: the wading
   splash and the swim ripple (`asset/Originals/water/generated/wade-splash.png`, `swim-ripple.png`, 2 x 2

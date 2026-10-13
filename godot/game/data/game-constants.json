@@ -30,7 +30,8 @@
     "weaponMaxStack": 1
   },
   "worldNavigation": {
-  "edgeTransitionGraceMs": 650
+  "edgeTransitionGraceMs": 650,
+  "edgeArrivalInset": 64
   },
   "elevation": {
     "behindDepth": 32,

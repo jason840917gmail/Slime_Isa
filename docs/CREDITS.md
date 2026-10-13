@@ -76,7 +76,7 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 | Worm arrows, spider web projectile and web cover | `MAPS/enemies/40x40-*`, `64x64-4x1-spider-web-cover` | ChatGPT | C2PA on `Originals/weapon/arrows.png`, `webs.png` |
 | Spider and orb-weaver sheet | `MAPS/enemies/64x64-8x10-forest-orb-weaver-slime` | concept from ChatGPT; sheet unverified | `Originals/concepts/spider-slime-examples/README.md` |
 | Fatty One Eye, ground-crack effect, chest, keys, potions | `bosses/`, `effects/boss-ground-crack-4x1`, `objects/chest-wooden-2x1`, `items/keys-5x4`, `items/potions-5x2` | OpenAI image model | C2PA on `Originals/milestone-2/*` |
-| Trees (8x6, 3x1, autumn leaf fall) | `MAPS/trees/` | owner, with AI | added with ChatGPT forest images that were later deleted |
+| Trees (region sets) | `MAPS/trees/sets/` | Magnific GPT 2.5, 2026-10-12 | renders in `Originals/trees/<set>/generated/` |
 | Rocks (3x1, 8x3) | `MAPS/rocks/` | owner, with AI | no source |
 | Crystal clusters | `MAPS/rocks/128x128-tile_8x2-crystal-clusters` | OpenAI image model | C2PA on `Originals/props/crystal-clusters-*` |
 | Stone walls | `MAPS/walls/` | OpenAI image model | C2PA on `Originals/walls/stone-wall-networks-source.png` |

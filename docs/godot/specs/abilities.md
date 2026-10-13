@@ -1238,6 +1238,12 @@ has `open()` (also the converted handler `open`) and `is_open()`.
 Positions and overrides (all parents at (0,0), so these are world positions; the Gulp spots,
 bell, dummies and buildings override `body.position`, the others `root.position`):
 
+> **Chunk worlds (2026-10-12):** gloop-forest is cut into four chunk worlds, `gloop-forest-e4`
+> (origin (0, 0)), `-f4` (2048, 0), `-e5` (0, 2048) and `-f5` (2048, 2048); positions quoted here
+> for gloop-forest are the whole forest's, before the cut: a chunk's own are the forest's less its
+> origin, and the camp's (the hut door, the workbench, Mossy, Sunny, Tom at camp) also moved 256
+> west ([WORLD_ATLAS.md](../WORLD_ATLAS.md#chunk-worlds-2026-10-12)).
+
 | World | Instance | Position | Overrides |
 |---|---|---|---|
 | playground | `playground-stone-gulp-spot` | (1120, 800) | — |

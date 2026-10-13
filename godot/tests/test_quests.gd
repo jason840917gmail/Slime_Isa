@@ -436,7 +436,7 @@ func test_guardian_completes_on_gloop_forest_arrival(t: TestContext) -> void:
 	if not t.check(t.main.travel_to("gloop-forest", "west"), "the travel was refused"):
 		return
 	var arrived := await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.world().map_id() == "gloop-forest" and t.player() != null, 3000.0, 6000.0)
+		return not t.main.is_transitioning() and t.in_world("gloop-forest") and t.player() != null, 3000.0, 6000.0)
 	if not t.check(arrived, "no arrival in gloop-forest"):
 		return
 	t.equal(quests.status("the-one-eyed-guardian"), "completed", "the guardian")
