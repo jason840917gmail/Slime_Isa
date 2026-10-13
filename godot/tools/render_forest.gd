@@ -4,7 +4,9 @@ extends SceneTree
 ## Run windowed (it renders), from the repo:
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_forest.gd -- \
 ##         --scene=res://game/scenes/worlds/chunks/gloop-forest-e5.tscn [--rect=x,y,w,h] [--out=<dir>]
-## --rect is in cells (default: the 20 x 12 window whose forest cover is nearest half). Writes
+## --rect is in cells (default: the 20 x 12 window whose forest cover is nearest half); --solid
+## tints the painted cells' solid parts (as the layer's collision shapes them), to spot open
+## ground inside a wall. Writes
 ## <dir>/<scene>.png at 1x (the game's base view is 20 x 11 cells) and <dir>/<scene>-2x.png, the
 ## middle of it at 2x; <dir>/<scene>-sway-<n>.png are four moments of the sway, at 2x.
 
@@ -19,11 +21,14 @@ func _initialize() -> void:
 	var out := DEFAULT_OUT
 	var scene_path := ""
 	var rect := Rect2i()
+	var solid := false
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.trim_prefix("--out=")
 		elif arg.begins_with("--scene="):
 			scene_path = arg.trim_prefix("--scene=")
+		elif arg == "--solid":
+			solid = true
 		elif arg.begins_with("--rect="):
 			var p := arg.trim_prefix("--rect=").split(",")
 			rect = Rect2i(int(p[0]), int(p[1]), int(p[2]), int(p[3]))
@@ -45,8 +50,11 @@ func _initialize() -> void:
 		var bounds := Rect2i(0, 0, int(definition.get(&"columns")), int(definition.get(&"rows"))) \
 				if definition != null else forest.get_used_rect()
 		rect = _busy_window(forest, bounds)
-	print("forest cells ", forest.get_used_cells().size() if forest else 0, ", window ", rect)
+	var trees := forest.get_node(^"Trees").get_child_count() if forest != null and forest.has_node(^"Trees") else 0
+	print("forest cells ", forest.get_used_cells().size() if forest else 0, ", trees ", trees, ", window ", rect)
 	_add_slime(world, forest, rect)
+	if solid and forest != null:
+		forest.add_child(_solid_overlay(forest))
 	for i in 4:
 		await physics_frame
 	var name := scene_path.get_file().get_basename()
@@ -130,3 +138,21 @@ func _add_slime(world: Node2D, forest: TileMapLayer, rect: Rect2i) -> void:
 	slime.position = Vector2(0, -27.56)
 	body.add_child(slime)
 	(forest.get_parent() if forest != null else world).add_child(body)
+
+
+## A see-through tint over each painted cell's solid part, drawn above everything.
+func _solid_overlay(forest: TileMapLayer) -> Node2D:
+	var overlay := Node2D.new()
+	overlay.z_index = 100
+	var size := Vector2(forest.tile_set.tile_size)
+	var foot := ForestLayer.FOOT
+	var trunk := ForestLayer.TRUNK_HEIGHT
+	overlay.draw.connect(func() -> void:
+		var painted := {}
+		for cell in forest.get_used_cells():
+			painted[cell] = true
+		for cell: Vector2i in painted:
+			var top := 0.0 if painted.has(cell + Vector2i.UP) else foot.y - trunk
+			var bottom := size.y if painted.has(cell + Vector2i.DOWN) else foot.y
+			overlay.draw_rect(Rect2(Vector2(cell) * size + Vector2(0.0, top), Vector2(size.x, bottom - top)), Color(0.1, 0.9, 0.9, 0.28)))
+	return overlay

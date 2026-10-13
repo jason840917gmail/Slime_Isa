@@ -11,8 +11,11 @@ set's atlas.
 Outputs:
   godot/asset/MAPS/trees/sets/<set>.webp   one atlas per set
   godot/asset/MAPS/trees/sets/trees.json   per tree (<kind>-<variant>-<size>): its atlas, its
-      rectangle there, its foot (the trunk's base, where it stands) inside the rectangle, and
-      whether it sways (cacti, crystals, mushrooms and bare trees stand still)
+      rectangle there, its foot (the trunk's base, where it stands) inside the rectangle,
+      whether it sways (cacti, crystals, mushrooms and bare trees stand still), and its cover:
+      rows of MASK_BLOCK px blocks, "1" where the tree hides the ground (ForestLayer fills the
+      gaps of a painted wood with it)
+The atlases' Godot imports keep mipmaps on (the trees are drawn at about half size or less).
 
 Usage: python scripts/art/build-tree-sets.py [set ...]   (numpy, Pillow; no set = all)
 Then run scripts/art/build-forest-paint-tiles.py.
@@ -93,6 +96,9 @@ PAD = 14
 ATLAS_WIDTH = 2048
 ## The foot stands this far (fraction of the tree's height) above the lowest root pixel.
 FOOT_LIFT = 0.035
+## The cover mask's block (atlas px; 16 world units) and how much of a block must be opaque.
+MASK_BLOCK = 32
+MASK_FILL = 0.5
 
 
 def split(image: np.ndarray) -> list[np.ndarray]:
@@ -157,6 +163,19 @@ def foot(rgba: np.ndarray) -> tuple[int, int]:
     return int(round(xs[low].mean())), int(round(bottom - FOOT_LIFT * rgba.shape[0]))
 
 
+def cover(rgba: np.ndarray) -> list[str]:
+    """Rows of MASK_BLOCK blocks over the tree's rectangle: "1" where most of the block is opaque."""
+    alpha = rgba[..., 3] > 127
+    h, w = alpha.shape
+    rows = []
+    for y in range(0, h, MASK_BLOCK):
+        row = ""
+        for x in range(0, w, MASK_BLOCK):
+            row += "1" if alpha[y:y + MASK_BLOCK, x:x + MASK_BLOCK].mean() >= MASK_FILL else "0"
+        rows.append(row)
+    return rows
+
+
 def pack(trees: list[tuple[str, np.ndarray]]) -> tuple[np.ndarray, dict[str, tuple[int, int]]]:
     """Shelf packing, tallest first."""
     placed: dict[str, tuple[int, int]] = {}
@@ -177,7 +196,9 @@ def pack(trees: list[tuple[str, np.ndarray]]) -> tuple[np.ndarray, dict[str, tup
 
 def main() -> None:
     wanted = sys.argv[1:] or list(SETS)
-    table = json.loads(TABLE.read_text(encoding="utf-8")) if TABLE.exists() else {"scale": 1.0 / DENSITY, "trees": {}}
+    table = json.loads(TABLE.read_text(encoding="utf-8")) if TABLE.exists() else {"trees": {}}
+    table["scale"] = 1.0 / DENSITY
+    table["cover_block"] = MASK_BLOCK
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for set_name in wanted:
         trees: list[tuple[str, np.ndarray]] = []
@@ -202,7 +223,7 @@ def main() -> None:
             fx, fy = foot(tree)
             table["trees"][name] = {
                 "set": set_name, "texture": texture, "rect": [px, py, tree.shape[1], tree.shape[0]],
-                "foot": [fx, fy], "sway": sways[name],
+                "foot": [fx, fy], "sway": sways[name], "cover": cover(tree),
             }
         print(f"{set_name}.webp: {len(trees)} trees, {atlas.shape[1]}x{atlas.shape[0]}")
     order = {name: i for i, name in enumerate(SETS)}

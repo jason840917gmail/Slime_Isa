@@ -65,7 +65,8 @@ Trees sway in a shader, not a sheet: the big trees of the region sets
 (`godot/asset/MAPS/trees/sets/`, 2 px per world unit) are too large to bake 8
 frames each. `godot/game/world/forest/tree_sway.gdshader` shifts each pixel row
 sideways by an amount that is 0 where the canopy leaves the trunk and grows
-toward the crown, plus a small ripple, so trunks and roots never move; the phase
+toward the crown, one slow even swing (a travelling ripple made big canopies
+wobble), so trunks and roots never move; the phase
 comes from where the tree stands, so one shared material
 (`tree_sway_material.tres`) serves every tree and they batch. It is a Tier 1
 bend, not a rotation; tune it on the material ([forests](../godot/FORESTS.md)).

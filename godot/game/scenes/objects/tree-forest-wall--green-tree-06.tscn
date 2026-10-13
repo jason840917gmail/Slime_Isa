@@ -11,7 +11,7 @@ size = Vector2(48, 44)
 y_sort_enabled = true
 collision_mask = 0
 
-[node name="Shadow" type="Sprite2D" parent="." unique_id=1495388735]
+[node name="Shadow" type="Sprite2D" parent="." unique_id=1020865551]
 modulate = Color(0.03, 0.05, 0.02, 0.5)
 z_index = -1
 position = Vector2(14.195999, -21.293999)
@@ -23,6 +23,7 @@ position = Vector2(0, -22)
 shape = SubResource("RectangleShape2D_1")
 
 [node name="Visual" type="Sprite2D" parent="." unique_id=211897123]
+texture_filter = 4
 material = ExtResource("2_jdsj4")
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("3_vcw8u")

@@ -10,8 +10,10 @@ extends TileMapLayer
 ## The trees are the big trees of the region sets (BigTrees: forest, autumn, frost, desert cacti,
 ## volcano, swamp, crystal, ruins, village), two to three cells wide, so they grow on about one
 ## painted cell in three: one candidate per 2 x 2 block, never two side by side, and every painted
-## cell has one in or around it, so a one-cell row still reads as a wall. A single tree painted from
-## the palette always grows. A tree stands where the old wall trees stood in their cell, with a
+## cell has one in or around it, so a one-cell row still reads as a wall. Then every cell where the
+## ground would still show through its solid part grows a tree as well (`_fill_gaps`, by the
+## trees' cover masks): a wall has no open spots. A single tree painted from the palette always
+## grows. A tree stands where the old wall trees stood in their cell, with a
 ## seeded shift, size and flip (`variation` rerolls them all), casts a soft shade on the ground, and
 ## sways in tree_sway.gdshader unless it is rigid (cacti, crystals, mushrooms, bare trees).
 ##
@@ -37,6 +39,13 @@ const FOOT := Vector2(32.0, 54.0)
 const TRUNK_HEIGHT := 44.0
 ## Trees may stand this much further across than `shift` says (they have room).
 const SHIFT_SCALE := Vector2(1.6, 1.0)
+## Where `_fill_gaps` looks for visible ground in a painted cell's solid part (fractions across
+## the cell and down the solid part), and how far (cells across, rows below) a tree may hide it.
+const GAP_SAMPLES: Array[Vector2] = [
+	Vector2(0.25, 0.15), Vector2(0.75, 0.15), Vector2(0.25, 0.55), Vector2(0.75, 0.55),
+	Vector2(0.25, 0.9), Vector2(0.75, 0.9),
+]
+const GAP_REACH := Vector2i(3, 5)
 ## Placed wall tree scenes "Absorb trees" takes.
 const WALL_SCENE_PREFIX := "tree-forest-wall--"
 const HOLDER := "Trees"
@@ -113,26 +122,75 @@ func _rebuild() -> void:
 	var shadows := _holder(SHADOWS, false)
 	var cells := get_used_cells()
 	cells.sort()
+	var painted := {}
+	for cell in cells:
+		if not trees_of(cell).is_empty():
+			painted[cell] = true
+	var placed := {}
 	var growing := _growing_cells(cells)
 	for cell in cells:
-		if not growing.has(cell):
+		if growing.has(cell):
+			placed[cell] = _placement(cell)
+	_fill_gaps(painted, placed)
+	for cell in cells:
+		if not placed.has(cell):
 			continue
-		var trees := trees_of(cell)
-		var rng := RandomNumberGenerator.new()
-		rng.seed = hash([cell.x, cell.y, variation])
+		var place: Dictionary = placed[cell]
 		var sprite := Sprite2D.new()
-		if not BigTrees.configure(sprite, trees[rng.randi_range(0, trees.size() - 1)]):
+		if not BigTrees.configure(sprite, place["tree"]):
 			sprite.free()
 			continue
-		sprite.flip_h = rng.randf() < 0.5
-		sprite.scale *= rng.randf_range(size_range.x, size_range.y)
-		var reach := shift * SHIFT_SCALE
-		sprite.position = Vector2(cell) * Vector2(tile_set.tile_size) + FOOT \
-				+ Vector2(rng.randf_range(-reach.x, reach.x), rng.randf_range(-reach.y, reach.y))
+		sprite.flip_h = place["flip"]
+		sprite.scale *= float(place["size"])
+		sprite.position = place["at"]
 		holder.add_child(sprite)
 		shadows.add_child(BigTrees.shadow_for(sprite))
 	if not Engine.is_editor_hint():
 		_build_collision(cells)
+
+
+## Where and how `cell` grows its tree, seeded by the cell and `variation`: {tree, at, size, flip}.
+func _placement(cell: Vector2i) -> Dictionary:
+	var trees := trees_of(cell)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([cell.x, cell.y, variation])
+	var tree := trees[rng.randi_range(0, trees.size() - 1)]
+	var flip := rng.randf() < 0.5
+	var size := rng.randf_range(size_range.x, size_range.y)
+	var reach := shift * SHIFT_SCALE
+	var at := Vector2(cell) * Vector2(tile_set.tile_size) + FOOT \
+			+ Vector2(rng.randf_range(-reach.x, reach.x), rng.randf_range(-reach.y, reach.y))
+	return {"tree": tree, "at": at, "size": size, "flip": flip}
+
+
+## A wall shows no ground: every painted cell whose solid part (as `_build_collision` shapes it) the
+## grown trees leave visible at one of its GAP_SAMPLES grows its own tree too. Bottom rows first,
+## as trees hide the ground above their feet, so a lower tree may already cover a cell.
+func _fill_gaps(painted: Dictionary, placed: Dictionary) -> void:
+	var order := painted.keys()
+	order.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y > b.y or (a.y == b.y and a.x < b.x))
+	var size := Vector2(tile_set.tile_size)
+	for cell: Vector2i in order:
+		if placed.has(cell):
+			continue
+		var top := 0.0 if painted.has(cell + Vector2i.UP) else FOOT.y - TRUNK_HEIGHT
+		var bottom := size.y if painted.has(cell + Vector2i.DOWN) else FOOT.y
+		var corner := Vector2(cell) * size
+		for sample: Vector2 in GAP_SAMPLES:
+			var point := corner + Vector2(sample.x * size.x, lerpf(top, bottom, sample.y))
+			if not _hidden(point, cell, placed):
+				placed[cell] = _placement(cell)
+				break
+
+
+## True when a placed tree near `cell` hides the ground at `point`.
+func _hidden(point: Vector2, cell: Vector2i, placed: Dictionary) -> bool:
+	for dy in range(-1, GAP_REACH.y + 1):
+		for dx in range(-GAP_REACH.x, GAP_REACH.x + 1):
+			var place: Variant = placed.get(cell + Vector2i(dx, dy))
+			if place != null and BigTrees.covers(place["tree"], place["at"], place["size"], place["flip"], point):
+				return true
+	return false
 
 
 ## The child `holder_name` (unowned, so never saved), emptied.
