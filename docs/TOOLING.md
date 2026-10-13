@@ -86,6 +86,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `res://tools/retree_scenes.gd` (headless) gives the placed tree scenes their trees from the table;
   `res://tools/absorb_wall_trees.gd` (headless, `-- --scene=<world> "--groups=<node>:<mix>,..."`) turns
   placed wall trees into forest paint.
+- Prop palettes ([godot/PROPS.md](godot/PROPS.md)): `res://tools/build_prop_palettes.gd` (windowed:
+  `--path godot -s res://tools/build_prop_palettes.gd`) renders a thumbnail of every scenery scene into
+  `godot/asset/MAPS/palettes/` and writes `game/world/props/walls_tileset.tres`, `props_tileset.tres` and
+  `prop_palettes.json` (let the editor import the images after); `res://tools/absorb_props.gd` (headless,
+  `-- --scene=<world> [--scene=...] [--dry]`) turns a world's placed scenery into paint on its prop layers.
 - `python scripts/art/build-forest-paint-tiles.py` — the forest layer's palette: a tile per mix and per
   tree, into
   `godot/asset/MAPS/forest/forest_paint_tiles.png` and `godot/game/world/forest/forest_tileset.tres`

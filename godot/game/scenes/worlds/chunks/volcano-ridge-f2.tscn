@@ -1,20 +1,18 @@
 [gd_scene format=4]
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_54y0c"]
-[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_2qark"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_2qark"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="3_0832m"]
-[ext_resource type="Script" path="res://game/world/forest/forest_layer.gd" id="4_7vka8"]
+[ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="4_7vka8"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_hwra4"]
-[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="6_oq2rs"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="6_oq2rs"]
 [ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="7_gicov"]
-[ext_resource type="Script" path="res://game/world/elevation/fences/fence_layer.gd" id="8_bank0"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="9_yjlpe"]
-[ext_resource type="Script" path="res://game/scripts/world_exit.gd" id="10_y0sbh"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-24.tscn" id="11_1h24i"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-19.tscn" id="12_xg8gn"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--large-03.tscn" id="13_4bl15"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-22.tscn" id="14_cbdxq"]
-[ext_resource type="Script" path="res://game/world/atlas/map_note.gd" id="15_335j6"]
+[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/elevation/fences/fence_layer.gd" id="8_bank0"]
+[ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="9_bjkmh"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_yjlpe"]
+[ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_bt70y"]
+[ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_y0sbh"]
+[ext_resource type="Script" uid="uid://blxewggxlc5jg" path="res://game/world/atlas/map_note.gd" id="15_335j6"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_northern_ruins_1"]
 size = Vector2(32, 128)
@@ -57,6 +55,12 @@ z_index = -1
 tile_map_data = PackedByteArray("AAAHAAAAAAADAAAAAAAUAAAAAAADAAAAAAAHAAEAAAADAAAAAAAUAAEAAAADAAAAAAAHAAIAAAADAAAAAAAUAAIAAAADAAAAAAAHAAMAAAADAAAAAAAUAAMAAAADAAAAAAAHAAQAAAADAAAAAAAUAAQAAAADAAAAAAAHAAUAAAADAAAAAAAUAAUAAAADAAAAAAAVAAUAAAADAAAAAAAWAAUAAAADAAAAAAAHAAYAAAADAAAAAAAQAAYAAAADAAAAAAARAAYAAAADAAAAAAASAAYAAAADAAAAAAATAAYAAAADAAAAAAAWAAYAAAADAAAAAAAHAAcAAAADAAAAAAAQAAcAAAADAAAAAAATAAcAAAADAAAAAAAWAAcAAAADAAAAAAAXAAcAAAADAAAAAAAYAAcAAAADAAAAAAAHAAgAAAADAAAAAAAIAAgAAAADAAAAAAAJAAgAAAADAAAAAAAQAAgAAAADAAAAAAATAAgAAAADAAAAAAAYAAgAAAADAAAAAAAJAAkAAAADAAAAAAAQAAkAAAADAAAAAAARAAkAAAADAAAAAAASAAkAAAADAAAAAAATAAkAAAADAAAAAAAYAAkAAAADAAAAAAAJAAoAAAADAAAAAAAKAAoAAAADAAAAAAALAAoAAAADAAAAAAAYAAoAAAADAAAAAAALAAsAAAADAAAAAAAYAAsAAAADAAAAAAALAAwAAAADAAAAAAAMAAwAAAADAAAAAAANAAwAAAADAAAAAAAWAAwAAAADAAAAAAAXAAwAAAADAAAAAAAYAAwAAAADAAAAAAANAA0AAAADAAAAAAAWAA0AAAADAAAAAAANAA4AAAADAAAAAAAOAA4AAAADAAAAAAAPAA4AAAADAAAAAAAQAA4AAAADAAAAAAARAA4AAAADAAAAAAAWAA4AAAADAAAAAAARAA8AAAADAAAAAAAWAA8AAAADAAAAAAARABAAAAADAAAAAAAWABAAAAADAAAAAAALABEAAAADAAAAAAAMABEAAAADAAAAAAANABEAAAADAAAAAAAOABEAAAADAAAAAAAPABEAAAADAAAAAAAQABEAAAADAAAAAAARABEAAAADAAAAAAAWABEAAAADAAAAAAAXABEAAAADAAAAAAAYABEAAAADAAAAAAALABIAAAADAAAAAAAUABIAAAADAAAAAAAVABIAAAADAAAAAAAYABIAAAADAAAAAAALABMAAAADAAAAAAAUABMAAAADAAAAAAAVABMAAAADAAAAAAAYABMAAAADAAAAAAALABQAAAADAAAAAAAYABQAAAADAAAAAAAJABUAAAADAAAAAAAKABUAAAADAAAAAAALABUAAAADAAAAAAAYABUAAAADAAAAAAAZABUAAAADAAAAAAAaABUAAAADAAAAAAAbABUAAAADAAAAAAAcABUAAAADAAAAAAAdABUAAAADAAAAAAAeABUAAAADAAAAAAAfABUAAAADAAAAAAAJABYAAAADAAAAAAAaABYAAAADAAAAAAAbABYAAAADAAAAAAAFABcAAAADAAAAAAAGABcAAAADAAAAAAAHABcAAAADAAAAAAAIABcAAAADAAAAAAAJABcAAAADAAAAAAAaABcAAAADAAAAAAAbABcAAAADAAAAAAAFABgAAAADAAAAAAASABgAAAADAAAAAAATABgAAAADAAAAAAAUABgAAAADAAAAAAAVABgAAAADAAAAAAAWABgAAAADAAAAAAAXABgAAAADAAAAAAAYABgAAAADAAAAAAAZABgAAAADAAAAAAADABkAAAADAAAAAAAEABkAAAADAAAAAAAFABkAAAADAAAAAAASABkAAAADAAAAAAAZABkAAAADAAAAAAADABoAAAADAAAAAAAKABoAAAADAAAAAAALABoAAAADAAAAAAAMABoAAAADAAAAAAANABoAAAADAAAAAAASABoAAAADAAAAAAAZABoAAAADAAAAAAAAABsAAAADAAAAAAABABsAAAADAAAAAAACABsAAAADAAAAAAADABsAAAADAAAAAAAKABsAAAADAAAAAAANABsAAAADAAAAAAASABsAAAADAAAAAAATABsAAAADAAAAAAAUABsAAAADAAAAAAAXABsAAAADAAAAAAAYABsAAAADAAAAAAAZABsAAAADAAAAAAAIABwAAAADAAAAAAAJABwAAAADAAAAAAAKABwAAAADAAAAAAANABwAAAADAAAAAAAUABwAAAADAAAAAAAXABwAAAADAAAAAAAIAB0AAAADAAAAAAAJAB0AAAADAAAAAAAKAB0AAAADAAAAAAALAB0AAAADAAAAAAAMAB0AAAADAAAAAAANAB0AAAADAAAAAAAUAB0AAAADAAAAAAAVAB0AAAADAAAAAAAWAB0AAAADAAAAAAAXAB0AAAADAAAAAAAKAB4AAAADAAAAAAALAB4AAAADAAAAAAAcAB4AAAADAAAAAAAdAB4AAAADAAAAAAAKAB8AAAADAAAAAAALAB8AAAADAAAAAAAcAB8AAAADAAAAAAAdAB8AAAADAAAAAAA=")
 tile_set = ExtResource("7_gicov")
 script = ExtResource("8_bank0")
+
+[node name="walls" type="TileMapLayer" parent="." unique_id=82024269]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAACAAsAAQAHAAEAAAAKABMAAQACAAEAAAADABcAAQAJAAEAAAAWABsAAQAFAAEAAAA=")
+tile_set = ExtResource("9_bjkmh")
+script = ExtResource("10_bt70y")
 
 [node name="world-definition" type="Node" parent="." unique_id=1716062321]
 script = ExtResource("9_yjlpe")
@@ -169,21 +173,6 @@ target_area_id = "volcano-ridge-g2"
 entry = "west"
 keep_along = true
 area = NodePath("..")
-
-[node name="props" type="Node2D" parent="." unique_id=1605078386]
-y_sort_enabled = true
-
-[node name="rock-021" parent="props" unique_id=226644215 instance=ExtResource("11_1h24i")]
-position = Vector2(160, 760)
-
-[node name="rock-022" parent="props" unique_id=1966715563 instance=ExtResource("12_xg8gn")]
-position = Vector2(672, 1272)
-
-[node name="boulder-023" parent="props" unique_id=1642964976 instance=ExtResource("13_4bl15")]
-position = Vector2(192, 1528)
-
-[node name="rock-025" parent="props" unique_id=389862983 instance=ExtResource("14_cbdxq")]
-position = Vector2(1440, 1784)
 
 [node name="notes" type="Node2D" parent="." unique_id=693040390]
 

@@ -1,19 +1,18 @@
 [gd_scene format=4]
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_o8pl6"]
-[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_n7ja0"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_n7ja0"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="3_qc04u"]
-[ext_resource type="Script" path="res://game/world/forest/forest_layer.gd" id="4_vd7s0"]
+[ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="4_vd7s0"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_1pg1q"]
-[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="6_v0bxw"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="6_v0bxw"]
 [ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="7_ayi0u"]
-[ext_resource type="Script" path="res://game/world/elevation/fences/fence_layer.gd" id="8_0x3dk"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="9_aua83"]
-[ext_resource type="Script" path="res://game/scripts/world_exit.gd" id="10_wdacs"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-17.tscn" id="11_au7i7"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-13.tscn" id="12_g14ub"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-18.tscn" id="13_3pr50"]
-[ext_resource type="Script" path="res://game/world/atlas/map_note.gd" id="14_20ri7"]
+[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/elevation/fences/fence_layer.gd" id="8_0x3dk"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_aua83"]
+[ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="9_sy4bc"]
+[ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_o8pl6"]
+[ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_wdacs"]
+[ext_resource type="Script" uid="uid://blxewggxlc5jg" path="res://game/world/atlas/map_note.gd" id="14_20ri7"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_crystal_caverns_1"]
 size = Vector2(128, 32)
@@ -55,6 +54,12 @@ script = ExtResource("6_v0bxw")
 z_index = -1
 tile_set = ExtResource("7_ayi0u")
 script = ExtResource("8_0x3dk")
+
+[node name="walls" type="TileMapLayer" parent="." unique_id=314934753]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAPABMAAQAAAAEAAAAMABQAAQAMAAAAAAAGABwAAQABAAEAAAA=")
+tile_set = ExtResource("9_sy4bc")
+script = ExtResource("10_o8pl6")
 
 [node name="world-definition" type="Node" parent="." unique_id=1327873521]
 script = ExtResource("9_aua83")
@@ -163,18 +168,6 @@ target_area_id = "north-wilds-f3"
 entry = "east"
 keep_along = true
 area = NodePath("..")
-
-[node name="props" type="Node2D" parent="." unique_id=358065224]
-y_sort_enabled = true
-
-[node name="rock-053" parent="props" unique_id=557479950 instance=ExtResource("11_au7i7")]
-position = Vector2(992, 1272)
-
-[node name="rock-055" parent="props" unique_id=1622780536 instance=ExtResource("12_g14ub")]
-position = Vector2(800, 1336)
-
-[node name="rock-075" parent="props" unique_id=632258854 instance=ExtResource("13_3pr50")]
-position = Vector2(416, 1848)
 
 [node name="notes" type="Node2D" parent="." unique_id=1128238423]
 

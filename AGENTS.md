@@ -79,11 +79,13 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   `move_and_slide()`.
 - Gameplay values come from `godot/game/data/game-constants.json` or scene properties, never new
   literals.
-- Worlds are scenes: NPCs, houses, props, walls, gates and interactions are instances in the world
-  scene; the player and enemies are spawned by code.
+- Worlds are scenes: NPCs, gates, interactions and props with logic are instances in the world
+  scene; scenery (walls, rocks, houses, nature, water life, interiors) is painted from a palette on
+  `walls` and `props` PropLayers ([docs/godot/PROPS.md](docs/godot/PROPS.md)); the player and
+  enemies are spawned by code.
 - Terrain is ground only; transitions between grounds are hand-made edge tiles
-  ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); walls are placed object instances,
-  except tree walls, painted on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)).
+  ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); walls are painted on the `walls` prop
+  layer, tree walls on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)).
 - Hills, holes and stairs are painted on a world's `elevation` layer; cliffs, their lips and feet
   and each level's collision follow; a wall's rock follows its ground unless a style is painted on
   the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)).
