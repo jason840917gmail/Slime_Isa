@@ -82,7 +82,7 @@ func _initialize() -> void:
 			root.free()
 			continue
 		for child in root.get_children():
-			if child is AnimationPlayer or child.name == &"Shadow":
+			if child is AnimationPlayer:
 				root.remove_child(child)
 				child.free()
 		var resource := root.get_node_or_null(^"ResourceNodeScript")
@@ -90,10 +90,16 @@ func _initialize() -> void:
 			resource.set(&"idle_animation_id", "")
 			resource.set(&"on_hit_animation_id", "")
 			resource.set(&"animation", null)
-		var shadow := BigTrees.shadow_for(visual)
-		root.add_child(shadow)
-		root.move_child(shadow, 0)
-		shadow.owner = root
+		var shade := BigTrees.shadow_for(visual)
+		var shadow := root.get_node_or_null(^"Shadow") as Sprite2D
+		if shadow == null:
+			root.add_child(shade)
+			root.move_child(shade, 0)
+			shade.owner = root
+		else:
+			for property: StringName in [&"texture", &"modulate", &"z_index", &"scale", &"position"]:
+				shadow.set(property, shade.get(property))
+			shade.free()
 		var packed := PackedScene.new()
 		var err := packed.pack(root)
 		if err == OK:

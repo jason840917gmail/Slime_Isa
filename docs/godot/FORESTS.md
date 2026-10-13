@@ -39,7 +39,10 @@ per kind holding a medium and a tall tree, two renders per kind, in
 `asset/Originals/trees/<set>/generated/<kind>-<a|b>.png`. `scripts/art/build-tree-sets.py` cuts
 them, grades the forest set's leaves toward the style guide's greens (its renders came out
 yellow-olive), sizes them, pads them for the sway and packs `godot/asset/MAPS/trees/sets/<set>.webp`
-with the shared table `trees.json` (per tree: its atlas, rectangle, foot and whether it sways).
+with the shared table `trees.json` (per tree: its atlas, rectangle, foot, whether it sways, and
+its cover: a mask of 16-unit blocks where the tree hides the ground). The atlases import with
+mipmaps and the tree sprites draw with mipmapped filtering: at half size or less, plain filtering
+made the leaf outlines shimmer while the view moved and the canopy swayed.
 `game/world/forest/big_trees.gd` reads the table and sets a sprite up as a tree (and its shade).
 
 ## Using it
@@ -65,6 +68,12 @@ painted cells: one seeded candidate per 2 x 2 block, kept when no tree grows bes
 neighbours may), then every painted cell with no tree in or around it gets one, so a one-cell row
 still shows a tree on every other cell. Collision does not thin: every painted cell is solid.
 
+**No open spots.** A wall must look as solid as it is, so `_fill_gaps` then checks six points of
+every painted cell's solid part (as the collision shapes it) against the grown trees' cover masks,
+bottom rows first (a tree hides the ground above its foot); a cell where the ground would still
+show grows its own tree. Woods come out denser where thinning left a hole, a thin wall or a
+cactus row needs more of them.
+
 **Shade.** Under each tree a soft dark ellipse (`tree_shadow.tres`, `BigTrees.SHADOW_*`) lies on
 the ground at z -1 (above the ground layer at -2, below everything standing), a little to the lower
 right as the light comes from the upper left. The shades of a wood overlap into a dark floor, so the
@@ -89,8 +98,11 @@ left alone and listed in the Output. Save, and delete the empty group.
   `Shadows`; the scene saves only the cells.
 - **Sway:** `game/world/forest/tree_sway.gdshader` (material `tree_sway_material.tres`, shared so
   the trees batch): each pixel row shifts sideways by an amount that is 0 up to `hinge` texture px
-  above the foot and grows toward the crown, the phase taken from where the tree stands (real
-  time, presentation only). Tune `amplitude`, `hinge`, `reach` and `speed` on the material in the
+  above the foot and grows toward the crown in one slow, even swing (a ripple travelling up the
+  canopy was dropped: big canopies wobbled like jelly), the phase a smooth function of where the
+  tree stands (real time, presentation only). Never a hash of the position: at whole zooms the
+  camera's pixel snapping moves the shader's origin by a fraction of a pixel as the view moves,
+  and a hash of it jumped every tree to a new phase, so the sway reset whenever the screen moved. Tune `amplitude`, `hinge`, `reach` and `speed` on the material in the
   Inspector; it sways in the editor too. Rigid trees get no material.
 - **Collision (game only):** a StaticBody2D `Collision` (layer 1, world) with one rectangle per run
   of cells along a row: from the trunks' tops (44 units above the foot, as the old trunk boxes) to
@@ -113,7 +125,8 @@ scale keep it as a factor of 0.5; the old per-instance offsets were dropped.
 **Seeing it:** `res://tools/render_forest.gd` renders a world's forest with the game's own drawing
 and a slime for scale (windowed: `--path godot -s res://tools/render_forest.gd --
 --scene=res://game/scenes/worlds/chunks/gloop-forest-e5.tscn --out=<dir>`, optional
-`--rect=x,y,w,h` in cells): the view at 1x, its middle at 2x and four moments of the sway.
+`--rect=x,y,w,h` in cells; `--solid` tints the painted cells' solid parts, to spot open ground
+in a wall): the view at 1x, its middle at 2x and four moments of the sway.
 
 ## Adding a set or a kind
 

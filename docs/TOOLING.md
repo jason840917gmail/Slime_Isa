@@ -77,10 +77,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   autumn, frost, desert, volcano, swamp, crystal, ruins, village): cuts the Magnific renders in
   `asset/Originals/trees/<set>/generated/` (a medium and a tall tree each), grades leaves where set,
   sizes them at 2 px per unit and packs `godot/asset/MAPS/trees/sets/<set>.webp` with the shared
-  `trees.json` (each tree's atlas, rectangle, foot and whether it sways). Run
+  `trees.json` (each tree's atlas, rectangle, foot, whether it sways and its cover mask; keep mipmaps on
+  in a new atlas's import). Run
   `build-forest-paint-tiles.py` after it ([godot/FORESTS.md](godot/FORESTS.md)). Godot tools:
   `res://tools/render_forest.gd` (windowed: `--path godot -s res://tools/render_forest.gd --
-  --scene=<world scene> --out=<dir>`) renders a world's forest with the game's own drawing;
+  --scene=<world scene> --out=<dir> [--solid]`) renders a world's forest with the game's own drawing
+  (`--solid` tints the walls' solid cells);
   `res://tools/retree_scenes.gd` (headless) gives the placed tree scenes their trees from the table;
   `res://tools/absorb_wall_trees.gd` (headless, `-- --scene=<world> "--groups=<node>:<mix>,..."`) turns
   placed wall trees into forest paint.

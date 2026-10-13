@@ -68,7 +68,32 @@ static func configure(sprite: Sprite2D, tree: String) -> bool:
 	sprite.offset = -Vector2(foot[0], foot[1])
 	sprite.scale = Vector2.ONE * float(table().get("scale", 0.5))
 	sprite.material = load(SWAY_MATERIAL) if bool(entry.get("sway", true)) else null
+	# Drawn at half size or less: mipmaps keep the leaf outlines from shimmering as the view moves.
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	return true
+
+
+## True when `tree`, standing at `at` (its foot) with `size` (its sprite scale over the table's) and
+## mirrored when `flip`, hides the ground at `point` (same space as `at`), by its cover mask.
+static func covers(tree: String, at: Vector2, size: float, flip: bool, point: Vector2) -> bool:
+	var entry: Dictionary = (table().get("trees", {}) as Dictionary).get(tree, {})
+	var cover: Array = entry.get("cover", [])
+	if cover.is_empty():
+		return false
+	var rect: Array = entry["rect"]
+	var foot: Array = entry["foot"]
+	var local := (point - at) / (float(table().get("scale", 0.5)) * size)
+	# Unflipped, atlas x = foot + local; flipped (Sprite2D mirrors within its rectangle) it is
+	# width - foot - local.
+	var ax: float = (float(rect[2]) - float(foot[0]) - local.x) if flip else (float(foot[0]) + local.x)
+	var ay: float = float(foot[1]) + local.y
+	var block := float(table().get("cover_block", 32))
+	var row := floori(ay / block)
+	var column := floori(ax / block)
+	if row < 0 or row >= cover.size() or column < 0:
+		return false
+	var line := str(cover[row])
+	return column < line.length() and line[column] == "1"
 
 
 ## The soft shade `tree` (a sprite set up by `configure`, positioned at its foot) casts on the
