@@ -31,7 +31,9 @@ res://game/main.tscn (main.gd)                         bootstrap
            WaterWake (water_wake.gd)  <- mounted by register_world; puts the water wake sprites on every walker body (WaterWakeBack first, WaterWakeFront last)
        elevation (TileMapLayer, elevation_layer.gd)  <- painted levels and stairs; hidden in the game
        forest (TileMapLayer, forest_layer.gd) > Trees, Shadows, Collision  <- painted tree walls (FORESTS.md); builds its own trees
-       walls, props (TileMapLayer, prop_layer.gd) > Props  <- painted scenery (PROPS.md); instances its own props
+       walls (TileMapLayer, wall_layer.gd) > Walls, Collision  <- painted built walls (WALLS.md); draws its own pieces
+       cell-props, details, large-props, old-props (TileMapLayer, prop_layer.gd) > Props  <- painted scenery (PROPS.md); instances its own props
+       Scenery (Node2D, y-sorted)  <- props placed as nodes from the Scenery dock (PROPS.md)
        ...converted props/NPCs (npc.gd), world areas (world_area.gd), exits (world_exit.gd)
        WorldBounds (StaticBody2D, built at runtime)
        PlayerSlime (character.player-slime)  <- spawned at runtime
@@ -254,7 +256,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world/atlas/world_map_data.gd`, `world_atlas.gd`, `atlas_region.gd`, `atlas_world_survey.gd`, `map_note.gd`; `game/data/world-map.json`; `game/dev/world_atlas.tscn` | world | The world layout (regions on the 8 × 8 chunk grid, their worlds, openings), the editor atlas that shows every world on it and moves regions, MapNotes (sketch markers in placeholder worlds, editor only) ([WORLD_ATLAS.md](WORLD_ATLAS.md)) |
 | `game/world/atlas/world_chunks.gd`; `game/data/world-chunks.json`; `game/scenes/worlds/chunks/` | world | Regions cut into chunk worlds (`tools/split_region_chunks.gd`): travel into a cut region goes to the chunk that holds the arrival marker; a chunk knows its region for the map ([WORLD_ATLAS.md](WORLD_ATLAS.md#chunk-worlds-a-test-2026-10-12)) |
 | `game/world/forest/forest_layer.gd`, `big_trees.gd`, `forest_tileset.tres`, `tree_sway.gdshader` | world | Tree walls painted on a `ForestLayer`: the region sets' big trees, thinned with every wall gap filled, ground shade, canopy sway, trunk-line collision, "Absorb trees" for placed wall trees ([FORESTS.md](FORESTS.md)) |
-| `game/world/props/prop_layer.gd`, `walls_tileset.tres`, `props_tileset.tres`, `prop_palettes.json` | world | Scenery painted from a palette on `walls` (64 grid) and `props` (8 grid) PropLayers: each painted cell instances its scene at the tile's anchor, size and mirror ([PROPS.md](PROPS.md)) |
+| `game/world/walls/wall_layer.gd`, `wall_piece.gd`, `wall_tileset.tres` | world | Built walls painted on a `walls` WallLayer: each cell's shape from its painted neighbours, drawn from its style's sheet (16 shapes, 4 pattern parities), each shape's footprint solid; `WallPiece` shows one piece in the kept `wall-stone-solid` scenes ([WALLS.md](WALLS.md)) |
+| `game/world/props/prop_layer.gd`, `props_cell_tileset.tres`, `props_detail_tileset.tres`, `walls_tileset.tres`, `props_tileset.tres`, `prop_palettes.json` | world | Scenery painted from a palette on PropLayers: `cell-props` (64 grid) and `details` (32), each prop a block of whole cells; `old-props` (8) for free placement (and what was painted before); the older `large-props` (64). Each painted cell instances its scene at the tile's anchor, size and mirror ([PROPS.md](PROPS.md)) |
 | `game/world/water_wake.gd` | world | Splash and ripple sprites at the feet of every walker in shallow or deep water ([specs/water.md](specs/water.md#9-wading-godot-only)); mounted by `WorldService.register_world` after the elevation |
 | `game/world/npc_wander_policy.gd` | world | |
 | `game/scripts/world_definition.gd` | world | |

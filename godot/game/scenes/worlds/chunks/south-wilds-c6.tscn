@@ -12,6 +12,8 @@
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_co4ua"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_ob0rr"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_oirwa"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_1khwh"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_2ucdt"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_level_1_1"]
 size = Vector2(128, 32)
@@ -56,10 +58,20 @@ z_index = -1
 tile_set = ExtResource("7_nn5vv")
 script = ExtResource("8_7xr4c")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=413324007]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=413324007]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAALAAcAAQAAAAEAAAA=")
+tile_map_data = PackedByteArray("AAALAAcAAQAwAAcAAAA=")
 tile_set = ExtResource("9_6evug")
+script = ExtResource("10_ob0rr")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=491887357]
+y_sort_enabled = true
+tile_set = ExtResource("11_1khwh")
+script = ExtResource("10_ob0rr")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=169019705]
+y_sort_enabled = true
+tile_set = ExtResource("12_2ucdt")
 script = ExtResource("10_ob0rr")
 
 [node name="world-definition" type="Node" parent="." unique_id=1323308113]

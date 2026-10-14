@@ -12,6 +12,8 @@
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_yjlpe"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_bt70y"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_y0sbh"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_54y0c"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_2qark"]
 [ext_resource type="Script" uid="uid://blxewggxlc5jg" path="res://game/world/atlas/map_note.gd" id="15_335j6"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_northern_ruins_1"]
@@ -56,10 +58,20 @@ tile_map_data = PackedByteArray("AAAHAAAAAAADAAAAAAAUAAAAAAADAAAAAAAHAAEAAAADAAA
 tile_set = ExtResource("7_gicov")
 script = ExtResource("8_bank0")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=82024269]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=82024269]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAACAAsAAQAHAAEAAAAKABMAAQACAAEAAAADABcAAQAJAAEAAAAWABsAAQAFAAEAAAA=")
+tile_map_data = PackedByteArray("AAACAAsAAQAcAA4AAAAKABMAAQA+AAcAAAADABcAAQA0AA4AAAAWABsAAQAOAA4AAAA=")
 tile_set = ExtResource("9_bjkmh")
+script = ExtResource("10_bt70y")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=531001122]
+y_sort_enabled = true
+tile_set = ExtResource("11_54y0c")
+script = ExtResource("10_bt70y")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=573771952]
+y_sort_enabled = true
+tile_set = ExtResource("12_2qark")
 script = ExtResource("10_bt70y")
 
 [node name="world-definition" type="Node" parent="." unique_id=1716062321]

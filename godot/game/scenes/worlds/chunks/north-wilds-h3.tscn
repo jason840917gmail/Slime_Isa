@@ -12,6 +12,8 @@
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_yxmrl"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_xl6no"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_yomjl"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_5pux5"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_0s6jo"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_crystal_caverns_1"]
 size = Vector2(128, 32)
@@ -55,10 +57,20 @@ tile_map_data = PackedByteArray("AAAGAAAAAAADAAAAAAAHAAAAAAADAAAAAAAIAAAAAAADAAA
 tile_set = ExtResource("7_yhmic")
 script = ExtResource("8_n4x0k")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=1905584297]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=1905584297]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAARAA8AAQAJAAEAAAAYABUAAQAOAAAAAAA=")
+tile_map_data = PackedByteArray("AAARAA8AAQA0AA4AAAAYABUAAQAiAAcAAAA=")
 tile_set = ExtResource("9_m5qx7")
+script = ExtResource("10_xl6no")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1819731897]
+y_sort_enabled = true
+tile_set = ExtResource("11_5pux5")
+script = ExtResource("10_xl6no")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=1962966846]
+y_sort_enabled = true
+tile_set = ExtResource("12_0s6jo")
 script = ExtResource("10_xl6no")
 
 [node name="world-definition" type="Node" parent="." unique_id=2051591363]

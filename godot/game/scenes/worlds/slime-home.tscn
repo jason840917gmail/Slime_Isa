@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="3"]
 [ext_resource type="TileSet" path="res://game/world/props/props_tileset.tres" id="3_27bxv"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="4_hla34"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="5_0gu6n"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="6_y1j3a"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/beds/interior-beds-straw-nest-s.tscn" id="18"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-rug-green-large.tscn" id="21"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="28"]
@@ -26,10 +28,20 @@ metadata/rows = 11
 
 [node name="TileCollision" type="Node2D" parent="ground" unique_id=173148428]
 
-[node name="props" type="TileMapLayer" parent="." unique_id=1983730450]
+[node name="old-props" type="TileMapLayer" parent="." unique_id=1983730450]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAAIABMAEAAAAAMAAAAYABMAEAAAAAMAAAAoABMAEAAAAAMAAAA4ABMAEAAAAAMAAABIABMAEAAAAAMAAABYABMAEAAAAAMAAABoABMAEAAAAAMAAABuABMAEAAOAAIAAAADABoAEAADAAAAAABtABoAEAADAAAAAAADACkAEAADAAAAAABtACkAEAADAAAAAAADADcAEAADAAAAAABtADcAEAADAAAAAAADAEYAEAADAAAAAABtAEYAEAADAAAAAAADAFQAEAADAAAAAABtAFQAEAADAAAAAAAIAFgAEAAEAAAAAAAWAFgAEAAEAAAAAAAkAFgAEAAEAAAAAABMAFgAEAAEAAAAAABaAFgAEAAEAAAAAABoAFgAEAAEAAAAAAAvAFgAEAAFAAIAAABCAFgAEAAFAAIAAAA4AFcABgADACkAAAA4ABkABwACAAIAAAA4ACIABgAGACkAAAAYABcABwAHAAEAAAAlABcADwAEAAAAAAAoAB0ABwACAAAAAABIABgABgAFABYAAABWAA0ABwAJAAIAAABlAA4ABgAFAAEAAAAUAC0ABgAFACsAAABdACYABgAFACsAAAAiAC0AEQABAAEAAAAiACoABgAFAAYAAABQACYAEQABAAEAAABQACIABgAFAAYAAAA4AD0AEQACAAAAAABjADsADwANAAAAAABkAE8ADwAAAAIAAABZAFAADwAEAAAAAAANAEYABgAFAD8AAAAMAFEABwAGAAAAAAAKADcABgAFACIAAAAeAFEABgAFACIAAAA=")
+tile_map_data = PackedByteArray("AAAIABMAEABAABsAAAAYABMAEABAABsAAAAoABMAEABAABsAAAA4ABMAEABAABsAAABIABMAEABAABsAAABYABMAEABAABsAAABoABMAEABAABsAAABuABMAEAAzABsAAAADABoAEAAaAAAAAABtABoAEAAaAAAAAAADACkAEAAaAAAAAABtACkAEAAaAAAAAAADADcAEAAaAAAAAABtADcAEAAaAAAAAAADAEYAEAAaAAAAAABtAEYAEAAaAAAAAAADAFQAEAAaAAAAAABtAFQAEAAaAAAAAAAIAFgAEAAeAAAAAAAWAFgAEAAeAAAAAAAkAFgAEAAeAAAAAABMAFgAEAAeAAAAAABaAFgAEAAeAAAAAABoAFgAEAAeAAAAAAAvAFgAEABVABIAAABCAFgAEABVABIAAAA4AFcABgAqABwAAQA4ABkABwAIABEAAAA4ACIABgAqABwAAgAYABcABwAXAAUAAAAlABcADwAQAAAAAAAoAB0ABwAIAAAAAABIABgABgAYAA4AAABWAA0ABwA9ABEAAABlAA4ABgATAAAAAAAUAC0ABgBRABwAAABdACYABgBRABwAAAAiAC0AEQAYABEAAAAiACoABgBAAAAAAABQACYAEQAYABEAAABQACIABgBAAAAAAAA4AD0AEQAYAAAAAABjADsADwA1AAAAAABkAE8ADwAFAAsAAABZAFAADwAQAAAAAAANAEYABgBZAC4AAAAMAFEABwAYAAAAAAAKADcABgAtABUAAAAeAFEABgAtABUAAAA=")
 tile_set = ExtResource("3_27bxv")
+script = ExtResource("4_hla34")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=962112006]
+y_sort_enabled = true
+tile_set = ExtResource("5_0gu6n")
+script = ExtResource("4_hla34")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=344262318]
+y_sort_enabled = true
+tile_set = ExtResource("6_y1j3a")
 script = ExtResource("4_hla34")
 
 [node name="world-definition" type="Node" parent="." unique_id=528327273]

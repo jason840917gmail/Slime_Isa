@@ -130,6 +130,9 @@ const LANDING_FADE := 14.0
 
 ## The side along a face: −1 or 1 (the sign of t), 0 without.
 var near := 0.0
+## The sides look (Elevation `_sides_look`): the slope's edge along the face is hard, EDGE_FADE in
+## from the face (`edge_t`), so the wall's stones stay whole up to it and its foot line lies on it.
+var hard_edge := false
 ## The stretch of s along which the near side runs at a face (its foot follows the slope there).
 var face_from := 0.0
 var face_to := 0.0
@@ -545,19 +548,31 @@ func add_mesh(mesh: MeshData) -> void:
 		var t_near := near * half
 		var t_in := near * (half - minf(EDGE_FADE, half))
 		_emit_fan(mesh, [Vector3(0.0, -t_near, height), Vector3(ramp, -t_near, 0.0), Vector3(ramp, t_in, 0.0), Vector3(0.0, t_in, height)], shown)
-		var band: Array = [[Vector3(0.0, t_in, height), shown], [Vector3(ramp, t_in, 0.0), shown], [Vector3(ramp, t_near, 0.0), faded], [Vector3(0.0, t_near, height), faded]]
-		var corners: Array = []
-		for corner: Array in band:
-			var w := world(corner[0])
-			corners.append([screen(w), Vector2.ZERO, (corner[1] as Callable).call(corner[0], w), w.z])
-		_emit(mesh, [corners[0], corners[1], corners[2]])
-		_emit(mesh, [corners[0], corners[2], corners[3]])
+		if not hard_edge:
+			_emit_fade_band(mesh, t_in, t_near, height, shown, faded)
 	for polygon: Array in _skirt_faces():
 		_emit_fan(mesh, polygon, shown)
 	# An open end's cap: ground of the bottom level; what of it lies on the top (the tops around,
 	# `occluders`) is cut out by `_emit` and drawn with the top's ground (`add_cap_top`).
 	for triangle: Array in _cap_triangles(bottom):
 		_emit(mesh, triangle)
+
+
+## The t of the slope's edge along the face: where the slope is whole (EDGE_FADE in from the face).
+func edge_t() -> float:
+	return near * (half - minf(EDGE_FADE, half))
+
+
+## The band along the face from `t_in` (whole) to `t_near` (clear), so what the slope covers there
+## shows through it softly.
+func _emit_fade_band(mesh: MeshData, t_in: float, t_near: float, height: float, shown: Callable, faded: Callable) -> void:
+	var band: Array = [[Vector3(0.0, t_in, height), shown], [Vector3(ramp, t_in, 0.0), shown], [Vector3(ramp, t_near, 0.0), faded], [Vector3(0.0, t_near, height), faded]]
+	var corners: Array = []
+	for corner: Array in band:
+		var w := world(corner[0])
+		corners.append([screen(w), Vector2.ZERO, (corner[1] as Callable).call(corner[0], w), w.z])
+	_emit(mesh, [corners[0], corners[1], corners[2]])
+	_emit(mesh, [corners[0], corners[2], corners[3]])
 
 
 ## An open end's cap over the top beside it into `mesh`, with the top's ground (`top_ground`'s

@@ -86,11 +86,25 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `res://tools/retree_scenes.gd` (headless) gives the placed tree scenes their trees from the table;
   `res://tools/absorb_wall_trees.gd` (headless, `-- --scene=<world> "--groups=<node>:<mix>,..."`) turns
   placed wall trees into forest paint.
-- Prop palettes ([godot/PROPS.md](godot/PROPS.md)): `res://tools/build_prop_palettes.gd` (windowed:
-  `--path godot -s res://tools/build_prop_palettes.gd`) renders a thumbnail of every scenery scene into
-  `godot/asset/MAPS/palettes/` and writes `game/world/props/walls_tileset.tres`, `props_tileset.tres` and
-  `prop_palettes.json` (let the editor import the images after); `res://tools/absorb_props.gd` (headless,
+- Prop palettes ([godot/PROPS.md](godot/PROPS.md)): `res://tools/build_prop_palettes.gd` (windowed, with the
+  editor closed: `--path godot -s res://tools/build_prop_palettes.gd`) renders every scenery scene at its true
+  size, in a block of whole cells, into wide sheets in `godot/asset/MAPS/palettes/`, writes the `cell-props`
+  and `details` palettes (`game/world/props/props_cell_tileset.tres`, `props_detail_tileset.tres`) and
+  `prop_palettes.json`, and moves painted cells whose tile moved (open the editor to import the images
+  after); `res://tools/build_old_prop_palettes.gd` (the same way) builds the free-placement `old-props`
+  palette (`props_tileset.tres`: true-size tiles, at least 64 px, 32 for ground details);
+  `res://tools/absorb_props.gd` (headless,
   `-- --scene=<world> [--scene=...] [--dry]`) turns a world's placed scenery into paint on its prop layers.
+  Both headless converters save through `res://tools/lib/scene_save.gd`, which puts back the uids Godot's
+  headless save drops.
+- `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
+  ([godot/WALLS.md](godot/WALLS.md)): composes each style's 16 shapes in 4 pattern parities from its three
+  Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into
+  `godot/asset/MAPS/walls/sets/<style>.webp` with `walls.json` (frames, foot, collision per shape), and the
+  WallLayer palette (`palette.png`, `godot/game/world/walls/wall_tileset.tres`: an auto tile per style, then
+  every shape and every exact piece; `--palette` rebuilds only the palette); keep mipmaps on in a new
+  sheet's import. `res://tools/convert_stone_walls.gd` (headless, `-- --scene=<world> [--scene=...] [--dry]`)
+  turns a world's old stone walls into WallLayer cells.
 - `python scripts/art/build-forest-paint-tiles.py` — the forest layer's palette: a tile per mix and per
   tree, into
   `godot/asset/MAPS/forest/forest_paint_tiles.png` and `godot/game/world/forest/forest_tileset.tres`
@@ -106,6 +120,16 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/asset/MAPS/elevation/`; a world picks them with its ground layer's metadata `cliff_wall_styles` /
   `cliff_fringe`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd -- --force` rebuilds the
   cliff shapes lab that shows them ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
+- `"<Godot console exe>" --headless --path godot -s res://tools/bake_elevation.gd [-- --world=<id>,...]` —
+  bakes each world's elevation (drawing, depth map, collision) into
+  `godot/game/scenes/worlds/elevation_cache/`, so worlds load without building it; run (and commit)
+  after changing elevation art or before exporting ([godot/ELEVATION.md](godot/ELEVATION.md#baked-cache)).
+- `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
+  cliffs' sides look ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
+  and corner stones (`godot/asset/MAPS/elevation/<style>-side.png`, `-corners.png`) from a Magnific
+  sheet of four rounded stones; `--headless --path godot -s res://tools/build_cliff_sides_lab.gd`
+  builds the cliff sides lab and `--path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir>`
+  renders it.
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
   (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
@@ -121,9 +145,6 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `pnpm props:pack` (**numpy**) — packs `asset/Originals/props/` into bottom-anchored
   `godot/asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.webp` atlases (the crystal cluster art of the
   `crystal-cluster-wall` object scenes).
-- `python scripts/props/normalize-stone-walls.py` and `python scripts/props/build-wall-junctions.py` —
-  register every stone wall piece in `godot/asset/MAPS/walls/` on one layout (vertical bands at x 9-61,
-  horizontal bands at y 7-63 of the 70 px cell), then rebuild the T-junction art from the corners.
 - `python scripts/props/pack-web-decor.py` — keys the spider web decorations (ground webs, tree webs,
   hanging and ground victim cocoons, egg sacs; generated on `#FF00FF`) out of `asset/Originals/props/webs/`
   and packs them into `godot/asset/MAPS/props/256x256-tile_4x3-web-decor.webp`.

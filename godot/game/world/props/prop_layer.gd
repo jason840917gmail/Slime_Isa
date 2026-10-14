@@ -1,13 +1,15 @@
 @tool
 class_name PropLayer
 extends TileMapLayer
-## Props painted from a palette (docs/godot/PROPS.md): Add Node > PropLayer in a world scene (same
-## position as the ground layer) and give it a prop tile set: `walls_tileset.tres` (64-unit grid:
-## stone, rock and crystal walls, houses) or `props_tileset.tres` (8-unit grid: nature, rocks,
-## water life, trees, ground details, interiors). Pick a prop in the TileMap panel and paint; erase
-## to remove. Each painted cell shows exactly the prop painted there: the palette tile's scene,
-## standing at the tile's anchor in the cell, at the tile's size (the alternative tiles beside a prop
-## are its sizes), mirrored when painted flipped (the TileMap panel's flip button). Nothing random.
+## Props painted from a palette (docs/godot/PROPS.md): a world's `props` layer (64-unit cells,
+## `props_cell_tileset.tres`) and `details` layer (32-unit cells, `props_detail_tileset.tres`).
+## Pick a prop in the TileMap panel and paint; erase its cell to remove it. Each painted cell shows
+## exactly the prop painted there:
+## the palette tile's scene, standing at the tile's anchor in the cell, at the tile's size, mirrored
+## when painted flipped (the TileMap panel's flip button). Nothing random. On those palettes a prop
+## takes a block of whole cells, the painted cell its bottom-left one, and mirrors about the painted
+## cell's middle, as Godot mirrors the tile. The older layers (`old-props`, 8-unit cells, and
+## `large-props`, 64) keep what was painted on them before the cell layers (2026-10-13); there a prop mirrors in place.
 ##
 ## The props are real instances of their scenes (collision, idle animation), made by this layer and
 ## saved nowhere: the world scene stores only the painted cells, so its tree stays small. They are
@@ -24,11 +26,13 @@ const HOLDER := "Props"
 const SCENE_DATA := "prop_scene"
 const ANCHOR_DATA := "prop_anchor"
 const SIZE_DATA := "prop_size"
+## True on a tile whose prop mirrors about its cell's middle (the newer palettes).
+const MIRROR_DATA := "prop_mirror"
 const FLIP_FLAGS := TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V \
 		| TileSetAtlasSource.TRANSFORM_TRANSPOSE
 
 ## How strongly the palette squares show over the props in the editor (0 hides them).
-@export_range(0.0, 1.0) var paint_opacity: float = 0.0:
+@export_range(0.0, 1.0) var paint_opacity: float = 0.3:
 	set(value):
 		paint_opacity = value
 		_apply_opacity()
@@ -58,7 +62,8 @@ func _queue_rebuild() -> void:
 	_rebuild.call_deferred()
 
 
-## What painted `cell` shows: {scene, at (the prop's origin, layer space), size, flip}, or {}.
+## What painted `cell` shows: {scene, at (the prop's origin, layer space), size, flip, and
+## mirror_x (the line it mirrors about) when it mirrors about its cell's middle}, or {}.
 func prop_at(cell: Vector2i) -> Dictionary:
 	var source_id := get_cell_source_id(cell)
 	if source_id < 0 or tile_set == null or not tile_set.has_source(source_id):
@@ -75,12 +80,15 @@ func prop_at(cell: Vector2i) -> Dictionary:
 		return {}
 	var anchor: Vector2 = data.get_custom_data(ANCHOR_DATA)
 	var size := float(data.get_custom_data(SIZE_DATA))
-	return {
+	var prop := {
 		"scene": scene,
 		"at": Vector2(cell) * Vector2(tile_set.tile_size) + anchor,
 		"size": size if size > 0.0 else 1.0,
 		"flip": (alternative & TileSetAtlasSource.TRANSFORM_FLIP_H) != 0,
 	}
+	if tile_set.has_custom_data_layer_by_name(MIRROR_DATA) and bool(data.get_custom_data(MIRROR_DATA)):
+		prop["mirror_x"] = (cell.x + 0.5) * tile_set.tile_size.x
+	return prop
 
 
 ## Makes the props match the paint: new and changed cells get their prop, erased cells lose it,
@@ -104,7 +112,7 @@ func _rebuild() -> void:
 		if prop.is_empty():
 			continue
 		seen[cell] = true
-		var key := [prop["scene"], prop["at"], prop["size"], prop["flip"]]
+		var key := [prop["scene"], prop["at"], prop["size"], prop["flip"], prop.get("mirror_x")]
 		var old: Variant = _placed.get(cell)
 		if old != null and old[0] == key and is_instance_valid(old[1]):
 			continue
@@ -125,8 +133,23 @@ func _rebuild() -> void:
 			_placed.erase(cell)
 
 
+## The box a sprite draws, in its own space.
+static func picture_rect(item: Node2D) -> Rect2:
+	if item is Sprite2D:
+		return (item as Sprite2D).get_rect()
+	var animated := item as AnimatedSprite2D
+	if animated.sprite_frames == null or not animated.sprite_frames.has_animation(animated.animation):
+		return Rect2()
+	var texture := animated.sprite_frames.get_frame_texture(animated.animation, animated.frame)
+	if texture == null:
+		return Rect2()
+	var size := texture.get_size()
+	return Rect2((-size / 2.0 if animated.centered else Vector2.ZERO) + animated.offset, size)
+
+
 ## An instance of `prop`'s scene at its place, sized and mirrored on its `Visual` (as worlds used to
-## override placed props).
+## override placed props). With `mirror_x` a mirrored prop is also moved so that its picture is
+## mirrored about that line instead of about its Visual's middle.
 static func make_prop(prop: Dictionary) -> Node2D:
 	var path := str(prop["scene"])
 	if not _scenes.has(path):
@@ -144,4 +167,8 @@ static func make_prop(prop: Dictionary) -> Node2D:
 		visual.scale *= float(prop["size"])
 		if bool(prop["flip"]) and &"flip_h" in visual:
 			visual.set(&"flip_h", not bool(visual.get(&"flip_h")))
+			if prop.has("mirror_x") and (visual is Sprite2D or visual is AnimatedSprite2D):
+				# flip_h mirrors the picture about the Visual's middle; move it so the mirror line is mirror_x
+				var middle := node.position.x + (visual.transform * picture_rect(visual)).get_center().x
+				node.position.x += 2.0 * (float(prop["mirror_x"]) - middle)
 	return node

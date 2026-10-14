@@ -26,6 +26,10 @@ extends Node2D
 ##   Stairs   the flights of stairs (elevation_stairs.gd), back to front in one mesh per colour
 ##            (elevation_stairs.gdshader, `_stairs_material`), and StairsFeet: the ground growing up
 ##            their side walls.
+## A world whose ground layer has the metadata `cliff_look` = "sides" (`_sides_look`) draws Sides
+## (sides/elevation_sides.gd) instead of Walls, Feet and Lips: walls on every side of a top (a
+## narrow strip on the east and west sides, a thin band on the back), round front corners, back
+## corners where the side wall starts with a slanted end, wobbling edges drawn from the grounds.
 ## The terrain is the master of every cliff top and foot: a ground's own cliff fringes
 ## (`asset/MAPS/elevation/<ground>-lip.png`, `-foot.png`, scripts/art/build-elevation-art.py,
 ## elevation_fringe.gdshader) or, for a ground without them, its terrain edge art (the straight
@@ -95,6 +99,34 @@ const GLOW_SHADER := preload("res://game/world/elevation/elevation_glow.gdshader
 const WATER_FOOT_SHADER := preload("res://game/world/elevation/elevation_water_foot.gdshader")
 const STAIRS_SHADER := preload("res://game/world/elevation/elevation_stairs.gdshader")
 const RAMP_SHADER := preload("res://game/world/elevation/elevation_ramp.gdshader")
+const ElevationSides := preload("res://game/world/elevation/sides/elevation_sides.gd")
+const ElevationCache := preload("res://game/world/elevation/elevation_cache.gd")
+## The baked cache (docs/godot/ELEVATION.md "Baked cache", elevation_cache.gd): one per world scene in
+## CACHE_DIR, named after its path under WORLDS_DIR. Bump CACHE_VERSION when what the build makes
+## changes (debug runs also compare the sources of CACHE_SCRIPTS, so a stale cache is rebuilt there).
+const CACHE_DIR := "res://game/scenes/worlds/elevation_cache/"
+const WORLDS_DIR := "res://game/scenes/worlds/"
+const CACHE_VERSION := 2
+const CACHE_SCRIPTS: PackedStringArray = [
+	"res://game/world/elevation/elevation.gd", "res://game/world/elevation/elevation_grid.gd",
+	"res://game/world/elevation/elevation_rims.gd", "res://game/world/elevation/elevation_stairs.gd",
+	"res://game/world/elevation/elevation_ramp.gd", "res://game/world/elevation/elevation_mesh.gd",
+	"res://game/world/elevation/sides/elevation_sides.gd",
+]
+## The drawing's groups, bottom to top.
+const GROUP_NAMES: PackedStringArray = ["Patches", "Shade", "Shadows", "Walls", "Sides", "Rims", "Water", "Feet",
+	"Lips", "Ramps", "RampEnds", "RampFeet", "Stairs", "StairsFeet"]
+const SIDES_SHADER := preload("res://game/world/elevation/sides/elevation_sides.gdshader")
+## Bucket size (world units) for cutting the sides look's collision edges (`_split_all`).
+const SPLIT_BUCKET := 32.0
+## A ground darker than this (its average colour's value) gets a light top edge outline in the sides
+## look (`_sides_material`).
+const DARK_GROUND := 0.32
+## Cell size (world units) of the lookup of the sides look's shapes by place (`_side_cells`).
+const SHAPE_CELL := 128.0
+## A wall style's art for the sides look (scripts/art/build-side-wall-art.py): its side strip and
+## its corner stones; a style without them uses its wall art.
+const SIDES_ART := "res://asset/MAPS/elevation/%s-%s.png"
 const WATER_SURFACE_NODE := "WaterSurface"
 
 const NODE_NAME := "Elevation"
@@ -173,6 +205,10 @@ const DEFAULT_WALL_STYLE := "meadow-rock"
 ## the defaults.
 const WORLD_WALL_STYLES_META := &"cliff_wall_styles"
 const WORLD_FRINGE_META := &"cliff_fringe"
+## Ground layer metadata choosing how a world's cliffs look: SIDES_LOOK draws walls on every side
+## (sides/elevation_sides.gd, docs/godot/ELEVATION.md "Side walls"); anything else the front walls.
+const WORLD_CLIFF_LOOK_META := &"cliff_look"
+const SIDES_LOOK := "sides"
 const GROUND_WALL_STYLES := {
 	"highland": "meadow-rock", "frozen": "snow-rock", "sanddessert": "sandstone",
 	"forest-floor": "root-rock", "forest-moss": "mossy-rock", "amberleaf": "red-rock",
@@ -238,6 +274,13 @@ const FRINGE_KEY := ":fringe"
 ## nothing at the ramp's top end, so the lip's hanging ferns end on the slope there.
 const RAMP_FOOT_TOP_FADE := 40.0
 const RAMP_FOOT_FADE_IN := 40.0
+## The sides look's foot along a ramp's slope (`_add_sides_ramp_foot`): its shadow's reach over the
+## slope (world units) and strength.
+const SIDES_RAMP_FOOT_OUT := 12.0
+## …and the face's height (world units) over which it fades in from the ramp's top end: short, so
+## the line runs on almost to the tip.
+const SIDES_RAMP_FOOT_FADE_IN := 6.0
+const SIDES_RAMP_FOOT_SHADOW := 0.25
 ## How far apart (world units along the slope) `_ramp_wall_span` looks for the wall beside a ramp.
 const RAMP_FOOT_PROBE := 4.0
 ## Terrain edge atlas: 128 px tiles with a 2 px gutter; the straight tiles by where the rim points.
@@ -272,6 +315,15 @@ var band_styles := PackedStringArray()
 ## Rows painted above the map (off-map tops whose walls hang into the map): the grid starts this
 ## many rows above the map's first row, and this node sits as far up (grid cell = map cell + offset).
 var cell_offset := Vector2i.ZERO
+## Set by the bake tool (tools/bake_elevation.gd): build everything, never load a cache.
+static var ignore_cache := false
+## True when the last build came from the baked cache.
+var from_cache := false
+## What the build makes, recorded while it builds (a game build without a valid cache), for
+## `save_cache`.
+var _cache_record: ElevationCache
+## The build scripts' sources' hash, worked out once per run (`_code_hash`).
+static var _code := "?"
 var _queued := false
 ## style -> whether its wall art exists; WALL_END_ART path -> its texture (null without art), loaded
 ## once.
@@ -288,7 +340,15 @@ var _open_tops: Dictionary = {}
 ## The ground around them where only walls collide (`_find_open_zone`): grid index ->
 ## Vector2i(the cliff's level, the level its ramps start from); and its bounds (Elevation space).
 var _open_zone: Dictionary = {}
+## With the sides look: every top's drawn shape (ElevationSides.shapes, Elevation space). The lower
+## levels walk and collide by it (`_terrain_walkable`, `_with_sides`), not by the model's cells.
+var _side_shapes: Array = []
+## The shapes whose bounds touch each SHAPE_CELL-unit cell (Vector2i -> indices into _side_shapes).
+var _side_cells: Dictionary = {}
 var _open_rect := Rect2()
+## The lower ground behind each one-row open cliff, inside its outline (`_find_open_inner`): cell
+## index -> the cliff's level. A side of the cliff facing it is open like its back (no wall, no rim).
+var _open_inner: Dictionary = {}
 ## Sheet texture path -> its average colour (`_ground_colour`), for the run.
 static var _ground_colours: Dictionary = {}
 
@@ -532,10 +592,20 @@ func rebuild() -> void:
 	_open_tops = _find_open_tops()
 	_mark_open_tops()
 	_find_open_zone()
+	_find_open_inner()
 	_build_wall_styles()
-	_build_drawing()
+	var cache := _load_cache() if _collide else null
+	from_cache = cache != null
+	_cache_record = ElevationCache.new() if _collide and not from_cache else null
+	if from_cache:
+		_apply_cache(cache)
+	else:
+		_build_drawing()
 	if _collide:
-		_build_collision()
+		if from_cache:
+			_make_collision(cache.collision)
+		else:
+			_build_collision()
 		for body: Node in bodies.keys():
 			if is_instance_valid(body):
 				track(body as CharacterBody2D, int(bodies[body]))
@@ -550,6 +620,8 @@ func rebuild() -> void:
 		get_node("Collision").free()
 	# Fences along painted rims, over the cliffs and into the depth map (docs/godot/FENCES.md).
 	fences = ElevationFences.mount(self, grid, occlusion, _collide)
+	if _cache_record != null and _saves_on_its_own():
+		save_cache()
 
 
 ## Queues a rebuild for the end of the frame (painting sends many changes).
@@ -581,7 +653,75 @@ func is_walkable(world_point: Vector2, level: int) -> bool:
 	var rule := _stairs_rule(local, level)
 	if rule >= 0:
 		return rule == 1
-	return grid.is_walkable_point(local / cell, level)
+	return _terrain_walkable(local, level)
+
+
+## The terrain's walkability at `point` (Elevation space) for `level`, stairs aside: the model's, and
+## with the sides look the drawn shapes' (`_sides_walkable`).
+func _terrain_walkable(point: Vector2, level: int) -> bool:
+	var base := grid.is_walkable_point(point / cell, level)
+	return base if _side_shapes.is_empty() else _sides_walkable(point, level, base)
+
+
+## With the sides look, `level`'s walkability at `point` near the tops: a top of `level` ends at its
+## drawn round corners (the model's square corner past one is not walkable); above `level`, a drawn
+## wall is solid (a side strip stands on ground the model calls walkable), and where the model blocks
+## a point for a higher top drawn round (the square corner past a round one, its wall below the drawn
+## foot) the point is the ground below that top's wall. `base`: the model's answer.
+func _sides_walkable(point: Vector2, level: int, base: bool) -> bool:
+	var reopen := false
+	for index: int in _side_cells.get(Vector2i(floori(point.x / SHAPE_CELL), floori(point.y / SHAPE_CELL)), []):
+		var shape: Dictionary = _side_shapes[index]
+		var top_level := int(shape["level"])
+		if top_level < level or int(shape["lowest"]) > level or not (shape["bounds"] as Rect2).has_point(point):
+			continue
+		if top_level == level:
+			if base and _in_zone(shape, point):
+				return false
+			continue
+		var walls: Array = shape["walls"]
+		var wall_bounds: Array = shape["wall_bounds"]
+		for w in walls.size():
+			if (wall_bounds[w] as Rect2).has_point(point) and Geometry2D.is_point_in_polygon(point, walls[w]):
+				return false
+		if not base and not reopen and (_in_zone(shape, point) or _in_model_wall(point, top_level)):
+			reopen = _below_at(shape, point) == level
+	return base or reopen
+
+
+## True when `point` lies between one of `shape`'s round outer corners and the model's square corner.
+static func _in_zone(shape: Dictionary, point: Vector2) -> bool:
+	for zone: PackedVector2Array in shape["zones"]:
+		if Geometry2D.is_point_in_polygon(point, zone):
+			return true
+	return false
+
+
+## True when the model has a wall hanging from a top of `top_level` at `point`.
+func _in_model_wall(point: Vector2, top_level: int) -> bool:
+	var tri := grid.tri_at(point / cell)
+	if tri < 0 or grid.tri_band[tri] < 0:
+		return false
+	return int(grid.bands[grid.tri_band[tri]]["top"]) == top_level
+
+
+## The level under `shape`'s wall nearest `point`.
+func _below_at(shape: Dictionary, point: Vector2) -> int:
+	if not bool(shape["mixed"]):
+		return int(shape["below"])
+	var nearest := _nearest_point(shape["points"], point)
+	return (shape["belows"] as PackedInt32Array)[nearest] if nearest >= 0 else int(shape["below"])
+
+
+static func _nearest_point(points: PackedVector2Array, point: Vector2) -> int:
+	var best := -1
+	var best_distance := INF
+	for k in points.size():
+		var d := points[k].distance_squared_to(point)
+		if d < best_distance:
+			best_distance = d
+			best = k
+	return best
 
 
 ## The flight of stairs (or ramp) whose steps (or slope) hold `point` (Elevation space), or null.
@@ -846,6 +986,11 @@ func _lower_level_at(point: Vector2, level: int) -> int:
 	var tri := grid.tri_at((point - global_position) / cell)
 	if tri < 0 or _stairs_rule(point - global_position, level) >= 0:
 		return ElevationGrid.MIN_LEVEL - 1
+	# The sides look: past a top's round corner (the model's square corner) lies the ground below.
+	var local := point - global_position
+	for shape: Dictionary in _side_shapes:
+		if int(shape["level"]) == level and (shape["bounds"] as Rect2).has_point(local) and _in_zone(shape, local):
+			return _below_at(shape, local)
 	var band := grid.tri_band[tri]
 	if band >= 0:
 		var wall: Dictionary = grid.bands[band]
@@ -956,10 +1101,7 @@ func _shifted(painted: Dictionary) -> Dictionary:
 # --- drawing -------------------------------------------------------------------------------
 
 func _build_drawing() -> void:
-	for group_name: String in ["Patches", "Shade", "Shadows", "Walls", "Rims", "Water", "Feet", "Lips", "Ramps", "RampEnds", "RampFeet", "Stairs", "StairsFeet"]:
-		var old := get_node_or_null(group_name)
-		if old != null:
-			old.free()
+	_free_drawing()
 	var patches := {}
 	var shade := {}
 	var shadows := {}
@@ -970,6 +1112,9 @@ func _build_drawing() -> void:
 	var lips := {}
 	var depth := MeshData.new()
 	var ramps := _ramps
+	var sides := _sides_look()
+	_side_shapes = []
+	_side_cells = {}
 	for patch: Dictionary in grid.patches:
 		var name_of_ground := str(patch["ground"])
 		if _sheets.has(name_of_ground) and name_of_ground != TerrainMaterials.WATER:
@@ -979,16 +1124,18 @@ func _build_drawing() -> void:
 		if level < 0 and grid.tri_band[tri] < 0:
 			_arrays_for(shade, "holes").add_flat(_world(grid.tri_points(tri)), Vector2.ZERO, Color(_level_channel(level), 0.0, 0.0, 1.0))
 	for index in grid.bands.size():
-		_add_band(_arrays_for(walls, band_styles[index]), index)
+		if not sides:
+			_add_band(_arrays_for(walls, band_styles[index]), index)
 		if ramps.is_empty() or not _foot_under_ramp(index, ramps):
 			_add_foot(feet, water, index)
-	_add_wall_ends(walls, ramps)
+	if not sides:
+		_add_wall_ends(walls, ramps)
 	var rims_builder := ElevationRims.new()
 	# Where a cliff opens at a ramp's top end, its top's rim does not turn around the end; a one-row
 	# open cliff has no back rim (`_is_back_rim`).
 	var open_ends := _open_ramps()
 	var left_out := func(edge: Dictionary) -> bool:
-		return _is_back_rim(edge) or (not open_ends.is_empty() and _closes_open_end(edge, open_ends))
+		return _is_back_rim(edge) or _is_inner_side(edge) or (not open_ends.is_empty() and _closes_open_end(edge, open_ends))
 	var leftover := rims_builder.build(grid, cell, func(g: String) -> bool: return _has_fringe(g, "lip"),
 			lips, FRINGE_KEY, _arrays_for(rims, "glow"), depth, SHADOW_WALL_LIP,
 			func(level: int, dy: float) -> Color: return ElevationOcclusion.encode(level, dy), left_out)
@@ -1006,8 +1153,12 @@ func _build_drawing() -> void:
 		if flight is ElevationRamp:
 			var ramp := flight as ElevationRamp
 			if _sheets.has(ramp.ground_name):
+				ramp.hard_edge = sides
 				ramp.add_mesh(_arrays_for(ramp_meshes, ramp.ground_name))
-				_add_ramp_foot(ramp_feet, ramp)
+				if sides:
+					_add_sides_ramp_foot(ramp_feet, ramp)
+				else:
+					_add_ramp_foot(ramp_feet, ramp)
 			if ramp.rimmed and _sheets.has(ramp.top_ground):
 				ramp.add_landing(_arrays_for(ramp_meshes, ramp.top_ground))
 			if ramp.opens() and _sheets.has(ramp.top_ground):
@@ -1030,23 +1181,215 @@ func _build_drawing() -> void:
 		add_child(occlusion)
 	# The depth is drawn in this node's space (moved up by rows painted above the map).
 	occlusion.build(depth, depth_rect, _ground_origin() + position)
-	_add_group("Patches", patches, func(key: String) -> Material: return _ground_material(key))
-	_add_group("Shade", shade, func(_key: String) -> Material: return _shade_material())
-	_add_group("Shadows", shadows, func(_key: String) -> Material: return _cast_shadow_material())
-	_add_group("Walls", walls, func(key: String) -> Material: return _wall_material(key))
-	_add_group("Rims", rims, func(key: String) -> Material: return _rim_material(key))
-	_add_group("Water", water, func(_key: String) -> Material: return _water_foot_material())
-	_add_group("Feet", feet, func(key: String) -> Material: return _strip_material(key, true))
-	_add_group("Lips", lips, func(key: String) -> Material: return _strip_material(key, false))
+	if _cache_record != null:
+		_cache_record.depth_vertices = depth.vertices
+		_cache_record.depth_colors = depth.colors
+		_cache_record.depth_rect = depth_rect
+	_add_group("Patches", patches)
+	_add_group("Shade", shade)
+	# The model's cast shadows follow its square cells: the sides look casts its own, round, along
+	# the walls' feet (sides/elevation_sides.gd).
+	if not sides:
+		_add_group("Shadows", shadows)
+	if sides:
+		_add_sides(rims_builder, left_out)
+	else:
+		_add_group("Walls", walls)
+	# The light along the model's rims follows its square outline: the sides look rounds its tops.
+	if not sides:
+		_add_group("Rims", rims)
+	# The water lapping at a wall follows the model's square feet: the sides look draws its own foam
+	# along the round ones.
+	if not sides:
+		_add_group("Water", water)
+	if not sides:
+		_add_group("Feet", feet)
+		_add_group("Lips", lips)
 	if not ramp_meshes.is_empty():
-		_add_group("Ramps", ramp_meshes, func(key: String) -> Material: return _ramp_material(key))
+		_add_group("Ramps", ramp_meshes)
 	if not ramps.is_empty():
 		var ramp_ends := {}
 		_add_ramp_cut_ends(ramp_ends, ramps)
-		_add_group("RampEnds", ramp_ends, func(key: String) -> Material: return _wall_material(key))
-		_add_group("RampFeet", ramp_feet, func(key: String) -> Material: return _ramp_foot_material(key))
-	_add_group("Stairs", stairs_meshes, func(key: String) -> Material: return _stairs_material(key.left(key.rfind("-"))))
-	_add_group("StairsFeet", stairs_feet, func(key: String) -> Material: return _strip_material(key, true))
+		_add_group("RampEnds", ramp_ends)
+		_add_group("RampFeet", ramp_feet)
+	_add_group("Stairs", stairs_meshes)
+	_add_group("StairsFeet", stairs_feet)
+
+
+## True when the world draws its cliffs with walls on every side (WORLD_CLIFF_LOOK_META).
+func _sides_look() -> bool:
+	return ground != null and str(ground.get_meta(WORLD_CLIFF_LOOK_META, "")) == SIDES_LOOK
+
+
+## Sides (sides/elevation_sides.gd): every top's walls on all its sides, its lip and its foot, one
+## mesh per level and art, lowest level first. `left_out` drops the edges no rim runs along (an
+## open end, a one-row open cliff's back), so no wall hangs there either.
+func _add_sides(rims_builder: ElevationRims, left_out: Callable) -> void:
+	var holder := _add_holder("Sides")
+	var edges: Array[Dictionary] = []
+	for edge: Dictionary in rims_builder.boundary_edges():
+		if not bool(left_out.call(edge)):
+			edges.append(edge)
+	var painted := _shifted(painted_wall_styles(ground))
+	var style_of := func(edge: Dictionary) -> String:
+		var across := int(edge["x"])
+		if int(edge["mode"]) == ElevationRims.LIP and grid.tri_band[across] >= 0:
+			return band_styles[grid.tri_band[across]]
+		var from: Vector2 = edge["from"]
+		var way: Vector2 = (edge["to"] as Vector2) - from
+		return _wall_style_at(from + way * 0.5, Vector2(way.y, -way.x).normalized(), int(edge["level"]), painted)
+	# The top's ground and the ground under the wall (its own where that has no sheet: water).
+	var grounds_of := func(edge: Dictionary) -> PackedStringArray:
+		var top := str(edge["ground"])
+		var low := grid.tri_ground[int(edge["x"])]
+		if not _sheets.has(low) and low != TerrainMaterials.WATER:
+			low = top
+		return PackedStringArray([top, low])
+	var wall_width_of := func(style: String) -> float:
+		var texture := load(WALL_ART % style) as Texture2D
+		return float(texture.get_width()) if texture != null else 0.0
+	var builder := ElevationSides.new()
+	var under_ramp := func(point: Vector2) -> bool:
+		for ramp in _ramps:
+			if ramp.bounds.has_point(point) and ramp.covers(point):
+				return true
+		return false
+	var meshes := builder.build(grid, cell, edges, style_of, grounds_of, wall_width_of,
+			under_ramp if not _ramps.is_empty() else Callable())
+	_side_shapes = builder.shapes
+	_index_side_shapes()
+	if _cache_record != null:
+		for shape: Dictionary in _side_shapes:
+			var stored := shape.duplicate()
+			stored.erase("edges")
+			_cache_record.side_shapes.append(stored)
+	for entry: Dictionary in meshes:
+		var arrays: MeshData = entry["arrays"]
+		if not arrays.is_empty():
+			_add_instance(holder, "Sides", str(entry["key"]), arrays.to_mesh())
+
+
+## `_side_cells`: the shapes whose bounds touch each SHAPE_CELL cell.
+func _index_side_shapes() -> void:
+	_side_cells = {}
+	for index in _side_shapes.size():
+		var box: Rect2 = _side_shapes[index]["bounds"]
+		for y in range(floori(box.position.y / SHAPE_CELL), floori(box.end.y / SHAPE_CELL) + 1):
+			for x in range(floori(box.position.x / SHAPE_CELL), floori(box.end.x / SHAPE_CELL) + 1):
+				var at := Vector2i(x, y)
+				if not _side_cells.has(at):
+					_side_cells[at] = []
+				(_side_cells[at] as Array).append(index)
+
+
+# --- baked cache (docs/godot/ELEVATION.md "Baked cache") ------------------------------------
+
+## The cache file of this world's scene ("" when it has none: not instanced from a scene file).
+func cache_path() -> String:
+	var owner_node := ground.owner if ground != null else null
+	var scene := owner_node.scene_file_path if owner_node != null else ""
+	if scene == "":
+		return ""
+	var relative := scene.trim_prefix(WORLDS_DIR) if scene.begins_with(WORLDS_DIR) else scene.trim_prefix("res://")
+	return CACHE_DIR + relative.trim_suffix(".tscn").replace("/", "__") + ".res"
+
+
+## The painting the build follows: the elevation, ground and cliffs layers' cells, the ground's
+## metadata, the elevation settings and CACHE_VERSION, hashed.
+func _cache_key() -> String:
+	var context := HashingContext.new()
+	context.start(HashingContext.HASH_SHA256)
+	context.update(layer.tile_map_data)
+	context.update(ground.tile_map_data)
+	var cliffs := find_cliff_layer(ground)
+	if cliffs != null:
+		context.update(cliffs.tile_map_data)
+	var settings := []
+	for key: String in DEFAULTS:
+		settings.append(setting(key))
+	var meta := [CACHE_VERSION, cell, ground.get_meta("columns", 0), ground.get_meta("rows", 0),
+		ground.get_meta(WORLD_CLIFF_LOOK_META, ""), ground.get_meta(WORLD_WALL_STYLES_META, {}),
+		ground.get_meta(WORLD_FRINGE_META, {}), settings]
+	context.update(var_to_str(meta).to_utf8_buffer())
+	return context.finish().hex_encode()
+
+
+## The hash of CACHE_SCRIPTS' sources in a debug run from the project (where they can be read), ""
+## elsewhere (an exported game trusts its caches).
+static func _code_hash() -> String:
+	if _code != "?":
+		return _code
+	_code = ""
+	if not OS.is_debug_build() or OS.has_feature("template"):
+		return _code
+	var context := HashingContext.new()
+	context.start(HashingContext.HASH_SHA256)
+	for path in CACHE_SCRIPTS:
+		var source := FileAccess.get_file_as_string(path)
+		if source == "":
+			return _code
+		context.update(source.to_utf8_buffer())
+	_code = context.finish().hex_encode()
+	return _code
+
+
+## This world's baked cache when it matches the painting (and, in a debug run, the build scripts),
+## else null.
+func _load_cache() -> ElevationCache:
+	if ignore_cache:
+		return null
+	var path := cache_path()
+	if path == "" or not ResourceLoader.exists(path):
+		return null
+	var cache := ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE) as ElevationCache
+	if cache == null or cache.key != _cache_key():
+		return null
+	var code := _code_hash()
+	if code != "" and cache.code != code:
+		return null
+	return cache
+
+
+## The drawing, the depth map and the sides look's shapes from `cache`.
+func _apply_cache(cache: ElevationCache) -> void:
+	_free_drawing()
+	if occlusion == null:
+		occlusion = ElevationOcclusion.new()
+		occlusion.name = "Occlusion"
+		add_child(occlusion)
+	var depth := MeshData.new()
+	depth.vertices = cache.depth_vertices
+	depth.colors = cache.depth_colors
+	var uvs := PackedVector2Array()
+	uvs.resize(cache.depth_vertices.size())
+	depth.uvs = uvs
+	occlusion.build(depth, cache.depth_rect, _ground_origin() + position)
+	_side_shapes = cache.side_shapes
+	_index_side_shapes()
+	for group: Array in cache.groups:
+		var holder := _add_holder(str(group[0]))
+		for item: Array in group[1]:
+			_add_instance(holder, str(group[0]), str(item[0]), item[1] as Mesh)
+
+
+## Saves what the last build made as this world's cache (`cache_path`). OK, or why not.
+func save_cache() -> Error:
+	if _cache_record == null:
+		return ERR_UNAVAILABLE
+	var path := cache_path()
+	if path == "":
+		return ERR_FILE_BAD_PATH
+	_cache_record.key = _cache_key()
+	_cache_record.code = _code_hash()
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CACHE_DIR))
+	return ResourceSaver.save(_cache_record, path, ResourceSaver.FLAG_COMPRESS)
+
+
+## True when a build without a valid cache saves one by itself: a game run from the project (not an
+## exported game, a headless run or a tool script, which bake on purpose).
+static func _saves_on_its_own() -> bool:
+	return OS.is_debug_build() and not OS.has_feature("template") and DisplayServer.get_name() != "headless" \
+			and (Engine.get_main_loop() as Object).get_script() == null
 
 
 ## The flights of stairs from the painted stairs cells: a run of cells side by side along the rim
@@ -1510,22 +1853,76 @@ func _arrays_for(groups: Dictionary, key: String) -> MeshData:
 	return groups[key]
 
 
-func _add_group(group_name: String, groups: Dictionary, material_for: Callable) -> void:
+func _add_group(group_name: String, groups: Dictionary) -> void:
+	var holder := _add_holder(group_name)
+	for key: String in groups:
+		var arrays: MeshData = groups[key]
+		if not arrays.is_empty():
+			_add_instance(holder, group_name, key, arrays.to_mesh())
+
+
+## A group's node (and its entry in the cache being recorded).
+func _add_holder(group_name: String) -> Node2D:
 	var holder := Node2D.new()
 	holder.name = group_name
 	add_child(holder)
-	for key: String in groups:
-		var arrays: MeshData = groups[key]
-		if arrays.is_empty():
-			continue
-		var material_of := material_for.call(key) as Material
-		if material_of == null:
-			continue
-		var instance := MeshInstance2D.new()
-		instance.name = key
-		instance.mesh = arrays.to_mesh()
-		instance.material = material_of
-		holder.add_child(instance)
+	if _cache_record != null:
+		_cache_record.groups.append([group_name, []])
+	return holder
+
+
+## A mesh of group `group_name` with the material made for `key` (`_material_for`; none: left out),
+## recorded for the cache.
+func _add_instance(holder: Node2D, group_name: String, key: String, mesh: Mesh) -> void:
+	var material_of := _material_for(group_name, key)
+	if material_of == null:
+		return
+	var instance := MeshInstance2D.new()
+	instance.name = key.replace("|", " ")
+	instance.mesh = mesh
+	instance.material = material_of
+	holder.add_child(instance)
+	if _cache_record != null:
+		(_cache_record.groups[_cache_record.groups.size() - 1][1] as Array).append([key, mesh])
+
+
+## The material of group `group_name`'s mesh for `key` (null: the mesh is not drawn).
+func _material_for(group_name: String, key: String) -> Material:
+	match group_name:
+		"Patches":
+			return _ground_material(key)
+		"Shade":
+			return _shade_material()
+		"Shadows":
+			return _cast_shadow_material()
+		"Walls", "RampEnds":
+			return _wall_material(key)
+		"Sides":
+			# "<level>|<style>|<top ground>|<lower ground>" (ElevationSides.build).
+			var parts := key.split("|")
+			return _sides_material(parts[1], parts[2], parts[3]) if parts.size() == 4 else null
+		"Rims":
+			return _rim_material(key)
+		"Water":
+			return _water_foot_material()
+		"Feet", "StairsFeet":
+			return _strip_material(key, true)
+		"Lips":
+			return _strip_material(key, false)
+		"Ramps":
+			return _ramp_material(key)
+		"RampFeet":
+			return _sides_material(DEFAULT_WALL_STYLE, key, key) if _sides_look() else _ramp_foot_material(key)
+		"Stairs":
+			return _stairs_material(key.left(key.rfind("-")))
+	return null
+
+
+func _free_drawing() -> void:
+	for group_name in GROUP_NAMES:
+		var old := get_node_or_null(NodePath(group_name))
+		if old != null:
+			old.free()
 
 
 ## Points in cells -> ground-layer space.
@@ -1669,6 +2066,76 @@ func _is_back_rim(edge: Dictionary) -> bool:
 	return grid.has_cell(at) and _quiet_at(_open_tops, grid.cell_index(at), int(edge["level"]))
 
 
+## The lower ground behind the one-row open cliffs (owner, 2026-10-14: "when the structure is an
+## open cliff ... do not paint the inner wall"): per cliff (its cells joined by their corners), the
+## lower cells right behind (north of) its cells, and those joined to them inside the cliff's bounding
+## box (`_open_inner`). An L of single cells with its front to the south encloses the ground behind
+## its row: its arm's side facing that ground is inner, its other side is not.
+func _find_open_inner() -> void:
+	_open_inner.clear()
+	var tops := {}
+	for index: int in _open_tops:
+		if grid.cell_level[index] == int(_open_tops[index]):
+			tops[index] = int(_open_tops[index])
+	var seen := {}
+	for start: int in tops:
+		if seen.has(start):
+			continue
+		var level: int = tops[start]
+		# This cliff: its cells (joined by their corners) and their box.
+		var cells: Array[Vector2i] = []
+		var todo: Array[int] = [start]
+		seen[start] = true
+		while not todo.is_empty():
+			var index: int = todo.pop_back()
+			var at := Vector2i(index % grid.columns, index / grid.columns)
+			cells.append(at)
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					var next := at + Vector2i(dx, dy)
+					if grid.has_cell(next):
+						var next_index := grid.cell_index(next)
+						if not seen.has(next_index) and int(tops.get(next_index, ElevationGrid.MIN_LEVEL - 1)) == level:
+							seen[next_index] = true
+							todo.append(next_index)
+		var box := Rect2i(cells[0], Vector2i.ONE)
+		for at in cells:
+			box = box.merge(Rect2i(at, Vector2i.ONE))
+		# The ground right behind it, then what joins that inside the box.
+		var flood: Array[Vector2i] = []
+		for at in cells:
+			var behind := at + Vector2i(0, -1)
+			if box.has_point(behind) and grid.has_cell(behind) and grid.cell_level[grid.cell_index(behind)] < level:
+				flood.append(behind)
+		while not flood.is_empty():
+			var at: Vector2i = flood.pop_back()
+			var index := grid.cell_index(at)
+			if _open_inner.has(index):
+				continue
+			_open_inner[index] = level
+			for step: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var next := at + step
+				if box.has_point(next) and grid.has_cell(next) and grid.cell_level[grid.cell_index(next)] < level \
+						and not _open_inner.has(grid.cell_index(next)):
+					flood.append(next)
+
+
+## True when the top's boundary edge `edge` (elevation_rims.gd, cells) is a side of a one-row open
+## cliff facing the ground behind it (`_open_inner`): no wall and no rim there, as on its back.
+func _is_inner_side(edge: Dictionary) -> bool:
+	if _open_inner.is_empty() or int(edge["mode"]) != ElevationRims.RIM:
+		return false
+	var level := int(edge["level"])
+	var across := grid.tri_cell(int(edge["x"]))
+	if int(_open_inner.get(grid.cell_index(across), ElevationGrid.MIN_LEVEL - 1)) != level:
+		return false
+	var from: Vector2 = edge["from"]
+	var way := (edge["to"] as Vector2) - from
+	var inside := from + way * 0.5 + Vector2(way.y, -way.x).normalized() * 0.1
+	var at := Vector2i(floori(inside.x), floori(inside.y))
+	return grid.has_cell(at) and _quiet_at(_open_tops, grid.cell_index(at), level)
+
+
 ## True when the top's boundary edge `edge` (elevation_rims.gd, cells) would turn the top's rim
 ## around the open end of one of `open_ends` (ElevationRamp.closes): it is left out of the rim, and
 ## that ramp's cap fades the strips' cut ends in (ElevationRamp.cuts_rim).
@@ -1772,6 +2239,65 @@ func _add_ramp_foot(feet: Dictionary, ramp: ElevationRamp) -> void:
 		if (ends[0][0] as Vector2).dot(rows) > (ends[1][0] as Vector2).dot(rows):
 			ends.reverse()
 		_add_fringe_cut(arrays, ends[0], ends[1], up, rows)
+
+
+## The sides look's foot along the edge of a ramp's slope where it runs at the face of its top: the
+## same dark line over a few clumps of the slope's ground as at every wall's foot
+## (sides/elevation_sides.gdshader), with a short shadow on the slope, both fading in from nothing
+## where the face does (SIDES_RAMP_FOOT_FADE_IN, at the ramp's top end). It lies on the slope's
+## hard edge (ElevationRamp.hard_edge, `edge_t`), where the wall's stones end. Keyed by the slope's
+## ground.
+func _add_sides_ramp_foot(feet: Dictionary, ramp: ElevationRamp) -> void:
+	if ramp.near == 0.0 or ramp.face_to - ramp.face_from < 1.0:
+		return
+	var height := ElevationStairs.LEVEL * (ramp.top - ramp.bottom)
+	var t := ramp.near * ramp.half
+	# The way up the face from the slope's edge, as `_add_ramp_foot` finds it, for the wall's span.
+	var high := ramp.screen_of(Vector3(0.0, t, height))
+	var along := (ramp.screen_of(Vector3(ramp.ramp, t, 0.0)) - high).normalized()
+	var lean := maxf(0.0, atan2(absf(along.y), absf(along.x)) - PI * 0.25)
+	var toward := 1.0 if along.x >= 0.0 else -1.0
+	var up := Vector2(sin(lean) * toward, -cos(lean))
+	var top_way := (ramp.screen_of(Vector3(ramp.ramp, t, height)) - high).normalized()
+	var turn := up.x * top_way.y - up.y * top_way.x
+	var per := top_way.x / turn if absf(turn) > 1e-3 else 1.0
+	var span := _ramp_wall_span(ramp, t, height, up, per)
+	if span.y - span.x < 1.0:
+		return
+	var steps := maxi(1, ceili((span.y - span.x) / 6.0))
+	var points := PackedVector2Array()
+	var faces := PackedFloat32Array()
+	var levels := PackedFloat32Array()
+	# On the slope's hard edge (ElevationRamp.hard_edge), where the stones end.
+	var edge := ramp.edge_t()
+	for k in steps + 1:
+		var at := lerpf(span.x, span.y, float(k) / steps)
+		points.append(ramp.screen_of(Vector3(at, edge, ramp.nosing(at))))
+		faces.append(maxf(0.0, (height - ramp.nosing(at)) * per))
+		levels.append(float(ramp.bottom) + ramp.nosing(at) / ElevationStairs.LEVEL)
+	var arrays := _arrays_for(feet, ramp.ground_name)
+	var u := 0.0
+	for k in steps:
+		var a := points[k]
+		var b := points[k + 1]
+		var tangent := (b - a).normalized()
+		# Out over the slope: away from the face.
+		var out := Vector2(-tangent.y, tangent.x)
+		if out.dot(up) > 0.0:
+			out = -out
+		var length := a.distance_to(b)
+		var ends := []
+		for e in 2:
+			var face := faces[k + e]
+			var show := minf(1.0, face / SIDES_RAMP_FOOT_FADE_IN)
+			ends.append([points[k + e], minf(ElevationSides.FOOT_UP, face), u + length * e, show, levels[k + e]])
+		for index: int in [0, 3, 4, 0, 4, 1, 1, 4, 5, 1, 5, 2]:
+			var end: Array = ends[index / 3]
+			var offset: float = [-float(end[1]), 0.0, SIDES_RAMP_FOOT_OUT][index % 3]
+			arrays.add((end[0] as Vector2) + out * offset, Vector2(float(end[2]), offset),
+					Color(ElevationSides.KIND_FOOT, SIDES_RAMP_FOOT_SHADOW * float(end[3]), 1.0 - float(end[3]),
+					_level_channel(float(end[4]))))
+		u += length
 
 
 ## The stretch of `ramp`'s face (Vector2(s from, s to), within face_from … face_to) where a wall
@@ -2091,16 +2617,22 @@ func _find_open_tops() -> Dictionary:
 					var next := at + Vector2i(dx, dy)
 					if grid.has_cell(next) and not quiet.has(grid.cell_index(next)) and grid.cell_level[grid.cell_index(next)] == ramp.top:
 						todo.append(next)
-	# Only where the top is one row thick.
+	# Only where the top is one row thick, or one column (an arm running north-south).
 	var thin := {}
 	for index: int in quiet:
 		var at := Vector2i(index % grid.columns, index / grid.columns)
 		var level: int = quiet[index]
-		var thick := false
-		for dy: int in [-1, 1]:
-			var next := at + Vector2i(0, dy)
-			thick = thick or (grid.has_cell(next) and int(quiet.get(grid.cell_index(next), ElevationGrid.MIN_LEVEL - 1)) == level)
-		if not thick:
+		var thick_rows := false
+		var thick_columns := false
+		for d: int in [-1, 1]:
+			for pair: Array in [[Vector2i(0, d), true], [Vector2i(d, 0), false]]:
+				var next: Vector2i = at + (pair[0] as Vector2i)
+				var same := grid.has_cell(next) and int(quiet.get(grid.cell_index(next), ElevationGrid.MIN_LEVEL - 1)) == level
+				if bool(pair[1]):
+					thick_rows = thick_rows or same
+				else:
+					thick_columns = thick_columns or same
+		if not thick_rows or not thick_columns:
 			thin[index] = level
 	# A ramp joining such a cliff takes no shadow.
 	for ramp: ElevationRamp in seeds_of:
@@ -2527,6 +3059,41 @@ func _ramp_foot_material(key: String) -> Material:
 	return material_of
 
 
+## Sides (sides/elevation_sides.gdshader): `style`'s wall, and the sheets of the top's ground and
+## the lower ground (the 128 px sheet where there is one, as the ground draws it) for the edges.
+func _sides_material(style: String, top_ground: String, low_ground: String) -> Material:
+	var wall := load(WALL_ART % style) as Texture2D
+	if wall == null or not _sheets.has(top_ground):
+		return null
+	var material_of := ShaderMaterial.new()
+	material_of.shader = SIDES_SHADER
+	material_of.set_shader_parameter(&"wall_texture", wall)
+	material_of.set_shader_parameter(&"wall_size", Vector2(wall.get_size()))
+	if ResourceLoader.exists(SIDES_ART % [style, "side"]):
+		var side := load(SIDES_ART % [style, "side"]) as Texture2D
+		material_of.set_shader_parameter(&"side_texture", side)
+		material_of.set_shader_parameter(&"side_size", Vector2(side.get_size()))
+		material_of.set_shader_parameter(&"has_side", 1.0)
+	if ResourceLoader.exists(SIDES_ART % [style, "corners"]):
+		material_of.set_shader_parameter(&"corner_texture", load(SIDES_ART % [style, "corners"]))
+		material_of.set_shader_parameter(&"has_corners", 1.0)
+	# On a dark ground the top edge's outline is a light rim instead (the dark one disappears there).
+	var mean := _ground_colour(top_ground)
+	if mean.a > 0.0 and mean.v < DARK_GROUND:
+		var rim := Color.from_hsv(mean.h, mean.s * 0.6, clampf(mean.v * 1.9 + 0.14, 0.0, 0.9))
+		material_of.set_shader_parameter(&"outline_colour", rim)
+		material_of.set_shader_parameter(&"back_outline_colour", rim)
+	# Standing in water, the feet are foam on the water (its sheet fills the corners).
+	material_of.set_shader_parameter(&"low_is_water", 1.0 if low_ground == TerrainMaterials.WATER else 0.0)
+	for pair: Array in [[&"top_ground", top_ground], [&"low_ground", low_ground if _sheets.has(low_ground) else top_ground]]:
+		var sheet: Texture2D = _sheets[pair[1]]
+		var sharp := GroundSurface.sharp_sheet(sheet)
+		material_of.set_shader_parameter(pair[0], sharp if sharp != null else sheet)
+	material_of.set_shader_parameter(&"ground_period", cell * SHEET_CELLS)
+	material_of.set_shader_parameter(&"ground_origin", _ground_origin())
+	return material_of
+
+
 func _fringe_material(name_of_ground: String, kind: String) -> Material:
 	var texture := load(FRINGE_ART % [_fringe_art(name_of_ground), kind]) as Texture2D
 	if texture == null:
@@ -2542,20 +3109,34 @@ func _fringe_material(name_of_ground: String, kind: String) -> Material:
 # --- collision -----------------------------------------------------------------------------
 
 func _build_collision() -> void:
+	var by_level := {}
+	_outlines.clear()
+	for level in range(ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL + 1):
+		var segments := _terrain_outline(level)
+		if not stairs.is_empty():
+			segments = _with_stairs(segments, level)
+		if not _side_shapes.is_empty():
+			segments = _with_sides(segments, level)
+		segments = _cut_open_seams(segments, level)
+		if not segments.is_empty():
+			by_level[level] = segments
+	_outlines.clear()
+	if _cache_record != null:
+		_cache_record.collision = by_level
+	_make_collision(by_level)
+
+
+## A static body per level (on its own physics layer) with its collision outline: `by_level`
+## level -> segments.
+func _make_collision(by_level: Dictionary) -> void:
 	var old := get_node_or_null("Collision")
 	if old != null:
 		old.free()
 	var holder := Node2D.new()
 	holder.name = "Collision"
 	add_child(holder)
-	_outlines.clear()
-	for level in range(ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL + 1):
-		var segments := _terrain_outline(level)
-		if not stairs.is_empty():
-			segments = _with_stairs(segments, level)
-		segments = _cut_open_seams(segments, level)
-		if segments.is_empty():
-			continue
+	for level: int in by_level:
+		var segments: PackedVector2Array = by_level[level]
 		var shape := ConcavePolygonShape2D.new()
 		shape.segments = segments
 		var body := StaticBody2D.new()
@@ -2566,7 +3147,6 @@ func _build_collision() -> void:
 		collision.shape = shape
 		body.add_child(collision)
 		holder.add_child(body)
-	_outlines.clear()
 
 
 ## `segments` (a level's terrain outline, Elevation space) with the flights of stairs: the outline
@@ -2815,4 +3395,96 @@ func _local_walkable(point: Vector2, level: int) -> bool:
 	var rule := _stairs_rule(point, level)
 	if rule >= 0:
 		return rule == 1
-	return grid.is_walkable_point(point / cell, level)
+	return _terrain_walkable(point, level)
+
+
+## `segments` (a level's outline) with the sides look's tops above that level: near each, the
+## outline, the drawn top's border and its walls' outlines are cut where they cross, and a piece is
+## kept where it parts walkable from blocked ground (`_local_walkable`, which knows the drawn
+## shapes), so the level's collision follows the walls as drawn.
+func _with_sides(segments: PackedVector2Array, level: int) -> PackedVector2Array:
+	if segments.is_empty():
+		return segments
+	var regions: Array[Rect2] = []
+	var candidates: Array = []
+	for shape: Dictionary in _side_shapes:
+		# Only tops of this level, and those above whose walls come down to it (one standing on a
+		# higher terrace lies inside ground this level cannot walk anyway).
+		if int(shape["level"]) >= level and (int(shape["level"]) == level or int(shape["lowest"]) <= level):
+			regions.append(shape["bounds"])
+			candidates.append_array(shape["edges"])
+	if regions.is_empty():
+		return segments
+	var out := PackedVector2Array()
+	for i in range(0, segments.size(), 2):
+		var box := Rect2(segments[i], Vector2.ZERO).expand(segments[i + 1]).grow(1.0)
+		var near := false
+		for region in regions:
+			if region.intersects(box):
+				near = true
+				break
+		if near:
+			candidates.append([segments[i], segments[i + 1]])
+		else:
+			out.append(segments[i])
+			out.append(segments[i + 1])
+	var kept := {}
+	for piece: Array in _split_all(candidates):
+		var from: Vector2 = piece[0]
+		var to: Vector2 = piece[1]
+		var middle := (from + to) * 0.5
+		var normal := (to - from).orthogonal().normalized() * minf(0.5, from.distance_to(to) * 0.2)
+		if _local_walkable(middle + normal, level) != _local_walkable(middle - normal, level):
+			_keep_on_line(kept, from, to)
+	out.append_array(_merged(kept))
+	return _weld(out)
+
+
+## Every edge of `edges` ([from, to]) cut where the others cross it or end on it (a grid of
+## SPLIT_BUCKET-unit buckets finds the others near it): the pieces.
+static func _split_all(edges: Array) -> Array:
+	var buckets := {}
+	for index in edges.size():
+		var edge: Array = edges[index]
+		var box := Rect2(edge[0], Vector2.ZERO).expand(edge[1])
+		for y in range(floori(box.position.y / SPLIT_BUCKET), floori(box.end.y / SPLIT_BUCKET) + 1):
+			for x in range(floori(box.position.x / SPLIT_BUCKET), floori(box.end.x / SPLIT_BUCKET) + 1):
+				var key := Vector2i(x, y)
+				if not buckets.has(key):
+					buckets[key] = []
+				(buckets[key] as Array).append(index)
+	var pieces: Array = []
+	for index in edges.size():
+		var edge: Array = edges[index]
+		var box := Rect2(edge[0], Vector2.ZERO).expand(edge[1])
+		var seen := {}
+		var others: Array = []
+		for y in range(floori(box.position.y / SPLIT_BUCKET), floori(box.end.y / SPLIT_BUCKET) + 1):
+			for x in range(floori(box.position.x / SPLIT_BUCKET), floori(box.end.x / SPLIT_BUCKET) + 1):
+				for other: int in buckets.get(Vector2i(x, y), []):
+					if other != index and not seen.has(other):
+						seen[other] = true
+						others.append(edges[other])
+		pieces.append_array(split_edge(edge, others))
+	return pieces
+
+
+## The pieces filed by `_keep_on_line`, those along one line merged into whole segments.
+static func _merged(kept: Dictionary) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for direction_key: Vector2i in kept:
+		for line: Array in kept[direction_key]:
+			var d: Vector2 = line[0]
+			var offset: Vector2 = line[1]
+			var spans: Array = line[3]
+			spans.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
+			var current: Vector2 = spans[0]
+			for i in range(1, spans.size() + 1):
+				var next: Vector2 = spans[i] if i < spans.size() else Vector2(INF, INF)
+				if i < spans.size() and next.x <= current.y + 0.05:
+					current.y = maxf(current.y, next.y)
+					continue
+				out.append(offset + d * current.x)
+				out.append(offset + d * current.y)
+				current = next
+	return out

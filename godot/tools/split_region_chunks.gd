@@ -26,6 +26,8 @@ const RegionScene := preload("res://tools/region_worlds/region_scene.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const WorldServiceScript := preload("res://game/autoload/world_service.gd")
 const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
+const PropLayerScript := preload("res://game/world/props/prop_layer.gd")
+const PropPictures := preload("res://tools/lib/prop_pictures.gd")
 
 const WORLDS_DIR := "res://game/scenes/worlds/"
 const CHUNKS_DIR := "res://game/scenes/worlds/chunks/"
@@ -658,6 +660,8 @@ func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArr
 		var notes := PackedStringArray()
 		var had_spawn := _place_in_world(root.get_node_or_null(^"player-spawn"))
 		_prune(root, area, Vector2.ZERO, notes)
+		for name in _drop_broken_scripts(root):
+			notes.append("dropped %s: what it points at is in another chunk" % name)
 		var has_spawn := root.has_node(^"player-spawn")
 		if has_spawn and had_spawn != Vector2.INF:
 			spawn = id
@@ -761,7 +765,8 @@ func _prune(node: Node, area: Rect2, offset: Vector2, notes: PackedStringArray) 
 				left += 1 if part is Node2D else 0
 			if left == 0:
 				child.free()
-		elif not area.has_point(at) and not _overlaps(child as Node2D, at, area):
+		elif not area.has_point(at) and not _overlaps(child as Node2D, at, area) \
+				and not (str(node.name) == "Scenery" and _picture_overlaps(child as Node2D, at, area)):
 			child.free()
 
 
@@ -819,23 +824,58 @@ static func _clip_exit(area_node: Area2D, at: Vector2, area: Rect2) -> void:
 	area_node.position += part.get_center() - at
 
 
-## Keeps `layer`'s cells in `area` (world units; an elevation layer also MAX_ROWS_ABOVE rows above
-## it), moved to the chunk's corner.
+## Keeps `layer`'s cells in `area` (world units), moved to the chunk's corner, each layer on its own
+## cell size: an elevation layer also MAX_ROWS_ABOVE rows above it, a ForestLayer FOREST_MARGIN past
+## its edges (canopies), a PropLayer every cell whose prop's picture reaches into the chunk (props
+## draw well past their cell), a WallLayer one cell past every edge with `shown_cells` the chunk's
+## own (the margin only shapes the joins at the edge).
 static func _clip_layer(layer: TileMapLayer, area: Rect2, tile: int) -> void:
-	var origin := Vector2i((area.position / tile).round())
-	var tiles := Vector2i((area.size / tile).round())
+	var size := Vector2(layer.tile_set.tile_size) if layer.tile_set != null else Vector2(tile, tile)
+	var origin := Vector2i((area.position / size).round())
+	var tiles := Vector2i((area.size / size).round())
 	var script := layer.get_script() as Script
 	var script_path := script.resource_path if script != null else ""
-	var above := Elevation.MAX_ROWS_ABOVE if script_path.ends_with("elevation_layer.gd") else 0
-	var keep := _forest_keep(tiles) if script_path.ends_with("forest_layer.gd") else Rect2i(0, -above, tiles.x, tiles.y + above)
+	var keep := Rect2i(Vector2i.ZERO, tiles)
+	var props := script_path.ends_with("prop_layer.gd")
+	if script_path.ends_with("elevation_layer.gd"):
+		keep = Rect2i(0, -Elevation.MAX_ROWS_ABOVE, tiles.x, tiles.y + Elevation.MAX_ROWS_ABOVE)
+	elif script_path.ends_with("forest_layer.gd"):
+		keep = _forest_keep(tiles)
+	elif script_path.ends_with("wall_layer.gd"):
+		keep = Rect2i(-1, -1, tiles.x + 2, tiles.y + 2)
 	var cells := []
 	for cell in layer.get_used_cells():
 		var at := cell - origin
-		if keep.has_point(at):
+		if keep.has_point(at) or (props and _prop_reaches(layer, cell, area)):
 			cells.append([at, layer.get_cell_source_id(cell), layer.get_cell_atlas_coords(cell), layer.get_cell_alternative_tile(cell)])
 	layer.clear()
 	for cell: Array in cells:
 		layer.set_cell(cell[0], cell[1], cell[2], cell[3])
+	if script_path.ends_with("wall_layer.gd"):
+		layer.set(&"shown_cells", Rect2i(Vector2i.ZERO, tiles))
+
+
+## Each painted prop tile's picture box around its cell's corner (`_prop_reaches`), read once.
+static var _prop_boxes := {}
+
+
+## True when the prop painted at `cell` of PropLayer `layer` shows inside `area` (layer space).
+static func _prop_reaches(layer: TileMapLayer, cell: Vector2i, area: Rect2) -> bool:
+	var corner := Vector2(cell) * Vector2(layer.tile_set.tile_size)
+	var key := [layer.tile_set.resource_path, layer.get_cell_source_id(cell), layer.get_cell_atlas_coords(cell),
+			layer.get_cell_alternative_tile(cell), cell.x % 2]
+	if not _prop_boxes.has(key):
+		var box := Rect2()
+		var prop: Dictionary = layer.call(&"prop_at", cell)
+		if not prop.is_empty():
+			var node := PropLayerScript.make_prop(prop)
+			if node != null:
+				box = PropPictures.bounds(node, Transform2D.IDENTITY)
+				box.position -= corner
+				node.free()
+		_prop_boxes[key] = box
+	var reach: Rect2 = _prop_boxes[key]
+	return reach.has_area() and Rect2(reach.position + corner, reach.size).intersects(area)
 
 
 ## Every `map_id` under `node` (instances' insides too) that names `world` names `chunk` instead.
@@ -943,3 +983,32 @@ static func _bounds(node: Node, transform: Transform2D, box: Rect2) -> Rect2:
 	for child: Node in node.get_children():
 		box = _bounds(child, here, box)
 	return box
+
+
+## True when `node` (a prop dragged in from the Scenery dock, at `at` in the world) draws inside
+## `area`.
+static func _picture_overlaps(node: Node2D, at: Vector2, area: Rect2) -> bool:
+	if node.scene_file_path.is_empty():
+		return false
+	var box := PropPictures.bounds(node, Transform2D(node.rotation, node.scale, node.skew, at) * node.transform.affine_inverse())
+	return box.intersects(area)
+
+
+## Frees the script nodes under `root` (outside instances) whose node references point at nodes
+## the cut took away (a story variant whose villagers live in another chunk); returns their names.
+static func _drop_broken_scripts(root: Node) -> PackedStringArray:
+	var dropped := PackedStringArray()
+	for node: Node in root.find_children("*", "", true, true):
+		if node is Node2D or node.get_script() == null or not is_instance_valid(node):
+			continue
+		for property: Dictionary in node.get_property_list():
+			if not (int(property["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE):
+				continue
+			var value: Variant = node.get(property["name"])
+			var broken: bool = (value is NodePath and not (value as NodePath).is_empty() and not node.has_node(value)) \
+					or (typeof(value) == TYPE_OBJECT and value != null and not is_instance_valid(value))
+			if broken:
+				dropped.append(str(node.name))
+				node.free()
+				break
+	return dropped

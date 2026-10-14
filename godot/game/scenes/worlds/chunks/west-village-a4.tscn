@@ -11,6 +11,8 @@
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="8_g8j5n"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="8_xundm"]
 [ext_resource type="TileSet" path="res://game/world/props/props_tileset.tres" id="9_yhb3w"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="10_yhb3w"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="11_lke88"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_north_wilds_1"]
 size = Vector2(256, 32)
@@ -48,16 +50,26 @@ tile_map_data = PackedByteArray("AAASABQAAAADAAAAAAATABQAAAADAAAAAAAUABQAAAADAAA
 tile_set = ExtResource("5_gj4ai")
 script = ExtResource("6_bea0k")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=2010235792]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=2010235792]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAAdAAkAAQABAAEAAAAPAAoAAQAHAAEAAAAdAA0AAQAHAAEAAAAOABYAAQAEAAEAAAA=")
+tile_map_data = PackedByteArray("AAAdAAkAAQA3AAcAAAAPAAoAAQAcAA4AAAAdAA0AAQAcAA4AAAAOABYAAQAHAA4AAAA=")
 tile_set = ExtResource("7_1r4pe")
 script = ExtResource("8_xundm")
 
-[node name="@TileMapLayer@2" type="TileMapLayer" parent="." unique_id=424660122]
+[node name="old-props" type="TileMapLayer" parent="." unique_id=424660122]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AADkALcAFgAAAAAAAADEAO8AFgADAAAAAACkAJcAFgAEAAAAAAA=")
+tile_map_data = PackedByteArray("AADkALcAFgAAAAAAAADEAO8AFgAAABMAAACkAJcAFgATABMAAAA=")
 tile_set = ExtResource("9_yhb3w")
+script = ExtResource("8_xundm")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1445853637]
+y_sort_enabled = true
+tile_set = ExtResource("10_yhb3w")
+script = ExtResource("8_xundm")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=740185538]
+y_sort_enabled = true
+tile_set = ExtResource("11_lke88")
 script = ExtResource("8_xundm")
 
 [node name="world-definition" type="Node" parent="." unique_id=1690668511]
