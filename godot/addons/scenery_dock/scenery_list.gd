@@ -15,7 +15,7 @@ func _get_drag_data(at_position: Vector2) -> Variant:
 	var scene := str(get_item_metadata(index))
 	if dock != null:
 		var prepare: Callable = dock.get(&"prepare_drop")
-		if prepare.is_valid() and not bool(prepare.call()):
+		if prepare.is_valid() and not bool(prepare.call(scene, float(dock.call(&"drop_size")))):
 			return null
 	var preview := TextureRect.new()
 	preview.texture = get_item_icon(index)

@@ -22,12 +22,22 @@ secret, a resource, a gate, a liftable rock) is placed as a normal instance too.
 
 The **Scenery** dock (right side, beside the Inspector; the `scenery_dock` editor plugin) shows every
 prop of the `cell-props` and `details` palettes by its picture: pick a category, or type in the
-search box to look through all of them by name. **Drag a picture into the 2D view**: the prop's scene
-is placed there as a node under the world's `Scenery` node (made when missing, y-sorted with the
-world). It is an ordinary node: select it, move it freely, mirror or scale it, edit it in the
-Inspector, delete it with Delete; Ctrl+Z undoes the drop. **Reload** reads the palettes again after
+search box to look through all of them by name. Pick a **Size** (small 70 %, normal, big 130 %),
+then **drag a picture into the 2D view**: the prop's scene is placed there as a node under the
+world's `Scenery` node (made when missing, y-sorted with the world), at that size (its Scale). It is
+an ordinary node: select it, move it freely, mirror or scale it, edit it in the Inspector, delete it
+with Delete; Ctrl+Z undoes the drop. **Reload** reads the palettes again after
 `tools/build_prop_palettes.gd`. Use it for the props you place one by one; paint the mass of small
 scenery (grass, flowers, pebbles, leaves) on the layers below, which keeps the scene tree small.
+
+**Painted props to nodes:** `tools/paint_to_nodes.gd` (headless, the world closed in the editor:
+`--path godot -s res://tools/paint_to_nodes.gd -- --scene=<world> [--scene=...] [--keep=<prefixes>]
+[--dry]`) turns a world's painted props into nodes under `Scenery`, each picture exactly where the
+painted one was, and erases their cells; props whose scene path starts with a `--keep` prefix stay
+painted (by default the ground details and the water life). A node's size and mirror are its own
+Scale (negative x when mirrored), as for props dropped from the dock, so its collision follows its
+size (a painted prop's collision kept the scene's size). The four level-1 chunks had theirs turned on
+2026-10-14: 120 props became nodes (13 mirrored, 22 resized), 745 stayed painted.
 
 ## Using it
 
@@ -146,3 +156,4 @@ uids Godot's headless save drops. Close or reload the world in the editor afterw
 | `godot/tools/lib/prop_pictures.gd` | What the builders share: scenery scenes, visible pictures |
 | `godot/tools/absorb_props.gd` | Turns placed props into paint (older layers) |
 | `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes |
+| `godot/tools/paint_to_nodes.gd` | Turns painted props into nodes under `Scenery` |
