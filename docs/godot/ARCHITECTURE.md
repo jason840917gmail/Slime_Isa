@@ -369,7 +369,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/shell/title.tscn`, `title.gd` | shell | The title screen (the main scene): launch-option skip, level-1 backdrop, New Game / Continue / Load / Settings / Credits |
 | `game/shell/*_menu.tscn/.gd`, `game_over.*`, `end_card.*`, `area_title_card.*` | shell | The shell windows (Godot-owned copies of the `ui.*` scenes) on `shell_menu.gd` |
 | `game/shell/game_settings.gd`, `control_labels.gd`, `area_titles.gd`, `launch_options.gd` | shell | Settings (user://settings.cfg, bus mix, GameFeel), InputMap key labels, area names / colours (region worlds named from `game/data/world-map.json`), launch options |
-| `game/ui/theme/ui_tokens.gd`, `slime_theme.tres` | UI theme | Design tokens and the one UI Theme, built by `tools/build_ui_theme.gd` ([UI_THEME.md](UI_THEME.md)) |
+| `game/ui/theme/ui_tokens.gd`, `slime_theme.tres`, `icons/` | UI theme | Design tokens and the one UI Theme with its drawn icons, built by `tools/build_ui_theme.gd` ([UI_THEME.md](UI_THEME.md)) |
 
 Only ported scene scripts live in `game/scripts/`: every file there is a scene-script id
 (`game.<kebab-id>` → `<snake_id>.gd`), so add one only when porting that script.

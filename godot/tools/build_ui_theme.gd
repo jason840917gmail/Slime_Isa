@@ -8,13 +8,17 @@ extends SceneTree
 ##
 ## The .tres is this tool's output: change the tokens or this file and rebuild, do not edit the
 ## theme in the editor (a rebuild would drop those edits). Icons (slider grabbers, check boxes,
-## the option arrow) are drawn here and stored inside the .tres, so the theme needs no imported
-## image. Excluded from exports with the rest of res://tools/.
+## the option arrow) are drawn here and saved beside the theme, one ImageTexture file per icon in
+## ICON_DIR, so the theme needs no imported image. They are files because the editor re-saves the
+## project theme as it loaded it at startup (UI_THEME.md, "Icons and editor re-saves"). Excluded
+## from exports with the rest of res://tools/.
 ##
 ## Owner: shell / UI theme.
 
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 
+## Where the drawn icons go: `<type>_<icon>.tres` (`check_box_checked.tres`), one per theme icon.
+const ICON_DIR := "res://game/ui/theme/icons/"
 ## Supersampling per axis for the drawn icons.
 const ICON_SAMPLES := 4
 const CLEAR := Color(0.0, 0.0, 0.0, 0.0)
@@ -22,17 +26,45 @@ const CLEAR := Color(0.0, 0.0, 0.0, 0.0)
 
 func _initialize() -> void:
 	var theme := build()
-	var error := ResourceSaver.save(theme, UiTokens.THEME_PATH)
+	# A headless save writes no uid; keep the one the editor gave the theme.
+	var uid := ResourceLoader.get_resource_uid(UiTokens.THEME_PATH)
+	var error := _save_icons(theme)
+	if error == OK:
+		error = ResourceSaver.save(theme, UiTokens.THEME_PATH)
 	if error != OK:
-		push_error("build_ui_theme: could not save %s (error %d)" % [UiTokens.THEME_PATH, error])
+		push_error("build_ui_theme: could not save the theme (error %d)" % error)
 		quit(1)
 		return
+	if uid != ResourceUID.INVALID_ID:
+		ResourceSaver.set_uid(UiTokens.THEME_PATH, uid)
 	var variations := 0
 	for type_name: StringName in theme.get_type_list():
 		if theme.get_type_variation_base(type_name) != &"":
 			variations += 1
-	print("build_ui_theme: wrote %s (%d types, %d type variations)" % [UiTokens.THEME_PATH, theme.get_type_list().size(), variations])
+	print("build_ui_theme: wrote %s (%d types, %d type variations) and %d icons in %s" % [UiTokens.THEME_PATH,
+		theme.get_type_list().size(), variations, DirAccess.get_files_at(ICON_DIR).size(), ICON_DIR])
 	quit(0)
+
+
+## Saves each icon of `theme` to ICON_DIR and points the theme at the file (the theme then stores
+## its path), and deletes icon files no theme icon uses any more.
+static func _save_icons(theme: Theme) -> Error:
+	DirAccess.make_dir_recursive_absolute(ICON_DIR)
+	var written := {}
+	for type_name: String in theme.get_icon_type_list():
+		for icon_name: String in theme.get_icon_list(type_name):
+			var path := ICON_DIR + "%s_%s.tres" % [type_name.to_snake_case(), icon_name]
+			var icon := theme.get_icon(icon_name, type_name)
+			var error := ResourceSaver.save(icon, path)
+			if error != OK:
+				push_error("build_ui_theme: could not save %s (error %d)" % [path, error])
+				return error
+			icon.take_over_path(path)
+			written[path.get_file()] = true
+	for file: String in DirAccess.get_files_at(ICON_DIR):
+		if file.get_extension() == "tres" and not written.has(file):
+			DirAccess.remove_absolute(ICON_DIR + file)
+	return OK
 
 
 ## The whole theme. Static so tests can build it without writing the file. `font_paths` overrides
@@ -829,12 +861,9 @@ static func _paint(width: int, height: int, painter: Callable) -> Texture2D:
 					a += color.a
 			if a > 0.0:
 				image.set_pixel(x, y, Color(r / a, g / a, b / a, a / samples))
-	# Stored losslessly compressed inside the .tres (no import step, a few hundred bytes each).
-	var texture := PortableCompressedTexture2D.new()
-	# The compressed bytes are what the .tres stores; without them the icon would be saved empty.
-	texture.keep_compressed_buffer = true
-	texture.create_from_image(image, PortableCompressedTexture2D.COMPRESSION_MODE_LOSSLESS)
-	return texture
+	# Not a PortableCompressedTexture2D: one loaded before the editor keeps compressed buffers saves
+	# empty. An ImageTexture saves its pixels whenever it is re-saved.
+	return ImageTexture.create_from_image(image)
 
 
 static func _rounded_box_distance(p: Vector2, centre: Vector2, half: Vector2, radius: float) -> float:

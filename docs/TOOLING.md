@@ -30,7 +30,7 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
   full rows at 2.67 fps (a slow sway at rest). Every other clip in the scene is removed. `--only` rebuilds just the clips with those name prefixes, so
   clips tuned in the editor (idle-down) stay as they are. Save or close the scene in an open editor
   first and reload it afterwards.
-- `res://tools/build_ui_theme.gd` — rebuilds `game/ui/theme/slime_theme.tres` from `ui_tokens.gd`
+- `res://tools/build_ui_theme.gd` — rebuilds `game/ui/theme/slime_theme.tres` and its icons (`game/ui/theme/icons/`) from `ui_tokens.gd`
   ([godot/UI_THEME.md](godot/UI_THEME.md)).
 - `res://tools/render_ceremony.gd` (windowed: `--path godot -s res://tools/render_ceremony.gd -- --out=<dir>
   [--ability=swallow]`) — starts the playground like a new run, learns an ability (the Roll by default) and

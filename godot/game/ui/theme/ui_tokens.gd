@@ -12,7 +12,7 @@ class_name UiTokens
 ##
 ## Owner: shell / UI theme.
 
-## The theme every UI scene uses (will become the project theme, gui/theme/custom).
+## The theme every UI scene uses (the project theme, gui/theme/custom).
 const THEME_PATH := "res://game/ui/theme/slime_theme.tres"
 
 ## The UI font: Source Sans 3 (SIL OFL, variable `wght`; owner pick 2026-10-05). Phaser asks for
