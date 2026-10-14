@@ -31,7 +31,8 @@
   },
   "worldNavigation": {
   "edgeTransitionGraceMs": 650,
-  "edgeArrivalInset": 64
+  "edgeArrivalInset": 64,
+  "edgeScrollMs": 650
   },
   "elevation": {
     "behindDepth": 32,

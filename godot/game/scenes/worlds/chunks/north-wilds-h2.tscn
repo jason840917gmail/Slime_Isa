@@ -20,7 +20,7 @@
 size = Vector2(32, 256)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_south"]
-size = Vector2(2048, 24)
+size = Vector2(2048, 4)
 
 [node name="north-wilds-h2" type="Node2D" unique_id=475435331]
 y_sort_enabled = true
@@ -148,7 +148,7 @@ entry_marker = "arrive-from-north-wilds-1"
 area = NodePath("..")
 
 [node name="edge-south" type="Area2D" parent="." unique_id=2011023493]
-position = Vector2(1024, 2036)
+position = Vector2(1024, 2046)
 collision_layer = 512
 collision_mask = 130
 monitorable = false

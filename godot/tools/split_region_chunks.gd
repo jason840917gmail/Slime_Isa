@@ -34,9 +34,10 @@ const CHUNKS_DIR := "res://game/scenes/worlds/chunks/"
 const SCENE_INDEX := "res://game/scenes/scene_index.json"
 const EXPORT_PRESETS := "res://export_presets.cfg"
 const RELEASE_PRESET := "Web"
-## How deep (world units) the exit along a shared edge reaches into the chunk; how far past a
+## How deep (world units) the exit along a shared edge reaches into the chunk (a line at the edge:
+## the slime crosses only when it reaches the screen's limit, owner 2026-10-14); how far past a
 ## chunk's edge an exit of the region world may lie and still be the chunk's (`_exit_part`).
-const EDGE_STRIP := 24.0
+const EDGE_STRIP := 4.0
 const EXIT_PULL := 64.0
 ## Clear cells around a spawn (a tree, a fence or another level within it rules the cell out), and
 ## how many cells north of it no higher top may stand (its wall would hang over the spawn).

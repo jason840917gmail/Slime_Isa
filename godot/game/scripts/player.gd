@@ -678,6 +678,16 @@ func stop_movement() -> void:
 	_roll.cancel()
 	if body != null:
 		body.velocity = Vector2.ZERO
+## Walks in place facing `direction` for `ms` of simulation time, movement frozen: the chunk
+## scroll (game/world/chunk_scroll.gd) carries the body across the edge meanwhile.
+func walk_in(direction: Vector2, ms: float) -> void:
+	stop_movement()
+	clear_input()
+	suppress_movement(ms)
+	face(direction)
+	_play_direct(_locomotion_clip(CLIP_WALK))
+
+
 
 
 ## `WorldScene.playAnimation` gate (player spec 4.3 "Other rules"): while dead only "die"
