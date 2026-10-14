@@ -93,6 +93,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `prop_palettes.json`, and moves painted cells whose tile moved (open the editor to import the images
   after); `res://tools/build_old_prop_palettes.gd` (the same way) builds the free-placement `old-props`
   palette (`props_tileset.tres`: true-size tiles, at least 64 px, 32 for ground details);
+  `res://tools/paint_to_nodes.gd` (headless, `-- --scene=<world> [--keep=<prefixes>] [--dry]`) turns painted
+  props back into nodes under the world's `Scenery` node (the ground details and water life stay painted);
   `res://tools/absorb_props.gd` (headless,
   `-- --scene=<world> [--scene=...] [--dry]`) turns a world's placed scenery into paint on its prop layers.
   Both headless converters save through `res://tools/lib/scene_save.gd`, which puts back the uids Godot's

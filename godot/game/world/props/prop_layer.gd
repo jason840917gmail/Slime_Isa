@@ -149,8 +149,9 @@ static func picture_rect(item: Node2D) -> Rect2:
 
 ## An instance of `prop`'s scene at its place, sized and mirrored on its `Visual` (as worlds used to
 ## override placed props). With `mirror_x` a mirrored prop is also moved so that its picture is
-## mirrored about that line instead of about its Visual's middle.
-static func make_prop(prop: Dictionary) -> Node2D:
+## mirrored about that line instead of about its Visual's middle. `edit_state` instances it as the
+## editor does, so a scene saved with it keeps the Visual's size and mirror (tools/paint_to_nodes.gd).
+static func make_prop(prop: Dictionary, edit_state := false) -> Node2D:
 	var path := str(prop["scene"])
 	if not _scenes.has(path):
 		_scenes[path] = load(path) if ResourceLoader.exists(path) else null
@@ -158,7 +159,7 @@ static func make_prop(prop: Dictionary) -> Node2D:
 	if packed == null:
 		push_warning("PropLayer: no scene %s" % path)
 		return null
-	var node := packed.instantiate() as Node2D
+	var node := packed.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE if edit_state else PackedScene.GEN_EDIT_STATE_DISABLED) as Node2D
 	if node == null:
 		return null
 	node.position = prop["at"]

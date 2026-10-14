@@ -11,10 +11,14 @@ const PALETTES := {"cell": 64, "detail": 32}
 ## The size the pictures are shown at.
 const ICON := Vector2i(80, 80)
 
-## Called before a drag starts: selects the node the drop goes under (the plugin's).
+## The sizes a prop can be placed at.
+const SIZES := [["Small", 0.7], ["Normal", 1.0], ["Big", 1.3]]
+
+## Called before a drag starts with (scene, size): readies the drop (the plugin's).
 var prepare_drop := Callable()
 
 var _categories: OptionButton
+var _size: OptionButton
 var _search: LineEdit
 var _list: ItemList
 ## category -> [[name, scene path, picture]].
@@ -33,6 +37,18 @@ func _ready() -> void:
 	reload.tooltip_text = "Read the palettes again (after tools/build_prop_palettes.gd)."
 	reload.pressed.connect(_load)
 	bar.add_child(reload)
+	var size_bar := HBoxContainer.new()
+	add_child(size_bar)
+	var size_label := Label.new()
+	size_label.text = "Size"
+	size_bar.add_child(size_label)
+	_size = OptionButton.new()
+	_size.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for size: Array in SIZES:
+		_size.add_item("%s (%d %%)" % [size[0], roundi(size[1] * 100)])
+	_size.select(1)
+	_size.tooltip_text = "The size props are placed at; change one later with its Scale in the Inspector."
+	size_bar.add_child(_size)
 	_search = LineEdit.new()
 	_search.placeholder_text = "Search all props by name"
 	_search.clear_button_enabled = true
@@ -48,7 +64,7 @@ func _ready() -> void:
 	_list.set(&"dock", self)
 	add_child(_list)
 	var hint := Label.new()
-	hint.text = "Drag a picture into the map: it becomes a node under Scenery."
+	hint.text = "Drag a picture into the map: it becomes a node under Scenery, at the size above."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override(&"font_size", 12)
 	add_child(hint)
@@ -86,6 +102,11 @@ func _load() -> void:
 				_props[category] = props
 				_categories.add_item(category)
 	_show()
+
+
+## The size chosen for the next prop placed.
+func drop_size() -> float:
+	return SIZES[maxi(_size.selected, 0)][1]
 
 
 ## A scene's name without its family prefix: "rock-world-wall-decorative--field-03" -> "field 03".
