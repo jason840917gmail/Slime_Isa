@@ -1,0 +1,96 @@
+{
+ "round": "round-6",
+ "intro": "A sound for the stairs walk (2026-10-14): the slime is carried up or down a flight one step at a time, 200 ms per step, four steps per level. You did not like the first sound, so here are six kinds. Play the single takes, and press Climb to hear an option at the pace of the stairs walk. The game plays option A meanwhile. Pick one, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-6/takes",
+ "groups": [
+  {
+   "id": "stairs",
+   "name": "Stairs",
+   "note": "One sound per step while the slime climbs or descends a flight of stone stairs; the normal footsteps are quiet meanwhile."
+  }
+ ],
+ "cues": [
+  {
+   "id": "footstep.stairs",
+   "group": "stairs",
+   "name": "Stairs step",
+   "where": "Each step of the stairs walk (8 steps for a two-level flight)",
+   "rhythm": 200,
+   "rhythmLabel": "▶ Climb",
+   "node": "StairsStep",
+   "ship": "footstep/stairs",
+   "inGame": "a",
+   "options": [
+   {
+    "key": "a",
+    "label": "Stone tap",
+    "note": "A clean tap of a small step on a stone stair, with a short low thud",
+    "kind": "step",
+    "takes": [
+     "temp/sound-round-6/cut/stairs-stone-1.src.wav",
+     "temp/sound-round-6/cut/stairs-stone-2.src.wav",
+     "temp/sound-round-6/cut/stairs-stone-3.src.wav",
+     "temp/sound-round-6/cut/stairs-stone-4.src.wav"
+    ]
+   },
+   {
+    "key": "b",
+    "label": "Slime squelch",
+    "note": "The slime hopping onto each step: a soft wet squelch with a light tap on stone",
+    "kind": "step",
+    "takes": [
+     "temp/sound-round-6/cut/stairs-b-1.src.wav",
+     "temp/sound-round-6/cut/stairs-b-2.src.wav",
+     "temp/sound-round-6/cut/stairs-b-3.src.wav",
+     "temp/sound-round-6/cut/stairs-b-4.src.wav"
+    ]
+   },
+   {
+    "key": "c",
+    "label": "Wooden knock",
+    "note": "A warm, hollow knock, like a step on a wooden stair",
+    "kind": "step",
+    "takes": [
+     "temp/sound-round-6/cut/stairs-c-1.src.wav",
+     "temp/sound-round-6/cut/stairs-c-3.src.wav",
+     "temp/sound-round-6/cut/stairs-c-4.src.wav"
+    ]
+   },
+   {
+    "key": "d",
+    "label": "Woodblock tick",
+    "note": "A tiny rounded woodblock tick, a cartoon game step",
+    "kind": "step",
+    "takes": [
+     "temp/sound-round-6/cut/stairs-d-1.src.wav",
+     "temp/sound-round-6/cut/stairs-d-3.src.wav",
+     "temp/sound-round-6/cut/stairs-d-4.src.wav"
+    ]
+   },
+   {
+    "key": "e",
+    "label": "Sandy scuff",
+    "note": "A step with a short gritty scrape of sand on old stone",
+    "kind": "step",
+    "takes": [
+     "temp/sound-round-6/cut/stairs-scuff-2.src.wav",
+     "temp/sound-round-6/cut/stairs-scuff-3.src.wav",
+     "temp/sound-round-6/cut/stairs-e-2.src.wav"
+    ]
+   },
+   {
+    "key": "f",
+    "label": "Jelly plop",
+    "note": "A muted, rubbery plop of a jelly body landing on hard stone",
+    "kind": "step",
+    "takes": [
+     "temp/sound-round-6/cut/stairs-f-1.src.wav",
+     "temp/sound-round-6/cut/stairs-f-2.src.wav",
+     "temp/sound-round-6/cut/stairs-f-3.src.wav",
+     "temp/sound-round-6/cut/stairs-f-4.src.wav"
+    ]
+   }
+   ]
+  }
+ ]
+}

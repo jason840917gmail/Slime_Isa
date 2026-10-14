@@ -137,10 +137,13 @@ hide nothing (the camera looks north).
 
 **Moving between levels.**
 
-- **Stairs** join two levels; a body takes the level of the height it stands at (the upper half of
-  a level's stretch the level above) and the posts or side walls hold it on the steps. Its body may
-  reach a little past the steps' ends (over a 45° rim, over the short end of a back flight) before
-  it takes the next level.
+- **Stairs** join two levels and are a passage, not ground (owner, 2026-10-14, the
+  [stairs walk](#stairs-walk)): the player stepping onto a flight along it is carried to the other
+  end a step at a time, slower than walking and with a stair-step sound, and takes the level of that
+  end as it steps off; it cannot stop on the way. Enemies and NPCs never set foot on stairs (they
+  stay on their levels; ramps are ground to them). The posts or side walls hold a body on the steps;
+  a body put on a flight takes the level of the height it stands at (the upper half of a level's
+  stretch the level above).
 - **Ramps** too: a body takes the level of the height it stands at (the upper half of a level's
   stretch the level above), and steps between the slope and the top beside it where the face left
   between them is low, at the top end. Their long sides are open ground: a body walks on and off
@@ -393,9 +396,10 @@ far-wall foot meets its lowered near rim it takes a small step). About 9 ms per 
 park, once at load. Every player, enemy and NPC body in the world is
 tracked (`Elevation.track`) and collides only with its own level's layer: walls block the lower
 ground, rims keep a body on its hill or out of a hole, and the strip behind a hill is open to the
-level below. A body's level changes only on stairs (it takes the level of the height it stands at,
-the upper half of a one-level flight the top level, so it climbs and descends by walking) and when
-a jump or drop lands (`track(body, level)` sets the new layer). While a flight runs it owns the body and
+level below. A body's level changes only on stairs (one standing on a flight takes the level of the
+height it stands at, the upper half of a one-level flight the top level; the player's stairs walk
+sets the level of the end it steps off at) and when a jump or drop lands (`track(body, level)` sets
+the new layer). While a flight (a jump's, a drop's or the stairs walk) runs it owns the body and
 places it every step, so nothing collides on the way. `WorldService.elevation` answers `level_at`,
 `is_walkable`, `level_of(body)`, `track`, `body_fits`, `drop_target` (the ledge push in
 `player.gd`) and `hop_target` (the jump in `player_abilities.gd`).
@@ -440,6 +444,48 @@ outline, the flight's outlines and those of flights it touches are cut where the
 is kept where it parts walkable from blocked ground, pieces on one line merge and ends a hair apart
 are welded into one point (a body sliding along an edge would catch on the next one's end). About 27 ms for
 the park's 39 flights and 165 ms for all levels' collision, once at load (2026-10-11).
+
+### Stairs walk
+
+Stairs are a passage, not ground (owner, 2026-10-14: they "should feel like a transition, similar to
+Zelda ... it take longer to cross them than normal terrain", and the player should not be able to
+stay in the middle of them). Built on 2026-10-14; awaiting the owner's verdict.
+
+- **Stepping on.** After each step of movement `player.gd` `_enter_stairs` asks for the flight
+  whose steps hold the slime's feet (`Elevation.flight_at`: stairs, never a ramp). A move at least
+  `stairsAlong` (0.35) along the flight's ground direction (`dir`: on a front flight the up or down
+  key, on a side flight left or right, on a 45° flight either of its two keys) starts the walk down
+  or up it (`PlayerAbilities.begin_stairs`). Partway up a flight (more than a step from either end:
+  knocked there, or come on from the side) any move starts it towards the nearer end. A click
+  order's route walks onto the stairs the same way.
+- **The walk** (`stairs_sequence.gd`, an ability sequence like the jump's) locks actions and
+  movement, faces the way it goes, plays the walk clip, keeps the line across the flight it came in
+  on (its t, at least 14 units off the side walls) and climbs or descends in footsteps of
+  `stairsFootstepMs` (400 ms), each covering `stairsPerFootstep` (2) stairs (4 stairs a level): a
+  footstep eases in (smoothstep) under a hop of `stairsStepBob` (3 units) and lands with the
+  `StairsStep` cue; then it walks `stairsExit` (22 units) off the end over `stairsExitMs` (160 ms).
+  A two-level front flight takes about 1.8 s with 4 footsteps (walking the same 150 units takes about
+  0.75 s). The owner tried two paces on 2026-10-14 (climbing should sound slower than walking,
+  whose steps are 540 ms apart) and kept this one, footsteps with one hop and one sound each, over
+  a hop on every stair with the sound on a pace of its own; the values are the owner's. The body's depth follows the steps (`set_flight`,
+  in the flight's frame); its level stays the one it came from until it steps off, then it is
+  tracked at the level of that end. The camera follows as usual; the footsteps stay quiet (the walk
+  has its own sound).
+- **On the way** the slime cannot stop, turn back, attack or use an ability; a hit still hurts but
+  does not knock it off (`apply_knockback`). A travel or a death that tears the walk down puts it at
+  the far end (`cancel`). A click order waits and plans again from where it stepped off
+  (`ClickOrders.resume`).
+- **Enemies and NPCs** (owner, 2026-10-14: they "don't walk stairs, they stay in their levels; they
+  do walk ramps since it is normal ground"): the collision has a `Stairs` body (under `Collision`)
+  on physics layer 19, `stairs` (`STAIRS_LAYER`), holding every flight's `walk` (ramps left out);
+  `track` puts that layer in the mask of every tracked body but the player (`PLAYER_LAYER`), so they
+  stop at a flight's foot or top and walk ramps as ground.
+- **Tuning**: the `elevation` block of `game-constants.json` (`stairsFootstepMs`,
+  `stairsPerFootstep`, `stairsStepBob`, `stairsExit`, `stairsExitMs`, `stairsAlong`). The sound (`footstep.stairs`, the `StairsStep`
+  player in `game/scenes/audio/global.tscn`) is a stone tap, the owner's pick of six in Sound
+  Picker round 6 ([audio spec §10.2](specs/audio.md#102-global-cues-added-effectscue-in-globaltscn)).
+- **Probe**: `tools/render_stairs_walk.gd` records the walk in the running game
+  ([TOOLING.md](../TOOLING.md)).
 
 ### Ramps
 
@@ -812,7 +858,10 @@ art, the edges are drawn from the grounds' own sheets):
   corners (the zone past one is not walkable); a level below it cannot enter a drawn wall (a side
   strip stands on ground the model calls walkable), and where the model blocks it for that top (the
   zone past a round corner, the model's wall below the drawn foot) it is the ground below the wall
-  (`_below_at`). Stairs and ramps decide first (`_stairs_rule`). `_with_sides` then traces each
+  (`_below_at`). Stairs and ramps decide first (`_stairs_rule`). Where a drawn wall's uneven foot
+  dips under the bottom step of a front flight (up to `STAIRS_FOOT_SLACK`, 12 units), that strip is
+  the ground the flight starts from (`_at_stairs_foot`; as wall it closed the foot of most of the
+  lab's flights to their lower level until 2026-10-14). `_with_sides` then traces each
   level as `_with_stairs` traces flights: near the tops, the model's outline, the borders and the
   walls' outlines are cut where they cross (`_split_all`, `SPLIT_BUCKET` buckets) and each piece is
   kept where it parts walkable from blocked ground, so the collision runs along the drawn feet,
@@ -947,13 +996,16 @@ same cliffs and the same collision.
   stands with its top half over the hill's top for a moment as it climbs a 45° front flight.
 - A body may stand behind a flight where the flight only hides it (its footprint at the body's
   level blocks it, not its picture): there is no cap like the strip behind a hill.
-- Only the player changes level (stairs, ledge drops, and the hidden jump off a rim); nothing climbs
-  but stairs.
-  Bodies walk the stairs (enemies too, when they get there), but no path finding knows them.
-  Enemies collide with their level but neither drop nor path to stairs. Projectiles, melee reach,
+- Only the player changes level (the stairs walk, ledge drops, and the hidden jump off a rim) and
+  only the player uses stairs: enemies and NPCs stop at them (`STAIRS_LAYER`) and walk ramps.
+  Enemies collide with their level but neither drop nor find a way off it. Projectiles, melee reach,
   sight, interactions and spawns do not know levels yet. These are the next gameplay steps (the
   old branch's rules in `git show feat/elevation-levels:docs/ELEVATION.md` are a reference, not a
   plan).
+- The stairs walk keeps the line across the flight it stepped on at and runs straight along the
+  flight whatever the keys (on a 45° flight either of its keys climbs it). A body knocked partway up
+  a flight stands there until it moves (then it is carried to the nearer end). An enemy chasing the
+  player up the stairs waits at their foot.
 - A drop off a back rim lands in the capped strip, nearer the rim than a real fall would; a side
   rim shows no wall, so a fall beside a hill drops past plain ground.
 - Ramps (2026-10-11, the cliff shapes lab only): a ramp's long sides are open ground, so a body
@@ -1006,6 +1058,7 @@ same cliffs and the same collision.
 | `godot/game/world/elevation/elevation_ramp.gd`, `elevation_ramp.gdshader` | A ramp (a flight without stone): its slope, the join over a low face, the high end, open sides (strips, skirt), the tapered face, an open end (the rim left out, the cap, no shadow beyond), a rimmed ramp's landing; the slope drawn as its ground with the shadows on it |
 | `godot/game/world/elevation/elevation_cast_shadow.gdshaderinc` | The cast shadows' lookup through the depth map, shared by the cast shadows and the ramps |
 | `godot/game/player/abilities/jump_sequence.gd` | The flight of a jump or a ledge drop (`player.gd` `_press_ledge` starts a drop) |
+| `godot/game/player/abilities/stairs_sequence.gd` | The [stairs walk](#stairs-walk) (`player.gd` `_enter_stairs` starts it) |
 | `godot/game/world/elevation/elevation_rims.gd` | Every top's border as one chained strip (lips, rims, round corners), glow and depth cores |
 | `godot/game/world/elevation/sides/elevation_sides.gd`, `elevation_sides.gdshader` | The sides look ([Side walls](#side-walls)): walls on every side of a top, round front corners, slanted back ones, folded inner ones, wobbling borders, simple drawn top edges and feet in one painter's-order mesh per level, and the blockers of the side strips |
 | `godot/game/world/elevation/elevation_occlusion.gd`, `elevation_occlusion.gdshaderinc` | The depth map and the bodies hidden behind higher ground (included by `game/feel/hit_flash.gdshader` and `game/player/gulp/form_skin.gdshader`) |
@@ -1022,6 +1075,7 @@ same cliffs and the same collision.
 | `scripts/maps/build-elevation-park.py` | Builds the park in the playground (levels, stairs, its `cliffs` paint) |
 | `godot/tools/render_elevation_park.gd` | Renders the park's rows and close-ups with the game's drawing |
 | `godot/tools/build_cliff_sides_lab.gd`, `render_cliff_sides_lab.gd` | Build and render the cliff sides lab ([Side walls](#side-walls)) |
+| `godot/tools/render_stairs_walk.gd` | Records the [stairs walk](#stairs-walk) in the running game |
 | `asset/Originals/elevation/side-walls/` | The side-wall concepts of 2026-10-13 (concept-d the target), two inner-corner concepts, and the side art's sources (`corner-stones-a.png` used; `-b`, `side-strip-a/-b` candidates) |
 | `scripts/art/build-side-wall-art.py` | A style's side strip and corner stones for the sides look ([Side walls](#side-walls)) |
-| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels (set into a face, running out, the way past its ends), stairs on every side (posts and side walls, no landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight, stairs coloured by their ground, the capped strip, closed collision outlines (stairs included), the park's walls in every style (painted or by ground), wall ends, water foot, lips, shadows, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), sliding down a back face past a tip, walking behind a hill and the ghost |
+| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels (set into a face, running out, the way past its ends), stairs on every side (posts and side walls, no landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight (the stairs walk: its time, a step sideways halfway carried to the foot), enemies kept off every flight, stairs coloured by their ground, the capped strip, closed collision outlines (stairs included), the park's walls in every style (painted or by ground), wall ends, water foot, lips, shadows, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), sliding down a back face past a tip, walking behind a hill and the ghost |

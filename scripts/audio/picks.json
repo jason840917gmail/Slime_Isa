@@ -37,6 +37,7 @@
     "footstep.snow": "library",
     "footstep.soft": "library",
     "footstep.stone": "library",
+    "footstep.stairs": "library",
     "footstep.water": "library",
     "footstep.wood": "library",
     "pickup.berry": "synth",

@@ -1,0 +1,21 @@
+{
+  "round": "round-6",
+  "decidedAt": "2026-10-14T19:05:25.746Z",
+  "source": "The Sound Picker's picks/round-6 document, version 27 (A with takes 1 and 4 dropped; the speed it held was a removed experiment)",
+  "note": "i like A i remove one, can i adjust the pace? ",
+  "picks": {
+    "footstep.stairs": "a"
+  },
+  "dropped": {
+    "footstep.stairs": {
+      "a": [
+        0,
+        3
+      ],
+      "f": [
+        3
+      ]
+    }
+  },
+  "wishes": {}
+}

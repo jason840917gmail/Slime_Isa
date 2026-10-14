@@ -40,7 +40,13 @@
     "dropOutward": 22,
     "dropBaseMs": 260,
     "dropMsPerLevel": 90,
-    "hopArcHeight": 36
+    "hopArcHeight": 36,
+    "stairsFootstepMs": 400,
+    "stairsPerFootstep": 2,
+    "stairsStepBob": 3,
+    "stairsExit": 22,
+    "stairsExitMs": 160,
+    "stairsAlong": 0.35
   },
   "fences": {
     "clearance": 8

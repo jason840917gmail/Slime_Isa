@@ -13,6 +13,7 @@ const Services := preload("res://game/shared/services.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const ElevationStairs := preload("res://game/world/elevation/elevation_stairs.gd")
+const ElevationRamp := preload("res://game/world/elevation/elevation_ramp.gd")
 
 const MAP_ID := "playground"
 ## The park's level-2 square hill (cells 14..22 x 31..35), its wall rows 36-37 and its flight of
@@ -286,25 +287,44 @@ func test_wall_blocks_the_lower_ground(t: TestContext) -> void:
 
 
 func test_stairs_climb_and_descend(t: TestContext) -> void:
+	# The stairs walk (docs/godot/ELEVATION.md "Stairs walk"): stepping onto a flight carries the
+	# slime to its other end a step at a time, even with the key let go, and its level changes as it
+	# steps off.
 	var body := t.player_body()
+	var player := t.player()
 	var elevation := t.world().elevation
 	_place_feet(t, Vector2(STAIRS_X, FLIGHT_END + 60.0))
 	await t.steps(2)
 	t.press(&"move_up")
-	var climbed := await t.until(func() -> bool: return elevation.level_of(body) == 2 and body.global_position.y < HILL_RIM - 40.0, 4000.0)
+	var stepped_on := await t.until(func() -> bool: return player.is_on_stairs(), 2000.0)
 	t.release_all()
-	t.check(climbed, "did not climb to level 2 (level %d, feet y %.1f)" % [elevation.level_of(body), body.global_position.y])
+	if not t.check(stepped_on, "the stairs walk did not start (feet y %.1f)" % body.global_position.y):
+		return
+	var started := t.now()
+	var stepped_off := await t.until(func() -> bool: return not player.is_on_stairs(), 4000.0)
+	var took := t.now() - started
+	t.check(stepped_off, "the stairs walk did not end (feet y %.1f)" % body.global_position.y)
+	# Two levels are 8 stairs, crossed in footsteps of stairsPerFootstep stairs, stairsFootstepMs each.
+	var footsteps := ceili(8.0 / maxf(Elevation.setting("stairsPerFootstep"), 1.0))
+	t.check(took >= (footsteps - 1) * Elevation.setting("stairsFootstepMs"), "crossed two levels in %.0f ms" % took)
+	t.equal(elevation.level_of(body), 2, "level after the stairs walk up")
+	t.check(body.global_position.y < HILL_RIM, "did not step off onto the hill (feet y %.1f)" % body.global_position.y)
 	t.check(body.collision_mask & Elevation.level_bit(2) != 0 and body.collision_mask & Elevation.level_bit(0) == 0, "collision mask on the hill")
-	# Halfway down, the posts hold the slime between them.
-	_place_feet(t, Vector2(STAIRS_X, HILL_RIM + 64.0))
-	elevation.track(body, 1)
-	await t.steps(2)
-	t.equal(elevation.level_of(body), 1, "level halfway down a two-level flight")
+	# Halfway (knocked there), a step sideways carries the slime on to the nearer end (the foot)
+	# between the posts: nothing stands on the stairs.
 	for action: StringName in [&"move_right", &"move_left"]:
+		_place_feet(t, Vector2(STAIRS_X, HILL_RIM + 70.0))
+		elevation.track(body, 1)
+		await t.steps(2)
+		t.equal(elevation.level_of(body), 1, "level halfway down a two-level flight")
 		t.press(action)
-		await t.sim_wait(600.0)
+		var carried := await t.until(func() -> bool: return player.is_on_stairs(), 1000.0)
 		t.release_all()
+		t.check(carried, "a step sideways (%s) halfway did not start the stairs walk" % action)
+		await t.until(func() -> bool: return not player.is_on_stairs(), 4000.0)
+		t.equal(elevation.level_of(body), 0, "level after a step sideways (%s) halfway" % action)
 		t.check(absf(body.global_position.x - STAIRS_X) <= 18.0, "walked through a post (feet x %.1f)" % body.global_position.x)
+		t.check(body.global_position.y > FLIGHT_END, "did not step off at the foot (feet y %.1f)" % body.global_position.y)
 	# Back down the stairs.
 	_place_feet(t, Vector2(STAIRS_X, HILL_RIM - 60.0))
 	elevation.track(body, 2)
@@ -313,6 +333,39 @@ func test_stairs_climb_and_descend(t: TestContext) -> void:
 	var descended := await t.until(func() -> bool: return elevation.level_of(body) == 0 and body.global_position.y > FLIGHT_END + 10.0, 4000.0)
 	t.release_all()
 	t.check(descended, "did not walk down to level 0 (level %d, feet y %.1f)" % [elevation.level_of(body), body.global_position.y])
+
+
+func test_enemies_stay_off_the_stairs(t: TestContext) -> void:
+	# Owner, 2026-10-14: "enemies or NPCs don't walk stairs, they stay in their levels; they do walk
+	# ramps". Every flight's steps stand on Elevation.STAIRS_LAYER, in the mask of every tracked body
+	# but the player's: a worm walking onto any flight from its foot stops there.
+	var elevation := t.world().elevation
+	t.check(t.player_body().collision_mask & Elevation.STAIRS_LAYER == 0, "the player collides with the stairs")
+	var worm := t.spawn_worm(Vector2(0.0, 300.0), true)
+	if worm == null:
+		return
+	await t.steps(3)
+	var body := worm.body
+	t.check(body.collision_mask & Elevation.STAIRS_LAYER != 0, "a worm does not collide with the stairs")
+	var stopped := 0
+	for flight: ElevationStairs in elevation.stairs:
+		if flight is ElevationRamp:
+			continue
+		var height := ElevationStairs.LEVEL * (flight.top - flight.bottom)
+		var foot_s := 0.0 if flight.in_face else flight.end
+		var start := flight.screen_of(Vector3(foot_s + 40.0, 0.0, 0.0)) + elevation.global_position
+		var top_end := flight.screen_of(Vector3(0.0, 0.0, height)) + elevation.global_position
+		var motion := top_end - start if flight.in_face else -flight.dir * 80.0
+		body.global_position = start
+		elevation.track(body, flight.bottom)
+		var hit := KinematicCollision2D.new()
+		var blocked := body.test_move(body.global_transform, motion, hit)
+		var by: CollisionObject2D = hit.get_collider() as CollisionObject2D if blocked else null
+		if by != null and by.collision_layer & Elevation.STAIRS_LAYER != 0:
+			stopped += 1
+		else:
+			t.fail("a worm walks onto the %s flight at %s (%s)" % [flight.direction_name, start, by.name if by != null else "nothing in the way"])
+	t.check(stopped > 30, "flights that stop a worm: %d" % stopped)
 
 
 func test_stairs_on_every_side(t: TestContext) -> void:
@@ -362,8 +415,7 @@ func test_stairs_on_every_side(t: TestContext) -> void:
 func test_every_flight_walks_through_both_ends(t: TestContext) -> void:
 	# A body walks down every showcase flight from the hilltop and back up from the lower ground:
 	# 8 directions, one and two cells wide (nothing at either end, posts included, narrows the way
-	# in; over a 45° rim or the short end of a back flight the body reaches past the steps before it
-	# takes the next level).
+	# in; the stairs walk carries it from end to end and it takes the next level as it steps off).
 	var body := t.player_body()
 	var elevation := t.world().elevation
 	var flights: Array = []

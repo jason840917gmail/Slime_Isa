@@ -24,7 +24,7 @@ const NEW_CUES: Array[StringName] = [&"GulpTransformHeavy", &"GulpTransformStick
 	&"GulpWearOff", &"GulpBurp", &"LashCatch",
 	&"FallDown", &"PlatePress", &"PlateRelease", &"GateOpen", &"GateUnlock", &"GateLocked", &"DoorUse",
 	&"DummyHit", &"GroundCreak", &"TalkBlip", &"DropPop", &"DropLand", &"PotionDrink", &"WebStruggle",
-	&"HitDull", &"HitBlocked", &"Save", &"Toast"]
+	&"HitDull", &"HitBlocked", &"Save", &"Toast", &"StairsStep"]
 
 
 func test_walking_steps_once_per_walk_cycle(t: TestContext) -> void:
