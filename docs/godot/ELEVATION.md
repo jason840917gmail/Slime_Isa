@@ -1,5 +1,20 @@
 # Elevation: hills, holes and ground levels
 
+> **Side walls are the cliff look (owner, 2026-10-14: "I think it is the way to go").** The
+> [Side walls](#side-walls) experiment is closed and kept: worlds draw their cliffs with
+> `cliff_look = "sides"` on the ground layer. **The front-only look is deprecated, awaiting its final
+> removal:** the Walls, Feet, Lips and Rims groups, the model's cast Shadows and Water at walls' feet
+> (all drawn only without `cliff_look = "sides"`), the fern fringe art (`<ground>-lip.png`,
+> `-foot.png`, `storybook-grass`, `elevation_fringe.gdshader`, `elevation_strip.gdshader`,
+> `elevation_rims.gd`'s strips), the wall-end corner stones (`-wall-end-*.png`,
+> `elevation_wall_end.gdshader`, RampEnds), the fern ramp feet (`_add_ramp_foot`) and the ramp's
+> EDGE_FADE band. Do not build on them. Until they go, worlds without the metadata still draw them:
+> on 2026-10-14 only the cliff sides lab and level-1's chunks (c4, c5, d4, d5) use side walls; the
+> other 55 worlds with elevation still use the deprecated look. Removing it means setting
+> `cliff_look = "sides"` everywhere (or making it the default), rebaking the caches, checking every
+> world's cliffs, then deleting the code and art above and the sections of this document that
+> describe them.
+
 > **The cliff system (2026-10-12).** The hand-painted cliff experiments of 2026-10-09/10 (a tile
 > sheet painted with Godot terrains, the cliff builder, the shape painter, the rectangle prototype)
 > were removed: this system won, drawn with art cut from the approved painting
