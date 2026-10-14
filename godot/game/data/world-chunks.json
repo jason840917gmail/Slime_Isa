@@ -15,10 +15,10 @@
       "doors": {},
       "spawn": "crystal-caverns-g4",
       "written": {
-        "crystal-caverns-g4": 3080491969,
-        "crystal-caverns-h4": 3268578188,
-        "crystal-caverns-g5": 572336200,
-        "crystal-caverns-h5": 2433420887
+        "crystal-caverns-g4": 3080491969.0,
+        "crystal-caverns-h4": 3268578188.0,
+        "crystal-caverns-g5": 572336200.0,
+        "crystal-caverns-h5": 2433420887.0
       }
     },
     "desert": {
@@ -80,10 +80,33 @@
       },
       "spawn": "gloop-forest-e4",
       "written": {
-        "gloop-forest-e4": 2634954258,
-        "gloop-forest-f4": 1004219237,
-        "gloop-forest-e5": 3387564473,
-        "gloop-forest-f5": 1916923627
+        "gloop-forest-e4": 2634954258.0,
+        "gloop-forest-f4": 1004219237.0,
+        "gloop-forest-e5": 3387564473.0,
+        "gloop-forest-f5": 1916923627.0
+      }
+    },
+    "level-1": {
+      "chunks": {
+        "level-1-c4": "C4",
+        "level-1-d4": "D4",
+        "level-1-c5": "C5",
+        "level-1-d5": "D5"
+      },
+      "arrivals": {
+        "player-entry-south": "level-1-c4",
+        "player-entry-east": "level-1-d4"
+      },
+      "doors": {
+        "home-door": "level-1-c4",
+        "mushroom-home-door": "level-1-c4"
+      },
+      "spawn": "level-1-c4",
+      "written": {
+        "level-1-c4": 3602641137,
+        "level-1-d4": 2042558398,
+        "level-1-c5": 4280287558,
+        "level-1-d5": 3732679025
       }
     },
     "north-wilds": {

@@ -75,7 +75,7 @@ Rules for every map:
 
 | Map | Size (tiles) | Chunks | Status |
 |---|---|---|---|
-| `level-1` (Slimeshire Meadow) | 64 × 64 | 2 × 2 | Follows the grid |
+| `level-1` (Slimeshire Meadow) | 64 × 64 | 2 × 2 | Cut into four chunk scenes on 2026-10-14 (`level-1-c4` the village … `-d5`) |
 | `gloop-forest` | 64 × 64 | 2 × 2 | Grown from 54 × 54 on 2026-10-12: its east and south strips are a tree wall (a ForestLayer), the river and the east road run on to the new edge, its camp moved 4 tiles west into chunk E4 |
 | `crystal-caverns` | 64 × 64 | 2 × 2 | Grown from 54 × 54 on 2026-10-12: its east and south strips are cavern floor |
 | Placeholder regions: `west-village`, `northern-ruins`, `desert`, `sticky-swamp`, `frostpeak` | 64 × 64 | 2 × 2 | Built from the sketch by `godot/tools/build_region_worlds.gd` ([WORLD_ATLAS.md](../godot/WORLD_ATLAS.md)) |

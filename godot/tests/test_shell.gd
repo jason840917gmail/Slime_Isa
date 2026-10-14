@@ -358,8 +358,9 @@ func test_area_title_card_on_world_registration(t: TestContext) -> void:
 	var clock := {"ms": 10000.0}
 	card.clock = func() -> float: return float(clock["ms"])
 	t.check(not card.is_showing(), "the card showed before any world registered")
-	t.world().world_registered.emit({"mapId": "level-1"})
-	t.check(card.is_showing(), "no card after level-1 registered")
+	# level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md): a chunk is titled by its region.
+	t.world().world_registered.emit({"mapId": "level-1-c4"})
+	t.check(card.is_showing(), "no card after level-1-c4 registered")
 	t.equal(card.label.text, "Slimeshire Meadow", "level-1 title")
 	t.equal(card.current_color().to_html(false), "a3f0c0", "meadow title colour")
 	card._process(0.0)
@@ -383,6 +384,9 @@ func test_area_title_card_on_world_registration(t: TestContext) -> void:
 	clock["ms"] = 10000.0 + 1840.0
 	card._process(0.0)
 	t.check(not card.visible, "the card stayed after 1840 ms")
+	# Walking on into the next chunk of the same region shows no card again.
+	t.world().world_registered.emit({"mapId": "level-1-d4"})
+	t.check(not card.is_showing(), "a card showed again for the next chunk of level-1")
 
 	# Another world, an unknown id, and no card for a world outside main (the title backdrop).
 	t.world().world_registered.emit({"mapId": "gloop-forest"})
@@ -392,7 +396,7 @@ func test_area_title_card_on_world_registration(t: TestContext) -> void:
 	t.equal(card.label.text, "Elder House", "an unknown map's title from its id")
 	clock["ms"] = 20000.0
 	t.main.remove_from_group(ShellScript.WORLD_MAIN_GROUP)
-	t.world().world_registered.emit({"mapId": "level-1"})
+	t.world().world_registered.emit({"mapId": "level-1-c4"})
 	t.check(not card.is_showing(), "a card showed for a world outside main")
 	t.main.add_to_group(ShellScript.WORLD_MAIN_GROUP)
 	_free_shell(shell)
@@ -407,7 +411,7 @@ func test_end_card_opens_once_for_a_new_story_flag(t: TestContext) -> void:
 	# A flag the run already had when the world loaded never shows its card.
 	run.set_flag("chapter-2-complete")
 	var shell := _make_shell(t)
-	t.world().world_registered.emit({"mapId": "level-1"})
+	t.world().world_registered.emit({"mapId": "level-1-c4"})
 	run.story_flag_changed.emit({"flag": "chapter-2-complete", "set": true})
 	t.check(not shell.end_card.is_open(), "an end card opened for a flag the run already had")
 	run.set_flag("playground-end-card-test")

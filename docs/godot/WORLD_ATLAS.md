@@ -195,7 +195,8 @@ scene is deleted.
 Cut (2026-10-12): every placeholder region (52 chunks: North Wilds 15, A1-C2, H2, A3-H3; Volcano
 Ridge 5, F1-H1, F2-G2; South Wilds 12, A6-H6, C7-C8, H7-H8; Frostpeak, Sticky Swamp, West Village,
 Northern Ruins and Desert 4 each) and the hand-made Gloop Forest (E4-F5) and Crystal Caverns
-(G4-H5), 60 chunks in all. Slimeshire Meadow (level-1) stays whole. The tool writes
+(G4-H5), and on 2026-10-14 Slimeshire Meadow (level-1: C4 the village, D4 the Verdant Gate and
+Fatty's camp, C5 the lake, D5 the autumn grove): 64 chunks, every region. The tool writes
 `godot/game/scenes/worlds/chunks/<world>-<chunk>.tscn` (scene id `world.<world>-<chunk>`, e.g.
 `world.south-wilds-c6`) for every chunk the region holds (`WorldMapData.region_chunks`), 32 × 32
 tiles each, cut from the region's world scene:
@@ -229,7 +230,7 @@ region's world, and the in-game map (M) draws the player's dot in its chunk. **F
 scene** starts the game there. Where a tree band or a river runs along a chunk border the crossing
 is only where the ground is open, as in the region.
 
-**Hand-made worlds** (gloop-forest, crystal-caverns; level-1 is never cut): `-- --region=<world>
+**Hand-made worlds** (gloop-forest, crystal-caverns, level-1): `-- --region=<world>
 --hand-made` writes a **preview**: the chunk scenes, registered (F6 on one walks them), while travel
 still goes to the whole scene. `-- --hand-made --adopt` makes it real (the table entry, the whole
 scene deleted). Each chunk is the whole scene instanced again with what lies outside the chunk taken
@@ -258,6 +259,16 @@ the tool again needs the region's whole scene: rebuild it from the sketch with
 `build_region_worlds.gd -- --only=<region>`, then cut. The cut rewrites only the chunks nobody
 edited since (their file still has the hash it recorded; `-- --force` rewrites the others too)
 and deletes the whole scene again (`-- --keep-whole` keeps it).
+
+**Prop layers, walls, scripts** (2026-10-14, level-1): each layer is clipped on its own cell
+size; a PropLayer keeps every cell whose prop's picture reaches into the chunk (props draw well
+past their cell); the `walls` WallLayer keeps one cell past each edge with `shown_cells` the
+chunk's own, so pieces at the edge still join; props dragged in under `Scenery` count by their
+picture; a script node whose node references point into another chunk (level-1's chapter-1
+villagers' story variant outside C4) is dropped there. **No elevation cache** is baked for chunks:
+a chunk builds its cliffs in about 0.3 s (level-1's chunks load in 2.2-2.7 s from a cold start
+against 2.8 s for the whole level with its cache; a crossing is ready about 0.6 s after touching
+the edge).
 
 Timings (headless, this machine): North Wilds' whole world builds in about 4.0 s from a cold start,
 one of its chunks in 1.4 s (both with the game's own start); walking into a chunk's edge has the

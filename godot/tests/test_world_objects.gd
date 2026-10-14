@@ -1,9 +1,15 @@
 extends RefCounted
 ## Resource nodes, drops, collectibles and the inventory (docs/godot/specs/world-objects.md 12.9).
 ## level-1 objects: `level-1-tree-004` (grove tree, 40 HP, base (527.25, 1254.95)),
-## `level-1-stone-node-01` (80 HP, (1042, 258)), `level-1-loose-wood-04` (wood pile of 10 at
-## (943.25, 348.9)), `level-1-purple-berry-03` ((550.4, 1363.2)). Router-level hits use a stand-in
+## `level-1-stone-node-01` (80 HP, (1069.39, 184)), `level-1-loose-wood-04` (wood pile of 10 at
+## (455.25, 1187.9)), `level-1-purple-berry-03` ((550.4, 1363.2)). Router-level hits use a stand-in
 ## activation (one per hit) so the damage is exact: a stone axe does 14 (base 12 x 1.2).
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): all of these are in
+## the village chunk C4 (`level-1-c4`, its origin at level-1's (0, 0)), and their records are keyed
+## by it.
+
+## run_tests.gd starts every test of this file in level-1's village chunk.
+const MAP_ID := "level-1-c4"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -16,7 +22,7 @@ const TREE := "level-1-tree-004"
 const TREE_BASE := Vector2(527.25, 1254.95)
 const STONE := "level-1-stone-node-01"
 const WOOD_PILE := "level-1-loose-wood-04"
-const WOOD_PILE_AT := Vector2(943.25, 348.9)
+const WOOD_PILE_AT := Vector2(455.25, 1187.9)
 const BERRY := "level-1-purple-berry-03"
 const BERRY_AT := Vector2(550.4, 1363.2)
 ## Player pickup rect centre = old Phaser centre + (0, 14.56) (player_slime.tscn PickupShape).
@@ -38,7 +44,7 @@ func test_inventory_capacity_and_stacking(t: TestContext) -> void:
 	t.equal(run.item_capacity("unknown-thing"), 0, "capacity of an unknown item")
 	t.equal(run.item_capacity("green-key"), 20, "green key capacity (max stack 1)")
 	for i in 4:
-		t.equal(run.collect_world_item("level-1", "test-pile-%d" % i, "wood", 10), 10, "wood pile %d moved" % i)
+		t.equal(run.collect_world_item(MAP_ID, "test-pile-%d" % i, "wood", 10), 10, "wood pile %d moved" % i)
 	t.equal(run.inventory["slots"], [{"item_id": "wood", "count": 25}, {"item_id": "wood", "count": 15}], "slots after four piles")
 	t.check(run.remove_item("wood", 30), "removing 30 wood failed")
 	t.equal(run.inventory["slots"], [{"item_id": "wood", "count": 10}], "slots after removing 30 (first slot first)")
@@ -47,10 +53,10 @@ func test_inventory_capacity_and_stacking(t: TestContext) -> void:
 func test_partial_collect(t: TestContext) -> void:
 	var run := Services.run()
 	_fill(run, 19, {"item_id": "wood", "count": 20})
-	t.equal(run.collect_world_item("level-1", "test-pile", "wood", 10), 5, "moved into the last wood stack")
-	t.equal(run.collectible_record("level-1", "test-pile").get("remaining"), 5, "record remaining")
+	t.equal(run.collect_world_item(MAP_ID, "test-pile", "wood", 10), 5, "moved into the last wood stack")
+	t.equal(run.collectible_record(MAP_ID, "test-pile").get("remaining"), 5, "record remaining")
 	t.equal(run.item_count("wood"), 25, "wood in the bag")
-	t.equal(run.collect_world_item("level-1", "test-pile", "wood", 10), 0, "nothing more fits")
+	t.equal(run.collect_world_item(MAP_ID, "test-pile", "wood", 10), 0, "nothing more fits")
 
 
 # --- regrowth and placement helpers --------------------------------------------------------------
@@ -106,7 +112,7 @@ func test_sword_is_blocked_by_tree(t: TestContext) -> void:
 		t.equal(payload.get("message"), "Requires an Axe", "blocked message")
 		t.equal(payload.get("targetTag"), "wood", "blocked target tag")
 		t.near_vec(Vector2(payload["x"], payload["y"]), TREE_BASE, 0.01, "blocked position")
-	t.check(Services.run().resource_record("level-1", TREE).is_empty(), "a blocked hit wrote a record")
+	t.check(Services.run().resource_record(MAP_ID, TREE).is_empty(), "a blocked hit wrote a record")
 
 
 func test_axe_fells_tree_and_drops_wood(t: TestContext) -> void:
@@ -119,13 +125,13 @@ func test_axe_fells_tree_and_drops_wood(t: TestContext) -> void:
 	tree.drops_requested.connect(func(payload: Dictionary) -> void: drops.append(payload))
 	var tree_root := tree.get_parent()
 	_hit(t, tree.damage_area, AXE_TAGS, 14.0)
-	t.equal(run.resource_record("level-1", TREE), {"stage": "node", "value": 26.0}, "record after hit 1")
+	t.equal(run.resource_record(MAP_ID, TREE), {"stage": "node", "value": 26.0}, "record after hit 1")
 	_hit(t, tree.damage_area, AXE_TAGS, 14.0)
-	t.equal(run.resource_record("level-1", TREE), {"stage": "node", "value": 12.0}, "record after hit 2")
+	t.equal(run.resource_record(MAP_ID, TREE), {"stage": "node", "value": 12.0}, "record after hit 2")
 	var last := _hit(t, tree.damage_area, AXE_TAGS, 14.0)
 	t.equal(last.get("actual_damage"), 12, "last hit's damage")
 	t.check(bool(last.get("defeated", false)), "the last hit did not fell the tree")
-	var record := run.resource_record("level-1", TREE)
+	var record := run.resource_record(MAP_ID, TREE)
 	t.equal(record.get("stage"), "destroyed", "record stage after felling")
 	t.equal(record.get("value"), 10.0, "wood lying after felling")
 	t.equal(record.get("respawn_ready_at_epoch_ms"), EPOCH + RESPAWN_MS, "regrow time")
@@ -161,10 +167,10 @@ func test_stone_needs_pickaxe_and_forgets_damage(t: TestContext) -> void:
 	t.check(blocked.size() == 1 and blocked[0]["message"] == "Requires a Pickaxe", "an axe was not turned away (%s)" % [blocked])
 	_hit(t, stone.damage_area, PICKAXE_TAGS, 14.0)
 	t.equal(stone.get_damage_state()["hp"], 66.0, "stone HP after one pickaxe hit")
-	t.check(run.resource_record("level-1", STONE).is_empty(), "stone damage was saved")
+	t.check(run.resource_record(MAP_ID, STONE).is_empty(), "stone damage was saved")
 	for i in 5:
 		_hit(t, stone.damage_area, PICKAXE_TAGS, 14.0)
-	var record := run.resource_record("level-1", STONE)
+	var record := run.resource_record(MAP_ID, STONE)
 	t.equal(record.get("stage"), "destroyed", "stone stage after 6 hits")
 	var ids: Array = (record.get("piles", []) as Array).map(func(pile: Dictionary) -> String: return pile["id"])
 	t.equal(ids, [STONE + "-drop-1", STONE + "-drop-2", STONE + "-drop-3"], "stone pile ids")
@@ -188,7 +194,7 @@ func test_walk_over_pickup(t: TestContext) -> void:
 		return
 	t.equal(results[0], {"status": "collected", "moved": 10, "remaining": 0}, "pickup result")
 	t.equal(run.inventory["slots"], [{"item_id": "wood", "count": 10}], "bag after the pickup")
-	t.equal(run.collectible_record("level-1", WOOD_PILE), {"remaining": 0}, "pile record")
+	t.equal(run.collectible_record(MAP_ID, WOOD_PILE), {"remaining": 0}, "pile record")
 	t.check(not is_instance_valid(pile_root) or pile_root.is_queued_for_deletion(), "the pile stayed")
 
 
@@ -206,7 +212,7 @@ func test_inventory_full_keeps_pile(t: TestContext) -> void:
 		return
 	t.equal(results[0], {"status": "rejected", "moved": 0, "remaining": 10, "reason": "inventory-full"}, "full-bag result")
 	t.check(is_instance_valid(pile) and not pile.get_parent().is_queued_for_deletion(), "the pile went away")
-	t.check(run.collectible_record("level-1", WOOD_PILE).is_empty(), "a rejected pickup wrote a record")
+	t.check(run.collectible_record(MAP_ID, WOOD_PILE).is_empty(), "a rejected pickup wrote a record")
 	await t.steps(10)
 	t.equal(results.size(), 1, "standing on the pile retried the pickup")
 
@@ -227,12 +233,12 @@ func test_collected_pile_updates_node_record(t: TestContext) -> void:
 	t.teleport_player((pile.get_parent() as Node2D).global_position - PICKUP_OFFSET)
 	await t.until(func() -> bool: return run.item_count("wood") > 0, 300.0)
 	t.equal(run.item_count("wood"), 10, "wood from the felled tree")
-	t.equal(run.resource_record("level-1", TREE), {"stage": "depleted", "value": 0.0, "respawn_ready_at_epoch_ms": EPOCH + RESPAWN_MS}, "node record after its pile")
-	t.equal(run.collectible_record("level-1", TREE + "-drop-1"), {"remaining": 0, "source_resource_instance_id": TREE}, "pile record")
+	t.equal(run.resource_record(MAP_ID, TREE), {"stage": "depleted", "value": 0.0, "respawn_ready_at_epoch_ms": EPOCH + RESPAWN_MS}, "node record after its pile")
+	t.equal(run.collectible_record(MAP_ID, TREE + "-drop-1"), {"remaining": 0, "source_resource_instance_id": TREE}, "pile record")
 	ResourceRespawn.epoch_override_ms = -1.0
 
 
-## Reloading level-1 (a travel into itself) brings back a damaged tree's HP, a felled tree's
+## Reloading the village chunk (a travel into itself) brings back a damaged tree's HP, a felled tree's
 ## uncollected pile, and, once the pile is gone and the regrow time passed, the tree itself.
 func test_records_restore_on_reload(t: TestContext) -> void:
 	ResourceRespawn.epoch_override_ms = EPOCH
@@ -260,7 +266,7 @@ func test_records_restore_on_reload(t: TestContext) -> void:
 	tree = _resource(t, TREE)
 	if t.check(tree != null, "the tree did not regrow"):
 		t.equal(tree.get_damage_state()["hp"], 40.0, "regrown tree HP")
-	t.check(run.collectible_record("level-1", TREE + "-drop-1").is_empty(), "the old pile record survived the regrowth")
+	t.check(run.collectible_record(MAP_ID, TREE + "-drop-1").is_empty(), "the old pile record survived the regrowth")
 	ResourceRespawn.epoch_override_ms = -1.0
 
 
@@ -372,9 +378,9 @@ func _fill(run: Node, count: int, last: Dictionary) -> void:
 		slots.append(last)
 
 
-## Rebuilds level-1 through a travel into itself and waits for the new world.
+## Rebuilds the village chunk through a travel into itself and waits for the new world.
 func _reload(t: TestContext) -> void:
-	t.main.travel_to("level-1", "south")
+	t.main.travel_to(MAP_ID, "south")
 	await t.until(func() -> bool: return t.main.is_transitioning(), 100.0)
 	await t.until(func() -> bool: return not t.main.is_transitioning() and t.player() != null, 3000.0, 6000.0)
 	await t.steps(2)

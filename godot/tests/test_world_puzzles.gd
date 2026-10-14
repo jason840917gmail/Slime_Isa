@@ -2,7 +2,9 @@ extends RefCounted
 ## Ability lessons, the lash bell, training dummies, Goo Hearts and restoration sites in the
 ## playground (docs/godot/specs/abilities.md 19.5): the lash lesson (1904, 1520, reach 140), the
 ## bell on the moat island (2490, 1470) that opens `playground-lash-gate`, dummies at (1480, 1400),
-## (1580, 1400), (1680, 1400).
+## (1580, 1400), (1680, 1400). The Goo Heart and restoration tests travel into level-1, which is cut
+## into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the meadow-lakeside heart is in chunk
+## C5 (`level-1-c5`, at (176, 992)), the workshop site in the village chunk C4 (`level-1-c4`).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -78,8 +80,8 @@ func test_dummy_takes_slam_in_reach(t: TestContext) -> void:
 
 func test_goo_heart_in_level_1(t: TestContext) -> void:
 	var run := Services.run()
-	t.main.travel_to("level-1", "south")
-	await t.until(func() -> bool: return not t.main.is_transitioning() and t.world().map_id() == "level-1" and t.player() != null, 3000.0, 6000.0)
+	t.main.travel_to("level-1-c5", "north")
+	await t.until(func() -> bool: return not t.main.is_transitioning() and t.world().map_id() == "level-1-c5" and t.player() != null, 3000.0, 6000.0)
 	await t.steps(2)
 	var heart := _heart(t, "meadow-lakeside")
 	if not t.check(heart != null, "no meadow-lakeside heart"):
@@ -95,8 +97,9 @@ func test_goo_heart_in_level_1(t: TestContext) -> void:
 
 func test_restoration_needs_materials(t: TestContext) -> void:
 	var run := Services.run()
+	# A travel to level-1 lands in the chunk of its south entry, the village chunk.
 	t.main.travel_to("level-1", "south")
-	await t.until(func() -> bool: return not t.main.is_transitioning() and t.world().map_id() == "level-1" and t.player() != null, 3000.0, 6000.0)
+	await t.until(func() -> bool: return not t.main.is_transitioning() and t.world().map_id() == "level-1-c4" and t.player() != null, 3000.0, 6000.0)
 	await t.steps(2)
 	var site: Node = null
 	for node: Node in t.tree.get_nodes_in_group(&"restoration_site"):

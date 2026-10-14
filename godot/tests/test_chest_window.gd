@@ -1,8 +1,13 @@
 extends RefCounted
 ## The chest window (docs/godot/specs/journal-and-chest.md 2, 3.4, 3.7) on level-1's chest in Fatty's
-## camp (`level-1-fatty-guarded-chest`, a green key; the chest stands at (2528, 1077), inside the
-## camp's 440 px activation circle around (2528, 1472)). Chests open through the interaction
+## camp (`level-1-fatty-guarded-chest`, a green key; the chest stands at (480, 1077), inside the
+## camp's 440 px activation circle around (480, 1472)). Chests open through the interaction
 ## controller's `_use_chest`, so Fatty is never woken unless a test wants him.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the camp is in chunk
+## D4 (`level-1-d4`, its origin at level-1's (2048, 0)), so the places here are D4's.
+
+## run_tests.gd starts every test of this file in the camp's chunk of level-1.
+const MAP_ID := "level-1-d4"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -22,10 +27,10 @@ const TONIC_DETAILS := "Slime Tonic\nCONSUMABLE · ×1\n\nRestores 40 HP.\n\nTak
 const MIXED := {"iron-ore": 6, "charcoal": 3, "hp-potion": 1}
 ## 87 px north of the chest and 472 px from the camp centre: in the chest's reach, out of the
 ## activation circle.
-const CHEST_STAND := Vector2(2528.0, 990.0)
+const CHEST_STAND := Vector2(480.0, 990.0)
 const CAMP_ID := "level-1-fatty-one-eye-camp"
 ## Inside Fatty's activation circle (test_boss.gd FAR_INSIDE).
-const FAR_INSIDE := Vector2(2528.0, 1852.0)
+const FAR_INSIDE := Vector2(480.0, 1852.0)
 
 
 func test_use_chest_opens_window(t: TestContext) -> void:
@@ -194,7 +199,7 @@ func test_close_button_and_escape(t: TestContext) -> void:
 func test_empty_chest(t: TestContext) -> void:
 	var chest := _chest(t)
 	var run := Services.run()
-	run.set_chest_remaining("level-1", CHEST_ID, {})
+	run.set_chest_remaining(MAP_ID, CHEST_ID, {})
 	var interaction := _interaction(t)
 	t.teleport_player(CHEST_STAND)
 	await t.steps(2)
@@ -300,7 +305,7 @@ func _open(t: TestContext, contents: Dictionary) -> ChestWindow:
 	if not t.check(chest != null, "no %s" % CHEST_ID):
 		return null
 	if not contents.is_empty():
-		Services.run().set_chest_remaining("level-1", CHEST_ID, contents)
+		Services.run().set_chest_remaining(MAP_ID, CHEST_ID, contents)
 	await t.steps(1)
 	_interaction(t).call(&"_use_chest", chest)
 	var window := _window(t)

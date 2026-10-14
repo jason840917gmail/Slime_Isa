@@ -260,7 +260,8 @@ func test_workbench_interaction_opens_station(t: TestContext) -> void:
 	await t.until(func() -> bool: return _menu(t).crafting.is_open(), 200.0)
 	t.check(_menu(t).crafting.is_open(), "the Workshop did not open the crafting window")
 	t.equal(_menu(t).crafting.model().get("title"), "Workshop", "title")
-	t.equal(opened, [{"mapId": "level-1", "context": "workshop"}], "workbench_opened payloads")
+	# The Workshop stands in level-1-c4 (level-1 is cut into chunk worlds, docs/godot/WORLD_ATLAS.md).
+	t.equal(opened, [{"mapId": "level-1-c4", "context": "workshop"}], "workbench_opened payloads")
 	_menu(t).crafting.close()
 
 

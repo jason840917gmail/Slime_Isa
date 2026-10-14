@@ -2,9 +2,13 @@ extends RefCounted
 ## Quests, NPC quest talk, the dialogue box, the offer / turn-in window, the tracker, the NPC
 ## markers, the toasts and the waypoint (docs/godot/specs/quests.md 10.10). level-1: the Elder
 ## (`level-1-npc-village-elder-plop`, A Place to Work), Pip (`level-1-npc-red-slime-boy`, plain
-## talk), the forge ruin (`level-1-forge`), Fatty's camp, the loose wood piles 03 (899, 311) and 04
-## (943.25, 348.9). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
+## talk), the forge ruin (`level-1-forge`), Fatty's camp, the loose wood piles 03 (411, 1150) and 04
+## (455.25, 1187.9). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
 ## and stop wandering (no lock, so the conversation's lock is the only one).
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in the
+## village's chunk C4 (`level-1-c4`, level-1's own coordinates); Fatty's camp and the Verdant Gate
+## exit are in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), which the tests needing them
+## travel to.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -37,7 +41,10 @@ const PLACE_PROGRESS_PAGES: Array[String] = ["A workbench is the heart of every 
 	"Still to do for \"A Place to Work\":\n• Craft a Workbench (40 wood) (0/1)"]
 const SLIME_BASICS_LINES := "• Open your bag (B)\n• Look at the Crafting tab (B, then its tab)\n• Read your Journal (J)\n• Open the map (M)\n• Pause to save or change settings (Esc)"
 const WORKBENCH_CRAFT := {"recipeId": "craft-workbench", "itemId": "workbench", "quantity": 1}
-const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1", "sceneId": "", "x": 0, "y": 0}
+const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1-c4", "sceneId": "", "x": 0, "y": 0}
+## level-1's chunk worlds: the village (where the tests start) and Fatty's camp with the gate exit.
+const VILLAGE_MAP := "level-1-c4"
+const FATTY_MAP := "level-1-d4"
 
 
 func test_new_run_states(t: TestContext) -> void:
@@ -344,12 +351,12 @@ func test_collect_only_in_current_stage(t: TestContext) -> void:
 	quests.debug_activate("stone-tools")
 	var progressed: Array = []
 	quests.quest_progressed.connect(func(payload: Dictionary) -> void: progressed.append(payload))
-	if not await _pick_up(t, "level-1-loose-wood-04", Vector2(943.25, 348.9)):
+	if not await _pick_up(t, "level-1-loose-wood-04", Vector2(455.25, 1187.9)):
 		return
 	t.equal(int((quests.state("stone-tools")["progress"] as Dictionary).get("chop-wood", 0)), 0, "chop-wood during craft-tools")
 	t.equal(progressed, [], "progress during craft-tools")
 	quests.debug_activate("stone-tools", "use-tools")
-	if not await _pick_up(t, "level-1-loose-wood-03", Vector2(899.0, 311.0)):
+	if not await _pick_up(t, "level-1-loose-wood-03", Vector2(411.0, 1150.0)):
 		return
 	t.equal(int((quests.state("stone-tools")["progress"] as Dictionary).get("chop-wood", 0)), 10, "chop-wood during use-tools")
 	t.equal(progressed, [{"questId": "stone-tools", "stageId": "use-tools", "objectiveId": "chop-wood", "before": 0, "after": 10}],
@@ -361,14 +368,14 @@ func test_kill_counts_kind_only(t: TestContext) -> void:
 	quests.debug_activate("worm-trouble", "clear-camp")
 	var progressed: Array = []
 	quests.quest_progressed.connect(func(payload: Dictionary) -> void: progressed.append(payload))
-	quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 1, "areaId": "level-1", "kind": "worm-archer"})
+	quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 1, "areaId": VILLAGE_MAP, "kind": "worm-archer"})
 	t.equal(int((quests.state("worm-trouble")["progress"] as Dictionary).get("defeat-worms", 0)), 0, "an archer counted")
 	for enemy_id in 3:
-		quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 10 + enemy_id, "areaId": "level-1", "kind": "worm-swordsman"})
+		quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 10 + enemy_id, "areaId": VILLAGE_MAP, "kind": "worm-swordsman"})
 	t.equal(int((quests.state("worm-trouble")["progress"] as Dictionary).get("defeat-worms", 0)), 3, "three swordsmen")
 	t.check(bool(quests.view("worm-trouble").get("ready_to_turn_in")), "worm-trouble not ready")
 	var before := progressed.size()
-	quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 20, "areaId": "level-1", "kind": "worm-swordsman"})
+	quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 20, "areaId": VILLAGE_MAP, "kind": "worm-swordsman"})
 	t.equal(progressed.size(), before, "a fourth worm progressed")
 
 
@@ -421,6 +428,8 @@ func test_known_facts_skip_later_stages(t: TestContext) -> void:
 	var state := quests.state("the-one-eyed-guardian")
 	t.equal(state.get("active_stage_id"), "defeat-fatty", "stage after the spear")
 	t.equal((state["progress"] as Dictionary).get("defeat-fatty"), 0, "an earlier defeat counted")
+	if not await _travel(t, FATTY_MAP):
+		return
 	var camp := _camp(t, "level-1-fatty-one-eye-camp")
 	if not t.check(camp != null, "no Fatty camp"):
 		return
@@ -682,18 +691,30 @@ func test_abandon_and_reoffer(t: TestContext) -> void:
 	t.equal(quests.status("slime-basics"), "locked", "slime-basics after the retry (its prerequisite no longer holds)")
 
 
-## Quests spec 4.6 level-1 targets: the worm camp, Fatty's camp, the exit to gloop-forest, the forge
-## ruin and the workshop ruin.
+## Quests spec 4.6 level-1 targets: the worm camp, the forge ruin and the workshop ruin in C4, then
+## Fatty's camp and the exit to gloop-forest in D4 (the waypoint resolves on the current world).
 func test_waypoint_targets_on_level_1(t: TestContext) -> void:
 	var quests := _quests(t)
 	var from := Vector2(640.0, 704.0)
 	var cases := [
 		["worm-trouble", "clear-camp", Vector2(1130.0, 1514.0)],
-		["the-one-eyed-guardian", "defeat-fatty", Vector2(2528.0, 1472.0)],
-		["the-one-eyed-guardian", "verdant-gate", Vector2(4064.0, 576.0)],   # level-1 grew to 64 columns (2026-10-07)
 		["rekindle-the-forge", "", Vector2(1190.0, 1068.0)],
 		["the-old-workshop", "", Vector2(640.0, 392.0)],
 	]
+	_check_waypoints(t, quests, cases, from)
+	quests.debug_mark_completed(PLACE)
+	t.check(QuestWaypoint.resolve(quests.view("a-tonic-for-lili"), from).get("label") == "Talk to Lili", "the giver of an offer")
+	if not await _travel(t, FATTY_MAP):
+		return
+	# D4's places: level-1's (2528, 1472) and (4064, 576) less the chunk origin (2048, 0).
+	_check_waypoints(t, quests, [
+		["the-one-eyed-guardian", "defeat-fatty", Vector2(480.0, 1472.0)],
+		["the-one-eyed-guardian", "verdant-gate", Vector2(2016.0, 576.0)],
+	], t.player().get_centre())
+
+
+## Activates each [quest, stage, expected target] and checks the waypoint from `from`.
+func _check_waypoints(t: TestContext, quests: QuestService, cases: Array, from: Vector2) -> void:
 	for entry: Array in cases:
 		quests.debug_activate(entry[0], entry[1])
 		var view := quests.view(entry[0])
@@ -703,8 +724,6 @@ func test_waypoint_targets_on_level_1(t: TestContext) -> void:
 		if t.check(not target.is_empty(), "no target for %s" % [entry]):
 			t.near_vec(target["position"], entry[2], 0.5, "%s target" % entry[0])
 			t.equal(target["label"], label, "%s label" % entry[0])
-	quests.debug_mark_completed(PLACE)
-	t.check(QuestWaypoint.resolve(quests.view("a-tonic-for-lili"), from).get("label") == "Talk to Lili", "the giver of an offer")
 
 
 # --- helpers ----------------------------------------------------------------------------------
@@ -791,8 +810,21 @@ static func _key(t: TestContext, code: Key, echo: bool = false) -> void:
 func _pick_up(t: TestContext, instance_id: String, at: Vector2) -> bool:
 	t.teleport_player(at - Vector2(0.0, 14.56))
 	var taken := await t.until(func() -> bool:
-		return int(Services.run().collectible_record("level-1", instance_id).get("remaining", 1)) == 0, 500.0)
+		return int(Services.run().collectible_record(VILLAGE_MAP, instance_id).get("remaining", 1)) == 0, 500.0)
 	return t.check(taken, "%s was not picked up" % instance_id)
+
+
+## Travels to chunk world `map` (west entry) unless the test already runs there. False on failure.
+static func _travel(t: TestContext, map: String) -> bool:
+	if t.world().map_id() != map:
+		if not t.check(t.main.travel_to(map, "west"), "travel to %s was refused" % map):
+			return false
+		var arrived := await t.until(func() -> bool:
+			return not t.main.is_transitioning() and t.world().map_id() == map and t.player() != null, 3000.0, 6000.0)
+		if not t.check(arrived, "the player did not reach %s" % map):
+			return false
+		await t.steps(2)
+	return true
 
 
 static func _close_end_card() -> void:

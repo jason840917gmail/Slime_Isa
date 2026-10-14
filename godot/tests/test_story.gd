@@ -2,6 +2,9 @@ extends RefCounted
 ## Story flags and story variants (game/scripts/story_flag.gd, story_variant.gd; Phaser
 ## StoryFlagScript.ts, StoryVariantScript.ts). level-1's `chapter-1-villagers-variant` keeps the
 ## `chapter-1-villagers` subtree (two NPCs) only while `chapter-1-complete` is unset.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the villagers and the
+## variant are in the village's chunk C4 (`level-1-c4`), where the tests start and where a travel to
+## level-1 from the south arrives.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -27,6 +30,8 @@ func test_variant_follows_a_flag_set_before_the_world_loads(t: TestContext) -> v
 	t.check(t.main.travel_to("level-1", "south"), "travel back into level-1 was refused")
 	var arrived := await t.until(func() -> bool: return not t.main.is_transitioning() and t.player() != null, 3000.0, 6000.0)
 	if not t.check(arrived, "the rebuilt level-1 never finished loading"):
+		return
+	if not t.equal(t.world().map_id(), "level-1-c4", "the chunk the travel rebuilt (the villagers' chunk)"):
 		return
 	await t.steps(2)
 	var villagers := t.world().world_root.find_child(VILLAGERS, true, false)

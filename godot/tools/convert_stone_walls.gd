@@ -7,7 +7,7 @@ extends SceneTree
 ## second wall layer shifted by that offset (`walls-shifted-<x>-<y>`), so every wall keeps its
 ## place. Close or reload the world in the editor afterwards.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/convert_stone_walls.gd -- \
-##         --scene=res://game/scenes/worlds/level-1.tscn [--scene=...] [--dry]
+##         --scene=res://game/scenes/worlds/chunks/level-1-c4.tscn [--scene=...] [--dry]
 
 const SceneSave := preload("res://tools/lib/scene_save.gd")
 const PROP_LAYER := "res://game/world/props/prop_layer.gd"
