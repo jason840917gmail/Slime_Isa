@@ -5,6 +5,8 @@ extends RefCounted
 ## res://game/data/world-map.json, Escape, `map`, `menu` and Close), refused over other windows,
 ## its regions (names without planning notes, shared with the area banner), the links of two-way
 ## passages and the missing-layout message, and both rebuilt after a travel to gloop-forest.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md): the tests start in its chunk C4
+## (`level-1-c4`, 32 x 32 tiles, the village), whose map id the minimap's markers carry.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -46,7 +48,7 @@ func test_minimap_box_and_level_1_terrain(t: TestContext) -> void:
 	var image := minimap.terrain_image()
 	if not t.check(image != null, "no terrain baked for level-1"):
 		return
-	t.equal(image.get_size(), Vector2i(64, 64), "level-1 terrain size (tiles)")
+	t.equal(image.get_size(), Vector2i(32, 32), "level-1-c4 terrain size (tiles)")
 	t.check(minimap.terrain_texture() != null and Vector2i(minimap.terrain_texture().get_size()) == Vector2i(minimap.map_rect().size.round()),
 		"the drawn terrain is not scaled to the map area")
 	var ground := t.world().ground_layer
@@ -57,7 +59,7 @@ func test_minimap_box_and_level_1_terrain(t: TestContext) -> void:
 			samples[tile_id] = cell
 	for tile_id: String in samples:
 		var cell: Variant = samples[tile_id]
-		if not t.check(cell != null, "level-1 has no %s tile" % tile_id):
+		if not t.check(cell != null, "level-1-c4 has no %s tile" % tile_id):
 			continue
 		var source := ground.tile_set.get_source(ground.get_cell_source_id(cell)) as TileSetAtlasSource
 		var expected := MapTerrain.tile_color(source, ground.get_cell_atlas_coords(cell))
@@ -92,11 +94,11 @@ func test_player_dot_and_view_follow(t: TestContext) -> void:
 	var minimap := map_ui.minimap
 	var area := minimap.map_rect()
 	t.near_vec(minimap.to_map(Vector2.ZERO), area.position, 0.001, "world origin on the minimap")
-	t.near_vec(minimap.to_map(Vector2(4096.0, 4096.0)), area.end, 0.001, "world corner on the minimap")
-	t.near_vec(minimap.to_map(Vector2(2048.0, 1024.0)), area.position + area.size * Vector2(0.5, 0.25), 0.001, "a world point on the minimap")
+	t.near_vec(minimap.to_map(Vector2(2048.0, 2048.0)), area.end, 0.001, "world corner on the minimap")
+	t.near_vec(minimap.to_map(Vector2(1024.0, 512.0)), area.position + area.size * Vector2(0.5, 0.25), 0.001, "a world point on the minimap")
 	await t.tree.process_frame
 	t.near_vec(minimap.drawn_player(), t.player().get_centre(), 0.01, "player dot at spawn")
-	for target: Vector2 in [Vector2(1200.0, 1900.0), Vector2(2400.0, 900.0)]:
+	for target: Vector2 in [Vector2(1200.0, 1900.0), Vector2(1600.0, 900.0)]:
 		t.teleport_player(target)
 		await t.steps(3)
 		await t.tree.process_frame
@@ -122,16 +124,16 @@ func test_marker_api_reaches_both_views(t: TestContext) -> void:
 	var changes := [0]
 	t.listen(store.changed, func() -> void: changes[0] += 1)
 	map_ui.set_marker(&"quest", Vector2(1130.0, 1514.0))
-	t.equal(store.marker(&"quest"), {"point": Vector2(1130.0, 1514.0), "kind": MapMarkers.KIND_WAYPOINT, "map_id": "level-1"}, "a waypoint in the current world")
+	t.equal(store.marker(&"quest"), {"point": Vector2(1130.0, 1514.0), "kind": MapMarkers.KIND_WAYPOINT, "map_id": "level-1-c4"}, "a waypoint in the current world")
 	map_ui.set_marker(&"quest", Vector2(1130.0, 1514.0))
 	t.equal(changes[0], 1, "setting the same marker again changed nothing")
 	map_ui.minimap.set_marker(&"quest", Vector2(640.0, 392.0), &"waypoint")
 	t.equal(store.marker(&"quest")["point"], Vector2(640.0, 392.0), "moved through the minimap")
-	map_ui.world_map.set_marker(&"camp", Vector2(2528.0, 1472.0), MapMarkers.KIND_BOSS)
+	map_ui.world_map.set_marker(&"camp", Vector2(1132.0, 1510.0), MapMarkers.KIND_BOSS)
 	map_ui.set_marker(&"elsewhere", Vector2(100.0, 100.0), &"npc", "gloop-forest")
 	t.equal(store.marker_ids(), [&"quest", &"camp", &"elsewhere"] as Array[StringName], "marker ids in insertion order")
-	var here := store.markers_in("level-1")
-	t.equal(here.size(), 2, "markers drawn in level-1")
+	var here := store.markers_in("level-1-c4")
+	t.equal(here.size(), 2, "markers drawn in level-1-c4")
 	t.equal(store.markers_in("gloop-forest").size(), 1, "markers of another world")
 	map_ui.set_marker(&"", Vector2.ZERO)
 	map_ui.set_marker(&"bad", Vector2(INF, 0.0))
@@ -287,7 +289,7 @@ func test_travel_rebuilds_the_minimap_and_world_map(t: TestContext) -> void:
 	t.check(minimap.visible, "the minimap is hidden in gloop-forest")
 	t.near_vec(minimap.drawn_player(), t.player().get_centre(), 0.01, "player dot in gloop-forest")
 	t.equal(map_ui.markers.markers_in("gloop-forest").size(), 0, "level-1's marker is drawn in gloop-forest")
-	t.equal(map_ui.markers.marker(&"meadow-quest")["map_id"], "level-1", "the level-1 marker kept its world")
+	t.equal(map_ui.markers.marker(&"meadow-quest")["map_id"], "level-1-c4", "the level-1 marker kept its world (chunk)")
 
 	t.check(map_ui.open_world_map(), "the world map did not open in gloop-forest")
 	var world_map := map_ui.world_map

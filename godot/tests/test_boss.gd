@@ -1,10 +1,17 @@
 extends RefCounted
 ## Fatty One Eye and the level-1 boss camp (docs/godot/specs/boss.md).
-## Camp `level-1-fatty-one-eye-camp` at (2528, 1472): activation circle r 440, arena circle r 420,
-## boss spawned at the camp origin (old Phaser position; feet 42 px lower). Fatty: 140 hp,
-## spear-only, knockback immune; contact hop (impact +250 ms -> 18 - 3 = 15, hop ends +300 ms,
-## cooldown 1000); leap 5000 ms after spawn: small hops 1080 ms, airborne 1000 ms, landing 360 ms
-## (32 - 3 = 29 on a hurtbox in the splash), recovery 700 ms; state-blocked while hopping or airborne.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the camp is in chunk
+## D4 (`level-1-d4`, its origin at level-1's (2048, 0)), so the places here are D4's and every test
+## starts there (MAP_ID).
+## Camp `level-1-fatty-one-eye-camp` at (480, 1472) (level-1's (2528, 1472)): activation circle
+## r 440, arena circle r 420, its record under `level-1-d4`; boss spawned at the camp origin (old
+## Phaser position; feet 42 px lower). Fatty: 140 hp, spear-only, knockback immune; contact hop
+## (impact +250 ms -> 18 - 3 = 15, hop ends +300 ms, cooldown 1000); leap 5000 ms after spawn:
+## small hops 1080 ms, airborne 1000 ms, landing 360 ms (32 - 3 = 29 on a hurtbox in the splash),
+## recovery 700 ms; state-blocked while hopping or airborne.
+
+## run_tests.gd starts every test of this file in the camp's chunk of level-1.
+const MAP_ID := "level-1-d4"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -16,16 +23,16 @@ const EffectScript := preload("res://game/scripts/effect.gd")
 
 const CAMP_ID := "level-1-fatty-one-eye-camp"
 const BOSS_ID := "fatty-one-eye"
-const CAMP := Vector2(2528.0, 1472.0)
+const CAMP := Vector2(480.0, 1472.0)
 const ACTIVATION_RADIUS := 440.0
 const ARENA_RADIUS := 420.0
 const FATTY_DEPTH_ANCHOR := Vector2(0.0, 42.0)
 const MAX_HP := 140.0
 ## Inside the arena, 380 px south of the camp: far enough that 5 s of chasing at 42 px/s
 ## (210 px) never brings the contact area onto the player.
-const FAR_INSIDE := Vector2(2528.0, 1852.0)
+const FAR_INSIDE := Vector2(480.0, 1852.0)
 ## Outside the arena (r 420) but inside the activation circle (r 440).
-const OUTSIDE_ARENA := Vector2(2528.0, 1902.0)
+const OUTSIDE_ARENA := Vector2(480.0, 1902.0)
 ## Player centre relative to Fatty: inside the contact ellipse (centre (1, -25), radii
 ## 83.5 x 52) with the hurtbox, clear of Fatty's body box.
 const CONTACT_OFFSET := Vector2(75.0, -40.0)
@@ -39,7 +46,7 @@ const SLACK := TestContext.STEP_MS + 0.01
 
 func test_camp_geometry_spawn_and_health_bar(t: TestContext) -> void:
 	var camp := _camp(t)
-	if not t.check(camp != null, "level-1 has no boss camp '%s'" % CAMP_ID):
+	if not t.check(camp != null, "level-1-d4 has no boss camp '%s'" % CAMP_ID):
 		return
 	var activation := camp.activation_perimeter()
 	var arena := camp.arena_perimeter()
@@ -293,7 +300,7 @@ func test_defeat_death_clip_rewards_and_respawn_rule(t: TestContext) -> void:
 	var run := Services.run()
 	if t.check(run != null, "no RunState autoload"):
 		t.check(BOSS_ID in (run.world["defeated_boss_ids"] as Array), "RunState defeated_boss_ids lacks the boss")
-		var camps: Dictionary = run.map_record("level-1")["boss_camps"]
+		var camps: Dictionary = run.map_record(MAP_ID)["boss_camps"]
 		t.near(float((camps.get(CAMP_ID, {}) as Dictionary).get("respawn_ready_at_epoch_ms", -1.0)), ready_at, 0.01,
 			"RunState boss_camps respawn time")
 	# The body stays 2 s (owner decision: the death clip, then its last frame), fades out over the
@@ -401,7 +408,7 @@ static func _bar(t: TestContext) -> Node:
 ## Puts the player at `player_centre` (inside the activation circle) and waits for the boss.
 static func _start_fight(t: TestContext, player_centre: Vector2) -> Dictionary:
 	var camp := _camp(t)
-	if not t.check(camp != null, "level-1 has no boss camp '%s'" % CAMP_ID):
+	if not t.check(camp != null, "level-1-d4 has no boss camp '%s'" % CAMP_ID):
 		return {}
 	t.teleport_player(player_centre)
 	var spawned := await t.until(func() -> bool: return camp.has_live_boss(), 200.0)

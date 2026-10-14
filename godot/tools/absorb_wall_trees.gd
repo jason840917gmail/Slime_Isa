@@ -4,7 +4,7 @@ extends SceneTree
 ## group's wall trees become cells of the given mix and are removed; a group left empty goes too.
 ## Close or reload the scene in the editor afterwards (it holds its own copy).
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/absorb_wall_trees.gd -- \
-##         --scene=res://game/scenes/worlds/level-1.tscn "--groups=Forest Border:0,Fatty Maze:17"
+##         --scene=res://game/scenes/worlds/chunks/level-1-c4.tscn "--groups=Forest Border:0,Fatty Maze:17"
 ## A group is a node path from the scene's root; the number is the mix's column in the palette's
 ## top row (0 mixed, 17 forest medium...).
 

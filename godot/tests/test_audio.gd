@@ -10,6 +10,12 @@ extends RefCounted
 ## added under main (freed with it). Exact numbers are stepped with `advance(ms)` while the
 ## director's own processing is off (switched back on when main leaves the tree); the travel test
 ## runs on real time.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): every test starts in
+## chunk D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp's chunk, which plays
+## level-1's music and ambience like the other chunks.
+
+## run_tests.gd starts every test of this file in Fatty's chunk of level-1.
+const MAP_ID := "level-1-d4"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -20,14 +26,15 @@ const WorldServiceType := preload("res://game/autoload/world_service.gd")
 
 const LEVEL1_MUSIC := "res://asset/audio/music/level-1-home-town.ogg"
 const GLOOP_MUSIC := "res://asset/audio/music/gloop-forest.mp3"
-## Authored volumes: level-1 MusicPlayer 0.55, gloop-forest 0.5, audio.global BossMusic 0.5.
+## Authored volumes: level-1's MusicPlayer (every chunk's) 0.55, gloop-forest 0.5, audio.global
+## BossMusic 0.5.
 const LEVEL1_BASE := 0.55
 const GLOOP_BASE := 0.5
 const BOSS_BASE := 0.5
 const BOSS_PITCH := 1.12
 const CAMP_ID := "level-1-fatty-one-eye-camp"
-## Inside Fatty's activation circle (test_boss.gd FAR_INSIDE).
-const FAR_INSIDE := Vector2(2528.0, 1852.0)
+## Inside Fatty's activation circle (test_boss.gd FAR_INSIDE, D4's place).
+const FAR_INSIDE := Vector2(480.0, 1852.0)
 const TRAVEL_MAP := "gloop-forest"
 const GAIN_EPS := 0.001
 const VOLUME_EPS := 0.002

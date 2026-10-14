@@ -1,9 +1,11 @@
 extends RefCounted
 ## Area travel (docs/godot/specs/world.md section 8, game/world/area_travel.gd, Main.travel_to):
-## level-1's east exit (`exit-1`, centre (4064, 576), target gloop-forest entry "west") is gated
-## by `level-1-east-verdant-gate` (green key, consumed). Without the key the player stays and the
-## exit reports "blocked"; with it the key is used, the gate is remembered, the picture fades out
-## and gloop-forest is built (its chunk E4: gloop-forest is cut into chunk worlds, docs/godot/
+## level-1's east exit (`exit-1`, target gloop-forest entry "west") is gated by
+## `level-1-east-verdant-gate` (green key, consumed). level-1 is cut into chunk worlds (docs/godot/
+## WORLD_ATLAS.md): the exit is in chunk D4 (`level-1-d4`, its origin at level-1's (2048, 0)),
+## centre (2016, 576) there, and the gate's record is kept under that chunk's map id. Without the
+## key the player stays and the exit reports "blocked"; with it the key is used, the gate is
+## remembered, the picture fades out and gloop-forest is built (its chunk E4: gloop-forest is cut into chunk worlds, docs/godot/
 ## WORLD_ATLAS.md) with the player on the tile centre at its `player-entry-west` marker,
 ## keeping its HP. An exit's `entry_marker` (a Node2D's name in the target world) arrives there
 ## instead, after a door and before the entry edge.
@@ -12,7 +14,9 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
 
-const EXIT_CENTRE := Vector2(4064.0, 576.0)
+## run_tests.gd starts every test of this file in the gate's chunk of level-1.
+const MAP_ID := "level-1-d4"
+const EXIT_CENTRE := Vector2(2016.0, 576.0)
 const GATE_ID := "level-1-east-verdant-gate"
 const KEY_ID := "green-key"
 const TARGET_MAP := "gloop-forest"
@@ -32,7 +36,7 @@ const DOOR_ID := "hut-door"
 func test_gated_exit_blocks_then_travels_with_the_key(t: TestContext) -> void:
 	var run := Services.run()
 	var exit_node := _exit_script(t, "exit-1")
-	if not t.check(exit_node != null, "level-1 has no exit-1 world exit script"):
+	if not t.check(exit_node != null, "level-1-d4 has no exit-1 world exit script"):
 		return
 	var results: Array = []
 	t.listen(exit_node.navigation_resolved, func(result: Dictionary) -> void: results.append(result))
@@ -40,17 +44,17 @@ func test_gated_exit_blocks_then_travels_with_the_key(t: TestContext) -> void:
 	await t.sim_wait(GRACE_MS)
 	t.teleport_player(EXIT_CENTRE)
 	await t.sim_wait(200.0)
-	t.equal(t.world().map_id(), "level-1", "map while the gate is locked")
+	t.equal(t.world().map_id(), MAP_ID, "map while the gate is locked")
 	t.check(not results.is_empty() and str(results[-1].get("status")) == "blocked",
 		"the locked exit did not report blocked (got %s)" % [results])
-	t.check(not run.is_gate_unlocked("level-1", GATE_ID), "the gate unlocked without the key")
+	t.check(not run.is_gate_unlocked(MAP_ID, GATE_ID), "the gate unlocked without the key")
 
 	(run.inventory["slots"] as Array).append({"item_id": KEY_ID, "count": 1})
 	var travelled := await t.until(func() -> bool: return t.in_world(TARGET_MAP) and t.player() != null, 3000.0, 6000.0)
 	if not t.check(travelled, "the player did not reach %s" % TARGET_MAP):
 		return
 	t.equal(run.item_count(KEY_ID), 0, "green keys left after the unlock")
-	t.check(run.is_gate_unlocked("level-1", GATE_ID), "the gate is not remembered as unlocked")
+	t.check(run.is_gate_unlocked(MAP_ID, GATE_ID), "the gate is not remembered as unlocked")
 	t.check(TARGET_MAP in (run.world["discovered_areas"] as Array), "%s not marked discovered" % TARGET_MAP)
 	var marker: Variant = AreaTravel.entry_marker(t.world().world_root, "west")
 	if not t.check(marker != null, "%s has no player-entry-west marker" % TARGET_MAP):
@@ -75,7 +79,7 @@ func test_travel_requests_while_travelling_are_ignored(t: TestContext) -> void:
 ## over the entry edge's marker, a door wins over the named marker, and a name the world lacks
 ## falls back to the entry edge (with a warning).
 func test_exit_arrives_at_a_named_marker(t: TestContext) -> void:
-	var result: Dictionary = t.main.request_exit({"map_id": "level-1", "exit_id": "test-exit",
+	var result: Dictionary = t.main.request_exit({"map_id": MAP_ID, "exit_id": "test-exit",
 		"target_area_id": TARGET_MAP, "entry": "", "entry_marker": NAMED_MARKER, "gate": {}})
 	t.equal(str(result.get("status")), "queued", "status of an exit with only an entry marker")
 	var travelled := await t.until(func() -> bool: return t.in_world(TARGET_MAP) and t.player() != null, 3000.0, 6000.0)

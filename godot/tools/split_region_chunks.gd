@@ -878,13 +878,21 @@ static func _prop_reaches(layer: TileMapLayer, cell: Vector2i, area: Rect2) -> b
 	return reach.has_area() and Rect2(reach.position + corner, reach.size).intersects(area)
 
 
-## Every `map_id` under `node` (instances' insides too) that names `world` names `chunk` instead.
-static func _rename_map_id(node: Node, world: String, chunk: String) -> void:
+## Every `map_id` under `node` (instances' insides too) that names `world` names `chunk` instead; a
+## node inside an instance (a boss camp's script) has its instances made editable in `root` so the
+## chunk scene saves the new value.
+static func _rename_map_id(node: Node, world: String, chunk: String, root: Node = null) -> void:
+	if root == null:
+		root = node
 	var value: Variant = node.get(&"map_id")
 	if value is String and value == world:
 		node.set(&"map_id", chunk)
+		var instance := node.owner
+		while instance != null and instance != root:
+			root.set_editable_instance(instance, true)
+			instance = instance.owner
 	for child: Node in node.get_children():
-		_rename_map_id(child, world, chunk)
+		_rename_map_id(child, world, chunk, root)
 
 
 ## The places travel arrives at in chunk world `root` (`id`): its arrival markers and its doors.
@@ -1006,7 +1014,7 @@ static func _drop_broken_scripts(root: Node) -> PackedStringArray:
 				continue
 			var value: Variant = node.get(property["name"])
 			var broken: bool = (value is NodePath and not (value as NodePath).is_empty() and not node.has_node(value)) \
-					or (typeof(value) == TYPE_OBJECT and value != null and not is_instance_valid(value))
+					or (typeof(value) == TYPE_OBJECT and not is_instance_valid(value))
 			if broken:
 				dropped.append(str(node.name))
 				node.free()

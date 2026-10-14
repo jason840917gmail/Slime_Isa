@@ -2,7 +2,9 @@ extends RefCounted
 ## Furniture placement (game/building/; docs/godot/specs/furniture.md 11.10): the ghost's target
 ## and free test, placing (record, mount, quest event), the wheel and cancelling, walking while
 ## placing, a placed bench as a station with "Hold: Pick up", the bench coming back on a load.
-## A fresh level-1 has the player's centre at (640, 704); tests aim with `aim_override`.
+## A fresh run starts in level-1's village chunk C4 (`level-1-c4`: level-1 is cut into chunk worlds,
+## docs/godot/WORLD_ATLAS.md) with the player's centre at (640, 704); tests aim with `aim_override`.
+## Placements are recorded under the chunk's map id.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -12,6 +14,8 @@ const PlacedFurniture := preload("res://game/building/placed_furniture.gd")
 const BENCH := "object.interior-workshop-workbench"
 const VISE := "object.interior-workshop-workbench-vise"
 const SPAWN := Vector2(640.0, 704.0)
+## The world the tests place furniture in (the run's records are keyed by it).
+const PLACE_MAP := "level-1-c4"
 const SLOT := 7
 
 
@@ -110,8 +114,8 @@ func test_place_commits_record_and_mount(t: TestContext) -> void:
 	var run := Services.run()
 	t.check(not placement.is_active(), "placement still active after placing")
 	t.equal(run.item_count("workbench"), 0, "benches left in the bag")
-	t.equal(run.placed_furniture("level-1"), [{"id": "placed-furniture-1", "item_id": "workbench", "scene_id": BENCH, "x": 704.0, "y": 640.0}], "records")
-	t.equal(int(run.map_record("level-1")["next_placed_furniture_sequence"]), 2, "sequence")
+	t.equal(run.placed_furniture(PLACE_MAP), [{"id": "placed-furniture-1", "item_id": "workbench", "scene_id": BENCH, "x": 704.0, "y": 640.0}], "records")
+	t.equal(int(run.map_record(PLACE_MAP)["next_placed_furniture_sequence"]), 2, "sequence")
 	t.equal(placed.size(), 1, "placed signals")
 	var node := PlacedFurniture.find("placed-furniture-1")
 	if t.check(node != null, "no bench was mounted"):
@@ -140,7 +144,7 @@ func test_wheel_cancel_and_esc(t: TestContext) -> void:
 	await t.sim_wait(200.0)
 	placement.cycle_variant(1)
 	await _place_at(t, placement, Vector2(700.0, 650.0))
-	t.equal(Services.run().placed_furniture("level-1")[0]["scene_id"], VISE, "placed variant")
+	t.equal(Services.run().placed_furniture(PLACE_MAP)[0]["scene_id"], VISE, "placed variant")
 
 
 func test_player_walks_while_placing(t: TestContext) -> void:
@@ -167,7 +171,7 @@ func test_second_bench_blocked_by_first(t: TestContext) -> void:
 	await t.steps(2)
 	t.check(not bool(placement.target()["valid"]), "a bench can go on another bench")
 	await _place_at(t, placement, Vector2(800.0, 650.0))
-	var records := Services.run().placed_furniture("level-1")
+	var records := Services.run().placed_furniture(PLACE_MAP)
 	t.equal(records.size(), 2, "records")
 	if records.size() == 2:
 		t.equal([records[1]["id"], records[1]["x"]], ["placed-furniture-2", 800.0], "second record")
@@ -190,10 +194,10 @@ func test_bench_station_and_hold_pick_up(t: TestContext) -> void:
 	t.release(&"interact")
 	await t.steps(2)
 	t.check(PlacedFurniture.find("placed-furniture-1") == null, "the bench is still in the world")
-	t.equal(Services.run().placed_furniture("level-1"), [], "records after the pick-up")
+	t.equal(Services.run().placed_furniture(PLACE_MAP), [], "records after the pick-up")
 	t.equal(Services.run().item_count("workbench"), 1, "benches after the pick-up")
 	t.equal(picked.size(), 1, "picked_up signals")
-	t.equal(int(Services.run().map_record("level-1")["next_placed_furniture_sequence"]), 2, "the sequence never goes down")
+	t.equal(int(Services.run().map_record(PLACE_MAP)["next_placed_furniture_sequence"]), 2, "the sequence never goes down")
 	# A tap on a placed bench opens the crafting window instead.
 	placement.start("workbench")
 	await _place_at(t, placement, Vector2(700.0, 650.0))

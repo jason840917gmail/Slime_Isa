@@ -1,9 +1,12 @@
 extends RefCounted
 ## The interact button, doors, gates, chests and beds (docs/godot/specs/interaction.md 8.8).
 ## level-1: `home-door` (origin (1081, 903), reach 90, "Enter house" -> slime-home), the Verdant
-## gate (origin (3776, 768), reach 150, green key), the guarded chest in Fatty's camp
-## (`level-1-fatty-guarded-chest`, a green key). slime-home: `house-door` ((448, 694), reach 80),
-## the west bed ((160, 340): sleep at (159.625, 275.95), wake at (159.625, 356)).
+## gate (origin (1728, 768) in chunk D4, reach 150, green key), the guarded chest in Fatty's camp
+## (`level-1-fatty-guarded-chest`, a green key, in D4). slime-home: `house-door` ((448, 694), reach
+## 80), the west bed ((160, 340): sleep at (159.625, 275.95), wake at (159.625, 356)).
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in
+## the village chunk C4 (`level-1-c4`, origin (0, 0)); the gate and chest tests travel east into D4
+## (`level-1-d4`, its origin at level-1's (2048, 0)), so their places are D4's.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -13,7 +16,9 @@ const InteractionController := preload("res://game/interaction/interaction_contr
 
 const HOME_DOOR_ARRIVAL := Vector2(1083.0, 954.0)
 const GATE_ID := "level-1-east-verdant-gate"
-const GATE_STAND := Vector2(3776.0, 840.0)
+## The chunk of the Verdant gate and Fatty's camp.
+const EAST_MAP := "level-1-d4"
+const GATE_STAND := Vector2(1728.0, 840.0)
 const KEY := "green-key"
 const CHEST_ID := "level-1-fatty-guarded-chest"
 const BED_STAND := Vector2(160.0, 400.0)
@@ -60,7 +65,7 @@ func test_door_travel_round_trip(t: TestContext) -> void:
 	await t.steps(2)
 	t.equal(interaction.get_prompt().get_text(), "Right-click: Leave house", "slime-home door prompt")
 	t.tap(&"interact")
-	if not t.check(await _arrive(t, "level-1"), "the slime-home door did not lead back"):
+	if not t.check(await _arrive(t, "level-1-c4"), "the slime-home door did not lead back"):
 		return
 	t.near_vec(t.player().get_centre(), Vector2(1056.0, 928.0), 0.01, "arrival back in level-1")
 	await t.steps(2)
@@ -68,6 +73,8 @@ func test_door_travel_round_trip(t: TestContext) -> void:
 
 
 func test_gate_locked_without_key(t: TestContext) -> void:
+	if not await _to_east(t):
+		return
 	var interaction := _interaction(t)
 	var messages: Array = []
 	interaction.message_shown.connect(func(payload: Dictionary) -> void: messages.append(payload))
@@ -81,13 +88,15 @@ func test_gate_locked_without_key(t: TestContext) -> void:
 	if t.check(messages.size() == 1, "%d messages" % messages.size()):
 		t.equal(messages[0]["text"], "The Verdant Gate is locked. Fatty One Eye guards the Green Key.", "locked message")
 		t.equal(messages[0]["color"], "white", "locked message colour")
-		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), Vector2(3776.0, 648.0), 0.01, "locked message position")
+		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), Vector2(1728.0, 648.0), 0.01, "locked message position")
 	var gate := _gate(t)
 	t.check(gate != null and not gate.is_open(), "the gate opened without the key")
-	t.check(not Services.run().is_gate_unlocked("level-1", GATE_ID), "the gate record unlocked")
+	t.check(not Services.run().is_gate_unlocked(EAST_MAP, GATE_ID), "the gate record unlocked")
 
 
 func test_gate_unlock_consumes_key_and_persists(t: TestContext) -> void:
+	if not await _to_east(t):
+		return
 	var run := Services.run()
 	run.add_item(KEY, 1)
 	var interaction := _interaction(t)
@@ -97,7 +106,7 @@ func test_gate_unlock_consumes_key_and_persists(t: TestContext) -> void:
 	await t.steps(2)
 	t.tap(&"interact")
 	await t.steps(3)
-	t.check(run.is_gate_unlocked("level-1", GATE_ID), "the gate record is not unlocked")
+	t.check(run.is_gate_unlocked(EAST_MAP, GATE_ID), "the gate record is not unlocked")
 	t.equal(run.item_count(KEY), 0, "green keys left")
 	var gate := _gate(t)
 	if t.check(gate != null, "no gate"):
@@ -108,14 +117,16 @@ func test_gate_unlock_consumes_key_and_persists(t: TestContext) -> void:
 	t.check(messages.size() == 1 and messages[0]["text"] == "The Verdant Gate swings open!" and messages[0]["color"] == "green",
 		"unlock message %s" % [messages])
 	t.check(not str(interaction.current().get("id", "")).begins_with("world-gates:"), "the open gate is still offered")
-	t.main.travel_to("level-1", "south")
-	if not t.check(await _arrive(t, "level-1", true), "level-1 did not reload"):
+	t.main.travel_to(EAST_MAP, "west")
+	if not t.check(await _arrive(t, EAST_MAP, true), "%s did not reload" % EAST_MAP):
 		return
 	gate = _gate(t)
 	t.check(gate != null and gate.is_open(), "the gate is closed after a reload")
 
 
 func test_gate_open_handler_not_persisted(t: TestContext) -> void:
+	if not await _to_east(t):
+		return
 	var gate := _gate(t)
 	if not t.check(gate != null, "no gate"):
 		return
@@ -125,10 +136,12 @@ func test_gate_open_handler_not_persisted(t: TestContext) -> void:
 	gate.open({})
 	t.equal(opened, [{"gateId": GATE_ID}], "opened signals")
 	t.equal(gate.visual.frame, gate.open_frame, "frame after open()")
-	t.check(not Services.run().is_gate_unlocked("level-1", GATE_ID), "open() saved the gate")
+	t.check(not Services.run().is_gate_unlocked(EAST_MAP, GATE_ID), "open() saved the gate")
 
 
 func test_chest_domain(t: TestContext) -> void:
+	if not await _to_east(t):
+		return
 	var run := Services.run()
 	var chest := _chest(t, CHEST_ID)
 	if not t.check(chest != null, "no %s" % CHEST_ID):
@@ -150,6 +163,8 @@ func test_chest_domain(t: TestContext) -> void:
 ## Using a chest opens the chest window on it: nothing moves into the bag and no message shows
 ## (the window itself is test_chest_window.gd).
 func test_use_chest_opens_window(t: TestContext) -> void:
+	if not await _to_east(t):
+		return
 	var chest := _chest(t, CHEST_ID)
 	if not t.check(chest != null, "no %s" % CHEST_ID):
 		return
@@ -288,6 +303,14 @@ func _place_npc(npc: Node, point: Vector2) -> void:
 	body.reset_physics_interpolation()
 	if npc.has_method(&"acquire_interaction_lock"):
 		npc.call(&"acquire_interaction_lock")
+
+
+## Travels from the village chunk into D4 (the gate and Fatty's camp); false (a failed check) when
+## the travel was refused or never arrived.
+func _to_east(t: TestContext) -> bool:
+	if not t.check(t.main.travel_to(EAST_MAP, "west"), "travel to %s was refused" % EAST_MAP):
+		return false
+	return t.check(await _arrive(t, EAST_MAP), "no %s" % EAST_MAP)
 
 
 ## Waits for a travel to `map_id` to finish (`reload`: also when already in that map).

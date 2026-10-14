@@ -208,6 +208,12 @@ position = Vector2(3120, 940)
 metadata/instance_id = "gloop-ch2-matron-nest"
 metadata/persistence_key = "gloop-forest.gloop-ch2-matron-nest"
 
+[node name="BossCampScript" parent="matron-nest/matron-nest"]
+map_id = "gloop-forest-f4"
+
+[node name="ChestScript" parent="matron-nest/matron-nest/GuardedChest"]
+map_id = "gloop-forest-f4"
+
 [node name="nest-silk-gulp-spot" parent="matron-nest" unique_id=2051166730 instance=ExtResource("63_acj4n")]
 position = Vector2(2872, 1000)
 metadata/instance_id = "gloop-ch2-nest-silk-gulp-spot"
@@ -427,6 +433,8 @@ area = NodePath("..")
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-west" to="edge-west/world-exit-script" method="on_body_entered"]
 
+[editable path="matron-nest/matron-nest"]
+[editable path="matron-nest/matron-nest/GuardedChest"]
 [editable path="matron-nest/matron-heart/matron-goo-heart"]
 [editable path="Webs/web-tree-010"]
 [editable path="Webs/web-tree-012"]

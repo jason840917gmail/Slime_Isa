@@ -3,6 +3,8 @@ extends RefCounted
 ## the run round-trips through a JSON file (counts come back as integers), a load rebuilds the
 ## saved world with the player at the saved spot, a dead slime is never autosaved, and a broken or
 ## newer file is refused. The runner points `save_root` at its per-process user://test-saves-<pid>.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md): the tests run in its chunk
+## `level-1-c4`, the map id a save and the world records are kept under.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -18,7 +20,7 @@ func test_round_trip_keeps_the_run(t: TestContext) -> void:
 	run.add_coins(7)
 	run.set_flag("test.saved-flag")
 	run.learn_ability("jump")
-	run.set_resource_record("level-1", "level-1-tree-004", {"stage": "node", "value": 26.0})
+	run.set_resource_record("level-1-c4", "level-1-tree-004", {"stage": "node", "value": 26.0})
 	t.check(run.save_slot(SLOT), "save_slot failed")
 	t.check(run.has_save(SLOT), "no file after saving")
 	run.new_run()
@@ -29,10 +31,10 @@ func test_round_trip_keeps_the_run(t: TestContext) -> void:
 	t.equal(run.coins(), 57, "coins after loading")
 	t.check(run.has_flag("test.saved-flag"), "story flag lost")
 	t.check(run.has_learned_ability("jump"), "learned ability lost")
-	t.equal(float(run.resource_record("level-1", "level-1-tree-004").get("value", 0.0)), 26.0, "tree record lost")
+	t.equal(float(run.resource_record("level-1-c4", "level-1-tree-004").get("value", 0.0)), 26.0, "tree record lost")
 	t.equal(run.consume_navigation().get("kind"), "load", "the load queues a load navigation")
 	var saves := run.list_saves()
-	t.check(saves.any(func(entry: Dictionary) -> bool: return int(entry["slot"]) == SLOT and entry["map_id"] == "level-1"),
+	t.check(saves.any(func(entry: Dictionary) -> bool: return int(entry["slot"]) == SLOT and entry["map_id"] == "level-1-c4"),
 		"list_saves %s" % [saves])
 	run.delete_slot(SLOT)
 

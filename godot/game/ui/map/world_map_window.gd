@@ -311,7 +311,9 @@ static func region_label(region: Dictionary, discovered: PackedStringArray, curr
 	var text := AreaTitles.region_name(region)
 	if text.is_empty():
 		text = str(region.get("key", ""))
-	return text + "\n" + CURRENT_TEXT if region_maps(region).has(current_map) else text
+	# A chunk world counts as its region's world.
+	var whole := WorldChunks.world_of(current_map)
+	return text + "\n" + CURRENT_TEXT if region_maps(region).has(whole if not whole.is_empty() else current_map) else text
 
 
 ## The summary line: the discovered regions of the layout (every discovered map id without one).

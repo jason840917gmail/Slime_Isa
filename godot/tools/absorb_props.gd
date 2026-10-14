@@ -11,7 +11,7 @@ extends SceneTree
 ## groups or added children of its own; its cell is free. Every other prop stays a node and is
 ## counted by reason. Uids the save drops are put back.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/absorb_props.gd -- \
-##         --scene=res://game/scenes/worlds/level-1.tscn [--scene=...] [--dry]
+##         --scene=res://game/scenes/worlds/chunks/level-1-c4.tscn [--scene=...] [--dry]
 ## Close or reload the scenes in the editor afterwards (it holds its own copy).
 
 const Props := preload("res://game/world/props/prop_layer.gd")

@@ -5,16 +5,17 @@ extends RefCounted
 ##   (terrain tile set, physics layer `water`) stops the slime at the cell side.
 ## - No baked water bodies are left under ground/TileCollision.
 ##
-## level-1's lake: row 49 has land at x = 1..6 and shallow water from x = 7; row 43 has shallow water
-## at x = 2..4 and deep water from x = 5 (a forest border tree stands on its land cell, x = 1).
+## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
+## docs/godot/WORLD_ATLAS.md), chunk row 4: deep water at x = 0..5, shallow water at x = 6..12, land at
+## x = 13..17. The slime walks west (left) into the lake.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 
-const MAP_ID := "level-1"
+const MAP_ID := "level-1-c5"
 const CELL := 64.0
-const ROW := 43
-const SHALLOW_CELL := Vector2i(3, ROW)
-const DEEP_CELL := Vector2i(6, ROW)
+const ROW := 4
+const SHALLOW_CELL := Vector2i(9, ROW)
+const DEEP_CELL := Vector2i(3, ROW)
 ## Physics layer "water" (project.godot layer_names/2d_physics/layer_11).
 const WATER_LAYER_BIT := 1 << 10
 const WALK_MS := 2500.0
@@ -36,26 +37,26 @@ func test_shallow_water_is_walkable_and_deep_water_is_solid(t: TestContext) -> v
 
 func test_the_slime_walks_from_land_into_shallow_water(t: TestContext) -> void:
 	var body := t.player_body()
-	t.teleport_player(_centre(Vector2i(5, 49)))
+	t.teleport_player(_centre(Vector2i(14, ROW)))
 	await t.steps(2)
-	t.press(&"move_right")
-	var entered := await t.until(func() -> bool: return body.global_position.x > 7.5 * CELL, 1500.0)
+	t.press(&"move_left")
+	var entered := await t.until(func() -> bool: return body.global_position.x < 12.5 * CELL, 1500.0)
 	t.release_all()
 	t.check(entered, "the slime did not walk into the shallow water (x = %.1f)" % body.global_position.x)
 
 
 func test_the_slime_stops_at_deep_water(t: TestContext) -> void:
 	var body := t.player_body()
-	t.teleport_player(_centre(Vector2i(2, ROW)))
+	t.teleport_player(_centre(Vector2i(11, ROW)))
 	await t.steps(2)
-	t.press(&"move_right")
+	t.press(&"move_left")
 	await t.sim_wait(WALK_MS)
 	t.release_all()
 	await t.steps(2)
-	# Deep water starts at x = 5 cells: the slime's 30-unit body stops at that cell side.
+	# Deep water ends at x = 6 cells: the slime's 30-unit body stops at that cell side.
 	var x := body.global_position.x
-	t.check(x < 5.0 * CELL, "the slime walked into the deep water (x = %.1f)" % x)
-	t.check(x > 5.0 * CELL - 30.0, "the slime stopped short of the deep water (x = %.1f)" % x)
+	t.check(x > 6.0 * CELL, "the slime walked into the deep water (x = %.1f)" % x)
+	t.check(x < 6.0 * CELL + 30.0, "the slime stopped short of the deep water (x = %.1f)" % x)
 
 
 func _centre(cell: Vector2i) -> Vector2:
