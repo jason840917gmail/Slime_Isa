@@ -24,7 +24,8 @@
 > **Status:** first version, 2026-10-05, in the playground only (the **Elevation Park**, rows
 > 28-121 south of the old playground). Since 2026-10-09 level-1 paints it too (its village plateaus,
 > two flights of stairs, and from 2026-10-10 a wall along its north edge painted above the map). The
-> owner asked to retake elevation after the Phaser-era attempt (branch `feat/elevation-levels`, not merged) failed on
+> owner asked to retake elevation after the Phaser-era attempt (branch `feat/elevation-levels`, never merged and
+> deleted on 2026-10-14; its design is archived in [ELEVATION_LEVELS.md](../archive/phaser/ELEVATION_LEVELS.md)) failed on
 > art that did not join at the top and foot of 2- and 3-level walls.
 
 ## Owner decisions (2026-10-05)
@@ -1000,8 +1001,8 @@ same cliffs and the same collision.
   only the player uses stairs: enemies and NPCs stop at them (`STAIRS_LAYER`) and walk ramps.
   Enemies collide with their level but neither drop nor find a way off it. Projectiles, melee reach,
   sight, interactions and spawns do not know levels yet. These are the next gameplay steps (the
-  old branch's rules in `git show feat/elevation-levels:docs/ELEVATION.md` are a reference, not a
-  plan).
+  old branch's rules, archived in [ELEVATION_LEVELS.md](../archive/phaser/ELEVATION_LEVELS.md), are a
+  reference, not a plan).
 - The stairs walk keeps the line across the flight it stepped on at and runs straight along the
   flight whatever the keys (on a 45° flight either of its keys climbs it). A body knocked partway up
   a flight stands there until it moves (then it is carried to the nearer end). An enemy chasing the
