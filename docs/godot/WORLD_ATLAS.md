@@ -214,9 +214,15 @@ tiles each, cut from the region's world scene:
   in that chunk too, so a house or a tree on a border shows on both sides; forest cells come with a
   margin past the edges (1 cell, 3 below) for the canopies; chests, items, NPCs and doors live in
   one chunk only;
-- along every edge it shares with another chunk of the region, an exit the whole edge long (24 units
-  deep) with `keep_along` ([specs/world.md](specs/world.md) §8): the player comes out at the same
-  place along the neighbour's opposite edge, 64 units in. The crossing fades like any exit.
+- along every edge it shares with another chunk of the region, an exit the whole edge long, a line
+  4 units deep at the very edge (the slime crosses only when it reaches the screen's limit), with
+  `keep_along` ([specs/world.md](specs/world.md) §8): the player comes out at the same place along
+  the neighbour's opposite edge, 64 units in. The crossing scrolls the screen as in Zelda
+  (`game/world/chunk_scroll.gd`, 2026-10-14): a picture of the old view (the world only, without the
+  slime) is taken, the next chunk is built behind it, the picture is laid beside the new chunk where
+  the old one lay, and the camera slides from the old view into the new one over
+  `worldNavigation.edgeScrollMs` (650) while the slime walks in from where it left; no fade. Exits
+  to other regions and doors still fade.
 
 The scenes are registered in `scene_index.json`; the placeholder regions' chunks
 (`chunks/<world>-*`) are kept out of the release "Web" export, the hand-made worlds' ship. The tool also writes `godot/game/data/world-chunks.json` (read by
@@ -271,8 +277,8 @@ against 2.8 s for the whole level with its cache; a crossing is ready about 0.6 
 the edge).
 
 Timings (headless, this machine): North Wilds' whole world builds in about 4.0 s from a cold start,
-one of its chunks in 1.4 s (both with the game's own start); walking into a chunk's edge has the
-next chunk ready in about 0.5 s (the 0.32 s fade out and the build), then it fades in over 0.4 s.
+one of its chunks in 1.4 s (both with the game's own start); walking into a chunk's edge holds
+the picture while the next chunk builds (about 0.2-1.4 s), then scrolls for 0.65 s.
 
 ## Limits
 

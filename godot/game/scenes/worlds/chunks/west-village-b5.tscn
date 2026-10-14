@@ -17,10 +17,10 @@
 size = Vector2(256, 32)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_north"]
-size = Vector2(2048, 24)
+size = Vector2(2048, 4)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_west"]
-size = Vector2(24, 2048)
+size = Vector2(4, 2048)
 
 [node name="west-village-b5" type="Node2D" unique_id=820940752]
 y_sort_enabled = true
@@ -141,7 +141,7 @@ entry_marker = "arrive-from-west-village-1"
 area = NodePath("..")
 
 [node name="edge-north" type="Area2D" parent="." unique_id=235536423]
-position = Vector2(1024, 12)
+position = Vector2(1024, 2)
 collision_layer = 512
 collision_mask = 130
 monitorable = false
@@ -159,7 +159,7 @@ keep_along = true
 area = NodePath("..")
 
 [node name="edge-west" type="Area2D" parent="." unique_id=496975922]
-position = Vector2(12, 1024)
+position = Vector2(2, 1024)
 collision_layer = 512
 collision_mask = 130
 monitorable = false

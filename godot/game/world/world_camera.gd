@@ -317,6 +317,12 @@ func pan_to(point: Vector2, duration_ms: float) -> void:
 	_pan_duration_ms = duration_ms
 
 
+## The play area in world units this frame (around `center`, without the shake).
+func view_rect() -> Rect2:
+	var view := _play_size() / maxf(target_zoom, ZOOM_EPSILON)
+	return Rect2(center - view * 0.5, view)
+
+
 ## Current deadzone size in screen px (for the FPS panel).
 func get_deadzone_size() -> Vector2:
 	return _deadzone

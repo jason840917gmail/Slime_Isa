@@ -16,10 +16,10 @@
 [ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_4hf2j"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_east"]
-size = Vector2(24, 2048)
+size = Vector2(4, 2048)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_west"]
-size = Vector2(24, 2048)
+size = Vector2(4, 2048)
 
 [node name="north-wilds-d3" type="Node2D" unique_id=161549045]
 y_sort_enabled = true
@@ -124,7 +124,7 @@ y_sort_enabled = true
 position = Vector2(160, 1056)
 
 [node name="edge-east" type="Area2D" parent="." unique_id=350644767]
-position = Vector2(2036, 1024)
+position = Vector2(2046, 1024)
 collision_layer = 512
 collision_mask = 130
 monitorable = false
@@ -142,7 +142,7 @@ keep_along = true
 area = NodePath("..")
 
 [node name="edge-west" type="Area2D" parent="." unique_id=2124983584]
-position = Vector2(12, 1024)
+position = Vector2(2, 1024)
 collision_layer = 512
 collision_mask = 130
 monitorable = false

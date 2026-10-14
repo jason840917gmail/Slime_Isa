@@ -285,6 +285,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/world_objects/resource_respawn.gd` | world objects | Regrow rule on the wall clock (`epoch_override_ms` for tests) |
 | `game/world_objects/resource_drops.gd` | world objects | Drop cells, scatter, pile launch, restore, pile bookkeeping |
 | `game/world/area_travel.gd` | world objects | Arrival point (door, named marker, entry edge, spawn), travel fades, music fade-out (only ambience once `MusicDirector` holds the music); `Main.travel_to` / `request_exit` drive it |
+| `game/world/chunk_scroll.gd` | world builder | The Zelda screen scroll between two chunks of a region (picture of the old view, camera slide, the slime walking in); `Main._scroll_travel` drives it |
 | `game/scripts/npc.gd` | world | |
 | `game/ui/hud.gd` | world | The HUD: the coin chip, the console and the pieces it places on it (weapon slot, ability bar, minimap) |
 | `game/ui/hud_bar.gd` | world | One labelled HUD bar drawn from its theme variation (`HudBar`, `BossBar`) |

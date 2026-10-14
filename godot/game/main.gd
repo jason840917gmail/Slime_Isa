@@ -66,6 +66,7 @@ const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
 const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
+const ChunkScroll := preload("res://game/world/chunk_scroll.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 const GameWindows := preload("res://game/ui/screens/game_windows.gd")
@@ -155,6 +156,8 @@ var _transitioning: bool = false
 ## The travel under way goes into another chunk of the region it starts in (worked out when it
 ## starts: the old world's registrations go before it is freed).
 var _travel_within_region := false
+## The world being built arrives by a chunk scroll (ChunkScroll): no arrival fade.
+var _scroll_arrival := false
 var _next_gate_message_ms: int = 0
 
 
@@ -246,7 +249,8 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	warm_runtime_scenes()
 	configure_npcs()
 	setup_camera()
-	start_arrival_fade()
+	if not _scroll_arrival:
+		start_arrival_fade()
 	setup_ui()
 	_transitioning = false
 	_start_autosave()
@@ -388,6 +392,11 @@ func travel_to(target_map_id: String, entry_edge: String = "", entry_door: Strin
 	_transitioning = true
 	var region_world := WorldChunks.world_of(target_map_id)
 	_travel_within_region = not region_world.is_empty() and region_world == WorldChunks.world_of(world_service.map_id())
+	# Across a whole edge into the next chunk of the region: the screen scrolls, as in Zelda.
+	if _travel_within_region and not entry_edge.is_empty() and not is_nan(entry_along) and entry_door.is_empty() \
+			and entry_marker.is_empty() and player != null and player_root != null:
+		_scroll_travel(target_map_id, entry_edge, entry_along)
+		return true
 	if player != null:
 		player.stop_movement()
 		player.clear_input()
@@ -407,6 +416,45 @@ func _finish_travel(target_map_id: String, entry_edge: String, entry_door: Strin
 	run.request_navigation("area", target_map_id, entry_edge, entry_door, false, entry_marker, entry_along)
 	_teardown_world()
 	_build_world(target_map_id, run.consume_navigation())
+
+
+## The chunk scroll (game/world/chunk_scroll.gd): takes a picture of the old view without the
+## slime, records the player, builds `target_map_id` (arriving `entry_along` along `entry_edge`),
+## lays the picture beside the new chunk where the old one lay and scrolls the view into the new
+## chunk over `worldNavigation.edgeScrollMs` while the slime walks in from where it left. Travel
+## stays on (exits ignore the player) until the scroll ends. A coroutine.
+func _scroll_travel(target_map_id: String, entry_edge: String, entry_along: float) -> void:
+	var run := Services.run()
+	var world_service := Services.world()
+	var constants := Services.constants()
+	var scroll_ms := constants.number("worldNavigation.edgeScrollMs") if constants != null else 0.0
+	player.stop_movement()
+	player.clear_input()
+	player.suppress_movement(scroll_ms + TRAVEL_SUPPRESS_MARGIN_MS)
+	var old_rect: Rect2 = world_service.world_rect()
+	var old_view := world_camera.view_rect()
+	var old_feet := player_root.global_position
+	var shot_rect := old_view.intersection(old_rect)
+	player_root.visible = false
+	var shot := await ChunkScroll.capture(self, get_viewport(), shot_rect, world_camera.target_zoom)
+	if player != null and is_instance_valid(player):
+		run.capture_player(world_service.map_id(), player.run_snapshot())
+	run.request_navigation("area", target_map_id, entry_edge, "", false, "", entry_along)
+	_teardown_world()
+	_scroll_arrival = true
+	_build_world(target_map_id, run.consume_navigation())
+	_scroll_arrival = false
+	if player == null or player_root == null:
+		return
+	_transitioning = true
+	var offset := ChunkScroll.old_offset(entry_edge, old_rect, world_service.world_rect())
+	var picture := ChunkScroll.picture(shot, Rect2(shot_rect.position + offset, shot_rect.size))
+	world_container.add_child(picture)
+	player.walk_in(ChunkScroll.walk_direction(entry_edge), scroll_ms)
+	var scroll := ChunkScroll.new()
+	add_child(scroll)
+	scroll.start(world_camera, player_root, picture, old_view.get_center() + offset, world_camera.center,
+			old_feet + offset, player_root.global_position, scroll_ms, func() -> void: _transitioning = false)
 
 
 ## Frees the current world (and the player in it), the enemy population and the world service's

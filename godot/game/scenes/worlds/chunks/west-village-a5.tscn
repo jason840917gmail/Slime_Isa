@@ -14,10 +14,10 @@
 [ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="10_uut82"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_north"]
-size = Vector2(2048, 24)
+size = Vector2(2048, 4)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_east"]
-size = Vector2(24, 2048)
+size = Vector2(4, 2048)
 
 [node name="west-village-a5" type="Node2D" unique_id=1271084833]
 y_sort_enabled = true
@@ -117,7 +117,7 @@ y_sort_enabled = true
 position = Vector2(352, 864)
 
 [node name="edge-north" type="Area2D" parent="." unique_id=949665233]
-position = Vector2(1024, 12)
+position = Vector2(1024, 2)
 collision_layer = 512
 collision_mask = 130
 monitorable = false
@@ -135,7 +135,7 @@ keep_along = true
 area = NodePath("..")
 
 [node name="edge-east" type="Area2D" parent="." unique_id=423537237]
-position = Vector2(2036, 1024)
+position = Vector2(2046, 1024)
 collision_layer = 512
 collision_mask = 130
 monitorable = false
