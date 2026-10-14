@@ -57,6 +57,10 @@ made the leaf outlines shimmer while the view moved and the canopy swayed.
      only: for mazes and tight spots). Each tree picks a tree of its cell's mix.
    - **rows below, single trees:** the cell takes exactly that tree, and always grows it.
    - Erase cells to cut a gap or a path; paint over a cell to change its trees.
+   Trees are painted only here: the prop palettes have none. The 103 wall-tree props that had been
+   painted on `old-props` (level-1 and Gloop Forest E4, E5, F4) became single-tree cells of their
+   world's forest layer on 2026-10-14, each the same tree, standing 12 units on average (33 at
+   most) from where it had been.
 3. Inspector: `variation` (another number rerolls every tree's pick, shift, size and flip, and
    which cells of a wood grow one), `shift` (how far a tree may stand from its place, units across
    and down; across goes 1.6 times as far), `size_range`, `paint_opacity` (the squares over the

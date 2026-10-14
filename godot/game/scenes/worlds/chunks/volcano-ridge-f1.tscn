@@ -12,6 +12,8 @@
 [ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="9_kgtsw"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_cksfn"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_ygi4u"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_0yx3c"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_pcglt"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_northern_ruins_1"]
 size = Vector2(32, 128)
@@ -55,10 +57,20 @@ tile_map_data = PackedByteArray("AAAAAAcAAAADAAAAAAABAAcAAAADAAAAAAACAAcAAAADAAA
 tile_set = ExtResource("7_7pnqm")
 script = ExtResource("8_uvfsr")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=487339076]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=487339076]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAAGAA0AAQAHAAEAAAATAA0AAQAEAAEAAAAFABIAAQABAAEAAAA=")
+tile_map_data = PackedByteArray("AAAGAA0AAQAcAA4AAAATAA0AAQAHAA4AAAAFABIAAQA3AAcAAAA=")
 tile_set = ExtResource("9_kgtsw")
+script = ExtResource("10_cksfn")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1215954576]
+y_sort_enabled = true
+tile_set = ExtResource("11_0yx3c")
+script = ExtResource("10_cksfn")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=515215849]
+y_sort_enabled = true
+tile_set = ExtResource("12_pcglt")
 script = ExtResource("10_cksfn")
 
 [node name="world-definition" type="Node" parent="." unique_id=669589999]

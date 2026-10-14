@@ -13,6 +13,8 @@
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_n70bd"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_y8ysp"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-floor--wooden-footbridge.tscn" id="11_pe3c7"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_yxrui"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_q4k72"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_east"]
 size = Vector2(24, 2048)
@@ -56,10 +58,20 @@ tile_map_data = PackedByteArray("AAAfABgAAAADAAAAAAAfABkAAAADAAAAAAAfABoAAAADAAA
 tile_set = ExtResource("7_8wfmk")
 script = ExtResource("8_b6f8s")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=187683315]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=187683315]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAADAAIAAQAGAAEAAAADAAUAAQACAAEAAAAGAAYAAQAEAAEAAAAPAAoAAQAMAAAAAAAPABEAAQADAAEAAAD//xcAAQABAAEAAAAJABYAAQAJAAEAAAASABcAAQAGAAEAAAAbABkAAQAMAAAAAAAcABkAAQAEAAEAAAARABoAAQAEAAEAAAA=")
+tile_map_data = PackedByteArray("AAADAAIAAQAVAA4AAAADAAUAAQA+AAcAAAAGAAYAAQAHAA4AAAAPAAoAAQAUAAcAAAAPABEAAQAAAA4AAAD//xcAAQA3AAcAAAAJABYAAQA0AA4AAAASABcAAQAVAA4AAAAbABkAAQAUAAcAAAAcABkAAQAHAA4AAAARABoAAQAHAA4AAAA=")
 tile_set = ExtResource("9_e6kag")
+script = ExtResource("10_n70bd")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1834687300]
+y_sort_enabled = true
+tile_set = ExtResource("11_yxrui")
+script = ExtResource("10_n70bd")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=1793739571]
+y_sort_enabled = true
+tile_set = ExtResource("12_q4k72")
 script = ExtResource("10_n70bd")
 
 [node name="world-definition" type="Node" parent="." unique_id=1059439747]

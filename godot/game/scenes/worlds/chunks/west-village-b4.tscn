@@ -11,6 +11,8 @@
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="8_3uhlq"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="8_saorf"]
 [ext_resource type="TileSet" path="res://game/world/props/props_tileset.tres" id="9_qoleq"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="10_qoleq"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="11_jhlat"]
 [ext_resource type="Script" uid="uid://blxewggxlc5jg" path="res://game/world/atlas/map_note.gd" id="19_wrk2g"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_level_1_1"]
@@ -48,16 +50,26 @@ z_index = -1
 tile_set = ExtResource("5_73wwq")
 script = ExtResource("6_a8xsg")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=1411460178]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=1411460178]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAAIAAoAAQAEAAEAAAANAAoAAQACAAEAAAAcAAsAAQAAAAEAAAAdABEAAQABAAEAAAAHABcAAQAAAAEAAAAWABsAAQAIAAEAAAAGAB0AAQAFAAEAAAAcAB8AAQADAAEAAAA=")
+tile_map_data = PackedByteArray("AAAIAAoAAQAHAA4AAAANAAoAAQA+AAcAAAAcAAsAAQAwAAcAAAAdABEAAQA3AAcAAAAHABcAAQAwAAcAAAAWABsAAQAjAA4AAAAGAB0AAQAOAA4AAAAcAB8AAQAAAA4AAAA=")
 tile_set = ExtResource("7_88t4m")
 script = ExtResource("8_3uhlq")
 
-[node name="@TileMapLayer@3" type="TileMapLayer" parent="." unique_id=1874942853]
+[node name="old-props" type="TileMapLayer" parent="." unique_id=1874942853]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AABEAI8AFgAEAAAAAABkAP8AFgABAAAAAACEAI8AFgAAAAAAAAA=")
+tile_map_data = PackedByteArray("AABEAI8AFgATABMAAABkAP8AFgAUAAAAAACEAI8AFgAAAAAAAAA=")
 tile_set = ExtResource("9_qoleq")
+script = ExtResource("8_3uhlq")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1985085736]
+y_sort_enabled = true
+tile_set = ExtResource("10_qoleq")
+script = ExtResource("8_3uhlq")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=610508036]
+y_sort_enabled = true
+tile_set = ExtResource("11_jhlat")
 script = ExtResource("8_3uhlq")
 
 [node name="world-definition" type="Node" parent="." unique_id=1078040787]

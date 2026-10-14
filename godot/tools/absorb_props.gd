@@ -1,10 +1,12 @@
 extends SceneTree
 ## Turns the scenery props placed in world scenes into paint on their prop layers
-## (docs/godot/PROPS.md): every instance of a palette scene becomes a painted cell of the `walls` or
-## `props` PropLayer (made when the world has none) and is removed, so the scene tree loses its many
-## prop nodes. A prop goes on the first layer that holds it where it stands: the walls layer's
-## 64-unit grid only when it sits exactly on it, else the props layer's 8-unit grid (moved at most 4
-## units). A prop is absorbed only when nothing about it would be lost: its overrides are only
+## (docs/godot/PROPS.md): every instance of a palette scene becomes a painted cell of the
+## `large-props` or `old-props` PropLayer (made when the world has none) and is removed, so the
+## scene tree loses its many prop nodes. A prop goes on the first layer that holds it where it
+## stands: the large-props layer's 64-unit grid only when it sits exactly on it, else the
+## old-props layer's 8-unit grid (moved at most 4 units). These are the older palettes, whose fine
+## grid keeps a placed prop where it was; new painting uses `cell-props` and `details`. Old stone walls go to the `walls` WallLayer instead
+## (tools/convert_stone_walls.gd). A prop is absorbed only when nothing about it would be lost: its overrides are only
 ## its position, its Visual's size, mirror and offset, and save ids; it has no signal connections,
 ## groups or added children of its own; its cell is free. Every other prop stays a node and is
 ## counted by reason. Uids the save drops are put back.
@@ -13,9 +15,10 @@ extends SceneTree
 ## Close or reload the scenes in the editor afterwards (it holds its own copy).
 
 const Props := preload("res://game/world/props/prop_layer.gd")
+const SceneSave := preload("res://tools/lib/scene_save.gd")
 const LAYERS := {
-	"walls": "res://game/world/props/walls_tileset.tres",
-	"props": "res://game/world/props/props_tileset.tres",
+	"large-props": "res://game/world/props/walls_tileset.tres",
+	"old-props": "res://game/world/props/props_tileset.tres",
 }
 ## Metadata a prop may carry and lose (save ids of the Phaser conversion, editor locks).
 const DROPPED_META: PackedStringArray = ["instance_id", "persistence_key", "_edit_group_", "_edit_lock_"]
@@ -98,20 +101,20 @@ func _absorb(path: String, index: Dictionary, dry: bool) -> void:
 		if parent != root and parent.get_child_count() == 0 and parent.scene_file_path.is_empty():
 			parent.get_parent().remove_child(parent)
 			parent.free()
+	# A layer made while a group node had its name was renamed by Godot; the emptied group is gone now.
+	for layer_name: String in layers:
+		var layer: TileMapLayer = layers[layer_name]
+		if layer.name != StringName(layer_name) and root.get_node_or_null(NodePath(layer_name)) == null:
+			layer.name = layer_name
 	print("%s: %d props absorbed, %d kept %s%s" % [path.get_file(), absorbed, found.size() - absorbed, kept,
 			" (dry run)" if dry else ""])
 	if dry or absorbed == 0:
 		root.free()
 		return
-	var packed := PackedScene.new()
-	var err := packed.pack(root)
-	if err == OK:
-		err = ResourceSaver.save(packed, path)
+	var err := SceneSave.save(root, path, before)
 	root.free()
 	if err != OK:
 		push_error("absorb_props: %s: %s" % [path, error_string(err)])
-		return
-	_restore_uids(path, before)
 
 
 ## Instances of palette scenes placed in this scene (not inside other instances).
@@ -279,29 +282,3 @@ func _to_root(node: Node) -> Transform2D:
 			transform = (at as Node2D).transform * transform
 		at = at.get_parent()
 	return transform
-
-
-## Puts back the uids of the scene and of its external resources that a headless save drops.
-func _restore_uids(path: String, before: String) -> void:
-	var uids := {}
-	var with_uid := RegEx.create_from_string("\\[ext_resource type=\"([^\"]+)\" uid=\"([^\"]+)\" path=\"([^\"]+)\" id=\"([^\"]+)\"\\]")
-	for found in with_uid.search_all(before):
-		uids[found.get_string(1) + "|" + found.get_string(3)] = found.get_string(2)
-	var text := FileAccess.get_file_as_string(path)
-	var bare := RegEx.create_from_string("\\[ext_resource type=\"([^\"]+)\" path=\"([^\"]+)\" id=\"([^\"]+)\"\\]")
-	var matches := bare.search_all(text)
-	for i in range(matches.size() - 1, -1, -1):
-		var found := matches[i]
-		var uid: Variant = uids.get(found.get_string(1) + "|" + found.get_string(2))
-		if uid == null and found.get_string(2).ends_with(".gd") and FileAccess.file_exists(found.get_string(2) + ".uid"):
-			uid = FileAccess.get_file_as_string(found.get_string(2) + ".uid").strip_edges()
-		if uid != null:
-			text = text.substr(0, found.get_start()) + "[ext_resource type=\"%s\" uid=\"%s\" path=\"%s\" id=\"%s\"]" % [
-					found.get_string(1), uid, found.get_string(2), found.get_string(3)] + text.substr(found.get_end())
-	var own := RegEx.create_from_string("^\\[gd_scene [^\\]]*uid=\"([^\"]+)\"").search(before)
-	var header := text.get_slice("\n", 0)
-	if own != null and header.begins_with("[gd_scene") and header.find("uid=") < 0:
-		text = header.trim_suffix("]") + " uid=\"%s\"]" % own.get_string(1) + text.substr(header.length())
-	var file := FileAccess.open(path, FileAccess.WRITE)
-	file.store_string(text)
-	file.close()

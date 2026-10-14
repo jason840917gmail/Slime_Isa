@@ -1158,6 +1158,7 @@
   "world.crystal-caverns-h5": "res://game/scenes/worlds/chunks/crystal-caverns-h5.tscn",
   "world.depth-occlusion-test": "res://game/scenes/worlds/depth-occlusion-test.tscn",
   "world.cliff-shapes-lab": "res://game/scenes/worlds/cliff-shapes-lab.tscn",
+  "world.cliff-sides-lab": "res://game/scenes/worlds/cliff-sides-lab.tscn",
   "world.desert-a7": "res://game/scenes/worlds/chunks/desert-a7.tscn",
   "world.desert-a8": "res://game/scenes/worlds/chunks/desert-a8.tscn",
   "world.desert-b7": "res://game/scenes/worlds/chunks/desert-b7.tscn",

@@ -13,6 +13,8 @@
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_ewuth"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_go0rm"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-floor--wooden-footbridge.tscn" id="11_8kxt7"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_uge0h"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_o3dk6"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_volcano_ridge_1"]
 size = Vector2(32, 256)
@@ -53,10 +55,20 @@ tile_map_data = PackedByteArray("AAACABIAAAADAAAAAAADABIAAAADAAAAAAAMABQAAAADAAA
 tile_set = ExtResource("7_dy6ba")
 script = ExtResource("8_hperw")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=58851203]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=58851203]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAAZAAUAAQAGAAEAAAAQAAwAAQAMAAAAAAAdAA0AAQAEAAEAAAAbABEAAQAIAAEAAAAWABoAAQAAAAEAAAAUAB4AAQAFAAEAAAA=")
+tile_map_data = PackedByteArray("AAAZAAUAAQAVAA4AAAAQAAwAAQAUAAcAAAAdAA0AAQAHAA4AAAAbABEAAQAjAA4AAAAWABoAAQAwAAcAAAAUAB4AAQAOAA4AAAA=")
 tile_set = ExtResource("9_5uscl")
+script = ExtResource("10_ewuth")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1590952968]
+y_sort_enabled = true
+tile_set = ExtResource("11_uge0h")
+script = ExtResource("10_ewuth")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=1783843425]
+y_sort_enabled = true
+tile_set = ExtResource("12_o3dk6")
 script = ExtResource("10_ewuth")
 
 [node name="world-definition" type="Node" parent="." unique_id=614915961]

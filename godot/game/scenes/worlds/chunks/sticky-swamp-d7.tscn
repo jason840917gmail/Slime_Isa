@@ -12,6 +12,8 @@
 [ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="9_pdkxa"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_v38mf"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="10_vtoh2"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_t2j4k"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_aug2c"]
 [ext_resource type="Script" uid="uid://blxewggxlc5jg" path="res://game/world/atlas/map_note.gd" id="13_u85ov"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_south_wilds_1"]
@@ -55,10 +57,20 @@ z_index = -1
 tile_set = ExtResource("7_nouxn")
 script = ExtResource("8_y5vb5")
 
-[node name="walls" type="TileMapLayer" parent="." unique_id=1467250539]
+[node name="large-props" type="TileMapLayer" parent="." unique_id=1467250539]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAAMABAAAQABAAEAAAAJABcAAQABAAEAAAAcABsAAQAGAAEAAAA=")
+tile_map_data = PackedByteArray("AAAMABAAAQA3AAcAAAAJABcAAQA3AAcAAAAcABsAAQAVAA4AAAA=")
 tile_set = ExtResource("9_pdkxa")
+script = ExtResource("10_v38mf")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1728169403]
+y_sort_enabled = true
+tile_set = ExtResource("11_t2j4k")
+script = ExtResource("10_v38mf")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=315723468]
+y_sort_enabled = true
+tile_set = ExtResource("12_aug2c")
 script = ExtResource("10_v38mf")
 
 [node name="world-definition" type="Node" parent="." unique_id=1718579209]
