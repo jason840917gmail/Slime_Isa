@@ -13,21 +13,44 @@ settings, controls, credits, game over, end card, area banner), the HUD, and the
 | File | What it holds |
 |---|---|
 | `godot/game/ui/theme/ui_tokens.gd` (`UiTokens`) | The design tokens: colours, alphas, font sizes, the font paths. One place to change a colour |
-| `godot/tools/build_ui_theme.gd` | Builds the theme from the tokens: every stylebox, colour, constant, font and variation, and the small icons (slider thumb, check boxes, switch, option arrow), which it draws and stores inside the `.tres` |
+| `godot/tools/build_ui_theme.gd` | Builds the theme from the tokens: every stylebox, colour, constant, font and variation, and the small icons (slider thumb, check boxes, switch, option arrow), which it draws |
 | `godot/game/ui/theme/slime_theme.tres` | The tool's output. Do not edit it in the editor: the next build would drop the edit |
+| `godot/game/ui/theme/icons/` | The drawn icons, also tool output: one `ImageTexture` file per theme icon, `<type>_<icon>.tres` (`check_box_checked.tres`, `h_slider_grabber.tres`), which the theme refers to by path |
 
-To change the look, edit the tokens or the builder, then rebuild and commit both:
+To change the look, edit the tokens or the builder, then rebuild and commit the builder and its
+output (the builder also deletes icon files no theme icon uses any more):
 
 ```bash
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_ui_theme.gd
 ```
 
 `pnpm test:godot` (`test_shell.gd::test_ui_theme_has_every_documented_variation`) fails when the
-`.tres` is older than the builder, or when a variation listed below is missing.
+`.tres` is older than the builder, when a variation listed below is missing, or when an icon is
+empty or comes back empty from a re-save.
 
-**Applying it.** The theme becomes the project theme (`gui/theme/custom`), so every Control picks it
-up. Until that is set, a screen's root Control sets `theme` to it explicitly (the shell scenes in
-`res://game/shell/` and the HUD do; code can use `UiTokens.theme()`). Pick a role with the Control's
+### Icons and editor re-saves
+
+The open editor re-saves the theme once per session, on its first scene save (Ctrl+S, Save All,
+the save before running). It loads the theme at startup, as the project theme, and the text loader
+marks every sub-resource it fills as edited, so `EditorNode::_save_external_resources` writes the
+file again. For the styleboxes and fonts that writes the same text. After a rebuild, the first
+such save also adds the fonts' `uid` attributes (a headless save cannot write uids; the builder
+keeps the theme's own uid). Commit that change.
+
+The icons used to be `PortableCompressedTexture2D` sub-resources inside the `.tres`, and that
+re-save emptied them (2026-10-09 and 2026-10-11): the header went from `format=4` to `format=3`
+and the 23 `_data` lines disappeared, so check boxes, switches, slider grabbers and the option
+arrow drew nothing, and every start logged 23 `Parameter "texture" is null` errors. The editor
+loads the project theme (`ThemeDB::initialize_theme`) before `EditorNode` turns on
+`PortableCompressedTexture2D.keep_all_compressed_buffers`. Such a texture also applies `_data`
+before its own `keep_compressed_buffer` flag, the order they are saved in. So the loaded copy drew
+correctly but kept no bytes to save. An `ImageTexture` saves its pixels whenever it is saved. In
+its own file it is not re-saved at all, because a loaded file is not marked edited. Embedded, it
+would get new sub-resource ids at each re-save. Keep the icons as files.
+
+**Applying it.** The theme is the project theme (`gui/theme/custom`), so every Control picks it up;
+the shell scenes in `res://game/shell/` and the HUD also set `theme` to it explicitly (code can use
+`UiTokens.theme()`). Pick a role with the Control's
 **Theme Type Variation** (`theme_type_variation`), not with per-node colour overrides; override
 only what is really per node (a font size from the Phaser scene, a tone that changes at run time).
 

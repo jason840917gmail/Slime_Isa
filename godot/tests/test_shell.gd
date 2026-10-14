@@ -468,12 +468,15 @@ func test_ui_theme_has_every_documented_variation(t: TestContext) -> void:
 			stale.append(type_name)
 	t.check(stale.is_empty(), "slime_theme.tres is older than tools/build_ui_theme.gd (%s); rebuild it" % ", ".join(stale))
 	t.near(theme.get_color(&"warning", &"Palette").r, UiTokens.WARNING.r, 0.001, "palette warning")
-	# The drawn icons are stored in the .tres (an empty one means the compressed bytes were lost).
+	# The drawn icons are files beside the theme. The editor re-saves the theme as it was loaded at
+	# startup (on any scene save), so that copy, and an icon file re-saved, must keep the pixels.
+	var resaved := _resaved(theme) as Theme
 	for pair: Array in [[&"grabber", &"HSlider"], [&"checked", &"CheckBox"], [&"arrow", &"OptionButton"]]:
 		var icon := theme.get_icon(pair[0], pair[1])
-		var image := icon.get_image() if icon != null else null
-		t.check(image != null and not image.is_empty() and image.get_used_rect().size.x > 0,
-			"theme icon %s/%s is empty" % [pair[1], pair[0]])
+		for copy: Texture2D in [icon, resaved.get_icon(pair[0], pair[1]), _resaved(icon) as Texture2D]:
+			var image := copy.get_image() if copy != null else null
+			t.check(image != null and not image.is_empty() and image.get_used_rect().size.x > 0,
+				"theme icon %s/%s is empty, or lost by a re-save" % [pair[1], pair[0]])
 
 
 # --- helpers --------------------------------------------------------------------------------------
@@ -545,6 +548,15 @@ func _restore_mix(saved: Dictionary) -> void:
 	if feel != null and saved.has("feel"):
 		feel.screen_shake_scale = float(saved["feel"][0])
 		feel.reduce_motion = bool(saved["feel"][1])
+
+
+## `resource` saved to user:// and loaded back from disk with its dependencies.
+func _resaved(resource: Resource) -> Resource:
+	var path := "user://test_shell_resave_%d.tres" % OS.get_process_id()
+	ResourceSaver.save(resource, path)
+	var copy := ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	return copy
 
 
 func _remove_settings_file() -> void:
