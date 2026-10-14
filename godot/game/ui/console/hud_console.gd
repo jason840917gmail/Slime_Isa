@@ -8,8 +8,9 @@ class_name HudConsole
 ## (WeaponHotbar, placed by hud.gd), the ability buttons (AbilityBar, placed by hud.gd; as many as
 ## `ability_definitions.gd` BAR_SLOTS lists), the energy orb (with the Gulp form's badge while the
 ## slime is in a form) and the menu buttons (bag, journal, map, pause menu). The weapon and the
-## abilities sit on one wooden bar whose ends tuck behind the orbs; a soft shade under the console
-## separates it from the ground. `layout(viewport, ability_count)` gives every rect, in canvas units.
+## abilities sit on one wooden bar whose ends tuck behind the orbs. Everything sits on a solid band
+## across the whole width (the bar's own frame, darkened), so the map ends at the band's wooden rim
+## and nothing past a world's south edge ever shows under the console. `layout(viewport, ability_count)` gives every rect, in canvas units.
 ##
 ## Built by hud.gd as a full-screen child of the HUD layer (it lays itself out on every resize);
 ## only the menu buttons take the mouse.
@@ -49,10 +50,16 @@ const BUTTON := 52.0
 const BUTTON_GAP := 4.0
 const BUTTONS := BUTTON * 2.0 + BUTTON_GAP
 const SIDE_GAP := 8.0
-## The shade starts this far above the console and darkens to SHADE_ALPHA at the bottom edge.
-const SHADE_RISE := 24.0
-const SHADE_ALPHA := 0.59
-const SHADE_COLOR := Color(0.04, 0.055, 0.04)
+## The band: console-bar.webp's frame from its wooden rim (BAND_RIM_TOP; the leaves above it are
+## left out) down to its panel's bottom, stretched across the screen at BAND_SCALE with the rim on
+## the console's top, tinted BAND_TINT so the bar stands out on it.
+const BAND_RIM_TOP := 50.0
+const BAND_REGION := Rect2(0.0, BAND_RIM_TOP, 1079.0, 170.0 - BAND_RIM_TOP)
+const BAND_SCALE := 0.5
+const BAND_TINT := Color(0.42, 0.42, 0.45)
+## The band's fill under the frame (the frame's ends are round, with clear corners), its panel's
+## colour tinted: the whole console strip, edge to edge.
+const BAND_FILL := Color(0.035, 0.115, 0.125)
 const MENU_ICON := "res://asset/UI/hud-console/menu-%s.webp"
 ## The menu buttons: icon, action whose key labels it, tooltip.
 const MENU_BUTTONS := [
@@ -78,7 +85,8 @@ var menu_buttons: Array[Button] = []
 ## The player whose Gulp form the badge follows (set by hud.gd).
 var player: Node
 
-var _shade: TextureRect
+var _band: NinePatchRect
+var _band_fill: ColorRect
 var _bar: NinePatchRect
 var _form_badge: TextureRect
 var _key_badges: Array[Label] = []
@@ -107,7 +115,7 @@ func set_ability_count(count: int) -> void:
 
 
 ## Every rect of the console for a `viewport` (canvas units) and `ability_count` buttons:
-## {"console", "shade", "bar", "weapon", "abilities", "life_orb", "energy_orb", "minimap",
+## {"console", "band", "bar", "weapon", "abilities", "life_orb", "energy_orb", "minimap",
 ## "buttons"}. The console is centred on the bottom edge.
 static func layout(viewport: Vector2, ability_count: int) -> Dictionary:
 	var abilities_w := ability_count * ABILITY_SLOT + maxf(0.0, ability_count - 1.0) * SLOT_GAP
@@ -125,7 +133,7 @@ static func layout(viewport: Vector2, ability_count: int) -> Dictionary:
 	var slots_left := cx - slots_w * 0.5
 	return {
 		"console": Rect2(left, top, right - left, HEIGHT),
-		"shade": Rect2(0.0, top - SHADE_RISE, viewport.x, HEIGHT + SHADE_RISE),
+		"band": Rect2(0.0, top, viewport.x, HEIGHT),
 		"bar": Rect2(cx - orb_dx - BAR_TUCK, bar_top, (orb_dx + BAR_TUCK) * 2.0, bar_h),
 		"weapon": Rect2(slots_left, bar_cy - WEAPON_SLOT * 0.5, WEAPON_SLOT, WEAPON_SLOT),
 		"abilities": Rect2(slots_left + WEAPON_SLOT + GROUP_GAP, bar_cy - ABILITY_SLOT * 0.5, abilities_w, ABILITY_SLOT),
@@ -145,9 +153,12 @@ func relayout() -> void:
 	if not is_inside_tree() or _bar == null:
 		return
 	var r := rects()
-	var shade: Rect2 = r["shade"]
-	_shade.position = shade.position
-	_shade.size = shade.size
+	var band: Rect2 = r["band"]
+	_band.position = band.position
+	_band.scale = Vector2(BAND_SCALE, BAND_SCALE)
+	_band.size = band.size / BAND_SCALE
+	_band_fill.position = band.position
+	_band_fill.size = band.size
 	var bar: Rect2 = r["bar"]
 	var bar_scale := bar.size.y / BAR_TEXTURE_HEIGHT
 	_bar.position = bar.position
@@ -168,22 +179,23 @@ func _process(_delta: float) -> void:
 
 
 func _build() -> void:
-	_shade = TextureRect.new()
-	_shade.name = "Shade"
-	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_shade.stretch_mode = TextureRect.STRETCH_SCALE
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(SHADE_COLOR, 0.0))
-	gradient.set_color(1, Color(SHADE_COLOR, SHADE_ALPHA))
-	var shade_texture := GradientTexture2D.new()
-	shade_texture.gradient = gradient
-	shade_texture.fill_from = Vector2(0.5, 0.0)
-	shade_texture.fill_to = Vector2(0.5, 1.0)
-	shade_texture.width = 4
-	shade_texture.height = 64
-	_shade.texture = shade_texture
-	add_child(_shade)
+	_band_fill = ColorRect.new()
+	_band_fill.name = "BandFill"
+	_band_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_band_fill.color = BAND_FILL
+	add_child(_band_fill)
+
+	_band = NinePatchRect.new()
+	_band.name = "Band"
+	_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(BAR_TEXTURE):
+		_band.texture = load(BAR_TEXTURE) as Texture2D
+	_band.region_rect = BAND_REGION
+	_band.patch_margin_left = BAR_END_PX
+	_band.patch_margin_right = BAR_END_PX
+	_band.patch_margin_top = int(BAR_PANEL_TOP - BAND_RIM_TOP)
+	_band.self_modulate = BAND_TINT
+	add_child(_band)
 
 	_bar = NinePatchRect.new()
 	_bar.name = "Bar"
