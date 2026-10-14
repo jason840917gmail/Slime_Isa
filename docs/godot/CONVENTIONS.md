@@ -21,7 +21,7 @@ behaviour per area is in [specs/](specs).
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_scenes.gd`, `build_player_clips.gd`, `build_terrain_lab.gd` and `build_region_worlds.gd` (with `region_worlds/`; [WORLD_ATLAS.md](WORLD_ATLAS.md)); excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
-| `godot/addons/scenery_dock/` | hand | the Scenery dock: every scenery prop by picture, dragged into the 2D view as a node under the world's `Scenery` node ([PROPS.md](PROPS.md)); editor only, the game never loads it |
+| `godot/addons/scenery_dock/` | hand | the Scenery dock: every scenery prop by picture, dragged into the 2D view as a node under the world's `Scenery` node, and the export step that leaves the paint layers' palette pictures out of exported games ([PROPS.md](PROPS.md)); editor only, the game never loads it |
 | `godot/addons/godot_ai/` | the Godot AI plugin (4.3.0, MIT), committed | the editor plugin (MCP bridge) that lets Claude drive the open editor, plus its `_mcp_game_helper` autoload for running-game inspection; disabled by itself in headless runs and excluded from exports. Update it from its dock, then commit |
 
 Scenes, game data and art are Godot's: edit scenes in the Godot editor (or with a tool in
