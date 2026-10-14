@@ -23,10 +23,11 @@ secret, a resource, a gate, a liftable rock) is placed as a normal instance too.
 The **Scenery** dock (right side, beside the Inspector; the `scenery_dock` editor plugin) shows every
 prop of the `cell-props` and `details` palettes by its picture: pick a category, or type in the
 search box to look through all of them by name. Pick a **Size** (small 70 %, normal, big 130 %),
-then **drag a picture into the 2D view**: the prop's scene is placed there as a node under the
-world's `Scenery` node (made when missing, y-sorted with the world), at that size (its Scale). It is
-an ordinary node: select it, move it freely, mirror or scale it, edit it in the Inspector, delete it
-with Delete; Ctrl+Z undoes the drop. **Reload** reads the palettes again after
+then **drag a picture into the 2D view**: Godot shows the prop under the mouse at that size and
+places its scene where you drop it; the plugin then moves the node under the world's `Scenery`
+node (made when missing, y-sorted with the world) and sets that size (its Scale), one step that
+Ctrl+Z undoes (a second Ctrl+Z removes the prop). It is an ordinary node: select it, move it freely,
+mirror or scale it, edit it in the Inspector, delete it with Delete. **Reload** reads the palettes again after
 `tools/build_prop_palettes.gd`. Use it for the props you place one by one; paint the mass of small
 scenery (grass, flowers, pebbles, leaves) on the layers below, which keeps the scene tree small.
 
@@ -98,6 +99,13 @@ cell's middle, as Godot draws the mirrored tile. The instances live in an unowne
 (y-sorted with the world), so the scene saves only the cells and the editor neither lists nor
 selects them; they keep their collision and idle animations. The layer updates only the cells that
 changed when you paint.
+
+**In the game** the layers never draw their palette squares (each turns its tile drawing off; the
+cells stay readable), and an **exported** game has no palette pictures at all: the Scenery plugin's
+export step (`addons/scenery_dock/palette_export.gd`) exports the paint layers' tile sets (props,
+walls, forest) with every tile and its data but placeholders of the same size for their pictures,
+and leaves the picture files out (`asset/MAPS/palettes/`, the wall and forest palette images),
+about 42 million pixels, some 170 MB of textures a world would otherwise load.
 
 `tools/build_prop_palettes.gd` (windowed: it renders) builds the `cell-props` and `details`
 palettes: every scene under `game/scenes/objects/` whose path matches a source and whose only

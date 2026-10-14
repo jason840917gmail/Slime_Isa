@@ -53,6 +53,10 @@ func _ready() -> void:
 
 func _apply_opacity() -> void:
 	self_modulate.a = paint_opacity if Engine.is_editor_hint() else 0.0
+	if not Engine.is_editor_hint():
+		# the game never draws the palette squares (an exported game has no palette pictures);
+		# the cells stay readable
+		enabled = false
 
 
 func _queue_rebuild() -> void:
