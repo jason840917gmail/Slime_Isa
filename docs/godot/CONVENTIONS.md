@@ -102,7 +102,9 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
   `menu`, `map`, `zoom_in/out`, `pause`.
 - Physics layers keep the bits and names of `game/data/collision-layers.json` (Phaser's layers).
   Layers 12-18 (`level -3` … `level 3`) are the walls of each elevation level: a walking body
-  collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)).
+  collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)). Layer 19 (`stairs`)
+  holds the steps of every flight of stairs: every walking body but the player collides with it, so
+  enemies and NPCs stay off stairs ([Stairs walk](ELEVATION.md#stairs-walk)).
   60 physics ticks per second (enemy AI rolls per step depend on it); physics
   interpolation is on.
 - Audio buses: Master, Effects, Music, Ambience.

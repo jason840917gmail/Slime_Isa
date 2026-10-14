@@ -395,6 +395,25 @@ func s_at(point: Vector2) -> float:
 	return NAN
 
 
+## The flight's frame at `point` (screen): Vector2(s, t) of the walkable surface drawn there (a front
+## flight: s 0), NAN in both off it. The stairs walk (stairs_sequence.gd) carries a body along its t.
+func st_at(point: Vector2) -> Vector2:
+	if not walks(point):
+		return Vector2(NAN, NAN)
+	if in_face:
+		return Vector2(0.0, clampf((point.x - rim.x) / across.x, -half, half) if absf(across.x) > 1e-6 else 0.0)
+	var height := LEVEL * (top - bottom)
+	var slope := -height / ramp
+	var ds := Vector2(dir.x, dir.y - slope)
+	var det := ds.x * across.y - ds.y * across.x
+	if absf(det) < 1e-6:
+		return Vector2(NAN, NAN)
+	var q := point - screen_of(Vector3(0.0, 0.0, height))
+	var s := (q.x * across.y - q.y * across.x) / det
+	var t := (ds.x * q.y - ds.y * q.x) / det
+	return Vector2(clampf(s, 0.0, end), clampf(t, -half, half))
+
+
 ## The height above the lower ground of the walkable surface at `point` (screen), NAN off it: on a
 ## front flight how far up the face it lies, else the nosing line's there.
 func height_at(point: Vector2) -> float:

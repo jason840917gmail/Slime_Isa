@@ -124,6 +124,9 @@ const SPLIT_BUCKET := 32.0
 const DARK_GROUND := 0.32
 ## Cell size (world units) of the lookup of the sides look's shapes by place (`_side_cells`).
 const SHAPE_CELL := 128.0
+## How far (world units) a drawn wall's uneven foot may dip below the bottom step of a front flight
+## of stairs and still be the ground the flight starts from (`_at_stairs_foot`).
+const STAIRS_FOOT_SLACK := 12.0
 ## A wall style's art for the sides look (scripts/art/build-side-wall-art.py): its side strip and
 ## its corner stones; a style without them uses its wall art.
 const SIDES_ART := "res://asset/MAPS/elevation/%s-%s.png"
@@ -168,7 +171,15 @@ const WALKER_LAYERS := 2 | 4 | 128
 const DEFAULTS := {
 	"behindDepth": 32.0, "dropPushMs": 280.0, "dropOutward": 22.0, "dropBaseMs": 260.0,
 	"dropMsPerLevel": 90.0, "hopArcHeight": 36.0,
+	"stairsFootstepMs": 400.0, "stairsPerFootstep": 2.0, "stairsStepBob": 3.0, "stairsExit": 22.0,
+	"stairsExitMs": 160.0, "stairsAlong": 0.35,
 }
+## Stairs are the player's passage only (docs/godot/ELEVATION.md "Stairs walk"; owner, 2026-10-14:
+## "enemies or NPCs don't walk stairs, they stay in their levels; they do walk ramps"): every
+## flight's steps stand on STAIRS_LAYER (physics layer 19), which every tracked body but the
+## player (PLAYER_LAYER) collides with (`track`).
+const STAIRS_LAYER := 1 << 18
+const PLAYER_LAYER := 2
 ## A walking body's collision rect around its feet (player_slime.tscn BodyShape 30 x 26, slightly
 ## inset) and how far past its edge a ledge is looked for.
 const BODY_HALF := Vector2(13.0, 12.0)
@@ -683,10 +694,20 @@ func _sides_walkable(point: Vector2, level: int, base: bool) -> bool:
 		var wall_bounds: Array = shape["wall_bounds"]
 		for w in walls.size():
 			if (wall_bounds[w] as Rect2).has_point(point) and Geometry2D.is_point_in_polygon(point, walls[w]):
-				return false
+				return _at_stairs_foot(point, level)
 		if not base and not reopen and (_in_zone(shape, point) or _in_model_wall(point, top_level)):
 			reopen = _below_at(shape, point) == level
 	return base or reopen
+
+
+## True when `point` (on a drawn wall) lies just below the bottom step of a front flight of stairs
+## that climbs from `level`: the wall's uneven foot dips under the step there, and that strip is the
+## ground the flight starts from (as a wall it closed the foot of the stairs to `level`).
+func _at_stairs_foot(point: Vector2, level: int) -> bool:
+	for flight: ElevationStairs in stairs:
+		if flight.in_face and flight.bottom == level and not flight is ElevationRamp 				and flight.walks(point - Vector2(0.0, STAIRS_FOOT_SLACK)):
+			return true
+	return false
 
 
 ## True when `point` lies between one of `shape`'s round outer corners and the model's square corner.
@@ -722,6 +743,16 @@ static func _nearest_point(points: PackedVector2Array, point: Vector2) -> int:
 			best_distance = d
 			best = k
 	return best
+
+
+## The flight of stairs (never a ramp) whose steps hold the world point `world_point`, or null: the
+## stairs walk starts there (player.gd `_enter_stairs`).
+func flight_at(world_point: Vector2) -> ElevationStairs:
+	var local := world_point - global_position
+	for flight: ElevationStairs in stairs:
+		if not flight is ElevationRamp and flight.walks(local):
+			return flight
+	return null
 
 
 ## The flight of stairs (or ramp) whose steps (or slope) hold `point` (Elevation space), or null.
@@ -1012,7 +1043,8 @@ func track(body: CharacterBody2D, level: int = ElevationGrid.MIN_LEVEL - 1) -> v
 			var point := local / cell
 			level = grid.walkable_level(point, grid.level_at(point, 0)) if grid != null else 0
 	bodies[body] = level
-	body.collision_mask = (body.collision_mask & ~all_level_bits()) | level_bit(level)
+	var stairs_bit := STAIRS_LAYER if body.collision_layer & PLAYER_LAYER == 0 else 0
+	body.collision_mask = (body.collision_mask & ~all_level_bits() & ~STAIRS_LAYER) | level_bit(level) | stairs_bit
 	if not body.tree_exiting.is_connected(_forget):
 		body.tree_exiting.connect(_forget.bind(body))
 
@@ -3147,6 +3179,21 @@ func _make_collision(by_level: Dictionary) -> void:
 		collision.shape = shape
 		body.add_child(collision)
 		holder.add_child(body)
+	# The steps of every flight (not ramps) on STAIRS_LAYER: enemies and NPCs stay off them.
+	var steps := StaticBody2D.new()
+	steps.name = "Stairs"
+	steps.collision_layer = STAIRS_LAYER
+	steps.collision_mask = 0
+	for flight: ElevationStairs in stairs:
+		if flight is ElevationRamp or flight.walk.size() < 3:
+			continue
+		var polygon := CollisionPolygon2D.new()
+		polygon.polygon = flight.walk
+		steps.add_child(polygon)
+	if steps.get_child_count() > 0:
+		holder.add_child(steps)
+	else:
+		steps.free()
 
 
 ## `segments` (a level's terrain outline, Elevation space) with the flights of stairs: the outline

@@ -41,6 +41,7 @@ const CollectibleScript := preload("res://game/scripts/collectible.gd")
 const SleepController := preload("res://game/rest/sleep_controller.gd")
 const PlayerAbilities := preload("res://game/player/abilities/player_abilities.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
+const ElevationStairs := preload("res://game/world/elevation/elevation_stairs.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
@@ -148,6 +149,8 @@ var _abilities: PlayerAbilities = PlayerAbilities.new(self)
 ## Pushing against a rim (docs/godot/ELEVATION.md): since when, last seen, which way. A push that
 ## stops for longer than LEDGE_PUSH_GAP_MS starts over.
 var _ledge_push_since_ms: float = -1.0
+## The stairs walk ran last step: when it ends a click order plans again from there.
+var _on_stairs: bool = false
 var _ledge_push_seen_ms: float = -1.0
 var _ledge_push_dir: Vector2 = Vector2.ZERO
 const LEDGE_PUSH_GAP_MS := 120.0
@@ -494,6 +497,9 @@ func _physics_process(delta: float) -> void:
 			_move(direction)
 	if _dead:
 		_orders.cancel()
+	if _on_stairs and not _abilities.is_on_stairs():
+		_on_stairs = false
+		_orders.resume(body.global_position, Services.now_ms())
 	_update_pointer_hover()
 	# Arcade-style step (player spec 5.2): a wall hit zeroes the blocked velocity component, which
 	# then stays zero for the rest of a roll or knockback (CharacterBody2DNode.ts:61-66). The lash
@@ -673,11 +679,6 @@ func get_roll() -> PlayerRoll:
 	return _roll
 
 
-## Sets `body.velocity = Vector2.ZERO`, and ends a Roll (a door's leave fade, a window, death).
-func stop_movement() -> void:
-	_roll.cancel()
-	if body != null:
-		body.velocity = Vector2.ZERO
 ## Walks in place facing `direction` for `ms` of simulation time, movement frozen: the chunk
 ## scroll (game/world/chunk_scroll.gd) carries the body across the edge meanwhile.
 func walk_in(direction: Vector2, ms: float) -> void:
@@ -688,6 +689,11 @@ func walk_in(direction: Vector2, ms: float) -> void:
 	_play_direct(_locomotion_clip(CLIP_WALK))
 
 
+## Sets `body.velocity = Vector2.ZERO`, and ends a Roll (a door's leave fade, a window, death).
+func stop_movement() -> void:
+	_roll.cancel()
+	if body != null:
+		body.velocity = Vector2.ZERO
 
 
 ## `WorldScene.playAnimation` gate (player spec 4.3 "Other rules"): while dead only "die"
@@ -714,8 +720,9 @@ func play_animation(clip: String, force: bool = false) -> bool:
 func apply_knockback(direction: Vector2, strength: float, duration_ms: float) -> void:
 	if direction == Vector2.ZERO or strength <= 0.0 or duration_ms < 0.0:
 		return
-	# The Heavy form shrugs knockback off entirely (WorldScene.ts:341-350).
-	if bool(_gulp.form.get("knockback_immune", false)):
+	# The Heavy form shrugs knockback off entirely (WorldScene.ts:341-350); on the stairs the walk
+	# goes on (a hit still hurts).
+	if bool(_gulp.form.get("knockback_immune", false)) or _abilities.is_on_stairs():
 		return
 	_roll.cancel()
 	var now: float = Services.now_ms()
@@ -1366,6 +1373,40 @@ func _move(direction: Vector2) -> void:
 	_facing = unit
 	_play_direct(_locomotion_clip(CLIP_WALK))
 	_press_ledge(unit)
+	_enter_stairs(unit)
+
+
+## Stairs are a passage, not ground (docs/godot/ELEVATION.md "Stairs walk"; owner, 2026-10-14):
+## walking onto a flight of stairs along it (at least `elevation.stairsAlong` of the move along its
+## ground direction: on a 45° flight either of its two keys) hands the slime to the stairs walk
+## (stairs_sequence.gd), which carries it to the other end. Partway up a flight (stepped
+## onto from the side, knocked there) any step carries it on to the nearer end: nothing stands on
+## the stairs. Ramps stay ground.
+func _enter_stairs(unit: Vector2) -> void:
+	var world := Services.world()
+	var elevation: Elevation = world.elevation if world != null else null
+	if elevation == null or body == null or _abilities.is_busy() or _action_locked:
+		return
+	var flight := elevation.flight_at(body.global_position)
+	if flight == null:
+		return
+	var along := unit.dot(flight.dir)
+	var down := along > 0.0
+	if absf(along) < Elevation.setting("stairsAlong"):
+		var height := ElevationStairs.LEVEL * (flight.top - flight.bottom)
+		var rise := ElevationStairs.LEVEL / ElevationStairs.STEPS_PER_LEVEL
+		var h := flight.height_at(body.global_position - elevation.global_position)
+		if is_nan(h) or h < rise or h > height - rise:
+			return
+		down = h < height * 0.5
+	_ledge_push_since_ms = -1.0
+	if _abilities.begin_stairs(flight, down):
+		_on_stairs = true
+
+
+## True while the stairs walk carries the slime (footsteps.gd stays quiet meanwhile).
+func is_on_stairs() -> bool:
+	return _abilities.is_on_stairs()
 
 
 ## A rim holds the slime, as in Zelda, until it insists: pushing against one for

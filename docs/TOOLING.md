@@ -122,9 +122,16 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/asset/MAPS/elevation/`; a world picks them with its ground layer's metadata `cliff_wall_styles` /
   `cliff_fringe`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd -- --force` rebuilds the
   cliff shapes lab that shows them ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
+- `"<Godot console exe>" --path godot -s res://tools/render_stairs_walk.gd -- --out=<dir> [--map=<id>]
+  [--feet=<x>,<y>] [--key=move_up] [--then=move_down] [--ms=2600]` (windowed) — records the stairs walk
+  in the running game: it puts the slime at `--feet`, holds the key(s) and saves a frame every 80 ms
+  of game time with the time, feet, level and whether the walk carries it in the log
+  ([ELEVATION.md](godot/ELEVATION.md#stairs-walk)). The default is the playground park's two-level
+  flight, walked up and back down.
 - `"<Godot console exe>" --headless --path godot -s res://tools/bake_elevation.gd [-- --world=<id>,...]` —
   bakes each world's elevation (drawing, depth map, collision) into
-  `godot/game/scenes/worlds/elevation_cache/`, so worlds load without building it; run (and commit)
+  `godot/game/scenes/worlds/elevation_cache/`, so worlds load without building it (a save the open
+  editor holds for a moment is tried again); run (and commit)
   after changing elevation art or before exporting ([godot/ELEVATION.md](godot/ELEVATION.md#baked-cache)).
 - `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
   cliffs' sides look ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip

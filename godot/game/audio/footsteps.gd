@@ -91,7 +91,9 @@ func _process(_delta: float) -> void:
 		_cross_waterline(swim_surface if swimming else (surface if surface == shallow_surface else &""))
 	var clip := String(animation.current_animation)
 	var stepping := clip.begins_with(SWIM_CLIP_PREFIX) if swimming else clip.begins_with(WALK_CLIP_PREFIX)
-	if not stepping or airborne:
+	# The stairs walk plays its own StairsStep per step (stairs_sequence.gd).
+	var on_stairs := player.has_method(&"is_on_stairs") and bool(player.call(&"is_on_stairs"))
+	if not stepping or airborne or on_stairs:
 		_clip = ""
 		return
 	var position := animation.current_animation_position

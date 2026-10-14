@@ -10,6 +10,10 @@ extends SceneTree
 const Services := preload("res://game/shared/services.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const SCENE_INDEX := "res://game/scenes/scene_index.json"
+## A save the file refuses (another program holds it: an open editor reading back the caches it saw
+## change) is tried again, SAVE_RETRY_MS apart, up to SAVE_TRIES times in all.
+const SAVE_TRIES := 8
+const SAVE_RETRY_MS := 250
 
 
 func _initialize() -> void:
@@ -42,6 +46,11 @@ func _initialize() -> void:
 		Services.world().register_world(world)
 		var elevation: Elevation = Services.world().elevation
 		var err := elevation.save_cache() if elevation != null else ERR_UNAVAILABLE
+		var tries := 1
+		while err == ERR_FILE_CANT_OPEN and tries < SAVE_TRIES:
+			OS.delay_msec(SAVE_RETRY_MS)
+			err = elevation.save_cache()
+			tries += 1
 		if err == OK:
 			baked += 1
 			print("%s: baked in %d ms -> %s" % [world_id, Time.get_ticks_msec() - started, elevation.cache_path()])
