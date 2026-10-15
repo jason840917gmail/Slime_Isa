@@ -7,6 +7,7 @@ extends RefCounted
 ## tufts, soil and roots hanging over the wall, swept straight down (also on diagonal faces). Along
 ## every other edge (north, east, west, the back diagonals, a hole's near rim) it is the rim: the
 ## same tufts swept perpendicular to the edge, the soil and roots cut away (vertex colour b = 1).
+## (Elevation leaves a one-row open cliff's back rims out, `_is_back_rim`.)
 ## The art's u runs along the chain without restarting, convex corners turn in a round fan and
 ## concave ones meet in a mitre, so lip and rim flow into each other around every corner.
 ##
@@ -45,16 +46,20 @@ var cell := 64.0
 ## Builds the strips of every top whose ground `has_lip` (Callable(ground) -> bool) into
 ## `lips[<ground> + key_suffix]`, the glow into `glow` and the depth cores into `depth` (vertex
 ## colours as elevation_occlusion.gd encodes them). `lip_shadow`: the shadow a lip casts on its
-## wall. Returns the boundary edges of tops without lip art ({from, to, mode, level, ground, x} in
-## cells) for the caller's fallback strips.
+## wall. `left_out` (Callable(edge) -> bool, optional) drops boundary edges from every strip: where
+## the cliff opens at a ramp's top end the rim does not turn around it (elevation_ramp.gd `closes`),
+## so the strip ends there. Returns the boundary edges of tops without lip art ({from, to, mode,
+## level, ground, x} in cells) for the caller's fallback strips.
 func build(the_grid: ElevationGrid, cell_size: float, has_lip: Callable, lips: Dictionary, key_suffix: String,
-		glow: MeshData, depth: MeshData, lip_shadow: float, encode_depth: Callable) -> Array[Dictionary]:
+		glow: MeshData, depth: MeshData, lip_shadow: float, encode_depth: Callable, left_out: Callable = Callable()) -> Array[Dictionary]:
 	grid = the_grid
 	cell = cell_size
 	var edges := boundary_edges()
 	var leftover: Array[Dictionary] = []
 	var with_art: Array[Dictionary] = []
 	for edge in edges:
+		if left_out.is_valid() and bool(left_out.call(edge)):
+			continue
 		if has_lip.call(str(edge["ground"])):
 			with_art.append(edge)
 		else:

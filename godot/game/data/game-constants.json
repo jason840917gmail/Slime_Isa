@@ -31,6 +31,8 @@
   },
   "worldNavigation": {
   "edgeTransitionGraceMs": 650,
+  "edgeArrivalInset": 64,
+  "edgeScrollMs": 650,
     "irisCloseMs": 450,
     "irisHoldMs": 150,
     "irisOpenMs": 450,
@@ -54,7 +56,13 @@
     "dropOutward": 22,
     "dropBaseMs": 260,
     "dropMsPerLevel": 90,
-    "hopArcHeight": 36
+    "hopArcHeight": 36,
+    "stairsFootstepMs": 400,
+    "stairsPerFootstep": 2,
+    "stairsStepBob": 3,
+    "stairsExit": 22,
+    "stairsExitMs": 160,
+    "stairsAlong": 0.35
   },
   "fences": {
     "clearance": 8

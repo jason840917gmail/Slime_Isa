@@ -5,17 +5,18 @@ extends RefCounted
 ## - A body in the air (the jump) shows nothing until it lands in the water again.
 ## - Enemies splash too.
 ##
-## level-1's lake, row 49: land at x = 1..6, shallow water at x = 7..11.
+## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
+## docs/godot/WORLD_ATLAS.md), chunk row 4: shallow water at x = 6..12, land at x = 13..17.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
 
-const MAP_ID := "level-1"
+const MAP_ID := "level-1-c5"
 const CELL := 64.0
-const ROW := 49
-const SHALLOW := Vector2i(8, ROW)
-const LAND := Vector2i(4, ROW)
+const ROW := 4
+const SHALLOW := Vector2i(9, ROW)
+const LAND := Vector2i(15, ROW)
 
 
 func test_the_player_splashes_in_shallow_water_only(t: TestContext) -> void:

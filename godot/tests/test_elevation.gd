@@ -1,30 +1,32 @@
 extends RefCounted
 ## Cliffs, holes and ground levels (docs/godot/ELEVATION.md): the model's shapes (square corners,
 ## 45° edges from single-cell steps, walls one cell per level, holes whose near rim hides the
-## wall), flights of stairs (a landing, steps, railings; levels and depth along them), the 3D
-## ground (a capped strip behind a hill and under a hole's near rim) and, in the playground's
-## Elevation Park, wall styles by paint and by ground, walls that block, stairs on every side that change the player's level between
-## their railings, rims that hold the player until it insists and then drop it where the picture
-## says it falls, a jump that never climbs, walking behind a hill and the player ghosted there.
+## wall), flights of stairs (set into a face or running out from a side; levels and depth along
+## them), the 3D ground (a capped strip behind a hill and under a hole's near rim) and, in the
+## playground's Elevation Park, wall styles by paint and by ground, stairs coloured by their ground,
+## walls that block, stairs on every side that change the player's level between their posts or
+## side walls, rims that hold the player until it insists and then drop it where the picture says
+## it falls, a jump that never climbs, walking behind a hill and the player ghosted there.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const ElevationStairs := preload("res://game/world/elevation/elevation_stairs.gd")
+const ElevationRamp := preload("res://game/world/elevation/elevation_ramp.gd")
 
 const MAP_ID := "playground"
 ## The park's level-2 square hill (cells 14..22 x 31..35), its wall rows 36-37 and its flight of
-## stairs at column 18, down 2 cells of wall and 2 of run (scripts/maps/build-elevation-park.py).
+## stairs at column 18, set into the wall from its rim to its foot (scripts/maps/build-elevation-park.py).
 ## The stairs showcase: a level-2 octagon (cells 4..14 x 131..139) with a flight on every side.
 const HILL_TOP := 31 * 64.0
 const HILL_RIM := 36 * 64.0
 const HILL_FOOT := 38 * 64.0
 const HILL_EAST := 23 * 64.0
 const STAIRS_X := 18.5 * 64.0
-const FLIGHT_END := 36 * 64.0 + 4 * 64.0 + 11.0
+const FLIGHT_END := HILL_FOOT
 const SHOWCASE := Rect2(0.0, 125 * 64.0, 17 * 64.0, 20 * 64.0)
-## The level-1 octagon beside it: flights two cells wide and open landings.
+## The level-1 octagon beside it: flights two cells wide.
 const SHOWCASE_WIDE := Rect2(18 * 64.0, 125 * 64.0, 20 * 64.0, 20 * 64.0)
 const WEST_X := 15.5 * 64.0
 const BELOW_WALL := Vector2(WEST_X, 39.5 * 64.0)
@@ -89,25 +91,25 @@ func test_hole_wall_is_hidden_by_its_near_rim(t: TestContext) -> void:
 
 
 func test_a_flight_joins_two_levels(t: TestContext) -> void:
-	# A front flight two levels down from a rim drawn at (100, 200): the landing above the rim, the
-	# steps two units down on screen per unit along it (a cell of wall and one of run per level),
-	# the last step 11 deeper; railings beside the steps.
-	var flight := ElevationStairs.create("s", Vector2(100.0, 200.0), 2, 0, 1, false)
-	t.near(flight.end, 128.0 + 11.0, 0.01, "length along the flight")
-	t.near(flight.s_at(Vector2(100.0, 300.0)), 50.0, 0.5, "s of a point on the steps")
-	t.check(flight.walks(Vector2(100.0, 190.0)) and flight.walks(Vector2(100.0, 300.0)) and flight.walks(Vector2(100.0, 450.0)), "landing or steps not walkable")
-	t.check(not flight.walks(Vector2(140.0, 300.0)) and flight.occupies(Vector2(140.0, 300.0)), "the railing is not solid")
-	t.equal([flight.level_at(Vector2(100.0, 190.0), -9), flight.level_at(Vector2(100.0, 225.0), -9), flight.level_at(Vector2(100.0, 300.0), -9), flight.level_at(Vector2(100.0, 450.0), -9)],
-			[2, 2, 1, 0], "levels along the flight (landing, top, middle, foot)")
-	t.check(flight.walks_level(Vector2(100.0, 190.0), 2) and not flight.walks_level(Vector2(100.0, 190.0), 0), "the landing belongs to the top level only")
+	# A front flight two levels down from a rim drawn at (100, 200): set into the face, from the rim
+	# to the wall's foot 128 below and no further, its posts beside the steps.
+	var flight := ElevationStairs.create("s", Vector2(100.0, 200.0), 2, 0, 1)
+	t.check(flight.in_face and is_zero_approx(flight.end), "a front flight runs out from the face")
+	t.check(flight.walks(Vector2(100.0, 205.0)) and flight.walks(Vector2(100.0, 300.0)) and flight.walks(Vector2(100.0, 325.0)), "steps not walkable")
+	t.check(not flight.walks(Vector2(100.0, 190.0)) and not flight.walks(Vector2(100.0, 340.0)), "the steps pass the rim or the foot")
+	t.check(not flight.walks(Vector2(140.0, 300.0)) and flight.occupies(Vector2(140.0, 300.0)), "the post is not solid")
+	t.equal([flight.level_at(Vector2(100.0, 210.0), -9), flight.level_at(Vector2(100.0, 260.0), -9), flight.level_at(Vector2(100.0, 320.0), -9), flight.level_at(Vector2(100.0, 190.0), -9)],
+			[2, 1, 0, -9], "levels up the face (top, middle, foot, off it)")
 	t.check(flight.walks_level(Vector2(100.0, 300.0), 0) and flight.walks_level(Vector2(100.0, 300.0), 2), "the steps take every level they join")
-	t.near(flight.depth_at(Vector2(100.0, 300.0)), 300.0 + flight.nosing(50.0), 0.5, "depth of a body on the steps (its ground position)")
+	t.near(flight.depth_at(Vector2(100.0, 300.0)), 328.0, 0.5, "depth of a body on the steps (the face's ground position)")
+	t.equal([flight.overhang(Vector2(100.0, 190.0)), flight.overhang(Vector2(100.0, 340.0))], [1, 0], "the way past its ends (into the top; none past a front flight's foot)")
 	# A back flight is foreshortened: a level runs 1.5 cells and shows a third of it on screen.
-	var north := ElevationStairs.create("n", Vector2(100.0, 200.0), 1, 0, 1, false)
+	var north := ElevationStairs.create("n", Vector2(100.0, 200.0), 1, 0, 1)
 	t.near(north.s_at(Vector2(100.0, 180.0)), 60.0, 0.5, "s on a north flight")
 	t.equal([north.level_at(Vector2(100.0, 195.0), -9), north.level_at(Vector2(100.0, 170.0), -9)], [1, 0], "levels on a north flight")
+	t.equal(north.overhang(Vector2(100.0, 160.0)), 2, "the way past a back flight's bottom end")
 	# A side flight runs down at 45° on screen, its walkable width across it in y.
-	var east := ElevationStairs.create("e", Vector2(100.0, 200.0), 1, 0, 2, true)
+	var east := ElevationStairs.create("e", Vector2(100.0, 200.0), 1, 0, 2)
 	t.near(east.s_at(Vector2(132.0, 232.0)), 32.0, 0.5, "s on an east flight")
 	t.check(east.walks(Vector2(132.0, 232.0 + 60.0)) and not east.walks(Vector2(132.0, 232.0 + 70.0)), "a two-cell east flight's width")
 
@@ -211,8 +213,8 @@ func test_park_mounts_cliffs_and_collision(t: TestContext) -> void:
 	t.check(t.player_body().collision_mask & Elevation.level_bit(0) != 0, "player does not collide with level 0")
 
 
-## A wall takes the style painted on the `cliffs` layer over its top, else its ground's; a flight's
-## railings take the style of the top it leaves (scripts/maps/build-elevation-park.py `cliffs`).
+## A wall takes the style painted on the `cliffs` layer over its top, else its ground's
+## (scripts/maps/build-elevation-park.py `cliffs`).
 func test_wall_styles_follow_paint_and_ground(t: TestContext) -> void:
 	var elevation := t.world().elevation
 	if not t.check(elevation != null, "no elevation in the playground"):
@@ -234,11 +236,42 @@ func test_wall_styles_follow_paint_and_ground(t: TestContext) -> void:
 		var band := elevation.grid.tri_band[tri]
 		if t.check(band >= 0, "no wall at cell (%d, %d)" % [probe[0], probe[1]]):
 			t.equal(elevation.band_styles[band], str(probe[2]), "wall style at cell (%d, %d)" % [probe[0], probe[1]])
-	var showcase_styles := {}
+
+
+## Every flight takes its colour from the road or ground at its ends (a road first, else the top's):
+## the showcase's from the grass, the plateaus' from their own ground.
+func test_stairs_take_the_colour_of_their_ground(t: TestContext) -> void:
+	var elevation := t.world().elevation
+	if not t.check(elevation != null, "no elevation in the playground"):
+		return
+	var showcase := {}
 	for flight: ElevationStairs in elevation.stairs:
 		if SHOWCASE.has_point(flight.rim + elevation.global_position):
-			showcase_styles[elevation.stairs_styles[flight]] = true
-	t.equal(showcase_styles.keys(), ["red-rock"], "railings of the showcase's level-2 octagon")
+			showcase[flight.ground_name] = true
+	t.equal(showcase.keys(), ["highland"], "grounds of the showcase's flights")
+	# [rim (cells), ground]: the sand and snow plateaus, the ground row's plateaus.
+	for probe: Array in [
+		[Vector2(19.5, 84.0), "sanddessert"], [Vector2(27.0, 81.5), "frozen"],
+		[Vector2(4.5, 120.0), "forest-floor"], [Vector2(10.5, 120.0), "forest-moss"], [Vector2(16.5, 120.0), "amberleaf"],
+		[Vector2(23.5, 120.0), "cavern-floor"], [Vector2(29.5, 120.0), "crystal-floor"], [Vector2(35.5, 120.0), "town-cobble"],
+	]:
+		var found: ElevationStairs = null
+		for flight: ElevationStairs in elevation.stairs:
+			if (flight.rim + elevation.global_position).distance_to(probe[0] * 64.0) < 8.0:
+				found = flight
+		if t.check(found != null, "no flight at %s" % probe[0]):
+			t.equal(found.ground_name, str(probe[1]), "ground of the flight at %s" % probe[0])
+	t.check(_has_mesh_prefix(elevation, "Stairs", "sanddessert-"), "no stairs mesh in the sand's colour")
+
+
+static func _has_mesh_prefix(elevation: Node, group: String, prefix: String) -> bool:
+	var holder := elevation.get_node_or_null(group)
+	if holder == null:
+		return false
+	for child: Node in holder.get_children():
+		if str(child.name).begins_with(prefix):
+			return true
+	return false
 
 
 func test_wall_blocks_the_lower_ground(t: TestContext) -> void:
@@ -254,25 +287,44 @@ func test_wall_blocks_the_lower_ground(t: TestContext) -> void:
 
 
 func test_stairs_climb_and_descend(t: TestContext) -> void:
+	# The stairs walk (docs/godot/ELEVATION.md "Stairs walk"): stepping onto a flight carries the
+	# slime to its other end a step at a time, even with the key let go, and its level changes as it
+	# steps off.
 	var body := t.player_body()
+	var player := t.player()
 	var elevation := t.world().elevation
 	_place_feet(t, Vector2(STAIRS_X, FLIGHT_END + 60.0))
 	await t.steps(2)
 	t.press(&"move_up")
-	var climbed := await t.until(func() -> bool: return elevation.level_of(body) == 2 and body.global_position.y < HILL_RIM - 40.0, 4000.0)
+	var stepped_on := await t.until(func() -> bool: return player.is_on_stairs(), 2000.0)
 	t.release_all()
-	t.check(climbed, "did not climb to level 2 (level %d, feet y %.1f)" % [elevation.level_of(body), body.global_position.y])
+	if not t.check(stepped_on, "the stairs walk did not start (feet y %.1f)" % body.global_position.y):
+		return
+	var started := t.now()
+	var stepped_off := await t.until(func() -> bool: return not player.is_on_stairs(), 4000.0)
+	var took := t.now() - started
+	t.check(stepped_off, "the stairs walk did not end (feet y %.1f)" % body.global_position.y)
+	# Two levels are 8 stairs, crossed in footsteps of stairsPerFootstep stairs, stairsFootstepMs each.
+	var footsteps := ceili(8.0 / maxf(Elevation.setting("stairsPerFootstep"), 1.0))
+	t.check(took >= (footsteps - 1) * Elevation.setting("stairsFootstepMs"), "crossed two levels in %.0f ms" % took)
+	t.equal(elevation.level_of(body), 2, "level after the stairs walk up")
+	t.check(body.global_position.y < HILL_RIM, "did not step off onto the hill (feet y %.1f)" % body.global_position.y)
 	t.check(body.collision_mask & Elevation.level_bit(2) != 0 and body.collision_mask & Elevation.level_bit(0) == 0, "collision mask on the hill")
-	# Halfway down, the railings hold the slime between them.
-	_place_feet(t, Vector2(STAIRS_X, HILL_RIM + 128.0))
-	elevation.track(body, 1)
-	await t.steps(2)
-	t.equal(elevation.level_of(body), 1, "level halfway down a two-level flight")
+	# Halfway (knocked there), a step sideways carries the slime on to the nearer end (the foot)
+	# between the posts: nothing stands on the stairs.
 	for action: StringName in [&"move_right", &"move_left"]:
+		_place_feet(t, Vector2(STAIRS_X, HILL_RIM + 70.0))
+		elevation.track(body, 1)
+		await t.steps(2)
+		t.equal(elevation.level_of(body), 1, "level halfway down a two-level flight")
 		t.press(action)
-		await t.sim_wait(600.0)
+		var carried := await t.until(func() -> bool: return player.is_on_stairs(), 1000.0)
 		t.release_all()
-		t.check(absf(body.global_position.x - STAIRS_X) <= 18.0, "walked through a railing (feet x %.1f)" % body.global_position.x)
+		t.check(carried, "a step sideways (%s) halfway did not start the stairs walk" % action)
+		await t.until(func() -> bool: return not player.is_on_stairs(), 4000.0)
+		t.equal(elevation.level_of(body), 0, "level after a step sideways (%s) halfway" % action)
+		t.check(absf(body.global_position.x - STAIRS_X) <= 18.0, "walked through a post (feet x %.1f)" % body.global_position.x)
+		t.check(body.global_position.y > FLIGHT_END, "did not step off at the foot (feet y %.1f)" % body.global_position.y)
 	# Back down the stairs.
 	_place_feet(t, Vector2(STAIRS_X, HILL_RIM - 60.0))
 	elevation.track(body, 2)
@@ -281,6 +333,39 @@ func test_stairs_climb_and_descend(t: TestContext) -> void:
 	var descended := await t.until(func() -> bool: return elevation.level_of(body) == 0 and body.global_position.y > FLIGHT_END + 10.0, 4000.0)
 	t.release_all()
 	t.check(descended, "did not walk down to level 0 (level %d, feet y %.1f)" % [elevation.level_of(body), body.global_position.y])
+
+
+func test_enemies_stay_off_the_stairs(t: TestContext) -> void:
+	# Owner, 2026-10-14: "enemies or NPCs don't walk stairs, they stay in their levels; they do walk
+	# ramps". Every flight's steps stand on Elevation.STAIRS_LAYER, in the mask of every tracked body
+	# but the player's: a worm walking onto any flight from its foot stops there.
+	var elevation := t.world().elevation
+	t.check(t.player_body().collision_mask & Elevation.STAIRS_LAYER == 0, "the player collides with the stairs")
+	var worm := t.spawn_worm(Vector2(0.0, 300.0), true)
+	if worm == null:
+		return
+	await t.steps(3)
+	var body := worm.body
+	t.check(body.collision_mask & Elevation.STAIRS_LAYER != 0, "a worm does not collide with the stairs")
+	var stopped := 0
+	for flight: ElevationStairs in elevation.stairs:
+		if flight is ElevationRamp:
+			continue
+		var height := ElevationStairs.LEVEL * (flight.top - flight.bottom)
+		var foot_s := 0.0 if flight.in_face else flight.end
+		var start := flight.screen_of(Vector3(foot_s + 40.0, 0.0, 0.0)) + elevation.global_position
+		var top_end := flight.screen_of(Vector3(0.0, 0.0, height)) + elevation.global_position
+		var motion := top_end - start if flight.in_face else -flight.dir * 80.0
+		body.global_position = start
+		elevation.track(body, flight.bottom)
+		var hit := KinematicCollision2D.new()
+		var blocked := body.test_move(body.global_transform, motion, hit)
+		var by: CollisionObject2D = hit.get_collider() as CollisionObject2D if blocked else null
+		if by != null and by.collision_layer & Elevation.STAIRS_LAYER != 0:
+			stopped += 1
+		else:
+			t.fail("a worm walks onto the %s flight at %s (%s)" % [flight.direction_name, start, by.name if by != null else "nothing in the way"])
+	t.check(stopped > 30, "flights that stop a worm: %d" % stopped)
 
 
 func test_stairs_on_every_side(t: TestContext) -> void:
@@ -295,32 +380,42 @@ func test_stairs_on_every_side(t: TestContext) -> void:
 		found[flight.direction_name] = true
 		t.equal([flight.top, flight.bottom], [2, 0], "%s flight's levels" % flight.direction_name)
 		var at := func(s: float, t_across: float, h: float) -> Vector2: return flight.screen_of(Vector3(s, t_across, h)) + elevation.global_position
-		var middle: Vector2 = at.call(flight.ramp * 0.5, 0.0, flight.nosing(flight.ramp * 0.5))
+		# Halfway: down the face of a front flight, along the nosing line of the others.
+		var halfway := func(t_across: float) -> Vector2:
+			if flight.in_face:
+				return flight.rim + flight.across * t_across + Vector2(0.0, 64.0) + elevation.global_position
+			return at.call(flight.ramp * 0.5, t_across, flight.nosing(flight.ramp * 0.5))
+		var middle: Vector2 = halfway.call(0.0)
 		t.check(elevation.is_walkable(middle, 0) and elevation.is_walkable(middle, 1) and elevation.is_walkable(middle, 2), "%s flight's steps not walkable at every level" % flight.direction_name)
-		# The railings block where they stand: beside the steps at their height (for every level the
-		# flight joins), at their foot for the lower ground's.
+		# The posts and side walls block where they stand: beside the steps (for every level the
+		# flight joins), a side wall at its foot for the lower ground's.
 		for side: float in [-1.0, 1.0]:
-			var beside: Vector2 = at.call(flight.ramp * 0.5, side * (flight.half + 9.0), flight.nosing(flight.ramp * 0.5))
+			var beside: Vector2 = halfway.call(side * (flight.half + 9.0))
 			t.check(not elevation.is_walkable(beside, 0) and not elevation.is_walkable(beside, 1) and not elevation.is_walkable(beside, 2),
-					"%s flight's railing (%+d) lets a body off the steps" % [flight.direction_name, side])
-			# (The far railing's foot is drawn behind the steps: there a body stands on the steps.)
+					"%s flight's side (%+d) lets a body off the steps" % [flight.direction_name, side])
+			if flight.in_face:
+				t.check(elevation.drop_target(middle + flight.across * side * (flight.half - 16.0), 1, flight.across * side).is_empty(),
+						"%s flight drops a body off its side (%+d)" % [flight.direction_name, side])
+				continue
+			# (The far side wall's foot is drawn behind the steps: there a body stands on the steps.)
 			var foot: Vector2 = at.call(flight.ramp * 0.5, side * (flight.half + 9.0), 0.0)
 			if not flight.walks(foot - elevation.global_position):
-				t.check(not elevation.is_walkable(foot, 0), "%s flight's railing (%+d) has no foot on the lower ground" % [flight.direction_name, side])
-		var landing: Vector2 = at.call(-16.0, 0.0, flight.nosing(-16.0))
-		t.check(elevation.is_walkable(landing, 2) and not elevation.is_walkable(landing, 0), "%s flight's landing is not the top's alone" % flight.direction_name)
+				t.check(not elevation.is_walkable(foot, 0), "%s flight's side wall (%+d) has no foot on the lower ground" % [flight.direction_name, side])
+		# No landing: just behind the rim is the top's ground (a body on the steps may reach over it).
+		var behind: Vector2 = at.call(-16.0, 0.0, 128.0)
+		t.check(elevation.is_walkable(behind, 2) and elevation.level_at(behind) == 2, "%s flight: no top behind its rim" % flight.direction_name)
 		t.equal(elevation.level_at(middle), 1, "%s flight's level halfway" % flight.direction_name)
 		# What of a back flight hides behind the hill's top neither shows nor blocks the top.
 		var hidden: Vector2 = at.call(4.0, -(flight.half + 9.0), 30.0)
-		if elevation.grid.level_at((hidden - elevation.global_position) / 64.0, -9) == 2:
-			t.check(elevation.is_walkable(hidden, 2), "%s flight's hidden railing blocks the hill's top" % flight.direction_name)
+		if not flight.in_face and elevation.grid.level_at((hidden - elevation.global_position) / 64.0, -9) == 2:
+			t.check(elevation.is_walkable(hidden, 2), "%s flight's hidden side wall blocks the hill's top" % flight.direction_name)
 	t.equal(found.size(), 8, "directions of the showcase's flights %s" % [found.keys()])
 
 
 func test_every_flight_walks_through_both_ends(t: TestContext) -> void:
 	# A body walks down every showcase flight from the hilltop and back up from the lower ground:
-	# 8 directions, one and two cells wide, railed and open landings (nothing at either end, posts
-	# included, narrows the way in).
+	# 8 directions, one and two cells wide (nothing at either end, posts included, narrows the way
+	# in; the stairs walk carries it from end to end and it takes the next level as it steps off).
 	var body := t.player_body()
 	var elevation := t.world().elevation
 	var flights: Array = []
@@ -330,14 +425,20 @@ func test_every_flight_walks_through_both_ends(t: TestContext) -> void:
 			flights.append(flight)
 	t.equal(flights.size(), 16, "showcase flights")
 	for flight: ElevationStairs in flights:
-		var label := "%s%s%s" % [flight.direction_name, " wide" if flight.half > 40.0 else "", " open" if flight.open_landing else ""]
-		var top_end := flight.screen_of(Vector3(-ElevationStairs.LANDING, 0.0, flight.nosing(-1.0))) + elevation.global_position
+		var label := "%s%s" % [flight.direction_name, " wide" if flight.half > 40.0 else ""]
+		var height := ElevationStairs.LEVEL * (flight.top - flight.bottom)
+		# A front flight runs down its face, the others along the nosing line.
+		var top_end := flight.screen_of(Vector3(0.0, 0.0, height)) + elevation.global_position
 		var bottom_end := flight.screen_of(Vector3(flight.end, 0.0, 0.0)) + elevation.global_position
+		var out := flight.dir * 40.0
+		if flight.in_face:
+			bottom_end = top_end + Vector2(0.0, height)
+			out = Vector2(0.0, 40.0)
 		var along := bottom_end - top_end
 		var progress := func() -> float: return (body.global_position - top_end).dot(along) / along.length_squared()
 		var margin := 20.0 / along.length()
 		for down: bool in [true, false]:
-			var start := flight.screen_of(Vector3(-ElevationStairs.LANDING - 40.0, 0.0, flight.nosing(-1.0)) if down else Vector3(flight.end + 40.0, 0.0, 0.0)) + elevation.global_position
+			var start := top_end - out if down else bottom_end + out
 			var start_level := flight.top if down else flight.bottom
 			if not t.check(elevation.is_walkable(start, start_level), "%s: the start %s is not walkable" % [label, start]):
 				continue

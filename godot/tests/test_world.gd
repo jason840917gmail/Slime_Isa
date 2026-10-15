@@ -1,7 +1,9 @@
 extends RefCounted
 ## level-1 world, camera and a long smoke run (docs/godot/specs/world.md sections 1-4,
 ## runtime.md 6.9).
-## - level-1 is 64 x 64 tiles of 64 px (4096 px square) and its ground layer is full: 4096 cells.
+## - level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md); the tests start in its chunk C4
+##   (`level-1-c4`, the village), 32 x 32 tiles of 64 px (2048 px square) whose ground layer is
+##   full: 1024 cells.
 ## - The player spawns with its centre on the `player-spawn` marker (640, 704), feet at +27.56.
 ## - The camera centres on the player at start and then follows it, keeping it inside the
 ##   deadzone (clamp(vp.x * 0.18, 128, 224) x clamp(vp.y * 0.14, 96, 160) screen px).
@@ -12,15 +14,16 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
 const TILE_SIZE := 64
-const COLUMNS := 64
-const ROWS := 64
+const COLUMNS := 32
+const ROWS := 32
 const SPAWN_CENTRE := Vector2(640.0, 704.0)
 const PLAYER_DEPTH_ANCHOR := Vector2(0.0, 27.56)
 
 
 func test_level1_dimensions_tiles_and_spawn(t: TestContext) -> void:
 	var world := t.world()
-	t.equal(world.map_id(), "level-1", "map id")
+	t.equal(world.map_id(), "level-1-c4", "map id")
+	t.check(t.in_world("level-1"), "level-1-c4 is not a chunk of level-1")
 	var dims := world.dimensions()
 	t.equal(int(dims.get("tile_size", 0)), TILE_SIZE, "tile size")
 	t.equal(int(dims.get("columns", 0)), COLUMNS, "columns")

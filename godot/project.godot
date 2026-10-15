@@ -39,7 +39,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/strike_preview/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/scenery_dock/plugin.cfg", "res://addons/strike_preview/plugin.cfg")
 
 [gui]
 
@@ -200,6 +200,7 @@ control_scheme_next={
 2d_physics/layer_16="level 1"
 2d_physics/layer_17="level 2"
 2d_physics/layer_18="level 3"
+2d_physics/layer_19="stairs"
 
 [physics]
 

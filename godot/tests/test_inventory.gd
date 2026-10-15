@@ -18,6 +18,9 @@ const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const DIMS := {"tile_size": 64, "columns": 56, "rows": 56}
 ## Player pickup rect centre = old Phaser centre + (0, 14.56) (player_slime.tscn PickupShape).
 const PICKUP_OFFSET := Vector2(0.0, 14.56)
+## The village chunk the tests start in (level-1 is cut into chunk worlds, docs/godot/WORLD_ATLAS.md);
+## drop records are kept per chunk world.
+const VILLAGE_MAP := "level-1-c4"
 
 
 # --- the menu key ----------------------------------------------------------------------------------
@@ -289,7 +292,7 @@ func test_drop_from_bag(t: TestContext) -> void:
 	var player := t.player()
 	player.face(Vector2.DOWN)
 	var expected: Variant = InventoryDrops.find_destination(player.get_centre(), Vector2.DOWN, t.world().dimensions(),
-		InventoryDrops.world_inspector("level-1", "wood"))
+		InventoryDrops.world_inspector(VILLAGE_MAP, "wood"))
 	if not t.check(expected is Vector2, "no drop destination at the spawn"):
 		return
 	var bag := _open_bag(t)
@@ -298,7 +301,7 @@ func test_drop_from_bag(t: TestContext) -> void:
 	bag.drop_button.pressed.emit()
 	t.equal(run.item_count("wood"), 20, "wood after dropping 5")
 	t.check(not bag.is_open(), "the bag stayed open after the drop")
-	var records := run.inventory_drops("level-1")
+	var records := run.inventory_drops(VILLAGE_MAP)
 	if not t.check(records.size() == 1, "drop records %s" % [records]):
 		return
 	var record: Dictionary = records[0]
@@ -314,7 +317,7 @@ func test_drop_from_bag(t: TestContext) -> void:
 	t.teleport_player((pile.get_parent() as Node2D).global_position - PICKUP_OFFSET)
 	await t.until(func() -> bool: return run.item_count("wood") == 25, 300.0)
 	t.equal(run.item_count("wood"), 25, "wood after picking the pile up")
-	t.check(run.inventory_drops("level-1").is_empty(), "the drop record survived the pickup")
+	t.check(run.inventory_drops(VILLAGE_MAP).is_empty(), "the drop record survived the pickup")
 	t.equal(run.coins(), 50, "coins after picking up a bag drop")
 
 
@@ -411,10 +414,11 @@ func test_playground_has_every_weapon(t: TestContext) -> void:
 	t.equal(run.equipped_weapon_id(), "basic-sword", "hand in the playground")
 
 
-## Rebuilds the world as `map_id` through a travel and waits for the arrival.
+## Rebuilds the world as `map_id` through a travel and waits for the arrival (in `map_id` or, for a
+## world cut into chunk worlds, the chunk the travel lands in).
 func _rebuild(t: TestContext, map_id: String) -> void:
 	t.main.travel_to(map_id, "south")
 	await t.until(func() -> bool: return t.main.is_transitioning(), 100.0)
 	await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.world().map_id() == map_id and t.player() != null, 3000.0, 6000.0)
+		return not t.main.is_transitioning() and t.in_world(map_id) and t.player() != null, 3000.0, 6000.0)
 	await t.steps(2)

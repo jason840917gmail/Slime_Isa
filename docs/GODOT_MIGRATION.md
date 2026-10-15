@@ -35,7 +35,7 @@ owner on 2026-10-04.
 | UI scenes (HTML/CSS today) | Structure converted to Control nodes; styling redone as a Godot Theme |
 | Scene Studio, the TS scene runtime (`runtime/scene`, `infrastructure/phaser-nodes`), Phaser plumbing | Dropped: Godot provides them |
 | Occlusion silhouettes (`features/occlusion`) | Dropped (owner, 2026-10-04); Godot's Y-sort keeps draw order |
-| Ground levels (elevation) | Not ported: the `feat/elevation-levels` experiment was rejected; only its art was kept. Elevation is redesigned the Godot way after the port |
+| Ground levels (elevation) | Not ported: the `feat/elevation-levels` experiment was rejected; only its art was kept (the branch was deleted on 2026-10-14; its design doc is in `docs/archive/phaser/ELEVATION_LEVELS.md`). Elevation is redesigned the Godot way after the port |
 | `MobileVersion/` | Removed (2026-10-04); Android becomes an export preset of the new project after Release 1 |
 
 ## Conversion map

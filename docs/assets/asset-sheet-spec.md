@@ -26,7 +26,7 @@ The shared sheet contract. Continue with the focused guide for the asset type:
 | Player slime | `256 x 256`, `8 x 8` | `characters/slime_normalized.webp` |
 | NPC | `229 x 229`, `6 x 5` | `characters/authored/npcs/lili.webp` |
 | Worm / spider enemy | `64 x 64` | `MAPS/enemies/64x64-8x6-worm-archer.webp` |
-| Tree | `128 x 170` | `MAPS/trees/128X170-tiles_8x6.webp` |
+| Tree | packed atlas per region set, 2 px per world unit, a JSON of rectangles and feet | `MAPS/trees/sets/forest.webp` + `trees.json` |
 | Rock / prop | `96`, `128`, or `256` square | `MAPS/rocks/96x96-tile_8x3.webp` |
 | House | `320 x 320` | `MAPS/Houses/320-3x1.webp` |
 | Item icon | `64 x 64`, `5 x 2` | `MAPS/items/gems-5x2.webp` |

@@ -28,6 +28,7 @@ const TeleportSequence := preload("res://game/player/abilities/teleport_sequence
 const LashSequence := preload("res://game/player/abilities/lash_sequence.gd")
 const GooBombSequence := preload("res://game/player/abilities/goo_bomb_sequence.gd")
 const LanternSequence := preload("res://game/player/abilities/lantern_sequence.gd")
+const StairsSequence := preload("res://game/player/abilities/stairs_sequence.gd")
 
 const CUE_DENIED := &"AbilityDenied"
 const TEXT_RISE := 30.0
@@ -72,6 +73,11 @@ func is_invulnerable() -> bool:
 ## player.gd's `apply_knockback` then does nothing.
 func ignores_knockback() -> bool:
 	return _sequence is SlamSequence and (_sequence as SlamSequence).ignores_knockback()
+
+
+## The stairs walk is carrying the slime (stairs_sequence.gd).
+func is_on_stairs() -> bool:
+	return _sequence is StairsSequence and bool(_sequence.call(&"owns_body"))
 
 
 ## `RunState` knows it; the dodge also when player.gd's `dodge_learned` (trial override) is on.
@@ -175,6 +181,21 @@ func begin_drop(position: Vector2, target: Vector2, from_level: int, to_level: i
 	_sequence = JumpSequence.new()
 	_sequence.call(&"begin", _player, {"id": JumpSequence.DROP, "seq": seq, "start": position, "target": target,
 		"level_from": from_level, "level_to": to_level}, Services.now_ms())
+	return true
+
+
+## The stairs walk over `flight` (ElevationStairs, not a ramp), down it or up it, with no cooldown or
+## energy. False while busy or locked.
+func begin_stairs(flight: Object, down: bool) -> bool:
+	if is_busy() or bool(_player.call(&"is_action_locked")):
+		return false
+	var seq := _next_seq
+	_next_seq += 1
+	_active_seq = seq
+	_player.call(&"set_action_locked", true)
+	_sequence = StairsSequence.new()
+	_sequence.call(&"begin", _player, {"id": StairsSequence.ID, "seq": seq, "flight": flight, "down": down},
+			Services.now_ms())
 	return true
 
 

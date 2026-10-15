@@ -37,12 +37,16 @@ its code is in git history.
   (about ten minutes for the full suite).
 - `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd` — loads every
   scene in `godot/game/scenes/scene_index.json` and plays level-1.
+- `"<Godot console exe>" --headless --path godot -s res://tools/bake_elevation.gd` — bakes every
+  world's elevation cache (`game/scenes/worlds/elevation_cache/`, commit it); a game run from the
+  project rebakes a world whose painting changed ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md#baked-cache)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
   `game/dev/world_atlas.tscn` shows every region's world on it in the editor and moves regions;
   `"<Godot console exe>" --headless --path godot -s res://tools/build_region_worlds.gd` rebuilds the
-  placeholder regions ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md)).
+  placeholder regions and `res://tools/split_region_chunks.gd -- --region=<ids>` cuts regions into
+  one scene per chunk, the scenes to edit ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md)).
 - Art tools (`pnpm items:pack`, `grounds:pack`, `props:pack`, `audio:bake` and the Python scripts in
   `scripts/`) turn sources in `asset/Originals/` into runtime sheets in `godot/asset/`:
   [docs/TOOLING.md](docs/TOOLING.md).
@@ -67,6 +71,7 @@ its code is in git history.
   builder);
   `godot/tests/` — the test suite; `godot/addons/godot_ai/` — the editor plugin (MCP bridge);
   `godot/addons/strike_preview/` — the body shapes' strike preview in the Inspector.
+  `godot/addons/scenery_dock/` — the Scenery dock (props by picture, dragged in as nodes).
 - `scripts/` — art and audio tools and the test runner; `tools/` is unrelated to the game build.
 
 ## Architecture Rules
@@ -82,11 +87,15 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   `move_and_slide()`.
 - Gameplay values come from `godot/game/data/game-constants.json` or scene properties, never new
   literals.
-- Worlds are scenes: NPCs, houses, props, walls, gates and interactions are instances in the world
-  scene; the player and enemies are spawned by code.
+- Worlds are scenes: NPCs, gates, interactions and props with logic are instances in the world
+  scene; scenery (rock walls, rocks, houses, nature, water life, interiors) is painted from a
+  palette on the `cell-props` (64-unit cells) and `details` (32) PropLayers, or dragged in as nodes
+  under `Scenery` from the Scenery dock ([docs/godot/PROPS.md](docs/godot/PROPS.md)); the
+  player and enemies are spawned by code.
 - Terrain is ground only; transitions between grounds are hand-made edge tiles
-  ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); walls are placed object instances,
-  except tree walls, painted on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)).
+  ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); built stone walls are painted on a
+  `walls` WallLayer, whose cells join by themselves ([docs/godot/WALLS.md](docs/godot/WALLS.md)),
+  tree walls on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)).
 - Hills, holes and stairs are painted on a world's `elevation` layer; cliffs, their lips and feet
   and each level's collision follow; a wall's rock follows its ground unless a style is painted on
   the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)).

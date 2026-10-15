@@ -26,6 +26,7 @@ const Services := preload("res://game/shared/services.gd")
 const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const QuestObjectives := preload("res://game/quests/quest_objectives.gd")
 const QuestEvents := preload("res://game/quests/quest_events.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const QuestNpcTalk := preload("res://game/quests/quest_npc_talk.gd")
 const QuestNotifications := preload("res://game/quests/quest_notifications.gd")
 const DialogueBox := preload("res://game/ui/screens/dialogue_box.gd")
@@ -159,6 +160,9 @@ func on_world_built(map_id: String) -> void:
 		_launch_option_applied = true
 		_apply_launch_option()
 	handle_event(QuestEvents.AREA_ENTER, {"areaId": map_id})
+	# A chunk world is also its region's world (discover-area objectives name the region's world).
+	if not WorldChunks.world_of(map_id).is_empty():
+		handle_event(QuestEvents.AREA_ENTER, {"areaId": WorldChunks.world_of(map_id)})
 
 
 ## `start()`: the locked records when the run has none, then the prerequisites.

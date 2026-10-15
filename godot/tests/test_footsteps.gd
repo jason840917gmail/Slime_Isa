@@ -6,24 +6,25 @@ extends RefCounted
 ## - The Frog form slipping into deep water plunges, then strokes play with the swim cycle.
 ## - Gulping plays the form's own transform cue; burping plays the burp.
 ##
-## level-1's lake, row 46: land at x = 2, shallow water at x = 3..5, deep water at x = 6..11 (as
-## tests/test_frog_form.gd).
+## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
+## docs/godot/WORLD_ATLAS.md; as tests/test_frog_form.gd): chunk row 4 has shallow water at x = 6..12
+## and land at x = 13..17, the slime walks west into the shallows; (8, 7) is open deep water.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 
-const MAP_ID := "level-1"
+const MAP_ID := "level-1-c5"
 const CELL := 64.0
-const ROW := 46
-const LAND := Vector2i(2, ROW)
-const DEEP := Vector2i(8, ROW)
+const ROW := 4
+const LAND := Vector2i(13, ROW)
+const DEEP := Vector2i(8, 7)
 ## Global players added with rounds 3 and 4 (game/scenes/audio/global.tscn, Effects). A lash miss stays
 ## silent (owner's pick).
 const NEW_CUES: Array[StringName] = [&"GulpTransformHeavy", &"GulpTransformSticky", &"GulpTransformFrog",
 	&"GulpWearOff", &"GulpBurp", &"LashCatch",
 	&"FallDown", &"PlatePress", &"PlateRelease", &"GateOpen", &"GateUnlock", &"GateLocked", &"DoorUse",
 	&"DummyHit", &"GroundCreak", &"TalkBlip", &"DropPop", &"DropLand", &"PotionDrink", &"WebStruggle",
-	&"HitDull", &"HitBlocked", &"Save", &"Toast"]
+	&"HitDull", &"HitBlocked", &"Save", &"Toast", &"StairsStep"]
 
 
 func test_walking_steps_once_per_walk_cycle(t: TestContext) -> void:
@@ -52,7 +53,7 @@ func test_walking_into_the_shallows_splashes_then_wades(t: TestContext) -> void:
 	await t.steps(5)
 	var splash := footsteps.get_node(^"WaterEnter")
 	splash.reset_cue()
-	t.press(&"move_right")
+	t.press(&"move_left")
 	var waded := await t.until(func() -> bool: return footsteps.last_surface == &"Shallow", 1500.0)
 	t.release_all()
 	t.check(waded, "a step in the shallows wades")

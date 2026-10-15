@@ -20,7 +20,7 @@ extends SceneTree
 ## until Phase 1 of the migration made the scenes Godot's (2026-10-05).
 
 const INDEX_PATH := "res://game/scenes/scene_index.json"
-const PLAY_SCENE_ID := "world.level-1"
+const PLAY_SCENE_ID := "world.level-1-c4"
 const PLAY_ACTORS := ["character.player-slime", "character.worm-swordsman", "weapon.basic-sword"]
 const PLAY_FRAMES := 30
 ## Paths whose errors are the scenes' own (not a gameplay script's).

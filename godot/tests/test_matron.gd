@@ -1,17 +1,20 @@
 extends RefCounted
 ## The Orb-Weaver Matron, her gloop-forest nest camp, web patches and web barriers
 ## (docs/godot/specs/matron.md).
-## Camp `gloop-matron-nest` at (3120, 940): activation circle r 460, arena circle r 320, the Matron
+## gloop-forest is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the nest is in
+## chunk F4 (`gloop-forest-f4`, its origin at the forest's (2048, 0)), so the places here are F4's.
+## Camp `gloop-matron-nest` at (1072, 940): activation circle r 460, arena circle r 320, the Matron
 ## spawned at the camp origin (old Phaser position; feet 30 px lower). The Matron: 300 hp, knockback
 ## immune, never staggered; slime-spider AI spitting `spider-web` (18 - 3 = 15, web 900 ms); the
 ## first volley 3500 ms after the spawn (or right after the spit then running): 4 marks (the slime
 ## and three 170 px away, 120 degrees apart), telegraph 900 ms, landing 20 - 3 = 17 on a hurtbox in
 ## a mark, a web patch (r 50) on every mark, rest 1300 ms, next volley 6500 ms after the rest.
-## Every test starts in gloop-forest (MAP_ID); the torn-web test travels into it once more. The
-## Sticky tears need player.gd's Gulp form (silk) and are skipped with a note without it.
+## Every test starts in the nest's chunk (MAP_ID); the torn-web test runs in E4 (the silk nook) and
+## travels into it once more, the spawn-area test in F5. The Sticky tears need player.gd's Gulp form
+## (silk) and are skipped with a note without it.
 
-## run_tests.gd starts every test of this file in gloop-forest.
-const MAP_ID := "gloop-forest"
+## run_tests.gd starts every test of this file in the nest's chunk of gloop-forest.
+const MAP_ID := "gloop-forest-f4"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -26,18 +29,21 @@ const AttackTelegraph := preload("res://game/bosses/attack_telegraph.gd")
 const BossArena := preload("res://game/bosses/boss_arena.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 
-const MAP := "gloop-forest"
+const MAP := "gloop-forest-f4"
+## The chunks with the silk nook's web and with two spawn areas (a Clod Stompers' and an orb weavers').
+const NOOK_MAP := "gloop-forest-e4"
+const AREAS_MAP := "gloop-forest-f5"
 const CAMP_ID := "gloop-matron-nest"
 const BOSS_ID := "orb-weaver-matron"
-const CAMP := Vector2(3120.0, 940.0)
+const CAMP := Vector2(1072.0, 940.0)
 const ACTIVATION_RADIUS := 460.0
 const ARENA_RADIUS := 320.0
 const MATRON_DEPTH_ANCHOR := Vector2(0.0, 30.0)
 const MAX_HP := 300.0
 ## Open ground in the nest clearing, inside the arena, 160 px south of the camp.
-const INSIDE := Vector2(3120.0, 1100.0)
+const INSIDE := Vector2(1072.0, 1100.0)
 ## Open ground outside the arena (r 320) but inside the activation circle (r 460).
-const OUTSIDE_ARENA := Vector2(2740.0, 800.0)
+const OUTSIDE_ARENA := Vector2(692.0, 800.0)
 const VOLLEY_HIT := 17
 const VOLLEY_RADIUS := 56.0
 const VOLLEY_SPREAD := 170.0
@@ -276,8 +282,7 @@ func test_player_death_resets_the_fight(t: TestContext) -> void:
 
 
 func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
-	var camp := await _enter_gloop(t)
-	if camp == null:
+	if not await _travel(t, NOOK_MAP):
 		return
 	var web := _nook_web(t)
 	if not t.check(web != null, "gloop-forest has no nook web"):
@@ -321,11 +326,11 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 	# A torn web stays torn: the story flag set, the world rebuilt, nothing catches.
 	Services.run().set_flag(web.torn_flag())
 	var old_world := t.world().world_root.get_instance_id()
-	if not t.check(t.main.travel_to(MAP, "west"), "travelling to %s again was refused" % MAP):
+	if not t.check(t.main.travel_to(NOOK_MAP, "west"), "travelling to %s again was refused" % NOOK_MAP):
 		return
 	var rebuilt := await t.until(func() -> bool:
 		return t.world().world_root != null and t.world().world_root.get_instance_id() != old_world and t.player() != null, 3000.0, 6000.0)
-	if not t.check(rebuilt, "%s was not rebuilt" % MAP):
+	if not t.check(rebuilt, "%s was not rebuilt" % NOOK_MAP):
 		return
 	await t.steps(2)
 	var again := _nook_web(t)
@@ -379,8 +384,7 @@ func test_web_patch_catches_a_slime_and_tears_quietly_for_the_sticky_one(t: Test
 
 
 func test_gloop_forest_orb_weavers_spawn_from_their_areas(t: TestContext) -> void:
-	var camp := await _enter_gloop(t)
-	if camp == null:
+	if not await _travel(t, AREAS_MAP):
 		return
 	var population := t.main.get("enemy_population") as EnemyPopulation
 	if not t.check(population != null, "main has no enemy_population"):
@@ -388,7 +392,9 @@ func test_gloop_forest_orb_weavers_spawn_from_their_areas(t: TestContext) -> voi
 	population.allowed_types = PackedStringArray()
 	# The Clod Stompers' camps (roadmap 8.12, 2026-10-09) are spawn areas too; they spawn stompers.
 	var areas := t.world().areas("enemy-spawn")
-	t.equal(areas.size(), 5, "gloop-forest enemy-spawn areas")
+	# Chunk F5: gloop-clod-stompers-hollow and gloop-orb-weavers-south (the forest's other three
+	# are in F4 and E5).
+	t.equal(areas.size(), 2, "gloop-forest F5 enemy-spawn areas")
 	for area: Dictionary in areas:
 		var root := population.spawn_one(area)
 		if not t.check(root != null, "'%s' spawned nothing" % area["id"]):
@@ -400,22 +406,29 @@ func test_gloop_forest_orb_weavers_spawn_from_their_areas(t: TestContext) -> voi
 
 # --- helpers ------------------------------------------------------------------------------------
 
-## Travels to gloop-forest (west entry) unless the test already runs there; returns the Matron's
-## camp (null on failure).
+## Travels to the nest's chunk (west entry) unless the test already runs there; returns the
+## Matron's camp (null on failure).
 static func _enter_gloop(t: TestContext) -> BossCampScript:
-	if t.world().map_id() != MAP:
-		if not t.check(t.main.travel_to(MAP, "west"), "travel to %s was refused" % MAP):
-			return null
-		var arrived := await t.until(func() -> bool: return t.world().map_id() == MAP and t.player() != null, 3000.0, 6000.0)
-		if not t.check(arrived, "the player did not reach %s" % MAP):
-			return null
-	await t.steps(2)
+	if not await _travel(t, MAP):
+		return null
 	var camp := _camp(t)
 	t.check(camp != null, "%s has no boss camp '%s'" % [MAP, CAMP_ID])
 	return camp
 
 
-## gloop-forest, the player inside the arena, the Matron spawned: {"camp", "matron"} or {}.
+## Travels to chunk world `map` (west entry) unless the test already runs there. False on failure.
+static func _travel(t: TestContext, map: String) -> bool:
+	if t.world().map_id() != map:
+		if not t.check(t.main.travel_to(map, "west"), "travel to %s was refused" % map):
+			return false
+		var arrived := await t.until(func() -> bool: return t.world().map_id() == map and t.player() != null, 3000.0, 6000.0)
+		if not t.check(arrived, "the player did not reach %s" % map):
+			return false
+	await t.steps(2)
+	return true
+
+
+## The nest's chunk, the player inside the arena, the Matron spawned: {"camp", "matron"} or {}.
 static func _start_fight(t: TestContext) -> Dictionary:
 	var camp := await _enter_gloop(t)
 	if camp == null:

@@ -76,8 +76,11 @@ The console is about 890 × 128 units.
 | Menu buttons | 2 × 2 of 52 | Bag (B), Journal (J), Map (M), Menu (Esc). Kept for now; whether they move or go is not decided | Keys only |
 
 The weapon slot and the abilities sit on one wooden bar whose ends tuck behind
-the orbs; the orb tops rise 20 units above the console strip, as in Diablo. A
-soft shade under the console separates it from the ground.
+the orbs; the orb tops rise 20 units above the console strip, as in Diablo.
+Everything sits on a solid band across the whole width (2026-10-14, replacing
+the soft shade): the bar's own frame, darkened so the bar stands out, its rim
+on the console's top. The map ends at the rim, so nothing past a chunk's south
+edge shows under the console, as in Link's Awakening ([render](hud-band/built.png)).
 
 **Heart pips.** The run starts with none. Each heart quarter found shows on the
 ring as a quarter of a pip (a quarter, then a half, then three quarters); the

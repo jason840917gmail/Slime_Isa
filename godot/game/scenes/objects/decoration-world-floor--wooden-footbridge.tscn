@@ -1,11 +1,14 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://58hrwxrrr0sn"]
 
-[ext_resource type="Texture2D" path="res://asset/MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.webp" id="1"]
+[ext_resource type="Texture2D" uid="uid://dqki6avp4yo5l" path="res://asset/MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.webp" id="1"]
+[ext_resource type="Script" uid="uid://c0dxyajir0usg" path="res://game/world/bridge_deck.gd" id="2"]
 
-[node name="wooden-footbridge" type="Node2D"]
+[node name="wooden-footbridge" type="Node2D" unique_id=1535753306]
 y_sort_enabled = true
+position = Vector2(0, 80)
+script = ExtResource("2")
 
-[node name="Visual" type="Sprite2D" parent="."]
+[node name="Visual" type="Sprite2D" parent="." unique_id=1286144069]
 z_index = -1
 texture = ExtResource("1")
 centered = false

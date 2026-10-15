@@ -889,8 +889,9 @@ func clear_respawn_point() -> void:
 ## Queues the next world for main.gd (RunNavigationStore.writeRunNavigation). `entry_edge` is
 ## "north"|"east"|"south"|"west" or "", `entry_door` a door id in the target world or "",
 ## `entry_marker` the name of a Node2D in the target world or "" (a world exit's `entry_marker`;
-## not in Phaser).
-func request_navigation(kind: String, map_id: String, entry_edge: String = "", entry_door: String = "", respawn_home: bool = false, entry_marker: String = "") -> void:
+## not in Phaser), `entry_along` where along `entry_edge` to arrive or NAN (a world exit's
+## `keep_along`; not in Phaser).
+func request_navigation(kind: String, map_id: String, entry_edge: String = "", entry_door: String = "", respawn_home: bool = false, entry_marker: String = "", entry_along: float = NAN) -> void:
 	_navigation = {"kind": kind, "map_id": map_id}
 	if not entry_edge.is_empty():
 		_navigation["entry_edge"] = entry_edge
@@ -898,6 +899,8 @@ func request_navigation(kind: String, map_id: String, entry_edge: String = "", e
 		_navigation["entry_door"] = entry_door
 	if not entry_marker.is_empty():
 		_navigation["entry_marker"] = entry_marker
+	if not entry_edge.is_empty() and not is_nan(entry_along):
+		_navigation["entry_along"] = entry_along
 	if respawn_home:
 		_navigation["respawn_home"] = true
 

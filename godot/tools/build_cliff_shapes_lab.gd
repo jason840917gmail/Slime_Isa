@@ -1,12 +1,13 @@
 extends SceneTree
-## Builds the cliff shapes lab (docs/godot/CLIFFS.md "Painted elevation"): right-angled and 45°
+## Builds the cliff shapes lab (docs/godot/ELEVATION.md "Storybook art"): right-angled and 45°
 ## cliffs painted on the world's `elevation` layer (docs/godot/ELEVATION.md), drawn by the elevation
 ## system with the art cut from the approved H plateau painting
 ## (scripts/art/build-elevation-art-from-painting.py): the ground layer's metadata picks the
 ## `storybook-rock` walls and `storybook-grass` lip and foot for its highland ground.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_cliff_shapes_lab.gd [-- --force]
 ## Writes res://game/scenes/worlds/cliff-shapes-lab.tscn (world.cliff-shapes-lab). It does not
-## overwrite an existing lab (where you may have painted) unless given --force.
+## overwrite an existing lab (where you may have painted) unless given --force. The last row holds
+## ramps (docs/godot/ELEVATION.md "Ramps"): walls that taper to nothing beside a slope.
 
 const LAB_PATH := "res://game/scenes/worlds/cliff-shapes-lab.tscn"
 const ELEVATION_TILESET := "res://game/world/elevation/elevation_tileset.tres"
@@ -16,14 +17,17 @@ const WORLD_GROUND := "res://game/world/world_ground.gd"
 const WORLD_DEFINITION := "res://game/scripts/world_definition.gd"
 const CELL := 64
 const COLUMNS := 82
-const ROWS := 66
+const ROWS := 92
 const GRASS_SOURCE := 7   # grass-a (highland) in terrain_tileset.tres
 const SHEET_CELLS := 19
 ## The lab's own cliff art for its highland ground (elevation.gd WORLD_WALL_STYLES_META, WORLD_FRINGE_META).
 const WALL_STYLES := {"highland": "storybook-rock"}
 const FRINGE := {"highland": "storybook-grass"}
 ## One shape each: name, rectangles painted [x, y, w, h, level] in order (a later one over an
-## earlier one), rectangles cut away [x, y, w, h]. Levels −3 … 3; a level is one stone course.
+## earlier one), rectangles cut away [x, y, w, h], and optionally ramps [x, y, direction, length,
+## width]: the top cell (the first of its run side by side), the way down the slope
+## (elevation_tileset.tres row 3), the cells along it and side by side. Levels −3 … 3; a level is one
+## stone course.
 const SHAPES := [
 	["L", [[2, 2, 5, 11, 2], [2, 9, 14, 4, 2]], []],
 	["T", [[20, 2, 16, 4, 2], [25, 6, 6, 7, 2]], []],
@@ -39,7 +43,20 @@ const SHAPES := [
 	["wall 2 levels", [[16, 49, 10, 6, 2]], []],
 	["wall 3 levels", [[30, 49, 10, 6, 3]], []],
 	["terrace with a flush front", [[44, 49, 20, 10, 1], [48, 51, 12, 8, 3]], []],
+	# Ramps. A Link to the Past: a ramp down beside a 45° face, the wall tapering to the tip.
+	["ramp beside a south-west 45° face", [[6, 69, 10, 6, 1]], [[6, 73, 1, 1], [6, 74, 2, 1]], [[6, 74, "se", 2, 1]]],
+	["ramp beside a south-east 45° face", [[20, 69, 10, 6, 1]], [[29, 73, 1, 1], [28, 74, 2, 1]], [[29, 74, "sw", 2, 1]]],
+	["ramps along a south face, both ends", [[38, 69, 16, 5, 1]], [], [[38, 75, "e", 3, 1], [53, 75, "w", 3, 1]]],
+	["two-level ramp along a south face", [[58, 69, 20, 4, 2]], [], [[58, 75, "e", 6, 1]]],
+	["ramps leaving a rim: front (two wide) and back", [[4, 81, 12, 4, 1]], [], [[8, 86, "s", 3, 2], [11, 80, "n", 3, 1]]],
+	["two-level ramp beside a 45° face", [[22, 79, 12, 9, 2]], [[22, 84, 1, 1], [22, 85, 2, 1], [22, 86, 3, 1], [22, 87, 4, 1]], [[22, 86, "se", 4, 1]]],
 ]
+## Ramp directions in the order of their tiles (elevation_tileset.tres row 3).
+const RAMP_DIRECTIONS := ["s", "sw", "w", "nw", "n", "ne", "e", "se"]
+const RAMP_STEPS := {
+	"s": Vector2i(0, 1), "sw": Vector2i(-1, 1), "w": Vector2i(-1, 0), "nw": Vector2i(-1, -1),
+	"n": Vector2i(0, -1), "ne": Vector2i(1, -1), "e": Vector2i(1, 0), "se": Vector2i(1, 1),
+}
 const SPAWN_CELL := Vector2i(40, 45)
 
 
@@ -83,6 +100,15 @@ func _initialize() -> void:
 				for x in range(r[0], r[0] + r[2]):
 					if not cut.has(Vector2i(x, y)):
 						elevation.set_cell(Vector2i(x, y), 0, tile)
+		for ramp: Array in (spec[3] if spec.size() > 3 else []):
+			var step: Vector2i = RAMP_STEPS[ramp[2]]
+			# Side by side: across the direction (along the other diagonal for a 45° ramp), as
+			# elevation.gd groups them.
+			var side := Vector2i(1, 0) if step.x == 0 else (Vector2i(0, 1) if step.y == 0 else Vector2i(1, -step.x * step.y))
+			var tile := Vector2i(RAMP_DIRECTIONS.find(ramp[2]), 3)
+			for w in int(ramp[4]):
+				for k in int(ramp[3]):
+					elevation.set_cell(Vector2i(ramp[0], ramp[1]) + side * w + step * k, 0, tile)
 	elevation.set_script(load(ELEVATION_LAYER))
 	root.add_child(elevation)
 	var definition := Node.new()

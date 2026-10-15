@@ -99,7 +99,7 @@ the release export).
   `show_live_worlds`, `show_exits`, `show_markers`, `show_interiors`. A region's `live` switches its
   world off (level-1 and the Wilds are big: switch them off to lighten the editor).
 - **Warnings** (the yellow sign on the root and on a slot): a world whose size is not its block's
-  (gloop-forest and crystal-caverns are 54 × 54 in a 64 × 64 block: the rest is hatched), a region
+  (the rest of the block is hatched), a region
   or interior without a scene, exits that are one-way, wrong or arrive without a marker, and
   placeholder worlds older than the layout.
 - **Render it outside the editor** (windowed, it renders):
@@ -142,14 +142,17 @@ once, `region_canvas.gd` paints one region, `region_scene.gd` writes the scene):
   the middle of the longest run of open ground on one level. Both regions leave the same gap, so
   the openings line up. An opening has a clear corridor of road on each side.
 - **Roads** join a region's openings and its landmarks (cheapest path on the cells): stairs where a
-  road climbs one level (two tiles wide, open landing), a bridge over one to three cells of deep
+  road climbs one level (two tiles wide), a bridge over one to three cells of deep
   water (the wooden footbridge prop on east-west crossings), fords through shallow water. In the
   Wilds, trails reach every chunk.
 - **No dead ends:** every place a ledge drop (any unfenced rim) leads to has a way back to an
   opening: the builder floods each world with the game's movement rules and adds a flight of
   stairs, fences the rims (stone) or levels a small pocket where one has none.
 - **Trees** on the sketch's forests and the border bands, on a `forest` layer
-  ([FORESTS.md](FORESTS.md)), mixed by theme (the Wilds by noise).
+  ([FORESTS.md](FORESTS.md)), each theme its own trees: forest and meadow oak, beech, birch and
+  pine; the Wilds those and autumn maples and ginkgos by noise; desert cacti; volcano ember and
+  ash trees; swamp cypress and mangrove; frost snowy firs and frost trees; crystal crystal trees
+  and cave mushrooms; ruins gnarled and ivy trees; village apple and cherry trees.
 - **Exits:** an exit at every opening (`entry_marker = arrive-from-<world>-<n>`, an arrival marker of
   that name inside the neighbour's opening; [specs/world.md](specs/world.md)), `player-entry-<edge>`
   markers, `player-spawn`; the sketch's markers as **MapNotes** (`map_note.gd`: an icon and a label
@@ -175,12 +178,110 @@ the hand-made world needs (`target_area_id` = the placeholder, `entry` = the opp
 `entry_marker = arrive-from-<world>-1`) and the arrival marker it needs; the atlas draws these
 exits amber or red and the in-game map draws no link for them. On 2026-10-11 they are level-1's
 west, north and south (the Plaza bridge) edges and the north and south edges of gloop-forest and
-crystal-caverns. Those two worlds are 54 × 54 tiles in 64 × 64 blocks, so their south openings lie
-in the unused part of the block until they are resized.
+crystal-caverns. Since 2026-10-12 those two worlds fill their 64 × 64 blocks (they were 54 × 54), so
+their north and south openings lie on their edges; the exits back are still to make.
+
+## Chunk worlds (2026-10-12)
+
+Worlds one chunk in size, the player walking from one into the next as in *A Link to the Past*'s
+screens (owner: the big Wilds took long to load). A region is cut into one world scene per chunk,
+and **the chunks are the scenes to edit** from then on (owner, 2026-10-12): the region's whole
+scene is deleted.
+
+```bash
+"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/split_region_chunks.gd -- --region=north-wilds,volcano-ridge,south-wilds
+```
+
+Cut (2026-10-12): every placeholder region (52 chunks: North Wilds 15, A1-C2, H2, A3-H3; Volcano
+Ridge 5, F1-H1, F2-G2; South Wilds 12, A6-H6, C7-C8, H7-H8; Frostpeak, Sticky Swamp, West Village,
+Northern Ruins and Desert 4 each) and the hand-made Gloop Forest (E4-F5) and Crystal Caverns
+(G4-H5), and on 2026-10-14 Slimeshire Meadow (level-1: C4 the village, D4 the Verdant Gate and
+Fatty's camp, C5 the lake, D5 the autumn grove): 64 chunks, every region. The tool writes
+`godot/game/scenes/worlds/chunks/<world>-<chunk>.tscn` (scene id `world.<world>-<chunk>`, e.g.
+`world.south-wilds-c6`) for every chunk the region holds (`WorldMapData.region_chunks`), 32 × 32
+tiles each, cut from the region's world scene:
+
+- its ground, forest and fence cells in the chunk, and its elevation with `Elevation.MAX_ROWS_ABOVE`
+  rows above it (the walls of tops just north of the chunk still hang in); its props, map notes and
+  arrival markers;
+- its exits to other regions: one lying just past the chunk's edge (the generator puts them past
+  the region's border) is moved in against it, and an opening across two chunks is split between
+  them (`_exit_part`);
+- a `player-spawn` on the open cell nearest the chunk's middle and `player-entry-<edge>` markers;
+- **scenery across the border:** a static prop (scene file names starting `tree-`,
+  `wall-stone-solid`, `rock-world-wall`, `decoration-world-`, `crystal-cluster-wall`,
+  `house-world-solid`, `water-life`: `SCENERY`) whose picture or collision reaches into a chunk is
+  in that chunk too, so a house or a tree on a border shows on both sides; forest cells come with a
+  margin past the edges (1 cell, 3 below) for the canopies; chests, items, NPCs and doors live in
+  one chunk only;
+- along every edge it shares with another chunk of the region, an exit the whole edge long, a line
+  4 units deep at the very edge (the slime crosses only when it reaches the screen's limit), with
+  `keep_along` ([specs/world.md](specs/world.md) §8): the player comes out at the same place along
+  the neighbour's opposite edge, 64 units in. The crossing scrolls the screen as in Zelda
+  (`game/world/chunk_scroll.gd`, 2026-10-14): a picture of the old view (the world only, without the
+  slime) is taken, the next chunk is built behind it, the picture is laid beside the new chunk where
+  the old one lay, and the camera slides from the old view into the new one over
+  `worldNavigation.edgeScrollMs` (650) while the slime walks in from where it left; no fade. Exits
+  to other regions and doors still fade.
+
+The scenes are registered in `scene_index.json`; the placeholder regions' chunks
+(`chunks/<world>-*`) are kept out of the release "Web" export, the hand-made worlds' ship. The tool also writes `godot/game/data/world-chunks.json` (read by
+`game/world/atlas/world_chunks.gd`): each cut world's chunks, which chunk holds each of its arrival
+markers (`arrive-from-*`, `player-entry-<edge>`) and doors, its spawn chunk, and a hash of every
+chunk file it wrote. A cut region has no whole scene: travel into it (an exit's marker, a door, an
+edge), a launch option (`?map=north-wilds`) or a save naming it goes to the chunk that holds the
+place (`WorldChunks.redirect` in `Main.travel_to`, `_build_world` and `resolve_map_id`), else its
+spawn chunk; the region's world id stays its name in the layout. A chunk world also discovers its
+region's world, and the in-game map (M) draws the player's dot in its chunk. **F6 on any chunk
+scene** starts the game there. Where a tree band or a river runs along a chunk border the crossing
+is only where the ground is open, as in the region.
+
+**Hand-made worlds** (gloop-forest, crystal-caverns, level-1): `-- --region=<world>
+--hand-made` writes a **preview**: the chunk scenes, registered (F6 on one walks them), while travel
+still goes to the whole scene. `-- --hand-made --adopt` makes it real (the table entry, the whole
+scene deleted). Each chunk is the whole scene instanced again with what lies outside the chunk taken
+away (`_split_hand_made`, `_prune`): a group whose nodes all lie in one chunk stays whole there (the
+Matron's nest, its story script keeping its node paths), a group across chunks is split node by
+node (a split group with script nodes is noted for a look), nodes with no place (the definition,
+music, scripts) are in every chunk; exits are clipped like the generated ones; every `map_id` that
+names the world names the chunk; doors (`door.gd`) go in the table so travel back from an interior
+lands in the chunk with the door; a world smaller than its block gives chunks along its right and
+bottom only as wide as it reaches (gloop-forest and crystal-caverns were grown to 64 × 64 first,
+2026-10-12: four full chunks each).
+
+**Tests:** a test file names its starting chunk (`MAP_ID := "gloop-forest-f4"`) or travels to the
+one holding what it tests; after a travel into a cut region `t.in_world("gloop-forest")` is true
+in any of its chunks (tests/lib/test_context.gd).
+
+**Walking between chunks of one region:** the area banner shows the region's name once, on
+entering the region (`Shell._on_world_registered`); quests see the region's world entered too
+(`QuestService.on_world_built`); the world music carries on without a fade when the next chunk
+plays the same track (`MusicDirector._adopt_world`, `Main.is_travelling_within_region`).
+
+**Editing and rebuilding.** Edit a chunk in its own scene. The atlas shows a cut region's chunks in
+place (`AtlasRegion.show_chunks`, its exits and markers merged from the chunks,
+`WorldSurvey.merge`); the region's **Open chunk** list picks the chunk "Open world" opens. Running
+the tool again needs the region's whole scene: rebuild it from the sketch with
+`build_region_worlds.gd -- --only=<region>`, then cut. The cut rewrites only the chunks nobody
+edited since (their file still has the hash it recorded; `-- --force` rewrites the others too)
+and deletes the whole scene again (`-- --keep-whole` keeps it).
+
+**Prop layers, walls, scripts** (2026-10-14, level-1): each layer is clipped on its own cell
+size; a PropLayer keeps every cell whose prop's picture reaches into the chunk (props draw well
+past their cell); the `walls` WallLayer keeps one cell past each edge with `shown_cells` the
+chunk's own, so pieces at the edge still join; props dragged in under `Scenery` count by their
+picture; a script node whose node references point into another chunk (level-1's chapter-1
+villagers' story variant outside C4) is dropped there. **No elevation cache** is baked for chunks:
+a chunk builds its cliffs in about 0.3 s (level-1's chunks load in 2.2-2.7 s from a cold start
+against 2.8 s for the whole level with its cache; a crossing is ready about 0.6 s after touching
+the edge).
+
+Timings (headless, this machine): North Wilds' whole world builds in about 4.0 s from a cold start,
+one of its chunks in 1.4 s (both with the game's own start); walking into a chunk's edge holds
+the picture while the next chunk builds (about 0.2-1.4 s), then scrolls for 0.65 s.
 
 ## Limits
 
-- gloop-forest and crystal-caverns are 54 × 54 tiles in 64 × 64 blocks (to resize).
 - The placeholders have no enemies (no spawns), and lava is a pit, not a hazard ground.
 - The atlas instances every world in the editor's memory: opening it takes a few seconds.
 - After the Wilds' blocks were moved on 2026-10-10 some sketch rivers and roads stop at a block's

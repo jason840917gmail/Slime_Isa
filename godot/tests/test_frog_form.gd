@@ -8,8 +8,9 @@ extends RefCounted
 ##   the shallows it can, and then deep water blocks the slime again.
 ## - No abilities while swimming.
 ##
-## level-1's lake, row 46: shallow water at x = 3..5, deep water at x = 6..11 (open water, south of
-## the island in the middle of the lake).
+## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
+## docs/godot/WORLD_ATLAS.md): chunk row 4 has deep water at x = 0..5 and shallow water at x = 6..12;
+## (8, 7) is open deep water north of the island in the middle of the lake.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -17,11 +18,11 @@ const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const PlayerSwimming := preload("res://game/player/gulp/player_swimming.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
 
-const MAP_ID := "level-1"
+const MAP_ID := "level-1-c5"
 const CELL := 64.0
-const ROW := 46
-const SHALLOW := Vector2i(4, ROW)
-const DEEP := Vector2i(8, ROW)
+const ROW := 4
+const SHALLOW := Vector2i(7, ROW)
+const DEEP := Vector2i(8, 7)
 ## Long enough to walk about two cells (walk speed 200).
 const WALK_MS := 700.0
 
@@ -62,13 +63,13 @@ func test_the_frog_walks_from_the_shallows_into_deep_water(t: TestContext) -> vo
 	await _gulp_frog(t)
 	t.teleport_player(_centre(SHALLOW))
 	await t.steps(2)
-	t.press(&"move_right")
+	t.press(&"move_left")
 	await t.sim_wait(WALK_MS)
 	t.release_all()
 	await t.steps(2)
-	# Deep water starts at x = 6 cells; without the form the body stops at that cell side.
+	# Deep water ends at x = 6 cells (walking west); without the form the body stops at that cell side.
 	var x := body.global_position.x
-	t.check(x > 6.5 * CELL, "the frog crossed into the deep water (x = %.1f)" % x)
+	t.check(x < 5.5 * CELL, "the frog crossed into the deep water (x = %.1f)" % x)
 	t.check(player.is_swimming(), "swimming after walking in")
 
 

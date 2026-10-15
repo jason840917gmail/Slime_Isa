@@ -3,6 +3,9 @@ extends RefCounted
 ## offer through the dialogue box and the offer window, wood picked up from the clearing's piles,
 ## a Workbench crafted from the Crafting tab, placed with the ghost, the quest turned in for its
 ## reward, and the stone axe it teaches crafted at the placed bench and put in hand.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests play in the
+## village's chunk C4 (`level-1-c4`, level-1's own coordinates), whose id keys the run records; the
+## main line travels to D4 (`level-1-d4`) for Fatty's camp.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -16,8 +19,11 @@ const LILI := "level-1-npc-lili"
 const FISHER := "level-1-npc-fisherman-slime"
 const SPIDER_GIVER := "level-1-npc-mossy-scout"
 const PLACE := "a-place-to-work"
+## level-1's chunk worlds: the village (where the tests start) and Fatty's camp.
+const VILLAGE_MAP := "level-1-c4"
+const FATTY_MAP := "level-1-d4"
 ## The clearing's loose wood piles (10 each).
-const WOOD_PILES := {"level-1-loose-wood-03": Vector2(899.0, 311.0), "level-1-loose-wood-04": Vector2(943.25, 348.9)}
+const WOOD_PILES := {"level-1-loose-wood-03": Vector2(411.0, 1150.0), "level-1-loose-wood-04": Vector2(455.25, 1187.9)}
 
 
 func test_a_place_to_work_end_to_end(t: TestContext) -> void:
@@ -37,7 +43,7 @@ func test_a_place_to_work_end_to_end(t: TestContext) -> void:
 	# 2. Wood: the clearing's two piles (20), the rest as if chopped elsewhere.
 	for instance_id: String in WOOD_PILES:
 		t.teleport_player(WOOD_PILES[instance_id] - Vector2(0.0, 14.56))
-		await t.until(func() -> bool: return int(run.collectible_record("level-1", instance_id).get("remaining", 1)) == 0, 500.0)
+		await t.until(func() -> bool: return int(run.collectible_record(VILLAGE_MAP, instance_id).get("remaining", 1)) == 0, 500.0)
 	t.check(run.item_count("wood") >= 20, "the piles gave %d wood" % run.item_count("wood"))
 	run.add_item("wood", 40 - run.item_count("wood"))
 	# 3. Craft the Workbench from the Crafting tab: the window closes and placement starts.
@@ -57,7 +63,7 @@ func test_a_place_to_work_end_to_end(t: TestContext) -> void:
 	await t.steps(2)
 	t.tap(&"attack")
 	await t.steps(3)
-	t.equal(run.placed_furniture("level-1").size(), 1, "benches placed")
+	t.equal(run.placed_furniture(VILLAGE_MAP).size(), 1, "benches placed")
 	t.check(bool(quests.call(&"view", PLACE).get("ready_to_turn_in", false)), "the quest is not ready to turn in")
 	# 5. Back to the Elder: the turn-in window gives the reward.
 	await _talk_to_elder(t)
@@ -157,7 +163,7 @@ func test_stone_tools_by_hand(t: TestContext) -> void:
 	for swing in 6:
 		t.tap(&"attack")
 		await t.sim_wait(950.0)
-		if run.resource_record("level-1", "level-1-tree-004").get("stage", "node") != "node":
+		if run.resource_record(VILLAGE_MAP, "level-1-tree-004").get("stage", "node") != "node":
 			felled = true
 			break
 	if not t.check(felled, "the axe did not fell level-1-tree-004"):
@@ -320,7 +326,7 @@ func test_chapter_one_main_line(t: TestContext) -> void:
 	t.tap(&"weapon_next")
 	await t.steps(3)
 	for item_id: String in ["wood", "stone"]:
-		QuestEvents.emit(QuestEvents.COLLECTIBLE_COLLECTED, {"mapId": "level-1", "instanceId": "stand-in-" + item_id,
+		QuestEvents.emit(QuestEvents.COLLECTIBLE_COLLECTED, {"mapId": VILLAGE_MAP, "instanceId": "stand-in-" + item_id,
 			"objectId": "collectible.%s-pile" % item_id, "itemId": item_id, "quantity": 20})
 	if not await _turn_in_to(t, ELDER, "stone-tools", dialogue, offer):
 		return
@@ -346,17 +352,22 @@ func test_chapter_one_main_line(t: TestContext) -> void:
 	run.add_item("wood", 20)
 	run.add_item("stone", 20)
 	await _craft_at_bench(t, ["craft-stone-spear"])
+	t.check(bool(t.main.travel_to(FATTY_MAP, "west")), "the travel to %s was refused" % FATTY_MAP)
+	var at_camp := await t.until(func() -> bool:
+		return not t.main.is_transitioning() and t.world().map_id() == FATTY_MAP and t.player() != null, 3000.0, 6000.0)
+	if not t.check(at_camp, "the player did not reach %s" % FATTY_MAP):
+		return
 	var camp: Node = null
 	for node: Node in t.tree.get_nodes_in_group(&"boss_camp"):
 		if str(node.get(&"camp_id")) == "level-1-fatty-one-eye-camp":
 			camp = node
-	if not t.check(camp != null, "no Fatty camp in level-1"):
+	if not t.check(camp != null, "no Fatty camp in %s" % FATTY_MAP):
 		return
 	camp.emit_signal(&"boss_defeated", {"campId": "level-1-fatty-one-eye-camp", "bossId": "fatty-one-eye"})
 	t.equal(str(quests.call(&"state", "the-one-eyed-guardian").get("active_stage_id")), "verdant-gate", "the guardian's last stage")
 	t.check(bool(t.main.travel_to("gloop-forest", "west")), "the travel to gloop-forest was refused")
 	await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.world().map_id() == "gloop-forest" and t.player() != null, 3000.0, 6000.0)
+		return not t.main.is_transitioning() and t.in_world("gloop-forest") and t.player() != null, 3000.0, 6000.0)
 	t.equal(quests.call(&"status", "the-one-eyed-guardian"), "completed", "The One-Eyed Guardian")
 	t.check(run.has_flag("chapter-1-complete"), "chapter-1-complete is not set")
 	t.check(run.has_learned_ability("squash-slam"), "The One-Eyed Guardian did not teach Squash Slam")

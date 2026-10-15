@@ -23,6 +23,7 @@ const MAIN_SCENE := "res://game/main.tscn"
 ## GAME_VERSION (WorldScene.ts:166); `application/config/version` wins when set.
 const GAME_VERSION := "0.1.0"
 const BACKDROP_MAP_ID := "level-1"
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const WORLD_SCENE_PREFIX := "world."
 ## WorldScene.ts:161-164.
 const TITLE_PAN_PERIOD_MS := 60000.0
@@ -296,7 +297,8 @@ func _build_backdrop() -> void:
 	var run := Services.run()
 	if run != null:
 		run.ensure_started()
-	var instance := world.instantiate_scene(WORLD_SCENE_PREFIX + BACKDROP_MAP_ID) as Node2D
+	# level-1 is cut into chunk worlds: the backdrop is its spawn chunk (the village).
+	var instance := world.instantiate_scene(WORLD_SCENE_PREFIX + WorldChunks.redirect(BACKDROP_MAP_ID)) as Node2D
 	if instance == null:
 		return
 	backdrop.add_child(instance)

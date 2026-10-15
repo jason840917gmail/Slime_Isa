@@ -2,25 +2,29 @@ extends RefCounted
 ## Animated water and water life (docs/godot/specs/water.md).
 ## - The mask has one texel per tile: r = 1 on `water` (shallow), g = 1 on `deep-water`, black
 ##   elsewhere; a world without water gets no surface.
-## - level-1: 204 shallow and 58 deep tiles; the WaterSurface quad is the ground layer's child (drawn
-##   right after its tiles, z -2), below the underwater life (z -2, y-sorted after the ground), the
-##   world-sorted decals (z -1: lily pads, bubbles) and the entities (z 0: reeds).
+## - level-1-c5 (the chunk world of level-1's lake, where the tests start; level-1 is cut into chunk
+##   worlds, docs/godot/WORLD_ATLAS.md): 31 shallow and 204 deep tiles; the WaterSurface quad is the
+##   ground layer's child (drawn right after its tiles, z -2), below the underwater life (z -2,
+##   y-sorted after the ground), the world-sorted decals (z -1: lily pads, bubbles) and the entities
+##   (z 0: reeds).
 ## - Travel (Main.travel_to) frees the old world's surface with its ground layer and mounts a new
-##   one for the next world: gloop-forest has 181 deep tiles and no shallow ones, so both texture
+##   one for the next world: gloop-forest's chunk E4 (where its west entry is; gloop-forest is cut into
+##   chunk worlds, docs/godot/WORLD_ATLAS.md) has 106 deep tiles and no shallow ones, so both texture
 ##   slots hold the deep-water sheet.
-## - level-1's 65 water-life instances play their looping `object.water-life.idle` clip with the
-##   authored tint and alpha (fish #b9dcef at 0.72, kelp #7ea4bf at 0.5, waterweed #a9d2e3 at 0.6,
-##   fish shadows 0.75, bubbles 0.9).
+## - level-1-c5's 47 water-life instances (painted on its prop layers) play their looping
+##   `object.water-life.idle` clip with the authored tint and alpha (fish #b9dcef at 0.72, kelp
+##   #7ea4bf at 0.5, waterweed #a9d2e3 at 0.6, fish shadows 0.75, bubbles 0.9).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
 
 const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 const WATER_SHADER_PATH := "res://game/world/water_surface.gdshader"
-const LEVEL1_SHALLOW_TILES := 204
-const LEVEL1_DEEP_TILES := 58
-const LEVEL1_WATER_LIFE := 65
-const GLOOP_FOREST_DEEP_TILES := 181
+const MAP_ID := "level-1-c5"
+const LEVEL1_SHALLOW_TILES := 31
+const LEVEL1_DEEP_TILES := 204
+const LEVEL1_WATER_LIFE := 47
+const GLOOP_FOREST_DEEP_TILES := 106
 const IDLE_CLIP := &"object.water-life.idle"
 const WATER_LIFE_SCENE_PREFIX := "water-life--"
 ## Phaser presentation per water-life scene (scene JSON `tint`, `alpha`, depth band):
@@ -85,13 +89,14 @@ func test_level1_surface_covers_the_water_tiles_in_draw_order(t: TestContext) ->
 	if not t.check(ground != null, "no ground layer"):
 		return
 	var surface := ground.get_node_or_null(NodePath(WaterSurface.NODE_NAME)) as WaterSurface
-	if not t.check(surface != null, "level-1's ground layer has no WaterSurface"):
+	if not t.check(surface != null, "level-1-c5's ground layer has no WaterSurface"):
 		return
 	t.equal(surface.shallow_cells, LEVEL1_SHALLOW_TILES, "shallow tiles")
 	t.equal(surface.deep_cells, LEVEL1_DEEP_TILES, "deep tiles")
-	t.equal(surface.kind_at(27, 0), WaterSurface.Kind.SHALLOW, "the river at (27, 0) is shallow")
-	t.equal(surface.kind_at(8, 40), WaterSurface.Kind.DEEP, "the lake centre (8, 40) is deep")
-	t.equal(surface.kind_at(9, 43), WaterSurface.Kind.NONE, "the lake island (9, 43) is dry")
+	t.equal(surface.kind_at(23, 1), WaterSurface.Kind.DEEP, "the river at (23, 1) is deep")
+	t.equal(surface.kind_at(9, 4), WaterSurface.Kind.SHALLOW, "the lake's north shore (9, 4) is shallow")
+	t.equal(surface.kind_at(8, 7), WaterSurface.Kind.DEEP, "the lake centre (8, 7) is deep")
+	t.equal(surface.kind_at(8, 12), WaterSurface.Kind.NONE, "the lake island (8, 12) is dry")
 	t.equal(surface.kind_at(0, 0), WaterSurface.Kind.NONE, "(0, 0) is dry")
 	var mismatches := 0
 	for cell: Vector2i in ground.get_used_cells():
@@ -126,12 +131,12 @@ func test_level1_surface_covers_the_water_tiles_in_draw_order(t: TestContext) ->
 				"%s sorts before the ground layer (y %.1f)" % [root.name, visual.global_position.y])
 		else:
 			t.check(z > ground_z, "%s draws below the water surface (z %d)" % [root.name, z])
-	t.check(below > 0, "no underwater life in level-1")
+	t.check(below > 0, "no underwater life in level-1-c5")
 
 
 func test_level1_water_life_plays_with_phaser_presentation(t: TestContext) -> void:
 	var life := _water_life(t.world().world_root)
-	t.equal(life.size(), LEVEL1_WATER_LIFE, "water-life instances in level-1")
+	t.equal(life.size(), LEVEL1_WATER_LIFE, "water-life instances in level-1-c5")
 	var before := {}
 	for root: Node2D in life:
 		var player := root.get_node_or_null(^"AmbientAnimation") as AnimationPlayer
@@ -163,15 +168,15 @@ func test_level1_water_life_plays_with_phaser_presentation(t: TestContext) -> vo
 
 func test_travel_rebuilds_the_surface_for_the_next_world(t: TestContext) -> void:
 	var old_surface := t.world().ground_layer.get_node_or_null(NodePath(WaterSurface.NODE_NAME))
-	if not t.check(old_surface != null, "level-1 has no WaterSurface"):
+	if not t.check(old_surface != null, "level-1-c5 has no WaterSurface"):
 		return
 	if not t.check(t.main.travel_to("gloop-forest", "west"), "travel to gloop-forest was refused"):
 		return
-	var travelled := await t.until(func() -> bool: return t.world().map_id() == "gloop-forest" and t.player() != null, 3000.0, 6000.0)
+	var travelled := await t.until(func() -> bool: return t.in_world("gloop-forest") and t.player() != null, 3000.0, 6000.0)
 	if not t.check(travelled, "the player did not reach gloop-forest"):
 		return
 	await t.steps(2)
-	t.check(not is_instance_valid(old_surface), "level-1's WaterSurface outlived its world")
+	t.check(not is_instance_valid(old_surface), "level-1-c5's WaterSurface outlived its world")
 	var ground := t.world().ground_layer
 	var surface := ground.get_node_or_null(NodePath(WaterSurface.NODE_NAME)) as WaterSurface
 	if not t.check(surface != null, "gloop-forest's ground layer has no WaterSurface"):

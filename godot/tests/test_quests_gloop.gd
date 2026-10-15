@@ -1,13 +1,14 @@
 extends RefCounted
 ## Quests in gloop-forest (docs/godot/specs/quests.md 7.5 and 10.10): Sunny's basket
 ## (`gloop-ch2-sunny-basket`, one berry basket across the water, reached with the Stretch Lash).
+## gloop-forest is cut into chunk worlds: the basket is in chunk E4 (docs/godot/WORLD_ATLAS.md).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const QuestService := preload("res://game/quests/quest_service.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
 
-const MAP_ID := "gloop-forest"
+const MAP_ID := "gloop-forest-e4"
 const BASKET := "gloop-ch2-sunny-basket"
 
 

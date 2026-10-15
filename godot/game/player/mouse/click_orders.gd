@@ -261,6 +261,16 @@ func _watch_progress(feet: Vector2, now_ms: float) -> void:
 	_replan(feet, now_ms)
 
 
+## After the stairs walk carried the body (player.gd): the route is planned again from where it
+## stepped off, so it never walks back to a waypoint on the steps it has passed.
+func resume(feet: Vector2, now_ms: float) -> void:
+	if kind == Kind.NONE:
+		return
+	_progress_from = Vector2.INF
+	_push_until_ms = -1.0
+	_replan(feet, now_ms)
+
+
 func _replan(feet: Vector2, now_ms: float) -> void:
 	var level := int(_goal_level_of.call()) if _goal_level_of.is_valid() else ClickPath.NO_LEVEL
 	# Following the held pointer re-plans often: a short search each time (the walk goes on from

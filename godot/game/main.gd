@@ -72,6 +72,8 @@ const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
 const IrisTransition := preload("res://game/world/iris_transition.gd")
 const DoorScript := preload("res://game/scripts/door.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
+const ChunkScroll := preload("res://game/world/chunk_scroll.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 const GameWindows := preload("res://game/ui/screens/game_windows.gd")
@@ -171,6 +173,11 @@ var quest_waypoint: QuestWaypointView
 var furniture: FurniturePlacement
 
 var _transitioning: bool = false
+## The travel under way goes into another chunk of the region it starts in (worked out when it
+## starts: the old world's registrations go before it is freed).
+var _travel_within_region := false
+## The world being built arrives by a chunk scroll (ChunkScroll): no arrival fade.
+var _scroll_arrival := false
 var _next_gate_message_ms: int = 0
 ## The door iris while a door travel runs (closed over the old world, opened on the new one).
 var _iris: IrisTransition
@@ -244,6 +251,10 @@ func _exit_tree() -> void:
 
 ## Steps 3-11 above for `target_map_id`; `navigation` is the area handoff ({} on a fresh boot).
 func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
+	# A region cut into chunk worlds has no whole scene: a boot, load or launch option naming it
+	# starts in the chunk that holds where it arrives (WorldChunks.redirect).
+	target_map_id = WorldChunks.redirect(target_map_id, str(navigation.get("entry_marker", "")),
+			str(navigation.get("entry_edge", "")), str(navigation.get("entry_door", "")))
 	var world_service := Services.world()
 	decide_rework_mode(target_map_id)
 	world_root = load_world(target_map_id)
@@ -257,6 +268,9 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	var run := Services.run()
 	if run != null:
 		run.mark_area_discovered(target_map_id)
+		# A chunk world discovers its region's world too (the map knows regions by their worlds).
+		if not WorldChunks.world_of(target_map_id).is_empty():
+			run.mark_area_discovered(WorldChunks.world_of(target_map_id))
 	WorldBounds.build(world_root, world_service.world_rect())
 	# Placed furniture comes back before the player spawns (furniture spec 7.3).
 	if furniture != null:
@@ -271,7 +285,8 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	warm_runtime_scenes()
 	configure_npcs()
 	setup_camera()
-	_start_arrival(navigation)
+	if not _scroll_arrival:
+		_start_arrival(navigation)
 	setup_ui()
 	_transitioning = false
 	_start_autosave()
@@ -357,9 +372,16 @@ func is_transitioning() -> bool:
 	return _transitioning
 
 
+## True while travelling from a chunk world into another chunk of the same region (the music
+## carries on: MusicDirector).
+func is_travelling_within_region() -> bool:
+	return _transitioning and _travel_within_region
+
+
 ## `WorldScene.requestAuthoredExit` (WorldScene.ts:1018-1067) for world exits and doors.
 ## `request` = {"map_id", "target_area_id", "entry"? (edge), "entry_marker"? (a Node2D's name in
-## the target world; not in Phaser), "target_door_id"?, "gate"? ({id, requiredItemId,
+## the target world; not in Phaser), "entry_along"? (where along the `entry` edge to arrive; not in
+## Phaser), "target_door_id"?, "gate"? ({id, requiredItemId,
 ## consumeOnUnlock, lockedMessage}, camelCase as authored)}. A request needs a door, a valid edge
 ## or a marker to arrive at.
 ## Returns {"status": "ignored"|"blocked"|"queued", "message"?}.
@@ -386,7 +408,8 @@ func request_exit(request: Dictionary) -> Dictionary:
 		return {"status": "blocked", "message": "Navigation unavailable"}
 	var iris := str(request.get("transition", "")) == "iris"
 	var lead_ms := maxf(0.0, float(request.get("lead_ms", 0.0)))
-	if not travel_to(target_area, entry_edge, entry_door, entry_marker, iris, lead_ms):
+	var entry_along := float(request.get("entry_along", NAN)) if not entry_edge.is_empty() else NAN
+	if not travel_to(target_area, entry_edge, entry_door, entry_marker, iris, lead_ms, entry_along):
 		return {"status": "ignored"}
 	_entered_side = str(request.get("door_side", "")) if iris else ""
 	return {"status": "queued"}
@@ -395,28 +418,39 @@ func request_exit(request: Dictionary) -> Dictionary:
 ## Leaves this world for `target_map_id` (WorldScene.transitionTo + the page reload): stops the
 ## player, fades the picture and the music out over 320 ms, then records the player in RunState,
 ## frees this world and builds the target, arriving at `entry_door`'s arrival point, else the
-## Node2D named `entry_marker`, else the `entry_edge` marker (AreaTravel.arrival_point). False
-## when already travelling or unknown. With `iris` (doors and door-like exits) the Zelda iris
+## Node2D named `entry_marker`, else `entry_along` along the `entry_edge` (a number), else the
+## `entry_edge` marker (AreaTravel.arrival_point). A region cut into chunk worlds is entered at the
+## chunk that holds the place it arrives at (WorldChunks.redirect). False when already travelling or
+## unknown. With `iris` (doors and door-like exits) the Zelda iris
 ## (game/world/iris_transition.gd) closes on the player over `worldNavigation.irisCloseMs` instead
 ## of the fade, and the next world opens it again on the player (`_start_arrival`). `lead_ms` (a
 ## door's lead-in: its leaf swinging open, the slime climbing down a ladder or falling into a hole;
 ## door.gd `lead_ms`) holds the slime still for that long of simulation time before the iris or the
-## fade starts.
-func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "", iris: bool = false, lead_ms: float = 0.0) -> bool:
+## fade starts. A whole-edge exit into the next chunk of the same region scrolls instead
+## (`_scroll_travel`); doors always take the iris.
+func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "", iris: bool = false, lead_ms: float = 0.0, entry_along: float = NAN) -> bool:
 	var world_service := Services.world()
 	var run := Services.run()
 	if _transitioning or world_service == null or run == null:
 		return false
+	target_map_id = WorldChunks.redirect(target_map_id, entry_marker, entry_edge, entry_door)
 	if world_service.scene_path(WORLD_SCENE_PREFIX + target_map_id).is_empty():
 		push_warning("Main: no world '%s' to travel to" % target_map_id)
 		return false
 	_transitioning = true
+	var region_world := WorldChunks.world_of(target_map_id)
+	_travel_within_region = not region_world.is_empty() and region_world == WorldChunks.world_of(world_service.map_id())
+	# Across a whole edge into the next chunk of the region: the screen scrolls, as in Zelda.
+	if _travel_within_region and not iris and not entry_edge.is_empty() and not is_nan(entry_along) \
+			and entry_door.is_empty() and entry_marker.is_empty() and player != null and player_root != null:
+		_scroll_travel(target_map_id, entry_edge, entry_along)
+		return true
 	var leave_ms := _iris_ms("irisCloseMs") if iris else AreaTravel.LEAVE_FADE_MS
 	if player != null:
 		player.stop_movement()
 		player.clear_input()
 		player.suppress_movement(lead_ms + leave_ms + TRAVEL_SUPPRESS_MARGIN_MS)
-	var leave := _leave_world.bind(target_map_id, entry_edge, entry_door, entry_marker, iris, leave_ms)
+	var leave := _leave_world.bind(target_map_id, entry_edge, entry_door, entry_marker, entry_along, iris, leave_ms)
 	if lead_ms > 0.0:
 		# Simulation time, like the push that started it (it waits through hit-stop and pauses).
 		get_tree().create_timer(lead_ms / 1000.0, false, true).timeout.connect(leave)
@@ -425,11 +459,12 @@ func travel_to(target_map_id: String, entry_edge: String = "", entry_door: Strin
 	return true
 
 
-## `travel_to` after the lead-in: the music fades and the iris (or the fade) closes over `leave_ms`,
-## then `_finish_travel` swaps the worlds.
-func _leave_world(target_map_id: String, entry_edge: String, entry_door: String, entry_marker: String, iris: bool, leave_ms: float) -> void:
-	AreaTravel.fade_out_music(world_root, leave_ms)
-	var finish := _finish_travel.bind(target_map_id, entry_edge, entry_door, entry_marker)
+## `travel_to` after the lead-in: the music fades (not within a region's chunks) and the iris (or
+## the fade) closes over `leave_ms`, then `_finish_travel` swaps the worlds.
+func _leave_world(target_map_id: String, entry_edge: String, entry_door: String, entry_marker: String, entry_along: float, iris: bool, leave_ms: float) -> void:
+	if not is_travelling_within_region():
+		AreaTravel.fade_out_music(world_root, leave_ms)
+	var finish := _finish_travel.bind(target_map_id, entry_edge, entry_door, entry_marker, entry_along)
 	if iris:
 		if _iris != null and is_instance_valid(_iris):
 			_iris.queue_free()
@@ -488,14 +523,53 @@ func _start_arrival(navigation: Dictionary) -> void:
 	_entered_side = ""
 
 
-func _finish_travel(target_map_id: String, entry_edge: String, entry_door: String, entry_marker: String) -> void:
+func _finish_travel(target_map_id: String, entry_edge: String, entry_door: String, entry_marker: String, entry_along: float) -> void:
 	var run := Services.run()
 	var world_service := Services.world()
 	if player != null and is_instance_valid(player):
 		run.capture_player(world_service.map_id(), player.run_snapshot())
-	run.request_navigation("area", target_map_id, entry_edge, entry_door, false, entry_marker)
+	run.request_navigation("area", target_map_id, entry_edge, entry_door, false, entry_marker, entry_along)
 	_teardown_world()
 	_build_world(target_map_id, run.consume_navigation())
+
+
+## The chunk scroll (game/world/chunk_scroll.gd): takes a picture of the old view without the
+## slime, records the player, builds `target_map_id` (arriving `entry_along` along `entry_edge`),
+## lays the picture beside the new chunk where the old one lay and scrolls the view into the new
+## chunk over `worldNavigation.edgeScrollMs` while the slime walks in from where it left. Travel
+## stays on (exits ignore the player) until the scroll ends. A coroutine.
+func _scroll_travel(target_map_id: String, entry_edge: String, entry_along: float) -> void:
+	var run := Services.run()
+	var world_service := Services.world()
+	var constants := Services.constants()
+	var scroll_ms := constants.number("worldNavigation.edgeScrollMs") if constants != null else 0.0
+	player.stop_movement()
+	player.clear_input()
+	player.suppress_movement(scroll_ms + TRAVEL_SUPPRESS_MARGIN_MS)
+	var old_rect: Rect2 = world_service.world_rect()
+	var old_view := world_camera.view_rect()
+	var old_feet := player_root.global_position
+	var shot_rect := old_view.intersection(old_rect)
+	player_root.visible = false
+	var shot := await ChunkScroll.capture(self, get_viewport(), shot_rect, world_camera.target_zoom)
+	if player != null and is_instance_valid(player):
+		run.capture_player(world_service.map_id(), player.run_snapshot())
+	run.request_navigation("area", target_map_id, entry_edge, "", false, "", entry_along)
+	_teardown_world()
+	_scroll_arrival = true
+	_build_world(target_map_id, run.consume_navigation())
+	_scroll_arrival = false
+	if player == null or player_root == null:
+		return
+	_transitioning = true
+	var offset := ChunkScroll.old_offset(entry_edge, old_rect, world_service.world_rect())
+	var picture := ChunkScroll.picture(shot, Rect2(shot_rect.position + offset, shot_rect.size))
+	world_container.add_child(picture)
+	player.walk_in(ChunkScroll.walk_direction(entry_edge), scroll_ms)
+	var scroll := ChunkScroll.new()
+	add_child(scroll)
+	scroll.start(world_camera, player_root, picture, old_view.get_center() + offset, world_camera.center,
+			old_feet + offset, player_root.global_position, scroll_ms, func() -> void: _transitioning = false)
 
 
 ## Frees the current world (and the player in it), the enemy population and the world service's
@@ -587,6 +661,8 @@ func resolve_map_id() -> String:
 		requested = map_id.strip_edges()
 	if requested.is_empty() or requested == TRIAL_MAP_ID:
 		return TRIAL_MAP_ID
+	# A region cut into chunk worlds starts in its spawn chunk.
+	requested = WorldChunks.redirect(requested)
 	var world_service := Services.world()
 	if world_service != null and not world_service.scene_path(WORLD_SCENE_PREFIX + requested).is_empty():
 		return requested

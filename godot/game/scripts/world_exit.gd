@@ -27,6 +27,11 @@ const MAIN_GROUP := &"world_main"
 ## the player arrives (`AreaTravel.arrival_point`). It wins over `entry`'s `player-entry-<edge>`
 ## marker, and an exit with a marker and no valid `entry` travels too. Empty = arrive by `entry`.
 @export var entry_marker: String = ""
+## Not in Phaser (chunk worlds, 2026-10-12): the player arrives at the same place along the `entry`
+## edge as where it left this world (`entry_along`, `AreaTravel.arrival_point`), not at the edge's
+## marker: for an exit along a whole edge between two worlds that carry on from each other (the
+## chunks of a region, godot/tools/split_region_chunks.gd).
+@export var keep_along: bool = false
 ## JSON `area`: the Area2D (layer trigger, mask player|npc) whose bodies are tested.
 @export var area: Area2D
 ## JSON `gate` (camelCase keys: id, requiredItemId, consumeOnUnlock, lockedMessage).
@@ -82,14 +87,25 @@ func _evaluate(body: Node) -> void:
 	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
 	var result: Dictionary = {"status": "blocked", "message": "Navigation unavailable"}
 	if main != null and main.has_method(&"request_exit"):
-		result = main.call(&"request_exit", {
+		var request := {
 			"map_id": map_id,
 			"exit_id": exit_id,
 			"target_area_id": target_area_id,
 			"entry": entry,
 			"entry_marker": entry_marker,
 			"gate": gate,
-		})
+		}
+		if keep_along and world.player != null:
+			request["entry_along"] = _along(world)
+		result = main.call(&"request_exit", request)
 	if str(result.get("status", "")) == "queued":
 		_queued = true
 	navigation_resolved.emit(result)
+
+
+## Where the player (its old Phaser centre) is along the edge it arrives at: its distance from the
+## world's top edge for an east or west entry, from its left edge for a north or south one.
+func _along(world: Node) -> float:
+	var centre: Vector2 = world.player.get_centre()
+	var bounds: Rect2 = world.world_rect()
+	return centre.y - bounds.position.y if entry == "east" or entry == "west" else centre.x - bounds.position.x

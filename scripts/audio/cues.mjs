@@ -176,6 +176,9 @@ export const CUES = {
     crystal: { library: ['magnific/footstep-crystal-r3-1', 'magnific/footstep-crystal-r3-2'], variants: 2 },
     wood: { library: ['magnific/footstep-wood-r3-1', 'magnific/footstep-wood-r3-2', 'magnific/footstep-wood-r3-3', 'magnific/footstep-wood-r3-4'], variants: 4 },
     soft: { library: ['magnific/footstep-soft-r3-1', 'magnific/footstep-soft-r3-2', 'magnific/footstep-soft-r3-3', 'magnific/footstep-soft-r3-4'], variants: 4 },
+    // 2026-10-14, the stairs walk (stairs_sequence.gd, the StairsStep player in global.tscn): Sound
+    // Picker round 6, the owner's pick: A (stone tap), takes 2 and 3.
+    stairs: { library: ['magnific/footstep-stairs-r6-1', 'magnific/footstep-stairs-r6-2'], variants: 2 },
   },
 
   status: {
