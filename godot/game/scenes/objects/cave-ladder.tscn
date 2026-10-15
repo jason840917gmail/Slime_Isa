@@ -31,9 +31,9 @@ map_id = "unassigned"
 door_id = "ladder"
 target_area_id = "unassigned"
 target_door_id = "sinkhole"
-prompt = "Climb up"
-interact_radius = 90.0
-badge_rise = 150.0
+kind = "ladder_up"
+side = "north"
+trigger_rect = Rect2(-24, -14, 48, 30)
 
 [node name="arrival" type="Node2D" parent="."]
 y_sort_enabled = true

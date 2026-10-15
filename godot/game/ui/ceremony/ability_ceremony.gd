@@ -28,6 +28,8 @@ extends CanvasLayer
 
 const Services := preload("res://game/shared/services.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+## The key an ability's card names (in the body-shapes rework mode a box ability's is `ability_use`).
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const CeremonyStage := preload("res://game/ui/ceremony/ceremony_stage.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
@@ -113,7 +115,7 @@ static func request_heart(tree: SceneTree, bonus: int, icon: Texture2D) -> void:
 
 
 static func ability_entry(ability_id: StringName) -> Dictionary:
-	var key := ControlLabels.control_label(AbilityDefinitions.action(ability_id))
+	var key := ControlLabels.control_label(AbilityBox.key_action(ability_id))
 	return {"kicker": "New ability", "name": AbilityDefinitions.title(ability_id),
 		"line": AbilityDefinitions.ceremony_line(ability_id),
 		"how": AbilityDefinitions.ceremony_how(ability_id, key) if not key.is_empty() else "",

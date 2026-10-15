@@ -15,7 +15,15 @@ extends Control
 ## (HudConsole.layout); refreshes on RunState `inventory_changed`, `weapon_loadout_changed` and
 ## `weapon_equipped`. The model (`snapshot()`) still lists the four belt slots.
 ##
-## Owner: crafting / inventory (UI).
+## Body-shapes rework mode (game/shapes/rework_mode.gd; body-shapes plan section 8.1, BODY_SHAPES.md
+## "Ability Box and HUD"): the slot is the **Shape slot**. It shows the current shape (its icon,
+## `BodyCards.shape_icon`, game/ui/body_cards.gd), E in its corner and its charge's energy cost in a
+## chip at the top left; it is hidden until a second shape is learned (`slot_shown`, which the
+## console's layout follows). A click takes the next learned shape (ShapeController.cycle). The
+## carousel shows the learned shapes (their icons) when the shape changes. It follows the controller by polling (cheap: the shape and
+## the learned list), and goes back to the belt as soon as the mode is off.
+##
+## Owner: crafting / inventory (UI); the rework's Shape slot: Ability Box and HUD.
 
 const Services := preload("res://game/shared/services.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
@@ -24,6 +32,10 @@ const ItemIcons := preload("res://game/inventory/item_icons.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
 const SfxPlayer := preload("res://game/runtime/sfx_player.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
+const ControlLabels := preload("res://game/shell/control_labels.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const BodyCards := preload("res://game/ui/body_cards.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 const SLOT_SIZE := 54.0
 const ICON_SHARE := 0.8
@@ -44,17 +56,25 @@ const BACKING_COLOR := Color(UiTokens.SURFACE_BASE, 0.82)
 const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
 const SELECT_STREAM := "res://asset/audio/sfx/library/ui/hover.ogg"
 const SELECT_VOLUME_DB := -1.9382
+## Rework: the charge-cost chip's text colour (the energy orb's goo) and its shortfall colour.
+const COST_CHIP_COLOR := Color("#ffe080")
+const COST_SHORT_COLOR := UiTokens.WARNING
 
 var slot: Button
 var icon: TextureRect
 var key_badge: Label
 var carousel: Control
 var select_sfx: AudioStreamPlayer
+## Rework: the charge's energy cost, top left of the slot.
+var cost_chip: Label
 var _model: Dictionary = {}
 var _in_hand: String = ""
 ## Carousel state: when it opened (-1 = closed), and the slide's direction (+1 from the right).
 var _shown_at_ms: float = -1.0
 var _slide_from: float = 0.0
+## Rework: true while the slot shows the shape; the shape and learned list it last showed.
+var _rework: bool = false
+var _rework_signature: String = ""
 
 
 func _init() -> void:
@@ -137,6 +157,28 @@ static func snapshot() -> Dictionary:
 	return {"weapons": weapons, "selected_index": selected}
 
 
+## Rework: the Shape slot's model, shaped like `snapshot()` so the carousel reads it: {"weapons":
+## [{"id": shape id, "label": title, "item_id": "" (a shape is no item), "shape_id" (its icon is
+## `BodyCards.shape_icon`), "disabled": false}] (the learned shapes), "selected_index" (the current
+## one)}.
+static func rework_snapshot() -> Dictionary:
+	var current := BodyCards.current_shape(BodyCards.world_player())
+	var shapes: Array = []
+	var selected := -1
+	for id: StringName in BodyCards.learned_shapes():
+		if id == current:
+			selected = shapes.size()
+		shapes.append({"id": String(id), "label": ShapeDefs.title(id), "item_id": "", "shape_id": String(id),
+			"disabled": false})
+	return {"weapons": shapes, "selected_index": selected}
+
+
+## Whether the slot shows: always, except in the rework mode until a second shape is learned (the
+## console's layout leaves it out then, HudConsole.layout).
+static func slot_shown() -> bool:
+	return not ReworkMode.is_on() or BodyCards.learned_shapes().size() >= 2
+
+
 func model() -> Dictionary:
 	return _model
 
@@ -147,6 +189,11 @@ func is_carousel_open() -> bool:
 
 
 func refresh() -> void:
+	if ReworkMode.is_on():
+		_refresh_rework()
+		return
+	if _rework:
+		_leave_rework()
 	var before := _model
 	_model = snapshot()
 	var selected := int(_model["selected_index"])
@@ -162,7 +209,69 @@ func refresh() -> void:
 	_in_hand = in_hand
 
 
+## Rework: the Shape slot (the current shape, E, the charge's cost; hidden with fewer than two
+## shapes) and the carousel when the shape changes.
+func _refresh_rework() -> void:
+	_rework = true
+	var before := _model
+	_model = rework_snapshot()
+	_rework_signature = _rework_key()
+	var selected := int(_model["selected_index"])
+	var shapes: Array = _model["weapons"]
+	var entry: Dictionary = shapes[selected] if selected >= 0 else {}
+	var shape_id := StringName(str(entry.get("shape_id", "")))
+	visible = slot_shown()
+	slot.text = ""
+	icon.texture = BodyCards.shape_icon(shape_id) if not shape_id.is_empty() else null
+	ConsoleStyle.place_key(key_badge, ConsoleStyle.key_of(&"weapon_next"), slot.size)
+	var cost := BodyCards.charge_energy(shape_id) if not shape_id.is_empty() else 0
+	_show_cost(cost)
+	slot.tooltip_text = "" if shape_id.is_empty() else "%s · %s to attack, hold to charge (%d energy) · %s next shape" % [
+		str(entry.get("label", "")), ControlLabels.control_label(&"attack"), cost, ControlLabels.control_labels(&"weapon_next")]
+	var in_hand := String(shape_id)
+	if not before.is_empty() and in_hand != _in_hand and not in_hand.is_empty() and _owned_count() > 1:
+		_open_carousel(int(before.get("selected_index", -1)), selected)
+	_in_hand = in_hand
+
+
+## Rework: the charge's cost in the top-left chip (warning-coloured while the energy is short).
+func _show_cost(cost: int) -> void:
+	if cost_chip == null:
+		cost_chip = ConsoleStyle.make_key_badge()
+		cost_chip.name = "Cost"
+		slot.add_child(cost_chip)
+	ConsoleStyle.place_key(cost_chip, str(cost) if cost > 0 else "", slot.size)
+	cost_chip.position = Vector2.ONE * ConsoleStyle.KEY_INSET
+	var player := BodyCards.world_player()
+	var energy := float(player.call(&"get_energy")) if player != null and player.has_method(&"get_energy") else INF
+	cost_chip.add_theme_color_override(&"font_color", COST_SHORT_COLOR if energy < cost else COST_CHIP_COLOR)
+
+
+## The mode went off: the slot is the belt's again.
+func _leave_rework() -> void:
+	_rework = false
+	_rework_signature = ""
+	visible = true
+	if cost_chip != null:
+		cost_chip.visible = false
+	_model = {}
+	_in_hand = ""
+
+
+## Rework: what the slot shows, to notice a change (the shape, the learned shapes, the energy being
+## short of the charge).
+func _rework_key() -> String:
+	var player := BodyCards.world_player()
+	var shape_id := BodyCards.current_shape(player)
+	var short := false
+	if player != null and player.has_method(&"get_energy"):
+		short = float(player.call(&"get_energy")) < BodyCards.charge_energy(shape_id)
+	return "%s|%s|%s" % [shape_id, BodyCards.learned_shapes(), short]
+
+
 func _process(_delta: float) -> void:
+	if ReworkMode.is_on() != _rework or (_rework and _rework_key() != _rework_signature):
+		refresh()
 	if _shown_at_ms < 0.0:
 		return
 	var age := float(Time.get_ticks_msec()) - _shown_at_ms
@@ -195,8 +304,8 @@ func _open_carousel(from_index: int, to_index: int) -> void:
 	carousel.queue_redraw()
 
 
-## The owned belt weapons around the one in hand, in belt order, wrapping, each once (at most two
-## on each side): [offset, item id].
+## The owned belt weapons (rework: the learned shapes) around the one in hand, in belt order,
+## wrapping, each once (at most two on each side): [offset, its model entry].
 func _carousel_entries() -> Array:
 	var owned: Array[int] = []
 	var weapons: Array = _model["weapons"]
@@ -211,8 +320,16 @@ func _carousel_entries() -> Array:
 	var after := mini(2, floori(owned.size() / 2.0))
 	for offset in range(-before, after + 1):
 		var index: int = owned[posmod(middle + offset, owned.size())]
-		entries.append([offset, str((weapons[index] as Dictionary)["item_id"])])
+		entries.append([offset, weapons[index] as Dictionary])
 	return entries
+
+
+## A carousel entry's icon: the shape's (rework), else the belt weapon's.
+static func _entry_icon(entry: Dictionary) -> Texture2D:
+	var shape_id := str(entry.get("shape_id", ""))
+	if not shape_id.is_empty():
+		return BodyCards.shape_icon(StringName(shape_id))
+	return ItemIcons.icon(str(entry["item_id"]))
 
 
 func _draw_carousel() -> void:
@@ -238,16 +355,16 @@ func _draw_carousel() -> void:
 		var opacity: float = CAROUSEL_OPACITY[mini(absi(offset), CAROUSEL_OPACITY.size() - 1)]
 		var at := centre + Vector2(offset * CAROUSEL_STEP + slide, 0.0)
 		var rect := Rect2(at - Vector2.ONE * cell * 0.5, Vector2.ONE * cell)
-		var weapon_icon := ItemIcons.icon(str(entry[1]))
+		var entry_icon := _entry_icon(entry[1] as Dictionary)
 		carousel.draw_style_box(frame, rect)
-		if weapon_icon != null:
-			carousel.draw_texture_rect(weapon_icon, rect.grow(-cell * 0.12), false, Color(1.0, 1.0, 1.0, opacity))
+		if entry_icon != null:
+			carousel.draw_texture_rect(entry_icon, rect.grow(-cell * 0.12), false, Color(1.0, 1.0, 1.0, opacity))
 		if opacity < 1.0:
 			carousel.draw_rect(rect.grow(-2.0), Color(BACKING_COLOR, 1.0 - opacity))
 		if offset == 0:
 			carousel.draw_rect(rect.grow(1.0), UiTokens.WARNING, false, 2.5)
 	var font := get_theme_default_font()
-	var label := ItemCatalog.item_name(_in_hand_after_refresh())
+	var label := _carousel_label() if _rework else ItemCatalog.item_name(_in_hand_after_refresh())
 	if font != null and not label.is_empty():
 		var font_size := 13
 		var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
@@ -262,10 +379,24 @@ func _in_hand_after_refresh() -> String:
 	return str((weapons[selected] as Dictionary)["item_id"]) if selected >= 0 and selected < weapons.size() else ""
 
 
-## A click puts the next belt weapon in hand (like a scroll).
+## Rework: the carousel's name, the current shape's title.
+func _carousel_label() -> String:
+	var selected := int(_model.get("selected_index", -1))
+	var shapes: Array = _model.get("weapons", [])
+	return str((shapes[selected] as Dictionary)["label"]) if selected >= 0 and selected < shapes.size() else ""
+
+
+## A click puts the next belt weapon in hand (like a scroll); in the rework mode it takes the next
+## learned shape.
 func _on_slot_pressed() -> void:
 	if select_sfx != null and select_sfx.has_method(&"play_cue"):
 		select_sfx.call(&"play_cue")
+	if ReworkMode.is_on():
+		var shapes := BodyCards.shapes_of(BodyCards.world_player())
+		if shapes != null and shapes.has_method(&"cycle"):
+			shapes.call(&"cycle", 1)
+		refresh()
+		return
 	var next := WeaponLoadout.cycle_slot(1)
 	if next >= 0:
 		var actions := get_tree().get_first_node_in_group(INVENTORY_ACTIONS_GROUP)

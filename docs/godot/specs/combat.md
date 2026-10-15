@@ -675,6 +675,10 @@ particles, floating texts, the player's flash timer, and the player input reader
 AnimationPlayers in the world stay pausable (Phaser freezes them).
 Do not use `Engine.time_scale = 0`: it would also freeze particles/shake.
 
+Body-shapes rework (branch `exp/body-shapes`): the rework's juice (`GameFeel.play_hit`, the trauma
+shake and kick, the room clear, the white-then-tint flash, the number pop) is additive; the presets
+and functions above are unchanged. See [BODY_SHAPES.md](../BODY_SHAPES.md) "Juice".
+
 ---
 
 ## 11. Hit flash (`setTintFill`)

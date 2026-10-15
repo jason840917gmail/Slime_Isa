@@ -359,6 +359,11 @@ out and stops by the normal rule. Then `AreaTransition` plays for main's worlds
 A track's heard volume is `volume_linear = base × gain × duck` on its own player; buses carry the
 settings.
 
+Body-shapes rework (branch `exp/body-shapes`): `dip(db, duration_ms)` drops every music track by
+`db` for `duration_ms` of real time (a factor `_dip` in the volume, 1 otherwise), for the rework's
+room clear (`GameFeel.room_clear`, `combat.roomClear.musicDropDb` / `musicDropMs`); nothing calls
+it outside the rework ([BODY_SHAPES.md](../BODY_SHAPES.md) "Juice").
+
 ---
 
 ## 8. Edge cases
@@ -446,11 +451,12 @@ The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`
 | `GulpBurp` / `GulpWearOff` | a tap away from a spot ends the form / the form's time runs out | same |
 | `LashCatch` | the tendril hooks a pickup or an anchor (a miss stays silent, the owner's pick) | `lash_sequence.gd` `_catch` |
 | `WebStruggle` | a direction held while a web roots the slime (700 ms apart) | `player.gd` `_move` |
-| `FallDown` | climbing down the cracked-ground hole (that door's `use_cue`) | `interaction_controller.gd` `_use_door` |
-| `DoorUse` | any other door, hut or ladder (`door.gd` `use_cue` default) | same |
+| `FallDown` | climbing down the cracked-ground hole (that door's `use_cue`), falling into a ladderless hole (`fall_cue`) | `door.gd` `_play_lead` |
+| `DoorUse` | an opening, a ladder, an interior's way out (`door.gd` `use_cue` default); also the placeholder for a door cue without a take | same |
+| `DoorOpen` / `DoorClose` | a real door's leaf swings open as the slime pushes in / closes behind it on arrival (2026-10-14; **no takes yet**: `DoorUse` plays instead until `Effects/DoorOpen` and `Effects/DoorClose` are added to `global.tscn`) | `door.gd` `_play_lead`, `_physics_process` |
 | `PlatePress` / `PlateRelease` | a pressure plate goes down / comes back up | `pressure_plate.gd` |
 | `GateOpen` | a gate opens (plate, bell or key) | `gate.gd` `open` |
-| `GateUnlock` / `GateLocked` | a key unlocks a gate / a gate stays shut (no key, stuck) | `interaction_controller.gd` `_use_gate` |
+| `GateUnlock` / `GateLocked` | a key unlocks a gate / a gate stays shut (no key, stuck), when the slime pushes against it | `gate.gd` `push_open` |
 | `GroundCreak` | cracked ground creaks under a Heavy slime (with its text, 4 s apart) | `cracked_ground.gd` |
 | `DummyHit` | any hit on the training dummy | `training_dummy.gd` |
 | `DropPop` / `DropLand` | each loot or resource pile flies out / lands | `resource_drops.gd` `_launch` |

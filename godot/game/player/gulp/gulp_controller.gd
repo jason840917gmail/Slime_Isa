@@ -12,11 +12,17 @@ extends RefCounted
 ## over deep water (abilities spec 11.7): it cannot be spat out, popped or swapped for one that does
 ## not swim until the slime is out.
 ##
-## Owner: abilities.
+## Body-shapes rework (body-shapes plan section 5, the swap rule; only while ReworkMode is on): a
+## deliberate swap (swallowing another essence, a Q hold in mouth_hold.gd) drops the old form's
+## essence whole beside the slime, where it stays (no `gulp.popGrabMs` fade). A hit's pop is as
+## above.
+##
+## Owner: abilities (the rework swap rule: mouth).
 
 const Services := preload("res://game/shared/services.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const EssenceScript := preload("res://game/scripts/essence.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
 const MESSAGE_RISE := 56.0
 const SWIM_MESSAGE := "Swim back to the shallows first"
@@ -45,7 +51,9 @@ func swallow(item_id: String) -> String:
 	var previous := form
 	form = next
 	if not previous.is_empty():
-		_drop_essence(str(previous["essence"]), _side_point(), _constant("gulp.popGrabMs"))
+		# Rework: a deliberate swap leaves the old essence whole beside the slime, to stay.
+		var fade_ms := 0.0 if ReworkMode.is_on() else _constant("gulp.popGrabMs")
+		_drop_essence(str(previous["essence"]), _side_point(), fade_ms)
 		_player.call(&"on_gulp_form_changed", next, "switched")
 		return "switched"
 	_player.call(&"on_gulp_form_changed", next, "started")
@@ -101,7 +109,13 @@ func remaining_ms() -> float:
 	return 0.0
 
 
-## True while a form that swims keeps the slime afloat: some of its body is over deep water.
+## True while a form that swims keeps the slime afloat: some of its body is over deep water. Then
+## the form cannot be spat out, popped or swapped for one that does not swim (the mouth's Q holds
+## say so first, mouth_hold.gd).
+func held_by_water() -> bool:
+	return _held_by_water()
+
+
 func _held_by_water() -> bool:
 	return bool(form.get("swims", false)) and bool(_player.call(&"overlaps_deep_water"))
 

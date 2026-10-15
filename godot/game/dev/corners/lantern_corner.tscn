@@ -1,0 +1,203 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-01.tscn" id="tl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-03.tscn" id="tr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-05.tscn" id="bl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-07.tscn" id="br"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--horizontal-04.tscn" id="h4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--vertical-02.tscn" id="v2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="chest"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/training-dummy.tscn" id="dummy"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/deadthorn-hedge.tscn" id="hedge"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-unlit.tscn" id="cs_off"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-lit.tscn" id="cs_on"]
+[ext_resource type="Script" path="res://game/world/darkness/dark_room.gd" id="dark"]
+[ext_resource type="Script" path="res://game/world/fire/candle.gd" id="candle"]
+
+[node name="lantern-corner" type="Node2D"]
+y_sort_enabled = true
+position = Vector2(2560, 1920)
+
+[node name="walls" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="top-2624" parent="walls" instance=ExtResource("tl")]
+position = Vector2(64, 128)
+
+[node name="top-2816" parent="walls" instance=ExtResource("h4")]
+position = Vector2(256, 128)
+
+[node name="top-2880" parent="walls" instance=ExtResource("h4")]
+position = Vector2(320, 128)
+
+[node name="top-2944" parent="walls" instance=ExtResource("h4")]
+position = Vector2(384, 128)
+
+[node name="top-3008" parent="walls" instance=ExtResource("h4")]
+position = Vector2(448, 128)
+
+[node name="top-3072" parent="walls" instance=ExtResource("h4")]
+position = Vector2(512, 128)
+
+[node name="top-3136" parent="walls" instance=ExtResource("h4")]
+position = Vector2(576, 128)
+
+[node name="top-3200" parent="walls" instance=ExtResource("tr")]
+position = Vector2(640, 128)
+
+[node name="left-2112" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 192)
+
+[node name="right-2112" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 192)
+
+[node name="left-2176" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 256)
+
+[node name="right-2176" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 256)
+
+[node name="left-2240" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 320)
+
+[node name="right-2240" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 320)
+
+[node name="left-2304" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 384)
+
+[node name="right-2304" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 384)
+
+[node name="left-2368" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 448)
+
+[node name="right-2368" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 448)
+
+[node name="left-2432" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 512)
+
+[node name="right-2432" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 512)
+
+[node name="left-2496" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 576)
+
+[node name="right-2496" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 576)
+
+[node name="left-2560" parent="walls" instance=ExtResource("v2")]
+position = Vector2(64, 640)
+
+[node name="right-2560" parent="walls" instance=ExtResource("v2")]
+position = Vector2(640, 640)
+
+[node name="bottom-2624" parent="walls" instance=ExtResource("bl")]
+position = Vector2(64, 704)
+
+[node name="bottom-2688" parent="walls" instance=ExtResource("h4")]
+position = Vector2(128, 704)
+
+[node name="bottom-2752" parent="walls" instance=ExtResource("h4")]
+position = Vector2(192, 704)
+
+[node name="bottom-2816" parent="walls" instance=ExtResource("h4")]
+position = Vector2(256, 704)
+
+[node name="bottom-2880" parent="walls" instance=ExtResource("h4")]
+position = Vector2(320, 704)
+
+[node name="bottom-2944" parent="walls" instance=ExtResource("h4")]
+position = Vector2(384, 704)
+
+[node name="bottom-3008" parent="walls" instance=ExtResource("h4")]
+position = Vector2(448, 704)
+
+[node name="bottom-3072" parent="walls" instance=ExtResource("h4")]
+position = Vector2(512, 704)
+
+[node name="bottom-3136" parent="walls" instance=ExtResource("h4")]
+position = Vector2(576, 704)
+
+[node name="bottom-3200" parent="walls" instance=ExtResource("br")]
+position = Vector2(640, 704)
+
+[node name="nook-top-2944" parent="walls" instance=ExtResource("h4")]
+position = Vector2(384, 512)
+
+[node name="nook-top-3136" parent="walls" instance=ExtResource("h4")]
+position = Vector2(576, 512)
+
+[node name="nook-side-2496" parent="walls" instance=ExtResource("v2")]
+position = Vector2(384, 576)
+
+[node name="nook-side-2560" parent="walls" instance=ExtResource("v2")]
+position = Vector2(384, 640)
+
+[node name="deadthorn-hedge" parent="." instance=ExtResource("hedge")]
+position = Vector2(480, 514)
+
+[node name="nook-chest" parent="." instance=ExtResource("chest")]
+position = Vector2(512, 616)
+metadata/instance_id = "playground-lantern-nook-chest"
+metadata/persistence_key = "playground.playground-lantern-nook-chest"
+
+[node name="ChestScript" parent="nook-chest" index="2"]
+map_id = "playground"
+instance_id = "playground-lantern-nook-chest"
+initial_contents = {
+"energy-potion": 2,
+"shard": 3
+}
+
+[node name="candle-1" type="Node2D" parent="."]
+position = Vector2(142, 230)
+y_sort_enabled = true
+script = ExtResource("candle")
+unlit_scene = ExtResource("cs_off")
+lit_scene = ExtResource("cs_on")
+flame_offset = Vector2(0, -60)
+
+[node name="candle-2" type="Node2D" parent="."]
+position = Vector2(562, 230)
+y_sort_enabled = true
+script = ExtResource("candle")
+unlit_scene = ExtResource("cs_off")
+lit_scene = ExtResource("cs_on")
+flame_offset = Vector2(0, -60)
+
+[node name="candle-3" type="Node2D" parent="."]
+position = Vector2(142, 652)
+y_sort_enabled = true
+script = ExtResource("candle")
+unlit_scene = ExtResource("cs_off")
+lit_scene = ExtResource("cs_on")
+flame_offset = Vector2(0, -60)
+
+[node name="candle-4" type="Node2D" parent="."]
+position = Vector2(316, 652)
+y_sort_enabled = true
+script = ExtResource("candle")
+unlit_scene = ExtResource("cs_off")
+lit_scene = ExtResource("cs_on")
+flame_offset = Vector2(0, -60)
+
+[node name="dummy-1" parent="." instance=ExtResource("dummy")]
+position = Vector2(280, 400)
+metadata/instance_id = "playground-lantern-dummy-1"
+metadata/persistence_key = "playground.playground-lantern-dummy-1"
+
+[node name="dummy-2" parent="." instance=ExtResource("dummy")]
+position = Vector2(510, 340)
+metadata/instance_id = "playground-lantern-dummy-2"
+metadata/persistence_key = "playground.playground-lantern-dummy-2"
+
+[node name="dark-room" type="Node2D" parent="."]
+position = Vector2(28, 40)
+script = ExtResource("dark")
+size = Vector2(648, 684)
+candles = Array[NodePath]([NodePath("../candle-1"), NodePath("../candle-2"), NodePath("../candle-3"), NodePath("../candle-4")])
+lit_flag = "playground.lantern-corner-lit"
+
+[editable path="nook-chest"]

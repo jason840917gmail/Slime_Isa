@@ -67,6 +67,10 @@ var _boss_track_missing: bool = false
 var _world_gain: float = 0.0
 var _boss_gain: float = 0.0
 var _duck: float = 1.0
+## A short music drop (`dip`; the body-shapes rework's room clear, combat-feel plan section 6): a
+## volume factor and when it ends (real ms; < 0: none). 1.0 while no dip runs.
+var _dip: float = 1.0
+var _dip_until_ms: float = -1.0
 ## camp_id -> true for every camp whose boss fight is on.
 var _engaged: Dictionary = {}
 ## The leave fade's duration in ms, < 0 when not leaving.
@@ -141,6 +145,14 @@ func fade_out(duration_ms: float) -> void:
 	_leaving_ms = maxf(1.0, duration_ms)
 
 
+## Drops every music track by `db` (its absolute value) for `duration_ms` of real time, then back
+## at once (GameFeel.room_clear, body-shapes rework only; docs/godot/BODY_SHAPES.md "Juice").
+func dip(db: float, duration_ms: float) -> void:
+	_dip = db_to_linear(-absf(db))
+	_dip_until_ms = float(Time.get_ticks_msec()) + maxf(0.0, duration_ms)
+	_apply_volumes()
+
+
 ## One Phaser `update(deltaMs)` (MusicDirector.ts:62-81), plus binding new boss camps and
 ## watching main's travel. `_process` calls it every frame; tests may call it directly.
 func advance(delta_ms: float) -> void:
@@ -150,6 +162,9 @@ func advance(delta_ms: float) -> void:
 	var step := maxf(0.0, delta_ms)
 	var duck_target := MUSIC_PAUSE_DUCK if is_menu_paused() else 1.0
 	_duck = _approach(_duck, duck_target, step / MUSIC_DUCK_MS * (1.0 - MUSIC_PAUSE_DUCK))
+	if _dip_until_ms >= 0.0 and float(Time.get_ticks_msec()) >= _dip_until_ms:
+		_dip = 1.0
+		_dip_until_ms = -1.0
 	if not audio_unlocked:
 		_apply_volumes()
 		return
@@ -469,13 +484,13 @@ func _advance_fading(step_ms: float) -> void:
 
 func _apply_volumes() -> void:
 	if _valid(_world_track):
-		_world_track.volume_linear = _world_base * _world_gain * _duck
+		_world_track.volume_linear = _world_base * _world_gain * _duck * _dip
 	if _valid(_boss_track):
-		_boss_track.volume_linear = _boss_base * _boss_gain * _duck
+		_boss_track.volume_linear = _boss_base * _boss_gain * _duck * _dip
 	for entry: Dictionary in _fading:
 		var player: Variant = entry["player"]
 		if is_instance_valid(player):
-			(player as AudioStreamPlayer).volume_linear = float(entry["base"]) * float(entry["gain"]) * _duck
+			(player as AudioStreamPlayer).volume_linear = float(entry["base"]) * float(entry["gain"]) * _duck * _dip
 
 
 func _release(player: Variant) -> void:

@@ -28,8 +28,11 @@ its code is in git history.
   with F6 runs the playground testbed (every weapon and ability); F6 on a world scene runs the game
   in that world.
 - Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
-  `?recipes`, `?arsenal`, `?audition` on the web; `-- --map=<id> ...` on desktop
-  ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world)).
+  `?recipes`, `?arsenal`, `?audition`, `?shapes` (the body-shapes rework mode in any world),
+  `?classic` (the rework mode off in the playground, where it is on by default) on the web;
+  `-- --map=<id> ...`, `-- --shapes`, `-- --classic` on desktop
+  ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
+  the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md)).
 - `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
   (about ten minutes for the full suite).
 - `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd` — loads every
@@ -62,7 +65,8 @@ its code is in git history.
   concepts) and `asset/project/` (sprite-sheet projects) stay outside the Godot project.
 - `godot/tools/` — headless tools (scene verifier, clip and theme builders, labs, the region world
   builder);
-  `godot/tests/` — the test suite; `godot/addons/godot_ai/` — the editor plugin (MCP bridge).
+  `godot/tests/` — the test suite; `godot/addons/godot_ai/` — the editor plugin (MCP bridge);
+  `godot/addons/strike_preview/` — the body shapes' strike preview in the Inspector.
 - `scripts/` — art and audio tools and the test runner; `tools/` is unrelated to the game build.
 
 ## Architecture Rules

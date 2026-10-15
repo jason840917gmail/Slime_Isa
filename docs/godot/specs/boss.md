@@ -391,6 +391,9 @@ floating text "<name> defeated!" yellow big at position − (0, 84)
 dispose the boss mount (the same step)
 ```
 `<name>` = `displayName`, else the boss id in title case (`bossDisplayName`, `:337-340`).
+Body-shapes rework (branch `exp/body-shapes`): in the rework mode `_mark_boss_defeated` also plays
+`GameFeel.room_clear()` after the `boss-defeated` feel (music dip, freeze, stutter;
+[BODY_SHAPES.md](../BODY_SHAPES.md) "Juice").
 No coins, loot or XP (`onManagedEnemyDefeated` is only for ordinary enemies). Respawn: only after
 the player has been outside the activation circle since the defeat, re-enters, and 180 s of wall
 clock have passed.

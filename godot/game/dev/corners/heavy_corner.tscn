@@ -1,0 +1,215 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dev/corners/heavy_corner.gd" id="script"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-01.tscn" id="tl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-03.tscn" id="tr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--vertical-02.tscn" id="v2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--vertical-08.tscn" id="v8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--horizontal-04.tscn" id="h4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/gate-verdant.tscn" id="gate"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="chest"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-plate.tscn" id="plate"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-block.tscn" id="block"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="statue"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/essence-stone.tscn" id="essence"]
+
+[node name="heavy-corner" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("script")
+
+[node name="title" type="Label" parent="."]
+offset_left = 2744.0
+offset_top = 3650.0
+offset_right = 3300.0
+offset_bottom = 3712.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = "Heavy corner
+Hold Q on a stone essence to become Stone: only Stone sinks the plates.
+Hold right click [W] by a block to grab it; walk to push or pull."
+
+[node name="walls" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="top-2496" parent="walls" instance=ExtResource("tl")]
+position = Vector2(2496, 2752)
+
+[node name="top-2560" parent="walls" instance=ExtResource("h4")]
+position = Vector2(2560, 2752)
+
+[node name="top-2624" parent="walls" instance=ExtResource("h4")]
+position = Vector2(2624, 2752)
+
+[node name="top-2688" parent="walls" instance=ExtResource("h4")]
+position = Vector2(2688, 2752)
+
+[node name="top-2752" parent="walls" instance=ExtResource("h4")]
+position = Vector2(2752, 2752)
+
+[node name="top-2816" parent="walls" instance=ExtResource("h4")]
+position = Vector2(2816, 2752)
+
+[node name="top-2880" parent="walls" instance=ExtResource("h4")]
+position = Vector2(2880, 2752)
+
+[node name="top-2944" parent="walls" instance=ExtResource("h4")]
+position = Vector2(2944, 2752)
+
+[node name="top-3008" parent="walls" instance=ExtResource("h4")]
+position = Vector2(3008, 2752)
+
+[node name="top-3072" parent="walls" instance=ExtResource("h4")]
+position = Vector2(3072, 2752)
+
+[node name="top-3136" parent="walls" instance=ExtResource("h4")]
+position = Vector2(3136, 2752)
+
+[node name="top-3200" parent="walls" instance=ExtResource("h4")]
+position = Vector2(3200, 2752)
+
+[node name="top-3264" parent="walls" instance=ExtResource("tr")]
+position = Vector2(3264, 2752)
+
+[node name="side-2496-2816" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2496, 2816)
+
+[node name="side-2496-2880" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2496, 2880)
+
+[node name="side-2880-2816" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2880, 2816)
+
+[node name="side-2880-2880" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2880, 2880)
+
+[node name="side-3264-2816" parent="walls" instance=ExtResource("v2")]
+position = Vector2(3264, 2816)
+
+[node name="side-3264-2880" parent="walls" instance=ExtResource("v2")]
+position = Vector2(3264, 2880)
+
+[node name="side-2496-2944" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2496, 2944)
+
+[node name="side-2496-3008" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2496, 3008)
+
+[node name="side-2496-3072" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2496, 3072)
+
+[node name="side-2496-3136" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2496, 3136)
+
+[node name="foot-2496" parent="walls" instance=ExtResource("v8")]
+position = Vector2(2496, 3200)
+
+[node name="side-2880-2944" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2880, 2944)
+
+[node name="side-2880-3008" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2880, 3008)
+
+[node name="side-2880-3072" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2880, 3072)
+
+[node name="side-2880-3136" parent="walls" instance=ExtResource("v2")]
+position = Vector2(2880, 3136)
+
+[node name="foot-2880" parent="walls" instance=ExtResource("v8")]
+position = Vector2(2880, 3200)
+
+[node name="side-3264-2944" parent="walls" instance=ExtResource("v2")]
+position = Vector2(3264, 2944)
+
+[node name="side-3264-3008" parent="walls" instance=ExtResource("v2")]
+position = Vector2(3264, 3008)
+
+[node name="side-3264-3072" parent="walls" instance=ExtResource("v2")]
+position = Vector2(3264, 3072)
+
+[node name="side-3264-3136" parent="walls" instance=ExtResource("v2")]
+position = Vector2(3264, 3136)
+
+[node name="foot-3264" parent="walls" instance=ExtResource("v8")]
+position = Vector2(3264, 3200)
+
+[node name="heavy-gate-a" parent="." instance=ExtResource("gate")]
+position = Vector2(2688, 3200)
+metadata/instance_id = "playground-heavy-gate-a"
+metadata/persistence_key = "playground.playground-heavy-gate-a"
+
+[node name="GateScript" parent="heavy-gate-a" index="4"]
+map_id = "playground"
+gate_id = "playground-heavy-gate-a"
+required_item_id = "heavy-plate-weight"
+prompt = "Heavy gate"
+locked_message = "It does not budge. A heavy weight on its plate opens it."
+
+[node name="heavy-gate-b" parent="." instance=ExtResource("gate")]
+position = Vector2(3072, 3200)
+metadata/instance_id = "playground-heavy-gate-b"
+metadata/persistence_key = "playground.playground-heavy-gate-b"
+
+[node name="GateScript" parent="heavy-gate-b" index="4"]
+map_id = "playground"
+gate_id = "playground-heavy-gate-b"
+required_item_id = "heavy-plate-weight"
+prompt = "Heavy gate"
+locked_message = "It does not budge. A heavy weight on its plate opens it."
+
+[node name="heavy-chest-a" parent="." instance=ExtResource("chest")]
+position = Vector2(2688, 2864)
+metadata/instance_id = "playground-heavy-chest-a"
+metadata/persistence_key = "playground.playground-heavy-chest-a"
+
+[node name="ChestScript" parent="heavy-chest-a" index="2"]
+map_id = "playground"
+instance_id = "playground-heavy-chest-a"
+initial_contents = {
+"hp-potion": 2,
+"shard": 2
+}
+
+[node name="heavy-chest-b" parent="." instance=ExtResource("chest")]
+position = Vector2(3072, 2864)
+metadata/instance_id = "playground-heavy-chest-b"
+metadata/persistence_key = "playground.playground-heavy-chest-b"
+
+[node name="ChestScript" parent="heavy-chest-b" index="2"]
+map_id = "playground"
+instance_id = "playground-heavy-chest-b"
+initial_contents = {
+"energy-potion": 2,
+"purple-berry-mat": 3
+}
+
+[node name="plate-a" parent="." instance=ExtResource("plate")]
+position = Vector2(2688, 3616)
+gate_id = "playground-heavy-gate-a"
+
+[node name="plate-a-inside" parent="." instance=ExtResource("plate")]
+position = Vector2(2560, 2912)
+gate_id = "playground-heavy-gate-a"
+
+[node name="plate-b" parent="." instance=ExtResource("plate")]
+position = Vector2(3072, 3360)
+gate_id = "playground-heavy-gate-b"
+
+[node name="pedestal-b" parent="." instance=ExtResource("block")]
+position = Vector2(3200, 3488)
+
+[node name="spare-statue" parent="." instance=ExtResource("statue")]
+position = Vector2(2880, 3552)
+
+[node name="stone-essence-1" parent="." instance=ExtResource("essence")]
+position = Vector2(2560, 3424)
+metadata/instance_id = "playground-heavy-stone-essence-1"
+
+[node name="stone-essence-2" parent="." instance=ExtResource("essence")]
+position = Vector2(2560, 3520)
+metadata/instance_id = "playground-heavy-stone-essence-2"
+
+[editable path="heavy-gate-a"]
+[editable path="heavy-gate-b"]
+[editable path="heavy-chest-a"]
+[editable path="heavy-chest-b"]

@@ -30,6 +30,7 @@
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="28"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="29"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="world_ground"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/Houses/doors/interior-timber-door.webp" id="door_art"]
 
 [node name="gloop-hut" type="Node2D"]
 y_sort_enabled = true
@@ -81,19 +82,28 @@ position = Vector2(448, 624)
 y_sort_enabled = true
 position = Vector2(448, 694)
 
-[node name="door-script" type="Node" parent="house-door"]
+[node name="door-script" type="Node" parent="house-door" node_paths=PackedStringArray("house_art")]
 script = ExtResource("3")
 map_id = "gloop-hut"
 door_id = "house-door"
 target_area_id = "gloop-forest"
 target_door_id = "hut-door"
-prompt = "Leave hut"
-interact_radius = 80.0
-badge_rise = 84.0
+side = "south"
+kind = "door"
+house_art = NodePath("../../house-door-art")
+door_rect = Rect2(-57.5, -50.6, 114.8, 49.1)
+double_leaf = true
 
 [node name="arrival" type="Node2D" parent="house-door"]
 y_sort_enabled = true
 position = Vector2(0, -70)
+
+[node name="house-door-art" type="Sprite2D" parent="."]
+position = Vector2(448, 643)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("door_art")
+centered = false
+offset = Vector2(-120, 0)
 
 [node name="back-wall-1" parent="." instance=ExtResource("4")]
 position = Vector2(64, 150)
@@ -226,7 +236,7 @@ metadata/instance_id = "gloop-hut-door-post-east"
 metadata/persistence_key = "world.gloop-hut.door-post-east"
 
 [node name="doormat" parent="." instance=ExtResource("9")]
-position = Vector2(448, 696)
+position = Vector2(448, 650)
 metadata/instance_id = "gloop-hut-doormat"
 metadata/persistence_key = "world.gloop-hut.doormat"
 

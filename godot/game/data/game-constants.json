@@ -30,7 +30,23 @@
     "weaponMaxStack": 1
   },
   "worldNavigation": {
-  "edgeTransitionGraceMs": 650
+  "edgeTransitionGraceMs": 650,
+    "irisCloseMs": 450,
+    "irisHoldMs": 150,
+    "irisOpenMs": 450,
+    "doorArrivalStep": 48,
+    "doorWalkOutSpeedShare": 1,
+    "doorWalkOutMarginPx": 6,
+    "doorWalkOutMaxPx": 160,
+    "doorWalkOutProbeWidthPx": 200,
+    "doorPushMs": 200,
+    "doorPushAlignment": 0.7,
+    "holePushAlignment": 0.35,
+    "gatePushReachPx": 6,
+    "doorOpenMs": 250,
+    "doorCloseMs": 250,
+    "ladderClimbMs": 450,
+    "holeFallMs": 550
   },
   "elevation": {
     "behindDepth": 32,
@@ -64,7 +80,17 @@
       "clod-stomper": { "essence": "stone", "chance": 1 },
       "orb-weaver": { "essence": "silk", "chance": 0.35 },
       "slime-spider": { "essence": "silk", "chance": 0.35 }
-    }
+    },
+    "rework": {
+      "tapMs": 250,
+      "suckBurstMs": 1000,
+      "swallowHoldMs": 2000,
+      "spitHoldMs": 2000,
+      "ringCancelMs": 150,
+      "ringRadiusPx": 30,
+      "burstCooldownMs": 250
+    },
+    "throwHit": { "class": "thrown", "hitStopMs": 50, "trauma": 0.2, "sparks": 6 }
   },
   "input": {
     "bufferMs": 150,
@@ -79,6 +105,7 @@
       "followMaxMs": 8,
       "stuckMs": 400,
       "stillPx": 14,
+      "leanMs": 450,
       "pickRadiusPx": 18,
       "meleeFallbackPx": 52,
       "ledgePushExtraMs": 200
@@ -126,7 +153,259 @@
       },
       "gooHeart": {
         "maxHpBonus": 10
+      },
+      "rework": {
+        "energyRegenPerSecond": 0,
+        "rollTapMs": 200,
+        "quickRollDistancePx": 165,
+        "quickRollMs": 330,
+        "quickRollEndSpeedShare": 0.5,
+        "quickRollInvulnerabilityMs": 250,
+        "quickRollEnergy": 0
       }
     }
+  },
+  "combat": {
+    "chain": {
+      "linkMs": 150,
+      "holdMarginMs": 140,
+      "holdCapMs": 900,
+      "chargeStartMs": 250,
+      "chargeWalkScale": 0.5,
+      "restMs": { "spear": 210, "axe": 195, "hammer": 200 },
+      "finisherRecoilPx": 6,
+      "strikeSquash": { "x": 1.08, "y": 0.94, "ms": 120 },
+      "clink": { "recoilPx": 24, "recoilMs": 120, "hitStopMs": 30 },
+      "hitStop": { "extraTargetMs": 10, "extraTargetCapMs": 30, "killMs": 30, "capMs": 160 }
+    },
+    "hits": {
+      "tap": { "tier": 1, "poise": 1, "countsAsHold": true },
+      "finisher": { "tier": 2, "poise": 2, "countsAsHold": true },
+      "smash": { "tier": 3, "poise": 4, "countsAsHold": true },
+      "charge": { "tier": 3, "poise": 3, "countsAsHold": true },
+      "ring": { "tier": 2, "poise": 2, "countsAsHold": false },
+      "slam": { "tier": 3, "poise": 3, "countsAsHold": true },
+      "thrown": { "tier": 2, "poise": 2, "countsAsHold": false },
+      "roll": { "tier": 2, "poise": 1, "countsAsHold": true },
+      "suck": { "tier": 1, "poise": 0, "countsAsHold": false }
+    },
+    "verbs": {
+      "hold": { "nudgePx": 4, "nudgeMs": 120 },
+      "bounce": { "hopPx": 10 },
+      "knockback": { "stunMs": 500 },
+      "launch": { "stunMs": 600, "maxSpeed": 600, "spinDeg": 360, "hopPx": 12 },
+      "stagger": { "stunMs": 1050 },
+      "knockdown": { "stunMs": 1200, "damageTaken": 1.5 },
+      "daze": { "stunMs": 1550 },
+      "armor": { "windupPushMs": 60, "maxMs": 200 },
+      "pulled": { "speed": 180, "stopPx": 40, "holdMs": 300 },
+      "resist": { "slidePx": 12 },
+      "slideDecay": 0.94
+    },
+    "weights": {
+      "tiny": {
+        "classes": { "tap": "launch", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": "launch", "slam": "launch", "ring": "launch", "roll": "launch" },
+        "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
+      },
+      "light": {
+        "classes": { "tap": "hold", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": { "verb": "daze", "stunMs": 1550 }, "slam": "launch", "ring": "bounce", "roll": "launch" },
+        "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
+      },
+      "medium": {
+        "classes": { "tap": "hold", "finisher": "knockback", "charge": "launch", "smash": "launch", "thrown": { "verb": "knockdown", "stunMs": 1200 }, "slam": "launch", "ring": "bounce", "roll": "knockback" },
+        "roll": "bonk", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
+      },
+      "heavy": {
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "stagger", "smash": "stagger", "thrown": { "verb": "stagger", "stunMs": 650 }, "slam": { "verb": "knockdown", "stunMs": 1500, "damageTaken": 2 }, "ring": { "verb": "stagger", "stunMs": 650 }, "roll": "armor" },
+        "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 4, "breakVerb": { "verb": "stagger", "stunMs": 1150 }
+      },
+      "boss": {
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "armor", "smash": "armor", "thrown": "armor", "slam": "armor", "ring": "armor", "roll": "armor" },
+        "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
+      }
+    },
+    "rules": {
+      "holdCap": 2,
+      "holdResetFreeMs": 300,
+      "wakeGuardMs": 400,
+      "breakFreeArmorMs": 350,
+      "breakFreeTellMs": 350,
+      "pushSpeedScale": 0.5,
+      "poiseRegenDelayMs": 1200,
+      "poiseRegenPerS": 1,
+      "poiseBreakMs": 1150,
+      "killLaunchScale": 1.3,
+      "wallSplat": { "minSpeed": 140, "damageShare": 0.4, "hitStopMs": 50, "trauma": 0.25, "dazeMs": 1050, "bouncePx": 24, "perChain": 1, "squashX": 0.6, "squashY": 1.3, "squashMs": 100 },
+      "bowling": { "speedShare": 0.6, "damage": 4, "minSpeed": 140 },
+      "popStreak": { "windowMs": 1000, "semitones": 2, "maxSteps": 6 },
+      "rollBowlPassMs": 300
+    },
+    "trauma": {
+      "maxOffsetPx": 18,
+      "exponent": 2,
+      "decayPerS": 2.0,
+      "directionalShare": 0.6,
+      "noiseHz": 25
+    },
+    "roomClear": {
+      "freezeMs": 160,
+      "slowMs": 400,
+      "slowPausedSteps": 2,
+      "slowCycleSteps": 3,
+      "musicDropDb": 3,
+      "musicDropMs": 300
+    },
+    "energyShard": {
+      "dropChance": 0.2,
+      "amount": 15,
+      "pickupRadiusPx": 28,
+      "fadeMs": 12000
+    },
+    "damageNumbers": {
+      "smallColor": "white",
+      "bigColor": "yellow",
+      "popScale": 1.5,
+      "popMs": 100,
+      "bigClasses": ["finisher", "smash", "charge", "slam"]
+    }
+  },
+  "shapes": {
+    "spear": {
+      "id": "shape-spear",
+      "title": "Spear",
+      "tags": ["weapon", "spear"],
+      "baseDamage": 12,
+      "aim": "snap4",
+      "lineCheck": true,
+      "targetModifiers": {},
+      "chain": [
+        { "id": "jab", "class": "tap", "windupMs": 50, "activeMs": 60, "recoveryMs": 170, "cancelAtMs": 240, "damageScale": 0.97, "launchSpeed": 0, "hopPx": 0, "stepPx": 4, "minReach": 24, "width": 14, "knockMode": "aim", "walkCancel": true, "hitStopMs": 30, "trauma": 0, "kickPx": 0, "pitch": 1.0, "sparks": 5 },
+        { "id": "jab-2", "class": "tap", "windupMs": 50, "activeMs": 60, "recoveryMs": 170, "cancelAtMs": 240, "damageScale": 1.11, "launchSpeed": 0, "hopPx": 0, "stepPx": 4, "minReach": 24, "width": 14, "sidePx": 12, "knockMode": "aim", "walkCancel": true, "hitStopMs": 35, "trauma": 0, "kickPx": 0, "pitch": 1.12, "sparks": 7 },
+        { "id": "lunging-jab", "class": "finisher", "windupMs": 220, "activeMs": 90, "recoveryMs": 250, "cancelAtMs": 560, "damageScale": 1.46, "launchSpeed": 420, "hopPx": 0, "stepPx": 18, "stepFromMs": 160, "stepToMs": 260, "minReach": 24, "width": 14, "knockMode": "aim", "walkCancel": false, "hitStopMs": 75, "trauma": 0.45, "kickPx": 5, "pitch": 1.26, "sparks": 14, "impactRing": true, "thump": true,
+          "anticipation": { "pullMs": 160, "pullPx": 6, "pushPx": 4, "squashAlong": 0.84, "squashAcross": 1.12, "jumpPx": 0 } }
+      ],
+      "charge": {
+        "id": "lunge", "class": "charge", "ringMs": 600, "energy": 15,
+        "windupMs": 60, "activeMs": 120, "recoveryMs": 260,
+        "damageScale": 1.74, "launchSpeed": 460, "hopPx": 0, "knockMode": "aim",
+        "minReach": 24, "reach": 170, "width": 18, "pierce": true, "dashPx": 40, "dashMs": 120,
+        "hitStopMs": 90, "trauma": 0.45, "kickPx": 6, "pitch": 1.26, "sparks": 14
+      }
+    },
+    "axe": {
+      "id": "shape-axe",
+      "title": "War Axe",
+      "tags": ["weapon", "cut"],
+      "baseDamage": 15,
+      "aim": "snap4",
+      "lineCheck": false,
+      "targetModifiers": { "wood": 1, "stone": 0 },
+      "harvest": { "wood": 1 },
+      "chain": [
+        { "id": "sweep", "class": "tap", "windupMs": 100, "activeMs": 130, "recoveryMs": 160, "cancelAtMs": 325, "damageScale": 1.0, "launchSpeed": 0, "hopPx": 0, "stepPx": 6, "arcDeg": 140, "sweep": "cw", "knockMode": "sweep", "walkCancel": true, "hitStopMs": 40, "trauma": 0, "kickPx": 0, "pitch": 1.0, "sparks": 6 },
+        { "id": "backswing", "class": "tap", "windupMs": 80, "activeMs": 130, "recoveryMs": 150, "cancelAtMs": 300, "damageScale": 1.17, "launchSpeed": 0, "hopPx": 0, "stepPx": 4, "arcDeg": 140, "sweep": "ccw", "knockMode": "sweep", "walkCancel": true, "hitStopMs": 45, "trauma": 0, "kickPx": 0, "pitch": 1.12, "sparks": 7 },
+        { "id": "chop", "class": "finisher", "windupMs": 260, "activeMs": 90, "recoveryMs": 300, "cancelAtMs": 650, "damageScale": 1.5, "launchSpeed": 400, "hopPx": 0, "stepPx": 12, "stepFromMs": 90, "stepToMs": 260, "arcDeg": 110, "chop": true, "sweep": "cw", "knockMode": "radial", "walkCancel": false, "hitStopMs": 90, "trauma": 0.45, "kickPx": 5, "pitch": 1.26, "sparks": 14, "impactRing": true,
+          "anticipation": { "pullMs": 90, "pullPx": 4, "pushPx": 3, "squashAlong": 0.86, "squashAcross": 1.12, "jumpPx": 28 } }
+      ],
+      "charge": {
+        "id": "spin", "class": "charge", "ringMs": 900, "energy": 20,
+        "windupMs": 0, "activeMs": 360, "recoveryMs": 300,
+        "arcDeg": 360, "radius": 72, "damageScale": 2.2, "launchSpeed": 380, "hopPx": 0, "knockMode": "radial",
+        "hitStopMs": 85, "trauma": 0.5, "kickPx": 0, "pitch": 1.0, "sparks": 12
+      }
+    },
+    "hammer": {
+      "id": "shape-hammer",
+      "title": "Hammer",
+      "tags": ["weapon", "crush"],
+      "baseDamage": 30,
+      "aim": "snap4",
+      "lineCheck": false,
+      "targetModifiers": { "stone": 1, "iron": 1 },
+      "harvest": { "stone": 1 },
+      "harvestStoneForm": { "iron": 2 },
+      "chain": [
+        { "id": "thud", "class": "smash", "windupMs": 260, "activeMs": 80, "recoveryMs": 300, "cancelAtMs": 460, "damageScale": 1.0, "launchSpeed": 0, "hopPx": 0, "stepPx": 8, "stepFromMs": 160, "stepToMs": 260, "radius": 48, "knockMode": "radial", "walkCancel": true, "hitStopMs": 80, "trauma": 0.3, "kickPx": 0, "pitch": 1.0, "sparks": 8, "flattenX": 1.3, "flattenY": 0.6, "debris": true },
+        { "id": "boom", "class": "smash", "windupMs": 280, "activeMs": 100, "recoveryMs": 400, "cancelAtMs": 780, "damageScale": 1.5, "launchSpeed": 380, "hopPx": 16, "stepPx": 20, "stepFromMs": 170, "stepToMs": 280, "radius": 48, "knockMode": "radial", "walkCancel": false, "hitStopMs": 120, "trauma": 0.6, "kickPx": 5, "pitch": 1.12, "sparks": 14, "cracks": true,
+          "anticipation": { "pullMs": 170, "pullPx": 6, "pushPx": 5, "squashAlong": 0.86, "squashAcross": 1.14, "jumpPx": 0 },
+          "ringHit": { "class": "ring", "radius": 72, "damageScale": 0.5, "bounceMs": 500 } }
+      ],
+      "charge": {
+        "id": "quake", "class": "charge", "ringMs": 1000, "energy": 25,
+        "windupMs": 320, "activeMs": 100, "recoveryMs": 450,
+        "radius": 56, "offset": 68, "damageScale": 2.0, "launchSpeed": 420, "hopPx": 20, "knockMode": "radial",
+        "hitStopMs": 150, "trauma": 0.75, "kickPx": 5, "pitch": 1.0, "sparks": 16,
+        "cracks": { "class": "ring", "radius": 120, "damageScale": 0.5, "bounceMs": 700 }
+      }
+    }
+  },
+  "abilities": {
+    "squashSlam": {
+      "energy": 35,
+      "cooldownMs": 2500,
+      "crouchEndMs": 120,
+      "riseEndMs": 320,
+      "hangEndMs": 380,
+      "impactMs": 460,
+      "doneMs": 640,
+      "riseUnits": 96,
+      "airborneFromMs": 140,
+      "airborneToMs": 440,
+      "ignoresKnockback": true,
+      "ellipse": { "width": 140, "height": 96, "innerShare": 0.5 },
+      "inner": { "class": "slam", "damage": 40, "launchSpeed": 380, "hopPx": 16 },
+      "outer": { "class": "ring", "damage": 24, "launchSpeed": 300, "bounceMs": 600 },
+      "stoneDamageBonus": 0.25,
+      "feel": { "shakeMs": 240, "intensity": 0.014, "hitStopMs": 110, "trauma": 0.7 },
+      "stoneFeel": { "shakeMs": 260, "intensity": 0.018, "hitStopMs": 140, "trauma": 0.8 },
+      "wobbleRadiusPx": 200
+    },
+    "gooBomb": {
+      "energy": 20,
+      "cooldownMs": 600,
+      "castMs": 2000,
+      "castPulses": 4,
+      "castSwell": 0.1,
+      "spitMs": 320,
+      "hopPx": 64,
+      "hopMs": 260,
+      "hopArcPx": 18,
+      "fuseMs": 3000,
+      "pulseStartHz": 2,
+      "pulseEndHz": 8,
+      "flashMs": 500,
+      "chainDelayMs": 120,
+      "ellipse": { "width": 176, "height": 120 },
+      "hit": { "class": "slam", "damage": 40, "launchSpeed": 380, "hopPx": 16 },
+      "selfDamage": 18,
+      "mouthDamage": 28,
+      "selfKnockback": 300,
+      "feel": { "hitStopMs": 120, "trauma": 0.9 },
+      "lightRadiusPx": 40,
+      "blastLightRadiusPx": 220,
+      "blastLightMs": 250
+    },
+    "lantern": {
+      "energy": 10,
+      "cooldownMs": 300,
+      "clipMs": 200,
+      "releaseMs": 70,
+      "flame": { "class": "tap", "damage": 5, "holdMs": 250, "rangePx": 72, "speed": 900, "lingerMs": 150, "radiusPx": 10, "lightRadiusPx": 90,
+        "feel": { "hitStopMs": 45, "trauma": 0.15, "kickPx": 2, "sparks": 4 } },
+      "glow": { "radiusPx": 160, "flareMs": 260 },
+      "candle": { "lightRadiusPx": 110, "gutterMs": 5000 },
+      "burnable": { "burnMs": 600, "spreadPx": 24 },
+      "darkness": { "alpha": 0.92, "softPx": 40, "maxLights": 16, "litFadeMs": 1500 }
+    }
+  },
+  "puzzles": {
+    "heavyPlate": { "sinkMs": 3000, "riseMs": 5000, "sinkPx": 6, "playerRadiusPx": 30, "blockRadiusPx": 24,
+      "ringRadiusPx": 46, "grindIntervalMs": 420 },
+    "heavyBlock": { "cellPx": 64, "moveMs": 640, "startDelayMs": 180, "grabReachPx": 14, "strainLineMs": 2400,
+      "strainWobble": 0.06, "strainHz": 7 }
+  },
+  "abilityBox": {
+    "socketCount": 8,
+    "sockets": ["squash-slam", "stretch-lash", "teleport", "lantern", "goo-bombs", "goo-boomerang", "spore-powder"]
   }
 }

@@ -27,6 +27,7 @@ const Services := preload("res://game/shared/services.gd")
 const BossArena := preload("res://game/bosses/boss_arena.gd")
 const AreaShapes := preload("res://game/bosses/area_shapes.gd")
 const EnemyScript := preload("res://game/scripts/enemy.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
 const GROUP := &"boss_camp"
 ## UniversalSceneWorldController.ts:2025-2033: defeat burst and text above the boss position.
@@ -315,7 +316,8 @@ func _on_boss_defeated_signal(_payload: Dictionary, boss_ref: Variant) -> void:
 
 ## `progress.markBossDefeated` (UniversalSceneWorldController.ts:596-600): `defeatBoss` (the
 ## boss id joins RunState `defeated_boss_ids` once), the 'boss.defeated' listeners that are ported
-## (the Victory cue), the boss-defeated feel.
+## (the Victory cue), the boss-defeated feel; in the body-shapes rework mode also the room-clear
+## moment (GameFeel.room_clear: music dip, freeze, stutter; docs/godot/BODY_SHAPES.md "Juice").
 func _mark_boss_defeated() -> void:
 	var run := Services.run()
 	if run == null:
@@ -328,6 +330,8 @@ func _mark_boss_defeated() -> void:
 	if feel != null:
 		feel.audio_cue(VICTORY_CUE)
 		feel.play(DEFEAT_FEEL)
+		if ReworkMode.is_on():
+			feel.room_clear()
 
 
 ## `setBossCampRespawnReadyAt` (WorldProgress.ts:524-533): NO_RESPAWN removes the camp's entry,

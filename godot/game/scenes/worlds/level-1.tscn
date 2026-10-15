@@ -351,28 +351,26 @@ map_id = "level-1"
 door_id = "home-door"
 target_area_id = "slime-home"
 target_door_id = "house-door"
-prompt = "Enter house"
-interact_radius = 90.0
-
-[node name="arrival" type="Node2D" parent="home-door" unique_id=54246376]
-y_sort_enabled = true
-position = Vector2(2, 51)
+side = "north"
 
 [node name="mushroom-door-level-1" type="Node2D" parent="." unique_id=502820606]
 y_sort_enabled = true
-position = Vector2(1492.2, 489.6)
+position = Vector2(1520, 392)
 
-[node name="Door Script" type="Node" parent="mushroom-door-level-1" unique_id=493726282]
+[node name="Door Script" type="Node" parent="mushroom-door-level-1" unique_id=493726282 node_paths=PackedStringArray("house_art")]
 script = ExtResource("5")
 map_id = "level-1"
 door_id = "mushroom-home-door"
 target_area_id = "mushroom-home"
 target_door_id = "house-door"
-prompt = "Enter house"
-
-[node name="arrival" type="Node2D" parent="mushroom-door-level-1" unique_id=671447484]
-y_sort_enabled = true
-position = Vector2(1, 48)
+side = "north"
+arrival_step = 20.0
+kind = "door"
+trigger_rect = Rect2(-16, -60, 32, 80)
+house_art = NodePath("../../Village Workshops/mushroom-red/Visual")
+door_rect = Rect2(-14, -84, 37.5, 34)
+door_arch = 17.0
+leaf_art_path = "res://asset/MAPS/Houses/doors/mushroom-door-leaf.png"
 
 [node name="Forest Border" type="Node2D" parent="." unique_id=1547571444]
 y_sort_enabled = true

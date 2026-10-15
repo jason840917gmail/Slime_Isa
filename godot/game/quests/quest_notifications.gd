@@ -26,6 +26,8 @@ extends RefCounted
 const Services := preload("res://game/shared/services.gd")
 const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+## The key an ability's toast names (in the body-shapes rework mode a box ability's is `ability_use`).
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
 const WORLD_MAIN_GROUP := &"world_main"
@@ -146,7 +148,7 @@ func _on_ability_learned(payload: Dictionary) -> void:
 		AbilityCeremony.request(tree, StringName(ability_id))
 		ceremony_requested.emit({"ability_id": ability_id})
 		return
-	var key := ControlLabels.control_label(AbilityDefinitions.action(StringName(ability_id)))
+	var key := ControlLabels.control_label(AbilityBox.key_action(StringName(ability_id)))
 	_banner("%s learned: press %s" % [AbilityDefinitions.title(StringName(ability_id)), key], ABILITY_COLOR)
 
 

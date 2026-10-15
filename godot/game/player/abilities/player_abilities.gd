@@ -21,8 +21,13 @@ const Definitions := preload("res://game/player/abilities/ability_definitions.gd
 const AbilityTerrain := preload("res://game/player/abilities/ability_terrain.gd")
 const JumpSequence := preload("res://game/player/abilities/jump_sequence.gd")
 const SlamSequence := preload("res://game/player/abilities/slam_sequence.gd")
+## The classic game's Slam (the rework mode off); SlamSequence is the improved one (rework mode).
+const ClassicSlamSequence := preload("res://game/player/abilities/classic_slam_sequence.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const TeleportSequence := preload("res://game/player/abilities/teleport_sequence.gd")
 const LashSequence := preload("res://game/player/abilities/lash_sequence.gd")
+const GooBombSequence := preload("res://game/player/abilities/goo_bomb_sequence.gd")
+const LanternSequence := preload("res://game/player/abilities/lantern_sequence.gd")
 
 const CUE_DENIED := &"AbilityDenied"
 const TEXT_RISE := 30.0
@@ -50,6 +55,23 @@ func owns_body() -> bool:
 ## In the air: a jump's or a drop's flight is running.
 func is_airborne() -> bool:
 	return _sequence is JumpSequence and bool(_sequence.call(&"owns_body"))
+
+
+## Body-shapes rework (docs/godot/BODY_SHAPES.md "Slam"; body-shapes plan section 4 "Safety"): true
+## while the running ability makes the slime untouchable: the improved Slam's air time
+## (`abilities.squashSlam.airborneFromMs` to `airborneToMs`, SlamSequence.is_airborne). The art is
+## up there while the body stays on the ground (the Slam is not a flight, so `is_airborne` stays
+## false and plates still feel the slime). player.gd's `can_receive_damage` then answers
+## "state-blocked".
+func is_invulnerable() -> bool:
+	return _sequence is SlamSequence and (_sequence as SlamSequence).is_airborne(Services.now_ms())
+
+
+## Body-shapes rework: true while the running ability shrugs knockback off: the whole improved Slam
+## when `abilities.squashSlam.ignoresKnockback` is set (SlamSequence.ignores_knockback).
+## player.gd's `apply_knockback` then does nothing.
+func ignores_knockback() -> bool:
+	return _sequence is SlamSequence and (_sequence as SlamSequence).ignores_knockback()
 
 
 ## `RunState` knows it; the dodge also when player.gd's `dodge_learned` (trial override) is on.
@@ -120,7 +142,8 @@ func try_begin(id: StringName, request: Dictionary) -> bool:
 			notify_rejected(id, "blocked")
 			return false
 		target = landing
-	if not _spend(id):
+	# The Goo Bomb checks its energy here (`rejection`) and spends it at the spit (GooBombSequence).
+	if id != Definitions.GOO_BOMBS and not _spend(id):
 		notify_rejected(id, "energy")
 		return false
 	var seq := _next_seq
@@ -199,6 +222,24 @@ func cancel() -> void:
 		_player.call(&"set_action_locked", false)
 
 
+## A hit with damage landed on the slime (player.gd `commit_damage`, rework mode): a running sequence
+## that can be interrupted (`interrupted_by_hit()`: the Goo Bomb's cast, before its spit) stops, its
+## cooldown is cleared (nothing was spent) and actions unlock; the hurt clip plays on. True when one
+## stopped.
+func on_hurt() -> bool:
+	if _sequence == null or not _sequence.has_method(&"interrupted_by_hit"):
+		return false
+	if not bool(_sequence.call(&"interrupted_by_hit")):
+		return false
+	var id: Variant = _sequence.get(&"ability_id")
+	if id is StringName:
+		_cooldown_until.erase(id)
+	_sequence = null
+	_active_seq = 0
+	_player.call(&"set_action_locked", false)
+	return true
+
+
 ## `PlayerAbilityController.status` (camelCase keys, for the ability bar).
 func status(id: StringName) -> Dictionary:
 	var unlocked := is_learned(id)
@@ -247,9 +288,13 @@ func _make_sequence(id: StringName) -> RefCounted:
 		Definitions.JUMP:
 			return JumpSequence.new()
 		Definitions.SQUASH_SLAM:
-			return SlamSequence.new()
+			return SlamSequence.new() if ReworkMode.is_on() else ClassicSlamSequence.new()
 		Definitions.TELEPORT:
 			return TeleportSequence.new()
 		Definitions.STRETCH_LASH:
 			return LashSequence.new()
+		Definitions.GOO_BOMBS:
+			return GooBombSequence.new()
+		Definitions.LANTERN:
+			return LanternSequence.new()
 	return null

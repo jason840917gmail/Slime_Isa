@@ -37,6 +37,11 @@ extends Node2D
 ##     RunState.start_weapon_id names a weapon, which goes into the bag,
 ##     belt slot 1 and the hand; then InventoryActions.equip_run_weapon() (belt reconciled, the
 ##     run's hand mounted)
+##  6b. start_rework(): only in the body-shapes rework mode, which decide_rework_mode() set at the
+##     start of the build, before the player spawned (docs/godot/BODY_SHAPES.md): the three shapes
+##     and the Ability Box abilities learned quietly for the session (never saved), the
+##     ShapeController child "ShapeController" of the player root (setup, PlayerScript.set_shapes),
+##     and in the playground the ShapesTestbed (dummies and the enemy pen) under the world root
 ##  7. start_enemy_population(): EnemyPopulation with the enemy-spawn areas, safe zones,
 ##     entities_root, every enemy type its camps name (the trial's worm-only filter is gone),
 ##     seed_initial()
@@ -48,7 +53,7 @@ extends Node2D
 ##     npc.get_instance_id_key()).get("perimeter", {}))
 ##  9. setup_camera(): $WorldCamera.setup(world_rect, camera_mode); start_follow(player root);
 ##     register_camera; connect player.respawned -> _on_player_respawned
-## 10. start_arrival_fade()
+## 10. start_arrival_fade(), or after a door the iris opening on the player (`_start_arrival`)
 ## 11. setup_ui(): $Hud.bind_player(player), $FpsReadout.bind_camera($WorldCamera)
 ##
 ## Owner: world builder.
@@ -65,6 +70,8 @@ const NpcScript := preload("res://game/scripts/npc.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
+const IrisTransition := preload("res://game/world/iris_transition.gd")
+const DoorScript := preload("res://game/scripts/door.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 const GameWindows := preload("res://game/ui/screens/game_windows.gd")
@@ -84,6 +91,13 @@ const QuestJournalWindow := preload("res://game/ui/screens/quest_journal_window.
 const ChestWindow := preload("res://game/ui/screens/chest_window.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
+## The body-shapes rework (docs/godot/BODY_SHAPES.md): its mode, input layer, shapes, testbed and box.
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const ReworkInput := preload("res://game/shapes/rework_input.gd")
+const ShapeController := preload("res://game/shapes/shape_controller.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
+const ShapesTestbed := preload("res://game/shapes/shapes_testbed.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -121,6 +135,10 @@ var playground_abilities := true
 ## A learned ability plays its ceremony (game/ui/ceremony/ability_ceremony.gd); the test runner turns
 ## it off (the ceremony waits for a key), and the banner shows instead.
 var ability_ceremonies := true
+## The playground runs the body-shapes rework mode (docs/godot/BODY_SHAPES.md) unless `classic`;
+## the test runner turns it off, so playground tests keep the classic game (`shapes` still turns
+## the mode on).
+var rework_in_playground := true
 
 @onready var world_container: Node2D = $World
 @onready var world_camera: WorldCamera = $WorldCamera
@@ -131,6 +149,8 @@ var world_root: Node2D
 var player: PlayerScript
 var player_root: CharacterBody2D
 var player_combat: PlayerCombat
+## Rework mode only: the player's ShapeController (null otherwise).
+var shapes: ShapeController
 var enemy_population: EnemyPopulation
 ## The interact button, prompt and badge (game/interaction/), made once, kept across worlds.
 var interaction: InteractionController
@@ -152,6 +172,10 @@ var furniture: FurniturePlacement
 
 var _transitioning: bool = false
 var _next_gate_message_ms: int = 0
+## The door iris while a door travel runs (closed over the old world, opened on the new one).
+var _iris: IrisTransition
+## The side of the door the slime went through (door.gd `side`), checked against the arrival door.
+var _entered_side: String = ""
 
 
 ## Runs the bootstrap steps above. The run (RunState) starts here on the first boot; a pending
@@ -211,13 +235,24 @@ func _ready() -> void:
 	_build_world(target, navigation)
 
 
+## Leaving the game (Quit to Title, a test's teardown): the rework mode goes off and its input layer
+## comes off (nothing to do when it was off).
+func _exit_tree() -> void:
+	ReworkMode.set_on(false)
+	ReworkInput.apply(false)
+
+
 ## Steps 3-11 above for `target_map_id`; `navigation` is the area handoff ({} on a fresh boot).
 func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	var world_service := Services.world()
+	decide_rework_mode(target_map_id)
 	world_root = load_world(target_map_id)
 	if world_root == null:
 		push_error("Main: could not load world '%s'; the trial cannot start" % target_map_id)
 		fps_readout.bind_camera(world_camera)
+		if _iris != null and is_instance_valid(_iris):
+			_iris.queue_free()
+		_iris = null
 		return false
 	var run := Services.run()
 	if run != null:
@@ -231,11 +266,12 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 		push_error("Main: could not spawn the player")
 	else:
 		equip_run_start()
+		start_rework()
 	start_enemy_population()
 	warm_runtime_scenes()
 	configure_npcs()
 	setup_camera()
-	start_arrival_fade()
+	_start_arrival(navigation)
 	setup_ui()
 	_transitioning = false
 	_start_autosave()
@@ -282,14 +318,17 @@ func respawn_in_world(bed: Dictionary) -> bool:
 ## RunState schedules it on its own changes, the player's HP changes schedule it too, and it is
 ## written once on arrival. Not in the playground (owner, 2026-10-08): the dev testbed never writes
 ## the autosave (slot 0), so the title's Continue never starts there; Quit to Title follows
-## `autosave_enabled` too. Manual saves still work there.
+## `autosave_enabled` too. Manual saves still work there. The body-shapes rework mode never writes it
+## either (docs/godot/BODY_SHAPES.md "Running it"): a `?shapes` session must not reach slot 0, and
+## its quiet grants are left out of every save anyway (RunState.session_ability_ids).
 func _start_autosave() -> void:
 	var run := Services.run()
 	if run == null:
 		return
 	run.location_provider = _live_location
 	var world_service := Services.world()
-	run.autosave_enabled = world_service == null or world_service.map_id() != PLAYGROUND_MAP_ID
+	run.autosave_enabled = (world_service == null or world_service.map_id() != PLAYGROUND_MAP_ID) \
+		and not ReworkMode.is_on()
 	if not run.autosave_enabled:
 		return
 	if player != null and not player.health_changed.is_connected(_on_player_health_changed):
@@ -345,8 +384,11 @@ func request_exit(request: Dictionary) -> Dictionary:
 			return outcome
 	elif gate != null and not (gate is Dictionary):
 		return {"status": "blocked", "message": "Navigation unavailable"}
-	if not travel_to(target_area, entry_edge, entry_door, entry_marker):
+	var iris := str(request.get("transition", "")) == "iris"
+	var lead_ms := maxf(0.0, float(request.get("lead_ms", 0.0)))
+	if not travel_to(target_area, entry_edge, entry_door, entry_marker, iris, lead_ms):
 		return {"status": "ignored"}
+	_entered_side = str(request.get("door_side", "")) if iris else ""
 	return {"status": "queued"}
 
 
@@ -354,8 +396,13 @@ func request_exit(request: Dictionary) -> Dictionary:
 ## player, fades the picture and the music out over 320 ms, then records the player in RunState,
 ## frees this world and builds the target, arriving at `entry_door`'s arrival point, else the
 ## Node2D named `entry_marker`, else the `entry_edge` marker (AreaTravel.arrival_point). False
-## when already travelling or unknown.
-func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "") -> bool:
+## when already travelling or unknown. With `iris` (doors and door-like exits) the Zelda iris
+## (game/world/iris_transition.gd) closes on the player over `worldNavigation.irisCloseMs` instead
+## of the fade, and the next world opens it again on the player (`_start_arrival`). `lead_ms` (a
+## door's lead-in: its leaf swinging open, the slime climbing down a ladder or falling into a hole;
+## door.gd `lead_ms`) holds the slime still for that long of simulation time before the iris or the
+## fade starts.
+func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "", iris: bool = false, lead_ms: float = 0.0) -> bool:
 	var world_service := Services.world()
 	var run := Services.run()
 	if _transitioning or world_service == null or run == null:
@@ -364,14 +411,81 @@ func travel_to(target_map_id: String, entry_edge: String = "", entry_door: Strin
 		push_warning("Main: no world '%s' to travel to" % target_map_id)
 		return false
 	_transitioning = true
+	var leave_ms := _iris_ms("irisCloseMs") if iris else AreaTravel.LEAVE_FADE_MS
 	if player != null:
 		player.stop_movement()
 		player.clear_input()
-		player.suppress_movement(AreaTravel.LEAVE_FADE_MS + TRAVEL_SUPPRESS_MARGIN_MS)
-	AreaTravel.fade_out_music(world_root, AreaTravel.LEAVE_FADE_MS)
-	AreaTravel.fade(self, FADE_LAYER, 0.0, 1.0, AreaTravel.LEAVE_FADE_MS,
-			_finish_travel.bind(target_map_id, entry_edge, entry_door, entry_marker))
+		player.suppress_movement(lead_ms + leave_ms + TRAVEL_SUPPRESS_MARGIN_MS)
+	var leave := _leave_world.bind(target_map_id, entry_edge, entry_door, entry_marker, iris, leave_ms)
+	if lead_ms > 0.0:
+		# Simulation time, like the push that started it (it waits through hit-stop and pauses).
+		get_tree().create_timer(lead_ms / 1000.0, false, true).timeout.connect(leave)
+	else:
+		leave.call()
 	return true
+
+
+## `travel_to` after the lead-in: the music fades and the iris (or the fade) closes over `leave_ms`,
+## then `_finish_travel` swaps the worlds.
+func _leave_world(target_map_id: String, entry_edge: String, entry_door: String, entry_marker: String, iris: bool, leave_ms: float) -> void:
+	AreaTravel.fade_out_music(world_root, leave_ms)
+	var finish := _finish_travel.bind(target_map_id, entry_edge, entry_door, entry_marker)
+	if iris:
+		if _iris != null and is_instance_valid(_iris):
+			_iris.queue_free()
+		_iris = IrisTransition.new()
+		_iris.layer = FADE_LAYER
+		_iris.subject = _player_centre
+		add_child(_iris)
+		_iris.close(leave_ms, finish)
+	else:
+		AreaTravel.fade(self, FADE_LAYER, 0.0, 1.0, AreaTravel.LEAVE_FADE_MS, finish)
+
+
+## The live player's centre (old Phaser position) for the iris; null without one.
+func _player_centre() -> Variant:
+	if player == null or not is_instance_valid(player) or not player.is_inside_tree():
+		return null
+	return player.get_centre()
+
+
+## A door iris duration (`worldNavigation.<key>`, ms).
+func _iris_ms(key: String) -> float:
+	var constants := Services.constants()
+	return constants.number("worldNavigation." + key) if constants != null else 450.0
+
+
+## Step 10: after a door travel the closed iris holds black for `irisHoldMs`, then opens on the
+## placed player over `irisOpenMs` (the player stays still until it is open); else the arrival fade.
+## Arriving at a door with a side (spawn_player put the feet in its doorway) the slime walks out of
+## it (PlayerScript.walk_out_of_door, input locked until it stops): after the iris's black hold,
+## while the iris opens. A door pairing that breaks the rule (a north door into a door that is not
+## south) is warned.
+func _start_arrival(navigation: Dictionary) -> void:
+	var entry_door := str(navigation.get("entry_door", ""))
+	var door := AreaTravel.find_door(world_root, entry_door)
+	var walking := player != null and AreaTravel.walks_out(door) \
+		and player.walk_out_of_door(AreaTravel.door_facing(world_root, entry_door))
+	if door != null and door.has_method(&"on_arrival"):
+		door.call(&"on_arrival") # A real door stands open behind the slime, then closes.
+	if _iris == null or not is_instance_valid(_iris):
+		_iris = null
+		start_arrival_fade()
+		return
+	var hold_ms := _iris_ms("irisHoldMs")
+	var open_ms := _iris_ms("irisOpenMs")
+	_iris.subject = _player_centre
+	_iris.open(hold_ms, open_ms)
+	_iris = null
+	if player != null:
+		player.suppress_movement(hold_ms if walking else hold_ms + open_ms)
+	# Holes and ladders have no side: only two sided doors are checked against each other.
+	if door != null and not _entered_side.is_empty() and bool(door.call(&"has_side")):
+		var arrived_side := str(door.get(&"side"))
+		if arrived_side != DoorScript.opposite(_entered_side):
+			push_warning("Main: a %s door leads to '%s' door '%s', whose side is '%s' (expected %s; docs/godot/CONVENTIONS.md \"Doors\")"
+					% [_entered_side, Services.world().map_id(), entry_door, arrived_side, DoorScript.opposite(_entered_side)])
+	_entered_side = ""
 
 
 func _finish_travel(target_map_id: String, entry_edge: String, entry_door: String, entry_marker: String) -> void:
@@ -411,6 +525,7 @@ func _teardown_world() -> void:
 	player = null
 	player_root = null
 	player_combat = null
+	shapes = null
 	var world_service := Services.world()
 	if world_service != null:
 		world_service.clear()
@@ -436,7 +551,8 @@ func _pass_gate(map_id_value: String, gate: Dictionary) -> Dictionary:
 		return {"status": "blocked", "message": locked_message}
 	if not run.unlock_gate(map_id_value, gate_id, required, consume):
 		return {"status": "blocked", "message": locked_message}
-	_player_text(GATE_UNLOCKED_TEXT, &"green")
+	# A locked door (door.gd `gate`) may name its own line; world exits keep Phaser's.
+	_player_text(str(gate.get("unlockedMessage", GATE_UNLOCKED_TEXT)), &"green")
 	return {}
 
 
@@ -560,6 +676,16 @@ func spawn_player(navigation: Dictionary = {}) -> PlayerScript:
 		script_node.restore_run_state(run.player)
 		if saved_spot is Vector2:
 			script_node.face(AreaTravel.facing_vector(str(run.location.get("facing", "down"))))
+	if not saved_spot is Vector2 and not str(navigation.get("entry_door", "")).is_empty():
+		# A door with a side: arrive facing into the room (door.gd pairing rule).
+		var entry_door := AreaTravel.find_door(world_root, str(navigation.get("entry_door", "")))
+		var facing := AreaTravel.door_facing(world_root, str(navigation.get("entry_door", "")))
+		if facing != Vector2.ZERO:
+			script_node.face(facing)
+		if AreaTravel.walks_out(entry_door) and script_node.body != null:
+			# In the doorway, feet on the door node; `_start_arrival` walks it out.
+			var feet_to_centre := script_node.get_centre() - script_node.body.global_position
+			script_node.teleport(AreaTravel.doorway_feet(entry_door) + feet_to_centre)
 	return script_node
 
 
@@ -607,10 +733,13 @@ func equip_run_start() -> void:
 		run.start_kit_pending = false
 		var world_service := Services.world()
 		if world_service != null and world_service.map_id() == PLAYGROUND_MAP_ID:
-			inventory_actions.grant_playground_weapons()
+			# The rework mode's slime fights with its body shapes, so the playground's crafted
+			# weapons would only crowd the bag (docs/godot/BODY_SHAPES.md).
+			if not ReworkMode.is_on():
+				inventory_actions.grant_playground_weapons()
 			if playground_abilities:
 				grant_playground_abilities()
-	if inventory_actions != null:
+	if inventory_actions != null and not ReworkMode.is_on():
 		inventory_actions.equip_run_weapon()
 
 
@@ -630,6 +759,49 @@ func grant_playground_abilities() -> void:
 		var missing := PLAYGROUND_GULP_MATERIALS - run.item_count(material)
 		if missing > 0:
 			run.add_item(material, missing)
+
+
+## Decides the body-shapes rework mode for the world `target` is about to become, before the player
+## spawns (docs/godot/BODY_SHAPES.md "Running it"): on with the `shapes` launch option (web
+## `?shapes`, desktop `-- --shapes`) in any world; on in the playground and its rooms (worlds named
+## `playground-<room>`: the sinkhole's cavern, the Bomb corner's cave) unless `classic` (or
+## `rework_in_playground` is off); else off. Its input layer follows (ReworkInput: on puts it on,
+## off puts every event back). Returns the mode.
+func decide_rework_mode(target: String) -> bool:
+	var playground := target == PLAYGROUND_MAP_ID or target.begins_with(PLAYGROUND_MAP_ID + "-")
+	var on := has_launch_option("shapes") \
+		or (playground and rework_in_playground and not has_launch_option("classic"))
+	ReworkMode.set_on(on)
+	ReworkInput.apply(on)
+	return on
+
+
+## The rework mode's part of the world build (step 6b above; nothing while the mode is off): the
+## three shapes and the Ability Box abilities the game has (AbilityBox.socket_ids that
+## AbilityDefinitions knows) learned quietly for the session only (RunState.learn_session_ability:
+## no save carries them; one the run had already learned stays as it was), the ShapeController under
+## the player root, handed to the player, and in the playground the ShapesTestbed (training dummies
+## with the reaction presets and the enemy pen).
+func start_rework() -> void:
+	if not ReworkMode.is_on() or player == null or player_root == null:
+		return
+	var run := Services.run()
+	if run != null:
+		for id: StringName in ShapeDefs.IDS:
+			run.learn_session_ability(String(id))
+		for id: StringName in AbilityBox.socket_ids():
+			if AbilityDefinitions.has(id):
+				run.learn_session_ability(String(id))
+	shapes = ShapeController.new()
+	shapes.name = "ShapeController"
+	player_root.add_child(shapes)
+	shapes.setup(player)
+	player.set_shapes(shapes)
+	var world_service := Services.world()
+	if world_root != null and world_service != null and world_service.map_id() == PLAYGROUND_MAP_ID:
+		var testbed := ShapesTestbed.new()
+		testbed.name = "ShapesTestbed"
+		world_root.add_child(testbed)
 
 ## Creates and seeds the EnemyPopulation (enemy spec 3).
 func start_enemy_population() -> void:

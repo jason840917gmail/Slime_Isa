@@ -8,7 +8,9 @@ class_name GameHud
 ##   the life and energy orbs (they replaced the HP and energy bars), the weapon in hand
 ##   (WeaponHotbar, crafting spec 8.6), the AbilityBar (abilities spec 2.6) and the menu buttons.
 ##   This node places the WeaponHotbar, the AbilityBar and the minimap on the console's rects on
-##   every resize; main.gd gives the WorldCamera the console's HEIGHT as its `bottom_inset`.
+##   every resize and on the console's `layout_changed` (body-shapes rework mode: the Shape slot
+##   showing or hiding, the ability slots changing); main.gd gives the WorldCamera the console's
+##   HEIGHT as its `bottom_inset`.
 ## - Top left: the coin chip (`Coins`, HudLabel), and the QuestTracker under it (quests spec 4.4).
 ## - The floating PlayerHealthBar (world spec 6.3) and the BossHealthBar (boss spec 5).
 ## Every Control ignores the mouse except the console's buttons, the weapon slot, the ability
@@ -239,6 +241,7 @@ func _build() -> void:
 	_console = HudConsole.new()
 	_console.theme = _root.theme
 	add_child(_console)
+	_console.layout_changed.connect(_layout)
 
 	_floating_bar = PlayerHealthBar.new()
 	_floating_bar.name = "PlayerHealthBar"

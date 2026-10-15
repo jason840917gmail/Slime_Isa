@@ -6277,18 +6277,18 @@ instance_id = "gloop-ch2-hollow-ore-pile-2"
 y_sort_enabled = true
 position = Vector2(2114, 1884)
 
-[node name="door-script" type="Node" parent="hut-door" unique_id=457336927]
+[node name="door-script" type="Node" parent="hut-door" unique_id=457336927 node_paths=PackedStringArray("house_art")]
 script = ExtResource("76")
 map_id = "gloop-forest"
 door_id = "hut-door"
 target_area_id = "gloop-hut"
 target_door_id = "house-door"
-prompt = "Enter hut"
-interact_radius = 90.0
-
-[node name="arrival" type="Node2D" parent="hut-door" unique_id=1227598758]
-y_sort_enabled = true
-position = Vector2(0, 50)
+side = "north"
+arrival_step = 9.0
+kind = "door"
+house_art = NodePath("../../house-world-solid-2ae59406/Visual")
+door_rect = Rect2(-17.5, -61, 35.5, 39.5)
+door_arch = 15.0
 
 [node name="camp" type="Node2D" parent="." unique_id=522209046]
 y_sort_enabled = true

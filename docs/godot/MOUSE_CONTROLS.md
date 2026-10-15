@@ -29,14 +29,20 @@ What the order button is pressed on decides what happens
    within `meleeFallbackPx`. Then it faces that side and swings. While the button is held it keeps
    swinging as fast as the weapon allows; once the button is up, the order ends after that swing.
    The cursor shows a cross and a red ring lies under the target.
-2. **Something usable** (a door, a gate, a chest, an NPC, a bed, a bench, a restoration site or an
+2. **Something usable** (a chest, an NPC, a bed, a bench, a restoration site or an
    essence on the ground, picked like the keyboard scheme's pointer pick but anywhere on screen,
    `InteractionController.target_at`): the slime walks there. The interaction controller keeps
    that target chosen (`set_preferred`) and uses it as soon as it is in reach. If the button is
    still held, a target with a hold action ("Hold: Pick up") does its hold action. The cursor
    shows a hand and a gold ring lies under the target.
 3. **The ground:** the slime walks to the point. Holding the button keeps walking toward the
-   pointer, re-planning the route every `followRepathMs`. A green ring marks the point.
+   pointer, re-planning the route every `followRepathMs`. A green ring marks the point. Where the
+   route ends short of the point (a wall, a house), the slime leans straight at it: for
+   `input.mouse.leanMs` (450) after a click, for as long as the button is held. Doors, ladders and
+   holes are not usable targets (no keys for transitions, 2026-10-14): a click on a door walks the
+   slime up to it and the lean pushes it in, which takes it through
+   ([CONVENTIONS.md "Doors"](CONVENTIONS.md#doors)). Gates are pushed the same way (2026-10-15):
+   the lean against a gate opens it with the key.
 
 Also:
 
@@ -93,6 +99,11 @@ Owner, 2026-10-08: every action of the planned HUD console has a letter in every
 ([HUD console mockup](../design/2026-10-07-hud-console-mockup.md#keys), roadmap 4.12): B opens the
 bag (it was E), J the journal, and E is the weapon scroll (next to the mouse wheel in the other
 schemes). In this scheme only E cycles the belt, so S and D do nothing.
+
+In the body-shapes rework mode ([BODY_SHAPES.md](BODY_SHAPES.md)) the scheme also puts the chosen
+box ability (`ability_use`) on S and the Roll (`dodge`) on D (`KeyBindings.REWORK_LAYOUT`); the
+rework's own input layer (`game/shapes/rework_input.gd`: no number keys, the Roll on Space, the box
+ability on F) lies under this one, and each puts back only what it changed.
 
 What needed the mouse, and what it does without it:
 

@@ -100,6 +100,10 @@ var bands: Array[Dictionary] = []
 var patches: Array[Dictionary] = []
 ## How deep (cells) a body may walk into the ground hidden behind higher ground.
 var behind := 0.5
+## Passages opened at run time (`open_rect`: a blown cracked wall, game/scripts/cracked_wall.gd):
+## level -> {tri: true}. Such a tri is walkable at that level whatever covers it (a wall, a higher
+## top); the drawing does not change.
+var open_tris: Dictionary = {}
 var _edges: Array = []
 var _fine_parent := PackedInt32Array()
 
@@ -254,7 +258,32 @@ static func column_edge(column: int, s: int) -> Vector2:
 ## True when the tri is walkable at `level`: a visible top of that level (not wall). The strip
 ## behind higher ground is `is_walkable_point`'s.
 func is_walkable(tri: int, level: int) -> bool:
-	return tri >= 0 and tri_level[tri] == level and tri_band[tri] < 0
+	if tri < 0:
+		return false
+	if tri_level[tri] == level and tri_band[tri] < 0:
+		return true
+	return not open_tris.is_empty() and open_tris.has(level) and (open_tris[level] as Dictionary).has(tri)
+
+
+## Opens the tris whose middle lies in `rect` (cells) for bodies of `level` (`open_tris`): a
+## passage through a wall. Returns how many tris it opened.
+func open_rect(rect: Rect2, level: int) -> int:
+	var opened: Dictionary = open_tris.get(level, {})
+	var count := 0
+	for y in range(floori(rect.position.y), ceili(rect.end.y)):
+		for x in range(floori(rect.position.x), ceili(rect.end.x)):
+			var cell := Vector2i(x, y)
+			if not has_cell(cell):
+				continue
+			for t in 8:
+				var tri := cell_index(cell) * 8 + t
+				var points := tri_points(tri)
+				var middle := (points[0] + points[1] + points[2]) / 3.0
+				if rect.has_point(middle) and not opened.has(tri):
+					opened[tri] = true
+					count += 1
+	open_tris[level] = opened
+	return count
 
 
 ## Ground higher than `level` in front of it: a top above it, or a wall whose top is. The strip
@@ -327,6 +356,10 @@ func collision_segments(level: int) -> PackedVector2Array:
 				higher[tri] = 1
 		elif int(bands[tri_band[tri]]["top"]) > level:
 			higher[tri] = 1
+	# Passages opened at run time (`open_rect`).
+	for tri: int in (open_tris.get(level, {}) as Dictionary):
+		walk[tri] = 1
+		higher[tri] = 0
 	var fine_columns := columns * FINE
 	var fine_rows := rows * FINE
 	var row_stride := fine_columns * 4

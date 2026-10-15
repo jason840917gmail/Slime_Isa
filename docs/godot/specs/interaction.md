@@ -123,8 +123,8 @@ origin (§1), `p` the player centre.
 | Provider | Source | Skips | Reach | Priority | Candidate id | Prompt (`prompt`) | Badge anchor | Pointer origin | [IN]/[OUT] |
 |---|---|---|---|---|---|---|---|---|---|
 | `quest-npcs` turn-in | `QuestNpcController.ts:133-141` | NPC out of tree (`isActive`) | 96 from NPC root | **100** | `quest-npcs:<instanceId>:turn-in` | `Return to <name>` | NPC + (30, -30) | NPC + (0, -24) | [OUT] (quests) |
-| `world-gates` | `UniversalSceneWorldController.ts:962-1001` | out of tree; `isOpen` | `gate.interactRadius` (150) | **95** | `world-gates:<gateId>` | `gate.prompt` | o + (0, -badgeRise) | o + (0, -24) | [IN] |
-| `world-doors` | `:919-960` | out of tree | `door.interactRadius` (96) | **90** | `world-doors:<doorId>` | `door.prompt` | o + (0, -badgeRise) | o + (0, -24) | [IN] |
+| `world-gates` | `UniversalSceneWorldController.ts:962-1001` | out of tree; `isOpen` | `gate.interactRadius` (150) | **95** | `world-gates:<gateId>` | `gate.prompt` | o + (0, -badgeRise) | o + (0, -24) | [GODOT] removed 2026-10-15: gates are pushed open (§3.3) |
+| `world-doors` | `:919-960` | out of tree | `door.interactRadius` (96) | **90** | `world-doors:<doorId>` | `door.prompt` | o + (0, -badgeRise) | o + (0, -24) | [GODOT] removed 2026-10-14: no keys for transitions, doors are pushed into (§3.2) |
 | `quest-npcs` offer | `QuestNpcController.ts:142-151` | | 96 | **90** | `quest-npcs:<instanceId>:offer` | `Talk to <name>` | as above | as above | [OUT] (quests) |
 | `world-restorations` | `:1038-1071` | out of tree | `site.interactRadius` | **89** | `world-restorations:<runtimeId>` | `site.prompt` | o + (0, -badgeRise) | o + (0, -24) | [OUT] (restoration spec) |
 | `world-workbenches` | `:1010-1035` | out of tree | `bench.interactRadius` (90) | **88** | `world-workbenches:<runtimeId>` | `bench.prompt` | o + (0, -badgeRise) | o + (0, -24) | [IN] |
@@ -350,6 +350,44 @@ feature.] Port decision: do **not** create `game/scripts/interaction.gd`; it sta
 
 ### 3.2 `game.door` (`DoorScript.ts`, descriptor `registrations.ts:481-497`) [IN]
 
+**[GODOT] No keys for transitions (owner, 2026-10-14).** The table and the execute below are
+Phaser's. In the port no door, ladder or hole is offered to the interact key (the `world-doors`
+provider is gone, and with it `prompt`, `interact_radius` and `badge_rise`). `door.gd` watches the
+player itself every physics step: when the player body's collision rect touches the door's trigger
+(`walk_area`, else `trigger_rect` around the door's parent, default (-16, -20, 32, 40)) and
+`PlayerScript.get_move_intent()` (the direction the slime was told to walk this step, keys or a
+click order) points into the door for `worldNavigation.doorPushMs` (200) of simulation time, it calls
+`use()`. "Into" is the door's `side` within `doorPushAlignment` (0.7, a dot product); a door without
+a side is pushed toward its trigger's middle (`holePushAlignment` 0.35), and in a hole (`kind`
+`ladder_down` / `fall`) any walking counts once the slime's centre is over the trigger. The push
+counter resets when the slime lets go or leaves the trigger, while it walks out of a door and for
+`edgeTransitionGraceMs` after the door enters the tree.
+
+- **Locks:** `gate` (the world exit's lock dictionary, `{}` = none) goes to `Main.request_exit`.
+  Without the key the request is `blocked`, main shows `lockedMessage` (900 ms throttle) and the
+  door does not ask again until the push ends (one line per push). With the key the request unlocks
+  it (the key spent when `consumeOnUnlock`, remembered in RunState like a gate), shows
+  `unlockedMessage` (default "The door unlocks!"), plays `GateUnlock` and goes through.
+- **Lead-in** (`lead_ms`, sent as `request_exit`'s `lead_ms`; `Main.travel_to` holds the frozen
+  slime that long before the iris): `kind` "door" with leaf art `doorOpenMs` (250; the leaf swings
+  open, game/world/door_leaf.gd, `open_cue` `DoorOpen`); "ladder_down" / "ladder_up"
+  `ladderClimbMs` (450; the slime's art sinks and shrinks into the hole's middle / climbs 22 units
+  and fades, `use_cue`); "fall" `holeFallMs` (550; it spins 1.5 turns and shrinks to nothing at the
+  hole's middle, `fall_cue` `FallDown`); "opening" none (`use_cue`). A cue without a take in the
+  global audio scene plays `DoorUse` instead (`DoorOpen` and `DoorClose` have none yet).
+- **Arrival:** `Main._start_arrival` calls `on_arrival()` on the door the slime arrives at: a real
+  door's leaf stands open until the slime has walked out and may move, then closes over
+  `doorCloseMs` (250) with `close_cue` `DoorClose`.
+- The doors in the game: level-1 `home-door` (the forge's open archway, kind opening: the forge has
+  no door, owner 2026-10-15); `mushroom-home-door` (kind door, a leaf picture laid over the painted
+  door, `res://asset/MAPS/Houses/doors/mushroom-door-leaf.png`), gloop-forest `hut-door` (kind
+  door, the leaf cut from the house art); the interiors' `house-door`s (kind door, the leaves cut
+  from the room's door picture `house-door-art`: two timber leaves, `double_leaf`, in slime-home
+  and gloop-hut, a round root-framed door in mushroom-home; CONVENTIONS.md "Doors"); the bomb
+  cave's `south-door` and the blown cracked wall's hole
+  (opening; the hole's trigger is the wall's `passage` rect); `cave-ladder` (ladder_up, side north:
+  arriving there the slime walks down off the ladder); `cracked-ground`'s sinkhole (ladder_down).
+
 | Property | TS read (`DoorScript.ts:29-40`) | Fallback | Godot export |
 |---|---|---|---|
 | `mapId` | string | `''` | `map_id: String = ""` |
@@ -403,7 +441,8 @@ work:
 - **Camera**: interiors (`slime-home`, `mushroom-home`, `gloop-hut`) are `cameraMode: "fixed"`
   (world spec 4.6); caverns follow.
 - Arriving next to a door does **not** block re-using it: e.g. back in level-1 the player stands
-  35.4 px from `home-door` and the prompt shows at once (§5.2).
+  35.4 px from `home-door` and the prompt shows at once (§5.2). [GODOT] No prompt since 2026-10-14;
+  the slime walks out of the door and must push into it again.
 
 ### 3.3 `game.gate` (`GateScript.ts`, descriptor `registrations.ts:499-524`) [IN]
 
@@ -455,6 +494,14 @@ Behaviour:
   commit rolls both back -> `'failed'`.
 - `showMessage(x, y, text, color, important)` = `floatingText.spawn` (`important` = big: 22 px,
   900 ms in the Godot GameFeel port).
+- **Godot (owner, 2026-10-15): gates are pushed, not offered.** The interaction controller has no
+  gate provider (no prompt, no badge, the interact key does nothing at a gate). `gate.gd` runs the
+  execute above itself (`push_open`) when the player's body is within
+  `worldNavigation.gatePushReachPx` (6) of the `doors` body's box and `get_move_intent()` points at
+  it (the box's nearer side, within `doorPushAlignment` 0.7) for `doorPushMs` (200) of simulation
+  time; a refusal speaks once per push (let go and push again), with the cues `GateUnlock` /
+  `GateLocked`, and emits `message_shown` (test hook). `prompt`, `locked_prompt` and
+  `interact_radius` are no longer used.
 
 #### 3.3.1 Shared record with gated world exits
 
@@ -728,6 +775,13 @@ level-1 interactables (old Phaser positions; "o" = origin):
 | NPCs | world spec 3.2 / 5.1 | reach 96 from the sprite bottom; none is in reach of the spawn (640, 704) at start (the elder, 115.9 px away, can wander to 71.5 px) |
 
 ### 5.2 Door pairs and arrival points
+
+[GODOT] The table records Phaser's arrivals. Since 2026-10-14 the house doors have sides (level-1
+`home-door` / `mushroom-home-door` and gloop-forest `hut-door` north, the interiors' `house-door`
+south), and the slime arrives in the doorway and walks out of it (CONVENTIONS.md "Doors",
+world.md section 8); the level-1 `mushroom-home-door` moved to (1520, 392), in front of the
+mushroom house on its hill (its old spot was in the hill's cliff wall). The sinkholes and ladders
+stay without a side, as below.
 
 Arrival = the target door's `arrival` point (rounded); spawn = `findSpawnPoint(arrival)` = centre
 of its tile (no arrival tile is solid). "In reach on arrival" = the arriving player already sees
@@ -1188,8 +1242,8 @@ rebuild), then `await t.steps(2)`; `t.player()` is a new instance after travel.
 | `test_mushroom_door_arrivals` | teleport (1493, 538), tap | `mushroom-home`, centre (544, 544); back via (512, 540) -> level-1 centre (1504, 544), candidate `world-doors:mushroom-home-door` |
 | `test_door_ignored_while_travelling` | tap interact twice within the fade | exactly one travel (count `world_registered` emissions = 1) |
 | `test_interact_dropped_during_swing` | at (1083, 954) tap `attack`, 2 steps, tap `interact` | still `level-1` after 1500 ms sim (the swing locks 292-417 ms, combat spec; the press is > 150 ms old when the lock ends) |
-| `test_gate_locked_without_key` | teleport (3776, 840) | id `world-gates:level-1-east-verdant-gate`, priority 95, prompt `Right-click: Unlock the Verdant Gate`; tap -> `message_shown` text `The Verdant Gate is locked. Fatty One Eye guards the Green Key.` white at (3776, 648); Visual frame 0; gate not unlocked |
-| `test_gate_unlock_consumes_key_and_persists` | give 1 `green-key`; tap at (3776, 840) | `RunState.is_gate_unlocked("level-1", "level-1-east-verdant-gate")`; `item_count("green-key") == 0`; Visual frame 1; every Doors shape disabled; message `The Verdant Gate swings open!` green; no gate candidate; after travelling to slime-home and back the gate is open at load |
+| `test_gate_locked_without_key` | teleport (3776, 840) | no gate candidate, the interact key says nothing; push up 1.5 s -> gate `message_shown` once, text `The Verdant Gate is locked. Fatty One Eye guards the Green Key.` white at (3776, 648); a second push -> a second line; gate shut, not unlocked |
+| `test_gate_unlock_consumes_key_and_persists` | give 1 `green-key`; push up at (3776, 840) until open | `RunState.is_gate_unlocked("level-1", "level-1-east-verdant-gate")`; `item_count("green-key") == 0`; Visual frame 1; every Doors shape disabled; message `The Verdant Gate swings open!` green; no gate candidate; after travelling to slime-home and back the gate is open at load |
 | `test_gate_open_handler_not_persisted` | call `gate.open({})` | frame 1, `opened` emitted once with `{"gateId": "level-1-east-verdant-gate"}`, second call emits nothing; `is_gate_unlocked` false |
 | `test_exit_passes_after_gate_unlock` | unlock the gate record, walk/teleport into exit-1 after the 650 ms grace | travels to `gloop-forest` without a key |
 | `test_npc_tie_breaks_by_id` | place Pip's body so his phaser position is centre + (40, 0) and Lili's centre + (-80, 0) | candidate `quest-npcs:level-1-npc-lili:talk`, prompt `Right-click: Talk to Lili` (Lili wins although farther) |

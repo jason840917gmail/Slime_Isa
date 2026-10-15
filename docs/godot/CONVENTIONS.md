@@ -62,7 +62,7 @@ Scenes that differ from the converter's copy or replace it:
 
 | Scene id | Owned scene | Since |
 |---|---|---|
-| `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll, sword-swing and ability clips, plus doze, sleep and defeat facing down, built by `tools/build_player_clips.gd`; no old side-view clip is left) |
+| `character.player-slime` | `res://game/characters/player_slime.tscn` | 2026-10-05: the three-quarter top-down slime sheet (directional idle, walk, roll, sword-swing and ability clips, plus doze, sleep and defeat facing down, built by `tools/build_player_clips.gd`; no old side-view clip is left). 2026-10-12, body-shapes prototype ([BODY_SHAPES.md](BODY_SHAPES.md)): the same tool builds the War Axe's Spin pose clips (`shape-axe-<pose>-<direction>`, page 6), which only the rework mode plays; the shapes' strike animations are built at run time (StrikeLibrary), not stored in the scene; the `StrikeRig`, `StrikeRigFront` and `StrikeRigNeck` nodes under the Visual draw their weapons |
 | `ui.title-screen`, `ui.pause-menu`, `ui.settings`, `ui.controls`, `ui.credits`, `ui.game-over`, `ui.end-card`, `ui.area-title-card` | `res://game/shell/title.tscn`, `pause_menu.tscn`, `settings_menu.tscn`, `controls_menu.tscn`, `credits_menu.tscn`, `game_over.tscn`, `end_card.tscn`, `area_title_card.tscn` | 2026-10-05: the game shell on the UI theme ([specs/shell.md](specs/shell.md)). Loaded by path from the Shell and the title, not through the scene index |
 | `ui.save-slots` | `res://game/saves/save_slots_menu.tscn` | 2026-10-05: the save slots window, mounted on the Shell by `RunState` (`Shell.mount_menu`); loaded by path |
 | `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](specs/map.md)), made by `MapUi` under the HUD; loaded by path |
@@ -89,7 +89,104 @@ slot 1, hand); `?recipes` / `-- --recipes` makes every
 recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six development weapons
 at a new run ([specs/crafting.md](specs/crafting.md) C2, C3, 8.2). `?audition` / `-- --audition`
 lets F8 and F7 switch the open Sound Picker round's options in the game
-([specs/audio.md](specs/audio.md) §10.3).
+([specs/audio.md](specs/audio.md) §10.3). The body-shapes rework (branch `exp/body-shapes`,
+[BODY_SHAPES.md](BODY_SHAPES.md)) runs **by default in the playground**: `?classic` /
+`-- --classic` turns it off there, and `?shapes` / `-- --shapes` turns it on in any world (both
+skip the title; the test runner keeps the playground classic).
+
+## Doors
+
+**No keys for transitions** (owner, 2026-10-14): the slime goes through a door, a cave mouth, a
+ladder or a hole by walking or pushing into it, as through a map edge in Zelda. Nothing that
+changes scene is offered to the interact key.
+
+**A north door leads to the next scene's south door** (and back), an east door to a west door.
+A door (`game/scripts/door.gd`: a Node2D in the world with a `DoorScript` child, or the hole of a
+blown cracked wall) has a `side` in the Inspector: the wall it is in, which is the way the slime
+pushes to go through it (`north` = walking up into it), and a `kind`:
+
+| `kind` | What it is | Going through |
+|---|---|---|
+| `door` | a real door: house front doors, interior exits | the leaf swings open (`doorOpenMs` 250, `DoorOpen`), then the iris; arriving through it the leaf stands open while the slime walks out, then closes (`doorCloseMs` 250, `DoorClose`) |
+| `opening` | a gap, a cave mouth, a hole in a wall | the iris at once (`use_cue`) |
+| `ladder_down` | a hole with a ladder (the sinkholes) | the slime sinks and shrinks into the hole (`ladderClimbMs` 450), then the iris |
+| `ladder_up` | a ladder's foot (`cave-ladder`, side north) | the slime climbs a little and fades (`ladderClimbMs`), then the iris |
+| `fall` | a hole without a ladder into another scene | the slime spins and shrinks into the hole (`holeFallMs` 550, `FallDown`), then the iris. Plain pits painted on the elevation are not doors and keep their falls |
+
+**Push to enter:** the player body's collision rect must touch the door's trigger (`walk_area`, an
+Area2D, else `trigger_rect` around the door node: default (-16, -20, 32, 40)) while the movement
+input points into the door for `worldNavigation.doorPushMs` (200) of simulation time: the side
+within `doorPushAlignment` (0.7), or for a door without a side toward the trigger's middle
+(`holePushAlignment` 0.35); in a hole any walking counts once the slime's centre is over it. Size
+the trigger so the slime touches it where it stops against the wall (the level-1 mushroom door's is
+taller, the house stands on a hill). A click order in the mouse schemes leans into the door the same
+way (MOUSE_CONTROLS.md). **Locked doors:** fill `gate` (`id`, `requiredItemId`, `consumeOnUnlock`,
+`lockedMessage`, optional `unlockedMessage`, as a world exit's lock). Without the key the push
+shows the locked line once per push; with it the push unlocks the door (the key is spent,
+`GateUnlock`), opens it and goes through.
+
+**Gates are pushed too** (owner, 2026-10-15; `game/scripts/gate.gd`): no interact key. The body
+within `worldNavigation.gatePushReachPx` (6) of the gate's `doors` body, the input pointing at it
+(within `doorPushAlignment`) for `doorPushMs`: with the key (or its record unlocked) the gate opens
+and says `unlocked_message`; without it, `locked_message` once per push. Gates opened by plates and
+bells (`open()`) are unchanged.
+
+**Real doors' look:** the door is painted into the house sprite. Set `house_art` (the house's
+Sprite2D), `door_rect` (the painted door, relative to the door node, world units), `door_arch` (the
+arch's height) and `hinge` (or `double_leaf`: two leaves hinged on the outer edges); door.gd then
+builds `game/world/door_leaf.gd` under the sprite: a dark doorway over the rect and the leaf cut
+from the house's own pixels, squashed toward the hinge and shaded as it swings in. A separate leaf
+picture in `leaf_art_path` is drawn over the rect, closed too: the level-1 mushroom house's door
+(`res://asset/MAPS/Houses/doors/mushroom-door-leaf.png`, Magnific 2026-10-14, made for the forge
+and moved here; it matches the painted door's planks, straps and ring). Not imported yet, that
+picture is read from the file; missing, only the dark doorway opens. The level-1 forge (the slime
+home) has no door (owner, 2026-10-15): `home-door` is an `opening`, its painted fire arch shows.
+
+**Interior ways out:** the bottom wall's door is its own picture, a Sprite2D `house-door-art` in
+the room set as the door's `house_art` (the leaves are cut from it): `interior-timber-door.webp`
+(two plank leaves on a sill between the door posts; slime-home, gloop-hut, `double_leaf`) and
+`interior-mushroom-door.webp` (a root frame with a round-topped door; mushroom-home), packed by
+`scripts/art/pack-door-art.py` (it prints the leaf rect for the scene). The sprite's position is the
+picture's top edge, so the slime always draws in front of it (the door is seen from inside, like a
+top-wall door in Zelda); its feet are the room's bottom edge.
+
+When you build the scene behind a door:
+
+- Put the paired door on the opposite wall: a cave behind a hole in a north-facing cliff gets its
+  entrance as a `south` door at the bottom edge; a house you enter by walking up into its front
+  door has a `north` door outside and a `south` way out at the bottom of the room.
+- Point the two doors at each other: `target_area_id` = the other world's map id,
+  `target_door_id` = the other door's `door_id`.
+- Put the door node in the doorway: on the threshold, its feet where the opening is in the wall or
+  building. Arriving there, the slime appears in the doorway facing into the room and **walks
+  out** (`game/player/door_walk_out.gd`, owner 2026-10-14): it waits out the iris's black hold,
+  then walks while the iris opens, at `worldNavigation.doorWalkOutSpeedShare` (1) of its walking
+  speed with the walk clip and its input locked, and stops on its own once its collision rect,
+  widened sideways to `doorWalkOutProbeWidthPx` (200, so the posts or walls beside an opening
+  count), no longer touches the shapes it touched in the doorway, plus `doorWalkOutMarginPx` (6).
+  It never walks into anything else (it stops early), and gives up after `doorWalkOutMaxPx` (160;
+  0 turns the walk off). Input comes back when it stops. This holds for every door with a side, in
+  both directions, the cave ladder too (the slime steps down off it).
+- Leave out the `arrival` child: with the walk off, the slime arrives `arrival_step` inside the
+  door (default `worldNavigation.doorArrivalStep`, 48 world units, from the door node, away from
+  its wall), facing into the room; an `arrival` child, where an old door has one, still sets that
+  spot; keep it on the room's ground (the level-1 mushroom house door uses `arrival_step` 20 to
+  stay on its hill). With the walk on, the slime takes the elevation level of the doorway.
+- A door does not travel while the slime walks out of a door, nor for
+  `worldNavigation.edgeTransitionGraceMs` after it enters the tree.
+- Doors travel with the Zelda iris (`game/world/iris_transition.gd`; durations
+  `worldNavigation.irisCloseMs`, `irisHoldMs`, `irisOpenMs`) after their lead-in; walking off a map
+  edge (world exits) keeps the fade. A sided door whose target door has another side than the
+  opposite one logs a warning on arrival (doors without a side are not checked).
+
+Example: the playground's Bomb corner hole (`game/dev/corners/bomb_corner.tscn`, `door_side`
+north, kind opening, its trigger the wall's `passage`) and `playground-bomb-cave`'s `south-door`
+(side south, with a `walk_area`). The house doors: level-1 `home-door` (the forge's archway) is a
+`north` opening; `mushroom-home-door` (with the leaf picture) and gloop-forest `hut-door` are
+`north` real doors; the slime-home, mushroom-home and gloop-hut `house-door`s are `south` real
+doors with the room's door picture. The gloop and
+playground sinkholes are `ladder_down` (no side, arrival child) and their cave ladders `ladder_up`
+(side north).
 
 ## Input and physics
 
@@ -98,7 +195,9 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
   no sprint from the start), `jump` (no key since the jump was hidden, 2026-10-08), `dodge` (key 2: the Roll since
   2026-10-09),
   `stretch_lash`, `squash_slam`, `teleport`, `eat`, `weapon_next/previous` (wheel),
-  `menu`, `map`, `zoom_in/out`, `pause`.
+  `menu`, `map`, `zoom_in/out`, `pause`; `ability_use` (F) is captured only in the body-shapes
+  rework mode, which also clears the number keys and moves the Roll to Space
+  ([BODY_SHAPES.md](BODY_SHAPES.md#controls-in-the-rework-mode)).
 - Physics layers keep the bits and names of `game/data/collision-layers.json` (Phaser's layers).
   Layers 12-18 (`level -3` … `level 3`) are the walls of each elevation level: a walking body
   collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)).

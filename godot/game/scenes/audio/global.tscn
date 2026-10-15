@@ -149,6 +149,7 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-1.wav" id="sfx_8d334f26"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-2.wav" id="sfx_ca9335f6"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-3.wav" id="sfx_f7f31c46"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/secret-found.wav" id="sfx_secret_found"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -824,6 +825,15 @@ max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
 min_interval_ms = 60.0
+
+[node name="SecretFound" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_secret_found")
+volume_db = -7.2
+max_polyphony = 1
+bus = &"Effects"
+min_interval_ms = 400.0
 
 [node name="NpcBlip" type="AudioStreamPlayer" parent="Effects"]
 script = ExtResource("1")

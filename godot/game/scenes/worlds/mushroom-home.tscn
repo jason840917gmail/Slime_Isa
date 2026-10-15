@@ -91,6 +91,7 @@
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="89"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="90"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="world_ground"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/Houses/doors/interior-mushroom-door.webp" id="door_art"]
 
 [node name="mushroom-home" type="Node2D"]
 y_sort_enabled = true
@@ -142,19 +143,28 @@ position = Vector2(512, 540)
 y_sort_enabled = true
 position = Vector2(512, 716)
 
-[node name="door-script" type="Node" parent="house-door"]
+[node name="door-script" type="Node" parent="house-door" node_paths=PackedStringArray("house_art")]
 script = ExtResource("3")
 map_id = "mushroom-home"
 door_id = "house-door"
 target_area_id = "level-1"
 target_door_id = "mushroom-home-door"
-prompt = "Leave house"
-interact_radius = 80.0
-badge_rise = 84.0
+side = "south"
+kind = "door"
+house_art = NodePath("../../house-door-art")
+door_rect = Rect2(-31.8, -109.9, 66.7, 78.6)
+door_arch = 21.9
 
 [node name="arrival" type="Node2D" parent="house-door"]
 y_sort_enabled = true
 position = Vector2(0, -176)
+
+[node name="house-door-art" type="Sprite2D" parent="."]
+position = Vector2(512, 580)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("door_art")
+centered = false
+offset = Vector2(-172, -1)
 
 [node name="shell-r0-c0" parent="." instance=ExtResource("4")]
 position = Vector2(64, 128)

@@ -1,0 +1,275 @@
+[gd_scene format=3]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--01.tscn" id="w1"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--02.tscn" id="w2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--03.tscn" id="w3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--04.tscn" id="w4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="w5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--06.tscn" id="w6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--07.tscn" id="w7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--08.tscn" id="w8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--09.tscn" id="w9"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--10.tscn" id="w10"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--11.tscn" id="w11"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--12.tscn" id="w12"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--13.tscn" id="w13"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--14.tscn" id="w14"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--15.tscn" id="w15"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--16.tscn" id="w16"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="door"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="chest"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/collectible-crystal-shard.tscn" id="shard"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--campfire.tscn" id="campfire"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="world_ground"]
+
+[sub_resource type="RectangleShape2D" id="doorway"]
+size = Vector2(112, 26)
+
+[node name="playground-bomb-cave" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+script = ExtResource("world_ground")
+z_index = -2
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 6, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 7, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 9, 0, 0, 0, 1, 0, 9, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 3, 0, 1, 0, 1, 0, 3, 0, 1, 0, 0, 0, 4, 0, 1, 0, 1, 0, 4, 0, 1, 0, 0, 0, 5, 0, 1, 0, 1, 0, 5, 0, 1, 0, 0, 0, 6, 0, 1, 0, 2, 0, 6, 0, 1, 0, 0, 0, 7, 0, 1, 0, 2, 0, 7, 0, 1, 0, 0, 0, 8, 0, 1, 0, 2, 0, 8, 0, 1, 0, 0, 0, 9, 0, 1, 0, 1, 0, 9, 0, 1, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 2, 0, 1, 0, 1, 0, 2, 0, 0, 0, 2, 0, 2, 0, 1, 0, 2, 0, 2, 0, 0, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 0, 0, 4, 0, 2, 0, 1, 0, 4, 0, 2, 0, 0, 0, 5, 0, 2, 0, 1, 0, 5, 0, 2, 0, 0, 0, 6, 0, 2, 0, 2, 0, 6, 0, 2, 0, 0, 0, 7, 0, 2, 0, 2, 0, 7, 0, 2, 0, 0, 0, 8, 0, 2, 0, 2, 0, 8, 0, 2, 0, 0, 0, 9, 0, 2, 0, 1, 0, 9, 0, 2, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 3, 0, 0, 0, 1, 0, 3, 0, 1, 0, 1, 0, 3, 0, 0, 0, 2, 0, 3, 0, 1, 0, 2, 0, 3, 0, 0, 0, 3, 0, 3, 0, 1, 0, 3, 0, 3, 0, 0, 0, 4, 0, 3, 0, 1, 0, 4, 0, 3, 0, 0, 0, 5, 0, 3, 0, 1, 0, 5, 0, 3, 0, 0, 0, 6, 0, 3, 0, 1, 0, 6, 0, 3, 0, 0, 0, 7, 0, 3, 0, 2, 0, 7, 0, 3, 0, 0, 0, 8, 0, 3, 0, 2, 0, 8, 0, 3, 0, 0, 0, 9, 0, 3, 0, 1, 0, 9, 0, 3, 0, 0, 0, 0, 0, 4, 0, 1, 0, 0, 0, 4, 0, 0, 0, 1, 0, 4, 0, 1, 0, 1, 0, 4, 0, 0, 0, 2, 0, 4, 0, 1, 0, 2, 0, 4, 0, 0, 0, 3, 0, 4, 0, 1, 0, 3, 0, 4, 0, 0, 0, 4, 0, 4, 0, 1, 0, 4, 0, 4, 0, 0, 0, 5, 0, 4, 0, 1, 0, 5, 0, 4, 0, 0, 0, 6, 0, 4, 0, 1, 0, 6, 0, 4, 0, 0, 0, 7, 0, 4, 0, 1, 0, 7, 0, 4, 0, 0, 0, 8, 0, 4, 0, 1, 0, 8, 0, 4, 0, 0, 0, 9, 0, 4, 0, 1, 0, 9, 0, 4, 0, 0, 0, 0, 0, 5, 0, 1, 0, 0, 0, 5, 0, 0, 0, 1, 0, 5, 0, 2, 0, 1, 0, 5, 0, 0, 0, 2, 0, 5, 0, 1, 0, 2, 0, 5, 0, 0, 0, 3, 0, 5, 0, 1, 0, 3, 0, 5, 0, 0, 0, 4, 0, 5, 0, 1, 0, 4, 0, 5, 0, 0, 0, 5, 0, 5, 0, 1, 0, 5, 0, 5, 0, 0, 0, 6, 0, 5, 0, 1, 0, 6, 0, 5, 0, 0, 0, 7, 0, 5, 0, 1, 0, 7, 0, 5, 0, 0, 0, 8, 0, 5, 0, 1, 0, 8, 0, 5, 0, 0, 0, 9, 0, 5, 0, 1, 0, 9, 0, 5, 0, 0, 0, 0, 0, 6, 0, 1, 0, 0, 0, 6, 0, 0, 0, 1, 0, 6, 0, 1, 0, 1, 0, 6, 0, 0, 0, 2, 0, 6, 0, 2, 0, 2, 0, 6, 0, 0, 0, 3, 0, 6, 0, 1, 0, 3, 0, 6, 0, 0, 0, 4, 0, 6, 0, 1, 0, 4, 0, 6, 0, 0, 0, 5, 0, 6, 0, 1, 0, 5, 0, 6, 0, 0, 0, 6, 0, 6, 0, 1, 0, 6, 0, 6, 0, 0, 0, 7, 0, 6, 0, 1, 0, 7, 0, 6, 0, 0, 0, 8, 0, 6, 0, 1, 0, 8, 0, 6, 0, 0, 0, 9, 0, 6, 0, 1, 0, 9, 0, 6, 0, 0, 0, 0, 0, 7, 0, 1, 0, 0, 0, 7, 0, 0, 0, 1, 0, 7, 0, 1, 0, 1, 0, 7, 0, 0, 0, 2, 0, 7, 0, 1, 0, 2, 0, 7, 0, 0, 0, 3, 0, 7, 0, 1, 0, 3, 0, 7, 0, 0, 0, 4, 0, 7, 0, 1, 0, 4, 0, 7, 0, 0, 0, 5, 0, 7, 0, 1, 0, 5, 0, 7, 0, 0, 0, 6, 0, 7, 0, 1, 0, 6, 0, 7, 0, 0, 0, 7, 0, 7, 0, 1, 0, 7, 0, 7, 0, 0, 0, 8, 0, 7, 0, 1, 0, 8, 0, 7, 0, 0, 0, 9, 0, 7, 0, 1, 0, 9, 0, 7, 0, 0, 0)
+tile_set = ExtResource("1")
+metadata/tile_seed = 20261014
+metadata/source_cell_count = 80
+metadata/columns = 10
+metadata/rows = 8
+
+[node name="TileCollision" type="Node2D" parent="ground"]
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("2")
+map_id = "playground-bomb-cave"
+tile_size = 64
+columns = 10
+rows = 8
+camera_mode = "fixed"
+metadata = {
+"objects": [],
+"player": {
+"spawn": {
+"x": 320,
+"y": 440
+},
+"entries": {}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(320, 440)
+
+[node name="crystal-walls" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="wall-top-0" parent="crystal-walls" instance=ExtResource("w4")]
+position = Vector2(32, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-0"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-0"
+
+[node name="wall-top-1" parent="crystal-walls" instance=ExtResource("w9")]
+position = Vector2(96, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-1"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-1"
+
+[node name="wall-top-2" parent="crystal-walls" instance=ExtResource("w14")]
+position = Vector2(160, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-2"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-2"
+
+[node name="wall-top-3" parent="crystal-walls" instance=ExtResource("w3")]
+position = Vector2(224, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-3"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-3"
+
+[node name="wall-top-4" parent="crystal-walls" instance=ExtResource("w8")]
+position = Vector2(288, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-4"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-4"
+
+[node name="wall-top-5" parent="crystal-walls" instance=ExtResource("w13")]
+position = Vector2(352, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-5"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-5"
+
+[node name="wall-top-6" parent="crystal-walls" instance=ExtResource("w2")]
+position = Vector2(416, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-6"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-6"
+
+[node name="wall-top-7" parent="crystal-walls" instance=ExtResource("w7")]
+position = Vector2(480, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-7"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-7"
+
+[node name="wall-top-8" parent="crystal-walls" instance=ExtResource("w12")]
+position = Vector2(544, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-8"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-8"
+
+[node name="wall-top-9" parent="crystal-walls" instance=ExtResource("w1")]
+position = Vector2(608, 118)
+metadata/instance_id = "playground-bomb-cave-wall-top-9"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-top-9"
+
+[node name="wall-bottom-0" parent="crystal-walls" instance=ExtResource("w6")]
+position = Vector2(32, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-0"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-0"
+
+[node name="wall-bottom-1" parent="crystal-walls" instance=ExtResource("w11")]
+position = Vector2(96, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-1"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-1"
+
+[node name="wall-bottom-2" parent="crystal-walls" instance=ExtResource("w16")]
+position = Vector2(160, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-2"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-2"
+
+[node name="wall-bottom-3" parent="crystal-walls" instance=ExtResource("w5")]
+position = Vector2(224, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-3"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-3"
+
+[node name="wall-bottom-6" parent="crystal-walls" instance=ExtResource("w10")]
+position = Vector2(416, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-6"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-6"
+
+[node name="wall-bottom-7" parent="crystal-walls" instance=ExtResource("w15")]
+position = Vector2(480, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-7"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-7"
+
+[node name="wall-bottom-8" parent="crystal-walls" instance=ExtResource("w4")]
+position = Vector2(544, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-8"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-8"
+
+[node name="wall-bottom-9" parent="crystal-walls" instance=ExtResource("w9")]
+position = Vector2(608, 502)
+metadata/instance_id = "playground-bomb-cave-wall-bottom-9"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-bottom-9"
+
+[node name="wall-left-2" parent="crystal-walls" instance=ExtResource("w14")]
+position = Vector2(32, 182)
+metadata/instance_id = "playground-bomb-cave-wall-left-2"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-left-2"
+
+[node name="wall-right-2" parent="crystal-walls" instance=ExtResource("w3")]
+position = Vector2(608, 182)
+metadata/instance_id = "playground-bomb-cave-wall-right-2"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-right-2"
+
+[node name="wall-left-3" parent="crystal-walls" instance=ExtResource("w8")]
+position = Vector2(32, 246)
+metadata/instance_id = "playground-bomb-cave-wall-left-3"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-left-3"
+
+[node name="wall-right-3" parent="crystal-walls" instance=ExtResource("w13")]
+position = Vector2(608, 246)
+metadata/instance_id = "playground-bomb-cave-wall-right-3"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-right-3"
+
+[node name="wall-left-4" parent="crystal-walls" instance=ExtResource("w2")]
+position = Vector2(32, 310)
+metadata/instance_id = "playground-bomb-cave-wall-left-4"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-left-4"
+
+[node name="wall-right-4" parent="crystal-walls" instance=ExtResource("w7")]
+position = Vector2(608, 310)
+metadata/instance_id = "playground-bomb-cave-wall-right-4"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-right-4"
+
+[node name="wall-left-5" parent="crystal-walls" instance=ExtResource("w12")]
+position = Vector2(32, 374)
+metadata/instance_id = "playground-bomb-cave-wall-left-5"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-left-5"
+
+[node name="wall-right-5" parent="crystal-walls" instance=ExtResource("w1")]
+position = Vector2(608, 374)
+metadata/instance_id = "playground-bomb-cave-wall-right-5"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-right-5"
+
+[node name="wall-left-6" parent="crystal-walls" instance=ExtResource("w6")]
+position = Vector2(32, 438)
+metadata/instance_id = "playground-bomb-cave-wall-left-6"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-left-6"
+
+[node name="wall-right-6" parent="crystal-walls" instance=ExtResource("w11")]
+position = Vector2(608, 438)
+metadata/instance_id = "playground-bomb-cave-wall-right-6"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-wall-right-6"
+
+[node name="south-door" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(320, 488)
+
+[node name="DoorScript" type="Node" parent="south-door" node_paths=PackedStringArray("walk_area")]
+script = ExtResource("door")
+map_id = "playground-bomb-cave"
+door_id = "playground-bomb-cave-entrance"
+target_area_id = "playground"
+target_door_id = "playground-bomb-cave-mouth"
+side = "south"
+walk_area = NodePath("../walk-area")
+kind = "opening"
+
+[node name="walk-area" type="Area2D" parent="south-door"]
+position = Vector2(0, 11)
+collision_layer = 512
+collision_mask = 130
+monitorable = false
+
+[node name="shape" type="CollisionShape2D" parent="south-door/walk-area"]
+shape = SubResource("doorway")
+
+[node name="cave" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="campfire" parent="cave" instance=ExtResource("campfire")]
+position = Vector2(150, 300)
+scale = Vector2(0.8, 0.8)
+metadata/instance_id = "playground-bomb-cave-campfire"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-campfire"
+
+[node name="hidden-chest" parent="cave" instance=ExtResource("chest")]
+position = Vector2(480, 196)
+metadata/instance_id = "playground-bomb-cave-hidden-chest"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-hidden-chest"
+
+[node name="ChestScript" parent="cave/hidden-chest"]
+map_id = "playground-bomb-cave"
+instance_id = "playground-bomb-cave-hidden-chest"
+initial_contents = {
+"hp-potion": 2,
+"purple-berry-mat": 2
+}
+
+[node name="shard-1" parent="cave" instance=ExtResource("shard")]
+position = Vector2(420, 330)
+metadata/instance_id = "playground-bomb-cave-shard-1"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-shard-1"
+
+[node name="CollectibleScript" parent="cave/shard-1"]
+map_id = "playground-bomb-cave"
+instance_id = "playground-bomb-cave-shard-1"
+
+[node name="shard-2" parent="cave" instance=ExtResource("shard")]
+position = Vector2(110, 410)
+metadata/instance_id = "playground-bomb-cave-shard-2"
+metadata/persistence_key = "playground-bomb-cave.playground-bomb-cave-shard-2"
+
+[node name="CollectibleScript" parent="cave/shard-2"]
+map_id = "playground-bomb-cave"
+instance_id = "playground-bomb-cave-shard-2"
+
+[editable path="cave/hidden-chest"]
+[editable path="cave/shard-1"]
+[editable path="cave/shard-2"]

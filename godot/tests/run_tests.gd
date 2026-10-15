@@ -203,6 +203,9 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 	# The ability ceremony pauses the world until a key; tests see the banner instead (a test that
 	# wants the ceremony turns it back on).
 	context.main.set(&"ability_ceremonies", false)
+	# Playground tests play the classic game: the body-shapes rework mode stays off
+	# (docs/godot/BODY_SHAPES.md).
+	context.main.set(&"rework_in_playground", false)
 	root.add_child(context.main)
 	if context.player() == null:
 		context.fail("main.tscn did not register a player")

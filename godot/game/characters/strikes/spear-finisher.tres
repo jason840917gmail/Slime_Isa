@@ -1,0 +1,184 @@
+[gd_resource type="Resource" script_class="StrikeAnimation" format=3]
+
+[ext_resource type="Script" path="res://game/shapes/strike_key.gd" id="1_ynjbo"]
+[ext_resource type="Script" path="res://game/shapes/strike_direction.gd" id="2_t2snm"]
+[ext_resource type="Script" path="res://game/shapes/strike_animation.gd" id="3_0k6ua"]
+
+[sub_resource type="Resource" id="Resource_bre6e"]
+script = ExtResource("1_ynjbo")
+frame = 2
+angle = 90.0
+layer = 1
+head_angle = 90.0
+
+[sub_resource type="Resource" id="Resource_fdrf1"]
+script = ExtResource("1_ynjbo")
+share = 0.7272727272727273
+frame = 3
+angle = 90.0
+length = 0.45
+layer = 1
+head_angle = 90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_nim43"]
+script = ExtResource("1_ynjbo")
+share = 1.0
+frame = 4
+angle = 90.0
+length = 1.0
+layer = 1
+head_angle = 90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_txt4i"]
+script = ExtResource("1_ynjbo")
+phase = 1
+share = 1.0
+frame = 4
+angle = 90.0
+length = 0.25
+layer = 1
+head_angle = 90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_l6sqw"]
+script = ExtResource("1_ynjbo")
+phase = 2
+share = 0.1599999999999997
+frame = 5
+angle = 90.0
+layer = 1
+head_angle = 90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_2737l"]
+script = ExtResource("1_ynjbo")
+phase = 2
+share = 0.5
+frame = 6
+angle = 90.0
+layer = 1
+head_angle = 90.0
+
+[sub_resource type="Resource" id="Resource_ofn2x"]
+script = ExtResource("2_t2snm")
+hit_reach = 132.0
+spear_inside = 12.0
+spear_fade = 6.019
+spear_shaft = 6.0
+keys = Array[ExtResource("1_ynjbo")]([SubResource("Resource_bre6e"), SubResource("Resource_fdrf1"), SubResource("Resource_nim43"), SubResource("Resource_txt4i"), SubResource("Resource_l6sqw"), SubResource("Resource_2737l")])
+
+[sub_resource type="Resource" id="Resource_6dqjx"]
+script = ExtResource("1_ynjbo")
+frame = 2
+
+[sub_resource type="Resource" id="Resource_31wv7"]
+script = ExtResource("1_ynjbo")
+share = 0.7272727272727273
+frame = 3
+length = 0.45
+jump = true
+
+[sub_resource type="Resource" id="Resource_j6oii"]
+script = ExtResource("1_ynjbo")
+share = 1.0
+frame = 4
+length = 1.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_shk75"]
+script = ExtResource("1_ynjbo")
+phase = 1
+share = 1.0
+frame = 4
+length = 0.25
+jump = true
+
+[sub_resource type="Resource" id="Resource_eqi76"]
+script = ExtResource("1_ynjbo")
+phase = 2
+share = 0.1599999999999997
+frame = 5
+jump = true
+
+[sub_resource type="Resource" id="Resource_mli07"]
+script = ExtResource("1_ynjbo")
+phase = 2
+share = 0.5
+frame = 6
+
+[sub_resource type="Resource" id="Resource_3hgah"]
+script = ExtResource("2_t2snm")
+hit_reach = 132.0
+spear_inside = 12.0
+spear_fade = 6.019
+spear_shaft = 6.0
+keys = Array[ExtResource("1_ynjbo")]([SubResource("Resource_6dqjx"), SubResource("Resource_31wv7"), SubResource("Resource_j6oii"), SubResource("Resource_shk75"), SubResource("Resource_eqi76"), SubResource("Resource_mli07")])
+
+[sub_resource type="Resource" id="Resource_plfno"]
+script = ExtResource("1_ynjbo")
+frame = 2
+angle = -90.0
+head_angle = -90.0
+
+[sub_resource type="Resource" id="Resource_4disd"]
+script = ExtResource("1_ynjbo")
+share = 0.7272727272727273
+frame = 3
+angle = -90.0
+length = 0.45
+head_angle = -90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_eaqok"]
+script = ExtResource("1_ynjbo")
+share = 1.0
+frame = 4
+angle = -90.0
+length = 1.0
+head_angle = -90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_htggf"]
+script = ExtResource("1_ynjbo")
+phase = 1
+share = 1.0
+frame = 4
+angle = -90.0
+length = 0.25
+head_angle = -90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_7miwb"]
+script = ExtResource("1_ynjbo")
+phase = 2
+share = 0.1599999999999997
+frame = 5
+angle = -90.0
+head_angle = -90.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_dl88r"]
+script = ExtResource("1_ynjbo")
+phase = 2
+share = 0.5
+frame = 6
+angle = -90.0
+head_angle = -90.0
+
+[sub_resource type="Resource" id="Resource_4gmp3"]
+script = ExtResource("2_t2snm")
+hit_reach = 132.0
+spear_inside = 12.0
+spear_fade = 6.019
+spear_shaft = 6.0
+keys = Array[ExtResource("1_ynjbo")]([SubResource("Resource_plfno"), SubResource("Resource_4disd"), SubResource("Resource_eaqok"), SubResource("Resource_htggf"), SubResource("Resource_7miwb"), SubResource("Resource_dl88r")])
+
+[resource]
+script = ExtResource("3_0k6ua")
+shape = "spear"
+step = "lunging-jab"
+side = SubResource("Resource_3hgah")
+down = SubResource("Resource_ofn2x")
+up = SubResource("Resource_4gmp3")

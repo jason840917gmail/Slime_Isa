@@ -205,6 +205,9 @@ var stairs_styles: Dictionary = {}
 ## Rows painted above the map (off-map tops whose walls hang into the map): the grid starts this
 ## many rows above the map's first row, and this node sits as far up (grid cell = map cell + offset).
 var cell_offset := Vector2i.ZERO
+## Passages opened at run time (`open_passage`): [{"rect": Rect2 (world), "level": int}], applied
+## again on every rebuild.
+var _passages: Array[Dictionary] = []
 var _queued := false
 ## style -> whether its wall art exists.
 var _wall_art: Dictionary = {}
@@ -412,6 +415,8 @@ func rebuild() -> void:
 			for y in range(-above, 0):
 				names[Vector2i(x, y)] = names[Vector2i(x, 0)]
 	grid = ElevationGrid.build(columns, rows + above, _shifted(levels), _shifted(names), setting("behindDepth") / cell)
+	for passage: Dictionary in _passages:
+		grid.open_rect(_passage_cells(passage["rect"]), int(passage["level"]))
 	_build_stairs()
 	_build_wall_styles()
 	_build_drawing()
@@ -431,6 +436,28 @@ func rebuild() -> void:
 		get_node("Collision").free()
 	# Fences along painted rims, over the cliffs and into the depth map (docs/godot/FENCES.md).
 	fences = ElevationFences.mount(self, grid, occlusion, _collide)
+
+
+## Opens a passage for bodies of `level` through what covers `world_rect` (world space): a wall or a
+## higher top there becomes walkable at that level, though it is drawn as before (a blown cracked
+## wall, game/scripts/cracked_wall.gd, draws its own hole). Only that level's collision is rebuilt
+## (a few tens of ms); the passage stays through later rebuilds. Bodies in it hide behind the wall
+## as anywhere behind higher ground (the depth map).
+func open_passage(world_rect: Rect2, level: int) -> void:
+	for passage: Dictionary in _passages:
+		if passage["rect"] == world_rect and int(passage["level"]) == level:
+			return
+	_passages.append({"rect": world_rect, "level": level})
+	if grid == null:
+		return
+	if grid.open_rect(_passage_cells(world_rect), level) > 0 and _collide:
+		# Deferred: a blast opens it from a physics step, where bodies cannot be swapped.
+		_rebuild_level_collision.call_deferred(level)
+
+
+## A passage's rect in grid cells.
+func _passage_cells(world_rect: Rect2) -> Rect2:
+	return Rect2((world_rect.position - global_position) / cell, world_rect.size / cell)
 
 
 ## Queues a rebuild for the end of the frame (painting sends many changes).
@@ -1447,23 +1474,41 @@ func _build_collision() -> void:
 	holder.name = "Collision"
 	add_child(holder)
 	for level in range(ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL + 1):
-		var segments := grid.collision_segments(level)
-		for i in segments.size():
-			segments[i] *= cell
-		if not stairs.is_empty():
-			segments = _with_stairs(segments, level)
-		if segments.is_empty():
-			continue
-		var shape := ConcavePolygonShape2D.new()
-		shape.segments = segments
-		var body := StaticBody2D.new()
-		body.name = "Level%d" % level
-		body.collision_layer = level_bit(level)
-		body.collision_mask = 0
-		var collision := CollisionShape2D.new()
-		collision.shape = shape
-		body.add_child(collision)
-		holder.add_child(body)
+		_add_level_collision(holder, level)
+
+
+## The static body of `level`'s collision under `holder` (none when it has no segments).
+func _add_level_collision(holder: Node2D, level: int) -> void:
+	var segments := grid.collision_segments(level)
+	for i in segments.size():
+		segments[i] *= cell
+	if not stairs.is_empty():
+		segments = _with_stairs(segments, level)
+	if segments.is_empty():
+		return
+	var shape := ConcavePolygonShape2D.new()
+	shape.segments = segments
+	var body := StaticBody2D.new()
+	body.name = "Level%d" % level
+	body.collision_layer = level_bit(level)
+	body.collision_mask = 0
+	var collision := CollisionShape2D.new()
+	collision.shape = shape
+	body.add_child(collision)
+	holder.add_child(body)
+
+
+## Only `level`'s collision again (a passage opened, `open_passage`).
+func _rebuild_level_collision(level: int) -> void:
+	var holder := get_node_or_null("Collision") as Node2D
+	if holder == null:
+		_build_collision()
+		return
+	var old := holder.get_node_or_null("Level%d" % level)
+	if old != null:
+		holder.remove_child(old)
+		old.queue_free()
+	_add_level_collision(holder, level)
 
 
 ## `segments` (a level's terrain outline, Elevation space) with the flights of stairs: the outline

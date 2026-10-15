@@ -12,10 +12,16 @@ extends AudioStreamPlayer
 ##   loop resumes when the node re-enters the tree.
 ## - `autoplay_cue`: plays once in `_ready` (Godot's own `autoplay` stays off so
 ##   the randomness rules apply).
+## - Body-shapes rework (docs/godot/BODY_SHAPES.md "Juice"): a Dictionary payload
+##   with a PAYLOAD_PITCH number plays the one-shot at `pitch_scale · pitch`, and
+##   its PAYLOAD_PITCH_RANDOMNESS (when given) replaces `pitch_randomness` for that
+##   play (GameFeel's rising impact pitch). No old payload carries either key.
 ##
-## Owner: converter builder.
+## Owner: converter builder (the pitch payload: juice).
 
 const CueRules := preload("res://game/runtime/audio_cue_rules.gd")
+const PAYLOAD_PITCH := "pitch"
+const PAYLOAD_PITCH_RANDOMNESS := "pitch_randomness"
 
 @export var pitch_randomness: float = 0.0
 @export var min_interval_ms: float = 0.0
@@ -69,7 +75,8 @@ func play_cue(payload: Variant = null) -> void:
 		return
 	_last_accepted_ms = now
 	cues_played += 1
-	pitch_scale = CueRules.randomized_pitch(_base_pitch, pitch_randomness)
+	pitch_scale = CueRules.randomized_pitch(_base_pitch * _payload_number(payload, PAYLOAD_PITCH, 1.0),
+		_payload_number(payload, PAYLOAD_PITCH_RANDOMNESS, pitch_randomness))
 	play()
 
 
@@ -79,6 +86,19 @@ func stop_cue(payload: Variant = null) -> void:
 		return
 	_loop_wanted = false
 	stop()
+
+
+## `payload[key]` as a finite number >= 0 (a pitch must be > 0), else `fallback` (any other payload).
+static func _payload_number(payload: Variant, key: String, fallback: float) -> float:
+	if not (payload is Dictionary) or not (payload as Dictionary).has(key):
+		return fallback
+	var raw: Variant = (payload as Dictionary)[key]
+	if typeof(raw) != TYPE_FLOAT and typeof(raw) != TYPE_INT:
+		return fallback
+	var number := float(raw)
+	if not is_finite(number) or number < 0.0 or (key == PAYLOAD_PITCH and number <= 0.0):
+		return fallback
+	return number
 
 
 ## Stops every voice and forgets the last accepted one-shot, so `min_interval_ms` cannot drop the

@@ -16,9 +16,29 @@ class_name WorldCamera
 ## above it, and `center` is the play area's centre; the Camera2D itself sits half the inset lower,
 ## so the console covers only what lies under it and a map's south edge stops at its top.
 ##
-## Owner: world builder.
+## Body-shapes rework (combat-feel plan section 6 "Camera", section 8 `world/world_camera.gd`;
+## docs/godot/BODY_SHAPES.md "Juice"): a trauma shake and a kick, both on real time, ADDED to the
+## old shake's offset (the old `shake` is unchanged and still runs on its own):
+## - `add_trauma(amount, direction)`: trauma += amount (capped at 1); every frame the shake is
+##   trauma^`exponent` x `maxOffsetPx` screen px of smooth FastNoiseLite noise sampled at
+##   `noiseHz`, `directionalShare` of it along the last hit's axis and the rest in any direction;
+##   trauma decays by `decayPerS` per second (`combat.trauma` in game-constants.json).
+## - `kick(px, direction)`: the picture jolts `px` screen px along `direction` and eases back
+##   (KICK_OUT_MS, KICK_RETURN_MS); a new kick replaces the running one.
+## GameFeel calls both (it applies reduce motion and the screen-shake slider).
+##
+## Owner: world builder (trauma and kick: juice).
 
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
+const Services := preload("res://game/shared/services.gd")
+
+## Kick (presentation): the jolt reaches its full size in KICK_OUT_MS and eases back in
+## KICK_RETURN_MS (real ms).
+const KICK_OUT_MS := 30.0
+const KICK_RETURN_MS := 120.0
+## Trauma noise channels: the free shake's x and y and the directional one sample the same noise
+## this far apart.
+const TRAUMA_CHANNEL_SPACING := 97.0
 
 const ZOOM_LEVELS: Array[float] = [0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25]
 const DEFAULT_ZOOM := 1.0
@@ -81,6 +101,15 @@ var _pan_resume_follow: bool = false
 var _target_prev: Vector2 = Vector2.ZERO
 var _target_curr: Vector2 = Vector2.ZERO
 var _has_snapshot: bool = false
+## Rework trauma shake (0..1), its axis (unit; ZERO = none), the real ms of its last decay step and
+## the noise it samples (made on the first trauma).
+var _trauma: float = 0.0
+var _trauma_axis: Vector2 = Vector2.ZERO
+var _trauma_last_ms: float = 0.0
+var _trauma_noise: FastNoiseLite
+## Rework kick: its full offset (screen px, along the hit) and the real ms it started (< 0 = none).
+var _kick: Vector2 = Vector2.ZERO
+var _kick_start_ms: float = -1.0
 
 
 ## Interpolation OFF before the node enters the tree: Camera2D checks it on tree entry and
@@ -299,6 +328,38 @@ func is_shaking() -> bool:
 	return float(Time.get_ticks_msec()) < _shake_until_ms
 
 
+## Rework trauma (see the header): adds `amount` (capped at 1) and, with a `direction`, turns the
+## directional share of the shake to the axis of the stronger contribution so far. Real time.
+func add_trauma(amount: float, direction: Vector2 = Vector2.ZERO) -> void:
+	if amount <= 0.0 or not is_finite(amount):
+		return
+	var now := float(Time.get_ticks_msec())
+	if _trauma <= 0.0:
+		_trauma_last_ms = now
+	if _trauma_noise == null:
+		_trauma_noise = FastNoiseLite.new()
+		_trauma_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+		_trauma_noise.fractal_type = FastNoiseLite.FRACTAL_NONE
+		_trauma_noise.frequency = 1.0
+		_trauma_noise.seed = randi()
+	if direction != Vector2.ZERO and direction.is_finite() and (amount >= _trauma or _trauma_axis == Vector2.ZERO):
+		_trauma_axis = direction.normalized()
+	_trauma = minf(1.0, _trauma + amount)
+
+
+## The current trauma (0..1).
+func get_trauma() -> float:
+	return _trauma
+
+
+## Rework kick (see the header): the picture jolts `px` screen px along `direction`, then eases back.
+func kick(px: float, direction: Vector2) -> void:
+	if px <= 0.0 or not is_finite(px) or direction == Vector2.ZERO or not direction.is_finite():
+		return
+	_kick = direction.normalized() * px
+	_kick_start_ms = float(Time.get_ticks_msec())
+
+
 ## Respawn pan (player spec 6.7): stop following, tween `center` to `point` over `duration_ms`
 ## with Phaser 'Power2' = TRANS_CUBIC / EASE_OUT, then resume following the target.
 ## Runs on real time in `_process`.
@@ -390,16 +451,83 @@ func _finish_pan() -> void:
 	_pan_resume_follow = false
 
 
+## The old shake's offset, plus the rework's trauma shake and kick (ZERO while neither runs, so the
+## old shake is exactly as before).
 func _advance_shake(now: float) -> void:
-	if now < _shake_until_ms:
+	var shake_offset := Vector2.ZERO
+	var shaking := now < _shake_until_ms
+	if shaking:
 		var vp := _viewport_size()
 		var z := maxf(target_zoom, ZOOM_EPSILON)
-		var shake_offset := Vector2(randf_range(-1.0, 1.0) * _shake_intensity * vp.x,
+		shake_offset = Vector2(randf_range(-1.0, 1.0) * _shake_intensity * vp.x,
 			randf_range(-1.0, 1.0) * _shake_intensity * vp.y) * z
-		offset = shake_offset.round() if _round_pixels else shake_offset
+	var extra := _advance_trauma(now) + _advance_kick(now)
+	if shaking or extra != Vector2.ZERO:
+		var total := shake_offset + extra
+		offset = total.round() if _round_pixels else total
 	elif offset != Vector2.ZERO:
 		offset = Vector2.ZERO
 		_shake_intensity = 0.0
+
+
+## This frame's trauma shake in world units (ZERO without trauma); decays the trauma on real time.
+func _advance_trauma(now: float) -> Vector2:
+	if _trauma <= 0.0:
+		return Vector2.ZERO
+	var elapsed_s := maxf(0.0, now - _trauma_last_ms) / 1000.0
+	_trauma_last_ms = now
+	var settings := _trauma_settings()
+	var decay := float(settings["decay"])
+	# Without a decay (no constants) the trauma would never end: drop it.
+	_trauma = maxf(0.0, _trauma - decay * elapsed_s) if decay > 0.0 else 0.0
+	if _trauma <= 0.0 or _trauma_noise == null:
+		_trauma_axis = Vector2.ZERO
+		return Vector2.ZERO
+	var shake := pow(_trauma, float(settings["exponent"]))
+	var t := now / 1000.0 * float(settings["hz"])
+	var free := Vector2(_trauma_noise.get_noise_2d(t, 0.0), _trauma_noise.get_noise_2d(t, TRAUMA_CHANNEL_SPACING))
+	var share := float(settings["share"]) if _trauma_axis != Vector2.ZERO else 0.0
+	var along := _trauma_axis * _trauma_noise.get_noise_2d(t, TRAUMA_CHANNEL_SPACING * 2.0)
+	var screen_px := (free * (1.0 - share) + along * share) * float(settings["max_px"]) * shake
+	return screen_px / maxf(target_zoom, ZOOM_EPSILON)
+
+
+## This frame's kick in world units (ZERO without one): the picture moves along the kick, so the
+## camera moves against it.
+func _advance_kick(now: float) -> Vector2:
+	if _kick_start_ms < 0.0:
+		return Vector2.ZERO
+	var elapsed := now - _kick_start_ms
+	var reach := 0.0
+	if elapsed < KICK_OUT_MS:
+		var t := elapsed / KICK_OUT_MS
+		reach = 1.0 - (1.0 - t) * (1.0 - t)
+	elif elapsed < KICK_OUT_MS + KICK_RETURN_MS:
+		var t := (elapsed - KICK_OUT_MS) / KICK_RETURN_MS
+		reach = 1.0 - t * t * (3.0 - 2.0 * t)
+	else:
+		_kick_start_ms = -1.0
+		_kick = Vector2.ZERO
+		return Vector2.ZERO
+	return -_kick * reach / maxf(target_zoom, ZOOM_EPSILON)
+
+
+## `combat.trauma` (game-constants.json) as {"max_px", "exponent", "decay", "share", "hz"}; all 0
+## without the constants (no shake).
+func _trauma_settings() -> Dictionary:
+	var constants := Services.constants()
+	var block: Dictionary = {}
+	if constants != null:
+		var raw: Variant = constants.value("combat.trauma", {})
+		if raw is Dictionary:
+			block = raw
+	return {
+		"max_px": float(block.get("maxOffsetPx", 0.0)),
+		"exponent": float(block.get("exponent", 1.0)),
+		"decay": float(block.get("decayPerS", 0.0)),
+		"share": clampf(float(block.get("directionalShare", 0.0)), 0.0, 1.0),
+		"hz": float(block.get("noiseHz", 0.0)),
+	}
 
 
 func _update_deadzone() -> void:

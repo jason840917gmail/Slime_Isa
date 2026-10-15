@@ -14,7 +14,8 @@ adventure games, and is built page by page.
 | `end-sleep-down.png`, `end-defeated.png` | The end frames of the doze and the defeat (GPT 2.5 from `start-down.png` and Lili, transparent, placed like the start frames: centred, standing on the start's baseline, at 0.883 of the generated size); the sleep row loops on `end-sleep-down.png` |
 | `start-ball.png` | The Roll's ball (2026-10-09): the slime curled into a ball, its sprout lying flat on it (`asset/Originals/gulp/generated/ball-b.png`, GPT 2.5), on a flat #FF00FF 1024 px square; the packer spins it into page 4's `ball-side` |
 | `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side`, `doze-down`, `sleep-down`, `die-down`, `swim-down`, `swim-up`, `swim-side`, and since 2026-10-09 `suck-down`, `suck-up`, `suck-side`, `spit-down`, `spit-up`, `spit-side`, `full-down`, `full-up`, `full-side`. The full slime's start stills are `asset/Originals/gulp/generated/start-full-<direction>.png` (1.15 times the start slime's width, on the same baseline); the spit takes start full and pop empty |
-| `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops |
+| `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops (page 6: where each pose landed, see "Page 6 layout") |
+| `shapes/` | The body shapes' art (2026-10-12): the attack pose sheets packed into page 6, the Spear's strike strips packed into the strike sheet, the jelly weapons, their effects and icons ([shapes/README.md](shapes/README.md)) |
 
 Rebuild a runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` with
 `python scripts/characters/pack-slime-v2-page.py --page <n>` (see that file for the keying and
@@ -187,6 +188,23 @@ scale (`PAGE_1_SCALE`), so the full slime is drawn bigger than the slime, becaus
 - **At rest** the same rows sway slowly: `build_player_clips.gd` adds `full-idle-down`, `-up`
   and `-side` on them at 2.67 fps (`ALIASES`). The held thing is drawn inside, on the belly
   (`game/player/gulp/mouth.gd`).
+
+## Page 6 layout
+
+The body shapes' attack key poses (2026-10-12, for the body-shapes prototype): still GPT 2.5
+pose sheets, not videos, so their sources, prompts and layout are in
+[shapes/README.md](shapes/README.md). Rows 0-4 hold four poses per shape and direction in groups of
+four columns (row 4 columns 4-7 and rows 5-7 are free), on page 1's cells and baseline. They are
+packed by `python scripts/characters/pack-slime-shape-poses.py`, not `pack-slime-v2-page.py`, and
+`page-6.json` lists where each pose landed instead of rows; `tools/build_player_clips.gd` makes each
+cell the game shows a one-frame clip `shape-<shape>-<pose>-<down|up|side>` (only the War Axe's `load`,
+`swing-down` and `swing-up`, for its Spin: every other strike plays its strike frames;
+docs/assets/slime-sheet-guide.md).
+
+The Spear's strike frames (2026-10-12) are on a sheet of their own,
+`godot/asset/characters/512x416-tile_8x8-slime-v2-strikes.webp` (larger cells centred like page
+1's), packed by `python scripts/characters/pack-slime-strikes.py` from `shapes/strikes/` with its
+manifest `godot/game/data/shape-strikes.json` ([shapes/README.md](shapes/README.md) "Strike sheet").
 
 ## What worked (2026-10-05)
 

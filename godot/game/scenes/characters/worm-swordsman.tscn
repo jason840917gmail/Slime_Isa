@@ -384,6 +384,7 @@ script = ExtResource("2")
 
 [node name="EnemyScript" type="Node" parent="." unique_id=440391096 node_paths=PackedStringArray("body", "visual", "animation", "damage_area", "attack_area")]
 script = ExtResource("3")
+enemy_type = "worm-swordsman"
 body = NodePath("..")
 visual = NodePath("../Visual")
 animation = NodePath("../Animation")

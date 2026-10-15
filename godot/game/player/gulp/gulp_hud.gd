@@ -5,10 +5,16 @@ extends Node2D
 ## bindings. The form badge lives on the HUD console (roadmap 4.12); forms have no timer. World
 ## space, drawn over everything.
 ##
-## Owner: abilities.
+## Body-shapes rework (body-shapes plan section 5 "Prompts"; only while ReworkMode is on): Q does
+## the whole mouth, so the prompts are "[Q] Suck" near a suckable thing, "[Q] Throw" with a liftable
+## and "[Q] Spit out  Hold [Q] Swallow" with an essence (only "[Q] Spit out" before Swallow is
+## learned); none while a suck burst or a hold ring runs (mouth_hold.gd `roots_player`).
+##
+## Owner: abilities (the rework prompts: mouth).
 
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
 const FONT_SIZE := 14
 const OUTLINE := 4
@@ -42,6 +48,9 @@ func _process(_delta: float) -> void:
 	if player == null or not is_instance_valid(player) or bool(player.call(&"is_dead")):
 		_hint.visible = false
 		return
+	if ReworkMode.is_on():
+		_show_rework()
+		return
 	var held: Dictionary = player.call(&"held")
 	if not held.is_empty():
 		var text := "[%s] Throw" % ControlLabels.control_label(&"eat")
@@ -54,6 +63,29 @@ func _process(_delta: float) -> void:
 		_hint.visible = false
 		return
 	_show("[%s] Suck" % ControlLabels.control_label(&"eat"), (target.call(&"origin") as Vector2) - Vector2(0.0, TARGET_RISE))
+
+
+## The rework mode's prompts (Q for everything; the key from the bindings).
+func _show_rework() -> void:
+	var hold: Variant = player.call(&"get_mouth_hold") if player.has_method(&"get_mouth_hold") else null
+	if hold is Object and (hold as Object).has_method(&"roots_player") and bool((hold as Object).call(&"roots_player")):
+		_hint.visible = false
+		return
+	var key := ControlLabels.control_label(&"eat")
+	var held: Dictionary = player.call(&"held")
+	if not held.is_empty():
+		var text := "[%s] Throw" % key
+		if str(held.get("kind", "")) == "essence":
+			text = "[%s] Spit out" % key
+			if bool(player.call(&"is_learned", AbilityDefinitions.SWALLOW)):
+				text += "  Hold [%s] Swallow" % key
+		_show(text, (player.call(&"get_centre") as Vector2) - Vector2(0.0, HELD_RISE))
+		return
+	var target: Node = player.call(&"nearest_suckable")
+	if target == null:
+		_hint.visible = false
+		return
+	_show("[%s] Suck" % key, (target.call(&"origin") as Vector2) - Vector2(0.0, TARGET_RISE))
 
 
 ## Bottom-centre of the hint at `at`.

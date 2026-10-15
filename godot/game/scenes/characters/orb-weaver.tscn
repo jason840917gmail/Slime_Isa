@@ -366,6 +366,7 @@ autoplay = &"idle-side"
 
 [node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "animation", "damage_area", "attack_area")]
 script = ExtResource("3")
+enemy_type = "orb-weaver"
 body = NodePath("..")
 visual = NodePath("../Visual")
 animation = NodePath("../Animation")
