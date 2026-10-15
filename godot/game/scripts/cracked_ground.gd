@@ -14,7 +14,10 @@ class_name CrackedGroundScript
 
 const Services := preload("res://game/shared/services.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+## The Slam's key (in the body-shapes rework mode the box's `ability_use`).
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
 const CRACK_TEXT := "The ground gives way!"
 const CRACK_TEXT_RISE := 60.0
@@ -22,6 +25,8 @@ const CRACK_TEXT_MS := 1800.0
 const CREAK_TEXT := "It creaks under you..."
 ## With the slam learned; "%s" is its key label.
 const CREAK_SLAM_TEXT := "It creaks under you... slam it! (%s)"
+## In the rework mode while another box ability is chosen; the bag key, then the use key.
+const CREAK_CHOOSE_TEXT := "It creaks under you... choose the Slam in the bag (%s), then press %s"
 const CREAK_TEXT_RISE := 50.0
 const CREAK_TEXT_MS := 2200.0
 const CREAK_INTERVAL_MS := 4000.0
@@ -95,7 +100,7 @@ func _physics_process(_delta: float) -> void:
 				_crack(root.global_position)
 				return
 		if heavy_here:
-			_creak(root.global_position, bool(player.call(&"is_learned", AbilityDefinitions.SQUASH_SLAM)))
+			_creak(root.global_position, bool(player.call(&"is_learned", AbilityDefinitions.SQUASH_SLAM)), player)
 		return
 	if heavy_here:
 		_crack(root.global_position)
@@ -114,7 +119,7 @@ func _crack(at: Vector2) -> void:
 	cracked.emit({"flagId": flag_id})
 
 
-func _creak(at: Vector2, slam_learned: bool) -> void:
+func _creak(at: Vector2, slam_learned: bool, player: Node) -> void:
 	var now := float(Time.get_ticks_msec())
 	if now < _next_creak_ms:
 		return
@@ -122,12 +127,17 @@ func _creak(at: Vector2, slam_learned: bool) -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(CUE_CREAK)
-		feel.floating_text(at - Vector2(0.0, CREAK_TEXT_RISE), creak_text(slam_learned), &"yellow", true, CREAK_TEXT_MS)
+		feel.floating_text(at - Vector2(0.0, CREAK_TEXT_RISE), creak_text(slam_learned, player), &"yellow", true,
+			CREAK_TEXT_MS)
 
 
-## The creak hint: the slam and its key once the slam is learned, else only the creak.
-static func creak_text(slam_learned: bool) -> String:
-	var key := ControlLabels.control_label(AbilityDefinitions.action(AbilityDefinitions.SQUASH_SLAM))
+## The creak hint: the slam and its key once the slam is learned, else only the creak. In the
+## body-shapes rework mode the key uses whichever box ability is chosen: while another one is (on
+## `player`'s box), the hint says to choose the Slam in the bag first.
+static func creak_text(slam_learned: bool, player: Node = null) -> String:
+	var key := ControlLabels.control_label(AbilityBox.key_action(AbilityDefinitions.SQUASH_SLAM))
 	if not slam_learned or key.is_empty():
 		return CREAK_TEXT
+	if ReworkMode.is_on() and AbilityBox.selected(player) != AbilityDefinitions.SQUASH_SLAM:
+		return CREAK_CHOOSE_TEXT % [ControlLabels.control_label(&"menu"), key]
 	return CREAK_SLAM_TEXT % key

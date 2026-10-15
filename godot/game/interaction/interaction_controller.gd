@@ -7,7 +7,7 @@ class_name InteractionController
 ## leaving the last prompt on screen as Phaser does.
 ##
 ## Every physics step (before the player, priority -10) each provider offers at most one target,
-## the nearest of its kind within that object's reach: gates 95, doors 90, workbenches 88, beds 85,
+## the nearest of its kind within that object's reach: workbenches 88, beds 85,
 ## chests 80 (reach 112), and every NPC in reach (quest turn-in 100, offer 90, reoffer 85, talk 50,
 ## from the quest service). A pointer within 64 px of a target's
 ## pick point chooses it; otherwise the highest priority wins and a tie goes to the smaller id
@@ -23,6 +23,10 @@ class_name InteractionController
 ## NPC opens its conversation (the quest service: dialogue box, offer and turn-in window). A
 ## workbench opens the crafting window for its site (game/ui/screens/menu_windows.gd).
 ##
+## Doors, ladders and holes are not offered (owner, 2026-10-14: no keys for transitions): the slime
+## goes through them by pushing into them (game/scripts/door.gd). Gates are not offered either
+## (owner, 2026-10-15): pushed with the key they open (game/scripts/gate.gd).
+##
 ## Owner: interaction.
 
 const Services := preload("res://game/shared/services.gd")
@@ -30,8 +34,6 @@ const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd")
 const InteractionBadge := preload("res://game/interaction/interaction_badge.gd")
-const DoorScript := preload("res://game/scripts/door.gd")
-const GateScript := preload("res://game/scripts/gate.gd")
 const ChestScript := preload("res://game/scripts/chest.gd")
 const BedScript := preload("res://game/scripts/bed.gd")
 const WorkbenchScript := preload("res://game/scripts/workbench.gd")
@@ -50,8 +52,6 @@ const CHEST_BADGE_RISE := 56.0
 const NPC_REACH := 96.0
 const NPC_BADGE_OFFSET := Vector2(30.0, -30.0)
 const NPC_BODY_RISE := 24.0
-const PRIORITY_GATE := 95
-const PRIORITY_DOOR := 90
 const PRIORITY_WORKBENCH := 88
 const PRIORITY_BED := 85
 const PRIORITY_CHEST := 80
@@ -59,9 +59,6 @@ const PRIORITY_TALK := 50
 const PRIORITY_RESTORATION := 89
 const PRIORITY_GULP := 60
 ## Message literals (UniversalSceneWorldController.ts:984-999, :909-915).
-const GATE_STUCK_MESSAGE := "The gate will not budge."
-const CUE_GATE_UNLOCK := &"GateUnlock"
-const CUE_GATE_LOCKED := &"GateLocked"
 const CHEST_GUARDED_PROMPT := "Chest locked by Fatty One Eye"
 const CHEST_EMPTY_PROMPT := "Inspect empty chest"
 const CHEST_OPEN_PROMPT := "Open chest"
@@ -292,7 +289,8 @@ func get_badge() -> InteractionBadge:
 
 # --- providers -------------------------------------------------------------------------------
 
-## Phaser provider order: quest NPCs, chests, doors, gates, beds, workbenches.
+## Phaser provider order: quest NPCs, chests, (doors and gates: pushed into, no longer offered),
+## beds, workbenches.
 func _gather() -> Array[Dictionary]:
 	var player := _player()
 	if player == null:
@@ -307,8 +305,6 @@ func _gather_at(at: Vector2) -> Array[Dictionary]:
 		return out
 	out.append_array(_npc_candidates(at))
 	_append(out, _chest_candidate(at))
-	_append(out, _nearest(at, DoorScript.GROUP, PRIORITY_DOOR, "world-doors:", _door_id, Callable(), _use_door))
-	_append(out, _nearest(at, GateScript.GROUP, PRIORITY_GATE, "world-gates:", _gate_id, _gate_closed, _use_gate))
 	_append(out, _nearest(at, BedScript.GROUP, PRIORITY_BED, "world-beds:", _path_id, Callable(), _use_bed))
 	_append(out, _with_pick_up(_nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench)))
 	_append(out, _nearest(at, &"restoration_site", PRIORITY_RESTORATION, "world-restorations:", _path_id, Callable(), _use_restoration))
@@ -450,31 +446,6 @@ func _npc_candidates(at: Vector2) -> Array[Dictionary]:
 
 # --- execute per kind (spec 7.3) ---------------------------------------------------------------
 
-func _use_door(door: Node) -> bool:
-	var result: Dictionary = door.call(&"use")
-	var queued := str(result.get("status", "")) == "queued"
-	if queued:
-		_cue(StringName(door.get(&"use_cue")))
-	return queued
-
-
-func _use_gate(gate: Node) -> bool:
-	var result := str(gate.call(&"try_unlock"))
-	var at: Vector2 = (gate.call(&"origin") as Vector2) - Vector2(0.0, float(gate.get(&"badge_rise")))
-	if result == "unlocked" or result == "already-unlocked":
-		if result == "unlocked":
-			_cue(CUE_GATE_UNLOCK)
-		gate.call(&"open")
-		_message(at, str(gate.get(&"unlocked_message")), &"green")
-	elif result == "missing-item":
-		_cue(CUE_GATE_LOCKED)
-		_message(at, str(gate.get(&"locked_message")), &"white")
-	else:
-		_cue(CUE_GATE_LOCKED)
-		_message(at, GATE_STUCK_MESSAGE, &"white")
-	return true
-
-
 ## Opens the chest (its window shows it, also when empty); a live guard says so instead.
 func _use_chest(chest: ChestScript) -> bool:
 	if chest.request_open() == "guarded":
@@ -569,18 +540,6 @@ static func _pick_point(candidate: Dictionary) -> Variant:
 		return origin.call()
 	var anchor: Callable = candidate.get("anchor", Callable())
 	return anchor.call() if anchor.is_valid() else null
-
-
-static func _door_id(door: Node) -> String:
-	return str(door.get(&"door_id"))
-
-
-static func _gate_id(gate: Node) -> String:
-	return str(gate.get(&"gate_id"))
-
-
-static func _gate_closed(gate: Node) -> bool:
-	return not bool(gate.call(&"is_open"))
 
 
 static func _path_id(node: Node) -> String:

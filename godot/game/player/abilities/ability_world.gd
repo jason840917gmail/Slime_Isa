@@ -4,9 +4,25 @@ extends RefCounted
 ## `lashRing` :1332-1347; `SensorGeometry.ts:194-230`; abilities spec 6.2, 8.1, 8.3).
 ## Points are old Phaser centres; shapes are read in world space.
 ##
+## Body-shapes rework (docs/godot/BODY_SHAPES.md "The hit"; combat-feel plan section 8): an area
+## strike may carry a `hit` (HitReaction.build_hit), which rides on every request it routes with the
+## `impact` effect instead of the old knockback, and it may hand every target's outcome to an
+## `on_outcome` callback (the sender's clink and feel). The improved Squash Slam
+## (slam_sequence.gd) strikes a ground ellipse on the slime's own height level
+## (`hurtboxes_in_ellipse`, `strike_targets`).
+##
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
+const HitReaction := preload("res://game/combat/reactions/hit_reaction.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
+
+## `level` argument of the hurtbox queries that means "on any height level" (old callers).
+const ANY_LEVEL := -1000
+## The ground ellipse is queried as a convex polygon of this many points.
+const ELLIPSE_POINTS := 32
+## The resolver's refusal for a hit the receiver does not take (a clink).
+const REASON_IMMUNE := "immune"
 
 ## Hurtbox layer 4 (bit 8); the world layer 1.
 const HURTBOX_MASK := 8
@@ -24,51 +40,152 @@ const COLLECTIBLE_GROUP := &"collectible"
 const HIT_SPARK_RISE := 12.0
 
 
-## Squash Slam's strike: every registered hurtbox (not the player's, not a "resource") whose shape
-## meets the circle gets one router hit of `damage` with a knockback away from the centre. A thrown
-## rock, pot or essence strikes the same way (`weapon_id` "thrown-<kind>").
-## Returns the number of accepted hits.
-static func strike_area(player: Node, centre: Vector2, radius: float, damage: float, knockback: float, weapon_tags: Array, weapon_id: String = "squash-slam") -> int:
+## An area strike (a thrown rock, pot or essence with `weapon_id` "thrown-<kind>", the Roll's bonk):
+## every registered hurtbox (not the player's, not a "resource") whose shape meets the circle gets
+## one router hit of `damage` (`strike_targets`). Returns the number of accepted hits.
+## Old callers pass no `hit`: a knockback of `knockback` away from the centre, as before.
+## Rework (optional): `hit` and `on_outcome` as in `strike_targets`.
+static func strike_area(player: Node, centre: Vector2, radius: float, damage: float, knockback: float, weapon_tags: Array,
+		weapon_id: String = "squash-slam", hit: Dictionary = {}, on_outcome: Callable = Callable()) -> int:
+	return strike_targets(player, centre, hurtboxes_at(player, centre, radius), damage, knockback, weapon_tags, weapon_id,
+		hit, on_outcome)
+
+
+## One router hit of `damage` on each of `targets` (hurtboxes from `hurtboxes_at` or
+## `hurtboxes_in_ellipse`), in one activation of the player's slam area, each pushed away from
+## `centre`. Returns the number of accepted hits.
+## - Without `hit` (old style): the request carries a `knockback` effect of `knockback`; a hit spark
+##   rises over every damaged target, and the `hit` feel plays once when one was accepted.
+## - With `hit` (body-shapes rework, BODY_SHAPES.md "The hit"): the request carries a copy of it at
+##   the top level (its `knock`, when ZERO, becomes the push away from `centre`) and the `impact`
+##   effect (HitReaction.attach), no knockback (`knockback` is ignored: the hit's `launch_speed`
+##   is the push), and nothing is played here: the sender plays the feel from the outcomes.
+## `on_outcome` (optional, both styles) is called once per routed target, accepted or not, with
+## {"receiver": Object, "area": Area2D, "position": Vector2, "result": Dictionary} (route()'s
+## result; for a rework hit the enemy writes `result.reaction` into it), so the sender can clink
+## on a refused hit (`is_clink`).
+static func strike_targets(player: Node, centre: Vector2, targets: Array[Area2D], damage: float, knockback: float,
+		weapon_tags: Array, weapon_id: String = "squash-slam", hit: Dictionary = {}, on_outcome: Callable = Callable()) -> int:
 	var router := Services.router()
 	var world := Services.world()
 	var attack_area := player.call(&"get_slam_area") as Area2D if player.has_method(&"get_slam_area") else null
 	if router == null or world == null or attack_area == null or not is_instance_valid(world.world_root):
 		return 0
-	var targets := hurtboxes_at(player, centre, radius)
 	if targets.is_empty():
 		return 0
+	var rework := not hit.is_empty()
 	var activation := router.begin_activation(player, [attack_area])
 	var accepted := 0
 	var feel := Services.feel()
 	for area in targets:
+		if not is_instance_valid(area):
+			continue
 		var at := area.global_position
 		var distance := at.distance_to(centre)
 		var knock := (at - centre) / distance if distance > 0.0 else Vector2.ZERO
-		var result := router.route({"activation_id": activation, "source": player, "attack_area": attack_area,
+		var request := {"activation_id": activation, "source": player, "attack_area": attack_area,
 			"target_area": area, "weapon_id": weapon_id, "weapon_tags": weapon_tags,
 			"damage_types": ["physical"], "base_damage": damage,
 			"effects": [{"effect_id": "knockback", "potency": knockback}],
-			"impact": {"position": at, "knock": knock}})
+			"impact": {"position": at, "knock": knock}}
+		if rework:
+			request["effects"] = []
+			HitReaction.attach(request, hit_toward(hit, knock))
+		var receiver := router.receiver_for_area(area)
+		var result := router.route(request)
 		if str(result.get("status", "")) == "accepted":
 			accepted += 1
-			if float(result.get("actual_damage", 0.0)) > 0.0 and feel != null:
+			if not rework and float(result.get("actual_damage", 0.0)) > 0.0 and feel != null:
 				feel.particles(&"hit-spark", at - Vector2(0.0, HIT_SPARK_RISE))
+		if on_outcome.is_valid():
+			on_outcome.call({"receiver": receiver, "area": area, "position": at, "result": result})
 	router.end_activation(activation)
-	if accepted > 0 and feel != null:
+	if accepted > 0 and feel != null and not rework:
 		feel.play(&"hit")
 	return accepted
 
 
+## A copy of `hit` for one target: its own `knock` when it has one, else `knock` (away from the
+## strike's centre).
+static func hit_toward(hit: Dictionary, knock: Vector2) -> Dictionary:
+	var copy := hit.duplicate(true)
+	var own: Variant = copy.get("knock", Vector2.ZERO)
+	if not (own is Vector2) or (own as Vector2) == Vector2.ZERO:
+		copy["knock"] = knock
+	return copy
+
+
+## True when an outcome's result is a clink (BODY_SHAPES.md "The reaction"): the receiver refused
+## the hit as `immune` (the wrong tool, a shut weak point), or a rework reaction answered `clink`.
+static func is_clink(result: Dictionary) -> bool:
+	if str(result.get("status", "")) == "rejected" and str(result.get("reason", "")) == REASON_IMMUNE:
+		return true
+	var reaction: Variant = result.get("reaction")
+	return reaction is Dictionary and str((reaction as Dictionary).get("verb", "")) == HitReaction.VERB_CLINK
+
+
 ## The hurtboxes (not the player's, not a "resource") whose shape meets the circle at `centre`.
 static func hurtboxes_at(player: Node, centre: Vector2, radius: float) -> Array[Area2D]:
+	var shape := CircleShape2D.new()
+	shape.radius = radius
+	return _hurtboxes_in(player, shape, centre, ANY_LEVEL)
+
+
+## The improved Slam's ground ellipse (body-shapes plan section 4): the hurtboxes (not the
+## player's, not a "resource") whose shape meets the ellipse of half axes `half_size` around
+## `centre`, and, unless `level` is ANY_LEVEL, only those of targets standing on height level
+## `level` (`target_level`; docs/godot/ELEVATION.md), so a slam never reaches up or down a cliff.
+static func hurtboxes_in_ellipse(player: Node, centre: Vector2, half_size: Vector2, level: int = ANY_LEVEL) -> Array[Area2D]:
+	if half_size.x <= 0.0 or half_size.y <= 0.0:
+		var none: Array[Area2D] = []
+		return none
+	var shape := ConvexPolygonShape2D.new()
+	shape.points = ellipse_points(half_size)
+	return _hurtboxes_in(player, shape, centre, level)
+
+
+## The points of an ellipse of half axes `half_size` around the origin (`count` of them, in order).
+static func ellipse_points(half_size: Vector2, count: int = ELLIPSE_POINTS) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	var sides := maxi(3, count)
+	for i in sides:
+		var angle := TAU * float(i) / float(sides)
+		points.append(Vector2(cos(angle) * half_size.x, sin(angle) * half_size.y))
+	return points
+
+
+## The height level the target behind `area` stands on: its body's level when the elevation tracks
+## it (enemies), else the level of the ground under it (a dummy's or a prop's root); `fallback`
+## without elevation or on a wall.
+static func target_level(area: Area2D, receiver: Object, fallback: int) -> int:
+	var world := Services.world()
+	var elevation: Elevation = world.elevation if world != null else null
+	if elevation == null or area == null:
+		return fallback
+	var body: Node2D = null
+	if receiver != null and receiver.has_method(&"get_body"):
+		body = receiver.call(&"get_body") as Node2D
+	if body == null:
+		body = _body_above(area)
+	if body != null and elevation.bodies.has(body):
+		return elevation.level_of(body)
+	var ground := area.global_position
+	if body != null:
+		ground = body.global_position
+	elif area.owner is Node2D:
+		ground = (area.owner as Node2D).global_position
+	return elevation.level_at(ground, fallback)
+
+
+## The hurtboxes (not the player's, not a "resource") whose shape meets `shape` placed at `centre`,
+## on `level` unless it is ANY_LEVEL.
+static func _hurtboxes_in(player: Node, shape: Shape2D, centre: Vector2, level: int) -> Array[Area2D]:
 	var targets: Array[Area2D] = []
 	var router := Services.router()
 	var world := Services.world()
 	if router == null or world == null or not is_instance_valid(world.world_root):
 		return targets
 	var space := world.world_root.get_world_2d().direct_space_state
-	var shape := CircleShape2D.new()
-	shape.radius = radius
 	var query := PhysicsShapeQueryParameters2D.new()
 	query.shape = shape
 	query.transform = Transform2D(0.0, centre)
@@ -82,8 +199,20 @@ static func hurtboxes_at(player: Node, centre: Vector2, radius: float) -> Array[
 		var receiver := router.receiver_for_area(area)
 		if receiver == null or receiver == player or "resource" in router.tags_for_area(area):
 			continue
+		if level != ANY_LEVEL and target_level(area, receiver, level) != level:
+			continue
 		targets.append(area)
 	return targets
+
+
+## The nearest physics body above `area` in the tree (its owner's body), or null.
+static func _body_above(area: Node) -> Node2D:
+	var node := area.get_parent()
+	while node != null:
+		if node is PhysicsBody2D:
+			return node as Node2D
+		node = node.get_parent()
+	return null
 
 
 ## `lineReach`: how far the line from `from` to `to` gets before a static world body (tiles and

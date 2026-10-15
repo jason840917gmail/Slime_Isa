@@ -13,6 +13,10 @@ class_name PlayerInputBuffer
 const ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"move_right",
 	&"attack", &"sprint", &"dodge", &"interact", &"jump", &"stretch_lash", &"squash_slam",
 	&"teleport", &"eat", &"swallow"]
+## Actions captured only in the body-shapes rework mode (game/shapes/rework_mode.gd): the chosen
+## Ability Box ability (F; S in keys-only). With the mode off they pass through untouched.
+const REWORK_ACTIONS: Array[StringName] = [&"ability_use"]
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
 var _held: Dictionary = {}
 var _pressed_at: Dictionary = {}
@@ -33,6 +37,17 @@ func capture(event: InputEvent, now_ms: float) -> bool:
 			_held[action] = true
 		elif event.is_action_released(action):
 			_held.erase(action)
+	if ReworkMode.is_on():
+		for action: StringName in REWORK_ACTIONS:
+			if not event.is_action(action):
+				continue
+			matched = true
+			if event.is_action_pressed(action):
+				if not _held.has(action):
+					_pressed_at[action] = now_ms
+				_held[action] = true
+			elif event.is_action_released(action):
+				_held.erase(action)
 	return matched
 
 
@@ -55,6 +70,12 @@ func consume(action: StringName, now_ms: float, buffer_ms: float) -> bool:
 	var pressed_at: float = _pressed_at[action]
 	_pressed_at.erase(action)
 	return now_ms - pressed_at <= buffer_ms
+
+
+## Forgets a pending press of `action`; its held state stays (the rework mode drops the Roll press a
+## closing window leaves behind: player.gd `_update_modal_pause`).
+func drop_press(action: StringName) -> void:
+	_pressed_at.erase(action)
 
 
 ## `getMovementInput`: Vector2(held(right) - held(left), held(down) - held(up)); not normalized.

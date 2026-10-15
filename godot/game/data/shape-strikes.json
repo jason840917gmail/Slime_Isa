@@ -1,0 +1,2816 @@
+{
+	"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes.webp",
+	"cell": [
+		512,
+		416
+	],
+	"grid": [
+		8,
+		8
+	],
+	"origin": [
+		256.0,
+		208.0
+	],
+	"scale": 0.28125,
+	"spear": {
+		"texture": "res://asset/characters/shapes/spear.webp",
+		"tint_share": 0.4,
+		"tint_rgb": [
+			0.5882,
+			0.6706,
+			0.1765
+		],
+		"tint_gain": [
+			0.955,
+			0.9697,
+			0.9673
+		]
+	},
+	"strikes": {
+		"spear-jab": {
+			"shaft_px": 5.0,
+			"rest_frame": 6,
+			"side": {
+				"row": 0,
+				"aim": [
+					1,
+					0
+				],
+				"source_scale": 0.48596,
+				"rest_centre": [
+					254.5,
+					242.5
+				],
+				"ground": 329.0,
+				"anchor": [
+					175.5,
+					329.0
+				],
+				"frames": [
+					{
+						"socket": [
+							340.0,
+							265.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							23.62,
+							16.17
+						]
+					},
+					{
+						"socket": [
+							334.0,
+							265.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							21.94,
+							16.17
+						]
+					},
+					{
+						"socket": [
+							391.0,
+							284.5
+						],
+						"spear": "part",
+						"bump": [
+							364.3,
+							284.5
+						],
+						"neck_fade_end": [
+							408.8,
+							284.5
+						],
+						"neck_width": 30.1,
+						"socket_game": [
+							37.97,
+							21.53
+						]
+					},
+					{
+						"socket": [
+							408.0,
+							265.8
+						],
+						"spear": "full",
+						"bump": [
+							381.3,
+							265.8
+						],
+						"neck_fade_end": [
+							425.8,
+							265.8
+						],
+						"neck_width": 34.0,
+						"socket_game": [
+							42.75,
+							16.26
+						]
+					},
+					{
+						"socket": [
+							332.0,
+							265.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							21.38,
+							16.17
+						]
+					},
+					{
+						"socket": [
+							332.0,
+							265.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							21.38,
+							16.17
+						]
+					}
+				]
+			},
+			"down": {
+				"row": 1,
+				"aim": [
+					0,
+					1
+				],
+				"source_scale": 0.50279,
+				"rest_centre": [
+					256.0,
+					231.5
+				],
+				"ground": 321.5,
+				"anchor": [
+					256.0,
+					321.5
+				],
+				"frames": [
+					{
+						"socket": [
+							255.5,
+							330.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-0.14,
+							34.31
+						]
+					},
+					{
+						"socket": [
+							255.5,
+							330.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-0.14,
+							34.31
+						]
+					},
+					{
+						"socket": [
+							252.2,
+							370.0
+						],
+						"spear": "part",
+						"bump": [
+							252.2,
+							343.4
+						],
+						"neck_fade_end": [
+							252.2,
+							387.8
+						],
+						"neck_width": 40.9,
+						"socket_game": [
+							-1.06,
+							45.57
+						]
+					},
+					{
+						"socket": [
+							255.7,
+							371.8
+						],
+						"spear": "full",
+						"bump": [
+							255.7,
+							345.1
+						],
+						"neck_fade_end": [
+							255.7,
+							389.6
+						],
+						"neck_width": 40.9,
+						"socket_game": [
+							-0.07,
+							46.07
+						]
+					},
+					{
+						"socket": [
+							255.5,
+							333.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-0.14,
+							35.16
+						]
+					},
+					{
+						"socket": [
+							255.5,
+							332.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-0.14,
+							34.88
+						]
+					}
+				]
+			},
+			"up": {
+				"row": 2,
+				"aim": [
+					0,
+					-1
+				],
+				"source_scale": 0.50737,
+				"rest_centre": [
+					256.0,
+					234.5
+				],
+				"ground": 320.5,
+				"anchor": [
+					256.0,
+					320.5
+				],
+				"frames": [
+					{
+						"socket": [
+							238.5,
+							158.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-4.92,
+							-14.06
+						]
+					},
+					{
+						"socket": [
+							238.5,
+							174.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-4.92,
+							-9.56
+						]
+					},
+					{
+						"socket": [
+							259.6,
+							155.6
+						],
+						"spear": "part",
+						"bump": [
+							259.6,
+							182.2
+						],
+						"neck_fade_end": [
+							259.6,
+							137.8
+						],
+						"neck_width": 40.9,
+						"socket_game": [
+							1.0,
+							-14.74
+						]
+					},
+					{
+						"socket": [
+							238.5,
+							135.8
+						],
+						"spear": "full",
+						"bump": [
+							238.5,
+							162.5
+						],
+						"neck_fade_end": [
+							238.5,
+							118.0
+						],
+						"neck_width": 38.6,
+						"socket_game": [
+							-4.92,
+							-20.31
+						]
+					},
+					{
+						"socket": [
+							238.5,
+							134.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-4.92,
+							-20.81
+						]
+					},
+					{
+						"socket": [
+							238.5,
+							161.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-4.92,
+							-13.22
+						]
+					}
+				]
+			},
+			"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes.webp",
+			"weapon": "spear"
+		},
+		"spear-finisher": {
+			"shaft_px": 6.0,
+			"rest_frame": 6,
+			"side": {
+				"row": 3,
+				"aim": [
+					1,
+					0
+				],
+				"source_scale": 0.52905,
+				"rest_centre": [
+					254.5,
+					242.5
+				],
+				"ground": 329.0,
+				"anchor": [
+					172.2,
+					329.0
+				],
+				"frames": [
+					{
+						"socket": [
+							335.0,
+							257.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							22.22,
+							13.92
+						]
+					},
+					{
+						"socket": [
+							361.0,
+							257.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							29.53,
+							13.92
+						]
+					},
+					{
+						"socket": [
+							472.2,
+							279.8
+						],
+						"spear": "part",
+						"bump": [
+							440.2,
+							279.8
+						],
+						"neck_fade_end": [
+							493.5,
+							279.8
+						],
+						"neck_width": 47.1,
+						"socket_game": [
+							60.81,
+							20.19
+						]
+					},
+					{
+						"socket": [
+							481.7,
+							257.6
+						],
+						"spear": "full",
+						"bump": [
+							449.7,
+							257.6
+						],
+						"neck_fade_end": [
+							503.1,
+							257.6
+						],
+						"neck_width": 49.1,
+						"socket_game": [
+							63.48,
+							13.94
+						]
+					},
+					{
+						"socket": [
+							350.0,
+							257.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							26.44,
+							13.92
+						]
+					},
+					{
+						"socket": [
+							335.0,
+							257.5
+						],
+						"spear": "hidden",
+						"socket_game": [
+							22.22,
+							13.92
+						]
+					}
+				]
+			},
+			"down": {
+				"row": 4,
+				"aim": [
+					0,
+					1
+				],
+				"source_scale": 0.4878,
+				"rest_centre": [
+					256.0,
+					231.5
+				],
+				"ground": 321.5,
+				"anchor": [
+					256.0,
+					321.5
+				],
+				"frames": [
+					{
+						"socket": [
+							243.5,
+							331.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-3.52,
+							34.59
+						]
+					},
+					{
+						"socket": [
+							243.5,
+							331.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-3.52,
+							34.59
+						]
+					},
+					{
+						"socket": [
+							248.9,
+							390.3
+						],
+						"spear": "part",
+						"bump": [
+							248.9,
+							358.3
+						],
+						"neck_fade_end": [
+							248.9,
+							411.7
+						],
+						"neck_width": 49.1,
+						"socket_game": [
+							-1.99,
+							51.28
+						]
+					},
+					{
+						"socket": [
+							243.8,
+							391.5
+						],
+						"spear": "full",
+						"bump": [
+							243.8,
+							359.5
+						],
+						"neck_fade_end": [
+							243.8,
+							412.9
+						],
+						"neck_width": 49.1,
+						"socket_game": [
+							-3.43,
+							51.62
+						]
+					},
+					{
+						"socket": [
+							243.5,
+							337.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-3.52,
+							36.28
+						]
+					},
+					{
+						"socket": [
+							243.5,
+							332.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							-3.52,
+							34.88
+						]
+					}
+				]
+			},
+			"up": {
+				"row": 5,
+				"aim": [
+					0,
+					-1
+				],
+				"source_scale": 0.54603,
+				"rest_centre": [
+					256.0,
+					234.5
+				],
+				"ground": 320.5,
+				"anchor": [
+					256.0,
+					320.5
+				],
+				"frames": [
+					{
+						"socket": [
+							257.5,
+							185.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							0.42,
+							-6.47
+						]
+					},
+					{
+						"socket": [
+							257.5,
+							218.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							0.42,
+							2.81
+						]
+					},
+					{
+						"socket": [
+							259.0,
+							95.5
+						],
+						"spear": "part",
+						"bump": [
+							259.0,
+							127.5
+						],
+						"neck_fade_end": [
+							259.0,
+							74.1
+						],
+						"neck_width": 49.1,
+						"socket_game": [
+							0.84,
+							-31.65
+						]
+					},
+					{
+						"socket": [
+							257.1,
+							97.7
+						],
+						"spear": "full",
+						"bump": [
+							257.1,
+							129.7
+						],
+						"neck_fade_end": [
+							257.1,
+							76.3
+						],
+						"neck_width": 49.1,
+						"socket_game": [
+							0.31,
+							-31.03
+						]
+					},
+					{
+						"socket": [
+							257.5,
+							151.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							0.42,
+							-16.03
+						]
+					},
+					{
+						"socket": [
+							257.5,
+							183.0
+						],
+						"spear": "hidden",
+						"socket_game": [
+							0.42,
+							-7.03
+						]
+					}
+				]
+			},
+			"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes.webp",
+			"weapon": "spear"
+		},
+		"axe-sweep": {
+			"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes-axe.webp",
+			"weapon": "axe",
+			"step": "sweep",
+			"rest_frame": 6,
+			"side": {
+				"row": 0,
+				"flip": false,
+				"aim": [
+					1,
+					0
+				],
+				"source_scale": 0.51183,
+				"rest_centre": [
+					254.5,
+					242.5
+				],
+				"ground": 329.0,
+				"anchor": [
+					170.0,
+					329.0
+				],
+				"arm_px": 0.4,
+				"frames": [
+					{
+						"socket": [
+							332.6,
+							306.8
+						],
+						"socket_game": [
+							21.53,
+							27.8
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 25.0
+					},
+					{
+						"socket": [
+							301.3,
+							172.3
+						],
+						"socket_game": [
+							12.75,
+							-10.04
+						],
+						"knob_w": 10.44,
+						"knob": true,
+						"knob_out": -50.5
+					},
+					{
+						"socket": [
+							366.7,
+							271.6
+						],
+						"socket_game": [
+							31.13,
+							17.89
+						],
+						"knob_w": 11.11,
+						"knob": true,
+						"knob_out": 2.5
+					},
+					{
+						"socket": [
+							369.0,
+							312.7
+						],
+						"socket_game": [
+							31.79,
+							29.45
+						],
+						"knob_w": 9.78,
+						"knob": true,
+						"knob_out": 21.4
+					},
+					{
+						"socket": [
+							317.8,
+							285.6
+						],
+						"socket_game": [
+							17.38,
+							21.84
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 25.0
+					},
+					{
+						"socket": [
+							330.7,
+							304.1
+						],
+						"socket_game": [
+							21.01,
+							27.02
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 25.0
+					}
+				]
+			},
+			"down": {
+				"row": 1,
+				"flip": false,
+				"aim": [
+					0,
+					1
+				],
+				"source_scale": 0.48649,
+				"rest_centre": [
+					256.0,
+					231.5
+				],
+				"ground": 321.5,
+				"anchor": [
+					256.0,
+					321.5
+				],
+				"arm_px": 0.0,
+				"frames": [
+					{
+						"socket": [
+							162.6,
+							283.3
+						],
+						"socket_game": [
+							-26.27,
+							21.18
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 170.0
+					},
+					{
+						"socket": [
+							343.3,
+							272.7
+						],
+						"socket_game": [
+							24.56,
+							18.2
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": 0.3
+					},
+					{
+						"socket": [
+							254.7,
+							336.9
+						],
+						"socket_game": [
+							-0.35,
+							36.26
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": 90.6
+					},
+					{
+						"socket": [
+							168.9,
+							277.8
+						],
+						"socket_game": [
+							-24.48,
+							19.63
+						],
+						"knob_w": 11.67,
+						"knob": true,
+						"knob_out": 174.7
+					},
+					{
+						"socket": [
+							167.4,
+							283.6
+						],
+						"socket_game": [
+							-24.93,
+							21.26
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 170.0
+					},
+					{
+						"socket": [
+							163.9,
+							283.3
+						],
+						"socket_game": [
+							-25.91,
+							21.19
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 170.0
+					}
+				]
+			},
+			"up": {
+				"row": 2,
+				"flip": false,
+				"aim": [
+					0,
+					-1
+				],
+				"source_scale": 0.49284,
+				"rest_centre": [
+					256.0,
+					234.5
+				],
+				"ground": 320.5,
+				"anchor": [
+					256.0,
+					320.5
+				],
+				"arm_px": 30.34,
+				"frames": [
+					{
+						"socket": [
+							323.2,
+							244.6
+						],
+						"socket_game": [
+							18.91,
+							10.3
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -20.0
+					},
+					{
+						"socket": [
+							192.4,
+							219.7
+						],
+						"socket_game": [
+							-17.89,
+							3.29
+						],
+						"knob_w": 9.56,
+						"knob": true,
+						"knob_out": -144.4
+					},
+					{
+						"socket": [
+							257.8,
+							188.4
+						],
+						"socket_game": [
+							0.5,
+							-5.5
+						],
+						"knob_w": 8.5,
+						"knob": true,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							328.2,
+							231.9
+						],
+						"socket_game": [
+							20.3,
+							6.71
+						],
+						"knob_w": 9.22,
+						"knob": true,
+						"knob_out": -27.8
+					},
+					{
+						"socket": [
+							324.5,
+							243.2
+						],
+						"socket_game": [
+							19.27,
+							9.89
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -20.0
+					},
+					{
+						"socket": [
+							324.2,
+							245.6
+						],
+						"socket_game": [
+							19.19,
+							10.58
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -20.0
+					}
+				]
+			},
+			"contact": {
+				"at": "a0.5",
+				"arm_px": 0.4,
+				"contact_length": 1.0,
+				"head_centre_game": 63.9,
+				"blade_tip_game": 76.0,
+				"far_edge_along_aim_game": 73.0,
+				"target": 76.0,
+				"by_direction": {
+					"side": {
+						"at": "a0.5",
+						"arm_px": 0.4,
+						"contact_length": 1.0,
+						"head_centre": [
+							61.4,
+							17.5
+						],
+						"head_centre_game": 63.9,
+						"blade_tip_game": 76.0,
+						"far_edge_along_aim_game": 73.0,
+						"target": 76.0
+					},
+					"down": {
+						"at": "a0.5",
+						"arm_px": 0.0,
+						"contact_length": 0.945,
+						"head_centre": [
+							0.1,
+							64.2
+						],
+						"head_centre_game": 64.2,
+						"blade_tip_game": 76.0,
+						"far_edge_along_aim_game": 75.7,
+						"target": 76.0
+					},
+					"up": {
+						"at": "a0.5",
+						"arm_px": 30.34,
+						"contact_length": 1.0,
+						"head_centre": [
+							0.1,
+							-64.2
+						],
+						"head_centre_game": 64.2,
+						"blade_tip_game": 76.0,
+						"far_edge_along_aim_game": 75.8,
+						"target": 76.0
+					}
+				}
+			}
+		},
+		"axe-backswing": {
+			"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes-axe.webp",
+			"weapon": "axe",
+			"step": "backswing",
+			"rest_frame": 6,
+			"side": {
+				"row": 3,
+				"flip": false,
+				"aim": [
+					1,
+					0
+				],
+				"source_scale": 0.48459,
+				"rest_centre": [
+					254.5,
+					242.5
+				],
+				"ground": 329.0,
+				"anchor": [
+					172.6,
+					329.0
+				],
+				"arm_px": 11.83,
+				"frames": [
+					{
+						"socket": [
+							298.2,
+							203.8
+						],
+						"socket_game": [
+							11.87,
+							-1.19
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -60.0
+					},
+					{
+						"socket": [
+							342.6,
+							321.9
+						],
+						"socket_game": [
+							24.36,
+							32.04
+						],
+						"knob_w": 7.0,
+						"knob": true,
+						"knob_out": 31.4
+					},
+					{
+						"socket": [
+							331.6,
+							265.0
+						],
+						"socket_game": [
+							21.26,
+							16.04
+						],
+						"knob_w": 9.56,
+						"knob": true,
+						"knob_out": 6.4
+					},
+					{
+						"socket": [
+							234.5,
+							149.1
+						],
+						"socket_game": [
+							-6.04,
+							-16.56
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -87.8
+					},
+					{
+						"socket": [
+							299.0,
+							201.7
+						],
+						"socket_game": [
+							12.1,
+							-1.78
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -60.0
+					},
+					{
+						"socket": [
+							294.6,
+							209.0
+						],
+						"socket_game": [
+							10.85,
+							0.29
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -60.0
+					}
+				]
+			},
+			"down": {
+				"row": 1,
+				"flip": true,
+				"aim": [
+					0,
+					1
+				],
+				"source_scale": 0.48649,
+				"rest_centre": [
+					256.0,
+					231.5
+				],
+				"ground": 321.5,
+				"anchor": [
+					256.0,
+					321.5
+				],
+				"arm_px": 0.0,
+				"frames": [
+					{
+						"socket": [
+							162.6,
+							283.3
+						],
+						"socket_game": [
+							-26.27,
+							21.18
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 170.0
+					},
+					{
+						"socket": [
+							343.3,
+							272.7
+						],
+						"socket_game": [
+							24.56,
+							18.2
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": 0.3
+					},
+					{
+						"socket": [
+							254.7,
+							336.9
+						],
+						"socket_game": [
+							-0.35,
+							36.26
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": 90.6
+					},
+					{
+						"socket": [
+							168.9,
+							277.8
+						],
+						"socket_game": [
+							-24.48,
+							19.63
+						],
+						"knob_w": 11.67,
+						"knob": true,
+						"knob_out": 174.7
+					},
+					{
+						"socket": [
+							167.4,
+							283.6
+						],
+						"socket_game": [
+							-24.93,
+							21.26
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 170.0
+					},
+					{
+						"socket": [
+							163.9,
+							283.3
+						],
+						"socket_game": [
+							-25.91,
+							21.19
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 170.0
+					}
+				],
+				"source": "axe-sweep"
+			},
+			"up": {
+				"row": 2,
+				"flip": true,
+				"aim": [
+					0,
+					-1
+				],
+				"source_scale": 0.49284,
+				"rest_centre": [
+					256.0,
+					234.5
+				],
+				"ground": 320.5,
+				"anchor": [
+					256.0,
+					320.5
+				],
+				"arm_px": 30.34,
+				"frames": [
+					{
+						"socket": [
+							323.2,
+							244.6
+						],
+						"socket_game": [
+							18.91,
+							10.3
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -20.0
+					},
+					{
+						"socket": [
+							192.4,
+							219.7
+						],
+						"socket_game": [
+							-17.89,
+							3.29
+						],
+						"knob_w": 9.56,
+						"knob": true,
+						"knob_out": -144.4
+					},
+					{
+						"socket": [
+							257.8,
+							188.4
+						],
+						"socket_game": [
+							0.5,
+							-5.5
+						],
+						"knob_w": 8.5,
+						"knob": true,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							328.2,
+							231.9
+						],
+						"socket_game": [
+							20.3,
+							6.71
+						],
+						"knob_w": 9.22,
+						"knob": true,
+						"knob_out": -27.8
+					},
+					{
+						"socket": [
+							324.5,
+							243.2
+						],
+						"socket_game": [
+							19.27,
+							9.89
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -20.0
+					},
+					{
+						"socket": [
+							324.2,
+							245.6
+						],
+						"socket_game": [
+							19.19,
+							10.58
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -20.0
+					}
+				],
+				"source": "axe-sweep"
+			},
+			"contact": {
+				"at": "a0.5",
+				"arm_px": 11.83,
+				"contact_length": 1.0,
+				"head_centre_game": 64.0,
+				"blade_tip_game": 76.0,
+				"far_edge_along_aim_game": 73.6,
+				"target": 76.0,
+				"by_direction": {
+					"side": {
+						"at": "a0.5",
+						"arm_px": 11.83,
+						"contact_length": 1.0,
+						"head_centre": [
+							62.1,
+							15.6
+						],
+						"head_centre_game": 64.0,
+						"blade_tip_game": 76.0,
+						"far_edge_along_aim_game": 73.6,
+						"target": 76.0
+					},
+					"down": {
+						"at": "a0.5",
+						"arm_px": 0.0,
+						"contact_length": 0.945,
+						"head_centre": [
+							-0.1,
+							64.2
+						],
+						"head_centre_game": 64.2,
+						"blade_tip_game": 76.0,
+						"far_edge_along_aim_game": 75.7,
+						"target": 76.0
+					},
+					"up": {
+						"at": "a0.5",
+						"arm_px": 30.34,
+						"contact_length": 1.0,
+						"head_centre": [
+							-0.1,
+							-64.2
+						],
+						"head_centre_game": 64.2,
+						"blade_tip_game": 76.0,
+						"far_edge_along_aim_game": 75.8,
+						"target": 76.0
+					}
+				}
+			}
+		},
+		"axe-chop": {
+			"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes-axe.webp",
+			"weapon": "axe",
+			"step": "chop",
+			"rest_frame": 6,
+			"side": {
+				"row": 4,
+				"flip": false,
+				"aim": [
+					1,
+					0
+				],
+				"source_scale": 0.50145,
+				"rest_centre": [
+					254.5,
+					242.5
+				],
+				"ground": 329.0,
+				"anchor": [
+					172.3,
+					329.0
+				],
+				"arm_px": 5.15,
+				"frames": [
+					{
+						"socket": [
+							332.3,
+							293.3
+						],
+						"socket_game": [
+							21.45,
+							23.99
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 15.0
+					},
+					{
+						"socket": [
+							280.8,
+							208.7
+						],
+						"socket_game": [
+							6.97,
+							0.19
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -81.4
+					},
+					{
+						"socket": [
+							228.0,
+							139.6
+						],
+						"socket_game": [
+							-7.88,
+							-19.25
+						],
+						"knob_w": 9.11,
+						"knob": true,
+						"knob_out": -94.7
+					},
+					{
+						"socket": [
+							331.6,
+							233.6
+						],
+						"socket_game": [
+							21.27,
+							7.19
+						],
+						"knob_w": 11.89,
+						"knob": true,
+						"knob_out": -65.8
+					},
+					{
+						"socket": [
+							323.0,
+							281.3
+						],
+						"socket_game": [
+							18.85,
+							20.62
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 15.0
+					},
+					{
+						"socket": [
+							333.8,
+							290.7
+						],
+						"socket_game": [
+							21.88,
+							23.25
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": 15.0
+					}
+				]
+			},
+			"down": {
+				"row": 5,
+				"flip": false,
+				"aim": [
+					0,
+					1
+				],
+				"source_scale": 0.46632,
+				"rest_centre": [
+					256.0,
+					231.5
+				],
+				"ground": 321.5,
+				"anchor": [
+					256.0,
+					321.5
+				],
+				"arm_px": 0.0,
+				"frames": [
+					{
+						"socket": [
+							256.3,
+							204.8
+						],
+						"socket_game": [
+							0.08,
+							-0.89
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							254.4,
+							222.3
+						],
+						"socket_game": [
+							-0.44,
+							4.03
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -90.9
+					},
+					{
+						"socket": [
+							252.4,
+							92.4
+						],
+						"socket_game": [
+							-1.0,
+							-32.5
+						],
+						"knob_w": 9.5,
+						"knob": true,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							256.0,
+							340.8
+						],
+						"socket_game": [
+							-0.01,
+							37.35
+						],
+						"knob_w": 8.5,
+						"knob": false,
+						"knob_out": 90.0
+					},
+					{
+						"socket": [
+							256.7,
+							155.8
+						],
+						"socket_game": [
+							0.2,
+							-14.67
+						],
+						"knob_w": 8.22,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							256.8,
+							205.7
+						],
+						"socket_game": [
+							0.22,
+							-0.65
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					}
+				]
+			},
+			"up": {
+				"row": 6,
+				"flip": false,
+				"aim": [
+					0,
+					-1
+				],
+				"source_scale": 0.48725,
+				"rest_centre": [
+					256.0,
+					234.5
+				],
+				"ground": 320.5,
+				"anchor": [
+					256.0,
+					320.5
+				],
+				"arm_px": 30.55,
+				"frames": [
+					{
+						"socket": [
+							256.0,
+							208.5
+						],
+						"socket_game": [
+							0.0,
+							0.14
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							255.5,
+							218.2
+						],
+						"socket_game": [
+							-0.14,
+							2.88
+						],
+						"knob_w": 10.22,
+						"knob": true,
+						"knob_out": -90.7
+					},
+					{
+						"socket": [
+							258.6,
+							156.9
+						],
+						"socket_game": [
+							0.73,
+							-14.37
+						],
+						"knob_w": 10.33,
+						"knob": true,
+						"knob_out": -88.6
+					},
+					{
+						"socket": [
+							268.0,
+							180.3
+						],
+						"socket_game": [
+							3.39,
+							-7.79
+						],
+						"knob_w": 8.56,
+						"knob": true,
+						"knob_out": -81.8
+					},
+					{
+						"socket": [
+							252.2,
+							186.5
+						],
+						"socket_game": [
+							-1.05,
+							-6.04
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -91.6
+					},
+					{
+						"socket": [
+							255.8,
+							201.4
+						],
+						"socket_game": [
+							-0.05,
+							-1.86
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					}
+				]
+			},
+			"contact": {
+				"at": "w1",
+				"arm_px": 5.15,
+				"contact_length": 1.0,
+				"head_centre_game": 57.8,
+				"blade_tip_game": 70.0,
+				"far_edge_along_aim_game": 66.6,
+				"target": 70.0,
+				"by_direction": {
+					"side": {
+						"at": "w1",
+						"arm_px": 5.15,
+						"contact_length": 1.0,
+						"head_centre": [
+							52.8,
+							23.5
+						],
+						"head_centre_game": 57.8,
+						"blade_tip_game": 70.0,
+						"far_edge_along_aim_game": 66.6,
+						"target": 70.0
+					},
+					"down": {
+						"at": "w1",
+						"arm_px": 0.0,
+						"contact_length": 0.733,
+						"head_centre": [
+							-0.0,
+							61.1
+						],
+						"head_centre_game": 61.1,
+						"blade_tip_game": 70.0,
+						"far_edge_along_aim_game": 68.8,
+						"target": 70.0
+					},
+					"up": {
+						"at": "w1",
+						"arm_px": 30.55,
+						"contact_length": 1.0,
+						"head_centre": [
+							5.5,
+							-62.4
+						],
+						"head_centre_game": 62.6,
+						"blade_tip_game": 70.0,
+						"far_edge_along_aim_game": 68.9,
+						"target": 70.0
+					}
+				}
+			}
+		},
+		"hammer-thud": {
+			"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes-hammer.webp",
+			"weapon": "hammer",
+			"step": "thud",
+			"rest_frame": 6,
+			"side": {
+				"row": 0,
+				"flip": false,
+				"aim": [
+					1,
+					0
+				],
+				"source_scale": 0.51183,
+				"rest_centre": [
+					254.5,
+					242.5
+				],
+				"ground": 329.0,
+				"anchor": [
+					169.3,
+					329.0
+				],
+				"arm_px": 0.0,
+				"frames": [
+					{
+						"socket": [
+							262.0,
+							208.5
+						],
+						"socket_game": [
+							1.7,
+							0.14
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -88.0
+					},
+					{
+						"socket": [
+							281.6,
+							101.8
+						],
+						"socket_game": [
+							7.19,
+							-29.88
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -81.1
+					},
+					{
+						"socket": [
+							346.9,
+							218.9
+						],
+						"socket_game": [
+							25.57,
+							3.06
+						],
+						"knob_w": 10.11,
+						"knob": true,
+						"knob_out": -29.0
+					},
+					{
+						"socket": [
+							357.3,
+							273.8
+						],
+						"socket_game": [
+							28.5,
+							18.5
+						],
+						"knob_w": 8.5,
+						"knob": true,
+						"knob_out": 35.0
+					},
+					{
+						"socket": [
+							263.4,
+							189.4
+						],
+						"socket_game": [
+							2.07,
+							-5.22
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -88.0
+					},
+					{
+						"socket": [
+							262.2,
+							210.9
+						],
+						"socket_game": [
+							1.74,
+							0.82
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -88.0
+					}
+				]
+			},
+			"down": {
+				"row": 1,
+				"flip": false,
+				"aim": [
+					0,
+					1
+				],
+				"source_scale": 0.49451,
+				"rest_centre": [
+					256.0,
+					231.5
+				],
+				"ground": 321.5,
+				"anchor": [
+					256.0,
+					321.5
+				],
+				"arm_px": 0.0,
+				"frames": [
+					{
+						"socket": [
+							256.1,
+							200.6
+						],
+						"socket_game": [
+							0.02,
+							-2.09
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							291.0,
+							132.4
+						],
+						"socket_game": [
+							9.83,
+							-21.27
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -72.9
+					},
+					{
+						"socket": [
+							233.4,
+							196.1
+						],
+						"socket_game": [
+							-6.35,
+							-3.34
+						],
+						"knob_w": 9.56,
+						"knob": true,
+						"knob_out": -106.7
+					},
+					{
+						"socket": [
+							255.9,
+							327.8
+						],
+						"socket_game": [
+							-0.02,
+							33.69
+						],
+						"knob_w": 9.5,
+						"knob": false,
+						"knob_out": 90.0
+					},
+					{
+						"socket": [
+							257.5,
+							181.0
+						],
+						"socket_game": [
+							0.43,
+							-7.6
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							256.0,
+							198.3
+						],
+						"socket_game": [
+							0.0,
+							-2.73
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					}
+				]
+			},
+			"up": {
+				"row": 2,
+				"flip": false,
+				"aim": [
+					0,
+					-1
+				],
+				"source_scale": 0.5044,
+				"rest_centre": [
+					256.0,
+					234.5
+				],
+				"ground": 320.5,
+				"anchor": [
+					256.0,
+					320.5
+				],
+				"arm_px": 45.27,
+				"frames": [
+					{
+						"socket": [
+							256.0,
+							205.9
+						],
+						"socket_game": [
+							0.01,
+							-0.6
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							254.4,
+							141.0
+						],
+						"socket_game": [
+							-0.46,
+							-18.84
+						],
+						"knob_w": 10.44,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							256.7,
+							195.9
+						],
+						"socket_game": [
+							0.18,
+							-3.39
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							254.5,
+							227.9
+						],
+						"socket_game": [
+							-0.43,
+							5.61
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							253.1,
+							173.6
+						],
+						"socket_game": [
+							-0.81,
+							-9.68
+						],
+						"knob_w": 11.78,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							255.8,
+							206.6
+						],
+						"socket_game": [
+							-0.07,
+							-0.4
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					}
+				]
+			},
+			"contact": {
+				"at": "w1",
+				"arm_px": 0.0,
+				"contact_length": 0.992,
+				"head_centre_game": 70.0,
+				"head_centre_along_aim_game": 68.0,
+				"head_far_game": 87.5,
+				"far_edge_along_aim_game": 82.9,
+				"target": 68.0,
+				"by_direction": {
+					"side": {
+						"at": "w1",
+						"arm_px": 0.0,
+						"contact_length": 0.992,
+						"head_centre": [
+							68.0,
+							16.8
+						],
+						"head_centre_game": 70.0,
+						"head_centre_along_aim_game": 68.0,
+						"head_far_game": 87.5,
+						"far_edge_along_aim_game": 82.9,
+						"target": 68.0
+					},
+					"down": {
+						"at": "w1",
+						"arm_px": 0.0,
+						"contact_length": 0.894,
+						"head_centre": [
+							-0.6,
+							68.0
+						],
+						"head_centre_game": 68.1,
+						"head_centre_along_aim_game": 68.0,
+						"head_far_game": 82.7,
+						"far_edge_along_aim_game": 82.5,
+						"target": 68.0
+					},
+					"up": {
+						"at": "w1",
+						"arm_px": 45.27,
+						"contact_length": 1.0,
+						"head_centre": [
+							0.9,
+							-68.0
+						],
+						"head_centre_game": 68.0,
+						"head_centre_along_aim_game": 68.0,
+						"head_far_game": 83.4,
+						"far_edge_along_aim_game": 83.0,
+						"target": 68.0
+					}
+				}
+			}
+		},
+		"hammer-boom": {
+			"texture": "res://asset/characters/512x416-tile_8x8-slime-v2-strikes-hammer.webp",
+			"weapon": "hammer",
+			"step": "boom",
+			"rest_frame": 6,
+			"side": {
+				"row": 3,
+				"flip": false,
+				"aim": [
+					1,
+					0
+				],
+				"source_scale": 0.51796,
+				"rest_centre": [
+					254.5,
+					242.5
+				],
+				"ground": 329.0,
+				"anchor": [
+					170.8,
+					329.0
+				],
+				"arm_px": 1.19,
+				"frames": [
+					{
+						"socket": [
+							258.0,
+							213.3
+						],
+						"socket_game": [
+							0.57,
+							1.49
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -92.0
+					},
+					{
+						"socket": [
+							282.7,
+							185.6
+						],
+						"socket_game": [
+							7.5,
+							-6.3
+						],
+						"knob_w": 10.0,
+						"knob": true,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							269.3,
+							136.7
+						],
+						"socket_game": [
+							3.73,
+							-20.07
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -76.1
+					},
+					{
+						"socket": [
+							350.2,
+							256.0
+						],
+						"socket_game": [
+							26.5,
+							13.5
+						],
+						"knob_w": 10.0,
+						"knob": true,
+						"knob_out": 35.0
+					},
+					{
+						"socket": [
+							251.6,
+							193.2
+						],
+						"socket_game": [
+							-1.24,
+							-4.15
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -92.0
+					},
+					{
+						"socket": [
+							257.9,
+							211.6
+						],
+						"socket_game": [
+							0.54,
+							1.03
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -92.0
+					}
+				]
+			},
+			"down": {
+				"row": 4,
+				"flip": false,
+				"aim": [
+					0,
+					1
+				],
+				"source_scale": 0.50279,
+				"rest_centre": [
+					256.0,
+					231.5
+				],
+				"ground": 321.5,
+				"anchor": [
+					256.0,
+					321.5
+				],
+				"arm_px": 0.0,
+				"frames": [
+					{
+						"socket": [
+							255.9,
+							201.9
+						],
+						"socket_game": [
+							-0.03,
+							-1.71
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							254.2,
+							195.6
+						],
+						"socket_game": [
+							-0.5,
+							-3.5
+						],
+						"knob_w": 10.0,
+						"knob": true,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							257.8,
+							165.9
+						],
+						"socket_game": [
+							0.51,
+							-11.83
+						],
+						"knob_w": 11.11,
+						"knob": true,
+						"knob_out": -89.2
+					},
+					{
+						"socket": [
+							255.5,
+							329.9
+						],
+						"socket_game": [
+							-0.13,
+							34.29
+						],
+						"knob_w": 9.5,
+						"knob": false,
+						"knob_out": 90.0
+					},
+					{
+						"socket": [
+							227.8,
+							185.6
+						],
+						"socket_game": [
+							-7.92,
+							-6.3
+						],
+						"knob_w": 9.56,
+						"knob": true,
+						"knob_out": -106.2
+					},
+					{
+						"socket": [
+							256.5,
+							196.7
+						],
+						"socket_game": [
+							0.13,
+							-3.17
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					}
+				]
+			},
+			"up": {
+				"row": 5,
+				"flip": false,
+				"aim": [
+					0,
+					-1
+				],
+				"source_scale": 0.52121,
+				"rest_centre": [
+					256.0,
+					234.5
+				],
+				"ground": 320.5,
+				"anchor": [
+					256.0,
+					320.5
+				],
+				"arm_px": 48.78,
+				"frames": [
+					{
+						"socket": [
+							256.0,
+							206.6
+						],
+						"socket_game": [
+							-0.01,
+							-0.39
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							250.9,
+							226.8
+						],
+						"socket_game": [
+							-1.44,
+							5.28
+						],
+						"knob_w": 7.78,
+						"knob": true,
+						"knob_out": -94.7
+					},
+					{
+						"socket": [
+							238.9,
+							145.8
+						],
+						"socket_game": [
+							-4.8,
+							-17.5
+						],
+						"knob_w": 12.0,
+						"knob": true,
+						"knob_out": -100.0
+					},
+					{
+						"socket": [
+							254.1,
+							240.4
+						],
+						"socket_game": [
+							-0.55,
+							9.12
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							256.7,
+							203.0
+						],
+						"socket_game": [
+							0.19,
+							-1.41
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					},
+					{
+						"socket": [
+							256.2,
+							209.2
+						],
+						"socket_game": [
+							0.04,
+							0.32
+						],
+						"knob_w": 12.0,
+						"knob": false,
+						"knob_out": -90.0
+					}
+				]
+			},
+			"contact": {
+				"at": "w1",
+				"arm_px": 1.19,
+				"contact_length": 1.0,
+				"head_centre_game": 70.1,
+				"head_centre_along_aim_game": 68.0,
+				"head_far_game": 87.6,
+				"far_edge_along_aim_game": 83.0,
+				"target": 68.0,
+				"by_direction": {
+					"side": {
+						"at": "w1",
+						"arm_px": 1.19,
+						"contact_length": 1.0,
+						"head_centre": [
+							68.0,
+							16.8
+						],
+						"head_centre_game": 70.1,
+						"head_centre_along_aim_game": 68.0,
+						"head_far_game": 87.6,
+						"far_edge_along_aim_game": 83.0,
+						"target": 68.0
+					},
+					"down": {
+						"at": "w1",
+						"arm_px": 0.0,
+						"contact_length": 0.883,
+						"head_centre": [
+							-0.7,
+							68.0
+						],
+						"head_centre_game": 68.0,
+						"head_centre_along_aim_game": 68.0,
+						"head_far_game": 82.7,
+						"far_edge_along_aim_game": 82.4,
+						"target": 68.0
+					},
+					"up": {
+						"at": "w1",
+						"arm_px": 48.78,
+						"contact_length": 1.0,
+						"head_centre": [
+							0.8,
+							-68.0
+						],
+						"head_centre_game": 68.0,
+						"head_centre_along_aim_game": 68.0,
+						"head_far_game": 83.4,
+						"far_edge_along_aim_game": 83.0,
+						"target": 68.0
+					}
+				}
+			}
+		}
+	},
+	"notes": "Cell px: pixel (x, y) covers [x, x + 1] x [y, y + 1]. The cell's origin is drawn at the player Visual's origin (the cell centre: the Visual's offset is -origin), scale game px per cell px (the Visual's scale); a left strike mirrors the side row about the origin. A frame's Sprite2D frame is row * 8 + column, its column the frame number - 1. socket: the neck's end on frames with the spear out (part / full), where the rigid spear's visible part starts, the spear along aim through it; on hidden frames the body's front edge on the line of frame 4's socket (nothing is drawn). bump: the painted bump's tip, where the baked neck leaves the body (the spear's hidden end can start behind it, inside the jelly). neck_fade_end: where the baked neck has faded into the shaft. socket_game: the socket in game px from the Visual's origin. shaft_px: the game-px shaft width the neck's end was baked to. source_scale: cell px per source px of the strip; rest_centre / ground / anchor: where the rest frame stands (page 1's idle frame's middle and ground: the bottom edge of the solid px on the side, the feet's in the front and back views), and the strip's fixed back (side) or middle (down / up) on the ground. rest_frame: the frame (1-6) to hold at rest (frame 1 of the jab is drawn about 7 percent taller and would pop).",
+	"weapons": {
+		"axe": {
+			"texture": "res://asset/characters/shapes/axe.webp",
+			"scale": 0.074856,
+			"head_start": 200.0,
+			"axis_row": 212.0,
+			"handle_px": 11.57,
+			"hidden_px": 4.14,
+			"handle_across": 1.0,
+			"tint_gain": [
+				0.9348,
+				0.9665,
+				1.0364
+			],
+			"head_centre": [
+				356.0,
+				206.5
+			],
+			"socket_to_head_px": 17.57,
+			"handle_width_game": 7.34,
+			"head_depth_game": 23.36,
+			"head_height_game": 30.92,
+			"views": {
+				"toward": {
+					"texture": "res://asset/characters/shapes/axe-views.webp",
+					"scale": 0.113221,
+					"frames": [
+						{
+							"rect": [
+								6,
+								6,
+								284,
+								480
+							],
+							"pivot": [
+								147.4,
+								366.1
+							],
+							"dir": -90.1,
+							"head": [
+								146.7,
+								98.1
+							],
+							"extent": 362.1
+						},
+						{
+							"rect": [
+								435,
+								6,
+								417,
+								394
+							],
+							"pivot": [
+								661.2,
+								90.1
+							],
+							"dir": 96.9,
+							"head": [
+								639.2,
+								270.8
+							],
+							"extent": 319.6
+						},
+						{
+							"rect": [
+								864,
+								6,
+								410,
+								324
+							],
+							"pivot": [
+								1069.6,
+								24.8
+							],
+							"dir": 90.5,
+							"head": [
+								1068.2,
+								200.0
+							],
+							"extent": 316.5
+						},
+						{
+							"rect": [
+								1293,
+								6,
+								317,
+								454
+							],
+							"pivot": [
+								1452.0,
+								102.4
+							],
+							"dir": 90.1,
+							"head": [
+								1451.6,
+								384.8
+							],
+							"extent": 367.5
+						}
+					]
+				},
+				"away": {
+					"texture": "res://asset/characters/shapes/axe-views.webp",
+					"scale": 0.117479,
+					"frames": [
+						{
+							"rect": [
+								6,
+								498,
+								269,
+								462
+							],
+							"pivot": [
+								140.4,
+								828.2
+							],
+							"dir": -89.1,
+							"head": [
+								144.0,
+								584.2
+							],
+							"extent": 332.7
+						},
+						{
+							"rect": [
+								435,
+								498,
+								223,
+								399
+							],
+							"pivot": [
+								514.3,
+								769.8
+							],
+							"dir": -78.2,
+							"head": [
+								557.7,
+								562.1
+							],
+							"extent": 268.5
+						},
+						{
+							"rect": [
+								864,
+								498,
+								287,
+								251
+							],
+							"pivot": [
+								1006.9,
+								632.2
+							],
+							"dir": -89.7,
+							"head": [
+								1007.2,
+								558.7
+							],
+							"extent": 153.3
+						},
+						{
+							"rect": [
+								1293,
+								498,
+								249,
+								372
+							],
+							"pivot": [
+								1413.2,
+								718.3
+							],
+							"dir": -87.8,
+							"head": [
+								1419.3,
+								557.1
+							],
+							"extent": 226.4
+						}
+					]
+				}
+			}
+		},
+		"hammer": {
+			"texture": "res://asset/characters/shapes/hammer.webp",
+			"scale": 0.087722,
+			"head_start": 168.0,
+			"axis_row": 232.5,
+			"handle_px": 19.68,
+			"hidden_px": 4.05,
+			"handle_across": 0.8,
+			"tint_gain": [
+				0.9874,
+				0.9913,
+				0.9652
+			],
+			"head_centre": [
+				341.0,
+				210.0
+			],
+			"socket_to_head_px": 25.68,
+			"handle_width_game": 7.23,
+			"head_depth_game": 30.18,
+			"head_height_game": 36.93,
+			"face_row": 418.0,
+			"views": {
+				"toward": {
+					"texture": "res://asset/characters/shapes/hammer-views.webp",
+					"scale": 0.136108,
+					"frames": [
+						{
+							"rect": [
+								6,
+								6,
+								275,
+								473
+							],
+							"pivot": [
+								142.9,
+								335.2
+							],
+							"dir": -89.8,
+							"head": [
+								143.7,
+								100.7
+							],
+							"extent": 331.4
+						},
+						{
+							"rect": [
+								375,
+								6,
+								312,
+								413
+							],
+							"pivot": [
+								462.0,
+								282.9
+							],
+							"dir": -62.0,
+							"head": [
+								549.4,
+								118.6
+							],
+							"extent": 278.3
+						},
+						{
+							"rect": [
+								744,
+								6,
+								357,
+								382
+							],
+							"pivot": [
+								927.1,
+								24.5
+							],
+							"dir": 91.3,
+							"head": [
+								922.5,
+								232.8
+							],
+							"extent": 361.1
+						},
+						{
+							"rect": [
+								1113,
+								6,
+								306,
+								465
+							],
+							"pivot": [
+								1270.3,
+								105.4
+							],
+							"dir": 91.0,
+							"head": [
+								1265.9,
+								362.6
+							],
+							"extent": 369.3
+						}
+					]
+				},
+				"away": {
+					"texture": "res://asset/characters/shapes/hammer-views.webp",
+					"scale": 0.149519,
+					"frames": [
+						{
+							"rect": [
+								6,
+								493,
+								250,
+								475
+							],
+							"pivot": [
+								131.4,
+								822.2
+							],
+							"dir": -90.2,
+							"head": [
+								130.8,
+								592.0
+							],
+							"extent": 329.4
+						},
+						{
+							"rect": [
+								375,
+								493,
+								273,
+								430
+							],
+							"pivot": [
+								481.4,
+								785.1
+							],
+							"dir": -74.6,
+							"head": [
+								536.9,
+								584.1
+							],
+							"extent": 300.2
+						},
+						{
+							"rect": [
+								744,
+								493,
+								252,
+								381
+							],
+							"pivot": [
+								870.0,
+								729.1
+							],
+							"dir": -89.7,
+							"head": [
+								870.5,
+								599.4
+							],
+							"extent": 234.8
+						},
+						{
+							"rect": [
+								1113,
+								493,
+								314,
+								416
+							],
+							"pivot": [
+								1268.7,
+								738.3
+							],
+							"dir": -89.0,
+							"head": [
+								1271.3,
+								596.9
+							],
+							"extent": 253.0
+						}
+					]
+				}
+			}
+		},
+		"notes": "The War Axe's and the Hammer's strike frames (scripts/characters/pack-slime-weapon-strikes.py; docs/design/2026-10-12-weapon-strike-frames.md). Per strike: its sheet (`texture`), its weapon block (`weapon`), per direction the sheet row (a `flip` strip shows its `source` strike's row mirrored; its frames and keys are the source row's, unmirrored), per frame the socket (the knob's tip, cell px; `socket_game`: game px from the Visual's origin, the slime's centre) and `knob_w` (the knob's chord, game px: the code neck's root width), and the timeline `keys`: `at` w|a|r<share> of the step's windupMs / activeMs / recoveryMs; each key's frame shows from its `at`, its angle / length / head_angle are eased linearly (as numbers) to the next key's; a value a key leaves out is the previous key's, head_angle the key's own angle; layer steps. Angles: screen degrees in the strip's own frame (0 right, +90 down), from the socket along the handle. The game (shape_visuals.gd _strike_weapon_at) draws the weapon rigid at `scale`: the neck (neck.webp, root_x on the socket, uniformly scaled by knob_w / width_px) ends neck_len = (tip_x - root_x) x that scale from the socket; the strip's jelly arm (`arm_px`, per direction) stretches the neck's cone (root_x to tip_x) by arm_px, so the neck's tip is neck_len + arm_px out; the handle (texture x 0 to head_start, row axis_row on the axis, handle_across x scale thick) stretched from hidden_px behind the socket to handle_px past the neck's tip (the joint), the head from the joint at head_angle; the whole slid back along the axis by (1 - length) x (hidden_px + joint + the head's depth) and cut at the hidden end; `front` draws the part past the neck's tip over the world, as does a `behind` weapon pointing down (axis y > 0.5) on a downward aim. Mirrored: x negated, a -> 180 - a, the textures reflected across the axis. head_centre, face_row, socket_to_head_px, handle_width_game, head_depth_game, head_height_game: for reference. `contact` (per strike): the art's reach at the hit (the sweeps' a0.5, the chop's and smashes' w1): the head's centre and its farthest point (the Axe's blade edge, the Hammer's head corner) from the slime's centre, game px, and the Hammer's head centre along the aim (where it lands in front), each strip's arm_px set so the reach meets the game's numbers (`target`) where the art falls short, else its contact_length (every key from w1 holds length at most that) where it reaches past; every direction within 2 px of the side view's; far_edge_along_aim_game: the head's farthest px along the aim. Since round 3 (2026-10-12) the motion lives in the strike animations (res://game/characters/player-strikes.tres, built once from the old `keys` by godot/tools/build_strike_animations.gd); the keys were removed from this file."
+	},
+	"neck": {
+		"texture": "res://asset/characters/shapes/neck.webp",
+		"root_x": 44.0,
+		"tip_x": 92.0,
+		"arm_from_x": 55.2,
+		"arm_to_x": 68.0,
+		"axis_row": 48.0,
+		"width_px": 80.0,
+		"size": [
+			128,
+			96
+		],
+		"notes": "The code neck (made by the packer): a horizontal jelly cone, root left; root_x is put on the frame's socket, the texture scaled uniformly so width_px is the frame's knob_w; its cone (root_x to tip_x) stretched along by the strip's arm_px (arm_from_x to arm_to_x: the straight tube in it); tip_x: where the handle starts showing (and a `front` weapon goes over the world). Drawn over the body in the weapon's colour without its tint (it is the body's jelly)."
+	}
+}

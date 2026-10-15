@@ -21,15 +21,32 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
   and instantiates every scene in `godot/game/scenes/scene_index.json`, checks properties and node
   references, and plays level-1 for 30 frames.
 - `res://tools/build_player_clips.gd` (`--headless --path godot -s res://tools/build_player_clips.gd
-  [-- --only=roll,attack-1]`) — (re)builds the directional clips of each v2 page in
+  [-- --only=roll,attack-1,shape-]`) — (re)builds the directional clips of each v2 page in
   `game/characters/player_slime.tscn` from the page manifests (`asset/Originals/characters/slime-v2/page-<n>.json`),
   plus the keyed sword swings (`attack-1-<direction>`) and the keyed action clips (`hop`, `squash`,
   `teleport`, `eat` and `knockback`, each `-down`/`-up`/`-side`: page-1 frames chosen by pose); a row with
   a `shift` keys `Visual:offset` back by it, and a shifted `-side` row also gets a mirrored `-left` clip.
   Alias clips (`ALIASES`) play a row already built at their own fps: `full-idle-down/-up/-side` on page 5's
-  full rows at 2.67 fps (a slow sway at rest). Every other clip in the scene is removed. `--only` rebuilds just the clips with those name prefixes, so
-  clips tuned in the editor (idle-down) stay as they are. Save or close the scene in an open editor
-  first and reload it afterwards.
+  full rows at 2.67 fps (a slow sway at rest). Pose clips: page 6's manifest (`page-6.json`, written by
+  `scripts/characters/pack-slime-shape-poses.py`) lists poses, not rows; each pose the game shows
+  becomes `shape-<shape>-<pose>-<down|up|side>`, one held frame played once (no `-left`: no keyed
+  offset): only the War Axe's `load`, `swing-down` and `swing-up` (9 clips), for its Spin and its
+  charge ring (the poses of `ShapePoses.TIMELINES`). `--only=shape-` rebuilds just those. The body
+  shapes' strikes have no clips in the scene: the game builds the `strikes` library (each strike and
+  direction, and its `-hold` frame for the charge ring) at run time from `game/characters/strikes/`.
+  Every other clip in the scene is removed, also on an `--only` run. `--only` rebuilds just the clips with
+  those name prefixes, so clips tuned in the editor (idle-down) stay as they are. Save or close the scene
+  in an open editor first and reload it afterwards. A headless save writes no `uid=` attributes (the
+  editor adds them back on its next save; the scene is loaded by path).
+- `godot/addons/strike_preview/` (editor plugin "Strike Preview", enabled in `project.godot` next to godot_ai) —
+  click a body-shape strike file (`game/characters/strikes/*.tres`) and the Inspector plays it above its fields: the
+  slime large in side, down and up as the game draws it (the strike sheet's body frame, the StrikeRig's weapon,
+  neck and views, the hit area, the reach readouts and the socket), a Play / Pause loop in real time and a time bar
+  with the windup, active and recovery bands and every key. In each view the hit centre's cross and the reach ring's
+  handle can be dragged (`hit_center`, `hit_reach`; each drag one step in the editor's undo history); edits show at
+  once, Ctrl+Z undoes them and Ctrl+S saves. It reads the step's timing from `game/data/game-constants.json`, writes
+  only through those drags and does not touch the player scene
+  ([godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#editing-the-strike-animations-2026-10-12)).
 - `res://tools/build_ui_theme.gd` — rebuilds `game/ui/theme/slime_theme.tres` from `ui_tokens.gd`
   ([godot/UI_THEME.md](godot/UI_THEME.md)).
 - `res://tools/render_ceremony.gd` (windowed: `--path godot -s res://tools/render_ceremony.gd -- --out=<dir>
@@ -119,6 +136,14 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `asset/Originals/props/gulp/` into `godot/asset/MAPS/props/256x256-tile_8x1-gulp-props.webp`, and the
   Gulp form badges from `asset/Originals/ui/gulp/` into `godot/asset/UI/ui-gulp-form-icons-3x1.webp` (Heavy, Sticky, Frog;
   the HUD's form badge).
+- `python scripts/art/pack-heavy-plate-art.py` — the heavy plate's fixed base (full and front) and its
+  cap (released and pressed) from `asset/Originals/props/heavy-plate/plate-b.png` into
+  `godot/asset/MAPS/props/heavy-plate/` (2 px per unit); it prints the placement numbers
+  `game/scripts/heavy_plate.gd` uses ([godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#heavy-plates-and-heavy-blocks-2026-10-14)).
+- `python scripts/art/pack-door-art.py` — the door pictures from `asset/Originals/buildings/doors/` into
+  `godot/asset/MAPS/Houses/doors/` (2 px per unit): the level-1 mushroom house's leaf and the interior
+  ways out (timber, mushroom); it prints each interior picture's leaf rect for the scene's `door_rect`
+  ([godot/CONVENTIONS.md](godot/CONVENTIONS.md#doors)).
 - `python scripts/props/pack-gulp-art.py` (**numpy**) — the Gulp's things to suck and throw (2026-10-09), from the
   Magnific stills in `asset/Originals/gulp/generated/` ([its README](../asset/Originals/gulp/README.md)):
   - the liftables into `godot/asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp` (8 columns × 9 rows of
@@ -152,6 +177,60 @@ See [assets/README.md](assets/README.md) for the art workflow.
   shift) and rows in `ROW_SCALES` smaller than the page scale. A page is always packed whole. It extracts
   frames with `node scripts/characters/extract-video-frames.mjs <outDir> <fps> <size> <name>=<file.mp4> ...`
   (headless Brave through Playwright; no ffmpeg needed). Then run `tools/build_player_clips.gd`.
+- `python scripts/characters/pack-slime-shape-poses.py` — the body-shapes art of 2026-10-12
+  ([its README](../asset/Originals/characters/slime-v2/shapes/README.md), [godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#art-2026-10-12)),
+  from `asset/Originals/characters/slime-v2/shapes/`: the slime's attack key poses
+  (`poses-<shape>-<direction>.png`, 2 x 2 sheets) into page 6,
+  `godot/asset/characters/256x256-tile_8x8-slime-v2-page-6.webp` (page 1's cells and baseline, each sheet
+  scaled to cover page 1's idle area), and `slime-v2/page-6.json` (where each pose landed); the jelly
+  weapons into `godot/asset/characters/shapes/<shape>.webp` and `shapes.json` (the Spear's shaft width, root
+  end and head start, each head's start: the axe's and the hammer's are measured constants, `HEAD_STARTS`); the goo
+  splat (a 4 x 1 strip of 256 px), the Axe swoosh, the Spear glint and the energy shard into
+  `godot/asset/MAPS/effects/`; and the shape icons (each weapon turned 45 degrees, 128 px) into
+  `godot/asset/UI/shapes/<shape>-icon.webp`. Then run `tools/build_player_clips.gd -- --only=shape-` (it
+  builds the poses the game shows: the War Axe's, for its Spin).
+- `python scripts/characters/pack-slime-strikes.py [--preview <dir>]` (**numpy**) — the Spear's strike frames
+  of 2026-10-12 ([its README](../asset/Originals/characters/slime-v2/shapes/README.md#strike-sheet-2026-10-12),
+  [godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#the-spears-strike-frames-2026-10-12)): the six-frame body-only
+  strips `asset/Originals/characters/slime-v2/shapes/strikes/spear-<jab|finisher>-<side|down|up>.png` into
+  `godot/asset/characters/512x416-tile_8x8-slime-v2-strikes.webp` (8 x 8 cells of 512 x 416 centred like
+  page 1's; rows 0-2 spear-jab side / down / up, rows 3-5 spear-finisher, columns 0-5 = frames 1-6; one
+  scale per strip, set by its rest frame against page 1's idle; the jelly neck baked into frames 3 and 4)
+  and `godot/game/data/shape-strikes.json` (per strike, direction and frame the socket, the bump tip and the
+  spear's state; the cell's origin and scale; the spear's tint). It stops when a frame does not fit and
+  prints the cell size the art needs. `--preview` writes check images (the sheet on grass with the
+  sockets, the joins with the spear behind the body, the rest frames beside page 1's idle). The manifest
+  is merged: its own top-level keys and strikes are replaced, the War Axe's and the Hammer's stay. The game
+  reads the sheet and the manifest at run time (there are no strike clips to build).
+- `python scripts/characters/pack-slime-weapon-strikes.py [--preview [<dir>]] [--knobs-only]` (**numpy**) —
+  the War Axe's and the Hammer's strike frames of 2026-10-12 ([its README](../asset/Originals/characters/slime-v2/shapes/README.md#war-axe-and-hammer-strike-sheets-2026-10-12),
+  the contract [design/2026-10-12-weapon-strike-frames.md](design/2026-10-12-weapon-strike-frames.md)), with
+  pack-slime-strikes.py's helpers: the strips `strikes/axe-<sweep|chop>-<side|down|up>.png`,
+  `axe-backswing-side.png` (its front and back views are the sweep's rows, mirrored) and
+  `hammer-<thud|boom>-<side|down|up>.png` into `godot/asset/characters/512x416-tile_8x8-slime-v2-strikes-axe.webp`
+  (rows 0-2 sweep, 3 backswing side, 4-6 chop) and `...-strikes-hammer.webp` (rows 0-2 thud, 3-5 boom), the
+  Spear's grid, cell and scale, no neck baked in; the code neck `godot/asset/characters/shapes/neck.webp`; the
+  weapon views `weapon-<axe|hammer>-<toward|away>.png` into `godot/asset/characters/shapes/<axe|hammer>-views.webp`
+  (the front and back chop and smashes turn through them); and,
+  merged into `godot/game/data/shape-strikes.json` (the Spear's entries stay), per strike its sheet and weapon,
+  per direction the row (or `flip` of the sweep's), the jelly arm `arm_px` (solved so the reach at contact
+  meets the game's hit numbers, `REACH_TARGETS`), per frame the knob's socket and `knob_w`, the timeline
+  `keys`, the art's `contact` reach, plus the `weapons` and `neck` blocks. `--preview` (default
+  `asset/Originals/characters/slime-v2/shapes/prototypes/strikes-preview/`) simulates what the game draws
+  from the manifest (GIFs per strike and direction, chains, contact, knob and neck sheets); `--knobs-only`
+  writes only the knob sheets. The game reads the sheets and the manifest at run time (no clips to build). Since round 3
+  (2026-10-12) the motion is the strike animations (below) and the manifest has no `keys`: the packer's
+  timelines, its reach solving against them and its previews of them are legacy (a re-run writes keys
+  back; the game ignores them).
+- `godot/game/characters/strikes/*.tres` (the body shapes' strike files, rounds 4 and 5 of
+  docs/design/2026-10-12-weapon-strike-frames.md): seven resources, one per strike, edited in the Inspector with
+  the strike preview above their fields (`godot/addons/strike_preview/`, under Godot above; docs/godot/BODY_SHAPES.md
+  "Editing the strike animations"). They hold the chain steps' hit reach (`hit_reach` per direction, measured from its
+  `hit_center`; since round 5 game-constants.json has none for them), each direction's drawn reach (`arm_px`, negative
+  pulls the weapon in) and its `socket_nudge`. Nothing generates them:
+  `game/shapes/strike_library.gd` builds the player's `strikes` library from them at run time. The Round 3 converter
+  `tools/build_strike_animations.gd` and its library were removed; the one-off Round 3 to Round 4 migration was
+  removed after it ran (the round 5 key thinning was a one-off scratch run, never in the project).
 - `python scripts/characters/pack-clod-stomper.py` (**numpy**) — the Clod Stomper's five poses (idle, crouch,
   air, slam, defeated; one scale for all) from `asset/Originals/enemies/clod-stomper/` into
   `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp`.

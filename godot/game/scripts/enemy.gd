@@ -27,6 +27,23 @@ class_name EnemyScript
 ## `_receiver_tags`, `_damage_number_top`, `_dispose_delay_ms`, `_react_to_damage` and
 ## `can_receive_damage`. Their defaults keep the worm's behaviour.
 ##
+## Body-shapes rework (docs/godot/BODY_SHAPES.md "The reaction"): a request with a top-level `hit`
+## (only rework attacks send one) goes to game/combat/reactions/enemy_reactions.gd: `can_receive`
+## from `can_receive_damage` (a clink answers "immune"), `damage_scale` from `mitigate_damage`,
+## `react` from `_react_to_damage` (a subclass that overrides it without reaching `react`, as Fatty
+## and the Matron do, gets `react_override` after it, so its own reaction stays and the hit still
+## answers `result.reaction`); its flash shows without the old number (the sender's `play_hit` shows
+## it), and a 0-damage hit plays no hurt sound. In the rework mode `after_move` runs after each
+## step's move (wall splats, bowling), `on_defeated` on defeat (the energy shard), a kill launch
+## slides the corpse (`set_death_slide`), the stun slide decays by `combat.verbs.slideDecay`, and a
+## hurtbox the reaction profile gates as a part (Fatty's eye) registers without its
+## `acceptedSources`: the gate decides for rework hits, and old hits still meet the old rule in
+## `can_receive_damage`. Old requests and the mode off keep every old path. `enemy_type` and
+## `reaction_overrides` pick the reaction profile; the public wrappers below (`get_body`,
+## `set_hit_stun_until`, `play_hurt`, `flash_hit`, `react_classic`, `reaction_phase`,
+## `take_reaction_damage`, `begin_counter_attack`, ...) are what the reaction helper uses instead of
+## the private fields.
+##
 ## Owner: enemy builder.
 
 const Services := preload("res://game/shared/services.gd")
@@ -41,6 +58,9 @@ const AreaShapes := preload("res://game/bosses/area_shapes.gd")
 const SlimeSpiderAI := preload("res://game/enemy/slime_spider_ai.gd")
 const EnemyProjectiles := preload("res://game/enemy/enemy_projectiles.gd")
 const GameFeelType := preload("res://game/feel/game_feel.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const EnemyReactions := preload("res://game/combat/reactions/enemy_reactions.gd")
+const DamageResolverScript := preload("res://game/combat/damage_resolver.gd")
 
 ## EnemyScript.ts literals (enemy spec 1.2).
 const SIGHT_CHECK_MS := 150.0
@@ -114,6 +134,12 @@ const RANK_BOSS := "boss"
 ## JSON `arenaRecoveryMs` (bosses with an arena: heal to full once the player has stayed outside
 ## the arena this long; 0 = never).
 @export var arena_recovery_ms: float = 0.0
+## Rework: the `enemy-types.json` type whose `reactions` block this enemy uses ("" = its scene's
+## file name; ReactionProfile.type_of).
+@export var enemy_type: String = ""
+## Rework: reaction profile keys this scene changes, on top of the type's (combat-feel plan
+## section 5, "Layers merge in this order").
+@export var reaction_overrides: Dictionary = {}
 
 ## Payload {"hp": float, "maxHp": float}.
 signal health_changed(payload: Dictionary)
@@ -178,6 +204,13 @@ var _arena_left_at_ms: float = 0.0
 var _slowed_until: float = 0.0
 var _slow_multiplier: float = 1.0
 var _applied_slow: float = 1.0
+## Rework: the corpse's slide after a kill launch (ZERO = none; only EnemyReactions sets it), and
+## whether it has started (from then on the body's own velocity, which walls cut, carries it).
+var _death_slide: Vector2 = Vector2.ZERO
+var _death_sliding: bool = false
+## Rework: the authored rule a gated hurtbox registered without ({} = registered as authored);
+## old-style hits still meet its `acceptedSources` in `can_receive_damage`.
+var _authored_rule: Dictionary = {}
 
 
 ## Clamps max_health, sets hp; push_error when damage_area / attack_area are missing; registers
@@ -218,7 +251,8 @@ func _exit_tree() -> void:
 ## One physics step: the base enemy step (`_step_enemy`), then the subclass hook
 ## `_after_enemy_step` (Phaser: FattyScript._physics_process after `super`), then the body moves
 ## once with `ArcadeMover.move(body, delta)` on every path except defeated (Arcade integrates
-## after the scripts, enemy spec 4.2).
+## after the scripts, enemy spec 4.2). In the rework mode EnemyReactions.after_move follows the move
+## (wall splats, bowling).
 func _physics_process(delta: float) -> void:
 	if body == null:
 		return
@@ -226,6 +260,8 @@ func _physics_process(delta: float) -> void:
 	_after_enemy_step(delta)
 	if moves and is_instance_valid(body) and not body.is_queued_for_deletion():
 		ArcadeMover.move(body, delta)
+		if ReworkMode.is_on():
+			EnemyReactions.after_move(self, delta)
 
 
 ## Enemy spec 4.2 step order exactly (flash update, defeated, stun slide, no target, arena leash
@@ -239,18 +275,22 @@ func _step_enemy(delta: float) -> bool:
 	_applied_slow = 1.0
 	_update_hit_flash(now)
 	if _defeated:
-		body.velocity = Vector2.ZERO
+		# Rework: a kill launch slides the corpse to where it dies (only it sets a death slide).
+		var sliding := _death_slide != Vector2.ZERO and _step_death_slide(delta)
+		if not sliding:
+			body.velocity = Vector2.ZERO
 		_runtime_state = EnemyAI.STATE_DEAD
 		var fade_ms := _corpse_fade_ms()
 		if fade_ms > 0.0 and _dispose_at_ms >= 0.0:
 			body.modulate.a = clampf((_dispose_at_ms - now) / fade_ms, 0.0, 1.0)
 		if _dispose_at_ms >= 0.0 and now >= _dispose_at_ms and not body.is_queued_for_deletion():
 			body.queue_free()
-		return false
+		return sliding
 
 	# Knockback / hit-stun: slide with decay; no AI, no territory, no attack, no clip change.
 	if now < _hit_stun_until:
-		body.velocity *= pow(HIT_STUN_VELOCITY_DECAY, delta * 60.0)
+		var decay := EnemyReactions.slide_decay() if ReworkMode.is_on() else HIT_STUN_VELOCITY_DECAY
+		body.velocity *= pow(decay, delta * 60.0)
 		return true
 
 	var target := _primary_target()
@@ -448,6 +488,141 @@ func cancel_attack() -> void:
 	_end_attack()
 
 
+# --- rework reaction API (game/combat/reactions/enemy_reactions.gd; docs/godot/BODY_SHAPES.md) ----
+
+## The CharacterBody2D root (`body`).
+func get_body() -> CharacterBody2D:
+	return body
+
+
+## The Sprite2D (`visual`; the hit motion moves its offset, scale, rotation and skew).
+func get_visual() -> Sprite2D:
+	return visual
+
+
+## Sets the hit-stun end (simulation ms) as given; while `now < it` the enemy slides with the stun
+## decay (`combat.verbs.slideDecay` in the rework mode) and does nothing else (no AI, territory,
+## attack or clip change). The caller decides how stuns combine (the combat-feel plan: the longer
+## wins).
+func set_hit_stun_until(until_ms: float) -> void:
+	_hit_stun_until = until_ms
+
+
+## The hit-stun end (simulation ms); in stun while `Services.now_ms()` is below it.
+func get_hit_stun_until() -> float:
+	return _hit_stun_until
+
+
+## Restarts `<action>-<facing>` (e.g. the "knockback" hurt pose until reaction poses exist).
+func play_hurt(action: String = "knockback") -> void:
+	_play_facing(action, true)
+
+
+## The old hit feedback: the flash and the damage number (`_show_hit_feedback`).
+func show_hit_feedback(commit: Dictionary) -> void:
+	_show_hit_feedback(commit)
+
+
+## "up" | "down" | "side", and whether a side clip is mirrored (facing left).
+func get_facing_name() -> String:
+	return _facing
+
+
+func is_facing_flipped() -> bool:
+	return _facing_flipped
+
+
+## `attributes[key]` as a finite float, else `fallback` (knockbackResist, attackWindupMs, ...).
+func get_attribute(key: String, fallback: float = 0.0) -> float:
+	return _attribute(key, fallback)
+
+
+## Pushes a running attack's impact and end `ms` later (armor: a light hit slips the wind-up; the
+## caller caps the total). Nothing without an attack in flight or after its impact.
+func delay_attack(ms: float) -> void:
+	if _active_sequence_id == NO_ID or _attack_resolved or ms <= 0.0:
+		return
+	_attack_impact_at += ms
+	_attack_finish_at += ms
+
+
+## The phase the reaction profile's `states` are keyed by ("" = the normal phase). The base enemy
+## reports "windup" between an attack's start and its impact; bosses and special enemies override it
+## (combat-feel plan section 8: `_reaction_phase()`).
+func reaction_phase() -> String:
+	# Scripts with a phase machine of their own (Fatty, the Matron, the Clod Stomper) report its
+	# phase, which their `reactions.states` are keyed by, until they override this.
+	if has_method(&"get_phase"):
+		return str(call(&"get_phase"))
+	if _active_sequence_id != NO_ID and not _attack_resolved:
+		return "windup"
+	return ""
+
+
+## The hit flash alone (`_show_hit_feedback` without the number): the rework's damage number is the
+## sender's (`GameFeel.play_hit`).
+func flash_hit() -> void:
+	_hit_flash_until = Services.now_ms() + HIT_FLASH_MS
+	if visual != null:
+		HitFlash.flash(visual, HIT_FLASH_COLOR)
+
+
+## The running attack's sequence id (-1 when none): armor counts its wind-up push per attack.
+func attack_sequence() -> int:
+	return _active_sequence_id
+
+
+## The break-free counter (the worm swordsman's counter-slash, the orb weaver's spit): ends the
+## stun and starts its common attack toward the target at once, whatever its cooldown. False when it
+## cannot (no target, defeated, no attack area).
+func begin_counter_attack() -> bool:
+	if _defeated or body == null:
+		return false
+	if _active_sequence_id != NO_ID:
+		return true
+	var target := _primary_target()
+	if target.is_empty() or not bool(target.get("active", false)) or not bool(target.get("hostile", false)):
+		return false
+	var origin := get_centre()
+	var toward: Vector2 = target.get("centre", origin) - origin
+	_hit_stun_until = 0.0
+	_lifecycle.ready_at = minf(_lifecycle.ready_at, Services.now_ms())
+	_begin_attack(toward if toward != Vector2.ZERO else _attack_direction)
+	if _active_sequence_id != NO_ID:
+		_ai_state = EnemyAI.STATE_CHASE
+	return _active_sequence_id != NO_ID
+
+
+## Damage a reaction deals outside a routed hit (a wall splat's share, a bowling knock): hp, the
+## health signal, the hurt sound, the flash, and defeat at 0. Returns the damage dealt (0 once
+## defeated).
+func take_reaction_damage(amount: float) -> int:
+	if _defeated or not (amount > 0.0):
+		return 0
+	var actual := int(minf(_hp, float(maxi(0, roundi(amount)))))
+	if actual <= 0:
+		return 0
+	_hp = maxf(0.0, _hp - float(actual))
+	health_changed.emit(_health_payload())
+	var dead := _hp <= 0.0
+	var commit := {"request": {"reaction_damage": true}, "result": {"status": "accepted", "reason": "",
+		"actual_damage": actual, "defeated": dead, "applied_effects": [], "rejected_effects": []},
+		"simulation_time": Services.now_ms(), "receiver": self}
+	damaged.emit(commit)
+	_hurt_since_territory_step = true
+	flash_hit()
+	if dead:
+		_defeat()
+	return actual
+
+
+## The corpse's slide after a kill launch (`velocity`, decaying as a stun slide): the body keeps its
+## collision mask until it stops, so it does not slide through walls.
+func set_death_slide(velocity: Vector2) -> void:
+	_death_slide = velocity
+	_death_sliding = false
+
+
 # --- damage receiver API (combat spec 7.2) --------------------------------------------------------
 
 ## {"hp": float, "max_hp": float, "dead": bool}.
@@ -456,26 +631,51 @@ func get_damage_state() -> Dictionary:
 
 
 ## {"accepted": false, "reason": "dead"} once defeated, else {"accepted": true, "reason": ""}.
-## Enemies have no mitigate_damage (raw scaled damage).
-func can_receive_damage(_input: Dictionary) -> Dictionary:
+## A rework hit (the request has `hit`) asks EnemyReactions.can_receive instead (a clink answers
+## "immune"). On a hurtbox registered without its authored `acceptedSources` (rework mode, a gated
+## part), an old-style hit still has to match them ("source-blocked").
+func can_receive_damage(input: Dictionary) -> Dictionary:
 	if _defeated:
 		return {"accepted": false, "reason": "dead"}
+	var request: Dictionary = input.get("request", {})
+	if ReworkMode.is_rework_request(request):
+		return EnemyReactions.can_receive(self, input)
+	if not _authored_rule.is_empty() and not DamageResolverScript.source_matches(_authored_rule, request):
+		return {"accepted": false, "reason": DamageResolverScript.REASON_SOURCE_BLOCKED}
 	return {"accepted": true, "reason": ""}
+
+
+## The scaled damage as it is (enemies take raw scaled damage); a rework hit x
+## EnemyReactions.damage_scale (a shut gate's 0, the part's, the phase's and a knockdown's
+## `damageTaken`).
+func mitigate_damage(input: Dictionary) -> float:
+	var scaled := float(input.get("scaled_damage", 0.0))
+	var request: Dictionary = input.get("request", {})
+	if ReworkMode.is_rework_request(request):
+		return scaled * EnemyReactions.damage_scale(self, input)
+	return scaled
 
 
 ## Enemy spec 6.1: hp -= actual; emit health_changed and damaged(commit); mark hurt for the
 ## territory; react_to_damage (flash, number, cancel attack, knockback (P + 120) * (1 - resist),
 ## stun 320 + min(280, strength * 0.35), "knockback-<facing>" restart); defeat() when dead.
+## A rework hit with no damage plays no hurt sound (`damaged` is not emitted); one whose
+## `_react_to_damage` override did not answer `result.reaction` gets EnemyReactions.react_override.
 func commit_damage(commit: Dictionary) -> void:
 	if _defeated:
 		return
 	var result: Dictionary = commit.get("result", {})
+	var request: Dictionary = commit.get("request", {})
+	var rework := ReworkMode.is_rework_request(request)
 	_hp = maxf(0.0, _hp - float(result.get("actual_damage", 0)))
 	health_changed.emit(_health_payload())
-	damaged.emit(commit)
+	if not rework or int(result.get("actual_damage", 0)) > 0:
+		damaged.emit(commit)
 	var is_dead := bool(result.get("defeated", false)) or _hp <= 0.0
 	_hurt_since_territory_step = true
 	_react_to_damage(commit, is_dead)
+	if rework and not result.has("reaction"):
+		EnemyReactions.react_override(self, commit, is_dead)
 	if is_dead:
 		_defeat()
 
@@ -658,9 +858,11 @@ func _defeat() -> void:
 	if body != null:
 		body.velocity = Vector2.ZERO
 		# Phaser `collisionEnabled = false`: the player walks through the corpse. The hurtbox
-		# stays registered (later hits are rejected "dead").
+		# stays registered (later hits are rejected "dead"). A rework kill launch keeps the mask
+		# while the corpse slides (`_step_death_slide` clears it).
 		body.set_deferred(&"collision_layer", 0)
-		body.set_deferred(&"collision_mask", 0)
+		if _death_slide == Vector2.ZERO:
+			body.set_deferred(&"collision_mask", 0)
 	_set_attack_area_active(false)
 	_play_facing("die", true)
 	health_changed.emit({"hp": 0.0, "maxHp": max_health})
@@ -670,11 +872,24 @@ func _defeat() -> void:
 		_reward_published = true
 		reward_requested.emit({"receiverNodeId": receiver_node_id, "rewards": rewards})
 	_dispose_at_ms = Services.now_ms() + _dispose_delay_ms()
+	# Rework: the kill feel and the energy shard roll.
+	if ReworkMode.is_on():
+		EnemyReactions.on_defeated(self)
 
 
-## Enemy spec 6.2 reaction (ordinary enemies): feedback always; on a non-lethal hit cancel the
-## attack, knock back and stun.
+## Enemy spec 6.2 reaction (ordinary enemies): `react_classic`. A rework hit (the request has `hit`)
+## gets the shared reaction instead (EnemyReactions.react, which writes `result.reaction`).
 func _react_to_damage(commit: Dictionary, is_dead: bool) -> void:
+	var request: Dictionary = commit.get("request", {})
+	if ReworkMode.is_rework_request(request):
+		EnemyReactions.react(self, commit, is_dead)
+		return
+	react_classic(commit, is_dead)
+
+
+## The old reaction (enemy spec 6.2, ordinary enemies): feedback always; on a non-lethal hit cancel
+## the attack, knock back and stun. Public for EnemyReactions' fallback.
+func react_classic(commit: Dictionary, is_dead: bool) -> void:
 	_show_hit_feedback(commit)
 	if is_dead:
 		return
@@ -703,11 +918,14 @@ func _react_to_damage(commit: Dictionary, is_dead: bool) -> void:
 
 ## Enemy spec 6.2 feedback: flash until now + 120 (HitFlash fill), damage number "-N" at
 ## (centre.x, `_damage_number_top()` - 8), yellow big when N > 15 else white small
-## (`Services.feel().floating_text`).
+## (`Services.feel().floating_text`). A rework hit gets the flash only (its number is the
+## sender's `GameFeel.play_hit`, which follows the Damage numbers setting).
 func _show_hit_feedback(commit: Dictionary) -> void:
 	_hit_flash_until = Services.now_ms() + HIT_FLASH_MS
 	if visual != null:
 		HitFlash.flash(visual, HIT_FLASH_COLOR)
+	if ReworkMode.is_rework_request(commit.get("request", {})):
+		return
 	var result: Dictionary = commit.get("result", {})
 	var amount := int(result.get("actual_damage", 0))
 	var feel := Services.feel()
@@ -857,13 +1075,35 @@ func _primary_target() -> Dictionary:
 
 
 ## The receiver rule: the authored `damageRule` with Phaser's defaults (priority 0, multiplier 1).
+## Rework mode: a hurtbox the reaction profile gates as a part drops `acceptedSources` (the gate
+## decides for rework hits; `_authored_rule` keeps them for old hits, see `can_receive_damage`).
 func _receiver_rule() -> Dictionary:
 	var rule := damage_rule.duplicate(true)
 	if not rule.has("priority"):
 		rule["priority"] = 0
 	if not rule.has("damageMultiplier"):
 		rule["damageMultiplier"] = 1
+	if ReworkMode.is_on() and rule.has("acceptedSources") and EnemyReactions.is_gated(self, damage_area):
+		_authored_rule = rule.duplicate(true)
+		rule.erase("acceptedSources")
 	return rule
+
+
+## Rework: one step of the corpse's slide after a kill launch (the stun slide's decay); under
+## WALK_SPEED_THRESHOLD it ends and the body stops colliding, as every corpse does. Returns true while
+## the body still moves.
+func _step_death_slide(delta: float) -> bool:
+	var slide := body.velocity if _death_sliding else _death_slide
+	_death_sliding = true
+	slide *= pow(EnemyReactions.slide_decay(), delta * 60.0)
+	if slide.length() < WALK_SPEED_THRESHOLD:
+		_death_slide = Vector2.ZERO
+		_death_sliding = false
+		body.set_deferred(&"collision_mask", 0)
+		return false
+	_death_slide = slide
+	body.velocity = slide
+	return true
 
 
 func _receiver_node_id() -> String:

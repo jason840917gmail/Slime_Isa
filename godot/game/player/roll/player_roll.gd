@@ -25,6 +25,16 @@ extends RefCounted
 ##   ends it at once (`cancel`).
 ## All values are in `character.player.movement` (game-constants.json).
 ##
+## Body-shapes rework (docs/godot/BODY_SHAPES.md; owner, 2026-10-12), only while the mode is on: the
+## Roll fires on the release. player.gd arms it on the press (`_due_roll`); a tap (released
+## within `character.player.rework.rollTapMs`), and any release without the `roll-charge` upgrade
+## (CHARGE_UPGRADE_ID), rolls the **quick roll** (`begin_quick`): no spin-up, straight off at once,
+## `quickRollDistancePx` over `quickRollMs`, slowing to `quickRollEndSpeedShare` of its launch speed,
+## safe for `quickRollInvulnerabilityMs`, and it bonks as any roll. A hold past the tap with the
+## upgrade learned is the **charged roll** (`begin` with `launch_on_release`): the spin-up while held,
+## the launch at the release or at the spin-up's end, rolling on while held as above. The classic
+## game keeps the Roll above exactly.
+##
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
@@ -55,6 +65,10 @@ const WOBBLE_S := 0.55
 const WOBBLE_TURNS := 4.0
 const FX_NAME := "RollFx"
 const BALL_REACH_PX := 18.0
+## Rework mode: the upgrade that lets a held Roll key charge (the spin-up); without it every roll is
+## the quick roll. The playground's testbed lends it for the session (shapes_testbed.gd).
+const CHARGE_UPGRADE_ID := &"roll-charge"
+const REWORK_CONSTANTS := "character.player.rework."
 
 enum Phase { NONE, SPIN, ROLL, BOUNCE }
 
@@ -71,6 +85,10 @@ var _ready_at_ms: float = 0.0
 var _next_dust_ms: float = 0.0
 ## The velocity set last step (ZERO during the spin-up), to tell a blocked axis.
 var _asked: Vector2 = Vector2.ZERO
+## Rework mode: this roll is the quick roll (`begin_quick`), or a charged roll whose spin-up ends at
+## the key's release (`begin` with `launch_on_release`).
+var _quick: bool = false
+var _launch_on_release: bool = false
 
 
 func _init(player: Node) -> void:
@@ -111,13 +129,15 @@ func speed() -> float:
 
 
 ## Starts the spin-up toward `toward` (snapped to eight directions). False when a roll is on, its
-## cooldown runs or there is no body.
-func begin(toward: Vector2, now_ms: float) -> bool:
+## cooldown runs or there is no body. Rework mode: `launch_on_release` (the charged roll) launches
+## the ball as soon as the key is let go during the spin-up.
+func begin(toward: Vector2, now_ms: float, launch_on_release: bool = false) -> bool:
 	var body := _body()
 	if not can_begin(now_ms) or body == null:
 		return false
-	var aim := toward if toward != Vector2.ZERO else Vector2.RIGHT
-	_direction = Vector2.RIGHT.rotated(snappedf(aim.angle(), PI / 4.0))
+	_aim_at(toward)
+	_quick = false
+	_launch_on_release = launch_on_release
 	_phase = Phase.SPIN
 	_started_ms = now_ms
 	_next_dust_ms = now_ms
@@ -130,6 +150,24 @@ func begin(toward: Vector2, now_ms: float) -> bool:
 	return true
 
 
+## Rework mode: the quick roll toward `toward` (snapped to eight directions): no spin-up, the ball
+## shoots off at once and rolls `quickRollDistancePx` in `quickRollMs`, slowing to
+## `quickRollEndSpeedShare` of its launch speed, whether the key is held or not; it bonks as any
+## roll. False when a roll is on, its cooldown runs or there is no body.
+func begin_quick(toward: Vector2, now_ms: float) -> bool:
+	var body := _body()
+	if not can_begin(now_ms) or body == null:
+		return false
+	_aim_at(toward)
+	_quick = true
+	_launch_on_release = false
+	_started_ms = now_ms
+	_player.call(&"face", _direction)
+	_player.call(&"play_animation", CLIP_BALL, true)
+	_launch(now_ms, body)
+	return true
+
+
 ## Every physics step while a roll is on: `held` is whether the roll key is still down. The
 ## movement keys are not asked: the ball goes straight.
 func update(now_ms: float, delta: float, held: bool) -> void:
@@ -139,7 +177,7 @@ func update(now_ms: float, delta: float, held: bool) -> void:
 		return
 	match _phase:
 		Phase.SPIN:
-			_spin(now_ms, body)
+			_spin(now_ms, body, held)
 		Phase.ROLL:
 			_roll(now_ms, delta, held, body)
 		Phase.BOUNCE:
@@ -165,7 +203,7 @@ func cancel() -> void:
 	_finish(Services.now_ms())
 
 
-func _spin(now_ms: float, body: CharacterBody2D) -> void:
+func _spin(now_ms: float, body: CharacterBody2D, held: bool) -> void:
 	body.velocity = Vector2.ZERO
 	var spin_up := maxf(1.0, _constant("rollSpinUpMs"))
 	var fx := _fx()
@@ -174,15 +212,16 @@ func _spin(now_ms: float, body: CharacterBody2D) -> void:
 		if now_ms >= _next_dust_ms:
 			_next_dust_ms = now_ms + DUST_EVERY_MS
 			fx.kick(_feet(), _direction, DUST_PUFFS, DUST_SPEED)
-	if now_ms - _started_ms >= spin_up:
+	if now_ms - _started_ms >= spin_up or (_launch_on_release and not held):
 		_launch(now_ms, body)
 
 
 func _launch(now_ms: float, body: CharacterBody2D) -> void:
 	_phase = Phase.ROLL
 	_launched_ms = now_ms
-	_invulnerable_until_ms = now_ms + _constant("rollInvulnerabilityMs")
-	_asked = _direction * _constant("rollLaunchSpeed")
+	var safe_ms := _rework_constant("quickRollInvulnerabilityMs") if _quick else _constant("rollInvulnerabilityMs")
+	_invulnerable_until_ms = now_ms + safe_ms
+	_asked = _direction * (_quick_launch_speed() if _quick else _constant("rollLaunchSpeed"))
 	body.velocity = _asked
 	_set_clip_speed(_asked.length() / maxf(1.0, _constant("rollSpeed")))
 	_cue(CUE_LAUNCH)
@@ -200,6 +239,9 @@ func _roll(now_ms: float, delta: float, held: bool, body: CharacterBody2D) -> vo
 		_bonk(now_ms, body)
 		return
 	var rolled := now_ms - _launched_ms
+	if _quick:
+		_roll_quick(now_ms, rolled, body)
+		return
 	var min_ms := maxf(1.0, _constant("rollMinMs"))
 	if rolled >= min_ms:
 		if not held or not bool(_player.call(&"spend_energy", _constant("rollEnergyPerSecond") * delta)):
@@ -210,6 +252,37 @@ func _roll(now_ms: float, delta: float, held: bool, body: CharacterBody2D) -> vo
 	_asked = _direction * speed_now
 	body.velocity = _asked
 	_set_clip_speed(speed_now / maxf(1.0, cruise))
+
+
+## Rework mode: the quick roll's straight run, its launch speed easing linearly down to
+## `quickRollEndSpeedShare` of it, over `quickRollMs`; then it ends.
+func _roll_quick(now_ms: float, rolled: float, body: CharacterBody2D) -> void:
+	var length := maxf(1.0, _rework_constant("quickRollMs"))
+	if rolled >= length:
+		end(now_ms)
+		return
+	var launch := _quick_launch_speed()
+	var speed_now := lerpf(launch, launch * _quick_end_share(), rolled / length)
+	_asked = _direction * speed_now
+	body.velocity = _asked
+	_set_clip_speed(speed_now / maxf(1.0, _constant("rollSpeed")))
+
+
+## The quick roll's launch speed: the one that covers `quickRollDistancePx` in `quickRollMs` while
+## easing linearly to `quickRollEndSpeedShare` of it (distance = the mean speed x the time).
+func _quick_launch_speed() -> float:
+	var seconds := maxf(1.0, _rework_constant("quickRollMs")) / 1000.0
+	return 2.0 * _rework_constant("quickRollDistancePx") / (seconds * (1.0 + _quick_end_share()))
+
+
+func _quick_end_share() -> float:
+	return clampf(_rework_constant("quickRollEndSpeedShare"), 0.0, 1.0)
+
+
+## Faces the ball toward `toward`, snapped to eight directions (RIGHT when ZERO).
+func _aim_at(toward: Vector2) -> void:
+	var aim := toward if toward != Vector2.ZERO else Vector2.RIGHT
+	_direction = Vector2.RIGHT.rotated(snappedf(aim.angle(), PI / 4.0))
 
 
 func _blocked(velocity: Vector2) -> bool:
@@ -262,6 +335,8 @@ func _finish(now_ms: float) -> void:
 		_player.call(&"set_effect_offset", Vector2.ZERO)
 	_phase = Phase.NONE
 	_asked = Vector2.ZERO
+	_quick = false
+	_launch_on_release = false
 	_ready_at_ms = now_ms + _constant("rollCooldownMs")
 	_set_clip_speed(1.0)
 
@@ -337,3 +412,9 @@ func _fx() -> RollFx:
 static func _constant(name: String) -> float:
 	var constants := Services.constants()
 	return constants.number("character.player.movement." + name) if constants != null else 0.0
+
+
+## The rework mode's Roll numbers (`character.player.rework`).
+static func _rework_constant(name: String) -> float:
+	var constants := Services.constants()
+	return constants.number(REWORK_CONSTANTS + name) if constants != null else 0.0

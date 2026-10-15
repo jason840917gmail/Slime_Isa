@@ -506,6 +506,21 @@ cannot do that. Use a small `canvas_item` shader on `Visual` (`uniform vec4 flas
 flash;` → `COLOR.rgb = mix(tex.rgb, flash_color.rgb, flash)`), keep `self_modulate` for authored tint
 and `modulate` free, per conventions.
 
+### 6.3 Body-shapes rework (branch `exp/body-shapes`, [BODY_SHAPES.md](../BODY_SHAPES.md))
+A request with a top-level `hit` (only rework attacks send one) skips §6.2: `can_receive_damage`
+asks `EnemyReactions.can_receive` (a clink answers `immune`), `mitigate_damage` scales by
+`EnemyReactions.damage_scale`, and `_react_to_damage` calls `EnemyReactions.react`, which writes
+`result.reaction` (no §6.2 shove; the flash shows without the old "-N" number, which the sender's
+`GameFeel.play_hit` shows; a 0-damage rework hit emits no `damaged`, so no hurt sound). Fatty and
+the Matron keep their own `_react_to_damage`; `commit_damage` then adds `react_override` (the
+reaction and its motion only). Enemies now define `mitigate_damage`, which returns the scaled damage
+unchanged for old requests. In the rework mode only: the stun slide decays by
+`combat.verbs.slideDecay` instead of 0.94, a kill launch slides the corpse with its collision mask
+kept until it stops, `after_move` runs after each move (wall splats, bowling), `on_defeated` rolls the
+energy shard, and a hurtbox the reaction profile gates as a part (Fatty's eye) registers without its
+`acceptedSources` (the gate decides; old hits still meet them). With the mode off and old requests
+everything above runs as written.
+
 ---
 
 ## 7. Death and despawn

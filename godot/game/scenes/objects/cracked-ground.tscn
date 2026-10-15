@@ -51,10 +51,9 @@ map_id = "unassigned"
 door_id = "sinkhole"
 target_area_id = "unassigned"
 target_door_id = "ladder"
-prompt = "Climb down"
-interact_radius = 80.0
-badge_rise = 70.0
 use_cue = &"FallDown"
+kind = "ladder_down"
+trigger_rect = Rect2(-28, -60, 64, 60)
 
 [node name="arrival" type="Node2D" parent="Broken/Door"]
 y_sort_enabled = true

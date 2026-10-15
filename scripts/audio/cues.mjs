@@ -276,6 +276,8 @@ export const CUES = {
       sparkle({ at: 1.1, dur: 0.5, gain: 0.15 }),
     ] }) },
     // The Stretch Lash rings a bell post across a gap (roadmap 8.1): a goo slap, then a bright ring (Magnific takes 1-3; 2 ships).
+    // A secret opens (a blown wall, a cleared heap, a found hole): the owner's pick, take 8 of 8 (2026-10-14).
+    'secret-found': { library: ['magnific/world-secret-found-1'], synth: () => ({ layers: [squelch({ dur: 0.08, gain: 0.4 }), metal({ at: 0.1, freq: 1568, dur: 1.2, gain: 0.4 })] }) },
     'bell-ring': { library: ['magnific/world-bell-ring-2'], synth: () => ({ echo: { delay: 0.12, feedback: 0.3, mix: 0.25 }, layers: [squelch({ dur: 0.08, gain: 0.4 }), metal({ at: 0.02, freq: 1320, dur: 1.4, gain: 0.55 })] }) },
     // Seamless loops for props and places (roadmap 3.9). Synth-only placeholders until final recordings.
     'campfire-loop': { synth: () => ({ loop: { seconds: 6 }, maxRmsDb: -20, layers: [

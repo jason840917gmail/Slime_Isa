@@ -294,6 +294,14 @@ places it every step, so nothing collides on the way. `WorldService.elevation` a
 `is_walkable`, `level_of(body)`, `track`, `body_fits`, `drop_target` (the ledge push in
 `player.gd`) and `hop_target` (the jump in `player_abilities.gd`).
 
+**Passages opened at run time** (2026-10-14, the Goo Bomb's cracked walls,
+[BODY_SHAPES.md](BODY_SHAPES.md#the-goo-bomb-2026-10-14)): `open_passage(world_rect, level)` makes the
+tris whose middle lies in the rect walkable for that level whatever covers them (`ElevationGrid.open_rect`,
+`open_tris`; `is_walkable` and `collision_segments` honour them), and rebuilds only that level's
+collision body (deferred, tens of ms). The drawing does not change: a body in the opening shows as the
+ghost behind the wall. Passages stay through later rebuilds; the cracked wall opens its own again at
+every load from its story flag.
+
 **Stairs** (`elevation_stairs.gd`). A flight is built in 3D in its own frame (s along its
 direction from the rim, t across, h up) with the mockup's geometry (`stairs_mockup.py` `Flight`);
 a point at ground (x, y) and height H is drawn at (x, y − H) and its depth is its ground y.

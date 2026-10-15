@@ -3,12 +3,16 @@ extends "res://game/shell/shell_menu.gd"
 ## SettingsSurfacePort.ts`, `ui/settings.scene.json`): master, effects and music volume, screen
 ## shake, mute, reduce motion, the mouse control scheme, defaults and the controls list. Edits go straight to the
 ## GameSettings (`settings`), which saves and applies them; the window redraws on `changed`.
+## In the body-shapes rework mode (docs/godot/BODY_SHAPES.md "Juice") a "Damage numbers" row under
+## the scheme row turns the rework's damage numbers on and off; outside it the row is hidden and the
+## window is as before.
 ##
 ## Owner: shell.
 
 const GameSettings := preload("res://game/shell/game_settings.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 ## The control scheme row: its height, and how much taller the panel gets (row + separation).
 const SCHEME_ROW_HEIGHT := 38.0
 const SCHEME_ROW_GROWTH := 48.0
@@ -45,6 +49,9 @@ var settings: GameSettings:
 @onready var close_button: Button = $Panel/Margin/Rows/Bottom/Close
 ## "Mouse: Click to move (Diablo)" (`_add_scheme_button`).
 var scheme_button: Button
+## "Damage numbers: On" (`_add_numbers_button`; rework mode only), and whether the panel grew for it.
+var numbers_button: Button
+var _numbers_row_shown: bool = false
 
 
 func _ready() -> void:
@@ -58,6 +65,7 @@ func _ready() -> void:
 	controls_button.pressed.connect(func() -> void: action_requested.emit(&"controls"))
 	close_button.pressed.connect(close)
 	_add_scheme_button()
+	_add_numbers_button()
 
 
 ## SettingsSurfacePort.model: captions with percentages, the shake slider off under reduce motion,
@@ -81,6 +89,9 @@ func refresh() -> void:
 	motion_button.text = "Reduce motion: On" if reduce_motion else "Reduce motion: Off"
 	if scheme_button != null:
 		scheme_button.text = "Mouse: %s" % ControlScheme.display_name(str(values.get("control_scheme", "")))
+	if numbers_button != null:
+		_show_numbers_row(ReworkMode.is_on())
+		numbers_button.text = "Damage numbers: On" if bool(values.get("damage_numbers", true)) else "Damage numbers: Off"
 	status_label.text = STATUS_MUTED if muted else STATUS_SAVED
 
 
@@ -121,6 +132,31 @@ func _add_scheme_button() -> void:
 	panel.offset_top -= SCHEME_ROW_GROWTH / 2.0
 	panel.offset_bottom += SCHEME_ROW_GROWTH / 2.0
 	refresh()
+
+
+## The rework's damage numbers row under the scheme row: built hidden; `refresh` shows it (and grows
+## the panel by a row) only while the rework mode is on.
+func _add_numbers_button() -> void:
+	var toggles := get_node(^"Panel/Margin/Rows/Toggles") as Control
+	numbers_button = Button.new()
+	numbers_button.name = "DamageNumbers"
+	numbers_button.custom_minimum_size = Vector2(toggles.custom_minimum_size.x, SCHEME_ROW_HEIGHT)
+	numbers_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	numbers_button.visible = false
+	scheme_button.add_sibling(numbers_button)
+	numbers_button.pressed.connect(_toggle.bind("damage_numbers"))
+	refresh()
+
+
+func _show_numbers_row(shown: bool) -> void:
+	if shown == _numbers_row_shown:
+		return
+	_numbers_row_shown = shown
+	numbers_button.visible = shown
+	var growth := SCHEME_ROW_GROWTH / 2.0 if shown else -SCHEME_ROW_GROWTH / 2.0
+	var panel := get_node(^"Panel") as Control
+	panel.offset_top -= growth
+	panel.offset_bottom += growth
 
 
 func _on_scheme_pressed() -> void:

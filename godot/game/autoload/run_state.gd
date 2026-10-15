@@ -110,6 +110,12 @@ var start_weapon_id: String = ""
 ## Grants that are no news (a dev or test start weapon, the playground's kit, `?arsenal`) set this
 ## around their adds: a permanent item they give counts as celebrated without a ceremony.
 var quiet_items: bool = false
+## Abilities lent for this session only (the body-shapes rework mode's quiet grants, main.gd
+## `start_rework` through `learn_session_ability`): learned while the run plays, but `serialize`
+## leaves them out, so no save (the autosave or a save made by hand) carries them into a classic
+## game. A real lesson of one (`learn_ability` without `quiet`) keeps it for good. `new_run` and
+## `install` forget the list. Empty outside the rework mode.
+var session_ability_ids: Array[String] = []
 
 ## Item categories that are permanent things, celebrated once when first gained (roadmap 4.13).
 const PERMANENT_ITEM_CATEGORIES: Array[String] = ["weapon", "key"]
@@ -153,6 +159,7 @@ func new_run() -> void:
 	_play_started_ms = Time.get_ticks_msec()
 	debug_active_quests = []
 	debug_all_recipes_known = false
+	session_ability_ids = []
 	start_kit_pending = true
 	_navigation = {}
 	started = true
@@ -556,14 +563,33 @@ func has_learned_ability(ability_id: String) -> bool:
 	return ability_id in _story_list("learned_ability_ids")
 
 
-## Returns false when it was already learned. `quiet` skips `ability_learned` (no banner; the
-## playground's kit).
+## Returns false when it was already learned (except a lesson, not `quiet`, of one only lent for the
+## session: `session_ability_ids`). `quiet` skips `ability_learned` (no banner; the playground's
+## kit).
 func learn_ability(ability_id: String, quiet := false) -> bool:
-	if ability_id.is_empty() or has_learned_ability(ability_id):
+	if ability_id.is_empty():
+		return false
+	if has_learned_ability(ability_id):
+		# Rework mode: a real lesson of an ability only lent for the session keeps it (saved from now
+		# on) and is announced as any lesson. With nothing lent (classic) this never runs.
+		if not quiet and session_ability_ids.has(ability_id):
+			session_ability_ids.erase(ability_id)
+			ability_learned.emit({"ability_id": ability_id})
+			return true
 		return false
 	_story_list("learned_ability_ids").append(ability_id)
 	if not quiet:
 		ability_learned.emit({"ability_id": ability_id})
+	return true
+
+
+## Rework mode (main.gd `start_rework`): learns `ability_id` quietly for this session only (it is
+## left out of every save, `session_ability_ids`). False when it was already learned (then it stays
+## as it was: a real lesson stays saved).
+func learn_session_ability(ability_id: String) -> bool:
+	if not learn_ability(ability_id, true):
+		return false
+	session_ability_ids.append(ability_id)
 	return true
 
 
@@ -907,16 +933,24 @@ static func _constant_int(constants: Services.GameConstantsType, path: String) -
 ## is {"schema_version", "saved_at" (unix ms), "data": `serialize()`}. Loading installs the run
 ## and queues a "load" navigation, so main.tscn boots in the saved world at the saved spot.
 
-## The run as Phaser's GameSaveData (snake_case keys), ready for JSON.
+## The run as Phaser's GameSaveData (snake_case keys), ready for JSON. Abilities lent for the session
+## (`session_ability_ids`, rework mode only) are left out of `story.learned_ability_ids`.
 func serialize() -> Dictionary:
 	_capture_live_player()
+	var saved_story := story.duplicate(true)
+	if not session_ability_ids.is_empty() and saved_story.get("learned_ability_ids") is Array:
+		var kept: Array = []
+		for ability_id: Variant in saved_story["learned_ability_ids"]:
+			if not session_ability_ids.has(str(ability_id)):
+				kept.append(ability_id)
+		saved_story["learned_ability_ids"] = kept
 	return {
 		"player": player.duplicate(true),
 		"inventory": inventory.duplicate(true),
 		"quests": quests.duplicate(true),
 		"location": location.duplicate(true),
 		"world": world.duplicate(true),
-		"story": story.duplicate(true),
+		"story": saved_story,
 		"play_time_ms": current_play_time_ms(),
 	}
 
@@ -941,6 +975,8 @@ func install(data: Dictionary) -> bool:
 	_play_time_base_ms = float(fresh.get("play_time_ms", 0.0))
 	_play_started_ms = Time.get_ticks_msec()
 	_navigation = {}
+	# The loaded run lends nothing yet (the rework mode lends again on the world build).
+	session_ability_ids = []
 	start_kit_pending = false
 	started = true
 	# Saves from before the ceremony: what the bag already holds is no news.

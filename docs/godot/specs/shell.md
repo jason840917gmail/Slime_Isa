@@ -58,7 +58,8 @@ Phaser:
 
 Godot:
 - **[IN]** `title.gd` skips straight to `res://game/main.tscn` when the launch has any development
-  option main.gd reads: `map`, `spawn`, `weapon`, `quest`, `recipes`, `arsenal` or `skip-title`
+  option main.gd reads: `map`, `spawn`, `weapon`, `quest`, `recipes`, `arsenal`, `skip-title`, or
+  the body-shapes rework's `shapes` and `classic` ([../BODY_SHAPES.md](../BODY_SHAPES.md))
   (desktop `-- --map=level-1`, web `?map=level-1`; `LaunchOptions.SKIP_TITLE_OPTIONS`).
 - **[IN]** The backdrop: `world.level-1` instanced under `Title/Backdrop` and registered with
   WorldService (water, areas; the Shell shows no area card because no `world_main` node exists),
@@ -114,7 +115,7 @@ Godot:
   shell's scope; it takes over Save and Load by registering those actions.
 - **[IN]** Quit to Title: closes the windows, holds the pause (`shell:quit`), calls
   `RunState.save_slot(0)` (the recovery autosave's place) unless `RunState.autosave_enabled` is
-  off (the playground keeps no autosave: Continue never starts there), fades to `#0b1020` and the music out
+  off (the playground and the body-shapes rework mode keep no autosave: Continue never starts there), fades to `#0b1020` and the music out
 (`MusicDirector.fade_out(320)`) over 320 ms, then
   `WorldService.clear()`, unpauses and changes to `title.tscn`, fading back in.
 
@@ -156,6 +157,10 @@ Godot:
   start-up and on every change.
 - **[IN]** `GameFeel.screen_shake_scale` and `GameFeel.reduce_motion` (shake scale, and no shake or
   hit-stop under reduce motion).
+- Body-shapes rework ([../BODY_SHAPES.md](../BODY_SHAPES.md)): the Godot-only `damage_numbers`
+  (on by default; off only when stored exactly `false`) goes to `GameFeel.show_damage_numbers`;
+  the window shows its "Damage numbers: On/Off" row under the scheme row only while the rework
+  mode is on (the panel grows by that row), so the classic window is unchanged.
 - **[OUT]** The softer squash under reduce motion: `game/player/squash_stretch.gd` does not read a
   setting yet (it can read `Services.shell().get_settings().reduce_motion()`). `attack_aim` is
   stored only. Phaser has no fullscreen or key-rebinding setting, so neither is added.

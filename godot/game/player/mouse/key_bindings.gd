@@ -7,8 +7,14 @@ extends RefCounted
 ## journal, M the map). Switching to another scheme puts every action's events back exactly as
 ## project.godot has them.
 ## GameSettings applies it (`apply_to_input`) at start-up and on every change.
+## In the body-shapes rework mode (game/shapes/rework_mode.gd, docs/godot/BODY_SHAPES.md) it also
+## puts the chosen box ability (`ability_use`) on S and the Roll (`dodge`) on D (REWORK_LAYOUT); it
+## sits on top of the rework's own input layer (game/shapes/rework_input.gd), which takes this one
+## off and puts it back around every change of its own, so each restores only what it changed.
 ##
 ## Owner: player builder.
+
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
 ## Action -> the physical keys it has in the keys-only scheme (nothing else).
 const LAYOUT := {
@@ -20,6 +26,12 @@ const LAYOUT := {
 	&"interact": [KEY_W],
 	&"weapon_previous": [],
 	&"weapon_next": [KEY_E],
+}
+## The rework mode's keys-only extras (body-shapes plan section 6 "Keys only"): the chosen box
+## ability on S, the Roll on D. Only while ReworkMode is on; the classic layout stays as above.
+const REWORK_LAYOUT := {
+	&"ability_use": [KEY_S],
+	&"dodge": [KEY_D],
 }
 
 ## Action -> its events before the keys-only scheme rebound it; empty while it is off.
@@ -39,6 +51,17 @@ static func apply(keys_only: bool) -> void:
 				var event := InputEventKey.new()
 				event.physical_keycode = keycode
 				InputMap.action_add_event(action, event)
+		if ReworkMode.is_on():
+			for action: StringName in REWORK_LAYOUT:
+				if not InputMap.has_action(action):
+					continue
+				if not _saved.has(action):
+					_saved[action] = InputMap.action_get_events(action).duplicate()
+				InputMap.action_erase_events(action)
+				for keycode: Key in REWORK_LAYOUT[action]:
+					var event := InputEventKey.new()
+					event.physical_keycode = keycode
+					InputMap.action_add_event(action, event)
 		return
 	for action: StringName in _saved:
 		InputMap.action_erase_events(action)

@@ -118,6 +118,11 @@ feature "until promoted into game constants"). Only the dodge reads `game-consta
 | `squash-slam` | Squash Slam | `squash-slam` (3) | Boss | 2500 | 30 | — | — | 90 | 30 |
 | `stretch-lash` | Stretch Lash | `stretch-lash` (2) | Quest | 2000 | 20 | 180 | — | — | — (no damage, `:44`) |
 
+Body-shapes rework (branch `exp/body-shapes`): the classic game keeps this row and §6
+(`classic_slam_sequence.gd`). In the rework mode the improved Slam replaces it
+(`slam_sequence.gd`; cost 35 and cooldown 2500 from `abilities.squashSlam`; no radius 90 or damage
+30); see [BODY_SHAPES.md](../BODY_SHAPES.md) "Slam".
+
 Passive (`PlayerAbilityDefinitions.ts:58-60`): `goo-trail` "Goo Trail", learned text
 "Goo Trail learned: enemies on your goo slow down". No key, no bar slot.
 
@@ -976,7 +981,8 @@ Descriptor `:654-667`; script `CrackedGroundScript.ts:40-115`.
 
 Signal: `cracked {flagId}`. The scene also holds a `game.story-variant` on the same flag (`Intact`
 sprite frame 0 / `Broken` sprite frame 1 + a `game.door` "Climb down" with an `arrival` child at
-(0, 96)); sprites `sheet.props.gulp.8x1`, scale 0.62, visualOffset (0, 62), ground-decal band.
+(0, 96); [GODOT] since 2026-10-14 that door is kind `ladder_down`, walked into, not offered to the
+interact key: interaction.md §3.2); sprites `sheet.props.gulp.8x1`, scale 0.62, visualOffset (0, 62), ground-decal band.
 
 ```
 _enter_tree: broken = flag_id != '' and has_flag(flag_id); seen_landing = last_heavy_landing()?.id     # :65-72
@@ -1016,7 +1022,10 @@ breaks the ground. At the slam's impact (§6.1, t = 320) `slam_sequence.gd` call
 jump landing (`record_landing`) still records one too. The export is `requires_impact` (Phaser's
 `requiresLanding`; off, standing Heavy on it breaks it). The creak reads "It creaks under you...
 slam it! (3)" with the slam's key label once Squash Slam is learned, and "It creaks under
-you..." before that (`CrackedGroundScript.creak_text`).
+you..." before that (`CrackedGroundScript.creak_text`). In the body-shapes rework mode the key is
+the box's use key (F), which uses whichever box ability is chosen: with the Slam chosen the text is
+"...slam it! (F)"; with another one chosen it reads "It creaks under you... choose the Slam in the
+bag (B), then press F" (`CREAK_CHOOSE_TEXT`, the bag's and the use key's labels).
 
 ### 13.4 `game.lash-bell` → `scripts/lash_bell.gd` [IN]
 

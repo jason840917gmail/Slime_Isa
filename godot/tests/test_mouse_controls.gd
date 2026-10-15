@@ -1,8 +1,9 @@
 extends RefCounted
 ## The mouse control schemes (game/player/mouse/control_scheme.gd, docs/godot/MOUSE_CONTROLS.md):
 ## a click order walks around a wall to its point, a click on the ground gives a walk order to the
-## pointer, an attack order walks into weapon reach and swings, a use order walks to the
-## home door and goes through it, the movement keys cancel an order, and the scheme setting keeps
+## pointer, an attack order walks into weapon reach and swings, a walk order onto the home door
+## pushes into it and goes through (doors are no use targets since 2026-10-14), the movement keys
+## cancel an order, and the scheme setting keeps
 ## to its three values. The player starts at level-1's spawn (centre (640, 704)); the ground right
 ## and up-right of it is open.
 ## Tests that switch the scheme switch it back to the keyboard one before they wait on anything
@@ -17,9 +18,9 @@ const ClickOrders := preload("res://game/player/mouse/click_orders.gd")
 const PointerTargets := preload("res://game/player/mouse/pointer_targets.gd")
 const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd")
 
-## level-1's home door pick point (origin (1081, 903) - 24) and the slime-home it leads to.
+## A point on level-1's home door (origin (1081, 903) - 24), inside the house.
 const HOME_DOOR_PICK := Vector2(1081.0, 879.0)
-## Where the slime stands beside the home door, in its reach (tests/test_interaction.gd).
+## Where the slime stands below the home door (tests/test_interaction.gd).
 const HOME_DOOR_ARRIVAL := Vector2(1083.0, 954.0)
 ## Where a ground click may land around the slime, tried in order: the first the pointer reads as
 ## plain ground (nothing usable, no enemy or resource under it; NPCs wander, the well is usable).
@@ -161,17 +162,17 @@ func test_attack_order_walks_into_reach_and_swings(t: TestContext) -> void:
 	t.check(not orders.is_active(), "the order (button up) went on after its swing")
 
 
-func test_use_order_walks_through_the_home_door(t: TestContext) -> void:
+func test_walk_order_pushes_through_the_home_door(t: TestContext) -> void:
+	t.teleport_player(HOME_DOOR_ARRIVAL)
 	await t.steps(2)
 	var interaction := t.main.get_tree().get_first_node_in_group(&"interaction")
 	var door: Dictionary = interaction.call(&"target_at", HOME_DOOR_PICK)
-	if not t.check(str(door.get("id", "")) == "world-doors:home-door", "the door under the pointer: %s" % [door.get("id")]):
-		return
-	var orders := t.player().get_click_orders()
-	orders.interact(interaction.call(&"key_of", door), door["origin"])
+	t.check(not str(door.get("id", "")).begins_with("world-doors:"), "a door under the pointer is a use target: %s" % [door.get("id")])
+	# A click there: the walk ends at the house and leans into the door (`input.mouse.leanMs`).
+	t.player().get_click_orders().move_to(HOME_DOOR_PICK)
 	var arrived := await t.until(func() -> bool:
 		return not t.main.is_transitioning() and t.world().map_id() == "slime-home" and t.player() != null, 8000.0, 16000.0)
-	t.check(arrived, "the use order did not take the slime through the home door within 8 s")
+	t.check(arrived, "the walk order did not push the slime through the home door within 8 s")
 
 
 ## The click scheme's right button swings in place (an `attack` press), with no order.
@@ -197,16 +198,16 @@ func test_swing_buttons_swing_in_place(t: TestContext) -> void:
 
 
 ## The click scheme's right button with nothing usable under the pointer uses what is in reach, as
-## the keyboard scheme's does: beside the home door, it goes through it.
-func test_click_scheme_right_click_uses_what_is_in_reach(t: TestContext) -> void:
+## the keyboard scheme's does; a door is never in reach (no keys for transitions): beside the home
+## door it stays.
+func test_click_scheme_right_click_never_uses_a_door(t: TestContext) -> void:
 	t.teleport_player(HOME_DOOR_ARRIVAL)
 	await t.steps(2)
 	_use_scheme(ControlScheme.CLICK)
 	_click_button(t, MOUSE_BUTTON_RIGHT, false)
 	_use_scheme(ControlScheme.KEYBOARD)
-	var arrived := await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.world().map_id() == "slime-home" and t.player() != null, 3000.0, 6000.0)
-	t.check(arrived, "the right click did not use the home door")
+	await t.sim_wait(800.0)
+	t.check(not t.main.is_transitioning() and t.world().map_id() == "level-1", "the right click went through the home door")
 
 
 ## The pointer scheme: the slime turns to the pointer, W walks toward it, S does not move it, nor
@@ -291,17 +292,16 @@ func test_keys_scheme_plays_without_the_mouse(t: TestContext) -> void:
 	t.check(not clicked, "a mouse click swung")
 
 
-## Keys only: W uses what is in reach (beside the home door, it goes through it).
-func test_keys_scheme_w_uses_what_is_in_reach(t: TestContext) -> void:
+## Keys only: W uses what is in reach, never a door (beside the home door it stays).
+func test_keys_scheme_w_never_uses_a_door(t: TestContext) -> void:
 	t.teleport_player(HOME_DOOR_ARRIVAL)
 	await t.steps(2)
 	_use_scheme(ControlScheme.KEYS)
 	_key(t, KEY_W, true)
 	_key(t, KEY_W, false)
-	var arrived := await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.world().map_id() == "slime-home" and t.player() != null, 3000.0, 6000.0)
+	await t.sim_wait(800.0)
 	_use_scheme(ControlScheme.KEYBOARD)
-	t.check(arrived, "W did not use the home door")
+	t.check(not t.main.is_transitioning() and t.world().map_id() == "level-1", "W went through the home door")
 
 
 func test_prompt_verb_follows_the_scheme(t: TestContext) -> void:

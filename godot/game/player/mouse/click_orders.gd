@@ -52,6 +52,7 @@ var follow_repath_ms: float = 120.0
 var follow_max_ms: float = 8.0
 var stuck_ms: float = 400.0
 var still_px: float = 14.0
+var lean_ms: float = 450.0
 
 var _goal_of: Callable = Callable()
 ## The level to reach the goal on (Callable() -> int); unset: ClickPath works it out.
@@ -75,6 +76,8 @@ var _stuck_at: Vector2 = Vector2.ZERO
 var _push_until_ms: float = -1.0
 var _push_dir: Vector2 = Vector2.ZERO
 var _push_level: int = 0
+## A MOVE that ended short of its goal leans at it until then (-1: not leaning yet).
+var _lean_until_ms: float = -1.0
 
 
 ## Reads the tuning from game-constants through `number` (Callable(path) -> float).
@@ -89,6 +92,7 @@ func configure(number: Callable) -> void:
 	follow_max_ms = float(number.call("input.mouse.followMaxMs"))
 	stuck_ms = float(number.call("input.mouse.stuckMs"))
 	still_px = float(number.call("input.mouse.stillPx"))
+	lean_ms = float(number.call("input.mouse.leanMs"))
 
 
 func move_to(point: Vector2) -> void:
@@ -206,8 +210,10 @@ func steer(body: CharacterBody2D, pointer: Vector2, now_ms: float, push_ms: floa
 
 
 ## Past the last waypoint. A MOVE whose route stopped short because the planner ran out of budget
-## plans the rest from here (when that route got it anywhere); else a held MOVE waits for the
-## pointer to go somewhere reachable and one that arrived ends. An ATTACK or INTERACT walks
+## plans the rest from here (when that route got it anywhere); else a held MOVE leans straight at
+## the pointer, and a MOVE given with a click that ended short of its goal leans at it for
+## `lean_ms` before it ends (owner, 2026-10-14: that is how the mouse pushes into a door,
+## game/scripts/door.gd; against a wall it just presses on it a moment). An ATTACK or INTERACT walks
 ## straight at its target (the player decides when it is in reach).
 func _route_end(feet: Vector2, now_ms: float) -> Vector2:
 	var toward := goal - feet
@@ -216,7 +222,15 @@ func _route_end(feet: Vector2, now_ms: float) -> Vector2:
 			_replan(feet, now_ms)
 			return direction
 		if held:
+			if toward.length() > still_px:
+				direction = toward.normalized()
 			return direction
+		if toward.length() > arrive_px:
+			if _lean_until_ms < 0.0:
+				_lean_until_ms = now_ms + lean_ms
+			if now_ms < _lean_until_ms:
+				direction = toward.normalized()
+				return direction
 		cancel()
 		return direction
 	if toward.length() > arrive_px:
@@ -284,3 +298,4 @@ func _begin(next_kind: Kind) -> void:
 	_progress_from = Vector2.INF
 	_stuck_count = 0
 	_push_until_ms = -1.0
+	_lean_until_ms = -1.0

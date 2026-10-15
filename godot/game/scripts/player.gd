@@ -24,6 +24,14 @@ class_name PlayerScript
 ## `set_combat`) for the attack; DamageRouter (receiver registration); GameFeel (feel presets,
 ## floating text, particles, audio cues); HitFlash (Visual fill shader); SquashStretch.
 ##
+## Body-shapes rework (docs/godot/BODY_SHAPES.md), only while ReworkMode is on (with it off every
+## path below runs as before): attacks and the shape switch go to the ShapeController main.gd hands
+## over (`set_shapes`), Q to the MouthHold (`get_mouth_hold`), `ability_use` to the Ability Box; the
+## number-key Swallow is ignored; a running ability may make the slime untouchable or deaf to
+## knockback (PlayerAbilities `is_invulnerable`, `ignores_knockback`); while a shape's charge ring
+## fills the slime stands and walks in the shape's held pose (`_locomotion_clip`). See
+## `_handle_rework_action_input` and `_rework_owns_step`.
+##
 ## Owner: player builder.
 
 const Services := preload("res://game/shared/services.gd")
@@ -59,6 +67,15 @@ const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ClickOrders := preload("res://game/player/mouse/click_orders.gd")
 const PointerTargets := preload("res://game/player/mouse/pointer_targets.gd")
 const ClickMarker := preload("res://game/player/mouse/click_marker.gd")
+## The body-shapes rework (docs/godot/BODY_SHAPES.md): the mode, the shape controller, the mouth's Q
+## state machine and the Ability Box.
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const ShapeController := preload("res://game/shapes/shape_controller.gd")
+const MouthHold := preload("res://game/player/gulp/mouth_hold.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+const HeavyGrab := preload("res://game/player/heavy_grab.gd")
+## The walk out of a door with a side on arrival (input locked; docs/godot/CONVENTIONS.md "Doors").
+const DoorWalkOut := preload("res://game/player/door_walk_out.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -185,6 +202,8 @@ var _interaction: Node
 var _furniture: Node
 ## The interact press on a target with a hold action (a placed bench): its start (sim ms), -1 = none.
 var _interact_hold_since_ms: float = -1.0
+## The walk out of a door (`walk_out_of_door`).
+var _walk_out: DoorWalkOut = DoorWalkOut.new()
 ## Simulation-time deadlines (ms).
 var _movement_suppressed_until_ms: float = 0.0
 var _knockback_anim_until_ms: float = 0.0
@@ -211,6 +230,22 @@ var _cursor_shape: Input.CursorShape = Input.CURSOR_ARROW
 var _pick_radius_px: float = 0.0
 var _melee_fallback_px: float = 0.0
 var _ledge_push_extra_ms: float = 0.0
+## Rework mode only: the shape controller main.gd hands over (`set_shapes`; null otherwise) and the
+## mouth's Q state machine (made on first use, `get_mouth_hold`).
+var _shapes: ShapeController
+var _mouth_hold: MouthHold
+## Rework: the grab on a heavy block (game/player/heavy_grab.gd), and the walk keys of this step it reads.
+var _grab := HeavyGrab.new()
+var _grab_direction: Vector2 = Vector2.ZERO
+## The way the slime was told to walk on its last free step (keys, a click order's steering), ZERO
+## when it did not walk under control (frozen, swinging, walking out of a door). Doors read it: a
+## push into one goes through (game/scripts/door.gd).
+var _move_intent: Vector2 = Vector2.ZERO
+## Rework mode only: a Roll press waiting for its key's release or the hold (`_due_roll`; simulation
+## ms, < 0: none), and when that key was seen let go (< 0: still held, or not seen yet).
+enum RollPress { NONE, QUICK, CHARGED }
+var _roll_press_ms: float = -1.0
+var _roll_release_ms: float = -1.0
 
 ## Clip names (player spec 1.1). Every clip resolves to its directional version when the scene
 ## has one (`_directional_clip`).
@@ -226,6 +261,10 @@ const CLIP_FULL_IDLE := "full-idle"
 const CLIP_FULL_WALK := "full"
 const CLIP_KNOCKBACK := "knockback"
 const CLIP_DIE := "die"
+## The AnimationPlayer library of the body shapes' strike animations (rework mode), and the suffix of a
+## strike's hold, its first frame held while a charge ring fills (ShapeStrikes.ANIMATION_LIBRARY, HOLD_SUFFIX).
+const STRIKE_LIBRARY := "strikes"
+const STRIKE_HOLD_SUFFIX := "-hold"
 ## Presses that wake a sleeper (SleepController consumeWakeInput).
 const WAKE_ACTIONS: Array[StringName] = [&"interact", &"attack", &"jump", &"dodge", &"stretch_lash",
 	&"squash_slam", &"teleport", &"eat", &"swallow"]
@@ -269,6 +308,12 @@ var _hit_iframes_ms: float = 0.0
 var _defense: float = 0.0
 var _max_energy: int = 0
 var _buffer_ms: float = 0.0
+## `character.player.rework.*`, read only while the body-shapes rework mode is on: the energy
+## regen (0: energy is scarce, shards bring it back), the Roll's tap length and the quick roll's
+## energy. (The walk's scale while a shape charges is the ShapeController's `walk_scale`.)
+var _rework_energy_regen: float = 0.0
+var _rework_roll_tap_ms: float = 0.0
+var _rework_quick_roll_energy: float = 0.0
 ## The hurtbox currently registered with the router (null when not registered).
 var _registered_area: Area2D
 ## True while a modal pause reason is active (input was cleared when it began).
@@ -447,14 +492,28 @@ func _capture_wheel(event: InputEvent) -> bool:
 func _physics_process(delta: float) -> void:
 	if get_tree().paused or body == null:
 		return
+	_move_intent = Vector2.ZERO
+	# Rework: a window that closed this frame drops its stray Roll press before any press is used;
+	# an armed Roll press notes when its key was let go (`_due_roll` drops a stale release).
+	if ReworkMode.is_on():
+		_update_modal_pause()
+		if _grab.is_active() and (_dead or is_movement_suppressed()):
+			_grab.release()
+		if _roll_press_ms >= 0.0 and _roll_release_ms < 0.0 and not _input.is_held(&"dodge"):
+			_roll_release_ms = Services.now_ms()
 	if _action_clip_until_ms >= 0.0 and Services.now_ms() >= _action_clip_until_ms:
 		_action_clip_until_ms = -1.0
 		set_action_locked(false)
 		if not _dead:
 			_play_idle()
 	_abilities.advance(Services.now_ms())
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes) and not _dead:
+		_shapes.update(Services.now_ms(), delta)
 	if not _dead:
-		_mouth.update(Services.now_ms(), _input.is_held(&"eat"), _gulp_aim())
+		if ReworkMode.is_on():
+			get_mouth_hold().step(Services.now_ms(), _input.is_held(&"eat"))
+		else:
+			_mouth.update(Services.now_ms(), _input.is_held(&"eat"), _gulp_aim())
 	_swim.update()
 	_status.update(delta * 1000.0)
 	if not _dead:
@@ -466,11 +525,15 @@ func _physics_process(delta: float) -> void:
 		# Sleep replaces player control (WorldScene.updateGameplay): presses only wake.
 		body.velocity = Vector2.ZERO
 		_sleep.update(delta * 1000.0, _wake_input())
+	elif _walk_out.active:
+		# Walking out of a door: no input is read or consumed (presses stay buffered).
+		_step_walk_out(delta)
 	else:
 		var scheme := ControlScheme.current()
 		if ControlScheme.faces_pointer(scheme):
 			_face_pointer()
 		var direction: Vector2 = _movement_input(scheme)
+		_grab_direction = direction
 		_issue_click_order()
 		if direction != Vector2.ZERO:
 			_orders.cancel() # The movement keys take over from a click order.
@@ -478,6 +541,8 @@ func _physics_process(delta: float) -> void:
 			_roll.update(Services.now_ms(), delta, _input.is_held(&"dodge"))
 		if is_movement_suppressed():
 			pass # Roll / knockback own the body: their velocity persists, presses stay buffered.
+		elif ReworkMode.is_on() and _rework_owns_step():
+			pass # Rework: the mouth's hold or a shape step owns the slime this step.
 		elif _action_locked:
 			body.velocity = Vector2.ZERO
 		elif _mouth.is_sucking():
@@ -490,10 +555,13 @@ func _physics_process(delta: float) -> void:
 		else:
 			if direction == Vector2.ZERO:
 				direction = _steer_click_order()
+			_move_intent = direction
 			_squash_on_move_start(direction)
 			_move(direction)
 	if _dead:
 		_orders.cancel()
+		if _walk_out.active:
+			_walk_out.finish()
 	_update_pointer_hover()
 	# Arcade-style step (player spec 5.2): a wall hit zeroes the blocked velocity component, which
 	# then stays zero for the rest of a roll or knockback (CharacterBody2DNode.ts:61-66). The lash
@@ -611,6 +679,39 @@ func get_combat() -> PlayerCombat:
 	return _combat
 
 
+## Rework mode: called once by main.gd after it made and set up the ShapeController.
+func set_shapes(shapes: ShapeController) -> void:
+	_shapes = shapes
+
+
+## The ShapeController set by main.gd (null outside the rework mode).
+func get_shapes() -> ShapeController:
+	return _shapes
+
+
+## Rework mode: the mouth's Q state machine (game/player/gulp/mouth_hold.gd), made on first use.
+func get_mouth_hold() -> MouthHold:
+	if _mouth_hold == null:
+		_mouth_hold = MouthHold.new()
+		_mouth_hold.setup(self, _mouth, _gulp)
+	return _mouth_hold
+
+
+## Where the mouth sucks and throws: the pointer's aim in the mouse schemes, else the facing.
+func get_gulp_aim() -> Vector2:
+	return _gulp_aim()
+
+
+## Rework mode: the pointer's aim from the slime's centre, where the shapes strike from (their
+## areas, the Spear's wall ray and their drawing all start at `get_centre()`), with the pointer aim's
+## dead zone; ZERO without one (pointer never seen, in the dead zone, or the keys-only scheme). The
+## old aim (`_pointer_aim`) rises `aim_rise_px` first, a Phaser parity quirk the 4-way weapons hide.
+func get_strike_aim() -> Vector2:
+	if body == null or not body.is_inside_tree() or not ControlScheme.uses_mouse(ControlScheme.current()):
+		return Vector2.ZERO
+	return PointerAim.aim(get_centre(), body.get_global_mouse_position(), _pointer_seen)
+
+
 ## Weapon swing lock (CombatController onAttackStarted/Finished): while locked the state machine
 ## zeroes velocity every step and consumes no input (presses stay buffered).
 func set_action_locked(locked: bool) -> void:
@@ -629,6 +730,46 @@ func is_movement_suppressed() -> bool:
 ## Freezes walking and buffered actions for `ms` of simulation time (the area travel's leave fade).
 func suppress_movement(ms: float) -> void:
 	_movement_suppressed_until_ms = maxf(_movement_suppressed_until_ms, Services.now_ms() + ms)
+
+
+## Arriving at a door with a side (main.gd `_start_arrival`): from the doorway, where the feet
+## stand now, the slime walks `direction` (into the room) at `worldNavigation.doorWalkOutSpeedShare`
+## of its walking speed, the walk clip playing and the input locked, until it is clear of the
+## doorway's wall or building plus `doorWalkOutMarginPx` (game/player/door_walk_out.gd). It waits
+## while the movement is suppressed (the iris's black hold). False when it cannot walk.
+func walk_out_of_door(direction: Vector2) -> bool:
+	if body == null or _dead or direction == Vector2.ZERO:
+		return false
+	clear_input()
+	face(direction)
+	return _walk_out.start(body, direction, _number("worldNavigation.doorWalkOutMarginPx"),
+		_number("worldNavigation.doorWalkOutMaxPx"), _number("worldNavigation.doorWalkOutProbeWidthPx"))
+
+
+## The way the slime was told to walk on its last free step (see `_move_intent`); doors read it.
+func get_move_intent() -> Vector2:
+	return _move_intent
+
+
+## True while the slime walks out of a door (its input is locked).
+func is_walking_out() -> bool:
+	return _walk_out.active
+
+
+## One step of the walk out of a door: wait while suppressed, else walk until the walker says stop
+## or the next step would run into something.
+func _step_walk_out(delta: float) -> void:
+	if is_movement_suppressed():
+		body.velocity = Vector2.ZERO
+		return
+	var direction := _walk_out.next_direction()
+	if direction != Vector2.ZERO:
+		_move(direction)
+		if not _walk_out.blocked_ahead(body.velocity * delta):
+			return
+	_walk_out.finish()
+	body.velocity = Vector2.ZERO
+	_play_direct(_locomotion_clip(CLIP_IDLE))
 
 
 ## What RunState keeps of the player when it leaves a world: {"hp", "energy", "facing", "x", "y",
@@ -673,11 +814,15 @@ func get_roll() -> PlayerRoll:
 	return _roll
 
 
-## Sets `body.velocity = Vector2.ZERO`, and ends a Roll (a door's leave fade, a window, death).
+## Sets `body.velocity = Vector2.ZERO`, and ends a Roll (a door's leave fade, a window, death). In
+## the rework mode it also ends the shape chain.
 func stop_movement() -> void:
 	_roll.cancel()
+	_drop_roll_press()
 	if body != null:
 		body.velocity = Vector2.ZERO
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
+		_shapes.reset_chain("stopped")
 
 
 ## `WorldScene.playAnimation` gate (player spec 4.3 "Other rules"): while dead only "die"
@@ -698,22 +843,83 @@ func play_animation(clip: String, force: bool = false) -> bool:
 	return true
 
 
+## Rework mode: the strike animation `strikes/<animation_name>` of the AnimationPlayer's `strikes`
+## library (BODY_SHAPES.md "Editing the strike animations"); null when the scene lacks it.
+func strike_animation(animation_name: String) -> Animation:
+	var full := "%s/%s" % [STRIKE_LIBRARY, animation_name]
+	if animation == null or not animation.has_animation(full):
+		return null
+	return animation.get_animation(full)
+
+
+## Rework mode: shows the strike animation `strikes/<animation_name>` at `seconds` (the shape
+## controller maps the step's gameplay time onto it every physics step, ShapePoses): assigned and held
+## paused the first time (from the Visual's rest offset, its flip by the facing as `_flip_for` reads
+## a `-side` name), then sought with an immediate update, so the body frame and the StrikeRig's
+## weapon follow the gameplay clock (a hit-stop freezes them). The same gate as `play_animation`.
+## False when refused or missing.
+func seek_strike_animation(animation_name: String, seconds: float) -> bool:
+	var full := "%s/%s" % [STRIKE_LIBRARY, animation_name]
+	if animation == null or not animation.has_animation(full) or _dead:
+		return false
+	if Services.now_ms() < _knockback_anim_until_ms:
+		return false
+	if String(animation.assigned_animation) != full or animation.is_playing():
+		if visual != null:
+			visual.flip_h = _flip_for(full)
+			visual.offset = _visual_rest_offset
+			visual.skew = _visual_rest_skew
+		animation.play(full)
+		animation.pause()
+	animation.seek(seconds, true)
+	return true
+
+
+## Rework mode: the StrikeRig under the Visual (game/shapes/strike_rig.gd; null without one).
+func get_strike_rig() -> Node2D:
+	return visual.get_node_or_null(^"StrikeRig") as Node2D if visual != null else null
+
+
 ## Player spec 6.4: knockback_anim_until and movement_suppressed_until = max(old, sim +
 ## duration_ms); `body.velocity = direction.normalized() * strength` (constant, no decay);
 ## force-play "knockback". Ignored for a zero direction or strength <= 0.
 func apply_knockback(direction: Vector2, strength: float, duration_ms: float) -> void:
 	if direction == Vector2.ZERO or strength <= 0.0 or duration_ms < 0.0:
 		return
+	# Rework: an ability that shrugs knockback off (the improved Slam).
+	if ReworkMode.is_on() and _abilities.ignores_knockback():
+		return
 	# The Heavy form shrugs knockback off entirely (WorldScene.ts:341-350).
 	if bool(_gulp.form.get("knockback_immune", false)):
 		return
+	if ReworkMode.is_on() and _mouth_hold != null:
+		_mouth_hold.cancel("knockback")
 	_roll.cancel()
+	_drop_roll_press()
 	var now: float = Services.now_ms()
 	_knockback_anim_until_ms = maxf(_knockback_anim_until_ms, now + duration_ms)
 	_movement_suppressed_until_ms = maxf(_movement_suppressed_until_ms, now + duration_ms)
 	if body != null:
 		body.velocity = direction.normalized() * strength
 	play_animation(CLIP_KNOCKBACK, true)
+
+
+## Rework mode: the slime's own recoil (a clink, an armor bounce, a reaction's recoil; the shape
+## controller): `apply_knockback`'s movement (`direction` x `strength` for `duration_ms`, walking and
+## buffered actions held that long) and its shrug-offs (the improved Slam, the Heavy form), and it
+## ends a Roll, but without the hurt clip or its priority window, so it never reads as being hit and
+## the strike's clip plays on.
+func recoil(direction: Vector2, strength: float, duration_ms: float) -> void:
+	if direction == Vector2.ZERO or strength <= 0.0 or duration_ms < 0.0:
+		return
+	if ReworkMode.is_on() and _abilities.ignores_knockback():
+		return
+	if bool(_gulp.form.get("knockback_immune", false)):
+		return
+	_roll.cancel()
+	_movement_suppressed_until_ms = maxf(_movement_suppressed_until_ms, Services.now_ms() + duration_ms)
+	if body != null:
+		body.velocity = direction.normalized() * strength
 
 
 ## Empties held keys and pending presses (pause / scene exit), and the wheel's partial notch.
@@ -728,6 +934,13 @@ func clear_input() -> void:
 	_use_button_down = false
 	_use_press_ms = -1.0
 	_order_from_use = false
+	_drop_roll_press()
+	# Rework: a burst or a hold ring ends with the input (focus loss, a window, a door), and an Attack
+	# press not let go yet is forgotten (its cleared key must not read as a release that taps).
+	if ReworkMode.is_on() and _mouth_hold != null:
+		_mouth_hold.cancel("input-cleared")
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
+		_shapes.drop_press()
 
 
 ## `PlayerScript.consumeActionPress` (player spec 7.3): uses a pending press of `action` if it is
@@ -795,6 +1008,9 @@ func get_damage_state() -> Dictionary:
 func can_receive_damage(input: Dictionary) -> Dictionary:
 	if is_dodging():
 		return {"accepted": false, "reason": "state-blocked"}
+	# Rework: an ability that makes the slime untouchable (the improved Slam in the air).
+	if ReworkMode.is_on() and _abilities.is_invulnerable():
+		return {"accepted": false, "reason": "state-blocked"}
 	var sim: float = float(input.get("simulation_time", Services.now_ms()))
 	if sim < _iframe_until_ms:
 		return {"accepted": false, "reason": "state-blocked"}
@@ -833,6 +1049,13 @@ func commit_damage(commit: Dictionary) -> void:
 			# drop what it holds (owner, 2026-10-08).
 			_hit_popped = _gulp.pop()
 			_mouth.drop()
+			# Rework: a hit ends the mouth's burst or ring and the shape chain.
+			if ReworkMode.is_on():
+				get_mouth_hold().cancel("hit")
+				if _shapes != null and is_instance_valid(_shapes):
+					_shapes.reset_chain("hurt")
+				# A hit cancels the Goo Bomb's cast (no energy spent; PlayerAbilities.on_hurt).
+				_abilities.on_hurt()
 	if bool(result.get("defeated", false)):
 		_die()
 	elif actual > 0:
@@ -919,6 +1142,10 @@ func use_ability(id: StringName) -> bool:
 				request["reach"] = aim["distance"]
 			return _abilities.try_begin(id, request)
 		AbilityDefinitions.STRETCH_LASH, AbilityDefinitions.SQUASH_SLAM:
+			return _abilities.try_begin(id, request)
+		AbilityDefinitions.GOO_BOMBS:
+			return _abilities.try_begin(id, request)
+		AbilityDefinitions.LANTERN:
 			return _abilities.try_begin(id, request)
 		AbilityDefinitions.SWALLOW:
 			return _swallow()
@@ -1269,7 +1496,12 @@ func _handle_action_input() -> bool:
 			furniture.call(&"cancel")
 		for action in PLACEMENT_DROPPED_ACTIONS:
 			_input.consume(action, now, _buffer_ms)
+		if ReworkMode.is_on():
+			_input.consume(&"ability_use", now, _buffer_ms)
 		return false
+	# Rework: the shapes, the box ability and the mouth's Q (the furniture rules above stay).
+	if ReworkMode.is_on():
+		return _handle_rework_action_input(now, false)
 	# The wheel's weapon steps come next and do not end the step (WorldScene.ts:1788-1793): the
 	# slime keeps walking and an attack can follow in the same step.
 	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
@@ -1327,6 +1559,158 @@ func _handle_action_input() -> bool:
 	return false
 
 
+## The rework mode's `_handle_action_input` (docs/godot/BODY_SHAPES.md "Controls in the rework
+## mode"; body-shapes plan section 6): E and the wheel switch shapes (ShapeController.cycle; the
+## slime keeps walking and an attack can follow in the same step); interact as before (not while
+## `busy`, a shape step owning the slime); Swallow is ignored (it is a Q hold) and the old ability
+## keys (jump, lash, slam, teleport) are dropped; then the Roll, the chosen box ability
+## (`ability_use`, AbilityBox.use), the attack (the shape) and Q (the MouthHold), each ending the
+## step. The Roll fires on its key's release, or on a hold with the `roll-charge` upgrade
+## (`_due_roll`; its press only arms it); the attack press goes to the controller, which strikes on
+## the release or charges while held (it reads the hold every physics step in `update`). The Roll,
+## a box ability that starts, and Q end the shape chain. A swimming slime, or one holding something
+## in its mouth, drops its Roll, ability and attack presses, as before (Q still throws). Returns true
+## when an action was consumed.
+func _handle_rework_action_input(now: float, busy: bool) -> bool:
+	var shapes := _shapes if _shapes != null and is_instance_valid(_shapes) else null
+	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
+		if _input.consume(step[0], now, _buffer_ms) and shapes != null:
+			shapes.cycle(int(step[1]))
+	if not busy:
+		if _update_interact_hold(now):
+			return true
+		if _input.consume(&"interact", now, _buffer_ms):
+			_orders.cancel()
+			# A heavy block the slime faces and touches takes the press first (a held interact grabs).
+			if not _mouth.is_holding() and _grab.try_begin(self, body, _facing):
+				return true
+			var interaction := _interaction_controller()
+			if interaction != null and bool(interaction.call(&"has_candidate")):
+				if bool(interaction.call(&"has_secondary")):
+					_interact_hold_since_ms = now
+				else:
+					interaction.call(&"handle_interact")
+			return true
+	_input.consume(&"swallow", now, _buffer_ms)
+	for id: StringName in AbilityDefinitions.DISPATCH_ORDER:
+		if id != AbilityDefinitions.DODGE:
+			_input.consume(AbilityDefinitions.action(id), now, _buffer_ms)
+	if _swim.swimming or _mouth.is_holding():
+		for action: StringName in [&"dodge", &"ability_use", &"attack"]:
+			_input.consume(action, now, _buffer_ms)
+		_drop_roll_press()
+	# The Roll fires on the release (`_due_roll`): a press only arms it, and the slime walks on.
+	if _input.consume(&"dodge", now, _buffer_ms):
+		_roll_press_ms = now
+		_roll_release_ms = -1.0
+	var roll := _due_roll(now)
+	if roll != RollPress.NONE:
+		_orders.cancel()
+		if _rework_roll(roll == RollPress.CHARGED) and shapes != null:
+			shapes.reset_chain("roll")
+		return true
+	if _input.consume(&"ability_use", now, _buffer_ms):
+		_orders.cancel()
+		if AbilityBox.use(self) and shapes != null:
+			shapes.reset_chain("ability")
+		return true
+	if _input.consume(&"attack", now, _buffer_ms):
+		_orders.cancel()
+		# A step that starts owns the body from this physics step on (not one step later).
+		if _attack() and shapes != null and shapes.is_busy():
+			body.velocity = shapes.step_velocity()
+		return true
+	if _input.consume(&"eat", now, _buffer_ms):
+		_orders.cancel()
+		if shapes != null:
+			shapes.reset_chain("mouth")
+		get_mouth_hold().press()
+		return true
+	return false
+
+
+## Rework mode: true when the mouth's hold or a shape step owns this physics step (the slime does
+## not walk). While the MouthHold roots the slime (a suck burst or a hold ring) it stands, its attack,
+## ability and Roll presses are dropped and Q presses still reach the mouth; while the
+## ShapeController `is_busy()` the step's velocity drives the body (`step_velocity`) and presses
+## still reach the controller (a press during a step waits for its cancel point). False otherwise,
+## and under an action lock (the old branch handles that).
+func _rework_owns_step() -> bool:
+	if _action_locked:
+		return false
+	var now := Services.now_ms()
+	if _grab.is_active():
+		return _step_grab(now)
+	var hold := get_mouth_hold()
+	if hold.roots_player():
+		body.velocity = Vector2.ZERO
+		for action: StringName in [&"attack", &"dodge", &"ability_use"]:
+			_input.consume(action, now, _buffer_ms)
+		_drop_roll_press()
+		if _input.consume(&"eat", now, _buffer_ms):
+			hold.press()
+		_play_direct(CLIP_SUCK if _mouth.is_sucking() else _locomotion_clip(CLIP_IDLE))
+		return true
+	if _shapes != null and is_instance_valid(_shapes) and _shapes.is_busy():
+		body.velocity = _shapes.step_velocity()
+		_handle_rework_action_input(now, true)
+		return true
+	return false
+
+
+## Rework: the grab on a heavy block owns the step (game/player/heavy_grab.gd): the other presses
+## are dropped, the walk keys push or pull, and the slime walks or idles facing the block.
+func _step_grab(now: float) -> bool:
+	for action: StringName in [&"attack", &"dodge", &"ability_use", &"eat", &"interact", &"weapon_next", &"weapon_previous"]:
+		_input.consume(action, now, _buffer_ms)
+	_drop_roll_press()
+	var walking := _grab.step(now, get_physics_process_delta_time(), _input.is_held(&"interact"), _grab_direction)
+	if not _grab.is_active():
+		_play_direct(_locomotion_clip(CLIP_IDLE))
+		return true
+	_play_direct(_locomotion_clip(CLIP_WALK if walking else CLIP_IDLE))
+	return true
+
+
+## Rework: the heavy block the slime grabs, or null.
+func get_grabbed_block() -> Node2D:
+	return _grab.block()
+
+
+## Rework mode (owner, 2026-10-12): which Roll an armed press (`_roll_press_ms`) asks for now. Its
+## key let go: the quick roll (QUICK), unless the release is older than `input.bufferMs` (the slime
+## was busy meanwhile: dropped, like a stale press). Still held past
+## `character.player.rework.rollTapMs` with the `roll-charge` upgrade learned: the charged roll
+## (CHARGED, the spin-up while held); without the upgrade a hold waits for the release. NONE while
+## nothing is due. A due press is used up.
+func _due_roll(now: float) -> RollPress:
+	if _roll_press_ms < 0.0:
+		return RollPress.NONE
+	if _input.is_held(&"dodge"):
+		if now - _roll_press_ms < _rework_roll_tap_ms or not _abilities.is_learned(PlayerRoll.CHARGE_UPGRADE_ID):
+			return RollPress.NONE
+		_drop_roll_press()
+		return RollPress.CHARGED
+	var stale := _roll_release_ms >= 0.0 and now - _roll_release_ms > _buffer_ms
+	_drop_roll_press()
+	return RollPress.NONE if stale else RollPress.QUICK
+
+
+## Rework mode: the Roll `_due_roll` asked for, on the dodge's rules (a web roots it, as in
+## `use_ability`; `_try_dodge`): the charged roll, else the quick roll. True when it started.
+func _rework_roll(charged: bool) -> bool:
+	if body == null or _status.is_rooted():
+		return false
+	return _try_dodge(charged)
+
+
+## Forgets an armed Roll press (a knockback, a door or window, death, input cleared, the mouth's
+## root, swimming or a full mouth).
+func _drop_roll_press() -> void:
+	_roll_press_ms = -1.0
+	_roll_release_ms = -1.0
+
+
 ## Player spec 4.3: walk/sprint speed from `character.player.movement` (baseSpeed, boostSpeed,
 ## movementSpeedCap via resolve_movement_speed), normalized direction, facing/flip, clip choice.
 ## Boost bonus items, status speed multipliers, roots and Gulp forms are OUT (0 / 1 / none / 1).
@@ -1340,6 +1724,12 @@ func _move(direction: Vector2) -> void:
 	var speed: float = _resolve_movement_speed(base, 0.0, _status.speed_multiplier()) * float(_gulp.form.get("speed", 1.0))
 	if _mouth.is_holding():
 		speed *= _number("gulp.holdingSpeedMultiplier")
+	# Rework: while the shape's charge ring fills or waits for the release the slime walks at
+	# ShapeController.walk_scale() (`combat.chain.chargeWalkScale`; owner, 2026-10-12: half speed).
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
+		speed *= _shapes.walk_scale()
+	if _walk_out.active:
+		speed *= _number("worldNavigation.doorWalkOutSpeedShare")
 	if direction == Vector2.ZERO:
 		body.velocity = Vector2.ZERO
 		_play_direct(_locomotion_clip(CLIP_IDLE))
@@ -1392,13 +1782,19 @@ func _play_idle(force: bool = false) -> void:
 	play_animation(_locomotion_clip(CLIP_IDLE), force)
 
 
-## Idle or walk, the swim clip while swimming, or the full slime's sway and waddle while the mouth
-## holds something.
+## Idle or walk, the swim clip while swimming, the full slime's sway and waddle while the mouth
+## holds something, or (rework mode) the shape's held pose while its charge ring fills or waits full
+## (ShapeController.held_pose_clip: its charge's strike hold, or the Axe's `load` pose, a base clip
+## played in the facing's version).
 func _locomotion_clip(clip: String) -> String:
 	if _swim.swimming:
 		return CLIP_SWIM
 	if _mouth.is_holding():
 		return CLIP_FULL_WALK if clip == CLIP_WALK else CLIP_FULL_IDLE
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
+		var held := _shapes.held_pose_clip()
+		if not held.is_empty():
+			return held
 	return clip
 
 
@@ -1423,8 +1819,10 @@ func _directional_clip(clip: String) -> String:
 ## mirrors for left (always, in a `-left` clip); its down/up art never mirrors, and it keeps the
 ## last facing when idle (owner decision O4). Old side-view clips keep their rule (that art faces
 ## left and mirrors for right, `Directions.slime_flip_h`), except its idle, which always showed
-## its default facing.
+## its default facing. A body shape's strike hold `strikes/<strike>-<direction>-hold` (the charge
+## ring's held frame, StrikeLibrary) flips as its `strikes/<strike>-<direction>` does.
 func _flip_for(clip: String) -> bool:
+	clip = clip.trim_suffix(STRIKE_HOLD_SUFFIX)
 	if clip.ends_with("-side"):
 		return _facing.x < 0.0
 	if clip.ends_with("-left"):
@@ -1438,7 +1836,10 @@ func _flip_for(clip: String) -> bool:
 ## busy, its cooldown (`AbilityDefinitions.cooldown_ms`) and the last roll's own pause after it.
 ## It rolls toward the pointer aim, else the held movement keys, else the facing. Returns true
 ## when the spin-up started.
-func _try_dodge() -> bool:
+## Rework mode: the quick roll (PlayerRoll.begin_quick; it costs `character.player.rework.
+## quickRollEnergy`, "Low energy" when short), or with `charged` the spin-up that launches at the
+## key's release (`_due_roll`); the ability bar's click is a quick roll.
+func _try_dodge(charged: bool = false) -> bool:
 	if not _roll.can_begin(Services.now_ms()) or body == null:
 		return false
 	var toward: Vector2 = _pointer_aim()
@@ -1446,17 +1847,30 @@ func _try_dodge() -> bool:
 		toward = _movement_input(ControlScheme.current())
 	if toward == Vector2.ZERO:
 		toward = _facing
+	var quick := ReworkMode.is_on() and not charged
+	var cost := _rework_quick_roll_energy if quick else 0.0
+	if cost > 0.0 and _energy < cost:
+		_abilities.notify_rejected(AbilityDefinitions.DODGE, "energy")
+		return false
 	# The shared ability rules (busy silent, locked, cooldown silent, action-locked, energy); the
 	# cooldown runs from now.
 	if not _abilities.try_instant(AbilityDefinitions.DODGE):
 		return false
-	return _roll.begin(toward, Services.now_ms())
+	if quick:
+		if cost > 0.0:
+			spend_energy(cost)
+		return _roll.begin_quick(toward, Services.now_ms())
+	return _roll.begin(toward, Services.now_ms(), ReworkMode.is_on())
 
 
 ## Player spec 9.1: face the pointer aim (snapped) when there is one, then `_combat.try_attack()`.
 ## The facing changes even if the swing is then refused. (`attackAim: facing` is a dev-panel
 ## setting and OUT: the default `pointer` mode is always used.)
+## Rework mode: the press goes to the ShapeController with the strike aim (`get_strike_aim`, from
+## the slime's centre; ZERO without one); the controller faces and aims.
 func _attack() -> bool:
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
+		return _shapes.press_attack(get_strike_aim())
 	var aim: Vector2 = _pointer_aim()
 	if aim != Vector2.ZERO:
 		face(Directions.snap_to_cardinal(aim))
@@ -1498,6 +1912,8 @@ func _squash_on_move_start(direction: Vector2) -> void:
 func sleep_in(request: Dictionary) -> bool:
 	if _dead or _action_locked or _sleep.is_sleeping():
 		return false
+	if ReworkMode.is_on() and _mouth_hold != null:
+		_mouth_hold.cancel("sleep")
 	return _sleep.sleep(request)
 
 
@@ -1525,6 +1941,8 @@ func teleport(centre: Vector2) -> void:
 	if body == null:
 		return
 	_orders.cancel()
+	_grab.release()
+	_walk_out.finish()
 	body.velocity = Vector2.ZERO
 	FeetAnchor.place_at_phaser_position(body, centre)
 	body.reset_physics_interpolation()
@@ -1564,6 +1982,10 @@ func _die() -> void:
 	_roll.cancel()
 	_gulp.clear()
 	_mouth.clear()
+	if ReworkMode.is_on():
+		get_mouth_hold().cancel("death")
+		if _shapes != null and is_instance_valid(_shapes):
+			_shapes.reset_chain("death")
 	_status.clear()
 	_orders.cancel()
 	_dead = true
@@ -1651,12 +2073,18 @@ func _respawn_point() -> Vector2:
 
 ## Modal pause (OUT in the trial, handled for parity): when a modal reason becomes active the held
 ## input is cleared and the body stops (`setPaused -> clearInput`, `stopMovingBodies`).
+## Rework mode: when the modal reason ends (a dialogue, the quest offer, the bag closes) a pending
+## Roll press is dropped. Space is the Roll there, the slime keeps capturing input while a window is
+## open, and the clock stands still, so a Space press the window did not take would still be fresh
+## and roll the slime the moment it closes. Held keys stay (a walk key held through the close walks).
 func _update_modal_pause() -> void:
 	var world := Services.world()
 	var modal: bool = world != null and world.has_pause_reason(Services.WorldServiceType.PAUSE_MODAL)
 	if modal and not _modal_paused:
 		clear_input()
 		stop_movement()
+	elif ReworkMode.is_on() and _modal_paused and not modal:
+		_input.drop_press(&"dodge")
 	_modal_paused = modal
 
 
@@ -1688,6 +2116,9 @@ func _load_constants() -> void:
 	_max_hp = roundi(_number("character.player.stats.maxHp"))
 	_max_energy = roundi(_number("character.player.stats.maxEnergy"))
 	_energy_regen = _number("character.player.stats.energyRegenPerSecond")
+	_rework_energy_regen = _number("character.player.rework.energyRegenPerSecond")
+	_rework_roll_tap_ms = _number("character.player.rework.rollTapMs")
+	_rework_quick_roll_energy = _number("character.player.rework.quickRollEnergy")
 	_buffer_ms = _number("input.bufferMs")
 	_pick_radius_px = _number("input.mouse.pickRadiusPx")
 	_melee_fallback_px = _number("input.mouse.meleeFallbackPx")
@@ -1777,11 +2208,14 @@ func _make_gulp_hud() -> void:
 
 
 ## Energy regen (WorldScene.ts:833-837): `energyRegenPerSecond` per second of simulation, capped.
+## Rework mode: `character.player.rework.energyRegenPerSecond` instead (0, owner 2026-10-12: energy
+## is scarce; energy shards, items and a respawn bring it back).
 func _regen_energy(delta_ms: float) -> void:
-	if _energy >= float(_max_energy) or delta_ms <= 0.0 or _roll.is_active():
+	var regen := _rework_energy_regen if ReworkMode.is_on() else _energy_regen
+	if regen <= 0.0 or _energy >= float(_max_energy) or delta_ms <= 0.0 or _roll.is_active():
 		return
 	var before := _energy
-	_energy = minf(float(_max_energy), _energy + _energy_regen * delta_ms / 1000.0)
+	_energy = minf(float(_max_energy), _energy + regen * delta_ms / 1000.0)
 	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": _energy - before})
 
 
@@ -1815,6 +2249,8 @@ func _wake_input() -> bool:
 	for action: StringName in WAKE_ACTIONS:
 		if _input.consume(action, now, INF):
 			pressed = true
+	if ReworkMode.is_on() and _input.consume(&"ability_use", now, INF):
+		pressed = true
 	if _order_press_ms >= 0.0 or _use_press_ms >= 0.0:
 		_order_press_ms = -1.0
 		_use_press_ms = -1.0
@@ -1939,9 +2375,14 @@ func _movement_input(scheme: String) -> Vector2:
 
 
 ## The pointer scheme: the slime turns to the pointer whenever it is free to (not rolling or
-## knocked back, swinging, or busy with an ability, which set their own facing).
+## knocked back, swinging or striking with a shape, or busy with an ability, which set their own
+## facing).
 func _face_pointer() -> void:
 	if is_movement_suppressed() or _action_locked or _abilities.is_busy():
+		return
+	# Rework: a shape strike keeps the facing it set (ShapeController._set_aim), so a side pose stays
+	# mirrored like its drawn weapon while the pointer moves.
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes) and _shapes.is_busy():
 		return
 	var aim := _pointer_aim()
 	if aim != Vector2.ZERO:
@@ -1963,7 +2404,10 @@ func _run_click_order() -> bool:
 ## (PlayerCombat.reaches), or the slime stands within `input.mouse.meleeFallbackPx` of it, face that
 ## side and swing; while the button is held, swing again as the weapon allows. Ends when the target
 ## falls, after the swing once the button is up, or when there is no weapon.
+## Rework mode: the shape's reach and press instead (`_rework_click_attack`).
 func _click_attack() -> bool:
+	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
+		return _rework_click_attack()
 	var target := _orders.target
 	if not PointerTargets.is_alive(target) or _swim.swimming:
 		_orders.cancel()
@@ -1984,6 +2428,37 @@ func _click_attack() -> bool:
 		_orders.cancel()
 		return true
 	if _combat.try_attack():
+		_orders.swung = true
+	else:
+		_play_direct(_locomotion_clip(CLIP_IDLE))
+	return true
+
+
+## Rework mode's attack order: as `_click_attack`, with the current shape's reach
+## (ShapeController.reaches along the aim at the target's hurtbox) and its press
+## (`press_attack`); ends when the target falls, after the press once the button is up, or when no
+## shape is learned.
+func _rework_click_attack() -> bool:
+	var target := _orders.target
+	if not PointerTargets.is_alive(target) or _swim.swimming:
+		_orders.cancel()
+		return false
+	if _orders.swung and not _orders.held:
+		_orders.cancel()
+		return false
+	var at := PointerTargets.hurtbox_centre(target)
+	# From the slime's centre, where the shapes strike from (not the old aim's raised origin).
+	var toward := at - get_centre()
+	var aim := toward.normalized() if toward != Vector2.ZERO else _facing
+	var area := target.get(&"damage_area") as Area2D
+	if not _shapes.reaches(aim, area) and get_centre().distance_to(at) > _melee_fallback_px:
+		return false
+	face(aim)
+	body.velocity = Vector2.ZERO
+	if _shapes.current_shape_id().is_empty():
+		_orders.cancel()
+		return true
+	if _shapes.press_attack(aim):
 		_orders.swung = true
 	else:
 		_play_direct(_locomotion_clip(CLIP_IDLE))

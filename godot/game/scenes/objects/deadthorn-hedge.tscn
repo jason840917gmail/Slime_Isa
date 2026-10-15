@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/abilities/lantern/deadthorn-2x1.webp" id="1"]
+[ext_resource type="Script" path="res://game/world/fire/burnable.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(144, 34)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(150, 64)
+
+[node name="deadthorn-hedge" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -17)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-160, -168)
+hframes = 2
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(0, -36)
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="BurnableScript" type="Node" parent="." node_paths=PackedStringArray("visual", "damage_area")]
+script = ExtResource("2")
+visual = NodePath("../Visual")
+damage_area = NodePath("../DamageArea")
+fire_size = Vector2(150, 72)

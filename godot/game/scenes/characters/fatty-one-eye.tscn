@@ -356,6 +356,7 @@ autoplay = &"chase"
 
 [node name="FattyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "animation", "damage_area", "attack_area", "contact_attack", "landing_zone")]
 script = ExtResource("3")
+enemy_type = "fatty-one-eye"
 body = NodePath("..")
 visual = NodePath("../Visual")
 animation = NodePath("../Animation")

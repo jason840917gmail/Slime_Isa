@@ -1,0 +1,383 @@
+[gd_resource type="Resource" script_class="StrikeAnimation" format=3]
+
+[ext_resource type="Script" path="res://game/shapes/strike_key.gd" id="1_qiqrv"]
+[ext_resource type="Script" path="res://game/shapes/strike_direction.gd" id="2_40ld7"]
+[ext_resource type="Script" path="res://game/shapes/strike_animation.gd" id="3_10gav"]
+
+[sub_resource type="Resource" id="Resource_qiqrv"]
+script = ExtResource("1_qiqrv")
+frame = 2
+angle = -89.8
+length = 0.65
+view = "toward"
+head_angle = -89.8
+
+[sub_resource type="Resource" id="Resource_40ld7"]
+script = ExtResource("1_qiqrv")
+share = 0.07
+frame = 2
+angle = -89.8
+length = 0.85
+view = "toward"
+head_angle = -89.8
+
+[sub_resource type="Resource" id="Resource_10gav"]
+script = ExtResource("1_qiqrv")
+share = 0.18000000000000002
+frame = 2
+angle = -89.8
+length = 1.0
+view = "toward"
+head_angle = -89.8
+
+[sub_resource type="Resource" id="Resource_nrpd6"]
+script = ExtResource("1_qiqrv")
+share = 0.61
+frame = 2
+angle = -94.0
+length = 1.0
+view = "toward"
+head_angle = -94.0
+
+[sub_resource type="Resource" id="Resource_rj3km"]
+script = ExtResource("1_qiqrv")
+share = 0.64
+frame = 3
+angle = -89.8
+length = 1.0
+view = "toward"
+head_angle = -89.8
+
+[sub_resource type="Resource" id="Resource_1307d"]
+script = ExtResource("1_qiqrv")
+share = 0.76
+frame = 3
+angle = -62.0
+length = 1.0
+layer = 1
+view = "toward"
+view_frame = 2
+head_angle = -62.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_t7ngt"]
+script = ExtResource("1_qiqrv")
+share = 0.88
+frame = 3
+angle = 91.3
+length = 1.0
+layer = 1
+view = "toward"
+view_frame = 3
+head_angle = 91.3
+jump = true
+
+[sub_resource type="Resource" id="Resource_d81tv"]
+script = ExtResource("1_qiqrv")
+phase = 1
+frame = 4
+angle = 91.0
+length = 1.0
+layer = 1
+view = "toward"
+view_frame = 4
+head_angle = 91.0
+
+[sub_resource type="Resource" id="Resource_px6yt"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.36000000000000004
+frame = 5
+angle = -89.8
+length = 0.975
+view = "toward"
+head_angle = -89.8
+jump = true
+
+[sub_resource type="Resource" id="Resource_c8m3i"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.46
+frame = 5
+angle = -89.8
+length = 0.7456
+view = "toward"
+head_angle = -89.8
+
+[sub_resource type="Resource" id="Resource_7oogc"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.47000000000000003
+frame = 5
+angle = -89.8
+view = "toward"
+head_angle = -89.8
+
+[sub_resource type="Resource" id="Resource_pqx7i"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.6
+frame = 6
+angle = -89.8
+view = "toward"
+head_angle = -89.8
+
+[sub_resource type="Resource" id="Resource_llapf"]
+script = ExtResource("2_40ld7")
+hit_reach = 68.0
+arm_px = -7.01
+keys = Array[ExtResource("1_qiqrv")]([SubResource("Resource_qiqrv"), SubResource("Resource_40ld7"), SubResource("Resource_10gav"), SubResource("Resource_nrpd6"), SubResource("Resource_rj3km"), SubResource("Resource_1307d"), SubResource("Resource_t7ngt"), SubResource("Resource_d81tv"), SubResource("Resource_px6yt"), SubResource("Resource_c8m3i"), SubResource("Resource_7oogc"), SubResource("Resource_pqx7i")])
+
+[sub_resource type="Resource" id="Resource_suq3a"]
+script = ExtResource("1_qiqrv")
+frame = 2
+angle = -100.0
+length = 0.65
+head_angle = -100.0
+
+[sub_resource type="Resource" id="Resource_ipcmv"]
+script = ExtResource("1_qiqrv")
+share = 0.06999999999999999
+frame = 2
+angle = -110.0
+length = 0.85
+head_angle = -110.0
+
+[sub_resource type="Resource" id="Resource_riays"]
+script = ExtResource("1_qiqrv")
+share = 0.18
+frame = 2
+angle = -117.0
+length = 1.0
+head_angle = -117.0
+
+[sub_resource type="Resource" id="Resource_y88qu"]
+script = ExtResource("1_qiqrv")
+share = 0.6099999999999999
+frame = 2
+angle = -124.0
+length = 1.0
+head_angle = -124.0
+
+[sub_resource type="Resource" id="Resource_pejgp"]
+script = ExtResource("1_qiqrv")
+share = 0.6399999999999999
+frame = 3
+angle = -112.0
+length = 1.0
+head_angle = -112.0
+
+[sub_resource type="Resource" id="Resource_kddfh"]
+script = ExtResource("1_qiqrv")
+share = 0.96
+frame = 3
+angle = -8.0
+length = 1.0
+head_angle = -8.0
+
+[sub_resource type="Resource" id="Resource_07cck"]
+script = ExtResource("1_qiqrv")
+share = 1.0
+frame = 4
+angle = 11.29
+length = 1.0
+layer = 1
+
+[sub_resource type="Resource" id="Resource_12bkr"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.3599999999999999
+frame = 5
+angle = -75.0
+length = 0.85
+head_angle = -75.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_gfs5h"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.46
+frame = 5
+angle = -92.0
+length = 0.65
+head_angle = -92.0
+
+[sub_resource type="Resource" id="Resource_a7nea"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.46999999999999975
+frame = 5
+angle = -92.0
+head_angle = -92.0
+
+[sub_resource type="Resource" id="Resource_5cw3g"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.6000000000000001
+frame = 6
+angle = -92.0
+head_angle = -92.0
+
+[sub_resource type="Resource" id="Resource_q87g4"]
+script = ExtResource("2_40ld7")
+hit_reach = 68.0
+arm_px = 1.19
+keys = Array[ExtResource("1_qiqrv")]([SubResource("Resource_suq3a"), SubResource("Resource_ipcmv"), SubResource("Resource_riays"), SubResource("Resource_y88qu"), SubResource("Resource_pejgp"), SubResource("Resource_kddfh"), SubResource("Resource_07cck"), SubResource("Resource_12bkr"), SubResource("Resource_gfs5h"), SubResource("Resource_a7nea"), SubResource("Resource_5cw3g")])
+
+[sub_resource type="Resource" id="Resource_qt5ae"]
+script = ExtResource("1_qiqrv")
+frame = 2
+angle = -90.2
+length = 0.65
+layer = 1
+view = "toward"
+head_angle = -90.2
+
+[sub_resource type="Resource" id="Resource_cqa6d"]
+script = ExtResource("1_qiqrv")
+share = 0.07
+frame = 2
+angle = -90.2
+length = 0.85
+layer = 1
+view = "toward"
+head_angle = -90.2
+
+[sub_resource type="Resource" id="Resource_4ms1h"]
+script = ExtResource("1_qiqrv")
+share = 0.18000000000000002
+frame = 2
+angle = -90.2
+length = 1.0
+layer = 1
+view = "toward"
+head_angle = -90.2
+
+[sub_resource type="Resource" id="Resource_cy6u6"]
+script = ExtResource("1_qiqrv")
+share = 0.3
+frame = 2
+angle = -62.0
+length = 1.0
+layer = 1
+view = "toward"
+view_frame = 2
+head_angle = -62.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_cki7a"]
+script = ExtResource("1_qiqrv")
+share = 0.61
+frame = 2
+angle = -62.0
+length = 1.0
+layer = 1
+view = "toward"
+view_frame = 2
+head_angle = -62.0
+
+[sub_resource type="Resource" id="Resource_e31n8"]
+script = ExtResource("1_qiqrv")
+share = 0.64
+frame = 3
+angle = -90.2
+length = 1.0
+layer = 1
+view = "toward"
+head_angle = -90.2
+
+[sub_resource type="Resource" id="Resource_7sl17"]
+script = ExtResource("1_qiqrv")
+share = 0.7000000000000001
+frame = 3
+angle = -90.2
+length = 1.0
+view = "away"
+head_angle = -90.2
+
+[sub_resource type="Resource" id="Resource_sksqg"]
+script = ExtResource("1_qiqrv")
+share = 0.78
+frame = 3
+angle = -74.6
+length = 1.0
+view = "away"
+view_frame = 2
+head_angle = -74.6
+
+[sub_resource type="Resource" id="Resource_lbwi6"]
+script = ExtResource("1_qiqrv")
+share = 0.88
+frame = 3
+angle = -89.7
+length = 1.0
+view = "away"
+view_frame = 3
+head_angle = -89.7
+
+[sub_resource type="Resource" id="Resource_lo7ag"]
+script = ExtResource("1_qiqrv")
+phase = 1
+frame = 4
+angle = -89.0
+length = 1.0
+view = "away"
+view_frame = 4
+head_angle = -89.0
+
+[sub_resource type="Resource" id="Resource_limr4"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.36000000000000004
+frame = 5
+angle = -89.0
+length = 0.85
+view = "away"
+view_frame = 4
+head_angle = -89.0
+jump = true
+
+[sub_resource type="Resource" id="Resource_430xi"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.46
+frame = 5
+angle = -89.0
+length = 0.65
+view = "away"
+view_frame = 4
+head_angle = -89.0
+
+[sub_resource type="Resource" id="Resource_wx17o"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.47000000000000003
+frame = 5
+angle = -89.0
+view = "away"
+view_frame = 4
+head_angle = -89.0
+
+[sub_resource type="Resource" id="Resource_mh2sn"]
+script = ExtResource("1_qiqrv")
+phase = 2
+share = 0.6
+frame = 6
+angle = -89.0
+view = "away"
+view_frame = 4
+head_angle = -89.0
+
+[sub_resource type="Resource" id="Resource_13kso"]
+script = ExtResource("2_40ld7")
+hit_reach = 17.0
+arm_px = -2.0
+keys = Array[ExtResource("1_qiqrv")]([SubResource("Resource_qt5ae"), SubResource("Resource_cqa6d"), SubResource("Resource_4ms1h"), SubResource("Resource_cy6u6"), SubResource("Resource_cki7a"), SubResource("Resource_e31n8"), SubResource("Resource_7sl17"), SubResource("Resource_sksqg"), SubResource("Resource_lbwi6"), SubResource("Resource_lo7ag"), SubResource("Resource_limr4"), SubResource("Resource_430xi"), SubResource("Resource_wx17o"), SubResource("Resource_mh2sn")])
+
+[resource]
+script = ExtResource("3_10gav")
+shape = "hammer"
+step = "boom"
+side = SubResource("Resource_q87g4")
+down = SubResource("Resource_llapf")
+up = SubResource("Resource_13kso")

@@ -30,15 +30,32 @@ extends SceneTree
 ## rows, which play at a walk's pace). The Roll's `ball-down` and `ball-up` are page 5 rows of their
 ## own since 2026-10-09 (the ball rolled on a sphere), no longer aliases of `ball-side`.
 ##
+## Pose clips (POSE_PAGE, 2026-10-12): page 6 holds the body shapes' attack key poses
+## (asset/Originals/characters/slime-v2/shapes/README.md, packed by
+## scripts/characters/pack-slime-shape-poses.py on page 1's cells and baseline). Its manifest lists
+## poses, not rows (`clips` -> `<shape>-<direction>` -> `poses` -> `<pose>` -> `frame`), and each pose
+## the game shows becomes `shape-<shape>-<pose>-<direction>` (`shape-axe-swing-down-side`): one held
+## frame, played once (the frame stays when the clip ends; game/shapes/shape_poses.gd holds it as long
+## as the pose lasts). The game shows only the poses of ShapePoses.TIMELINES and each such shape's charge
+## ring pose (`_shown_poses`: the War Axe's `load`, `swing-down` and `swing-up`, for its Spin); every
+## other step and charge plays its strike animation (the `strikes` library, built at run time by
+## StrikeLibrary from game/characters/strikes/, with each strike's hold for the charge ring), so the
+## other poses, and the held strike-frame clips `strike-<strike>-<direction>-f<n>` of before, are not
+## built and a run removes them. A side pose faces right and is mirrored for left by flip_h like every
+## side row; it keys no offset, so it needs no `-left` clip.
+##
 ## Every other clip in the scene is removed: the old side-view sheet is gone from the player (owner
-## decision 2026-10-05, "replace all old player art"). Page rows that face down only (doze, sleep,
-## die) are played after the player turns to the camera.
+## decision 2026-10-05, "replace all old player art"), and so is every clip this tool no longer builds.
+## Page rows that face down only (doze, sleep, die) are played after the player turns to the camera.
 ##
 ## Run with the Godot 4.7.2 console exe (close the scene in an open editor first, then reload it):
-##     --headless --path godot -s res://tools/build_player_clips.gd [-- --only=roll,attack-1]
+##     --headless --path godot -s res://tools/build_player_clips.gd [-- --only=roll,attack-1,shape-]
 ## `--only` rebuilds just the clips whose names start with one of the prefixes and leaves the rest
-## (say, idle timing tuned in the editor) as they are. Without it every clip above is rebuilt, and
-## the sprite's default texture and the autoplay clip become page 1's `idle-down`.
+## (say, idle timing tuned in the editor) as they are; the clips the tool does not build are removed
+## either way. Without it every clip above is rebuilt, and the sprite's default texture and frame and
+## the autoplay clip become page 1's `idle-down`.
+
+const ShapePoses := preload("res://game/shapes/shape_poses.gd")
 
 const SCENE_PATH := "res://game/characters/player_slime.tscn"
 const PAGES := [
@@ -63,6 +80,17 @@ const PAGES := [
 		"manifest": "../asset/Originals/characters/slime-v2/page-5.json",
 	},
 ]
+## The body shapes' pose page (see the header): its manifest lists poses, not rows, so it is not one
+## of PAGES.
+const POSE_PAGE := {
+	"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-6.webp",
+	"manifest": "../asset/Originals/characters/slime-v2/page-6.json",
+}
+## Pose clips are `<POSE_CLIP_PREFIX><shape>-<pose>-<direction>`, for these directions.
+const POSE_CLIP_PREFIX := "shape-"
+const POSE_DIRECTIONS: Array[String] = ["down", "up", "side"]
+## A pose clip's length in seconds: one held frame, played once.
+const POSE_CLIP_LENGTH := 0.1
 const LIBRARY := &""
 ## Alias clip -> [page row, fps, looping] (see the header).
 const ALIASES := {
@@ -235,11 +263,49 @@ func _build(only: PackedStringArray) -> bool:
 			built += 1
 			print("build_player_clips: %s (keyed poses)" % clip_name)
 
+	var pose_texture := load(POSE_PAGE["texture"]) as Texture2D
+	var pose_manifest := _read_manifest(POSE_PAGE["manifest"])
+	var pose_clips: Variant = pose_manifest.get("clips")
+	if pose_texture == null or not pose_clips is Dictionary:
+		push_error("build_player_clips: missing texture or manifest for %s" % POSE_PAGE["texture"])
+		root.free()
+		return false
+	var pose_groups: Dictionary = pose_clips
+	var shown := _shown_poses()
+	for group: String in pose_groups:
+		# "<shape>-<direction>": the shape may hold a hyphen, the direction does not.
+		var cut := group.rfind("-")
+		var direction := group.substr(cut + 1)
+		var entry: Variant = pose_groups[group]
+		if cut <= 0 or not direction in POSE_DIRECTIONS or not entry is Dictionary \
+				or not (entry as Dictionary).get("poses") is Dictionary:
+			push_error("build_player_clips: page 6 group %s is not <shape>-<down|up|side> with poses" % group)
+			root.free()
+			return false
+		var shape := group.substr(0, cut)
+		var poses: Dictionary = (entry as Dictionary)["poses"]
+		for pose: String in poses:
+			if not shown.has("%s-%s" % [shape, pose]):
+				continue
+			var clip_name := "%s%s-%s-%s" % [POSE_CLIP_PREFIX, shape, pose, direction]
+			owned.append(clip_name)
+			if not _selected(clip_name, only):
+				continue
+			var spec: Variant = poses[pose]
+			var frame := int((spec as Dictionary).get("frame", -1)) if spec is Dictionary else -1
+			if frame < 0:
+				push_error("build_player_clips: page 6 pose %s has no frame" % clip_name)
+				root.free()
+				return false
+			_replace(library, clip_name, _held_clip(frame, pose_texture))
+			built += 1
+			print("build_player_clips: %s (page 6 frame %d, held)" % [clip_name, frame])
+
 	for clip_name: StringName in library.get_animation_list():
 		if String(clip_name) in owned:
 			continue
 		library.remove_animation(clip_name)
-		print("build_player_clips: removed %s (old side-view art)" % clip_name)
+		print("build_player_clips: removed %s (not built any more)" % clip_name)
 
 	if only.is_empty():
 		visual.texture = load(PAGES[0]["texture"]) as Texture2D
@@ -332,6 +398,36 @@ func _pose_clip(spec: Dictionary, poses: Dictionary, page_rows: Dictionary) -> A
 		animation.track_insert_key(frames, float(key[0]), int(source["first_frame"]) + int(pose[1]))
 	_set_texture_track(animation, texture)
 	return animation
+
+
+## A pose clip (POSE_PAGE): `frame` held for POSE_CLIP_LENGTH, played once, so the frame stays when it
+## ends. Only `Visual:frame` and `Visual:texture` are keyed: no offset, so a side pose needs no
+## `-left` clip (flip_h mirrors it for left, as every side row).
+func _held_clip(frame: int, texture: Texture2D) -> Animation:
+	var animation := Animation.new()
+	animation.length = POSE_CLIP_LENGTH
+	animation.loop_mode = Animation.LOOP_NONE
+	animation.step = POSE_CLIP_LENGTH
+	animation.track_insert_key(_discrete_track(animation, "Visual:frame"), 0.0, frame)
+	_set_texture_track(animation, texture)
+	return animation
+
+
+## The page-6 poses the game shows, "<shape>-<pose>" -> true: every pose of ShapePoses.TIMELINES (a `spin`
+## entry's SPIN_POSES) and, for each shape there, its charge ring's POSE_LOAD (ShapePoses.ring_clip).
+static func _shown_poses() -> Dictionary:
+	var shown := {}
+	for short: String in ShapePoses.TIMELINES:
+		shown["%s-%s" % [short, ShapePoses.POSE_LOAD]] = true
+		var timelines: Dictionary = ShapePoses.TIMELINES[short]
+		for timeline: Array in timelines.values():
+			for entry: Array in timeline:
+				var poses: Array[String] = [str(entry[1])]
+				if poses[0] == ShapePoses.POSE_SPIN:
+					poses = ShapePoses.SPIN_POSES
+				for pose: String in poses:
+					shown["%s-%s" % [short, pose]] = true
+	return shown
 
 
 func _discrete_track(animation: Animation, path: String) -> int:

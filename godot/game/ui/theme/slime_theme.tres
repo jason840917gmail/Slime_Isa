@@ -1,4 +1,4 @@
-[gd_resource type="Theme" format=4 uid="uid://dxkby6wrgva6s"]
+[gd_resource type="Theme" format=3 uid="uid://dxkby6wrgva6s"]
 
 [ext_resource type="FontFile" uid="uid://dbnbmckjlrx5l" path="res://game/ui/theme/fonts/source-sans-3/SourceSans3[wght].ttf" id="1_h1e2w"]
 [ext_resource type="FontFile" uid="uid://bguookd6d345h" path="res://game/ui/theme/fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf" id="2_8xysc"]
@@ -180,42 +180,34 @@ border_color = Color(0.23137255, 0.36078432, 0.47058824, 0.78)
 anti_aliasing = false
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_0nexl"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACcAAAAUklGRpQAAABXRUJQVlA4TIgAAAAvD8ADEIdAIEDhQAbw/ygniLRtU2Mb+4kESHNUjLpEgmyb+lMM8QYnm7QZk7SP5D8K5YTqqpv9Ti4EEwQGjSQpmnvGAf92fzcvIaL/E5AfLZZyErPtRD0lrJ9pIzvvjKm3YNxfx/qSK3Dya8L8HsDO4hqYgJUV7wEs7PAe81uJbSXuOYlVyfkR")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_htug1"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACcAAAAUklGRpQAAABXRUJQVlA4TIgAAAAvD8ADEIdAIEDhQAbw/ygniLRtU2Mb+4kESHNUjLpEMmmbaK7XidlHNmkzJmkfyR8K5YTqqpv9Ti4EFwwMGklSNPeMA/7t/m5eQkT/JyA/WizlJGbbiXpKWD/TRnbeGVNvwbi/jvUlV+Dk14T5PYCdxTUwASsr3gNY2OE95rcS20rccxKrkvMj")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_rqnmv"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAADCAAAAUklGRroAAABXRUJQVlA4TK4AAAAvD8ADEHdglpHk6ADcAzzAV1+d0raR2FzQP3vUi5FIUrPreIlDQhoMso1UlCGcP9UbfIDv/0iJRn+ttfPRP6MBB0EQDILTWtve5NXpb04yQCgjNItE9o7EMUHv8A2A644ZWACHxFXHJB8zRPRfbds2jLea8gZwft4NAOdxtfszgF2SLF5xzpPk1viGLKVYcPp+TiSILj0uRLK8dbgSqfOhoYmO6EH6fvXPn//UvwA=")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_icscn"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAADCAAAAUklGRroAAABXRUJQVlA4TK4AAAAvD8ADEHdglpHk6ADcAzzAV1+d0raR2FzQP3vUi5FIUrPreIlDQhqMtI1Uza/3FTwcexbg+ydSotFfa+189M9owMNCcBAEp7W2vcmr09+cZIBQRmgWiexV45igd/gGwDbHBDh0nwD3Oyb5mCGi/2rbtmG81ZQ3AHP7eADMsNm/eMAhS1a/MGWS3HvnmLUcK9Y0LIlEyW/AlUiR9x43Im1eNTTRET1I36/++fOf+hc=")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_fkhrl"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAAC6AAAAUklGRrIAAABXRUJQVlA4TKUAAAAvD8ADEGegoG0jN5bb9xvIK2jbho2l+xuCKWjbyI3l9v1m9YoiSXHwLwsbCNgf4XK+AOj//yo9545m5Bw927uX3N0BBgAIAABwWtu2E11Jzg2kHtA5eBQVRIfMigpQ+EkVjP1qGoM3NUT0X23bNow8OT1vAOz8SABYnZS7BIyerodfMF/XdX2QNusi4Hrjwv5V+k2P4s5BoYaW0EH0fvLPn//IvwAA")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_r2g32"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAAC2AAAAUklGRq4AAABXRUJQVlA4TKEAAAAvD8ADEGegoG0jN5bb9xvIK2jbho2l+xuCKWjbyI3l9v1m9WrbtmF8c27OnqnXAPD/k0r/3ImM3NGz371y9wAYUEAABRROa9t2oivJuYHUAzoHj6KC6JBZUQEKP6mCsV9NY/Cmhoj+q23bhpEnp+cNgJ0fCQCrk3KXgNHT9fAL5uu6rg/SZl0EXG9c2L9Kv+lR3Dko1NASOojeT/758x/5FwA=")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_hnrl1"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACCAAAAUklGRnoAAABXRUJQVlA4TG0AAAAvD8ADEDegkG0EOLUcxMdwZNK2sczB2DUFbduwsagg3gDNaAAy/v/HP7oqsgXA/6+o28m1QQDBJratRuT+4YDBAQqiACrquP49EKo1ENF/AkmbWeCvQV41bx9pFgCcKvpkpMdF/Ne7//3z/nsQAA==")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_3jp41"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACCAAAAUklGRnoAAABXRUJQVlA4TG4AAAAvD8ADEDegkG0EOLUcxMdwZNK2sczB2DUFbduwsagg3gBNUdtGTDGXcDHca48A+J+Kfjtz7aCAwCa2rUbk/uGAwQEKogAq6rj+PRCqNRDRfwJJm1ngr0FeNW8faRYAnCr6ZKTHRfzXu//98/57EA==")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
@@ -242,42 +234,34 @@ expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_a3yul"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAACiAAAAUklGRpoAAABXRUJQVlA4TI0AAAAvH8ADEIcw8GM4w4rbRlJzC8dML74APOPjw8FhI8HBIGLAw2FCwoNBI0mKFo/Jv1363VcQ0X8FbtsoYz58BWxEDgZkhAsxz1YM2GY+DRpFxYRaBm17JPnG2NfqUdJAgFwMXNeBVUoGnGqw14VRJ3Iz6H5Dl8bB4q8HSgl+8Dv+Evcg/7u43/WHfwHufwUA")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_tppra"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAACcAAAAUklGRpQAAABXRUJQVlA4TIgAAAAvH8ADEIcw8GM4wwrbtkFxx7wAHng8DIqDwyBwFAyGgUDBoJEkRYvH5N8u/e4riOi/ArdtlDEfvgI2IgcDMsKFmGcrBmwznwaNomJCLYO2PZJ8Y+xr9ShpIEAuBq7rwColA0412OvCqBO5GXS/oUvjYPHXA6UEP/gdf4l7kP9d3O/6w78A978C")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_mf27k"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAACcAAAAUklGRpQAAABXRUJQVlA4TIgAAAAvH8ADEIcw8GM4wwrbtkFxx7wAHng8DIqDwyBwFAyGgUDBoJEkRYvH5N8u/e4riOi/ArdtlDEfvgI2IgcDMsKFmGcrBmwznwaNomJCLYO2PZLEvlaPBiMNBMhF6jqwGqhkwKlxXWgwdSI36Td0+cbGoch6oMUNfvA7/hL3IP+7uN/1h38B7n8F")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_o3ysp"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAACiAAAAUklGRpoAAABXRUJQVlA4TI4AAAAvH8ADEIcw8GM4w4rbRlJzC8dML74APOPjw8FhI8HBIGLAw2FCwoNBI0mKFo/Jv1363VcQ0X8FbtsoYz58BWxEDgZkhAsxz1YM2GY+DRpFxYRaBm17JIl9rR4NRhoIkIvUdWA1UMmAU+O60GDqRG7Sb+jyjY1DkfVAixv84Hf8Je5B/ndxv+sP/wLc/woA")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_hhhq4"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAADaAAAAUklGRtIAAABXRUJQVlA4TMUAAAAvH8ADEIfAoJEkxbk+ZtRAD0okSWrmEjlYFJb/vw+jqJEkpReO+XeKzr+ii5pIkpR1c/4tXPoSXsBmz4wB4D/vS9FT2nDW4wy5tra/8I/R5gFQgIAFCPB9Oc/dsO4FGAYAkgakbP3/2zXsgoj+K3DbRhnz4SvgwtGqA9uAA+9WMWEHipW70TMndGHi3C87E+rae6nDoDwACuPcN5wO4gLDku4HqiNpowmuJyyHklYZ9wt63BqHuBMvCQ+Kv0v4Xf/4F+F/BQA=")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_5f2mp"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAADYAAAAUklGRtAAAABXRUJQVlA4TMQAAAAvH8ADEIfAoJEkxbk+ZtRAD0okSWrmEjlYFJb/vw+jqJEkpReO+XeKzr+ii5pIkpS1cELvHjRz9BFjAPjPs1L0lzaG9XhDrrvtT/yTtfkAHFCBAlSgvi/z3A3rXoBhACBpQMrW/79dwy6I6L8Ct22UMR++Ai4crTqwDTjwbhUTdqBYuRs9c0IXJs79sjOhrr2XOgzKA6Awzn3D6SAuMCzpfqA6kjaa4HrCcihplXG/oMetcYg78ZLwoPi7hN/1j38R/lcA")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_q5mx4"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAADYAAAAUklGRtAAAABXRUJQVlA4TMMAAAAvH8ADEIfAoJEkxbk+ZtRAD0okSWrmEjlYFJb/vw+jqJEkpReO+XeKzr+ii5pIkpS1cELvHjRz9BFjAPjPs1L0lzaG9XhDrrvtT/yTtfkAHFCBAlSgvi/z3A3rXoBBI0mKFo/Jv1363VcQ0X8FbtsoYz58BWzstRiwdriw56hiQI35NFoSQhOSpLbtxPiNYa41A3LqAFkMPNaBAyVDj2Sw14WBYq9q0POGiVqLxV8PRCl+8Dv+Evcg/7u43/WHfwHufwUA")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_x186m"]
-_data = PackedByteArray("AAADAAUAAAABAAAAIAAAABAAAADaAAAAUklGRtIAAABXRUJQVlA4TMUAAAAvH8ADEIfAoJEkxbk+ZtRAD0okSWrmEjlYFJb/vw+jqJEkpReO+XeKzr+ii5pIkpR1c/4tXPoSXsBmz4wB4D/vS9FT2nDW4wy5tra/8I/R5gFQgIAFCPB9Oc/dsO4FGDSSpGjxmPzbpd99BRH9V+C2jTLmw1fAxl6LAWuHC3uOKgbUmE+jJSE0IUlq206M3xjmWjMgpw6QxcBjHThQMvRIBntdGCj2qgY9b5iotVj89UCU4ge/4y9xD/K/i/tdf/gX4P5XAAA=")
 size_override = Vector2(32, 16)
 keep_compressed_buffer = true
 
@@ -533,17 +517,14 @@ corner_radius_bottom_left = 4
 color = Color(0.23137255, 0.36078432, 0.47058824, 0.74)
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_qmg4b"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACsAAAAUklGRqQAAABXRUJQVlA4TJcAAAAvD8ADEF9gpm3boO+i6F8Om2E2koMl2PdCLM8dmbRtMLBv50TNINvIwRrcIRzCI33A+mB4FIdiSfzP3XQFRrVtK3ksClgFm0IFj0CEP8f+hwJE0ACagP/iwe0Q0X+1bdsw8uT0vEGU9MIjolhKKV2yulk/Q2VEk2Z+lFkfzMxj2L4fe9nrj0dI/kkiaLAEB+H9+A/+B/8SAA==")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_aatin"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACqAAAAUklGRqIAAABXRUJQVlA4TJUAAAAvD8ADEF9gpm3boO+i6F8Om2E2koMl2PdCLM8dmbRtMLBv50TNSNvIubKxg2/iA9aH4REOYUn8z910BUa1bSt5LApYBZtCBY9AhD/H/ocCRNAAmoD/4sHtENF/tW3bMPLk9LxBlPTCI6JYSildsrpZP0NlRJNmfpRZH8zMY9i+H3vZ649HSP5JImiwBAfh/fgP/gf/EgA=")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_2lwou"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACuAAAAUklGRqYAAABXRUJQVlA4TJkAAAAvD8ADEF9gpm3boP+y6FsWm2E2koMl2PdCLM+dojZS4Fy5/jjADQbZRg7W4A7hEB7pA9YPhkdxKJaM+/N3ugVGtW0reSwKWAWbQgWPQIQ/x/6HAkTQAJqA/+LB7RDRf7Vt2zDy5PS8QZT0wiOiWEopXbK6WT9DZUSTZn6UWR/MzGPYvh972euPR0j+SSJosAQH4f34D/4H/xIA")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
@@ -928,7 +909,6 @@ shadow_size = 6
 shadow_offset = Vector2(0, 4)
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_luqgs"]
-_data = PackedByteArray("AAADAAUAAAABAAAACgAAAAYAAABQAAAAUklGRkgAAABXRUJQVlA4TDsAAAAvCUABEC8w//M//wTZNjPYUI581AAXRwiDQkiS3PiswX0weIMEEAn+PqL/UYWVl5lj3uDZ/FwxfwZrAgA=")
 size_override = Vector2(10, 6)
 keep_compressed_buffer = true
 
@@ -1419,17 +1399,14 @@ color = Color(0.23137255, 0.36078432, 0.47058824, 0.74)
 vertical = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_mapjk"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACsAAAAUklGRqQAAABXRUJQVlA4TJcAAAAvD8ADEF9gpm3boO+i6F8Om2E2koMl2PdCLM8dmbRtMLBv50TNINvIwRrcIRzCI33A+mB4FIdiSfzP3XQFRrVtK3ksClgFm0IFj0CEP8f+hwJE0ACagP/iwe0Q0X+1bdsw8uT0vEGU9MIjolhKKV2yulk/Q2VEk2Z+lFkfzMxj2L4fe9nrj0dI/kkiaLAEB+H9+A/+B/8SAA==")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_xhfgj"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACqAAAAUklGRqIAAABXRUJQVlA4TJUAAAAvD8ADEF9gpm3boO+i6F8Om2E2koMl2PdCLM8dmbRtMLBv50TNSNvIubKxg2/iA9aH4REOYUn8z910BUa1bSt5LApYBZtCBY9AhD/H/ocCRNAAmoD/4sHtENF/tW3bMPLk9LxBlPTCI6JYSildsrpZP0NlRJNmfpRZH8zMY9i+H3vZ649HSP5JImiwBAfh/fgP/gf/EgA=")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 
 [sub_resource type="PortableCompressedTexture2D" id="PortableCompressedTexture2D_r5jp3"]
-_data = PackedByteArray("AAADAAUAAAABAAAAEAAAABAAAACuAAAAUklGRqYAAABXRUJQVlA4TJkAAAAvD8ADEF9gpm3boP+y6FsWm2E2koMl2PdCLM+dojZS4Fy5/jjADQbZRg7W4A7hEB7pA9YPhkdxKJaM+/N3ugVGtW0reSwKWAWbQgWPQIQ/x/6HAkTQAJqA/+LB7RDRf7Vt2zDy5PS8QZT0wiOiWEopXbK6WT9DZUSTZn6UWR/MzGPYvh972euPR0j+SSJosAQH4f34D/4H/xIA")
 size_override = Vector2(16, 16)
 keep_compressed_buffer = true
 

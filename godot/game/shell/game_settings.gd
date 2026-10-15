@@ -15,6 +15,9 @@ class_name GameSettings
 ## `control_scheme` is read by the player (game/player/mouse/control_scheme.gd) when it handles a
 ## mouse button; the Settings window and F2 change it; the keys-only scheme also rebinds the
 ## InputMap (`apply_to_input`).
+## `damage_numbers` (on by default; body-shapes rework, docs/godot/BODY_SHAPES.md "Juice") goes to
+## GameFeel (`show_damage_numbers`): the rework's hits show their damage only while it is on. The
+## Settings window shows its button only in the rework mode.
 ##
 ## Owner: shell.
 
@@ -39,6 +42,7 @@ const DEFAULTS := {
 	"reduce_motion": false,
 	"attack_aim": "pointer",
 	"control_scheme": "keyboard",
+	"damage_numbers": true,
 }
 ## How the mouse drives the slime (game/player/mouse/control_scheme.gd): the keyboard scheme (WASD
 ## walks), click to move (Diablo), right-click to move (MOBA), face the pointer (W walks toward it)
@@ -90,6 +94,11 @@ func screen_shake() -> float:
 
 func reduce_motion() -> bool:
 	return bool(_values["reduce_motion"])
+
+
+## The rework's damage numbers show (on by default).
+func damage_numbers() -> bool:
+	return bool(_values["damage_numbers"])
 
 
 ## `GameSettingsService.shakeScale`: the slider, or 0 with reduce motion.
@@ -161,10 +170,12 @@ func apply_to_feel() -> void:
 		return
 	feel.screen_shake_scale = screen_shake()
 	feel.reduce_motion = reduce_motion()
+	feel.show_damage_numbers = damage_numbers()
 
 
 ## `parse()` (GameSettingsStore.ts:42-52): unit values clamped to [0, 1] (not a finite number ->
-## default), booleans true only when exactly true, attack aim "facing" or "pointer".
+## default), booleans true only when exactly true (damage numbers: false only when exactly false),
+## attack aim "facing" or "pointer".
 static func parse(raw: Dictionary) -> Dictionary:
 	var parsed := {}
 	for key: String in UNIT_KEYS:
@@ -176,5 +187,6 @@ static func parse(raw: Dictionary) -> Dictionary:
 	parsed["attack_aim"] = ATTACK_AIM_FACING if str(raw.get("attack_aim", "")) == ATTACK_AIM_FACING else ATTACK_AIM_POINTER
 	var scheme := str(raw.get("control_scheme", ""))
 	parsed["control_scheme"] = scheme if CONTROL_SCHEMES.has(scheme) else str(DEFAULTS["control_scheme"])
+	parsed["damage_numbers"] = not (typeof(raw.get("damage_numbers")) == TYPE_BOOL and not bool(raw["damage_numbers"]))
 	return parsed
 

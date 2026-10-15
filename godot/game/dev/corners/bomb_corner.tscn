@@ -1,0 +1,162 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dev/corners/bomb_corner.gd" id="corner"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-wall.tscn" id="wall"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/rubble-heap.tscn" id="rubble"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="chest"]
+[ext_resource type="Script" path="res://game/scripts/story_variant.gd" id="variant"]
+[ext_resource type="Script" path="res://game/scripts/training_dummy.gd" id="dummy_script"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/256x256-tile_1x1-training-dummy.webp" id="dummy_art"]
+
+[sub_resource type="RectangleShape2D" id="dummy_body"]
+size = Vector2(34, 20)
+
+[sub_resource type="RectangleShape2D" id="dummy_hurt"]
+size = Vector2(78, 96)
+
+[node name="bomb-corner" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("corner")
+
+[node name="title" type="Label" parent="."]
+offset_left = 24.0
+offset_top = 6750.0
+offset_right = 384.0
+offset_bottom = 6794.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = "Bomb corner
+F: Goo Bomb   Q: suck it, tap Q: throw"
+
+[node name="cliff-wall" parent="." instance=ExtResource("wall")]
+position = Vector2(330, 6720)
+flag_id = "bomb.playground-cliff-wall"
+passage = Rect2(-32, -124, 64, 124)
+door_id = "playground-bomb-cave-mouth"
+target_area_id = "playground-bomb-cave"
+target_door_id = "playground-bomb-cave-entrance"
+
+[node name="path-rubble" parent="." instance=ExtResource("rubble")]
+position = Vector2(32, 6600)
+flag_id = "bomb.playground-path-rubble"
+
+[node name="islet-rubble" parent="." instance=ExtResource("rubble")]
+position = Vector2(1280, 6960)
+flag_id = "bomb.playground-islet-rubble"
+
+[node name="islet-prize-variant" type="Node" parent="." node_paths=PackedStringArray("when_set")]
+script = ExtResource("variant")
+flag_id = "bomb.playground-islet-rubble"
+when_set = NodePath("../islet-prize")
+
+[node name="islet-prize" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="islet-chest" parent="islet-prize" instance=ExtResource("chest")]
+position = Vector2(1160, 7180)
+scale = Vector2(0.75, 0.75)
+metadata/instance_id = "playground-bomb-islet-chest"
+metadata/persistence_key = "playground.playground-bomb-islet-chest"
+
+[node name="ChestScript" parent="islet-prize/islet-chest" index="2"]
+map_id = "playground"
+instance_id = "playground-bomb-islet-chest"
+initial_contents = {
+"hp-potion": 3
+}
+
+[node name="root-wall" parent="." instance=ExtResource("wall")]
+position = Vector2(176, 7808)
+flag_id = "bomb.playground-root-wall"
+passage = Rect2(-32, -124, 64, 124)
+
+[node name="root-nook-variant" type="Node" parent="." node_paths=PackedStringArray("when_set")]
+script = ExtResource("variant")
+flag_id = "bomb.playground-root-wall"
+when_set = NodePath("../root-nook")
+
+[node name="root-nook" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="root-chest" parent="root-nook" instance=ExtResource("chest")]
+position = Vector2(176, 7740)
+scale = Vector2(0.6, 0.6)
+metadata/instance_id = "playground-bomb-root-chest"
+metadata/persistence_key = "playground.playground-bomb-root-chest"
+
+[node name="ChestScript" parent="root-nook/root-chest" index="2"]
+map_id = "playground"
+instance_id = "playground-bomb-root-chest"
+initial_contents = {
+"purple-berry-mat": 3
+}
+
+[node name="bomb-dummy-1" type="CharacterBody2D" parent="."]
+y_sort_enabled = true
+position = Vector2(120, 6930)
+collision_layer = 4
+collision_mask = 1027
+motion_mode = 1
+
+[node name="BodyShape" type="CollisionShape2D" parent="bomb-dummy-1"]
+position = Vector2(0, -10)
+shape = SubResource("dummy_body")
+
+[node name="Visual" type="Sprite2D" parent="bomb-dummy-1"]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("dummy_art")
+centered = false
+offset = Vector2(-128, -256)
+
+[node name="DamageArea" type="Area2D" parent="bomb-dummy-1"]
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="bomb-dummy-1/DamageArea"]
+position = Vector2(0, -46)
+shape = SubResource("dummy_hurt")
+
+[node name="TrainingDummyScript" type="Node" parent="bomb-dummy-1" node_paths=PackedStringArray("damage_area", "visual", "body")]
+script = ExtResource("dummy_script")
+damage_area = NodePath("../DamageArea")
+visual = NodePath("../Visual")
+reaction_preset = "light"
+body = NodePath("..")
+return_speed = 90.0
+
+[node name="bomb-dummy-2" type="CharacterBody2D" parent="."]
+y_sort_enabled = true
+position = Vector2(250, 7000)
+collision_layer = 4
+collision_mask = 1027
+motion_mode = 1
+
+[node name="BodyShape" type="CollisionShape2D" parent="bomb-dummy-2"]
+position = Vector2(0, -10)
+shape = SubResource("dummy_body")
+
+[node name="Visual" type="Sprite2D" parent="bomb-dummy-2"]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("dummy_art")
+centered = false
+offset = Vector2(-128, -256)
+
+[node name="DamageArea" type="Area2D" parent="bomb-dummy-2"]
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="bomb-dummy-2/DamageArea"]
+position = Vector2(0, -46)
+shape = SubResource("dummy_hurt")
+
+[node name="TrainingDummyScript" type="Node" parent="bomb-dummy-2" node_paths=PackedStringArray("damage_area", "visual", "body")]
+script = ExtResource("dummy_script")
+damage_area = NodePath("../DamageArea")
+visual = NodePath("../Visual")
+reaction_preset = "light"
+body = NodePath("..")
+return_speed = 90.0

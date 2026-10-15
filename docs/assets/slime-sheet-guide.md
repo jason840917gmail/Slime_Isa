@@ -85,6 +85,29 @@ are in `asset/Originals/characters/slime-v2/README.md`.
   at page 1's scale and so bigger than the slime; `full-idle-<direction>` play the same rows at
   2.67 fps, a slow sway at rest; rows 3-4 = ball-down and ball-up (the Roll's ball rolled on a
   sphere toward and away from the camera, 2026-10-09). Rows 5-7 free.
+- Page 6 (2026-10-12): the body shapes' attack key poses, four per shape and direction
+  (asset/Originals/characters/slime-v2/shapes/README.md: rows 0-4, groups of four columns; row 4
+  columns 4-7 and rows 5-7 free). Not row clips: each cell the game shows is its own one-frame clip
+  `shape-<shape>-<pose>-<down|up|side>` (side faces right, mirrored for left), held by
+  game/shapes/shape_poses.gd as long as the pose lasts; only the War Axe's `load`, `swing-down` and
+  `swing-up` are built (its Spin; every other strike plays its strike frames). Packed by
+  `python scripts/characters/pack-slime-shape-poses.py` (not the page packer), at page 1's cells and
+  baseline.
+- Strike sheet (2026-10-12): `godot/asset/characters/512x416-tile_8x8-slime-v2-strikes.webp`, the
+  Spear's body-only strike frames (asset/Originals/characters/slime-v2/shapes/README.md "Strike
+  sheet"). 8 x 8 cells of 512 x 416, larger than the pages' so the lunges and the necks fit, centred
+  like page 1 (page 1's x 128 is x 256, its centre y 128 is y 208; the rest frames stand on page 1's
+  idle ground and middle at its scale). Rows 0-2 = spear-jab side/down/up, rows 3-5 = spear-finisher
+  side/down/up, columns 0-5 = frames 1-6 (rest, lean or wind-up, lunge with the bump, full lean,
+  spring back, rest); rows 6-7 and columns 6-7 free. Each strip is drawn at one scale with its back
+  (side) or middle (down/up) and its ground on the same pixel in every frame; frames 3 and 4 carry the
+  jelly neck the code-drawn spear joins. The sockets, bumps and spear states are in
+  `godot/game/data/shape-strikes.json`. No clips in the player scene: the game builds the strike
+  animations at run time from `godot/game/characters/strikes/` (StrikeLibrary: each keys the sheet, the
+  frame and `Visual:offset` (-256, -208), the sheet's -origin; side faces right, mirrored for left),
+  sought by game/shapes/shape_poses.gd. Packed by `python scripts/characters/pack-slime-strikes.py`
+  (the War Axe's and the Hammer's sheets, `...-strikes-axe.webp` and `...-strikes-hammer.webp`, laid
+  out the same way, by `pack-slime-weapon-strikes.py`).
 - The sword swing (`attack-1-down/-up/-side/-left`) has no rows: it reuses page 1's idle art
   and carries a wind-up and a lunge toward the slash in animation keys (`Visual:offset`, plus
   `Visual:skew` for the side). A `-left` clip exists only when keyed motion or a shifted row

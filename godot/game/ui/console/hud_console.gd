@@ -14,13 +14,28 @@ class_name HudConsole
 ## Built by hud.gd as a full-screen child of the HUD layer (it lays itself out on every resize);
 ## only the menu buttons take the mouse.
 ##
-## Owner: UI (HUD console).
+## Body-shapes rework mode (game/shapes/rework_mode.gd; body-shapes plan section 8.1, BODY_SHAPES.md
+## "Ability Box and HUD"): the weapon rect is the Shape slot, left out of the bar until a second
+## shape is learned (`WeaponHotbar.slot_shown`), and the abilities are the rework's (the Ability
+## slot and the Roll, `AbilityBar.slots`). The console follows both while the mode is on (and once
+## more when it goes off): when either changes it lays itself out again and emits `layout_changed`,
+## so the HUD places the slots and the minimap on the new rects (hud.gd `_layout`; until hud.gd
+## connects the signal, the console asks its parent HUD for that layout itself).
+##
+## Owner: UI (HUD console); the rework's layout: Ability Box and HUD.
 
 const Services := preload("res://game/shared/services.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
 const GooOrb := preload("res://game/ui/console/goo_orb.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const AbilityBar := preload("res://game/ui/ability_bar.gd")
+const WeaponHotbar := preload("res://game/ui/weapon_hotbar.gd")
+
+## Rework mode: the console laid itself out again for another set of slots (the Shape slot shown or
+## not, the number of ability slots); the HUD should place its pieces on `rects()` again.
+signal layout_changed
 
 const HEIGHT := 128.0
 ## The orbs: ring width (GooOrb.RING_SIZE), their centres this far below the console's top.
@@ -83,6 +98,10 @@ var _bar: NinePatchRect
 var _form_badge: TextureRect
 var _key_badges: Array[Label] = []
 var _ability_count := 5
+## Rework: whether the bar holds the weapon (Shape) slot, and whether the console follows the
+## rework's slots (true from the first step in the mode until it has laid out the classic set again).
+var _weapon_shown := true
+var _following_rework := false
 
 
 func _init() -> void:
@@ -108,10 +127,13 @@ func set_ability_count(count: int) -> void:
 
 ## Every rect of the console for a `viewport` (canvas units) and `ability_count` buttons:
 ## {"console", "shade", "bar", "weapon", "abilities", "life_orb", "energy_orb", "minimap",
-## "buttons"}. The console is centred on the bottom edge.
-static func layout(viewport: Vector2, ability_count: int) -> Dictionary:
+## "buttons"}. The console is centred on the bottom edge. Without `weapon_shown` (the rework's
+## hidden Shape slot) the bar holds only the abilities, and "weapon" sits where they start.
+static func layout(viewport: Vector2, ability_count: int, weapon_shown: bool = true) -> Dictionary:
 	var abilities_w := ability_count * ABILITY_SLOT + maxf(0.0, ability_count - 1.0) * SLOT_GAP
-	var slots_w := WEAPON_SLOT + (GROUP_GAP + abilities_w if ability_count > 0 else 0.0)
+	var weapon_w := WEAPON_SLOT if weapon_shown else 0.0
+	var gap := GROUP_GAP if weapon_shown and ability_count > 0 else 0.0
+	var slots_w := weapon_w + gap + (abilities_w if ability_count > 0 else 0.0)
 	var orb_dx := (slots_w + 2.0 * BAR_MARGIN + ORB_D) * 0.5
 	var cx := viewport.x * 0.5
 	var top := viewport.y - HEIGHT
@@ -128,7 +150,7 @@ static func layout(viewport: Vector2, ability_count: int) -> Dictionary:
 		"shade": Rect2(0.0, top - SHADE_RISE, viewport.x, HEIGHT + SHADE_RISE),
 		"bar": Rect2(cx - orb_dx - BAR_TUCK, bar_top, (orb_dx + BAR_TUCK) * 2.0, bar_h),
 		"weapon": Rect2(slots_left, bar_cy - WEAPON_SLOT * 0.5, WEAPON_SLOT, WEAPON_SLOT),
-		"abilities": Rect2(slots_left + WEAPON_SLOT + GROUP_GAP, bar_cy - ABILITY_SLOT * 0.5, abilities_w, ABILITY_SLOT),
+		"abilities": Rect2(slots_left + (WEAPON_SLOT + GROUP_GAP if weapon_shown else 0.0), bar_cy - ABILITY_SLOT * 0.5, abilities_w, ABILITY_SLOT),
 		"life_orb": Rect2(Vector2(cx - orb_dx, top + ORB_CY) - orb_size * 0.5, orb_size),
 		"energy_orb": Rect2(Vector2(cx + orb_dx, top + ORB_CY) - orb_size * 0.5, orb_size),
 		"minimap": Rect2(left, bar_cy - MINIMAP * 0.5, MINIMAP, MINIMAP),
@@ -138,7 +160,7 @@ static func layout(viewport: Vector2, ability_count: int) -> Dictionary:
 
 ## This frame's rects (layout() for the current viewport).
 func rects() -> Dictionary:
-	return layout(get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1024.0, 1024.0), _ability_count)
+	return layout(get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1024.0, 1024.0), _ability_count, _weapon_shown)
 
 
 func relayout() -> void:
@@ -165,6 +187,27 @@ func relayout() -> void:
 
 func _process(_delta: float) -> void:
 	_update_form_badge()
+	if ReworkMode.is_on() or _following_rework:
+		_follow_rework_slots()
+
+
+## Rework: lays the console out again when the Shape slot shows or hides or the number of ability
+## slots changes (and once more, for the classic set, when the mode goes off), then asks the HUD to
+## place its pieces (`layout_changed`; the parent's layout while nothing listens).
+func _follow_rework_slots() -> void:
+	_following_rework = ReworkMode.is_on()
+	var count := AbilityBar.slots().size()
+	var shown := WeaponHotbar.slot_shown()
+	if count == _ability_count and shown == _weapon_shown:
+		return
+	_ability_count = count
+	_weapon_shown = shown
+	relayout()
+	layout_changed.emit()
+	if layout_changed.get_connections().is_empty():
+		var hud := get_parent()
+		if hud != null and hud.has_method(&"_layout"):
+			hud.call(&"_layout")
 
 
 func _build() -> void:

@@ -12,6 +12,10 @@ extends RefCounted
 ## The run's saved location wins instead when it belongs to the target map and is valid (a bed
 ## respawn or a loaded save).
 ##
+## A door with a `side` (door.gd, the pairing rule in docs/godot/CONVENTIONS.md "Doors") is not
+## snapped: the slime stands exactly `arrival_step` inside it when that spot is open, facing into
+## the room (`door_facing`). main.gd then moves it into the doorway and walks it out (`walks_out`).
+##
 ## Owner: world objects.
 
 const Services := preload("res://game/shared/services.gd")
@@ -40,6 +44,9 @@ static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 	var door_id := str(navigation.get("entry_door", ""))
 	if not door_id.is_empty():
 		anchor = door_arrival(world.world_root, door_id)
+		var door := find_door(world.world_root, door_id)
+		if anchor is Vector2 and door != null and bool(door.call(&"has_side")) and _is_open(anchor):
+			return anchor
 	var marker_name := str(navigation.get("entry_marker", ""))
 	if anchor == null and not marker_name.is_empty():
 		anchor = named_marker(world.world_root, marker_name)
@@ -85,6 +92,14 @@ static func facing_vector(facing: String) -> Vector2:
 
 ## The arrival point of the door `door_id` in `world_root`, or null when no door has that id.
 static func door_arrival(world_root: Node, door_id: String) -> Variant:
+	var door := find_door(world_root, door_id)
+	return door.call(&"arrival_point") if door != null else null
+
+
+## The door (DoorScript) `door_id` in `world_root`, or null.
+static func find_door(world_root: Node, door_id: String) -> Node:
+	if world_root == null or door_id.is_empty():
+		return null
 	var tree := world_root.get_tree()
 	if tree == null:
 		return null
@@ -92,8 +107,45 @@ static func door_arrival(world_root: Node, door_id: String) -> Variant:
 		if not world_root.is_ancestor_of(node):
 			continue
 		if str(node.get(&"door_id")) == door_id and node.has_method(&"arrival_point"):
-			return node.call(&"arrival_point")
+			return node
 	return null
+
+
+## The facing on arriving at door `door_id`: into the room for a door with a side, ZERO otherwise
+## (keep the slime's facing).
+static func door_facing(world_root: Node, door_id: String) -> Vector2:
+	var door := find_door(world_root, door_id)
+	if door == null or not door.has_method(&"inward"):
+		return Vector2.ZERO
+	return door.call(&"inward")
+
+
+## True when arriving at `door` walks the slime out of its doorway (owner, 2026-10-14): a door with
+## a side while `worldNavigation.doorWalkOutMaxPx` > 0. main.gd then puts the feet on the door node
+## (`doorway_feet`) and the player walks out (game/player/door_walk_out.gd).
+static func walks_out(door: Node) -> bool:
+	if door == null or not door.has_method(&"has_side") or not bool(door.call(&"has_side")):
+		return false
+	var constants := Services.constants()
+	return constants != null and constants.number("worldNavigation.doorWalkOutMaxPx") > 0.0
+
+
+## Where the feet stand in `door`'s doorway: the door node (the DoorScript's parent).
+static func doorway_feet(door: Node) -> Vector2:
+	var parent := door.get_parent() as Node2D if door != null else null
+	return parent.global_position if parent != null else Vector2.ZERO
+
+
+## True when the old Phaser centre `point` is inside the registered world on an open tile.
+static func _is_open(point: Vector2) -> bool:
+	var world := Services.world()
+	if world == null or not point.is_finite():
+		return false
+	var dims := world.dimensions()
+	if dims.is_empty() or point.x < 0.0 or point.y < 0.0 or point.x >= float(dims["width"]) or point.y >= float(dims["height"]):
+		return false
+	var tile_size := float(dims["tile_size"])
+	return not world.is_solid_tile(floori(point.x / tile_size), floori(point.y / tile_size))
 
 
 ## The global position of the `player-entry-<edge>` marker, or null when the world has none.

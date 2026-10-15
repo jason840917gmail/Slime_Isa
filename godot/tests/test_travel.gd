@@ -23,7 +23,7 @@ const NAMED_MARKER := "player-entry-east"
 const BUILT_MARKER := "test-arrival-marker"
 const BUILT_HOLDER_POSITION := Vector2(1024.0, 1024.0)
 const BUILT_MARKER_OFFSET := Vector2(128.0, 64.0)
-## gloop-forest's hut door (its arrival child is under the door's parent).
+## gloop-forest's hut door (side north: it arrives `arrival_step` below the door's parent).
 const DOOR_ID := "hut-door"
 
 
@@ -68,6 +68,21 @@ func test_travel_requests_while_travelling_are_ignored(t: TestContext) -> void:
 	t.check(travelled, "the player did not reach %s" % TARGET_MAP)
 
 
+## A door's lead-in (door.gd `lead_ms`: its leaf opening, a climb down a ladder, a fall into a hole)
+## holds the iris back: `travel_to` with `lead_ms` is travelling at once, the iris only comes after
+## the lead-in, and the world swaps after it closes.
+func test_travel_lead_in_waits_before_the_iris(t: TestContext) -> void:
+	t.check(t.main.travel_to(TARGET_MAP, "", DOOR_ID, "", true, 400.0), "travel to %s was refused" % TARGET_MAP)
+	t.check(t.main.is_transitioning(), "not travelling during the lead-in")
+	await t.sim_wait(200.0)
+	t.check(t.main.get_node_or_null(^"IrisTransition") == null, "the iris started during the lead-in")
+	t.check(t.player().is_movement_suppressed(), "the slime moves during the lead-in")
+	var irised := await t.until(func() -> bool: return t.main.get_node_or_null(^"IrisTransition") != null, 600.0, 2000.0)
+	t.check(irised, "the iris did not start after the lead-in")
+	var travelled := await t.until(func() -> bool: return t.world().map_id() == TARGET_MAP and t.player() != null, 3000.0, 6000.0)
+	t.check(travelled, "the player did not reach %s" % TARGET_MAP)
+
+
 ## An exit with an `entry_marker` and no entry edge travels, and the player arrives on the tile
 ## centre at the Node2D of that name. In the built world a named marker (found at any depth) wins
 ## over the entry edge's marker, a door wins over the named marker, and a name the world lacks
@@ -100,8 +115,8 @@ func test_exit_arrives_at_a_named_marker(t: TestContext) -> void:
 	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), t.world().find_spawn_point(built.global_position), 0.01,
 		"a nested named marker over the entry edge")
 	handoff["entry_door"] = DOOR_ID
-	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), t.world().find_spawn_point(door), 0.01,
-		"a door over the named marker")
+	# The hut door has a side (north): its open arrival is used unsnapped.
+	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), door, 0.01, "a door over the named marker")
 	handoff.erase("entry_door")
 	handoff["entry_marker"] = "no-such-marker"
 	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), t.world().find_spawn_point(edge), 0.01,

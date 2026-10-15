@@ -18,8 +18,22 @@ extends RefCounted
 ## Ellipse CharacterBody2D shapes (Fatty, the spiders) block as their bounding boxes,
 ## as in Arcade: the converter wrote them as rectangles.
 ##
+## Body-shapes rework (docs/godot/BODY_SHAPES.md; combat-feel plan section 8
+## `shared/arcade_mover.gd`): in the rework mode only, a move that hits something
+## keeps its first contact in the body meta COLLISION_META, so the enemy reactions
+## can tell a wall splat from bowling into another body
+## (game/combat/reactions/enemy_reactions.gd `after_move`). With the mode off nothing
+## is recorded.
+##
 ## Stateless; reference it with
 ## `const ArcadeMover := preload("res://game/shared/arcade_mover.gd")`.
+
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+
+## Body meta of the last move that hit something (rework mode only): {"collider":
+## Object, "normal": Vector2, "velocity": Vector2 (the body's velocity before that
+## move), "frame": int (`Engine.get_physics_frames()` of that move)}.
+const COLLISION_META := &"arcade_collider"
 
 
 ## Moves `body` by `body.velocity · delta` (delta defaults to the physics step),
@@ -34,13 +48,17 @@ static func move(body: CharacterBody2D, delta: float = -1.0) -> bool:
 	if delta < 0.0:
 		delta = body.get_physics_process_delta_time()
 	var motion := body.velocity * delta
+	var before := body.velocity
 	var hit := false
 	for _i in maxi(1, body.max_slides):
 		var collision := body.move_and_collide(motion, false, body.safe_margin)
 		if collision == null:
 			break
-		hit = true
 		var normal := collision.get_normal()
+		if not hit and ReworkMode.is_on():
+			body.set_meta(COLLISION_META, {"collider": collision.get_collider(), "normal": normal,
+				"velocity": before, "frame": Engine.get_physics_frames()})
+		hit = true
 		if body.velocity.dot(normal) < 0.0:
 			body.velocity = body.velocity.slide(normal)
 		var remainder := collision.get_remainder()

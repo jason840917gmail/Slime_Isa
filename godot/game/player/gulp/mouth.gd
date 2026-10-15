@@ -16,10 +16,17 @@ extends RefCounted
 ##   An essence is never thrown (owner, 2026-10-09): Q spits it out whole, GulpController.SPIT_PX in
 ##   front along the aim, where it stays as a released form does, to be sucked back or picked up.
 ## A hit makes the slime drop what it holds (`drop`): a thing bursts at its feet, an essence
-## falls whole and fades after `gulp.dropFadeMs`. Death loses it. A door or a save keeps it
+## falls whole and fades after `gulp.dropFadeMs`, a Goo Bomb (game/scripts/goo_bomb.gd, held kind
+## "goo-bomb", ticking all along) falls whole and ticks on; death discards a held bomb. Death loses it. A door or a save keeps it
 ## (player.gd `run_snapshot`, `restore_held`).
 ##
-## Owner: abilities.
+## Body-shapes rework (docs/godot/BODY_SHAPES.md "Mouth"; body-shapes plan section 5): the Q state
+## machine (mouth_hold.gd) starts a **timed burst** instead (`begin_burst`): the same suck, but it
+## lasts `duration_ms` of simulation time whether Q is held or not, and ends early on a catch.
+## `end_burst` ends it (a pull already in flight finishes). The held suck above is unchanged and is
+## the only one the classic game uses. Neither ever pulls a live enemy.
+##
+## Owner: abilities (the burst: mouth).
 
 const Services := preload("res://game/shared/services.gd")
 const HeldLook := preload("res://game/player/gulp/held_look.gd")
@@ -40,6 +47,8 @@ const MOUTH_RISE := 26.0
 const LiftableScript := preload("res://game/scripts/liftable.gd")
 const BreakBurst := preload("res://game/player/gulp/break_burst.gd")
 const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
+## The Goo Bomb is a light liftable of its own (not in liftables.json): held whole, ticking.
+const GooBomb := preload("res://game/scripts/goo_bomb.gd")
 const CUE_SUCK := &"GulpSuck"
 const CUE_CATCH := &"GulpCatch"
 const CUE_THROW := &"GulpSpit"
@@ -49,6 +58,8 @@ var held: Dictionary = {}
 ## The slime (player.gd): body, get_centre, on_held_changed.
 var _player: Node
 var _sucking: bool = false
+## A timed burst's end (simulation ms); < 0 for the held suck (or no suck).
+var _burst_until_ms: float = -1.0
 ## The thing flying in: {"info", "look": Node2D, "from": Vector2, "started": float}; {} when none.
 var _pull: Dictionary = {}
 var _fx: Node2D
@@ -77,7 +88,38 @@ func begin_suck() -> void:
 	_audio(CUE_SUCK)
 
 
-## Every physics step: `q_held` is whether Q is still down, `aim` where the slime sucks from.
+## Rework mode (mouth_hold.gd): a suck that lasts `duration_ms` from `now_ms`, Q held or not, and
+## ends early on a catch. False when the mouth is full or already sucks.
+func begin_burst(now_ms: float, duration_ms: float) -> bool:
+	if is_holding() or _sucking:
+		return false
+	begin_suck()
+	_burst_until_ms = now_ms + maxf(0.0, duration_ms)
+	return true
+
+
+## Ends a burst now; a pull already in flight finishes first (and then the suck ends).
+func end_burst() -> void:
+	if not _sucking:
+		return
+	if _pull.is_empty():
+		_stop_suck()
+	else:
+		_burst_until_ms = 0.0
+
+
+## True while a timed burst runs (with or without a pull in flight).
+func is_burst() -> bool:
+	return _sucking and _burst_until_ms >= 0.0
+
+
+## True while something flies into the mouth.
+func is_pulling() -> bool:
+	return not _pull.is_empty()
+
+
+## Every physics step: `q_held` is whether Q is still down, `aim` where the slime sucks from. A
+## timed burst ignores `q_held` and ends at its time.
 func update(now_ms: float, q_held: bool, aim: Vector2) -> void:
 	if not _sucking:
 		return
@@ -87,7 +129,11 @@ func update(now_ms: float, q_held: bool, aim: Vector2) -> void:
 		if progress >= 1.0:
 			_finish_pull()
 		return
-	if not q_held:
+	if _burst_until_ms >= 0.0:
+		if now_ms >= _burst_until_ms:
+			_stop_suck()
+			return
+	elif not q_held:
 		_stop_suck()
 		return
 	if _fx != null:
@@ -186,6 +232,10 @@ func drop() -> void:
 	if str(held.get("kind", "")) == "essence":
 		var facing: Vector2 = _player.call(&"get_facing")
 		EssenceScript.spawn(str(held["essence"]), feet - facing * 28.0, _player.call(&"get_centre"), _constant("gulp.dropFadeMs"))
+	elif GooBomb.from_held(held) != null:
+		# A Goo Bomb falls out whole and keeps ticking (game/scripts/goo_bomb.gd).
+		var facing: Vector2 = _player.call(&"get_facing")
+		GooBomb.from_held(held).call(&"land", feet - facing * 28.0)
 	else:
 		# It breaks at the slime's feet as a thrown one breaks where it lands.
 		var material := LiftableScript.material_of(str(held.get("kind", "")))
@@ -204,6 +254,11 @@ func drop() -> void:
 
 ## Death: the held thing and any suck are gone without a trace.
 func clear() -> void:
+	# A Goo Bomb held or flying in is gone with it (no blast).
+	for info: Variant in [held, _pull.get("info", {})]:
+		var bomb := GooBomb.from_held(info as Dictionary) if info is Dictionary else null
+		if bomb != null:
+			bomb.call(&"discard")
 	_cancel_pull()
 	_stop_suck()
 	_set_held({})
@@ -263,6 +318,7 @@ func _cancel_pull() -> void:
 
 func _stop_suck() -> void:
 	_sucking = false
+	_burst_until_ms = -1.0
 	_show_fx(false)
 
 

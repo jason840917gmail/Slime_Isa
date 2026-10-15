@@ -5,3 +5,6 @@ __pycache__/
 
 # The world layout's backup, written on every save (docs/godot/WORLD_ATLAS.md)
 godot/game/data/world-map.json.bak
+
+# Body-shapes prototype films and GIFs (about 400 MB of scratch renders), kept local
+asset/Originals/characters/slime-v2/shapes/prototypes/

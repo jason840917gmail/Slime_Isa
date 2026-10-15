@@ -154,8 +154,8 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.story-flag` → `scripts/story_flag.gd` | `flag_id` | — | `on_set(payload)` (JSON handler `set`) |
 | `game.story-variant` → `scripts/story_variant.gd` | `flag_id, when_set, when_unset` | `switched` | `on_set(payload)` |
 
-| `game.door` → `scripts/door.gd` (10 doors; interaction spec) | `map_id, door_id, target_area_id, target_door_id, prompt, interact_radius, badge_rise` | — | — (`use()`, `arrival_point()`, group `door`) |
-| `game.gate` → `scripts/gate.gd` | `map_id, gate_id, required_item_id, consume_on_unlock, prompt, locked_prompt, locked_message, unlocked_message, interact_radius, badge_rise, closed_frame, open_frame, visual, doors` | `opened` | `open(payload)` (plates, bells; not saved) |
+| `game.door` → `scripts/door.gd` (10 doors; interaction spec §3.2; pushed into, no interact key) | `map_id, door_id, target_area_id, target_door_id, kind, side, trigger_rect, walk_area, arrival_step, use_cue, house_art, door_rect, door_arch, hinge, double_leaf, leaf_art_path, open_cue, close_cue, fall_cue, gate` | — | — (`use()`, `arrival_point()`, `on_arrival()`, `lead_ms()`, group `door`) |
+| `game.gate` → `scripts/gate.gd` (pushed open with the key, no interact key; `prompt`, `locked_prompt`, `interact_radius` unused) | `map_id, gate_id, required_item_id, consume_on_unlock, prompt, locked_prompt, locked_message, unlocked_message, interact_radius, badge_rise, closed_frame, open_frame, visual, doors` | `opened`, `closed`, `message_shown` | `open(payload)` (plates, bells; not saved) |
 | `game.chest` → `scripts/chest.gd` | `map_id, instance_id, initial_contents` | `guard_blocked, open_requested, stack_transferred, closed` | — |
 | `game.bed` → `scripts/bed.gd` | `prompt, interact_radius, badge_rise, sleep_point, wake_point` | — | — (`sleep_request()`) |
 | `game.workbench` → `scripts/workbench.gd` | `prompt, recipe_context, tier, interact_radius, badge_rise` | — | — (`site()`) |

@@ -36,11 +36,27 @@ extends CanvasLayer
 ## its weapon carousel, roadmap 4.12), 16 px bold label with a dark shadow; opacity fades over
 ## 320 ms (none under reduce motion).
 ##
-## Owner: interaction (hints).
+## Body-shapes rework mode (game/shapes/rework_mode.gd; body-shapes plan section 8.7, BODY_SHAPES.md
+## "Ability Box and HUD"): the list is REWORK_HINT_IDS, with these rework hints and texts:
+## | id | text | useful while | learned by |
+## |---|---|---|---|
+## | attack | "Left-click to attack" | a shape is current | a shape step (or the old swing) |
+## | charge | "Hold left click to charge a strong attack (costs energy)" | `attack` learned, a shape | the attack held `combat.chain.chargeStartMs` (or ShapeController `is_charging`) |
+## | mouth | "Press Q to suck things in; tap Q to throw or spit them out" | something suckable near, or something in the mouth | a suck |
+## | ability | "Press F to use your ability; choose it in the bag (B)" | the box holds an ability | a box ability started (AbilityBox.use_count) |
+## | weapon-switch | "Use the mouse wheel or E to change shape" | two shapes learned | the shape changing |
+## | swallow | "Hold Q until the ring fills to swallow the essence" | an essence in the mouth, Swallow learned | a form taken |
+## The others (move, interact, dodge, inventory, crafting, journal, map, pause) are as above; the old
+## belt's switch never teaches `weapon-switch` in the mode.
+##
+## Owner: interaction (hints); the rework's hints: Ability Box and HUD.
 
 const Services := preload("res://game/shared/services.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+const BodyCards := preload("res://game/ui/body_cards.gd")
 
 const LAYER := 10
 const FLAG_PREFIX := "hint."
@@ -59,6 +75,12 @@ const HINT_IDS: Array[StringName] = [&"move", &"interact", &"attack", &"dodge", 
 ## Game windows and shell menus whose opening learns a hint.
 const MENU_HINTS := {&"inventory": &"inventory", &"crafting": &"crafting", &"quest-journal": &"journal",
 	&"world-map": &"map", &"pause-menu": &"pause"}
+## Rework mode: the hints in priority order.
+const REWORK_HINT_IDS: Array[StringName] = [&"move", &"interact", &"attack", &"charge", &"mouth", &"ability",
+	&"dodge", &"inventory", &"crafting", &"journal", &"weapon-switch", &"swallow", &"map", &"pause"]
+## How long the attack is held before it counts as a charge (`combat.chain.chargeStartMs`).
+const CHARGE_START_PATH := "combat.chain.chargeStartMs"
+const ESSENCE_KIND := "essence"
 
 ## The hint showing now (&"" when none).
 var current: StringName = &""
@@ -67,6 +89,12 @@ var _panel: PanelContainer
 var _label: Label
 var _attacking: bool = false
 var _rolling: bool = false
+## Rework: since when the attack is held with a shape (-1 = not held), the last shape and form seen,
+## and how many box abilities had started (AbilityBox.use_count; -1 = not read yet).
+var _attack_held_since_ms: float = -1.0
+var _shape: StringName = &""
+var _form: StringName = &""
+var _box_uses: int = -1
 var _opacity: float = 0.0
 var _bound_windows: Node
 var _bound_shell: Node
@@ -142,6 +170,10 @@ func is_learned(id: StringName) -> bool:
 ## The text of hint `id`, from the current key bindings.
 static func hint_text(id: StringName) -> String:
 	var scheme := ControlScheme.current()
+	if ReworkMode.is_on():
+		var rework := rework_hint_text(id, scheme)
+		if not rework.is_empty():
+			return rework
 	if ControlScheme.uses_orders(scheme):
 		match id:
 			&"move":
@@ -181,6 +213,31 @@ static func hint_text(id: StringName) -> String:
 	return ""
 
 
+## Rework mode: the text of a rework hint (charge, mouth, ability, swallow, weapon-switch) in
+## `scheme`; "" for the hints whose classic text stands.
+static func rework_hint_text(id: StringName, scheme: String) -> String:
+	var eat := ControlLabels.control_label(&"eat")
+	match id:
+		&"charge":
+			if ControlScheme.uses_orders(scheme):
+				return "%s and hold to charge a strong attack (costs energy)" % ControlScheme.swing_verb(scheme)
+			var attack := ControlLabels.control_label(&"attack")
+			return "Hold %s to charge a strong attack (costs energy)" % (attack.to_lower() if attack.ends_with(" click") else attack)
+		&"mouth":
+			return "Press %s to suck things in; tap %s to throw or spit them out" % [eat, eat]
+		&"ability":
+			return "Press %s to use your ability; choose it in the bag (%s)" % [ControlLabels.control_label(AbilityBox.USE_ACTION),
+				ControlLabels.control_label(&"menu")]
+		&"swallow":
+			return "Hold %s until the ring fills to swallow the essence" % eat
+		&"weapon-switch":
+			var labels := ControlLabels.control_labels(&"weapon_next").split(" / ")
+			if not ControlScheme.uses_mouse(scheme) or labels.size() < 2:
+				return "Press %s to change shape" % ControlLabels.control_label(&"weapon_next")
+			return "Use the %s or %s to change shape" % [labels[0].to_lower(), labels[1]]
+	return ""
+
+
 ## The text on the pill (kept while it fades out).
 func text() -> String:
 	return _label.text
@@ -189,6 +246,22 @@ func text() -> String:
 ## `isRelevant`.
 func is_relevant(id: StringName, player: Node) -> bool:
 	var run := Services.run()
+	if ReworkMode.is_on():
+		match id:
+			&"attack":
+				return not BodyCards.current_shape(player).is_empty()
+			&"charge":
+				return is_learned(&"attack") and not BodyCards.current_shape(player).is_empty()
+			&"mouth":
+				var held: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
+				return not held.is_empty() or (player.has_method(&"nearest_suckable") and player.call(&"nearest_suckable") != null)
+			&"ability":
+				return not AbilityBox.selected(player).is_empty()
+			&"weapon-switch":
+				return BodyCards.learned_shapes().size() >= 2
+			&"swallow":
+				var held: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
+				return str(held.get("kind", "")) == ESSENCE_KIND and bool(player.call(&"is_learned", &"swallow"))
 	match id:
 		&"move":
 			return true
@@ -212,7 +285,7 @@ func is_relevant(id: StringName, player: Node) -> bool:
 
 
 func _pick(player: Node) -> StringName:
-	for id in HINT_IDS:
+	for id in (REWORK_HINT_IDS if ReworkMode.is_on() else HINT_IDS):
 		if not is_learned(id) and is_relevant(id, player):
 			return id
 	return &""
@@ -244,6 +317,9 @@ func _learn_from_play(player: Node) -> void:
 		learn(&"move")
 	var combat: Variant = player.call(&"get_combat") if player.has_method(&"get_combat") else null
 	var attacking := combat != null and is_instance_valid(combat) and bool((combat as Node).call(&"is_attacking"))
+	var shapes := BodyCards.shapes_of(player) if ReworkMode.is_on() else null
+	if shapes != null and shapes.has_method(&"is_busy"):
+		attacking = attacking or bool(shapes.call(&"is_busy"))
 	if attacking and not _attacking:
 		learn(&"attack")
 	_attacking = attacking
@@ -251,6 +327,41 @@ func _learn_from_play(player: Node) -> void:
 	if rolling and not _rolling:
 		learn(&"dodge")
 	_rolling = rolling
+	if ReworkMode.is_on():
+		_learn_rework(player, shapes)
+
+
+## Rework: the charge (the attack held past the charge start, or the controller charging), the
+## mouth (a suck), the box ability (one started with `ability_use`), the shape switch (the shape
+## changing) and the swallow (a form taken).
+func _learn_rework(player: Node, shapes: Node) -> void:
+	var now := Services.now_ms()
+	var charging := shapes != null and shapes.has_method(&"is_charging") and bool(shapes.call(&"is_charging"))
+	var shape := BodyCards.current_shape(player)
+	if not shape.is_empty() and bool(player.call(&"is_action_held", &"attack")):
+		if _attack_held_since_ms < 0.0:
+			_attack_held_since_ms = now
+		var constants := Services.constants()
+		var start := constants.number(CHARGE_START_PATH) if constants != null else 0.0
+		charging = charging or now - _attack_held_since_ms >= start
+	else:
+		_attack_held_since_ms = -1.0
+	if charging:
+		learn(&"charge")
+	var mouth: Variant = player.call(&"get_mouth") if player.has_method(&"get_mouth") else null
+	if mouth is Object and (mouth as Object).has_method(&"is_sucking") and bool((mouth as Object).call(&"is_sucking")):
+		learn(&"mouth")
+	var uses := AbilityBox.use_count()
+	if _box_uses >= 0 and uses > _box_uses:
+		learn(&"ability")
+	_box_uses = uses
+	if not _shape.is_empty() and shape != _shape and BodyCards.learned_shapes().size() >= 2:
+		learn(&"weapon-switch")
+	_shape = shape
+	var form: StringName = player.call(&"current_form_id") if player.has_method(&"current_form_id") else &""
+	if not form.is_empty() and form != _form:
+		learn(&"swallow")
+	_form = form
 
 
 func _bind_sources() -> void:
@@ -275,6 +386,9 @@ func _on_menu_opened(surface_id: StringName) -> void:
 
 
 func _on_weapon_equipped(_payload: Dictionary) -> void:
+	# The rework's shapes teach the switch (`_learn_rework`), not the old belt.
+	if ReworkMode.is_on():
+		return
 	if _owned_belt_weapons() >= 2:
 		learn(&"weapon-switch")
 

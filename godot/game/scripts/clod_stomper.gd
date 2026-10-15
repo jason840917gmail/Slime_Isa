@@ -15,7 +15,9 @@ class_name ClodStomperScript
 ##   gives way (res://game/scripts/cracked_ground.gd `break_open`).
 ## - **Dazed** (`recovery_ms`): it stands still, the time to hit it; the next stomp waits
 ##   `stomp_cooldown_ms` after that.
-## Hits never break a stomp (it is heavy); a rolling slime's i-frames dodge the slam.
+## Hits never break a stomp (it is heavy); a rolling slime's i-frames dodge the slam. In the
+## body-shapes rework mode a reaction stun (a stagger, a knockdown, a hold) delays its next stomp
+## until the stun ends, and a dazed Clod's knockback slides it (the crouch and the hop stay armor).
 ##
 ## Clips: `idle-*` and `walk-*` (base AI, all three facings on the same side frames, mirrored for
 ## left), `crouch`, `air`, `slam`, `dazed`, `knockback-*` and `die-*`. Outside the chase the base
@@ -93,11 +95,15 @@ func _after_enemy_step(_delta: float) -> void:
 	if is_defeated() or _phase == PHASE_DEAD or body == null:
 		return
 	var now := Services.now_ms()
+	# Rework: a reaction stun (stagger, knockdown, hold) holds the stomp back; a dazed Clod's knockback
+	# slides. With the mode off `stunned` is always false (the old flow).
+	var stunned := ReworkMode.is_on() and now < get_hit_stun_until()
 	if _phase == PHASE_CHASE:
-		if get_runtime_state() == EnemyAI.STATE_ATTACK and now >= _next_stomp_at:
+		if not stunned and get_runtime_state() == EnemyAI.STATE_ATTACK and now >= _next_stomp_at:
 			_begin_crouch(now)
 		return
-	body.velocity = Vector2.ZERO
+	if not (stunned and _phase == PHASE_DAZED):
+		body.velocity = Vector2.ZERO
 	var elapsed := now - _phase_started_at
 	match _phase:
 		PHASE_CROUCH:
