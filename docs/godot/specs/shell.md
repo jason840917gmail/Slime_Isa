@@ -191,6 +191,8 @@ Godot:
   `game/data/world-map.json` takes the region's name and a lightened region colour. The name is
   `AreaTitles.region_name(region)`, which the save slots and the world map show too: without a
   trailing note in parentheses (the sketch tool's planning note, "Desert (open)" reads "Desert").
+  A chunk world takes its region world's name and colour (`level-1-c4` reads "Slimeshire
+  Meadow", in the save slots too; `WorldChunks.world_of`).
 
 ## 5. Controls and credits
 

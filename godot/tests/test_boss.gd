@@ -31,8 +31,10 @@ const MAX_HP := 140.0
 ## Inside the arena, 380 px south of the camp: far enough that 5 s of chasing at 42 px/s
 ## (210 px) never brings the contact area onto the player.
 const FAR_INSIDE := Vector2(480.0, 1852.0)
-## Outside the arena (r 420) but inside the activation circle (r 440).
-const OUTSIDE_ARENA := Vector2(480.0, 1902.0)
+## Outside the arena (r 420) but inside the activation circle (r 440): 430 px south-east of the
+## camp, in a corner of its clearing (straight south, east or west of the camp, D4's scenery stops
+## the slime inside r 420).
+const OUTSIDE_ARENA := Vector2(784.0, 1776.0)
 ## Player centre relative to Fatty: inside the contact ellipse (centre (1, -25), radii
 ## 83.5 x 52) with the hurtbox, clear of Fatty's body box.
 const CONTACT_OFFSET := Vector2(75.0, -40.0)

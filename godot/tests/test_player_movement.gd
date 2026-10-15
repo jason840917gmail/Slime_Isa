@@ -4,8 +4,9 @@ extends RefCounted
 ## ability on key 2) spins up in place, launches and eases to its cruising speed over its shortest
 ## roll, is safe from hits just after the launch, keeps rolling while held (steered, draining
 ## energy) and ends when let go; its values are read from `character.player.movement.roll*`.
-## The player starts at level-1's spawn (centre (640, 704)); the ground to the right and up-right
-## of it is open for the distances used here (a prop sits down-right).
+## The player starts at level-1's spawn (centre (640, 704), in the village chunk C4); the speed
+## checks walk from 60 px below it (OPEN), where the ground to the right and up-right is open for
+## the distances used here (the village banner at (656, 664) stands up-right of the spawn itself).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -14,6 +15,8 @@ const SquashStretch := preload("res://game/player/squash_stretch.gd")
 const WALK_SPEED := 200.0
 const SPRINT_SPEED := 300.0
 const MEASURE_STEPS := 30
+## Where the speed checks start (old Phaser centre).
+const OPEN := Vector2(640.0, 764.0)
 
 
 func test_walk_speed_is_200(t: TestContext) -> void:
@@ -280,6 +283,8 @@ func test_roll_and_swing_pick_the_facing_row(t: TestContext) -> void:
 ## Holds `actions`, lets the speed settle, then checks the velocity and the distance covered over
 ## MEASURE_STEPS ticks against `speed` along `direction`.
 func _check_speed(t: TestContext, actions: Array, direction: Vector2, speed: float, label: String) -> void:
+	t.teleport_player(OPEN)
+	await t.steps(2)
 	for action: StringName in actions:
 		t.press(action)
 	await t.steps(3)

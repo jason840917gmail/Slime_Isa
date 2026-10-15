@@ -8,7 +8,8 @@ extends RefCounted
 ##   get nothing.
 ## - Shores: water is the lowest ground and fills with the water shader (the water surface's own
 ##   parameters); land edge tiles draw over it.
-## - level-1: the edges are the ground layer's child after the water surface (drawn over it).
+## - level-1 (its four chunk worlds): the edges are the ground layer's child after the water
+##   surface (drawn over it).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
@@ -20,6 +21,9 @@ const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 const HARD_EDGED := ["rock-wall", "wood-floor", "mushroom-earth-floor", "mushroom-plain-floor", "mushroom-clover-floor"]
 ## Test map keys -> tile ids.
 const KEYS := {".": "grass-a", "s": "sanddessert-ground", "z": "frozen-ground", "~": "water", "r": "rock-wall"}
+## level-1's chunk worlds (the tests start in C4) and the one with the lake.
+const LEVEL1_CHUNKS: Array[String] = ["level-1-c4", "level-1-d4", "level-1-c5", "level-1-d5"]
+const WATER_CHUNK := "level-1-c5"
 
 
 func test_every_terrain_tile_is_a_ground_or_hard_edged(t: TestContext) -> void:
@@ -131,17 +135,35 @@ func test_shores_fill_with_the_water_shader(t: TestContext) -> void:
 
 
 func test_level_1_mounts_edges_over_the_water(t: TestContext) -> void:
-	var ground: TileMapLayer = t.world().ground_layer
-	if not t.check(ground != null, "level-1 has no ground layer"):
-		return
-	var edges := ground.get_node_or_null(NodePath(TerrainEdges.NODE_NAME)) as TerrainEdges
-	var surface := ground.get_node_or_null(NodePath(WaterSurface.NODE_NAME))
-	if not t.check(edges != null and surface != null, "level-1 lacks its edges or water surface"):
-		return
-	t.check(surface.get_index() < edges.get_index(), "level-1's edges draw after its water")
-	t.check(edges.corners > 500, "level-1 has few edge corners (%d)" % edges.corners)
+	# level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): its edges are
+	# counted over its four chunks, and the lake chunk C5 has the water they draw over.
+	var corners := 0
+	var grounds := {}
+	for chunk: String in LEVEL1_CHUNKS:
+		if t.world().map_id() != chunk:
+			if not t.check(t.main.travel_to(chunk, "west"), "travel to %s was refused" % chunk):
+				return
+			var arrived := await t.until(func() -> bool:
+				return not t.main.is_transitioning() and t.world().map_id() == chunk and t.player() != null, 3000.0, 6000.0)
+			if not t.check(arrived, "the player did not reach %s" % chunk):
+				return
+		await t.steps(2)
+		var ground: TileMapLayer = t.world().ground_layer
+		if not t.check(ground != null, "%s has no ground layer" % chunk):
+			continue
+		var edges := ground.get_node_or_null(NodePath(TerrainEdges.NODE_NAME)) as TerrainEdges
+		if not t.check(edges != null, "%s has no terrain edges" % chunk):
+			continue
+		var surface := ground.get_node_or_null(NodePath(WaterSurface.NODE_NAME))
+		if chunk == WATER_CHUNK:
+			t.check(surface != null, "%s has no water surface" % chunk)
+		if surface != null:
+			t.check(surface.get_index() < edges.get_index(), "%s's edges draw after its water" % chunk)
+		corners += edges.corners
+		grounds.merge(edges.sources)
+	t.check(corners > 500, "level-1 has few edge corners (%d)" % corners)
 	for ground_name: String in ["water", "sanddessert", "highland", "forest-moss", "forest-floor", "town-cobble", "amberleaf"]:
-		t.check(edges.sources.has(ground_name), "level-1 edges lack %s" % ground_name)
+		t.check(grounds.has(ground_name), "level-1 edges lack %s" % ground_name)
 
 
 # --- helpers ------------------------------------------------------------------------------------

@@ -338,6 +338,10 @@ func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
 		if not t.check(population != null, "main has no enemy_population"):
 			return
 		population.allowed_types = PackedStringArray()
+		# Arriving in a chunk can already fill its camp to every type's maxAlive: clear it first.
+		for enemy: EnemyScript in population.live_enemies():
+			enemy.body.queue_free()
+		await t.steps(2)
 		var area := _area(t, area_id)
 		var root := population.spawn_one(area)
 		if t.check(root != null, "'%s' spawned nothing" % area_id):

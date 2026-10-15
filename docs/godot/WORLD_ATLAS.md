@@ -256,7 +256,8 @@ in any of its chunks (tests/lib/test_context.gd).
 **Walking between chunks of one region:** the area banner shows the region's name once, on
 entering the region (`Shell._on_world_registered`); quests see the region's world entered too
 (`QuestService.on_world_built`); the world music carries on without a fade when the next chunk
-plays the same track (`MusicDirector._adopt_world`, `Main.is_travelling_within_region`).
+plays the same track (`MusicDirector._adopt_world`, `Main.is_travelling_within_region`); after a
+leave fade (quit to title, a travel out of the region) the world's music fades in anew.
 
 **Editing and rebuilding.** Edit a chunk in its own scene. The atlas shows a cut region's chunks in
 place (`AtlasRegion.show_chunks`, its exits and markers merged from the chunks,

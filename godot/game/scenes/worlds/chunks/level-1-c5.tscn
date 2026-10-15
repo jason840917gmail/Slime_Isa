@@ -49,6 +49,9 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--cooking-cauldron.tscn" id="47_42rtb"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-ground-01.tscn" id="48_51pjo"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_31"]
+size = Vector2(768, 1408)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_32"]
 size = Vector2(200, 150)
 
@@ -314,10 +317,14 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
+[node name="pursue-shape" type="CollisionShape2D" parent="Areas/level-1-south-meadow" unique_id=1767279294]
+position = Vector2(-96, 32)
+shape = SubResource("RectangleShape2D_31")
+
 [node name="stay-shape" type="CollisionShape2D" parent="Areas/level-1-south-meadow" unique_id=1176445107]
 shape = SubResource("RectangleShape2D_32")
 
-[node name="world-area-script" type="Node" parent="Areas/level-1-south-meadow" unique_id=222138720 node_paths=PackedStringArray("area", "stay_shape")]
+[node name="world-area-script" type="Node" parent="Areas/level-1-south-meadow" unique_id=222138720 node_paths=PackedStringArray("area", "shape", "stay_shape")]
 script = ExtResource("29_evxxd")
 area_kind = "enemy-spawn"
 area_id = "level-1-south-meadow"
@@ -335,6 +342,7 @@ data = {
 "intervalMs": 7000,
 "maxPopulation": 3
 }
+shape = NodePath("../pursue-shape")
 stay_shape = NodePath("../stay-shape")
 
 [node name="Encounters" type="Node2D" parent="." unique_id=1363579440]

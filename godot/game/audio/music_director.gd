@@ -294,7 +294,8 @@ func _adopt_world(root: Node) -> void:
 	if root.get_instance_id() == _world_root_id:
 		_bind_new_camps()
 		return
-	var old_fade_ms := _leaving_ms if is_leaving() else MUSIC_CROSSFADE_MS
+	var was_leaving := is_leaving()
+	var old_fade_ms := _leaving_ms if was_leaving else MUSIC_CROSSFADE_MS
 	_leaving_ms = -1.0
 	_engaged.clear()
 	for id: int in _bound_camps.keys():
@@ -303,8 +304,10 @@ func _adopt_world(root: Node) -> void:
 	_world_root_id = root.get_instance_id()
 	root.tree_exiting.connect(_on_world_exiting.bind(_world_root_id), CONNECT_ONE_SHOT)
 	var music := _claim_world_music(root)
-	# The next chunk of a region cut into chunk worlds plays the same track: it carries on.
-	if music != null and _valid(_world_track) and _world_track.playing and _same_track(_world_track, music):
+	# The next chunk of a region cut into chunk worlds plays the same track: it carries on. Not after
+	# a leave fade (a travel out of the region, quit to title, a new main): that world starts over.
+	if not was_leaving and music != null and _valid(_world_track) and _world_track.playing \
+			and _same_track(_world_track, music):
 		_release(music)
 		_world_wanted = true
 		_ensure_boss_track()

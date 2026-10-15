@@ -75,6 +75,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-11.tscn" id="43_jj6eo"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid--house-mushroom.tscn" id="44_ag1o4"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="45_tvl7h"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid--forge-red.tscn" id="46_frgrd"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17"]
 size = Vector2(1536, 1024)
@@ -347,6 +348,9 @@ position = Vector2(288, 1068.8)
 [node name="field-12" parent="Scenery" unique_id=666522017 instance=ExtResource("43_jj6eo")]
 position = Vector2(242.73, 1777.05)
 
+[node name="forge-red" parent="Scenery" unique_id=1869450048 instance=ExtResource("46_frgrd")]
+position = Vector2(1081, 921)
+
 [node name="world-definition" type="Node" parent="." unique_id=1586455258]
 script = ExtResource("14_35vjh")
 map_id = "level-1-c4"
@@ -603,20 +607,36 @@ position = Vector2(1204.39, 152)
 metadata/instance_id = "level-1-loose-stone-01"
 metadata/persistence_key = "level-1.level-1-loose-stone-01"
 
+[node name="CollectibleScript" parent="Resources/Stone/level-1-loose-stone-01" index="2"]
+map_id = "level-1-c4"
+instance_id = "level-1-loose-stone-01"
+
 [node name="level-1-loose-stone-02" parent="Resources/Stone" unique_id=604373710 instance=ExtResource("29_u4ml3")]
 position = Vector2(1141.39, 151)
 metadata/instance_id = "level-1-loose-stone-02"
 metadata/persistence_key = "level-1.level-1-loose-stone-02"
+
+[node name="CollectibleScript" parent="Resources/Stone/level-1-loose-stone-02" index="2"]
+map_id = "level-1-c4"
+instance_id = "level-1-loose-stone-02"
 
 [node name="level-1-stone-node-01" parent="Resources/Stone" unique_id=1030651284 instance=ExtResource("30_48ig3")]
 position = Vector2(1069.39, 184)
 metadata/instance_id = "level-1-stone-node-01"
 metadata/persistence_key = "level-1.level-1-stone-node-01"
 
+[node name="ResourceNodeScript" parent="Resources/Stone/level-1-stone-node-01" index="3"]
+map_id = "level-1-c4"
+instance_id = "level-1-stone-node-01"
+
 [node name="level-1-stone-node-02" parent="Resources/Stone" unique_id=1958662528 instance=ExtResource("30_48ig3")]
 position = Vector2(1201.39, 176)
 metadata/instance_id = "level-1-stone-node-02"
 metadata/persistence_key = "level-1.level-1-stone-node-02"
+
+[node name="ResourceNodeScript" parent="Resources/Stone/level-1-stone-node-02" index="3"]
+map_id = "level-1-c4"
+instance_id = "level-1-stone-node-02"
 
 [node name="resource-stone-node-f518b5a3" parent="Resources/Stone" unique_id=1990752728 instance=ExtResource("31_sr4yv")]
 position = Vector2(808, 161.6)

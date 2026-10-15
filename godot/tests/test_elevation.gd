@@ -438,7 +438,9 @@ func test_every_flight_walks_through_both_ends(t: TestContext) -> void:
 		var progress := func() -> float: return (body.global_position - top_end).dot(along) / along.length_squared()
 		var margin := 20.0 / along.length()
 		for down: bool in [true, false]:
-			var start := top_end - out if down else bottom_end + out
+			# Down, the body comes along the flight onto its top: from straight above a 45° front
+			# flight's top a diagonal walk passes beside the steps, and the rim holds it there.
+			var start := top_end - flight.dir * 40.0 if down else bottom_end + out
 			var start_level := flight.top if down else flight.bottom
 			if not t.check(elevation.is_walkable(start, start_level), "%s: the start %s is not walkable" % [label, start]):
 				continue

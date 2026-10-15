@@ -294,7 +294,10 @@ func test_stone_axe_swing_end_to_end(t: TestContext) -> void:
 		return
 	var damage := int(routes[0].get("actual_damage", 0))
 	t.check(damage == 14 or damage == 25, "axe damage %d (expected 14, or 25 on a crit)" % damage)
-	t.check(not paused["seen"], "a tree hit paused the game (hit-stop)")
+	# A crit (critChance 5 %) plays the critical-hit feel, hit-stop included, as the swing starts
+	# (player_combat.gd try_attack), whatever it hits: only a plain swing shows the tree adds none.
+	if damage == 14:
+		t.check(not paused["seen"], "a tree hit paused the game (hit-stop)")
 
 
 func test_purple_berry_coins(t: TestContext) -> void:

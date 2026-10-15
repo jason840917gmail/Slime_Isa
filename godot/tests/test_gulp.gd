@@ -17,6 +17,7 @@ extends RefCounted
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
+const LiftableScript := preload("res://game/scripts/liftable.gd")
 
 const MAP_ID := "playground"
 const STONE_ESSENCE := Vector2(1120.0, 800.0)
@@ -104,7 +105,10 @@ func test_a_thrown_puffball_hits_a_dummy(t: TestContext) -> void:
 	await t.until(func() -> bool: return not hits.is_empty(), 1500.0)
 	t.equal(hits.size(), 1, "the dummy took one hit")
 	if not hits.is_empty():
-		t.near(float(hits[0]["damage"]), Services.constants().number("gulp.throwDamage"), 0.01, "the throw's damage")
+		# gulp.throwDamage times the thrown thing's material (a puffball is soft: x 0.6).
+		var material := LiftableScript.material_of("puffball")
+		var by_material := float(Services.constants().dictionary("gulp.throwDamageByMaterial").get(material, 1.0))
+		t.near(float(hits[0]["damage"]), Services.constants().number("gulp.throwDamage") * by_material, 0.01, "the throw's damage")
 
 
 func test_a_hit_pops_the_form_and_drops_the_held_thing(t: TestContext) -> void:
