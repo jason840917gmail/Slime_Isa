@@ -82,14 +82,16 @@ func test_route_threads_a_gap_the_body_fits(t: TestContext) -> void:
 func test_unreachable_goal_stays_within_the_budget(t: TestContext) -> void:
 	var body := t.player_body()
 	var start := body.global_position
-	var box := start + Vector2(220.0, -13.0)
+	# West of the spawn: east of it the village chunk's hill lets a route drop into the box from its
+	# rim (a real way in, so not unreachable).
+	var box := start + Vector2(-220.0, -13.0)
 	for side: Vector2 in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
 		var size := Vector2(20.0, 140.0) if side.y == 0.0 else Vector2(140.0, 20.0)
 		_add_wall(t, box + side * 60.0, size)
 	await t.steps(2)
 	var path := t.player().get_click_orders().path
 	var started := Time.get_ticks_usec()
-	var route: Dictionary = path.find(start, start + Vector2(220.0, 0.0), t.now())
+	var route: Dictionary = path.find(start, start + Vector2(-220.0, 0.0), t.now())
 	var spent := (Time.get_ticks_usec() - started) / 1000.0
 	t.notes.append("unreachable goal: %.1f ms, %d nodes" % [spent, int(route.get("expansions", 0))])
 	t.check(not bool(route["complete"]), "a route through a wall")
@@ -164,7 +166,9 @@ func test_attack_order_walks_into_reach_and_swings(t: TestContext) -> void:
 
 func test_walk_order_pushes_through_the_home_door(t: TestContext) -> void:
 	t.teleport_player(HOME_DOOR_ARRIVAL)
-	await t.steps(2)
+	# A door waits worldNavigation.edgeTransitionGraceMs after the world loads (door.gd): a lean
+	# that started inside the grace would end before the push counts.
+	await t.sim_wait(Services.constants().number("worldNavigation.edgeTransitionGraceMs") + 50.0)
 	var interaction := t.main.get_tree().get_first_node_in_group(&"interaction")
 	var door: Dictionary = interaction.call(&"target_at", HOME_DOOR_PICK)
 	t.check(not str(door.get("id", "")).begins_with("world-doors:"), "a door under the pointer is a use target: %s" % [door.get("id")])

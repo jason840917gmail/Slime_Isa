@@ -5,12 +5,14 @@ class_name AreaTitles
 ## here until the converter exports area definitions as data (docs/godot/specs/shell.md 4).
 ## A region world of the world layout (res://game/data/world-map.json, a region's `world`) that
 ## is not in AREAS takes the region's name (`region_name`, also the world map's) and its colour
-## lifted towards the text colour.
+## lifted towards the text colour. A chunk world of a region cut into chunk worlds
+## (game/world/atlas/world_chunks.gd) takes its region world's name and colour.
 ##
 ## Owner: shell.
 
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const WorldMapData := preload("res://game/world/atlas/world_map_data.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 
 ## BIOMES[biome].titleColor.
 const BIOME_TITLE_COLORS := {
@@ -36,9 +38,11 @@ static var _regions: Dictionary = {}
 static var _regions_read := false
 
 
-## "Slimeshire Meadow" for level-1; a region world its region's name (`region_name`); any other id
-## is title-cased per "-" part ("elder-house" -> "Elder House").
+## "Slimeshire Meadow" for level-1 (and its chunk worlds, "level-1-c4"); a region world its
+## region's name (`region_name`); any other id is title-cased per "-" part ("elder-house" ->
+## "Elder House").
 static func area_name(map_id: String) -> String:
+	map_id = _whole_world(map_id)
 	if AREAS.has(map_id):
 		return str(AREAS[map_id]["name"])
 	var region_title := region_name(_region(map_id))
@@ -52,6 +56,7 @@ static func area_name(map_id: String) -> String:
 
 ## The area's biome title colour (a region world's: its region colour, lifted).
 static func title_color(map_id: String) -> Color:
+	map_id = _whole_world(map_id)
 	var fallback: Color = BIOME_TITLE_COLORS[DEFAULT_BIOME]
 	if AREAS.has(map_id):
 		return BIOME_TITLE_COLORS.get(str(AREAS[map_id]["biome"]), fallback)
@@ -70,6 +75,12 @@ static func region_name(region: Dictionary) -> String:
 	if text.ends_with(")") and note > 0:
 		text = text.left(note).strip_edges()
 	return text
+
+
+## The region world chunk world `map_id` was cut from; `map_id` itself for any other world.
+static func _whole_world(map_id: String) -> String:
+	var world := WorldChunks.world_of(map_id)
+	return map_id if world.is_empty() else world
 
 
 ## The world-map.json region whose overworld is `map_id` ({} when none).

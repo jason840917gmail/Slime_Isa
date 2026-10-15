@@ -4,6 +4,11 @@ extends RefCounted
 ## (`permanent_item_gained`); quiet grants (the start weapon) count as celebrated without it. With
 ## main's `ability_ceremonies` on, a key and a level-1 Goo Heart each play the ceremony, one after
 ## the other, with the world paused.
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the lakeside heart is in
+## the lake chunk C5 (`level-1-c5`), where every test of this file starts.
+
+## run_tests.gd starts every test of this file in level-1's lake chunk.
+const MAP_ID := "level-1-c5"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")

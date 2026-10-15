@@ -346,7 +346,9 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 
 
 func test_web_patch_catches_a_slime_and_tears_quietly_for_the_sticky_one(t: TestContext) -> void:
-	var at := t.player().get_centre() + Vector2(0.0, 120.0)
+	# Open ground for both the normal and the Sticky slime, set back included (120 px straight below
+	# the spawn a fieldstone wall row stands since the chunk worlds).
+	var at := t.player().get_centre() + Vector2(120.0, 40.0)
 	var root := t.world().spawn_at_phaser_position("effect.matron-web-patch", at)
 	if not t.check(root != null, "effect.matron-web-patch did not spawn"):
 		return

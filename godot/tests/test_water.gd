@@ -3,7 +3,7 @@ extends RefCounted
 ## - The mask has one texel per tile: r = 1 on `water` (shallow), g = 1 on `deep-water`, black
 ##   elsewhere; a world without water gets no surface.
 ## - level-1-c5 (the chunk world of level-1's lake, where the tests start; level-1 is cut into chunk
-##   worlds, docs/godot/WORLD_ATLAS.md): 31 shallow and 204 deep tiles; the WaterSurface quad is the
+##   worlds, docs/godot/WORLD_ATLAS.md): 31 shallow and 202 deep tiles; the WaterSurface quad is the
 ##   ground layer's child (drawn right after its tiles, z -2), below the underwater life (z -2,
 ##   y-sorted after the ground), the world-sorted decals (z -1: lily pads, bubbles) and the entities
 ##   (z 0: reeds).
@@ -22,7 +22,7 @@ const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 const WATER_SHADER_PATH := "res://game/world/water_surface.gdshader"
 const MAP_ID := "level-1-c5"
 const LEVEL1_SHALLOW_TILES := 31
-const LEVEL1_DEEP_TILES := 204
+const LEVEL1_DEEP_TILES := 202
 const LEVEL1_WATER_LIFE := 47
 const GLOOP_FOREST_DEEP_TILES := 106
 const IDLE_CLIP := &"object.water-life.idle"
