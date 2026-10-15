@@ -150,6 +150,8 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-2.wav" id="sfx_ca9335f6"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/ui/ceremony-3.wav" id="sfx_f7f31c46"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/secret-found.wav" id="sfx_secret_found"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stairs-1.wav" id="sfx_stairs_1"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stairs-2.wav" id="sfx_stairs_2"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -536,6 +538,15 @@ stream_1/stream = ExtResource("sfx_ca9335f6")
 stream_1/weight = 1.0
 stream_2/stream = ExtResource("sfx_f7f31c46")
 stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_footstep_stairs_StairsStep"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_stairs_1")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_stairs_2")
+stream_1/weight = 1.0
 
 [node name="GlobalAudio" type="Node2D"]
 y_sort_enabled = true
@@ -1336,6 +1347,16 @@ process_mode = 3
 stream = SubResource("Rnd_ui_ceremony_Ceremony")
 volume_db = -11.23
 max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StairsStep" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_footstep_stairs_StairsStep")
+volume_db = -7.73
+max_polyphony = 2
 bus = &"Effects"
 pitch_randomness = 0.06
 min_interval_ms = 60.0

@@ -28,6 +28,7 @@ const AreaTitles := preload("res://game/shell/area_titles.gd")
 const MapMarkers := preload("res://game/ui/map/map_markers.gd")
 const Minimap := preload("res://game/ui/map/minimap.gd")
 const WorldMapData := preload("res://game/world/atlas/world_map_data.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 
 ## Opened / closed (after the GameWindows push / pop).
 signal opened
@@ -267,14 +268,19 @@ static func reload_map() -> void:
 	_shapes = {}
 
 
-## The region with key `key_or_map_id`, else the region whose overworld or interior is that map
-## ({} when none, or without a layout).
+## The region with key `key_or_map_id`, else the region whose overworld or interior is that map, or
+## whose overworld a chunk world of that id was cut from (WorldChunks) ({} when none, or without a
+## layout).
 static func region_of(key_or_map_id: String) -> Dictionary:
 	var map := map_data()
 	if map == null or key_or_map_id.is_empty():
 		return {}
 	var region := map.region(key_or_map_id)
-	return region if not region.is_empty() else map.region_for_map(key_or_map_id)
+	if region.is_empty():
+		region = map.region_for_map(key_or_map_id)
+	if region.is_empty() and not WorldChunks.world_of(key_or_map_id).is_empty():
+		region = map.region_for_map(WorldChunks.world_of(key_or_map_id))
+	return region
 
 
 ## A region's map ids: its overworld world, then its interiors.
@@ -305,7 +311,9 @@ static func region_label(region: Dictionary, discovered: PackedStringArray, curr
 	var text := AreaTitles.region_name(region)
 	if text.is_empty():
 		text = str(region.get("key", ""))
-	return text + "\n" + CURRENT_TEXT if region_maps(region).has(current_map) else text
+	# A chunk world counts as its region's world.
+	var whole := WorldChunks.world_of(current_map)
+	return text + "\n" + CURRENT_TEXT if region_maps(region).has(whole if not whole.is_empty() else current_map) else text
 
 
 ## The summary line: the discovered regions of the layout (every discovered map id without one).
@@ -377,14 +385,16 @@ func region_rect(key_or_map_id: String) -> Rect2:
 
 
 ## Where the player's dot is drawn (panel coordinates): the player's place in the current world
-## mapped onto its region's block; INF when the current world is not a region's overworld.
+## mapped onto its region's block (a chunk world's onto its chunk); INF when the current world is
+## not a region's overworld or a chunk of one.
 func player_dot() -> Vector2:
 	var region := current_region()
 	var bounds := _world_rect()
 	var point := _player_point()
-	if region.is_empty() or str(region.get("world", "")) != _current_map() or not bounds.has_area() or not point.is_finite():
+	var chunk := WorldChunks.chunk_of(_current_map())
+	if region.is_empty() or (str(region.get("world", "")) != _current_map() and chunk.is_empty()) or not bounds.has_area() or not point.is_finite():
 		return Vector2.INF
-	var block := region_rect(str(region.get("key", "")))
+	var block := region_rect(str(region.get("key", ""))) if chunk.is_empty() else _chunk_panel_rect(chunk)
 	var at := ((point - bounds.position) / bounds.size).clamp(Vector2.ZERO, Vector2.ONE)
 	return block.position + at * block.size
 
@@ -605,6 +615,15 @@ func _outline(key: String) -> PackedVector2Array:
 	for point: Vector2 in _shapes[key]["outline"]:
 		out.append(_grid.position + point * _cell)
 	return out
+
+
+## The panel rectangle of chunk `chunk_name` ("A6"); empty without a layout.
+func _chunk_panel_rect(chunk_name: String) -> Rect2:
+	var map := map_data()
+	var column := WorldMapData.COLUMN_LETTERS.find(chunk_name.left(1))
+	if map == null or column < 0 or not chunk_name.substr(1).is_valid_int():
+		return Rect2()
+	return _cells_to_panel(map.chunk_rect_cells(Rect2i(Vector2i(column, int(chunk_name.substr(1)) - 1), Vector2i.ONE)))
 
 
 func _current_map() -> String:

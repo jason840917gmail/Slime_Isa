@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Cuts elevation cliff art (docs/godot/ELEVATION.md) out of the approved H plateau paintings, so the
-elevation system draws cliffs in their look (docs/godot/CLIFFS.md "Painted elevation").
+elevation system draws cliffs in their look (docs/godot/ELEVATION.md "Storybook art").
 
 The elevation system draws a cliff from five pieces laid along the painted outline: a wall texture
 that repeats sideways and down, corner stones where a wall ends, a lip along a top's border, a foot

@@ -439,7 +439,8 @@ The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`
   1.1 s). Floating still plays none, though the swim clip loops then too.
 - **Crossing the waterline**: land → shallows plays `WaterEnter`; starting to swim plays
   `SwimEnter`; climbing out onto land plays `WaterExit`. Swimming back into the shallows is quiet.
-- Nothing plays in the air (`is_airborne`, the jump and ledge drops) or on a cell without a tile.
+- Nothing plays in the air (`is_airborne`, the jump and ledge drops), on a cell without a tile or
+  on the stairs walk (`is_on_stairs`; it plays its own `StairsStep`, §10.2).
 - Each player's minimum interval (steps 180 ms, strokes 300 ms) absorbs a clip restart when the
   facing changes.
 
@@ -466,6 +467,7 @@ The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`
 | `Save` | a save to a slot succeeds | `save_slots_menu.gd` `_report` |
 | `Toast` | "New quest available" | `quest_notifications.gd` |
 | `TalkBlip` | letters appear in the dialogue box (80 ms apart at most) | `dialogue_box.gd` `_update_reveal` |
+| `StairsStep` | as each footstep of the stairs walk lands, every `elevation.stairsFootstepMs` (400 ms; [ELEVATION.md](../ELEVATION.md#stairs-walk)) (`footstep.stairs`, Sound Picker round 6 of 2026-10-14: the owner picked A, a stone tap, of six kinds; a 60 ms minimum interval) | `stairs_sequence.gd` `_cue_footsteps` |
 
 ### 10.3 Sound audition (dev)
 
@@ -475,8 +477,11 @@ round 2). Every staged cue that has the set's option plays those takes from
 `res://asset/audio/sfx/audition/` (MP3s plus `audition.json`, written by `stage-round.py`), at the
 volume measured for them. A corner panel names the set and the ground under the slime. The release
 Web export excludes the audition folder; applying the picks deletes it. It holds only the open
-round's cues. Round 4 was applied on 2026-10-06 and round 5 (§11) on 2026-10-09, so no round is
-open and the folder is gone until the next one is staged.
+round's cues. Round 4 was applied on 2026-10-06, round 5 (§11) on 2026-10-09 and round 6 (the
+stairs step, `scripts/audio/picker/round-6.json`) on 2026-10-14, so no round is open and the folder
+is gone until the next one is staged. The audition's sets are what the game plays, A, B and round
+2 (`SETS` in `sound_audition.gd`): a round with more options can only be heard on the picker page
+beyond those.
 
 ### 10.4 Tests
 

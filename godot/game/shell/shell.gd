@@ -38,6 +38,7 @@ const CreditsMenu := preload("res://game/shell/credits_menu.gd")
 const GameOver := preload("res://game/shell/game_over.gd")
 const EndCard := preload("res://game/shell/end_card.gd")
 const AreaTitleCard := preload("res://game/shell/area_title_card.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const PAUSE_MENU_SCENE := preload("res://game/shell/pause_menu.tscn")
 const SETTINGS_MENU_SCENE := preload("res://game/shell/settings_menu.tscn")
 const CONTROLS_MENU_SCENE := preload("res://game/shell/controls_menu.tscn")
@@ -96,6 +97,8 @@ var _stack: Array = []
 var _actions: Dictionary = {}
 var _quitting: bool = false
 var _feel_applied: bool = false
+## The world whose banner showed last (a chunk world counts as its region's world).
+var _titled_world := ""
 
 
 func _ready() -> void:
@@ -529,12 +532,17 @@ func _in_world() -> bool:
 
 
 ## A world of the game loaded: its area banner (WorldScene.ts:515-517); end cards already earned
-## in this run stay shown.
+## in this run stay shown. A chunk world is titled by its region's world, and walking on into the
+## next chunk of the same region shows no banner again.
 func _on_world_registered(payload: Dictionary) -> void:
 	if not _in_world():
 		return
 	var map_id := str(payload.get("mapId", ""))
-	show_area_title(AreaTitles.area_name(map_id), AreaTitles.title_color(map_id))
+	var region_world := WorldChunks.world_of(map_id)
+	if region_world.is_empty() or region_world != _titled_world:
+		var titled := map_id if region_world.is_empty() else region_world
+		show_area_title(AreaTitles.area_name(titled), AreaTitles.title_color(titled))
+	_titled_world = map_id if region_world.is_empty() else region_world
 	var run := Services.run()
 	if run != null:
 		end_card.mark_existing(run.has_flag)

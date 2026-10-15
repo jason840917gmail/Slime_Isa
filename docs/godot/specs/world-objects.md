@@ -146,12 +146,11 @@ All of them have `damageRule {priority: 0, damageMultiplier: 1}`.
 | `resource-stone-node.big-stone-mine` | `resource.stone-node` | 80 | same | same | `stone-impact` | `""` | **false** | Stone broken | stone ≥ 1 | 100×60 at (1, 6) | same |
 | `resource-iron-node` | `resource.iron-node` | 120 | iron, resource, solid | `collectible.iron-ore-pile` × 2 | `stone-impact` | `""` | **false** | Iron ore broken | iron ≥ 2, "Requires a Reinforced Pickaxe" | 100×48 at (0, −40) | `resource_hit → ClinkSfx`, `harvest_blocked → WrongToolSfx`, `drops_requested → ShatterSfx` (detached) |
 | `rock-amber-ore-mineable` | `rock.amber-ore.mineable` | 30 | rock, solid, mineable (**no `resource`**) | `collectible.crystal-shard` × 1 | `""` (none) | `""` | true | Ore depleted | `{}` (**none**) | 42×16 at (1, −29) | Clink, WrongTool, Shatter |
-| 45 `tree-world-solid*` variants (47 tree scenes, all but the two below) | `tree.world.solid` | 40 | wood, resource, tree, solid | `collectible.wood-pile` × 1 | `wood-impact` | `""` / — | true | Tree felled | wood ≥ 1, "Requires an Axe" | per variant, e.g. 68×40 at (−2, −34), grove-tree-04 44×42 at (0, −24) | `resource_hit → RustleSfx` (volume 0.8), `harvest_blocked → WrongToolSfx`, `drops_requested → FallSfx` (detached) |
-| `tree-world-solid.snow-pine` | same | 40 | same | same | `wood-impact` | `""` / `object.tree.idle` (`animation` ref set) | true | Tree felled | wood ≥ 1 | — | same |
-| `tree-world-solid.tree-autumn-01` | same | 40 | same | same | `wood-impact` | `object.tree.autumn.leaf-fall` (0.6 s, 10 fps, no loop) / `object.tree.autumn.idle` (2 s loop, autoplay, randomized start) | true | Tree felled | wood ≥ 1 | 54×41 at (0, −27.5) | same |
+| 47 `tree-world-solid*` variants | `tree.world.solid` | 40 | wood, resource, tree, solid | `collectible.wood-pile` × 1 | `wood-impact` | `""` / — | true | Tree felled | wood ≥ 1, "Requires an Axe" | per variant, e.g. 68×40 at (−2, −34), grove-tree-04 44×42 at (0, −24) | `resource_hit → RustleSfx` (volume 0.8), `harvest_blocked → WrongToolSfx`, `drops_requested → FallSfx` (detached) |
 
-Many tree variants also have an `AmbientAnimation` AnimationPlayer (autoplay
-`object.ambient.idle`) that the script does not reference. Every WrongToolSfx has
+Since the region-set tree art (2026-10-12, [FORESTS.md](../FORESTS.md)) no tree scene has an
+AnimationPlayer: the `Visual` sways in `tree_sway.gdshader`, and the snow pine's idle clip and the
+autumn tree's leaf-fall (on hit) and idle clips are gone with their frame sheets. Every WrongToolSfx has
 `minIntervalMs` 200 and `pitchRandomness` 0.06.
 
 Hit effects (`content/scenes/authored/effects/wood-impact.scene.json`, `stone-impact.scene.json`):
@@ -413,8 +412,8 @@ the script `_physics_process` or in the contact pass):
    effects (the knockback potency is applied and ignored), `defeated = actual >= hp`.
 3. `commitDamage` (3.3): HP, then (trees only, `persistHealth`) the record `{stage:"node", value:
    hp}`, `health_changed`, `damaged`, then `onPositiveDamage` (`:138-151`):
-   1. `playAnimation(onHitAnimationId)` (only the autumn tree: `leaf-fall`, restarted on every
-      hit; when it finishes, `object.tree.autumn.idle` restarts from frame 0).
+   1. `playAnimation(onHitAnimationId)` (no resource has one since 2026-10-12; the autumn tree's
+      `leaf-fall` went with its frame sheet).
    2. Build `request = {mapId, instanceId, objectId, actualDamage, x, y, effectId?, animationId?}`.
    3. `port.publishHit(request)` = `publishResourceHit` (`UniversalSceneWorldController.ts:2133-2151`):
       - the first Sprite2D under the owner (the `Visual`) gets a solid fill `#ffd277`
@@ -846,7 +845,7 @@ A stone node (persistHealth false) has no record until it breaks; then
 | Event | Visual | Text | Sound | Camera / hit-stop |
 |---|---|---|---|---|
 | non-tool weapon on a tree or stone | none | cyan big message at (x, y − 58), every swing | WrongToolSfx (min 200 ms) | none (the swing's crit feel at swing start still happens) |
-| tool hit | Visual solid `#ffd277` 110 ms; hit effect (wood/stone impact, 333 ms); autumn tree leaf-fall then idle | `-N` white small at (x, y − 54) | trees: rustle + chop; stone: mine; iron: clink + mine | none |
+| tool hit | Visual solid `#ffd277` 110 ms; hit effect (wood/stone impact, 333 ms) | `-N` white small at (x, y − 54) | trees: rustle + chop; stone: mine; iron: clink + mine | none |
 | tool hit on the amber ore | as above, no hit effect, plus `hit-spark` and the weapon impact effect | `-N` | clink (+ sword impact sound) | 65 ms hit-stop (crit sting if crit) |
 | node breaks | node disappears at the end of the step; piles arc out (280 ms + rebound) | depletion message yellow big at (x, y − 46) | fall / crumble / shatter (detached) | none |
 | a pile waiting | hops about 6 px every 1-2 s (Godot addition, 7.1) | | | |

@@ -207,7 +207,7 @@ func test_click_scheme_right_click_never_uses_a_door(t: TestContext) -> void:
 	_click_button(t, MOUSE_BUTTON_RIGHT, false)
 	_use_scheme(ControlScheme.KEYBOARD)
 	await t.sim_wait(800.0)
-	t.check(not t.main.is_transitioning() and t.world().map_id() == "level-1", "the right click went through the home door")
+	t.check(not t.main.is_transitioning() and t.in_world("level-1"), "the right click went through the home door")
 
 
 ## The pointer scheme: the slime turns to the pointer, W walks toward it, S does not move it, nor
@@ -301,7 +301,7 @@ func test_keys_scheme_w_never_uses_a_door(t: TestContext) -> void:
 	_key(t, KEY_W, false)
 	await t.sim_wait(800.0)
 	_use_scheme(ControlScheme.KEYBOARD)
-	t.check(not t.main.is_transitioning() and t.world().map_id() == "level-1", "W went through the home door")
+	t.check(not t.main.is_transitioning() and t.in_world("level-1"), "W went through the home door")
 
 
 func test_prompt_verb_follows_the_scheme(t: TestContext) -> void:

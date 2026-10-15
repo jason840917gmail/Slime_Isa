@@ -7,6 +7,10 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const EnemyLoot := preload("res://game/world_objects/enemy_loot.gd")
 
+## The chunk the tests start in (level-1 is cut into chunk worlds, docs/godot/WORLD_ATLAS.md); loot
+## records are kept per chunk world.
+const VILLAGE_MAP := "level-1-c4"
+
 
 func test_worm_pays_coins_on_defeat(t: TestContext) -> void:
 	var run := Services.run()
@@ -23,13 +27,13 @@ func test_worm_pays_coins_on_defeat(t: TestContext) -> void:
 func test_loot_pile_is_recorded_restored_and_collected(t: TestContext) -> void:
 	var run := Services.run()
 	var at := Vector2(900.0, 900.0)
-	t.main.loot.drop_loot("level-1", at, [{"item_id": "shard", "count": 1}])
-	var drops: Dictionary = run.map_record("level-1")["inventory_drops"]
+	t.main.loot.drop_loot(VILLAGE_MAP, at, [{"item_id": "shard", "count": 1}])
+	var drops: Dictionary = run.map_record(VILLAGE_MAP)["inventory_drops"]
 	if not t.check(drops.size() == 1, "%d loot records" % drops.size()):
 		return
 	var record: Dictionary = drops.values()[0]
 	t.equal(record.get("origin"), "loot", "loot origin")
-	t.main.travel_to("level-1", "south")
+	t.main.travel_to(VILLAGE_MAP, "south")
 	await t.until(func() -> bool: return t.main.is_transitioning(), 100.0)
 	await t.until(func() -> bool: return not t.main.is_transitioning() and t.player() != null, 3000.0, 6000.0)
 	await t.steps(3)
@@ -42,7 +46,7 @@ func test_loot_pile_is_recorded_restored_and_collected(t: TestContext) -> void:
 	t.teleport_player((pile.get_parent() as Node2D).global_position - Vector2(0.0, 14.56))
 	await t.until(func() -> bool: return run.item_count("shard") > 0, 300.0)
 	t.equal(run.item_count("shard"), 1, "shards after the pickup")
-	t.check(not (run.map_record("level-1")["inventory_drops"] as Dictionary).has(record["id"]), "the loot record is gone after the pickup")
+	t.check(not (run.map_record(VILLAGE_MAP)["inventory_drops"] as Dictionary).has(record["id"]), "the loot record is gone after the pickup")
 
 
 func test_scatter_rings(t: TestContext) -> void:

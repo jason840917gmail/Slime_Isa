@@ -21,10 +21,10 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
 const GroundSurface := preload("res://game/world/ground_surface.gd")
-const GroundShade := preload("res://game/world/ground_shade.gd")
 const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
+const BridgeDeck := preload("res://game/world/bridge_deck.gd")
 
 ## Scene id -> scene path for every scene Godot owns (docs/godot/CONVENTIONS.md "Scenes Godot owns").
 const SCENE_INDEX_PATH := "res://game/scenes/scene_index.json"
@@ -175,8 +175,7 @@ func spawn_at_phaser_position(scene_id: String, phaser_point: Vector2, parent: N
 ## Registers the instanced world: finds the `world_definition.gd` node (exactly one; push_error
 ## and return false otherwise), validates it (world spec 2.1), finds the ground TileMapLayer,
 ## mounts the 128 px ground (`GroundSurface.mount`), the animated water on it
-## (`WaterSurface.mount`, docs/godot/specs/water.md), the light by height of hand-painted cliffs
-## (`GroundShade.mount`, docs/godot/CLIFFS.md) and the
+## (`WaterSurface.mount`, docs/godot/specs/water.md), the
 ## hand-made terrain edges over both (`TerrainEdges.mount`, docs/godot/TERRAIN_LAB.md) and the
 ## cliffs of its elevation layer over everything (`Elevation.mount`, docs/godot/ELEVATION.md),
 ## and builds the area records from every `world_area.gd` node (world spec 3.1). Emits
@@ -211,12 +210,12 @@ func register_world(root: Node2D) -> bool:
 		WaterSurface.mount(ground_layer)
 		# Hand-made edges where grounds meet, shores included: after the water, so they draw over it.
 		TerrainEdges.mount(ground_layer)
-		# Low ground darker than the hand-painted cliff tops (docs/godot/CLIFFS.md "Light").
-		GroundShade.mount(ground_layer)
 		# Cliffs and holes from the world's elevation layer, over both (docs/godot/ELEVATION.md).
 		elevation = Elevation.mount(ground_layer, true)
 		# Splashes and ripples at the feet of every walker in the water (specs/water.md "Wading").
 		WaterWake.mount(ground_layer)
+		# The cells under bridge decks keep their water but lose its collision (specs/water.md §10).
+		BridgeDeck.lay(root, ground_layer)
 	_areas.clear()
 	for node: Node in area_scripts:
 		var record: Dictionary = (node as WorldAreaScript).to_record()
@@ -319,11 +318,13 @@ func npc_wander_area(instance_id: String) -> Dictionary:
 ## `tile_id` (rock wall's collision is separate StaticBody2D nodes under `ground/TileCollision`; deep
 ## water's is a collision square on its tiles), so a cell is solid when its `tile_id` is in
 ## SOLID_TILE_IDS; a TileSet collision polygon on any physics layer also counts (contract C3). An
-## empty cell is not solid (WorldScene.isSolidTile).
+## empty cell is not solid (WorldScene.isSolidTile), nor is a cell under a bridge deck.
 func is_solid_tile(tx: int, ty: int) -> bool:
 	if not _is_within_world(tx, ty):
 		return true
 	if not is_instance_valid(ground_layer) or ground_layer.tile_set == null:
+		return false
+	if BridgeDeck.is_bridged(ground_layer, Vector2i(tx, ty)):
 		return false
 	var tile_data := ground_layer.get_cell_tile_data(Vector2i(tx, ty))
 	if tile_data == null:
@@ -336,6 +337,12 @@ func is_solid_tile(tx: int, ty: int) -> bool:
 		if tile_data.get_collision_polygons_count(layer_index) > 0:
 			return true
 	return false
+
+
+## True when cell (tx, ty) is under a bridge deck (game/world/bridge_deck.gd): whatever its tile, it
+## is the deck there (no collision, no wading, wooden steps).
+func is_bridged(tx: int, ty: int) -> bool:
+	return is_instance_valid(ground_layer) and BridgeDeck.is_bridged(ground_layer, Vector2i(tx, ty))
 
 
 func _is_within_world(tx: int, ty: int) -> bool:

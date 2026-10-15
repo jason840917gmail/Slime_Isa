@@ -358,8 +358,9 @@ func test_area_title_card_on_world_registration(t: TestContext) -> void:
 	var clock := {"ms": 10000.0}
 	card.clock = func() -> float: return float(clock["ms"])
 	t.check(not card.is_showing(), "the card showed before any world registered")
-	t.world().world_registered.emit({"mapId": "level-1"})
-	t.check(card.is_showing(), "no card after level-1 registered")
+	# level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md): a chunk is titled by its region.
+	t.world().world_registered.emit({"mapId": "level-1-c4"})
+	t.check(card.is_showing(), "no card after level-1-c4 registered")
 	t.equal(card.label.text, "Slimeshire Meadow", "level-1 title")
 	t.equal(card.current_color().to_html(false), "a3f0c0", "meadow title colour")
 	card._process(0.0)
@@ -383,6 +384,9 @@ func test_area_title_card_on_world_registration(t: TestContext) -> void:
 	clock["ms"] = 10000.0 + 1840.0
 	card._process(0.0)
 	t.check(not card.visible, "the card stayed after 1840 ms")
+	# Walking on into the next chunk of the same region shows no card again.
+	t.world().world_registered.emit({"mapId": "level-1-d4"})
+	t.check(not card.is_showing(), "a card showed again for the next chunk of level-1")
 
 	# Another world, an unknown id, and no card for a world outside main (the title backdrop).
 	t.world().world_registered.emit({"mapId": "gloop-forest"})
@@ -392,7 +396,7 @@ func test_area_title_card_on_world_registration(t: TestContext) -> void:
 	t.equal(card.label.text, "Elder House", "an unknown map's title from its id")
 	clock["ms"] = 20000.0
 	t.main.remove_from_group(ShellScript.WORLD_MAIN_GROUP)
-	t.world().world_registered.emit({"mapId": "level-1"})
+	t.world().world_registered.emit({"mapId": "level-1-c4"})
 	t.check(not card.is_showing(), "a card showed for a world outside main")
 	t.main.add_to_group(ShellScript.WORLD_MAIN_GROUP)
 	_free_shell(shell)
@@ -407,7 +411,7 @@ func test_end_card_opens_once_for_a_new_story_flag(t: TestContext) -> void:
 	# A flag the run already had when the world loaded never shows its card.
 	run.set_flag("chapter-2-complete")
 	var shell := _make_shell(t)
-	t.world().world_registered.emit({"mapId": "level-1"})
+	t.world().world_registered.emit({"mapId": "level-1-c4"})
 	run.story_flag_changed.emit({"flag": "chapter-2-complete", "set": true})
 	t.check(not shell.end_card.is_open(), "an end card opened for a flag the run already had")
 	run.set_flag("playground-end-card-test")
@@ -464,12 +468,15 @@ func test_ui_theme_has_every_documented_variation(t: TestContext) -> void:
 			stale.append(type_name)
 	t.check(stale.is_empty(), "slime_theme.tres is older than tools/build_ui_theme.gd (%s); rebuild it" % ", ".join(stale))
 	t.near(theme.get_color(&"warning", &"Palette").r, UiTokens.WARNING.r, 0.001, "palette warning")
-	# The drawn icons are stored in the .tres (an empty one means the compressed bytes were lost).
+	# The drawn icons are files beside the theme. The editor re-saves the theme as it was loaded at
+	# startup (on any scene save), so that copy, and an icon file re-saved, must keep the pixels.
+	var resaved := _resaved(theme) as Theme
 	for pair: Array in [[&"grabber", &"HSlider"], [&"checked", &"CheckBox"], [&"arrow", &"OptionButton"]]:
 		var icon := theme.get_icon(pair[0], pair[1])
-		var image := icon.get_image() if icon != null else null
-		t.check(image != null and not image.is_empty() and image.get_used_rect().size.x > 0,
-			"theme icon %s/%s is empty" % [pair[1], pair[0]])
+		for copy: Texture2D in [icon, resaved.get_icon(pair[0], pair[1]), _resaved(icon) as Texture2D]:
+			var image := copy.get_image() if copy != null else null
+			t.check(image != null and not image.is_empty() and image.get_used_rect().size.x > 0,
+				"theme icon %s/%s is empty, or lost by a re-save" % [pair[1], pair[0]])
 
 
 # --- helpers --------------------------------------------------------------------------------------
@@ -541,6 +548,15 @@ func _restore_mix(saved: Dictionary) -> void:
 	if feel != null and saved.has("feel"):
 		feel.screen_shake_scale = float(saved["feel"][0])
 		feel.reduce_motion = bool(saved["feel"][1])
+
+
+## `resource` saved to user:// and loaded back from disk with its dependencies.
+func _resaved(resource: Resource) -> Resource:
+	var path := "user://test_shell_resave_%d.tres" % OS.get_process_id()
+	ResourceSaver.save(resource, path)
+	var copy := ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	return copy
 
 
 func _remove_settings_file() -> void:

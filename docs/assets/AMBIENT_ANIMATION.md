@@ -7,7 +7,7 @@ This is the standard for idle ("ambient") motion on world objects.
 
 | Tier | When | How | Examples |
 | --- | --- | --- | --- |
-| 1. Frame sheet | The shape itself changes | 8-frame loop in a sprite sheet, played on the `Visual` sprite's `frame` | campfire flames, lantern flicker, stew bubbles, banner cloth, water shimmer, tree canopy sway, the animated autumn tree |
+| 1. Frame sheet | The shape itself changes | 8-frame loop in a sprite sheet, played on the `Visual` sprite's `frame` | campfire flames, lantern flicker, stew bubbles, banner cloth, water shimmer; tree canopy sway is the same bend done in a shader (below) |
 | 2. Motion only | The object moves but keeps its shape | `AnimationPlayer` tracks on the `Visual` sprite (`rotation`, `alpha`), no new art | a hanging sign swinging, a glow pulsing, tree webs swaying and victim cocoons struggling (`object.decoration-world-ambient.web-*`, origin at the thread so they swing from it) |
 | 3. Static | Nothing would move | nothing | fences, tables, anvils, crates, statues |
 
@@ -61,25 +61,24 @@ decoration sheet. It has two methods:
   the banner, but Seedance changed its perspective and added a cast shadow,
   so the cloth would not line up with the fixed stand.
 
-Trees use `scripts/art/build-tree-sway-sheets.py`, which bakes 8 canopy-sway
-frames per tree into `godot/asset/MAPS/trees/128x170-tile_16x22-trees-sway.webp`
-(`sheet.trees.sway.16x22`) and `256x256-tile_8x3-trees-sway.webp`
-(`sheet.trees.3x1.sway.8x3`); source frame `f` becomes frames `f*8 .. f*8+7`.
-Rows shift sideways by an amount that is 0 where the canopy leaves the trunk
-and grows toward the crown, so trunks and roots never move. Leafless trees
-(frames 0-8 of the 128x170 sheet: dead pines, twisted bare trees, the frosted
-tree) have no canopy, so they stay on the static sheet with no animation; the
-list lives in the sheet builder.
-
-After changing the sheet, re-run
-`python scripts/art/despill-magenta-fringe.py` on it if it came from a chroma
-key.
+Trees sway in a shader, not a sheet: the big trees of the region sets
+(`godot/asset/MAPS/trees/sets/`, 2 px per world unit) are too large to bake 8
+frames each. `godot/game/world/forest/tree_sway.gdshader` shifts each pixel row
+sideways by an amount that is 0 where the canopy leaves the trunk and grows
+toward the crown, one slow even swing (a travelling ripple made big canopies
+wobble), so trunks and roots never move; the phase
+comes from where the tree stands, so one shared material
+(`tree_sway_material.tres`) serves every tree and they batch. It is a Tier 1
+bend, not a rotation; tune it on the material ([forests](../godot/FORESTS.md)).
+Rigid trees (cacti, crystal trees, cave mushrooms, bare gnarled and ash trees)
+do not sway: their table entry says `"sway": false` and they get no material.
+(The 2026-10 art replaced the baked sway sheets and the leaf-fall autumn tree.)
 
 ## Wiring
 
-Each animated decoration or tree scene has an ambient `AnimationPlayer` (clip `idle`, random start)
-on its `Visual` sprite; trees on the sway sheets play their 8 frames, and trees with their own
-authored frame animation (the autumn tree) keep it. The players were wired in the Phaser scene JSON
+Each animated decoration scene has an ambient `AnimationPlayer` (clip `idle`, random start) on its
+`Visual` sprite; tree scenes have none (their `Visual` carries the sway material). The players were
+wired in the Phaser scene JSON
 by a script and converted with the scenes; a new animated object gets its player in the Godot editor
 (copy one from a similar scene in `godot/game/scenes/objects/`).
 

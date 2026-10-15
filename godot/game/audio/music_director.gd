@@ -300,17 +300,32 @@ func _adopt_world(root: Node) -> void:
 	for id: int in _bound_camps.keys():
 		if not is_instance_id_valid(id):
 			_bound_camps.erase(id)
-	_retire_world_track(old_fade_ms)
-	_ensure_boss_track()
 	_world_root_id = root.get_instance_id()
 	root.tree_exiting.connect(_on_world_exiting.bind(_world_root_id), CONNECT_ONE_SHOT)
 	var music := _claim_world_music(root)
+	# The next chunk of a region cut into chunk worlds plays the same track: it carries on.
+	if music != null and _valid(_world_track) and _world_track.playing and _same_track(_world_track, music):
+		_release(music)
+		_world_wanted = true
+		_ensure_boss_track()
+		_bind_new_camps()
+		return
+	_retire_world_track(old_fade_ms)
+	_ensure_boss_track()
 	if music != null:
 		_world_track = music
 		_world_wanted = true
 		_apply_volumes()
 		_start_wanted_tracks()
 	_bind_new_camps()
+
+
+## True when players `a` and `b` play the same file (a looping copy remembers its file).
+static func _same_track(a: AudioStreamPlayer, b: AudioStreamPlayer) -> bool:
+	if a.stream == null or b.stream == null:
+		return false
+	var source_a := str(a.stream.get_meta(&"source_path", a.stream.resource_path))
+	return not source_a.is_empty() and source_a == str(b.stream.get_meta(&"source_path", b.stream.resource_path))
 
 
 func _retire_world_track(fade_ms: float) -> void:
@@ -403,8 +418,14 @@ func _on_node_added(node: Node) -> void:
 ## The adopted world leaves the tree without a leave fade (quit to title, a test teardown): fade
 ## its music out over the leave time instead of letting it outlive the world at full volume.
 func _on_world_exiting(root_id: int) -> void:
-	if root_id == _world_root_id and not is_leaving():
+	if root_id == _world_root_id and not is_leaving() and not _travelling_within_region():
 		fade_out(AreaTravel.LEAVE_FADE_MS)
+
+
+## True while main travels into another chunk of the same region (the music carries on).
+func _travelling_within_region() -> bool:
+	var main := get_tree().get_first_node_in_group(MAIN_GROUP) if is_inside_tree() else null
+	return main != null and main.has_method(&"is_travelling_within_region") and bool(main.call(&"is_travelling_within_region"))
 
 
 ## True when `root` is one of main's worlds (not a title backdrop).
@@ -448,7 +469,7 @@ func _watch_travel() -> void:
 		return
 	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
 	var transitioning := main != null and main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning"))
-	if transitioning and not _was_transitioning and not is_leaving():
+	if transitioning and not _was_transitioning and not is_leaving() and not _travelling_within_region():
 		fade_out(AreaTravel.LEAVE_FADE_MS)
 	_was_transitioning = transitioning
 

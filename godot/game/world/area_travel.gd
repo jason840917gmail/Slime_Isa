@@ -32,7 +32,8 @@ const EDGES: PackedStringArray = ["north", "east", "south", "west"]
 
 ## The old Phaser (centre) position the player arrives at in the registered world for a
 ## navigation handoff (`RunState.consume_navigation()`); `fallback` when the handoff is empty.
-## Anchor: the `entry_door`'s arrival, else the Node2D named `entry_marker`, else the
+## Anchor: the `entry_door`'s arrival, else the Node2D named `entry_marker`, else the point
+## `entry_along` along the `entry_edge` (`edge_point`: kept as it is when its tile is open), else the
 ## `entry_edge` marker, else `player-spawn`; then `find_spawn_point`.
 static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 	var world := Services.world()
@@ -53,11 +54,38 @@ static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 		if anchor == null:
 			push_warning("AreaTravel: world '%s' has no Node2D '%s' to arrive at" % [world.map_id(), marker_name])
 	var edge := str(navigation.get("entry_edge", ""))
+	if anchor == null and not edge.is_empty() and navigation.has("entry_along"):
+		var point := edge_point(edge, float(navigation["entry_along"]))
+		var tile_size := float(world.dimensions().get("tile_size", 64))
+		if not world.is_solid_tile(floori(point.x / tile_size), floori(point.y / tile_size)):
+			return point
+		anchor = point
 	if anchor == null and not edge.is_empty():
 		anchor = entry_marker(world.world_root, edge)
 	if anchor == null:
 		anchor = world.player_spawn_marker()
 	return world.find_spawn_point(anchor)
+
+
+## The old Phaser centre `along` units along the registered world's `edge` (from its top for east
+## and west, from its left for north and south), `worldNavigation.edgeArrivalInset` inside it: where
+## a body arrives that left the world before at that place along the opposite edge.
+static func edge_point(edge: String, along: float) -> Vector2:
+	var world := Services.world()
+	var constants := Services.constants()
+	var inset := constants.number("worldNavigation.edgeArrivalInset") if constants != null else 0.0
+	var bounds: Rect2 = world.world_rect()
+	var x := clampf(along, inset, bounds.size.x - inset)
+	var y := clampf(along, inset, bounds.size.y - inset)
+	match edge:
+		"west":
+			return bounds.position + Vector2(inset, y)
+		"east":
+			return bounds.position + Vector2(bounds.size.x - inset, y)
+		"north":
+			return bounds.position + Vector2(x, inset)
+		_:
+			return bounds.position + Vector2(x, bounds.size.y - inset)
 
 
 ## A loaded save's spot (`WorldScene.isValidSavedPosition`): the saved old Phaser centre when it

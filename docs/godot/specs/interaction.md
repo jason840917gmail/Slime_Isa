@@ -777,11 +777,20 @@ level-1 interactables (old Phaser positions; "o" = origin):
 ### 5.2 Door pairs and arrival points
 
 [GODOT] The table records Phaser's arrivals. Since 2026-10-14 the house doors have sides (level-1
-`home-door` / `mushroom-home-door` and gloop-forest `hut-door` north, the interiors' `house-door`
-south), and the slime arrives in the doorway and walks out of it (CONVENTIONS.md "Doors",
-world.md section 8); the level-1 `mushroom-home-door` moved to (1520, 392), in front of the
-mushroom house on its hill (its old spot was in the hill's cliff wall). The sinkholes and ladders
-stay without a side, as below.
+`home-door` / `mushroom-home-door`, now in the chunk world `level-1-c4`, and gloop-forest `hut-door`,
+now in `gloop-forest-e4`, north; the interiors' `house-door` south, still naming the region worlds
+`level-1` / `gloop-forest`, which `WorldChunks.redirect` sends to the chunk holding the door), and
+the slime arrives in the doorway and walks out of it (CONVENTIONS.md "Doors", world.md section 8);
+the `mushroom-home-door` moved to (1532, 387) in `level-1-c4`, in front of the mushroom house on its
+hill (its old spot was in the hill's cliff wall). The `hut-door` in `gloop-forest-e4` is a real door
+(`kind` door) without leaf art: the hut there is painted on a prop layer, so there is no house
+sprite to cut a leaf from. The sinkholes and ladders stay without a side, as below.
+
+> **Chunk worlds (2026-10-12):** gloop-forest is cut into four chunk worlds, `gloop-forest-e4`
+> (origin (0, 0)), `-f4` (2048, 0), `-e5` (0, 2048) and `-f5` (2048, 2048); positions quoted here
+> for gloop-forest are the whole forest's, before the cut: a chunk's own are the forest's less its
+> origin, and the camp's (the hut door, the workbench, Mossy, Sunny, Tom at camp) also moved 256
+> west ([WORLD_ATLAS.md](../WORLD_ATLAS.md#chunk-worlds-2026-10-12)).
 
 Arrival = the target door's `arrival` point (rounded); spawn = `findSpawnPoint(arrival)` = centre
 of its tile (no arrival tile is solid). "In reach on arrival" = the arriving player already sees

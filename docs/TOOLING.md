@@ -38,7 +38,8 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
   those name prefixes, so clips tuned in the editor (idle-down) stay as they are. Save or close the scene
   in an open editor first and reload it afterwards. A headless save writes no `uid=` attributes (the
   editor adds them back on its next save; the scene is loaded by path).
-- `godot/addons/strike_preview/` (editor plugin "Strike Preview", enabled in `project.godot` next to godot_ai) —
+- `godot/addons/strike_preview/` (editor plugin "Strike Preview", enabled in `project.godot` next to godot_ai
+  and the Scenery dock) —
   click a body-shape strike file (`game/characters/strikes/*.tres`) and the Inspector plays it above its fields: the
   slime large in side, down and up as the game draws it (the strike sheet's body frame, the StrikeRig's weapon,
   neck and views, the hit area, the reach readouts and the socket), a Play / Pause loop in real time and a time bar
@@ -47,7 +48,7 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
   once, Ctrl+Z undoes them and Ctrl+S saves. It reads the step's timing from `game/data/game-constants.json`, writes
   only through those drags and does not touch the player scene
   ([godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#editing-the-strike-animations-2026-10-12)).
-- `res://tools/build_ui_theme.gd` — rebuilds `game/ui/theme/slime_theme.tres` from `ui_tokens.gd`
+- `res://tools/build_ui_theme.gd` — rebuilds `game/ui/theme/slime_theme.tres` and its icons (`game/ui/theme/icons/`) from `ui_tokens.gd`
   ([godot/UI_THEME.md](godot/UI_THEME.md)).
 - `res://tools/render_ceremony.gd` (windowed: `--path godot -s res://tools/render_ceremony.gd -- --out=<dir>
   [--ability=swallow]`) — starts the playground like a new run, learns an ability (the Roll by default) and
@@ -90,26 +91,72 @@ See [assets/README.md](assets/README.md) for the art workflow.
   a seamless rail strip, the rail seen from above, a JSON of measures) in
   `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
   draws the fences layer's paint tiles.
-- `python scripts/art/build-forest-paint-tiles.py` (**numpy**) — the forest layer's palette: a tile per mix and
-  per tree of the trees sway sheet, into `godot/asset/MAPS/forest/forest_paint_tiles.png` and
-  `godot/game/world/forest/forest_tileset.tres` ([godot/FORESTS.md](godot/FORESTS.md)).
-- `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits: scales the approved
-  cliff paintings (`asset/Originals/elevation/cliff-concepts/`) to 128 px per cell, cuts the outside ground
-  away and labels every cell, into `godot/asset/MAPS/cliffs/kit-<name>.png` and `.json`, drawn by the cliff
-  shape and cliff builder nodes; `--headless --path godot -s res://tools/build_cliff_kit_lab.gd` rebuilds the
-  cliff kit lab ([godot/CLIFFS.md](godot/CLIFFS.md)).
+- `python scripts/art/build-tree-sets.py [set ...]` (**numpy**) — the trees of every region set (forest,
+  autumn, frost, desert, volcano, swamp, crystal, ruins, village): cuts the Magnific renders in
+  `asset/Originals/trees/<set>/generated/` (a medium and a tall tree each), grades leaves where set,
+  sizes them at 2 px per unit and packs `godot/asset/MAPS/trees/sets/<set>.webp` with the shared
+  `trees.json` (each tree's atlas, rectangle, foot, whether it sways and its cover mask; keep mipmaps on
+  in a new atlas's import). Run
+  `build-forest-paint-tiles.py` after it ([godot/FORESTS.md](godot/FORESTS.md)). Godot tools:
+  `res://tools/render_forest.gd` (windowed: `--path godot -s res://tools/render_forest.gd --
+  --scene=<world scene> --out=<dir> [--solid]`) renders a world's forest with the game's own drawing
+  (`--solid` tints the walls' solid cells);
+  `res://tools/retree_scenes.gd` (headless) gives the placed tree scenes their trees from the table;
+  `res://tools/absorb_wall_trees.gd` (headless, `-- --scene=<world> "--groups=<node>:<mix>,..."`) turns
+  placed wall trees into forest paint.
+- Prop palettes ([godot/PROPS.md](godot/PROPS.md)): `res://tools/build_prop_palettes.gd` (windowed, with the
+  editor closed: `--path godot -s res://tools/build_prop_palettes.gd`) renders every scenery scene at its true
+  size, in a block of whole cells, into wide sheets in `godot/asset/MAPS/palettes/`, writes the `cell-props`
+  and `details` palettes (`game/world/props/props_cell_tileset.tres`, `props_detail_tileset.tres`) and
+  `prop_palettes.json`, and moves painted cells whose tile moved (open the editor to import the images
+  after); `res://tools/build_old_prop_palettes.gd` (the same way) builds the free-placement `old-props`
+  palette (`props_tileset.tres`: true-size tiles, at least 64 px, 32 for ground details);
+  `res://tools/paint_to_nodes.gd` (headless, `-- --scene=<world> [--keep=<prefixes>] [--dry]`) turns painted
+  props back into nodes under the world's `Scenery` node (the ground details and water life stay painted);
+  `res://tools/absorb_props.gd` (headless,
+  `-- --scene=<world> [--scene=...] [--dry]`) turns a world's placed scenery into paint on its prop layers.
+  Both headless converters save through `res://tools/lib/scene_save.gd`, which puts back the uids Godot's
+  headless save drops.
+- `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
+  ([godot/WALLS.md](godot/WALLS.md)): composes each style's 16 shapes in 4 pattern parities from its three
+  Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into
+  `godot/asset/MAPS/walls/sets/<style>.webp` with `walls.json` (frames, foot, collision per shape), and the
+  WallLayer palette (`palette.png`, `godot/game/world/walls/wall_tileset.tres`: an auto tile per style, then
+  every shape and every exact piece; `--palette` rebuilds only the palette); keep mipmaps on in a new
+  sheet's import. `res://tools/convert_stone_walls.gd` (headless, `-- --scene=<world> [--scene=...] [--dry]`)
+  turns a world's old stone walls into WallLayer cells.
+- `python scripts/art/build-forest-paint-tiles.py` — the forest layer's palette: a tile per mix and per
+  tree, into
+  `godot/asset/MAPS/forest/forest_paint_tiles.png` and `godot/game/world/forest/forest_tileset.tres`
+  ([godot/FORESTS.md](godot/FORESTS.md)).
+- `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits the elevation's
+  storybook art is cut from: aligns the approved H plateau paintings (`asset/Originals/elevation/cliff-concepts/`)
+  to 128 px per cell, cuts the outside ground away, matches their colours and labels every cell, into
+  `godot/asset/MAPS/cliffs/kit-h2.png`, `kit-h3.png` and their `.json`
+  ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
 - `python scripts/art/build-elevation-art-from-painting.py [--preview DIR]` (**numpy**) — elevation art cut from
   the aligned H paintings (`godot/asset/MAPS/cliffs/kit-h3.png`, `kit-h2.png`) instead of generated: the wall
   style `storybook-rock` (wall, end stones, stairs coping) and the fringe `storybook-grass` (lip, foot) in
   `godot/asset/MAPS/elevation/`; a world picks them with its ground layer's metadata `cliff_wall_styles` /
   `cliff_fringe`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd -- --force` rebuilds the
-  cliff shapes lab that shows them ([godot/CLIFFS.md](godot/CLIFFS.md#painted-elevation-2026-10-10)).
-- `python scripts/art/build-cliff-tiles.py [--preview DIR]` (**numpy**) — the hand-painted cliffs: cuts the
-  generated border, lip, foot, wall and ground decorations (`asset/Originals/elevation/cliff-tiles/`) and the
-  128 px grass into one sheet of cell-sized tiles and its tile list in `godot/asset/MAPS/cliffs/`, and the
-  labelled guide `docs/godot/cliffs-sheet-guide.png`; then, after the editor imports the sheet,
-  `--headless --path godot -s res://tools/build_cliff_lab.gd` writes the cliff TileSet (one terrain set,
-  collision) and rebuilds the cliff lab ([godot/CLIFFS.md](godot/CLIFFS.md)).
+  cliff shapes lab that shows them ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
+- `"<Godot console exe>" --path godot -s res://tools/render_stairs_walk.gd -- --out=<dir> [--map=<id>]
+  [--feet=<x>,<y>] [--key=move_up] [--then=move_down] [--ms=2600]` (windowed) — records the stairs walk
+  in the running game: it puts the slime at `--feet`, holds the key(s) and saves a frame every 80 ms
+  of game time with the time, feet, level and whether the walk carries it in the log
+  ([ELEVATION.md](godot/ELEVATION.md#stairs-walk)). The default is the playground park's two-level
+  flight, walked up and back down.
+- `"<Godot console exe>" --headless --path godot -s res://tools/bake_elevation.gd [-- --world=<id>,...]` —
+  bakes each world's elevation (drawing, depth map, collision) into
+  `godot/game/scenes/worlds/elevation_cache/`, so worlds load without building it (a save the open
+  editor holds for a moment is tried again); run (and commit)
+  after changing elevation art or before exporting ([godot/ELEVATION.md](godot/ELEVATION.md#baked-cache)).
+- `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
+  cliffs' sides look ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
+  and corner stones (`godot/asset/MAPS/elevation/<style>-side.png`, `-corners.png`) from a Magnific
+  sheet of four rounded stones; `--headless --path godot -s res://tools/build_cliff_sides_lab.gd`
+  builds the cliff sides lab and `--path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir>`
+  renders it.
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
   (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
@@ -125,9 +172,6 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `pnpm props:pack` (**numpy**) — packs `asset/Originals/props/` into bottom-anchored
   `godot/asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.webp` atlases (the crystal cluster art of the
   `crystal-cluster-wall` object scenes).
-- `python scripts/props/normalize-stone-walls.py` and `python scripts/props/build-wall-junctions.py` —
-  register every stone wall piece in `godot/asset/MAPS/walls/` on one layout (vertical bands at x 9-61,
-  horizontal bands at y 7-63 of the 70 px cell), then rebuild the T-junction art from the corners.
 - `python scripts/props/pack-web-decor.py` — keys the spider web decorations (ground webs, tree webs,
   hanging and ground victim cocoons, egg sacs; generated on `#FF00FF`) out of `asset/Originals/props/webs/`
   and packs them into `godot/asset/MAPS/props/256x256-tile_4x3-web-decor.webp`.
@@ -259,9 +303,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/asset/MAPS/rocks/128x128-tile_2x1-iron-ore.webp`.
 - `python scripts/weapons/pack-iron-tools.py` (**numpy**) — the Chapter 2 weapon art into
   `godot/asset/MAPS/weapons/128x128-tile_4x1-iron-tools.webp`.
-- `python scripts/art/build-ambient-decoration-sheets.py`, `build-tree-sway-sheets.py` and
-  `build-water-life-sheets.py` (**numpy**) — the idle-loop sheets (campfire, cauldron, lantern post,
-  banner, birdbath; tree canopy sway; water life) in `godot/asset/MAPS/`; the scenes' AnimationPlayers
+- `python scripts/art/build-ambient-decoration-sheets.py` and `build-water-life-sheets.py` (**numpy**) —
+  the idle-loop sheets (campfire, cauldron, lantern post, banner, birdbath; water life) in `godot/asset/MAPS/`; the scenes' AnimationPlayers
   are edited in Godot ([assets/AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md)).
 - `python scripts/art/build-water-wake-sheet.py` (**numpy**) — the water at walkers' feet: the wading
   splash and the swim ripple (`asset/Originals/water/generated/wade-splash.png`, `swim-ripple.png`, 2 x 2

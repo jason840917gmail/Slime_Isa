@@ -27,6 +27,10 @@ const PLAYER_GHOST := 0.6
 const OTHER_GHOST := 0.35
 const PLAYER_LAYER := 2
 const DEPTH_UNIFORM := &"elevation_body_depth"
+## Texel b of a ramp's slope (`encode_ramp`; elevation_occlusion.gdshaderinc and
+## elevation_cast_shadow.gdshaderinc read it), and the heights its g holds (levels, 0 … RAMP_LEVELS).
+const RAMP_MARK := 0.875
+const RAMP_LEVELS := 8.0
 
 ## The depth map, its rect in the ground layer's space and in the world.
 var texture: Texture2D
@@ -47,6 +51,13 @@ var _dirty := {}
 ## (level − dy / 64) the cast shadows read.
 static func encode(level: int, dy: float, stairs: bool = false) -> Color:
 	return Color((float(level) + 4.0) / 8.0, clampf((dy + 128.0) / 512.0, 0.0, 1.0), 0.5 if stairs else 1.0, 1.0)
+
+
+## A depth texel of a ramp's slope or skirt (elevation_ramp.gd): it hides like ground of its
+## `bottom` level (the slope reads as flat ground), and the cast shadows read its `height` (levels
+## above the bottom).
+static func encode_ramp(bottom: int, height: float) -> Color:
+	return Color((float(bottom) + 4.0) / 8.0, clampf(height / RAMP_LEVELS, 0.0, 1.0), RAMP_MARK, 1.0)
 
 
 ## Draws `depth` (ground-layer space) into a new depth map covering `rect`; `origin` = the ground

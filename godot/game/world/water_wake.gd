@@ -13,7 +13,7 @@ extends Node2D
 ## half as its last child (drawn in front), so the body stands inside the ring. Each physics tick
 ## reads the ground cell under the body's feet: shallow water shows row 0 of the sheet, deep water
 ## row 1, anything else nothing, and so does a body in the air (a script child's `is_airborne()`,
-## the player's jump). Presentation only: walking speed, collision and footsteps do not change.
+## the player's jump) or on a bridge deck (bridge_deck.gd). Presentation only: walking speed, collision and footsteps do not change.
 ##
 ## The art (scripts/art/build-water-wake-sheet.py): 4 frames per row in cells of CELL art pixels
 ## with the ring's centre at ANCHOR, 2 art px per world unit, the ring sized for the player
@@ -22,6 +22,7 @@ extends Node2D
 ## Owner: world (water).
 
 const Self := preload("res://game/world/water_wake.gd")
+const BridgeDeck := preload("res://game/world/bridge_deck.gd")
 const SHEET := preload("res://asset/MAPS/water/224x128-tile_4x2-water-wake.webp")
 const NODE_NAME := "WaterWake"
 const BACK_NODE := "WaterWakeBack"
@@ -146,7 +147,7 @@ func _physics_process(delta: float) -> void:
 func _row_at(point: Vector2) -> int:
 	var cell := ground.local_to_map(ground.to_local(point))
 	var source_id := ground.get_cell_source_id(cell)
-	if source_id == -1:
+	if source_id == -1 or BridgeDeck.is_bridged(ground, cell):
 		return NO_ROW
 	if not _row_by_source.has(source_id):
 		var data := ground.get_cell_tile_data(cell)

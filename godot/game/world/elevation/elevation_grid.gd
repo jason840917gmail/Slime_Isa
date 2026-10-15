@@ -10,7 +10,10 @@ extends RefCounted
 ## down: its north rim drops into it and the wall shows on the hole's far side.
 ##
 ## Shapes come from the painted cells: a staircase of single-cell steps becomes a straight 45°
-## edge (chamfer), a step of two or more cells keeps a square corner. To place 45° edges exactly,
+## edge (chamfer), a step of two or more cells keeps a square corner. A diagonal line of single
+## cells (touching only at their corners) is such a staircase on both sides: a 45° ridge, joined
+## through each corner it crosses (`_saddle_flips`); two blocks touching at a corner stay apart
+## there. To place 45° edges exactly,
 ## every cell is split into 8 triangles ("tris"): the 4 corner triangles and the 4 quarters of the
 ## centre diamond (the corner triangles meet the diamond on the 45° lines). A chamfer gives a
 ## corner triangle the level across the corner.
@@ -104,6 +107,9 @@ var behind := 0.5
 ## level -> {tri: true}. Such a tri is walkable at that level whatever covers it (a wall, a higher
 ## top); the drawing does not change.
 var open_tris: Dictionary = {}
+## Tris with no hidden strip behind them (1; empty: none): Elevation marks the tops of its one-row
+## open cliffs, whose back the camera shows as flat ground (elevation.gd `_find_open_tops`).
+var no_strip := PackedByteArray()
 var _edges: Array = []
 var _fine_parent := PackedInt32Array()
 
@@ -303,7 +309,7 @@ func is_walkable_point(point: Vector2, level: int) -> bool:
 	var tri := tri_at(point)
 	if is_walkable(tri, level):
 		return true
-	if not is_higher(tri, level):
+	if not is_higher(tri, level) or (not no_strip.is_empty() and no_strip[tri] == 1):
 		return false
 	return is_walkable(tri_at(point - Vector2(0.0, behind)), level)
 
@@ -348,13 +354,14 @@ func collision_segments(level: int) -> PackedVector2Array:
 	# `is_higher`, inlined.
 	var higher := PackedByteArray()
 	higher.resize(tri_count)
+	var strips := no_strip.is_empty()
 	for tri in tri_count:
 		if tri_band[tri] < 0:
 			if tri_level[tri] == level:
 				walk[tri] = 1
-			elif tri_level[tri] > level:
+			elif tri_level[tri] > level and (strips or no_strip[tri] == 0):
 				higher[tri] = 1
-		elif int(bands[tri_band[tri]]["top"]) > level:
+		elif int(bands[tri_band[tri]]["top"]) > level and (strips or no_strip[tri] == 0):
 			higher[tri] = 1
 	# Passages opened at run time (`open_rect`).
 	for tri: int in (open_tris.get(level, {}) as Dictionary):
@@ -491,18 +498,22 @@ func _corner_cells(corner: Vector2i) -> Array[Vector2i]:
 
 
 ## At threshold `t`: [kind, quadrant] of the corner (kind 1 = convex: only `quadrant`'s cell
-## reaches t; 3 = concave: only `quadrant`'s cell is below t; 0 = neither). Corners on the map
-## border are neither.
+## reaches t; 3 = concave: only `quadrant`'s cell is below t; 2 = a saddle: `quadrant`'s cell and
+## the one across the corner reach t, the other two not (`quadrant` the lower of the two); 0 =
+## neither). Corners on the map border are neither.
 func _corner_shape(corner: Vector2i, t: int) -> Vector2i:
 	if corner.x < 1 or corner.y < 1 or corner.x >= columns or corner.y >= rows:
 		return Vector2i.ZERO
 	var cells := _corner_cells(corner)
 	var inside := 0
+	var first_in := -1
 	var last_in := -1
 	var last_out := -1
 	for q in 4:
 		if cell_level[cell_index(cells[q])] >= t:
 			inside += 1
+			if first_in < 0:
+				first_in = q
 			last_in = q
 		else:
 			last_out = q
@@ -510,22 +521,56 @@ func _corner_shape(corner: Vector2i, t: int) -> Vector2i:
 		return Vector2i(1, last_in)
 	if inside == 3:
 		return Vector2i(3, last_out)
+	if inside == 2 and last_in == 3 - first_in:
+		return Vector2i(2, first_in)
 	return Vector2i.ZERO
 
 
 ## A convex corner pairs with a concave one beside it along the 45° line (and back): together
-## they are one step of a staircase, which becomes a straight diagonal edge.
+## they are one step of a staircase, which becomes a straight diagonal edge. A saddle that joins
+## the cell there (`_saddle_flips`) is such a partner too: a diagonal line of single cells is a
+## staircase on both sides.
 func _is_chamfered(corner: Vector2i, t: int, shape: Vector2i) -> bool:
 	var dir := QUADRANT_DIR[shape.y]
 	var opposite := 3 - shape.y
-	if shape.x == 1:
-		# Convex, in-cell at quadrant q: concave partners at corner + (qx, 0) and corner + (0, qy)
-		# with their out-cell at the opposite quadrant.
-		return _corner_shape(corner + Vector2i(dir.x, 0), t) == Vector2i(3, opposite) \
-				or _corner_shape(corner + Vector2i(0, dir.y), t) == Vector2i(3, opposite)
-	# Concave, out-cell at quadrant o: convex partners at corner + (ox, 0) and corner + (0, oy).
-	return _corner_shape(corner + Vector2i(dir.x, 0), t) == Vector2i(1, opposite) \
-			or _corner_shape(corner + Vector2i(0, dir.y), t) == Vector2i(1, opposite)
+	# Convex, in-cell at quadrant q: concave partners at corner + (qx, 0) and corner + (0, qy)
+	# with their out-cell at the opposite quadrant. Concave, out-cell at quadrant o: convex
+	# partners there with their in-cell at the opposite quadrant.
+	var partner_kind := 3 if shape.x == 1 else 1
+	for partner: Vector2i in [corner + Vector2i(dir.x, 0), corner + Vector2i(0, dir.y)]:
+		var other := _corner_shape(partner, t)
+		if other == Vector2i(partner_kind, opposite):
+			return true
+		if other.x == 2 and _saddle_flips(partner, t, other).has(opposite):
+			return true
+	return false
+
+
+## True when the corner triangle of quadrant `q` at `corner` pairs with a corner beside it of
+## `kind` (1 convex, 3 concave) whose own cell there is across from it (the partners of
+## `_is_chamfered`).
+func _pairs_with(corner: Vector2i, t: int, q: int, kind: int) -> bool:
+	var dir := QUADRANT_DIR[q]
+	return _corner_shape(corner + Vector2i(dir.x, 0), t) == Vector2i(kind, 3 - q) \
+			or _corner_shape(corner + Vector2i(0, dir.y), t) == Vector2i(kind, 3 - q)
+
+
+## The quadrants whose corner triangles a saddle (`shape` = (2, q)) flips: the two cells below t
+## that pair with a convex corner beside them, so the raised pair is one diagonal line of single
+## cells (a ridge: both its sides become straight 45° edges); else the two cells reaching t that
+## pair with a concave corner (the lower pair is such a line: a trench). Two blocks touching at a
+## corner pair with neither and keep their square corners.
+func _saddle_flips(corner: Vector2i, t: int, shape: Vector2i) -> Array[int]:
+	var flips: Array[int] = []
+	for o: int in [shape.y ^ 1, 3 - (shape.y ^ 1)]:
+		if _pairs_with(corner, t, o, 1):
+			flips.append(o)
+	if not flips.is_empty():
+		return flips
+	for i: int in [shape.y, 3 - shape.y]:
+		if _pairs_with(corner, t, i, 3):
+			flips.append(i)
+	return flips
 
 
 func _chamfer_corner(corner: Vector2i) -> void:
@@ -545,12 +590,14 @@ func _chamfer_corner(corner: Vector2i) -> void:
 	for i in range(1, thresholds.size()):
 		var t := thresholds[i]
 		var shape := _corner_shape(corner, t)
-		var flip := -1
-		if shape.x != 0 and _is_chamfered(corner, t, shape):
-			flip = shape.y
+		var flips: Array[int] = []
+		if shape.x == 2:
+			flips = _saddle_flips(corner, t, shape)
+		elif shape.x != 0 and _is_chamfered(corner, t, shape):
+			flips = [shape.y]
 		for q in 4:
 			var inside := levels[q] >= t
-			if q == flip:
+			if flips.has(q):
 				inside = not inside
 			if inside:
 				final[q] = t

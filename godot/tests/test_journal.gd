@@ -15,7 +15,7 @@ const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 
 const PLACE := "a-place-to-work"
 const ELDER_ID := "village-elder-plop"
-const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1", "sceneId": "", "x": 0, "y": 0}
+const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1-c4", "sceneId": "", "x": 0, "y": 0}
 const SLIME_BASICS_ROW := "◆ Slime Basics\nSide · In progress"
 const SLIME_BASICS_DETAILS := "A first look at everything a slime can use: the bag and its tabs, the map and the pause menu.\n\n   • Open your bag (B)\n   • Look at the Crafting tab (B, then its tab)\n   ✓ Read your Journal (J)\n   • Open the map (M)\n   • Pause to save or change settings (Esc)\n\nReward: 10 coins"
 const STONE_TOOLS_DETAILS := "Craft a stone axe and pickaxe at your workbench, then put them to work on trees and rocks.\n\n✓ Step 1: Make your tools\n   ✓ Craft a Stone Axe\n   ✓ Craft a Stone Pickaxe\n\n▶ Step 2: Put them to work\n   • Switch tools on your belt (Mouse wheel)\n   • Chop wood from trees  7/20\n   • Mine stone from rocks  0/20\n\nReward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Roll"

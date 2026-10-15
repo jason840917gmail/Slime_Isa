@@ -9,7 +9,12 @@ extends RefCounted
 ## - Slime spider: orbits in at 80 px/s (0.86 radial, 0.52 lateral), spits a web for 50 - 3 = 47
 ##   with a 1000 ms `web` effect; backs off (x1.08) when the player comes inside 0.72 x 120.
 ## - Worm brawler: melee 52 - 3 = 49, knockback 340, `enemy-worm-brawler-hit` 22 px along the swing.
-## Tests run on open ground south of the starter camp (outside every camp and safe zone).
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests run in chunk C5
+## (`level-1-c5`, its origin at level-1's (0, 2048)) on open ground west of the south meadow camp
+## (outside every camp and safe zone); the spawn-area test also travels to D4 and D5.
+
+## run_tests.gd starts every test of this file in level-1's south-west chunk.
+const MAP_ID := "level-1-c5"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -21,9 +26,12 @@ const EnemyProjectiles := preload("res://game/enemy/enemy_projectiles.gd")
 const SlimeSpiderAI := preload("res://game/enemy/slime_spider_ai.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 
-## Open ground (a 700 x 260 rectangle free of walls and water around it), south of the starter
-## camp's pursue rectangle, far from the safe zone and the other camps.
-const OPEN := Vector2(880.0, 2120.0)
+## Open ground (a 700 x 260 rectangle free of walls, water and NPCs around it, measured on the
+## chunk), over 300 px west of the south meadow camp's pursue rectangle.
+const OPEN := Vector2(528.0, 1640.0)
+## level-1's enemy-spawn areas by chunk world.
+const SPAWN_AREAS := {"level-1-south-meadow": "level-1-c5", "level-1-webwood": "level-1-d4",
+	"level-1-autumn-grove": "level-1-d5"}
 const STEP := TestContext.STEP_MS
 const SLACK := TestContext.STEP_MS + 0.01
 const ARCHER_WINDUP_MS := 600.0
@@ -273,9 +281,9 @@ func test_slow_scales_movement_and_skips_bosses(t: TestContext) -> void:
 	var population := t.main.get("enemy_population") as EnemyPopulation
 	if not t.check(population != null, "main has no enemy_population"):
 		return
-	var camp := _area(t, "level-1-starter-camp")
+	var camp := _area(t, "level-1-south-meadow")
 	var root := population.spawn_one(camp)
-	if not t.check(root != null, "the starter camp did not spawn"):
+	if not t.check(root != null, "the south meadow camp did not spawn"):
 		return
 	var member := _script_of(root)
 	t.equal(population.slow_enemies_near([member.get_centre() + Vector2(20.0, 0.0)], 26.0, 0.55, 400.0), 1, "enemies slowed near a point")
@@ -306,19 +314,6 @@ func test_knockback_immunity_from_the_damage_rule(t: TestContext) -> void:
 
 
 func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
-	var population := t.main.get("enemy_population") as EnemyPopulation
-	if not t.check(population != null, "main has no enemy_population"):
-		return
-	population.allowed_types = PackedStringArray()
-	# Through the camps: each level-1 area spawns its own types.
-	for area_id: String in ["level-1-webwood", "level-1-autumn-grove", "level-1-south-meadow"]:
-		var area := _area(t, area_id)
-		var root := population.spawn_one(area)
-		if t.check(root != null, "'%s' spawned nothing" % area_id):
-			var allowed: Array = (area["data"]["enemies"] as Array).map(func(entry: Dictionary) -> String: return str(entry["type"]))
-			t.check(allowed.has(_type_of(root)), "'%s' spawned '%s'" % [area_id, _type_of(root)])
-			root.queue_free()
-	await t.steps(2)
 	# Each type, alone near the player, lands a hit.
 	t.teleport_player(OPEN)
 	for type_id: String in WORLD_TYPES:
@@ -335,12 +330,27 @@ func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
 		await t.sim_wait(600.0)
 		t.player().restore_run_state({"hp": t.player().get_max_hp()})
 		t.teleport_player(OPEN)
+	# Through the camps: each level-1 area spawns its own types (each in its chunk world).
+	for area_id: String in SPAWN_AREAS:
+		if not await _travel(t, str(SPAWN_AREAS[area_id])):
+			return
+		var population := t.main.get("enemy_population") as EnemyPopulation
+		if not t.check(population != null, "main has no enemy_population"):
+			return
+		population.allowed_types = PackedStringArray()
+		var area := _area(t, area_id)
+		var root := population.spawn_one(area)
+		if t.check(root != null, "'%s' spawned nothing" % area_id):
+			var allowed: Array = (area["data"]["enemies"] as Array).map(func(entry: Dictionary) -> String: return str(entry["type"]))
+			t.check(allowed.has(_type_of(root)), "'%s' spawned '%s'" % [area_id, _type_of(root)])
+			root.queue_free()
+		await t.steps(2)
 
 
 func test_legacy_spawning_in_crystal_caverns(t: TestContext) -> void:
 	if not t.check(t.main.travel_to("crystal-caverns", "west"), "travel to crystal-caverns was refused"):
 		return
-	var arrived := await t.until(func() -> bool: return t.world().map_id() == "crystal-caverns" and t.player() != null, 3000.0, 6000.0)
+	var arrived := await t.until(func() -> bool: return t.in_world("crystal-caverns") and t.player() != null, 3000.0, 6000.0)
 	if not t.check(arrived, "the player did not reach crystal-caverns"):
 		return
 	await t.steps(2)
@@ -375,6 +385,19 @@ func test_legacy_spawning_in_crystal_caverns(t: TestContext) -> void:
 
 
 # --- helpers ------------------------------------------------------------------------------------
+
+## Travels to chunk world `map` (west entry) unless the test already runs there. False on failure.
+static func _travel(t: TestContext, map: String) -> bool:
+	if t.world().map_id() != map:
+		if not t.check(t.main.travel_to(map, "west"), "travel to %s was refused" % map):
+			return false
+		var arrived := await t.until(func() -> bool:
+			return not t.main.is_transitioning() and t.world().map_id() == map and t.player() != null, 3000.0, 6000.0)
+		if not t.check(arrived, "the player did not reach %s" % map):
+			return false
+		await t.steps(2)
+	return true
+
 
 ## Spawns `character.<type>` with its centre at `centre` (no camp territory, no safe zones).
 ## `passive` zeroes its targeting radius and attack range.

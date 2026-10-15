@@ -308,7 +308,7 @@ on the map and in `AreaTitles.area_name`, for every region) and the passage link
 layout (level-1 / gloop-forest linked once both are discovered; a hand-made world next to a
 placeholder never linked, two placeholders linked); the missing-layout message and summary
 (`use_map(null)`, then `reload_map()`); and a travel to gloop-forest rebuilding the terrain
-(54 × 54) and freeing level-1's image and texture, the world map showing Gloop Forest current,
+(64 × 64) and freeing level-1's image and texture, the world map showing Gloop Forest current,
 Slimeshire Meadow named, Crystal Caverns `?`, two regions discovered, the dot on gloop-forest's
 block and the level-1 / gloop-forest link exactly when the layout has a passage there. Headless
 runs keep the 1024 × 1024 base view (`display/window/size/viewport_*`), so the live panel check

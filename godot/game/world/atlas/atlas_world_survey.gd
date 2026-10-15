@@ -9,6 +9,7 @@ extends RefCounted
 ##
 ## Owner: world (atlas).
 
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const SCENE_INDEX := "res://game/scenes/scene_index.json"
 const WORLDS_DIR := "res://game/scenes/worlds/"
 const WORLD_PREFIX := "world."
@@ -90,6 +91,50 @@ static func read(packed: PackedScene) -> Dictionary:
 	out["size"] = Vector2(int(out["columns"]), int(out["rows"])) * int(out["tile_size"])
 	for path in exit_nodes:
 		out["exits"].append(_exit(nodes, path, out["size"]))
+	return out
+
+
+## The survey of world `world_id` cut into chunk worlds (WorldChunks), from its chunks' surveys laid
+## out on its block: `parts` = [{"survey": read(...), "offset": Vector2 (world units)}]. Exits
+## between its own chunks are left out; an exit split across two chunks is one again; an exit into
+## a chunk of another cut region names that region's world.
+static func merge(world_id: String, parts: Array) -> Dictionary:
+	var out := {
+		"map_id": world_id, "columns": 0, "rows": 0, "tile_size": 0, "size": Vector2.ZERO,
+		"hash": null, "names": {}, "exits": [],
+	}
+	var bounds := Rect2()
+	var exits := {}
+	for part: Dictionary in parts:
+		var survey: Dictionary = part["survey"]
+		var offset: Vector2 = part["offset"]
+		var area := Rect2(offset, survey["size"])
+		bounds = area if not bounds.has_area() else bounds.merge(area)
+		out["tile_size"] = int(survey["tile_size"])
+		if survey["hash"] != null:
+			out["hash"] = survey["hash"]
+		(out["names"] as Dictionary).merge(survey["names"])
+		for exit: Dictionary in survey["exits"]:
+			var target := str(exit["target"])
+			if WorldChunks.world_of(target) == world_id:
+				continue
+			var placed := exit.duplicate()
+			placed["rect"] = Rect2((exit["rect"] as Rect2).position + offset, (exit["rect"] as Rect2).size)
+			if not WorldChunks.world_of(target).is_empty():
+				placed["target"] = WorldChunks.world_of(target)
+			var exit_name := str(placed["name"])
+			if exits.has(exit_name):
+				(exits[exit_name] as Dictionary)["rect"] = ((exits[exit_name] as Dictionary)["rect"] as Rect2).merge(placed["rect"])
+			else:
+				exits[exit_name] = placed
+	out["size"] = bounds.end
+	if int(out["tile_size"]) > 0:
+		out["columns"] = roundi(bounds.end.x / int(out["tile_size"]))
+		out["rows"] = roundi(bounds.end.y / int(out["tile_size"]))
+	for exit_name: String in exits:
+		var exit: Dictionary = exits[exit_name]
+		exit["edge"] = edge_of(exit["rect"], out["size"])
+		(out["exits"] as Array).append(exit)
 	return out
 
 
