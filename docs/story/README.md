@@ -9,7 +9,8 @@
 ## Index
 
 1. [Direction](01-direction.md): adventure first with a little crafting, the
-   rules every chapter follows, and the decisions of 2026-10-02.
+   slime's three kinds of power (skins, shapes, abilities), how a region
+   plays, and the decisions in effect.
 2. [Premise](02-premise.md): the story on one page, covering the
    Wellspring, the newborn slime, the goal and the ending.
 3. [World](03-world.md): the regions in order, the world size and screen
@@ -35,6 +36,7 @@ Every beat, item and idea carries one tag:
 | Tag | Meaning |
 |---|---|
 | **Built** | In the game today. Quest text in code is the source for its dialogue. |
+| **Rework** | Built in the rework mode: on in the playground, and in any world with `?shapes` ([BODY_SHAPES.md](../godot/BODY_SHAPES.md)). |
 | **Planned** | Decided by the owner, not built yet. |
 | **Proposal** | A suggestion in this draft. It needs the owner's yes. |
 | **Open** | Undecided. It is listed in [Open questions](06-open-questions.md). |
@@ -46,11 +48,10 @@ Every beat, item and idea carries one tag:
   today. The [Game Roadmap](../GAME_ROADMAP.md) owns task order. Anything
   tagged Planned here changes those docs only once the work is scheduled. Until
   then, both still describe the current build.
-- Two Planned decisions already contradict the guidelines:
-  - The guidelines' Gulp forms last one minute; the plan replaces them with
-    armors the slime keeps.
-  - The guidelines let the slime sprint from the start; the plan makes it a
-    mid-game ability.
+- The decisions of 2026-10-15 (skins from the Pearls, shapes instead of
+  crafted weapons, the Goo Bomb, Swallow and essences marked for deletion, no
+  energy regeneration) are not in the guidelines or the roadmap yet. Until
+  they are, those docs describe the Gulp-and-essences build.
 - Dialogue already in the game lives in
   `godot/game/data/quests-chapter-1.json`, `quests-chapter-2.json` and
   `godot/game/data/npc-definitions.json`. When a chapter file and the game

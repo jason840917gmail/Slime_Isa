@@ -11,7 +11,12 @@
 ## Logline
 
 A newborn slime bubbles up from the last living drop of Slimeshire's
-Wellspring and sets out to bring back the Wellspring's scattered Pearls before all is lost to Gorge . Gorge is the greedy slime who shattered the Wellspring, he stole the pearls and give them to his allys (The Bosses), he plan to control the world and slave the remaining slimes, each pearl have an ability and toguether they have the power of creating new slimes or if not use with widsom, monster. Gorge use them to create his averrations.
+Wellspring and sets out to win back the Wellspring's Pearls before all is lost
+to Gorge. Gorge, the greedy slime who shattered the Wellspring, gave the Pearls
+to his allies, the bosses. He plans to rule the world and enslave the slimes
+who are left. Each Pearl holds a power. Used wisely, together they can create
+new slimes; used without wisdom, they create monsters. Gorge uses them to make
+his aberrations.
 
 ## Backstory
 
@@ -44,32 +49,31 @@ Wellspring and sets out to bring back the Wellspring's scattered Pearls before a
   actions and squishy reactions.
 - **Name: Open.** The game is named after Isa, one of its creators. Whether the
   hero is called Isa is the owner's call.
-- **The Pearls grant its powers.** Each Pearl holds one unique ability. When
-  the slime frees a Pearl from a boss, that ability passes permanently into
-  the slime during the item ceremony. The Pearl can then return to the
-  Wellspring without taking the ability back. Fatty One Eye's Pearl grants
-  Squash Slam (Jump until the jump was removed on 2026-10-08), and the
-  Matron's Pearl grants Stretch Lash. The other six abilities are Open.
-- **The Gulp is its gift**, the same power that ruined Gorge. That gives the
-  story its question: can a slime gulp without becoming greedy? The hero gulps
-  only what it needs and lets it go: an essence is swallowed, used and spent
-  (since 2026-10-08, see [Direction](01-direction.md#decisions-of-2026-10-08)).
-  Gorge gulped to *own*.
+- **The Pearls give it its skins.** Each Pearl holds one skin. When the slime
+  frees a Pearl from a boss, the skin passes permanently into the slime during
+  the item ceremony, and it stays when the Pearl returns to the Wellspring.
+  Fatty One Eye's Pearl grants the **Heavy** skin and the Matron's the
+  **Silk** skin; the other six are Open. Shapes and abilities come from the
+  townsfolk and from old manuscripts (see
+  [Direction](01-direction.md#the-slimes-powers)).
+- **The Gulp is its gift**, the same power Gorge abused. The hero only grabs
+  and throws with it, and it gives back what it wins: every Pearl goes home to
+  the Wellspring. Gorge gulped to *own*.
 
 ## Goal and shape of the story
 
 1. **Each region holds one Pearl** inside its boss. Beating the boss frees the
-  Pearl and permanently grants its unique ability in the full item ceremony.
+   Pearl and permanently grants its skin in the full item ceremony.
 2. **Returning a Pearl to the Wellspring** makes Slimeshire visibly come back
    to life. A building is restored, slimes who fled return, and the Wellspring
    shines a little brighter. This uses the town growth the guidelines already
    promise ("Slimeshire visibly grows as the story advances").
 3. **Midpoint** (Open: which chapter): Gorge wakes. The rumbling becomes
-   eruptions, a Pearls are stolen back, and now Gorge have all the pearls, and
-   the stakes rise. 
+   eruptions, Gorge steals the returned Pearls back and holds them all again,
+   and the stakes rise. The slime keeps its skins.
 4. **Finale: Volcano Ridge.** Gorge has become a giant molten slime who has
-   gulped everything around him. The last fight uses every armor the slime has
-   earned. in the final battle Gorge is able to use all the pearls but one at the time to fight you.
+   gulped everything around him. He fights with every Pearl, one at a time,
+   and the slime answers with every skin it has earned.
 5. **Ending.** The hero could gulp the last Pearl and become the strongest
    slime alive, and instead returns it. The Wellspring shines again and new
    slimes are born. Emptied of everything he swallowed, Gorge shrinks back
@@ -92,14 +96,16 @@ Wellspring and sets out to bring back the Wellspring's scattered Pearls before a
 
 These are new pieces the story would need. None are built yet.
 
-- **The Wellspring:** a pool in a new map east of level 1 map and it will be the starting map where the player born. It brightens per Pearl, and thing change in the town as pearls are restore .
+- **The Wellspring:** a pool in its own new map east of level-1. It is the
+  game's first map, where the slime is born. It brightens with each Pearl,
+  and the town changes as the Pearls come home.
 - **An opening scene:** the slime is born from the Wellspring and Plop
-  arrives , imidiatly talks to you surprise of you and teach you how to move around and to meet him on the town.
-- **Pearls:** one story item and one unique ability per regional boss. Its
-  ceremony grants the ability permanently before the Pearl is returned to the
-  Wellspring.
-- **Boss respawn:** once a boss's Pearl is gone, should the boss still respawn
-  every five minutes as today? this will change a defeted boss wont appear again. 
+  arrives. Surprised to see it, he teaches it to move around and asks it to
+  meet him in town.
+- **Pearls:** one story item and one skin per regional boss. The ceremony
+  grants the skin permanently before the Pearl returns to the Wellspring.
+- **Beaten bosses** do not come back (today a boss respawns every five
+  minutes).
 
 
 Me quede aqui. en la historia review

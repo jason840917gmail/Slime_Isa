@@ -6,8 +6,8 @@ quest files. Everything about where a character is going is a Proposal.
 ## The hero
 
 **The slime.** A newborn from the Wellspring's last drop (Proposal), and a
-silent hero. The townsfolk teach it survival, crafting and combat, while each
-Pearl grants one permanent ability. Its own gift is the Gulp. Its name is Open.
+silent hero. The townsfolk and old manuscripts teach it shapes and abilities,
+and each Pearl grants a skin. Its Gulp grabs and throws. Its name is Open.
 See [Premise](02-premise.md#the-slime).
 
 ## Slimeshire
@@ -21,7 +21,9 @@ See [Premise](02-premise.md#the-slime).
 - **Quests:**
   - A Place to Work. It already teaches the stone tool recipes; Planned: Plop
     also hands over the first bag here.
-  - Stone Tools, which teaches the Roll (the Dodge until 2026-10-09).
+  - Stone Tools, which teaches the Roll today (the Dodge until 2026-10-09).
+    Who teaches the Roll in the plan is Open: a manuscript, or an NPC the
+    slime rescues.
   - The One-Eyed Guardian.
   - Iron Gear.
   - Proposal: A Home of Your Own, the house quest with the vault.
@@ -37,8 +39,8 @@ See [Premise](02-premise.md#the-slime).
 - **Role:** the main quest giver at the front line. In Chapter 1 Mossy gives
   Worm Trouble, which prepares the slime to face Fatty One Eye. In Chapter 2
   Mossy moves to the forest camp and gives Beyond the Verdant Gate, Tom in the
-  Web (the rescue of Tom), A Harder Pick, and The Matron's Nest. Fatty's Pearl grants Squash Slam, and the
-  Matron's Pearl grants Stretch Lash.
+  Web (the rescue of Tom), A Harder Pick, and The Matron's Nest. Fatty's Pearl
+  grants the Heavy skin, and the Matron's Pearl the Silk skin.
 - **Proposal:** the recurring scout. Mossy arrives in every new region first,
   sets up a camp, and is waiting there when the slime arrives. This is a little
   like the owl in Zelda. Mossy tracks the Pearls' trail toward Volcano Ridge.
@@ -56,6 +58,9 @@ See [Premise](02-premise.md#the-slime).
   waits by the fire, Tom teaches **Swallow**
   ([Chapter 2](chapters/chapter-2-gloop-forest.md), Beat 3), with the full
   ceremony (built 2026-10-09).
+- **2026-10-15:** Swallow is marked for deletion, so Tom has nothing left to
+  teach. **Open:** he teaches Chapter 2's new key tool instead, or his beat
+  goes.
 - **Open:** his voice and the rest of his story; the owner may add more later.
 
 ### Pip (Built)
@@ -95,8 +100,8 @@ See [Premise](02-premise.md#the-slime).
 - Chased off by the worms. In Chapter 3 the slime finds him trapped by crystal
   in the caverns, where he went looking for metal to fight back with.
 - Rescuing him leads to rebuilding the **Workshop**, which is already built and
-  parked until after Chapter 2. The Workshop's first recipe, the Slam Hammer,
-  is the weapon the Crystal Colossus is weak to.
+  parked until after Chapter 2. The Crystal Colossus is weak to the hammer,
+  which is a shape in the plan (the Workshop's Slam Hammer today).
 
 ### The worm who surrenders (Idea)
 
@@ -109,9 +114,9 @@ villains.
 
 | Boss | Region | Fight today | Story (Proposal) | Status |
 |---|---|---|---|---|
-| **Fatty One Eye** | Slimeshire Meadow | Leaps, and takes damage only in the eye; guards the green key | One of Gorge's eight vassals. Beaten, he releases the Pearl that grants Squash Slam, his own hard landing. | Built; the slam is taught by his quest until the Pearl is built |
-| **Orb-Weaver Matron** | Gloop Forest | Web spit, web volley, web patches | One of Gorge's eight vassals. Planned: her three-way Stretch Lash damages, pulls and traps targets without the Silk form (a hit pops the silk out instead); her Pearl grants Stretch Lash when she falls. | Built; changes Planned |
-| **Crystal Colossus** | Crystal Caverns | — | Armored and weak to hammers; teaches weapon switching (roadmap). A golem of crystal grown around a Pearl. | Idea |
+| **Fatty One Eye** | Slimeshire Meadow | Leaps, and takes damage only in the eye; guards the green key | One of Gorge's eight vassals. Beaten, he releases the Pearl that grants the Heavy skin. Planned: he may move to his own cavern map. | Built; the Heavy skin is Planned (the rework's Stone form already works the heavy plates and blocks) |
+| **Orb-Weaver Matron** | Gloop Forest | Web spit, web volley, web patches | One of Gorge's eight vassals. Planned: new art; her three-way Stretch Lash damages, pulls and traps the slime, which has no Silk skin yet; her Pearl grants the Silk skin. | Built; changes Planned |
+| **Crystal Colossus** | Crystal Caverns | — | Armored and weak to the hammer; teaches switching shapes. A golem of crystal grown around a Pearl. | Idea |
 | **Gorge** | Volcano Ridge | — | The final boss: the greedy slime who shattered the Wellspring. See [Premise](02-premise.md). | Proposal |
 
 ## Ordinary enemies
@@ -120,6 +125,5 @@ villains.
 |---|---|---|---|
 | Worm swordsmen | Slimeshire Meadow | Driven out of their burrows by the shift; desperate, not evil | Built |
 | Meadow spider (yellow) | Slimeshire Meadow | Ordinary wildlife | Built |
-| Orb-weavers | Gloop Forest | The Matron's brood, spreading webs everywhere. They drop silk essences about a third of the time (built 2026-10-09) | Built |
-| **Clod Stomper** | Gloop Forest, by the iron hollow and the cracked clearing | A squat golem of mud and pebbles, a small Fatty One Eye: it jumps in place and slams the ground behind a ring telegraph, and its slam breaks cracked ground near it. Beaten, it drops a stone essence | Built (2026-10-09) |
-| An aquatic monster | Open | Drops the swim essence | Idea |
+| Orb-weavers | Gloop Forest | The Matron's brood, spreading webs everywhere. They drop silk essences about a third of the time (built 2026-10-09; marked for deletion 2026-10-15) | Built |
+| **Clod Stomper** | Gloop Forest, by the iron hollow and the cracked clearing | A squat golem of mud and pebbles, a small Fatty One Eye: it jumps in place and slams the ground behind a ring telegraph, and its slam breaks cracked ground near it. Its stone essence drop is marked for deletion (2026-10-15) | Built (2026-10-09) |

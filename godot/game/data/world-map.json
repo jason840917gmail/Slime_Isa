@@ -99,7 +99,7 @@
 			"placeholder": false,
 			"theme": "crystal",
 			"boss": "Crystal Colossus",
-			"notes": "East of Gloop Forest, as in the game (moved 2026-10-10; open without a key for now). The west half of the great mountain, east of Gloop Forest: caves through the rock, crystal sealing them. First dungeon: a dark maze the Glow armor lights."
+			"notes": "East of Gloop Forest, as in the game (moved 2026-10-10; open without a key for now). The west half of the great mountain, east of Gloop Forest: caves through the rock, crystal sealing them. First dungeon: a dark maze that the Lantern lights."
 		},
 		{
 			"key": "d",
@@ -227,7 +227,7 @@
 			"x": 47,
 			"y": 51,
 			"label": "The Wellspring",
-			"notes": "Proposal: plaza or clearing (Open)"
+			"notes": "Planned: its own map east of level-1, where the game starts"
 		},
 		{
 			"type": "house",
@@ -285,7 +285,7 @@
 			"x": 73,
 			"y": 73,
 			"label": "Gloop Cavern",
-			"needs": "Heavy",
+			"needs": "Goo Bomb (cracked ground)",
 			"map": "gloop-cavern"
 		},
 		{
@@ -293,7 +293,7 @@
 			"x": 86,
 			"y": 53,
 			"label": "Orb-Weaver Matron",
-			"needs": "web door: Silk Armor (Planned)"
+			"needs": ""
 		},
 		{
 			"type": "gate",

@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Region** | Gloop Forest (`gloop-forest`, `gloop-hut`, `gloop-cavern`), plus Slimeshire for the Forge |
-| **Goal** | Make iron gear, learn to swallow, and break the Matron's hold on the forest |
+| **Goal** | Make iron gear, learn the chapter's key tool, and break the Matron's hold on the forest |
 | **Boss** | Orb-Weaver Matron |
-| **Earned** | Reinforced Pickaxe, Swallow (from Tom, Built 2026-10-09), the Forge, iron gear and the 20-slot bag; Planned: Pearl 2 with Stretch Lash, and a boss heart. Squash Slam is earned in Chapter 1 since 2026-10-08 (Fatty One Eye). |
+| **Earned** | Reinforced Pickaxe, the Forge, iron gear and the 20-slot bag; Rework: the Goo Bomb and the Lantern (candidates for the key tool); Planned: Pearl 2 with the **Silk skin**, and a boss heart. Swallow (from Tom, Built 2026-10-09) is marked for deletion. |
 | **Status** | Built and in progress (roadmap 8.3–8.13). The beats below mark each Planned change and Proposal. |
 
 Quest IDs are in brackets. Their dialogue lives in
@@ -23,24 +23,30 @@ and [the Matron spec](../../design/2026-10-01-orb-weaver-matron.md).
   sleep in its bed and you will wake here, not back home." *(in game)*
 - **The player does:** defeats 5 orb-weavers and picks up 3 weaver fangs.
 - **Reward:** the Reinforced Pickaxe recipe and 30 coins.
-- **Planned change:** remove Stretch Lash from this reward. The Matron's Pearl
-  grants it at the end of the chapter.
+- **Planned change:** remove Stretch Lash from this reward (it teaches it
+  today). Stretch Lash is learned from manuscripts; where is Open.
 - **Changed 2026-10-09:** this reward no longer teaches **Swallow** (it was a
   stand-in); Tom does (Beat 3).
 - **Proposal, the trail:** Mossy has been following something. "The webs got
   thick about the same time the ground started shaking. Strange, isn't it?"
 
-## Beat 2 — Sunny's Basket [`sunnys-basket`] (Built, moves after Beat 9)
+## Beat 2 — Sunny's Basket [`sunnys-basket`] (Built; its place follows Stretch Lash)
 
 **Giver:** Sunny, at the forest camp.
 
-- **The player does:** after earning Stretch Lash from the Matron's Pearl,
-  returns to pull Sunny's basket across the north stream.
+- **The player does:** once the slime knows Stretch Lash, pulls Sunny's
+  basket across the north stream.
 - **Reward:** 2 purple berries and 20 coins.
 
 ## Beat 3 — Tom in the Web [`tom-in-the-web`] (Built, 2026-10-09)
 
 **Giver:** Mossy, at the forest camp, after Beyond the Verdant Gate.
+
+> **2026-10-15: Swallow and essences are marked for deletion.** The code
+> stays, but the game will not use it. The slime already has the Heavy skin
+> from Fatty One Eye's Pearl, so nothing here needs swallowing. **Open:** Tom
+> teaches the chapter's new key tool instead (the Goo Bomb, the Lantern, or
+> something new), or this beat goes. The text below is the beat as built.
 
 The iron hollow's gate and the cracked clearing both need something heavy, and
 from now on heavy comes from swallowing a stone essence. Swallowing is taught
@@ -82,8 +88,8 @@ Beyond the Verdant Gate).
 
 - **The player does:**
   1. Crafts the Reinforced Pickaxe (Planned: hammered).
-  2. Opens the iron hollow by standing in the Stone form on its plate (a
-     stone essence from a Clod Stomper, swallowed).
+  2. Opens the iron hollow by standing on its plate in the Heavy skin
+     (Planned; today in the Stone form from a swallowed stone essence).
   3. Mines 6 iron ore.
 - **Reward:** 20 coins. Mossy sends the slime home to Pip: "Slimeshire had a
   Forge, once." *(in game)*
@@ -122,9 +128,10 @@ Beyond the Verdant Gate).
 
 **Where:** the cracked clearing, south-west of the camp.
 
-- **The player does:** breaks the cracked ground with a Squash Slam in the
-  Stone form (today, the Heavy form; Built 2026-10-08) and drops into the
-  Gloop Cavern.
+- **The player does:** breaks the cracked ground and drops into the Gloop
+  Cavern. Today a Squash Slam in the Stone form breaks it (Built 2026-10-08);
+  Planned: the **Goo Bomb** (it blows cracked walls in the rework, not cracked
+  ground yet).
 - **Planned change: the 20-slot bag.** A coffer in the cavern holds a **20-slot
   bag**, which replaces the 10-slot one. Full ceremony.
 - **The cavern today:** a chest with iron ore, charcoal and a tonic, plus a Goo
@@ -132,54 +139,54 @@ Beyond the Verdant Gate).
   - Planned: the Goo Heart becomes one of the region's heart quarters.
   - Proposal: the shards glow faintly, a hint of Chapter 3.
 
-## Beat 8 — Silk (Partly built, 2026-10-09)
+## Beat 8 — Webs (Planned)
 
-Spiders drop **silk essences** (built: a slime spider or an orb-weaver drops one
-about a third of the time). Swallowed, they give the **Silk form**, which
-passes webs. Silk is no longer a hard-to-get armor: the hard part of the
-chapter is learning to swallow (Beat 3).
+The forest has two kinds of web (2026-10-15):
 
-**The web rules (Planned)** apply from here on:
+| | Webs | Web walls |
+|---|---|---|
+| **Without the Silk skin** | Speed −80% | Cannot pass |
+| **With the Silk skin** | Full speed | Pass at −50% speed |
 
-- A web blocks the path and traps the slime in place.
-- Only the Silk form passes a web.
-- The **silk nook** in the north-west, and its secret, open now.
-
-**Open:** the Weaver Hollow, proposed as the game's first small dungeon for
-earning the Silk Armor, no longer earns anything. Keep it as a dungeon, or drop
-it. The old silk cocoon Gulp spots are placed silk essences now (built 2026-10-09).
+- Before the Matron the slime has no Silk skin: webs slow it down, and web
+  walls keep it out of secrets. **No web wall blocks the way to her.**
+- After the Matron, her Pearl grants the Silk skin, and the web walls open:
+  the **silk nook** in the north-west and the other web secrets in the forest
+  and in Chapter 1's map.
+- Today spiders drop **silk essences** that give a Silk form when swallowed
+  (built 2026-10-09). They are marked for deletion.
+- **Open:** the Weaver Hollow, once proposed as the place to earn silk. Keep
+  it as a small dungeon (for example, where the key tool or a manuscript is
+  found), or drop it.
 
 ## Beat 9 — The Matron's Nest [`the-matrons-nest`] (Built)
 
 **Giver:** Mossy.
 
-- **Planned: the web door.** A web door closes the nest's only entrance. The
-  slime passes it in the Silk form.
+- **The way in:** no web wall blocks the nest (the web door of 2026-10-02 is
+  dropped).
 - **Planned: the fight.**
   - **New art** for the Matron.
   - Her **normal attack is Stretch Lash in three directions**, spread wide
-    enough to dodge between. A hit deals damage and pulls the slime toward
-    her. Without the Silk form it also traps the slime. In the Silk form the
-    hit pops the silk out instead, as a blob the slime can suck back.
-  - Her **web volley** marks four circles. The webs it leaves trap the slime the
-    same way all webs do: only the Silk form passes them.
+    enough to dodge between. A hit deals damage, pulls the slime toward her
+    and traps it. The slime has no Silk skin yet, so it always takes the full
+    effect.
+  - Her **web volley** marks four circles. The webs it leaves slow the slime
+    like every web.
   - She rests after each volley, and that is the opening to hit her.
-- **Boss rules:**
-  - Built: she heals to full after 60 s with the slime outside her arena.
-  - Planned: her bar also hides while the slime is outside and comes back on
-    return.
+- **Boss rules (Planned):** once the slime enters her chamber it cannot leave
+  until she is beaten. Today she heals to full after 60 s with the slime
+  outside her arena.
 - **Reward:**
   - 100 coins and `chapter-2-complete`.
-  - **Squash Slam** left this reward on 2026-10-08: Fatty One Eye's Pearl
-    grants it, and finishing The One-Eyed Guardian teaches it until then.
   - The end card, then the Crystal Caverns exit, still sealed with crystal.
   - Today a Goo Heart appears in the nest. Proposal: it becomes a full heart
     (+20), the boss's own reward on top of the map's four quarters.
 - **Proposal, Pearl 2:** her nest was woven around a Pearl. Beaten, she shrinks
   back into an ordinary (big) orb-weaver and scuttles off. The Pearl lies in
   the silk.
-  - The Pearl transfers **Stretch Lash** permanently into the slime during its
-    ceremony. The slime keeps the ability after returning the Pearl.
+  - The Pearl transfers the **Silk skin** permanently into the slime during
+    its ceremony. The slime keeps it after returning the Pearl.
   - Mossy: "Two of them now. And the shaking is worse. Whatever is under that
     mountain is waking up."
 
@@ -189,21 +196,22 @@ it. The old silk cocoon Gulp spots are placed silk essences now (built 2026-10-0
   whether the Gloop Cavern counts as its own map.
 - Today's Goo Hearts in the forest (one is in the silk nook) and in the cavern
   become quarter spots.
-- Some secrets need a form (silk, stone) and Swallow, which sends the slime
-  back through Chapter 1's map as well.
+- Some secrets sit behind web walls (the Silk skin) or cracked walls (the
+  Bomb), which sends the slime back through Chapter 1's map as well.
 
 ## Chapter 2 checklist
 
 | Item | Beat | Status |
 |---|---|---|
-| Stretch Lash | 9 | Built at Beat 1; relocation Planned |
+| Stretch Lash | Open (manuscripts) | Built at Beat 1 |
 | Reinforced Pickaxe | 1, 4 | Built (hammering Planned) |
-| Swallow (from Tom) | 3 | Built 2026-10-09, with the ceremony |
-| Clod Stomper (stone essence) | 3–4 | Built 2026-10-09 |
+| Swallow (from Tom) | 3 | Built 2026-10-09; marked for deletion |
+| Chapter key tool (the Goo Bomb, the Lantern, the War Axe or new) | Open | Goo Bomb, Lantern and War Axe in the rework |
+| Clod Stomper | 3–4 | Built 2026-10-09 (its essence drop marked for deletion) |
 | Forge, smelting with a timer | 5 | Built (timer Planned) |
-| Iron Spear, Iron Axe | 5–6 | Built (hammering Planned) |
+| Iron Spear, Iron Axe | 5–6 | Built (the shapes in the rework) |
 | 20-slot bag | 7 | Planned |
-| Silk essences from spiders | 8 | Built 2026-10-09 (web rules Planned) |
-| Pearl 2 | 9 | Planned |
+| Webs and web walls | 8 | Planned |
+| Pearl 2 and the Silk skin | 9 | Planned |
 | Boss heart (Matron) | 9 | Built as a Goo Heart; full heart is a Proposal |
 | 4 heart quarters | Secrets | Planned |
