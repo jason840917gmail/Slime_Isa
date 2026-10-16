@@ -68,7 +68,7 @@
 			"placeholder": false,
 			"theme": "meadow",
 			"boss": "Fatty One Eye",
-			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith fled, the Forge is cold."
+			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, is shut by the old Thorn Guard gate, which only a Roll beats. Release 1."
 		},
 		{
 			"key": "b",
@@ -85,21 +85,21 @@
 			"placeholder": false,
 			"theme": "forest",
 			"boss": "Orb-Weaver Matron",
-			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads."
+			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze leads in, which only the Silk skin passes."
 		},
 		{
 			"key": "c",
 			"name": "Crystal Caverns",
 			"color": "#c77dff",
 			"chapter": "3",
-			"status": "Idea",
+			"status": "Planned",
 			"id": "crystal-caverns",
 			"world": "crystal-caverns",
 			"interiors": [],
 			"placeholder": false,
 			"theme": "crystal",
 			"boss": "Crystal Colossus",
-			"notes": "East of Gloop Forest, as in the game (moved 2026-10-10; open without a key for now). The west half of the great mountain, east of Gloop Forest: caves through the rock, crystal sealing them. First dungeon: a dark maze that the Lantern lights."
+			"notes": "East of Gloop Forest, as in the game (moved 2026-10-10; open without a key in the game for now). The west half of the great mountain: caves through the rock. The smith runs the crystal mine, which the Crystal Colossus has blocked; at his mine camp he gives the Lantern. A dark maze the Lantern lights, and the Colossus's arena ringed by four braziers. Pearl 3 grants the Feral skin. Reached from Gloop Forest through the web-wall maze (the Silk skin). Release 1 ends when the Colossus falls. From the Wilds a hill leads in, which only the Feral skin climbs, so that way opens once Feral is won."
 		},
 		{
 			"key": "d",
@@ -141,21 +141,21 @@
 			"placeholder": true,
 			"theme": "swamp",
 			"boss": "",
-			"notes": "South of the hub (the Great Swamp's place). Slow mud, poison, rain, spider-slimes."
+			"notes": "South of the hub (the Great Swamp's place). Slow mud, poison, rain, spider-slimes. Proposal: Old Gullet, the catfish, holds the Swim skin's Pearl."
 		},
 		{
 			"key": "g",
 			"name": "West village (open)",
 			"color": "#f78c6b",
-			"chapter": "?",
-			"status": "Idea",
+			"chapter": "1",
+			"status": "Planned",
 			"id": "west-village",
 			"world": "west-village",
 			"interiors": [],
 			"placeholder": true,
 			"theme": "village",
 			"boss": "",
-			"notes": "Empty slot: a second town (Kakariko's place). Who lives here?"
+			"notes": "A second town (Kakariko's place). Its first part joins Release 1: the house of Burr the gatekeeper, where young Burr teaches the Roll, three or four more houses, a shop and a game to play. The rest comes in later releases."
 		},
 		{
 			"key": "h",
@@ -197,7 +197,7 @@
 			"placeholder": true,
 			"theme": "wilds",
 			"boss": "",
-			"notes": "The connecting fields north of the middle row (the Wilds split in two 2026-10-10). The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them."
+			"notes": "The connecting fields north of the middle row (the Wilds split in two 2026-10-10). The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed in the world (a fallen bridge, a landslide, a Thorn Guard post), each saying that more lies beyond."
 		},
 		{
 			"key": "k",
@@ -211,7 +211,7 @@
 			"placeholder": true,
 			"theme": "wilds",
 			"boss": "",
-			"notes": "The connecting fields south of the middle row: roads to the swamp, the desert and Frostpeak."
+			"notes": "The connecting fields south of the middle row: roads to the swamp, the desert and Frostpeak. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed in the world (a fallen bridge, a landslide, a Thorn Guard post), each saying that more lies beyond."
 		}
 	],
 	"markers": [
@@ -224,10 +224,10 @@
 		},
 		{
 			"type": "landmark",
-			"x": 47,
-			"y": 51,
+			"x": 30,
+			"y": 60,
 			"label": "The Wellspring",
-			"notes": "Planned: its own map east of level-1, where the game starts"
+			"notes": "The prologue's lake, where the slime is born (owner, 2026-10-16): a pool of glowing goo ringed by forest in the south between B4 and C4. A forest path from Slimeshire's south-west reaches it later; each Pearl comes home here"
 		},
 		{
 			"type": "house",
@@ -247,15 +247,15 @@
 			"type": "npc",
 			"x": 34,
 			"y": 66,
-			"label": "Lily the Fishergirl",
-			"notes": "At the water around the plaza"
+			"label": "Dora the Fishergirl",
+			"notes": "At the water around the plaza (renamed from Lily on 2026-10-11; the game still says Lily)"
 		},
 		{
 			"type": "boss",
 			"x": 58,
 			"y": 52,
 			"label": "Fatty One Eye",
-			"notes": "Guards the chest with the green key"
+			"notes": "In Fatty's Lair, the worms' burrow: the Thorn Guard gate drops shut too fast to walk, and falling slabs over spikes or the void need the Roll. Burr waits in a cell. Guards the chest with the green key"
 		},
 		{
 			"type": "gate",
@@ -299,9 +299,10 @@
 			"type": "gate",
 			"x": 96,
 			"y": 61,
-			"label": "Crystal seal",
-			"to": "b",
-			"notes": "gloop-forest's east exit into the Crystal Caverns: open without a key for now (the story wants it sealed until the Matron is beaten)"
+			"label": "Web-wall maze",
+			"to": "c",
+			"needs": "Silk skin",
+			"notes": "gloop-forest's east way into the Crystal Caverns: a maze of web walls only the Silk skin passes (owner, 2026-10-16); open without a key in the game for now"
 		},
 		{
 			"type": "dungeon",
@@ -314,7 +315,8 @@
 			"type": "boss",
 			"x": 118,
 			"y": 52,
-			"label": "Crystal Colossus"
+			"label": "Crystal Colossus",
+			"notes": "Four braziers ring his arena; Pearl 3, the Feral skin"
 		},
 		{
 			"type": "gate",
@@ -345,11 +347,11 @@
 			"needs": "?"
 		},
 		{
-			"type": "note",
+			"type": "town",
 			"x": 17,
 			"y": 58,
-			"label": "Second town?",
-			"notes": "Empty slot"
+			"label": "West village",
+			"notes": "Burr's house (young Burr teaches the Roll), a few houses, a shop and a game: Release 1's part"
 		},
 		{
 			"type": "note",
@@ -364,6 +366,28 @@
 			"y": 110,
 			"label": "Desert ruin?",
 			"notes": "Empty slot"
+		},
+		{
+			"type": "cave",
+			"x": 34,
+			"y": 56,
+			"label": "Yoi's home",
+			"needs": "Suck away the heap in Lili's west yard (optional)",
+			"notes": "Old Veteran Yoi's hideout, his home after the prologue: Lili's tip finds it; a heart quarter, his tips, later the Spear's upgrades"
+		},
+		{
+			"type": "town",
+			"x": 106,
+			"y": 62,
+			"label": "Mine camp",
+			"notes": "The smith runs the crystal mine; he gives the Lantern"
+		},
+		{
+			"type": "landmark",
+			"x": 34,
+			"y": 61,
+			"label": "The glade",
+			"notes": "The prologue: Yoi falls to four worms; the slime saves him by throwing things and learns the Spear. A barred gate (the Spear's lock) opens into Slimeshire"
 		}
 	],
 	"passages": [
@@ -413,7 +437,7 @@
 			"w": 2,
 			"h": 2,
 			"kind": "gate",
-			"label": "Crystal seal"
+			"label": "Web-wall maze"
 		},
 		{
 			"a": "j",

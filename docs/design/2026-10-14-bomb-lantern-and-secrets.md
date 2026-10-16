@@ -1,6 +1,7 @@
 # Goo Bomb, Lantern and Ability Secrets
 
-*Status: being built on branch `exp/body-shapes` (playground only, rework mode). Written
+*Status: built in the playground (rework mode), merged into main on 2026-10-15; the decisions of
+2026-10-15 and 2026-10-16 changed parts of it (dated notes below). Written
 2026-10-14 from the owner's requests and answers. It goes with the
 [power curve](2026-10-11-world-power-curve.md), whose section 4 first planned the Lantern.*
 
@@ -23,6 +24,9 @@
 
 ## 1. The Goo Bomb (box socket `goo-bombs`, used with F; S in keys-only)
 
+*2026-10-16 (owner, open question 94): the Goo Bomb is Chapter 2's key tool in Release 1. Where it
+comes from is open question 95.*
+
 - **Press:** the cast starts. A press with less than 20 energy is refused ("Low energy").
 - **The cast (2000 ms):** the charging strikes' loading ring fills over the cast (owner). The
   slime stands still and swells in slow pulses, while a small glowing
@@ -44,9 +48,15 @@
     mouth always hurts the slime.
   - It breaks cracked walls and rubble heaps inside the ellipse, and sets off other bombs after
     about 120 ms (chains).
+  - *Changed 2026-10-16 (owner): rubble heaps break under the Heavy skin's Roll instead, so the
+    blast stops breaking them once that Roll is built (roadmap 7.8, 7.10); the code still breaks
+    them today. The bomb keeps cracked walls and cracked ground, and the chain stays (open
+    question 57).*
   - Feel: a flash, a big shake, a hit-stop, the goo burst, a shockwave ring, pebbles and goo blobs,
     and a goo splat on the ground that fades.
-- **With the Lantern:** a flame that touches a bomb sets it off at once.
+- **Only its own fuse sets it off** (owner, 2026-10-15): no ability needs another ability, so the
+  Lantern's flame passes a bomb by. A bomb caught in another bomb's blast still goes off
+  (open question 57; the owner kept the chain on 2026-10-16).
 - *As built (numbers in `abilities.gooBomb`, [BODY_SHAPES.md](../godot/BODY_SHAPES.md#the-goo-bomb-2026-10-14)):
   a 600 ms cooldown; the hop is 64 px; the slime takes 18 damage inside the ellipse and 28 in the
   mouth (15 and 25 after its defense); a bomb landing on deep water sinks without a blast.*
@@ -72,7 +82,8 @@
   - It stops at the first enemy, wall or fire target, or fizzles into smoke at the end of its
     range.
   - On an enemy: a small hit (about a third of a Spear jab).
-  - It lights candles, sconces and braziers, burns dry things and sets off bombs at once.
+  - It lights candles, sconces and braziers and burns dry things. It does not set off bombs
+    (owner, 2026-10-15).
   - In dark rooms the flame is a moving light.
 - **Later (not built now):** hold the key on frost or ice to melt it slowly.
 
@@ -94,31 +105,57 @@ planks and dry root plugs.
 - One takes about 600 ms to burn and spreads to the burnables it touches.
 - It stays burnt (a saved flag).
 - Grass and living trees never burn: green things are the Axe's.
+- *Changed 2026-10-16 (owner, open question 72): standing dry things burn; a rotten trunk lying
+  across a path is the Heavy Roll's.*
+- *Changed again 2026-10-16 (owner, open questions 84 and 93): the Lantern burns dry plant growth
+  (deadthorn, hay, dry roots, old banners), and the grey old tree a Heavy Roll knocked down once it
+  lies there as dry wood. Rotten planks, plank barricades, old fences and rotten mine timbers move
+  to the Heavy Roll. The build burns only deadthorn hedges so far.*
 
 ## 3. Secrets: one kind of lock per power
 
 The rule for the player: **every power opens a kind of barrier no other power opens.** A barrier
 says what it needs in its refusal line, so a player who comes back later knows what to bring.
 
+**Each thing is told apart** (owner, 2026-10-16, open question 77): "each thing must be told
+apart; different things never look alike; sacrifice options for clarity". A small loose thing
+lying in the way (a loose rock, a rubble heap, a rotten trunk across a path) is the Heavy Roll's, a
+big single boulder the Hammer's, and a standing tree, a dead one included, the War Axe's. When a
+new lock would look like another, it changes or it goes.
+
+*Changed 2026-10-16 (owner, open questions 92 and 93): one look per power, by what the thing is.
+The **War Axe** owns living, green things (trees in leaf, bushes, leafy vines, webs, tethers). The
+**Heavy Roll** owns old dead or built things that lie or lean in the way (grey leaning old trees,
+rotten trunks across a path, old fences, plank barricades, rotten mine timbers, loose rocks,
+rubble heaps). The **Lantern** owns dry plant growth (deadthorn, hay, dry roots, old banners) and
+the wood the Roll knocked down. The **Hammer** keeps big single boulders. Climbable walls show
+thick roots and rocky handholds, and the Axe's vines are leafy curtains in front of an opening
+(open question 86). The War Axe and Stretch Lash wait for the next release, so their locks are
+come-back secrets in Release 1 (open question 94).*
+
 | Power | Its locks (only it opens them) | The barrier it beats |
 |---|---|---|
-| **Goo Bomb** | **Cracked walls** in cliffs and dungeon walls hide caves and rooms. **Rubble heaps** (many loose rocks) choke cave mouths, wells and tunnels. **Mud dams**: blow the cracked dam and the pond drains, showing the stair, chest or cave mouth that lay underwater. **Bomb over water**: suck the bomb and throw it across a river or a fence onto an island's cracked rock. The fuse is the timer. **The Gobbler**, a rock-eating toad asleep in a cave mouth, swallows whatever is thrown in: feed it a bomb, and it burps up treasure and hops away. **Powder kegs**: chains of kegs that blow a whole wall | Walls, rock, water held back, distance |
-| **Lantern** | **Dark rooms**: only the ember shows the floor, and the holes in it. **Shadow paths**: faint glow-moss on a hidden ledge over a black pit, seen only in the ember's light. **Candles, sconces and braziers**: light them all to open doors, or race timed candles. **Dry blockers**: deadthorn hedges on old roads, hay heaps over hatches, old banners hiding doors, rotten mine timbers. **Gloomlings**: shadow blobs that weapons pass through. They shrink from the light and scuttle off what they sit on (a switch, a key). **Frost and ice** (hold to melt; later) | Darkness, dry blight, cold |
+| **Goo Bomb** | **Cracked walls** in cliffs and dungeon walls hide caves and rooms. **Cracked ground** hides holes and caves below (owner, 2026-10-15). (Rubble heaps went to the Heavy skin's Roll on 2026-10-16; the build still has the bomb break them. In the playground the islet's prize moves behind a cracked rock face: open question 72.) **Mud dams**: blow the cracked dam and the pond drains, showing the stair, chest or cave mouth that lay underwater. **Bomb over water**: suck the bomb and throw it across a river or a fence onto an island's cracked rock. The fuse is the timer. **The Gobbler**, a rock-eating toad asleep in a cave mouth, swallows whatever is thrown in: feed it a bomb, and it burps up treasure and hops away. **Powder kegs**: chains of kegs that blow a whole wall | Walls, rock, water held back, distance |
+| **Lantern** | **Dark rooms**: only the ember shows the floor, and the holes in it. **Shadow paths**: faint glow-moss on a hidden ledge over a black pit, seen only in the ember's light. **Candles, sconces and braziers**: light them all to open doors, or race timed candles; the Crystal Colossus's four braziers bare his weak spot while all of them burn (owner, 2026-10-16). **Dry blockers**: deadthorn hedges on old roads, hay heaps over hatches, old banners hiding doors, dry root plugs, and the old tree a Heavy Roll knocked down, once it lies there as dry wood (rotten mine timbers went to the Heavy Roll on 2026-10-16: open questions 84 and 93). **Gloomlings**: shadow blobs that weapons pass through. They shrink from the light and scuttle off what they sit on (a switch, a key). **Frost and ice** (hold to melt; later) | Darkness, dry blight, cold |
 | **Spear** | **Eye latches**: a thrust to the stone pupil opens the door. **Through bars**: only a thrust fits between the bars of a grate, to hit the switch or cut the cord behind it. **Puff-pods**: a thrust pops the floating seed bladders that block narrow passages | Precise points, bars |
-| **War Axe** | **Webs, vines, bushes and tethers** (as planned). **Fell a dead tree**: a leaning dead tree on a riverbank falls across the water as a log bridge. **Cut ropes**: they hold drawbridges, cages, chandeliers and sacks, which then fall (a bridge drops, a friend goes free, loot spills) | Green and silk, water to cross |
-| **Hammer** | **Boulders, stone and iron nodes, ice armour** (as planned). **Pegs**: hammer one down and its neighbours pop up (Zelda's peg puzzle). **Seesaw catapults**: hammer one end of a log seesaw, and the stone on the other end flies up onto a high ledge's plate | Single heavy things, height |
-| **Squash Slam** | **Shake-downs**: slam near a tree, a shelf or a ledge, and what sits on top falls (nuts, a nest with a key). **Burrowers**: worms and moles hiding underground pop out, and some hold keys. **Drum switches** (the worm drum). **Cracked ground** in the Stone form (built) | Things above and below |
+| **War Axe** | **Webs, vines, bushes and tethers** (as planned; the Feral skin's climbing walls also show vines: open question 86). **Fell a dead tree**: a leaning dead tree on a riverbank falls across the water as a log bridge. Standing trees, dead ones included, are the Axe's (owner, 2026-10-16, open question 77); the old tree a Heavy Roll would knock down is open question 84. **Cut ropes**: they hold drawbridges, cages, chandeliers and sacks, which then fall (a bridge drops, a friend goes free, loot spills). *Changed 2026-10-16 (owner, open questions 86, 93 and 94): the Axe owns living, green things only (trees in leaf, bushes, leafy vines hanging in front of an opening, webs, tethers); grey leaning old trees are the Heavy Roll's, so the dead tree above is no longer the Axe's lock. Climbable walls show roots and handholds, not vines. The War Axe waits for the next release: in Release 1 its locks are come-back secrets, and the Spear cuts webs with the Silk skin* | Green and silk, water to cross |
+| **Hammer** | **Big single boulders and ice armour** (as planned; no harvesting in Release 1, owner 2026-10-15; small loose rocks are the Heavy Roll's, owner 2026-10-16, open question 77). **Pegs**: hammer one down and its neighbours pop up (Zelda's peg puzzle). **Seesaw catapults**: hammer one end of a log seesaw, and the stone on the other end flies up onto a high ledge's plate | Single heavy things, height |
+| ~~**Squash Slam**~~ | Removed (owner, 2026-10-15: it had no job of its own). Its shake-downs went to the Heavy skin's Roll, and cracked ground to the Goo Bomb | |
 | **Mouth (suck and throw)** | **Fog and spore clouds**: the slime inhales a cloud that blocks a passage and can spit it out elsewhere. **Silk Reel**: light things over water, holes and bars | Light things, air |
-| **Forms (Swallow)** | **Stone**: presses plates and stays put on fast water. **Silk**: slips through web doors. **Swim**: deep water and, with Deep Dive, under logs and lily mats | Plates, webs, deep water |
-| **Roll** | **Bonk** trees and walls to drop prizes. **Crumbling bridges and quicksand** cross only at speed. **Gate races**: beat a closing gate | Speed |
+| **Skins** (from the Pearls; replaced the Swallow forms on 2026-10-15) | **Heavy** (Pearl 1): sinks the heavy plates and moves statues, pedestals and blocks; its Roll shakes loose what sits on a wall or a tree it hits, and breaks the small loose things lying in its way: loose rocks, **rubble heaps** (many loose rocks that choke cave mouths, wells and tunnels) and rotten trunks across a path, with a strong shake; it does not push enemies away (owner, 2026-10-16, open questions 61 and 77). It also knocks down or breaks old dead or built things that lie or lean in the way: grey leaning old trees, old fences, plank barricades, rotten mine timbers (open question 93). **Silk** (Pearl 2): passes web walls, webs no longer slow it, and its shapes cut webs (in Release 1 the Spear, open question 94), opening web walls for good and freeing what is wrapped in silk; a web-wall maze leads to the Crystal Caverns (open question 81), and a second one into Gloop Forest from the Wilds (open question 87). **Feral** (Pearl 3, owner, 2026-10-16): climbs some walls it could not climb before while interact is held, claws showing, and its Spear hits twice as fast. A climbable wall has vines and irregularities; the slime climbs up and down, and a fall costs nothing (open question 68; the Axe's vines are open question 86). *Changed 2026-10-16: a climbable wall shows thick roots and rocky handholds, never beside a heavy block (open questions 86 and 91), and a hill only Feral climbs leads from the Wilds into the Crystal Caverns (open question 87).* **Swim** (a later Pearl): deep water; the deep-water secrets are come-back secrets for it, and the Swim form's scene mechanics become its permanent deep-water power (open question 75) | Plates, heavy things, loose rock, webs, walls to climb, deep water |
+| **Roll** | **Falling slabs** (owner, 2026-10-16): loose slabs and crumbling bridges that fall too fast to walk across but slowly enough to roll across, and come back after 10 s, over lava, spikes or the void. Chapter 1's slabs cross the void and spikes, lava waits for a fire region, and a slab falls a set time after it is touched, so quick rolls in a row cross it and walking never does (open questions 70 and 71). **Quicksand** crosses only at speed. **Gate races**: beat a closing gate, like the old Thorn Guard gate of Fatty's Lair, which drops shut too fast to walk through. (Bonking trees and walls to drop prizes, and breaking loose rocks, rubble heaps and old trunks, needs the Heavy skin; so does knocking down grey leaning old trees and breaking old fences, plank barricades and rotten mine timbers, open question 93.) | Speed |
 | **Goo Boomerang** (planned) | Switches out of reach and around corners, two in one throw. Bells. Keys fetched from islands. **Fire carried** from a lit candle to a far one. **Pinwheels**: a hit spins a wind wheel that lifts a gate for a few seconds | Reach around corners |
-| **Stretch Lash** (planned) | **Hook rings** over chasms. **Heavy pulls** (heavy things pull the slime to them). **Loose bricks**: pull one out of a wall, and a niche opens or water runs | Chasms, walls with a loose stone |
+| **Stretch Lash** (planned; it waits for the next release, owner, 2026-10-16, open question 94) | **Hook rings** over chasms. **Heavy pulls** (heavy things pull the slime to them). **Loose bricks**: pull one out of a wall, and a niche opens or water runs | Chasms, walls with a loose stone |
+| **Bow** (planned, an Ability Box power; owner, 2026-10-16) | On press the slime aims in the direction it is moving, on release it shoots that way, and the arrow does not change direction. Each arrow costs energy. **Far targets** in a straight line across gaps and water, such as eye switches on far walls and a target hit while it passes; the arrow carries no fire. **Far enemies** that cannot be reached otherwise, and **enemies that open doors** when they die, as in Zelda (open question 76). Burr gives it in Release 1's Chapter 3, when the slime comes back to the West village after Chapter 2 (open questions 85 and 94) | Distance in a straight line |
 
-**Combos** (two powers, one secret):
-- A flame sets off a bomb at once: a cracked wall on a moving raft, or across a gap at the right
-  moment.
-- The boomerang carries fire.
-- A bomb shakes a Gloomling out of a crack, and then the Lantern chases it.
+**No combos of two abilities** (owner, 2026-10-15): no ability needs another ability, and "depth
+from combos" was dropped. A power may still use a thing in the world, such as the boomerang
+carrying a lit candle's fire. *Open since 2026-10-16: the owner wants a few combos used wisely,
+such as a Heavy Roll that knocks an old tree down into dry wood the Lantern burns (open question
+84).* *Answered 2026-10-16 (owner, open question 84): the main path never needs a combo. A few
+optional secrets may combine a skin and an ability, and each looks clearly different. A Heavy
+Roll knocks down a grey, leafless, leaning old tree, made of old material the Axe cannot cut, and
+the Lantern burns it once it lies there as dry wood.*
 
 ## 4. Heavy plates and heavy blocks (owner's idea, 2026-10-14; built in the playground)
 
@@ -172,7 +209,9 @@ direction the player walks."
   ([BODY_SHAPES.md](../godot/BODY_SHAPES.md#the-goo-bomb-2026-10-14)): the blown wall is the door
   to a small crystal cave with the chest; the islet's "cracked rock" is a rubble heap, and its chest
   appears in the shallows below the islet (the islet has no stairs); a second cracked wall in the
-  root-rock plateau shows the decals on another wall style.*
+  root-rock plateau shows the decals on another wall style.* *Planned (owner, 2026-10-16, open
+  question 72): the islet's prize moves behind a cracked rock face, the bomb's lock, and the heap
+  by the map's edge waits for a Heavy Roll.*
 - **Lantern corner:** a dark room with four candles that light it while they burn (a minute each), a deadthorn hedge
   hiding a nook, and a few enemies to burn.
 - **Heavy corner:** two vaults on the east edge south of the Lantern corner: one behind a timed heavy

@@ -1,5 +1,11 @@
 # Release 1 Progression and Dungeons
 
+> **Superseded in part (2026-10-15 and 2026-10-16).** The owner's later answers in
+> [Open questions](../story/06-open-questions.md) (questions 40 to 100) and
+> [Direction](../story/01-direction.md) replace much of this plan: skins from the Pearls instead
+> of Swallow and forms, eight Release 1 powers with the War Axe and Stretch Lash after Release 1,
+> no quests, and the prologue that teaches the Spear. This file is kept as the record of 2026-10-11.
+
 *Status: a plan to discuss, on branch `exp/body-shapes` only. Nothing is built. Written
 2026-10-11 after the owner's third round of answers; merged from six focused designs and a
 consistency check that read the code. It goes with the main plan,

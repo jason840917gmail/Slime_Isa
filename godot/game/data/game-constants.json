@@ -163,7 +163,7 @@
         "maxHpBonus": 10
       },
       "rework": {
-        "energyRegenPerSecond": 0,
+        "energyRegenPerSecond": 1,
         "rollTapMs": 200,
         "quickRollDistancePx": 165,
         "quickRollMs": 330,

@@ -25,9 +25,9 @@ attacks and the Roll fire on the **release** (holding never strikes first; a hol
 slime walks at half speed while a charge ring fills; every chain's **last step loads** (a visible
 wind-up) and each step moves its own way; the Spear is a thin shaft with an arrowhead; hits stop
 enemies' attacks and walking for longer stuns (no wind-up armor on light and medium enemies); the
-Axe's Spin hits **once**, all round; in the rework mode **energy no longer refills by itself**
-(`character.player.rework.energyRegenPerSecond` 0: energy shards, items and a respawn bring it
-back); the juice panel's number keys **play** each effect.
+Axe's Spin hits **once**, all round; in the rework mode **energy refills slowly**
+(`character.player.rework.energyRegenPerSecond` 1 a second, owner 2026-10-15; energy shards, items
+and a respawn bring back more); the juice panel's number keys **play** each effect.
 
 ## Running it
 
@@ -70,7 +70,7 @@ back); the juice panel's number keys **play** each effect.
     the dummies or at the spawn. Each comes back 3 s after it dies; **F4** brings the whole pen back
     at once. They drop energy shards like any enemy.
   - **F5** fills the slime's energy to full ("Energy full" in cyan over it; `refill_energy`), since
-    energy no longer refills by itself in the rework mode.
+    energy refills only 1 a second by itself in the rework mode.
   - **The Roll's upgrade:** the testbed lends `roll-charge` for the session
     (`RunState.learn_session_ability`, never saved), so a tap of the Roll key rolls the quick roll
     and a hold the charged one (checklist 10).
@@ -123,8 +123,8 @@ strikes as it is let go; holding never strikes first.
    Lunge (Spear, 15 energy), the Spin (Axe, 20 energy: **one** hit per target, a full r72 circle
    swept round from the aim, one hit-stop, 40 damage) or the Quake (Hammer, 25). Letting go before
    the ring is full drains it with no attack and no energy spent; a release before 250 ms is a
-   normal tap. Too little energy fizzles (a cue and a puff). Energy does not refill by itself: pick
-   up energy shards, or press **F5** in the playground.
+   normal tap. Too little energy fizzles (a cue and a puff). Energy refills by itself only 1 a
+   second: pick up energy shards, or press **F5** in the playground.
 3. **Switch shape:** E or the wheel [E]: Spear, War Axe, Hammer. During a strike the switch waits for
    the step's cancel point (during a charge: its end); it never cancels a strike, so a Hammer
    wind-up, a finisher or a paid charge always lands. The bag (B) top band: click a shape (or
@@ -1509,8 +1509,8 @@ static func cooldown_ms(id: StringName) -> float
   fills or waits full); `_locomotion_clip` returns `ShapeController.held_pose_clip()` while it is
   not empty (after the swim and full-mouth clips), so the slime stands and walks in its charge's
   strike hold (the Axe's `load` pose) while the ring fills; `_regen_energy` uses
-  `character.player.rework.energyRegenPerSecond` (0) in the mode, so energy comes back only from
-  shards, items and a respawn.
+  `character.player.rework.energyRegenPerSecond` (1 a second, owner 2026-10-15) in the mode, so
+  most energy comes back from shards, items and a respawn.
 - Cancels: a hit with damage (`cancel("hit")`, `reset_chain("hurt")`), death, knockback,
   `clear_input` ("input-cleared"; it also calls `ShapeController.drop_press()`, so a cleared Attack
   key never reads as a release), sleep; `stop_movement` resets the chain ("stopped"). Knockback,
@@ -1542,7 +1542,8 @@ ability (socket `lantern`, F; S in keys-only), lent in the rework mode with the 
 - **The flame** (`lantern_flame.gd`; owner, 2026-10-14: a short puff right in front of the slime,
   about one tile): it bursts out at 900 px/s for 72 px, growing, then burns there `lingerMs` (150)
   as it shrinks and fades, and acts on the first of: a fire target whose `receive_fire` answers true
-  (a candle lit, a hedge set on fire, a Goo Bomb set off); an enemy hurtbox (one rework hit, class
+  (a candle lit, a hedge set on fire; a Goo Bomb is not one, owner 2026-10-15: it blows only on its
+  own fuse); an enemy hurtbox (one rework hit, class
   tap, 5 damage, a 250 ms hold, `last` false so it never moves a body, tags `fire`, `lantern`,
   weapon id `lantern`, through `AbilityWorld.strike_targets`, with its number and `flame.feel`); a
   wall (`AbilityWorld.line_reach`, tiles and small props never block); else it fizzles into smoke.
@@ -1590,8 +1591,9 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   the gameplay clock, so hit-stops and menus hold it) starts as it leaves the mouth: it pulses from
   2 to 8 Hz (faster near the end), squashing a little, its core glow grows and brightens, the leaf
   fuse sparks more, and it blinks white at 12 Hz in the last 500 ms. Groups: `goo_bombs`,
-  `suckable`, `fire_targets` (`receive_fire(hit) -> true`: it blows at once; `fire_radius` 18) and
-  `light_sources` (`light_circle()`: about 40 px, pulsing, over its core).
+  `suckable` and `light_sources` (`light_circle()`: about 40 px, pulsing, over its core). It is not
+  a fire target: the Lantern's flame passes it by (owner, 2026-10-15: no ability needs another
+  ability; the bomb blows only on its fuse, or a nearby blast's chain).
 - **The mouth:** a light liftable of its own (not in liftables.json): `suck_info` gives the held
   kind `goo-bomb` with `bomb` = its instance id; `take` hides it and it rides with the slime,
   ticking, while the held look (HeldLook: the bomb art) pulses and flashes with its fuse. A Q tap

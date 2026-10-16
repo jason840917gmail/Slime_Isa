@@ -5,7 +5,8 @@ extends Node2D
 ## (72), growing as it goes, burns there for `lingerMs` (150) as it shrinks and fades, and acts on the
 ## first of:
 ## - a **fire target** (group `fire_targets`, game/world/fire/fire_targets.gd) whose
-##   `receive_fire(hit)` answers true: a candle lit, a deadthorn hedge set on fire, a bomb set off;
+##   `receive_fire(hit)` answers true: a candle lit, a deadthorn hedge set on fire (a Goo Bomb is not
+##   one: it blows only on its own fuse, owner 2026-10-15);
 ## - an **enemy hurtbox** (not the player's, not a resource): one rework hit of class `flame.class`
 ##   with `flame.damage` (about a third of a Spear jab) and a short hold (`holdMs`), through
 ##   AbilityWorld.strike_targets as the Slam strikes, with its damage number and `flame.feel`; a

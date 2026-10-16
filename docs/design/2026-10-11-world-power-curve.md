@@ -1,5 +1,11 @@
 # The World's Power Curve: Access Items, Dungeons and Pearls
 
+> **Superseded in part (2026-10-15 and 2026-10-16).** The owner's later answers in
+> [Open questions](../story/06-open-questions.md) (questions 40 to 100) and
+> [Direction](../story/01-direction.md) replace much of this plan: skins from the Pearls instead
+> of Swallow and forms, eight Release 1 powers with the War Axe and Stretch Lash after Release 1,
+> no quests, and the prologue that teaches the Spear. This file is kept as the record of 2026-10-11.
+
 *Status: a proposal for the owner, on branch `exp/body-shapes` only. Written 2026-10-11 from three idea sets (Zelda-faithful, slime-body, pacing and story) and a judge, after the owner asked whether a dungeon should give two powers and asked for ideas on the item that opens each region's dungeon. Goes with the [body-shapes plan](2026-10-11-body-shapes-plan.md) and the [Release 1 dungeons plan](2026-10-11-release-1-dungeons-plan.md). Names of new characters, places and bosses are proposals.*
 
 ## The owner's answers (2026-10-11)
