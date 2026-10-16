@@ -71,7 +71,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-cocoon-hanging-01.tscn" id="41_tcos8"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid--house-mushroom-round.tscn" id="42_mpgpg"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/forge.tscn" id="42_sbpb5"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/goo-heart.tscn" id="43_3xwf5"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-11.tscn" id="43_jj6eo"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid--house-mushroom.tscn" id="44_ag1o4"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="45_tvl7h"]
@@ -975,16 +974,6 @@ metadata/persistence_key = "level-1.level-1-forge"
 [node name="Encounters" type="Node2D" parent="." unique_id=1363579440]
 y_sort_enabled = true
 
-[node name="level-1-goo-heart-cliff-secret" parent="Encounters" unique_id=330244416 instance=ExtResource("43_3xwf5")]
-metadata/instance_id = "level-1-goo-heart-meadow-lakeside"
-metadata/persistence_key = "level-1.level-1-goo-heart-meadow-lakeside"
-
-[node name="Visual" parent="Encounters/level-1-goo-heart-cliff-secret" index="0"]
-position = Vector2(3812, 1306)
-
-[node name="GooHeartScript" parent="Encounters/level-1-goo-heart-cliff-secret" index="1"]
-heart_id = "meadow-lakeside"
-
 [node name="Houses" type="Node2D" parent="." unique_id=1602191026]
 position = Vector2(1538, 368)
 
@@ -1056,4 +1045,3 @@ area = NodePath("..")
 [editable path="Resources/Berries/level-1-purple-berry-01"]
 [editable path="Resources/Berries/level-1-purple-berry-02"]
 [editable path="Resources/Berries/level-1-purple-berry-03"]
-[editable path="Encounters/level-1-goo-heart-cliff-secret"]

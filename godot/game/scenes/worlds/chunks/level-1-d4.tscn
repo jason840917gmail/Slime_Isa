@@ -41,6 +41,7 @@
 [ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/world/meadow-ambience.wav" id="28_b8de2"]
 [ext_resource type="Script" uid="uid://dwk8hk12boqk4" path="res://game/scripts/world_area.gd" id="29_dy36c"]
 [ext_resource type="PackedScene" path="res://game/scenes/encounters/level-1-fatty-camp.tscn" id="30_rnguq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/goo-heart.tscn" id="31_gooheart"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i75oi"]
 size = Vector2(64, 128)
@@ -456,6 +457,14 @@ stay_shape = NodePath("../stay-shape")
 [node name="Encounters" type="Node2D" parent="." unique_id=1363579440]
 y_sort_enabled = true
 position = Vector2(-2048, 0)
+
+[node name="level-1-goo-heart-cliff-secret" parent="Encounters" instance=ExtResource("31_gooheart")]
+position = Vector2(3916, 1449)
+metadata/instance_id = "level-1-goo-heart-meadow-cliff-secret"
+metadata/persistence_key = "level-1.level-1-goo-heart-meadow-cliff-secret"
+
+[node name="GooHeartScript" parent="Encounters/level-1-goo-heart-cliff-secret" index="1"]
+heart_id = "meadow-cliff-secret"
 
 [node name="level-1-fatty-one-eye-camp" parent="Encounters" unique_id=41966315 instance=ExtResource("30_rnguq")]
 position = Vector2(2528, 1472)
