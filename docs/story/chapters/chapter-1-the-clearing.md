@@ -5,7 +5,7 @@
 | **Region** | Slimeshire Meadow (`level-1`, `slime-home`, `mushroom-home`) |
 | **Goal** | Grow from a newborn puddle into a slime that can leave home, and open the Verdant Gate |
 | **Boss** | Fatty One Eye |
-| **Earned** | First bag, stone tools, Dodge, home and vault, spears, the green key, Squash Slam; Planned: Pearl 1 (it will grant the slam), and a boss heart |
+| **Earned** | First bag, stone tools, the Roll, home and vault, spears, the green key, Squash Slam (its place in the plan is Open); Planned: Pearl 1 with the **Heavy skin**, and a boss heart. Shapes replace the crafted tools and spears (built in the rework mode). |
 | **Status** | Built. The beats below mark each Planned change and Proposal. |
 
 Quest IDs are in brackets. Their dialogue lives in
@@ -16,7 +16,8 @@ exist are marked *(in game)*; every other line is a draft.
 
 ## Beat 0 — Born from the Wellspring (Proposal)
 
-**Where:** the Wellspring in the clearing (Open: or the plaza).
+**Where:** the Wellspring, in its own new map east of level-1, the game's
+first map (Planned).
 
 - The pool bubbles, and one drop rises, wobbles, and opens two eyes. The slime
   has nothing: no bag, no tools, no moves beyond walking.
@@ -24,7 +25,7 @@ exist are marked *(in game)*; every other line is a draft.
   - Plop: "Ah, a new slime in the clearing! Welcome, little one." *(in game)*
   - Plop: "No slime has come out of the Wellspring in years... and here you
     are."
-- **The player learns:** movement.
+- **The player learns:** movement. Plop asks the slime to meet him in town.
 - **Slime Basics** [`slime-basics`] starts here (Built). Planned change: drop
   its "Sprint" step, because sprinting is now a mid-game ability.
 
@@ -50,7 +51,9 @@ exist are marked *(in game)*; every other line is a draft.
   on the belt, chops 20 wood and mines 20 stone.
 - **Planned change:** tools are made by staying at the bench and hammering. This
   is the first hammering moment, and each tool ends in the item ceremony.
-- **Reward:** **Dodge** (ceremony), the Wooden Spear recipe, 20 coins, 10 wood.
+- **Reward:** **the Roll** (ceremony; the Dodge until 2026-10-09), the Wooden
+  Spear recipe, 20 coins, 10 wood. Who teaches the Roll in the plan is Open: a
+  manuscript, or an NPC the slime rescues.
   - Plop: "A slime that stands still gets squashed. When something swings at
     you, tuck in and roll away!" *(in game)*
 
@@ -72,10 +75,10 @@ alternative, Open).
   1. Explores the house.
   2. Sleeps in the bed. This teaches resting to recover, and that the slime
      wakes here after a defeat.
-  3. Finds the **vault**: 50 slots, shared with every vault, and it holds
-     weapons too. Full ceremony.
-- **Proposal, why vaults are shared:** vaults are sealed with Wellspring goo,
-  so everything put in one can be taken out of any other.
+  3. Finds the **vault**: 50 slots. Full ceremony.
+- **Open:** do all vaults share one storage? The old proposal: vaults are
+  sealed with Wellspring goo, so everything put in one can be taken out of any
+  other.
   - Plop: "Whatever you put in a vault, every vault remembers."
 - **Open:** after this first one, can the slime craft more vaults, for
   example one at the forest camp?
@@ -110,16 +113,17 @@ alternative, Open).
 - **Proposal, Pearl 1:** Fatty's eye glows because a Pearl is lodged behind it.
   - Beaten, he shrinks and the Pearl pops free. This is the full ceremony and
     the first time the player sees a Pearl.
-  - The Pearl transfers **Squash Slam**, his own hard landing, permanently into
-    the slime. The ability stays when the Pearl later returns to the
-    Wellspring.
+  - The Pearl transfers the **Heavy skin**, his own weight, permanently into
+    the slime: it moves big statues, pedestals and some blocks, and holds
+    gate openers down by standing on them. The skin stays when the Pearl
+    later returns to the Wellspring.
   - Plop explains what it is when the slime next returns to Slimeshire, which
     the Forge quest in Chapter 2 makes happen.
 - **Proposal, boss heart:** Fatty also leaves one full heart (+20 max HP).
 - **The player does next:** takes the green key from the chest and opens the
   Verdant Gate.
-- **Reward:** 100 coins, the flag `chapter-1-complete` and **Squash Slam**
-  (Built 2026-10-08; the Pearl takes over granting it once it exists). Mossy
+- **Reward:** 100 coins, the flag `chapter-1-complete` and, today, **Squash
+  Slam** (Built 2026-10-08; where it is learned in the plan is Open). Mossy
   moves to the forest camp.
 
 ## Secrets (Planned)
@@ -128,8 +132,9 @@ alternative, Open).
   Open.
 - Today two Goo Hearts are placed in `level-1`. They become quarter spots, or
   move to harder ones.
-- At least one quarter should need a later item (Silk Armor, the Stone Armor
-  roll), so that coming back pays off.
+- At least one quarter should need a later power (the Silk skin, the Goo
+  Bomb),
+  so that coming back pays off.
 
 ## Chapter 1 checklist
 
@@ -137,11 +142,12 @@ alternative, Open).
 |---|---|---|
 | 10-slot bag | 1 | Planned |
 | Stone Axe, Stone Pickaxe | 1–2 | Built (hammering Planned) |
-| Dodge | 2 | Built |
+| Roll | 2 | Built (teacher in the plan Open) |
 | Home (bed) and vault | 3 | Planned |
-| Wooden Spear, Stone Spear | 2–5 | Built (hammering Planned) |
-| Squash Slam | 5 | Built (quest reward; from the Pearl once it exists) |
+| Wooden Spear, Stone Spear | 2–5 | Built (the Spear shape in the rework) |
+| Squash Slam | 5 | Built (quest reward; place in the plan Open) |
 | Green key | 5 | Built |
 | Pearl 1 | 5 | Planned |
+| Heavy skin | 5 | Planned (the rework's Stone form works the heavy puzzles) |
 | Boss heart (Fatty) | 5 | Proposal |
 | 4 heart quarters | Secrets | Planned |

@@ -24,9 +24,11 @@ Decisions waiting on the owner. When one is answered:
 4. **Does the hero talk?** This draft proposes a silent hero.
 5. **Where is the Wellspring?** In the plaza, or in the clearing where the
    slime is born?
+   *Owner: in its own new map east of level-1, the game's first map.*
 6. **Bosses after their Pearl is gone.** Should they keep respawning every five
    minutes, as today? Or stay calm for good, as in Zelda, perhaps leaving a
    smaller rematch version?
+   *Owner: a beaten boss does not appear again.*
 7. **Lili and Lily.** The names are too close. Rename one?
 8. **Pip's dad.** Is he found in Chapter 3, as the
    [sketch](chapters/chapter-3-crystal-caverns.md) proposes?
@@ -47,11 +49,15 @@ Decisions waiting on the owner. When one is answered:
     Fatty One Eye's reward? It must come before the iron hollow.
     *2026-10-08: no armors. The Clod Stomper drops stone essences, and Tom
     teaches Swallow before the iron hollow. Both built 2026-10-09.*
+    *2026-10-15: Fatty One Eye's Pearl grants the Heavy skin, so the slime has
+    it before the iron hollow.*
 14. **The Silk Armor.** Is the Weaver Hollow mini-dungeon the place? And
     should today's silk cocoon Gulp spots be removed, or become energy refills?
     *2026-10-08: no armors. Spiders drop silk essences, and the cocoon spots
     become placed silk essences. Still open: whether the Weaver Hollow stays as
     a dungeon (question 25).*
+    *2026-10-15: the Matron's Pearl grants the Silk skin. Silk essences are
+    marked for deletion.*
 15. **Wearing armors.**
     - Is only one armor worn at a time?
     - Does an armor drain energy the whole time it is worn, or only when its
@@ -59,8 +65,12 @@ Decisions waiting on the owner. When one is answered:
     - How does the slime switch armors? Q is the Gulp key today.
     *2026-10-08: replaced by essences. One form at a time, from the last
     essence swallowed; no timer and no energy cost.*
+    *2026-10-15: armors and forms became skins from the Pearls, free and
+    permanent. How the slime switches skins is question 34.*
 16. **The sprint roll.**
-  - Which of the remaining six Pearls grants it, and in which chapter?
+  - ~~Which of the remaining six Pearls grants it, and in which chapter?~~
+    *2026-10-15: no Pearl teaches it; a manuscript or a rescued NPC
+    (question 33).*
     - Should it share one button with Dodge (tap to dodge, hold to keep
       rolling), with the hold unlocked mid-game as an upgrade of the Dodge?
     *2026-10-08: the Dodge becomes the Roll (on key 2 since 2026-10-09), and it keeps rolling
@@ -80,6 +90,8 @@ These are proposals from the planning talk that have not been answered:
 
 20. After spending, the refill pauses for about one second, then refills at a
     fair speed. The pressure comes from the pause, not from long waiting.
+    *2026-10-15 (owner): no regeneration at all. Only potions and energy shards
+    refill energy, so the player is careful with abilities.*
 21. Basic attacks stay free, so the slime is never helpless.
 22. Tiny cooldowns stay as an anti-spam guard.
 23. Rolling needs a minimum amount of energy to start.
@@ -105,18 +117,59 @@ These are proposals from the planning talk that have not been answered:
     does today?
 28. **The lift upgrades.** What are the two upgrades that suck in heavy rocks,
     and where are they found?
-29. **The swim essence's monster.** Which aquatic monster drops it, and in which
-    region?
-30. **Essence recipes.** Which recipes use essences?
+29. ~~**The swim essence's monster.**~~ *2026-10-15: essences are marked for
+    deletion.*
+30. ~~**Essence recipes.**~~ *2026-10-15: essences are marked for deletion.*
+
+## Skins, shapes and abilities (2026-10-15)
+
+31. **Chapter 2's key tool.** Swallow was it. The Goo Bomb, the Lantern (both
+    built in the rework mode), the War Axe (the 2026-10-11 dungeons plan), or a
+    new
+    item or ability? Does Tom teach it, or does his beat go?
+32. **Skins 3 to 8.** Which skins (aquatic, acid, lava, cloud, ...), and which
+    boss holds each?
+33. **Who teaches what.** The Roll (a manuscript, or an NPC the slime
+    rescues), Stretch Lash (which manuscript, where), Squash Slam (with the
+    main story), Teleport, the Goo Bomb, the Lantern, and each shape.
+34. ~~**Wearing skins.**~~ *2026-10-15 (owner): always on once learned, with
+    no key. Each acts only where the place calls for it, has no downside and
+    stacks with the others ([Direction](01-direction.md#the-skins)). Open:
+    each skin's exact trigger and look.*
+35. **Manuscripts.** Whole, or in pieces to collect? How does the player
+    track the pieces?
+36. **The Slime Forge.** Where does it stand, when is it built, and what does
+    an evolution cost?
+37. ~~**Abilities tied to skins (idea).**~~ *2026-10-15 (owner): dropped. No
+    ability is locked to a skin; skin × shape × ability combos give the
+    variety instead.*
+38. **Vaults.** Do all vaults share one storage?
+39. ~~**Chapter 3's light.**~~ *2026-10-15: the Lantern, an ability, built in
+    the rework mode. Where it is learned is question 33.*
 
 ## Answered
 
+- **2026-10-15 (later):** skins are always on once learned (like Zelda's
+  flippers or Super Metroid's suits): contextual, pure additions that stack,
+  no keys. No ability is locked to a skin.
+- **2026-10-15:** two systems for the slime's powers, plus abilities. Each
+  Pearl grants a **skin** (Heavy from Fatty One Eye, Silk from the Matron),
+  permanent, free, and never knocked off. **Shapes** (spear, axe, hammer, ...)
+  replace crafted weapons and are taught by NPCs or old manuscripts.
+  Abilities cost energy; the **Bomb** is one, and breaks cracked walls and
+  ground. Swallow and essences are marked for deletion; the Gulp only grabs
+  and throws. Energy does not regenerate. Webs slow the slime by 80% and web
+  walls stop it without the Silk skin; with it, webs do not slow it and web
+  walls slow it by 50%. No web wall blocks the way to the Matron. Bosses keep
+  the slime in their chamber until beaten, and do not come back. See
+  [Direction](01-direction.md).
 - **2026-10-02:** each of the eight Pearls grants one unique permanent ability
   before returning to the Wellspring. Pearl 1 grants Jump; Pearl 2 grants
   Stretch Lash. Dodge remains basic training from Plop. Squash Slam belongs to
   a later Pearl; the other five Pearl abilities are Open. *Changed
   2026-10-08: the jump is removed and Pearl 1 grants Squash Slam (below).
-  Since 2026-10-09 the Dodge is the Roll.*
+  Since 2026-10-09 the Dodge is the Roll. Changed again 2026-10-15: the
+  Pearls grant skins, not abilities.*
 - **2026-10-02:** adventure first, with a little crafting.
 - **2026-10-02:** heart quarters, four to a heart, and four quarters per map
   for now.
@@ -125,7 +178,8 @@ These are proposals from the planning talk that have not been answered:
 - **2026-10-02:** sprint is a powerful mid-game ability, not available at the
   start.
 - **2026-10-02:** webs trap the slime, and only the Silk Armor passes them,
-  spending energy. A web door closes the Matron's camp.
+  spending energy. A web door closes the Matron's camp. *Changed 2026-10-15:
+  webs and web walls (above); no web door.*
 - **2026-10-02:** the item ceremony, the timed crafting ideas, and the orb HUD
   ideas are accepted. See [Direction](01-direction.md).
 - **2026-10-08:** the HUD console mockup's direction is approved

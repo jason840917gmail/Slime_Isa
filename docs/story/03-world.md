@@ -142,7 +142,7 @@ The map is cut into 8 × 8 chunks, A1 in the north-west; a region's chunks are t
 |---|---|---|---|---|---|---|---|---|
 | **Slimeshire Meadow** | 1 | Built | C4, D4, C5, D5 | North Wilds, West village (open), Gloop Forest, South Wilds | level-1 | slime-home, mushroom-home | Fatty One Eye | The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith fled, the Forge is cold. |
 | **Gloop Forest** | 2 | In progress | E4, F4, E5, F5 | North Wilds, Slimeshire Meadow, Crystal Caverns, South Wilds | gloop-forest | gloop-hut, gloop-cavern | Orb-Weaver Matron | East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. |
-| **Crystal Caverns** | 3 | Idea | G4, H4, G5, H5 | North Wilds, Gloop Forest, South Wilds | crystal-caverns |  | Crystal Colossus | East of Gloop Forest, as in the game (moved 2026-10-10; open without a key for now). The west half of the great mountain, east of Gloop Forest: caves through the rock, crystal sealing them. First dungeon: a dark maze the Glow armor lights. |
+| **Crystal Caverns** | 3 | Idea | G4, H4, G5, H5 | North Wilds, Gloop Forest, South Wilds | crystal-caverns |  | Crystal Colossus | East of Gloop Forest, as in the game (moved 2026-10-10; open without a key for now). The west half of the great mountain, east of Gloop Forest: caves through the rock, crystal sealing them. First dungeon: a dark maze that the Lantern lights. |
 | **Volcano Ridge** | Finale | Idea | F1, G1, H1, F2, G2 | Northern ruins (open), North Wilds | volcano-ridge (placeholder) |  | Gorge | The east half of the great mountain, around the crater. Gorge's prison; the rumbling comes from here. |
 | **Frostpeak** | ? | Idea | F7, G7, F8, G8 | South Wilds, Sticky Swamp | frostpeak (placeholder) |  |  | Proposal: the great lake in the south-east, frozen, with snowy cliffs: ice physics and snow. |
 | **Sticky Swamp** | ? | Idea | D7, E7, D8, E8 | South Wilds, Frostpeak | sticky-swamp (placeholder) |  |  | South of the hub (the Great Swamp's place). Slow mud, poison, rain, spider-slimes. |
@@ -180,7 +180,7 @@ The map is cut into 8 × 8 chunks, A1 in the north-west; a region's chunks are t
 | Lake bridge | Gate / passage | Frostpeak ↔ South Wilds | ? |  |
 | Lake bridge | Opening (generated) | Frostpeak ↔ South Wilds | nothing | Cut by the region builder |
 | Opening | Opening (generated) | Frostpeak ↔ Sticky Swamp | nothing | Cut by the region builder |
-| Gloop Cavern | Cave / stairs | Gloop Forest → gloop-cavern | Heavy |  |
+| Gloop Cavern | Cave / stairs | Gloop Forest → gloop-cavern | Goo Bomb (cracked ground) |  |
 
 **Places on the map**
 
@@ -190,10 +190,10 @@ The map is cut into 8 × 8 chunks, A1 in the north-west; a region's chunks are t
 | Crystal Colossus | Boss | Crystal Caverns | H4 |  |  |
 | Desert ruin? | Note / idea | Desert (open) | A7 |  | Empty slot |
 | Forest camp | Town / hub | Gloop Forest | F5 |  |  |
-| Orb-Weaver Matron | Boss | Gloop Forest | F4 | web door: Silk Armor (Planned) |  |
+| Orb-Weaver Matron | Boss | Gloop Forest | F4 |  |  |
 | Ruin maze? | Note / idea | Northern ruins (open) | E1 |  | Empty slot: a dungeon |
 | Slimeshire plaza | Town / hub | Slimeshire Meadow | C4 |  | The middle of the world |
-| The Wellspring | Landmark | Slimeshire Meadow | C4 |  | Proposal: plaza or clearing (Open) |
+| The Wellspring | Landmark | Slimeshire Meadow | C4 |  | Planned: its own map east of level-1, where the game starts |
 | Your house | House / interior | Slimeshire Meadow | C4 |  |  |
 | Mushroom house | House / interior | Slimeshire Meadow | D4 |  |  |
 | Lily the Fishergirl | NPC | Slimeshire Meadow | C5 |  | At the water around the plaza |
@@ -210,7 +210,7 @@ grows as Pearls return.
 | Place | What happens there | Status |
 |---|---|---|
 | The clearing | The slime's first steps; the first quests | Built |
-| **The Wellspring** | The slime's birth; Pearls are returned here, and it brightens | Proposal (plaza or clearing: Open) |
+| **The Wellspring** | The slime's birth; Pearls are returned here, and it brightens | Planned: its own map east of level-1, the game's first map |
 | Elder Plop's path | The main-line giver for Chapter 1 | Built |
 | **Your house** (the red forge house, its door leading to the Slime Home) | Bed: sleep to recover, and wake here after a defeat; the first vault | Built house; vault and quest Planned |
 | Mushroom house | A furnished room with a bed and a chest | Built (role Open) |
@@ -227,24 +227,26 @@ grows as Pearls return.
 |---|---|---|
 | Forest camp (the walled clearing at the forest's heart) | Mossy, Sunny, a workbench, and the hut with a bed | Built |
 | Weaver thickets | Orb-weavers and weaver fangs | Built |
-| Iron hollow, south-east of the camp | Iron ore behind a gate opened by something heavy on its plate | Built |
-| Silk nook, north-west | A walled nook behind a web | Built |
-| Cracked clearing, south-west of the camp | Heavy breaks the ground; it drops into the Gloop Cavern | Built |
+| Iron hollow, south-east of the camp | Iron ore behind a gate opened by the Heavy skin standing on its plate (Planned; today a swallowed stone essence) | Built |
+| Silk nook, north-west | A walled nook behind a web wall; it opens once the Silk skin is earned | Built; web wall Planned |
+| Cracked clearing, south-west of the camp | Planned: the Goo Bomb breaks the ground (today a Squash Slam in the Stone form; the Goo Bomb blows cracked walls, not ground yet); it drops into the Gloop Cavern | Built |
 | **Gloop Cavern** | Today a chest, a Goo Heart and a ladder; Planned: the coffer with the 20-slot bag | Built; bag Planned |
 | North stream | Sunny's basket and the lash bell post | Built |
-| **The Matron's nest**, north-east | The boss arena; Planned: a **web door** closes it | Built; web door Planned |
+| **The Matron's nest**, north-east | The boss arena; no web wall blocks the way in | Built |
 | Crystal Caverns exit, east | Open without a key for now (the crystal-key gate was removed 2026-10-10) | Built |
 
 ## Webs (Planned)
 
-The forest's webs are a wall, not a slowdown:
+The forest has two kinds of web (2026-10-15):
 
-- A web blocks the path, and a slime that touches one is trapped in place.
-- Only the **Silk Armor** passes through a web, and passing costs energy.
-- The same rule applies to the Matron's special-attack webs, to some webs in
-  spider camps, and to the **web door** in front of the Matron's camp.
-- Webs that can only be passed with the Silk Armor are also good places to
-  hide secrets in the regions the slime has already visited.
+| | Webs | Web walls |
+|---|---|---|
+| **Without the Silk skin** | Speed −80% | Cannot pass |
+| **With the Silk skin** | Full speed | Pass at −50% speed |
+
+- No web wall blocks the way to the Matron. Her Pearl grants the Silk skin.
+- Web walls are good places to hide secrets: they open on the way back,
+  in Gloop Forest and in the maps already visited.
 
 ## Dungeons
 
@@ -252,17 +254,18 @@ None are built yet. **Proposal:** from Chapter 3 on, every region has at least
 one dungeon (a cave, a castle or a maze) with three parts:
 
 1. A first half that the slime can reach with what it already has.
-2. The region's **key item** in the middle: an armor, a weapon or an ability.
-3. A second half and a boss that both need that item.
+2. The region's **key tool** in the middle: a shape or an ability.
+3. A second half and a boss that both need that tool. The boss's Pearl then
+   grants a skin.
 
-The Crystal Caverns are the natural first dungeon: a dark maze that the Glow
-armor lights.
+The Crystal Caverns are the natural first dungeon: a dark maze that the
+Lantern (an ability, built in the rework mode) lights.
 
 ## Secrets per map (Planned)
 
 - **Four heart quarters per map** for now, and four quarters make one heart.
   **Open:** does the Gloop Cavern count as its own map, or does it share Gloop
   Forest's four?
-- Some secrets should only open with items from later chapters, such as the
-  Silk Armor, the Stone Armor roll or the Glow armor, so that going back pays
+- Some secrets should only open with powers from later chapters, such as the
+  Silk skin, the Goo Bomb, the Lantern or later skins, so that going back pays
   off.
