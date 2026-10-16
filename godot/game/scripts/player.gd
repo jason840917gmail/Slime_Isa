@@ -2259,8 +2259,8 @@ func _make_gulp_hud() -> void:
 
 
 ## Energy regen (WorldScene.ts:833-837): `energyRegenPerSecond` per second of simulation, capped.
-## Rework mode: `character.player.rework.energyRegenPerSecond` instead (0, owner 2026-10-12: energy
-## is scarce; energy shards, items and a respawn bring it back).
+## Rework mode: `character.player.rework.energyRegenPerSecond` instead (1, owner 2026-10-15: energy
+## refills, but slowly; energy shards, items and a respawn bring back more).
 func _regen_energy(delta_ms: float) -> void:
 	var regen := _rework_energy_regen if ReworkMode.is_on() else _energy_regen
 	if regen <= 0.0 or _energy >= float(_max_energy) or delta_ms <= 0.0 or _roll.is_active():

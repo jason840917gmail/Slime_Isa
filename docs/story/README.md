@@ -21,7 +21,9 @@
    `world-map.png`, stays in this folder.
 4. [Characters](04-characters.md): the slime, the people of Slimeshire, the
    bosses and the villain.
-5. Chapters, one file each:
+5. Chapters, one file each, after the
+   [prologue](../design/2026-10-16-prologue.md) (Planned, the owner's of
+   2026-10-16):
    - [Chapter 1 — The Clearing](chapters/chapter-1-the-clearing.md)
    - [Chapter 2 — Gloop Forest](chapters/chapter-2-gloop-forest.md)
    - [Chapter 3 — Crystal Caverns (sketch)](chapters/chapter-3-crystal-caverns.md)
@@ -49,9 +51,31 @@ Every beat, item and idea carries one tag:
   tagged Planned here changes those docs only once the work is scheduled. Until
   then, both still describe the current build.
 - The decisions of 2026-10-15 (skins from the Pearls, shapes instead of
-  crafted weapons, the Goo Bomb, Swallow and essences marked for deletion, no
-  energy regeneration) are not in the guidelines or the roadmap yet. Until
-  they are, those docs describe the Gulp-and-essences build.
+  crafted weapons, the Goo Bomb, Swallow and essences marked for deletion) and
+  the owner's answers to the review the same day (slow energy regeneration,
+  Release 1 as Chapters 1 to 3, no harvesting, one game) are in the roadmap as
+  tasks ([the 2026-10-15 decisions](../GAME_ROADMAP.md#the-2026-10-15-decisions)).
+  The guidelines mark the parts these decisions replace, starting with their
+  Gulp section, and link to [Direction](01-direction.md).
+- The owner's answers of 2026-10-16 (the Feral skin from Pearl 3, the Roll
+  from young Burr, the Heavy skin's Roll, one bag, Release 1's end, the
+  Colossus's braziers and the smith's mine camp) are in the roadmap as tasks
+  too ([the 2026-10-16 decisions](../GAME_ROADMAP.md#the-2026-10-16-decisions)),
+  and so is their third round (climbable walls, the slabs' hazards and timing,
+  the West village town and Release 1's borders, Plop's 10-slot bag, the Swim
+  form kept as the Swim skin, the Bow from Burr, the Forge relit by Pearl 2,
+  and the web-wall maze to the Crystal Caverns), and their fourth and fifth
+  rounds (combos only in optional secrets; what the War Axe, the Heavy Roll
+  and the Lantern each own; climbable walls; the Wilds' ways into the forest
+  and the caverns; the West village shop; potions before the Forge; Pearl 1's
+  well; and Release 1's eight powers, with the Bow in Chapter 3 and the War
+  Axe and Stretch Lash saved for the next release), and their sixth round
+  (the prologue and its lake, the Wellspring; Yoi's home; Plop at the town's
+  edge; Tom's Goo Bomb and his maze; one shape; the river bridge; Burr's Bow
+  from the Matron's thread; Pearl 1's homecoming; campfires and the well;
+  then saving like Zelda, the prizes that were materials, the Clod Stomper,
+  whole manuscripts, food at a campfire, the Slime Forge and the
+  [bestiary](../design/2026-10-16-bestiary.md)'s 29 enemies).
 - Dialogue already in the game lives in
   `godot/game/data/quests-chapter-1.json`, `quests-chapter-2.json` and
   `godot/game/data/npc-definitions.json`. When a chapter file and the game

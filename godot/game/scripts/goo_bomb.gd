@@ -10,8 +10,9 @@ extends Node2D
 ## - **The fuse** (`fuseMs`, 3000, from the moment it leaves the mouth; the gameplay clock, so
 ##   hit-stop and menus hold it): it pulses from `pulseStartHz` to `pulseEndHz` (2 to 8 Hz, faster
 ##   the nearer the end), its core glows brighter, the leaf fuse sparks more, and it flashes white in
-##   the last `flashMs` (500). Then it blows (GooBlast.detonate). `chain(delay_ms)` (a blast nearby)
-##   and `receive_fire(hit)` (group `fire_targets`: the Lantern's flame) set it off sooner.
+##   the last `flashMs` (500). Then it blows (GooBlast.detonate). Only `chain(delay_ms)` (a blast
+##   nearby) sets it off sooner; no other ability does (owner, 2026-10-15: the Lantern's flame no
+##   longer sets it off).
 ## - **The mouth:** a light liftable (group `suckable`: `can_take`, `origin`, `suck_info`, `take`;
 ##   held kind "goo-bomb" with "bomb" = this node's instance id). Q sucks it in and a Q tap throws it
 ##   (game/player/gulp/). The fuse keeps running in the mouth, where the held look pulses with it; if
@@ -29,7 +30,6 @@ const GooBlast := preload("res://game/player/abilities/goo_blast.gd")
 
 const GROUP := &"goo_bombs"
 const SUCKABLE_GROUP := &"suckable"
-const FIRE_GROUP := &"fire_targets"
 const LIGHT_GROUP := &"light_sources"
 ## The held kind (game/player/gulp/: the mouth, the held look, the throw).
 const KIND := "goo-bomb"
@@ -69,9 +69,6 @@ const SINK_TEXT := "Fsss..."
 const LIGHT_RISE := 22.0
 
 enum State { HOP, REST, CARRIED, RIDING, DONE }
-
-## How close a flame must come to set it off (the Lantern's fire-target contract).
-var fire_radius: float = 18.0
 
 static var _texture: Texture2D
 static var _glow: Texture2D
@@ -148,7 +145,6 @@ static func from_held(held: Dictionary) -> Node:
 func _enter_tree() -> void:
 	add_to_group(GROUP)
 	add_to_group(SUCKABLE_GROUP)
-	add_to_group(FIRE_GROUP)
 	add_to_group(LIGHT_GROUP)
 
 
@@ -199,14 +195,6 @@ func chain(delay_ms: float) -> void:
 	var at := Services.now_ms() + maxf(0.0, delay_ms)
 	if _chain_at_ms < 0.0 or at < _chain_at_ms:
 		_chain_at_ms = at
-
-
-## The Lantern's flame (group `fire_targets`): it blows at once. True (the flame is used up).
-func receive_fire(_hit: Dictionary) -> bool:
-	if _state == State.DONE:
-		return false
-	explode()
-	return true
 
 
 func light_circle() -> Vector3:

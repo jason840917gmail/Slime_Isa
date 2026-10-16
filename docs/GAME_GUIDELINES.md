@@ -4,12 +4,24 @@
 > Task order and status live in the [Game Roadmap](GAME_ROADMAP.md).
 > Updated 2026-09-29: it absorbed the useful parts of the former
 > `BETA_PLAN.md`, which was removed.
+>
+> **2026-10-15:** the story's [Direction](story/01-direction.md) replaces
+> parts of this document (skins, shapes and abilities instead of crafted gear
+> and Gulp forms; Release 1 as Chapters 1 to 3; no harvesting). Each replaced
+> part is marked **Replaced 2026-10-15** and links there; the text under the
+> mark describes the classic build. The roadmap's tasks are in
+> [the 2026-10-15 decisions](GAME_ROADMAP.md#the-2026-10-15-decisions).
 
 ## The Game In One Line
 
 Slime Isa is a top-down action-adventure with crafting: a small slime explores,
 fights, gathers, and rebuilds Slimeshire, and grows stronger through the gear
 it crafts, not through experience levels.
+
+**Replaced 2026-10-15** ([Direction](story/01-direction.md#the-game-in-one-line)):
+the slime grows through skins from the Pearls, shapes and abilities, not
+crafted gear. Release 1 crafts only potions and food, and nothing is
+harvested.
 
 ## Core Loop
 
@@ -23,8 +35,19 @@ workbench, craft stone tools, clear the worm camp with a spear, defeat Fatty
 One Eye for the green key, and open the Verdant Gate into Gloop Forest. Quests
 guide each step and teach the next recipe.
 
-**Release 1** is Chapters 1 and 2 as a free web build; its scope and order are
-in the [roadmap](GAME_ROADMAP.md#release-1-v01--the-target).
+**Replaced 2026-10-15** ([Direction](story/01-direction.md#how-a-region-plays)):
+a region is explored for the shape or ability its boss needs, and the boss's
+Pearl grants a skin that opens the next region. Release 1 has no gathering or
+crafted gear, and quests no longer make sense: NPCs give info and tips
+([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+*Changed 2026-10-16: a short prologue comes before Chapter 1: the slime is
+born at the Wellspring, learns to move and to gulp, saves the veteran Yoi
+and learns the Spear from him
+([prologue](design/2026-10-16-prologue.md), question 97).*
+
+**Release 1** is Chapters 1 to 3 as a free web build (Chapters 1 and 2 until
+2026-10-15); its scope and order are in the
+[roadmap](GAME_ROADMAP.md#release-1-v01--the-target).
 
 ## Progression: Gear, Not Levels
 
@@ -52,6 +75,26 @@ through:
 - **Gulp forms:** forms taken by swallowing essences, which are found and spent
   (see below).
 
+**Replaced 2026-10-15** ([Direction](story/01-direction.md#the-slimes-powers)):
+the slime grows through **skins** from the Pearls (Heavy, Silk and Feral in
+Release 1; Feral is Pearl 3's since 2026-10-16,
+[question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+**shapes** that replace crafted weapons and tools, and **abilities**, plus
+heart quarters. Squash Slam is removed, and the forms and
+essences go with the old system. In Release 1 NPCs teach and chests hold the
+finds. The crafted gear, Squash Slam and Gulp forms above are the classic
+build. *Changed 2026-10-16: Release 1 has eight powers besides the Gulp,
+about three a chapter (the Spear, the Roll, the Heavy skin; the Goo Bomb, the
+Silk skin; the Lantern, the Feral skin, the Bow), and the War Axe and Stretch
+Lash wait for the next release
+([question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).*
+*Changed again 2026-10-16 (sixth round): Yoi teaches the Spear in the
+prologue, Tom the Goo Bomb, and Burr the Bow, built from the Matron's thread
+(questions 95, 97, 102 and 106); the Spear is Release 1's only shape
+(question 96). Release 1 has whole manuscripts, each one find in a chest
+(question 65), and shapes and abilities evolve at the Slime Forge after
+Release 1, skins never (question 67).*
+
 Enemies are worth fighting for their drops, which gate recipes, and for access
 to places, never for XP. Each region's difficulty is tuned to the gear a player
 can have there, so grinding is never required. After Release 1, **Goo charms**
@@ -59,6 +102,32 @@ can have there, so grinding is never required. After Release 1, **Goo charms**
 old perks gave, such as crit, life steal, and speed, as gear.
 
 ## Signature Mechanic: Gulp
+
+> **Replaced 2026-10-15** ([Direction](story/01-direction.md#the-slimes-powers)).
+> The Gulp only grabs and throws. Swallow, essences and the forms are marked
+> for deletion: the skins from the Pearls take the forms' place, each with one
+> gate and one change to a move ([The skins](story/01-direction.md#the-skins)).
+> Release 1 has Heavy, Silk and Feral (Pearl 3's since 2026-10-16); the Swim
+> skin, which crosses deep water, comes from a later Pearl, after Release 1
+> (2026-10-16). Once the three skins are built, the rework is the only game,
+> and Swallow, essences, the forms and their number keys go with the rest of
+> the old system (roadmap 7.11); the swimming stays in the code for the Swim
+> skin, and only the Swim form and its essence go
+> ([question 75](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+> *Changed 2026-10-16: the Swim form is not dropped either; its scene
+> mechanics become the later Swim skin's permanent deep-water power
+> (question 75).* The
+> Roll below is as built: in the rework mode it is on Space and its quick
+> roll is free. In Release 1 young Burr teaches the quick Roll in Chapter 1,
+> and the charged roll is a later upgrade
+> ([question 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+> *Changed 2026-10-16: this replaces the 2026-10-09 rule that the Roll comes
+> whole, with no later upgrade (question 78).*
+> *Changed 2026-10-16: the prologue teaches the Gulp first: the slime clears
+> a blocked path and saves Yoi by throwing things at the worms
+> ([prologue](design/2026-10-16-prologue.md), question 97).*
+> The rest of this section is the Gulp-and-essences design of 2026-10-08,
+> which the classic build still runs.
 
 **Redesigned 2026-10-08** (owner). This replaces the one-minute forms of
 2026-09-29 and the armors of 2026-10-02. "The build today" below says what is
@@ -194,6 +263,21 @@ Restoring one (a quest and materials) turns it into a station the player uses
 directly and unlocks its recipes; no NPC runs it. Upgrading a building unlocks
 its next recipe tier. Slimeshire visibly grows as the story advances.
 
+**Replaced in part 2026-10-15:** quests no longer make sense and nothing is
+harvested in Release 1, so a building is restored when a Pearl comes home
+([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15),
+2026-10-16);
+the restored Forge brews the potions
+([question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+*Changed 2026-10-16: Pearl 2 relights the Forge when it comes home, with Pip,
+in place of a quest and materials (question 79), and Pearl 1 restores
+Slimeshire's well, which then refills energy (question 90).* *Changed again
+2026-10-16 (sixth round): after Fatty, Burr and the journal send the slime
+home, and the well comes back when the slime brings Pearl 1 to it
+(question 103); it gives a full refill, a drink in town (question 105). Each
+Pearl's homecoming is a short scene at the Wellspring, the prologue's lake
+(question 98).*
+
 ## Crafting And Buildings
 
 Simple survival recipes may be portable. Weapons, advanced tools, building
@@ -219,11 +303,34 @@ and tier.
   Workshop. A loom or enchanting station are examples only, not committed
   direction.
 
+**Replaced 2026-10-15** for Release 1
+([Direction](story/01-direction.md#decisions-in-effect)): Release 1 crafts
+only potions and food ("maybe the vault"), and nothing is harvested. Shapes
+replace the crafted weapons and tools, and the Goo Bomb is an ability, not a
+Workshop recipe. The Forge brews the potions until evolutions arrive, and the
+smith teaches the Hammer shape at the Workshop in Chapter 5 or 6; what the
+Workshop does in Release 1 is Open
+([question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+*Changed 2026-10-16: Pearl 2 relights the Forge, which then knows the potion
+recipes (questions 79 and 82). Before that, potions are found (chests, drops,
+the West village shop), the one or two simple recipes of Chapter 1 are made
+at a campfire, and a West village secret teaches a simpler potion, so a fresh
+save can never softlock (question 89).* *Changed again 2026-10-16 (sixth
+round): potions and food are both crafted at a campfire (question 66), at any
+campfire, and campfires stand by the Wellspring, in the town and at each
+camp, so a fresh save can always heal (question 104). This replaces the
+portable Slime Tonic and Berry Basket above.* The table above is the classic build.
+
 ## Coins
 
 Coins are earned from quests and enemies and spent after Release 1 at a
 Slimeshire shop and on equipment repairs. Restoring buildings costs materials,
 not coins.
+
+**Replaced in part 2026-10-16**
+([question 88](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+Release 1's West village has a small shop that sells potions and food
+ingredients, so coins have a use in Release 1; anything bigger waits.
 
 ## Resource Progression
 
@@ -237,12 +344,26 @@ Harvested trees and rock nodes grow back after a long timer
 (`resources.respawnMs`, roadmap 5.5), checked when their map loads. Loose
 starter piles and quest rewards keep the chain softlock-free.
 
+**Replaced 2026-10-15** ([Direction](story/01-direction.md#decisions-in-effect)):
+Release 1 has no harvesting and no crafted tools. The Axe and the Hammer give
+no wood, stone or iron, and harvesting goes with the old system (roadmap
+7.11). This section is the classic build.
+
 ## Recipe Discovery
 
 - Chapter 1: quest rewards teach recipes (`learnedByQuest` recipes stay
   visible but locked until learned).
 - From Chapter 2: restoring or upgrading a building unlocks its recipes.
   Quests may still teach special recipes.
+- *2026-10-15:* quests no longer make sense
+  ([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  and Release 1 crafts only potions and food; what teaches a recipe instead is
+  Open ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  *Changed 2026-10-16: the relit Forge knows the potion recipes, and an NPC
+  tip or a chest teaches each of the few others; an NPC with a tip shows the
+  exclamation mark (question 82). Before the Forge, Chapter 1's one or two
+  simple recipes are made at a campfire, and a West village secret teaches a
+  simpler potion (question 89).*
 
 ## World
 
@@ -255,6 +376,18 @@ starter piles and quest rewards keep the chain softlock-free.
   Sticky Swamp (slow, poison, rain), Frostpeak (ice physics, snow), and Volcano
   Ridge (lava, burn, the finale). The authored but unconnected `icege`,
   `emberleef`, and `hot` maps are candidates for them.
+
+**Replaced in part 2026-10-15** ([Direction](story/01-direction.md#decisions-in-effect)):
+a region brings no resource goal in Release 1 (no harvesting), and the Crystal
+Caverns are Chapter 3, part of Release 1; their Pearl grants the Feral skin
+([question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15),
+2026-10-16). *Changed 2026-10-16: a web-wall maze that only the Silk skin
+passes leads to them, so the Silk skin opens Chapter 3 (question 81). From the
+Wilds, a hill only the Feral skin climbs leads to them, and a second web maze
+only the Silk skin passes leads into Gloop Forest (question 87).* *Changed
+2026-10-16 (sixth round): a short prologue opens the game in the south,
+between chunks B4 and C4; its lake is the Wellspring, reached later by a
+forest path from Slimeshire's south-west (questions 97 and 98).*
 
 ## Enemies And Bosses
 
@@ -276,6 +409,17 @@ starter piles and quest rewards keep the chain softlock-free.
   his eye (the only place he takes damage) follows the drawn eye in every
   animation, and every spear reaches it.
 - Each boss should teach something: a weapon, a form, or a way to move.
+
+**Replaced in part 2026-10-15** ([Direction](story/01-direction.md#decisions-in-effect)):
+bosses live in their dungeons. The slime cannot leave a boss's chamber until
+the boss is beaten, and a beaten boss never comes back, so the timed respawn
+and the heal outside the arena go. Each boss's Pearl grants a skin, and the
+forms are gone. *Changed 2026-10-16: Release 1 has 29 enemies, as the
+[bestiary](design/2026-10-16-bestiary.md) writes them, each with a tell and
+a right tool, and each dungeon has two or three of its own and a mini-boss
+(question 107); the Clod Stomper stays as it is (question 64). Like Zelda,
+the slime saves everywhere except inside dungeons, with no save points
+([question 62](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).*
 
 ## Game Feel
 
@@ -313,6 +457,20 @@ The left hand stays on WASD and the right hand stays on the mouse (agreed
 - **Key names:** every key name the player reads comes from one binding
   table, so content text never names a key.
 
+**Replaced 2026-10-15** ([Direction](story/01-direction.md#decisions-in-effect)):
+the rework mode's keys become the only ones once the old system goes (roadmap
+7.11). Left click attacks with the shape (hold to charge), E or the wheel
+switches shapes, Q is the mouth, F uses the ability chosen in the bag (which
+pauses the game), Space rolls, and right click interacts. The number-key
+abilities, the belt of crafted weapons, and chopping and mining go. The key
+names still come from one binding table. *Changed 2026-10-16: the War Axe
+waits for the next release, so the Spear is Release 1's only shape, and what
+E does there is open
+([question 96](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+Held right click climbs a climbable wall with the Feral skin, and a climbable
+wall never stands beside a heavy block (question 91).* *Answered the same
+day (question 96): E stays hidden until a second shape is learned.*
+
 ## UI Style
 
 On 2026-09-04 the in-world HUD direction was approved as **artwork-first**: the
@@ -346,3 +504,8 @@ refining the [Game UI Visual Skin System](archive/phaser/superpowers/specs/2026-
 - How many recipes should each station have, and how fast should progression
   advance?
 - Where will Release 1 be published?
+
+*2026-10-15:* with no harvesting and no crafted gear in Release 1, the
+questions on equipment wear, resource respawn and material tiers no longer
+apply to it ([Direction](story/01-direction.md#decisions-in-effect)). The
+story's questions are in [Open questions](story/06-open-questions.md).

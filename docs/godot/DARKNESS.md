@@ -10,8 +10,8 @@ itself: [BODY_SHAPES.md "The Lantern"](BODY_SHAPES.md#the-lantern-2026-10-14)). 
 - **Fire targets**: a node in group `fire_targets` with `receive_fire(hit: Dictionary) -> bool`.
   True means the flame is used up and stops there; false lets it fly on (a candle already lit). The
   flame touches a target where its `fire_rect() -> Rect2` (global) says, or else within its
-  `fire_radius` property (24 px without one) of its global position. Candles, burnables and the Goo
-  Bomb's bombs are fire targets.
+  `fire_radius` property (24 px without one) of its global position. Candles and burnables are
+  fire targets; the Goo Bomb's bombs are not (owner, 2026-10-15: a bomb blows only on its fuse).
 - **Light sources**: a node in group `light_sources` with `light_circle() -> Vector3` (global x,
   global y, radius; a radius of 0 or less is off). The slime with the Lantern (in a dark room), lit
   candles, burning burnables, flames, and the Goo Bomb's bombs and blasts are light sources.
