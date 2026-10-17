@@ -18,11 +18,10 @@ extends "res://game/world/elevation/elevation_stairs.gd"
 ## An open end (`opens`, the owner's rule of 2026-10-11): a free top end where the face begins and
 ## the top ends (a ridge's or an arm's tip, a face's end) is where the cliff opens, the wall coming
 ## down to meet the ground instead of turning a corner and closing the shape. There the wall tapers
-## to nothing with no corner stones (Elevation leaves them out under any ramp), the top's rim does
-## not turn around the end (`closes`: Elevation leaves those edges out of the strip), the cap covers
-## the ends of the lip and the rim with ground and fades out, and no shadow falls beyond the end
-## (`shadow_take`). At a plateau's corner (its side runs on past the top end) the rim and the
-## shadow stay. A one-row open cliff (Elevation `_open_tops`) has no back rim and casts no shadow,
+## to nothing, the top's rim does not turn around the end (`closes`: Elevation leaves those edges
+## out, so no wall turns round it), the cap covers the ends of the top's edge with ground and fades
+## out, and no shadow falls beyond the end (`shadow_take`). At a plateau's corner (its side runs on
+## past the top end) the rim and the shadow stay. A one-row open cliff (Elevation `_open_tops`) has no back rim and casts no shadow,
 ## and its ramps take none (`no_shadow`).
 ##
 ## What it changes:
@@ -49,15 +48,14 @@ extends "res://game/world/elevation/elevation_stairs.gd"
 ##              levels over the bottom meet it as a rim.
 ##   `face_zone` the tapered face's visible part: no ledge drop over it (it is a wall, as in Zelda).
 ##   drawing    the surface and the skirt with the lower ground's own sheet (elevation_ramp.gdshader,
-##              with the cast shadows at its height), after the walls, feet and lips, so they cover
-##              the wall below the slope, the lip's hanging part and the wall's old foot: the courses
-##              of what shows are the wall's own. Along a face the slope's edge fades out over
-##              EDGE_FADE, so the lip's hanging tufts and the stone end softly on it; at an open end
-##              the cap (`_cap_triangles`, `add_cap_top`) covers the lip's and the rim's ends; a
-##              rimmed ramp's landing (`add_landing`) covers the top's lip where the ramp leaves the
-##              rim (it fades out at its sides), so the way down reads. Elevation lays a foot along
-##              the slope's edge (`face_from` … `face_to`) and corner stones where a front ramp cuts a
-##              wall. Into the depth map they go as ground of the bottom level marked as a ramp: they
+##              with the cast shadows at its height), after the walls, so they cover the wall below
+##              the slope, the top edge's hanging part and the wall's old foot: the courses of what
+##              shows are the wall's own. Along a face the slope's edge lies EDGE_INSET in from the
+##              face (`edge_t`), so the wall's stones stay whole up to it; at an open end the cap
+##              (`_cap_triangles`, `add_cap_top`) covers the ends of the top's edge; a rimmed ramp's
+##              landing (`add_landing`) covers the top's edge where the ramp leaves the rim (it fades
+##              out at its sides), so the way down reads. Elevation lays a foot line along the
+##              slope's edge (`face_from` … `face_to`). Into the depth map they go as ground of the bottom level marked as a ramp: they
 ##              hide nothing (the slope reads as flat ground) and cast no shadow, except over the
 ##              wall they cover, where they keep the slope's height there (`add_ramp_depth`): the
 ##              shadow beside them is as long as the slope is high, and the slope takes the shadows
@@ -99,10 +97,10 @@ const EAR := 16.0
 const FOOT_EAR := 18.0
 ## At an open end (`opens`), around the top end's corner on the face: the top's rim is left out
 ## where it would turn around the end (`closes`, edges whose middle lies within OPEN_REACH), and
-## the cap covers the ends of the lip and the rim there with ground (world units): out to
+## the cap covers the ends of the top's edge there with ground (world units): out to
 ## CAP_RADIUS from the corner, fading out over CAP_FADE further; from CAP_BEYOND beyond the top end
 ## (s at the top's height), fading out up to CAP_INTO along the slope. Where edges of the rim were
-## left out (`cuts_rim`: a ridge's or an arm's tip) the strips end right at the top end: the cap is
+## left out (`cuts_rim`: a ridge's or an arm's tip) the top's edge ends right at the top end: the cap is
 ## opaque up to CAP_SOLID along the slope, just past their ends, and fades out up to CAP_INTO_CUT,
 ## so they fade in from nothing instead of ending on a line. Drawn as a grid of CAP_CELL squares
 ## (the fade is per vertex).
@@ -121,18 +119,16 @@ const CAP_CELL := 12.0
 const OPEN_FADE := 48.0
 const OPEN_NEAR := 64.0
 const OPEN_FAR := 160.0
-## Along a face, the slope's edge fades out over this (world units across it).
-const EDGE_FADE := 10.0
-## A rimmed ramp's landing: how far it reaches over the top (the lip's inner reach,
-## elevation_rims.gd IN) and how far its sides fade out (world units).
+## Along a face, the slope's edge lies this far in from the face (world units across it): the wall's
+## stones stay whole up to it, and its foot line lies on it (`edge_t`).
+const EDGE_INSET := 10.0
+## A rimmed ramp's landing: how far it reaches over the top and how far its sides fade out (world
+## units).
 const LANDING_DEPTH := 48.0
 const LANDING_FADE := 14.0
 
 ## The side along a face: −1 or 1 (the sign of t), 0 without.
 var near := 0.0
-## The sides look (Elevation `_sides_look`): the slope's edge along the face is hard, EDGE_FADE in
-## from the face (`edge_t`), so the wall's stones stay whole up to it and its foot line lies on it.
-var hard_edge := false
 ## The stretch of s along which the near side runs at a face (its foot follows the slope there).
 var face_from := 0.0
 var face_to := 0.0
@@ -167,11 +163,11 @@ var top_ends := false
 ## Where a straight front ramp cuts through a wall: the slope's s level with that wall's foot
 ## (`FOOT_EAR`), 0 otherwise.
 var foot_cut := 0.0
-## True when Elevation left edges of the top's rim out at this open end (`closes`): the strips end
-## at the top end, and the cap fades them in over a longer stretch (CAP_INTO_CUT).
+## True when Elevation left edges of the top's rim out at this open end (`closes`): the top's edge
+## ends at the top end, and the cap fades them in over a longer stretch (CAP_INTO_CUT).
 var cuts_rim := false
 ## An open end's cap (screen): the square around the top end's corner its grid covers (empty
-## without one). Drawn as ground over the lip's and the rim's ends there (`_cap_alpha`), the top's
+## without one). Drawn as ground over the ends of the top's edge there (`_cap_alpha`), the top's
 ## own ground where it covers the top (`add_cap_top`).
 var cap_rect := Rect2()
 
@@ -218,9 +214,9 @@ func join_length() -> float:
 ## True when its top end is an open end of the cliff (docs/godot/ELEVATION.md "Ramps"): a free top
 ## end where the face beside it begins and the top ends (a tip), so the wall comes down to meet the
 ## ground there instead of turning a corner and closing the shape. The top's rim does not turn
-## around the end (`closes`), the cap covers the strips' ends, and no shadow falls beyond the end
-## (`shadow_take`). (No corner stones end a tapered wall anywhere: Elevation `_end_under_ramp`.) At a
-## plateau's corner the top's side runs on past the top end: its rim and shadow stay.
+## around the end (`closes`), the cap covers the ends of the top's edge, and no shadow falls beyond
+## the end (`shadow_take`). At a plateau's corner the top's side runs on past the top end: its rim
+## and shadow stay.
 func opens() -> bool:
 	return near != 0.0 and at_face_end and top_ends and not rimmed
 
@@ -233,8 +229,8 @@ func open_corner() -> Vector2:
 ## True when the boundary edge `from` → `to` (screen) of a top of `level` is part of the rim that
 ## would turn around this open end and close the shape: beyond the top end (s ≤ 0 at the top's
 ## height, not along it: a straight face's top end runs along the top's side) and its middle within
-## OPEN_REACH of the end's corner. Elevation leaves it out of the top's rim (no strip, glow or
-## depth core), so the lip runs on to the end and stops there.
+## OPEN_REACH of the end's corner. Elevation leaves it out of the top's border (no wall, edge or
+## depth core), so the wall runs on to the end and stops there.
 func closes(from: Vector2, to: Vector2, level: int) -> bool:
 	if not opens() or level != top or ((from + to) * 0.5).distance_to(open_corner()) > OPEN_REACH:
 		return false
@@ -480,7 +476,6 @@ func _build() -> void:
 	_blockers.clear()
 	_pieces.clear()
 	faces.clear()
-	feet.clear()
 	var pieces: Array[PackedVector2Array] = [surface]
 	pieces.append_array(skirt)
 	silhouette = _union(pieces)
@@ -539,17 +534,12 @@ func add_mesh(mesh: MeshData) -> void:
 	# r = the cast shadows it takes: none on a one-row open cliff (`no_shadow`).
 	var take := 0.0 if no_shadow else 1.0
 	var shown := func(_p: Vector3, w: Vector3) -> Color: return Color(take, (w.z / LEVEL + 4.0) / 8.0, 0.0, 1.0)
-	var faded := func(_p: Vector3, w: Vector3) -> Color: return Color(take, (w.z / LEVEL + 4.0) / 8.0, 0.0, 0.0)
 	if near == 0.0:
 		_emit_fan(mesh, [Vector3(0.0, -half, height), Vector3(ramp, -half, 0.0), Vector3(ramp, half, 0.0), Vector3(0.0, half, height)], shown)
 	else:
-		# The edge along the face fades out over EDGE_FADE: the lip's tufts and the stone above the
-		# slope end softly on it instead of along a ruled line.
-		var t_near := near * half
-		var t_in := near * (half - minf(EDGE_FADE, half))
-		_emit_fan(mesh, [Vector3(0.0, -t_near, height), Vector3(ramp, -t_near, 0.0), Vector3(ramp, t_in, 0.0), Vector3(0.0, t_in, height)], shown)
-		if not hard_edge:
-			_emit_fade_band(mesh, t_in, t_near, height, shown, faded)
+		# Along the face the slope ends EDGE_INSET in from it (`edge_t`), so the wall's stones stay
+		# whole up to its edge.
+		_emit_fan(mesh, [Vector3(0.0, -near * half, height), Vector3(ramp, -near * half, 0.0), Vector3(ramp, edge_t(), 0.0), Vector3(0.0, edge_t(), height)], shown)
 	for polygon: Array in _skirt_faces():
 		_emit_fan(mesh, polygon, shown)
 	# An open end's cap: ground of the bottom level; what of it lies on the top (the tops around,
@@ -558,26 +548,14 @@ func add_mesh(mesh: MeshData) -> void:
 		_emit(mesh, triangle)
 
 
-## The t of the slope's edge along the face: where the slope is whole (EDGE_FADE in from the face).
+## The t of the slope's edge along the face (EDGE_INSET in from the face).
 func edge_t() -> float:
-	return near * (half - minf(EDGE_FADE, half))
-
-
-## The band along the face from `t_in` (whole) to `t_near` (clear), so what the slope covers there
-## shows through it softly.
-func _emit_fade_band(mesh: MeshData, t_in: float, t_near: float, height: float, shown: Callable, faded: Callable) -> void:
-	var band: Array = [[Vector3(0.0, t_in, height), shown], [Vector3(ramp, t_in, 0.0), shown], [Vector3(ramp, t_near, 0.0), faded], [Vector3(0.0, t_near, height), faded]]
-	var corners: Array = []
-	for corner: Array in band:
-		var w := world(corner[0])
-		corners.append([screen(w), Vector2.ZERO, (corner[1] as Callable).call(corner[0], w), w.z])
-	_emit(mesh, [corners[0], corners[1], corners[2]])
-	_emit(mesh, [corners[0], corners[2], corners[3]])
+	return near * (half - minf(EDGE_INSET, half))
 
 
 ## An open end's cap over the top beside it into `mesh`, with the top's ground (`top_ground`'s
 ## sheet): the cap on `tops` (the tris of the top level and higher around it, screen triangles), so
-## the ends of the top's lip and rim fade out under it.
+## the ends of the top's edge fade out under it.
 func add_cap_top(mesh: MeshData, tops: Array[PackedVector2Array]) -> void:
 	var boxes: Array[Rect2] = []
 	for tri in tops:
@@ -627,8 +605,8 @@ func _cap_alpha(point: Vector2) -> float:
 
 
 ## A rimmed ramp's landing into `mesh` (the top's ground, elevation_ramp.gdshader): the top's own
-## ground over its lip where the ramp leaves the rim, from LANDING_DEPTH over the top to the rim,
-## its sides fading out over LANDING_FADE, so the lip breaks for the way down.
+## ground over its edge where the ramp leaves the rim, from LANDING_DEPTH over the top to the rim,
+## its sides fading out over LANDING_FADE, so the edge breaks for the way down.
 func add_landing(mesh: MeshData) -> void:
 	if not rimmed:
 		return

@@ -36,6 +36,9 @@ const WALL_STYLES := ["meadow-rock", "snow-rock", "sandstone", "cave-rock", "cry
 ## game-constants.json elevation.behindDepth.
 const BEHIND := 32.0
 const JUMP_DISTANCE := 168.0
+## The player's body (player_slime.tscn BodyShape, 30 x 26): a gap in a level's collision narrower
+## than its height lets nothing through.
+const BODY_GAP := 26.0
 
 
 static func _grid(columns: int, rows: int, cells: Dictionary) -> ElevationGrid:
@@ -154,18 +157,37 @@ func test_collision_outlines_close_at_every_corner(t: TestContext) -> void:
 	for level in range(ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL + 1):
 		var open := _open_ends(elevation.grid.collision_segments(level), 8.0)
 		t.check(open.is_empty(), "level %d's terrain outline is open at %s (cells x 8)" % [level, open.slice(0, 6)])
-	# The real collision, stairs merged in (world units): no end is left loose (one meeting the
-	# middle of another segment closes too).
+	# The real collision, stairs and drawn walls merged in (world units): it follows the walls as
+	# drawn (docs/godot/ELEVATION.md "Side walls"), traced piece by piece, so pieces of different
+	# outlines may end a few units apart; but no gap is as wide as a body (the player's 26 units), so
+	# nothing walks through one. A loose end (one meeting the middle of another segment closes too)
+	# must lie within BODY_GAP of another segment; a speck (a short segment loose at both ends, inside
+	# ground no level walks) is no gap.
 	for level in range(ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL + 1):
 		var body := elevation.get_node_or_null("Collision/Level%d" % level) as StaticBody2D
 		if body == null:
 			continue
 		var segments := ((body.get_child(0) as CollisionShape2D).shape as ConcavePolygonShape2D).segments
-		var loose: Array = []
+		var loose := {}
 		for point: Vector2 in _open_ends(segments, 1.0):
 			if not _on_a_segment(point, segments):
-				loose.append(point)
-		t.check(loose.is_empty(), "level %d's collision has loose ends at %s (world)" % [level, loose.slice(0, 6)])
+				loose[Vector2i(point)] = true
+		var gaps: Array = []
+		for i in segments.size():
+			var end := segments[i]
+			if not loose.has(Vector2i(roundi(end.x), roundi(end.y))):
+				continue
+			var own := i - i % 2
+			var other := segments[own + 1 - i % 2]
+			if loose.has(Vector2i(roundi(other.x), roundi(other.y))) and end.distance_to(other) < BODY_GAP:
+				continue
+			var nearest := INF
+			for j in range(0, segments.size(), 2):
+				if j != own:
+					nearest = minf(nearest, Geometry2D.get_closest_point_to_segment(end, segments[j], segments[j + 1]).distance_to(end))
+			if nearest >= BODY_GAP:
+				gaps.append(end)
+		t.check(gaps.is_empty(), "level %d's collision has gaps a body fits through at %s (world)" % [level, gaps.slice(0, 6)])
 
 
 ## Points (rounded to 1 / `scale`) where an odd number of segment ends meet.
@@ -197,17 +219,29 @@ func test_park_mounts_cliffs_and_collision(t: TestContext) -> void:
 	if not t.check(elevation != null, "no elevation in the playground"):
 		return
 	t.check(elevation.grid.bands.size() > 100, "few walls in the park")
+	# The walls' meshes (sides/elevation_sides.gd) are named "<level> <style> <top ground> <lower
+	# ground>": every wall style the park shows (by ground or painted on a stretch of a top's wall),
+	# a top of every ground, and walls standing in water (the lake's island: foam at their feet).
+	var styles := {}
+	var tops := {}
+	var lows := {}
+	var sides := elevation.get_node_or_null("Sides")
+	if t.check(sides != null and sides.get_child_count() > 0, "no walls (Sides)"):
+		for mesh_instance: Node in sides.get_children():
+			var parts := str(mesh_instance.name).split(" ")
+			if parts.size() == 4:
+				styles[parts[1]] = true
+				tops[parts[2]] = true
+				lows[parts[3]] = true
 	for style: String in WALL_STYLES:
-		for mesh_name in [style, style + ":end-right", style + ":end-left"]:
-			t.check(_has_mesh(elevation, "Walls", mesh_name), "no '%s' mesh (walls, wall ends)" % mesh_name)
+		t.check(styles.has(style), "no '%s' walls (styles drawn: %s)" % [style, styles.keys()])
+	t.check(lows.has("water"), "no walls standing in water")
+	for ground in ["highland", "frozen", "sanddessert", "forest-floor", "forest-moss", "amberleaf", "cavern-floor", "crystal-floor", "town-cobble"]:
+		t.check(tops.has(ground), "no %s cliff top" % ground)
 	t.check(elevation.has_node("Stairs") and elevation.get_node("Stairs").get_child_count() > 0, "no stairs mesh")
 	t.check(elevation.stairs.size() >= 30, "few flights of stairs in the park (%d)" % elevation.stairs.size())
-	t.check(_has_mesh(elevation, "Water", "water"), "no water at the foot of the lake's cliff")
-	for ground in ["highland", "frozen", "sanddessert", "forest-floor", "forest-moss", "amberleaf", "cavern-floor", "crystal-floor", "town-cobble"]:
-		t.check(_has_mesh(elevation, "Lips", ground + ":fringe"), "no %s cliff lip" % ground)
 	for level in [-3, -2, -1, 0, 1, 2, 3]:
 		t.check(elevation.has_node("Collision/Level%d" % level), "no collision for level %d" % level)
-	t.check(elevation.has_node("Shadows/cast"), "no cast shadows")
 	t.check(elevation.occlusion != null and elevation.occlusion.texture != null, "no depth map")
 	t.equal(elevation.level_of(t.player_body()), 0, "player level at the spawn")
 	t.check(t.player_body().collision_mask & Elevation.level_bit(0) != 0, "player does not collide with level 0")
@@ -353,7 +387,10 @@ func test_enemies_stay_off_the_stairs(t: TestContext) -> void:
 			continue
 		var height := ElevationStairs.LEVEL * (flight.top - flight.bottom)
 		var foot_s := 0.0 if flight.in_face else flight.end
-		var start := flight.screen_of(Vector3(foot_s + 40.0, 0.0, 0.0)) + elevation.global_position
+		# A side or back flight's foot may lie close to the side wall of the hill beside it (the snow
+		# plateau's west flight and the sand plateau): the worm starts just past it.
+		var lead := 40.0 if flight.in_face else 20.0
+		var start := flight.screen_of(Vector3(foot_s + lead, 0.0, 0.0)) + elevation.global_position
 		var top_end := flight.screen_of(Vector3(0.0, 0.0, height)) + elevation.global_position
 		var motion := top_end - start if flight.in_face else -flight.dir * 80.0
 		body.global_position = start
@@ -573,14 +610,17 @@ func test_rim_of_a_diamond_drops_when_pushed(t: TestContext) -> void:
 
 
 func test_walking_down_a_back_face_slides_past_the_tip(t: TestContext) -> void:
-	# Behind the level-2 diamond's north-east face, pressing down: the slime slides along the
-	# strip's edge, past the east tip and down beside the wall's end (no notch at the tip to catch it).
+	# Behind the level-2 diamond's north-east face, walking down along it (down and right): the slime
+	# slides along the strip's edge, past the east tip and down beside the side wall that starts there
+	# (docs/godot/ELEVATION.md "Side walls": pressing straight down, that wall's start holds it behind
+	# the tip).
 	var body := t.player_body()
 	var elevation := t.world().elevation
 	_place_feet(t, Vector2(22.5, 43.0) * 64.0)
 	elevation.track(body, 0)
 	await t.steps(2)
 	t.press(&"move_down")
+	t.press(&"move_right")
 	var past := await t.until(func() -> bool: return body.global_position.y > 47.5 * 64.0 + 16.0, 4000.0)
 	t.release_all()
 	t.check(past, "caught behind the diamond's east tip (feet %s)" % body.global_position)
@@ -644,6 +684,31 @@ func test_rim_holds_then_drops_in_front_of_its_wall(t: TestContext) -> void:
 	t.equal(elevation.level_of(body), 0, "level after the jump")
 
 
+## A passage opened through a cliff face (a blown cracked wall, Elevation.open_passage) opens the
+## drawn wall too, down past its uneven foot: the slime walks from the wall's foot into the hole,
+## and the wall beside the passage still blocks.
+func test_a_passage_through_a_face_opens_the_drawn_wall(t: TestContext) -> void:
+	var elevation := t.world().elevation
+	if not t.check(elevation != null, "no elevation in the playground"):
+		return
+	var inside := Vector2(WEST_X, HILL_FOOT - 30.0)
+	t.check(not elevation.is_walkable(inside, 0), "the hill's wall is walkable before a passage opens")
+	elevation.open_passage(Rect2(WEST_X - 32.0, HILL_FOOT - 124.0, 64.0, 124.0), 0)
+	await t.steps(3)
+	t.check(elevation.is_walkable(inside, 0) and elevation.is_walkable(Vector2(WEST_X, HILL_FOOT - 4.0), 0),
+			"the passage through the wall is not walkable")
+	t.check(not elevation.is_walkable(Vector2(WEST_X + 64.0, HILL_FOOT - 30.0), 0), "the wall beside the passage opened too")
+	var body := t.player_body()
+	_place_feet(t, BELOW_WALL)
+	elevation.track(body, 0)
+	await t.steps(2)
+	t.press(&"move_up")
+	var walked_in := await t.until(func() -> bool: return body.global_position.y < HILL_FOOT - 40.0, 2000.0)
+	t.release_all()
+	t.check(walked_in, "the slime did not walk into the passage (feet y %.1f)" % body.global_position.y)
+	t.equal(elevation.level_of(body), 0, "level in the passage")
+
+
 func test_walking_behind_a_hill_ghosts_the_player(t: TestContext) -> void:
 	var body := t.player_body()
 	var elevation := t.world().elevation
@@ -674,12 +739,6 @@ static func _walk_to_rim(elevation: Elevation, start: Vector2, level: int, unit:
 			break
 		at += unit * 2.0
 	return at
-
-
-## A mesh of the elevation drawing (node names turn ':' into '_').
-static func _has_mesh(elevation: Node, group: String, key: String) -> bool:
-	var holder := elevation.get_node_or_null(NodePath(group))
-	return holder != null and holder.get_node_or_null(NodePath(key.validate_node_name())) != null
 
 
 func _place_feet(t: TestContext, feet: Vector2) -> void:

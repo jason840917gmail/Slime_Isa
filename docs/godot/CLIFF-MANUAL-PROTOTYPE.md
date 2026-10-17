@@ -24,6 +24,10 @@ The earlier `cliff-manual-prototype.tscn` is the first join audit, with terraces
 use **cliff-manual-tiles-lab.tscn** for painting and physics auditions.
 The builder refuses to overwrite an existing lab, so it cannot erase hand-painted changes.
 
+The lab is a dev world: since 2026-10-17 (clean-out wave 1) the release "Web" preset's
+`exclude_filter` leaves out the lab scene, `game/world/cliffs/manual_prototype/` and the sprite
+sheet, as it does the other labs; the "Web (dev)" preset still ships them.
+
 ## Sheet coordinates
 
 Columns A–F, rows 1–6 (human labels); Godot atlas coordinates are zero-based.

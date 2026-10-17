@@ -6,8 +6,8 @@ extends Node
 ## of the world, then the flights of stairs) whose vertex colours encode depth (`encode`); it is drawn once into
 ## a SubViewport ("DepthMap", UNITS_PER_TEXEL world units per texel) whose texture the shaders read:
 ## the body shaders (elevation_occlusion.gdshaderinc, in hit_flash.gdshader and form_skin.gdshader)
-## to hide what lies behind, the cast shadows (elevation_cast_shadow.gdshader) to find what is
-## higher. `update_body` gives a body's sprites the map and, every physics step, the body's depth
+## to hide what lies behind, a ramp's slope (elevation_cast_shadow.gdshaderinc) to find what is
+## higher and shades it. `update_body` gives a body's sprites the map and, every physics step, the body's depth
 ## (its feet's y + 64 · its level, or its depth in the air); sprites without a material get the
 ## neutral hit-flash one. Hidden parts show as a ghost: the body's own colours, faded and tinted,
 ## stronger for the player.

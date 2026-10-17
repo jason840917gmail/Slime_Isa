@@ -53,6 +53,7 @@
 [ext_resource type="PackedScene" path="res://game/dev/corners/heavy_corner.tscn" id="heavy_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/bestiary_corner.tscn" id="bestiary_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/barred_gate_corner.tscn" id="barred_gate_corner"]
+[ext_resource type="PackedScene" path="res://game/dev/corners/webs_corner.tscn" id="webs_corner"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3"]
 size = Vector2(1024, 640)
@@ -1559,6 +1560,8 @@ kind = "pinecone"
 [node name="bestiary-corner" parent="." instance=ExtResource("bestiary_corner")]
 
 [node name="barred-gate-corner" parent="." instance=ExtResource("barred_gate_corner")]
+
+[node name="webs-corner" parent="." instance=ExtResource("webs_corner")]
 
 [editable path="resource-grove/tree-1"]
 [editable path="resource-grove/tree-2"]

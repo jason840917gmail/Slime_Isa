@@ -3,7 +3,9 @@ class_name DoorScript
 ## Scene script `game.door` (Phaser `features/scripts/DoorScript.ts`; interaction spec 3.2, 6.1).
 ## `use()` asks main.gd to travel to `target_area_id`, arriving at `target_door_id`'s arrival point
 ## there (the door's parent's child named "arrival", else the parent; game/world/area_travel.gd snaps
-## it to a tile centre).
+## it to a tile centre), or, with no `target_door_id`, at the Node2D named `target_marker` there
+## (a one-way way in: a hole the slime falls through lands on a marker, and nothing leads back).
+## A door without a `target_area_id` is an arrival point only: it never travels.
 ##
 ## **No keys for transitions (owner, 2026-10-14; docs/godot/CONVENTIONS.md "Doors"):** a door is
 ## never offered to the interact key. The slime goes through by pushing into it, as through a map
@@ -66,6 +68,10 @@ const CLIMB_RISE_PX := 22.0
 const SINK_SCALE := 0.35
 const SINK_DEPTH_PX := 10.0
 
+## The slime came in through this door (main.gd `_start_arrival` calls `on_arrival`): a hatch latched
+## from below opens when the slime climbs up through it (game/scripts/latched_hatch.gd).
+signal arrived
+
 ## JSON `mapId`.
 @export var map_id: String = ""
 ## JSON `doorId`.
@@ -74,6 +80,10 @@ const SINK_DEPTH_PX := 10.0
 @export var target_area_id: String = ""
 ## JSON `targetDoorId`.
 @export var target_door_id: String = ""
+## Not in Phaser: with no `target_door_id`, the Node2D (any depth) in the target world the slime
+## arrives at (a world exit's `entry_marker`; main.gd `request_exit`). For one-way ways in such as a
+## blown floor's fall (game/scripts/cracked_floor.gd).
+@export var target_marker: String = ""
 ## What the door is (see the class notes): its lead-in and look.
 @export_enum("door", "opening", "ladder_down", "ladder_up", "fall") var kind: String = "opening"
 ## The wall the door is in = the way through it ("north": push up into it). "none" = no side (holes,
@@ -152,7 +162,8 @@ func _physics_process(delta: float) -> void:
 		_close_pending = false
 		_swing(0.0, _number("doorCloseMs", 250.0))
 		_cue(close_cue)
-	if _used or _simulation_ms < _grace_ms or walking_out:
+	# An arrival point only (no target): it never travels.
+	if _used or _simulation_ms < _grace_ms or walking_out or target_area_id.is_empty():
 		_push_ms = 0.0
 		return
 	if not is_pushing(player, world.player_body):
@@ -291,7 +302,8 @@ func use() -> Dictionary:
 	if not lock.is_empty() and not lock.has("unlockedMessage"):
 		lock["unlockedMessage"] = DEFAULT_UNLOCKED_TEXT
 	var result: Dictionary = main.call(&"request_exit", {"map_id": map_id, "exit_id": door_id,
-		"target_area_id": target_area_id, "entry": "", "target_door_id": target_door_id, "gate": lock,
+		"target_area_id": target_area_id, "entry": "", "target_door_id": target_door_id,
+		"entry_marker": target_marker if target_door_id.is_empty() else "", "gate": lock,
 		"transition": "iris", "door_side": side if has_side() else "", "lead_ms": lead})
 	if str(result.get("status", "")) == "queued":
 		_used = true
@@ -304,6 +316,7 @@ func use() -> Dictionary:
 ## main.gd `_start_arrival`: the slime came in through this door. A real door stands open while it
 ## walks out, then closes behind it.
 func on_arrival() -> void:
+	arrived.emit()
 	if kind != "door":
 		return
 	if not has_leaf():

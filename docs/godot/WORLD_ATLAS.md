@@ -205,7 +205,8 @@ Cut (2026-10-12): every placeholder region (52 chunks: North Wilds 15, A1-C2, H2
 Ridge 5, F1-H1, F2-G2; South Wilds 12, A6-H6, C7-C8, H7-H8; Frostpeak, Sticky Swamp, West Village,
 Northern Ruins and Desert 4 each) and the hand-made Gloop Forest (E4-F5) and Crystal Caverns
 (G4-H5), and on 2026-10-14 Slimeshire Meadow (level-1: C4 the village, D4 the Verdant Gate and
-Fatty's camp, C5 the lake, D5 the autumn grove): 64 chunks, every region. The tool writes
+Fatty's camp (since 2026-10-17 the gate into Fatty's Lair and the bolt-hole's mouth instead), C5 the
+lake, D5 the autumn grove): 64 chunks, every region. The tool writes
 `godot/game/scenes/worlds/chunks/<world>-<chunk>.tscn` (scene id `world.<world>-<chunk>`, e.g.
 `world.south-wilds-c6`) for every chunk the region holds (`WorldMapData.region_chunks`), 32 × 32
 tiles each, cut from the region's world scene:

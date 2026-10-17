@@ -23,7 +23,7 @@ The shared sheet contract. Continue with the focused guide for the asset type:
 | --- | --- | --- |
 | World tile | `64 x 64` | map `tileSize` is 64 |
 | Ground material | `64 x 64` cells, `19 x 19` sheet (`1216 x 1216`) | `MAPS/grounds/64x64-tile_19x19_forest-floor.webp` |
-| Player slime | `256 x 256`, `8 x 8` | `characters/slime_normalized.webp` |
+| Player slime | `256 x 256`, `8 x 8` per page | `characters/256x256-tile_8x8-slime-v2-page-1.webp` |
 | NPC | `229 x 229`, `6 x 5` | `characters/authored/npcs/lili.webp` |
 | Old 64 px enemy (the Orb-Weaver Matron only) | `64 x 64`, `8 x 10` | `MAPS/enemies/64x64-8x10-forest-orb-weaver-slime.webp` |
 | Bestiary enemy (the worms and spiders included) | `256 x 256` key poses, one row | `MAPS/enemies/256x256-tile_8x1-worm-swordsman.webp` |

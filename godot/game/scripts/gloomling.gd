@@ -32,6 +32,9 @@ const FRAME_REST := 0
 const FRAME_FLINCH := 1
 const FRAME_SCUTTLE := 2
 const FRAME_FADE := 3
+## candle.gd SMOTHER_GROUP, and how near its feet must be to a candle's foot to smother it.
+const SMOTHER_GROUP := &"candle_smotherers"
+const SMOTHER_RADIUS_PX := 40.0
 const CUE_FLINCH := &"TalkBlip"
 const CUE_BOLT := &"WebStruggle"
 const CUE_GONE := &"GulpWearOff"
@@ -65,6 +68,7 @@ var _eyes: DarkEyes
 
 func _ready() -> void:
 	super()
+	add_to_group(SMOTHER_GROUP)
 	set_hurtbox(false)
 	set_solid(false)
 	_transition(PHASE_SIT, Services.now_ms())
@@ -83,6 +87,14 @@ func _ready() -> void:
 ## How full its dread is (0..1; at 1 it is chased off).
 func get_dread() -> float:
 	return _dread
+
+
+## A candle at `point` (its foot) is smothered while this shadow sits on it (candle.gd
+## SMOTHER_GROUP; the Crystal Mine's dark maze: drive it off with light first, then light the candle).
+func smothers(point: Vector2) -> bool:
+	if is_defeated() or body == null:
+		return false
+	return body.global_position.distance_to(point) <= SMOTHER_RADIUS_PX
 
 
 func _step_pattern(now: float, delta: float, _target: Dictionary, _engaged: bool) -> void:

@@ -3,7 +3,8 @@ extends RefCounted
 ## level-1: `home-door` (origin (1081, 903), a north door pushed into -> slime-home; never offered
 ## to the interact key since 2026-10-14; an open archway since 2026-10-15), the Verdant
 ## gate (origin (1728, 768) in chunk D4, green key, pushed open since 2026-10-15), the guarded chest
-## in Fatty's camp (`level-1-fatty-guarded-chest`, a green key, in D4). slime-home: `house-door`
+## in Fatty's old camp (`level-1-fatty-guarded-chest`, a green key, in D4: the camp moved into his
+## Lair on 2026-10-17 and tests/lib/fatty_camp_fixture.gd puts it back for these tests). slime-home: `house-door`
 ## ((448, 694), south, a real door with the room's door picture `house-door-art`),
 ## the west bed ((160, 340): sleep at (159.625, 275.95), wake at (159.625, 356)).
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in
@@ -15,6 +16,7 @@ const Services := preload("res://game/shared/services.gd")
 const ChestScript := preload("res://game/scripts/chest.gd")
 const GateScript := preload("res://game/scripts/gate.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
+const FattyCampFixture := preload("res://tests/lib/fatty_camp_fixture.gd")
 
 const HOME_DOOR_ARRIVAL := Vector2(1083.0, 954.0)
 const GATE_ID := "level-1-east-verdant-gate"
@@ -209,6 +211,7 @@ func test_gate_open_handler_not_persisted(t: TestContext) -> void:
 func test_chest_domain(t: TestContext) -> void:
 	if not await _to_east(t):
 		return
+	FattyCampFixture.ensure(t.tree)
 	var run := Services.run()
 	var chest := _chest(t, CHEST_ID)
 	if not t.check(chest != null, "no %s" % CHEST_ID):
@@ -232,6 +235,7 @@ func test_chest_domain(t: TestContext) -> void:
 func test_use_chest_opens_window(t: TestContext) -> void:
 	if not await _to_east(t):
 		return
+	FattyCampFixture.ensure(t.tree)
 	var chest := _chest(t, CHEST_ID)
 	if not t.check(chest != null, "no %s" % CHEST_ID):
 		return

@@ -101,8 +101,8 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); built stone walls are painted on a
   `walls` WallLayer, whose cells join by themselves ([docs/godot/WALLS.md](docs/godot/WALLS.md)),
   tree walls on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)).
-- Hills, holes and stairs are painted on a world's `elevation` layer; cliffs, their lips and feet
-  and each level's collision follow; a wall's rock follows its ground unless a style is painted on
+- Hills, holes and stairs are painted on a world's `elevation` layer; the cliffs' side walls and
+  each level's collision follow (bake a world's cache after painting); a wall's rock follows its ground unless a style is painted on
   the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)).
 - Saves go through `RunState` to `user://saves/`.
 

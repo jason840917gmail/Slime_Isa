@@ -116,7 +116,8 @@ slot), the autosave and `write_recovery` (the window closing) all refuse, the pa
 out with the hint "No saving yet: quitting starts again from the Wellspring", Quit to Title writes
 nothing, and the area banners stay quiet (the Shell). So a quit, a closed window or a crash leaves
 no save of it, and the next New Game plays it again from the birth (question 118's proposal, which the owner took; the
-title has no Continue for it). The same reason can later cover the dungeons (5.15).
+title has no Continue for it). Dungeons block saving the same way, with the reason "dungeon"
+(there a quit resumes at the dungeon's entrance: [DUNGEONS.md](DUNGEONS.md#dungeon-state-no-saving-resume-at-the-entrance)).
 
 ## The barred gate
 

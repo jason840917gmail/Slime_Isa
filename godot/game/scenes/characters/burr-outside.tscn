@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/fattys_lair/burr_outside.gd" id="1_outside"]
+[ext_resource type="PackedScene" path="res://game/scenes/characters/burr.tscn" id="2_burr"]
+
+[node name="burr-outside" type="Node2D" node_paths=PackedStringArray("actor")]
+y_sort_enabled = true
+script = ExtResource("1_outside")
+actor = NodePath("burr")
+
+[node name="burr" parent="." instance=ExtResource("2_burr")]

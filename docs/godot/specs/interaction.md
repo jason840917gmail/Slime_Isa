@@ -131,6 +131,7 @@ origin (§1), `p` the player centre.
 | `world-beds` | `:1097-1125` | out of tree | `bed.interactRadius` (90) | **85** | `world-beds:<runtimeId>` | `bed.prompt` | o + (0, -badgeRise) | o + (0, -24) | [IN] |
 | `quest-npcs` reoffer | `QuestNpcController.ts:152-188` | | 96 | **85** | `quest-npcs:<instanceId>:reoffer` | `Resume quest with <name>` | as above | as above | [OUT] |
 | `managed-chests` | `:891-917` | (no tree check) | **112** (literal) | **80** | `managed-chests:<instanceId>` | see §3.4 | o + (0, -56) | o + (0, -24) | [IN] |
+| `world-usables` (Godot only, 2026-10-17: group `usable`; Fatty's Lair's worm levers, its inner winch, Burr outside) | | `can_use()` false | `interact_radius` | **70** | `world-usables:<node path>` | `prompt` | o + (0, -badge_rise) | `origin()` | [IN] |
 | `gulp-spots` (Godot since 2026-10-08: `essences`, "Pick up <essence>", into the bag) | `WorldScene.ts:1109-1128` | | spot radius | **60** | `gulp-spots:<round x>:<round y>` | `Gulp the <material>` | none (no badge) | spot | [OUT] |
 | `quest-npcs` talk | `QuestNpcController.ts:189-209` | | 96 | **50** | `quest-npcs:<instanceId>:talk` | `Talk to <name>` | NPC + (30, -30) | NPC + (0, -24) | [IN] (§2.9) |
 | `placed-furniture` | `:1074-1095` | furniture with its own script | 90 (literal) | **40** | `placed-furniture:<placementId>` | `Pick up` | (x, y - 72) | (x, y - 24) | [OUT] |
@@ -345,8 +346,9 @@ calls the `world.interaction` service's `execute`, falling back to
 it** (0 instances); the only use is a unit test fixture with
 `action: {type: 'unlock-gate', itemId: 'green-key'}` and a fake service
 (`scripts/tests/scene-integration/object-script-foundation.test.mjs:585-614`). [QUIRK: dead
-feature.] Port decision: do **not** create `game/scripts/interaction.gd`; it stays on
-`unported_script.gd` (CONVENTIONS: add a file only when porting a used script).
+feature.] Port decision: do **not** create `game/scripts/interaction.gd` (CONVENTIONS: add a file only
+when porting a used script). No scene carries it, so the converter's placeholder
+`unported_script.gd` it would have stayed on was removed (clean-out wave 1, 2026-10-17).
 
 ### 3.2 `game.door` (`DoorScript.ts`, descriptor `registrations.ts:481-497`) [IN]
 
@@ -386,7 +388,12 @@ counter resets when the slime lets go or leaves the trigger, while it walks out 
   and gloop-hut, a round root-framed door in mushroom-home; CONVENTIONS.md "Doors"); the bomb
   cave's `south-door` and the blown cracked wall's hole
   (opening; the hole's trigger is the wall's `passage` rect); `cave-ladder` (ladder_up, side north:
-  arriving there the slime walks down off the ladder); `cracked-ground`'s sinkhole (ladder_down).
+  arriving there the slime walks down off the ladder); `cracked-ground`'s sinkhole (ladder_down);
+  `cracked-floor`'s blown hole (fall, no side, a one-way way in).
+- **One-way doors** (not in Phaser, 2026-10-17): with no `target_door_id`, `target_marker` (a
+  Node2D's name in the target world) is sent as `request_exit`'s `entry_marker`, so the slime lands
+  there (snapped to its tile centre) and nothing has to lead back. A door with no `target_area_id`
+  never travels (an arrival point only).
 
 | Property | TS read (`DoorScript.ts:29-40`) | Fallback | Godot export |
 |---|---|---|---|
@@ -772,7 +779,7 @@ level-1 interactables (old Phaser positions; "o" = origin):
 | `mushroom-home-door` (node `mushroom-door-level-1`) | o (1492.2, 489.6), arrival (1, 48) -> (1493.2, 537.6) -> rounded (1493, 538) | r 96 (default), rise 56, "Enter house" -> `mushroom-home` / `house-door` |
 | Verdant gate (`level-1-verdant-gate`, `object.gate-verdant`) | o (3776, 768) | gate `level-1-east-verdant-gate`, `green-key` consumed, r 150, rise 120 -> badge/messages at (3776, 648); prompt "Unlock the Verdant Gate"; locked "The Verdant Gate is locked. Fatty One Eye guards the Green Key."; unlocked "The Verdant Gate swings open!" |
 | exit-1 (same gate record) | Area2D (4064, 576) | locked message "The eastern gate needs a green key." -> `gloop-forest` west |
-| Guarded chest (`level-1-fatty-one-eye-camp/guarded-chest`) | o (2528, 1077) = camp (2528, 1472) + (0, -395) | `level-1-fatty-guarded-chest`, contents `{green-key: 1}`; inside Fatty's activation circle (r 440), so it is guarded whenever the player stands near it with Fatty alive |
+| Guarded chest (`level-1-fatty-one-eye-camp/guarded-chest`) | o (2528, 1077) = camp (2528, 1472) + (0, -395) | `level-1-fatty-guarded-chest`, contents `{green-key: 1}`; inside Fatty's activation circle (r 440), so it is guarded whenever the player stands near it with Fatty alive. *Since 2026-10-17 not in the game: the camp moved into Fatty's Lair and the green key into its shrine's chest; the tests put this camp back (`tests/lib/fatty_camp_fixture.gd`)* |
 | Workshop station (`level-1-workshop/station-script`) | o (640, 392) | in the `restored` variant (`workshop.restored`) - absent in a new run |
 | Forge station (`level-1-forge/station-script`) | o (1190, 1068) | in the `restored` variant (`forge.restored`) - absent in a new run |
 | Story variants | `chapter-1-villagers-variant` | `chapter-1-complete`, `whenUnset` = node `chapter-1-villagers` (instances `level-1-npc-yellow-blond-slime-girl`, `level-1-npc-mossy-scout`) |

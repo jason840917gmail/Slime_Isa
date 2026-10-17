@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/cracked_floor.gd" id="1"]
+[ext_resource type="Script" path="res://game/scripts/cracked_ground.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/story_variant.gd" id="3"]
+[ext_resource type="Texture2D" path="res://asset/abilities/goo-bomb/crack-overlay.webp" id="4"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="5"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="6"]
+
+[node name="cracked-floor" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1")
+
+[node name="CrackedGroundScript" type="Node" parent="."]
+script = ExtResource("2")
+radius = 52.0
+
+[node name="StoryVariantScript" type="Node" parent="." node_paths=PackedStringArray("when_set", "when_unset")]
+script = ExtResource("3")
+when_set = NodePath("../Broken")
+when_unset = NodePath("../Intact")
+
+[node name="Intact" type="Node2D" parent="."]
+
+[node name="Crack" type="Sprite2D" parent="Intact"]
+z_as_relative = false
+z_index = -1
+scale = Vector2(0.579439, 0.335938)
+texture = ExtResource("4")
+
+[node name="Broken" type="Node2D" parent="."]
+
+[node name="Hole" type="Sprite2D" parent="Broken"]
+z_as_relative = false
+z_index = -1
+position = Vector2(0.6, 1.5)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("5")
+sheet_path = "res://asset/abilities/goo-bomb/floor-hole.webp"
+
+[node name="Door" type="Node2D" parent="Broken"]
+
+[node name="DoorScript" type="Node" parent="Broken/Door"]
+script = ExtResource("6")
+kind = "fall"
+trigger_rect = Rect2(-30, -26, 60, 52)
+use_cue = &"FallDown"

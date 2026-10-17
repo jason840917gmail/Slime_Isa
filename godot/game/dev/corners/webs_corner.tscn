@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/world/walls/wall_layer.gd" id="wall_layer"]
+[ext_resource type="TileSet" path="res://game/world/walls/wall_tileset.tres" id="wall_tiles"]
+[ext_resource type="Script" path="res://game/world/webs/web_layer.gd" id="web_layer"]
+[ext_resource type="TileSet" path="res://game/world/webs/web_tileset.tres" id="web_tiles"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/web-wall.tscn" id="web_wall"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/silk-parcel.tscn" id="parcel"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/floor-web.tscn" id="floor_web"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-silk.tscn" id="silk_spot"]
+
+[node name="webs-corner" type="Node2D"]
+y_sort_enabled = true
+
+[node name="title" type="Label" parent="."]
+offset_left = 3460.0
+offset_top = 4786.0
+offset_right = 4420.0
+offset_bottom = 4876.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = "Webs corner (roadmap 7.9, the Weaver Hollow; docs/godot/WEBS.md)
+Floor webs (the painted band, the lone web east of it): a walk is halved, a Roll sticks. Web walls (the two nooks) block.
+Swallow the silk (bottom left: the Silk form stands in for the Silk skin): webs are crossed at full speed, web walls passed at half speed,
+and a weapon or shape hit cuts a web wall for good and frees a silk parcel (30 coins north; a potion and 15 coins east)."
+
+[node name="webs" type="TileMapLayer" parent="."]
+z_index = -1
+tile_map_data = PackedByteArray("AAA8AFEAAAAAAAAAAAA/AFEAAAAAAAAAAAA5AFIAAAAAAAAAAAA6AFIAAAAAAAAAAAA7AFIAAAAAAAAAAAA8AFIAAAAAAAAAAAA9AFIAAAAAAAAAAAA+AFIAAAAAAAAAAAA/AFIAAAAAAAAAAABAAFIAAAAAAAAAAAA4AFMAAAAAAAAAAAA5AFMAAAAAAAAAAAA6AFMAAAAAAAAAAAA7AFMAAAAAAAAAAAA8AFMAAAAAAAAAAAA9AFMAAAAAAAAAAAA+AFMAAAAAAAAAAAA/AFMAAAAAAAAAAABAAFMAAAAAAAAAAAA4AFQAAAAAAAAAAAA5AFQAAAAAAAAAAAA6AFQAAAAAAAAAAAA7AFQAAAAAAAAAAAA8AFQAAAAAAAAAAAA9AFQAAAAAAAAAAAA+AFQAAAAAAAAAAAA/AFQAAAAAAAAAAAA=")
+tile_set = ExtResource("web_tiles")
+script = ExtResource("web_layer")
+
+[node name="walls" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAA5AE0AAAAAAAAAAAA6AE0AAAAAAAAAAAA7AE0AAAAAAAAAAAA8AE0AAAAAAAAAAAA9AE0AAAAAAAAAAAA+AE0AAAAAAAAAAAA5AE4AAAAAAAAAAAA+AE4AAAAAAAAAAAA5AE8AAAAAAAAAAAA+AE8AAAAAAAAAAAA5AFAAAAAAAAAAAAA6AFAAAAAAAAAAAAA9AFAAAAAAAAAAAAA+AFAAAAAAAAAAAABCAFEAAAAAAAAAAABDAFEAAAAAAAAAAABEAFEAAAAAAAAAAABFAFEAAAAAAAAAAABCAFIAAAAAAAAAAABFAFIAAAAAAAAAAABFAFMAAAAAAAAAAABFAFQAAAAAAAAAAABCAFUAAAAAAAAAAABFAFUAAAAAAAAAAABCAFYAAAAAAAAAAABDAFYAAAAAAAAAAABEAFYAAAAAAAAAAABFAFYAAAAAAAAAAAA=")
+tile_set = ExtResource("wall_tiles")
+script = ExtResource("wall_layer")
+
+[node name="north-web-wall" parent="." instance=ExtResource("web_wall")]
+position = Vector2(3840, 5172)
+height = 92.0
+hides_secret = true
+flag_id = "web-wall.playground-webs-north"
+
+[node name="north-parcel" parent="." instance=ExtResource("parcel")]
+position = Vector2(3840, 5048)
+coins = 30
+flag_id = "silk-parcel.playground-webs-north"
+
+[node name="east-web-wall" parent="." instance=ExtResource("web_wall")]
+position = Vector2(4256, 5376)
+orientation = "side"
+hides_secret = true
+flag_id = "web-wall.playground-webs-east"
+
+[node name="east-parcel" parent="." instance=ExtResource("parcel")]
+position = Vector2(4352, 5406)
+coins = 15
+contents = {
+"hp-potion": 1
+}
+flag_id = "silk-parcel.playground-webs-east"
+
+[node name="lone-web" parent="." instance=ExtResource("floor_web")]
+position = Vector2(4512, 5248)
+variant = 3
+
+[node name="silk-spot" parent="." instance=ExtResource("silk_spot")]
+position = Vector2(3520, 5476)
+metadata/instance_id = "playground-webs-silk-spot"
+metadata/persistence_key = "playground.playground-webs-silk-spot"

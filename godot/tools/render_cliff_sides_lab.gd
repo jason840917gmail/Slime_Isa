@@ -2,14 +2,13 @@ extends SceneTree
 ## Renders the cliff sides lab (game/scenes/worlds/cliff-sides-lab.tscn, tools/build_cliff_sides_lab.gd)
 ## with the game's own drawing, for checking the side walls (docs/godot/ELEVATION.md "Side walls").
 ## Run windowed (it renders), from the repo:
-##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir> [--only=<name>] [--look=<look>]
+##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir> [--only=<name>]
 ## Writes <dir>/<area>.png for each of AREAS at 1x and <dir>/<area>-2x.png for each of CLOSE_UPS
 ## (with `--only`, those whose name begins with it).
-## `--look=front` draws the lab with the front-only cliffs instead (the ground's `cliff_look`), for
-## comparing; `--collision` draws each level's collision outline over it (level 0 red, 1 yellow,
-## 2 cyan, 3 magenta, holes blue). `--scene=res://...` renders another world instead, whole at 1x
-## (`world.png`), with `--look` and `--wall-style=<style>` (its grass's wall style) set in memory
-## only: the scene file is not touched; `--rect=<x>,<y>,<w>,<h>` (cells) adds a close-up of it at 2x
+## `--collision` draws each level's collision outline over it (level 0 red, 1 yellow, 2 cyan,
+## 3 magenta, holes blue). `--scene=res://...` renders another world instead, whole at 1x
+## (`world.png`), with `--wall-style=<style>` (its grass's wall style) set in memory only: the scene
+## file is not touched; `--rect=<x>,<y>,<w>,<h>` (cells) adds a close-up of it at 2x
 ## (`close-2x.png`).
 
 const Services := preload("res://game/shared/services.gd")
@@ -41,7 +40,6 @@ const CLOSE_UPS := {
 func _initialize() -> void:
 	var out := DEFAULT_OUT
 	var only := ""
-	var look := "sides"
 	var collision := false
 	var scene := SCENE
 	var wall_style := ""
@@ -51,8 +49,6 @@ func _initialize() -> void:
 			out = arg.trim_prefix("--out=")
 		elif arg.begins_with("--only="):
 			only = arg.trim_prefix("--only=")
-		elif arg.begins_with("--look="):
-			look = arg.trim_prefix("--look=")
 		elif arg == "--collision":
 			collision = true
 		elif arg.begins_with("--scene="):
@@ -74,7 +70,6 @@ func _initialize() -> void:
 	camera.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
 	viewport.add_child(camera)
 	var ground := world.get_node("ground") as Node
-	ground.set_meta(&"cliff_look", look)
 	if wall_style != "":
 		var styles: Dictionary = ground.get_meta(&"cliff_wall_styles", {}).duplicate()
 		styles["highland"] = wall_style
@@ -126,6 +121,9 @@ func _initialize() -> void:
 func _draw_collision(elevation: Node2D) -> void:
 	var colours := {-1: Color(0.3, 0.5, 1.0), 0: Color(1.0, 0.2, 0.2), 1: Color(1.0, 0.9, 0.2), 2: Color(0.2, 1.0, 1.0), 3: Color(1.0, 0.3, 1.0)}
 	for body: Node in elevation.get_node("Collision").get_children():
+		# Each level's body (the stairs' body holds polygons, not an outline).
+		if not str(body.name).begins_with("Level"):
+			continue
 		var level := int(str(body.name).trim_prefix("Level"))
 		var shape := (body.get_child(0) as CollisionShape2D).shape as ConcavePolygonShape2D
 		var segments := shape.segments

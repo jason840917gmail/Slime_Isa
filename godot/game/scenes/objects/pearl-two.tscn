@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/pearl.gd" id="pearl"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+
+[node name="pearl-two" type="Node2D" node_paths=PackedStringArray("visual")]
+y_sort_enabled = true
+script = ExtResource("pearl")
+pearl_id = "orb-weaver-matron"
+boss_id = "orb-weaver-matron"
+number = 2
+skin_flag = "skin.silk"
+card_name = "Silk skin"
+card_line = "The Matron's silk is yours: webs no longer catch you or stick to you."
+card_how = "Walk through floor webs at full speed and push slowly through web walls; your Spear cuts silk."
+visual = NodePath("Visual")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.28, 0.28)
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/props/256x256-pearl-silk.webp"

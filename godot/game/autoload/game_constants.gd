@@ -1,7 +1,8 @@
 extends Node
 ## Autoload `GameConstants`: read-only access to the game data in
-## res://game/data/ (game-constants.json, enemy-types.json, items.json,
-## collision-layers.json). Replaces Phaser `src/game/Constant.ts`.
+## res://game/data/ (game-constants.json, and the other files through `data_file()`, e.g.
+## enemy-types.json and items.json). Replaces Phaser `src/game/Constant.ts`. The physics layer
+## names live in project.godot.
 ##
 ## Rules (conventions "GDScript rules"): cross-feature gameplay values come only from here or
 ## from scene properties. Lookups use the JSON's own camelCase dotted paths, e.g.

@@ -47,15 +47,29 @@ The candle, the candlestick, the sconces and the toadstool candles in
 The **brazier** (`object.brazier`, `game/scenes/objects/brazier.tscn`, 2026-10-16) is a ready-made
 one: the script on an iron brazier's two looks (`brazier-unlit.tscn`, `brazier-lit.tscn`, from
 `asset/MAPS/props/caverns/256x256-tile_2x1-brazier.webp`), `light_radius` 120, `burn_ms` 20000;
-the Bestiary's Shardback pen has two, and the Colossus's arena will want four.
+the Bestiary's Shardback pen has two, and the Crystal Mine has its braziers
+([DUNGEONS.md "The Crystal Mine (built)"](DUNGEONS.md#the-crystal-mine-built)).
 
 - A flame lights it. Lit, it is a light source of `candle.lightRadiusPx` (110 px) at
   `flame_offset`, with a warm additive glow on its flame.
 - `burn_ms` (60000 by default): it goes out after that much gameplay time. In its last
   `candle.gutterMs` (5000) it gutters: the flame flickers harder, dims and its light shrinks.
-  Nothing is saved. With `burn_ms` 0 it stays lit for good (story flag `candle-lit.<key>`).
+  Nothing is saved. With `burn_ms` 0 it stays lit for good (story flag `candle-lit.<key>`). With
+  `burn_ms` below 0 (2026-10-17, the Colossus's braziers) it burns until something puts it out;
+  nothing is saved either.
 - `group` + `gate_id`: when every candle of the group burns at once, every gate with that
-  `gate_id` opens (`GateScript.open`, as a pressure plate does).
+  `gate_id` opens (`GateScript.open`, as a pressure plate does; the Crystal Mine's lantern gate
+  opens for good).
+- **Putting out** (2026-10-17): `put_out()` puts a lit candle out now (smoke, the SlamImpact cue),
+  unless it burns for good. `CandleScript.put_out_near(tree, centre, half, nearest_only)` puts out
+  every lit candle with `stomp_puts_out` whose foot lies in the ellipse of half size `half` round
+  `centre`, or only the nearest one: the Shardback's slam ring (its `slamRx` x `slamRy` times
+  `slamPutsOutScale` 1.8) and the Crystal Colossus's stomp (the nearest of his four). A candle
+  without `stomp_puts_out` (the default) never goes out that way.
+- **Smothered** (2026-10-17): while a node of the group `candle_smotherers` says it `smothers(point)`
+  the candle's foot (the Gloomling, within 40 units of it), the candle refuses a flame (the flame is
+  spent; "The shadow smothers the wick.", the GulpWearOff cue): drive the shadow off with light,
+  then light it.
 
 ## Burnables (`game/world/fire/burnable.gd`)
 
@@ -87,6 +101,15 @@ layout is in [BODY_SHAPES.md "The Lantern"](BODY_SHAPES.md#the-lantern-2026-10-1
 The Bestiary's pens 23, 24 and 28 each hold a `DarkRoom` the size of the pen, with no candles, so
 they stay dark. Three enemies there read the light sources (they only read them:
 `game/enemy/light_sense.gd`, [BESTIARY.md](BESTIARY.md#what-the-patterned-enemies-share)): the
-Gloomling flees any light and the Glint Bat wakes in it; the Shardback's shell turns brittle in fire
-light (every source but the slime's own ember). Their eyes show in the dark through
+Gloomling flees any light and the Glint Bat wakes in it (and a Gloomling sitting on a candle smothers
+it, above); the Shardback's shell turns brittle in fire light (every source but the slime's own
+ember), and its slam puts out the braziers in its ring.
+
+## The Crystal Mine's dark-room pieces
+
+The mine ([DUNGEONS.md](DUNGEONS.md#the-crystal-mine-built)) adds three that read the fire:
+the **crystal veil** (`game/crystal_mine/crystal_veil.gd`: open while one of its braziers burns,
+grows back when the last goes out), the **lantern gate** (`lantern_gate.gd`: its candles open it
+for good; open, its lamp cups are a light source) and the Colossus's four braziers (`burn_ms` -1,
+`stomp_puts_out`; his arena's DarkRoom lists them, so it is lit only while all four burn). Their eyes show in the dark through
 `game/enemy/dark_eyes.gd` (drawn over the overlay, only while the room is dark).

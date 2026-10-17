@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/crystal_mine/mine_cart.gd" id="station"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+
+[node name="mine-cart" type="Node2D" node_paths=PackedStringArray("cart_visual")]
+y_sort_enabled = true
+script = ExtResource("station")
+cart_visual = NodePath("Cart")
+
+[node name="BufferStop" type="Sprite2D" parent="."]
+position = Vector2(-62, 0)
+scale = Vector2(0.27, 0.27)
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/props/mine/256x256-buffer-stop.webp"
+
+[node name="Cart" type="Sprite2D" parent="."]
+scale = Vector2(0.3, 0.3)
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"

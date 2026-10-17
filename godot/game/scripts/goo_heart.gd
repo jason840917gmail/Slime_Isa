@@ -27,6 +27,9 @@ const CUE := &"Heal"
 @export var bob_px: float = 4.0
 ## JSON `visual`: the heart Sprite2D (optional).
 @export var visual: Sprite2D
+## How many Goo Hearts' worth it gives: a boss's full heart is two (+20 max HP, question 17;
+## Fatty's Lair, docs/godot/DUNGEONS.md), until the heart quarters' work (roadmap 5.3) replaces it.
+@export_range(1, 4) var hearts: int = 1
 
 ## The heart was taken. Payload: {"heartId"}.
 signal collected(payload: Dictionary)
@@ -92,9 +95,10 @@ func _collect(player: Node, at: Vector2) -> void:
 	if run == null or run.has_flag(FLAG_PREFIX + heart_id):
 		return
 	run.set_flag(FLAG_PREFIX + heart_id)
-	player.call(&"grant_goo_heart")
+	for i in maxi(1, hearts):
+		player.call(&"grant_goo_heart")
 	var constants := Services.constants()
-	var bonus := constants.integer("character.player.gooHeart.maxHpBonus") if constants != null else 0
+	var bonus := (constants.integer("character.player.gooHeart.maxHpBonus") if constants != null else 0) * maxi(1, hearts)
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(CUE)

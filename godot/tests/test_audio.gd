@@ -12,7 +12,8 @@ extends RefCounted
 ## runs on real time.
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): every test starts in
 ## chunk D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp's chunk, which plays
-## level-1's music and ambience like the other chunks.
+## level-1's music and ambience like the other chunks. Fatty's camp left D4 for his Lair on
+## 2026-10-17; tests/lib/fatty_camp_fixture.gd puts it back in the clearing for these tests.
 
 ## run_tests.gd starts every test of this file in Fatty's chunk of level-1.
 const MAP_ID := "level-1-d4"
@@ -21,6 +22,7 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const MusicDirectorScript := preload("res://game/audio/music_director.gd")
 const BossCampScript := preload("res://game/scripts/boss_camp.gd")
+const FattyCampFixture := preload("res://tests/lib/fatty_camp_fixture.gd")
 const FattyScript := preload("res://game/scripts/fatty.gd")
 const WorldServiceType := preload("res://game/autoload/world_service.gd")
 
@@ -284,7 +286,10 @@ func test_apply_mix_sets_the_buses(t: TestContext) -> void:
 
 ## The registered director, else one added under main (freed with it). `manual` switches its
 ## processing off so the test steps it with `advance`; it comes back on when main leaves the tree.
+## Fatty's camp is put back first (tests/lib/fatty_camp_fixture.gd), so the director binds it.
 static func _director(t: TestContext, manual: bool = true) -> MusicDirectorScript:
+	# Fatty's camp is in the world before the director first binds camps (as when D4 held it).
+	FattyCampFixture.ensure(t.tree)
 	var director := Services.music()
 	if director == null:
 		director = MusicDirectorScript.new()
@@ -298,10 +303,7 @@ static func _director(t: TestContext, manual: bool = true) -> MusicDirectorScrip
 
 ## Puts the player inside Fatty's activation circle and waits for the boss.
 static func _start_fight(t: TestContext) -> Dictionary:
-	var camp: BossCampScript = null
-	for node: Node in t.tree.get_nodes_in_group(BossCampScript.GROUP):
-		if node is BossCampScript and (node as BossCampScript).camp_id == CAMP_ID:
-			camp = node as BossCampScript
+	var camp := FattyCampFixture.ensure(t.tree)
 	if not t.check(camp != null, "level-1 has no boss camp '%s'" % CAMP_ID):
 		return {}
 	t.teleport_player(FAR_INSIDE)

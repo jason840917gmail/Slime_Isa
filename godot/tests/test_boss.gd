@@ -9,6 +9,8 @@ extends RefCounted
 ## (impact +250 ms -> 18 - 3 = 15, hop ends +300 ms, cooldown 1000); leap 5000 ms after spawn:
 ## small hops 1080 ms, airborne 1000 ms, landing 360 ms (32 - 3 = 29 on a hurtbox in the splash),
 ## recovery 700 ms; state-blocked while hopping or airborne.
+## Fatty himself lives in his Lair since 2026-10-17 (world.fatty-lair, test_fattys_lair.gd); the camp
+## these tests measure is put back in D4's clearing for them (tests/lib/fatty_camp_fixture.gd).
 
 ## run_tests.gd starts every test of this file in the camp's chunk of level-1.
 const MAP_ID := "level-1-d4"
@@ -17,6 +19,7 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const BossCampScript := preload("res://game/scripts/boss_camp.gd")
+const FattyCampFixture := preload("res://tests/lib/fatty_camp_fixture.gd")
 const FattyScript := preload("res://game/scripts/fatty.gd")
 const AttackTelegraph := preload("res://game/bosses/attack_telegraph.gd")
 const EffectScript := preload("res://game/scripts/effect.gd")
@@ -394,12 +397,9 @@ func test_world_travel_removes_the_fight(t: TestContext) -> void:
 
 # --- helpers ------------------------------------------------------------------------------------
 
+## The camp (put back in D4 by the fixture; none in another world).
 static func _camp(t: TestContext) -> BossCampScript:
-	for node: Node in t.tree.get_nodes_in_group(BossCampScript.GROUP):
-		var camp := node as BossCampScript
-		if camp != null and camp.camp_id == CAMP_ID:
-			return camp
-	return null
+	return FattyCampFixture.ensure(t.tree)
 
 
 static func _bar(t: TestContext) -> Node:

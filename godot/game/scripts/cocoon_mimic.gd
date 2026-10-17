@@ -19,6 +19,18 @@ class_name CocoonMimicScript
 ##   `lungeRangePx` (`lungeCooldownMs` apart); then, or once the slime leaves its arena, it walks home
 ##   (`homeSpeed`) and wraps itself up again (`wrapMs`).
 ## - **Right tool:** a Goo Bomb's blast (tag `blast`) next to it bursts it at once, disguised or not.
+## - **A swallowed drop** (the Weaver Hollow's B3 Mimic swallowed small key 2; set on a placed enemy's
+##   `overrides`, game/enemy/placed_enemy.gd): beaten, it spits out what it swallowed, once. With
+##   `swallowed_flag` set and `swallowed_scene_id` (a scene id: the dungeon kit's key pickup, a
+##   collectible...), that scene hops out of it onto the ground (`swallowed_settings` set on it
+##   first: {"property": value} on its root, {"<child path>": {"property": value}} on a child; a
+##   CollectibleScript in it gets the world's map id and the flag as its record unless the settings
+##   say otherwise, so it is taken once). The flag is set and the spot is kept (the map's object
+##   state "swallowed:<flag>"): a world built again (the room entered again, a load) puts the drop
+##   back there while the flag is set, and a pickup that is already taken frees itself by its own
+##   record. Or `swallowed_item_id` (`swallowed_count` of an items.json item) falls as loot
+##   (EnemyLoot.drop_loot: a pile kept by the map until it is picked up). A Mimic built again with
+##   the flag set has swallowed nothing more.
 ##
 ## Owner: enemy builder.
 
@@ -60,6 +72,30 @@ const HIDDEN_ALPHA := 0.0
 const HINT_RISE_PX := 70.0
 ## The mimic sits this far in front of the held slime (y-sorted over it).
 const HOLD_IN_FRONT_PX := 2.0
+## The swallowed drop: it lands this far below the Mimic's feet (a wall there: on the feet), hopping
+## out of its middle over DROP_FLIGHT_S with an arc of DROP_ARC_PX (presentation); its record key.
+const DROP_OFFSET := Vector2(0.0, 40.0)
+const DROP_FLIGHT_S := 0.34
+const DROP_ARC_PX := 34.0
+const DROP_STATE_PREFIX := "swallowed:"
+const DROP_GROUP := &"swallowed_drops"
+const DROP_META := &"swallowed_flag"
+const PICKUP_AREA := ^"PickupArea"
+const CollectibleScriptType := preload("res://game/scripts/collectible.gd")
+const EnemyLootType := preload("res://game/world_objects/enemy_loot.gd")
+const MAIN_GROUP := &"world_main"
+
+@export_group("Swallowed drop")
+## The story flag set when it spits its drop out (empty: it swallowed nothing).
+@export var swallowed_flag: String = ""
+## The scene it spits out (a scene id in scene_index.json).
+@export var swallowed_scene_id: String = ""
+## Set on that scene before it enters the tree (see the class notes).
+@export var swallowed_settings: Dictionary = {}
+## Or an items.json item, dropped as loot.
+@export var swallowed_item_id: String = ""
+@export var swallowed_count: int = 1
+@export_group("")
 
 var _ready_at: float = 0.0
 var _lunge_from: Vector2 = Vector2.ZERO
@@ -77,6 +113,7 @@ var _push_dir: Vector2 = Vector2.DOWN
 func _ready() -> void:
 	super()
 	_disguise(Services.now_ms())
+	_restore_swallowed.call_deferred()
 
 
 func _exit_tree() -> void:
@@ -352,3 +389,110 @@ func _defeat() -> void:
 		return
 	_let_go()
 	super()
+	_spit_swallowed()
+
+
+# --- the swallowed drop ----------------------------------------------------------------------------
+
+## True when it has a drop and has not spat it out yet.
+func has_swallowed() -> bool:
+	var run := Services.run()
+	return not swallowed_flag.is_empty() and (not swallowed_scene_id.is_empty() or not swallowed_item_id.is_empty()) \
+		and run != null and not run.has_flag(swallowed_flag)
+
+
+## Beaten: the drop hops out of it (once: the flag).
+func _spit_swallowed() -> void:
+	var world := Services.world()
+	if not has_swallowed() or world == null:
+		return
+	var run := Services.run()
+	run.set_flag(swallowed_flag)
+	var from := get_centre()
+	var at := feet() + DROP_OFFSET
+	var tile := float(world.dimensions().get("tile_size", 64))
+	if world.is_solid_tile(floori(at.x / tile), floori(at.y / tile)):
+		at = feet()
+	_cue(CUE_SPIT)
+	if not swallowed_scene_id.is_empty():
+		run.set_object_state(world.map_id(), DROP_STATE_PREFIX + swallowed_flag, {"x": at.x, "y": at.y})
+		var drop := _place_swallowed(at)
+		if drop != null:
+			_fly(drop, from, at)
+		return
+	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
+	var loot: Variant = main.get(&"loot") if main != null else null
+	var items := [{"item_id": swallowed_item_id, "count": maxi(1, swallowed_count)}]
+	if loot is EnemyLootType:
+		(loot as EnemyLootType).drop_loot(world.map_id(), from, items)
+	else:
+		run.add_item(swallowed_item_id, maxi(1, swallowed_count))
+
+
+## A world built again after it spat its scene out: the drop lies where it landed (a taken pickup
+## frees itself), unless it is still in the world.
+func _restore_swallowed() -> void:
+	var run := Services.run()
+	var world := Services.world()
+	if swallowed_flag.is_empty() or swallowed_scene_id.is_empty() or run == null or world == null \
+			or not run.has_flag(swallowed_flag) or not is_inside_tree():
+		return
+	for node: Node in get_tree().get_nodes_in_group(DROP_GROUP):
+		if is_instance_valid(node) and not node.is_queued_for_deletion() and str(node.get_meta(DROP_META, "")) == swallowed_flag:
+			return
+	var spot: Variant = run.object_state(world.map_id(), DROP_STATE_PREFIX + swallowed_flag)
+	if spot is Dictionary:
+		_place_swallowed(Vector2(float((spot as Dictionary).get("x", 0.0)), float((spot as Dictionary).get("y", 0.0))))
+
+
+## The drop scene at `at` in the world (null when it does not load).
+func _place_swallowed(at: Vector2) -> Node2D:
+	var world := Services.world()
+	var parent: Node2D = world.entities_root() if world != null else null
+	if parent == null:
+		return null
+	var root := world.instantiate_scene(swallowed_scene_id) as Node2D
+	if root == null:
+		return null
+	for child: Node in root.get_children():
+		if child.get_script() == CollectibleScriptType:
+			child.set(&"map_id", world.map_id())
+			child.set(&"instance_id", swallowed_flag)
+	for key: Variant in swallowed_settings:
+		var value: Variant = swallowed_settings[key]
+		var node := root.get_node_or_null(NodePath(str(key))) if value is Dictionary else null
+		if node != null:
+			for property: Variant in value:
+				node.set(StringName(str(property)), (value as Dictionary)[property])
+		else:
+			root.set(StringName(str(key)), value)
+	root.set_meta(DROP_META, swallowed_flag)
+	root.add_to_group(DROP_GROUP)
+	root.position = parent.to_local(at)
+	parent.add_child(root)
+	root.reset_physics_interpolation()
+	return root
+
+
+## The drop hops out of the Mimic's middle `from` to `at` (no pickup until it lands).
+func _fly(drop: Node2D, from: Vector2, at: Vector2) -> void:
+	var area := drop.get_node_or_null(PICKUP_AREA) as Area2D
+	if area != null:
+		area.set_deferred(&"monitorable", false)
+	var tween := drop.create_tween()
+	tween.tween_method(_drop_step.bind(drop, from, at), 0.0, 1.0, DROP_FLIGHT_S) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_callback(_drop_landed.bind(drop, at, area))
+
+
+static func _drop_step(t: float, drop: Node2D, from: Vector2, at: Vector2) -> void:
+	if is_instance_valid(drop):
+		drop.global_position = from.lerp(at, t) + Vector2(0.0, -DROP_ARC_PX * 4.0 * t * (1.0 - t))
+
+
+static func _drop_landed(drop: Node2D, at: Vector2, area: Area2D) -> void:
+	if is_instance_valid(drop):
+		drop.global_position = at
+		drop.reset_physics_interpolation()
+	if area != null and is_instance_valid(area):
+		area.monitorable = true

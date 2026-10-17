@@ -17,6 +17,12 @@ extends Node2D
 ##   (GateScript.open, as pressure plates do).
 ## - A dark room listing it is lit while all its candles burn (dark_room.gd); a room set to light
 ##   for good then keeps it lit (`keep_lit`).
+## - `burn_ms` below 0: it burns until something puts it out (`put_out`), with no timer and nothing
+##   saved (the Crystal Colossus's four braziers, docs/godot/DARKNESS.md).
+## - `stomp_puts_out`: a slam or a stomp near it puts it out (`put_out_near`: the Shardback's slam,
+##   the Colossus's stomps); never one lit for good.
+## - A shadow smothers it: while a node of SMOTHER_GROUP says `smothers(<its foot>)` (a Gloomling
+##   sitting on it), a flame is refused with SMOTHERED_TEXT (the Crystal Mine's dark maze).
 ##
 ## Owner: world (fire and darkness).
 
@@ -39,6 +45,13 @@ const FIRE_BOX := Vector2(36.0, 44.0)
 const GUTTER_LIGHT := 0.45
 const GUTTER_DIM := 0.5
 const GUTTER_FLICKER := 0.3
+## Nodes that can smother a candle (`smothers(point: Vector2) -> bool`): the Gloomling.
+const SMOTHER_GROUP := &"candle_smotherers"
+const SMOTHERED_TEXT := "The shadow smothers the wick."
+const SMOTHERED_TEXT_RISE := 70.0
+const SMOTHERED_TEXT_MS := 2200.0
+const CUE_SMOTHERED := &"GulpWearOff"
+const CUE_PUT_OUT := &"SlamImpact"
 
 ## The prop shown while unlit / lit.
 @export var unlit_scene: PackedScene:
@@ -56,8 +69,10 @@ const GUTTER_FLICKER := 0.3
 	set(value):
 		lit_at_start = value
 		_rebuild()
-## It goes out after this many ms of burning; 0: lit for good (saved).
+## It goes out after this many ms of burning; 0: lit for good (saved); below 0: until put out.
 @export var burn_ms: float = 60000.0
+## A slam or a stomp near it puts it out (`put_out_near`).
+@export var stomp_puts_out: bool = false
 ## Candles of one group open the gates with `gate_id` when they all burn ("" = no group).
 @export var group: String = ""
 @export var gate_id: String = ""
@@ -87,21 +102,81 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	var run := Services.run()
-	if lit_at_start or (burn_ms <= 0.0 and run != null and run.has_flag(candle_flag())):
+	if lit_at_start or (burn_ms == 0.0 and run != null and run.has_flag(candle_flag())):
 		_set_lit(true)
-		_for_good = burn_ms <= 0.0 or _for_good
+		_for_good = burn_ms == 0.0 or _for_good
 
 
 func is_lit() -> bool:
 	return _lit
 
 
-## Fire target: a flame lights an unlit candle (and stops there).
+## Fire target: a flame lights an unlit candle (and stops there). A smothered one refuses it (the
+## flame is spent on the shadow).
 func receive_fire(_hit: Dictionary) -> bool:
 	if _lit:
 		return false
+	if is_smothered():
+		_say_smothered()
+		return true
 	light()
 	return true
+
+
+## True while a shadow sits on it (SMOTHER_GROUP).
+func is_smothered() -> bool:
+	if not is_inside_tree():
+		return false
+	for node: Node in get_tree().get_nodes_in_group(SMOTHER_GROUP):
+		if node.has_method(&"smothers") and bool(node.call(&"smothers", global_position)):
+			return true
+	return false
+
+
+func _say_smothered() -> void:
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_SMOTHERED)
+		feel.floating_text(global_position - Vector2(0.0, SMOTHERED_TEXT_RISE), SMOTHERED_TEXT, &"white", false, SMOTHERED_TEXT_MS)
+
+
+## Puts it out now (a slam, a stomp, a script), unless it burns for good. True when it went out.
+func put_out() -> bool:
+	if not _lit or _for_good:
+		return false
+	_out_at_ms = -1.0
+	_set_lit(false)
+	FireFx.smoke(global_position + flame_offset, 6)
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_PUT_OUT)
+	return true
+
+
+## Puts out every lit candle with `stomp_puts_out` whose foot lies in the ellipse of half size
+## `half` round `centre` (a slam's ring). Returns how many went out. `nearest_only`: just the nearest
+## one inside (the Colossus's stomp, one brazier at a time).
+static func put_out_near(tree: SceneTree, centre: Vector2, half: Vector2, nearest_only: bool = false) -> int:
+	if tree == null or half.x <= 0.0 or half.y <= 0.0:
+		return 0
+	var inside: Array[Node] = []
+	for node: Node in tree.get_nodes_in_group(GROUP):
+		if not bool(node.get(&"stomp_puts_out")) or not bool(node.call(&"is_lit")):
+			continue
+		var d := ((node as Node2D).global_position - centre) / half
+		if d.length_squared() <= 1.0:
+			inside.append(node)
+	if inside.is_empty():
+		return 0
+	if nearest_only:
+		inside.sort_custom(func(a: Node, b: Node) -> bool:
+			return (a as Node2D).global_position.distance_squared_to(centre) < (b as Node2D).global_position.distance_squared_to(centre))
+		return 1 if bool(inside[0].call(&"put_out")) else 0
+	var count := 0
+	for node in inside:
+		if bool(node.call(&"put_out")):
+			count += 1
+	return count
 
 
 ## The box a flame must touch: from its feet up to just over its flame, FIRE_BOX wide.
@@ -117,7 +192,7 @@ func light() -> void:
 	_set_lit(true)
 	if burn_ms > 0.0 and not _for_good:
 		_out_at_ms = Services.now_ms() + burn_ms
-	else:
+	elif burn_ms == 0.0 or _for_good:
 		var run := Services.run()
 		if run != null:
 			run.set_flag(candle_flag())

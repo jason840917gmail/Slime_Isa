@@ -20,10 +20,6 @@ metadata/rows = 82
 metadata/cliff_wall_styles = {
 "highland": "storybook-rock"
 }
-metadata/cliff_fringe = {
-"highland": "storybook-grass"
-}
-metadata/cliff_look = "sides"
 
 [node name="elevation" type="TileMapLayer" parent="." unique_id=142706615]
 z_index = -1

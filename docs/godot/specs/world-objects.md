@@ -81,10 +81,10 @@ for this is in 12.8.
 | Collectible (`object.collectible-*`) | `Node2D` | `Visual` (Sprite2D), `PickupArea` (Area2D layer 64, mask 32, monitoring false, monitorable true) > `PickupShape` (circle at (0,0)), `CollectibleScript` (Node), `PickupSfx`, `InventoryFullSfx` (berry basket: none) | — |
 | Player (`character.player-slime`, Godot-owned `game/characters/player_slime.tscn`) | `CharacterBody2D` | `PickupArea` (layer 32, mask 64, monitoring true) at (0, −27.56) > `PickupShape` rect 30×26 at (0, 14.56) (same rect as the hurtbox) | connection `PickupArea.area_entered → PlayerScript.on_pickup_area_entered` (tscn line 1143) |
 
-Until the ports exist, the converter attaches `res://game/runtime/unported_script.gd` to the
-`ResourceNodeScript` and `CollectibleScript` nodes (raw `properties`, `signal_names` registered as
-user signals so the SFX connections load). Example:
-`godot/game/scenes/objects/tree-world-solid--tree-autumn-01.tscn`.
+Until the ports existed, the converter attached its placeholder `res://game/runtime/unported_script.gd`
+to the `ResourceNodeScript` and `CollectibleScript` nodes (raw `properties`, `signal_names`
+registered as user signals so the SFX connections load). Every scene now carries its ported script,
+and the placeholder was removed (clean-out wave 1, 2026-10-17).
 
 ### 1.2 Script properties (descriptor `features/scripts/registrations.ts:370-442`) and Godot exports
 

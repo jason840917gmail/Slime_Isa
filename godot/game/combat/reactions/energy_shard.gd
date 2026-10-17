@@ -22,7 +22,7 @@ const Self := preload("res://game/combat/reactions/energy_shard.gd")
 const ROOT_NAME := "EnergyShard"
 const SCRIPT_NODE_NAME := "EnergyShardScript"
 const OBJECT_ID := "collectible.energy-shard"
-## collision-layers.json: "pickup" (layer 7) is what the slime's "pickup-seeker" (layer 6) monitors.
+## project.godot's layer names: "pickup" (layer 7) is what the slime's "pickup-seeker" (layer 6) monitors.
 const PICKUP_LAYER := 7
 const SEEKER_LAYER := 6
 const CUE_PICKUP := &"EnergyRestore"

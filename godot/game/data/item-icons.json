@@ -154,5 +154,14 @@
     ],
     "columns": 3,
     "rows": 1
+  },
+  "items-matron-thread": {
+    "path": "res://asset/MAPS/items/64x64-matron-thread.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 1,
+    "rows": 1
   }
 }

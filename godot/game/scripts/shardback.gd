@@ -18,11 +18,13 @@ class_name ShardbackScript
 ##   source but the slime's own ember, game/enemy/light_sense.gd), and for `brittleLingerMs` after
 ##   it leaves it, or for `brittleMs` after a Lantern flame (a hit tagged `fire`) hits it, its shell
 ##   glows hot and cracks: hits take `brittleDamageTaken` (140 health: a Spear chain or two there).
-## A stun (its poise broken) in the rear cancels the slam.
+## A stun (its poise broken) in the rear cancels the slam. The slam puts out a brazier marked
+## `stomp_puts_out` within `slamPutOutScale` times its ellipse (candle.gd `put_out_near`).
 ##
 ## Owner: enemy builder.
 
 const LightSense := preload("res://game/enemy/light_sense.gd")
+const CandleScript := preload("res://game/world/fire/candle.gd")
 
 const PHASE_WALK := "walk"
 const PHASE_REAR := "rear"
@@ -145,6 +147,10 @@ func _slam(now: float, target: Dictionary, engaged: bool) -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.shake(pattern("slamShakeMs", 200.0), pattern("slamShake", 0.006))
+	# The slam puts out a brazier near it (`stomp_puts_out`), as the Crystal Colossus's stomps will
+	# (the Crystal Mine's Shardback's Den rehearses his fight).
+	var reach := pattern("slamPutOutScale", 1.8)
+	CandleScript.put_out_near(get_tree(), _slam_at, Vector2(pattern("slamRx", 88.0), pattern("slamRy", 60.0)) * reach)
 	var slime_body := target.get("body") as Node2D
 	if not engaged or slime_body == null:
 		return

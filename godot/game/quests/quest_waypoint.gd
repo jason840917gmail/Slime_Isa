@@ -12,7 +12,9 @@ extends RefCounted
 ##   wander area (its centre) of the nearest placed enemy of its kinds still standing (roadmap 5.25),
 ##   else the nearest enemy-spawn area holding one of its kinds (its stay rect centre: the playground
 ##   and the dev worlds); defeat-boss -> the
-##   camp of the first boss on this map; discover-area -> the nearest exit or door into the area;
+##   camp of the first boss on this map, else the way into its dungeon (a node in group
+##   BOSS_WAY_IN_GROUP whose `boss_id` metadata names it: Fatty's Lair's gate in level-1-d4);
+##   discover-area -> the nearest exit or door into the area;
 ##   collect -> the nearest pile with some left or standing resource node that drops the item;
 ##   craft-item -> the nearest station serving the recipe (portable recipes: nothing);
 ##   activate-object -> the nearest restoration site or quest object (group "quest_object", with
@@ -29,6 +31,9 @@ const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 
 ## The Workshop also crafts workbench recipes (STATION_INCLUDES, RecipeCatalog.ts:93-99).
 const STATION_INCLUDES := {"workshop": ["workbench"]}
+
+## The ways into a boss's dungeon from the overworld (metadata `boss_id`).
+const BOSS_WAY_IN_GROUP := &"boss_way_in"
 
 ## World exits of the current world (no group): cached per world root.
 static var _exit_world_id: int = 0
@@ -124,6 +129,9 @@ static func _boss_camp_position(boss_id: String) -> Variant:
 	for camp: Node in _tree().get_nodes_in_group(&"boss_camp"):
 		if str(camp.get(&"boss_id")) == boss_id and camp.get_parent() is Node2D:
 			return FeetAnchor.phaser_position(camp.get_parent() as Node2D)
+	for way_in: Node in _tree().get_nodes_in_group(BOSS_WAY_IN_GROUP):
+		if way_in is Node2D and str(way_in.get_meta(&"boss_id", "")) == boss_id:
+			return FeetAnchor.phaser_position(way_in as Node2D)
 	return null
 
 

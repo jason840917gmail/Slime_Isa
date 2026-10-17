@@ -1,0 +1,51 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/bolted_door.gd" id="door"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(128, 40)
+
+[node name="bolted-door" type="Node2D" node_paths=PackedStringArray("body", "closed_look", "open_look", "bolt")]
+y_sort_enabled = true
+script = ExtResource("door")
+body = NodePath("Body")
+closed_look = NodePath("Shut")
+open_look = NodePath("Open")
+bolt = NodePath("Shut/Bolt")
+
+[node name="Body" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Body"]
+position = Vector2(0, -20)
+shape = SubResource("body_shape")
+
+[node name="Open" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-233, -428)
+hframes = 2
+frame = 1
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/dungeon/door-2x1.webp"
+
+[node name="Shut" type="Node2D" parent="."]
+
+[node name="Door" type="Sprite2D" parent="Shut"]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-233, -428)
+hframes = 2
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/dungeon/door-2x1.webp"
+
+[node name="Bolt" type="Sprite2D" parent="Shut"]
+position = Vector2(0, -96)
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-64, -31)
+hframes = 2
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/dungeon/bolt-2x1.webp"
+

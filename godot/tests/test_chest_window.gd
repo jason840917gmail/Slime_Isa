@@ -4,7 +4,9 @@ extends RefCounted
 ## camp's 440 px activation circle around (480, 1472)). Chests open through the interaction
 ## controller's `_use_chest`, so Fatty is never woken unless a test wants him.
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the camp is in chunk
-## D4 (`level-1-d4`, its origin at level-1's (2048, 0)), so the places here are D4's.
+## D4 (`level-1-d4`, its origin at level-1's (2048, 0)), so the places here are D4's. Fatty's camp
+## left D4 for his Lair on 2026-10-17 (the green key is in the Lair's shrine now);
+## tests/lib/fatty_camp_fixture.gd puts the camp and its guarded chest back for these tests.
 
 ## run_tests.gd starts every test of this file in the camp's chunk of level-1.
 const MAP_ID := "level-1-d4"
@@ -16,6 +18,7 @@ const ChestWindow := preload("res://game/ui/screens/chest_window.gd")
 const ItemCell := preload("res://game/ui/screens/item_cell.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const BossCampScript := preload("res://game/scripts/boss_camp.gd")
+const FattyCampFixture := preload("res://tests/lib/fatty_camp_fixture.gd")
 const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 
 const CHEST_ID := "level-1-fatty-guarded-chest"
@@ -221,10 +224,7 @@ func test_empty_chest(t: TestContext) -> void:
 
 
 func test_guarded_chest_has_no_window(t: TestContext) -> void:
-	var camp: BossCampScript = null
-	for node: Node in t.tree.get_nodes_in_group(BossCampScript.GROUP):
-		if node is BossCampScript and (node as BossCampScript).camp_id == CAMP_ID:
-			camp = node
+	var camp := FattyCampFixture.ensure(t.tree)
 	if not t.check(camp != null, "no camp %s" % CAMP_ID):
 		return
 	t.teleport_player(FAR_INSIDE)
@@ -281,6 +281,7 @@ func test_chest_leaves_tree(t: TestContext) -> void:
 # --- helpers ----------------------------------------------------------------------------------
 
 func _chest(t: TestContext) -> ChestScript:
+	FattyCampFixture.ensure(t.tree)
 	for node: Node in t.tree.get_nodes_in_group(&"chest"):
 		if node is ChestScript and (node as ChestScript).instance_id == CHEST_ID:
 			return node

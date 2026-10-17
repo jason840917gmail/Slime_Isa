@@ -15,7 +15,10 @@ class_name BossCampScript
 ## Progress lives in RunState (`Services.run()`, Phaser WorldProgress): the respawn timer in
 ## `map_record(map_id)["boss_camps"][camp_id] = {"respawn_ready_at_epoch_ms": wall-clock ms}`
 ## (`bossCampRespawnReadyAt`) and the boss id in `world["defeated_boss_ids"]` (`defeatBoss`), so
-## both survive world travel; writing them to disk is the save phase. Everything the camp mounts
+## both survive world travel; writing them to disk is the save phase. A dungeon boss's camp
+## (`respawn_ms` below 0) never spawns its boss again once it is in `defeated_boss_ids`, and
+## `boss_overrides` set properties on the boss it spawns (the Weaver Hollow's Matron fights in her
+## cocoon; specs/matron.md "The Weaver Hollow's camp"). Everything the camp mounts
 ## (the boss, its telegraph) lives under the world root and goes with it on a world teardown.
 ## Camps join the group `boss_camp`: the boss health bar
 ## (res://game/ui/boss_health_bar.gd) binds to them, and a later quest system listens to
@@ -60,10 +63,15 @@ const NO_RESPAWN := -1.0
 @export var guarded_chest: Node
 ## JSON `guardedChestInstanceId` ("level-1-fatty-guarded-chest").
 @export var guarded_chest_instance_id: String = ""
-## JSON `respawnMs` (180000): wall-clock delay before a defeated boss may return.
+## JSON `respawnMs` (180000): wall-clock delay before a defeated boss may return. Below 0: once
+## beaten the boss never comes back (a dungeon boss, roadmap 8.7's 2026-10-15 rule; Godot only).
 @export var respawn_ms: float = 0.0
 ## JSON `spawn`: boss spawn offset from the encounter origin ((0, 0)).
 @export var spawn: Vector2 = Vector2.ZERO
+## Godot only (2026-10-17): properties set on the boss's script right after it spawns, before its
+## first step ({"cocoon_enabled": true, "arena_recovery_ms": 0.0} for the Weaver Hollow's Matron), so
+## one boss scene serves an open-world camp and a dungeon's fight.
+@export var boss_overrides: Dictionary = {}
 
 ## -> RoarSfx.play_cue. Payload {"sceneId", "campId", "bossId", "parentRuntimeId", "spawn": {"x", "y"}}.
 signal boss_spawn_requested(payload: Dictionary)
@@ -151,6 +159,11 @@ func get_respawn_ready_at() -> float:
 	return float(ready_at) if (ready_at is float or ready_at is int) else NO_RESPAWN
 
 
+## True when a beaten boss never comes back (`respawn_ms` below 0: a dungeon boss).
+func never_returns() -> bool:
+	return respawn_ms < 0.0
+
+
 ## True once this camp's boss was defeated in this run (WorldProgress.isBossDefeated).
 func is_boss_defeated() -> bool:
 	var run := Services.run()
@@ -180,6 +193,8 @@ func evaluate_activation(inside_activation: bool, epoch_now: float) -> bool:
 	_suppress_spawn_until_outside = bool(suppression["suppress_spawn_until_outside"])
 	if bool(suppression["blocks_spawn_this_update"]):
 		return false
+	if never_returns() and is_boss_defeated():
+		return false
 	var respawn_ready_at := get_respawn_ready_at()
 	if respawn_ready_at >= 0.0 and not inside_activation:
 		_observed_outside_after_defeat = true
@@ -197,7 +212,7 @@ func on_boss_defeated(epoch_now: float) -> void:
 	_live_boss = false
 	_observed_outside_after_defeat = false
 	_mark_boss_defeated()
-	_set_respawn_ready_at(epoch_now + respawn_ms)
+	_set_respawn_ready_at(NO_RESPAWN if never_returns() else epoch_now + respawn_ms)
 	boss_disengaged.emit({"campId": camp_id, "defeated": true})
 	boss_defeated.emit({"campId": camp_id, "bossId": boss_id})
 	_emit_guard_changed(false)
@@ -282,6 +297,8 @@ func _spawn_boss(point: Vector2) -> void:
 		return
 	_boss_root = root
 	_boss = script
+	for key: Variant in boss_overrides:
+		script.set(StringName(str(key)), boss_overrides[key])
 	script.configure_arena(arena_perimeter())
 	script.defeated.connect(_on_boss_defeated_signal.bind(script), CONNECT_DEFERRED | CONNECT_ONE_SHOT)
 
