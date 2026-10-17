@@ -18,6 +18,8 @@ extends Node
 const Services := preload("res://game/shared/services.gd")
 const LaunchOptions := preload("res://game/shell/launch_options.gd")
 const ShellScript := preload("res://game/shell/shell.gd")
+## New Game starts the prologue (roadmap 5.18; docs/godot/PROLOGUE.md).
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
 
 const MAIN_SCENE := "res://game/main.tscn"
 ## GAME_VERSION (WorldScene.ts:166); `application/config/version` wins when set.
@@ -191,6 +193,9 @@ func _begin_new_game() -> void:
 	var run := Services.run()
 	if run != null:
 		run.new_run()
+		# The game opens on the slime's birth at the Wellspring; the autosave the player agreed to
+		# replace goes, so quitting during the prologue plays it again (question 118).
+		PrologueState.begin(run, true)
 	_enter_game()
 
 

@@ -27,10 +27,22 @@ class_name WorldCamera
 ##   (KICK_OUT_MS, KICK_RETURN_MS); a new kick replaces the running one.
 ## GameFeel calls both (it applies reduce motion and the screen-shake slider).
 ##
+## Camera rooms (game/world/camera_room.gd; docs/godot/PROLOGUE.md "Camera rooms"): a world may hold
+## CameraRoom nodes, each a rect. While the followed target stands in one, the camera keeps to that
+## room instead of the whole world (the prologue's Wellspring and glade, each one screen, never show
+## the West village's town beside them); crossing into another room slides the view over
+## ROOM_SLIDE_MS, as a Zelda screen scroll inside one world. Where no room holds the target the last
+## room stays; a world without rooms keeps its whole rect.
+##
+## Scripted camera scenes (roadmap 5.19): `pan_to(point, ms, false)` moves and then holds there
+## until `pan_to` again with `resume_follow` (or `start_follow`); `set_zoom_level(z)` zooms in place;
+## `release_room()` lets the scene's view leave its camera room.
+##
 ## Owner: world builder (trauma and kick: juice).
 
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Services := preload("res://game/shared/services.gd")
+const CameraRoom := preload("res://game/world/camera_room.gd")
 
 ## Kick (presentation): the jolt reaches its full size in KICK_OUT_MS and eases back in
 ## KICK_RETURN_MS (real ms).
@@ -63,6 +75,8 @@ const TELEPORT_DISTANCE := 256.0
 
 const MODE_FOLLOW := "follow"
 const MODE_FIXED := "fixed"
+## A walk from one camera room into the next slides the view over this long (real ms).
+const ROOM_SLIDE_MS := 450.0
 
 ## Camera centre in world units (the clamped value of the last frame).
 var center: Vector2 = Vector2.ZERO
@@ -78,6 +92,12 @@ var follow_target: Node2D
 ## Camera bounds (world rect). Removed in fixed mode.
 var bounds: Rect2 = Rect2()
 var use_bounds: bool = true
+## The world rect `setup` was given; `bounds` is it, or the camera room the target stands in.
+var world_bounds: Rect2 = Rect2()
+## The camera room the view keeps to (Rect2() when none).
+var room: Rect2 = Rect2()
+## The room a slide is going to; its rect becomes `bounds` when the slide ends.
+var _sliding_to_room: Rect2 = Rect2()
 ## Screen units at the bottom of the view kept for the HUD console (0 = the whole view).
 var bottom_inset: float = 0.0:
 	set(value):
@@ -141,6 +161,9 @@ func _ready() -> void:
 ## `hold_fixed()` (OUT for level-1, world spec 4.6).
 func setup(world_rect: Rect2, mode: String) -> void:
 	bounds = world_rect
+	world_bounds = world_rect
+	room = Rect2()
+	_sliding_to_room = Rect2()
 	camera_mode = MODE_FIXED if mode == MODE_FIXED else MODE_FOLLOW
 	if camera_mode == MODE_FIXED:
 		hold_fixed()
@@ -160,6 +183,7 @@ func start_follow(target: Node2D, snap: bool = true) -> void:
 	following = target != null
 	_pan_duration_ms = 0.0
 	if following and snap:
+		_enter_room(room_at(_target_point()))
 		center_on(_target_point())
 		reset_smoothing()
 		force_update_scroll()
@@ -177,6 +201,8 @@ func _process(delta: float) -> void:
 	_update_deadzone()
 	if _pan_duration_ms > 0.0:
 		_advance_pan(now)
+	elif following and is_instance_valid(follow_target) and _follow_into_room(_target_point()):
+		pass # The target walked into another camera room: the view slides there (`_advance_pan`).
 	elif following and is_instance_valid(follow_target):
 		var target := _target_point()
 		var z := maxf(target_zoom, ZOOM_EPSILON)
@@ -224,6 +250,9 @@ func center_on(point: Vector2) -> void:
 	if _round_pixels:
 		var half_vp := _play_size() * 0.5
 		p = (p - half_vp).floor() + half_vp
+	# A camera room keeps to the view's size as the window or the zoom changes (`fit_to_view`).
+	if room.has_area() and not _sliding_to_room.has_area():
+		bounds = fit_to_view(room)
 	if use_bounds and bounds.size.x > 0.0 and bounds.size.y > 0.0:
 		var view := _play_size() / z
 		var min_c := bounds.position + view * 0.5
@@ -361,12 +390,13 @@ func kick(px: float, direction: Vector2) -> void:
 
 
 ## Respawn pan (player spec 6.7): stop following, tween `center` to `point` over `duration_ms`
-## with Phaser 'Power2' = TRANS_CUBIC / EASE_OUT, then resume following the target.
-## Runs on real time in `_process`.
-func pan_to(point: Vector2, duration_ms: float) -> void:
+## with Phaser 'Power2' = TRANS_CUBIC / EASE_OUT, then resume following the target (or, with
+## `resume_follow` false, hold there: a camera scene, roadmap 5.19). Runs on real time in `_process`.
+func pan_to(point: Vector2, duration_ms: float, resume_follow: bool = true) -> void:
 	if camera_mode == MODE_FIXED:
 		return
-	_pan_resume_follow = is_instance_valid(follow_target)
+	_sliding_to_room = Rect2()
+	_pan_resume_follow = resume_follow and is_instance_valid(follow_target)
 	following = false
 	if duration_ms <= 0.0:
 		center_on(point)
@@ -376,6 +406,80 @@ func pan_to(point: Vector2, duration_ms: float) -> void:
 	_pan_to = point
 	_pan_start_ms = float(Time.get_ticks_msec())
 	_pan_duration_ms = duration_ms
+
+
+## The camera room (CameraRoom.rect) that holds `point`, the room the view keeps to when none does
+## (the slime between two rooms), Rect2() when the world has none.
+func room_at(point: Vector2) -> Rect2:
+	if not is_inside_tree():
+		return room
+	for node: Node in get_tree().get_nodes_in_group(CameraRoom.GROUP):
+		var candidate := node as CameraRoom
+		if candidate != null and candidate.is_inside_tree() and candidate.rect().has_point(point):
+			return candidate.rect()
+	return room
+
+
+## Lets the view leave the camera room for a scene (the whole world's rect bounds it); following
+## the target into a room again slides back into it.
+func release_room() -> void:
+	_enter_room(Rect2())
+
+
+## Zooms to `z` in place (a camera scene's close-up; `reset_zoom` goes back).
+func set_zoom_level(z: float) -> void:
+	apply_zoom(z)
+	center_on(center)
+
+
+## Keeps the view to `next` (Rect2(): the whole world).
+func _enter_room(next: Rect2) -> void:
+	room = next
+	bounds = fit_to_view(next) if next.has_area() else world_bounds
+	use_bounds = bounds.size.x > 0.0 and bounds.size.y > 0.0
+
+
+## `rect` grown about its middle to at least the view this frame (a window wider than the 16-tile
+## screen shows more columns: a one-screen room then shows a little of what is beside it rather
+## than a strip of nothing), then moved inside the world rect.
+func fit_to_view(rect: Rect2) -> Rect2:
+	var view := _play_size() / maxf(target_zoom, ZOOM_EPSILON)
+	var fitted := rect
+	if fitted.size.x < view.x:
+		fitted = fitted.grow_individual((view.x - fitted.size.x) * 0.5, 0.0, (view.x - fitted.size.x) * 0.5, 0.0)
+	if fitted.size.y < view.y:
+		fitted = fitted.grow_individual(0.0, (view.y - fitted.size.y) * 0.5, 0.0, (view.y - fitted.size.y) * 0.5)
+	if world_bounds.has_area():
+		if fitted.size.x <= world_bounds.size.x:
+			fitted.position.x = clampf(fitted.position.x, world_bounds.position.x, world_bounds.end.x - fitted.size.x)
+		if fitted.size.y <= world_bounds.size.y:
+			fitted.position.y = clampf(fitted.position.y, world_bounds.position.y, world_bounds.end.y - fitted.size.y)
+	return fitted
+
+
+## True (and a slide started) when `target` stands in another camera room than the view's: the view
+## slides over ROOM_SLIDE_MS to where it shows the target in the new room, with both rooms as its
+## bounds meanwhile, then keeps to the new one and follows again.
+func _follow_into_room(target: Vector2) -> bool:
+	var next := room_at(target)
+	if not next.has_area() or next == room:
+		return false
+	var from := center
+	var previous := room
+	_enter_room(next)
+	_sliding_to_room = next
+	center_on(target)
+	var to := center
+	bounds = fit_to_view(previous).merge(fit_to_view(next)) if previous.has_area() else world_bounds
+	center = from
+	_pan_from = from
+	_pan_to = to
+	_pan_start_ms = float(Time.get_ticks_msec())
+	_pan_duration_ms = ROOM_SLIDE_MS
+	_pan_resume_follow = true
+	_sliding_to_room = next
+	following = false
+	return true
 
 
 ## The play area in world units this frame (around `center`, without the shake).
@@ -452,6 +556,9 @@ func _advance_pan(now: float) -> void:
 
 func _finish_pan() -> void:
 	_pan_duration_ms = 0.0
+	if _sliding_to_room.has_area():
+		_enter_room(_sliding_to_room)
+		_sliding_to_room = Rect2()
 	if _pan_resume_follow and is_instance_valid(follow_target):
 		following = true
 	_pan_resume_follow = false

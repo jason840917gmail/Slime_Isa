@@ -45,20 +45,29 @@ func setup(visual: Node2D) -> void:
 ## Plays a preset (unknown events are ignored). The tween is created on the Visual
 ## (`visual.create_tween()`), so it pauses with the tree during hit-stop like Phaser tweens.
 func play(event: StringName, force: bool = false) -> void:
-	if _visual == null or not is_instance_valid(_visual) or not PRESETS.has(event):
+	if not PRESETS.has(event):
+		return
+	var preset: Dictionary = PRESETS[event]
+	play_scale(preset["scale"], float(preset["ms"]), int(preset.get("trans", Tween.TRANS_BACK)), force)
+
+
+## Plays a deformation given by its numbers, as `play` does a preset's: the Visual snaps to `scale`
+## and eases back to rest over `ms` with `trans` (a Tween.TRANS_*, eased out). The Gulp's feel
+## (game/player/gulp/gulp_feel.gd) passes its numbers from game-constants.json `gulp.feel`.
+func play_scale(scale: Vector2, ms: float, trans: int = Tween.TRANS_BACK, force: bool = false) -> void:
+	if _visual == null or not is_instance_valid(_visual) or ms <= 0.0:
 		return
 	if not force and busy.is_valid() and bool(busy.call()):
 		return
-	var preset: Dictionary = PRESETS[event]
-	var start: Vector2 = squash_start(preset["scale"], _reduce_motion())
-	var duration_s: float = float(preset["ms"]) / 1000.0
+	var start: Vector2 = squash_start(scale, _reduce_motion())
+	var duration_s: float = ms / 1000.0
 	_kill_tween()
 	_visual.scale = _base_scale * start
 	if not _visual.is_inside_tree():
 		_visual.scale = _base_scale
 		return
 	_tween = _visual.create_tween()
-	_tween.set_trans(int(preset.get("trans", Tween.TRANS_BACK))).set_ease(Tween.EASE_OUT)
+	_tween.set_trans(trans).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(_visual, "scale", _base_scale, duration_s)
 
 

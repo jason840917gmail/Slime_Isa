@@ -19,7 +19,8 @@ const CLIP_SPIT := "spit"
 const CLIP_FALLBACK_MS := 300.0
 ## The mouth: this far ahead of the feet along the aim (px), so the flame leaves the lips.
 const MOUTH_PX := 16.0
-const CUE_THROW := &"GulpSpit"
+## The flame's spit (the Gulp's round-5 spit take; the Gulp's own throw changed in round 7).
+const CUE_THROW := &"LanternSpit"
 
 var _player: Node
 var _direction: Vector2 = Vector2.RIGHT

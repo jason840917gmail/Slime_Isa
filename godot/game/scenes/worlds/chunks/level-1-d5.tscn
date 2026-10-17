@@ -43,9 +43,7 @@
 [ext_resource type="Script" uid="uid://dwk8hk12boqk4" path="res://game/scripts/world_area.gd" id="28_ly7g4"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/goo-heart.tscn" id="29_5v7cu"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="30_e6mk5"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_29"]
-size = Vector2(1536, 1600)
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_30"]
 size = Vector2(300, 220)
@@ -437,33 +435,15 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
-[node name="pursue-shape" type="CollisionShape2D" parent="Areas/level-1-autumn-grove" unique_id=1902952471]
-position = Vector2(224, 224)
-shape = SubResource("RectangleShape2D_29")
-
-[node name="stay-shape" type="CollisionShape2D" parent="Areas/level-1-autumn-grove" unique_id=668882174]
+[node name="wander-shape" type="CollisionShape2D" parent="Areas/level-1-autumn-grove" unique_id=668882174]
 shape = SubResource("RectangleShape2D_30")
 
-[node name="world-area-script" type="Node" parent="Areas/level-1-autumn-grove" unique_id=1423494512 node_paths=PackedStringArray("area", "shape", "stay_shape")]
+[node name="world-area-script" type="Node" parent="Areas/level-1-autumn-grove" unique_id=1423494512 node_paths=PackedStringArray("area", "shape")]
 script = ExtResource("28_ly7g4")
-area_kind = "enemy-spawn"
+area_kind = "enemy-wander"
 area_id = "level-1-autumn-grove"
 area = NodePath("..")
-data = {
-"enemies": [{
-"maxAlive": 2,
-"type": "worm-archer",
-"weight": 1
-}, {
-"maxAlive": 2,
-"type": "worm-brawler",
-"weight": 2
-}],
-"intervalMs": 6000,
-"maxPopulation": 4
-}
-shape = NodePath("../pursue-shape")
-stay_shape = NodePath("../stay-shape")
+shape = NodePath("../wander-shape")
 
 [node name="Encounters" type="Node2D" parent="." unique_id=1363579440]
 y_sort_enabled = true
@@ -516,6 +496,28 @@ target_area_id = "level-1-c5"
 entry = "east"
 keep_along = true
 area = NodePath("..")
+
+[node name="Enemies" type="Node2D" parent="." unique_id=476871473]
+
+[node name="worm-archer-1" parent="Enemies" unique_id=1208916291 instance=ExtResource("placed_enemy_1")]
+position = Vector2(930, 856)
+enemy_type = "worm-archer"
+wander_area_id = "level-1-autumn-grove"
+
+[node name="worm-brawler-1" parent="Enemies" unique_id=1765089233 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1010, 832)
+enemy_type = "worm-brawler"
+wander_area_id = "level-1-autumn-grove"
+
+[node name="worm-archer-2" parent="Enemies" unique_id=1152327451 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1018, 912)
+enemy_type = "worm-archer"
+wander_area_id = "level-1-autumn-grove"
+
+[node name="worm-brawler-2" parent="Enemies" unique_id=451705609 instance=ExtResource("placed_enemy_1")]
+position = Vector2(858, 928)
+enemy_type = "worm-brawler"
+wander_area_id = "level-1-autumn-grove"
 
 [connection signal="body_entered" from="edge-north" to="edge-north/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-west" to="edge-west/world-exit-script" method="on_body_entered"]

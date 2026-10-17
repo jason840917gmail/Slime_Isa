@@ -28,6 +28,10 @@ const WorldServiceScript := preload("res://game/autoload/world_service.gd")
 const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const PropLayerScript := preload("res://game/world/props/prop_layer.gd")
 const PropPictures := preload("res://tools/lib/prop_pictures.gd")
+const WorldAreaScript := preload("res://game/scripts/world_area.gd")
+const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
+const EnemyPlacement := preload("res://tools/lib/enemy_placement.gd")
+const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
 const WORLDS_DIR := "res://game/scenes/worlds/"
 const CHUNKS_DIR := "res://game/scenes/worlds/chunks/"
@@ -58,6 +62,23 @@ const WRITE_ATTEMPTS := 10
 const WRITE_RETRY_MS := 500
 const CHUNK_META := &"world_map_chunk"
 const CHUNK_OF_META := &"world_map_chunk_of"
+## Placed enemies (roadmap 5.25, `_place_enemies`): the world definition's legacy spawn table key,
+## the scene a placed enemy is, the node they go under; the grid (world units) open spots are looked
+## for on in a camp's area (at least CAMP_EDGE inside the chunk, SAFE_MARGIN off the safe zones) and
+## in a chunk for a spawn table's enemies; how far from the chunk's edges and from its arrival
+## places a spawn table's enemies stand; the ground they never stand on.
+const SPAWNS_KEY := "spawns"
+const PLACED_SCENE := "res://game/scenes/encounters/placed-enemy.tscn"
+const ENEMIES_NODE := "Enemies"
+const CAMP_GRID := 16.0
+const CAMP_EDGE := 32.0
+const SAFE_MARGIN := 32.0
+const TABLE_GRID := 64.0
+const TABLE_EDGE := 192.0
+const TABLE_ARRIVAL_CLEAR := 384.0
+const NO_STANDING_TILES: PackedStringArray = ["water", "deep-water", "rock-wall"]
+## The collision layer world areas sit on (the converted worlds' areas: 512).
+const WANDER_AREA_LAYER := 512
 
 
 ## Each scenery scene's reach around its origin (`_reach`), read once.
@@ -626,6 +647,10 @@ func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArr
 		return {}
 	var tile := int(definition.get(&"tile_size"))
 	var world_rect := Rect2(Vector2.ZERO, Vector2(int(definition.get(&"columns")), int(definition.get(&"rows"))) * tile)
+	# A spawn table counted only in a world without spawn areas (enemy spec 18): with them it was dead.
+	var spawn_areas := false
+	for node: Node in probe.find_children("*", "", true, false):
+		spawn_areas = spawn_areas or (node.get_script() == WorldAreaScript and str(node.get(&"area_kind")) == WorldAreaScript.KIND_ENEMY_SPAWN)
 	probe.free()
 	var chunks := map.region_chunks(key)
 	var block := map.region_chunk_rect(key)
@@ -696,7 +721,13 @@ func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArr
 		player["spawn"] = _point(spawn_at)
 		player["entries"] = {}
 		meta["player"] = player
+		# World enemies are placed, not spawned (roadmap 5.25): the spawn areas and the spawn table
+		# become placed enemies, the table leaves the chunk.
+		var table: Variant = meta.get(SPAWNS_KEY, {})
+		meta.erase(SPAWNS_KEY)
 		chunk_definition.set(&"metadata", meta)
+		notes.append_array(_place_enemies(root, area.size, tile, table if table is Dictionary and not spawn_areas else {},
+				table is Dictionary and not (table as Dictionary).is_empty() and spawn_areas))
 		# The whole edges this chunk shares with the region's other chunks.
 		var edges: Array[Area2D] = []
 		for edge: String in EDGES:
@@ -930,6 +961,275 @@ static func _spawn_spot(root: Node, size: Vector2) -> Vector2:
 			if Rect2(Vector2.ZERO, size).grow(-64.0).has_point(at):
 				return at
 	return size / 2.0
+
+
+# --- placed enemies ------------------------------------------------------------------------------
+
+## World enemies are placed, not spawned (roadmap 5.25, 2026-10-16). In chunk world `root` (`size`
+## world units, `tile` units per ground cell): every `enemy-spawn` area becomes an `enemy-wander`
+## area (its stay shape, renamed `wander-shape`, is the camp's wander area; the pursue shape goes)
+## with its `maxPopulation` of placed enemies (game/enemy/placed_enemy.gd) under `Enemies`, the
+## types by weight under their `maxAlive`, set out evenly over the open ground of the area
+## (tools/lib/enemy_placement.gd); a spawn `table` (the world's `metadata.spawns`, given only when
+## the world had no spawn areas: with them it was dead, `dead_table`) gives at most
+## `EnemyPlacement.TABLE_ENEMIES` placed enemies in `TABLE_CAMPS` camps spread over the chunk's open
+## ground away from its edges and arrival places, each camp sharing a new enemy-wander rect
+## (`<chunk>-camp-<n>`, TABLE_CAMP_SIZE). Open ground is read from cells only (ground neither water nor rock
+## wall, no tree, no wall piece, no stairs, out of the safe zones): props are not looked at, so the
+## notes ask for a look. Also notes the placed enemies whose wander area is in another chunk.
+## Returns the notes.
+static func _place_enemies(root: Node2D, size: Vector2, tile: int, table: Dictionary, dead_table: bool) -> PackedStringArray:
+	var notes := PackedStringArray()
+	if dead_table:
+		notes.append("dropped the spawn table (dead: the world has spawn areas)")
+	var layers := _standing_layers(root)
+	var safe := _safe_rects(root)
+	# [type, feet, wander area id]
+	var enemies: Array = []
+	for script: Node in root.find_children("*", "", true, false):
+		if script.get_script() != WorldAreaScript or str(script.get(&"area_kind")) != WorldAreaScript.KIND_ENEMY_SPAWN:
+			continue
+		var area_id := str(script.get(&"area_id"))
+		var stay := _area_shape(script, &"stay_shape", WorldAreaScript.STAY_SHAPE_NAME, null)
+		if stay == null:
+			notes.append("spawn area %s has no stay shape: left as it is" % area_id)
+			continue
+		var pursue := _area_shape(script, &"shape", "", stay)
+		var data: Dictionary = script.get(&"data")
+		var types := EnemyPlacement.apportion(data.get("enemies", []), int(data.get("maxPopulation", 0)))
+		var box := _shape_box(stay)
+		var spots := _camp_spots(layers, box, stay.shape is CircleShape2D, tile, size, safe, [])
+		for pair: Array in EnemyPlacement.interleave(types, EnemyPlacement.spread(spots, types.size(), box.get_center())):
+			enemies.append([pair[0], (pair[1] as Vector2) + _depth_anchor(str(pair[0])), area_id])
+		if pursue != null:
+			pursue.get_parent().remove_child(pursue)
+			pursue.free()
+		stay.name = "wander-shape"
+		script.set(&"area_kind", WorldAreaScript.KIND_ENEMY_WANDER)
+		script.set(&"data", {})
+		script.set(&"shape", stay)
+		script.set(&"stay_shape", null)
+		notes.append("spawn area %s -> %d placed enemies (%s): check their spots (props are not looked at)" % [
+				area_id, types.size(), ", ".join(types)])
+	if not table.is_empty():
+		# At most EnemyPlacement.TABLE_ENEMIES, in TABLE_CAMPS camps over the chunk (the types turned
+		# by the chunk's name, so chunks differ), each sharing a new enemy-wander rect.
+		var camps := EnemyPlacement.table_camps(table, absi(str(root.name).hash()))
+		var arrivals: Array[Vector2] = []
+		for node: Node in root.find_children("*", "Node2D", true, false):
+			var node_name := str(node.name)
+			if node_name == "player-spawn" or node_name == "arrival" or _is_arrival(node_name):
+				arrivals.append(_place_in_world(node))
+		var spots := PackedVector2Array()
+		var y := TABLE_EDGE
+		while y <= size.y - TABLE_EDGE:
+			var x := TABLE_EDGE
+			while x <= size.x - TABLE_EDGE:
+				var at := Vector2(x, y)
+				var clear := true
+				for arrival in arrivals:
+					clear = clear and arrival.distance_to(at) >= TABLE_ARRIVAL_CLEAR
+				if clear and _stands(layers, at, tile, size, safe, TABLE_EDGE):
+					spots.append(at)
+				x += TABLE_GRID
+			y += TABLE_GRID
+		var centres := EnemyPlacement.spread(spots, camps.size(), size / 2.0)
+		for k in mini(camps.size(), centres.size()):
+			var box := Rect2((centres[k] - EnemyPlacement.TABLE_CAMP_SIZE / 2.0).round(), EnemyPlacement.TABLE_CAMP_SIZE)
+			var area_id := "%s-camp-%d" % [root.name, k + 1]
+			root.add_child(_wander_area(area_id, box))
+			var camp_spots := _camp_spots(layers, box, false, tile, size, safe, arrivals)
+			for pair: Array in EnemyPlacement.interleave(camps[k], EnemyPlacement.spread(camp_spots, camps[k].size(), box.get_center())):
+				enemies.append([pair[0], (pair[1] as Vector2) + _depth_anchor(str(pair[0])), area_id])
+			notes.append("spawn table -> camp %s of %d placed enemies (%s): check their spots" % [area_id, camps[k].size(), ", ".join(camps[k])])
+	if not enemies.is_empty():
+		var holder := root.get_node_or_null(NodePath(ENEMIES_NODE)) as Node2D
+		if holder == null:
+			holder = Node2D.new()
+			holder.name = ENEMIES_NODE
+			root.add_child(holder)
+		var placed_scene := load(PLACED_SCENE) as PackedScene
+		var counts := {}
+		for enemy: Array in enemies:
+			var type_id := str(enemy[0])
+			var number := int(counts.get(type_id, 0)) + 1
+			while holder.has_node(NodePath("%s-%d" % [type_id, number])):
+				number += 1
+			counts[type_id] = number
+			var node := placed_scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
+			node.name = "%s-%d" % [type_id, number]
+			node.position = ((enemy[1] as Vector2) - _place_in_world(holder)).round()
+			node.set(&"enemy_type", type_id)
+			node.set(&"wander_area_id", str(enemy[2]))
+			holder.add_child(node)
+	# A camp across a chunk border: its enemies here, its area in the next chunk.
+	var wander_ids := {}
+	for script: Node in root.find_children("*", "", true, false):
+		if script.get_script() == WorldAreaScript and str(script.get(&"area_kind")) == WorldAreaScript.KIND_ENEMY_WANDER:
+			wander_ids[str(script.get(&"area_id"))] = true
+	for node: Node in root.find_children("*", "Node2D", true, false):
+		var placed := node as PlacedEnemyScript
+		if placed != null and not placed.wander_area_id.is_empty() and not wander_ids.has(placed.wander_area_id):
+			notes.append("%s: its wander area %s is in another chunk: it wanders around its spot" % [node.name, placed.wander_area_id])
+	return notes
+
+
+## The open spots (CAMP_GRID apart, CAMP_EDGE inside the chunk) of a camp's `box` (a circle in it
+## when `circle`), at least half TABLE_ARRIVAL_CLEAR from every one of `arrivals`.
+static func _camp_spots(layers: Dictionary, box: Rect2, circle: bool, tile: int, size: Vector2, safe: Array[Rect2],
+		arrivals: Array[Vector2]) -> PackedVector2Array:
+	var spots := PackedVector2Array()
+	var y := box.position.y + CAMP_GRID / 2.0
+	while y < box.end.y:
+		var x := box.position.x + CAMP_GRID / 2.0
+		while x < box.end.x:
+			var at := Vector2(x, y)
+			var keep := at.distance_to(box.get_center()) <= box.size.x / 2.0 if circle else true
+			for arrival in arrivals:
+				keep = keep and arrival.distance_to(at) >= TABLE_ARRIVAL_CLEAR / 2.0
+			if keep and _stands(layers, at, tile, size, safe, CAMP_EDGE):
+				spots.append(at)
+			x += CAMP_GRID
+		y += CAMP_GRID
+	return spots
+
+
+## A camp's `enemy-wander` world area: an Area2D at `box`'s centre with its rectangle
+## (`wander-shape`) and its world_area.gd node, as the converted camps have.
+static func _wander_area(area_id: String, box: Rect2) -> Area2D:
+	var area := Area2D.new()
+	area.name = area_id
+	area.y_sort_enabled = true
+	area.position = box.get_center()
+	area.collision_layer = WANDER_AREA_LAYER
+	area.collision_mask = 0
+	area.monitoring = false
+	area.monitorable = false
+	var shape := CollisionShape2D.new()
+	shape.name = "wander-shape"
+	var rect := RectangleShape2D.new()
+	rect.size = box.size
+	shape.shape = rect
+	area.add_child(shape)
+	var script_node := Node.new()
+	script_node.name = "world-area-script"
+	script_node.set_script(WorldAreaScript)
+	script_node.set(&"area_kind", WorldAreaScript.KIND_ENEMY_WANDER)
+	script_node.set(&"area_id", area_id)
+	script_node.set(&"area", area)
+	script_node.set(&"shape", shape)
+	area.add_child(script_node)
+	return area
+
+
+## The chunk's layers `_stands` reads: {"ground": TileMapLayer or null, "blocking": [the forest
+## and wall layers], "elevation": TileMapLayer or null}.
+static func _standing_layers(root: Node2D) -> Dictionary:
+	var layers := {"ground": null, "blocking": [], "elevation": null}
+	for child: Node in root.get_children():
+		if not child is TileMapLayer:
+			continue
+		var script := child.get_script() as Script
+		var path := script.resource_path if script != null else ""
+		if str(child.name) == "ground":
+			layers["ground"] = child
+		elif path.ends_with("forest_layer.gd") or path.ends_with("wall_layer.gd"):
+			(layers["blocking"] as Array).append(child)
+		elif path.ends_with("elevation_layer.gd"):
+			layers["elevation"] = child
+	return layers
+
+
+## The enemy-safe-zone rectangles of chunk world `root` (chunk units).
+static func _safe_rects(root: Node2D) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	for script: Node in root.find_children("*", "", true, false):
+		if script.get_script() == WorldAreaScript and str(script.get(&"area_kind")) == WorldAreaScript.KIND_ENEMY_SAFE_ZONE:
+			var shape := _area_shape(script, &"shape", "", null)
+			if shape != null:
+				rects.append(_shape_box(shape))
+	return rects
+
+
+## True when an enemy can stand at `at` (chunk units): `edge` inside the chunk, out of the `safe`
+## zones (and SAFE_MARGIN around them), on ground that is neither water nor a rock wall, with no tree
+## or wall piece on its cell and no stairs or ramp.
+static func _stands(layers: Dictionary, at: Vector2, tile: int, size: Vector2, safe: Array[Rect2], edge: float) -> bool:
+	if not Rect2(Vector2.ZERO, size).grow(-edge).has_point(at):
+		return false
+	for rect in safe:
+		if rect.grow(SAFE_MARGIN).has_point(at):
+			return false
+	var ground := layers["ground"] as TileMapLayer
+	if ground == null:
+		return false
+	var data := ground.get_cell_tile_data(Vector2i((at / float(tile)).floor()))
+	if data == null:
+		return false
+	if ground.tile_set.has_custom_data_layer_by_name(WorldServiceScript.TILE_ID_DATA_LAYER):
+		var tile_id: Variant = data.get_custom_data(WorldServiceScript.TILE_ID_DATA_LAYER)
+		if tile_id is String and NO_STANDING_TILES.has(tile_id):
+			return false
+	for layer: TileMapLayer in layers["blocking"]:
+		var cell_size := Vector2(layer.tile_set.tile_size) if layer.tile_set != null else Vector2(tile, tile)
+		if layer.get_cell_source_id(Vector2i(((at - layer.position) / cell_size).floor())) >= 0:
+			return false
+	var elevation := layers["elevation"] as TileMapLayer
+	if elevation != null and _level(elevation, Vector2i(((at - elevation.position) / float(tile)).floor())) == null:
+		return false
+	return true
+
+
+## A world area's shape: its `property` (a CollisionShape2D, or a path to one), else its area's
+## child named `fallback_name`, else (no name) the area's first CollisionShape2D that is not `other`.
+static func _area_shape(script: Node, property: StringName, fallback_name: String, other: Node) -> CollisionShape2D:
+	var value: Variant = script.get(property)
+	if value is CollisionShape2D and value != other:
+		return value
+	if value is NodePath and not (value as NodePath).is_empty():
+		var found := script.get_node_or_null(value) as CollisionShape2D
+		if found != null and found != other:
+			return found
+	var area := script.get_parent()
+	if area == null:
+		return null
+	if not fallback_name.is_empty():
+		return area.get_node_or_null(NodePath(fallback_name)) as CollisionShape2D
+	for child: Node in area.get_children():
+		if child is CollisionShape2D and child != other and str(child.name) != WorldAreaScript.STAY_SHAPE_NAME:
+			return child
+	return null
+
+
+## The box a world area's rectangle or circle covers (chunk units).
+static func _shape_box(shape_node: CollisionShape2D) -> Rect2:
+	var at := _place_in_world(shape_node)
+	if shape_node.shape is CircleShape2D:
+		var radius := (shape_node.shape as CircleShape2D).radius
+		return Rect2(at - Vector2(radius, radius), Vector2(radius, radius) * 2.0)
+	if shape_node.shape is RectangleShape2D:
+		var box_size := (shape_node.shape as RectangleShape2D).size
+		return Rect2(at - box_size / 2.0, box_size)
+	return Rect2(at, Vector2.ZERO)
+
+
+## Each enemy type's depth anchor (its scene root's feet below its old centre), read once.
+static var _anchors := {}
+
+
+static func _depth_anchor(type_id: String) -> Vector2:
+	if _anchors.has(type_id):
+		return _anchors[type_id]
+	var anchor := Vector2.ZERO
+	var index: Variant = JSON.parse_string(FileAccess.get_file_as_string(SCENE_INDEX))
+	var path := str((index as Dictionary).get("character." + type_id, "")) if index is Dictionary else ""
+	var packed := load(path) as PackedScene if not path.is_empty() else null
+	if packed != null:
+		var instance := packed.instantiate() as Node2D
+		anchor = FeetAnchor.depth_anchor(instance)
+		instance.free()
+	_anchors[type_id] = anchor
+	return anchor
 
 
 # --- scenery across chunk edges ----------------------------------------------------------------

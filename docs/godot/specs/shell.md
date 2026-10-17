@@ -68,8 +68,11 @@ Godot:
   (`MusicDirector.set_menu_paused(true)` while the title shows). The run is
   `RunState.ensure_started()` (thrown away by New Game, replaced by Continue). Leaving the title
   calls `WorldService.clear()` before `change_scene_to_file(main.tscn)`.
-- **[IN]** New Game: confirmation only when `RunState.has_save(0)`; then `RunState.new_run()` and
-  main.tscn. **[DIFF]** Continue is hidden (not disabled) without `has_save(0)`, and loads with
+- **[IN]** New Game: confirmation only when `RunState.has_save(0)`; then `RunState.new_run()`,
+  `PrologueState.begin` (since 2026-10-16: the old autosave goes, and main.tscn opens on the
+  prologue's birth at the Wellspring; [PROLOGUE.md](../PROLOGUE.md)) and main.tscn. While the
+  prologue runs the pause menu's Save is greyed out with its hint, Quit to Title saves nothing and
+  no area banner shows. **[DIFF]** Continue is hidden (not disabled) without `has_save(0)`, and loads with
   `RunState.load_slot(0)` ("That save could not be loaded." on failure). Load shows only when a save
   window registered `Shell.set_action(&"load", ...)`. The panel keeps Phaser's 380 px width and
   shrinks to the visible buttons.

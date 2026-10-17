@@ -1,0 +1,145 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/scripts/pipe_worm.gd" id="script"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="sfx"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-1.wav" id="hurt_0"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-2.wav" id="hurt_1"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-1.wav" id="death"]
+[ext_resource type="Script" path="res://game/enemy/eye_glint.gd" id="glint"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(36, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(40, 40)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 40.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hurt"]
+playback_mode = 1
+streams_count = 2
+stream_0/stream = ExtResource("hurt_0")
+stream_1/stream = ExtResource("hurt_1")
+
+[node name="PipeWorm" type="CharacterBody2D"]
+position = Vector2(0, 28)
+collision_layer = 4
+collision_mask = 0
+motion_mode = 1
+wall_min_slide_angle = 0.0
+metadata/collide_world_bounds = false
+metadata/depth_anchor = Vector2(0, 28)
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Hole" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(0.215, 0.215)
+centered = false
+offset = Vector2(-128, -240)
+hframes = 4
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-pipe-worm.webp"
+
+[node name="Pose" type="Node2D" parent="."]
+
+[node name="Visual" type="Sprite2D" parent="Pose"]
+scale = Vector2(0.215, 0.215)
+centered = false
+offset = Vector2(-128, -240)
+hframes = 4
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-pipe-worm.webp"
+
+[node name="Glint" type="Node2D" parent="."]
+position = Vector2(0, -27)
+script = ExtResource("glint")
+spacing = 10.0
+
+[node name="DamageArea" type="Area2D" parent="."]
+position = Vector2(0, -28)
+collision_layer = 8
+collision_mask = 16
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="AttackArea" type="Area2D" parent="."]
+position = Vector2(0, -28)
+collision_layer = 16
+collision_mask = 8
+monitoring = false
+monitorable = false
+
+[node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_attack")
+disabled = true
+
+[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "damage_area", "attack_area", "pose", "hole", "glint")]
+script = ExtResource("script")
+enemy_type = "pipe-worm"
+body = NodePath("..")
+visual = NodePath("../Pose/Visual")
+damage_area = NodePath("../DamageArea")
+attack_area = NodePath("../AttackArea")
+faction = "hostile"
+rank = "ordinary"
+display_name = "Pipe Worm"
+max_health = 30.0
+targeting_radius = 320.0
+attack_range = 0.0
+movement_speed = 0.0
+attack_cooldown_ms = 0.0
+attributes = {
+"projectileSpeed": 150,
+"knockbackStrength": 160,
+"knockbackResist": 1
+}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+rewards = {
+"coins": 8
+}
+projectile = {
+"projectileId": "mud-glob",
+"assetId": "enemy.projectile.mud-glob",
+"damage": 14
+}
+pose = NodePath("../Pose")
+defeated_frame = 3
+aim_direction = Vector2(0, 1)
+hole = NodePath("../Hole")
+glint = NodePath("../Glint")
+
+[node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_hurt")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+min_interval_ms = 90.0
+pan_distance = 400.0
+position = Vector2(0, -28)
+
+[node name="DeathSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = ExtResource("death")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+position = Vector2(0, -28)
+
+[connection signal="damaged" from="EnemyScript" to="HurtSfx" method="play_cue"]
+[connection signal="defeated" from="EnemyScript" to="DeathSfx" method="play_cue"]

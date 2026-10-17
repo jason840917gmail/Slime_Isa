@@ -38,7 +38,19 @@ his aberrations.
   [prologue](../design/2026-10-16-prologue.md)). Old Veteran Yoi of the
   Thorn Guard held the gate against Gorge's monsters in the great war. When
   the war was lost, Slimeshire hid under its own floor; Yoi stayed out to keep
-  watch.
+  watch. *Since 2026-10-16 (seventh round, question 108): pages of the Thorn
+  Guard's war journal, found as Release 1's manuscripts, tell the war's story
+  bit by bit.*
+- **Gorge's army** (owner, 2026-10-16). Worms of every kind make up most of
+  Gorge's army: the swordsmen, archers and brawlers, the grunts, the burrowing
+  Popworms and the Pipe Worms are his soldiers. They look the part: mean faces,
+  war gear and one army mark (the red scarf and Gorge's emblem), never cute or
+  scared.
+- **The fallen** (Planned, owner, 2026-10-16, question 125). The dungeons
+  were the Thorn Guard's old forts. Gorge's vassals raised the bones of the
+  Thorn Guard soldiers who fell there in the great war, with a Pearl's power
+  used without wisdom, to guard them: the skeletons that stir in every
+  dungeon's deep rooms. Yoi knows their old helmets.
 - **The dimming.** Without its heart, the Wellspring began to fade, and no new
   slime had been born in years.
 - **Now.** While his eight vassals hold the kingdom, Gorge prepares his final
@@ -66,13 +78,19 @@ his aberrations.
   **Silk** skin (Planned, owner, 2026-10-15), and the Crystal Colossus's the
   **Feral** skin (Planned, owner, 2026-10-16). The other five are Open; the
   **Swim** skin goes to one of those later Pearls, after Release 1 (owner,
-  2026-10-16). Shapes and
+  2026-10-16). *Since 2026-10-16 (question 32) the other five are Planned for
+  later releases: Old Gullet's **Swim**, Old Rimepaw's **Polar**, Sandmaw's
+  **Sand**, Gale's **Cloud** and Cinder's **Lava**, the last, which opens
+  Gorge's crater.* Shapes and
   abilities come from the townsfolk and from old manuscripts; in Release 1
   the townsfolk teach and chests hold the finds, and manuscript pieces come
   later (see
   [Direction](01-direction.md#the-slimes-powers)). Release 1 gives eight
   powers besides the Gulp, about three a chapter, and the War Axe and Stretch
   Lash wait for the next release (Planned, owner, 2026-10-16, question 94).
+  *Changed 2026-10-16 (seventh round, question 108): Release 1's whole
+  manuscripts teach campfire recipes and lore, not powers; manuscripts that
+  teach powers start in the next release.*
 - **The Gulp is its gift**, the same power Gorge abused. The hero only grabs
   and throws with it, and it gives back what it wins: every Pearl goes home to
   the Wellspring. Gorge gulped to *own*.
@@ -94,7 +112,10 @@ his aberrations.
    (question 98). After Fatty, the freed Burr says the town must see the
    Pearl, the journal points home, and the well comes back when the slime
    brings the Pearl to it (question 103); it gives a full refill, a drink in
-   town (question 105).*
+   town (question 105).* *Changed 2026-10-16 (seventh round, question 110):
+   every Pearl goes home to the Wellspring, which brightens, and its power
+   flows into the town: the well comes back with Pearl 1, the Forge lights
+   with Pearl 2. The slime does not take Pearl 1 to the well.*
 3. **Midpoint** (Open: which chapter): Gorge wakes. The rumbling becomes
    eruptions, Gorge steals the returned Pearls back and holds them all again,
    and the stakes rise. The slime keeps its skins.
@@ -131,7 +152,9 @@ These are new pieces the story would need. None are built yet.
   changes as the Pearls come home. It also refills the slime's energy in full
   (Planned, owner, 2026-10-15), and a campfire stands by it (question 104).
   *Until 2026-10-16 it was its own new map east of level-1, the game's first
-  map.*
+  map.* *Changed 2026-10-16 (seventh round, question 112): it lies on B4's
+  south edge, sealed off by forest, and the West village's town sits in B4's
+  north and A4; the forest path to it leaves Slimeshire, not the town.*
 - **The prologue** (Planned, owner, 2026-10-16, question 97;
   [prologue design](../design/2026-10-16-prologue.md)): the slime is born at
   the Wellspring, learns to move and to gulp, sees Yoi fall to four worms,
@@ -139,7 +162,9 @@ These are new pieces the story would need. None are built yet.
   opens into Slimeshire, and at the town's edge Plop meets it, amazed, and
   gives it the 10-slot bag and its first tips (question 100). *Until
   2026-10-16 the opening scene had Plop arrive at the Wellspring, teach the
-  slime to move and ask it to meet him in town.*
+  slime to move and ask it to meet him in town.* *Since 2026-10-16 (seventh
+  round, question 113): the prologue cannot be saved, and the HUD appears
+  right after the birth scene.*
 - **Pearls:** one story item and one skin per regional boss. The ceremony
   grants the skin permanently before the Pearl returns to the Wellspring.
 - **Beaten bosses** do not come back (today a boss respawns every five

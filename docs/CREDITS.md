@@ -56,6 +56,7 @@ Which flavour each cue ships is in `scripts/audio/picks.json`.
 | Swishes Sound Pack | artisticdude | CC0 1.0 | https://opengameart.org/content/swishes-sound-pack |
 | Home Town (JRPG Pack 2: Towns), the Slimeshire music | Juhani Junkala | CC0 1.0 | https://archive.org/details/JuhaniJunkala-JRPGpack2Town |
 | Generated sound effects (22 cues) | Magnific (ElevenLabs sound effects), for Slime Isa | generated | `asset/Originals/audio/magnific/` |
+| The Gulp's suck and throw (Sound Picker round 7, 2026-10-17) | the owner's own sounds | to be recorded by the owner | `asset/Originals/audio/sounds/` ([details](../godot/asset/audio/CREDITS.md#the-owners-own-sounds)) |
 | Gloop Forest music and ambience | Magnific (ElevenLabs music and sound effects), for Slime Isa | generated | `godot/asset/audio/music/gloop-forest*.mp3` |
 | Synthesized effects and ambience (50 cues) | made for Slime Isa | own | `scripts/audio/cues.mjs`, `pnpm audio:bake` |
 
@@ -72,11 +73,13 @@ API for its GPT-2 model. "ChatGPT" means the metadata also names the ChatGPT app
 | Player slime | `characters/slime_normalized` | owner, with AI | in the first commit (2026-04-25), no source or metadata |
 | NPCs: Elder Plop, Mossy Scout | `characters/authored/npcs/` | OpenAI image model | C2PA on their first versions |
 | NPCs: Lili, Red Slime Boy, Yellow-Blond Slime Girl, Fisherman | `characters/authored/npcs/` | owner, with AI | no source or metadata |
-| Worm enemies and hit sprites | `MAPS/enemies/64x64-*-worm-*`, `16x20-1x3-worm-brawler_hits` | owner, with AI | sources in `Originals/enemies/` have no metadata |
-| Worm arrows, spider web projectile and web cover | `MAPS/enemies/40x40-*`, `64x64-4x1-spider-web-cover` | ChatGPT | C2PA on `Originals/weapon/arrows.png`, `webs.png` |
-| Spider and orb-weaver sheet | `MAPS/enemies/64x64-8x10-forest-orb-weaver-slime` | concept from ChatGPT; sheet unverified | `Originals/concepts/spider-slime-examples/README.md` |
+| Worm enemies (swordsman, archer, brawler, prologue worm, Popworm), their arrow and the brawler's hit | `MAPS/enemies/256x256-tile_*-worm-*`, `-prologue-worm`, `-popworm`, `64x64-worm-arrow`, `64x64-tile_3x1-worm-brawler-hit` | Magnific GPT 2.5, 2026-10-16 | sources and prompts in `Originals/enemies/bestiary/` (the old 64 px worm sheets, hits and arrows, owner with AI and ChatGPT, wait in `asset/to-delete/`, no longer shipped) |
+| Slime Spider and Orb-weaver, their web and web cover | `MAPS/enemies/256x256-tile_13x1-slime-spider`, `-orb-weaver`, `64x64-tile_3x1-spider-web`, `128x128-spider-web-cover` | Magnific GPT 2.5, 2026-10-16 | sources and prompts in `Originals/enemies/bestiary/` (the old spider sheet and web projectile wait in `asset/to-delete/`, no longer shipped) |
+| The Matron's web patch (the old web cover) | `MAPS/enemies/64x64-4x1-spider-web-cover` | ChatGPT | C2PA on `Originals/weapon/webs.png` |
+| The Orb-Weaver Matron (the old orb-weaver sheet) | `MAPS/enemies/64x64-8x10-forest-orb-weaver-slime` | concept from ChatGPT; sheet unverified | `Originals/concepts/spider-slime-examples/README.md` |
 | Fatty One Eye, ground-crack effect, chest, keys, potions | `bosses/`, `effects/boss-ground-crack-4x1`, `objects/chest-wooden-2x1`, `items/keys-5x4`, `items/potions-5x2` | OpenAI image model | C2PA on `Originals/milestone-2/*` |
 | Trees (region sets) | `MAPS/trees/sets/` | Magnific GPT 2.5, 2026-10-12 | renders in `Originals/trees/<set>/generated/` |
+| The prologue: the Wellspring's pool, the barred gate and its lever, Old Veteran Yoi, Plop's satchel | `MAPS/landmarks/wellspring-pool`, `MAPS/objects/barred-gate/`, `characters/authored/npcs/yoi`, `UI/items/plops-satchel` | Magnific GPT 2.5, 2026-10-16 (the Lili sheet as style reference) | renders in `Originals/prologue/generated/`, packed by `scripts/art/pack-prologue-art.py` |
 | Rocks (3x1, 8x3) | `MAPS/rocks/` | owner, with AI | no source |
 | Crystal clusters | `MAPS/rocks/128x128-tile_8x2-crystal-clusters` | OpenAI image model | C2PA on `Originals/props/crystal-clusters-*` |
 | Stone walls | `MAPS/walls/` | OpenAI image model | C2PA on `Originals/walls/stone-wall-networks-source.png` |

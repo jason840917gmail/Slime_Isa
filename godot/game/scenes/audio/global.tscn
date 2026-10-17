@@ -104,15 +104,15 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/plate-release.wav" id="sfx_e6914548"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/ground-creak.wav" id="sfx_37b1d6a9"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-transform-frog.wav" id="sfx_49f66690"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-suck-1.wav" id="sfx_8b891286"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-suck-2.wav" id="sfx_cc296856"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-suck-3.wav" id="sfx_f14941e6"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-catch-1.wav" id="sfx_df79c6c6"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-catch-2.wav" id="sfx_98d9bc16"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-catch-3.wav" id="sfx_a5b995a6"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-1.wav" id="sfx_c148a726"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-2.wav" id="sfx_86e8ddf6"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-3.wav" id="sfx_bb88f446"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-inhale-1.wav" id="sfx_9497c85b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-inhale-2.wav" id="sfx_d337b28b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-inhale-3.wav" id="sfx_ee579b3b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-plop-1.wav" id="sfx_7ebf44d9"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-plop-2.wav" id="sfx_391f3e09"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-plop-3.wav" id="sfx_047f17b9"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-ptoo-1.wav" id="sfx_f8314897"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-ptoo-2.wav" id="sfx_bf913247"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-ptoo-3.wav" id="sfx_82f11bf7"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-clay-1.wav" id="sfx_d97e68df"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-clay-2.wav" id="sfx_9ede120f"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-clay-3.wav" id="sfx_a3be3bbf"]
@@ -152,6 +152,11 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/secret-found.wav" id="sfx_secret_found"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stairs-1.wav" id="sfx_stairs_1"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/footstep/stairs-2.wav" id="sfx_stairs_2"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-suck.wav" id="sfx_71f08325"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-catch.wav" id="sfx_4694f458"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-1.wav" id="sfx_c148a726"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-2.wav" id="sfx_86e8ddf6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/gulp-spit-3.wav" id="sfx_bb88f446"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -374,37 +379,37 @@ stream_1/weight = 1.0
 stream_2/stream = ExtResource("sfx_bc5cc50c")
 stream_2/weight = 1.0
 
-[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_suck_GulpSuck"]
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_goo_inhale"]
 playback_mode = 1
 random_pitch = 1.0
 streams_count = 3
-stream_0/stream = ExtResource("sfx_8b891286")
+stream_0/stream = ExtResource("sfx_9497c85b")
 stream_0/weight = 1.0
-stream_1/stream = ExtResource("sfx_cc296856")
+stream_1/stream = ExtResource("sfx_d337b28b")
 stream_1/weight = 1.0
-stream_2/stream = ExtResource("sfx_f14941e6")
+stream_2/stream = ExtResource("sfx_ee579b3b")
 stream_2/weight = 1.0
 
-[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_catch_GulpCatch"]
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_goo_plop"]
 playback_mode = 1
 random_pitch = 1.0
 streams_count = 3
-stream_0/stream = ExtResource("sfx_df79c6c6")
+stream_0/stream = ExtResource("sfx_7ebf44d9")
 stream_0/weight = 1.0
-stream_1/stream = ExtResource("sfx_98d9bc16")
+stream_1/stream = ExtResource("sfx_391f3e09")
 stream_1/weight = 1.0
-stream_2/stream = ExtResource("sfx_a5b995a6")
+stream_2/stream = ExtResource("sfx_047f17b9")
 stream_2/weight = 1.0
 
-[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_spit_GulpSpit"]
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_goo_ptoo"]
 playback_mode = 1
 random_pitch = 1.0
 streams_count = 3
-stream_0/stream = ExtResource("sfx_c148a726")
+stream_0/stream = ExtResource("sfx_f8314897")
 stream_0/weight = 1.0
-stream_1/stream = ExtResource("sfx_86e8ddf6")
+stream_1/stream = ExtResource("sfx_bf913247")
 stream_1/weight = 1.0
-stream_2/stream = ExtResource("sfx_bb88f446")
+stream_2/stream = ExtResource("sfx_82f11bf7")
 stream_2/weight = 1.0
 
 [sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_clay_BreakClay"]
@@ -547,6 +552,17 @@ stream_0/stream = ExtResource("sfx_stairs_1")
 stream_0/weight = 1.0
 stream_1/stream = ExtResource("sfx_stairs_2")
 stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_gulp_spit_GulpSpit"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_c148a726")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_86e8ddf6")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_bb88f446")
+stream_2/weight = 1.0
 
 [node name="GlobalAudio" type="Node2D"]
 y_sort_enabled = true
@@ -1204,8 +1220,8 @@ min_interval_ms = 60.0
 [node name="GulpSuck" type="AudioStreamPlayer" parent="Effects"]
 script = ExtResource("1")
 process_mode = 3
-stream = SubResource("Rnd_player_gulp_suck_GulpSuck")
-volume_db = -6.23
+stream = ExtResource("sfx_71f08325")
+volume_db = -11.01
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
@@ -1214,8 +1230,8 @@ min_interval_ms = 60.0
 [node name="GulpCatch" type="AudioStreamPlayer" parent="Effects"]
 script = ExtResource("1")
 process_mode = 3
-stream = SubResource("Rnd_player_gulp_catch_GulpCatch")
-volume_db = -2.22
+stream = ExtResource("sfx_4694f458")
+volume_db = -1.40
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
@@ -1225,6 +1241,156 @@ min_interval_ms = 60.0
 script = ExtResource("1")
 process_mode = 3
 stream = SubResource("Rnd_player_gulp_spit_GulpSpit")
+volume_db = -2.34
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GulpThroat" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_inhale")
+volume_db = -6.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BubbleRise" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_inhale")
+volume_db = -6.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="MimicWrap" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_inhale")
+volume_db = -6.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PipeWormCharge" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_inhale")
+volume_db = -6.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SpitcapCharge" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_inhale")
+volume_db = -6.23
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="HeavyBlockGrab" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_plop")
+volume_db = -2.22
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="MimicGrab" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_plop")
+volume_db = -2.22
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RookSteal" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_plop")
+volume_db = -2.22
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GooBombSpit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_ptoo")
+volume_db = -7.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="LanternSpit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_ptoo")
+volume_db = -7.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BubblePop" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_ptoo")
+volume_db = -7.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="MimicSpit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_ptoo")
+volume_db = -7.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PipeWormSpit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_ptoo")
+volume_db = -7.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SpitcapSpit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_ptoo")
+volume_db = -7.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="FireIgnite" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_goo_ptoo")
 volume_db = -7.82
 max_polyphony = 4
 bus = &"Effects"
@@ -1360,4 +1526,3 @@ max_polyphony = 2
 bus = &"Effects"
 pitch_randomness = 0.06
 min_interval_ms = 60.0
-

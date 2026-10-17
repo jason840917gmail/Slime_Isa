@@ -5,7 +5,8 @@
 The round manifest (scripts/audio/picker/) lists each cue's options and their source takes (paths
 from the repository root: Magnific downloads, steps cut by slice-steps.py, or takes already in
 godot/asset). Each option has a `kind`: `step` (cut to MAX_STEP_S, peak STEP level), `oneshot`
-(only the loudest event is kept) or `loop` (untouched), and an optional `max` length in seconds.
+(only the loudest event is kept) or `loop` (untouched), an optional `max` length in seconds, and
+an optional `even: true`, which levels the option's takes to the loudness of its quietest one.
 
 For every take it writes, under the manifest's `takes` folder, `<cue id>/<option>-<n>`:
 - `.wav`: mono 44.1 kHz 16-bit, leading and trailing silence trimmed (short fades), peak-normalised
@@ -124,6 +125,15 @@ def write_mp3(path: Path, samples: np.ndarray) -> None:
     path.write_bytes(encoder.encode(pcm.tobytes()) + encoder.flush())
 
 
+def loudness_db(samples: np.ndarray) -> float:
+    """dBFS RMS of the loudest 100 ms (as stage-round.py measures a take for its player's volume)."""
+    window = int(0.1 * RATE)
+    if samples.size <= window:
+        return 20 * np.log10(max(float(np.sqrt(np.mean(samples ** 2))), 1e-6))
+    energy = np.convolve(samples ** 2, np.ones(window) / window, mode="valid")
+    return 20 * np.log10(max(float(np.sqrt(np.max(energy))), 1e-6))
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
@@ -133,16 +143,27 @@ def main() -> None:
         cue_dir.mkdir(parents=True, exist_ok=True)
         for option in cue["options"]:
             kind = option.get("kind", "oneshot")
-            for index, take in enumerate(option["takes"], start=1):
-                src = root / take
-                stem = cue_dir / f"{option['key']}-{index}"
-                wav = stem.with_suffix(".wav")
-                if wav.exists() and wav.stat().st_mtime >= src.stat().st_mtime:
+            stems = [cue_dir / f"{option['key']}-{index}" for index in range(1, len(option["takes"]) + 1)]
+            sources = [root / take for take in option["takes"]]
+            fresh = all(s.with_suffix(".wav").exists() and s.with_suffix(".wav").stat().st_mtime >= src.stat().st_mtime
+                        for s, src in zip(stems, sources))
+            if option.get("even") and fresh:
+                continue
+            prepared = []
+            for stem, src in zip(stems, sources):
+                if not option.get("even") and stem.with_suffix(".wav").exists() \
+                        and stem.with_suffix(".wav").stat().st_mtime >= src.stat().st_mtime:
                     continue
-                samples = normalise(trim(decode(src), kind, option.get("max")), kind)
-                write_wav(wav, samples)
+                prepared.append((stem, normalise(trim(decode(src), kind, option.get("max")), kind)))
+            if option.get("even") and prepared:
+                # `even`: the takes are levelled to the quietest one's loudness, so none of them
+                # outshouts the others when the game's randomizer picks among them.
+                floor = min(loudness_db(samples) for _, samples in prepared)
+                prepared = [(stem, samples * 10 ** ((floor - loudness_db(samples)) / 20)) for stem, samples in prepared]
+            for stem, samples in prepared:
+                write_wav(stem.with_suffix(".wav"), samples)
                 write_mp3(stem.with_suffix(".mp3"), samples)
-                print(f"{cue['id']} {option['key']}-{index}: {samples.size / RATE:.2f} s")
+                print(f"{cue['id']} {stem.name}: {samples.size / RATE:.2f} s")
 
 
 if __name__ == "__main__":

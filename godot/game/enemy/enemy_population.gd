@@ -1,21 +1,29 @@
 extends Node
 class_name EnemyPopulation
-## Enemy spawning (Phaser `enemies/AuthoredEnemyPopulationController.ts`, owned by
-## CombatController): camps from enemy-spawn world areas (enemy spec section 3) and, in a world
-## without spawn areas, the legacy player-relative spawning of `metadata.spawns` (enemy spec 18;
-## crystal-caverns, icege). Also the world's `slowEnemiesNear` (enemy spec 15).
+## The world's enemies (enemy spec section 3). **Placed enemies** (roadmap 5.25, owner 2026-10-16):
+## every PlacedEnemy node of the world (game/enemy/placed_enemy.gd) spawns its enemy once when the
+## world is built (`seed_initial`), where it stands, with its wander area as its camp territory;
+## nothing replaces a beaten one until the world is built again (a new population: re-entering the
+## chunk, a load, a door back out), as in Zelda. The game worlds have only these.
+##
+## Kept for the playground and the dev worlds (enemy spec 3 and 18): Phaser's spawning
+## (`enemies/AuthoredEnemyPopulationController.ts`, owned by CombatController): camps from
+## enemy-spawn world areas that refill on a timer and, in a world without spawn areas, the legacy
+## player-relative spawning of `metadata.spawns` (icege). Also the world's `slowEnemiesNear`
+## (enemy spec 15), for every member.
 ##
 ## Created by main.gd after the player is registered: `setup(...)`, `allowed_types = [...]`,
 ## `seed_initial()`. Runs in `_physics_process` (pausable) with `Services.now_ms()`.
 ## Player position tests use the player CENTRE (`Services.world().primary_target().centre`);
 ## spawn points are centres placed with `WorldService.spawn_at_phaser_position` (root at
-## point + depth_anchor).
+## point + depth_anchor); a placed enemy's root goes at its node's position (its feet).
 ##
 ## Owner: enemy builder.
 
 const Services := preload("res://game/shared/services.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const EnemyScript := preload("res://game/scripts/enemy.gd")
+const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 
 ## AuthoredEnemyPopulationController.ts:206 / CombatController.ts:137.
 const SPAWN_POINT_ATTEMPTS := 32
@@ -29,10 +37,14 @@ const SPAWNS_KEY := "spawns"
 const SCENE_PREFIX := "character."
 
 ## Trial filter set by main.gd: only these enemy types spawn (types without a ported script are
-## skipped; their areas still count for nothing). Empty = every type.
+## skipped; their areas still count for nothing; a placed enemy of another type stays away).
+## Empty = every type.
 var allowed_types: PackedStringArray = PackedStringArray()
 
 var _areas: Array[Dictionary] = []
+## The world's PlacedEnemy nodes (tree order) and its enemy-wander area records.
+var _placed: Array[PlacedEnemyScript] = []
+var _wander_areas: Array[Dictionary] = []
 ## Safe zones handed to each spawned enemy (the world's enemy-safe-zone areas).
 var _safe_zones: Array[Dictionary] = []
 ## Safe zones that reject spawn points: the areas plus `metadata.spawns.safeZones`
@@ -40,7 +52,8 @@ var _safe_zones: Array[Dictionary] = []
 var _spawn_safe_zones: Array[Dictionary] = []
 var _spawn_parent: Node
 ## Each member: {"enemy": EnemyScript, "root": Node2D, "type": String, "area_id": String ("" for
-## legacy spawns)}.
+## legacy spawns)}; a placed enemy's also has "placed" (its PlacedEnemy node), and its "area_id" is
+## its wander area's id (it counts for no spawn area).
 var _members: Array[Dictionary] = []
 var _last_spawn_at: Dictionary = {}
 ## `metadata.spawns` of the world definition ({} when none): {enemies, radius {min, max},
@@ -53,7 +66,9 @@ var _world_started_at: float = 0.0
 
 
 ## Stores the enemy-spawn area records, the safe-zone perimeters and the parent for spawned
-## enemies (WorldService.entities_root()), and reads the world's legacy `metadata.spawns`.
+## enemies (WorldService.entities_root()), reads the world's legacy `metadata.spawns`, and finds
+## the world's placed enemies (the PlacedEnemy nodes under `spawn_parent`, the world root) and its
+## enemy-wander areas.
 func setup(spawn_areas: Array[Dictionary], safe_zones: Array[Dictionary], spawn_parent: Node) -> void:
 	_areas = spawn_areas
 	_safe_zones = safe_zones
@@ -63,11 +78,19 @@ func setup(spawn_areas: Array[Dictionary], safe_zones: Array[Dictionary], spawn_
 	_world_started_at = Services.now_ms()
 	_legacy_last_spawn_at = _world_started_at
 	_spawns = {}
+	_placed = []
+	_wander_areas = []
 	var world := Services.world()
 	if world != null and is_instance_valid(world.definition):
 		var spawns: Variant = world.definition.metadata.get(SPAWNS_KEY)
 		if spawns is Dictionary:
 			_spawns = spawns
+	if world != null:
+		_wander_areas = world.areas(world.AREA_ENEMY_WANDER)
+	if spawn_parent != null and spawn_parent.is_inside_tree():
+		for node: Node in spawn_parent.get_tree().get_nodes_in_group(PlacedEnemyScript.GROUP):
+			if node is PlacedEnemyScript and spawn_parent.is_ancestor_of(node):
+				_placed.append(node as PlacedEnemyScript)
 	_spawn_safe_zones = safe_zones.duplicate()
 	var extra: Variant = _spawns.get("safeZones", [])
 	if extra is Array:
@@ -81,12 +104,19 @@ func uses_legacy_spawning() -> bool:
 	return _areas.is_empty() and not _spawns.is_empty()
 
 
-## `seed(min(8, spawns.maxPopulation ?? 8))` (enemy spec 3.2 and 18): with areas, for each area
-## whose pursue perimeter contains the player centre spawn `min(count, maxPopulation)` at once
-## (does not set last_spawn_at); with legacy spawning, `count` around the player. `max_count < 0`
-## uses the default count. Warms the scenes it may spawn first.
+## The world's PlacedEnemy nodes found by `setup`.
+func placed_enemies() -> Array[PlacedEnemyScript]:
+	return _placed.duplicate()
+
+
+## Spawns every placed enemy once (enemy spec 3.3), then `seed(min(8, spawns.maxPopulation ?? 8))`
+## (enemy spec 3.2 and 18): with areas, for each area whose pursue perimeter contains the player
+## centre spawn `min(count, maxPopulation)` at once (does not set last_spawn_at); with legacy
+## spawning, `count` around the player. `max_count < 0` uses the default count. Warms the scenes it
+## may spawn first.
 func seed_initial(max_count: int = -1) -> void:
 	warm_scenes()
+	spawn_placed()
 	if max_count < 0:
 		max_count = mini(INITIAL_SEED_COUNT, int(_spawns.get("maxPopulation", INITIAL_SEED_COUNT)))
 	var player_centre: Variant = _player_centre()
@@ -113,6 +143,11 @@ func warm_scenes() -> void:
 	var tables: Array = [_spawns.get("enemies", [])] if uses_legacy_spawning() else []
 	for area in _areas:
 		tables.append(_area_data(area).get("enemies", []))
+	var placed_table: Array = []
+	for placed: PlacedEnemyScript in _placed:
+		if is_instance_valid(placed):
+			placed_table.append({"type": placed.enemy_type})
+	tables.append(placed_table)
 	for table: Variant in tables:
 		if not table is Array:
 			continue
@@ -129,19 +164,20 @@ func warm_scenes() -> void:
 ## members; legacy members
 ## beyond the despawn radius are freed; for each area containing the player centre, spawn one when
 ## `now > last_spawn_at + intervalMs` and alive < maxPopulation, then set last_spawn_at = now (even
-## when the spawn failed); legacy spawning does the same with the world-wide count.
+## when the spawn failed); legacy spawning does the same with the world-wide count. Placed enemies
+## are never spawned here (nor despawned by distance).
 func _physics_process(_delta: float) -> void:
 	var player_centre: Variant = _player_centre()
 	if player_centre == null:
 		return
 	# Freed members are forgotten; defeated ones too (their bodies free themselves 800 ms later).
-	# Camp members are never despawned by distance; legacy ones beyond the despawn radius are.
+	# Camp and placed members are never despawned by distance; legacy ones beyond the radius are.
 	var despawn_radius := _legacy_radius("max") + LEGACY_DESPAWN_MARGIN
 	var kept: Array[Dictionary] = []
 	for member in _members:
 		if not _member_alive(member):
 			continue
-		if str(member["area_id"]).is_empty() and not _spawns.is_empty():
+		if str(member["area_id"]).is_empty() and not member.has("placed") and not _spawns.is_empty():
 			var enemy := member["enemy"] as EnemyScript
 			if enemy.get_centre().distance_to(player_centre) > despawn_radius:
 				(member["root"] as Node).queue_free()
@@ -152,7 +188,7 @@ func _physics_process(_delta: float) -> void:
 	var now := Services.now_ms()
 	if uses_legacy_spawning():
 		var interval := float(_spawns.get("intervalMs", 0.0))
-		if now > _legacy_last_spawn_at + interval and alive_count_all() < int(_spawns.get("maxPopulation", 0)):
+		if now > _legacy_last_spawn_at + interval and alive_count("") < int(_spawns.get("maxPopulation", 0)):
 			spawn_legacy_one()
 			_legacy_last_spawn_at = now
 		return
@@ -195,11 +231,29 @@ func spawn_legacy_one() -> Node2D:
 	return _spawn(picked_type, point, {})
 
 
-## Alive (not defeated, not freed) members of `area_id` ("" = legacy spawns), optionally of one type.
+## Placed enemies (enemy spec 3.3): spawns each PlacedEnemy's `character.<enemy_type>` with its
+## root at the node's position (in allowed_types; once per placed node: a second call spawns only
+## those not spawned yet), its `overrides` set before it enters the tree, and its wander record
+## (PlacedEnemy.wander_record) as its navigation. Returns how many it spawned.
+func spawn_placed() -> int:
+	var spawned := 0
+	for placed: PlacedEnemyScript in _placed:
+		if not is_instance_valid(placed) or placed.get_enemy() != null:
+			continue
+		var type_id := placed.enemy_type
+		if type_id.is_empty() or (not allowed_types.is_empty() and not allowed_types.has(type_id)):
+			continue
+		if _spawn_placed_one(placed) != null:
+			spawned += 1
+	return spawned
+
+
+## Alive (not defeated, not freed) members of spawn area `area_id` ("" = legacy spawns), optionally
+## of one type. Placed enemies count for no area.
 func alive_count(area_id: String, type_id: String = "") -> int:
 	var count := 0
 	for member in _members:
-		if member["area_id"] != area_id:
+		if member["area_id"] != area_id or member.has("placed"):
 			continue
 		if not type_id.is_empty() and member["type"] != type_id:
 			continue
@@ -208,11 +262,20 @@ func alive_count(area_id: String, type_id: String = "") -> int:
 	return count
 
 
-## Alive members of every area and the legacy spawns (Phaser `count`).
+## Alive members of every area, the legacy spawns and the placed enemies (Phaser `count`).
 func alive_count_all() -> int:
 	var count := 0
 	for member in _members:
 		if _member_alive(member):
+			count += 1
+	return count
+
+
+## Alive placed enemies, optionally only those of wander area `wander_area_id` ("" = every one).
+func alive_placed_count(wander_area_id: String = "") -> int:
+	var count := 0
+	for member in _members:
+		if member.has("placed") and (wander_area_id.is_empty() or member["area_id"] == wander_area_id) and _member_alive(member):
 			count += 1
 	return count
 
@@ -301,6 +364,37 @@ func _spawn(type_id: String, point: Vector2, area: Dictionary) -> Node2D:
 		return null
 	enemy.configure_navigation(area, _safe_zones)
 	_members.append({"enemy": enemy, "root": root, "type": type_id, "area_id": _area_id(area)})
+	return root
+
+
+## Instances `placed`'s enemy with its root at the node's global position under the spawn parent,
+## sets its overrides before it enters the tree, configures its navigation with the wander record
+## and records the member. Null on failure.
+func _spawn_placed_one(placed: PlacedEnemyScript) -> Node2D:
+	var world := Services.world()
+	if world == null or _spawn_parent == null:
+		return null
+	var scene_id := placed.scene_id()
+	var root := world.instantiate_scene(scene_id) as Node2D
+	if root == null:
+		push_error("EnemyPopulation: placed enemy '%s' has no scene '%s'" % [placed.get_path(), scene_id])
+		return null
+	var enemy := _find_enemy_script(root)
+	if enemy == null:
+		push_error("EnemyPopulation: scene '%s' has no EnemyScript" % scene_id)
+		root.free()
+		return null
+	placed.apply_overrides(enemy)
+	var at := placed.global_position
+	var parent_item := _spawn_parent as CanvasItem
+	root.position = parent_item.get_global_transform().affine_inverse() * at if parent_item != null else at
+	_spawn_parent.add_child(root)
+	root.reset_physics_interpolation()
+	var record := placed.wander_record(_wander_areas)
+	enemy.configure_navigation(record, _safe_zones)
+	placed.bind(enemy, record.get("stay_perimeter", {}))
+	_members.append({"enemy": enemy, "root": root, "type": placed.enemy_type,
+		"area_id": _area_id(record), "placed": placed})
 	return root
 
 

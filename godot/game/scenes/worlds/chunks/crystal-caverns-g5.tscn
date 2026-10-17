@@ -11,6 +11,8 @@
 [ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="9_ursi8"]
 [ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="forest_layer"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="forest_tileset"]
+[ext_resource type="Script" uid="uid://dwk8hk12boqk4" path="res://game/scripts/world_area.gd" id="world_area_1"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1vbg7"]
 size = Vector2(32, 2048)
@@ -20,6 +22,12 @@ size = Vector2(2048, 4)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_east"]
 size = Vector2(4, 2048)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_camp_1"]
+size = Vector2(288, 224)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_camp_2"]
+size = Vector2(288, 224)
 
 [node name="crystal-caverns-g5" type="Node2D" unique_id=913963502]
 y_sort_enabled = true
@@ -78,25 +86,6 @@ metadata = {
 "x": 1024,
 "y": 1024
 }
-},
-"spawns": {
-"enemies": [{
-"type": "worm-brawler",
-"weight": 30
-}, {
-"type": "worm-swordsman",
-"weight": 40
-}, {
-"type": "worm-archer",
-"weight": 30
-}],
-"intervalMs": 1500,
-"maxPopulation": 16,
-"radius": {
-"max": 500,
-"min": 200
-},
-"safeZones": []
 }
 }
 
@@ -157,6 +146,69 @@ target_area_id = "crystal-caverns-h5"
 entry = "west"
 keep_along = true
 area = NodePath("..")
+
+[node name="crystal-caverns-g5-camp-1" type="Area2D" parent="." unique_id=968297305]
+y_sort_enabled = true
+position = Vector2(1504, 1248)
+collision_layer = 512
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="wander-shape" type="CollisionShape2D" parent="crystal-caverns-g5-camp-1" unique_id=1945586549]
+shape = SubResource("RectangleShape2D_camp_1")
+
+[node name="world-area-script" type="Node" parent="crystal-caverns-g5-camp-1" unique_id=533199585 node_paths=PackedStringArray("area", "shape")]
+script = ExtResource("world_area_1")
+area_kind = "enemy-wander"
+area_id = "crystal-caverns-g5-camp-1"
+area = NodePath("..")
+shape = NodePath("../wander-shape")
+
+[node name="crystal-caverns-g5-camp-2" type="Area2D" parent="." unique_id=1823344519]
+y_sort_enabled = true
+position = Vector2(512, 992)
+collision_layer = 512
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="wander-shape" type="CollisionShape2D" parent="crystal-caverns-g5-camp-2" unique_id=734622911]
+shape = SubResource("RectangleShape2D_camp_2")
+
+[node name="world-area-script" type="Node" parent="crystal-caverns-g5-camp-2" unique_id=1582943479 node_paths=PackedStringArray("area", "shape")]
+script = ExtResource("world_area_1")
+area_kind = "enemy-wander"
+area_id = "crystal-caverns-g5-camp-2"
+area = NodePath("..")
+shape = NodePath("../wander-shape")
+
+[node name="Enemies" type="Node2D" parent="." unique_id=120914707]
+
+[node name="worm-swordsman-1" parent="Enemies" unique_id=522036504 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1440, 1230)
+enemy_type = "worm-swordsman"
+wander_area_id = "crystal-caverns-g5-camp-1"
+
+[node name="worm-archer-1" parent="Enemies" unique_id=246864195 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1568, 1222)
+enemy_type = "worm-archer"
+wander_area_id = "crystal-caverns-g5-camp-1"
+
+[node name="worm-brawler-1" parent="Enemies" unique_id=106239777 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1568, 1310)
+enemy_type = "worm-brawler"
+wander_area_id = "crystal-caverns-g5-camp-1"
+
+[node name="worm-swordsman-2" parent="Enemies" unique_id=1112719951 instance=ExtResource("placed_enemy_1")]
+position = Vector2(568, 1014)
+enemy_type = "worm-swordsman"
+wander_area_id = "crystal-caverns-g5-camp-2"
+
+[node name="worm-brawler-2" parent="Enemies" unique_id=810744628 instance=ExtResource("placed_enemy_1")]
+position = Vector2(448, 1014)
+enemy_type = "worm-brawler"
+wander_area_id = "crystal-caverns-g5-camp-2"
 
 [connection signal="body_entered" from="exit-1" to="exit-1/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-north" to="edge-north/world-exit-script" method="on_body_entered"]

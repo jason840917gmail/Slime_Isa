@@ -30,7 +30,7 @@ const RULE := {"priority": 0, "damageMultiplier": 1}
 const REFUSAL := "Too dry and hard. Fire would take it."
 const HINT_EVERY_MS := 2500.0
 const TEXT_MS := 2400.0
-const CUE_IGNITE := &"GulpSpit"
+const CUE_IGNITE := &"FireIgnite"
 const FRAME_WHOLE := 0
 const FRAME_BURNT := 1
 ## The fire's look: flames along the hedge (the Lantern's flame art pointing up), their glow, and

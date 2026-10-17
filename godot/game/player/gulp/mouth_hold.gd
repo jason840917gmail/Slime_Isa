@@ -73,8 +73,9 @@ const RING_NODE_NAME := "MouthRing"
 const PUFF_PRESET := &"dodge-dust"
 const PUFF_AHEAD_PX := 26.0
 ## The swallow ring's rising throat sound: this global cue's sound, replayed while the ring fills,
-## its pitch rising from FROM to TO (a cue of its own comes with the audio pass).
-const THROAT_SOURCE_CUE := &"GulpSuck"
+## its pitch rising from FROM to TO. Its own cue since Sound Picker round 7 (the old long suck, which
+## the short new GulpSuck no longer is).
+const THROAT_SOURCE_CUE := &"GulpThroat"
 const THROAT_PITCH_FROM := 0.75
 const THROAT_PITCH_TO := 1.5
 const THROAT_NODE_NAME := "MouthThroat"

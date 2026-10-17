@@ -477,8 +477,8 @@ strike_area({ability_id: 'squash-slam', center, radius: 90, damage: 30, knockbac
 
 - Not scaled by the attack stat, no crit, no combo (unlike the sword).
 - Receivers: enemies, bosses (their rules may refuse: source/tag filters), training dummies,
-  lash bells registered with `lashOnly: false` (none in content), destructibles. Not: the player,
-  resources, lash-only bells (not registered).
+  destructibles. Not: the player, resources. Godot since 2026-10-16: every bell is registered and
+  refuses the slam as `immune` (only a thrown thing rings it, §13.4).
 - Example: worm swordsman 90 HP, no mitigation (`enemy.gd`): 90 → 60; knockback velocity
   `(320 + 120) × (1 − 0.45)` = **242 px/s**, stun `320 + min(280, 320 × 0.35)` = **432 ms**
   (enemy spec; same formula as the sword example in ARCHITECTURE §8).
@@ -569,7 +569,7 @@ return {kind: heavy, at: reach} if blocked else {kind: none, at: reach}
   mask 1, bodies only, exclude the player; skip colliders under `ground/TileCollision` and the
   ground TileMapLayer (deep water's tile collision is on layer 1024 anyway, rock-wall tiles may be on 1) and shapes < 20×20; use the exact
   hit point or replicate the bisection (≤ 1.4 px difference).
-- `first_bell_along` (`:1307-1329`): for each `LashBellScript` (lash-only or not): skip unless a
+- `first_bell_along` (`:1307-1329`): for each `LashBellScript` (every bell post): skip unless a
   shape of its `damageArea` touches the whole segment (half width 16); then walk `along = 0, 4, 8,
   …, length` and take the first point whose distance to the shape is ≤ 16; accept it only if
   `along >= 24` (`LASH_NEAR_PX`, `:356`: a bell right next to the slime is skipped so the hook can
@@ -591,8 +591,8 @@ return {kind: heavy, at: reach} if blocked else {kind: none, at: reach}
 - **light** (pickup): frame 4; `lashPull(pickup_id, player centre now)` (`:1350-1384`): the pickup
   root flies to that point in 220 ms (`LASH_PULL_MS`) Quad.In, then `requestPickup` with the
   player's pickup area (collectible spec); +60 frame 6; +120 frame 7; +170 (**290**) finish.
-- **heavy**: frame 4; `lashRing(from, catch.at, 16)` (§8.3); `landing = lash_landing(from,
-  anchor ?? at)` (§8.4); `travel = |landing − from|`.
+- **heavy**: frame 4; `lashRing(from, catch.at, 16)` (§8.3; Godot since 2026-10-16: no ring);
+  `landing = lash_landing(from, anchor ?? at)` (§8.4); `travel = |landing − from|`.
   - `travel < 8`: +60 frame 6, +110 frame 7, +160 (**280**) finish.
   - else: at +50 (170) a flight of `D = max(120, travel / 0.9)` ms (`STRETCH_LASH_PULL_SPEED` 0.9 px/ms,
     `:39`) Quad.In; every update the body is teleported to `from + (landing − from)·progress` (no
@@ -617,6 +617,12 @@ Cooldown 2000, energy 20.
 (half width 16) rings (`bell.ring()`, §13.4). Called on every heavy catch, so a wall hook right
 next to a bell rings it too. Returns the count (unused).
 
+**Godot since 2026-10-16: not ported.** The owner decided that neither the Stretch Lash nor the
+Spear rings bells (questions 115 and 127; `docs/story/07-decisions-archive.md`): a bell is a
+ranged lock for a thrown pot or an arrow, and the Lash's posts are posts it pulls on. The Lash
+still hooks a bell's post (`first_bell_along`, §8.1) and pulls the slime to it; `lash_ring` was
+removed from `ability_world.gd`.
+
 ### 8.4 `lashLanding(from, caught)` (`WorldScene.ts:1647-1666`)
 
 ```
@@ -629,7 +635,7 @@ return from
 
 ### 8.5 Interactions
 
-- Rings bells (lash-only or not), opens their gates (§13.4).
+- Never rings a bell (Godot since 2026-10-16, §8.3); it pulls on a bell's post.
 - Pulls the slime across water and gaps; the playground lash yard is built for it (§14.2).
 - During the flight the body is teleported each frame: knockback is overridden, a web zone on the
   path can catch the slime mid-flight (spider-web owner).
@@ -694,7 +700,18 @@ Already in `player.gd` (player spec §5). Changes for the shared rules:
 > (`thrown_object.gd` `BREAK_PARTICLES`, `BREAK_CUES`), and hits for `gulp.throwDamage` ×
 > `gulp.throwDamageByMaterial`. A hit that knocks the held thing out breaks it the same way at the
 > slime's feet. The suck plays `GulpSuck`, the catch `GulpCatch`, the throw `GulpSpit`
-> ([audio spec §11](audio.md#11-round-5-the-gulp-the-breaks-the-roll-the-clod-stomper-and-the-ceremony)).
+> ([audio spec §11](audio.md#11-round-5-the-gulp-the-breaks-the-roll-the-clod-stomper-and-the-ceremony);
+> new takes in Sound Picker round 7, [§12](audio.md#12-round-7-the-gulps-suck-catch-and-throw)).
+> The feel (2026-10-16, `gulp_feel.gd`, `gulp.feel`; presentation only): the suck squashes the
+> slime (0.9 x 1.1, back over 160 ms) and draws 8 motes into its mouth from up to 56 px ahead
+> (260 ms each, started over 110 ms, a third of a turn of swirl); the pulled thing flies in at its
+> 30 px look, shrinking (it flew at its full art size before); the catch bulges the slime (1.22 x
+> 0.84 over 300 ms, one bounce) and drops what it holds into place inside it (from 9 px higher, 1.3
+> times bigger, over 280 ms, one bob); the throw (and an essence spat out) stretches it along the
+> throw (by 0.2, 70 % of that thinner across, over 200 ms) and leans it 4 px into it (back over
+> 170 ms), and the thing trails a whoosh streak for 160 ms (3 lines, up to 40 px, 4 px wide); the
+> landing puffs dust on the ground under it (`dodge-dust` at 0.7, unless its material already
+> raises dust there) and nudges the camera 3 px along the throw for metal and stone.
 > Art (2026-10-09): the essences have their own sheet (ground, mouth and bag icon); the slime
 > plays `suck` while Q sucks, `spit` (300 ms) when it throws, and `full-idle` / `full` while the
 > mouth holds something, which is drawn inside on its belly.
@@ -1035,7 +1052,7 @@ Descriptor `:564-583`; script `LashBellScript.ts:40-127`.
 |---|---|---|---|
 | `bellId` (`bell_id`) | required | `''` | `"bell"` (instance overrides) |
 | `gateId` (`gate_id`) | `''` | `''` | `''` |
-| `lashOnly` (`lash_only`) | true | `!== false` | true |
+| `lashOnly` (`lash_only`; removed in Godot 2026-10-16, see below) | true | `!== false` | — |
 | `damageArea` (`damage_area: Area2D`, required) | — | throws without it | `../DamageArea` (layer 8, mask 16, monitoring off; shape 84×104 at (−6, −44)) |
 | `visual` (`Sprite2D`, optional) | — | — | `../Visual` (`object.lash-bell-post`, 3 frames of 256², scale 0.45; 0 rest, 1/2 swung) |
 
@@ -1060,6 +1077,22 @@ _process(delta):                                        # :85-97
 
 Rings from the lash (§8.3) and, when not lash-only, from weapon hits and the slam. It never
 breaks; ringing again restarts the swing and re-opens (no-op) the gates.
+
+**Godot since 2026-10-16 (owner, questions 115 and 127): a bell is a ranged lock.** A thrown thing
+rings it (any hit whose `weapon_tags` hold `thrown`: a pot, a rock, a skull,
+`game/player/gulp/thrown_object.gd`), and so will the Bow's arrow (`on_arrow_hit(hit) -> bool`,
+group `&"bow_targets"`, as the bestiary's targets; the Bow is not built). The Spear, the Stretch
+Lash and every other hit never ring it. `lash_only` is gone: the bell always registers its
+`damage_area` (no tags, so a thrown thing's strike finds it) and refuses every other hit as
+`immune` (the clink); `mitigate_damage` returns 0, so a ring shows no damage number (the hit's
+knockback or impact effect still lands, so it commits). The post stays a Lash anchor
+(`first_bell_along`, §8.1): the Lash pulls the slime to it and never rings it. What a bell opens
+stays open for good (owner, 2026-10-16, question 136: a bell is a lock solved once): `ring()` calls
+`open_for_good()` on its `gate_id` gates (`game/scripts/gate.gd`), which marks the gate's record
+unlocked in RunState (`mark_gate_unlocked(map_id, gate_id)`, as a key's push does) and opens it;
+the gate reads that record when it enters the tree, so it is open through a chunk entered again, a
+save and a load, and a heavy plate never shuts it (`test_a_rung_bell_keeps_its_gate_open_for_good`).
+
 `loot-sparkle` (`ParticlePresets.ts:31-34`): `fx-sparkle`, 6, lifespan 520, speed 20–60, angle
 220–320, scale 0.9→0, alpha 1→0, rotate 0–180, drawn over everything; not in Godot's
 `particle_fx.gd` yet.
@@ -1215,14 +1248,17 @@ has not taken the quest) and let a test/dev flag override it (owner item O-R1). 
   too; the rooted (`sticky`) status they set must block jump/dodge/teleport (§3.2,
   `player.is_rooted()`).
 Interplay: a jump or a teleport crosses a web without touching its zone; the lash flight can be
-caught mid-path (§10).
+caught mid-path (§10). Godot since 2026-10-16: a Roll sticks in a web (the catch ends it through
+`stop_movement`; matron spec 5.5), and `player.crosses_webs()` is the Silk skin's hook (today the
+Silk form): with it `apply_web` does nothing.
 
 ### 13.10 What plates and bells need from `game.gate` (world-objects spec)
 
 `GateScript.open()` (`GateScript.ts:89-93`): no-op when open; else open frame, door body collision
 off, emit `opened {gateId}`. Plates and bells call it on **every** gate in the tree whose `gateId`
 matches (not just one map's). Godot proposal: `gate.gd` joins group `&"gate"`, exports `gate_id`,
-has `open()` (also the converted handler `open`) and `is_open()`.
+has `open()` (also the converted handler `open`) and `is_open()`. Since 2026-10-16 bells call
+`open_for_good()` instead (a recorded unlock, §13.4); plates still call `open()` (this visit only).
 
 ---
 
@@ -1263,7 +1299,7 @@ bell, dummies and buildings override `body.position`, the others `root.position`
 | playground | `playground-cracked-ground` | (1600, 1040) | flag `cracked.playground-sinkhole`; door `playground-sinkhole` → `playground-cavern` / `playground-cavern-ladder` |
 | playground | `playground-lash-lesson` | (1904, 1520) | abilityIds `["stretch-lash"]`, radius 140 |
 | playground | `playground-lash-bell` | (2490, 1470) | bellId `playground-lash-bell`, gateId `playground-lash-gate` |
-| playground | `playground-lash-gate` (gate) | (1984, 1408) | gateId `playground-lash-gate`, "Ring the bell across the water with the Stretch Lash." |
+| playground | `playground-lash-gate` (gate) | (1984, 1408) | gateId `playground-lash-gate`, "Ring the bell across the water: throw a pot at it." (since 2026-10-16; the Lash no longer rings it) |
 | playground | `playground-training-dummy-1/2/3` | (1480, 1400), (1580, 1400), (1680, 1400) | — |
 | playground | `playground-nook-web` (web) | (384, 1760) | — |
 | gloop-forest | `gloop-ch2-hollow-stone-gulp-spot` | (2640, 3036) | — |
@@ -1298,7 +1334,9 @@ Puzzle groups (all at offset 0):
   (x 224–544, y 1504–1760) with a chest (384, 1624).
 - **lash-yard**: lesson (1904, 1520, r 140) teaches the lash; the bell (2490, 1470) stands on the
   moat island; ringing it opens the lash gate (1984, 1408) in the bottom wall of a pen (x
-  1792–2176, y 1152–1408) holding a chest (1984, 1270). Loot on the island: wood pile (2470, 1296),
+  1792–2176, y 1152–1408) holding a chest (1984, 1270). Since 2026-10-16 a pot thrown from the
+  shore rings it (the liftable gallery's pots, from (1600, 1540) on), and the gate then stays open
+  for good; the Lash only pulls the slime over to its post. Loot on the island: wood pile (2470, 1296),
   stone pile (2470, 1600) (light catches). An armor statue `playground-lash-anchor` (2306, 1400)
   on the shore is the heavy catch that pulls the slime back off the island.
 - **feel-yard**: three training dummies.
@@ -1438,7 +1476,7 @@ sprite (asset `effect.player.stretch-lash`, synced by `pnpm godot:sync`).
 | `game/player/abilities/ability_definitions.gd` | static `RefCounted` | The §1 table as consts (dodge cooldown from constants at runtime), rejection texts/colours, `title(id)`, `action(id)` |
 | `game/player/abilities/player_abilities.gd` | `RefCounted` owned by `player.gd` | §2 rules: `cooldown_until`, `active_sequence`, `try_instant(id)`, `try_begin(id, request) -> Dictionary`, `complete(seq)`, `cancel()`, `status(id)`, `is_busy()`; `advance(now_ms)` drives the running sequence's milestones |
 | `game/player/abilities/ability_terrain.gd` | static | `is_blocked(p)` (tiles), `is_occupied(space, p, exclude)` (§7.2), `trace()` (§5.2), `safe_landing()` (§7.2), `lash_landing()` (§8.4) |
-| `game/player/abilities/ability_world.gd` | static | `line_reach()`, `first_bell_along()`, `lash_probe()`, `lash_ring()`, `strike_area()`, `shape_touches_segment()` (§8.1, §6.2) |
+| `game/player/abilities/ability_world.gd` | static | `line_reach()`, `first_bell_along()`, `lash_probe()`, `strike_area()`, `shape_touches_segment()` (§8.1, §6.2; `lash_ring()` removed 2026-10-16, §8.3) |
 | `game/player/abilities/jump_sequence.gd`, `teleport_sequence.gd`, `slam_sequence.gd`, `lash_sequence.gd` | `RefCounted` | One per ability: `begin(intent)`, `advance(elapsed_ms) -> bool done`, `cancel()`; gameplay milestones on the sim clock (landing at 420, teleport at 120, impact at 320, catch at 120, flight progress), visuals with Tweens created on the Visual (they pause with the tree) |
 | `game/player/abilities/ability_fx.gd` | `Node2D` helpers | Circle flash/ring (`_draw` + tween), shadow ellipse, tendril sprite, `goo-dust` burst |
 | `game/player/gulp/gulp_forms.gd` | static | §11.1 table |
@@ -1494,8 +1532,8 @@ if not _abilities.owns_body(): ArcadeMover.move(body, delta)     # the lash flig
 | `grant_goo_heart()` | RunState hearts + 1, `_max_hp = run.max_hp()`, `_hp = _max_hp`, `health_changed` | `goo_heart.gd` |
 | `is_rooted() -> bool` | false until status effects are ported | §3.2 |
 
-World side the abilities read: groups `&"gulp-spot"`, `&"lash-bell"` (with `damage_area` and
-`ring()`), `&"gate"` (`gate_id`, `open()`); `Services.world().is_solid_tile`, `dimensions()`,
+World side the abilities read: groups `&"gulp-spot"`, `&"lash-bell"` (with `damage_area`: the
+Lash's anchors), `&"gate"` (`gate_id`, `open()`); `Services.world().is_solid_tile`, `dimensions()`,
 `world_root.get_world_2d().direct_space_state`; `Services.router()`; collectibles (light catch)
 when ported. Story flags and learned abilities through `Services.run()`.
 
@@ -1594,11 +1632,17 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
 - Lesson: centre (1904, 1600) (80 px) → `stretch-lash` learned, `taught
   {abilityIds:["stretch-lash"]}`, `AbilityLearned` cue; at (1904, 1700) (180 px) nothing.
 - Lash bell: lash learned, centre (2285, 1465) (the shallows west of the lash yard's deep-water
-  strip since the 2026-10-06 repaint), face right, tap `stretch_lash` → at +120 bell
-  `rung {bellId:"playground-lash-bell"}` and gate `playground-lash-gate` open; catch at
+  strip since the 2026-10-06 repaint), face right, tap `stretch_lash` → catch at
   (2428, 1465), anchor (2490, 1470); landing ≈ (2460.0, 1469.0) (± 1); flight ≈ 175 / 0.9 ≈
   194 ms from +170, across the deep water; centre reaches the landing at ≈ +364; unlocked at
-  ≈ +544; energy 80.
+  ≈ +544; energy 80. Since 2026-10-16 the bell does not ring and the gate stays shut; back at the
+  shore, a clay pot in the mouth thrown right (tap `eat`) rings it (`rung
+  {bellId:"playground-lash-bell"}`) and opens `playground-lash-gate`
+  (`test_the_lash_pulls_to_the_bell_post_without_ringing_it_and_a_pot_rings_it`).
+- Bell and the Spear (2026-10-16, the body-shapes mode): a bell post spawned on open ground
+  (60, 25) from the slime at (1280, 1536), facing right: a Spear jab reaches its damage area and
+  is refused `immune` (no ring); a clay pot thrown at it is accepted and rings it; the bell is in
+  `bow_targets` and `on_arrow_hit` rings it (`test_a_thrown_pot_rings_a_bell_and_a_spear_jab_does_not`).
 - Lash none: centre (1280, 1536), face right (no layer-1 body or pickup within 180 px) → no
   movement, unlock at +270, cooldown 2000, energy 80.
 - Dummy sword hit: centre (1480, 1440), face up, tap `attack` → dummy 1 `hit {damage}` with 24

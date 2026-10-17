@@ -34,6 +34,7 @@ res://game/main.tscn (main.gd)                         bootstrap
        walls (TileMapLayer, wall_layer.gd) > Walls, Collision  <- painted built walls (WALLS.md); draws its own pieces
        cell-props, details, large-props, old-props (TileMapLayer, prop_layer.gd) > Props  <- painted scenery (PROPS.md); instances its own props
        Scenery (Node2D, y-sorted)  <- props placed as nodes from the Scenery dock (PROPS.md)
+       Enemies (Node2D) > placed-enemy.tscn (placed_enemy.gd)  <- the world's enemies, placed by hand; draw only in the editor (specs/enemy.md §3.3)
        ...converted props/NPCs (npc.gd), world areas (world_area.gd), exits (world_exit.gd)
        WorldBounds (StaticBody2D, built at runtime)
        PlayerSlime (character.player-slime)  <- spawned at runtime
@@ -42,7 +43,7 @@ res://game/main.tscn (main.gd)                         bootstrap
            BasicSword (weapon.basic-sword)          <- mounted by PlayerCombat.equip(), last child, at (0,-27.56)
                ... WeaponScript (weapon.gd), SwingSfx
        WormSwordsman xN (character.worm-swordsman)  <- EnemyPopulation, EnemyScript (enemy.gd)
-           (archers, brawlers, spiders, orb weavers alike; slime_spider_ai.gd for the spiders)
+           (archers, brawlers, spiders, orb weavers alike; line_up_ai.gd for the four-way shooters: archers and spiders)
        WormArrow / SpiderWeb (projectile.*)         <- EnemyProjectiles.fire, ProjectileScript (projectile.gd)
        level-1-fatty-one-eye-camp (encounter) > BossCampScript (boss_camp.gd)
        FattyOneEye (character.fatty-one-eye)        <- spawned by the camp, FattyScript (fatty.gd)
@@ -128,7 +129,7 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 
 **Weapon → combat-port target**: `{area, receiver, position (target centre), attack_direction, tags}`. Swing payload: `{damage:int, knockback_strength, cooldown_ms, weapon_tags, damage_types}`.
 
-**Area records** (`WorldService.areas(kind)`): `{id, kind, data (raw JSON, camelCase), perimeter}`, plus `stay_perimeter` for `enemy-spawn`. Perimeters are `{"shape":"rectangle",x,y,w,h}` / `{"shape":"circle",x,y,radius}` (`shared/perimeter.gd`, complete). `safe_zones()` returns the rectangle perimeters.
+**Area records** (`WorldService.areas(kind)`): `{id, kind, data (raw JSON, camelCase), perimeter}`, plus `stay_perimeter` for `enemy-spawn` (the playground and the dev worlds only) and `enemy-wander` (a camp's wander area that placed enemies name; its stay perimeter is its perimeter). Perimeters are `{"shape":"rectangle",x,y,w,h}` / `{"shape":"circle",x,y,radius}` (`shared/perimeter.gd`, complete). `safe_zones()` returns the rectangle perimeters.
 
 **Primary target**: `{player, body, centre, hurtbox, active, hostile}`, or `{}`.
 
@@ -137,7 +138,7 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | Script id → file | Exports (snake_case of the JSON keys the scenes set; *italic* = extra, not in JSON) | Signals (1 Dictionary arg) | Handlers |
 |---|---|---|---|
 | `game.player` → `scripts/player.gd` | `body, visual, animation, damage_area, player_name`; *`dodge_learned`=true, `aim_rise_px`=28* | `health_changed, damaged, defeated, damage_feedback`; *`respawned`* | `on_pickup_area_entered(area)` (asks the pile's CollectibleScript) |
-| `game.enemy` → `scripts/enemy.gd` (worm swordsman, archer, brawler, slime spider, orb weaver) | `body, visual, animation, damage_area, attack_area, faction, rank, max_health, targeting_radius, attack_range, movement_speed, attack_cooldown_ms, attributes, damage_rule, rewards, projectile, impact_effect`; *`display_name, arena_recovery_ms`* | `health_changed, damaged, defeated, alerted, attack_started, reward_requested, damage_feedback` | — |
+| `game.enemy` → `scripts/enemy.gd` (worm swordsman, archer, brawler, slime spider, orb weaver, prologue worm) | `body, visual, animation, damage_area, attack_area, faction, rank, max_health, targeting_radius, attack_range, movement_speed, attack_cooldown_ms, attributes, damage_rule, rewards, projectile, impact_effect`; *`display_name, arena_recovery_ms`* | `health_changed, damaged, defeated, alerted, attack_started, reward_requested, damage_feedback` | — |
 | `game.weapon` → `scripts/weapon.gd` (13 weapon scenes) | `weapon_id, category, attack_area, animation, base_damage, cooldown_ms, knock_strength, damage_modifiers, harvest_capabilities, scaling, on_hit_effect_id, attack_plans` | `attack_started, attack_finished` | `on_area_entered(area)` |
 | `game.effect` → `scripts/effect.gd` (all 9 `effects/*` scenes) | `effect_id, animation, lifetime_ms` | `finished` | — |
 | `game.npc` → `scripts/npc.gd` (7 NPCs; Tom since 2026-10-09, idling in place) | `body, visual, animation, character_id, npc_definition_id, wander_speed, pause_min_ms, pause_max_ms` | `interaction_lock_changed` | — (`get_phaser_position()`, `get_instance_id_key()`, `acquire_interaction_lock()`: a conversation holds the NPC still until its release runs; the quest service reads `npc_definition_id`) |
@@ -148,7 +149,11 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.boss-camp` → `scripts/boss_camp.gd` (`encounter.level-1-fatty-camp`, `encounter.gloop-matron-nest`) | `map_id, camp_id, boss_id, boss_scene, activation_area, arena_area, active_bosses, guarded_chest, guarded_chest_instance_id, respawn_ms, spawn` | `boss_spawn_requested, boss_defeated, guard_changed`; *`boss_engaged, boss_disengaged`* | — |
 | `game.matron` → `scripts/matron.gd` (extends `enemy.gd`; `character.orb-weaver-matron`, node `EnemyScript`) | the `game.enemy` exports + `first_volley_delay_ms, volley_cadence_ms, volley_telegraph_ms, volley_rest_ms, volley_points, volley_spread, volley_radius, volley_damage, volley_knockback_strength, patch_effect_id` | the enemy signals + `phase_changed` | — |
 | `game.clod-stomper` → `scripts/clod_stomper.gd` (extends `enemy.gd`; `character.clod-stomper`, 2026-10-09) | the `game.enemy` exports + `slam_zone, crouch_ms, air_ms, hop_px, recovery_ms, stomp_cooldown_ms, slam_damage, slam_knockback, crack_radius, landing_effect_id, landing_shake_ms, landing_shake_intensity` | the enemy signals + `phase_changed` | — (crouch, hop, slam in its ring, dazed; the slam breaks cracked ground near its feet) |
+| `game.popworm`, `game.spitcap`, `game.hopper`, `game.bramble-boar`, `game.thorn-guard`, `game.rook-thief` → `scripts/popworm.gd`, `spitcap.gd`, `hopper.gd`, `bramble_boar.gd`, `thorn_guard.gd`, `rook_thief.gd` (extend `game/enemy/patterned_enemy.gd`, which extends `enemy.gd`; the bestiary's rows 5 to 10, 2026-10-16) | the `game.enemy` exports + `pose`, `defeated_frame` (the Thorn Guard: `guard_group`); their pattern numbers are their type's `pattern` block in `enemy-types.json` | the enemy signals + `phase_changed` | the Popworm `on_ground_shake(at, radius, heavy)`, the Rook Thief `on_arrow_hit(hit)` ([BESTIARY.md](BESTIARY.md)) |
+| `game.squint` (also `character.big-squint`), `game.pipe-worm`, `game.dung-roller` → `scripts/squint.gd`, `pipe_worm.gd`, `dung_roller.gd` (extend `game/enemy/patterned_enemy.gd`; the bestiary's rows 11 to 14, Fatty's Lair, 2026-10-16); `game.mud-glob` → `scripts/mud_glob.gd` (extends `spore_seed.gd`, `projectile.mud-glob`) | the `game.enemy` exports + `pose`, `defeated_frame`; the Pipe Worm `aim_direction`, `hole`, `glint`; the Dung Roller `track` (points from its post), `beetle`, `beetle_shape`, `beetle_hurt_shape`, `ball_look`; their numbers are their type's `pattern` block in `enemy-types.json` | the enemy signals + `phase_changed` | the Pipe Worm `on_ground_shake(at, radius, heavy)` ([BESTIARY.md](BESTIARY.md)) |
+| `game.silk-lurker`, `game.thornball`, `game.egg-sac`, `game.broodling`, `game.cocoon-mimic`, `game.brood-warden` → `scripts/silk_lurker.gd`, `thornball.gd`, `egg_sac.gd`, `broodling.gd`, `cocoon_mimic.gd`, `brood_warden.gd` (extend `game/enemy/patterned_enemy.gd`; the bestiary's rows 18 to 22, Chapter 2, 2026-10-16) | the `game.enemy` exports + `pose`, `defeated_frame`; their numbers are their type's `pattern` block in `enemy-types.json` | the enemy signals + `phase_changed` | the Silk Lurker `on_arrow_hit(hit)`; the egg sac spawns `character.broodling` with its arena ([BESTIARY.md](BESTIARY.md)) |
 | `game.projectile` → `scripts/projectile.gd` (`projectile.worm-arrow`, `projectile.spider-web`) | `projectile_id, body, visual, animation, attack_area, default_speed, lifetime_ms, rotate_to_velocity` | `launched, expired` | `on_area_entered(area)` (`launch(direction, speed, payload)`, `expire()`) |
+| `game.spore-seed` → `scripts/spore_seed.gd` (extends `projectile.gd`; `projectile.spore-seed`, 2026-10-16) | the `game.projectile` exports | `launched, expired` | the mouth's suckable contract: `origin()`, `can_take()`, `suck_info()`, `take()` ([BESTIARY.md](BESTIARY.md#hooks-for-the-powers)) |
 | `game.web-patch` → `scripts/web_patch.gd` (`effect.matron-web-patch`) | `radius, visual` | `caught, torn` | — |
 | `game.spider-web` → `scripts/spider_web.gd` (`object.spider-web`) | `width, depth, tears_when_crossed, visual` | `caught, torn` | — |
 
@@ -158,7 +163,7 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.story-variant` → `scripts/story_variant.gd` | `flag_id, when_set, when_unset` | `switched` | `on_set(payload)` |
 
 | `game.door` → `scripts/door.gd` (10 doors; interaction spec §3.2; pushed into, no interact key) | `map_id, door_id, target_area_id, target_door_id, kind, side, trigger_rect, walk_area, arrival_step, use_cue, house_art, door_rect, door_arch, hinge, double_leaf, leaf_art_path, open_cue, close_cue, fall_cue, gate` | — | — (`use()`, `arrival_point()`, `on_arrival()`, `lead_ms()`, group `door`) |
-| `game.gate` → `scripts/gate.gd` (pushed open with the key, no interact key; `prompt`, `locked_prompt`, `interact_radius` unused) | `map_id, gate_id, required_item_id, consume_on_unlock, prompt, locked_prompt, locked_message, unlocked_message, interact_radius, badge_rise, closed_frame, open_frame, visual, doors` | `opened`, `closed`, `message_shown` | `open(payload)` (plates, bells; not saved) |
+| `game.gate` → `scripts/gate.gd` (pushed open with the key, no interact key; `prompt`, `locked_prompt`, `interact_radius` unused) | `map_id, gate_id, required_item_id, consume_on_unlock, prompt, locked_prompt, locked_message, unlocked_message, interact_radius, badge_rise, closed_frame, open_frame, visual, doors` | `opened`, `closed`, `message_shown` | `open(payload)` (plates; not saved), `open_for_good(payload)` (bells, 2026-10-16: records the unlock in RunState, so the gate stays open) |
 | `game.chest` → `scripts/chest.gd` | `map_id, instance_id, initial_contents` | `guard_blocked, open_requested, stack_transferred, closed` | — |
 | `game.bed` → `scripts/bed.gd` | `prompt, interact_radius, badge_rise, sleep_point, wake_point` | — | — (`sleep_request()`) |
 | `game.workbench` → `scripts/workbench.gd` | `prompt, recipe_context, tier, interact_radius, badge_rise` | — | — (`site()`) |
@@ -168,7 +173,8 @@ Do every AI distance, aim, knock direction, perimeter test, spawn point, floatin
 | `game.liftable` → `scripts/liftable.gd` (`object.liftable`, `scenes/objects/liftable.tscn`: one scene for the 67 kinds of the catalog `game/data/liftables.json`; `object.liftable-rock`, `-puffball`, `-pinecone` preset the kind) | `kind, variant, heavy` | — | — (`origin()`, `suck_info()`, `can_take()`, `take()`; static `catalog()`, `kinds()`, `entry()`, `frames_of()`, `frame_of()`, `material_of()`, `display_name()`, `art_size()`; Q sucks it in; on `_ready` the Visual's frame and the body's footprint (70 % of the art's width × 12 px) follow `kind`; `variant` -1 picks one of two looks from the position for the kinds that have two) |
 | `game.pressure-plate` → `scripts/pressure_plate.gd` | `plate_id, radius, sink_px, pressed_frame, gate_id, latch, visual` | `pressed, released` | — (`is_down()`; pressed by a heavy slime) |
 | `game.cracked-ground` → `scripts/cracked_ground.gd` | `flag_id, radius, requires_impact` | `cracked` | — (`is_broken()`, `break_open()`, group `cracked_ground`; a Squash Slam (or a jump landing) in the Stone form, or a Clod Stomper's slam) |
-| `game.lash-bell` → `scripts/lash_bell.gd` | `bell_id, gate_id, lash_only, damage_area, visual` | `rung` | — (`ring()`, damage receiver API) |
+| `game.lash-bell` → `scripts/lash_bell.gd` | `bell_id, gate_id, damage_area, visual` | `rung` | — (`ring()`, `on_arrow_hit(hit)` (group `bow_targets`), static `rings_to(request)`, damage receiver API: only a hit tagged `thrown` rings it, never the Spear or the Lash, 2026-10-16; its post is a Lash anchor, group `lash-bell`) |
+| `game.barred-gate` → `scripts/barred_gate.gd` (`object.barred-gate`, 2026-10-16) | `map_id, gate_id, refusal_text, rise_ms, bars, bars_area, grate` | `opened`, `refused` | — (`open()`, `open_now()`, `is_open()`, `refuse()`, `record_map_id()`, static `is_spear(request)`; the bars' damage receiver: the Spear passes, anything else clinks; its `Lever` child, `game/world_objects/barred_gate_lever.gd`, takes only the Spear; [PROLOGUE.md](PROLOGUE.md#the-barred-gate)) |
 | `game.ability-lesson` → `scripts/ability_lesson.gd` | `ability_ids, radius` | `taught` | — |
 | `game.goo-heart` → `scripts/goo_heart.gd` | `heart_id, radius, bob_px, visual` | `collected` | — (`is_taken()`) |
 | `game.restoration-site` → `scripts/restoration_site.gd` | `prompt, flag_id, object_id, quest_id, cost, locked_message, restored_message, interact_radius, badge_rise` | — | — (`origin()`, `cost_entries()`, `restore()`, `persistence_key()`; a restore sends `QuestEvents` `object.activated`) |
@@ -188,7 +194,7 @@ Boss camps ([specs/boss.md](specs/boss.md)) spawn their boss under the world roo
 4. `WorldBounds.build(world_root, world_rect)`.
 5. `spawn_player(handoff)`: `spawn_at_phaser_position("character.player-slime", WorldService.player_spawn_point(), world_root)` (after a travel: `AreaTravel.arrival_point(handoff)`), then `register_player(PlayerScript node)` and `restore_run_state(RunState.player)` (HP). The feet land at (640, 731.56).
 6. `equip_run_start()`: `PlayerCombat.new()` → child "PlayerCombat" of the player root → `setup(player)` → `player.set_combat(combat)`; a new run (`RunState.start_kit_pending`) starts empty-handed as in Phaser, unless the `weapon` launch option or `RunState.start_weapon_id` (the test runner sets "basic-sword") names a weapon, which `InventoryActions.grant_start_weapon` puts in the bag, on belt slot 1 and in hand; the playground gets every weapon (`grant_playground_weapons`) and, unless the test runner turns `playground_abilities` off, every ability learned quietly plus 10 of each Gulp material (`grant_playground_abilities`); then `InventoryActions.equip_run_weapon()`: `WeaponLoadout.reconcile()` and `PlayerCombat.equip(RunState.equipped_weapon_id())` (nothing for an empty hand). Travel and loads keep the hand.
-7. `start_enemy_population()`: `EnemyPopulation.new()` → `setup(areas("enemy-spawn"), safe_zones(), entities_root())`, `allowed_types` empty (every type the world's camps name; the trial allowed only `worm-swordsman`), `seed_initial()`.
+7. `start_enemy_population()`: `EnemyPopulation.new()` → `setup(areas("enemy-spawn"), safe_zones(), entities_root())` (it finds the world's placed enemies and `enemy-wander` areas itself), `allowed_types` empty (every type the world's camps name; the trial allowed only `worm-swordsman`), `seed_initial()`: every placed enemy stands at once, once per build, so a beaten one is back only when the world is built again (roadmap 5.25, [specs/enemy.md](specs/enemy.md) §3.3); spawn areas (the playground, the dev worlds) seed and refill on their timers.
 8. `configure_npcs()`: for each node in group `"npc"`, call `configure_wander(npc_wander_area(npc.get_instance_id_key()).get("perimeter", {}))`.
 9. `setup_camera()`: `$WorldCamera.setup(world_rect, camera_mode)`, `start_follow(player_root)`, `register_camera`, and connect `player.respawned` → `pan_to`.
 10. `start_arrival_fade()`: 400 ms, `#0b1020`.
@@ -210,7 +216,7 @@ Boss camps ([specs/boss.md](specs/boss.md)) spawn their boss under the world roo
 
 ## 9. Data flow: a worm hit on the player
 
-1. `EnemyPopulation._physics_process` runs only while the player centre is inside the pursue rect. Once `now > last + 2500` and fewer than 3 are alive, it spawns at a stay-rect point outside the safe zones: `spawn_at_phaser_position("character.worm-swordsman", point)`, then `configure_navigation(area, safe_zones)`.
+1. The starter camp's three worms stand from the moment the chunk is built: `EnemyPopulation.seed_initial` spawns each placed worm (`character.worm-swordsman`, its root on its node), then `configure_navigation(the camp's enemy-wander record, safe_zones)`. (A playground pen instead spawns while the player centre is inside its pursue rect, once `now > last + intervalMs` and fewer than `maxPopulation` are alive, at a stay-rect point outside the safe zones.)
 2. `EnemyScript._physics_process` runs the territory (engaged), then the AI chase. At centre distance ≤ 38 it enters `attack`, and `EnemyAI.run` returns `attack_requested`. `_begin_attack(dir)` then runs:
    - lifecycle `try_begin(now, 1500)`;
    - `router.begin_activation(self, [attack_area])`;
@@ -246,7 +252,8 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/shared/perimeter.gd` | world | **Complete** |
 | `game/shared/arcade_mover.gd` | shared | The one way bodies move (Arcade-style slide; never `move_and_slide()`) |
 | `godot/tests/**` | tests | Headless integration tests, `pnpm test:godot` |
-| `game/world/world_camera.gd` | world | |
+| `game/world/world_camera.gd` | world | Also camera rooms (keeps to the `CameraRoom` the target stands in, slides between them, `fit_to_view`) and a scene's hold (`pan_to(point, ms, false)`, `set_zoom_level`) |
+| `game/world/camera_room.gd` | world | `CameraRoom`: a rect of a world the camera keeps to while the slime is in it ([PROLOGUE.md](PROLOGUE.md#camera-rooms)) |
 | `game/world/world_bounds.gd` | world | |
 | `game/world/water_surface.gd`, `water_surface.gdshader`, `water_surface.gdshaderinc` | world | Animated water over the ground's water tiles ([specs/water.md](specs/water.md)); mounted by `WorldService.register_world`; the `.gdshaderinc` holds the water maths the shoreline edges share |
 | `game/world/terrain_edges/terrain_edges.gd`, `terrain_materials.gd`, `terrain_edge.gdshader`, `terrain_edge_water.gdshader`, `art/` | world | Hand-made terrain edges on a dual grid over the ground, shores included ([TERRAIN_LAB.md](TERRAIN_LAB.md)); mounted by `WorldService.register_world` after the water |
@@ -263,7 +270,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/scripts/world_definition.gd` | world | |
 | `game/scripts/world_area.gd` | world | |
 | `game/scripts/world_exit.gd` | world objects | Level-triggered after the arrival grace; asks `Main.request_exit` |
-| `game/autoload/run_state.gd` | world objects | Autoload `RunState` |
+| `game/autoload/run_state.gd` | world objects | Autoload `RunState`; `saving_blocked_reason()` / `can_save()` refuse every save while the prologue runs |
 | `game/scripts/resource_node.gd`, `game/scripts/collectible.gd` | world objects | Spec world-objects.md |
 | `game/scripts/story_flag.gd`, `game/scripts/story_variant.gd` | world objects | Flags in `RunState.story` |
 | `game/world_objects/item_catalog.gd` | world objects | items.json + max stacks; weapons are items (names, icons, descriptions from `weapons.json`) |
@@ -304,7 +311,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/building/furniture_placement.gd`, `placed_furniture.gd` | world objects | Child "FurniturePlacement" of main: placing furniture (ghost, free test, records, quest event), picking it up, mounting placed benches on every world build ([specs/furniture.md](specs/furniture.md)) |
 | `game/ui/glyphs.gd` | UI | The text symbols of the UI, Phaser's ✓ ▸ ✕ ★ ◆ ▶ ○, in one place (drawn by Source Sans 3 and its Noto Sans Symbols 2 fallback; UI_THEME.md "Symbols") |
 | `game/ui/npc_name_tags.gd` | world | Child "NpcNameTags" of main: a "NameTag" (display name, 14 px, outlined) on every NPC body with a definition, sorted with the NPC |
-| `game/hints/control_hints.gd` | interaction | Child "ControlHints" of main (CanvasLayer 10): first-time control hints, learned by use as `hint.<id>` story flags |
+| `game/hints/control_hints.gd` | interaction | Child "ControlHints" of main (CanvasLayer 10): first-time control hints, learned by use as `hint.<id>` story flags; the prologue's own order while it runs (`PROLOGUE_HINT_IDS`) |
 | `game/ui/ability_bar.gd` | abilities | The HUD's ability bar (bottom centre): labels from `player.ability_status`, clicks run `activate_ability_from_ui` |
 | `game/scripts/training_dummy.gd`, `essence.gd`, `liftable.gd`, `pressure_plate.gd`, `cracked_ground.gd`, `lash_bell.gd`, `ability_lesson.gd`, `goo_heart.gd`, `restoration_site.gd` | abilities | The abilities' puzzle pieces (§6) |
 | `game/saves/save_slots_menu.gd`, `.tscn` | saves | The save slots window (three slots and the autosave) on the Shell's stack; RunState mounts it and registers the Shell's `save` / `load` actions |
@@ -333,11 +340,20 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/enemy/enemy_ai.gd` | enemy | |
 | `game/enemy/camp_territory.gd` | enemy | |
 | `game/enemy/attack_lifecycle.gd` | enemy | |
-| `game/enemy/enemy_population.gd` | enemy | Camps and legacy `metadata.spawns`, `slow_enemies_near` ([specs/enemy.md](specs/enemy.md) §18, §15) |
-| `game/enemy/slime_spider_ai.gd` | enemy | `SlimeSpiderAI.ts` (enemy spec §14) |
+| `game/enemy/enemy_population.gd` | enemy | Placed enemies once per world build; the playground's and dev worlds' camps and legacy `metadata.spawns`; `slow_enemies_near` ([specs/enemy.md](specs/enemy.md) §3.3, §18, §15) |
+| `game/enemy/placed_enemy.gd`, `game/scenes/encounters/placed-enemy.tscn` | enemy | A world enemy placed by hand under `Enemies`: type, wander area (a shared `enemy-wander` area or its own circle), overrides; its picture and outline in the editor ([specs/enemy.md](specs/enemy.md) §3.3) |
+| `tools/lib/enemy_placement.gd` | enemy | Sets out a spawn table as placed enemies (counts by weight, an even layout, types mixed): the chunk tool and the 2026-10-16 conversion |
+| `game/enemy/slime_spider_ai.gd` | enemy | `SlimeSpiderAI.ts` (enemy spec §14): the Matron's AI, the spiders' idle and wander |
+| `game/enemy/line_up_ai.gd` | enemy | The four-way shooters' chase, flee and attack (2026-10-16, enemy spec §20): the Worm Archer (`behavior: "liner-up"`), the Slime Spider and the Orb-weaver run to the slime's row or column and shoot straight down it; their numbers are their type's `ai` block in `enemy-types.json` |
 | `game/enemy/enemy_projectiles.gd` | enemy | The world's `spawnEnemyProjectile` (enemy spec §12.3) |
 | `game/scripts/projectile.gd` | enemy | `game.projectile`: flight, lifetime, wall stop, one hit on the player |
 | `game/scripts/clod_stomper.gd` | enemy | The Clod Stomper (2026-10-09, roadmap 8.12) on top of `enemy.gd`: a camp enemy that stomps instead of swinging (ring telegraph, hop, slam, dazed), breaks cracked ground near its feet and always drops a stone essence |
+| `game/enemy/patterned_enemy.gd`, `ground_shadow.gd`, `ground_shake.gd`; `game/scripts/popworm.gd`, `spitcap.gd`, `hopper.gd`, `bramble_boar.gd`, `thorn_guard.gd`, `rook_thief.gd`, `spore_seed.gd`; `game/runtime/sheet_sprite.gd` | enemy | The bestiary's patterned enemies (2026-10-16): a phase machine per enemy on top of `enemy.gd`, shielded phases and kill hits, the heavy ground shake, the catchable spore seed, sheets loaded imported or from the file ([BESTIARY.md](BESTIARY.md)) |
+| `game/scripts/squint.gd`, `pipe_worm.gd`, `dung_roller.gd`, `mud_glob.gd`; `game/enemy/eye_glint.gd` | enemy | Fatty's Lair's bestiary enemies (2026-10-16): the Squints' Spear-only opening, the Pipe Worm's catchable mud glob and its eyes glinting in the pipe, the Dung Roller's track ([BESTIARY.md](BESTIARY.md)) |
+| `game/scripts/silk_lurker.gd`, `thornball.gd`, `egg_sac.gd`, `broodling.gd`, `cocoon_mimic.gd`, `brood_warden.gd` | enemy | Chapter 2's bestiary enemies (2026-10-16): the Lurker's thread and drop, the Thornball's bounces (and the Goo Bomb's blast flipping it), the egg sac's swarm, the mimic's hold on the slime, the Warden's telegraphed sweeps ([BESTIARY.md](BESTIARY.md)) |
+| `game/dev/corners/bestiary_corner.tscn`, `bestiary_corner.gd`, `bestiary_pen.gd` | dev | The playground's Bestiary corner: one pen per bestiary enemy, signs, respawn, F4, the Goo Bomb pens' box ability ([BESTIARY.md](BESTIARY.md#the-bestiary-corner)) |
+| `game/dev/corners/barred_gate_corner.tscn` | dev | The playground's Barred-gate corner (x 2752-3264, y 4288-4600): the barred gate in a walled yard, a chest behind it, pots outside ([PROLOGUE.md](PROLOGUE.md#the-barred-gate)) |
+| `game/prologue/prologue_state.gd`, `prologue_director.gd`, `town_edge_meeting.gd`, `prologue_scene.gd`, `yoi_actor.gd`, `birth_bubble.gd`, `cinema_bars.gd`, `soft_glow.gd`, `fireflies.gd`; `game/world_objects/barred_gate_lever.gd`; `game/scenes/characters/yoi.tscn` | prologue | The prologue (roadmap 5.18-5.24): its story flags and the no-save state, the director in `west-village-b4` (the birth, the blocked path, Yoi's fight, the rescue, the Spear, the gate), Plop's meeting in `level-1-c4`, the scene helpers, Yoi's actor, the birth's bubble, the letterbox bars, glows and fireflies ([PROLOGUE.md](PROLOGUE.md)) |
 | `game/enemy/spider_web_port.gd` | enemy | The world's `world.spider-web` port, `catchInWeb`, `applyWeb` (duck-typed player hooks, [specs/matron.md](specs/matron.md) §5) |
 | `game/scripts/fatty.gd` | boss | Fatty One Eye's phases on top of `enemy.gd` ([specs/boss.md](specs/boss.md)) |
 | `game/scripts/matron.gd` | boss | The Orb-Weaver Matron's volleys on top of `enemy.gd` ([specs/matron.md](specs/matron.md)) |

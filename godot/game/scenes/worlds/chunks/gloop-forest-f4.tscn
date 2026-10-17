@@ -23,15 +23,13 @@
 [ext_resource type="AudioStream" path="res://asset/audio/music/gloop-forest.mp3" id="76_54b11"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="77_xmf63"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/gloop-forest-ambience.mp3" id="78_qaiby"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_11"]
 size = Vector2(1152, 128)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mlrcd"]
 size = Vector2(32, 2048)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_14"]
-size = Vector2(768, 640)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_15"]
 size = Vector2(320, 256)
@@ -106,25 +104,6 @@ metadata = {
 "x": 1792,
 "y": 1728
 }
-},
-"spawns": {
-"enemies": [{
-"type": "worm-brawler",
-"weight": 65
-}, {
-"type": "worm-swordsman",
-"weight": 20
-}, {
-"type": "worm-archer",
-"weight": 15
-}],
-"intervalMs": 1500,
-"maxPopulation": 16,
-"radius": {
-"max": 500,
-"min": 200
-},
-"safeZones": []
 }
 }
 
@@ -176,28 +155,15 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
-[node name="pursue-shape" type="CollisionShape2D" parent="gloop-orb-weavers-north-east" unique_id=1630824409]
-shape = SubResource("RectangleShape2D_14")
-
-[node name="stay-shape" type="CollisionShape2D" parent="gloop-orb-weavers-north-east" unique_id=1530536957]
+[node name="wander-shape" type="CollisionShape2D" parent="gloop-orb-weavers-north-east" unique_id=1530536957]
 shape = SubResource("RectangleShape2D_15")
 
-[node name="world-area-script" type="Node" parent="gloop-orb-weavers-north-east" unique_id=1947042343 node_paths=PackedStringArray("area", "shape", "stay_shape")]
+[node name="world-area-script" type="Node" parent="gloop-orb-weavers-north-east" unique_id=1947042343 node_paths=PackedStringArray("area", "shape")]
 script = ExtResource("6_rf4pb")
-area_kind = "enemy-spawn"
+area_kind = "enemy-wander"
 area_id = "gloop-orb-weavers-north-east"
 area = NodePath("..")
-data = {
-"enemies": [{
-"maxAlive": 2,
-"type": "orb-weaver",
-"weight": 1
-}],
-"intervalMs": 6000,
-"maxPopulation": 2
-}
-shape = NodePath("../pursue-shape")
-stay_shape = NodePath("../stay-shape")
+shape = NodePath("../wander-shape")
 
 [node name="matron-nest" type="Node2D" parent="." unique_id=1269739274]
 y_sort_enabled = true
@@ -428,6 +394,18 @@ target_area_id = "gloop-forest-e4"
 entry = "east"
 keep_along = true
 area = NodePath("..")
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1978486905]
+
+[node name="orb-weaver-1" parent="Enemies" unique_id=1118957064 instance=ExtResource("placed_enemy_1")]
+position = Vector2(280, 623)
+enemy_type = "orb-weaver"
+wander_area_id = "gloop-orb-weavers-north-east"
+
+[node name="orb-weaver-2" parent="Enemies" unique_id=1936888660 instance=ExtResource("placed_enemy_1")]
+position = Vector2(416, 631)
+enemy_type = "orb-weaver"
+wander_area_id = "gloop-orb-weavers-north-east"
 
 [connection signal="body_entered" from="exit-1" to="exit-1/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]

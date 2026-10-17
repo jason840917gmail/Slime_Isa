@@ -29,10 +29,12 @@ its code is in git history.
   in that world.
 - Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
   `?recipes`, `?arsenal`, `?audition`, `?shapes` (the body-shapes rework mode in any world),
-  `?classic` (the rework mode off in the playground, where it is on by default) on the web;
-  `-- --map=<id> ...`, `-- --shapes`, `-- --classic` on desktop
+  `?classic` (the rework mode off in the playground, where it is on by default), `?prologue` (a new
+  run in the prologue, as New Game starts it) on the web;
+  `-- --map=<id> ...`, `-- --shapes`, `-- --classic`, `-- --prologue` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
-  the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md)).
+  the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the prologue:
+  [docs/godot/PROLOGUE.md](docs/godot/PROLOGUE.md)).
 - `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
   (about ten minutes for the full suite).
 - `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd` — loads every
@@ -91,7 +93,10 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   scene; scenery (rock walls, rocks, houses, nature, water life, interiors) is painted from a
   palette on the `cell-props` (64-unit cells) and `details` (32) PropLayers, or dragged in as nodes
   under `Scenery` from the Scenery dock ([docs/godot/PROPS.md](docs/godot/PROPS.md)); the
-  player and enemies are spawned by code.
+  player is spawned by code. World enemies are placed nodes (`placed-enemy.tscn` under `Enemies`,
+  from the Scenery dock's Enemies category) with wander areas, back each time a chunk is built
+  again; spawn areas only in the playground and the dev worlds
+  ([docs/godot/specs/enemy.md](docs/godot/specs/enemy.md) §3).
 - Terrain is ground only; transitions between grounds are hand-made edge tiles
   ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); built stone walls are painted on a
   `walls` WallLayer, whose cells join by themselves ([docs/godot/WALLS.md](docs/godot/WALLS.md)),

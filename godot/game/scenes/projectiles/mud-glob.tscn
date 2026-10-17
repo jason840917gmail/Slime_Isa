@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/scripts/mud_glob.gd" id="script"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="sfx"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-1.wav" id="splat"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 6.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
+radius = 9.0
+
+[node name="MudGlob" type="CharacterBody2D"]
+y_sort_enabled = true
+collision_layer = 256
+motion_mode = 1
+wall_min_slide_angle = 0.0
+metadata/collide_world_bounds = false
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.42, 0.42)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/enemies/64x64-mud-glob.webp"
+
+[node name="AttackArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 16
+collision_mask = 8
+monitorable = false
+
+[node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_hit")
+
+[node name="ProjectileScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "attack_area")]
+script = ExtResource("script")
+projectile_id = "mud-glob"
+body = NodePath("..")
+visual = NodePath("../Visual")
+attack_area = NodePath("../AttackArea")
+default_speed = 150.0
+lifetime_ms = 2600.0
+
+[node name="SplatSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = ExtResource("splat")
+volume_db = -6.0
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.1
+detached = true
+pan_distance = 400.0
+
+[connection signal="area_entered" from="AttackArea" to="ProjectileScript" method="on_area_entered"]
+[connection signal="expired" from="ProjectileScript" to="SplatSfx" method="play_cue"]

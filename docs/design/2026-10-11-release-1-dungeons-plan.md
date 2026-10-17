@@ -1,10 +1,17 @@
 # Release 1 Progression and Dungeons
 
-> **Superseded in part (2026-10-15 and 2026-10-16).** The owner's later answers in
-> [Open questions](../story/06-open-questions.md) (questions 40 to 100) and
+> **Superseded in part (2026-10-15 and 2026-10-16).** The owner's later answers in the
+> [decisions archive](../story/07-decisions-archive.md) (questions 40 to 136) and
 > [Direction](../story/01-direction.md) replace much of this plan: skins from the Pearls instead
 > of Swallow and forms, eight Release 1 powers with the War Axe and Stretch Lash after Release 1,
-> no quests, and the prologue that teaches the Spear. This file is kept as the record of 2026-10-11.
+> no quests, and the prologue that teaches the Spear. Since the eighth and ninth rounds there is
+> no coffer in the Gloop Cavern, which stays a small secret cave with one of Gloop Forest's heart
+> quarters (question 18); its alarm bells, gongs and Spear-only bells give way to bells a thrown
+> pot or an arrow rings, which stay open for good, and to wooden clappers, the worm army's alarms,
+> never locks (questions 115, 127 and 136); an eye is always the Spear's, and the Bow's target is a crystal
+> lens (question 127); each boss gives a full heart (question 17); and the Matron lives at the
+> top of the Weaver Hollow, where her fight needs the Goo Bomb (question 133). This file is kept
+> as the record of 2026-10-11.
 
 *Status: a plan to discuss, on branch `exp/body-shapes` only. Nothing is built. Written
 2026-10-11 after the owner's third round of answers; merged from six focused designs and a

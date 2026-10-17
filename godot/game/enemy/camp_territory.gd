@@ -1,6 +1,7 @@
 extends RefCounted
 class_name CampTerritory
-## Camp territory layer for enemies spawned from an enemy-spawn area (Phaser
+## Camp territory layer for enemies spawned from an enemy-spawn area or placed with a wander area
+## (game/enemy/placed_enemy.gd: the wander area is the home) (Phaser
 ## `enemies/ai/Territory.ts:42-169`). Enemy spec 4.3. Pure logic; all points are old Phaser
 ## centres (FeetAnchor).
 ##

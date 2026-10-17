@@ -39,6 +39,9 @@ const GameOver := preload("res://game/shell/game_over.gd")
 const EndCard := preload("res://game/shell/end_card.gd")
 const AreaTitleCard := preload("res://game/shell/area_title_card.gd")
 const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
+## The pause menu's hint while the prologue runs (Save greyed out; question 113).
+const PROLOGUE_NO_SAVE_HINT := "No saving yet: quitting starts again from the Wellspring"
 const PAUSE_MENU_SCENE := preload("res://game/shell/pause_menu.tscn")
 const SETTINGS_MENU_SCENE := preload("res://game/shell/settings_menu.tscn")
 const CONTROLS_MENU_SCENE := preload("res://game/shell/controls_menu.tscn")
@@ -301,6 +304,7 @@ func _build() -> void:
 	root.add_child(area_title)
 	pause_menu = _add_menu(PAUSE_MENU_SCENE) as PauseMenu
 	pause_menu.can_run = _can_run_pause_action
+	pause_menu.save_blocked_hint = _save_blocked_hint
 	pause_menu.action_requested.connect(_on_pause_action)
 	game_over = _add_menu(GAME_OVER_SCENE) as GameOver
 	game_over.can_run = _can_run_pause_action
@@ -391,9 +395,12 @@ func _clear_player_input() -> void:
 
 
 func _can_run_pause_action(action_id: StringName) -> bool:
+	var run := Services.run()
+	# No saving while the run cannot be saved (the prologue, RunState.saving_blocked_reason).
+	if action_id == &"save" and run != null and not run.can_save():
+		return false
 	if has_action(action_id):
 		return true
-	var run := Services.run()
 	match action_id:
 		&"settings", &"quit":
 			return true
@@ -402,6 +409,14 @@ func _can_run_pause_action(action_id: StringName) -> bool:
 		&"load":
 			return run != null and run.has_save(AUTOSAVE_SLOT)
 	return false
+
+
+## The pause menu's line while Save is greyed out because the run cannot be saved ("" otherwise).
+func _save_blocked_hint() -> String:
+	var run := Services.run()
+	if run != null and run.saving_blocked_reason() == PrologueState.NO_SAVE_REASON:
+		return PROLOGUE_NO_SAVE_HINT
+	return ""
 
 
 func _on_pause_action(action_id: StringName) -> void:
@@ -539,11 +554,14 @@ func _on_world_registered(payload: Dictionary) -> void:
 		return
 	var map_id := str(payload.get("mapId", ""))
 	var region_world := WorldChunks.world_of(map_id)
-	if region_world.is_empty() or region_world != _titled_world:
+	var run := Services.run()
+	# The prologue shows no area banner: it is not the West village yet, and Slimeshire's banner
+	# waits for Plop's meeting at the town's edge (docs/godot/PROLOGUE.md).
+	var quiet := PrologueState.is_running(run)
+	if (region_world.is_empty() or region_world != _titled_world) and not quiet:
 		var titled := map_id if region_world.is_empty() else region_world
 		show_area_title(AreaTitles.area_name(titled), AreaTitles.title_color(titled))
 	_titled_world = map_id if region_world.is_empty() else region_world
-	var run := Services.run()
 	if run != null:
 		end_card.mark_existing(run.has_flag)
 

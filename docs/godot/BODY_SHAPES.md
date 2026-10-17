@@ -37,15 +37,20 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
   `decide_rework_mode`). `?classic` (desktop `-- --classic`) turns it off there. The test runner
   turns it off too (`main.rework_in_playground = false`), so playground tests keep the classic game.
 - **Any other world:** `?shapes` (desktop `-- --shapes`) turns it on. Both options skip the title
-  (`LaunchOptions.SKIP_TITLE_OPTIONS`). The rework mode never writes the recovery autosave
-  (main.gd `_start_autosave`, like the playground), and the quiet grants below are lent for the
+  (`LaunchOptions.SKIP_TITLE_OPTIONS`). Turned on this way the rework mode never writes the recovery
+  autosave (main.gd `_start_autosave`, like the playground), and the quiet grants below are lent for the
   session only: `RunState.learn_session_ability` lists them in `RunState.session_ability_ids` and
   `RunState.serialize` leaves them out of `story.learned_ability_ids`, so no save (slot 0 or one
   made by hand) carries them into a classic game. An ability the run had already learned stays as
   it was, and a real lesson of a lent one (a quest's `learn_ability`, not quiet) keeps it for good
   and plays its ceremony. The box choice (`player.loadout.ability_id`) is saved; the classic game
   never reads it.
-- In the rework mode the slime learns, quietly, the three shapes (`shape-spear`, `shape-axe`,
+- **The story (since 2026-10-16):** a run that plays the prologue, or has learned a shape for good
+  (the prologue's Spear from Yoi), plays in the rework mode in every world (main.gd
+  `plays_story_shapes`). Such a run is lent nothing (`_rework_lending` is only the playground's and
+  `?shapes`'): it has only the shapes it learned, no box abilities, and it keeps the recovery
+  autosave ([PROLOGUE.md](PROLOGUE.md)).
+- In the playground and with `?shapes` the slime learns, quietly, the three shapes (`shape-spear`, `shape-axe`,
   `shape-hammer`) and the Ability Box abilities the game has (`squash-slam`, `stretch-lash`,
   `teleport`, `lantern`, `goo-bombs`). In the playground the **shapes testbed** (`game/shapes/shapes_testbed.gd`, exports
   for every position below) uses the open grass south-west of the player spawn (1280, 1536), clear
@@ -68,7 +73,8 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
     while the slime's centre is inside the pen (`configure_arena` with the pen); while it is outside,
     each one's arena is a dot at its post, so it walks back there and never shoots at the slime by
     the dummies or at the spawn. Each comes back 3 s after it dies; **F4** brings the whole pen back
-    at once. They drop energy shards like any enemy.
+    at once. The same key brings back every pen of the playground's Bestiary corner
+    ([BESTIARY.md](BESTIARY.md#the-bestiary-corner)). They drop energy shards like any enemy.
   - **F5** fills the slime's energy to full ("Energy full" in cyan over it; `refill_energy`), since
     energy refills only 1 a second by itself in the rework mode.
   - **The Roll's upgrade:** the testbed lends `roll-charge` for the session
@@ -185,7 +191,12 @@ strikes as it is let go; holding never strikes first.
     past 200 ms spins up while held, launches at the release or at the spin-up's end (260 ms), then
     rolls on while held (draining energy); without the upgrade a hold rolls the quick roll on the
     release. The slime walks while the key is down before the roll starts. The ability bar's click
-    is a quick roll.
+    is a quick roll. A roll **sticks in a web** (owner, 2026-10-16, question 131): a floor web (the
+    Matron's volley patches) or a web barrier catches the ball as it catches a walking slime, the
+    roll ends there (no bonk) and the slime is stuck 900 ms, set back on the side it came from; a
+    roll never crosses or tears a web. With the Silk skin (today the Silk form stands in,
+    `player.gd` `crosses_webs`) webs no longer catch or stick it
+    (`game/enemy/spider_web_port.gd` `catch_player`).
 11. **Juice demos and switches:** F9 shows the juice panel. While it shows, 1-9 and 0 **play**
     freeze, flash, squash, jitter, trauma, kick, sparks, pitch, numbers and slow motion once, on the
     nearest dummy or enemy within 200 px of the slime (else on the slime itself): first at the
@@ -254,7 +265,8 @@ Stand-ins and gaps (grey-box until art and sound passes):
   switch `EquipBlade` / `EquipTool`, the full ring `Heal`, the fizzle `AbilityDenied`, a clink
   `HitBlocked`; the Slam's `SlamRise`, `SlamDive`, `SlamImpactStone`, `Clink` play placeholders;
   `FinisherThump` and `MaterialGoo` / `Worm` / `Chitin` / `Mud` / `Stone` / `Silk` are silent until
-  they are baked; the mouth's throat sound is the `GulpSuck` stream pitched up.
+  they are baked; the mouth's throat sound is the `GulpThroat` stream (the round-5 suck takes, kept
+  for it when Sound Picker round 7 gave the Gulp a short suck) pitched up.
 - **Not wired yet:** the Roll's bonk still sends an old-style request (no `hit`), so the `roll`
   class and its verbs (bowl, bonk, break) are mapped but unused; the current shape is kept for the
   session only (`ShapeController._last_shape_id`), not saved (the box choice is saved); the boss
@@ -750,6 +762,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 | `combat.damageNumbers` | `smallColor`, `bigColor`, `popScale`, `popMs`, `bigClasses` |
 | `gulp.rework` | `tapMs` 250, `suckBurstMs` 1000, `swallowHoldMs` 2000, `spitHoldMs` 2000, `ringCancelMs` 150, `ringRadiusPx` 30, `burstCooldownMs` 250 |
 | `gulp.throwHit` | the thrown hit's class (`thrown`) and feel |
+| `gulp.feel` | the Gulp's look in both modes (2026-10-16, `game/player/gulp/gulp_feel.gd`): `suck` (the squash, the motes), `catch` (the bulge, the held thing's settle), `throw` (the stretch, the lean, the whoosh streak), `land` (the ground dust, the heavy materials' camera nudge); [abilities spec](specs/abilities.md) |
 | `abilities.squashSlam` | the improved Slam (body-shapes plan section 4): timeline (`crouchEndMs` 120, `riseEndMs` 320, `hangEndMs` 380, `impactMs` 460, `doneMs` 640), `riseUnits` 96, `airborneFromMs`/`airborneToMs` 140/440, `ignoresKnockback`, `ellipse` 140 x 96 (`innerShare` 0.5), `inner` (slam 40, launch 380, hop 16), `outer` (ring 24, launch 300, `bounceMs` 600), `stoneDamageBonus` 0.25, `feel`, `stoneFeel`, `wobbleRadiusPx`, `energy` 35, `cooldownMs` 2500 |
 | `abilities.lantern` | the Lantern (2026-10-14): `energy` 10, `cooldownMs` 300, `clipMs` 200 (the spit clip sped up to this), `releaseMs` 70 (the flame leaves the mouth), `flame` {`class` tap, `damage` 5, `holdMs` 250, `rangePx` 72, `speed` 900, `lingerMs` 150, `radiusPx` 10, `lightRadiusPx` 90, `feel`}, `glow` {`radiusPx` 160, `flareMs` 260}, `candle` {`lightRadiusPx` 110, `gutterMs` 5000}, `burnable` {`burnMs` 600, `spreadPx` 24}, `darkness` {`alpha` 0.92, `softPx` 40, `maxLights` 16, `litFadeMs` 1500} |
 | `abilities.gooBomb` | the Goo Bomb (2026-10-14, [Goo Bomb](#the-goo-bomb-2026-10-14)): `energy` 20, `cooldownMs` 600, the cast `castMs` 2000 in `castPulses` 4 swells of `castSwell` 0.1, `spitMs` 320, the hop `hopPx` 64 in `hopMs` 260 with `hopArcPx` 18, `fuseMs` 3000, `pulseStartHz` 2 to `pulseEndHz` 8, `flashMs` 500, `chainDelayMs` 120, `ellipse` 176 x 120, `hit` {`class` slam, `damage` 40, `launchSpeed` 380, `hopPx` 16}, `selfDamage` 18, `mouthDamage` 28, `selfKnockback` 300, `feel` {`hitStopMs` 120, `trauma` 0.9}, `lightRadiusPx` 40, `blastLightRadiusPx` 220, `blastLightMs` 250 |
@@ -1350,7 +1363,7 @@ press does is decided from the mouth's state when Q goes down:
 
 | Mouth | Q | Result |
 |---|---|---|
-| empty | press | a suck burst for `suckBurstMs` (held or not); it ends early on a catch, or with a dust puff when nothing was in reach; `burstCooldownMs` blocks a new empty-mouth burst. Essences and liftables only, never live enemies |
+| empty | press | a suck burst for `suckBurstMs` (held or not); it ends early on a catch, or with a dust puff when nothing was in reach; `burstCooldownMs` blocks a new empty-mouth burst. Essences, liftables and enemy projectiles in flight that join `suckable` (the Spitcap's spore seed, [BESTIARY.md](BESTIARY.md#hooks-for-the-powers)) only, never live enemies |
 | empty, in a form | hold | from `tapMs` (nothing caught or flying in) the spit ring fills ("Spit out Stone"); at `spitHoldMs` the form is spat out whole 44 px ahead ("Ptoo!"); a pull cancels it; over deep water in a swimming form: "Swim back to the shallows first" once |
 | a liftable | release | thrown along the aim (`get_gulp_aim`) |
 | an essence | tap | spat out whole |
@@ -1612,8 +1625,9 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   cue), each target's number, sparks and debris, the painted burst (blast-6x1.webp, 70 ms a frame,
   at 0.66), a flash, the shockwave ring, pebbles and dust, goo-splat blobs and a goo puddle that
   fades over 3.2 s; liftables within 220 px rock. The blast is a light source: 220 px, fading over
-  250 ms. Cues `GooBombCast`, `GooBombSpit`, `GooBombBlast`, `GooBombSink` play `SlamWindup`,
-  `GulpSpit`, `SlamImpact`, `BreakSoft` until baked.
+  250 ms. Cues `GooBombCast`, `GooBombBlast`, `GooBombSink` play `SlamWindup`, `SlamImpact`,
+  `BreakSoft` until baked; `GooBombSpit` has its own player since 2026-10-16 (the Gulp's round-5
+  spit takes, kept for it when Sound Picker round 7 gave the Gulp a new throw).
 - **Cracked walls** (`object.cracked-wall`, `cracked_wall.gd`, `@tool`): a weak spot set on a real
   wall (an elevation cliff face of any style, or a built wall), never a wall of its own: the wall's
   own collision blocks. Intact, a crack decal (crack-overlay.webp, drawn as it is) on the face; a

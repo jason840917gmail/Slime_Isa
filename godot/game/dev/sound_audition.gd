@@ -1,9 +1,11 @@
 extends CanvasLayer
 ## Sound audition (dev; `?audition` on the web, `-- --audition` on desktop; docs/godot/specs/audio.md
 ## §10.3): hear the Sound Picker's options in the game before picking. F8 and F7 step through the
-## option sets (what the game plays, A, B, round 2). Each cue staged in AUDITION_MANIFEST that has
-## the set's option plays those takes, at the volume measured for them; the others keep what the
-## game plays. A panel in the top-left corner names the set and the ground under the slime.
+## option sets: what the game plays, then every option key the staged round has, in the order they
+## first appear in AUDITION_MANIFEST ("now", the sound before the round, last). Each staged cue that
+## has the set's option plays those takes, at the volume measured for them; the others keep what the
+## game plays. A panel in the top-left corner names the set (its options' labels) and the ground
+## under the slime. With no round staged (no AUDITION_MANIFEST) it says so and changes nothing.
 ##
 ## scripts/audio/stage-round.py writes the audition folder; applying the final picks removes it.
 ##
@@ -12,12 +14,10 @@ extends CanvasLayer
 const Services := preload("res://game/shared/services.gd")
 const AUDITION_MANIFEST := "res://asset/audio/sfx/audition/audition.json"
 const FOOTSTEPS_PREFIX := "Footsteps/"
-const SETS: Array[Dictionary] = [
-	{"key": "", "label": "In game: what the game plays now"},
-	{"key": "a", "label": "A: real footsteps and natural takes"},
-	{"key": "b", "label": "B: slime hops and cartoon takes"},
-	{"key": "r2", "label": "Round 2: the steps kept in round 2"},
-]
+const IN_GAME_LABEL := "In game: what the game plays now"
+const NO_ROUND_LABEL := "no round is staged (the game plays its own sounds)"
+## The option key of the sound a cue played before its round; its set comes last.
+const BEFORE_KEY := "now"
 const NEXT_KEY := KEY_F8
 const PREVIOUS_KEY := KEY_F7
 ## Players are looked up again this often: the player's Footsteps come back with every respawn and
@@ -27,6 +27,8 @@ const ORIGINAL_META := &"audition_original"
 
 ## cue id -> {"node", "inGame", "options": {key: {"label", "takes", "volume_db"}}}
 var _cues: Dictionary = {}
+## [{"key", "label"}]: what the game plays, then each option key of the staged round (`_sets_of`).
+var _sets: Array[Dictionary] = [{"key": "", "label": IN_GAME_LABEL}]
 var _set: int = 0
 var _label: Label
 ## "cue:key" -> AudioStreamRandomizer
@@ -39,9 +41,12 @@ var _since_refresh: float = 0.0
 func _ready() -> void:
 	layer = 120
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(AUDITION_MANIFEST))
-	if parsed is Dictionary:
-		_cues = (parsed as Dictionary).get("cues", {})
+	# No round staged (stage-round.py --picks removes the folder): one set, the game's own sounds.
+	if FileAccess.file_exists(AUDITION_MANIFEST):
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(AUDITION_MANIFEST))
+		if parsed is Dictionary:
+			_cues = (parsed as Dictionary).get("cues", {})
+	_sets = _sets_of(_cues)
 	_label = Label.new()
 	_label.position = Vector2(16.0, 16.0)
 	_label.add_theme_color_override(&"font_color", Color("#e5eee4"))
@@ -75,14 +80,14 @@ func _process(delta: float) -> void:
 
 
 func _step(by: int) -> void:
-	_set = posmod(_set + by, SETS.size())
+	_set = posmod(_set + by, _sets.size())
 	_applied.clear()
 	_apply()
 	_refresh_label()
 
 
 func _apply() -> void:
-	var key := str(SETS[_set]["key"])
+	var key := str(_sets[_set]["key"])
 	for cue_id: String in _cues:
 		var entry: Dictionary = _cues[cue_id]
 		var player := _player_for(str(entry["node"]))
@@ -139,4 +144,27 @@ func _refresh_label() -> void:
 	var world := Services.world()
 	if footsteps != null and world != null and world.player_body != null:
 		ground = String(footsteps.call(&"surface_at", world.player_body.global_position))
-	_label.text = "Sound audition: %s\nGround: %s   ·   F7 / F8 switch options" % [SETS[_set]["label"], ground if not ground.is_empty() else "-"]
+	_label.text = "Sound audition: %s\nGround: %s   ·   F7 / F8 switch options" % [_sets[_set]["label"], ground if not ground.is_empty() else "-"]
+
+
+## What the game plays, then every option key of `cues` in the order it first appears (BEFORE_KEY
+## last), each labelled with its key and its options' labels ("A: Quick fwip / Soft plop").
+static func _sets_of(cues: Dictionary) -> Array[Dictionary]:
+	if cues.is_empty():
+		return [{"key": "", "label": NO_ROUND_LABEL}]
+	var keys: Array[String] = []
+	var labels: Dictionary = {}
+	for cue_id: String in cues:
+		var options: Dictionary = (cues[cue_id] as Dictionary).get("options", {})
+		for key: String in options:
+			if not keys.has(key):
+				keys.append(key)
+				labels[key] = []
+			(labels[key] as Array).append(str((options[key] as Dictionary).get("label", key)))
+	if keys.has(BEFORE_KEY):
+		keys.erase(BEFORE_KEY)
+		keys.append(BEFORE_KEY)
+	var sets: Array[Dictionary] = [{"key": "", "label": IN_GAME_LABEL}]
+	for key in keys:
+		sets.append({"key": key, "label": "%s: %s" % [key.to_upper(), " / ".join(PackedStringArray(labels[key] as Array))]})
+	return sets

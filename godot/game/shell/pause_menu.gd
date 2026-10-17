@@ -26,6 +26,9 @@ const BUTTON_ACTIONS := {
 
 ## (action_id: StringName) -> bool: whether a button can run now. Default: every one.
 var can_run: Callable = func(_action_id: StringName) -> bool: return true
+## () -> String: a line saying why Save is greyed out ("" when it is not; the Shell's: the prologue
+## cannot be saved, docs/godot/PROLOGUE.md), shown in place of the hint.
+var save_blocked_hint: Callable = func() -> String: return ""
 
 @onready var hint_label: Label = $Panel/Margin/Rows/Hint
 
@@ -38,7 +41,8 @@ func _ready() -> void:
 
 
 func refresh() -> void:
-	hint_label.text = HINT_TEXT
+	var blocked := str(save_blocked_hint.call())
+	hint_label.text = HINT_TEXT if blocked.is_empty() else blocked
 	for path: NodePath in BUTTON_ACTIONS:
 		var action_id: StringName = BUTTON_ACTIONS[path]
 		(get_node(path) as Button).disabled = action_id != &"resume" and not bool(can_run.call(action_id))

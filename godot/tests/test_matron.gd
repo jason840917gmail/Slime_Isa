@@ -10,7 +10,8 @@ extends RefCounted
 ## and three 170 px away, 120 degrees apart), telegraph 900 ms, landing 20 - 3 = 17 on a hurtbox in
 ## a mark, a web patch (r 50) on every mark, rest 1300 ms, next volley 6500 ms after the rest.
 ## Every test starts in the nest's chunk (MAP_ID); the torn-web test runs in E4 (the silk nook) and
-## travels into it once more, the spawn-area test in F5. The Sticky tears need player.gd's Gulp form
+## travels into it once more, the camps test in F5 (its two camps are placed enemies since
+## 2026-10-16, roadmap 5.25). The Sticky tears need player.gd's Gulp form
 ## (silk) and are skipped with a note without it.
 
 ## run_tests.gd starts every test of this file in the nest's chunk of gloop-forest.
@@ -28,9 +29,14 @@ const WebPatchScript := preload("res://game/scripts/web_patch.gd")
 const AttackTelegraph := preload("res://game/bosses/attack_telegraph.gd")
 const BossArena := preload("res://game/bosses/boss_arena.gd")
 const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
+const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
+const EnemyScript := preload("res://game/scripts/enemy.gd")
+const Perimeter := preload("res://game/shared/perimeter.gd")
+## F5's camps (their old spawn areas' maxPopulation): their placed enemies by type.
+const AREAS_CAMPS := {"gloop-clod-stompers-hollow": {"clod-stomper": 1}, "gloop-orb-weavers-south": {"orb-weaver": 2}}
 
 const MAP := "gloop-forest-f4"
-## The chunks with the silk nook's web and with two spawn areas (a Clod Stompers' and an orb weavers').
+## The chunks with the silk nook's web and with two camps (a Clod Stompers' and an orb weavers').
 const NOOK_MAP := "gloop-forest-e4"
 const AREAS_MAP := "gloop-forest-f5"
 const CAMP_ID := "gloop-matron-nest"
@@ -385,25 +391,31 @@ func test_web_patch_catches_a_slime_and_tears_quietly_for_the_sticky_one(t: Test
 	t.near_vec(t.player().get_centre(), at, 0.5, "the Sticky slime was moved")
 
 
-func test_gloop_forest_orb_weavers_spawn_from_their_areas(t: TestContext) -> void:
+func test_gloop_forest_camps_are_placed_enemies(t: TestContext) -> void:
 	if not await _travel(t, AREAS_MAP):
 		return
 	var population := t.main.get("enemy_population") as EnemyPopulation
 	if not t.check(population != null, "main has no enemy_population"):
 		return
-	population.allowed_types = PackedStringArray()
-	# The Clod Stompers' camps (roadmap 8.12, 2026-10-09) are spawn areas too; they spawn stompers.
-	var areas := t.world().areas("enemy-spawn")
-	# Chunk F5: gloop-clod-stompers-hollow and gloop-orb-weavers-south (the forest's other three
-	# are in F4 and E5).
-	t.equal(areas.size(), 2, "gloop-forest F5 enemy-spawn areas")
+	# Chunk F5: gloop-clod-stompers-hollow (roadmap 8.12) and gloop-orb-weavers-south (the forest's
+	# other three camps are in F4 and E5), wander areas of placed enemies; no spawn area, no table.
+	t.equal(t.world().areas("enemy-spawn").size(), 0, "gloop-forest F5 enemy-spawn areas")
+	t.equal(t.world().definition.metadata.get("spawns"), null, "gloop-forest F5's spawns table")
+	var areas := t.world().areas("enemy-wander")
+	t.equal(areas.size(), AREAS_CAMPS.size(), "gloop-forest F5 enemy-wander areas")
 	for area: Dictionary in areas:
-		var root := population.spawn_one(area)
-		if not t.check(root != null, "'%s' spawned nothing" % area["id"]):
-			continue
-		var expected := "clod-stomper" if str(area["id"]).begins_with("gloop-clod-stompers") else "orb-weaver"
-		t.equal(root.scene_file_path.get_file().get_basename(), expected, "type spawned by '%s'" % area["id"])
-	t.equal(population.alive_count(str(areas[0]["id"])), 1, "alive orb weavers in the first area")
+		var camp_id := str(area["id"])
+		var counts := {}
+		for placed: PlacedEnemyScript in population.placed_enemies():
+			if placed.wander_area_id != camp_id or not t.check(placed.is_standing(), "%s does not stand" % placed.name):
+				continue
+			counts[placed.enemy_type] = int(counts.get(placed.enemy_type, 0)) + 1
+			var enemy := placed.get_enemy() as EnemyScript
+			t.equal(str(enemy.get_spawn_area().get("id", "")), camp_id, "%s's territory" % placed.name)
+			t.check(Perimeter.distance_outside(area["perimeter"], enemy.get_centre()) <= 2.0, "%s stands outside '%s'" % [placed.name, camp_id])
+		t.equal(counts, AREAS_CAMPS.get(camp_id, {}), "'%s' placed enemies by type" % camp_id)
+		t.equal(population.alive_placed_count(camp_id), (AREAS_CAMPS.get(camp_id, {}) as Dictionary).values().reduce(func(a: int, b: int) -> int: return a + b, 0),
+			"standing enemies of '%s'" % camp_id)
 
 
 # --- helpers ------------------------------------------------------------------------------------

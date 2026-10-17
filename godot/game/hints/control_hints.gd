@@ -49,6 +49,17 @@ extends CanvasLayer
 ## The others (move, interact, dodge, inventory, crafting, journal, map, pause) are as above; the old
 ## belt's switch never teaches `weapon-switch` in the mode.
 ##
+## The prologue (roadmap 5.23; docs/godot/PROLOGUE.md): while it runs the hints follow its own order,
+## PROLOGUE_HINT_IDS, and none shows before the birth scene is over (`prologue.born`); the hints of
+## what the slime does not have yet (the bag, the Roll, the menus, the charge) wait for Slimeshire:
+## | id | text | useful while | learned by |
+## |---|---|---|---|
+## | move | (as above) | always | moving |
+## | mouth | (the rework's) | something suckable near, or something in the mouth | a suck |
+## | throw-move | "Keep moving while you aim: the worms can bite!" | something in the mouth, an enemy within 360 px | walking with something in the mouth while an enemy is near |
+## | attack | (the rework's) | a shape is current (Yoi's Spear) | a shape step |
+## | thrust-bars | "Thrust through the bars: stand at them and attack (<attack key>)" | a shut barred gate within 260 px, a shape current | the gate opening |
+##
 ## Owner: interaction (hints); the rework's hints: Ability Box and HUD.
 
 const Services := preload("res://game/shared/services.gd")
@@ -57,6 +68,7 @@ const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const BodyCards := preload("res://game/ui/body_cards.gd")
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
 
 const LAYER := 10
 const FLAG_PREFIX := "hint."
@@ -78,6 +90,11 @@ const MENU_HINTS := {&"inventory": &"inventory", &"crafting": &"crafting", &"que
 ## Rework mode: the hints in priority order.
 const REWORK_HINT_IDS: Array[StringName] = [&"move", &"interact", &"attack", &"charge", &"mouth", &"ability",
 	&"dodge", &"inventory", &"crafting", &"journal", &"weapon-switch", &"swallow", &"map", &"pause"]
+## The prologue's hints, in its order (roadmap 5.23).
+const PROLOGUE_HINT_IDS: Array[StringName] = [&"move", &"mouth", &"throw-move", &"attack", &"thrust-bars"]
+## Barred gates (game/scripts/barred_gate.gd) and how near one must be for its hint.
+const BARRED_GATE_GROUP := &"barred_gate"
+const BARRED_GATE_RANGE_PX := 260.0
 ## How long the attack is held before it counts as a charge (`combat.chain.chargeStartMs`).
 const CHARGE_START_PATH := "combat.chain.chargeStartMs"
 const ESSENCE_KIND := "essence"
@@ -170,6 +187,11 @@ func is_learned(id: StringName) -> bool:
 ## The text of hint `id`, from the current key bindings.
 static func hint_text(id: StringName) -> String:
 	var scheme := ControlScheme.current()
+	match id:
+		&"throw-move":
+			return "Keep moving while you aim: the worms can bite!"
+		&"thrust-bars":
+			return "Thrust through the bars: stand at them and attack (%s)" % ControlLabels.control_label(&"attack")
 	if ReworkMode.is_on():
 		var rework := rework_hint_text(id, scheme)
 		if not rework.is_empty():
@@ -246,6 +268,12 @@ func text() -> String:
 ## `isRelevant`.
 func is_relevant(id: StringName, player: Node) -> bool:
 	var run := Services.run()
+	match id:
+		&"throw-move":
+			var carried: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
+			return not carried.is_empty() and _nearest_enemy_distance(player) < DODGE_ENEMY_RANGE_PX
+		&"thrust-bars":
+			return not BodyCards.current_shape(player).is_empty() and _shut_gate_near(player) != null
 	if ReworkMode.is_on():
 		match id:
 			&"attack":
@@ -285,6 +313,15 @@ func is_relevant(id: StringName, player: Node) -> bool:
 
 
 func _pick(player: Node) -> StringName:
+	var run := Services.run()
+	if PrologueState.is_running(run):
+		# Nothing during the birth; then the prologue's own order.
+		if not PrologueState.has_beat(run, PrologueState.BORN):
+			return &""
+		for id in PROLOGUE_HINT_IDS:
+			if not is_learned(id) and is_relevant(id, player):
+				return id
+		return &""
 	for id in (REWORK_HINT_IDS if ReworkMode.is_on() else HINT_IDS):
 		if not is_learned(id) and is_relevant(id, player):
 			return id
@@ -315,6 +352,13 @@ func _learn_from_play(player: Node) -> void:
 		moving = moving or bool(player.call(&"is_click_moving"))
 	if moving:
 		learn(&"move")
+		# The prologue's rescue: walking with something in the mouth while a worm is near.
+		var carried: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
+		if not carried.is_empty() and _nearest_enemy_distance(player) < DODGE_ENEMY_RANGE_PX:
+			learn(&"throw-move")
+	for gate: Node in get_tree().get_nodes_in_group(BARRED_GATE_GROUP):
+		if gate.has_method(&"is_open") and bool(gate.call(&"is_open")) and is_learned(&"attack"):
+			learn(&"thrust-bars")
 	var combat: Variant = player.call(&"get_combat") if player.has_method(&"get_combat") else null
 	var attacking := combat != null and is_instance_valid(combat) and bool((combat as Node).call(&"is_attacking"))
 	var shapes := BodyCards.shapes_of(player) if ReworkMode.is_on() else null
@@ -418,6 +462,16 @@ func _nearest_enemy_distance(player: Node) -> float:
 			continue
 		best = minf(best, centre.distance_to(enemy.call(&"get_centre")))
 	return best
+
+
+## The nearest shut barred gate within BARRED_GATE_RANGE_PX of the slime, or null.
+func _shut_gate_near(player: Node) -> Node:
+	var centre: Vector2 = player.call(&"get_centre")
+	for gate: Node in get_tree().get_nodes_in_group(BARRED_GATE_GROUP):
+		if gate is Node2D and not bool(gate.call(&"is_open")) \
+				and (gate as Node2D).global_position.distance_to(centre) < BARRED_GATE_RANGE_PX:
+			return gate
+	return null
 
 
 func _owned_belt_weapons() -> int:

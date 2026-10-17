@@ -3,7 +3,8 @@ extends RefCounted
 ## Roll; roadmap 7.7). Walk 200 px/s, sprint 300 px/s, diagonals normalised. The Roll (the `dodge`
 ## ability on key 2) spins up in place, launches and eases to its cruising speed over its shortest
 ## roll, is safe from hits just after the launch, keeps rolling while held (steered, draining
-## energy) and ends when let go; its values are read from `character.player.movement.roll*`.
+## energy) and ends when let go; its values are read from `character.player.movement.roll*`. It
+## sticks in a floor web (owner, 2026-10-16) unless the slime crosses webs (the Silk form).
 ## The player starts at level-1's spawn (centre (640, 704), in the village chunk C4); the speed
 ## checks walk from 60 px below it (OPEN), where the ground to the right and up-right is open for
 ## the distances used here (the village banner at (656, 664) stands up-right of the spawn itself).
@@ -230,6 +231,64 @@ func test_rolling_into_a_wall_bonks_and_bounces_back(t: TestContext) -> void:
 	t.check(bonk_x - player.get_centre().x >= 64.0 - 2.0, "the bounce went back %.1f px, less than a tile" % [
 		bonk_x - player.get_centre().x])
 	wall.queue_free()
+
+
+## A Roll sticks in a floor web (owner, 2026-10-16, question 131). A Matron web patch (r 50) lies
+## 130 px to the right of OPEN, a little below the roll's line: the ball rolling into it is caught
+## as a walking slime is (the web's `caught`), its roll is over there (no bonk, no bounce, no rolling
+## on), the slime is stuck (rooted, still) and set back on its own side, above the patch, and the
+## web is whole. With the Silk form (the Silk skin's stand-in, `crosses_webs`) the web no longer
+## sticks: the roll tears through it and goes on past it.
+func test_a_roll_sticks_in_a_floor_web(t: TestContext) -> void:
+	var player := t.player()
+	t.teleport_player(OPEN)
+	player.face(Vector2.RIGHT)
+	await t.steps(2)
+	var at := OPEN + Vector2(130.0, 12.0)
+	var root := t.world().spawn_at_phaser_position("effect.matron-web-patch", at)
+	if not t.check(root != null, "effect.matron-web-patch did not spawn"):
+		return
+	var patch := root.get_node_or_null(^"WebPatchScript")
+	if not t.check(patch != null, "the patch effect has no WebPatchScript"):
+		return
+	var events := {"caught": [], "torn": []}
+	patch.connect(&"caught", func(zone: Dictionary) -> void: (events["caught"] as Array).append(zone))
+	patch.connect(&"torn", func(zone: Dictionary) -> void: (events["torn"] as Array).append(zone))
+	t.tap(&"dodge")
+	if not t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0), "the roll press did not start a roll"):
+		return
+	if not t.check(await t.until(func() -> bool: return not (events["caught"] as Array).is_empty(), 1500.0), "the roll never met the web"):
+		return
+	t.check(not player.is_rolling(), "the roll goes on in the web")
+	t.check(player.is_rooted(), "the rolling slime is not stuck in the web")
+	t.check(not bool(patch.call(&"is_torn")), "the Roll tore the web")
+	var stuck_at := player.get_centre()
+	t.check(stuck_at.x < at.x and stuck_at.y < at.y - 50.0, "the stuck slime was not set back on its side of the web (%s, the web at %s)" % [stuck_at, at])
+	await t.steps(3)
+	t.check(not player.get_roll().is_bouncing(), "the web bonked the roll")
+	t.near_vec(t.player_body().velocity, Vector2.ZERO, 0.001, "the stuck slime's velocity")
+	t.near_vec(player.get_centre(), stuck_at, 1.0, "the stuck slime moved")
+	t.equal((events["caught"] as Array).size(), 1, "catches of the rolling slime")
+	# The Silk form: the web no longer sticks, the roll tears through.
+	var gulp: Object = player.call(&"get_gulp") if player.has_method(&"get_gulp") else null
+	if gulp == null or not gulp.has_method(&"swallow"):
+		t.note("player.gd has no Silk form: the Silk roll is untested")
+		return
+	await t.sim_wait(1100.0)
+	gulp.call(&"swallow", "silk-essence")
+	if not t.check(player.crosses_webs(), "swallowing silk did not give the Silk form"):
+		return
+	t.teleport_player(OPEN)
+	player.face(Vector2.RIGHT)
+	await t.steps(2)
+	t.tap(&"dodge")
+	if not t.check(await t.until(func() -> bool: return not (events["torn"] as Array).is_empty(), 1500.0), "the Silk roll did not tear the web"):
+		return
+	t.check(player.is_rolling(), "the Silk roll stopped in the web")
+	t.check(not player.is_rooted(), "the web stuck the Silk slime")
+	t.equal((events["caught"] as Array).size(), 1, "catches of the Silk slime")
+	await t.until(func() -> bool: return not player.is_rolling(), 1500.0)
+	t.check(player.get_centre().x > at.x, "the Silk roll did not go past the web (%s, the web at %s)" % [player.get_centre(), at])
 
 
 func _movement(name: String) -> float:

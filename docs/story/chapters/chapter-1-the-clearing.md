@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Region** | Slimeshire Meadow (`level-1`, `slime-home`, `mushroom-home`); Planned: the prologue between chunks B4 and C4 (the Wellspring and the glade), part of the West village and Fatty's Lair (owner, 2026-10-16) |
+| **Region** | Slimeshire Meadow (`level-1`, `slime-home`, `mushroom-home`); Planned: the prologue between chunks B4 and C4 (the Wellspring and the glade), part of the West village and Fatty's Lair (owner, 2026-10-16). *Changed 2026-10-16 (seventh round, question 112): in B4 the prologue takes the south edge, sealed off by forest, and the West village's town sits in B4's north and A4* |
 | **Goal** | Grow from a newborn puddle into a slime that can leave home, and open the Verdant Gate |
 | **Boss** | Fatty One Eye |
 | **Earned** | Today: the first bag, stone tools, the Roll, home and vault, spears, the green key and Squash Slam. Planned: the **Spear** shape from Old Veteran Yoi, the **Roll** from young Burr, a small key, Pearl 1 with the **Heavy skin** and a boss heart. Burr's thanks, the **Bow** (question 80), waits until the slime comes back to the West village after Chapter 2, in Chapter 3 (owner, 2026-10-16, questions 85 and 94). Shapes replace the crafted tools and spears (built in the rework mode), and Squash Slam is removed (owner, 2026-10-15). The vault waits for a later release (owner, 2026-10-16). *Changed 2026-10-16 (sixth round): Yoi teaches the Spear in the prologue (question 97), Plop gives the 10-slot bag at the town's edge (question 100), and Burr builds the Bow from the Matron's thread once Pearl 2 is home (questions 102 and 106).* |
@@ -14,21 +14,31 @@ exist are marked *(in game)*; every other line is a draft.
 
 ---
 
-## Beat 0 — The prologue (Planned, owner, 2026-10-16)
+## Beat 0 — The prologue (Built 2026-10-16; planned by the owner the same day)
 
 **Where:** a lake ringed by forest in the south, between chunks B4 and C4
 (the owner's place). Chunk content may move to fit it; if it does not fit
 naturally, it can be an underground cavern. The
 [prologue design](../../design/2026-10-16-prologue.md) has the polished
 version, which the owner accepted
-([question 97](../06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
-Not built. About 3 to 5 minutes, closed off: neither the West village nor
-Slimeshire can be seen from it.
+([question 97](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
+*Built 2026-10-16 ([PROLOGUE.md](../../godot/PROLOGUE.md)): both screens on
+B4's south edge (`west-village-b4`), the Wellspring in its south-west and
+the glade in its south-east against C4; the glade's barred gate and a short
+forest path lead out onto Slimeshire's west edge (`level-1-c4`), where Plop
+meets the slime. A new game starts at the birth; quitting during the
+prologue starts it again from the birth.*
+About 3 to 5 minutes, closed off: neither the West village nor
+Slimeshire can be seen from it. *Changed 2026-10-16 (seventh round): the
+Wellspring takes B4's south edge, sealed off by forest, and the West
+village's town sits in B4's north and A4 (question 112). The prologue cannot
+be saved (question 113).*
 
 1. **Born at the Wellspring (B4).** At dawn a bubble rises from the glowing
    pool, wobbles and pops: the last slime born opens its eyes. No voice, no
    text, no HUD yet. The slime has nothing: no bag, no shape, no moves beyond
-   walking.
+   walking. *Since 2026-10-16 (seventh round, question 113): the HUD appears
+   right after the birth scene.*
 2. **Moving.** The first-time control hints show the arrows; a drifting
    firefly and the pool's wading edge give it things to walk to.
 3. **The blocked path.** The way out is choked with pots, a crate and a mossy
@@ -63,10 +73,19 @@ Slimeshire can be seen from it.
 After the prologue, a short forest path from Slimeshire's south-west leads
 back to the Wellspring, and each Pearl's homecoming is a short scene there
 (owner, 2026-10-16, question 98). A campfire stands by it (question 104).
+*Since 2026-10-16 (seventh round): the path leaves Slimeshire, not the West
+village's town (question 112). Every Pearl goes home there, and its power
+flows into the town (question 110).*
 
-- **The game today (Built):** a new game starts in the clearing, where Plop
-  greets the slime:
+- **The game before the prologue (Built until 2026-10-16):** a new game
+  started in the clearing, where Plop greets the slime (his quest offer
+  still opens with it):
   - Plop: "Ah, a new slime in the clearing! Welcome, little one." *(in game)*
+- **Since 2026-10-16 (Built):** a new game starts in the prologue, and
+  Plop's meeting at the town's edge is in game: "No slime has come out of
+  the Wellspring in years... and here you are." He gives his satchel (10
+  pockets) and his first tips; the Chapter 1 quests begin when the slime
+  first comes into Slimeshire.
 - **Slime Basics** [`slime-basics`] starts at once (Built). Planned change:
   drop its "Sprint" step, because sprinting is now a mid-game ability.
 - *Until 2026-10-16 (Proposal): the Wellspring was its own new map east of
@@ -120,7 +139,9 @@ back to the Wellspring, and each Pearl's homecoming is a short scene there
 
 **Giver:** Elder Plop (Proposal). **Where:** the slime's house, the red forge
 house whose door leads to the Slime Home (Proposal; the mushroom house is the
-alternative, Open).
+alternative, Open). *Since 2026-10-16 (eighth round, question 11): Release 1
+has no quests, so there is no house quest; an NPC hands the home over when
+the slime talks to it.*
 
 - **Why here:** after Stone Tools, the 10-slot bag is full of tools, wood and
   stone, and the first fight comes next. This is the moment to learn to rest,
@@ -140,11 +161,14 @@ alternative, Open).
      wakes here after a defeat.
   3. Finds the **vault**: 50 slots. Full ceremony. *Waits for a later
      release (2026-10-16, question 53).*
-- **Open:** do all vaults share one storage? The old proposal: vaults are
+- **Open until 2026-10-16:** do all vaults share one storage? *Closed in the
+  eighth round (questions 12 and 38): it is decided with the vault, in a later
+  release.* The old proposal: vaults are
   sealed with Wellspring goo, so everything put in one can be taken out of any
   other.
   - Plop: "Whatever you put in a vault, every vault remembers."
-- **Open:** after this first one, can the slime craft more vaults, for
+- **Open until 2026-10-16, closed with the vault (question 12):** after this
+  first one, can the slime craft more vaults, for
   example one at the forest camp?
 
 ## Side quests (Built)
@@ -165,21 +189,28 @@ alternative, Open).
   question 104): they are made at any campfire, and campfires stand by the
   Wellspring, in the town and at each camp, so a fresh save can always
   heal. Potions and food are both crafted at a campfire (question 66).*
+  *Since 2026-10-16 (seventh round, question 108): Release 1's whole
+  manuscripts, found in chests, teach campfire recipes (potions and food) and
+  lore, pages of the Thorn Guard's war journal.*
 
 ## Yoi's home (Planned, owner, 2026-10-16)
 
 **Where:** under Lili's west yard, in Slimeshire. An optional secret
-([question 99](../06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([question 99](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 Not built.
 
 - Lili tells of the hideouts slimes dug during Gorge's war. Her tip goes in
   the journal: NPCs give tips, and the journal keeps them (owner, 2026-10-16,
   question 60).
-- In her west yard the slime sucks away a heap of seven bricks and crates. The
-  secret jingle plays, and a hatch opens.
+- In her west yard the slime sucks away a heap of seven crates. The secret
+  jingle plays, and a hatch opens. *Since 2026-10-16 (eighth round, question
+  128): the heap is crates, no longer bricks and crates, so it does not look
+  like the Heavy Roll's rubble heap.*
 - Below is the home of **Old Veteran Yoi**, the veteran the slime saved in the
   prologue (Beat 0). Inside are a **heart quarter**, Yoi's tips, and later
-  the Spear's upgrades.
+  the Spear's upgrades. *Changed 2026-10-16 (seventh round, question 111):
+  who upgrades the Spear, Yoi's techniques or the Forge, is decided after
+  Release 1.*
 - The Spear shape, from the prologue, replaces the Wooden and Stone Spears
   below.
 - *Until 2026-10-16 this was Yoi's Hideout, where the Spear was learned
@@ -188,14 +219,18 @@ Not built.
   below the hatch a water maze, where a thrown pot rang an old alarm bell
   that opened a gate, led to Yoi's den. He taught the Spear there, and a bell
   that only the Spear rang opened the shortcut home. The prologue teaches the
-  Spear now (questions 97 and 99).*
+  Spear now (questions 97 and 99).* *Changed 2026-10-16 (seventh round,
+  question 114): Spear-only bells come back across the world as a second
+  kind of Spear lock ([Secrets](#secrets-planned)).* *Changed again
+  (eighth round, question 115): no bell is the Spear's; bells are a ranged
+  lock for a thrown pot or an arrow.*
 
 ## The West village: young Burr's Roll (Planned, owner, 2026-10-16)
 
 **Where:** Burr's house in the West village, west of Slimeshire Meadow. Part
 of the village joins Release 1: a small town like Kakariko, with Burr's house,
 three or four more houses, a shop and a game to play (owner, 2026-10-16,
-[question 73](../06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+[question 73](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 Not built.
 
 1. **Plop's tip.** After the Spear, Plop says the worms have shut their
@@ -216,6 +251,10 @@ Not built.
   question 78).
 - The Roll comes before Fatty One Eye, so the Heavy skin's Roll works as soon
   as the skin is won (Beat 5).
+- **Its first lock** (Planned, owner, 2026-10-16, question 132): a rickety
+  plank over a dry ditch in Burr's yard, right after the lesson. The same
+  yard later holds the Bow's first targets
+  ([Chapter 3](chapter-3-crystal-caverns.md#beats)).
 - The town's shop sells potions and food ingredients, so coins have a use
   (owner, 2026-10-16, question 88), and a secret in the village teaches a
   simpler potion (question 89).
@@ -246,7 +285,10 @@ Its own enemies, the Pipe Worm, the Dung Roller and the Squint with its
 mini-boss, the Big Squint, are in the
 [bestiary](../../design/2026-10-16-bestiary.md) (owner, 2026-10-16,
 question 107). Like every dungeon, the slime cannot save inside it
-(question 62).
+(question 62). *Since 2026-10-16 (seventh round, question 109): quitting or
+fainting inside it resumes at its entrance, and the lair keeps what the
+slime did there: small keys, opened doors, the map, the big key. The
+autosave waits until the slime is out.*
 
 1. **The burrow's lock.** A worm lever lifts the old Thorn Guard gate, and
    the gate drops shut a moment later, too fast to walk through. A rolling
@@ -269,16 +311,26 @@ question 107). Like every dungeon, the slime cannot save inside it
    row cross a bridge and walking never does (question 71).
 3. **Burr's cell.** In the lair's first half Burr sits in a cell. A **small
    key** found in the lair (a key from the planned dungeon kit) frees him; he
-   thanks the slime and asks it to visit him at home.
+   thanks the slime and asks it to visit him at home. *Since 2026-10-16
+   (eighth round, question 134): the cell lies on the lair's main path, so
+   freeing him cannot be skipped.* The lair's deep rooms hold the skeletons,
+   the fallen Thorn Guard whose bones Gorge's vassals raised to guard the old
+   forts (question 125).
 4. **Fatty One Eye.** The Spear on his eye beats him, and Pearl 1 gives the
-   Heavy skin (Beat 5).
+   Heavy skin (Beat 5). *Since 2026-10-16 (eighth round): he also leaves a
+   full heart (question 17), and the lair's way out is the Heavy skin's first
+   lock, opened with the new skin (question 132; which lock is not
+   decided).*
 5. **After Fatty** (Planned, owner, 2026-10-16, question 103). The freed Burr
    says the town must see the Pearl, the journal's main quest points home,
    and Slimeshire's well comes back when the slime brings the Pearl to it
-   (Beat 5).
+   (Beat 5). *Changed 2026-10-16 (seventh round, question 110): the slime
+   takes the Pearl home to the Wellspring, which brightens, and its power
+   flows into the town and brings the well back.*
 6. **Back home.** In the West village Burr gives his thanks: an energy
    upgrade (max energy grows only through secrets and bosses, question 19) or
-   a heart. Which one is not decided. *Changed 2026-10-16 (owner,
+   a heart. Which one is not decided. *Since the eighth round (question 19):
+   potions, the well and bosses raise max energy.* *Changed 2026-10-16 (owner,
    question 80): his thanks is the **Bow**, an Ability Box power. It was to
    come after Release 1, so when it comes is question 85.* *Changed again
    2026-10-16 (owner, questions 85 and 94): the Bow is in Release 1, in
@@ -325,8 +377,14 @@ question 107). Like every dungeon, the slime cannot save inside it
     the journal's main quest points home, and the well comes back when the
     slime brings the Pearl to it. The well then gives a full refill, a drink
     in town, and beds also restore life. Each Pearl's homecoming is a short
-    scene at the Wellspring, the prologue's lake.*
-- **Proposal, boss heart:** Fatty also leaves one full heart (+20 max HP).
+    scene at the Wellspring, the prologue's lake.* *Changed 2026-10-16
+    (seventh round): the Pearl goes home to the Wellspring, not to the well;
+    the Wellspring brightens, and its power flows into the town and brings
+    the well back (question 110). The well's refill grows back after a while
+    (question 113).*
+- **Boss heart** (Planned, owner, 2026-10-16, question 17): Fatty also leaves
+  one full heart (+20 max HP), and beating him raises max energy
+  (question 19).
 - **The player does next:** takes the green key from the chest and opens the
   Verdant Gate.
 - **Reward:** 100 coins, the flag `chapter-1-complete` and, today, **Squash
@@ -348,6 +406,22 @@ question 107). Like every dungeon, the slime cannot save inside it
   *Changed 2026-10-16: the Swim skin comes from a later Pearl, so they wait
   until after Release 1 (question 56): the deep-water secrets are come-back
   secrets (question 75).*
+- **Bells** (Planned, owner, 2026-10-16, eighth round, question 115): a
+  ranged lock across the world, rung by a thrown pot or an arrow, never by
+  the Spear or the Stretch Lash. The first stands near the town's edge, soon
+  after the prologue, rung by a thrown pot (question 132), and what a bell
+  opens stays open for good (question 136). *Until then (seventh round,
+  question 114): Spear-only bells, a second kind of Spear lock that a thrown
+  pot could not ring.*
+- **Every heart quarter** here can be reached with Release 1's powers: none
+  waits behind deep water or another later-release lock, and those locks
+  are few, each with a line that says it needs something not found yet
+  (owner, 2026-10-16, question 135).
+- **The worm camps** (Planned, owner, 2026-10-16): enemies in the world are
+  placed by hand, a fixed number per chunk, each with its own wandering area,
+  and they come back when the chunk is reloaded. Today the worm camp spawns
+  from an enemy-spawn area and refills on a timer
+  ([World](../03-world.md#enemies-in-the-world-planned)).
 
 ## Chapter 1 checklist
 
@@ -368,5 +442,6 @@ question 107). Like every dungeon, the slime cannot save inside it
 | Green key | 5 | Built |
 | Pearl 1 | 5 | Planned |
 | Heavy skin | 5 | Planned (the rework's Stone form works the heavy puzzles) |
-| Boss heart (Fatty) | 5 | Proposal |
+| Boss heart (Fatty) | 5 | Planned (owner, 2026-10-16, question 17) |
+| The first bell, by the town's edge | Secrets | Planned (questions 115 and 132) |
 | 4 heart quarters | Secrets | Planned |

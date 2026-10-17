@@ -21,7 +21,7 @@ behaviour per area is in [specs/](specs).
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_scenes.gd`, `build_player_clips.gd`, `build_terrain_lab.gd` and `build_region_worlds.gd` (with `region_worlds/`; [WORLD_ATLAS.md](WORLD_ATLAS.md)); excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
-| `godot/addons/scenery_dock/` | hand | the Scenery dock: every scenery prop by picture, dragged into the 2D view as a node under the world's `Scenery` node, and the export step that leaves the paint layers' palette pictures out of exported games ([PROPS.md](PROPS.md)); editor only, the game never loads it |
+| `godot/addons/scenery_dock/` | hand | the Scenery dock: every scenery prop by picture, dragged into the 2D view as a node under the world's `Scenery` node (its Enemies category: every enemy type, dragged in as a placed enemy under `Enemies`, [specs/enemy.md](specs/enemy.md) §3.3), and the export step that leaves the paint layers' palette pictures out of exported games ([PROPS.md](PROPS.md)); editor only, the game never loads it |
 | `godot/addons/godot_ai/` | the Godot AI plugin (4.3.0, MIT), committed | the editor plugin (MCP bridge) that lets Claude drive the open editor, plus its `_mcp_game_helper` autoload for running-game inspection; disabled by itself in headless runs and excluded from exports. Update it from its dock, then commit |
 
 Scenes, game data and art are Godot's: edit scenes in the Godot editor (or with a tool in
@@ -73,8 +73,10 @@ Scenes that differ from the converter's copy or replace it:
 
 ## Running a world
 
-F5 runs the title screen (`game/shell/title.tscn`, the main scene); New Game and Continue start
-`game/main.tscn`, which loads level-1, and a `map` launch option skips the title. To test in the playground (the testbed
+F5 runs the title screen (`game/shell/title.tscn`, the main scene); New Game starts
+`game/main.tscn` in the prologue (the birth at the Wellspring, `west-village-b4`;
+[PROLOGUE.md](PROLOGUE.md)), Continue in the saved world, and a `map` launch option skips the title
+(main.tscn on its own loads level-1). To test in the playground (the testbed
 where new mechanics are tried first), open `game/dev/playground.tscn` and press F6 (Run
 Current Scene); it inherits `main.tscn` with `map_id = "playground"`. F6 on a world scene
 itself (`game/scenes/worlds/<id>.tscn`) works too: run on its own, a world has no player, camera
@@ -93,7 +95,8 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
 ([specs/audio.md](specs/audio.md) §10.3). The body-shapes rework (branch `exp/body-shapes`,
 [BODY_SHAPES.md](BODY_SHAPES.md)) runs **by default in the playground**: `?classic` /
 `-- --classic` turns it off there, and `?shapes` / `-- --shapes` turns it on in any world (both
-skip the title; the test runner keeps the playground classic).
+skip the title; the test runner keeps the playground classic). `?prologue` / `-- --prologue`
+starts a new run in the prologue, as New Game does, and skips the title.
 
 ## Doors
 
@@ -129,8 +132,9 @@ shows the locked line once per push; with it the push unlocks the door (the key 
 **Gates are pushed too** (owner, 2026-10-15; `game/scripts/gate.gd`): no interact key. The body
 within `worldNavigation.gatePushReachPx` (6) of the gate's `doors` body, the input pointing at it
 (within `doorPushAlignment`) for `doorPushMs`: with the key (or its record unlocked) the gate opens
-and says `unlocked_message`; without it, `locked_message` once per push. Gates opened by plates and
-bells (`open()`) are unchanged.
+and says `unlocked_message`; without it, `locked_message` once per push. Gates opened by plates
+(`open()`, this visit only) are unchanged; a bell's gate opens for good (`open_for_good()`, its
+record unlocked as a key's push leaves it; owner, 2026-10-16, question 136).
 
 **Real doors' look:** the door is painted into the house sprite. Set `house_art` (the house's
 Sprite2D), `door_rect` (the painted door, relative to the door node, world units), `door_arch` (the
@@ -255,15 +259,18 @@ pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godo
 ```
 
 Run the tests only when the user asks or after a really big, breaking change ([AGENTS.md](../../AGENTS.md)). `pnpm test:godot` (about ten minutes for the full suite; `--filter=<text>` runs one file) checks the trial's numbers from [specs/](specs): walk,
-sprint and the roll, sword and worm damage, i-frames, knockback, worm death, the starter camp's
-spawning, respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
+sprint and the roll (a roll sticks in a floor web), sword and worm damage, i-frames, knockback, worm death, the starter camp's
+placed worms (standing at once, beaten ones back only when the chunk is built again) and the
+playground pen's timed spawning (`test_camp.gd`, `test_enemy_pen.gd`), respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
 clips, the Fatty One Eye fight (camp spawn and reset, hop and leap timings, landing damage, arena
 leash, health bar, defeat), the ranged enemies (`test_enemy_ranged.gd`: archer arrows, projectile
-lifetime, walls and hurtboxes, flee range, the spider AI and webs, the brawler's impact effect,
-slow, knockback immunity, every world enemy type, crystal-caverns' legacy spawning), the
+lifetime, walls and hurtboxes, flee range, the four-way line-up (the archer, the line-up AI, the
+spider's line-up and webs, the Spitcap's and the Pipe Worm's lines), the brawler's impact effect,
+slow, knockback immunity, every world enemy type and level-1's placed camps, crystal-caverns' placed
+enemies, icege's legacy spawning), the
 Orb-Weaver Matron (`test_matron.gd`: nest camp and bar, spit, volley marks, landing and web
 patches, no stagger, arena leash, defeat records, reset, the web barrier and its torn flag,
-gloop-forest's orb weavers), the quests (`test_quests.gd`, `test_quests_gloop.gd`: new-run
+gloop-forest's placed camps), the quests (`test_quests.gd`, `test_quests_gloop.gd`: new-run
 records, offer / turn-in conversations, the dialogue reveal and keys, rewards, known facts, the
 tracker, markers, toasts, waypoint targets, saves), crafting, the bag and the belt (`test_crafting.gd`,
 `test_inventory.gd`, `test_loadout.gd`: quotes and the status order, the crafting window, the menu

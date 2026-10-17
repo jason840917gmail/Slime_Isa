@@ -472,16 +472,17 @@ The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`
 ### 10.3 Sound audition (dev)
 
 `?audition` on the web (Web (dev) export) or `-- --audition` on desktop adds
-`game/dev/sound_audition.gd`. F8 / F7 step through the option sets (what the game plays, A, B,
-round 2). Every staged cue that has the set's option plays those takes from
-`res://asset/audio/sfx/audition/` (MP3s plus `audition.json`, written by `stage-round.py`), at the
-volume measured for them. A corner panel names the set and the ground under the slime. The release
-Web export excludes the audition folder; applying the picks deletes it. It holds only the open
-round's cues. Round 4 was applied on 2026-10-06, round 5 (§11) on 2026-10-09 and round 6 (the
-stairs step, `scripts/audio/picker/round-6.json`) on 2026-10-14, so no round is open and the folder
-is gone until the next one is staged. The audition's sets are what the game plays, A, B and round
-2 (`SETS` in `sound_audition.gd`): a round with more options can only be heard on the picker page
-beyond those.
+`game/dev/sound_audition.gd`. F8 / F7 step through the option sets: what the game plays, then every
+option key of the staged round in the order it first appears in `audition.json` (`now`, the sound
+before the round, last; since 2026-10-16, before which only A, B and round 2 were sets). Every
+staged cue that has the set's option plays those takes from `res://asset/audio/sfx/audition/` (MP3s
+plus `audition.json`, written by `stage-round.py`), at the volume measured for them; the others keep
+what the game plays. A corner panel names the set (its key and its options' labels) and the ground
+under the slime. The release Web export excludes the audition folder; applying the picks deletes
+it. It holds only the open round's cues. Round 4 was applied on 2026-10-06, round 5 (§11) on
+2026-10-09, round 6 (the stairs step, `scripts/audio/picker/round-6.json`) on 2026-10-14 and
+round 7 (§12, the Gulp's suck, catch and throw) on 2026-10-17, so no round is open and the folder
+is gone until the next one is staged; the panel then says no round is staged.
 
 ### 10.4 Tests
 
@@ -509,9 +510,9 @@ defaults on 2026-10-09 ("sound the defaults are ok"): option A of each ships, ap
 
 | Cue | Options (A / B) | Plays when | Where |
 |---|---|---|---|
-| `GulpSuck` | Jelly vacuum / Whistling slurp | Q starts a suck | `mouth.gd` `begin_suck` |
-| `GulpCatch` | Gloop plop / Cork plunk | the sucked thing reaches the mouth, or the bag's Use puts an essence in it; also the slime gulping down the ceremony's bubble | `mouth.gd`; `ability_ceremony.gd` |
-| `GulpSpit` | Ptoo / Boing pop | Q throws what the mouth holds | `mouth.gd` `throw` |
+| `GulpSuck` | Jelly vacuum / Whistling slurp (replaced in round 7, §12) | Q starts a suck | `mouth.gd` `begin_suck` |
+| `GulpCatch` | Gloop plop / Cork plunk (replaced in round 7, §12) | the sucked thing reaches the mouth, or the bag's Use puts an essence in it; also the slime gulping down the ceremony's bubble | `mouth.gd`; `ability_ceremony.gd` |
+| `GulpSpit` | Ptoo / Boing pop (replaced in round 7, §12) | Q throws what the mouth holds | `mouth.gd` `throw` |
 | `BreakClay` | Pot shatter / Jar pop and tinkle | a clay thing breaks (pots, jugs, urns, shells) | `thrown_object.gd` `BREAK_CUES` (a throw), `mouth.gd` `drop` (knocked out by a hit) |
 | `BreakGlass` | Glass shatter | glass and crystal (jars, bottles, floats, crystals, obsidian) | same |
 | `BreakWood` | Crate smash | wood (crates, kegs, buckets, logs, coconuts) | same |
@@ -526,3 +527,77 @@ defaults on 2026-10-09 ("sound the defaults are ok"): option A of each ships, ap
 | `Ceremony` | Harp and bells / Marimba jingle | the ceremony's fanfare (an ability, a permanent item's first arrival, a Goo Heart) | `ability_ceremony.gd` |
 
 A material with no cue falls back to `HitDull` (`thrown_object.gd` `CUE_FALLBACK`).
+
+---
+
+## 12. Round 7: the Gulp's suck, catch and throw
+
+Opened 2026-10-16, applied 2026-10-17. The owner: "Sucking should be short, throwing should sound
+like throwing something. Those sounds are going to play a lot, so they need to be pleasant." Manifest
+`scripts/audio/picker/round-7.json`; the Magnific downloads are in `temp/sound-round-7/raw/`, the
+shaped sources in `temp/sound-round-7/cut/` and the prepared takes in `temp/sound-round-7/takes/`.
+Each option's generated takes are levelled to one loudness (`even`, TOOLING.md); the owner's own
+sounds ("Yours") are only trimmed and levelled. `now` is the round-5 sound.
+
+| Cue | Options | Shipped (the owner's picks) |
+|---|---|---|
+| `GulpSuck` | S1 Yours: suck1 (0.39 s), S2 Yours: suck2 (0.45 s), A Quick fwip, B Rising whoop, C Bubble bwip, D Soft breath-in, E Rewound whoosh (0.08 to 0.28 s), now | S1, his suck1: `gulp-suck.wav`, 0.39 s |
+| `GulpCatch` | A Soft plop, B Bubble pop, C Cork bloop, D Lip pop, E Gummy boing, F Marimba plip (0.06 to 0.31 s), now | A, Soft plop, its first take only: `gulp-catch.wav`, 0.10 s |
+| `GulpSpit` (the throw) | T1 Yours: throwing (0.27 s), T2 Yours: throwing2 (0.36 s), T3 Yours: throwing3 (0.38 s), A Airy whoosh, B Hup and swish, C Spinning whirl, D Whistle whoosh, E Whip swish (0.12 to 0.42 s), now | T, his three throws together ("for throw use my 3 sound alternative"; option T was added for it, levelled to one loudness): `gulp-spit-1` to `-3.wav`, 0.27, 0.36 and 0.38 s |
+
+The picks are `scripts/audio/picker/round-7-picks.json` (the picker's `picks/round-7`, version 17,
+with the throw's T1 applied as T); `stage-round.py --picks` wrote the files in
+`godot/asset/audio/sfx/library/player/` and kept them as
+`asset/Originals/audio/magnific/player-gulp-{suck,catch}-r7-1.wav` and `player-gulp-spit-r7-<n>.wav`,
+registered in `cues.mjs`. The suck and the throws are the owner's own sounds
+(`asset/audio/CREDITS.md`, source to be recorded).
+
+### 12.1 The cues that borrowed the Gulp's sounds
+
+Other things played `GulpSuck`, `GulpCatch` or `GulpSpit`. They have their own cues now, playing the
+round-5 takes, kept as `player/goo-inhale-<n>.wav` (the old suck), `goo-plop-<n>.wav` (the old
+catch) and `goo-ptoo-<n>.wav` (the old spit) at the old players' volumes (registered in `cues.mjs`
+and `picks.json`), so the new Gulp sounds are the Gulp's alone:
+
+| Cue | Takes | Plays when | Where |
+|---|---|---|---|
+| `GulpThroat` | goo-inhale | the swallow ring's rising throat sound (its stream pitched up) | `mouth_hold.gd` `THROAT_SOURCE_CUE` |
+| `BubbleRise` / `BubblePop` | goo-inhale / goo-ptoo | the prologue's birth bubble rises / pops | `prologue/birth_bubble.gd` |
+| `MimicWrap` / `MimicGrab` / `MimicSpit` | goo-inhale / goo-plop / goo-ptoo | the Cocoon Mimic wraps, grabs, spits the slime out | `cocoon_mimic.gd` |
+| `PipeWormCharge` / `PipeWormSpit` | goo-inhale / goo-ptoo | the Pipe Worm charges, spits its glob | `pipe_worm.gd` |
+| `SpitcapCharge` / `SpitcapSpit` | goo-inhale / goo-ptoo | the Spitcap charges, spits its seed | `spitcap.gd` |
+| `RookSteal` | goo-plop | the Rook Thief steals | `rook_thief.gd` |
+| `HeavyBlockGrab` | goo-plop | the slime grabs a heavy block (it played its placeholder `GulpCatch`) | `heavy_grab.gd` |
+| `GooBombSpit` | goo-ptoo | the Goo Bomb leaves the mouth (it played its placeholder `GulpSpit`) | `goo_bomb_sequence.gd` |
+| `LanternSpit` | goo-ptoo | the Lantern's flame leaves the mouth | `lantern_sequence.gd` |
+| `FireIgnite` | goo-ptoo | a burnable or a candle catches fire | `world/fire/burnable.gd`, `candle.gd` |
+
+The ceremony's gulp (`ability_ceremony.gd`) and the bag's Use putting an essence in the mouth keep
+`GulpCatch`: they are the mouth catching.
+
+### 12.2 Bringing your own sounds
+
+1. **Drop the files** in `asset/Originals/audio/sounds/` (outside the Godot project; the tools never
+   change them). MP3, WAV, OGG or FLAC; mono or stereo (the tools mix them to mono); any sample rate
+   (they become 44.1 kHz). Any file name. One sound per file, or several sounds with silence
+   between them, which can be cut into takes of one option. Keep the sound itself short: the suck
+   under about 0.45 s, the catch under 0.3 s, the throw under 0.4 s. Silence before and after is
+   trimmed; add `"max": <seconds>` to the option to cut it shorter.
+2. **Add an option** to the cue in the open round's manifest, like round 7's "Yours" ones. Round 7
+   is applied, so start a new round (`scripts/audio/picker/round-8.json`, with its own `round` and
+   `takes` folder) from round 7's cue, keeping the shipped option so it can be compared:
+   `{"key": "s3", "label": "Yours: <name>", "note": "...", "kind": "oneshot", "takes":
+   ["asset/Originals/audio/sounds/<file>"]}` (several files in `takes` are variants the game picks
+   among). To hear it in the game first, set the cue's `inGame` to its key.
+3. **Stage it**: `python scripts/audio/prep-takes.py <manifest>`, then
+   `python scripts/audio/picker/build-picker.py <manifest> <out.html>` for the picker page and
+   `python scripts/audio/stage-round.py <manifest>` for the game (it measures the loudness and sets
+   the player's volume). Let the Godot editor import the new files (or run one headless `--import`
+   while the editor is closed), then play with `?audition` (F7 / F8).
+
+The names that must stay are the game's: the players `GulpSuck`, `GulpCatch` and `GulpSpit` under
+`Effects` in `game/scenes/audio/global.tscn`, and their files `player/gulp-suck[-<n>].wav`,
+`gulp-catch[-<n>].wav`, `gulp-spit[-<n>].wav`, which `stage-round.py` writes (`<cue>.wav` for one
+take, `<cue>-<n>.wav` for several). A quick swap without the tools: overwrite one of those WAVs with
+a mono or stereo 16-bit WAV of the same name (keep the count of files), and let the editor import
+it; its volume stays the one measured for the old take, so re-stage when the level differs.

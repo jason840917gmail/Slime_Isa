@@ -535,7 +535,9 @@ Shown only while the tracker's waypoint is on and the game is not paused (`updat
 available NPC quest -> nearest giver NPC present on this map: "Talk to <name>"
 active, ready, npc-turn-in -> nearest turn-in NPC: "Return to <name>"
 active -> first unfinished objective of the current stage that resolves:
-   kill:            nearest enemy-spawn area holding any enemyKinds -> its stay rect centre
+   kill:            nearest placed enemy of enemyKinds still standing -> its wander area's centre
+                    (Godot, roadmap 5.25); else nearest enemy-spawn area holding any enemyKinds
+                    -> its stay rect centre
    defeat-boss:     camp root position of the first bossId whose camp is on this map
    discover-area:   nearest exit (WorldExitScript parent) or in-tree door whose target area is it
    collect:         nearest pile with remaining > 0 of those items, or standing resource node whose
@@ -1253,7 +1255,8 @@ func accept_label() -> String; func decline_label() -> String
   <key>", `#9ff0c8`) belongs on `RunState.ability_learned` (abilities owner); if nobody owns it yet,
   this file adds it.
 - Waypoint: `quest_waypoint.gd` resolves from Godot data: NPCs (group `npc`, `npc_definition_id`,
-  in tree), camps (group `boss_camp`, `boss_id`, parent position), enemy-spawn areas
+  in tree), camps (group `boss_camp`, `boss_id`, parent position), placed enemies (group
+  `placed_enemy`, `enemy_type`, `is_standing()`, `wander_centre()`), else enemy-spawn areas
   (`WorldService.areas("enemy-spawn")`, `data.enemies[].type`, `stay_perimeter` rect centre),
   exits/doors (`world_exit.gd` parent / `door.gd` with `target_area_id`), piles (group
   `collectible`, `remaining() > 0`, `pickup_area`/parent position) and resource nodes (not

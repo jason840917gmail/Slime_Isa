@@ -169,6 +169,15 @@ when it is ready to ship, take its path out of the "Web" preset's `exclude_filte
 disk: with the editor open, do not save from the editor's Export dialog right after running it (the
 editor keeps its own copy of the presets; reopen the project or the dialog first).
 
+**The prologue in B4 (2026-10-16):** `west-village-b4`'s south (rows 13-31) is the prologue, made by
+hand ([PROLOGUE.md](PROLOGUE.md)); its file no longer has the hash `world-chunks.json` recorded, so
+the cut leaves it alone. Its exit to level-1 moved to the east edge's y 1600-1792 and leads straight
+to `level-1-c4` (`arrive-from-west-village-1`), which has the exit back (`exit-to-west-village-1`):
+that opening is the prologue's forest path, so the West village's town needs its own opening onto
+Slimeshire when the layout is redrawn. The release "Web" preset ships `west-village-b4` (it
+excludes `west-village-a*` and `west-village-b5*` only); `build_region_worlds.gd` rewrites the
+presets, so check that line after running it.
+
 **Openings on hand-made worlds:** a placeholder's exit into level-1, gloop-forest or crystal-caverns
 works one way until the hand-made world has its own exit there: it carries
 `entry_marker = arrive-from-<placeholder>-1`, and while the hand-made world has no Node2D of that
@@ -247,7 +256,19 @@ music, scripts) are in every chunk; exits are clipped like the generated ones; e
 names the world names the chunk; doors (`door.gd`) go in the table so travel back from an interior
 lands in the chunk with the door; a world smaller than its block gives chunks along its right and
 bottom only as wide as it reaches (gloop-forest and crystal-caverns were grown to 64 × 64 first,
-2026-10-12: four full chunks each).
+2026-10-12: four full chunks each). World enemies are placed, not spawned (roadmap 5.25,
+[specs/enemy.md](specs/enemy.md) §3.3): the cut turns a world's `enemy-spawn` areas into
+`enemy-wander` areas with their `maxPopulation` of placed enemies under the chunk's `Enemies`
+node, and a live `metadata.spawns` table (a world without spawn areas) into at most 5 placed
+enemies in each chunk, in two camps with a new `enemy-wander` rect each (`<chunk>-camp-<n>`,
+`tools/lib/enemy_placement.gd`); a dead table (the world has spawn areas) is dropped. It reads open ground from cells
+only, so it notes each camp for a look at its spots, and notes a placed enemy whose wander area
+lies in another chunk.
+
+**Enemies come back with the chunk.** A chunk's placed enemies stand once it is built and are
+never spawned again while the slime is in it; walking back into it (or a door back out, a load)
+builds it again, and every one of them stands on its spot once more, as in Zelda. Beaten bosses
+keep their camps' own rule.
 
 **Tests:** a test file names its starting chunk (`MAP_ID := "gloop-forest-f4"`) or travels to the
 one holding what it tests; after a travel into a cut region `t.in_world("gloop-forest")` is true
@@ -283,7 +304,8 @@ the picture while the next chunk builds (about 0.2-1.4 s), then scrolls for 0.65
 
 ## Limits
 
-- The placeholders have no enemies (no spawns), and lava is a pit, not a hazard ground.
+- The placeholders have no enemies (none placed; `build_region_worlds.gd` places none), and lava is
+  a pit, not a hazard ground.
 - The atlas instances every world in the editor's memory: opening it takes a few seconds.
 - After the Wilds' blocks were moved on 2026-10-10 some sketch rivers and roads stop at a block's
   edge inside the Wilds; repaint them in the sketch tool and rebuild the placeholders.

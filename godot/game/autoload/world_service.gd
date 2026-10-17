@@ -31,6 +31,8 @@ const SCENE_INDEX_PATH := "res://game/scenes/scene_index.json"
 ## Area kinds (WorldAreaScript.ts); anything else is a content error.
 const AREA_ENEMY_SAFE_ZONE := "enemy-safe-zone"
 const AREA_ENEMY_SPAWN := "enemy-spawn"
+## A camp's shared wander area for placed enemies (game/enemy/placed_enemy.gd; not Phaser's).
+const AREA_ENEMY_WANDER := "enemy-wander"
 const AREA_NPC_WANDER := "npc-wander"
 ## Pause reasons. The tree is paused while any reason is active.
 const PAUSE_HIT_STOP := &"hit-stop"
@@ -282,7 +284,10 @@ func camera_mode() -> String:
 ## Area records of one kind (world spec 3.1):
 ##   enemy-safe-zone: {"id", "kind", "data", "perimeter"}                   (rectangle only)
 ##   enemy-spawn:     {"id", "kind", "data", "perimeter", "stay_perimeter"} (pursue = perimeter;
-##                    "pursue_perimeter" is an alias of "perimeter")
+##                    "pursue_perimeter" is an alias of "perimeter"; the playground and the dev
+##                    worlds only)
+##   enemy-wander:    {"id", "kind", "data", "perimeter", "stay_perimeter"} (stay = perimeter: the
+##                    wander area placed enemies name)
 ##   npc-wander:      {"id", "kind", "data", "perimeter"}
 ## `data` is the raw JSON Dictionary (camelCase keys: enemies, intervalMs, maxPopulation,
 ## npcInstanceId). Perimeters use res://game/shared/perimeter.gd.

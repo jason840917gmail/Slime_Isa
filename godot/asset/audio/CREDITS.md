@@ -20,6 +20,22 @@ required. The `magnific` pack was generated for this project.
 | `artisticdude-swishes` | Swishes Sound Pack | artisticdude | https://opengameart.org/content/swishes-sound-pack |
 | `magnific` | Generated for Slime Isa with Magnific (ElevenLabs sound effects), trimmed and normalized: the Workshop restoration, the 20 sounds replaced after the owner's picks, and the round-3 steps, water and action sounds (2026-10-06; steps cut from generated walks by `scripts/audio/slice-steps.py`) | the project | `asset/Originals/audio/magnific/` (copy this folder in as `magnific`) |
 
+### The owner's own sounds
+
+Sound Picker round 7 (applied 2026-10-17; [audio spec §12](../../../docs/godot/specs/audio.md#12-round-7-the-gulps-suck-catch-and-throw))
+ships four of the owner's own sounds, not generated ones. They are in the `magnific` folder only because
+`stage-round.py` keeps every shipped take there.
+
+| Shipped take | Kept as | Original | Source and licence |
+|---|---|---|---|
+| `sfx/library/player/gulp-suck.wav` (the Gulp's suck) | `magnific/player-gulp-suck-r7-1.wav` | `asset/Originals/audio/sounds/suck1.mp3` | to be recorded by the owner |
+| `sfx/library/player/gulp-spit-1.wav` (the throw) | `magnific/player-gulp-spit-r7-1.wav` | `asset/Originals/audio/sounds/throwing.mp3` | to be recorded by the owner |
+| `sfx/library/player/gulp-spit-2.wav` (the throw) | `magnific/player-gulp-spit-r7-2.wav` | `asset/Originals/audio/sounds/throwing2.mp3` | to be recorded by the owner |
+| `sfx/library/player/gulp-spit-3.wav` (the throw) | `magnific/player-gulp-spit-r7-3.wav` | `asset/Originals/audio/sounds/throwing3.mp3` | to be recorded by the owner |
+
+The round's catch (`sfx/library/player/gulp-catch.wav`, kept as `magnific/player-gulp-catch-r7-1.wav`) was
+generated with Magnific, as the rest of that folder.
+
 `scripts/audio/cues.mjs` lists the original file for every library take (the `library` field; `<pack-folder>/<name>`
 where a name exists in more than one pack). To re-import, unpack each zip into a folder named as above inside one
 parent folder and run:

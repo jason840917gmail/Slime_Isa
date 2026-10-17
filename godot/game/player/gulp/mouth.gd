@@ -26,12 +26,19 @@ extends RefCounted
 ## `end_burst` ends it (a pull already in flight finishes). The held suck above is unchanged and is
 ## the only one the classic game uses. Neither ever pulls a live enemy.
 ##
+## The feel (gulp_feel.gd, game-constants.json `gulp.feel`; 2026-10-16): the suck squashes the slime
+## and draws motes into its mouth, the catch bulges it and settles what it holds with a bob, the
+## throw stretches and leans it toward the throw. The pulled thing flies in at its PULL_LOOK_PX look,
+## shrinking (it flew at its full art size before).
+##
 ## Owner: abilities (the burst: mouth).
 
 const Services := preload("res://game/shared/services.gd")
 const HeldLook := preload("res://game/player/gulp/held_look.gd")
 const ThrownObject := preload("res://game/player/gulp/thrown_object.gd")
 const SuctionFx := preload("res://game/player/gulp/suction_fx.gd")
+## The suck's squash and motes, the catch's bulge and settle, the throw's stretch (`gulp.feel`).
+const GulpFeel := preload("res://game/player/gulp/gulp_feel.gd")
 const EssenceScript := preload("res://game/scripts/essence.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 
@@ -86,6 +93,10 @@ func begin_suck() -> void:
 	_sucking = true
 	_show_fx(true)
 	_audio(CUE_SUCK)
+	var aim := Vector2.DOWN
+	if _player != null and _player.has_method(&"get_gulp_aim"):
+		aim = _player.call(&"get_gulp_aim")
+	GulpFeel.suck(_player, aim)
 
 
 ## Rework mode (mouth_hold.gd): a suck that lasts `duration_ms` from `now_ms`, Q held or not, and
@@ -186,6 +197,7 @@ func throw(direction: Vector2) -> bool:
 	parent.add_child(thrown)
 	thrown.launch(_player, held, body.global_position, direction)
 	_audio(CUE_THROW)
+	GulpFeel.thrown(_player, direction)
 	_set_held({})
 	return true
 
@@ -200,6 +212,7 @@ func _spit_essence(direction: Vector2) -> bool:
 	EssenceScript.spawn(str(held.get("essence", "")), body.global_position + unit * GulpController.SPIT_PX,
 		_player.call(&"get_centre"), 0.0)
 	_audio(CUE_THROW)
+	GulpFeel.thrown(_player, unit)
 	_set_held({})
 	return true
 
@@ -212,6 +225,7 @@ func take_item(item_id: String) -> bool:
 		return false
 	_set_held({"kind": "essence", "essence": str(form["essence"])})
 	_audio(CUE_CATCH)
+	GulpFeel.caught(_player, _inside, Vector2(0.0, -INSIDE_RISE))
 	return true
 
 
@@ -238,7 +252,7 @@ func drop() -> void:
 		GooBomb.from_held(held).call(&"land", feet - facing * 28.0)
 	else:
 		# It breaks at the slime's feet as a thrown one breaks where it lands.
-		var material := LiftableScript.material_of(str(held.get("kind", "")))
+		var material := HeldLook.material_of(held)
 		var world := Services.world()
 		var look := HeldLook.make(held, ThrownObject.LOOK_SIZE_PX)
 		if world != null and look is Sprite2D:
@@ -287,7 +301,8 @@ func _start_pull(target: Node, now_ms: float) -> void:
 	else:
 		look.free()
 		look = null
-	_pull = {"info": info, "look": look, "from": from - Vector2(0.0, 14.0), "started": now_ms}
+	_pull = {"info": info, "look": look, "from": from - Vector2(0.0, 14.0), "started": now_ms,
+		"scale": look.scale if look != null else Vector2.ONE}
 
 
 func _move_pull_look(progress: float) -> void:
@@ -298,7 +313,8 @@ func _move_pull_look(progress: float) -> void:
 	var mouth := body.global_position - Vector2(0.0, MOUTH_RISE) if body != null else look.global_position
 	var eased := progress * progress
 	look.global_position = (_pull["from"] as Vector2).lerp(mouth, eased)
-	look.scale = Vector2.ONE * lerpf(1.0, 0.45, eased)
+	# It shrinks from its PULL_LOOK_PX look (HeldLook's scale) as it goes in.
+	look.scale = (_pull.get("scale", Vector2.ONE) as Vector2) * lerpf(1.0, 0.45, eased)
 
 
 func _finish_pull() -> void:
@@ -307,6 +323,7 @@ func _finish_pull() -> void:
 	_stop_suck()
 	_set_held(info)
 	_audio(CUE_CATCH)
+	GulpFeel.caught(_player, _inside, Vector2(0.0, -INSIDE_RISE))
 
 
 func _cancel_pull() -> void:

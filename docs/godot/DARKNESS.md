@@ -44,6 +44,10 @@ A Node2D with the script shows one of two existing interior props, `unlit_scene`
 The candle, the candlestick, the sconces and the toadstool candles in
 `game/scenes/objects/interiors/` have lit and unlit scenes. The script makes both looks as children
 (the hidden one's collision is off), and in the editor it shows the one `lit_at_start` asks for.
+The **brazier** (`object.brazier`, `game/scenes/objects/brazier.tscn`, 2026-10-16) is a ready-made
+one: the script on an iron brazier's two looks (`brazier-unlit.tscn`, `brazier-lit.tscn`, from
+`asset/MAPS/props/caverns/256x256-tile_2x1-brazier.webp`), `light_radius` 120, `burn_ms` 20000;
+the Bestiary's Shardback pen has two, and the Colossus's arena will want four.
 
 - A flame lights it. Lit, it is a light source of `candle.lightRadiusPx` (110 px) at
   `flame_offset`, with a warm additive glow on its flame.
@@ -77,3 +81,12 @@ soft glow texture (`glow_texture()`, used with `additive()`).
 `game/dev/corners/lantern_corner.tscn` is instanced in `game/scenes/worlds/playground.tscn`, which
 was widened east from 40 to 52 columns for it: new grass, and a cavern floor under the room. The
 layout is in [BODY_SHAPES.md "The Lantern"](BODY_SHAPES.md#the-lantern-2026-10-14).
+
+## Enemies that answer to light
+
+The Bestiary's pens 23, 24 and 28 each hold a `DarkRoom` the size of the pen, with no candles, so
+they stay dark. Three enemies there read the light sources (they only read them:
+`game/enemy/light_sense.gd`, [BESTIARY.md](BESTIARY.md#what-the-patterned-enemies-share)): the
+Gloomling flees any light and the Glint Bat wakes in it; the Shardback's shell turns brittle in fire
+light (every source but the slime's own ember). Their eyes show in the dark through
+`game/enemy/dark_eyes.gd` (drawn over the overlay, only while the room is dark).

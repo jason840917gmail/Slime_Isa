@@ -75,12 +75,11 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid--house-mushroom.tscn" id="44_ag1o4"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="45_tvl7h"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid--forge-red.tscn" id="46_frgrd"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
+[ext_resource type="Script" path="res://game/prologue/town_edge_meeting.gd" id="prologue_meeting"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17"]
 size = Vector2(1536, 1024)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_18"]
-size = Vector2(1288.5, 880.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_19"]
 size = Vector2(280, 181)
@@ -108,6 +107,9 @@ size = Vector2(4, 2048)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_south"]
 size = Vector2(2048, 4)
+
+[sub_resource type="RectangleShape2D" id="shape_exit_to_west_village_1"]
+size = Vector2(32, 192)
 
 [node name="level-1-c4" type="Node2D" unique_id=1593901030]
 y_sort_enabled = true
@@ -808,29 +810,16 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
-[node name="pursue-shape" type="CollisionShape2D" parent="Areas/level-1-starter-camp" unique_id=121776691]
-shape = SubResource("RectangleShape2D_18")
-
-[node name="stay-shape" type="CollisionShape2D" parent="Areas/level-1-starter-camp" unique_id=454568505]
+[node name="wander-shape" type="CollisionShape2D" parent="Areas/level-1-starter-camp" unique_id=454568505]
 position = Vector2(-2, 4.5)
 shape = SubResource("RectangleShape2D_19")
 
-[node name="world-area-script" type="Node" parent="Areas/level-1-starter-camp" unique_id=1844029762 node_paths=PackedStringArray("area", "shape", "stay_shape")]
+[node name="world-area-script" type="Node" parent="Areas/level-1-starter-camp" unique_id=1844029762 node_paths=PackedStringArray("area", "shape")]
 script = ExtResource("40_xv3g4")
-area_kind = "enemy-spawn"
+area_kind = "enemy-wander"
 area_id = "level-1-starter-camp"
 area = NodePath("..")
-data = {
-"enemies": [{
-"maxAlive": 3,
-"type": "worm-swordsman",
-"weight": 1
-}],
-"intervalMs": 2500,
-"maxPopulation": 3
-}
-shape = NodePath("../pursue-shape")
-stay_shape = NodePath("../stay-shape")
+shape = NodePath("../wander-shape")
 
 [node name="npc-area-01" type="Area2D" parent="Areas" unique_id=1003075004]
 y_sort_enabled = true
@@ -1015,6 +1004,53 @@ entry = "north"
 keep_along = true
 area = NodePath("..")
 
+[node name="Enemies" type="Node2D" parent="." unique_id=211067907]
+
+[node name="worm-swordsman-1" parent="Enemies" unique_id=798370536 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1062, 1534)
+enemy_type = "worm-swordsman"
+wander_area_id = "level-1-starter-camp"
+
+[node name="worm-swordsman-2" parent="Enemies" unique_id=357779653 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1182, 1502)
+enemy_type = "worm-swordsman"
+wander_area_id = "level-1-starter-camp"
+
+[node name="worm-swordsman-3" parent="Enemies" unique_id=1995601599 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1182, 1574)
+enemy_type = "worm-swordsman"
+wander_area_id = "level-1-starter-camp"
+
+[node name="arrive-from-west-village-1" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(96, 1696)
+
+[node name="exit-to-west-village-1" type="Area2D" parent="."]
+position = Vector2(16, 1696)
+collision_layer = 512
+collision_mask = 130
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="exit-to-west-village-1"]
+shape = SubResource("shape_exit_to_west_village_1")
+
+[node name="world-exit-script" type="Node" parent="exit-to-west-village-1" node_paths=PackedStringArray("area")]
+script = ExtResource("45_tvl7h")
+map_id = "level-1-c4"
+exit_id = "level-1-to-west-village-1"
+target_area_id = "west-village-b4"
+entry = "east"
+entry_marker = "arrive-from-level-1-1"
+area = NodePath("..")
+
+[node name="PrologueMeeting" type="Node2D" parent="." node_paths=PackedStringArray("spot")]
+script = ExtResource("prologue_meeting")
+spot = NodePath("plop-meeting-spot")
+
+[node name="plop-meeting-spot" type="Node2D" parent="PrologueMeeting"]
+position = Vector2(140, 1604)
+
+[connection signal="body_entered" from="exit-to-west-village-1" to="exit-to-west-village-1/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-east" to="edge-east/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]
 

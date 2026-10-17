@@ -3,7 +3,9 @@ class_name SlimeSpiderAI
 ## Ranged spider behaviour (Phaser `enemies/ai/SlimeSpiderAI.ts`): approach while orbiting, hold a
 ## preferred distance, retreat around the player when pressured, keep spitting through the common
 ## attack. Enemy spec 14. Used by `EnemyAI.run_state` for `attributes.behavior == "slime-spider"`
-## (slime spider, orb weaver, the Orb-Weaver Matron) after the safe-zone push.
+## after the safe-zone push: every state of the Orb-Weaver Matron (a boss: its own pattern), and
+## only idle and wander of the Slime Spider and the Orb-weaver, four-way shooters since 2026-10-16
+## whose chase, flee and attack are res://game/enemy/line_up_ai.gd's (enemy spec 20).
 ##
 ## Context keys (enemy_ai.gd): "distance", "dir", "centre", "aggro", "attack_range",
 ## "wander_speed", "chase_speed", "may_engage", plus "preferred_distance" (enemy.gd:
