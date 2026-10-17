@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/plank_barricade.gd" id="1_wood"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="2_sheet"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(124, 22)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(132, 70)
+
+[node name="old-fence" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+script = ExtResource("1_wood")
+refusal_text = "An old broken fence, nailed fast. A heavier roll would knock it down."
+smash_text = "Knocked down!"
+splinter_rise = 50.0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -11)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-139, -186)
+hframes = 2
+script = ExtResource("2_sheet")
+sheet_path = "res://asset/MAPS/props/heavy-skin/old-fence-2x1.webp"
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="HurtShape" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(0, -30)
+shape = SubResource("RectangleShape2D_hurt")

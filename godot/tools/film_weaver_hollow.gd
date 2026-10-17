@@ -1,6 +1,9 @@
 extends SceneTree
 ## Films the Weaver Hollow's main path in the running game (docs/godot/DUNGEONS.md "The Weaver
-## Hollow"): from the entrance to the Pearl, one shot per step, each the game's own view with the HUD.
+## Hollow"): from the forecourt through the first half to the Brood Warden, the Pearl in the Hoard and
+## its take (the seal), the Silk skin's second half (the Hoard's stair, C1, C4 the Spinning Loft), the
+## Matron's three rounds (the Silk skin's exam) and out, one shot per step, each the game's own view
+## with the HUD.
 ## Run windowed (it renders), from the repo:
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/film_weaver_hollow.gd -- --out=<dir> [--only=<shot prefix>]
 ## Writes <dir>/<nn>-<shot>.png and <dir>/shots.json (each shot's caption), which
@@ -8,12 +11,14 @@ extends SceneTree
 ##
 ## A shot is staged, not played: the slime is put where the step happens, the step's locks are
 ## opened by their flags when the shot shows what comes after them, and what the step does (a blast,
-## a held key) is played for a moment before the frame is taken.
+## a held key) is played for a moment before the frame is taken. The ceremonies' cards are off.
 
 const Services := preload("res://game/shared/services.gd")
 const GooBlast := preload("res://game/player/abilities/goo_blast.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const DUNGEON_ID := "weaver-hollow"
+const MATRON := "orb-weaver-matron"
 const MAIN_SCENE := "res://game/main.tscn"
 const DEFAULT_OUT := "user://weaver-hollow-film"
 const CELL := 64.0
@@ -21,14 +26,17 @@ const WORLD := "weaver-hollow-%s"
 
 ## [name, floor (or a whole world id), the slime's feet (cells), facing, actions, caption]. Actions: "flag:<id>" (set before
 ## the world is entered), "keys:<n>" (small keys held), "item:<big-key|map>" (a dungeon item held),
-## "trigger:<node path>" (sets a kit piece off once the world is entered: a bridge, a shutter, a door),
+## "boss:<id>" (that boss beaten), "skin:<id>" (lent), "seal" (the Hollow sealed, before the world is
+## built), "trigger:<node path>" (sets a kit piece off once the world is entered: a bridge, a shutter,
+## a door), "call:<node path>:<method>", "take:<node path>" (a Pearl taken: its skin, the seal, the
+## roar), "matron:<2|3|dead>" (her rounds driven there: a tear and her round's hundred each),
 ## "blast:<x>,<y>" (cells), "hold:<action>:<ms>", "wait:<ms>".
 const SHOTS := [
 	["forecourt", "gloop-forest-f4", Vector2(15, 11.5), Vector2.UP, ["wait:400"], "The forecourt: the Watch Oak's bricked root gate"],
 	["forecourt-blown", "gloop-forest-f4", Vector2(15, 11.5), Vector2.UP, ["blast:15,10.4", "wait:900"], "A bomb blows the gate: the way into the Trunk"],
 	["entrance", "trunk", Vector2(24, 39.5), Vector2.UP, [], "T1 Root Door: in through the cracked root gate"],
 	["webs", "trunk", Vector2(24, 36.5), Vector2.UP, ["hold:move_up:900"], "T1: a floor web slows the walk"],
-	["hub", "trunk", Vector2(32, 7.7), Vector2.UP, [], "T2 the Hollow Heart: the Crown Door on its gallery"],
+	["hub", "trunk", Vector2(32, 7.7), Vector2.UP, [], "T2 the Hollow Heart: the Crown Door on its gallery, silk spilling at its west end"],
 	["larder", "trunk", Vector2(8, 19.5), Vector2.UP, ["wait:600"], "T3 the Larder: two cracks, two orb-weavers"],
 	["larder-blown", "trunk", Vector2(8, 19.5), Vector2.UP, ["blast:8,17.5", "wait:900"], "T3: a bomb blows the north crack"],
 	["map-nook", "trunk", Vector2(2.5, 12.2), Vector2.UP, ["flag:weaver-hollow.larder-crack-nook"], "T3a the map nook, behind the second crack"],
@@ -41,15 +49,29 @@ const SHOTS := [
 	["bough-stair", "boughs", Vector2(4, 22), Vector2.RIGHT, ["wait:800"], "B1 the Bough Stair: a Silk Lurker's shadow"],
 	["drawbridge", "boughs", Vector2(27, 22), Vector2.RIGHT, ["wait:400"], "B2 the Drawbridge: the bridge up, its cracked post"],
 	["drawbridge-down", "boughs", Vector2(27, 22), Vector2.RIGHT, ["blast:34.6,20.8", "wait:1400"], "B2: a bomb over the void breaks the post"],
-	["mimic", "boughs", Vector2(42, 37), Vector2.UP, ["wait:600"], "B3 the Mimic's Pantry: a cocoon that breathes"],
-	["nursery", "boughs", Vector2(55.5, 25), Vector2.UP, ["wait:1500"], "B4 the Nursery: the ambush shuts its doors"],
-	["double-door", "boughs", Vector2(40, 19.5), Vector2.UP, ["keys:2", "wait:300"], "B2: keys 2 and 3 open the Warden's double door"],
-	["warden", "boughs", Vector2(40, 11.5), Vector2.UP, ["trigger:Objects/den-double-door", "wait:1200"], "B5 the Warden's Den: the Brood Warden"],
-	["hoard", "boughs", Vector2(27.5, 9), Vector2.UP, ["trigger:Objects/hoard-shutter"], "The Hoard: the big chest, the big key"],
-	["gallery", "trunk", Vector2(34, 4.6), Vector2.UP, ["item:big-key"], "T2's gallery: the calm room before the Crown Door"],
-	["crown-stair", "crown", Vector2(8, 24), Vector2.UP, [], "C1 the Crown Stair: the climb"],
-	["matron", "crown", Vector2(8, 11.5), Vector2.UP, ["wait:2500"], "C2 the Crown: the Matron in her cocoon"],
-	["outer-bough", "crown", Vector2(22, 8), Vector2.RIGHT, [], "C3 the Outer Bough: the way out with the Silk skin"],
+	["mimic", "boughs", Vector2(42, 37), Vector2.UP, ["wait:600"], "B3 the Mimic's Pantry: a cocoon that breathes (small key 2)"],
+	["den-door", "boughs", Vector2(40, 19.5), Vector2.UP, ["keys:1", "wait:300"], "B2: small key 2 opens the Warden's door (one keyhole; B4 and B6 are an optional wing)"],
+	["warden", "boughs", Vector2(40, 11.5), Vector2.UP, ["trigger:Objects/den-door", "wait:1200"], "B5 the Warden's Den: the Brood Warden; the Pearl's glow at the Hoard's shutter"],
+	["hoard", "boughs", Vector2(26.8, 8.8), Vector2.UP, ["boss:weaver-hollow-brood-warden", "trigger:Objects/hoard-shutter", "wait:1400"], "The Hoard, the Pearl room: Pearl 2 risen on the brood's altar beside the big chest"],
+	["take", "boughs", Vector2(26.8, 8.8), Vector2.UP, ["take:Objects/pearl-two", "wait:1700"], "The take: the Silk skin; the Matron roars, silk dust, the way out slams shut"],
+	["hoard-stair", "boughs", Vector2(28, 10.0), Vector2.DOWN, ["skin:silk", "hold:move_down:650"], "The Hoard's stair: a web wall, passed at half speed (the Silk skin's first lock)"],
+	["entrance-sealed", "trunk", Vector2(24, 38.8), Vector2.DOWN, ["wait:500"], "T1: the way out sealed until the Matron falls"],
+	["gallery", "trunk", Vector2(30, 4.6), Vector2.UP, ["item:big-key"], "T2's gallery: the calm room after the Pearl, then the Crown Door (the big key)"],
+	["crown-stair", "crown", Vector2(8, 25.6), Vector2.UP, ["wait:300"], "C1 the Crown Stair: webs wall to wall, a web wall on the straight way"],
+	["crown-stair-wade", "crown", Vector2(8, 24.9), Vector2.UP, ["skin:silk", "hold:move_up:700"], "C1: the Silk slime walks the webs and pushes through the web wall"],
+	["k3-door", "crown", Vector2(8, 18.9), Vector2.UP, ["wait:300"], "C1's top: the K3 door and its pots, the calm spot before her"],
+	["loft", "crown", Vector2(18.6, 25.6), Vector2.RIGHT, ["wait:1200"], "C4 the Spinning Loft: rows of web walls, two Slime Spiders"],
+	["loft-wade", "crown", Vector2(23, 25.0), Vector2.UP, ["skin:silk", "hold:move_up:650", "wait:150"], "C4: wading a row of silk under the spiders' fire"],
+	["loft-lane", "crown", Vector2(24, 22.6), Vector2.UP, ["skin:silk", "call:Objects/loft-web-0-3:cut_open", "call:Objects/loft-web-1-2:cut_open", "wait:700"], "C4: or the Spear cuts a lane for good"],
+	["loft-parcel", "crown", Vector2(27.4, 19.2), Vector2.RIGHT, ["wait:500"], "C4: small key 3 wrapped in a silk parcel"],
+	["loft-key", "crown", Vector2(27.4, 19.2), Vector2.RIGHT, ["skin:silk", "call:Objects/loft-key-parcel:free_parcel", "wait:900"], "C4: the Spear frees it: small key 3"],
+	["k3-open", "crown", Vector2(8, 18.6), Vector2.UP, ["keys:1", "trigger:Objects/crown-key-door", "wait:500"], "Small key 3 opens the K3 door into the Crown"],
+	["matron", "crown", Vector2(8, 11.5), Vector2.UP, ["skin:silk", "seal", "wait:2500"], "C2 the Crown: the Matron in her cocoon, enraged (round 1: blast, then the Spear)"],
+	["matron-cage", "crown", Vector2(8, 11.5), Vector2.UP, ["skin:silk", "matron:2", "wait:700"], "Round 2: a cage of web walls; a thrown bomb sticks in its silk"],
+	["matron-cage-in", "crown", Vector2(8.7, 7.9), Vector2.LEFT, ["wait:600"], "Round 2: cut in or wade in, then cast inside the cage"],
+	["matron-floor", "crown", Vector2(8, 11.2), Vector2.UP, ["matron:3", "wait:900"], "Round 3: the webbed floor and her brood; the Silk slime rolls through"],
+	["matron-fall", "crown", Vector2(8, 11.2), Vector2.UP, ["matron:dead", "wait:2400"], "Her fall: the seals break; her full heart and her thread"],
+	["outer-bough", "crown", Vector2(22, 8), Vector2.RIGHT, [], "C3 the Outer Bough: her web wall, the way out once she fell"],
 	["s1", "gloop-forest-f4", Vector2(19.4, 13.2), Vector2.RIGHT, ["wait:400"], "The drop lands by the gate: S1's web wall"],
 	# Checks (only with --only=check): walks over the lowered drawbridges, the slime's end printed.
 	["check-b2-bridge", "boughs", Vector2(28.5, 22), Vector2.RIGHT, ["trigger:Objects/b2-drawbridge", "hold:move_right:2600"], "B2: over the lowered bridge"],
@@ -74,6 +96,7 @@ func _initialize() -> void:
 	_main = (load(MAIN_SCENE) as PackedScene).instantiate()
 	_main.set(&"map_id", WORLD % "trunk")
 	_main.set(&"playground_abilities", false)
+	_main.set(&"ability_ceremonies", false)
 	root.add_child(_main)
 	for i in 60:
 		await process_frame
@@ -101,6 +124,12 @@ func _initialize() -> void:
 					DungeonState.add_small_key(run, DUNGEON_ID, keys - held)
 			elif action.begins_with("item:"):
 				DungeonState.give_item(run, DUNGEON_ID, action.trim_prefix("item:"))
+			elif action.begins_with("boss:"):
+				DungeonState.mark_boss_beaten(run, DUNGEON_ID, action.trim_prefix("boss:"))
+			elif action.begins_with("skin:"):
+				SkinState.lend(StringName(action.trim_prefix("skin:")))
+			elif action == "seal" and DungeonState.seal(run, DUNGEON_ID, MATRON, "film"):
+				travel = true
 		if travel:
 			_main.call(&"travel_to", world_id)
 			var waited := 0
@@ -127,6 +156,17 @@ func _initialize() -> void:
 				elif piece != null and piece.has_method(&"open_for_good"):
 					piece.call(&"open_for_good")
 				await _wait_ms(900.0)
+			elif action.begins_with("call:"):
+				var parts := action.split(":")
+				var target := Services.world().world_root.get_node_or_null(parts[1])
+				if target != null:
+					target.call(StringName(parts[2]))
+			elif action.begins_with("take:"):
+				var pearl := Services.world().world_root.get_node_or_null(action.trim_prefix("take:"))
+				if pearl != null:
+					pearl.call(&"take")
+			elif action.begins_with("matron:"):
+				await _drive_matron(action.trim_prefix("matron:"))
 			elif action.begins_with("blast:"):
 				var xy := action.trim_prefix("blast:").split(",")
 				GooBlast.detonate(Vector2(float(xy[0]), float(xy[1])) * CELL, false)
@@ -149,6 +189,32 @@ func _initialize() -> void:
 	json.close()
 	print("saved to ", ProjectSettings.globalize_path(out))
 	quit(0)
+
+
+## The Matron's fight driven to `to` ("2", "3" or "dead"): her spawn awaited, then a tear and her
+## round's hundred (the floor stops it) for each round before it, and her respin.
+func _drive_matron(to: String) -> void:
+	var camp: Node = null
+	for node: Node in root.get_tree().get_nodes_in_group(&"boss_camp"):
+		camp = node
+	var waited := 0
+	while (camp == null or not bool(camp.call(&"has_live_boss"))) and waited < 400:
+		await physics_frame
+		waited += 1
+		for node: Node in root.get_tree().get_nodes_in_group(&"boss_camp"):
+			camp = node
+	if camp == null or not bool(camp.call(&"has_live_boss")):
+		print("film: no Matron to drive")
+		return
+	var matron: Node = camp.call(&"get_live_boss")
+	var target := 4 if to == "dead" else int(to)
+	while not bool(matron.call(&"is_defeated")) and int(matron.call(&"get_round")) < target:
+		matron.call(&"receive_blast", {})
+		await _wait_ms(300.0)
+		matron.call(&"take_reaction_damage", 500.0)
+		if bool(matron.call(&"is_defeated")):
+			break
+		await _wait_ms(float(matron.get(&"respin_ms")) + 200.0)
 
 
 ## Waits `ms` of game time (at most three times as long in real time: a ceremony pauses the clock).

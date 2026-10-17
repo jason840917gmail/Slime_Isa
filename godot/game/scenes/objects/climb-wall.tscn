@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://game/crystal_mine/climb_wall.gd" id="climb"]
+[ext_resource type="Script" path="res://game/scripts/climb_wall.gd" id="climb"]
 [ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
 
 [node name="climb-wall" type="Node2D"]

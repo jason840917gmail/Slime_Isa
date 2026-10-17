@@ -71,7 +71,7 @@ func _ready() -> void:
 	if closed_look is Node2D:
 		_closed_rest = (closed_look as Node2D).position
 	set_process(false)
-	_restore.call_deferred()
+	_restore_in_tree.call_deferred()
 
 
 ## Foreshortens the looks in a side wall (SIDE_DEPTH), back to their own scale in a north or
@@ -147,6 +147,14 @@ func _on_push(_from_face: bool) -> void:
 ## Override: true when a push it refused would now succeed (it then runs again without letting go).
 func _wants_retry() -> bool:
 	return false
+
+
+## `_restore`, deferred from `_ready`, only while still in the tree: a world run on its own (F6)
+## is the current scene for a moment before it swaps itself for main.tscn, and this piece of that
+## copy has left the tree by then.
+func _restore_in_tree() -> void:
+	if is_inside_tree():
+		_restore()
 
 
 ## Override: the record says what to show when the world is built.

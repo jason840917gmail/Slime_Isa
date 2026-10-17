@@ -30,6 +30,17 @@ class_name MatronScript
 ##   round 3 drops `egg_sac_scene` at each of `egg_sac_offsets` once (their Broodlings swarm and
 ##   drop energy shards, as kills do). No blast, no damage: she cannot be beaten without the Goo
 ##   Bomb.
+## - **The Silk skin's exam** (the Pearl inside the dungeon, owner 2026-10-17;
+##   docs/design/2026-10-17-pearl-mid-dungeon.md "The Matron's exam"): when the slime has the Silk
+##   skin (SkinState; it always has in the Hollow, whose Pearl comes first) and `silk_exam` is on,
+##   round 2 spins a **cage of web walls** (`object.web-wall`, not remembered) on a square
+##   `ring_radius` round her shadow in place of the ring, its cut walls spun again every
+##   `ring_reweb_ms` (never one the slime stands in): a thrown bomb stops in its silk (a throw ends
+##   at the first hurtbox) and blows out of reach of her shadow ("A thrown bomb sticks in the
+##   silk."), so the slime cuts a gap with the Spear or wades a wall at half speed, then casts
+##   inside. Round 3 **webs the floor** round her shadow (`object.floor-web` cells out to
+##   `floor_web_radius_px`), which the Silk slime walks and Rolls through. Both go with her (her
+##   fall, a reset). Without the skin the built rounds above play.
 ## - **Beaten:** the cocoon unravels and she shrinks into an ordinary big orb-weaver (the
 ##   orb-weaver's own sheet) that scuttles off up through her web; her egg sacs and their brood
 ##   burst. The rewards are the camp scene's (Pearl 2, the full heart, her thread).
@@ -45,6 +56,7 @@ const AttackTelegraph := preload("res://game/bosses/attack_telegraph.gd")
 const BlastBarrier := preload("res://game/scripts/blast_barrier.gd")
 const CocoonLook := preload("res://game/bosses/matron_cocoon_look.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const PHASE_FIGHT := "fight"
 const PHASE_VOLLEY_TELEGRAPH := "volley-telegraph"
@@ -113,6 +125,16 @@ const RETREAT_STRIDE_S := 0.12
 const UNRAVEL_S := 0.7
 ## Enough to burst any egg sac or Broodling (take_reaction_damage clamps to their health).
 const BURST_DAMAGE := 1000000.0
+## The Silk skin's exam: the cage's and the webbed floor's pieces (scene ids), the Goo Bombs' group
+## (goo_bomb.gd), how near a wall's passage a resting bomb counts as stuck in it, the new silk's
+## fade-in, and the floor webs' cell.
+const CAGE_WALL_SCENE := "object.web-wall"
+const FLOOR_WEB_SCENE := "object.floor-web"
+const BOMBS_GROUP := &"goo_bombs"
+const STUCK_REACH_PX := 30.0
+const SPIN_IN_S := 0.35
+const FLOOR_CELL := 64.0
+const FLOOR_WEB_VARIANTS := 6
 
 ## JSON `firstVolleyDelayMs` (3500): from the spawn to the first volley.
 @export var first_volley_delay_ms: float = 3500.0
@@ -162,6 +184,20 @@ const BURST_DAMAGE := 1000000.0
 @export var breath_ms: float = 2600.0
 ## Said (at most every 1.5 s, BlastBarrier) when a hit clinks off the cocoon.
 @export var clink_text: String = "Woven too thick. It would take a blast."
+## The Silk skin's exam (class notes): round 2's cage and round 3's webbed floor, when the slime has
+## the Silk skin. Off: the built rounds always.
+@export var silk_exam: bool = true
+## The cage's web walls: `cage_walls_per_side` on each side of the square, `cage_thickness_px`
+## deep, the front and back ones drawn `cage_height_px` tall (0: the web wall's own height).
+@export var cage_walls_per_side: int = 2
+@export var cage_thickness_px: float = 24.0
+@export var cage_height_px: float = 100.0
+## Said (BlastBarrier: at most every 1.5 s) when a bomb comes to rest in the cage's silk.
+@export var cage_text: String = "A thrown bomb sticks in the silk."
+## Round 3's webbed floor: the cells whose middles lie within this of her shadow, about this share
+## of them (picked by the cell), inside her arena.
+@export var floor_web_radius_px: float = 352.0
+@export_range(0.0, 1.0) var floor_web_share: float = 0.8
 ## Her poses' size in the world (0.5: 2 art px a unit).
 @export var pose_scale: float = 0.5
 ## Beaten: she scuttles this far up through her web, shrunk to this scale (the orb-weaver's 0.46 is
@@ -195,6 +231,12 @@ var _visual_rest: Vector2 = Vector2.ZERO
 ## Her pose sprite in the cocoon fight (null outside it), and until when a hit makes her flinch.
 var _pose: Sprite2D
 var _flinch_until: float = 0.0
+## The Silk skin's exam: the cage's holder and its walls by slot (a slot's wall may be gone or
+## cut), the bombs already told they stuck, the webbed floor's holder.
+var _cage: Node2D
+var _cage_walls: Array = []
+var _stuck_bombs: Dictionary = {}
+var _floor_webs: Node2D
 
 
 ## Base `_ready`, then the first volley at now + first_volley_delay_ms (MatronScript.ts:32-35);
@@ -212,9 +254,12 @@ func _ready() -> void:
 		world.packed_scene("effect." + patch_effect_id)
 
 
-## Clears the telegraph, then the base exit (MatronScript.ts:125-128).
+## Clears the telegraph, then the base exit (MatronScript.ts:125-128). Her cage and her webbed
+## floor go with her (a reset frees her).
 func _exit_tree() -> void:
 	AttackTelegraph.clear_for(self)
+	_clear_cage()
+	_clear_floor_webs()
 	super()
 
 
@@ -342,6 +387,29 @@ func round_floor() -> float:
 	return 0.0
 
 
+## Round 2's cage walls standing now (WebWallScript nodes, intact or cut); empty without the cage.
+func get_cage_walls() -> Array[Node]:
+	var out: Array[Node] = []
+	for wall: Variant in _cage_walls:
+		if wall != null and is_instance_valid(wall):
+			out.append(wall as Node)
+	return out
+
+
+## Round 3's floor webs (FloorWebScript nodes); empty before it or without the Silk skin.
+func get_floor_webs() -> Array[Node]:
+	var out: Array[Node] = []
+	if _floor_webs != null and is_instance_valid(_floor_webs):
+		out.assign(_floor_webs.get_children())
+	return out
+
+
+## True when this fight is the Silk skin's exam: on, and the slime has the skin.
+func silk_exam_on() -> bool:
+	var world := Services.world()
+	return silk_exam and SkinState.is_on(world.player if world != null else null, SkinState.SILK)
+
+
 ## The egg sacs she dropped in round 3 (live or burst).
 func get_egg_sacs() -> Array[Node]:
 	var live: Array[Node] = []
@@ -409,6 +477,8 @@ func _step_cocoon(now: float) -> void:
 		SHELL_RESPIN:
 			if elapsed >= maxf(1.0, respin_ms):
 				_close_cocoon(now)
+	if not _cage_walls.is_empty():
+		_tell_stuck_bombs()
 	_present(now)
 
 
@@ -445,22 +515,32 @@ func _close_cocoon(now: float) -> void:
 	_next_volley_at = now + maxf(1.0, first_volley_delay_ms)
 
 
-## Round 2 webs its ring (and keeps it webbed); round 3 drops the egg sacs, once.
+## Round 2 webs its ring or spins its cage (and keeps it webbed); round 3 drops the egg sacs, once,
+## and with the Silk skin webs the floor (the cage goes).
 func _enter_round(round_number: int, now: float) -> void:
 	_round = round_number
 	if _round == 2:
 		_web_ring(now)
 	else:
 		_next_reweb_at = INF
+		_clear_cage(true)
 	if _round >= 3 and not _sacs_dropped:
 		_drop_egg_sacs()
+	if _round >= 3 and silk_exam_on() and get_floor_webs().is_empty():
+		_web_floor()
 	shell_changed.emit({"shell": _shell, "round": _round, "time": now})
 
 
-## `ring_patches` floor webs on a circle of `ring_radius` round her shadow, clamped into the arena.
+## `ring_patches` floor webs on a circle of `ring_radius` round her shadow, clamped into the arena;
+## with the Silk skin the cage instead (`_spin_cage`).
 func _web_ring(now: float) -> void:
 	_next_reweb_at = now + maxf(1.0, ring_reweb_ms)
-	if body == null or patch_effect_id.is_empty():
+	if body == null:
+		return
+	if silk_exam_on():
+		_spin_cage()
+		return
+	if patch_effect_id.is_empty():
 		return
 	var count := maxi(0, ring_patches)
 	var shadow := body.global_position
@@ -468,6 +548,187 @@ func _web_ring(now: float) -> void:
 		var angle := TAU * float(index) / float(maxi(1, count))
 		var point := shadow + Vector2(cos(angle), sin(angle)) * maxf(0.0, ring_radius)
 		_spawn_effect_at(patch_effect_id, BossArena.clamp_point(_arena, point) if not _arena.is_empty() else point)
+
+
+## The cage's walls round her shadow: [{"at" (global), "orientation", "span"}]: the back and front
+## rows "across" (the web faces the camera), the sides "side", `cage_walls_per_side` each, meeting
+## at the corners (the rows reach over the sides' ends), on a square of half side `ring_radius`.
+func cage_slots() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if body == null:
+		return out
+	var shadow := body.global_position
+	var r := maxf(0.0, ring_radius)
+	var n := maxi(1, cage_walls_per_side)
+	var half_t := maxf(4.0, cage_thickness_px) / 2.0
+	var across_span := 2.0 * (r + half_t) / float(n)
+	var side_span := 2.0 * maxf(8.0, r - half_t) / float(n)
+	for i in n:
+		var x := -(r + half_t) + across_span * (float(i) + 0.5)
+		out.append({"at": shadow + Vector2(x, -r), "orientation": "across", "span": across_span})
+		out.append({"at": shadow + Vector2(x, r), "orientation": "across", "span": across_span})
+		var y := -maxf(8.0, r - half_t) + side_span * (float(i) + 0.5)
+		out.append({"at": shadow + Vector2(-r, y), "orientation": "side", "span": side_span})
+		out.append({"at": shadow + Vector2(r, y), "orientation": "side", "span": side_span})
+	return out
+
+
+## A slot's solid band, global.
+func _slot_rect(slot: Dictionary) -> Rect2:
+	var span := float(slot["span"])
+	var thickness := maxf(4.0, cage_thickness_px)
+	var size := Vector2(span, thickness) if str(slot["orientation"]) == "across" else Vector2(thickness, span)
+	return Rect2((slot["at"] as Vector2) - size / 2.0, size)
+
+
+## Round 2 with the Silk skin: every slot of the cage whose wall is gone or cut gets a new one
+## (faded in, the respin cue), except where the slime's feet are (it stays as it was, out or in).
+func _spin_cage() -> void:
+	var world := Services.world()
+	var parent: Node2D = world.entities_root() if world != null else null
+	if parent == null:
+		return
+	if _cage == null or not is_instance_valid(_cage):
+		_cage = Node2D.new()
+		_cage.name = "MatronCage"
+		_cage.y_sort_enabled = true
+		parent.add_child(_cage)
+		_cage_walls.clear()
+	var slots := cage_slots()
+	_cage_walls.resize(slots.size())
+	var feet: Vector2 = world.player_body.global_position if world.player_body != null else Vector2.INF
+	var spun := false
+	for index in slots.size():
+		var wall: Variant = _cage_walls[index]
+		var standing := wall != null and is_instance_valid(wall)
+		if standing and not bool((wall as Node).call(&"is_cut")):
+			continue
+		if feet.is_finite() and _slot_rect(slots[index]).grow(STUCK_REACH_PX).has_point(feet):
+			continue
+		if standing:
+			(wall as Node).queue_free()
+		_cage_walls[index] = _spawn_cage_wall(slots[index])
+		spun = true
+	if spun:
+		var feel := Services.feel()
+		if feel != null:
+			feel.audio_cue(CUE_RESPIN)
+
+
+func _spawn_cage_wall(slot: Dictionary) -> Node2D:
+	var world := Services.world()
+	var wall := world.instantiate_scene(CAGE_WALL_SCENE) as Node2D if world != null else null
+	if wall == null:
+		return null
+	var across := str(slot["orientation"]) == "across"
+	wall.set(&"orientation", slot["orientation"])
+	wall.set(&"span", float(slot["span"]))
+	wall.set(&"thickness", maxf(4.0, cage_thickness_px))
+	if across and cage_height_px > 0.0:
+		wall.set(&"height", cage_height_px)
+	wall.set(&"remembered", false)
+	wall.position = _cage.to_local(slot["at"] as Vector2)
+	wall.modulate.a = 0.0
+	_cage.add_child(wall)
+	wall.create_tween().tween_property(wall, "modulate:a", 1.0, SPIN_IN_S)
+	return wall
+
+
+## A Goo Bomb come to rest against the cage from outside (a throw ends at its silk, a spit hop stops
+## short of it): its line, once a bomb.
+func _tell_stuck_bombs() -> void:
+	if not is_inside_tree() or body == null:
+		return
+	var inner := maxf(0.0, ring_radius - maxf(4.0, cage_thickness_px) / 2.0)
+	for node: Node in get_tree().get_nodes_in_group(BOMBS_GROUP):
+		var bomb := node as Node2D
+		if bomb == null or not bomb.visible or _stuck_bombs.has(bomb.get_instance_id()):
+			continue
+		var at: Vector2 = bomb.call(&"ground_point") if bomb.has_method(&"ground_point") else bomb.global_position
+		var from_shadow := at - body.global_position
+		if absf(from_shadow.x) < inner and absf(from_shadow.y) < inner:
+			continue
+		for wall: Node in get_cage_walls():
+			if bool(wall.call(&"is_cut")):
+				continue
+			if (wall.call(&"solid_rect") as Rect2).grow(STUCK_REACH_PX).has_point((wall as Node2D).to_local(at)):
+				_stuck_bombs[bomb.get_instance_id()] = true
+				BlastBarrier.refuse(at, cage_text)
+				break
+
+
+## The cage goes (round 3, her fall, a reset); `tatters` shows the silk falling apart.
+func _clear_cage(tatters: bool = false) -> void:
+	if _cage != null and is_instance_valid(_cage):
+		var feel := Services.feel() if tatters else null
+		if feel != null:
+			for wall: Node in get_cage_walls():
+				if not bool(wall.call(&"is_cut")):
+					feel.particles(TATTERS, (wall as Node2D).global_position)
+		_cage.queue_free()
+	_cage = null
+	_cage_walls.clear()
+	_stuck_bombs.clear()
+
+
+## Round 3 with the Silk skin: floor webs (`object.floor-web`, one a cell, its web picked by the
+## cell) on about `floor_web_share` of the cells within `floor_web_radius_px` of her shadow and
+## inside her arena, faded in.
+func _web_floor() -> void:
+	var world := Services.world()
+	var parent: Node2D = world.entities_root() if world != null else null
+	if parent == null or body == null:
+		return
+	_clear_floor_webs()
+	_floor_webs = Node2D.new()
+	_floor_webs.name = "MatronFloorWebs"
+	parent.add_child(_floor_webs)
+	var shadow := body.global_position
+	var reach := maxf(0.0, floor_web_radius_px)
+	var first := ((shadow - Vector2(reach, reach)) / FLOOR_CELL).floor()
+	var last := ((shadow + Vector2(reach, reach)) / FLOOR_CELL).floor()
+	for cy in range(int(first.y), int(last.y) + 1):
+		for cx in range(int(first.x), int(last.x) + 1):
+			var middle := (Vector2(cx, cy) + Vector2(0.5, 0.5)) * FLOOR_CELL
+			if middle.distance_to(shadow) > reach:
+				continue
+			if not _arena.is_empty() and not BossArena.contains(_arena, middle):
+				continue
+			var roll := absi(hash(Vector2i(cx, cy)))
+			if float(roll % 1000) / 1000.0 >= floor_web_share:
+				continue
+			var web := world.instantiate_scene(FLOOR_WEB_SCENE) as Node2D
+			if web == null:
+				return
+			web.set(&"size", Vector2(FLOOR_CELL, FLOOR_CELL))
+			web.set(&"variant", roll % FLOOR_WEB_VARIANTS)
+			web.set(&"turn", (roll / FLOOR_WEB_VARIANTS) % 4)
+			web.position = _floor_webs.to_local(middle)
+			web.modulate.a = 0.0
+			_floor_webs.add_child(web)
+			web.create_tween().tween_property(web, "modulate:a", 1.0, SPIN_IN_S)
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_RESPIN)
+
+
+func _clear_floor_webs() -> void:
+	if _floor_webs != null and is_instance_valid(_floor_webs):
+		_floor_webs.queue_free()
+	_floor_webs = null
+
+
+## Her fall: the webbed floor stops holding at once and fades away.
+func _fade_floor_webs() -> void:
+	if _floor_webs == null or not is_instance_valid(_floor_webs):
+		return
+	var holder := _floor_webs
+	_floor_webs = null
+	for web: Node in holder.get_children():
+		web.remove_from_group(FloorWebs.GROUP)
+	var tween := holder.create_tween()
+	tween.tween_property(holder, "modulate:a", 0.0, UNRAVEL_S)
+	tween.tween_callback(holder.queue_free)
 
 
 ## Round 3: an egg sac at each offset from her shadow, with her arena (their Broodlings get it too).
@@ -621,6 +882,8 @@ func _defeat() -> void:
 	if cocoon_fight:
 		remove_from_group(BLAST_GROUP)
 		_burst_brood()
+		_clear_cage(true)
+		_fade_floor_webs()
 		_retreat()
 
 

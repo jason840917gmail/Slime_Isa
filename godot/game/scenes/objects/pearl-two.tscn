@@ -7,9 +7,9 @@
 y_sort_enabled = true
 script = ExtResource("pearl")
 pearl_id = "orb-weaver-matron"
-boss_id = "orb-weaver-matron"
+boss_id = "weaver-hollow-brood-warden"
 number = 2
-skin_flag = "skin.silk"
+skin_id = "silk"
 card_name = "Silk skin"
 card_line = "The Matron's silk is yours: webs no longer catch you or stick to you."
 card_how = "Walk through floor webs at full speed and push slowly through web walls; your Spear cuts silk."

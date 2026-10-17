@@ -112,6 +112,12 @@ const TRIAL_MAP_ID := "level-1"
 ## The playground (dev testbed) hands out every weapon and every ability (owner decisions
 ## 2026-10-05).
 const PLAYGROUND_MAP_ID := "playground"
+## A `dungeon.devPowers` entry `skin.<id>` lends that skin (SkinState) rather than an ability.
+const DEV_SKIN_PREFIX := "skin."
+## The skins (docs/godot/SKINS.md): the dev powers and the playground's Skins corner lend them.
+const SkinState := preload("res://game/player/skins/skin_state.gd")
+## A sealed dungeon's ways out refuse (docs/godot/DUNGEONS.md "The seal"; `request_exit`).
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 ## Each Gulp form's material the playground keeps in the bag.
 const PLAYGROUND_GULP_MATERIALS := 10
 const PLAYER_SCENE_ID := "character.player-slime"
@@ -185,6 +191,13 @@ var _travel_within_region := false
 ## playground, the `shapes` launch option); a run that plays the story with shapes (the prologue and
 ## after it) lends nothing and keeps only what it learned (`decide_rework_mode`).
 var _rework_lending := false
+## Set by a world scene run on its own (F6 in the editor: game/scripts/world_definition.gd). In a
+## world listed in `dungeon.devPowers` (a dungeon's floors) such a run plays in the body-shapes mode
+## with the powers the slime has by then (owner, 2026-10-17: "to have the required powers if I press
+## F6 on a dungeon"); see `dev_powers_for`.
+var direct_world_run := false
+## The powers this run got from `dungeon.devPowers` (empty unless `direct_world_run`).
+var _dev_powers := PackedStringArray()
 ## The world being built arrives by a chunk scroll (ChunkScroll): no arrival fade.
 var _scroll_arrival := false
 var _next_gate_message_ms: int = 0
@@ -294,6 +307,7 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 	else:
 		equip_run_start()
 		start_rework()
+		lend_launch_skins()
 	start_enemy_population()
 	warm_runtime_scenes()
 	configure_npcs()
@@ -358,7 +372,7 @@ func _start_autosave() -> void:
 	run.location_provider = _live_location
 	var world_service := Services.world()
 	run.autosave_enabled = (world_service == null or world_service.map_id() != PLAYGROUND_MAP_ID) \
-		and not _rework_lending
+		and not _rework_lending and _dev_powers.is_empty()
 	if not run.autosave_enabled:
 		return
 	if player != null and not player.health_changed.is_connected(_on_player_health_changed):
@@ -414,6 +428,17 @@ func request_exit(request: Dictionary) -> Dictionary:
 		entry_edge = ""
 	if target_area.is_empty() or (entry_door.is_empty() and entry_edge.is_empty() and entry_marker.is_empty()):
 		return {"status": "blocked", "message": "Navigation unavailable"}
+	# A sealed dungeon (its Pearl taken, its boss standing): every way to a world outside it refuses.
+	var sealed := DungeonState.exit_refusal(get_tree(), WorldChunks.redirect(target_area, entry_marker, entry_edge, entry_door))
+	if not sealed.is_empty():
+		var now := Time.get_ticks_msec()
+		if now >= _next_gate_message_ms:
+			_next_gate_message_ms = now + GATE_MESSAGE_THROTTLE_MS
+			_player_text(sealed, &"white")
+			var feel := Services.feel()
+			if feel != null:
+				feel.audio_cue(&"GateLocked")
+		return {"status": "blocked", "message": sealed}
 	var gate: Variant = request.get("gate", {})
 	if gate is Dictionary and not (gate as Dictionary).is_empty():
 		var outcome := _pass_gate(str(request["map_id"]), gate)
@@ -864,10 +889,27 @@ func decide_rework_mode(target: String) -> bool:
 	var playground := target == PLAYGROUND_MAP_ID or target.begins_with(PLAYGROUND_MAP_ID + "-")
 	_rework_lending = has_launch_option("shapes") \
 		or (playground and rework_in_playground and not has_launch_option("classic"))
-	var on := _rework_lending or plays_story_shapes()
+	_dev_powers = dev_powers_for(target) if direct_world_run else PackedStringArray()
+	var on := _rework_lending or plays_story_shapes() or not _dev_powers.is_empty()
 	ReworkMode.set_on(on)
 	ReworkInput.apply(on)
 	return on
+
+
+## The powers a dungeon's world gives a run started in it on its own (F6; `direct_world_run`):
+## `dungeon.devPowers.<world>` in game-constants.json, shape and ability ids (learned for the session
+## only, RunState.learn_session_ability) and `skin.<id>` skins (lent for the session only,
+## SkinState.lend: always on, like a won one; the last listed becomes the everyday look). Empty for
+## a world not listed.
+func dev_powers_for(target: String) -> PackedStringArray:
+	var constants := Services.constants()
+	var table: Dictionary = constants.dictionary("dungeon.devPowers") if constants != null else {}
+	var powers := PackedStringArray()
+	var listed: Variant = table.get(target, [])
+	if listed is Array:
+		for power: Variant in listed:
+			powers.append(str(power))
+	return powers
 
 
 ## The rework mode's part of the world build (step 6b above; nothing while the mode is off): when it
@@ -887,6 +929,14 @@ func start_rework() -> void:
 		for id: StringName in AbilityBox.socket_ids():
 			if AbilityDefinitions.has(id):
 				run.learn_session_ability(String(id))
+	if run != null:
+		for power: String in _dev_powers:
+			if power.begins_with(DEV_SKIN_PREFIX):
+				var skin := StringName(power.trim_prefix(DEV_SKIN_PREFIX))
+				SkinState.lend(skin)
+				SkinState.set_look(skin)
+			else:
+				run.learn_session_ability(power)
 	shapes = ShapeController.new()
 	shapes.name = "ShapeController"
 	player_root.add_child(shapes)
@@ -897,6 +947,15 @@ func start_rework() -> void:
 		var testbed := ShapesTestbed.new()
 		testbed.name = "ShapesTestbed"
 		world_root.add_child(testbed)
+
+## Dev: `?skins=heavy,silk,feral` (desktop `-- --skins=...`) lends those skins for the session in any
+## world (SkinState.lend: always on, never saved; docs/godot/SKINS.md), the last one the look.
+func lend_launch_skins() -> void:
+	for id: String in launch_option("skins").split(",", false):
+		var skin := StringName(id.strip_edges())
+		if SkinState.lend(skin):
+			SkinState.set_look(skin)
+
 
 ## True when the run plays the story in the body-shapes mode (docs/godot/PROLOGUE.md): while the
 ## prologue runs (it teaches the Spear) and once a shape is learned for good (the prologue's Spear; a

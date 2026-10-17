@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dev/second_half_run.gd" id="1_run"]
+
+[node name="WeaverHollowSecondHalf" type="Node"]
+script = ExtResource("1_run")
+map_id = "weaver-hollow-crown"
+skins = PackedStringArray("silk")

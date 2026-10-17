@@ -10,6 +10,7 @@ go straight back. Delete the folder only when the owner says so.
 | Folder | Files | Why | Moved |
 |---|---|---|---|
 | `MAPS/enemies/` | the old 64 px worm sheets (swordsman, archer, brawler), the brawler's hits, the worm arrows, the meadow spider slime and its web | replaced by the 256 px bestiary sheets ([BESTIARY.md](../../docs/godot/BESTIARY.md)) | 2026-10-16 |
+| `MAPS/enemies/` | `384x384-tile_8x1-crystal-colossus` (the Colossus's eight poses) | replaced by `384x384-tile_9x1-crystal-colossus` (the same eight and his stun, the Pearl mid-dungeon rework, [DUNGEONS.md](../../docs/godot/DUNGEONS.md#the-crystal-colossus-roadmap-124)) | 2026-10-17 |
 | `UI/` | eight Phaser-era window backplates and frames: `ui-area-title-banner`, `ui-boss-health-frame`, `ui-crafting-detail-workbench-backplate`, `ui-inventory-backplate`, `ui-map-journal-paper`, `ui-organic-compact-frame`, `ui-quest-journal-backplate`, `ui-quest-offer-scroll-frame` | the Godot UI draws its windows from `slime_theme.tres` and code | 2026-10-17, clean-out wave 1 |
 | `characters/` | `slime_normalized` (the old side-view player sheet) and its Gulp form skins `slime-form-heavy`, `slime-form-sticky` | the player draws the slime-v2 pages; the forms are painted by `form_skin.gdshader` | 2026-10-17, clean-out wave 1 |
 | `abilities/goo-bomb/` | `cracked-wall-2x1` (a painted cracked wall) | cracked walls are the crack and hole overlays drawn over real walls | 2026-10-17, clean-out wave 1 |

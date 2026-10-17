@@ -7,8 +7,8 @@ class_name MatronThreadScript
 ## lock (the Weaver Hollow design, "Her thread").
 ##
 ## - **Caught:** the spool hangs `hang_px` over the floor point (the root) on a strand that rises
-##   `strand_top_px` into her web. Without the Silk skin (`player.crosses_webs()`; until roadmap 7.8
-##   its stand-in, the story flag `skin.silk` that Pearl 2 sets) every hit clinks with
+##   `strand_top_px` into her web. Without the Silk skin (`player.crosses_webs()`: SkinState,
+##   docs/godot/SKINS.md) every hit clinks with
 ##   `refusal_text`, which says something is needed and never names the skin. While `boss_id` is
 ##   not beaten every hit clinks quietly.
 ## - **Cut:** with the skin, a weapon's hit (request tags in CUT_TAGS: the Spear, the old weapons)

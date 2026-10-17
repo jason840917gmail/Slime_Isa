@@ -10,8 +10,11 @@
 > pot or an arrow rings, which stay open for good, and to wooden clappers, the worm army's alarms,
 > never locks (questions 115, 127 and 136); an eye is always the Spear's, and the Bow's target is a crystal
 > lens (question 127); each boss gives a full heart (question 17); and the Matron lives at the
-> top of the Weaver Hollow, where her fight needs the Goo Bomb (question 133). This file is kept
-> as the record of 2026-10-11.
+> top of the Weaver Hollow, where her fight needs the Goo Bomb (question 133). Since 2026-10-17
+> each Pearl lies inside its dungeon before the boss, not in a shrine after him: taking it seals
+> the dungeon until he falls, and the second half teaches its skin
+> ([the rework plan](2026-10-17-pearl-mid-dungeon.md)). This file is kept as the record of
+> 2026-10-11.
 
 *Status: a plan to discuss, on branch `exp/body-shapes` only. Nothing is built. Written
 2026-10-11 after the owner's third round of answers; merged from six focused designs and a

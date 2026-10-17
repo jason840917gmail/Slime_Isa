@@ -48,7 +48,10 @@ releases (owner, 2026-10-16,
   since the eighth round each boss also gives a full heart, and potions, the
   well and each boss raise max energy (questions 17 and 19; 5.3, 5.6);
 - win three skins from the Pearls (Heavy, Silk and Feral:
-  [question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
+  [question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
+  since 2026-10-17 each Pearl is found inside its dungeon, before the boss,
+  and the dungeon's second half teaches its skin
+  ([the 2026-10-17 decisions](#the-2026-10-17-decisions)),
   and grab and throw with the **Gulp**
   ([the 2026-10-15 decisions](#the-2026-10-15-decisions));
 - craft potions and food from what is picked up and dropped, the only
@@ -236,7 +239,7 @@ open, it says "Open:" and links the question; nothing here decides one.
 | Release 1 crafts only potions and food ("maybe the vault"), and nothing is harvested; the Forge brews the potions until evolutions arrive (questions 46, 51) | 5.5, 8.3, 8.4 and 8.5 (changed), 6.5 and 8.6 (dropped), 7.11. Answered 2026-10-16: ingredients come from pickups and drops (question 52), and Release 1 has one bag and no vault (question 53). Open: the Workshop in Release 1 (question 51) |
 | Quests no longer make sense: NPCs give info and tips, perhaps with one main quest for the Pearls (question 50) | 5.7, 5.8, 8.10 and 8.13 (changed). Answered 2026-10-16: the journal, the NPCs' finds and the returned Pearls (question 60, 5.17), and young Burr teaches the Roll (question 61, 5.13) |
 | One game: once the three skins are built the rework is the only game, and the old system goes with all its code, its art held in `asset/to-delete/` (question 48; *changed 2026-10-16: the swimming stays for the Swim skin, question 75*) | 7.11 (new), 4.10 and 4.13 (changed) |
-| Bosses live in their dungeons: the slime cannot leave the chamber until the boss is beaten, and a beaten boss never comes back | 5.9 and 8.7 (changed) |
+| Bosses live in their dungeons: the slime cannot leave the chamber until the boss is beaten, and a beaten boss never comes back. *Changed 2026-10-17: taking the Pearl, found before the boss, seals the dungeon's exits until he falls ([the 2026-10-17 decisions](#the-2026-10-17-decisions))* | 5.9 and 8.7 (changed) |
 | The roadmap carries these decisions, and the guidelines mark what they replace (question 49) | This section; [Game Guidelines](GAME_GUIDELINES.md) |
 
 The owner asked for one chapter's route to be played and its energy counted
@@ -420,7 +423,7 @@ what a bell opens stays open for good.*
 | **Eyes and lenses:** an eye is always the Spear's, or an enemy's; the Bow's target is a crystal lens on a post, so the mine's chasm holds a lens, not an eye switch ([question 127](story/07-decisions-archive.md#open-from-the-level-design-guide-2026-10-16)) | 12.3 and 12.6 (changed) |
 | **Looks** (questions 128 to 130): what the Gulp lifts is small and sits loose, with the Gulp's prompt in reach, and what the Heavy Roll breaks is big, grey and old, lying or leaning across the way. The heap at Yoi's home becomes crates. The Heavy Roll's leaning tree is always a placed object, never painted on the forest layer; an old breakable fence is grey and broken-backed and never stands on a rim; the Hammer's boulders carry a crack mark that scenery boulders never have. Feral's roots are thick, living and leafy beside rocky handholds, the Lantern's dry roots grey-black and thorny, and the root-rock wall style never stands next to a climbable wall. Only grey-black, scorched hay and banners burn; the gold haystacks and bright banners are scenery. Tom's cocoon hangs by a thread with his face showing, a silk-wrapped prize is a small flat parcel that glints, and the Cocoon Mimic breathes. Every Release 1 border is a Thorn Guard post: a striped barrier with a guard who says what lies beyond is closed for now; no landslides or fallen bridges as borders | 5.12, 7.8, 8.13, 12.3, 12.5 and 12.7 (changed) |
 | **Bars and webs** ([question 131](story/07-decisions-archive.md#open-from-the-level-design-guide-2026-10-16)): bars stop arrows, so only a Spear thrust reaches a lever behind bars. A Roll sticks in a floor web; walking through one slows the slime until the Silk skin, and web walls block until the Silk skin. The Slime Spider's right tool is the Silk skin, with which its webs no longer stick | 7.9 (changed), 5.22, 12.6, 12.7 |
-| **First locks** (question 132): the Roll's is a rickety plank over a dry ditch in Burr's yard; the Heavy skin's, Fatty's Lair's way out; the Goo Bomb's, a cracked wall by Tom, his maze's way back; the Bow's, targets in Burr's yard; the first bell, rung by a thrown pot, stands near the town's edge soon after the prologue; the Feral skin's is the climb out of the Colossus's arena, then the Wilds | 5.13, 5.15, 5.22, 8.13, 12.4 and 12.6 (changed) |
+| **First locks** (question 132): the Roll's is a rickety plank over a dry ditch in Burr's yard; the Heavy skin's, Fatty's Lair's way out; the Goo Bomb's, a cracked wall by Tom, his maze's way back; the Bow's, targets in Burr's yard; the first bell, rung by a thrown pot, stands near the town's edge soon after the prologue; the Feral skin's is the climb out of the Colossus's arena, then the Wilds. *Changed 2026-10-17: the Pearl comes before the boss and the dungeon's second half teaches its skin, so the Heavy and Feral skins' first locks move into their dungeons' second halves ([the 2026-10-17 decisions](#the-2026-10-17-decisions))* | 5.13, 5.15, 5.22, 8.13, 12.4 and 12.6 (changed) |
 | **The Matron** (question 133): she lives at the top of the Weaver Hollow, and her open-world nest becomes the Hollow's entrance. Her fight needs the Goo Bomb: she shields herself in a web cocoon that only a blast tears open, then the Spear hurts her | 8.7 (changed), 8.14 (new) |
 | **Order** (question 134): the Crystal Caverns' first half never needs the Bow, and the smith's mine camp sends the slime to Burr. Burr's cell lies on Fatty's Lair's main path, so freeing him cannot be skipped | 5.15, 12.3 and 12.6 (changed) |
 | **Locks for later releases** (question 135): only a few War Axe, Stretch Lash, Hammer and Swim locks show in Release 1, each with a line that says it needs something not found yet, and every Release 1 heart quarter can be reached with Release 1's powers. The War Axe cuts webs without the Silk skin (the Silk rule is the Spear's) | 5.3, 7.9 and 8.9 (changed), the parking lot |
@@ -463,6 +466,27 @@ the decisions before them, these came in by the owner's choice.
 
 The order of these tasks is not set.
 
+### The 2026-10-17 Decisions
+
+On 2026-10-17 the owner moved each dungeon's Pearl inside it, before its
+boss, as Zelda's dungeon item
+([decisions archive](story/07-decisions-archive.md#decisions-by-date)). It is
+his own idea ("it changes the pace of the game", owner), and like the
+decisions before it, it came in by the owner's choice. The three dungeons built the same
+day (5.15, 8.14, 12.1) still have the old order, the boss and then his
+Pearl; their rework is 12.8, with its
+[plan](design/2026-10-17-pearl-mid-dungeon.md).
+
+| Decision | Roadmap tasks |
+|---|---|
+| **The Pearl inside the dungeon:** a boss cannot swallow his Pearl whole, so he hides it in his dungeon and keeps it close to draw on its power. The slime finds it there, before the boss | 5.9 and 7.8 (changed), 12.8 (new) |
+| **The boss notices:** taking the Pearl enrages him (his strength stays the same), and he seals the dungeon's exits: the only way out is to beat him | 5.9, 5.15, 8.14 and 12.4 (changed), 12.8 |
+| **The skin's half:** the dungeon's second half teaches the Pearl's skin, and the boss fight is the skin's exam. This replaces the level design guide's "each boss's way out uses the skin it gives" and, for the Heavy and Feral skins, the first locks of question 132 | 7.8, 5.15, 8.7, 8.14, 12.4 and 12.5 (changed), 12.8 |
+| **Fainting or quitting after the Pearl** resumes at the dungeon's entrance, inside, with the doors to the outside still sealed until the boss falls (question 109's resume, changed) | 5.15 (changed), 12.8 |
+| **The Pearls still go home** to the Wellspring afterwards (question 110 stands) | 5.17 (nothing changes) |
+
+The rework (12.8) follows its plan; the order of the other tasks is not set.
+
 ## Progress Board
 
 | # | Milestone | Player-visible result | Status |
@@ -480,7 +504,7 @@ The order of these tasks is not set.
 | 6 | Rebuild Slimeshire: restoration | Ruined buildings can be restored and become stations (the Forge uses it in Chapter 2 and brews the potions; the Workshop's part in Release 1 is Open, question 51) | `[~]` |
 | 7 | Gulp | Suck, throw and swallow essences; their forms solve puzzles and pass webs. Since 2026-10-15: suck and throw, and the three skins from the Pearls take the forms' place (7.8–7.11) | `[~]` |
 | 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss (iron and metal gear dropped 2026-10-15; the Silk skin added; since 2026-10-16 the Weaver Hollow, the chapter's dungeon, with the Matron at its top, 8.14) | `[~]` |
-| 12 | Chapter 3 — Crystal Caverns (added 2026-10-15) | Burr's Bow, the dark caverns, the smith's mine camp and the Lantern, the Colossus's brazier fight, Pearl 3's Feral skin, Release 1's 29 enemies (12.7), and Release 1's end with the world left to explore | `[ ]` |
+| 12 | Chapter 3 — Crystal Caverns (added 2026-10-15) | Burr's Bow, the dark caverns, the smith's mine camp and the Lantern, the Colossus's brazier fight, Pearl 3's Feral skin, Release 1's 29 enemies (12.7), and Release 1's end with the world left to explore; since 2026-10-17 the three dungeons reworked with the Pearl before the boss (12.8) | `[ ]` |
 | 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[~]` |
 | 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[~]` |
 | 11 | Playtest and ship | Blind playtest, fixes, `v0.1.0` published | `[ ]` |
@@ -1260,6 +1284,12 @@ the lair's main path, and the lair's way out is the Heavy skin's first lock
 (5.17). In the [tenth round](#the-tenth-round-questions-18-and-20): spending pauses the refill (5.6), the Spear
 cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
 
+Changed 2026-10-17 ([the 2026-10-17 decisions](#the-2026-10-17-decisions)):
+each Pearl is found inside its dungeon, before its boss, and taking it seals
+the exits until he falls (5.9); Fatty's Lair's second half teaches the Heavy
+skin, and Fatty is its exam (5.15). The built lair is reworked with the other
+two dungeons in 12.8.
+
 ### [x] 5.1 — Retire XP, levels, and perks, verified 2026-09-29
 
 - Done: enemy drops and quest rewards carry no XP; the HUD shows coins, HP, and
@@ -1693,6 +1723,25 @@ cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
     Matron's grants Silk the same way; the skins survive save and load; the
     slime cannot leave a boss chamber mid-fight; a beaten boss never comes
     back. This replaces the Done when below.
+  - Changed 2026-10-17 ([the 2026-10-17 decisions](#the-2026-10-17-decisions)):
+    **the Pearl is found inside the dungeon, before its boss**, as Zelda's
+    dungeon item. A boss cannot swallow his Pearl whole, so he hides it in
+    his dungeon and keeps it close to draw on its power. Taking it enrages
+    him (his strength stays the same), and he seals the dungeon's exits: the
+    only way out is to beat him. The dungeon's second half teaches the skin,
+    and the boss fight is its exam. The full heart and the max-energy raise
+    still come when he falls, and the Pearls still go home to the Wellspring.
+    - Build (replaces "a Pearl that a beaten boss leaves" above): each Pearl
+      in its hiding place inside its dungeon, before the boss; taking it plays
+      the full ceremony, grants the skin for good and seals the dungeon's
+      doors to the outside until the boss falls. The three built dungeons are
+      reworked in 12.8.
+    - Done when (replaces the one above): on a fresh save the Heavy skin is
+      not there until Pearl 1 is taken in Fatty's Lair, before Fatty; it is
+      granted once, with the ceremony, and Pearls 2 and 3 grant Silk and Feral
+      the same way; once a Pearl is taken no door to the outside opens until
+      its boss falls; his heart and max-energy raise come once, when he falls;
+      the skins survive save and load; a beaten boss never comes back.
 - Answered 2026-10-02 ([Open questions](story/07-decisions-archive.md#decisions-by-date)):
   each of the eight Pearls grants one unique permanent ability. Pearl 1 grants
   Squash Slam (it was Jump until the jump was removed on 2026-10-08); Pearl 2,
@@ -2103,13 +2152,24 @@ cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
   - Done when (added): no way through the lair skips Burr's cell; the slime
     leaves Fatty's chamber only through the Heavy lock, which opens once the
     skin is won.
+  - *Changed 2026-10-17
+    ([the 2026-10-17 decisions](#the-2026-10-17-decisions)):* **Pearl 1 lies
+    in the lair, before Fatty.** Taking it enrages him and seals the lair's
+    exits until he falls. The lair's second half teaches the Heavy skin, and
+    his fight is its exam; fainting or quitting after the Pearl resumes at the
+    entrance, inside, with the doors to the outside sealed. So the Heavy lock
+    between Fatty's Pearl and the way out above no longer stands as written.
+  - Build and Done when (changed): the lair's rework is 12.8, from its
+    [plan](design/2026-10-17-pearl-mid-dungeon.md); until then the built lair
+    keeps the old order.
 - Today: Fatty One Eye lives in the open world at his camp, and there is no
   lair. The [dungeons plan](design/2026-10-11-release-1-dungeons-plan.md#6-dungeon-1-fattys-lair-chapter-1)
   (2026-10-11) has an earlier map of it.
   *Built 2026-10-17* from [its design](design/2026-10-16-dungeon-fattys-lair.md)
   ([DUNGEONS.md "Fatty's Lair (built)"](godot/DUNGEONS.md#fattys-lair-built)):
   `world.fatty-lair`, 19 rooms; the gate race in level-1-d4's clearing (the
-  worm lever, a Roll under the gate) and the inner winch that holds it up;
+  worm lever, a Roll under the gate; on D5's hill since the same day, below)
+  and the inner winch that holds it up;
   the slabs; Burr's cell on the main path (two small keys, both found before
   it), his lines, the Inner Stair he opens and his walk out; the Deep with the
   Bone Marchers; the Big Squint's ambush and the big key; Fatty in his arena
@@ -2120,6 +2180,16 @@ cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
   kit's. Fatty's camp left the open world. Left: the journal pointing home
   after Burr's line (5.17), Burr at home before Pearl 2 with his thanks and
   tip, the owner's playthrough.
+  *Changed 2026-10-17 (owner: "move Fatty's Lair entrance to D5, put it in a
+  hill with a nice maze to get to it, with some falling slabs to try the
+  Roll"):* the gate race moved out of D4's clearing into the face of a
+  red-rock hill in `level-1-d5` (Fatty's Hollow), with the lever in front of
+  the gate (a Roll north under it); the way there is the old fort's field
+  maze, cut by a dry moat with a bridge of two falling slabs, a fall back on
+  the rim; the forecourt before the gate is the calm spot (a campfire, a
+  flower, a pot with a heart) and drops back to the maze's door. Built by
+  `tools/build_slimeshire_chunks.gd` with the rest of Chapter 1's map rework
+  ([Chapter 1](story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
 - Build: the lair's world with the gate, the slabs, the cell, the small key
   and Fatty's chamber (the slime cannot leave it until he is beaten, 5.9);
   Burr in his cell and at home, and his thanks.
@@ -2499,6 +2569,10 @@ cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
   off it, and the post stays an anchor the Lash pulls on. A rung bell opens
   its gate for good: the gate's map record, through a chunk entered again, a
   save and a load (`test_a_rung_bell_keeps_its_gate_open_for_good`).
+  *Placed 2026-10-17:* the first bell near the town's edge, on an islet in
+  C4's little pond with pots on its shore, opens the old watch post's stone
+  door (question 132); a second on C5's lookout rock raises a hidden chest
+  (its `rung` signal) ([Chapter 1](story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
 - Decided 2026-10-16, sixth round (question 97;
   [prologue design](design/2026-10-16-prologue.md), the first lock): the
   glade's way out to Slimeshire is an old Thorn Guard gate, shut and worked
@@ -3372,12 +3446,25 @@ the next release (7.11).
   (question 75): the Swim form is not dropped either; its scene mechanics
   become this later skin's permanent deep-water power (7.11).*
 
-- Today: in the rework mode the Stone form, swallowed from a stone essence,
-  sinks the heavy plates and moves the pedestal and the statue, and is slower;
-  the Silk form passes webs, and the Swim form crosses deep water. The Roll
-  bonks off enemies, and its bonk only wobbles what stands near it (7.7). The
-  Goo Bomb, not the Roll, breaks rubble heaps (7.10). Nothing climbs walls.
-  No Pearl exists yet (5.9).
+- **Built 2026-10-17** ([SKINS.md](godot/SKINS.md); tests in
+  `godot/tests/test_skins.gd`, not run yet; tried in the playground's Skins corner,
+  `?map=playground&spawn=6800,1240`, and with `?skins=heavy,silk,feral` anywhere): the
+  three skins as won powers (`SkinState`; saved in the run, an old save's `skin.*` flags
+  won once), always on and stacking, granted by each Pearl's `skin_id`, which also makes it
+  the everyday look and shows its ceremony line; each skin's look while it works (stony,
+  silver, furry with claws) and the bag's Skins row for the everyday look. Heavy: the heavy
+  plates, pressure plates and blocks, the Heavy Roll (the `heavy` tag, the strong shake, no
+  enemy push) breaking plank barricades, rotten timbers, rubble heaps (no longer the Goo
+  Bomb's), and the new loose rock, old trunk and old fence, and shaking a loose prize out of
+  a tree. Silk: every web rule on `crosses_webs()`, the Spear's cut. Feral: the held climb up
+  and down climbable walls (`object.climb-wall`), the free drop, the claws, the Spear at
+  twice the tempo. The Stone and Silk forms no longer count; the forms stay until 7.11.
+  **Not built:** the grey leaning old tree (knocked down, as the river bridge, burnt by the
+  Lantern), roots painted on a layer, and the owner's verdict on the feel.
+- Before 2026-10-17: in the rework mode the Stone form, swallowed from a stone essence,
+  sank the heavy plates and moved the pedestal and the statue, and was slower;
+  the Silk form passed webs, and the Swim form crosses deep water. The Goo Bomb,
+  not the Roll, broke rubble heaps (7.10), and nothing climbed walls.
 - Build: the three skins as learned powers the Pearls grant, in the forms'
   place: each skin's gate and its change to a move, its look while it works,
   and no key. For Heavy: the small loose things a Heavy Roll breaks (a loose
@@ -3475,6 +3562,19 @@ the next release (7.11).
   - Done when (added): no breakable fence stands on a rim, no leaning tree is
     painted on a ForestLayer, and no climbable wall stands next to the
     root-rock wall style.
+- Changed 2026-10-17
+  ([the 2026-10-17 decisions](#the-2026-10-17-decisions)): each skin's Pearl
+  is found inside its dungeon, before the boss (5.9). **The dungeon's second
+  half teaches the skin, and the boss fight is its exam**: Fatty's Lair the
+  Heavy skin, the Weaver Hollow the Silk skin, the Crystal Mine the Feral
+  skin. So each skin's first locks stand in its dungeon's second half, not on
+  the way out after the boss (the eighth round's first locks above, for Heavy
+  and Feral).
+  - Build (added): each skin's teaching rooms in its dungeon's second half
+    and its use in the boss fight, laid out in the rework (12.8,
+    [its plan](design/2026-10-17-pearl-mid-dungeon.md)).
+  - Done when (added): in each dungeon, after the Pearl, the rooms before the
+    boss need the new skin, and the boss fight uses it.
 - Depends on: 5.9 and 5.13. The Silk rows are checked with 7.9.
 - Player proof: winning a Pearl changes what the slime can do everywhere,
   with no new key.
@@ -4269,8 +4369,8 @@ materials), 8 (Forge), and 13 (progression pass).
   shadow drops her dazed and open for 4 s, she re-spins in 1.5 s; three
   rounds of 100 (round 2 a ring of floor webs, round 3 two egg sacs); new
   art (the cocoon, its husk, her poses). Beaten, she scuttles off as an
-  ordinary orb-weaver; Pearl 2 sets `skin.silk` (the Silk skin's stand-in
-  in `crosses_webs()`), a full heart gives +20 max HP and +20 max energy
+  ordinary orb-weaver; Pearl 2 grants the Silk skin (a story flag stood in
+  until 7.8 was built the same day), a full heart gives +20 max HP and +20 max energy
   once, and her thread is cut down with the Spear and the Silk skin only.
   Open: the three-way Stretch Lash (she keeps the web spit), the owner's
   play and tuning.
@@ -4280,6 +4380,34 @@ materials), 8 (Forge), and 13 (progression pass).
   (`encounter.gloop-matron-nest`) left `gloop-forest-f4`, which is the
   Hollow's forecourt now (the scene stays; `test_matron.gd` mounts it where
   it stood for her own fight's tests). Quest 6 still completes on her defeat.
+- Changed 2026-10-17
+  ([the 2026-10-17 decisions](#the-2026-10-17-decisions)): **Pearl 2 lies in
+  the Weaver Hollow, before her.** Taking it enrages her (her strength stays
+  the same) and seals the Hollow's exits until she falls. The Hollow's second
+  half teaches the Silk skin, and her fight is its exam, so the slime meets
+  her with the skin: this replaces the 2026-10-15 "the slime meets her
+  without the Silk skin" and its Done when ("beats her without the Silk
+  skin"). Her heart and the max-energy raise still come when she falls.
+  - Not decided yet: what the Silk skin changes in her fight (her webs, her
+    lash, the cocoon the Goo Bomb opens); it goes with the rework (12.8,
+    [its plan](design/2026-10-17-pearl-mid-dungeon.md)). *Built from the
+    plan's proposal the same day (below).*
+  - Done when (changed): the user beats her with the Silk skin, won from
+    Pearl 2 before her; Pearl 2 is no longer set by her fall.
+- Built 2026-10-17, the Silk skin's exam (12.8; [Matron spec](godot/specs/matron.md)
+  8.2; not yet played by the owner): Pearl 2 left her camp (it lies in the
+  Hollow's Hoard). With the Silk skin, round 1 is as built (her webs no
+  longer slow or stick, her spit no longer roots); round 2 spins a **cage of
+  web walls** round her shadow (eight, spun again where cut every 5 s): a
+  thrown bomb stops in its silk ("A thrown bomb sticks in the silk.") and
+  blows out of reach, so the slime cuts in with the Spear or wades in at
+  half speed and casts inside; round 3 **webs the floor** round her shadow
+  (the Silk slime Rolls through it) with her egg sacs. The Goo Bomb still
+  tears her cocoon. Without the skin (a dev run) the built rounds play. She
+  shows her rage while the Hollow is sealed (the kit's `EnragedLook`), and
+  her fall breaks the seals, C2's east doorway's among them. Open: the
+  three-way lash (if built, it pulls but never traps a silk-skinned slime),
+  the owner's play and tuning.
 - Build: one boss on the Fatty model: a telegraphed signature attack, boss
   bar, arena leash, guarded reward, and persisted defeat. Proposal: the
   **Orb-Weaver Matron** webs the arena, and Sticky form lets you cross her
@@ -4725,6 +4853,17 @@ materials), 8 (Forge), and 13 (progression pass).
     four).
   - Like every dungeon it cannot be saved inside, and quitting or fainting
     resumes at its entrance with what was done kept (question 109, 5.15).
+- Changed 2026-10-17
+  ([the 2026-10-17 decisions](#the-2026-10-17-decisions)): **Pearl 2 lies in
+  the Hollow, before the Matron**, and taking it seals the Hollow's exits
+  until she falls. The Hollow's second half teaches the Silk skin, and her
+  fight is its exam, so its webs and web walls before her are no longer only
+  shown: after the Pearl they are the skin's lessons. Fainting or quitting
+  after the Pearl resumes at the entrance, inside, with the doors to the
+  outside sealed. The way out no longer waits for a skin the Matron gives.
+  - Build and Done when (changed): the Hollow's rework is 12.8, from its
+    [plan](design/2026-10-17-pearl-mid-dungeon.md); until then the built
+    Hollow keeps the old order.
 - Today: built 2026-10-17 (not yet played by the owner; tests written, not
   run), from [its design](design/2026-10-16-dungeon-weaver-hollow.md), as
   [DUNGEONS.md "The Weaver Hollow (built)"](godot/DUNGEONS.md#the-weaver-hollow-built)
@@ -4772,7 +4911,9 @@ Stretch Lash waits for the next release (8.10, 8.13). Since the sixth round
 Tom teaches the Goo Bomb at the end of his maze (8.13), and the Matron's
 thread waits in her nest for Burr's Bow (8.7, 12.6). Since the eighth round
 Chapter 2 ends in the Weaver Hollow, its dungeon, with the Matron at its top
-and a fight that needs the Goo Bomb (8.7, 8.14).
+and a fight that needs the Goo Bomb (8.7, 8.14). Since 2026-10-17 her Pearl
+lies in the Hollow before her, its second half teaches the Silk skin, and her
+fight is the skin's exam (8.7, 8.14, 12.8).
 
 **Assets**
 
@@ -4838,7 +4979,10 @@ the rest are written with the outline. The
 [eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135) changed
 12.3 to 12.7: the Bow's crystal lens and first targets, the order of the
 Bow and the caverns, the Feral skin's first lock, the Thorn Guard posts at
-the borders, and the skeletons' story.
+the borders, and the skeletons' story. The
+[2026-10-17 decisions](#the-2026-10-17-decisions) put Pearl 3 inside the
+Crystal Mine, before the Colossus, and added 12.8, the three dungeons'
+rework.
 
 ### [ ] 12.1 — Write the Chapter 3 outline
 
@@ -4900,6 +5044,11 @@ the borders, and the skeletons' story.
   ([DUNGEONS.md "The Crystal Mine (built)"](godot/DUNGEONS.md#the-crystal-mine-built)).
   The outline itself is still to write; the caverns' other chunks are
   placeholders.
+- Changed 2026-10-17
+  ([the 2026-10-17 decisions](#the-2026-10-17-decisions)): the outline puts
+  Pearl 3 inside the Crystal Mine, before the Colossus, with the mine's second
+  half teaching the Feral skin and his fight its exam. The built mine has the
+  old order until its rework (12.8).
 - Done when: the outline is written, the owner has answered the questions it
   needs, and the chapter's tasks are added to this milestone.
 
@@ -5000,10 +5149,10 @@ the borders, and the skeletons' story.
   his telegraphed stomp (650 ms) puts out the nearest brazier; after three
   stomps he climbs the north wall out of reach and throws Crystal Mites
   (a killed one can drop an energy shard in the rework mode); Pearl 3 grants
-  the story flag `skin.feral`; his full heart (+20, and max energy); the way
-  out is the root wall he climbed, to the Lookout (H4). His values are in
-  `enemy-types.json` `crystal-colossus`. Not built: the Feral skin itself
-  (the climb is a scripted stand-in on its flag).
+  the Feral skin; his full heart (+20, and max energy); the way
+  out is the root wall he climbed, to the Lookout (H4), climbed with the
+  skin's held climb (7.8, built the same day). His values are in
+  `enemy-types.json` `crystal-colossus`.
   Tests (not run yet): `godot/tests/test_crystal_mine.gd`.*
 - Build: the boss on the Fatty model (a telegraphed stomp, the boss bar, his
   chamber), the four braziers as Lantern targets that his stomps blow out one
@@ -5046,6 +5195,31 @@ the borders, and the skeletons' story.
     as the arena's way out; his full heart and the max-energy raise.
   - Done when (added): after his fall the slime leaves the arena only by
     climbing, with the new skin; his heart adds +20 max HP once.
+- Changed 2026-10-17
+  ([the 2026-10-17 decisions](#the-2026-10-17-decisions)): **Pearl 3 lies in
+  the Crystal Mine, before the Colossus.** Taking it enrages him (his
+  strength stays the same) and seals the mine's exits until he falls. The
+  mine's second half teaches the Feral skin, and his fight is its exam, so
+  the slime comes into his arena already climbing; the climb out of his arena
+  is no longer the skin's first lock. His heart and the max-energy raise still
+  come when he falls.
+  - Not decided yet: what the Feral skin does in his fight, now that the
+    slime can climb as he does; it goes with the rework (12.8,
+    [its plan](design/2026-10-17-pearl-mid-dungeon.md)).
+    *The plan's proposal, built 2026-10-17 (not yet played by the owner;
+    [DUNGEONS.md "The Crystal Colossus"](godot/DUNGEONS.md#the-crystal-colossus-roadmap-124)):
+    the floor phase stays the Lantern's (the four braziers); roots run up his
+    north wall beside his three climb spots, the slime climbs after him and
+    strikes his gripping claws with the Spear from the face (the strike while
+    clinging); three hits (`clawHits`) and he crashes down with no landing
+    stomp and lies stunned 2.5 s (`fallStunMs`), his back open to any Spear
+    hit; a climber can be knocked off by a mite dropped down the face. His
+    built "enraged" phase is called his second phase (`phaseTwoShare`); the
+    seal's EnragedLook shows his rage. Once beaten he shrinks into a small
+    golem that wanders off, the seals break, and his full heart rises; Pearl 3
+    is no longer his.*
+  - Done when (changed): the user beats him with the Feral skin, won from
+    Pearl 3 before him; Pearl 3 is no longer granted by his fall.
 - Depends on: 12.3 (the Lantern); 5.9.
 - Player proof: the slime keeps four fires burning to beat a boss it cannot
   hurt otherwise.
@@ -5111,6 +5285,11 @@ the borders, and the skeletons' story.
     regions, the West village town and the Wilds.
   - Done when (added): every way into a region that is not in Release 1 has
     a post and a guard; none is a landslide or a fallen bridge.
+- Changed 2026-10-17
+  ([the 2026-10-17 decisions](#the-2026-10-17-decisions)): the Feral skin is
+  won inside the Crystal Mine, before the Colossus, and taught in the mine's
+  second half (12.4, 12.8), so its arc in the Wilds follows the mine's
+  lessons rather than a first climb out of his arena.
 - Depends on: 12.4; 7.8 and 7.9 for the hill and the second maze.
 - Player proof: after the last boss the player is told the world is theirs to
   explore, and never walks into an empty placeholder region.
@@ -5335,6 +5514,115 @@ the borders, and the skeletons' story.
   its right tool; each is placed in its region or dungeon; `pnpm test:godot`
   covers the new behaviours; the owner accepts them.
 
+### [ ] 12.8 — The Pearl inside the dungeon: the three dungeons reworked
+
+- Decided 2026-10-17 ([the 2026-10-17 decisions](#the-2026-10-17-decisions);
+  [decisions archive](story/07-decisions-archive.md#decisions-by-date)): each
+  dungeon's Pearl is found inside it, before its boss, as Zelda's dungeon
+  item. A boss cannot swallow his Pearl whole, so he hides it close to draw on
+  its power. When the slime takes it the boss notices, enraged (his strength
+  stays the same), and seals the dungeon's exits: the only way out is to beat
+  him. The dungeon's second half teaches the Pearl's skin, and the boss fight
+  is the skin's exam. Fainting or quitting after the Pearl resumes at the
+  entrance, inside, with the doors to the outside still sealed until the boss
+  falls. The Pearls still go home to the Wellspring afterwards (5.17).
+- The plan: [the Pearl mid-dungeon plan](design/2026-10-17-pearl-mid-dungeon.md)
+  lays out each dungeon's rework. It supersedes in part the three dungeon
+  designs ([Fatty's Lair](design/2026-10-16-dungeon-fattys-lair.md),
+  [the Weaver Hollow](design/2026-10-16-dungeon-weaver-hollow.md),
+  [the Crystal Mine](design/2026-10-16-dungeon-crystal-caverns.md)) and the
+  [level design guide](design/2026-10-16-level-design.md)'s dungeon template.
+- Today: the three dungeons were built on 2026-10-17 in the old order
+  ([DUNGEONS.md](godot/DUNGEONS.md)): the Pearl (`object.pearl`) shows only
+  once its boss is beaten. Fatty's Lair (5.15) holds Pearl 1 in the shrine
+  behind Fatty's arena, and the way out is a Heavy Roll through the
+  bolt-hole's barricade; the Weaver Hollow (8.14) gives Pearl 2 in the Crown
+  after the Matron, and the way out is her web wall on the Outer Bough; the
+  Crystal Mine (12.1, 12.4) gives Pearl 3 where the Colossus falls, and the
+  way out is the climb up his root wall. The skins themselves are flags that
+  stand in until 7.8.
+- Build: in each dungeon, as its plan lays it out: the Pearl's hiding place
+  before the boss, taken once with its ceremony and its skin; the seal when it
+  is taken (the boss notices, and the doors to the outside shut until he
+  falls); a second half that teaches the skin; the boss fight as its exam;
+  the resume at the entrance, inside, with the outside doors sealed; the full
+  heart and the max-energy raise still when the boss falls. The three dungeon
+  designs, [DUNGEONS.md](godot/DUNGEONS.md) and the bosses' specs follow.
+- Depends on: 5.15, 8.14 and 12.4 (the built dungeons); 5.9; 7.8 for the
+  skins (their flags stand in until then).
+- Player proof: halfway through a dungeon the slime takes the Pearl, the boss
+  notices and the doors seal, and the new skin is what brings it to him and
+  beats him.
+- Done when: on a fresh save, in each of the three dungeons, the Pearl is
+  taken before the boss, once, with its ceremony and its skin; after it no
+  door to the outside opens until the boss falls, and then they open; the
+  rooms between the Pearl and the boss need the new skin, and the boss fight
+  uses it; fainting or quitting after the Pearl resumes at the entrance,
+  inside, with the outside doors sealed; the boss's heart and max-energy raise
+  come once, when he falls; the owner plays each one through.
+- Built 2026-10-17, **the Weaver Hollow** (the plan's proposals;
+  [DUNGEONS.md "The Weaver Hollow (built)"](godot/DUNGEONS.md#the-weaver-hollow-built);
+  not yet played by the owner): the first half as built up to the Brood
+  Warden, B4 the Nursery and B6 the Pillar an optional wing (the Nursery's
+  chest holds coins and a potion), the Warden's door one keyhole; Pearl 2 on
+  the brood's altar in the Hoard beside the big key, risen with the Warden's
+  fall; its take grants the Silk skin and seals T1's way out and C2's east
+  doorway (the kit's seal) until the Matron falls. The second half: the
+  Hoard's stair a web wall (the skin's first lock), the gallery the calm
+  room, the Crown Door, C1 webbed from wall to wall with a web wall on its
+  straight way and the K3 door at its top, and the new **C4 the Spinning
+  Loft** (rows of web walls under two Slime Spiders, small key 3 in a silk
+  parcel, silk-rafter dressing); the Matron's rounds 2 and 3 are the Silk
+  skin's exam (8.7). New art: the loft's dressing and the brood's altar (200
+  credits). Tests: `test_weaver_hollow.gd` (the Pearl room, the seals, the
+  Hoard's stair, C1, C4) and `test_matron.gd` (the cage and the webbed
+  floor). F6 on `game/dev/weaver-hollow-second-half.tscn` plays the Crown
+  with the Silk skin lent.
+- Built 2026-10-17, **the Crystal Mine** (the plan's proposals, with the
+  build's changes listed in its Mine section;
+  [DUNGEONS.md "The Crystal Mine (built)"](godot/DUNGEONS.md#the-crystal-mine-built);
+  not yet played by the owner): the first half as built up to the Chasm
+  (the Bow's lens, its last lock); M9's door to M10 bricked and a stair from
+  the far rim down into the Den (one level below), where Pearl 3 rises when
+  the Shardback falls (his fight's `boss_id` `crystal-mine-shardback`); its
+  take grants the Feral skin and seals M1's mouth and the climb out until
+  the Colossus falls (the kit's seal; the cart, the lift and the rest stay
+  open). The second half: the root wall up the Den's ledge to its east door
+  (teach), M11's rift (test: down, across, up), M12's balcony with the big
+  key under the Watcher Eye and the Bone Marcher (twist; K3 and the Den's
+  key door gone), the roots down the shaft's north wall from the Den's rim
+  to the calm floor; M10 and M11's veil an optional Lantern wing (M10's chest
+  holds the war journal page's stand-in). The Colossus's climb phase is the
+  Feral exam (12.4). The strike while clinging is built for it (SKINS.md
+  "Feral"). New art: his stun and the small golem (100 credits). Tests:
+  `test_crystal_mine.gd` (20) and `test_mine_camp.gd` (6), passing. Dev:
+  `?map=crystal-mine&sealed` (with `&room=<camera room>`) plays the second
+  half; `?skins=feral` lends the skin alone.
+- Built 2026-10-17, **Fatty's Lair** (the plan's proposals;
+  [DUNGEONS.md "Fatty's Lair (built)"](godot/DUNGEONS.md#fattys-lair-built);
+  not yet played by the owner): the first half as built through R8, R11 and
+  R12, door 3 an open doorway (key 3 and R10's chest gone); Pearl 1 on the
+  worms' altar in R12 the Larder, its glow seen all through the Big Squint's
+  ambush (the fight's `boss_id` `fatty-lair-big-squint`); its take grants the
+  Heavy skin and seals R1's way in and R13's north doorway (the kit's seal)
+  until Fatty falls. The second half: a Heavy Roll through the Larder's new
+  north barricade (teach), the new **C2 the Weigh House** (teach, no enemy: a
+  plate before the east stone door; a statue onto a plate that holds the west
+  door only while it stands there; scale-pan and weights dressing, a pouch a
+  Heavy Roll shakes down), R10 (test: the statue pulled from its niche and
+  pushed onto the lane's plate under the Dung Roller's patrol; the plate holds
+  R9's stone door), R9 (twist: a statue onto the plate under the Watcher Eye
+  raises the big chest, the big key; R9's door into R8 bolted on its side),
+  and the hub's counterweight plate lowering the drawbridge (the ledge's winch
+  gone). Heavy plates gained `targets` and `shut_on_leave`; heavy blocks reset
+  with their room (the Lair's director). Fatty's phase two is the Heavy exam:
+  a Heavy Roll knocks him off balance for 1.6 s (the Spear lands then), a
+  thrown clod only splats; his full heart; R14 the Postern keeps the green key
+  and the bolt-hole's barricade. New art: the Weigh House's beam scale,
+  weights and scale pan (300 credits). Tests: `test_fattys_lair.gd` (18),
+  passing. Dev: F6 gives the Spear and the Roll; `?map=fatty-lair&shapes&skins=heavy&room=c2-weigh-house`
+  plays the second half, `?sealed` takes Pearl 1 quietly.
+
 **Milestone 12 complete when:** Chapter 3 plays from Gloop Forest's east exit
 (the web-wall maze since 2026-10-16, 8.11) to Pearl 3, the Feral skin and
 Release 1's exploration message (12.5). Its other tasks come with its outline
@@ -5343,7 +5631,9 @@ and since the sixth round the Bow's lock on the main path, the eye switch
 across the mine's chasm, and Release 1's 29 enemies (12.7). Since the eighth
 round that lock is a crystal lens on a post, the slime climbs out of the
 Colossus's arena with the Feral skin (12.4), and every border is a Thorn
-Guard post with a guard (12.5).
+Guard post with a guard (12.5). Since 2026-10-17 Pearl 3 lies in the Crystal
+Mine before the Colossus, and the three dungeons are reworked to the new
+order (12.8).
 
 **Assets** (since 2026-10-16; the rest come with the outline, 12.1)
 

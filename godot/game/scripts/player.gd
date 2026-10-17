@@ -79,6 +79,10 @@ const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const HeavyGrab := preload("res://game/player/heavy_grab.gd")
 ## The walk out of a door with a side on arrival (input locked; docs/godot/CONVENTIONS.md "Doors").
 const DoorWalkOut := preload("res://game/player/door_walk_out.gd")
+## The skins (docs/godot/SKINS.md): their checks, the look that shows while one works, the climb.
+const SkinState := preload("res://game/player/skins/skin_state.gd")
+const SkinLook := preload("res://game/player/skins/skin_look.gd")
+const FeralClimb := preload("res://game/player/skins/feral_climb.gd")
 
 ## Phaser code literals (not in game-constants.json), named with their source.
 ## PlayerHealthController.ts:134 (and :172).
@@ -187,7 +191,7 @@ var _visual_base_scale: Vector2 = Vector2.ONE
 ## Energy (GameState): spent by abilities, refilled 8 per second.
 var _energy: float = 0.0
 var _energy_regen: float = 0.0
-## The last Heavy impact (a Squash Slam, or a jump landing, made in a plate-pressing form): {} or
+## The last Heavy impact (a Squash Slam, or a jump landing, made with the Heavy skin): {} or
 ## {"x", "y", "id"}. Cracked ground reads it.
 var _heavy_impact: Dictionary = {}
 var _impact_id: int = 0
@@ -245,6 +249,10 @@ var _shapes: ShapeController
 var _mouth_hold: MouthHold
 ## Rework: the grab on a heavy block (game/player/heavy_grab.gd), and the walk keys of this step it reads.
 var _grab := HeavyGrab.new()
+## The skins' looks on the Visual (game/player/skins/skin_look.gd) and the Feral skin's climb
+## (game/player/skins/feral_climb.gd; it owns the step while it holds).
+var _skin_look := SkinLook.new()
+var _climb := FeralClimb.new()
 var _grab_direction: Vector2 = Vector2.ZERO
 ## The way the slime was told to walk on its last free step (keys, a click order's steering), ZERO
 ## when it did not walk under control (frozen, swinging, walking out of a door). Doors read it: a
@@ -295,9 +303,6 @@ const CUE_GULP_BURP := &"GulpBurp"
 const CUE_WEB_STRUGGLE := &"WebStruggle"
 const EFFECT_WEB := "web"
 const WEB_COVER_SCENE := "effect.spider-web-cover"
-## The Silk skin's stand-in until roadmap 7.8 builds the skins: the story flag Pearl 2 sets
-## (`crosses_webs`).
-const SILK_SKIN_FLAG := "skin.silk"
 ## Gulp form texts (WorldScene.ts:1093-1100): centre - 56.
 const GULP_TEXT_RISE_PX := 56.0
 ## Gulp messages over the slime (GulpController `showMessage`: centre - 56).
@@ -347,6 +352,7 @@ func _ready() -> void:
 		skin_material.shader = FORM_SKIN_SHADER
 		skin_material.set_meta(&"hit_flash", true)
 		visual.material = skin_material
+		_skin_look.setup(skin_material)
 		HitFlash.install(visual)
 		_squash.setup(visual)
 		_squash.busy = is_ability_busy
@@ -526,7 +532,10 @@ func _physics_process(delta: float) -> void:
 			get_mouth_hold().step(Services.now_ms(), _input.is_held(&"eat"))
 		else:
 			_mouth.update(Services.now_ms(), _input.is_held(&"eat"), _gulp_aim())
-	_swim.update()
+	# A climbing slime's body collides with nothing (feral_climb.gd clears its mask): the water bit
+	# the swim step adds back every step must wait until the climb is over.
+	if not _climb.is_active():
+		_swim.update()
 	_status.update(delta * 1000.0)
 	if not _dead:
 		_regen_energy(delta * 1000.0)
@@ -551,7 +560,9 @@ func _physics_process(delta: float) -> void:
 			_orders.cancel() # The movement keys take over from a click order.
 		if _roll.is_active():
 			_roll.update(Services.now_ms(), delta, _input.is_held(&"dodge"))
-		if is_movement_suppressed():
+		if _climb.is_active():
+			_step_climb(delta) # The Feral skin's climb owns the slime (feral_climb.gd).
+		elif is_movement_suppressed():
 			pass # Roll / knockback own the body: their velocity persists, presses stay buffered.
 		elif ReworkMode.is_on() and _rework_owns_step():
 			pass # Rework: the mouth's hold or a shape step owns the slime this step.
@@ -597,6 +608,7 @@ func _process(_delta: float) -> void:
 		_respawn_at_real_ms = -1.0
 		respawn()
 	_update_modal_pause()
+	_skin_look.update(now_real)
 	# A respawn in another world takes the slime out of the tree.
 	if not is_inside_tree():
 		return
@@ -918,6 +930,10 @@ func apply_knockback(direction: Vector2, strength: float, duration_ms: float) ->
 	# The Heavy form shrugs knockback off entirely (WorldScene.ts:341-350); on the stairs the walk
 	# goes on (a hit still hurts).
 	if bool(_gulp.form.get("knockback_immune", false)) or _abilities.is_on_stairs():
+		return
+	# Climbing (the Feral skin): a hit knocks the slime off the wall; the fall costs nothing.
+	if _climb.is_active():
+		_climb.drop(Services.now_ms())
 		return
 	if ReworkMode.is_on() and _mouth_hold != null:
 		_mouth_hold.cancel("knockback")
@@ -1296,7 +1312,7 @@ func is_airborne() -> bool:
 	return _abilities.is_airborne()
 
 
-## A jump landed at `centre`: `jump_landed`; in a Heavy form it is also a Heavy impact. (The jump
+## A jump landed at `centre`: `jump_landed`; with the Heavy skin it is also a Heavy impact. (The jump
 ## is hidden since 2026-10-08: nothing teaches it and no key runs it; ledge drops do not land here.)
 func record_landing(centre: Vector2) -> void:
 	_impact_id += 1
@@ -1306,34 +1322,33 @@ func record_landing(centre: Vector2) -> void:
 	jump_landed.emit({"x": centre.x, "y": centre.y, "heavy": heavy, "id": _impact_id})
 
 
-## A Squash Slam struck at `centre` (slam_sequence.gd); in a Heavy form it is a Heavy impact.
+## A Squash Slam struck at `centre` (slam_sequence.gd); with the Heavy skin it is a Heavy impact.
 func record_slam(centre: Vector2) -> void:
 	_impact_id += 1
 	if presses_plates():
 		_heavy_impact = {"x": centre.x, "y": centre.y, "id": _impact_id}
 
 
-## {} or {"x", "y", "id"} of the last Heavy impact: a Squash Slam (or a jump landing) made in a
-## Heavy form. Cracked ground breaks under one.
+## {} or {"x", "y", "id"} of the last Heavy impact: a Squash Slam (or a jump landing) made with the
+## Heavy skin. Cracked ground breaks under one.
 func last_heavy_impact() -> Dictionary:
 	return _heavy_impact
 
 
-## The current form presses plates and cracks ground (Heavy). Set by the Gulp forms.
+## The slime is heavy: it sinks heavy plates and pressure plates, moves heavy blocks, and its slams
+## crack cracked ground. The Heavy skin's hook (docs/godot/SKINS.md "Heavy": SkinState, always on
+## once won). The Gulp's Stone form no longer counts (roadmap 7.8 replaced it).
 func presses_plates() -> bool:
-	return bool(_gulp.form.get("presses_plates", false))
+	return SkinState.is_on(self, SkinState.HEAVY)
 
 
-## The slime crosses spider webs: webs neither catch nor stick it (`apply_web`), and it tears the
-## ones it walks or rolls through. The Silk skin's hook (roadmap 7.8; owner, 2026-10-16, question
-## 131: with the Silk skin webs no longer stick). The skin itself is not built: its stand-in is the
-## story flag SILK_SKIN_FLAG, which Pearl 2 sets (the Matron's, game/scripts/pearl.gd `skin_flag`;
-## 2026-10-17), and the Silk Gulp form (Sticky) still counts too.
+## The slime crosses spider webs: webs neither slow, catch nor stick it (`apply_web`, a Roll
+## included), it tears the ones it walks or rolls through, passes web walls at half speed, and its
+## Spear cuts webs (owner, 2026-10-16, questions 55 and 131). The Silk skin's hook
+## (docs/godot/SKINS.md "Silk": SkinState, always on once won). The Gulp's Silk form no longer
+## counts (roadmap 7.8 replaced it).
 func crosses_webs() -> bool:
-	if bool(_gulp.form.get("crosses_webs", false)):
-		return true
-	var run := Services.run()
-	return run != null and run.has_flag(SILK_SKIN_FLAG)
+	return SkinState.is_on(self, SkinState.SILK)
 
 
 func is_sticky_form() -> bool:
@@ -1490,7 +1505,8 @@ func on_gulp_form_changed(form: Dictionary, reason: String) -> void:
 		# The form's skin is painted by the Visual's shader; the tint is the fallback without it.
 		var skin_material := visual.material as ShaderMaterial
 		if skin_material != null and skin_material.shader == FORM_SKIN_SHADER:
-			skin_material.set_shader_parameter(&"skin", int(form.get("skin", 0)))
+			# The look (game/player/skins/skin_look.gd) paints the form's skin over any skin's look.
+			_skin_look.set_form_skin(int(form.get("skin", 0)))
 			visual.self_modulate = Color.WHITE
 		else:
 			visual.self_modulate = form.get("tint", Color.WHITE)
@@ -1587,6 +1603,9 @@ func _handle_action_input() -> bool:
 	# for the release (its main action) or 450 ms held (the hold action).
 	if _input.consume(&"interact", now, _buffer_ms):
 		_orders.cancel()
+		# A climbable wall the slime faces at its foot takes the press first (the Feral skin climbs).
+		if _climb.try_begin(self, body, _facing):
+			return true
 		var interaction := _interaction_controller()
 		if interaction != null and bool(interaction.call(&"has_candidate")):
 			if bool(interaction.call(&"has_secondary")):
@@ -1654,8 +1673,11 @@ func _handle_rework_action_input(now: float, busy: bool) -> bool:
 			return true
 		if _input.consume(&"interact", now, _buffer_ms):
 			_orders.cancel()
-			# A heavy block the slime faces and touches takes the press first (a held interact grabs).
+			# A heavy block the slime faces and touches takes the press first (a held interact grabs),
+			# then a climbable wall it faces at its foot (the Feral skin climbs while it is held).
 			if not _mouth.is_holding() and _grab.try_begin(self, body, _facing):
+				return true
+			if not _mouth.is_holding() and _climb.try_begin(self, body, _facing):
 				return true
 			var interaction := _interaction_controller()
 			if interaction != null and bool(interaction.call(&"has_candidate")):
@@ -1748,6 +1770,91 @@ func _step_grab(now: float) -> bool:
 ## Rework: the heavy block the slime grabs, or null.
 func get_grabbed_block() -> Node2D:
 	return _grab.block()
+
+
+## The Feral skin's climb owns the step (game/player/skins/feral_climb.gd): the other presses are
+## dropped; the held interact key climbs, the movement keys pick the way along the wall.
+func _step_climb(delta: float) -> void:
+	var now := Services.now_ms()
+	# The strike while clinging (the dungeons, 2026-10-17: the Colossus's claws): an attack press.
+	if _input.consume(&"attack", now, _buffer_ms):
+		_climb_strike()
+	for action: StringName in [&"dodge", &"ability_use", &"eat", &"interact", &"weapon_next",
+			&"weapon_previous", &"swallow"]:
+		_input.consume(action, now, _buffer_ms)
+	_drop_roll_press()
+	# While the strike runs the slime holds still on the face; its shape's pose plays.
+	if _climb_strike_running():
+		_climb.hold_still()
+		return
+	var moving := _climb.step(now, delta, _input.is_held(&"interact") or _use_button_down, _grab_direction)
+	if _climb.is_active():
+		_play_direct(_locomotion_clip(CLIP_WALK if moving else CLIP_IDLE))
+	else:
+		_play_idle(true)
+
+
+## The Feral skin strikes while it clings (docs/godot/SKINS.md "Feral", the plan's proposal; added by
+## the dungeons for the Crystal Colossus's claws, docs/godot/DUNGEONS.md): an attack press while
+## climbing (not dropping) gives the current shape (the Spear, at the Feral tempo) a press aimed along
+## the face, left or right (feral_climb.gd `strike_side`); it strikes on the release, as every press.
+## The body-shapes mode only (the shapes strike there).
+func _climb_strike() -> void:
+	if _climb.is_falling() or not ReworkMode.is_on() or _shapes == null or not is_instance_valid(_shapes):
+		return
+	_shapes.press_attack(_climb.strike_side(self, _grab_direction))
+
+
+## True while a strike from the face runs (the climb holds still meanwhile).
+func _climb_strike_running() -> bool:
+	return _climb.is_active() and not _climb.is_falling() and ReworkMode.is_on() and _shapes != null \
+		and is_instance_valid(_shapes) and _shapes.is_busy()
+
+
+## True while the slime climbs a wall (or drops off one): the Feral skin.
+func is_climbing() -> bool:
+	return _climb.is_active()
+
+
+## The climb under way (the wall, its fall), for the walls and the tests.
+func get_climb() -> FeralClimb:
+	return _climb
+
+
+## A climbable wall's `use` (game/scripts/climb_wall.gd): starts climbing it while the interact
+## key is held. False without the Feral skin, when dead or when a climb is on.
+func start_climb(climb_wall: Node2D) -> bool:
+	if _dead or body == null:
+		return false
+	stop_movement()
+	_grab.release()
+	return _climb.begin(self, body, climb_wall)
+
+
+## A skin works now (SkinState.show): its look shows on the slime for a moment
+## (game/player/skins/skin_look.gd).
+func show_skin(id: StringName) -> void:
+	_skin_look.show_working(id, _real_now_ms())
+
+
+## The skin look painted now (the shader's `skin`, a Gulp form's included) and how much of it shows;
+## the shape weapons wear the same (game/shapes/shape_visuals.gd).
+func skin_look_index() -> int:
+	return _skin_look.shader_skin()
+
+
+func skin_look_amount() -> float:
+	return _skin_look.shader_amount()
+
+
+## Paints the look shown now into another form_skin.gdshader material (the shape weapons').
+func apply_skin_look_to(skin_material: ShaderMaterial) -> void:
+	_skin_look.apply_to(skin_material)
+
+
+## The skin whose look the slime shows now (&"" for its own goo or a Gulp form).
+func shown_skin() -> StringName:
+	return _skin_look.shown()
 
 
 ## Rework mode (owner, 2026-10-12): which Roll an armed press (`_roll_press_ms`) asks for now. Its
@@ -2051,6 +2158,7 @@ func teleport(centre: Vector2) -> void:
 		return
 	_orders.cancel()
 	_grab.release()
+	_climb.cancel()
 	_walk_out.finish()
 	body.velocity = Vector2.ZERO
 	FeetAnchor.place_at_phaser_position(body, centre)
@@ -2089,6 +2197,7 @@ func _die() -> void:
 		return
 	_sleep.wake("death")
 	_roll.cancel()
+	_climb.cancel()
 	_gulp.clear()
 	_mouth.clear()
 	if ReworkMode.is_on():

@@ -5,14 +5,25 @@ class_name PearlScript
 ## held. It shows only once its boss (`boss_id`, RunState `defeated_boss_ids`) is beaten, rising
 ## with a glow; the slime takes it by walking into it (within `take_radius`). Taking it plays the full
 ## ceremony (game/ui/ceremony/ability_ceremony.gd `request_entry`: the Pearl's card), sets the story
-## flags `pearl.<pearl_id>` and `skin_flag` (the skin it grants: Pearl 1's is the Heavy skin,
-## "skin.heavy", which game/fattys_lair/heavy_check.gd reads until roadmap 7.8 builds the skins), and
-## it is gone for good. Its altar is a separate prop.
+## flag `pearl.<pearl_id>`, grants its skin (`skin_id`: SkinState.grant, docs/godot/SKINS.md: won
+## for good, always on, made the everyday look, its short ceremony line the first time; Pearl 1's is
+## the Heavy skin, 2's the Silk skin, 3's the Feral skin), and it is gone for good. Its altar is a
+## separate prop. With `boss_id` empty it shows from the start (a Pearl found inside its dungeon,
+## before its boss: owner, 2026-10-17).
+##
+## **Inside a dungeon** (docs/godot/DUNGEONS.md "The seal"; owner, 2026-10-17: the Pearl inside the
+## dungeon): set `boss_id` to its guard's id (the mini-boss's room fight `boss_id`), so it rises on
+## its altar once he falls. Taking it (`seals_dungeon`) seals the dungeon until the dungeon's boss
+## falls: the Dungeon node's `seal_now` (his roar as the card closes, the glimpse of the entrance's
+## seal slamming shut: game/dungeon/seal_moment.gd). A Pearl taken after its dungeon's boss fell (an
+## old save) seals nothing.
 ##
 ## Owner: dungeons (Fatty's Lair).
 
 const Services := preload("res://game/shared/services.gd")
 const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 
 const GROUP := &"pearl"
 const FLAG_PREFIX := "pearl."
@@ -22,7 +33,7 @@ const BOB_PX := 5.0
 const BOB_PERIOD_S := 2.2
 const APPEAR_S := 0.9
 
-## Taken. Payload: {"pearlId", "skinFlag"}.
+## Taken. Payload: {"pearlId", "skinId"}.
 signal taken(payload: Dictionary)
 ## Shown (its boss beaten). Payload: {"pearlId"}.
 signal appeared(payload: Dictionary)
@@ -32,12 +43,14 @@ signal appeared(payload: Dictionary)
 @export var boss_id: String = "fatty-one-eye"
 ## Which of the eight Pearls it is.
 @export var number: int = 1
-## The story flag of the skin it grants.
-@export var skin_flag: String = "skin.heavy"
+## The skin it grants (SkinState: heavy, silk, feral; "" = none).
+@export var skin_id: String = "heavy"
 @export var card_name: String = "Heavy skin"
 @export var card_line: String = "Fatty's weight is yours: you sink heavy plates and push statues and blocks."
-@export var card_how: String = "Your Roll smashes old, broken things: planks, rubble, rotten wood."
+@export var card_how: String = "Your Roll smashes old, broken things: planks, rubble, loose rocks, rotten wood."
 @export var take_radius: float = 40.0
+## Taken inside a dungeon whose boss stands, it seals the dungeon (the Dungeon node's `seal_now`).
+@export var seals_dungeon: bool = true
 @export var visual: Sprite2D
 
 var _shown := false
@@ -102,26 +115,31 @@ func _physics_process(_delta: float) -> void:
 		take()
 
 
-## The slime takes it: the flags, the ceremony, gone.
-func take() -> void:
+## The slime takes it: its flag, the skin, the ceremony, the dungeon's seal, gone. `quiet` (the
+## `?sealed` dev option): no card, and the seal shuts without the roar and the glimpse.
+func take(quiet: bool = false) -> void:
 	if _taken:
 		return
 	_taken = true
 	var run := Services.run()
 	if run != null:
 		run.set_flag(FLAG_PREFIX + pearl_id)
-		if not skin_flag.is_empty():
-			run.set_flag(skin_flag)
+	if not skin_id.is_empty():
+		SkinState.grant(StringName(skin_id))
 	var icon: Texture2D = visual.texture if visual != null else null
 	# Only while main's ceremonies are on (off in the test runner, whose queued card would otherwise
 	# pause the next test's world: the ceremony lives under the tree's root).
-	if AbilityCeremony.enabled(get_tree()):
+	if not quiet and AbilityCeremony.enabled(get_tree()):
 		AbilityCeremony.request_entry(get_tree(), {"kicker": "Pearl of the Wellspring (%d of 8)" % number,
 			"name": card_name, "line": card_line, "how": card_how, "icon": icon})
 	var feel := Services.feel()
-	if feel != null:
+	if feel != null and not quiet:
 		feel.particles(SPARKLE, global_position)
-	taken.emit({"pearlId": pearl_id, "skinFlag": skin_flag})
+	if seals_dungeon:
+		var dungeon := DungeonState.current(get_tree())
+		if dungeon != null and dungeon.has_method(&"seal_now"):
+			dungeon.call(&"seal_now", pearl_id, not quiet)
+	taken.emit({"pearlId": pearl_id, "skinId": skin_id})
 	visible = false
 
 

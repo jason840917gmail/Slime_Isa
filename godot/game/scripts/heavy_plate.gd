@@ -1,15 +1,19 @@
 extends Node2D
 ## Scene script of `object.heavy-plate` (game/scenes/objects/heavy-plate.tscn; bomb-lantern-and-secrets
 ## design section 4; BODY_SHAPES.md "Heavy plates and heavy blocks"; numbers in game-constants.json
-## `puzzles.heavyPlate`). A stone plate that only a heavy weight sinks: the Stone slime (a form that
-## `presses_plates`, its feet within `playerRadiusPx` of the plate, not in the air) or a heavy block
-## (group `heavy_blocks`, its `weight_point()` within `blockRadiusPx`).
+## `puzzles.heavyPlate`). A stone plate that only a heavy weight sinks: the slime with the Heavy skin
+## (player.gd `presses_plates`: SkinState, docs/godot/SKINS.md; its feet within `playerRadiusPx` of
+## the plate, not in the air; it shows its Heavy skin while it stands there) or a heavy block (group
+## `heavy_blocks`, its `weight_point()` within `blockRadiusPx`).
 ##
 ## - Loaded, it sinks from up to fully down over `sinkMs` (3000); unloaded, it rises back over
 ##   `riseMs` (5000). Weight coming back while it rises sinks it again from where it is.
 ## - Its gates (every `gate` with `gate_id`) open only when it is fully down. They stay open while
 ##   it rises and shut the moment it is fully up again (GateScript.close), unless another heavy
 ##   plate of the same gate still holds them (`holds_gate_open`). A block left on it keeps it down.
+##   With `shut_on_leave` they shut the moment the weight leaves (a door held only while a statue
+##   stands on the plate). Each time it reaches the bottom it also sets off its `targets` (a
+##   drawbridge, a hidden chest: DungeonState.fire), which stay done.
 ## - It shows its depth (owner, 2026-10-14: only the pressable top moves, never the whole plate):
 ##   the **base** (a stone socket ring) stays put and the **cap** (a stone slab with a carved weight
 ##   glyph) slides `sinkPx` down into it as it sinks and back up as it rises, darkening as it goes
@@ -31,7 +35,8 @@ extends Node2D
 const Services := preload("res://game/shared/services.gd")
 const GooRing := preload("res://game/shapes/goo_ring.gd")
 const ShapeVisuals := preload("res://game/shapes/shape_visuals.gd")
-const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 
 const GROUP := &"heavy_plates"
 const GATE_GROUP := &"gate"
@@ -75,9 +80,22 @@ const PIT := Color(0.1, 0.08, 0.06, 0.92)
 ## How dark the cap gets fully down (multiplied into its colour).
 const DOWN_SHADE := 0.72
 const RING_NAME := "HeavyPlateRing"
+const REFUSAL_EVERY_MS := 4000.0
+const REFUSAL_RISE := 60.0
 
 ## The gates it opens ("" = none).
 @export var gate_id: String = ""
+## Said when a slime without the Heavy skin stands on it (the clarity rule), at most every
+## REFUSAL_EVERY_MS ("" = never).
+@export var refusal_text: String = "It does not budge under you."
+## Set off each time it reaches the bottom (DungeonState.fire: `trigger()`, else `appear`,
+## `open_for_good`, `lower` or `open`; as a winch's targets): a drawbridge, a hidden chest
+## (Fatty's Lair: the hub's counterweight plate, R9's plate). They do their thing for good.
+@export var targets: Array[NodePath] = []
+## Its gates shut the moment the weight leaves it (it still rises at its pace), so it holds a door
+## only while something stands on it: a statue, never the slime that has to walk through
+## (Fatty's Lair's Weigh House and R10).
+@export var shut_on_leave: bool = false
 
 ## The plate reached the bottom. Payload: {"gateId"}.
 signal pressed(payload: Dictionary)
@@ -98,6 +116,7 @@ var _sink_px: float = 6.0
 var _player_radius: float = 30.0
 var _block_radius: float = 24.0
 var _grind_ms: float = 420.0
+var _next_refusal_ms: float = 0.0
 
 
 func _ready() -> void:
@@ -136,7 +155,8 @@ func _physics_process(_delta: float) -> void:
 	var step_ms := maxf(0.0, now - _last_ms)
 	_last_ms = now
 	var before := _depth
-	if _loaded():
+	var loaded := _loaded()
+	if loaded:
 		_depth = minf(1.0, _depth + step_ms / _sink_ms)
 	else:
 		_depth = maxf(0.0, _depth - step_ms / _rise_ms)
@@ -149,9 +169,14 @@ func _physics_process(_delta: float) -> void:
 		_cue(CUE_DOWN)
 		_set_gates(true)
 		pressed.emit({"gateId": gate_id})
+		_fire_targets()
 	elif _depth < 1.0 and _down:
 		_down = false
 		_show()
+	if shut_on_leave and _holding_open and not loaded:
+		_holding_open = false
+		_set_gates(false)
+		released.emit({"gateId": gate_id})
 	if _depth <= 0.0 and _holding_open:
 		_holding_open = false
 		_cue(CUE_UP)
@@ -160,7 +185,7 @@ func _physics_process(_delta: float) -> void:
 	_pulse_ring()
 
 
-## A heavy block on it, or the Stone slime standing on it.
+## A heavy block on it, or the Heavy slime standing on it.
 func _loaded() -> bool:
 	var at := global_position
 	for block: Node in get_tree().get_nodes_in_group(BLOCK_GROUP):
@@ -168,12 +193,33 @@ func _loaded() -> bool:
 			return true
 	var world := Services.world()
 	var player: Node = world.player if world != null else null
-	if player == null or not is_instance_valid(player) or not bool(player.call(&"presses_plates")):
-		return false
-	if bool(player.call(&"is_airborne")):
+	if player == null or not is_instance_valid(player) or bool(player.call(&"is_airborne")):
 		return false
 	var body := player.get(&"body") as Node2D
-	return body != null and body.global_position.distance_to(at) <= _player_radius
+	var on_it := body != null and body.global_position.distance_to(at) <= _player_radius
+	if not on_it:
+		return false
+	if not bool(player.call(&"presses_plates")):
+		_refuse()
+		return false
+	SkinState.show(player, SkinState.HEAVY)
+	return true
+
+
+## A light slime on the plate: `refusal_text` over it, now and then (real time).
+func _refuse() -> void:
+	var now := float(Time.get_ticks_msec())
+	if refusal_text.is_empty() or now < _next_refusal_ms:
+		return
+	_next_refusal_ms = now + REFUSAL_EVERY_MS
+	var feel := Services.feel()
+	if feel != null:
+		feel.floating_text(global_position - Vector2(0.0, REFUSAL_RISE), refusal_text, &"white", false, 2000.0)
+
+
+func _fire_targets() -> void:
+	for path: NodePath in targets:
+		DungeonState.fire(get_node_or_null(path), {"gateId": gate_id})
 
 
 func _set_gates(open_now: bool) -> void:
@@ -304,8 +350,7 @@ func _pulse_ring() -> void:
 
 
 static func _stone_colour() -> Color:
-	var form := GulpForms.by_id(GulpForms.HEAVY)
-	return form.get("color", Color("#c9cfd6"))
+	return SkinState.color(SkinState.HEAVY)
 
 
 func _grind(now: float, sinking: bool) -> void:

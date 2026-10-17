@@ -1,39 +1,31 @@
 extends RefCounted
-## Is the slime heavy? (Fatty's Lair: the plank barricade's lock; docs/godot/DUNGEONS.md "Fatty's
-## Lair (built)".) The Heavy skin, Pearl 1's, is not built as a skin yet (roadmap 7.8). Until it is,
-## the slime counts as heavy in the Stone form (GulpForms.HEAVY, the rework's Heavy check, which the
-## Roll already uses for its `heavy` bonk tag) or once Pearl 1 granted the skin: the story flag
-## SKIN_FLAG, set by game/scripts/pearl.gd. When 7.8 builds the skin, this file is where the
-## barricade asks, and the flag is the record the skin reads.
+## Is the slime heavy? The Heavy skin's checks (docs/godot/SKINS.md "Heavy"): Pearl 1's skin, won in
+## Fatty's Lair, always on once won (SkinState). The Heavy Roll's breakables ask here (the plank
+## barricade, the rotten timbers, rubble heaps, loose rocks, old trunks and fences:
+## game/scripts/plank_barricade.gd), as do the heavy plates and blocks through player.gd
+## `presses_plates`.
 ##
-## Owner: dungeons (Fatty's Lair).
+## Owner: skins.
 
-const Services := preload("res://game/shared/services.gd")
-const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
-## Set by Pearl 1 (game/scripts/pearl.gd `skin_flag`).
-const SKIN_FLAG := "skin.heavy"
 const ROLL_TAG := "roll"
+## The Roll's bonk carries it while the Heavy skin is on (game/player/roll/player_roll.gd).
 const HEAVY_TAG := "heavy"
 
 
-## True once Pearl 1 granted the Heavy skin.
+## True once the Heavy skin is on (won, or lent for the session).
 static func has_skin() -> bool:
-	var run := Services.run()
-	return run != null and run.has_flag(SKIN_FLAG)
+	return SkinState.is_on(null, SkinState.HEAVY)
 
 
-## True while `player` (player.gd) is heavy: the Stone form, or the Heavy skin learned.
+## True while `player` (player.gd) is heavy: the Heavy skin is on.
 static func is_heavy(player: Node) -> bool:
-	if has_skin():
-		return true
-	if player == null or not is_instance_valid(player) or not player.has_method(&"current_form_id"):
-		return false
-	return StringName(player.call(&"current_form_id")) == GulpForms.HEAVY
+	return SkinState.is_on(player, SkinState.HEAVY)
 
 
 ## True when `request` (a DamageRouter request) is a Heavy Roll's bonk: the Roll's hit (tag `roll`)
-## carrying `heavy` (the Stone form), or any Roll's once the Heavy skin is learned.
+## made with the Heavy skin on (it carries `heavy`).
 static func is_heavy_roll(request: Dictionary) -> bool:
 	var tags: Variant = request.get("weapon_tags", [])
 	if not tags is Array or not (tags as Array).has(ROLL_TAG):

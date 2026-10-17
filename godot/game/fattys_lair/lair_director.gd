@@ -16,15 +16,20 @@ extends Node2D
 ##   mud clods (`clods_requested`): at `clod_spots` (the children of that node, ground points), the
 ##   free ones nearest the slime, after a shadow of `clod_shadow_ms`; a clod landing on the slime hurts
 ##   (`clod_damage`); then it lies there as a liftable mud ball (kind `mud-ball`), at most `max_clods`
-##   at once. Beaten, he never comes back (the camp stops for good once `defeated_boss_ids` has him):
-##   the boss heart (`heart`, a goo heart worth two) shows, and the Pearl (`pearl`,
-##   game/scripts/pearl.gd) rises on its altar by itself. The arena's shutters (the dungeon kit's
-##   game/dungeon/shutter.gd with `boss_shutter_fight` as their `fight_id`) shut while he lives and
-##   open when he falls. His fall is kept in the dungeon's record too (DungeonState
-##   mark_boss_beaten). Until then the director, standing in the arena, is the compass's boss mark
-##   (group `dungeon_map_mark`, `mark` "boss").
+##   at once. His phase two is the Heavy skin's exam (a Heavy Roll knocks him off balance: fatty.gd).
+##   Beaten, he never comes back (the camp stops for good once `defeated_boss_ids` has him): the
+##   boss heart (`heart`) shows. The Pearl is no longer his prize: it lies in the Larder, guarded by
+##   the Big Squint (since 2026-10-17, the Pearl before the boss), and shows by its own `boss_id`.
+##   The arena's shutters (the dungeon kit's game/dungeon/shutter.gd with `boss_shutter_fight` as
+##   their `fight_id`) shut while he lives and open when he falls. His fall is kept in the dungeon's
+##   record too (DungeonState mark_boss_beaten). Until then the director, standing in the arena, is
+##   the compass's boss mark (group `dungeon_map_mark`, `mark` "boss").
 ## - **Blocked gaps** (`blocked_gaps`: the map nook): a Node2D holding light things (liftables) and a
 ##   `Barrier` body; once every light thing is taken the barrier goes and the secret jingle plays.
+## - **Heavy blocks reset with their room** (the guide's no-softlock rule): every heavy block and
+##   statue in the world (group `heavy_blocks`) is put back where it stood when the world was built
+##   each time the slime walks into the room it started in (the Dungeon node's `room_entered`), as
+##   the room's enemies and pots come back. A statue pushed into a corner never blocks the way.
 ##
 ## Owner: dungeons (Fatty's Lair).
 
@@ -51,6 +56,17 @@ const SHUTTER_GROUP := &"shutter"
 const MAP_MARK_GROUP := &"dungeon_map_mark"
 const LIFTABLE_SCRIPT := preload("res://game/scripts/liftable.gd")
 const CUE_SECRET := &"SecretFound"
+const BLOCK_GROUP := &"heavy_blocks"
+const SoftGlow := preload("res://game/prologue/soft_glow.gd")
+## His fall's stream of light into the Pearl (presentation): the sparkles, their step, their arc.
+const POWER_PARTICLES := &"loot-sparkle"
+const CUE_POWER := &"SecretFound"
+const POWER_SPARKS := 12
+const POWER_STEP_MS := 70.0
+const POWER_ARC_PX := 60.0
+const POWER_GLOW_S := 1.2
+## A block is put back only when the slime's body is this far from its start (world units).
+const BLOCK_RESET_CLEAR_PX := 72.0
 
 const CALL_LINES: Array[String] = [
 	"Is someone there? ... A slime? Out here, in Fatty's burrow?",
@@ -85,8 +101,11 @@ signal burr_freed(payload: Dictionary)
 ## Fatty's phase two (game/scripts/fatty.gd `configure_phase_two`: the `phase_two_*` exports' names without the prefix).
 @export var phase_two: Dictionary = {}
 @export var heart: NodePath
-@export var pearl: NodePath
 @export var boss_id: String = "fatty-one-eye"
+## The Larder's Pearl and the glint over its altar (seen from the door all through the Big Squint's
+## fight): the glint goes once the Pearl is taken.
+@export var pearl: NodePath
+@export var pearl_glint: NodePath
 ## The arena's shutters' `fight_id`.
 @export var boss_shutter_fight: String = ""
 ## Gaps choked with light things (Node2Ds with liftables and a `Barrier` child).
@@ -98,6 +117,8 @@ var _freeing := false
 var _was_inside := false
 var _next_short_call_ms := 0
 var _bound_boss: Node = null
+## Every heavy block's start: [{"block": Node2D, "at": Vector2 (global)}].
+var _block_starts: Array[Dictionary] = []
 
 
 func _enter_tree() -> void:
@@ -126,6 +147,13 @@ func _ready() -> void:
 	_show_heart(_boss_beaten())
 	if not _boss_beaten():
 		add_to_group(MAP_MARK_GROUP)
+	_snapshot_blocks.call_deferred()
+	var prize := get_node_or_null(pearl)
+	if prize != null and prize.has_signal(&"taken"):
+		if prize.has_method(&"is_taken") and bool(prize.call(&"is_taken")):
+			_drop_glint()
+		else:
+			prize.connect(&"taken", func(_payload: Dictionary) -> void: _drop_glint())
 
 
 func is_burr_freed() -> bool:
@@ -266,9 +294,91 @@ func _on_boss_defeated(_payload: Dictionary) -> void:
 	if camp_node != null:
 		camp_node.set_physics_process(false)
 	_show_heart(true)
-	var prize := get_node_or_null(pearl)
-	if prize != null and prize.has_method(&"appear"):
-		prize.call(&"appear")
+	var from := global_position
+	if _bound_boss != null and is_instance_valid(_bound_boss) and _bound_boss.has_method(&"get_centre"):
+		from = _bound_boss.call(&"get_centre")
+	_pour_power(from)
+
+
+## His fall: the Pearl's power he soaked up pours out through his eye into Pearl 1, which the slime
+## carries (the Pearl-inside plan's "why he shrinks"): sparkles running from him to the slime, a
+## flash of the Pearl's light on it. Presentation only.
+func _pour_power(from: Vector2) -> void:
+	var feel := Services.feel()
+	var world := Services.world()
+	if feel == null or world == null or world.player == null or not is_instance_valid(world.player):
+		return
+	feel.audio_cue(CUE_POWER)
+	for i in POWER_SPARKS:
+		if not is_inside_tree() or world.player == null or not is_instance_valid(world.player):
+			return
+		var to: Vector2 = world.player.call(&"get_centre")
+		var t := float(i) / float(POWER_SPARKS - 1)
+		feel.particles(POWER_PARTICLES, from.lerp(to, t) - Vector2(0.0, sin(t * PI) * POWER_ARC_PX))
+		await PrologueScene.wait(get_tree(), POWER_STEP_MS)
+	var body: Node2D = world.player_body
+	if body == null or not is_instance_valid(body):
+		return
+	var glow := SoftGlow.new()
+	glow.set(&"radius", Vector2(70, 56))
+	glow.set(&"color", Color(1.0, 0.9, 0.55, 0.6))
+	body.add_child(glow)
+	glow.position = (world.player.call(&"get_centre") as Vector2) - body.global_position
+	var tween := glow.create_tween()
+	tween.tween_property(glow, "modulate:a", 0.0, POWER_GLOW_S)
+	tween.tween_callback(glow.queue_free)
+
+
+func _drop_glint() -> void:
+	var glint := get_node_or_null(pearl_glint)
+	if glint != null:
+		glint.queue_free()
+
+
+# --- heavy blocks reset with their room ------------------------------------------------------------
+
+## Notes where every heavy block of the world stands, and listens for the slime's room changes.
+func _snapshot_blocks() -> void:
+	if not is_inside_tree():
+		return
+	var world := Services.world()
+	_block_starts.clear()
+	for node: Node in get_tree().get_nodes_in_group(BLOCK_GROUP):
+		if node is Node2D and (world == null or world.world_root == null or world.world_root.is_ancestor_of(node)):
+			_block_starts.append({"block": node, "at": (node as Node2D).global_position})
+	var dungeon := DungeonState.current(get_tree())
+	if dungeon != null and dungeon.has_signal(&"room_entered") and not dungeon.is_connected(&"room_entered", _on_room_entered):
+		dungeon.connect(&"room_entered", _on_room_entered)
+
+
+## The slime walked into a room: the blocks that started in it go back to their starts.
+func _on_room_entered(payload: Dictionary) -> void:
+	var dungeon := DungeonState.current(get_tree())
+	if dungeon == null or not dungeon.has_method(&"room_at"):
+		return
+	var key := str(payload.get("room", ""))
+	for entry: Dictionary in _block_starts:
+		var block := entry.get("block") as Node2D
+		var at: Vector2 = entry["at"]
+		if block == null or not is_instance_valid(block) or block.global_position.is_equal_approx(at):
+			continue
+		var room: Node = dungeon.call(&"room_at", at)
+		if room == null or str(dungeon.call(&"room_key_of", room)) != key:
+			continue
+		reset_block(block, at)
+
+
+## Puts `block` back on `at` unless it is moving or the slime stands there. True when it moved.
+func reset_block(block: Node2D, at: Vector2) -> bool:
+	if block.has_method(&"is_moving") and bool(block.call(&"is_moving")):
+		return false
+	var world := Services.world()
+	var body: Node2D = world.player_body if world != null else null
+	if body != null and body.global_position.distance_to(at) < BLOCK_RESET_CLEAR_PX:
+		return false
+	block.global_position = at
+	block.reset_physics_interpolation()
+	return true
 
 
 func _show_heart(shown: bool) -> void:

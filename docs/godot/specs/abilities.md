@@ -1261,8 +1261,8 @@ has not taken the quest) and let a test/dev flag override it (owner item O-R1). 
   `player.is_rooted()`).
 Interplay: a jump or a teleport crosses a web without touching its zone; the lash flight can be
 caught mid-path (§10). Godot since 2026-10-16: a Roll sticks in a web (the catch ends it through
-`stop_movement`; matron spec 5.5), and `player.crosses_webs()` is the Silk skin's hook (today the
-Silk form): with it `apply_web` does nothing.
+`stop_movement`; matron spec 5.5), and `player.crosses_webs()` is the Silk skin's hook (SkinState
+since roadmap 7.8, SKINS.md; the Silk form no longer counts): with it `apply_web` does nothing.
 
 ### 13.10 What plates and bells need from `game.gate` (world-objects spec)
 
@@ -1323,8 +1323,8 @@ bell, dummies and buildings override `body.position`, the others `root.position`
 | gloop-forest | `gloop-ch2-nook-goo-heart` | (800, 1176) | heartId `gloop-silk-nook` |
 | gloop-forest | `gloop-ch2-matron-goo-heart` | (3120, 800) | heartId `gloop-matron-nest` (inside the `matron-heart` subtree shown by the story variant on `chapter-2-complete`) |
 | gloop-cavern | `gloop-cavern-goo-heart` | (1216, 420) | heartId `gloop-cavern` |
-| level-1 | `level-1-goo-heart-meadow-lakeside` | (176, 3040) | heartId `meadow-lakeside` |
-| level-1 | `level-1-goo-heart-meadow-autumn-thicket` | (3300, 3190) | heartId `meadow-autumn-thicket` |
+| level-1 | `level-1-goo-heart-meadow-lakeside` | (3232, 314), in D4 (`level-1-d4`), in the old pen behind grey planks since 2026-10-17 (until then (176, 3040) in C5) | heartId `meadow-lakeside` |
+| level-1 | `level-1-goo-heart-meadow-autumn-thicket` | (3104, 2464), in D5 (`level-1-d5`), in the hill's cave pocket behind a cracked face since 2026-10-17 | heartId `meadow-autumn-thicket` |
 | level-1 | `level-1-workshop` / `level-1-forge` | (640, 392) / (1190, 1068) | — |
 
 ### 14.2 The playground testbed (`worlds/playground.scene.json`)
@@ -1659,7 +1659,7 @@ consumes the press, tolerance one step = 16.7 ms unless noted):
   movement, unlock at +270, cooldown 2000, energy 80.
 - Dummy sword hit: centre (1480, 1440), face up, tap `attack` → dummy 1 `hit {damage}` with 24
   (or 42 on a crit), orange text at (1480, 1304), wobble rotation ≠ 0 then 0 after ~0.89 s.
-- Goo heart (level-1): centre within 20 px of (176, 3040) on dry ground → `collected
+- Goo heart (level-1, in D4 since 2026-10-17): centre within 20 px of (3232, 314) → `collected
   {heartId:"meadow-lakeside"}`, flag `goo-heart.meadow-lakeside`, max HP 110, HP 110,
   `health_changed {hp:110, maxHp:110}`; travel away and back → the heart stays hidden.
 

@@ -43,7 +43,11 @@ crafted gear, and quests no longer make sense: NPCs give info and tips
 *Changed 2026-10-16: a short prologue comes before Chapter 1: the slime is
 born at the Wellspring, learns to move and to gulp, saves the veteran Yoi
 and learns the Spear from him
-([prologue](design/2026-10-16-prologue.md), question 97).*
+([prologue](design/2026-10-16-prologue.md), question 97).* *Changed
+2026-10-17 (the owner's idea): the Pearl is found inside the boss's dungeon,
+before the boss, as Zelda's dungeon item; the dungeon's second half teaches
+its skin, and the boss fight is the skin's exam
+([roadmap](GAME_ROADMAP.md#the-2026-10-17-decisions)).*
 
 **Release 1** is Chapters 1 to 3 as a free web build (Chapters 1 and 2 until
 2026-10-15); its scope and order are in the
@@ -473,7 +477,13 @@ a full heart (question 17); the Matron lives at the top of the Weaver Hollow,
 and her fight needs the Goo Bomb (question 133); the dungeons' skeletons are
 the fallen Thorn Guard, raised by Gorge's vassals (question 125); and the
 Slime Spider's right tool is the Silk skin, as a Roll sticks in a floor web
-without it (question 131).*
+without it (question 131).* *Changed 2026-10-17: a boss cannot swallow his
+Pearl whole, so he hides it in his dungeon, and the slime finds it before
+him. Taking it enrages him (his strength stays the same) and seals the
+dungeon's exits until he is beaten; fainting or quitting after the Pearl
+resumes at the entrance, inside, with the doors to the outside still sealed.
+The dungeon's second half teaches the skin, and the boss fight is its exam
+([roadmap](GAME_ROADMAP.md#the-2026-10-17-decisions)).*
 
 ## Game Feel
 

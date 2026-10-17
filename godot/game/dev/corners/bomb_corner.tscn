@@ -43,6 +43,8 @@ flag_id = "bomb.playground-path-rubble"
 [node name="islet-rubble" parent="." instance=ExtResource("rubble")]
 position = Vector2(1280, 6960)
 flag_id = "bomb.playground-islet-rubble"
+refusal_text = "Too many rocks to move. It needs a blast."
+breaks_by_blast = true
 
 [node name="islet-prize-variant" type="Node" parent="." node_paths=PackedStringArray("when_set")]
 script = ExtResource("variant")

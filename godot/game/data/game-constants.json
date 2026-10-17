@@ -278,6 +278,9 @@
       "musicDropDb": 3,
       "musicDropMs": 300
     },
+    "hearing": {
+      "cueMarginPx": 96
+    },
     "energyShard": {
       "dropChance": 0.2,
       "amount": 15,
@@ -432,7 +435,36 @@
     "floorSlowMultiplier": 0.5, "rollStickMs": 900, "wallPassMultiplier": 0.5, "enterCueIntervalMs": 1200,
     "glintEveryMs": [2600, 5200], "glintMs": 520
   },
+  "skins": {
+    "order": ["heavy", "silk", "feral"],
+    "defs": {
+      "heavy": {"name": "Heavy skin", "pearl": 1, "look": 4, "color": "#aab2bb",
+        "line": "Heavy as stone: heavy plates sink and heavy blocks move.",
+        "how": "Your Roll smashes old, broken things: planks, rubble, loose rocks, rotten wood."},
+      "silk": {"name": "Silk skin", "pearl": 2, "look": 5, "color": "#e4ecf7",
+        "line": "Webs no longer slow you or stick: you pass web walls at half speed.",
+        "how": "Your Spear cuts web walls open for good and frees what is wrapped in silk."},
+      "feral": {"name": "Feral skin", "pearl": 3, "look": 6, "color": "#b98a56",
+        "line": "Hold the interact key at thick roots or handholds to climb; a fall costs nothing.",
+        "how": "Your Spear strikes twice as fast."}
+    },
+    "lookShowMs": 900, "lookFadeInMs": 140, "lookFadeOutMs": 320, "ceremonyTextMs": 3200,
+    "heavy": {"rollBonkShakeMs": 420, "rollBonkShakeIntensity": 0.02, "rollBonkHitStopMs": 90,
+      "looseRadiusPx": 200},
+    "feral": {"climbSpeed": 150, "grabReachPx": 44, "faceInsetPx": 18, "dropMs": 320, "dropHopPx": 10,
+      "spearTempo": 2.0, "refusalEveryMs": 2500, "strikeSeekPx": 240}
+  },
   "dungeon": {
+    "devPowers": {
+      "fatty-lair": ["shape-spear", "dodge"],
+      "level-1-d5": ["shape-spear", "dodge"],
+      "weaver-hollow-trunk": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
+      "weaver-hollow-roots": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
+      "weaver-hollow-boughs": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
+      "weaver-hollow-crown": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
+      "crystal-mine": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
+      "dungeon-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"]
+    },
     "door": { "keyholeMs": 380, "openMs": 650, "lineEveryMs": 1500 },
     "bolt": { "slideMs": 420 },
     "shutter": { "moveMs": 260, "insetPx": 80, "openDelayMs": 600 },
@@ -445,7 +477,13 @@
     "refill": { "flowerEnergy": 25, "flowerRegrowMs": 20000, "flowerReachPx": 30, "heartHp": 20, "potEnergy": 15,
       "potCoins": 5, "pickupRadiusPx": 22 },
     "shadowPath": { "fadePx": 48 },
-    "glint": { "periodMs": 1700, "sizePx": 16 }
+    "glint": { "periodMs": 1700, "sizePx": 16 },
+    "seal": { "glimpseDelayMs": 600, "glimpseMs": 1500, "glimpseSlamMs": 350, "roarShakeMs": 700,
+      "roarShakeIntensity": 0.012, "roarDust": 140, "slamShakeMs": 420, "slamShakeIntensity": 0.01,
+      "breakDelayMs": 900, "pulseMs": 1300, "lineEveryMs": 1500, "distantRoarMinMs": 45000,
+      "distantRoarMaxMs": 60000, "distantRoarDb": -14, "distantRoarPitch": 0.85, "distantShakeMs": 320,
+      "distantShakeIntensity": 0.0025, "distantDust": 14 },
+    "enraged": { "pulseMs": 1600, "strength": 0.45, "puffEveryMs": 900, "puffRisePx": 110 }
   },
   "abilityBox": {
     "socketCount": 8,

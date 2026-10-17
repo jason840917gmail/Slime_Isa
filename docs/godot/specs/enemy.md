@@ -292,7 +292,7 @@ wandering area, and "they come back when the player reloads a chunk, like in Zel
 | level-1-c4 | `level-1-starter-camp` | worm-swordsman, max 3, 2500 ms | 3 worm swordsmen |
 | level-1-c5 | `level-1-south-meadow` | brawler (w 2, max 2) + slime spider (w 1, max 1), max 3, 7000 ms | 2 brawlers, 1 slime spider |
 | level-1-d4 | `level-1-webwood` | slime spider, max 3, 5000 ms | 3 slime spiders |
-| level-1-d5 | `level-1-autumn-grove` | archer (w 1, max 2) + brawler (w 2, max 2), max 4, 6000 ms | 2 archers, 2 brawlers |
+| level-1-d5 | `level-1-autumn-grove` | archer (w 1, max 2) + brawler (w 2, max 2), max 4, 6000 ms | 2 archers, 2 brawlers. Since 2026-10-17 (Fatty's Hollow, `tools/build_slimeshire_chunks.gd`): 1 archer and 2 brawlers in the field maze's east half, and the second archer alone in its own camp, `level-1-hollow-maze-west` |
 | gloop-forest-e5 | `gloop-orb-weavers-south-west`, `gloop-clod-stompers-clearing` | orb weaver max 2, 6000 ms; Clod Stomper max 1, 20000 ms | 2 orb weavers; 1 Clod Stomper |
 | gloop-forest-f4 | `gloop-orb-weavers-north-east` | orb weaver max 2, 6000 ms | 2 orb weavers |
 | gloop-forest-f5 | `gloop-clod-stompers-hollow`, `gloop-orb-weavers-south` | Clod Stomper max 1; orb weaver max 2 | 1 Clod Stomper; 2 orb weavers |
@@ -841,8 +841,8 @@ suppression wins over the root, `PlayerController.ts:57-60`). This is `player.gd
 spec 13.9 / 19.3); the enemy side only routes the effect. Godot fallback until the player has
 `apply_web(ms)`: `spider_web_port.gd` shows the web cover at the player for an accepted web hit and
 skips the root. Godot since 2026-10-16 (owner, question 131: with the Silk skin webs no longer
-stick): `player.apply_web` does nothing while `player.crosses_webs()` (the Silk skin's hook; today
-the Silk Gulp form, whose hit also pops the form) holds. A Roll's i-frames still let a spit web
+stick): `player.apply_web` does nothing while `player.crosses_webs()` (the Silk skin's hook,
+SkinState since roadmap 7.8: SKINS.md) holds. A Roll's i-frames still let a spit web
 pass; it is the floor webs a Roll sticks in (matron spec 5.5).
 
 ### 12.7 Derived numbers (player defense 3)

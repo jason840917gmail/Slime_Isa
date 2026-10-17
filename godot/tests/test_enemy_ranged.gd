@@ -45,7 +45,8 @@ const OPEN := Vector2(528.0, 1640.0)
 const CAMPS := {
 	"level-1-south-meadow": ["level-1-c5", {"worm-brawler": 2, "slime-spider": 1}],
 	"level-1-webwood": ["level-1-d4", {"slime-spider": 3}],
-	"level-1-autumn-grove": ["level-1-d5", {"worm-archer": 2, "worm-brawler": 2}],
+	"level-1-autumn-grove": ["level-1-d5", {"worm-archer": 1, "worm-brawler": 2}],
+	"level-1-hollow-maze-west": ["level-1-d5", {"worm-archer": 1}],
 }
 ## The crystal caverns' placed enemies in each chunk (the old spawn table cut to
 ## EnemyPlacement.TABLE_ENEMIES = 5, by weight 30 / 40 / 30), in two camps of 3 and 2 that share a

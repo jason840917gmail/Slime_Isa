@@ -204,6 +204,13 @@ ceremony) in §11.
 Godot: `GameFeel.audio_cue(cue)` plays the same node (it searches the whole `GlobalAudio` tree,
 `game_feel.gd:143-155`; no cue name repeats outside `Effects`, so this is equivalent).
 
+**Heard only on screen** (owner, 2026-10-17: steps were heard at Fatty's Lair's entrance from Bone
+Marchers two rooms away). A global cue has no position, so an enemy that plays one would sound as
+if beside the slime wherever it is. The patterned enemies (`patterned_enemy.gd` `_cue`) and the
+Clod Stomper ask `game/audio/hearing.gd` first: a cue plays only when the enemy is inside the
+camera's view grown by `combat.hearing.cueMarginPx` (96) and, in a world with camera rooms, inside
+the room the view keeps to, as Zelda's other screens are silent.
+
 | Phaser event (emitter) | Cue | Godot |
 |---|---|---|
 | `area.enter` (`WorldScene.ts:515`, every world arrival outside title mode) | `AreaTransition` | **MusicDirector** on `WorldService.world_registered` (§7.4) |

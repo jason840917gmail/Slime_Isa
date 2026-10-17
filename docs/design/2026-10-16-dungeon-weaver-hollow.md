@@ -22,6 +22,24 @@ of the [2026-10-11 dungeons plan](2026-10-11-release-1-dungeons-plan.md#7-dungeo
 whose War Axe, Swallow forms and Silk Reel are gone. Where this doc needs an answer it says
 **Proposal** and lists it in [Open points](#open-points).*
 
+> **Superseded in part (2026-10-17).** The owner moved each Pearl inside its dungeon, before the
+> boss ([decisions archive](../story/07-decisions-archive.md#decisions-by-date)): Pearl 2 lies in
+> the Hollow before the Matron, taking it seals the Hollow's exits until she falls, the second half
+> teaches the Silk skin, and her fight is its exam, so the slime meets her with the skin. Where
+> this design has the Pearl after her (the Crown) and the Silk skin's use on the way out (the Outer
+> Bough's web wall), the rework plan replaces it:
+> [2026-10-17-pearl-mid-dungeon.md](2026-10-17-pearl-mid-dungeon.md) (roadmap 12.8). **Reworked
+> 2026-10-17** (the owner approved building the plan's proposals): as built in
+> [DUNGEONS.md "The Weaver Hollow (built)"](../godot/DUNGEONS.md#the-weaver-hollow-built). Pearl 2
+> lies in the Hoard beside the big key, guarded by the Brood Warden's fight; B4 and B6 are an
+> optional wing (the Nursery's chest holds coins and a potion) and the Warden's door takes one key;
+> the Hoard's stair is a web wall; C1 is webbed from wall to wall with a web wall on its straight
+> way and the K3 door at its top; C4 the Spinning Loft (the Crown's empty screen) holds rows of web
+> walls under two Slime Spiders and small key 3 in a silk parcel; the seals stand in T1's way out and
+> C2's east doorway; the Matron's round 2 is a cage of web walls and round 3 a webbed floor. Not yet
+> played by the owner. The rooms below keep this design's first order where the rework did not
+> touch them.
+
 *Plan pictures, drawn with Pillow and sent with this doc: `dungeons/weaver-hollow-plan.png` (the
 four floors, top-down) and `dungeons/weaver-hollow-keygraph.png` (the key graph). They go under
 `docs/design/dungeons/` once approved.*
@@ -548,7 +566,8 @@ For the roadmap (8.14 and the items it depends on). *Shared* marks what Fatty's 
 - [ ] **Web walls** that fill a door slot or a nook's mouth: block without the Silk skin; with it,
       pass at half speed or cut for good with the Spear (today's web barrier, `object.spider-web`,
       catches and sets back).
-- [ ] The Silk skin itself (`player.crosses_webs()` from the Pearl, not the Silk form).
+- [x] The Silk skin itself (`player.crosses_webs()` from the Pearl, not the Silk form; built
+  2026-10-17, [SKINS.md](../godot/SKINS.md)).
 - [ ] **Silk parcels**: a small flat parcel that glints (new art and object), freed by the Spear
       with the Silk skin, dropping what it holds. `object.cocoon-prize` stays the Mimic's look only.
 

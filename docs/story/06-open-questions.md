@@ -53,6 +53,8 @@ are built: [DUNGEONS.md](../godot/DUNGEONS.md).
      of Slimeshire's four; an armour statue in a dungeon is always a heavy
      block (no decorative ones); the outer gate stays up once the inner winch
      turns.
+     *Superseded in part (2026-10-17):* the Pearl now lies inside, so the heavy
+     plate is first used in the second half; the rework is question 142.
 138. **The Weaver Hollow, as built.**
      *Proposal (built):* the Hollow is the Watch Oak, an old Thorn Guard watch
      fort inside a giant oak; the Matron's cocoon opens for about 4 s after a
@@ -62,6 +64,8 @@ are built: [DUNGEONS.md](../godot/DUNGEONS.md).
      forecourt; no decorative cocoons or egg sacs in the Hollow or Tom's maze;
      if it plays long, the Pillar room goes first. Not built yet: Mossy's tip
      at the forecourt, and quest 6's text still tells the old nest fight.
+     *Superseded in part (2026-10-17):* the Matron's rounds 2 and 3 and the
+     Pearl's place changed; the rework is question 143.
 139. **The Crystal Mine, as built.**
      *Proposal (built):* the name "the Crystal Mine"; the Foreman's Gate takes
      two keys; the mine cart is a fade, not a ride; the Shardback's slam puts
@@ -70,8 +74,66 @@ are built: [DUNGEONS.md](../godot/DUNGEONS.md).
      mine introduces the Bone Leaper; a slime that reaches the Chasm without
      the Bow is sent to Burr by the smith; the exploration message shows on
      stepping into daylight at the Lookout; the mine is costed for 100 energy.
+     *Superseded in part (2026-10-17):* the Pearl now lies inside, and the
+     Colossus's fight gained a climb on his wall (the Feral exam); the rework is
+     question 144.
 140. **Behind a diamond hill.** Since the side walls became the only look,
      pressing straight down behind a diamond hill's back face stops at its tip
      (walking along the face gets past). It comes from how the approved side
      walls start at back corners.
      *Proposal:* keep it; diamond hills are rare in the game's worlds.
+
+## Open after the Pearl moved inside (2026-10-17)
+
+The owner adopted the Pearl inside the dungeon, before its boss (the
+[decisions archive](07-decisions-archive.md), 2026-10-17), and had the three
+dungeons reworked for it while he was away. Each was built with the
+[plan's proposals](../design/2026-10-17-pearl-mid-dungeon.md#open-points), so
+these need only a yes or a change. How they are built:
+[DUNGEONS.md](../godot/DUNGEONS.md#the-seal); the skins:
+[SKINS.md](../godot/SKINS.md).
+
+141. **The seal and the take, as built.**
+     *Proposal (built):* the mini-boss guards the Pearl in all three; the big
+     key stays for the boss door; the seal is one kit piece, a shutter bound by
+     a glowing ring in the boss's colour, and the take shows a 1.5 s glimpse of
+     the entrance's seal slamming; while sealed the boss roars far off every 45
+     to 60 s (presentation only); each boss leaves a full heart (max energy up);
+     the Colossus's old "enraged" phase is now his second phase
+     (`phaseTwoShare`), so it never mixes with the Pearl's rage.
+     *Not built:* the music's drums while sealed and the journal's Pearl slot.
+     *Open:* a seal in a doorway at a world's south edge (the Lair's R1, the
+     Mine's M1) lies half under the HUD bar, in the glimpse too; the roar's
+     line shows over the skin's line on the take.
+142. **Fatty's Lair, reworked.**
+     *Proposal (built):* the Pearl in R12, the Larder, behind the Big Squint;
+     door 3 opens without a key; the Heavy second half: the Larder's plank
+     barricade, the new Weigh House (C2), R10's statue on a plate and R9's big
+     chest by a plate; the hub's counterweight plate lowers the drawbridge;
+     seals in R1's south doorway and R13's north doorway; Fatty's second phase
+     is answered by a Heavy Roll that topples him. The Lair's mouth moved to a
+     hill in D5, behind a maze and a bridge of falling slabs (the owner's ask).
+     *Not built:* Fatty shrinking into a small calm slime (his death clip
+     plays).
+143. **The Weaver Hollow, reworked.**
+     *Proposal (built):* the Pearl in the Hoard, guarded by the Brood Warden;
+     the Silk second half: the Hoard stair's web wall, C1 webbed, the new C4
+     Spinning Loft, small key 3 in a silk parcel; B4 and B6 an optional wing;
+     the Matron's round 2 is a cage of web walls a thrown bomb cannot pass, and
+     round 3 a webbed floor the Roll crosses; her spit no longer roots; seals in
+     T1 and C2.
+     *Open:* the Slime Spiders' web shots are the forest's, untuned for C4.
+144. **The Crystal Mine, reworked.**
+     *Proposal (built):* the Pearl in M13, the Den, behind the Shardback; the
+     Chasm is the first half's last lock; the Feral second half: the Den's root
+     wall, M11's rift, M12's balcony (with the big key), the shaft's roots; M10
+     and M11's veil are an optional Lantern wing; the braziers' weak spot stays,
+     and after three stomps he climbs the north wall, where the slime climbs
+     beside him and three Spear hits on his claws stun him 2.5 s with his back
+     open; seals at M1's mouth and at the climb-out.
+     *Open:* the Bow is not built, so the Chasm (and the Pearl after it) cannot
+     be reached in play yet; `?sealed` or `room=` reach them.
+145. **The Feral skin's details.**
+     *Proposal (built):* it climbs up and down a face (not along it), strikes
+     while it clings, and a hit knocks it off; the Spear's chain runs at half
+     its times, its damage and the Lunge unchanged.

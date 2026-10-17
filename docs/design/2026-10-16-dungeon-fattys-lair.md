@@ -6,8 +6,10 @@ What moved in the build: R2's north arm is two slabs and a landing against its r
 two slabs; two Rolls in a row with a landing come in R7 and R11); R11's gate stays up 500 ms with
 its lever a cell and a half below it; Burr's cell is the west gallery's north end with its door at
 its foot, the hub's west door below it and the Inner Stair at the gallery's south end; the outer
-gate stands at the clearing's north-west edge in `level-1-d4` (192, 1012), the bolt-hole's mouth
-at (1408, 960); the Deep's earth floors are rust-brown earth, the arena (the old drill hall) is
+gate stood at the clearing's north-west edge in `level-1-d4` (192, 1012) and moved the same day
+into the face of a hill in `level-1-d5` (1408, 768), past a field maze and a slab bridge (owner,
+2026-10-17; [Chapter 1](../story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)),
+the bolt-hole's mouth at (1408, 960) in `level-1-d4`; the Deep's earth floors are rust-brown earth, the arena (the old drill hall) is
 cobble; R13's clods are the liftable mud balls; the Armoury's prize is coins until the war journal
 exists, the Burrow's a goo heart until heart quarters exist; no compass is placed. Not built: the
 worm mural, Burr's homecoming quest step (5.17).
@@ -21,6 +23,19 @@ and the [bestiary](2026-10-16-bestiary.md). It replaces the map in section 6 of 
 [2026-10-11 dungeons plan](2026-10-11-release-1-dungeons-plan.md#6-dungeon-1-fattys-lair-chapter-1),
 which predates the Roll, the skins and the owner's later answers. Where a choice was still open it
 is made here as a proposal and listed in [Open points](#open-points).*
+
+> **Superseded in part (2026-10-17).** The owner moved each Pearl inside its dungeon, before the
+> boss ([decisions archive](../story/07-decisions-archive.md#decisions-by-date)): Pearl 1 lies in
+> the Lair before Fatty, taking it seals the Lair's exits until he falls, the second half teaches
+> the Heavy skin, and Fatty's fight is its exam. Where this design has the Pearl after Fatty (R14,
+> the Pearl Shrine) and the Heavy skin's first lock on the way out (the bolt-hole's barricade), the
+> rework plan replaces it: [2026-10-17-pearl-mid-dungeon.md](2026-10-17-pearl-mid-dungeon.md)
+> (roadmap 12.8). **The rework is built (2026-10-17)**, as that plan's proposals: Pearl 1 in R12 the
+> Larder behind the Big Squint, door 3 open and key 3 gone, the new Weigh House in C2, R10 and R9
+> reworked for the Heavy skin (the big key in R9), the hub's counterweight plate in place of the
+> ledge's winch, the seals in R1's and R13's doorways, Fatty's Heavy Roll topple; R14 is the
+> Postern. The Lair as built is [DUNGEONS.md](../godot/DUNGEONS.md#fattys-lair-built); this design's
+> R9, R10, R12, R14 and the Pearl's place describe the first build.
 
 The plan pictures go with this doc: `fattys-lair-plan.png` (the rooms, the main path, the locks,
 keys, enemies and secrets) and `fattys-lair-key-graph.png` (the key graph below, drawn).

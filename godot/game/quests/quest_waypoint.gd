@@ -13,7 +13,7 @@ extends RefCounted
 ##   else the nearest enemy-spawn area holding one of its kinds (its stay rect centre: the playground
 ##   and the dev worlds); defeat-boss -> the
 ##   camp of the first boss on this map, else the way into its dungeon (a node in group
-##   BOSS_WAY_IN_GROUP whose `boss_id` metadata names it: Fatty's Lair's gate in level-1-d4);
+##   BOSS_WAY_IN_GROUP whose `boss_id` metadata names it: Fatty's Lair's gate on level-1-d5's hill);
 ##   discover-area -> the nearest exit or door into the area;
 ##   collect -> the nearest pile with some left or standing resource node that drops the item;
 ##   craft-item -> the nearest station serving the recipe (portable recipes: nothing);

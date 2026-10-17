@@ -10,14 +10,21 @@ class_name ColossusArena
 ##   braziers are cold, he stands at `post` and wakes after `wake_ms`.
 ## - **The four braziers** (`braziers`, candle.gd with `burn_ms` -1: they burn until a stomp puts them
 ##   out, `stomp_puts_out`): while all four burn his weak spot is open (`set_exposed`), else shut.
+## - **His wall** (`wall_rect`): roots run up the north wall beside each of his `climb_spots`
+##   (climb_wall.gd, `holds_at_top`: they end on the face); a slime at the wall's foot or climbing it
+##   (its centre in `wall_rect`) is still in the fight, and strikes his claws from there
+##   (crystal_colossus.gd: the Feral exam).
 ## - **Fainting** or leaving the arena some other way while he lives resets the fight: he goes, his
 ##   mites go, the braziers go out, the crystal over the way in shrinks back (the slime resumes at
 ##   the dungeon's entrance, the kit's Dungeon node).
-## - **His fall:** he joins RunState `defeated_boss_ids` (and the dungeon's beaten bosses), so Pearl 3
-##   (game/scripts/pearl.gd, `pearl`) rises where he fell; the four braziers burn for good and the
-##   cavern is lit; the way in stays shut: the way out is the climb up the wall he climbed
-##   (`climb_wall`, the Feral skin's first lock, question 132). Built again later (he is beaten),
-##   the way in is open and the braziers burn.
+## - **His fall:** he joins RunState `defeated_boss_ids` (and the dungeon's beaten bosses), which
+##   breaks the dungeon's seal (DungeonState); he shrinks back into a small golem that wanders off
+##   (small_golem.gd); his full heart rises; the four braziers burn for good
+##   and the cavern is lit; the way in stays shut: the way out is the climb up the wall he climbed
+##   (`climb_wall`, to the Lookout; while the dungeon is sealed, until he falls, that climb refuses:
+##   climb_wall.gd `sealed_text`). Pearl 3 is not his since 2026-10-17 (it lies in the Shardback's
+##   Den, before him); a `pearl` set here is still moved to where he fell. Built again later (he is
+##   beaten), the way in is open and the braziers burn.
 ##
 ## It is a boss camp for the HUD's boss bar and the boss music (the group `boss_camp`: `boss_engaged`,
 ## `boss_disengaged`, `get_live_boss`, `arena_perimeter`, `camp_id`, `boss_id`), and the compass's
@@ -28,6 +35,7 @@ class_name ColossusArena
 const Services := preload("res://game/shared/services.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const SmallGolem := preload("res://game/crystal_mine/small_golem.gd")
 
 const GROUP := &"boss_camp"
 const MAP_MARK_GROUP := &"dungeon_map_mark"
@@ -56,6 +64,8 @@ signal boss_defeated(payload: Dictionary)
 @export var seal_cells: PackedVector2Array = PackedVector2Array()
 ## The spots on the north wall's foot he climbs from (old centres, world coordinates).
 @export var climb_spots: PackedVector2Array = PackedVector2Array()
+## The north wall's face (world coordinates): a slime climbing in it is still in the fight.
+@export var wall_rect: Rect2 = Rect2()
 
 var _boss_root: Node2D
 var _boss: Node
@@ -94,6 +104,12 @@ func arena_perimeter() -> Dictionary:
 		"w": arena_rect.size.x, "h": arena_rect.size.y}
 
 
+## True when the slime (its centre `centre`) is in the fight: on his floor, at his wall's foot or
+## climbing it (`wall_rect`: nothing else reaches the face). `_player` is kept for the callers.
+func is_in_fight(_player: Node, centre: Vector2) -> bool:
+	return arena_rect.has_point(centre) or (wall_rect.has_area() and wall_rect.has_point(centre))
+
+
 ## True when all four braziers burn.
 func all_lit() -> bool:
 	if braziers.is_empty():
@@ -111,7 +127,7 @@ func _physics_process(_delta: float) -> void:
 	if player == null or not is_instance_valid(player):
 		return
 	var centre: Vector2 = player.call(&"get_centre")
-	var inside := arena_rect.has_point(centre)
+	var inside := is_in_fight(player, centre)
 	if is_beaten():
 		return
 	if _boss == null and inside:
@@ -201,9 +217,25 @@ func _on_defeated(_payload: Dictionary = {}) -> void:
 	var pearl_node := get_node_or_null(pearl) as Node2D
 	if pearl_node != null and fell_at != Vector2.ZERO:
 		pearl_node.global_position = fell_at + Vector2(0, 20)
+	if fell_at != Vector2.ZERO:
+		_shrink_away(fell_at)
 	boss_disengaged.emit({"campId": camp_id, "bossId": boss_id, "defeated": true})
 	boss_defeated.emit({"bossId": boss_id})
 	_after_victory(true)
+
+
+## The soaked-up power gone, he shrinks back into a small calm crystal golem that pops out of his heap
+## and wanders off (small_golem.gd; presentation only).
+func _shrink_away(at: Vector2) -> void:
+	var world := Services.world()
+	var parent: Node = world.entities_root() if world != null else null
+	if parent == null:
+		return
+	var golem := Node2D.new()
+	golem.name = "SmallGolem"
+	golem.set_script(SmallGolem)
+	parent.add_child(golem)
+	golem.global_position = at + Vector2(0, 6)
 
 
 ## After his fall: the braziers burn for good (the cavern lit); the seal stays until the world is

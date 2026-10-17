@@ -196,8 +196,9 @@ func test_dummy_takes_slam_in_reach(t: TestContext) -> void:
 
 func test_goo_heart_in_level_1(t: TestContext) -> void:
 	var run := Services.run()
-	t.main.travel_to("level-1-c5", "north")
-	await t.until(func() -> bool: return not t.main.is_transitioning() and t.world().map_id() == "level-1-c5" and t.player() != null, 3000.0, 6000.0)
+	# The lakeside heart (its old name) lies in D4's old pen since 2026-10-17.
+	t.main.travel_to("level-1-d4", "south")
+	await t.until(func() -> bool: return not t.main.is_transitioning() and t.world().map_id() == "level-1-d4" and t.player() != null, 3000.0, 6000.0)
 	await t.steps(2)
 	var heart := _heart(t, "meadow-lakeside")
 	if not t.check(heart != null, "no meadow-lakeside heart"):

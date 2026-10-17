@@ -79,14 +79,10 @@ script = ExtResource("pen")
 number = 5
 enemy_name = "Popworm"
 kind = "Burrower"
-right_tool = "hit it while it is up; a Heavy Roll (Stone form) near its mound throws it out"
+right_tool = "hit it while it is up; a Heavy Roll (the Heavy skin) near its mound throws it out"
 enemy_types = PackedStringArray("popworm")
 posts = PackedVector2Array(300, 224)
 size = Vector2(512, 448)
-supplies = Array[Dictionary]([{
-"at": Vector2(48, 400),
-"scene": "object.essence-stone"
-}])
 
 [node name="pen-06" type="Node2D" parent="."]
 position = Vector2(3456, 1184)
@@ -126,17 +122,13 @@ script = ExtResource("pen")
 number = 9
 enemy_name = "Thorn Guard Statue"
 kind = "Patroller"
-right_tool = "a Heavy Roll (Stone form) breaks it; walk between them to wake them"
+right_tool = "a Heavy Roll (the Heavy skin) breaks it; walk between them to wake them"
 enemy_types = PackedStringArray("thorn-guard", "thorn-guard")
 posts = PackedVector2Array(150, 224, 362, 224)
 size = Vector2(512, 448)
 enemy_properties = {
 "guard_group": "bestiary-pen-9"
 }
-supplies = Array[Dictionary]([{
-"at": Vector2(48, 400),
-"scene": "object.essence-stone"
-}])
 
 [node name="pen-10" type="Node2D" parent="."]
 position = Vector2(6016, 1184)
@@ -374,16 +366,13 @@ script = ExtResource("pen")
 number = 26
 enemy_name = "Prism Eye"
 kind = "Sentinel"
-right_tool = "hide behind the block (Stone form pushes it); the Spear from behind when it looks away"
+right_tool = "hide behind the block (the Heavy skin pushes it); the Spear from behind when it looks away"
 enemy_types = PackedStringArray("prism-eye")
 posts = PackedVector2Array(288, 140)
 size = Vector2(512, 448)
 supplies = Array[Dictionary]([{
 "at": Vector2(288, 320),
 "scene": "object.heavy-block"
-}, {
-"at": Vector2(44, 410),
-"scene": "object.essence-stone"
 }])
 
 [node name="pen-27" type="Node2D" parent="."]

@@ -41,9 +41,9 @@ shape = SubResource("RectangleShape2D_body")
 scale = Vector2(0.56, 0.56)
 centered = false
 offset = Vector2(-192, -376)
-hframes = 8
+hframes = 9
 script = ExtResource("sheet")
-sheet_path = "res://asset/MAPS/enemies/384x384-tile_8x1-crystal-colossus.webp"
+sheet_path = "res://asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp"
 
 [node name="DamageArea" type="Area2D" parent="."]
 position = Vector2(0, -100)

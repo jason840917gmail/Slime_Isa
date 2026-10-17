@@ -192,15 +192,15 @@
     },
     "crystal-mite": {
       "id": "crystal-mite", "visualSetId": "enemy.crystal-mite", "maxHp": 1,
-      "pattern": { "beatMs": 900, "dropDelayMs": 400, "dropTellMs": 750, "fallMs": 280, "dropHeightPx": 240, "scatterPx": 70, "arenaInsetPx": 36, "landHitPx": 26, "landDamage": 10, "landKnockback": 160, "landedMs": 450, "runSpeed": 115, "contactReachPx": 24, "contactCooldownMs": 700, "corpseMs": 500, "corpseFadeMs": 300 },
+      "pattern": { "beatMs": 900, "dropDelayMs": 400, "dropTellMs": 750, "fallMs": 280, "dropHeightPx": 240, "scatterPx": 70, "arenaInsetPx": 36, "landHitPx": 26, "climberHitPx": 30, "landDamage": 10, "landKnockback": 160, "landedMs": 450, "runSpeed": 115, "contactReachPx": 24, "contactCooldownMs": 700, "corpseMs": 500, "corpseFadeMs": 300 },
       "drop": { "coins": 1 },
       "reactions": { "weight": "tiny", "material": "stone", "knockbackScale": 1, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "wait": { "immune": ["*"] }, "drop": { "immune": ["*"] } } }
     },
     "crystal-colossus": {
       "id": "crystal-colossus", "visualSetId": "enemy.crystal-colossus", "maxHp": 240,
-      "pattern": { "walkSpeed": 34, "contactDamage": 14, "contactKnockback": 260, "contactReachPx": 70, "contactCooldownMs": 800, "firstStompMs": 1800, "stompRangePx": 120, "stompEveryMs": 2600, "raiseMs": 650, "stompPoseMs": 420, "recoverMs": 600, "stompCooldownMs": 1400, "stompRx": 116, "stompRy": 78, "stompDamage": 24, "stompKnockback": 340, "stompShakeMs": 320, "stompShake": 0.012, "stompPutsOut": 1, "reelMs": 1800, "afterReelStompMs": 900, "weakSideDot": 0.45, "stompsPerClimb": 3, "leapUpMs": 700, "leapDownMs": 900, "leapArcPx": 110, "wallLiftPx": 120, "climbMs": 5200, "firstThrowMs": 900, "throwEveryMs": 1300, "throwPoseMs": 380, "mitesPerClimb": 2, "maxMites": 4, "landPutsOut": 1, "enragedShare": 0.5, "corpseMs": 6000, "corpseFadeMs": 1500 },
+      "pattern": { "walkSpeed": 34, "contactDamage": 14, "contactKnockback": 260, "contactReachPx": 70, "contactCooldownMs": 800, "firstStompMs": 1800, "stompRangePx": 120, "stompEveryMs": 2600, "raiseMs": 650, "stompPoseMs": 420, "recoverMs": 600, "stompCooldownMs": 1400, "stompRx": 116, "stompRy": 78, "stompDamage": 24, "stompKnockback": 340, "stompShakeMs": 320, "stompShake": 0.012, "stompPutsOut": 1, "reelMs": 1800, "afterReelStompMs": 900, "weakSideDot": 0.45, "stompsPerClimb": 3, "leapUpMs": 700, "leapDownMs": 900, "leapArcPx": 110, "wallLiftPx": 120, "climbMs": 5200, "firstThrowMs": 900, "throwEveryMs": 1300, "throwPoseMs": 380, "mitesPerClimb": 2, "maxMites": 4, "landPutsOut": 1, "phaseTwoShare": 0.5, "clawHits": 3, "fallMs": 450, "fallDropPx": 70, "fallStunMs": 2500, "crashShakeMs": 420, "crashShake": 0.016, "arenaInsetPx": 48, "corpseMs": 6000, "corpseFadeMs": 1500 },
       "drop": {},
-      "reactions": { "weight": "boss", "material": "stone", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "wait": { "immune": ["*"] }, "leap-up": { "immune": ["*"] }, "cling": { "immune": ["*"] }, "leap-down": { "immune": ["*"] } } }
+      "reactions": { "weight": "boss", "material": "stone", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "wait": { "immune": ["*"] }, "leap-up": { "immune": ["*"] }, "cling": { "immune": ["*"] }, "leap-down": { "immune": ["*"] }, "fall": { "immune": ["*"] } } }
     },
     "bone-leaper": {
       "id": "bone-leaper", "visualSetId": "enemy.bone-leaper", "maxHp": 40,

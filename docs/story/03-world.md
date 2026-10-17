@@ -196,7 +196,7 @@ The map is cut into 8 × 8 chunks, A1 in the north-west; a region's chunks are t
 
 | Region | Chapter | Status | Chunks | Borders | World | Interiors | Boss | Notes |
 |---|---|---|---|---|---|---|---|---|
-| **Slimeshire Meadow** | 1 | Built | C4, D4, C5, D5 | North Wilds, West village (open), Gloop Forest, South Wilds | level-1 | slime-home, mushroom-home, fatty-lair | Fatty One Eye | The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, is shut by the old Thorn Guard gate, which only a Roll beats. Release 1. |
+| **Slimeshire Meadow** | 1 | Built | C4, D4, C5, D5 | North Wilds, West village (open), Gloop Forest, South Wilds | level-1 | slime-home, mushroom-home, fatty-lair | Fatty One Eye | The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, opens in Fatty's Hollow, a red-rock hill in D5 behind the old fort's field maze and a bridge of falling slabs; the old Thorn Guard gate there only a Roll beats. Release 1. |
 | **Gloop Forest** | 2 | In progress | E4, F4, E5, F5 | North Wilds, Slimeshire Meadow, Crystal Caverns, South Wilds | gloop-forest | gloop-hut, gloop-cavern, weaver-hollow-trunk, weaver-hollow-roots, weaver-hollow-boughs, weaver-hollow-crown | Orb-Weaver Matron | East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze leads in, which only the Silk skin passes. The Matron lives at the top of the Weaver Hollow, Chapter 2's dungeon; the Watch Oak's root gate in F4 is its way in (owner, 2026-10-16, question 133). The small Gloop Cavern behind the cracked clearing's sinkhole is the Goo Bomb's come-back secret, with one of the forest's heart quarters (question 18). |
 | **Crystal Caverns** | 3 | Planned | G4, H4, G5, H5 | North Wilds, Gloop Forest, South Wilds | crystal-caverns | crystal-mine | Crystal Colossus | East of Gloop Forest, as in the game (moved 2026-10-10; open without a key in the game for now). The west half of the great mountain: caves through the rock. The smith runs the crystal mine, which the Crystal Colossus has blocked; at his mine camp he gives the Lantern. A dark maze the Lantern lights, and the Colossus's arena ringed by four braziers. Pearl 3 grants the Feral skin. Reached from Gloop Forest through the web-wall maze (the Silk skin). Release 1 ends when the Colossus falls. From the Wilds a hill leads in, which only the Feral skin climbs, so that way opens once Feral is won. |
 | **Volcano Ridge** | Finale | Idea | F1, G1, H1, F2, G2 | Northern ruins (open), North Wilds | volcano-ridge (placeholder) |  | Gorge | The east half of the great mountain, around the crater. Gorge's prison; the rumbling comes from here. Cinder, the magma salamander, guards the slopes with the Lava skin's Pearl, the last skin, which opens the way into Gorge's crater (question 32). |
@@ -243,19 +243,25 @@ The map is cut into 8 × 8 chunks, A1 in the north-west; a region's chunks are t
 
 | Place | Kind | Region | Chunk | Needs | Notes |
 |---|---|---|---|---|---|
-| Crystal Mine | Dungeon | Crystal Caverns | G4 |  | The smith's crystal mine, taken by the Crystal Colossus (built 2026-10-17): six dark rooms the Lantern teaches, the Foreman's Gate's two keyholes, the Chasm's lens for the Bow and a cart back to the mouth, the Shardback, and the Colossus in his arena of four braziers; Pearl 3 (the Feral skin), and the climb out to the Lookout |
+| Crystal Mine | Dungeon | Crystal Caverns | G4 |  | The smith's crystal mine, taken by the Crystal Colossus (built 2026-10-17): six dark rooms the Lantern teaches, the Foreman's Gate's two keyholes, the Chasm's lens for the Bow; Pearl 3 (the Feral skin) in the Den behind the Shardback, and its take seals the mine; the Feral second half (root walls to climb, the big key on a balcony), then the Colossus, enraged, in his arena of four braziers, climbing his wall; the climb out to the Lookout |
 | Mine camp | Town / hub | Crystal Caverns | G4 |  | The smith runs the crystal mine; he gives the Lantern |
 | The Lookout | Landmark | Crystal Caverns | H4 |  | Daylight on the mountain in H4, where the climb out of the Colossus's arena arrives; a path down to the camp |
 | Desert ruin? | Note / idea | Desert (open) | A7 |  | Empty slot |
 | Forest camp | Town / hub | Gloop Forest | F5 |  |  |
-| Weaver Hollow | Dungeon | Gloop Forest | F4 | Goo Bomb | The Watch Oak, an old Thorn Guard watch fort inside a giant oak (built 2026-10-17): a Goo Bomb blows its root gate; four floors climbed from the Roots to the Crown, the Brood Warden and the big key, and the Orb-Weaver Matron at the top, fighting from a cocoon a blast tears open; Pearl 2 (the Silk skin) |
+| Weaver Hollow | Dungeon | Gloop Forest | F4 | Goo Bomb | The Watch Oak, an old Thorn Guard watch fort inside a giant oak (built 2026-10-17): a Goo Bomb blows its root gate; four floors climbed from the Roots to the Crown; Pearl 2 (the Silk skin) in the Hoard behind the Brood Warden, and its take seals the Hollow; the Silk second half (webbed rooms, the Spinning Loft), then the Orb-Weaver Matron at the top, enraged, fighting from a cocoon a blast tears open |
 | Ruin maze? | Note / idea | Northern ruins (open) | E1 |  | Empty slot: a dungeon |
 | Slimeshire plaza | Town / hub | Slimeshire Meadow | C4 |  | The middle of the world |
 | Your house | House / interior | Slimeshire Meadow | C4 |  |  |
 | Mushroom house | House / interior | Slimeshire Meadow | D4 |  |  |
 | Dora the Fishergirl | NPC | Slimeshire Meadow | C5 |  | At the water around the plaza (renamed from Lily on 2026-10-11; the game still says Lily) |
-| Fatty's Lair | Dungeon | Slimeshire Meadow | D4 |  | The worms' burrow under the old Thorn Guard fort (built 2026-10-17): the drop gate a Roll beats, falling slabs over the void and spikes, Burr freed from his two-keyhole cell inside, Fatty One Eye and Pearl 1 (the Heavy skin) with the green key in the Pearl Shrine; out through a barricade a Heavy Roll breaks, by the bolt-hole near the Verdant Gate |
+| Fatty's Lair | Dungeon | Slimeshire Meadow | D5 |  | The worms' burrow under the old Thorn Guard fort, in Fatty's Hollow, a red-rock hill in D5 behind the field maze and a bridge of falling slabs (built 2026-10-17, the mouth moved from D4 the same day): the drop gate a Roll beats, falling slabs over the void and spikes, Burr freed from his two-keyhole cell; Pearl 1 (the Heavy skin) in the Larder behind the Big Squint, and its take seals the Lair; the Heavy second half (the Weigh House, the big key), then Fatty One Eye, enraged, whose fall breaks the seals; the green key at the postern, out through a barricade a Heavy Roll breaks, by the bolt-hole near the Verdant Gate |
 | The Lair's bolt-hole | Landmark | Slimeshire Meadow | D4 |  | Fatty's Lair's way out (arrival only), by the Verdant Gate; Burr waits here after Fatty |
+| Fatty's Hollow | Landmark | Slimeshire Meadow | D5 |  | D5's red-rock hill, crowned with maples; the Lair's drop gate in a notch of its south face, over a paved forecourt (a campfire, an energy flower, a pot hiding a heart) |
+| Field maze and moat slabs | Landmark | Slimeshire Meadow | D5 | Roll | The old fort's field before the hill: a maze of fieldstone walls cut by a dry moat; two falling slabs cross it in one Roll, a walk falls back to the rim |
+| Hill crack | Secret / heart | Slimeshire Meadow | D5 | Goo Bomb | A crack in the hill's face beside the Lair's gate opens into a cave pocket with a goo heart, seen from the forecourt (a Chapter 2 come-back) |
+| First bell and watch post | Secret / heart | Slimeshire Meadow | C4 |  | C4: a bell on a pond islet; a thrown pot rings it and opens the old watch post's stone door (a chest) |
+| Lookout bell | Secret / heart | Slimeshire Meadow | C5 |  | C5: a bell on a lookout rock; a pot thrown from its foot rings it and raises a hidden chest |
+| Old pen, grey planks | Secret / heart | Slimeshire Meadow | D4 | Heavy skin | D4: an old Thorn Guard pen by the road, its gap shut by grey planks a Heavy Roll breaks; a goo heart inside (a come-back with Pearl 1) |
 | Gorge | Boss | Volcano Ridge | F2 |  | Finale, in the crater |
 | The Wellspring | Landmark | West village (open) | B4 |  | The prologue's lake, where the slime is born (owner, 2026-10-16): a pool of glowing goo ringed by forest, the first screen of the prologue in B4's south-west. The prologue's forest path from Slimeshire's south-west reaches it later; each Pearl comes home here |
 | West village | Town / hub | West village (open) | A4 |  | Burr's house (young Burr teaches the Roll), a few houses, a shop and a game: Release 1's part |
@@ -282,8 +288,8 @@ grows as Pearls return.
 | Workshop ruin, north of the plaza | Rebuilt after Chapter 2. The smith comes home once the Crystal Colossus falls (question 59), and teaches the Hammer shape there in Chapter 5 or 6, after Release 1 (question 51) | Built and parked; what it does in Release 1 is Open (question 51) |
 | The lake | Lily the Fishergirl | Built |
 | Worm camp, south-east | Worm Trouble. Today its worms spawn from an enemy-spawn area and come back on a timer; Planned: placed worms, each with its own wandering area ([Enemies in the world](#enemies-in-the-world-planned)) | Built |
-| Fatty One Eye's camp, east | The guarded chest with the green key | Built |
-| **Fatty's Lair**, the worms' burrow | The old Thorn Guard gate, which a worm lever lifts and which drops shut too fast to walk through; falling slabs over holes; Burr in a cell, on the lair's main path (question 134); Fatty One Eye, Pearl 1 and his full heart (question 17); a way out that the new Heavy skin opens, its first lock (question 132); skeletons in its deep rooms (question 125) ([Chapter 1](chapters/chapter-1-the-clearing.md#fattys-lair-the-gate-the-slabs-and-burrs-cell-planned-owner-2026-10-16)) | Planned (owner, 2026-10-16): the slabs cross the void and spikes, and a slab falls a set time after it is touched (questions 70 and 71) |
+| Fatty One Eye's camp, east | The guarded chest with the green key. *Since 2026-10-17 his camp is in his Lair, and its old clearing in D4 keeps a torn banner and the road south to the Lair's hill* | Moved into the Lair (2026-10-17) |
+| **Fatty's Lair**, the worms' burrow | The old Thorn Guard gate, which a worm lever lifts and which drops shut too fast to walk through; falling slabs over holes; Burr in a cell, on the lair's main path (question 134); Fatty One Eye, Pearl 1 and his full heart (question 17); a way out that the new Heavy skin opens, its first lock (question 132); skeletons in its deep rooms (question 125) ([Chapter 1](chapters/chapter-1-the-clearing.md#fattys-lair-the-gate-the-slabs-and-burrs-cell-planned-owner-2026-10-16)). *Changed 2026-10-17: Pearl 1 lies in the lair before Fatty; taking it seals the lair's exits until he falls, the lair's second half teaches the Heavy skin, and his fight is its exam* *Changed 2026-10-17 (owner): its gate is in the face of a red-rock hill in D5 (Fatty's Hollow), reached through the old fort's field maze and over a moat's falling slabs, where the slime tries the Roll before the dungeon; its way out stays by the Verdant Gate in D4 ([Slimeshire's places](chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17))* | Planned (owner, 2026-10-16): the slabs cross the void and spikes, and a slab falls a set time after it is touched (questions 70 and 71). Built 2026-10-17 ([DUNGEONS.md](../godot/DUNGEONS.md#fattys-lair-built)) |
 | The Verdant Gate, east | The way into Gloop Forest | Built |
 
 ## The West village
@@ -327,7 +333,7 @@ Planned in part (owner, 2026-10-16); the rest of the chapter is a
 | The dark maze | Dark caves that the Lantern lights | Proposal |
 | **The smith's mine camp** | The smith runs the crystal mine, which the Crystal Colossus has blocked. The slime finds him safe here, and he gives it the Lantern, the Forge's ember. He also sends the slime to Burr: the caverns' first half never needs the Bow (owner, 2026-10-16, question 134) | Planned (questions 59 and 134) |
 | The mine's chasm | On the main path: a far eye switch across the chasm, which only the Bow's arrow reaches (owner, 2026-10-16, question 102). *Changed 2026-10-16 (eighth round, question 127): a crystal lens on a post, as an eye is always the Spear's* | Planned |
-| **The Colossus's arena** | Four braziers ring it. With all four lit, a weak spot is bared on his armour at a random place; his stomps blow them out one at a time. He climbs out of reach to throw some of his minions down, and killed, they can drop energy shards. His Pearl grants the Feral skin, and Release 1's content ends when he falls. He leaves a full heart, and the slime climbs out of his arena with the new skin, its first lock (owner, 2026-10-16, questions 17 and 132) | Planned (questions 56, 58, 59 and 69) |
+| **The Colossus's arena** | Four braziers ring it. With all four lit, a weak spot is bared on his armour at a random place; his stomps blow them out one at a time. He climbs out of reach to throw some of his minions down, and killed, they can drop energy shards. His Pearl grants the Feral skin, and Release 1's content ends when he falls. He leaves a full heart, and the slime climbs out of his arena with the new skin, its first lock (owner, 2026-10-16, questions 17 and 132). *Changed 2026-10-17: his Pearl lies in the mine before him; taking it seals the mine's exits until he falls, the mine's second half teaches the Feral skin, and his fight is its exam* | Planned (questions 56, 58, 59 and 69) |
 | The hill from the Wilds | A way into the caverns up a hill that only the Feral skin climbs, so it opens once Feral is won (owner, 2026-10-16, question 87) | Planned |
 
 ## Webs (Planned)
@@ -346,6 +352,9 @@ The forest has two kinds of web (2026-10-15):
   question 55). In Release 1 the Spear, the only shape, does the cutting
   (question 94).
 - No web wall blocks the way to the Matron. Her Pearl grants the Silk skin.
+  *Changed 2026-10-17 (owner): her Pearl lies in the Weaver Hollow before
+  her, so the slime meets her with the Silk skin; the Hollow's second half
+  teaches it, and her fight is its exam.*
 - A Roll sticks in a floor web; walking through one slows the slime until the
   Silk skin, and web walls block until the Silk skin (owner, 2026-10-16,
   question 131). The War Axe, in the next release, cuts webs without it
@@ -401,6 +410,16 @@ cave, a castle or a maze) with three parts:
 2. The region's **key tool** in the middle: a shape or an ability.
 3. A second half and a boss that both need that tool. The boss's Pearl then
    grants a skin.
+
+*Changed 2026-10-17 (owner): every dungeon's Pearl lies inside it, before the
+boss, as Zelda's dungeon item: a boss cannot swallow his Pearl whole, so he
+hides it close to draw on its power. Taking it grants its skin; the boss
+notices, enraged (his strength stays the same), and seals the exits, so the
+only way out is to beat him. The second half teaches the Pearl's skin, and
+the boss fight is its exam. Fainting or quitting after the Pearl resumes at
+the entrance, inside, with the doors to the outside sealed until the boss
+falls. The three built dungeons are reworked to match
+([roadmap 12.8](../GAME_ROADMAP.md#the-2026-10-17-decisions)).*
 
 The Crystal Caverns are a natural dungeon: a dark maze that the Lantern (an
 ability, built in the rework mode) lights, given by the smith at his mine camp

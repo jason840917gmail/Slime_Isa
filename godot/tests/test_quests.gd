@@ -6,9 +6,10 @@ extends RefCounted
 ## (455.25, 1187.9). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
 ## and stop wandering (no lock, so the conversation's lock is the only one).
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in the
-## village's chunk C4 (`level-1-c4`, level-1's own coordinates); the Lair's gate and the Verdant Gate
-## exit are in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp in his Lair
-## (`fatty-lair`, since 2026-10-17), which the tests needing them travel to.
+## village's chunk C4 (`level-1-c4`, level-1's own coordinates); the Lair's gate is on D5's hill
+## (`level-1-d5`, its origin at level-1's (2048, 2048); in D4 until 2026-10-17), the Verdant Gate exit
+## in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp in his Lair (`fatty-lair`,
+## since 2026-10-17), which the tests needing them travel to.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -42,10 +43,11 @@ const PLACE_PROGRESS_PAGES: Array[String] = ["A workbench is the heart of every 
 const SLIME_BASICS_LINES := "• Open your bag (B)\n• Look at the Crafting tab (B, then its tab)\n• Read your Journal (J)\n• Open the map (M)\n• Pause to save or change settings (Esc)"
 const WORKBENCH_CRAFT := {"recipeId": "craft-workbench", "itemId": "workbench", "quantity": 1}
 const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1-c4", "sceneId": "", "x": 0, "y": 0}
-## level-1's chunk worlds: the village (where the tests start) and D4 with the Lair's gate and the
+## level-1's chunk worlds: the village (where the tests start), D5 with the Lair's gate, D4 with the
 ## Verdant Gate exit; Fatty's Lair with his camp.
 const VILLAGE_MAP := "level-1-c4"
-const FATTY_MAP := "level-1-d4"
+const GATE_MAP := "level-1-d5"
+const VERDANT_MAP := "level-1-d4"
 const LAIR_MAP := "fatty-lair"
 const LAIR_CAMP := "fatty-lair-boss"
 
@@ -695,7 +697,8 @@ func test_abandon_and_reoffer(t: TestContext) -> void:
 
 
 ## Quests spec 4.6 level-1 targets: the worm camp, the forge ruin and the workshop ruin in C4, then
-## Fatty's camp and the exit to gloop-forest in D4 (the waypoint resolves on the current world).
+## the way into Fatty's Lair in D5 and the exit to gloop-forest in D4 (the waypoint resolves on the
+## current world).
 func test_waypoint_targets_on_level_1(t: TestContext) -> void:
 	var quests := _quests(t)
 	var from := Vector2(640.0, 704.0)
@@ -707,12 +710,17 @@ func test_waypoint_targets_on_level_1(t: TestContext) -> void:
 	_check_waypoints(t, quests, cases, from)
 	quests.debug_mark_completed(PLACE)
 	t.check(QuestWaypoint.resolve(quests.view("a-tonic-for-lili"), from).get("label") == "Talk to Lili", "the giver of an offer")
-	if not await _travel(t, FATTY_MAP):
+	if not await _travel(t, GATE_MAP):
 		return
-	# D4's places: the Lair's gate (Fatty's way in, quest_waypoint.gd BOSS_WAY_IN_GROUP) at (192, 1012)
-	# and the exit at level-1's (4064, 576) less the chunk origin (2048, 0).
+	# D5's place: the Lair's gate in the hill's notch (Fatty's way in, quest_waypoint.gd
+	# BOSS_WAY_IN_GROUP) at (1408, 768).
 	_check_waypoints(t, quests, [
-		["the-one-eyed-guardian", "defeat-fatty", Vector2(192.0, 1012.0)],
+		["the-one-eyed-guardian", "defeat-fatty", Vector2(1408.0, 768.0)],
+	], t.player().get_centre())
+	if not await _travel(t, VERDANT_MAP):
+		return
+	# D4's place: the exit at level-1's (4064, 576) less the chunk origin (2048, 0).
+	_check_waypoints(t, quests, [
 		["the-one-eyed-guardian", "verdant-gate", Vector2(2016.0, 576.0)],
 	], t.player().get_centre())
 

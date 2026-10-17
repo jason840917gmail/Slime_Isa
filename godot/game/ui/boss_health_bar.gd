@@ -21,6 +21,8 @@ class_name BossHealthBar
 ## slime's centre is inside that camp's arena (owner, 2026-10-02: the bar hides while the slime is
 ## outside and comes back on return; the boss's 60 s heal uses the same test, enemy.gd).
 ## PROCESS_MODE_ALWAYS (HUD), real-time presentation; mouse_filter IGNORE.
+## A boss in his rage (game/bosses/enraged_look.gd: his dungeon's Pearl taken; docs/godot/DUNGEONS.md
+## "The seal") shows his name in red, glowing slowly (ENRAGED_NAME).
 ##
 ## Owner: boss port.
 
@@ -44,6 +46,11 @@ const CARD_HEIGHT := BAR_TOP + BAR_HEIGHT + 8.0
 ## Field-kit danger tone (the bar's fill).
 const TONE_DANGER := UiTokens.DANGER
 const BAR_LABEL := "Boss health"
+## The name of a boss in his rage, and its slow glow (real time).
+const ENRAGED_NAME := Color("#ff2a1c")
+const ENRAGED_GLOW := Color("#ffb36b")
+const ENRAGED_GLOW_S := 1.6
+const ENRAGED_META := &"enraged_look"
 
 ## camp_id -> {"name": String, "boss": WeakRef} in show order.
 var _active: Dictionary = {}
@@ -149,11 +156,16 @@ func snapshot() -> Dictionary:
 			var state: Dictionary = boss.call(&"get_damage_state")
 			hp = float(state.get("hp", 0.0))
 			max_hp = float(state.get("max_hp", 1.0))
+	var enraged := false
+	if not source.is_empty():
+		var boss_object: Object = (source["boss"] as WeakRef).get_ref()
+		enraged = boss_object != null and boss_object.has_meta(ENRAGED_META)
 	return {
 		"name": str(source.get("name", "")),
 		"hp": maxf(0.0, hp),
 		"maxHp": maxf(1.0, max_hp),
 		"visible": not source.is_empty() and _player_in_arena(source),
+		"enraged": enraged,
 	}
 
 
@@ -181,6 +193,11 @@ func _render(model: Dictionary) -> void:
 	if _name_label == null:
 		return
 	_name_label.text = str(model["name"])
+	if bool(model.get("enraged", false)):
+		var glow := 0.5 - 0.5 * cos(float(Time.get_ticks_msec()) / 1000.0 * TAU / ENRAGED_GLOW_S)
+		_name_label.add_theme_color_override(&"font_color", ENRAGED_NAME.lerp(ENRAGED_GLOW, glow * 0.35))
+	elif _name_label.has_theme_color_override(&"font_color"):
+		_name_label.remove_theme_color_override(&"font_color")
 	_bar.set_values(float(model["hp"]), float(model["maxHp"]))
 
 

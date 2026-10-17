@@ -10,7 +10,11 @@ extends SceneTree
 ## the `elevation` layer (cobble ground), the voids level -2 holes, the spike pit a level -1 hole
 ## with a stair:
 ##
-##   B0 boss room (a room fight with a boss: shutters, a Big Squint)
+##   B0 boss room (a room fight with a boss: shutters, a Big Squint; his full heart), the dungeon's
+##      boss: his fall breaks the seal
+##   C1 the Pearl room (a sealed dungeon, docs/godot/DUNGEONS.md "The seal"): the Pearl on its
+##      altar behind its guard (a room fight with a mini-boss's `boss_id`, a Worm Brawler); taken, it
+##      seals the dungeon
 ##   B1 the winch and the drawbridge over the void, the big chest (the big key), the boss door north
 ##   A2 a dark room: the shadow path over the void to an islet, a chest (the compass) and its glint
 ##   B2 the hub: the door with two keyholes north (to B1)
@@ -19,7 +23,8 @@ extends SceneTree
 ##   A3 slabs over a spike pit with a stair out; the bolted door back east into the entrance; a worm
 ##      that is back each time the room is entered again
 ##   B3 the entrance (where a faint resumes): a small-key chest, the map chest, pots that hide
-##      refills, an energy flower; the small-key door north (to B2)
+##      refills, an energy flower; the small-key door north (to B2); the way out south (a door to the
+##      playground) with the dungeon's seal in its doorway
 ##   C3 an ambush (once): shutters, two worms, a hidden chest with a small key
 
 const LAB_PATH := "res://game/scenes/worlds/dungeon-lab.tscn"
@@ -32,6 +37,12 @@ const WORLD_DEFINITION := "res://game/scripts/world_definition.gd"
 const CAMERA_ROOM := "res://game/world/camera_room.gd"
 const DARK_ROOM := "res://game/world/darkness/dark_room.gd"
 const PLACED_ENEMY := "res://game/scenes/encounters/placed-enemy.tscn"
+const DOOR := "res://game/scripts/door.gd"
+const OBJECTS := "res://game/scenes/objects/"
+const ROAR := "res://asset/audio/sfx/library/boss/fatty-roar.ogg"
+## The dungeon's boss (B0) and the Pearl's guard (C1).
+const BOSS_ID := "dungeon-lab-boss"
+const GUARD_ID := "dungeon-lab-guard"
 const KIT := "res://game/scenes/objects/dungeon/"
 const CELL := 64
 const ROOM := Vector2i(16, 14)
@@ -42,8 +53,8 @@ const SHEET_CELLS := 19
 const WALL_LEVEL := 2
 const DIRECTIONS := ["s", "sw", "w", "nw", "n", "ne", "e", "se"]
 ## The rooms in use (the others are solid wall).
-const ROOMS := {"B0": Vector2i(1, 0), "B1": Vector2i(1, 1), "A2": Vector2i(0, 2), "B2": Vector2i(1, 2),
-	"C2": Vector2i(2, 2), "A3": Vector2i(0, 3), "B3": Vector2i(1, 3), "C3": Vector2i(2, 3)}
+const ROOMS := {"B0": Vector2i(1, 0), "B1": Vector2i(1, 1), "C1": Vector2i(2, 1), "A2": Vector2i(0, 2),
+	"B2": Vector2i(1, 2), "C2": Vector2i(2, 2), "A3": Vector2i(0, 3), "B3": Vector2i(1, 3), "C3": Vector2i(2, 3)}
 
 var _levels: Dictionary = {}
 var _root: Node2D
@@ -108,7 +119,12 @@ func _paint() -> void:
 	_door_vertical("B2", "B1")
 	_door_vertical("B1", "B0")
 	_door_vertical("C3", "C2")
+	_door_vertical("C2", "C1")
 	_door_vertical("A3", "A2")
+	# The way out: B3's south wall, at the world's edge.
+	var b3 := _origin("B3")
+	for x in [7, 8]:
+		_set_level(Vector2i(b3.x + x, b3.y + ROOM.y - 1), 0)
 	_door_side("B3", "C3", 6)
 	_door_side("B2", "C2", 3)
 	_door_side("A2", "B2", 6)
@@ -208,6 +224,25 @@ func _node(script: String, name: String, at: Vector2, props: Dictionary = {}) ->
 	return node
 
 
+## A game object (`res://game/scenes/objects/<scene>.tscn`): `props` on its root, or `child_props`
+## ({child path: {property: value}}) on its children, "" for the root.
+func _object(scene: String, name: String, at: Vector2, child_props: Dictionary = {}, props: Dictionary = {}) -> Node2D:
+	var node := (load(OBJECTS + scene + ".tscn") as PackedScene).instantiate() as Node2D
+	node.name = name
+	node.position = at
+	for key: String in props:
+		node.set(key, props[key])
+	for path: String in child_props:
+		var child := node.get_node(path)
+		var values: Dictionary = child_props[path]
+		for key: String in values:
+			child.set(key, values[key])
+	_root.add_child(node)
+	if not child_props.is_empty():
+		_root.set_editable_instance(node, true)
+	return node
+
+
 func _chest(scene: String, name: String, at: Vector2, contents: Dictionary, hidden: bool = false) -> Node2D:
 	var chest := _kit(scene, name, at)
 	_root.set_editable_instance(chest, true)
@@ -230,7 +265,7 @@ func _enemy(parent: Node2D, type_id: String, name: String, at: Vector2, radius: 
 func _place() -> void:
 	# Camera rooms, the dark room, the dungeon.
 	# Each room's RoomEntry: where `?room=<name>` puts the slime (safe ground).
-	var entries := {"B0": Vector2(8, 10), "B1": Vector2(8, 11), "A2": Vector2(12, 10), "B2": Vector2(8, 8),
+	var entries := {"B0": Vector2(8, 10), "B1": Vector2(8, 11), "C1": Vector2(8, 10), "A2": Vector2(12, 10), "B2": Vector2(8, 8),
 		"C2": Vector2(4, 11), "A3": Vector2(8, 4), "B3": Vector2(8, 10), "C3": Vector2(4, 7)}
 	for room: String in ROOMS:
 		var camera_room := _node(CAMERA_ROOM, room, Vector2(_origin(room) * CELL), {"size": Vector2(ROOM * CELL)})
@@ -240,7 +275,8 @@ func _place() -> void:
 		camera_room.add_child(entry)
 	_node(DARK_ROOM, "A2-dark", _at("A2", Vector2(1, 1)), {"size": Vector2(14, 12) * CELL})
 	_kit("dungeon", "Dungeon", _at("B3", Vector2(8, 12.5)), {"dungeon_id": MAP_ID, "display_name": "Dungeon Lab",
-		"entrance_marker": "dungeon-entrance", "resume_saves": false})
+		"entrance_marker": "dungeon-entrance", "resume_saves": false, "boss_id": BOSS_ID, "boss_name": "The Big Squint",
+		"seal_color": Color("#d4482e"), "roar_sound": load(ROAR), "roar_pitch": 1.3, "dust_color": Color("#efe3c4")})
 	var entrance := Node2D.new()
 	entrance.name = "dungeon-entrance"
 	entrance.position = _at("B3", Vector2(8, 10))
@@ -264,6 +300,24 @@ func _place() -> void:
 		pot.get_node("PotLoot").set(&"loot", loots[i])
 	_kit("energy-flower", "b3-flower", _at("B3", Vector2(12.5, 11.5)))
 	_kit("key-door", "b3-key-door", _at("B3", Vector2(8, 3)), {"door_id": "b3-north", "keyholes": 1})
+	# The way out (south, to the playground) and the dungeon's seal in its doorway: down until the
+	# Pearl is taken, then shut until the Big Squint falls.
+	var way_out := Node2D.new()
+	way_out.name = "b3-way-out"
+	way_out.position = _at("B3", Vector2(8, 13.5))
+	_root.add_child(way_out)
+	var door := Node.new()
+	door.name = "Door"
+	door.set_script(load(DOOR))
+	door.set(&"map_id", MAP_ID)
+	door.set(&"door_id", "dungeon-lab-way-out")
+	door.set(&"target_area_id", "playground")
+	door.set(&"target_marker", "player-spawn")
+	door.set(&"kind", "opening")
+	door.set(&"side", "south")
+	door.set(&"trigger_rect", Rect2(-64, 0, 128, 32))
+	way_out.add_child(door)
+	_kit("dungeon-seal", "b3-seal", _at("B3", Vector2(8, 13)), {"wall": "south", "glimpse": true})
 
 	# C3, the ambush: shutters, two worms, a chest that rises with the third key.
 	_kit("shutter", "c3-shutter-west", _at("C3", Vector2(1, 7)), {"wall": "west", "fight_id": "c3-ambush"})
@@ -305,7 +359,22 @@ func _place() -> void:
 	_kit("shutter", "b0-shutter", _at("B0", Vector2(8, 13)), {"wall": "south", "fight_id": "b0-boss"})
 	_enemy(enemies, "big-squint", "b0-boss", _at("B0", Vector2(8, 7)), 220.0)
 	_kit("room-fight", "b0-fight", Vector2(_origin("B0") * CELL), {"size": Vector2(ROOM * CELL),
-		"fight_id": "b0-boss", "boss_id": "dungeon-lab-boss"})
+		"fight_id": "b0-boss", "boss_id": BOSS_ID})
+	_object("full-heart", "b0-full-heart", _at("B0", Vector2(8, 5.5)), {"FullHeartScript": {"heart_id": BOSS_ID,
+		"boss_id": BOSS_ID}})
+
+	# C1, the Pearl room: the Pearl on its altar behind its guard (a mini-boss fight: its `boss_id`
+	# is the Pearl's), its glow seen from the doorway through the fight. Taken, it seals the dungeon.
+	_kit("shutter", "c1-shutter", _at("C1", Vector2(8, 13)), {"wall": "south", "fight_id": "c1-guard"})
+	_enemy(enemies, "worm-brawler", "c1-guard", _at("C1", Vector2(8, 8)), 220.0)
+	_kit("room-fight", "c1-fight", Vector2(_origin("C1") * CELL), {"size": Vector2(ROOM * CELL),
+		"fight_id": "c1-guard", "boss_id": GUARD_ID})
+	_object("decoration-world-solid--pearl-altar", "c1-altar", _at("C1", Vector2(8, 5.6)))
+	_object("pearl", "c1-pearl", _at("C1", Vector2(8, 4.3)), {}, {"pearl_id": "dungeon-lab", "boss_id": GUARD_ID,
+		"number": 1, "skin_id": "feral", "card_name": "Feral skin", "take_radius": 90.0,
+		"card_line": "The lab's Pearl: its dungeon seals until the Big Squint falls.",
+		"card_how": "Hold the interact key at a climbable wall to climb it."})
+	_kit("prize-glint", "c1-glint", _at("C1", Vector2(8, 3.4)))
 
 	# A2, dark: the shadow path over the void to the islet, the compass in a glinting chest.
 	# The void round the islet: four pieces, so the islet (ground) is not drawn over; the far wall's

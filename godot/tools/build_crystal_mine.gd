@@ -17,6 +17,15 @@ extends SceneTree
 ## chests, the void, the shadow path, pots and the flower that grow back, glints); `KitMarkers`
 ## holds a marker for what nothing builds yet (the war journal's pages, heart quarters).
 ##
+## Since 2026-10-17 the mine keeps its Pearl inside, before the Colossus (the plan:
+## docs/design/2026-10-17-pearl-mid-dungeon.md "The Crystal Mine"): the first half ends at the Chasm
+## (the Bow), whose far side leads down a stair into the Shardback's Den (M13, the Pearl room: Pearl
+## 3 rises when he falls; its take seals the mine's mouth until the Colossus falls). The second half
+## teaches the Feral skin: the root wall up to the Den's ledge door, M11's rift (down, across, up),
+## M12's balcony with the big key under the Watcher Eye and the Bone Marcher, and the roots down the
+## shaft's north wall to the calm floor; the Colossus's claws are its exam. M9's old door to M10 is
+## bricked: M10 and M11's veil are an optional Lantern wing off M11's east landing.
+##
 ## It rebuilds the whole world: hand edits to the scene are lost when it runs again.
 ##
 ## Owner: dungeons (the Crystal Mine).
@@ -37,6 +46,9 @@ const COBBLE := 19
 const ROCK := 2
 ## fence_tileset.tres: (0, 0) auto (the ground's style).
 const FENCE_AUTO := Vector2i(0, 0)
+## elevation_tileset.tres row 2: a flight of stairs per direction (the arrow points down them).
+const STAIRS_ROW := 2
+const STAIRS_SOUTH := 0
 
 const ELEVATION_TILESET := "res://game/world/elevation/elevation_tileset.tres"
 const ELEVATION_LAYER := "res://game/world/elevation/elevation_layer.gd"
@@ -63,6 +75,17 @@ const LANTERN_ART := "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 ## The dungeon kit's scenes (docs/godot/DUNGEONS.md).
 const KIT := "res://game/scenes/objects/dungeon/"
 const FULL_HEART := "res://game/scenes/objects/full-heart.tscn"
+## The seal (docs/godot/DUNGEONS.md "The seal"): the Colossus holds it from Pearl 3's take.
+const COLOSSUS_ID := "crystal-colossus"
+const SHARDBACK_ID := "crystal-mine-shardback"
+const SEAL_COLOR := Color("#8a68c0")
+const SEAL_DUST := Color("#c8d4f0")
+const ROAR := "res://asset/audio/sfx/library/boss/fatty-roar.ogg"
+const ROAR_PITCH := 0.6
+## The floor of the Shardback's Den (one level down from the Chasm, by a stair).
+const DEN_LEVEL := -1
+## The slime's feet below its centre (a climb's `top` is its centre).
+const FEET_TO_CENTRE := 27.56
 
 ## The rooms: [key, name, cell x, cell y, cells wide, cells high, dark]. A room's tiles: x from 16 * cx
 ## to 16 * (cx + w) - 1, y from 14 * cy to 14 * (cy + h) - 1; its edge row and column are rock.
@@ -89,6 +112,8 @@ var _elevation: TileMapLayer
 var _fences: TileMapLayer
 var _levels := {}
 var _grounds := {}
+## Stairs cells: Vector2i -> the elevation tileset's stairs column.
+var _stairs := {}
 var _nodes := {}
 
 
@@ -142,7 +167,7 @@ func _paint() -> void:
 		var y0: int = room[3] * 14
 		var x1: int = (room[2] + room[4]) * 16 - 1
 		var y1: int = (room[3] + room[5]) * 14 - 1
-		_rect(x0 + 1, y0 + 1, x1 - x0 - 1, y1 - y0 - 1, 0)
+		_rect(x0 + 1, y0 + 1, x1 - x0 - 1, y1 - y0 - 1, DEN_LEVEL if room[0] == "M13" else 0)
 		_ground_rect(x0 + 1, y0 + 1, x1 - x0 - 1, y1 - y0 - 1, CAVERN)
 	# The old fort's hall: cobble floor and masonry round it.
 	_ground_rect(64, 14, 16, 14, COBBLE)
@@ -158,14 +183,30 @@ func _paint() -> void:
 		[56, 55, 2, 2, 0],    # M6 - M7 (the rotten timbers)
 		[23, 27, 2, 2, 0],    # M4 - M8 (the Foreman's Gate)
 		[31, 3, 2, 4, 0],     # M8 - M9 (after the maze's exit gate)
-		[47, 3, 2, 4, 0],     # M9 - M10 (across the bridge)
-		[60, 13, 2, 2, 0],    # M10 - M11
-		[47, 22, 2, 4, 0],    # M11 west - M13 (the Den door)
-		[63, 22, 2, 4, 0],    # M11 east - M12
-		[40, 27, 2, 2, 0],    # M13 south: the ledge over the Great Shaft (shut till the Shardback falls)
+		# (M9 - M10 across the bridge is bricked since 2026-10-17: M10 is the optional Lantern wing.)
+		[44, 13, 2, 2, 0],    # M9's far side - M13: the stair down into the Den
+		[60, 13, 2, 2, 0],    # M10 - M11 (the veil across its mouth)
+		[47, 19, 2, 4, 0],    # M13's ledge door - M11's west landing
+		[63, 19, 2, 4, 0],    # M11's east landing - M12
+		[42, 27, 4, 2, DEN_LEVEL],  # M13 south: the broken rim over the shaft (shut till the Shardback falls)
 	]
 	for d: Array in doorways:
 		_rect(d[0], d[1], d[2], d[3], d[4])
+	# M13 the Den: the stair down from the Chasm's far side (a front flight in the doorway's face),
+	# and the ledge (level 0) in the north-east before the east door, its face the first root wall.
+	for x in [44, 45]:
+		_stairs[Vector2i(x, 15)] = STAIRS_SOUTH
+	_rect(44, 20, 3, 4, 0)
+	# M11: the rift (-2) between the west landing (the Den's door) and the east landing (M12's door, the
+	# veil north to M10): its stem from the north wall down between them, its floor along the south.
+	_rect(54, 15, 4, 8, -2)
+	_rect(49, 23, 14, 4, -2)
+	# M12 the Fort Hall: the balcony (level 2) along the north wall, held apart from the mine's rock
+	# (level 2) by the hall's north band and corner blocks raised to level 3.
+	_rect(64, 13, 16, 2, 3)
+	_rect(65, 15, 1, 3, 3)
+	_rect(78, 15, 1, 3, 3)
+	_rect(66, 15, 12, 3, 2)
 	# M5 Tally Room's north wall: no doorway painted; the cracked wall there opens a passage north
 	# through the rock into M3, the map's room, when a blast blows it (Elevation.open_passage).
 	# M1: the Feral skin's shelf over the north wall (secret S5): level 1, its face the root wall.
@@ -248,6 +289,9 @@ func _layers() -> void:
 	for cell: Vector2i in _levels:
 		var level := int(_levels[cell])
 		_elevation.set_cell(cell, 0, Vector2i(level + 3 if level < 0 else level + 2, 0))
+	# A stairs cell takes the level of the ground it leads down to (Elevation.painted_levels).
+	for cell: Vector2i in _stairs:
+		_elevation.set_cell(cell, 0, Vector2i(int(_stairs[cell]), STAIRS_ROW))
 	_elevation.set_script(load(ELEVATION_LAYER))
 	_own(_elevation, _root)
 	_fences = TileMapLayer.new()
@@ -286,6 +330,14 @@ func _definition() -> void:
 	dungeon.set(&"dungeon_id", MAP_ID)
 	dungeon.set(&"display_name", "The Crystal Mine")
 	dungeon.set(&"entrance_marker", "dungeon-entrance")
+	# The seal: Pearl 3's take seals the mine until the Colossus falls.
+	dungeon.set(&"boss_id", COLOSSUS_ID)
+	dungeon.set(&"boss_name", "The Crystal Colossus")
+	dungeon.set(&"seal_color", SEAL_COLOR)
+	dungeon.set(&"dust_color", SEAL_DUST)
+	if ResourceLoader.exists(ROAR):
+		dungeon.set(&"roar_sound", load(ROAR))
+	dungeon.set(&"roar_pitch", ROAR_PITCH)
 	dungeon.position = spawn + Vector2(0, -40)
 	_own(dungeon, _root)
 	var mine := Node.new()
@@ -389,6 +441,9 @@ func _m1_mine_mouth() -> void:
 	_chest("M1-S5-chest", "dungeon-chest", _t(18.4, 57.2), {"coins": 40, "energy-potion": 1})
 	_piece("prize-glint", "M1-S5-glint", _t(18.4, 56.5), {"phase": 0.3})
 	_kit("lore", "M1-S5-journal-page", _t(18.4, 57.2), {"contents": "a page of the Thorn Guard's war journal (the fort under the mountain), for the S5 chest once pages exist"})
+	# The seal (docs/godot/DUNGEONS.md "The seal"): from Pearl 3's take until the Colossus falls, the
+	# mouth is shut; the take's glimpse shows it slam up.
+	_piece("dungeon-seal", "M1-mouth-seal", Vector2(24 * CELL, 69 * CELL), {"wall": "south", "glimpse": true})
 	# The east wing's way back: the iron shutter the crank in M7 lifts for good.
 	_piece("shutter", "M1-east-shutter", Vector2(31 * CELL, 62 * CELL), {"wall": "east", "starts_shut": true,
 		"shutter_id": "mouth-shutter"})
@@ -469,8 +524,12 @@ func _m4_great_shaft() -> void:
 	_chest("M4-S1-chest", "dungeon-chest", _t(40.7, 33.9), {"coins": 50})
 	_piece("prize-glint", "M4-S1-glint", _t(40.7, 33.3), {"phase": 0.6})
 	_kit("lore", "M4-S1-heart-quarter", _t(40.7, 33.9), {"contents": "a heart quarter for the S1 chest once heart quarters exist (coins until then)"})
+	# The shaft's north wall (the Feral skin, known; seen from the gallery on the first visit): from the
+	# Den's broken south rim (x 42 to 45, level -1) roots and handholds run down the face to the shaft's
+	# floor: climbed down (or let go: no cost), and the short way back up to the Den.
+	_climb_pair("M14-shaft-roots", Vector2(44 * CELL, 29 * CELL), 1, Vector2(150, 160))
 	# The calm room on the shaft's floor (M14): pots, two with hearts, a flower; the boss door east.
-	_piece("energy-flower", "M14-flower", _t(44.5, 33.4), {})
+	_piece("energy-flower", "M14-flower", _t(46.0, 33.6), {})
 	_pot("M14-pot", _t(42.4, 36.6), "heart")
 	_pot("M14-pot", _t(43.4, 36.9), "heart")
 	_pot("M14-pot", _t(44.4, 36.6), "energy")
@@ -597,9 +656,9 @@ func _m9_chasm() -> void:
 	var bridge_path: Array[NodePath] = [lens.get_path_to(bridge)]
 	lens.set(&"targets", bridge_path)
 	_hazard("M9-chasm", Vector2i(38, 1), Vector2i(6, 12), [_t(36.5, 9)])
+	# The far side's way on: the stair down into the Den (the Pearl room), x 44, 45.
 	_enemy("M9-bone-thrower", "bone-thrower", _t(45.5, 10.2), 70.0)
 	_prop(_nodes["Scenery"], OBJECTS + "rock-stump.tscn", _t(45.9, 5.6), 0.8, "M9-stump")
-	_prop(_nodes["Scenery"], OBJECTS + "rock-stump.tscn", _t(46.4, 12.4), 0.8, "M9-stump")
 	_lanterns([_t(34, 3.2), _t(46, 3.2)])
 	for at: Vector2 in [_t(39, 3), _t(42.5, 8), _t(40, 11.5)]:
 		_glow(_nodes["Scenery"], "M9-vein-glow", at, Vector2(60, 26), Color(0.45, 0.75, 1.0, 0.28))
@@ -607,6 +666,12 @@ func _m9_chasm() -> void:
 
 func _m10_prism_gallery() -> void:
 	var objects := _nodes["Objects"] as Node2D
+	# The optional Lantern wing (since 2026-10-17, behind M11's veil; its old door from the Chasm is
+	# bricked): the Prism Eye, the heavy ore crate, and the war journal page that lay on M12's stand.
+	_chest("M10-journal-chest", "dungeon-chest", _t(53.4, 3.9), {"coins": 30})
+	_kit("lore", "M10-war-journal", _t(53.4, 3.9), {"contents": "a page of the Thorn Guard's war journal (it lay on M12's stand before 2026-10-17), for the M10 chest once pages exist"})
+	# The veil's brazier on this side (M11's veil): lit, it opens the veil on the way back.
+	_candle(objects, "M11-brazier-north", "brazier", _t(62.3, 11.6), 20000.0)
 	_enemy("M10-prism-eye", "prism-eye", _t(55.5, 7.5), 40.0)
 	_scene(objects, OBJECTS + "heavy-ore-crate.tscn", "M10-ore-crate", _t(50.5, 10.4))
 	_rails([_t(49.5, 10.4), _t(59.5, 10.4), _t(59.5, 11.6)])
@@ -620,62 +685,95 @@ func _m10_prism_gallery() -> void:
 
 func _m11_crystal_veil() -> void:
 	var objects := _nodes["Objects"] as Node2D
-	var north := _candle(objects, "M11-brazier-north", "brazier", _t(56, 18.8), 20000.0)
-	var south := _candle(objects, "M11-brazier-south", "brazier", _t(56, 23.6), 20000.0)
-	var veil := _scene(objects, OBJECTS + "crystal-veil.tscn", "M11-veil", Vector2(56 * CELL, 21 * CELL + 8))
-	veil.set(&"size", 14 * CELL)
+	# The test (the Feral skin's second room): the rift two levels deep across the way from the Den's door
+	# (the west landing) to M12's (the east landing). Climb down the west landing's face, cross the rift's
+	# floor, climb up the east landing's; back the other way with the big key. Dark: the slime's ember
+	# shows the handholds.
+	_climb_pair("M11-west-roots", Vector2(51.5 * CELL, 23 * CELL), 2)
+	_climb_pair("M11-east-roots", Vector2(59.5 * CELL, 23 * CELL), 2)
+	# The optional Lantern wing: the veil across the mouth of the doorway north to M10, its brazier on
+	# the east landing (20 s) and one on M10's side; two Glint Bats roost over it.
+	var south := _candle(objects, "M11-brazier-south", "brazier", _t(58.7, 18.1), 20000.0)
+	var north := _nodes["M11-brazier-north"] as Node2D
+	var veil := _scene(objects, OBJECTS + "crystal-veil.tscn", "M11-veil", Vector2(61 * CELL, 17 * CELL))
+	veil.set(&"size", 3 * CELL)
 	var linked: Array[NodePath] = [veil.get_path_to(north), veil.get_path_to(south)]
 	veil.set(&"braziers", linked)
-	_enemy("M11-bat-1", "glint-bat", _t(54.6, 19.2), 60.0)
-	_enemy("M11-bat-2", "glint-bat", _t(57.4, 19.2), 60.0)
-	_piece("key-door", "M11-den-door", Vector2(49 * CELL, 25 * CELL), {"wall": "west", "door_id": "den-door",
-		"keyholes": 1, "locked_text": "Locked. Scratched by a shell. A small key opens it."})
-	_pot("M11-pot", _t(52.4, 26), "energy")
+	_enemy("M11-bat-1", "glint-bat", _t(60.5, 15.4), 40.0)
+	_enemy("M11-bat-2", "glint-bat", _t(61.5, 14.6), 40.0)
+	_pot("M11-pot", _t(50.3, 18.6), "energy")
 
 
 func _m12_fort_hall() -> void:
 	var objects := _nodes["Objects"] as Node2D
-	_prop(_nodes["Scenery"], STRUCTURE + "interior-structure-floor-stone-large.tscn", _t(75, 21), 1.6, "M12-dais")
-	for at: Vector2 in [_t(67, 18.4), _t(70, 18), _t(67, 24), _t(70.2, 24.4), _t(71.4, 21.3)]:
+	# The twist (the Feral skin's third room): the balcony two levels up along the north wall holds the big
+	# chest, and two root walls climb to it. A climber cannot hide or dodge: the Watcher Eye's beam finds
+	# it and the Bone Marcher's loop passes the walls' feet, so a climb starts when the eye looks away
+	# and the Marcher has passed. Off the balcony's west end a drop lands by the west door.
+	_climb_pair("M12-west-roots", Vector2(68 * CELL, 18 * CELL), 2)
+	_climb_pair("M12-east-roots", Vector2(75 * CELL, 18 * CELL), 2)
+	_chest("M12-big-key-chest", "dungeon-big-chest", _t(71.5, 16.8), {"dungeon-big-key": 1})
+	_piece("prize-glint", "M12-big-key-glint", _t(71.5, 15.9), {"phase": 0.5, "only_in_dark": false})
+	# The five armour statues (heavy blocks), cover from the eye, at least three cells from the roots.
+	for at: Vector2 in [_t(71.5, 23.9), _t(67.4, 24.9), _t(76.8, 24.6), _t(69.8, 25.7), _t(73.6, 25.7)]:
 		_scene(objects, OBJECTS + "heavy-statue.tscn", "M12-statue", at)
-	_enemy("M12-watcher-eye", "watcher-eye", _t(68.5, 21.2), 110.0)
-	var marcher := _enemy("M12-bone-marcher", "bone-marcher", _t(73, 18), 40.0)
-	marcher.set(&"overrides", {"route": PackedVector2Array([Vector2.ZERO, Vector2(256, 0), Vector2(256, 320), Vector2(0, 320)]), "route_loop": true})
-	_chest("M12-K3-chest", "dungeon-chest", _t(75, 20.6), {"dungeon-small-key": 1})
-	_kit("lore", "M12-war-journal", _t(76.6, 22.6), {"contents": "a page of the Thorn Guard's war journal"})
-	_candle(objects, "M12-watchfire-w", "brazier", _t(65.6, 17.3), 0.0, true)
-	_candle(objects, "M12-watchfire-e", "brazier", _t(78.2, 17.3), 0.0, true)
-	_scene(objects, OBJECTS + "gulp-spot-stone.tscn", "M12-stone-essence", _t(65.8, 25.6))
+	_enemy("M12-watcher-eye", "watcher-eye", _t(71.5, 21.8), 150.0)
+	var marcher := _enemy("M12-bone-marcher", "bone-marcher", _t(66.4, 20.9), 40.0)
+	marcher.set(&"overrides", {"route": PackedVector2Array([Vector2.ZERO, Vector2(704, 0), Vector2(704, 100), Vector2(0, 100)]), "route_loop": true})
+	_candle(objects, "M12-watchfire-w", "brazier", _t(65.5, 23.6), 0.0, true)
+	_candle(objects, "M12-watchfire-e", "brazier", _t(78.4, 23.6), 0.0, true)
+	_scene(objects, OBJECTS + "gulp-spot-stone.tscn", "M12-stone-essence", _t(65.8, 26.0))
 	_props([
-		[DECOR + "interior-decor-banner-red-narrow.tscn", _t(69, 16.9), 1.0],
-		[DECOR + "interior-decor-banner-red-narrow.tscn", _t(74.5, 16.9), 1.0],
-		[STRUCTURE + "interior-structure-pillar-stone.tscn", _t(78, 25.4), 1.0],
+		[DECOR + "interior-decor-banner-red-narrow.tscn", _t(70.3, 20.05), 1.0],
+		[DECOR + "interior-decor-banner-red-narrow.tscn", _t(72.7, 20.05), 1.0],
+		[STRUCTURE + "interior-structure-pillar-stone.tscn", _t(78, 25.9), 1.0],
 	])
 
 
 func _m13_shardback_den() -> void:
 	var objects := _nodes["Objects"] as Node2D
-	var west := _candle(objects, "M13-brazier-w", "brazier", _t(35.5, 21.5), 20000.0)
-	var east := _candle(objects, "M13-brazier-e", "brazier", _t(45, 21.5), 20000.0)
+	var scenery := _nodes["Scenery"] as Node2D
+	# The Pearl room (the plan's M13): down the stair from the Chasm's far side, one level below it. The
+	# Shardback's fight as built (dark 6: fire light makes his shell brittle, the Lantern's twist), once,
+	# his `boss_id` recorded: the north shutter closes the stair behind the slime; won, it opens, the
+	# south rim's shutter sinks for good (the way down the shaft's wall) and Pearl 3 rises in its vault
+	# of crystal, where the Colossus kept it (it fed the crystal he grew from).
+	var west := _candle(objects, "M13-brazier-w", "brazier", _t(35.6, 20.6), 20000.0)
+	var east := _candle(objects, "M13-brazier-e", "brazier", _t(41.6, 19.6), 20000.0)
 	west.set(&"stomp_puts_out", true)
 	east.set(&"stomp_puts_out", true)
-	_enemy("M13-shardback", "shardback", _t(40.5, 21.5), 200.0)
-	# The fight: the shutter closes the way in behind the slime; beaten, it opens, the big chest rises
-	# (the big key) and the south ledge's shutter sinks for good (the drop onto the shaft floor).
-	_piece("shutter", "M13-den-shutter", Vector2(47 * CELL, 25 * CELL), {"wall": "east", "fight_id": "shardback-den",
-		"shutter_id": "den-east"})
-	var ledge := _piece("shutter", "M13-den-ledge", Vector2(41 * CELL, 27 * CELL), {"wall": "south", "starts_shut": true,
+	_enemy("M13-shardback", "shardback", _t(38.4, 22.0), 200.0)
+	_piece("shutter", "M13-den-shutter", Vector2(45 * CELL, 16 * CELL), {"wall": "north", "fight_id": "shardback-den",
+		"shutter_id": "den-north"})
+	# The broken south rim (four cells, x 42 to 45): two shutters, shut until he falls.
+	var rim := _piece("shutter", "M13-den-ledge", Vector2(43 * CELL, 27 * CELL), {"wall": "south", "starts_shut": true,
 		"shutter_id": "den-ledge"})
-	var chest := _chest("M13-big-key-chest", "dungeon-big-chest", _t(40.5, 24.4), {"dungeon-big-key": 1}, true)
+	var rim_east := _piece("shutter", "M13-den-ledge-east", Vector2(45 * CELL, 27 * CELL), {"wall": "south", "starts_shut": true,
+		"shutter_id": "den-ledge-east"})
 	var fight := _piece("room-fight", "M13-den-fight", Vector2(32 * CELL, 14 * CELL), {"size": Vector2(16, 14) * CELL,
-		"fight_id": "shardback-den", "once": true})
-	fight.set(&"reward", fight.get_path_to(chest))
-	fight.connect(&"cleared", Callable(ledge, &"trigger"), CONNECT_PERSIST)
+		"fight_id": "shardback-den", "once": true, "boss_id": SHARDBACK_ID})
+	fight.connect(&"cleared", Callable(rim, &"trigger"), CONNECT_PERSIST)
+	fight.connect(&"cleared", Callable(rim_east, &"trigger"), CONNECT_PERSIST)
+	# Pearl 3 on its crystal cradle, its glint seen from the stair through the whole fight; the
+	# Shardback guards it (`boss_id`): it rises when he falls.
+	var pearl := _scene(objects, OBJECTS + "pearl-three.tscn", "M13-pearl-three", _t(39.5, 24.7))
+	pearl.set(&"boss_id", SHARDBACK_ID)
+	pearl.set(&"take_radius", 48.0)
+	pearl.set(&"card_line", "The beast the Pearl woke in the Colossus is yours: you climb walls of thick roots and rocky handholds.")
+	var glint := _piece("prize-glint", "M13-pearl-glint", _t(39.5, 23.5), {"only_in_dark": false, "tint": Color(1.0, 0.86, 0.6)})
+	var mine := _root.get_node("CrystalMine")
+	mine.set(&"pearl", mine.get_path_to(pearl))
+	mine.set(&"pearl_glint", mine.get_path_to(glint))
+	for spec: Array in [[3, _t(37.9, 25.3)], [7, _t(41.1, 25.3)], [11, _t(38.4, 26.2)], [5, _t(40.6, 26.2)]]:
+		_prop(scenery, OBJECTS + "crystal-cluster-wall--%02d.tscn" % int(spec[0]), spec[1], 0.8, "M13-vault-crystal")
+	# The teach (the Feral skin's first lock, safe: no enemy, no fall, no timer): the root wall up the
+	# ledge's face (one level) to the east door, the way on to M11.
+	_climb_pair("M13-ledge-roots", Vector2(45.5 * CELL, 24 * CELL), 1)
 
 
 func _m15_colossus_arena() -> void:
 	var objects := _nodes["Objects"] as Node2D
-	for spec: Array in [["M15-brazier-nw", _t(51.2, 34.4)], ["M15-brazier-ne", _t(60.8, 34.4)],
+	for spec: Array in [["M15-brazier-nw", _t(51.2, 35.4)], ["M15-brazier-ne", _t(60.8, 35.4)],
 			["M15-brazier-sw", _t(51.2, 39.6)], ["M15-brazier-se", _t(60.8, 39.6)]]:
 		var brazier := _candle(objects, spec[0], "brazier", spec[1], -1.0)
 		brazier.set(&"stomp_puts_out", true)
@@ -686,20 +784,28 @@ func _m15_colossus_arena() -> void:
 	arena.set(&"arena_rect", Rect2(_t(49, 33), Vector2(14 * CELL, 8 * CELL)))
 	arena.set(&"post", Vector2(0, -150))
 	arena.set(&"seal_cells", PackedVector2Array([_t(48.5, 35.9), _t(48.5, 36.9)]))
-	arena.set(&"climb_spots", PackedVector2Array([Vector2(52.5 * CELL, 2092), Vector2(56 * CELL, 2092), Vector2(59.5 * CELL, 2092)]))
+	# His climb spots on the north wall's foot (old centres), and the roots beside them.
+	arena.set(&"climb_spots", PackedVector2Array([Vector2(51.5 * CELL, 2092), Vector2(54.5 * CELL, 2092), Vector2(57.5 * CELL, 2092)]))
+	arena.set(&"wall_rect", Rect2(_t(49, 29), Vector2(14 * CELL, 4 * CELL + 40)))
 	_own(arena, objects)
 	arena.set(&"braziers", _paths(arena, ["M15-brazier-nw", "M15-brazier-ne", "M15-brazier-sw", "M15-brazier-se"]))
-	# The north wall he climbs: the root wall over its three courses; its foot, the climb out.
-	var climb := _scene(objects, OBJECTS + "climb-wall.tscn", "M15-root-wall", _t(56, 33) + Vector2(0, 2))
-	climb.set(&"top", Vector2(0, -294))
-	climb.set(&"climb_ms", 1600.0)
+	# The Feral skin's exam: roots beside each climb spot run up the wall to his height and end on the face
+	# (`holds_at_top`); from there the Spear strikes his claws (crystal_colossus.gd).
+	for x: float in [50.0, 53.0, 56.0, 59.0]:
+		var roots := _scene(objects, OBJECTS + "climb-wall.tscn", "M15-claw-roots", Vector2(x * CELL, 33 * CELL + 20))
+		roots.set(&"top", Vector2(0, -197))
+		roots.set(&"holds_at_top", true)
+		roots.set(&"art_size", Vector2(112, 250))
+	# The climb out to the Lookout, beside them: its top is sealed (Pearl 3's take) until he falls.
+	var climb := _scene(objects, OBJECTS + "climb-wall.tscn", "M15-root-wall", Vector2(61.2 * CELL, 33 * CELL + 20))
+	climb.set(&"top", Vector2(0, -312))
 	climb.set(&"exit_area_id", "crystal-caverns-h4")
 	climb.set(&"exit_marker", "arrive-from-crystal-mine")
-	climb.set(&"art_size", Vector2(240, 250))
+	climb.set(&"art_size", Vector2(104, 300))
 	arena.set(&"climb_wall", arena.get_path_to(climb))
-	var pearl := _scene(objects, OBJECTS + "pearl-three.tscn", "M15-pearl-three", _t(56, 37.5))
-	arena.set(&"pearl", arena.get_path_to(pearl))
-	_glow(_nodes["Scenery"], "M15-daylight", _t(56, 29.6), Vector2(120, 70), Color(1.0, 0.93, 0.7, 0.32))
+	# The seal stands at the climb-out's foot, in front of its roots, until he falls.
+	_piece("dungeon-seal", "M15-climb-out-seal", Vector2(61.2 * CELL, 33 * CELL + 4), {"wall": "north"})
+	_glow(_nodes["Scenery"], "M15-daylight", _t(61.2, 28.6), Vector2(110, 64), Color(1.0, 0.93, 0.7, 0.32))
 	# His full heart (+20 max HP, +20 max energy): it rises when he falls.
 	var heart := _scene(objects, FULL_HEART, "M15-full-heart", _t(58.4, 38.4))
 	_root.set_editable_instance(heart, true)
@@ -872,6 +978,25 @@ func _hazard(node_name: String, from: Vector2i, cells: Vector2i, returns: Array)
 		_own(back, hazard)
 		i += 1
 	return hazard
+
+
+## A root wall up a south face and its way back down from the lip (the Feral skin; climb_wall.gd, the
+## placing rules in docs/godot/SKINS.md "Feral"): `rim` is the face's top edge at the climb's middle,
+## `levels` its height. The up climb stands at the foot (its feet 20 px below the face's foot line) and
+## ends 40 px inside the rim; the down climb on the lip (20 px inside the rim) ends 30 px below the
+## foot line, sharing the up climb's picture.
+func _climb_pair(base: String, rim: Vector2, levels: int, art: Vector2 = Vector2.ZERO) -> Node2D:
+	var objects := _nodes["Objects"] as Node2D
+	var foot := rim.y + levels * CELL
+	var up := _scene(objects, OBJECTS + "climb-wall.tscn", base, Vector2(rim.x, foot + 20.0))
+	up.set(&"top", Vector2(0, (rim.y - 40.0) - (foot + 20.0)))
+	up.set(&"art_size", art if art != Vector2.ZERO else Vector2(130, levels * CELL + 44))
+	var down := _scene(objects, OBJECTS + "climb-wall.tscn", base + "-down", Vector2(rim.x, rim.y - 20.0))
+	down.set(&"top", Vector2(0, (foot + 30.0 - FEET_TO_CENTRE) - (rim.y - 20.0)))
+	down.set(&"prompt", "Climb down (hold)")
+	down.set(&"show_art", false)
+	down.set(&"grab_width", 130.0)
+	return up
 
 
 ## A kit marker: where something nothing builds yet goes, with what it is.

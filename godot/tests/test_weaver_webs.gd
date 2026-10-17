@@ -2,8 +2,8 @@ extends RefCounted
 ## The Weaver Hollow's webs (docs/godot/WEBS.md; owner, 2026-10-16, question 131; roadmap 7.9),
 ## tried in level-1's village chunk, where the ground right of OPEN is open:
 ## - floor webs (a WebLayer painted here): a walk in them is halved (`webs.floorSlowMultiplier`), a
-##   Roll that enters them sticks (rooted `webs.rollStickMs`, where it is), the Silk form (the Silk
-##   skin's stand-in, `crosses_webs()`) walks and rolls through at full speed; enemies are not
+##   Roll that enters them sticks (rooted `webs.rollStickMs`, where it is), the Silk skin (lent:
+##   SkinState, `crosses_webs()`; roadmap 7.8) walks and rolls through at full speed; enemies are not
 ##   slowed;
 ## - web walls (`object.web-wall`): solid to a walk and a Roll without the skin, passed at
 ##   `webs.wallPassMultiplier` with it; a weapon's or shape's hit cuts one open for good only with
@@ -17,6 +17,7 @@ const WebLayerScript := preload("res://game/world/webs/web_layer.gd")
 const FloorWebsScript := preload("res://game/world/webs/floor_webs.gd")
 const WebWallScript := preload("res://game/scripts/web_wall.gd")
 const SilkParcelScript := preload("res://game/scripts/silk_parcel.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const WALK_SPEED := 200.0
 ## Where the checks start (old Phaser centre), as test_player_movement.gd's.
@@ -62,7 +63,7 @@ func test_enemies_are_not_slowed_by_floor_webs(t: TestContext) -> void:
 
 
 ## A Roll that runs into a floor web sticks there: the roll is over, the slime rooted and still,
-## where the web caught it (not set back). With the Silk form the roll crosses the web and the walk
+## where the web caught it (not set back). With the Silk skin the roll crosses the web and the walk
 ## keeps its speed.
 func test_a_roll_sticks_in_a_floor_web_and_the_silk_slime_crosses(t: TestContext) -> void:
 	var player := t.player()
@@ -87,7 +88,7 @@ func test_a_roll_sticks_in_a_floor_web_and_the_silk_slime_crosses(t: TestContext
 	t.near_vec(player.get_centre(), stuck_at, 1.0, "the stuck slime moved")
 	await t.sim_wait(_setting("rollStickMs") + 100.0)
 	t.check(not player.is_rooted(), "still rooted after webs.rollStickMs")
-	# The Silk form (the Silk skin's stand-in) crosses webs: its walk keeps its speed in them.
+	# The Silk skin crosses webs: its walk keeps its speed in them.
 	if not await _silk(t):
 		return
 	t.teleport_player(OPEN)
@@ -146,7 +147,7 @@ func test_a_web_wall_blocks_a_walk_and_a_roll(t: TestContext) -> void:
 	t.check(not wall.is_cut(), "the web wall is cut")
 
 
-## With the Silk form the slime walks through a web wall at half its walk, and on at full speed.
+## With the Silk skin the slime walks through a web wall at half its walk, and on at full speed.
 func test_the_silk_slime_passes_a_web_wall_at_half_speed(t: TestContext) -> void:
 	var player := t.player()
 	if not await _silk(t):
@@ -293,13 +294,13 @@ func _parcel(t: TestContext, at: Vector2) -> SilkParcelScript:
 	return parcel
 
 
-## Swallows silk: the Silk form, the Silk skin's stand-in (`crosses_webs()`).
+## Lends the Silk skin (SkinState, roadmap 7.8: `crosses_webs()`).
 func _silk(t: TestContext) -> bool:
 	var player := t.player()
 	await t.sim_wait(50.0)
-	player.get_gulp().swallow("silk-essence")
+	SkinState.lend(SkinState.SILK)
 	await t.steps(1)
-	return t.check(player.crosses_webs(), "swallowing silk did not make the slime cross webs")
+	return t.check(player.crosses_webs(), "the Silk skin did not make the slime cross webs")
 
 
 ## A hit with `tags` routed to `target_area` from a stand-in weapon (its knockback makes a 0-damage

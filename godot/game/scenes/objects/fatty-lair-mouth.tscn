@@ -15,7 +15,7 @@ metadata/boss_id = "fatty-one-eye"
 
 [node name="DoorScript" type="Node" parent="."]
 script = ExtResource("1_door")
-map_id = "level-1-d4"
+map_id = "level-1-d5"
 door_id = "fatty-lair-mouth"
 target_area_id = "fatty-lair"
 target_door_id = "fatty-lair-entrance"
@@ -39,11 +39,13 @@ shape = SubResource("back_shape")
 
 [node name="drop-gate" parent="." instance=ExtResource("2_gate")]
 position = Vector2(0, 12)
-map_id = "level-1-d4"
+map_id = "level-1-d5"
 gate_id = "fatty-lair-gate"
 refusal_text = "The old fort's gate, shut tight. The worms' lever lifts it."
+open_ms = 620.0
 
 [node name="Lever" parent="drop-gate" index="4"]
-position = Vector2(236, 26)
+position = Vector2(0, 224)
+interact_radius = 46.0
 
 [editable path="drop-gate"]

@@ -8,7 +8,9 @@ class_name DungeonMapDraw
 ## - without the map, a room never visited is not drawn (fog);
 ## - the room the slime is in: a gold ring;
 ## - with the compass: a red mark in the boss's room (a RoomFight with a `boss_id`, or a node in the
-##   group `dungeon_map_mark` with `mark` = "boss") and a gold dot on each chest not opened yet.
+##   group `dungeon_map_mark` with `mark` = "boss") and a gold dot on each chest not opened yet;
+## - a seal shut (dungeon_seal.gd, `mark` = "seal"): a red bar across its doorway, with or without
+##   the compass, while the dungeon is sealed (docs/godot/DUNGEONS.md "The seal").
 ## `to_view` maps a global point to the canvas.
 ##
 ## Owner: dungeon kit.
@@ -23,6 +25,9 @@ const MAPPED_EDGE := Color("#9fb2c8")
 const CURRENT_RING := Color("#ffd277")
 const BOSS_MARK := Color("#d6403a")
 const CHEST_MARK := Color("#f5c542")
+const SEAL_MARK := Color("#ff3b2e")
+## A seal's bar on the map, in room units (a doorway is two cells, 128 wide).
+const SEAL_BAR := Vector2(150.0, 54.0)
 const MARK_GROUP := &"dungeon_map_mark"
 const CHEST_GROUP := &"chest"
 const FIGHT_GROUP := &"room_fight"
@@ -67,6 +72,8 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 			canvas.draw_rect(box, Color(MAPPED_EDGE, 0.7), false, 1.0)
 		if str(room["key"]) == current:
 			canvas.draw_rect(box.grow(inset * 0.5), CURRENT_RING, false, maxf(1.5, inset * 0.6))
+	for seal: Node2D in seal_nodes(dungeon):
+		_draw_seal(canvas, seal, to_view)
 	if has_compass:
 		for point: Vector2 in boss_points(dungeon):
 			var at: Vector2 = to_view.call(point)
@@ -81,21 +88,50 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 		canvas.draw_circle(at, 4.0, Color("#72d8ff"))
 
 
-## The boss's spots: the middle of every RoomFight with a boss not beaten yet, and every
+## The boss's spots: the middle of every RoomFight with a boss not beaten yet (only the dungeon's
+## boss when its Dungeon node names one: a mini-boss, the Pearl's guard, is not marked), and every
 ## `dungeon_map_mark` node marked "boss".
 static func boss_points(dungeon: Node) -> Array[Vector2]:
 	var out: Array[Vector2] = []
 	var tree := dungeon.get_tree()
 	var run := Services.run()
 	var id := str(dungeon.get(&"dungeon_id"))
+	var dungeon_boss := str(dungeon.get(&"boss_id")) if &"boss_id" in dungeon else ""
 	for node: Node in tree.get_nodes_in_group(FIGHT_GROUP):
 		var boss := str(node.get(&"boss_id"))
+		if not dungeon_boss.is_empty() and boss != dungeon_boss:
+			continue
 		if not boss.is_empty() and not DungeonState.is_boss_beaten(run, id, boss) and node.has_method(&"rect"):
 			out.append((node.call(&"rect") as Rect2).get_center())
 	for node: Node in tree.get_nodes_in_group(MARK_GROUP):
 		if node is Node2D and str(node.get(&"mark")) == "boss":
 			out.append((node as Node2D).global_position)
 	return out
+
+
+## The seals shut in this world (group `dungeon_map_mark`, `mark` "seal").
+static func seal_nodes(dungeon: Node) -> Array[Node2D]:
+	var out: Array[Node2D] = []
+	if not dungeon.is_inside_tree():
+		return out
+	for node: Node in dungeon.get_tree().get_nodes_in_group(MARK_GROUP):
+		if node is Node2D and str(node.get(&"mark")) == "seal":
+			out.append(node as Node2D)
+	return out
+
+
+## A red bar across a shut seal's doorway (along its wall), outlined dark.
+static func _draw_seal(canvas: CanvasItem, seal: Node2D, to_view: Callable) -> void:
+	var along := Vector2.RIGHT.rotated(seal.global_rotation) * SEAL_BAR.x * 0.5
+	var across := Vector2.DOWN.rotated(seal.global_rotation) * SEAL_BAR.y * 0.5
+	var middle := seal.global_position - across
+	var corners := PackedVector2Array()
+	for point: Vector2 in [middle - along - across, middle + along - across, middle + along + across, middle - along + across]:
+		corners.append(to_view.call(point))
+	var outline := corners.duplicate()
+	outline.append(corners[0])
+	canvas.draw_colored_polygon(corners, SEAL_MARK)
+	canvas.draw_polyline(outline, Color("#2a0d0d"), 1.0)
 
 
 ## The chests not opened yet (in a room of the dungeon, shown: a hidden chest that has not risen yet

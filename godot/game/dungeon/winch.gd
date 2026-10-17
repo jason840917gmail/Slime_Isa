@@ -46,11 +46,19 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		set_physics_process(false)
 		return
-	_restore.call_deferred()
+	_restore_in_tree.call_deferred()
 
 
 func is_turned() -> bool:
 	return _turned
+
+
+## `_restore`, deferred from `_ready`, only while still in the tree: a world run on its own (F6)
+## is the current scene for a moment before it swaps itself for main.tscn, and this piece of that
+## copy has left the tree by then.
+func _restore_in_tree() -> void:
+	if is_inside_tree():
+		_restore()
 
 
 func _restore() -> void:

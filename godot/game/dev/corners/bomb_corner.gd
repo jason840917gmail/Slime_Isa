@@ -5,8 +5,10 @@ extends Node2D
 ## end: a cracked wall in the cliff whose hole, once blown, is a north door to a small cave with a
 ## chest (the world `playground-bomb-cave`: you arrive at its south door, and walking back out of it
 ## brings you out in front of the hole, facing down; door.gd pairing rule), a rubble heap choking the path
-## between the cliff and the map's edge, a rubble heap on the lake's islet (only a thrown bomb gets
-## there; it hides a chest that slides into the shallows), a second cracked wall in the root-rock
+## between the cliff and the map's edge (since roadmap 7.8 a Heavy Roll's lock, question 72: rubble
+## heaps are the Heavy skin's), a blast heap on the lake's islet (only a thrown bomb gets there; it
+## hides a chest that slides into the shallows; rubble_heap.gd `breaks_by_blast` until question 72's
+## cracked rock face replaces it), a second cracked wall in the root-rock
 ## plateau south of the lake (a plain opening with a nook and a chest in it), and two light training
 ## dummies on the shore.
 ##

@@ -6,7 +6,14 @@
 // highlights and the shading (the pattern is lit by the frame's own brightness). The pattern is
 // laid out in the sprite's local pixels, so it sticks to the body from frame to frame.
 //   skin 0: none; 1: Heavy (grey cobbles); 2: Sticky (cream silk strands); 3: Frog (tree-frog
-//   green with darker spots and a pale belly, the Frog badge's colours).
+//   green with darker spots and a pale belly, the Frog badge's colours) -- the Gulp forms; and the
+//   skins' looks (docs/godot/SKINS.md, game/player/skins/skin_look.gd): 4: the Heavy skin (slate
+//   stones with granite flecks, grey and stony), 5: the Silk skin (silver silk with a sheen that
+//   drifts across it), 6: the Feral skin (tawny fur in short strands with darker stripes and a pale
+//   belly). `skin_amount` fades the pattern in and out (0: the slime's own goo). With
+//   `has_look_texture` the skin's painted texture (asset/player/skins/<skin>-look.webp, Magnific,
+//   scripts/art/pack-skin-art.py) replaces its code pattern, laid out `look_tile_px` sprite px a
+//   tile and mirrored from tile to tile so no seam shows; the Silk skin keeps its drifting sheen.
 // Swimming (the Frog form in deep water) hides the art under a waterline: `waterline` cell pixels
 // above the frame's baseline stay above water, with a thin foam line; the player lowers the art by
 // as much, so the waterline sits on its feet (game/player/gulp/player_swimming.gd).
@@ -21,12 +28,20 @@ shader_type canvas_item;
 uniform vec4 flash_color : source_color = vec4(1.0, 0.435, 0.533, 1.0);
 uniform float flash_amount : hint_range(0.0, 1.0) = 0.0;
 uniform int skin = 0;
+// How much of the skin's pattern shows (the skins fade in and out as they start and stop working).
+uniform float skin_amount : hint_range(0.0, 1.0) = 1.0;
 // Cobble size in texture pixels (the slime is 186 px wide in its frames: about 5 stones across).
 uniform float stone_size = 34.0;
 // Strand spacing in texture pixels.
 uniform float strand_size = 16.0;
 // Frog spot spacing in texture pixels.
 uniform float spot_size = 30.0;
+// The Silk skin's sheen: how fast it drifts (sprite px a second).
+uniform float sheen_speed = 70.0;
+// The skins' painted textures (skins 4 to 6 only).
+uniform sampler2D look_texture : source_color, filter_linear_mipmap, repeat_enable;
+uniform bool has_look_texture = false;
+uniform float look_tile_px = 200.0;
 // Swimming: how much of the art stays above water, in cell pixels above the baseline (0: no water).
 uniform float waterline = 0.0;
 // The slime sheets' cells and the baseline the slime stands on (docs/assets/slime-sheet-guide.md).
@@ -122,21 +137,115 @@ vec3 frog(vec2 p) {
 	return mix(green, vec3(0.90, 0.88, 0.58), belly * 0.75 * (1.0 - 0.8 * spot));
 }
 
+// The Heavy skin: slate stones, larger and cooler than the Stone form's cobbles, flecked like granite.
+vec3 slate(vec2 p) {
+	vec2 g = p / (stone_size * 1.3);
+	vec2 cell = floor(g);
+	float f1 = 8.0;
+	float f2 = 8.0;
+	vec2 best_cell = cell;
+	vec2 best_offset = vec2(0.0);
+	for (int y = -1; y <= 1; y++) {
+		for (int x = -1; x <= 1; x++) {
+			vec2 c = cell + vec2(float(x), float(y));
+			vec2 point = c + 0.2 + 0.6 * hash2(c + 17.0);
+			vec2 offset = g - point;
+			float d = length(offset);
+			if (d < f1) {
+				f2 = f1;
+				f1 = d;
+				best_cell = c;
+				best_offset = offset;
+			} else if (d < f2) {
+				f2 = d;
+			}
+		}
+	}
+	float tone = 0.5 + 0.16 * hash1(best_cell + 3.0);
+	vec3 stone = vec3(tone * 0.93, tone * 0.97, tone * 1.05);
+	float dome = clamp(1.0 - f1 * 1.4, 0.0, 1.0);
+	stone *= 0.8 + 0.28 * dome + 0.16 * clamp(-(best_offset.x + best_offset.y), -1.0, 1.0);
+	// Granite flecks: small dark and light grains.
+	float grain = hash1(floor(p / 3.0));
+	stone *= 1.0 - 0.18 * step(0.9, grain) + 0.12 * step(grain, 0.06);
+	float joint = smoothstep(0.03, 0.1, f2 - f1);
+	return mix(vec3(0.2, 0.21, 0.24), stone, joint);
+}
+
+// The Silk skin: silver silk, fine strands over a cool pale base, with a soft sheen drifting across.
+vec3 silver(vec2 p) {
+	vec2 q = p / (strand_size * 0.8);
+	float wave = sin(q.y * 0.7 + sin(q.x * 0.3) * 2.0);
+	float strands = pow(abs(sin((q.x * 0.9 + q.y * 0.35 + wave * 0.5) * 1.57)), 7.0);
+	float cross_strands = pow(abs(sin((q.y - q.x * 0.4) * 1.1)), 13.0) * 0.5;
+	vec3 base = vec3(0.74, 0.78, 0.86);
+	vec3 c = mix(base, vec3(0.97, 0.98, 1.0), clamp(strands + cross_strands, 0.0, 1.0));
+	float band = sin((p.x + p.y * 0.6) * 0.035 - TIME * sheen_speed * 0.035);
+	return c + vec3(0.16, 0.17, 0.2) * smoothstep(0.75, 1.0, band);
+}
+
+// The Feral skin: tawny fur in short strands that sway, darker stripes, a pale belly.
+vec3 fur(vec2 p) {
+	vec2 q = vec2(p.x / 3.0 + sin(p.y * 0.045) * 2.2, p.y / 13.0);
+	float strand = hash1(floor(q)) * 0.6 + hash1(floor(q * vec2(1.6, 1.3) + 7.0)) * 0.4;
+	float tip = fract(q.y);
+	float stripe = smoothstep(0.58, 0.8, 0.5 + 0.5 * sin(p.x * 0.055 + sin(p.y * 0.028) * 1.8));
+	vec3 base = mix(vec3(0.72, 0.52, 0.31), vec3(0.4, 0.25, 0.14), stripe * 0.85);
+	base *= 0.78 + 0.34 * strand + 0.08 * tip;
+	float belly = smoothstep(50.0, 110.0, p.y) * (1.0 - 0.6 * smoothstep(0.0, 1.0, abs(p.x) / 90.0));
+	return mix(base, vec3(0.9, 0.82, 0.66) * (0.85 + 0.2 * strand), belly * 0.7);
+}
+
+// A skin's painted texture at sprite px `p`, mirrored every other tile.
+vec3 painted(vec2 p) {
+	vec2 uv = p / look_tile_px;
+	vec2 mirrored = 1.0 - abs(mod(uv, 2.0) - 1.0);
+	return texture(look_texture, mirrored).rgb;
+}
+
+vec3 pattern_of(int which, vec2 p) {
+	if (which >= 4 && has_look_texture) {
+		vec3 c = painted(p);
+		if (which == 5) {
+			// The silk is painted pale: deepen it to silver so its strands read, then the sheen.
+			c = clamp((c - 0.62) * 1.9 + 0.62, 0.0, 1.0) * vec3(0.86, 0.9, 0.98);
+			float band = sin((p.x + p.y * 0.6) * 0.035 - TIME * sheen_speed * 0.035);
+			c += vec3(0.16, 0.17, 0.2) * smoothstep(0.75, 1.0, band);
+		}
+		return c;
+	}
+	if (which == 1) { return rock(p); }
+	if (which == 2) { return silk(p); }
+	if (which == 3) { return frog(p); }
+	if (which == 4) { return slate(p); }
+	if (which == 5) { return silver(p); }
+	return fur(p);
+}
+
+float light_of(int which, float lum) {
+	if (which == 1) { return 0.35 + 1.15 * lum; }
+	if (which == 2) { return 0.55 + 0.75 * lum; }
+	if (which == 3) { return 0.45 + 0.95 * lum; }
+	if (which == 4) { return 0.38 + 1.1 * lum; }
+	if (which == 5) { return has_look_texture ? 0.3 + 0.8 * lum : 0.5 + 0.85 * lum; }
+	return 0.42 + 1.0 * lum;
+}
+
 void fragment() {
 	// The art's own colour decides what is body; COLOR already holds texture x modulate (Godot 4).
 	vec4 raw = texture(TEXTURE, UV);
 	vec4 tex = COLOR;
 	vec3 c = tex.rgb;
-	if (skin > 0) {
+	if (skin > 0 && skin_amount > 0.0) {
 		vec3 hsv = rgb2hsv(raw.rgb);
 		// The slime's body is yellow-green (hue about 0.2-0.3) and saturated; the eyes, the
 		// highlights and the dark outline are not.
 		float hue_match = 1.0 - smoothstep(0.07, 0.13, abs(hsv.x - 0.24));
 		float body = hue_match * smoothstep(0.25, 0.42, hsv.y) * smoothstep(0.12, 0.25, hsv.z);
 		float lum = dot(raw.rgb, vec3(0.299, 0.587, 0.114));
-		vec3 pattern = skin == 1 ? rock(local_pos) : (skin == 2 ? silk(local_pos) : frog(local_pos));
-		float light = skin == 1 ? 0.35 + 1.15 * lum : (skin == 2 ? 0.55 + 0.75 * lum : 0.45 + 0.95 * lum);
-		c = mix(c, pattern * light, body);
+		vec3 pattern = pattern_of(skin, local_pos);
+		float light = light_of(skin, lum);
+		c = mix(c, pattern * light, body * skin_amount);
 	}
 	c = mix(c, flash_color.rgb, flash_amount);
 	float alpha = tex.a;

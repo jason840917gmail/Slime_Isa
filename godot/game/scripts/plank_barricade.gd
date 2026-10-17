@@ -1,15 +1,17 @@
 extends StaticBody2D
 class_name PlankBarricadeScript
-## Scene script `game.plank-barricade` (`object.plank-barricade`, game/scenes/objects/plank-barricade.tscn;
-## Fatty's Lair, docs/godot/DUNGEONS.md "Fatty's Lair (built)"): grey old planks nailed across a
-## doorway, the Heavy Roll's lock (the look book: old, grey, dead built wood lying or leaning in the
-## way). It is the Heavy skin's first lock, Fatty's Lair's way out (question 132), and the
-## Quartermaster's store in the Gatehouse shows the same lock before the Pearl.
+## Scene script `game.plank-barricade`: old wood the Heavy Roll smashes (docs/godot/SKINS.md "Heavy";
+## the look book: old, grey, dead or built wood lying or leaning in the way; question 93). Its
+## scenes: `object.plank-barricade` (grey old planks nailed across a doorway: the Heavy skin's first
+## lock, Fatty's Lair's way out, question 132; the Quartermaster's store in the Gatehouse shows the
+## same lock before the Pearl), game/scenes/objects/rotten-timbers.tscn (rotten mine timbers),
+## `object.old-trunk` (a flat, mossy, hollow trunk across a path) and `object.old-fence` (a grey,
+## broken-backed old fence, never on a rim: question 128). The rocks are rubble_heap.gd's.
 ##
-## - It blocks as a wall, so a Roll into it bonks. A Heavy Roll's bonk (game/fattys_lair/heavy_check.gd:
-##   the Stone form's `heavy` bonk, or any Roll once Pearl 1 granted the Heavy skin) smashes it: the
-##   splintered planks lie in a heap that no longer collides, the screen shakes hard, dust flies, and
-##   the story flag `flag_id` keeps it smashed (read when the scene is built).
+## - It blocks as a wall, so a Roll into it bonks. A Heavy Roll's bonk (the Heavy skin on:
+##   game/fattys_lair/heavy_check.gd) smashes it: the splinters lie in a heap that no longer
+##   collides, the screen shakes hard, dust flies, the slime shows its Heavy skin, and the story flag
+##   `flag_id` keeps it smashed (read when the scene is built).
 ## - Anything else (a plain Roll, the Spear, a throw, a bomb) is refused with `refusal_text`, the
 ##   clink, at most every REFUSAL_EVERY_MS.
 ##
@@ -17,6 +19,7 @@ class_name PlankBarricadeScript
 
 const Services := preload("res://game/shared/services.gd")
 const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const GROUP := &"plank_barricade"
 const RULE := {"priority": 0, "damageMultiplier": 1}
@@ -24,9 +27,7 @@ const RULE := {"priority": 0, "damageMultiplier": 1}
 const TAGS: Array[String] = []
 const FRAME_WHOLE := 0
 const FRAME_SMASHED := 1
-const CUE_SMASH := &"BreakWood"
 const CUE_REFUSED := &"HitBlocked"
-const SMASH_TEXT := "Smashed!"
 const DUST := &"dodge-dust"
 const SPLINTERS := &"hit-spark"
 const REFUSAL_EVERY_MS := 1800
@@ -42,6 +43,10 @@ signal refused(payload: Dictionary)
 ## Story flag set when it is smashed.
 @export var flag_id: String = ""
 @export var refusal_text: String = "Old planks, nailed fast. Something heavier could smash through."
+@export var smash_text: String = "Smashed!"
+@export var smash_cue: StringName = &"BreakWood"
+## Where the splinters fly from, above the root (world units).
+@export var splinter_rise: float = 40.0
 ## The hard shake of the smash (ms, intensity).
 @export var shake_ms: float = 450.0
 @export var shake_intensity: float = 0.014
@@ -92,12 +97,14 @@ func smash() -> void:
 	_lie_smashed()
 	var feel := Services.feel()
 	if feel != null:
-		feel.audio_cue(CUE_SMASH)
+		feel.audio_cue(smash_cue)
 		feel.shake(shake_ms, shake_intensity)
 		feel.particles(DUST, global_position + Vector2(-30.0, -10.0))
 		feel.particles(DUST, global_position + Vector2(30.0, -10.0))
-		feel.particles(SPLINTERS, global_position - Vector2(0.0, 40.0))
-		feel.floating_text(global_position - Vector2(0.0, 120.0), SMASH_TEXT, &"yellow", true)
+		feel.particles(SPLINTERS, global_position - Vector2(0.0, splinter_rise))
+		feel.floating_text(global_position - Vector2(0.0, splinter_rise + 80.0), smash_text, &"yellow", true)
+	var world := Services.world()
+	SkinState.show(world.player if world != null else null, SkinState.HEAVY)
 	smashed.emit({"flagId": flag_id})
 
 

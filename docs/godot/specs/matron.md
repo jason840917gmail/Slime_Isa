@@ -35,7 +35,7 @@ whole base enemy step first (arena leash included) and only the differences are 
   web tear).
 - **Godot only (2026-10-17): the Weaver Hollow's fight** (section 8): her cocoon, its three rounds,
   her camp `encounter.weaver-hollow-matron` at the top of the Hollow, and her rewards (Pearl 2 and
-  the Silk skin's stand-in, the full heart, the max-energy raise, her thread). The open-world nest
+  the Silk skin, the full heart, the max-energy raise, her thread). The open-world nest
   above keeps the Phaser fight until it is removed.
 
 ### OUT (exists in Phaser; later phases)
@@ -329,9 +329,8 @@ root).
   with it, cut for good by a shape's hit with it; WEBS.md).
 - **The Silk skin's hook** is `player.crosses_webs()`: with it webs neither slow, catch nor stick
   (the patch and the barrier tear instead, and `player.apply_web(ms)` does nothing, so a spit web no
-  longer roots either). The Silk skin is not built (roadmap 7.8): today its stand-ins are the story
-  flag `skin.silk`, which Pearl 2 sets (section 8.5; `player.gd` `SILK_SKIN_FLAG`), and the Silk
-  Gulp form (Sticky).
+  longer roots either). Since roadmap 7.8 it is the Silk skin itself (SkinState, won from Pearl 2,
+  section 8.5; [SKINS.md](../SKINS.md#silk)); the Silk Gulp form (Sticky) no longer counts.
 - Not built yet (roadmap 7.9): the Orb-weaver's laid webs and the webs of Tom's maze.
 
 ---
@@ -360,7 +359,11 @@ The design: [the Weaver Hollow](../../design/2026-10-16-dungeon-weaver-hollow.md
 question 133 ([decisions](../../story/07-decisions-archive.md)), roadmap 8.7. Her fight needs the
 Goo Bomb: she shields herself in a web cocoon that only a blast tears open, then the Spear. Built in
 `game/scripts/matron.gd` (the cocoon's state machine), `game/bosses/matron_cocoon_look.gd` (its look)
-and `game/scripts/boss_camp.gd` (`respawn_ms` below 0, `boss_overrides`).
+and `game/scripts/boss_camp.gd` (`respawn_ms` below 0, `boss_overrides`). **Since the Pearl moved
+inside the dungeon** (2026-10-17, [the plan](../../design/2026-10-17-pearl-mid-dungeon.md#the-matrons-exam))
+the slime meets her with the Silk skin, and her fight is its exam: with the skin round 2 is a cage of
+web walls and round 3 a webbed floor (8.2); without it (a dev run) the rounds below play as built.
+Pearl 2 lies in the Hoard, guarded by the Brood Warden, not in her camp.
 
 ### 8.1 Switch and numbers
 The cocoon is on while the Matron's `cocoon_enabled` is (off in `character.orb-weaver-matron`, so the
@@ -378,6 +381,10 @@ Every number is an export on her scene (group "Cocoon (Weaver Hollow)"), the vol
 | `egg_sac_scene`, `egg_sac_offsets` | `character.egg-sac`, (±72, 36) | round 3's two egg sacs by her shadow (old centres), dropped once |
 | `breath_ms` | 2600 | one breath of the cocoon (the Cocoon Mimic's tell) |
 | `clink_text` | "Woven too thick. It would take a blast." | the cocoon's refusal line |
+| `silk_exam` | on | the Silk skin's exam: round 2's cage and round 3's webbed floor when the slime has the skin (`silk_exam_on()`) |
+| `cage_walls_per_side`, `cage_thickness_px`, `cage_height_px` | 2, 24, 100 | round 2's cage: web walls on each side of the square of half side `ring_radius`, their solid's depth, the back and front ones' height |
+| `cage_text` | "A thrown bomb sticks in the silk." | said (BlastBarrier, at most every 1.5 s) when a bomb comes to rest against the cage from outside |
+| `floor_web_radius_px`, `floor_web_share` | 352, 0.8 | round 3's webbed floor: the cells within this of her shadow, about this share of them |
 | `pose_scale` | 0.5 | her own poses in the fight |
 | `retreat_px`, `retreat_scale` | 260, 0.62 | beaten: how far she scuttles off, and how small (an ordinary orb-weaver is 0.46) |
 
@@ -410,12 +417,37 @@ Game-wide (`game-constants.json`): `character.player.fullHeart.maxHpBonus` 20,
   shadow with her arena; their Broodlings swarm and, in the rework mode, drop energy shards as every
   kill does; a blast that holds a sac bursts it). Three blasts at least: she cannot be beaten
   without the Goo Bomb.
+- **The Silk skin's exam** (the slime has the Silk skin, `SkinState.is_on`, and `silk_exam` is on;
+  in the Hollow it always has, since Pearl 2 comes first):
+  - **Round 1** as built; her volleys' floor webs neither slow the slime nor stick its Roll, and her
+    spit no longer roots it (`apply_web` does nothing with the skin).
+  - **Round 2: the web-wall cage** in place of the ring. `cage_slots()`: a square of half side
+    `ring_radius` (130) round her shadow, `cage_walls_per_side` (2) `object.web-wall`s a side (the
+    back and front ones "across", the sides "side", meeting at the corners), spawned under the
+    world's entities in `MatronCage`, `remembered` off (a cut sets no flag), faded in. Every
+    `ring_reweb_ms` while she is cocooned each slot whose wall is cut is spun again (`MimicWrap`),
+    never one the slime's feet stand in. A throw ends at the first hurtbox (`thrown_object.gd`), so a
+    thrown bomb stops in the cage's silk and blows there, out of reach of her shadow (its ellipse is
+    88 × 60 from its middle); a spat bomb's hop stops short of it too. A bomb come to rest within 30
+    px of a wall from outside gets `cage_text` once. The slime cuts a gap with the Spear (the web
+    wall's cut) or wades a wall at half speed, and casts inside the ring.
+  - **Round 3: the webbed floor.** The cage goes (its silk falls as tatters) and `object.floor-web`s
+    (one a 64-unit cell, its web and turn picked by the cell) cover about `floor_web_share` of the
+    cells within `floor_web_radius_px` of her shadow inside her arena (`MatronFloorWebs`), faded in,
+    with the egg sacs as built. The Silk slime walks them at full speed and Rolls through them to
+    dodge the swarm and to set one blast on a sac and her shadow together.
+  - Both go with her: her fall (the cage's tatters; the webbed floor stops holding at once and fades
+    over 0.7 s) and a reset (her body freed: `_exit_tree`).
+  - Without the skin the built rounds play (a dev run on the Crown alone: the ring, no webbed floor).
 - **Beaten:** her egg sacs and the Broodlings of her arena burst; the cocoon unravels and its thread
   draws up into the web; she shrinks into an ordinary big orb-weaver (the orb-weaver's sheet, from
   behind) and scuttles `retreat_px` up through her web, fading at the end (the body frees itself
-  after 2 s, as in section 4). The camp's defeat bookkeeping is section 4's.
+  after 2 s, as in section 4). The camp's defeat bookkeeping is section 4's; her fall breaks the
+  Hollow's seals ([DUNGEONS.md "The seal"](../DUNGEONS.md#the-seal)).
+- While the Hollow is sealed (the Pearl taken) she shows her rage at her fight's start (the kit's
+  `EnragedLook`: her silk darkens to violet; presentation only).
 - Not built: the three-way Stretch Lash that pulls and traps (roadmap 8.7's plan of 2026-10-02):
-  she keeps the web spit (1.4).
+  she keeps the web spit (1.4). If it is built, it pulls but never traps a silk-skinned slime.
 
 ### 8.3 The look (`game/bosses/matron_cocoon_look.gd`, node `CocoonLook` under the body)
 Presentation only; matron.gd sets its `state` ("cocooned", "torn", "respin", "gone", "off"),
@@ -446,23 +478,29 @@ reactions' hit motion follow it (`visual`).
 - **Placed** (2026-10-17) in `weaver-hollow-crown` as `Objects/matron-camp` at (512, 544), built by
   `tools/build_weaver_hollow.gd` (an editable instance): its `boss_engaged` is connected to the
   `shut` and its `boss_defeated` to the `open` of `Objects/crown-shutter`, the kit's shutter in C2's
-  south doorway (at (512, 832), `wall` south), so the slime cannot leave while she fights. A slime
-  that faints resumes at the dungeon's entrance in the Trunk (the kit's Dungeon node).
-- Children: `RoarSfx`, and her rewards (8.5 to 8.7), which wait hidden until
-  `orb-weaver-matron` is in RunState `defeated_boss_ids`: `Pearl` (`object.pearl-two`) at (0, −114)
-  (her shadow: "Pearl 2 lies in the silk at the web's heart"), `FullHeart` (`object.full-heart`) at
-  (112, −96), `MatronThread` (`object.matron-thread`) at (−256, −296), its spool hanging in her web by
-  the top wall. Move them in the world scene (editable children).
+  south doorway (at (512, 832), `wall` south), so the slime cannot leave while she fights. The way
+  out east (C2's east doorway, to C3's drop) holds the Hollow's seal (`Objects/crown-east-seal`,
+  `object.dungeon-seal`, `wall` east, at (960, 512)) from Pearl 2's take until her fall, so her web
+  wall in C3 cannot let a silk-skinned slime out first. A slime that faints resumes at the dungeon's
+  entrance in the Trunk (the kit's Dungeon node).
+- Children: `RoarSfx`, and her rewards (8.6, 8.7), which wait hidden until `orb-weaver-matron` is
+  in RunState `defeated_boss_ids`: `FullHeart` (`object.full-heart`) at (112, −96), `MatronThread`
+  (`object.matron-thread`) at (−256, −296), its spool hanging in her web by the top wall. Move them
+  in the world scene (editable children). Pearl 2 is no longer one of them (8.5).
 
 ### 8.5 Pearl 2 and the Silk skin (`object.pearl-two`)
+**Since 2026-10-17 it lies in the Weaver Hollow's Hoard** (the boughs' `Objects/pearl-two`, on the
+brood's altar beside the big chest, `take_radius` 90), guarded by the Brood Warden's room fight: it
+rises when that fight is won, and its take seals the Hollow until the Matron falls
+([DUNGEONS.md "The Weaver Hollow (built)"](../DUNGEONS.md#the-weaver-hollow-built)).
 `game/scenes/objects/pearl-two.tscn`: `game/scripts/pearl.gd` (Fatty's Lair's Pearl script) with
-`pearl_id` "orb-weaver-matron", `boss_id` "orb-weaver-matron", `number` 2, `skin_flag` "skin.silk",
+`pearl_id` "orb-weaver-matron", `boss_id` "weaver-hollow-brood-warden", `number` 2, `skin_id` "silk",
 its card ("Silk skin": webs no longer catch or stick; floor webs at full speed, web walls slowly, the
 Spear cuts silk) and the picture `256x256-pearl-silk.webp` at 0.28. Walking into it (40 px) takes it:
-the ceremony's card (while main's `ability_ceremonies` is on), the flags `pearl.orb-weaver-matron`
-and `skin.silk`. **The Silk skin's stand-in:** `player.crosses_webs()` is true once the run has
-`skin.silk` (as for the Silk Gulp form), so every web rule that reads it (5.5, WEBS.md) treats the
-slime as silk-skinned. The interact key does not take it (pearl.gd takes by walking in).
+the ceremony's card (while main's `ability_ceremonies` is on), the flag `pearl.orb-weaver-matron`,
+and the Silk skin (SkinState.grant: won, made the everyday look, its ceremony line the first time;
+[SKINS.md](../SKINS.md)). `player.crosses_webs()` is true from then on, so every web rule that reads
+it (5.5, WEBS.md) treats the slime as silk-skinned. The interact key does not take it (pearl.gd takes by walking in).
 
 ### 8.6 The full heart and the max-energy raise (`object.full-heart`)
 `game/scenes/objects/full-heart.tscn` (`game/scripts/full_heart.gd`; the goo heart's picture at
@@ -491,6 +529,10 @@ on the floor ("Your bag is full."). The interact key does nothing to it.
 `tests/test_matron.gd` mounts the Hollow's camp where the nest was (the nest's camp freed first):
 the cocoon and its clinks, a blast on her shadow and one that misses it, the 4 s window and the 1.5 s
 respin, the three rounds (one big hit takes 100, round 2's ring, round 3's sacs), no respawn (and the
-brood bursting), Pearl 2 → `crosses_webs()`, the full heart +20 once (and through a save), the thread
-only with the Silk skin. `tools/render_matron.gd` renders the fight's moments in the Crown for the
-look (run windowed).
+brood bursting), her camp holding no Pearl, the Silk skin's exam
+(`test_with_the_silk_skin_round_two_cages_her_and_round_three_webs_the_floor`: the cage's eight
+walls, a bomb stuck against it, the Silk slime wading in, a cut wall spun again without a flag,
+round 3's webbed floor, gone with her), the full heart +20 once (and through a save), the thread
+only with the Silk skin. Pearl 2 in the Hoard: `tests/test_weaver_hollow.gd`.
+`tools/render_matron.gd` renders the fight's moments in the Crown for the look (run windowed);
+`tools/film_weaver_hollow.gd` films her three rounds (`--only=matron`).

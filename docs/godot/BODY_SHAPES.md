@@ -157,8 +157,8 @@ strikes as it is let go; holding never strikes first.
    impact's `offset`), then pulls back in. A tap pressed after the Thud's first active frame waits for its cancel point
    (460 ms); one pressed within its link window (to 610 ms) gives the BOOM. The crack, the dust and
    the shock ring are about as wide as the hit (r48, the BOOM's ring r72, the Quake's cracks r120).
-   Rocks: harvest stone 1, iron 2 in the Stone form; a Hammer impact in the Stone form breaks
-   cracked ground.
+   Rocks: harvest stone 1, iron 2 in the Stone form; a Hammer impact with the Heavy skin breaks
+   cracked ground ([SKINS.md](SKINS.md)).
 6. **Reactions** on the four testbed dummies: light (holds, launch on the finisher, break-free on
    the third hold in a row), medium (knockback finisher), heavy (armor, poise breaks into a
    stagger), boss (armor, belly wobble); the dummies move, so launches, splats against the hill's
@@ -194,8 +194,8 @@ strikes as it is let go; holding never strikes first.
     is a quick roll. A roll **sticks in a web** (owner, 2026-10-16, question 131): a floor web (the
     Matron's volley patches) or a web barrier catches the ball as it catches a walking slime, the
     roll ends there (no bonk) and the slime is stuck 900 ms, set back on the side it came from; a
-    roll never crosses or tears a web. With the Silk skin (today the Silk form stands in,
-    `player.gd` `crosses_webs`) webs no longer catch or stick it
+    roll never crosses or tears a web. With the Silk skin (`player.gd` `crosses_webs`,
+    [SKINS.md](SKINS.md#silk)) webs no longer catch or stick it
     (`game/enemy/spider_web_port.gd` `catch_player`).
 11. **Juice demos and switches:** F9 shows the juice panel. While it shows, 1-9 and 0 **play**
     freeze, flash, squash, jitter, trauma, kick, sparks, pitch, numbers and slow motion once, on the
@@ -1071,7 +1071,8 @@ func reaches(aim: Vector2, area: Area2D) -> bool   # the next step's whole area 
   aim's dead zone; the old `_pointer_aim` rises `aim_rise_px` 28 first), the click and moba attack
   order aims from `get_centre()` at the target's hurtbox. A charge aims where the pointer is at the
   release (else the facing); the slime may walk while the ring fills, at `walk_scale()`; a Hammer
-  impact in the Stone form calls `player.record_slam`.
+  impact with the Heavy skin calls `player.record_slam`. With the Feral skin every Spear chain step
+  runs at `skins.feral.spearTempo` (twice as fast: [SKINS.md](SKINS.md#feral)).
 
 `res://game/shapes/shape_defs.gd` (static): `SPEAR`, `AXE`, `HAMMER`, `IDS`, `NAMES`, `AIM_EXACT`,
 `AIM_SNAP8`, `AREA_LINE`, `AREA_ARC`, `AREA_CIRCLE`, `AREA_NONE`, `KNOCK_AIM`, `KNOCK_SWEEP`,
@@ -1417,8 +1418,8 @@ The body never moves and never changes level; only the art rises on the effects 
 at the feet; poses `squash` then `hop`). At the impact the 140 x 96 ground ellipse on the slime's
 own height level (tested at the old centre): the inner half 40 (class slam, launch 380, hop 16),
 the outer ring 24 (class ring, bounce held 600 ms in `hit.hold_ms`, launch 300 where a profile
-pushes), both +25 % in the Stone form; never resources; `record_slam` as before (cracked ground in
-the Stone form); refused hits clink. Feel: `GameFeel.play_hit` at the slime with the per-swing
+pushes), both +25 % in the Stone form; never resources; `record_slam` as before (cracked ground with
+the Heavy skin); refused hits clink. Feel: `GameFeel.play_hit` at the slime with the per-swing
 hit-stop and trauma 0.7 (Stone 0.8) and one material cue (no debris there); each target gets its
 number, its material's tinted sparks and its debris at the target, flying away from the slime; a
 shockwave ellipse, the crack decal, ground-tinted pebbles and dust, liftables within 200 px wobble.
@@ -1651,10 +1652,11 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   `worldNavigation.doorPushMs` travels (no interact key since 2026-10-14; CONVENTIONS.md "Doors"). Every decal size and offset, the
   passage and the door are Inspector fields; the editor draws the passage and `preview_blown` shows
   the hole.
-- **Rubble heaps** (`object.rubble-heap`, `rubble_heap.gd`): a StaticBody heap of loose rocks
-  (rubble-2x1.webp at 0.5) that clinks off everything but a blast ("Too many rocks to move. It needs
-  a blast."); blown, a pebble scatter on the ground that no longer collides, the break cue and the
-  jingle, and its `flag_id`.
+- **Rubble heaps** (`object.rubble-heap`, `rubble_heap.gd`): since roadmap 7.8 the Heavy Roll's
+  lock, no longer the bomb's (owner, 2026-10-16; [SKINS.md](SKINS.md#heavy)). Only the islet's heap
+  below keeps `breaks_by_blast`: a heap that clinks off everything but a blast ("Too many rocks to
+  move. It needs a blast."); blown, a pebble scatter on the ground that no longer collides, the break
+  cue and the jingle, and its `flag_id`.
 - **Cracked ground** (`object.cracked-ground`, `cracked_ground.gd`; since 2026-10-17, roadmap 7.10):
   a blast target too: a blast whose ellipse holds its root breaks it as the Stone Slam does (its
   flag, "The ground gives way!", the shake, the secret jingle `SecretFound`), so the playground's
@@ -1694,9 +1696,9 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
     down out of it (its `walk_area`) or using it brings you back in front of the hole facing down
     ([CONVENTIONS.md "Doors"](CONVENTIONS.md#doors)).
   - The **rubble heap** at (32, 6600) chokes the one-cell path between the cliff's west end and the
-    map's edge.
-  - The **islet** (level 1, no stairs) in the lake at x 1088..1472, y 6848..7104 holds a rubble heap
-    at (1280, 6960): wade into the shallows south of it (about (1280, 7230)), spit a bomb at the
+    map's edge: a Heavy Roll's lock since roadmap 7.8 (question 72).
+  - The **islet** (level 1, no stairs) in the lake at x 1088..1472, y 6848..7104 holds a blast heap
+    (`breaks_by_blast`, until question 72's cracked rock face replaces it) at (1280, 6960): wade into the shallows south of it (about (1280, 7230)), spit a bomb at the
     islet's wall, suck it, and throw it up (the throw flies 280 px over the wall). Blown, a chest
     (3 health potions) appears in the shallows at (1160, 7180).
   - A second **cracked wall** in the root-rock plateau south of the lake, at (176, 7808) west of its
@@ -1709,7 +1711,7 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
 
 The owner's idea (design: [bomb-lantern-and-secrets](../design/2026-10-14-bomb-lantern-and-secrets.md)
 section 4): heavy plates that sink slowly and only under a heavy weight, and heavy blocks that only
-the Stone form moves. Rework mode only: the blocks and plates stand only in the playground's Heavy
+the Heavy skin moves (the Stone form until roadmap 7.8: [SKINS.md](SKINS.md#heavy)). Rework mode only: the blocks and plates stand only in the playground's Heavy
 corner, which takes itself out with the mode off; the grab starts only from the rework interact
 path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
 
@@ -1722,7 +1724,10 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   (`GateScript.close`, new: the doors block again, cue `GateLocked` until a take exists; a gate
   unlocked with a key never shuts), unless another heavy plate of the same gate still holds them
   (`holds_gate_open`). A block left on it keeps it down. Nothing is saved: a world entered again
-  starts with the plate up.
+  starts with the plate up. Since 2026-10-17 (Fatty's Lair, DUNGEONS.md): `shut_on_leave` shuts
+  its gates the moment the weight leaves (a door held only while a statue stands on the plate),
+  and `targets` (NodePaths) are set off each time it reaches the bottom (DungeonState.fire, as a
+  winch's: a drawbridge, a hidden chest).
 - **Its look** (owner, 2026-10-14: only the pressable top moves): the **base** (a stone socket
   ring) is fixed, the **cap** (an oval stone slab with a carved weight glyph) slides 6 down into it
   as it sinks and back up as it rises, darkening; fully down the cap shows its pressed picture (the
@@ -1749,9 +1754,8 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   are dropped): the slime stretches toward the block and squares up on its side; a walk key held
   toward the block for 180 ms pushes it, away from it pulls it, one 64 cell per move over 640 ms,
   the slime moving with it (cell after cell while the key stays held); sideways does nothing.
-  **Only the Stone form moves it**: the plain slime strains (it wobbles, the block trembles, cue
-  `HeavyBlockStrain` = `WebStruggle`, the line "Too heavy... I need to be stone." at most every
-  2.4 s). A block moves only into a cell that is walkable ground of its own level (no cliff, rim,
+  **Only the Heavy skin moves it**: without it the slime strains (it wobbles, the block trembles,
+  cue `HeavyBlockStrain` = `WebStruggle`, the line "Too heavy to move." at most every 2.4 s). A block moves only into a cell that is walkable ground of its own level (no cliff, rim,
   hole or stairs: `Elevation.is_walkable`) with no body in it (walls, props, gates, other blocks,
   enemies, NPCs, deep water); else it knocks once (`HeavyBlockBump` = `HitBlocked`). A pull also
   needs room behind the slime. Letting go of the key releases it (a move under way finishes first);
@@ -1765,13 +1769,15 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   - Two walled vaults, x 2496..2880 and 2880..3264, y 2752..3200, each with a gate in its south
     wall (vault A's at (2688, 3200), vault B's at (3072, 3200)) and a chest inside (A: 2 health
     potions, 2 shards; B: 2 energy potions, 3 berry mats).
-  - **Plate A** at (2688, 3616), 416 south of its gate: the Stone slime stands 3 s, then runs
-    north (about 3.7 s at the Stone form's 120 px/s) while the plate rises for 5 s. A second heavy
+  - **Plate A** at (2688, 3616), 416 south of its gate: the Heavy slime stands 3 s, then runs
+    north (about 2.1 s at the walk's 200 px/s; the Heavy skin does not slow it) while the plate rises
+    for 5 s. A second heavy
     plate inside vault A at (2560, 2912) lets it out again.
   - **Plate B** at (3072, 3360), in front of vault B's gate, and the pedestal at (3200, 3488): push
     it two cells west and two north onto the plate and the gate stays open.
-  - A spare statue at (2880, 3552) to push and pull (north it stops at vault A's wall), two stone
-    essences at (2560, 3424) and (2560, 3520), and a title over the south edge.
+  - A spare statue at (2880, 3552) to push and pull (north it stops at vault A's wall), a skin
+    pedestal at (2560, 3470) that lends the Heavy skin ([SKINS.md](SKINS.md#the-skins-corner); the
+    two stone essences went with roadmap 7.8), and a title over the south edge.
 
 ## Chapter 1 and one combo
 

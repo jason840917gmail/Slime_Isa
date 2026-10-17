@@ -30,11 +30,12 @@ its code is in git history.
 - Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
   `?recipes`, `?arsenal`, `?audition`, `?shapes` (the body-shapes rework mode in any world),
   `?classic` (the rework mode off in the playground, where it is on by default), `?prologue` (a new
-  run in the prologue, as New Game starts it) on the web;
-  `-- --map=<id> ...`, `-- --shapes`, `-- --classic`, `-- --prologue` on desktop
+  run in the prologue, as New Game starts it), `?skins=heavy,silk,feral` (lends those skins for the
+  session) on the web;
+  `-- --map=<id> ...`, `-- --shapes`, `-- --classic`, `-- --prologue`, `-- --skins=<ids>` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
   the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the prologue:
-  [docs/godot/PROLOGUE.md](docs/godot/PROLOGUE.md)).
+  [docs/godot/PROLOGUE.md](docs/godot/PROLOGUE.md); the skins: [docs/godot/SKINS.md](docs/godot/SKINS.md)).
 - `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
   (about ten minutes for the full suite).
 - `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd` — loads every

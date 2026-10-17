@@ -67,8 +67,13 @@ extends Node
 ##   recovery), the Lunge's dart (`dashPx` in `dashMs`). The controller never moves the body itself.
 ## - **Feel** (ShapeStrike.feel_swing): GameFeel.play_hit once per swing, sparks and a number per
 ##   target, the strike squash (`combat.chain.strikeSquash`), the swing and impact cues; a Hammer
-##   impact in the Stone form is a Heavy impact (PlayerScript.record_slam), so cracked ground breaks.
+##   impact with the Heavy skin is a Heavy impact (PlayerScript.record_slam), so cracked ground breaks.
 ## - **Visuals**: game/shapes/shape_visuals.gd, a child of the player body.
+## - **The Feral skin's tempo** (docs/godot/SKINS.md "Feral"; owner, 2026-10-16, question 56: the
+##   Spear's attacks hit twice as fast): while the Feral skin is on, every Spear chain step runs on a
+##   clock `skins.feral.spearTempo` (2) times as fast (`_tempo`): its wind-up, active window,
+##   recovery, cancel point, lunge and the rest after the finisher take half as long. The link
+##   window, the holds and the charge (the Lunge) keep their own lengths.
 ##
 ## What player.gd does with it (rework mode only):
 ## - every physics step, alive: `update(now_ms, delta)` (after the abilities advance);
@@ -96,6 +101,7 @@ const StrikeLibrary := preload("res://game/shapes/strike_library.gd")
 const AnimationType := preload("res://game/shapes/strike_animation.gd")
 const ShapeVisuals := preload("res://game/shapes/shape_visuals.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 ## The current shape changed. Payload: {"shape_id": String}.
 signal shape_changed(payload: Dictionary)
@@ -148,6 +154,8 @@ var _index: int = 0
 var _data: Dictionary = {}
 var _hit_data: Dictionary = {}
 var _started_ms: float = 0.0
+## How fast the running unit's own timeline runs (the Feral skin's Spear: `skins.feral.spearTempo`).
+var _tempo: float = 1.0
 ## The hit's aim (the shape's aim mode: the 4-way snap for every shape) and the arc's sweep sign
 ## (+1 clockwise on screen), mirrored for left-facing swings so the Axe always sweeps down in front.
 var _aim: Vector2 = Vector2.DOWN
@@ -258,7 +266,7 @@ func press_attack(aim: Vector2) -> bool:
 		return false
 	var now := Services.now_ms()
 	var toward := aim if aim != Vector2.ZERO else _player.get_facing()
-	if _phase != Phase.IDLE and now - _started_ms < ShapeDefs.contact_start_ms(_data):
+	if _phase != Phase.IDLE and _elapsed(now) < ShapeDefs.contact_start_ms(_data):
 		return false
 	# A press already waiting for its release (a click order repeats its press) keeps its time.
 	if _press_ms < 0.0:
@@ -383,7 +391,7 @@ func next_step_number() -> int:
 func step_velocity() -> Vector2:
 	if _phase == Phase.IDLE or not _player_valid():
 		return Vector2.ZERO
-	var elapsed := Services.now_ms() - _started_ms
+	var elapsed := _elapsed(Services.now_ms())
 	var windup := ShapeDefs.num(_data, "windupMs")
 	var active := ShapeDefs.num(_data, "activeMs")
 	if _phase == Phase.CHARGE:
@@ -396,12 +404,12 @@ func step_velocity() -> Vector2:
 	var step_from := ShapeDefs.step_from_ms(_data)
 	var step_to := ShapeDefs.step_to_ms(_data)
 	if step_px > 0.0 and step_to > step_from and elapsed >= step_from and elapsed < step_to:
-		return _aim * step_px / ((step_to - step_from) / 1000.0)
+		return _aim * step_px * _tempo / ((step_to - step_from) / 1000.0)
 	var move_ms := windup + active
 	if _recoil_from_ms >= 0.0 and elapsed >= move_ms:
 		var recovery := ShapeDefs.num(_data, "recoveryMs")
 		if recovery > 0.0 and elapsed < move_ms + recovery:
-			return -_aim * ShapeDefs.chain_number("finisherRecoilPx") / (recovery / 1000.0)
+			return -_aim * ShapeDefs.chain_number("finisherRecoilPx") * _tempo / (recovery / 1000.0)
 	return Vector2.ZERO
 
 
@@ -449,6 +457,24 @@ func reaches(aim: Vector2, area: Area2D) -> bool:
 	return ShapeStrike.areas_in(_player, ShapeStrike.area_shapes(hit_data, origin, direction, reach, sweep, 1.0)).has(area)
 
 
+## How far `now` is into the running unit on its own timeline (the Feral skin's Spear runs it
+## `_tempo` times as fast).
+func _elapsed(now: float) -> float:
+	return (now - _started_ms) * _tempo
+
+
+## The timeline speed of a unit of the current shape starting now: the Feral skin's Spear tempo for a
+## Spear chain step, else 1.
+func _tempo_for(phase: Phase) -> float:
+	if phase != Phase.STEP or ShapeDefs.short_name(_current) != "spear":
+		return 1.0
+	if not SkinState.is_on(_player, SkinState.FERAL):
+		return 1.0
+	# The skin shows while it works: the slime strikes in its Feral look.
+	SkinState.show(_player, SkinState.FERAL)
+	return maxf(0.1, SkinState.setting("feral.spearTempo", 2.0))
+
+
 # --- steps -----------------------------------------------------------------------------------------
 
 ## The step a tap pressed at `at` starts: the next one when the link window was still open then
@@ -483,6 +509,7 @@ func _begin_unit(phase: Phase, data: Dictionary, toward: Vector2) -> void:
 	_hit_data = data
 	_index = 0
 	_started_ms = Services.now_ms()
+	_tempo = _tempo_for(phase)
 	_tick = 0
 	_reset_contact()
 	_set_aim(toward)
@@ -497,7 +524,7 @@ func _begin_unit(phase: Phase, data: Dictionary, toward: Vector2) -> void:
 	_reach = _line_reach(_player.get_centre())
 	_cue(SWING_CUES, _shape)
 	if _visuals != null and is_instance_valid(_visuals):
-		_visuals.show_step(_shape, _visual_data(), _aim, ShapeDefs.length_ms(data))
+		_visuals.show_step(_shape, _visual_data(), _aim, ShapeDefs.length_ms(data) / _tempo)
 
 
 ## The step's contacts, its cancel point (the link window opens, or the rest after the last step), a
@@ -505,7 +532,7 @@ func _begin_unit(phase: Phase, data: Dictionary, toward: Vector2) -> void:
 ## and `_fire_queued` starts the step the link window decides), the walk-out of steps 1-2 and the
 ## step's end.
 func _advance_step(now: float) -> void:
-	var elapsed := now - _started_ms
+	var elapsed := _elapsed(now)
 	_contact(now, elapsed)
 	if _phase != Phase.STEP:
 		return
@@ -514,12 +541,12 @@ func _advance_step(now: float) -> void:
 	if not _cancel_reached and elapsed >= cancel:
 		_cancel_reached = true
 		if last:
-			_rest_until_ms = _started_ms + cancel + ShapeDefs.rest_ms(_shape)
+			_rest_until_ms = _started_ms + (cancel + ShapeDefs.rest_ms(_shape)) / _tempo
 			_link_until_ms = -1.0
 			_next_index = 0
 			_end_unit()
 			return
-		_link_until_ms = _started_ms + cancel + ShapeDefs.chain_number("linkMs")
+		_link_until_ms = _started_ms + cancel / _tempo + ShapeDefs.chain_number("linkMs")
 		_next_index = _index + 1
 	# A tap waiting for the cancel point, or let go after it while the recovery plays, fires now
 	# (inside the link window it links; the Thud's recovery outlasts its window).
@@ -535,7 +562,7 @@ func _advance_step(now: float) -> void:
 
 ## The charge's contacts (the ticks of a charge that has them) and its end.
 func _advance_charge(now: float) -> void:
-	var elapsed := now - _started_ms
+	var elapsed := _elapsed(now)
 	var ticks := ShapeDefs.charge_ticks(_data)
 	if ticks.is_empty():
 		_contact(now, elapsed)
@@ -690,7 +717,7 @@ func _after_batch(outcomes: Array[Dictionary], now: float, data: Dictionary) -> 
 
 
 ## An impact frame (the Hammer, the Quake): the crack, dust and shock ring, the impact cue, and in
-## the Stone form a Heavy impact at the head (PlayerScript.record_slam: cracked ground breaks).
+## the Heavy skin a Heavy impact at the head (PlayerScript.record_slam: cracked ground breaks).
 func _on_impact(centre: Vector2) -> void:
 	if _visuals != null and is_instance_valid(_visuals):
 		_visuals.show_impact(centre, ShapeDefs.num(_hit_data, "radius"), ShapeDefs.num(ShapeDefs.ring_of(_data), "radius"))
@@ -838,12 +865,12 @@ func _update_hold(now: float) -> void:
 ## after a running charge, else after the rest.
 func _ring_start_ms() -> float:
 	if _phase == Phase.STEP:
-		var end := _started_ms + ShapeDefs.length_ms(_data)
+		var end := _started_ms + ShapeDefs.length_ms(_data) / _tempo
 		if _index >= ShapeDefs.step_count(_shape) - 1:
-			end = maxf(end, _started_ms + ShapeDefs.cancel_ms(_data) + ShapeDefs.rest_ms(_shape))
+			end = maxf(end, _started_ms + (ShapeDefs.cancel_ms(_data) + ShapeDefs.rest_ms(_shape)) / _tempo)
 		return end
 	if _phase == Phase.CHARGE:
-		return _started_ms + ShapeDefs.length_ms(_data)
+		return _started_ms + ShapeDefs.length_ms(_data) / _tempo
 	return _rest_until_ms
 
 
@@ -987,7 +1014,7 @@ func _strike_resource(strike: String, direction: String) -> AnimationType:
 ## Spin's drawn poses and their swaps; the wind-up's start and the contact frame show theirs as they happen).
 func _advance_poses(now: float) -> void:
 	if _phase != Phase.IDLE:
-		_poses.advance(now - _started_ms)
+		_poses.advance(_elapsed(now))
 
 
 ## The last step's anticipation pose on the slime's art (ShapeVisuals.art_pose: the pull-back and its
@@ -1000,7 +1027,7 @@ func _update_pose(now: float) -> void:
 	if _phase == Phase.IDLE or ShapeDefs.anticipation(_data).is_empty() or _player.is_ability_busy():
 		_end_pose()
 		return
-	var elapsed := now - _started_ms
+	var elapsed := _elapsed(now)
 	var pose := ShapeVisuals.art_pose(_data, elapsed, _aim)
 	var offset: Vector2 = pose.get("offset", Vector2.ZERO)
 	_player.set_effect_offset(offset)

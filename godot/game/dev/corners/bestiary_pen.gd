@@ -16,8 +16,9 @@ extends Node2D
 ##   (19), the layer every walking body but the slime collides with (docs/godot/ELEVATION.md "Stairs
 ##   walk"): the enemies stay in, the slime walks through, and a charging boar hits it.
 ## - **Supplies** (`supplies`: {"scene": an object scene id, "kind"?: a liftable kind, "at": a
-##   point from the pen's top-left}): things the pen's right tool needs (pots to throw, a stone
-##   essence for the Heavy Roll), each put back `supply_respawn_ms` after it was taken; a pickup (a
+##   point from the pen's top-left}): things the pen's right tool needs (pots to throw, a heavy
+##   block; the skins come from the Skins corner's pedestals or `?skins=`: docs/godot/SKINS.md),
+##   each put back `supply_respawn_ms` after it was taken; a pickup (a
 ##   collectible: the Gloomling's key) gets a new instance id each time.
 ## - **A box ability** (`box_ability`, the Goo Bomb's pens): walking in makes it the Ability Box's
 ##   choice, so F uses it (it stays chosen outside, until the bag changes it).

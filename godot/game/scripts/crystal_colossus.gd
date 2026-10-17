@@ -16,13 +16,22 @@ class_name CrystalColossusScript
 ##   hot glow there). He reels for `reelMs` (an opening), then fights on. Only the Spear hurts him,
 ##   only there: a Spear hit from the slime standing on that side of him lands; every other hit, and
 ##   every hit while the braziers do not all burn, clinks off his crystal.
-## - **The climb:** after `stompsPerClimb` stomps he leaps onto the north wall of his arena (the
-##   arena's `climb_spots`) and clings there out of reach (no hurtbox, not solid; his pose up the
-##   face), throwing a Crystal Mite down every `throwEveryMs` (`character.crystal-mite`: it drops in
-##   near the slime behind its shadow; `mitesPerClimb`, at most `maxMites` alive). After `climbMs` he
-##   leaps down where the slime stands, a ring marking the spot `landTellMs` before he lands: the
-##   landing is a stomp and puts out `landPutsOut` braziers.
-## - **Below half his health** (`enragedShare`): faster stomps, more mites, two braziers a landing.
+## - **The climb:** after `stompsPerClimb` stomps he leaps onto the north wall of his arena at the
+##   climb spot nearest the slime (the arena's `climb_spots`) and clings there (not solid; his pose up
+##   the face), throwing a Crystal Mite down every `throwEveryMs` (`character.crystal-mite`: it drops
+##   in near the slime behind its shadow, and on a slime climbing above its spot; `mitesPerClimb`, at
+##   most `maxMites` alive). After `climbMs` he leaps down where the slime stands (kept inside his
+##   arena), a ring marking the spot before he lands: the landing is a stomp and puts out
+##   `landPutsOut` braziers.
+## - **His claws: the Feral skin's exam** (the Pearl mid-dungeon plan, 2026-10-17): roots run up the
+##   wall beside each climb spot, and a slime climbing them strikes his gripping claws with the
+##   Spear (the strike while clinging, player.gd `_climb_strike`): while he clings his hurtbox rides
+##   up the face with his pose, and only a Spear hit from a climbing slime reaches it. `clawHits`
+##   such hits and he loses his grip: he crashes down `fallDropPx` from the wall over `fallMs` with
+##   no landing stomp (no brazier goes out) and lies stunned `fallStunMs`, his back cracked open: any
+##   Spear hit lands while he lies there. Then he gets up and fights on (his stomps counted afresh).
+## - **His second phase** (below `phaseTwoShare` of his health; not the Pearl's rage, EnragedLook):
+##   faster stomps, more mites, two braziers a landing.
 ##
 ## Numbers: `crystal-colossus` in game/data/enemy-types.json.
 ##
@@ -40,6 +49,9 @@ const PHASE_REEL := "reel"
 const PHASE_LEAP_UP := "leap-up"
 const PHASE_CLING := "cling"
 const PHASE_LEAP_DOWN := "leap-down"
+## His claws struck loose: the crash down from the wall, then the stun.
+const PHASE_FALL := "fall"
+const PHASE_STUNNED := "stunned"
 const FRAME_STAND := 0
 const FRAME_RAISE := 1
 const FRAME_STOMP := 2
@@ -48,7 +60,15 @@ const FRAME_CLIMB := 4
 const FRAME_THROW := 5
 const FRAME_LAND := 6
 const FRAME_DEFEATED := 7
+## Sprawled face down after his fall from the wall, his back cracked open (the sheet's ninth pose;
+## FRAME_DEFEATED's heap on an older sheet of eight).
+const FRAME_STUNNED := 8
 const SPEAR_TAG := "spear"
+## Where his claws' crack shows on his clinging pose, and his open back on the stunned one (art
+## units are world units here).
+const CLAW_GLOW_AT := Vector2(0, -170)
+const STUN_GLOW_AT := Vector2(0, -88)
+const CUE_GRIP_LOST := &"StomperSlam"
 const MITE_SCENE := "character.crystal-mite"
 const CUE_RAISE := &"SlamWindup"
 const CUE_STOMP := &"StomperSlam"
@@ -91,11 +111,19 @@ var _thrown := 0
 var _mites: Array[Node] = []
 var _mask := 0
 var _rng := RandomNumberGenerator.new()
+## His claws: Spear hits from a climbing slime this climb, and the last hit's activation (one count a
+## strike).
+var _claw_hits := 0
+var _claw_activation: Variant = null
+## His hurtbox's authored position (it rides up the face with his pose while he clings).
+var _area_home := Vector2.ZERO
 
 
 func _ready() -> void:
 	super()
 	_rng.seed = 7311
+	if damage_area != null:
+		_area_home = damage_area.position
 	_transition(PHASE_WAIT, Services.now_ms())
 	set_frame(FRAME_STAND)
 	if pose != null:
@@ -209,7 +237,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			set_look(0.0)
 			if elapsed >= pattern("recoverMs", 600.0):
 				if _stomps >= int(pattern("stompsPerClimb", 3.0)) and not climb_spots.is_empty():
-					_leap_up(now)
+					_leap_up(now, slime)
 				else:
 					_transition(PHASE_WALK, now)
 					set_frame(FRAME_CRACKED if _exposed else FRAME_STAND)
@@ -227,6 +255,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				set_frame(FRAME_CLIMB)
 				_next_throw_at = now + pattern("firstThrowMs", 900.0)
 				_thrown = 0
+				_grip(true)
 		PHASE_CLING:
 			body.velocity = Vector2.ZERO
 			var sway := sin(elapsed / 260.0) * 3.0
@@ -244,12 +273,125 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				_zone.strength = clampf(elapsed / air, 0.2, 1.0)
 			if elapsed >= air:
 				_land(now, target, engaged)
+		PHASE_FALL:
+			# Off the wall, away from it, falling fast (no arc): no ring, no stomp.
+			var fall := maxf(1.0, pattern("fallMs", 450.0))
+			var t := clampf(elapsed / fall, 0.0, 1.0)
+			body.velocity = Vector2.ZERO
+			body.global_position = _air_from.lerp(_air_to, t)
+			set_look(lerpf(pattern("wallLiftPx", 120.0), 0.0, t * t), Vector2.ONE, t * 0.25)
+			if t >= 1.0:
+				_crash(now)
+		PHASE_STUNNED:
+			body.velocity = Vector2.ZERO
+			var wobble := sin(elapsed / 70.0) * 0.02 * (1.0 - clampf(elapsed / maxf(1.0, pattern("fallStunMs", 2500.0)), 0.0, 1.0))
+			set_look(0.0, Vector2(1.0 + wobble, 1.0 - wobble))
+			if elapsed >= pattern("fallStunMs", 2500.0):
+				_get_up(now)
 
 
+## His second phase: below `phaseTwoShare` of his health he stomps and throws faster (`factor`).
 func _rage(factor: float) -> float:
 	var state := get_damage_state()
 	var share := float(state.get("hp", 1.0)) / maxf(1.0, float(state.get("max_hp", 1.0)))
-	return factor if share <= pattern("enragedShare", 0.5) else 1.0
+	return factor if share <= pattern("phaseTwoShare", 0.5) else 1.0
+
+
+## True in his second phase (below `phaseTwoShare` of his health).
+func is_phase_two() -> bool:
+	return _rage(2.0) > 1.0
+
+
+## True while he lies stunned after his claws lost their grip (his back open to the Spear).
+func is_stunned() -> bool:
+	return _phase == PHASE_STUNNED
+
+
+## Spear hits on his claws so far this climb.
+func claw_hits() -> int:
+	return _claw_hits
+
+
+## His grip on the wall (`on`: he clings; his hurtbox rides up the face with his pose, so a slime
+## climbing beside him reaches his claws) or not (his hurtbox back at his body, as authored).
+func _grip(on: bool) -> void:
+	if damage_area == null:
+		return
+	if on:
+		_claw_hits = 0
+		_claw_activation = null
+		damage_area.position = _area_home - Vector2(0.0, pattern("wallLiftPx", 120.0))
+		set_hurtbox(true)
+	else:
+		damage_area.position = _area_home
+
+
+## A Spear hit from a climbing slime on his gripping claws: a crack; `clawHits` of them and he lets go.
+func _claw_hit(request: Dictionary) -> void:
+	var activation: Variant = request.get("activation_id")
+	if activation != null and activation == _claw_activation:
+		return
+	_claw_activation = activation
+	_claw_hits += 1
+	var claws := get_centre() + CLAW_GLOW_AT + Vector2(0.0, 120.0 - pattern("wallLiftPx", 120.0))
+	_cue(CUE_CRACK)
+	_puff(SHARDS, claws)
+	var feel := Services.feel()
+	if feel != null:
+		feel.shake(160.0, 0.006)
+	if _claw_hits >= int(pattern("clawHits", 3.0)):
+		_lose_grip(Services.now_ms())
+
+
+## His claws lose their grip: he crashes down off the wall, `fallDropPx` out from it.
+func _lose_grip(now: float) -> void:
+	_grip(false)
+	_clear_zone()
+	var landing := _inside_arena(feet() + Vector2(0.0, pattern("fallDropPx", 70.0)))
+	_begin_air(landing)
+	_transition(PHASE_FALL, now)
+	set_frame(FRAME_LAND)
+	_cue(CUE_ROAR)
+
+
+## The crash at the wall's foot: a hard shake and dust, no stomp ring and no brazier out; then the stun.
+func _crash(now: float) -> void:
+	_end_air()
+	_stomps = 0
+	_cue(CUE_GRIP_LOST)
+	_puff(DUST, feet())
+	_puff(SHARDS, get_centre())
+	var feel := Services.feel()
+	if feel != null:
+		feel.shake(pattern("crashShakeMs", 420.0), pattern("crashShake", 0.016))
+	_transition(PHASE_STUNNED, now)
+	set_frame(_stunned_frame())
+	_show_weak_spot()
+
+
+## Up again after the stun: he fights on, his stomps counted afresh.
+func _get_up(now: float) -> void:
+	_transition(PHASE_WALK, now)
+	set_frame(FRAME_CRACKED if _exposed else FRAME_STAND)
+	_stomp_ready_at = now + pattern("afterReelStompMs", 900.0)
+	_show_weak_spot()
+
+
+func _stunned_frame() -> int:
+	var visual_sprite := visual as Sprite2D
+	return FRAME_STUNNED if visual_sprite != null and visual_sprite.hframes > FRAME_STUNNED else FRAME_DEFEATED
+
+
+## `point` (feet) kept `arenaInsetPx` inside his arena (the point itself without one).
+func _inside_arena(point: Vector2) -> Vector2:
+	if _arena.is_empty():
+		return point
+	var inset := pattern("arenaInsetPx", 48.0)
+	var x := float(_arena.get("x", point.x))
+	var y := float(_arena.get("y", point.y))
+	var w := float(_arena.get("w", 0.0))
+	var h := float(_arena.get("h", 0.0))
+	return Vector2(clampf(point.x, x + inset, x + w - inset), clampf(point.y, y + inset, y + h - inset))
 
 
 func _raise(now: float) -> void:
@@ -283,13 +425,13 @@ func _stomp(now: float, target: Dictionary, engaged: bool, put_out: int) -> void
 		_route_hit_from(get_centre(), target, pattern("stompDamage", 24.0), pattern("stompKnockback", 340.0))
 
 
-func _leap_up(now: float) -> void:
+## Onto the wall at the climb spot nearest the slime (`slime`, its old centre).
+func _leap_up(now: float, slime: Vector2) -> void:
 	_stomps = 0
 	_clear_zone()
 	var best := climb_spots[0]
-	var slime_x := get_centre().x
 	for spot in climb_spots:
-		if absf(spot.x - slime_x) > absf(best.x - slime_x):
+		if absf(spot.x - slime.x) < absf(best.x - slime.x):
 			best = spot
 	_cling_at = best
 	_begin_air(_feet_for(_cling_at))
@@ -299,7 +441,8 @@ func _leap_up(now: float) -> void:
 
 
 func _leap_down(now: float, slime: Vector2) -> void:
-	var landing := _feet_for(slime)
+	# Where the slime stands, kept on his arena's floor (a slime up the wall is not under him).
+	var landing := _inside_arena(_feet_for(slime))
 	_begin_air(landing)
 	_transition(PHASE_LEAP_DOWN, now)
 	set_frame(FRAME_LAND)
@@ -315,11 +458,14 @@ func _land(now: float, target: Dictionary, engaged: bool) -> void:
 
 ## Airborne: not solid, no hurtbox, nothing collides; the body is moved straight there.
 func _begin_air(to_feet: Vector2) -> void:
+	_grip(false)
 	_air_from = body.global_position
 	_air_to = to_feet
 	set_solid(false)
 	set_hurtbox(false)
-	_mask = body.collision_mask
+	# From the wall (leap down, a fall) the mask is already off: keep the one he walks with.
+	if body.collision_mask != 0:
+		_mask = body.collision_mask
 	body.collision_mask = 0
 
 
@@ -392,6 +538,11 @@ func _clear_zone() -> void:
 func _show_weak_spot() -> void:
 	if _weak_glow == null:
 		return
+	if _phase == PHASE_STUNNED and not is_defeated():
+		# His back cracked open as he lies there.
+		_weak_glow.visible = true
+		_weak_glow.position = STUN_GLOW_AT
+		return
 	_weak_glow.visible = _exposed and not is_defeated()
 	var side: Array = SIDES.get(_weak_side, SIDES["front"])
 	_weak_glow.position = side[1]
@@ -405,13 +556,28 @@ func _process(delta: float) -> void:
 
 # --- hits ------------------------------------------------------------------------------------------
 
-## Every hit clinks off his crystal but the Spear's on the open weak spot from its side.
+## Every hit clinks off his crystal but the Spear's on the open weak spot from its side, the Spear's
+## on his back while he lies stunned, and (counted, not hurting him) the Spear's from a climbing
+## slime on his claws while he clings.
 func _shields(request: Dictionary) -> bool:
-	if not _exposed or is_on_wall() or _phase == PHASE_LEAP_DOWN:
+	if _phase == PHASE_CLING:
+		if has_tag(request, SPEAR_TAG) and _from_climber(request):
+			_claw_hit(request)
+		return true
+	if _phase == PHASE_STUNNED:
+		return not has_tag(request, SPEAR_TAG)
+	if not _exposed or is_on_wall() or _phase in [PHASE_LEAP_DOWN, PHASE_FALL]:
 		return true
 	if not has_tag(request, SPEAR_TAG):
 		return true
 	return not _from_weak_side(request)
+
+
+## True when the hit's source is the slime climbing a wall (the Feral skin).
+static func _from_climber(request: Dictionary) -> bool:
+	var source: Variant = request.get("source")
+	return source is Node and is_instance_valid(source) and (source as Node).has_method(&"is_climbing") \
+		and bool((source as Node).call(&"is_climbing"))
 
 
 func _from_weak_side(request: Dictionary) -> bool:
@@ -446,7 +612,9 @@ func _defeat() -> void:
 		return
 	_clear_zone()
 	_exposed = false
-	_show_weak_spot()
+	_grip(false)
+	if _weak_glow != null:
+		_weak_glow.visible = false
 	_end_air()
 	clear_mites()
 	_cue(CUE_CRACK)

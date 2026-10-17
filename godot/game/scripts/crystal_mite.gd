@@ -10,7 +10,10 @@ class_name CrystalMiteScript
 ## - **Drop** (the tell, `dropTellMs`): a shadow darkens on the ground near the slime (within
 ##   `scatterPx` of its feet, `arenaInsetPx` inside the pen) and, for the last `fallMs`, the mite
 ##   falls into it from `dropHeightPx`, curled in a ball. Landing on the slime (within `landHitPx`)
-##   it hits for `landDamage`.
+##   it hits for `landDamage`. A slime climbing a wall (the Feral skin; the Colossus's arena) gets a
+##   mite dropped straight down the face onto it: its spot is the wall's foot right under the slime,
+##   and on the way down it hits the climber above (within `climberHitPx` across, `dropHeightPx`
+##   up), which knocks it off the wall (added by the dungeons, 2026-10-17).
 ## - **Land** (`landedMs`): it shakes itself out.
 ## - **Run:** at the slime at `runSpeed`; touching it (`contactReachPx`, every `contactCooldownMs`)
 ##   it hits for `contactDamage` with `knockbackStrength`. With the slime out of its pen it stands.
@@ -118,6 +121,9 @@ func _begin_drop(now: float, slime_feet: Vector2) -> void:
 	var scatter := pattern("scatterPx", 70.0)
 	var angle := randf() * TAU
 	_spot = _inside_arena(slime_feet + Vector2(cos(angle), sin(angle) * 0.7) * randf_range(scatter * 0.3, scatter))
+	if _slime_climbing():
+		# Straight down the face onto the climber: its spot the wall's foot right under it.
+		_spot = _inside_arena(slime_feet)
 	_transition(PHASE_DROP, now)
 	set_frame(FRAME_BALL)
 	_height = pattern("dropHeightPx", 240.0)
@@ -138,9 +144,26 @@ func _land(now: float, target: Dictionary, engaged: bool) -> void:
 	_cue(CUE_LAND)
 	_puff(DUST, feet())
 	var slime_body := target.get("body") as Node2D
-	if engaged and slime_body != null and slime_body.global_position.distance_to(feet()) <= pattern("landHitPx", 26.0):
+	var on_it := slime_body != null and slime_body.global_position.distance_to(feet()) <= pattern("landHitPx", 26.0)
+	if engaged and slime_body != null and (on_it or _hits_climber(slime_body.global_position)):
 		if _route_hit_from(get_centre() - Vector2(0.0, 1.0), target, pattern("landDamage", 10.0), pattern("landKnockback", 160.0)):
 			_cue(CUE_HIT)
+
+
+## True while the slime climbs a wall (the Feral skin).
+static func _slime_climbing() -> bool:
+	var world := Services.world()
+	var player: Node = world.player if world != null else null
+	return player != null and is_instance_valid(player) and player.has_method(&"is_climbing") and bool(player.call(&"is_climbing"))
+
+
+## True when the slime climbs above this mite's spot (`slime_feet`): the mite fell down the face onto it.
+func _hits_climber(slime_feet: Vector2) -> bool:
+	if not _slime_climbing():
+		return false
+	var up := feet().y - slime_feet.y
+	var across := absf(slime_feet.x - feet().x)
+	return across <= pattern("climberHitPx", 30.0) and up >= -pattern("landHitPx", 26.0) and up <= pattern("dropHeightPx", 240.0)
 
 
 ## A point kept `arenaInsetPx` inside its pen (the point itself without a pen).

@@ -13,7 +13,8 @@ extends Node
 ## - `world` [WorldProgressData]: discovered_areas, defeated_boss_ids, completed_dungeon_ids,
 ##   maps {map_id: map record}, respawn_point.
 ## - `story` [StorySaveData]: world_flags, learned_recipe_ids, learned_ability_ids, talked_npc_ids;
-##   and (Godot) celebrated_item_ids: the permanent items whose ceremony has played.
+##   and (Godot) celebrated_item_ids: the permanent items whose ceremony has played; skin_ids and
+##   skin_look: the skins won from the Pearls and the everyday look (docs/godot/SKINS.md).
 ## - `location` [GameLocationData], play time (`current_play_time_ms()`).
 ## - `quests` [QuestState[]]: one record per quest, written by the quest service.
 ##
@@ -47,6 +48,9 @@ const PLACED_FURNITURE_PREFIX := "placed-furniture-"
 signal story_flag_changed(payload: Dictionary)
 ## An ability was learned. Payload: {"ability_id": String}.
 signal ability_learned(payload: Dictionary)
+## A skin was won or lent, or the everyday look changed (docs/godot/SKINS.md). Payload:
+## {"skin_id": String, "reason": "won" | "lent" | "look"}.
+signal skins_changed(payload: Dictionary)
 ## A permanent item (a weapon or tool, a key: PERMANENT_ITEM_CATEGORIES) came into the bag for the
 ## first time in the run, outside a quiet grant: its ceremony plays (game/ui/ceremony/). Payload:
 ## {"item_id": String}.
@@ -120,6 +124,10 @@ var quiet_items: bool = false
 ## game. A real lesson of one (`learn_ability` without `quiet`) keeps it for good. `new_run` and
 ## `install` forget the list. Empty outside the rework mode.
 var session_ability_ids: Array[String] = []
+## Skins lent for this session only (the F6 dev powers, the playground's Skins corner:
+## `lend_skin`): on while the run plays, but `serialize` leaves them out. Winning one for real
+## (`win_skin`) keeps it. `new_run` and `install` forget the list.
+var session_skin_ids: Array[String] = []
 
 ## Item categories that are permanent things, celebrated once when first gained (roadmap 4.13).
 const PERMANENT_ITEM_CATEGORIES: Array[String] = ["weapon", "key"]
@@ -164,6 +172,7 @@ func new_run() -> void:
 	debug_active_quests = []
 	debug_all_recipes_known = false
 	session_ability_ids = []
+	session_skin_ids = []
 	start_kit_pending = true
 	_navigation = {}
 	started = true
@@ -605,6 +614,85 @@ func learn_session_ability(ability_id: String) -> bool:
 	return true
 
 
+# --- skins (docs/godot/SKINS.md; read through game/player/skins/skin_state.gd) -------------------
+## `story.skin_ids`: the skins won (the Pearls), each always on once won (Direction "The skins");
+## `story.skin_look`: the won skin the player picked as the everyday look in the bag ("" = the
+## slime's own goo). Lent skins (`session_skin_ids`) count as won until the session ends.
+
+## Before roadmap 7.8 the Pearls set a story flag per skin ("skin.heavy"); `install` wins those.
+const LEGACY_SKIN_FLAG_PREFIX := "skin."
+const SKIN_IDS_KEY := "skin_ids"
+const SKIN_LOOK_KEY := "skin_look"
+
+
+## True once `skin_id` is won (or lent for the session).
+func has_skin(skin_id: String) -> bool:
+	return not skin_id.is_empty() and skin_id in _story_list(SKIN_IDS_KEY)
+
+
+## The skins won or lent, in the order they came.
+func skin_ids() -> Array[String]:
+	var out: Array[String] = []
+	for id: Variant in _story_list(SKIN_IDS_KEY):
+		out.append(str(id))
+	return out
+
+
+## Wins `skin_id` for good (a Pearl). False when it was already won; a skin only lent for the
+## session is won from now on (true).
+func win_skin(skin_id: String) -> bool:
+	if skin_id.is_empty():
+		return false
+	if has_skin(skin_id):
+		if not session_skin_ids.has(skin_id):
+			return false
+		session_skin_ids.erase(skin_id)
+	else:
+		_story_list(SKIN_IDS_KEY).append(skin_id)
+	skins_changed.emit({"skin_id": skin_id, "reason": "won"})
+	return true
+
+
+## Lends `skin_id` for this session only (the F6 dev powers, the Skins corner): left out of every
+## save. False when it is already won or lent.
+func lend_skin(skin_id: String) -> bool:
+	if skin_id.is_empty() or has_skin(skin_id):
+		return false
+	_story_list(SKIN_IDS_KEY).append(skin_id)
+	session_skin_ids.append(skin_id)
+	skins_changed.emit({"skin_id": skin_id, "reason": "lent"})
+	return true
+
+
+## Takes a lent skin back (the Skins corner's pedestals). False for a won skin or one not lent.
+func return_skin(skin_id: String) -> bool:
+	if not session_skin_ids.has(skin_id):
+		return false
+	session_skin_ids.erase(skin_id)
+	_story_list(SKIN_IDS_KEY).erase(skin_id)
+	if skin_look() == skin_id:
+		story[SKIN_LOOK_KEY] = ""
+	skins_changed.emit({"skin_id": skin_id, "reason": "returned"})
+	return true
+
+
+## The everyday look: a won skin's id, or "" (the slime's own goo).
+func skin_look() -> String:
+	var look := str(story.get(SKIN_LOOK_KEY, ""))
+	return look if look.is_empty() or has_skin(look) else ""
+
+
+## Picks the everyday look ("" = the goo). False when `skin_id` is not won or is already the look.
+func set_skin_look(skin_id: String) -> bool:
+	if not skin_id.is_empty() and not has_skin(skin_id):
+		return false
+	if skin_look() == skin_id:
+		return false
+	story[SKIN_LOOK_KEY] = skin_id
+	skins_changed.emit({"skin_id": skin_id, "reason": "look"})
+	return true
+
+
 # --- quests --------------------------------------------------------------------------------------
 ## `quests` holds one record per quest in catalog order (res://game/quests/quest_service.gd owns
 ## the rules): {"quest_id", "definition_version", "status", "active_stage_id", "progress",
@@ -971,6 +1059,15 @@ func serialize() -> Dictionary:
 			if not session_ability_ids.has(str(ability_id)):
 				kept.append(ability_id)
 		saved_story["learned_ability_ids"] = kept
+	# Lent skins stay out too, and so does a look that is one of them.
+	if not session_skin_ids.is_empty() and saved_story.get(SKIN_IDS_KEY) is Array:
+		var won: Array = []
+		for skin_id: Variant in saved_story[SKIN_IDS_KEY]:
+			if not session_skin_ids.has(str(skin_id)):
+				won.append(skin_id)
+		saved_story[SKIN_IDS_KEY] = won
+		if session_skin_ids.has(str(saved_story.get(SKIN_LOOK_KEY, ""))):
+			saved_story[SKIN_LOOK_KEY] = ""
 	return {
 		"player": player.duplicate(true),
 		"inventory": inventory.duplicate(true),
@@ -1004,6 +1101,13 @@ func install(data: Dictionary) -> bool:
 	_navigation = {}
 	# The loaded run lends nothing yet (the rework mode lends again on the world build).
 	session_ability_ids = []
+	session_skin_ids = []
+	# Saves from before roadmap 7.8: a Pearl's skin was a story flag ("skin.heavy").
+	for flag: Variant in _flags():
+		var flag_name := str(flag)
+		var legacy := flag_name.trim_prefix(LEGACY_SKIN_FLAG_PREFIX)
+		if flag_name.begins_with(LEGACY_SKIN_FLAG_PREFIX) and not has_skin(legacy):
+			_story_list(SKIN_IDS_KEY).append(legacy)
 	start_kit_pending = false
 	started = true
 	# Saves from before the ceremony: what the bag already holds is no news.
