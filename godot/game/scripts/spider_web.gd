@@ -3,12 +3,13 @@ class_name SpiderWebScript
 ## Scene script `game.spider-web` (Phaser `features/scripts/SpiderWebScript.ts`): a spider-web
 ## barrier (`object.spider-web`). Matron spec 5.2.
 ##
-## A normal slime that walks into the strands is caught, stuck for a moment and set back on the
-## side it came from (res://game/enemy/spider_web_port.gd). The Sticky form pushes through and
-## tears it open for good, unless `tears_when_crossed` is off; a torn web is remembered by the
-## story flag `web-torn.<placement persistence key>` (RunState). The web has no collision body (its
-## two stakes do), so only the catch decides who passes. Checked every physics step (Phaser: every
-## frame).
+## A normal slime that walks or rolls into the strands is caught, stuck for a moment and set back
+## on the side it came from (res://game/enemy/spider_web_port.gd; a Roll ends there, owner
+## 2026-10-16): the web blocks the way. A slime that crosses webs (the Silk skin's hook, today the
+## Silk form) pushes through and tears it open for good, unless `tears_when_crossed` is off; a torn
+## web is remembered by the story flag `web-torn.<placement persistence key>` (RunState). The web
+## has no collision body (its two stakes do), so only the catch decides who passes. Checked every
+## physics step (Phaser: every frame).
 ##
 ## Node: `SpiderWebScript` under the web's root Node2D (no depth anchor).
 ##

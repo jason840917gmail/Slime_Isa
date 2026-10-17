@@ -42,12 +42,10 @@
 [ext_resource type="Script" uid="uid://dwk8hk12boqk4" path="res://game/scripts/world_area.gd" id="29_dy36c"]
 [ext_resource type="PackedScene" path="res://game/scenes/encounters/level-1-fatty-camp.tscn" id="30_rnguq"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/goo-heart.tscn" id="31_gooheart"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i75oi"]
 size = Vector2(64, 128)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_27"]
-size = Vector2(1088, 512)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_28"]
 size = Vector2(260, 150)
@@ -430,29 +428,15 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
-[node name="pursue-shape" type="CollisionShape2D" parent="Areas/level-1-webwood" unique_id=1185438225]
-position = Vector2(-64, 51.2)
-shape = SubResource("RectangleShape2D_27")
-
-[node name="stay-shape" type="CollisionShape2D" parent="Areas/level-1-webwood" unique_id=258407998]
+[node name="wander-shape" type="CollisionShape2D" parent="Areas/level-1-webwood" unique_id=258407998]
 shape = SubResource("RectangleShape2D_28")
 
-[node name="world-area-script" type="Node" parent="Areas/level-1-webwood" unique_id=1286698435 node_paths=PackedStringArray("area", "shape", "stay_shape")]
+[node name="world-area-script" type="Node" parent="Areas/level-1-webwood" unique_id=1286698435 node_paths=PackedStringArray("area", "shape")]
 script = ExtResource("29_dy36c")
-area_kind = "enemy-spawn"
+area_kind = "enemy-wander"
 area_id = "level-1-webwood"
 area = NodePath("..")
-data = {
-"enemies": [{
-"maxAlive": 3,
-"type": "slime-spider",
-"weight": 1
-}],
-"intervalMs": 5000,
-"maxPopulation": 3
-}
-shape = NodePath("../pursue-shape")
-stay_shape = NodePath("../stay-shape")
+shape = NodePath("../wander-shape")
 
 [node name="Encounters" type="Node2D" parent="." unique_id=1363579440]
 y_sort_enabled = true
@@ -516,6 +500,23 @@ target_area_id = "level-1-c4"
 entry = "east"
 keep_along = true
 area = NodePath("..")
+
+[node name="Enemies" type="Node2D" parent="." unique_id=2110804152]
+
+[node name="slime-spider-1" parent="Enemies" unique_id=618249298 instance=ExtResource("placed_enemy_1")]
+position = Vector2(486, 316)
+enemy_type = "slime-spider"
+wander_area_id = "level-1-webwood"
+
+[node name="slime-spider-2" parent="Enemies" unique_id=570276305 instance=ExtResource("placed_enemy_1")]
+position = Vector2(550, 324)
+enemy_type = "slime-spider"
+wander_area_id = "level-1-webwood"
+
+[node name="slime-spider-3" parent="Enemies" unique_id=1307400565 instance=ExtResource("placed_enemy_1")]
+position = Vector2(406, 340)
+enemy_type = "slime-spider"
+wander_area_id = "level-1-webwood"
 
 [connection signal="body_entered" from="exit-1" to="exit-1/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]

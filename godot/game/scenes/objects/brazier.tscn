@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/world/fire/candle.gd" id="candle"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier-unlit.tscn" id="unlit"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier-lit.tscn" id="lit"]
+
+[node name="brazier" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("candle")
+unlit_scene = ExtResource("unlit")
+lit_scene = ExtResource("lit")
+flame_offset = Vector2(0, -52)
+burn_ms = 20000.0
+light_radius = 120.0

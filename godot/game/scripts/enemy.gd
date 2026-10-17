@@ -61,6 +61,7 @@ const GameFeelType := preload("res://game/feel/game_feel.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const EnemyReactions := preload("res://game/combat/reactions/enemy_reactions.gd")
 const DamageResolverScript := preload("res://game/combat/damage_resolver.gd")
+const LineUpAI := preload("res://game/enemy/line_up_ai.gd")
 
 ## EnemyScript.ts literals (enemy spec 1.2).
 const SIGHT_CHECK_MS := 150.0
@@ -92,6 +93,17 @@ const DEFAULT_PROJECTILE_SPEED := 200.0
 const BOSS_LANDING_FEEL := &"boss-landing"
 ## `rank` of bosses: never slowed (EnemyScript.ts:935).
 const RANK_BOSS := "boss"
+## Four-way shooters (enemy spec 20): the Worm Archer's behaviour, and the spiders' when their type
+## has an `alignSpeed`. The numbers are the `ai` keys below, from `attributes` or else the type's
+## `ai` block in enemy-types.json (`_ai_value`).
+const BEHAVIOR_LINER_UP := "liner-up"
+const BEHAVIOR_SLIME_SPIDER := "slime-spider"
+const AI_TYPES_FILE := "enemy-types.json"
+const TYPE_AI_KEY := "ai"
+## Only for a line-up type that misses a key (every built one sets them all, the Worm Archer's
+## numbers).
+const LINE_UP_DEFAULTS := {"alignTolerancePx": 8.0, "alignMarginPx": 16.0, "alignReplanMs": 250.0,
+	"alignSwitchPx": 24.0}
 
 ## JSON `body`: the CharacterBody2D root.
 @export var body: CharacterBody2D
@@ -211,6 +223,14 @@ var _death_sliding: bool = false
 ## Rework: the authored rule a gated hurtbox registered without ({} = registered as authored);
 ## old-style hits still meet its `acceptedSources` in `can_receive_damage`.
 var _authored_rule: Dictionary = {}
+## Four-way shooters: the line-up AI (null for every other enemy; made on the first step, after
+## the spawner's overrides), the type's `ai` block (read once), the line-up numbers and the bodies
+## a probe ignores.
+var _line_up: LineUpAI = null
+var _line_up_checked: bool = false
+var _type_ai: Variant = null
+var _align: Dictionary = {}
+var _probe_exclude: Array[RID] = []
 
 
 ## Clamps max_health, sets hp; push_error when damage_area / attack_area are missing; registers
@@ -375,9 +395,12 @@ func _step_enemy(delta: float) -> bool:
 		"flee_range": maxf(0.0, _optional_attribute("fleeRange")),
 		"may_engage": bool(territory["may_engage"]) if not territory.is_empty() else distance <= targeting_radius,
 		"safe_zones": _safe_zones,
-		"behavior": _attribute_string("behavior"),
+		"behavior": _behavior(),
 		"preferred_distance": SlimeSpiderAI.preferred_distance(_optional_attribute("fleeRange"), attack_range),
 	}
+	# Four-way shooters line up on the slime's row or column (enemy spec 20).
+	if _line_up_ai() != null:
+		_add_line_up_context(context, now, delta, origin, target, distance, territory.is_empty())
 	# Authored attack-area reach replaces the attack_range distance rules (EnemyScript.ts:464).
 	var reach: Variant = _attack_area_reach(target)
 	if reach is bool:
@@ -397,7 +420,9 @@ func _step_enemy(delta: float) -> bool:
 	_applied_slow = _current_slow(now)
 	body.velocity = velocity if _applied_slow == 1.0 else velocity * _applied_slow
 	if _active_sequence_id == NO_ID:
-		_update_facing(velocity)
+		# The line-up AI may look along its line while it holds, or at the slime as it scuttles.
+		var face: Vector2 = outcome.get("face_dir", Vector2.ZERO)
+		_update_facing(face if face != Vector2.ZERO else velocity)
 		_play_facing("walk" if velocity.length() > WALK_SPEED_THRESHOLD else "idle")
 	return true
 
@@ -405,8 +430,9 @@ func _step_enemy(delta: float) -> bool:
 # --- API for the spawner / world ---------------------------------------------------------------
 
 ## Called by EnemyPopulation right after instancing, before the first physics step: the
-## enemy-spawn area record it came from (WorldService.areas("enemy-spawn") entry; {} = no camp,
-## then `may_engage = distance <= aggro`) and the safe-zone perimeters. Builds the
+## enemy-spawn area record it came from (WorldService.areas("enemy-spawn") entry), or a placed
+## enemy's wander record (an "enemy-wander" area, or its own circle: PlacedEnemy.wander_record);
+## {} = no camp, then `may_engage = distance <= aggro`; and the safe-zone perimeters. Builds the
 ## CampTerritory from `spawn_area.stay_perimeter`.
 func configure_navigation(spawn_area: Dictionary, safe_zones: Array[Dictionary]) -> void:
 	_spawn_area = spawn_area
@@ -698,6 +724,10 @@ func _begin_attack(direction: Vector2) -> void:
 	var router := Services.router()
 	if attack_area == null or router == null:
 		return
+	# Four-way shooters shoot only straight up, down, left or right (enemy spec 20), whoever asks
+	# (a break-free counter spit too).
+	if _line_up_ai() != null:
+		direction = LineUpAI.snap_shot(direction)
 	if direction.length() > 0.0:
 		_attack_direction = direction.normalized()
 	_active_sequence_id = sequence
@@ -1000,6 +1030,124 @@ func _optional_attribute(key: String) -> float:
 func _attribute_string(key: String) -> String:
 	var value: Variant = attributes.get(key)
 	return value if value is String else ""
+
+
+# --- four-way shooters (enemy spec 20) -------------------------------------------------------------
+
+## The behaviour: `attributes.behavior`, else the type's `ai.behavior` in enemy-types.json (the
+## Worm Archer's "liner-up"); "" for none.
+func _behavior() -> String:
+	var value: Variant = _ai_value("behavior")
+	return value if value is String else ""
+
+
+## `attributes[key]` when the scene (or a placed enemy's overrides) sets it, else the type's
+## `ai[key]` in enemy-types.json, else null.
+func _ai_value(key: String) -> Variant:
+	if attributes.has(key):
+		return attributes[key]
+	if _type_ai == null:
+		_type_ai = _type_ai_block()
+	return (_type_ai as Dictionary).get(key)
+
+
+## `_ai_value(key)` as a finite float, else `fallback`.
+func _ai_number(key: String, fallback: float) -> float:
+	var value: Variant = _ai_value(key)
+	if value is float or value is int:
+		var number := float(value)
+		if is_finite(number):
+			return number
+	return fallback
+
+
+## The `ai` block of this enemy's type in enemy-types.json (`enemy_type`, else its scene's file
+## name; {} when none).
+func _type_ai_block() -> Dictionary:
+	var type_id := enemy_type
+	if type_id.is_empty() and body != null:
+		type_id = body.scene_file_path.get_file().get_basename()
+	var constants := Services.constants()
+	var data: Variant = constants.data_file(AI_TYPES_FILE) if constants != null else null
+	var types: Variant = (data as Dictionary).get("types", {}) if data is Dictionary else {}
+	var entry: Variant = (types as Dictionary).get(type_id, {}) if types is Dictionary else {}
+	var block: Variant = (entry as Dictionary).get(TYPE_AI_KEY, {}) if entry is Dictionary else {}
+	return block if block is Dictionary else {}
+
+
+## The line-up AI of a four-way shooter (made on first use), else null: the "liner-up" behaviour
+## (the Worm Archer), or the spiders' "slime-spider" when the type has an `alignSpeed` (the Slime
+## Spider, the Orb-weaver; the Orb-Weaver Matron has none and keeps its orbit). The numbers: the
+## `ai` keys `alignSpeed`, `backOffSpeed`, `alignTolerancePx`, `alignMarginPx`, `alignReplanMs`
+## and `alignSwitchPx` (a missing one falls back to LINE_UP_DEFAULTS, the speeds to
+## `movement_speed`).
+func _line_up_ai() -> LineUpAI:
+	if _line_up_checked:
+		return _line_up
+	_line_up_checked = true
+	var behavior := _behavior()
+	if behavior != BEHAVIOR_LINER_UP and not (behavior == BEHAVIOR_SLIME_SPIDER and _ai_number("alignSpeed", 0.0) > 0.0):
+		return null
+	_line_up = LineUpAI.new()
+	_align = {
+		"speed": _ai_number("alignSpeed", movement_speed),
+		"back_off_speed": _ai_number("backOffSpeed", movement_speed),
+		"tolerance": _ai_number("alignTolerancePx", LINE_UP_DEFAULTS["alignTolerancePx"]),
+		"margin": _ai_number("alignMarginPx", LINE_UP_DEFAULTS["alignMarginPx"]),
+		"replan_ms": _ai_number("alignReplanMs", LINE_UP_DEFAULTS["alignReplanMs"]),
+		"switch_px": _ai_number("alignSwitchPx", LINE_UP_DEFAULTS["alignSwitchPx"]),
+	}
+	return _line_up
+
+
+## The line-up AI's context keys (line_up_ai.gd). Without a camp it still has to see the slime to
+## notice it (a camp's territory checks the sight itself).
+func _add_line_up_context(context: Dictionary, now: float, delta: float, origin: Vector2,
+		target: Dictionary, distance: float, no_territory: bool) -> void:
+	context["line_up"] = _line_up
+	context["align"] = _align
+	context["aim_point"] = _aim_point(target)
+	context["now"] = now
+	context["step_s"] = delta
+	context["attacking"] = _active_sequence_id != NO_ID
+	context["faces_target"] = _behavior() == BEHAVIOR_SLIME_SPIDER
+	context["route_clear"] = _route_clear
+	context["shot_clear"] = _shot_clear
+	_probe_exclude.clear()
+	_probe_exclude.append(body.get_rid())
+	var player_body := target.get("body") as CharacterBody2D
+	if player_body != null:
+		_probe_exclude.append(player_body.get_rid())
+	if no_territory:
+		context["may_engage"] = distance <= targeting_radius and _sees_target(now, origin, target, distance)
+
+
+## Where a shot has to pass to hit the slime: the middle of its hurtbox's shape (14.56 px below
+## the slime's old centre); the centre when it has none.
+func _aim_point(target: Dictionary) -> Vector2:
+	var centre: Vector2 = target.get("centre", get_centre())
+	var hurtbox := target.get("hurtbox") as Area2D
+	if hurtbox == null:
+		return centre
+	for child: Node in hurtbox.get_children():
+		if child is CollisionShape2D and not (child as CollisionShape2D).disabled:
+			return (child as CollisionShape2D).global_position
+	return centre
+
+
+## The line-up AI's way probe: the body's own shape moved by `to - from` meets nothing it collides
+## with (walls, water, a fence, the slime).
+func _route_clear(from: Vector2, to: Vector2) -> bool:
+	if body == null or not body.is_inside_tree():
+		return true
+	return not body.test_move(body.global_transform, to - from)
+
+
+## The line-up AI's shot probe: nothing on the world layer (what stops an arrow or a web) between
+## `from` and `to` (WorldService.line_of_sight).
+func _shot_clear(from: Vector2, to: Vector2) -> bool:
+	var world := Services.world()
+	return world == null or world.line_of_sight(from, to, _probe_exclude)
 
 
 ## The movement factor of a slow at `now` (1 when not slowed).

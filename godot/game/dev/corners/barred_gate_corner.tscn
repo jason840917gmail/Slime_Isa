@@ -1,0 +1,136 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-01.tscn" id="tl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-03.tscn" id="tr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-05.tscn" id="bl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-07.tscn" id="br"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--horizontal-04.tscn" id="h"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--horizontal-08.tscn" id="hb"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--vertical-02.tscn" id="v"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/barred-gate.tscn" id="gate"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="liftable"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="chest"]
+
+[sub_resource type="RectangleShape2D" id="filler"]
+size = Vector2(44, 44)
+
+[node name="barred-gate-corner" type="Node2D"]
+y_sort_enabled = true
+
+[node name="title" type="Label" parent="."]
+offset_left = 2620.0
+offset_top = 4120.0
+offset_right = 3340.0
+offset_bottom = 4200.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = "Barred-gate corner (roadmap 5.22, the prologue's first lock)
+The lever stands behind the bars: only the Spear's thrust fits between them (the body-shapes mode).
+Throw a pot at the bars, roll or swing anything else: it clinks. Open, the gate stays open for the run."
+
+[node name="walls" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="top-2752" parent="walls" instance=ExtResource("tl")]
+position = Vector2(2752, 4288)
+
+[node name="top-2816" parent="walls" instance=ExtResource("h")]
+position = Vector2(2816, 4288)
+
+[node name="top-2880" parent="walls" instance=ExtResource("h")]
+position = Vector2(2880, 4288)
+
+[node name="top-2944" parent="walls" instance=ExtResource("h")]
+position = Vector2(2944, 4288)
+
+[node name="top-3008" parent="walls" instance=ExtResource("h")]
+position = Vector2(3008, 4288)
+
+[node name="top-3072" parent="walls" instance=ExtResource("h")]
+position = Vector2(3072, 4288)
+
+[node name="top-3136" parent="walls" instance=ExtResource("h")]
+position = Vector2(3136, 4288)
+
+[node name="top-3200" parent="walls" instance=ExtResource("tr")]
+position = Vector2(3200, 4288)
+
+[node name="left-4352" parent="walls" instance=ExtResource("v")]
+position = Vector2(2752, 4352)
+
+[node name="right-4352" parent="walls" instance=ExtResource("v")]
+position = Vector2(3200, 4352)
+
+[node name="left-4416" parent="walls" instance=ExtResource("v")]
+position = Vector2(2752, 4416)
+
+[node name="right-4416" parent="walls" instance=ExtResource("v")]
+position = Vector2(3200, 4416)
+
+[node name="left-4480" parent="walls" instance=ExtResource("v")]
+position = Vector2(2752, 4480)
+
+[node name="right-4480" parent="walls" instance=ExtResource("v")]
+position = Vector2(3200, 4480)
+
+[node name="bottom-2752" parent="walls" instance=ExtResource("bl")]
+position = Vector2(2752, 4544)
+
+[node name="bottom-2816" parent="walls" instance=ExtResource("hb")]
+position = Vector2(2816, 4544)
+
+[node name="bottom-3136" parent="walls" instance=ExtResource("hb")]
+position = Vector2(3136, 4544)
+
+[node name="bottom-3200" parent="walls" instance=ExtResource("br")]
+position = Vector2(3200, 4544)
+
+[node name="barred-gate" parent="." instance=ExtResource("gate")]
+position = Vector2(2976, 4596)
+gate_id = "playground-barred-gate"
+
+[node name="gap-fillers" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="left" type="CollisionShape2D" parent="gap-fillers"]
+position = Vector2(2848, 4582)
+shape = SubResource("filler")
+
+[node name="right" type="CollisionShape2D" parent="gap-fillers"]
+position = Vector2(3106, 4582)
+shape = SubResource("filler")
+
+[node name="prize" parent="." instance=ExtResource("chest")]
+position = Vector2(2976, 4408)
+metadata/instance_id = "playground-barred-gate-chest"
+metadata/persistence_key = "playground.playground-barred-gate-chest"
+
+[node name="ChestScript" parent="prize" index="2"]
+map_id = "playground"
+instance_id = "playground-barred-gate-chest"
+initial_contents = {
+"hp-potion": 1
+}
+
+[node name="thing-1" parent="." instance=ExtResource("liftable")]
+position = Vector2(2880, 4720)
+
+[node name="LiftableScript" parent="thing-1" index="2"]
+kind = "clay-pot"
+
+[node name="thing-2" parent="." instance=ExtResource("liftable")]
+position = Vector2(3080, 4730)
+
+[node name="LiftableScript" parent="thing-2" index="2"]
+kind = "clay-pot"
+
+[node name="thing-3" parent="." instance=ExtResource("liftable")]
+position = Vector2(2980, 4790)
+
+[node name="LiftableScript" parent="thing-3" index="2"]
+kind = "rock"
+
+[editable path="prize"]
+[editable path="thing-1"]
+[editable path="thing-2"]
+[editable path="thing-3"]

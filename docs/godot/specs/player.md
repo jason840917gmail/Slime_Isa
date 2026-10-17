@@ -235,7 +235,12 @@ Only on the normal move path: if moving now, was not moving last step, and has b
 >   ends. `is_bouncing()` is true during the bounce.
 > - **Cooldown:** the next roll can start `rollCooldownMs` (250) after a roll ends; the ability
 >   cooldown from the press is 260 + 450 + 250 = 960 ms. A knockback, a death or
->   `stop_movement()` (a door's leave fade, an opened window) ends a roll at once.
+>   `stop_movement()` (a door's leave fade, an opened window, a web) ends a roll at once.
+> - **Webs** (owner, 2026-10-16, question 131): a Roll sticks in a web. A floor web or a web
+>   barrier catches the rolling slime as it catches a walking one (matron spec 5.5): the roll ends
+>   there (no bonk), the slime is rooted 900 ms and set back on the side it came from, so a Roll
+>   never crosses or tears a web. With the Silk skin (`crosses_webs()`, today the Silk form) webs
+>   no longer catch it.
 > - **Direction:** the pointer aim, else the held movement keys, else the facing, snapped to eight
 >   directions.
 > - Holding something in the mouth or swimming still blocks it. Stone Tools still teaches it.
@@ -243,7 +248,8 @@ Only on the normal move path: if moving now, was not moving last step, and has b
 >   today); a Stone-form roll breaking cracked walls (not built). Tests: `test_player_movement.gd`
 >   (`test_a_tapped_roll_spins_up_launches_and_stops`,
 >   `test_a_held_roll_goes_straight_and_drains_energy`,
->   `test_rolling_into_a_wall_bonks_and_bounces_back`; updated for the dash, not run yet).
+>   `test_rolling_into_a_wall_bonks_and_bounces_back`; updated for the dash, not run yet;
+>   `test_a_roll_sticks_in_a_floor_web`, 2026-10-16, not run yet).
 >
 > §5.1-5.2 below describe Phaser's dodge (pointer snapped to 4 directions, 380 px/s for 500 ms,
 > 750 ms cooldown), kept for the record.

@@ -1,0 +1,517 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dev/corners/bestiary_corner.gd" id="script"]
+[ext_resource type="Script" path="res://game/dev/corners/bestiary_pen.gd" id="pen"]
+[ext_resource type="Script" path="res://game/world/darkness/dark_room.gd" id="dark_d"]
+[ext_resource type="Script" path="res://game/enemy/route_preview.gd" id="route_e"]
+
+[node name="bestiary-corner" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("script")
+
+[node name="title" type="Label" parent="."]
+offset_left = 3456.0
+offset_top = 400.0
+offset_right = 6528.0
+offset_bottom = 480.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "Bestiary corner: one pen per enemy of Release 1, in the bestiary's order (docs/design/2026-10-16-bestiary.md); the seventh row (30 to 33) is every dungeon's skeletons and the Watcher Eye.
+Step into a pen to fight its enemy; it comes back 3 s after it dies, and F4 brings every pen back. F5: full energy."
+
+[node name="pen-01" type="Node2D" parent="."]
+position = Vector2(3456, 576)
+script = ExtResource("pen")
+number = 1
+enemy_name = "Worm Swordsman"
+kind = "Chaser"
+right_tool = "the Spear outreaches it"
+enemy_types = PackedStringArray("worm-swordsman")
+size = Vector2(512, 448)
+
+[node name="pen-02" type="Node2D" parent="."]
+position = Vector2(4096, 576)
+script = ExtResource("pen")
+number = 2
+enemy_name = "Worm Archer"
+kind = "Liner-up"
+right_tool = "stay off its row and column; the Roll closes the gap; later the Bow"
+enemy_types = PackedStringArray("worm-archer")
+size = Vector2(512, 448)
+
+[node name="pen-03" type="Node2D" parent="."]
+position = Vector2(4736, 576)
+script = ExtResource("pen")
+number = 3
+enemy_name = "Worm Brawler"
+kind = "Lunger"
+right_tool = "Roll aside, hit it in its recovery"
+enemy_types = PackedStringArray("worm-brawler")
+size = Vector2(512, 448)
+
+[node name="pen-04" type="Node2D" parent="."]
+position = Vector2(5376, 576)
+script = ExtResource("pen")
+number = 4
+enemy_name = "Prologue Worm"
+kind = "Chaser"
+right_tool = "a thrown pot (Q on a pot, Q to throw)"
+enemy_types = PackedStringArray("prologue-worm")
+posts = PackedVector2Array(300, 224)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(44, 128),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 224),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 320),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}])
+
+[node name="pen-05" type="Node2D" parent="."]
+position = Vector2(6016, 576)
+script = ExtResource("pen")
+number = 5
+enemy_name = "Popworm"
+kind = "Burrower"
+right_tool = "hit it while it is up; a Heavy Roll (Stone form) near its mound throws it out"
+enemy_types = PackedStringArray("popworm")
+posts = PackedVector2Array(300, 224)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(48, 400),
+"scene": "object.essence-stone"
+}])
+
+[node name="pen-06" type="Node2D" parent="."]
+position = Vector2(3456, 1184)
+script = ExtResource("pen")
+number = 6
+enemy_name = "Spitcap"
+kind = "Turret"
+right_tool = "catch its seed with the Gulp (Q) and throw it back"
+enemy_types = PackedStringArray("spitcap")
+posts = PackedVector2Array(256, 110)
+size = Vector2(512, 448)
+
+[node name="pen-07" type="Node2D" parent="."]
+position = Vector2(4096, 1184)
+script = ExtResource("pen")
+number = 7
+enemy_name = "Hopper"
+kind = "Jumper"
+right_tool = "a Spear thrust as it lands"
+enemy_types = PackedStringArray("hopper")
+size = Vector2(512, 448)
+
+[node name="pen-08" type="Node2D" parent="."]
+position = Vector2(4736, 1184)
+script = ExtResource("pen")
+number = 8
+enemy_name = "Bramble Boar"
+kind = "Charger"
+right_tool = "Roll aside and let it hit the fence"
+enemy_types = PackedStringArray("bramble-boar")
+posts = PackedVector2Array(110, 224)
+size = Vector2(512, 448)
+
+[node name="pen-09" type="Node2D" parent="."]
+position = Vector2(5376, 1184)
+script = ExtResource("pen")
+number = 9
+enemy_name = "Thorn Guard Statue"
+kind = "Patroller"
+right_tool = "a Heavy Roll (Stone form) breaks it; walk between them to wake them"
+enemy_types = PackedStringArray("thorn-guard", "thorn-guard")
+posts = PackedVector2Array(150, 224, 362, 224)
+size = Vector2(512, 448)
+enemy_properties = {
+"guard_group": "bestiary-pen-9"
+}
+supplies = Array[Dictionary]([{
+"at": Vector2(48, 400),
+"scene": "object.essence-stone"
+}])
+
+[node name="pen-10" type="Node2D" parent="."]
+position = Vector2(6016, 1184)
+script = ExtResource("pen")
+number = 10
+enemy_name = "Rook Thief"
+kind = "Thief"
+right_tool = "a pot thrown as it swoops low; later the Bow"
+enemy_types = PackedStringArray("rook-thief")
+posts = PackedVector2Array(256, 224)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(44, 128),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 224),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 320),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}])
+
+[node name="pen-11" type="Node2D" parent="."]
+position = Vector2(3456, 1792)
+script = ExtResource("pen")
+number = 11
+enemy_name = "Squint"
+kind = "Armoured"
+right_tool = "the Spear in its eye, open for a moment after its slam"
+enemy_types = PackedStringArray("squint")
+posts = PackedVector2Array(300, 224)
+size = Vector2(512, 448)
+
+[node name="pen-12" type="Node2D" parent="."]
+position = Vector2(4096, 1792)
+script = ExtResource("pen")
+number = 12
+enemy_name = "Pipe Worm"
+kind = "Turret"
+right_tool = "catch its mud glob (Q), throw it back into the hole; a Roll into the wall shakes it out"
+enemy_types = PackedStringArray("pipe-worm")
+posts = PackedVector2Array(256, 114)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(128, 140),
+"scene": "object.wall-stone-solid"
+}, {
+"at": Vector2(192, 140),
+"scene": "object.wall-stone-solid.horizontal-02"
+}, {
+"at": Vector2(256, 140),
+"scene": "object.wall-stone-solid.horizontal-02"
+}, {
+"at": Vector2(320, 140),
+"scene": "object.wall-stone-solid.horizontal-02"
+}, {
+"at": Vector2(384, 140),
+"scene": "object.wall-stone-solid.horizontal-08"
+}])
+
+[node name="pen-13" type="Node2D" parent="."]
+position = Vector2(4736, 1792)
+script = ExtResource("pen")
+number = 13
+enemy_name = "Dung Roller"
+kind = "Patroller"
+right_tool = "Roll through the gap; the beetle is soft from behind"
+enemy_types = PackedStringArray("dung-roller")
+posts = PackedVector2Array(256, 224)
+size = Vector2(512, 448)
+enemy_properties = {
+"track": PackedVector2Array(-150, 0, 150, 0)
+}
+
+[node name="pen-14" type="Node2D" parent="."]
+position = Vector2(5376, 1792)
+script = ExtResource("pen")
+number = 14
+enemy_name = "Big Squint"
+kind = "Mini-boss"
+right_tool = "the Spear in the eye, open after its second stomp"
+enemy_types = PackedStringArray("big-squint")
+posts = PackedVector2Array(300, 224)
+size = Vector2(512, 448)
+
+[node name="pen-15" type="Node2D" parent="."]
+position = Vector2(6016, 1792)
+script = ExtResource("pen")
+number = 15
+enemy_name = "Slime Spider"
+kind = "Liner-up"
+right_tool = "the Silk skin: then its webs no longer stick; stay off its lines"
+enemy_types = PackedStringArray("slime-spider")
+size = Vector2(512, 448)
+
+[node name="pen-16" type="Node2D" parent="."]
+position = Vector2(3456, 2400)
+script = ExtResource("pen")
+number = 16
+enemy_name = "Orb-weaver"
+kind = "Spreader"
+right_tool = "clear its webs (the Silk skin cuts them)"
+enemy_types = PackedStringArray("orb-weaver")
+size = Vector2(512, 448)
+
+[node name="pen-17" type="Node2D" parent="."]
+position = Vector2(4096, 2400)
+script = ExtResource("pen")
+number = 17
+enemy_name = "Clod Stomper"
+kind = "Stomper"
+right_tool = "stay out of the ring, hit it while it is dazed"
+enemy_types = PackedStringArray("clod-stomper")
+size = Vector2(512, 448)
+
+[node name="pen-18" type="Node2D" parent="."]
+position = Vector2(4736, 2400)
+script = ExtResource("pen")
+number = 18
+enemy_name = "Silk Lurker"
+kind = "Ambusher"
+right_tool = "hit it while it hangs low: it spins; later the Bow cuts its thread"
+enemy_types = PackedStringArray("silk-lurker")
+posts = PackedVector2Array(330, 290)
+size = Vector2(512, 448)
+
+[node name="pen-19" type="Node2D" parent="."]
+position = Vector2(5376, 2400)
+script = ExtResource("pen")
+number = 19
+enemy_name = "Thornball"
+kind = "Charger"
+right_tool = "a Goo Bomb's blast flips it (F here); else the Spear while it is dizzy"
+enemy_types = PackedStringArray("thornball")
+posts = PackedVector2Array(110, 224)
+size = Vector2(512, 448)
+box_ability = &"goo-bombs"
+
+[node name="pen-20" type="Node2D" parent="."]
+position = Vector2(6016, 2400)
+script = ExtResource("pen")
+number = 20
+enemy_name = "Broodling"
+kind = "Swarm"
+right_tool = "a Goo Bomb on the egg sac (F here); each hit pops a Broodling"
+enemy_types = PackedStringArray("egg-sac")
+posts = PackedVector2Array(436, 224)
+size = Vector2(512, 448)
+box_ability = &"goo-bombs"
+
+[node name="pen-21" type="Node2D" parent="."]
+position = Vector2(3456, 3008)
+script = ExtResource("pen")
+number = 21
+enemy_name = "Cocoon Mimic"
+kind = "Mimic"
+right_tool = "a Goo Bomb next to it (F here); held: tap the move keys"
+enemy_types = PackedStringArray("cocoon-mimic")
+posts = PackedVector2Array(330, 224)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(170, 246),
+"scene": "object.cocoon-prize"
+}])
+box_ability = &"goo-bombs"
+
+[node name="pen-22" type="Node2D" parent="."]
+position = Vector2(4096, 3008)
+script = ExtResource("pen")
+number = 22
+enemy_name = "Brood Warden"
+kind = "Mini-boss"
+right_tool = "hit it while it is planted, after its two sweeps"
+enemy_types = PackedStringArray("brood-warden")
+posts = PackedVector2Array(256, 200)
+size = Vector2(512, 448)
+
+[node name="pen-23" type="Node2D" parent="."]
+position = Vector2(4736, 3008)
+script = ExtResource("pen")
+number = 23
+enemy_name = "Gloomling"
+kind = "Shadow"
+right_tool = "the Lantern's glow drives it off its key (F: a puff makes it bolt); blows pass through"
+enemy_types = PackedStringArray("gloomling")
+posts = PackedVector2Array(256, 200)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(256, 222),
+"scene": "object.collectible-crystal-key"
+}])
+box_ability = &"lantern"
+
+[node name="dark-room" type="Node2D" parent="pen-23"]
+script = ExtResource("dark_d")
+size = Vector2(512, 448)
+
+[node name="pen-24" type="Node2D" parent="."]
+position = Vector2(5376, 3008)
+script = ExtResource("pen")
+number = 24
+enemy_name = "Glint Bat"
+kind = "Flyer"
+right_tool = "a Lantern puff (F) as it dives; the Spear when it swoops low; later the Bow"
+enemy_types = PackedStringArray("glint-bat", "glint-bat")
+posts = PackedVector2Array(150, 170, 362, 150)
+size = Vector2(512, 448)
+box_ability = &"lantern"
+
+[node name="dark-room" type="Node2D" parent="pen-24"]
+script = ExtResource("dark_d")
+size = Vector2(512, 448)
+
+[node name="pen-25" type="Node2D" parent="."]
+position = Vector2(6016, 3008)
+script = ExtResource("pen")
+number = 25
+enemy_name = "Crystal Crawler"
+kind = "Wall crawler"
+right_tool = "the Spear on its soft belly as it turns a corner; its back clinks; later the Bow"
+enemy_types = PackedStringArray("crystal-crawler")
+posts = PackedVector2Array(256, 189)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(256, 270),
+"scene": "object.crystal-pillar"
+}])
+
+[node name="pen-26" type="Node2D" parent="."]
+position = Vector2(3456, 3616)
+script = ExtResource("pen")
+number = 26
+enemy_name = "Prism Eye"
+kind = "Sentinel"
+right_tool = "hide behind the block (Stone form pushes it); the Spear from behind when it looks away"
+enemy_types = PackedStringArray("prism-eye")
+posts = PackedVector2Array(288, 140)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(288, 320),
+"scene": "object.heavy-block"
+}, {
+"at": Vector2(44, 410),
+"scene": "object.essence-stone"
+}])
+
+[node name="pen-27" type="Node2D" parent="."]
+position = Vector2(4096, 3616)
+script = ExtResource("pen")
+number = 27
+enemy_name = "Pick Mole"
+kind = "Lobber"
+right_tool = "a Goo Bomb thrown over its crates (F, Q, Q); the Spear from beside them"
+enemy_types = PackedStringArray("pick-mole")
+posts = PackedVector2Array(256, 110)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(198, 176),
+"scene": "object.interior-storage-crate"
+}, {
+"at": Vector2(256, 176),
+"scene": "object.interior-storage-crate"
+}, {
+"at": Vector2(314, 176),
+"scene": "object.interior-storage-crate"
+}])
+box_ability = &"goo-bombs"
+
+[node name="pen-28" type="Node2D" parent="."]
+position = Vector2(4736, 3616)
+script = ExtResource("pen")
+number = 28
+enemy_name = "Shardback"
+kind = "Armoured mini-boss"
+right_tool = "fire light makes it brittle: light a brazier (F) or puff it, then the Spear"
+enemy_types = PackedStringArray("shardback")
+posts = PackedVector2Array(340, 230)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(120, 150),
+"scene": "object.brazier"
+}, {
+"at": Vector2(140, 350),
+"scene": "object.brazier"
+}])
+box_ability = &"lantern"
+
+[node name="dark-room" type="Node2D" parent="pen-28"]
+script = ExtResource("dark_d")
+size = Vector2(512, 448)
+
+[node name="pen-29" type="Node2D" parent="."]
+position = Vector2(5376, 3616)
+script = ExtResource("pen")
+number = 29
+enemy_name = "Crystal Mite"
+kind = "Swarm"
+right_tool = "any hit; they drop in near you one per beat, four at most"
+enemy_types = PackedStringArray("crystal-mite", "crystal-mite", "crystal-mite", "crystal-mite")
+posts = PackedVector2Array(128, 224, 212, 224, 300, 224, 384, 224)
+size = Vector2(512, 448)
+respawn_ms = 1500.0
+
+[node name="pen-30" type="Node2D" parent="."]
+position = Vector2(6016, 3616)
+script = ExtResource("pen")
+number = 30
+enemy_name = "Bone Leaper"
+kind = "Pouncer"
+right_tool = "Roll out of its landing shadow, then the Spear while it is stuck; statues hide you"
+enemy_types = PackedStringArray("bone-leaper")
+posts = PackedVector2Array(380, 224)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(300, 150),
+"scene": "object.decoration-world-solid.armor-statue"
+}, {
+"at": Vector2(300, 330),
+"scene": "object.decoration-world-solid.armor-statue"
+}])
+
+[node name="pen-31" type="Node2D" parent="."]
+position = Vector2(3456, 4224)
+script = ExtResource("pen")
+number = 31
+enemy_name = "Bone Thrower"
+kind = "Thrower"
+right_tool = "close in while its bone is out (its hand is empty); or catch the bone (Q) and throw it back"
+enemy_types = PackedStringArray("bone-thrower")
+posts = PackedVector2Array(340, 224)
+size = Vector2(512, 448)
+
+[node name="pen-32" type="Node2D" parent="."]
+position = Vector2(4096, 4224)
+script = ExtResource("pen")
+number = 32
+enemy_name = "Bone Marcher"
+kind = "Patroller"
+right_tool = "time the gap; any hit drops it (the pot: Q); then hit the pile or take its skull (Q)"
+enemy_types = PackedStringArray("bone-marcher")
+posts = PackedVector2Array(128, 96)
+size = Vector2(512, 448)
+enemy_properties = {
+"route": PackedVector2Array(0, 0, 256, 0, 256, 256, 0, 256),
+"route_loop": true
+}
+supplies = Array[Dictionary]([{
+"at": Vector2(256, 236),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}])
+
+[node name="route-preview" type="Node2D" parent="pen-32"]
+script = ExtResource("route_e")
+
+[node name="pen-33" type="Node2D" parent="."]
+position = Vector2(4736, 4224)
+script = ExtResource("pen")
+number = 33
+enemy_name = "Watcher Eye"
+kind = "Sentinel"
+right_tool = "hide behind a statue; when it looks away, the Spear from behind; later the Bow"
+enemy_types = PackedStringArray("watcher-eye")
+posts = PackedVector2Array(256, 190)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(150, 300),
+"scene": "object.decoration-world-solid.armor-statue"
+}, {
+"at": Vector2(372, 290),
+"scene": "object.decoration-world-solid.stone-pedestal"
+}, {
+"at": Vector2(270, 395),
+"scene": "object.decoration-world-solid.armor-statue"
+}])

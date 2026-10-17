@@ -112,25 +112,6 @@ metadata = {
 "x": 1888,
 "y": 1888
 }
-},
-"spawns": {
-"enemies": [{
-"type": "worm-brawler",
-"weight": 65
-}, {
-"type": "worm-swordsman",
-"weight": 20
-}, {
-"type": "worm-archer",
-"weight": 15
-}],
-"intervalMs": 1500,
-"maxPopulation": 16,
-"radius": {
-"max": 500,
-"min": 200
-},
-"safeZones": []
 }
 }
 

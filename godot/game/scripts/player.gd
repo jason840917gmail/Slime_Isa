@@ -90,6 +90,10 @@ const HIT_FLASH_COLOR := Color("#ff6f88")
 const HIT_FLASH_MS := 120.0
 ## WorldScene.ts:1932 (real time) - defeat screen is OUT, the trial respawns directly.
 const DEFEAT_RESPAWN_DELAY_MS := 1400.0
+## A node in this group with `respawn_point() -> Variant` (an old centre, or null) says where a
+## defeated slime wakes instead of the bed or the spawn: the prologue's glade edge
+## (game/prologue/prologue_director.gd; the prologue has no game over, roadmap 5.21).
+const RESPAWN_OVERRIDE_GROUP := &"respawn_override"
 ## WorldScene.ts:908 (move-start squash after this long standing still).
 const MOVE_START_IDLE_MS := 150.0
 ## Floating text heights above the old centre (WorldScene).
@@ -1240,6 +1244,12 @@ func squash(preset: StringName, force: bool = false) -> void:
 	_squash.play(preset, force)
 
 
+## A squash given by its numbers (SquashStretch.play_scale): the Gulp's suck, catch and throw
+## (game/player/gulp/gulp_feel.gd).
+func squash_by(scale: Vector2, ms: float, trans: int = Tween.TRANS_BACK, force: bool = false) -> void:
+	_squash.play_scale(scale, ms, trans, force)
+
+
 ## The ability effects channel on the art (offset in world px, scale and alpha multiplied).
 func set_effect_offset(offset: Vector2) -> void:
 	_effect_offset = offset
@@ -1302,7 +1312,10 @@ func presses_plates() -> bool:
 	return bool(_gulp.form.get("presses_plates", false))
 
 
-## The current form walks through spider webs (Sticky).
+## The slime crosses spider webs: webs neither catch nor stick it (`apply_web`), and it tears the
+## ones it walks or rolls through. The Silk skin's hook (roadmap 7.8; owner, 2026-10-16, question
+## 131: with the Silk skin webs no longer stick); until the skin exists the Silk Gulp form (Sticky)
+## stands in for it.
 func crosses_webs() -> bool:
 	return bool(_gulp.form.get("crosses_webs", false))
 
@@ -1391,8 +1404,11 @@ func is_rooted() -> bool:
 
 
 ## `WorldScene.applyWeb`: roots the slime for `duration_ms` (the longer of two webs wins) and, when
-## it was not stuck yet, covers it with the web effect, which follows it.
+## it was not stuck yet, covers it with the web effect, which follows it. A slime that crosses webs
+## (`crosses_webs`, the Silk skin's hook) is never stuck.
 func apply_web(duration_ms: float) -> void:
+	if crosses_webs():
+		return
 	var already := _status.is_rooted()
 	_status.apply(&"sticky", duration_ms)
 	if already or body == null:
@@ -2106,13 +2122,19 @@ func _is_looping(clip: String) -> bool:
 	return anim != null and anim.loop_mode != Animation.LOOP_NONE
 
 
-## Where a defeated slime wakes: the last bed slept in when it is in this world (its wake point,
+## Where a defeated slime wakes: a respawn override's point when one is in the tree
+## (RESPAWN_OVERRIDE_GROUP: the prologue's glade edge), else the last bed slept in when it is in this world (its wake point,
 ## `RunState.respawn_point`), else the spawn marker's open tile. A bed in another world is not
 ## travelled to yet (Phaser reloads into the bed's world).
 func _respawn_point() -> Vector2:
 	var world := Services.world()
 	if world == null:
 		return get_centre()
+	var override := get_tree().get_first_node_in_group(RESPAWN_OVERRIDE_GROUP) if is_inside_tree() else null
+	if override != null and override.has_method(&"respawn_point"):
+		var wake: Variant = override.call(&"respawn_point")
+		if wake is Vector2 and (wake as Vector2).is_finite():
+			return wake
 	var run := Services.run()
 	var bed: Dictionary = run.respawn_point() if run != null else {}
 	if not bed.is_empty() and str(bed.get("map_id", "")) == world.map_id():

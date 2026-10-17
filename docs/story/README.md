@@ -28,8 +28,11 @@
    - [Chapter 2 — Gloop Forest](chapters/chapter-2-gloop-forest.md)
    - [Chapter 3 — Crystal Caverns (sketch)](chapters/chapter-3-crystal-caverns.md)
 6. [Unlock map](05-unlock-map.md): every permanent item, where and how it
-   is earned, and what it opens.
+   is earned, and what it opens. How maps teach, test and hide those powers'
+   locks is the [level design guide](../design/2026-10-16-level-design.md).
 7. [Open questions](06-open-questions.md): the decisions waiting on the owner.
+8. [Decisions archive](07-decisions-archive.md): the answered questions, cut down to their
+   decisions, with their numbers kept.
 
 ## Status tags
 
@@ -75,7 +78,23 @@ Every beat, item and idea carries one tag:
   from the Matron's thread; Pearl 1's homecoming; campfires and the well;
   then saving like Zelda, the prizes that were materials, the Clod Stomper,
   whole manuscripts, food at a campfire, the Slime Forge and the
-  [bestiary](../design/2026-10-16-bestiary.md)'s 29 enemies).
+  [bestiary](../design/2026-10-16-bestiary.md)'s 29 enemies), and their
+  seventh round (manuscripts that teach recipes and lore; dungeons that
+  resume at their entrance; the Pearls' power flowing from the Wellspring
+  into the town; the Spear's upgrades after Release 1; chunk B4 shared by the
+  prologue and the West village's town; the prologue's saving and HUD, Tom's
+  lesson, the Weaver Hollow's heart quarter and the well's refill; the
+  Spear-only bells; and enemies placed in the world, not spawned), their
+  eighth round (a full heart from each boss; max energy from potions, the
+  well and bosses; the energy rules and drops; no coffer in the Gloop Cavern; bells as a
+  ranged lock for a thrown pot or an arrow, in place of the Spear-only
+  bells; the level design guide's looks and first locks; a Roll that sticks
+  in a floor web; the Matron at the top of the Weaver Hollow; the skeletons'
+  story; the War journal page; and the Forge's strong potions), and their
+  ninth round (the later vassals and their Swim, Polar, Sand, Cloud and Lava
+  skins, and bells that stay open for good), and their tenth round (the
+  Gloop Cavern kept as a small secret cave, grass cut by the Spear, wooden
+  clappers as the worm army's alarms, and the refill pause).
 - Dialogue already in the game lives in
   `godot/game/data/quests-chapter-1.json`, `quests-chapter-2.json` and
   `godot/game/data/npc-definitions.json`. When a chapter file and the game

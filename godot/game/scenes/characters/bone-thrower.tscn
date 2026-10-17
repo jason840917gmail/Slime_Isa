@@ -1,0 +1,127 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/scripts/bone_thrower.gd" id="script"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/weapon/chop-wood-1.ogg" id="hurt_0"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/weapon/chop-wood-2.ogg" id="hurt_1"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-2.wav" id="death"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(30, 14)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(38, 60)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 40.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hurt"]
+playback_mode = 1
+streams_count = 2
+stream_0/stream = ExtResource("hurt_0")
+stream_1/stream = ExtResource("hurt_1")
+
+[node name="BoneThrower" type="CharacterBody2D"]
+position = Vector2(0, 30)
+collision_layer = 4
+collision_mask = 1027
+motion_mode = 1
+wall_min_slide_angle = 0.0
+metadata/collide_world_bounds = true
+metadata/depth_anchor = Vector2(0, 30)
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -7.0)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Pose" type="Node2D" parent="."]
+
+[node name="Visual" type="Sprite2D" parent="Pose"]
+scale = Vector2(0.3, 0.3)
+centered = false
+offset = Vector2(-128, -248)
+hframes = 4
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-bone-thrower.webp"
+
+[node name="DamageArea" type="Area2D" parent="."]
+position = Vector2(0, -30)
+collision_layer = 8
+collision_mask = 16
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(0, -4.0)
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="AttackArea" type="Area2D" parent="."]
+position = Vector2(0, -30)
+collision_layer = 16
+collision_mask = 8
+monitoring = false
+monitorable = false
+
+[node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_attack")
+disabled = true
+
+[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "damage_area", "attack_area", "pose")]
+script = ExtResource("script")
+enemy_type = "bone-thrower"
+body = NodePath("..")
+visual = NodePath("../Pose/Visual")
+damage_area = NodePath("../DamageArea")
+attack_area = NodePath("../AttackArea")
+faction = "hostile"
+rank = "ordinary"
+display_name = "Bone Thrower"
+max_health = 30.0
+targeting_radius = 300.0
+attack_range = 0.0
+movement_speed = 0.0
+attack_cooldown_ms = 0.0
+attributes = {
+"knockbackStrength": 200,
+"knockbackResist": 0.3
+}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+rewards = {
+"coins": 6
+}
+projectile = {
+"projectileId": "bone",
+"assetId": "enemy.projectile.bone",
+"damage": 16
+}
+pose = NodePath("../Pose")
+defeated_frame = 0
+
+[node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_hurt")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.08
+min_interval_ms = 90.0
+pan_distance = 400.0
+position = Vector2(0, -30)
+
+[node name="DeathSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = ExtResource("death")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+position = Vector2(0, -30)
+
+[connection signal="damaged" from="EnemyScript" to="HurtSfx" method="play_cue"]
+[connection signal="defeated" from="EnemyScript" to="DeathSfx" method="play_cue"]

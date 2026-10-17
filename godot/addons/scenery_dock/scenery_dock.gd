@@ -1,9 +1,15 @@
 @tool
 extends VBoxContainer
 ## The Scenery dock's panel: a category list, a name search and the props' pictures (the palettes'
-## normal tiles, cut from the palette images), which drag into the 2D view (scenery_list.gd).
+## normal tiles, cut from the palette images), which drag into the 2D view (scenery_list.gd). The
+## **Enemies** category lists every enemy type by its picture: dragging one places a placed enemy
+## (game/enemy/placed_enemy.gd) of that type (roadmap 5.25).
 
 const List := preload("res://addons/scenery_dock/scenery_list.gd")
+const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
+## The placed enemy scene and the category listing the enemy types.
+const PLACED_SCENE := "res://game/scenes/encounters/placed-enemy.tscn"
+const ENEMIES_CATEGORY := "Enemies"
 const MANIFEST := "res://game/world/props/prop_palettes.json"
 const ART_DIR := "res://asset/MAPS/palettes/"
 ## The manifest's palettes the dock lists, with their cell (px in the palette images).
@@ -14,7 +20,7 @@ const ICON := Vector2i(80, 80)
 ## The sizes a prop can be placed at.
 const SIZES := [["Small", 0.7], ["Normal", 1.0], ["Big", 1.3]]
 
-## Called before a drag starts with (scene, size): readies the drop (the plugin's).
+## Called before a drag starts with (scene, size, enemy type or ""): readies the drop (the plugin's).
 var prepare_drop := Callable()
 
 var _categories: OptionButton
@@ -64,22 +70,22 @@ func _ready() -> void:
 	_list.set(&"dock", self)
 	add_child(_list)
 	var hint := Label.new()
-	hint.text = "Drag a picture into the map: it becomes a node under Scenery, at the size above."
+	hint.text = "Drag a picture into the map: it becomes a node under Scenery, at the size above (an enemy: a placed enemy under Enemies)."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override(&"font_size", 12)
 	add_child(hint)
 	_load()
 
 
-## Reads the manifest and cuts every prop's picture out of its palette image.
+## Reads the manifest and cuts every prop's picture out of its palette image; then the enemy types
+## and their pictures (the Enemies category: [name, placed enemy scene, picture, type]).
 func _load() -> void:
 	_props.clear()
 	_categories.clear()
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST))
-	if not parsed is Dictionary:
-		return
+	var palettes: Dictionary = parsed if parsed is Dictionary else {}
 	for palette: String in PALETTES:
-		for entry: Dictionary in (parsed as Dictionary).get(palette, []):
+		for entry: Dictionary in palettes.get(palette, []):
 			if entry.get("retired", false):
 				continue
 			var art := ART_DIR + "%s-%s.png" % [palette, str(entry["name"]).replace(" ", "-")]
@@ -101,6 +107,15 @@ func _load() -> void:
 				var category := str(entry["name"]) if palette == "cell" else "%s (details)" % entry["name"]
 				_props[category] = props
 				_categories.add_item(category)
+	PlacedEnemyScript.reload()
+	var enemies: Array = []
+	for type_id in PlacedEnemyScript.known_types():
+		var picture := PlacedEnemyScript.picture_texture(type_id)
+		if picture != null:
+			enemies.append([type_id.replace("-", " "), PLACED_SCENE, picture, type_id])
+	if not enemies.is_empty():
+		_props[ENEMIES_CATEGORY] = enemies
+		_categories.add_item(ENEMIES_CATEGORY)
 	_show()
 
 
@@ -134,5 +149,9 @@ func _show() -> void:
 					shown.append(prop)
 	for prop: Array in shown:
 		var index := _list.add_item(prop[0], prop[2])
-		_list.set_item_metadata(index, prop[1])
-		_list.set_item_tooltip(index, str(prop[1]).get_file())
+		if prop.size() > 3:
+			_list.set_item_metadata(index, {"scene": prop[1], "enemy_type": prop[3]})
+			_list.set_item_tooltip(index, "%s (a placed enemy)" % prop[3])
+		else:
+			_list.set_item_metadata(index, prop[1])
+			_list.set_item_tooltip(index, str(prop[1]).get_file())

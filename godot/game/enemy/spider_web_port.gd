@@ -6,11 +6,17 @@ class_name SpiderWebPort
 ## Used by `game.spider-web` (spider_web.gd), `game.web-patch` (web_patch.gd) and projectile.gd.
 ##
 ## The player side is player.gd's (the abilities work, abilities spec 19.3): `crosses_webs()` (the
-## Sticky Gulp form, Phaser `playerCrossesWebs`) and `teleport(centre)` (Phaser `teleportPlayer`)
-## are called directly; `apply_web(duration_ms)` (the rooted `sticky` status and its web cover)
-## does not exist yet and is duck-typed: until it does, a web catch stops the slime and suppresses
-## its movement for the duration, with the web cover drawn over it, and a web projectile hit only
-## shows the cover (its knockback must still play, which a suppression would freeze).
+## Silk skin's hook, roadmap 7.8; today the Silk Gulp form stands in for the skin, Phaser
+## `playerCrossesWebs`), `is_rolling()` / `stop_movement()` (a Roll sticks in a web) and
+## `teleport(centre)` (Phaser `teleportPlayer`) are called directly; `apply_web(duration_ms)` (the
+## rooted `sticky` status and its web cover) is duck-typed: without it a web catch stops the slime
+## and suppresses its movement for the duration, with the web cover drawn over it, and a web
+## projectile hit only shows the cover (its knockback must still play, which a suppression would
+## freeze).
+##
+## A Roll sticks in a web (owner, 2026-10-16, question 131): a rolling slime is caught as a walking
+## one is, and its roll ends there (no bonk, no rolling on), so a Roll never crosses a web or tears
+## it. With the Silk skin (`crosses_webs()`) webs neither catch nor stick.
 ##
 ## Zones are Dictionaries in Phaser's camelCase: {"x", "y", "halfWidth", "halfHeight"} (old Phaser
 ## world positions), also the `caught` / `torn` signal payloads.
@@ -63,18 +69,22 @@ static func player_position() -> Variant:
 	return target.get_centre()
 
 
-## `playerCrossesWebs()`: the Gulp form crosses webs (Sticky; player.gd `crosses_webs()`).
+## `playerCrossesWebs()`: the slime crosses webs (player.gd `crosses_webs()`: the Silk skin's hook,
+## today the Silk Gulp form).
 static func player_crosses_webs() -> bool:
 	var target := player()
 	return target != null and target.crosses_webs()
 
 
 ## `catchInWeb(zone)`: set the slime back above the zone (when its centre is above the zone's) or
-## below it, stuck for 900 ms, with a throttled message.
+## below it, stuck for 900 ms, with a throttled message. A rolling slime sticks the same way: its
+## roll ends here first (player.gd `stop_movement` cancels it).
 static func catch_player(zone: Dictionary) -> void:
 	var target := player()
 	if target == null:
 		return
+	if target.is_rolling():
+		target.stop_movement()
 	var centre := target.get_centre()
 	var zone_y := float(zone.get("y", 0.0))
 	var half_height := float(zone.get("halfHeight", 0.0))

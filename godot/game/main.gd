@@ -43,8 +43,10 @@ extends Node2D
 ##     ShapeController child "ShapeController" of the player root (setup, PlayerScript.set_shapes),
 ##     and in the playground the ShapesTestbed (dummies and the enemy pen) under the world root
 ##  7. start_enemy_population(): EnemyPopulation with the enemy-spawn areas, safe zones,
-##     entities_root, every enemy type its camps name (the trial's worm-only filter is gone),
-##     seed_initial()
+##     entities_root (it finds the world's placed enemies and enemy-wander areas itself), every
+##     enemy type its camps name (the trial's worm-only filter is gone), seed_initial(): every
+##     placed enemy stands at once, once per build (roadmap 5.25); spawn areas (the playground,
+##     the dev worlds) seed and refill as before
 ##  7b. warm_runtime_scenes(): cache the PackedScenes spawned mid-game (camp enemy types, the
 ##     weapon's hit effect, resource nodes' hit effects and drop piles) and mount the global
 ##     audio cue scene, so none of them is loaded on
@@ -100,6 +102,9 @@ const ShapeController := preload("res://game/shapes/shape_controller.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ShapesTestbed := preload("res://game/shapes/shapes_testbed.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+## The prologue (docs/godot/PROLOGUE.md): the `prologue` launch option starts a new run in it, and a
+## run that plays it or has learned its Spear plays in the body-shapes mode (`decide_rework_mode`).
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -176,6 +181,10 @@ var _transitioning: bool = false
 ## The travel under way goes into another chunk of the region it starts in (worked out when it
 ## starts: the old world's registrations go before it is freed).
 var _travel_within_region := false
+## The body-shapes mode lends the shapes and the Ability Box abilities for the session (the
+## playground, the `shapes` launch option); a run that plays the story with shapes (the prologue and
+## after it) lends nothing and keeps only what it learned (`decide_rework_mode`).
+var _rework_lending := false
 ## The world being built arrives by a chunk scroll (ChunkScroll): no arrival fade.
 var _scroll_arrival := false
 var _next_gate_message_ms: int = 0
@@ -234,6 +243,10 @@ func _ready() -> void:
 	quest_waypoint.name = "QuestWaypoint"
 	add_child(quest_waypoint)
 	add_child(NpcNameTags.new())
+	# Dev: `?prologue` / `-- --prologue` starts a new run in the prologue, as New Game does.
+	if run != null and has_launch_option("prologue") and run.start_kit_pending \
+			and not PrologueState.has_beat(run, PrologueState.STARTED) and run.peek_navigation().is_empty():
+		PrologueState.begin(run)
 	var navigation := run.consume_navigation() if run != null else {}
 	var target := str(navigation.get("map_id", ""))
 	if target.is_empty() or world_service.scene_path(WORLD_SCENE_PREFIX + target).is_empty():
@@ -333,9 +346,11 @@ func respawn_in_world(bed: Dictionary) -> bool:
 ## RunState schedules it on its own changes, the player's HP changes schedule it too, and it is
 ## written once on arrival. Not in the playground (owner, 2026-10-08): the dev testbed never writes
 ## the autosave (slot 0), so the title's Continue never starts there; Quit to Title follows
-## `autosave_enabled` too. Manual saves still work there. The body-shapes rework mode never writes it
-## either (docs/godot/BODY_SHAPES.md "Running it"): a `?shapes` session must not reach slot 0, and
-## its quiet grants are left out of every save anyway (RunState.session_ability_ids).
+## `autosave_enabled` too. Manual saves still work there. The body-shapes rework mode that lends the
+## shapes (`?shapes`, `_rework_lending`) never writes it either (docs/godot/BODY_SHAPES.md "Running
+## it"): a `?shapes` session must not reach slot 0, and its quiet grants are left out of every save
+## anyway (RunState.session_ability_ids). A story run in the mode (the prologue's Spear) keeps it;
+## while the prologue runs RunState refuses every save (docs/godot/PROLOGUE.md).
 func _start_autosave() -> void:
 	var run := Services.run()
 	if run == null:
@@ -343,7 +358,7 @@ func _start_autosave() -> void:
 	run.location_provider = _live_location
 	var world_service := Services.world()
 	run.autosave_enabled = (world_service == null or world_service.map_id() != PLAYGROUND_MAP_ID) \
-		and not ReworkMode.is_on()
+		and not _rework_lending
 	if not run.autosave_enabled:
 		return
 	if player != null and not player.health_changed.is_connected(_on_player_health_changed):
@@ -841,28 +856,32 @@ func grant_playground_abilities() -> void:
 ## spawns (docs/godot/BODY_SHAPES.md "Running it"): on with the `shapes` launch option (web
 ## `?shapes`, desktop `-- --shapes`) in any world; on in the playground and its rooms (worlds named
 ## `playground-<room>`: the sinkhole's cavern, the Bomb corner's cave) unless `classic` (or
-## `rework_in_playground` is off); else off. Its input layer follows (ReworkInput: on puts it on,
-## off puts every event back). Returns the mode.
+## `rework_in_playground` is off); these two lend the shapes for the session (`_rework_lending`).
+## Also on, lending nothing, for a run that plays the story with shapes (`plays_story_shapes`: the
+## prologue, which teaches the Spear, and every world after it; docs/godot/PROLOGUE.md); else off.
+## Its input layer follows (ReworkInput: on puts it on, off puts every event back). Returns the mode.
 func decide_rework_mode(target: String) -> bool:
 	var playground := target == PLAYGROUND_MAP_ID or target.begins_with(PLAYGROUND_MAP_ID + "-")
-	var on := has_launch_option("shapes") \
+	_rework_lending = has_launch_option("shapes") \
 		or (playground and rework_in_playground and not has_launch_option("classic"))
+	var on := _rework_lending or plays_story_shapes()
 	ReworkMode.set_on(on)
 	ReworkInput.apply(on)
 	return on
 
 
-## The rework mode's part of the world build (step 6b above; nothing while the mode is off): the
-## three shapes and the Ability Box abilities the game has (AbilityBox.socket_ids that
-## AbilityDefinitions knows) learned quietly for the session only (RunState.learn_session_ability:
-## no save carries them; one the run had already learned stays as it was), the ShapeController under
+## The rework mode's part of the world build (step 6b above; nothing while the mode is off): when it
+## lends (`_rework_lending`: the playground, `?shapes`; not a story run) the three shapes and the
+## Ability Box abilities the game has (AbilityBox.socket_ids that AbilityDefinitions knows) learned
+## quietly for the session only (RunState.learn_session_ability: no save carries them; one the run
+## had already learned stays as it was); always the ShapeController under
 ## the player root, handed to the player, and in the playground the ShapesTestbed (training dummies
 ## with the reaction presets and the enemy pen).
 func start_rework() -> void:
 	if not ReworkMode.is_on() or player == null or player_root == null:
 		return
 	var run := Services.run()
-	if run != null:
+	if run != null and _rework_lending:
 		for id: StringName in ShapeDefs.IDS:
 			run.learn_session_ability(String(id))
 		for id: StringName in AbilityBox.socket_ids():
@@ -879,7 +898,23 @@ func start_rework() -> void:
 		testbed.name = "ShapesTestbed"
 		world_root.add_child(testbed)
 
-## Creates and seeds the EnemyPopulation (enemy spec 3).
+## True when the run plays the story in the body-shapes mode (docs/godot/PROLOGUE.md): while the
+## prologue runs (it teaches the Spear) and once a shape is learned for good (the prologue's Spear; a
+## shape only lent for the session, RunState.session_ability_ids, does not count).
+func plays_story_shapes() -> bool:
+	var run := Services.run()
+	if run == null:
+		return false
+	if PrologueState.is_running(run):
+		return true
+	for id: StringName in ShapeDefs.IDS:
+		if run.has_learned_ability(String(id)) and not run.session_ability_ids.has(String(id)):
+			return true
+	return false
+
+
+## Creates and seeds the EnemyPopulation (enemy spec 3): the world's placed enemies spawn here,
+## once per build of the world, so a beaten one is back only after the world is built again.
 func start_enemy_population() -> void:
 	var world_service := Services.world()
 	enemy_population = EnemyPopulation.new()

@@ -9,7 +9,9 @@ extends RefCounted
 ## - an available NPC quest: the nearest giver ("Talk to <name>");
 ## - ready to turn in: the nearest turn-in NPC ("Return to <name>");
 ## - active: the first unfinished objective of the current stage that resolves: kill -> the
-##   nearest enemy-spawn area holding one of its kinds (its stay rect centre); defeat-boss -> the
+##   wander area (its centre) of the nearest placed enemy of its kinds still standing (roadmap 5.25),
+##   else the nearest enemy-spawn area holding one of its kinds (its stay rect centre: the playground
+##   and the dev worlds); defeat-boss -> the
 ##   camp of the first boss on this map; discover-area -> the nearest exit or door into the area;
 ##   collect -> the nearest pile with some left or standing resource node that drops the item;
 ##   craft-item -> the nearest station serving the recipe (portable recipes: nothing);
@@ -23,6 +25,7 @@ const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const WorldExitScript := preload("res://game/scripts/world_exit.gd")
+const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 
 ## The Workshop also crafts workbench recipes (STATION_INCLUDES, RecipeCatalog.ts:93-99).
 const STATION_INCLUDES := {"workshop": ["workbench"]}
@@ -68,7 +71,9 @@ static func _objective_target(objective: Dictionary, from: Vector2) -> Dictionar
 			return _npc_target(QuestCatalog.ids(objective, "npcIds"), from, "Talk to %s")
 		"kill":
 			var kinds := QuestCatalog.ids(objective, "enemyKinds")
-			point = _spawn_area_for(kinds, from) if not kinds.is_empty() else null
+			point = _placed_enemy_for(kinds, from) if not kinds.is_empty() else null
+			if point == null and not kinds.is_empty():
+				point = _spawn_area_for(kinds, from)
 		"defeat-boss":
 			for boss_id: String in QuestCatalog.ids(objective, "bossIds"):
 				point = _boss_camp_position(boss_id)
@@ -120,6 +125,20 @@ static func _boss_camp_position(boss_id: String) -> Variant:
 		if str(camp.get(&"boss_id")) == boss_id and camp.get_parent() is Node2D:
 			return FeetAnchor.phaser_position(camp.get_parent() as Node2D)
 	return null
+
+
+## The nearest placed enemy of one of `kinds` still standing (group PlacedEnemy.GROUP): its wander
+## area's centre (a camp's shared area, or its own circle). Null when none stands.
+static func _placed_enemy_for(kinds: Array[String], from: Vector2) -> Variant:
+	var best: Variant = null
+	for node: Node in _tree().get_nodes_in_group(PlacedEnemyScript.GROUP):
+		var placed := node as PlacedEnemyScript
+		if placed == null or not placed.enemy_type in kinds or not placed.is_standing():
+			continue
+		var centre := placed.wander_centre()
+		if best == null or from.distance_to(centre) < from.distance_to(best):
+			best = centre
+	return best
 
 
 ## The nearest enemy-spawn area holding one of `kinds`: its stay rectangle's centre.

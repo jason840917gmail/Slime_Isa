@@ -8,5 +8,7 @@ Three generated concept directions based only on the project's non-spider slime 
 
 These are concept illustrations, not production sprite sheets.
 
-The forest orb-weaver direction became the runtime spider
-(`asset/MAPS/enemies/64x64-8x10-forest-orb-weaver-slime.png`, `character.enemy.slime-spider`).
+The forest orb-weaver direction became the old runtime spider sheet
+(`godot/asset/MAPS/enemies/64x64-8x10-forest-orb-weaver-slime.webp`), which only the Orb-Weaver
+Matron still uses: the Slime Spider and the Orb-weaver were repainted on 2026-10-16
+(`asset/Originals/enemies/bestiary/README.md`).

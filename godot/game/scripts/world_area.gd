@@ -4,17 +4,24 @@ class_name WorldAreaScript
 ## `WorldSceneLoader.worldAreaData`): a data holder under an Area2D in world scenes. World spec
 ## 3.1, enemy spec 3.1. WorldService.register_world() calls `to_record()` on every one.
 ##
+## `enemy-wander` (roadmap 5.25, 2026-10-16) is not Phaser's: the wander area a camp of placed
+## enemies shares (game/enemy/placed_enemy.gd names it by `area_id`), one shape, no data. The
+## `enemy-spawn` areas (a camp that refills on a timer) are left only in the playground and the dev
+## worlds (enemy spec 3).
+##
 ## Owner: world builder.
 
 const Perimeter := preload("res://game/shared/perimeter.gd")
 
 const KIND_ENEMY_SAFE_ZONE := "enemy-safe-zone"
 const KIND_ENEMY_SPAWN := "enemy-spawn"
+const KIND_ENEMY_WANDER := "enemy-wander"
 const KIND_NPC_WANDER := "npc-wander"
 ## Authored child names, used only when a node export did not resolve (converter node_paths).
 const STAY_SHAPE_NAME := "stay-shape"
 
-## JSON `areaKind`: "enemy-safe-zone" | "enemy-spawn" | "npc-wander"; anything else -> push_error.
+## JSON `areaKind`: "enemy-safe-zone" | "enemy-spawn" | "enemy-wander" | "npc-wander"; anything
+## else -> push_error.
 @export var area_kind: String = ""
 ## JSON `areaId` (e.g. "level-1-starter-camp").
 @export var area_id: String = ""
@@ -23,7 +30,8 @@ const STAY_SHAPE_NAME := "stay-shape"
 ## JSON `data` (camelCase keys kept: enemies[{type, weight, maxAlive}], intervalMs,
 ## maxPopulation, npcInstanceId).
 @export var data: Dictionary = {}
-## JSON `shape`: the outer perimeter (pursue perimeter for enemy-spawn).
+## JSON `shape`: the outer perimeter (pursue perimeter for enemy-spawn, the wander perimeter for
+## enemy-wander).
 @export var shape: CollisionShape2D
 ## JSON `stayShape`: enemy-spawn only, the inner stay perimeter.
 @export var stay_shape: CollisionShape2D
@@ -31,13 +39,15 @@ const STAY_SHAPE_NAME := "stay-shape"
 
 ## The record WorldService exposes (see WorldService.areas()):
 ## `{"id": area_id, "kind": area_kind, "data": data, "perimeter": Perimeter.from_shape(shape)}`
-## plus `"stay_perimeter"` (and the alias `"pursue_perimeter"`) for enemy-spawn. Validation
-## (push_error and return {}): unknown kind; safe zone not a rectangle; spawn area without stay
-## shape, stay/pursue of different kinds, or stay not inside pursue (`Perimeter.fits_inside`).
-## Must be called after the world is in the tree (uses global transforms).
+## plus `"stay_perimeter"` (and the alias `"pursue_perimeter"`) for enemy-spawn; an enemy-wander
+## record's `"stay_perimeter"` is its perimeter (what EnemyScript.configure_navigation reads).
+## Validation (push_error and return {}): unknown kind; safe zone not a rectangle; spawn area
+## without stay shape, stay/pursue of different kinds, or stay not inside pursue
+## (`Perimeter.fits_inside`). Must be called after the world is in the tree (uses global
+## transforms).
 func to_record() -> Dictionary:
 	var label := area_id if not area_id.is_empty() else String(get_path())
-	if area_kind != KIND_ENEMY_SAFE_ZONE and area_kind != KIND_ENEMY_SPAWN and area_kind != KIND_NPC_WANDER:
+	if not area_kind in [KIND_ENEMY_SAFE_ZONE, KIND_ENEMY_SPAWN, KIND_ENEMY_WANDER, KIND_NPC_WANDER]:
 		push_error("WorldArea '%s': unknown areaKind '%s'" % [label, area_kind])
 		return {}
 	if area_id.is_empty():
@@ -71,6 +81,8 @@ func to_record() -> Dictionary:
 			return {}
 		record["stay_perimeter"] = stay
 		record["pursue_perimeter"] = perimeter
+	elif area_kind == KIND_ENEMY_WANDER:
+		record["stay_perimeter"] = perimeter
 	return record
 
 

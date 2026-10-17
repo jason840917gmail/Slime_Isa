@@ -29,7 +29,7 @@ const GATE_GROUP := &"gate"
 const FLAG_PREFIX := "candle-lit."
 const PERSISTENCE_KEY_META := &"persistence_key"
 const INSTANCE_ID_META := &"instance_id"
-const CUE_LIGHT := &"GulpSpit"
+const CUE_LIGHT := &"FireIgnite"
 const GLOW_PX := 64.0
 const GLOW_COLOR := Color(1.0, 0.65, 0.25, 0.55)
 ## The fire target's width, and its height over the flame point (px).

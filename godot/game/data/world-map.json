@@ -85,7 +85,7 @@
 			"placeholder": false,
 			"theme": "forest",
 			"boss": "Orb-Weaver Matron",
-			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze leads in, which only the Silk skin passes."
+			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze leads in, which only the Silk skin passes. The Matron lives at the top of the Weaver Hollow, Chapter 2's dungeon; her nest in F4 is its entrance (owner, 2026-10-16, question 133). The small Gloop Cavern behind the cracked clearing's sinkhole is the Goo Bomb's come-back secret, with one of the forest's heart quarters (question 18)."
 		},
 		{
 			"key": "c",
@@ -113,7 +113,7 @@
 			"placeholder": true,
 			"theme": "volcano",
 			"boss": "Gorge",
-			"notes": "The east half of the great mountain, around the crater. Gorge's prison; the rumbling comes from here."
+			"notes": "The east half of the great mountain, around the crater. Gorge's prison; the rumbling comes from here. Cinder, the magma salamander, guards the slopes with the Lava skin's Pearl, the last skin, which opens the way into Gorge's crater (question 32)."
 		},
 		{
 			"key": "e",
@@ -126,8 +126,8 @@
 			"interiors": [],
 			"placeholder": true,
 			"theme": "frost",
-			"boss": "",
-			"notes": "Proposal: the great lake in the south-east, frozen, with snowy cliffs: ice physics and snow."
+			"boss": "Old Rimepaw",
+			"notes": "Proposal: the great lake in the south-east, frozen, with snowy cliffs: ice physics and snow. Old Rimepaw, the polar bear, holds the Polar skin's Pearl: sure-footed on ice and every slippery surface, and a belly-slide Roll on ice (owner, 2026-10-16, question 32)."
 		},
 		{
 			"key": "f",
@@ -140,8 +140,8 @@
 			"interiors": [],
 			"placeholder": true,
 			"theme": "swamp",
-			"boss": "",
-			"notes": "South of the hub (the Great Swamp's place). Slow mud, poison, rain, spider-slimes. Proposal: Old Gullet, the catfish, holds the Swim skin's Pearl."
+			"boss": "Old Gullet",
+			"notes": "South of the hub (the Great Swamp's place). Slow mud, poison, rain, spider-slimes. Old Gullet, the catfish, holds the Swim skin's Pearl (owner, 2026-10-16, question 32)."
 		},
 		{
 			"key": "g",
@@ -168,8 +168,8 @@
 			"interiors": [],
 			"placeholder": true,
 			"theme": "ruins",
-			"boss": "",
-			"notes": "Moved north 2026-10-10 (Crystal Caverns took the east). Empty slot: a ruin maze on a plateau (the Eastern Palace's place). A dungeon region."
+			"boss": "Gale",
+			"notes": "Moved north 2026-10-10 (Crystal Caverns took the east). Empty slot: a ruin maze on a plateau (the Eastern Palace's place). A dungeon region. Gale, the storm roc, holds the Cloud skin's Pearl: floating across gaps from a ledge and riding updrafts (question 32)."
 		},
 		{
 			"key": "i",
@@ -182,8 +182,8 @@
 			"interiors": [],
 			"placeholder": true,
 			"theme": "desert",
-			"boss": "",
-			"notes": "Empty slot: a desert walled by cliffs (the Desert of Mystery's place)."
+			"boss": "Sandmaw",
+			"notes": "Empty slot: a desert walled by cliffs (the Desert of Mystery's place). Sandmaw, the great sand worm and Gorge's worm general, holds the Sand skin's Pearl: burrowing through soft sand, under sand walls and through quicksand (question 32)."
 		},
 		{
 			"key": "j",
@@ -197,7 +197,7 @@
 			"placeholder": true,
 			"theme": "wilds",
 			"boss": "",
-			"notes": "The connecting fields north of the middle row (the Wilds split in two 2026-10-10). The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed in the world (a fallen bridge, a landslide, a Thorn Guard post), each saying that more lies beyond."
+			"notes": "The connecting fields north of the middle row (the Wilds split in two 2026-10-10). The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed by Thorn Guard posts: a striped barrier with a guard who says what lies beyond is closed for now (owner, 2026-10-16, question 130)."
 		},
 		{
 			"key": "k",
@@ -211,7 +211,7 @@
 			"placeholder": true,
 			"theme": "wilds",
 			"boss": "",
-			"notes": "The connecting fields south of the middle row: roads to the swamp, the desert and Frostpeak. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed in the world (a fallen bridge, a landslide, a Thorn Guard post), each saying that more lies beyond."
+			"notes": "The connecting fields south of the middle row: roads to the swamp, the desert and Frostpeak. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed by Thorn Guard posts: a striped barrier with a guard who says what lies beyond is closed for now (owner, 2026-10-16, question 130)."
 		}
 	],
 	"markers": [
@@ -224,10 +224,10 @@
 		},
 		{
 			"type": "landmark",
-			"x": 30,
+			"x": 19,
 			"y": 60,
 			"label": "The Wellspring",
-			"notes": "The prologue's lake, where the slime is born (owner, 2026-10-16): a pool of glowing goo ringed by forest in the south between B4 and C4. A forest path from Slimeshire's south-west reaches it later; each Pearl comes home here"
+			"notes": "The prologue's lake, where the slime is born (owner, 2026-10-16): a pool of glowing goo ringed by forest, the first screen of the prologue in B4's south-west. The prologue's forest path from Slimeshire's south-west reaches it later; each Pearl comes home here"
 		},
 		{
 			"type": "house",
@@ -293,7 +293,8 @@
 			"x": 86,
 			"y": 53,
 			"label": "Orb-Weaver Matron",
-			"needs": ""
+			"needs": "",
+			"notes": "At the top of the Weaver Hollow, Chapter 2's dungeon; her nest here is its entrance. Her fight needs the Goo Bomb: she shields herself in a web cocoon that only a blast tears open (question 133)"
 		},
 		{
 			"type": "gate",
@@ -348,8 +349,8 @@
 		},
 		{
 			"type": "town",
-			"x": 17,
-			"y": 58,
+			"x": 14,
+			"y": 51,
 			"label": "West village",
 			"notes": "Burr's house (young Burr teaches the Roll), a few houses, a shop and a game: Release 1's part"
 		},
@@ -384,10 +385,10 @@
 		},
 		{
 			"type": "landmark",
-			"x": 34,
-			"y": 61,
+			"x": 28,
+			"y": 59,
 			"label": "The glade",
-			"notes": "The prologue: Yoi falls to four worms; the slime saves him by throwing things and learns the Spear. A barred gate (the Spear's lock) opens into Slimeshire"
+			"notes": "The prologue's second screen, in B4's south-east: Yoi falls to four worms; the slime saves him by throwing things and learns the Spear. A barred gate (the Spear's lock) opens onto a forest path to Slimeshire's west edge"
 		}
 	],
 	"passages": [
@@ -405,7 +406,7 @@
 			"a": "g",
 			"b": "a",
 			"x": 31,
-			"y": 58,
+			"y": 60,
 			"w": 2,
 			"h": 2,
 			"kind": "road"
@@ -554,6 +555,15 @@
 			"b": "k",
 			"x": 31,
 			"y": 122,
+			"w": 2,
+			"h": 2,
+			"kind": "road"
+		},
+		{
+			"a": "g",
+			"b": "a",
+			"x": 31,
+			"y": 51,
 			"w": 2,
 			"h": 2,
 			"kind": "road"

@@ -12,13 +12,21 @@ class_name EnemyAI
 ## absent or <= 0 for the worm swordsman); "in_attack_reach": bool (EnemyAI.ts:271-273, 309:
 ## an authored attack area decides reach, replacing the `attack_range` distance checks; absent
 ## for the worm, set by bosses such as Fatty); "behavior": "slime-spider" hands every state to
-## res://game/enemy/slime_spider_ai.gd (with "preferred_distance"; enemy spec 14).
+## res://game/enemy/slime_spider_ai.gd (with "preferred_distance"; enemy spec 14); "line_up" (the
+## enemy's res://game/enemy/line_up_ai.gd, the four-way shooters: the Worm Archer, the Slime Spider,
+## the Orb-weaver; enemy spec 20) runs chase, flee and attack, after the safe-zone push (idle and
+## wander stay the base or spider AI's).
+##
+## Output: `run` also returns "face_dir" (where the line-up AI wants it to look, else zero), and
+## the attack request's direction is the state's own "attack_dir" when it gives one (a cardinal for
+## the line-up AI), else "dir".
 ##
 ## Randomness: one `randf()` per `Math.random()` call, in the same order (enemy spec 10).
 ##
 ## Owner: enemy builder.
 
 const SlimeSpiderAI := preload("res://game/enemy/slime_spider_ai.gd")
+const LineUpAI := preload("res://game/enemy/line_up_ai.gd")
 
 ## `attributes.behavior` of the ranged spiders (EnemyScript.ts:883).
 const BEHAVIOR_SLIME_SPIDER := "slime-spider"
@@ -53,13 +61,15 @@ static func run(state: String, velocity: Vector2, ctx: Dictionary) -> Dictionary
 	var current_velocity := velocity
 	var attack_requested := false
 	var attack_dir := Vector2.ZERO
+	var face_dir := Vector2.ZERO
 	for _transition in MAX_TRANSITIONS:
 		var before := current_velocity
 		var result := run_state(current, current_velocity, ctx)
 		current_velocity = result["velocity"]
+		face_dir = result.get("face_dir", Vector2.ZERO)
 		if result["attack_requested"]:
 			attack_requested = true
-			attack_dir = ctx.get("dir", Vector2.ZERO)
+			attack_dir = result.get("attack_dir", ctx.get("dir", Vector2.ZERO))
 		var next: String = result["next"]
 		if next == CONTINUE:
 			break
@@ -69,7 +79,7 @@ static func run(state: String, velocity: Vector2, ctx: Dictionary) -> Dictionary
 		if started_moving and velocity_changed:
 			break
 	return {"state": current, "velocity": current_velocity, "attack_requested": attack_requested,
-		"attack_dir": attack_dir}
+		"attack_dir": attack_dir, "face_dir": face_dir}
 
 
 ## One state call: safe-zone push-out first (except dead), then the state function.
@@ -82,6 +92,10 @@ static func run_state(state: String, velocity: Vector2, ctx: Dictionary) -> Dict
 			return _result(STATE_FLEE, axis * chase_speed * SAFE_ZONE_PUSH_MULTIPLIER)
 		# EnemyAI.ts enforceSpawnArea is dead in practice for camp enemies (enemy spec 0): not ported.
 
+	# Four-way shooters line up on the slime's row or column (enemy spec 20).
+	var line_up: Variant = ctx.get("line_up")
+	if line_up is LineUpAI and LineUpAI.handles(state):
+		return (line_up as LineUpAI).run_state(state, velocity, ctx)
 	# Specialised controllers (EnemyAI.ts:123; enemy spec 14).
 	if ctx.get("behavior", "") == BEHAVIOR_SLIME_SPIDER:
 		return SlimeSpiderAI.run_state(state, velocity, ctx)

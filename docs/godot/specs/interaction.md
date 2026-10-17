@@ -476,7 +476,8 @@ Behaviour:
   open]. The pillars stay solid. The door body is on the world layer (1), so a closed gate also
   blocks enemy sight.
 - `open()` (`:89-93`): no-op when already open; `apply(true)`; emit `opened {gateId}`. **Does
-  not persist anything** - plates and bells open gates for the current visit only (§3.3.2).
+  not persist anything** - plates open gates for the current visit only (§3.3.2). Godot's
+  `open_for_good()` (bells, since 2026-10-16) records the unlock first (§3.3.2).
 - Candidate: not offered while open (§2.3). Prompt is always `prompt`, even without the key.
 - Execute (`UniversalSceneWorldController.ts:984-999`):
   ```
@@ -520,7 +521,11 @@ ports the exit half.
 (`:121`) walk the whole tree and call `open()` on every `GateScript` whose `gateId` equals their
 own `gateId` property (no scene connection). Gates parked in a story variant are not found.
 [QUIRK] Because `open()` does not persist, a plate-opened gate is closed again the next time the
-world loads (the plate is up again too). [QUIRK] The plate/bell gates still have
+world loads (the plate is up again too). **Godot since 2026-10-16 (owner, question 136: a bell is
+a lock solved once):** a bell calls `open_for_good()` instead (`game/scripts/gate.gd`), which marks
+the gate's record unlocked (`RunState.mark_gate_unlocked(map_id, gate_id)`, the record a key's push
+writes) and opens it, so a bell's gate stays open through a chunk entered again, a save and a load,
+and a heavy plate never shuts it; plates still call `open()`. [QUIRK] The plate/bell gates still have
 `requiredItemId: "green-key"`, so a player holding a green key can unlock (and permanently open)
 them by interacting, spending the key (§5.3).
 
@@ -819,8 +824,9 @@ at `playground-sinkhole` from the cavern before the ground was cracked).
 - Gates: gloop-forest `gloop-iron-hollow-gate` (2880, 2816), prompt "Sealed gate", locked
   message "Something heavy must press the plate.", opened by plate `gloop-iron-hollow-plate`
   (2880, 3016, latch); playground `playground-heavy-gate` (1344, 576, plate at (1344, 780)) and
-  `playground-lash-gate` (1984, 1408, lash bell; message "Ring the bell across the water with the
-  Stretch Lash."). All require `green-key` [QUIRK §3.3.2].
+  `playground-lash-gate` (1984, 1408, lash bell; message "Ring the bell across the water: throw a
+  pot at it.", since 2026-10-16: a thrown thing rings a bell, never the Lash). All require
+  `green-key` [QUIRK §3.3.2].
 - Chests: gloop-cavern `gloop-cavern-hidden-chest` (1088, 640) `{iron-ore 6, charcoal 3,
   hp-potion 1}`; gloop-forest `gloop-matron-guarded-chest` (3200, 708) `{iron-bar 3, hp-potion 2}`;
   playground `playground-test-chest` (1120, 1440) `{stone-spear 1, stone-axe 1, stone-pickaxe 1,
@@ -884,7 +890,8 @@ func use() -> Dictionary:
 
 Exports per §3.3 (`visual: Sprite2D`, `doors: StaticBody2D` resolve through `node_paths`).
 Signal `opened(payload)` -> `{"gateId": gate_id}`. Group `gate` (plates and bells find gates by
-`gate_id` there; they must skip parked ones, as Phaser does).
+`gate_id` there; they must skip parked ones, as Phaser does). Bells call `open_for_good()`
+(since 2026-10-16: `mark_gate_unlocked(map_id, gate_id)`, then `open()`; §3.3.2).
 
 ```gdscript
 var _opened := false

@@ -48,9 +48,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-cocoon-hanging-01.tscn" id="46_3ayx8"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--cooking-cauldron.tscn" id="47_42rtb"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-ground-01.tscn" id="48_51pjo"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_31"]
-size = Vector2(768, 1408)
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_32"]
 size = Vector2(200, 150)
@@ -317,33 +315,15 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
-[node name="pursue-shape" type="CollisionShape2D" parent="Areas/level-1-south-meadow" unique_id=1767279294]
-position = Vector2(-96, 32)
-shape = SubResource("RectangleShape2D_31")
-
-[node name="stay-shape" type="CollisionShape2D" parent="Areas/level-1-south-meadow" unique_id=1176445107]
+[node name="wander-shape" type="CollisionShape2D" parent="Areas/level-1-south-meadow" unique_id=1176445107]
 shape = SubResource("RectangleShape2D_32")
 
-[node name="world-area-script" type="Node" parent="Areas/level-1-south-meadow" unique_id=222138720 node_paths=PackedStringArray("area", "shape", "stay_shape")]
+[node name="world-area-script" type="Node" parent="Areas/level-1-south-meadow" unique_id=222138720 node_paths=PackedStringArray("area", "shape")]
 script = ExtResource("29_evxxd")
-area_kind = "enemy-spawn"
+area_kind = "enemy-wander"
 area_id = "level-1-south-meadow"
 area = NodePath("..")
-data = {
-"enemies": [{
-"maxAlive": 2,
-"type": "worm-brawler",
-"weight": 2
-}, {
-"maxAlive": 1,
-"type": "slime-spider",
-"weight": 1
-}],
-"intervalMs": 7000,
-"maxPopulation": 3
-}
-shape = NodePath("../pursue-shape")
-stay_shape = NodePath("../stay-shape")
+shape = NodePath("../wander-shape")
 
 [node name="Encounters" type="Node2D" parent="." unique_id=1363579440]
 y_sort_enabled = true
@@ -483,6 +463,23 @@ scale = Vector2(0.5, 0.5)
 [node name="web-ground-04" parent="Scenery" unique_id=668294012 instance=ExtResource("43_evxxd")]
 position = Vector2(1792, 532)
 scale = Vector2(0.628, 0.628)
+
+[node name="Enemies" type="Node2D" parent="." unique_id=2013965930]
+
+[node name="worm-brawler-1" parent="Enemies" unique_id=1861670467 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1724, 1115)
+enemy_type = "worm-brawler"
+wander_area_id = "level-1-south-meadow"
+
+[node name="slime-spider-1" parent="Enemies" unique_id=1643785600 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1804, 1115)
+enemy_type = "slime-spider"
+wander_area_id = "level-1-south-meadow"
+
+[node name="worm-brawler-2" parent="Enemies" unique_id=1369007028 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1804, 1171)
+enemy_type = "worm-brawler"
+wander_area_id = "level-1-south-meadow"
 
 [connection signal="body_entered" from="edge-north" to="edge-north/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-east" to="edge-east/world-exit-script" method="on_body_entered"]

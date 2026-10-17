@@ -15,6 +15,7 @@ const GameSettings := preload("res://game/shell/game_settings.gd")
 const LaunchOptions := preload("res://game/shell/launch_options.gd")
 const AreaTitleCard := preload("res://game/shell/area_title_card.gd")
 const TitleScript := preload("res://game/shell/title.gd")
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
 const ThemeBuilder := preload("res://tools/build_ui_theme.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const BossHealthBar := preload("res://game/ui/boss_health_bar.gd")
@@ -318,8 +319,13 @@ func test_title_menu(t: TestContext) -> void:
 	title.new_game_button.pressed.emit()
 	t.equal(changes, ["res://game/main.tscn"] as Array[String], "New Game scene change")
 	t.check(run.started, "New Game did not start a run")
+	# A new game opens on the prologue's birth (roadmap 5.18), which cannot be saved.
+	t.equal(str(run.peek_navigation().get("map_id", "")), PrologueState.START_MAP_ID, "New Game goes to the prologue")
+	t.check(PrologueState.is_running(run), "New Game does not start the prologue")
 	title.queue_free()
 	await t.steps(1)
+	run.consume_navigation()
+	run.new_run()
 
 	# With an autosave: Continue shows and loads it; New Game asks first.
 	t.check(run.save_slot(0), "could not write the test autosave")

@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://asset/MAPS/enemies/16x20-1x3-worm-brawler_hits.webp" id="1"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="1"]
 [ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
 [ext_resource type="Script" path="res://game/scripts/effect.gd" id="3"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="4"]
@@ -103,10 +103,12 @@ stream_2/weight = 1.0
 metadata/depth_anchor = Vector2(0, 0)
 
 [node name="Visual" type="Sprite2D" parent="."]
-texture = ExtResource("1")
+scale = Vector2(0.42, 0.42)
 centered = false
-offset = Vector2(-8, -10)
-vframes = 3
+offset = Vector2(-32, -32)
+hframes = 3
+script = ExtResource("1")
+sheet_path = "res://asset/MAPS/enemies/64x64-tile_3x1-worm-brawler-hit.webp"
 
 [node name="Animation" type="AnimationPlayer" parent="."]
 script = ExtResource("2")

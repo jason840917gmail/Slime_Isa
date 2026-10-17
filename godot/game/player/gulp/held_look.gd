@@ -5,8 +5,13 @@ extends RefCounted
 ## essences sheet (both packed by scripts/props/pack-gulp-art.py). Every look is centred on its node
 ## and about `size_px` across.
 ##
+## A caught enemy projectile (the Spitcap's spore seed, game/scripts/spore_seed.gd) brings its own
+## picture: `held.texture` (a res:// path, game/runtime/sheet_sprite.gd `load_picture`), drawn
+## `held.art_px` across, and its `material` (`material_of`).
+##
 ## Owner: abilities.
 
+const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const LiftableScript := preload("res://game/scripts/liftable.gd")
 const ESSENCES_SHEET := "res://asset/MAPS/items/128x128-tile_3x1-gulp-essences.webp"
@@ -32,6 +37,11 @@ static func make(held: Dictionary, size_px: float) -> Node2D:
 			sprite.frame = int(form.get("badge_frame", 0))
 		sprite.scale = Vector2.ONE * (size_px / ESSENCES_CELL)
 		return sprite
+	# A caught projectile's own picture (the spore seed).
+	if held.get("texture") is String and not str(held["texture"]).is_empty():
+		sprite.texture = SheetSprite.load_picture(str(held["texture"]))
+		sprite.scale = Vector2.ONE * (size_px / maxf(1.0, float(held.get("art_px", size_px))))
+		return sprite
 	# The Goo Bomb (game/scripts/goo_bomb.gd) is its own picture, not a liftables sheet frame.
 	if str(held.get("kind", "")) == GOO_BOMB_KIND:
 		if ResourceLoader.exists(GOO_BOMB_TEXTURE):
@@ -48,3 +58,12 @@ static func make(held: Dictionary, size_px: float) -> Node2D:
 		sprite.frame = LiftableScript.frame_of(str(held.get("kind", LiftableScript.DEFAULT_KIND)), int(held.get("variant", 0)))
 	sprite.scale = Vector2.ONE * (size_px / cell)
 	return sprite
+
+
+## The material `held` breaks as: its own `material` (a caught projectile), else its liftable
+## kind's (game/data/liftables.json).
+static func material_of(held: Dictionary) -> String:
+	var own: Variant = held.get("material")
+	if own is String and not (own as String).is_empty():
+		return own
+	return LiftableScript.material_of(str(held.get("kind", "")))

@@ -29,6 +29,8 @@ extends Node
 const Services := preload("res://game/shared/services.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const SaveSlotsMenu := preload("res://game/saves/save_slots_menu.gd")
+## The prologue cannot be saved (question 113): `saving_blocked_reason` asks it.
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
 
 ## InitialRun.ts:16 (a literal there too).
 const NEW_RUN_COINS := 50
@@ -999,9 +1001,25 @@ func has_save(slot: int = 0) -> bool:
 	return FileAccess.file_exists(_slot_path(slot))
 
 
-## Writes the run to `slot` (0 = the autosave). False when it could not be written.
+## Why the run cannot be saved now, "" when it can: "prologue" while the prologue runs
+## (PrologueState.is_running; question 113: nothing of it is saved, so quitting plays it again from
+## the birth). Every save (`save_slot`, the autosave, `write_recovery`) asks it; the pause menu greys
+## Save out with the reason.
+func saving_blocked_reason() -> String:
+	if PrologueState.is_running(self):
+		return PrologueState.NO_SAVE_REASON
+	return ""
+
+
+## True when the run may be saved now (`saving_blocked_reason` is "").
+func can_save() -> bool:
+	return saving_blocked_reason().is_empty()
+
+
+## Writes the run to `slot` (0 = the autosave). False when it could not be written, or when saving
+## is blocked (`saving_blocked_reason`: the prologue).
 func save_slot(slot: int = 0) -> bool:
-	if not started:
+	if not started or not can_save():
 		return false
 	DirAccess.make_dir_recursive_absolute(save_root)
 	var file := FileAccess.open(_slot_path(slot), FileAccess.WRITE)
@@ -1094,7 +1112,7 @@ func list_saves() -> Array[Dictionary]:
 
 ## Asks for the recovery autosave 250 ms from now (later changes push it back).
 func schedule_autosave() -> void:
-	if not autosave_enabled or not started or _autosave_timer == null:
+	if not autosave_enabled or not started or _autosave_timer == null or not can_save():
 		return
 	_autosave_timer.start(AUTOSAVE_DELAY_MS / 1000.0)
 
@@ -1103,7 +1121,7 @@ func schedule_autosave() -> void:
 func write_recovery() -> bool:
 	if _autosave_timer != null:
 		_autosave_timer.stop()
-	if not autosave_enabled or not started:
+	if not autosave_enabled or not started or not can_save():
 		return false
 	_capture_live_player()
 	if int(player.get("hp", 0)) <= 0:

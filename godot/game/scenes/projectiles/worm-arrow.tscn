@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://asset/MAPS/enemies/40x40-1x5-worm-arrows.webp" id="1"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="1"]
 [ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
 [ext_resource type="Script" path="res://game/scripts/projectile.gd" id="3"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="4"]
@@ -83,10 +83,11 @@ metadata/collide_world_bounds = false
 shape = SubResource("RectangleShape2D_1")
 
 [node name="Visual" type="Sprite2D" parent="."]
-texture = ExtResource("1")
+scale = Vector2(0.62, 0.62)
 centered = false
-offset = Vector2(-20, -20)
-vframes = 5
+offset = Vector2(-32, -32)
+script = ExtResource("1")
+sheet_path = "res://asset/MAPS/enemies/64x64-worm-arrow.webp"
 
 [node name="AttackArea" type="Area2D" parent="."]
 y_sort_enabled = true

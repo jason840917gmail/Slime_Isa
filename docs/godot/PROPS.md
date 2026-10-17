@@ -31,6 +31,17 @@ mirror or scale it, edit it in the Inspector, delete it with Delete. **Reload** 
 `tools/build_prop_palettes.gd`. Use it for the props you place one by one; paint the mass of small
 scenery (grass, flowers, pebbles, leaves) on the layers below, which keeps the scene tree small.
 
+**Enemies** (the last category, 2026-10-16, roadmap 5.25): every enemy type with a scene, by its
+picture. Dragging one places a **placed enemy** (`game/scenes/encounters/placed-enemy.tscn`) of that
+type where it is dropped, under the world's `Enemies` node (made when missing), at its own size; the
+world's enemies are these nodes, spawned once each time the world is built
+([specs/enemy.md](specs/enemy.md) §3.3). In the 2D view it shows the enemy, its type and its wander
+outline: by default a circle of its own (`wander_radius`, in the Inspector); for a camp, give its
+enemies the same `wander_area_id`, the `area_id` of an `enemy-wander` world area (an Area2D with a
+rectangle or circle CollisionShape2D and a `world_area.gd` node of kind `enemy-wander`, as the
+converted camps have under `Areas`), and they all wander in it. Move the node to move the enemy;
+`overrides` changes one enemy's numbers (e.g. `{"max_health": 120}`).
+
 **Painted props to nodes:** `tools/paint_to_nodes.gd` (headless, the world closed in the editor:
 `--path godot -s res://tools/paint_to_nodes.gd -- --scene=<world> [--scene=...] [--keep=<prefixes>]
 [--dry]`) turns a world's painted props into nodes under `Scenery`, each picture exactly where the
@@ -163,5 +174,6 @@ uids Godot's headless save drops. Close or reload the world in the editor afterw
 | `godot/tools/build_old_prop_palettes.gd` | Builds the `old-props` palette |
 | `godot/tools/lib/prop_pictures.gd` | What the builders share: scenery scenes, visible pictures |
 | `godot/tools/absorb_props.gd` | Turns placed props into paint (older layers) |
-| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes |
+| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies |
+| `godot/game/enemy/placed_enemy.gd`, `godot/game/scenes/encounters/placed-enemy.tscn` | A placed enemy: its type, wander area and overrides, its picture in the editor |
 | `godot/tools/paint_to_nodes.gd` | Turns painted props into nodes under `Scenery` |

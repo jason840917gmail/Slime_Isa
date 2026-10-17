@@ -15,13 +15,13 @@ now ends when the Crystal Colossus falls, but the game goes on: the player
 explores the first three chapters' regions, part of the West village and the
 Wilds with the new powers, and the game says that more areas come in later
 releases (owner, 2026-10-16,
-[question 58](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+[question 58](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
 12.5). Its play time is set in 12.2. In it, a player can:
 
 - start from a title screen, continue an autosave, pause, change settings, and
   wake at their last bed after a defeat;
 - play a short **prologue** before Chapter 1 (owner, 2026-10-16,
-  [question 97](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [question 97](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   the [prologue design](design/2026-10-16-prologue.md); 5.18–5.24): the
   slime is born at the Wellspring, learns to move and to gulp, sees Yoi fall
   to four worms, saves him by throwing things and learns the Spear from him,
@@ -34,35 +34,41 @@ releases (owner, 2026-10-16,
   [sketch](story/chapters/chapter-3-crystal-caverns.md) with the smith's mine
   camp and a third boss, Milestone 12);
 - restore a Slimeshire building, the Forge, which brews the potions in
-  Release 1 ([question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  Release 1 ([question 51](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   a building is restored when a Pearl comes home
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   and Pearl 2 relights the Forge
-  ([question 79](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 79](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
+  since the seventh round every Pearl goes home to the Wellspring, and its
+  power flows into the town (question 110); since the eighth round the relit
+  Forge brews the strong potions only it knows, and campfires make the
+  simple ones (question 120, 8.5);
 - grow stronger through skins, shapes, heart quarters and story-unlocked
   abilities (no XP or levels; shapes replace crafted gear since 2026-10-15);
+  since the eighth round each boss also gives a full heart, and potions, the
+  well and each boss raise max energy (questions 17 and 19; 5.3, 5.6);
 - win three skins from the Pearls (Heavy, Silk and Feral:
-  [question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  [question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   and grab and throw with the **Gulp**
   ([the 2026-10-15 decisions](#the-2026-10-15-decisions));
 - craft potions and food from what is picked up and dropped, the only
   crafting in Release 1
-  ([question 52](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 52](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   before the Forge is relit, potions are found or bought and Chapter 1's
   simple recipes are made at a campfire, and the West village shop sells
   potions and food ingredients
-  ([questions 88 and 89](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([questions 88 and 89](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   since the sixth round potions and food are both crafted at any campfire,
   and campfires stand by the Wellspring, in the town and at each camp
   (questions 66 and 104, 5.17);
 - earn a bag and **eight powers besides the Gulp**, about three a chapter,
   each with the item ceremony
-  ([question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  ([question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94)):
   - Chapter 1: the Spear (Yoi, in the prologue since the sixth round, 5.12),
     the Roll (young Burr, 5.13) and the Heavy skin (Pearl 1, 5.9);
   - Chapter 2: the Goo Bomb, the chapter's key tool (where it comes from is
-    [question 95](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+    [question 95](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
     *answered in the sixth round: Tom, at the end of his maze, 8.13*),
     and the Silk skin (Pearl 2);
   - Chapter 3: the Lantern (the smith, 12.3), the Feral skin (Pearl 3) and
@@ -71,9 +77,9 @@ releases (owner, 2026-10-16,
   Release 1 has one bag, Plop's 10-slot bag, and the vault and the 20-slot
   bag wait
   ([the 2026-10-02 decisions](#the-2026-10-02-decisions);
-  [questions 53 and 74](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  [questions 53 and 74](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   With the War Axe in the next release the Spear is its only shape
-  ([question 96](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15),
+  ([question 96](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15),
   open; *answered in the sixth round: E stays hidden until a second shape is
   learned, and the Axe opens the next release*);
 - hear music and ambience in every area and feel every hit.
@@ -83,7 +89,8 @@ weapons and tools (2026-10-15), manuscript pieces and Slime Forge evolutions
 ("upgrades of skins and abilities come later in the game", owner,
 2026-10-15), skins 4 to 8 (the Swim skin among them since 2026-10-16, so the
 deep-water secrets are come-back secrets; the Swim form's mechanics become
-its power, question 75), the vault, the 20-slot bag, the charged roll and the
+its power, question 75; since the ninth round the Swim, Polar, Sand, Cloud
+and Lava skins, question 32), the vault, the 20-slot bag, the charged roll and the
 Roll's enemy push (2026-10-16), the Hammer shape (Chapter 5 or 6, question
 51), the **War Axe** shape and **Stretch Lash** (2026-10-16, question 94:
 their locks, such as webs, vines and trees, Sunny's basket and the Lash's
@@ -93,7 +100,7 @@ tooling. They wait in
 [After Release 1](#after-release-1--idea-parking-lot). The Crystal Caverns,
 a locked teaser until 2026-10-15, are now Chapter 3. The Bow was on this list
 until Burr was given it as his thanks; whether it is in Release 1 was
-[question 85](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15).
+[question 85](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15).
 *Answered 2026-10-16: it is, in Chapter 3 (questions 85 and 94, 12.6).*
 
 **No target date.** Release 1 ships when it is ready. By choice, milestones
@@ -133,7 +140,7 @@ are ordered but not sized or dated (decided 2026-09-29).
 On 2026-10-02 the owner made a set of design decisions
 ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built))
 and answered that all of them go into Release 1
-([open question 1](story/06-open-questions.md#scope)). They came in by the
+([open question 1](story/07-decisions-archive.md#scope)). They came in by the
 owner's choice, not through the parking-lot rule above. Their tasks were added
 on 2026-10-07, each in the milestone it changes; none is built yet, and
 several are large (the bottom console HUD, the armors, the place where the Silk
@@ -149,7 +156,7 @@ says "Open:" and links the question; nothing here decides one.
 | Energy | 5.6 (new) |
 | Bags | 5.7 (new), 8.9 |
 | Vault, found in a house quest that teaches sleeping | 5.8 (new), 8.8 |
-| Each boss's Pearl grants an ability ([answered](story/06-open-questions.md#answered) the same day; a skin since 2026-10-15) | 5.9 (new), 8.7, 8.10 |
+| Each boss's Pearl grants an ability ([answered](story/07-decisions-archive.md#decisions-by-date) the same day; a skin since 2026-10-15) | 5.9 (new), 8.7, 8.10 |
 | Crafting time (6.5 and 8.6 dropped 2026-10-15) | 6.5 (new), 8.5, 8.6 |
 | Gulp armors (replaced 2026-10-08 by essences: [the 2026-10-08 decisions](#the-2026-10-08-decisions); then by skins on 2026-10-15) | 7.5 (new), 7.4, 8.9, 8.12 (new), 8.13 (new) |
 | Webs (new rules on 2026-10-15: 7.9 replaced 7.6) | 7.6 (new), 8.7, 8.9 |
@@ -207,7 +214,7 @@ essences and these number keys go with the old system.
 On 2026-10-15 the owner moved the slime's powers to skins, shapes and
 abilities ([Direction](story/01-direction.md)), and the same day answered the
 review of that direction
-([questions 40 to 51](story/06-open-questions.md#review-of-the-2026-10-15-direction)).
+([questions 40 to 51](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)).
 Like the 2026-10-02 decisions, they came in by the owner's choice, not through
 the parking-lot rule. The rework mode, merged into main the same day, already
 builds the shapes, the Ability Box, the Goo Bomb, the Lantern, heavy plates and
@@ -238,7 +245,7 @@ before more is built (5.10). The order of the other tasks is not set.
 ### The 2026-10-16 Decisions
 
 On 2026-10-16 the owner answered questions 52 to 61
-([open questions](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([open questions](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 His answers to questions 54 and 55 (Tom's cocoon, the Silk skin's cut) are in
 the table above. Like the decisions before them, these came in by the owner's
 choice, not through the parking-lot rule. None is built yet, except what the
@@ -273,7 +280,7 @@ like every new mechanic. The order of the other tasks is not set.
 #### The third round (questions 68 to 83)
 
 Later on 2026-10-16 the owner answered questions 68 to 83
-([open questions](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([open questions](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 Like the decisions before them, these came in by the owner's choice. None is
 built yet. Questions 84 to 86 follow from them and are open; a task that
 depends on one says "Open:" and links it. *They were answered later the same
@@ -285,13 +292,13 @@ day ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-
 | The Colossus climbs out of reach and throws some of his minions down; killed, they can drop energy shards (question 69) | 12.4 (changed), 5.10 |
 | Chapter 1's slab bridges cross the void and spikes, and lava waits for a fire region. The slabs, the spikes and the lava share one hazard script, and the void works like the elevation's holes. A slab falls a set time after it is touched (in `game-constants.json`), tuned so quick rolls in a row cross it and walking never does (questions 70, 71) | 5.14 (changed) |
 | In the playground the islet's prize goes behind a cracked rock face (the bomb's lock), and the heap by the map's edge waits for a Heavy Roll. A trunk the Roll breaks lies across a path; standing dry things burn (question 72) | 7.8 and 7.10 (changed). Open: a few combos used wisely, such as a Heavy Roll that knocks an old tree down into dry wood the Lantern burns, beside "no ability requires another" (question 84). *Answered in the fourth round: only in optional secrets* |
-| The West village's Release 1 part is a small town, like Kakariko: Burr's house, three or four more houses, a shop and a game to play. Barriers in the world (a fallen bridge, a landslide, a Thorn Guard post) close the ways to later regions, each saying that more lies beyond (question 73) | 5.16 and 12.5 (changed), the parking lot |
-| Release 1's one bag is Plop's 10-slot bag, and the 20-slot bag waits for the next release; what the Gloop Cavern's coffer holds is question 63 (question 74). *Answered in the sixth round: heart quarters, potions, coins or a piece of the story (question 63)* | 5.7 and 8.9 (changed), the parking lot |
+| The West village's Release 1 part is a small town, like Kakariko: Burr's house, three or four more houses, a shop and a game to play. Barriers in the world (a fallen bridge, a landslide, a Thorn Guard post) close the ways to later regions, each saying that more lies beyond (question 73). *Changed in the eighth round (question 130): every border is a Thorn Guard post with a guard, and no landslides or fallen bridges (12.5)* | 5.16 and 12.5 (changed), the parking lot |
+| Release 1's one bag is Plop's 10-slot bag, and the 20-slot bag waits for the next release; what the Gloop Cavern's coffer holds is question 63 (question 74). *Answered in the sixth round: heart quarters, potions, coins or a piece of the story (question 63). Since the eighth round there is no Gloop Cavern, so no coffer (question 18)* | 5.7 and 8.9 (changed), the parking lot |
 | The Swim form is not dropped: its scene mechanics are refactored into a permanent power that works in deep water, the later Swim skin (question 75) | 7.11 and 7.8 (changed), the parking lot |
 | The Bow is an Ability Box power, and each arrow costs energy. Its locks are far targets in a straight line across gaps and water; it also hits far enemies that cannot be reached otherwise, and some enemies open doors when they die, as in Zelda (question 76). Burr's thanks is the Bow (question 80). The Bouncy Bow goes: the Bow is the one bow (question 83) | 5.15 (changed), the parking lot. Open: when the Bow comes (question 85). *Answered in the fifth round: in Chapter 3 (question 94, 12.6)* |
 | A Heavy Roll breaks small loose things lying in the way: a loose rock, a rubble heap, a rotten trunk across a path. The Hammer keeps big single boulders, and the Axe standing trees, dead ones included. "Each thing must be told apart; different things never look alike; sacrifice options for clarity" (question 77) | 7.8 (changed); [Direction](story/01-direction.md#each-thing-is-told-apart). *Changed in the fifth round: the Axe owns only living, green things, and grey leaning old trees are the Heavy Roll's (question 93)* |
 | The quick roll is the Roll, and the charged roll is a later upgrade, like the Roll's enemy push. This replaces the 2026-10-09 rule that the Roll comes whole (question 78) | 7.7 (changed), the parking lot |
-| Pearl 2, the Matron's, relights the Forge when it comes home (Pip and the slime light it), and the Forge brews the potions from then on. This replaces the quest Rekindle the Forge and its ore cost (question 79) | 8.5 (changed), 8.10, 5.17, Milestone 6 |
+| Pearl 2, the Matron's, relights the Forge when it comes home (Pip and the slime light it), and the Forge brews the potions from then on. This replaces the quest Rekindle the Forge and its ore cost (question 79). *Changed in the seventh round: Pearl 2 goes home to the Wellspring, and its power lights the Forge (question 110)* | 8.5 (changed), 8.10, 5.17, Milestone 6 |
 | The way to the Crystal Caverns is a maze of web walls that only the Silk skin passes, so the Silk skin opens Chapter 3, as a skin opens the next region. The crystal seal and the end-of-Chapter-2 card go (question 81) | 8.11 (changed), 7.9, 12.1 |
 | The relit Forge knows the potion recipes, and an NPC tip or a chest teaches each of the few others. With no quests, an NPC that has a tip that matters to the story shows the exclamation mark (question 82) | 5.17 and 8.5 (changed) |
 
@@ -302,7 +309,7 @@ The order of these tasks is not set.
 Later on 2026-10-16 the owner answered questions 84 and 86 to 92, and 85 in
 part (the fourth round), then took the proposals of questions 93 and 94 (the
 fifth round)
-([open questions](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([open questions](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 Like the decisions before them, these came in by the owner's choice. None is
 built yet. Questions 95 and 96 follow from them and are open; a task that
 depends on one says "Open:" and links it. *They were answered in the
@@ -329,31 +336,32 @@ Later on 2026-10-16 the owner answered questions 95 to 105, took the
 proposal of question 106, then answered questions 62 to 67, left from the
 docs pass of 2026-10-15, and accepted the
 [bestiary](design/2026-10-16-bestiary.md) as written (question 107)
-([open questions](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([open questions](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 Questions 97 to 100 come from his own idea, a prologue, which he accepted as
 written in the [prologue design](design/2026-10-16-prologue.md). Like the
 decisions before them, these came in by the owner's choice. None is built
 yet, except the Clod Stomper, which stays as it is. Questions 108 and 109
 follow from these answers and are open; a task that depends on one says
-"Open:" and links it.
+"Open:" and links it. *They were answered in the
+[seventh round](#the-seventh-round-questions-108-to-114).*
 
 | Decision | Roadmap tasks |
 |---|---|
-| A short, closed **prologue** before Chapter 1: the slime is born at the Wellspring, learns to move and to gulp (it clears a blocked path), sees Yoi fall to four worms in a camera scene, saves him by throwing things (one-hit prologue worms), hears his story and learns the Spear from him; a barred gate, the Spear's "through bars" lock, opens into Slimeshire. It sits between chunks B4 and C4 in the south; chunk content may move to fit it, or it can be an underground cavern (question 97) | Release 1 target (above), 5.18 to 5.24 (new), 5.12 (changed), 4.6 |
+| A short, closed **prologue** before Chapter 1: the slime is born at the Wellspring, learns to move and to gulp (it clears a blocked path), sees Yoi fall to four worms in a camera scene, saves him by throwing things (one-hit prologue worms), hears his story and learns the Spear from him; a barred gate, the Spear's "through bars" lock, opens into Slimeshire. It sits between chunks B4 and C4 in the south; chunk content may move to fit it, or it can be an underground cavern (question 97). *Changed in the seventh round: in B4 it takes the south edge, and the West village's town B4's north and A4 (question 112)* | Release 1 target (above), 5.18 to 5.24 (new), 5.12 (changed), 4.6 |
 | **The Wellspring** is the prologue's lake. After the prologue a short forest path from Slimeshire's south-west reaches it, and each Pearl's homecoming is a short scene there. It is no longer its own map east of level-1 (question 98) | 5.18 (new), 5.9, 5.10 and 5.17 (changed) |
-| Yoi's Hideout becomes **Yoi's home**, an optional secret: Lili's tip and the heap stay, and inside are a heart quarter, Yoi's tips and later the Spear's upgrades (question 99) | 5.12 (changed), 5.3, the parking lot |
+| Yoi's Hideout becomes **Yoi's home**, an optional secret: Lili's tip and the heap stay, and inside are a heart quarter, Yoi's tips and later the Spear's upgrades (question 99). *Changed in the seventh round: who upgrades the Spear is decided after Release 1 (question 111)* | 5.12 (changed), 5.3, the parking lot |
 | **Plop** meets the slime at the town's edge as it comes out of the forest, gives it the 10-slot bag and its first tips, with the exclamation mark, and later sends it to Burr. He no longer greets it at the Wellspring (question 100) | 5.24 (new), 5.7 and 5.17 (changed) |
-| **Tom** teaches the Goo Bomb. Reaching him is hard: a maze with several secrets and tests, solved with the Spear, the Roll, the Heavy skin and the Gulp; its webs slow the slime and cannot be cut before the Silk skin. The Weaver Hollow's big chest holds a heart or the dungeon's big key instead of the War Axe (question 95) | 8.13 and 7.10 (changed), 7.9 |
+| **Tom** teaches the Goo Bomb. Reaching him is hard: a maze with several secrets and tests, solved with the Spear, the Roll, the Heavy skin and the Gulp; its webs slow the slime and cannot be cut before the Silk skin. The Weaver Hollow's big chest holds a heart or the dungeon's big key instead of the War Axe (question 95). *Changed in the seventh round: Tom teaches it at the end of his maze, once freed, and the chest holds a heart quarter (question 113)* | 8.13 and 7.10 (changed), 7.9 |
 | **One shape:** the Spear is Release 1's only shape. E stays hidden until a second shape is learned, and the Axe opens the next release with its come-back secrets (question 96) | 7.11, 4.10, 12.1 and 12.4 (changed), the parking lot |
 | **The river bridge:** a Heavy Roll knocks the grey, leaning old tree over the river as a bridge. The Axe's living-tree bridge may come back with the Axe (question 101) | 7.8 (changed), the parking lot |
-| **Burr's Bow:** visited before Pearl 2, Burr thanks the slime ("I am making you something, come back when the forest is free"). He needs silk and other things to build the Bow; the silk is the **Matron's thread**, a spool found in her nest after she falls and taken from her web with the Silk skin, and the other things are already in his workshop. With the thread and Pearl 2 home he teaches the Bow: one find, one trip back, no crafting. Chapter 3 uses the Bow on its main path at least once (a far eye switch across the mine's chasm), but the Colossus does not need it (questions 102 and 106) | 5.15 and 12.6 (changed), 8.7, 12.1, 12.3 and 12.4 |
-| **Pearl 1's homecoming:** after Fatty, the freed Burr says the town must see the Pearl, the journal's main quest points home, and the well comes back when the slime brings the Pearl to it (question 103) | 5.17 and 5.15 (changed) |
+| **Burr's Bow:** visited before Pearl 2, Burr thanks the slime ("I am making you something, come back when the forest is free"). He needs silk and other things to build the Bow; the silk is the **Matron's thread**, a spool found in her nest after she falls and taken from her web with the Silk skin, and the other things are already in his workshop. With the thread and Pearl 2 home he teaches the Bow: one find, one trip back, no crafting. Chapter 3 uses the Bow on its main path at least once (a far eye switch across the mine's chasm), but the Colossus does not need it (questions 102 and 106). *Changed in the eighth round: the lock is a crystal lens on a post (question 127), and the Matron's thread hangs in her web at the top of the Weaver Hollow (question 133)* | 5.15 and 12.6 (changed), 8.7, 12.1, 12.3 and 12.4 |
+| **Pearl 1's homecoming:** after Fatty, the freed Burr says the town must see the Pearl, the journal's main quest points home, and the well comes back when the slime brings the Pearl to it (question 103). *Changed in the seventh round: the slime takes the Pearl home to the Wellspring, and its power brings the well back (question 110)* | 5.17 and 5.15 (changed) |
 | **Campfires:** the one or two Chapter 1 recipes are made at any campfire. Campfires stand by the Wellspring, in the town and at each camp, so a fresh save can always heal (question 104) | 5.17 (changed), 5.18, 8.5 |
-| **The well** gives a full refill (a drink in town), and beds also restore life (question 105) | 5.10 and 5.17 (changed) |
-| **Saving:** like Zelda, the slime can save everywhere except inside dungeons, and there are no save points. The full energy refills come from beds, the Wellspring and Slimeshire's well (question 62) | 5.10 and 5.15 (changed), 4.3, the 2026-10-15 decisions (above). Open: quitting or dying inside a dungeon (question 109; the proposal: the slime resumes at the dungeon's entrance) |
-| The iron hollow and the Gloop Cavern's coffer hold heart quarters, potions, coins or a piece of the story (Kiri's note in the iron hollow), and the weaver fangs go (question 63) | 8.9 (changed), 8.3, 8.10, 5.7 |
+| **The well** gives a full refill (a drink in town), and beds also restore life (question 105). *Since the seventh round its refill grows back (question 113)* | 5.10 and 5.17 (changed) |
+| **Saving:** like Zelda, the slime can save everywhere except inside dungeons, and there are no save points. The full energy refills come from beds, the Wellspring and Slimeshire's well (question 62) | 5.10 and 5.15 (changed), 4.3, the 2026-10-15 decisions (above). Open: quitting or dying inside a dungeon (question 109; the proposal: the slime resumes at the dungeon's entrance). *Answered in the seventh round: it resumes at the dungeon's entrance (4.3, 4.4, 5.15)* |
+| The iron hollow and the Gloop Cavern's coffer hold heart quarters, potions, coins or a piece of the story (Kiri's note in the iron hollow), and the weaver fangs go (question 63). *Since the eighth round there is no Gloop Cavern, so only the iron hollow's prize stands (question 18)* | 8.9 (changed), 8.3, 8.10, 5.7 |
 | The **Clod Stomper** stays as it is: its slam still breaks cracked ground near it. It is an enemy, not a power (question 64) | 8.12 (changed), 12.7 |
-| Release 1 has **whole manuscripts**, each found in a chest as one find; pieces come later (question 65) | 5.17 (changed), the parking lot. Open: what they teach (question 108; the proposal: recipes and lore) |
+| Release 1 has **whole manuscripts**, each found in a chest as one find; pieces come later (question 65) | 5.17 (changed), the parking lot. Open: what they teach (question 108; the proposal: recipes and lore). *Answered in the seventh round: campfire recipes and lore (5.17)* |
 | **Potions and food** are both crafted at a campfire (question 66) | 5.17 (changed) |
 | Shapes and abilities evolve at the Slime Forge, skins do not, and all of it comes after Release 1 (question 67) | The parking lot |
 | **The bestiary:** Release 1 has 29 enemies, as the [bestiary](design/2026-10-16-bestiary.md) writes them: each with a tell, beatable with the Spear and the Roll and easy with its right tool, each with a kind of its own; each dungeon has two or three of its own and a mini-boss (question 107) | 12.7 (new), 5.15, 5.21, 8.2 |
@@ -361,6 +369,99 @@ follow from these answers and are open; a task that depends on one says
 The prologue's tasks (5.18 to 5.24) make one place, played from a new game;
 the barred gate (5.22), a new lock, is tried in the playground first, like
 every new mechanic. The order of the other tasks is not set.
+
+#### The seventh round (questions 108 to 114)
+
+Later on 2026-10-16 the owner answered questions 108 to 114, 113 in two
+parts ([decisions archive](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
+Questions 108 and 109 come from the sixth round's answers, and 110 to 114
+from the docs pass that recorded them. The same day he decided, outside the
+questions, that enemies in the world are placed, not spawned. Like the
+decisions before them, these came in by the owner's choice. None is built
+yet.
+
+| Decision | Roadmap tasks |
+|---|---|
+| Release 1's **whole manuscripts** teach campfire recipes (potions and food) and lore: pages of the Thorn Guard's war journal, which tell the war's story bit by bit. Manuscripts that teach powers start in the next release (question 108) | 5.17 (changed), the parking lot |
+| **Dungeons:** quitting or fainting inside a dungeon resumes at its entrance, and the dungeon keeps what the slime did there: small keys, opened doors, the map, the big key. The autosave waits until the slime is out (question 109) | 4.3, 4.4 and 5.15 (changed) |
+| **The Pearls belong to the Wellspring:** every Pearl goes home to it, it brightens, and its power flows into the town: the well comes back with Pearl 1, the Forge lights with Pearl 2. The slime no longer takes Pearl 1 to the well (question 110) | 5.9, 5.10, 5.17 and 8.5 (changed) |
+| **The Spear's upgrades:** who gives them, Yoi's techniques or the Forge, is decided after Release 1 (question 111) | 5.12 (changed), the parking lot |
+| **Chunk B4:** the prologue takes B4's south edge, sealed off by forest, and the West village's town sits in B4's north and A4. The forest path to the Wellspring leaves Slimeshire, not the town (question 112) | 5.18 and 5.16 (changed). The world map (`world-map.json`) still puts the Wellspring and the town both in B4 |
+| **The prologue** cannot be saved, and the HUD appears right after the birth scene. **Tom** hangs at the end of his maze and teaches the Goo Bomb right there, as soon as he is freed. The **Weaver Hollow's big chest** holds a heart quarter. **The well's refill grows back** after a while, so it is not used up (question 113) | 5.18, 8.13, 5.3 and 5.10 (changed), 4.3 |
+| **Spear-only bells** come back across the world as a second kind of Spear lock, next to "through bars": a bell on an islet, or behind a gap, that a thrown pot cannot ring but the Spear's reach can (question 114). *Replaced in the [eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135) (question 115): bells are a ranged lock, rung by a thrown pot or an arrow, never by the Spear* | 5.22 (changed), 5.12 |
+| **Enemies in the world are placed, not spawned:** each world chunk holds a fixed number of enemies, placed by hand, each with its own wandering area, as some camps have now. Reloading a chunk (leaving it and coming back) brings its enemies back, as in Zelda. Spawn areas stay only in the playground (the bestiary pens and the testbed). Beaten bosses still never come back (owner, 2026-10-16) | 5.25 (new), 8.2 (changed) |
+
+The order of these tasks is not set.
+
+#### The eighth round (questions 11 to 38 and 115 to 135)
+
+Later on 2026-10-16 the owner answered most of the open questions: 17 to
+19, 21 to 24, 33, 115, 119, 120, 124, 125 and 127 to 135, and closed 11,
+12, 25, 27, 28, 36 and 38 as answered before
+([decisions archive](story/07-decisions-archive.md#decisions-by-date)).
+Questions 127 to 135 are the open points of the
+[level design guide](design/2026-10-16-level-design.md#open-points), whose
+proposals he took with two changes: every bell rings to a pot or an arrow,
+and a Roll sticks in a floor web. Like the decisions before them, these came
+in by the owner's choice. None is built yet. Question 136 follows from them
+and is open; a task that depends on it says "Open:" and links it. *It was
+answered in the [ninth round](#the-ninth-round-questions-32-118-121-123-and-136):
+what a bell opens stays open for good.*
+
+| Decision | Roadmap tasks |
+|---|---|
+| **Boss hearts:** each boss also gives a full heart (+20) on top of its region's four quarters ([question 17](story/07-decisions-archive.md#progression)) | 5.3 and 5.9 (changed), 8.7, 12.4 |
+| **Max energy** grows from potions, the well and defeating a boss ([question 19](story/07-decisions-archive.md#progression)) | 5.6 and 5.9 (changed), 5.10 |
+| **Energy rules:** basic attacks stay free, the tiny cooldowns stay as an anti-spam guard, and rolling is free, with no minimum to start (as built, `quickRollEnergy` 0). Enemies and grass drop energy and health refills, and sometimes coins ([questions 21 to 24](story/07-decisions-archive.md#energy-rework-details)). *Tenth round: the Spear cuts grass, and later the War Axe; spending pauses the refill for about a second (question 20)* | 5.6 and 5.10 (changed) |
+| **No Gloop Cavern:** there is no Gloop Cavern in the plan, so the question of its own four quarters falls away, and so does its coffer (questions 18 and 63). *Changed in the [tenth round](#the-tenth-round-questions-18-and-20): the small built cave stays as a secret, the Goo Bomb's come-back secret, holding one of Gloop Forest's four quarters* | 5.7, 8.9 and 8.13 (changed), the Milestone 8 assets |
+| **Teleport** is probably the last power, so it is not planned now ([question 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15)) | The parking lot |
+| **Closed as answered before:** Release 1 has no quests, so there is no house quest (question 11); the vault and more vaults come later (questions 12 and 38); the Weaver Hollow is Chapter 2's dungeon (question 25); the Silk skin replaced the Silk form (question 27); the essences' lift upgrades are gone, and heavy rocks belong to the Heavy Roll and later the Hammer (question 28); the Forge relights with Pearl 2, and evolutions come after Release 1 (question 36) | 5.8, 7.9, 8.8 and 8.13 (changed), 8.14 (new), 4.13 |
+| **Bells are a ranged lock** ([question 115](story/07-decisions-archive.md#open-after-the-seventh-round-2026-10-16), replacing question 114's Spear-only bells): a thrown pot or an arrow rings a bell, and the Spear and the Stretch Lash never do. The Lash's posts are posts it pulls on, not bells. The old plan's alarm bells and gongs become wooden clappers a pot sets off (question 127). Open: whether what a bell opens stays open ([question 136](story/07-decisions-archive.md#open-after-the-eighth-round-2026-10-16)). *Answered in the ninth round: it stays open for good.* *Changed in the tenth round: the wooden clappers are the worm army's alarms: anything that hits one (a pot, an arrow, a Spear jab, the slime bumping it) sets it off and calls the nearby camp, a trap to avoid or use, never a lock* | 5.22 and 5.12 (changed), 12.6 |
+| **Eyes and lenses:** an eye is always the Spear's, or an enemy's; the Bow's target is a crystal lens on a post, so the mine's chasm holds a lens, not an eye switch ([question 127](story/07-decisions-archive.md#open-from-the-level-design-guide-2026-10-16)) | 12.3 and 12.6 (changed) |
+| **Looks** (questions 128 to 130): what the Gulp lifts is small and sits loose, with the Gulp's prompt in reach, and what the Heavy Roll breaks is big, grey and old, lying or leaning across the way. The heap at Yoi's home becomes crates. The Heavy Roll's leaning tree is always a placed object, never painted on the forest layer; an old breakable fence is grey and broken-backed and never stands on a rim; the Hammer's boulders carry a crack mark that scenery boulders never have. Feral's roots are thick, living and leafy beside rocky handholds, the Lantern's dry roots grey-black and thorny, and the root-rock wall style never stands next to a climbable wall. Only grey-black, scorched hay and banners burn; the gold haystacks and bright banners are scenery. Tom's cocoon hangs by a thread with his face showing, a silk-wrapped prize is a small flat parcel that glints, and the Cocoon Mimic breathes. Every Release 1 border is a Thorn Guard post: a striped barrier with a guard who says what lies beyond is closed for now; no landslides or fallen bridges as borders | 5.12, 7.8, 8.13, 12.3, 12.5 and 12.7 (changed) |
+| **Bars and webs** ([question 131](story/07-decisions-archive.md#open-from-the-level-design-guide-2026-10-16)): bars stop arrows, so only a Spear thrust reaches a lever behind bars. A Roll sticks in a floor web; walking through one slows the slime until the Silk skin, and web walls block until the Silk skin. The Slime Spider's right tool is the Silk skin, with which its webs no longer stick | 7.9 (changed), 5.22, 12.6, 12.7 |
+| **First locks** (question 132): the Roll's is a rickety plank over a dry ditch in Burr's yard; the Heavy skin's, Fatty's Lair's way out; the Goo Bomb's, a cracked wall by Tom, his maze's way back; the Bow's, targets in Burr's yard; the first bell, rung by a thrown pot, stands near the town's edge soon after the prologue; the Feral skin's is the climb out of the Colossus's arena, then the Wilds | 5.13, 5.15, 5.22, 8.13, 12.4 and 12.6 (changed) |
+| **The Matron** (question 133): she lives at the top of the Weaver Hollow, and her open-world nest becomes the Hollow's entrance. Her fight needs the Goo Bomb: she shields herself in a web cocoon that only a blast tears open, then the Spear hurts her | 8.7 (changed), 8.14 (new) |
+| **Order** (question 134): the Crystal Caverns' first half never needs the Bow, and the smith's mine camp sends the slime to Burr. Burr's cell lies on Fatty's Lair's main path, so freeing him cannot be skipped | 5.15, 12.3 and 12.6 (changed) |
+| **Locks for later releases** (question 135): only a few War Axe, Stretch Lash, Hammer and Swim locks show in Release 1, each with a line that says it needs something not found yet, and every Release 1 heart quarter can be reached with Release 1's powers. The War Axe cuts webs without the Silk skin (the Silk rule is the Spear's) | 5.3, 7.9 and 8.9 (changed), the parking lot |
+| **The skeletons** ([questions 124 and 125](story/07-decisions-archive.md#open-after-the-dungeon-enemies-2026-10-16)): they are the fallen Thorn Guard of the great war, whose bones Gorge's vassals raised to guard the dungeons, the old forts. A bone the Gulp steals leaves the Bone Thrower unarmed for 10 s, then it has a bone again | 12.7 (changed), 5.15 |
+| **Lore and potions** ([questions 119 and 120](story/07-decisions-archive.md#open-after-the-seventh-round-2026-10-16)): lore pages are read again on a "War journal" page in the journal, next to the Pearls' picture. The campfire makes the simple potions and food anywhere, and the relit Forge brews the strong potions only it knows | 5.17 and 8.5 (changed) |
+
+The order of these tasks is not set.
+
+#### The ninth round (questions 32, 118, 121, 123 and 136)
+
+Later on 2026-10-16 the owner accepted the table of the later bosses and
+their skins (question 32), took the proposal of question 136, which followed
+from the eighth round, and took the proposals of questions 118, 121 and 123,
+already built that way
+([decisions archive](story/07-decisions-archive.md#decisions-by-date)). Like
+the decisions before them, these came in by the owner's choice. The open
+questions left are 3, 4, 9, 10, 116 and 117.
+
+| Decision | Roadmap tasks |
+|---|---|
+| **The later skins** ([question 32](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15)): one skin per vassal, each a new way through the world that opens come-back secrets in the places before it. **Old Gullet**, the catfish (Sticky Swamp), gives the **Swim skin**: deep water. **Old Rimepaw**, the polar bear (a working name; Frostpeak), who slides across the frozen lake on his belly and cracks the floes with a slam, gives the **Polar skin**: the slime is sure-footed, and cold no longer hurts. Without it the slime slips on ice and cannot change direction, which closes many places and secrets; with it, ice and every slippery surface (oil and others, in other maps too) are walked without trouble. On ice its Roll becomes a **belly slide**, long, fast and steerable, across frozen lakes and through ice-race secrets. Its look: a white, fluffy coat with a blue tint, and padded paws that show on ice. **Sandmaw**, the great sand worm and Gorge's worm general (the Desert), gives the **Sand skin**: it burrows through soft sand, under sand walls and through quicksand. **Gale**, the storm roc (the Northern ruins), gives the **Cloud skin**: it floats across gaps from a ledge and rides updrafts. **Cinder**, the magma salamander (Volcano Ridge's slopes), gives the **Lava skin**: it walks on lava and through fire, and as the last skin it opens the way into Gorge's crater. **Gorge** is the ninth boss, with no skin. The acid skin stays a spare. The order of the later regions is still question 10 | Release 1 target (above), the parking lot |
+| **Bells stay open:** what a rung bell opens stays open for good, so a bell is a lock solved once ([question 136](story/07-decisions-archive.md#open-after-the-eighth-round-2026-10-16)) | 5.22 (changed) |
+| **As built:** quitting during the prologue starts it again from the birth (question 118); the dev-only worlds keep their spawn areas, as testbeds (question 121); the skeletons' bone pile stays (question 123) | 5.18, 5.25 and 12.7 (changed) |
+
+None of the later skins is in Release 1. The order of these tasks is not set.
+
+#### The tenth round (questions 18 and 20)
+
+Later on 2026-10-16 the owner settled the loose ends the eighth round's docs
+pass found
+([decisions archive](story/07-decisions-archive.md#decisions-by-date)). Like
+the decisions before them, these came in by the owner's choice.
+
+| Decision | Roadmap tasks |
+|---|---|
+| **The Gloop Cavern stays** ([question 18](story/07-decisions-archive.md#progression), changed): told that a small `gloop-cavern` world is built behind the cracked clearing's sinkhole, the owner kept it as a small secret cave: the Goo Bomb's come-back secret, holding one of Gloop Forest's four heart quarters, with no four of its own. Its old coffer question stays closed | 8.9, 7.10, 5.3 and 5.7 (changed) |
+| **Grass** is cut by the Spear and, later, the War Axe; it drops energy, health and sometimes coins. Grass tufts never look like the Axe's bushes | 5.10 (changed) |
+| **Wooden clappers** are the worm army's alarms: anything that hits one (a pot, an arrow, a Spear jab, the slime bumping it) sets it off and calls the nearby camp. A trap to avoid or use, never a lock: bells are the locks | 5.22 (changed), 5.25 |
+| **The refill pause:** spending pauses the 1-a-second energy refill for about a second, tuned in play ([question 20](story/07-decisions-archive.md#energy-rework-details)) | 5.6 (changed) |
+
+The order of these tasks is not set.
 
 ## Progress Board
 
@@ -375,10 +476,10 @@ every new mechanic. The order of the other tasks is not set.
 | **Release 1** | | | |
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
 | 4 | Game shell | Title, continue, pause, game over, settings, credits, simple controls | `[~]` |
-| 5 | Gear-based progression | XP and levels are gone; gear, heart quarters, and story unlocks make you stronger (since 2026-10-15: skins, shapes and abilities instead of crafted gear; since 2026-10-16 also Chapter 1's planned content and the prologue, 5.18–5.24) | `[~]` |
+| 5 | Gear-based progression | XP and levels are gone; gear, heart quarters, and story unlocks make you stronger (since 2026-10-15: skins, shapes and abilities instead of crafted gear; since 2026-10-16 also Chapter 1's planned content and the prologue, 5.18–5.24, and enemies placed in the world, 5.25) | `[~]` |
 | 6 | Rebuild Slimeshire: restoration | Ruined buildings can be restored and become stations (the Forge uses it in Chapter 2 and brews the potions; the Workshop's part in Release 1 is Open, question 51) | `[~]` |
 | 7 | Gulp | Suck, throw and swallow essences; their forms solve puzzles and pass webs. Since 2026-10-15: suck and throw, and the three skins from the Pearls take the forms' place (7.8–7.11) | `[~]` |
-| 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss (iron and metal gear dropped 2026-10-15; the Silk skin added) | `[~]` |
+| 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss (iron and metal gear dropped 2026-10-15; the Silk skin added; since 2026-10-16 the Weaver Hollow, the chapter's dungeon, with the Matron at its top, 8.14) | `[~]` |
 | 12 | Chapter 3 — Crystal Caverns (added 2026-10-15) | Burr's Bow, the dark caverns, the smith's mine camp and the Lantern, the Colossus's brazier fight, Pearl 3's Feral skin, Release 1's 29 enemies (12.7), and Release 1's end with the world left to explore | `[ ]` |
 | 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[~]` |
 | 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[~]` |
@@ -639,12 +740,17 @@ below exist.
   slot asks first. The P.5 matrix stays covered by `pnpm test:persistence`
   plus the menu round trip above.
 - Since 2026-10-16 ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 62](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 62](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   like Zelda, the slime saves everywhere except inside dungeons, and there
   are no save points (5.15 makes Save unavailable in Fatty's Lair). What
   happens on quitting or dying inside a dungeon is
-  [question 109](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)
+  [question 109](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)
   (open; the proposal: the slime resumes at the dungeon's entrance).
+- Since the [seventh round](#the-seventh-round-questions-108-to-114)
+  (questions 109 and 113): quitting inside a dungeon resumes at its
+  entrance, and the dungeon keeps what the slime did there (small keys,
+  opened doors, the map, the big key); the autosave waits until the slime is
+  out (5.15). The prologue cannot be saved either (5.18).
 
 - Build: move Save, Load, and Reset Run out of Development Tools into the pause
   menu and title screen, and hide Development Tools in production builds.
@@ -657,6 +763,10 @@ below exist.
   last hit ("Defeated by Worm Brawler") and the time played, with "Wake at
   your bed" (or "Wake in Slimeshire") and "Load a save". Three defeats in a
   row left one player and the inventory intact.
+- Since the [seventh round](#the-seventh-round-questions-108-to-114) of
+  2026-10-16 (question 109): a slime that faints inside a dungeon wakes at
+  the dungeon's entrance, and the dungeon keeps what it did there (5.15).
+  The prologue has no game over (5.21).
 
 - Build: on defeat, a short screen (what defeated you, time played) with
   "Wake at your bed" and "Load a save".
@@ -874,7 +984,7 @@ below exist.
   rolls, and right click interacts. The number keys for Swallow, Stretch
   Lash, Squash Slam and Teleport go.
 - Changed 2026-10-16 ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 96](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 96](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the Spear is Release 1's only shape, so E stays hidden until a second
   shape is learned (7.11).
 - Build: the left hand on WASD, the right hand on the mouse.
@@ -1016,7 +1126,10 @@ below exist.
 - Not done: bags (5.7), heart quarters (5.3), energy upgrades, the lift
   upgrades and story items (they end in it when they are built), the smaller
   recipe sting and the owner's acceptance. The fanfare is Sound Picker round
-  5's option A (the owner accepted the defaults on 2026-10-09).
+  5's option A (the owner accepted the defaults on 2026-10-09). *Since the
+  [eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135): the
+  lift upgrades are gone (question 28), and each boss's full heart ends in it
+  too (question 17, 5.3).*
 - Changed 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions)):
   the skins (5.9, 7.8) and the shapes (5.12) end in it too. The crafted
   weapons and tools, Squash Slam and Swallow go (5.11, 7.11), and hammering
@@ -1124,7 +1237,27 @@ Burr builds the Bow from the Matron's thread (5.15, 12.6); and after Fatty
 the slime is sent home, where the well gives a full refill, and campfires
 make Chapter 1's recipes (5.10, 5.17). Later the same day: no saving inside
 dungeons and no save points (5.10, 5.15), and potions and food at a
-campfire and whole manuscripts in chests (5.17).
+campfire and whole manuscripts in chests (5.17). In the
+[seventh round](#the-seventh-round-questions-108-to-114): the manuscripts
+teach campfire recipes and lore (5.17); a dungeon resumes at its entrance
+(5.15); every Pearl goes home to the Wellspring, and its power brings the
+well back (5.9, 5.10, 5.17), whose refill grows back; the Spear's upgrades
+wait for after Release 1 (5.12); the prologue takes B4's south edge, cannot
+be saved and shows the HUD after the birth (5.18), and the West village's
+town takes B4's north and A4 (5.16); the Weaver Hollow's big chest holds a
+heart quarter (5.3); Spear-only bells join the barred gate as the Spear's
+locks (5.22); and enemies in the world are placed, not spawned (5.25). In the
+[eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135): each
+boss also gives a full heart (5.3, 5.9); potions, the well and bosses raise
+max energy, basic attacks and the Roll stay free, and enemies and grass drop
+energy, health and sometimes coins (5.6, 5.10); the house quest and the
+vault's open points close (5.8); bells become a ranged lock, rung by a thrown
+pot or an arrow, the first near the town's edge (5.22, 5.12); the Roll's
+first lock is a rickety plank in Burr's yard (5.13); Burr's cell lies on
+the lair's main path, and the lair's way out is the Heavy skin's first lock
+(5.15); and lore pages are read again on the journal's "War journal" page
+(5.17). In the [tenth round](#the-tenth-round-questions-18-and-20): spending pauses the refill (5.6), the Spear
+cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
 
 ### [x] 5.1 — Retire XP, levels, and perks, verified 2026-09-29
 
@@ -1173,7 +1306,7 @@ campfire and whole manuscripts in chests (5.17).
 - Changed 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions)):
   Squash Slam is removed (5.11), the Pearls grant skins (5.9), and quests no
   longer make sense, so what teaches abilities in their place is Open
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 
 - Build: quest and boss rewards can grant abilities, like they grant recipes.
   A Chapter 1 quest teaches Jump (players reach level 2 during Chapter 1
@@ -1206,13 +1339,33 @@ campfire and whole manuscripts in chests (5.17).
     run starts with no hearts, and the life orb's ring shows each quarter
     found (4.12).
   - Open: whether bosses also give a full heart
-    ([question 17](story/06-open-questions.md#progression)).
+    ([question 17](story/07-decisions-archive.md#progression)). *Answered in
+    the eighth round (below).*
   - Since 2026-10-16 ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
     questions 95 and 99): one Meadow quarter is in Yoi's home (5.12), and
-    the Weaver Hollow's big chest may hold a full heart (8.13).
+    the Weaver Hollow's big chest may hold a full heart (8.13). *Changed in
+    the [seventh round](#the-seventh-round-questions-108-to-114) (question
+    113): it holds a heart quarter.*
   - Done when: each Meadow quarter is taken once per run and stays taken
     after save and load; four quarters give exactly +20 max HP; the life orb's
     pips (4.12) show what was found; saves that took Goo Hearts still load.
+  - Changed 2026-10-16, eighth round
+    ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+    questions 17, 18 and 135): each boss also gives a **full heart** (+20)
+    on top of its region's four quarters, so Fatty One Eye, the Matron and the
+    Colossus each leave one (5.9). There is no Gloop Cavern, so Gloop Forest's
+    four quarters lie elsewhere in the forest (8.9). *Changed in the
+    [tenth round](#the-tenth-round-questions-18-and-20) (question 18): the small cave stays, and one of the
+    forest's four quarters is in it (8.9).* Every Release 1 heart
+    quarter can be reached with Release 1's powers: none waits behind a War
+    Axe, Stretch Lash, Hammer or Swim lock.
+    - Build (added): a full-heart pickup a beaten boss leaves, with the full
+      ceremony (4.13), worth +20 max HP at once, its value in
+      `game-constants.json`; the +10 Goo Heart that appears in the Matron's
+      nest today gives way to it.
+    - Done when (added): each boss's heart is taken once, adds exactly +20
+      max HP and stays taken after save and load; no Release 1 quarter needs
+      a power from a later release.
 
 - Done: `object.goo-heart` (script `game.goo-heart`) is a walk-over pickup;
   each one raises max HP by `character.player.gooHeart.maxHpBonus` (10) and
@@ -1290,7 +1443,7 @@ campfire and whole manuscripts in chests (5.17).
   others over time (rolling, 7.7). Energy is not too easy to recover, so
   cooldowns get shorter. Max energy grows over the game.
 - Changed 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
-  [question 40](story/06-open-questions.md#review-of-the-2026-10-15-direction)):
+  [question 40](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)):
   every ability still costs energy, per use (the Goo Bomb 20, a Lantern flame
   10, Stretch Lash, Teleport) or over time (the held Roll), but the quick Roll
   is free. Skins and shapes are free, except a shape's charged attack (15 to
@@ -1318,9 +1471,37 @@ campfire and whole manuscripts in chests (5.17).
   Tune in the playground first.
 - Open: the refill pause, free basic attacks, tiny cooldowns, a minimum to
   start rolling, and energy drops
-  ([questions 20–24](story/06-open-questions.md#energy-rework-details)); the
+  ([questions 20–24](story/07-decisions-archive.md#energy-rework-details)); the
   item that raises max energy and where it is found
-  ([question 19](story/06-open-questions.md#progression)).
+  ([question 19](story/07-decisions-archive.md#progression)). *Answered in
+  the eighth round (below), except the refill pause (question 20).*
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 19 and 21 to 24):
+  - **Basic attacks stay free**, so the slime is never helpless, and the
+    **tiny cooldowns stay** as an anti-spam guard (questions 21 and 22).
+  - **Rolling is free:** the quick Roll needs no energy to start, as built
+    (`quickRollEnergy` 0); only the held part drains (question 23).
+  - **Enemies and grass drop** energy and health refills, and sometimes
+    coins (question 24): the drops are 5.10's.
+  - **Max energy** grows from potions, the well and defeating a boss
+    (question 19; 5.9, 5.10).
+  - Build (added): max energy raised for good by those three, saved with the
+    run like the max HP that hearts add, each raise in `game-constants.json`.
+  - Not decided yet: which potions raise it, by how much each raise is, and
+    when the well gives its raise. Whether the refill pauses after spending
+    is still question 20's. *Answered in the tenth round (below).*
+  - Done when (added): basic attacks cost nothing; a quick roll starts at 0
+    energy; each raise adds its amount to max energy once and survives save
+    and load.
+- Changed 2026-10-16, tenth round
+  ([tenth round](#the-tenth-round-questions-18-and-20);
+  [question 20](story/07-decisions-archive.md#energy-rework-details)):
+  spending pauses the 1-a-second refill for about a second, tuned in play.
+  - Build (added): the pause after each spend, its length in
+    `game-constants.json`, tried in the playground.
+  - Done when (added): after a spend the refill waits about a second, then
+    goes on at 1 a second; the owner accepts the length.
 - Player proof: the slime has to choose when to dodge, lash or slam.
 - Done when: in the playground each learned ability spends its configured
   energy and shows "Low energy" when there is not enough; the refill is slower
@@ -1337,12 +1518,12 @@ campfire and whole manuscripts in chests (5.17).
 - Today: 20 slots from the start (`inventory.initialMaxSlots`).
 - Open since 2026-10-15: whether Release 1, which carries only potions, food
   and keys, still needs a 10-slot and a 20-slot bag
-  ([question 53](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  ([question 53](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   and how the bag is given now that quests no longer make sense
-  ([questions 50 and 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([questions 50 and 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Answered 2026-10-16 (below).*
 - Changed 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 53](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 53](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Release 1 has **one bag**. An NPC hands it over when the slime talks to it
   (question 60).
   - Build (replaces the one below): the bag is a permanent item that sets the
@@ -1350,7 +1531,7 @@ campfire and whole manuscripts in chests (5.17).
     ceremony (4.13). Slime Basics' bag step comes after it (4.11). Check that
     nothing before it needs carrying.
   - Open: the bag's size and who gives it
-    ([question 74](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+    ([question 74](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
     the proposal: Plop gives a 20-slot bag at the start, and the Gloop
     Cavern's coffer holds a heart quarter). *Answered later the same day
     (below).*
@@ -1361,14 +1542,18 @@ campfire and whole manuscripts in chests (5.17).
     nothing lost.
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83);
-  [question 74](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 74](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Release 1's one bag is **Plop's 10-slot bag** ("since we don't have many
   collectibles now", owner), and the 20-slot bag waits for the next release
   ([parking lot](#after-release-1--idea-parking-lot)). What the Gloop
   Cavern's coffer holds instead is
-  [question 63](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)
+  [question 63](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)
   (*answered in the sixth round: heart quarters, potions, coins or a piece of
-  the story, 8.9*).
+  the story, 8.9*). *Since the
+  [eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135) there
+  is no Gloop Cavern (question 18), so there is no coffer either.* *Changed
+  in the [tenth round](#the-tenth-round-questions-18-and-20): the small cave stays as a secret with one of
+  Gloop Forest's heart quarters (8.9); the coffer stays gone.*
   - Build (replaces the ones above and below): the bag is a permanent item
     that sets the number of slots, and a fresh run has none. Elder Plop hands
     over the 10-slot bag when the slime talks to him, with the item ceremony
@@ -1381,13 +1566,17 @@ campfire and whole manuscripts in chests (5.17).
     lost.
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 100](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 100](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Plop gives the 10-slot bag when he meets the slime at the town's edge, as
   it comes out of the forest after the prologue (5.24), with its first tips.
   Check that nothing in the prologue needs carrying (the Gulp holds a thing
   inside the slime, not in the bag).
   - Done when (added): the prologue plays with no bag, and Plop's meeting
     gives it.
+  - *Built 2026-10-16 for the prologue's runs (5.24): a new game has no bag
+    slots until Plop's meeting sets 10, with the item ceremony "New bag".
+    Not built: the bag as a permanent item, and a run that does not play the
+    prologue still starts with `inventory.initialMaxSlots` (20).*
 - Build: the bag is a permanent item that sets the number of slots, and a
   fresh run has none. Accepting A Place to Work hands over the 10-slot bag
   with the item ceremony (4.13), the game's first
@@ -1414,13 +1603,13 @@ campfire and whole manuscripts in chests (5.17).
 - Today: there is no storage, and chests are take-only. Beds work (3.4, 3.5),
   but nothing teaches them.
 - Open since 2026-10-15: whether Release 1 has the vault ("maybe the vault",
-  owner; [question 53](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  owner; [question 53](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   and how the home and the vault are given once the quests go
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   Weapons no longer go into it: shapes replace them. *Answered 2026-10-16
   (below).*
 - Changed 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 53](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 53](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the vault waits for a later release, so in Release 1 this task is the home
   and its bed. The vault object, its shared storage and the two-panel screen
   move to the [parking lot](#after-release-1--idea-parking-lot). An NPC hands
@@ -1438,9 +1627,14 @@ campfire and whole manuscripts in chests (5.17).
   object, one shared vault storage saved through `RunState`, and the
   two-panel vault screen.
 - Open: which house, and whether Elder Plop gives the quest
-  ([question 11](story/06-open-questions.md#progression)); whether more vaults
+  ([question 11](story/07-decisions-archive.md#progression)); whether more vaults
   can be crafted after the first
-  ([question 12](story/06-open-questions.md#progression)).
+  ([question 12](story/07-decisions-archive.md#progression)). *Closed in the
+  [eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135) as
+  answered before: Release 1 has no quests, so there is no house quest, and
+  an NPC hands the home over (question 11); more vaults, and whether they
+  share one storage, are decided with the vault in a later release
+  (questions 12 and 38). Which house is not decided yet.*
 - Depends on: 4.13 and 5.7.
 - Player proof: the slime has a home to rest in and somewhere to keep what the
   bag cannot hold.
@@ -1458,7 +1652,7 @@ campfire and whole manuscripts in chests (5.17).
   the Matron's, Silk; Pearl 3, the Crystal Colossus's, Swim (Chapter 3,
   Milestone 12; *changed 2026-10-16: Swim comes from a later Pearl, after
   Release 1, and Pearl 3 grants the Feral skin,
-  [question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)*).
+  [question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)*).
   The skin stays when the Pearl goes home to the Wellspring. Since
   2026-10-16 (question 60; 5.17) a won Pearl fills its slot in the journal,
   and a Pearl that comes home restores a Slimeshire building.
@@ -1472,21 +1666,33 @@ campfire and whole manuscripts in chests (5.17).
     chamber holds the slime until its boss is beaten, and the boss never comes
     back.
   - Open: the premise around the Pearls
-    ([question 2](story/06-open-questions.md#story)). Answered since
+    ([question 2](story/07-decisions-archive.md#story)). Answered since
     2026-10-02: the Wellspring is its own new map east of level-1
     (question 5; *changed 2026-10-16, sixth round: it is the prologue's lake,
     5.18, reached later by a short forest path from Slimeshire's south-west,
     and each Pearl's homecoming is a short scene there,
-    [question 98](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)*),
+    [question 98](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)*),
     a beaten boss does not appear again (question 6), and the
     Colossus is beaten with his four braziers, not the Hammer
-    ([question 59](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15), 12.4).
+    ([question 59](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15), 12.4).
+  - Since the [seventh round](#the-seventh-round-questions-108-to-114)
+    (question 110): every Pearl goes home to the Wellspring, which
+    brightens, and its power flows into the town: the well comes back with
+    Pearl 1, the Forge lights with Pearl 2 (5.17, 8.5).
+  - Since the [eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135)
+    (questions 17 and 19): a beaten boss also leaves a full heart (+20, 5.3),
+    and beating it raises max energy (5.6). The Matron lives at the top of
+    the Weaver Hollow (8.14).
+    - Build (added): the boss's full heart beside its Pearl, and its
+      max-energy raise when it falls.
+    - Done when (added): each boss's heart and its max-energy raise come once,
+      with the Pearl, and survive save and load.
   - Done when: on a fresh save the Heavy skin is not there until Fatty One
     Eye is beaten; his Pearl grants it once, with the ceremony, and the
     Matron's grants Silk the same way; the skins survive save and load; the
     slime cannot leave a boss chamber mid-fight; a beaten boss never comes
     back. This replaces the Done when below.
-- Answered 2026-10-02 ([Open questions](story/06-open-questions.md#answered)):
+- Answered 2026-10-02 ([Open questions](story/07-decisions-archive.md#decisions-by-date)):
   each of the eight Pearls grants one unique permanent ability. Pearl 1 grants
   Squash Slam (it was Jump until the jump was removed on 2026-10-08); Pearl 2,
   the Matron's, grants Stretch Lash (8.7). Dodge (the Roll since 2026-10-09)
@@ -1500,9 +1706,9 @@ campfire and whole manuscripts in chests (5.17).
   Guardian's reward no longer teaches it
   ([Chapter 1](story/chapters/chapter-1-the-clearing.md), Beat 5).
 - Open: the premise around the Pearls
-  ([question 2](story/06-open-questions.md#story)), where the Wellspring is
-  ([question 5](story/06-open-questions.md#story)), and what a boss does once
-  its Pearl is gone ([question 6](story/06-open-questions.md#story)).
+  ([question 2](story/07-decisions-archive.md#story)), where the Wellspring is
+  ([question 5](story/07-decisions-archive.md#story)), and what a boss does once
+  its Pearl is gone ([question 6](story/07-decisions-archive.md#story)).
 - Done when: on a fresh save Squash Slam is locked until Fatty One Eye is
   beaten; his Pearl grants it once, with the ceremony; it survives save and
   load; older saves keep the abilities they have.
@@ -1510,7 +1716,7 @@ campfire and whole manuscripts in chests (5.17).
 ### [ ] 5.10 — Energy comes back: the slow refill, refills that grow back, the Wellspring
 
 - Decided 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
-  [question 40](story/06-open-questions.md#review-of-the-2026-10-15-direction)):
+  [question 40](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)):
   "energy can recover but really slow, like 1 per second; in addition we will
   add more ways to recover energy" (owner).
   - Energy refills by itself at 1 a second.
@@ -1546,11 +1752,11 @@ campfire and whole manuscripts in chests (5.17).
   count). *Which places are save points was answered in the sixth round:
   none (question 62).*
 - Since 2026-10-16 ([the third round](#the-third-round-questions-68-to-83);
-  [question 69](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 69](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the Crystal Colossus throws minions down, and killed, they can drop energy
   shards (12.4), so his chamber follows the minion rule above.
 - Since 2026-10-16 ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 90](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 90](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Pearl 1 restores Slimeshire's well when it comes home (5.17), and from
   then on the well refills energy.
   - Build (added): the restored well as an energy refill in Slimeshire. How
@@ -1560,7 +1766,7 @@ campfire and whole manuscripts in chests (5.17).
     home.
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [questions 98 and 105](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 98 and 105](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - **The well** gives a full refill, as a drink in town, and **beds** also
     restore life (sleeping already heals today, 3.4). This answers how much
     the well gives; whether it grows back like the other refills is still not
@@ -1568,7 +1774,7 @@ campfire and whole manuscripts in chests (5.17).
   - **The Wellspring** is the prologue's lake (5.18), no longer its own map
     east of level-1. After the prologue a short forest path from Slimeshire's
     south-west reaches it, so its full refill stays in reach.
-  - **No save points** ([question 62](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  - **No save points** ([question 62](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
     like Zelda, the slime saves everywhere except inside dungeons (5.15).
     The full energy refills come from beds, the Wellspring and Slimeshire's
     well.
@@ -1579,6 +1785,43 @@ campfire and whole manuscripts in chests (5.17).
     below): the well's drink fills the energy in full after Pearl 1 comes
     home; a bed fills life and energy; the Wellspring refills in full when
     reached by the forest path.
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114);
+  questions 110 and 113):
+  - **The well's refill grows back:** it refills again after a while, so it
+    is not used up. This answers the question left above.
+  - **Pearl 1** goes home to the Wellspring, and its power brings the well
+    back (5.17); the slime does not take the Pearl to the well.
+  - Build (added): the well's refill grows back after a time, like the other
+    refills (its time in `game-constants.json`).
+  - Done when (added): a used well is empty for its time, then refills in
+    full again.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 19 and 24):
+  - **Drops:** enemies and grass drop energy and health refills, and
+    sometimes coins, like Zelda's magic jars and hearts. Today one kill in
+    five drops an energy shard (+15, `combat.energyShard`), nothing drops
+    health, and the game has no grass to cut.
+  - **Max energy** also grows from the well and from each boss (5.6, 5.9).
+  - Build (added): enemy drops of energy, health and coins, with their
+    chances and amounts in `game-constants.json`; grass that drops the same
+    when it is cut, as a placed or painted thing in the worlds.
+  - Not decided yet: the chances and amounts, which hits cut grass, and
+    what grass looks like beside the War Axe's living, green things (the
+    clarity rule). *Answered in the tenth round (below), except the chances
+    and amounts.*
+  - Done when (added): beaten enemies and cut grass drop energy, health or
+    coins at their chances; a drop is picked up by walking over it; a slime
+    low on both can always refill from what a camp or a patch of grass drops.
+- Changed 2026-10-16, tenth round ([tenth round](#the-tenth-round-questions-18-and-20)): **grass** is cut
+  by the Spear and, later, the War Axe, and drops energy, health and
+  sometimes coins. Grass tufts never look like the Axe's bushes.
+  - Build (added; replaces "grass that drops the same when it is cut"
+    above): grass tufts a Spear hit cuts, in a look of their own apart from
+    the Axe's bushes, dropping energy, health or coins at their chances.
+  - Done when (added): a Spear hit cuts a tuft, which drops at its chances;
+    no tuft looks like a bush.
 - Depends on: 5.6.
 - Player proof: a slime that runs dry waits a little or finds a refill; it is
   never stuck.
@@ -1590,7 +1833,7 @@ campfire and whole manuscripts in chests (5.17).
 ### [ ] 5.11 — Squash Slam is removed
 
 - Decided 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
-  [question 45](story/06-open-questions.md#review-of-the-2026-10-15-direction)):
+  [question 45](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)):
   the Slam had no job left once the Goo Bomb breaks cracked ground (7.10). The
   One-Eyed Guardian's reward loses it. Its shake-downs went to the Heavy
   skin's Roll (7.8).
@@ -1608,7 +1851,7 @@ campfire and whole manuscripts in chests (5.17).
 ### [ ] 5.12 — Old Veteran Yoi teaches the Spear
 
 - Decided by the owner on 2026-10-11 and confirmed on 2026-10-15
-  ([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  ([question 50](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the Spear comes from **Old Veteran Yoi** in **Yoi's Hideout**, a war hideout
   under Lili's west yard ([Chapter 1](story/chapters/chapter-1-the-clearing.md),
   Yoi's Hideout; the map and the steps are in the
@@ -1626,13 +1869,13 @@ campfire and whole manuscripts in chests (5.17).
   and the spear-only bell. Tried from a fresh run.
 - Open: what starts and ends a beat like this one now that quests no longer
   make sense
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Answered 2026-10-16: Lili's tip starts it and goes in the journal (5.17),
   and Yoi teaches when the slime talks to him. After the Spear, Plop's tip
   sends the slime to Burr (5.13).*
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [questions 97 and 99](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [questions 97 and 99](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [prologue design](design/2026-10-16-prologue.md);
   [Chapter 1](story/chapters/chapter-1-the-clearing.md), Beat 0 and Yoi's
   home): Yoi teaches the Spear in the **prologue**. The slime saves him from
@@ -1651,6 +1894,20 @@ campfire and whole manuscripts in chests (5.17).
     before; the Spear survives save and load; in Slimeshire Lili's tip leads
     to the heap, the hatch opens Yoi's home, and its heart quarter is taken
     once.
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114); questions
+  111 and 114): who upgrades the Spear, Yoi's techniques or the Forge, is
+  decided after Release 1, so Yoi's home has no upgrades in Release 1. The
+  spear-only bell comes back in another form: Spear-only bells across the
+  world, a second Spear lock beside the barred gate (5.22).
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 115 and 128): the Spear never rings a bell: bells are a ranged
+  lock that a thrown pot or an arrow rings (5.22), so the Spear's locks are
+  the lever behind bars and the eyes. The heap of liftable bricks over Yoi's
+  hatch becomes **crates**, so it no longer looks like the Heavy Roll's
+  rubble heap.
+  - Build (changed): the heap over the hatch is crates.
 - Player proof: the slime's first weapon is a secret it finds and a lesson it
   is given. *Since the sixth round: a lesson it earns by saving a veteran.*
 - Done when: on a fresh save the slime finds the hatch, crosses the maze and
@@ -1660,7 +1917,7 @@ campfire and whole manuscripts in chests (5.17).
 ### [ ] 5.13 — Young Burr teaches the Roll
 
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [Chapter 1](story/chapters/chapter-1-the-clearing.md#the-west-village-young-burrs-roll-planned-owner-2026-10-16)):
   the Roll is taught in Chapter 1, before Fatty One Eye, so the Heavy skin's
   Roll works as soon as the skin is won.
@@ -1678,7 +1935,20 @@ campfire and whole manuscripts in chests (5.17).
 - Build: Plop's tip, young Burr and Burr's house in the West village (5.16),
   the lesson, and no charged roll from it. Stone Tools no longer teaches the
   Roll (it goes with the quests).
-- Depends on: 4.13, 5.12 and 5.16.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  question 132): the Roll's **first lock** is a rickety plank over a dry
+  ditch in Burr's yard, right where young Burr teaches it: a safe first use,
+  with no enemy and nothing to fall into but the dry ditch (the level design
+  guide's teach step). The yard also holds the Bow's first targets for later
+  (12.6).
+  - Build (added): the rickety plank over the dry ditch, a falling slab
+    (5.14) that a quick roll crosses and walking does not, and a way back up
+    out of the ditch.
+  - Done when (added): right after the lesson a walking slime drops into the
+    ditch and climbs out, and a rolling one crosses the plank.
+- Depends on: 4.13, 5.12 and 5.16. Since the eighth round also 5.14 (the
+  plank).
 - Player proof: the slime learns to roll from a boy whose father is missing,
   and has a reason to go into Fatty's Lair.
 - Done when: on a fresh save nothing teaches the Roll before young Burr; he
@@ -1688,7 +1958,7 @@ campfire and whole manuscripts in chests (5.17).
 ### [ ] 5.14 — Falling slabs and their hazards
 
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   loose slabs or bridges that fall too fast to cross walking, but slowly
   enough to cross rolling. They come back after 10 seconds. Under them are
   holes:
@@ -1705,10 +1975,10 @@ campfire and whole manuscripts in chests (5.17).
   damage go in `game-constants.json`. Tried in the playground first, in a new
   corner to the east or west.
 - Open: the hazards and whether they share one script
-  ([question 70](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 70](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   when a slab falls and how long a bridge is, so quick rolls in a row cross
   it and walking never does
-  ([question 71](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 71](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Answered later the same day (below).*
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83); questions 70 and
@@ -1737,7 +2007,7 @@ campfire and whole manuscripts in chests (5.17).
 ### [ ] 5.15 — Fatty's Lair: the fast gate and Burr's cell
 
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [Chapter 1](story/chapters/chapter-1-the-clearing.md#fattys-lair-the-gate-the-slabs-and-burrs-cell-planned-owner-2026-10-16)):
   Fatty One Eye lives in **Fatty's Lair**, the worms' burrow.
   - **The burrow's lock:** a worm lever lifts the old Thorn Guard gate, and
@@ -1750,17 +2020,17 @@ campfire and whole manuscripts in chests (5.17).
     (5.9).
   - Back home in the West village, Burr gives his thanks: an energy upgrade
     or a heart (not decided; max energy grows only through secrets and
-    bosses, [question 19](story/06-open-questions.md#progression)).
+    bosses, [question 19](story/07-decisions-archive.md#progression)).
     *Changed 2026-10-16, third round
-    ([question 80](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+    ([question 80](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
     his thanks is the **Bow**, an Ability Box power whose arrows cost energy
     (question 76). It was to come after Release 1, so when it comes is
-    [question 85](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+    [question 85](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
     until then this task builds the visit, and the Bow is in the
     [parking lot](#after-release-1--idea-parking-lot).*
     *Changed 2026-10-16, fifth round
     ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-    [questions 85 and 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+    [questions 85 and 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
     the Bow is in Release 1, in Chapter 3. Burr gives it when the slime
     comes back to the West village after Chapter 2, no longer right after
     Fatty's Lair, so the Bow and its ceremony are 12.6. This task builds
@@ -1770,7 +2040,7 @@ campfire and whole manuscripts in chests (5.17).
     Bow is checked in 12.6.
   - *Changed 2026-10-16, sixth round
     ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-    [questions 102, 103 and 106](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):*
+    [questions 102, 103 and 106](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):*
     **after Fatty**, the freed Burr says the town must see the Pearl, and the
     journal's main quest points home (5.17). **Visited before Pearl 2**, Burr
     thanks the slime and gives a tip: "I am making you something, come back
@@ -1786,17 +2056,45 @@ campfire and whole manuscripts in chests (5.17).
   - Done when (added): after Fatty, Burr's line plays once and the journal
     points home; at home before Pearl 2, Burr thanks the slime, gives his tip
     and no Bow.
-  - *Since the sixth round ([question 62](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)
-    and [107](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):*
+  - *Since the sixth round ([question 62](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)
+    and [107](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):*
     the lair is the first dungeon, and like Zelda the slime cannot save
     inside a dungeon. What quitting or dying inside one does is
-    [question 109](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)
+    [question 109](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)
     (open; the proposal: the slime resumes at the dungeon's entrance). The
     lair's own enemies are the bestiary's Pipe Worm, Dung Roller and Squint,
     with the Big Squint as its mini-boss (12.7).
   - Build (added): Save unavailable inside the lair, saying why.
   - Done when (added): the pause menu's Save does not work inside the
     lair and works again outside it.
+  - *Changed 2026-10-16, seventh round
+    ([the seventh round](#the-seventh-round-questions-108-to-114);
+    question 109):* quitting or fainting inside the lair resumes at its
+    entrance, and the lair keeps what the slime did there: small keys found,
+    doors opened, the map and the big key. The autosave waits until the
+    slime is out.
+  - Build (added): a dungeon's state (its keys, doors, map and big key)
+    saved as the slime does it; Continue and a faint inside the lair both
+    start at its entrance; no autosave while the slime is inside.
+  - Done when (added): quitting inside the lair and continuing starts at its
+    entrance with the small key, the opened doors and the map kept; fainting
+    there wakes at its entrance the same way; no autosave is written while
+    the slime is inside.
+  - *Changed 2026-10-16, eighth round
+    ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+    questions 125, 132 and 134):* **Burr's cell** lies on the lair's main
+    path, so freeing him cannot be skipped: the Bow he gives later is on
+    Chapter 3's main path (12.6). **The way out** after Fatty is the Heavy
+    skin's first lock: the new skin opens the lair's way to daylight, right
+    after the Pearl (7.8). The skeletons, the fallen Thorn Guard raised by
+    Gorge's vassals, stir in its deep rooms (12.7).
+  - Build (added): the cell on the main path, its small key before it; a
+    Heavy-skin lock between Fatty's Pearl and the way out.
+  - Not decided yet: which Heavy lock the way out is (the level design
+    guide's ideas: a plank barricade or a heavy plate).
+  - Done when (added): no way through the lair skips Burr's cell; the slime
+    leaves Fatty's chamber only through the Heavy lock, which opens once the
+    skin is won.
 - Today: Fatty One Eye lives in the open world at his camp, and there is no
   lair. The [dungeons plan](design/2026-10-11-release-1-dungeons-plan.md#6-dungeon-1-fattys-lair-chapter-1)
   (2026-10-11) has an earlier map of it.
@@ -1822,7 +2120,7 @@ campfire and whole manuscripts in chests (5.17).
 - Build: the village's Release 1 part as a hand-made chunk scene: Burr's
   house, the other houses and NPCs, and what there is to do.
 - Open: which part of the village, and what there is to do
-  ([question 73](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  ([question 73](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   the proposal: its first chunk, a small town with Burr's house, three or
   four more houses, a shop and a game to play, like Kakariko). *Answered
   later the same day (below).*
@@ -1843,7 +2141,7 @@ campfire and whole manuscripts in chests (5.17).
   - Done when (added): the shop and the game work from a fresh save.
 - Changed 2026-10-16, fourth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [questions 88 and 89](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 88 and 89](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the shop is small and sells potions and food ingredients, so coins have a
   use in Release 1; anything bigger waits. A secret in the village teaches a
   simpler potion. Burr gives the Bow at home after Chapter 2 (12.6).
@@ -1853,6 +2151,13 @@ campfire and whole manuscripts in chests (5.17).
     which potion it teaches.
   - Done when (added): a fresh save buys a potion and an ingredient with
     coins; the secret teaches its recipe once, and it survives save and load.
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114);
+  question 112): the town sits in B4's north and A4; B4's south edge is the
+  prologue's, sealed off by forest (5.18). The forest path to the Wellspring
+  leaves Slimeshire, not the town.
+  - Build (changed): the town's chunk scenes in B4's north and A4, closed off
+    from the prologue by forest.
 - Player proof: walking west out of Slimeshire leads to a second town with
   people and things to do.
 - Done when: the village's part is walkable from Slimeshire Meadow, its NPCs
@@ -1861,7 +2166,7 @@ campfire and whole manuscripts in chests (5.17).
 ### [ ] 5.17 — The journal: the main quest, the tips and the Pearl picture
 
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the quests go, and:
   - the journal keeps one main quest, "Win back the Pearls", and a page of
     the tips NPCs give;
@@ -1882,7 +2187,7 @@ campfire and whole manuscripts in chests (5.17).
   below).*
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83);
-  [question 82](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 82](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - with no quests, an NPC that has a tip that matters to the story shows
     the exclamation mark;
   - the relit Forge knows the potion recipes (8.5), and an NPC tip or a chest
@@ -1893,7 +2198,7 @@ campfire and whole manuscripts in chests (5.17).
     taught by a tip or a chest is learned once and survives save and load.
 - Changed 2026-10-16, fourth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [questions 89 and 90](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 89 and 90](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - **Pearl 1** restores Slimeshire's well when it comes home, and the well
     then refills energy (5.10). So the buildings are the well (Pearl 1) and
     the Forge (Pearl 2, 8.5); Pearl 3's is not decided.
@@ -1912,7 +2217,7 @@ campfire and whole manuscripts in chests (5.17).
     found, bought and made at a campfire.
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [questions 98, 100, 103, 104 and 105](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 98, 100, 103, 104 and 105](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - **Pearl 1's homecoming:** after Fatty, the freed Burr says the town must
     see the Pearl (5.15), the journal's main quest points home, and the well
     comes back when the slime brings the Pearl to it. Each Pearl's
@@ -1935,28 +2240,79 @@ campfire and whole manuscripts in chests (5.17).
     campfire before the Forge is lit.
 - Changed 2026-10-16, sixth round, later the same day
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [questions 65 and 66](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 65 and 66](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - **Potions and food** are both crafted at a campfire.
   - **Whole manuscripts:** Release 1 has whole manuscripts, each found in a
     chest as one find, with its ceremony (4.13); their pieces come later.
     Open: what they teach
-    ([question 108](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+    ([question 108](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
     the proposal: recipes and lore).
   - Build (added): the campfire's food recipes beside its potions; the
     manuscript as a chest find.
   - Done when (added): a campfire crafts a potion and a food; a manuscript
     is found once in a chest, with the ceremony, and survives save and load.
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114);
+  questions 108 and 110):
+  - **The manuscripts** teach campfire recipes (potions and food) and lore:
+    pages of the Thorn Guard's war journal, which tell the war's story bit
+    by bit. Manuscripts that teach powers start in the next release.
+  - **The Pearls belong to the Wellspring:** every Pearl goes home to it, it
+    brightens, and its power flows into the town: the well comes back with
+    Pearl 1, the Forge lights with Pearl 2 (8.5). The slime does not take
+    Pearl 1 to the well.
+  - Build (added; replaces "the well's return when the slime brings Pearl 1
+    to it" above): after Fatty the journal points home to the Wellspring;
+    each Pearl's homecoming scene there ends with its power reaching the
+    town, and the well comes back with Pearl 1. A manuscript teaches its
+    recipe, or shows its page of the war journal.
+  - Not decided yet: which recipes and how many pages, and where a page is
+    read again once found. *Answered in the eighth round (below): on the
+    journal's "War journal" page.*
+  - Done when (added; replaces "the well comes back once the slime brings
+    Pearl 1 to it" above): the well comes back once Pearl 1 is home at the
+    Wellspring; a recipe manuscript teaches its campfire recipe once, and a
+    lore manuscript shows its page; both survive save and load.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 119 and 120):
+  - **The war journal:** every lore page found is read again on a "War
+    journal" page in the journal, next to the Pearls' picture.
+  - **Two places for potions:** the campfire makes the simple potions and
+    food anywhere, and the relit Forge brews the strong potions only it
+    knows (8.5).
+  - Build (added): the journal's "War journal" page, listing the pages found
+    in order.
+  - Not decided yet: which recipes and how many pages (still), and which
+    potions are the Forge's strong ones.
+  - Done when (added): a found lore page can be read again on the War
+    journal page, after save and load; a campfire never offers a Forge-only
+    potion.
 - Depends on: 5.9.
 - Player proof: the journal shows how far the slime has come at a glance.
 - Done when: on a fresh save the journal shows the main quest and an empty
   picture; each won Pearl fills its slot once and says what it does; a tip an
   NPC gives appears on the tips page; all of it survives save and load.
 
-### [ ] 5.18 — The prologue's two screens and the Wellspring
+### [~] 5.18 — The prologue's two screens and the Wellspring
 
+- **Built 2026-10-16** ([PROLOGUE.md](godot/PROLOGUE.md)): both screens on
+  B4's south edge (`west-village-b4`, two one-screen camera rooms under a
+  forest band; the town keeps B4's north), the glade in B4's south-east
+  against C4 rather than on C4's south-west edge (C4's south-west holds the
+  starter camp's yard and is too narrow to seal off; no cavern needed), its
+  barred gate opening onto `level-1-c4`'s west edge. New Game starts the
+  birth (no HUD until the bubble pops, a dawn light); the path out opens only
+  when its light things are gone, with the jingle; nothing is saved while the
+  prologue runs (`RunState.saving_blocked_reason`); the forest path leads
+  back from Slimeshire to the Wellspring afterwards, which then stands open
+  and empty; a homecoming spot is marked by the pool. Not built: the
+  Wellspring's campfire and the homecoming scenes (5.17). The world map's
+  markers and the g-a opening still need redrawing. Tests:
+  `tests/test_prologue.gd`.
 - Decided 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [questions 97 and 98](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [questions 97 and 98](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [prologue design](design/2026-10-16-prologue.md);
   [Chapter 1](story/chapters/chapter-1-the-clearing.md), Beat 0): a short,
   closed opening before Chapter 1, about 3 to 5 minutes, in the south between
@@ -1984,7 +2340,25 @@ campfire and whole manuscripts in chests (5.17).
   starting in the prologue; the forest path from Slimeshire's south-west to
   the Wellspring after it; the Wellspring's homecoming spot.
 - Not decided yet: when the HUD shows (there is none at dawn), and whether
-  the prologue saves.
+  the prologue saves. *Answered in the seventh round (below).*
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114); questions
+  110, 112 and 113):
+  - **B4:** the Wellspring takes B4's south edge, sealed off by forest, and
+    the West village's town sits in B4's north and A4 (5.16). The forest path
+    to the Wellspring leaves Slimeshire, not the town. The world map
+    (`world-map.json`) still puts both in B4 and is redrawn with them.
+  - **No saving:** the prologue cannot be saved.
+  - **The HUD** appears right after the birth scene.
+  - **The homecoming:** every Pearl goes home to the Wellspring, which
+    brightens, and its power flows into the town (5.17).
+  - Build (added): the Wellspring on B4's south edge; Save unavailable in
+    the prologue; the HUD shown from the end of the birth scene.
+  - Done when (added): the HUD is hidden during the birth and shows right
+    after it; Save does not work anywhere in the prologue; the Wellspring and
+    the West village's town share B4 without either seeing the other.
+- Since the [ninth round](#the-ninth-round-questions-32-118-121-123-and-136) (question 118): quitting during the prologue
+  starts it again from the birth, as built; it is a few minutes long.
 - Depends on: 4.13; 5.19 to 5.24 for the rest of the prologue.
 - Player proof: a new game opens on the slime's birth in a closed, quiet
   place, and the way out is its first secret.
@@ -1994,8 +2368,15 @@ campfire and whole manuscripts in chests (5.17).
   the Wellspring; the prologue never plays again on that save, after save
   and load.
 
-### [ ] 5.19 — A camera scene: Yoi's fight
+### [x] 5.19 — A camera scene: Yoi's fight
 
+- **Built 2026-10-16** ([PROLOGUE.md](godot/PROLOGUE.md#the-flow)): stepping
+  into the glade holds the slime, letterbox bars come in, the camera pans and
+  zooms in on Yoi (`WorldCamera.pan_to(point, ms, false)`,
+  `set_zoom_level`), he thrusts and two worms on his line fall, a third bites
+  him, he calls for help, and the camera comes back; it plays once (the
+  `prologue.fight-seen` flag; the prologue is never saved, so no load can
+  replay it). Its timings are the director's properties.
 - Decided 2026-10-16, sixth round (question 97;
   [prologue design](design/2026-10-16-prologue.md), Screen 2): as the slime
   steps into the glade, the camera takes over and pans ahead to Yoi fighting
@@ -2015,8 +2396,17 @@ campfire and whole manuscripts in chests (5.17).
   during it; the camera returns to the slime and play goes on; the scene
   does not play again after save and load.
 
-### [ ] 5.20 — Old Veteran Yoi: his NPC, art and lines
+### [~] 5.20 — Old Veteran Yoi: his NPC, art and lines
 
+- **Built 2026-10-16** (the prologue part): Yoi's art (three Magnific poses:
+  standing, the thrust with a spear of his own jelly, wounded;
+  `asset/characters/authored/npcs/yoi.webp`), his actor scene
+  (`character.yoi`: the thrust, the bite and sinking, getting up, the limp
+  off), his prologue lines (the director's: the call for help, his story,
+  the Spear's "Gather all of yourself, and push it out to one point", the
+  gate lesson, the goodbye) and his NPC definition with his tips for later.
+  He teaches the Spear with the "New shape" ceremony. Not built: Yoi at home
+  (5.12).
 - Decided 2026-10-16, sixth round (questions 97 and 99;
   [Characters](story/04-characters.md#old-veteran-yoi-planned)): **Yoi of
   the Thorn Guard**, an old slime of the great war. His look comes from the
@@ -2040,8 +2430,15 @@ campfire and whole manuscripts in chests (5.17).
 - Done when: Yoi fights, falls, talks and teaches in the prologue, then is
   found at home; his lines survive save and load as told.
 
-### [ ] 5.21 — The prologue worms
+### [x] 5.21 — The prologue worms
 
+- **Built 2026-10-16**: the four `prologue-worm`s (1 HP, the bestiary's
+  scene) placed as `PlacedEnemy` nodes in the glade (no coins), held in their
+  tableau until the attack; one throw kills one, their bites hurt; the
+  glade's pots, rocks, crate and basket come back a few seconds after each is
+  thrown. No game over in the prologue: a fainted slime wakes at the glade's
+  edge (the player's respawn override) and the two worms are back at their
+  spots.
 - Decided 2026-10-16, sixth round (question 97;
   [prologue design](design/2026-10-16-prologue.md), the rescue): the two
   worms left turn on the slime. They are a weak variant of the worm swordsman
@@ -2060,8 +2457,26 @@ campfire and whole manuscripts in chests (5.17).
   hit hurts the slime; fainting in the prologue wakes it at the glade's edge
   with the worms reset, and no game-over screen shows.
 
-### [ ] 5.22 — The barred gate and its lever behind bars
+### [~] 5.22 — The barred gate and its lever behind bars
 
+- **Built 2026-10-16** ([PROLOGUE.md](godot/PROLOGUE.md#the-barred-gate)):
+  `object.barred-gate` (`game.barred-gate`), an old Thorn Guard grate whose
+  lever is seen through the bars, one step behind them (its own look, apart
+  from Fatty's drop gate). The bars block bodies and let the Spear's thrust
+  through; a thrown pot, a Roll or another weapon on the bars or the lever
+  clinks with the line "Barred. Only something long and thin fits between
+  the bars."; a Spear thrust pulls the lever, the grate rises into the beam
+  and the gate stays open (the map record), after save and load too. Tried
+  first in the playground's Barred-gate corner (x 2752-3264, y 4288-4600),
+  then placed in the glade. Tests: `tests/test_barred_gate.gd`.
+- **Built 2026-10-16, the bells** (after the eighth and ninth rounds;
+  [specs/abilities.md](godot/specs/abilities.md) §13.4): a bell
+  (`game.lash-bell`) rings only to a thrown thing (a hit tagged `thrown`: a
+  pot, a rock, a skull), with a hook for the Bow's arrow (`on_arrow_hit`;
+  the Bow is 12.6's); the Spear, the Stretch Lash and every other hit clink
+  off it, and the post stays an anchor the Lash pulls on. A rung bell opens
+  its gate for good: the gate's map record, through a chunk entered again, a
+  save and a load (`test_a_rung_bell_keeps_its_gate_open_for_good`).
 - Decided 2026-10-16, sixth round (question 97;
   [prologue design](design/2026-10-16-prologue.md), the first lock): the
   glade's way out to Slimeshire is an old Thorn Guard gate, shut and worked
@@ -2079,9 +2494,70 @@ campfire and whole manuscripts in chests (5.17).
 - Done when: other attacks, throws and the Roll do not reach the lever; a
   Spear thrust through the bars pulls it and opens the gate; it stays open
   after save and load.
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114); question
+  114): **Spear-only bells** come back across the world as a second kind of
+  Spear lock, next to "through bars": a bell on an islet, or behind a gap,
+  that a thrown pot cannot ring but the Spear's reach can.
+  - Build (added): the Spear-only bell (today's bell post, `game.lash-bell`,
+    answers only to the Stretch Lash, or also to weapon hits with
+    `lash_only` off), rung by the Spear's reach across a gap and by nothing
+    thrown; a few in Release 1's maps. Tried in the playground first.
+  - Done when (added): a thrown pot does not ring a Spear-only bell; the
+    Spear's reach rings it across its gap and opens what it opens. Whether
+    that stays open after leaving is not decided (today's bells open a gate
+    for the visit only).
+  - *Replaced in the eighth round (below): no bell answers to the Spear.*
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 115, 127, 131 and 132): **bells are a ranged lock.** A thrown pot
+  or an arrow rings a bell; the Spear and the Stretch Lash never do, which
+  gives the Bow more to do. This replaces the seventh round's Spear-only
+  bells. The Lash's posts (today's bell post, `game.lash-bell`) are posts it
+  pulls on in the next release, not bells. The 2026-10-11 plan's alarm bells
+  and gongs become **wooden clappers** a thrown pot sets off. Bars stop
+  arrows, so only a Spear thrust reaches a lever behind bars. The **first
+  bell**, rung by a thrown pot, stands near the town's edge soon after the
+  prologue, so the Gulp's throw gets a lock of its own early.
+  - Build (replaces the seventh round's): a bell, in its own look, that a
+    thrown pot or an arrow rings and that refuses the Spear, the other
+    weapons and the Roll with a clink and a line; the wooden clapper a thrown
+    pot sets off; the first bell near the town's edge, with a pot in reach;
+    a few more bells in Release 1's maps, some out of a throw's reach for
+    the Bow (12.6). The barred gate's bars stop arrows (with 12.6). Tried in
+    the playground first.
+  - Open: whether what a bell opens stays open, or only for the visit as
+    today's bells do
+    ([question 136](story/07-decisions-archive.md#open-after-the-eighth-round-2026-10-16);
+    the proposal: for good). *Answered in the
+    [ninth round](#the-ninth-round-questions-32-118-121-123-and-136): it stays
+    open for good, so a bell is a lock solved once.*
+  - Build (added, ninth round): a rung bell's gate saved open in the map
+    record, like the barred gate's.
+  - Done when (replaces the seventh round's): a thrown pot rings the first
+    bell and opens what it opens; a Spear thrust does not ring it; a thrown
+    pot sets off a wooden clapper; once the Bow is in (12.6), an arrow rings
+    a bell and does not fly through the barred gate's bars; what a rung bell
+    opens stays open after leaving and after save and load (question 136).
+- Changed 2026-10-16, tenth round ([tenth round](#the-tenth-round-questions-18-and-20)): **the wooden clappers
+  are the worm army's alarms**, not locks. Anything that hits one, a pot, an
+  arrow, a Spear jab or the slime bumping it, sets it off, and it calls the
+  nearby camp (5.25). It is a trap to avoid or use; the bells are the locks.
+  - Build (replaces "the wooden clapper a thrown pot sets off" above): a
+    clapper that any hit or bump sets off, with its rattle, calling the
+    placed enemies of the camp near it.
+  - Done when (replaces "a thrown pot sets off a wooden clapper" above): a
+    pot, an arrow, a Spear jab and a bump each set a clapper off, and the
+    nearby camp comes; a clapper opens nothing.
 
-### [ ] 5.23 — The first-time control hints in the prologue's order
+### [x] 5.23 — The first-time control hints in the prologue's order
 
+- **Built 2026-10-16**: while the prologue runs the hints follow its own list
+  (`ControlHints.PROLOGUE_HINT_IDS`), none during the birth: move, the mouth
+  (suck and throw), keep moving while you aim (a worm near), attack (once the
+  Spear is current) and "Thrust through the bars" by a shut barred gate. The
+  bag, the Roll (off in the prologue), the menus and the charge wait for
+  Slimeshire.
 - Decided 2026-10-16, sixth round (question 97;
   [prologue design](design/2026-10-16-prologue.md)): the built first-time
   hints (4.6) teach the prologue in its own order: moving at the Wellspring,
@@ -2101,10 +2577,18 @@ campfire and whole manuscripts in chests (5.17).
 - Done when: on a fresh save each prologue hint shows once, at its step, and
   never returns; no hint names a control the slime does not have yet.
 
-### [ ] 5.24 — Plop at the town's edge
+### [x] 5.24 — Plop at the town's edge
 
+- **Built 2026-10-16**: as the slime comes out of the prologue's forest path
+  onto `level-1-c4`'s west edge, Elder Plop waits there with the "!" over him
+  (the `PrologueMeeting` node), meets it ("No slime has come out of the
+  Wellspring in years... and here you are."), gives his satchel (the bag: 10
+  pockets, with the item ceremony "New bag"; the newborn had none) and his
+  first tips, then walks back to his place; this ends the prologue (saving
+  again, Slimeshire's banner, the Chapter 1 quests). The bag for runs that
+  skip the prologue is still 5.7's.
 - Decided 2026-10-16, sixth round
-  ([question 100](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  ([question 100](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [Characters](story/04-characters.md#elder-plop-built)): as the slime walks
   out of the forest after the prologue, Elder Plop meets it at the town's
   edge, amazed: "No slime has come out of the Wellspring in years... and here
@@ -2122,13 +2606,85 @@ campfire and whole manuscripts in chests (5.17).
   gives the bag with the ceremony and his tips, with the exclamation mark,
   and is in town afterwards; it survives save and load.
 
+### [~] 5.25 — World enemies are placed, not spawned
+
+- Built 2026-10-16, the tests updated but not run yet, waiting for the owner's look
+  ([enemy spec §3.3](godot/specs/enemy.md#33-placed-enemies-roadmap-525-not-phasers)):
+  - **The node:** `game/scenes/encounters/placed-enemy.tscn`
+    (`game/enemy/placed_enemy.gd`) under a world's `Enemies` node, dragged in by
+    picture from the Scenery dock's new **Enemies** category: its type (the
+    Inspector suggests every enemy type), a wander area (the `area_id` of a
+    camp's shared `enemy-wander` world area, else its own circle of
+    `wander_radius`) and optional `overrides`. The editor shows the enemy's
+    picture, its type and its wander outline.
+  - **Spawning:** `EnemyPopulation` spawns every placed enemy once when the
+    world is built, on its spot, with the camp territory from its wander
+    area (wander, chase within the leash, search, give up, walk home);
+    nothing respawns it while the slime stays, and the chunk built again
+    (walking back in, a door, a load) brings every one back. The `allowed_types`
+    filter covers them. The quest waypoint points at the wander area of the
+    nearest standing placed enemy of a kill objective's kinds.
+  - **Converted:** the 9 spawn areas of the level-1 and Gloop Forest chunks
+    became `enemy-wander` areas (their old stay shapes) with their
+    `maxPopulation` of placed enemies (24 in all: level-1 3 + 3 + 3 + 4, Gloop
+    Forest 2 + 1 + 2 + 1 + 2), and the crystal caverns' spawn table 5 placed
+    enemies in each of its 4 chunks (2 swordsmen, 2 brawlers, 1 archer, in two
+    camps sharing a wander rect each; placeholders until Chapter 3 places the
+    Caverns' own); Gloop
+    Forest's worm table, dead in the whole forest and woken in E4 by the cut
+    into chunks, was dropped. The dev worlds and the playground keep their
+    spawn areas and `icege` its table, as testbeds (question 121's proposal,
+    which the owner took in the [ninth round](#the-ninth-round-questions-32-118-121-123-and-136)).
+  - **The chunk tool** (`split_region_chunks.gd`) turns a hand-made world's
+    spawn areas and live spawn table into placed enemies when it cuts it (a
+    table: at most 5 a chunk, in two camps, `tools/lib/enemy_placement.gd`).
+- Decided 2026-10-16 ([the seventh round](#the-seventh-round-questions-108-to-114);
+  [World](story/03-world.md#enemies-in-the-world-planned)): enemies in the
+  world no longer come from spawn areas.
+  - Each world chunk holds a fixed number of enemies, placed by hand in the
+    map. Each enemy has its own wandering area, as some camps have now.
+  - When the player reloads a chunk (leaves it and comes back), its enemies
+    come back, as in Zelda.
+  - Spawn areas stay only in the playground (the bestiary pens and the
+    testbed).
+  - Beaten bosses still never come back (5.9).
+- Before 2026-10-16: the camps of level-1 and Gloop Forest spawned from `enemy-spawn`
+  world areas (a stay and a pursue shape, `game/enemy/enemy_population.gd`,
+  `camp_territory.gd`) and refill on each area's `intervalMs` up to its
+  `maxPopulation`: 9 areas in the level-1 and Gloop Forest chunks, 1 in the
+  playground, and 11 in the dev-only worlds `cole`, `girls`,
+  `meadow-crossing` and `tiktok`. A world with no spawn areas but a `spawns`
+  table (the `crystal-caverns` chunks, `icege`) spawns around the player.
+  Fatty One Eye's camp is an encounter, not a spawn area.
+- Not decided yet: whether the dev-only worlds are converted too or keep
+  their areas as testbeds. *Answered in the [ninth round](#the-ninth-round-questions-32-118-121-123-and-136) (question
+  121): they keep them, as testbeds, like the playground.*
+- Build: placed enemy instances in world scenes, each with a wander area
+  and a leash (the camp territory's stay and pursue shapes); the existing
+  spawn areas in the worlds converted into that many placed enemies inside
+  each old area, so the worlds keep their enemies until the owner moves
+  them; a chunk's placed enemies come back when it is reloaded; the respawn
+  timer only in the playground; the tests and specs updated
+  ([enemy spec](godot/specs/enemy.md), [ARCHITECTURE.md](godot/ARCHITECTURE.md)
+  and the "spawned by code" rule in `AGENTS.md` change with it).
+- Depends on: nothing; 12.7's enemies are placed this way once it is built.
+- Player proof: the same enemies stand in the same places each time the slime
+  comes back, and none appear out of thin air while it is there.
+- Done when: no Release 1 world scene has an `enemy-spawn` area or a
+  `spawns` table; each old area's enemies stand there as placed
+  instances, wander within their area and give up the chase at their leash;
+  a beaten enemy stays beaten while the slime is in the chunk and is back
+  after the chunk is left and entered again; nothing respawns on a timer
+  outside the playground; the playground's pens still spawn; a beaten boss
+  never comes back; the tests pass.
+
 **Milestone 5 complete when:** the player grows only through gear, Goo Hearts,
 and story unlocks, and Chapter 1 still plays as it did. The systems are in
 (2026-09-29); open: the assets below and a human Chapter 1 run (4.9). Since
 2026-10-07 it also needs 5.3 (heart quarters) and 5.6–5.9, since
 2026-10-15 5.10–5.12, and since 2026-10-16 5.13–5.17. Since the sixth round
 of 2026-10-16 it also needs the prologue, 5.18–5.24, played from a new game
-into Slimeshire.
+into Slimeshire, and since the seventh round 5.25, placed world enemies.
 
 **Assets**
 
@@ -2154,12 +2710,15 @@ into Slimeshire.
       lists it). *Since the sixth round of 2026-10-16: his art is 5.20's
       (one still, his thrust, his fall and his limp), and his home needs its
       interior and the heap's hatch (5.12); the water maze is dropped.*
-- [ ] The prologue (5.18 to 5.24, since 2026-10-16): the Wellspring's glowing
+- [~] The prologue (5.18 to 5.24, since 2026-10-16): the Wellspring's glowing
       pool, mist and fireflies, and the birth's bubble; the forest-ringed
       clearing and glade; the blocked path's pots, crate and mossy log end;
       the prologue worms (a variant of the worm swordsman); the Thorn Guard
       barred gate and its lever; the forest path to Slimeshire; the
-      prologue's music and ambience.
+      prologue's music and ambience. *Built 2026-10-16: all but the music and
+      ambience (the chunk has none of its own yet); the path's things are a
+      crate, clay pots, a basket and a sack (no log end: it read as the Heavy
+      Roll's rotten trunk); Yoi's art, Plop's satchel icon.*
 - [ ] Burr's and young Burr's NPC art, and Burr's house (5.13, 5.15).
 - [ ] The Thorn Guard gate and its worm lever, the falling slabs and their
       fall, the void and the spikes, the cell and the small key (5.14, 5.15).
@@ -2195,9 +2754,9 @@ recipes stay portable so a fresh save cannot softlock.
   Release 1 crafts only potions and food ("maybe the vault"). The Forge brews
   the potions until evolutions arrive, and the smith teaches the Hammer shape
   at the Workshop in Chapter 5 or 6, after Release 1
-  ([question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 51](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   What the Workshop does in Release 1, and what restores a building once the
-  quests go ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  quests go ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   are Open.
 - **2026-10-16** ([the 2026-10-16 decisions](#the-2026-10-16-decisions)): a
   building is restored when a Pearl comes home (question 60, 5.17), and the
@@ -2712,10 +3271,10 @@ the next release (7.11).
   and a Roll that hits a wall, a tree and so on shakes things loose. Cracked
   walls are the Goo Bomb's. Open: whether Release 1 still teaches the Roll,
   and where, now that Stone Tools goes with the quests
-  ([question 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Changed 2026-10-16 (below): no enemy push, and young Burr teaches it.*
 - Changed 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - Release 1 teaches the Roll in Chapter 1, before Fatty One Eye: young Burr
     in the West village (5.13). It is the quick roll; the held, charged roll
     (the rework's `roll-charge` upgrade) comes later as an upgrade.
@@ -2727,7 +3286,7 @@ the next release (7.11).
     away: that will be an upgrade later, from another skin.
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83);
-  [questions 77 and 78](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 77 and 78](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - The quick roll is the Roll, and the charged roll is a later upgrade, like
     the Roll's enemy push. This replaces the 2026-10-09 rule that the Roll
     comes whole with its lesson (above and below).
@@ -2769,7 +3328,7 @@ the next release (7.11).
 
 - Decided 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
   [The skins](story/01-direction.md#the-skins);
-  [question 41](story/06-open-questions.md#review-of-the-2026-10-15-direction)):
+  [question 41](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)):
   each Pearl grants a skin (5.9), always on once learned, with no key. A skin
   acts in its own places and on its own move: one gate, and one change to a
   move the slime already has. It never slows the slime and stacks with the
@@ -2778,8 +3337,8 @@ the next release (7.11).
   | Skin | Pearl | Its gate | Its change to a move |
   |---|---|---|---|
   | **Heavy** | 1, Fatty One Eye | Sinks the heavy plates; moves statues, pedestals and blocks | A Roll that hits a wall, a tree and so on shakes things loose, so objects fall, and it breaks small loose things lying in its way: a loose rock, a rubble heap, a rotten trunk across a path (question 77), and old dead or built things that lie or lean in the way: grey leaning old trees, old fences, plank barricades, rotten mine timbers (question 93). Its screen shake is strong; without the skin a Roll's bonk shakes much less. It does not push enemies away (owner, 2026-10-16) |
-  | **Silk** | 2, the Matron | Passes web walls at −50%; webs no longer slow it (7.9) | The shapes cut webs, which they cannot do before it: a cut opens a web wall for good and frees things wrapped in silk (7.9, question 55). In Release 1 the Spear, the only shape, does it (question 94) |
-  | **Feral** | 3, the Crystal Colossus | Climbs some walls it could not climb before. A climbable wall looks different from the others: it has vines and irregularities (thick roots and rocky handholds since the fourth round, question 86). The player holds W (interact), claws show, the slime climbs up and down, and letting go midway drops it, at no cost (owner, 2026-10-16, [questions 56 and 68](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)) | The Spear's attacks hit twice as fast |
+  | **Silk** | 2, the Matron | Passes web walls at −50%; webs no longer slow it (7.9), and a Roll no longer sticks in them (question 131) | The shapes cut webs, which they cannot do before it: a cut opens a web wall for good and frees things wrapped in silk (7.9, question 55). In Release 1 the Spear, the only shape, does it (question 94) |
+  | **Feral** | 3, the Crystal Colossus | Climbs some walls it could not climb before. A climbable wall looks different from the others: it has vines and irregularities (thick roots and rocky handholds since the fourth round, question 86). The player holds W (interact), claws show, the slime climbs up and down, and letting go midway drops it, at no cost (owner, 2026-10-16, [questions 56 and 68](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)) | The Spear's attacks hit twice as fast |
 
   Pearl 3's skin was Swim until 2026-10-16, when the owner found that Swim
   does not fit the Colossus; later the same day he chose the Feral skin and
@@ -2807,14 +3366,14 @@ the next release (7.11).
   is held, its claws, the drop when it is let go, which costs nothing, and
   the Spear at twice the speed. Tried in the playground first.
 - Open: how each skin shows while it works
-  ([question 34](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15));
+  ([question 34](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15));
   which walls the Feral skin climbs, how the player tells them, the keys
   beside a heavy block's grab, and the fall
-  ([question 68](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 68](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   a beast's skin from a crystal golem
-  ([question 69](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 69](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   the playground's bomb rubble
-  ([question 72](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 72](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   Answered 2026-10-16: young Burr teaches the Roll in Release 1 (5.13).
   *Answered in the [third round](#the-third-round-questions-68-to-83): a
   climbable wall has vines and irregularities, the slime climbs up and down,
@@ -2825,13 +3384,13 @@ the next release (7.11).
 - Open since the third round: a Heavy Roll that knocks an old tree down into
   dry wood the Lantern burns, beside the Axe's standing trees and "no ability
   requires another"
-  ([question 84](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 84](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   the climbing vines beside the War Axe's vines
-  ([question 86](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 86](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Answered in the fourth and fifth rounds (below).*
 - Changed 2026-10-16, fourth and fifth rounds
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [questions 84, 86, 87, 91, 92 and 93](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 84, 86, 87, 91, 92 and 93](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - **Heavy:** the Heavy Roll owns old dead or built things that lie or lean
     in the way: grey leaning old trees, rotten trunks across a path, old
     fences, plank barricades, rotten mine timbers, loose rocks and rubble
@@ -2862,7 +3421,7 @@ the next release (7.11).
     never stands beside a heavy block.
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 101](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 101](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   **the river bridge** is the Heavy Roll's. A Heavy Roll knocks the grey,
   leaning old tree on a riverbank over the river, and it lies across the
   water as a bridge. The War Axe's bridge, a living tree cut to fall, may
@@ -2872,6 +3431,28 @@ the next release (7.11).
   - Done when (added): a Heavy Roll knocks the tree over the river and the
     slime walks across; a plain Roll does not; the bridge stays after save
     and load.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 128, 129, 131 and 132):
+  - **Looks:** what the Gulp lifts is small and sits loose, with the Gulp's
+    prompt in reach; what the Heavy Roll breaks is big, grey and old and lies
+    or leans across the way. The Heavy Roll's leaning tree is always a placed
+    object, never painted on the forest layer. An old fence it breaks is grey
+    and broken-backed and never stands on a rim, where fences stop drops
+    ([FENCES.md](godot/FENCES.md)). The Hammer's boulders (later) carry a
+    crack mark that scenery boulders never have. Feral's roots are thick,
+    living and leafy beside rocky handholds, and the root-rock wall style
+    never stands next to a climbable wall.
+  - **Silk:** with the skin a Roll no longer sticks in a floor web (7.9).
+  - **First locks:** the Heavy skin's is Fatty's Lair's way out (5.15); the
+    Feral skin's is the climb out of the Colossus's arena, then the Wilds
+    (12.4, 12.5).
+  - Build (added): the leaning tree as a placed object; the old breakable
+    fence in its own grey, broken-backed look; climbable walls in their
+    living roots.
+  - Done when (added): no breakable fence stands on a rim, no leaning tree is
+    painted on a ForestLayer, and no climbable wall stands next to the
+    root-rock wall style.
 - Depends on: 5.9 and 5.13. The Silk rows are checked with 7.9.
 - Player proof: winning a Pearl changes what the slime can do everywhere,
   with no new key.
@@ -2889,7 +3470,7 @@ the next release (7.11).
 
 - Decided 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
   [Webs](story/01-direction.md#webs-chapter-2);
-  [question 44](story/06-open-questions.md#review-of-the-2026-10-15-direction)).
+  [question 44](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)).
   It replaces 7.6.
 
   | | Webs | Web walls |
@@ -2901,29 +3482,32 @@ the next release (7.11).
     to deal with webs to defeat the Matron (8.7). With the skin a cut opens a
     web wall for good and frees things wrapped in silk: a chest, a key, a
     trapped slime (owner, 2026-10-16,
-    [question 55](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+    [question 55](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   - Tom hangs in a cocoon, not a web, so a weapon tears it before the skin
     (owner, 2026-10-16,
-    [question 54](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15); 8.13).
+    [question 54](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15); 8.13).
   - No web wall, and no web door, blocks the way to the Matron.
   - The Matron's fight is played with the slowdown before the number is fixed
     (it was 80% until the review).
   - Since 2026-10-16 ([the third round](#the-third-round-questions-68-to-83);
-    [question 81](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+    [question 81](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
     a maze of web walls on Gloop Forest's east side, which only the Silk skin
     passes, leads to the Crystal Caverns (8.11).
   - Since the [fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94)
-    ([questions 87 and 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+    ([questions 87 and 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
     a second web maze, which only the Silk skin passes, leads into Gloop
     Forest from the Wilds (12.5). In Release 1 the shape that cuts webs is
     the Spear, the only one; the War Axe's webs wait for the next release.
   - Since the [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107)
-    ([question 95](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+    ([question 95](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
     the maze to Tom has webs that slow the slime and cannot be cut before
     the Silk skin (8.13).
 - Today: a web holds the slime 0.9 s and pushes it back; the Silk form passes
   it and tears it open for good; there are no web walls; the Matron's volley
-  patches catch the slime the same way.
+  patches catch the slime the same way. *Since 2026-10-16 (built after the
+  eighth round, [BESTIARY.md](godot/BESTIARY.md)): a Roll sticks in a floor
+  web (the Matron's volley patches), and the Silk Gulp form tears them as the
+  Silk skin's stand-in. The walking slowdown in webs is not built.*
 - Build: one rule for world webs, spider-camp webs and the Matron's volley
   patches (8.7): half speed without the Silk skin, full speed with it; a web
   wall that stops the slime without the skin and lets it through at half speed
@@ -2931,7 +3515,28 @@ the next release (7.11).
   for good and freeing what is wrapped in silk. The speeds go in
   `game-constants.json`. Tried in the playground first.
 - Open: whether a web stays after the Silk slime passes
-  ([question 27](story/06-open-questions.md#gulp-roll-and-essences-2026-10-08)).
+  ([question 27](story/07-decisions-archive.md#gulp-roll-and-essences-2026-10-08)).
+  *Closed in the eighth round as answered before: the Silk skin replaced the
+  Silk form, and with it a shape's cut opens a web wall for good
+  (question 55).*
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 131 and 135):
+  - **A Roll sticks in a floor web.** Walking through one slows the slime
+    until the Silk skin, and web walls block until the Silk skin. With the
+    skin a Roll crosses webs, so the Slime Spider's right tool is the Silk
+    skin: its webs no longer stick (12.7). The Matron's volley patches are
+    floor webs too.
+  - **The War Axe cuts webs without the Silk skin** in the next release; the
+    Silk rule is for the Spear.
+  - Build (added): a Roll that runs into a floor web stops and sticks there
+    without the Silk skin, and crosses it at full speed with the skin; its
+    time stuck in `game-constants.json`.
+  - Not decided yet: how long the Roll sticks, and how the slime gets free.
+    *Built the same day for the Matron's volley patches, with the Silk Gulp
+    form as the skin's stand-in (Today above); the walk's slowdown is not.*
+  - Done when (added): without the Silk skin a Roll stops in a floor web and
+    a walk through it is slowed; with the skin both cross it at full speed.
 - Depends on: 7.8 (the Silk skin).
 - Done when: in the playground a web slows the slime by half without the Silk
   skin and not with it; a web wall stops it without the skin and lets it pass
@@ -2942,7 +3547,7 @@ the next release (7.11).
 ### [ ] 7.10 — The Goo Bomb breaks cracked ground
 
 - Decided 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
-  [question 45](story/06-open-questions.md#review-of-the-2026-10-15-direction)):
+  [question 45](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)):
   the Goo Bomb breaks cracked ground, and Squash Slam is removed (5.11). It
   replaces 7.4's Heavy slam.
 - Today: the Goo Bomb (rework mode; 20 energy, a 2 s cast, a 3 s fuse) blows
@@ -2954,17 +3559,17 @@ the next release (7.11).
   jingle; the creak hint names the Goo Bomb. The cracked clearing in Gloop
   Forest (8.9) opens with it.
 - Open: where the Goo Bomb is learned, and whether it is Chapter 2's key tool
-  ([questions 31 and 33](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15)).
+  ([questions 31 and 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15)).
   *Answered 2026-10-16, fifth round (question 94): it is Chapter 2's key
   tool. Where it comes from, and Tom's beat, are
-  [question 95](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)
+  [question 95](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)
   (Open).* *Answered in the [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107):
   Tom teaches it, at the end of a maze of secrets and tests (8.13).*
 - Done when: in the playground and in the cracked clearing a bomb breaks the
   cracked ground and the sinkhole leads down; the hole stays open after save
   and load.
 - Changed 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [questions 57 and 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 57 and 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   rubble heaps break under a Heavy Roll (7.8), not a Goo Bomb, which keeps
   cracked walls and cracked ground. A bomb caught in another bomb's blast
   still goes off (the chain stays, as built).
@@ -2972,14 +3577,14 @@ the next release (7.11).
     blast stops breaking rubble heaps.
   - Open: the playground's bomb rubble: the heap by the map's edge and the
     islet that only a thrown bomb reaches
-    ([question 72](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+    ([question 72](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
     the proposal: the islet's prize sits behind a cracked rock face, and the
     heap waits for a Heavy Roll). *Answered later the same day (below).*
   - Done when (added): a blast leaves a rubble heap standing, and a Heavy
     Roll breaks it.
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83);
-  [question 72](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 72](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the proposal. In the playground's Bomb corner the islet's prize moves
   behind a cracked rock face, the bomb's lock, and the heap by the map's edge
   waits for a Heavy Roll. A trunk the Roll breaks lies across a path, and
@@ -2990,16 +3595,25 @@ the next release (7.11).
     edge heap stands until a Heavy Roll breaks it.
 - Changed 2026-10-16, fifth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 93](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 93](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   what the Lantern burns is dry plant growth (deadthorn, hay, dry roots, old
   banners) and the wood a Heavy Roll knocked down; plank barricades, old
   fences and rotten mine timbers are the Heavy Roll's (7.8). "Standing dry
   things burn" above means that dry growth.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 18, 129 and 132): the Goo Bomb's first lock is a cracked wall by
+  Tom (8.13). There is no Gloop Cavern in the plan, so where the cracked
+  clearing's sinkhole leads is not decided (8.9); the built one still drops
+  into `world.gloop-cavern`. *Changed in the [tenth round](#the-tenth-round-questions-18-and-20) (question
+  18): it keeps dropping into the small Gloop Cavern, the Goo Bomb's
+  come-back secret, which holds one of Gloop Forest's heart quarters (8.9).* Of the dry growth only the grey-black, scorched
+  hay and banners burn (12.3).
 
 ### [ ] 7.11 — One game: the old system goes
 
 - Decided 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
-  [question 48](story/06-open-questions.md#review-of-the-2026-10-15-direction)):
+  [question 48](story/07-decisions-archive.md#review-of-the-2026-10-15-direction)):
   once the three skins are built (7.8), the rework becomes the only game. The
   old system goes with all its implementation:
   - the classic mode and its switch;
@@ -3016,7 +3630,7 @@ the next release (7.11).
   Godot project so it is no longer imported, each file keeping its relative
   path.
 - Changed 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [questions 47, 48 and 75](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 47, 48 and 75](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the swimming stays. This task removes the Swim form and its essence, not
   the swimming: the deep-water code stays for the later Swim skin, and the
   deep-water secrets are come-back secrets for it. What replaces the quests
@@ -3024,11 +3638,11 @@ the next release (7.11).
   hand over their finds, and chests hold the rest (5.17).
   - Open: a dev switch in the playground that lends the swimming, so it can
     still be tried and its tests keep running
-    ([question 75](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+    ([question 75](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   - Done when (added): the swimming still works for a slime that is lent it.
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83);
-  [question 75](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 75](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the Swim form is not dropped either. This task must not remove the Swim
   form's mechanics: its scene mechanics are refactored into a permanent power
   that works in deep water, the later Swim skin. Only its essence and the
@@ -3043,7 +3657,7 @@ the next release (7.11).
     no Swallow; a fresh Release 1 run never has it.
 - Changed 2026-10-16, fifth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the War Axe and Stretch Lash wait for the next release. When the rework is
   the only game, a fresh Release 1 run learns only the Spear as a shape
   (5.12), and nothing in it teaches the War Axe, the Hammer or Stretch Lash;
@@ -3051,7 +3665,7 @@ the next release (7.11).
   longer teaches the Lash (8.10).
   - Not decided: whether the playground keeps lending the War Axe, the Hammer
     and the Lash (it lends every shape today), and what E does with one shape
-    ([question 96](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+    ([question 96](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
     *Answered in the [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107)
     (question 96): E stays hidden until a second shape is learned, and the
     Axe opens the next release with its come-back secrets. Whether the
@@ -3070,10 +3684,10 @@ the next release (7.11).
   same work.
 - Depends on: 7.8 and 5.11; a way to learn each shape in the game (the Spear
   from Yoi, 5.12, in the prologue since the sixth round; who teaches the others is
-  [question 33](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15);
+  [question 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15);
   since the fifth round Release 1 needs only the Spear, question 94);
   and what replaces the quests that hand out today's tools and abilities
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   answered 2026-10-16: 5.17, with the Roll from young Burr, 5.13, and the
   Lantern from the smith, 12.3).
 - Done when: a fresh save plays the rework's game with no mode switch;
@@ -3280,6 +3894,10 @@ materials), 8 (Forge), and 13 (progression pass).
 - Done when: the user accepts it in the playground, `pnpm enemies:check`
   passes, and Gloop Forest has at least two orb-weaver spawn areas outside its
   safe zones.
+- Changed 2026-10-16 ([the seventh round](#the-seventh-round-questions-108-to-114)):
+  enemies in the world are placed, not spawned (5.25), so Gloop Forest's two
+  orb-weaver camps become placed orb-weavers, and the check above reads "at
+  least two orb-weaver camps of placed orb-weavers outside its safe zones".
 
 ### [x] 8.3 — An enemy-only material, verified 2026-09-30
 
@@ -3325,7 +3943,7 @@ materials), 8 (Forge), and 13 (progression pass).
   Release 1 has no harvesting and no crafted tools, so the iron nodes and the
   Reinforced Pickaxe go with the old system (7.11), and A Harder Pick goes
   with the quests
-  ([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 50](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   What the iron hollow holds instead is not decided yet.
 - Build: iron ore nodes in Gloop Forest that need the Reinforced Pickaxe
   (stone plus the enemy material, crafted at the workbench). The `iron-ore`
@@ -3364,18 +3982,18 @@ materials), 8 (Forge), and 13 (progression pass).
   survives save and load; Rekindle the Forge counts the claimed charcoal and
   bars.
 - Changed 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
-  [question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 51](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Release 1 crafts only potions and food and harvests nothing, so the smelting
   and its timer (above) leave Release 1: the Forge brews the potions until
   evolutions arrive. Its restoration costs iron ore, and Rekindle the Forge is
   a quest, so what restores it in Release 1 is Open
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Answered 2026-10-16: a building is restored when a Pearl comes home
   (question 60, 5.17), and Pip's story stays relighting the Forge, no longer
   finding his dad (question 59). Which Pearl relights it is not decided.*
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83);
-  [questions 79 and 82](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 79 and 82](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Pearl 2, the Matron's, relights the Forge when it comes home: Pip and the
   slime light it, and from then on the Forge brews the potions and knows
   their recipes. This replaces the quest Rekindle the Forge and its ore cost
@@ -3389,13 +4007,30 @@ materials), 8 (Forge), and 13 (progression pass).
     a potion; it stays lit after save and load.
 - Since 2026-10-16, fourth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 89](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 89](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   before the Forge is relit, potions are found or bought, and Chapter 1's
   simple recipes are made at a campfire (5.17). *Since the
   [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107) (question 104): at any
   campfire, and campfires stand by the Wellspring, in the town and at each
   camp. Pearl 2's homecoming is a short scene at the Wellspring (question
   98).*
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114); question
+  110): Pearl 2 goes home to the Wellspring, which brightens, and its power
+  flows into the town and lights the Forge; Pip and the slime light it. The
+  Build and Done when of the third round stand, with "when Pearl 2 comes
+  home" meaning home to the Wellspring.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 36 and 120): the campfire makes the simple potions and food
+  anywhere, and the relit Forge brews the **strong potions** only it knows.
+  Question 36 closed as answered before: the Forge relights with Pearl 2, and
+  its evolutions come after Release 1.
+  - Build (added; narrows the third round's "it brews the potions"): the
+    Forge's own strong potions, which no campfire makes.
+  - Not decided yet: which potions are the strong ones.
+  - Done when (added): the lit Forge brews a strong potion that no campfire
+    offers.
 - Build: a second restoration using 6.1: a ruined Forge in Slimeshire and a
   Chapter 2 quest to rebuild it. The player uses the restored Forge directly to
   smelt iron ore and charcoal into iron bars; it never outputs weapons.
@@ -3406,7 +4041,7 @@ materials), 8 (Forge), and 13 (progression pass).
 - Dropped 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions)):
   shapes replace crafted weapons and tools, so the Iron Spear and the Iron Axe
   go with the old system (7.11), and Iron Gear goes with the quests
-  ([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 50](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   Kept for its history.
 - Built 2026-09-30: the **Iron Spear** (`weapon.iron-spear`, 10 damage,
   800 ms; the Stone Spear's swing) and the **Iron Axe** (`weapon.iron-axe`,
@@ -3471,8 +4106,9 @@ materials), 8 (Forge), and 13 (progression pass).
     heart-quarter totals (5.3,
     [unlock map](story/05-unlock-map.md#health-and-energy-totals)).
   - Open: whether she also gives a full heart (+20) on top of the map's
-    quarters ([question 17](story/06-open-questions.md#progression)); today a
-    +10 Goo Heart appears in the nest.
+    quarters ([question 17](story/07-decisions-archive.md#progression)); today a
+    +10 Goo Heart appears in the nest. *Answered in the eighth round
+    (below): she does.*
   - Update the [Matron spec](design/2026-10-01-orb-weaver-matron.md) first.
     Depends on: 5.9, 7.5, 7.6.
   - Done when: the user beats her in the Silk form with Chapter 2 gear (the
@@ -3485,7 +4121,7 @@ materials), 8 (Forge), and 13 (progression pass).
   [Chapter 2](story/chapters/chapter-2-gloop-forest.md), Beat 9):
   - Her Pearl grants the **Silk skin** (5.9, 7.8), not Stretch Lash; where
     Stretch Lash is learned is
-    [question 33](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15).
+    [question 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15).
   - The slime meets her without the Silk skin, and there is no form to pop:
     her lash always takes its full effect. Her webs slow it by 50% (7.9), and
     its shapes cannot cut them, so it has to deal with them. Her fight is
@@ -3502,7 +4138,7 @@ materials), 8 (Forge), and 13 (progression pass).
     back. This replaces the Done when of 2026-10-02 above.
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 106](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 106](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   after she falls, the slime finds the **Matron's thread**, a spool in her
   nest, and takes it from her web with the Silk skin. It is the silk Burr
   needs to build the Bow (12.6).
@@ -3510,6 +4146,29 @@ materials), 8 (Forge), and 13 (progression pass).
     story item with the ceremony (4.13).
   - Done when (added): after her fall the spool can be taken once, only with
     the Silk skin, and it survives save and load.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 17, 19 and 133):
+  - **Her place:** she lives at the top of the **Weaver Hollow**, Chapter 2's
+    dungeon (8.14), as bosses live in their dungeons. Her nest in the open
+    world becomes the Hollow's entrance, and her thread hangs in her web at
+    its top.
+  - **Her fight needs the Goo Bomb**, the chapter's tool: she shields
+    herself in a web cocoon that no hit gets through and only a blast tears
+    open; then the Spear hurts her. "The tool you find beats the boss."
+  - **Her rewards:** a full heart (+20, 5.3), in place of today's +10 Goo
+    Heart, and a raise of max energy (5.6), with her Pearl (5.9).
+  - Build (added): her chamber at the top of the Hollow; the cocoon phase
+    (the cocoon, its tell, a blast that tears it open, the opening for the
+    Spear), its numbers in `game-constants.json`; her full heart and the
+    max-energy raise. Update the
+    [Matron spec](design/2026-10-01-orb-weaver-matron.md) with it.
+  - Not decided yet: when she shields herself and how long the cocoon
+    holds, and how long she stays open after a blast.
+  - Done when (added): no hit hurts her inside her cocoon; a Goo Bomb's
+    blast tears it open and the Spear then hurts her; she cannot be beaten
+    without the Goo Bomb; her full heart adds +20 max HP once; she fights at
+    the top of the Weaver Hollow, not in the open world.
 - Build: one boss on the Fatty model: a telegraphed signature attack, boss
   bar, arena leash, guarded reward, and persisted defeat. Proposal: the
   **Orb-Weaver Matron** webs the arena, and Sticky form lets you cross her
@@ -3532,7 +4191,9 @@ materials), 8 (Forge), and 13 (progression pass).
   route is untried (no blocker found), and the room reuses the Slime Home's
   layout.
 - Open since 2026-10-02: whether the hut gets a vault too, sharing the first
-  vault's storage (5.8, [question 12](story/06-open-questions.md#progression)).
+  vault's storage (5.8, [question 12](story/07-decisions-archive.md#progression)).
+  *Closed in the eighth round as answered before: the vault comes in a later
+  release, and more vaults are decided with it (questions 12 and 38).*
 - Build: a hut exterior and furnished interior with a bed, so Chapter 2 has its
   own respawn point. Build the interior with Scene Studio as it is today (this
   replaces the old interior-authoring task 4.3); write the steps in a short
@@ -3568,7 +4229,7 @@ materials), 8 (Forge), and 13 (progression pass).
   [Chapter 2](story/chapters/chapter-2-gloop-forest.md), Beat 7 and Secrets):
   - Hearts: four heart quarters in Gloop Forest (5.3). Today's silk nook and
     cavern Goo Hearts become quarter spots. Open: whether the Gloop Cavern
-    has its own four ([question 18](story/06-open-questions.md#progression)).
+    has its own four ([question 18](story/07-decisions-archive.md#progression)).
   - Bags: a coffer in the Gloop Cavern holds the 20-slot bag (5.7), with the
     ceremony.
   - Forms (since 2026-10-08): the iron hollow's plate and the cracked clearing
@@ -3589,7 +4250,7 @@ materials), 8 (Forge), and 13 (progression pass).
     after the Matron (7.9).
   - The cracked clearing opens with the Goo Bomb (7.10).
   - The coffer's 20-slot bag waits on
-    [question 53](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15),
+    [question 53](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15),
     and the water secrets wait for the Swim skin from a later Pearl, after
     Release 1 (2026-10-16). *Changed 2026-10-16: Release 1 has one bag
     (question 53), so what the coffer holds is question 74; the deep-water
@@ -3600,7 +4261,7 @@ materials), 8 (Forge), and 13 (progression pass).
     without it; each quarter is taken once and persists.
 - Changed 2026-10-16, fifth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Stretch Lash waits for the next release, so **Sunny's stream** (her basket
   and the lash bell post) becomes a come-back secret that stays in place for
   the next release. So do the War Axe's locks in the forest (leafy vines,
@@ -3608,7 +4269,7 @@ materials), 8 (Forge), and 13 (progression pass).
   - Done when (added): no Release 1 path needs the Lash or the Axe.
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 63](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 63](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the iron hollow and the Gloop Cavern's coffer hold heart quarters, potions,
   coins or a piece of the story, such as a piece of Kiri's note (the
   2026-10-11 plan's) in the iron hollow. The weaver fangs go (8.3).
@@ -3617,6 +4278,35 @@ materials), 8 (Forge), and 13 (progression pass).
   - Not decided yet: which prize goes in which place, beyond Kiri's note.
   - Done when (added): the hollow and the coffer each give their prize once,
     and it survives save and load.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 18, 63 and 135):
+  - **There is no Gloop Cavern** in the plan, so the question of its own
+    four quarters falls away, and so does its coffer. The forest's four
+    quarters lie elsewhere in Gloop Forest. The built cavern
+    (`world.gloop-cavern`, under the cracked clearing's sinkhole, with its
+    chest and Goo Heart) is still in the game; what the cracked clearing's
+    Goo Bomb lock opens instead is not decided.
+  - **Later locks:** Sunny's stream and the War Axe's green things stay few,
+    each with a line that says it needs something not found yet, and no
+    Release 1 heart quarter waits behind one (5.3).
+  - Build (replaces the sixth round's): the iron hollow's prize; the four
+    quarters placed with Release 1's powers.
+  - Done when (replaces the sixth round's): the hollow gives its prize once,
+    and it survives save and load; each of the forest's four quarters is
+    reached with Release 1's powers; each later-release lock says it needs
+    something not found yet.
+- Changed 2026-10-16, tenth round ([tenth round](#the-tenth-round-questions-18-and-20);
+  [question 18](story/07-decisions-archive.md#progression), changed): **the
+  Gloop Cavern stays** as a small secret cave behind the cracked clearing's
+  sinkhole: the Goo Bomb's come-back secret (7.10), holding one of Gloop
+  Forest's four heart quarters, with no four of its own. Its old coffer
+  question stays closed. This replaces the eighth round's "no Gloop Cavern".
+  - Build (added): the cavern's Goo Heart made one of the forest's four
+    quarters; the cracked clearing opened by the Goo Bomb (7.10).
+  - Done when (added): a Goo Bomb opens the cracked clearing; the cavern's
+    quarter is taken once, counts among the forest's four and survives save
+    and load.
 - Build: at least three Gulp puzzles in Gloop Forest, each with its Gulp spot
   beside it, and at least two hidden Goo Hearts, one of them behind a puzzle.
 - Done when: a playtester solves each puzzle without a hint, and each heart is
@@ -3654,9 +4344,9 @@ materials), 8 (Forge), and 13 (progression pass).
 - Changed 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions)):
   quests no longer make sense: NPCs give info and tips, perhaps with one main
   quest for the Pearls
-  ([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 50](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   What replaces each of these quests is Open
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   *answered 2026-10-16: the journal, NPC tips and finds, 5.17*).
   The crafting ones lose their point anyway: A Harder Pick (no harvesting),
   Rekindle the Forge (the Forge brews the potions, question 51; *since the
@@ -3664,10 +4354,10 @@ materials), 8 (Forge), and 13 (progression pass).
   question 79, 8.5*) and Iron Gear (no crafted gear). Tom in the Web loses its Swallow lesson (8.13). The
   Matron's Pearl grants the Silk skin, not Stretch Lash, so the Stretch Lash
   check below waits for where the lash is learned
-  ([question 33](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15)).
+  ([question 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15)).
 - Changed 2026-10-16, fifth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Stretch Lash waits for the next release. Release 1 does not grant it
   anywhere: Beyond the Verdant Gate loses it, and Sunny's Basket becomes a
   come-back secret (8.9). The "Stretch Lash is granted exactly once" check
@@ -3699,7 +4389,7 @@ materials), 8 (Forge), and 13 (progression pass).
 - Changed 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions)):
   Release 1 goes on into Chapter 3 (Milestone 12), so the end-of-Chapter-2
   card and the locked exit no longer close Release 1. Where Release 1 ends is
-  Open ([question 58](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  Open ([question 58](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 - Changed 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
   question 58): Release 1's content ends when the Crystal Colossus falls, and
   the game goes on (12.5). So the Matron's fall leads on into Chapter 3, and
@@ -3708,7 +4398,7 @@ materials), 8 (Forge), and 13 (progression pass).
   Chapter 3 outline (12.1). *Answered later the same day (below).*
 - Changed 2026-10-16, third round
   ([the third round](#the-third-round-questions-68-to-83);
-  [question 81](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 81](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the end-of-Chapter-2 card and the crystal seal go. The way to the Crystal
   Caverns is a maze of web walls that only the Silk skin passes, so the Silk
   skin, the Matron's Pearl, opens Chapter 3, as a skin opens the next region.
@@ -3753,7 +4443,7 @@ materials), 8 (Forge), and 13 (progression pass).
   cracked ground near it, which the Goo Bomb opens now (7.10).
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 64](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 64](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the Clod Stomper stays as it is, and its slam still breaks cracked ground
   near it. It is an enemy, not a power: one of the bestiary's 29 (12.7).
   Only its stone essence drop goes, with the essences (7.11).
@@ -3805,12 +4495,12 @@ materials), 8 (Forge), and 13 (progression pass).
 - Changed 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions)):
   Swallow goes (7.11), so Tom has nothing left to teach. Whether he teaches
   Chapter 2's key tool or his beat goes is
-  [question 31](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15).
+  [question 31](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15).
   He hangs in a cocoon, which a weapon tears before the slime has the Silk
   skin (owner, 2026-10-16,
-  [question 54](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  [question 54](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   and the quests go
-  ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 - The story:
   - Mossy asks the slime to rescue **Tom**, a new NPC.
   - Tom already knew how to swallow. He went to a spider thicket in Gloop
@@ -3832,24 +4522,26 @@ materials), 8 (Forge), and 13 (progression pass).
   - Mossy's quest, after Beyond the Verdant Gate and before A Harder Pick.
   - Tom's web, which weapon hits tear. Since 2026-10-16 it is a cocoon, so
     tearing it needs no Silk skin
-    ([question 54](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+    ([question 54](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   - The Swallow lesson at the camp.
 - Open: the Weaver Hollow proposal (Beat 8) no longer earns an armor. Keep it
-  as a small dungeon, or drop it.
+  as a small dungeon, or drop it. *Closed in the eighth round as answered
+  before: it is Chapter 2's dungeon, with the Matron at its top (question 25,
+  8.14).*
 - Changed 2026-10-16, fifth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Chapter 2's key tool is the **Goo Bomb**. In Release 1 the weapon that
   tears Tom's cocoon is the Spear, the only shape. The 2026-10-11 plan's War
   Axe in the Weaver Hollow waits for the next release.
   - Open: whether Tom teaches the Goo Bomb, and what the Weaver Hollow's big
     chest holds
-    ([question 95](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+    ([question 95](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
     the proposal: Tom teaches it at Mossy's camp, and the chest holds a heart
     or the dungeon's big key). *Answered in the sixth round (below).*
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 95](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [question 95](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [Chapter 2](story/chapters/chapter-2-gloop-forest.md), Beat 3): **Tom
   teaches the Goo Bomb**, Chapter 2's key tool, with the full ceremony
   (4.13). Reaching him is not easy: the slime passes **a maze with several
@@ -3863,16 +4555,83 @@ materials), 8 (Forge), and 13 (progression pass).
   - Not decided yet: where the maze lies, whether Tom still hangs in his
     cocoon at its end, where he teaches the bomb (there or at Mossy's camp,
     the proposal), and whether the Weaver Hollow's chest holds the heart or
-    the big key.
+    the big key. *Answered in the seventh round (below), except where in the
+    forest the maze lies.*
   - Done when (added, in place of the one below): on a fresh save nothing
     teaches the Goo Bomb before Tom; the maze is solved with the Spear, the
     Roll, the Heavy skin and the Gulp alone; its webs slow the slime and no
     shape cuts them before the Silk skin; Tom teaches the Goo Bomb once, with
     the ceremony; it survives save and load.
+- Changed 2026-10-16, seventh round
+  ([the seventh round](#the-seventh-round-questions-108-to-114); question
+  113): Tom hangs in his cocoon at the end of the maze and teaches the Goo
+  Bomb right there, as soon as he is freed. The Weaver Hollow's big chest
+  holds a heart quarter (5.3).
+  - Build (added): Tom's cocoon at the maze's end, and his lesson there; the
+    Weaver Hollow's big chest with a heart quarter.
+  - Not decided yet: where in Gloop Forest the maze lies (today Tom's web
+    hangs in the south-west spider thicket).
+  - Done when (added): Tom teaches the Goo Bomb at the maze's end, right
+    after his cocoon tears; the big chest gives a heart quarter once.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 129 and 132): the Goo Bomb's **first lock** is a cracked wall by
+  Tom, his maze's way back to its start: he teaches, the slime blows the
+  wall, the secret jingle plays and the loop closes. Tom's cocoon hangs by a
+  thread with his face showing, so it reads apart from a silk-wrapped prize
+  (a small flat parcel that glints) and from the Cocoon Mimic (it breathes).
+  The Weaver Hollow's big chest is 8.14's now.
+  - Build (added): the cracked wall by Tom, opening a short way back to the
+    maze's start; his cocoon's look.
+  - Done when (added): right after the lesson a Goo Bomb opens the wall by
+    Tom, and the way back leads to the maze's start.
 - Depends on: 7.5 and 4.13.
 - Done when: on a fresh save Mossy's quest leads to Tom; the web tears under
   weapon hits; Tom teaches Swallow at the camp, with the ceremony, before A
   Harder Pick; Swallow survives save and load.
+
+### [ ] 8.14 — The Weaver Hollow: Chapter 2's dungeon, the Matron at its top
+
+- Decided 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 25 and 133;
+  [level design guide](design/2026-10-16-level-design.md#the-weaver-hollow)):
+  the Weaver Hollow is Chapter 2's dungeon (question 25, closed as answered
+  before), and the Matron lives at its top (question 133). Bosses live in
+  their dungeons, so her nest in Gloop Forest's north-east becomes the
+  Hollow's entrance.
+  - Its tool is the Goo Bomb, taught by Tom before it (8.13): cracked walls
+    and cracked floors through the Hollow, and her cocoon at the top (8.7).
+  - Its own enemies are the Broodling and the Cocoon Mimic, with the Brood
+    Warden as its mini-boss (12.7, rows 20 to 22); the skeletons and the
+    Watcher Eye stir in its deep rooms.
+  - Its webs and web walls stand uncut, so the Hollow shows the Silk skin's
+    locks before the Matron gives it; no web wall blocks the way to her.
+  - Its big chest holds a heart quarter (question 113). Open: where its big
+    key lies, and whether that quarter is one of Gloop Forest's four
+    ([question 116](story/06-open-questions.md#open-after-the-seventh-round-2026-10-16);
+    the proposal: a second chest behind the Brood Warden, and one of the
+    four).
+  - Like every dungeon it cannot be saved inside, and quitting or fainting
+    resumes at its entrance with what was done kept (question 109, 5.15).
+- Today: there is no Weaver Hollow. The Matron fights in her nest camp in the
+  open world (8.7), and the
+  [2026-10-11 dungeons plan](design/2026-10-11-release-1-dungeons-plan.md)
+  has an earlier map of the Hollow, with the War Axe in its big chest.
+- Build: the Hollow as a dungeon world behind the nest's entrance, laid out
+  by the level design guide's dungeon template (a hub with the boss door in
+  sight, two wings, small keys, the big key, the map and a shortcut back),
+  with the Goo Bomb's locks in nearly every room, its own enemies and
+  mini-boss, its big chest's heart quarter, and the Matron's chamber at the
+  top; its way out uses the new Silk skin.
+- Depends on: 8.13 (the Goo Bomb), 5.15 (a dungeon's saving and resume),
+  12.7 (its enemies), 8.7.
+- Player proof: Chapter 2 ends in a dungeon that the bomb opens room by room,
+  with its boss at the top.
+- Done when: on a fresh save the Hollow opens from the old nest; its main
+  path needs only the Spear, the Roll, the Heavy skin, the Gulp and the Goo
+  Bomb; its big chest gives a heart quarter once; the Matron is fought at its
+  top; quitting inside resumes at its entrance with what was done kept.
 
 **Milestone 8 complete when:** Chapter 2 plays from the Verdant Gate to the end
 card, and the gear path wood → stone → iron is complete. Since 2026-10-08 Tom
@@ -3880,14 +4639,16 @@ teaches Swallow and the Clod Stomper drops stone on the way (8.12, 8.13).
 Changed 2026-10-15: Release 1 has no gear path (no harvesting and no crafted
 gear), and Swallow and the essence drops go. Chapter 2 plays from the Verdant
 Gate to the Matron's Pearl and the Silk skin; what follows her is
-[question 58](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)
+[question 58](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)
 (*answered 2026-10-16: Chapter 3, up to the Colossus's fall, Milestone 12*).
 Since the third round of 2026-10-16 Pearl 2 relights the Forge (8.5), and the
 Silk skin passes the web-wall maze into Chapter 3 (8.11), which replaces the
 end card. Since the fifth round the Goo Bomb is the chapter's key tool, and
 Stretch Lash waits for the next release (8.10, 8.13). Since the sixth round
 Tom teaches the Goo Bomb at the end of his maze (8.13), and the Matron's
-thread waits in her nest for Burr's Bow (8.7, 12.6).
+thread waits in her nest for Burr's Bow (8.7, 12.6). Since the eighth round
+Chapter 2 ends in the Weaver Hollow, its dungeon, with the Matron at its top
+and a fight that needs the Goo Bomb (8.7, 8.14).
 
 **Assets**
 
@@ -3908,7 +4669,9 @@ thread waits in her nest for Burr's Bow (8.7, 12.6).
       question 53; since 2026-10-16 one bag, and the coffer is question 74;
       since the third round the 20-slot bag waits, and the coffer's prize is
       question 63; since the sixth round the coffer holds heart quarters,
-      potions, coins or a piece of the story).
+      potions, coins or a piece of the story; since the eighth round no
+      coffer, question 18, and since the tenth the cave stays as a small
+      secret with a heart quarter).
 - Since 2026-10-15 the iron weapons', the pickaxe's and the iron node's art
   move to `asset/to-delete/` with 7.11; the web walls are in Milestone 7's
   assets (7.9).
@@ -3923,7 +4686,9 @@ thread waits in her nest for Burr's Bow (8.7, 12.6).
       `godot/asset/MAPS/props/256x256-tile_2x1-tom-web.webp`; accepted by the owner 2026-10-09.
 - [ ] Since the sixth round of 2026-10-16: Tom's maze and its tests (8.13),
       the Matron's thread, a spool in her web (8.7), and the Weaver Hollow's
-      big chest.
+      big chest. Since the eighth round: the cracked wall by Tom (8.13), the
+      Weaver Hollow's rooms and its entrance in the old nest (8.14), and the
+      Matron's web cocoon (8.7).
 - [x] Gloop Forest hut exterior (the blue cottage already in the camp).
 - [x] Gloop Forest music and ambience (Magnific, `audio.music.gloop-forest*`);
       Forge fire and anvil loops (the campfire and anvil loops, on the
@@ -3937,7 +4702,7 @@ numbered 12 so that no task number changes, and it comes after Milestone 8.
 The chapter is a [sketch](story/chapters/chapter-3-crystal-caverns.md): dark
 caverns that the Lantern lights, the smith at his mine camp, the Crystal
 Colossus and Pearl 3, which grants the Feral skin
-([question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+([question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
 7.8). Release 1's content ends when the Colossus falls (12.5). Tasks 12.3 to
 12.5 come from the owner's answers of 2026-10-16
 ([the 2026-10-16 decisions](#the-2026-10-16-decisions)), and 12.6, Burr's
@@ -3945,7 +4710,11 @@ Bow, from their fifth round
 ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94)),
 and 12.7, the bestiary, from their sixth round
 ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107));
-the rest are written with the outline.
+the rest are written with the outline. The
+[eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135) changed
+12.3 to 12.7: the Bow's crystal lens and first targets, the order of the
+Bow and the caverns, the Feral skin's first lock, the Thorn Guard posts at
+the borders, and the skeletons' story.
 
 ### [ ] 12.1 — Write the Chapter 3 outline
 
@@ -3954,16 +4723,16 @@ the rest are written with the outline.
   skin, the secrets that skin opens in the maps already visited, its heart
   quarters, and how it starts from Gloop Forest's east exit.
 - Open: where Release 1 ends
-  ([question 58](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 58](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   how the Colossus is beaten without the Hammer, which comes in Chapter 5 or 6
-  ([questions 51 and 59](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([questions 51 and 59](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   Pearl 3's skin, its gate and its change to a move
-  ([question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   where the Lantern is learned
-  ([questions 31 and 33](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15));
+  ([questions 31 and 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15));
   whether the smith is found here
-  ([question 8](story/06-open-questions.md#story)); and what replaces the
-  quests ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 8](story/07-decisions-archive.md#story)); and what replaces the
+  quests ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Answered 2026-10-16: Release 1's content ends when the Colossus falls
   (question 58, 12.5); his four braziers beat him (question 59, 12.4); Pearl 3
   grants the Feral skin (question 56, 7.8); the smith, found safe at his mine
@@ -3971,9 +4740,9 @@ the rest are written with the outline.
   replace the quests (question 60, 5.17).*
 - Open since 2026-10-16: which walls the Feral skin climbs, here and in the
   maps already visited, and the fall
-  ([question 68](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 68](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   a beast's skin from a crystal golem
-  ([question 69](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15));
+  ([question 69](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15));
   what the end-of-Chapter-2 card and the crystal seal become (8.11).
   *Answered in the [third round](#the-third-round-questions-68-to-83): a
   climbable wall has vines and irregularities, the slime climbs up and down,
@@ -3982,17 +4751,23 @@ the rest are written with the outline.
   go, and a web-wall maze that only the Silk skin passes leads into the
   caverns (question 81, 8.11). Open since then: the climbing vines beside the
   War Axe's vines
-  ([question 86](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).*
+  ([question 86](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).*
   *Answered in the [fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94):
   climbable walls show thick roots and rocky handholds (question 86, 7.8); a
   hill from the Wilds that only the Feral skin climbs is a second way in
   (question 87, 12.5); Burr gives the Bow in this chapter (question 94,
   12.6). Open: Release 1 with one shape
-  ([question 96](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).*
+  ([question 96](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).*
   *Answered in the [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107): the
   Spear is Release 1's only shape (question 96); the outline holds the Bow's
   main-path lock, a far eye switch across the mine's chasm, and no Bow in the
-  Colossus's fight (question 102, 12.6).*
+  Colossus's fight (question 102, 12.6).* *Since the
+  [eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135): that
+  lock is a crystal lens on a post (question 127); the caverns' first half
+  never needs the Bow, and the mine camp sends the slime to Burr (question
+  134); the Feral skin's first lock is the climb out of the Colossus's arena
+  (question 132, 12.4); and every heart quarter the outline places is
+  reached with Release 1's powers (question 135).*
 - Done when: the outline is written, the owner has answered the questions it
   needs, and the chapter's tasks are added to this milestone.
 
@@ -4003,7 +4778,7 @@ the rest are written with the outline.
 - Build: work out how long a first-time player takes for the three chapters,
   and set Release 1's target with the owner.
 - Open: the target, where Release 1 ends, and when the time is measured
-  ([question 58](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 58](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Answered 2026-10-16: its content ends when the Colossus falls (12.5), so
   the time runs from the title screen to his fall. The target and when it is
   measured are still Open.*
@@ -4013,7 +4788,7 @@ the rest are written with the outline.
 ### [ ] 12.3 — The smith's mine camp and the Lantern
 
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 59](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [question 59](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [Chapter 3](story/chapters/chapter-3-crystal-caverns.md), beat 4): the smith,
   Pip's dad, runs the crystal mine, which the Crystal Colossus has blocked.
   He is not trapped, and there is no rescue: the slime finds him safe at his
@@ -4027,7 +4802,7 @@ the rest are written with the outline.
   his Lantern gift, and the smith in Slimeshire once the Colossus is beaten.
 - Changed 2026-10-16, fourth and fifth rounds
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [questions 84 and 93](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 84 and 93](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the Lantern's **burnables** are dry plant growth (deadthorn, hay, dry roots,
   old banners) and the grey old tree a Heavy Roll knocked down, once it lies
   there as dry wood (an optional combo secret; the main path never needs a
@@ -4038,9 +4813,26 @@ the rest are written with the outline.
   - Done when (added): each burnable burns under the Lantern's flame and
     stays burnt; a plank barricade or a mine timber does not burn.
 - Since the [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107)
-  ([question 102](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  ([question 102](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the mine's main path holds the Bow's lock, a far eye switch across its
   chasm (12.6).
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 127, 129 and 134):
+  - **The chasm's lock** is a crystal lens on a post, not an eye: an eye is
+    always the Spear's, or an enemy's (12.6).
+  - **Order:** the Silk skin opens the caverns before the Bow can be had, so
+    the caverns' first half (the web-wall maze, the mine camp, the Lantern
+    and the dark maze) never needs the Bow, and the smith at the mine camp
+    sends the slime to Burr.
+  - **Burnables:** only grey-black, scorched hay and banners burn; the gold
+    haystacks and bright banners are scenery. The Lantern's dry roots are
+    grey-black and thorny, unlike the Feral skin's living roots.
+  - Build (added): the smith's line that sends the slime to Burr; the
+    burnables in their grey-black looks.
+  - Done when (added): the caverns' first half is crossed without the Bow;
+    the smith points the slime to Burr; a gold haystack or a bright banner
+    does not burn.
 - Depends on: 12.1; 4.13.
 - Player proof: the slime's light in the dark is a gift from Pip's father,
   the Forge's own ember.
@@ -4051,7 +4843,7 @@ the rest are written with the outline.
 ### [ ] 12.4 — The Crystal Colossus's brazier fight
 
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 59](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 59](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   four braziers ring his arena. Only when all four burn (the Lantern lights
   them) is a weak spot on his armour bared, at a random place, for the Spear
   or the Axe. His stomps blow the braziers out, one at a time. His Pearl,
@@ -4064,7 +4856,7 @@ the rest are written with the outline.
   at a time, and the weak spot that appears at a random place while all four
   burn. Values in `game-constants.json`. Write a short spec first.
 - Open: how the Feral skin shows in his fight
-  ([question 69](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  ([question 69](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   the proposal: he climbs his arena's walls on crystal claws between stomps).
   *Answered later the same day (below).*
 - Changed 2026-10-16, third round
@@ -4079,17 +4871,27 @@ the rest are written with the outline.
     chamber.
 - Changed 2026-10-16, fifth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the War Axe waits for the next release, so the weak spot is for the Spear
   alone, Release 1's only shape.
   - Done when (replaces "the Spear and the Axe hurt only the weak spot"
     below): the Spear hurts only the weak spot.
   - Open: Release 1 with one shape
-    ([question 96](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+    ([question 96](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
     *Answered in the [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107): the
     Spear is the only shape (question 96), and he does not need the Bow
     (question 102).*
   - Done when (added): he is beaten without the Bow.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 17, 19 and 132): he also leaves a full heart (+20, 5.3), and
+  beating him raises max energy (5.6). The Feral skin's **first lock** is
+  the climb out of his arena: the walls he climbed, the slime now climbs, and
+  the way on leads into the Wilds (12.5).
+  - Build (added): a climbable wall (thick, living roots and rocky handholds)
+    as the arena's way out; his full heart and the max-energy raise.
+  - Done when (added): after his fall the slime leaves the arena only by
+    climbing, with the new skin; his heart adds +20 max HP once.
 - Depends on: 12.3 (the Lantern); 5.9.
 - Player proof: the slime keeps four fires burning to beat a boss it cannot
   hurt otherwise.
@@ -4102,7 +4904,7 @@ the rest are written with the outline.
 ### [ ] 12.5 — Release 1's end: the exploration message and the borders
 
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
-  [question 58](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 58](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   Release 1's content ends when the Crystal Colossus falls, but the game goes
   on. The player explores the map and uses the new powers, and the game tells
   them that from here on it is exploration and that more areas come in later
@@ -4115,7 +4917,7 @@ the rest are written with the outline.
   start), and the ways to the regions that are not in Release 1 closed in the
   world, each saying that more lies beyond.
 - Open: what closes those ways
-  ([question 73](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  ([question 73](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   the proposal: a fallen bridge, a landslide or a Thorn Guard post).
   *Answered later the same day (below).*
 - Changed 2026-10-16, third round
@@ -4128,7 +4930,7 @@ the rest are written with the outline.
     Release 1's regions, the West village town and the Wilds.
 - Changed 2026-10-16, fourth round
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [question 87](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 87](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the Wilds' own ways into Release 1's regions must not skip their gates.
   From the Wilds, the Crystal Caverns are reached up a **hill that only the
   Feral skin climbs** (7.8), so that way opens once Feral is won, and Gloop
@@ -4138,6 +4940,23 @@ the rest are written with the outline.
   - Done when (added): a slime without the Feral skin cannot climb the hill,
     and one with it reaches the Caverns; a slime without the Silk skin cannot
     pass the second maze, and one with it reaches Gloop Forest.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 130, 132 and 135):
+  - **Every border is a Thorn Guard post:** a striped barrier with a guard
+    who says what lies beyond is closed for now. No landslides or fallen
+    bridges as borders: a landslide reads as the Heavy Roll's rubble and a
+    fallen bridge as its tree bridge. This replaces the third round's mix.
+  - **The Feral skin's arc** goes on in the Wilds after the climb out of the
+    Colossus's arena (12.4): a climb, a climb with a drop and a loop back,
+    and a climb to a prize seen from far.
+  - **Later locks** in the Wilds stay few, each with a line that says it
+    needs something not found yet (5.3).
+  - Build (replaces the third round's): a Thorn Guard post, a striped
+    barrier and its guard with his line, at every way out of Release 1's
+    regions, the West village town and the Wilds.
+  - Done when (added): every way into a region that is not in Release 1 has
+    a post and a guard; none is a landslide or a fallen bridge.
 - Depends on: 12.4; 7.8 and 7.9 for the hill and the second maze.
 - Player proof: after the last boss the player is told the world is theirs to
   explore, and never walks into an empty placeholder region.
@@ -4149,7 +4968,7 @@ the rest are written with the outline.
 
 - Decided 2026-10-16, fourth and fifth rounds
   ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94);
-  [questions 76, 80, 85 and 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  [questions 76, 80, 85 and 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [Chapter 3](story/chapters/chapter-3-crystal-caverns.md), beat 1): the Bow
   is in Release 1, one of Chapter 3's three powers. Burr, freed from his cell
   in Fatty's Lair (5.15), gives it as his thanks when the slime comes back to
@@ -4173,7 +4992,7 @@ the rest are written with the outline.
   round (below).*
 - Changed 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [questions 102 and 106](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [questions 102 and 106](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   - **Before Pearl 2**, a visit gets Burr's thanks and a tip: "I am making
     you something, come back when the forest is free" (5.15).
   - **The silk:** Burr needs silk and other things to build the Bow. The silk
@@ -4193,8 +5012,28 @@ the rest are written with the outline.
     teach the Bow without the thread or before Pearl 2 is home, and teaches
     it once when both are true, with the ceremony; an arrow hits the eye
     switch across the mine's chasm and opens the way.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 115, 127, 131, 132 and 134):
+  - **Its target** is a crystal lens on a post, never an eye: an eye is
+    always the Spear's, or an enemy's. The mine's chasm holds a lens (12.3).
+  - **Bells:** an arrow rings a bell, as a thrown pot does (5.22); bells out
+    of a throw's reach are the Bow's.
+  - **Bars stop arrows**, so the Bow never pulls a lever behind bars (5.22).
+  - **Its first lock:** targets in Burr's yard, right where he teaches it
+    (5.13).
+  - **Order:** the caverns' first half never needs the Bow, and the smith's
+    mine camp sends the slime to Burr (12.3).
+  - Build (added; replaces "the eye switch across the mine's chasm" above):
+    the targets in Burr's yard; the crystal lens on a post across the mine's
+    chasm; arrows that ring bells and stop at bars.
+  - Done when (added; replaces "an arrow hits the eye switch" above): right
+    after the lesson an arrow hits a target in Burr's yard; an arrow hits the
+    lens across the mine's chasm and opens the way; an arrow rings a bell; an
+    arrow shot at the barred gate stops at its bars.
 - Depends on: 5.15 and 5.16; 4.13. Since the sixth round also 8.7 (the
-  thread) and 12.3 (the mine's chasm).
+  thread) and 12.3 (the mine's chasm). Since the eighth round also 5.22 (the
+  bells).
 - Player proof: a father the slime saved in Chapter 1 hands it a bow that
   reaches what nothing else can.
 - Done when: on a fresh save Burr does not give the Bow before Chapter 2 is
@@ -4207,7 +5046,7 @@ the rest are written with the outline.
 
 - Decided 2026-10-16, sixth round
   ([the sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107);
-  [question 107](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 107](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the owner accepted the [bestiary](design/2026-10-16-bestiary.md) as
   written. Release 1 has 29 enemies: 10 in Slimeshire Meadow and the Wilds
   (the prologue worm among them), 4 in Fatty's Lair, 5 in Gloop Forest and
@@ -4225,6 +5064,99 @@ the rest are written with the outline.
   spider, the orb-weaver and the Clod Stomper, in `enemy-types.json`); five
   were planned in the 2026-10-11 combat plan, and 18 are new. The bosses
   stay as planned.
+- Progress 2026-10-16, the first batch: the playground's **Bestiary
+  corner** is built (east of the old east edge, the world widened from 52
+  to 104 columns; 29 pens in the bestiary's order, each with a sign giving
+  the enemy's name, kind and right tool, its enemy back 3 s after it dies,
+  F4 for all of them; [BESTIARY.md](godot/BESTIARY.md)). Rows 4 to 10 are
+  built with their art (one Magnific pose sheet each), numbers and
+  reactions: the prologue worm (one hit point), the Popworm (underground,
+  a Heavy Roll's shake throws it out), the Spitcap (its spore seed is the
+  first projectile the Gulp catches and throws back), the Hopper, the
+  Bramble Boar, the Thorn Guard Statue (a Heavy Roll breaks it) and the
+  Rook Thief (steals coins; a thrown pot knocks it down; the Bow's hook is
+  in). The six built ones stand in their pens; the other 16 pens say
+  "coming next". Not yet: placing them in their regions, and tests.
+- Progress 2026-10-16, Fatty's Lair (rows 11 to 14) in pens 11 to 14: the
+  Squint (armoured: a ring lights under the slime, it leaps and slams, then
+  its visor opens 0.9 s and only the Spear hurts it), the Pipe Worm (a worm
+  soldier in a clay pipe in a wall, spitting mud globs on a beat; blows never
+  reach it; the glob caught with the Gulp and thrown back kills it, and a
+  Roll into the wall shakes it out for the Spear), the Dung Roller (a beetle
+  rolling a mud ball along a fixed track, `track`; the ball hurts and clinks,
+  the beetle is soft from behind) and the Big Squint (the Squint's script
+  with two stomps and a 1.1 s opening). A patterned enemy's kill hit now gets
+  through its profile's immune states too.
+- Progress 2026-10-16, Gloop Forest and the Weaver Hollow (rows 18 to 22) in
+  pens 18 to 22: the Silk Lurker (hangs on a thread over its shadow, drops and
+  bites, spins like a pinata when hit; the Bow's hook cuts its thread), the
+  Thornball (a hedgehog ball that bounces three times, then lies dizzy; a Goo
+  Bomb's blast flips it at once, and a bomb near it makes it cower), the
+  Broodling (spiderlings pouring out of an egg sac, six at most; a Goo Bomb
+  bursts the sac), the Cocoon Mimic (breathes, unlike the real cocoon beside
+  it; grabs the slime, drains its energy until the move keys shake it off; a
+  Goo Bomb kills it) and the Brood Warden (two telegraphed sweeps, then
+  planted 1.2 s: the only opening). Pens 19 to 21 put the Goo Bomb on F.
+- Progress 2026-10-16, every dungeon's skeletons (rows 30 to 32, asked by the
+  owner the same day) in pens 30 to 32, a seventh row of the corner (now y 384
+  to 4736): the Bone Leaper (stands still until it sees the slime in a clear
+  line, then casts with glowing sockets and a ringed landing shadow, leaps and
+  lands stuck: Roll out, then the Spear), the Bone Thrower (sidesteps onto the
+  slime's row, column or diagonal, eight ways, and throws a boomerang bone out
+  and back along it; open while the bone is out; the Gulp catches the bone,
+  and unarmed it only rattles) and the Bone Marcher (walks a route drawn in
+  the editor, never stops; touching it hurts; any hit drops it). Beaten, each
+  falls into a bone pile that stands up after 3 s (0 switches it off) unless
+  a hit scatters it or the Gulp takes its skull, which throws like a pot.
+  *Since the [ninth round](#the-ninth-round-questions-32-118-121-123-and-136) (question 123): the bone pile stays, for all
+  three skeletons, as built.*
+- Progress 2026-10-16, the Crystal Caverns and the mine (rows 23 to 29) in
+  pens 23 to 29, and every dungeon's Watcher Eye (row 33) in pen 33: the
+  Gloomling (a shadow on a crystal key that nothing hurts; the Lantern's glow
+  makes it shrink and run, a puff makes it bolt, cornered in the light it is
+  gone), the Glint Bat (asleep on the ceiling, only its eyes glint in the
+  dark; light wakes it and it swoops in a wave; a puff burns it out of the
+  air), the Crystal Crawler (round a crystal pillar; its spiked back clinks,
+  the Spear on its belly at a corner), the Prism Eye (a tower whose gaze turns
+  smoothly and beams 200 ms after it meets the slime; hide behind the block,
+  the Spear from behind), the Pick Mole (sidesteps behind its crates onto the
+  slime's row, column or diagonal and lobs three pickaxes along it; a Goo Bomb
+  over the crates), the Shardback (mini-boss: its crystal shell turns brittle
+  in a lit brazier's light or a puff; unlit, a fraction of each hit) and the
+  Crystal Mite (drops in on a beat behind a shadow, one hit kills, can drop an
+  energy shard); the Watcher Eye floats and wanders, the Prism Eye's beam on
+  its own body. Pens 23, 24 and 28 are dark and put the Lantern on F, pen 27
+  the Goo Bomb. With them all 29 rows and the seventh row are built.
+- Progress 2026-10-16, four-way shooters (owner: the archer shoots "in 4
+  directions, not diagonals, similar to the archer in Zelda"; the spiders
+  too): the Worm Archer, the Slime Spider and the Orb-weaver no longer shoot
+  at any angle. Once one sees the slime it runs fast to the nearer of its row
+  or column at bow range (the archer 130 px/s, up from its 80), stops, winds
+  up and shoots straight down the line, so a slime that steps off the line
+  in the wind-up is missed; too close, it backs off along the line. The
+  spiders scuttle sideways. The Spitcap spits only along a row or column it
+  shares with the slime, the Pipe Worm only straight out of its pipe
+  (`game/enemy/line_up_ai.gd`, [specs/enemy.md](godot/specs/enemy.md)
+  section 20). The bosses keep their own patterns. Tests updated, not run.
+- Changed 2026-10-16, eighth round
+  ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
+  questions 124, 125, 129 and 131):
+  - **The Slime Spider's right tool is the Silk skin** (row 15), in place of
+    "the Roll through its webs": a Roll sticks in a floor web without the
+    skin, and with it the spider's webs no longer stick (7.9). Its pen's
+    sign follows.
+  - **The skeletons** (rows 30 to 32) are the fallen Thorn Guard of the great
+    war, whose bones Gorge's vassals raised to guard the dungeons, the old
+    forts. They stir in the deep rooms of every dungeon from Fatty's Lair on,
+    and Yoi knows their old helmets.
+  - **The Bone Thrower:** a bone the Gulp steals leaves it unarmed for 10 s,
+    then it has a bone again.
+  - **The Cocoon Mimic** breathes; a real silk-wrapped prize is a small flat
+    parcel that glints, and Tom's cocoon hangs by a thread with his face
+    showing (8.13).
+  - Done when (added): with the Silk skin a Roll crosses the Slime Spider's
+    webs and without it sticks; a stolen bone leaves the Thrower unarmed for
+    10 s.
 - Build: each new enemy's art, behaviour and numbers (`enemy-types.json`,
   its combat-feel reactions), with the behaviours the bestiary lists:
   underground travel, fixed tracks, wall loops, a beam sentinel, a thief that
@@ -4249,13 +5181,19 @@ the rest are written with the outline.
 Release 1's exploration message (12.5). Its other tasks come with its outline
 (12.1). Since the fifth round of 2026-10-16 it also needs Burr's Bow (12.6),
 and since the sixth round the Bow's lock on the main path, the eye switch
-across the mine's chasm, and Release 1's 29 enemies (12.7).
+across the mine's chasm, and Release 1's 29 enemies (12.7). Since the eighth
+round that lock is a crystal lens on a post, the slime climbs out of the
+Colossus's arena with the Feral skin (12.4), and every border is a Thorn
+Guard post with a guard (12.5).
 
 **Assets** (since 2026-10-16; the rest come with the outline, 12.1)
 
 - [ ] The bestiary's 23 enemies not built yet (12.7): their sheets, tells and
       sounds, and the projectiles the Gulp catches (seeds, mud globs). The
-      six built enemies reuse their art.
+      six built enemies reuse their art. 2026-10-16: rows 4 to 10 have their
+      sheets and the Spitcap's seed (`asset/Originals/enemies/bestiary/`);
+      their sounds are stand-ins; 16 to go. Rows 11 to 14 have theirs and the
+      Pipe Worm's mud glob (stand-in sounds too).
 
 ## 9. Game Feel
 
@@ -4510,39 +5448,52 @@ numbered milestone and task tiles.
   bars then, and its second tier brings the heavier gear. Changed 2026-10-15:
   the smith teaches the Hammer shape there in Chapter 5 or 6, the crafted
   gear goes, and what the Workshop does in Release 1 is Open
-  ([question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 51](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 - **Skin and ability upgrades** (2026-10-15): manuscript pieces and Slime
   Forge evolutions ("upgrades of skins and abilities come later in the game",
   owner; questions 35, 36 and 43). *Changed 2026-10-16 (questions 65 and
   67): shapes and abilities evolve at the Slime Forge, and skins do not, all
   after Release 1; Release 1 has whole manuscripts, and only their pieces
-  wait.*
+  wait.* *Since the seventh round (question 108): Release 1's manuscripts
+  teach campfire recipes and lore, and manuscripts that teach powers start
+  in the next release.*
 - **The Hammer shape** (2026-10-15, question 51): the smith teaches it at the
   Workshop in Chapter 5 or 6. The rework mode lends it today.
 - **The War Axe shape** (2026-10-16,
-  [question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   it waits for the next release. It owns living, green things (trees in leaf,
   bushes, leafy vines, webs, tethers; question 93), which wait in Release 1's
   maps as come-back secrets. Who teaches it is
-  [question 33](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15);
+  [question 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15);
   the 2026-10-11 dungeons plan had it in the Weaver Hollow. The rework mode
   lends it today. *Since the sixth round (questions 95, 96 and 101): the
   Weaver Hollow's chest holds a heart or the big key in its place; the Axe
   opens the next release with its come-back secrets, and E shows once it is
   learned; its living-tree bridge, a tree cut to fall over the water, may
-  come back with it.*
+  come back with it.* *Since the eighth round (question 135): it cuts webs
+  without the Silk skin, and Release 1 shows only a few of its locks, each
+  with a line that says it needs something not found yet.*
 - **The Spear's upgrades** (2026-10-16,
-  [question 99](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
-  Yoi gives them later, at his home (5.12).
+  [question 99](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
+  Yoi gives them later, at his home (5.12). *Changed in the seventh round
+  ([question 111](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
+  who upgrades the Spear, Yoi's techniques or the Forge, is decided after
+  Release 1.*
 - **Stretch Lash** (2026-10-16, question 94): it waits for the next release.
   Sunny's basket and the Lash's other uses wait as come-back secrets
   (question 65; 8.9, 8.10). Built: Beyond the Verdant Gate teaches it today.
+  *Since the eighth round (question 115): it never rings a bell; its posts
+  are posts it pulls on.*
+- **Teleport** (2026-10-16,
+  [question 33](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15)):
+  probably the last power, so it is not planned now. Built: the classic game
+  has it today (35 energy, 5.6).
 - **The vault** (2026-10-16,
-  [question 53](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 53](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   it waits for a later release. Its plan (50 slots, one storage for all
   vaults, the two-panel screen) is in 5.8.
 - **The 20-slot bag** (2026-10-16,
-  [question 74](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 74](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   it waits for the next release ("since we don't have many collectibles
   now", owner); Release 1's one bag is Plop's 10-slot bag (5.7).
 - **The charged roll** (2026-10-16, questions 61 and 78): the held, charged
@@ -4575,8 +5526,9 @@ numbered milestone and task tiles.
   (berry), and later biome forms such as ice and lava. Since 2026-10-08 each
   comes from an essence (7.5), dropped by an enemy designed around it.
   Dropped 2026-10-15: the forms became skins from the Pearls; skins 4 to 8
-  are [question 32](story/06-open-questions.md#skins-shapes-and-abilities-2026-10-15),
-  and the Lantern lights dark caves.
+  are [question 32](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15),
+  and the Lantern lights dark caves. *Answered in the [ninth round](#the-ninth-round-questions-32-118-121-123-and-136):
+  the Swim, Polar, Sand, Cloud and Lava skins (World, below).*
 
 ### World
 
@@ -4586,21 +5538,46 @@ numbered milestone and task tiles.
   Colossus without the Hammer is question 59 (*answered 2026-10-16: his four
   braziers, 12.4*).
 - **The rest of the world** (2026-10-16,
-  [question 73](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+  [question 73](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
   the West village beyond its Release 1 part (5.16), and the regions whose
   ways Release 1 closes (12.5).
 - Later biomes: Sticky Swamp (slow, poison, spider-slimes, rain), Frostpeak
   (ice physics, snow), Volcano Ridge (lava, burn, the finale). The authored
   `icege`, `emberleef`, and `hot` maps are candidates.
+- **The later bosses and their skins** (owner, 2026-10-16,
+  [question 32](story/07-decisions-archive.md#skins-shapes-and-abilities-2026-10-15),
+  the [ninth round](#the-ninth-round-questions-32-118-121-123-and-136)): one skin per vassal, each opening come-back
+  secrets in the places before it; the order of the regions is
+  [question 10](story/06-open-questions.md#story).
+  - **Old Gullet**, the catfish, Sticky Swamp: the **Swim skin**, deep water
+    (the swimming kept for it, 7.11).
+  - **Old Rimepaw**, the polar bear (a working name), Frostpeak: he slides
+    across the frozen lake on his belly and cracks the floes with a slam.
+    The **Polar skin**: the slime is sure-footed, and cold no longer hurts;
+    without it the slime slips on ice and cannot change direction, which
+    closes many places and secrets, and with it ice and every slippery
+    surface (oil and others, in other maps too) are walked without trouble.
+    On ice its Roll becomes a belly slide, long, fast and steerable, across
+    frozen lakes and through ice-race secrets.
+  - **Sandmaw**, the great sand worm, Gorge's worm general, the Desert: the
+    **Sand skin**, through soft sand, under sand walls and through
+    quicksand.
+  - **Gale**, the storm roc, the Northern ruins: the **Cloud skin**, which
+    floats across gaps from a ledge and rides updrafts.
+  - **Cinder**, the magma salamander, Volcano Ridge's slopes: the **Lava
+    skin**, on lava and through fire; the last skin, which opens the way into
+    Gorge's crater.
+  - **Gorge**, the crater: the ninth boss, with no skin. The acid skin stays
+    a spare.
 - Shallow and deep water (was E.3), then swimming gear (was E.4). Since
   2026-10-15 the Swim skin, Pearl 3's, crosses deep water in Release 1 (7.8).
   *Changed 2026-10-16: the Swim skin does not fit the Colossus; it moves to a
   later Pearl, after Release 1 (Old Gullet, the Sticky Swamp's catfish, fits
-  best), and Pearl 3's skin is Open
-  ([question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  best; *his since the ninth round, question 32*), and Pearl 3's skin is Open
+  ([question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   Later the same day Pearl 3 got the Feral skin. The deep-water secrets are
   come-back secrets for the Swim skin, and the swimming stays in the code for
-  it ([question 75](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15);
+  it ([question 75](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   7.11). In the third round the Swim form itself was kept: its scene
   mechanics become the Swim skin's permanent deep-water power (7.11).*
 - Day and night (enemies stronger at night, glowing slimes), weather with
@@ -4623,7 +5600,7 @@ numbered milestone and task tiles.
 ### Combat and abilities
 
 - **The Bow** (owner, 2026-10-16,
-  [question 76](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  [question 76](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   a power learned later: on press the slime aims in the direction it is
   moving, on release it shoots that way, and the arrow does not change
   direction after it is shot. Open: whether it is a shape or an Ability Box
@@ -4635,7 +5612,7 @@ numbered milestone and task tiles.
   that cannot be reached otherwise, and some enemies open doors when they
   die, as in Zelda. Burr gives it as his thanks after Fatty's Lair (5.15), so
   it may join Release 1: when it comes is
-  [question 85](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15).
+  [question 85](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15).
   It is the one bow (question 83).* *Moved into Release 1 in the
   [fifth round](#the-fourth-and-fifth-rounds-questions-84-to-94) (questions
   85 and 94): Burr gives it in Chapter 3, when the slime comes back to the
@@ -4681,7 +5658,7 @@ numbered milestone and task tiles.
   [Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built)).
 - `[—]` The Bouncy Bow (arrows bounce off walls), dropped 2026-10-16: the Bow
   is the one bow, and its arrow never changes direction
-  ([question 83](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  ([question 83](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 
 ## Immediate Next Sprint
 
@@ -4744,9 +5721,14 @@ Next (2026-10-16): the tasks of
 [third round](#the-third-round-questions-68-to-83), their
 [fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-94)
 and their [sixth round](#the-sixth-round-questions-62-to-67-and-95-to-107), with the
-prologue (5.18 to 5.24) and the bestiary (12.7). The falling slabs (5.14),
-the barred gate (5.22) and the bestiary's enemies (12.7) are tried in the
-playground first; the order of the rest is not set.
+prologue (5.18 to 5.24) and the bestiary (12.7), and their
+[seventh round](#the-seventh-round-questions-108-to-114), with placed world
+enemies (5.25), and their
+[eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135), with the
+Weaver Hollow (8.14). The falling slabs (5.14), the barred gate and the bells
+(5.22; a ranged lock since the eighth round), the Roll that sticks in a
+floor web (7.9), the Matron's cocoon (8.7) and the bestiary's enemies (12.7)
+are tried in the playground first; the order of the rest is not set.
 
 ## Done — Foundations
 

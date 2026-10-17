@@ -1,7 +1,8 @@
 extends RefCounted
 ## What abilities do to the world (Phaser `UniversalSceneWorldController.ts`: `strikeArea`
-## :1391-1442, `lineReach` :1252-1264, `lashProbe` :1271-1300, `firstBellAlong` :1307-1329,
-## `lashRing` :1332-1347; `SensorGeometry.ts:194-230`; abilities spec 6.2, 8.1, 8.3).
+## :1391-1442, `lineReach` :1252-1264, `lashProbe` :1271-1300, `firstBellAlong` :1307-1329;
+## `SensorGeometry.ts:194-230`; abilities spec 6.2, 8.1, 8.3). Phaser's `lashRing` is gone: the
+## Lash pulls on a bell's post and never rings it (owner, 2026-10-16, question 115).
 ## Points are old Phaser centres; shapes are read in world space.
 ##
 ## Body-shapes rework (docs/godot/BODY_SHAPES.md "The hit"; combat-feel plan section 8): an area
@@ -29,12 +30,11 @@ const HURTBOX_MASK := 8
 const WORLD_MASK := 1
 ## Static bodies smaller than this in both directions never block a line (PhaserNodeContext).
 const SMALL_BODY_PX := 20.0
-## The lash: a goo hook 16 px wide each side; bells right next to the slime are skipped.
+## The lash: a goo hook 16 px wide each side; bell posts right next to the slime are skipped.
 const LASH_HALF_WIDTH := 16.0
 const LASH_NEAR_PX := 24.0
 const LASH_PICKUP_RADIUS := 18.0
-const LASH_RING_BACK := 6.0
-const LASH_RING_DEPTH := 24.0
+## The bells' posts, anchors the Lash pulls on (game/scripts/lash_bell.gd).
 const BELL_GROUP := &"lash-bell"
 const COLLECTIBLE_GROUP := &"collectible"
 const HIT_SPARK_RISE := 12.0
@@ -241,7 +241,8 @@ static func line_reach(from: Vector2, to: Vector2, exclude: Array[RID]) -> Vecto
 	return to
 
 
-## `lashProbe`: what the hook catches between `from` and `to` (half width 16).
+## `lashProbe`: what the hook catches between `from` and `to` (half width 16); a bell's post is a
+## heavy catch, its anchor the post's foot.
 ## {"kind": "none"|"light"|"heavy", "at": Vector2, "pickup": Node?, "anchor": Vector2?, "bell": Node?}.
 static func lash_probe(from: Vector2, to: Vector2, exclude: Array[RID]) -> Dictionary:
 	var reach := line_reach(from, to, exclude)
@@ -259,8 +260,8 @@ static func lash_probe(from: Vector2, to: Vector2, exclude: Array[RID]) -> Dicti
 	return {"kind": "heavy" if blocked else "none", "at": reach}
 
 
-## `firstBellAlong`: the nearest bell whose damage area the hook passes within 16 px of, at least
-## 24 px out. {"bell": Node, "at": Vector2} or {}.
+## `firstBellAlong`: the nearest bell post whose damage area the hook passes within 16 px of, at
+## least 24 px out. {"bell": Node, "at": Vector2} or {}.
 static func first_bell_along(from: Vector2, to: Vector2) -> Dictionary:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree == null:
@@ -285,24 +286,6 @@ static func first_bell_along(from: Vector2, to: Vector2) -> Dictionary:
 				break
 			along += 4.0
 	return best
-
-
-## `lashRing`: rings every bell whose damage area meets the hook's tip (6 px back to 24 px past
-## where it caught). Returns how many rang.
-static func lash_ring(from: Vector2, caught: Vector2) -> int:
-	var tree := Engine.get_main_loop() as SceneTree
-	if tree == null or caught == from:
-		return 0
-	var direction := (caught - from).normalized()
-	var tip_from := caught - direction * LASH_RING_BACK
-	var tip_to := caught + direction * LASH_RING_DEPTH
-	var rung := 0
-	for bell: Node in tree.get_nodes_in_group(BELL_GROUP):
-		var area := bell.get(&"damage_area") as Area2D
-		if area != null and area.is_inside_tree() and shape_touches_segment(area, tip_from, tip_to, LASH_HALF_WIDTH):
-			bell.call(&"ring")
-			rung += 1
-	return rung
 
 
 ## `SensorGeometry` segment test: samples every max(4, half_width) px (ends included) and accepts

@@ -2,9 +2,10 @@ extends Node
 class_name GateScript
 ## Scene script `game.gate` (Phaser `features/scripts/GateScript.ts`; interaction spec 3.3, 6.2).
 ## A gate blocks its passage until it opens: pushed with the key (`push_open`, remembered in RunState
-## and shared with the gated world exit of the same id), or through `open()` from a pressure plate or
-## a bell (for this visit only, as in Phaser). Open, it shows `open_frame` and its door body stops
-## colliding (the pillars stay solid).
+## and shared with the gated world exit of the same id), through `open()` from a pressure plate (for
+## this visit only, as in Phaser), or through `open_for_good()` from a bell (owner, 2026-10-16,
+## question 136: a bell is a lock solved once; remembered as the key's push is). Open, it shows
+## `open_frame` and its door body stops colliding (the pillars stay solid).
 ##
 ## **Push to open (owner, 2026-10-15; docs/godot/CONVENTIONS.md "Doors"):** a gate is not offered to
 ## the interact key. The slime opens it as it goes through a door: its collision rect within
@@ -171,7 +172,18 @@ func origin() -> Vector2:
 	return FeetAnchor.phaser_position(parent) if parent != null else Vector2.ZERO
 
 
-## Handler `open` (plates, bells, heavy plates): opens for this visit; nothing is saved.
+## A lock solved once (a rung bell, game/scripts/lash_bell.gd): the gate opens and stays open for
+## good. Its record is unlocked in RunState (`map_id`, `gate_id`, as a key's push leaves it), which
+## `_enter_tree` reads, so a chunk entered again or a loaded save builds it open, and a heavy plate
+## never shuts it (`close`).
+func open_for_good(_payload: Variant = null) -> void:
+	var run := Services.run()
+	if run != null:
+		run.mark_gate_unlocked(map_id, gate_id)
+	open()
+
+
+## Handler `open` (plates, heavy plates): opens for this visit; nothing is saved.
 func open(_payload: Variant = null) -> void:
 	if _opened:
 		return

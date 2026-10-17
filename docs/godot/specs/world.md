@@ -134,7 +134,7 @@ Phaser: `features/scripts/WorldAreaScript.ts:39-54` (data holder) + `WorldSceneL
 
 ```gdscript
 extends Node
-@export var area_kind: String = ""   # "enemy-safe-zone" | "enemy-spawn" | "npc-wander"; anything else → push_error
+@export var area_kind: String = ""   # "enemy-safe-zone" | "enemy-spawn" | "enemy-wander" | "npc-wander"; anything else → push_error
 @export var area_id: String = ""
 @export var area: Area2D
 @export var data: Dictionary = {}    # camelCase keys kept (npcInstanceId, enemies, intervalMs, maxPopulation)
@@ -151,6 +151,7 @@ Perimeter from a CollisionShape2D (use `shape_node.global_position`, `global_rot
 Records the world service exposes (Phaser `MapFile` fields, `WorldSceneLoader.ts:209-224`):
 - `enemy-safe-zone`: must be a rectangle → `{x, y, w, h}` (level-1 `enemy-safe-1`: Area2D `(896,640)`, rect 1536×1024 → `{x:128, y:128, w:1536, h:1024}`).
 - `enemy-spawn`: `{...data, id, stayPerimeter, pursuePerimeter: shape}`; stay must fit inside pursue (same shape kind) or error. Consumed by the enemy population spec (not this area). level-1 has `level-1-starter-camp` (worm-swordsman ×3, intervalMs 2500, maxPopulation 3) plus webwood/autumn-grove/south-meadow (other enemy types, [OUT] for the trial unless the enemy spec says otherwise).
+- `enemy-wander` (2026-10-16, not Phaser's): `{id, kind, data, perimeter, stay_perimeter = perimeter}`, one shape: the wander area a camp of placed enemies shares ([enemy.md](enemy.md) §3.3). Since then the game worlds' `enemy-spawn` areas are `enemy-wander` areas with placed enemies (level-1's four camps among them); `enemy-spawn` is left in the playground and the dev worlds.
 - `npc-wander`: `{...data, id, perimeter}`; `data.npcInstanceId` names the NPC instance.
 
 Suggested API on the world service autoload/bootstrap: `areas(kind: String) -> Array[Dictionary]`, `npc_wander_area(instance_id: String) -> Dictionary` (empty if none), `dimensions() -> Dictionary`, `is_solid_tile(tx, ty) -> bool`.

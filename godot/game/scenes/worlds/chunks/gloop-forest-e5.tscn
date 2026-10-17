@@ -17,18 +17,13 @@
 [ext_resource type="AudioStream" path="res://asset/audio/music/gloop-forest.mp3" id="57_g0rg2"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="58_po5vo"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/gloop-forest-ambience.mp3" id="59_ggn2r"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_15vna"]
 size = Vector2(32, 2048)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_16"]
-size = Vector2(768, 640)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17"]
 size = Vector2(320, 256)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_stomper_clearing_pursue"]
-size = Vector2(480, 400)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_stomper_clearing_stay"]
 size = Vector2(192, 160)
@@ -91,25 +86,6 @@ metadata = {
 "x": 1344,
 "y": 416
 }
-},
-"spawns": {
-"enemies": [{
-"type": "worm-brawler",
-"weight": 65
-}, {
-"type": "worm-swordsman",
-"weight": 20
-}, {
-"type": "worm-archer",
-"weight": 15
-}],
-"intervalMs": 1500,
-"maxPopulation": 16,
-"radius": {
-"max": 500,
-"min": 200
-},
-"safeZones": []
 }
 }
 
@@ -139,28 +115,15 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
-[node name="pursue-shape" type="CollisionShape2D" parent="gloop-orb-weavers-south-west" unique_id=1477345445]
-shape = SubResource("RectangleShape2D_16")
-
-[node name="stay-shape" type="CollisionShape2D" parent="gloop-orb-weavers-south-west" unique_id=622310107]
+[node name="wander-shape" type="CollisionShape2D" parent="gloop-orb-weavers-south-west" unique_id=622310107]
 shape = SubResource("RectangleShape2D_17")
 
-[node name="world-area-script" type="Node" parent="gloop-orb-weavers-south-west" unique_id=670980277 node_paths=PackedStringArray("area", "shape", "stay_shape")]
+[node name="world-area-script" type="Node" parent="gloop-orb-weavers-south-west" unique_id=670980277 node_paths=PackedStringArray("area", "shape")]
 script = ExtResource("46_dx3r6")
-area_kind = "enemy-spawn"
+area_kind = "enemy-wander"
 area_id = "gloop-orb-weavers-south-west"
 area = NodePath("..")
-data = {
-"enemies": [{
-"maxAlive": 2,
-"type": "orb-weaver",
-"weight": 1
-}],
-"intervalMs": 6000,
-"maxPopulation": 2
-}
-shape = NodePath("../pursue-shape")
-stay_shape = NodePath("../stay-shape")
+shape = NodePath("../wander-shape")
 
 [node name="gloop-clod-stompers-clearing" type="Area2D" parent="." unique_id=273083701]
 y_sort_enabled = true
@@ -170,28 +133,15 @@ collision_mask = 0
 monitoring = false
 monitorable = false
 
-[node name="pursue-shape" type="CollisionShape2D" parent="gloop-clod-stompers-clearing" unique_id=1035779231]
-shape = SubResource("RectangleShape2D_stomper_clearing_pursue")
-
-[node name="stay-shape" type="CollisionShape2D" parent="gloop-clod-stompers-clearing" unique_id=1714091859]
+[node name="wander-shape" type="CollisionShape2D" parent="gloop-clod-stompers-clearing" unique_id=1714091859]
 shape = SubResource("RectangleShape2D_stomper_clearing_stay")
 
-[node name="world-area-script" type="Node" parent="gloop-clod-stompers-clearing" unique_id=1560829066 node_paths=PackedStringArray("area", "shape", "stay_shape")]
+[node name="world-area-script" type="Node" parent="gloop-clod-stompers-clearing" unique_id=1560829066 node_paths=PackedStringArray("area", "shape")]
 script = ExtResource("46_dx3r6")
-area_kind = "enemy-spawn"
+area_kind = "enemy-wander"
 area_id = "gloop-clod-stompers-clearing"
 area = NodePath("..")
-data = {
-"enemies": [{
-"maxAlive": 1,
-"type": "clod-stomper",
-"weight": 1
-}],
-"intervalMs": 20000,
-"maxPopulation": 1
-}
-shape = NodePath("../pursue-shape")
-stay_shape = NodePath("../stay-shape")
+shape = NodePath("../wander-shape")
 
 [node name="tom-web" parent="." unique_id=1172117060 instance=ExtResource("48_yvhe7")]
 position = Vector2(860, 422)
@@ -281,6 +231,23 @@ target_area_id = "gloop-forest-f5"
 entry = "west"
 keep_along = true
 area = NodePath("..")
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1061810302]
+
+[node name="orb-weaver-1" parent="Enemies" unique_id=1254055008 instance=ExtResource("placed_enemy_1")]
+position = Vector2(696, 519)
+enemy_type = "orb-weaver"
+wander_area_id = "gloop-orb-weavers-south-west"
+
+[node name="orb-weaver-2" parent="Enemies" unique_id=335399788 instance=ExtResource("placed_enemy_1")]
+position = Vector2(832, 551)
+enemy_type = "orb-weaver"
+wander_area_id = "gloop-orb-weavers-south-west"
+
+[node name="clod-stomper-1" parent="Enemies" unique_id=460743960 instance=ExtResource("placed_enemy_1")]
+position = Vector2(1700, 348)
+enemy_type = "clod-stomper"
+wander_area_id = "gloop-clod-stompers-clearing"
 
 [connection signal="body_entered" from="exit-2" to="exit-2/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-north" to="edge-north/world-exit-script" method="on_body_entered"]

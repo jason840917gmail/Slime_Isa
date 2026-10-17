@@ -1,0 +1,25 @@
+{
+ "round": "round-7",
+ "decidedAt": "2026-10-17T00:00:00.000Z",
+ "source": "The Sound Picker's picks/round-7 document, version 17 (final). Its throw pick was T1 with the note \"for throw use my 3 sound alternative\", applied as option T of round-7.json (his three throws together, added for it).",
+ "note": "for throw use my 3 sound alternative",
+ "picks": {
+  "player.gulp-suck": "s1",
+  "player.gulp-catch": "a",
+  "player.gulp-spit": "t"
+ },
+ "dropped": {
+  "player.gulp-catch": {
+   "a": [
+    1,
+    2
+   ]
+  },
+  "player.gulp-suck": {
+   "d": [
+    2
+   ]
+  }
+ },
+ "wishes": {}
+}

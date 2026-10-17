@@ -12,6 +12,9 @@ extends Node2D
 ## picture (break_burst.gd) with that material's particles and sound (BREAK_PARTICLES, BREAK_CUES:
 ## a pot shatters, a crate splinters, a kettle clangs, a pumpkin splats).
 ##
+## Its feel (gulp_feel.gd, `gulp.feel`): a whoosh streak trails it for its first `throw.streakMs`, and
+## the landing puffs dust on the ground and nudges the camera for a heavy material (`land`).
+##
 ## The node sits on the ground point under the flying thing (its shadow is there); the look rides
 ## above it. Gameplay runs on the physics step, so it pauses with the tree.
 ##
@@ -49,6 +52,14 @@ const SHADOW_SIZE := Vector2(12.0, 5.0)
 const BreakBurst := preload("res://game/player/gulp/break_burst.gd")
 const LiftableScript := preload("res://game/scripts/liftable.gd")
 const GooBomb := preload("res://game/scripts/goo_bomb.gd")
+## The throw's whoosh streak and the landing's dust and nudge (gulp_feel.gd, `gulp.feel`): the
+## streak's colour, its lines this far apart (x their width), the side lines this share of the middle
+## one's length, starting this share of the look's size behind its centre.
+const GulpFeel := preload("res://game/player/gulp/gulp_feel.gd")
+const STREAK_COLOR := Color(1.0, 1.0, 1.0, 0.78)
+const STREAK_GAP := 1.7
+const STREAK_SIDE_SHARE := 0.65
+const STREAK_BEHIND_SHARE := 0.35
 
 ## The particles each material adds to its chunks ("essence": a thrown essence's goo).
 const BREAK_PARTICLES := {
@@ -61,6 +72,8 @@ const BREAK_PARTICLES := {
 	"ice": [&"hit-spark", &"loot-sparkle"],
 	"snow": [&"dodge-dust"],
 	"crystal": [&"hit-spark", &"loot-sparkle"],
+	# A skull or a bone from the skeletons (game/enemy/bone_skull.gd, game/scripts/bone.gd).
+	"bone": [&"dodge-dust"],
 }
 ## The global cue each material breaks with (Sound Picker round 5); HitDull until a cue exists.
 const BREAK_CUES := {
@@ -73,6 +86,7 @@ const BREAK_CUES := {
 	"ice": &"BreakIce",
 	"snow": &"BreakSoft",
 	"crystal": &"BreakGlass",
+	"bone": &"BreakWood",
 }
 const CUE_FALLBACK := &"HitDull"
 
@@ -84,6 +98,9 @@ var _speed: float = 0.0
 var _travelled: float = 0.0
 var _look: Node2D
 var _done: bool = false
+## The whoosh streak (GulpFeel.streak) and the flight's age (simulation ms, the physics steps).
+var _streak: Dictionary = {}
+var _age_ms: float = 0.0
 
 
 ## Starts the throw of `held` ({"kind", "essence"}) from the ground point `feet` along `direction`.
@@ -98,6 +115,8 @@ func launch(player: Node, held: Dictionary, feet: Vector2, direction: Vector2) -
 	_look = HeldLook.make(held, LOOK_SIZE_PX)
 	add_child(_look)
 	_place_look()
+	_streak = GulpFeel.streak()
+	queue_redraw()
 	# A Goo Bomb flies with the throw, ticking (game/scripts/goo_bomb.gd `ride`).
 	var bomb := GooBomb.from_held(_held)
 	if bomb != null:
@@ -107,6 +126,10 @@ func launch(player: Node, held: Dictionary, feet: Vector2, direction: Vector2) -
 func _physics_process(delta: float) -> void:
 	if _done:
 		return
+	# The streak redraws while it shows, and once more to clear.
+	if _age_ms <= float(_streak.get("ms", 0.0)):
+		queue_redraw()
+	_age_ms += delta * 1000.0
 	var step := minf(_speed * delta, _range_px - _travelled)
 	var from := _air_point()
 	var next_ground := global_position + _direction * step
@@ -135,6 +158,30 @@ func _draw() -> void:
 		var angle := TAU * i / 16.0
 		points.append(Vector2(cos(angle) * SHADOW_SIZE.x, sin(angle) * SHADOW_SIZE.y))
 	draw_colored_polygon(points, SHADOW)
+	_draw_streak()
+
+
+## The whoosh streak behind the look for its first `gulp.feel.throw.streakMs`: lines trailing back
+## along the throw, shrinking and fading as it ends.
+func _draw_streak() -> void:
+	var life := float(_streak.get("ms", 0.0))
+	if life <= 0.0 or _age_ms >= life or _look == null:
+		return
+	var left := 1.0 - _age_ms / life
+	var lines := maxi(1, int(_streak.get("lines", 1)))
+	var width := float(_streak.get("width", 2.0))
+	var length := float(_streak.get("px", 0.0)) * left
+	var back := -_direction
+	var across := Vector2(-_direction.y, _direction.x)
+	var start := _look.position + back * LOOK_SIZE_PX * STREAK_BEHIND_SHARE
+	for i in lines:
+		var offset := (float(i) - float(lines - 1) * 0.5) * width * STREAK_GAP
+		var middle := absf(offset) < 0.01
+		var reach := length * (1.0 if middle else STREAK_SIDE_SHARE)
+		var from := start + across * offset
+		var color := Color(STREAK_COLOR, STREAK_COLOR.a * left * (1.0 if middle else 0.7))
+		draw_line(from, from + back * reach * 0.5, color, width, true)
+		draw_line(from + back * reach * 0.5, from + back * reach, Color(color, color.a * 0.5), width * 0.6, true)
 
 
 func _place_look() -> void:
@@ -165,7 +212,7 @@ func _break(at: Vector2) -> void:
 			bomb.call(&"land", global_position)
 		queue_free()
 		return
-	var material := LiftableScript.material_of(kind)
+	var material := HeldLook.material_of(_held)
 	var damage := _constant("gulp.throwDamage") * _material_damage(material)
 	if _player != null and is_instance_valid(_player):
 		if ReworkMode.is_on():
@@ -180,6 +227,8 @@ func _break(at: Vector2) -> void:
 		for preset: StringName in BREAK_PARTICLES.get(material, [&"dodge-dust"]):
 			feel.particles(preset, at)
 		feel.audio_cue(BREAK_CUES.get(material, CUE_FALLBACK))
+	# The landing's dust on the ground under it, and a heavy thing's nudge (gulp_feel.gd).
+	GulpFeel.landed(at, global_position, material, _direction, BREAK_PARTICLES.get(material, [&"dodge-dust"]))
 	queue_free()
 
 

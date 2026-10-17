@@ -148,10 +148,20 @@ export const CUES = {
     'gulp-transform-heavy': { library: ['magnific/player-gulp-transform-heavy-r4-1', 'magnific/player-gulp-transform-heavy-r4-2'], variants: 2 },
     'gulp-transform-sticky': { library: ['magnific/player-gulp-transform-sticky-r4-1', 'magnific/player-gulp-transform-sticky-r4-2', 'magnific/player-gulp-transform-sticky-r4-3'], variants: 3 },
     'gulp-transform-frog': { library: ['magnific/player-gulp-transform-frog-r4-1'], variants: 1 },
-    // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Gulp's suck, catch and spit and the Roll's rev, launch and bonk.
-    'gulp-suck': { library: ['magnific/player-gulp-suck-r5-1', 'magnific/player-gulp-suck-r5-2', 'magnific/player-gulp-suck-r5-3'], variants: 3 },
-    'gulp-catch': { library: ['magnific/player-gulp-catch-r5-1', 'magnific/player-gulp-catch-r5-2', 'magnific/player-gulp-catch-r5-3'], variants: 3 },
-    'gulp-spit': { library: ['magnific/player-gulp-spit-r5-1', 'magnific/player-gulp-spit-r5-2', 'magnific/player-gulp-spit-r5-3'], variants: 3 },
+    // Sound Picker round 7 (2026-10-17, the owner's picks): the Gulp's suck is his suck1, its catch the generated Soft plop's
+    // first take, its throw his three throws (throwing, throwing2, throwing3). His sounds are kept in the magnific folder
+    // because stage-round.py keeps every shipped take there; they are not generated (godot/asset/audio/CREDITS.md).
+    'gulp-suck': { library: ['magnific/player-gulp-suck-r7-1'], variants: 1 },
+    'gulp-catch': { library: ['magnific/player-gulp-catch-r7-1'], variants: 1 },
+    'gulp-spit': { library: ['magnific/player-gulp-spit-r7-1', 'magnific/player-gulp-spit-r7-2', 'magnific/player-gulp-spit-r7-3'], variants: 3 },
+    // The round-5 Gulp takes kept for the cues that borrowed them (Sound Picker round 7 gave the Gulp new ones): the inhale
+    // plays GulpThroat, BubbleRise, MimicWrap, PipeWormCharge and SpitcapCharge; the plop HeavyBlockGrab, MimicGrab and
+    // RookSteal; the ptoo GooBombSpit, LanternSpit, BubblePop, MimicSpit, PipeWormSpit, SpitcapSpit and FireIgnite.
+    'goo-inhale': { library: ['magnific/player-gulp-suck-r5-1', 'magnific/player-gulp-suck-r5-2', 'magnific/player-gulp-suck-r5-3'], variants: 3 },
+    'goo-plop': { library: ['magnific/player-gulp-catch-r5-1', 'magnific/player-gulp-catch-r5-2', 'magnific/player-gulp-catch-r5-3'], variants: 3 },
+    'goo-ptoo': { library: ['magnific/player-gulp-spit-r5-1', 'magnific/player-gulp-spit-r5-2', 'magnific/player-gulp-spit-r5-3'], variants: 3 },
+    // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Roll's rev, launch and bonk
+    // (and the Gulp's suck, catch and spit until round 7: the goo-* takes above).
     'roll-rev': { library: ['magnific/player-roll-rev-r5-1', 'magnific/player-roll-rev-r5-2', 'magnific/player-roll-rev-r5-3'], variants: 3 },
     'roll-launch': { library: ['magnific/player-roll-launch-r5-1', 'magnific/player-roll-launch-r5-2', 'magnific/player-roll-launch-r5-3'], variants: 3 },
     'roll-bonk': { library: ['magnific/player-roll-bonk-r5-1', 'magnific/player-roll-bonk-r5-2', 'magnific/player-roll-bonk-r5-3'], variants: 3 },

@@ -95,7 +95,8 @@
       },
       "arrivals": {
         "player-entry-south": "level-1-c4",
-        "player-entry-east": "level-1-d4"
+        "player-entry-east": "level-1-d4",
+        "arrive-from-west-village-1": "level-1-c4"
       },
       "doors": {
         "home-door": "level-1-c4",

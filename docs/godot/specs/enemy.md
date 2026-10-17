@@ -15,6 +15,8 @@ Godot targets (from the conventions): script `game.enemy` → `res://game/script
 
 ### IN trial scope
 - Camp spawning from `enemy-spawn` world areas (counts, interval, respawn, spawn point, safe-zone rejection).
+  Since 2026-10-16 only the playground and the dev worlds have them: the game worlds' enemies are
+  placed (§3.3).
 - One enemy script (`game.enemy`, the base `EnemyScript`) with its states: idle, wander, chase, attack,
   knockback (hit-stun), die; the camp **territory** layer (home / engaged / searching / returning, leash,
   regen, full heal); safe-zone avoidance (`flee` push-out).
@@ -38,7 +40,7 @@ Godot targets (from the conventions): script `game.enemy` → `res://game/script
 | Elevation routing, `DamageRouter` reach gate | docs/ELEVATION.md | Not ported (elevation rejected; this router has no gate). |
 | Occlusion silhouette for enemies | `UniversalSceneWorldController.registerCharacterOcclusion` | Dropped by plan. |
 | Dev overlay attack areas | `EnemyScript.debugAttackAreas` | Debug only. |
-| Legacy player-relative spawning, `despawnRadius` | `AuthoredEnemyPopulationController.ts:96-98, 115-121, 140-143, 216-224` | **Ported 2026-10-05, §18.** Only when a world has no spawn areas but has `metadata.spawns` (crystal-caverns, icege); level-1 has spawn areas and no `spawns`. |
+| Legacy player-relative spawning, `despawnRadius` | `AuthoredEnemyPopulationController.ts:96-98, 115-121, 140-143, 216-224` | **Ported 2026-10-05, §18.** Only when a world has no spawn areas but has `metadata.spawns`: since 2026-10-16 only the dev world icege (crystal-caverns' table became placed enemies, §3.3). |
 | `enforceSpawnArea` (pursue-perimeter guard in the AI) | `EnemyAI.ts:142-206` | **Dead in practice**: `EnemyScript.ts:472` passes `spawnArea` to the AI only when there is no territory, and a territory exists exactly when there is a spawn area. Do not port. |
 | `hit_reaction`, `damage_feedback` signals | `EnemyScript.ts:303, 315` | `hit_reaction` is not even a declared signal (no-op); `damage_feedback` has no listener. Optional. |
 
@@ -131,7 +133,7 @@ enemy, so player and worm block each other. Use `motion_mode = MOTION_MODE_FLOAT
 | Node | Type | Phaser props | After feet re-anchor (Godot) |
 |---|---|---|---|
 | BodyShape | CollisionShape2D | rect 36×26 at (0,9) | (0,−13) |
-| Visual | Sprite2D | sheet `enemy.worm.swordsman` 64×64, 38 frames, origin 0.5 | position (0,−22) |
+| Visual | Sprite2D | sheet `enemy.worm.swordsman` 64×64, 38 frames, origin 0.5 | position (0,−22); since the repaint (2026-10-16, §2.1) a `sheet_sprite.gd` Sprite2D at the feet: `256x256-tile_8x1-worm-swordsman.webp` at 0.29 |
 | DamageArea | Area2D | layer 8 (hurtbox), mask 16, monitoring/monitorable true | — |
 | DamageShape | CollisionShape2D | rect 36×26 at (0,9) | (0,−13) |
 | AttackArea | Area2D | layer 16 (hitbox), mask 8, **monitoring false, monitorable false** | — |
@@ -157,6 +159,14 @@ Facing suffix is `side | up | down`; side clips are mirrored with `flip_h` when 
 | knockback-down / -up / -side | 8 | 0.125 | no | single frame 0 / 4 / 8 (the first idle frame) |
 | die-down / -up / -side | 7 | 0.571 | no | 34-37 (same frames for all facings) |
 
+**Repainted 2026-10-16** ([BESTIARY.md](../BESTIARY.md#art)): the Godot scenes of the three worms
+keep these clip names, but key them on the new art's few poses with a code bob (`Visual:position`):
+idle and walk on the side poses (down too) and the back view (up); `attack-<facing>` shows the
+wind-up pose at 0 and the strike pose at `attackWindupMs` (the impact), then the stance again, and
+stays no longer than wind-up + recovery, so the timer-driven attack (§5) and its finish time are
+unchanged; `knockback-*` the hurt pose; `die-*` the hurt pose, then the defeated one. The
+attack-side events stay, retimed to the slash, and are still ignored.
+
 **The attack-side animation events are NOT consumed by anything in Phaser** (only
 `AnimationPlayerNode.ts:71` emits them; there is no listener or connection). Damage timing is a
 **timer** (`attackWindupMs`), not the events, and the up/down clips have no events at all. For parity,
@@ -171,6 +181,11 @@ non-looping clip ends), so the `play_animation` rule below ports directly.
 ---
 
 ## 3. Spawning (camp areas)
+
+> **Since 2026-10-16 (roadmap 5.25) the game worlds' enemies are placed, not spawned (§3.3).** Every
+> `enemy-spawn` area and `metadata.spawns` table of the game's chunk worlds became placed enemies;
+> §3.1, §3.2 and §18 (Phaser's spawning, ported) are kept for the playground and the dev worlds
+> (`cole`, `girls`, `meadow-crossing`, `tiktok`: spawn areas; `icege`: a spawn table), as testbeds.
 
 ### 3.1 World-area data (level-1)
 Built by `infrastructure/scenes/WorldSceneLoader.ts:192-237` (`worldAreaData`) from every
@@ -237,6 +252,60 @@ position: spawn `min(8, area.maxPopulation)` = 3 immediately. (Does NOT set `are
    and the world's safe-zone list (`:2073-2085`).
    **Feet origin:** the point is the Phaser body *centre*; place the Godot root at
    `point + depth_anchor * scale` = `point + (0, 22)`.
+
+### 3.3 Placed enemies (roadmap 5.25, not Phaser's)
+Owner, 2026-10-16: the enemies of a world are "a fixed quantity placed ... in the map", each with a
+wandering area, and "they come back when the player reloads a chunk, like in Zelda".
+
+- **The node:** `res://game/scenes/encounters/placed-enemy.tscn` (`game/enemy/placed_enemy.gd`,
+  `@tool`, group `placed_enemy`), under the world's `Enemies` node (the prologue's four worms stand
+  under its `Prologue/Worms` node instead: the director plays them and takes them out after the
+  prologue; [PROLOGUE.md](../PROLOGUE.md)). Its position is where the enemy's
+  feet (its scene root) stand. `enemy_type` (an `enemy-types.json` id with a `character.<id>` scene;
+  the Inspector suggests them), `wander_area_id` (an `enemy-wander` world area a camp shares) or,
+  when empty, its own circle of `wander_radius` (default 160) around its feet, and `overrides`
+  (EnemyScript properties set before it enters the tree; an `attributes` dictionary is merged). In
+  the editor it draws the enemy's first frame, its type and its wander outline, and warns when the
+  type or the area is unknown; in the game it draws nothing. The Scenery dock's **Enemies** category
+  drags them in by picture ([PROPS.md](../PROPS.md)).
+- **`enemy-wander` areas** (`world_area.gd`): one shape (rectangle or circle), no data; the record
+  is `{id, kind, data, perimeter, stay_perimeter = perimeter}`.
+- **Spawning:** `EnemyPopulation.setup` finds the world's PlacedEnemy nodes and enemy-wander areas;
+  `seed_initial` spawns each one's `character.<type>` once (in `allowed_types`), its root at the
+  node's position, with the overrides, and `configure_navigation(wander record, safe zones)`: the
+  camp territory of §4.3 with the wander area as home and the usual leash (`leashRange ??
+  max(520, aggro × 2)`): it wanders there, chases, searches, gives up and walks home healing. No
+  pursue perimeter: it only gated spawning.
+- **Coming back:** nothing spawns them on a timer and nothing despawns them by distance; a beaten
+  one stays beaten while the slime is in the world. The population is made anew each time the world
+  is built (`Main._build_world`): walking back into a chunk, a door back out, a load, a respawn in
+  another world. Bosses keep their camps' own rule ([boss.md](boss.md), roadmap 5.9).
+- **Members:** placed enemies are population members (`live_enemies`, `slow_enemies_near`,
+  `alive_count_all`, `alive_placed_count(area)`), never counted for a spawn area or the legacy
+  population (`alive_count`).
+- **Converted 2026-10-16** (one-off, from each old area's `maxPopulation`, the types by weight under
+  `maxAlive`, `tools/lib/enemy_placement.gd`; set out evenly over open ground in the old stay shape,
+  which became the camp's enemy-wander area; the pursue shapes went):
+
+| Chunk | Camp (enemy-wander area) | Before (spawn area) | After (placed) |
+|---|---|---|---|
+| level-1-c4 | `level-1-starter-camp` | worm-swordsman, max 3, 2500 ms | 3 worm swordsmen |
+| level-1-c5 | `level-1-south-meadow` | brawler (w 2, max 2) + slime spider (w 1, max 1), max 3, 7000 ms | 2 brawlers, 1 slime spider |
+| level-1-d4 | `level-1-webwood` | slime spider, max 3, 5000 ms | 3 slime spiders |
+| level-1-d5 | `level-1-autumn-grove` | archer (w 1, max 2) + brawler (w 2, max 2), max 4, 6000 ms | 2 archers, 2 brawlers |
+| gloop-forest-e5 | `gloop-orb-weavers-south-west`, `gloop-clod-stompers-clearing` | orb weaver max 2, 6000 ms; Clod Stomper max 1, 20000 ms | 2 orb weavers; 1 Clod Stomper |
+| gloop-forest-f4 | `gloop-orb-weavers-north-east` | orb weaver max 2, 6000 ms | 2 orb weavers |
+| gloop-forest-f5 | `gloop-clod-stompers-hollow`, `gloop-orb-weavers-south` | Clod Stomper max 1; orb weaver max 2 | 1 Clod Stomper; 2 orb weavers |
+| crystal-caverns-g4, g5, h4, h5 | `crystal-caverns-<chunk>-camp-1`, `-camp-2` (new 288 × 224 rects) | the legacy table (§18) in every chunk: brawler 30, swordsman 40, archer 30, max 16, 1500 ms | 5 each (placeholders until Chapter 3 places the Caverns' own): 2 swordsmen, 2 brawlers, 1 archer, in a camp of 3 and a camp of 2 spread over the chunk (the order of the types turned per chunk), the camps ≥ 192 from the edges and 384 from the arrival places |
+
+  Gloop Forest's four chunks also carried the forest's worm table (brawler 65, swordsman 20, archer
+  15, max 16), dead in the whole forest because it has spawn areas (§11); the cut into chunks woke it
+  in E4 (no spawn area there). It was dropped, not converted.
+- **The chunk tool** (`tools/split_region_chunks.gd`, a hand-made world's cut) does the same to a
+  world it cuts: spawn areas become enemy-wander areas with placed enemies on open cells, a live
+  spawn table becomes at most `EnemyPlacement.TABLE_ENEMIES` (5) placed enemies in each chunk, in
+  `TABLE_CAMPS` (2) camps with a new enemy-wander rect each (`TABLE_CAMP_SIZE`, 288 × 224), a dead
+  one is dropped (its notes ask for a look at the spots).
 
 ---
 
@@ -630,7 +699,9 @@ centre to centre. Godot targets: `game.enemy` stays `res://game/scripts/enemy.gd
 ## 11. Enemy types the worlds spawn
 
 Every `enemy-spawn` world area and every legacy `metadata.spawns` table (read from
-`content/scenes/authored/worlds/*.scene.json`):
+`content/scenes/authored/worlds/*.scene.json`). Since 2026-10-16 the level-1, gloop-forest and
+crystal-caverns rows are placed enemies of the same types (§3.3); the spawners are left in the dev
+rows:
 
 | World | Spawner | Types |
 |---|---|---|
@@ -659,7 +730,7 @@ script properties (`characters/<type>.scene.json`, node `script`; `projectileSpe
 | contactDamage | 22 (unused, ranged) | 52 | 22 (unused) | 26 (unused) |
 | knockbackStrength / Resist | 180 / 0 | 340 / 0.1 | 180 / 0 | 200 / 0.3 |
 | fleeRange | 120 | — | 120 | 140 |
-| behavior | standard | standard | `slime-spider` | `slime-spider` |
+| behavior | `liner-up` (`enemy-types.json`, since 2026-10-16; §20) | standard | `slime-spider`, lining up (§20) | `slime-spider`, lining up (§20) |
 | projectileSpeed | 180 | — | 180 | 200 |
 | projectile | `worm-arrow`, damage 22 | — | `spider-web`, damage 50, stickMs 1000 | `spider-web`, damage 30, stickMs 1300 |
 | impactEffect | — | `enemy-worm-brawler-hit`, distance 22 | — | — |
@@ -694,7 +765,9 @@ if projectile configuration:
 (melee as part 1 §5.3)
 ```
 The aim is where the player was when the attack **started** (`begin_attack` stores the unit
-direction); the origin is where the enemy stands at the impact moment.
+direction); the origin is where the enemy stands at the impact moment. The four-way shooters (the
+archer and the spiders, §20) aim along their line instead: `begin_attack` snaps the direction to
+the nearest of up, down, left and right, so the shot flies straight down the row or column.
 
 ### 12.3 Spawning the projectile (`UniversalSceneWorldController.spawnEnemyProjectile`, `:2087-2114`)
 ```
@@ -767,7 +840,10 @@ jump/dodge/teleport; attacks and the lash still work; `systems/StatusEffects.ts:
 suppression wins over the root, `PlayerController.ts:57-60`). This is `player.gd`'s job (abilities
 spec 13.9 / 19.3); the enemy side only routes the effect. Godot fallback until the player has
 `apply_web(ms)`: `spider_web_port.gd` shows the web cover at the player for an accepted web hit and
-skips the root.
+skips the root. Godot since 2026-10-16 (owner, question 131: with the Silk skin webs no longer
+stick): `player.apply_web` does nothing while `player.crosses_webs()` (the Silk skin's hook; today
+the Silk Gulp form, whose hit also pops the form) holds. A Roll's i-frames still let a spit web
+pass; it is the floor webs a Roll sticks in (matron spec 5.5).
 
 ### 12.7 Derived numbers (player defense 3)
 - Archer: an arrow hits for max(1, 22 − 3) = **19**, knockback 180; fired 600 ms after the attack
@@ -787,9 +863,14 @@ Ported with the trial's AI (dormant for the worm). With `fleeRange` > 0 (archer 
   attack state never flees by itself.
 - When a sequence finishes, the AI state becomes flee when `fleeRange > 0` and `distance <
   fleeRange`, else chase.
-So an archer keeps 120–286 px from the player and shoots whenever the cooldown allows.
+So an archer kept 120–286 px from the player and shot whenever the cooldown allowed, at any angle.
+Since 2026-10-16 no built enemy uses these rules: the archer lines up instead (§20); they stay in
+`enemy_ai.gd` for a standard enemy given a `fleeRange`.
 
 ## 14. Slime-spider AI (`enemies/ai/SlimeSpiderAI.ts`)
+Since 2026-10-16 the Slime Spider and the Orb-weaver line up (§20): this table is only their idle
+and wander, and the whole AI of the Orb-Weaver Matron (a boss keeps its own pattern; its type has no
+`alignSpeed`).
 Used when `attributes.behavior == "slime-spider"` (slime spider, orb weaver, the Matron): after the
 safe-zone push (part 1 §4.4, unchanged) `runState` hands every state to `runSlimeSpiderState`
 (`EnemyAI.ts:116-123`). `preferred = max(1, fleeRange ?? attackRange × 0.55)` (`:33-35`: an absent
@@ -861,8 +942,10 @@ navigation keeps the area safe zones (`scenes/WorldScene.ts:1352, 2327`).
   dist, 40, H − 40))`, rejected inside a safe zone; the enemy gets no spawn area (no territory,
   `may_engage = distance <= aggro`) and the area safe zones.
 
-crystal-caverns: 8 enemies around the spawn at load, then one every 1.5 s up to 16, removed beyond
-800 px from the player.
+crystal-caverns had it (8 enemies around the spawn at load, then one every 1.5 s up to 16,
+removed beyond 800 px from the player) until 2026-10-16: its table is placed enemies now (§3.3).
+Only the dev world icege spawns this way (worm swordsmen, the same numbers). Placed enemies are
+never despawned by distance, nor counted in the legacy `maxPopulation`.
 
 ## 19. Godot notes and deviations
 - **Projectile source.** Phaser's request source is the shooter's id string, still valid after the
@@ -883,4 +966,92 @@ crystal-caverns: 8 enemies around the spawn at load, then one every 1.5 s up to 
   running across travel, so `EnemyPopulation` measures `last_spawn_at` (camps and legacy) from its
   `setup` time instead of 0.
 - **Trial filter.** `main.gd` sets `EnemyPopulation.allowed_types = ["worm-swordsman"]` (the world
-  session's file); emptied, every type above spawns. The tests clear it.
+  session's file); emptied, every type above spawns. The tests clear it. It filters placed enemies
+  too (a placed enemy of another type stays away).
+
+## 20. Four-way shooters: the line-up AI (2026-10-16, not Phaser's)
+Owner, 2026-10-16: the archer "will always try to get horizontal or perpendicular to you, since his
+arrow can only be shot in 4 directions, not diagonals, similar to the archer in Zelda; so once he
+sees you he moves fast to try to get in the right position to fire his arrow"; the spiders shoot the
+same way (the skeletons are the eight-way kind, `four_way_aim.gd`'s `eight`). Bestiary rows 2, 15
+and 16 ([the design](../../design/2026-10-16-bestiary.md)).
+
+- **Who:** an enemy whose behaviour is `liner-up` (the Worm Archer: `enemy-types.json`
+  `worm-archer.ai.behavior`), or `slime-spider` with an `alignSpeed` (the Slime Spider, the
+  Orb-weaver). `enemy.gd` reads these `ai` keys from `attributes` (the scene, a placed enemy's
+  overrides) and else from the type's `ai` block in `enemy-types.json` (`_ai_value`); the scenes
+  carry none of them. The Matron's type has no `alignSpeed`: she keeps §14.
+- **Code:** `res://game/enemy/line_up_ai.gd` (one per enemy: it remembers its line), handed the
+  chase, flee and attack states by `EnemyAI.run_state` after the safe-zone push; idle and wander stay
+  §4.4's (the archer) or §14's (the spiders). Lines and snapping: `res://game/enemy/four_way_aim.gd`.
+- **Noticing:** as before (a camp's territory, §4.3); without a camp it also has to see the slime
+  (`distance <= aggro` and the sight check of §4.3).
+- **The aim point:** a shot has to pass through the slime's hurtbox, whose middle is 14.56 px below
+  the slime's old centre: the line-up maths use that point (`_aim_point`); the distances of the flee
+  and give-up rules stay centre to centre.
+- **Chase (lining up):** beyond aggro × 1.5 → wander; a shot in flight → attack (hold); closer than
+  `fleeRange` → flee. Lined up (the aim point within `alignTolerancePx` of the shooter's row or
+  column, `FourWayAim.line_direction`), at most `attackRange` along the line and the shot clear (no
+  world-layer body on it, what stops an arrow) → velocity 0, attack. Else it runs at `alignSpeed`
+  to its spot: on the chosen line through the aim point, on its own side, at its own distance along
+  the line kept in [`fleeRange` + `alignMarginPx`, `attackRange` − `alignMarginPx`], landing on it.
+- **The line:** of the four spots (the row and the column, its side and the far side), the nearest
+  whose way is clear (`body.test_move` with its own shape and mask: walls, water, a fence, the slime)
+  and whose shot is clear; none clear → the nearest anyway. Chosen again every `alignReplanMs`; the
+  current line stays unless another is more than `alignSwitchPx` nearer. A blocked row so sends it to
+  the column, and the other way round.
+- **Flee (too close, centre distance < `fleeRange`):** the same run to its line's spot at
+  `backOffSpeed`: along the line when it is on it, a sidestep to the other line when the way back is
+  blocked. At `fleeRange` it is chase again (and shoots at once when lined up).
+- **Attack (hold):** a shot in flight → velocity 0 (it does not move in the wind-up or the
+  recovery); closer than `fleeRange` → flee; not lined up, or beyond `attackRange` × 1.3 along the
+  line, or the shot not clear → chase; else velocity 0 and request the attack along the line
+  (`attack_dir`, a cardinal). `begin_attack` snaps any request of a line-up enemy to a cardinal (the
+  Orb-weaver's break-free counter spit too) and the shot is not re-aimed: a slime that steps off the
+  line in the wind-up (the tell) is missed. The cooldown, wind-up and recovery are §5's.
+- **Facing:** walking, its velocity (the archer's `walk-up` / `walk-down` while it runs to a row);
+  holding, the line (`idle-side` facing the slime); the spiders face the slime while they scuttle
+  (`face_dir`), so they run sideways. The shot plays `attack-<facing>`: `attack-side` (mirrored for
+  left), `attack-up`, `attack-down`, the clip names every enemy scene has.
+
+| `ai` key | archer | slime spider | orb weaver |
+|---|---|---|---|
+| `alignSpeed` (px/s; the old chase in brackets) | 130 (80) | 140 (80) | 120 (72) |
+| `backOffSpeed` | 80 | 86 | 78 |
+| `alignTolerancePx` | 8 | 8 | 8 |
+| `alignMarginPx` | 16 | 16 | 16 |
+| `alignReplanMs` | 250 | 250 | 250 |
+| `alignSwitchPx` | 24 | 24 | 24 |
+
+With the archer's numbers: it stops on a line 120–220 px from the slime (it heads for 136–204) and
+keeps shooting up to 286; a shot passing within 8 px of the hurtbox's middle always hits (the
+hurtbox is 30 × 26, the arrow 16 × 10, the web r 7). The patterned turrets are four-way too, by
+their own rule (Part 3): the Spitcap spits only along a row or column it shares with the slime, the
+Pipe Worm only straight out of its pipe (`alignTolerancePx` 16 in their `pattern` blocks).
+
+# Part 3 — the bestiary's patterned enemies (2026-10-16)
+
+Not Phaser ports: the bestiary's rows 4 to 10 ([BESTIARY.md](../BESTIARY.md)). The prologue worm is
+this base enemy with 1 hit point. The Popworm, the Spitcap, the Hopper, the Bramble Boar, the Thorn
+Guard Statue and the Rook Thief extend `res://game/enemy/patterned_enemy.gd`, which keeps this
+script's hits, reactions, death and rewards (sections 6 and 7) and replaces the step (section 4.2)
+with a phase machine of each enemy's own (`_step_pattern`, after the defeated path, the hit flash and
+the stun slide); a shielded phase refuses hits with "immune", and each type's pattern numbers are its
+`pattern` block in `enemy-types.json`. The Spitcap's seed (`projectile.spore-seed`) is a
+`projectile.gd` (section 12) the Gulp can catch; the Spitcap and the Pipe Worm spit four-way, only
+along a line they share with the slime (section 20). Fatty's Lair's Squint (and the Big Squint, the same
+script), Pipe Worm and Dung Roller (rows 11 to 14) extend it the same way; the Pipe Worm's mud glob
+(`projectile.mud-glob`) is the seed with its own kind. A kill hit (`_kill_hit`) is accepted in every
+phase, before the shield and the reaction profile's gate. Chapter 2's Silk Lurker, Thornball,
+Broodling (and its egg sac, which spawns them with its own arena), Cocoon Mimic and Brood Warden
+(rows 18 to 22) extend it the same way; the Goo Bomb's blast reaches them as any hit, tagged `blast`.
+Every dungeon's skeletons (rows 30 to 32) extend it through `res://game/enemy/skeleton_enemy.gd`,
+which delays section 7: the hit that brings one to 0 health makes it a bone pile instead
+(`_defeat` collapses it, full health again, not solid, no rewards); a hit with damage on the pile,
+or its skull taken (a suckable), is the real defeat, with section 7's rewards and the energy shard.
+The Bone Thrower's bone (`projectile.bone`) is a `projectile.gd` that flies out and back, hits once
+per leg and does not expire on a hit. The Crystal Caverns' seven (rows 23 to 29) and the Watcher Eye
+(row 33, on the Prism Eye's `prism_eye.gd`) extend it the same way; their hits that do not start at
+the enemy's centre (a beam, a pickaxe's landing, a mite's landing) go through `_route_hit_from`
+(section 5's request from another point), and the Pick Mole's pickaxe is no projectile scene but a
+node that only flies an arc (`res://game/enemy/lobbed_shot.gd`) and calls the mole when it lands.

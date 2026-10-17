@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Region** | Gloop Forest (`gloop-forest`, `gloop-hut`, `gloop-cavern`), plus Slimeshire for the Forge |
+| **Region** | Gloop Forest (`gloop-forest`, `gloop-hut`; `gloop-cavern`, a small secret cave: owner, 2026-10-16, question 18), its dungeon the Weaver Hollow (Planned, questions 25 and 133), plus Slimeshire for the Forge |
 | **Goal** | ~~Make iron gear,~~ learn the chapter's key tool (the Goo Bomb, owner, 2026-10-16, question 94), and break the Matron's hold on the forest. Iron gear left the plan on 2026-10-15: no crafted gear in Release 1 (question 50). Her Pearl's Silk skin opens the way on to Chapter 3 (owner, 2026-10-16, question 81) |
 | **Boss** | Orb-Weaver Matron |
-| **Earned** | Today: the Reinforced Pickaxe, the Forge, iron gear, Stretch Lash (Beyond the Verdant Gate) and Swallow (from Tom, Built 2026-10-09). Rework: the Goo Bomb and the Lantern (Chapter 3's since 2026-10-16: the smith gives it, question 59). Planned: the **Goo Bomb**, the chapter's key tool (owner, 2026-10-16, question 94; where it comes from is question 95), Pearl 2 with the **Silk skin** and a boss heart. Stretch Lash waits for the next release (question 94). Release 1 has one bag, Plop's 10-slot bag, so the 20-slot bag waits for the next release (owner, 2026-10-16, questions 53 and 74). The pickaxe and the iron gear go with the crafted gear, Swallow is marked for deletion, and the Forge, relit when Pearl 2 comes home, brews the potions (questions 51 and 79). *Changed 2026-10-16 (sixth round): Tom teaches the Goo Bomb at the end of a maze (question 95, Beat 3), the Weaver Hollow's big chest holds a heart or the dungeon's big key (question 95, Beat 8), and the Matron's thread, taken from her web, goes to Burr for the Bow (question 106, Beat 9).* |
+| **Earned** | Today: the Reinforced Pickaxe, the Forge, iron gear, Stretch Lash (Beyond the Verdant Gate) and Swallow (from Tom, Built 2026-10-09). Rework: the Goo Bomb and the Lantern (Chapter 3's since 2026-10-16: the smith gives it, question 59). Planned: the **Goo Bomb**, the chapter's key tool (owner, 2026-10-16, question 94; where it comes from is question 95), Pearl 2 with the **Silk skin** and a boss heart. Stretch Lash waits for the next release (question 94). Release 1 has one bag, Plop's 10-slot bag, so the 20-slot bag waits for the next release (owner, 2026-10-16, questions 53 and 74). The pickaxe and the iron gear go with the crafted gear, Swallow is marked for deletion, and the Forge, relit when Pearl 2 comes home, brews the potions (questions 51 and 79). *Changed 2026-10-16 (sixth round): Tom teaches the Goo Bomb at the end of a maze (question 95, Beat 3), the Weaver Hollow's big chest holds a heart or the dungeon's big key (question 95, Beat 8), and the Matron's thread, taken from her web, goes to Burr for the Bow (question 106, Beat 9).* *Changed 2026-10-16 (seventh round, question 113): Tom teaches the Goo Bomb at the end of his maze, as soon as he is freed, and the Weaver Hollow's big chest holds a heart quarter.* |
 | **Status** | Built and in progress (roadmap 8.3–8.13). The beats below mark each Planned change and Proposal. Every beat is a quest as built; quests no longer make sense (owner, 2026-10-15, question 50). In their place the journal keeps one main quest and the NPCs' tips, and an NPC hands over or teaches its find when the slime talks to it (owner, 2026-10-16, question 60). |
 
 Quest IDs are in brackets. Their dialogue lives in
@@ -22,7 +22,12 @@ and [the Matron spec](../../design/2026-10-01-orb-weaver-matron.md).
 - Mossy: "I set up camp here, behind these old walls. The hut is ours to use:
   sleep in its bed and you will wake here, not back home." *(in game)*
 - **The player does:** defeats 5 orb-weavers and picks up 3 weaver fangs.
-  *2026-10-16 (owner, question 63): the weaver fangs go.*
+  *2026-10-16 (owner, question 63): the weaver fangs go.* *2026-10-16
+  (owner): enemies in the world are placed, not spawned. Today the forest's
+  orb-weaver camps spawn from enemy-spawn areas and refill on a timer;
+  Planned: a fixed number of placed orb-weavers per chunk, each with its own
+  wandering area, back when the chunk is reloaded
+  ([World](../03-world.md#enemies-in-the-world-planned)).*
 - **Reward:** the Reinforced Pickaxe recipe and 30 coins. The pickaxe goes
   with the crafted tools (2026-10-15: no harvesting in Release 1).
 - **Planned change:** remove Stretch Lash from this reward (it teaches it
@@ -62,7 +67,11 @@ and [the Matron spec](../../design/2026-10-01-orb-weaver-matron.md).
 > not easy: the slime passes a maze with several secrets and tests to get to
 > him, solved with the powers it has by then (the Spear, the Roll, the Heavy
 > skin and the Gulp). The maze's webs slow the slime and cannot be cut before
-> the Silk skin. Not built. The text below is the beat as built.
+> the Silk skin. **2026-10-16 (owner, seventh round, question 113):** Tom
+> hangs in his cocoon at the end of the maze and teaches the Goo Bomb right
+> there, as soon as he is freed, no longer at Mossy's camp. Where in the
+> forest the maze lies is not decided. Not built. The text below is the beat
+> as built.
 
 The iron hollow's gate and the cracked clearing both need something heavy, and
 from now on heavy comes from swallowing a stone essence. Swallowing is taught
@@ -83,6 +92,10 @@ here. This beat replaces the Stone Armor of 2026-10-02.
     is active; before that, Tom just mumbles.
   - Torn, Tom calls "I'm free! Thank you! Meet me at Mossy's camp!" *(in
     game)*. The torn web stays, and Tom waits by the camp fire.
+  - *Since 2026-10-16 (eighth round, questions 129 and 132): in the plan his
+    cocoon hangs by a thread with his face showing, and the Goo Bomb's first
+    lock is a cracked wall by him, his maze's way back to its start: he
+    teaches, the slime blows the wall, the jingle plays, the loop closes.*
 - **Reward:** back at the camp Tom teaches **Swallow** and gives 20 coins. It
   is the chapter's key item: the Matron and the web secrets need the forms it
   opens. The full ceremony marks it (built 2026-10-09).
@@ -137,7 +150,9 @@ Beyond the Verdant Gate).
   decided. *Changed 2026-10-16 (owner, question 79): Pearl 2, the Matron's,
   relights it when it comes home (Beat 9), and Pip and the slime light it.
   This replaces the quest and its ore cost. From then on the Forge brews the
-  potions and knows their recipes (question 82).*
+  potions and knows their recipes (question 82).* *Changed 2026-10-16
+  (seventh round, question 110): Pearl 2 goes home to the Wellspring, and its
+  power flows into the town and lights the Forge.*
 - **Reward:** the Iron Spear recipe and 40 coins. The Iron Spear goes with
   the crafted weapons (2026-10-15).
   - Pip: "Look at it glow! Dad would be so proud." *(in game)*
@@ -159,7 +174,9 @@ Beyond the Verdant Gate).
     ([Chapter 1](chapter-1-the-clearing.md), Beat 5). Each homecoming is a
     short scene at the Wellspring, the prologue's lake, which a short forest
     path from Slimeshire's south-west reaches; Plop no longer meets the slime
-    there.*
+    there.* *Changed 2026-10-16 (seventh round, question 110): the slime
+    takes Pearl 1 home to the Wellspring, not to the well; the Wellspring
+    brightens, and its power flows into the town and brings the well back.*
 
 ## Beat 6 — Iron Gear [`iron-gear`] (Built)
 
@@ -176,6 +193,13 @@ Beyond the Verdant Gate).
     ready." *(in game)*
 
 ## Beat 7 — The Gloop Cavern (Built secret)
+
+> **2026-10-16 (owner, tenth round, question 18): the Gloop Cavern stays as a
+> small secret cave**, the Goo Bomb's come-back secret, holding one of Gloop
+> Forest's four heart quarters (today's Goo Heart), with no four of its own.
+> Its coffer stays gone (questions 63 and 74). In the eighth round the owner
+> first said there is no Gloop Cavern; told that the small cave is built, he
+> kept it. The text below is the beat as built.
 
 **Where:** the cracked clearing, south-west of the camp.
 
@@ -225,16 +249,29 @@ The forest has two kinds of web (2026-10-15):
   the Verdant Gate.
 - Today spiders drop **silk essences** that give a Silk form when swallowed
   (built 2026-10-09). They are marked for deletion.
-- **Open:** the Weaver Hollow, once proposed as the place to earn silk. Keep
+- **Open until 2026-10-16:** the Weaver Hollow, once proposed as the place to earn silk. Keep
   it as a small dungeon (for example, where the key tool or a manuscript is
   found), or drop it. *2026-10-16: in the
   [2026-10-11 dungeons plan](../../design/2026-10-11-release-1-dungeons-plan.md)
   its big chest held the War Axe, which now waits for the next release
   (question 94). What it holds instead is part of question 95.* *Answered
   2026-10-16 (sixth round, owner, question 95): the big chest holds a heart
-  or the dungeon's big key instead of the Axe.*
+  or the dungeon's big key instead of the Axe.* *Changed 2026-10-16 (seventh
+  round, owner, question 113): it holds a heart quarter.* Like every dungeon,
+  quitting or fainting inside it resumes at its entrance, with what the slime
+  did there kept (question 109). *Closed 2026-10-16 (eighth round,
+  questions 25 and 133): the Weaver Hollow is Chapter 2's dungeon. Its
+  entrance is the Matron's old nest, and she lives at its top (Beat 9). Its
+  own enemies are the Broodling and the Cocoon Mimic, with the Brood Warden as
+  mini-boss ([bestiary](../../design/2026-10-16-bestiary.md)); where its big
+  key lies is [question 116](../06-open-questions.md#open-after-the-seventh-round-2026-10-16).*
+- **A Roll sticks in a floor web** (Planned, owner, 2026-10-16, question 131):
+  walking through one slows the slime until the Silk skin, and web walls block
+  until the Silk skin; with it, a web no longer sticks. The War Axe, in the
+  next release, cuts webs without it (question 135).
 - **Tom's maze** (Planned, owner, 2026-10-16, question 95): its webs slow the
-  slime and cannot be cut before the Silk skin (Beat 3).
+  slime and cannot be cut before the Silk skin (Beat 3). Tom hangs at its end
+  and teaches the Goo Bomb there once freed (question 113).
 
 ## Beat 9 — The Matron's Nest [`the-matrons-nest`] (Built)
 
@@ -242,6 +279,11 @@ The forest has two kinds of web (2026-10-15):
 
 - **The way in:** no web wall blocks the nest (the web door of 2026-10-02 is
   dropped).
+- **Planned (owner, 2026-10-16, eighth round, question 133): the Weaver
+  Hollow.** The Matron lives at the top of the Hollow, Chapter 2's dungeon,
+  and her nest in the open world becomes its entrance. Her fight needs the
+  Goo Bomb, the chapter's tool: she shields herself in a web cocoon that only
+  a blast tears open, then the Spear hurts her.
 - **Planned: the fight.**
   - **New art** for the Matron.
   - Her **normal attack is Stretch Lash in three directions**, spread wide
@@ -268,6 +310,8 @@ The forest has two kinds of web (2026-10-15):
     Caverns (Beat 8).*
   - Today a Goo Heart appears in the nest. Proposal: it becomes a full heart
     (+20), the boss's own reward on top of the map's four quarters.
+    *Planned since 2026-10-16 (owner, question 17): each boss also gives a
+    full heart, and beating her raises max energy (question 19).*
 - **Proposal, Pearl 2:** her nest was woven around a Pearl. Beaten, she shrinks
   back into an ordinary (big) orb-weaver and scuttles off. The Pearl lies in
   the silk.
@@ -275,13 +319,16 @@ The forest has two kinds of web (2026-10-15):
     its ceremony. The slime keeps it after returning the Pearl.
   - **Planned (owner, 2026-10-16, question 79):** when Pearl 2 comes home it
     relights the Forge. Pip and the slime light it, and from then on it
-    brews the potions.
+    brews the potions. *Changed 2026-10-16 (seventh round, question 110):
+    the Pearl goes home to the Wellspring, and its power flows into the town
+    and lights the Forge.*
   - **Planned (owner, 2026-10-16, question 94):** when the slime comes back
     to the West village after this chapter, Burr gives it the Bow
     ([Chapter 3](chapter-3-crystal-caverns.md#beats)).
   - **Planned (owner, 2026-10-16, questions 102 and 106): the Matron's
     thread.** After she falls, the slime finds a spool of her thread in the
-    nest and, with the Silk skin, takes it from her web. It is the silk Burr
+    nest (her web at the top of the Weaver Hollow since question 133) and,
+    with the Silk skin, takes it from her web. It is the silk Burr
     needs to build the Bow; his other things are already in his workshop. With
     the thread and Pearl 2 home, he teaches the Bow: one find, one trip back,
     and no crafting.
@@ -293,7 +340,11 @@ The forest has two kinds of web (2026-10-15):
 ## Secrets (Planned)
 
 - **Four heart quarters** in Gloop Forest. Their spots are Open, and so is
-  whether the Gloop Cavern counts as its own map.
+  whether the Gloop Cavern counts as its own map. *2026-10-16 (owner,
+  question 18): it does not; the small cave holds one of the forest's four.
+  Every quarter can be reached with Release 1's powers (question 135).* *Since 2026-10-16 (seventh
+  round, question 113): the Weaver Hollow's big chest holds one; whether it
+  is one of the forest's four is not decided.*
 - Today's Goo Hearts in the forest (one is in the silk nook) and in the cavern
   become quarter spots.
 - Some secrets sit behind web walls (the Silk skin), cracked walls (the
@@ -316,16 +367,18 @@ The forest has two kinds of web (2026-10-15):
 | Reinforced Pickaxe | 1, 4 | Built; goes with the crafted tools (2026-10-15) |
 | Swallow (from Tom) | 3 | Built 2026-10-09; marked for deletion |
 | Chapter key tool: the Goo Bomb (owner, 2026-10-16, question 94; the War Axe waits for the next release, and the Lantern is Chapter 3's) | 3, from Tom (question 95) | Goo Bomb in the rework; Tom's lesson Planned |
-| Tom's maze (secrets and tests, webs that slow) | 3 | Planned (question 95) |
-| The Weaver Hollow's big chest: a heart or the big key | 8 | Planned (question 95) |
+| Tom's maze (secrets and tests, webs that slow; Tom at its end) | 3 | Planned (questions 95 and 113) |
+| The Weaver Hollow's big chest: a heart quarter (a heart or the big key until the seventh round) | 8 | Planned (questions 95 and 113) |
 | Clod Stomper | 3–4 | Built 2026-10-09 (its essence drop marked for deletion); it stays as it is, slam included (question 64) |
 | Forge | 5 today, 9 in the plan | Built (smelting); Planned: Pearl 2 relights it, and it brews the potions (questions 51 and 79); the smelting timer leaves Release 1 |
 | Iron Spear, Iron Axe | 5–6 | Built; they go with the crafted gear (2026-10-15) |
-| 20-slot bag | 7 | Waits for the next release (question 74); the coffer holds heart quarters, potions, coins or a piece of the story (question 63) |
+| 20-slot bag | 7 | Waits for the next release (question 74); the coffer held heart quarters, potions, coins or a piece of the story (question 63) until the coffer went (question 18) |
+| The Gloop Cavern's heart quarter, one of the forest's four | 7 | Planned (question 18; the Goo Bomb opens the cracked clearing) |
 | Webs and web walls | 8 | Planned (−50% without the Silk skin) |
 | The web-wall maze to the Crystal Caverns | 8 | Planned (question 81) |
 | The second web maze, from the Wilds | 8 | Planned (question 87) |
 | Pearl 2 and the Silk skin | 9 | Planned |
 | The Matron's thread (for Burr's Bow) | 9 | Planned (question 106) |
-| Boss heart (Matron) | 9 | Built as a Goo Heart; full heart is a Proposal |
+| Boss heart (Matron) | 9 | Built as a Goo Heart; the full heart is Planned (question 17) |
+| The Weaver Hollow, the Matron at its top, her cocoon phase | 8, 9 | Planned (questions 25 and 133) |
 | 4 heart quarters | Secrets | Planned |

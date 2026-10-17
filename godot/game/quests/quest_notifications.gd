@@ -28,6 +28,7 @@ const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 ## The key an ability's toast names (in the body-shapes rework mode a box ability's is `ability_use`).
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
 const WORLD_MAIN_GROUP := &"world_main"
@@ -140,6 +141,16 @@ func _on_ability_learned(payload: Dictionary) -> void:
 	var ability_id := str(payload.get("ability_id", ""))
 	if PASSIVE_TEXTS.has(ability_id):
 		_banner(str(PASSIVE_TEXTS[ability_id]), ABILITY_COLOR)
+		return
+	# A body shape learned for good (the prologue's Spear, docs/godot/PROLOGUE.md): the "New shape"
+	# ceremony, or its banner.
+	if ShapeDefs.is_shape(StringName(ability_id)):
+		var shape_tree := _tree()
+		if AbilityCeremony.enabled(shape_tree):
+			AbilityCeremony.request_shape(shape_tree, StringName(ability_id))
+			ceremony_requested.emit({"ability_id": ability_id})
+			return
+		_banner("%s learned: press %s" % [ShapeDefs.title(StringName(ability_id)), ControlLabels.control_label(&"attack")], ABILITY_COLOR)
 		return
 	if not AbilityDefinitions.has(StringName(ability_id)):
 		return

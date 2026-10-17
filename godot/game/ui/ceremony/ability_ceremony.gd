@@ -35,6 +35,9 @@ const CeremonyStage := preload("res://game/ui/ceremony/ceremony_stage.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const ItemIcons := preload("res://game/inventory/item_icons.gd")
 const WeaponCatalog := preload("res://game/inventory/weapon_catalog.gd")
+## The body shapes' names, lines and icons (a shape's "New shape" card, `shape_entry`).
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
+const BodyCards := preload("res://game/ui/body_cards.gd")
 
 const NODE_NAME := "AbilityCeremony"
 const WORLD_MAIN_GROUP := &"world_main"
@@ -106,6 +109,29 @@ static func request(tree: SceneTree, ability_id: StringName) -> void:
 ## Queues the ceremony of the permanent item `item_id`.
 static func request_item(tree: SceneTree, item_id: String) -> void:
 	_enqueue(tree, item_entry(item_id))
+
+
+## Queues the "New shape" ceremony of body shape `shape_id` (the prologue's Spear from Yoi,
+## docs/godot/PROLOGUE.md): its icon, its line and its strikes.
+static func request_shape(tree: SceneTree, shape_id: StringName) -> void:
+	_enqueue(tree, shape_entry(shape_id))
+
+
+## Queues a ceremony for something else permanent with its own card: `entry` = {"kicker", "name",
+## "line", "how", "icon": Texture2D or null} (Plop's satchel, the prologue's bag).
+static func request_entry(tree: SceneTree, entry: Dictionary) -> void:
+	_enqueue(tree, entry.duplicate())
+
+
+## The card of body shape `shape_id`: "New shape", its title, its line (BodyCards) and how to strike.
+static func shape_entry(shape_id: StringName) -> Dictionary:
+	var attack := ControlLabels.control_label(&"attack")
+	var chain := str(BodyCards.SHAPE_CHAINS.get(shape_id, ""))
+	var how := "Tap %s to strike" % attack
+	if not chain.is_empty():
+		how = "Tap %s in rhythm: %s. Hold it to charge" % [attack, chain]
+	return {"kicker": "New shape", "name": ShapeDefs.title(shape_id),
+		"line": str(BodyCards.SHAPE_LINES.get(shape_id, "")), "how": how, "icon": BodyCards.shape_icon(shape_id)}
 
 
 ## Queues a Goo Heart's ceremony: `bonus` more max HP, `icon` its picture.

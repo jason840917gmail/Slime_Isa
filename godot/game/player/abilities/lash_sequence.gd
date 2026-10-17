@@ -4,9 +4,10 @@ extends RefCounted
 ## over 120 ms), then acts on what it caught:
 ## - nothing: the tendril pulls back; done at 270 ms;
 ## - a pile (light): the pile flies to the slime in 220 ms and is picked up; done at 290 ms;
-## - a wall, post or bell (heavy): bells at the tip ring, and the slime is pulled to 30 px short of
-##   the catch (over water too) in max(120, travel / 0.9) ms from 170 ms, then springs; a pull
-##   under 8 px just retracts (done at 280 ms).
+## - a wall or post (heavy; a bell's post is one): the slime is pulled to 30 px short of the catch
+##   (over water too) in max(120, travel / 0.9) ms from 170 ms, then springs; a pull under 8 px
+##   just retracts (done at 280 ms). The Lash never rings a bell (owner, 2026-10-16, question 115:
+##   a bell is a ranged lock for a thrown pot or an arrow; game/scripts/lash_bell.gd).
 ## No damage. The pull moves the body directly (`owns_body`), so nothing blocks it.
 ##
 ## Owner: abilities.
@@ -115,7 +116,6 @@ func _catch() -> void:
 			_set_frame(4)
 			_player.call(&"action_cue", CUE_CATCH)
 			var caught: Vector2 = _probe["at"]
-			AbilityWorld.lash_ring(_from, caught)
 			_landing = AbilityTerrain.lash_landing(_from, _probe.get("anchor", caught))
 			var travel := _from.distance_to(_landing)
 			if travel < MIN_TRAVEL_PX:

@@ -73,5 +73,16 @@
       "Hold it in your mouth first. Swallow when you are sure: you cannot spit a form back up halfway.",
       "Next time I go after silk, I'm bringing you."
     ]
+  },
+  {
+    "id": "yoi",
+    "characterId": "yoi",
+    "displayName": "Yoi of the Thorn Guard",
+    "description": "An old soldier slime of the great war, with an eye patch and a red war sash. He keeps watch outside the town.",
+    "dialogue": [
+      "A spear is only as good as the slime behind it. Plant yourself, then push.",
+      "A worm's bite comes after its wind-up. Watch the shoulders, kid, then step back and thrust.",
+      "Bars, gaps, a lever out of reach: if a thrust fits, the Spear reaches."
+    ]
   }
 ]

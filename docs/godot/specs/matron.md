@@ -276,7 +276,8 @@ Properties: `width` (> 0, else 200; authored 112), `depth` (> 0, else 48; author
 
 ### 5.3 The port (`scenes/WorldScene.ts:2347-2357, 2132-2142, 1758-1771, 1584-1588`)
 - `player_position()`: the player centre while alive and no area transition runs.
-- `player_crosses_webs()`: the Gulp form's `crossesWebs` (Sticky) → Godot `player.crosses_webs()`.
+- `player_crosses_webs()`: the Gulp form's `crossesWebs` (Sticky) → Godot `player.crosses_webs()`
+  (the Silk skin's hook, 5.5).
 - `catch_player(zone)`: `from_above = player.y < zone.y`; teleport the player (stop, place, reset)
   to `(player.x, zone.y − halfHeight − 26)` when from above, else `(player.x, zone.y + halfHeight +
   30)`; `applyWeb(900)`; at most every 2500 ms (scene time) the white big text "Caught in the web!
@@ -284,8 +285,9 @@ Properties: `width` (> 0, else 200; authored 112), `depth` (> 0, else 48; author
 - `web_torn(zone)`: `gameEvents 'web.torn'` (→ global cue `WebTear`), `loot-sparkle` particles at
   the zone, cyan big text "The web tears open!" at zone − (0, 40) for 1800 ms.
 - `applyWeb(ms)`: player side (enemy spec 12.6).
-Godot (`spider_web_port.gd`): `player.crosses_webs()` and `player.teleport(centre)` (stop and
-place) directly; `player.apply_web(ms)` when it exists, else the fallback `stop_movement` +
+Godot (`spider_web_port.gd`): `player.crosses_webs()`, `player.is_rolling()` /
+`player.stop_movement()` (a rolling slime's roll ends first, 5.5) and `player.teleport(centre)`
+(stop and place) directly; `player.apply_web(ms)` when it exists, else the fallback `stop_movement` +
 `suppress_movement(ms)` (no walking, but unlike Phaser's root also no attacks or abilities) and the
 web cover (`effect.spider-web-cover`, drawn in front of the slime at its centre, not following it)
 unless the slime was already held. The message throttle is kept per world (metadata on the world
@@ -296,6 +298,24 @@ root).
   player position only changes in physics steps, and teleporting in a physics step keeps the
   body's interpolation consistent.
 - A jump or teleport that skips over a zone is the abilities port's concern (abilities spec 5.x).
+
+### 5.5 The Roll and the Silk skin (owner, 2026-10-16, question 131)
+- **A Roll sticks in a web.** The Roll is newer than Phaser's webs. A rolling slime is caught by a
+  floor web (the volley patch, 5.1) or a web barrier (5.2) exactly as a walking one is: in
+  `catch_player` the port first ends the roll (`player.is_rolling()` → `player.stop_movement()`,
+  which cancels it: no bonk, no bounce, no rolling on, its i-frames gone), then sets the slime back
+  and roots it for 900 ms. A Roll never crosses or tears a web (`tests/test_player_movement.gd`
+  `test_a_roll_sticks_in_a_floor_web`).
+- **Web walls block until the Silk skin.** The only web wall built is the web barrier (5.2): a walk
+  or a roll into it is set back on the side it came from, so it blocks until the slime crosses webs.
+- **The Silk skin's hook** is `player.crosses_webs()`: with it webs neither catch nor stick (the
+  patch and the barrier tear instead, and `player.apply_web(ms)` does nothing, so a spit web no
+  longer roots either). The Silk skin is not built (roadmap 7.8): today the Silk Gulp form (Sticky)
+  is the stand-in that sets it.
+- Not built yet (roadmap 7.9): the walking slowdown (a floor web slows a walk by half without the
+  Silk skin instead of catching it), web walls the Silk skin passes at half speed, the shapes'
+  web cuts, the Orb-weaver's laid webs and the webs of Tom's maze. Until then a walk into any web is
+  caught and set back, as above.
 
 ---
 

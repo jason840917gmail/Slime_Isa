@@ -3,10 +3,12 @@ class_name WebPatchScript
 ## Scene script `game.web-patch` (Phaser `features/scripts/WebPatchScript.ts`): a web lying on the
 ## ground (the Matron's volley, `effect.matron-web-patch`). Matron spec 5.1.
 ##
-## A round patch that catches a normal slime walking onto it (stuck for a moment and set back
-## outside, through res://game/enemy/spider_web_port.gd), while the Sticky form walks through and
-## tears it quietly (no message, no flag). Never remembered: the effect that owns it fades after
-## its lifetime (effect.gd frees the root). Checked every physics step (Phaser: every frame).
+## A round patch, a floor web, that catches a normal slime walking or rolling onto it (stuck for a
+## moment and set back outside, through res://game/enemy/spider_web_port.gd; a Roll sticks: it ends
+## there, owner 2026-10-16), while a slime that crosses webs (the Silk skin's hook, today the Silk
+## form) walks or rolls through and tears it quietly (no message, no flag). Never remembered: the
+## effect that owns it fades after its lifetime (effect.gd frees the root). Checked every physics
+## step (Phaser: every frame).
 ##
 ## Node: `WebPatchScript` under the effect root (no depth anchor: the root is the patch centre).
 ##

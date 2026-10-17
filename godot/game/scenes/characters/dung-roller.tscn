@@ -1,0 +1,156 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/scripts/dung_roller.gd" id="script"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="sfx"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-1.wav" id="hurt_0"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-2.wav" id="hurt_1"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-1.wav" id="death"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ball"]
+radius = 19.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_beetle"]
+size = Vector2(30, 12)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ball_hurt"]
+radius = 24.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_beetle_hurt"]
+size = Vector2(36, 26)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 40.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hurt"]
+playback_mode = 1
+streams_count = 2
+stream_0/stream = ExtResource("hurt_0")
+stream_1/stream = ExtResource("hurt_1")
+
+[node name="DungRoller" type="CharacterBody2D"]
+y_sort_enabled = true
+position = Vector2(0, 22)
+collision_layer = 4
+collision_mask = 1027
+motion_mode = 1
+wall_min_slide_angle = 0.0
+metadata/collide_world_bounds = true
+metadata/depth_anchor = Vector2(0, 22)
+
+[node name="BallShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_ball")
+
+[node name="BeetleShape" type="CollisionShape2D" parent="."]
+position = Vector2(34, -6)
+shape = SubResource("RectangleShape2D_beetle")
+
+[node name="BallLook" type="Node2D" parent="."]
+
+[node name="Spin" type="Node2D" parent="BallLook"]
+position = Vector2(0, -23)
+
+[node name="BallVisual" type="Sprite2D" parent="BallLook/Spin"]
+scale = Vector2(0.215, 0.215)
+centered = false
+offset = Vector2(-128, -139.5)
+hframes = 4
+frame = 3
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-dung-roller.webp"
+
+[node name="Beetle" type="Node2D" parent="."]
+position = Vector2(34, 0)
+
+[node name="Pose" type="Node2D" parent="Beetle"]
+
+[node name="Visual" type="Sprite2D" parent="Beetle/Pose"]
+scale = Vector2(0.19, 0.19)
+centered = false
+offset = Vector2(-128, -248)
+hframes = 4
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-dung-roller.webp"
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 16
+
+[node name="BallHurt" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(0, -23)
+shape = SubResource("CircleShape2D_ball_hurt")
+
+[node name="BeetleHurt" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(34, -12)
+shape = SubResource("RectangleShape2D_beetle_hurt")
+
+[node name="AttackArea" type="Area2D" parent="."]
+position = Vector2(0, -22)
+collision_layer = 16
+collision_mask = 8
+monitoring = false
+monitorable = false
+
+[node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_attack")
+disabled = true
+
+[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "damage_area", "attack_area", "pose", "beetle", "beetle_shape", "beetle_hurt_shape", "ball_look")]
+script = ExtResource("script")
+enemy_type = "dung-roller"
+body = NodePath("..")
+visual = NodePath("../Beetle/Pose/Visual")
+damage_area = NodePath("../DamageArea")
+attack_area = NodePath("../AttackArea")
+faction = "hostile"
+rank = "ordinary"
+display_name = "Dung Roller"
+max_health = 30.0
+targeting_radius = 320.0
+attack_range = 0.0
+movement_speed = 0.0
+attack_cooldown_ms = 0.0
+attributes = {
+"knockbackResist": 1
+}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+rewards = {
+"coins": 8
+}
+pose = NodePath("../Beetle/Pose")
+defeated_frame = 2
+beetle = NodePath("../Beetle")
+beetle_shape = NodePath("../BeetleShape")
+beetle_hurt_shape = NodePath("../DamageArea/BeetleHurt")
+ball_look = NodePath("../BallLook/Spin")
+
+[node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_hurt")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+min_interval_ms = 90.0
+pan_distance = 400.0
+position = Vector2(0, -22)
+
+[node name="DeathSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = ExtResource("death")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+position = Vector2(0, -22)
+
+[connection signal="damaged" from="EnemyScript" to="HurtSfx" method="play_cue"]
+[connection signal="defeated" from="EnemyScript" to="DeathSfx" method="play_cue"]

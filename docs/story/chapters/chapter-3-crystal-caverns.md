@@ -5,14 +5,14 @@
 | **Region** | Crystal Caverns (`crystal-caverns` exists as a placeholder world; its exit from Gloop Forest is open without a key for now). Planned: a maze of web walls that only the Silk skin passes leads in, so the Silk skin opens the chapter (owner, 2026-10-16, question 81) |
 | **Goal** | Light the dark, find the smith at his mine camp, and break the Colossus (Planned in part, owner, 2026-10-16). Rebuilding the Workshop is Open (question 51) |
 | **Boss** | Crystal Colossus (Planned, owner, 2026-10-16: the four braziers of his arena, lit by the Lantern, bare a weak spot at a random place, for the Spear or the Axe; question 59. *Changed 2026-10-16: for the Spear alone, as the War Axe waits for the next release, question 94*) |
-| **Earned** | Planned: the **Bow** from Burr in the West village, the Lantern from the smith, and Pearl 3 with the **Feral** skin (owner, 2026-10-16, questions 56, 59 and 94). Proposal: a boss heart. The Workshop's Hammer shape moved to Chapter 5 or 6 (question 51). *Changed 2026-10-16 (sixth round, questions 102 and 106): Burr builds the Bow from the Matron's thread, once Pearl 2 is home.* |
+| **Earned** | Planned: the **Bow** from Burr in the West village, the Lantern from the smith, and Pearl 3 with the **Feral** skin (owner, 2026-10-16, questions 56, 59 and 94). A boss heart (Planned, owner, 2026-10-16, question 17: each boss also gives a full heart). The Workshop's Hammer shape moved to Chapter 5 or 6 (question 51). *Changed 2026-10-16 (sixth round, questions 102 and 106): Burr builds the Bow from the Matron's thread, once Pearl 2 is home.* |
 | **Status** | Sketch, part of Release 1 since 2026-10-15 (Release 1 is Chapters 1 to 3), and Release 1's content ends here, when the Colossus falls (question 58). The beats marked Planned are the owner's of 2026-10-16; the rest is an Idea or a Proposal. |
 
 This sketch ties together pieces that already waited in the roadmap's parking
 lot: the Crystal Colossus, light in the dark, and the smith. Since 2026-10-15
 the chapter is part of Release 1, while the smith teaches the Hammer in
 Chapter 5 or 6 (question 51). On 2026-10-16 the owner set the rest
-([questions 56, 58 and 59](../06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+([questions 56, 58 and 59](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
 
 - the smith runs the crystal mine, which the Colossus has blocked, and gives
   the Lantern;
@@ -21,21 +21,37 @@ Chapter 5 or 6 (question 51). On 2026-10-16 the owner set the rest
   2026-10-15), but the dark, dry caverns do not fit it.
 
 Later the same day he answered more
-([questions 68, 69 and 81](../06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+([questions 68, 69 and 81](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
 a climbable wall has vines and irregularities, the Colossus climbs out of
 reach and throws minions down, and a web-wall maze that only the Silk skin
 passes leads into the caverns.
 
 In the fourth and fifth rounds the same day
-([questions 84 to 94](../06-open-questions.md#contradictions-left-after-the-review-2026-10-15))
+([questions 84 to 94](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15))
 the Bow joined the chapter, the War Axe left Release 1, climbable walls got
 thick roots and rocky handholds, and a hill from the Wilds that only the
 Feral skin climbs became a second way in.
 
 In the sixth round the same day
-([questions 95 to 106](../06-open-questions.md#contradictions-left-after-the-review-2026-10-15))
+([questions 95 to 106](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15))
 Burr's Bow came to need the Matron's thread, the chapter's main path got one
 Bow lock, and the Spear stayed Release 1's only shape.
+
+In the seventh round the same day (questions 108 to 114) every Pearl came to
+go home to the Wellspring, its power flowing into the town, and dungeons came
+to resume at their entrance when the player quits or the slime faints there.
+The owner also decided that enemies in the world are placed by hand, not
+spawned ([World](../03-world.md#enemies-in-the-world-planned)); today the
+`crystal-caverns` placeholder spawns worms around the player.
+
+In the eighth round the same day
+([decisions archive](../07-decisions-archive.md#open-from-the-level-design-guide-2026-10-16))
+the Bow's target became a crystal lens on a post (question 127), the
+caverns' first half came never to need the Bow, with the smith's mine camp
+sending the slime to Burr (question 134), the Bow and the Feral skin got
+their first locks (question 132), the Colossus got a full heart
+(question 17), and every border became a Thorn Guard post with a guard
+(question 130).
 
 ## Beats
 
@@ -58,7 +74,16 @@ Bow lock, and the Spear stayed Release 1's only shape.
      no crafting.
    - The chapter's main path uses the Bow at least once: a far eye switch
      across the mine's chasm (beat 4). The Colossus does not need it
-     (question 102).
+     (question 102). *Changed 2026-10-16 (eighth round, question 127): the
+     chasm's lock is a crystal lens on a post, as an eye is always the
+     Spear's.*
+   - **Its first lock** (Planned, owner, 2026-10-16, question 132): targets in
+     Burr's yard, right where he teaches it. An arrow also rings bells
+     (question 115), and bars stop arrows (question 131).
+   - **The order** (Planned, owner, 2026-10-16, question 134): the Silk skin
+     opens the caverns before the Bow can be had, so the caverns' first half
+     (the web-wall maze, the mine camp, the Lantern and the dark maze) never
+     needs it, and the smith at the mine camp sends the slime to Burr.
 2. **The web-wall maze** (Planned, owner, 2026-10-16, question 81). A maze of
    web walls on Gloop Forest's east side, which only the Silk skin passes,
    leads into the caverns: the Silk skin opens Chapter 3, as a skin opens the
@@ -81,7 +106,13 @@ Bow lock, and the Spear stayed Release 1's only shape.
    - With it the slime crosses the dark maze to the Colossus.
    - **The mine's chasm** (Planned, owner, 2026-10-16, question 102): on the
      main path, a far eye switch across the chasm opens the way with an arrow
-     from the Bow.
+     from the Bow. *Changed 2026-10-16 (eighth round, question 127): a
+     crystal lens on a post.*
+   - **The smith sends the slime to Burr** (Planned, owner, 2026-10-16,
+     question 134), who builds the Bow (beat 1); nothing before the chasm
+     needs it.
+   - Of the dry growth only the grey-black, scorched hay and banners burn,
+     and the dry roots are grey-black and thorny (question 129).
    - Rotten mine timbers in the way are the Heavy Roll's, not the Lantern's
      (owner, 2026-10-16, question 93).
    - Pip's story stays relighting the Forge (Chapter 2); it is no longer
@@ -103,6 +134,8 @@ Bow lock, and the Spear stayed Release 1's only shape.
      is Release 1's only shape (question 96), and the Colossus does not need
      the Bow (question 102).*
    - His stomps blow the braziers out, one at a time.
+   - **Planned (owner, 2026-10-16, question 17):** he leaves a full heart
+     (+20), and beating him raises max energy (question 19).
    - **Planned (owner, 2026-10-16, question 69):** the Pearl in his chest
      made him part beast. Between stomps he climbs his arena's walls on
      crystal claws, so the Pearl's power shows in the fight. Out of reach, he
@@ -127,11 +160,18 @@ Bow lock, and the Spear stayed Release 1's only shape.
      caverns, so that way opens once Feral is won (owner, 2026-10-16,
      question 87).
    - Change to a move: the Spear's attacks hit twice as fast.
+   - **Its first lock** (Planned, owner, 2026-10-16, question 132): the climb
+     out of the Colossus's arena, up the walls he climbed, then on into the
+     Wilds, where the skin's arc goes on: a climb, a climb with a drop and a
+     loop back, a climb to a prize seen from far.
    - The ideas offered before (Prism, Burrow, Echo and Shard) are declined.
      The Swim skin moves to a later Pearl, and the deep-water secrets are
      come-back secrets for it.
    - Proposal: Plop tells the second piece of the story, and Gorge's rumbling
      grows louder.
+   - *Since 2026-10-16 (seventh round, question 110):* like every Pearl, it
+     goes home to the Wellspring, which brightens, and its power flows into
+     the town. Which building it restores is not decided.
 8. **Home, and the open world** (Planned, owner, 2026-10-16, question 58).
    Once the Colossus falls, the smith goes home to Slimeshire. Release 1's
    content ends here, but the game goes on: the player explores the first
@@ -140,7 +180,10 @@ Bow lock, and the Spear stayed Release 1's only shape.
    exploration and that more areas come in later releases. Barriers in the
    world close the ways to the regions that are not in Release 1 (a fallen
    bridge, a landslide, a Thorn Guard post), and each says that more lies
-   beyond (owner, 2026-10-16, question 73).
+   beyond (owner, 2026-10-16, question 73). *Changed 2026-10-16 (eighth
+   round, question 130): every border is a Thorn Guard post, a striped
+   barrier with a guard who says what lies beyond is closed for now; no
+   landslides or fallen bridges.*
 
 ## Questions for later
 
@@ -161,6 +204,7 @@ Bow lock, and the Spear stayed Release 1's only shape.
   later the same day (question 86): thick roots and rocky handholds, beside
   the Axe's leafy curtains.*
 - Do the Crystal Caverns hold their own four heart quarters, and do some need
-  the light?
+  the light? *2026-10-16 (owner, question 135): every Release 1 heart quarter
+  can be reached with Release 1's powers.*
 - The roadmap lists the Kitchen, hats and charms as first update candidates.
   Does any of them belong to this chapter's story?

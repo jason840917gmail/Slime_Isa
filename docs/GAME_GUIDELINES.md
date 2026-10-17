@@ -39,7 +39,7 @@ guide each step and teach the next recipe.
 a region is explored for the shape or ability its boss needs, and the boss's
 Pearl grants a skin that opens the next region. Release 1 has no gathering or
 crafted gear, and quests no longer make sense: NPCs give info and tips
-([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([question 50](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 *Changed 2026-10-16: a short prologue comes before Chapter 1: the slime is
 born at the Wellspring, learns to move and to gulp, saves the veteran Yoi
 and learns the Spear from him
@@ -78,7 +78,7 @@ through:
 **Replaced 2026-10-15** ([Direction](story/01-direction.md#the-slimes-powers)):
 the slime grows through **skins** from the Pearls (Heavy, Silk and Feral in
 Release 1; Feral is Pearl 3's since 2026-10-16,
-[question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+[question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
 **shapes** that replace crafted weapons and tools, and **abilities**, plus
 heart quarters. Squash Slam is removed, and the forms and
 essences go with the old system. In Release 1 NPCs teach and chests hold the
@@ -87,19 +87,36 @@ build. *Changed 2026-10-16: Release 1 has eight powers besides the Gulp,
 about three a chapter (the Spear, the Roll, the Heavy skin; the Goo Bomb, the
 Silk skin; the Lantern, the Feral skin, the Bow), and the War Axe and Stretch
 Lash wait for the next release
-([question 94](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).*
+([question 94](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).*
 *Changed again 2026-10-16 (sixth round): Yoi teaches the Spear in the
 prologue, Tom the Goo Bomb, and Burr the Bow, built from the Matron's thread
 (questions 95, 97, 102 and 106); the Spear is Release 1's only shape
 (question 96). Release 1 has whole manuscripts, each one find in a chest
 (question 65), and shapes and abilities evolve at the Slime Forge after
-Release 1, skins never (question 67).*
+Release 1, skins never (question 67).* *Changed 2026-10-16 (seventh round):
+Release 1's manuscripts teach campfire recipes and lore, the Thorn Guard's
+war journal, so every Release 1 power comes from an NPC or a Pearl;
+manuscripts that teach powers start in the next release (question 108).*
+*Changed 2026-10-16 (eighth round): each boss also gives a full heart (+20)
+on top of its region's four quarters, and potions, the well and defeating a
+boss raise max energy
+([questions 17 and 19](story/07-decisions-archive.md#progression)). Basic
+attacks stay free, the tiny cooldowns stay, and rolling is free
+([questions 21 to 23](story/07-decisions-archive.md#energy-rework-details)).*
+*Since the ninth round (question 32): the later vassals give the Swim,
+Polar, Sand, Cloud and Lava skins, after Release 1.*
 
 Enemies are worth fighting for their drops, which gate recipes, and for access
 to places, never for XP. Each region's difficulty is tuned to the gear a player
 can have there, so grinding is never required. After Release 1, **Goo charms**
 (equippable trinkets crafted from enemy materials) may bring back effects the
 old perks gave, such as crit, life steal, and speed, as gear.
+
+*Changed 2026-10-16 (eighth round, question 24): enemies and grass drop
+energy and health refills, and sometimes coins, like Zelda's magic jars.*
+*Since the tenth round the Spear cuts grass, and later the War Axe, and grass
+tufts never look like the Axe's bushes; spending pauses the energy refill
+for about a second (question 20).*
 
 ## Signature Mechanic: Gulp
 
@@ -113,14 +130,14 @@ old perks gave, such as crit, life steal, and speed, as gear.
 > and Swallow, essences, the forms and their number keys go with the rest of
 > the old system (roadmap 7.11); the swimming stays in the code for the Swim
 > skin, and only the Swim form and its essence go
-> ([question 75](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+> ([question 75](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 > *Changed 2026-10-16: the Swim form is not dropped either; its scene
 > mechanics become the later Swim skin's permanent deep-water power
 > (question 75).* The
 > Roll below is as built: in the rework mode it is on Space and its quick
 > roll is free. In Release 1 young Burr teaches the quick Roll in Chapter 1,
 > and the charged roll is a later upgrade
-> ([question 61](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+> ([question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 > *Changed 2026-10-16: this replaces the 2026-10-09 rule that the Roll comes
 > whole, with no later upgrade (question 78).*
 > *Changed 2026-10-16: the prologue teaches the Gulp first: the slime clears
@@ -244,7 +261,9 @@ Also built 2026-10-09, waiting for the owner:
 - **The Roll** (roadmap 7.7), above.
 
 Not built yet: the lift upgrades and the rest of the art (the roadmap's
-Milestone 7 assets).
+Milestone 7 assets). *The lift upgrades left the plan with the forms
+(question 28, closed 2026-10-16): heavy rocks belong to the Heavy Roll and
+later the Hammer.*
 
 Gulp replaces the old "slime forms" idea: one system, many forms, each form
 added as data plus art.
@@ -265,10 +284,10 @@ its next recipe tier. Slimeshire visibly grows as the story advances.
 
 **Replaced in part 2026-10-15:** quests no longer make sense and nothing is
 harvested in Release 1, so a building is restored when a Pearl comes home
-([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15),
+([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15),
 2026-10-16);
 the restored Forge brews the potions
-([question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([question 51](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 *Changed 2026-10-16: Pearl 2 relights the Forge when it comes home, with Pip,
 in place of a quest and materials (question 79), and Pearl 1 restores
 Slimeshire's well, which then refills energy (question 90).* *Changed again
@@ -276,7 +295,11 @@ Slimeshire's well, which then refills energy (question 90).* *Changed again
 home, and the well comes back when the slime brings Pearl 1 to it
 (question 103); it gives a full refill, a drink in town (question 105). Each
 Pearl's homecoming is a short scene at the Wellspring, the prologue's lake
-(question 98).*
+(question 98).* *Changed 2026-10-16 (seventh round, question 110): every
+Pearl goes home to the Wellspring, which brightens, and its power flows into
+the town: the well comes back with Pearl 1, the Forge lights with Pearl 2.
+The slime does not take Pearl 1 to the well. The well's refill grows back
+after a while (question 113).*
 
 ## Crafting And Buildings
 
@@ -310,7 +333,7 @@ replace the crafted weapons and tools, and the Goo Bomb is an ability, not a
 Workshop recipe. The Forge brews the potions until evolutions arrive, and the
 smith teaches the Hammer shape at the Workshop in Chapter 5 or 6; what the
 Workshop does in Release 1 is Open
-([question 51](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([question 51](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 *Changed 2026-10-16: Pearl 2 relights the Forge, which then knows the potion
 recipes (questions 79 and 82). Before that, potions are found (chests, drops,
 the West village shop), the one or two simple recipes of Chapter 1 are made
@@ -319,7 +342,12 @@ save can never softlock (question 89).* *Changed again 2026-10-16 (sixth
 round): potions and food are both crafted at a campfire (question 66), at any
 campfire, and campfires stand by the Wellspring, in the town and at each
 camp, so a fresh save can always heal (question 104). This replaces the
-portable Slime Tonic and Berry Basket above.* The table above is the classic build.
+portable Slime Tonic and Berry Basket above.* *Changed 2026-10-16 (seventh
+round): Release 1's whole manuscripts, found in chests, teach campfire
+recipes, potions and food (question 108).* *Changed 2026-10-16 (eighth
+round, question 120): the campfire makes the simple potions and food
+anywhere, and the relit Forge brews the strong potions only it knows.* The
+table above is the classic build.
 
 ## Coins
 
@@ -328,9 +356,11 @@ Slimeshire shop and on equipment repairs. Restoring buildings costs materials,
 not coins.
 
 **Replaced in part 2026-10-16**
-([question 88](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)):
+([question 88](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
 Release 1's West village has a small shop that sells potions and food
 ingredients, so coins have a use in Release 1; anything bigger waits.
+*Since the eighth round (question 24) enemies and grass sometimes drop
+coins.*
 
 ## Resource Progression
 
@@ -356,9 +386,9 @@ no wood, stone or iron, and harvesting goes with the old system (roadmap
 - From Chapter 2: restoring or upgrading a building unlocks its recipes.
   Quests may still teach special recipes.
 - *2026-10-15:* quests no longer make sense
-  ([question 50](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)),
+  ([question 50](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
   and Release 1 crafts only potions and food; what teaches a recipe instead is
-  Open ([question 60](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+  Open ([question 60](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
   *Changed 2026-10-16: the relit Forge knows the potion recipes, and an NPC
   tip or a chest teaches each of the few others; an NPC with a tip shows the
   exclamation mark (question 82). Before the Forge, Chapter 1's one or two
@@ -369,6 +399,8 @@ no wood, stone or iron, and harvesting goes with the old system (roadmap
 
 - Areas are authored maps joined by edge exits and doors. Production never
   generates worlds procedurally.
+- How to lay out a chunk, a dungeon or a secret, and which power opens which
+  lock: the [level design guide](design/2026-10-16-level-design.md).
 - Each chapter's region brings one new resource goal, at least one new enemy,
   and one boss.
 - Region order: **Slimeshire Meadow** (Chapter 1), **Gloop Forest**
@@ -380,14 +412,22 @@ no wood, stone or iron, and harvesting goes with the old system (roadmap
 **Replaced in part 2026-10-15** ([Direction](story/01-direction.md#decisions-in-effect)):
 a region brings no resource goal in Release 1 (no harvesting), and the Crystal
 Caverns are Chapter 3, part of Release 1; their Pearl grants the Feral skin
-([question 56](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15),
+([question 56](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15),
 2026-10-16). *Changed 2026-10-16: a web-wall maze that only the Silk skin
 passes leads to them, so the Silk skin opens Chapter 3 (question 81). From the
 Wilds, a hill only the Feral skin climbs leads to them, and a second web maze
 only the Silk skin passes leads into Gloop Forest (question 87).* *Changed
 2026-10-16 (sixth round): a short prologue opens the game in the south,
 between chunks B4 and C4; its lake is the Wellspring, reached later by a
-forest path from Slimeshire's south-west (questions 97 and 98).*
+forest path from Slimeshire's south-west (questions 97 and 98).* *Changed
+2026-10-16 (seventh round, question 112): in B4 the prologue takes the south
+edge, sealed off by forest, and the West village's town sits in B4's north
+and A4; the forest path leaves Slimeshire, not the town.* *Changed
+2026-10-16 (ninth round, question 32): each later region has its vassal and
+skin: Old Gullet and the Swim skin (Sticky Swamp), Old Rimepaw and the Polar
+skin (Frostpeak), Sandmaw and the Sand skin (the Desert), Gale and the Cloud
+skin (the Northern ruins), and Cinder and the Lava skin (Volcano Ridge's
+slopes); their order is still question 10.*
 
 ## Enemies And Bosses
 
@@ -419,7 +459,21 @@ forms are gone. *Changed 2026-10-16: Release 1 has 29 enemies, as the
 a right tool, and each dungeon has two or three of its own and a mini-boss
 (question 107); the Clod Stomper stays as it is (question 64). Like Zelda,
 the slime saves everywhere except inside dungeons, with no save points
-([question 62](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).*
+([question 62](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).*
+*Changed 2026-10-16 (seventh round, question 109): quitting or fainting
+inside a dungeon resumes at its entrance, and the dungeon keeps what the
+slime did there (small keys, opened doors, the map, the big key); the
+autosave waits until the slime is out. The prologue cannot be saved
+(question 113).* *Changed 2026-10-16 (owner): enemies in the world are
+placed, not spawned. Each world chunk holds a fixed number, placed by hand,
+each with its own wandering area, and they come back when the chunk is
+reloaded, as in Zelda; spawn areas stay only in the playground. Beaten bosses
+still never come back.* *Changed 2026-10-16 (eighth round): each boss leaves
+a full heart (question 17); the Matron lives at the top of the Weaver Hollow,
+and her fight needs the Goo Bomb (question 133); the dungeons' skeletons are
+the fallen Thorn Guard, raised by Gorge's vassals (question 125); and the
+Slime Spider's right tool is the Silk skin, as a Roll sticks in a floor web
+without it (question 131).*
 
 ## Game Feel
 
@@ -466,7 +520,7 @@ abilities, the belt of crafted weapons, and chopping and mining go. The key
 names still come from one binding table. *Changed 2026-10-16: the War Axe
 waits for the next release, so the Spear is Release 1's only shape, and what
 E does there is open
-([question 96](story/06-open-questions.md#contradictions-left-after-the-review-2026-10-15)).
+([question 96](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 Held right click climbs a climbable wall with the Feral skin, and a climbable
 wall never stands beside a heavy block (question 91).* *Answered the same
 day (question 96): E stays hidden until a second shape is learned.*

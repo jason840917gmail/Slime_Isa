@@ -184,6 +184,10 @@ See [assets/README.md](assets/README.md) for the art workflow.
   cap (released and pressed) from `asset/Originals/props/heavy-plate/plate-b.png` into
   `godot/asset/MAPS/props/heavy-plate/` (2 px per unit); it prints the placement numbers
   `game/scripts/heavy_plate.gd` uses ([godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#heavy-plates-and-heavy-blocks-2026-10-14)).
+- `python scripts/art/pack-prologue-art.py` — the prologue's art from `asset/Originals/prologue/generated/`
+  (Magnific GPT 2.5, 2026-10-16): the Wellspring's pool, the barred gate cut into its frame and its
+  rising grate, the lever (shut, pulled), Yoi's three poses and Plop's satchel icon; it prints the
+  placement numbers the gate scene uses ([godot/PROLOGUE.md](godot/PROLOGUE.md#art)).
 - `python scripts/art/pack-door-art.py` — the door pictures from `asset/Originals/buildings/doors/` into
   `godot/asset/MAPS/Houses/doors/` (2 px per unit): the level-1 mushroom house's leaf and the interior
   ways out (timber, mushroom); it prints each interior picture's leaf rect for the scene's `door_rect`
@@ -278,6 +282,32 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/characters/pack-clod-stomper.py` (**numpy**) — the Clod Stomper's five poses (idle, crouch,
   air, slam, defeated; one scale for all) from `asset/Originals/enemies/clod-stomper/` into
   `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp`.
+- `python scripts/characters/pack-bestiary-enemies.py` (**numpy**) — the bestiary's first batch
+  (docs/godot/BESTIARY.md "Art"): each enemy's Magnific 2 x 2 pose sheet from
+  `asset/Originals/enemies/bestiary/` cut along its empty lines, its four poses drawn at one scale
+  into `godot/asset/MAPS/enemies/256x256-tile_4x1-<enemy>.webp` (the Spitcap's three poses into
+  `256x256-tile_3x1-spitcap.webp`, its fourth image, the spore seed, into `64x64-spore-seed.webp`).
+  Fatty's Lair's: the Pipe Worm's pipe poses hang from the pipe's top (`HUNG`) so the pipe stays put,
+  and single pictures (`SINGLES`: the mud glob) go to `64x64-<name>.webp`. Chapter 2's: the brood
+  props sheet (`brood-props`: the egg sac's three states and the real cocoon) came with a faint
+  background haze, so a sheet in `HAZY` has it cleared and each pose keeps only its main body. The
+  worm soldiers (rows 1 to 3) have more poses than four, from `<enemy>-sheet.png`, `-sheet-2.png`,
+  ... (`SHEET_POSES` a sheet) into `256x256-tile_<n>x1-<enemy>.webp`, and stand by their weight
+  (`MASS_CENTRED`, the prologue worm too) so a weapon thrust out does not push the body back; a
+  sheet with no empty row across it is cut by columns first; their arrow and the brawler's hit come
+  from the `worm-army-props` sheet (`PROP_SHEETS`). The skeletons (rows 30 to 32) are 2 x 2 sheets
+  too (`HAZY`), and their remains (the bone, the two skulls, the bone pile) come from the
+  `skeleton-props` sheet (`PROP_SHEETS`). The Caverns' seven and the Watcher Eye (rows 23 to 29,
+  33) are 2 x 2 sheets (the Crystal Crawler's poses centred in their cells, `CENTRED`, as it turns
+  round its middle), and the `caverns-props` sheet gives the crystal pillar and the brazier (unlit,
+  lit) to `godot/asset/MAPS/props/caverns/` and the pickaxe to `64x64-pickaxe.webp`
+  (`PROP_SHEETS`). The Gloop Forest's spiders (rows 15 and 16) have twelve poses from three sheets
+  each, placed by their body (`BODY_ANCHORED`; a pose hanging lower than the idle one is lifted,
+  `BODY_FLOOR_PX`), plus their front scuttle mirrored (`MIRRORED`), into
+  `256x256-tile_13x1-<enemy>.webp`; their faint haze is cleared (`FAINT_HAZE`), and the
+  `spider-webs` sheet gives the web (`64x64-tile_3x1-spider-web.webp`) and the web cover
+  (`128x128-spider-web-cover.webp`). Name enemies to pack only those
+  (`... pack-bestiary-enemies.py squint mud-glob`).
 - `python scripts/characters/pack-tom.py` (**numpy**) — Tom from `asset/Originals/characters/tom/` into
   `godot/asset/characters/authored/npcs/tom.webp`, and the web he is caught in (the cocoon, then the torn web
   at the cocoon's scale) into `godot/asset/MAPS/props/256x256-tile_2x1-tom-web.webp`.
@@ -339,7 +369,9 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   shaped into one percussive step (`--count`, `--length`, `--decay`).
 - `python scripts/audio/prep-takes.py <manifest>` — writes each take as a trimmed, peak-normalised
   mono WAV and a 96 kbps MP3 into the manifest's `takes` folder (`temp/` while a round is open).
-  One-shots keep only their loudest event.
+  One-shots keep only their loudest event. An option with `"even": true` has its takes levelled to
+  its quietest take's loudness (the loudest 100 ms), so none of them stands out when the game picks
+  among them.
 - `python scripts/audio/picker/build-picker.py <manifest> <out.html>` — builds the picker page from
   `scripts/audio/picker/picker.html` with the takes embedded. It is published to the picker
   artifact, which saves the owner's picks to its database document `picks/<round>`.
@@ -361,6 +393,15 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
 
   After applying, register the shipped takes in `scripts/audio/cues.mjs` (library only, no synth
   recipe) and `picks.json` so `pnpm audio:bake -- --library` keeps them.
+
+  The game plays staged takes only once Godot has imported them (the editor does when it gets
+  focus; with the editor closed, one headless `--import`, never while it is open): until then a run
+  started outside the editor cannot load `global.tscn` and every global cue is silent. While a
+  round that replaces cues already in `cues.mjs` is open (as round 7 did the Gulp's suck, catch and
+  throw), the staged files do not match their entries, so leave `pnpm audio:bake` until the picks
+  are applied and registered.
+  The owner's own sounds join a round as options of their own
+  ([audio spec §12.2](godot/specs/audio.md#122-bringing-your-own-sounds)).
 
 ## Story
 

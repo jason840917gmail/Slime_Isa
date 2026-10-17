@@ -38,6 +38,5 @@ position = Vector2(-6, -44)
 script = ExtResource("2")
 bell_id = "bell"
 gate_id = ""
-lash_only = true
 damage_area = NodePath("../DamageArea")
 visual = NodePath("../Visual")

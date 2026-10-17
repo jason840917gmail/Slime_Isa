@@ -5,6 +5,12 @@
 three rounds of the owner's answers the same day. The Release 1 story, the dungeons and the quest
 chain are in [2026-10-11-release-1-dungeons-plan.md](2026-10-11-release-1-dungeons-plan.md).*
 
+> **Superseded in part (2026-10-15 and 2026-10-16)**, like the dungeons plan: the owner's later
+> answers are in the [decisions archive](../story/07-decisions-archive.md) and
+> [Direction](../story/01-direction.md). Among them: the Gloop Cavern stays a small secret cave
+> with one of Gloop Forest's heart quarters and no 20-slot bag (questions 18 and 74), and bells are
+> rung by a thrown pot or an arrow, never by the Spear (question 115).
+
 The slime's weapons become **shapes of its own body**, like a symbiote: a spike, an axe, a
 hammer. Crafted weapons, the axe and the pickaxe go away. The game leans toward adventure: every
 boss lives in a dungeon, and secrets wait behind trees, rocks and webs for the shape that opens

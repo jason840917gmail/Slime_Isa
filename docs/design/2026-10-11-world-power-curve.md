@@ -1,10 +1,17 @@
 # The World's Power Curve: Access Items, Dungeons and Pearls
 
-> **Superseded in part (2026-10-15 and 2026-10-16).** The owner's later answers in
-> [Open questions](../story/06-open-questions.md) (questions 40 to 100) and
+> **Superseded in part (2026-10-15 and 2026-10-16).** The owner's later answers in the
+> [decisions archive](../story/07-decisions-archive.md) (questions 40 to 136) and
 > [Direction](../story/01-direction.md) replace much of this plan: skins from the Pearls instead
 > of Swallow and forms, eight Release 1 powers with the War Axe and Stretch Lash after Release 1,
-> no quests, and the prologue that teaches the Spear. This file is kept as the record of 2026-10-11.
+> no quests, and the prologue that teaches the Spear. Since the eighth and ninth rounds there is
+> no coffer in the Gloop Cavern, which stays a small secret cave with one of Gloop Forest's heart
+> quarters (question 18); its alarm bells, gongs and Spear-only bells give way to bells a thrown
+> pot or an arrow rings, which stay open for good, and to wooden clappers, the worm army's alarms,
+> never locks (questions 115, 127 and 136); an eye is always the Spear's, and the Bow's target is a crystal
+> lens (question 127); each boss gives a full heart (question 17); and the Matron lives at the
+> top of the Weaver Hollow, where her fight needs the Goo Bomb (question 133). This file is kept
+> as the record of 2026-10-11.
 
 *Status: a proposal for the owner, on branch `exp/body-shapes` only. Written 2026-10-11 from three idea sets (Zelda-faithful, slime-body, pacing and story) and a judge, after the owner asked whether a dungeon should give two powers and asked for ideas on the item that opens each region's dungeon. Goes with the [body-shapes plan](2026-10-11-body-shapes-plan.md) and the [Release 1 dungeons plan](2026-10-11-release-1-dungeons-plan.md). Names of new characters, places and bosses are proposals.*
 
