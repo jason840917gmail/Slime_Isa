@@ -75,7 +75,6 @@ metadata/tile_seed = 1
 metadata/source_cell_count = 4096
 metadata/columns = 32
 metadata/rows = 32
-metadata/cliff_look = "sides"
 
 [node name="ForestLayer" type="TileMapLayer" parent="." unique_id=61775738]
 self_modulate = Color(1, 1, 1, 0.3)

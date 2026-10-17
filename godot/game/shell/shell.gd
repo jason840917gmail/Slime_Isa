@@ -42,6 +42,9 @@ const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
 ## The pause menu's hint while the prologue runs (Save greyed out; question 113).
 const PROLOGUE_NO_SAVE_HINT := "No saving yet: quitting starts again from the Wellspring"
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+## The pause menu's hint inside a dungeon (Save greyed out; question 109, docs/godot/DUNGEONS.md).
+const DUNGEON_NO_SAVE_HINT := "No saving in a dungeon: you will resume at its entrance"
 const PAUSE_MENU_SCENE := preload("res://game/shell/pause_menu.tscn")
 const SETTINGS_MENU_SCENE := preload("res://game/shell/settings_menu.tscn")
 const CONTROLS_MENU_SCENE := preload("res://game/shell/controls_menu.tscn")
@@ -416,6 +419,8 @@ func _save_blocked_hint() -> String:
 	var run := Services.run()
 	if run != null and run.saving_blocked_reason() == PrologueState.NO_SAVE_REASON:
 		return PROLOGUE_NO_SAVE_HINT
+	if run != null and run.saving_blocked_reason() == DungeonState.NO_SAVE_REASON:
+		return DUNGEON_NO_SAVE_HINT
 	return ""
 
 

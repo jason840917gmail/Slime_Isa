@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/crystal_mine/crystal_veil.gd" id="veil"]
+
+[node name="crystal-veil" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("veil")

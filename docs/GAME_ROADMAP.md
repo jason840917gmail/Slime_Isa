@@ -671,7 +671,8 @@ today, and only real blockers get fixed.
 - Round 4 picks applied 2026-10-06 (`round-4-picks.json`): one transform sound per Gulp form.
   The Heavy sounds like rock, the Frog plays round 3's Bubbly pop take 3 as the owner named it,
   and the Sticky has a silk stretch. They are registered for the bake.
-- Not covered yet: enemy footsteps and strike whooshes, Fatty's chase steps (the takes exist),
+- Not covered yet: enemy footsteps and strike whooshes, Fatty's chase steps (the takes exist,
+  unwired; since 2026-10-17 they wait in `asset/to-delete/`, with the unwired ability-ready take),
   the gulp wheel, the ability-ready sound, button hover.
 - Round 5 (2026-10-09, applied the same day): 15 cues for the essence Gulp, things breaking, the
   Roll, the Clod Stomper and the ceremony. The owner accepted the defaults ("sound the defaults
@@ -1170,8 +1171,8 @@ and the bottom console HUD and the item ceremony are in (4.12, 4.13, added
 
 **Assets**
 
-- Reuse: `ui-map-journal-paper`, the existing UI
-  sound cues, the player's defeat clip.
+- Reuse: the existing UI sound cues, the player's defeat clip (`ui-map-journal-paper`
+  was never used; it waits in `asset/to-delete/UI/` since 2026-10-17).
 - [~] Game logo: Magnific GPT-2 (`godot/asset/UI/ui-slime-isa-logo.webp`,
       `ui.logo.slime-isa`), shown at the top of the title panel; owner to
       accept. Open: the browser tab icon and store page.
@@ -1970,6 +1971,13 @@ cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
     bridge.
 - Today: none of these exist. The elevation's holes are the nearest piece
   ([ELEVATION.md](godot/ELEVATION.md)).
+  *Built 2026-10-17:* the dungeon kit's falling slabs, decks and one hazard
+  script for the void, spikes and lava ([DUNGEONS.md "The void, slabs and
+  spikes"](godot/DUNGEONS.md#the-void-slabs-and-spikes); 300 ms after a touch,
+  back after 10 s; tried in the dungeon lab instead of a playground corner),
+  placed in Fatty's Lair: 24 slabs over the void in R2 and R11 and over R7's
+  spike pit, a landing wherever a Roll ends ([DUNGEONS.md "Fatty's Lair
+  (built)"](godot/DUNGEONS.md#fattys-lair-built)). Left: the owner's feel.
 - Build: first the void and the spikes, which Chapter 1 needs (lava waits
   for a fire region, question 70's proposal), with the slab. Their times and
   damage go in `game-constants.json`. Tried in the playground first, in a new
@@ -2098,6 +2106,20 @@ cuts grass (5.10), and wooden clappers are alarms, not locks (5.22).
 - Today: Fatty One Eye lives in the open world at his camp, and there is no
   lair. The [dungeons plan](design/2026-10-11-release-1-dungeons-plan.md#6-dungeon-1-fattys-lair-chapter-1)
   (2026-10-11) has an earlier map of it.
+  *Built 2026-10-17* from [its design](design/2026-10-16-dungeon-fattys-lair.md)
+  ([DUNGEONS.md "Fatty's Lair (built)"](godot/DUNGEONS.md#fattys-lair-built)):
+  `world.fatty-lair`, 19 rooms; the gate race in level-1-d4's clearing (the
+  worm lever, a Roll under the gate) and the inner winch that holds it up;
+  the slabs; Burr's cell on the main path (two small keys, both found before
+  it), his lines, the Inner Stair he opens and his walk out; the Deep with the
+  Bone Marchers; the Big Squint's ambush and the big key; Fatty in his arena
+  with a second phase (thrown clods dizzy him); Pearl 1 and the Heavy skin's
+  flag; the way out through a plank barricade only the Heavy Roll smashes, up
+  the bolt-hole to the Verdant Gate, where Burr waits and says the town must
+  see the Pearl. No saving inside and the resume at the entrance are the
+  kit's. Fatty's camp left the open world. Left: the journal pointing home
+  after Burr's line (5.17), Burr at home before Pearl 2 with his thanks and
+  tip, the owner's playthrough.
 - Build: the lair's world with the gate, the slabs, the cell, the small key
   and Fatty's chamber (the slime cannot leave it until he is beaten, 5.9);
   Burr in his cell and at home, and his thanks.
@@ -3295,7 +3317,7 @@ the next release (7.11).
 - Decided 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions)):
   the Dodge becomes the Roll, on key 2 (owner, 2026-10-09). The slime curls into a ball with a
   swirl, like the roll in the old sheet
-  (`godot/asset/characters/slime_normalized.webp`, row 6). It first spins in
+  (`slime_normalized.webp`, row 6; in `asset/to-delete/characters/` since 2026-10-17). It first spins in
   place, like tires screeching, then shoots off, and it keeps rolling while
   the key is held. On 2026-10-09 the owner set the rest: it goes straight
   like Zelda's dash and cannot move sideways, hitting a wall shakes things
@@ -3508,6 +3530,15 @@ the next release (7.11).
   eighth round, [BESTIARY.md](godot/BESTIARY.md)): a Roll sticks in a floor
   web (the Matron's volley patches), and the Silk Gulp form tears them as the
   Silk skin's stand-in. The walking slowdown in webs is not built.*
+  *Built 2026-10-17 for the Weaver Hollow ([WEBS.md](godot/WEBS.md)): floor
+  webs painted on a `webs` WebLayer (and `object.floor-web`) halve a walk and
+  stick a Roll without the Silk skin (`webs` in `game-constants.json`); the
+  Matron's volley patches follow that rule (no more catch and set-back); web
+  walls (`object.web-wall`) are solid, passed at half speed with the skin and
+  cut for good by a shape's hit with it; silk parcels (`object.silk-parcel`)
+  are freed by a shape's hit with it. The Silk Gulp form stands in for the
+  skin; tried in the playground's Webs corner; tests written, not run. The
+  Orb-weaver's laid webs are not built.*
 - Build: one rule for world webs, spider-camp webs and the Matron's volley
   patches (8.7): half speed without the Silk skin, full speed with it; a web
   wall that stops the slime without the skin and lets it through at half speed
@@ -3554,6 +3585,11 @@ the next release (7.11).
   cracked walls and rubble heaps, not cracked ground. Cracked ground breaks
   under a Squash Slam in the Stone form (7.4), under a Hammer impact in the
   Stone form (rework mode) and under a Clod Stomper's slam (8.12).
+  *Built 2026-10-17 (the Weaver Hollow's bomb pieces): a blast breaks
+  cracked ground too (the jingle; the creak names a blast once the bomb is
+  learned), and `object.cracked-floor` is a cracked floor whose hole is a
+  one-way fall into another world (door.gd `target_marker`). Tests in
+  `test_weaver_bombs.gd`, not run yet. The Slam is not removed yet (5.11).*
 - Build: a Goo Bomb blast breaks the cracked ground inside its ellipse and
   opens its sinkhole and door, as the slam did (6.1, 7.4), with the secret
   jingle; the creak hint names the Goo Bomb. The cracked clearing in Gloop
@@ -3694,6 +3730,62 @@ the next release (7.11).
   nothing in the Godot project uses the removed systems; their art is in
   `asset/to-delete/` under the same relative paths and is no longer imported;
   a save made before the change still loads; `pnpm test:godot` passes.
+- Clean-out wave 1 (2026-10-17): the owner approved a clean-out in three
+  waves. This first wave took out what nothing uses, the "sure to go" list of
+  the clean-out audit; its cliff parts (the old cliff sheets and kits, the
+  front-only look) run as their own job.
+  - Art: 27 files (4.8 MB with their `.import` files) moved to
+    `asset/to-delete/` under their paths in `godot/asset/`: eight Phaser-era
+    UI backplates and frames; the old side-view player sheet
+    (`slime_normalized`) and its Heavy and Sticky skins; the painted
+    `cracked-wall-2x1.webp`; and 15 sound takes no scene plays: Fatty's two
+    steps, the arrow hit, the ability-ready, cancel, confirm and interact
+    takes, and the synth telegraph, error, hotbar switch, three combo notes,
+    combo finisher and area title. Their cues left `scripts/audio/cues.mjs`
+    and `picks.json`, `pack-bomb-lantern-art.py` no longer writes the cracked
+    wall, and the skins' builder `build-gulp-form-skins.py` was removed, so
+    no tool brings them back.
+  - Code and data removed: the converter's unused `modal_root.gd`,
+    `scene_item_list.gd` and `unported_script.gd`, the stray
+    `game/dev/_paint_test.tscn`, and `game/data/collision-layers.json`, which
+    no code read (its layer table moved to
+    [CONVENTIONS.md](godot/CONVENTIONS.md#input-and-physics)).
+  - The release "Web" preset no longer ships the manual cliff lab
+    (`cliff-manual-tiles-lab.tscn`, its scripts and sheet).
+  - Waiting for the owner: wave 2 (the old weapons, harvesting, crafting
+    except potions and food, the Jump, the Squash Slam and the number keys)
+    and wave 3 (the forms and `?classic`). The "probably unused" pile stays
+    too, since the dungeons may use it: the seven unused ground sheets, the
+    unplaced bed and tree scenes, the one-shot tools and the labs.
+- The cliffs' side walls everywhere (2026-10-17, the owner's approval of the
+  same day; side walls approved 2026-10-14,
+  [ELEVATION.md](godot/ELEVATION.md#side-walls)): every world draws them, the
+  front-only look is gone.
+  - Converted: the 49 worlds that still drew front-only walls (the
+    playground's park, the fence park, the cliff shapes lab and 46 region
+    chunks); level-1's chunks and the cliff sides lab already drew side
+    walls, and Gloop Forest's and Crystal Caverns' chunks paint no elevation.
+    No setting chooses a look any more (`cliff_look` and `cliff_fringe` are
+    gone), so a world made later draws side walls by itself. All 52 caches
+    rebaked (`tools/bake_elevation.gd`).
+  - Fixed on the way: a style painted on the `cliffs` layer along part of a
+    top's walls now shows (the chain took one style), the fieldstone walls'
+    layer no longer counts as a `cliffs` layer, a wall's foot no longer
+    blocks the bottom step of a front flight, and the strip behind a hill is
+    walkable again (a sliver along the back edge closed it).
+  - Removed: the Walls, Feet, Lips, Rims, Water, Shadows, RampEnds and
+    StairsFeet drawing, the lip and rim strips of `elevation_rims.gd`, seven
+    shaders (wall, wall end, fringe, strip, water foot, glow, cast shadow),
+    and 40 art files (3.0 MB: each ground's lip and foot, each style's wall
+    ends) moved to `asset/to-delete/MAPS/elevation/`; the art tools no longer
+    make them.
+  - Moved: the cliff kits `kit-h2.png` and `kit-h3.png` (24 MB of art-tool
+    inputs that shipped in every web build) to
+    `asset/Originals/elevation/cliff-kit/`, and the removed hand-painted
+    experiment's `256x256-8x8-clif.png` (8.7 MB) to `asset/to-delete/`.
+  - Open: with side walls, pressing straight down behind a diamond's back
+    face stops at its tip (walking along the face passes), and a straight
+    front ramp's cut through a wall has no corner stones.
 
 **Milestone 7 complete when:** the playground has one Heavy and one Sticky
 puzzle that a player solves without a hint, and the user has accepted Gulp as
@@ -3748,7 +3840,7 @@ rule.
         8 fps waddle), and the full-idle clips (the same rows at 2.67 fps, a
         slow sway). Accepted by the owner 2026-10-09.
   - [x] **The Roll:** a green ball with a swirl, like row 6 of
-        `godot/asset/characters/slime_normalized.webp`. A spin-up in place with
+        `slime_normalized.webp` (in `asset/to-delete/characters/` since 2026-10-17). A spin-up in place with
         dust and skid marks, like screeching tires, then the launch and the
         rolling loop. The ball-side row of page 4 (from `start-ball.png`, spun
         clockwise in 45° steps) and, since the owner's third round (2026-10-09:
@@ -4169,6 +4261,25 @@ materials), 8 (Forge), and 13 (progression pass).
     blast tears it open and the Spear then hurts her; she cannot be beaten
     without the Goo Bomb; her full heart adds +20 max HP once; she fights at
     the top of the Weaver Hollow, not in the open world.
+- Built 2026-10-17 (not yet played by the owner; tests written, not run):
+  the cocoon fight ([Matron spec](godot/specs/matron.md) section 8):
+  `encounter.weaver-hollow-matron` for the Crown (no respawn, no heal
+  outside the arena); she hangs in a breathing cocoon (every hit clinks
+  "Woven too thick. It would take a blast."), a Goo Bomb blast on its
+  shadow drops her dazed and open for 4 s, she re-spins in 1.5 s; three
+  rounds of 100 (round 2 a ring of floor webs, round 3 two egg sacs); new
+  art (the cocoon, its husk, her poses). Beaten, she scuttles off as an
+  ordinary orb-weaver; Pearl 2 sets `skin.silk` (the Silk skin's stand-in
+  in `crosses_webs()`), a full heart gives +20 max HP and +20 max energy
+  once, and her thread is cut down with the Spear and the Silk skin only.
+  Open: the three-way Stretch Lash (she keeps the web spit), the owner's
+  play and tuning.
+- Placed 2026-10-17 in the Weaver Hollow's Crown (`weaver-hollow-crown`,
+  C2, 8.14): her camp's `boss_engaged` and `boss_defeated` shut and open the
+  Crown's shutter behind the slime; the open world's nest camp
+  (`encounter.gloop-matron-nest`) left `gloop-forest-f4`, which is the
+  Hollow's forecourt now (the scene stays; `test_matron.gd` mounts it where
+  it stood for her own fight's tests). Quest 6 still completes on her defeat.
 - Build: one boss on the Fatty model: a telegraphed signature attack, boss
   bar, arena leash, guarded reward, and persisted defeat. Proposal: the
   **Orb-Weaver Matron** webs the arena, and Sticky form lets you cross her
@@ -4590,7 +4701,7 @@ materials), 8 (Forge), and 13 (progression pass).
   weapon hits; Tom teaches Swallow at the camp, with the ceremony, before A
   Harder Pick; Swallow survives save and load.
 
-### [ ] 8.14 — The Weaver Hollow: Chapter 2's dungeon, the Matron at its top
+### [~] 8.14 — The Weaver Hollow: Chapter 2's dungeon, the Matron at its top
 
 - Decided 2026-10-16, eighth round
   ([the eighth round](#the-eighth-round-questions-11-to-38-and-115-to-135);
@@ -4614,10 +4725,23 @@ materials), 8 (Forge), and 13 (progression pass).
     four).
   - Like every dungeon it cannot be saved inside, and quitting or fainting
     resumes at its entrance with what was done kept (question 109, 5.15).
-- Today: there is no Weaver Hollow. The Matron fights in her nest camp in the
-  open world (8.7), and the
-  [2026-10-11 dungeons plan](design/2026-10-11-release-1-dungeons-plan.md)
-  has an earlier map of the Hollow, with the War Axe in its big chest.
+- Today: built 2026-10-17 (not yet played by the owner; tests written, not
+  run), from [its design](design/2026-10-16-dungeon-weaver-hollow.md), as
+  [DUNGEONS.md "The Weaver Hollow (built)"](godot/DUNGEONS.md#the-weaver-hollow-built)
+  describes: four floor worlds (`weaver-hollow-trunk`, `-roots`, `-boughs`,
+  `-crown`, built by `tools/build_weaver_hollow.gd`) on the shared dungeon
+  kit (5.15): the hub with the Crown Door seen on its gallery, the Larder's
+  cracks, the Well Room's floor dropping into the Roots, the drop gate and the
+  hatch back up, the Boughs' drawbridge, the Mimic's key, the Nursery's
+  ambush, the Brood Warden and the Hoard's big key, the gallery's shortcut,
+  the Matron in the Crown and the Outer Bough's drop. The open world's nest
+  camp is gone: `gloop-forest-f4` is the forecourt, with the Watch Oak and its
+  cracked root gate. Open: the owner's playthrough; the big chest's heart
+  quarter (a Goo Heart stands in, 5.3); the war journal page and the
+  Silkspun Stew recipe (coins and a potion stand in); Mossy's tip at the
+  forecourt; quest 6's text, which still describes the old nest fight. The
+  big chest holds the big key (the kit's big chest, behind the Brood
+  Warden), so the heart quarter is B6's prize.
 - Build: the Hollow as a dungeon world behind the nest's entrance, laid out
   by the level design guide's dungeon template (a hub with the boss door in
   sight, two wings, small keys, the big key, the map and a shortcut back),
@@ -4768,6 +4892,14 @@ the borders, and the skeletons' story.
   134); the Feral skin's first lock is the climb out of the Colossus's arena
   (question 132, 12.4); and every heart quarter the outline places is
   reached with Release 1's powers (question 135).*
+- Built 2026-10-17: the chapter's dungeon, the Crystal Mine, from its
+  [design](design/2026-10-16-dungeon-crystal-caverns.md): fourteen rooms
+  (seven dark), the mine cart and the ore lift, the lens across the chasm,
+  the crystal veil, the Dark Maze, the Shardback's Den, the Colossus's arena,
+  and outside the smith's camp (G4), the Lookout (H4) and the cave road (G5)
+  ([DUNGEONS.md "The Crystal Mine (built)"](godot/DUNGEONS.md#the-crystal-mine-built)).
+  The outline itself is still to write; the caverns' other chunks are
+  placeholders.
 - Done when: the outline is written, the owner has answered the questions it
   needs, and the chapter's tasks are added to this milestone.
 
@@ -4798,6 +4930,15 @@ the borders, and the skeletons' story.
   Chapter 5 or 6 (question 51).
 - Today: the Lantern is built in the rework mode, which lends it; nothing
   teaches it. The smith is not built.
+  *Built 2026-10-17 ([DUNGEONS.md "Outside"](godot/DUNGEONS.md#outside-the-camp-the-lookout-the-cave-road)):
+  the mine camp in G4 (`tools/build_mine_outside.gd`), the smith (four poses,
+  Magnific; `game/crystal_mine/smith_actor.gd`) and his talks
+  (`mine_camp.gd`): the Lantern once with its ceremony, the gate's brazier as
+  its first lock (one flame opens the mine's gate for good), the line that
+  sends the slime to Burr; he is gone from the camp once the Colossus fell.
+  Not built: the smith in Slimeshire, the burnables beyond the deadthorn
+  hedge, the cave road's dark side cave. Tests (not run yet):
+  `godot/tests/test_mine_camp.gd`.*
 - Build: the mine camp in the Crystal Caverns, the smith (NPC art, dialogue),
   his Lantern gift, and the smith in Slimeshire once the Colossus is beaten.
 - Changed 2026-10-16, fourth and fifth rounds
@@ -4851,6 +4992,19 @@ the borders, and the skeletons' story.
   it cannot leave until he is beaten, and he never comes back (5.9).
 - Today: the Colossus is not built, and the Crystal Caverns are a
   placeholder world. Braziers are not built as fire targets.
+  *Built 2026-10-17 (the spec: [DUNGEONS.md "The Crystal Colossus"](godot/DUNGEONS.md#the-crystal-colossus-roadmap-124)):
+  his arena in the Crystal Mine (dark until its four braziers burn; crystal
+  shuts the way in), the boss bar and the boss music through the boss-camp
+  contract; the four braziers burn until put out; while all four burn a weak
+  spot opens on a random side, and only the Spear from that side hurts him;
+  his telegraphed stomp (650 ms) puts out the nearest brazier; after three
+  stomps he climbs the north wall out of reach and throws Crystal Mites
+  (a killed one can drop an energy shard in the rework mode); Pearl 3 grants
+  the story flag `skin.feral`; his full heart (+20, and max energy); the way
+  out is the root wall he climbed, to the Lookout (H4). His values are in
+  `enemy-types.json` `crystal-colossus`. Not built: the Feral skin itself
+  (the climb is a scripted stand-in on its flag).
+  Tests (not run yet): `godot/tests/test_crystal_mine.gd`.*
 - Build: the boss on the Fatty model (a telegraphed stomp, the boss bar, his
   chamber), the four braziers as Lantern targets that his stomps blow out one
   at a time, and the weak spot that appears at a random place while all four
@@ -5027,6 +5181,11 @@ the borders, and the skeletons' story.
   - Build (added; replaces "the eye switch across the mine's chasm" above):
     the targets in Burr's yard; the crystal lens on a post across the mine's
     chasm; arrows that ring bells and stop at bars.
+    *Built 2026-10-17: the mine's lens (`game/crystal_mine/crystal_lens.gd`,
+    `object.crystal-lens`): in the group `bow_targets` with `on_arrow_hit`,
+    the hook the Bow's arrow calls; struck, it lowers the Chasm's drawbridge
+    for good (and the Great Shaft's spire lens the plank to secret S1). The
+    Bow itself is not built, so nothing shoots it yet in play.*
   - Done when (added; replaces "an arrow hits the eye switch" above): right
     after the lesson an arrow hits a target in Burr's yard; an arrow hits the
     lens across the mine's chasm and opens the way; an arrow rings a bell; an

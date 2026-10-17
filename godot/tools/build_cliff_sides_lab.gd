@@ -1,7 +1,7 @@
 extends SceneTree
 ## Builds the cliff sides lab (docs/godot/ELEVATION.md "Side walls"): cliffs painted on the world's
-## `elevation` layer and drawn with walls on every side (the ground layer's metadata `cliff_look` =
-## "sides"), in the storybook art cut from the approved H plateau painting.
+## `elevation` layer and drawn with walls on every side, in the storybook art cut from the approved
+## H plateau painting.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_cliff_sides_lab.gd [-- --force]
 ## Writes res://game/scenes/worlds/cliff-sides-lab.tscn (world.cliff-sides-lab). It does not
 ## overwrite an existing lab (where you may have painted) unless given --force.
@@ -41,11 +41,8 @@ const GROUND_BLOCKS_PER_ROW := 6
 const GROUND_BLOCK := 11
 const GROUND_ROWS_AT := [54, 68]
 const SHEET_CELLS := 19
-## The lab's cliff art and look for its highland ground (elevation.gd WORLD_WALL_STYLES_META,
-## WORLD_FRINGE_META, WORLD_CLIFF_LOOK_META).
+## The lab's wall style for its highland ground (elevation.gd WORLD_WALL_STYLES_META).
 const WALL_STYLES := {"highland": "storybook-rock"}
-const FRINGE := {"highland": "storybook-grass"}
-const LOOK := "sides"
 ## One shape each: name, rectangles painted [x, y, w, h, level] in order (a later one over an
 ## earlier one), rectangles cut away [x, y, w, h], ramps [x, y, direction, length, width] and
 ## stairs [x, y, direction, width] (elevation_tileset.tres rows 3 and 1; the arrow points down).
@@ -98,8 +95,6 @@ func _initialize() -> void:
 	ground.set_meta(&"columns", COLUMNS)
 	ground.set_meta(&"rows", ROWS)
 	ground.set_meta(&"cliff_wall_styles", WALL_STYLES)
-	ground.set_meta(&"cliff_fringe", FRINGE)
-	ground.set_meta(&"cliff_look", LOOK)
 	ground.set_script(load(WORLD_GROUND))
 	root.add_child(ground)
 	var elevation := TileMapLayer.new()

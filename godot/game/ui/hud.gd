@@ -19,7 +19,8 @@ class_name GameHud
 ## Data: `player.get_hud_snapshot()` once on bind, then on every `player.health_changed` and
 ## `player.energy_changed`; coins also follow `RunState.coins_changed`. The orbs show their number
 ## only when a value changes after the bind (GooOrb). The life orb's heart pips: one whole heart per
-## Goo Heart found (`RunState.player["goo_hearts"]`) until heart quarters are built (roadmap 5.3).
+## Goo Heart found (`RunState.player["goo_hearts"]`) and per boss's full heart (`full_hearts`) until
+## heart quarters are built (roadmap 5.3).
 ## Renders new-run defaults (hp/energy at their maxima from game-constants, coins 50) when no
 ## player is bound or the snapshot lacks a key.
 ##
@@ -175,12 +176,14 @@ func _default_snapshot() -> Dictionary:
 	return {"hp": max_hp, "maxHp": max_hp, "energy": max_energy, "maxEnergy": max_energy, "coins": NEW_RUN_COINS}
 
 
-## The hearts on the life orb in quarters: a whole heart per Goo Heart found (until 5.3).
+## The hearts on the life orb in quarters: a whole heart per Goo Heart found and per boss's full
+## heart (until 5.3).
 func _heart_quarters() -> Array[int]:
 	var hearts: Array[int] = []
 	var run := Services.run()
 	if run != null:
-		for index in int(run.player.get("goo_hearts", 0)):
+		# A boss's full heart (RunState `full_hearts`) is a whole heart too.
+		for index in int(run.player.get("goo_hearts", 0)) + int(run.player.get("full_hearts", 0)):
 			hearts.append(QUARTERS_PER_HEART)
 	return hearts
 

@@ -31,6 +31,8 @@ const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const SaveSlotsMenu := preload("res://game/saves/save_slots_menu.gd")
 ## The prologue cannot be saved (question 113): `saving_blocked_reason` asks it.
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
+## Nor can a dungeon (question 109): the slime resumes at its entrance (docs/godot/DUNGEONS.md).
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 
 ## InitialRun.ts:16 (a literal there too).
 const NEW_RUN_COINS := 50
@@ -175,11 +177,19 @@ func ensure_started() -> void:
 
 # --- player -----------------------------------------------------------------------------------
 
-## GameState.maxHp: `stats.maxHp + goo_hearts * gooHeart.maxHpBonus`.
+## GameState.maxHp: `stats.maxHp + goo_hearts * gooHeart.maxHpBonus`, plus (Godot, 2026-10-17)
+## `full_hearts * fullHeart.maxHpBonus`: a boss's full heart (question 17).
 func max_hp() -> int:
 	var constants := Services.constants()
 	return _constant_int(constants, "character.player.stats.maxHp") \
-			+ int(player.get("goo_hearts", 0)) * _constant_int(constants, "character.player.gooHeart.maxHpBonus")
+			+ int(player.get("goo_hearts", 0)) * _constant_int(constants, "character.player.gooHeart.maxHpBonus") \
+			+ int(player.get("full_hearts", 0)) * _constant_int(constants, "character.player.fullHeart.maxHpBonus")
+
+
+## Max energy: `stats.maxEnergy` plus `player.max_energy_bonus` (the raises a beaten boss gives,
+## question 19; Godot, 2026-10-17).
+func max_energy() -> int:
+	return _constant_int(Services.constants(), "character.player.stats.maxEnergy") + int(player.get("max_energy_bonus", 0))
 
 
 ## Copies the live player's state into `player` and `location` (before a world is left).
@@ -623,6 +633,18 @@ func add_goo_heart() -> void:
 	player["hp"] = max_hp()
 
 
+## One more full heart (a boss's, question 17): max HP grows by `fullHeart.maxHpBonus`; HP fills.
+func add_full_heart() -> void:
+	player["full_hearts"] = int(player.get("full_hearts", 0)) + 1
+	player["hp"] = max_hp()
+
+
+## Max energy grows by `amount` for the rest of the run (question 19); energy fills.
+func add_max_energy(amount: int) -> void:
+	player["max_energy_bonus"] = int(player.get("max_energy_bonus", 0)) + maxi(0, amount)
+	player["energy"] = float(max_energy())
+
+
 # --- world progress ---------------------------------------------------------------------------
 ## Resource record (WorldProgress / SaveSchema ResourceProgressStateData, snake_case):
 ## {"stage": "node"|"destroyed"|"depleted", "value": float >= 0, "piles"?: [{"id", "cell_x",
@@ -1003,11 +1025,14 @@ func has_save(slot: int = 0) -> bool:
 
 ## Why the run cannot be saved now, "" when it can: "prologue" while the prologue runs
 ## (PrologueState.is_running; question 113: nothing of it is saved, so quitting plays it again from
-## the birth). Every save (`save_slot`, the autosave, `write_recovery`) asks it; the pause menu greys
-## Save out with the reason.
+## the birth); "dungeon" inside a dungeon (DungeonState.is_inside; question 109: no saving there, and
+## the autosave waits until the slime is out). Every save (`save_slot`, the autosave,
+## `write_recovery`) asks it; the pause menu greys Save out with the reason.
 func saving_blocked_reason() -> String:
 	if PrologueState.is_running(self):
 		return PrologueState.NO_SAVE_REASON
+	if DungeonState.is_inside(self):
+		return DungeonState.NO_SAVE_REASON
 	return ""
 
 
@@ -1016,18 +1041,32 @@ func can_save() -> bool:
 	return saving_blocked_reason().is_empty()
 
 
+## True when a quit or a closed window writes the dungeon's resume save: inside a dungeon (one that
+## writes them: not the dev lab), the autosave slot then holds the run with the slime at the
+## dungeon's entrance, and everything done inside kept (DungeonState.resume_data; question 109).
+func _writes_dungeon_resume(slot: int) -> bool:
+	return slot == AUTOSAVE_SLOT and saving_blocked_reason() == DungeonState.NO_SAVE_REASON \
+		and DungeonState.writes_resume(self)
+
+
 ## Writes the run to `slot` (0 = the autosave). False when it could not be written, or when saving
-## is blocked (`saving_blocked_reason`: the prologue).
+## is blocked (`saving_blocked_reason`: the prologue, a dungeon). In a dungeon the autosave slot
+## takes the resume save instead (`_writes_dungeon_resume`: Quit to Title and a closed window ask
+## for slot 0).
 func save_slot(slot: int = 0) -> bool:
-	if not started or not can_save():
+	var resume := _writes_dungeon_resume(slot)
+	if not started or (not can_save() and not resume):
 		return false
 	DirAccess.make_dir_recursive_absolute(save_root)
 	var file := FileAccess.open(_slot_path(slot), FileAccess.WRITE)
 	if file == null:
 		push_warning("RunState: cannot write %s (%s)" % [_slot_path(slot), error_string(FileAccess.get_open_error())])
 		return false
+	var data := serialize()
+	if resume:
+		data = DungeonState.resume_data(self, data)
 	file.store_string(JSON.stringify({"schema_version": SAVE_SCHEMA_VERSION,
-		"saved_at": Time.get_unix_time_from_system() * 1000.0, "data": serialize()}, "\t"))
+		"saved_at": Time.get_unix_time_from_system() * 1000.0, "data": data}, "\t"))
 	file.close()
 	saved.emit({"slot": slot})
 	return true
@@ -1117,14 +1156,17 @@ func schedule_autosave() -> void:
 	_autosave_timer.start(AUTOSAVE_DELAY_MS / 1000.0)
 
 
-## Writes the recovery autosave now, unless the slime is dead (`SaveSystem.writeRecovery`).
+## Writes the recovery autosave now, unless the slime is dead (`SaveSystem.writeRecovery`). In a
+## dungeon (the window closing) it writes the dungeon's resume save (`save_slot`), dead or not: the
+## slime wakes at the entrance anyway.
 func write_recovery() -> bool:
 	if _autosave_timer != null:
 		_autosave_timer.stop()
-	if not autosave_enabled or not started or not can_save():
+	var resume := _writes_dungeon_resume(AUTOSAVE_SLOT)
+	if not autosave_enabled or not started or (not can_save() and not resume):
 		return false
 	_capture_live_player()
-	if int(player.get("hp", 0)) <= 0:
+	if int(player.get("hp", 0)) <= 0 and not resume:
 		return false
 	return save_slot(AUTOSAVE_SLOT)
 

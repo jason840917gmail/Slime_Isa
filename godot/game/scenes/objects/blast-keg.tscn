@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/blast_keg.gd" id="1"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(66, 28)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(70, 58)
+
+[node name="blast-keg" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+script = ExtResource("1")
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-72, -137.6)
+hframes = 2
+script = ExtResource("2")
+sheet_path = "res://asset/abilities/goo-bomb/blast-keg-2x1.webp"
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(0, -32)
+shape = SubResource("RectangleShape2D_hurt")

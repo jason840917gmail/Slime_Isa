@@ -1,0 +1,49 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="1_door"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/drop-gate.tscn" id="2_gate"]
+
+[sub_resource type="RectangleShape2D" id="side_shape"]
+size = Vector2(80, 152)
+
+[sub_resource type="RectangleShape2D" id="back_shape"]
+size = Vector2(290, 24)
+
+[node name="fatty-lair-mouth" type="Node2D" groups=["boss_way_in"]]
+y_sort_enabled = true
+metadata/boss_id = "fatty-one-eye"
+
+[node name="DoorScript" type="Node" parent="."]
+script = ExtResource("1_door")
+map_id = "level-1-d4"
+door_id = "fatty-lair-mouth"
+target_area_id = "fatty-lair"
+target_door_id = "fatty-lair-entrance"
+side = "north"
+trigger_rect = Rect2(-60, -68, 120, 40)
+
+[node name="Enclosure" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="LeftSide" type="CollisionShape2D" parent="Enclosure"]
+position = Vector2(-105, -64)
+shape = SubResource("side_shape")
+
+[node name="RightSide" type="CollisionShape2D" parent="Enclosure"]
+position = Vector2(105, -64)
+shape = SubResource("side_shape")
+
+[node name="Back" type="CollisionShape2D" parent="Enclosure"]
+position = Vector2(0, -128)
+shape = SubResource("back_shape")
+
+[node name="drop-gate" parent="." instance=ExtResource("2_gate")]
+position = Vector2(0, 12)
+map_id = "level-1-d4"
+gate_id = "fatty-lair-gate"
+refusal_text = "The old fort's gate, shut tight. The worms' lever lifts it."
+
+[node name="Lever" parent="drop-gate" index="4"]
+position = Vector2(236, 26)
+
+[editable path="drop-gate"]

@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/matron_thread.gd" id="1"]
+
+[node name="matron-thread" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1")

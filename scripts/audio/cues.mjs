@@ -96,10 +96,6 @@ export const CUES = {
     'hit-dull': { variants: 2, library: ['impactSoft_heavy_000', 'impactSoft_heavy_001'], synth: (k) => ({ layers: [thump({ f0: 150 * k, f1: 85, dur: 0.12 }), burst({ dur: 0.07, cutoff: 500, gain: 0.7 })] }) },
     'hit-blocked': { variants: 2, library: ['impactMetal_medium_000', 'impactMetal_medium_001'], synth: (k) => ({ layers: [metal({ freq: 2600 * k, dur: 0.35, gain: 0.7, ratios: [1, 1.34, 2.71] }), burst({ dur: 0.02, type: 'hp', cutoff: 3500, gain: 0.5 })] }) },
     crit: { library: ['impactBell_heavy_000'], synth: () => ({ echo: { delay: 0.05, feedback: 0.25, mix: 0.3 }, layers: [blip({ f0: 1200, f1: 2400, dur: 0.12, wave: 'square', gain: 0.35 }), metal({ freq: 3000, dur: 0.4, gain: 0.35 }), thump({ f0: 220, f1: 60, dur: 0.16 }), sparkle({ dur: 0.3 })] }) },
-    'combo-1': { library: ['jingles_HIT00'], synth: () => ({ layers: notes([E5], { dur: 0.14, wave: 'triangle' }) }) },
-    'combo-2': { library: ['jingles_HIT07'], synth: () => ({ layers: notes([G5], { dur: 0.14, wave: 'triangle' }) }) },
-    'combo-3': { library: ['jingles_HIT08'], synth: () => ({ layers: notes([C6], { dur: 0.16, wave: 'triangle' }) }) },
-    'combo-finisher': { library: ['jingles_HIT11'], synth: () => ({ echo: { delay: 0.06, feedback: 0.3, mix: 0.3 }, layers: [...notes([C5, E5, G5, C6], { step: 0.045, dur: 0.2, wave: 'square', gain: 0.3 }), whoosh({ dur: 0.25, from: 500, peak: 3500, to: 800, gain: 0.6 }), thump({ at: 0.12, f0: 140, f1: 40, dur: 0.3 })] }) },
     // Magnific takes (sound picks 2026-09-30, "una espada siendo desenvainada").
     'equip-blade': { library: ['magnific/weapon-equip-blade-1'], synth: () => ({ layers: [{ type: 'noise', dur: 0.35, gain: 0.6, env: { peak: 0.25 }, filters: [{ type: 'bp', cutoff: [2500, 7000], q: 4 }] }, metal({ at: 0.05, freq: 3300, dur: 0.45, gain: 0.3 })] }) },
     'equip-tool': { library: ['beltHandle1'], synth: () => ({ layers: [wood({ freq: 700, dur: 0.07 }), wood({ at: 0.07, freq: 520, dur: 0.09 })] }) },
@@ -210,8 +206,6 @@ export const CUES = {
     // Magnific takes (sound picks 2026-09-30, "more subtle than Synth").
     'bow-draw': { library: ['magnific/enemy-bow-draw-1'], synth: () => ({ layers: [creak({ dur: 0.35, freq: [60, 95], cutoff: 1100, gain: 0.7 })] }) },
     'arrow-release': { library: ['swish-13', 'swish-10'], variants: 2, synth: (k) => ({ layers: [{ type: 'pluck', freq: 170 * k, dur: 0.35, damping: 0.994, brightness: 0.6, gain: 0.7 }, whoosh({ at: 0.02, dur: 0.14, from: 1200, peak: 4200, to: 2000, gain: 0.4, q: 2 })] }) },
-    // Magnific takes (sound picks 2026-09-30, "it should sound like a arrow entering a target"; round 2 kept take 3).
-    'arrow-hit': { library: ['magnific/enemy-arrow-hit-3'], synth: (k) => ({ layers: [burst({ dur: 0.04, type: 'bp', cutoff: 1100 * k, q: 1.5, gain: 0.8 }), thump({ f0: 220 * k, f1: 90, dur: 0.09 })] }) },
     'arrow-thunk': { variants: 2, library: ['impactWood_light_000', 'impactWood_light_001'], synth: (k) => ({ layers: [wood({ freq: 300 * k, dur: 0.12 }), { type: 'tone', wave: 'triangle', dur: 0.25, freq: 95 * k, tremolo: { rate: 45, depth: 0.9 }, env: { a: 0.002, d: 0.25 }, gain: 0.3 }] }) },
     'spider-hurt': { library: ['rubberduck-creature-2/bug_05', 'rubberduck-creature-2/bug_06'], variants: 2, synth: (k) => ({ layers: [{ type: 'noise', dur: 0.2, gain: 0.7, env: { a: 0.003, d: 0.2 }, filter: { type: 'bp', cutoff: [3200 * k, 1800], q: 2 } }, { type: 'tone', wave: 'saw', dur: 0.16, freq: [1300 * k, 900 * k], fm: { ratio: 1.41, index: 0.3 }, filter: { type: 'bp', cutoff: 2000, q: 1.2 }, env: { a: 0.003, d: 0.16 }, gain: 0.5 }] }) },
     // Magnific takes (sound picks 2026-09-30, "should sound like a spider dying , similar to spider hurt but more dramatic").
@@ -220,14 +214,12 @@ export const CUES = {
     'web-spit': { library: ['rubberduck-creature-1/spit_01', 'rubberduck-creature-1/spit_03'], variants: 2, synth: (k) => ({ layers: [{ type: 'tone', wave: 'sine', dur: 0.12, freq: [380 * k, 950 * k], env: { a: 0.004, d: 0.12 }, gain: 0.6 }, squelch({ dur: 0.14, gain: 0.6, cutoff: [2200, 700] })] }) },
     // Magnific takes (sound picks 2026-09-30, "if this is being trapped by a web it should look more dramatic").
     'web-splat': { library: ['magnific/enemy-web-splat-1', 'magnific/enemy-web-splat-2'], variants: 2, synth: (k) => ({ layers: [squelch({ dur: 0.26, gain: 0.9, cutoff: [1300 * k, 280] }), thump({ f0: 160 * k, f1: 60, dur: 0.16, gain: 0.6 }), ...[0.06, 0.12].map((at) => blip({ at, f0: 300, f1: 600, dur: 0.05, wave: 'sine', gain: 0.25 }))] }) },
-    telegraph: { library: ['question_001'], synth: () => ({ layers: [blip({ f0: 1400, f1: 1400, dur: 0.07, wave: 'square', gain: 0.25 }), blip({ at: 0.11, f0: 1400, f1: 1400, dur: 0.07, wave: 'square', gain: 0.25 })] }) },
     // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Clod Stomper's slam.
     'stomper-slam': { library: ['magnific/enemy-stomper-slam-r5-1', 'magnific/enemy-stomper-slam-r5-2', 'magnific/enemy-stomper-slam-r5-3'], variants: 3 },
   },
 
   boss: {
     'fatty-roar': { library: ['rubberduck-creature-2/roar_05'], synth: () => ({ drive: 2.2, echo: { delay: 0.11, feedback: 0.3, mix: 0.25 }, layers: [{ type: 'tone', wave: 'saw', dur: 1.1, freq: [75, 58], vibrato: { rate: 21, depth: [0.02, 0.08] }, filter: { type: 'lp', cutoff: [500, 900] }, env: { peak: 0.3 }, gain: 0.9 }, { type: 'noise', color: 'pink', dur: 1.1, env: { peak: 0.3 }, filter: { type: 'lp', cutoff: 450 }, gain: 0.6 }] }) },
-    'fatty-step': { variants: 2, library: ['rubberduck-creature-2/stomp_01', 'impactSoft_heavy_000'], synth: (k) => ({ layers: [thump({ f0: 80 * k, f1: 40, dur: 0.28 }), squelch({ dur: 0.15, gain: 0.45, cutoff: [700, 250] })] }) },
     'fatty-hop': { library: ['rubberduck-slime/slime_13', 'rubberduck-slime/slime_10'], variants: 2, synth: (k) => ({ layers: [thump({ f0: 100 * k, f1: 42, dur: 0.32 }), squelch({ dur: 0.2, gain: 0.6, cutoff: [900, 250] }), blorp({ f0: 200 * k, f1: 120, dur: 0.18, gain: 0.35 })] }) },
     // Magnific takes (sound picks 2026-09-30, "bring something else").
     'fatty-leap': { library: ['magnific/boss-fatty-leap-1'], synth: () => ({ layers: [whoosh({ dur: 0.5, from: 150, peak: 1400, to: 400, q: 1, color: 'pink' }), { type: 'tone', wave: 'saw', dur: 0.3, freq: [110, 160], filter: { type: 'lp', cutoff: 700 }, env: { peak: 0.5 }, gain: 0.5 }] }) },
@@ -275,9 +267,7 @@ export const CUES = {
     'gate-locked': { library: ['doorClose_4'], synth: () => ({ layers: [...[0, 0.07, 0.14].map((at) => metal({ at, freq: 700, dur: 0.1, gain: 0.5, ratios: [1, 2.3, 3.9] })), thump({ f0: 110, f1: 70, dur: 0.1, gain: 0.4 })] }) },
     'gate-unlock': { library: ['doorOpen_2'], synth: () => ({ echo: { delay: 0.09, feedback: 0.3, mix: 0.3 }, layers: [metal({ freq: 2200, dur: 0.08, gain: 0.4 }), metal({ at: 0.12, freq: 1700, dur: 0.1, gain: 0.45 }), creak({ at: 0.25, dur: 0.7, freq: [55, 85], cutoff: 900, gain: 0.5 }), ...notes([C5, G5, C6], { at: 0.3, step: 0.1, dur: 0.4, wave: 'sine', gain: 0.35 })] }) },
     'area-transition': { synth: () => ({ layers: [{ type: 'noise', color: 'pink', dur: 0.7, gain: 0.7, env: { peak: 0.5 }, filter: { type: 'lp', cutoff: [300, 2500] } }] }) },
-    'area-title': { library: ['jingles_STEEL09'], synth: () => ({ echo: { delay: 0.14, feedback: 0.4, mix: 0.35 }, layers: [...notes([C5, G5, D5, A5], { step: 0.14, dur: 0.6, wave: 'triangle', gain: 0.35 }), sparkle({ at: 0.4, dur: 0.6, gain: 0.12 })] }) },
     'npc-blip': { library: ['rubberduck-creature-1/cute_02', 'rubberduck-creature-1/cute_05', 'rubberduck-creature-1/cute_10'], variants: 3, synth: (k) => ({ layers: [{ type: 'tone', wave: 'square', dur: 0.06, freq: 440 * k, env: { a: 0.002, s: 1, r: 0.015 }, gain: 0.3, filter: { type: 'lp', cutoff: 2500 } }] }) },
-    interact: { library: ['tick_001'], synth: () => ({ layers: [blip({ f0: 1500, f1: 1500, dur: 0.03, wave: 'sine', gain: 0.5 })] }) },
     save: { library: ['confirmation_004'], synth: () => ({ echo: { delay: 0.08, feedback: 0.3, mix: 0.3 }, layers: notes([G5, C6], { step: 0.08, dur: 0.3, wave: 'sine', gain: 0.4 }) }) },
     // A ruined building is restored (roadmap 6.3): hammer knocks, a settling thud and a bright finish.
     'restore-building': { library: ['magnific/restore-building'], synth: () => ({ echo: { delay: 0.11, feedback: 0.3, mix: 0.25 }, layers: [
@@ -345,9 +335,6 @@ export const CUES = {
   ui: {
     hover: { library: ['tick_002'], synth: () => ({ layers: [blip({ f0: 2200, f1: 2200, dur: 0.02, wave: 'sine', gain: 0.4 })] }) },
     click: { library: ['click_001'], synth: () => ({ layers: [blip({ f0: 1300, f1: 900, dur: 0.045, wave: 'triangle', gain: 0.7 })] }) },
-    confirm: { library: ['confirmation_001'], synth: () => ({ layers: notes([A5, E6], { step: 0.06, dur: 0.12, wave: 'triangle', gain: 0.5 }) }) },
-    cancel: { library: ['back_001'], synth: () => ({ layers: notes([E5, A5 / 2], { step: 0.06, dur: 0.12, wave: 'triangle', gain: 0.5 }) }) },
-    error: { library: ['error_001'], synth: () => ({ layers: [blip({ f0: 190, f1: 180, dur: 0.09, wave: 'square', gain: 0.3 }), blip({ at: 0.11, f0: 190, f1: 180, dur: 0.12, wave: 'square', gain: 0.3 })] }) },
     open: { library: ['open_001'], synth: () => ({ layers: [blip({ f0: 400, f1: 950, dur: 0.12, wave: 'triangle', gain: 0.6 }), whoosh({ dur: 0.12, from: 800, peak: 3000, to: 2000, gain: 0.2 })] }) },
     close: { library: ['close_001'], synth: () => ({ layers: [blip({ f0: 950, f1: 400, dur: 0.12, wave: 'triangle', gain: 0.6 })] }) },
     'craft-success': { library: ['confirmation_002'], synth: () => ({ echo: { delay: 0.08, feedback: 0.3, mix: 0.3 }, layers: [metal({ freq: 1200, dur: 0.25, gain: 0.5, ratios: [1, 2.4, 3.9] }), metal({ at: 0.14, freq: 1250, dur: 0.25, gain: 0.5, ratios: [1, 2.4, 3.9] }), ...notes([C6, E6], { at: 0.3, step: 0.07, dur: 0.35, wave: 'sine', gain: 0.4 }), sparkle({ at: 0.3, dur: 0.4 })] }) },
@@ -356,9 +343,7 @@ export const CUES = {
     'quest-progress': { library: ['pluck_001'], synth: () => ({ layers: [{ type: 'pluck', freq: 1175, dur: 0.25, damping: 0.995, brightness: 0.5, gain: 0.7 }] }) },
     'quest-complete': { library: ['jingles_STEEL07'], synth: () => ({ echo: { delay: 0.11, feedback: 0.35, mix: 0.3 }, layers: [...notes([C5, E5, G5, C6], { step: 0.1, dur: 0.18, wave: 'square', gain: 0.25 }), ...[C6, E6, G5].map((freq) => ({ type: 'tone', wave: 'triangle', at: 0.42, dur: 0.8, freq, env: { a: 0.01, d: 0.8 }, gain: 0.3 })), sparkle({ at: 0.4, dur: 0.7 })] }) },
     'quest-failed': { library: ['jingles_SAX07'], synth: () => ({ layers: notes([E5, D5 * 0.9, C5 * 0.85], { step: 0.14, dur: 0.3, wave: 'triangle', gain: 0.45 }) }) },
-    'hotbar-switch': { library: ['switch_001'], synth: () => ({ layers: [blip({ f0: 900, f1: 1200, dur: 0.04, wave: 'square', gain: 0.25 }), wood({ at: 0.02, freq: 800, dur: 0.05, gain: 0.4 })] }) },
     'ability-denied': { library: ['error_006'], synth: () => ({ layers: [blip({ f0: 400, f1: 220, dur: 0.16, wave: 'triangle', gain: 0.55 })] }) },
-    'ability-ready': { library: ['select_002'], synth: () => ({ layers: [crystal({ freq: 1760, dur: 0.3, gain: 0.4 })] }) },
     'journal-open': { library: ['bookOpen'], synth: () => ({ layers: [whoosh({ dur: 0.2, from: 1500, peak: 4500, to: 2000, gain: 0.5, q: 0.7 }), burst({ at: 0.17, dur: 0.03, cutoff: 3000, gain: 0.3 })] }) },
     toast: { library: ['drop_004'], synth: () => ({ layers: [blip({ f0: 700, f1: 1050, dur: 0.07, wave: 'sine', gain: 0.5 })] }) },
     // Sound Picker round 3 (2026-10-06): Magnific takes, library only (no synth recipe).

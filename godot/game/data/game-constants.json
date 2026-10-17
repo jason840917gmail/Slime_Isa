@@ -25,7 +25,8 @@
       "green-key": 1,
       "crystal-key": 1,
       "workbench": 1,
-      "berry-basket": 9
+      "berry-basket": 9,
+      "matron-thread": 1
     },
     "weaponMaxStack": 1
   },
@@ -169,6 +170,12 @@
       },
       "gooHeart": {
         "maxHpBonus": 10
+      },
+      "fullHeart": {
+        "maxHpBonus": 20
+      },
+      "maxEnergyUpgrade": {
+        "bossBonus": 20
       },
       "rework": {
         "energyRegenPerSecond": 1,
@@ -418,7 +425,27 @@
     "heavyPlate": { "sinkMs": 3000, "riseMs": 5000, "sinkPx": 6, "playerRadiusPx": 30, "blockRadiusPx": 24,
       "ringRadiusPx": 46, "grindIntervalMs": 420 },
     "heavyBlock": { "cellPx": 64, "moveMs": 640, "startDelayMs": 180, "grabReachPx": 14, "strainLineMs": 2400,
-      "strainWobble": 0.06, "strainHz": 7 }
+      "strainWobble": 0.06, "strainHz": 7 },
+    "blastKeg": { "delayMs": 150 }
+  },
+  "webs": {
+    "floorSlowMultiplier": 0.5, "rollStickMs": 900, "wallPassMultiplier": 0.5, "enterCueIntervalMs": 1200,
+    "glintEveryMs": [2600, 5200], "glintMs": 520
+  },
+  "dungeon": {
+    "door": { "keyholeMs": 380, "openMs": 650, "lineEveryMs": 1500 },
+    "bolt": { "slideMs": 420 },
+    "shutter": { "moveMs": 260, "insetPx": 80, "openDelayMs": 600 },
+    "winch": { "turnMs": 900, "reachPx": 8 },
+    "drawbridge": { "lowerMs": 650, "shakeMs": 240, "shakeIntensity": 0.006 },
+    "void": { "damage": 10, "fallMs": 600 },
+    "spikes": { "damage": 8, "fallMs": 320 },
+    "lava": { "damage": 12, "fallMs": 320 },
+    "slab": { "fallDelayMs": 300, "dropMs": 380, "returnMs": 10000, "riseMs": 450, "shakePx": 2.5 },
+    "refill": { "flowerEnergy": 25, "flowerRegrowMs": 20000, "flowerReachPx": 30, "heartHp": 20, "potEnergy": 15,
+      "potCoins": 5, "pickupRadiusPx": 22 },
+    "shadowPath": { "fadePx": 48 },
+    "glint": { "periodMs": 1700, "sizePx": 16 }
   },
   "abilityBox": {
     "socketCount": 8,

@@ -28,6 +28,11 @@ const AREAS := {
 	"icege": {"name": "Icege", "biome": "icege"},
 	"gloop-forest": {"name": "Gloop Forest", "biome": "gloop-forest"},
 	"crystal-caverns": {"name": "Crystal Caverns", "biome": "crystal-caverns"},
+	# The Weaver Hollow, Chapter 2's dungeon (docs/godot/DUNGEONS.md "The Weaver Hollow"): its floors.
+	"weaver-hollow-trunk": {"name": "Weaver Hollow", "biome": "gloop-forest"},
+	"weaver-hollow-roots": {"name": "Weaver Hollow: the Roots", "biome": "gloop-forest"},
+	"weaver-hollow-boughs": {"name": "Weaver Hollow: the Boughs", "biome": "gloop-forest"},
+	"weaver-hollow-crown": {"name": "The Matron's Crown", "biome": "gloop-forest"},
 }
 const DEFAULT_BIOME := "meadow"
 ## How far a region's sketch colour is mixed towards the text colour, so it reads on the banner.

@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/eye_latch.gd" id="1_latch"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="2_sheet"]
+
+[sub_resource type="CircleShape2D" id="hurt_shape"]
+radius = 24.0
+
+[node name="eye-latch" type="Node2D" node_paths=PackedStringArray("area", "visual")]
+y_sort_enabled = true
+script = ExtResource("1_latch")
+area = NodePath("LatchArea")
+visual = NodePath("Visual")
+
+[node name="Visual" type="Sprite2D" parent="."]
+position = Vector2(0, -96)
+scale = Vector2(0.5, 0.5)
+hframes = 2
+script = ExtResource("2_sheet")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/eye-latch-2x1.webp"
+
+[node name="LatchArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="LatchShape" type="CollisionShape2D" parent="LatchArea"]
+position = Vector2(0, -16)
+shape = SubResource("hurt_shape")

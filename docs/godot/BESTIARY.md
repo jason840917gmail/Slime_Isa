@@ -476,6 +476,17 @@ breathe.
 - **Right tool:** a Goo Bomb next to it (the blast is its kill hit): cast about 110 px from it (out
   of its waking range), spit the bomb toward it and step back. Without a bomb: let it grab, shake it
   off, and two jabs while it is dazed (60 health).
+- **A swallowed drop** (2026-10-17, for the Weaver Hollow's B3: it swallowed small key 2): set on a
+  placed enemy's `overrides`, e.g. `{"swallowed_flag": "weaver-hollow.b3-mimic-key",
+  "swallowed_scene_id": "<a pickup scene id>", "swallowed_settings": {...}}`. Beaten (by any hit),
+  it spits the scene out once: it hops from its middle to 40 below its feet (`MimicSpit`), the flag
+  is set and the spot kept in the map's object state (`swallowed:<flag>`). A world built again puts
+  the drop back there while the flag is set (a pickup already taken frees itself by its own record:
+  a CollectibleScript in it gets the world's map id and the flag as its record unless the settings
+  say otherwise), and a Mimic built with the flag set has nothing more to give. Or
+  `swallowed_item_id` / `swallowed_count`: an items.json item falls as loot (EnemyLoot, kept by
+  the map until picked up). Until the dungeon kit's key pickup exists, a test drops
+  `object.collectible-green-key` (`test_weaver_bombs.gd`).
 
 ### 22. Brood Warden (mini-boss)
 
@@ -511,6 +522,10 @@ flames pass through it. Pen 23 is dark: only its eyes show (`dark_eyes.gd`).
 - **Right tool:** the Lantern: walk in glowing and it runs off its key; corner it in your light and
   it is chased off. A puff whose light touches it adds `flameDread` 0.4 at once and makes it bolt
   (`boltSpeed` 240 for `boltMs` 600).
+- **Smothers a candle** (2026-10-17, the Crystal Mine's Dark Maze): it is in the group
+  `candle_smotherers`; while its body is within `SMOTHER_RADIUS_PX` 40 of a candle's foot, that
+  candle refuses a flame ("The shadow smothers the wick.";
+  [DARKNESS.md](DARKNESS.md#candles-gameworldfirecandlegd)).
 
 ### 24. Glint Bat (flyer)
 
@@ -604,7 +619,9 @@ of 120 px, out after 20 s).
   rears up, crystals glowing, and a dark red ellipse (`slamRx` 92 x `slamRy` 62) darkens round its
   feet.
 - **Slam** (`slamPoseMs` 450): the slime's feet in the ellipse take `slamDamage` 26 (320 knockback);
-  shards and dust, a small shake. **Recover** (`recoverMs` 900).
+  shards and dust, a small shake. **Recover** (`recoverMs` 900). The slam also puts out every lit
+  brazier with `stomp_puts_out` in its ellipse grown by `slamPutsOutScale` (1.8; `CandleScript.put_out_near`,
+  2026-10-17): the Crystal Mine's Den, the rehearsal for the Colossus's stomps.
 - **The shell:** unlit, hits are armor (heavy, poise 4: every fourth jab staggers it, which cancels
   a slam) and only `shellDamageTaken` 0.3 of them hurt, with a clink: about 33 jabs, the patient way.
   **Brittle** in fire light (`light_sense.gd` with `fire_only`: a lit brazier, a flame, a bomb, never
@@ -617,7 +634,8 @@ of 120 px, out after 20 s).
 ### 29. Crystal Mite (swarm)
 
 Tiny rose-quartz golems with amber eyes (pink, apart from the Caverns' blue crystal and the violet
-Gloomling). The Colossus will throw them down; in pen 29 four drop in on a beat by themselves (the
+Gloomling). The Crystal Colossus throws them down from his wall (built 2026-10-17,
+[DUNGEONS.md](DUNGEONS.md#the-crystal-colossus-roadmap-124)); in pen 29 four drop in on a beat by themselves (the
 pen's four slots cap them; each comes back `respawn_ms` 1500 after it dies).
 - **Wait:** out of sight until the slime is in the pen, then for its beat: the mites share one beat
   (`beatMs` 900; the first `dropDelayMs` 400 after the slime came in).

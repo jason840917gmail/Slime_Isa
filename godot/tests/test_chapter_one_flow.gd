@@ -19,9 +19,10 @@ const LILI := "level-1-npc-lili"
 const FISHER := "level-1-npc-fisherman-slime"
 const SPIDER_GIVER := "level-1-npc-mossy-scout"
 const PLACE := "a-place-to-work"
-## level-1's chunk worlds: the village (where the tests start) and Fatty's camp.
+## level-1's chunk worlds: the village (where the tests start); Fatty's camp is in his Lair.
 const VILLAGE_MAP := "level-1-c4"
-const FATTY_MAP := "level-1-d4"
+const FATTY_MAP := "fatty-lair"
+const FATTY_CAMP := "fatty-lair-boss"
 ## The clearing's loose wood piles (10 each).
 const WOOD_PILES := {"level-1-loose-wood-03": Vector2(411.0, 1150.0), "level-1-loose-wood-04": Vector2(455.25, 1187.9)}
 
@@ -359,11 +360,11 @@ func test_chapter_one_main_line(t: TestContext) -> void:
 		return
 	var camp: Node = null
 	for node: Node in t.tree.get_nodes_in_group(&"boss_camp"):
-		if str(node.get(&"camp_id")) == "level-1-fatty-one-eye-camp":
+		if str(node.get(&"camp_id")) == FATTY_CAMP:
 			camp = node
 	if not t.check(camp != null, "no Fatty camp in %s" % FATTY_MAP):
 		return
-	camp.emit_signal(&"boss_defeated", {"campId": "level-1-fatty-one-eye-camp", "bossId": "fatty-one-eye"})
+	camp.emit_signal(&"boss_defeated", {"campId": FATTY_CAMP, "bossId": "fatty-one-eye"})
 	t.equal(str(quests.call(&"state", "the-one-eyed-guardian").get("active_stage_id")), "verdant-gate", "the guardian's last stage")
 	t.check(bool(t.main.travel_to("gloop-forest", "west")), "the travel to gloop-forest was refused")
 	await t.until(func() -> bool:

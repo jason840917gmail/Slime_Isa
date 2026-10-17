@@ -234,11 +234,12 @@ func test_rolling_into_a_wall_bonks_and_bounces_back(t: TestContext) -> void:
 
 
 ## A Roll sticks in a floor web (owner, 2026-10-16, question 131). A Matron web patch (r 50) lies
-## 130 px to the right of OPEN, a little below the roll's line: the ball rolling into it is caught
-## as a walking slime is (the web's `caught`), its roll is over there (no bonk, no bounce, no rolling
-## on), the slime is stuck (rooted, still) and set back on its own side, above the patch, and the
-## web is whole. With the Silk form (the Silk skin's stand-in, `crosses_webs`) the web no longer
-## sticks: the roll tears through it and goes on past it.
+## 130 px to the right of OPEN, a little below the roll's line: the ball rolling into it sticks (the
+## web's `caught`; the floor webs' rule, game/world/webs/floor_webs.gd, since 2026-10-17), its roll
+## is over there (no bonk, no bounce, no rolling on), the slime is stuck (rooted, still) where the
+## web caught it, on the patch (nothing sets it back), and the web is whole. With the Silk form (the
+## Silk skin's stand-in, `crosses_webs`) the web no longer sticks: the roll tears through it and
+## goes on past it. The painted floor webs: tests/test_weaver_webs.gd.
 func test_a_roll_sticks_in_a_floor_web(t: TestContext) -> void:
 	var player := t.player()
 	t.teleport_player(OPEN)
@@ -263,7 +264,7 @@ func test_a_roll_sticks_in_a_floor_web(t: TestContext) -> void:
 	t.check(player.is_rooted(), "the rolling slime is not stuck in the web")
 	t.check(not bool(patch.call(&"is_torn")), "the Roll tore the web")
 	var stuck_at := player.get_centre()
-	t.check(stuck_at.x < at.x and stuck_at.y < at.y - 50.0, "the stuck slime was not set back on its side of the web (%s, the web at %s)" % [stuck_at, at])
+	t.check(stuck_at.distance_to(at) <= 52.0, "the stuck slime is not on the web (%s, the web at %s)" % [stuck_at, at])
 	await t.steps(3)
 	t.check(not player.get_roll().is_bouncing(), "the web bonked the roll")
 	t.near_vec(t.player_body().velocity, Vector2.ZERO, 0.001, "the stuck slime's velocity")

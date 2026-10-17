@@ -102,6 +102,12 @@ The encounter is instanced in `worlds/level-1.scene.json` as `level-1-fatty-one-
 **(2528, 1472)**, so activation = circle (2528, 1472, r 440), arena = circle (2528, 1472, r 420),
 boss spawn = (2528, 1472) (Fatty's feet at (2528, 1514)). The chest sits at (2528, 1077).
 
+*Since 2026-10-17 the game's Fatty lives in his Lair* (`encounter.fatty-lair-boss` in
+`world.fatty-lair`, a room arena of rectangles, never returning, with a second phase:
+[DUNGEONS.md "Fatty's Lair (built)"](../DUNGEONS.md#fattys-lair-built)); level-1-d4 no longer holds
+this camp, and the tests that measure the rules above put it back in its clearing
+(`godot/tests/lib/fatty_camp_fixture.gd`).
+
 ### 1.3 Code literals
 | Name | Value | Source |
 |---|---|---|
@@ -366,6 +372,11 @@ emit guard_changed({instanceId: guardedChestInstanceId, guarded: true})
 ```
 Godot: the boss root goes under `WorldService.entities_root()` (the y-sorted world root, as
 Phaser's top level) with `spawn_at_phaser_position`, then `configure_arena(arena perimeter)`.
+Godot only (2026-10-17, the dungeon bosses): the camp's `boss_overrides` ({property: value}) are set
+on the boss's script right after the spawn, before `configure_arena` and its first step (the Weaver
+Hollow's Matron fights in her cocoon, [matron.md](matron.md) section 8). A camp whose `respawn_ms` is
+below 0 never spawns its boss again once the boss id is in RunState `defeated_boss_ids`, and stores
+no respawn time on the defeat (`never_returns()`).
 
 ### 4.3 Arena and activation perimeters (`features/bosses/BossCampBehavior.ts`)
 `bossPerimeterFromSensorShape` (`:5-9`): circle → `{circle, x, y (centre), radius}`; rectangle →

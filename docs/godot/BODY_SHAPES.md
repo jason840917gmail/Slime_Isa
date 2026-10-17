@@ -720,11 +720,16 @@ shortest roll + pause, 960 ms); a charged roll is held back by its own end (`Pla
   quest toast, the cracked ground's creak hint). In the mode the Swallow ceremony reads "Hold Q with
   an essence in your mouth until the ring fills" and the Roll's "Tap Space to roll; with the
   charged-roll upgrade, hold it to spin up and keep rolling"
-  (`AbilityDefinitions.REWORK_CEREMONY_HOW`). The creak hint names F only while the Slam is the
-  chosen box ability; with another one chosen it reads "It creaks under you... choose the Slam in
-  the bag (B), then press F" (`CrackedGroundScript.CREAK_CHOOSE_TEXT`, `creak_text(slam_learned,
-  player)`). The Controls window's Attack and Roll rows say they strike and roll as the key is let
-  go (`ControlLabels.rework_rows`).
+  (`AbilityDefinitions.REWORK_CEREMONY_HOW`). Cracked ground breaks under a Goo Bomb blast (since
+  2026-10-17, roadmap 7.10; [The Goo Bomb](#the-goo-bomb-2026-10-14)) as well as the Stone Slam,
+  so once the bomb is learned its creak hint names a blast, for any slime standing on it: "It creaks
+  under you... a blast would break it! (F)", and with another box ability chosen "It creaks under
+  you... choose the Goo Bomb in the bag (B), then press F" (`CrackedGroundScript.CREAK_BLAST_TEXT`,
+  `CREAK_CHOOSE_BOMB_TEXT`, `creak_text(slam_learned, player, bomb_learned)`). Without the bomb
+  only a Heavy slime hears it, and the hint names F only while the Slam is the chosen box ability;
+  with another one chosen it reads "It creaks under you... choose the Slam in the bag (B), then
+  press F" (`CREAK_CHOOSE_TEXT`). The Controls window's Attack and Roll rows say they strike and roll
+  as the key is let go (`ControlLabels.rework_rows`).
 
 ## Files and owners
 
@@ -739,7 +744,7 @@ shortest roll + pause, 960 ms); a charged roll is held back by its own end (`Pla
 | Mouth | `game/player/gulp/mouth_hold.gd`, `mouth.gd`, `gulp_controller.gd`, `thrown_object.gd`, `gulp_hud.gd` | The Q state machine, the thrown hit and the Q prompts |
 | Slam | `game/player/abilities/slam_sequence.gd` (improved), `classic_slam_sequence.gd` (the old one), `ability_world.gd`, `ability_definitions.gd`, `player_abilities.gd`, `ability_fx.gd` | The improved Slam; `strike_area` carries a hit and reports outcomes |
 | Lantern | `game/player/abilities/lantern_sequence.gd`, `lantern_flame.gd`, `lantern_glow.gd`; the fire and darkness parts in `game/world/fire/` (`fire_targets.gd`, `fire_fx.gd`, `candle.gd`, `burnable.gd`) and `game/world/darkness/` (`dark_room.gd`, `dark_room.gdshader`); `game/scenes/objects/deadthorn-hedge.tscn`; the playground's corner `game/dev/corners/lantern_corner.tscn` | The flame, the ember, dark rooms, candles, burnables ([The Lantern](#the-lantern-2026-10-14), [DARKNESS.md](DARKNESS.md)) |
-| Goo Bomb | `game/player/abilities/goo_bomb_sequence.gd`, `goo_blast.gd`; `game/scripts/goo_bomb.gd` (`object.goo-bomb`), `cracked_wall.gd` (`object.cracked-wall`), `rubble_heap.gd` (`object.rubble-heap`), `blast_barrier.gd`; hooks in `player_abilities.gd` (`on_hurt`, the spend at the spit), `player.gd`, `mouth.gd`, `held_look.gd`, `thrown_object.gd`, `game/world/elevation/elevation.gd` and `elevation_grid.gd` (`open_passage`); the playground's corner `game/dev/corners/bomb_corner.tscn` (`bomb_corner.gd`) and its cave `game/scenes/worlds/playground-bomb-cave.tscn` | The cast, the bomb, the blast, cracked walls and rubble ([Goo Bomb](#the-goo-bomb-2026-10-14)) |
+| Goo Bomb | `game/player/abilities/goo_bomb_sequence.gd`, `goo_blast.gd`; `game/scripts/goo_bomb.gd` (`object.goo-bomb`), `cracked_wall.gd` (`object.cracked-wall`), `rubble_heap.gd` (`object.rubble-heap`), `blast_barrier.gd`, `cracked_ground.gd` and `cracked_floor.gd` (`object.cracked-floor`), `winch_post.gd` (`object.winch-post-cracked`), `blast_keg.gd` (`object.blast-keg`); hooks in `player_abilities.gd` (`on_hurt`, the spend at the spit), `player.gd`, `mouth.gd`, `held_look.gd`, `thrown_object.gd`, `game/world/elevation/elevation.gd` and `elevation_grid.gd` (`open_passage`); the playground's corner `game/dev/corners/bomb_corner.tscn` (`bomb_corner.gd`) and its cave `game/scenes/worlds/playground-bomb-cave.tscn` | The cast, the bomb, the blast, cracked walls and rubble ([Goo Bomb](#the-goo-bomb-2026-10-14)) |
 | Heavy plates and blocks | `game/scripts/heavy_plate.gd` (`object.heavy-plate`), `heavy_block.gd` (`object.heavy-block`, `object.heavy-statue`), `game/player/heavy_grab.gd`; hooks in `game/scripts/player.gd` (the grab) and `game/scripts/gate.gd` (`close`); the art `asset/MAPS/props/heavy-plate/` (`scripts/art/pack-heavy-plate-art.py`); the playground's corner `game/dev/corners/heavy_corner.tscn` (`heavy_corner.gd`) | Plates that only a heavy weight sinks, slowly, and blocks only the Stone form moves ([Heavy plates and heavy blocks](#heavy-plates-and-heavy-blocks-2026-10-14)) |
 | Ability Box and HUD | `game/player/abilities/ability_box.gd`, `game/ui/body_cards.gd`, `game/ui/screens/inventory_screen.gd`, `game/ui/ability_bar.gd`, `game/ui/weapon_hotbar.gd`, `game/ui/console/hud_console.gd`, `game/ui/hud.gd` (`layout_changed`), `game/hints/control_hints.gd`, `game/shell/control_labels.gd`; key names in `game/ui/ceremony/ability_ceremony.gd`, `game/quests/quest_notifications.gd`, `game/scripts/cracked_ground.gd` | The bag-window band, the HUD shape and ability slots, the Controls list and hints |
 
@@ -768,6 +773,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 | `abilities.gooBomb` | the Goo Bomb (2026-10-14, [Goo Bomb](#the-goo-bomb-2026-10-14)): `energy` 20, `cooldownMs` 600, the cast `castMs` 2000 in `castPulses` 4 swells of `castSwell` 0.1, `spitMs` 320, the hop `hopPx` 64 in `hopMs` 260 with `hopArcPx` 18, `fuseMs` 3000, `pulseStartHz` 2 to `pulseEndHz` 8, `flashMs` 500, `chainDelayMs` 120, `ellipse` 176 x 120, `hit` {`class` slam, `damage` 40, `launchSpeed` 380, `hopPx` 16}, `selfDamage` 18, `mouthDamage` 28, `selfKnockback` 300, `feel` {`hitStopMs` 120, `trauma` 0.9}, `lightRadiusPx` 40, `blastLightRadiusPx` 220, `blastLightMs` 250 |
 | `puzzles.heavyPlate` | the heavy plate (2026-10-14, [Heavy plates](#heavy-plates-and-heavy-blocks-2026-10-14)): `sinkMs` 3000 (up to fully down), `riseMs` 5000 (back up), `sinkPx` 6 (the cap's travel), `playerRadiusPx` 30 (the Stone slime's feet from its middle), `blockRadiusPx` 24 (a block's middle), `ringRadiusPx` 46, `grindIntervalMs` 420 |
 | `puzzles.heavyBlock` | the heavy blocks: `cellPx` 64 (one move), `moveMs` 640 (a cell, 100 px/s), `startDelayMs` 180 (a walk key held this long before a block moves), `grabReachPx` 14, `strainLineMs` 2400, `strainWobble` 0.06, `strainHz` 7 |
+| `puzzles.blastKeg` | the blast kegs (2026-10-17, [Goo Bomb](#the-goo-bomb-2026-10-14)): `delayMs` 150 (lit by a blast, a keg blows this long after; about the bomb's own `chainDelayMs`) |
 | `abilityBox` | `socketCount` 8, `sockets` (squash-slam, stretch-lash, teleport, lantern, goo-bombs, then the later ids) |
 
 The strike frames read `game/data/shape-strikes.json` (written by
@@ -1649,6 +1655,35 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   (rubble-2x1.webp at 0.5) that clinks off everything but a blast ("Too many rocks to move. It needs
   a blast."); blown, a pebble scatter on the ground that no longer collides, the break cue and the
   jingle, and its `flag_id`.
+- **Cracked ground** (`object.cracked-ground`, `cracked_ground.gd`; since 2026-10-17, roadmap 7.10):
+  a blast target too: a blast whose ellipse holds its root breaks it as the Stone Slam does (its
+  flag, "The ground gives way!", the shake, the secret jingle `SecretFound`), so the playground's
+  and the cracked clearing's sinkholes open with the bomb; the Slam and a Clod Stomper still break
+  it. **The cracked floor** (`object.cracked-floor`, `cracked_floor.gd`, the Weaver Hollow's T4):
+  the same script under a root that takes every setting in the Inspector (`flag_id`, `radius`, the
+  hole's `target_area_id` and `target_marker` or `target_door_id`, `kind` fall). Intact, the bomb's
+  crack decal laid flat on the floor (124 x 86) with dust puffing from it every 2.4 to 4.2 s; broken,
+  `floor-hole.webp` (broken flagstones round a dark shaft, no ladder, 140 x 106) and a DoorScript of
+  kind `fall` on it: walking in, the slime spins down and lands in the other world on the Node2D
+  named `target_marker` (door.gd, new 2026-10-17; CONVENTIONS.md "Doors"), with nothing leading
+  back.
+- **The cracked winch post** (`object.winch-post-cracked`, `winch_post.gd`, the Hollow's B2
+  drawbridge): a stone post with an iron chain and the crack mark (`winch-post-2x1.webp`: intact |
+  stump, 70 units wide), a body that blocks and a hurtbox that clinks ("It needs a blast."). Blown
+  (saved as `flag_id`): the stump, "The chain snaps!", the jingle, and it triggers its target once:
+  `target_method` (default `trigger`, the dungeon kit's hookup: `game/dungeon/drawbridge.gd`) on
+  `target_path`, with {"flagId", "instant": false, "source"} when the method takes an argument, and
+  its `triggered` signal. Built again broken, it stands broken; with `call_on_load` on (off by
+  default: the kit's drawbridge keeps its own record) it calls the target again with "instant":
+  true. `chain_end` (a Node2D) draws a sagging chain from its ring.
+- **Blast kegs** (`object.blast-keg`, `blast_keg.gd`, the Hollow's B6): fixed Thorn Guard kegs in
+  an iron cradle on a flagstone block, the crack mark on the belly (`blast-keg-2x1.webp`: intact |
+  burst, 72 units wide); not suckable, they block, hits clink ("It needs a blast."). A blast lights
+  one: it blinks and swells `puzzles.blastKeg.delayMs` (150), then blows as a real blast
+  (`GooBlast.detonate`) and lies burst, so kegs within a blast's ellipse of each other (about 80
+  apart side by side, 50 one above the other) chain. Not saved: a world built again has them all
+  back; what they blew keeps its own flag. Art: `scripts/art/pack-weaver-bomb-art.py` from
+  `asset/Originals/weaver-hollow/bomb-pieces/` (Magnific GPT 2.5, 2026-10-17).
 - **The playground's Bomb corner** (`game/dev/corners/bomb_corner.tscn`, instanced at the origin of
   `game/scenes/worlds/playground.tscn`; it removes itself with the rework mode off): the west edge,
   x 0..1500, y 6380..7950, around the lake cliff's west end (`?map=playground&spawn=330,6800`).

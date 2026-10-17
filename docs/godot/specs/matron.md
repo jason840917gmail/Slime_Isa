@@ -33,6 +33,10 @@ whole base enemy step first (arena leash included) and only the differences are 
   the torn-barrier story flag.
 - SFX wiring already in the scene JSON (hurt, death, alert, volley hiss, spit, roar, web splat,
   web tear).
+- **Godot only (2026-10-17): the Weaver Hollow's fight** (section 8): her cocoon, its three rounds,
+  her camp `encounter.weaver-hollow-matron` at the top of the Hollow, and her rewards (Pearl 2 and
+  the Silk skin's stand-in, the full heart, the max-energy raise, her thread). The open-world nest
+  above keeps the Phaser fight until it is removed.
 
 ### OUT (exists in Phaser; later phases)
 | Feature | Where | Notes |
@@ -88,6 +92,10 @@ character.orb-weaver-matron`, activation circle r **460**, arena circle r **320*
 r 320), the Matron spawns at (3120, 940) (feet at (3120, 970)). Since 2026-10-12 gloop-forest is
 cut into chunk worlds: the nest is in `gloop-forest-f4` (origin (2048, 0)), at **(1072, 940)**
 there, its camp's `mapId` `gloop-forest-f4` ([WORLD_ATLAS.md](../WORLD_ATLAS.md#chunk-worlds-2026-10-12)).
+**Since 2026-10-17 no world places it:** the Matron lives in the Weaver Hollow's Crown (section 8.4)
+and `gloop-forest-f4` is the Hollow's forecourt (the Watch Oak's root gate,
+[DUNGEONS.md](../DUNGEONS.md#the-weaver-hollow-built)). The scene stays, and `test_matron.gd` mounts
+it at (1072, 940) in F4 for the tests of her own fight (sections 3 to 5).
 
 ### 1.3 Code literals
 | Name | Value | Source |
@@ -260,7 +268,10 @@ if port.player_crosses_webs():           # Sticky
     return
 port.catch_player(zone); emit caught(zone)
 ```
-The patch lives as long as its effect (6000 ms) and is never remembered.
+The patch lives as long as its effect (6000 ms) and is never remembered. **Godot since 2026-10-17
+(5.5):** the patch is a floor web; the last line is gone: a rolling slime sticks
+(`FloorWebs.stick_roll`, emit `caught`), and a walking one walks at half speed while its centre is
+on the patch (the patch is in group `web_slows`), with no catch and no set-back.
 
 ### 5.2 `game.spider-web` (`features/scripts/SpiderWebScript.ts`)
 Properties: `width` (> 0, else 200; authored 112), `depth` (> 0, else 48; authored 56),
@@ -281,7 +292,9 @@ Properties: `width` (> 0, else 200; authored 112), `depth` (> 0, else 48; author
 - `catch_player(zone)`: `from_above = player.y < zone.y`; teleport the player (stop, place, reset)
   to `(player.x, zone.y − halfHeight − 26)` when from above, else `(player.x, zone.y + halfHeight +
   30)`; `applyWeb(900)`; at most every 2500 ms (scene time) the white big text "Caught in the web!
-  (something sticky could cross)" at the (new) player centre − (0, 56) for 2200 ms.
+  (something sticky could cross)" at the (new) player centre − (0, 56) for 2200 ms. Godot since
+  2026-10-17: "Thick silk. It will not give." (the old line named the Sticky form; the web walls'
+  line, docs/godot/WEBS.md). Only the web barrier (5.2) catches since then.
 - `web_torn(zone)`: `gameEvents 'web.torn'` (→ global cue `WebTear`), `loot-sparkle` particles at
   the zone, cyan big text "The web tears open!" at zone − (0, 40) for 1800 ms.
 - `applyWeb(ms)`: player side (enemy spec 12.6).
@@ -300,22 +313,26 @@ root).
 - A jump or teleport that skips over a zone is the abilities port's concern (abilities spec 5.x).
 
 ### 5.5 The Roll and the Silk skin (owner, 2026-10-16, question 131)
-- **A Roll sticks in a web.** The Roll is newer than Phaser's webs. A rolling slime is caught by a
-  floor web (the volley patch, 5.1) or a web barrier (5.2) exactly as a walking one is: in
-  `catch_player` the port first ends the roll (`player.is_rolling()` → `player.stop_movement()`,
-  which cancels it: no bonk, no bounce, no rolling on, its i-frames gone), then sets the slime back
-  and roots it for 900 ms. A Roll never crosses or tears a web (`tests/test_player_movement.gd`
-  `test_a_roll_sticks_in_a_floor_web`).
-- **Web walls block until the Silk skin.** The only web wall built is the web barrier (5.2): a walk
-  or a roll into it is set back on the side it came from, so it blocks until the slime crosses webs.
-- **The Silk skin's hook** is `player.crosses_webs()`: with it webs neither catch nor stick (the
-  patch and the barrier tear instead, and `player.apply_web(ms)` does nothing, so a spit web no
-  longer roots either). The Silk skin is not built (roadmap 7.8): today the Silk Gulp form (Sticky)
-  is the stand-in that sets it.
-- Not built yet (roadmap 7.9): the walking slowdown (a floor web slows a walk by half without the
-  Silk skin instead of catching it), web walls the Silk skin passes at half speed, the shapes'
-  web cuts, the Orb-weaver's laid webs and the webs of Tom's maze. Until then a walk into any web is
-  caught and set back, as above.
+- **A volley patch is a floor web** (since 2026-10-17, roadmap 7.9: "a Matron volley patch behaves
+  like a web"; the rule in `game/world/webs/floor_webs.gd`, docs/godot/WEBS.md). Without the Silk
+  skin a slime whose centre is on the patch walks at `webs.floorSlowMultiplier` (0.5) of its speed,
+  and nothing catches or sets it back; a Roll that enters it **sticks where it is**:
+  `FloorWebs.stick_roll` ends the roll (`player.stop_movement()`: no bonk, no bounce, no rolling on,
+  its i-frames gone) and roots the slime `webs.rollStickMs` (900) with the web cover (`apply_web`);
+  the patch emits `caught`. A Roll never crosses or tears a patch (`tests/test_matron.gd`
+  `test_web_patch_slows_a_walk_sticks_a_roll_and_tears_for_the_sticky_one`,
+  `tests/test_player_movement.gd` `test_a_roll_sticks_in_a_floor_web`). Painted floor webs (the
+  `webs` WebLayer) follow the same rule (`tests/test_weaver_webs.gd`).
+- **The web barrier (5.2) still catches:** a walk or a roll into it is set back on the side it came
+  from (`catch_player`, the roll ended first), so it blocks until the slime crosses webs. The
+  Weaver Hollow's web walls are `object.web-wall` (solid without the Silk skin, passed at half speed
+  with it, cut for good by a shape's hit with it; WEBS.md).
+- **The Silk skin's hook** is `player.crosses_webs()`: with it webs neither slow, catch nor stick
+  (the patch and the barrier tear instead, and `player.apply_web(ms)` does nothing, so a spit web no
+  longer roots either). The Silk skin is not built (roadmap 7.8): today its stand-ins are the story
+  flag `skin.silk`, which Pearl 2 sets (section 8.5; `player.gd` `SILK_SKIN_FLAG`), and the Silk
+  Gulp form (Sticky).
+- Not built yet (roadmap 7.9): the Orb-weaver's laid webs and the webs of Tom's maze.
 
 ---
 
@@ -323,6 +340,7 @@ root).
 | Script | Signal | Payload | Connected |
 |---|---|---|---|
 | matron | `phase_changed` | `{phase, time}` | VolleySfx (`phase=volley-telegraph`), SpitSfx (`phase=volley-rest`) |
+| matron | `shell_changed` (cocoon fight, section 8) | `{shell: "cocooned" \| "torn" \| "respin", round, time}` | — (cues are global, 8.3) |
 | matron | base enemy signals | enemy spec 8 | HurtSfx, DeathSfx, AlertSfx |
 | web patch | `caught`, `torn` | zone `{x, y, halfWidth, halfHeight}` | `torn` → TearSfx |
 | spider web | `caught`, `torn` | zone | — |
@@ -333,3 +351,146 @@ Every Matron distance, arena test, volley point, telegraph, damage number, burst
 old Phaser position (`feet − (0, 30)`); the player side uses its centre. Web zones are world
 positions of roots without a depth anchor (unchanged). The patch effect spawns with its root at
 the volley point.
+
+---
+
+## 8. The Weaver Hollow's fight: the cocoon (Godot only, built 2026-10-17, not yet played by the owner)
+
+The design: [the Weaver Hollow](../../design/2026-10-16-dungeon-weaver-hollow.md#the-matrons-room),
+question 133 ([decisions](../../story/07-decisions-archive.md)), roadmap 8.7. Her fight needs the
+Goo Bomb: she shields herself in a web cocoon that only a blast tears open, then the Spear. Built in
+`game/scripts/matron.gd` (the cocoon's state machine), `game/bosses/matron_cocoon_look.gd` (its look)
+and `game/scripts/boss_camp.gd` (`respawn_ms` below 0, `boss_overrides`).
+
+### 8.1 Switch and numbers
+The cocoon is on while the Matron's `cocoon_enabled` is (off in `character.orb-weaver-matron`, so the
+open-world nest keeps sections 1 to 7; the Hollow's camp turns it on through its `boss_overrides`).
+Every number is an export on her scene (group "Cocoon (Weaver Hollow)"), the volley's beside them:
+
+| Export | Value | What |
+|---|---|---|
+| `open_ms` | 4000 | torn: how long she lies open on the floor |
+| `drop_ms` | 260 | her fall out of the cocoon (part of the window) |
+| `respin_ms` | 1500 | her climb and the new cocoon (the tell: threads whirl) |
+| `round_two_below_hp` / `round_three_below_hp` | 200 / 100 | the rounds' health floors (of 300) |
+| `round_hang_px` | 60, 130, 130 | the cocoon's bottom over its shadow in rounds 1 to 3 |
+| `ring_patches`, `ring_radius`, `ring_reweb_ms` | 8, 130, 5000 | round 2's ring of floor webs (`patch_effect_id`) round her shadow, webbed again while she is cocooned |
+| `egg_sac_scene`, `egg_sac_offsets` | `character.egg-sac`, (±72, 36) | round 3's two egg sacs by her shadow (old centres), dropped once |
+| `breath_ms` | 2600 | one breath of the cocoon (the Cocoon Mimic's tell) |
+| `clink_text` | "Woven too thick. It would take a blast." | the cocoon's refusal line |
+| `pose_scale` | 0.5 | her own poses in the fight |
+| `retreat_px`, `retreat_scale` | 260, 0.62 | beaten: how far she scuttles off, and how small (an ordinary orb-weaver is 0.46) |
+
+Game-wide (`game-constants.json`): `character.player.fullHeart.maxHpBonus` 20,
+`character.player.maxEnergyUpgrade.bossBonus` 20, `inventory.maxStackByItem.matron-thread` 1.
+
+### 8.2 Per step
+- **First step:** she joins group `blast_targets`, takes her own pose sprite (8.3) in place of the
+  old sheet's `Visual`, and is cocooned in the round her health is in.
+- **Cocooned** (`get_shell()` "cocooned"): the whole base step runs (the slime-spider AI, the spit,
+  the leash), then the volley machine (3.2), but her velocity is zeroed: she hangs from her thread
+  and never walks. Her body is not solid (the slime walks under the cocoon). Every hit is refused
+  "immune" (a clink) with `clink_text` (BlastBarrier.refuse: at most every 1.5 s, orange, over the
+  cocoon), old-style and rework hits alike, and the Goo Bomb blast's hurtbox strike skips her (she
+  is a blast target), so no hit and no blast hurts her. Round 2 webs its ring again every
+  `ring_reweb_ms`.
+- **Torn:** a Goo Bomb blast whose ellipse (176 × 120, `abilities.gooBomb.ellipse`) holds her shadow
+  (`blast_point()`: her feet) calls `receive_blast`: the spit and a volley in hand are dropped (its
+  telegraph cleared, phase back to "fight"), she drops to the floor (`drop_ms`; a small camera shake
+  and `DropLand` on landing), solid, and lies dazed for `open_ms` (her legs twitch between two poses,
+  she shivers; a hit shows her flinch for 260 ms). No AI, no spit, no volley, no leash. Every weapon
+  hurts her, but a hit takes her no lower than her round's floor (`round_floor()`: 200, 100, 0);
+  reaching it ends the window at once. The tear: "The cocoon tears open!", `WebTear`, silk tatters.
+- **Respin:** after `open_ms`, or at the round's floor: she climbs her thread (the climbing pose
+  rises and fades over 60 % of `respin_ms`), threads whirl round the husk and the new silk closes
+  (`MimicWrap`). Hits clink; a blast now tears the half-spun cocoon again. When it closes she is
+  cocooned in the round her health is in, and her next volley comes `first_volley_delay_ms` later.
+- **Rounds:** 1 above 200 (hangs low, the floor clear); 2 above 100 (hangs higher; its ring of 8
+  floor webs round the shadow: a bomb thrown over them, a Roll sticks); 3 (two egg sacs drop by her
+  shadow with her arena; their Broodlings swarm and, in the rework mode, drop energy shards as every
+  kill does; a blast that holds a sac bursts it). Three blasts at least: she cannot be beaten
+  without the Goo Bomb.
+- **Beaten:** her egg sacs and the Broodlings of her arena burst; the cocoon unravels and its thread
+  draws up into the web; she shrinks into an ordinary big orb-weaver (the orb-weaver's sheet, from
+  behind) and scuttles `retreat_px` up through her web, fading at the end (the body frees itself
+  after 2 s, as in section 4). The camp's defeat bookkeeping is section 4's.
+- Not built: the three-way Stretch Lash that pulls and traps (roadmap 8.7's plan of 2026-10-02):
+  she keeps the web spit (1.4).
+
+### 8.3 The look (`game/bosses/matron_cocoon_look.gd`, node `CocoonLook` under the body)
+Presentation only; matron.gd sets its `state` ("cocooned", "torn", "respin", "gone", "off"),
+`progress`, `hang_px` and `breath` each step. The shadow (an ellipse that shrinks and pales as the
+cocoon hangs higher), the thread up to `thread_top_px` (420) over the shadow, the cocoon
+(`256x416-tile_2x1-matron-cocoon.webp` frame 0, at 0.5, swelling with the breath by `breath_swell`
+0.06) with an additive red glow over its eyes (`eye_glow_*`), the torn husk (frame 1), the respin's
+whirling threads, the unravelling. `@tool`: `preview_state` shows a state in the editor, for tuning
+the hang, the thread and the glow on the scene. Her poses: `384x384-tile_4x1-matron.webp` (dazed A,
+dazed B, flinch, climbing), drawn at `pose_scale` with their feet at hers; the hit flash and the
+reactions' hit motion follow it (`visual`).
+
+### 8.4 The Weaver Hollow's camp (`encounter.weaver-hollow-matron`)
+`game/scenes/encounters/weaver-hollow-matron.tscn`, for the Crown room C2 (world rect (0, 0) to (1024,
+896), floor x 64 to 1024, y 192 to 896): its origin goes at the floor centre (512, 544).
+- `BossCampScript`: `map_id` "weaver-hollow-crown", `camp_id` "weaver-hollow-matron", `boss_id`
+  "orb-weaver-matron", `boss_scene` `character.orb-weaver-matron`, `spawn` (0, −144) (her shadow at
+  (512, 430), in the web's middle), `respawn_ms` −1 (once beaten she never comes back: no timer is
+  stored, and `is_boss_defeated()` keeps the camp from spawning her again, in a camp built again
+  too), `boss_overrides` {`cocoon_enabled`: true, `arena_recovery_ms`: 0} (no heal after a while
+  outside the arena), no guarded chest.
+- Activation: a rectangle 960 × 608 centred at (32, −48) (the floor from the top wall down to 96 px
+  above the bottom wall: she spawns once the slime is in). Arena: a rectangle 960 × 704 centred at
+  (32, 0) (the whole floor, so she never walks home and her volleys clamp into the room).
+- The shutters' hook (the dungeon kit's): the camp's `boss_engaged {campId, bossId}` on her spawn and
+  `boss_defeated {campId, bossId}` (with `boss_disengaged {campId, defeated: true}`) on her fall; a
+  slime that dies resets the fight (section 4.5), and she spawns again when it comes back in.
+- **Placed** (2026-10-17) in `weaver-hollow-crown` as `Objects/matron-camp` at (512, 544), built by
+  `tools/build_weaver_hollow.gd` (an editable instance): its `boss_engaged` is connected to the
+  `shut` and its `boss_defeated` to the `open` of `Objects/crown-shutter`, the kit's shutter in C2's
+  south doorway (at (512, 832), `wall` south), so the slime cannot leave while she fights. A slime
+  that faints resumes at the dungeon's entrance in the Trunk (the kit's Dungeon node).
+- Children: `RoarSfx`, and her rewards (8.5 to 8.7), which wait hidden until
+  `orb-weaver-matron` is in RunState `defeated_boss_ids`: `Pearl` (`object.pearl-two`) at (0, −114)
+  (her shadow: "Pearl 2 lies in the silk at the web's heart"), `FullHeart` (`object.full-heart`) at
+  (112, −96), `MatronThread` (`object.matron-thread`) at (−256, −296), its spool hanging in her web by
+  the top wall. Move them in the world scene (editable children).
+
+### 8.5 Pearl 2 and the Silk skin (`object.pearl-two`)
+`game/scenes/objects/pearl-two.tscn`: `game/scripts/pearl.gd` (Fatty's Lair's Pearl script) with
+`pearl_id` "orb-weaver-matron", `boss_id` "orb-weaver-matron", `number` 2, `skin_flag` "skin.silk",
+its card ("Silk skin": webs no longer catch or stick; floor webs at full speed, web walls slowly, the
+Spear cuts silk) and the picture `256x256-pearl-silk.webp` at 0.28. Walking into it (40 px) takes it:
+the ceremony's card (while main's `ability_ceremonies` is on), the flags `pearl.orb-weaver-matron`
+and `skin.silk`. **The Silk skin's stand-in:** `player.crosses_webs()` is true once the run has
+`skin.silk` (as for the Silk Gulp form), so every web rule that reads it (5.5, WEBS.md) treats the
+slime as silk-skinned. The interact key does not take it (pearl.gd takes by walking in).
+
+### 8.6 The full heart and the max-energy raise (`object.full-heart`)
+`game/scenes/objects/full-heart.tscn` (`game/scripts/full_heart.gd`; the goo heart's picture at
+0.62), set in the camp to `heart_id` and `boss_id` "orb-weaver-matron", `raises_max_energy` on.
+Walking into it (40 px) once she is beaten: `player.grant_full_heart()` (RunState
+`add_full_heart`: `player.full_hearts` + 1; `max_hp()` = `stats.maxHp` + goo hearts × 10 + full
+hearts × 20; HP fills), then `player.grant_max_energy(20)` (RunState `add_max_energy`:
+`player.max_energy_bonus` + 20; `max_energy()` = `stats.maxEnergy` + the bonus; energy fills; the
+player reads it in `restore_run_state`), "+20 max HP, +20 max energy", `Heal`, and the ceremony's
+"Full Heart" card. The flag `full-heart.orb-weaver-matron` keeps it taken: once per run, saved with
+the run's `player` record. The HUD's life orb shows a whole heart pip per full heart too.
+
+### 8.7 Her thread (`object.matron-thread`, question 106)
+`game/scenes/objects/matron-thread.tscn` (`game/scripts/matron_thread.gd`): the spool
+(`128x128-matron-spool.webp` at 0.42) hangs `hang_px` (90) over its root on a strand rising
+`strand_top_px` (200) into her web. Its hurtbox (tags `barrier`, `web`) refuses every hit with a
+clink while she lives; after her fall, without the Silk skin, a clink and "Sticky silk holds it fast.
+You need a way with webs." (it never names the skin); with it (`crosses_webs()`), a weapon's hit (tags
+`weapon` or `spear`: the Spear) cuts the strand: "The strand parts!", `WebTear`, the spool drops
+(`drop_ms` 320). Walking into the dropped spool (34 px) puts the story item `matron-thread` (items.json,
+category "story", icon `items-matron-thread`) in the bag with its ceremony card and sets the flag
+`matron-thread.taken`: taken once, for good, saved. The cut alone is not saved. A full bag leaves it
+on the floor ("Your bag is full."). The interact key does nothing to it.
+
+### 8.8 Tests
+`tests/test_matron.gd` mounts the Hollow's camp where the nest was (the nest's camp freed first):
+the cocoon and its clinks, a blast on her shadow and one that misses it, the 4 s window and the 1.5 s
+respin, the three rounds (one big hit takes 100, round 2's ring, round 3's sacs), no respawn (and the
+brood bursting), Pearl 2 → `crosses_webs()`, the full heart +20 once (and through a save), the thread
+only with the Silk skin. `tools/render_matron.gd` renders the fight's moments in the Crown for the
+look (run windowed).

@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/boss_camp.gd" id="1_camp"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="2_sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/boss/fatty-roar.ogg" id="3_roar"]
+
+[sub_resource type="RectangleShape2D" id="activation_shape"]
+size = Vector2(880, 600)
+
+[sub_resource type="RectangleShape2D" id="arena_shape"]
+size = Vector2(860, 590)
+
+[node name="FattyLairBoss" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ActivationArea" type="Area2D" parent="."]
+collision_layer = 512
+collision_mask = 4
+monitorable = false
+
+[node name="ActivationShape" type="CollisionShape2D" parent="ActivationArea"]
+shape = SubResource("activation_shape")
+
+[node name="ArenaArea" type="Area2D" parent="."]
+collision_layer = 512
+collision_mask = 4
+monitorable = false
+
+[node name="ArenaShape" type="CollisionShape2D" parent="ArenaArea"]
+shape = SubResource("arena_shape")
+
+[node name="ActiveBosses" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="BossCampScript" type="Node" parent="." node_paths=PackedStringArray("activation_area", "arena_area", "active_bosses")]
+script = ExtResource("1_camp")
+map_id = "fatty-lair"
+camp_id = "fatty-lair-boss"
+boss_id = "fatty-one-eye"
+boss_scene = "character.fatty-one-eye"
+activation_area = NodePath("../ActivationArea")
+arena_area = NodePath("../ArenaArea")
+active_bosses = NodePath("../ActiveBosses")
+respawn_ms = 0.0
+spawn = Vector2(0, -90)
+
+[node name="RoarSfx" type="AudioStreamPlayer2D" parent="."]
+process_mode = 3
+stream = ExtResource("3_roar")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 1600.0
+pan_distance = 400.0
+script = ExtResource("2_sfx")
+
+[connection signal="boss_spawn_requested" from="BossCampScript" to="RoarSfx" method="play_cue"]

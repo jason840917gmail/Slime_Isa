@@ -538,7 +538,9 @@ active -> first unfinished objective of the current stage that resolves:
    kill:            nearest placed enemy of enemyKinds still standing -> its wander area's centre
                     (Godot, roadmap 5.25); else nearest enemy-spawn area holding any enemyKinds
                     -> its stay rect centre
-   defeat-boss:     camp root position of the first bossId whose camp is on this map
+   defeat-boss:     camp root position of the first bossId whose camp is on this map; else
+                    (Godot, 2026-10-17) the way into its dungeon: a node in group `boss_way_in`
+                    whose `boss_id` metadata is the boss (Fatty's Lair's gate in level-1-d4)
    discover-area:   nearest exit (WorldExitScript parent) or in-tree door whose target area is it
    collect:         nearest pile with remaining > 0 of those items, or standing resource node whose
                     drop yields one of them

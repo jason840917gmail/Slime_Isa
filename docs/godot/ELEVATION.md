@@ -1,19 +1,14 @@
 # Elevation: hills, holes and ground levels
 
-> **Side walls are the cliff look (owner, 2026-10-14: "I think it is the way to go").** The
-> [Side walls](#side-walls) experiment is closed and kept: worlds draw their cliffs with
-> `cliff_look = "sides"` on the ground layer. **The front-only look is deprecated, awaiting its final
-> removal:** the Walls, Feet, Lips and Rims groups, the model's cast Shadows and Water at walls' feet
-> (all drawn only without `cliff_look = "sides"`), the fern fringe art (`<ground>-lip.png`,
-> `-foot.png`, `storybook-grass`, `elevation_fringe.gdshader`, `elevation_strip.gdshader`,
-> `elevation_rims.gd`'s strips), the wall-end corner stones (`-wall-end-*.png`,
-> `elevation_wall_end.gdshader`, RampEnds), the fern ramp feet (`_add_ramp_foot`) and the ramp's
-> EDGE_FADE band. Do not build on them. Until they go, worlds without the metadata still draw them:
-> on 2026-10-14 only the cliff sides lab and level-1's chunks (c4, c5, d4, d5) use side walls; the
-> other 55 worlds with elevation still use the deprecated look. Removing it means setting
-> `cliff_look = "sides"` everywhere (or making it the default), rebaking the caches, checking every
-> world's cliffs, then deleting the code and art above and the sections of this document that
-> describe them.
+> **One cliff look: side walls (owner, 2026-10-14: "I think it is the way to go").** Every world
+> draws its cliffs with [Side walls](#side-walls): there is no setting to choose a look, and a world
+> made later draws them by itself. The front-only look (walls under south faces only, with fern lips
+> and feet, corner stones at wall ends, the model's square cast shadows, the rims' light and water
+> lapping at walls' feet) was deprecated on 2026-10-14 and **removed on 2026-10-17** (the owner's
+> approval of 2026-10-17): the 49 worlds that still drew it (of the 52 that paint elevation) were
+> converted, their caches rebaked, its code and shaders deleted (git history up to `7973880e` has
+> them), its 40 art files moved to `asset/to-delete/MAPS/elevation/`, and the ground layer
+> metadata `cliff_look` and `cliff_fringe` went with it.
 
 > **The cliff system (2026-10-12).** The hand-painted cliff experiments of 2026-10-09/10 (a tile
 > sheet painted with Godot terrains, the cliff builder, the shape painter, the rectangle prototype)
@@ -29,6 +24,9 @@
 > art that did not join at the top and foot of 2- and 3-level walls.
 
 ## Owner decisions (2026-10-05)
+
+(The decisions as they were taken. The front faces only, the per-ground lips and feet and the
+corner stones at wall ends below were replaced by the [side walls](#side-walls) of 2026-10-13/14.)
 
 - Three pieces of art make a cliff: the **top edge** and the **bottom edge**, per terrain (the
   terrain is the master), and a **wall** that repeats seamlessly sideways and downwards.
@@ -63,26 +61,20 @@
 
 ## What you see
 
-A raised area is drawn where it is painted. Below its south-facing edges hangs a rock wall, **one
+A raised area is drawn where it is painted, as a block seen from all four sides
+([Side walls](#side-walls) has the details). Below its south-facing edges hangs a rock wall, **one
 stone course (one cell, 64 units) per level of drop**, so a 3-level wall shows three courses with
-their joints lined up across every face. The wall is of one of nine **wall styles** (meadow rock,
-snow rock, sandstone, cave rock, crystal rock, mossy rock, masonry, root rock, red rock): the one
-painted over its top, else its ground's ([Wall styles](#wall-styles)). The higher ground's **lip** (grass tufts, soil and roots;
-a snow cornice with icicles; a crumbling sandy edge) hangs over the wall's top; the lower ground's
-**foot** (tufts and ferns, a snow drift, a sand drift) grows up its base. All nine grounds have
-their own (grass, snow, sand, forest soil, moss, fallen leaves, cavern rock, crystal rock, cobble
-with a curb). The same tufts run around the **whole top** as one strip: over the walls they hang
-with their soil and roots, along the north, east and west rims (and a hole's near rim) only the
-tufts show, and they turn every corner in a round curve. A **one-row open cliff** (below) has no
-back rim. Where a wall ends, a column of rounded
-**corner stones** finishes it (lit on a west end, shaded on an east end). Where a wall stands in
-**water**, the water line laps up and down the rock in a travelling wave with a band of foam,
-leaving the rock above it dark and wet. Raised ground **casts a shadow** to the lower right (the
-light comes from the upper left): along a hill's east side and in a thin band at its wall's foot,
-three times as long for a level-3 hill as for a level-1 one, none on the lit north and west sides;
-a hole's west rim shades its floor. Rims facing the light catch a thin light along their edge.
-Faces are shaded by the way they look (south-west lit, south mid, south-east dark). The ground of a
-hole and the lower courses of its walls darken with every level of depth.
+their joints lined up across every face; its east and west sides show a narrow strip of the same
+wall, its back (north) edge none. Its corners are round and its edges wobble a little. The wall is
+of one of nine **wall styles** (meadow rock, snow rock, sandstone, cave rock, crystal rock, mossy
+rock, masonry, root rock, red rock): the one painted over its top, else its ground's
+([Wall styles](#wall-styles)). The top's edge is drawn from its own ground (darkening towards the
+edge and hanging over the wall in round clumps with a dark outline), the foot from the lower
+ground's (a dark line, a few clumps and a soft shadow); a wall standing in **water** has a band of
+foam at its foot. A **one-row open cliff** (below) has no back rim. Raised ground **casts a
+shadow** to the lower right from its walls' feet (the light comes from the upper left), longer for
+a taller wall. Faces are shaded by the way they look (west lit, south mid, east dark). The ground of
+a hole and the lower courses of its walls darken with every level of depth.
 
 **Stairs** (reworked 2026-10-11 after the stairs of *A Link to the Past*, at the owner's request:
 "they do not pass the bottom and on the top only the top edge of the cliff") are flights of stone
@@ -92,8 +84,8 @@ caves. They leave a rim in any of 8 directions:
 - **front flights** (south, south-west, south-east) are set into the cliff's face, from its top edge
   down to its foot and no further: no landing on the top, nothing run out over the lower ground. The
   steps (4 per level, each a shaded riser under the nosing above, then a lit tread) and the posts
-  beside them lie flat on the face, a column of blocks each side; the lip breaks where the flight
-  leaves the top;
+  beside them lie flat on the face, a column of blocks each side; the top's edge breaks where the
+  flight leaves the top;
 - **side flights** (east, west) run out a cell per level beside the hill (seen from the side) and
   **back flights** are foreshortened (north 1.5 cells per level, 45° ones a diagonal cell), as no
   face of the hill shows there: steps from the rim (no landing) down onto the lower ground, between
@@ -107,14 +99,15 @@ history and `asset/Originals/elevation/stairs-mockups/`.
 lower level up to the top beside or behind it, drawn as flat ground, so the two levels seem to
 meet. Beside a ramp the cliff shows only the height left between the top and the slope: the wall
 **tapers** from its full height to nothing where the slope reaches the top, on a straight south face
-or a 45° one, its stone courses where they always are, the lip running on along the top edge to the
-end and the foot following the slope up. Where the slope reaches the top at the end of the face and
-the top ends there too (an arm's or a ridge's tip, a face's end) the cliff is **open**: no corner
-stones, the top's rim does not turn around the end, and no shadow falls there; at a closed
-plateau's corner the rim stays closed ([Open ends](#open-ends)). A **one-row open cliff** (owner,
+or a 45° one, its stone courses where they always are, the top's edge running on along it to the
+end and the foot line following the slope up. Where the slope reaches the top at the end of the face
+and the top ends there too (an arm's or a ridge's tip, a face's end) the cliff is **open**: no wall
+turns around the end and no shadow falls on the slope there; at a closed plateau's corner the rim
+stays closed ([Open ends](#open-ends)). A **one-row open cliff** (owner,
 2026-10-11) is a top one row thick (or, since 2026-10-14, one column thick: an arm running north)
-that ramps join to the ground below, as the owner's U in the cliff shapes lab: it has no back rim (on so narrow a top it made a second top border) and casts no
-shadow, and its ramps take none. Nor has it a hidden strip behind it (`ElevationGrid.no_strip`):
+that ramps join to the ground below, as the owner's U in the cliff shapes lab: it has no back rim
+(on so narrow a top it made a second top border), no wall on its inner sides, and its ramps take no
+shadow. Nor has it a hidden strip behind it (`ElevationGrid.no_strip`):
 its back reads as flat ground, so nothing walks under it from behind. Around it **only walls
 collide** (owner, 2026-10-12; `Elevation._find_open_zone`): in its cells, the lower cells touching
 it and the cells its ramps stand on, a collision line with ground of the cliff's level on one side
@@ -125,8 +118,7 @@ and the ground around them are one walk, as they look: a body coming onto the to
 stands at its level by the time it reaches the front rim, the rim holds it there and a drop off it
 lands at the right level, whatever level the ground behind is painted. The faces and the wall a
 ramp tapers still collide, and their rims are jump borders: here a body drops over the tapered wall
-too. Every other cliff, ramps or not, keeps its back rim, shadows, strip and
-collision.
+too. Every other cliff, ramps or not, keeps its back rim, strip and collision.
 
 **Behind the hills.** A hill hides the ground right behind it: from the north, a body can walk
 `behindDepth` (32 units on screen) into a hill's top, and the hill covers what of it is behind; a
@@ -214,7 +206,8 @@ showcase (red rock, masonry). The square hills, the terraces and the other holes
    level; its far wall covers its first rows. A wall along the map's north edge with its top off
    the map: paint the top on the rows **above the map** (row −1 and up, at most `MAX_ROWS_ABOVE` =
    6): the elevation starts its grid that many rows higher (`cell_offset`; its node moves up as far),
-   so only the wall and the lip hang into the map. Its top takes the ground of the map's first row.
+   so only the wall and its top edge hang into the map. Its top takes the ground of the map's first
+   row.
 3. Shapes come from the steps of the paint: **single-cell steps make a straight 45° edge**, steps
    of two cells or more keep a square corner. A staircase of single steps is a diamond's side; a
    rectangle with its corners cut by single steps is an octagon; a diagonal line of single cells
@@ -241,7 +234,8 @@ showcase (red rock, masonry). The square hills, the terraces and the other holes
    where the cliff should come down to the ground, at an arm's or a ridge's tip or a face's end
    ([Ramps](#ramps) has an example); at a closed plateau's corner the wall still tapers, but the
    rim stays closed around it ([Open ends](#open-ends)).
-6. The ground on top and below is the ground layer's: paint sand on a plateau and its lip is sand.
+6. The ground on top and below is the ground layer's: paint sand on a plateau and its top edge is
+   drawn in sand.
 7. The **wall style** follows the ground on top; to choose another, paint it on a `cliffs` layer
    ([Wall styles](#wall-styles)).
 
@@ -257,9 +251,9 @@ documented in [FENCES.md](FENCES.md).
 
 ## Wall styles
 
-A wall and its corner stones are of one wall style (2026-10-08; before, every cliff was meadow
-rock; flights of stairs take their colour from their ground instead, [Stairs](#how-it-works)). The
-style of a wall is, in order:
+A wall is of one wall style (2026-10-08; before, every cliff was meadow rock; flights of stairs
+take their colour from their ground instead, [Stairs](#how-it-works)). The style of a wall is, in
+order:
 
 1. the one painted on the world's **`cliffs` layer** over the top it hangs from: a TileMapLayer
    named `cliffs` beside the `ground` and `elevation` layers (same grid), with the tile set
@@ -273,10 +267,10 @@ style of a wall is, in order:
    `{"highland": "storybook-rock"}`), else `GROUND_WALL_STYLES` in `elevation.gd` (below);
 3. else meadow rock (`DEFAULT_WALL_STYLE`); a style without wall art also falls back to it.
 
-The lips, rims and feet are their ground's (`<ground>-lip.png`, `-foot.png`) unless the ground
-layer's metadata `cliff_fringe` (ground → art name, e.g. `{"highland": "storybook-grass"}`) names
-other art. Both metadata are per world, so a world can try a style without changing the others
-(the cliff shapes lab does, [Storybook art](#storybook-art)).
+The metadata is per world, so a world can try a style without changing the others (the cliff
+labs do, [Storybook art](#storybook-art)). The fieldstone walls' `walls` layer (WALLS.md) has a
+`wall_style` data layer too; it paints no cliff (only a layer with `cliff_tileset.tres` does,
+`Elevation.find_cliff_layer`).
 
 | Style | Tile | Look | Ground on top |
 |---|---|---|---|
@@ -289,13 +283,17 @@ other art. Both metadata are per world, so a world can try a style without chang
 | `masonry` | B | cut limestone blocks in a running bond, quoins at the ends | `town-cobble` |
 | `root-rock` | R | dark umber stones in forest soil, threaded with roots | `forest-floor` |
 | `red-rock` | A | terracotta and rust-red stones with fallen autumn leaves | `amberleaf` |
-| `storybook-rock` | – | rounded grey-brown stones of the approved H plateau painting, cut from it (with `storybook-grass` lips and feet) | none; a world picks it by metadata |
+| `storybook-rock` | – | rounded grey-brown stones of the approved H plateau painting, cut from it | none; a world picks it by metadata |
 
-Exactly where: a wall's style is read at the middle of its top edge, a little into its top (half a
-cell in when the cell there is a corner triangle a chamfer raised, so it belongs to the painted cell
-across the corner). Each half-cell column of wall takes its own style, so two styles meet on a
-straight vertical line where a top's paint (or its ground) changes along a wall. The style of every
-wall is `Elevation.band_styles` (per `grid.bands`).
+Exactly where: a style is read at the middle of each boundary edge of a top, a little into the top
+(half a cell in when the cell there is a corner triangle a chamfer raised, so it belongs to the
+painted cell across the corner). A top's border is drawn as one chain of walls
+([Side walls](#side-walls)): the chain takes the commonest style its grounds give it
+(`Elevation._ground_style_at`), and each stretch of it painted on the `cliffs` layer the painted
+style (`_painted_style_at`; its stretch goes into a mesh of its own), so two styles meet on a line
+across the wall where the paint changes along it, and a path of another ground reaching the edge
+does not change the wall. The model's walls keep a style each too (`Elevation.band_styles`, per
+`grid.bands`, the paint else the ground under each half-column).
 
 ## How it works
 
@@ -327,33 +325,36 @@ where ground it walks on, north, meets a higher top, south: a hill's north and d
 a hole's near rim) it may go `behind` cells further (`behindDepth` / 64, rounded to half a
 cell), into whatever higher ground is there: the top, and at a hill's tip (a diamond's or an
 octagon's side corner) the top corner of its wall. So the strip's edge runs straight on to the tip
-and turns down the wall's end to its foot: walking down a 45° back face slides past the tip, with
-no notch to get caught in. The strip never reaches the hill's real footprint (a cell per level
+and turns down the wall's end to its foot (with side walls, the side wall starting at a tip's round
+holds a body pressing straight down there; walking along the face slides past the tip). The strip
+never reaches the hill's real footprint (a cell per level
 below its back rims). `is_walkable_point` answers for a point: higher ground is walkable when the
-point `behind` north of it is. The rest of a wall stays solid, east and west sides stay plain rims,
-a diagonal back rim gets a slanted strip.
+point `behind` north of it is. The rest of a wall stays solid, east and west sides stay plain rims
+in the model (their drawn side walls collide too: [Side walls](#side-walls)), a diagonal back rim
+gets a slanted strip.
 
 **Hiding** (`elevation_occlusion.gd`, `elevation_occlusion.gdshaderinc`). Depth is the ground
 position of what a pixel shows (a wall shows its plane, the depth of its top edge). Every tri of
 the elevated part of the world, plus a thin core past each rim, is drawn once into a SubViewport
 (`Occlusion/DepthMap`, 2 world units per texel; coarser if a side would pass 4096 texels): level,
 how far below a wall's top edge; then the stairs' faces at their height: a side or back flight
-marked as a structure (the cast shadows read its height, level − dy / 64), a front flight as the
-wall it is set into, and ramps' slopes as ground of their bottom
+marked as a structure (the shadows on a ramp read its height, level − dy / 64), a front flight as
+the wall it is set into, and ramps' slopes as ground of their bottom
 level, marked as ramps (they hide nothing, and cast no shadow except that of the wall they cover,
-over which they keep their height). The body shaders (`hit_flash.gdshader`
+over which they keep their height). The thin core past each rim (`ElevationRims.add_cores`) hides a
+body behind the top's edge too. The body shaders (`hit_flash.gdshader`
 on enemies and NPCs, `form_skin.gdshader` on the player) read it: a pixel whose terrain is nearer
 than the body's feet (feet y + 64 · level) by more than 12 units is drawn as the ghost: its colour
 mixed 45 % with the blue tint, at `elevation_silhouette` opacity. Every physics step `Elevation` sets
 each tracked body's depth and ghost opacity on its sprites' materials (sprites without one get the
 neutral hit-flash material); a body in the air (`set_flight`) gets the depth its flight gives it.
 
-**Cast shadows** (`elevation_cast_shadow.gdshader`): drawn over the ground up to two cells right of
-and one below anything higher, before the walls. Each pixel looks back towards the light along
-three rays through the depth map for ground high enough to shade it (`SHADOW_UNITS` = 20 units of
-shadow per level), so shapes, corners and heights all come out right without per-edge pieces. The
-lookup is `elevation_cast_shadow.gdshaderinc`; a ramp's slope, drawn over that ground, takes the
-shadows at its own height with it, and casts only the shadow of the wall it covers.
+**Shadows.** The walls cast their shadows from their feet ([Side walls](#side-walls)). A ramp's
+slope, drawn over the ground, takes the shadows of what stands higher at its own height
+(`elevation_cast_shadow.gdshaderinc`): each pixel looks back towards the light along three rays
+through the depth map for ground high enough to shade it (`SHADOW_UNITS` = 20 units of shadow per
+level), so the shadow beside a slope is as long as the face is high there. (The square cast
+shadows the model once drew over all the lower ground went with the front-only look.)
 
 **The drawing** (children of `Elevation`, bottom to top; all world-space, so nothing has seams):
 
@@ -361,29 +362,17 @@ shadows at its own height with it, and casts only the shadow of the wall it cove
 |---|---|---|
 | `Patches` | chamfered corner triangles that take the ground across the corner; the top's ground over the water surface's soft edge along a rim over water | the ground's sheet (`elevation_ground.gdshader`) |
 | `Shade` | the ground of holes, darker per level of depth | multiply (`elevation_shade.gdshader`) |
-| `Shadows` | what raised ground casts on lower ground (none just beyond a ramp's open end: vertex colour r) | multiply (`elevation_cast_shadow.gdshader`, reads the depth map) |
-| `Walls` | covered tris, UV = (world x, depth below the top edge + the course of the top level), shaded by face, one mesh per wall style; corner stones at every wall end (beside lower ground) on the wall's own UV, never above its top edge | `art/<style>-wall.png` (`elevation_wall.gdshader`), `art/<style>-wall-end-right.png` / `-left.png` (`elevation_wall_end.gdshader`) |
-| `Rims` | the light a rim facing the upper left catches | vertex colours, `elevation_glow.gdshader` |
-| `Water` | water at the foot of walls standing in water: the water surface's own maths sampled in front of the wall, its line lapping up the rock, foam, wet rock | `elevation_water_foot.gdshader` (shares `water_surface.gdshaderinc`) |
-| `Feet` | the lower ground's foot along each wall foot | `art/<ground>-foot.png` (`elevation_fringe.gdshader`), else the ground's terrain edge tiles |
-| `Lips` | every top's border as one strip (`elevation_rims.gd`): lip over its walls, rim of tufts elsewhere (none along a one-row open cliff's back rim) | `art/<ground>-lip.png` (`elevation_fringe.gdshader`), else `<ground>-edges.png` per edge (`elevation_strip.gdshader`) |
-| `Ramps` | every ramp's slope and skirt as its lower ground, with the cast shadows at its height; an open end's cap over the strips' ends (lower ground, and the top's ground on the top); a rimmed ramp's landing as its top's ground over the lip ([Ramps](#ramps)); where a flight of stairs leaves a top, that top's ground over its lip (`add_approach`) | the ground's sheet (`elevation_ramp.gdshader`) |
-| `RampEnds` | corner stones where a straight front ramp cuts through a wall | `art/<style>-wall-end-right.png` / `-left.png` (`elevation_wall_end.gdshader`) |
-| `RampFeet` | the lower ground's foot along a slope's edge where it runs at a face, squeezed into the face's height, its top rows faded, leaning towards the face where the edge climbs steeper than 45° | `art/<ground>-foot.png` (`elevation_fringe.gdshader`, `top_fade`) |
+| `Sides` | every top's walls, top edge and foot ([Side walls](#side-walls)), one mesh per level, wall style and pair of grounds (`<level> <style> <top ground> <lower ground>`) | `art/<style>-wall.png`, `-side.png`, `-corners.png` and the grounds' sheets (`sides/elevation_sides.gdshader`, `_sides_material`) |
+| `Ramps` | every ramp's slope and skirt as its lower ground, with the shadows at its height; an open end's cap over the top edge's ends (lower ground, and the top's ground on the top); a rimmed ramp's landing as its top's ground over its edge ([Ramps](#ramps)); where a flight of stairs leaves a top, that top's ground over its edge (`add_approach`) | the ground's sheet (`elevation_ramp.gdshader`) |
+| `RampFeet` | the foot line along a slope's edge where it runs at a face (`_add_ramp_foot`) | as a wall's foot (`elevation_sides.gdshader`) |
 | `Stairs` | every flight's faces, back to front: a front flight's steps and posts on its face, the others' treads, risers and side walls; flights in a row of one colour share a mesh (`<ground>-<n>`) | the grain of meadow rock's `meadow-rock-stairs-tread.png`, `-riser.png` and `-coping.png` (blocks) in the colour of the flight's ground (`elevation_stairs.gdshader`, `_stairs_material`) |
-| `StairsFeet` | the lower ground's foot where a side or back flight's side walls stand on it in sight | `art/<ground>-foot.png` (`elevation_fringe.gdshader`) |
 
 **Rims** (`elevation_rims.gd`): a top's boundary edges (where it meets lower ground, or a wall at
-or below its level) are chained into loops and lines with the top on the left. Along a south face
-the strip is the lip, swept straight down (also on diagonal faces, so it follows the wall); along
-every other edge it is the rim, swept perpendicular to the edge, its art cut below the soil line
-(vertex colour b; `rim_cut` in the shader). The art's u runs on along the chain, convex corners turn
-in a round fan and concave ones meet in a mitre, so lip and rim flow into each other around every
-corner. The part over the top meets the same way: at a convex corner in a mitre, at a concave one
-both strips run on past the corner until they meet (a single triangle only where that point would
-lie more than `MITRE_LIMIT` reaches out). The feet and the wall's texture are swept vertically: a diagonal face continues the same
-strip as a straight one, its course joints bending at the corner; a foot reaches `WALL_END_FRINGE`
-past a wall end. Depth darkening is shared by every shader (`elevation_light.gdshaderinc`).
+or below its level), each with the top on its left: LIP where it hangs over the wall right below it
+(a south face), RIM elsewhere. The walls (`sides/elevation_sides.gd`) are drawn and traced along
+them, the fences ([FENCES.md](FENCES.md)) stand on them, and `add_cores` puts a thin core of the
+top's depth past each rim into the depth map. Depth darkening is shared by every shader
+(`elevation_light.gdshaderinc`).
 
 **Collision and levels.** Each level has a static body (`Collision/Level<n>`) on its own physics
 layer (12 + level + 3: `level -3` … `level 3` in project.godot) whose segments surround exactly
@@ -409,9 +398,16 @@ places it every step, so nothing collides on the way. `WorldService.elevation` a
 [BODY_SHAPES.md](BODY_SHAPES.md#the-goo-bomb-2026-10-14)): `open_passage(world_rect, level)` makes the
 tris whose middle lies in the rect walkable for that level whatever covers them (`ElevationGrid.open_rect`,
 `open_tris`; `is_walkable` and `collision_segments` honour them), and rebuilds only that level's
-collision body (deferred, tens of ms). The drawing does not change: a body in the opening shows as the
-ghost behind the wall. Passages stay through later rebuilds; the cracked wall opens its own again at
-every load from its story flag.
+collision body (deferred, tens of ms). Through a cliff face it opens the drawn wall as well
+(2026-10-17; before, the side walls' collision still shut the hole): the levels of the tops whose
+wall or ground the rect covers are noted (`_passage_tops`), and in the rect, reaching
+`PASSAGE_FOOT_SLACK` (20 units) below it for the drawn foot's dip, the drawn walls of those tops
+neither block that level (`_in_passage`, `_sides_walkable`) nor stop its traced collision (the rect's
+outline is cut into it, `_with_sides`). A passage over a hole (a slab, a drawbridge) opens no such top:
+the hole's walls hang from its rim, the passage's own level. The drawing does not change: the cracked
+wall's hole art covers the face, and a body in the opening shows as the ghost behind the wall.
+Passages stay through later rebuilds; the cracked wall opens its own again at every load from its
+story flag.
 
 **Stairs** (`elevation_stairs.gd`). A flight is built in 3D in its own frame (s along its
 direction from the rim, t across, h up); a point at ground (x, y) and height H is drawn at
@@ -440,13 +436,13 @@ paler stone, `STAIRS_SATURATION`, `STAIRS_VALUE`) and asks each for:
   is drawn: what of a flight stands higher, over ground behind it, only hides a body there (the
   depth map);
 - its silhouette, the whole structure as drawn, and `approach`, the top's ground just behind its
-  rim (`occupies`; fences leave a gap there, and `add_approach` draws that ground over the lip);
+  rim (`occupies`; fences leave a gap there, and `add_approach` draws that ground over the top's
+  edge);
 - its faces, back to front for the camera (a front flight: its steps, then its posts; else the far
   side wall's inner face, the steps from the far end, then each side wall), drawn in one mesh per
   colour and written to the depth map. Godot's 2D drawing has no depth test, so what of a flight
   lies below its top level where the hill's top is drawn (`occlude`: a back flight's foot and first
-  steps behind the rim) is cut out of its faces, its depth, its silhouette and its foot strips (feet
-  only show where a side wall stands on the lower ground in sight).
+  steps behind the rim) is cut out of its faces, its depth and its silhouette.
 
 Each level's collision then traces the stairs too (`_with_stairs`): near a flight, the terrain's
 outline, the flight's outlines and those of flights it touches are cut where they cross, a piece
@@ -576,30 +572,23 @@ neither is left out with a warning ("leads to no higher ground"). The ramp is pa
   far as those outlines reach are traced with it, and a terrain edge that runs on from one ramp to
   another flight is cut by both (`_flights_further`). Every outline stays closed.
 - **Drawing.** `Ramps` draws the slope and its skirt with the lower ground's own sheet in world space
-  (`elevation_ramp.gdshader`, the 128 px sheet like the ground), after the walls, feet and lips: it
-  covers the wall below the slope, the lip's hanging part and the wall's old foot, so of the wall
-  only the part above the slope shows, with its own stone courses. Along the face the slope's edge
-  fades out over `EDGE_FADE` (10 units), so the lip's hanging tufts and the stone end softly on it.
-  A rimmed ramp's landing (`add_landing`) covers its top's lip where it leaves the rim with that
-  top's ground, fading out at its sides: the lip breaks there, so the way down reads (the front
-  ramp's cut through the wall, the back ramp's gap in the rim). The slope takes the cast shadows at
-  its own height (`elevation_cast_shadow.gdshaderinc`, shared with the cast shadows), so the
-  shadows of the face and the top beside it grow with the face's height. `RampFeet` lays the lower
-  ground's foot along the slope's edge where it runs at the face (only where a wall really stands
-  beside the slope, `_ramp_wall_span`: a repainted top may end the wall before the face found for
-  the ramp does), squeezed into the face's height
-  there (the fern tips end at the face's top however short it is) with its top rows faded out
-  (`RAMP_FOOT_TOP_FADE`, `top_fade` in `elevation_fringe.gdshader`), and its ground below the edge
-  no deeper than the face is tall, so it starts from nothing at the top end; where the edge climbs
-  steeper than 45° on screen (a steep ramp along a 45° face: about 61° for the U) the sweep leans
-  towards the face by the excess (16° there), so the art shears no more than along a 45° foot and
-  its ferns stay ferns; wall feet the ramp covers entirely are left out. A straight front ramp
-  cuts through the wall it leaves: `RampEnds` gives the wall beside it its corner stones there.
-  Corner stones under a ramp or on its face (the tip of a taper) are left out.
+  (`elevation_ramp.gdshader`, the 128 px sheet like the ground), after the walls: it covers the wall
+  below the slope, the top edge's hanging part and the wall's old foot, so of the wall only the part
+  above the slope shows, with its own stone courses. Along the face the slope's edge lies
+  `EDGE_INSET` (10 units) in from the face (`edge_t`), so the wall's stones stay whole up to it. A
+  rimmed ramp's landing (`add_landing`) covers its top's edge where it leaves the rim with that
+  top's ground, fading out at its sides: the edge breaks there, so the way down reads (the front
+  ramp's cut through the wall, the back ramp's gap in the rim). The slope takes the shadows at its
+  own height (`elevation_cast_shadow.gdshaderinc`), so the shadows of the face and the top beside it
+  grow with the face's height. `RampFeet` lays the foot line along the slope's edge where it runs at
+  the face (only where a wall really stands beside the slope, `_ramp_wall_span`: a repainted top may
+  end the wall before the face found for the ramp does): see [Side walls](#side-walls), "Open
+  cliffs". A straight front ramp cuts through the wall it leaves; the wall beside it ends there
+  with no stones of its own.
 - **Depth.** The slope and skirt go into the depth map as ground of the bottom level, marked as a
   ramp (`ElevationOcclusion.encode_ramp`, b = 0.875): they hide nothing (the slope reads as flat
-  ground). For the cast shadows they are that ground too, except over the wall they cover, where
-  they keep their height (g, `add_ramp_depth`): the shadow beside the slope is as long as the
+  ground). For the shadows on a slope they are that ground too, except over the wall they cover,
+  where they keep their height (g, `add_ramp_depth`): the shadow beside the slope is as long as the
   slope is high there, and the slope's free edges (drawn as ground) cast none.
 
 #### Open ends
@@ -613,31 +602,29 @@ down to meet the ground and the top joins it, instead of turning a corner and cl
 At a plateau's corner the top's side runs on past the top end: the shape stays closed there, and
 its rim and shadow stay (the lab's three 45° plateau cases).
 
-- **The wall** tapers to nothing at the end: no corner stones there (`_end_under_ramp`, under any
-  ramp).
+- **The wall** tapers to nothing at the end.
 - **The rim** does not turn around the end: the top's boundary edges beyond the top end (s ≤ 0 at
   the top's height, not along it) whose middle lies within `OPEN_REACH` (40 units) of the end's
-  corner are left out of the top's strip (`ElevationRamp.closes`, `Elevation._closes_open_end`, the
-  `left_out` filter of `ElevationRims.build`: no strip, glow or depth core there). The lip runs on
-  to the end and stops; on a 45° arm the rim along its back runs on to the end too. The **cap**
-  covers the strips' ends with ground and fades out (`_cap_triangles`, a grid of 12-unit squares):
-  opaque out to `CAP_RADIUS` (56 units) from the corner and from `CAP_BEYOND` (8) beyond the top
-  end, clear `CAP_FADE` (16) further out and `CAP_INTO` (16) along the slope. Where edges were left
-  out (`cuts_rim`, a ridge's or an arm's tip) the strips end right at the top end: the cap is opaque
-  up to `CAP_SOLID` (4) along the slope, just past their ends, and clear at `CAP_INTO_CUT` (40), so
-  they fade in from nothing instead of ending on a line. It is drawn with the lower ground, and with
-  the top's own ground where it covers the top (`add_cap_top`).
-- **No shadow** falls on the ground beyond the end near it (`shadow_take`): none within
+  corner are left out (`ElevationRamp.closes`, `Elevation._closes_open_end`, the `left_out` filter
+  in `_build_drawing`: no wall, edge or depth core there). The wall and its edge run on to the end
+  and stop; on a 45° arm the back edge runs on to the end too. The **cap** covers the top edge's
+  ends with ground and fades out (`_cap_triangles`, a grid of 12-unit squares): opaque out to
+  `CAP_RADIUS` (56 units) from the corner and from `CAP_BEYOND` (8) beyond the top end, clear
+  `CAP_FADE` (16) further out and `CAP_INTO` (16) along the slope. Where edges were left out
+  (`cuts_rim`, a ridge's or an arm's tip) the edges end right at the top end: the cap is opaque up to
+  `CAP_SOLID` (4) along the slope, just past their ends, and clear at `CAP_INTO_CUT` (40), so they
+  fade in from nothing instead of ending on a line. It is drawn with the lower ground, and with the
+  top's own ground where it covers the top (`add_cap_top`).
+- **No shadow** falls on the slope and the cap near the end (`shadow_take`): none within
   `OPEN_NEAR` (64 units) of the corner, all of it again `OPEN_FADE` (48) down the slope and
-  `OPEN_FAR` (160) from the corner. The receivers of the cast shadows and the cap carry it in
-  their vertex colour r (`elevation_cast_shadow.gdshader`, `elevation_ramp.gdshader`). Beside the
-  slope the shadows of the face and the top fade with the face's height by themselves.
+  `OPEN_FAR` (160) from the corner, carried in their vertex colour r (`elevation_ramp.gdshader`).
+  Beside the slope the shadows of the face and the top fade with the face's height by themselves.
 - **Walking**: a body climbing the slope walks on onto the top over the low face at the end (the
   join above); the tapered face stays solid. From the top near the end a body steps back onto the
   slope towards it (down-left on a south-west arm) and walks down it along the face.
 
 Front and back ramps (against a rim) are not open ends: the wall beside a front ramp keeps its full
-height and ends in corner stones at the cut.
+height and ends at the cut.
 
 Paint the tiles on the lower ground, along the wall's foot or out from a rim (Authoring, step 5).
 The cliff shapes lab's last rows show each kind, and the owner's U beside them
@@ -672,27 +659,11 @@ DIR]` (numpy, Pillow) into `godot/asset/MAPS/elevation/`.
   courses, so its entry gives that count. The generator paints the light falling off from the upper
   left across the frame, which would repeat as a bright patch every period: the tool evens it out
   (divides out the brightness averaged over 4 × 4 blocks) for every style but meadow rock.
-- **Lip and foot per ground** (2:1): "the straight front edge of a flat <ground> cliff top … ends in
-  a <fringe> hanging over the edge … below it fully transparent" and "<ground> … rising into a
-  <fringe> against a wall that is not shown … above it fully transparent", references: a 1024 px
-  crop of the ground's sheet and the style sheet. In `STRIPS` give each source its edge row (the
-  soil band the cliff edge or wall foot runs along), the fringe px kept on the ground side and a
-  scale; the tool matches the ground's colours, makes the strip periodic and fades its own ground
-  into the real one.
-- **Wall ends** (1:1, one per side): "the right-hand (left-hand) end of a natural stone cliff wall
-  … the courses end in a vertical column of rounded corner stones that turn away from the viewer …
-  beyond the corner fully transparent", with the wall as reference (and the right end for the left
-  one). In `WALL_ENDS` give each the source column of the crevice between the wall and its stones,
-  or None to let the tool find it (the darkest column 50-230 px inside the art's edge); the tool
-  cuts the column, fits its courses to the wall's and matches its colours. The 2026-10-08 ends had
-  the style's chosen wall and meadow rock's right end (`wall-corner-b.png`; mirrored for a left end)
-  as references: "the right-hand (left-hand) end of a <rock> cliff wall … built of the same stones,
-  colours and painting as the first reference image. Composition exactly like the second reference
-  image: the wall fills the left (right) two thirds of the frame … the courses end in a vertical
-  column of rounded corner stones that turn away from the viewer, two stones per course. Beyond the
-  corner the right (left) third of the frame is fully transparent and empty"
-  (`<style>-end-right-a.png`, …). Masonry's ends ask for "a chunky cut corner block (a quoin)" per
-  course.
+- **Lips, feet and wall ends** (2026-10-05/08) were the front-only look's art: each ground's lip and
+  foot fringe and each style's corner-stone ends. They went with it on 2026-10-17 (the runtime art
+  is in `asset/to-delete/MAPS/elevation/`; the Magnific sources and their prompts stay in
+  `asset/Originals/elevation/generated/` and git history). The side walls draw their edges and feet
+  from the grounds' sheets and need neither.
 - **Stairs** (2026-10-06, the stairs session): rows of cut sandstone with the wall and the old stairs
   as references, `stairs-tread-a.png` (treads seen from above) and `stairs-riser-b.png` (risers and
   copings). In `STAIRS` give each part the source rows of one step, crevice to crevice; the tool
@@ -701,24 +672,23 @@ DIR]` (numpy, Pillow) into `godot/asset/MAPS/elevation/`.
   stairs use only meadow rock's three for their grain (the shader takes their luminance and colours
   it by the flight's ground; the coping row makes the blocks of the posts and side walls); the other
   styles' `-stairs-coping.png` (their old railings' caps) are no longer drawn.
-- **Cut from a painting** (2026-10-10): `storybook-rock` (wall, ends, coping) and `storybook-grass`
-  (lip, foot) are not generated: `python scripts/art/build-elevation-art-from-painting.py
-  [--preview DIR]` cuts them from the approved H plateau paintings as aligned by
-  `build-cliff-kit.py` (`godot/asset/MAPS/cliffs/kit-h3.png`, `kit-h2.png`): the wall from the clean
-  middle course of the three-course painting (two spans, one joint each, joined and made periodic
-  through stone faces; the second row mirrored and shifted), the ends from the same course's end
-  stones, the lip and foot from the two-course painting's fern bands at 0.75 scale (the stone
-  between the hanging plants cut away) ([Storybook art](#storybook-art)).
+- **Cut from a painting** (2026-10-10): `storybook-rock` (wall, coping) is not generated:
+  `python scripts/art/build-elevation-art-from-painting.py [--preview DIR]` cuts it from the approved
+  H plateau painting as aligned by `build-cliff-kit.py` (`asset/Originals/elevation/cliff-kit/kit-h3.png`):
+  the wall from the clean middle course of the three-course painting (two spans, one joint each,
+  joined and made periodic through stone faces; the second row mirrored and shifted)
+  ([Storybook art](#storybook-art)); its side strip and corner stones come from
+  `build-side-wall-art.py` ([Side walls](#side-walls)).
 - The editor's paint tiles (levels, stairs, ramps in row 4, 2026-10-11):
   `python scripts/art/build-elevation-paint-tiles.py`, and for the
   `cliffs` layer `python scripts/art/build-cliff-paint-tiles.py` (a swatch of each wall).
 
 Then let the editor import them. The 2026-10-05 sets (one wall, its two ends, stairs, nine grounds'
 lips and feet, with spare candidates) used about 4,300 credits; the eight wall styles of 2026-10-08
-(a wall and two ends each, two candidates of everything) 5,000. The rims reuse the lips' art.
-A new wall style: generate its wall and ends as above, add it to `WALLS` and `WALL_ENDS`, run the
-tool with its name, add it to `build-cliff-paint-tiles.py` `TILES` and a tile in
-`cliff_tileset.tres` (the same order), and to `GROUND_WALL_STYLES` if a ground should take it.
+(a wall and two ends each, two candidates of everything) 5,000. A new wall style: generate its wall
+as above, add it to `WALLS`, run the tool with its name, add it to `build-cliff-paint-tiles.py`
+`TILES` and a tile in `cliff_tileset.tres` (the same order), and to `GROUND_WALL_STYLES` if a
+ground should take it; for side and corner stones of its own, `build-side-wall-art.py`.
 
 `res://tools/render_elevation_park.gd` (windowed: `--path godot -s
 res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few close-ups
@@ -729,16 +699,16 @@ with the game's own drawing, for checking new art in place.
 The approved H plateau paintings (`asset/Originals/elevation/cliff-concepts/h-plateau-a.png` and
 `h-plateau-level3.png`, Magnific GPT 2.5) are aligned by `python scripts/art/build-cliff-kit.py`
 (one stone course to a 128 px cell, the outside ground cut away, the colours matched) into
-`godot/asset/MAPS/cliffs/kit-h2.png` and `kit-h3.png`; `build-elevation-art-from-painting.py` cuts
-`storybook-rock` and `storybook-grass` from them (above). A world uses them through its `ground`
-layer's metadata (Inspector > Metadata > Add Metadata, type Dictionary): `cliff_wall_styles` =
-`{"highland": "storybook-rock"}` and `cliff_fringe` = `{"highland": "storybook-grass"}`
-([Wall styles](#wall-styles)). Limits: the lip and foot ferns are at 0.75 of the painting's scale,
-the wall repeats every two stones (536 px), and `storybook-rock` has no tile on the `cliffs` paint
-layer yet.
+`asset/Originals/elevation/cliff-kit/kit-h2.png` and `kit-h3.png` (art-tool inputs, outside the
+Godot project since 2026-10-17 so they no longer ship in the web build: 24 MB);
+`build-elevation-art-from-painting.py` cuts `storybook-rock` from them (above). A world uses it
+through its `ground` layer's metadata (Inspector > Metadata > Add Metadata, type Dictionary):
+`cliff_wall_styles` = `{"highland": "storybook-rock"}` ([Wall styles](#wall-styles)). Limits: the
+wall repeats every two stones (536 px), and `storybook-rock` has no tile on the `cliffs` paint layer
+yet.
 
 The **cliff shapes lab** (`godot/game/scenes/worlds/cliff-shapes-lab.tscn`,
-`world.cliff-shapes-lab`, dev only) shows them: L, T, plus, U from the north and from the south,
+`world.cliff-shapes-lab`, dev only) shows it: L, T, plus, U from the north and from the south,
 joined rectangles, a 1-2-3 terrace, an octagon, a hole, walls of 1-3 courses, a terrace with a flush
 front, and in its last rows (69-89) every kind of [ramp](#ramps); beside them (columns 42-55, rows
 84-88) the owner's level-2 U, whose two 45° arms open into the ground through ramps. Its builder
@@ -747,7 +717,8 @@ drops the owner's U and anything else painted there.
 
 ## Side walls
 
-> **Experiment (2026-10-13), the cliff sides lab only.** The owner, from a reference screenshot:
+> **The cliff look (built 2026-10-13, approved 2026-10-14, every world since 2026-10-17).** The
+> owner, from a reference screenshot:
 > "the cliff in our game does not have side view, only front view ... the game gains a lot when the
 > player can identify a cliff right away". The goal: tops that read as raised blocks from all four
 > sides, with round corners and walls that are not ruler-straight, in our current art, open cliffs
@@ -768,14 +739,14 @@ drops the owner's U and anything else painted there.
 > sand. Sixth: the side wall should start higher, where the top's round begins, its collision with
 > it; collision must follow the drawn walls ("edges that block movement when it shouldn't"); the
 > open cliff's fern foot along a ramp no longer fits; level-1 keeps its own stones. All of it is
-> what follows.
+> what follows. On 2026-10-14: "I think it is the way to go". On 2026-10-17 the front-only look was
+> removed and every world converted.
 
-A world opts in with its ground layer's metadata `cliff_look` = `"sides"` (Inspector > Metadata,
-type String; `Elevation.WORLD_CLIFF_LOOK_META`). Its cliffs keep the model, collision, stairs,
-ramps, open cliffs and depth of this system; Walls, Feet, Lips, the model's cast Shadows, the
-rims' light (`Rims`) and the water at walls' feet (`Water`), which all follow the model's square
-cells, are replaced by **Sides** (`game/world/elevation/sides/elevation_sides.gd`, `elevation_sides.gdshader`; no fringe
-art, the edges are drawn from the grounds' own sheets):
+Every world draws its cliffs this way (no setting chooses it). The cliffs keep the model, collision,
+stairs, ramps, open cliffs and depth of this system; their walls, edges, feet, shadows and water
+feet are **Sides** (`game/world/elevation/sides/elevation_sides.gd`, `elevation_sides.gdshader`; no
+fringe art, the edges are drawn from the grounds' own sheets), which follow round borders instead
+of the model's square cells:
 
 - **Every side has a wall.** Besides the front (south) wall, one stone course per level as before,
   the east and west sides show a narrow strip of the same wall seen from the side (`SIDE`, 24 units
@@ -831,8 +802,8 @@ art, the edges are drawn from the grounds' own sheets):
   past an outer corner the top's square cell would poke out past the round edge, inside an inner
   one the lower ground would show. `_add_corner_fills` draws the lower ground there (outer) or the
   top's (inner), first in the level's mesh. The top edge wobbles outward only, for the same reason.
-- **Shadows.** The model's cast shadows are left out (they step along the square cells); the foot's
-  shadow casts instead: `FOOT_OUT` (20) units past the foot plus `SHADOW_PER_LEVEL` (22) per level
+- **Shadows.** The foot's shadow is the cliff's cast shadow (the model's own, which stepped along
+  its square cells, went with the front-only look): `FOOT_OUT` (20) units past the foot plus `SHADOW_PER_LEVEL` (22) per level
   of the wall there, as the foot faces east (`SHADOW_EAST` 1) or south (`SHADOW_SOUTH` 0.3), so a
   hill throws a round shadow to the lower right, longer for a taller one, and none past a back
   corner's slanted end. A back edge keeps a short shadow on the ground behind.
@@ -855,33 +826,42 @@ art, the edges are drawn from the grounds' own sheets):
   takes its way from neighbours `FOOT_SPAN` (8) units apart and shrinks where its offsets would
   cross, so it never folds over itself (its shadow would double there).
 - **Painter's order.** One mesh per level, wall style and pair of grounds (the top's and the lower
-  one, the most common along each chain), lowest level first; inside it every piece is drawn by the
+  one, the most common along each chain; a chain's commonest style, and the style painted on the
+  `cliffs` layer for each painted stretch of it, every piece going by the style of the border point
+  it hangs from: [Wall styles](#wall-styles)), lowest level first; inside it every piece is drawn by the
   screen y of the border point it hangs from, so where faces overlap (an inner corner) the nearer
   face covers the farther one. A top edge is drawn `EDGE_LEAD` (8) and a foot `FOOT_LEAD` (24) units
   of depth later than its wall, so they stay over the walls they belong to.
 - **Collision follows the drawing.** The model's cells are square and its walls hang only below
-  front edges, so in this look each level walks by the drawn shapes (`ElevationSides.shapes`: per
-  chain its wall polygons, from the smooth border to the foot, and the zones between each round
-  outer corner and the model's square corner). `_terrain_walkable` (used by `is_walkable` and the
+  front edges, so each level walks by the drawn shapes (`ElevationSides.shapes`: per chain its wall
+  polygons, from the smooth border to the foot, over the points whose fibre reaches out more than
+  `WALL_MIN` (0.75 units: a back edge, whose foot lies out only by the top edge's wobble, has none,
+  so the strip behind a hill stays open; until 2026-10-17 a sliver along it closed that strip), and
+  the zones between each round outer corner and the model's square corner). `_terrain_walkable` (used by `is_walkable` and the
   collision tracing) asks the model, then `_sides_walkable`: a top's own level stops at its round
   corners (the zone past one is not walkable); a level below it cannot enter a drawn wall (a side
   strip stands on ground the model calls walkable), and where the model blocks it for that top (the
   zone past a round corner, the model's wall below the drawn foot) it is the ground below the wall
   (`_below_at`). Stairs and ramps decide first (`_stairs_rule`). Where a drawn wall's uneven foot
-  dips under the bottom step of a front flight (up to `STAIRS_FOOT_SLACK`, 12 units), that strip is
-  the ground the flight starts from (`_at_stairs_foot`; as wall it closed the foot of most of the
-  lab's flights to their lower level until 2026-10-14). `_with_sides` then traces each
-  level as `_with_stairs` traces flights: near the tops, the model's outline, the borders and the
-  walls' outlines are cut where they cross (`_split_all`, `SPLIT_BUCKET` buckets) and each piece is
-  kept where it parts walkable from blocked ground, so the collision runs along the drawn feet,
-  side strips and round corners; the strip behind a hill stays open. A ledge push off a round corner
+  reaches past the bottom step of a front flight (up to `STAIRS_FOOT_SLACK`, 20 units down the
+  flight, `dir`: a 45° face pushes the foot out further), that strip is the ground the flight starts
+  from (`_at_stairs_foot`; as wall it closed the foot of most of the lab's flights to their lower
+  level until 2026-10-14). `_with_sides` then traces each
+  level as `_with_stairs` traces flights: near the tops, the model's outline, the borders, the
+  walls' outlines and the steps' outlines moved down by that slack (since 2026-10-17: before, a wall
+  foot running under a flight's bottom step was kept whole and blocked part of the step) are cut
+  where they cross (`_split_all`, `SPLIT_BUCKET` buckets) and each piece is kept where it parts
+  walkable from blocked ground, so the collision runs along the drawn feet, side strips and round
+  corners; the strip behind a hill stays open. A ledge push off a round corner
   finds the ground below there (`_lower_level_at`). Each border is simplified once
   (`SHAPE_TOLERANCE`, 0.5 units, keeping corner ends and where walls start or end, `_kept`) and its
   walls, zones and edges all take its points, so every test agrees with the line its pieces are cut
   along; the walls' feet are simplified the same. Shapes are looked up by place (`_side_cells`,
-  `SHAPE_CELL`). Load (2026-10-14, desktop): level-1 0.74 s in all (0.5 s with front walls only;
-  the sides' collision about 0.15 s), the lab 1.7 s (its collision 0.38 s, its side drawing about
-  0.4 s over the front look's).
+  `SHAPE_CELL`). Pieces of different outlines may end a few units apart; no gap in a level's
+  collision is as wide as a body (`test_elevation` checks the park). Load (2026-10-14, desktop):
+  level-1 0.74 s in all (0.5 s with front walls only; the sides' collision about 0.15 s), the lab
+  1.7 s (its collision 0.38 s, its side drawing about 0.4 s over the front look's); from the baked
+  cache much less ([Baked cache](#baked-cache)).
 - **Open cliffs** keep their rules: the edges left out at an open end or along a one-row open
   cliff's back (`left_out`) get no wall either, so no side wall stands where the cliff opens into the
   ground. Its inner sides neither (owner, 2026-10-14: "when the structure is an open cliff ... do
@@ -889,13 +869,12 @@ art, the edges are drawn from the grounds' own sheets):
   inside the cliff's bounding box, is the ground it encloses (`_find_open_inner`, `_open_inner`; an
   L of single cells encloses the ground behind its row), and a side of the cliff facing it is left
   out like its back (`_is_inner_side`); its outer sides keep their walls. A ramp's slope covers the
-  wall below it as before, but its edge along the face is hard (`ElevationRamp.hard_edge`, no
-  EDGE_FADE band, at `edge_t`), so the tapered wall's stones stay whole up to it, and the foot line
-  along the slope lies on that edge, where the stones end (fading in over `SIDES_RAMP_FOOT_FADE_IN`,
-  6 units of face, at the top end). Along the slope's edge at the face the
-  foot is the same dark line and clumps as every wall's, with a short shadow on the slope
-  (`_add_sides_ramp_foot`, `SIDES_RAMP_FOOT_OUT`, `SIDES_RAMP_FOOT_SHADOW`), fading in from nothing
-  where the face does, instead of the fern foot (RampFeet).
+  wall below it, its edge along the face hard (`ElevationRamp.edge_t`, `EDGE_INSET` in from the
+  face), so the tapered wall's stones stay whole up to it, and the foot line along the slope lies on
+  that edge, where the stones end (fading in over `RAMP_FOOT_FADE_IN`, 6 units of face, at the top
+  end). Along the slope's edge at the face the foot is the same dark line and clumps as every wall's,
+  with a short shadow on the slope (`RampFeet`: `_add_ramp_foot`, `RAMP_FOOT_OUT`,
+  `RAMP_FOOT_SHADOW`), fading in from nothing where the face does.
 
 **The cliff sides lab** (`godot/game/scenes/worlds/cliff-sides-lab.tscn`, `world.cliff-sides-lab`,
 dev only; F6, or `?map=cliff-sides-lab`) shows the owner's reference shape (a notch and a step),
@@ -905,11 +884,22 @@ diamond; below them (rows 52-80) the grounds row: a level-2 plateau with a step 
 forest floor, forest moss, fallen leaves, cavern, crystal and cobble (each top takes its ground's
 wall style, `GROUND_WALL_STYLES`), then grass on sand, sand on grass, snow on grass and grass in
 water. `godot/tools/build_cliff_sides_lab.gd` builds it (it does not overwrite the lab unless
-given `-- --force`). Set the ground layer's `cliff_look` to anything else to compare with the
-front-only look. `res://tools/render_cliff_sides_lab.gd` (windowed: `--path godot -s
-res://tools/render_cliff_sides_lab.gd -- --out=<dir> [--only=<name prefix>] [--look=front] [--collision]`)
-renders it with the game's drawing, whole and in close-ups at the art's resolution, with each
-level's collision outline on request.
+given `-- --force`). `res://tools/render_cliff_sides_lab.gd` (windowed: `--path godot -s
+res://tools/render_cliff_sides_lab.gd -- --out=<dir> [--only=<name prefix>] [--collision]
+[--scene=res://... [--rect=x,y,w,h] [--wall-style=<style>]]`) renders it (or another world, whole
+and a close-up in cells) with the game's drawing, whole and in close-ups at the art's resolution,
+with each level's collision outline on request.
+
+**The conversion (2026-10-17).** Since side walls are the only look, a world needs no setting or
+conversion step: it draws them when it loads, and `tools/bake_elevation.gd` bakes its cache. Of the
+60 world scenes with an `elevation` layer, 52 paint elevation; 49 of those still drew front-only
+walls and now draw side walls (the playground's park, the fence park, the cliff shapes lab, and 46
+region chunks: desert, frostpeak, north and south wilds, northern ruins, sticky swamp, volcano
+ridge, west village); level-1's c4 and d4 and the cliff sides lab already did. Gloop Forest's and
+Crystal Caverns' chunks paint no elevation. The before and after of a handful were compared by eye;
+the placeholder regions' small plateaus only gained their side strips and round corners. With the
+look removed, the ground layer metadata `cliff_look` and `cliff_fringe` mean nothing (the dungeon
+builders' tools still set `cliff_look`; harmless).
 
 Limits (2026-10-13): round a front corner the wall's own courses still fan under the corner stones
 and merge into the side's column past them (a 3-level corner shows thin wrapped courses for a
@@ -918,9 +908,16 @@ styles other than `storybook-rock` draw their sides and corners with their wall 
 cast over a lower top does not climb the walls standing on it; a chain's edges use one top and one lower ground (a
 plateau standing on two grounds draws its foot's clumps in the commoner); edges over ground in a cast
 shadow are not shaded by it (the foot's clumps are darkened to match instead); inside a concave round corner the drawn
-top bulges a little past the model's top, which the top's level cannot walk; the sides look's
-collision is checked from renders of its outlines only (no walking probe or test yet); about
-300,000 vertices for the lab, not yet measured on the web.
+top bulges a little past the model's top, which the top's level cannot walk; about
+300,000 vertices for the lab, not yet measured on the web. Since 2026-10-17 (every world): a body
+pressing straight down behind a 45° back face is held at the tip by the side wall starting there
+(along the face it slides past); a straight front ramp's cut through a wall has no corner stones
+(the wall stops at the slope's side); the stairs' side walls stand on the ground with no foot
+line; a wall stretch painted another style on the `cliffs` layer is drawn in a mesh of its own
+after its chain's, so where it overlaps another face (an inner corner) it may cover it; a few of
+the cliff shapes lab's ramp examples (45° faces meeting a plateau's corner) show small stray wall
+pieces at the face's end; fences stand on the model's square rims, so a fence corner pokes a little
+past a round top corner.
 
 ## Baked cache
 
@@ -932,13 +929,14 @@ changes when its painting does, so a game build saves what it makes and later lo
   scene in `res://game/scenes/worlds/elevation_cache/<path under worlds/, "/" as "__">.res`,
   `Elevation.cache_path`): every drawing group's meshes in order, each with the key its material is
   made from (`_material_for`; materials hold textures and the live depth map, so they are made at
-  load), the depth map's mesh and rect, the sides look's shapes (for walking) and each level's
+  load), the depth map's mesh and rect, the drawn walls' shapes (for walking) and each level's
   collision segments. The model (`ElevationGrid`), the stairs and ramps, the open cliffs and the
   fences are still built at load (about 50 ms for level-1): gameplay queries need them.
 - **When it is used** (`_load_cache`): a game build (`mount(..., collide = true)`; the editor's
   live preview never uses it) loads the cache when its `key` matches: a hash of the `elevation`,
-  `ground` and `cliffs` layers' cells, the ground's metadata (`cliff_look`, `cliff_wall_styles`,
-  `cliff_fringe`, size), the elevation settings and `CACHE_VERSION` (`_cache_key`). In a debug run
+  `ground` and `cliffs` layers' cells, the ground's metadata (`cliff_wall_styles`, size), the
+  elevation settings and `CACHE_VERSION` (`_cache_key`; 3 since the front-only look went,
+  2026-10-17). In a debug run
   from the project it also must have been baked with the current sources of `CACHE_SCRIPTS`
   (`_code_hash`), so changing the build code rebuilds it there; an exported game trusts it. Else
   the world builds as before.
@@ -954,7 +952,8 @@ changes when its painting does, so a game build saves what it makes and later lo
 
 Measured (2026-10-14, desktop): level-1 loads in 233 ms instead of 600 ms (cache 278 KB), the
 cliff sides lab in 385 ms instead of 1.7 s (2 MB). A cached and a freshly built level-1 render the
-same cliffs and the same collision.
+same cliffs and the same collision. On 2026-10-17 all 52 worlds that paint elevation were rebaked
+with side walls (the playground: 0.56 s from its cache, 2.1 s built).
 
 ## Why this approach (what other games do)
 
@@ -980,15 +979,15 @@ same cliffs and the same collision.
 
 ## Limits and next steps
 
-- Every ground with terrain edges has its lip and foot. A new ground needs both (about 400 credits),
-  else it falls back to its thin terrain edge rims.
+- A new ground needs no cliff art: its walls' edges and feet are drawn from its own sheet (and its
+  wall style from `GROUND_WALL_STYLES`, else meadow rock).
 - Only bodies (player, enemies, NPCs, and what is parented to them, like the swung weapon) hide
   behind hills. Props, effects, projectiles and loot do not: do not place props in the strip behind
   a hill. Two bodies on different levels that overlap on screen sort by their feet only.
-- Depth and shadows use a 2-unit grid: their edges step by 2 units (hidden under the rims' tufts).
+- Depth uses a 2-unit grid: its edges step by 2 units (hidden under the top edge's clumps).
   Measured at about 1 ms a frame in the park on the owner's desktop GPU; phones are not measured.
-- Two wall styles side by side meet on a straight vertical line (no corner stones between them).
-  Every flight is the same stone in its ground's colour, whatever the cliff's style; the colour is
+- Two wall styles side by side along one chain meet on a line across the wall (no stones between
+  them). Every flight is the same stone in its ground's colour, whatever the cliff's style; the colour is
   an average, so a ground of strong contrasts (crystal, cobble) gives a plain stone.
   Masonry on a one-level wall shows a single row of large pale blocks with faint joints; the
   generated wall styles still await the owner's verdict (2026-10-08).
@@ -1015,8 +1014,8 @@ same cliffs and the same collision.
   flight whatever the keys (on a 45° flight either of its keys climbs it). A body knocked partway up
   a flight stands there until it moves (then it is carried to the nearer end). An enemy chasing the
   player up the stairs waits at their foot.
-- A drop off a back rim lands in the capped strip, nearer the rim than a real fall would; a side
-  rim shows no wall, so a fall beside a hill drops past plain ground.
+- A drop off a back rim lands in the capped strip, nearer the rim than a real fall would; a fall off
+  a side rim lands past the side wall beside the hill, a cell lower on screen per level.
 - Ramps (2026-10-11, the cliff shapes lab only): a ramp's long sides are open ground, so a body
   walks off a high part of one onto the ground beside it with no fall (the illusion, as in *A Link
   to the Past*); nothing draws a raised ramp's own side (no causeway). Stepping onto a slope from
@@ -1035,26 +1034,16 @@ same cliffs and the same collision.
   towards the face does nothing (no ledge drop over a tapered face, and a drop never lands on the
   slope it would climb straight back up; a one-row open cliff's tapered face does drop). The way down from an arm is to its tip, then along the
   face. 8-way keys do not follow a slope: pressing along a ramp's direction drifts off its open side
-  (holding towards the face or the tip climbs it; down the slope, hold towards the face). On the
-  storybook art the lip's hanging ferns cover most of a steep 45° taper's face, and the foot along a
-  steep slope leans towards the face (16° on the U). A ramp is drawn after every lip and wall, so a
-  higher hill in front of one is not drawn over it (only tops of its own level and higher hide it):
-  keep ramps clear of other cliffs. A ramp must run along one face (or leave one rim): the snap to a
+  (holding towards the face or the tip climbs it; down the slope, hold towards the face). A ramp is
+  drawn after every wall, so a higher hill in front of one is not drawn over it (only tops of its
+  own level and higher hide it): keep ramps clear of other cliffs. A ramp must run along one face (or leave one rim): the snap to a
   face reads the wall beside its cells, and a 45° ramp along a straight face (or the reverse) does
-  not taper right; a ramp that finds neither is left out with a warning. Breaking a top's strip at
-  an open end restarts its art along the whole strip (the tufts fall differently, as after any
-  repaint). The open end's cap and shadow cut are drawn around the corner whatever lies there, and
-  the cap off the top is the ramp's own ground: keep other cliffs and other grounds a cell and a
-  half from an open end. Only a straight front ramp gets corner stones where it cuts a wall, and
-  the 45° cut at its sides. Paths (mouse orders) walk up and down ramps but never off their open
-  sides.
-- A top narrower than its lip's inner reach (`IN`, 48 units, elevation_rims.gd) draws its rim's
-  inner art twisted where the strip turns around a short edge: a 45° ridge's closed tip (a diagonal
-  line of single cells without a ramp) shows wedge-shaped tuft pieces. The same happens wherever a
-  short edge meets a convex corner of a strip (17 places in the playground); a fix changes the lips
-  of 10 worlds, so it awaits the owner (2026-10-11).
-- Waterfalls, ladders and pits are not built. Water only laps at a wall's foot: a hill's
-  rim beside water (no wall) gets the usual shore tiles of the terrain edges where it is flat.
+  not taper right; a ramp that finds neither is left out with a warning. The open end's cap and
+  shadow cut are drawn around the corner whatever lies there, and the cap off the top is the ramp's
+  own ground: keep other cliffs and other grounds a cell and a half from an open end. Only a
+  straight front ramp gets the 45° cut at its sides. Paths (mouse orders) walk up and down ramps but
+  never off their open sides.
+- Waterfalls, ladders and pits are not built. Water only foams at a wall's foot.
 - The level light only darkens holes; hills are not lightened.
 
 ## Files
@@ -1065,11 +1054,11 @@ same cliffs and the same collision.
 | `godot/game/world/elevation/elevation.gd` | `Elevation`: mount, drawing, collision bodies (stairs merged in), body levels, drop and hop targets, jump flights (`@tool`) |
 | `godot/game/world/elevation/elevation_stairs.gd`, `elevation_stairs.gdshader` | A flight of stairs: geometry (set into a face, or running out), walkable surface and the way past its ends, silhouette, levels and depth along it, faces back to front, occlusion by the hill; the shader draws the steps, posts and side walls in the flight's colour |
 | `godot/game/world/elevation/elevation_ramp.gd`, `elevation_ramp.gdshader` | A ramp (a flight without stone): its slope, the join over a low face, the high end, open sides (strips, skirt), the tapered face, an open end (the rim left out, the cap, no shadow beyond), a rimmed ramp's landing; the slope drawn as its ground with the shadows on it |
-| `godot/game/world/elevation/elevation_cast_shadow.gdshaderinc` | The cast shadows' lookup through the depth map, shared by the cast shadows and the ramps |
+| `godot/game/world/elevation/elevation_cast_shadow.gdshaderinc` | The shadows' lookup through the depth map, for a ramp's slope |
 | `godot/game/player/abilities/jump_sequence.gd` | The flight of a jump or a ledge drop (`player.gd` `_press_ledge` starts a drop) |
 | `godot/game/player/abilities/stairs_sequence.gd` | The [stairs walk](#stairs-walk) (`player.gd` `_enter_stairs` starts it) |
-| `godot/game/world/elevation/elevation_rims.gd` | Every top's border as one chained strip (lips, rims, round corners), glow and depth cores |
-| `godot/game/world/elevation/sides/elevation_sides.gd`, `elevation_sides.gdshader` | The sides look ([Side walls](#side-walls)): walls on every side of a top, round front corners, slanted back ones, folded inner ones, wobbling borders, simple drawn top edges and feet in one painter's-order mesh per level, and the blockers of the side strips |
+| `godot/game/world/elevation/elevation_rims.gd` | Every top's boundary edges (lip or rim) and the depth cores past its rims |
+| `godot/game/world/elevation/sides/elevation_sides.gd`, `elevation_sides.gdshader` | The cliffs' walls ([Side walls](#side-walls)): walls on every side of a top, round front corners, slanted back ones, folded inner ones, wobbling borders, simple drawn top edges and feet in one painter's-order mesh per level, style and grounds, and the drawn walls' shapes for collision |
 | `godot/game/world/elevation/elevation_occlusion.gd`, `elevation_occlusion.gdshaderinc` | The depth map and the bodies hidden behind higher ground (included by `game/feel/hit_flash.gdshader` and `game/player/gulp/form_skin.gdshader`) |
 | `godot/game/world/elevation/elevation_mesh.gd` | Mesh data the builders fill |
 | `godot/game/world/elevation/elevation_cache.gd`, `godot/game/scenes/worlds/elevation_cache/` | The baked cache of each world's elevation ([Baked cache](#baked-cache)) |
@@ -1077,14 +1066,16 @@ same cliffs and the same collision.
 | `godot/game/world/elevation/elevation_layer.gd` | The painted layer: hides itself in the game, previews the cliffs in the editor (`@tool`) |
 | `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 3, stairs in 8 directions (two rows, once a railed and an open landing; since 2026-10-11 the same flights), ramps in 8 directions (`elevation_level`, `elevation_kind`) |
 | `godot/game/world/elevation/cliffs/cliff_layer.gd`, `cliff_tileset.tres`, `cliff_paint_tiles.png` | The `cliffs` layer: wall styles painted over tops (`wall_style`; tiles by `scripts/art/build-cliff-paint-tiles.py`) |
-| `godot/game/world/elevation/*.gdshader`, `elevation_light.gdshaderinc` | Wall, wall end, fringe, strip, water foot, ground, shade, cast shadow and glow shaders |
-| `godot/asset/MAPS/elevation/` | Tool output (`scripts/art/build-elevation-art.py`; `storybook-*` by `scripts/art/build-elevation-art-from-painting.py`) |
+| `godot/game/world/elevation/*.gdshader`, `elevation_light.gdshaderinc` | Ground (patches), shade (holes), stairs and ramp shaders; the light by height they and the walls share |
+| `godot/asset/MAPS/elevation/` | Tool output: walls and stairs (`scripts/art/build-elevation-art.py`), `storybook-rock-*` (`scripts/art/build-elevation-art-from-painting.py`), side strips and corner stones (`scripts/art/build-side-wall-art.py`) |
+| `asset/Originals/elevation/cliff-kit/` | The aligned H paintings `kit-h2.png`, `kit-h3.png` (`scripts/art/build-cliff-kit.py`), the storybook wall's source ([Storybook art](#storybook-art)) |
 | `asset/Originals/elevation/generated/` | Generated sources |
 | `asset/Originals/elevation/stairs-mockups/` | The stairs design of 2026-10-06 (landings, railings; replaced on 2026-10-11): spec (README.md), renderer, mockups |
 | `scripts/maps/build-elevation-park.py` | Builds the park in the playground (levels, stairs, its `cliffs` paint) |
 | `godot/tools/render_elevation_park.gd` | Renders the park's rows and close-ups with the game's drawing |
-| `godot/tools/build_cliff_sides_lab.gd`, `render_cliff_sides_lab.gd` | Build and render the cliff sides lab ([Side walls](#side-walls)) |
+| `godot/tools/build_cliff_sides_lab.gd`, `render_cliff_sides_lab.gd` | Build and render the cliff sides lab, or render any world with its collision ([Side walls](#side-walls)) |
+| `godot/tools/build_cliff_shapes_lab.gd` | Builds the cliff shapes lab ([Storybook art](#storybook-art)) |
 | `godot/tools/render_stairs_walk.gd` | Records the [stairs walk](#stairs-walk) in the running game |
 | `asset/Originals/elevation/side-walls/` | The side-wall concepts of 2026-10-13 (concept-d the target), two inner-corner concepts, and the side art's sources (`corner-stones-a.png` used; `-b`, `side-strip-a/-b` candidates) |
-| `scripts/art/build-side-wall-art.py` | A style's side strip and corner stones for the sides look ([Side walls](#side-walls)) |
-| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels (set into a face, running out, the way past its ends), stairs on every side (posts and side walls, no landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight (the stairs walk: its time, a step sideways halfway carried to the foot), enemies kept off every flight, stairs coloured by their ground, the capped strip, closed collision outlines (stairs included), the park's walls in every style (painted or by ground), wall ends, water foot, lips, shadows, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), sliding down a back face past a tip, walking behind a hill and the ghost |
+| `scripts/art/build-side-wall-art.py` | A style's side strip and corner stones ([Side walls](#side-walls)) |
+| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels (set into a face, running out, the way past its ends), stairs on every side (posts and side walls, no landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight (the stairs walk: its time, a step sideways halfway carried to the foot), enemies kept off every flight, stairs coloured by their ground, the capped strip, closed terrain outlines and a collision with no gap a body fits through (stairs and drawn walls included), the park's walls in every style (painted or by ground), on every ground and standing in water, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), walking along a back face past a tip, a passage opened through a face walked into, walking behind a hill and the ghost |

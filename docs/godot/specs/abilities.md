@@ -73,7 +73,8 @@ Differences from this spec's Phaser behaviour, until decided otherwise:
   row, and no quest teaches it (Worm Trouble did). Squash Slam is taught by finishing The
   One-Eyed Guardian, no longer by The Matron's Nest (8.7 in the roadmap).
 - **Cracked ground breaks under a Heavy Squash Slam** (2026-10-08), not a Heavy jump landing:
-  §13.3's Godot notes.
+  §13.3's Godot notes. Since 2026-10-17 a Goo Bomb blast breaks it too (roadmap 7.10;
+  BODY_SHAPES.md "The Goo Bomb"), and its creak hint names a blast once the bomb is learned.
 
 ---
 
@@ -720,7 +721,7 @@ Already in `player.gd` (player spec §5). Changes for the shared rules:
 
 | id | name | material item (items.json name) | skin texture (asset id) | tint fallback | speed × | knockback immune | presses plates (and cracks ground) | crosses webs | swims | badge frame |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `heavy` | Heavy | `stone` ("Stone") | `slime-form-heavy` (`character.player.slime.heavy`, `characters/slime-form-heavy.webp`, 8×8 of 256²) | `#9aa3ad` | 0.6 | yes | yes | no | no | 0 |
+| `heavy` | Heavy | `stone` ("Stone") | `slime-form-heavy` (`character.player.slime.heavy`, `characters/slime-form-heavy.webp`, 8×8 of 256²; Phaser only: Godot paints it in `form_skin.gdshader`, and the sheet waits in `asset/to-delete/characters/` since 2026-10-17) | `#9aa3ad` | 0.6 | yes | yes | no | no | 0 |
 | `sticky` | Sticky | `silk-clump` ("Sticky Silk") | `slime-form-sticky` (`character.player.slime.sticky`) | `#f1ecff` | 0.9 | no | no | yes | no | 1 |
 | `frog` | Frog | `frog` (Gulp spot only, §11.7) | none: skin 3 of `form_skin.gdshader` | `#8fd14f` | 1.0 | no | no | no | yes | 2 |
 
@@ -916,9 +917,10 @@ the story; it needs enemy status effects.
 All script roots below are **not** re-anchored (no `depthAnchor` in their scenes), so a Godot
 root's `global_position` equals the Phaser position. Every distance test compares the **player's
 old centre** with the script's **parent root** (`get_parent().global_position`) [CENTRE].
-Converted scenes already exist in `godot/game/scenes/objects/` with the placeholder
-`unported_script.gd` (e.g. `pressure-plate.tscn`: `Visual` offset `(−128, −207)` = visualOffset
-(0, 49) − origin·frame, `hframes 8`, `frame 6`).
+The converted scenes are in `godot/game/scenes/objects/`; they first carried the converter's
+placeholder `unported_script.gd` (removed 2026-10-17, once every script was ported), e.g.
+`pressure-plate.tscn`: `Visual` offset `(−128, −207)` = visualOffset (0, 49) − origin·frame,
+`hframes 8`, `frame 6`.
 
 The Phaser scripts poll in `_process` (once per rendered frame, after the fixed steps; with delta
 0 during hit-stop). Godot: gameplay checks in `_physics_process` (deterministic; one step of
@@ -1043,6 +1045,16 @@ you..." before that (`CrackedGroundScript.creak_text`). In the body-shapes rewor
 the box's use key (F), which uses whichever box ability is chosen: with the Slam chosen the text is
 "...slam it! (F)"; with another one chosen it reads "It creaks under you... choose the Slam in the
 bag (B), then press F" (`CREAK_CHOOSE_TEXT`, the bag's and the use key's labels).
+
+Godot since 2026-10-17 (roadmap 7.10): the ground is also a **Goo Bomb blast target** (group
+`blast_targets`, `blast_point()` = the root, `receive_blast(hit)`): a blast whose ellipse holds the
+root breaks it as above, and every break now also plays the secret jingle (`SecretFound`,
+`GateOpen` until its take exists). Once the Goo Bomb is learned, any slime standing within `radius`
+hears the creak (not only a Heavy one), and it names a blast: "It creaks under you... a blast would
+break it! (F)" (`CREAK_BLAST_TEXT`; without a key label `CREAK_BLAST_PLAIN`), or with another box
+ability chosen "...choose the Goo Bomb in the bag (B), then press F" (`CREAK_CHOOSE_BOMB_TEXT`).
+`object.cracked-floor` (game/scripts/cracked_floor.gd) is the same script under a root that hands it
+its settings, with the crack decal and a one-way `fall` hole (BODY_SHAPES.md "The Goo Bomb").
 
 ### 13.4 `game.lash-bell` → `scripts/lash_bell.gd` [IN]
 

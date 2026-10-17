@@ -63,7 +63,8 @@
 			"world": "level-1",
 			"interiors": [
 				"slime-home",
-				"mushroom-home"
+				"mushroom-home",
+				"fatty-lair"
 			],
 			"placeholder": false,
 			"theme": "meadow",
@@ -80,12 +81,16 @@
 			"world": "gloop-forest",
 			"interiors": [
 				"gloop-hut",
-				"gloop-cavern"
+				"gloop-cavern",
+				"weaver-hollow-trunk",
+				"weaver-hollow-roots",
+				"weaver-hollow-boughs",
+				"weaver-hollow-crown"
 			],
 			"placeholder": false,
 			"theme": "forest",
 			"boss": "Orb-Weaver Matron",
-			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze leads in, which only the Silk skin passes. The Matron lives at the top of the Weaver Hollow, Chapter 2's dungeon; her nest in F4 is its entrance (owner, 2026-10-16, question 133). The small Gloop Cavern behind the cracked clearing's sinkhole is the Goo Bomb's come-back secret, with one of the forest's heart quarters (question 18)."
+			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze leads in, which only the Silk skin passes. The Matron lives at the top of the Weaver Hollow, Chapter 2's dungeon; the Watch Oak's root gate in F4 is its way in (owner, 2026-10-16, question 133). The small Gloop Cavern behind the cracked clearing's sinkhole is the Goo Bomb's come-back secret, with one of the forest's heart quarters (question 18)."
 		},
 		{
 			"key": "c",
@@ -95,7 +100,9 @@
 			"status": "Planned",
 			"id": "crystal-caverns",
 			"world": "crystal-caverns",
-			"interiors": [],
+			"interiors": [
+				"crystal-mine"
+			],
 			"placeholder": false,
 			"theme": "crystal",
 			"boss": "Crystal Colossus",
@@ -251,11 +258,12 @@
 			"notes": "At the water around the plaza (renamed from Lily on 2026-10-11; the game still says Lily)"
 		},
 		{
-			"type": "boss",
-			"x": 58,
-			"y": 52,
-			"label": "Fatty One Eye",
-			"notes": "In Fatty's Lair, the worms' burrow: the Thorn Guard gate drops shut too fast to walk, and falling slabs over spikes or the void need the Roll. Burr waits in a cell. Guards the chest with the green key"
+			"type": "dungeon",
+			"x": 49,
+			"y": 55,
+			"label": "Fatty's Lair",
+			"map": "fatty-lair",
+			"notes": "The worms' burrow under the old Thorn Guard fort (built 2026-10-17): the drop gate a Roll beats, falling slabs over the void and spikes, Burr freed from his two-keyhole cell inside, Fatty One Eye and Pearl 1 (the Heavy skin) with the green key in the Pearl Shrine; out through a barricade a Heavy Roll breaks, by the bolt-hole near the Verdant Gate"
 		},
 		{
 			"type": "gate",
@@ -289,12 +297,13 @@
 			"map": "gloop-cavern"
 		},
 		{
-			"type": "boss",
+			"type": "dungeon",
 			"x": 86,
 			"y": 53,
-			"label": "Orb-Weaver Matron",
-			"needs": "",
-			"notes": "At the top of the Weaver Hollow, Chapter 2's dungeon; her nest here is its entrance. Her fight needs the Goo Bomb: she shields herself in a web cocoon that only a blast tears open (question 133)"
+			"label": "Weaver Hollow",
+			"needs": "Goo Bomb",
+			"map": "weaver-hollow-trunk",
+			"notes": "The Watch Oak, an old Thorn Guard watch fort inside a giant oak (built 2026-10-17): a Goo Bomb blows its root gate; four floors climbed from the Roots to the Crown, the Brood Warden and the big key, and the Orb-Weaver Matron at the top, fighting from a cocoon a blast tears open; Pearl 2 (the Silk skin)"
 		},
 		{
 			"type": "gate",
@@ -307,17 +316,11 @@
 		},
 		{
 			"type": "dungeon",
-			"x": 110,
-			"y": 66,
-			"label": "Crystal Caverns",
-			"map": "crystal-caverns"
-		},
-		{
-			"type": "boss",
-			"x": 118,
-			"y": 52,
-			"label": "Crystal Colossus",
-			"notes": "Four braziers ring his arena; Pearl 3, the Feral skin"
+			"x": 104,
+			"y": 53,
+			"label": "Crystal Mine",
+			"map": "crystal-mine",
+			"notes": "The smith's crystal mine, taken by the Crystal Colossus (built 2026-10-17): six dark rooms the Lantern teaches, the Foreman's Gate's two keyholes, the Chasm's lens for the Bow and a cart back to the mouth, the Shardback, and the Colossus in his arena of four braziers; Pearl 3 (the Feral skin), and the climb out to the Lookout"
 		},
 		{
 			"type": "gate",
@@ -378,8 +381,8 @@
 		},
 		{
 			"type": "town",
-			"x": 106,
-			"y": 62,
+			"x": 104,
+			"y": 56,
 			"label": "Mine camp",
 			"notes": "The smith runs the crystal mine; he gives the Lantern"
 		},
@@ -389,6 +392,20 @@
 			"y": 59,
 			"label": "The glade",
 			"notes": "The prologue's second screen, in B4's south-east: Yoi falls to four worms; the slime saves him by throwing things and learns the Spear. A barred gate (the Spear's lock) opens onto a forest path to Slimeshire's west edge"
+		},
+		{
+			"type": "landmark",
+			"x": 116,
+			"y": 50,
+			"label": "The Lookout",
+			"notes": "Daylight on the mountain in H4, where the climb out of the Colossus's arena arrives; a path down to the camp"
+		},
+		{
+			"type": "landmark",
+			"x": 59,
+			"y": 55,
+			"label": "The Lair's bolt-hole",
+			"notes": "Fatty's Lair's way out (arrival only), by the Verdant Gate; Burr waits here after Fatty"
 		}
 	],
 	"passages": [

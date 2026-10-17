@@ -3,7 +3,9 @@ class_name SpiderWebPort
 ## The world side of spider webs (Phaser `WorldScene` closures behind the `world.spider-web` port,
 ## `scenes/WorldScene.ts:2347-2357`, plus `catchInWeb` :2132-2142, `applyWeb` :1758-1771 and
 ## `teleportPlayer` :1584-1588). Matron spec 5 (docs/godot/specs/matron.md) and enemy spec 12.6.
-## Used by `game.spider-web` (spider_web.gd), `game.web-patch` (web_patch.gd) and projectile.gd.
+## Used by `game.spider-web` (spider_web.gd), `game.web-patch` (web_patch.gd: only the player
+## lookups since 2026-10-17, its rule is the floor webs', game/world/webs/floor_webs.gd), the web
+## walls and silk parcels (web_wall.gd, silk_parcel.gd: the tear's feel) and projectile.gd.
 ##
 ## The player side is player.gd's (the abilities work, abilities spec 19.3): `crosses_webs()` (the
 ## Silk skin's hook, roadmap 7.8; today the Silk Gulp form stands in for the skin, Phaser
@@ -14,9 +16,11 @@ class_name SpiderWebPort
 ## projectile hit only shows the cover (its knockback must still play, which a suppression would
 ## freeze).
 ##
-## A Roll sticks in a web (owner, 2026-10-16, question 131): a rolling slime is caught as a walking
-## one is, and its roll ends there (no bonk, no rolling on), so a Roll never crosses a web or tears
-## it. With the Silk skin (`crosses_webs()`) webs neither catch nor stick.
+## A Roll sticks in a web (owner, 2026-10-16, question 131): a rolling slime is caught by a web
+## barrier as a walking one is, and its roll ends there (no bonk, no rolling on), so a Roll never
+## crosses a web or tears it; in a floor web (painted cells, the Matron's patches) it sticks where
+## it is (game/world/webs/floor_webs.gd). With the Silk skin (`crosses_webs()`) webs neither catch
+## nor stick.
 ##
 ## Zones are Dictionaries in Phaser's camelCase: {"x", "y", "halfWidth", "halfHeight"} (old Phaser
 ## world positions), also the `caught` / `torn` signal payloads.
@@ -32,8 +36,10 @@ const PlayerScript := preload("res://game/scripts/player.gd")
 const SET_BACK_ABOVE_PX := 26.0
 const SET_BACK_BELOW_PX := 30.0
 const CATCH_WEB_MS := 900.0
-## The catch message: at most every 2500 ms (scene time), 56 px above the slime, 2200 ms.
-const CATCH_MESSAGE := "Caught in the web! (something sticky could cross)"
+## The catch message: at most every 2500 ms (scene time), 56 px above the slime, 2200 ms. Phaser's
+## "Caught in the web! (something sticky could cross)" named the old Sticky form; since 2026-10-17
+## the web wall's line (the Weaver Hollow design, open point 11).
+const CATCH_MESSAGE := "Thick silk. It will not give."
 const CATCH_MESSAGE_THROTTLE_MS := 2500.0
 const CATCH_MESSAGE_RISE_PX := 56.0
 const CATCH_MESSAGE_MS := 2200.0

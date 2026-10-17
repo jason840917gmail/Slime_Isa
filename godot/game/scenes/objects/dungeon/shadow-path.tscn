@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/shadow_path.gd" id="s"]
+
+[node name="shadow-path" type="Node2D"]
+script = ExtResource("s")
+draw_floor = false

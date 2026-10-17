@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/pearl.gd" id="1_pearl"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="2_sheet"]
+[ext_resource type="Script" path="res://game/prologue/soft_glow.gd" id="3_glow"]
+
+[node name="pearl" type="Node2D" node_paths=PackedStringArray("visual")]
+y_sort_enabled = true
+script = ExtResource("1_pearl")
+visual = NodePath("Visual")
+
+[node name="Glow" type="Node2D" parent="."]
+script = ExtResource("3_glow")
+radius = Vector2(46, 46)
+color = Color(1, 0.93, 0.62, 0.5)
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+script = ExtResource("2_sheet")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/pearl.webp"

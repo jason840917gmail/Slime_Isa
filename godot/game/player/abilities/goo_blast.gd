@@ -14,7 +14,8 @@ extends Node2D
 ##   rules (i-frames, the Roll's and the Slam's untouchable windows, defense) apply.
 ## - **Blast targets:** every node in group `blast_targets` whose `blast_point()` (else its
 ##   global_position) lies in the ellipse gets `receive_blast(hit) -> bool` (the hit with
-##   "position" set to the bomb's ground point): cracked walls and rubble heaps break.
+##   "position" set to the bomb's ground point): cracked walls, cracked ground, rubble heaps and the
+##   cracked winch post break, and blast kegs go off a moment later (game/scripts/blast_keg.gd).
 ## - **Chains:** every other bomb (group `goo_bombs`) in the ellipse goes off `chainDelayMs` later.
 ## - **Feel:** GameFeel.play_hit once (the per-swing hit-stop `feel.hitStopMs`, trauma `feel.trauma`,
 ##   the targets' material cue), each target's number, sparks and debris; the painted goo burst

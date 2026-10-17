@@ -509,14 +509,15 @@ func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
 
 
 ## The crystal caverns' old spawn table (legacy spawning around the player, every 1500 ms up to 16)
-## is 5 placed enemies in each of its chunks, in two camps sharing an enemy-wander rect each: they
-## stand at once, in their camp's rect, and none comes on a timer.
+## became 5 placed enemies per chunk, in two camps sharing an enemy-wander rect each: they stand at
+## once, in their camp's rect, and none comes on a timer. H5 keeps them; the Crystal Mine's build
+## (2026-10-17) cleared the placeholder camps of G4 (the smith's camp), G5 and H4.
 func test_crystal_caverns_enemies_are_placed(t: TestContext) -> void:
-	if not t.check(t.main.travel_to("crystal-caverns", "west"), "travel to crystal-caverns was refused"):
+	if not t.check(t.main.travel_to("crystal-caverns-h5", "west"), "travel to crystal-caverns-h5 was refused"):
 		return
 	var arrived := await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.in_world("crystal-caverns") and t.player() != null, 3000.0, 6000.0)
-	if not t.check(arrived, "the player did not reach crystal-caverns"):
+		return not t.main.is_transitioning() and t.in_world("crystal-caverns-h5") and t.player() != null, 3000.0, 6000.0)
+	if not t.check(arrived, "the player did not reach crystal-caverns-h5"):
 		return
 	await t.steps(2)
 	var population := t.main.get("enemy_population") as EnemyPopulation

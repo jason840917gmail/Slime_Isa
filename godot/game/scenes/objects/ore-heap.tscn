@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(70, 28)
+
+[node name="ore-heap" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.38, 0.38)
+centered = false
+offset = Vector2(-128, -250)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/props/mine/256x256-ore-heap.webp"

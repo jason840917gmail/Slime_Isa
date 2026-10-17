@@ -10,6 +10,7 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/enemy/spider-hiss.wav" id="8"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/enemy/web-spit-1.ogg" id="9"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/enemy/web-spit-2.ogg" id="10"]
+[ext_resource type="Script" path="res://game/bosses/matron_cocoon_look.gd" id="11"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(80, 60)
@@ -340,6 +341,9 @@ metadata/depth_anchor = Vector2(0, 30)
 shape = SubResource("RectangleShape2D_1")
 position = Vector2(0, -30)
 
+[node name="CocoonLook" type="Node2D" parent="."]
+script = ExtResource("11")
+
 [node name="Visual" type="Sprite2D" parent="."]
 self_modulate = Color(0.72549, 0.54902, 1, 1)
 position = Vector2(0, -30)
@@ -375,7 +379,7 @@ libraries/ = SubResource("AnimationLibrary_19")
 callback_mode_process = 0
 autoplay = &"idle-side"
 
-[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "animation", "damage_area", "attack_area")]
+[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "animation", "damage_area", "attack_area", "cocoon_look")]
 script = ExtResource("3")
 enemy_type = "orb-weaver-matron"
 body = NodePath("..")
@@ -430,6 +434,7 @@ volley_damage = 20.0
 volley_knockback_strength = 120.0
 patch_effect_id = "matron-web-patch"
 arena_recovery_ms = 60000.0
+cocoon_look = NodePath("../CocoonLook")
 
 [node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]
 script = ExtResource("4")

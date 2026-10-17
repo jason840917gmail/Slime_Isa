@@ -66,7 +66,7 @@ const KIND_RAILS := 0.5
 const KIND_SIDE := 1.0
 ## Depth occluders tell rails and side rails from posts by UV (elevation_fence_depth.gdshader).
 const DEPTH_UV_OFFSET := 10000.0
-## Shadows: the light's fall on the ground (elevation_cast_shadow.gdshader), the shadow's length per
+## Shadows: the light's fall on the ground (elevation_cast_shadow.gdshaderinc `fall`), the shadow's length per
 ## unit of height, how dark it is, and the contact shadow around a post's foot (world units).
 const SHADOW_FALL := Vector2(0.94, 0.34)
 const SHADOW_PER_HEIGHT := 0.45

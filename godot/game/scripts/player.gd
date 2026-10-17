@@ -58,6 +58,8 @@ const PlayerSwimming := preload("res://game/player/gulp/player_swimming.gd")
 const Mouth := preload("res://game/player/gulp/mouth.gd")
 const PlayerRoll := preload("res://game/player/roll/player_roll.gd")
 const StatusEffects := preload("res://game/player/status_effects.gd")
+## Floor webs and web walls scale a walk (game/world/webs/floor_webs.gd).
+const FloorWebs := preload("res://game/world/webs/floor_webs.gd")
 const GooTrail := preload("res://game/player/goo_trail.gd")
 ## Steps, wading and swimming sounds (game/audio/footsteps.gd).
 const FootstepsScene := preload("res://game/scenes/audio/footsteps.tscn")
@@ -293,6 +295,9 @@ const CUE_GULP_BURP := &"GulpBurp"
 const CUE_WEB_STRUGGLE := &"WebStruggle"
 const EFFECT_WEB := "web"
 const WEB_COVER_SCENE := "effect.spider-web-cover"
+## The Silk skin's stand-in until roadmap 7.8 builds the skins: the story flag Pearl 2 sets
+## (`crosses_webs`).
+const SILK_SKIN_FLAG := "skin.silk"
 ## Gulp form texts (WorldScene.ts:1093-1100): centre - 56.
 const GULP_TEXT_RISE_PX := 56.0
 ## Gulp messages over the slime (GulpController `showMessage`: centre - 56).
@@ -796,6 +801,7 @@ func restore_run_state(state: Dictionary) -> void:
 	var run := Services.run()
 	if run != null:
 		_max_hp = run.max_hp()
+		_max_energy = run.max_energy()
 	var hp := int(state.get("hp", _max_hp))
 	_hp = clampi(hp, 1, _max_hp) if hp > 0 else _max_hp
 	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
@@ -984,12 +990,18 @@ func is_action_held(action: StringName) -> bool:
 ## port keeps: `world.find_spawn_point(world.player_spawn_marker())`.
 func respawn() -> void:
 	_respawn_at_real_ms = -1.0
+	# A respawn override (the prologue, a dungeon: RESPAWN_OVERRIDE_GROUP) wins over the last bed. A
+	# dungeon whose entrance is in another of its worlds travels there (`respawn_elsewhere`,
+	# game/dungeon/dungeon.gd).
+	var override := get_tree().get_first_node_in_group(RESPAWN_OVERRIDE_GROUP) if is_inside_tree() else null
+	if override != null and override.has_method(&"respawn_elsewhere") and bool(override.call(&"respawn_elsewhere")):
+		return
 	# The last bed is in another world: main rebuilds that world with the slime at the bed
 	# (Phaser `navigateToRespawnPoint` reloads into it).
 	var run := Services.run()
 	var world := Services.world()
 	var bed: Dictionary = run.respawn_point() if run != null else {}
-	if not bed.is_empty() and world != null and str(bed.get("map_id", "")) != world.map_id():
+	if override == null and not bed.is_empty() and world != null and str(bed.get("map_id", "")) != world.map_id():
 		var main := get_tree().get_first_node_in_group(&"world_main")
 		if main != null and main.has_method(&"respawn_in_world") and bool(main.call(&"respawn_in_world", bed)):
 			return
@@ -1314,10 +1326,14 @@ func presses_plates() -> bool:
 
 ## The slime crosses spider webs: webs neither catch nor stick it (`apply_web`), and it tears the
 ## ones it walks or rolls through. The Silk skin's hook (roadmap 7.8; owner, 2026-10-16, question
-## 131: with the Silk skin webs no longer stick); until the skin exists the Silk Gulp form (Sticky)
-## stands in for it.
+## 131: with the Silk skin webs no longer stick). The skin itself is not built: its stand-in is the
+## story flag SILK_SKIN_FLAG, which Pearl 2 sets (the Matron's, game/scripts/pearl.gd `skin_flag`;
+## 2026-10-17), and the Silk Gulp form (Sticky) still counts too.
 func crosses_webs() -> bool:
-	return bool(_gulp.form.get("crosses_webs", false))
+	if bool(_gulp.form.get("crosses_webs", false)):
+		return true
+	var run := Services.run()
+	return run != null and run.has_flag(SILK_SKIN_FLAG)
 
 
 func is_sticky_form() -> bool:
@@ -1396,6 +1412,30 @@ func grant_goo_heart() -> void:
 		_max_hp = run.max_hp()
 	_hp = _max_hp
 	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+
+
+## A boss's full heart (question 17, game/scripts/full_heart.gd): max HP grows by
+## `character.player.fullHeart.maxHpBonus` for the run and HP fills.
+func grant_full_heart() -> void:
+	var run := Services.run()
+	if run != null:
+		run.add_full_heart()
+		_max_hp = run.max_hp()
+	_hp = _max_hp
+	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+
+
+## Max energy grows by `amount` for the run (a beaten boss, question 19) and energy fills.
+func grant_max_energy(amount: int) -> void:
+	var run := Services.run()
+	if run != null:
+		run.add_max_energy(amount)
+		_max_energy = run.max_energy()
+	else:
+		_max_energy += maxi(0, amount)
+	var before := _energy
+	_energy = float(_max_energy)
+	energy_changed.emit({"energy": _energy, "maxEnergy": _max_energy, "delta": _energy - before})
 
 
 ## Rooted by a spider web (the `sticky` status).
@@ -1774,6 +1814,8 @@ func _move(direction: Vector2) -> void:
 		_play_direct(_locomotion_clip(CLIP_IDLE))
 		_audio_cue(CUE_WEB_STRUGGLE)
 		return
+	# Floor webs halve a walk without the Silk skin, web walls the Silk slime's (FloorWebs).
+	speed *= FloorWebs.step(self)
 	var unit: Vector2 = direction.normalized()
 	body.velocity = unit * speed
 	_facing = unit

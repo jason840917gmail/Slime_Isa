@@ -1,12 +1,13 @@
 """Builds the cliff kits from the approved H plateau paintings (asset/Originals/elevation/cliff-concepts/):
 each painting scaled to 128 px per 64-unit cell, one stone course to a cell, aligned to the cell
 lines and colour-matched to h2, the ground outside the cliff made transparent. The elevation's
-storybook art is cut from kit-h2 and kit-h3 (scripts/art/build-elevation-art-from-painting.py,
-docs/godot/ELEVATION.md "Storybook art").
+storybook wall is cut from kit-h3 (scripts/art/build-elevation-art-from-painting.py,
+docs/godot/ELEVATION.md "Storybook art"). The kits are art-tool inputs, kept outside the Godot
+project so they do not ship in the game.
 
 Usage: python scripts/art/build-cliff-kit.py [--preview DIR]
 
-Outputs (derived; re-run the tool instead of editing them), in godot/asset/MAPS/cliffs/:
+Outputs (derived; re-run the tool instead of editing them), in asset/Originals/elevation/cliff-kit/:
   kit-<name>.png    the scaled painting with the outside ground cut away
   kit-<name>.json   {"cells": [cols, rows], "columns": [a, b], "rows": [c, d], "labels": [...]}: the
                     straight middle (columns a..b-1, rows c..d-1) and every cell's label
@@ -23,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
 CONCEPTS = ROOT / "asset/Originals/elevation/cliff-concepts"
-OUT = ROOT / "godot/asset/MAPS/cliffs"
+OUT = ROOT / "asset/Originals/elevation/cliff-kit"
 CELLS = 18                 # the 2048 px paintings become 18 x 18 cells
 TILE = 128
 SIZE = CELLS * TILE

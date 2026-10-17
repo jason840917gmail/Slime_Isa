@@ -58,6 +58,11 @@ const PRIORITY_CHEST := 80
 const PRIORITY_TALK := 50
 const PRIORITY_RESTORATION := 89
 const PRIORITY_GULP := 60
+## Things the slime works with the interact key (a worm lever, a winch; Fatty's Lair,
+## docs/godot/DUNGEONS.md): nodes in USABLE_GROUP answering `origin()`, `interact_radius`, `prompt`,
+## `badge_rise`, `use() -> bool` and, optionally, `can_use() -> bool` (not offered while false).
+const USABLE_GROUP := &"usable"
+const PRIORITY_USE := 70
 ## Message literals (UniversalSceneWorldController.ts:984-999, :909-915).
 const CHEST_GUARDED_PROMPT := "Chest locked by Fatty One Eye"
 const CHEST_EMPTY_PROMPT := "Inspect empty chest"
@@ -308,8 +313,22 @@ func _gather_at(at: Vector2) -> Array[Dictionary]:
 	_append(out, _nearest(at, BedScript.GROUP, PRIORITY_BED, "world-beds:", _path_id, Callable(), _use_bed))
 	_append(out, _with_pick_up(_nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench)))
 	_append(out, _nearest(at, &"restoration_site", PRIORITY_RESTORATION, "world-restorations:", _path_id, Callable(), _use_restoration))
+	_append(out, _nearest(at, USABLE_GROUP, PRIORITY_USE, "world-usables:", _path_id, _can_use, _use_usable))
 	_append(out, _essence_candidate(at))
 	return out
+
+
+## A usable (USABLE_GROUP) is offered unless its `can_use()` says no.
+static func _can_use(node: Node) -> bool:
+	return not node.has_method(&"can_use") or bool(node.call(&"can_use"))
+
+
+## Works a usable (a lever, a winch), not while the game is paused or the world changes.
+func _use_usable(node: Node) -> bool:
+	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
+	if get_tree().paused or (main != null and main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning"))):
+		return false
+	return bool(node.call(&"use"))
 
 
 ## A placed station's candidate also offers "Hold: Pick up" (`pickUpAction`,

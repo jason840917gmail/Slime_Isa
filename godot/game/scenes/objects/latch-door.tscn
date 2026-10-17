@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/gate.gd" id="1_gate"]
+[ext_resource type="Script" path="res://game/world_objects/sliding_slab.gd" id="2_slab"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="3_sheet"]
+
+[sub_resource type="RectangleShape2D" id="post_shape"]
+size = Vector2(80, 30)
+
+[sub_resource type="RectangleShape2D" id="slab_shape"]
+size = Vector2(132, 24)
+
+[node name="latch-door" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Posts" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="LeftPost" type="CollisionShape2D" parent="Posts"]
+position = Vector2(-106, -14)
+shape = SubResource("post_shape")
+
+[node name="RightPost" type="CollisionShape2D" parent="Posts"]
+position = Vector2(106, -14)
+shape = SubResource("post_shape")
+
+[node name="Doors" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="SlabShape" type="CollisionShape2D" parent="Doors"]
+position = Vector2(0, -12)
+shape = SubResource("slab_shape")
+
+[node name="Frame" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-298.9, -649.5)
+script = ExtResource("3_sheet")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/stone-door-frame.webp"
+
+[node name="Slab" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-128, -505.5)
+script = ExtResource("2_slab")
+gate = NodePath("../GateScript")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/stone-door-slab.webp"
+
+[node name="GateScript" type="Node" parent="." node_paths=PackedStringArray("doors")]
+script = ExtResource("1_gate")
+gate_id = "latch-door"
+prompt = ""
+locked_prompt = "Shut"
+locked_message = "Shut fast. Something beside it opens it."
+unlocked_message = ""
+doors = NodePath("../Doors")

@@ -25,9 +25,8 @@ extends RefCounted
 ##                 along them; what is drawn above it only hides it (the depth map);
 ##   `silhouette`  the whole structure as drawn, and `approach` the top's ground just behind the rim
 ##                 (`occupies`: fences leave a gap there; Elevation draws the top's own ground over
-##                 its lip there, `add_approach`, so the lip breaks for the way down);
-##   faces         drawn (`add_mesh`) and written to the depth map (`add_depth`) back to front;
-##   `feet`        where a side wall stands on the lower ground in sight (foot strips).
+##                 its edge there, `add_approach`, so the edge breaks for the way down);
+##   faces         drawn (`add_mesh`) and written to the depth map (`add_depth`) back to front.
 ## Godot draws in order, without a depth test, so what of a flight lies behind the ground it leaves
 ## (`occlude`: a back flight's foot and the first steps behind the rim, under the hill's top) is cut
 ## out of its faces, its depth and its silhouette.
@@ -83,7 +82,7 @@ const KIND_OFFSET := 4096.0
 const PX := 2.0
 ## Block rows count down from this height (world units), so every flight's rows line up.
 const BLOCK_ROWS_FROM := LEVEL * 8.0
-## Face light (elevation_wall.gdshader): tops 1, faces by the way they look, S 0.86 ± 0.20.
+## Face light: tops 1, faces by the way they look, S 0.86 ± 0.20.
 const SHADE_SOUTH := 0.86
 const SHADE_SPREAD := 0.20
 ## Contact shadows and highlights of a side or back flight's steps: a tread darkens towards the
@@ -132,8 +131,6 @@ var reach := PackedVector2Array()
 var beyond := PackedVector2Array()
 var silhouette: Array[PackedVector2Array] = []
 var bounds := Rect2()
-## [from, to] on screen and the ground level, where a side wall stands in sight.
-var feet: Array = []
 ## Faces back to front: {kind, quad: [p00, p10, p11, p01] (s, t, h), normal (x, y, h), shade,
 ## and per kind the texture mapping}.
 var faces: Array[Dictionary] = []
@@ -231,19 +228,6 @@ func occlude(polygons: Array[PackedVector2Array]) -> void:
 			parts = _cut(parts)
 		pieces.append_array(parts)
 	silhouette = _union(pieces)
-	# A foot strip behind the hill's top is hidden with what stands there.
-	var visible_feet: Array = []
-	for foot: Array in feet:
-		var lines: Array = [PackedVector2Array([foot[0], foot[1]])]
-		for occluder in occluders:
-			var next: Array = []
-			for line: PackedVector2Array in lines:
-				next.append_array(Geometry2D.clip_polyline_with_polygon(line, occluder))
-			lines = next
-		for line: PackedVector2Array in lines:
-			if line.size() >= 2 and line[0].distance_to(line[line.size() - 1]) > 1.0:
-				visible_feet.append([line[0], line[line.size() - 1], foot[2]])
-	feet = visible_feet
 
 
 ## Every edge `level`'s collision may run along: the walkable surface's border, the blockers', and
@@ -452,7 +436,6 @@ func _build() -> void:
 	_solids.clear()
 	_blockers.clear()
 	_pieces.clear()
-	feet.clear()
 	var outer := half + POST
 	approach = PackedVector2Array([screen_of(Vector3(-APPROACH, -outer, height)), screen_of(Vector3(0.0, -outer, height)),
 			screen_of(Vector3(0.0, outer, height)), screen_of(Vector3(-APPROACH, outer, height))])
@@ -677,8 +660,6 @@ func _wall_faces(side: float, with_inner: bool) -> void:
 	var inner := side * half
 	var out := side * (half + POST)
 	_wall_side_face(side, false)
-	if shade_for(Vector3(across.x * side, across.y * side, 0)) > 0.0:
-		feet.append([screen_of(Vector3(0.0, out, 0.0)), screen_of(Vector3(end, out, 0.0)), bottom])
 	if with_inner:
 		_wall_side_face(side, true)
 	var slope := -height / maxf(1e-6, end)
@@ -727,8 +708,8 @@ func add_depth(depth: MeshData) -> void:
 
 
 ## The top's ground just behind the rim into `mesh` (elevation_ramp.gdshader, with `top_ground`'s
-## sheet): over the lip there, its sides fading out over APPROACH_FADE, so the lip breaks where the
-## flight leaves the top.
+## sheet): over the top's edge there, its sides fading out over APPROACH_FADE, so the edge breaks
+## where the flight leaves the top.
 func add_approach(mesh: MeshData) -> void:
 	var height := LEVEL * (top - bottom)
 	var level_of := (float(top) + 4.0) / 8.0

@@ -10,11 +10,11 @@ behaviour per area is in [specs/](specs).
 | Path | Made by | Content |
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
-| `godot/asset/` | art tools in `scripts/` (or by hand), committed with their `.import` files | the runtime art and audio, at `res://asset/...` (moved from the repository's `asset/` at the cutover; sources stay in `asset/Originals/`) |
-| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `collision-layers.json`, `npc-definitions.json`, `recipes.json`, `quests-chapter-1.json` / `-2.json`, `weapons.json` (names, icons, stats), `item-icons.json` (texture key → sheet, frame size, grid) and `liftables.json` (the 67 liftable kinds: name, material, frames, art size; written by `scripts/props/pack-gulp-art.py` since 2026-10-09, so edit the kinds there), read through `GameConstants` (`Services.constants()`) |
+| `godot/asset/` | art tools in `scripts/` (or by hand), committed with their `.import` files | the runtime art and audio, at `res://asset/...` (moved from the repository's `asset/` at the cutover; sources stay in `asset/Originals/`, and so do the art tools' own inputs: everything under `godot/asset/` ships in the web build, which is why the cliff kits moved to `asset/Originals/elevation/cliff-kit/` on 2026-10-17) |
+| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `npc-definitions.json`, `recipes.json`, `quests-chapter-1.json` / `-2.json`, `weapons.json` (names, icons, stats), `item-icons.json` (texture key → sheet, frame size, grid) and `liftables.json` (the 67 liftable kinds: name, material, frames, art size; written by `scripts/props/pack-gulp-art.py` since 2026-10-09, so edit the kinds there), read through `GameConstants` (`Services.constants()`) |
 | `godot/game/scenes/` | hand (Godot editor), from the converter on 2026-10-05 | every world, object, character, weapon, effect, projectile and encounter scene (`<kind>s/<path>.tscn`, the scene JSON's layout) and `scene_index.json` (scene id → path); see "Scenes Godot owns" |
 | `godot/game/world/terrain_tileset.tres` | hand, from the converter | the terrain TileSet (one atlas source per tile id, `tile_id` custom data) |
-| `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `unported_script.gd`, `modal_root.gd`, `scene_item_list.gd`, `audio_cue_rules.gd` |
+| `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `audio_cue_rules.gd`; and `sheet_sprite.gd`, the bestiary's sheet sprite (the converter's `unported_script.gd`, `modal_root.gd` and `scene_item_list.gd`, which no scene used, were removed in clean-out wave 1, 2026-10-17) |
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`), attached to the scenes that use it; a new `@export` gets its value in the editor |
 | `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
 | `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below), the [terrain lab](TERRAIN_LAB.md) and the [world atlas](WORLD_ATLAS.md) (`world_atlas.tscn`) |
@@ -96,7 +96,10 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
 [BODY_SHAPES.md](BODY_SHAPES.md)) runs **by default in the playground**: `?classic` /
 `-- --classic` turns it off there, and `?shapes` / `-- --shapes` turns it on in any world (both
 skip the title; the test runner keeps the playground classic). `?prologue` / `-- --prologue`
-starts a new run in the prologue, as New Game does, and skips the title.
+starts a new run in the prologue, as New Game does, and skips the title. In a dungeon world,
+`keys=<n>`, `bigkey`, `dmap` (the map and the compass) and `room=<camera room>` set the dungeon up
+(with `map`; [DUNGEONS.md](DUNGEONS.md#dungeon-state-no-saving-resume-at-the-entrance)); the kit's
+lab is `?map=dungeon-lab`.
 
 ## Doors
 
@@ -162,6 +165,11 @@ When you build the scene behind a door:
   door has a `north` door outside and a `south` way out at the bottom of the room.
 - Point the two doors at each other: `target_area_id` = the other world's map id,
   `target_door_id` = the other door's `door_id`.
+- **One-way ways in** (2026-10-17): a door with no `target_door_id` and a `target_marker` arrives at
+  the Node2D of that name in the target world (any depth, snapped to its tile centre, the slime's
+  facing kept), so nothing there has to lead back: the Weaver Hollow's blown Well Room floor
+  (`object.cracked-floor`, a `fall` hole) drops onto a marker on a ledge in `weaver-hollow-roots`.
+  A door with no `target_area_id` is an arrival point only: pushing into it never travels.
 - Put the door node in the doorway: on the threshold, its feet where the opening is in the wall or
   building. Arriving there, the slime appears in the doorway facing into the room and **walks
   out** (`game/player/door_walk_out.gd`, owner 2026-10-14): it waits out the iris's black hold,
@@ -203,11 +211,27 @@ playground sinkholes are `ladder_down` (no side, arrival child) and their cave l
   `menu`, `map`, `zoom_in/out`, `pause`; `ability_use` (F) is captured only in the body-shapes
   rework mode, which also clears the number keys and moves the Roll to Space
   ([BODY_SHAPES.md](BODY_SHAPES.md#controls-in-the-rework-mode)).
-- Physics layers keep the bits and names of `game/data/collision-layers.json` (Phaser's layers).
-  Layers 12-18 (`level -3` … `level 3`) are the walls of each elevation level: a walking body
-  collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)). Layer 19 (`stairs`)
-  holds the steps of every flight of stairs: every walking body but the player collides with it, so
-  enemies and NPCs stay off stairs ([Stairs walk](ELEVATION.md#stairs-walk)).
+- Physics layers keep Phaser's bits and names; the names are set in `project.godot`
+  (`[layer_names]`), the only place code and scenes take them from. Layer N is bit 2^(N-1).
+  (Until clean-out wave 1, 2026-10-17, `game/data/collision-layers.json` held this list too, but no
+  code read it.)
+
+  | Layer | Name | What is on it |
+  |---|---|---|
+  | 1 | `world` | Solid world geometry: wall tiles and StaticBody2D props (trees, houses, rocks, chests); every CharacterBody2D masks it |
+  | 2 | `player` | The player CharacterBody2D |
+  | 3 | `enemy` | Hostile CharacterBody2D bodies, bosses included |
+  | 4 | `hurtbox` | Area2Ds that can receive damage |
+  | 5 | `hitbox` | Area2Ds that deal damage |
+  | 6 | `pickup-seeker` | The Area2D that collects pickups (the player's pickup radius) |
+  | 7 | `pickup` | A collectible's Area2D |
+  | 8 | `npc` | Friendly NPC CharacterBody2D bodies |
+  | 9 | `projectile` | Projectile CharacterBody2D bodies |
+  | 10 | `trigger` | World trigger Area2Ds (exits, navigation and encounter areas) |
+  | 11 | `water` | Water tiles: walking bodies (player, enemies, NPCs) mask it, projectiles fly over it |
+  | 12-18 | `level -3` … `level 3` | The walls of each elevation level: a walking body collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)) |
+  | 19 | `stairs` | The steps of every flight of stairs: every walking body but the player collides with it, so enemies and NPCs stay off stairs ([Stairs walk](ELEVATION.md#stairs-walk)) |
+
   60 physics ticks per second (enemy AI rolls per step depend on it); physics
   interpolation is on.
 - Audio buses: Master, Effects, Music, Ambience.
@@ -263,14 +287,19 @@ sprint and the roll (a roll sticks in a floor web), sword and worm damage, i-fra
 placed worms (standing at once, beaten ones back only when the chunk is built again) and the
 playground pen's timed spawning (`test_camp.gd`, `test_enemy_pen.gd`), respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
 clips, the Fatty One Eye fight (camp spawn and reset, hop and leap timings, landing damage, arena
-leash, health bar, defeat), the ranged enemies (`test_enemy_ranged.gd`: archer arrows, projectile
+leash, health bar, defeat; on the old overworld camp, put back in D4 for the tests), Fatty's Lair
+(`test_fattys_lair.gd`), the ranged enemies (`test_enemy_ranged.gd`: archer arrows, projectile
 lifetime, walls and hurtboxes, flee range, the four-way line-up (the archer, the line-up AI, the
 spider's line-up and webs, the Spitcap's and the Pipe Worm's lines), the brawler's impact effect,
 slow, knockback immunity, every world enemy type and level-1's placed camps, crystal-caverns' placed
 enemies, icege's legacy spawning), the
 Orb-Weaver Matron (`test_matron.gd`: nest camp and bar, spit, volley marks, landing and web
 patches, no stagger, arena leash, defeat records, reset, the web barrier and its torn flag,
-gloop-forest's placed camps), the quests (`test_quests.gd`, `test_quests_gloop.gd`: new-run
+gloop-forest's placed camps; the Weaver Hollow's cocoon fight: clinks, the blast that tears it, the
+window and the respin, three rounds, no respawn, Pearl 2's Silk skin, the full heart, her thread),
+the Weaver Hollow's webs (`test_weaver_webs.gd`: floor webs halve a
+walk and stick a Roll, enemies unslowed, web walls block and let the Silk slime through at half
+speed, cut for good, silk parcels; [WEBS.md](WEBS.md)), the quests (`test_quests.gd`, `test_quests_gloop.gd`: new-run
 records, offer / turn-in conversations, the dialogue reveal and keys, rewards, known facts, the
 tracker, markers, toasts, waypoint targets, saves), crafting, the bag and the belt (`test_crafting.gd`,
 `test_inventory.gd`, `test_loadout.gd`: quotes and the status order, the crafting window, the menu

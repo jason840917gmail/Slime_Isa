@@ -3,7 +3,7 @@ extends SceneTree
 ## cliffs painted on the world's `elevation` layer (docs/godot/ELEVATION.md), drawn by the elevation
 ## system with the art cut from the approved H plateau painting
 ## (scripts/art/build-elevation-art-from-painting.py): the ground layer's metadata picks the
-## `storybook-rock` walls and `storybook-grass` lip and foot for its highland ground.
+## `storybook-rock` walls for its highland ground.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_cliff_shapes_lab.gd [-- --force]
 ## Writes res://game/scenes/worlds/cliff-shapes-lab.tscn (world.cliff-shapes-lab). It does not
 ## overwrite an existing lab (where you may have painted) unless given --force. The last row holds
@@ -20,9 +20,8 @@ const COLUMNS := 82
 const ROWS := 92
 const GRASS_SOURCE := 7   # grass-a (highland) in terrain_tileset.tres
 const SHEET_CELLS := 19
-## The lab's own cliff art for its highland ground (elevation.gd WORLD_WALL_STYLES_META, WORLD_FRINGE_META).
+## The lab's own wall style for its highland ground (elevation.gd WORLD_WALL_STYLES_META).
 const WALL_STYLES := {"highland": "storybook-rock"}
-const FRINGE := {"highland": "storybook-grass"}
 ## One shape each: name, rectangles painted [x, y, w, h, level] in order (a later one over an
 ## earlier one), rectangles cut away [x, y, w, h], and optionally ramps [x, y, direction, length,
 ## width]: the top cell (the first of its run side by side), the way down the slope
@@ -79,7 +78,6 @@ func _initialize() -> void:
 	ground.set_meta(&"columns", COLUMNS)
 	ground.set_meta(&"rows", ROWS)
 	ground.set_meta(&"cliff_wall_styles", WALL_STYLES)
-	ground.set_meta(&"cliff_fringe", FRINGE)
 	ground.set_script(load(WORLD_GROUND))
 	root.add_child(ground)
 	var elevation := TileMapLayer.new()

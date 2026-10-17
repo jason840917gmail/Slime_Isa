@@ -74,10 +74,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `--grounds-2x` also turns `<ground>-2x-padded-upscale.jpg` into the 128 px ground sheet
   `godot/asset/MAPS/grounds/128x128-tile_19x19_<sheet>.webp`.
 - `python scripts/art/build-elevation-art.py [name ...] [--preview DIR]` (**numpy**) — the cliff art:
-  seamless walls and their corner-stone ends per wall style (nine: meadow rock, snow rock, sandstone,
-  cave rock, crystal rock, mossy rock, masonry, root rock, red rock), the stairs kit (treads, risers, a
-  coping per wall style), and each ground's cliff lip and foot, from
-  `asset/Originals/elevation/generated/` into `godot/asset/MAPS/elevation/`
+  a seamless wall per wall style (nine: meadow rock, snow rock, sandstone, cave rock, crystal rock,
+  mossy rock, masonry, root rock, red rock) and the stairs kit (treads, risers, a coping per wall
+  style), from `asset/Originals/elevation/generated/` into `godot/asset/MAPS/elevation/` (the corner-stone
+  wall ends and the grounds' lips and feet it once made belonged to the front-only cliff look, removed
+  on 2026-10-17)
   ([godot/ELEVATION.md](godot/ELEVATION.md#making-the-art)); `scripts/art/build-elevation-paint-tiles.py` draws
   the elevation layer's paint tiles and `scripts/art/build-cliff-paint-tiles.py` the cliffs layer's
   (one swatch per wall style; run it after the walls).
@@ -130,16 +131,16 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/asset/MAPS/forest/forest_paint_tiles.png` and `godot/game/world/forest/forest_tileset.tres`
   ([godot/FORESTS.md](godot/FORESTS.md)).
 - `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits the elevation's
-  storybook art is cut from: aligns the approved H plateau paintings (`asset/Originals/elevation/cliff-concepts/`)
+  storybook wall is cut from: aligns the approved H plateau paintings (`asset/Originals/elevation/cliff-concepts/`)
   to 128 px per cell, cuts the outside ground away, matches their colours and labels every cell, into
-  `godot/asset/MAPS/cliffs/kit-h2.png`, `kit-h3.png` and their `.json`
+  `asset/Originals/elevation/cliff-kit/kit-h2.png`, `kit-h3.png` and their `.json` (art-tool inputs, kept
+  out of the Godot project since 2026-10-17 so they do not ship in the game)
   ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
 - `python scripts/art/build-elevation-art-from-painting.py [--preview DIR]` (**numpy**) — elevation art cut from
-  the aligned H paintings (`godot/asset/MAPS/cliffs/kit-h3.png`, `kit-h2.png`) instead of generated: the wall
-  style `storybook-rock` (wall, end stones, stairs coping) and the fringe `storybook-grass` (lip, foot) in
-  `godot/asset/MAPS/elevation/`; a world picks them with its ground layer's metadata `cliff_wall_styles` /
-  `cliff_fringe`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd -- --force` rebuilds the
-  cliff shapes lab that shows them ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
+  the aligned H painting (`asset/Originals/elevation/cliff-kit/kit-h3.png`) instead of generated: the wall
+  style `storybook-rock` (wall, stairs coping) in `godot/asset/MAPS/elevation/`; a world picks it with its
+  ground layer's metadata `cliff_wall_styles`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd
+  -- --force` rebuilds the cliff shapes lab that shows it ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
 - `"<Godot console exe>" --path godot -s res://tools/render_stairs_walk.gd -- --out=<dir> [--map=<id>]
   [--feet=<x>,<y>] [--key=move_up] [--then=move_down] [--ms=2600]` (windowed) — records the stairs walk
   in the running game: it puts the slime at `--feet`, holds the key(s) and saves a frame every 80 ms
@@ -152,11 +153,13 @@ See [assets/README.md](assets/README.md) for the art workflow.
   editor holds for a moment is tried again); run (and commit)
   after changing elevation art or before exporting ([godot/ELEVATION.md](godot/ELEVATION.md#baked-cache)).
 - `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
-  cliffs' sides look ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
+  cliffs' side walls ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
   and corner stones (`godot/asset/MAPS/elevation/<style>-side.png`, `-corners.png`) from a Magnific
   sheet of four rounded stones; `--headless --path godot -s res://tools/build_cliff_sides_lab.gd`
-  builds the cliff sides lab and `--path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir>`
-  renders it.
+  builds the cliff sides lab and `--path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir>
+  [--collision] [--scene=res://... [--rect=x,y,w,h]]` renders it (or any world, whole or a close-up in
+  cells), with each level's collision outline on request. Every world draws side walls: a world made
+  later needs no setting or conversion, only a bake of its cache.
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
   (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
@@ -184,6 +187,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   cap (released and pressed) from `asset/Originals/props/heavy-plate/plate-b.png` into
   `godot/asset/MAPS/props/heavy-plate/` (2 px per unit); it prints the placement numbers
   `game/scripts/heavy_plate.gd` uses ([godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#heavy-plates-and-heavy-blocks-2026-10-14)).
+- `python scripts/art/pack-dungeon-art.py` (**numpy**) — the dungeon kit's art from
+  `asset/Originals/dungeon-kit/generated/` (Magnific GPT 2.5, 2026-10-17): the doors (shut, and open
+  with the doorway cut see-through), padlock, bolt, winch, shutter, drawbridge (down, up), slabs,
+  the seamless spike tile, glow-moss, the big chest, the pickups and the dungeon item icons, at 2 px
+  per unit, into `godot/asset/MAPS/objects/dungeon/` and `godot/asset/UI/items/dungeon-items.webp`
+  ([godot/DUNGEONS.md](godot/DUNGEONS.md#art)).
 - `python scripts/art/pack-prologue-art.py` — the prologue's art from `asset/Originals/prologue/generated/`
   (Magnific GPT 2.5, 2026-10-16): the Wellspring's pool, the barred gate cut into its frame and its
   rising grate, the lever (shut, pulled), Yoi's three poses and Plop's satchel icon; it prints the
@@ -211,9 +220,41 @@ See [assets/README.md](assets/README.md) for the art workflow.
   full and ball clips, the Clod Stomper, Tom and his web, a sample of the liftables and the essences.
 - `python scripts/effects/pack-stretch-lash.py` — packs the Stretch Lash goo tendril from
   `asset/Originals/effects/stretch-lash/` into `godot/asset/MAPS/effects/384x96-tile_4x2-stretch-lash.webp`.
-- `python scripts/characters/build-gulp-form-skins.py` — builds the Gulp form skins
-  `godot/asset/characters/slime-form-{heavy,sticky}.webp` (the old side-view sheet re-textured; the
-  top-down slime draws its forms with a shader instead).
+- `python scripts/art/pack-bomb-lantern-art.py` — packs the Goo Bomb and Lantern art from
+  `asset/Originals/abilities/generated/` into `godot/asset/abilities/` (the bomb, its blast, the rubble, the
+  Lantern's flame and the deadthorn hedge; the crack and hole overlays the game lays on a cracked wall) and
+  their HUD icons into `godot/asset/UI/hud-console/` ([design](design/2026-10-14-bomb-lantern-and-secrets.md)).
+  It no longer writes the painted `cracked-wall-2x1.webp`, which no scene used (clean-out wave 1, 2026-10-17).
+- `python scripts/art/pack-weaver-bomb-art.py` — the Weaver Hollow's Goo Bomb pieces (2026-10-17) from
+  `asset/Originals/weaver-hollow/bomb-pieces/` (Magnific GPT 2.5; prompts in its README) into
+  `godot/asset/abilities/goo-bomb/`: `blast-keg-2x1.webp` (intact | burst) and `winch-post-2x1.webp`
+  (intact | broken stump), each with the cracked wall's crack decal laid on (only over the keg's wood,
+  with a pale rim; only over the post's stone), and `floor-hole.webp` (squashed flat); 2 px per unit. It
+  prints each sheet's frame and the sprite offset of its feet for the scenes
+  ([godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#the-goo-bomb-2026-10-14)).
+- `python scripts/art/pack-web-art.py` — the Weaver Hollow's webs (2026-10-17) from
+  `asset/Originals/weaver-hollow/webs/` (Magnific GPT 2.5; prompts in its README) into
+  `godot/asset/MAPS/webs/`, 2 px per unit: `floor-webs-6x1.webp` (six flat floor webs, 192 px frames,
+  their milky fill thinned) and the WebLayer's `palette.png` (the tile set
+  `godot/game/world/webs/web_tileset.tres` is written by hand: an auto tile, then one per web),
+  `web-wall-across-2x1.webp` and `web-wall-side-2x1.webp` (intact | cut), `silk-parcel-3x1.webp` (closed |
+  torn open | the glint star it paints); it prints the glint's place in its frame for
+  `silk_parcel.gd` ([godot/WEBS.md](godot/WEBS.md)).
+- `python scripts/art/pack-matron-art.py` (**numpy**) — the Orb-Weaver Matron's cocoon fight (2026-10-17)
+  from `asset/Originals/enemies/matron/` (Magnific GPT 2.5; prompts in its README), 2 px per unit:
+  `godot/asset/MAPS/enemies/256x416-tile_2x1-matron-cocoon.webp` (whole | torn, hung from the cells'
+  top middle), `384x384-tile_4x1-matron.webp` (dazed, dazed, flinch, climbing), Pearl 2
+  (`MAPS/props/256x256-pearl-silk.webp`), her thread's spool (`MAPS/props/128x128-matron-spool.webp`)
+  and its bag icon (`MAPS/items/64x64-matron-thread.webp`); it prints where the cocoon's eyes and bottom
+  are for `game/bosses/matron_cocoon_look.gd` ([godot/specs/matron.md](godot/specs/matron.md) section 8).
+  `godot/tools/render_matron.gd` renders the fight's moments in the running game (run windowed).
+- `python scripts/art/pack-mine-art.py` (**numpy**) — the Crystal Mine's art (2026-10-17) from
+  `asset/Originals/mine/` (Magnific GPT 2.5, seven 2 x 2 sheets; prompts in its README): the Crystal
+  Colossus's eight poses (`godot/asset/MAPS/enemies/384x384-tile_8x1-crystal-colossus.webp`, one
+  scale, standing on y 376), the mine's props into `godot/asset/MAPS/props/mine/` (the lens and the
+  veil as 2 x 1 strips, the rotten timbers also with a smashed frame drawn from them) and the smith
+  (`godot/asset/characters/authored/npcs/smith.webp`, four poses with their feet centred)
+  ([godot/DUNGEONS.md "The Crystal Mine (built)"](godot/DUNGEONS.md#the-crystal-mine-built)).
 - `python scripts/characters/pack-slime-v2-page.py [--page N] [--preview out.gif]` (**numpy**, Node,
   Brave) — packs a page of the three-quarter top-down player slime (1 = idle, walk, doze and sleep; 2 =
   rolls, the stretch lash and the defeat; 3 = swim; 4 = the Gulp's suck and spit and the Roll's ball; 5 =

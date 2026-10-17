@@ -2,13 +2,13 @@ extends RefCounted
 ## Quests, NPC quest talk, the dialogue box, the offer / turn-in window, the tracker, the NPC
 ## markers, the toasts and the waypoint (docs/godot/specs/quests.md 10.10). level-1: the Elder
 ## (`level-1-npc-village-elder-plop`, A Place to Work), Pip (`level-1-npc-red-slime-boy`, plain
-## talk), the forge ruin (`level-1-forge`), Fatty's camp, the loose wood piles 03 (411, 1150) and 04
+## talk), the forge ruin (`level-1-forge`), Fatty's camp in his Lair, the loose wood piles 03 (411, 1150) and 04
 ## (455.25, 1187.9). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
 ## and stop wandering (no lock, so the conversation's lock is the only one).
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in the
-## village's chunk C4 (`level-1-c4`, level-1's own coordinates); Fatty's camp and the Verdant Gate
-## exit are in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), which the tests needing them
-## travel to.
+## village's chunk C4 (`level-1-c4`, level-1's own coordinates); the Lair's gate and the Verdant Gate
+## exit are in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp in his Lair
+## (`fatty-lair`, since 2026-10-17), which the tests needing them travel to.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -42,9 +42,12 @@ const PLACE_PROGRESS_PAGES: Array[String] = ["A workbench is the heart of every 
 const SLIME_BASICS_LINES := "• Open your bag (B)\n• Look at the Crafting tab (B, then its tab)\n• Read your Journal (J)\n• Open the map (M)\n• Pause to save or change settings (Esc)"
 const WORKBENCH_CRAFT := {"recipeId": "craft-workbench", "itemId": "workbench", "quantity": 1}
 const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1-c4", "sceneId": "", "x": 0, "y": 0}
-## level-1's chunk worlds: the village (where the tests start) and Fatty's camp with the gate exit.
+## level-1's chunk worlds: the village (where the tests start) and D4 with the Lair's gate and the
+## Verdant Gate exit; Fatty's Lair with his camp.
 const VILLAGE_MAP := "level-1-c4"
 const FATTY_MAP := "level-1-d4"
+const LAIR_MAP := "fatty-lair"
+const LAIR_CAMP := "fatty-lair-boss"
 
 
 func test_new_run_states(t: TestContext) -> void:
@@ -428,12 +431,12 @@ func test_known_facts_skip_later_stages(t: TestContext) -> void:
 	var state := quests.state("the-one-eyed-guardian")
 	t.equal(state.get("active_stage_id"), "defeat-fatty", "stage after the spear")
 	t.equal((state["progress"] as Dictionary).get("defeat-fatty"), 0, "an earlier defeat counted")
-	if not await _travel(t, FATTY_MAP):
+	if not await _travel(t, LAIR_MAP):
 		return
-	var camp := _camp(t, "level-1-fatty-one-eye-camp")
+	var camp := _camp(t, LAIR_CAMP)
 	if not t.check(camp != null, "no Fatty camp"):
 		return
-	camp.boss_defeated.emit({"campId": "level-1-fatty-one-eye-camp", "bossId": "fatty-one-eye"})
+	camp.boss_defeated.emit({"campId": LAIR_CAMP, "bossId": "fatty-one-eye"})
 	t.equal(quests.state("the-one-eyed-guardian").get("active_stage_id"), "verdant-gate", "stage after the camp's defeat")
 
 
@@ -706,9 +709,10 @@ func test_waypoint_targets_on_level_1(t: TestContext) -> void:
 	t.check(QuestWaypoint.resolve(quests.view("a-tonic-for-lili"), from).get("label") == "Talk to Lili", "the giver of an offer")
 	if not await _travel(t, FATTY_MAP):
 		return
-	# D4's places: level-1's (2528, 1472) and (4064, 576) less the chunk origin (2048, 0).
+	# D4's places: the Lair's gate (Fatty's way in, quest_waypoint.gd BOSS_WAY_IN_GROUP) at (192, 1012)
+	# and the exit at level-1's (4064, 576) less the chunk origin (2048, 0).
 	_check_waypoints(t, quests, [
-		["the-one-eyed-guardian", "defeat-fatty", Vector2(480.0, 1472.0)],
+		["the-one-eyed-guardian", "defeat-fatty", Vector2(192.0, 1012.0)],
 		["the-one-eyed-guardian", "verdant-gate", Vector2(2016.0, 576.0)],
 	], t.player().get_centre())
 

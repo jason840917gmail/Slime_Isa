@@ -1,0 +1,72 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/drop_gate.gd" id="1_gate"]
+[ext_resource type="Script" path="res://game/world_objects/worm_lever.gd" id="2_lever"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="3_sheet"]
+
+[sub_resource type="RectangleShape2D" id="mound_shape"]
+size = Vector2(80, 44)
+
+[sub_resource type="RectangleShape2D" id="leaf_shape"]
+size = Vector2(130, 22)
+
+[sub_resource type="RectangleShape2D" id="lever_shape"]
+size = Vector2(26, 14)
+
+[node name="drop-gate" type="Node2D" node_paths=PackedStringArray("doors", "leaf")]
+y_sort_enabled = true
+script = ExtResource("1_gate")
+doors = NodePath("Doors")
+leaf = NodePath("Leaf")
+
+[node name="Mound" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="LeftRock" type="CollisionShape2D" parent="Mound"]
+position = Vector2(-105, -18)
+shape = SubResource("mound_shape")
+
+[node name="RightRock" type="CollisionShape2D" parent="Mound"]
+position = Vector2(105, -18)
+shape = SubResource("mound_shape")
+
+[node name="Doors" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="LeafShape" type="CollisionShape2D" parent="Doors"]
+position = Vector2(0, -11)
+shape = SubResource("leaf_shape")
+
+[node name="Frame" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-280, -526)
+script = ExtResource("3_sheet")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/drop-gate-frame.webp"
+
+[node name="Leaf" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-128, -356.6)
+script = ExtResource("3_sheet")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/drop-gate-leaf.webp"
+
+[node name="Lever" type="Node2D" parent="." node_paths=PackedStringArray("visual")]
+y_sort_enabled = true
+position = Vector2(-236, 26)
+script = ExtResource("2_lever")
+visual = NodePath("Visual")
+
+[node name="Visual" type="Sprite2D" parent="Lever"]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-75.5, -240)
+script = ExtResource("3_sheet")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/worm-lever.webp"
+
+[node name="Post" type="StaticBody2D" parent="Lever"]
+collision_mask = 0
+
+[node name="PostShape" type="CollisionShape2D" parent="Lever/Post"]
+position = Vector2(-8, -6)
+shape = SubResource("lever_shape")

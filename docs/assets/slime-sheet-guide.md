@@ -3,11 +3,13 @@
 The format of the player slime sheets, the reference layout for slime-style
 animated characters. The player draws the three-quarter top-down pages ([below](#three-quarter-top-down-sheet-v2-godot));
 the side-view sheet described first is retired (no player clip uses it; the Gulp form skins were built from it).
+Since 2026-10-17 it and the form skins wait in `asset/to-delete/characters/` and no longer ship; its
+lossless source stays in `asset/Originals/characters/slime_normalized.png`.
 
 ## Sheet format
 
 - Asset ID: `character.player.slime`; texture key `slime`
-- File: `godot/asset/characters/slime_normalized.webp`
+- File: `slime_normalized.webp` (was `godot/asset/characters/`; now `asset/to-delete/characters/`)
 - Sheet: `2048 x 2048 px`, `8 columns x 8 rows` of `256 x 256 px` frames
 - Index rule: `frame = row * 8 + column`
 - Default art facing: left (flipped at runtime when moving right)

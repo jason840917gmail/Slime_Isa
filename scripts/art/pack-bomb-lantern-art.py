@@ -21,13 +21,12 @@ ALPHA_CUT = 12
 SHEETS = {
 	"bomb": ("bomb-a.png", 1, 1, 96, 112, 1, OUT / "goo-bomb/bomb.webp"),
 	"blast": ("blast-a.png", 3, 2, 320, 320, 6, OUT / "goo-bomb/blast-6x1.webp"),
-	"cracked-wall": ("wall-a.png", 2, 1, 256, 224, 2, OUT / "goo-bomb/cracked-wall-2x1.webp"),
 	"rubble": ("rubble-a.png", 2, 1, 224, 160, 2, OUT / "goo-bomb/rubble-2x1.webp"),
 	"flame": ("flame-a.png", 2, 2, 96, 64, 4, OUT / "lantern/flame-4x1.webp"),
 	"deadthorn": ("hedge-b.png", 2, 1, 320, 176, 2, OUT / "lantern/deadthorn-2x1.webp"),
 }
 # Sheets whose pieces stand on the ground: bottom-aligned in their cells (effects are centred).
-GROUNDED = {"bomb", "cracked-wall", "rubble", "deadthorn"}
+GROUNDED = {"bomb", "rubble", "deadthorn"}
 # Animation strips: every frame keeps the same scale (a small flash stays small).
 SHARED_SCALE = {"blast", "flame"}
 # The icons sheet: left = Goo Bomb, right = Lantern, 96 x 96 each.

@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/crystal_mine/climb_wall.gd" id="climb"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+
+[node name="climb-wall" type="Node2D"]
+script = ExtResource("climb")
+
+[node name="Visual" type="Sprite2D" parent="."]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"

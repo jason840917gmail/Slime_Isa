@@ -1,8 +1,12 @@
 extends RefCounted
 ## The Orb-Weaver Matron, her gloop-forest nest camp, web patches and web barriers
 ## (docs/godot/specs/matron.md).
-## gloop-forest is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the nest is in
+## gloop-forest is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the nest was in
 ## chunk F4 (`gloop-forest-f4`, its origin at the forest's (2048, 0)), so the places here are F4's.
+## Since 2026-10-17 the Matron lives in the Weaver Hollow's Crown and F4 is the Hollow's forecourt
+## (the Watch Oak's root gate, docs/godot/DUNGEONS.md "The Weaver Hollow"): the nest's camp
+## (`encounter.gloop-matron-nest`, her own fight: spit, volleys, arena) is mounted by these tests
+## where it stood, on the forecourt's open ground south of the oak.
 ## Camp `gloop-matron-nest` at (1072, 940): activation circle r 460, arena circle r 320, the Matron
 ## spawned at the camp origin (old Phaser position; feet 30 px lower). The Matron: 300 hp, knockback
 ## immune, never staggered; slime-spider AI spitting `spider-web` (18 - 3 = 15, web 900 ms); the
@@ -13,6 +17,14 @@ extends RefCounted
 ## travels into it once more, the camps test in F5 (its two camps are placed enemies since
 ## 2026-10-16, roadmap 5.25). The Sticky tears need player.gd's Gulp form
 ## (silk) and are skipped with a note without it.
+##
+## The Weaver Hollow's fight (matron spec section 8, 2026-10-17): `encounter.weaver-hollow-matron`
+## stands in the Crown (`weaver-hollow-crown`, its shutter wired there: test_weaver_hollow.gd), but
+## these tests mount it where the nest was, its origin 144 px below the nest centre so her cocoon's
+## shadow hangs over the clearing:
+## the cocoon (every hit clinks), a blast on her shadow tears it, the 4 s window, the 1.5 s respin,
+## three rounds of 100 (round 2's ring of webs, round 3's egg sacs), no respawn, and the rewards
+## (Pearl 2 -> `crosses_webs()`, the full heart +20 once, her thread only with the Silk skin).
 
 ## run_tests.gd starts every test of this file in the nest's chunk of gloop-forest.
 const MAP_ID := "gloop-forest-f4"
@@ -32,6 +44,13 @@ const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 const EnemyScript := preload("res://game/scripts/enemy.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
+const GooBlast := preload("res://game/player/abilities/goo_blast.gd")
+const EggSacScript := preload("res://game/scripts/egg_sac.gd")
+const PearlScript := preload("res://game/scripts/pearl.gd")
+const FullHeartScript := preload("res://game/scripts/full_heart.gd")
+const MatronThreadScript := preload("res://game/scripts/matron_thread.gd")
+const CocoonLook := preload("res://game/bosses/matron_cocoon_look.gd")
+const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 ## F5's camps (their old spawn areas' maxPopulation): their placed enemies by type.
 const AREAS_CAMPS := {"gloop-clod-stompers-hollow": {"clod-stomper": 1}, "gloop-orb-weavers-south": {"orb-weaver": 2}}
 
@@ -60,6 +79,28 @@ const NOOK_WEB_KEY := "gloop-forest.gloop-ch2-nook-web"
 const NOOK_ZONE := Vector2(800.0, 1252.0)
 const STEP := TestContext.STEP_MS
 const SLACK := TestContext.STEP_MS + 0.01
+## The Weaver Hollow's camp, mounted 144 px below the nest centre: her centre (the camp's spawn
+## (0, -144)) is the nest centre, her shadow (feet) 30 px lower. The slime watches from 250 px south of
+## her, outside round 2's ring of webs (130 + 50).
+const HOLLOW_CAMP_ID := "weaver-hollow-matron"
+const HOLLOW_MAP := "weaver-hollow-crown"
+const HOLLOW_ORIGIN := Vector2(1072.0, 1084.0)
+const HOLLOW_WATCH := Vector2(1072.0, 1190.0)
+const OPEN_MS := 4000.0
+const RESPIN_MS := 1500.0
+const RING_PATCHES := 8
+const RING_RADIUS := 130.0
+const ROUND_FLOORS: Array[float] = [200.0, 100.0, 0.0]
+const CLINK_TEXT := "Woven too thick. It would take a blast."
+const SILK_FLAG := "skin.silk"
+const PEARL_FLAG := "pearl.orb-weaver-matron"
+const HEART_FLAG := "full-heart.orb-weaver-matron"
+const THREAD_FLAG := "matron-thread.taken"
+const THREAD_ITEM := "matron-thread"
+const FULL_HEART_HP := 20
+const BOSS_ENERGY := 20.0
+## Open ground in the nest clearing where the reward tests set the Pearl, the heart and the thread.
+const REWARD_SPOT := Vector2(1072.0, 1060.0)
 
 
 func test_nest_camp_spawns_the_matron_with_bar_and_arena(t: TestContext) -> void:
@@ -164,13 +205,10 @@ func test_spits_then_volley_marks_land_and_patches_catch(t: TestContext) -> void
 		for index in 4:
 			var root := (patches[index] as Node).get_parent() as Node2D
 			t.check(marks.any(func(mark: Vector2) -> bool: return mark.distance_to(root.global_position) < 0.5), "a patch at %s, not on a mark" % root.global_position)
-	# The patch under the slime catches it: set back 50 + 26 above or 50 + 30 below the patch.
-	var caught := await t.until(func() -> bool: return t.player().get_centre().distance_to(marks[0]) > PATCH_RADIUS, 300.0)
-	if t.check(caught, "the web patch under the slime never caught it"):
-		var centre := t.player().get_centre()
-		t.near(centre.x, marks[0].x, 40.0, "caught slime x")
-		t.check(absf(centre.y - (marks[0].y - PATCH_RADIUS - 26.0)) <= 2.0 or absf(centre.y - (marks[0].y + PATCH_RADIUS + 30.0)) <= 2.0,
-			"caught slime y %.1f (patch y %.1f)" % [centre.y, marks[0].y])
+	# The patches are floor webs (spec 5.5, since 2026-10-17): the one under the slime neither roots
+	# it nor sets it back; it halves a walk and sticks a Roll (test_web_patch_slows_a_walk_...).
+	await t.steps(3)
+	t.check(not t.player().is_rooted(), "the web patch under the standing slime rooted it")
 	# Rest, then the next volley 6500 ms after it.
 	await t.until(func() -> bool: return matron.get_phase() == MatronScript.PHASE_FIGHT, 1600.0)
 	t.between(matron.get_phase_started_at() - landed_at, 1300.0, 1300.0 + SLACK, "rest length (ms)")
@@ -351,9 +389,12 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 	t.equal(caught_again.size(), 0, "a torn web caught the slime")
 
 
-func test_web_patch_catches_a_slime_and_tears_quietly_for_the_sticky_one(t: TestContext) -> void:
-	# Open ground for both the normal and the Sticky slime, set back included (120 px straight below
-	# the spawn a fieldstone wall row stands since the chunk worlds).
+## A web patch is a floor web (spec 5.5; game/world/webs/floor_webs.gd, since 2026-10-17): a slime
+## walking on it walks at `webs.floorSlowMultiplier` of its speed and nothing catches it; a Roll
+## into it sticks where it is (`caught`, rooted); the Sticky slime walks through and tears it.
+func test_web_patch_slows_a_walk_sticks_a_roll_and_tears_for_the_sticky_one(t: TestContext) -> void:
+	# Open ground right of the spawn for the walk, the roll and the Sticky slime (120 px straight
+	# below the spawn a fieldstone wall row stands since the chunk worlds).
 	var at := t.player().get_centre() + Vector2(120.0, 40.0)
 	var root := t.world().spawn_at_phaser_position("effect.matron-web-patch", at)
 	if not t.check(root != null, "effect.matron-web-patch did not spawn"):
@@ -365,17 +406,28 @@ func test_web_patch_catches_a_slime_and_tears_quietly_for_the_sticky_one(t: Test
 	var events := {"caught": [], "torn": []}
 	patch.caught.connect(func(zone: Dictionary) -> void: (events["caught"] as Array).append(zone))
 	patch.torn.connect(func(zone: Dictionary) -> void: (events["torn"] as Array).append(zone))
-	# A normal slime 40 px inside, coming from above: set back 50 + 26 above the centre.
-	t.teleport_player(at + Vector2(0.0, -40.0))
+	# A normal slime walking on it: half its walk, not caught, not rooted, not moved off it.
+	var walk := Services.constants().number("character.player.movement.baseSpeed")
+	t.teleport_player(at + Vector2(-30.0, 0.0))
 	await t.steps(2)
-	if t.equal((events["caught"] as Array).size(), 1, "catches"):
+	t.press(&"move_right")
+	await t.steps(4)
+	t.near(t.player_body().velocity.x, walk * Services.constants().number("webs.floorSlowMultiplier"), 0.01, "walk speed on a web patch")
+	t.release_all()
+	await t.steps(2)
+	t.equal((events["caught"] as Array).size(), 0, "catches of a walking slime")
+	t.check(not t.player().is_rooted(), "the web patch rooted a walking slime")
+	t.check(t.player().get_centre().distance_to(at) <= PATCH_RADIUS, "the walking slime was moved off the patch")
+	# A Roll into it sticks where it is.
+	t.teleport_player(at + Vector2(-100.0, 0.0))
+	t.player().face(Vector2.RIGHT)
+	await t.steps(2)
+	t.tap(&"dodge")
+	if t.check(await t.until(func() -> bool: return not (events["caught"] as Array).is_empty(), 1500.0), "the roll never stuck in the patch"):
 		t.equal(events["caught"][0], {"x": at.x, "y": at.y, "halfWidth": PATCH_RADIUS, "halfHeight": PATCH_RADIUS}, "caught zone")
-	# Set back to at.y - 50 - 26 (the exact point is checked on open ground in the volley test;
-	# here a prop may push the body a little).
-	var back := t.player().get_centre()
-	t.check(back.distance_to(at) > PATCH_RADIUS and back.y < at.y, "the caught slime was not set back above the patch (%s)" % back)
-	if not t.player().has_method(&"apply_web"):
-		t.check(t.player().is_movement_suppressed(), "the caught slime can still walk (fallback root)")
+		t.check(not t.player().is_rolling(), "the roll goes on in the patch")
+		t.check(t.player().is_rooted(), "the rolling slime is not stuck in the patch")
+		t.check(t.player().get_centre().distance_to(at) <= PATCH_RADIUS + 2.0, "the stuck slime is not on the patch (%s)" % t.player().get_centre())
 	# The Sticky slime walks through and tears it quietly.
 	var gulp: Object = t.player().call(&"get_gulp") if t.player().has_method(&"get_gulp") else null
 	if gulp == null or not gulp.has_method(&"swallow"):
@@ -418,15 +470,306 @@ func test_gloop_forest_camps_are_placed_enemies(t: TestContext) -> void:
 			"standing enemies of '%s'" % camp_id)
 
 
+# --- the Weaver Hollow's fight (matron spec section 8) ------------------------------------------
+
+func test_hollow_matron_hangs_in_her_cocoon_and_every_hit_clinks(t: TestContext) -> void:
+	var fight := await _mount_hollow(t)
+	if fight.is_empty():
+		return
+	var camp: BossCampScript = fight["camp"]
+	var matron: MatronScript = fight["matron"]
+	var encounter: Node2D = fight["encounter"]
+	t.equal([camp.camp_id, camp.boss_id, camp.map_id], [HOLLOW_CAMP_ID, BOSS_ID, HOLLOW_MAP], "the Hollow's camp ids")
+	t.check(camp.never_returns(), "the Hollow's camp would bring her back once beaten")
+	t.check(matron.cocoon_enabled, "the camp's boss_overrides did not turn the cocoon on")
+	t.near(matron.arena_recovery_ms, 0.0, 0.01, "no full heal after a while outside the arena")
+	t.equal(str(matron.get_arena().get("shape", "")), "rectangle", "her arena (the room's floor)")
+	t.near_vec(matron.get_centre(), CAMP, 1.0, "her centre (the camp's spawn (0, -144))")
+	t.equal(matron.get_shell(), MatronScript.SHELL_COCOONED, "shell after the spawn")
+	t.equal(matron.get_round(), 1, "round at full health")
+	t.check(matron.is_in_group(&"blast_targets"), "she is not a blast target")
+	t.near_vec(matron.blast_point(), matron.body.global_position, 0.01, "blast point (her shadow: the feet)")
+	var look := matron.cocoon_look as CocoonLook
+	if t.check(look != null, "the Matron has no cocoon look"):
+		t.equal(look.state, CocoonLook.STATE_COCOONED, "the look's state")
+		t.near(look.hang_px, matron.round_hang_px[0], 0.01, "round 1's cocoon hangs low")
+	# She never leaves her thread, though her AI wants to.
+	var feet := matron.body.global_position
+	await t.sim_wait(600.0)
+	t.near_vec(matron.body.global_position, feet, 0.5, "her cocoon moved")
+	# Every weapon hit clinks, however many: no blast, no damage.
+	for index in 12:
+		var result := _hit(t, matron, 100.0, 0.0)
+		if index == 0:
+			t.equal(result.get("status"), "rejected", "a weapon hit on the cocoon")
+			t.equal(result.get("reason"), "immune", "the cocoon's refusal (a clink)")
+	t.near(_hp(matron), MAX_HP, 0.01, "hp after twelve hits on the cocoon")
+	t.equal(matron.clink_text, CLINK_TEXT, "the clink's line")
+	# Her rewards wait for her fall.
+	t.check(not (encounter.get_node(^"Pearl") as PearlScript).is_shown(), "Pearl 2 shows while she lives")
+	t.check(not (encounter.get_node(^"FullHeart/FullHeartScript") as FullHeartScript).is_shown(), "the full heart shows while she lives")
+
+
+func test_a_blast_on_her_shadow_tears_the_cocoon_for_a_window(t: TestContext) -> void:
+	var fight := await _mount_hollow(t)
+	if fight.is_empty():
+		return
+	var matron: MatronScript = fight["matron"]
+	# A blast whose ellipse (176 x 120) misses her shadow does nothing.
+	GooBlast.detonate(matron.blast_point() + Vector2(150.0, 0.0), false)
+	await t.steps(2)
+	t.equal(matron.get_shell(), MatronScript.SHELL_COCOONED, "shell after a blast 150 px from her shadow")
+	await t.sim_wait(300.0)
+	# One whose ellipse holds it tears the cocoon: she drops to the floor, open.
+	GooBlast.detonate(matron.blast_point() + Vector2(50.0, 20.0), false)
+	await t.steps(1)
+	if not t.equal(matron.get_shell(), MatronScript.SHELL_TORN, "shell after a blast on her shadow"):
+		return
+	var torn_at := matron.get_shell_started_at()
+	t.check(matron.is_open(), "torn but not open")
+	t.near(_hp(matron), MAX_HP, 0.01, "hp after the blast (it only tears the cocoon)")
+	var result := _hit(t, matron, 30.0, 0.0)
+	t.equal(result.get("status"), "accepted", "a weapon hit while she is open")
+	t.near(_hp(matron), MAX_HP - 30.0, 0.01, "hp after a hit in the window")
+	# About 4 s on the floor, then she climbs her thread and spins (about 1.5 s): hits clink again.
+	await t.until(func() -> bool: return matron.get_shell() == MatronScript.SHELL_RESPIN, OPEN_MS + 500.0)
+	if not t.equal(matron.get_shell(), MatronScript.SHELL_RESPIN, "shell after the window"):
+		return
+	t.between(matron.get_shell_started_at() - torn_at, OPEN_MS, OPEN_MS + SLACK, "the open window (ms)")
+	t.equal(_hit(t, matron, 30.0, 0.0).get("reason"), "immune", "a hit while she spins")
+	var respin_at := matron.get_shell_started_at()
+	await t.until(func() -> bool: return matron.get_shell() == MatronScript.SHELL_COCOONED, RESPIN_MS + 500.0)
+	if not t.equal(matron.get_shell(), MatronScript.SHELL_COCOONED, "shell after the respin"):
+		return
+	t.between(matron.get_shell_started_at() - respin_at, RESPIN_MS, RESPIN_MS + SLACK, "the respin (ms)")
+	t.equal(matron.get_round(), 1, "round at 270 hp")
+	t.equal(_hit(t, matron, 30.0, 0.0).get("reason"), "immune", "a hit on the new cocoon")
+	t.near(_hp(matron), MAX_HP - 30.0, 0.01, "hp after a hit on the new cocoon")
+
+
+func test_three_rounds_of_a_hundred_with_webs_then_egg_sacs(t: TestContext) -> void:
+	var fight := await _mount_hollow(t)
+	if fight.is_empty():
+		return
+	var matron: MatronScript = fight["matron"]
+	var look := matron.cocoon_look as CocoonLook
+	for index in 3:
+		var round_number := index + 1
+		t.equal(matron.get_round(), round_number, "round at %.0f hp" % _hp(matron))
+		if look != null:
+			t.near(look.hang_px, matron.round_hang_px[index], 0.01, "round %d's hang" % round_number)
+		if round_number == 2:
+			await t.steps(1)
+			t.equal(_ring_patches(t, matron), RING_PATCHES, "round 2's floor webs %.0f px round her shadow" % RING_RADIUS)
+		if round_number == 3:
+			var sacs := matron.get_egg_sacs()
+			if t.equal(sacs.size(), 2, "round 3's egg sacs"):
+				for i in sacs.size():
+					var sac := sacs[i] as EggSacScript
+					if not t.check(sac != null, "egg sac %d is not an EggSacScript" % i):
+						continue
+					t.near_vec(sac.get_centre(), matron.blast_point() + matron.egg_sac_offsets[i], 1.0, "egg sac %d by her shadow" % i)
+					t.equal(sac.get_arena(), matron.get_arena(), "egg sac %d's arena (hers)" % i)
+		t.equal(_hit(t, matron, 500.0, 0.0).get("reason"), "immune", "round %d: a hit on the cocoon" % round_number)
+		t.check(matron.receive_blast({}), "round %d: the blast did not tear the cocoon" % round_number)
+		var result := _hit(t, matron, 500.0, 0.0)
+		t.equal(int(result.get("actual_damage", 0)), 100, "round %d: one big hit takes her round's hundred, no more" % round_number)
+		t.near(_hp(matron), ROUND_FLOORS[index], 0.01, "round %d: hp after the hit" % round_number)
+		if round_number == 3:
+			break
+		t.equal(matron.get_shell(), MatronScript.SHELL_RESPIN, "round %d: she climbs as soon as her round's share is gone" % round_number)
+		await t.until(func() -> bool: return matron.get_shell() == MatronScript.SHELL_COCOONED, RESPIN_MS + 500.0)
+		_hold_fire(matron)
+	t.check(matron.is_defeated(), "she survived her third round")
+	t.equal(matron.get_phase(), MatronScript.PHASE_DEAD, "phase after her fall")
+
+
+func test_beaten_she_never_comes_back_and_her_brood_bursts(t: TestContext) -> void:
+	var fight := await _mount_hollow(t)
+	if fight.is_empty():
+		return
+	var camp: BossCampScript = fight["camp"]
+	var matron: MatronScript = fight["matron"]
+	var root_id := matron.body.get_instance_id()
+	var events := {"defeated": [], "disengaged": []}
+	camp.boss_defeated.connect(func(payload: Dictionary) -> void: (events["defeated"] as Array).append(payload))
+	camp.boss_disengaged.connect(func(payload: Dictionary) -> void: (events["disengaged"] as Array).append(payload))
+	if not await _beat(t, matron):
+		return
+	await t.steps(2)
+	t.equal(events["defeated"], [{"campId": HOLLOW_CAMP_ID, "bossId": BOSS_ID}], "boss_defeated payloads (the shutters' hook)")
+	t.equal(events["disengaged"], [{"campId": HOLLOW_CAMP_ID, "defeated": true}], "boss_disengaged payloads")
+	var run := Services.run()
+	t.check(BOSS_ID in (run.world["defeated_boss_ids"] as Array), "RunState defeated_boss_ids lacks the Matron")
+	t.check(not (run.map_record(HOLLOW_MAP)["boss_camps"] as Dictionary).has(HOLLOW_CAMP_ID), "a respawn time was stored for a boss that never returns")
+	for sac: Node in matron.get_egg_sacs():
+		t.check(bool(sac.call(&"is_defeated")), "an egg sac outlived her")
+	await t.until(func() -> bool: return not is_instance_id_valid(root_id), 3000.0)
+	t.check(not is_instance_id_valid(root_id), "the beaten Matron was never freed")
+	# Leaving and coming back, however late: never again.
+	t.check(not camp.evaluate_activation(false, BossCampScript.epoch_now_ms()), "she spawned with the slime outside")
+	t.check(not camp.evaluate_activation(true, BossCampScript.epoch_now_ms() + 1.0e9), "she came back after the slime left and returned")
+	# Nor in a camp built again (the room entered again).
+	(fight["encounter"] as Node).queue_free()
+	await t.steps(2)
+	var again := await _mount_hollow(t, false)
+	if again.is_empty():
+		return
+	await t.sim_wait(300.0)
+	t.check(not (again["camp"] as BossCampScript).has_live_boss(), "a camp built again spawned her once more")
+
+
+func test_pearl_two_grants_the_silk_skin(t: TestContext) -> void:
+	var won := await _mount_won_hollow(t)
+	if won.is_empty():
+		return
+	var pearl := (won["encounter"] as Node).get_node_or_null(^"Pearl") as PearlScript
+	if not t.check(pearl != null, "the Hollow's encounter has no Pearl"):
+		return
+	t.check(pearl.is_shown(), "Pearl 2 is not shown after her fall")
+	t.equal([pearl.number, pearl.skin_flag], [2, SILK_FLAG], "Pearl 2's number and skin")
+	t.check(not t.player().crosses_webs(), "the slime crossed webs before the Pearl")
+	pearl.global_position = REWARD_SPOT
+	t.teleport_player(REWARD_SPOT)
+	await t.until(func() -> bool: return pearl.is_taken(), 300.0)
+	if not t.check(pearl.is_taken(), "walking into Pearl 2 did not take it"):
+		return
+	var run := Services.run()
+	t.check(run.has_flag(PEARL_FLAG), "Pearl 2's flag is not set")
+	t.check(run.has_flag(SILK_FLAG), "the Silk skin's flag is not set")
+	t.check(t.player().crosses_webs(), "crosses_webs() is false with the Silk skin (its stand-in flag)")
+	t.check(not t.player().is_sticky_form(), "the Pearl gave the Silk Gulp form instead of the skin")
+
+
+func test_her_full_heart_adds_twenty_max_hp_once(t: TestContext) -> void:
+	var won := await _mount_won_hollow(t)
+	if won.is_empty():
+		return
+	var heart_root := (won["encounter"] as Node).get_node_or_null(^"FullHeart") as Node2D
+	var heart := heart_root.get_node_or_null(^"FullHeartScript") as FullHeartScript if heart_root != null else null
+	if not t.check(heart != null, "the Hollow's encounter has no full heart"):
+		return
+	t.check(heart.is_shown(), "the full heart is not shown after her fall")
+	var run := Services.run()
+	var max_hp := t.player().get_max_hp()
+	var max_energy := t.player().get_max_energy()
+	t.equal(FULL_HEART_HP, Services.constants().integer("character.player.fullHeart.maxHpBonus"), "fullHeart.maxHpBonus")
+	heart_root.global_position = REWARD_SPOT
+	t.teleport_player(REWARD_SPOT)
+	await t.until(func() -> bool: return heart.is_taken(), 300.0)
+	if not t.check(heart.is_taken(), "walking into the full heart did not take it"):
+		return
+	t.equal(t.player().get_max_hp(), max_hp + FULL_HEART_HP, "the slime's max HP after the full heart")
+	t.equal(t.player().get_hp(), max_hp + FULL_HEART_HP, "HP filled")
+	t.equal(run.max_hp(), max_hp + FULL_HEART_HP, "RunState max HP")
+	t.equal(int(run.player.get("full_hearts", 0)), 1, "RunState full hearts")
+	t.check(run.has_flag(HEART_FLAG), "the full heart's flag is not set")
+	t.near(t.player().get_max_energy(), max_energy + BOSS_ENERGY, 0.01, "max energy after a boss's heart (question 19)")
+	t.near(float(run.max_energy()), max_energy + BOSS_ENERGY, 0.01, "RunState max energy")
+	# Once: the room built again shows no heart, and standing there grants nothing more.
+	(won["encounter"] as Node).queue_free()
+	await t.steps(2)
+	var again := await _mount_hollow(t, false)
+	if again.is_empty():
+		return
+	var heart_again := (again["encounter"] as Node).get_node_or_null(^"FullHeart/FullHeartScript") as FullHeartScript
+	if t.check(heart_again != null, "no full heart in the camp built again"):
+		t.check(heart_again.is_taken() and not heart_again.is_shown(), "the taken heart is back")
+		((again["encounter"] as Node).get_node(^"FullHeart") as Node2D).global_position = REWARD_SPOT
+	t.teleport_player(REWARD_SPOT)
+	await t.sim_wait(200.0)
+	t.equal(run.max_hp(), max_hp + FULL_HEART_HP, "max HP after standing where the heart was again")
+	# Saved: through a save and a load the heart stays.
+	var saved := run.serialize()
+	t.equal(int((saved["player"] as Dictionary).get("full_hearts", 0)), 1, "full hearts in the save")
+	if t.check(run.install(saved), "the saved run did not install"):
+		t.equal(run.max_hp(), max_hp + FULL_HEART_HP, "max HP after a load")
+		t.near(float(run.max_energy()), max_energy + BOSS_ENERGY, 0.01, "max energy after a load")
+
+
+func test_her_thread_is_taken_only_with_the_silk_skin(t: TestContext) -> void:
+	var won := await _mount_won_hollow(t)
+	if won.is_empty():
+		return
+	var thread := (won["encounter"] as Node).get_node_or_null(^"MatronThread") as MatronThreadScript
+	if not t.check(thread != null, "the Hollow's encounter has no thread"):
+		return
+	thread.global_position = REWARD_SPOT
+	await t.steps(2)
+	t.equal(thread.get_state(), MatronThreadScript.STATE_CAUGHT, "the spool before a hit")
+	var area := thread.get_node_or_null(^"DamageArea") as Area2D
+	if not t.check(area != null, "the thread has no hurtbox"):
+		return
+	var refused: Array = []
+	thread.refused.connect(func(payload: Dictionary) -> void: refused.append(payload))
+	# Without the Silk skin: a clink (and its line), the spool stays.
+	var result := _strike(t, area, 24.0, ["weapon", "spear"])
+	t.equal([result.get("status"), result.get("reason")], ["rejected", "immune"], "a Spear hit without the Silk skin")
+	t.equal(refused, [{"crosses": false}], "refusals without the skin")
+	t.equal(thread.get_state(), MatronThreadScript.STATE_CAUGHT, "the spool after a hit without the skin")
+	t.check(not thread.refusal_text.contains("Silk"), "the refusal names the skin: %s" % thread.refusal_text)
+	# With it, the Spear cuts the strand and the spool drops; walking into it takes it, once.
+	Services.run().set_flag(SILK_FLAG)
+	t.check(t.player().crosses_webs(), "crosses_webs() is false with the Silk skin")
+	result = _strike(t, area, 24.0, ["weapon", "spear"])
+	t.equal(result.get("status"), "accepted", "a Spear hit with the Silk skin")
+	t.equal(thread.get_state(), MatronThreadScript.STATE_FALLING, "the spool after the cut")
+	await t.until(func() -> bool: return thread.get_state() == MatronThreadScript.STATE_DROPPED, 800.0)
+	t.equal(thread.get_state(), MatronThreadScript.STATE_DROPPED, "the spool after its fall")
+	var run := Services.run()
+	t.equal(run.item_count(THREAD_ITEM), 0, "the thread was taken before the slime reached it")
+	t.teleport_player(REWARD_SPOT)
+	await t.until(func() -> bool: return thread.is_taken(), 300.0)
+	t.check(thread.is_taken(), "walking into the dropped spool did not take it")
+	t.equal(run.item_count(THREAD_ITEM), 1, "Matron's Thread in the bag")
+	t.equal(str(ItemCatalog.definition(THREAD_ITEM).get("category", "")), "story", "the thread is a story item")
+	t.check(run.has_flag(THREAD_FLAG), "the thread's flag is not set")
+	# Once, and saved: the room built again has no spool.
+	(won["encounter"] as Node).queue_free()
+	await t.steps(2)
+	var again := await _mount_hollow(t, false)
+	if again.is_empty():
+		return
+	var thread_again := (again["encounter"] as Node).get_node_or_null(^"MatronThread") as MatronThreadScript
+	if t.check(thread_again != null, "no thread in the camp built again"):
+		t.check(thread_again.is_taken() and not thread_again.visible, "the taken thread is back")
+	t.equal(run.item_count(THREAD_ITEM), 1, "Matron's Thread in the bag after the room is built again")
+	t.check(((run.serialize()["story"] as Dictionary).get("world_flags", []) as Array).has(THREAD_FLAG), "the thread's flag is not in the save")
+
+
 # --- helpers ------------------------------------------------------------------------------------
 
-## Travels to the nest's chunk (west entry) unless the test already runs there; returns the
-## Matron's camp (null on failure).
+## Travels to the nest's chunk (west entry) unless the test already runs there and mounts the nest's
+## camp where it stood (F4 has none since the Weaver Hollow took the Matron); returns the Matron's
+## camp (null on failure).
 static func _enter_gloop(t: TestContext) -> BossCampScript:
 	if not await _travel(t, MAP):
 		return null
 	var camp := _camp(t)
-	t.check(camp != null, "%s has no boss camp '%s'" % [MAP, CAMP_ID])
+	if camp == null:
+		camp = await _mount_nest(t)
+	t.check(camp != null, "the nest's camp '%s' could not be mounted in %s" % [CAMP_ID, MAP])
+	return camp
+
+
+## `encounter.gloop-matron-nest` at CAMP in the nest's chunk, recorded under the chunk (as it stood
+## there until 2026-10-17). Null when it does not instance.
+static func _mount_nest(t: TestContext) -> BossCampScript:
+	var nest := t.world().instantiate_scene("encounter.gloop-matron-nest") as Node2D
+	if nest == null:
+		return null
+	var camp := nest.get_node_or_null(^"BossCampScript") as BossCampScript
+	var chest := nest.get_node_or_null(^"GuardedChest/ChestScript")
+	if camp != null:
+		camp.set(&"map_id", MAP)
+	if chest != null:
+		chest.set(&"map_id", MAP)
+	nest.set_meta(&"instance_id", "gloop-ch2-matron-nest")
+	nest.set_meta(&"persistence_key", "gloop-forest.gloop-ch2-matron-nest")
+	var parent := t.world().entities_root()
+	nest.position = CAMP - parent.global_position
+	parent.add_child(nest)
+	await t.steps(2)
 	return camp
 
 
@@ -513,3 +856,101 @@ static func _effects(t: TestContext, effect_id: String) -> Array:
 		if node is EffectScript and (node as EffectScript).effect_id == effect_id and not node.is_queued_for_deletion():
 			found.append(node)
 	return found
+
+
+# --- helpers: the Weaver Hollow's camp ------------------------------------------------------------
+
+## The Weaver Hollow's camp mounted at HOLLOW_ORIGIN in the nest's chunk (the nest's own camp freed
+## first, the slime at HOLLOW_WATCH). With `fight` it waits for her spawn and holds her spit and her
+## volleys, so the slime is not knocked about: {"camp", "encounter", "matron"}; without it
+## {"camp", "encounter"}. {} on failure.
+static func _mount_hollow(t: TestContext, fight: bool = true) -> Dictionary:
+	if not await _travel(t, MAP):
+		return {}
+	var nest := _camp(t)
+	if nest != null:
+		nest.get_parent().queue_free()
+		await t.steps(2)
+	t.teleport_player(HOLLOW_WATCH)
+	var encounter := t.world().instantiate_scene("encounter.weaver-hollow-matron") as Node2D
+	if not t.check(encounter != null, "encounter.weaver-hollow-matron did not instance"):
+		return {}
+	t.world().entities_root().add_child(encounter)
+	encounter.global_position = HOLLOW_ORIGIN
+	var camp := encounter.get_node_or_null(^"BossCampScript") as BossCampScript
+	if not t.check(camp != null, "the Hollow's encounter has no BossCampScript"):
+		return {}
+	var mounted := {"camp": camp, "encounter": encounter}
+	if not fight:
+		await t.steps(2)
+		return mounted
+	if not t.check(await t.until(func() -> bool: return camp.has_live_boss(), 300.0), "the Hollow's camp spawned no Matron"):
+		return {}
+	var matron := camp.get_live_boss() as MatronScript
+	if not t.check(matron != null, "the Hollow's boss is not a MatronScript"):
+		return {}
+	await t.steps(2)
+	_hold_fire(matron)
+	mounted["matron"] = matron
+	return mounted
+
+
+## The Hollow's camp after her fall (her id in RunState `defeated_boss_ids` before the camp is
+## built): no Matron, the rewards out. {"camp", "encounter"} or {}.
+static func _mount_won_hollow(t: TestContext) -> Dictionary:
+	if not await _travel(t, MAP):
+		return {}
+	var defeated: Array = Services.run().world.get_or_add("defeated_boss_ids", [])
+	if not BOSS_ID in defeated:
+		defeated.append(BOSS_ID)
+	var mounted := await _mount_hollow(t, false)
+	if mounted.is_empty():
+		return {}
+	await t.sim_wait(200.0)
+	t.check(not (mounted["camp"] as BossCampScript).has_live_boss(), "a beaten Matron spawned again")
+	return mounted
+
+
+## Her spit and her volleys wait (the tests drive her rounds themselves).
+static func _hold_fire(matron: MatronScript) -> void:
+	(matron.get(&"_lifecycle") as Object).set(&"ready_at", INF)
+	matron.set(&"_next_volley_at", INF)
+	matron.cancel_attack()
+
+
+## Her three rounds, each torn by a blast and ended by one big hit. True once she is beaten.
+static func _beat(t: TestContext, matron: MatronScript) -> bool:
+	for index in 3:
+		if not t.check(matron.receive_blast({}), "round %d: the blast did not tear the cocoon" % (index + 1)):
+			return false
+		_hit(t, matron, 500.0, 0.0)
+		if matron.is_defeated():
+			return true
+		await t.until(func() -> bool: return matron.get_shell() == MatronScript.SHELL_COCOONED, RESPIN_MS + 500.0)
+		_hold_fire(matron)
+	return t.check(matron.is_defeated(), "she survived three rounds")
+
+
+## Web patches `RING_RADIUS` (within 2 px) from her shadow.
+static func _ring_patches(t: TestContext, matron: MatronScript) -> int:
+	var count := 0
+	for patch: Node in _effects(t, "matron-web-patch"):
+		var root := patch.get_parent() as Node2D
+		if root != null and absf(root.global_position.distance_to(matron.blast_point()) - RING_RADIUS) <= 2.0:
+			count += 1
+	return count
+
+
+## One player hit on `area` through the router with `tags` (its own activation).
+static func _strike(t: TestContext, area: Area2D, damage: float, tags: Array) -> Dictionary:
+	var router := Services.router()
+	var player := t.player()
+	var areas: Array[Area2D] = [player.get_damage_area()]
+	var activation := router.begin_activation(player, areas)
+	var result := router.route({"activation_id": activation, "source": player,
+		"attack_area": player.get_damage_area(), "target_area": area,
+		"weapon_id": "test", "weapon_tags": tags, "damage_types": ["physical"],
+		"base_damage": damage, "effects": [],
+		"impact": {"position": area.global_position, "knock": Vector2(1.0, 0.0)}})
+	router.end_activation(activation)
+	return result

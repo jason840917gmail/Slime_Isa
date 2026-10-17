@@ -1,6 +1,6 @@
-// The shadows raised ground casts (docs/godot/ELEVATION.md), shared by the shaders that draw what
-// they fall on: the ground near every drop (elevation_cast_shadow.gdshader) and a ramp's slope
-// (elevation_ramp.gdshader, which covers that ground). The light comes from the upper left, high:
+// The shadows raised ground casts (docs/godot/ELEVATION.md) on what is drawn over the ground: a
+// ramp's slope (elevation_ramp.gdshader). (The walls cast their own, round, from their feet:
+// sides/elevation_sides.gdshader.) The light comes from the upper left, high:
 // shadows fall to the right and a little down, as long as `shadow_units` per level of height. A
 // pixel looks back towards the light along three rays through the depth map (elevation_occlusion.gd,
 // in the space of the Elevation node) for ground high enough to shade it.

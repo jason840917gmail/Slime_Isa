@@ -163,5 +163,13 @@
     "description": "A woven basket of sweet berries. Restores 20 HP and 30 energy.",
     "worldDrop": { "objectId": "collectible.berry-basket", "visualId": "berry-basket" },
     "use": { "healHp": 20, "healEnergy": 30, "cue": "Eat" }
+  },
+  "matron-thread": {
+    "id": "matron-thread",
+    "name": "Matron's Thread",
+    "category": "story",
+    "icon": "items-matron-thread",
+    "iconFrame": 0,
+    "description": "A spool of the Orb-Weaver Matron's own silk, strong as wire. Burr could build something with it."
   }
 }
