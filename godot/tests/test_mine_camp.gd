@@ -2,8 +2,8 @@ extends RefCounted
 ## The Crystal Mine's outside (docs/godot/DUNGEONS.md "The Crystal Mine (built)"), laid by
 ## tools/build_mine_outside.gd: the smith's mine camp in G4 (the smith gives the Lantern once and
 ## teaches the gate's brazier; the brazier opens the mine's gate for good; the way in and the mine's
-## way out), and the smith gone home once the Colossus fell. The climb out to the Lookout (H4) is in
-## test_crystal_mine.gd.
+## way out, shut by the seal from Pearl 3's take inside until the Colossus falls), and the smith gone
+## home once the Colossus fell. The climb out to the Lookout (H4) is in test_crystal_mine.gd.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -105,6 +105,34 @@ func test_the_open_gate_leads_into_the_mine_and_its_way_out_comes_back(t: TestCo
 	await t.steps(8)
 	var marker := _outside(t).get_node("arrive-from-crystal-mine") as Node2D
 	t.check(t.player().get_centre().distance_to(marker.global_position) < 160.0, "the slime did not come out in front of the gate")
+
+
+func test_while_sealed_the_mines_mouth_keeps_the_slime_in_until_the_colossus_falls(t: TestContext) -> void:
+	# Pearl 3 lies inside since 2026-10-17 (the Shardback's Den): its take seals the mine's mouth until
+	# the Colossus falls (docs/godot/DUNGEONS.md "The seal").
+	if not await _enter(t, MINE_ID):
+		return
+	var run := Services.run()
+	t.check(DungeonState.seal(run, MINE_ID, "crystal-colossus", "crystal-colossus"), "the mine could not be sealed")
+	await t.steps(4)
+	var seal := t.world().world_root.get_node("Objects/M1-mouth-seal")
+	t.check(bool(seal.call(&"is_shut")), "the mouth's seal is not shut while sealed")
+	_stand(t, Vector2(24 * CELL, 68.0 * CELL))
+	await t.steps(4)
+	t.press(&"move_down")
+	await t.sim_wait(1500.0)
+	t.release(&"move_down")
+	t.check(t.in_world(MINE_ID), "the slime walked out of the sealed mine")
+	# His fall breaks the seal: the mouth leads out to the camp again.
+	DungeonState.mark_boss_beaten(run, MINE_ID, "crystal-colossus")
+	await t.until(func() -> bool: return not bool(seal.call(&"is_shut")), 3000.0)
+	t.check(not bool(seal.call(&"is_shut")), "the mouth's seal did not sink when the Colossus fell")
+	_stand(t, Vector2(24 * CELL, 68.6 * CELL))
+	await t.steps(4)
+	t.press(&"move_down")
+	var out := await t.until(func() -> bool: return t.in_world(MAP_ID) and t.player_body() != null, 6000.0)
+	t.release(&"move_down")
+	t.check(out, "the unsealed mouth did not lead out to the camp")
 
 
 func test_once_the_colossus_fell_the_smith_has_gone_home(t: TestContext) -> void:

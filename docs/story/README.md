@@ -95,6 +95,11 @@ Every beat, item and idea carries one tag:
   skins, and bells that stay open for good), and their tenth round (the
   Gloop Cavern kept as a small secret cave, grass cut by the Spear, wooden
   clappers as the worm army's alarms, and the refill pause).
+- The owner's decision of 2026-10-17 (each Pearl found inside its dungeon,
+  before the boss, who seals the exits; the dungeon's second half teaches the
+  skin, and the boss fight is its exam) is in the roadmap too
+  ([the 2026-10-17 decisions](../GAME_ROADMAP.md#the-2026-10-17-decisions)),
+  with the three built dungeons' rework (12.8).
 - Dialogue already in the game lives in
   `godot/game/data/quests-chapter-1.json`, `quests-chapter-2.json` and
   `godot/game/data/npc-definitions.json`. When a chapter file and the game

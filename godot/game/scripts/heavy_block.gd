@@ -3,7 +3,8 @@ extends CharacterBody2D
 ## heavy-statue.tscn; bomb-lantern-and-secrets design section 4; BODY_SHAPES.md "Heavy plates and
 ## heavy blocks"; numbers in game-constants.json `puzzles.heavyBlock`). A stone pedestal or statue
 ## too heavy to suck in. The slime grabs it with a held interact (game/player/heavy_grab.gd); only
-## the Stone form moves it, one `cellPx` (64) cell per move along one axis, over `moveMs`.
+## the Heavy skin moves it (docs/godot/SKINS.md), one `cellPx` (64) cell per move along one axis,
+## over `moveMs`.
 ##
 ## The root is the middle of the cell the block fills (its footprint, the BodyShape, is a little
 ## under one cell), so blocks line up with the 64-unit wall pieces and with heavy plates placed on the

@@ -6,12 +6,13 @@ class_name FloorWebs
 ## (`effect.matron-web-patch`, game/scripts/web_patch.gd). Web walls (`object.web-wall`,
 ## game/scripts/web_wall.gd) use the same walk scale the other way round.
 ##
-## - **Without the Silk skin** (`player.crosses_webs()`: the skin's hook, today the Silk Gulp form):
+## - **Without the Silk skin** (`player.crosses_webs()`: SkinState, docs/godot/SKINS.md):
 ##   a walk whose feet are in a web is scaled by `webs.floorSlowMultiplier` (0.5), and a Roll that
 ##   enters one sticks: the roll ends there (`player.stop_movement()`: no bonk, no rolling on) and
 ##   the slime is rooted `webs.rollStickMs` (`player.apply_web`, the web cover), where it is (unlike
 ##   the web barrier's catch, nothing sets it back).
-## - **With it:** full speed, and a Roll crosses.
+## - **With it:** full speed, and a Roll crosses; the slime shows its Silk skin while its feet are in
+##   a web (SkinState.show).
 ## - A web wall slows only the Silk slime passing through it (`webs.wallPassMultiplier`, 0.5).
 ## - Enemies are never slowed: only the player's walk asks (player.gd `_move`).
 ##
@@ -24,6 +25,7 @@ class_name FloorWebs
 ## Owner: webs (the Weaver Hollow).
 
 const Services := preload("res://game/shared/services.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const GROUP := &"web_slows"
 const CUE_ENTER := &"WebStruggle"
@@ -68,6 +70,13 @@ static func step(target: Node) -> float:
 	for source: Node in target.get_tree().get_nodes_in_group(GROUP):
 		if is_instance_valid(source) and source.has_method(&"web_walk_multiplier"):
 			scale = minf(scale, float(source.call(&"web_walk_multiplier", target, crosses)))
+	if crosses:
+		# Webs hold the Silk slime nowhere: its skin shows while its feet are in one.
+		for source: Node in target.get_tree().get_nodes_in_group(GROUP):
+			if is_instance_valid(source) and source.has_method(&"web_walk_multiplier") \
+					and float(source.call(&"web_walk_multiplier", target, false)) < 1.0:
+				SkinState.show(target, SkinState.SILK)
+				break
 	var in_web := scale < 1.0 and not crosses
 	if in_web and not bool(target.get_meta(IN_WEB_META, false)):
 		_enter_cue(target)

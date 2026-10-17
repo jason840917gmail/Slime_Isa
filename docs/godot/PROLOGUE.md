@@ -166,6 +166,8 @@ mist, dawn light and fireflies are drawn in code (`soft_glow.gd`, `fireflies.gd`
 - Yoi's home under Lili's yard (5.12) and his tips there (they are in `npc-definitions.json`).
 - The Wellspring's campfire and the Pearls' homecoming scenes (5.17); a come-back secret in sight
   of the birth (the level-design guide's proposal: a heart quarter on a rooted ledge, after Feral).
-- The first bell, near the town's edge, rung by a thrown pot (5.22; a ranged lock since the eighth
-  round, questions 115 and 132; what it opens stays open, question 136).
+- ~~The first bell, near the town's edge~~: built 2026-10-17 in `level-1-c4` (an islet in a little
+  pond south of the road from the forest path, pots on its shore; it opens the old watch post's
+  stone door north of the road: [Chapter 1](../story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
+  The arrival and Plop's spot are unchanged; a road of forest soil now leads from them to the town.
 - The 10-slot bag for runs that do not play the prologue (5.7): they keep `inventory.initialMaxSlots`.

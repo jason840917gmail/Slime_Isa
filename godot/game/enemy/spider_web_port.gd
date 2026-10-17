@@ -8,8 +8,7 @@ class_name SpiderWebPort
 ## walls and silk parcels (web_wall.gd, silk_parcel.gd: the tear's feel) and projectile.gd.
 ##
 ## The player side is player.gd's (the abilities work, abilities spec 19.3): `crosses_webs()` (the
-## Silk skin's hook, roadmap 7.8; today the Silk Gulp form stands in for the skin, Phaser
-## `playerCrossesWebs`), `is_rolling()` / `stop_movement()` (a Roll sticks in a web) and
+## Silk skin's hook: SkinState, docs/godot/SKINS.md; Phaser `playerCrossesWebs`), `is_rolling()` / `stop_movement()` (a Roll sticks in a web) and
 ## `teleport(centre)` (Phaser `teleportPlayer`) are called directly; `apply_web(duration_ms)` (the
 ## rooted `sticky` status and its web cover) is duck-typed: without it a web catch stops the slime
 ## and suppresses its movement for the duration, with the web cover drawn over it, and a web
@@ -28,6 +27,7 @@ class_name SpiderWebPort
 ## Owner: enemy port.
 
 const Services := preload("res://game/shared/services.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const EffectSpawner := preload("res://game/combat/effect_spawner.gd")
 const DamageResolver := preload("res://game/combat/damage_resolver.gd")
 const PlayerScript := preload("res://game/scripts/player.gd")
@@ -76,10 +76,13 @@ static func player_position() -> Variant:
 
 
 ## `playerCrossesWebs()`: the slime crosses webs (player.gd `crosses_webs()`: the Silk skin's hook,
-## today the Silk Gulp form).
+## SkinState). Asked as the slime touches a web, so with the skin its Silk look shows.
 static func player_crosses_webs() -> bool:
 	var target := player()
-	return target != null and target.crosses_webs()
+	var crosses := target != null and target.crosses_webs()
+	if crosses:
+		SkinState.show(target, SkinState.SILK)
+	return crosses
 
 
 ## `catchInWeb(zone)`: set the slime back above the zone (when its centre is above the zone's) or

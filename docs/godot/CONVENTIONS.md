@@ -81,7 +81,15 @@ where new mechanics are tried first), open `game/dev/playground.tscn` and press 
 Current Scene); it inherits `main.tscn` with `map_id = "playground"`. F6 on a world scene
 itself (`game/scenes/worlds/<id>.tscn`) works too: run on its own, a world has no player, camera
 or HUD, so its `world_definition.gd` swaps it for `main.tscn` with its map id (the playground keeps
-its testbed kit). Or launch with `?map=<id>` (web) / `-- --map=<id>` (desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
+its testbed kit). A dungeon's world run this way (listed in `dungeon.devPowers` in
+game-constants.json: Fatty's Lair and its hill outside, `level-1-d5`, the Weaver Hollow's four
+floors, the Crystal Mine, the dungeon lab) plays in the body-shapes mode with the powers the slime has by then: the Spear and the Roll,
+then the Heavy skin and the Goo Bomb, then the Silk skin and the Lantern. They are lent for the
+session (abilities through `learn_session_ability`, the `skin.<name>` entries as lent skins:
+`SkinState.lend`, [SKINS.md](SKINS.md)) and
+the autosave is off (owner, 2026-10-17; `main.gd` `dev_powers_for`). F6 on
+`game/dev/weaver-hollow-second-half.tscn` runs the Weaver Hollow's Crown that way with the Silk
+skin lent too (won mid-dungeon from Pearl 2; [DUNGEONS.md](DUNGEONS.md#the-weaver-hollow-built)). Or launch with `?map=<id>` (web) / `-- --map=<id>` (desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
 position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest active at that stage
 (default the first) when the first world is built (`QuestService.debug_activate`: earlier stages
 done, no rewards), to reach quest steps whose systems are not ported yet; it does not skip the
@@ -96,10 +104,12 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
 [BODY_SHAPES.md](BODY_SHAPES.md)) runs **by default in the playground**: `?classic` /
 `-- --classic` turns it off there, and `?shapes` / `-- --shapes` turns it on in any world (both
 skip the title; the test runner keeps the playground classic). `?prologue` / `-- --prologue`
-starts a new run in the prologue, as New Game does, and skips the title. In a dungeon world,
+starts a new run in the prologue, as New Game does, and skips the title. `?skins=heavy,silk,feral`
+/ `-- --skins=...` lends those skins for the session in any world ([SKINS.md](SKINS.md)). In a dungeon world,
 `keys=<n>`, `bigkey`, `dmap` (the map and the compass) and `room=<camera room>` set the dungeon up
-(with `map`; [DUNGEONS.md](DUNGEONS.md#dungeon-state-no-saving-resume-at-the-entrance)); the kit's
-lab is `?map=dungeon-lab`.
+(with `map`; [DUNGEONS.md](DUNGEONS.md#dungeon-state-no-saving-resume-at-the-entrance)), and
+`sealed` starts it with its Pearl taken and its seal shut ([DUNGEONS.md](DUNGEONS.md#the-seal));
+the kit's lab is `?map=dungeon-lab`.
 
 ## Doors
 

@@ -5,13 +5,17 @@
 > **usable**: it compiles, it is placed in the dungeon lab and its numbers are in
 > `game-constants.json` `dungeon`. Code: `godot/game/dungeon/`; scenes:
 > `godot/game/scenes/objects/dungeon/` (ids `object.<name>` in `scene_index.json`); tests:
-> `godot/tests/test_dungeon_kit.gd`.
+> `godot/tests/test_dungeon_kit.gd`. **The seal** and the Pearl's take inside the dungeon
+> ([below](#the-seal); the owner's decision of 2026-10-17, the plan
+> `docs/design/2026-10-17-pearl-mid-dungeon.md`) were added the same day: tests
+> `godot/tests/test_dungeon_seal.gd`.
 
 The shared pieces a dungeon is built from: the dungeon state (no saving, resume at the entrance),
 keys and locked doors, chests, the dungeon map, doors that open one way or for good, shutters and
 room fights, winches and drawbridges, the void with falling slabs and spike pits, refills that grow
-back, and the dark rooms' shadow path and glints. Each dungeon's own pieces (its boss, its lock
-looks, its enemies) are built by its own work on top of these.
+back, the dark rooms' shadow path and glints, and the seal that the Pearl's take sets until the
+boss falls. Each dungeon's own pieces (its boss, its lock looks, its enemies) are built by its own
+work on top of these.
 
 ## Placing pieces: the rules they share
 
@@ -72,6 +76,12 @@ of a Node2D in the entrance world: its position is the slime's centre on a resum
 - **Dev launch options** (once a session): `keys=<n>` (small keys), `bigkey`, `dmap` (the map and
   the compass), `room=<CameraRoom name>` (start in that room, at its `RoomEntry` child or its
   middle), with `map=<world>`: `?map=dungeon-lab&keys=2&room=B1`.
+- **F6 on a dungeon's world** (owner, 2026-10-17): the run gets the powers the slime has by then,
+  `dungeon.devPowers.<world>` in game-constants.json (Fatty's Lair and its hill outside,
+  `level-1-d5`: the Spear and the Roll; the
+  Weaver Hollow's floors: also the Heavy skin and the Goo Bomb; the Crystal Mine and the lab: also
+  the Silk skin and the Lantern), lent for the session in the body-shapes mode, with the autosave
+  off ([CONVENTIONS.md](CONVENTIONS.md#running-a-world)). A new dungeon world gets a line there.
 
 ## Keys and the map
 
@@ -238,6 +248,94 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   prize, drawn above a dark room's darkness (z 46, as the Gloomling's eyes), so the slime sees from
   the doorway that something waits inside. `tint`, `phase`, `only_in_dark`, `lit_strength`.
 
+## The seal
+
+The owner's decision of 2026-10-17 ([decisions archive](../story/07-decisions-archive.md), "the Pearl
+inside the dungeon"; the plan [2026-10-17-pearl-mid-dungeon.md](../design/2026-10-17-pearl-mid-dungeon.md)
+"The shared pieces"): each dungeon's Pearl lies inside it, guarded by its mini-boss. Taking it seals
+the doors out of the dungeon until the boss falls; a faint or a quit after it resumes at the
+entrance, inside, with the seal still on. Only the doors out seal: everything inside, and
+everything opened for good, stays as it is.
+
+**Setting a dungeon up.** On the Dungeon node of every world of the dungeon (`dungeon.gd`, its
+Inspector group "The seal"): `boss_id` (his camp's or his room fight's `boss_id`: `fatty-one-eye`,
+`orb-weaver-matron`, `crystal-colossus`), `boss_name` (the lines: "Fatty One Eye"), `seal_color`
+(the boss's colour: Fatty's mud red, the Matron's violet, the Colossus's smoky violet), `roar_sound`
+and `roar_pitch` (his roar: `asset/audio/sfx/library/boss/fatty-roar.ogg`; the Matron's hiss
+`asset/audio/sfx/synth/enemy/spider-hiss.wav` at 0.4), `dust_color` (the dust his roar shakes down:
+crystal dust in the Mine, silk in the Hollow). With `boss_id` empty nothing seals.
+
+**The seal shutter:** `object.dungeon-seal` (`game/dungeon/dungeon_seal.gd`, class `DungeonSeal`,
+on the kit's `shutter.gd`): the dressed-stone block with a dark pearl set in its face, bound by a
+ring of light in the boss's colour that beats slowly like a heart (its picture is one, tinted by the
+Dungeon's `seal_color`). It takes no power and looks like no lock in the look book.
+
+- **Place one** in every doorway that leads out of the dungeon (the entrance; the way out past the
+  boss) and nowhere else, like a shutter: in the doorway, on the floor line of the room inside,
+  `wall` that room's wall. It needs no id. `glimpse` marks the seal the take's camera shows (else the
+  one nearest the entrance marker).
+- **While the dungeon is sealed** it is shut and blocks (read when its world is built: after a
+  resume it is shut from the start). Walked into, it hums and refuses: "Sealed. Fatty One Eye's rage
+  holds it shut." (the Dungeon's `seal_text`); every hit and a Goo Bomb's blast are refused the same
+  way. A winch, a bell or a room fight never opens it. On the dungeon map (the minimap and the map
+  screen) it is a red bar across its doorway, with or without the compass.
+- **Every travel out refuses too:** while sealed, a door or a world exit (`door.gd`, main.gd
+  `request_exit`) and a climbable wall with an `exit_area_id` (`climb_wall.gd`) whose target world
+  holds no Dungeon node with this `dungeon_id` refuse with the seal's line
+  (`DungeonState.exit_refusal`; each world's dungeon id is read once from its scene). Travel between a
+  dungeon's own worlds (the Weaver Hollow's floors) goes on.
+
+**The Pearl and its guard.** The Pearl (`object.pearl`, `pearl-two`, `pearl-three`; `pearl.gd`)
+stands on its altar (`decoration-world-solid--pearl-altar`) in the mini-boss's room, with a
+`object.prize-glint` over it so its glow is seen from the door. Set its `boss_id` to the mini-boss's
+room fight's `boss_id` (`fatty-lair-big-squint`, `weaver-hollow-brood-warden`,
+`crystal-mine-shardback`): it rises when that fight is won. The compass marks only the dungeon's
+boss (the Dungeon's `boss_id`), not the guard. `seals_dungeon` (on by default) is what makes its take
+seal.
+
+**The take.** Walked into: its card ("Pearl of the Wellspring (n of 8)"), its skin granted and made
+the everyday look (`SkinState.grant`), and the Dungeon's `seal_now`: the record is sealed at once
+(`DungeonState.seal`), every seal of this world but the glimpse's shuts out of sight, and as the
+card closes (`game/dungeon/seal_moment.gd`, real time):
+
+1. **The roar:** his `roar_sound`, a hard shake (`seal.roarShake*`), `seal.roarDust` motes of
+   `dust_color` falling over the screen, and the line over the slime: "Fatty One Eye roars! The way
+   out slams shut."
+2. **The glimpse**, `seal.glimpseDelayMs` later: the world pauses and the view cuts to the entrance's
+   seal for `seal.glimpseMs` (1.5 s); it slams up out of its doorway `seal.glimpseSlamMs` in, with a
+   boom, and glows; the view cuts back. No seal in this world (the entrance on another floor) or one
+   already in view: no cut, the line and the map's red mark tell it.
+
+**While sealed** (presentation only): his roar sounds far off every `seal.distantRoarMinMs` to
+`MaxMs` (45 to 60 s; softer, lower, a light shake and a little dust), not while his fight is on.
+When his fight starts (a boss camp's or the Colossus arena's `boss_engaged`, or a room fight with
+his `boss_id` starting) he shows his rage: `EnragedLook` (`game/bosses/enraged_look.gd`) adds a copy
+of each big sprite of his in `seal_color` that swells and fades (`enraged.pulseMs`, `strength`) and
+puffs dust from his top (`enraged.puffEveryMs`), and the boss bar shows his name in red. His health,
+damage, speed and patterns stay the built ones. A room-fight boss (the lab's) also roars as it starts.
+
+**His fall** (his id in the dungeon's beaten bosses or in `defeated_boss_ids`: a room fight, a boss
+camp, the Lair's director and the Colossus's arena all record it): `seal.breakDelayMs` later (after
+"defeated!") every seal of the world sinks with a chime, its ring shatters, "The seals break!", and
+it stays down for good; the travels out go again. A Pearl taken after its dungeon's boss fell (an
+old save) seals nothing.
+
+**Resume:** unchanged in the kit. A faint wakes the slime at the entrance marker, inside the seal,
+with full health; a quit writes the resume save at the entrance; the record keeps the seal and
+everything opened for good, so the short way back to the boss stays open.
+
+**Dev:** `?sealed` (with `map=`): every Pearl of the world taken quietly (its guard's fight finished,
+its skin won) and the dungeon sealed without the moment; `skins=` lends skins on a floor without the
+Pearl. `tools/render_dungeon_seal.gd` (windowed: `"<Godot console exe>" --path godot -s
+res://tools/render_dungeon_seal.gd -- --out=<dir>`) renders the lab's take, glimpse, seal, rage and
+fall for tuning.
+
+**The API:** `DungeonState.seal(run, id, boss_id, by)`, `is_sealed`, `sealed_by`, `unseal`,
+`exit_refusal(tree, target_map_id)`, `world_dungeon_id(map_id)`; the Dungeon's `seal_now(by, moment)`,
+`is_sealed`, `seal_text`, `roar_text`, `play_roar`, `seals`, `glimpse_seal`; the seal's `slam`,
+`shut_quietly`, `engage`, `break_seal`, signal `refused`; `EnragedLook.attach(boss, color)`,
+`is_on(boss)`; `RoomFight.members`, `finish_quietly`.
+
 ## The dungeon lab
 
 `game/scenes/worlds/dungeon-lab.tscn` (`world.dungeon-lab`; dev only: not in the release export).
@@ -248,18 +346,23 @@ at B3:
 
 | Room | What it shows |
 |---|---|
-| B3 the entrance | the entrance marker (a faint resumes here), a small-key chest, the map chest, three pots hiding a heart, energy and coins, an energy flower; north: the small-key door; west: the back of the bolted door |
+| B3 the entrance | the entrance marker (a faint resumes here), a small-key chest, the map chest, three pots hiding a heart, energy and coins, an energy flower; north: the small-key door; west: the back of the bolted door; south: the way out (a door to the playground) with the dungeon's seal in its doorway (`glimpse`) |
+| C1 the Pearl room | the Pearl on its altar (its glint over it) behind its guard: a room fight with a mini-boss's `boss_id` (`dungeon-lab-guard`, a Worm Brawler) and its shutter; won, the Pearl rises; taken, it grants the Feral skin and seals the lab |
 | C3 | an ambush (`once`): shutters on both doorways, two worms, a chest that rises with a small key |
 | C2 | falling slabs: two over a narrow void (one Roll), two + a landing + two over a wide one; a small key on the far side |
 | B2 the hub | the door with two keyholes (north) |
 | B1 | the winch, the drawbridge over the void, the big chest (the big key), the boss door (north) |
-| B0 | the boss room: a room fight with a boss (a Big Squint) behind its shutter |
+| B0 | the boss room: a room fight with a boss (a Big Squint, `dungeon-lab-boss`: the Dungeon node's `boss_id`) behind its shutter; his full heart (`object.full-heart`); sealed, he shows his rage, and his fall breaks the seal |
 | A2 dark | the shadow path over the void to an islet, a glinting chest with the compass |
 | A3 | slabs and a landing over a spike pit with a stair out; the bolted door back into the entrance; a worm that is back each time the room is entered again |
 
 Three small keys open three keyholes, in any order. The dark room's shadow path shows in the
 slime's ember light once the Lantern is learned. The lab's Dungeon node writes no resume save
 (`resume_saves` off): Continue never starts in the lab. `?keys=3&bigkey&dmap` skips the hunt.
+**The sealed example:** from the hub B2 east into C2's top and north into C1; beat the guard, take
+the Pearl: the roar, the glimpse of B3's seal slamming shut; B3's way out now refuses; beat the Big
+Squint in B0 (the big key and the boss door, as before): the seal sinks. `?map=dungeon-lab&sealed`
+starts sealed.
 
 ## Numbers (`game-constants.json` `dungeon`)
 
@@ -277,6 +380,11 @@ slime's ember light once the Lantern is learned. The lab's Dungeon node writes n
 | `refill.heartHp`, `potEnergy`, `potCoins`, `pickupRadiusPx` | 20, 15, 5, 22 | what a pot hides; the pickups' reach (and the floor key's) |
 | `shadowPath.fadePx` | 48 | the moss fading at a light's edge |
 | `glint.periodMs`, `glint.sizePx` | 1700, 16 | the glint's twinkle |
+| `seal.glimpseDelayMs`, `glimpseMs`, `glimpseSlamMs` | 600, 1500, 350 | the take: the roar to the glimpse; the glimpse's length; its slam into it |
+| `seal.roarShakeMs`, `roarShakeIntensity`, `roarDust`; `slamShakeMs`, `slamShakeIntensity` | 700, 0.012, 140; 420, 0.01 | the roar's shake and its dust motes; the seal's slam |
+| `seal.breakDelayMs`, `pulseMs`, `lineEveryMs` | 900, 1300, 1500 | the seals breaking after his fall; the ring's heartbeat; the refusal line at most this often |
+| `seal.distantRoarMinMs`, `MaxMs`, `Db`, `Pitch`; `distantShakeMs`, `distantShakeIntensity`, `distantDust` | 45000, 60000, -14, 0.85; 320, 0.0025, 14 | the far-off roar while sealed |
+| `enraged.pulseMs`, `strength`, `puffEveryMs`, `puffRisePx` | 1600, 0.45, 900, 110 | the boss's rage: the red pulse over his art, the puffs from his top |
 
 ## Art
 
@@ -290,6 +398,13 @@ through the arch; `padlock-2x1`, `bolt-2x1`, `winch-2x1`, `shutter`, `drawbridge
 `pickups-2x2`: the flower, its bud, the heart, the coins) and `godot/asset/UI/items/dungeon-items.webp`.
 The pictures load through `game/runtime/sheet_sprite.gd` until the editor imports them. No bars,
 eyes or levers anywhere (the clarity rule: those are the Spear's).
+
+**The seal** (2026-10-17, the same model and style reference, 4 generations, 400 credits: two
+blocks, two rings; one of each taken): `dungeon-seal.png` (the block with the dark pearl) and
+`seal-ring.png` (a ring of white light, tinted in the game) in `asset/Originals/dungeon-kit/generated/`,
+packed by `python scripts/art/pack-dungeon-seal-art.py` into `dungeon-seal.webp` (136 units wide, as
+the shutter) and `seal-ring.webp`; the packer prints where the pearl sits, the scene's `Ring` node
+numbers.
 
 ## Limits
 
@@ -309,13 +424,22 @@ eyes or levers anywhere (the clarity rule: those are the Spear's).
 - Rooms reset only within one world: a dungeon of several worlds rebuilds a world on each travel
   (all its enemies and pots back), as any world does.
 - The map shows the rooms of the world the slime is in.
+- **The seal:** a seal in a south doorway shows the turned block (as every kit piece there); at a
+  world's south edge (the lab's B3, most entrances) half of it lies under the HUD console. The
+  dungeon's music does not carry the boss's drums while sealed (the plan's open point 4: only the
+  far-off roar is built). No journal has a Pearl slot yet, so the take lights none (the flag
+  `pearl.<id>` is there for it). The boss bar shows only for bosses with a camp (Fatty, the Matron,
+  the Colossus), not for a room-fight boss such as the lab's Big Squint. The first travel refused
+  while sealed reads its target world's scene once (a short hitch).
 
 ## The Crystal Mine (built)
 
 Chapter 3's dungeon, built 2026-10-17 from [its design](../design/2026-10-16-dungeon-crystal-caverns.md)
-(as built, below; the design's [status](../design/2026-10-16-dungeon-crystal-caverns.md) lists what
-moved). One world, `world.crystal-mine` (`game/scenes/worlds/crystal-mine.tscn`), 80 x 70 tiles: a
-5 x 5 grid of screens, 14 camera rooms, 7 of them dark. **Built by a tool:**
+and reworked the same day for the Pearl inside it, before the Colossus
+([the plan](../design/2026-10-17-pearl-mid-dungeon.md#the-crystal-mine-chapter-3-the-feral-skin); as
+built, below; the design's [status](../design/2026-10-16-dungeon-crystal-caverns.md) lists what moved).
+One world, `world.crystal-mine` (`game/scenes/worlds/crystal-mine.tscn`), 80 x 70 tiles: a 5 x 5 grid
+of screens, 14 camera rooms, 7 of them dark. **Built by a tool:**
 `"<Godot console exe>" --headless --path godot -s res://tools/build_crystal_mine.gd [-- --dry]`
 rebuilds the whole world (hand edits are lost), then bake its elevation
 (`tools/bake_elevation.gd -- --world=crystal-mine`). Its code is `godot/game/crystal_mine/` and the
@@ -323,22 +447,36 @@ Colossus's `game/scripts/crystal_colossus.gd`; its art `scripts/art/pack-mine-ar
 prompts in `asset/Originals/mine/`). Tests: `godot/tests/test_crystal_mine.gd` and
 `test_mine_camp.gd`.
 
+**Its shape** (the plan's dungeon template): the first half uses what the slime brings and is the
+Lantern's (six dark rooms, the maze), the Heavy Roll's and the Bow's (the Chasm, its last lock); the
+Shardback guards **Pearl 3** in his Den; its take seals the mine; the second half teaches the
+**Feral skin** (teach, test, twist, then the known way down); the Colossus is its exam. About 40
+minutes with the camp, 13 rooms on the main path.
+
 - **The paint:** every cell is rock at level 2 (its top crystal floor, so its walls are crystal rock
   and it never reads as a room's floor; masonry and cobble round the old fort's hall); each room is
-  carved out to level 0 with cavern floor and a one-cell rock border; doorways are two-cell gaps (an
-  east or west one also clears the two rows its lintel hangs over). Holes: M2's two void pits (-2),
-  the Dark Maze's void (-2), the Chasm (-3), the Great Shaft's floor with the boss door's way (-2)
-  and the Colossus's arena (-2); the S5 shelf in M1 (1), the maze's inner walls (1), the shaft's
-  spire (0). The gallery's rim is fenced (`fences` layer) but for the spire plank's foot.
+  carved out to level 0 with cavern floor and a one-cell rock border, the Den to level -1; doorways
+  are two-cell gaps (an east or west one also clears the two rows its lintel hangs over). Holes: M2's
+  two void pits (-2), the Dark Maze's void (-2), the Chasm (-3), the Great Shaft's floor with the
+  boss door's way (-2), M11's rift (-2) and the Colossus's arena (-2). Raised: the S5 shelf in M1
+  (1), the maze's inner walls (1), the shaft's spire (0), the Den's ledge (0, one level over its
+  floor), M12's balcony (2) with the hall's north band and corner blocks at 3 (so the balcony never
+  joins the mine's rock top). A front flight of stairs (the `elevation` layer's stairs row) leads from
+  the Chasm's far rim down into the Den. The gallery's rim is fenced (`fences` layer) but for the
+  spire plank's foot.
 - **Kit pieces used:** the Dungeon (`crystal-mine`, "The Crystal Mine", resume at
-  `dungeon-entrance` in M1), a floor key (K1), seven chests (K2, K3, the map, S1, S4, S5) and the
-  big chest (hidden, the Den's reward), the Foreman's Gate (`key-door`, two keyholes), the Den door
-  (one), the boss door, three shutters (M1's iron shutter `starts_shut`, the Den's fight shutter and
-  its ledge `starts_shut`), the Den's room fight (`once`), the crank (`winch` in M7, M1's shutter),
-  two drawbridges (the Chasm's, the spire plank), four void hazards (`draw_look` off, `Return...`
-  points), the shadow path, seven pots that grow back, an energy flower and three prize glints.
-  `KitMarkers` keeps a marker for what nothing builds yet: the war journal's pages and S1's heart
-  quarter (S1 and S5 hold coins until then).
+  `dungeon-entrance` in M1; the seal's `boss_id` `crystal-colossus`, `boss_name` "The Crystal
+  Colossus", `seal_color` smoky violet `#8a68c0`, his roar `fatty-roar.ogg` at pitch 0.6, crystal dust
+  `#c8d4f0`), a floor key (K1), six chests (K2, the map, S1, S4, S5, M10's) and the big chest (on
+  M12's balcony), the Foreman's Gate (`key-door`, two keyholes), the boss door, four shutters (M1's
+  iron shutter `starts_shut`, the Den's north fight shutter, its two south rim shutters
+  `starts_shut`), two seals (`object.dungeon-seal`: M1's mouth, `glimpse`; the climb-out's foot), the
+  Den's room fight (`once`, `boss_id` `crystal-mine-shardback`), the crank (`winch` in M7, M1's
+  shutter), two drawbridges (the Chasm's, the spire plank), four void hazards (`draw_look` off,
+  `Return...` points), the shadow path, six pots that grow back, an energy flower and five prize
+  glints (Pearl 3's goes once it is taken: `crystal_mine.gd`). `KitMarkers` keeps a marker for what
+  nothing builds yet: the war journal's pages and S1's heart quarter (S1, S5 and M10's chest hold
+  coins until then).
 
 ### The rooms
 
@@ -346,20 +484,30 @@ Screens by column (0 to 4, west to east) and row (0 to 4, north to south); the m
 
 | Room | Screen | What is there |
 |---|---|---|
-| M1 Mine Mouth | (1, 4) | the entrance from the camp (south doorway), the resume marker, the empty cart station ("The cart is at the far end of the line."), the iron shutter in the east wall (lifted by M7's crank), the root wall up to the S5 shelf (Feral) and its chest, pots |
+| M1 Mine Mouth | (1, 4) | the entrance from the camp (south doorway; **the seal** stands in it from Pearl 3's take until the Colossus falls, and the take's glimpse shows it slam up), the resume marker, the empty cart station ("The cart is at the far end of the line."), the iron shutter in the east wall (lifted by M7's crank), the root wall up to the S5 shelf (Feral, a come-back after the Pearl) and its chest, pots |
 | M2 Lamp Tunnel | (1, 3), dark 1 | rails north, two void pits west of them (a fall: back at the south door), three sconces (60 s) that light it for good, a pot that grows back |
 | M5 Tally Room | (0, 3), dark 2 | west of M2: the desk, four crystal pillars, a Gloomling on K1 (a floor key); the cracked wall in its north wall (the Goo Bomb, S2) opens the way to M3 |
 | M3 Survey Office | (0, 2), lit | optional: the map chest on the surveyor's table, a Crystal Crawler round its pillar |
-| M4 The Great Shaft | (1-2, 2), lit | the hub: the gallery (two braziers burning for good) round the shaft (-2), the ore lift's two landings, the spire with its lens (the Bow) and the S1 chest; north the Foreman's Gate (two keyholes); M14, the shaft floor: pots (two hearts), an energy flower, the boss door east |
+| M4 The Great Shaft | (1-2, 2), lit | the hub: the gallery (two braziers burning for good) round the shaft (-2), the ore lift's two landings, the spire with its lens (the Bow) and the S1 chest; north the Foreman's Gate (two keyholes); the shaft's north wall: the roots down from the Den's broken rim (seen from the gallery on the first visit); M14, the shaft floor: pots (two hearts), an energy flower, the boss door east |
 | M6 Bat Gallery | (2-3, 3), dark 3 | three Glint Bats over the rails, two sconces, the rotten timbers in the south-east doorway (a Heavy Roll), the S3 nook in the east wall behind a web wall (the Silk skin) with a silk parcel |
 | M7 Ore Store | (2-3, 4), lit | east half: the Pick Mole behind its crates, K2 in the chest behind it; west half, past the divider: the Bone Leaper alone, and the crank that lifts M1's shutter |
 | M8 The Dark Maze | (0-1, 0-1), dark 4 | four corner candles (60 s, group `dark-maze`): all four at once open the exit gate (the mine's lantern gate) for good; the goal brazier burning beyond it; the void across the middle with the shadow path over it; two Gloomlings (one smothering the north-west candle, one on S4's chest), three Glint Bats, a pot |
-| M9 The Chasm | (2, 0), dim | the cart station (the cart starts here), the chasm (-3) with the raised drawbridge on the far rim and the lens beside it (an arrow lowers it, rows 8 and 9), the Bone Thrower on the far ledge, crystal vein glows |
-| M10 Prism Gallery | (3, 0), lit | the Prism Eye, the iron-banded ore crate (a heavy block) |
-| M11 Crystal Veil | (3, 1), dark 5 | the veil across the room, the brazier by it (20 s) and one on the far side, two Glint Bats in its light; the Den door (one keyhole) west, the way to M12 east, a pot |
-| M12 The Fort Hall | (4, 1), lit | cobble and masonry; K3's chest on the dais, the Bone Marcher's loop round it, five armour statues (heavy blocks), the Watcher Eye, two watch-fires |
-| M13 Shardback's Den | (2, 1), dark 6 | two braziers (20 s, `stomp_puts_out`), the Shardback; the room fight shuts the east shutter, and won: the big chest rises (the big key) and the ledge's shutter sinks for good (a drop onto the shaft floor) |
-| M15 The Colossus's Arena | (3, 2), dark | four braziers (until put out), the Colossus, the root wall he climbs (the way out, Feral), Pearl 3 and his full heart |
+| M9 The Chasm | (2, 0), dim | the first half's last lock: the cart station (the cart starts here), the chasm (-3) with the raised drawbridge on the far rim and the lens beside it (an arrow lowers it, rows 8 and 9), the Bone Thrower on the far ledge, crystal vein glows; the far rim's way on is the stair down into the Den (x 44, 45); its old door east to M10 is bricked |
+| M13 Shardback's Den | (2, 1), dark 6, level -1 | **the Pearl room.** The Shardback (two braziers, 20 s, `stomp_puts_out`: fire light makes his shell brittle); the room fight (`once`, `boss_id` `crystal-mine-shardback`) shuts the north shutter at the stair's foot; won, it opens and the two shutters of the broken south rim sink for good. Pearl 3 (`pearl-three.tscn`, `boss_id` the Shardback's) on its crystal cradle among four crystal clusters, its glint seen from the stair through the fight: it rises when he falls. **Teach:** the ledge (level 0) in the north-east holds the east door; its root wall (one level) is the Feral skin's first lock, a climb back down beside it |
+| M11 Crystal Veil | (3, 1), dark 5 | **Test:** the rift (-2) between the west landing (the Den's door) and the east landing (M12's door): climb down the west landing's face, cross the rift's floor, climb up the east landing's (each face two levels, each with a climb down from its lip); a pot. The optional Lantern wing: the veil across the mouth of the doorway north to M10, its brazier on the east landing (20 s) and one on M10's side, two Glint Bats roosting over it |
+| M10 Prism Gallery | (3, 0), lit | optional (the Lantern wing): the Prism Eye, the iron-banded ore crate (a heavy block), the chest of the war journal page that lay on M12's stand (30 coins until pages exist), the veil's far brazier |
+| M12 The Fort Hall | (4, 1), lit | **Twist:** cobble and masonry; the balcony (level 2) along the north wall with the big chest (the big key), two root walls up its face (x 68 and 75); the Watcher Eye's beam finds a climber, the Bone Marcher's loop passes the walls' feet; five armour statues (heavy blocks, cover, three cells or more from the roots), two watch-fires; a drop off the balcony's west end lands by the west door |
+| M15 The Colossus's Arena | (3, 2), dark | **the exam:** four braziers (until put out), the Colossus, four root walls on the north wall beside his three climb spots (they end on the face, `holds_at_top`), the climb out to the Lookout (its seal at its foot until he falls), his full heart |
+
+**The second half's way:** from the Den up its ledge, through M11 (down, across, up), M12's balcony
+and the big key, back through M11 and the Den, then down the roots of the shaft's north wall from
+the Den's broken rim to the shaft floor (or let go: no cost), the boss door. The roots are also the
+short way up from the shaft floor to the Den. **The way back after a resume** (the mouth sealed
+behind): M1, the cart to the Chasm (it runs both ways, both stations inside the seal), the stair to
+the Den; or M1, M2, the hub, the lift (once raised from the floor), the shaft floor and the boss door.
+Nothing before the Chasm needs the Bow; a slime without it rides the cart to M1, walks out, and comes
+back with it (all before the Pearl). The big key cannot be had without the Pearl: M11 and M12 are
+reached only up the Den's ledge.
 
 ### The mine's own pieces (`game/crystal_mine/`)
 
@@ -375,7 +523,7 @@ Screens by column (0 to 4, west to east) and row (0 to 4, north to south); the m
   target (`bow_targets`, `on_arrow_hit`); struck for good (DungeonState), it glows gold, opens the
   gates (group `gate`) named in `opens` and sets off every node in `targets` through the kit's
   `DungeonState.fire` (the drawbridges).
-- **Crystal veil** (`crystal_veil.gd`, `object.crystal-veil`): smoky black crystal across a room,
+- **Crystal veil** (`crystal_veil.gd`, `object.crystal-veil`): smoky black crystal across a passage,
   `size` wide; open while any of its `braziers` burns, it grows back from both ends over `grow_ms`
   when the last goes out and pushes a slime standing in it to the nearer side; every hit clinks
   ("Cold, dark crystal. It shrinks from fire.").
@@ -383,55 +531,74 @@ Screens by column (0 to 4, west to east) and row (0 to 4, north to south); the m
   cups, in the group `gate`: candles whose `gate_id` is its own open it for good (the Dark Maze's
   four, the camp's brazier); open, its cups burn and light the dark.
 - **Rotten timbers** (`rotten-timbers.tscn`): Fatty's Lair's plank barricade (`plank_barricade.gd`)
-  in the mine's look: only a Heavy Roll (the Stone form's bonk, or any Roll with the Heavy skin)
+  in the mine's look: only a Heavy Roll (any Roll with the Heavy skin: [SKINS.md](SKINS.md#heavy))
   smashes it; flag `crystal-mine.rotten-timbers`.
 - **Heavy ore crate** (`heavy-ore-crate.tscn`): `heavy_block.gd` with the iron-banded crate.
-- **Climbable wall** (`climb_wall.gd`, `climb-wall.tscn`): thick living roots and rocky handholds
-  (the Feral skin's lock, question 132). With the story flag `skin.feral` (Pearl 3 sets it) the
-  interact key climbs it to `top` in three pulls over `climb_ms` (collision off on the way, the level
-  taken at the top), then travels on when it has an `exit_area_id` (the arena's: to
-  `crystal-caverns-h4`, `arrive-from-crystal-mine`). Without the skin, pushing up at it: "Too steep
-  to climb." **The Feral skin itself is not built:** this flag is its stand-in hook.
+- **Climbable walls** (`object.climb-wall`: `game/scripts/climb_wall.gd`, `climb-wall.tscn`): thick
+  living roots and rocky handholds (the Feral skin's lock). With the Feral skin
+  ([SKINS.md](SKINS.md#feral)) a held interact climbs it to `top` and back, letting go drops the
+  slime unhurt, the level is taken at the top. The builder places them in pairs (`_climb_pair`: the
+  climb up from the foot and the climb down from the lip, sharing the roots' picture): the Den's
+  ledge (one level), M11's two faces and M12's two (two levels), the shaft's north wall (one level,
+  from the Den's rim at -1 to the floor at -2), M1's S5 shelf. M15's four `holds_at_top` (added
+  2026-10-17): the climb ends on the face, the slime clings at his height until it lets go or climbs
+  back. The climb out (`exit_area_id` `crystal-caverns-h4`, `arrive-from-crystal-mine`) refuses
+  while the mine is sealed.
 - **The rails** (`mine_rails.gd`): drawn rails along `points` (the leading line), no collision.
 - **The world script** (`crystal_mine.gd`, node `CrystalMine`): keeps each placed enemy to the
   camera room it stands in (its arena), so bats, eyes and Gloomlings fight in their own room.
+- **The small golem** (`small_golem.gd`): the Colossus shrunk back once beaten; presentation only.
 
 ### The Crystal Colossus (roadmap 12.4)
 
 `character.crystal-colossus` (`game/scenes/characters/crystal-colossus.tscn`,
 `game/scripts/crystal_colossus.gd`, a patterned enemy; 240 health; his numbers in
-`enemy-types.json` `crystal-colossus.pattern`; eight poses in
-`godot/asset/MAPS/enemies/384x384-tile_8x1-crystal-colossus.webp`). His arena is
+`enemy-types.json` `crystal-colossus.pattern`; nine poses in
+`godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp`, the ninth his stun). His arena is
 `colossus_arena.gd` (node `ColossusArena` in M15), a boss camp for the HUD's boss bar and the boss
-music, and the compass's boss mark (`dungeon_map_mark`) until he falls.
+music, and the compass's boss mark (`dungeon_map_mark`) until he falls. The slime arrives with the
+Feral skin, the mine sealed: his fight starts enraged in look (`EnragedLook`, the seal's: his
+strength the built one).
 
 - **The start:** the slime's centre in `arena_rect`: crystal grows over the way in behind it
   (`seal_cells`, the BreakGlass cue and a shake), the four braziers go cold, he stands at `post` and
-  wakes after `wake_ms` (1200) with a roar.
-- **The braziers** (candle.gd, `burn_ms` -1: they burn until put out, `stomp_puts_out`): while all
-  four burn his weak spot is open (`set_exposed`): a plate of his armour cracks open on a side picked
-  at random (front, back, left or right), glowing; he reels for `reelMs` (1800) when it opens.
-- **Hits:** every hit clinks off his crystal except the Spear's (tag `spear`) on the open weak spot
-  from its side (the hit's source within `weakSideDot` 0.45 of that side's direction); none lands
-  while he is on the wall or in the air.
-- **His stomp** (the tell: a foot raised for `raiseMs` 650 over a darkening ring `stompRx` x
-  `stompRy` 116 x 78; within `stompRangePx` 120 of the slime or every `stompEveryMs` 2600): 24
-  damage in the ring, and it puts out the lit `stomp_puts_out` brazier nearest to him
+  wakes after `wake_ms` (1200) with a roar. A slime at his wall's foot or on it (`wall_rect`) is in
+  the fight too.
+- **On the floor, the Lantern's exam (as built):** the braziers (candle.gd, `burn_ms` -1: they burn
+  until put out, `stomp_puts_out`): while all four burn his weak spot is open (`set_exposed`): a plate
+  of his armour cracks open on a side picked at random (front, back, left or right), glowing; he
+  reels for `reelMs` (1800) when it opens. Every hit clinks off his crystal except the Spear's (tag
+  `spear`) on the open weak spot from its side (the hit's source within `weakSideDot` 0.45 of that
+  side's direction). **His stomp** (the tell: a foot raised for `raiseMs` 650 over a darkening ring
+  `stompRx` x `stompRy` 116 x 78; within `stompRangePx` 120 of the slime or every `stompEveryMs`
+  2600): 24 damage in the ring, and it puts out the lit `stomp_puts_out` brazier nearest to him
   (`stompPutsOut` 1; `CandleScript.put_out_near` nearest only), so the weak spot shuts.
-- **His climb:** after `stompsPerClimb` (3) stomps he leaps onto the north wall at the climb spot
-  nearest to the slime (`climb_spots`), out of reach, and clings for `climbMs` (5200), throwing a
-  Crystal Mite down every `throwEveryMs` (1300; `mitesPerClimb` 2, at most `maxMites` 4 alive); then
-  he leaps down at the slime (a landing ring, `landPutsOut` 1 brazier). In the rework mode a killed
-  mite can drop an energy shard (the generic `combat.energyShard` roll); the arena holds no other
-  refill. Below `enragedShare` (half health): quicker stomps, more mites, and a landing puts out
-  two braziers.
+- **On the wall, the Feral skin's exam (2026-10-17):** after `stompsPerClimb` (3) stomps he leaps
+  onto the north wall at the climb spot nearest the slime (`climb_spots`: x 51.5, 54.5, 57.5) and
+  clings for `climbMs` (5200), throwing a Crystal Mite down every `throwEveryMs` (1300;
+  `mitesPerClimb` 2, at most `maxMites` 4 alive; at a climbing slime the mite drops straight down the
+  face onto it, `climberHitPx` 30, and its hit knocks the slime off: no cost but the hit). Roots run
+  up the wall beside each spot (x 50, 53, 56, 59). The slime climbs them to his height and strikes
+  his gripping claws with the Spear from the face (the strike while clinging: an attack press aims
+  the Spear left or right along the face, player.gd `_climb_strike`, at the Feral tempo); while he
+  clings his hurtbox rides up the face with his pose and only a Spear hit from a climbing slime
+  counts (no damage). **`clawHits` (3)** and he loses his grip: he crashes down `fallDropPx` (70) from
+  the wall over `fallMs` (450) with no landing stomp (no brazier goes out), a hard shake, and lies
+  stunned **`fallStunMs` (2500)**, sprawled, his back cracked open: any Spear hit lands, from any
+  side. Then he gets up and fights on. If the slime does not reach him, he leaps down at it as built
+  (kept on his floor: a landing ring, `landPutsOut` 1 brazier).
+- **His second phase** (below `phaseTwoShare` 0.5 of his health; named so in code since 2026-10-17,
+  not the Pearl's rage): quicker stomps, more mites, and a landing puts out two braziers.
+- In the rework mode a killed mite can drop an energy shard (the generic `combat.energyShard` roll);
+  the arena holds no other refill.
 - **Fainting** or leaving the arena while he stands starts it over (he goes, the mites go, the
   braziers go out, the crystal over the way in goes).
-- **His fall:** he joins `defeated_boss_ids` and the dungeon's beaten bosses; the four braziers
-  burn for good (the cavern is lit); **Pearl 3** (`pearl-three.tscn`, `game/scripts/pearl.gd`) rises
-  where he fell and grants the story flag `skin.feral` (the Feral skin's card); his **full heart**
-  (`object.full-heart`, `crystal-colossus`, +20 max HP and max energy) rises beside it; the way in
-  stays shut, so the way out is the climb up the root wall he climbed, to the Lookout (H4).
+- **His fall:** he joins `defeated_boss_ids` and the dungeon's beaten bosses, which breaks the seal
+  ("The seals break!": M1's and the climb-out's seals sink); the soaked-up power gone, his heap sheds
+  and a small calm crystal golem walks out of it and off (`small_golem.gd`, real time); the four
+  braziers burn for good (the cavern is lit); his **full heart** (`object.full-heart`,
+  `crystal-colossus`, +20 max HP and max energy) rises; the way in stays shut, so the way out is the
+  climb up the roots at x 61, to the Lookout (H4).
 
 ### Darkness and fire in the mine
 
@@ -439,8 +606,18 @@ music, and the compass's boss mark (`dungeon_map_mark`) until he falls.
 and `put_out_near` (the Shardback's slam ring puts out the Den's braziers, the Colossus's stomp the
 nearest of his four), and candles a Gloomling smothers (the Dark Maze's north-west candle refuses a
 flame while one sits on it: "The shadow smothers the wick."). The dark rooms: M2 and M6 light for
-good once their sconces burn; M5, M8, M11, M13 stay dark; M15 lights while its four braziers burn,
-and for good once he falls.
+good once their sconces burn; M5, M8, M11, M13 stay dark (in M11 the slime's ember shows the rift's
+handholds); M15 lights while its four braziers burn, and for good once he falls.
+
+### Dev
+
+- **F6** on `crystal-mine.tscn` lends `dungeon.devPowers.crystal-mine` (the Spear, the Roll, the
+  Heavy and Silk skins, the Goo Bomb, the Lantern): the first half. The Feral skin is won in the Den.
+- **The second half without playing the first:** `?map=crystal-mine&sealed` (desktop
+  `-- --map=crystal-mine --sealed`) takes Pearl 3 quietly (the Shardback's fight finished, Feral won)
+  and seals the mine; add `&room=M11-crystal-veil` (any camera room's name) to start there. To lend
+  Feral alone (unsealed): `?skins=feral` (`-- --skins=feral`, also in the editor's Main Run Args for
+  F6).
 
 ### Outside: the camp, the Lookout, the cave road
 
@@ -454,12 +631,13 @@ floor; it owns G4's and H4's `elevation` layer.
   the mine's mouth in its face with the mine gate (`lantern-gate.tscn`, `crystal-mine-gate`) and the
   cold brazier beside it (lit for good, group `mine-camp-gate`: one flame opens the gate for good);
   behind the gate the way in (`exit-to-crystal-mine` to `arrive-from-camp`), and
-  `arrive-from-crystal-mine` in front of it (the mine's south doorway leads there). The smith, Pip's
-  dad (`game/scenes/characters/smith.tscn`, `smith_actor.gd`: four poses, he works his anvil), talks
-  through the camp's director (`mine_camp.gd`, node `MineCamp`): the first talk gives the
-  **Lantern** (`learn_ability("lantern")`, its ceremony; flag `mine-camp.lantern-given`) and says
-  "The lamp by the gate. Give it a flame."; while the gate is shut he says it again; once it is open
-  he sends the slime to Burr (once, flag `mine-camp.sent-to-burr`), then gives tips. When the gate
+  `arrive-from-crystal-mine` in front of it (the mine's south doorway leads there, but not while the
+  mine is sealed). The smith, Pip's dad (`game/scenes/characters/smith.tscn`, `smith_actor.gd`: four
+  poses, he works his anvil), talks through the camp's director (`mine_camp.gd`, node `MineCamp`):
+  the first talk gives the **Lantern** (`learn_ability("lantern")`, its ceremony; flag
+  `mine-camp.lantern-given`) and says "The lamp by the gate. Give it a flame."; while the gate is
+  shut he says it again; once it is open he sends the slime to Burr for the Bow, needed at the
+  Chasm before the Pearl (once, flag `mine-camp.sent-to-burr`), then gives tips. When the gate
   opens he calls "That's it! Mind the dark in there." Once the Colossus fell he is gone (home to
   Slimeshire; his place there is not built). The camp: two tents, the campfire, a cauldron, the
   smith's cot (a bed: sleep, a full refill), lantern posts, rails out of the mouth south to G5.
@@ -474,28 +652,36 @@ floor; it owns G4's and H4's `elevation` layer.
 
 ### The mine's limits
 
-- The **Feral skin** is not built: the root walls climb on its story flag (`skin.feral`, set by
-  Pearl 3) as a scripted climb, not the skin's hold-and-claw climb.
 - The **Bow** is not built: the two lenses take its arrow's hook (`on_arrow_hit`) and nothing else
-  strikes them, so the Chasm cannot be crossed in play until it is.
-- **Heart quarters** and the **war journal's pages** are not built: S1 and S5 hold coins until then
-  (their `KitMarkers` say what goes there).
+  strikes them, so the Chasm cannot be crossed in play until it is (and so the Pearl and the second
+  half cannot be reached in play from the camp; `?sealed` or `room=` reach them).
+- **Heart quarters** and the **war journal's pages** are not built: S1, S5 and M10's chest hold coins
+  until then (their `KitMarkers` say what goes there).
 - The spire plank (S1) lands across the spire's own wall face; its walk across is untested.
-- Tests are written, not run yet: `test_crystal_mine.gd` (15), `test_mine_camp.gd` (5).
+- The strike while clinging runs in the body-shapes mode only (the shapes strike there); in the
+  classic game an attack press on a wall does nothing.
+- Tests: `test_crystal_mine.gd` (20) and `test_mine_camp.gd` (6), all passing on 2026-10-17 (run one
+  file at a time with `pnpm test:godot -- --filter=<file>`). The strike while clinging is tested in
+  the body-shapes mode turned on for the test (`test_the_spear_strikes_his_claws_from_the_face`).
 
 ## The Weaver Hollow (built)
 
 Chapter 2's dungeon, built 2026-10-17 from [its design](../design/2026-10-16-dungeon-weaver-hollow.md)
 (its status lists what moved in the build): the Thorn Guard's old watch fort inside the Watch Oak,
 climbed from its roots to the Matron's web at its top. Four worlds are one dungeon (`weaver-hollow`,
-"Weaver Hollow"); its forecourt is the open world's `gloop-forest-f4`.
+"Weaver Hollow"); its forecourt is the open world's `gloop-forest-f4`. **Reworked the same day for
+the Pearl inside the dungeon** ([the plan](../design/2026-10-17-pearl-mid-dungeon.md#the-weaver-hollow-chapter-2-the-silk-skin),
+the owner's decision of 2026-10-17): the first half is the Goo Bomb's, up to the Brood Warden, who
+guards Pearl 2 in the Hoard; its take grants the Silk skin and seals the way out; the second half
+teaches the Silk skin (the Hoard's stair, C1, the new C4 the Spinning Loft), and the Matron's fight
+is its exam.
 
 | World | Floor | Camera rooms |
 |---|---|---|
 | `weaver-hollow-trunk` | the ground floor, the entrance | T1 Root Door, T2 the Hollow Heart (the hub, 2 x 2, its gallery along the north), T3 the Larder, T4 the Well Room (the map nook T3a sealed in its west), S3's nook |
 | `weaver-hollow-roots` | below ground | R1 Root Fall, R2 the Bone Cellar (2 x 1), R3 the Drop Gate, D1 the Old Cellar (dark) |
-| `weaver-hollow-boughs` | the upper floor | B1 the Bough Stair, B2 the Drawbridge (2 x 1), B3 the Mimic's Pantry, B4 the Nursery, B5 the Warden's Den, the Hoard, B6 the Pillar, D2 the Dark Bough (dark) |
-| `weaver-hollow-crown` | the top | C1 the Crown Stair, C2 the Crown (the Matron), C3 the Outer Bough |
+| `weaver-hollow-boughs` | the upper floor | B1 the Bough Stair, B2 the Drawbridge (2 x 1), B3 the Mimic's Pantry, B4 the Nursery, B5 the Warden's Den, the Hoard (the Pearl room), B6 the Pillar, D2 the Dark Bough (dark) |
+| `weaver-hollow-crown` | the top | C1 the Crown Stair, C2 the Crown (the Matron), C3 the Outer Bough, C4 the Spinning Loft |
 
 **Built by a tool, not by hand.** `godot/tools/build_weaver_hollow.gd` writes the four scenes from
 `godot/tools/weaver_hollow/hollow_floors.gd` (every room, door, object and enemy, by cell), with
@@ -522,21 +708,39 @@ section 8). Tests: `godot/tests/test_weaver_hollow.gd`, `test_weaver_webs.gd`,
   (so the door shows from the top of the hub's floor), with a front flight of stairs at its east
   end; R1's ledge is level 1 with its own flight. The voids (B2, B6) are
   holes at level -2 floored with dark cavern stone. Rooms vary their floors (cobble, dry leaves,
-  moss) so they read apart from the rock's top.
+  moss; C4 the interiors' wooden boards, `HollowCanvas.WOOD_FLOOR`, one tile) so they read apart from
+  the rock's top. C1 has a one-row band of rock across it (row 21, its face over rows 22-23) whose
+  one gap is the stair's straight way; the Hoard's stair is a well between two blocks of rock at the
+  vault's south end. Floor webs are never painted under a wall's face (they would draw over it);
+  `paint_webs(rect, 1)` webs a level-1 ledge (the gallery's west end).
 - **Kit pieces used:** the Dungeon in each floor (resume at `dungeon-entrance` in T1; the other
-  floors' `entrance_map_id` is the Trunk); two key doors (the hub's east door, one keyhole; the
-  Warden's double door in B2, two) and the boss door (the Crown Door on the gallery); dungeon
-  chests for the map (T3a), small key 1 (R2's pocket), small key 3 (B4, `hidden`: the ambush's
-  reward) and the dark rooms' prizes (D1, D2); the big chest with the big
-  key (the Hoard); small key 2 is the Cocoon Mimic's swallowed drop (`object.dungeon-key`, spat out
-  when she is beaten); six shutters (the gallery stair's block, `starts_shut`, lowered by the
-  gallery's winch; the Nursery's two; the Warden's; the Hoard's, `starts_shut`, the Warden fight's
-  reward; the Crown's, shut and opened by the Matron's camp, `boss_engaged` / `boss_defeated`); two
-  room fights (the Nursery, `once`; the Warden's Den, `boss_id` `weaver-hollow-brood-warden`); two
-  drawbridges (B2's and B6's, each lowered by a cracked winch post's `trigger`); three void hazards
-  (`draw_look` off); eight pots that hide a refill and grow back (four on the gallery, heart or energy; four in the
-  den, random) and an energy flower (the gallery); a prize glint in D1. Three small keys for three
-  keyholes, so no key can be spent wrong. No falling slabs, no shadow path, no compass.
+  floors' `entrance_map_id` is the Trunk; the seal: `boss_id` `orb-weaver-matron`, `boss_name` "The
+  Orb-Weaver Matron", `seal_color` violet `#9a5ad8`, `roar_sound` the spider hiss at 0.4,
+  `dust_color` silk `#efe6d6`); two seals (`object.dungeon-seal`: `entrance-seal` in T1's south
+  doorway, `wall` south, `glimpse`; `crown-east-seal` in C2's east doorway, `wall` east); three key
+  doors of one keyhole (the hub's east door; the Warden's door in B2, `den-door`; C1's K3 door,
+  `crown-k3-door`) and the boss door (the Crown Door on the gallery); dungeon chests for the map
+  (T3a), small key 1 (R2's pocket), the Nursery's coins and potion (B4, `hidden`: the ambush's
+  reward) and the dark rooms' prizes (D1, D2); the big chest with the big key (the Hoard); small key
+  2 is the Cocoon Mimic's swallowed drop (`object.dungeon-key`, spat out when she is beaten), small
+  key 3 lies in C4's silk parcel (its `contents` `dungeon-small-key`: freed, it drops as the kit's
+  floor key); six shutters (the gallery stair's block, `starts_shut`, lowered by the gallery's winch;
+  the Nursery's two; the Warden's; the Hoard's, `starts_shut`, the Warden fight's reward; the
+  Crown's, shut and opened by the Matron's camp, `boss_engaged` / `boss_defeated`); two room fights
+  (the Nursery, `once`; the Warden's Den, `boss_id` `weaver-hollow-brood-warden`, Pearl 2's guard);
+  two drawbridges (B2's and B6's, each lowered by a cracked winch post's `trigger`); three void
+  hazards (`draw_look` off); twelve pots that hide a refill and grow back (four on the gallery and
+  four at C1's top, heart or energy; four in the den, random) and an energy flower (the gallery);
+  prize glints in D1 and, for Pearl 2's glow, over its altar and at the Hoard's shutter in the den.
+  Three small keys for three keyholes, so no key can be spent wrong. No falling slabs, no shadow
+  path, no compass.
+- **Pearl 2** (`object.pearl-two`, `boss_id` `weaver-hollow-brood-warden`, `take_radius` 90) on the
+  brood's altar (`game/scenes/objects/weaver-hollow/brood-altar.tscn`: a mossy stone pillar bound in
+  old silk, solid at its base) in the Hoard beside the big chest. It rises when the Warden's fight is
+  won; its take grants the Silk skin and seals the Hollow (the kit's take, [The seal](#the-seal));
+  T1's seal is on another floor, so the take plays the roar and the line, no camera cut. Its glow
+  (two pale violet `object.prize-glint`s under a StoryVariant on `pearl.orb-weaver-matron`) twinkles
+  until it is taken.
 
 ### The main path
 
@@ -561,22 +765,49 @@ section 8). Tests: `godot/tests/test_weaver_hollow.gd`, `test_weaver_webs.gd`,
     post on the far rim, and the bridge drops west across the gap.
 11. **B3 the Mimic's Pantry:** the Cocoon Mimic swallowed small key 2; S2's parcels behind the
     alcove's web wall.
-12. **B4 the Nursery:** an ambush, once: shutters close both doorways; three egg sacs in rings of
-    webs and an orb-weaver; won, a chest rises with small key 3. B6 lies north.
-13. **The double door** (keys 2 and 3) opens **B5 the Warden's Den:** the Brood Warden, the den's
-    shutter shut behind the slime; beaten, the Hoard's shutter sinks: the big chest, the big key.
-14. **The Hoard's stair** leads down to **T2's gallery**, the calm room before the boss (the pots,
-    the flower); its winch lowers the block at the foot of the gallery's stair, the shortcut down to
-    the hub's floor and the entrance.
-15. **The Crown Door** (the big key) leads up to **C1 the Crown Stair** and **C2 the Crown:** the
-    Matron (the boss shutter shut while she fights); then Pearl 2 (the Silk skin), her full heart
-    and her thread.
-16. **C3 the Outer Bough:** her web wall, passed with the Silk skin, and the drop back to the
+12. **The Warden's door** (key 2, one keyhole) opens **B5 the Warden's Den:** the Brood Warden (the
+    first half's last test: a blast plants it), the den's shutter shut behind the slime; Pearl 2's
+    glow twinkles at the Hoard's shutter through the fight. Beaten, the Hoard's shutter sinks.
+13. **The Hoard, the Pearl room:** the big chest with the big key and, on the brood's altar, Pearl 2,
+    risen with the Warden's fall. **The take:** the Silk skin, worn; the Matron's roar from the
+    Crown, silk dust, "The Orb-Weaver Matron roars! The way out slams shut."; the seals shut (T1's
+    way out, C2's east doorway).
+14. **The Hoard's stair** (the Silk skin's first lock, safe, right at the Pearl): a web wall across
+    the well's mouth, passed at half speed or cut for good with the Spear. Down it, **T2's gallery**,
+    the calm room (the pots, the flower; silk spills over its west end, seen from the hub's floor on
+    the first visit); its winch lowers the block at the foot of the gallery's stair, the short way
+    down to the hub's floor and the entrance after a faint.
+15. **The Crown Door** (the big key) leads up to **C1 the Crown Stair** (the test): floor webs from
+    wall to wall, which the Silk slime walks and Rolls at full speed; a band of rock across the stair
+    whose one gap, the straight way up, a web wall chokes (wade it, or cut it for good and every climb
+    after a faint is quick); at the top the K3 door and four pots, the calm spot before her. C1's
+    south part leads east into **C4 the Spinning Loft** (the twist): two rows of web walls from wall
+    to wall (seven each, `loft-web-<row>-<i>`, 104 tall) part the old store loft into three
+    corridors; a Slime Spider in each corridor ahead lines up and shoots while the slime wades a row
+    at half speed (its body shows above the silk, which fades while the slime stands behind it), or
+    the Spear cuts a lane for good; small key 3 lies wrapped in a silk parcel at the north corridor's
+    east end. Silk-hung rafters, a peg rail of silk hanks, a spool and a spinning wheel dress it.
+16. **The K3 door** (key 3) opens **C2 the Crown:** the Matron (the boss shutter shut while she
+    fights), enraged while sealed, the Silk skin's exam ([specs/matron.md](specs/matron.md) 8.2):
+    round 1 as built (a blast on her shadow, then the Spear); round 2 a cage of web walls round her
+    shadow (a thrown bomb stops in its silk and blows out of reach: cut in or wade in, then cast
+    inside); round 3 her webbed floor and her brood (the Silk slime Rolls through). Her fall breaks
+    the seals; her full heart and her thread.
+17. **C3 the Outer Bough:** past the sunk seal, her web wall (pass or cut) and the drop back to the
     forecourt by S1.
 
-**Off the path:** B6 the Pillar (from B4): a bomb on the first blast keg sets off the line along the
-broken parapet, and the last breaks the pillar's cracked post: its bridge drops across the void to
-the rim, and the far shore's Goo Heart is the heart quarter's stand-in. D1 the Old Cellar and D2 the
+**After a faint or a quit** (resumed at T1, inside the seal): T1, the hub, the stair block (once the
+gallery's winch is turned), the gallery, the Crown Door, C1 (its web wall cut), the K3 door: four
+rooms. Before the winch: T1, the hub, the east door, B1, B2, B5, the Hoard and its stair. S3 (T1's
+web wall) and S2 (B3's parcels) open on any walk after the Pearl; S1 (the forecourt) after the seal
+lifts, on the way out.
+
+**Off the path:** B4 the Nursery and B6 the Pillar, an optional bomb wing (from B2's east doorway).
+The Nursery's ambush (once: shutters close both doorways; three egg sacs in rings of webs and an
+orb-weaver) brings a chest with 30 coins and a health potion. B6 (from B4): a bomb on the first
+blast keg sets off the line along the broken parapet, and the last breaks the pillar's cracked post:
+its bridge drops across the void to the rim, and the far shore's Goo Heart is the heart quarter's
+stand-in. D1 the Old Cellar and D2 the
 Dark Bough are dark (the Lantern): D1's chest (its glint seen from the doorway) is for a page of the
 war journal; D2's three candles, all lit, light the room for good and bring its chest, for the
 Silkspun Stew recipe. Neither is an item yet: D1 holds 40 coins, D2 a health potion and 20 coins.
@@ -597,6 +828,9 @@ off T1 (30 coins).
 - one way: the Well Room's blown floor (`trunk-well-floor`, a fall) to the marker `roots-landing`
   in R1, and `crown-bough-drop` (C3, a fall) to the marker `weaver-hollow-silk-drop` in the
   forecourt.
+
+While sealed, `trunk-entrance` and `crown-bough-drop` (to the forecourt) refuse with the seal's line;
+the doors between the floors go on.
 
 ### The forecourt (`gloop-forest-f4`)
 
@@ -622,6 +856,19 @@ off T1 (30 coins).
   its camera room, so egg sacs hatch, the Watcher Eye drifts and enemies chase only in their room,
   also when the room is entered again.
 - `RoomEntry` markers in B2 and B6, whose middles are void: `?room=B2-drawbridge` starts there.
+- C4's dressing and the brood's altar (`game/scenes/objects/weaver-hollow/`: `loft-rafter`,
+  `loft-peg-rail` hang on the north wall's face, `loft-spool`, `loft-spinning-wheel` stand solid in
+  the corridors' corners, `brood-altar`): Magnific GPT 2.5 (`gpt-2-mini`, transparent, the Lili
+  creation as style reference), 2026-10-17, two generations (200 credits), sources and prompts in
+  `asset/Originals/weaver-hollow/loft/`, packed by `python scripts/art/pack-loft-art.py` into
+  `godot/asset/MAPS/props/weaver-hollow/` (loaded through `sheet_sprite.gd` until the editor imports
+  them).
+- **F6 on the second half with the Silk skin:** F6 on a floor gives the Hollow's dev powers (the
+  Spear, the Roll, the Heavy skin, the Goo Bomb: Silk is won mid-dungeon, from Pearl 2). F6 on
+  `game/dev/weaver-hollow-second-half.tscn` (`game/dev/second_half_run.gd`; dev only) runs
+  `weaver-hollow-crown` the same way and lends the Silk skin for the session, worn; on the web or a
+  desktop launch `?map=weaver-hollow-crown&skins=silk` does the same, and `?sealed` takes Pearl 2
+  quietly and seals.
 
 ### Limits
 
@@ -629,47 +876,70 @@ off T1 (30 coins).
 - The hub's east key door is in an east wall at the world's edge, so it shows as the kit's turned
   front art, a sliver at the room's edge.
 - The Hoard is a small vault in the east of a full-size camera room; the rest of its screen is rock.
-- Not built: Mossy's tip at the ring's south gap, the Matron's three-way lash (8.7). Quest 6 ("The
-  Matron's Nest", `quests-chapter-2.json`) still describes her old nest fight; it completes on her
-  defeat in the Crown.
+- C4's rows of web walls hide the slime behind them only partly: an "across" web fades to 0.45 while
+  the slime stands behind it (`web_wall.gd`); the corridors are three rows deep.
+- A Slime Spider's web shot (`spider-web`, 50 before defence) is the Gloop Forest's, untuned for C4;
+  web walls stop shots (they are solid on the world layer), so the spiders hit the slime while its
+  body shows above a row it wades, or through a cut lane. Cut lanes let the spiders roam between the
+  corridors.
+- Not built: Mossy's tip at the ring's south gap, the Matron's three-way lash (8.7; if built it
+  pulls but never traps a silk-skinned slime). Quest 6 ("The Matron's Nest", `quests-chapter-2.json`)
+  still describes her old nest fight; it completes on her defeat in the Crown.
+- Filmed (`tools/film_weaver_hollow.gd`, 41 shots, the forecourt to her fall and out) but not played
+  through by the owner.
 
 ## Fatty's Lair (built)
 
 Chapter 1's dungeon, built 2026-10-17 from [its design](../design/2026-10-16-dungeon-fattys-lair.md)
-(its status lists what moved): the Thorn Guard's old fort that Gorge's worms took, Fatty One Eye's
-lair below it. One world, `world.fatty-lair` (`game/scenes/worlds/fatty-lair.tscn`), 80 x 70 cells:
-a 5 x 5 grid of screens, 19 camera rooms, two of them dark. Its way in and out are in
-`level-1-d4` (below). **Built by a tool:**
-`"<Godot console exe>" --headless --path godot -s res://tools/build_fattys_lair.gd` rewrites the
-whole world (hand edits are lost), then bake it (`tools/bake_elevation.gd -- --world=fatty-lair`).
+(its status lists what moved) and **reworked the same day for the Pearl inside the dungeon**
+([the plan](../design/2026-10-17-pearl-mid-dungeon.md#fattys-lair-chapter-1-the-heavy-skin)): the
+Thorn Guard's old fort that Gorge's worms took, Fatty One Eye's lair below it. The first half tests
+what the slime brings (the Roll, the Spear, the Gulp's throw) and ends in the Larder, where the Big
+Squint guards **Pearl 1**; its take grants the Heavy skin and seals the Lair ([The seal](#the-seal));
+the second half teaches, tests and twists the Heavy skin, and Fatty's phase two is its exam. One
+world, `world.fatty-lair` (`game/scenes/worlds/fatty-lair.tscn`), 80 x 70 cells: a 5 x 5 grid of
+screens, 20 camera rooms, two of them dark. Its ways in and out are outside (below). **Built by a
+tool:** `"<Godot console exe>" --headless --path godot -s res://tools/build_fattys_lair.gd` rewrites
+the whole world (hand edits are lost), then bake it (`tools/bake_elevation.gd -- --world=fatty-lair`).
 Its code is `godot/game/fattys_lair/` and the scene scripts `game/scripts/drop_gate.gd`,
-`gate_winch.gd`, `eye_latch.gd`, `plank_barricade.gd`, `stair_hatch.gd`, `pearl.gd` and Fatty's
-phase two in `fatty.gd`; its art `python scripts/art/pack-fattys-lair-art.py` (sources in
+`gate_winch.gd`, `eye_latch.gd`, `plank_barricade.gd`, `stair_hatch.gd`, `heavy_plate.gd`,
+`pearl.gd` and Fatty's phase two in `fatty.gd`; its art `python scripts/art/pack-fattys-lair-art.py`
+and, for the Weigh House's props, `python scripts/art/pack-weigh-house-art.py` (sources in
 `asset/Originals/fattys-lair/generated/`) into `godot/asset/MAPS/objects/fattys-lair/` and Burr's
 sheet `godot/asset/characters/authored/npcs/burr.webp`. Tests: `godot/tests/test_fattys_lair.gd`.
 
 - **The paint:** rock at level 2 (its top forest floor) with the rooms carved out at level 0, every
   camera room keeping a one-cell rim (two-cell bands between rooms; an east or west doorway also
   clears the two rows its lintel hangs over). Walls on the `cliffs` layer: masonry for the upper
-  fort, cave rock for the Deep (R8 to R12, the Armoury), root rock where the worms dug (the arena,
-  the Burrow, the bolt-hole). Floors: cobble, the Deep's earth (the amberleaf sheet) in R10, the
-  Armoury, the Burrow and the bolt-hole. The voids are holes at -3 floored with dark cavern stone,
-  darkened a little more by `VoidShade` (`game/fattys_lair/void_shade.gd`, presentation only); R7's
-  spike pit is a hole at -1 with a flight of stairs out. Built walls (`walls` layer) make R1's
-  store, R5's inner wall and alcove, Burr's cell, R7's platform gate, R11's low wall and the
-  Armoury's closet.
+  fort and the Weigh House (the Thorn Guard's built hall), cave rock for the Deep (R8 to R12, the
+  Armoury), root rock where the worms dug (the arena, the Burrow, the bolt-hole). Floors: cobble,
+  the Deep's earth (the amberleaf sheet) in R10, the Armoury, the Burrow and the bolt-hole. The
+  voids are holes at -3 floored with dark cavern stone, darkened a little more by `VoidShade`
+  (`game/fattys_lair/void_shade.gd`, presentation only); R7's spike pit is a hole at -1 with a
+  flight of stairs out. Built walls (`walls` layer) make R1's store, R5's inner wall and alcove,
+  Burr's cell, R7's platform gate, R11's low wall, the Armoury's closet and the Weigh House's inner
+  walls. R10's statue niche is cut into its north rock, R9's big-chest alcove into its south rim.
 - **Kit pieces used:** the Dungeon (`fatty-lair`, "Fatty's Lair", resume at `dungeon-entrance` in
-  R1), a `RoomEntry` in every camera room (`?room=<name>`); small keys 1 and 2 on the floor (R5, R7)
-  and key 3 in R10's chest, for Burr's door (two keyholes) and door 3 (one); the boss door; the big
-  chest (hidden: the Larder fight's reward); chests for the map (the nook), R1's store, the
-  Armoury and the sally port; five bolted doors (the hub to R1, R5 to R1, R7 to R2, R10 to R8, R11
-  to the ledge); three shutters (the Larder's, the arena's two) and the Larder's room fight
-  (`once`); the hub's winch and drawbridge; 24 falling slabs (R2, R7, R11) and R2's landing (a
+  R1; its seal: `boss_id` `fatty-one-eye`, "Fatty One Eye", his mud red `#b4462c`, his roar
+  `fatty-roar.ogg` at pitch 0.9, earthy dust), a `RoomEntry` in every camera room (`?room=<name>`);
+  small keys 1 and 2 on the floor (R5, R7) for Burr's door (two keyholes); the boss door; the big
+  chest in R9's alcove (hidden: R9's plate raises it); chests for the map (the nook), R1's store,
+  the Armoury and the sally port; five bolted doors (the hub to R1, R5 to R1, R7 to R2, R9 to R8,
+  R11 to the ledge); two shutters (the Larder's, the arena's south one) and the Larder's room fight
+  (`once`, `boss_id` `fatty-lair-big-squint`: the mini-boss, Pearl 1's guard); two seals
+  (`object.dungeon-seal`: R1's south doorway, the take's glimpse, and R13's north doorway, the way
+  out past Fatty); the hub's drawbridge; 24 falling slabs (R2, R7, R11) and R2's landing (a
   `hazard-deck`); a void hazard over every rectangle of hole cells (`draw_look` off; the Armoury's
   and the Burrow's with `Return` points at their doorways) and a spikes hazard over the pit; the
-  shadow path and two prize glints; pots that grow back; an energy flower on the ledge. The arena's
-  shutters are driven by the boss camp through the Lair's director. No compass is placed (the
-  director is the map's boss mark, group `dungeon_map_mark`).
+  shadow path and three prize glints (the Burrow's, the Armoury's, the Larder's altar); pots that
+  grow back; an energy flower on the ledge. The arena's south shutter is driven by the boss camp
+  through the Lair's director. No compass is placed (the director is the map's boss mark, group
+  `dungeon_map_mark`; the Larder's fight, with its `boss_id`, is marked too until it is won).
+- **The Heavy skin's locks** ([SKINS.md](SKINS.md#heavy)), all in the second half or after the
+  Pearl: three plank barricades (the Larder's north doorway, R1's store, the bolt-hole), five heavy
+  plates (the Weigh House's two, R10's, R9's, the hub's counterweight), six armour statues that are
+  heavy blocks (the Weigh House's, R10's, R9's four) and the Weigh House's loose prize. Nothing
+  before the Pearl needs a plate or the skin.
 
 ### The rooms
 
@@ -684,13 +954,14 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 | R5 the Eye Hall | B6 | the first eye latch, the alcove's timed pair, small key 1, the sally port's crack |
 | R6 the Pipe Gallery | E5 | two Pipe Worms; the Burrow's mouth in its north wall |
 | R7 the Bell Bridge | E6 | the spike pit, the bell on its rock, the turning slab bridge, small key 2 |
-| R8 the Guard Crypt | B3-B4 | the Inner Stair's foot, two Bone Marchers, the Thorn Guard's statues, door 3 |
-| R9 the Watcher Hall | A3 | the Watcher Eye among four statues; the latch of the north door |
-| R10 the Dung Roller Run | A2-B2 | the Dung Roller's lane, small key 3 in a chest |
+| R8 the Guard Crypt | B3-B4 | the Inner Stair's foot (its ladder up), two Bone Marchers, the Thorn Guard's statues, door 3 (an open doorway into R11) |
+| R9 the Watcher Hall | A3 | the Heavy skin's twist: the Watcher Eye among four armour statues, a plate in its sight that raises the big chest in the south alcove (**the big key**); its north stone door held by R10's plate; its east door bolted on its side |
+| R10 the Dung Roller Run | A2-B2 | the Heavy skin's test: the Dung Roller's lane, a statue in the north niche, a plate before the corridor down to R9's stone door |
 | R11 the Drop-gate Bridge | C4 | the inner drop gate, the slab bridge with its turn, a Pipe Worm |
-| R12 the Larder | C3 | the Big Squint's ambush, the big chest |
-| R13 Fatty's Arena | D4 | Fatty One Eye; the shutters; the boss heart (two hearts) |
-| R14 the Pearl Shrine | D3 | the altar and Pearl 1, the green-key chest, the bolt-hole's barricade |
+| R12 the Larder | C3 | the Pearl room: Fatty's hoard, the Big Squint's ambush, the worms' altar with Pearl 1's glow, the north doorway nailed shut (the Heavy skin's first lock) |
+| C2 the Weigh House | C2 | the Heavy skin's teach (no enemy): a plate before the east stone door, a statue and a plate that holds the west stone door only while it stands on it; scale pans and weights; a pouch in a scale pan on the east wall |
+| R13 Fatty's Arena | D4 | Fatty One Eye, the Heavy skin's exam; the south shutter; the north doorway's seal; his full heart |
+| R14 the Postern | D3 | after Fatty: the green-key chest, the bolt-hole's barricade |
 | the bolt-hole | D2 | a tunnel up to daylight in level-1-d4 |
 | the Old Armoury (dark) | A4 | two holes in its floor, four cold sconces, its chest behind a stone door |
 | the Glow-moss Burrow (dark) | E4 | the shadow path over the void to an islet's goo heart |
@@ -698,8 +969,10 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 
 ### The main path
 
-1. **Fatty's Hollow** (`level-1-d4`): pull the worm lever, then Roll under the old gate before it
-   drops (walking from the lever never makes it).
+1. **Fatty's Hollow** (`level-1-d5`'s hill, since 2026-10-17; [Outside](#outside-fattys-hollow-and-the-bolt-hole)):
+   through the old fort's field maze and over its moat's slab bridge to the forecourt; pull the worm
+   lever in front of the gate, then Roll north under the old gate before it drops (walking from the
+   lever never makes it).
 2. **R1:** turn the inner winch (the outer gate stays up for good). East into R2: a Roll over two
    slabs, then two more to the landing; north into the hub, where Burr calls from his cell.
 3. **The west wing:** R4's Squints, then R5: a thrust shuts the eye over the inner wall's door (for
@@ -707,70 +980,143 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 4. **The east wing:** R6's Pipe Worms, then R7: a thrown pot rings the bell, which opens the
    platform's door; two slabs to the rock, two to the platform: **small key 2**.
 5. **Burr's cell:** two keys, two keyholes; he thanks the slime, winds the Inner Stair's hatch up,
-   warns of the bones and walks out.
-6. **The Deep:** down the Inner Stair into R8's crypt (Bone Marchers); R9, where the latch under the
-   Watcher Eye opens the north door; R10's lane and its chest: **small key 3**; door 3 into R11.
+   warns of the bones and walks out. On the way the hub's counterweight plate under the drawbridge's
+   chains does not budge under the slime ("It does not budge under you.").
+6. **The Deep:** down the Inner Stair into R8's crypt (Bone Marchers); door 3, an open doorway, into
+   R11.
 7. **R11:** its lever lifts the inner gate for 500 ms (a Roll north makes it); two slabs north, two
-   east; north into **R12**, where the shutter shuts behind the slime until the Big Squint falls and
-   the big chest rises: **the big key**.
-8. **The north ledge:** R11's bolt opens onto it (the calm spot: pots, an energy flower); its winch
-   lowers the drawbridge for good, the short way from the entrance to the boss door.
-9. **R13:** the boss door; Fatty One Eye (below); then **R14:** Pearl 1 and the Heavy skin, the green
-   key, and the Heavy Roll through the bolt-hole's barricade, up to daylight by the Verdant Gate,
+   east; north into **R12 the Larder**, where the shutter shuts behind the slime until the Big
+   Squint falls (Pearl 1's glow over the altar all the while).
+8. **The Pearl:** Pearl 1 rises on the worms' altar; walked into, its card, the Heavy skin (won and
+   worn), Fatty's roar from his hall next door and the glimpse of R1's seal slamming up: the Lair is
+   sealed until he falls.
+9. **The second half, the Heavy skin:** a Heavy Roll smashes the Larder's north planks (*teach*).
+   **C2 the Weigh House** (*teach*): the slime stands on the first plate, turns stony as it sinks,
+   and the east door opens while it rises; in the north hall it pushes the statue onto the second
+   plate, which holds the west door only while the statue stays. **R10** (*test*): it pulls the
+   statue out of its niche and pushes it along the patrolled lane onto the plate while the Dung
+   Roller's ball is away; the ball turns back at the statue, and the plate holds R9's stone door.
+   **R9** (*twist*): under the Watcher Eye's gaze, a statue pushed onto the plate (or one as cover
+   while the slime sinks it) raises the big chest in the south alcove: **the big key**. R9's bolt
+   opens into R8, the ladder leads up to the hub.
+10. **The hub:** the Heavy slime sinks the counterweight plate and the drawbridge comes down for good,
+   the short way from the entrance to the boss door; the north ledge (the calm spot: pots, an energy
+   flower); the boss door with the big key.
+11. **R13:** Fatty One Eye, enraged (below); his fall breaks the seals. Then **R14 the Postern:** the
+   green key, and a Heavy Roll through the bolt-hole's barricade, up to daylight by the Verdant Gate,
    where Burr waits.
 
+**The way back after a resume** (a faint or a quit wakes the slime at R1, inside the seal): R1, the
+bolt to the hub, the drawbridge once the plate has sunk it, the ledge, the boss door. Before the
+drawbridge is down: the hub, the Inner Stair, R8, then door 3 and R11 to the Larder (or R9's bolt,
+once opened from inside). Nothing the main path needs lies outside after the take.
+
 Secrets: the map nook (the crates jammed in R4's west gap are light things: taken by the Gulp, the
-gap's barrier goes with the secret jingle), R1's store (planks: the Heavy Roll, after the Pearl;
-100 coins), the sally port (R5's crack: the Goo Bomb, Chapter 2; potions), the Old Armoury (its four
-sconces lit for good open its stone door: the Lantern, Chapter 3; coins for now) and the
-Glow-moss Burrow (the shadow path: the Lantern; a goo heart).
+gap's barrier goes with the secret jingle), R1's store (planks: the Heavy Roll, inside, after the
+Pearl, on the walk back after a faint or at the end; 100 coins), the Weigh House's pouch (a Heavy
+Roll into the east wall shakes the old scale pan's pouch down: 30 coins), the sally port (R5's
+crack: the Goo Bomb, Chapter 2; potions), the Old Armoury (its four sconces lit for good open its
+stone door: the Lantern, Chapter 3; coins for now) and the Glow-moss Burrow (the shadow path: the
+Lantern; a goo heart).
+
+**Dev:** F6 on the world gives the Spear and the Roll (`dungeon.devPowers.fatty-lair`), the first
+half's powers; the Heavy skin is won at the Larder. To try the second half straight away, lend it:
+`?map=fatty-lair&shapes&skins=heavy&room=c2-weigh-house` on the web, `-- --map=fatty-lair --shapes
+--skins=heavy --room=c2-weigh-house` on the desktop (or those user arguments in the editor's run
+settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
 
 ### The Lair's own pieces
 
 - **Drop gate and worm lever** (`object.drop-gate`, `drop_gate.gd`, `game/world_objects/worm_lever.gd`):
   the old oak gate in its rock mound; the lever (interact key, the interaction's `usable` group)
-  raises it over `rise_ms` (220), it stays up `open_ms` (700 outside, 500 in R11) and drops in
+  raises it over `rise_ms` (220), it stays up `open_ms` (620 outside, 500 in R11) and drops in
   `drop_ms` (140), shoving out a slime caught under it; a push on the shut gate says its line.
   `hold_open_for_good()` keeps it up (recorded as the gate unlocked).
 - **The inner winch** (`object.gate-winch`, `gate_winch.gd`): in R1; used, it holds the outer gate
-  (`fatty-lair-gate` in `level-1-d4`) up for good, across the two worlds.
+  (`fatty-lair-gate` in `level-1-d5`; the gate's and the winch's `map_id`) up for good, across the
+  two worlds.
 - **Eye latches** (`object.eye-latch`, `eye_latch.gd`) over **stone doors** (`object.latch-door`:
   `gate.gd` with `game/world_objects/sliding_slab.gd`): only a thrust (the `spear` tag) shuts the
   eye; a lone latch opens its doors for good; latches sharing a `group_id` (R5's alcove) each stay
   shut `open_ms` and solve their gate only while all are shut at once.
 - **The plank barricade** (`object.plank-barricade`, `plank_barricade.gd`): only the Heavy Roll smashes
-  it (`game/fattys_lair/heavy_check.gd`: a roll with the `heavy` tag, the Stone form's, or any roll
-  once the Heavy skin's flag `skin.heavy` is set, until roadmap 7.8 builds the skins); anything else
-  bonks with its line. Kept smashed by `flag_id`.
+  it (`game/fattys_lair/heavy_check.gd`: a Roll's bonk with the Heavy skin on, which carries the
+  `heavy` tag; [SKINS.md](SKINS.md#heavy)); anything else bonks with its line. Kept smashed by
+  `flag_id` (`fatty-lair.larder-smashed`, `.store-smashed`, `.bolt-hole-smashed`).
+- **Heavy plates** (`object.heavy-plate`, `heavy_plate.gd`; [SKINS.md](SKINS.md#heavy)): two exports
+  added for the Lair (2026-10-17). `targets` (NodePaths) are set off each time the plate reaches the
+  bottom (DungeonState.fire, as a winch's): the hub's **counterweight plate** lowers the drawbridge
+  for good, R9's raises the hidden big chest. `shut_on_leave` shuts its gates the moment the weight
+  leaves, so the door is held only while something stands on the plate: the Weigh House's second
+  plate and R10's, which a statue must hold (the slime could not stand there and walk through).
+  The Weigh House's first plate is a plain one (its door stays open while it rises, 5 s). The
+  counterweight's chain (`game/fattys_lair/counterweight_chain.gd`, presentation) hangs from the
+  raised bridge to the plate, pulls taut as it sinks and goes once the bridge is down.
+- **Heavy blocks reset with their room** (the guide's no-softlock rule; the Lair's director): each
+  time the slime walks into a room, the heavy blocks and statues that started in it go back to
+  their starts (not while one is moving or the slime stands there), as the room's enemies and pots
+  come back. A statue pushed into a corner never blocks the way; the plates are not saved, the
+  drawbridge and the big chest are.
 - **The Inner Stair** (`object.stair-hatch`, `stair_hatch.gd`; `object.stair-ladder` at its foot):
   shut until Burr winds it ("Its winch is behind the cell door."); open, walking into its well fades
-  the slime down to R8, and the ladder brings it back.
+  the slime down to R8, and walking north into the ladder at the crypt's south-west brings it back
+  up (the second half's way back to the hub).
 - **Burr** (`character.burr`, `game/fattys_lair/burr_actor.gd`) and **the Lair's director**
   (`game/fattys_lair/lair_director.gd`): his call the first time the slime comes into the hub
   (flag `fatty-lair.burr-called`), his freeing when his door opens (`fatty-lair.burr-freed`), the
-  hatch, his walk out; Fatty's phase two, the clods and the arena's shutters; the map nook's gap.
-- **Fatty's phase two** (`fatty.gd` `configure_phase_two`, its `phase_two_*` exports): under half
-  his health he leaps twice in a row; each landing drops light mud clods from the roots (after a
-  shadow, `game/fattys_lair/clod_shadow.gd`; liftable `mud-ball`s, at most four), and the second
-  sends a mud ripple over the floor (`game/fattys_lair/mud_ripple.gd`) that a Roll's i-frames carry
-  through; his eye stays shut (every hit clinks) until a thrown thing dizzies him, and the Spear
-  lands then. Beaten: the dungeon records him, the boss heart shows (`goo_heart.gd` `hearts` 2) and
-  the Pearl rises.
-- **The Pearl** (`object.pearl`, `pearl.gd`, on `decoration-world-solid--pearl-altar`): shown once
-  its boss is beaten; walked into from any side of its altar, it plays its card and sets
-  `pearl.fatty-one-eye` and `skin.heavy`. The Weaver Hollow's and the Mine's Pearls use it too.
+  hatch, his walk out; Fatty's phase two, the clods and the arena's shutter; the map nook's gap; the
+  heavy blocks' reset; the Larder's glow, which goes once Pearl 1 is taken.
+- **Fatty's phase two, the Heavy skin's exam** (`fatty.gd` `configure_phase_two`, its `phase_two_*`
+  exports; [specs/boss.md](specs/boss.md) section 3.8): under half his health he leaps twice in a
+  row; each landing drops light mud clods from the roots (after a shadow,
+  `game/fattys_lair/clod_shadow.gd`; liftable `mud-ball`s, at most four, falling hazards), and the
+  second sends a mud ripple over the floor (`game/fattys_lair/mud_ripple.gd`) that a Roll's i-frames
+  carry through; his eye stays squinted shut and he braces (every hit clinks). **A Heavy Roll into
+  him while he is on the floor** (the Roll's bonk tagged `heavy`) knocks him off balance for
+  `phase_two_dizzy_ms` (1.6 s): "Off balance!", he rocks back `phase_two_topple_lean_rad` and
+  wobbles, stars over him, his eye wide open, and the Spear lands then. A thrown clod only splats
+  ("It splats. Fatty hardly notices.", `phase_two_thrown_text`); a plain Roll bonks off him. Phase
+  one is as built (the Spear in his open eye after a leap). Enraged while the Lair is sealed (the
+  kit's `EnragedLook`, the same numbers). Beaten: the dungeon records him, the seals break, the
+  power he soaked up pours from him into the Pearl the slime carries (the director's sparkles, a
+  flash of light on the slime) and his full heart shows (`object.full-heart`, `fatty-one-eye`: +20
+  max HP and max energy, as every boss's; the Pearl plan's open point 12).
+- **The Pearl** (`object.pearl`, `pearl.gd`, on `decoration-world-solid--pearl-altar`): Pearl 1 lies
+  on the worms' altar in the Larder, its `boss_id` the Larder fight's (`fatty-lair-big-squint`): it
+  rises once the Big Squint falls. A warm glow and a glint over the altar show from the door all
+  through the fight. Walked into from any side of its altar, it plays its card, sets
+  `pearl.fatty-one-eye`, grants and wears the Heavy skin (`skin_id`: SkinState.grant,
+  [SKINS.md](SKINS.md)) and seals the Lair ([The seal](#the-seal): Fatty's roar, the glimpse of R1's
+  seal).
 - **The interaction's `usable` group** (`interaction_controller.gd` USABLE_GROUP): any node with
   `origin()`, `interact_radius`, `prompt`, `badge_rise`, `use()` and an optional `can_use()` is
   offered to the interact key (the lever, the inner winch, Burr outside).
 
-### Outside: Fatty's Hollow and the bolt-hole (`level-1-d4`)
+### Outside: Fatty's Hollow and the bolt-hole
 
+The way in is on D5's hill (`level-1-d5`, since 2026-10-17; until then at (192, 1012) in D4, the
+old camp clearing's north-west edge), the way out by the Verdant Gate in D4 (`level-1-d4`). D5 is
+built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
+
+- **Fatty's Hollow** (D5): a red-rock hill (level 3) crowned with maples; in its south face a
+  notch (level 1) holds the mouth, over a paved forecourt (level 1: the worms' campfire, crates, a
+  pot hiding a heart, an energy flower). In front of it the old fort's field, a maze of fieldstone
+  walls cut by a dry moat (a void hole, the kit's `object.hazard` with two `Return` points) that a
+  bridge of two falling slabs crosses: one Roll from the rim's edge; a walk drops the slime and puts
+  it back on the rim (`damage` 5). Stairs climb from the maze's far end to the forecourt; its west
+  rim is a ledge drop back to the maze's door.
 - **The way in** (`object.fatty-lair-mouth`, `game/scenes/objects/fatty-lair-mouth.tscn`, at
-  (192, 1012) in D4, the old camp clearing's north-west edge): the drop gate (`fatty-lair-gate`,
-  its lever four cells east), a closed mound round the passage behind it, and the north door
-  `fatty-lair-mouth` into R1; coming out, the slime walks out of the gate's doorway even when the
-  leaf is down. The node is in group `boss_way_in` (metadata `boss_id`), so the tracked quest's
-  "Defeat Fatty One Eye" points at it in D4 (`game/quests/quest_waypoint.gd`).
+  (1408, 768) in D5, the notch's foot): the drop gate (`fatty-lair-gate`, `map_id` `level-1-d5`,
+  `open_ms` 620; its lever 3.7 cells in front of it, `interact_radius` 46), a closed mound round the
+  passage behind it, and the north door `fatty-lair-mouth` into R1; coming out, the slime walks out
+  of the gate's doorway even when the leaf is down. The race, tuned for the quick Roll (the story's
+  Roll: a run after the prologue plays in the body-shapes mode) and filmed 2026-10-17: pressed 0,
+  150 or 250 ms after the lever, a quick Roll north passes under the leaf at 0.48, 0.65 or 0.73 s,
+  before it starts to drop at 0.87 s; a walk, even with north held as the lever is pulled, reaches
+  the leaf as it drops and is pushed back. The classic Roll (its 260 ms spin-up; runs without the
+  shapes) only makes it pressed at once. The node is in group `boss_way_in` (metadata `boss_id`), so the tracked quest's "Defeat
+  Fatty One Eye" points at it in D5 (`game/quests/quest_waypoint.gd`). `world-chunks.json` lists
+  both mouths under level-1's `doors`.
 - **Fatty's old camp left D4** with its guarded chest (the green key is in the shrine). The camp's
   scene, `encounter.level-1-fatty-camp`, stays as the boss-camp tests' fixture
   (`godot/tests/lib/fatty_camp_fixture.gd` puts it back in the clearing for `test_boss.gd`,
@@ -784,7 +1130,12 @@ Glow-moss Burrow (the shadow path: the Lantern; a goo heart).
 ### Limits
 
 - R2's landing shows the kit's flat deck floor; doors in side walls show the kit's turned front art.
+- R1's seal stands in the south doorway at the room's bottom edge, where the HUD's bar covers half
+  of it (in the glimpse too).
+- The Weigh House's stone doors are the latch door's art at 0.55 in one-cell gaps of built wall:
+  their frames rise over much of the three-row north hall.
 - Not built: the war journal page (the Armoury's chest holds coins), heart quarters (the Burrow's
   prize is a goo heart), the journal pointing home after Burr's talk (question 103, roadmap 5.17),
-  the Heavy skin itself (roadmap 7.8: the flag stands in), the worm mural.
+  the worm mural, Fatty's shrinking into a small calm slime (his built death clip plays), the
+  drill hall's weights (the plan's other way for his exam).
 - The clods' art is the liftable `mud-ball`; a generated clod picture was not used.

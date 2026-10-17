@@ -1,7 +1,8 @@
 extends Node
 class_name PressurePlateScript
 ## Scene script `game.pressure-plate` (Phaser `features/scripts/PressurePlateScript.ts`;
-## abilities spec 13.2). Only a Heavy slime (its centre within `radius` of the plate) holds it
+## abilities spec 13.2). Only a Heavy slime (the Heavy skin: player.gd `presses_plates`,
+## docs/godot/SKINS.md; its centre within `radius` of the plate) holds it
 ## down: the plate sinks `sink_px` and shows `pressed_frame`, opens every gate with `gate_id`
 ## (for this visit only) and emits `pressed`; when the weight goes it rises and emits `released`.
 ## A latching plate stays down while it lives. Nothing is saved (a Phaser quirk kept).
@@ -9,6 +10,7 @@ class_name PressurePlateScript
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const GATE_GROUP := &"gate"
 const CUE_PRESS := &"PlatePress"
@@ -76,7 +78,10 @@ func _loaded() -> bool:
 	if player.has_method(&"is_airborne") and bool(player.call(&"is_airborne")):
 		return false
 	var root := get_parent() as Node2D
-	return root != null and (player.call(&"get_centre") as Vector2).distance_to(root.global_position) <= radius
+	var on_it := root != null and (player.call(&"get_centre") as Vector2).distance_to(root.global_position) <= radius
+	if on_it:
+		SkinState.show(player, SkinState.HEAVY)
+	return on_it
 
 
 func _show_sunk(down: bool) -> void:

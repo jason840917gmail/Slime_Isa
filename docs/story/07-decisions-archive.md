@@ -7,6 +7,15 @@ the proposal it took when an answer says "the proposal". The decisions in effect
 
 ## Decisions by date
 
+- **2026-10-17 (the Pearl inside the dungeon, the owner's idea):** each dungeon's Pearl is found
+  inside it, before its boss, as Zelda's dungeon item is: a boss cannot swallow its Pearl whole, so
+  it hides it in its dungeon and keeps it close to draw on its power. When the slime takes the
+  Pearl the boss notices, enraged (his strength stays the same), and seals the dungeon's exits: the
+  only way out is to beat him. The dungeon's second half teaches the Pearl's skin, and the boss
+  fight is the skin's exam. Fainting or quitting after the Pearl resumes at the dungeon's entrance,
+  inside, with the doors to the outside still sealed until the boss falls. The Pearls still go
+  home to the Wellspring afterwards. Owner: "it changes the pace of the game". The three built
+  dungeons and the skins (roadmap 7.8) follow from this.
 - **2026-10-16 (tenth round, loose ends from the docs pass):** the small
   `gloop-cavern` world stays as a secret cave behind the sinkhole, the Goo
   Bomb's come-back secret with one of Gloop Forest's heart quarters (question

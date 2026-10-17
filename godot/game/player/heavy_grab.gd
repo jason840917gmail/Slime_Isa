@@ -11,9 +11,10 @@ extends RefCounted
 ##   keyboard + mouse and pointer schemes), walking toward the block pushes it and walking away pulls
 ##   it, one cell (`cellPx`) per move over `moveMs`, after the walk key has been held `startDelayMs`
 ##   (a tap does not move it; a held key goes on cell after cell). Walking sideways does nothing.
-## - **Only the Stone form moves it** (`presses_plates`). The plain slime strains: it wobbles, the
-##   block trembles, a strain cue ticks and the line "Too heavy... I need to be stone." shows (at
-##   most every `strainLineMs`). Nothing moves.
+## - **Only the Heavy skin moves it** (`presses_plates`: SkinState, docs/godot/SKINS.md; the slime
+##   shows its Heavy skin while it pushes or pulls). Without it the slime strains: it wobbles, the
+##   block trembles, a strain cue ticks and the line STRAIN_LINE shows (at most every
+##   `strainLineMs`). Nothing moves.
 ## - A move the block cannot make (HeavyBlock.can_move: walls, cliffs, rims, holes, stairs, other
 ##   blocks, solid objects, deep water) knocks once (`bump`). A pull also needs room behind the slime
 ##   (its body's test move).
@@ -26,10 +27,11 @@ extends RefCounted
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const BLOCK_GROUP := &"heavy_blocks"
 const CONSTANTS := "puzzles.heavyBlock"
-const STRAIN_LINE := "Too heavy... I need to be stone."
+const STRAIN_LINE := "Too heavy to move."
 const CUE_GRAB := &"HeavyBlockGrab"
 const CUE_SLIDE := &"HeavyBlockSlide"
 const CUE_BUMP := &"HeavyBlockBump"
@@ -219,6 +221,7 @@ func step(now: float, delta: float, held: bool, direction: Vector2) -> bool:
 	if not bool(_player.call(&"presses_plates")):
 		_strain(now)
 		return false
+	SkinState.show(_player, SkinState.HEAVY)
 	_straining = false
 	_latch_look(0.0)
 	if _try_move(want):

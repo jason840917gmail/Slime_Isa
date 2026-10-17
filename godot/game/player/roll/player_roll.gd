@@ -21,17 +21,23 @@ extends RefCounted
 ##   (`rollBonkDamage`, `rollBonkKnockback` within `rollBonkHitRadiusPx`), and the slime bounces back
 ##   off it in a little hop (`rollBounceSpeed` easing out over `rollBounceMs`, `rollBounceHopPx`) and
 ##   only then is free again.
-## - **Heavy** (the slime in the Stone form, GulpForms.HEAVY: the Heavy check until the Heavy skin
-##   comes): the bonk's hit also carries the tag `heavy` (a Thorn Guard Statue breaks to rubble), and
-##   the ground shakes (game/enemy/ground_shake.gd): every bonk shakes `rollBonkShakeRadiusPx` round
-##   the impact (heavy or not, the listeners decide), and a Heavy ball rumbles `rollHeavyRumbleRadiusPx`
-##   round its feet every step it rolls (a Popworm's mound there throws it out, dazed;
-##   docs/godot/BESTIARY.md).
+## - **Heavy** (the Heavy skin, Pearl 1's: SkinState, always on once won; docs/godot/SKINS.md
+##   "Heavy"): the Heavy Roll. Its bonk's hit also carries the tag `heavy`, which breaks the old,
+##   grey, dead or built things lying or leaning in the way (plank barricades, rotten timbers,
+##   rubble heaps, loose rocks, old trunks and fences: game/scripts/plank_barricade.gd) and a Thorn
+##   Guard Statue; its screen shake is strong (`skins.heavy.rollBonkShake*`, a plain bonk shakes
+##   much less: owner, 2026-10-16), and it shakes loose what hangs or sits loose round the impact
+##   (game/scripts/loose_prize.gd hears the heavy ground shake). The ground shakes
+##   (game/enemy/ground_shake.gd): every bonk shakes `rollBonkShakeRadiusPx` round the impact (heavy
+##   or not, the listeners decide), and a Heavy ball rumbles `rollHeavyRumbleRadiusPx` round its feet
+##   every step it rolls (a Popworm's mound there throws it out, dazed; docs/godot/BESTIARY.md). It
+##   pushes no enemy away (a later upgrade, owner 2026-10-16), and the slime shows the skin while it
+##   rolls (player.gd `show_skin`).
 ## - **Webs:** a Roll sticks in a web (owner, 2026-10-16, question 131): a floor web or a web
 ##   barrier catches the rolling slime as it does a walking one (game/enemy/spider_web_port.gd),
 ##   which ends the roll there (`cancel` through player.gd `stop_movement`; no bonk) and roots the
-##   slime. A Roll never crosses a web or tears it; with the Silk skin (player.gd `crosses_webs`,
-##   today the Silk form) webs no longer catch it.
+##   slime. With the Silk skin (player.gd `crosses_webs`) webs no longer catch it, and it tears
+##   through them.
 ## - The next roll can start `rollCooldownMs` after this one ends. A knockback, a death, a door or
 ##   a web ends it at once (`cancel`).
 ## All values are in `character.player.movement` (game-constants.json).
@@ -52,7 +58,7 @@ const Services := preload("res://game/shared/services.gd")
 const RollFx := preload("res://game/player/roll/roll_fx.gd")
 const AbilityWorld := preload("res://game/player/abilities/ability_world.gd")
 const GroundShake := preload("res://game/enemy/ground_shake.gd")
-const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const CLIP_BALL := "ball"
 const CLIP_BOUNCE := "knockback"
@@ -78,7 +84,7 @@ const WOBBLE_S := 0.55
 const WOBBLE_TURNS := 4.0
 const FX_NAME := "RollFx"
 const BALL_REACH_PX := 18.0
-## The bonk's hit tags; HEAVY_TAG joins them in the Heavy (Stone) form.
+## The bonk's hit tags; HEAVY_TAG joins them with the Heavy skin.
 const BONK_TAG := "roll"
 const HEAVY_TAG := "heavy"
 ## Rework mode: the upgrade that lets a held Roll key charge (the spin-up); without it every roll is
@@ -134,11 +140,9 @@ func can_begin(now_ms: float) -> bool:
 	return _phase == Phase.NONE and now_ms >= _ready_at_ms
 
 
-## True while the slime is in the Heavy (Stone) form: its Roll is a Heavy Roll.
+## True while the Heavy skin is on: every Roll is a Heavy Roll.
 func is_heavy() -> bool:
-	if _player == null or not _player.has_method(&"current_form_id"):
-		return false
-	return StringName(_player.call(&"current_form_id")) == GulpForms.HEAVY
+	return SkinState.is_on(_player, SkinState.HEAVY)
 
 
 ## The way the ball rolls (unit, one of eight directions).
@@ -263,6 +267,7 @@ func _roll(now_ms: float, delta: float, held: bool, body: CharacterBody2D) -> vo
 		return
 	if is_heavy():
 		GroundShake.shake(_feet(), _constant("rollHeavyRumbleRadiusPx"), true)
+		SkinState.show(_player, SkinState.HEAVY)
 	var rolled := now_ms - _launched_ms
 	if _quick:
 		_roll_quick(now_ms, rolled, body)
@@ -325,17 +330,21 @@ func _bonk(now_ms: float, body: CharacterBody2D) -> void:
 	_invulnerable_until_ms = 0.0
 	_set_clip_speed(1.0)
 	var impact := _centre() + _direction * BALL_REACH_PX
+	var heavy := is_heavy()
 	_cue(CUE_BONK)
 	var feel := Services.feel()
 	if feel != null:
-		feel.shake(_constant("rollBonkShakeMs"), _constant("rollBonkShakeIntensity"))
-		feel.hit_stop(_constant("rollBonkHitStopMs"))
+		if heavy:
+			feel.shake(SkinState.setting("heavy.rollBonkShakeMs", 420.0), SkinState.setting("heavy.rollBonkShakeIntensity", 0.02))
+			feel.hit_stop(SkinState.setting("heavy.rollBonkHitStopMs", 90.0))
+		else:
+			feel.shake(_constant("rollBonkShakeMs"), _constant("rollBonkShakeIntensity"))
+			feel.hit_stop(_constant("rollBonkHitStopMs"))
 		feel.particles(PARTICLES_BONK, impact)
 		feel.particles(PARTICLES_LAUNCH, _feet() + _direction * BALL_REACH_PX)
 	var fx := _fx()
 	if fx != null:
 		fx.kick(_feet() + _direction * BALL_REACH_PX, -_direction, BONK_PUFFS, DUST_SPEED)
-	var heavy := is_heavy()
 	var damage := _constant("rollBonkDamage")
 	if damage > 0.0:
 		var tags: Array[String] = [BONK_TAG]
@@ -343,7 +352,13 @@ func _bonk(now_ms: float, body: CharacterBody2D) -> void:
 			tags.append(HEAVY_TAG)
 		AbilityWorld.strike_area(_player, impact, _constant("rollBonkHitRadiusPx"), damage,
 			_constant("rollBonkKnockback"), tags, "roll-bonk")
-	GroundShake.shake(_feet() + _direction * BALL_REACH_PX, _constant("rollBonkShakeRadiusPx"), heavy)
+	# A Heavy Roll's shake reaches further: it shakes loose what hangs or sits loose round the impact
+	# (loose_prize.gd).
+	var shake_radius := _constant("rollBonkShakeRadiusPx")
+	if heavy:
+		shake_radius = maxf(shake_radius, SkinState.setting("heavy.looseRadiusPx", 200.0))
+		SkinState.show(_player, SkinState.HEAVY)
+	GroundShake.shake(_feet() + _direction * BALL_REACH_PX, shake_radius, heavy)
 	_wobble_around(impact, _constant("rollBonkWobbleRadiusPx"))
 	_player.call(&"face", _direction)
 	_player.call(&"play_animation", CLIP_BOUNCE, true)

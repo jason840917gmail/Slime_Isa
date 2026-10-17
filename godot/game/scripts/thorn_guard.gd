@@ -12,7 +12,7 @@ class_name ThornGuardScript
 ##   side, else the other way, else back. Touching the slime is `contactDamage` (attributes) with
 ##   `knockbackStrength`. Heavy and old: hits are armor (the reaction profile), enough Spear hits
 ##   break it.
-## - **The right tool:** a Heavy Roll (the Roll's bonk in the Stone form, tags `roll` + `heavy`)
+## - **The right tool:** a Heavy Roll (the Roll's bonk with the Heavy skin, tags `roll` + `heavy`)
 ##   knocks it back to rubble at once, awake or asleep.
 ## - **Back to sleep:** once the slime has been away `sleepAfterMs`, it marches home and sleeps
 ##   there again, whole.

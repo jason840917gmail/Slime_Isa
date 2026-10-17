@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://game/scripts/boss_camp.gd" id="1"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="2"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/enemy/spider-hiss.wav" id="3"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/pearl-two.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/full-heart.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/matron-thread.tscn" id="7"]
 
@@ -64,9 +63,6 @@ max_polyphony = 4
 bus = &"Effects"
 max_distance = 1600.0
 pan_distance = 400.0
-
-[node name="Pearl" parent="." instance=ExtResource("4")]
-position = Vector2(0, -114)
 
 [node name="FullHeart" parent="." instance=ExtResource("6")]
 position = Vector2(112, -96)

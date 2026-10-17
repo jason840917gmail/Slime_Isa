@@ -279,7 +279,11 @@ Not built.
 
 **Where:** the worms' burrow, Fatty One Eye's dungeon. Not built; the
 [dungeons plan](../../design/2026-10-11-release-1-dungeons-plan.md#6-dungeon-1-fattys-lair-chapter-1)
-of 2026-10-11 has an earlier map of the lair. The Roll opens the burrow, and
+of 2026-10-11 has an earlier map of the lair. *Built 2026-10-17
+([DUNGEONS.md](../../godot/DUNGEONS.md#fattys-lair-built)); the same day its
+gate moved from D4's clearing into the face of a hill in D5, reached through
+the old fort's field maze and over a moat's falling slabs (owner, 2026-10-17;
+[Slimeshire's places](#slimeshires-places-built-2026-10-17)).* The Roll opens the burrow, and
 the Spear's job in the lair is Fatty's eye.
 Its own enemies, the Pipe Worm, the Dung Roller and the Squint with its
 mini-boss, the Big Squint, are in the
@@ -320,7 +324,15 @@ autosave waits until the slime is out.*
    Heavy skin (Beat 5). *Since 2026-10-16 (eighth round): he also leaves a
    full heart (question 17), and the lair's way out is the Heavy skin's first
    lock, opened with the new skin (question 132; which lock is not
-   decided).*
+   decided).* *Changed 2026-10-17 (owner): Pearl 1 lies in the lair, before
+   Fatty: he cannot swallow it whole, so he hides it close to draw on its
+   power. When the slime takes it he notices, enraged (his strength stays the
+   same), and seals the lair's exits: the only way out is to beat him. The
+   lair's second half teaches the Heavy skin, and his fight is its exam.
+   Fainting or quitting after the Pearl resumes at the entrance, inside, with
+   the doors to the outside sealed until he falls. The built lair keeps the
+   old order until its rework
+   ([roadmap 12.8](../../GAME_ROADMAP.md#the-2026-10-17-decisions)).*
 5. **After Fatty** (Planned, owner, 2026-10-16, question 103). The freed Burr
    says the town must see the Pearl, the journal's main quest points home,
    and Slimeshire's well comes back when the slime brings the Pearl to it
@@ -357,6 +369,11 @@ autosave waits until the slime is out.*
 - **Proposal, Pearl 1:** Fatty's eye glows because a Pearl is lodged behind it.
   - Beaten, he shrinks and the Pearl pops free. This is the full ceremony and
     the first time the player sees a Pearl.
+  - *Changed 2026-10-17 (owner): the Pearl is not in him. He hides it in his
+    lair, and the slime takes it there before facing him, with the full
+    ceremony ([Fatty's Lair](#fattys-lair-the-gate-the-slabs-and-burrs-cell-planned-owner-2026-10-16),
+    step 4). Why his eye glows, and whether he
+    shrinks when he is beaten, are not decided.*
   - The Pearl transfers the **Heavy skin**, his own weight, permanently into
     the slime: it sinks the heavy plates and moves statues, pedestals and
     blocks (owner, 2026-10-15). Its Roll shakes things loose and breaks small
@@ -391,12 +408,84 @@ autosave waits until the slime is out.*
   Slam** (Built 2026-10-08). Planned: the reward loses the Slam, which is
   removed (owner, 2026-10-15). Mossy moves to the forest camp.
 
+## Slimeshire's places (built 2026-10-17)
+
+The owner (2026-10-17): "move Fatty's Lair entrance to D5, put it in a hill
+with a nice maze to get to it, with some falling slabs to try the Roll", and
+make Chapter 1's maps nicer by the
+[level design guide](../../design/2026-10-16-level-design.md#slimeshires-chunks-and-the-west-village).
+Built by `godot/tools/build_slimeshire_chunks.gd` (it rewrites only its own
+rects of the four chunk scenes). Each chunk's card, as the guide's template
+asks:
+
+```
+Chunk: level-1-c4 (the village)
+Landmark: the plaza's well
+Main way: the forest path from the prologue (west edge) -> a road to the town's south gate;
+          roads east over the river (D4) and south through the worm camp (C5)
+Secrets: [first lock, open now] the first bell, on an islet in the little pond at the town's
+         edge, pots on its shore: a thrown pot rings it and opens the old watch post's stone
+         door (a chest: coins, a tonic). Tell: the bell and the shut door, both in sight of
+         Plop's meeting spot. Way back: the door stays open (question 136).
+         [come-back] Yoi's home under Lili's west yard (not built yet, roadmap 5.12)
+Enemies: the starter camp (3 worm swordsmen, unchanged); a quiet road from the forest path
+Rest: the town's campfire (the camp square)
+
+Chunk: level-1-c5 (the lake)
+Landmark: the blossom tree on its island in the lake
+Main way: from C4's south gate over the footbridge, down the lake road on the east shore
+          to the camp, east into D5 (rows 8-9)
+Secrets: [open now] the lookout rock by the copse (no way up): a bell on its top, rung by a
+         pot thrown from its foot, raises a chest (coins, an energy potion)
+Enemies: the south meadow camp (2 brawlers, a slime spider: the Roll aside before D5)
+Rest: the lake camp's campfire
+Comes back: deep water for the Swim skin, after Release 1 (no heart quarter behind it: the
+            goo heart that waited on the west islet moved to D4's pen, question 135)
+
+Chunk: level-1-d4 (the Verdant Gate)
+Landmark: the Verdant Gate
+Main way: the road from C4's bridges east to the gate; south through Fatty's old camp
+          clearing (a torn banner, crates) to D5's north road
+Secrets: [come-back, Heavy] an old Thorn Guard pen by the road, its gap shut by grey planks
+         (the Heavy Roll): the lake's goo heart inside, seen through the planks. Seen on the
+         way to the Verdant Gate; opens on the way home with Pearl 1.
+         [open] the plateau's goo heart (the cliff secret, unchanged)
+Enemies: the Webwood's 3 slime spiders (unchanged)
+Out of the Lair: the bolt-hole's mouth by the Verdant Gate, Burr waiting
+The south-east field's way into D5 closed with trees (the hill stands behind it)
+
+Chunk: level-1-d5 (Fatty's Hollow)
+Landmark: a red-rock hill crowned with maples and ginkgos, the Lair's gate in its face
+Main way: the north road from D4's clearing and the lake road from C5 meet at a lamp, run to
+          the plaza before the maze's door; through the old fort's field (a maze of
+          fieldstone walls, 2-cell corridors, a loop, two dead ends); over the dry moat on a
+          bridge of two falling slabs (one Roll; a walk falls, back on the rim, little cost);
+          stairs up to the forecourt; the worm lever and the drop gate (a Roll north under it)
+Secrets: [open] the west dead end: two pots, a heart and coins; the east dead end: a chest
+         (coins, a tonic), guarded by an archer
+         [come-back, Goo Bomb] a crack in the hill's face beside the gate: blown, a passage
+         into a cave pocket on the hill with the grove's goo heart, seen from the forecourt
+Enemies: an archer alone in the maze's long west row (step off its line by the loop);
+         an archer by the east chest, two brawlers before the stairs
+Rest: the forecourt's campfire, an energy flower, a pot hiding a heart (the calm spot
+      before the Lair)
+Loop back: the forecourt's west rim is a ledge drop to the maze's door
+```
+
+Not built here: Yoi's home (5.12), the forest path's skin locks (B4), Thorn
+Guard border posts (question 130: they need a striped barrier and a guard,
+no art yet), the grey leaning tree over a river (question 101: D5 has no
+river), a climbable wall (Feral).
+
 ## Secrets (Planned)
 
 - **Four heart quarters** are hidden in Slimeshire Meadow. Their spots are
   Open. *Since 2026-10-16 (question 99): one is in Yoi's home.*
 - Today two Goo Hearts are placed in `level-1`. They become quarter spots, or
-  move to harder ones.
+  move to harder ones. *Since 2026-10-17 three goo hearts stand in for
+  quarters ([Slimeshire's places](#slimeshires-places-built-2026-10-17)): D4's
+  pen (the Heavy Roll), D5's hill pocket (the Goo Bomb) and D4's plateau
+  (open); Yoi's home holds the fourth when it is built.*
 - At least one quarter should need a later power (the Silk skin, the Feral
   skin's climbing, the Heavy skin's Roll, the Goo Bomb), so that coming back
   pays off. A few optional secrets may combine a skin and an ability, each
@@ -410,7 +499,9 @@ autosave waits until the slime is out.*
   ranged lock across the world, rung by a thrown pot or an arrow, never by
   the Spear or the Stretch Lash. The first stands near the town's edge, soon
   after the prologue, rung by a thrown pot (question 132), and what a bell
-  opens stays open for good (question 136). *Until then (seventh round,
+  opens stays open for good (question 136). *Built 2026-10-17: the first in
+  C4's pond at the town's edge, a second on C5's lookout rock
+  ([Slimeshire's places](#slimeshires-places-built-2026-10-17)).* *Until then (seventh round,
   question 114): Spear-only bells, a second kind of Spear lock that a thrown
   pot could not ring.*
 - **Every heart quarter** here can be reached with Release 1's powers: none
@@ -440,8 +531,8 @@ autosave waits until the slime is out.*
 | Burr's thanks (the Bow) | Fatty's Lair, then the West village with the Matron's thread once Pearl 2 is home | Planned (owner, 2026-10-16, questions 80, 94, 102 and 106); it is given in Chapter 3 |
 | Squash Slam | 5 | Built (quest reward); its removal (2026-10-15) is Planned |
 | Green key | 5 | Built |
-| Pearl 1 | 5 | Planned |
-| Heavy skin | 5 | Planned (the rework's Stone form works the heavy puzzles) |
+| Pearl 1 | 5; Fatty's Lair, before Fatty, since 2026-10-17 | Planned |
+| Heavy skin | 5; Fatty's Lair's second half since 2026-10-17 | Planned (the rework's Stone form works the heavy puzzles) |
 | Boss heart (Fatty) | 5 | Planned (owner, 2026-10-16, question 17) |
-| The first bell, by the town's edge | Secrets | Planned (questions 115 and 132) |
+| The first bell, by the town's edge | Secrets | Built 2026-10-17 in C4's pond (questions 115 and 132) |
 | 4 heart quarters | Secrets | Planned |

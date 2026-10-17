@@ -41,6 +41,8 @@ func _ready() -> void:
 func _run_in_main() -> void:
 	var main := (load(MAIN_SCENE) as PackedScene).instantiate()
 	main.set(&"map_id", map_id)
+	# A dungeon's world run this way gets the powers the slime has by then (main `dev_powers_for`).
+	main.set(&"direct_world_run", true)
 	get_tree().change_scene_to_node(main)
 
 

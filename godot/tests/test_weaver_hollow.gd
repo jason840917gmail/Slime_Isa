@@ -9,8 +9,14 @@ extends RefCounted
 ## floors are one dungeon resumed at T1; three small keys for three keyholes, one big key for the
 ## Crown Door, one map; a bomb on B2's cracked post lowers its drawbridge, and B6's kegs chain to the
 ## pillar's post and its bridge; the gallery's winch opens its stair for good; the Nursery's ambush
-## shuts its doors until its enemies are beaten and brings small key 3; the Mimic spits small key 2;
-## the Matron's camp raises and lowers the Crown's shutter.
+## (the optional wing) shuts its doors until its enemies are beaten and brings coins and a potion;
+## the Mimic spits small key 2; the Matron's camp raises and lowers the Crown's shutter.
+## The Pearl inside the dungeon (2026-10-17; docs/design/2026-10-17-pearl-mid-dungeon.md): Pearl 2
+## lies in the Hoard, guarded by the Brood Warden's fight, and its take grants the Silk skin and
+## seals the Hollow; the seals stand in T1's way out and C2's east doorway and the Matron's fall
+## breaks them; the Hoard's stair is choked by a web wall only the Silk slime passes; C1's straight
+## way has a web wall and the K3 door at its top; C4 the Spinning Loft's rows of web walls part it
+## wall to wall, and small key 3 lies in its silk parcel.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -18,7 +24,14 @@ const GooBlast := preload("res://game/player/abilities/goo_blast.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const DungeonScript := preload("res://game/dungeon/dungeon.gd")
 const DungeonKeyPickup := preload("res://game/dungeon/dungeon_key_pickup.gd")
+const DungeonSeal := preload("res://game/dungeon/dungeon_seal.gd")
+const SilkParcelScript := preload("res://game/scripts/silk_parcel.gd")
+const WebWallScript := preload("res://game/scripts/web_wall.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const DUNGEON_ID := "weaver-hollow"
+## The Matron (the Hollow's boss: her fall breaks the seal) and the Brood Warden (Pearl 2's guard).
+const MATRON := "orb-weaver-matron"
+const WARDEN := "weaver-hollow-brood-warden"
 
 const FLOORS: PackedStringArray = ["trunk", "roots", "boughs", "crown"]
 const WORLD := "weaver-hollow-%s"
@@ -30,7 +43,7 @@ const ROOMS := {
 	"roots": ["R1-root-fall", "R2-bone-cellar", "R3-drop-gate", "D1-old-cellar"],
 	"boughs": ["D2-dark-bough", "Hoard", "B5-wardens-den", "B6-the-pillar", "B1-bough-stair", "B2-drawbridge",
 			"B4-nursery", "B3-mimics-pantry"],
-	"crown": ["C2-the-crown", "C3-outer-bough", "C1-crown-stair"],
+	"crown": ["C2-the-crown", "C3-outer-bough", "C1-crown-stair", "C4-spinning-loft"],
 }
 ## Walks through the gaps between rooms of one floor: [floor, start cell (centre), key, the room it
 ## ends in]. Gaps a kit lock, a shutter (the Nursery's ambush, the Warden's and the Matron's fights),
@@ -45,6 +58,7 @@ const WALKS := [
 	["boughs", Vector2(12.5, 22.0), &"move_right", "B2-drawbridge"],
 	["boughs", Vector2(8.0, 17.5), &"move_up", "D2-dark-bough"],
 	["boughs", Vector2(40.0, 24.5), &"move_down", "B3-mimics-pantry"],
+	["crown", Vector2(13.5, 25.6), &"move_right", "C4-spinning-loft"],
 ]
 const WALK_MS := 3000.0
 
@@ -209,6 +223,11 @@ func test_three_small_keys_open_three_keyholes_and_one_big_key_the_crown_door(t:
 			counts["map"] += int(contents.get("dungeon-map", 0))
 		for node: Node in _with_script(root, DungeonKeyPickup):
 			counts["small" if str(node.get(&"item")) == "small-key" else "big"] += 1
+		# A key wrapped in silk (C4's parcel) drops as the kit's floor key when it is freed.
+		for node: Node in _with_script(root, SilkParcelScript):
+			var wrapped: Dictionary = node.get(&"contents")
+			counts["small"] += int(wrapped.get("dungeon-small-key", 0))
+			counts["big"] += int(wrapped.get("dungeon-big-key", 0))
 		for node: Node in root.find_children("*", "", true, false):
 			var overrides: Variant = node.get(&"overrides")
 			if overrides is Dictionary and str((overrides as Dictionary).get("swallowed_scene_id", "")) == "object.dungeon-key":
@@ -306,15 +325,19 @@ func test_the_gallerys_winch_opens_its_stair_for_good(t: TestContext) -> void:
 		t.check(not bool(_node(t, "gallery-stair-block").call(&"is_shut")), "the stair shut again when the Trunk was built again")
 
 
-func test_the_nurserys_ambush_shuts_its_doors_until_won_and_brings_small_key_3(t: TestContext) -> void:
+func test_the_nurserys_ambush_shuts_its_doors_until_won_and_brings_coins_and_a_potion(t: TestContext) -> void:
 	if not await _enter(t, WORLD % "boughs"):
 		return
 	var fight := _node(t, "nursery-fight")
 	var shutters := [_node(t, "nursery-shutter-west"), _node(t, "nursery-shutter-north")]
-	var chest := _node(t, "nursery-key-chest")
+	var chest := _node(t, "nursery-chest")
 	if not t.check(fight != null and chest != null and shutters[0] != null and shutters[1] != null, "the Nursery's ambush is missing a piece"):
 		return
-	t.check(not bool(chest.get_node("ChestScript").call(&"is_shown")), "the Nursery's key chest is there before the ambush")
+	t.check(not bool(chest.get_node("ChestScript").call(&"is_shown")), "the Nursery's chest is there before the ambush")
+	# The optional wing: its chest holds coins and a potion, no key (small key 3 lies in C4).
+	var contents: Dictionary = chest.get_node("ChestScript").get(&"initial_contents")
+	t.check(not contents.has("dungeon-small-key") and int(contents.get("coins", 0)) > 0 and contents.has("hp-potion"),
+			"the Nursery's chest holds %s" % contents)
 	t.teleport_player(Vector2(56.0, 21.0) * CELL)
 	t.check(await t.until(func() -> bool: return bool(fight.call(&"is_active")), 1500.0), "the ambush did not start")
 	t.check(bool(shutters[0].call(&"is_shut")) and bool(shutters[1].call(&"is_shut")), "the Nursery's shutters did not shut")
@@ -322,7 +345,7 @@ func test_the_nurserys_ambush_shuts_its_doors_until_won_and_brings_small_key_3(t
 		_hit(t, enemy.get(&"damage_area") as Area2D, 9999.0)
 	t.check(await t.until(func() -> bool: return not bool(fight.call(&"is_active")), 5000.0), "the ambush was not won with its enemies beaten")
 	t.check(not bool(shutters[0].call(&"is_shut")) and not bool(shutters[1].call(&"is_shut")), "the Nursery's shutters stayed shut")
-	t.check(bool(chest.get_node("ChestScript").call(&"is_shown")), "the chest with small key 3 did not rise")
+	t.check(bool(chest.get_node("ChestScript").call(&"is_shown")), "the Nursery's chest did not rise")
 
 
 func test_the_pantrys_mimic_spits_out_small_key_2(t: TestContext) -> void:
@@ -370,11 +393,231 @@ func test_the_matrons_camp_raises_and_lowers_the_crowns_shutter(t: TestContext) 
 	t.check(await t.until(func() -> bool: return bool(shutter.call(&"is_shut")), 1000.0), "the Crown's shutter did not shut")
 	shutter.call(&"open", {})
 	t.check(await t.until(func() -> bool: return not bool(shutter.call(&"is_shut")), 1000.0), "the Crown's shutter did not open")
+	# Pearl 2 is no longer one of her rewards: it lies in the Hoard.
+	t.check(_node(t, "matron-camp").get_node_or_null(^"Pearl") == null, "the Matron's camp still holds a Pearl")
+
+
+# --- the Pearl inside the dungeon (2026-10-17) -----------------------------------------------------
+
+func test_the_hoard_holds_pearl_two_guarded_by_the_warden(t: TestContext) -> void:
+	var run := Services.run()
+	if not await _enter(t, WORLD % "boughs"):
+		return
+	var pearl := _node(t, "pearl-two")
+	var chest := _node(t, "hoard-big-chest")
+	if not t.check(pearl != null and chest != null, "the Hoard has no Pearl 2 or no big chest"):
+		return
+	t.equal(_room_at(t, (pearl as Node2D).global_position), "Hoard", "Pearl 2's room")
+	t.equal(_room_at(t, (chest as Node2D).global_position), "Hoard", "the big chest's room")
+	t.equal([int(pearl.get(&"number")), str(pearl.get(&"skin_id")), str(pearl.get(&"boss_id"))], [2, "silk", WARDEN],
+			"Pearl 2's number, skin and guard")
+	t.equal(str(_node(t, "den-fight").get(&"boss_id")), WARDEN, "the Warden's fight is not Pearl 2's guard")
+	t.check(not bool(pearl.call(&"is_shown")), "Pearl 2 shows before the Warden falls")
+	t.check(_node(t, "pearl-glint-0") != null and _node(t, "pearl-glint-1") != null, "no glow over the altar and the shutter")
+	t.equal(_room_at(t, (_node(t, "pearl-glint-1") as Node2D).global_position), "B5-wardens-den", "the glow at the shutter's gap")
+	# The Warden falls: the Hoard's shutter sinks (the fight's reward) and Pearl 2 rises.
+	DungeonState.mark_boss_beaten(run, DUNGEON_ID, WARDEN)
+	_node(t, "hoard-shutter").call(&"trigger")
+	t.check(await t.until(func() -> bool: return bool(pearl.call(&"is_shown")), 2000.0), "Pearl 2 did not rise once the Warden fell")
+	t.check(not t.player().crosses_webs(), "the slime crossed webs before Pearl 2")
+	# Taken: the Silk skin, worn, and the Hollow sealed until the Matron falls.
+	_teleport(t, (pearl as Node2D).global_position + Vector2(60, 50))
+	t.check(await t.until(func() -> bool: return bool(pearl.call(&"is_taken")), 2000.0), "walking into Pearl 2 did not take it")
+	t.check(SkinState.is_won(SkinState.SILK), "Pearl 2 did not grant the Silk skin")
+	t.check(t.player().crosses_webs(), "the slime does not cross webs after Pearl 2")
+	t.check(DungeonState.is_sealed(run, DUNGEON_ID), "the take did not seal the Hollow")
+	t.equal(DungeonState.sealed_by(run, DUNGEON_ID), MATRON, "the seal's boss")
+	t.check(await t.until(func() -> bool: return _node(t, "pearl-glint-0") == null, 1500.0), "the Pearl's glow stayed after the take")
+
+
+func test_the_seals_stand_in_the_hollows_two_doorways_out(t: TestContext) -> void:
+	var run := Services.run()
+	# Every floor's Dungeon names the Matron; one seal in T1's way out, one in C2's east doorway.
+	for floor_name in FLOORS:
+		var root := (load(SCENE % floor_name) as PackedScene).instantiate()
+		for dungeon: Node in _with_script(root, DungeonScript):
+			t.equal(str(dungeon.get(&"boss_id")), MATRON, "%s's Dungeon boss" % floor_name)
+		var seals := _with_script(root, DungeonSeal)
+		var expected: Array = {"trunk": [["T1-root-door", "south"]], "crown": [["C2-the-crown", "east"]]}.get(floor_name, [])
+		var found: Array = []
+		for seal: Node in seals:
+			found.append([_room_in(root, (seal as Node2D).position), str(seal.get(&"wall"))])
+		t.equal(found, expected, "%s's seals (room, wall)" % floor_name)
+		root.free()
+	if not await _enter(t, WORLD % "trunk"):
+		return
+	var seal := _node(t, "entrance-seal")
+	t.check(seal != null and not bool(seal.call(&"is_shut")), "T1's seal is shut before the take")
+	t.check(bool(DungeonState.current(t.tree).call(&"seal_now", "test", false)), "the Hollow did not seal")
+	t.check(bool(seal.call(&"is_shut")), "T1's seal did not shut")
+	t.check(str(DungeonState.exit_refusal(t.tree, "gloop-forest-f4")).begins_with("Sealed."), "the way out to the forecourt is open while sealed")
+	t.equal(DungeonState.exit_refusal(t.tree, WORLD % "boughs"), "", "a way between the floors is refused while sealed")
+	# Walked into, it holds: the slime stays in T1.
+	_teleport(t, Vector2(24.0, 39.6) * CELL)
+	t.press(&"move_down")
+	await t.sim_wait(1400.0)
+	t.release(&"move_down")
+	await t.steps(2)
+	t.check(t.in_world(WORLD % "trunk") and not bool(t.main.call(&"is_transitioning")), "the slime walked out past T1's seal")
+	# The Crown's seal is shut too (built sealed), and the Matron's fall breaks both.
+	if not await _enter(t, WORLD % "crown"):
+		return
+	var east := _node(t, "crown-east-seal")
+	t.check(east != null and bool(east.call(&"is_shut")), "C2's east seal is not shut while sealed")
+	t.check(str(DungeonState.exit_refusal(t.tree, "gloop-forest-f4")).begins_with("Sealed."), "C3's drop is open while sealed")
+	DungeonState.mark_boss_beaten(run, DUNGEON_ID, MATRON)
+	t.check(await t.until(func() -> bool: return not bool(east.call(&"is_shut")), 3000.0), "her fall did not break C2's east seal")
+	t.equal(DungeonState.exit_refusal(t.tree, "gloop-forest-f4"), "", "the way out after her fall")
+	if await _enter(t, WORLD % "trunk"):
+		t.check(not bool(_node(t, "entrance-seal").call(&"is_shut")), "T1's seal after her fall")
+
+
+func test_the_hoards_stair_is_choked_by_a_web_wall_the_silk_slime_passes(t: TestContext) -> void:
+	if not await _enter(t, WORLD % "boughs"):
+		return
+	var web := _node(t, "hoard-stair-web") as Node2D
+	if not t.check(web != null and web is WebWallScript, "the Hoard's stair has no web wall"):
+		return
+	t.equal(_room_at(t, web.global_position), "Hoard", "the stair's web wall's room")
+	t.check(web.global_position.y < float(_node(t, "hoard-stair").position.y), "the web wall is not in front of the stair")
+	# Without the Silk skin it holds.
+	_teleport(t, Vector2(28.0, 9.6) * CELL)
+	t.press(&"move_down")
+	await t.sim_wait(1800.0)
+	t.release(&"move_down")
+	t.check(t.in_world(WORLD % "boughs") and t.player_body().global_position.y < web.global_position.y,
+			"the slime passed the stair's web wall without the Silk skin")
+	# With it the slime pushes through and goes down the stair to the gallery.
+	SkinState.lend(SkinState.SILK)
+	_teleport(t, Vector2(28.0, 9.6) * CELL)
+	await t.steps(2)
+	t.press(&"move_down")
+	var down := await t.until(func() -> bool: return t.in_world(WORLD % "trunk"), 6000.0)
+	t.release(&"move_down")
+	t.check(down, "the Silk slime did not pass the web wall down the stair")
+	if down:
+		await t.steps(10)
+		t.check(t.player_body().global_position.y < 6.0 * CELL, "the stair did not lead to the gallery")
+
+
+func test_the_crown_stairs_web_wall_and_its_k3_door(t: TestContext) -> void:
+	var run := Services.run()
+	if not await _enter(t, WORLD % "crown"):
+		return
+	var web := _node(t, "stair-web-wall") as Node2D
+	var door := _node(t, "crown-key-door")
+	if not t.check(web != null and door != null, "C1 has no web wall or no K3 door"):
+		return
+	t.equal(_room_at(t, web.global_position), "C1-crown-stair", "the web wall's room")
+	t.equal([int(door.get(&"keyholes")), str(door.get(&"wall"))], [1, "north"], "the K3 door's keyholes and wall")
+	# Floor webs from wall to wall below the calm top (and none drawn over the band's face).
+	var layer := t.world().world_root.get_node_or_null(^"webs") as WebLayer
+	if t.check(layer != null, "the Crown has no webs layer"):
+		for cell: Vector2 in [Vector2(3, 25), Vector2(12, 20), Vector2(8, 22), Vector2(14, 26)]:
+			t.check(layer.has_web_at(cell * CELL), "no floor web at C1's %s" % cell)
+		for cell: Vector2 in [Vector2(4, 17.5), Vector2(3, 22.5), Vector2(12, 23.2)]:
+			t.check(not layer.has_web_at(cell * CELL), "a floor web at C1's %s" % cell)
+	# The straight way: the web wall holds the plain slime, the Silk slime pushes through to the top.
+	_teleport(t, Vector2(8.0, 25.6) * CELL)
+	t.press(&"move_up")
+	await t.sim_wait(2200.0)
+	t.release(&"move_up")
+	t.check(t.player_body().global_position.y > web.global_position.y, "the plain slime passed C1's web wall")
+	SkinState.lend(SkinState.SILK)
+	_teleport(t, Vector2(8.0, 25.6) * CELL)
+	await t.steps(2)
+	t.press(&"move_up")
+	await t.sim_wait(3000.0)
+	t.release(&"move_up")
+	var feet := t.player_body().global_position
+	t.check(feet.y < 21.0 * CELL and feet.y > 17.0 * CELL, "the Silk slime did not climb to the K3 door (%s)" % (feet / CELL))
+	# Small key 3 opens the K3 door for good, into the Crown.
+	DungeonState.add_small_key(run, DUNGEON_ID, 1)
+	t.press(&"move_up")
+	var opened := await t.until(func() -> bool: return bool(door.call(&"is_open")), 3000.0)
+	t.check(opened, "small key 3 did not open the K3 door")
+	await t.sim_wait(1600.0)
+	t.release(&"move_up")
+	t.equal(_room_at(t, t.player_body().global_position), "C2-the-crown", "the K3 door did not lead into the Crown")
+
+
+func test_the_loft_is_parted_by_rows_of_web_walls_and_frees_small_key_3(t: TestContext) -> void:
+	var run := Services.run()
+	if not await _enter(t, WORLD % "crown"):
+		return
+	_hold_enemies(t)
+	# Two rows of web walls, each from the loft's west wall to its east wall.
+	var rows := {}
+	for node: Node in t.world().world_root.find_children("loft-web-*", "", true, false):
+		var wall := node as WebWallScript
+		if wall == null:
+			continue
+		t.equal(_room_at(t, wall.global_position), "C4-spinning-loft", "%s's room" % wall.name)
+		var y := snappedf(wall.global_position.y, 1.0)
+		var reach: Vector2 = rows.get(y, Vector2(INF, -INF))
+		var solid := wall.solid_rect()
+		rows[y] = Vector2(minf(reach.x, wall.global_position.x + solid.position.x), maxf(reach.y, wall.global_position.x + solid.end.x))
+	t.equal(rows.size(), 2, "the loft's rows of web walls")
+	for y: float in rows:
+		var reach: Vector2 = rows[y]
+		t.check(reach.x <= 17.0 * CELL and reach.y >= 31.0 * CELL, "the row at y %.0f does not reach wall to wall (%s)" % [y, reach])
+	var spiders := 0
+	for node: Node in t.tree.get_nodes_in_group(&"placed_enemy"):
+		if str(node.get(&"enemy_type")) == "slime-spider" and _room_at(t, (node as Node2D).global_position) == "C4-spinning-loft":
+			spiders += 1
+	t.equal(spiders, 2, "Slime Spiders in the loft")
+	# The plain slime cannot cross a row; the Silk slime wades it at half speed.
+	var first_row: float = rows.keys().max()
+	_teleport(t, Vector2(24.0, 25.6) * CELL)
+	t.press(&"move_up")
+	await t.sim_wait(1600.0)
+	t.release(&"move_up")
+	t.check(t.player_body().global_position.y > first_row, "the plain slime crossed the loft's first row")
+	SkinState.lend(SkinState.SILK)
+	_teleport(t, Vector2(24.0, 25.6) * CELL)
+	await t.steps(2)
+	t.press(&"move_up")
+	await t.sim_wait(1800.0)
+	t.release(&"move_up")
+	t.check(t.player_body().global_position.y < first_row - 20.0, "the Silk slime did not wade the loft's first row")
+	# The Spear cuts a lane for good.
+	var lane := _node(t, "loft-web-0-3") as WebWallScript
+	_cut(t, lane.get_node_or_null(^"DamageArea") as Area2D)
+	await t.steps(2)
+	t.check(lane.is_cut() and run.has_flag(lane.save_key()), "a Spear hit did not cut a lane in the loft")
+	# Small key 3 lies wrapped in silk at the north corridor's east end: freed, it drops as a floor key.
+	var parcel := _node(t, "loft-key-parcel") as SilkParcelScript
+	if not t.check(parcel != null, "the loft has no silk parcel"):
+		return
+	t.equal(_room_at(t, parcel.global_position), "C4-spinning-loft", "the parcel's room")
+	t.check(parcel.global_position.y < rows.keys().min(), "the parcel is not beyond the loft's rows")
+	var keys := DungeonState.small_keys(run, DUNGEON_ID)
+	_cut(t, parcel.get_node_or_null(^"DamageArea") as Area2D)
+	await t.steps(4)
+	t.check(parcel.is_open(), "a Spear hit did not free the parcel")
+	var dropped: Array[Node2D] = []
+	for node: Node in t.world().world_root.find_children("*", "", true, false):
+		if node is DungeonKeyPickup:
+			dropped.append(node as Node2D)
+	if not t.check(dropped.size() == 1, "the freed parcel dropped %d floor keys" % dropped.size()):
+		return
+	_teleport(t, dropped[0].global_position - Vector2(0, 20))
+	t.check(await t.until(func() -> bool: return DungeonState.small_keys(run, DUNGEON_ID) == keys + 1, 3000.0),
+			"walking over the parcel's key did not give small key 3")
+	# Taken once: the world built again drops no key.
+	if await _enter(t, WORLD % "boughs") and await _enter(t, WORLD % "crown"):
+		await t.steps(10)
+		var again := 0
+		for node: Node in t.world().world_root.find_children("*", "", true, false):
+			if node is DungeonKeyPickup:
+				again += 1
+		t.equal(again, 0, "the parcel's key came back once taken")
 
 
 func _enter(t: TestContext, world_id: String) -> bool:
 	t.main.call(&"travel_to", world_id)
-	var arrived := await t.until(func() -> bool: return t.in_world(world_id) and t.player_body() != null, 8000.0)
+	var arrived := await t.until(func() -> bool: return t.in_world(world_id) and t.player_body() != null \
+			and not bool(t.main.call(&"is_transitioning")), 8000.0)
 	await t.steps(8)
 	return t.check(arrived, "could not travel to %s" % world_id)
 
@@ -456,6 +699,26 @@ func _hit(t: TestContext, area: Area2D, amount: float) -> void:
 	router.route({"activation_id": activation, "source": source, "attack_area": attack, "target_area": area,
 		"weapon_id": "test-hit", "weapon_tags": ["weapon"], "damage_types": ["physical"], "base_damage": amount,
 		"true_damage": true, "effects": [], "impact": {"position": area.global_position, "knock": Vector2.UP}})
+	router.end_activation(activation)
+	source.queue_free()
+	attack.queue_free()
+
+
+## A Spear's cut on the receiver of `area` (silk: its rule's damage is 0, so the hit's knockback is
+## what commits it; tests/test_weaver_webs.gd `_hit`).
+func _cut(t: TestContext, area: Area2D) -> void:
+	if area == null:
+		t.fail("no hurtbox to cut")
+		return
+	var router := Services.router()
+	var source := Node2D.new()
+	var attack := Area2D.new()
+	t.main.add_child(source)
+	t.main.add_child(attack)
+	var activation := router.begin_activation(source, [attack])
+	router.route({"activation_id": activation, "source": source, "attack_area": attack, "target_area": area,
+		"weapon_id": "test-spear", "weapon_tags": ["weapon", "spear"], "damage_types": ["physical"], "base_damage": 10.0,
+		"effects": [{"effect_id": "knockback", "potency": 100.0}], "impact": {"position": area.global_position, "knock": Vector2.UP}})
 	router.end_activation(activation)
 	source.queue_free()
 	attack.queue_free()

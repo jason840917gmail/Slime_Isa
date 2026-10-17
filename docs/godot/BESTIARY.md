@@ -44,8 +44,8 @@ The owner sees every enemy in the playground before it goes into its chapter.
   back at once; it is the shapes testbed's pen key and still respawns that pen too (the corner reads
   it in `_input` without handling it). **F5** fills the slime's energy (the testbed).
 - **Supplies:** what a right tool needs lies in its pen and comes back 2.5 s after it is taken:
-  three clay pots in pens 4 and 10, a stone essence (the Stone form, the Heavy check until the Heavy
-  skin is built) in pens 5 and 9. Pen 12's supplies are scenery its enemy needs: a short fieldstone
+  three clay pots in pens 4 and 10 (the Heavy skin of pens 5, 9 and 26 comes from the Skins
+  corner's pedestal or `?skins=heavy`: [SKINS.md](SKINS.md)). Pen 12's supplies are scenery its enemy needs: a short fieldstone
   wall (five `object.wall-stone-solid` pieces, never taken) with the Pipe Worm's pipe in its middle.
   Pen 21's is a real silk cocoon (`object.cocoon-prize`, never taken) beside the Cocoon Mimic.
   Pen 30's are two armour statues (`object.decoration-world-solid.armor-statue`, never taken) in
@@ -130,8 +130,8 @@ energy shard stay the base enemy's.
 
 ### Hooks for the powers
 
-- **Heavy:** the Roll (`game/player/roll/player_roll.gd`) is a Heavy Roll while the slime is in the
-  Stone form (`GulpForms.HEAVY`, the Heavy check until the Heavy skin): its bonk's hit carries the
+- **Heavy:** the Roll (`game/player/roll/player_roll.gd`) is a Heavy Roll while the Heavy skin is on
+  (SkinState, [SKINS.md](SKINS.md#heavy)): its bonk's hit carries the
   tags `roll` + `heavy` (`PatternedEnemyScript.is_heavy_roll`), and the ground shakes
   (`game/enemy/ground_shake.gd`: every node in `ground_shake_listeners` gets `on_ground_shake(at,
   radius, heavy)`): each bonk shakes `rollBonkShakeRadiusPx` (150) round its impact, and a Heavy ball
@@ -218,8 +218,8 @@ Webs and the Roll (owner, 2026-10-16, question 131): a spit web that hits roots 
 (`stickMs`); a Roll sticks in a floor web (the Matron's volley patches; the Orb-weaver's laid webs
 and Tom's maze webs are not built) as a walk is caught by one, so a Roll never crosses a web
 (`game/enemy/spider_web_port.gd`). Pen 15's sign gives the Slime Spider's right tool as "the Silk
-skin: then its webs no longer stick; stay off its lines": with the Silk skin (today the Silk form
-stands in, `player.gd` `crosses_webs`) webs no longer catch or root the slime.
+skin: then its webs no longer stick; stay off its lines": with the Silk skin (`player.gd`
+`crosses_webs`, [SKINS.md](SKINS.md#silk)) webs no longer catch or root the slime.
 
 ### 4. Prologue worm (chaser)
 
@@ -578,8 +578,8 @@ blank orb and follows its gaze; a faint wedge on the ground shows where it looks
 - **Its back is open, its front clinks** (every phase): a hit from an attacker it looks away from
   (`backDot` 0.2) lands. A hit from behind alarms it: for `alertMs` 1400 it turns toward the slime at
   `alertTurnDegPerS` 150.
-- **Right tool:** do not be seen: hide behind the heavy block on its column (pen 26; the stone
-  essence beside it lets the Stone form push the block, `heavy_block.gd`, to other cover), and
+- **Right tool:** do not be seen: hide behind the heavy block on its column (pen 26; the Heavy skin
+  pushes the block, `heavy_block.gd`, to other cover), and
   when it looks away, the Spear from behind (30 health: two jabs). The Bow's hook: an arrow into its
   eye shatters it.
 - **Aim switch** (`aimDirections`, 0 here): 4 or 8 makes it a line shooter: the gaze holds one of the
@@ -641,7 +641,10 @@ pen's four slots cap them; each comes back `respawn_ms` 1500 after it dies).
   (`beatMs` 900; the first `dropDelayMs` 400 after the slime came in).
 - **Drop** (the tell, `dropTellMs` 750): a shadow darkens on the ground within `scatterPx` 70 of the
   slime's feet; in the last `fallMs` 280 the mite falls in from `dropHeightPx` 240, curled up. On
-  the slime (within `landHitPx` 26) it hits for `landDamage` 10.
+  the slime (within `landHitPx` 26) it hits for `landDamage` 10. A slime climbing a wall (the
+  Feral skin, the Colossus's arena; 2026-10-17) gets one dropped straight down the face onto it: its
+  spot is the wall's foot right under the slime, and it hits the climber above (within
+  `climberHitPx` 30 across), which knocks it off the wall.
 - **Land** (`landedMs` 450), then **run** at the slime at `runSpeed` 115, bumping it for 8 (160
   knockback, every 700 ms).
 - **Right tool:** any hit (1 health, weight tiny: every hit launches it, the kill pops). Killed, it

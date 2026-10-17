@@ -72,11 +72,14 @@ const STATE_BLOCKED_REASON := "state-blocked"
 @export_group("Phase two (Fatty's Lair)")
 ## Phase two's settings (used once `configure_phase_two` turns it on; its `config` overrides them):
 ## the share of his health under which it starts, the second leap's time in the air, the clods a
-## landing asks for, the dizzy's length, the mud ripple's hit, shove, speed, crest width and reach.
+## landing asks for, how long a Heavy Roll keeps him off balance (`dizzy_ms`) and how far he rocks
+## back, the line a thrown thing gets, the mud ripple's hit, shove, speed, crest width and reach.
 @export var phase_two_health_share: float = 0.5
 @export var phase_two_second_air_time_ms: float = 700.0
 @export var phase_two_clods_per_landing: int = 2
 @export var phase_two_dizzy_ms: float = 1600.0
+@export var phase_two_topple_lean_rad: float = 0.45
+@export var phase_two_thrown_text: String = "It splats. Fatty hardly notices."
 @export var phase_two_ripple_damage: float = 18.0
 @export var phase_two_ripple_knockback: float = 220.0
 @export var phase_two_ripple_speed: float = 300.0
@@ -91,25 +94,39 @@ signal phase_two_started(payload: Dictionary)
 ## A phase-two landing: the lair drops `count` light mud clods (game/fattys_lair/lair_director.gd).
 ## Payload {"count": int, "at": Vector2 (old Phaser position of the landing), "last": bool}.
 signal clods_requested(payload: Dictionary)
-## A thrown thing made him dizzy, his eye wide open. Payload {"until": float}.
+## A Heavy Roll knocked him off balance, his eye wide open. Payload {"until": float}.
 signal dizzied(payload: Dictionary)
 
-## Phase two (Fatty's Lair; docs/godot/DUNGEONS.md "Fatty's Lair (built)"; the 2026-10-11 dungeons
-## plan's second phase and the Lair design's open point 4). Off unless `configure_phase_two` turns
-## it on, so the open-world camp's fight stays as specs/boss.md has it. Below `health_share` of his
-## health: two leaps in a row (the second with `second_air_time_ms` in the air); his eye squints shut
-## (every hit clinks, the Spear's too) except while he is dizzy; each landing asks the lair for
-## `clods_per_landing` light mud clods (`clods_requested`); a thrown thing makes him dizzy for
-## `dizzy_ms` with his eye wide open (the Spear lands then); and the second landing sends a mud ripple
-## over the floor (game/fattys_lair/mud_ripple.gd) that hits for `ripple_damage` where its crest meets
-## the slime, unless the Roll's i-frames carry it through.
+## Phase two (Fatty's Lair, the Heavy skin's exam; docs/godot/DUNGEONS.md "Fatty's Lair (built)";
+## docs/godot/specs/boss.md section 3.8; the Pearl-inside plan, docs/design/2026-10-17-pearl-mid-dungeon.md
+## "Fatty's exam"). Off unless `configure_phase_two` turns it on, so the open-world camp's fight stays
+## as specs/boss.md has it. Below `health_share` of his health: two leaps in a row (the second with
+## `second_air_time_ms` in the air); his eye squints shut and he braces (every hit clinks, the
+## Spear's too) except while he is off balance; each landing asks the lair for `clods_per_landing`
+## light mud clods (`clods_requested`); **a Heavy Roll into him while he is on the ground** (the
+## Roll's bonk carrying the `heavy` tag: game/fattys_lair/heavy_check.gd) knocks him off balance for
+## `dizzy_ms`: he rocks back (`topple_lean_rad`), stars over him, his eye wide open, and the Spear
+## lands then; a thrown thing only splats (`thrown_text`, the clink); a plain Roll bonks off him; and
+## the second landing sends a mud ripple over the floor (game/fattys_lair/mud_ripple.gd) that hits for
+## `ripple_damage` where its crest meets the slime, unless the Roll's i-frames carry it through.
 const PHASE_DIZZY := "dizzy"
 const THROWN_TAG := "thrown"
+const ROLL_TAG := "roll"
 const MudRipple := preload("res://game/fattys_lair/mud_ripple.gd")
+const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
 ## The ripple is a ground ellipse (mud_ripple.gd SQUASH_Y): its crest is measured the same way.
 const RIPPLE_SQUASH_Y := 0.5
-const DIZZY_TEXT := "Dizzy!"
+const DIZZY_TEXT := "Off balance!"
 const DIZZY_TEXT_RISE := 110.0
+## A thrown thing's line comes at most this often (real time, presentation).
+const THROWN_TEXT_EVERY_MS := 2200.0
+## The topple's look (presentation): his rock back in and out, and the wobble on it.
+const TIP_IN_MS := 160.0
+const TIP_OUT_MS := 220.0
+const TIP_WOBBLE_HZ := 2.4
+const TIP_WOBBLE_SHARE := 0.25
+## The phases in which he stands on the floor (a Heavy Roll can topple him).
+const GROUND_PHASES: Array[String] = [PHASE_CHASE, PHASE_RETURN, PHASE_SMALL_HOP, PHASE_LANDING, PHASE_RECOVERY]
 
 var _phase: String = PHASE_CHASE
 var _phase_started_at: float = 0.0
@@ -131,6 +148,8 @@ var _leaps_left: int = 0
 ## The current leap's time in the air.
 var _air_ms: float = 1000.0
 var _dizzy_until: float = 0.0
+var _next_thrown_text_ms: float = 0.0
+var _topple_side: float = 1.0
 var _ripple: Node2D = null
 var _ripple_from: Vector2 = Vector2.ZERO
 var _ripple_started: float = 0.0
@@ -185,6 +204,7 @@ func get_next_leap_at() -> float:
 func configure_phase_two(config: Dictionary = {}) -> void:
 	_two = {"health_share": phase_two_health_share, "second_air_time_ms": phase_two_second_air_time_ms,
 		"clods_per_landing": phase_two_clods_per_landing, "dizzy_ms": phase_two_dizzy_ms,
+		"topple_lean_rad": phase_two_topple_lean_rad, "thrown_text": phase_two_thrown_text,
 		"ripple_damage": phase_two_ripple_damage, "ripple_knockback": phase_two_ripple_knockback,
 		"ripple_speed": phase_two_ripple_speed, "ripple_width": phase_two_ripple_width,
 		"ripple_max_radius": phase_two_ripple_max_radius}
@@ -196,9 +216,14 @@ func is_in_phase_two() -> bool:
 	return _two_on
 
 
-## True while a thrown thing keeps him dizzy (his eye wide open).
+## True while a Heavy Roll keeps him off balance (his eye wide open). The phase's name stays
+## "dizzy" (the old throw's word).
 func is_dizzy() -> bool:
 	return _phase == PHASE_DIZZY
+
+
+func is_toppled() -> bool:
+	return is_dizzy()
 
 
 ## The mud ripple's crest radius now (0 when none spreads).
@@ -230,7 +255,10 @@ func _after_enemy_step(_delta: float) -> void:
 	if _phase == PHASE_DIZZY:
 		body.velocity = Vector2.ZERO
 		if now >= _dizzy_until:
+			_tip(0.0)
 			_resume_chase(now)
+		else:
+			_tip(now)
 		return
 	# The arena leash itself lives in the base step; Fatty only mirrors it as a phase.
 	if _phase == PHASE_CHASE:
@@ -286,8 +314,9 @@ func _after_enemy_step(_delta: float) -> void:
 # --- damage receiver (FattyScript.ts:19-43, 203-210) -----------------------------------------------
 
 ## Airborne and contact-hop phases reject hits as "state-blocked" (retryable); else the base rule.
-## Phase two: a thrown thing makes him dizzy (no damage); his squinting eye refuses every other hit
-## (the clink) unless he is dizzy.
+## Phase two: a Heavy Roll's bonk while he stands on the floor knocks him off balance (no damage);
+## a thrown thing splats (its line, the clink); his squinting eye refuses every other hit (the clink)
+## unless he is off balance.
 func can_receive_damage(input: Dictionary) -> Dictionary:
 	if _phase == PHASE_AIRBORNE or _phase == PHASE_CONTACT_HOP:
 		return {"accepted": false, "reason": STATE_BLOCKED_REASON}
@@ -295,20 +324,24 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 	if _two_on:
 		var tags: Variant = request.get("weapon_tags", [])
 		if tags is Array and (tags as Array).has(THROWN_TAG):
-			if _phase != PHASE_DIZZY:
-				_get_dizzy(Services.now_ms())
-			return {"accepted": false, "reason": "pass"}
-		if _phase != PHASE_DIZZY:
+			_thrown_line()
 			return {"accepted": false, "reason": "immune"}
-	# A thrown thing passed the hurtbox for phase two; anything else still needs the spear.
+		if _phase != PHASE_DIZZY:
+			if HeavyCheck.is_heavy_roll(request) and _phase in GROUND_PHASES:
+				var impact: Dictionary = request.get("impact", {})
+				_get_dizzy(Services.now_ms(), impact.get("knock", Vector2.ZERO))
+				return {"accepted": false, "reason": "pass"}
+			return {"accepted": false, "reason": "immune"}
+	# A thrown thing or a roll passed the hurtbox for phase two; anything else still needs the spear.
 	if not _spear_rule.is_empty() and not DamageResolverScript.source_matches(_spear_rule, request):
 		return {"accepted": false, "reason": DamageResolverScript.REASON_SOURCE_BLOCKED}
 	return super(input)
 
 
-## The hurtbox's rule: the authored one (the Spear only), plus thrown things, which must reach
-## `can_receive_damage` so phase two's throw can dizzy him (it refuses them otherwise, as the
-## authored rule did). In rework mode the router keeps no `acceptedSources` and the gate decides.
+## The hurtbox's rule: the authored one (the Spear only), plus thrown things and rolls, which must
+## reach `can_receive_damage` so phase two can answer them (the throw's splat, the Heavy Roll's
+## topple; it refuses them otherwise, as the authored rule did). In rework mode the router keeps no
+## `acceptedSources` and the gate decides.
 func _receiver_rule() -> Dictionary:
 	var rule := super()
 	var sources: Variant = rule.get("acceptedSources", null)
@@ -316,6 +349,7 @@ func _receiver_rule() -> Dictionary:
 	if sources is Array and not (sources as Array).is_empty():
 		_spear_rule = {"acceptedSources": (sources as Array).duplicate(true)}
 		(sources as Array).append({"allWeaponTags": [THROWN_TAG]})
+		(sources as Array).append({"allWeaponTags": [ROLL_TAG]})
 	return rule
 
 
@@ -344,6 +378,7 @@ func _defeat() -> void:
 		return
 	AttackTelegraph.clear_for(self)
 	_end_ripple()
+	_tip(0.0)
 	super()
 	_set_body_collision(false, true)
 	_play_animation(CLIP_DEATH, false)
@@ -496,21 +531,58 @@ func _check_phase_two(now: float) -> void:
 	phase_two_started.emit({"time": now})
 
 
-## A thrown thing hit him: dizzy, his eye wide open, for `dizzy_ms`; no leap right after.
-func _get_dizzy(now: float) -> void:
+## A Heavy Roll hit him on the floor: off balance, rocked back along `knock` (the Roll's way), his
+## eye wide open, for `dizzy_ms`; no leap right after.
+func _get_dizzy(now: float, knock: Vector2 = Vector2.ZERO) -> void:
 	if body == null or is_defeated():
 		return
 	AttackTelegraph.clear_for(self)
+	cancel_attack()
 	_set_body_collision(true, true)
-	_dizzy_until = now + float(_two.get("dizzy_ms", 1600.0))
+	var length := float(_two.get("dizzy_ms", 1600.0))
+	_dizzy_until = now + length
 	_next_leap_at = maxf(_next_leap_at, _dizzy_until + maxf(1.0, recovery_ms))
 	_transition_to(PHASE_DIZZY, now)
 	_play_animation(CLIP_RECOVERY, false)
 	_shake_camera(120.0, 0.004)
+	# He rocks back, wobbling, while it lasts (`_tip`), stars over his head.
+	_topple_side = -1.0 if knock.x < 0.0 else 1.0
+	var motion: Node = EnemyReactions.motion_of(self)
+	if motion != null:
+		motion.call(&"show_stars", _dizzy_until)
 	var feel := Services.feel()
 	if feel != null:
 		feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE), DIZZY_TEXT, &"yellow", true)
 	dizzied.emit({"until": _dizzy_until})
+
+
+## Presentation of the topple: his art rocks back `topple_lean_rad` (in over TIP_IN_MS, back over
+## TIP_OUT_MS at the end) and wobbles on it. `now` 0 puts him upright. The hit motion
+## (EnemyHitMotion) adds its own moves on top of what is set here.
+func _tip(now: float) -> void:
+	if visual == null:
+		return
+	if now <= 0.0:
+		visual.rotation = 0.0
+		return
+	var length := maxf(1.0, float(_two.get("dizzy_ms", 1600.0)))
+	var age := now - (_dizzy_until - length)
+	var k := clampf(age / TIP_IN_MS, 0.0, 1.0) * clampf((_dizzy_until - now) / TIP_OUT_MS, 0.0, 1.0)
+	var lean := float(_two.get("topple_lean_rad", 0.45))
+	var wobble := sin(age / 1000.0 * TAU * TIP_WOBBLE_HZ) * lean * TIP_WOBBLE_SHARE
+	visual.rotation = _topple_side * (lean + wobble) * k
+
+
+## A thrown thing in phase two: it splats on him and he hardly notices (a line, now and then).
+func _thrown_line() -> void:
+	var now := float(Time.get_ticks_msec())
+	var text := str(_two.get("thrown_text", ""))
+	if text.is_empty() or now < _next_thrown_text_ms:
+		return
+	_next_thrown_text_ms = now + THROWN_TEXT_EVERY_MS
+	var feel := Services.feel()
+	if feel != null:
+		feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE), text, &"white", false)
 
 
 func _start_ripple(now: float) -> void:

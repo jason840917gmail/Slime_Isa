@@ -90,6 +90,31 @@ func is_done() -> bool:
 	return _is_done_now()
 
 
+## Its enemies (PlacedEnemy nodes, or anything with `is_standing()` / `is_defeated()`).
+func members() -> Array[Node]:
+	var out: Array[Node] = []
+	for member: Node in _members:
+		if is_instance_valid(member):
+			out.append(member)
+	return out
+
+
+## Ends it as won without the fight (the `?sealed` dev option: the Pearl's guard already beaten):
+## recorded like a won `once` or boss fight, its enemies taken away, its shutters open.
+func finish_quietly() -> void:
+	_active = false
+	_won_at_ms = -1.0
+	DungeonState.mark_done(get_tree(), _record_key())
+	# Its enemies spawned already: they go with it.
+	for member: Node in _members:
+		var enemy: Node = member.call(&"get_enemy") if is_instance_valid(member) and member.has_method(&"get_enemy") else null
+		if enemy != null and is_instance_valid(enemy) and enemy.get_parent() != null:
+			enemy.get_parent().queue_free()
+	_retire_members()
+	for shutter: Shutter in _shutters():
+		shutter.open()
+
+
 ## How many of its enemies stand.
 func standing_count() -> int:
 	var count := 0

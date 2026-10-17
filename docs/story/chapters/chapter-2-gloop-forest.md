@@ -240,6 +240,12 @@ The forest has two kinds of web (2026-10-15):
 - After the Matron, her Pearl grants the Silk skin, and the web walls open:
   the **silk nook** in the north-west and the other web secrets in the forest
   and in Chapter 1's map.
+- *Changed 2026-10-17 (owner): her Pearl lies in the Weaver Hollow, before
+  her, so the slime meets her with the Silk skin. The Hollow's second half
+  teaches the skin on its webs and web walls, and her fight is its exam. The
+  two bullets above ("before the Matron the slime has no Silk skin", "the
+  player has to deal with the webs to defeat the Matron") hold only up to the
+  Pearl.*
 - **The way to Chapter 3** (Planned, owner, 2026-10-16, question 81): a maze
   of web walls on the forest's east side, which only the Silk skin passes,
   leads to the Crystal Caverns. The Silk skin opens Chapter 3, as a skin
@@ -295,9 +301,16 @@ The forest has two kinds of web (2026-10-15):
   - The slime's shapes cannot cut her webs before the Silk skin, so it has to
     deal with them (owner, 2026-10-15).
   - She rests after each volley, and that is the opening to hit her.
+  - *Changed 2026-10-17 (owner): the slime comes to her with the Silk skin,
+    won from Pearl 2 in the Hollow before her, and her fight is the skin's
+    exam. What the skin changes in her lash, her volley and her cocoon is not
+    decided ([the rework plan](../../design/2026-10-17-pearl-mid-dungeon.md)).*
 - **Boss rules (Planned):** once the slime enters her chamber it cannot leave
   until she is beaten. Today she heals to full after 60 s with the slime
-  outside her arena.
+  outside her arena. *Since 2026-10-17 (owner): taking Pearl 2 enrages her
+  (her strength stays the same) and seals the Hollow's exits until she is
+  beaten; fainting or quitting after it resumes at the entrance, inside, with
+  the doors to the outside sealed.*
 - **Reward:**
   - 100 coins and `chapter-2-complete`.
   - The end card, then the Crystal Caverns exit, still sealed with crystal.
@@ -317,6 +330,10 @@ The forest has two kinds of web (2026-10-15):
   the silk.
   - The Pearl transfers the **Silk skin** permanently into the slime during
     its ceremony. The slime keeps it after returning the Pearl.
+  - *Changed 2026-10-17 (owner): the Pearl is not in her nest's silk after
+    the fight: she hides it in the Weaver Hollow, before her chamber, and the
+    slime takes it there, with its ceremony. Whether she still shrinks back
+    when beaten is not decided.*
   - **Planned (owner, 2026-10-16, question 79):** when Pearl 2 comes home it
     relights the Forge. Pip and the slime light it, and from then on it
     brews the potions. *Changed 2026-10-16 (seventh round, question 110):
@@ -377,7 +394,7 @@ The forest has two kinds of web (2026-10-15):
 | Webs and web walls | 8 | Planned (−50% without the Silk skin) |
 | The web-wall maze to the Crystal Caverns | 8 | Planned (question 81) |
 | The second web maze, from the Wilds | 8 | Planned (question 87) |
-| Pearl 2 and the Silk skin | 9 | Planned |
+| Pearl 2 and the Silk skin | 9; the Weaver Hollow, before the Matron, since 2026-10-17 | Planned |
 | The Matron's thread (for Burr's Bow) | 9 | Planned (question 106) |
 | Boss heart (Matron) | 9 | Built as a Goo Heart; the full heart is Planned (question 17) |
 | The Weaver Hollow, the Matron at its top, her cocoon phase | 8, 9 | Planned (questions 25 and 133) |

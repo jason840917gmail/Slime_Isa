@@ -6,7 +6,8 @@ extends Node2D
 ## a gate each in their south wall. Vault A's heavy plate lies far south of its gate, so the Stone
 ## slime must run through while the plate rises (a second heavy plate inside lets it out again);
 ## vault B's plate sits in front of its gate and stays down only with a pushed pedestal on it. A spare
-## statue stands to push and pull, and two stone essences lie by the way in.
+## statue stands to push and pull, and a skin pedestal by the way in lends the Heavy skin
+## (game/dev/corners/skin_pedestal.gd; docs/godot/SKINS.md), which the plates and blocks need.
 ##
 ## It is a rework-mode testbed: with the mode off (the classic game, the test runner's playground)
 ## it takes itself out, so nothing of it is in the classic world.

@@ -7,7 +7,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/web-wall.tscn" id="web_wall"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/silk-parcel.tscn" id="parcel"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/floor-web.tscn" id="floor_web"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-silk.tscn" id="silk_spot"]
+[ext_resource type="Script" path="res://game/dev/corners/skin_pedestal.gd" id="pedestal_script"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--stone-pedestal.tscn" id="pedestal_stone"]
 
 [node name="webs-corner" type="Node2D"]
 y_sort_enabled = true
@@ -21,7 +22,7 @@ mouse_filter = 2
 theme_override_font_sizes/font_size = 14
 text = "Webs corner (roadmap 7.9, the Weaver Hollow; docs/godot/WEBS.md)
 Floor webs (the painted band, the lone web east of it): a walk is halved, a Roll sticks. Web walls (the two nooks) block.
-Swallow the silk (bottom left: the Silk form stands in for the Silk skin): webs are crossed at full speed, web walls passed at half speed,
+The pedestal (bottom left) lends the Silk skin (docs/godot/SKINS.md): webs are crossed at full speed, web walls passed at half speed,
 and a weapon or shape hit cuts a web wall for good and frees a silk parcel (30 coins north; a potion and 15 coins east)."
 
 [node name="webs" type="TileMapLayer" parent="."]
@@ -65,7 +66,10 @@ flag_id = "silk-parcel.playground-webs-east"
 position = Vector2(4512, 5248)
 variant = 3
 
-[node name="silk-spot" parent="." instance=ExtResource("silk_spot")]
+[node name="silk-pedestal" type="Node2D" parent="."]
+y_sort_enabled = true
 position = Vector2(3520, 5476)
-metadata/instance_id = "playground-webs-silk-spot"
-metadata/persistence_key = "playground.playground-webs-silk-spot"
+script = ExtResource("pedestal_script")
+skin_id = "silk"
+
+[node name="stone" parent="silk-pedestal" instance=ExtResource("pedestal_stone")]

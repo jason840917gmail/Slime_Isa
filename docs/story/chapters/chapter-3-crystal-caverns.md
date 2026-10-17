@@ -53,6 +53,15 @@ their first locks (question 132), the Colossus got a full heart
 (question 17), and every border became a Thorn Guard post with a guard
 (question 130).
 
+On 2026-10-17
+([decisions archive](../07-decisions-archive.md#decisions-by-date)) the owner
+moved each Pearl inside its dungeon, before the boss: Pearl 3 lies in the
+Crystal Mine, before the Colossus (beat 7 now comes before beat 6). Taking it
+enrages him (his strength stays the same) and seals the mine's exits until he
+falls. The mine's second half teaches the Feral skin, and his fight is its
+exam. The built mine keeps the old order until its rework
+([roadmap 12.8](../../GAME_ROADMAP.md#the-2026-10-17-decisions)).
+
 ## Beats
 
 1. **Burr's Bow** (Planned, owner, 2026-10-16, questions 85 and 94). When the
@@ -141,10 +150,18 @@ their first locks (question 132), the Colossus got a full heart
      crystal claws, so the Pearl's power shows in the fight. Out of reach, he
      throws some of his minions down; killed, they can drop energy shards
      (the boss-chamber rule of question 40).
+   - *Changed 2026-10-17 (owner): his Pearl is not in his chest. He hides it
+     in the mine and keeps it close to draw on its power, and the slime takes
+     it before facing him (beat 7), so it comes into his arena with the Feral
+     skin, and his fight is the skin's exam. What becomes of "a golem grown
+     around Pearl 3" and of the Pearl's power showing in his climb is not
+     decided ([the rework plan](../../design/2026-10-17-pearl-mid-dungeon.md)).*
    - *Until 2026-10-16 (Idea): spears glanced off his armour, the hammer
      cracked it, and the fight taught switching shapes.*
 7. **Pearl 3** (Planned, owner, 2026-10-16, question 56). It grants the
-   **Feral** skin permanently:
+   **Feral** skin permanently. *Since 2026-10-17 (owner) it lies in the
+   Crystal Mine, before the Colossus, and the mine's second half teaches the
+   skin:*
    - Gate: the slime climbs some walls it could not climb before, which
      opens the world. Claws show while it climbs. To climb, the player holds
      W (interact); letting go midway drops the slime. A climbable wall looks
@@ -163,7 +180,9 @@ their first locks (question 132), the Colossus got a full heart
    - **Its first lock** (Planned, owner, 2026-10-16, question 132): the climb
      out of the Colossus's arena, up the walls he climbed, then on into the
      Wilds, where the skin's arc goes on: a climb, a climb with a drop and a
-     loop back, a climb to a prize seen from far.
+     loop back, a climb to a prize seen from far. *Changed 2026-10-17 (owner):
+     its first locks stand in the mine's second half, between the Pearl and
+     the Colossus, no longer on the way out of his arena.*
    - The ideas offered before (Prism, Burrow, Echo and Shard) are declined.
      The Swim skin moves to a later Pearl, and the deep-water secrets are
      come-back secrets for it.

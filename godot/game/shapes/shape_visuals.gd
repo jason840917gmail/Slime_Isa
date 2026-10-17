@@ -834,10 +834,11 @@ func _set_colors() -> void:
 	_apply_skin()
 
 
-## The weapon layer wears the form the slime wears, as the slime's Visual does (player.gd
-## `on_gulp_form_changed`): with the Visual on form_skin.gdshader, the layer's own skin material with
-## the form's `skin` (none without a form); else the form's tint. Its own material, not the Visual's,
-## so neither the elevation ghost nor the swim waterline cuts the weapon.
+## The weapon layer wears what the slime wears, as the slime's Visual does: with the Visual on
+## form_skin.gdshader, the layer's own skin material with the look shown now (player.gd
+## `apply_skin_look_to`: a Gulp form's skin or a skin's look, docs/godot/SKINS.md; none on the
+## goo), taken as the strike starts; else the form's tint. Its own material, not the Visual's, so
+## neither the elevation ghost nor the swim waterline cuts the weapon.
 func _apply_skin() -> void:
 	if _weapon_layer == null:
 		return
@@ -850,7 +851,8 @@ func _apply_skin() -> void:
 		skinned = visual_material != null and visual_material.shader == PlayerScript.FORM_SKIN_SHADER
 	var skin := int(form.get("skin", 0))
 	if skinned:
-		_skin.set_shader_parameter(SKIN_PARAM, skin)
+		skin = _player.skin_look_index()
+		_player.apply_skin_look_to(_skin)
 		_weapon_layer.material = _skin if skin > 0 else null
 		_weapon_tint = Color.WHITE
 	else:

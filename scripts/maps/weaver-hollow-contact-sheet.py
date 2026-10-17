@@ -34,7 +34,7 @@ def main() -> None:
     title = ImageFont.truetype(FONT_BOLD, 30)
     bold = ImageFont.truetype(FONT_BOLD, 17)
     regular = ImageFont.truetype(FONT, 16)
-    draw.text((gap, 16), "The Weaver Hollow: the main path, entrance to the Pearl (filmed in the game)", font=title,
+    draw.text((gap, 16), "The Weaver Hollow: the main path, the forecourt to the Pearl in the Hoard, the Matron's fall and out (filmed in the game)", font=title,
               fill=(240, 228, 205))
     for index, shot in enumerate(shots):
         column, row = index % columns, index // columns

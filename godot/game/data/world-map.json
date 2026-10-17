@@ -69,7 +69,7 @@
 			"placeholder": false,
 			"theme": "meadow",
 			"boss": "Fatty One Eye",
-			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, is shut by the old Thorn Guard gate, which only a Roll beats. Release 1."
+			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, opens in Fatty's Hollow, a red-rock hill in D5 behind the old fort's field maze and a bridge of falling slabs; the old Thorn Guard gate there only a Roll beats. Release 1."
 		},
 		{
 			"key": "b",
@@ -259,11 +259,11 @@
 		},
 		{
 			"type": "dungeon",
-			"x": 49,
-			"y": 55,
+			"x": 59,
+			"y": 70,
 			"label": "Fatty's Lair",
 			"map": "fatty-lair",
-			"notes": "The worms' burrow under the old Thorn Guard fort (built 2026-10-17): the drop gate a Roll beats, falling slabs over the void and spikes, Burr freed from his two-keyhole cell inside, Fatty One Eye and Pearl 1 (the Heavy skin) with the green key in the Pearl Shrine; out through a barricade a Heavy Roll breaks, by the bolt-hole near the Verdant Gate"
+			"notes": "The worms' burrow under the old Thorn Guard fort, in Fatty's Hollow, a red-rock hill in D5 behind the field maze and a bridge of falling slabs (built 2026-10-17, the mouth moved from D4 the same day): the drop gate a Roll beats, falling slabs over the void and spikes, Burr freed from his two-keyhole cell; Pearl 1 (the Heavy skin) in the Larder behind the Big Squint, and its take seals the Lair; the Heavy second half (the Weigh House, the big key), then Fatty One Eye, enraged, whose fall breaks the seals; the green key at the postern, out through a barricade a Heavy Roll breaks, by the bolt-hole near the Verdant Gate"
 		},
 		{
 			"type": "gate",
@@ -303,7 +303,7 @@
 			"label": "Weaver Hollow",
 			"needs": "Goo Bomb",
 			"map": "weaver-hollow-trunk",
-			"notes": "The Watch Oak, an old Thorn Guard watch fort inside a giant oak (built 2026-10-17): a Goo Bomb blows its root gate; four floors climbed from the Roots to the Crown, the Brood Warden and the big key, and the Orb-Weaver Matron at the top, fighting from a cocoon a blast tears open; Pearl 2 (the Silk skin)"
+			"notes": "The Watch Oak, an old Thorn Guard watch fort inside a giant oak (built 2026-10-17): a Goo Bomb blows its root gate; four floors climbed from the Roots to the Crown; Pearl 2 (the Silk skin) in the Hoard behind the Brood Warden, and its take seals the Hollow; the Silk second half (webbed rooms, the Spinning Loft), then the Orb-Weaver Matron at the top, enraged, fighting from a cocoon a blast tears open"
 		},
 		{
 			"type": "gate",
@@ -320,7 +320,7 @@
 			"y": 53,
 			"label": "Crystal Mine",
 			"map": "crystal-mine",
-			"notes": "The smith's crystal mine, taken by the Crystal Colossus (built 2026-10-17): six dark rooms the Lantern teaches, the Foreman's Gate's two keyholes, the Chasm's lens for the Bow and a cart back to the mouth, the Shardback, and the Colossus in his arena of four braziers; Pearl 3 (the Feral skin), and the climb out to the Lookout"
+			"notes": "The smith's crystal mine, taken by the Crystal Colossus (built 2026-10-17): six dark rooms the Lantern teaches, the Foreman's Gate's two keyholes, the Chasm's lens for the Bow; Pearl 3 (the Feral skin) in the Den behind the Shardback, and its take seals the mine; the Feral second half (root walls to climb, the big key on a balcony), then the Colossus, enraged, in his arena of four braziers, climbing his wall; the climb out to the Lookout"
 		},
 		{
 			"type": "gate",
@@ -406,6 +406,51 @@
 			"y": 55,
 			"label": "The Lair's bolt-hole",
 			"notes": "Fatty's Lair's way out (arrival only), by the Verdant Gate; Burr waits here after Fatty"
+		},
+		{
+			"type": "landmark",
+			"x": 58,
+			"y": 67,
+			"label": "Fatty's Hollow",
+			"notes": "D5's red-rock hill, crowned with maples; the Lair's drop gate in a notch of its south face, over a paved forecourt (a campfire, an energy flower, a pot hiding a heart)"
+		},
+		{
+			"type": "landmark",
+			"x": 55,
+			"y": 74,
+			"label": "Field maze and moat slabs",
+			"needs": "Roll",
+			"notes": "The old fort's field before the hill: a maze of fieldstone walls cut by a dry moat; two falling slabs cross it in one Roll, a walk falls back to the rim"
+		},
+		{
+			"type": "secret",
+			"x": 56,
+			"y": 69,
+			"label": "Hill crack",
+			"needs": "Goo Bomb",
+			"notes": "A crack in the hill's face beside the Lair's gate opens into a cave pocket with a goo heart, seen from the forecourt (a Chapter 2 come-back)"
+		},
+		{
+			"type": "secret",
+			"x": 33,
+			"y": 61,
+			"label": "First bell and watch post",
+			"notes": "C4: a bell on a pond islet; a thrown pot rings it and opens the old watch post's stone door (a chest)"
+		},
+		{
+			"type": "secret",
+			"x": 40,
+			"y": 74,
+			"label": "Lookout bell",
+			"notes": "C5: a bell on a lookout rock; a pot thrown from its foot rings it and raises a hidden chest"
+		},
+		{
+			"type": "secret",
+			"x": 57,
+			"y": 50,
+			"label": "Old pen, grey planks",
+			"needs": "Heavy skin",
+			"notes": "D4: an old Thorn Guard pen by the road, its gap shut by grey planks a Heavy Roll breaks; a goo heart inside (a come-back with Pearl 1)"
 		}
 	],
 	"passages": [

@@ -7,13 +7,36 @@ class_name CrystalMine
 ## the slime is in that room and leaves it alone outside (the Bestiary pens' rule: a Glint Bat's
 ## swoop, a Watcher Eye's drift and a Gloomling's flight stay in their room).
 ##
+## Pearl 3's glint in the Den (`pearl_glint`, seen from the stair through the Shardback's fight) goes
+## once the Pearl (`pearl`) is taken, then and whenever the world is built again.
+##
 ## Owner: dungeons (the Crystal Mine).
 
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 const CameraRoom := preload("res://game/world/camera_room.gd")
 
+## Pearl 3 and its glint (the Den).
+@export var pearl: NodePath
+@export var pearl_glint: NodePath
+
 ## The enemies whose arena was set, by instance id.
 var _done := {}
+
+
+func _ready() -> void:
+	var prize := get_node_or_null(pearl)
+	if prize == null:
+		return
+	if prize.has_method(&"is_taken") and bool(prize.call(&"is_taken")):
+		_hide_glint()
+	elif prize.has_signal(&"taken"):
+		prize.connect(&"taken", func(_payload: Dictionary) -> void: _hide_glint())
+
+
+func _hide_glint() -> void:
+	var glint := get_node_or_null(pearl_glint) as CanvasItem
+	if glint != null:
+		glint.visible = false
 
 
 func _physics_process(_delta: float) -> void:

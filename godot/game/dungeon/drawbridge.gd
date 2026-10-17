@@ -64,7 +64,7 @@ func _ready() -> void:
 	_down = starts_lowered
 	_show(1.0 if _down else 0.0)
 	super()
-	_restore.call_deferred()
+	_restore_in_tree.call_deferred()
 
 
 func holds() -> bool:
@@ -105,6 +105,14 @@ func lower(_payload: Variant = null) -> void:
 	if feel != null:
 		feel.audio_cue(CUE_LOWER)
 	set_process(true)
+
+
+## `_restore`, deferred from `_ready`, only while still in the tree: a world run on its own (F6)
+## is the current scene for a moment before it swaps itself for main.tscn, and this piece of that
+## copy has left the tree by then.
+func _restore_in_tree() -> void:
+	if is_inside_tree():
+		_restore()
 
 
 func _restore() -> void:

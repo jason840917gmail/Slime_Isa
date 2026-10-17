@@ -11,7 +11,12 @@ he took the proposals with two changes, every bell rings to a thrown pot or an a
 sticks in a floor web. The answers are written under each point and in the tables below. What a
 bell opens stays open for good, so a bell is a lock solved once
 ([question 136](../story/07-decisions-archive.md#open-after-the-eighth-round-2026-10-16), the
-ninth round).*
+ninth round).* *Changed 2026-10-17 (the owner's idea,
+[decisions archive](../story/07-decisions-archive.md#decisions-by-date)): each dungeon's Pearl is
+found inside it, before its boss, as Zelda's dungeon item. Taking it seals the dungeon's exits
+until the boss falls; the second half teaches the Pearl's skin, and the boss fight is its exam
+(rule 6, [the dungeon template](#a-dungeon)). The three built dungeons are reworked by
+[their plan](2026-10-17-pearl-mid-dungeon.md) (roadmap 12.8).*
 
 ## Why this exists
 
@@ -45,10 +50,14 @@ Read it with:
    curiosity, never for luck.
 5. **Every secret has a tell the slime can see from where it stands.** Most secrets show their
    prize before they open (sight before reach).
-6. **Each boss's way out uses the skin it gives.** The new skin's first lock is in the boss
-   room's exit; its come-back secrets wait, already seen, in places the slime has been.
+6. **Each dungeon's second half teaches its Pearl's skin, and the boss is its exam.** The Pearl
+   lies inside the dungeon, before the boss; the new skin's first lock stands where it is won, its
+   locks fill the way on to the boss, and the boss fight needs it. Its come-back secrets wait,
+   already seen, in places the slime has been. *Until 2026-10-17 the rule was "each boss's way out
+   uses the skin it gives": the new skin's first lock was in the boss room's exit.*
 7. **Loop back.** Every dungeon wing, every maze and every far corner of a chunk opens a short way
-   back toward its start. Fainting in a dungeon resumes at its entrance.
+   back toward its start. Fainting in a dungeon resumes at its entrance. *Since 2026-10-17: after
+   the Pearl it resumes there, inside, with the doors to the outside sealed until the boss falls.*
 8. **One landmark per chunk; the road is the main path.** The way through is the widest, plainest
    ground; optional ways are narrower and less trodden.
 9. **Enemies teach.** A new enemy first stands alone with room to read its tell. Never a new
@@ -444,12 +453,12 @@ cells marked **gap**) are filled by the owner's answers of 2026-10-16 (question 
 | **Gulp** (not counted) | Prologue, at birth | Light things in the way; enemy shots thrown back (Spitcap seed, Pipe Worm glob, Bone Thrower bone); light objects thrown at targets; bells, rung by a thrown pot (question 115) | The Wellspring's blocked path (a lone pot first) | The glade: throw at worms; the first bell, near the town's edge soon after the prologue (question 132) | Fatty's Lair: the Pipe Worm's glob back into its hole; Fatty's phase-2 clods | Yoi's home: the crate heap in Lili's yard (open at once, an early reward) |
 | **Spear** | Prologue, from Yoi | A lever behind bars; stone eye latches; Fatty's and the Squint's eye; Tom's cocoon; with the Silk skin, webs and web walls. It never rings a bell (question 115) | The glade's barred gate | The Squints in Fatty's Lair | An eye open for a few seconds; a screened eye only a diagonal thrust reaches (2026-10-11 plan) | None: it is the first power |
 | **Roll** | Chapter 1, young Burr in the West village | Falling slabs; a gate that drops shut too fast to walk | A rickety plank over a dry ditch in Burr's yard (question 132) | The burrow's drop gate; the Lair's slab bridges over the void and spikes | Slabs with a turn (rolls go straight), slabs under a Pipe Worm's fire, the Dung Roller's gaps | A timed gate or a slab path to a Slimeshire secret seen before the West village |
-| **Heavy skin** | Chapter 1, Pearl 1 (Fatty) | Heavy plates; heavy blocks; the Heavy Roll's old dead or built things, loose rocks, rubble heaps, rotten trunks; the grey tree over the river as a bridge; a tree bonk that shakes a prize loose | Fatty's Lair's way out (question 132; which lock, a plank barricade or a heavy plate, is not decided) | The way home to the Wellspring with Pearl 1; Gloop Forest's iron hollow plate | Tom's maze: a plate whose gate shuts while webs slow the slime; a block to hide from a Prism Eye (Chapter 3) | Slimeshire: rubble heaps, a plank barricade, the river's grey tree, heavy plates seen in Chapter 1 |
+| **Heavy skin** | Chapter 1, Pearl 1 (Fatty). *Since 2026-10-17: Pearl 1 lies in Fatty's Lair, before him* | Heavy plates; heavy blocks; the Heavy Roll's old dead or built things, loose rocks, rubble heaps, rotten trunks; the grey tree over the river as a bridge; a tree bonk that shakes a prize loose | Fatty's Lair's way out (question 132; which lock, a plank barricade or a heavy plate, is not decided). *Changed 2026-10-17: right where Pearl 1 is won, in the Lair's second half, before Fatty; his fight is its exam* | The way home to the Wellspring with Pearl 1; Gloop Forest's iron hollow plate | Tom's maze: a plate whose gate shuts while webs slow the slime; a block to hide from a Prism Eye (Chapter 3) | Slimeshire: rubble heaps, a plank barricade, the river's grey tree, heavy plates seen in Chapter 1 |
 | **Goo Bomb** | Chapter 2, Tom, at the end of his maze | Cracked walls (a blown wall can be a door); cracked ground; the Matron's web cocoon (question 133); ideas: mud dams, bomb over water, the Gobbler, powder kegs | A cracked wall by Tom, his maze's way back to its start (question 132) | The Weaver Hollow's cracked walls and floors | A bomb sucked and thrown over a channel onto an islet's cracked rock; egg sacs (Broodlings); chains; the Matron's cocoon, torn open by a blast for the Spear (question 133) | Gloop Forest: the cracked clearing, down into the small Gloop Cavern and its heart quarter (the tenth round, question 18); Slimeshire: a cracked cliff by the lake, a cracked floor near the plaza; Fatty's Lair side rooms |
-| **Silk skin** | Chapter 2, Pearl 2 (the Matron, at the top of the Weaver Hollow) | Web walls (they block until the skin; with it, pass at half speed, or cut for good with the Spear); floor webs, which slow a walk and stick a Roll until the skin (question 131); things wrapped in silk | The Matron's thread, taken from her web; proposal: her chamber's way out is a web wall | The web-wall maze to the Crystal Caverns (main path) | Web walls with slime spiders shooting while the slime is slowed; a key wrapped in silk | The silk nook; the Webwood (D4) and Tom's maze; web walls in the Weaver Hollow; the Wilds' web maze into Gloop Forest |
+| **Silk skin** | Chapter 2, Pearl 2 (the Matron, at the top of the Weaver Hollow). *Since 2026-10-17: Pearl 2 lies in the Hollow, before her* | Web walls (they block until the skin; with it, pass at half speed, or cut for good with the Spear); floor webs, which slow a walk and stick a Roll until the skin (question 131); things wrapped in silk | The Matron's thread, taken from her web; proposal: her chamber's way out is a web wall. *Changed 2026-10-17: right where Pearl 2 is won, in the Hollow's second half, before the Matron; her fight is its exam* | The web-wall maze to the Crystal Caverns (main path) | Web walls with slime spiders shooting while the slime is slowed; a key wrapped in silk | The silk nook; the Webwood (D4) and Tom's maze; web walls in the Weaver Hollow; the Wilds' web maze into Gloop Forest |
 | **Lantern** | Chapter 3, the smith at his mine camp | Dark rooms; shadow paths; candles, sconces, braziers; dry plant growth, grey-black (question 129); the dry wood a Heavy Roll knocked down (optional combo) | The mine camp: a dark tunnel or a candle by the camp | The dark maze to the Colossus; Gloomlings on switches | Candles that go out after a minute; Glint Bats woken by the light; the Shardback; the Colossus's four braziers | Deadthorn on old roads and scorched hay over hatches in Slimeshire, Gloop Forest and the West village; dark cellars seen earlier |
 | **Bow** | Chapter 3, Burr in the West village (with the Matron's thread, Pearl 2 home) | Far targets in a straight line across gaps and water (crystal lenses on posts, question 127); bells out of a throw's reach (question 115); far enemies; enemies that open doors when they die. Bars stop its arrows (question 131) | Targets in Burr's yard (question 132) | The mine's chasm, a crystal lens on a post (main path, questions 102 and 127) | A target hit while it passes; a far Pick Mole or Glint Bat | Targets across the lake (C5) and Gloop Forest's river; bells out of a throw's reach; the Rook Thief |
-| **Feral skin** | Chapter 3, Pearl 3 (the Colossus); Release 1's content ends here | Walls with thick roots and rocky handholds; the hill from the Wilds into the Caverns | The climb out of the Colossus's arena (question 132) | The Wilds' hill into the Caverns | The Wilds: a climb, a climb with a drop and a loop back, a climb to a prize seen from far (question 132) | Climbable walls seen from the prologue on: the Wellspring, Slimeshire, Gloop Forest, the Caverns |
+| **Feral skin** | Chapter 3, Pearl 3 (the Colossus); Release 1's content ends here. *Since 2026-10-17: Pearl 3 lies in the mine, before him* | Walls with thick roots and rocky handholds; the hill from the Wilds into the Caverns | The climb out of the Colossus's arena (question 132). *Changed 2026-10-17: right where Pearl 3 is won, in the mine's second half, before the Colossus; his fight is its exam* | The Wilds' hill into the Caverns | The Wilds: a climb, a climb with a drop and a loop back, a climb to a prize seen from far (question 132) | Climbable walls seen from the prologue on: the Wellspring, Slimeshire, Gloop Forest, the Caverns |
 
 **Keys** are the dungeon kit's (planned): small keys (a counter, never bag items), the big key for
 the boss door, the map; the green key opens the Verdant Gate.
@@ -506,6 +515,11 @@ Ours follow the dungeon kit of the
 16 × 14 tiles, doors two tiles wide in the middle of a wall; small keys, the big key, the map) and
 these decisions: the region's tool is learned before the dungeon, the boss needs it, the Pearl's
 skin comes after the boss, and the slime resumes at the entrance after fainting (question 109).
+*Changed 2026-10-17 (owner): the Pearl lies inside the dungeon, before the boss. Taking it grants
+its skin, and the boss notices, enraged (his strength stays the same), and seals the dungeon's
+exits until he falls. The second half teaches the skin, and the boss fight is its exam. Fainting
+or quitting after the Pearl resumes at the entrance, inside, with the doors to the outside
+sealed.*
 
 **Our dungeons hold no item.** Brown's ideal Zelda dungeon hides its item inside and is then
 reshaped by it; in *A Link to the Past* the big key opens the item's chest, in *Link's Awakening*
@@ -517,6 +531,10 @@ elsewhere:
   tool can do;
 - the **skin after the boss**, which opens the way out and the dungeon's own come-back rooms.
 
+*Changed 2026-10-17 (owner): our dungeons hold their item after all, as Brown's ideal Zelda
+dungeon does: the Pearl, hidden before the boss, whose skin reshapes the second half and is the
+boss's exam. "The skin after the boss" above goes; the mini-boss and the tool's locks stay.*
+
 Dormans writes the Zelda dungeon as a sentence: a guardian at the threshold, obstacles, a
 mini-boss, a reward, harder obstacles, the boss, the treasure. And Eiji Aonuma's order of work: first
 the kind of play (puzzle or action), then the theme, then how the one tool meets that place.
@@ -524,30 +542,34 @@ the kind of play (puzzle or action), then the theme, then how the one tool meets
 ```mermaid
 flowchart TD
   E[Entrance<br/>the dungeon's own lock outside] --> H[Hub<br/>boss door seen, big-key lock]
-  H --> A1[Wing A<br/>teach: the tool, safe]
-  A1 --> M[Map room<br/>optional, small tell]
-  A1 --> K1[Small key 1]
-  K1 -. opens .-> D1[Locked door 1 in the hub]
-  D1 --> B1[Wing B<br/>test: tool + a dungeon enemy]
-  B1 --> MB[Mini-boss<br/>shutters close]
-  MB --> BK[Big key chest]
-  BK --> S1[Shortcut back to the hub<br/>one-way door or ledge drop]
+  H --> FH[First half<br/>the tool taught and tested;<br/>small keys, the map]
+  FH --> P[The Pearl: its skin<br/>the boss notices, the exits seal]
+  P --> SH[Second half<br/>the skin taught and tested]
+  SH --> S1[Shortcut back to the hub<br/>one-way door or ledge drop]
   S1 --> H
   H --> AR[Calm room<br/>pots, a refill]
-  AR --> BD[Boss door]
-  BD --> BO[Boss<br/>needs the tool]
-  BO --> P[Pearl: the skin]
-  P --> X[Way out<br/>uses the new skin]
+  AR --> BD[Boss door<br/>the big key]
+  BD --> BO[Boss<br/>the skin's exam, with the tool]
+  BO --> X[The exits open]
   X --> E
-  B1 -. later .-> CB[Side room<br/>a later power]
+  FH -. later .-> CB[Side room<br/>a later power]
 ```
+
+*Changed 2026-10-17 (owner): the graph puts the Pearl before the boss. Until then it ran from the
+hub through wing A (the tool taught, small key 1, the map), wing B (the tool tested), the
+mini-boss and the big key, the shortcut and the calm room to the boss, then the Pearl, then a way
+out that used the new skin. Where the mini-boss and the big key stand against the Pearl is the
+[rework plan](2026-10-17-pearl-mid-dungeon.md)'s.*
 
 The rules:
 1. **The first half uses only what the slime brings.** The second half twists the region's tool.
+   *Since 2026-10-17 the second half teaches the Pearl's skin, found between the halves (rule 6
+   above).*
 2. **The dungeon's tool, taught before it, is used in nearly every room**, in a new way each time
    (teach, test, twist), and the boss is its exam. Brown's contrast: *A Link to the Past*'s Swamp
    Palace uses its item in one room; *Link's Awakening*'s Catfish's Maw uses the same hookshot for
-   keys, the boss key, the boss and the optional chests. Be the second.
+   keys, the boss key, the boss and the optional chests. Be the second. *Since 2026-10-17 the
+   boss is also the Pearl's skin's exam (rule 6).*
 3. **The boss door is seen early** (from the hub or a balcony) and stays in mind.
 4. **Two loops at least:** the hub opens to two wings, and the big key's wing returns to the hub
    by a shortcut. With the entrance shortcut, the boss door is a short walk from the entrance. A
@@ -563,7 +585,9 @@ The rules:
 8. **Ambush rooms** close their shutters once and never repeat. Ordinary room enemies come back
    when the room is entered again.
 9. **The way out uses the new skin** ([the rules](#the-rules-that-matter-most), 6). The boss never
-   comes back.
+   comes back. *Changed 2026-10-17: **the second half uses the new skin, and the boss is its
+   exam** (rule 6). Taking the Pearl seals the doors to the outside until the boss falls, so the
+   way out is beating him.*
 10. **One or two come-back side rooms** for later powers, never on the path. The hardest
     challenges go on optional prizes.
 11. **Every room asks a new question.** Difficulty rises along the main path, and no fight or
@@ -681,7 +705,10 @@ The [prologue design](2026-10-16-prologue.md) sets the beats. On the map:
 ### Slimeshire's chunks and the West village
 
 `level-1` is four chunks: C4 the village, D4 the Verdant Gate and Fatty's camp, C5 the lake, D5
-the autumn grove. The West village's town is B4's north and A4 (question 112).
+the autumn grove. The West village's town is B4's north and A4 (question 112). *Built 2026-10-17
+from these notes, with one change from the owner: the Lair's gate is in a hill in D5 (Fatty's
+Hollow), reached through a field maze and over falling slabs; the chunks' cards are in
+[Chapter 1](../story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17).*
 - **C4:** the plaza and its well (the landmark), Plop at the town's edge where the forest path
   comes out, the town's campfire, the slime's house, Lili's yard with Yoi's home (a Gulp secret,
   open at once: an early reward that teaches "secrets exist"; its heap is crates, question 128),
@@ -731,6 +758,11 @@ as mini-boss.
 - **The way out:** the new Heavy skin at once, the skin's first lock between the Pearl and
   daylight (question 132): a plank barricade or a heavy plate, which one is not decided. Fatty also
   leaves a full heart (question 17).
+- *Changed 2026-10-17 (owner): **Pearl 1 lies in the Lair, before Fatty.** Taking it seals the
+  Lair's exits until he falls; the Heavy skin's first lock stands right where it is won, the
+  second half teaches the skin, and Fatty's fight is its exam. "The way out" above, the skin's
+  first lock between the Pearl and daylight, goes with the old order. The built Lair is reworked
+  by the [plan](2026-10-17-pearl-mid-dungeon.md).*
 
 ### Tom's maze
 
@@ -768,6 +800,11 @@ where its big key lies is question 116 (proposal: behind the Brood Warden).
   herself in a web cocoon that only a blast tears open, then the Spear (question 133,
   [open point 16](#open-points)). She leaves a full heart (question 17).
 - **The way out:** a web wall and the Matron's thread in her web, both for the new Silk skin.
+- *Changed 2026-10-17 (owner): **Pearl 2 lies in the Hollow, before the Matron.** Taking it seals
+  the Hollow's exits until she falls. Its webs and web walls are no longer only shown: after the
+  Pearl, the second half teaches the Silk skin on them, and her fight is its exam, so the slime
+  meets her with the skin. The built Hollow is reworked by the
+  [plan](2026-10-17-pearl-mid-dungeon.md).*
 
 ### The Crystal Caverns and the mine
 
@@ -794,6 +831,10 @@ Chapter 3: the web-wall maze, the mine camp, the dark maze, the chasm, the Colos
   (yet).
 - **The way out:** a climbable wall, the Feral skin's first lock (question 132). He leaves a full
   heart (question 17).
+- *Changed 2026-10-17 (owner): **Pearl 3 lies in the mine, before the Colossus.** Taking it seals
+  the mine's exits until he falls; the Feral skin's first lock stands right where it is won, the
+  second half teaches the climb, and his fight is its exam, so the slime comes into his arena able
+  to climb. The built mine is reworked by the [plan](2026-10-17-pearl-mid-dungeon.md).*
 
 ### The Wilds after the Colossus
 
@@ -805,7 +846,8 @@ Release 1's content ends when the Colossus falls, and the player explores (quest
 - The Feral skin's whole arc is here, after the climb out of the Colossus's arena (question 132):
   a climb, a climb with a drop and a loop back, a climb to a prize seen from far. Spread come-back
   secrets for every power over the Wilds' chunks, and only a few later-release locks, each with
-  its line (question 135).
+  its line (question 135). *Since 2026-10-17 the skin's teaching starts in the mine's second half
+  (above), so the Wilds carry its arc on rather than begin it.*
 
 ## Open points
 
@@ -907,7 +949,9 @@ good ([question 136](../story/07-decisions-archive.md#open-after-the-eighth-roun
     stands near the town's edge soon after the prologue.*
 15. **The Feral skin's arc.** It is won when Release 1's content ends, so it has no test or twist
     inside the chapters (proposal: climb out of the Colossus's arena, then the Wilds).
-    *Answered (question 132): the proposal.*
+    *Answered (question 132): the proposal.* *Changed 2026-10-17 (owner): with each Pearl found
+    before its boss, the Heavy and Feral skins' first locks move into their dungeons' second
+    halves, and the Feral skin gets its teach and test in the mine before the Colossus (rule 6).*
 
 **The tool and the boss**
 

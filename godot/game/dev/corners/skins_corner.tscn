@@ -1,0 +1,231 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dev/corners/skins_corner.gd" id="script"]
+[ext_resource type="Script" path="res://game/dev/corners/skin_pedestal.gd" id="pedestal_script"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--stone-pedestal.tscn" id="stone"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-plate.tscn" id="plate"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="statue"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/plank-barricade.tscn" id="barricade"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/loose-rock.tscn" id="rock"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/rubble-heap.tscn" id="rubble"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/old-fence.tscn" id="fence"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/old-trunk.tscn" id="trunk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/rotten-timbers.tscn" id="timbers"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid--grove-tree-03.tscn" id="tree"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/loose-prize.tscn" id="prize"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/floor-web.tscn" id="web"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/web-wall.tscn" id="web_wall"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--horizontal-04.tscn" id="wall"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/silk-parcel.tscn" id="parcel"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/climb-wall.tscn" id="climb"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/training-dummy.tscn" id="dummy"]
+
+[node name="skins-corner" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("script")
+
+[node name="title" type="Label" parent="."]
+offset_left = 6700
+offset_top = 600
+offset_right = 7900
+offset_bottom = 700
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = "Skins corner (roadmap 7.8; docs/godot/SKINS.md)
+Each pedestal lends its skin for this session (interact again to give it back). A won skin is always on;
+the bag's Skins row only picks the look. Try every lock with and without its skin."
+
+[node name="heavy-sign" type="Label" parent="."]
+offset_left = 6700
+offset_top = 720
+offset_right = 7900
+offset_bottom = 760
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+text = "HEAVY: the plate sinks, the statue moves (hold interact by it), and a Roll smashes the old things and shakes the pouch out of the tree."
+
+[node name="heavy-pedestal" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(6800, 960)
+script = ExtResource("pedestal_script")
+skin_id = "heavy"
+
+[node name="stone" parent="heavy-pedestal" instance=ExtResource("stone")]
+position = Vector2(0, 0)
+
+[node name="heavy-plate" parent="." instance=ExtResource("plate")]
+position = Vector2(6980, 960)
+
+[node name="heavy-statue" parent="." instance=ExtResource("statue")]
+position = Vector2(7140, 940)
+
+[node name="plank-barricade" parent="." instance=ExtResource("barricade")]
+position = Vector2(7320, 960)
+
+[node name="loose-rock" parent="." instance=ExtResource("rock")]
+position = Vector2(7500, 960)
+
+[node name="rubble-heap" parent="." instance=ExtResource("rubble")]
+position = Vector2(7680, 960)
+
+[node name="old-fence" parent="." instance=ExtResource("fence")]
+position = Vector2(7840, 960)
+
+[node name="old-trunk" parent="." instance=ExtResource("trunk")]
+position = Vector2(7240, 1180)
+
+[node name="rotten-timbers" parent="." instance=ExtResource("timbers")]
+position = Vector2(7460, 1180)
+
+[node name="prize-tree" parent="." instance=ExtResource("tree")]
+position = Vector2(7700, 1180)
+metadata/instance_id = "playground-skins-prize-tree"
+metadata/persistence_key = "playground.playground-skins-prize-tree"
+
+[node name="loose-prize" parent="." instance=ExtResource("prize")]
+position = Vector2(7712, 1196)
+hang_height = 150.0
+coins = 25
+
+[node name="silk-sign" type="Label" parent="."]
+offset_left = 6700
+offset_top = 1330
+offset_right = 7900
+offset_bottom = 1370
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+text = "SILK: floor webs halve a walk and stick a Roll; the web wall blocks. With the skin you cross webs at full speed, pass the wall at half speed, and the Spear cuts the wall and frees the parcels."
+
+[node name="silk-pedestal" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(6800, 1560)
+script = ExtResource("pedestal_script")
+skin_id = "silk"
+
+[node name="stone" parent="silk-pedestal" instance=ExtResource("stone")]
+position = Vector2(0, 0)
+
+[node name="floor-web-0-0" parent="." instance=ExtResource("web")]
+position = Vector2(6960, 1480)
+variant = 0
+turn = 0
+
+[node name="floor-web-0-1" parent="." instance=ExtResource("web")]
+position = Vector2(6960, 1544)
+variant = 1
+turn = 1
+
+[node name="floor-web-0-2" parent="." instance=ExtResource("web")]
+position = Vector2(6960, 1608)
+variant = 2
+turn = 2
+
+[node name="floor-web-1-0" parent="." instance=ExtResource("web")]
+position = Vector2(7024, 1480)
+variant = 3
+turn = 1
+
+[node name="floor-web-1-1" parent="." instance=ExtResource("web")]
+position = Vector2(7024, 1544)
+variant = 4
+turn = 2
+
+[node name="floor-web-1-2" parent="." instance=ExtResource("web")]
+position = Vector2(7024, 1608)
+variant = 5
+turn = 3
+
+[node name="floor-web-2-0" parent="." instance=ExtResource("web")]
+position = Vector2(7088, 1480)
+variant = 0
+turn = 2
+
+[node name="floor-web-2-1" parent="." instance=ExtResource("web")]
+position = Vector2(7088, 1544)
+variant = 1
+turn = 3
+
+[node name="floor-web-2-2" parent="." instance=ExtResource("web")]
+position = Vector2(7088, 1608)
+variant = 2
+turn = 0
+
+[node name="floor-web-3-0" parent="." instance=ExtResource("web")]
+position = Vector2(7152, 1480)
+variant = 3
+turn = 3
+
+[node name="floor-web-3-1" parent="." instance=ExtResource("web")]
+position = Vector2(7152, 1544)
+variant = 4
+turn = 0
+
+[node name="floor-web-3-2" parent="." instance=ExtResource("web")]
+position = Vector2(7152, 1608)
+variant = 5
+turn = 1
+
+[node name="web-wall" parent="." instance=ExtResource("web_wall")]
+position = Vector2(7400, 1580)
+height = 92.0
+hides_secret = true
+
+[node name="web-wall-stone-0" parent="." instance=ExtResource("wall")]
+position = Vector2(7304, 1580)
+
+[node name="web-wall-stone-1" parent="." instance=ExtResource("wall")]
+position = Vector2(7240, 1580)
+
+[node name="web-wall-stone-2" parent="." instance=ExtResource("wall")]
+position = Vector2(7176, 1580)
+
+[node name="web-wall-stone-3" parent="." instance=ExtResource("wall")]
+position = Vector2(7496, 1580)
+
+[node name="web-wall-stone-4" parent="." instance=ExtResource("wall")]
+position = Vector2(7560, 1580)
+
+[node name="web-wall-stone-5" parent="." instance=ExtResource("wall")]
+position = Vector2(7624, 1580)
+
+[node name="walled-parcel" parent="." instance=ExtResource("parcel")]
+position = Vector2(7400, 1470)
+coins = 20
+
+[node name="open-parcel" parent="." instance=ExtResource("parcel")]
+position = Vector2(7800, 1580)
+coins = 10
+contents = {
+"hp-potion": 1
+}
+
+[node name="feral-sign" type="Label" parent="."]
+offset_left = 6700
+offset_top = 1800
+offset_right = 7900
+offset_bottom = 1840
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+text = "FERAL: hold interact facing the roots at the plateau's foot to climb (the other way climbs back; let go and you drop, unhurt). Climb down from the lip. The Spear jabs twice as fast (try the dummy)."
+
+[node name="feral-pedestal" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(6800, 2300)
+script = ExtResource("pedestal_script")
+skin_id = "feral"
+
+[node name="stone" parent="feral-pedestal" instance=ExtResource("stone")]
+position = Vector2(0, 0)
+
+[node name="climb-up" parent="." instance=ExtResource("climb")]
+position = Vector2(7328, 2304)
+top = Vector2(0, -170)
+art_size = Vector2(150, 150)
+
+[node name="climb-down" parent="." instance=ExtResource("climb")]
+position = Vector2(7328, 2150)
+top = Vector2(0, 165)
+show_art = false
+
+[node name="training-dummy" parent="." instance=ExtResource("dummy")]
+position = Vector2(6980, 2460)

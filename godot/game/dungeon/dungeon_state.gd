@@ -7,7 +7,16 @@ class_name DungeonState
 ## A record: {"small_keys": int (held, unspent), "keys_found": int, "items": [the big key, the map,
 ## the compass held], "keyholes": {door key: keyholes opened}, "done": [object keys solved for good:
 ## bolts slid, winches turned, bridges lowered, fights cleared, keys picked up, ...], "bosses": [boss
-## ids beaten], "visited": [room keys], "entrance": {"map_id", "x", "y"} (an old centre)}.
+## ids beaten], "visited": [room keys], "entrance": {"map_id", "x", "y"} (an old centre), "seal":
+## {"boss_id", "by"} while the dungeon is sealed (empty otherwise)}.
+##
+## **The seal** (docs/godot/DUNGEONS.md "The seal"; decisions archive, 2026-10-17 "the Pearl inside
+## the dungeon"): taking the dungeon's Pearl seals it (`seal`) until its boss falls. While
+## `is_sealed`, every door out of the dungeon refuses: the seal shutters (`object.dungeon-seal`,
+## game/dungeon/dungeon_seal.gd) stand in its outside doorways, and a travel to a world that is
+## not one of the dungeon's refuses with the seal's line (`exit_refusal`: main.gd `request_exit`,
+## climbable walls with an exit). A faint or a quit still resumes at the entrance, inside, with the
+## seal on. The boss's fall (`mark_boss_beaten`, or his id in `defeated_boss_ids`) breaks it.
 ##
 ## Inside a dungeon (a `Dungeon` node, game/dungeon/dungeon.gd, in the current world: `is_inside`)
 ## RunState refuses every save and the autosave waits (`saving_blocked_reason` is NO_SAVE_REASON);
@@ -37,6 +46,16 @@ const ITEMS: PackedStringArray = [SMALL_KEY, BIG_KEY, MAP, COMPASS]
 const ITEM_PREFIX := "dungeon-"
 ## Outside a dungeon, kit objects keep their state in the map record under this prefix.
 const OBJECT_STATE_PREFIX := "kit:"
+## Every seal shutter (dungeon_seal.gd) joins this group.
+const SEAL_GROUP := &"dungeon_seal"
+## The Dungeon node's scene and script: a world holding one with a dungeon's id is that dungeon's.
+const DUNGEON_SCENE := "res://game/scenes/objects/dungeon/dungeon.tscn"
+const DUNGEON_SCRIPT := "res://game/dungeon/dungeon.gd"
+const WORLD_SCENE_PREFIX := "world."
+
+## World id -> the dungeon id its Dungeon node has ("" for a world outside every dungeon), read
+## from the world's scene once a session (`world_dungeon_id`).
+static var _world_dungeons: Dictionary = {}
 
 
 # --- the record ---------------------------------------------------------------------------------
@@ -49,13 +68,14 @@ static func record(run: Object, dungeon_id: String) -> Dictionary:
 	var all: Dictionary = world.get_or_add(RECORD_KEY, {})
 	if not all.has(dungeon_id):
 		all[dungeon_id] = {"small_keys": 0, "keys_found": 0, "items": [], "keyholes": {}, "done": [],
-			"bosses": [], "visited": [], "entrance": {}}
+			"bosses": [], "visited": [], "entrance": {}, "seal": {}}
 	var found: Dictionary = all[dungeon_id]
 	# Records from an older kit: the keys that are missing.
 	for key: String in ["items", "done", "bosses", "visited"]:
 		found.get_or_add(key, [])
 	found.get_or_add("keyholes", {})
 	found.get_or_add("entrance", {})
+	found.get_or_add("seal", {})
 	return found
 
 
@@ -162,7 +182,107 @@ static func mark_boss_beaten(run: Object, dungeon_id: String, boss_id: String) -
 		var defeated: Array = world.get_or_add("defeated_boss_ids", [])
 		if not boss_id in defeated:
 			defeated.append(boss_id)
+	# His fall breaks the seal he held (the Dungeon node sinks the seal shutters).
+	if not found.is_empty() and str((found["seal"] as Dictionary).get("boss_id", "")) == boss_id:
+		found["seal"] = {}
 	notify(run, dungeon_id)
+
+
+# --- the seal -----------------------------------------------------------------------------------
+
+## Seals `dungeon_id` until its boss `boss_id` falls (the Pearl's take; `by` names what sealed it, a
+## Pearl's id). False, and nothing sealed, without a boss, when that boss is already beaten (an old
+## save that beat him before the rework takes the Pearl after) or when it is sealed already.
+static func seal(run: Object, dungeon_id: String, boss_id: String, by: String = "") -> bool:
+	var found := record(run, dungeon_id)
+	if found.is_empty() or boss_id.is_empty() or is_boss_beaten(run, dungeon_id, boss_id):
+		return false
+	if is_sealed(run, dungeon_id):
+		return false
+	found["seal"] = {"boss_id": boss_id, "by": by}
+	notify(run, dungeon_id)
+	return true
+
+
+## True while `dungeon_id` is sealed: sealed, and the boss who holds it not beaten.
+static func is_sealed(run: Object, dungeon_id: String) -> bool:
+	var held: Dictionary = record(run, dungeon_id).get("seal", {})
+	if held.is_empty():
+		return false
+	return not is_boss_beaten(run, dungeon_id, str(held.get("boss_id", "")))
+
+
+## The boss whose fall breaks the seal ("" when not sealed).
+static func sealed_by(run: Object, dungeon_id: String) -> String:
+	return str((record(run, dungeon_id).get("seal", {}) as Dictionary).get("boss_id", "")) if is_sealed(run, dungeon_id) else ""
+
+
+## Breaks the seal (his fall does it by itself: `mark_boss_beaten`; this is for a dev option or a
+## test). True when it was sealed.
+static func unseal(run: Object, dungeon_id: String) -> bool:
+	var found := record(run, dungeon_id)
+	if found.is_empty() or (found["seal"] as Dictionary).is_empty():
+		return false
+	var was := is_sealed(run, dungeon_id)
+	found["seal"] = {}
+	notify(run, dungeon_id)
+	return was
+
+
+## The line a travel from the current dungeon to world `target_map_id` is refused with while the
+## dungeon is sealed: its Dungeon node's `seal_text`. "" when it may go: not in a dungeon, not
+## sealed, or the target is one of the dungeon's worlds (a floor of the Weaver Hollow).
+static func exit_refusal(tree: SceneTree, target_map_id: String) -> String:
+	var dungeon := current(tree)
+	if dungeon == null:
+		return ""
+	var dungeon_id := str(dungeon.get(&"dungeon_id"))
+	if not is_sealed(Services.run(), dungeon_id) or world_dungeon_id(target_map_id) == dungeon_id:
+		return ""
+	return str(dungeon.call(&"seal_text")) if dungeon.has_method(&"seal_text") else "Sealed."
+
+
+## The dungeon id of world `map_id`'s Dungeon node ("" for a world outside every dungeon or an
+## unknown one): the current world's own node, else read from the world's scene (its SceneState,
+## without building it) once a session.
+static func world_dungeon_id(map_id: String) -> String:
+	if map_id.is_empty():
+		return ""
+	var world := Services.world()
+	if world != null and world.map_id() == map_id and world.is_inside_tree():
+		var here := current(world.get_tree())
+		if here != null:
+			return str(here.get(&"dungeon_id"))
+	if _world_dungeons.has(map_id):
+		return str(_world_dungeons[map_id])
+	var found := ""
+	var path := world.scene_path(WORLD_SCENE_PREFIX + map_id) if world != null else ""
+	if not path.is_empty() and ResourceLoader.exists(path):
+		var packed := ResourceLoader.load(path, "PackedScene") as PackedScene
+		if packed != null:
+			found = _dungeon_id_in(packed.get_state())
+	_world_dungeons[map_id] = found
+	return found
+
+
+## The `dungeon_id` of the Dungeon node in a world scene's state ("" when it has none).
+static func _dungeon_id_in(state: SceneState) -> String:
+	if state == null:
+		return ""
+	for index: int in state.get_node_count():
+		var instance := state.get_node_instance(index)
+		var is_dungeon := instance != null and instance.resource_path == DUNGEON_SCENE
+		var id := ""
+		for property: int in state.get_node_property_count(index):
+			var property_name := state.get_node_property_name(index, property)
+			var value: Variant = state.get_node_property_value(index, property)
+			if property_name == &"dungeon_id":
+				id = str(value)
+			elif property_name == &"script" and value is Script and (value as Script).resource_path == DUNGEON_SCRIPT:
+				is_dungeon = true
+		if is_dungeon and not id.is_empty():
+			return id
+	return ""
 
 
 ## Remembers that the slime stood in room `room_key`; true when it is new.

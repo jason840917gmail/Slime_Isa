@@ -10,8 +10,11 @@
 > pot or an arrow rings, which stay open for good, and to wooden clappers, the worm army's alarms,
 > never locks (questions 115, 127 and 136); an eye is always the Spear's, and the Bow's target is a crystal
 > lens (question 127); each boss gives a full heart (question 17); and the Matron lives at the
-> top of the Weaver Hollow, where her fight needs the Goo Bomb (question 133). This file is kept
-> as the record of 2026-10-11.
+> top of the Weaver Hollow, where her fight needs the Goo Bomb (question 133). Since 2026-10-17
+> each Pearl lies inside its dungeon before the boss, as the dungeon's item: taking it seals the
+> dungeon until he falls, and the second half teaches its skin
+> ([the rework plan](2026-10-17-pearl-mid-dungeon.md)). This file is kept as the record of
+> 2026-10-11.
 
 *Status: a proposal for the owner, on branch `exp/body-shapes` only. Written 2026-10-11 from three idea sets (Zelda-faithful, slime-body, pacing and story) and a judge, after the owner asked whether a dungeon should give two powers and asked for ideas on the item that opens each region's dungeon. Goes with the [body-shapes plan](2026-10-11-body-shapes-plan.md) and the [Release 1 dungeons plan](2026-10-11-release-1-dungeons-plan.md). Names of new characters, places and bosses are proposals.*
 

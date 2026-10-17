@@ -18,9 +18,19 @@ class_name Dungeon
 ##   room's pots and other light things that were taken (`room_resets`).
 ## - **The HUD**: the dungeon's key chip (game/dungeon/dungeon_hud.gd), its rooms on the minimap
 ##   (dungeon_minimap.gd) and its map on the map screen (dungeon_map_page.gd).
+## - **The seal** (docs/godot/DUNGEONS.md "The seal"): `boss_id` is the dungeon's boss. Taking the
+##   dungeon's Pearl (game/scripts/pearl.gd) calls `seal_now`: DungeonState seals the dungeon until
+##   he falls, his roar sounds as the Pearl's card closes and the view glimpses the entrance's seal
+##   slamming shut (game/dungeon/seal_moment.gd). While sealed every seal shutter in its worlds is
+##   shut (game/dungeon/dungeon_seal.gd), a travel out refuses with `seal_text`, his roar sounds far
+##   off now and then (`dungeon.seal.distantRoar*`), and he shows his rage when his fight starts
+##   (game/bosses/enraged_look.gd: presentation only). His fall (in the record or in
+##   `defeated_boss_ids`) breaks the seals: "The seals break!". Set `boss_id`, `boss_name`,
+##   `seal_color`, `roar_sound` (and `roar_pitch`) on the Dungeon node of every world of the dungeon.
 ## - **Dev launch options** (once a session): `keys=<n>` small keys, `bigkey`, `dmap` (the map and
 ##   the compass), `room=<CameraRoom name>` (start in that room, at its `RoomEntry` child or its
-##   middle).
+##   middle), `sealed` (the Pearls in this world taken quietly, their skins lent, and the dungeon
+##   sealed: the second half; `skins=` lends skins in a world without its Pearl).
 ##
 ## In the editor it draws its name.
 ##
@@ -33,6 +43,15 @@ const DungeonHud := preload("res://game/dungeon/dungeon_hud.gd")
 const DungeonMinimap := preload("res://game/dungeon/dungeon_minimap.gd")
 const DungeonMapPage := preload("res://game/dungeon/dungeon_map_page.gd")
 const LiftableScript := preload("res://game/scripts/liftable.gd")
+const SealMoment := preload("res://game/dungeon/seal_moment.gd")
+const EnragedLook := preload("res://game/bosses/enraged_look.gd")
+
+const BOSS_CAMP_GROUP := &"boss_camp"
+const ROOM_FIGHT_GROUP := &"room_fight"
+const PEARL_GROUP := &"pearl"
+const BREAK_TEXT := "The seals break!"
+const BREAK_TEXT_RISE := 60.0
+const CUE_BREAK := &"SecretFound"
 
 ## player.gd RESPAWN_OVERRIDE_GROUP.
 const RESPAWN_OVERRIDE_GROUP := &"respawn_override"
@@ -61,8 +80,28 @@ signal room_entered(payload: Dictionary)
 ## Walking into another room brings back its beaten enemies and its taken pots.
 @export var room_resets: bool = true
 
+@export_group("The seal")
+## The dungeon's boss: his camp's (boss_camp.gd, the Colossus's arena) or his room fight's `boss_id`.
+## Taking the Pearl seals the dungeon until he falls ("" = the Pearl seals nothing).
+@export var boss_id: String = ""
+## His name in the seal's lines ("Fatty One Eye").
+@export var boss_name: String = ""
+## The seal's ring of light and his rage's glow: the boss's colour (Fatty's mud red, the Matron's
+## violet, the Colossus's smoky violet).
+@export var seal_color: Color = Color("#d4482e")
+## His roar: as the Pearl's card closes, and far off while sealed (null = no roar).
+@export var roar_sound: AudioStream
+@export var roar_pitch: float = 1.0
+## The dust that falls over the screen at his roar (crystal dust in the Mine, silk in the Hollow).
+@export var dust_color: Color = Color("#e6d8b4")
+
 ## Dev launch options apply once a session per dungeon.
 static var _dev_applied: Dictionary = {}
+
+var _sealed := false
+var _next_roar_ms := -1.0
+var _break_at_ms := -1.0
+var _roar_player: AudioStreamPlayer
 
 var _rooms: Array[CameraRoom] = []
 var _room_key := ""
@@ -128,6 +167,10 @@ func _on_world_registered(_payload: Dictionary) -> void:
 	add_child(_hud)
 	_minimap = DungeonMinimap.attach(self)
 	_page = DungeonMapPage.attach(self)
+	_sealed = is_sealed()
+	if _sealed:
+		_schedule_distant_roar()
+	_bind_bosses()
 	_apply_dev_options.call_deferred()
 
 
@@ -211,6 +254,7 @@ func current_room_key() -> String:
 func _physics_process(_delta: float) -> void:
 	if not _registered:
 		return
+	_watch_seal()
 	var world := Services.world()
 	if world == null or world.player == null or not is_instance_valid(world.player):
 		return
@@ -268,6 +312,202 @@ func _snapshot_light_things() -> void:
 			"current": root})
 
 
+# --- the seal -----------------------------------------------------------------------------------
+
+## True while the dungeon is sealed (its Pearl taken, its boss standing).
+func is_sealed() -> bool:
+	return DungeonState.is_sealed(Services.run(), dungeon_id)
+
+
+## The line every way out refuses with while sealed.
+func seal_text() -> String:
+	return "Sealed. %s's rage holds it shut." % (boss_name if not boss_name.is_empty() else "The boss")
+
+
+## The line over the slime as the boss roars on the take.
+func roar_text() -> String:
+	return "%s roars! The way out slams shut." % (boss_name if not boss_name.is_empty() else "The boss")
+
+
+## The Pearl's take (`by`: the Pearl's id): seals the dungeon until `boss_id` falls. With `moment`,
+## his roar as the Pearl's card closes and the glimpse of the entrance's seal slamming shut
+## (seal_moment.gd); without it (a dev option, a test) every seal shuts quietly. False when nothing
+## was sealed: no `boss_id`, he is beaten already, or it is sealed already.
+func seal_now(by: String = "", moment: bool = true) -> bool:
+	var run := Services.run()
+	if run == null or not DungeonState.seal(run, dungeon_id, boss_id, by):
+		return false
+	_sealed = true
+	_break_at_ms = -1.0
+	_schedule_distant_roar()
+	var target: Node = glimpse_seal() if moment else null
+	for seal: Node in seals():
+		if seal != target:
+			seal.call(&"shut_quietly")
+	if target != null:
+		# It holds the doorway at once; it rises in the glimpse.
+		target.call(&"engage")
+	if moment:
+		var sequence := SealMoment.new()
+		sequence.name = "SealMoment"
+		sequence.dungeon = self
+		sequence.target = target
+		add_child(sequence)
+	return true
+
+
+## The seal shutters (dungeon_seal.gd) of this world.
+func seals() -> Array[Node]:
+	var out: Array[Node] = []
+	for node: Node in get_tree().get_nodes_in_group(DungeonState.SEAL_GROUP):
+		if not node.is_queued_for_deletion() and _in_world(node):
+			out.append(node)
+	return out
+
+
+## The seal the take's glimpse shows: one with `glimpse` on, else the one nearest the entrance
+## marker when the entrance is in this world; null when none.
+func glimpse_seal() -> Node:
+	var at: Variant = entrance_point()
+	var best: Node = null
+	var best_distance := INF
+	for seal: Node in seals():
+		if bool(seal.get(&"glimpse")):
+			return seal
+		if at is Vector2:
+			var distance := (seal as Node2D).global_position.distance_to(at)
+			if distance < best_distance:
+				best_distance = distance
+				best = seal
+	return best
+
+
+## His roar (the dungeon's `roar_sound`), `volume_db` louder or softer and at `pitch_share` of
+## `roar_pitch`. Real time: it plays through a pause.
+func play_roar(volume_db: float = 0.0, pitch_share: float = 1.0) -> void:
+	if roar_sound == null:
+		return
+	if _roar_player == null or not is_instance_valid(_roar_player):
+		_roar_player = AudioStreamPlayer.new()
+		_roar_player.name = "RoarPlayer"
+		_roar_player.bus = &"Effects"
+		_roar_player.process_mode = Node.PROCESS_MODE_ALWAYS
+		add_child(_roar_player)
+	_roar_player.stream = roar_sound
+	_roar_player.volume_db = volume_db
+	_roar_player.pitch_scale = maxf(0.05, roar_pitch * pitch_share)
+	_roar_player.play()
+
+
+## The record's seal against what this world shows: sealed elsewhere (a test, a dev option) shuts
+## the seals; his fall breaks them `dungeon.seal.breakDelayMs` later (after "defeated!"). While
+## sealed, his roar sounds far off every `distantRoarMinMs` to `distantRoarMaxMs`.
+func _watch_seal() -> void:
+	var sealed := is_sealed()
+	if sealed != _sealed:
+		_sealed = sealed
+		if sealed:
+			_break_at_ms = -1.0
+			for seal: Node in seals():
+				seal.call(&"shut_quietly")
+			_schedule_distant_roar()
+		else:
+			_next_roar_ms = -1.0
+			_break_at_ms = Services.now_ms() + DungeonState.number("seal.breakDelayMs", 900.0)
+	if _break_at_ms >= 0.0 and Services.now_ms() >= _break_at_ms:
+		_break_at_ms = -1.0
+		_break_seals()
+	if _sealed and _next_roar_ms >= 0.0 and Services.now_ms() >= _next_roar_ms:
+		_schedule_distant_roar()
+		if not _boss_fighting():
+			_distant_roar()
+
+
+## His fall: every seal sinks with a chime and stays down; "The seals break!" over the slime.
+func _break_seals() -> void:
+	DungeonState.unseal(Services.run(), dungeon_id)
+	for seal: Node in seals():
+		seal.call(&"break_seal")
+	var feel := Services.feel()
+	var world := Services.world()
+	if feel == null:
+		return
+	feel.audio_cue(CUE_BREAK)
+	if world != null and world.player != null and is_instance_valid(world.player):
+		feel.floating_text(world.player.get_centre() - Vector2(0.0, BREAK_TEXT_RISE), BREAK_TEXT, &"yellow", true)
+
+
+func _schedule_distant_roar() -> void:
+	var low := DungeonState.number("seal.distantRoarMinMs", 45000.0)
+	var high := maxf(low, DungeonState.number("seal.distantRoarMaxMs", 60000.0))
+	_next_roar_ms = Services.now_ms() + randf_range(low, high)
+
+
+## Far off: his roar, soft and low, a light shake and a little dust (presentation only).
+func _distant_roar() -> void:
+	play_roar(DungeonState.number("seal.distantRoarDb", -14.0), DungeonState.number("seal.distantRoarPitch", 0.85))
+	var feel := Services.feel()
+	if feel != null:
+		feel.shake(DungeonState.number("seal.distantShakeMs", 320.0), DungeonState.number("seal.distantShakeIntensity", 0.0025))
+	SealMoment.dust(self, dust_color, int(DungeonState.number("seal.distantDust", 14.0)))
+
+
+## True while his fight is on (no far-off roar then: he is right there).
+func _boss_fighting() -> bool:
+	if boss_id.is_empty():
+		return false
+	for node: Node in get_tree().get_nodes_in_group(BOSS_CAMP_GROUP):
+		if _in_world(node) and str(node.get(&"boss_id")) == boss_id and node.has_method(&"get_live_boss") \
+				and node.call(&"get_live_boss") != null:
+			return true
+	for node: Node in get_tree().get_nodes_in_group(ROOM_FIGHT_GROUP):
+		if _in_world(node) and str(node.get(&"boss_id")) == boss_id and bool(node.call(&"is_active")):
+			return true
+	return false
+
+
+## His fight starts while sealed: his rage shows (EnragedLook). A boss camp's `boss_engaged` (Fatty's,
+## the Matron's, the Colossus's arena) and a boss room fight's `started` (the lab's).
+func _bind_bosses() -> void:
+	if boss_id.is_empty():
+		return
+	for node: Node in get_tree().get_nodes_in_group(BOSS_CAMP_GROUP):
+		if _in_world(node) and node.has_signal(&"boss_engaged"):
+			var engaged := _on_boss_engaged.bind(node)
+			if not node.is_connected(&"boss_engaged", engaged):
+				node.connect(&"boss_engaged", engaged)
+	for node: Node in get_tree().get_nodes_in_group(ROOM_FIGHT_GROUP):
+		if _in_world(node) and str(node.get(&"boss_id")) == boss_id:
+			var started := _on_boss_fight_started.bind(node)
+			if not node.is_connected(&"started", started):
+				node.connect(&"started", started)
+
+
+func _on_boss_engaged(payload: Dictionary, camp: Node) -> void:
+	if str(payload.get("bossId", "")) != boss_id or not is_sealed() or not is_instance_valid(camp):
+		return
+	var boss: Variant = camp.call(&"get_live_boss") if camp.has_method(&"get_live_boss") else null
+	if boss is Node:
+		EnragedLook.attach(boss as Node, seal_color)
+
+
+func _on_boss_fight_started(_payload: Dictionary, fight: Node) -> void:
+	if not is_sealed() or not is_instance_valid(fight) or not fight.has_method(&"members"):
+		return
+	for member: Node in fight.call(&"members"):
+		var enemy: Variant = member.call(&"get_enemy") if member.has_method(&"get_enemy") else member
+		if enemy is Node:
+			EnragedLook.attach(enemy as Node, seal_color)
+	play_roar()
+
+
+func _in_world(node: Node) -> bool:
+	var world := Services.world()
+	if node == null or not node.is_inside_tree():
+		return false
+	return world == null or world.world_root == null or world.world_root.is_ancestor_of(node)
+
+
 # --- dev launch options -------------------------------------------------------------------------
 
 func _apply_dev_options() -> void:
@@ -284,6 +524,8 @@ func _apply_dev_options() -> void:
 	if bool(main.call(&"has_launch_option", "dmap")):
 		DungeonState.give_item(run, dungeon_id, DungeonState.MAP)
 		DungeonState.give_item(run, dungeon_id, DungeonState.COMPASS)
+	if bool(main.call(&"has_launch_option", "sealed")):
+		_dev_seal()
 	var room_name := str(main.call(&"launch_option", "room"))
 	if not room_name.is_empty():
 		for room: CameraRoom in _rooms:
@@ -292,6 +534,23 @@ func _apply_dev_options() -> void:
 				var world := Services.world()
 				if world != null and world.player != null:
 					world.player.teleport(entry.global_position if entry != null else room.rect().get_center())
+
+
+## `?sealed`: the second half at once. Every Pearl of this world is taken quietly (its guard's
+## fight finished, its skin won), and the dungeon is sealed without the moment.
+func _dev_seal() -> void:
+	var run := Services.run()
+	for pearl: Node in get_tree().get_nodes_in_group(PEARL_GROUP):
+		if not _in_world(pearl) or not pearl.has_method(&"take") or bool(pearl.call(&"is_taken")):
+			continue
+		var guard := str(pearl.get(&"boss_id"))
+		if not guard.is_empty() and guard != boss_id:
+			for fight: Node in get_tree().get_nodes_in_group(ROOM_FIGHT_GROUP):
+				if _in_world(fight) and str(fight.get(&"boss_id")) == guard and fight.has_method(&"finish_quietly"):
+					fight.call(&"finish_quietly")
+			DungeonState.mark_boss_beaten(run, dungeon_id, guard)
+		pearl.call(&"take", true)
+	seal_now("dev", false)
 
 
 # --- the editor ---------------------------------------------------------------------------------

@@ -11,15 +11,39 @@ wall (not in M2's), so the hub has no west door; the Great Shaft's floor and the
 -2 (not -1); the Dark Maze's exit gate stands in a nook at its north-east (the mine's own lantern
 gate); the Chasm's bridge crosses at rows 8 and 9, below the chasm's far wall, with its lens beside
 the raised bridge; S1 and S5 hold coins until heart quarters and the war journal's pages exist. Not
-built: the Feral skin (its climb is a scripted stand-in on the flag Pearl 3 sets), the Bow (the
-lenses take its arrow's hook), the cave road's dark side cave, the Feral hill from the Wilds and
-the smith in Slimeshire.*
+built: the Bow (the lenses take its arrow's hook), the cave road's dark side cave, the Feral hill
+from the Wilds and the smith in Slimeshire. The Feral skin is built (2026-10-17, SKINS.md), and the
+mine was reworked the same day for the Pearl inside it (below).*
 
 *Phase 1 (2026-10-16): a design for the owner. The owner asked to start on the three dungeons,
 apply the map design investigations, change maps where it is for the better, and add dark rooms
 for the Lantern. This design follows the [level design guide](2026-10-16-level-design.md) and the
 decided docs; where it needs a choice it lists it under [Open points](#open-points), each with a
 proposal.*
+
+> **Superseded in part (2026-10-17).** The owner moved each Pearl inside its dungeon, before the
+> boss ([decisions archive](../story/07-decisions-archive.md#decisions-by-date)): Pearl 3 lies in
+> the mine before the Colossus, taking it seals the mine's exits until he falls, the second half
+> teaches the Feral skin, and his fight is its exam. Where this design has the Pearl after him (the
+> arena, M15) and the Feral skin's first lock on the way out (the climb to the Lookout), the rework
+> plan replaces it: [2026-10-17-pearl-mid-dungeon.md](2026-10-17-pearl-mid-dungeon.md) (roadmap
+> 12.8).
+>
+> **Reworked and built the same day (2026-10-17)** as that plan lays it out
+> ([DUNGEONS.md](../godot/DUNGEONS.md#the-crystal-mine-built) has the mine as built): M9's door to
+> M10 is bricked and a stair from the Chasm's far side leads down into the Den (now one level below
+> the Chasm); Pearl 3 rises in the Den when the Shardback falls (the big chest moved to M12's new
+> balcony, K3 and the Den's key door went); its take seals M1's mouth and the climb-out until the
+> Colossus falls. The Feral second half: the Den's ledge door (teach, one level), M11's rift (test:
+> down the west landing's face, across, up the east landing's), M12's balcony under the Watcher Eye
+> and the Bone Marcher (twist, the big key), the roots down the shaft's north wall from the Den's
+> broken rim (four cells wide, two shutters, so the rim walks) to the calm floor. M10 and M11's veil
+> are an optional Lantern wing (the veil moved to the mouth of M10's doorway; M10's new chest holds
+> the war journal page that lay on M12's stand). The Colossus: roots beside his three climb spots on
+> the north wall; three Spear hits on his claws from a climbing slime and he crashes down, stunned
+> 2.5 s with his back open to any Spear hit; his "enraged" phase is his second phase
+> (`phaseTwoShare`); once beaten he shrinks into a small golem that wanders off. Lines below that
+> describe the old order are history.
 
 *Two pictures go with it, sent to the owner and not in the repo yet: the plan
 (`crystal-caverns-plan.png`, the rooms on a grid of screens with the main path, the locks in their

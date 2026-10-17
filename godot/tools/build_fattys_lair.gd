@@ -19,11 +19,19 @@ extends SceneTree
 ## The dungeon kit's pieces (game/dungeon/, docs/godot/DUNGEONS.md) are placed from their scenes
 ## (`object.<kind>`, game/scenes/objects/dungeon/).
 ##
+## Since 2026-10-17 the Lair keeps its Pearl inside, before Fatty (docs/design/2026-10-17-pearl-mid-dungeon.md
+## "Fatty's Lair"): the first half runs to the Larder (R12), where the Big Squint guards Pearl 1;
+## the second half teaches the Heavy skin (the Larder's barricade, the Weigh House in C2, R10, R9 and
+## the big key, the hub's counterweight plate under the drawbridge), and Fatty's phase two is its exam.
+##
 ## Owner: dungeons (Fatty's Lair).
 
 const OUT := "res://game/scenes/worlds/fatty-lair.tscn"
 const MAP_ID := "fatty-lair"
+## The way out by the bolt-hole (D4, by the Verdant Gate) and the way in (D5's hill, since 2026-10-17:
+## tools/build_slimeshire_chunks.gd), with the outer gate the inner winch holds up.
 const OUTSIDE_MAP := "level-1-d4"
+const ENTRANCE_MAP := "level-1-d5"
 const TILE := 64
 const ROOM_W := 16
 const ROOM_H := 14
@@ -63,6 +71,16 @@ const DUNGEON := "res://game/dungeon/dungeon.gd"
 const DIRECTOR := "res://game/fattys_lair/lair_director.gd"
 const SOFT_GLOW := "res://game/prologue/soft_glow.gd"
 const VOID_SHADE := "res://game/fattys_lair/void_shade.gd"
+const CHAIN := "res://game/fattys_lair/counterweight_chain.gd"
+## The Larder's mini-boss fight, recorded as a beaten boss: Pearl 1 shows once it is won.
+const BIG_SQUINT_ID := "fatty-lair-big-squint"
+## The Weigh House's props (the Thorn Guard's weighing hall), scenes made from
+## godot/asset/MAPS/objects/fattys-lair/weigh-*.webp.
+const WEIGH_PROPS := "res://game/scenes/objects/decoration-world-solid--weigh-%s.tscn"
+## Fatty's seal and roar (the Dungeon node's): his mud red, the earthy dust of his burrow.
+const SEAL_COLOR := Color("#b4462c")
+const DUST_COLOR := Color("#a68a62")
+const ROAR := "res://asset/audio/sfx/library/boss/fatty-roar.ogg"
 const PLACED_ENEMY := "res://game/scenes/encounters/placed-enemy.tscn"
 const OBJ := "res://game/scenes/objects/%s.tscn"
 const SCONCE_LIT := "res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-lit.tscn"
@@ -75,11 +93,12 @@ const KIT := "res://game/scenes/objects/dungeon/%s.tscn"
 ## its wall style, whether it is in the Deep (darker), its camera room name.
 const ROOMS := {
 	"r10": {"cell": Vector2i(0, 0), "size": Vector2i(2, 1), "ground": EARTH, "style": "cave-rock", "name": "r10-dung-roller-run"},
+	"weigh": {"cell": Vector2i(2, 0), "size": Vector2i(1, 1), "ground": COBBLE, "style": "masonry", "name": "c2-weigh-house"},
 	"bolt": {"cell": Vector2i(3, 0), "size": Vector2i(1, 1), "ground": EARTH, "style": "root-rock", "name": "bolt-hole", "carve": false},
 	"r9": {"cell": Vector2i(0, 1), "size": Vector2i(1, 1), "ground": COBBLE, "style": "cave-rock", "name": "r9-watcher-hall"},
 	"r8": {"cell": Vector2i(1, 1), "size": Vector2i(1, 2), "ground": COBBLE, "style": "cave-rock", "name": "r8-guard-crypt"},
 	"r12": {"cell": Vector2i(2, 1), "size": Vector2i(1, 1), "ground": COBBLE, "style": "cave-rock", "name": "r12-larder"},
-	"r14": {"cell": Vector2i(3, 1), "size": Vector2i(1, 1), "ground": COBBLE, "style": "masonry", "name": "r14-pearl-shrine"},
+	"r14": {"cell": Vector2i(3, 1), "size": Vector2i(1, 1), "ground": COBBLE, "style": "masonry", "name": "r14-postern"},
 	"arm": {"cell": Vector2i(0, 2), "size": Vector2i(1, 1), "ground": EARTH, "style": "cave-rock", "name": "old-armoury"},
 	"r11": {"cell": Vector2i(2, 2), "size": Vector2i(1, 1), "ground": COBBLE, "style": "cave-rock", "name": "r11-drop-gate-bridge"},
 	"r13": {"cell": Vector2i(3, 2), "size": Vector2i(1, 1), "ground": COBBLE, "style": "root-rock", "name": "r13-fattys-arena"},
@@ -100,9 +119,9 @@ const ROOMS := {
 const ROOM_ENTRIES := {
 	"r1": Vector2(8, 9), "r2": Vector2(2.5, 11.5), "hub": Vector2(8, 11.5), "r4": Vector2(13, 7.5),
 	"r5": Vector2(8, 4.5), "r6": Vector2(3, 7.5), "r7": Vector2(8, 3.8), "r8": Vector2(4, 24.6),
-	"r9": Vector2(13, 7.5), "r10": Vector2(8, 8.8), "r11": Vector2(2.5, 11.5), "r12": Vector2(12, 11.5),
+	"r9": Vector2(8, 4.6), "r10": Vector2(29, 9.0), "r11": Vector2(2.5, 11.5), "r12": Vector2(12, 11.5),
 	"r13": Vector2(8, 11.5), "r14": Vector2(8, 11), "arm": Vector2(13.5, 7.5), "bur": Vector2(8, 11.8),
-	"nook": Vector2(13, 7.5), "sally": Vector2(13, 6.5), "bolt": Vector2(8, 9),
+	"nook": Vector2(13, 7.5), "sally": Vector2(13, 6.5), "bolt": Vector2(8, 9), "weigh": Vector2(10.5, 11.6),
 }
 
 var cols := GRID.x * ROOM_W
@@ -273,12 +292,19 @@ func _carve_doors() -> void:
 	_door_h("r13", "hub", _cx("hub", 23))
 	_door_h("r14", "r13", _cx("r13", 7))
 	_door_h("bolt", "r14", _cx("r14", 7))
+	# R9's east door (bolted on R9's side since 2026-10-17: R9 is reached only through the second
+	# half) and R10's south door down to R9 (its stone door held by R10's plate). R10's old door down
+	# into R8 is gone.
 	_door_v("r9", "r8", _cy("r8", 6))
 	_door_v("arm", "r8", _cy("r8", 20))
-	_door_h("r10", "r8", _cx("r8", 7))
 	_door_h("r10", "r9", _cx("r9", 7))
+	# Door 3 (R8 into R11): an open doorway since 2026-10-17 (its lock and key 3 went).
 	_door_v("r8", "r11", _cy("r11", 11))
 	_door_h("r12", "r11", _cx("r11", 11))
+	# The second half: the Larder's north doorway (the plank barricade) into the Weigh House, and
+	# the Weigh House's west doorway into R10's lane.
+	_door_h("weigh", "r12", _cx("r12", 10))
+	_door_v("r10", "weigh", _cy("weigh", 8))
 	# The entrance from Fatty's Hollow: R1's south rim, open to the world's bottom edge.
 	_cell(_cx("r1", 7), _cy("r1", 13), 0, COBBLE)
 	_cell(_cx("r1", 8), _cy("r1", 13), 0, COBBLE)
@@ -320,13 +346,27 @@ func _carve_features() -> void:
 	_stairs("r7", 13, 5, "s")
 	_stairs("r7", 14, 5, "s")
 	# R10 Dung Roller Run: rock over the lane's north (its face over ly 6..7), the lane (ly 8..9),
-	# rock to its south with two niches and the two door corridors.
+	# rock to its south with three niches and the corridor down to R9's stone door. The statue's
+	# niche is cut into the north rock (lx 13..14: its floor is ly 6..7, clear of the face).
 	_rect("r10", 1, 1, 30, 5, ROCK_LEVEL)
 	_rect("r10", 1, 10, 30, 3, ROCK_LEVEL)
-	for nx in [11, 17]:
+	for nx in [11, 17, 23]:
 		_rect("r10", nx, 10, 2, 2, 0)
 	_rect("r10", 7, 10, 2, 3, 0)
-	_rect("r10", 23, 10, 2, 3, 0)
+	_rect("r10", 13, 4, 2, 2, 0)
+	# R9 Watcher Hall: the big chest's alcove, a notch in the south rim (lx 2..3).
+	_rect("r9", 2, 13, 2, 1, 0)
+	# C2 the Weigh House: an inner wall along ly 6 parts the north hall (the statue, the second
+	# plate) from the south; its doors are stone doors in one-cell gaps (lx 3 and lx 10). A wall down
+	# lx 5 parts the south: the entry hall (the first plate before the east door) and the west
+	# corridor to the R10 doorway, reached only through the west door from the north hall.
+	var weigh_walls: Array = []
+	for x in range(1, 15):
+		if x != 3 and x != 10:
+			weigh_walls.append(Vector2i(x, 6))
+	for y in range(7, 13):
+		weigh_walls.append(Vector2i(5, y))
+	_wall_cells("weigh", weigh_walls)
 	# R11 Drop-gate Bridge: void; the start strip (the worm lever) south of a low inner wall whose
 	# gap holds the gate's oak leaf; the landing behind it; two slabs north, the turn landing, three
 	# slabs east; the far platform and its walk round to the hub's ledge.
@@ -351,7 +391,7 @@ func _carve_features() -> void:
 	# The map nook and the sally port: small rooms carved in their cells against the band.
 	_rect("nook", 9, 4, 6, 6, 0)
 	_rect("sally", 9, 3, 6, 6, 0)
-	# The bolt-hole: a short tunnel up from the shrine's north door.
+	# The bolt-hole: a short tunnel up from the Postern's north door.
 	_rect("bolt", 7, 3, 2, 10, 0)
 
 
@@ -394,15 +434,29 @@ func _build_scene() -> void:
 	_place_r10()
 	_place_r11()
 	_place_r12()
+	_place_weigh_house()
 	_place_r13_r14()
+	_place_seal_spots()
 	_place_dark_rooms()
 	_place_nook_sally()
 	_place_kit_doors()
 	_place_hazards()
 	_fill_void_shade(shade)
+	_drop_unimported_pictures(scene_root)
 	_own(scene_root, scene_root)
 	for node in _editable:
 		scene_root.set_editable_instance(node, true)
+
+
+## A sheet sprite (game/runtime/sheet_sprite.gd) whose picture is not imported yet reads the file
+## itself: its texture would be saved into the scene. Dropped here, it loads at run time.
+func _drop_unimported_pictures(node: Node) -> void:
+	for child in node.get_children():
+		if child is Sprite2D and child.get(&"sheet_path") != null:
+			var path := str(child.get(&"sheet_path"))
+			if not path.is_empty() and not ResourceLoader.exists(path):
+				(child as Sprite2D).texture = null
+		_drop_unimported_pictures(child)
 
 
 func _holder(holder_name: String, y_sort: bool) -> Node2D:
@@ -578,6 +632,14 @@ func _dungeon_node() -> Node2D:
 	node.set(&"dungeon_id", MAP_ID)
 	node.set(&"display_name", "Fatty's Lair")
 	node.set(&"entrance_marker", "dungeon-entrance")
+	# The seal (DUNGEONS.md "The seal"): taking Pearl 1 seals the Lair until Fatty falls.
+	node.set(&"boss_id", "fatty-one-eye")
+	node.set(&"boss_name", "Fatty One Eye")
+	node.set(&"seal_color", SEAL_COLOR)
+	node.set(&"dust_color", DUST_COLOR)
+	if ResourceLoader.exists(ROAR):
+		node.set(&"roar_sound", load(ROAR))
+	node.set(&"roar_pitch", 0.9)
 	return node
 
 
@@ -669,7 +731,7 @@ func _pot(node_name: String, position: Vector2, kind: String = "clay-pot") -> No
 
 ## The way in from Fatty's Hollow and the way out through the bolt-hole.
 func _place_doors_out() -> void:
-	var entrance := _door("fatty-lair-entrance", "south", "opening", _at("r1", 8.0, 13.7), OUTSIDE_MAP, "fatty-lair-mouth")
+	var entrance := _door("fatty-lair-entrance", "south", "opening", _at("r1", 8.0, 13.7), ENTRANCE_MAP, "fatty-lair-mouth")
 	scene_root.add_child(entrance)
 	var bolt := _door("fatty-lair-bolt-hole", "north", "opening", _at("bolt", 8.0, 3.4), OUTSIDE_MAP, "fatty-lair-bolt-hole-mouth")
 	scene_root.add_child(bolt)
@@ -727,7 +789,7 @@ func _door(door_id: String, side: String, kind: String, position: Vector2, targe
 
 func _place_r1() -> void:
 	# The outer gate's inner winch: holds the drop gate in Fatty's Hollow up for good.
-	_add(objects, "gate-winch", "r1-gate-winch", _at("r1", 11.0, 12.4), {"gate_id": "fatty-lair-gate", "map_id": OUTSIDE_MAP})
+	_add(objects, "gate-winch", "r1-gate-winch", _at("r1", 11.0, 12.4), {"gate_id": "fatty-lair-gate", "map_id": ENTRANCE_MAP})
 	# The Quartermaster's store: the barricade in the closet's gap, Gorge's pay chest inside.
 	_add(objects, "plank-barricade", "r1-store-barricade", _at("r1", 13.0, 6.0), {"flag_id": "fatty-lair.store-smashed"})
 	_chest("dungeon-chest", "r1-store-chest", _at("r1", 13.0, 4.2), {"coins": 100})
@@ -763,16 +825,25 @@ func _place_hub() -> void:
 	for i in 3:
 		_pot("hub-ledge-pot-%d" % i, _at("hub", 18.0 + i * 0.9, 4.2))
 	_kit("energy-flower", "hub-ledge-flower", _at("hub", 21.5, 4.4))
-	# The drawbridge: hinged on the ledge's south edge, down across the chasm to the south gallery;
-	# its winch beside it on the ledge.
+	# The drawbridge: hinged on the ledge's south edge, down across the chasm to the south gallery.
+	# Its chains run to the counterweight plate on the south walk (since 2026-10-17, in place of the
+	# ledge's winch): seen, and stood on in vain, on the first visit; sunk with the Heavy skin, it
+	# lowers the bridge for good, the short way from the entrance to the boss door.
 	_kit("drawbridge", "hub-drawbridge", _at("hub", 16.0, 5.0), {"toward": "south", "length": 5, "width": 128.0,
 		"bridge_id": "fatty-lair-drawbridge"})
 	for y in range(5, 10):
 		for x in [15, 16]:
 			deck_cells[_origin("hub") + Vector2i(x, y)] = true
 	var targets: Array[NodePath] = [NodePath("../hub-drawbridge")]
-	_kit("winch", "hub-drawbridge-winch", _at("hub", 13.0, 4.7), {"winch_id": "fatty-lair-drawbridge-winch", "targets": targets,
-		"done_text": "The bridge is down for good."})
+	_add(objects, "heavy-plate", "hub-counterweight-plate", _at("hub", 18.5, 11.5), {"targets": targets})
+	var chain := Node2D.new()
+	chain.name = "hub-counterweight-chain"
+	chain.set_script(load(CHAIN))
+	chain.position = _at("hub", 18.5, 11.5)
+	chain.set(&"top", _at("hub", 16.9, 3.6) - chain.position)
+	chain.set(&"bridge", NodePath("../../Objects/hub-drawbridge"))
+	chain.set(&"plate", NodePath("../../Objects/hub-counterweight-plate"))
+	lair.add_child(chain)
 	for i in 2:
 		_add(scenery, "decoration-world-solid--war-banner", "hub-banner-%d" % i, _at("hub", 10.0 + i * 12.0, 12.4))
 	_pot("hub-pot-a", _at("hub", 29.4, 12.2))
@@ -860,19 +931,35 @@ func _place_r8() -> void:
 		_add(scenery, sconce, "r8-sconce-%d" % int(x), _at("r8", x, 3.1))
 
 
+## R9 the Watcher Hall, the Heavy skin's twist (since 2026-10-17): cover that moves under the eye.
+## The Watcher Eye drifts among its four armour statues (heavy blocks, on the cell lattice); a plate
+## in the open, in its sight, raises the hidden big chest in the south alcove (the big key). Push a
+## statue between the eye and the plate and sink it from behind it, or push a statue onto it. Its
+## north stone door is R10's plate's; its east door into R8 is bolted on this side.
 func _place_r9() -> void:
-	for p: Vector2 in [Vector2(4, 6), Vector2(4, 10.5), Vector2(11, 6), Vector2(11, 10.5)]:
-		_add(objects, "heavy-statue", "r9-statue-%d-%d" % [p.x, p.y], _at("r9", p.x + 0.5, p.y))
+	for p: Vector2 in [Vector2(4, 6), Vector2(4, 10), Vector2(11, 6), Vector2(11, 10)]:
+		_add(objects, "heavy-statue", "r9-statue-%d-%d" % [p.x, p.y], _at("r9", p.x + 0.5, p.y + 0.5))
 	_enemy("watcher-eye", "r9-watcher-eye", _at("r9", 8.0, 8.5), 120.0)
-	_add(objects, "latch-door", "r9-north-door", _at("r9", 8.0, 3.0), {"scale": Vector2(0.75, 0.75)}, {"GateScript": {"gate_id": "fatty-lair-r9-north", "map_id": MAP_ID}})
-	_add(objects, "eye-latch", "r9-latch", _at("r9", 11.0, 3.2), {"latch_id": "fatty-lair.r9-north", "gate_id": "fatty-lair-r9-north"})
+	_add(objects, "latch-door", "r9-north-door", _at("r9", 8.0, 3.0), {"scale": Vector2(0.75, 0.75)},
+		{"GateScript": {"gate_id": "fatty-lair-r9-north", "map_id": MAP_ID, "locked_message": "A stone door. A plate in the lane holds it open."}})
+	_chest("dungeon-big-chest", "r9-big-chest", _at("r9", 3.0, 13.4), {"dungeon-big-key": 1}, true)
+	var targets: Array[NodePath] = [NodePath("../r9-big-chest")]
+	_add(objects, "heavy-plate", "r9-plate", _at("r9", 8.5, 11.5), {"targets": targets})
+	_add(scenery, "decoration-world-solid--war-banner", "r9-banner", _at("r9", 13.4, 3.4))
 
 
+## R10 the Dung Roller Run, the Heavy skin's test (since 2026-10-17): a block in a patrolled lane.
+## The Dung Roller (met here first, alone) rolls its ball end to end; a plate lies in the lane before
+## the corridor down to R9's stone door, and a statue waits in the north niche. Pull it out and push
+## it west onto the plate while the ball is away: the ball turns back at it, and the plate holds R9's
+## door open only while the statue stands on it (`shut_on_leave`).
 func _place_r10() -> void:
 	_enemy("dung-roller", "r10-dung-roller", _at("r10", 6.0, 9.0), 60.0,
 		{"track": PackedVector2Array([Vector2(-224, 0), Vector2(1216, 0)])})
-	_enemy("squint", "r10-squint", _at("r10", 27.0, 9.0), 110.0)
-	_chest("dungeon-chest", "r10-chest-key-3", _at("r10", 29.6, 8.6), {"dungeon-small-key": 1})
+	_add(objects, "heavy-statue", "r10-statue", _at("r10", 13.5, 7.5))
+	_add(objects, "heavy-plate", "r10-plate", _at("r10", 9.5, 8.5), {"gate_id": "fatty-lair-r9-north", "shut_on_leave": true})
+	for i in 2:
+		_add(scenery, SCONCE_LIT, "r10-niche-sconce-%d" % i, _at("r10", 12.6 + i * 2.8, 5.9))
 
 
 func _place_r11() -> void:
@@ -893,18 +980,49 @@ func _place_r11() -> void:
 	_enemy("pipe-worm", "r11-pipe-worm", _at("r11", 14.7, 3.6), 40.0, {"aim_direction": Vector2.LEFT})
 
 
+## R12 the Larder, the Pearl room (since 2026-10-17): Fatty's hoard, the army's winter stores heaped
+## round the walls, and on the north wall the worms' altar with Pearl 1's glow over it, seen from the
+## door all through the Big Squint's ambush (the mini-boss: its room fight's `boss_id`). He falls, the
+## shutter opens and Pearl 1 rises on the altar. The Larder's north doorway is nailed shut with a
+## plank barricade: the Heavy skin's first lock, right where the skin is won.
 func _place_r12() -> void:
-	_enemy("big-squint", "r12-big-squint", _at("r12", 8.0, 7.0), 220.0)
-	# The Lair's one ambush: the shutter shuts behind the slime, the Big Squint's fall opens it and
-	# raises the big chest.
-	_chest("dungeon-big-chest", "r12-big-chest", _at("r12", 8.0, 4.4), {"dungeon-big-key": 1}, true)
+	_enemy("big-squint", "r12-big-squint", _at("r12", 8.0, 7.5), 220.0)
+	_add(scenery, "decoration-world-solid--pearl-altar", "r12-altar", _at("r12", 5.5, 4.6))
+	# Taken from any side of the altar (its base is solid): a wide reach. It rises by itself once the
+	# Big Squint falls (its `boss_id`, the room fight's), so the fight needs no reward.
+	var pearl := _add(lair, "pearl", "pearl-1", _at("r12", 5.5, 3.3), {"take_radius": 90.0, "boss_id": BIG_SQUINT_ID})
+	# Pearl 1's glow over the altar, seen from the door all through the fight (sight before reach): a
+	# warm breathing light in the hollow and a glint, standing just in front of the altar so they
+	# draw over it. The director takes them away once the Pearl is taken.
+	var glow_holder := Node2D.new()
+	glow_holder.name = "r12-pearl-glow"
+	glow_holder.position = _at("r12", 5.5, 4.75)
+	lair.add_child(glow_holder)
+	var glow := Node2D.new()
+	glow.name = "Glow"
+	glow.set_script(load(SOFT_GLOW))
+	glow.position = Vector2(0.0, -1.55 * TILE)
+	glow.set(&"radius", Vector2(78, 54))
+	glow.set(&"color", Color(1.0, 0.85, 0.5, 0.5))
+	glow.set(&"pulse", 0.45)
+	glow.set(&"period_s", 2.2)
+	glow_holder.add_child(glow)
+	_kit_placed += 1
+	_add(glow_holder, KIT % "prize-glint", "Glint", Vector2(0.0, -2.1 * TILE), {"only_in_dark": false, "tint": Color(1.0, 0.86, 0.55)})
 	_kit("room-fight", "r12-fight", _at("r12", 0.0, 0.0), {"fight_id": "fatty-lair-larder", "once": true,
-		"size": Vector2(ROOM_W, ROOM_H) * TILE, "reward": NodePath("../r12-big-chest")})
+		"boss_id": BIG_SQUINT_ID, "size": Vector2(ROOM_W, ROOM_H) * TILE})
 	_kit("shutter", "r12-shutter-south", _at("r12", 12.0, 13.0), {"wall": "south", "fight_id": "fatty-lair-larder",
 		"shutter_id": "fatty-lair-larder-south"})
+	_add(objects, "plank-barricade", "r12-barricade", _at("r12", 11.0, 3.2), {"flag_id": "fatty-lair.larder-smashed"})
 	for i in 4:
 		_add(scenery, "decoration-world-solid--hay-bale", "r12-hoard-%d" % i, _at("r12", 2.0 + i * 0.9, 11.8 - (i % 2) * 0.6))
+	for i in 3:
+		_add(scenery, "decoration-world-solid--hay-bale", "r12-hoard-east-%d" % i, _at("r12", 14.2, 5.6 + i * 1.1))
 	_add(scenery, "decoration-world-solid--cooking-cauldron", "r12-cauldron", _at("r12", 13.0, 11.6))
+	for i in 2:
+		_pot("r12-hoard-crate-%d" % i, _at("r12", 2.0 + i * 0.9, 5.4), "crate")
+	if pearl == null:
+		push_error("fatty-lair: the Larder has no Pearl")
 
 
 func _place_r13_r14() -> void:
@@ -917,16 +1035,17 @@ func _place_r13_r14() -> void:
 	for i in 6:
 		_add(scenery, "res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-%d.tscn" % (2 + i % 4),
 			"r13-roots-%d" % i, _at("r13", 2.0 + i * 2.4, 3.4))
+	# The south shutter shuts behind the slime while he lives; the north doorway (the way out, to the
+	# Postern and the bolt-hole) holds the dungeon's seal (`_place_seal_spots`) from the take until he
+	# falls.
 	_kit("shutter", "r13-shutter-south", _at("r13", 8.0, 13.0), {"wall": "south", "fight_id": "fatty-lair-boss",
 		"shutter_id": "fatty-lair-arena-south"})
-	_kit("shutter", "r13-shutter-north", _at("r13", 8.0, 3.0), {"wall": "north", "fight_id": "fatty-lair-boss",
-		"shutter_id": "fatty-lair-arena-north"})
-	var heart := _add(lair, "goo-heart", "fatty-boss-heart", _at("r13", 8.0, 8.4), {}, {"GooHeartScript": {"heart_id": "fatty-lair-boss-heart", "hearts": 2}})
-	# The shrine: the altar, the Pearl over it, the green-key chest, the plank barricade over the
-	# bolt-hole (the Heavy skin's first lock).
-	_add(scenery, "decoration-world-solid--pearl-altar", "r14-altar", _at("r14", 8.0, 7.2))
-	# Taken from any side of the altar (its base is solid): a wide reach.
-	var pearl := _add(lair, "pearl", "pearl-1", _at("r14", 8.0, 5.9), {"take_radius": 90.0})
+	# His full heart (+20 max HP and max energy, questions 17 and 19; the Pearl plan's open point 12):
+	# shown once he is beaten, as every boss's.
+	var heart := _add(lair, "full-heart", "fatty-boss-heart", _at("r13", 8.0, 8.4), {},
+		{"FullHeartScript": {"heart_id": "fatty-one-eye", "boss_id": "fatty-one-eye"}})
+	# R14 the Postern (the Pearl Shrine until 2026-10-17; Pearl 1 lies in the Larder now): the
+	# green-key chest and the plank barricade over the bolt-hole, the Heavy Roll's last flourish.
 	_add(objects, "chest-wooden", "r14-green-key-chest", _at("r14", 11.6, 8.0), {}, {"ChestScript": {"map_id": MAP_ID,
 		"instance_id": "fatty-lair-green-key-chest", "initial_contents": {"green-key": 1}}})
 	_add(objects, "plank-barricade", "r14-barricade", _at("r14", 8.0, 3.2), {"flag_id": "fatty-lair.bolt-hole-smashed"})
@@ -946,13 +1065,46 @@ func _place_r13_r14() -> void:
 	director.set(&"clod_spots", NodePath("../clod-spots"))
 	director.set(&"heart", NodePath("../fatty-boss-heart"))
 	director.set(&"pearl", NodePath("../pearl-1"))
+	director.set(&"pearl_glint", NodePath("../r12-pearl-glow"))
 	director.set(&"phase_two", {})
 	# Typed (an untyped Array does not set an Array[NodePath] export).
 	var gaps: Array[NodePath] = [NodePath("../../Objects/nook-blocked")]
 	director.set(&"blocked_gaps", gaps)
 	director.set(&"boss_shutter_fight", "fatty-lair-boss")
-	if camp == null or heart == null or pearl == null:
+	if camp == null or heart == null:
 		push_error("fatty-lair: the boss room is missing a piece")
+
+
+## The dungeon's seals (object.dungeon-seal, DUNGEONS.md "The seal"): in R1's south doorway (the way
+## in; the take's glimpse shows it) and R13's north doorway (the way out past Fatty), each on the
+## floor line of the room inside. Shut from the take of Pearl 1 until Fatty falls.
+func _place_seal_spots() -> void:
+	_kit("dungeon-seal", "r1-seal", _at("r1", 8.0, 13.0), {"wall": "south", "glimpse": true})
+	_kit("dungeon-seal", "r13-seal", _at("r13", 8.0, 3.0), {"wall": "north"})
+
+
+## C2 the Weigh House (new, 2026-10-17), the Heavy skin's teach: the Thorn Guard's old weighing hall,
+## no enemy. In from the Larder (south): a plate before the inner wall's east stone door (stand on
+## it: it sinks over 3 s, the slime turns stony, the door opens and stays open while it rises). In
+## the north hall a statue and a second plate that holds the west stone door only while something
+## stands on it (`shut_on_leave`): push the statue on. The west door leads down the corridor to R10.
+## An old scale pan on the east wall holds a pouch a Heavy Roll shakes down (a loose prize).
+func _place_weigh_house() -> void:
+	_add(objects, "latch-door", "c2-east-door", _at("weigh", 10.5, 7.0), {"scale": LATCH_DOOR_SCALE},
+		{"GateScript": {"gate_id": "fatty-lair-weigh-east", "map_id": MAP_ID, "locked_message": "A stone door. The plate before it opens it."}})
+	_add(objects, "heavy-plate", "c2-plate-stand", _at("weigh", 10.5, 9.5), {"gate_id": "fatty-lair-weigh-east"})
+	_add(objects, "latch-door", "c2-west-door", _at("weigh", 3.5, 7.0), {"scale": LATCH_DOOR_SCALE},
+		{"GateScript": {"gate_id": "fatty-lair-weigh-west", "map_id": MAP_ID, "locked_message": "A stone door. The plate holds it only while a weight stays on it."}})
+	_add(objects, "heavy-plate", "c2-plate-statue", _at("weigh", 5.5, 4.5), {"gate_id": "fatty-lair-weigh-west", "shut_on_leave": true})
+	_add(objects, "heavy-statue", "c2-statue", _at("weigh", 11.5, 4.5))
+	_add(objects, "loose-prize", "c2-scale-pouch", _at("weigh", 14.2, 4.4), {"flag_id": "fatty-lair.weigh-pouch", "coins": 30,
+		"hang_height": 100.0, "hint_text": "An old scale pan up on the wall wobbles... a heavier bump would shake it down."},
+		{"Visual": {"sheet_path": "res://asset/MAPS/objects/fattys-lair/weigh-scale-pan.webp", "offset": Vector2(-40, -140)}})
+	_add(scenery, WEIGH_PROPS % "beam-scale", "c2-beam-scale", _at("weigh", 13.0, 10.6))
+	_add(scenery, WEIGH_PROPS % "weights", "c2-weights-entry", _at("weigh", 7.0, 11.6))
+	_add(scenery, WEIGH_PROPS % "weights", "c2-weights-north", _at("weigh", 1.7, 3.9))
+	_pot("c2-sack", _at("weigh", 1.8, 11.8), "flour-sack")
+	_pot("c2-pot", _at("weigh", 6.6, 9.0))
 
 
 func _place_dark_rooms() -> void:
@@ -1018,15 +1170,16 @@ func _place_nook_sally() -> void:
 	_chest("dungeon-chest", "sally-chest", _at("sally", 12.0, 5.0), {"hp-potion": 2})
 
 
-## The kit's doors: Burr's cell (two keyholes), door 3, the boss door, the bolted ways back.
+## The kit's doors: Burr's cell (two keyholes), the boss door, the bolted ways back.
 func _place_kit_doors() -> void:
 	_kit("key-door", "hub-burr-cell-door", _at("hub", 2.0, 8.0), {"wall": "north", "keyholes": 2, "door_id": "fatty-lair-burr-cell"})
-	_kit("key-door", "r8-door-3", _at("r8", 15.0, 26.0), {"wall": "east", "keyholes": 1, "door_id": "fatty-lair-door-3"})
 	_kit("boss-door", "hub-boss-door", _at("hub", 24.0, 3.0), {"wall": "north", "lock": "big", "door_id": "fatty-lair-boss-door"})
 	_kit("bolted-door", "hub-r1-shortcut", _at("hub", 8.0, 13.0), {"wall": "south", "door_id": "fatty-lair-r1-shortcut"})
 	_kit("bolted-door", "r5-way-back", _at("r5", 15.0, 11.0), {"wall": "east", "door_id": "fatty-lair-r5-way-back"})
 	_kit("bolted-door", "r7-way-back", _at("r7", 1.0, 4.0), {"wall": "west", "door_id": "fatty-lair-r7-way-back"})
-	_kit("bolted-door", "r10-way-back", _at("r10", 24.0, 13.0), {"wall": "south", "door_id": "fatty-lair-r10-way-back"})
+	# R9's way out into R8 (since 2026-10-17), its bolt on R9's side: the big key cannot be had
+	# without the second half.
+	_kit("bolted-door", "r9-way-back", _at("r9", 15.0, 7.0), {"wall": "east", "door_id": "fatty-lair-r9-way-back"})
 	_kit("bolted-door", "r11-way-back", _at("r11", 8.0, 13.0), {"wall": "south", "door_id": "fatty-lair-r11-way-back"})
 
 

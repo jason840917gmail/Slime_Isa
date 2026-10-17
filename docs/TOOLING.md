@@ -187,6 +187,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   cap (released and pressed) from `asset/Originals/props/heavy-plate/plate-b.png` into
   `godot/asset/MAPS/props/heavy-plate/` (2 px per unit); it prints the placement numbers
   `game/scripts/heavy_plate.gd` uses ([godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#heavy-plates-and-heavy-blocks-2026-10-14)).
+- `python scripts/art/pack-skin-art.py` — the skins' art from `asset/Originals/skins/generated/`
+  (Magnific GPT 2.5, 2026-10-17): the Heavy Roll's loose rock, old trunk and old fence (whole and
+  broken, 2x1) and the coin pouch a Heavy Roll shakes loose into `godot/asset/MAPS/props/heavy-skin/`
+  (2 px per unit), the bag's Skins row icons into `godot/asset/UI/skins/` and the three looks'
+  textures into `godot/asset/player/skins/` ([godot/SKINS.md](godot/SKINS.md#art)); it prints the
+  sheets' cells and offsets.
 - `python scripts/art/pack-dungeon-art.py` (**numpy**) — the dungeon kit's art from
   `asset/Originals/dungeon-kit/generated/` (Magnific GPT 2.5, 2026-10-17): the doors (shut, and open
   with the doorway cut see-through), padlock, bolt, winch, shutter, drawbridge (down, up), slabs,
@@ -248,10 +254,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   and its bag icon (`MAPS/items/64x64-matron-thread.webp`); it prints where the cocoon's eyes and bottom
   are for `game/bosses/matron_cocoon_look.gd` ([godot/specs/matron.md](godot/specs/matron.md) section 8).
   `godot/tools/render_matron.gd` renders the fight's moments in the running game (run windowed).
-- `python scripts/art/pack-mine-art.py` (**numpy**) — the Crystal Mine's art (2026-10-17) from
-  `asset/Originals/mine/` (Magnific GPT 2.5, seven 2 x 2 sheets; prompts in its README): the Crystal
-  Colossus's eight poses (`godot/asset/MAPS/enemies/384x384-tile_8x1-crystal-colossus.webp`, one
-  scale, standing on y 376), the mine's props into `godot/asset/MAPS/props/mine/` (the lens and the
+- `python scripts/art/pack-mine-art.py [--only=colossus]` (**numpy**) — the Crystal Mine's art
+  (2026-10-17) from `asset/Originals/mine/` (Magnific GPT 2.5, eight 2 x 2 sheets; prompts in its
+  README): the Crystal Colossus's nine poses (`godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp`,
+  one scale, standing on y 376; the ninth, his stun, narrowed to fit), the small golem he shrinks
+  into (`192x192-tile_3x1-small-crystal-golem.webp`; `--only=colossus` packs these two alone), the
+  mine's props into `godot/asset/MAPS/props/mine/` (the lens and the
   veil as 2 x 1 strips, the rotten timbers also with a smashed frame drawn from them) and the smith
   (`godot/asset/characters/authored/npcs/smith.webp`, four poses with their feet centred)
   ([godot/DUNGEONS.md "The Crystal Mine (built)"](godot/DUNGEONS.md#the-crystal-mine-built)).
@@ -508,6 +516,13 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   layout's `passages`,
   `scene_index.json` and the release export's exclude list ([godot/WORLD_ATLAS.md](godot/WORLD_ATLAS.md)).
   It never touches a hand-made world.
+- `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_slimeshire_chunks.gd
+  [-- --only=d5,c4 --dry]` — Chapter 1's map rework of Slimeshire's four chunk worlds (D5's hill with
+  the Lair's gate, its field maze and slab bridge; C4's first bell; D4's pen; C5's lake road and
+  lookout bell): each chunk is read from disk and changed only inside the tool's rects, its own nodes
+  under `Chapter1`; it keeps the child overrides of the instances it repacks. Bake the changed
+  worlds' elevation after it (`tools/bake_elevation.gd -- --world=level-1-c4,...`)
+  ([Chapter 1](story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
 - `"<Godot 4.7.2 console exe>" --path godot -s res://tools/render_world_atlas.gd -- --out=<dir>`
   (windowed: it renders) — draws the world atlas (`godot/game/dev/world_atlas.tscn`: every region's
   world on the chunk grid) to PNGs and prints its warnings.

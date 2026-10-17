@@ -5,7 +5,8 @@ extends RefCounted
 ## reward, and the stone axe it teaches crafted at the placed bench and put in hand.
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests play in the
 ## village's chunk C4 (`level-1-c4`, level-1's own coordinates), whose id keys the run records; the
-## main line travels to D4 (`level-1-d4`) for Fatty's camp.
+## main line travels to Fatty's Lair (`fatty-lair`, whose gate is on D5's hill, `level-1-d5`) for
+## Fatty's camp.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")

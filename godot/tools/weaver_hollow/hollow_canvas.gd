@@ -25,6 +25,10 @@ const DEEP_WATER := 3
 const FOREST_FLOOR := 4
 const FOREST_MOSS := 5
 const TOWN_COBBLE := 19
+## The interiors' wooden boards (one tile, not a 19 x 19 sheet).
+const WOOD_FLOOR := 12
+## Sources of one tile (atlas (0, 0) on every cell).
+const SINGLE_TILE_SOURCES: Array[int] = [12, 13, 14, 15, 16, 17, 18]
 ## The 19 x 19 ground sheets wrap every 19 cells.
 const SHEET_TILES := 19
 ## cliff_tileset.tres: the wall style tiles of row 0.
@@ -134,10 +138,12 @@ func paint_style(rect: Rect2i, style: String) -> void:
 				cliffs[index(cx, cy)] = tile
 
 
-func paint_webs(rect: Rect2i) -> void:
+## Floor webs over the floor cells of `rect` (cells up to `max_level`: the rock's top is never
+## webbed; 1 webs a level-1 ledge or gallery too).
+func paint_webs(rect: Rect2i, max_level: int = 0) -> void:
 	for cy in range(rect.position.y, rect.end.y):
 		for cx in range(rect.position.x, rect.end.x):
-			if inside(cx, cy) and level[index(cx, cy)] <= 0:
+			if inside(cx, cy) and level[index(cx, cy)] <= max_level:
 				webs[index(cx, cy)] = 1
 
 

@@ -7,6 +7,9 @@ reference, one 1024 px sheet with four pictures in a 2 x 2 grid each; prompts in
   landed, his chest armour cracked open (the weak spot);
 - `colossus-sheet-b.png`: climbing a wall (from behind), throwing a Crystal Mite down from it, landed
   from a jump, defeated (the heap and the Pearl rising);
+- `colossus-sheet-c.png` (2026-10-17, the Pearl mid-dungeon rework): sprawled face down after his claws
+  lost their grip on the wall, his back cracked open and glowing (the stun), and the small calm crystal
+  golem he shrinks back into once beaten, from the front, walking left and from behind;
 - `mine-props-a.png`: the mine cart, the ore lift, the iron-banded ore crate, the rotten timbers (also
   packed with a smashed frame drawn from it: `256x256-tile_2x1-rotten-timbers.webp`);
 - `mine-props-b.png`: the crystal lens on its post (plain, struck), the crystal veil (grown,
@@ -19,18 +22,22 @@ reference, one 1024 px sheet with four pictures in a 2 x 2 grid each; prompts in
   the hammer raised to strike, holding out the Lantern, pointing.
 
 Each sheet is cut along its emptiest middle row and columns into its four pictures (reading order),
-each trimmed to its opaque pixels. The Colossus's eight poses are drawn at ONE scale (the largest
-that fits every pose in FIT_BOSS), centred at x BOSS_CELL / 2 and standing on y BOSS_BOTTOM; a
+each trimmed to its opaque pixels. The Colossus's first eight poses are drawn at ONE scale (the largest
+that fits every pose in FIT_BOSS), centred at x BOSS_CELL / 2 and standing on y BOSS_BOTTOM; his
+ninth (the stun, sheet C) at the same scale unless it is wider than FIT_BOSS, then narrowed to fit;
+the small golem's three at one scale of their own in SMALL_CELL cells; a
 pair (the lens, the veil) shares one scale too; every other prop is fitted alone in its cell, centred
 and standing on its bottom.
 
 The smith's four poses share one scale too, each standing on y SMITH_BOTTOM of a SMITH_CELL cell
 with its feet centred at x SMITH_CELL.x / 2 (game/crystal_mine/smith_actor.gd's frames).
 
-Writes godot/asset/MAPS/enemies/384x384-tile_8x1-crystal-colossus.webp,
+Writes godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp,
+godot/asset/MAPS/enemies/192x192-tile_3x1-small-crystal-golem.webp,
 godot/asset/MAPS/props/mine/*.webp and godot/asset/characters/authored/npcs/smith.webp.
 
-usage: python scripts/art/pack-mine-art.py
+usage: python scripts/art/pack-mine-art.py [--only=colossus]
+(`--only=colossus` packs the Colossus's strip and the small golem alone.)
 Needs Pillow and numpy.
 """
 from __future__ import annotations
@@ -56,6 +63,10 @@ GAP_TO = 664
 BOSS_CELL = 384
 BOSS_BOTTOM = 376
 FIT_BOSS = 368
+
+SMALL_CELL = 192
+SMALL_BOTTOM = 186
+SMALL_FIT = 176
 
 SMITH_CELL = (260, 280)
 SMITH_BOTTOM = 276
@@ -113,9 +124,15 @@ def place(pictures: list[Image.Image], cell: int, fit: int, bottom: int) -> Imag
 
 def main() -> None:
     poses = cut(SOURCES / "colossus-sheet-a.png") + cut(SOURCES / "colossus-sheet-b.png")
-    boss = place(poses, BOSS_CELL, FIT_BOSS, BOSS_BOTTOM)
-    out = ENEMIES / "384x384-tile_8x1-crystal-colossus.webp"
+    later = cut(SOURCES / "colossus-sheet-c.png")
+    boss = colossus_strip(poses, later[0])
+    out = ENEMIES / "384x384-tile_9x1-crystal-colossus.webp"
     print(out.name, save_game_webp(boss, out), boss.size)
+    small = place(later[1:4], SMALL_CELL, SMALL_FIT, SMALL_BOTTOM)
+    out = ENEMIES / "192x192-tile_3x1-small-crystal-golem.webp"
+    print(out.name, save_game_webp(small, out), small.size)
+    if "--only=colossus" in sys.argv[1:]:
+        return
     for sheet, names in PROP_SHEETS.items():
         pictures = cut(SOURCES / sheet)
         groups: dict[str, list[Image.Image]] = {}
@@ -133,6 +150,21 @@ def main() -> None:
     smith = smith_strip()
     out = NPCS / "smith.webp"
     print(out.name, save_game_webp(smith, out), smith.size)
+
+
+def colossus_strip(poses: list[Image.Image], stunned: Image.Image) -> Image.Image:
+    """His eight poses at one scale (`place`), then the stun at the same scale, narrowed to FIT_BOSS
+    when wider, centred and standing on BOSS_BOTTOM in a ninth cell."""
+    scale = min(FIT_BOSS / max(p.width for p in poses), FIT_BOSS / max(p.height for p in poses))
+    eight = place(poses, BOSS_CELL, FIT_BOSS, BOSS_BOTTOM)
+    strip = Image.new("RGBA", (BOSS_CELL * (len(poses) + 1), BOSS_CELL), (0, 0, 0, 0))
+    strip.alpha_composite(eight, (0, 0))
+    own = min(scale, FIT_BOSS / stunned.width, FIT_BOSS / stunned.height)
+    w, h = max(1, round(stunned.width * own)), max(1, round(stunned.height * own))
+    sized = stunned.resize((w, h), Image.LANCZOS)
+    strip.alpha_composite(sized, (len(poses) * BOSS_CELL + (BOSS_CELL - w) // 2, BOSS_BOTTOM - h))
+    print("colossus scale %.3f, stun %.3f" % (scale, own))
+    return strip
 
 
 def smith_strip() -> Image.Image:

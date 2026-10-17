@@ -15,16 +15,17 @@ extends RefCounted
 ## a mark, a web patch (r 50) on every mark, rest 1300 ms, next volley 6500 ms after the rest.
 ## Every test starts in the nest's chunk (MAP_ID); the torn-web test runs in E4 (the silk nook) and
 ## travels into it once more, the camps test in F5 (its two camps are placed enemies since
-## 2026-10-16, roadmap 5.25). The Sticky tears need player.gd's Gulp form
-## (silk) and are skipped with a note without it.
+## 2026-10-16, roadmap 5.25). The tears are the Silk skin's (lent: SkinState, roadmap 7.8).
 ##
 ## The Weaver Hollow's fight (matron spec section 8, 2026-10-17): `encounter.weaver-hollow-matron`
 ## stands in the Crown (`weaver-hollow-crown`, its shutter wired there: test_weaver_hollow.gd), but
 ## these tests mount it where the nest was, its origin 144 px below the nest centre so her cocoon's
 ## shadow hangs over the clearing:
 ## the cocoon (every hit clinks), a blast on her shadow tears it, the 4 s window, the 1.5 s respin,
-## three rounds of 100 (round 2's ring of webs, round 3's egg sacs), no respawn, and the rewards
-## (Pearl 2 -> `crosses_webs()`, the full heart +20 once, her thread only with the Silk skin).
+## three rounds of 100 (round 2's ring of webs, round 3's egg sacs), no respawn, and the rewards (the
+## full heart +20 once, her thread only with the Silk skin; Pearl 2 lies in the Hollow's Hoard since
+## the Pearl moved inside the dungeon, 2026-10-17: test_weaver_hollow.gd). With the Silk skin (lent)
+## her fight is its exam: round 2 cages her in web walls, round 3 webs the floor.
 
 ## run_tests.gd starts every test of this file in the nest's chunk of gloop-forest.
 const MAP_ID := "gloop-forest-f4"
@@ -50,6 +51,7 @@ const PearlScript := preload("res://game/scripts/pearl.gd")
 const FullHeartScript := preload("res://game/scripts/full_heart.gd")
 const MatronThreadScript := preload("res://game/scripts/matron_thread.gd")
 const CocoonLook := preload("res://game/bosses/matron_cocoon_look.gd")
+const WebWallScript := preload("res://game/scripts/web_wall.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 ## F5's camps (their old spawn areas' maxPopulation): their placed enemies by type.
 const AREAS_CAMPS := {"gloop-clod-stompers-hollow": {"clod-stomper": 1}, "gloop-orb-weavers-south": {"orb-weaver": 2}}
@@ -90,9 +92,12 @@ const OPEN_MS := 4000.0
 const RESPIN_MS := 1500.0
 const RING_PATCHES := 8
 const RING_RADIUS := 130.0
+## The Silk skin's exam: round 2's cage (two web walls a side) and the cage's line.
+const CAGE_WALLS := 8
+const CAGE_TEXT := "A thrown bomb sticks in the silk."
 const ROUND_FLOORS: Array[float] = [200.0, 100.0, 0.0]
 const CLINK_TEXT := "Woven too thick. It would take a blast."
-const SILK_FLAG := "skin.silk"
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const PEARL_FLAG := "pearl.orb-weaver-matron"
 const HEART_FLAG := "full-heart.orb-weaver-matron"
 const THREAD_FLAG := "matron-thread.taken"
@@ -348,25 +353,21 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 	await t.steps(2)
 	t.equal(caught.size(), 2, "catches from below")
 	t.near_vec(t.player().get_centre(), Vector2(NOOK_ZONE.x - 10.0, NOOK_ZONE.y + 28.0 + 30.0), 0.5, "set back below the web")
-	# The Sticky form (player.gd, abilities port) tears the web open for good.
-	var gulp: Object = t.player().call(&"get_gulp") if t.player().has_method(&"get_gulp") else null
-	if gulp != null and gulp.has_method(&"swallow"):
-		gulp.call(&"swallow", "silk-essence")
-		if t.check(t.player().crosses_webs() and t.player().is_sticky_form(), "swallowing silk did not give the Silk form"):
-			var torn: Array = []
-			web.torn.connect(func(payload: Dictionary) -> void: torn.append(payload))
-			await t.sim_wait(1000.0)
-			var before := t.player().get_centre()
-			t.teleport_player(NOOK_ZONE)
-			await t.steps(2)
-			t.equal(torn.size(), 1, "tears by the Sticky slime")
-			t.equal(caught.size(), 2, "catches while Sticky")
-			t.check(web.is_torn(), "the web is not torn")
-			t.check(web.visual == null or not web.visual.visible, "the torn web is still drawn")
-			t.check(Services.run().has_flag(web.torn_flag()), "the torn flag is not set")
-			t.near_vec(t.player().get_centre(), NOOK_ZONE, 0.5, "the Sticky slime was set back (from %s)" % before)
-	else:
-		t.note("player.gd has no Sticky form yet: the tear is untested")
+	# The Silk skin (SkinState, roadmap 7.8) tears the web open for good.
+	SkinState.lend(SkinState.SILK)
+	if t.check(t.player().crosses_webs(), "the Silk skin does not cross webs"):
+		var torn: Array = []
+		web.torn.connect(func(payload: Dictionary) -> void: torn.append(payload))
+		await t.sim_wait(1000.0)
+		var before := t.player().get_centre()
+		t.teleport_player(NOOK_ZONE)
+		await t.steps(2)
+		t.equal(torn.size(), 1, "tears by the Silk slime")
+		t.equal(caught.size(), 2, "catches of the Silk slime")
+		t.check(web.is_torn(), "the web is not torn")
+		t.check(web.visual == null or not web.visual.visible, "the torn web is still drawn")
+		t.check(Services.run().has_flag(web.torn_flag()), "the torn flag is not set")
+		t.near_vec(t.player().get_centre(), NOOK_ZONE, 0.5, "the Silk slime was set back (from %s)" % before)
 	# A torn web stays torn: the story flag set, the world rebuilt, nothing catches.
 	Services.run().set_flag(web.torn_flag())
 	var old_world := t.world().world_root.get_instance_id()
@@ -391,9 +392,9 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 
 ## A web patch is a floor web (spec 5.5; game/world/webs/floor_webs.gd, since 2026-10-17): a slime
 ## walking on it walks at `webs.floorSlowMultiplier` of its speed and nothing catches it; a Roll
-## into it sticks where it is (`caught`, rooted); the Sticky slime walks through and tears it.
+## into it sticks where it is (`caught`, rooted); the slime with the Silk skin walks through and tears it.
 func test_web_patch_slows_a_walk_sticks_a_roll_and_tears_for_the_sticky_one(t: TestContext) -> void:
-	# Open ground right of the spawn for the walk, the roll and the Sticky slime (120 px straight
+	# Open ground right of the spawn for the walk, the roll and the Silk slime (120 px straight
 	# below the spawn a fieldstone wall row stands since the chunk worlds).
 	var at := t.player().get_centre() + Vector2(120.0, 40.0)
 	var root := t.world().spawn_at_phaser_position("effect.matron-web-patch", at)
@@ -428,19 +429,15 @@ func test_web_patch_slows_a_walk_sticks_a_roll_and_tears_for_the_sticky_one(t: T
 		t.check(not t.player().is_rolling(), "the roll goes on in the patch")
 		t.check(t.player().is_rooted(), "the rolling slime is not stuck in the patch")
 		t.check(t.player().get_centre().distance_to(at) <= PATCH_RADIUS + 2.0, "the stuck slime is not on the patch (%s)" % t.player().get_centre())
-	# The Sticky slime walks through and tears it quietly.
-	var gulp: Object = t.player().call(&"get_gulp") if t.player().has_method(&"get_gulp") else null
-	if gulp == null or not gulp.has_method(&"swallow"):
-		t.note("player.gd has no Silk form yet: the tear is untested")
-		return
+	# The slime with the Silk skin walks through and tears it quietly.
 	await t.sim_wait(1000.0)
-	gulp.call(&"swallow", "silk-essence")
+	SkinState.lend(SkinState.SILK)
 	t.teleport_player(at)
 	await t.steps(2)
-	t.equal((events["torn"] as Array).size(), 1, "tears by the Sticky slime")
-	t.equal((events["caught"] as Array).size(), 1, "catches of the Sticky slime")
+	t.equal((events["torn"] as Array).size(), 1, "tears by the Silk slime")
+	t.equal((events["caught"] as Array).size(), 1, "catches of the Silk slime")
 	t.check(patch.is_torn() and not patch.visual.visible, "the torn patch is still drawn")
-	t.near_vec(t.player().get_centre(), at, 0.5, "the Sticky slime was moved")
+	t.near_vec(t.player().get_centre(), at, 0.5, "the Silk slime was moved")
 
 
 func test_gloop_forest_camps_are_placed_enemies(t: TestContext) -> void:
@@ -505,8 +502,8 @@ func test_hollow_matron_hangs_in_her_cocoon_and_every_hit_clinks(t: TestContext)
 			t.equal(result.get("reason"), "immune", "the cocoon's refusal (a clink)")
 	t.near(_hp(matron), MAX_HP, 0.01, "hp after twelve hits on the cocoon")
 	t.equal(matron.clink_text, CLINK_TEXT, "the clink's line")
-	# Her rewards wait for her fall.
-	t.check(not (encounter.get_node(^"Pearl") as PearlScript).is_shown(), "Pearl 2 shows while she lives")
+	# Her rewards wait for her fall (Pearl 2 is not one of them: it lies in the Hollow's Hoard).
+	t.check(encounter.get_node_or_null(^"Pearl") == null, "her camp still holds Pearl 2")
 	t.check(not (encounter.get_node(^"FullHeart/FullHeartScript") as FullHeartScript).is_shown(), "the full heart shows while she lives")
 
 
@@ -619,26 +616,95 @@ func test_beaten_she_never_comes_back_and_her_brood_bursts(t: TestContext) -> vo
 	t.check(not (again["camp"] as BossCampScript).has_live_boss(), "a camp built again spawned her once more")
 
 
-func test_pearl_two_grants_the_silk_skin(t: TestContext) -> void:
-	var won := await _mount_won_hollow(t)
-	if won.is_empty():
+## The Silk skin's exam (the Pearl inside the dungeon, 2026-10-17; matron spec 8.2): with the skin her
+## round 2 spins a cage of web walls (not remembered) on a square `ring_radius` round her shadow in
+## place of the ring of floor webs; a bomb come to rest against it from outside gets the cage's line;
+## the Silk slime wades a wall into it; a cut wall is spun again after `ring_reweb_ms`; round 3 drops
+## the cage and webs the floor round her shadow; her fall takes the webbed floor away.
+func test_with_the_silk_skin_round_two_cages_her_and_round_three_webs_the_floor(t: TestContext) -> void:
+	SkinState.lend(SkinState.SILK)
+	var fight := await _mount_hollow(t)
+	if fight.is_empty():
 		return
-	var pearl := (won["encounter"] as Node).get_node_or_null(^"Pearl") as PearlScript
-	if not t.check(pearl != null, "the Hollow's encounter has no Pearl"):
+	var matron: MatronScript = fight["matron"]
+	t.check(matron.silk_exam_on(), "the Silk skin's exam is off with the skin")
+	t.check(matron.get_cage_walls().is_empty(), "a cage in round 1")
+	t.check(matron.receive_blast({}), "round 1: the blast did not tear the cocoon")
+	_hit(t, matron, 500.0, 0.0)
+	await t.until(func() -> bool: return matron.get_shell() == MatronScript.SHELL_COCOONED, RESPIN_MS + 500.0)
+	_hold_fire(matron)
+	if not t.equal(matron.get_round(), 2, "round after her first hundred"):
 		return
-	t.check(pearl.is_shown(), "Pearl 2 is not shown after her fall")
-	t.equal([pearl.number, pearl.skin_flag], [2, SILK_FLAG], "Pearl 2's number and skin")
-	t.check(not t.player().crosses_webs(), "the slime crossed webs before the Pearl")
-	pearl.global_position = REWARD_SPOT
-	t.teleport_player(REWARD_SPOT)
-	await t.until(func() -> bool: return pearl.is_taken(), 300.0)
-	if not t.check(pearl.is_taken(), "walking into Pearl 2 did not take it"):
+	await t.steps(2)
+	var shadow := matron.blast_point()
+	var walls := matron.get_cage_walls()
+	t.equal(walls.size(), CAGE_WALLS, "round 2's cage walls")
+	t.equal(_ring_patches(t, matron), 0, "round 2's ring of floor webs with the Silk skin")
+	var across := 0
+	for wall: Node in walls:
+		var web := wall as WebWallScript
+		if not t.check(web != null and not web.remembered and not web.is_cut(), "%s is not a fresh cage wall" % wall.name):
+			continue
+		across += 1 if web.orientation == "across" else 0
+		var offset := web.global_position - shadow
+		t.near(maxf(absf(offset.x), absf(offset.y)), RING_RADIUS, 1.0, "%s's distance from her shadow" % wall.name)
+	t.equal(across, CAGE_WALLS / 2, "the cage's back and front walls")
+	t.equal(matron.cage_text, CAGE_TEXT, "the cage's line")
+	# A bomb at rest against the cage's front from outside is stuck in its silk (told once).
+	var bomb := t.world().spawn_at_phaser_position("object.goo-bomb", shadow + Vector2(0.0, RING_RADIUS + 26.0))
+	await t.steps(3)
+	t.check(bomb != null and (matron.get(&"_stuck_bombs") as Dictionary).has(bomb.get_instance_id()),
+			"a bomb against the cage was not stuck in its silk")
+	if bomb != null:
+		bomb.queue_free()
+	# The Silk slime wades the front wall into the cage.
+	t.teleport_player(HOLLOW_WATCH)
+	await t.steps(2)
+	t.press(&"move_up")
+	await t.sim_wait(1500.0)
+	t.release(&"move_up")
+	t.check(t.player_body().global_position.y < shadow.y + RING_RADIUS - 14.0,
+			"the Silk slime did not wade into the cage (feet %s)" % t.player_body().global_position)
+	# A wall cut open (the back's, away from the slime) is spun again, and its cut sets no flag.
+	var back: WebWallScript = null
+	for wall: Node in matron.get_cage_walls():
+		if (wall as WebWallScript).orientation == "across" and (wall as Node2D).global_position.y < shadow.y:
+			back = wall as WebWallScript
+	if t.check(back != null, "the cage has no back wall"):
+		back.cut_open()
+		t.check(not Services.run().has_flag(back.save_key()), "cutting a cage wall set a flag")
+		await t.sim_wait(matron.ring_reweb_ms + 200.0)
+		var intact := 0
+		for wall: Node in matron.get_cage_walls():
+			intact += 0 if (wall as WebWallScript).is_cut() else 1
+		t.equal(intact, CAGE_WALLS, "intact cage walls after the re-spin")
+	_hold_fire(matron)
+	# Round 3: the cage goes, the floor round her shadow is webbed.
+	t.check(matron.receive_blast({}), "round 2: the blast did not tear the cocoon")
+	_hit(t, matron, 500.0, 0.0)
+	await t.until(func() -> bool: return matron.get_shell() == MatronScript.SHELL_COCOONED, RESPIN_MS + 500.0)
+	_hold_fire(matron)
+	if not t.equal(matron.get_round(), 3, "round after her second hundred"):
 		return
-	var run := Services.run()
-	t.check(run.has_flag(PEARL_FLAG), "Pearl 2's flag is not set")
-	t.check(run.has_flag(SILK_FLAG), "the Silk skin's flag is not set")
-	t.check(t.player().crosses_webs(), "crosses_webs() is false with the Silk skin (its stand-in flag)")
-	t.check(not t.player().is_sticky_form(), "the Pearl gave the Silk Gulp form instead of the skin")
+	await t.steps(2)
+	t.check(matron.get_cage_walls().is_empty(), "round 3 kept the cage")
+	if matron.blast_point().distance_to(shadow) > 0.5:
+		t.note("her shadow moved %s px between rounds 2 and 3" % matron.blast_point().distance_to(shadow))
+	shadow = matron.blast_point()
+	var webs := matron.get_floor_webs()
+	t.check(webs.size() >= 40, "round 3's webbed floor has %d webs" % webs.size())
+	for web: Node in webs:
+		if (web as Node2D).global_position.distance_to(shadow) > matron.floor_web_radius_px + 1.0:
+			t.fail("a floor web %s px from her shadow" % (web as Node2D).global_position.distance_to(shadow))
+			break
+	# Her fall takes it away.
+	t.check(matron.receive_blast({}), "round 3: the blast did not tear the cocoon")
+	_hit(t, matron, 500.0, 0.0)
+	t.check(matron.is_defeated(), "she survived her third round")
+	t.check(matron.get_floor_webs().is_empty(), "the webbed floor still holds after her fall")
+	await t.sim_wait(1200.0)
+	t.check(t.world().entities_root().find_child("MatronFloorWebs", true, false) == null,
+			"the webbed floor is still there after her fall")
 
 
 func test_her_full_heart_adds_twenty_max_hp_once(t: TestContext) -> void:
@@ -709,7 +775,7 @@ func test_her_thread_is_taken_only_with_the_silk_skin(t: TestContext) -> void:
 	t.equal(thread.get_state(), MatronThreadScript.STATE_CAUGHT, "the spool after a hit without the skin")
 	t.check(not thread.refusal_text.contains("Silk"), "the refusal names the skin: %s" % thread.refusal_text)
 	# With it, the Spear cuts the strand and the spool drops; walking into it takes it, once.
-	Services.run().set_flag(SILK_FLAG)
+	SkinState.lend(SkinState.SILK)
 	t.check(t.player().crosses_webs(), "crosses_webs() is false with the Silk skin")
 	result = _strike(t, area, 24.0, ["weapon", "spear"])
 	t.equal(result.get("status"), "accepted", "a Spear hit with the Silk skin")

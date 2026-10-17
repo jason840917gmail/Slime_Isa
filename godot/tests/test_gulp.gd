@@ -17,6 +17,7 @@ extends RefCounted
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const LiftableScript := preload("res://game/scripts/liftable.gd")
 
 const MAP_ID := "playground"
@@ -43,7 +44,8 @@ func test_suck_an_essence_and_swallow_it(t: TestContext) -> void:
 	await t.until(func() -> bool: return player.current_form_id() == GulpForms.HEAVY, 300.0)
 	t.equal(player.current_form_id(), GulpForms.HEAVY, "the Stone form")
 	t.equal(player.held(), {}, "the mouth is empty after swallowing")
-	t.check(player.presses_plates(), "Stone presses plates")
+	# Since roadmap 7.8 the Heavy skin presses plates, not the Stone form (docs/godot/SKINS.md).
+	t.check(not player.presses_plates(), "the Stone form still presses plates")
 	t.equal(player.form_remaining_ms(), 0.0, "no timer")
 
 
@@ -193,7 +195,8 @@ func test_stone_walks_slower_and_ignores_knockback(t: TestContext) -> void:
 	t.check(not player.is_movement_suppressed(), "Stone was knocked back")
 
 
-func test_stone_plate_opens_gate(t: TestContext) -> void:
+## The Heavy skin (SkinState, roadmap 7.8) holds the pressure plate down; the Stone form alone does not.
+func test_the_heavy_skin_presses_the_plate_and_opens_the_gate(t: TestContext) -> void:
 	t.player().get_gulp().swallow("stone-essence")
 	var plate := _script_near(t, &"pressed", HEAVY_PLATE)
 	var gate := _gate(t, HEAVY_GATE)
@@ -202,6 +205,9 @@ func test_stone_plate_opens_gate(t: TestContext) -> void:
 	var presses: Array = []
 	plate.pressed.connect(func(payload: Dictionary) -> void: presses.append(payload))
 	t.teleport_player(HEAVY_PLATE + Vector2(0.0, 20.0))
+	await t.steps(3)
+	t.equal(presses, [], "the Stone form pressed the plate")
+	SkinState.lend(SkinState.HEAVY)
 	await t.steps(3)
 	t.equal(presses, [{"plateId": "playground-heavy-plate"}], "plate presses")
 	t.check(gate.is_open(), "the heavy gate did not open")
@@ -214,19 +220,19 @@ func test_light_slime_does_not_press(t: TestContext) -> void:
 		return
 	t.teleport_player(HEAVY_PLATE + Vector2(0.0, 20.0))
 	await t.steps(3)
-	t.check(not plate.is_down(), "a slime without a form pressed the plate")
+	t.check(not plate.is_down(), "a slime without the Heavy skin pressed the plate")
 
 
-func test_stone_slam_breaks_cracked_ground(t: TestContext) -> void:
+func test_a_heavy_slam_breaks_cracked_ground(t: TestContext) -> void:
 	var run := Services.run()
 	run.learn_ability("squash-slam")
-	t.player().get_gulp().swallow("stone-essence")
+	SkinState.lend(SkinState.HEAVY)
 	t.teleport_player(CRACKED + Vector2(0.0, 20.0))
 	await t.steps(3)
-	t.check(not run.has_flag(CRACK_FLAG), "standing in Stone cracked the ground")
+	t.check(not run.has_flag(CRACK_FLAG), "standing with the Heavy skin cracked the ground")
 	t.tap(&"squash_slam")
 	await t.until(func() -> bool: return run.has_flag(CRACK_FLAG), 1000.0)
-	t.check(run.has_flag(CRACK_FLAG), "a Squash Slam in Stone did not crack the ground")
+	t.check(run.has_flag(CRACK_FLAG), "a Squash Slam with the Heavy skin did not crack the ground")
 
 
 func test_slam_without_stone_leaves_cracked_ground(t: TestContext) -> void:
@@ -237,7 +243,7 @@ func test_slam_without_stone_leaves_cracked_ground(t: TestContext) -> void:
 	t.tap(&"squash_slam")
 	await t.sim_wait(700.0)
 	t.check(t.player().get_energy() < t.player().get_max_energy(), "the slam did not run")
-	t.check(not run.has_flag(CRACK_FLAG), "a slam without the Stone form cracked the ground")
+	t.check(not run.has_flag(CRACK_FLAG), "a slam without the Heavy skin cracked the ground")
 
 
 func test_swapping_essences_pops_the_old_form(t: TestContext) -> void:
@@ -245,7 +251,8 @@ func test_swapping_essences_pops_the_old_form(t: TestContext) -> void:
 	player.get_gulp().swallow("stone-essence")
 	t.equal(player.get_gulp().swallow("silk-essence"), "switched", "Silk replaces Stone")
 	await t.steps(2)
-	t.check(player.is_sticky_form() and player.crosses_webs(), "the Silk form crosses webs")
+	# Since roadmap 7.8 the Silk skin crosses webs, not the Silk form (docs/godot/SKINS.md).
+	t.check(player.is_sticky_form() and not player.crosses_webs(), "the Silk form still crosses webs")
 	t.check(_essence_of(t, "stone") != null, "the old stone essence popped out")
 
 

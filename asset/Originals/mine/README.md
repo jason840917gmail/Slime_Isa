@@ -7,8 +7,9 @@ the first and only take.
 
 | File | Pictures (top left, top right, bottom left, bottom right) | Packed into |
 |---|---|---|
-| `colossus-sheet-a.png` | the Crystal Colossus standing hunched, a foot raised (the stomp's tell), the stomp landed in shards and dust, reeling with his chest armour cracked open and glowing (the weak spot) | `godot/asset/MAPS/enemies/384x384-tile_8x1-crystal-colossus.webp`, frames 0 to 3 |
+| `colossus-sheet-a.png` | the Crystal Colossus standing hunched, a foot raised (the stomp's tell), the stomp landed in shards and dust, reeling with his chest armour cracked open and glowing (the weak spot) | `godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp` (until 2026-10-17 `384x384-tile_8x1-...`), frames 0 to 3 |
 | `colossus-sheet-b.png` | climbing a wall seen from behind, throwing a Crystal Mite down from the wall, landed from a jump, defeated (a heap of crystal, the Pearl rising) | the same strip, frames 4 to 7 |
+| `colossus-sheet-c.png` (2026-10-17, the Pearl mid-dungeon rework; Lili's sheet and the two Colossus sheets as references) | sprawled face down after falling off his wall, his back's crystal split open and glowing, dazed (his stun); the small calm crystal golem he shrinks back into once beaten, from the front, walking left, from behind | the same strip, frame 8 (now `384x384-tile_9x1-crystal-colossus.webp`); `godot/asset/MAPS/enemies/192x192-tile_3x1-small-crystal-golem.webp` |
 | `mine-props-a.png` | the mine cart, the ore lift (a plank platform with a crank), the iron-banded ore crate (a heavy block), the rotten timbers (the Heavy Roll's lock) | `godot/asset/MAPS/props/mine/256x256-mine-cart.webp`, `-ore-lift`, `-ore-crate`, `-rotten-timbers` |
 | `mine-props-b.png` | the crystal lens on its post (the Bow's target), the same lens struck and glowing, the crystal veil grown across a passage, the veil shrunk back | `256x256-tile_2x1-crystal-lens.webp`, `256x256-tile_2x1-crystal-veil.webp` |
 | `mine-props-c.png` | thick living roots and rocky handholds on a slab of cliff (the Feral skin's climb), a miner's lantern on a bracket, the rails' buffer stop, Pearl 3 on a crystal cradle | `256x256-root-wall.webp`, `128x128-mine-lantern.webp`, `256x256-buffer-stop.webp`, `256x256-pearl.webp` |
@@ -17,10 +18,11 @@ the first and only take.
 
 `python scripts/art/pack-mine-art.py` cuts each sheet along its emptiest middle row and columns,
 trims each picture, and draws the Colossus's eight poses at one scale (standing on y 376 of a 384 px
-cell), the lens's and the veil's two at one scale each, the smith's four at one scale with their
+cell; his ninth, the stun, at that scale narrowed to fit; the small golem's three at one scale in 192 px
+cells), the lens's and the veil's two at one scale each, the smith's four at one scale with their
 feet centred, and every other prop alone in its cell.
 
-Cost: 700 Magnific credits (seven generations at 100).
+Cost: 800 Magnific credits (eight generations at 100; sheet C on 2026-10-17 for the rework).
 
 ## Prompts
 
@@ -45,6 +47,16 @@ no grid lines." Between them:
   with the other arm; bottom left crouched low after landing a heavy jump, facing the viewer, fists
   on the ground, dust ring; bottom right defeated, collapsed into a heap of broken blue crystal and
   rock, the glowing pearl rising out of the heap." (ending "... no wall, ...")
+- **Colossus, sheet C** (references: Lili's sheet and sheets A and B): "A third sprite sheet of the
+  same boss monster as the reference sheets, the Crystal Colossus ...: top left the exact same huge
+  golem, same size and colours as the reference sheets, crashed down flat on the ground after falling
+  off a wall, sprawled face down on its belly with its arms and legs splayed out, dazed, its spiky back
+  toward the viewer, and the big crystal plates of its back cracked wide open in a jagged split glowing
+  hot orange inside; top right the golem after its defeat, shrunk back into a small calm crystal golem
+  about the size of a fox: a little round golem of pale blue crystal over slate rock with stubby legs,
+  short arms, a few small crystal spikes, gentle tired eyes, no pearl, standing facing the viewer;
+  bottom left the same small calm golem walking to the left, seen from the side; bottom right the same
+  small calm golem seen from behind, walking away." (ending "... no wall, ...")
 - **Mine props A:** "top left a small sturdy wooden mine cart with iron bands and rivets on four
   iron wheels, empty, a few blue crystal chips in it; top right a square wooden mine lift platform
   of thick planks with four short corner posts, a coil of rope and a big iron crank wheel on one

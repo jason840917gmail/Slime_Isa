@@ -18,6 +18,9 @@ extends "res://game/ui/screens/game_window.gd"
 ## - **Abilities**: the Ability Box, its learned sockets only, in box order; a click (or accept on a
 ##   focused one) chooses it for `ability_use` (AbilityBox.select, saved with the run); the chosen
 ##   one is pressed and tagged with the key.
+## - **Skins** (docs/godot/SKINS.md), beside the Shapes: the slime's own goo and every skin that is
+##   on; a click (or accept) picks it as the everyday look (SkinState.set_look, saved with the run;
+##   cosmetic only: every won skin's power is always on). The look worn is pressed and tagged.
 ## Arrowing onto a cell only shows its card; nothing changes until the click or accept. The details
 ## panel shows the focused or clicked one's card (game/ui/body_cards.gd: name, status, one line,
 ## energy cost, cooldown, keys from the InputMap) in place of the item's, with the item buttons
@@ -40,6 +43,7 @@ const BodyCards := preload("res://game/ui/body_cards.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 
 const SURFACE_ID := &"inventory"
 const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
@@ -71,6 +75,17 @@ const CURRENT_TAG := "NOW"
 const CHOSEN_TAG := "ON %s"
 const CARD_SHAPE := "shape"
 const CARD_ABILITY := "ability"
+const CARD_SKIN := "skin"
+const SKINS_TITLE := "Skins"
+const SKINS_HELP := "Your look"
+const LOOK_TAG := "LOOK"
+## The Skins part of the first band row: its title column, the gap before it, and the most cells it
+## holds (the goo and Release 1's three skins).
+const SKINS_TITLE_W := 80.0
+const SKINS_GAP := 24.0
+const SKINS_CELLS := 4
+## The most shapes the Shapes part makes room for.
+const SHAPES_CELLS := 3
 
 ## The window state (InventoryModel.new_state()).
 var state: Dictionary = InventoryModel.new_state()
@@ -106,9 +121,14 @@ var abilities_title_label: Label
 var abilities_help_label: Label
 var ability_list: HBoxContainer
 var abilities_empty_label: Label
+var skins_title_label: Label
+var skins_help_label: Label
+var skin_list: HBoxContainer
 ## The ids the band's cells show, in cell order.
 var _band_shape_ids: Array[StringName] = []
 var _band_ability_ids: Array[StringName] = []
+## The looks the Skins cells show (&"" first: the goo).
+var _band_skin_ids: Array[StringName] = []
 ## The card the details panel shows: {"kind": CARD_SHAPE | CARD_ABILITY, "id": StringName}; {} = the
 ## bag item's details.
 var _card: Dictionary = {}
@@ -173,6 +193,15 @@ func choose_shape(id: StringName) -> void:
 		return
 	BodyCards.set_shape(BodyCards.world_player(), id)
 	_card = {"kind": CARD_SHAPE, "id": id}
+	refresh()
+
+
+## Rework: `choose-skin {id}`: skin `id` (&"" = the goo) becomes the everyday look and its card shows.
+func choose_skin(id: StringName) -> void:
+	if not is_open() or not ReworkMode.is_on():
+		return
+	SkinState.set_look(id)
+	_card = {"kind": CARD_SKIN, "id": id}
 	refresh()
 
 
@@ -457,6 +486,9 @@ func _build_band() -> void:
 	abilities_help_label = _band_label("AbilitiesHelp", &"MutedLabel", 12, "")
 	ability_list = _band_row("Abilities")
 	abilities_empty_label = _band_label("AbilitiesEmpty", &"MutedLabel", 13, NO_ABILITIES)
+	skins_title_label = _band_label("SkinsTitle", &"PanelTitle", 16, SKINS_TITLE)
+	skins_help_label = _band_label("SkinsHelp", &"MutedLabel", 12, SKINS_HELP)
+	skin_list = _band_row("Skins")
 	_layout_band(panel_width())
 
 
@@ -476,9 +508,21 @@ func _layout_band(width: float) -> void:
 		_place(row[3] as Control, _rect(left, top + 4.0, w - 20.0, top + 4.0 + BAND_CELL_HEIGHT))
 	var sockets := maxi(1, AbilityBox.socket_ids().size())
 	var cell_w := maxf(0.0, (w - 20.0 - left - (sockets - 1) * BAND_GAP) / sockets)
-	for list: HBoxContainer in [shape_list, ability_list]:
+	for cell: Node in ability_list.get_children():
+		(cell as Control).custom_minimum_size = Vector2(cell_w, BAND_CELL_HEIGHT)
+	# The first row shares its width: the Shapes (room for SHAPES_CELLS), then the Skins.
+	var row_cells := SHAPES_CELLS + SKINS_CELLS
+	var top_w := maxf(0.0, (w - 20.0 - left - SKINS_GAP - SKINS_TITLE_W - (row_cells - 2) * BAND_GAP) / row_cells)
+	var shapes_right := left + SHAPES_CELLS * top_w + (SHAPES_CELLS - 1) * BAND_GAP
+	_place(shape_list, _rect(left, 4.0, shapes_right, 4.0 + BAND_CELL_HEIGHT))
+	_place(shapes_empty_label, _rect(left, 4.0, shapes_right, 4.0 + BAND_CELL_HEIGHT))
+	var skins_left := shapes_right + SKINS_GAP
+	_place(skins_title_label, _rect(skins_left, 2.0, skins_left + SKINS_TITLE_W - 6.0, 24.0))
+	_place(skins_help_label, _rect(skins_left, 24.0, skins_left + SKINS_TITLE_W - 6.0, row_h - 4.0))
+	_place(skin_list, _rect(skins_left + SKINS_TITLE_W, 4.0, w - 20.0, 4.0 + BAND_CELL_HEIGHT))
+	for list: HBoxContainer in [shape_list, skin_list]:
 		for cell: Node in list.get_children():
-			(cell as Control).custom_minimum_size = Vector2(cell_w, BAND_CELL_HEIGHT)
+			(cell as Control).custom_minimum_size = Vector2(top_w, BAND_CELL_HEIGHT)
 
 
 ## Fills the band (rework on) or hides it and shows the belt again (rework off).
@@ -498,8 +542,21 @@ func _refresh_band() -> void:
 	abilities_help_label.text = ABILITIES_HELP % key
 	_band_shape_ids = BodyCards.learned_shapes()
 	_band_ability_ids = AbilityBox.box_ids(player)
+	_band_skin_ids = _skin_choices()
+	var look := SkinState.look()
 	_sync_band_cells(shape_list, _band_shape_ids.size(), CARD_SHAPE)
 	_sync_band_cells(ability_list, _band_ability_ids.size(), CARD_ABILITY)
+	_sync_band_cells(skin_list, _band_skin_ids.size(), CARD_SKIN)
+	# Without a skin won the row waits: only the goo, so it hides.
+	var skins_shown := _band_skin_ids.size() > 1
+	for control: Control in [skins_title_label, skins_help_label, skin_list]:
+		control.visible = skins_shown
+	for index in _band_skin_ids.size():
+		var id := _band_skin_ids[index]
+		var cell := skin_list.get_child(index) as ItemCell
+		cell.set_content(BodyCards.skin_title(id), BodyCards.skin_icon(id), LOOK_TAG if id == look else "")
+		cell.corner_label.text = ""
+		cell.set_selected(id == look)
 	for index in _band_shape_ids.size():
 		var id := _band_shape_ids[index]
 		var cell := shape_list.get_child(index) as ItemCell
@@ -544,7 +601,16 @@ func _card_now(current: StringName, chosen: StringName) -> Dictionary:
 			return BodyCards.shape_card(id, id == current)
 		CARD_ABILITY:
 			return BodyCards.ability_card(id, id == chosen)
+		CARD_SKIN:
+			return BodyCards.skin_card(id, id == SkinState.look())
 	return {}
+
+
+## The Skins row's looks: the goo, then every skin that is on.
+static func _skin_choices() -> Array[StringName]:
+	var out: Array[StringName] = [&""]
+	out.append_array(SkinState.on_ids())
+	return out
 
 
 ## One band cell per shape or ability (they keep their focus across refreshes).
@@ -598,7 +664,7 @@ func _on_band_pressed(kind: String, cell: ItemCell) -> void:
 func _on_band_focused(kind: String, cell: ItemCell) -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		return
-	var ids := _band_shape_ids if kind == CARD_SHAPE else _band_ability_ids
+	var ids := _band_ids(kind)
 	if cell.index < 0 or cell.index >= ids.size():
 		return
 	_card = {"kind": kind, "id": ids[cell.index]}
@@ -606,13 +672,25 @@ func _on_band_focused(kind: String, cell: ItemCell) -> void:
 
 
 func _choose_band(kind: String, index: int) -> void:
-	var ids := _band_shape_ids if kind == CARD_SHAPE else _band_ability_ids
+	var ids := _band_ids(kind)
 	if index < 0 or index >= ids.size():
 		return
-	if kind == CARD_SHAPE:
-		choose_shape(ids[index])
-	else:
-		choose_ability(ids[index])
+	match kind:
+		CARD_SHAPE:
+			choose_shape(ids[index])
+		CARD_SKIN:
+			choose_skin(ids[index])
+		_:
+			choose_ability(ids[index])
+
+
+func _band_ids(kind: String) -> Array[StringName]:
+	match kind:
+		CARD_SHAPE:
+			return _band_shape_ids
+		CARD_SKIN:
+			return _band_skin_ids
+	return _band_ability_ids
 
 
 # --- private ------------------------------------------------------------------------------------

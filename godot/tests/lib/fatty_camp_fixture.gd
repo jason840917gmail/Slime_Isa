@@ -1,7 +1,8 @@
 extends RefCounted
 ## Fatty's old overworld camp, put back for the boss-camp tests (test_boss.gd, test_audio.gd,
 ## test_chest_window.gd). Fatty left level-1-d4's clearing for his Lair on 2026-10-17 (his camp is
-## `encounter.fatty-lair-boss` in world.fatty-lair, docs/godot/DUNGEONS.md "Fatty's Lair (built)"),
+## `encounter.fatty-lair-boss` in world.fatty-lair, docs/godot/DUNGEONS.md "Fatty's Lair (built)";
+## the Lair's gate, first by the clearing, moved to level-1-d5's hill the same day),
 ## but the boss camp's rules these tests measure (the activation and arena circles, the leash, the
 ## 180 s respawn, the guarded chest, the boss music) are the camp's, and the clearing they were
 ## measured in is still there: `ensure` instances `encounter.level-1-fatty-camp` at its old spot,

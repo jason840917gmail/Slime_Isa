@@ -10,6 +10,7 @@ extends RefCounted
 ## the distances used here (the village banner at (656, 664) stands up-right of the spawn itself).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const Services := preload("res://game/shared/services.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
 
@@ -237,8 +238,8 @@ func test_rolling_into_a_wall_bonks_and_bounces_back(t: TestContext) -> void:
 ## 130 px to the right of OPEN, a little below the roll's line: the ball rolling into it sticks (the
 ## web's `caught`; the floor webs' rule, game/world/webs/floor_webs.gd, since 2026-10-17), its roll
 ## is over there (no bonk, no bounce, no rolling on), the slime is stuck (rooted, still) where the
-## web caught it, on the patch (nothing sets it back), and the web is whole. With the Silk form (the
-## Silk skin's stand-in, `crosses_webs`) the web no longer sticks: the roll tears through it and
+## web caught it, on the patch (nothing sets it back), and the web is whole. With the Silk skin
+## (SkinState, `crosses_webs`; roadmap 7.8) the web no longer sticks: the roll tears through it and
 ## goes on past it. The painted floor webs: tests/test_weaver_webs.gd.
 func test_a_roll_sticks_in_a_floor_web(t: TestContext) -> void:
 	var player := t.player()
@@ -270,14 +271,10 @@ func test_a_roll_sticks_in_a_floor_web(t: TestContext) -> void:
 	t.near_vec(t.player_body().velocity, Vector2.ZERO, 0.001, "the stuck slime's velocity")
 	t.near_vec(player.get_centre(), stuck_at, 1.0, "the stuck slime moved")
 	t.equal((events["caught"] as Array).size(), 1, "catches of the rolling slime")
-	# The Silk form: the web no longer sticks, the roll tears through.
-	var gulp: Object = player.call(&"get_gulp") if player.has_method(&"get_gulp") else null
-	if gulp == null or not gulp.has_method(&"swallow"):
-		t.note("player.gd has no Silk form: the Silk roll is untested")
-		return
+	# The Silk skin: the web no longer sticks, the roll tears through.
 	await t.sim_wait(1100.0)
-	gulp.call(&"swallow", "silk-essence")
-	if not t.check(player.crosses_webs(), "swallowing silk did not give the Silk form"):
+	SkinState.lend(SkinState.SILK)
+	if not t.check(player.crosses_webs(), "the Silk skin does not cross webs"):
 		return
 	t.teleport_player(OPEN)
 	player.face(Vector2.RIGHT)

@@ -6,12 +6,14 @@ class_name SilkParcelScript
 ## It glints now and then, and it never breathes or stands up (the Cocoon Mimic stands upright and
 ## breathes; `object.cocoon-prize` is the Mimic's look).
 ##
-## - **Without the Silk skin** (`player.crosses_webs()`, today the Silk Gulp form) every hit clinks
+## - **Without the Silk skin** (`player.crosses_webs()`: SkinState, docs/godot/SKINS.md) every hit clinks
 ##   with `refusal_text`, which says something is needed and never names the skin.
 ## - **With it** a shape's hit (request tags in CUT_TAGS: the Spear, and the old weapons) frees it:
 ##   it tears open, pays `coins` at once ("+30c", as an enemy's coins) and spills `contents`
 ##   ({item_id: count}, as a chest's `initial_contents`) as loot piles around it (EnemyLoot.drop_loot:
-##   they stay on the floor, saved, until picked up; an item with no ground look goes into the bag),
+##   they stay on the floor, saved, until picked up; an item with no ground look goes into the bag);
+##   a dungeon item ("dungeon-small-key", ...: a key wrapped in silk) drops in front of it as the
+##   kit's floor key (DungeonKeyPickup), there again after a world rebuild until it is taken,
 ##   with the web tear cue, a sparkle and "Freed from the silk!". It stays torn open for good: the
 ##   story flag `save_key()`. Other hits (throws, blasts) clink without a line.
 ##
@@ -20,9 +22,12 @@ class_name SilkParcelScript
 ##
 ## Owner: webs (the Weaver Hollow).
 
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const Services := preload("res://game/shared/services.gd")
 const BlastBarrier := preload("res://game/scripts/blast_barrier.gd")
 const SpiderWebPort := preload("res://game/enemy/spider_web_port.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const DungeonKeyPickup := preload("res://game/dungeon/dungeon_key_pickup.gd")
 
 const ART := "res://asset/MAPS/webs/silk-parcel-3x1.webp"
 ## Frames: 0 closed, 1 torn open, 2 the glint (drawn over the closed one); 2 px a unit.
@@ -48,6 +53,10 @@ const FREED_MS := 1800.0
 const COIN_TEXT_RISE := 24.0
 ## The parcel's middle, from the root (where things spill from).
 const MIDDLE := Vector2(0.0, -16.0)
+## A dungeon item it holds drops here (from the root: in front of the parcel), the next one this
+## far to the right.
+const KEY_DROP := Vector2(0.0, 30.0)
+const KEY_STEP := 30.0
 const LINE_RISE := 10.0
 const SHIVER_PX := 1.5
 const SHIVER_RATE := 46.0
@@ -78,6 +87,8 @@ var _area: Area2D
 var _next_glint_ms: float = 0.0
 var _glint_from_ms: float = -1.0
 var _shiver_until_ms: float = 0.0
+## Freed earlier with a dungeon item in it: it is dropped again once the world is up.
+var _redrop_pending := false
 static var _texture: Texture2D
 
 
@@ -89,7 +100,10 @@ func _ready() -> void:
 	var run := Services.run()
 	_open = run != null and run.has_flag(save_key())
 	if _open:
-		set_process(false)
+		# A dungeon item freed but not picked up yet lies there again (DungeonKeyPickup.drop skips
+		# one already taken), once the world is up.
+		_redrop_pending = not _dungeon_items().is_empty()
+		set_process(_redrop_pending)
 		return
 	_body = StaticBody2D.new()
 	_body.name = "Solid"
@@ -187,6 +201,8 @@ func free_parcel() -> void:
 		_area = null
 	_glint_from_ms = -1.0
 	queue_redraw()
+	var world := Services.world()
+	SkinState.show(world.player if world != null else null, SkinState.SILK)
 	var at := global_position + MIDDLE
 	var feel := Services.feel()
 	if coins > 0 and run != null:
@@ -194,13 +210,40 @@ func free_parcel() -> void:
 		if feel != null:
 			feel.floating_text(at - Vector2(0.0, COIN_TEXT_RISE), "+%dc" % coins, &"yellow", false)
 	var items := spill()
-	if not items.is_empty():
-		_drop(items, at)
+	var loot := {}
+	for item_id: String in items:
+		if DungeonState.item_of(item_id).is_empty():
+			loot[item_id] = items[item_id]
+	if not loot.is_empty():
+		_drop(loot, at)
+	_drop_dungeon_items()
 	if feel != null:
 		feel.audio_cue(SpiderWebPort.TORN_CUE)
 		feel.particles(SpiderWebPort.TORN_PARTICLES, at)
 		feel.floating_text(at - Vector2(0.0, FREED_RISE), FREED_TEXT, &"cyan", true, FREED_MS)
 	freed.emit({"flagId": save_key(), "coins": coins, "contents": items})
+
+
+## The dungeon items it holds ("dungeon-small-key", ...: DungeonState.item_of), {item: count}.
+func _dungeon_items() -> Dictionary:
+	var out := {}
+	for item_id: String in spill():
+		var item := DungeonState.item_of(item_id)
+		if not item.is_empty():
+			out[item] = int(out.get(item, 0)) + int(spill()[item_id])
+	return out
+
+
+## A key wrapped in silk (the Weaver Hollow's C4): each dungeon item drops on the floor in front of
+## the parcel as the kit's floor key (`object.dungeon-key`, DungeonKeyPickup), recorded by the
+## parcel's flag, so it is taken once and lies there again until it is.
+func _drop_dungeon_items() -> void:
+	var index := 0
+	for item: String in _dungeon_items():
+		for n in int(_dungeon_items()[item]):
+			var at := global_position + KEY_DROP + Vector2(KEY_STEP * index, 0.0)
+			DungeonKeyPickup.drop(item, at, "%s:%s-%d" % [save_key(), item, n])
+			index += 1
 
 
 ## The items as loot piles around `at` (main's EnemyLoot), else straight into the bag.
@@ -267,7 +310,12 @@ func _plan_glint(now: float) -> void:
 
 func _process(_delta: float) -> void:
 	if _open:
-		set_process(false)
+		var world := Services.world()
+		if _redrop_pending and world != null and world.entities_root() != null and world.player != null:
+			_redrop_pending = false
+			_drop_dungeon_items()
+		if not _redrop_pending:
+			set_process(false)
 		return
 	var now := float(Time.get_ticks_msec())
 	if _glint_from_ms < 0.0 and now >= _next_glint_ms:

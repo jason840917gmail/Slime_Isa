@@ -2,8 +2,9 @@
 
 > **Status:** built 2026-10-17 for the Weaver Hollow (Chapter 2's dungeon,
 > [its design](../design/2026-10-16-dungeon-weaver-hollow.md)); tried in the playground's Webs corner.
-> Tests in `godot/tests/test_weaver_webs.gd` (not run yet). The Silk skin is not built: its hook is
-> `player.crosses_webs()` (`game/scripts/player.gd`), which the Silk Gulp form sets today.
+> Tests in `godot/tests/test_weaver_webs.gd` (not run yet). The Silk skin is built (roadmap 7.8,
+> [SKINS.md](SKINS.md#silk)): its hook is `player.crosses_webs()` (`game/scripts/player.gd`), true
+> once the skin is won (or lent); the Silk Gulp form no longer counts.
 
 The webs' rules (owner, 2026-10-16, question 131; roadmap 7.9):
 
@@ -63,7 +64,14 @@ Thick silk filling a door slot or a nook's mouth. Place it as an instance in the
 
 The solid is a StaticBody2D on the `world` layer; the Silk slime gets a collision exception with it
 (kept until it has left the passage), and walks at half speed while its feet are within the solid
-grown by 16 units.
+grown by 16 units. It stops enemies, their shots and a throw too (a throw ends at its hurtbox, so a
+thrown Goo Bomb stops in the silk).
+
+- `remembered` off: silk that is spun again (the Matron's cage, specs/matron.md 8.2): a cut sets
+  and reads no flag.
+- While the slime stands behind an "across" web (its feet just north of the root, inside the
+  picture) the silk fades to 0.45 so the slime shows through (`BEHIND_ALPHA`; presentation only),
+  as in the Weaver Hollow's C4, whose rows of web walls stand across an open floor.
 
 ## Silk parcels: `object.silk-parcel`
 
@@ -73,7 +81,9 @@ where the parcel's front edge meets the floor; `coins` are paid at once ("+30c")
 ({item_id: count}, as a chest's) spill around it as loot piles (saved until picked up), with "Freed
 from the silk!". It stays torn open: its story flag (`flag_id`, default
 `silk-parcel.<world scene>:<node path>`). Behind a web wall, put it far enough in that the web's
-picture does not hide it.
+picture does not hide it. A dungeon item in `contents` ("dungeon-small-key": a key wrapped in silk,
+the Weaver Hollow's C4) drops in front of it as the kit's floor key (`DungeonKeyPickup`, recorded
+under the parcel's flag), and lies there again after the world is built again until it is taken.
 
 ## Art
 
@@ -93,7 +103,7 @@ Generated on Magnific (GPT 2.5, transparent, the Lili sheet as style reference) 
 | `godot/game/scripts/web_wall.gd`, `scenes/objects/web-wall.tscn` | `object.web-wall` |
 | `godot/game/scripts/silk_parcel.gd`, `scenes/objects/silk-parcel.tscn` | `object.silk-parcel` |
 | `godot/game/scripts/web_patch.gd` | The Matron's volley patch, on the floor webs' rule |
-| `godot/game/dev/corners/webs_corner.tscn` | The playground's Webs corner (east, below the bestiary pens, around (3456-4480, 4790-5570)): a painted band, a lone `object.floor-web`, two nooks behind web walls (across, side) with parcels, a silk essence to swallow |
+| `godot/game/dev/corners/webs_corner.tscn` | The playground's Webs corner (east, below the bestiary pens, around (3456-4480, 4790-5570)): a painted band, a lone `object.floor-web`, two nooks behind web walls (across, side) with parcels, a skin pedestal that lends the Silk skin ([SKINS.md](SKINS.md#the-skins-corner)) |
 | `godot/tests/test_weaver_webs.gd` | Floor webs, web walls, parcels |
 
 ## Limits

@@ -14,9 +14,18 @@ extends RefCounted
 ## - crown-bough-drop (C3, a fall) -> the forecourt (built last).
 ##
 ## The shared dungeon kit (docs/godot/DUNGEONS.md, `object.<kind>` under `Objects`): a Dungeon node
-## in every floor (one dungeon, resumed at T1's `dungeon-entrance`), the key doors, the chests (the
-## map, the three small keys, the big key), the shutters and room fights, the drawbridges, the voids'
-## hazards, the pots and the energy flower, the dark cellar's glint.
+## in every floor (one dungeon, resumed at T1's `dungeon-entrance`; its boss the Matron, whose fall
+## breaks the seal), the key doors, the chests (the map, two small keys, the big key), the shutters
+## and room fights, the drawbridges, the voids' hazards, the pots and the energy flower, the dark
+## cellar's glint, and the two seals (`object.dungeon-seal`: T1's way out, C2's east doorway).
+##
+## The Pearl inside the dungeon (owner, 2026-10-17; docs/design/2026-10-17-pearl-mid-dungeon.md
+## "The Weaver Hollow"): the first half is the Goo Bomb's, up to the Brood Warden (B4 the Nursery and
+## B6 the Pillar an optional wing); Pearl 2 lies in the Hoard beside the big key, guarded by the
+## Warden's fight; taking it seals the dungeon. The second half teaches the Silk skin: the Hoard's
+## stair (a web wall), the gallery (the calm room), the Crown Door, C1 (webs wall to wall, a web wall
+## on the straight way, the K3 door), C4 the Spinning Loft (rows of web walls under Slime Spider
+## fire, small key 3 in a silk parcel), then the Matron's fight, the Silk skin's exam.
 ##
 ## Owner: world (dungeons).
 
@@ -36,14 +45,34 @@ const WEB_WALL := "res://game/scenes/objects/web-wall.tscn"
 const DROP_GATE := "res://game/scenes/objects/drop-gate.tscn"
 const GATE_WINCH := "res://game/scenes/objects/gate-winch.tscn"
 const MATRON_CAMP := "res://game/scenes/encounters/weaver-hollow-matron.tscn"
+## C4's dressing (game/scenes/objects/weaver-hollow/<name>.tscn): [name, x, y] (cells).
+const LOFT_PROP := "res://game/scenes/objects/weaver-hollow/%s.tscn"
+const LOFT_DRESSING := [
+	["loft-rafter", 20.2, 17], ["loft-peg-rail", 24.6, 17], ["loft-rafter", 28.4, 17],
+	["loft-spool", 17.9, 22.8], ["loft-spinning-wheel", 29.5, 26.2],
+]
 const SILK_PARCEL := "res://game/scenes/objects/silk-parcel.tscn"
 const LIFTABLE := "res://game/scenes/objects/liftable.tscn"
 const KIT := "res://game/scenes/objects/dungeon/%s.tscn"
 const CHEST := "res://game/scenes/objects/dungeon/dungeon-chest.tscn"
 const BIG_CHEST := "res://game/scenes/objects/dungeon/dungeon-big-chest.tscn"
 const GOO_HEART := "res://game/scenes/objects/goo-heart.tscn"
+const PEARL_TWO := "res://game/scenes/objects/pearl-two.tscn"
+## The brood's altar in the Hoard (art: asset/Originals/weaver-hollow/loft/, scripts/art/pack-loft-art.py).
+const PEARL_ALTAR := "res://game/scenes/objects/weaver-hollow/brood-altar.tscn"
 const DUNGEON_ID := "weaver-hollow"
 const DUNGEON_NAME := "Weaver Hollow"
+## The seal (Dungeon node, docs/godot/DUNGEONS.md "The seal"): the Matron's fight breaks it.
+const BOSS_ID := "orb-weaver-matron"
+const BOSS_NAME := "The Orb-Weaver Matron"
+const SEAL_COLOR := Color("#9a5ad8")
+const SEAL_DUST := Color("#efe6d6")
+const ROAR_SOUND := "res://asset/audio/sfx/synth/enemy/spider-hiss.wav"
+const ROAR_PITCH := 0.4
+## The Brood Warden's room fight: Pearl 2's guard.
+const WARDEN_BOSS_ID := "weaver-hollow-brood-warden"
+const PEARL_FLAG := "pearl.orb-weaver-matron"
+const PEARL_GLINT := Color(0.86, 0.8, 1.0)
 ## The Node2D in T1 where a faint or a quit resumes (the Dungeon node's `entrance_marker`).
 const ENTRANCE_MARKER := "dungeon-entrance"
 const CAVE_LADDER := "res://game/scenes/objects/cave-ladder.tscn"
@@ -64,6 +93,8 @@ const PEBBLES := "interior-mushroom-floor-pebbles-"
 ## Doorway triggers (world units, around the door node): across a two-cell gap.
 const TRIGGER_NS := Rect2(-64.0, -20.0, 128.0, 40.0)
 const TRIGGER_EW := Rect2(-20.0, -64.0, 40.0, 128.0)
+## C4 the Spinning Loft: the floor lines (cell rows) of its two rows of web walls, south to north.
+const C4_ROWS: Array[float] = [24.0, 20.6]
 
 
 ## Scenery props by the base name of their scene (game/world/props/prop_palettes.json), placed
@@ -185,7 +216,9 @@ static func _kit(root: Node2D, node_name: String, kind: String, x: float, y: flo
 static func _dungeon(root: Node2D, x: float, y: float) -> void:
 	var trunk := world_id("trunk")
 	_kit(root, "dungeon", "dungeon", x, y, {"dungeon_id": DUNGEON_ID, "display_name": DUNGEON_NAME,
-			"entrance_marker": ENTRANCE_MARKER, "entrance_map_id": "" if str(root.name) == trunk else trunk})
+			"entrance_marker": ENTRANCE_MARKER, "entrance_map_id": "" if str(root.name) == trunk else trunk,
+			"boss_id": BOSS_ID, "boss_name": BOSS_NAME, "seal_color": SEAL_COLOR, "dust_color": SEAL_DUST,
+			"roar_sound": load(ROAR_SOUND), "roar_pitch": ROAR_PITCH})
 
 
 ## A void (an elevation hole at level -2) the slime falls into: the kit's hazard over the cells
@@ -264,6 +297,11 @@ static func _trunk() -> Node2D:
 	canvas.paint_webs(Rect2i(36, 22, 3, 2))
 	canvas.paint_webs(Rect2i(3, 19, 6, 1))
 	canvas.paint_webs(Rect2i(8, 23, 5, 1))
+	# The Hoard's stair is choked with old silk (its web wall in the Boughs): the silk spills down the
+	# gallery's west end, seen from the hub's floor on the first visit.
+	canvas.paint_webs(Rect2i(18, 0, 2, 2), 1)
+	canvas.paint_webs(Rect2i(17, 2, 5, 4), 1)
+	canvas.paint_webs(Rect2i(22, 3, 1, 2), 1)
 	var root := S.build(canvas, _at(24, 38))
 	S.camera_room(root, "T4-well-room", 0, 0)
 	S.camera_room(root, "T3-larder", 0, 1)
@@ -293,10 +331,10 @@ static func _trunk() -> Node2D:
 	S.place(root, "Objects", "well-floor", CRACKED_FLOOR, _at(8.5, 9.5), {"flag_id": "weaver-hollow.well-floor",
 			"door_id": "trunk-well-floor", "target_area_id": world_id("roots"), "target_marker": "roots-landing"})
 	# T2 the Hollow Heart. Its east door (small key 1) to the Boughs; on the gallery (level 1, the calm
-	# room before the boss) the Crown Door (the big key; the rock's face hangs one course over row 2), pots
-	# that hide a heart or energy and an energy flower; the gallery's stair down to the hub's floor is
-	# shut at its foot by a stone block that the winch on the gallery lowers for good (the shortcut
-	# back from above, once the big key is found).
+	# room after the Pearl, before the Crown) the Crown Door (the big key; the rock's face hangs one
+	# course over row 2), pots that hide a heart or energy and an energy flower; the gallery's stair
+	# down to the hub's floor is shut at its foot by a stone block that the winch on the gallery lowers
+	# for good (the short way back from the entrance after a faint, inside the seal).
 	_kit(root, "east-key-door", "key-door", 47, 22, {"door_id": "trunk-east-door", "wall": "east", "keyholes": 1})
 	_kit(root, "crown-boss-door", "boss-door", 32, 3, {"door_id": "trunk-crown-door-lock", "wall": "north", "lock": "big"})
 	_kit(root, "gallery-stair-block", "shutter", 45, 7, {"wall": "north", "starts_shut": true,
@@ -313,6 +351,9 @@ static func _trunk() -> Node2D:
 	# T1 Root Door: the dungeon's entrance (a faint or a quit inside resumes here) and S3's web wall.
 	root.get_node("Doors").add_child(S.marker(ENTRANCE_MARKER, _at(24, 38)))
 	_dungeon(root, 24, 39.5)
+	# The seal in T1's south doorway, the way out (the blown root gate outside stays blown): shut from
+	# Pearl 2's take until the Matron falls.
+	_kit(root, "entrance-seal", "dungeon-seal", 24, 41, {"wall": "south", "glimpse": true})
 	S.place(root, "Objects", "s3-web-wall", WEB_WALL, _at(32, 36), {"orientation": "side", "span": 128.0,
 			"hides_secret": true, "flag_id": "weaver-hollow.s3-web-wall"})
 	S.place(root, "Objects", "s3-parcel", SILK_PARCEL, _at(35.5, 37.6), {"coins": 30, "contents": {},
@@ -404,16 +445,19 @@ static func _roots() -> Node2D:
 	return root
 
 
-## The Boughs (the upper floor): D2 the Dark Bough (0,0), the Hoard (1,0), B5 the Warden's Den (2,0),
-## B6 the Pillar (3,0), B1 the Bough Stair (0,1), B2 the Drawbridge (1,1)-(2,1), B4 the Nursery (3,1),
-## B3 the Mimic's Pantry (2,2).
+## The Boughs (the upper floor): D2 the Dark Bough (0,0), the Hoard (1,0: the Pearl room), B5 the
+## Warden's Den (2,0), B6 the Pillar (3,0), B1 the Bough Stair (0,1), B2 the Drawbridge (1,1)-(2,1),
+## B4 the Nursery (3,1), B3 the Mimic's Pantry (2,2). B4 and B6 are an optional bomb wing.
 static func _boughs() -> Node2D:
 	var canvas := HollowCanvas.new(world_id("boughs"), 4, 3)
 	var moss := C.FOREST_MOSS
 	var leaves := C.AMBERLEAF
 	canvas.carve_room(0, 0, 1, 1, moss)
-	# The Hoard: a small vault.
+	# The Hoard: a small vault, the Pearl room. Its stair down to the gallery is a well between two
+	# blocks of rock at its south end, choked with old silk (a web wall across its mouth).
 	canvas.fill(Rect2i(24, 3, 7, 10), 0, C.TOWN_COBBLE)
+	canvas.rock(Rect2i(24, 11, 3, 2))
+	canvas.rock(Rect2i(29, 11, 2, 2))
 	canvas.carve_room(2, 0, 1, 1, C.TOWN_COBBLE)
 	# B6 the Pillar: a small near rim in the south-west, the void (level -2, dark) across the room and
 	# down its east side, the far shore along the north (the big chest, the raised bridge's post), and
@@ -468,7 +512,7 @@ static func _boughs() -> Node2D:
 	S.camera_room(root, "B3-mimics-pantry", 2, 2)
 	S.door(root, "from-trunk", _at(0.35, 22), {"door_id": "boughs-from-trunk", "target_area_id": world_id("trunk"),
 			"target_door_id": "trunk-east-stair", "side": "west", "kind": "opening", "trigger_rect": TRIGGER_EW})
-	S.door(root, "hoard-stair", _at(27.5, 12.7), {"door_id": "boughs-hoard-stair", "target_area_id": world_id("trunk"),
+	S.door(root, "hoard-stair", _at(28, 12.7), {"door_id": "boughs-hoard-stair", "target_area_id": world_id("trunk"),
 			"target_door_id": "trunk-gallery-stair", "side": "south", "kind": "opening", "trigger_rect": TRIGGER_NS})
 	# B1: a Silk Lurker over the landing; D2's dark doorway in the north wall.
 	S.enemy(root, "stair-silk-lurker", "silk-lurker", _at(8, 21), 64.0)
@@ -476,13 +520,14 @@ static func _boughs() -> Node2D:
 	_pot(root, "stair-pot-2", 13.5, 25.5)
 	# B2: the void across the room's middle; its drawbridge stands raised on the far (east) rim and
 	# drops west across the gap (rows 21-22) when a bomb thrown over the void breaks the cracked winch
-	# post beside it. The Warden's double door (small keys 2 and 3) in the north wall east of the void.
+	# post beside it. The Warden's door (small key 2: one keyhole since the Pearl moved inside, small
+	# key 3 lies in the Crown's C4) in the north wall east of the void.
 	_void(root, "b2-void", Rect2i(30, 15, 4, 12))
 	_kit(root, "b2-drawbridge", "drawbridge", 34, 22, {"toward": "west", "length": 4, "width": 128.0,
 			"bridge_id": "b2-drawbridge"})
 	S.place(root, "Objects", "winch-post", WINCH_POST, _at(34.6, 20.4), {"flag_id": "weaver-hollow.winch-post",
 			"target_path": NodePath("../b2-drawbridge")})
-	_kit(root, "den-double-door", "key-door", 40, 17, {"door_id": "boughs-den-door", "wall": "north", "keyholes": 2})
+	_kit(root, "den-door", "key-door", 40, 17, {"door_id": "boughs-den-door", "wall": "north", "keyholes": 1})
 	# B3: the Cocoon Mimic swallowed small key 2: beaten, it spits it out (the kit's floor key). The
 	# parcels behind the alcove's web wall.
 	S.enemy(root, "pantry-cocoon-mimic", "cocoon-mimic", _at(42, 33), 120.0, {"swallowed_flag": "weaver-hollow.b3-mimic-key",
@@ -493,29 +538,31 @@ static func _boughs() -> Node2D:
 	for i in 3:
 		S.place(root, "Objects", "s2-parcel-%d" % i, SILK_PARCEL, _at(34.5, 33.6 + i * 2.2), {"coins": pantry[i][1],
 				"contents": pantry[i][0], "flag_id": "weaver-hollow.s2-parcel-%d" % i})
-	# B4 the Nursery: an ambush (shutters once), three egg sacs on islands ringed by webs, an orb-weaver.
+	# B4 the Nursery (the optional wing with B6): an ambush (shutters once), three egg sacs on islands
+	# ringed by webs, an orb-weaver.
 	for i in 3:
 		var corner: Vector2i = [Vector2i(50, 17), Vector2i(58, 17), Vector2i(58, 22)][i]
 		S.enemy(root, "nursery-egg-sac-%d" % i, "egg-sac", _at(corner.x + 2, corner.y + 2.6), 420.0)
 	S.enemy(root, "nursery-orb-weaver", "orb-weaver", _at(53, 24), 220.0)
 	# Shutters close both its doorways once the slime is in; every enemy of the room beaten (the
-	# sacs and the orb-weaver), they open and a chest rises with small key 3. Won once, for good.
+	# sacs and the orb-weaver), they open and a chest rises with coins and a potion. Won once, for good.
 	_kit(root, "nursery-shutter-west", "shutter", 49, 22, {"wall": "west", "fight_id": "b4-nursery"})
 	_kit(root, "nursery-shutter-north", "shutter", 51, 17, {"wall": "north", "fight_id": "b4-nursery"})
-	_chest(root, "nursery-key-chest", 56, 22.2, {"dungeon-small-key": 1}, false, true)
+	_chest(root, "nursery-chest", 56, 22.2, {"coins": 30, "hp-potion": 1}, false, true)
 	_kit(root, "nursery-fight", "room-fight", 48, 14, {"size": Vector2(16, 14) * float(S.CELL), "fight_id": "b4-nursery",
-			"once": true, "reward": NodePath("../nursery-key-chest")})
-	# B5 the Warden's Den: the mini-boss (a room fight with a boss: its shutter closes the double
-	# door's doorway behind the slime); one egg sac by the back wall. The Hoard's doorway is shut
-	# from the start and opens when the Warden falls: the big chest, the big key.
+			"once": true, "reward": NodePath("../nursery-chest")})
+	# B5 the Warden's Den: the mini-boss, the first half's last test (a room fight with a boss: its
+	# shutter closes the key door's doorway behind the slime); one egg sac by the back wall. The
+	# Hoard's doorway is shut from the start and opens when the Warden falls: the big chest with the
+	# big key and, on the brood's altar beside it, Pearl 2, risen with the Warden's fall.
 	S.enemy(root, "den-brood-warden", "brood-warden", _at(40, 8), 300.0)
 	S.enemy(root, "den-egg-sac", "egg-sac", _at(44.5, 4.5), 360.0)
 	_kit(root, "den-shutter", "shutter", 40, 13, {"wall": "south", "fight_id": "b5-warden"})
 	_kit(root, "hoard-shutter", "shutter", 33, 8, {"wall": "west", "starts_shut": true, "shutter_id": "boughs-hoard-shutter"})
 	var warden: Array[NodePath] = [NodePath("../../Enemies/den-brood-warden")]
 	_kit(root, "den-fight", "room-fight", 32, 0, {"size": Vector2(16, 14) * float(S.CELL), "fight_id": "b5-warden",
-			"boss_id": "weaver-hollow-brood-warden", "enemies": warden, "reward": NodePath("../hoard-shutter")})
-	_chest(root, "hoard-big-chest", 27.5, 6.6, {"dungeon-big-key": 1}, true)
+			"boss_id": WARDEN_BOSS_ID, "enemies": warden, "reward": NodePath("../hoard-shutter")})
+	_hoard(root)
 	for i in 4:
 		_dungeon_pot(root, "den-pot-%d" % i, [34.0, 45.5, 34.0, 45.5][i], [4.5, 9.0, 11.5, 11.5][i], "random")
 	# B6 the Pillar: a bomb thrown onto the first keg sets off the line along the parapet; the last
@@ -555,7 +602,52 @@ static func _boughs() -> Node2D:
 	return root
 
 
-## The Crown (the top): C2 the Crown (0,0), C3 the Outer Bough (1,0), C1 the Crown Stair (0,1).
+## The Hoard, the Pearl room (the plan's "The Pearl room: the Hoard"): the big chest with the big key
+## and, on the brood's altar beside it, Pearl 2 (`object.pearl-two`, its guard the Warden's fight:
+## it rises when she falls; taking it grants the Silk skin and seals the dungeon). Its glow
+## twinkles over the altar and at the shutter's gap in the den, seen through the fight, until the
+## Pearl is taken. The stair down to the gallery is choked with old silk: a web wall across the
+## well's mouth, the Silk skin's first lock (passed at half speed, or cut for good with the Spear).
+static func _hoard(root: Node2D) -> void:
+	_chest(root, "hoard-big-chest", 28.6, 6.6, {"dungeon-big-key": 1}, true)
+	S.place(root, "Scenery", "hoard-altar", PEARL_ALTAR, _at(25.4, 7.0))
+	# Taken from any side of the altar (its base is solid): a wide reach.
+	S.place(root, "Objects", "pearl-two", PEARL_TWO, _at(25.4, 5.5), {"boss_id": WARDEN_BOSS_ID, "take_radius": 90.0})
+	_pearl_glow(root, [Vector2(25.4, 4.6), Vector2(33.4, 6.9)])
+	S.place(root, "Objects", "hoard-stair-web", WEB_WALL, _at(28, 11.2), {"orientation": "across", "span": 128.0,
+			"height": 120.0, "flag_id": "weaver-hollow.hoard-stair-web"})
+
+
+## Pearl 2's glow: a pale violet glint at each point (cells), drawn over the dark (prize_glint.gd),
+## gone once the Pearl is taken (a StoryVariant on its flag keeps them only while it is unset).
+static func _pearl_glow(root: Node2D, points: Array) -> void:
+	var holder := Node2D.new()
+	holder.name = "pearl-glow-variant"
+	holder.y_sort_enabled = true
+	root.get_node("Objects").add_child(holder)
+	var glow := Node2D.new()
+	glow.name = "pearl-glow"
+	glow.y_sort_enabled = true
+	holder.add_child(glow)
+	for i in points.size():
+		var point: Vector2 = points[i]
+		var glint := (load(KIT % "prize-glint") as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
+		glint.name = "pearl-glint-%d" % i
+		glint.position = _at(point.x, point.y)
+		glint.set(&"tint", PEARL_GLINT)
+		glint.set(&"lit_strength", 0.9)
+		glint.set(&"phase", 0.6 * i)
+		glow.add_child(glint)
+	var variant := Node.new()
+	variant.name = "StoryVariantScript"
+	variant.set_script(load(STORY_VARIANT))
+	variant.set(&"flag_id", PEARL_FLAG)
+	holder.add_child(variant)
+	variant.set(&"when_unset", glow)
+
+
+## The Crown (the top): C2 the Crown (0,0), C3 the Outer Bough (1,0), C1 the Crown Stair (0,1), C4
+## the Spinning Loft (1,1).
 static func _crown() -> Node2D:
 	var canvas := HollowCanvas.new(world_id("crown"), 2, 2)
 	var moss := C.FOREST_MOSS
@@ -564,25 +656,53 @@ static func _crown() -> Node2D:
 	canvas.paint_ground(Rect2i(1, 1, 3, 12), moss)
 	canvas.paint_ground(Rect2i(12, 9, 3, 4), moss)
 	canvas.carve_room(1, 0, 1, 1, leaves)
+	# C1 the Crown Stair (the Silk skin's test): a band of rock across the stair (row 21, its face
+	# over rows 22-23) whose one gap, on the stair's straight way up, is choked by a web wall; the
+	# floor webbed from wall to wall below the calm top, where the K3 door leads up into the Crown.
 	canvas.carve_room(0, 1, 1, 1, leaves)
 	canvas.paint_ground(Rect2i(1, 22, 5, 5), moss)
-	# Doors: the stair from the Trunk (C1 south), C1-C2 (the boss shutter), C2-C3 (the web wall).
+	canvas.rock(Rect2i(1, 21, 14, 1))
+	canvas.fill(Rect2i(7, 21, 2, 1), 0, leaves)
+	# C4 the Spinning Loft (the Silk skin's twist): the old watch's store loft, its boards, where the
+	# brood spins; two rows of web walls across it (C4_ROWS), the Slime Spiders between them.
+	canvas.carve_room(1, 1, 1, 1, C.WOOD_FLOOR)
+	# Doors: the stair from the Trunk (C1 south), C1-C2 (the K3 door, the boss shutter), C2-C3 (the
+	# seal, the web wall), C1-C4 (C1's south part, C4's south corridor).
 	canvas.fill(Rect2i(7, 27, 2, 1), 0, moss)
 	canvas.door_north_south(7, 13, moss)
 	canvas.door_east_west(15, 7, leaves)
+	canvas.door_east_west(15, 25, leaves)
 	canvas.paint_style(Rect2i(0, 0, 32, 28), "mossy-rock")
-	var root := S.build(canvas, _at(8, 24))
+	# Floor webs: C1 from wall to wall below its top (the gap and the doorway to C4 too, never under
+	# the band's face, rows 22-23, which they would draw over); C4's middle corridor, the west of its
+	# north corridor and the east of its south corridor.
+	canvas.paint_webs(Rect2i(1, 19, 14, 2))
+	canvas.paint_webs(Rect2i(7, 21, 2, 3))
+	canvas.paint_webs(Rect2i(1, 24, 16, 3))
+	canvas.paint_webs(Rect2i(17, 21, 14, 3))
+	canvas.paint_webs(Rect2i(17, 17, 5, 3))
+	canvas.paint_webs(Rect2i(25, 24, 6, 3))
+	var root := S.build(canvas, _at(8, 25))
 	S.camera_room(root, "C2-the-crown", 0, 0)
 	S.camera_room(root, "C3-outer-bough", 1, 0)
 	S.camera_room(root, "C1-crown-stair", 0, 1)
+	S.camera_room(root, "C4-spinning-loft", 1, 1)
 	S.door(root, "from-trunk", _at(8, 27.65), {"door_id": "crown-from-trunk", "target_area_id": world_id("trunk"),
 			"target_door_id": "trunk-crown-door", "side": "south", "kind": "opening", "trigger_rect": TRIGGER_NS})
 	S.door(root, "bough-drop", _at(29.5, 8), {"door_id": "crown-bough-drop", "target_area_id": "gloop-forest-f4",
 			"target_marker": "weaver-hollow-silk-drop", "side": "none", "kind": "fall",
 			"trigger_rect": Rect2(-48.0, -96.0, 96.0, 192.0)})
-	# The Matron's camp (encounter.weaver-hollow-matron): her cocoon fight, then Pearl 2, her full
-	# heart and her thread in the web. The boss shutter in C2's south doorway rises when she engages
-	# and sinks when she falls (her camp's signals).
+	# C1: the web wall across the stair's straight way (pass it at half speed, or cut it for good and
+	# every climb after a faint is quick), the K3 door at the top and its pots, the calm spot.
+	S.place(root, "Objects", "stair-web-wall", WEB_WALL, _at(8, 23.6), {"orientation": "across", "span": 128.0,
+			"height": 128.0, "flag_id": "weaver-hollow.crown-stair-web"})
+	_kit(root, "crown-key-door", "key-door", 8, 17, {"door_id": "crown-k3-door", "wall": "north", "keyholes": 1})
+	for i in 4:
+		_dungeon_pot(root, "stair-pot-%d" % i, [2.4, 4.2, 11.8, 13.6][i], 18.4, ["heart", "energy"][i % 2])
+	_loft(root)
+	# The Matron's camp (encounter.weaver-hollow-matron): her cocoon fight (the Silk skin's exam), then
+	# her full heart and her thread in the web (Pearl 2 lies in the Hoard now). The boss shutter in C2's
+	# south doorway rises when she engages and sinks when she falls (her camp's signals).
 	var camp := S.place(root, "Objects", "matron-camp", MATRON_CAMP, _at(8, 8.5))
 	var shutter := _kit(root, "crown-shutter", "shutter", 8, 13, {"wall": "south", "shutter_id": "crown-boss-shutter"})
 	S.editable(root, camp)
@@ -590,11 +710,33 @@ static func _crown() -> Node2D:
 	camp_script.connect(&"boss_engaged", Callable(shutter, &"shut"), CONNECT_PERSIST)
 	camp_script.connect(&"boss_defeated", Callable(shutter, &"open"), CONNECT_PERSIST)
 	_dungeon(root, 8, 25.5)
-	S.place(root, "Objects", "exit-web-wall", WEB_WALL, _at(16, 8), {"orientation": "side", "span": 128.0,
+	# C2's east doorway, the way out to C3's drop: the seal stands in it from the Pearl's take until she
+	# falls (with the Silk skin in hand her web wall alone would let the slime out); beyond it, in
+	# C3, her web wall (pass or cut).
+	_kit(root, "crown-east-seal", "dungeon-seal", 15, 8, {"wall": "east"})
+	S.place(root, "Objects", "exit-web-wall", WEB_WALL, _at(16.7, 8), {"orientation": "side", "span": 128.0,
 			"flag_id": "weaver-hollow.crown-web-wall"})
 	_dress_crown(root)
 	S.own(root, root)
 	return root
+
+
+## C4 the Spinning Loft (the plan's twist: "silk under fire"): two rows of web walls across the loft,
+## wall to wall (C4_ROWS), part it into three corridors; the slime comes in at the south corridor's
+## west end and crosses them north. A Slime Spider in each corridor ahead lines up and shoots while
+## the slime wades a row at half speed (its body above the silk), so it wades under fire or stops
+## and cuts a lane with the Spear (then Rolls through). Small key 3 lies wrapped in a silk parcel at
+## the north corridor's east end; the Spear frees it.
+static func _loft(root: Node2D) -> void:
+	for row in C4_ROWS.size():
+		for i in 7:
+			S.place(root, "Objects", "loft-web-%d-%d" % [row, i], WEB_WALL, _at(18 + i * 2, C4_ROWS[row]), {
+				"orientation": "across", "span": 128.0, "height": 104.0,
+				"flag_id": "weaver-hollow.loft-web-%d-%d" % [row, i]})
+	S.enemy(root, "loft-slime-spider-1", "slime-spider", _at(27, 22.4), 120.0)
+	S.enemy(root, "loft-slime-spider-2", "slime-spider", _at(21, 18.6), 120.0)
+	S.place(root, "Objects", "loft-key-parcel", SILK_PARCEL, _at(29.4, 18.9), {"coins": 0,
+			"contents": {"dungeon-small-key": 1}, "flag_id": "weaver-hollow.loft-key-parcel"})
 
 
 ## The hub's hatch (game/scripts/latched_hatch.gd): the ladder down to the Roots' R3, latched from
@@ -746,23 +888,33 @@ static func _dress_boughs(root: Node2D) -> void:
 		[ROOT + "3", 62, 25], ["interior-mushroom-floor-leaves-fallen", 54, 18],
 		# B5 the Warden's Den and the Hoard.
 		["interior-decor-banner-red-narrow", 36.5, 3], ["interior-decor-banner-red-narrow", 43.5, 3],
-		["interior-structure-stairs-stone-down", 27.5, 12.2], ["interior-decor-banner-blue", 27.5, 5],
+		["interior-structure-stairs-stone-down", 28, 12.2], ["interior-decor-banner-blue", 27.5, 5],
 		# B6 the Pillar: moss on the far shore.
 		[MOSS + "4", 58, 3.4], [GLOW + "small", 61.6, 3.6],
 	])
 
 
 static func _dress_crown(root: Node2D) -> void:
-	_strew(root, Rect2i(1, 15, 14, 12), STREW_LEAVES, 3, [Rect2(6, 24, 4, 4), Rect2(6, 14, 4, 4), Rect2(6, 17, 4, 4)])
+	_strew(root, Rect2i(1, 15, 14, 12), STREW_LEAVES, 3, [Rect2(6, 24, 4, 4), Rect2(6, 14, 4, 4), Rect2(6, 17, 4, 4),
+			Rect2(0, 20.4, 16, 3.6), Rect2(1, 17, 14, 2.2), Rect2(13, 24, 3, 3)])
 	_strew(root, Rect2i(1, 1, 14, 12), STREW_LEAVES, 4, [Rect2(6, 10, 4, 4), Rect2(12, 5, 4, 5)])
 	_strew(root, Rect2i(17, 1, 14, 12), STREW_LEAVES, 3, [Rect2(16, 5, 3, 5), Rect2(27, 5, 4, 6)])
 	_props(root, [
-		# C1 the Crown Stair: the last steps of the trunk.
-		["interior-structure-stairs-wood-down", 8, 18.6], [ROOT + "2", 2, 25.5], [ROOT + "6", 13.5, 21],
-		[GLOW + "tall", 13.6, 17.6], ["interior-mushroom-floor-leaves-fallen", 4, 22],
+		# C1 the Crown Stair: roots and leaves on the climb, a glow by the top.
+		[ROOT + "2", 2, 25.5], [ROOT + "6", 13.5, 25.8], [GLOW + "tall", 14.2, 19.6],
+		["interior-mushroom-floor-leaves-fallen", 4, 25], ["interior-mushroom-floor-leaves-fallen", 11, 19.8],
 		# C2 the Crown: leaves at its edges.
 		["interior-mushroom-floor-leaves-fallen", 2.5, 11.5], ["interior-mushroom-floor-leaves-fallen", 13, 4.2],
 		["interior-mushroom-floor-leaf-big", 3, 4], ["interior-mushroom-floor-leaf-big", 13.5, 11],
 		# C3 the Outer Bough.
 		["interior-mushroom-floor-leaf-big", 20, 11], ["interior-mushroom-floor-leaves-fallen", 25, 4],
 	])
+	_dress_loft(root)
+
+
+## C4's dressing: silk-hung rafters over its north wall, spools and skeins of the brood's silk in the
+## corridors' corners (game/scenes/objects/weaver-hollow/, art asset/Originals/weaver-hollow/loft/).
+static func _dress_loft(root: Node2D) -> void:
+	for entry: Array in LOFT_DRESSING:
+		S.place(root, "Scenery", "%s-%d" % [str(entry[0]), _prop_count], LOFT_PROP % str(entry[0]), _at(entry[1], entry[2]))
+		_prop_count += 1

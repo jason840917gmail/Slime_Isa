@@ -239,7 +239,7 @@ Only on the normal move path: if moving now, was not moving last step, and has b
 > - **Webs** (owner, 2026-10-16, question 131): a Roll sticks in a web. A floor web or a web
 >   barrier catches the rolling slime as it catches a walking one (matron spec 5.5): the roll ends
 >   there (no bonk), the slime is rooted 900 ms and set back on the side it came from, so a Roll
->   never crosses or tears a web. With the Silk skin (`crosses_webs()`, today the Silk form) webs
+>   never crosses or tears a web. With the Silk skin (`crosses_webs()`, SkinState: SKINS.md) webs
 >   no longer catch it.
 > - **Direction:** the pointer aim, else the held movement keys, else the facing, snapped to eight
 >   directions.

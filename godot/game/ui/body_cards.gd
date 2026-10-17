@@ -23,6 +23,13 @@ const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const InventoryModel := preload("res://game/ui/screens/inventory_model.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
+const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
+
+## The bag's Skins row: each skin's icon (scripts/art/pack-skin-art.py) and the goo's name.
+const SKIN_ICON := "res://asset/UI/skins/%s-icon.webp"
+const GOO_TITLE := "Goo"
+const GOO_LINE := "The slime's own green goo. Every skin you have won stays on whatever you wear."
 
 ## Shape id -> its icon.
 const SHAPE_ICONS := {
@@ -107,6 +114,35 @@ static func ability_icon(id: StringName) -> Texture2D:
 ## The energy the shape's charge costs (0 without a charge).
 static func charge_energy(id: StringName) -> int:
 	return roundi(float(ShapeDefs.charge(id).get("energy", 0.0)))
+
+
+## A Skins cell's name: the skin's, or "Goo" for &"".
+static func skin_title(id: StringName) -> String:
+	return GOO_TITLE if String(id).is_empty() else SkinState.display_name(id).trim_suffix(" skin")
+
+
+## A skin's icon (read through SheetSprite: it shows before the editor imports it); null for the goo.
+static func skin_icon(id: StringName) -> Texture2D:
+	if String(id).is_empty():
+		return null
+	return SheetSprite.load_picture(SKIN_ICON % String(id))
+
+
+## The bag card of look `id` (a skin, or &"" for the goo); `worn` when it is the look now.
+static func skin_card(id: StringName, worn: bool) -> Dictionary:
+	if String(id).is_empty():
+		return {"name": GOO_TITLE, "status": "Your look now" if worn else "Click to wear your own goo",
+			"status_color": CURRENT_COLOR if worn else OTHER_COLOR, "details": GOO_LINE}
+	var definition := SkinState.definition(id)
+	var lines := PackedStringArray([str(definition.get("line", "")), str(definition.get("how", "")), ""])
+	lines.append("Always on, for free: it works wherever it is needed.")
+	lines.append("Wearing it only changes how the slime looks.")
+	return {
+		"name": SkinState.display_name(id),
+		"status": "Your look now" if worn else "Click to wear it as your look",
+		"status_color": CURRENT_COLOR if worn else OTHER_COLOR,
+		"details": "\n".join(lines),
+	}
 
 
 ## The bag card of shape `id` ({} for an unknown id).

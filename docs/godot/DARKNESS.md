@@ -109,7 +109,8 @@ ember), and its slam puts out the braziers in its ring.
 
 The mine ([DUNGEONS.md](DUNGEONS.md#the-crystal-mine-built)) adds three that read the fire:
 the **crystal veil** (`game/crystal_mine/crystal_veil.gd`: open while one of its braziers burns,
-grows back when the last goes out), the **lantern gate** (`lantern_gate.gd`: its candles open it
+grows back when the last goes out; since 2026-10-17 across the mouth of M10's doorway off M11, the
+optional Lantern wing's lock, a brazier on each side), the **lantern gate** (`lantern_gate.gd`: its candles open it
 for good; open, its lamp cups are a light source) and the Colossus's four braziers (`burn_ms` -1,
 `stomp_puts_out`; his arena's DarkRoom lists them, so it is lit only while all four burn). Their eyes show in the dark through
 `game/enemy/dark_eyes.gd` (drawn over the overlay, only while the room is dark).

@@ -29,6 +29,8 @@ his aberrations.
 - **The eight Pearls.** Unable to consume the heart, Gorge shattered it into
   eight Pearls. He gave one to each of his eight most loyal vassals, granting
   them extraordinary powers. Fatty One Eye is one of these eight bosses.
+  *Since 2026-10-17 (Planned, owner): a boss cannot swallow his Pearl whole,
+  so he hides it in his dungeon and keeps it close to draw on its power.*
 - **The eight regions.** Each boss seized control of one region and has
   terrorized its inhabitants ever since. Their rule displaced creatures, drove
   the smith away, left the Forge cold and reduced the Workshop to ruins. The
@@ -81,7 +83,10 @@ his aberrations.
   2026-10-16). *Since 2026-10-16 (question 32) the other five are Planned for
   later releases: Old Gullet's **Swim**, Old Rimepaw's **Polar**, Sandmaw's
   **Sand**, Gale's **Cloud** and Cinder's **Lava**, the last, which opens
-  Gorge's crater.* Shapes and
+  Gorge's crater.* *Changed 2026-10-17 (Planned, owner): the slime finds each
+  Pearl inside its boss's dungeon, before the boss, and the skin passes into
+  it there; the dungeon's second half teaches the skin, and the boss fight is
+  its exam.* Shapes and
   abilities come from the townsfolk and from old manuscripts; in Release 1
   the townsfolk teach and chests hold the finds, and manuscript pieces come
   later (see
@@ -99,6 +104,14 @@ his aberrations.
 
 1. **Each region holds one Pearl** inside its boss. Beating the boss frees the
    Pearl and permanently grants its skin in the full item ceremony.
+   *Changed 2026-10-17 (Planned, owner): the Pearl lies hidden inside the
+   boss's dungeon, before the boss, as Zelda's dungeon item. Taking it grants
+   its skin in the ceremony; the boss notices, enraged (his strength stays
+   the same), and seals the dungeon's exits, so the only way out is to beat
+   him. The dungeon's second half teaches the skin, and the boss fight is its
+   exam. Fainting or quitting after the Pearl resumes at the dungeon's
+   entrance, inside, with the doors to the outside sealed until the boss
+   falls.*
 2. **Returning a Pearl to the Wellspring** makes Slimeshire visibly come back
    to life. A building is restored, slimes who fled return, and the Wellspring
    shines a little brighter. This uses the town growth the guidelines already
@@ -134,7 +147,9 @@ his aberrations.
   no gore.
 - **Monsters are not evil.** Most are displaced, or swollen by a Pearl.
   Bosses are beaten, not killed: when the Pearl leaves them, they shrink back
-  and calm down.
+  and calm down. *Open since 2026-10-17: the slime takes the Pearl before the
+  fight and the boss keeps his strength, so what makes him shrink back is
+  not decided.*
 - **Themes:**
   - growing up (a newborn learns everything);
   - community (rebuilding Slimeshire together);
@@ -167,6 +182,8 @@ These are new pieces the story would need. None are built yet.
   right after the birth scene.*
 - **Pearls:** one story item and one skin per regional boss. The ceremony
   grants the skin permanently before the Pearl returns to the Wellspring.
+  *Since 2026-10-17 each lies in its boss's dungeon, before the boss
+  (Planned, owner).*
 - **Beaten bosses** do not come back (today a boss respawns every five
   minutes).
 

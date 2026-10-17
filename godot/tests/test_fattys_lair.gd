@@ -1,35 +1,47 @@
 extends RefCounted
 ## Fatty's Lair, the Chapter 1 dungeon (docs/godot/DUNGEONS.md "Fatty's Lair (built)";
-## docs/design/2026-10-16-dungeon-fattys-lair.md), built by tools/build_fattys_lair.gd: its rooms,
-## the dungeon kit's pieces as placed (keys equal keyholes, the hidden big chest, the boss door, a
-## hazard under every slab), the open gaps of the main path, and the Lair's own pieces: the eye
-## latches (the Spear only; the alcove's pair shut together), the drop gate and its worm lever, the
-## inner winch that holds the outer gate up, the plank barricade (the Heavy Roll), Burr's cell (two
-## keys) opening the Inner Stair, the stair's walk-in, Fatty's phase two (a thrown clod dizzies
-## him, the Spear lands only then) with the arena's shutters, the Pearl and the Heavy skin, and the
-## way in and out in level-1-d4 (the gate, the bolt-hole's mouth, Burr waiting after Fatty). Burr's
-## call and the drawbridge (the kit's winch) are walked too.
+## docs/design/2026-10-16-dungeon-fattys-lair.md and, since 2026-10-17, the Pearl inside it:
+## docs/design/2026-10-17-pearl-mid-dungeon.md), built by tools/build_fattys_lair.gd: its rooms, the
+## dungeon kit's pieces as placed (keys equal keyholes, the hidden big chest in R9, the boss door, a
+## hazard under every slab, the two seals), the open gaps of the main path, and the Lair's own
+## pieces: the eye latches (the Spear only; the alcove's pair shut together), the drop gate and its
+## worm lever, the inner winch that holds the outer gate up, the plank barricades (the Heavy Roll),
+## Burr's cell (two keys) opening the Inner Stair, the stair's walk-in; the Pearl room (the Larder's
+## Big Squint guards Pearl 1, its take grants the Heavy skin and seals the Lair); the second half's
+## Heavy locks (the Weigh House's two plates, R10's plate held by a statue, R9's plate raising the big
+## chest, the hub's counterweight plate lowering the drawbridge, heavy blocks reset with their room);
+## Fatty's phase two, the Heavy exam (a Heavy Roll knocks him off balance, a thrown clod only splats,
+## the Spear lands only while he is off balance) with the arena's shutter, his fall breaking the
+## seals; and the way in and out: the gate on level-1-d5's hill (since 2026-10-17; it was in
+## level-1-d4's clearing), the bolt-hole's mouth in level-1-d4 with Burr waiting after Fatty. Burr's
+## call is walked too.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const LairDirector := preload("res://game/fattys_lair/lair_director.gd")
 
 const MAP_ID := "fatty-lair"
+## The way out (the bolt-hole's mouth, Burr) and the way in (the drop gate, the mouth).
 const OUTSIDE := "level-1-d4"
+const ENTRANCE := "level-1-d5"
 const CELL := 64.0
 ## Each room's top-left cell (tools/build_fattys_lair.gd ROOMS, 16 x 14 cells a room).
 const ORIGINS := {
 	"r1": Vector2(32, 56), "r2": Vector2(48, 56), "hub": Vector2(32, 42), "r4": Vector2(16, 42),
 	"r5": Vector2(16, 56), "r6": Vector2(64, 42), "r7": Vector2(64, 56), "r8": Vector2(16, 14),
 	"r9": Vector2(0, 14), "r10": Vector2(0, 0), "r11": Vector2(32, 28), "r12": Vector2(32, 14),
-	"r13": Vector2(48, 28), "r14": Vector2(48, 14), "bolt": Vector2(48, 0),
+	"r13": Vector2(48, 28), "r14": Vector2(48, 14), "bolt": Vector2(48, 0), "weigh": Vector2(32, 0),
 }
-const ROOMS: PackedStringArray = ["r10-dung-roller-run", "bolt-hole", "r9-watcher-hall", "r8-guard-crypt",
-	"r12-larder", "r14-pearl-shrine", "old-armoury", "r11-drop-gate-bridge", "r13-fattys-arena",
+const ROOMS: PackedStringArray = ["r10-dung-roller-run", "c2-weigh-house", "bolt-hole", "r9-watcher-hall",
+	"r8-guard-crypt", "r12-larder", "r14-postern", "old-armoury", "r11-drop-gate-bridge", "r13-fattys-arena",
 	"glow-moss-burrow", "map-nook", "r4-squint-den", "r3-pit-hall", "r6-pipe-gallery", "sally-port",
 	"r5-eye-hall", "r1-gatehouse", "r2-slab-steps", "r7-bell-bridge"]
+## The Larder's mini-boss fight (Pearl 1's guard) and Fatty.
+const GUARD := "fatty-lair-big-squint"
+const BOSS := "fatty-one-eye"
 ## The open gaps (no lock in them): [room, the slime's feet in the room's cells, the way, the room
 ## it ends in]. The locked ones (the bolts, the key doors, the latches, the drop gate, the slabs, the
 ## shutters, the barricade) are tested with their pieces.
@@ -41,9 +53,12 @@ const WALKS := [
 	["hub", Vector2(30.4, 7.0), &"move_right", "r6-pipe-gallery"],
 	["r6", Vector2(8.0, 12.2), &"move_down", "r7-bell-bridge"],
 	["r6", Vector2(8.0, 3.6), &"move_up", "glow-moss-burrow"],
-	["r8", Vector2(1.6, 7.0), &"move_left", "r9-watcher-hall"],
 	["r8", Vector2(1.6, 21.0), &"move_left", "old-armoury"],
+	# Door 3: an open doorway since 2026-10-17.
+	["r8", Vector2(14.4, 25.6), &"move_right", "r11-drop-gate-bridge"],
 	["r11", Vector2(12.0, 3.6), &"move_up", "r12-larder"],
+	# The Weigh House's west corridor out into R10's lane.
+	["weigh", Vector2(1.6, 9.0), &"move_left", "r10-dung-roller-run"],
 ]
 const WALK_MS := 2600.0
 
@@ -65,12 +80,13 @@ func test_the_lair_loads_with_its_rooms_and_the_kit(t: TestContext) -> void:
 	var entrance := _door(t, "fatty-lair-entrance")
 	if t.check(entrance != null, "no entrance door"):
 		t.equal([str(entrance.get(&"target_area_id")), str(entrance.get(&"target_door_id")), str(entrance.get(&"side"))],
-			[OUTSIDE, "fatty-lair-mouth", "south"], "the entrance leads to D4's gate")
+			[ENTRANCE, "fatty-lair-mouth", "south"], "the entrance leads to D5's gate")
 	var bolt := _door(t, "fatty-lair-bolt-hole")
 	if t.check(bolt != null, "no bolt-hole door"):
 		t.equal([str(bolt.get(&"target_area_id")), str(bolt.get(&"target_door_id")), str(bolt.get(&"side"))],
 			[OUTSIDE, "fatty-lair-bolt-hole-mouth", "north"], "the bolt-hole leads to D4's mouth")
-	# Keys equal keyholes: two on the floor and one in a chest, two keyholes in Burr's door, one in door 3.
+	# Keys equal keyholes: two on the floor (R5, R7), two keyholes in Burr's door (door 3 and key 3
+	# went on 2026-10-17).
 	var objects := _objects(t)
 	var keys := 0
 	var keyholes := 0
@@ -82,14 +98,25 @@ func test_the_lair_loads_with_its_rooms_and_the_kit(t: TestContext) -> void:
 			keys += int((chest.get(&"initial_contents") as Dictionary).get("dungeon-small-key", 0))
 		if node.get(&"keyholes") != null and str(node.get(&"lock")) == "small":
 			keyholes += int(node.get(&"keyholes"))
-	t.equal(keys, 3, "small keys")
-	t.equal(keyholes, 3, "small-key keyholes")
-	var big := objects.get_node_or_null(^"r12-big-chest/ChestScript")
-	if t.check(big != null, "no big chest"):
-		t.check(bool(big.get(&"hidden")), "the big chest is not hidden until the Larder's fight")
+	t.equal(keys, 2, "small keys")
+	t.equal(keyholes, 2, "small-key keyholes")
+	t.check(objects.get_node_or_null(^"r8-door-3") == null, "door 3 still has its lock")
+	t.check(objects.get_node_or_null(^"r12-big-chest") == null, "the big chest is still in the Larder")
+	var big := objects.get_node_or_null(^"r9-big-chest/ChestScript")
+	if t.check(big != null, "no big chest in R9"):
+		t.check(bool(big.get(&"hidden")), "the big chest is not hidden until R9's plate")
 		t.equal(int((big.get(&"initial_contents") as Dictionary).get("dungeon-big-key", 0)), 1, "the big key")
 	var boss_door := objects.get_node_or_null(^"hub-boss-door")
 	t.check(boss_door != null and str(boss_door.get(&"lock")) == "big", "the boss door does not want the big key")
+	t.check(objects.get_node_or_null(^"hub-drawbridge-winch") == null, "the ledge's winch is still there")
+	# The seal: in the way in and in the way out past Fatty, and the Dungeon node knows its boss.
+	t.equal(str(dungeon.get(&"boss_id")), BOSS, "the Lair's seal boss")
+	for seal_name: String in ["r1-seal", "r13-seal"]:
+		var seal := objects.get_node_or_null(NodePath(seal_name))
+		if t.check(seal != null, "no seal " + seal_name):
+			t.check(not bool(seal.call(&"is_shut")), "%s is shut before the Pearl" % seal_name)
+	t.check(bool(objects.get_node("r1-seal").get(&"glimpse")), "the take's glimpse does not show the entrance's seal")
+	t.check(objects.get_node_or_null(^"r13-shutter-north") == null, "the arena's north shutter stands in the seal's doorway")
 	# Every slab lies over a hazard (a fall goes back to the rim).
 	var hazards: Array[Rect2] = []
 	for node: Node in root.get_node("Hazards").get_children():
@@ -134,19 +161,24 @@ func test_burr_calls_the_first_time_the_slime_comes_into_the_pit_hall(t: TestCon
 	t.check(run.has_flag(LairDirector.FLAG_CALLED), "Burr's call is not kept")
 
 
-func test_the_winch_lowers_the_drawbridge_and_the_slime_walks_across(t: TestContext) -> void:
+func test_the_counterweight_plate_lowers_the_drawbridge_only_with_the_heavy_skin(t: TestContext) -> void:
 	if not await _enter(t):
 		return
 	var bridge := _objects(t).get_node("hub-drawbridge")
+	var plate := _objects(t).get_node("hub-counterweight-plate") as Node2D
 	t.check(not bool(bridge.call(&"is_lowered")), "the drawbridge starts down")
-	var winch := _objects(t).get_node("hub-drawbridge-winch") as Node2D
-	_stand(t, winch.global_position + Vector2(-72.0, -4.0))
-	await t.steps(4)
-	t.press(&"move_right")
-	var lowered := await t.until(func() -> bool: return bool(bridge.call(&"is_lowered")), 3000.0)
-	t.release(&"move_right")
-	t.check(lowered, "pushing the winch did not lower the drawbridge")
-	await t.sim_wait(1000.0)
+	# The first visit: the light slime stands on it in vain.
+	_stand(t, plate.global_position)
+	await t.sim_wait(3600.0)
+	t.near(float(plate.call(&"depth")), 0.0, 0.01, "the plate's depth under a light slime")
+	t.check(not bool(bridge.call(&"is_lowered")), "a light slime lowered the drawbridge")
+	# With the Heavy skin it sinks over 3 s and the bridge comes down for good.
+	SkinState.lend(SkinState.HEAVY)
+	var lowered := await t.until(func() -> bool: return bool(bridge.call(&"is_lowered")), 4500.0)
+	t.check(lowered, "the sunk counterweight plate did not lower the drawbridge")
+	_stand(t, _at("hub", Vector2(22.0, 11.5)))
+	await t.sim_wait(5600.0)
+	t.check(bool(bridge.call(&"is_lowered")), "the bridge rose again with the plate")
 	_stand(t, _at("hub", Vector2(16.0, 4.5)))
 	await t.steps(4)
 	t.press(&"move_down")
@@ -216,15 +248,15 @@ func test_the_inner_winch_holds_the_outer_gate_up_for_good(t: TestContext) -> vo
 		return
 	var run := Services.run()
 	var winch := _objects(t).get_node("r1-gate-winch")
-	t.check(not run.is_gate_unlocked(OUTSIDE, "fatty-lair-gate"), "the outer gate starts held")
+	t.check(not run.is_gate_unlocked(ENTRANCE, "fatty-lair-gate"), "the outer gate starts held")
 	t.check(bool(winch.call(&"can_use")), "the winch is not offered")
 	t.check(bool(winch.call(&"use")), "the winch did nothing")
-	t.check(run.is_gate_unlocked(OUTSIDE, "fatty-lair-gate"), "the winch did not hold the outer gate")
+	t.check(run.is_gate_unlocked(ENTRANCE, "fatty-lair-gate"), "the winch did not hold the outer gate")
 	t.check(not bool(winch.call(&"can_use")), "the winch is offered again")
-	if not await _travel(t, OUTSIDE):
+	if not await _travel(t, ENTRANCE):
 		return
 	var gate := t.world().world_root.get_node_or_null("FattysLair/fatty-lair-mouth/drop-gate")
-	if t.check(gate != null, "D4 has no Lair gate"):
+	if t.check(gate != null, "D5 has no Lair gate"):
 		t.check(bool(gate.call(&"is_held")) and bool(gate.call(&"is_open")), "the outer gate is not up for good")
 
 
@@ -239,16 +271,45 @@ func test_the_plank_barricade_breaks_only_to_a_heavy_roll(t: TestContext) -> voi
 	_route(t, area, ["thrown", "clay-pot"])
 	await t.steps(2)
 	t.check(not bool(shrine.call(&"is_smashed")), "a plain roll, a thrust or a pot smashed the planks")
-	run.set_flag(HeavyCheck.SKIN_FLAG)
+	SkinState.lend(SkinState.HEAVY)
 	_route(t, area, ["roll"])
 	await t.steps(2)
 	t.check(bool(shrine.call(&"is_smashed")), "the Heavy skin's roll did not smash the planks")
 	t.check(run.has_flag("fatty-lair.bolt-hole-smashed"), "the smash is not kept")
-	# The Stone form's roll (tagged heavy) is the Heavy check too.
+	# A Roll's bonk tagged heavy (what the Roll sends with the Heavy skin on) smashes them too.
 	var store := _objects(t).get_node("r1-store-barricade")
 	_route(t, store.get_node("DamageArea") as Area2D, ["roll", "heavy"])
 	await t.steps(2)
 	t.check(bool(store.call(&"is_smashed")), "a heavy roll did not smash the store's planks")
+
+
+## The Heavy skin's first lock: the Larder's north doorway, nailed shut, right by the Pearl. A
+## Heavy Roll smashes it and the slime walks on into the Weigh House.
+func test_the_larders_barricade_is_the_heavy_skins_first_lock(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	var barricade := _objects(t).get_node("r12-barricade")
+	var area := barricade.get_node("DamageArea") as Area2D
+	_route(t, area, ["roll"])
+	await t.steps(2)
+	t.check(not bool(barricade.call(&"is_smashed")), "a plain roll smashed the Larder's planks")
+	_stand(t, _at("r12", Vector2(11.0, 4.6)))
+	await t.steps(4)
+	t.press(&"move_up")
+	await t.sim_wait(1200.0)
+	t.release(&"move_up")
+	t.equal(_room_at(t), "r12-larder", "the slime walked through the nailed doorway")
+	SkinState.lend(SkinState.HEAVY)
+	_route(t, area, ["roll", "heavy"])
+	await t.steps(4)
+	t.check(bool(barricade.call(&"is_smashed")), "a Heavy Roll did not smash the Larder's planks")
+	t.check(Services.run().has_flag("fatty-lair.larder-smashed"), "the smash is not kept")
+	_stand(t, _at("r12", Vector2(11.0, 4.6)))
+	await t.steps(4)
+	t.press(&"move_up")
+	var through := await t.until(func() -> bool: return _room_at(t) == "c2-weigh-house", WALK_MS)
+	t.release(&"move_up")
+	t.check(through, "the slime did not walk through the smashed doorway into the Weigh House (in %s)" % _room_at(t))
 
 
 func test_burrs_cell_takes_two_keys_and_opens_the_inner_stair(t: TestContext) -> void:
@@ -278,11 +339,24 @@ func test_burrs_cell_takes_two_keys_and_opens_the_inner_stair(t: TestContext) ->
 	var down := await t.until(func() -> bool: return _room_at(t) == "r8-guard-crypt", 4000.0)
 	t.release(&"move_down")
 	t.check(down, "the Inner Stair did not lead down to the Crypt (in %s)" % _room_at(t))
+	# Its ladder brings the slime back up (the second half's way back to the hub, from R9's bolt).
+	await t.sim_wait(1200.0)
+	_stand(t, _at("r8", Vector2(2.5, 26.7)))
+	await t.steps(4)
+	t.press(&"move_up")
+	var up := await t.until(func() -> bool: return _room_at(t) == "r3-pit-hall", 4000.0)
+	t.release(&"move_up")
+	t.check(up, "the crypt's ladder did not lead back up to the hub (in %s, feet at %s)" % [_room_at(t), str(t.player_body().global_position / CELL - ORIGINS["r8"])])
 
 
-func test_fatty_in_phase_two_is_dizzied_by_a_throw_then_takes_the_spear(t: TestContext) -> void:
+func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: TestContext) -> void:
 	if not await _enter(t):
 		return
+	# The Pearl was taken: the Lair is sealed while he lives.
+	var dungeon := DungeonState.current(t.tree)
+	t.check(bool(dungeon.call(&"seal_now", "test", false)), "the Lair did not seal")
+	var seals := [_objects(t).get_node("r1-seal"), _objects(t).get_node("r13-seal")]
+	t.check(bool(seals[0].call(&"is_shut")) and bool(seals[1].call(&"is_shut")), "the seals are not shut after the take")
 	var camp := _lair(t, "fatty-camp").get_node("BossCampScript")
 	_stand(t, _at("r13", Vector2(8.0, 11.5)))
 	if not t.check(await t.until(func() -> bool: return bool(camp.call(&"has_live_boss")), 2000.0), "Fatty did not come"):
@@ -314,14 +388,27 @@ func test_fatty_in_phase_two_is_dizzied_by_a_throw_then_takes_the_spear(t: TestC
 	fatty = camp.call(&"get_live_boss")
 	var hp := _hp(fatty)
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
-	t.near(_hp(fatty), hp, 0.01, "a thrust before the dizzy landed")
+	t.near(_hp(fatty), hp, 0.01, "a thrust landed while his eye is shut")
+	# A thrown clod only splats; a plain Roll (no Heavy skin) bonks off him.
 	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
-	t.check(bool(fatty.call(&"is_dizzy")), "a thrown clod did not dizzy him")
+	t.check(not bool(fatty.call(&"is_dizzy")), "a thrown clod still knocks him off balance")
+	_route(t, fatty.get(&"damage_area"), ["roll"])
+	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him off balance")
+	t.near(_hp(fatty), hp, 0.01, "a throw or a plain Roll hurt him")
+	# The Heavy Roll (the Roll's bonk tagged heavy) knocks him off balance; the Spear lands then.
+	SkinState.lend(SkinState.HEAVY)
+	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
+	t.check(bool(fatty.call(&"is_dizzy")), "a Heavy Roll did not knock him off balance")
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
-	t.check(_hp(fatty) < hp, "the Spear did not land while he was dizzy")
-	# The rest of his health: a throw to dizzy him, thrusts while he is dizzy, until he falls.
+	t.check(_hp(fatty) < hp, "the Spear did not land while he was off balance")
+	await t.sim_wait(400.0)
+	var art := fatty.get(&"visual") as Node2D
+	t.check(art != null and absf(art.rotation) > 0.2, "he does not rock back while off balance (tilt %s)" % str(art.rotation if art != null else 0.0))
+	await t.sim_wait(float(fatty.get(&"phase_two_dizzy_ms")) + 400.0)
+	t.check(not bool(fatty.call(&"is_dizzy")), "he stays off balance past its time")
+	# The rest of his health: a Heavy Roll on the ground, thrusts while he is off balance, until he falls.
 	var beaten := await t.until(func() -> bool:
-		if "fatty-one-eye" in (Services.run().world.get("defeated_boss_ids", []) as Array):
+		if BOSS in (Services.run().world.get("defeated_boss_ids", []) as Array):
 			return true
 		var boss: Node = camp.call(&"get_live_boss")
 		_keep_safe(t, boss)
@@ -330,48 +417,225 @@ func test_fatty_in_phase_two_is_dizzied_by_a_throw_then_takes_the_spear(t: TestC
 		if bool(boss.call(&"is_dizzy")):
 			_route(t, boss.get(&"damage_area"), ["spear", "weapon"])
 		elif str(boss.call(&"get_phase")) == "chase":
-			_route(t, boss.get(&"damage_area"), ["thrown", "mud-ball"])
+			_route(t, boss.get(&"damage_area"), ["roll", "heavy"])
 		return false, 20000.0)
 	t.check(beaten, "Fatty's fall is not kept")
 	await t.sim_wait(1200.0)
 	t.check(not bool(south.call(&"is_shut")), "the arena's shutter did not open after his fall")
-	t.check(DungeonState.is_boss_beaten(Services.run(), MAP_ID, "fatty-one-eye"), "the dungeon does not know he fell")
-	var pearl := _lair(t, "pearl-1")
-	t.check(await t.until(func() -> bool: return bool(pearl.call(&"is_shown")), 1500.0), "the Pearl did not rise")
+	t.check(DungeonState.is_boss_beaten(Services.run(), MAP_ID, BOSS), "the dungeon does not know he fell")
+	# His fall breaks the seals: the way out past him and the way in are open again.
+	t.check(not DungeonState.is_sealed(Services.run(), MAP_ID), "the Lair is still sealed after his fall")
+	var broken := await t.until(func() -> bool:
+		return not bool(seals[0].call(&"is_shut")) and not bool(seals[1].call(&"is_shut")), 3000.0)
+	t.check(broken, "the seals did not sink after his fall")
+	var heart := _lair(t, "fatty-boss-heart")
+	t.check(heart != null and heart.visible, "his full heart does not show after his fall")
 
 
-func test_the_pearl_grants_the_heavy_skin(t: TestContext) -> void:
+## The Pearl room: the Larder's ambush shuts its shutter until the Big Squint falls (a mini-boss
+## fight, recorded beaten); Pearl 1 rises on the worms' altar; walked into, it grants the Heavy skin
+## and seals the Lair: the way in and the way out past Fatty shut, travel out refused.
+func test_the_big_squint_guards_pearl_one_and_its_take_seals_the_lair(t: TestContext) -> void:
 	if not await _enter(t):
 		return
 	var run := Services.run()
 	var pearl := _lair(t, "pearl-1")
+	var fight := _objects(t).get_node("r12-fight")
+	var shutter := _objects(t).get_node("r12-shutter-south")
 	await t.steps(4)
-	t.check(not bool(pearl.call(&"is_shown")), "the Pearl shows before Fatty falls")
-	(run.world.get_or_add("defeated_boss_ids", []) as Array).append("fatty-one-eye")
-	t.check(await t.until(func() -> bool: return bool(pearl.call(&"is_shown")), 1500.0), "the Pearl did not rise")
+	t.equal(str(pearl.get(&"boss_id")), GUARD, "the Pearl's guard")
+	t.check(not bool(pearl.call(&"is_shown")), "the Pearl shows before the Big Squint falls")
+	_stand(t, _at("r12", Vector2(12.0, 10.8)))
+	var started := await t.until(func() -> bool: return bool(fight.call(&"is_active")), 2000.0)
+	t.check(started, "the Larder's ambush did not start")
+	t.check(bool(shutter.call(&"is_shut")), "the Larder's shutter did not shut behind the slime")
+	t.check(not bool(pearl.call(&"is_shown")), "the Pearl shows during the fight")
+	var squint: Node = (t.world().world_root.get_node("Enemies/r12-big-squint") as Node).call(&"get_enemy")
+	if not t.check(squint != null, "no Big Squint in the Larder"):
+		return
+	squint.call(&"take_reaction_damage", 9999.0)
+	var won := await t.until(func() -> bool: return not bool(fight.call(&"is_active")), 4000.0)
+	t.check(won, "the Larder's fight was not won with the Big Squint beaten")
+	t.check(GUARD in (run.world.get("defeated_boss_ids", []) as Array), "the Big Squint is not recorded beaten")
+	t.check(await t.until(func() -> bool: return bool(pearl.call(&"is_shown")), 2000.0), "Pearl 1 did not rise")
+	t.check(not bool(shutter.call(&"is_shut")), "the Larder's shutter stayed shut")
 	t.check(not HeavyCheck.has_skin(), "the Heavy skin before the Pearl")
-	t.teleport_player(pearl.global_position)
+	t.check(not DungeonState.is_sealed(run, MAP_ID), "the Lair is sealed before the take")
+	t.teleport_player(pearl.global_position + Vector2(0.0, 60.0))
 	t.check(await t.until(func() -> bool: return bool(pearl.call(&"is_taken")), 1500.0), "walking into the Pearl did not take it")
 	t.check(run.has_flag("pearl.fatty-one-eye"), "the Pearl's flag")
 	t.check(HeavyCheck.has_skin(), "the Pearl did not grant the Heavy skin")
+	t.check(SkinState.is_won(SkinState.HEAVY), "the Heavy skin is not won for good")
+	t.equal(SkinState.look(), SkinState.HEAVY, "the Pearl did not make the Heavy skin the look")
+	t.check(not run.has_flag("skin.heavy"), "the Pearl still sets the old stand-in flag")
+	# The seal: shut in the way in and the way out past Fatty until he falls.
+	t.check(DungeonState.is_sealed(run, MAP_ID), "the take did not seal the Lair")
+	t.equal(DungeonState.sealed_by(run, MAP_ID), BOSS, "the seal's boss")
+	var done := await t.until(func() -> bool:
+		return t.world().world_root.find_child("SealMoment", true, false) == null and not t.tree.paused, 60000.0, 8000.0)
+	t.check(done, "the take's moment did not end")
+	for seal_name: String in ["r1-seal", "r13-seal"]:
+		t.check(bool(_objects(t).get_node(seal_name).call(&"is_shut")), "%s is not shut after the take" % seal_name)
+	t.check(str(DungeonState.exit_refusal(t.tree, ENTRANCE)).begins_with("Sealed."), "the way in is not refused while sealed")
+	t.check(str(DungeonState.exit_refusal(t.tree, OUTSIDE)).begins_with("Sealed."), "the bolt-hole is not refused while sealed")
+
+
+## The Weigh House, the Heavy skin's teach: the first plate opens the east door once it is down and
+## keeps it open while it rises; the second holds the west door only while a weight stays on it,
+## so the statue goes on it.
+func test_the_weigh_house_teaches_the_heavy_skins_plates(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	var east := _objects(t).get_node("c2-east-door/GateScript")
+	var west := _objects(t).get_node("c2-west-door/GateScript")
+	var stand := _objects(t).get_node("c2-plate-stand") as Node2D
+	var held := _objects(t).get_node("c2-plate-statue") as Node2D
+	var statue := _objects(t).get_node("c2-statue") as Node2D
+	t.check(not bool(east.call(&"is_open")) and not bool(west.call(&"is_open")), "a Weigh House door starts open")
+	# Without the skin the plate does not budge.
+	_stand(t, stand.global_position)
+	await t.sim_wait(3400.0)
+	t.check(not bool(east.call(&"is_open")), "a light slime opened the east door")
+	SkinState.lend(SkinState.HEAVY)
+	await t.sim_wait(1500.0)
+	t.check(not bool(east.call(&"is_open")), "the east door opened before its plate was down")
+	t.check(await t.until(func() -> bool: return bool(east.call(&"is_open")), 2500.0), "the sunk plate did not open the east door")
+	# Off the plate the door stays open while it rises: the slime walks through, north.
+	_stand(t, _at("weigh", Vector2(10.5, 8.6)))
+	await t.steps(4)
+	t.press(&"move_up")
+	var north := await t.until(func() -> bool: return t.player_body().global_position.y < _at("weigh", Vector2(0.0, 6.0)).y, 2500.0)
+	t.release(&"move_up")
+	t.check(north, "the slime did not walk through the east door (feet at %s)" % str(t.player_body().global_position / CELL - ORIGINS["weigh"]))
+	t.check(await t.until(func() -> bool: return not bool(east.call(&"is_open")), 6000.0), "the east door stayed open once its plate was up")
+	# The second plate: the slime alone opens the west door only while it stands there.
+	_stand(t, held.global_position)
+	t.check(await t.until(func() -> bool: return bool(west.call(&"is_open")), 3600.0), "the second plate did not open the west door")
+	_stand(t, _at("weigh", Vector2(8.5, 4.5)))
+	await t.steps(3)
+	t.check(not bool(west.call(&"is_open")), "the west door stayed open once the slime stepped off")
+	# The statue on it holds the door.
+	statue.global_position = held.global_position
+	t.check(await t.until(func() -> bool: return bool(west.call(&"is_open")), 3600.0), "the statue on the plate did not open the west door")
+	await t.sim_wait(6000.0)
+	t.check(bool(west.call(&"is_open")), "the statue did not hold the west door open")
+
+
+## R10, the test: the statue pushed onto the lane's plate holds R9's stone door open; the slime alone
+## does not (the door shuts the moment it steps off).
+func test_the_dung_roller_runs_plate_holds_r9s_door_only_with_the_statue(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	SkinState.lend(SkinState.HEAVY)
+	var door := _objects(t).get_node("r9-north-door/GateScript")
+	var plate := _objects(t).get_node("r10-plate") as Node2D
+	var statue := _objects(t).get_node("r10-statue") as Node2D
+	t.check(not bool(door.call(&"is_open")), "R9's north door starts open")
+	_stand(t, plate.global_position)
+	t.check(await t.until(func() -> bool: return bool(door.call(&"is_open")), 3600.0), "the Heavy slime on the plate did not open R9's door")
+	_stand(t, _at("r10", Vector2(7.5, 9.6)))
+	await t.steps(3)
+	t.check(not bool(door.call(&"is_open")), "R9's door stayed open once the slime stepped off")
+	statue.global_position = plate.global_position
+	t.check(await t.until(func() -> bool: return bool(door.call(&"is_open")), 3600.0), "the statue on the plate did not open R9's door")
+	_stand(t, _at("r10", Vector2(8.0, 10.4)))
+	await t.steps(4)
+	t.press(&"move_down")
+	var past := _at("r9", Vector2(0.0, 3.8)).y
+	var through := await t.until(func() -> bool: return t.player_body().global_position.y > past, WALK_MS)
+	t.release(&"move_down")
+	t.check(through, "the slime did not go down through R9's held door (feet at %s)" % str(t.player_body().global_position / CELL))
+	await t.sim_wait(1000.0)
+	t.check(bool(door.call(&"is_open")), "the statue did not hold R9's door")
+
+
+## R9, the twist: a plate in the Watcher Eye's sight raises the hidden big chest for good; its east
+## door's bolt opens from R9 into R8.
+func test_the_watcher_halls_plate_raises_the_big_chest(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	SkinState.lend(SkinState.HEAVY)
+	var chest := _objects(t).get_node("r9-big-chest/ChestScript")
+	var plate := _objects(t).get_node("r9-plate") as Node2D
+	var statue := _objects(t).get_node("r9-statue-11-10") as Node2D
+	await t.steps(4)
+	t.check(not bool(chest.call(&"is_shown")), "the big chest shows before the plate")
+	var start := statue.global_position
+	statue.global_position = plate.global_position
+	t.check(await t.until(func() -> bool: return bool(chest.call(&"is_shown")), 3800.0), "the statue on the plate did not raise the big chest")
+	statue.global_position = start
+	await t.sim_wait(5600.0)
+	t.check(bool(chest.call(&"is_shown")), "the big chest sank again with the plate")
+	# The bolted door: from R8 it holds, from R9 it opens for good.
+	var bolted := _objects(t).get_node("r9-way-back")
+	_stand(t, _at("r8", Vector2(1.6, 7.0)))
+	await t.steps(4)
+	t.press(&"move_left")
+	await t.sim_wait(1400.0)
+	t.release(&"move_left")
+	t.check(not bool(bolted.call(&"is_open")), "R9's bolt opened from R8")
+	t.check(t.player_body().global_position.x > _at("r9", Vector2(14.0, 0.0)).x, "the slime got past R9's bolted door from R8")
+	# Nor round it, under the doorway's lintel.
+	_stand(t, _at("r8", Vector2(1.6, 5.2)))
+	await t.steps(4)
+	t.press(&"move_left")
+	await t.sim_wait(1400.0)
+	t.release(&"move_left")
+	t.check(t.player_body().global_position.x > _at("r9", Vector2(14.0, 0.0)).x,
+		"the slime got round R9's bolted door under the lintel (feet at %s)" % str(t.player_body().global_position / CELL))
+	_stand(t, _at("r9", Vector2(13.6, 7.0)))
+	await t.steps(4)
+	t.press(&"move_right")
+	var out := await t.until(func() -> bool:
+		return bool(bolted.call(&"is_open")) and t.player_body().global_position.x > _at("r8", Vector2(1.0, 0.0)).x, 3000.0)
+	t.release(&"move_right")
+	t.check(out, "R9's bolt did not open into R8 (feet at %s)" % str(t.player_body().global_position / CELL))
+
+
+## Heavy blocks go back to where they stood each time their room is entered again (the guide's
+## no-softlock rule): a statue pushed into a corner never blocks the way.
+func test_heavy_blocks_reset_with_their_room(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	var statue := _objects(t).get_node("c2-statue") as Node2D
+	var start := statue.global_position
+	_stand(t, _at("weigh", Vector2(10.5, 11.0)))
+	await t.steps(4)
+	statue.global_position = _at("weigh", Vector2(13.5, 3.5))
+	_stand(t, _at("r10", Vector2(29.0, 9.0)))
+	await t.steps(6)
+	t.check(not statue.global_position.is_equal_approx(start), "the statue went back while the slime was out of its room")
+	_stand(t, _at("weigh", Vector2(10.5, 11.0)))
+	await t.steps(6)
+	t.check(statue.global_position.is_equal_approx(start), "the statue is not back when its room is entered again (at %s)" % str(statue.global_position / CELL))
 
 
 func test_the_way_in_and_out_in_fattys_hollow(t: TestContext) -> void:
-	if not await _travel(t, OUTSIDE):
+	# The way in: the drop gate in the notch of D5's hill.
+	if not await _travel(t, ENTRANCE):
 		return
 	var run := Services.run()
 	var holder := t.world().world_root.get_node_or_null("FattysLair")
-	if not t.check(holder != null, "D4 has no FattysLair holder"):
+	if not t.check(holder != null, "D5 has no FattysLair holder"):
 		return
 	var mouth := _door(t, "fatty-lair-mouth")
 	if t.check(mouth != null, "no Lair mouth"):
 		t.equal([str(mouth.get(&"target_area_id")), str(mouth.get(&"target_door_id")), str(mouth.get(&"side"))],
 			[MAP_ID, "fatty-lair-entrance", "north"], "the mouth leads to R1")
+		t.equal(str(mouth.get(&"map_id")), ENTRANCE, "the mouth's world")
 	var gate := holder.get_node("fatty-lair-mouth/drop-gate")
+	t.equal(str(gate.get(&"map_id")), ENTRANCE, "the gate's record world (the inner winch's)")
 	t.check(not bool(gate.call(&"is_open")), "the outer gate starts open")
 	t.check(bool(gate.get_node("Lever").call(&"use")), "the outer lever did nothing")
 	await t.sim_wait(float(gate.get(&"rise_ms")) + 50.0)
 	t.check(bool(gate.call(&"is_open")), "the outer gate did not rise")
+	# The way out: the bolt-hole's mouth by the Verdant Gate, Burr beside it.
+	if not await _travel(t, OUTSIDE):
+		return
+	holder = t.world().world_root.get_node_or_null("FattysLair")
+	if not t.check(holder != null, "D4 has no FattysLair holder"):
+		return
+	t.check(holder.get_node_or_null("fatty-lair-mouth") == null, "D4 still has the Lair's old mouth")
 	var bolt := _door(t, "fatty-lair-bolt-hole-mouth")
 	if t.check(bolt != null, "no bolt-hole mouth"):
 		t.equal(str(bolt.get(&"target_area_id")), "", "the bolt-hole's mouth leads back down")

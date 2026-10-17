@@ -71,7 +71,9 @@ static func _ground(canvas: HollowCanvas) -> TileMapLayer:
 	for ty in canvas.rows:
 		for tx in canvas.cols:
 			var source := canvas.ground[canvas.index(tx, ty)]
-			if source >= 0:
+			if source in HollowCanvas.SINGLE_TILE_SOURCES:
+				layer.set_cell(Vector2i(tx, ty), source, Vector2i.ZERO)
+			elif source >= 0:
 				layer.set_cell(Vector2i(tx, ty), source, Vector2i(tx % HollowCanvas.SHEET_TILES, ty % HollowCanvas.SHEET_TILES))
 	layer.set_meta(&"columns", canvas.cols)
 	layer.set_meta(&"rows", canvas.rows)

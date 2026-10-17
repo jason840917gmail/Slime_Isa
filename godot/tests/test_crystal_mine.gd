@@ -1,21 +1,32 @@
 extends RefCounted
 ## The Crystal Mine, Chapter 3's dungeon (docs/godot/DUNGEONS.md "The Crystal Mine (built)";
-## docs/design/2026-10-16-dungeon-crystal-caverns.md), built by tools/build_crystal_mine.gd: its
-## rooms and dark rooms load; the open gaps between rooms on the main path can be walked through; the
-## mine's own pieces work: the mine cart, the ore lift, the crystal lens, the crystal veil, the Dark
-## Maze's lantern gate, the Gloomling that smothers a candle, the braziers that burn until put out and
-## the slams that put them out, the rotten timbers, the climbable wall (the Feral skin's stand-in);
-## and the Crystal Colossus's fight: his weak spot only while all four braziers burn and only from its
-## side, his stomp putting a brazier out, Pearl 3 after his fall and the climb out to the Lookout.
+## docs/design/2026-10-16-dungeon-crystal-caverns.md; the Pearl inside it since 2026-10-17:
+## docs/design/2026-10-17-pearl-mid-dungeon.md), built by tools/build_crystal_mine.gd: its rooms and
+## dark rooms load; the open gaps between rooms on the main path can be walked through, the stair down
+## into the Den too; the mine's own pieces work: the mine cart, the ore lift, the crystal lens, the
+## crystal veil, the Dark Maze's lantern gate, the Gloomling that smothers a candle, the braziers that
+## burn until put out and the slams that put them out, the rotten timbers, the climbable walls (the
+## Feral skin climbs them while interact is held); the Den holds Pearl 3 behind the Shardback and its
+## take seals the mine; the Feral second half (the Den's ledge, M11's rift, M12's balcony, the shaft's
+## roots); and the Crystal Colossus's fight: his weak spot only while all four braziers burn and only
+## from its side, his stomp putting a brazier out, his claws on the wall (three Spear hits from a
+## climbing slime and he falls, stunned, his back open; the Spear strikes from the face), his fall
+## breaking the seal and the climb out to the Lookout.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const MineTravel := preload("res://game/crystal_mine/mine_travel.gd")
 const CandleScript := preload("res://game/world/fire/candle.gd")
-const ClimbWall := preload("res://game/crystal_mine/climb_wall.gd")
+const ClimbWall := preload("res://game/scripts/climb_wall.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 const MAP_ID := "crystal-mine"
 const LOOKOUT_ID := "crystal-caverns-h4"
+const COLOSSUS_ID := "crystal-colossus"
+const SHARDBACK_ID := "crystal-mine-shardback"
 const CELL := 64.0
 const ROOMS: PackedStringArray = ["M1-mine-mouth", "M2-lamp-tunnel", "M5-tally-room", "M3-survey-office",
 	"M4-great-shaft", "M6-bat-gallery", "M7-ore-store", "M8-dark-maze", "M9-the-chasm", "M10-prism-gallery",
@@ -26,18 +37,20 @@ const ARENA_BRAZIERS: PackedStringArray = ["M15-brazier-nw", "M15-brazier-ne", "
 const MAZE_CANDLES: PackedStringArray = ["M8-candle-nw", "M8-candle-ne", "M8-candle-sw", "M8-candle-se"]
 ## Walks through the open gaps of the main path: [the slime's feet (in tiles), key, the room it ends
 ## in]. The gaps a lock shuts (the shutter, the rotten timbers, the Foreman's Gate, the maze's gate, the
-## bridge, the Den door, the boss door) are tested with their pieces.
+## bridge, the veil, the Den's shutters, the boss door, the seal) are tested with their pieces.
 const WALKS := [
 	[Vector2(28.0, 60.0), &"move_up", "M2-lamp-tunnel"],
 	[Vector2(28.0, 45.5), &"move_up", "M4-great-shaft"],
 	[Vector2(20.0, 50.5), &"move_left", "M5-tally-room"],
 	[Vector2(46.0, 39.5), &"move_down", "M6-bat-gallery"],
 	[Vector2(34.5, 6.0), &"move_left", "M8-dark-maze"],
-	[Vector2(61.0, 11.0), &"move_down", "M11-crystal-veil"],
-	[Vector2(61.0, 25.0), &"move_right", "M12-fort-hall"],
+	[Vector2(46.0, 21.6), &"move_right", "M11-crystal-veil"],
+	[Vector2(62.0, 21.6), &"move_right", "M12-fort-hall"],
 ]
 const WALK_MS := 2400.0
 const ARENA_FEET := Vector2(53.0, 37.5)
+## M15's roots beside his climb spots (x 50, 53, 56, 59) and the one this file's claw tests climb.
+const CLAW_ROOTS := "M15-claw-roots-2"
 
 
 func test_the_mine_loads_with_its_rooms_and_dark_rooms(t: TestContext) -> void:
@@ -57,6 +70,7 @@ func test_the_mine_loads_with_its_rooms_and_dark_rooms(t: TestContext) -> void:
 	var dungeon := root.get_node_or_null("Dungeon")
 	if t.check(dungeon != null, "the mine has no Dungeon node"):
 		t.equal(str(dungeon.get(&"dungeon_id")), MAP_ID, "the dungeon's id")
+		t.equal(str(dungeon.get(&"boss_id")), COLOSSUS_ID, "the boss whose fall breaks the seal")
 	t.check(root.get_node_or_null("dungeon-entrance") != null, "no dungeon-entrance marker")
 	t.equal(_room_at(t), "M1-mine-mouth", "the room the slime arrives in")
 	var markers := root.get_node_or_null("KitMarkers")
@@ -76,6 +90,23 @@ func test_the_open_gaps_of_the_main_path_can_be_walked_through(t: TestContext) -
 		t.release(walk[1])
 		t.check(ended, "walking %s from %s did not reach %s (in %s)" % [walk[1], walk[0], walk[2], _room_at(t)])
 		await t.steps(4)
+
+
+func test_the_chasms_far_side_leads_down_a_stair_into_the_den(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	# M9's old door east to M10 is bricked: the far rim's only way on is the stair south.
+	t.check(not t.world().elevation.is_walkable(_t(Vector2(47.5, 5.5)), 0), "M9's old doorway to M10 is still open")
+	_stand(t, _t(Vector2(45.0, 12.3)))
+	await t.steps(4)
+	t.equal(t.world().elevation.level_of(t.player_body()), 0, "the slime's level on the far rim")
+	t.press(&"move_down")
+	var down := await t.until(func() -> bool: return t.player_body().global_position.y > 17.4 * CELL, 5000.0)
+	t.release(&"move_down")
+	t.check(down, "walking south from the far rim did not go down the stair (feet at %.1f)" % (t.player_body().global_position.y / CELL))
+	await t.steps(6)
+	t.equal(_room_at(t), "M13-shardback-den", "the room at the stair's foot")
+	t.equal(t.world().elevation.level_of(t.player_body()), -1, "the slime's level on the Den's floor")
 
 
 func test_the_mine_cart_rides_between_the_chasm_and_the_mine_mouth(t: TestContext) -> void:
@@ -158,18 +189,27 @@ func test_the_kit_pieces_are_tied_to_the_mines_own(t: TestContext) -> void:
 	t.check(bool(shutter.call(&"is_shut")), "M1's east shutter starts open")
 	var targets: Array = crank.get(&"targets")
 	t.check(targets.size() == 1 and crank.get_node_or_null(targets[0]) == shutter, "the crank is not tied to M1's shutter")
-	# The Den: won, the ledge's shutter sinks for good and the big chest is its reward.
+	# The Den: a boss fight (the Shardback's id); won, its two south rim shutters sink for good.
 	var fight: Node = objects.get_node("M13-den-fight")
-	var ledge: Node = objects.get_node("M13-den-ledge")
-	t.check(bool(ledge.call(&"is_shut")), "the Den's ledge starts open")
-	t.check(fight.get_node_or_null(fight.get(&"reward")) == objects.get_node("M13-big-key-chest"), "the Den's reward is not the big chest")
+	t.equal(str(fight.get(&"boss_id")), SHARDBACK_ID, "the Den fight's boss")
+	for rim_name: String in ["M13-den-ledge", "M13-den-ledge-east"]:
+		t.check(bool(objects.get_node(rim_name).call(&"is_shut")), "the Den's rim shutter %s starts open" % rim_name)
 	fight.emit_signal(&"cleared", {"fightId": "shardback-den"})
 	await t.sim_wait(600.0)
-	t.check(not bool(ledge.call(&"is_shut")), "the won Den did not open its ledge")
-	# The doors: the Foreman's Gate has two keyholes, the Den door one, the boss door the big lock.
+	for rim_name: String in ["M13-den-ledge", "M13-den-ledge-east"]:
+		t.check(not bool(objects.get_node(rim_name).call(&"is_shut")), "the won Den did not open %s" % rim_name)
+	# The doors: the Foreman's Gate has two keyholes, the boss door the big lock; the Den's old key
+	# door and K3 are gone; the big chest is on M12's balcony.
 	t.equal(int(objects.get_node("M4-foremans-gate").get(&"keyholes")), 2, "the Foreman's Gate's keyholes")
-	t.equal(int(objects.get_node("M11-den-door").get(&"keyholes")), 1, "the Den door's keyholes")
 	t.equal(str(objects.get_node("M14-boss-door").get(&"lock")), "big", "the boss door's lock")
+	t.check(objects.get_node_or_null("M11-den-door") == null, "the Den's key door is still there")
+	t.check(objects.get_node_or_null("M12-K3-chest") == null, "K3's chest is still there")
+	var big := objects.get_node_or_null("M12-big-key-chest")
+	t.check(big != null and not bool(big.get_node("ChestScript").get(&"hidden")), "the big chest is not standing on M12's balcony")
+	# The seal stands in the mouth and at the climb out.
+	t.check(objects.get_node_or_null("M1-mouth-seal") != null, "no seal in the mine's mouth")
+	t.check(bool(objects.get_node("M1-mouth-seal").get(&"glimpse")), "the mouth's seal is not the take's glimpse")
+	t.check(objects.get_node_or_null("M15-climb-out-seal") != null, "no seal at the climb out")
 	# The compass marks the Colossus's arena until he falls.
 	var arena: Node = objects.get_node("ColossusArena")
 	t.check(arena.is_in_group(&"dungeon_map_mark") and str(arena.get(&"mark")) == "boss", "the arena is not the compass's boss mark")
@@ -183,7 +223,7 @@ func test_the_crystal_veil_opens_only_while_its_brazier_burns(t: TestContext) ->
 	var north: Node = objects.get_node("M11-brazier-north")
 	await t.steps(2)
 	t.check(not bool(veil.call(&"is_open")), "the veil starts open")
-	# Walking at the grown veil from the north: held back.
+	# Walking at the grown veil from the north (M10's doorway): held back.
 	var rect: Rect2 = veil.call(&"barrier_rect")
 	_stand(t, Vector2(rect.get_center().x, rect.position.y - 50.0))
 	await t.steps(2)
@@ -290,18 +330,111 @@ func test_the_rotten_timbers_break_only_under_a_heavy_roll(t: TestContext) -> vo
 func test_the_root_wall_needs_the_feral_skin_and_climbs_to_the_shelf(t: TestContext) -> void:
 	if not await _enter(t):
 		return
-	var run := Services.run()
 	var wall: Node = _objects(t).get_node("M1-root-wall")
 	t.check(not bool(wall.call(&"can_use")), "the roots can be climbed without the Feral skin")
 	t.check(not bool(wall.call(&"use")), "climbing without the Feral skin did something")
-	run.set_flag(ClimbWall.SKIN_FLAG)
+	SkinState.lend(SkinState.FERAL)
 	_stand(t, (wall as Node2D).global_position + Vector2(0, 24))
 	await t.steps(4)
+	# The Feral skin climbs while the interact key is held (game/player/skins/feral_climb.gd).
+	t.press(&"interact")
 	t.check(bool(wall.call(&"use")), "the Feral skin did not climb the roots")
-	await t.until(func() -> bool: return not bool(wall.call(&"is_climbing")), 3000.0)
+	await t.until(func() -> bool: return not bool(wall.call(&"is_climbing")), 4000.0)
+	t.release(&"interact")
 	await t.steps(3)
 	t.equal(t.world().elevation.level_of(t.player_body()), 1, "the slime's level on the shelf")
 	t.check(t.player_body().collision_mask != 0, "the slime's collision did not come back after the climb")
+
+
+func test_the_den_holds_pearl_three_behind_the_shardback_and_its_take_seals_the_mine(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	var run := Services.run()
+	var objects := _objects(t)
+	var pearl: Node = objects.get_node("M13-pearl-three")
+	var mouth: Node = objects.get_node("M1-mouth-seal")
+	t.equal(str(pearl.get(&"boss_id")), SHARDBACK_ID, "Pearl 3's guard")
+	t.equal(str(pearl.get(&"skin_id")), "feral", "Pearl 3's skin")
+	t.check(not bool(pearl.call(&"is_shown")), "Pearl 3 shows before the Shardback falls")
+	# Into the Den from the stair: the fight starts, the north shutter closes behind the slime.
+	_stand(t, _t(Vector2(39.0, 19.5)))
+	var fight: Node = objects.get_node("M13-den-fight")
+	var started := await t.until(func() -> bool: return bool(fight.call(&"is_active")), 3000.0)
+	t.check(started, "the Den's fight did not start")
+	await t.until(func() -> bool: return bool(objects.get_node("M13-den-shutter").call(&"is_shut")), 1000.0)
+	t.check(bool(objects.get_node("M13-den-shutter").call(&"is_shut")), "the Den's north shutter did not close behind the slime")
+	var shardback := _placed_enemy(t, "M13-shardback")
+	if not t.check(shardback != null, "the Shardback is not in his Den"):
+		return
+	shardback.call(&"_defeat")
+	var won := await t.until(func() -> bool: return bool(fight.call(&"is_done")), 4000.0)
+	t.check(won, "the Den's fight was not won when the Shardback fell")
+	t.check(SHARDBACK_ID in (run.world.get("defeated_boss_ids", []) as Array), "the Shardback was not recorded beaten")
+	await t.until(func() -> bool: return bool(pearl.call(&"is_shown")), 1500.0)
+	t.check(bool(pearl.call(&"is_shown")), "Pearl 3 did not rise when the Shardback fell")
+	t.check(not bool(objects.get_node("M13-den-ledge").call(&"is_shut")), "the Den's south rim stayed shut")
+	t.check(not DungeonState.is_sealed(run, MAP_ID), "the mine is sealed before the take")
+	# The take: the Feral skin, and the mine sealed until the Colossus falls.
+	_stand(t, (pearl as Node2D).global_position + Vector2(0, -10))
+	await t.until(func() -> bool: return bool(pearl.call(&"is_taken")), 1500.0)
+	t.check(bool(pearl.call(&"is_taken")), "the slime did not take Pearl 3")
+	t.check(SkinState.is_won(SkinState.FERAL), "Pearl 3 did not grant the Feral skin")
+	t.check(not (objects.get_node("M13-pearl-glint") as CanvasItem).visible, "Pearl 3's glint stayed after the take")
+	t.check(DungeonState.is_sealed(run, MAP_ID), "taking Pearl 3 did not seal the mine")
+	t.equal(DungeonState.sealed_by(run, MAP_ID), COLOSSUS_ID, "the boss who holds the seal")
+	await t.until(func() -> bool: return bool(mouth.call(&"is_shut")), 3000.0)
+	t.check(bool(mouth.call(&"is_shut")), "the mouth's seal is not shut after the take")
+
+
+func test_the_feral_second_half_climbs_from_the_den_to_the_balcony(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	SkinState.lend(SkinState.FERAL)
+	var objects := _objects(t)
+	# The teach: the root wall up the Den's ledge (-1 to 0).
+	t.check(await _climb(t, objects.get_node("M13-ledge-roots")), "the climb up the Den's ledge did not finish")
+	t.equal(t.world().elevation.level_of(t.player_body()), 0, "the slime's level on the Den's ledge")
+	# The test: M11's rift, down the west landing's face (0 to -2), across, up the east landing's.
+	t.check(await _climb(t, objects.get_node("M11-west-roots-down")), "the climb down into the rift did not finish")
+	t.equal(t.world().elevation.level_of(t.player_body()), -2, "the slime's level on the rift's floor")
+	var east: Node2D = objects.get_node("M11-east-roots")
+	t.press(&"move_right")
+	var across := await t.until(func() -> bool: return t.player_body().global_position.x >= east.global_position.x - 8.0, 6000.0)
+	t.release(&"move_right")
+	t.check(across, "the slime could not walk the rift's floor to the east face (at %.1f)" % (t.player_body().global_position.x / CELL))
+	t.check(await _climb(t, east), "the climb up out of the rift did not finish")
+	t.equal(t.world().elevation.level_of(t.player_body()), 0, "the slime's level on the east landing")
+	# The twist: M12's balcony (0 to 2), the big chest on it.
+	t.check(await _climb(t, objects.get_node("M12-west-roots")), "the climb up to the balcony did not finish")
+	t.equal(t.world().elevation.level_of(t.player_body()), 2, "the slime's level on the balcony")
+	var chest: Node2D = objects.get_node("M12-big-key-chest")
+	t.check(t.player_body().global_position.distance_to(chest.global_position) < 320.0, "the big chest is not on the balcony by the roots")
+	# Off the balcony's west end: a drop lands by the west door (no skin needed, no cost).
+	var hp := t.player().get_hp()
+	_stand(t, _t(Vector2(66.8, 17.5)))
+	await t.steps(4)
+	t.press(&"move_down")
+	var dropped := await t.until(func() -> bool: return t.world().elevation.level_of(t.player_body()) == 0, 3000.0)
+	t.release(&"move_down")
+	t.check(dropped, "the slime could not drop off the balcony's west end")
+	await t.steps(6)
+	t.check(t.player_body().global_position.x < 68.5 * CELL, "the drop off the balcony did not land by the west door")
+	t.equal(t.player().get_hp(), hp, "the drop off the balcony cost health")
+
+
+func test_the_shaft_roots_join_the_den_and_the_shaft_floor(t: TestContext) -> void:
+	if not await _enter(t):
+		return
+	SkinState.lend(SkinState.FERAL)
+	var objects := _objects(t)
+	for rim_name: String in ["M13-den-ledge", "M13-den-ledge-east"]:
+		objects.get_node(rim_name).call(&"trigger")
+	await t.sim_wait(600.0)
+	t.check(await _climb(t, objects.get_node("M14-shaft-roots-down")), "the climb down the shaft's wall did not finish")
+	t.equal(t.world().elevation.level_of(t.player_body()), -2, "the slime's level on the shaft's floor")
+	t.equal(_room_at(t), "M4-great-shaft", "the room at the roots' foot")
+	t.check(await _climb(t, objects.get_node("M14-shaft-roots")), "the climb up the shaft's wall did not finish")
+	t.equal(t.world().elevation.level_of(t.player_body()), -1, "the slime's level on the Den's rim")
 
 
 func test_the_colossus_is_hurt_only_through_his_open_weak_spot(t: TestContext) -> void:
@@ -353,7 +486,84 @@ func test_the_colossus_stomp_puts_out_a_brazier(t: TestContext) -> void:
 	t.check(not bool(boss.call(&"is_exposed")), "his weak spot stayed open with a brazier out")
 
 
-func test_his_fall_gives_pearl_three_and_the_climb_out_to_the_lookout(t: TestContext) -> void:
+func test_the_colossus_loses_his_grip_to_three_claw_hits_and_lies_stunned(t: TestContext) -> void:
+	var fight := await _start_fight(t)
+	if fight.is_empty():
+		return
+	var arena: Node = fight["arena"]
+	var boss: Node = fight["boss"]
+	SkinState.lend(SkinState.FERAL)
+	_light_all(t)
+	if not await _onto_the_wall(t, boss):
+		return
+	var hp := _hp(boss)
+	# A Spear hit from the floor does not reach his claws; the climbing slime's does.
+	_hit_from_here(t, boss, ["spear"])
+	t.equal(int(boss.call(&"claw_hits")), 0, "a hit from the floor counted on his claws")
+	var roots: Node2D = _objects(t).get_node(CLAW_ROOTS)
+	if not await _cling_at_top(t, roots):
+		return
+	t.check(bool(arena.call(&"is_fighting")), "climbing his wall ended the fight")
+	_hit_from_here(t, boss, ["weapon"])
+	t.equal(int(boss.call(&"claw_hits")), 0, "a hit that is not the Spear's counted on his claws")
+	for i in 3:
+		_hit_from_here(t, boss, ["spear"])
+		await t.steps(1)
+	t.near(_hp(boss), hp, 0.1, "his health after the claw hits")
+	var down := await t.until(func() -> bool: return bool(boss.call(&"is_stunned")), 2000.0)
+	t.check(down, "three Spear hits on his claws did not bring him down (phase %s)" % boss.get(&"_phase"))
+	t.check(bool(arena.call(&"all_lit")), "his crash put out a brazier")
+	# Stunned, his back open: a Spear hit from any side lands.
+	t.release(&"interact")
+	await t.sim_wait(450.0)
+	var stunned_hp := _hp(boss)
+	_hit(t, boss, ["spear"], Vector2(0, 1))
+	t.check(_hp(boss) < stunned_hp, "a Spear hit on his open back did not hurt him")
+	var up := await t.until(func() -> bool:
+		t.player().restore_run_state({"hp": t.player().get_max_hp()})
+		return not bool(boss.call(&"is_stunned")), 4000.0)
+	t.check(up, "he did not get up after his stun")
+
+
+func test_the_spear_strikes_his_claws_from_the_face(t: TestContext) -> void:
+	var fight := await _start_fight(t)
+	if fight.is_empty():
+		return
+	var boss: Node = fight["boss"]
+	# The body-shapes mode with the Spear (the test runner plays classic): the strike while clinging.
+	ReworkMode.set_on(true)
+	Services.run().learn_session_ability(String(ShapeDefs.SPEAR))
+	t.main.call(&"start_rework")
+	var shapes: Node = t.player().get_shapes()
+	if not t.check(shapes != null, "no ShapeController in the body-shapes mode"):
+		ReworkMode.set_on(false)
+		return
+	shapes.call(&"set_current", ShapeDefs.SPEAR)
+	SkinState.lend(SkinState.FERAL)
+	if not await _onto_the_wall(t, boss):
+		ReworkMode.set_on(false)
+		return
+	var roots: Node2D = _objects(t).get_node(CLAW_ROOTS)
+	if not await _cling_at_top(t, roots):
+		ReworkMode.set_on(false)
+		return
+	var held_y := t.player_body().global_position.y
+	# Toward him (he clings left of these roots): a tap of attack with the left key held.
+	t.press(&"move_left")
+	t.press(&"attack")
+	await t.steps(2)
+	t.release(&"attack")
+	var striking := await t.until(func() -> bool: return bool(shapes.call(&"is_busy")), 600.0)
+	t.check(striking, "an attack press while clinging did not strike")
+	t.check(t.player().is_climbing(), "the strike let go of the wall")
+	t.near(t.player_body().global_position.y, held_y, 3.0, "the slime's height while it strikes from the face")
+	var hit := await t.until(func() -> bool: return int(boss.call(&"claw_hits")) >= 1, 1000.0)
+	t.release(&"move_left")
+	t.check(hit, "the Spear's strike from the face did not reach his claws")
+	ReworkMode.set_on(false)
+
+
+func test_his_fall_breaks_the_seal_and_the_climb_out_leads_to_the_lookout(t: TestContext) -> void:
 	var fight := await _start_fight(t)
 	if fight.is_empty():
 		return
@@ -361,8 +571,11 @@ func test_his_fall_gives_pearl_three_and_the_climb_out_to_the_lookout(t: TestCon
 	var arena: Node = fight["arena"]
 	var boss: Node = fight["boss"]
 	boss.set_physics_process(false)
+	SkinState.lend(SkinState.FERAL)
+	DungeonState.seal(run, MAP_ID, COLOSSUS_ID, "crystal-colossus")
 	var wall: Node = _objects(t).get_node("M15-root-wall")
-	t.check(not bool(wall.call(&"can_use")), "the arena's root wall can be climbed before Pearl 3")
+	await t.steps(2)
+	t.check(not bool(wall.call(&"can_use")), "the climb out can be used while the mine is sealed")
 	_light_all(t)
 	await t.steps(3)
 	t.set_enemy_health(boss, 10.0)
@@ -371,20 +584,22 @@ func test_his_fall_gives_pearl_three_and_the_climb_out_to_the_lookout(t: TestCon
 		return
 	await t.steps(2)
 	t.check(bool(arena.call(&"is_beaten")), "his fall was not recorded")
-	t.check("crystal-colossus" in (run.world.get("defeated_boss_ids", []) as Array), "defeated_boss_ids has no crystal-colossus")
+	t.check(COLOSSUS_ID in (run.world.get("defeated_boss_ids", []) as Array), "defeated_boss_ids has no crystal-colossus")
+	t.check(not DungeonState.is_sealed(run, MAP_ID), "his fall did not break the seal")
 	t.check(bool(arena.call(&"all_lit")), "the braziers do not burn for good after his fall")
-	var pearl: Node = _objects(t).get_node("M15-pearl-three")
-	await t.until(func() -> bool: return bool(pearl.call(&"is_shown")), 1000.0)
-	t.check(bool(pearl.call(&"is_shown")), "Pearl 3 did not rise after his fall")
-	_stand(t, (pearl as Node2D).global_position)
-	await t.until(func() -> bool: return bool(pearl.call(&"is_taken")), 1500.0)
-	t.check(bool(pearl.call(&"is_taken")), "the slime did not take Pearl 3")
-	t.check(run.has_flag(ClimbWall.SKIN_FLAG), "Pearl 3 did not grant the Feral skin")
-	t.check(bool(wall.call(&"can_use")), "the arena's root wall cannot be climbed with the Feral skin")
-	_stand(t, (wall as Node2D).global_position + Vector2(0, 30))
+	var heart: Node = _objects(t).get_node("M15-full-heart/FullHeartScript")
+	await t.until(func() -> bool: return bool(heart.call(&"is_shown")), 1500.0)
+	t.check(bool(heart.call(&"is_shown")), "his full heart did not rise")
+	var seal: Node = _objects(t).get_node("M15-climb-out-seal")
+	await t.until(func() -> bool: return not bool(seal.call(&"is_shut")), 3000.0)
+	t.check(not bool(seal.call(&"is_shut")), "the climb out's seal did not sink")
+	t.check(bool(wall.call(&"can_use")), "the arena's root wall cannot be climbed out once he fell")
+	_stand(t, (wall as Node2D).global_position + Vector2(0, 6))
 	await t.steps(4)
+	t.press(&"interact")
 	t.check(bool(wall.call(&"use")), "the climb out did not start")
 	var out := await t.until(func() -> bool: return t.in_world(LOOKOUT_ID) and t.player_body() != null, 8000.0)
+	t.release(&"interact")
 	t.check(out, "the climb out did not bring the slime to the Lookout (%s)" % LOOKOUT_ID)
 
 
@@ -410,6 +625,44 @@ func _start_fight(t: TestContext) -> Dictionary:
 		return {}
 	await t.steps(2)
 	return {"arena": arena, "boss": arena.call(&"get_live_boss")}
+
+
+## The climb up or down `wall` from its start (the slime's feet there), the interact key held until it
+## ends. True when it finished there (not dropped).
+func _climb(t: TestContext, wall: Node) -> bool:
+	_stand(t, (wall as Node2D).global_position)
+	await t.steps(4)
+	t.press(&"interact")
+	if not t.check(bool(wall.call(&"use")), "%s could not be climbed" % wall.name):
+		t.release(&"interact")
+		return false
+	var done := await t.until(func() -> bool: return not t.player().is_climbing(), 6000.0)
+	t.release(&"interact")
+	await t.steps(4)
+	return done
+
+
+## He leaps onto the wall at the spot nearest CLAW_ROOTS and clings there (no mites thrown).
+func _onto_the_wall(t: TestContext, boss: Node) -> bool:
+	t.player().restore_run_state({"hp": t.player().get_max_hp()})
+	var roots: Node2D = _objects(t).get_node(CLAW_ROOTS)
+	boss.call(&"_leap_up", t.now(), roots.global_position + Vector2(-90.0, -40.0))
+	var on := await t.until(func() -> bool: return str(boss.get(&"_phase")) == "cling", 2000.0)
+	if not t.check(on, "he did not cling to his wall (phase %s)" % boss.get(&"_phase")):
+		return false
+	boss.set(&"_next_throw_at", INF)
+	return true
+
+
+## The slime up CLAW_ROOTS to their top beside him, clinging there (the interact key kept held).
+func _cling_at_top(t: TestContext, roots: Node2D) -> bool:
+	_stand(t, roots.global_position)
+	await t.steps(4)
+	t.press(&"interact")
+	if not t.check(bool(roots.call(&"use")), "the roots beside his spot could not be climbed"):
+		return false
+	var holding := await t.until(func() -> bool: return bool(t.player().get_climb().call(&"is_holding")), 4000.0)
+	return t.check(holding, "the slime did not cling at the top of the roots beside him")
 
 
 func _light_all(t: TestContext) -> void:
@@ -484,12 +737,19 @@ func _hit(t: TestContext, boss: Node, tags: Array, side: Vector2) -> void:
 	# On that side, but inside the arena (out of it the fight would start over).
 	var rect: Rect2 = _objects(t).get_node("ColossusArena").get(&"arena_rect")
 	t.teleport_player((centre + side * 120.0).clamp(rect.position + Vector2(24, 24), rect.end - Vector2(24, 24)))
+	_hit_from_here(t, boss, tags)
+
+
+## A hit of 30 with `tags` on the Colossus from the slime where it is (its own activation).
+func _hit_from_here(t: TestContext, boss: Node, tags: Array) -> void:
+	var centre: Vector2 = boss.call(&"get_centre")
 	var router := Services.router()
 	var player := t.player()
 	var areas: Array[Area2D] = [player.get_damage_area()]
 	var activation := router.begin_activation(player, areas)
+	var knock := (centre - player.get_centre()).normalized()
 	router.route({"activation_id": activation, "source": player, "attack_area": player.get_damage_area(),
 		"target_area": boss.get(&"damage_area"), "weapon_id": "test-" + str(tags[0]), "weapon_tags": tags,
 		"damage_types": ["physical"], "base_damage": 30.0, "effects": [],
-		"impact": {"position": centre, "knock": -side}})
+		"impact": {"position": centre, "knock": knock}})
 	router.end_activation(activation)

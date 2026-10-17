@@ -4,7 +4,7 @@ class_name WebWallScript
 ## Scene script of `object.web-wall` (docs/godot/WEBS.md; owner, 2026-10-16, question 131; roadmap
 ## 7.9): thick silk filling a doorway or a nook's mouth, the Silk skin's lock.
 ##
-## - **Without the Silk skin** (`player.crosses_webs()`, today the Silk Gulp form) it is solid: a
+## - **Without the Silk skin** (`player.crosses_webs()`: SkinState, docs/godot/SKINS.md) it is solid: a
 ##   walk and a Roll stop against it (a StaticBody2D on the `world` layer, which every walker
 ##   masks, so enemies never pass either). Every hit clinks with `refusal_text` ("Thick silk. It
 ##   will not give."), at most every 1.5 s for all barriers (BlastBarrier.refuse).
@@ -12,9 +12,10 @@ class_name WebWallScript
 ##   `webs.wallPassMultiplier` (half) of its walk (FloorWebs, the group `web_slows`), and a shape's
 ##   hit (request tags in CUT_TAGS: the Spear, and the old weapons) cuts it open for good: the
 ##   solid and the hurtbox go, the cut picture shows (tatters at the jambs), the story flag
-##   `save_key()` is set, and it says "The web tears open!" with the secret jingle `SecretFound`
-##   when `hides_secret` (a nook behind it), else the web tear cue. Other hits (throws, blasts)
-##   clink without a line. A blast never cuts it.
+##   `save_key()` is set (unless `remembered` is off: silk spun again, the Matron's cage), and it
+##   says "The web tears open!" with the secret jingle `SecretFound` when `hides_secret` (a nook
+##   behind it), else the web tear cue. Other hits (throws, blasts) clink without a line. A blast
+##   never cuts it. A throw ends at its hurtbox, so a thrown Goo Bomb stops in the silk.
 ##
 ## Place it in the editor: `orientation` "across" for a door in a north or south wall (the web
 ## faces the camera; put the root on the doorway's floor line, in the middle), "side" for a door in
@@ -28,6 +29,7 @@ class_name WebWallScript
 ##
 ## Owner: webs (the Weaver Hollow).
 
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const Services := preload("res://game/shared/services.gd")
 const FloorWebs := preload("res://game/world/webs/floor_webs.gd")
 const BlastBarrier := preload("res://game/scripts/blast_barrier.gd")
@@ -63,6 +65,13 @@ const SHIVER_RATE := 46.0
 const SHIVER_MS := 260.0
 const SOLID_PREVIEW := Color(1.0, 0.3, 0.3, 0.7)
 const HURT_PREVIEW := Color(1.0, 0.65, 0.2, 0.6)
+## An "across" web drawn in front of the slime (its feet just north of the root, inside the
+## picture): the silk fades to this so the slime shows through it (as the elevation's ghost shows it
+## behind walls), at this rate (alpha a second); presentation only.
+const BEHIND_ALPHA := 0.45
+const BEHIND_FADE_PER_S := 6.0
+## The slime's feet this far either side of the picture still count (its body is that wide).
+const BEHIND_MARGIN := 18.0
 
 ## The web was cut open. Payload: {"flagId", "x", "y"}.
 signal cut(payload: Dictionary)
@@ -100,6 +109,10 @@ signal refused(payload: Dictionary)
 @export var hides_secret: bool = false
 ## The story flag set when it is cut (empty: `web-wall.<world scene>:<node path>`).
 @export var flag_id: String = ""
+## Its cut is kept for good (the story flag above). Off for silk that is spun again (the Matron's
+## cage, game/scripts/matron.gd): cut, it stays open only until its spinner spins it once more, and
+## no flag is read or set.
+@export var remembered: bool = true
 ## Editor only: show the cut look.
 @export var preview_cut: bool = false:
 	set(value):
@@ -121,7 +134,7 @@ func _ready() -> void:
 		set_process(false)
 		return
 	var run := Services.run()
-	_cut = run != null and run.has_flag(save_key())
+	_cut = remembered and run != null and run.has_flag(save_key())
 	set_process(false)
 	if _cut:
 		set_physics_process(false)
@@ -184,16 +197,19 @@ func in_passage(point: Vector2) -> bool:
 func web_walk_multiplier(player: Node, crosses: bool) -> float:
 	if _cut or not crosses or not in_passage(FloorWebs.feet(player)):
 		return 1.0
+	SkinState.show(player, SkinState.SILK)
 	return FloorWebs.setting("wallPassMultiplier")
 
 
 ## Keeps the slime's body excepted from the solid while it crosses webs (and while it is still
-## inside after it stopped crossing, so it is never shut in).
-func _physics_process(_delta: float) -> void:
+## inside after it stopped crossing, so it is never shut in); fades the silk while the slime is
+## behind it.
+func _physics_process(delta: float) -> void:
 	if _cut or _body == null:
 		return
 	var player := FloorWebs.player()
 	var body: PhysicsBody2D = player.get(&"body") as PhysicsBody2D if player != null else null
+	_fade_for(body, delta)
 	if body == null:
 		_drop_exception()
 		return
@@ -211,6 +227,29 @@ func _drop_exception() -> void:
 	if _excepted != null and is_instance_valid(_excepted) and _body != null and is_instance_valid(_body):
 		_excepted.remove_collision_exception_with(_body)
 	_excepted = null
+
+
+## The silk's see-through while the slime (`body`) stands behind an "across" web.
+func _fade_for(body: Node2D, delta: float) -> void:
+	var target := 1.0
+	if body != null and orientation == "across":
+		var local := to_local(body.global_position)
+		var drawn := drawn_size()
+		if local.y < 0.0 and local.y > -drawn.y and absf(local.x) < drawn.x / 2.0 + BEHIND_MARGIN:
+			target = BEHIND_ALPHA
+	if not is_equal_approx(self_modulate.a, target):
+		self_modulate.a = move_toward(self_modulate.a, target, BEHIND_FADE_PER_S * delta)
+
+
+## The picture's size on screen (world units).
+func drawn_size() -> Vector2:
+	var texture := _texture(SIDE_ART if orientation == "side" else ACROSS_ART)
+	if texture == null:
+		return Vector2(span, span)
+	var drawn := Vector2(texture.get_width() / 2.0, texture.get_height()) * ART_SCALE * (span / BASE_SPAN) * art_scale
+	if height > 0.0:
+		drawn.y = height
+	return drawn
 
 
 # --- the damage contract -----------------------------------------------------------------------------
@@ -249,7 +288,7 @@ func cut_open() -> void:
 		return
 	_cut = true
 	var run := Services.run()
-	if run != null:
+	if run != null and remembered:
 		run.set_flag(save_key())
 	remove_from_group(FloorWebs.GROUP)
 	_drop_exception()
@@ -262,6 +301,7 @@ func cut_open() -> void:
 		_area = null
 	set_physics_process(false)
 	queue_redraw()
+	SkinState.show(FloorWebs.player(), SkinState.SILK)
 	var middle := global_position + (Vector2(0.0, -40.0) if orientation == "across" else Vector2.ZERO)
 	var zone := {"x": middle.x, "y": middle.y, "halfWidth": span / 2.0, "halfHeight": thickness / 2.0}
 	var feel := Services.feel()

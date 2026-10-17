@@ -27,6 +27,7 @@ class_name ClodStomperScript
 
 const AttackTelegraph := preload("res://game/bosses/attack_telegraph.gd")
 const CrackedGround := preload("res://game/scripts/cracked_ground.gd")
+const Hearing := preload("res://game/audio/hearing.gd")
 
 const PHASE_CHASE := "chase"
 const PHASE_CROUCH := "crouch"
@@ -167,9 +168,10 @@ func _transition_to(phase: String, now: float) -> void:
 	phase_changed.emit({"phase": phase, "time": now})
 
 
+## A global cue, heard only where the slime could see the stomper (game/audio/hearing.gd).
 func _cue(cue: StringName) -> void:
 	var feel := Services.feel()
-	if feel != null:
+	if feel != null and Hearing.heard(get_centre()):
 		feel.audio_cue(cue)
 
 

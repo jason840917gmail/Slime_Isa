@@ -36,6 +36,7 @@ class_name PatternedEnemyScript
 
 const GroundShadowLook := preload("res://game/enemy/ground_shadow.gd")
 const ReactionProfileScript := preload("res://game/combat/reactions/reaction_profile.gd")
+const Hearing := preload("res://game/audio/hearing.gd")
 const ENEMY_TYPES_FILE := "enemy-types.json"
 const PATTERN_KEY := "pattern"
 const SHIELD_REASON := "immune"
@@ -183,7 +184,7 @@ static func has_tag(request: Dictionary, tag: String) -> bool:
 	return tags is Array and (tags as Array).has(tag)
 
 
-## The request is the Roll's bonk while the slime is Heavy (the Stone form).
+## The request is the Roll's bonk while the slime is Heavy (the Heavy skin: docs/godot/SKINS.md).
 static func is_heavy_roll(request: Dictionary) -> bool:
 	return has_tag(request, ROLL_TAG) and has_tag(request, HEAVY_TAG)
 
@@ -314,9 +315,11 @@ func _velocity_toward(point: Vector2, speed: float, delta: float) -> Vector2:
 	return offset / distance * speed
 
 
+## Plays a global cue, but only where the slime could see this enemy (game/audio/hearing.gd): an
+## enemy walking in another camera room or off the screen is silent.
 func _cue(cue: StringName) -> void:
 	var feel := Services.feel()
-	if feel != null and cue != &"":
+	if feel != null and cue != &"" and Hearing.heard(feet()):
 		feel.audio_cue(cue)
 
 

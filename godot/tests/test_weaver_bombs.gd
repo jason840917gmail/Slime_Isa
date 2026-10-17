@@ -19,6 +19,7 @@ extends RefCounted
 ## (`cracked.playground-sinkhole`, a ladder down to `playground-cavern`, door `playground-sinkhole`).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const Services := preload("res://game/shared/services.gd")
 const GooBlast := preload("res://game/player/abilities/goo_blast.gd")
 const CrackedGround := preload("res://game/scripts/cracked_ground.gd")
@@ -85,16 +86,17 @@ func test_a_blast_out_of_reach_leaves_it(t: TestContext) -> void:
 	t.check(not run.has_flag(CRACK_FLAG), "a blast whose ellipse missed it broke the cracked ground")
 
 
-func test_the_stone_slam_still_breaks_cracked_ground(t: TestContext) -> void:
+## The Heavy skin's slam (presses_plates since roadmap 7.8, the Stone form's before).
+func test_the_heavy_slam_still_breaks_cracked_ground(t: TestContext) -> void:
 	var run := Services.run()
 	run.learn_ability("squash-slam")
-	t.player().get_gulp().swallow("stone-essence")
+	SkinState.lend(SkinState.HEAVY)
 	t.teleport_player(CRACKED + Vector2(0.0, 20.0))
 	await t.steps(3)
-	t.check(not run.has_flag(CRACK_FLAG), "standing in Stone cracked the ground")
+	t.check(not run.has_flag(CRACK_FLAG), "standing with the Heavy skin cracked the ground")
 	t.tap(&"squash_slam")
 	await t.until(func() -> bool: return run.has_flag(CRACK_FLAG), 1000.0)
-	t.check(run.has_flag(CRACK_FLAG), "a Squash Slam in Stone no longer cracks the ground")
+	t.check(run.has_flag(CRACK_FLAG), "a Squash Slam with the Heavy skin no longer cracks the ground")
 
 
 func test_the_creak_names_a_blast_once_the_bomb_is_learned(t: TestContext) -> void:
