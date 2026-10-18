@@ -6,8 +6,8 @@
 [ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="4_78spn"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_obfmw"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="6_0u74e"]
-[ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="7_7pnqm"]
-[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/elevation/fences/fence_layer.gd" id="8_uvfsr"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="7_7pnqm"]
+[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="8_uvfsr"]
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_gv6f3"]
 [ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="9_kgtsw"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_cksfn"]
@@ -53,7 +53,7 @@ script = ExtResource("6_0u74e")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=24829144]
 z_index = -1
-tile_map_data = PackedByteArray("AAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAACAAcA//////////8CAAgAAAACAAAAAAACAAkAAAACAAAAAAAAAAoAAAACAAAAAAABAAoAAAACAAAAAAACAAoA//////////8fAA8A//////////8fABAA//////////8fABEA//////////8fABIA//////////8HAB8A//////////8IAB8A//////////8JAB8A//////////8KAB8A//////////8LAB8A//////////8MAB8A//////////8NAB8A//////////8OAB8A//////////8PAB8A//////////8QAB8A//////////8RAB8A//////////8SAB8A//////////8TAB8A//////////8UAB8A//////////8=")
+tile_map_data = PackedByteArray("AAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAACAAcAAAACAAAAAAACAAgAAAACAAAAAAACAAkAAAACAAAAAAAAAAoAAAACAAAAAAABAAoAAAACAAAAAAACAAoAAAACAAAAAAAfAA8AAAACAAAAAAAfABAAAAACAAAAAAAfABEAAAACAAAAAAAfABIAAAACAAAAAAAHAB8AAAACAAAAAAAIAB8AAAACAAAAAAAJAB8AAAACAAAAAAAKAB8AAAACAAAAAAALAB8AAAACAAAAAAAMAB8AAAACAAAAAAANAB8AAAACAAAAAAAOAB8AAAACAAAAAAAPAB8AAAACAAAAAAAQAB8AAAACAAAAAAARAB8AAAACAAAAAAASAB8AAAACAAAAAAATAB8AAAACAAAAAAAUAB8AAAACAAAAAAA=")
 tile_set = ExtResource("7_7pnqm")
 script = ExtResource("8_uvfsr")
 

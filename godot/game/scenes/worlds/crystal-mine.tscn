@@ -5,8 +5,8 @@
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_y47ja"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="3_1xgm1"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="4_k2vdy"]
-[ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="5_i8t3o"]
-[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/elevation/fences/fence_layer.gd" id="6_jmf20"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="5_i8t3o"]
+[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="6_jmf20"]
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="7_2657q"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon.tscn" id="8_p64ji"]
 [ext_resource type="AudioStream" path="res://asset/audio/sfx/library/boss/fatty-roar.ogg" id="9_20sr2"]
@@ -333,7 +333,7 @@ script = ExtResource("4_k2vdy")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=807011724]
 z_index = -1
-tile_map_data = PackedByteArray("AAAgAB0A//////////8gAB4A//////////8gAB8A//////////8gACAA//////////8gACEAAAAAAAAAAAAgACIAAAAAAAAAAAAgACMAAAAAAAAAAAAgACQAAAAAAAAAAAAgACUAAAAAAAAAAAAgACYA//////////8hACYAAAAAAAAAAAAiACYAAAAAAAAAAAAjACYAAAAAAAAAAAAkACYAAAAAAAAAAAAlACYAAAAAAAAAAAAoACYAAAAAAAAAAAApACYAAAAAAAAAAAAqACYAAAAAAAAAAAArACYAAAAAAAAAAAAsACYAAAAAAAAAAAAtACYAAAAAAAAAAAAuACYAAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAgAB8AAAACAAAAAAAgACAAAAACAAAAAAAgACEAAAACAAAAAAAgACIAAAACAAAAAAAgACMAAAACAAAAAAAgACQAAAACAAAAAAAgACUAAAACAAAAAAAgACYAAAACAAAAAAAhACYAAAACAAAAAAAiACYAAAACAAAAAAAjACYAAAACAAAAAAAkACYAAAACAAAAAAAlACYAAAACAAAAAAAoACYAAAACAAAAAAApACYAAAACAAAAAAAqACYAAAACAAAAAAArACYAAAACAAAAAAAsACYAAAACAAAAAAAtACYAAAACAAAAAAAuACYAAAACAAAAAAA=")
 tile_set = ExtResource("5_i8t3o")
 script = ExtResource("6_jmf20")
 

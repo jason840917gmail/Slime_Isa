@@ -388,9 +388,14 @@ func _land(player: Node, body: CharacterBody2D) -> void:
 		_damage(hazard, player, body)
 
 
-## Where a fall from `hazard` puts the slime back: its return point nearest the last safe ground (or
+## Where a fall from `hazard` puts the slime back: its `fixed_return` spot when it has one; else its
+## return point nearest the last safe ground (or
 ## the spot it fell from), else that ground, else the spot it fell from.
 func return_point(hazard: Hazard) -> Vector2:
+	if hazard != null and is_instance_valid(hazard) and not hazard.fixed_return.is_empty():
+		var fixed := hazard.get_node_or_null(hazard.fixed_return) as Node2D
+		if fixed != null:
+			return fixed.global_position
 	var near := _safe_centre if _safe_centre.is_finite() else _fall_from
 	var spots: Array[Vector2] = hazard.return_spots() if hazard != null and is_instance_valid(hazard) else []
 	if not spots.is_empty():

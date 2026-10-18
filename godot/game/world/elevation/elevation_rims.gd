@@ -2,8 +2,8 @@ extends RefCounted
 ## The border of every cliff top (docs/godot/ELEVATION.md): its boundary edges, where a top tri meets
 ## lower ground or a wall at or below its level, directed with the top on the left. LIP where the
 ## top hangs over the wall right below it (a south face), RIM elsewhere (north, east, west, the back
-## diagonals, a hole's near rim). The walls (sides/elevation_sides.gd) and the fences
-## (fences/elevation_fences.gd) are built along them.
+## diagonals, a hole's near rim). The walls (sides/elevation_sides.gd) are built along them;
+## fences are painted on their own layer and do not follow rims (game/world/fences/fences.gd).
 ##
 ## It also adds, past every rim, a thin core of the top's depth to the occlusion map (`add_cores`: a
 ## body behind the hill is hidden behind the top's edge too).

@@ -5,8 +5,8 @@ Writes godot/game/scenes/worlds/fence-park.tscn from scratch: a grass field with
 every shape, fenced on the `fences` layer (fence_tileset.tres + fence_layer.gd):
 
 - a level-1 square (fenced all round but a gap on its east side, to drop off), where the player
-  spawns, with a flight of stairs down its south wall and one down its west side (the fence leaves
-  a gap for each);
+  spawns, with a flight of stairs down its south wall and one down its west side (the painted
+  fence has a gap for each);
 - a level-2 diamond (four diagonal faces and their tips) fenced all round;
 - a level-1 octagon (all 8 faces) with a level-2 octagon on top, both fenced all round;
 - a square hole and an octagon hole, fenced all round on the ground around them;
@@ -162,7 +162,8 @@ def park() -> tuple[dict[tuple[int, int], int | str], dict[tuple[int, int], str]
         connected[(x, 32)] = ("wood", -1)  # all-neighbor links on a raised level
 
     # Normal ground: isolated examples show all eight selectable orientations, followed by a
-    # multi-cell connected run. The isolated tiles also exercise full-tile collision.
+    # multi-cell connected run. The isolated tiles also exercise a lone tile's collision (its two posts
+    # and the band between them).
     for direction in range(8):
         connected[(10 + direction * 2, 33)] = ("wood", direction)
     for x in range(28, 34):
@@ -190,8 +191,8 @@ def main() -> None:
 [ext_resource type="Script" path="res://game/world/world_ground.gd" id="world_ground"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="elevation_tiles"]
 [ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="elevation_layer"]
-[ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="fence_tiles"]
-[ext_resource type="Script" path="res://game/world/elevation/fences/fence_layer.gd" id="fence_layer"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="fence_tiles"]
+[ext_resource type="Script" path="res://game/world/fences/fence_layer.gd" id="fence_layer"]
 
 [node name="{MAP_ID}" type="Node2D"]
 y_sort_enabled = true

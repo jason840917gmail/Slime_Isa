@@ -24,8 +24,8 @@ extends RefCounted
 ##                 that level is blocked there: `blocks`): the posts beside the steps, the side walls
 ##                 along them; what is drawn above it only hides it (the depth map);
 ##   `silhouette`  the whole structure as drawn, and `approach` the top's ground just behind the rim
-##                 (`occupies`: fences leave a gap there; Elevation draws the top's own ground over
-##                 its edge there, `add_approach`, so the edge breaks for the way down);
+##                 (`occupies`; Elevation draws the top's own ground over its edge there,
+##                 `add_approach`, so the edge breaks for the way down);
 ##   faces         drawn (`add_mesh`) and written to the depth map (`add_depth`) back to front.
 ## Godot draws in order, without a depth test, so what of a flight lies behind the ground it leaves
 ## (`occlude`: a back flight's foot and the first steps behind the rim, under the hill's top) is cut
@@ -342,8 +342,7 @@ func overhang(point: Vector2) -> int:
 
 
 ## True when `point` (screen) lies on the structure (walkable or not) or on the top's ground just
-## behind its rim. Fences use it: a fence leaves a gap where a flight leaves its rim
-## (elevation_fences.gd `_crosses_stairs`).
+## behind its rim.
 func occupies(point: Vector2) -> bool:
 	if not bounds.has_point(point):
 		return false

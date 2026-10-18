@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "godot/asset/MAPS/fences/fence_paint_tiles.png"
-TILESET = ROOT / "godot/game/world/elevation/fences/fence_tileset.tres"
+TILESET = ROOT / "godot/game/world/fences/fence_tileset.tres"
 SIZE = 64
 TILE_UID = "uid://b6hbbbrfkchxq"
 TEXTURE_UID = "uid://t4lhoo46qy2k"
@@ -168,7 +168,7 @@ def main() -> None:
             _draw_tile(image, column, row, style, color, direction)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUT)
-    TILESET.write_text(_atlas_source(), encoding="utf-8")
+    TILESET.write_text(_atlas_source(), encoding="utf-8", newline="\n")
     print(f"wrote {OUT.relative_to(ROOT)} and {TILESET.relative_to(ROOT)} (7 picture styles, 8 directions + all-neighbor connector)")
 
 

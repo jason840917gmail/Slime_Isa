@@ -84,8 +84,8 @@ const RUINS := 16
 ## 2026-10-11 the same flights as row 1) per direction.
 const STAIRS_ROW := 2
 const STAIRS_COLUMNS := {"s": 0, "sw": 1, "w": 2, "nw": 3, "n": 4, "ne": 5, "e": 6, "se": 7}
-## The fence painted around pits (game/world/elevation/fences/fence_tileset.tres: stone).
-const FENCE_STONE := Vector2i(3, 0)
+## The fence painted around pits (game/world/fences/fence_tileset.tres: stone, all neighbours).
+const FENCE_STONE := Vector2i(2, 0)
 ## The edge of a world each way out leads through.
 const EDGE_NAMES := {Vector2i.RIGHT: "east", Vector2i.LEFT: "west", Vector2i.DOWN: "south", Vector2i.UP: "north"}
 const OPPOSITE_EDGES := {"east": "west", "west": "east", "south": "north", "north": "south"}

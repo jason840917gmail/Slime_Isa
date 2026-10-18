@@ -14,7 +14,7 @@
 // below the wall's top edge, or past a rim's edge), b = 1 terrain, 0.5 a structure (stairs: it hides
 // like terrain; the cast shadows read its height, level − dy / 64), 0.875 a ramp's slope (hides like
 // ground of level L; g holds its height above L, 8 · g levels, for the cast shadows), 0 = level-0
-// ground (outside the map's elevated part). a = 0.5 marks a fence (fences/elevation_fences.gd, docs/godot/FENCES.md): a
+// ground (outside the map's elevated part). a = 0.5 marks a fence (game/world/fences/fences.gd, docs/godot/FENCES.md): a
 // body behind one is cut out where the fence stands instead of ghosted, so the fence shows in front
 // of it whichever of the two Y-sorts first (a body behind a fence on higher ground sorts after it).
 //

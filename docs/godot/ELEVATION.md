@@ -247,7 +247,8 @@ without its numbered squares. The game hides the layer.
 playground's park rows, so hand edits to the park are lost when it runs again.
 
 **Fences** with their own collision are painted on the `fences` layer and documented in
-[FENCES.md](FENCES.md). They do not create elevation rims or cliff art.
+[FENCES.md](FENCES.md) (`game/world/fences/`). They do not create elevation rims or cliff art; of
+the elevation they read only a cell's level and draw into its depth map.
 
 ## Wall styles
 

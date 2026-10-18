@@ -11,7 +11,8 @@ class_name Hazard
 ##
 ## - **void**: the slime falls (it spins and shrinks away over `dungeon.void.fallMs`), loses a little
 ##   health (`damage`, else `dungeon.void.damage`) and is put back on the rim it fell from: the last
-##   safe ground it stood on, or the nearest of `return_points` to it (the bridge's start);
+##   safe ground it stood on, or the nearest of `return_points` to it (the bridge's start), or always
+##   its `fixed_return` spot when one is set;
 ## - **spikes** and **lava**: it is hurt each time its invulnerability ends, until it walks out
 ##   (a stair up to the rim). A slab that falls from under it over a sunken pit drops it in
 ##   (`pit_depth` levels down);
@@ -73,6 +74,10 @@ const LOOK_Z := -1
 ## Where a fall puts the slime back (Node2D markers: their spot is the slime's centre); empty: its
 ## children named "Return..."; none: the last safe ground the slime stood on.
 @export var return_points: Array[NodePath] = []
+## A fixed safe spot (any Node2D) every fall from this hazard returns to, wherever the slime fell
+## and whatever ground it last stood on; several hazards can share one. Empty: the nearest of
+## `return_points` to the last safe ground.
+@export var fixed_return: NodePath
 
 var _spikes: Texture2D
 

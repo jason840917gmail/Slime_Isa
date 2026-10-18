@@ -1,50 +1,61 @@
 @tool
 extends Node2D
-## Painted fence art, shadows, depth silhouettes and collision (docs/godot/FENCES.md).
+## The painted fences (docs/godot/FENCES.md): art, shadows, depth silhouettes and collision.
 ##
-## A world paints all fences on one `fences` layer beside its `elevation` layer, using
-## fence_tileset.tres. Painted cells join neighboring cells in the chosen directions and place
-## their own art, shadows and collision without changing elevation rims.
+## A world paints every fence on one `fences` TileMapLayer (fence_layer.gd, fence_tileset.tres),
+## on flat ground or on any elevation level. Each painted cell is a post in its tile's style, and
+## rails join it to the neighbours its tile links to (`connected_links`). Fences never read or
+## change cliff rims or stairs; of the elevation they use only a cell's level (ElevationGrid) and
+## the depth map (ElevationOcclusion), and draw with its mesh helper and shader includes.
 ##
-## A world mounts one node named "Fences" for its painted fence layer. The renderer uses the style's
-## kit (scripts/art/build-fence-art.py, asset/MAPS/fences/<style>-*.png and <style>.json): one post
-## at each painted cell and rails between connected neighbors. Diagonal rails shear with the slope,
-## posts stay upright, and the faces are lit consistently. The pieces:
-##   - posts and rails are MeshInstance2Ds under "ElevationFences", a y-sorted Node2D beside the
-##     ground layer (never saved with the scene), so they sort with bodies and props;
+## A world mounts one node named "Fences" (under the Elevation node, or beside the ground layer in
+## a flat world). The renderer uses the style's kit (scripts/art/build-fence-art.py,
+## asset/MAPS/fences/<style>-*.png and <style>.json): one post at each painted cell and rails
+## between linked neighbours. Diagonal rails shear with the slope, posts stay upright, and the faces
+## are lit consistently. The pieces:
+##   - posts and rails are MeshInstance2Ds under "FencePieces", a y-sorted Node2D beside the ground
+##     layer (never saved with the scene), so they sort with bodies and props;
 ##   - their silhouettes go into the terrain's depth map (ElevationOcclusion.add_occluder, only where
 ##     the art is opaque), so a body behind a fence on a higher level shows as its ghost behind it,
-##     and a fence pixel behind nearer terrain is not drawn (elevation_fence.gdshader);
+##     and a fence pixel behind nearer terrain is not drawn (fence.gdshader);
 ##   - soft shadows on the ground, falling to the lower right ("Shadows").
 ## With `collide`, each level that has fences gets a static body on its physics layer (named
-## "level <n>" in project.godot). Connections use a 16-unit-wide rectangular collider centered on
-## their rails, and an isolated painted tile uses square, full-cell collision. `blocks_point` also
-## keeps drops and hops from bypassing a connected fence.
+## "level <n>" in project.godot): one thin band per link from post foot to post foot, raised to the
+## rails' feet (`bandAbove` to `bandBelow` above the foot line; `sideHalfWidth` each side of a
+## north-south link), one post rect per post, and a lone tile's two posts and the band between.
+## `blocks_point`, `blocks_rect` and `blocks_sweep` test the same bands, so hops, drops and landings
+## (Elevation.body_fits, ledge_below) do not pass a fence either.
 ##
-## Owner: world (elevation fences).
+## Owner: world (fences).
 
-const Self := preload("res://game/world/elevation/fences/elevation_fences.gd")
+const Self := preload("res://game/world/fences/fences.gd")
 const Services := preload("res://game/shared/services.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const ElevationOcclusion := preload("res://game/world/elevation/elevation_occlusion.gd")
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
-const FENCE_SHADER := preload("res://game/world/elevation/fences/elevation_fence.gdshader")
-const DEPTH_SHADER := preload("res://game/world/elevation/fences/elevation_fence_depth.gdshader")
+const FENCE_SHADER := preload("res://game/world/fences/fence.gdshader")
+const DEPTH_SHADER := preload("res://game/world/fences/fence_depth.gdshader")
 
 const NODE_NAME := "Fences"
 ## The y-sorted holder of the pieces, beside the ground layer.
-const PIECES_NAME := "ElevationFences"
-## The fence tile set's data layer: the style a painted cell's fence takes.
+const PIECES_NAME := "FencePieces"
+## The fence tile set's data layers: the style a painted cell's fence takes, and the neighbour its
+## arrow points to (an index into DIRECTIONS, ALL_NEIGHBORS_DIRECTION for the all-neighbour tile).
 const STYLE_DATA_LAYER := "fence_style"
 const DIRECTION_DATA_LAYER := "fence_direction"
 const ALL_NEIGHBORS_DIRECTION := -1
 ## Direction from a painted cell to a connected neighbor: N, NE, E, SE, S, SW, W, NW.
 const DIRECTIONS: Array[Vector2i] = [Vector2i.UP, Vector2i(1, -1), Vector2i.RIGHT, Vector2i(1, 1),
 		Vector2i.DOWN, Vector2i(-1, 1), Vector2i.LEFT, Vector2i(-1, -1)]
+## The direction a lone all-neighbour tile draws its stub in (east, along the screen).
+const LONE_STUB_DIRECTION := 2
 ## A style's kit: art/<style>-posts.png, -rails.png, -rails-side.png and <style>.json.
 const KIT := "res://asset/MAPS/fences/%s%s"
-## Gameplay values (game-constants.json `fences`); clearance is each side of a rail's collision band.
-const DEFAULTS := {"clearance": 8.0}
+## Gameplay values (game-constants.json `fences`): a band's top and bottom edge above the posts'
+## foot line, and the half width of a north-south link's band and of a post's rect.
+const DEFAULTS := {"bandAbove": 10.0, "bandBelow": 2.0, "sideHalfWidth": 7.0}
+## How far two shapes must overlap to count (a body resting against a band only touches it).
+const OVERLAP_EPSILON := 0.05
 ## Rails shading by link direction (the art is painted facing south).
 const SHADE_FRONT := 1.0
 const SHADE_SOUTH_WEST := 1.1
@@ -54,7 +65,7 @@ const SHADE_TOP := 1.0
 const KIND_POST := 0.0
 const KIND_RAILS := 0.5
 const KIND_SIDE := 1.0
-## Depth occluders tell rails and side rails from posts by UV (elevation_fence_depth.gdshader).
+## Depth occluders tell rails and side rails from posts by UV (fence_depth.gdshader).
 const DEPTH_UV_OFFSET := 10000.0
 ## Shadows: the light's fall on the ground (elevation_cast_shadow.gdshaderinc `fall`), the shadow's length per
 ## unit of height, how dark it is, and the contact shadow around a post's foot (world units).
@@ -71,17 +82,23 @@ var _cell_offset := Vector2i.ZERO
 ## style -> its kit (the JSON), or {} when it has no art.
 var _kits: Dictionary = {}
 var _materials: Dictionary = {}
-## level -> Array of {"polygons": Array[PackedVector2Array], "box": Rect2}: isolated painted tiles,
-## in ground-layer space.
-var _bands: Dictionary = {}
-## level -> connected fence collision segments, used to keep drops and hops from bypassing rails.
-var _connected_collision: Dictionary = {}
+## level -> Array of collision boxes (this node's space): {"centre": Vector2, "half": Vector2 (half
+## length along the box's axis, half thickness across), "axis": Vector2 (unit), "bounds": Rect2}.
+## The static bodies and `blocks_*` both use them.
+var _boxes: Dictionary = {}
+## game-constants.json `fences`, read once per build.
+var _band_above := 10.0
+var _band_below := 2.0
+var _side_half := 7.0
+## The depth map the silhouettes went into and the silhouettes (ElevationOcclusion.add_occluder).
+var _occlusion: ElevationOcclusion
+var _occluders: Array = []
 
 
-## Builds the fences beside `elevation` (the Elevation node, child of the ground layer) from the
-## `fences` layer beside the ground; null (and old fences removed) when there is none.
-## Mount the same painted fence layer in flat and elevated worlds. Elevated fences live under
-## Elevation for depth and row offsets; flat fences use a level-0 grid beside the ground layer.
+## Builds the fences from the `fences` layer beside `ground_layer`; null (and old fences removed)
+## when there is none. With an Elevation (`elevation`, child of the ground layer) the node goes
+## under it and takes its grid's levels, row offset and depth map; in a flat world (`elevation`
+## null) it goes beside the ground layer on a level-0 grid of the map's size.
 static func mount(ground_layer: TileMapLayer, elevation: Node2D, the_grid: ElevationGrid,
 		occlusion: ElevationOcclusion, collide: bool) -> Self:
 	if ground_layer == null or ground_layer.get_parent() == null or ground_layer.tile_set == null:
@@ -140,33 +157,103 @@ static func setting(key: String) -> float:
 	return constants.number("fences." + key)
 
 
-## True when a painted fence blocks `world_point` to bodies on its elevation level.
+## True when a fence's collision on `level` covers `world_point`.
 func blocks_point(world_point: Vector2, level: int) -> bool:
 	var point := world_point - global_position
-	for segment: PackedVector2Array in _connected_collision.get(level, []):
-		if Geometry2D.get_closest_point_to_segment(point, segment[0], segment[1]).distance_to(point) <= setting("clearance"):
-			return true
-	for band: Dictionary in _bands.get(level, []):
-		if not (band["box"] as Rect2).has_point(point):
+	for box: Dictionary in _boxes.get(level, []):
+		if not (box["bounds"] as Rect2).has_point(point):
 			continue
-		var inside := false
-		for polygon: PackedVector2Array in band["polygons"]:
-			if Geometry2D.is_point_in_polygon(point, polygon):
-				inside = not inside
+		var local := _to_box(box, point)
+		var half: Vector2 = box["half"]
+		if absf(local.x) <= half.x and absf(local.y) <= half.y:
+			return true
+	return false
+
+
+## True when a fence's collision on `level` overlaps `world_rect` (more than touching it): a body's
+## rect fits nowhere a fence stands (Elevation.body_fits).
+func blocks_rect(world_rect: Rect2, level: int) -> bool:
+	var rect := Rect2(world_rect.position - global_position, world_rect.size)
+	var rect_centre := rect.get_center()
+	var rect_half := rect.size * 0.5
+	for box: Dictionary in _boxes.get(level, []):
+		if not (box["bounds"] as Rect2).grow(-OVERLAP_EPSILON).intersects(rect):
+			continue
+		# Separating axes: the rect's two and the box's two.
+		var axis: Vector2 = box["axis"]
+		var across := Vector2(-axis.y, axis.x)
+		var half: Vector2 = box["half"]
+		var offset := rect_centre - (box["centre"] as Vector2)
+		var separated := false
+		for test: Vector2 in [Vector2.RIGHT, Vector2.DOWN, axis, across]:
+			var box_reach := half.x * absf(axis.dot(test)) + half.y * absf(across.dot(test))
+			var rect_reach := rect_half.x * absf(test.x) + rect_half.y * absf(test.y)
+			if absf(offset.dot(test)) >= box_reach + rect_reach - OVERLAP_EPSILON:
+				separated = true
+				break
+		if not separated:
+			return true
+	return false
+
+
+## True when the segment `world_from` -> `world_to` passes through a fence's collision on `level`
+## (touching its edge does not count): a ledge probe from a body's side (Elevation.ledge_below).
+func blocks_sweep(world_from: Vector2, world_to: Vector2, level: int) -> bool:
+	var from := world_from - global_position
+	var to := world_to - global_position
+	var sweep_bounds := Rect2(from, Vector2.ZERO).expand(to)
+	for box: Dictionary in _boxes.get(level, []):
+		if not (box["bounds"] as Rect2).grow(OVERLAP_EPSILON).intersects(sweep_bounds, true):
+			continue
+		# Clip the segment, in the box's frame, to the box shrunk by the epsilon.
+		var a := _to_box(box, from)
+		var d := _to_box(box, to) - a
+		var half: Vector2 = box["half"] - Vector2.ONE * OVERLAP_EPSILON
+		var t0 := 0.0
+		var t1 := 1.0
+		var inside := true
+		for i in 2:
+			if absf(d[i]) < 0.000001:
+				if absf(a[i]) >= half[i]:
+					inside = false
+					break
+				continue
+			var near := (-half[i] - a[i]) / d[i]
+			var far := (half[i] - a[i]) / d[i]
+			if near > far:
+				var swap := near
+				near = far
+				far = swap
+			t0 = maxf(t0, near)
+			t1 = minf(t1, far)
+			if t0 >= t1:
+				inside = false
+				break
 		if inside:
 			return true
 	return false
+
+
+## `point` (this node's space) in `box`'s frame: x along its axis, y across, from its centre.
+static func _to_box(box: Dictionary, point: Vector2) -> Vector2:
+	var axis: Vector2 = box["axis"]
+	var offset := point - (box["centre"] as Vector2)
+	return Vector2(offset.dot(axis), offset.dot(Vector2(-axis.y, axis.x)))
 
 
 func _exit_tree() -> void:
 	if is_instance_valid(_pieces):
 		_pieces.queue_free()
 	_pieces = null
+	_drop_occluders()
 
 
 func build(ground_layer: TileMapLayer, painted: TileMapLayer, the_grid: ElevationGrid,
 		occlusion: ElevationOcclusion, collide: bool, cell_offset: Vector2i = Vector2i.ZERO) -> void:
 	_clear()
+	_band_above = setting("bandAbove")
+	_band_below = setting("bandBelow")
+	_side_half = setting("sideHalfWidth")
 	grid = the_grid
 	ground = ground_layer
 	_cell_offset = cell_offset
@@ -180,14 +267,13 @@ func build(ground_layer: TileMapLayer, painted: TileMapLayer, the_grid: Elevatio
 	_pieces.global_transform = global_transform
 	var shadows := MeshData.new()
 	var depth := {}
-	var segments := {}
-	var solid_tiles := {}
-	_add_connected_network(_painted_connections(painted), shadows, depth, segments, solid_tiles)
+	_add_connected_network(_painted_connections(painted), shadows, depth)
 	if not shadows.is_empty():
 		var instance := MeshInstance2D.new()
 		instance.name = "Shadows"
 		instance.mesh = shadows.to_mesh()
 		add_child(instance)
+	_occlusion = occlusion
 	if occlusion != null and occlusion.texture != null:
 		for style: String in depth:
 			var pieces: Array = depth[style]
@@ -197,13 +283,15 @@ func build(ground_layer: TileMapLayer, painted: TileMapLayer, the_grid: Elevatio
 				var mesh_data: MeshData = piece[1]
 				for i in mesh_data.vertices.size():
 					arrays.add(mesh_data.vertices[i], mesh_data.uvs[i], mesh_data.colors[i])
-			occlusion.add_occluder(arrays.to_mesh(), _depth_material(style))
+			var occluder := occlusion.add_occluder(arrays.to_mesh(), _depth_material(style))
+			if occluder != null:
+				_occluders.append(occluder)
 		for style: String in _materials:
 			var material_of := _materials[style] as ShaderMaterial
 			material_of.set_shader_parameter(&"elevation_depth", occlusion.texture)
 			material_of.set_shader_parameter(&"elevation_rect", occlusion.rect_uniform(occlusion.world_rect))
 	if collide:
-		_build_collision(segments, solid_tiles)
+		_build_collision()
 
 
 func _clear() -> void:
@@ -212,9 +300,19 @@ func _clear() -> void:
 	if is_instance_valid(_pieces):
 		_pieces.free()
 	_pieces = null
-	_bands.clear()
-	_connected_collision.clear()
+	_drop_occluders()
+	_boxes.clear()
 	_materials.clear()
+
+
+## Takes this build's silhouettes out of the depth map (a rebuild of the fences alone, or the
+## fences removed); a rebuilt depth map has dropped them already.
+func _drop_occluders() -> void:
+	if _occlusion != null and is_instance_valid(_occlusion):
+		for occluder: Variant in _occluders:
+			if is_instance_valid(occluder):
+				_occlusion.remove_occluder(occluder as MeshInstance2D)
+	_occluders.clear()
 
 
 # --- painted cells and connections ---------------------------------------------------------
@@ -239,9 +337,10 @@ func _painted_connections(painted: TileMapLayer) -> Dictionary:
 	return cells
 
 
-## One link per compatible neighboring pair. All-neighbor cells accept every neighbor; an arrow on
-## either tile can request a link. A diagonal link yields to an existing compatible two-link
-## cardinal route, so dense corners do not draw a second brace over the same connection.
+## One link per linked neighbouring pair (`_can_link`), in reading order (north to south, west to
+## east): {"from", "to", "direction" (index into DIRECTIONS from `from` to `to`)}. A diagonal link
+## yields to a two-link cardinal route between the same cells, so dense corners do not draw a
+## second brace over the same connection.
 static func connected_links(cells: Dictionary) -> Array[Dictionary]:
 	var links: Array[Dictionary] = []
 	var ordered: Array[Vector2i] = []
@@ -267,13 +366,19 @@ static func connected_links(cells: Dictionary) -> Array[Dictionary]:
 	return links
 
 
+## Whether two neighbouring painted cells (`to` lies `direction_index` from `from`) are joined by
+## rails: never across levels; two all-neighbour tiles always; otherwise only where an arrow points
+## (`from`'s arrow at `to`, or `to`'s arrow back at `from`). So an arrow tile refuses every
+## neighbour its arrow does not point to and that does not point at it, all-neighbour tiles
+## included: paint arrows where two runs pass one cell apart.
 static func _can_link(from: Dictionary, to: Dictionary, direction_index: int) -> bool:
 	if int(from.get("level", 0)) != int(to.get("level", 0)):
 		return false
 	var from_direction := int(from.get("direction", ALL_NEIGHBORS_DIRECTION))
 	var to_direction := int(to.get("direction", ALL_NEIGHBORS_DIRECTION))
-	return from_direction == ALL_NEIGHBORS_DIRECTION or from_direction == direction_index \
-			or to_direction == ALL_NEIGHBORS_DIRECTION or to_direction == posmod(direction_index + 4, 8)
+	if from_direction == ALL_NEIGHBORS_DIRECTION and to_direction == ALL_NEIGHBORS_DIRECTION:
+		return true
+	return from_direction == direction_index or to_direction == posmod(direction_index + 4, 8)
 
 
 static func _has_cardinal_route(cells: Dictionary, from: Vector2i, to: Vector2i, diagonal: Vector2i) -> bool:
@@ -298,8 +403,10 @@ static func _cell_key_after(a: Vector2i, b: Vector2i) -> bool:
 	return a.y > b.y or (a.y == b.y and a.x > b.x)
 
 
-func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Dictionary,
-		segments: Dictionary, solid_tiles: Dictionary) -> void:
+## The pieces of every painted cell and link: a post per cell, rails per link (in the style of the
+## cell whose arrow asks for the link: `from`'s, unless only `to` points back), and a lone cell's
+## stub (a second post half a cell along its arrow, `lone_stub`). Records the collision boxes.
+func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Dictionary) -> void:
 	if cells.is_empty():
 		return
 	var links := connected_links(cells)
@@ -312,25 +419,18 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 		linked_cells[from] = true
 		linked_cells[to] = true
 		var style := str(from_entry["style"])
-		# Let a specifically directed endpoint own its outgoing span; otherwise use sorted order.
+		# The arrow that asks for the link owns its span; two all-neighbour tiles: `from`'s style.
 		if int(to_entry.get("direction", ALL_NEIGHBORS_DIRECTION)) == posmod(int(link["direction"]) + 4, 8) \
 				and int(from_entry.get("direction", ALL_NEIGHBORS_DIRECTION)) != int(link["direction"]):
 			style = str(to_entry["style"])
 		var kit := _kit(style)
 		if kit.is_empty():
 			continue
-		var a := Vector2(from) * cell + Vector2.ONE * cell * 0.5
-		var b := Vector2(to) * cell + Vector2.ONE * cell * 0.5
-		var outward := _front_normal((b - a).normalized())
-		_add_span(style, kit, int(from_entry["level"]), a, b, outward, shadows, _depth_for(depth, style))
+		var a := _foot(from)
+		var b := _foot(to)
 		var level := int(from_entry["level"])
-		if not segments.has(level):
-			segments[level] = []
-		(segments[level] as Array).append(a)
-		(segments[level] as Array).append(b)
-		if not _connected_collision.has(level):
-			_connected_collision[level] = []
-		(_connected_collision[level] as Array).append(PackedVector2Array([a, b]))
+		_add_span(style, kit, level, a, b, _front_normal((b - a).normalized()), shadows, _depth_for(depth, style))
+		_add_link_box(level, a, b)
 	var ordered: Array[Vector2i] = []
 	for at: Vector2i in cells:
 		ordered.append(at)
@@ -343,27 +443,34 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 		var kit := _kit(style)
 		if kit.is_empty():
 			continue
-		var foot := Vector2(at) * cell + Vector2.ONE * cell * 0.5
-		_add_post(style, kit, int(entry["level"]), foot, shadows, _depth_for(depth, style))
+		var level := int(entry["level"])
+		var foot := _foot(at)
+		_add_post(style, kit, level, foot, shadows, _depth_for(depth, style))
+		_add_post_box(level, foot)
 		if linked_cells.has(at):
 			continue
-		# An isolated fence tile still fills its collision tile, keeping the old single-tile behavior.
-		var direction_index := int(entry.get("direction", ALL_NEIGHBORS_DIRECTION))
-		if direction_index < 0 or direction_index >= DIRECTIONS.size():
-			direction_index = 2
-		var axis := Vector2(DIRECTIONS[direction_index]).normalized()
-		var half_length := cell * 0.5 - float(kit["posts"]["half_width"])
-		var a := foot - axis * half_length
-		var b := foot + axis * half_length
-		_add_span(style, kit, int(entry["level"]), a, b, _front_normal(axis), shadows, _depth_for(depth, style))
-		var level := int(entry["level"])
-		if not solid_tiles.has(level):
-			solid_tiles[level] = []
-		(solid_tiles[level] as Array).append(Rect2(foot - Vector2.ONE * cell * 0.5, Vector2.ONE * cell))
-		var corners := PackedVector2Array([foot + Vector2(-cell * 0.5, -cell * 0.5),
-			foot + Vector2(cell * 0.5, -cell * 0.5), foot + Vector2(cell * 0.5, cell * 0.5),
-			foot + Vector2(-cell * 0.5, cell * 0.5)])
-		_add_solid_band(level, corners)
+		# A lone tile is a short fence of two posts: its own and one at its cell's edge (a diagonal's
+		# corner) the way its arrow points (east for an all-neighbour tile), the rail between them;
+		# it collides as both posts and that rail's band.
+		var far := foot + lone_stub(int(entry.get("direction", ALL_NEIGHBORS_DIRECTION))) * cell
+		_add_post(style, kit, level, far, shadows, _depth_for(depth, style))
+		_add_post_box(level, far)
+		_add_span(style, kit, level, foot, far, _front_normal((far - foot).normalized()), shadows, _depth_for(depth, style))
+		_add_link_box(level, foot, far)
+
+
+## Where a lone tile's second post stands from its own, in cells: half a cell along its arrow
+## (DIRECTIONS[direction] / 2: a cell's edge, a diagonal's corner); east (LONE_STUB_DIRECTION) for
+## an all-neighbour tile.
+static func lone_stub(direction: int) -> Vector2:
+	if direction < 0 or direction >= DIRECTIONS.size():
+		direction = LONE_STUB_DIRECTION
+	return Vector2(DIRECTIONS[direction]) * 0.5
+
+
+## Where a painted cell's post stands (its foot: the cell's centre, this node's space).
+func _foot(at: Vector2i) -> Vector2:
+	return Vector2(at) * cell + Vector2.ONE * cell * 0.5
 
 
 func _depth_for(depth: Dictionary, style: String) -> Array:
@@ -512,7 +619,7 @@ static func _add_contact(arrays: MeshData, foot: Vector2) -> void:
 		arrays.add(centre + Vector2(cos(a1), sin(a1)) * CONTACT_RADIUS, Vector2.ZERO, clear)
 
 
-## Fence vertex data (elevation_fence.gdshader): r = shade, g = how far below its foot line
+## Fence vertex data (fence.gdshader): r = shade, g = how far below its foot line
 ## ((dy + 128) / 512), b = kind, a = level ((level + 4) / 8).
 static func _color(shade: float, dy: float, kind: float, level: int) -> Color:
 	return Color(shade, clampf((dy + 128.0) / 512.0, 0.0, 1.0), kind, (float(level) + 4.0) / 8.0)
@@ -538,7 +645,7 @@ func _kit(style: String) -> Dictionary:
 			for uniform: String in textures:
 				kit[uniform] = load(textures[uniform])
 	if kit.is_empty():
-		push_warning("ElevationFences: no art for the fence style '%s' (%s)" % [style, json_path])
+		push_warning("Fences: no art for the fence style '%s' (%s)" % [style, json_path])
 	_kits[style] = kit
 	return kit
 
@@ -570,59 +677,57 @@ func _depth_material(style: String) -> ShaderMaterial:
 
 # --- collision -----------------------------------------------------------------------------
 
-## A single-cell enclosure blocks the full cell for landings and ledge probes too.
-func _add_solid_band(level: int, tile: PackedVector2Array) -> void:
-	if not _bands.has(level):
-		_bands[level] = []
-	(_bands[level] as Array).append({"polygons": [tile], "box": _bounds(tile).grow(1.0)})
+## The band of a link from foot `a` to foot `b` (or a lone tile's stub): from `bandAbove` to
+## `bandBelow` above the foot line, foot to foot; a north-south one `sideHalfWidth` each side of the
+## post column (its ends meet the posts' rects).
+func _add_link_box(level: int, a: Vector2, b: Vector2) -> void:
+	var raise := Vector2(0.0, -(_band_above + _band_below) * 0.5)
+	var half_thickness := (_band_above - _band_below) * 0.5
+	if absf(b.x - a.x) < 1.0:
+		half_thickness = _side_half
+	_add_box(level, a.lerp(b, 0.5) + raise, Vector2(a.distance_to(b) * 0.5, half_thickness), (b - a).normalized())
 
 
-static func _bounds(points: PackedVector2Array) -> Rect2:
-	var bounds := Rect2(points[0], Vector2.ZERO)
-	for point: Vector2 in points:
-		bounds = bounds.expand(point)
-	return bounds
+## A post's rect: `sideHalfWidth` each side of its foot, from `bandAbove` to `bandBelow` above it.
+func _add_post_box(level: int, foot: Vector2) -> void:
+	_add_box(level, foot + Vector2(0.0, -(_band_above + _band_below) * 0.5),
+			Vector2(_side_half, (_band_above - _band_below) * 0.5), Vector2.RIGHT)
 
 
-func _build_collision(segments: Dictionary, solid_tiles: Dictionary) -> void:
-	var levels := {}
-	for level: int in segments:
-		levels[level] = true
-	for level: int in solid_tiles:
-		levels[level] = true
-	if levels.is_empty():
+func _add_box(level: int, centre: Vector2, half: Vector2, axis: Vector2) -> void:
+	var across := Vector2(-axis.y, axis.x)
+	var reach := Vector2(half.x * absf(axis.x) + half.y * absf(across.x), half.x * absf(axis.y) + half.y * absf(across.y))
+	if not _boxes.has(level):
+		_boxes[level] = []
+	(_boxes[level] as Array).append({"centre": centre, "half": half, "axis": axis,
+			"bounds": Rect2(centre - reach, reach * 2.0)})
+
+
+## One static body per level with fences, on that level's physics layer, a rectangle per box.
+func _build_collision() -> void:
+	if _boxes.is_empty():
 		return
 	var holder := Node2D.new()
 	holder.name = "Collision"
 	add_child(holder)
-	for level_value: Variant in levels:
+	for level_value: Variant in _boxes:
 		var level := int(level_value)
 		var bit := _level_bit(level)
 		if bit == 0:
-			push_warning("ElevationFences: no physics layer named 'level %d'" % level)
+			push_warning("Fences: no physics layer named 'level %d'" % level)
 			continue
 		var body := StaticBody2D.new()
 		body.name = "Level%d" % level
 		body.collision_layer = bit
 		body.collision_mask = 0
-		var level_segments: Array = segments.get(level, [])
-		for index in range(0, level_segments.size(), 2):
-			var from: Vector2 = level_segments[index]
-			var to: Vector2 = level_segments[index + 1]
-			var collision_shape := RectangleShape2D.new()
-			collision_shape.size = Vector2(from.distance_to(to), setting("clearance") * 2.0)
+		for box: Dictionary in _boxes[level]:
+			var rectangle := RectangleShape2D.new()
+			rectangle.size = (box["half"] as Vector2) * 2.0
 			var collision := CollisionShape2D.new()
-			collision.shape = collision_shape
-			collision.position = from.lerp(to, 0.5)
-			collision.rotation = (to - from).angle()
+			collision.shape = rectangle
+			collision.position = box["centre"]
+			collision.rotation = (box["axis"] as Vector2).angle()
 			body.add_child(collision)
-		for tile_rect: Rect2 in solid_tiles.get(level, []):
-			var tile_shape := RectangleShape2D.new()
-			tile_shape.size = tile_rect.size
-			var tile_collision := CollisionShape2D.new()
-			tile_collision.shape = tile_shape
-			tile_collision.position = tile_rect.get_center()
-			body.add_child(tile_collision)
 		holder.add_child(body)
 
 

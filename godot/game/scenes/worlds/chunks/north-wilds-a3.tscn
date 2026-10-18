@@ -6,8 +6,8 @@
 [ext_resource type="Script" path="res://game/world/forest/forest_layer.gd" id="4_yqxkk"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_376ne"]
 [ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="6_pdd8m"]
-[ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="7_dh74s"]
-[ext_resource type="Script" path="res://game/world/elevation/fences/fence_layer.gd" id="8_cemox"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="7_dh74s"]
+[ext_resource type="Script" path="res://game/world/fences/fence_layer.gd" id="8_cemox"]
 [ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="9_lxck6"]
 [ext_resource type="Script" path="res://game/scripts/world_exit.gd" id="10_5xiss"]
 

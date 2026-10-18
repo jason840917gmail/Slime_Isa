@@ -47,16 +47,16 @@ const CRYSTAL := 2
 const COBBLE := 19
 ## elevation_tileset.tres: levels -3 .. -1 at (0 .. 2, 0), 1 .. 3 at (3 .. 5, 0).
 const ROCK := 2
-## fence_tileset.tres: (0, 0) auto (the ground's style).
-const FENCE_AUTO := Vector2i(0, 0)
+## fence_tileset.tres: the stone column's all-neighbour tile (the gallery's floor is cavern rock).
+const FENCE_STONE := Vector2i(2, 0)
 ## elevation_tileset.tres row 2: a flight of stairs per direction (the arrow points down them).
 const STAIRS_ROW := 2
 const STAIRS_SOUTH := 0
 
 const ELEVATION_TILESET := "res://game/world/elevation/elevation_tileset.tres"
 const ELEVATION_LAYER := "res://game/world/elevation/elevation_layer.gd"
-const FENCE_TILESET := "res://game/world/elevation/fences/fence_tileset.tres"
-const FENCE_LAYER := "res://game/world/elevation/fences/fence_layer.gd"
+const FENCE_TILESET := "res://game/world/fences/fence_tileset.tres"
+const FENCE_LAYER := "res://game/world/fences/fence_layer.gd"
 const TERRAIN_TILESET := "res://game/world/terrain_tileset.tres"
 const WORLD_GROUND := "res://game/world/world_ground.gd"
 const WORLD_DEFINITION := "res://game/scripts/world_definition.gd"
@@ -303,14 +303,15 @@ func _layers() -> void:
 	_fences.name = "fences"
 	_fences.z_index = -1
 	_fences.tile_set = load(FENCE_TILESET)
-	# The Great Shaft's gallery rim: no drop to the floor (the lift is the way down).
-	for y in range(29, 38):
-		_fences.set_cell(Vector2i(32, y), 0, FENCE_AUTO)
+	# The Great Shaft's gallery rim: no drop to the floor (the lift is the way down); it starts
+	# below the north wall's face (rows 29-30 lie behind it).
+	for y in range(31, 38):
+		_fences.set_cell(Vector2i(32, y), 0, FENCE_STONE)
 	for x in range(32, 47):
 		# The gap at the spire plank's foot (x 38, 39: the S1 drawbridge lands there).
 		if x == 38 or x == 39:
 			continue
-		_fences.set_cell(Vector2i(x, 38), 0, FENCE_AUTO)
+		_fences.set_cell(Vector2i(x, 38), 0, FENCE_STONE)
 	_fences.set_script(load(FENCE_LAYER))
 	_own(_fences, _root)
 

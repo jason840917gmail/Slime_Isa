@@ -1,12 +1,13 @@
 extends SceneTree
 ## Renders the Fence Park (game/scenes/worlds/fence-park.tscn, scripts/maps/build-fence-park.py)
-## with the game's own drawing, for checking rim fences and directly connected tiles (docs/godot/FENCES.md).
+## with the game's own drawing, for checking the painted fences (on hills, round holes and on flat
+## ground) and their links (docs/godot/FENCES.md).
 ## Run windowed (it renders), from the repo:
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_fence_park.gd -- --out=<dir>
 ## Writes <dir>/fence-park.png (the whole park at 1x) and close-ups at 2x, with test slimes placed
-## where fences must hide them (behind a fence on a hilltop, in the strip behind a hill, beside a
-## side fence, in a hole under its near rim) and where they must stand in front; it also probes
-## collision on normal ground and on a raised platform.
+## where a fence or the terrain must hide them (behind a fence on a hilltop, on the ground behind a
+## hill, beside a side fence, in a hole under its near edge) and where they must stand in front; it
+## also probes collision on normal ground and on a raised platform.
 
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -49,7 +50,7 @@ const SLIMES: Array = [
 	[Vector2(1792, 246), 0],  # behind the octagon's north-west fence, in the strip behind the hill
 	[Vector2(1700, 352), 0],  # behind the octagon's north-west fence, near its west corner
 	[Vector2(420, 1300), -1], # in the square hole, under its near rim
-	[Vector2(600, 1310), 0],  # south of the square hole, outside its near-rim fence
+	[Vector2(600, 1310), 0],  # south of the square hole, outside its fence
 ]
 ## Collision probes: [start feet, motion, level, what it shows]; the player's body rect.
 const PROBES: Array = [
@@ -58,7 +59,7 @@ const PROBES: Array = [
 	[Vector2(600, 470), Vector2(300, 0), 1, "square top -> east fence"],
 	[Vector2(600, 330), Vector2(300, 0), 1, "square top -> east gap (no fence: rim)"],
 	[Vector2(1312, 416), Vector2(-300, 300), 2, "diamond top -> south-west fence"],
-	[Vector2(500, 1400), Vector2(0, -300), 0, "south of the square hole -> near-rim fence"],
+	[Vector2(500, 1400), Vector2(0, -300), 0, "south of the square hole -> its fence"],
 	[Vector2(352, 450), Vector2(0, 200), 1, "square top -> the south flight's landing (gap)"],
 	[Vector2(30.5 * CELL, 31.5 * CELL), Vector2(0, 160), 0, "ground -> connected fence run"],
 	[Vector2(5.5 * CELL, 31.5 * CELL), Vector2(0, 120), 1, "raised ground -> connected fence run"],

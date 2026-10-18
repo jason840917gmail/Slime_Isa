@@ -205,7 +205,7 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   last safe ground it stood on (its body clear of every hazard and every slab, or its feet on a safe
   deck: never half on the bridge, touching a slab that would give again), or, when the hazard has
   return points (`return_points`, else its children named `Return...`), the one nearest to that
-  ground: the bridge's start, a path's mouth. A fall that faints it wakes it at the entrance.
+  ground: the bridge's start, a path's mouth. A fall that faints it wakes it at the entrance. With `fixed_return` (a NodePath to any Node2D, shared by several hazards if wanted) every fall from the hazard returns to that one spot instead, wherever the slime fell (2026-10-18, owner: one known safe spot so a fall never misplaces it or leaves it stuck; D5's two moat holes use `Chapter1Hazards/moat-safe-spot`).
 - **Spikes / lava** (`kind` "spikes" or "lava"): a sunken pit (a hole `pit_depth` levels deep with a
   flight of stairs out). In it the slime is hurt (`dungeon.spikes.damage`, `lava.damage`) each time
   its invulnerability ends (the Roll's i-frames pass), until it walks out by the stair. A slab gone

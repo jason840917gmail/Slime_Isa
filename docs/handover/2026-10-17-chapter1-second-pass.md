@@ -49,8 +49,10 @@ never compiled or run). To finish:
 
 1. Paste it over lines 478-591 of the builder (the old `_c4`/`_c5`), and add the constants it uses:
    `const STAIRS_NORTH := Vector2i(4, 1)` (elevation_tileset "stairs-n"), `const FENCE_WOOD :=
-   Vector2i(1, 0)`, `const FENCE_TILESET := "res://game/world/elevation/fences/fence_tileset.tres"`,
-   `const FENCE_LAYER := "res://game/world/elevation/fences/fence_layer.gd"`; `CLIFF_TILESET`,
+   Vector2i(0, 0)` and `FENCE_WOOD_EAST := Vector2i(0, 3)` (fence_tileset's wood column: all
+   neighbours, east arrow; since 2026-10-18 the builder writes C4's fence as level-1-c4.tscn paints
+   it, `C4_FENCE_*`), `const FENCE_TILESET := "res://game/world/fences/fence_tileset.tres"`,
+   `const FENCE_LAYER := "res://game/world/fences/fence_layer.gd"`; `CLIFF_TILESET`,
    `CLIFF_LAYER`, `RED_ROCK`, `DECALS`, `ROCK_DECAL` exist already.
 2. In `_initialize`: build order `["d5", "c5", "d4", "c4"]` (C5 copies D5's col 0, C4 copies C5's row
    0), then `_caves()`. Fix `_chunk_ground` cleanup (the draft's one-liner freeing the world is clumsy:

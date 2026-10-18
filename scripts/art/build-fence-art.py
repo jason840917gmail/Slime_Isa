@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Cuts the fence kits along hill rims (docs/godot/FENCES.md) out of generated fence art.
+"""Cuts the painted fences' kits (docs/godot/FENCES.md) out of generated fence art.
 
 Every style's source is one Magnific image of a straight fence seen from the front (posts joined by
-rails that run behind them, on a transparent background), in `asset/Originals/elevation/fences/`.
+rails that run behind them, on a transparent background), in `asset/Originals/fences/`.
 The tool finds its posts (tall opaque columns) and its rails (the rows that are opaque between
 the posts), scales everything so a post is `post_height` world units tall at 2 px per unit, and
 writes the style's kit into `godot/asset/MAPS/fences/`:
@@ -14,7 +14,7 @@ writes the style's kit into `godot/asset/MAPS/fences/`:
 - `<style>-rails-side.png`: the upper rail turned a quarter left (its lit top becomes its lit left
   side), repeating seamlessly downwards: a rail seen from above, for east and west runs.
 - `<style>.json`: the kit's measures (px of art, world units above a post's foot) that
-  `elevation_fences.gd` draws from.
+  `godot/game/world/fences/fences.gd` draws from.
 
 Usage: python scripts/art/build-fence-art.py [style ...] [--preview DIR]
 """
@@ -28,15 +28,15 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCES = ROOT / "asset/Originals/elevation/fences"
+SOURCES = ROOT / "asset/Originals/fences"
 OUT = ROOT / "godot/asset/MAPS/fences"
 ## Art px per world unit.
 PX = 2.0
 
-## Per style: the source image, how tall a post is (world units, its top to its foot), how far
-## apart posts stand along a run (world units on the ground), how far inside the rim the fence line
-## runs (world units) and how far the rail seen from above runs inside the posts' line on east and
-## west runs (world units). Optional: `post_share`, a column is a post's when it is at least this
+## Per style: the source image, how tall a post is (world units, its top to its foot), `spacing`
+## and `inset` (written to the kit's JSON from the rim fences; the painted fences stand one post per
+## cell and read neither) and how far the rail seen from above runs inside the posts' line on east
+## and west runs (world units). Optional: `post_share`, a column is a post's when it is at least this
 ## share as opaque as the most opaque column (lower for posts much wider at their foot, like a
 ## crystal cluster); `side_band`, the whole rails band seen from above instead of the upper rail (a
 ## wall's top), or `side_rows`, a part of the band (fractions from its top: a picket fence's tips);
