@@ -7,6 +7,17 @@ the proposal it took when an answer says "the proposal". The decisions in effect
 
 ## Decisions by date
 
+- **2026-10-17 (hearts hide; Chapter 1's maps, second pass):** hearts are almost never in
+  sight. In Zelda only a few heart pieces can be seen and most wait in chests, which makes finding
+  one exciting; the player finds things by being curious, and some players will miss secrets.
+  Owner: "we can't be that obvious". The level design guide's rule 3 carries it, and D5's open
+  cave pocket and D4's pen stop showing their hearts. The same day he asked for Slimeshire's
+  second pass: C4's south half becomes a level-1 plateau with stairs north and south, fenced all
+  round with a few gaps to jump down (fence only where it meets the river and the lake); the river
+  moves east onto the C4/D4 border, so crossing it is crossing into the other chunk, as Zelda
+  uses rivers as screen borders; the lake grows, with more to do, and a new island joined to the
+  shore by a falling bridge, with enemies and a cracked wall (the Goo Bomb) into a new cave room
+  of chests and pots, where a secret goes later.
 - **2026-10-17 (the Pearl inside the dungeon, the owner's idea):** each dungeon's Pearl is found
   inside it, before its boss, as Zelda's dungeon item is: a boss cannot swallow its Pearl whole, so
   it hides it in its dungeon and keeps it close to draw on its power. When the slime takes the

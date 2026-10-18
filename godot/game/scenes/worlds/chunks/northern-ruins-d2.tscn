@@ -55,7 +55,7 @@ script = ExtResource("6_4w5gl")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=1403305647]
 z_index = -1
-tile_map_data = PackedByteArray("AAACABkAAAADAAAAAAACABoAAAADAAAAAAACABsAAAADAAAAAAA=")
+tile_map_data = PackedByteArray("AAACABkA//////////8CABoAAAACAAAAAAACABsAAAACAAAAAAA=")
 tile_set = ExtResource("7_kd0c5")
 script = ExtResource("8_sbf53")
 

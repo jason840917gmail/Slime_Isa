@@ -16,7 +16,7 @@ const Services := preload("res://game/shared/services.gd")
 const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
 const GooHeartScript := preload("res://game/scripts/goo_heart.gd")
 
-const HEART_NODE := "level-1-goo-heart-meadow-lakeside"
+const HEART_NODE := "heart-chest-meadow-lakeside"
 const CEREMONY_PAUSE := &"ceremony"
 
 
@@ -62,6 +62,7 @@ func test_a_heart_and_a_key_play_the_ceremony_in_level_1(t: TestContext) -> void
 	var notifications: Object = t.main.quests.notifications
 	notifications.connect(&"ceremony_requested", record)
 	t.teleport_player(heart.global_position)
+	heart.get_node("ChestScript").call(&"request_open")
 	var root := t.main.get_tree().root
 	await t.until(func() -> bool: return _playing(root) == "Goo Heart", 1000.0)
 	var ceremony := root.get_node_or_null(AbilityCeremony.NODE_NAME)

@@ -6,7 +6,7 @@ extends RefCounted
 ## a thrown thing or an arrow rings one, never the Spear or the Stretch Lash, which pulls on the
 ## bell's post. The Goo Heart and restoration tests travel into level-1, which is cut
 ## into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the meadow-lakeside heart is in chunk
-## C5 (`level-1-c5`, at (176, 992)), the workshop site in the village chunk C4 (`level-1-c4`).
+## D4 (`level-1-d4`, in a chest at (1184, 314)), the workshop site in the village chunk C4 (`level-1-c4`).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -200,16 +200,17 @@ func test_goo_heart_in_level_1(t: TestContext) -> void:
 	t.main.travel_to("level-1-d4", "south")
 	await t.until(func() -> bool: return not t.main.is_transitioning() and t.world().map_id() == "level-1-d4" and t.player() != null, 3000.0, 6000.0)
 	await t.steps(2)
-	var heart := _heart(t, "meadow-lakeside")
+	var heart := t.world().world_root.get_node("Chapter1/heart-chest-meadow-lakeside/ChestScript")
 	if not t.check(heart != null, "no meadow-lakeside heart"):
 		return
 	var root := heart.get_parent() as Node2D
-	t.teleport_player(root.global_position)
+	t.teleport_player(root.global_position - Vector2(0, 10))
+	heart.call(&"request_open")
 	await t.steps(3)
 	t.check(run.has_flag("goo-heart.meadow-lakeside"), "the heart flag is not set")
 	t.equal(t.player().get_max_hp(), 110, "max HP after a heart")
 	t.equal(t.player().get_hp(), 110, "HP after a heart")
-	t.check(heart.is_taken(), "the heart is still there")
+	t.check(heart.is_empty(), "the heart chest is not empty")
 
 
 func test_restoration_needs_materials(t: TestContext) -> void:

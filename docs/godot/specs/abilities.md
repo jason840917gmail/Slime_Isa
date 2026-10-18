@@ -1323,8 +1323,9 @@ bell, dummies and buildings override `body.position`, the others `root.position`
 | gloop-forest | `gloop-ch2-nook-goo-heart` | (800, 1176) | heartId `gloop-silk-nook` |
 | gloop-forest | `gloop-ch2-matron-goo-heart` | (3120, 800) | heartId `gloop-matron-nest` (inside the `matron-heart` subtree shown by the story variant on `chapter-2-complete`) |
 | gloop-cavern | `gloop-cavern-goo-heart` | (1216, 420) | heartId `gloop-cavern` |
-| level-1 | `level-1-goo-heart-meadow-lakeside` | (3232, 314), in D4 (`level-1-d4`), in the old pen behind grey planks since 2026-10-17 (until then (176, 3040) in C5) | heartId `meadow-lakeside` |
-| level-1 | `level-1-goo-heart-meadow-autumn-thicket` | (3104, 2464), in D5 (`level-1-d5`), in the hill's cave pocket behind a cracked face since 2026-10-17 | heartId `meadow-autumn-thicket` |
+| level-1 | `heart-chest-meadow-lakeside` | (1184, 314) chunk-local, in D4 (`level-1-d4`), hidden in the old pen chest behind grey planks | heartId `meadow-lakeside` |
+| hollow-hill-cave | `heart-chest-meadow-autumn-thicket` | (512, 333), hidden in the cave chest behind D5's cracked hill face | heartId `meadow-autumn-thicket` |
+| level-1-d4 | `heart-chest-meadow-cliff-secret` | (1869, 1446), chunk-local, hidden in the plateau chest | heartId `meadow-cliff-secret` |
 | level-1 | `level-1-workshop` / `level-1-forge` | (640, 392) / (1190, 1068) | — |
 
 ### 14.2 The playground testbed (`worlds/playground.scene.json`)

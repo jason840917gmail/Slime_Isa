@@ -1,13 +1,12 @@
 @tool
 extends TileMapLayer
-## The painted fences of a world (docs/godot/FENCES.md): a TileMapLayer named `fences` beside the
-## ground and `elevation` layers, on the same grid, using fence_tileset.tres. Paint a style on the
-## cells of a hill's (or a hole's surroundings') top: a fence of that style stands inside every rim
-## of those cells where a body could drop ("auto": the style of the ground on top).
+## The one painted fence layer of a world (docs/godot/FENCES.md): connected fence tiles choose a
+## style and direction, join neighboring cells, and add their own shadows and collision. They do
+## not paint or alter elevation rims. The painted material always controls the fence style.
 ##
 ## In the editor the fences follow the paint at once (the elevation drawing is rebuilt with them);
 ## its own squares are only a painting aid: hide the layer (eye icon) to see the result. The game
-## hides it and WorldService mounts the elevation, fences included, with their collision.
+## hides it and WorldService mounts the fence geometry, shadows and level-matched collision.
 ##
 ## Owner: world (elevation fences).
 

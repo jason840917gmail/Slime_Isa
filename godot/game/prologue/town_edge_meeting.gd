@@ -5,7 +5,7 @@ extends Node2D
 ## here (`spot`, a child marker), the "!" over him, and meets it: amazed that a slime came out of the
 ## Wellspring, he gives it his satchel, the 10-slot bag (roadmap 5.7: the slime was born with none),
 ## with the ceremony, and his first tips; then the prologue is over (PrologueState.finish): saving
-## works again, Slimeshire's banner shows, and Plop walks back to his place in the village. At any
+## works again, Slimeshire's banner shows, and Plop fades back to his place in the village. At any
 ## other time it does nothing.
 ##
 ## Owner: prologue.
@@ -51,6 +51,8 @@ const BAG_CARD := {"kicker": "New bag", "name": "Plop's satchel",
 @export var bag_slots: int = 10
 ## The slime holds still while Plop comes to it (ms after the arrival, the fade's length).
 @export var arrival_ms: float = 600.0
+## Plop fades home rather than trying to walk down the plateau stairs.
+@export var home_fade_ms: float = 250.0
 
 var _player: Node
 var _plop: Node
@@ -58,6 +60,8 @@ var _release: Callable = Callable()
 var _started := false
 var _holding := false
 var _mark: Label
+var _home_position := Vector2.ZERO
+var _home_modulate := Color.WHITE
 
 
 func _ready() -> void:
@@ -96,8 +100,11 @@ func _meet() -> void:
 	if _plop != null:
 		var body: Variant = _plop.get(&"body")
 		if body is Node2D and spot != null:
+			_home_position = (body as Node2D).global_position
+			_home_modulate = (body as Node2D).modulate
 			(body as Node2D).global_position = spot.global_position
 			(body as CharacterBody2D).reset_physics_interpolation()
+			_track_plop(body as CharacterBody2D)
 		if _plop.has_method(&"acquire_interaction_lock"):
 			_release = _plop.call(&"acquire_interaction_lock")
 		# The "!" over him: the quest markers' own when they show one (his first quest), else this one.
@@ -134,15 +141,13 @@ func _give_bag() -> void:
 ## The prologue is over: saving again, Slimeshire's banner, Plop goes home.
 func _finish() -> void:
 	var run := Services.run()
-	PrologueState.finish(run)
-	if run != null:
-		run.schedule_autosave()
 	var shell := Services.shell()
 	if shell != null:
 		shell.show_area_title(AreaTitles.area_name(REGION_WORLD), AreaTitles.title_color(REGION_WORLD))
 	if _mark != null:
 		_mark.queue_free()
 		_mark = null
+	await _return_plop_home()
 	if _release.is_valid():
 		_release.call()
 	_release = Callable()
@@ -152,6 +157,9 @@ func _finish() -> void:
 		_plop.call(&"configure_wander", record.get("perimeter", {}))
 	_holding = false
 	set_physics_process(false)
+	PrologueState.finish(run)
+	if run != null:
+		run.schedule_autosave()
 
 
 func _find_plop() -> Node:
@@ -184,3 +192,28 @@ func _quest_mark_kind() -> String:
 
 static func _menu_key() -> String:
 	return ControlLabels.control_label(&"menu")
+
+
+func _return_plop_home() -> void:
+	if not is_instance_valid(_plop):
+		return
+	var body := _plop.get(&"body") as Node2D
+	if not is_instance_valid(body):
+		return
+	var fade := create_tween()
+	fade.tween_property(body, "modulate:a", 0.0, home_fade_ms / 1000.0)
+	await fade.finished
+	if not is_instance_valid(body):
+		return
+	body.global_position = _home_position
+	body.reset_physics_interpolation()
+	_track_plop(body as CharacterBody2D)
+	var appear := create_tween()
+	appear.tween_property(body, "modulate", _home_modulate, home_fade_ms / 1000.0)
+	await appear.finished
+
+
+func _track_plop(body: CharacterBody2D) -> void:
+	var world := Services.world()
+	if world != null and world.elevation != null:
+		world.elevation.track(body)

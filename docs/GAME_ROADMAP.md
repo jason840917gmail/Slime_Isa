@@ -2570,8 +2570,9 @@ two dungeons in 12.8.
   its gate for good: the gate's map record, through a chunk entered again, a
   save and a load (`test_a_rung_bell_keeps_its_gate_open_for_good`).
   *Placed 2026-10-17:* the first bell near the town's edge, on an islet in
-  C4's little pond with pots on its shore, opens the old watch post's stone
-  door (question 132); a second on C5's lookout rock raises a hidden chest
+  C4's little pond with pots on its shore, unlocks the keeper's timber
+  storehouse (question 132); its coffer is in a separate furnished interior.
+  A second on C5's lookout rock raises a hidden chest
   (its `rung` signal) ([Chapter 1](story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
 - Decided 2026-10-16, sixth round (question 97;
   [prologue design](design/2026-10-16-prologue.md), the first lock): the
@@ -3420,7 +3421,12 @@ the next release (7.11).
   dashes straight on while held and bonks back off a wall; the owner accepts
   the feel.
 
-### [ ] 7.8 — The three skins replace the forms
+### [~] 7.8 — The three skins replace the forms
+
+- *Built 2026-10-17 (commit 48a7b514):* Heavy, Silk and Feral as described
+  below, always on once won and stacking, with their locks, the bag's look
+  row, `?skins=` and a playground corner ([SKINS.md](godot/SKINS.md)); waiting
+  on the owner's play. The old forms' removal is 7.11.
 
 - Decided 2026-10-15 ([the 2026-10-15 decisions](#the-2026-10-15-decisions);
   [The skins](story/01-direction.md#the-skins);
@@ -5514,7 +5520,16 @@ rework.
   its right tool; each is placed in its region or dungeon; `pnpm test:godot`
   covers the new behaviours; the owner accepts them.
 
-### [ ] 12.8 — The Pearl inside the dungeon: the three dungeons reworked
+### [~] 12.8 — The Pearl inside the dungeon: the three dungeons reworked
+
+- *Built 2026-10-17 (commit 48a7b514), waiting on the owner's playthrough and
+  [open questions 141 to 145](story/06-open-questions.md#open-after-the-pearl-moved-inside-2026-10-17):*
+  the seal kit (`object.dungeon-seal`, the take's roar and glimpse, `EnragedLook`,
+  `object.full-heart`, `?sealed`) and all three dungeons reworked as the plan lays
+  out ([DUNGEONS.md](godot/DUNGEONS.md#the-seal)). Not built: the boss drums while
+  sealed, the journal's Pearl slot, Fatty shrinking; the Mine's second half is
+  out of reach in play until the Bow (12.6). The "Today" note below is how it
+  stood before the rework.
 
 - Decided 2026-10-17 ([the 2026-10-17 decisions](#the-2026-10-17-decisions);
   [decisions archive](story/07-decisions-archive.md#decisions-by-date)): each
@@ -6110,6 +6125,32 @@ numbered milestone and task tiles.
   ([question 83](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
 
 ## Immediate Next Sprint
+
+### Where things stand (2026-10-17)
+
+Read this first; the older notes below it are history.
+
+- **Committed, not pushed** (`main`: 7973880e, 53e5df74, 48a7b514): the
+  33-enemy bestiary and the prologue, the three Release 1 dungeons and their kit,
+  side walls everywhere, clean-out wave 1, the skins (7.8), the Pearl inside the
+  dungeon (12.8), Chapter 1's first map pass (the Lair's mouth on D5's hill).
+  The owner has not played any of it yet. Full suite on 2026-10-17: 502 tests, all
+  passing after two fixes.
+- **In progress (2026-10-17, uncommitted):** Chapter 1's second map pass
+  ([decisions archive](story/07-decisions-archive.md#decisions-by-date)): C4's
+  fenced level-1 plateau, the river on the C4/D4 border, the bigger lake with an
+  island reached by a long falling-plank bridge (a continuous Roll, a come-back
+  secret) and a bombed cave room; hearts hidden in chests (D5's pocket, D4's
+  pen and plateau); the kit's falling planks over water and the goo heart in a
+  chest. The second-pass scenes and six elevation caches are built; targeted checks passed and
+  owner review remain. The three meadow hearts are in chests, and Plop fades home. Built by `tools/build_slimeshire_chunks.gd`.
+- **Built, uncommitted:** dungeon wall doorways with two-cell arches and 60 separate room scenes, following the owner's choices. Room outlines hide neighbouring contents, including closed treasure pockets. See [Dungeon rooms](godot/DUNGEON_ROOMS.md). Targeted dungeon checks and live captures are in `output/doorway-review/`; visual playthrough remains.
+- **Waiting on the owner:** open questions 3, 4, 9, 10, 116, 117 and 137 to 145
+  ([06](story/06-open-questions.md)); the verdict on the Chapter 1 maps; a
+  playthrough of each dungeon.
+- **Next to build:** Burr's Bow (12.6, which opens the Mine's Chasm), heart
+  quarters (5.3), the old forms' removal and clean-out waves 2 and 3 (7.11), the
+  journal's Pearl slots, Yoi's home (5.12).
 
 Milestones 3 to 7 and 9 are built and played headless (2026-09-30); each waits
 on its assets and the owner's acceptance. Waiting on the owner:

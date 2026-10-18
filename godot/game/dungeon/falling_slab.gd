@@ -53,7 +53,33 @@ func _init() -> void:
 
 func _ready() -> void:
 	super()
-	_picture = SheetSprite.load_picture(SLAB_ART)
+	_picture = SheetSprite.load_picture(_art_path())
+
+
+## The 2x1 sheet drawn (frame 0 whole, frame 1 broken up); a falling plank has its own.
+func _art_path() -> String:
+	return SLAB_ART
+
+
+## The cue as it starts to give, and as it falls.
+func _crack_cue() -> StringName:
+	return CUE_CRACK
+
+
+func _fall_cue() -> StringName:
+	return CUE_FALL
+
+
+## ms of its fall (it drops out of sight).
+func _drop_ms() -> float:
+	return DungeonState.number("slab.dropMs", 380.0)
+
+
+## As it falls: its dust (a plank splashes).
+func _on_fall() -> void:
+	var feel := Services.feel()
+	if feel != null:
+		feel.particles(DUST, global_position + size * 0.5)
 
 
 func holds() -> bool:
@@ -67,7 +93,7 @@ func touch() -> void:
 	_since_ms = Services.now_ms()
 	var feel := Services.feel()
 	if feel != null:
-		feel.audio_cue(CUE_CRACK)
+		feel.audio_cue(_crack_cue())
 	cracked.emit({"slab": String(name)})
 	queue_redraw()
 
@@ -88,11 +114,11 @@ func _physics_process(_delta: float) -> void:
 				_set_state(State.FALLING, now)
 				var feel := Services.feel()
 				if feel != null:
-					feel.audio_cue(CUE_FALL)
-					feel.particles(DUST, global_position + size * 0.5)
+					feel.audio_cue(_fall_cue())
+				_on_fall()
 				fell.emit({"slab": String(name)})
 		State.FALLING:
-			if held >= DungeonState.number("slab.dropMs", 380.0):
+			if held >= _drop_ms():
 				_set_state(State.GONE, now)
 		State.GONE:
 			if held >= (return_ms if return_ms >= 0.0 else DungeonState.number("slab.returnMs", 10000.0)):
@@ -114,7 +140,7 @@ func _draw() -> void:
 	if state == State.GONE:
 		return
 	if _picture == null and Engine.is_editor_hint():
-		_picture = SheetSprite.load_picture(SLAB_ART)
+		_picture = SheetSprite.load_picture(_art_path())
 	var t := 0.0
 	var now := Services.now_ms() if not Engine.is_editor_hint() else 0.0
 	var scale := 1.0
@@ -131,17 +157,31 @@ func _draw() -> void:
 			shake = Vector2(sin(real * 71.0), cos(real * 53.0)) * px
 		State.FALLING:
 			frame = 1
-			t = clampf((now - _since_ms) / maxf(1.0, DungeonState.number("slab.dropMs", 380.0)), 0.0, 1.0)
-			scale = lerpf(1.0, FALL_SCALE, t)
+			t = clampf((now - _since_ms) / maxf(1.0, _drop_ms()), 0.0, 1.0)
+			scale = lerpf(1.0, _fall_scale(), t)
 			alpha = 1.0 - t * t
-			sink = FALL_SINK_PX * t
+			sink = _fall_sink_px() * t
 		State.RISING:
 			t = clampf((now - _since_ms) / maxf(1.0, DungeonState.number("slab.riseMs", 450.0)), 0.0, 1.0)
-			scale = lerpf(FALL_SCALE, 1.0, t)
+			scale = lerpf(_fall_scale(), 1.0, t)
 			alpha = t
 	var drawn := size * scale
 	var box := Rect2(size * 0.5 - drawn * 0.5 + shake + Vector2(0.0, sink), drawn)
 	var tint := Color(1.0, 1.0, 1.0, alpha).darkened(0.5 * (1.0 - alpha) if state == State.FALLING else 0.0)
+	_draw_piece(box, frame, tint, alpha)
+
+
+## How small it gets as it falls (and rises from), and how far it sinks.
+func _fall_scale() -> float:
+	return FALL_SCALE
+
+
+func _fall_sink_px() -> float:
+	return FALL_SINK_PX
+
+
+## Draws frame `frame` of its sheet over `box` (its own coordinates).
+func _draw_piece(box: Rect2, frame: int, tint: Color, alpha: float) -> void:
 	if _picture == null:
 		draw_rect(box, Color(Color("#8b8378"), alpha))
 		draw_rect(box.grow(-3.0), Color(Color("#5a524a"), alpha), false, 2.0)

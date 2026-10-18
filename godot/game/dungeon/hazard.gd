@@ -1,8 +1,8 @@
 @tool
 extends Node2D
 class_name Hazard
-## One hazard script for the void, spikes and lava (docs/godot/DUNGEONS.md "The void, slabs and
-## spikes"; decisions archive question 70, roadmap 5.14). A hazard is the rectangle `size` from its
+## One hazard script for the void, spikes, lava and deep water (docs/godot/DUNGEONS.md "The void, slabs
+## and spikes", "Falling planks over water"; decisions archive question 70, roadmap 5.14). A hazard is the rectangle `size` from its
 ## position; the slime is in it when its feet are inside and it is not held up by a deck there
 ## (hazard_deck.gd: a standing slab, a lowered drawbridge, a landing, a shadow path), or when it
 ## walks on a lower level than `rim_level` (it dropped into the elevation hole painted under it:
@@ -14,7 +14,10 @@ class_name Hazard
 ##   safe ground it stood on, or the nearest of `return_points` to it (the bridge's start);
 ## - **spikes** and **lava**: it is hurt each time its invulnerability ends, until it walks out
 ##   (a stair up to the rim). A slab that falls from under it over a sunken pit drops it in
-##   (`pit_depth` levels down).
+##   (`pit_depth` levels down);
+## - **water**: deep water under a plank bridge (falling_plank.gd): the slime sinks with a splash
+##   (`dungeon.water.fallMs`), loses `dungeon.water.damage` and is put back on the bank as from the
+##   void. It draws nothing (the world's water shows); a slime whose form swims never falls in.
 ##
 ## Paint the void as a hole on the world's `elevation` layer and lay the hazard over the hole; it
 ## draws its look over it (`draw_look`: the abyss, fading in over `top_fade_px` so the hole's far
@@ -27,11 +30,11 @@ const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 
 const GROUP := &"hazards"
-const KINDS: PackedStringArray = ["void", "spikes", "lava"]
+const KINDS: PackedStringArray = ["void", "spikes", "lava", "water"]
 const SPIKES_ART := "res://asset/MAPS/objects/dungeon/spikes.webp"
 const RETURN_PREFIX := "Return"
 const EDITOR_FILL := {"void": Color(0.05, 0.02, 0.1, 0.45), "spikes": Color(0.55, 0.25, 0.15, 0.4),
-	"lava": Color(1.0, 0.4, 0.05, 0.4)}
+	"lava": Color(1.0, 0.4, 0.05, 0.4), "water": Color(0.1, 0.4, 0.9, 0.35)}
 const EDITOR_EDGE := Color(1.0, 0.3, 0.6, 0.9)
 ## The abyss: its colour, and the soft edge that fades into it.
 const ABYSS := Color("#07050c")
@@ -41,7 +44,7 @@ const LAVA_GLOW := Color("#fdba74")
 ## The hazard's look sits on the floor, under every body.
 const LOOK_Z := -1
 
-@export_enum("void", "spikes", "lava") var kind: String = "void":
+@export_enum("void", "spikes", "lava", "water") var kind: String = "void":
 	set(value):
 		kind = value
 		queue_redraw()

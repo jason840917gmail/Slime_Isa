@@ -11,6 +11,9 @@ class_name HazardWatch
 ##   point to its last safe ground, else that ground itself) and loses `dungeon.void.damage` health;
 ##   **spikes** / **lava**: it is hurt each time its invulnerability ends; a slab gone from under it
 ##   over a sunken pit first drops it in (`pit_depth` levels down, `dungeon.spikes.fallMs`);
+##   **water** (deep water under a plank bridge, falling_plank.gd): it sinks with a splash
+##   (`dungeon.water.fallMs`, the `WaterSplash` cue, water_splash.gd's rings) and is put back as from
+##   the void, losing `dungeon.water.damage`; a form that swims never falls in;
 ## - elsewhere, on solid ground (its body clear of every hazard, or its feet on a safe deck, and its
 ##   body clear of every slab), that spot is its last safe ground.
 ## Hazard damage goes through DamageRouter (true damage, no knockback; weapon id `hazard-<kind>`,
@@ -26,11 +29,16 @@ const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const Door := preload("res://game/scripts/door.gd")
 const Hazard := preload("res://game/dungeon/hazard.gd")
+const WaterSplash := preload("res://game/dungeon/water_splash.gd")
 const HazardDeck := preload("res://game/dungeon/hazard_deck.gd")
 
 const GROUP := &"hazard_watch"
 const NODE_NAME := "HazardWatch"
 const CUE_FALL := &"FallDown"
+const CUE_SPLASH := &"WaterSplash"
+const WATER_KIND := "water"
+## The sinking slime shrinks to this and fades.
+const WATER_SCALE := 0.8
 const FALL_TURNS := 1.5
 const FALL_SINK_PX := 10.0
 ## A pit drop looks for floor this far down (then up) from where the slime stood, in steps.
@@ -38,7 +46,7 @@ const PIT_SEARCH_PX := 192.0
 const PIT_SEARCH_STEP := 8.0
 const WEAPON_PREFIX := "hazard-"
 
-## The slime fell into the void. Payload: {"kind", "x", "y"} (where it fell).
+## The slime fell into the void or into deep water. Payload: {"kind", "x", "y"} (where it fell).
 signal fell(payload: Dictionary)
 ## The slime was put back after a fall. Payload: {"x", "y"} (its centre).
 signal returned(payload: Dictionary)
@@ -56,6 +64,9 @@ var _fall_ends_ms := 0.0
 var _fall_from := Vector2.ZERO
 var _pending: Array[Dictionary] = []
 var _source_area: Area2D
+## The fall's look (on the player's art): stopped as the slime lands, so a tween that runs on in real
+## time never hides the slime put back on the rim.
+var _fall_tween: Tween
 
 
 ## The watch of `from`'s world, made (and added to its world's root) when there is none yet.
@@ -241,6 +252,9 @@ func _physics_process(_delta: float) -> void:
 			body_over = true
 		if not hazard.rect().has_point(feet):
 			continue
+		# A form that swims (the Frog) swims in deep water: it never falls in.
+		if hazard.kind == WATER_KIND and _swims(player):
+			continue
 		in_any = true
 		var dropped_in := level < hazard.rim_level
 		if not dropped_in and held_by != null:
@@ -267,6 +281,9 @@ func _hit(hazard: Hazard, player: Node, body: CharacterBody2D, level: int, dropp
 	if hazard.kind == "void":
 		_start_fall(hazard, player, "void", DungeonState.number("void.fallMs", 600.0))
 		return
+	if hazard.kind == WATER_KIND:
+		_start_fall(hazard, player, WATER_KIND, DungeonState.number("water.fallMs", 650.0))
+		return
 	var world := Services.world()
 	if not dropped_in and world.elevation != null and is_instance_valid(world.elevation) and hazard.pit_depth > 0:
 		# A slab gone from under it over a sunken pit: it drops in first.
@@ -284,11 +301,16 @@ func _start_fall(hazard: Hazard, player: Node, kind: String, ms: float) -> void:
 	player.call(&"stop_movement")
 	player.call(&"suppress_movement", ms + 80.0)
 	var feel := Services.feel()
+	var water := kind == WATER_KIND
 	if feel != null:
-		feel.audio_cue(CUE_FALL)
-	if kind == "void":
+		feel.audio_cue(CUE_SPLASH if water else CUE_FALL)
+	if kind == "void" or water:
 		fell.emit({"kind": hazard.kind, "x": _fall_from.x, "y": _fall_from.y})
+	if water:
+		_sink(player, ms)
+		return
 	var tween: Tween = player.call(&"effect_tween")
+	_fall_tween = tween
 	if tween == null:
 		return
 	var seconds := maxf(ms, 1.0) / 1000.0
@@ -308,8 +330,39 @@ func _start_fall(hazard: Hazard, player: Node, kind: String, ms: float) -> void:
 		tween.tween_property(visual, "rotation", TAU * FALL_TURNS, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 
+## Into deep water: a splash at its feet, and it sinks (down, a little smaller, fading out).
+func _sink(player: Node, ms: float) -> void:
+	var world := Services.world()
+	var feet: Vector2 = world.player_body.global_position if world != null and world.player_body != null else _fall_from
+	WaterSplash.spawn(feet, DungeonState.number("plank.ringRadiusPx", 46.0), DungeonState.number("water.splashRingMs", 900.0),
+		int(DungeonState.number("plank.rings", 3.0)))
+	var tween: Tween = player.call(&"effect_tween")
+	_fall_tween = tween
+	if tween == null:
+		return
+	var sink_px := DungeonState.number("water.sinkPx", 14.0)
+	tween.tween_method(func(t: float) -> void:
+		if not is_instance_valid(player):
+			return
+		player.call(&"set_effect_offset", Vector2(0.0, sink_px * t))
+		var size := lerpf(1.0, WATER_SCALE, t)
+		player.call(&"set_effect_scale", Vector2(size, size))
+		player.call(&"set_effect_alpha", lerpf(1.0, 0.0, t)), 0.0, 1.0, maxf(ms, 1.0) / 1000.0) 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+## True when the slime's current form swims (it is let into deep water).
+func _swims(player: Node) -> bool:
+	if not player.has_method(&"current_form"):
+		return false
+	var form: Variant = player.call(&"current_form")
+	return form is Dictionary and bool((form as Dictionary).get("swims", false))
+
+
 func _land(player: Node, body: CharacterBody2D) -> void:
 	_falling = false
+	if _fall_tween != null and _fall_tween.is_valid():
+		_fall_tween.kill()
+	_fall_tween = null
 	player.call(&"reset_effects")
 	var visual: Node2D = player.call(&"get_visual")
 	if visual != null:

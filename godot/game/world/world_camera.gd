@@ -415,7 +415,7 @@ func room_at(point: Vector2) -> Rect2:
 		return room
 	for node: Node in get_tree().get_nodes_in_group(CameraRoom.GROUP):
 		var candidate := node as CameraRoom
-		if candidate != null and candidate.is_inside_tree() and candidate.rect().has_point(point):
+		if candidate != null and candidate.is_inside_tree() and candidate.contains(point):
 			return candidate.rect()
 	return room
 

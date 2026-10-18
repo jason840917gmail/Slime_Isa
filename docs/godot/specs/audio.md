@@ -474,6 +474,7 @@ The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`
 | `Save` | a save to a slot succeeds | `save_slots_menu.gd` `_report` |
 | `Toast` | "New quest available" | `quest_notifications.gd` |
 | `TalkBlip` | letters appear in the dialogue box (80 ms apart at most) | `dialogue_box.gd` `_update_reveal` |
+| `WaterSplash` | the slime falls into deep water under a plank bridge; a falling plank drops into the water (the `SwimEnter` takes reused; 2026-10-17) | `hazard_watch.gd` `_start_fall`, `falling_plank.gd` |
 | `StairsStep` | as each footstep of the stairs walk lands, every `elevation.stairsFootstepMs` (400 ms; [ELEVATION.md](../ELEVATION.md#stairs-walk)) (`footstep.stairs`, Sound Picker round 6 of 2026-10-14: the owner picked A, a stone tap, of six kinds; a 60 ms minimum interval) | `stairs_sequence.gd` `_cue_footsteps` |
 
 ### 10.3 Sound audition (dev)

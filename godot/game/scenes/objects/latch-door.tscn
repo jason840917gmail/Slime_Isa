@@ -2,7 +2,8 @@
 
 [ext_resource type="Script" path="res://game/scripts/gate.gd" id="1_gate"]
 [ext_resource type="Script" path="res://game/world_objects/sliding_slab.gd" id="2_slab"]
-[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="3_sheet"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/doorways/masonry-arch.res" id="3_frame"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/doorways/shutter-leaf.res" id="4_leaf"]
 
 [sub_resource type="RectangleShape2D" id="post_shape"]
 size = Vector2(80, 30)
@@ -34,17 +35,16 @@ shape = SubResource("slab_shape")
 [node name="Frame" type="Sprite2D" parent="."]
 scale = Vector2(0.5, 0.5)
 centered = false
-offset = Vector2(-298.9, -649.5)
-script = ExtResource("3_sheet")
-sheet_path = "res://asset/MAPS/objects/fattys-lair/stone-door-frame.webp"
+offset = Vector2(-352, -384)
+texture = ExtResource("3_frame")
 
 [node name="Slab" type="Sprite2D" parent="."]
 scale = Vector2(0.5, 0.5)
 centered = false
-offset = Vector2(-128, -505.5)
+offset = Vector2(-128, -256)
+texture = ExtResource("4_leaf")
 script = ExtResource("2_slab")
 gate = NodePath("../GateScript")
-sheet_path = "res://asset/MAPS/objects/fattys-lair/stone-door-slab.webp"
 
 [node name="GateScript" type="Node" parent="." node_paths=PackedStringArray("doors")]
 script = ExtResource("1_gate")

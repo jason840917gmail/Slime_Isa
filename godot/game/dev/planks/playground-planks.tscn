@@ -1,0 +1,198 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_qqqvi"]
+[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_xjm6o"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="3_wxjgv"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="4_ugonf"]
+[ext_resource type="Script" path="res://game/dungeon/hazard.gd" id="5_4kwxo"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/falling-plank.tscn" id="6_22h5n"]
+[ext_resource type="Script" path="res://game/dungeon/falling_plank.gd" id="7_o3e2v"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/plank-landing.tscn" id="8_i8knk"]
+[ext_resource type="Script" path="res://game/dungeon/plank_landing.gd" id="9_ogajy"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="10_cxthb"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="11_dvg0w"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="12_s5s3y"]
+
+[node name="playground-planks" type="Node2D" unique_id=576074657]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=61343202]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAABwAAAAAAAAABAAAABwABAAAAAAACAAAABwACAAAAAAADAAAABwADAAAAAAAEAAAABwAEAAAAAAAFAAAABwAFAAAAAAAGAAAABwAGAAAAAAAHAAAABwAHAAAAAAAIAAAABwAIAAAAAAAJAAAABwAJAAAAAAAKAAAABwAKAAAAAAALAAAABwALAAAAAAAMAAAABwAMAAAAAAANAAAABwANAAAAAAAOAAAABwAOAAAAAAAPAAAABwAPAAAAAAAQAAAABwAQAAAAAAARAAAABwARAAAAAAASAAAABwASAAAAAAATAAAABwAAAAAAAAAUAAAABwABAAAAAAAVAAAABwACAAAAAAAWAAAABwADAAAAAAAXAAAABwAEAAAAAAAAAAEABwAAAAEAAAABAAEABwABAAEAAAACAAEABwACAAEAAAADAAEABwADAAEAAAAEAAEABwAEAAEAAAAFAAEABwAFAAEAAAAGAAEABwAGAAEAAAAHAAEABwAHAAEAAAAIAAEABwAIAAEAAAAJAAEABwAJAAEAAAAKAAEABwAKAAEAAAALAAEABwALAAEAAAAMAAEABwAMAAEAAAANAAEABwANAAEAAAAOAAEABwAOAAEAAAAPAAEABwAPAAEAAAAQAAEABwAQAAEAAAARAAEABwARAAEAAAASAAEABwASAAEAAAATAAEABwAAAAEAAAAUAAEABwABAAEAAAAVAAEABwACAAEAAAAWAAEABwADAAEAAAAXAAEABwAEAAEAAAAAAAIABwAAAAIAAAABAAIABwABAAIAAAACAAIABwACAAIAAAADAAIABwADAAIAAAAEAAIABwAEAAIAAAAFAAIABwAFAAIAAAAGAAIABwAGAAIAAAAHAAIABwAHAAIAAAAIAAIABwAIAAIAAAAJAAIABwAJAAIAAAAKAAIABwAKAAIAAAALAAIABwALAAIAAAAMAAIABwAMAAIAAAANAAIABwANAAIAAAAOAAIABwAOAAIAAAAPAAIABwAPAAIAAAAQAAIABwAQAAIAAAARAAIABwARAAIAAAASAAIABwASAAIAAAATAAIABwAAAAIAAAAUAAIABwABAAIAAAAVAAIABwACAAIAAAAWAAIABwADAAIAAAAXAAIABwAEAAIAAAAAAAMABwAAAAMAAAABAAMABwABAAMAAAACAAMABwACAAMAAAADAAMABwADAAMAAAAEAAMABwAEAAMAAAAFAAMABwAFAAMAAAAGAAMABwAGAAMAAAAHAAMABwAHAAMAAAAIAAMABwAIAAMAAAAJAAMABwAJAAMAAAAKAAMABwAKAAMAAAALAAMABwALAAMAAAAMAAMABwAMAAMAAAANAAMABwANAAMAAAAOAAMABwAOAAMAAAAPAAMABwAPAAMAAAAQAAMABwAQAAMAAAARAAMABwARAAMAAAASAAMABwASAAMAAAATAAMABwAAAAMAAAAUAAMABwABAAMAAAAVAAMABwACAAMAAAAWAAMABwADAAMAAAAXAAMABwAEAAMAAAAAAAQAAwAAAAQAAAABAAQAAwABAAQAAAACAAQAAwACAAQAAAADAAQAAwADAAQAAAAEAAQAAwAEAAQAAAAFAAQAAwAFAAQAAAAGAAQAAwAGAAQAAAAHAAQAAwAHAAQAAAAIAAQAAwAIAAQAAAAJAAQAAwAJAAQAAAAKAAQAAwAKAAQAAAALAAQAAwALAAQAAAAMAAQAAwAMAAQAAAANAAQAAwANAAQAAAAOAAQAAwAOAAQAAAAPAAQAAwAPAAQAAAAQAAQAAwAQAAQAAAARAAQAAwARAAQAAAASAAQAAwASAAQAAAATAAQAAwAAAAQAAAAUAAQAAwABAAQAAAAVAAQAAwACAAQAAAAWAAQAAwADAAQAAAAXAAQAAwAEAAQAAAAAAAUAAwAAAAUAAAABAAUAAwABAAUAAAACAAUAAwACAAUAAAADAAUAAwADAAUAAAAEAAUAAwAEAAUAAAAFAAUAAwAFAAUAAAAGAAUAAwAGAAUAAAAHAAUAAwAHAAUAAAAIAAUAAwAIAAUAAAAJAAUAAwAJAAUAAAAKAAUAAwAKAAUAAAALAAUAAwALAAUAAAAMAAUAAwAMAAUAAAANAAUAAwANAAUAAAAOAAUAAwAOAAUAAAAPAAUAAwAPAAUAAAAQAAUAAwAQAAUAAAARAAUAAwARAAUAAAASAAUAAwASAAUAAAATAAUAAwAAAAUAAAAUAAUAAwABAAUAAAAVAAUAAwACAAUAAAAWAAUAAwADAAUAAAAXAAUAAwAEAAUAAAAAAAYAAwAAAAYAAAABAAYAAwABAAYAAAACAAYAAwACAAYAAAADAAYAAwADAAYAAAAEAAYAAwAEAAYAAAAFAAYAAwAFAAYAAAAGAAYAAwAGAAYAAAAHAAYAAwAHAAYAAAAIAAYAAwAIAAYAAAAJAAYAAwAJAAYAAAAKAAYAAwAKAAYAAAALAAYAAwALAAYAAAAMAAYAAwAMAAYAAAANAAYAAwANAAYAAAAOAAYAAwAOAAYAAAAPAAYAAwAPAAYAAAAQAAYAAwAQAAYAAAARAAYAAwARAAYAAAASAAYAAwASAAYAAAATAAYAAwAAAAYAAAAUAAYAAwABAAYAAAAVAAYAAwACAAYAAAAWAAYAAwADAAYAAAAXAAYAAwAEAAYAAAAAAAcAAwAAAAcAAAABAAcAAwABAAcAAAACAAcAAwACAAcAAAADAAcAAwADAAcAAAAEAAcAAwAEAAcAAAAFAAcAAwAFAAcAAAAGAAcAAwAGAAcAAAAHAAcAAwAHAAcAAAAIAAcAAwAIAAcAAAAJAAcAAwAJAAcAAAAKAAcAAwAKAAcAAAALAAcAAwALAAcAAAAMAAcAAwAMAAcAAAANAAcAAwANAAcAAAAOAAcAAwAOAAcAAAAPAAcAAwAPAAcAAAAQAAcAAwAQAAcAAAARAAcAAwARAAcAAAASAAcAAwASAAcAAAATAAcAAwAAAAcAAAAUAAcAAwABAAcAAAAVAAcAAwACAAcAAAAWAAcAAwADAAcAAAAXAAcAAwAEAAcAAAAAAAgAAwAAAAgAAAABAAgAAwABAAgAAAACAAgAAwACAAgAAAADAAgAAwADAAgAAAAEAAgAAwAEAAgAAAAFAAgAAwAFAAgAAAAGAAgAAwAGAAgAAAAHAAgAAwAHAAgAAAAIAAgAAwAIAAgAAAAJAAgAAwAJAAgAAAAKAAgAAwAKAAgAAAALAAgAAwALAAgAAAAMAAgAAwAMAAgAAAANAAgAAwANAAgAAAAOAAgAAwAOAAgAAAAPAAgAAwAPAAgAAAAQAAgAAwAQAAgAAAARAAgAAwARAAgAAAASAAgAAwASAAgAAAATAAgAAwAAAAgAAAAUAAgAAwABAAgAAAAVAAgAAwACAAgAAAAWAAgAAwADAAgAAAAXAAgAAwAEAAgAAAAAAAkAAwAAAAkAAAABAAkAAwABAAkAAAACAAkAAwACAAkAAAADAAkAAwADAAkAAAAEAAkAAwAEAAkAAAAFAAkAAwAFAAkAAAAGAAkAAwAGAAkAAAAHAAkAAwAHAAkAAAAIAAkAAwAIAAkAAAAJAAkAAwAJAAkAAAAKAAkAAwAKAAkAAAALAAkAAwALAAkAAAAMAAkAAwAMAAkAAAANAAkAAwANAAkAAAAOAAkAAwAOAAkAAAAPAAkAAwAPAAkAAAAQAAkAAwAQAAkAAAARAAkAAwARAAkAAAASAAkAAwASAAkAAAATAAkAAwAAAAkAAAAUAAkAAwABAAkAAAAVAAkAAwACAAkAAAAWAAkAAwADAAkAAAAXAAkAAwAEAAkAAAAAAAoAAwAAAAoAAAABAAoAAwABAAoAAAACAAoAAwACAAoAAAADAAoAAwADAAoAAAAEAAoAAwAEAAoAAAAFAAoAAwAFAAoAAAAGAAoAAwAGAAoAAAAHAAoAAwAHAAoAAAAIAAoAAwAIAAoAAAAJAAoAAwAJAAoAAAAKAAoAAwAKAAoAAAALAAoAAwALAAoAAAAMAAoAAwAMAAoAAAANAAoAAwANAAoAAAAOAAoAAwAOAAoAAAAPAAoAAwAPAAoAAAAQAAoAAwAQAAoAAAARAAoAAwARAAoAAAASAAoAAwASAAoAAAATAAoAAwAAAAoAAAAUAAoAAwABAAoAAAAVAAoAAwACAAoAAAAWAAoAAwADAAoAAAAXAAoAAwAEAAoAAAAAAAsAAwAAAAsAAAABAAsAAwABAAsAAAACAAsAAwACAAsAAAADAAsAAwADAAsAAAAEAAsAAwAEAAsAAAAFAAsAAwAFAAsAAAAGAAsAAwAGAAsAAAAHAAsAAwAHAAsAAAAIAAsAAwAIAAsAAAAJAAsAAwAJAAsAAAAKAAsAAwAKAAsAAAALAAsAAwALAAsAAAAMAAsAAwAMAAsAAAANAAsAAwANAAsAAAAOAAsAAwAOAAsAAAAPAAsAAwAPAAsAAAAQAAsAAwAQAAsAAAARAAsAAwARAAsAAAASAAsAAwASAAsAAAATAAsAAwAAAAsAAAAUAAsAAwABAAsAAAAVAAsAAwACAAsAAAAWAAsAAwADAAsAAAAXAAsAAwAEAAsAAAAAAAwABwAAAAwAAAABAAwABwABAAwAAAACAAwABwACAAwAAAADAAwABwADAAwAAAAEAAwABwAEAAwAAAAFAAwABwAFAAwAAAAGAAwABwAGAAwAAAAHAAwABwAHAAwAAAAIAAwABwAIAAwAAAAJAAwABwAJAAwAAAAKAAwABwAKAAwAAAALAAwABwALAAwAAAAMAAwABwAMAAwAAAANAAwABwANAAwAAAAOAAwABwAOAAwAAAAPAAwABwAPAAwAAAAQAAwABwAQAAwAAAARAAwABwARAAwAAAASAAwABwASAAwAAAATAAwABwAAAAwAAAAUAAwABwABAAwAAAAVAAwABwACAAwAAAAWAAwABwADAAwAAAAXAAwABwAEAAwAAAAAAA0ABwAAAA0AAAABAA0ABwABAA0AAAACAA0ABwACAA0AAAADAA0ABwADAA0AAAAEAA0ABwAEAA0AAAAFAA0ABwAFAA0AAAAGAA0ABwAGAA0AAAAHAA0ABwAHAA0AAAAIAA0ABwAIAA0AAAAJAA0ABwAJAA0AAAAKAA0ABwAKAA0AAAALAA0ABwALAA0AAAAMAA0ABwAMAA0AAAANAA0ABwANAA0AAAAOAA0ABwAOAA0AAAAPAA0ABwAPAA0AAAAQAA0ABwAQAA0AAAARAA0ABwARAA0AAAASAA0ABwASAA0AAAATAA0ABwAAAA0AAAAUAA0ABwABAA0AAAAVAA0ABwACAA0AAAAWAA0ABwADAA0AAAAXAA0ABwAEAA0AAAAAAA4ABwAAAA4AAAABAA4ABwABAA4AAAACAA4ABwACAA4AAAADAA4ABwADAA4AAAAEAA4ABwAEAA4AAAAFAA4ABwAFAA4AAAAGAA4ABwAGAA4AAAAHAA4ABwAHAA4AAAAIAA4ABwAIAA4AAAAJAA4ABwAJAA4AAAAKAA4ABwAKAA4AAAALAA4ABwALAA4AAAAMAA4ABwAMAA4AAAANAA4ABwANAA4AAAAOAA4ABwAOAA4AAAAPAA4ABwAPAA4AAAAQAA4ABwAQAA4AAAARAA4ABwARAA4AAAASAA4ABwASAA4AAAATAA4ABwAAAA4AAAAUAA4ABwABAA4AAAAVAA4ABwACAA4AAAAWAA4ABwADAA4AAAAXAA4ABwAEAA4AAAAAAA8ABwAAAA8AAAABAA8ABwABAA8AAAACAA8ABwACAA8AAAADAA8ABwADAA8AAAAEAA8ABwAEAA8AAAAFAA8ABwAFAA8AAAAGAA8ABwAGAA8AAAAHAA8ABwAHAA8AAAAIAA8ABwAIAA8AAAAJAA8ABwAJAA8AAAAKAA8ABwAKAA8AAAALAA8ABwALAA8AAAAMAA8ABwAMAA8AAAANAA8ABwANAA8AAAAOAA8ABwAOAA8AAAAPAA8ABwAPAA8AAAAQAA8ABwAQAA8AAAARAA8ABwARAA8AAAASAA8ABwASAA8AAAATAA8ABwAAAA8AAAAUAA8ABwABAA8AAAAVAA8ABwACAA8AAAAWAA8ABwADAA8AAAAXAA8ABwAEAA8AAAA=")
+tile_set = ExtResource("1_qqqvi")
+script = ExtResource("2_xjm6o")
+metadata/source_cell_count = 384
+metadata/columns = 24
+metadata/rows = 16
+
+[node name="world-definition" type="Node" parent="." unique_id=580575697]
+script = ExtResource("3_wxjgv")
+map_id = "playground-planks"
+tile_size = 64
+columns = 24
+rows = 16
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 544,
+"y": 864
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=1736142024]
+position = Vector2(544, 864)
+
+[node name="long-water" type="Node2D" parent="." unique_id=1393595436 instance=ExtResource("4_ugonf")]
+position = Vector2(320, 256)
+script = ExtResource("5_4kwxo")
+kind = "water"
+size = Vector2(64, 512)
+
+[node name="ReturnSouth" type="Node2D" parent="long-water" unique_id=1938956854]
+position = Vector2(32, 550.4)
+
+[node name="ReturnNorth" type="Node2D" parent="long-water" unique_id=2015085680]
+position = Vector2(32, -38.399994)
+
+[node name="stepped-water" type="Node2D" parent="." unique_id=22654956 instance=ExtResource("4_ugonf")]
+position = Vector2(768, 256)
+script = ExtResource("5_4kwxo")
+kind = "water"
+size = Vector2(64, 512)
+
+[node name="ReturnSouth" type="Node2D" parent="stepped-water" unique_id=620490289]
+position = Vector2(32, 550.4)
+
+[node name="ReturnNorth" type="Node2D" parent="stepped-water" unique_id=1992972278]
+position = Vector2(32, -38.399994)
+
+[node name="long-plank-4" type="Node2D" parent="." unique_id=1098784935 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 256)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-plank-4" type="Node2D" parent="." unique_id=378086385 instance=ExtResource("6_22h5n")]
+position = Vector2(768, 256)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="long-plank-5" type="Node2D" parent="." unique_id=756797786 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 320)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-plank-5" type="Node2D" parent="." unique_id=592702573 instance=ExtResource("6_22h5n")]
+position = Vector2(768, 320)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="long-plank-6" type="Node2D" parent="." unique_id=668762463 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 384)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-landing-6" type="Node2D" parent="." unique_id=1342385079 instance=ExtResource("8_i8knk")]
+position = Vector2(768, 384)
+script = ExtResource("9_ogajy")
+draw_floor = false
+
+[node name="long-plank-7" type="Node2D" parent="." unique_id=1479205646 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 448)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-plank-7" type="Node2D" parent="." unique_id=801056453 instance=ExtResource("6_22h5n")]
+position = Vector2(768, 448)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="long-plank-8" type="Node2D" parent="." unique_id=566862429 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 512)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-plank-8" type="Node2D" parent="." unique_id=1225519345 instance=ExtResource("6_22h5n")]
+position = Vector2(768, 512)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="long-plank-9" type="Node2D" parent="." unique_id=553675228 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 576)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-landing-9" type="Node2D" parent="." unique_id=1969461931 instance=ExtResource("8_i8knk")]
+position = Vector2(768, 576)
+script = ExtResource("9_ogajy")
+draw_floor = false
+
+[node name="long-plank-10" type="Node2D" parent="." unique_id=519496043 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 640)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-plank-10" type="Node2D" parent="." unique_id=908953429 instance=ExtResource("6_22h5n")]
+position = Vector2(768, 640)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="long-plank-11" type="Node2D" parent="." unique_id=49691620 instance=ExtResource("6_22h5n")]
+position = Vector2(320, 704)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="stepped-plank-11" type="Node2D" parent="." unique_id=1544438663 instance=ExtResource("6_22h5n")]
+position = Vector2(768, 704)
+script = ExtResource("7_o3e2v")
+safe = false
+draw_floor = false
+
+[node name="heart-chest" parent="." unique_id=47776704 instance=ExtResource("10_cxthb")]
+position = Vector2(512, 204.8)
+
+[node name="ChestScript" parent="heart-chest" index="2"]
+map_id = "playground-planks"
+instance_id = "heart-chest"
+goo_heart_id = "plank-lab-heart"
+
+[node name="heart-wood-chest" parent="." unique_id=1743919632 instance=ExtResource("10_cxthb")]
+position = Vector2(672, 204.8)
+
+[node name="ChestScript" parent="heart-wood-chest" index="2"]
+map_id = "playground-planks"
+instance_id = "heart-wood-chest"
+initial_contents = {
+"wood": 3
+}
+goo_heart_id = "plank-lab-heart-2"
+
+[node name="heart-dungeon-chest" parent="." unique_id=1571037570 instance=ExtResource("11_dvg0w")]
+position = Vector2(960, 204.8)
+
+[node name="Visual" parent="heart-dungeon-chest" index="1"]
+texture = ExtResource("12_s5s3y")
+
+[node name="ChestScript" parent="heart-dungeon-chest" index="2"]
+map_id = "playground-planks"
+instance_id = "heart-dungeon-chest"
+goo_heart_id = "plank-lab-heart-3"
+
+[editable path="heart-chest"]
+[editable path="heart-wood-chest"]
+[editable path="heart-dungeon-chest"]

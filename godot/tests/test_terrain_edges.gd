@@ -4,8 +4,8 @@ extends RefCounted
 ##   or one of the hard-edged walls and floors, and every ground but water has its edge art.
 ## - Dual grid: a corner where grounds meet gets the lowest ground's full tile on level 0 and each
 ##   higher ground's edge tile on the next level, index = TL + 2 TR + 4 BL + 8 BR over the cells
-##   that stack at least that high; corners with one ground, a hard-edged tile or the map border
-##   get nothing.
+##   that stack at least that high; corners with one ground or a hard-edged tile get nothing. At map borders,
+##   the boundary cells carry on outside so shore edges reach the seam.
 ## - Shores: water is the lowest ground and fills with the water shader (the water surface's own
 ##   parameters); land edge tiles draw over it.
 ## - level-1 (its four chunk worlds): the edges are the ground layer's child after the water

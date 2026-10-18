@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-floor--wooden-footbridge.tscn" id="11_pe3c7"]
 [ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_yxrui"]
 [ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_q4k72"]
+[ext_resource type="Script" uid="uid://c0dxyajir0usg" path="res://game/world/bridge_deck.gd" id="16_q4k72"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_east"]
 size = Vector2(4, 2048)
@@ -54,7 +55,7 @@ script = ExtResource("6_v0qyk")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=820552523]
 z_index = -1
-tile_map_data = PackedByteArray("AAAfABgAAAADAAAAAAAfABkAAAADAAAAAAAfABoAAAADAAAAAAAfABsAAAADAAAAAAAfABwAAAADAAAAAAAfAB0AAAADAAAAAAAfAB4AAAADAAAAAAAfAB8AAAADAAAAAAA=")
+tile_map_data = PackedByteArray("AAAfABgAAAACAAAAAAAfABkA//////////8fABoA//////////8fABsA//////////8fABwA//////////8fAB0A//////////8fAB4A//////////8fAB8A//////////8=")
 tile_set = ExtResource("7_8wfmk")
 script = ExtResource("8_b6f8s")
 
@@ -185,8 +186,10 @@ area = NodePath("..")
 [node name="props" type="Node2D" parent="." unique_id=223129873]
 y_sort_enabled = true
 
-[node name="footbridge-004" parent="props" unique_id=1535753306 instance=ExtResource("11_pe3c7")]
+[node name="footbridge-004" type="Node2D" parent="props" unique_id=1535753306 instance=ExtResource("11_pe3c7")]
+y_sort_enabled = true
 position = Vector2(64, 1165)
+script = ExtResource("16_q4k72")
 
 [node name="notes" type="Node2D" parent="." unique_id=546769864]
 

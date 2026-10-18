@@ -394,23 +394,25 @@ func _is_valid_position(point: Vector2) -> bool:
 	return _is_within_world(tx, ty) and not is_solid_tile(tx, ty)
 
 
-## `WorldScene.findSpawnPoint` (world spec 2.2 step 3): ring search from the anchor's tile for
-## the first non-solid in-grid cell, returning its centre `(tx*64+32, ty*64+32)`; nothing ->
-## world centre.
+## Godot correction to `WorldScene.findSpawnPoint` (world spec 2.2 step 3): the nearest non-solid
+## in-grid cell centre to the anchor; equal distances keep the first cell in row-major order.
+## Nothing -> world centre.
 func find_spawn_point(anchor: Vector2) -> Vector2:
 	if _dimensions.is_empty():
 		return Vector2.ZERO
 	var tile_size := float(_dimensions["tile_size"])
-	var start_x := floori(anchor.x / tile_size)
-	var start_y := floori(anchor.y / tile_size)
-	var max_radius := maxi(int(_dimensions["columns"]), int(_dimensions["rows"]))
-	for radius: int in max_radius:
-		for ty: int in range(start_y - radius, start_y + radius + 1):
-			for tx: int in range(start_x - radius, start_x + radius + 1):
-				if not _is_within_world(tx, ty) or is_solid_tile(tx, ty):
-					continue
-				return Vector2(tx * tile_size + tile_size / 2.0, ty * tile_size + tile_size / 2.0)
-	return world_rect().get_center()
+	var nearest := world_rect().get_center()
+	var nearest_distance_squared := INF
+	for ty: int in int(_dimensions["rows"]):
+		for tx: int in int(_dimensions["columns"]):
+			if is_solid_tile(tx, ty):
+				continue
+			var candidate := Vector2(tx * tile_size + tile_size / 2.0, ty * tile_size + tile_size / 2.0)
+			var distance_squared := anchor.distance_squared_to(candidate)
+			if distance_squared < nearest_distance_squared:
+				nearest = candidate
+				nearest_distance_squared = distance_squared
+	return nearest
 
 
 # --- player / targets ------------------------------------------------------------------------

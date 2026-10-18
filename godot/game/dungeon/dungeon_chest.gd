@@ -7,6 +7,8 @@ extends "res://game/scripts/chest.gd"
 ## their ceremony or pop; what else it holds opens the chest window as any chest. Its record is the
 ## map's chest record, so an opened chest stays open (empty) after a faint, a quit or a load.
 ##
+## `goo_heart_id` (chest.gd): a Goo Heart inside, lifted out and granted as it opens.
+##
 ## `hidden`: it is not there until `appear()` (a room fight cleared, game/dungeon/room_fight.gd's
 ## `reward`; or any signal connected to `appear`): then it rises with a puff and the secret jingle,
 ## and stays (its appearance is recorded under `instance_id`).
@@ -105,12 +107,18 @@ func request_open() -> String:
 			given = true
 		if given:
 			run.set_chest_remaining(map_id, instance_id, kept)
+			# A Goo Heart beside the dungeon items rises with them.
+			give_heart()
 			sync_frame()
 			_cue_open()
 			open_requested.emit({"mapId": map_id, "instanceId": instance_id, "contents": contents})
 			if kept.is_empty():
 				return "opened"
 	return super()
+
+
+func _cue_heart_open() -> void:
+	_cue_open()
 
 
 func _cue_open() -> void:

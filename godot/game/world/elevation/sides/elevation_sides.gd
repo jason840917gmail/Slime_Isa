@@ -161,8 +161,9 @@ var _under_ramp: Callable
 
 ## A top's border, its corners rounded and resampled (`_border`): per point the smooth point, its
 ## outward normal, the drop and visible depth (levels), whether a foot grows there (0/1), the rim
-## factor (0 a front … 1 a side or back) and the corner it lies on (-1 on a straight run); the
-## corners {vertex, e_a, e_b, n_a, n_b, convex, back, radius, tangent, turn, first, last}.
+## factor (0 a front … 1 a side or back), water status, top/lower ground and wall style, and the
+## corner it lies on (-1 on a straight run); the corners {vertex, e_a, e_b, n_a, n_b, convex, back,
+## radius, tangent, turn, first, last}.
 class Border:
 	var points := PackedVector2Array()
 	var normals := PackedVector2Array()
@@ -171,16 +172,19 @@ class Border:
 	var foot := PackedFloat32Array()
 	var rim := PackedFloat32Array()
 	var water := PackedFloat32Array()
+	var top_ground := PackedStringArray()
+	var low_ground := PackedStringArray()
 	var corner := PackedInt32Array()
 	var style := PackedStringArray()
 	var corners: Array[Dictionary] = []
 
 
 ## The meshes of every top's sides: [{key, level, style, top_ground, low_ground, arrays}] lowest
-## level first. `edges`: the tops' boundary edges to draw (ElevationRims.boundary_edges, cells, those
-## left out removed). `style_of` (Callable(edge) -> String): the wall style an edge's ground gives
-## it; a chain's walls take the commonest. `painted_of` (Callable(edge) -> String, optional): the
-## style painted over an edge's top ("" where none), which its stretch of wall takes instead.
+## level first. Ground pairs stay per edge; pieces share a mesh only when their pair matches.
+## `edges`: the tops' boundary edges to draw (ElevationRims.boundary_edges, cells, those left out
+## removed). `style_of` (Callable(edge) -> String): the wall style an edge's ground gives it; a
+## chain's walls take the commonest. `painted_of` (Callable(edge) -> String, optional): the style
+## painted over an edge's top ("" where none), which its stretch of wall takes instead.
 ## `grounds_of` (Callable(edge) -> PackedStringArray: the top's ground, the lower ground): the
 ## grounds its edges are drawn with. `wall_width_of` (Callable(style) -> float): the wall art's
 ## width in px, so loops close on whole periods. `under_ramp` (Callable(point) -> bool, Elevation
@@ -196,31 +200,28 @@ func build(the_grid: ElevationGrid, cell_size: float, edges: Array[Dictionary], 
 	for chain in _chains(edges):
 		var level := int(chain[0]["level"])
 		var styles := {}
-		var tops := {}
-		var lows := {}
 		var painted := PackedStringArray()
 		for edge in chain:
 			painted.append(str(painted_of.call(edge)) if painted_of.is_valid() else "")
 			if painted[painted.size() - 1] == "":
 				var edge_style := str(style_of.call(edge))
 				styles[edge_style] = int(styles.get(edge_style, 0)) + 1
-			var grounds: PackedStringArray = grounds_of.call(edge)
-			tops[grounds[0]] = int(tops.get(grounds[0], 0)) + 1
-			lows[grounds[1]] = int(lows.get(grounds[1], 0)) + 1
 		var style := _most(styles) if not styles.is_empty() else painted[0]
-		var top_ground := _most(tops)
-		var low_ground := _most(lows)
 		# Each edge's wall style: what is painted over its top, else the chain's.
 		for k in chain.size():
 			chain[k]["style"] = painted[k] if painted[k] != "" else style
-		var by_style := {}
-		_add_chain(by_style, chain, float(wall_width_of.call(style)))
-		for piece_style: String in by_style:
+		var by_material := {}
+		_add_chain(by_material, chain, float(wall_width_of.call(style)), grounds_of)
+		for material_key: String in by_material:
+			var material_group: Dictionary = by_material[material_key]
+			var piece_style := str(material_group["style"])
+			var top_ground := str(material_group["top_ground"])
+			var low_ground := str(material_group["low_ground"])
 			var key := "%d|%s|%s|%s" % [level, piece_style, top_ground, low_ground]
 			if not by_key.has(key):
 				by_key[key] = {"key": key, "level": level, "style": piece_style, "top_ground": top_ground,
 						"low_ground": low_ground, "pieces": []}
-			(by_key[key]["pieces"] as Array).append_array(by_style[piece_style])
+			(by_key[key]["pieces"] as Array).append_array(material_group["pieces"])
 	var out: Array[Dictionary] = []
 	for key: String in by_key:
 		var entry: Dictionary = by_key[key]
@@ -386,9 +387,9 @@ func _edge_drop(edge: Dictionary) -> Array:
 # --- one chain ----------------------------------------------------------------------------
 
 ## Straight runs of a chain (world units): {from, to, dir, normal, drop, shown, foot, rim, water (the
-## ground below is water), style (the edges' wall style)}, edges running the same way with the same
-## drop and style merged.
-func _runs(chain: Array[Dictionary]) -> Array[Dictionary]:
+## ground below is water), style, top_ground, low_ground}. Adjacent edges merge only when all those
+## properties match, so ground treatment stays tile by tile without breaking the wall's geometry.
+func _runs(chain: Array[Dictionary], grounds_of: Callable) -> Array[Dictionary]:
 	var runs: Array[Dictionary] = []
 	for edge in chain:
 		var from: Vector2 = (edge["from"] as Vector2) * cell
@@ -396,19 +397,24 @@ func _runs(chain: Array[Dictionary]) -> Array[Dictionary]:
 		var dir := (to - from).normalized()
 		var drop := _edge_drop(edge)
 		var rim := 1.0 if int(edge["mode"]) == ElevationRims.RIM else 0.0
+		# Foam is per edge; shallow water stays visually wet even though it is walkable.
 		var water := _ground_below(edge) == WATER
 		var style := str(edge.get("style", ""))
+		var grounds: PackedStringArray = grounds_of.call(edge)
+		var top_ground := str(grounds[0])
+		var low_ground := str(grounds[1])
 		if not runs.is_empty():
 			var last: Dictionary = runs[runs.size() - 1]
 			if (last["dir"] as Vector2).dot(dir) > 0.9999 and float(last["drop"]) == float(drop[0]) \
 					and float(last["shown"]) == float(drop[1]) and bool(last["foot"]) == bool(drop[2]) \
-					and float(last["rim"]) == rim and bool(last["water"]) == water and str(last["style"]) == style:
+					and float(last["rim"]) == rim and bool(last["water"]) == water and str(last["style"]) == style \
+					and str(last["top_ground"]) == top_ground and str(last["low_ground"]) == low_ground:
 				last["to"] = to
 				continue
 		runs.append({
 			"from": from, "to": to, "dir": dir, "normal": Vector2(-dir.y, dir.x),
 			"drop": float(drop[0]), "shown": float(drop[1]), "foot": bool(drop[2]), "rim": rim, "water": water,
-			"style": style,
+			"style": style, "top_ground": top_ground, "low_ground": low_ground,
 		})
 	return runs
 
@@ -505,8 +511,13 @@ func _add_point(border: Border, point: Vector2, normal: Vector2, a: Dictionary, 
 	border.shown.append(lerpf(float(a["shown"]), float(b["shown"]), t))
 	border.foot.append(1.0 if bool(a["foot"]) and bool(b["foot"]) else 0.0)
 	border.rim.append(lerpf(float(a["rim"]), float(b["rim"]), t))
-	border.water.append(1.0 if bool(a["water"]) or bool(b["water"]) else 0.0)
+	# At a ground change, water foam turns around only the water side of the rounded corner.
+	var water_a := 1.0 if bool(a["water"]) else 0.0
+	var water_b := 1.0 if bool(b["water"]) else 0.0
+	border.water.append(lerpf(water_a, water_b, t))
 	border.style.append(str(a["style"]) if t < 0.5 else str(b["style"]))
+	border.top_ground.append(str(a["top_ground"]) if t < 0.5 else str(b["top_ground"]))
+	border.low_ground.append(str(a["low_ground"]) if t < 0.5 else str(b["low_ground"]))
 	border.corner.append(corner)
 
 
@@ -586,10 +597,10 @@ func _caps(border: Border, loop: bool) -> PackedFloat32Array:
 
 ## One chain's pieces into `by_style` (style -> pieces), each by the wall style of the border point
 ## it hangs from. `wall_width`: the chain's own style's wall art width (px).
-func _add_chain(by_style: Dictionary, chain: Array[Dictionary], wall_width: float) -> void:
+func _add_chain(by_material: Dictionary, chain: Array[Dictionary], wall_width: float, grounds_of: Callable) -> void:
 	var pieces: Array = []
 	var loop := chain.size() > 2 and _point_key(chain[0]["from"]) == _point_key(chain[chain.size() - 1]["to"])
-	var runs := _runs(chain)
+	var runs := _runs(chain, grounds_of)
 	if runs.is_empty():
 		return
 	# A loop starts wherever its first edge lies, often partway along a straight run: join the run's
@@ -597,7 +608,12 @@ func _add_chain(by_style: Dictionary, chain: Array[Dictionary], wall_width: floa
 	if loop and runs.size() > 2:
 		var last: Dictionary = runs[runs.size() - 1]
 		var first: Dictionary = runs[0]
-		if (last["dir"] as Vector2).dot(first["dir"]) > 0.9999 and float(last["drop"]) == float(first["drop"]) 				and float(last["shown"]) == float(first["shown"]) and bool(last["foot"]) == bool(first["foot"]) 				and float(last["rim"]) == float(first["rim"]) and str(last["style"]) == str(first["style"]):
+		if (last["dir"] as Vector2).dot(first["dir"]) > 0.9999 and float(last["drop"]) == float(first["drop"]) \
+				and float(last["shown"]) == float(first["shown"]) and bool(last["foot"]) == bool(first["foot"]) \
+				and float(last["rim"]) == float(first["rim"]) and bool(last["water"]) == bool(first["water"]) \
+				and str(last["style"]) == str(first["style"]) \
+				and str(last["top_ground"]) == str(first["top_ground"]) \
+				and str(last["low_ground"]) == str(first["low_ground"]):
 			first["from"] = last["from"]
 			runs.remove_at(runs.size() - 1)
 	var level := float(chain[0]["level"])
@@ -675,9 +691,14 @@ func _add_chain(by_style: Dictionary, chain: Array[Dictionary], wall_width: floa
 	_add_foot(pieces, border, foots, depths, loop, level)
 	for piece: Array in pieces:
 		var piece_style := border.style[int(piece[4])]
-		if not by_style.has(piece_style):
-			by_style[piece_style] = []
-		(by_style[piece_style] as Array).append(piece)
+		var point_index := int(piece[4])
+		var top_ground := border.top_ground[point_index]
+		var low_ground := border.low_ground[point_index]
+		var material_key := "%s|%s|%s" % [piece_style, top_ground, low_ground]
+		if not by_material.has(material_key):
+			by_material[material_key] = {"style": piece_style, "top_ground": top_ground,
+					"low_ground": low_ground, "pieces": []}
+		(by_material[material_key]["pieces"] as Array).append(piece)
 
 
 ## Per point, how much its wall is drawn as a side's (one course across, short stones: `side_of`),
@@ -990,11 +1011,14 @@ func _add_corner_fills(pieces: Array, border: Border, level: float) -> void:
 		var colour := Color(kind, 0.0, 0.0, _level_channel(fill_level))
 		# The arc's ends meet the straight runs, which carry on to the vertex: fan from it.
 		for i in range(first, last):
+			verts.clear()
+			uvs.clear()
+			colors.clear()
 			for point: Vector2 in [vertex, border.points[i], border.points[i + 1]]:
 				verts.append(point)
 				uvs.append(Vector2.ZERO)
 				colors.append(colour)
-		pieces.append([-1e9, verts, uvs, colors, first])
+			pieces.append([-1e9, verts.duplicate(), uvs.duplicate(), colors.duplicate(), i])
 
 
 ## A chain's shape for collision (`shapes`): its drawn walls as polygons (each run of points with a

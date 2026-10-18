@@ -1,0 +1,181 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_myryg"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_wxrar"]
+[ext_resource type="TileSet" path="res://game/world/props/props_tileset.tres" id="3_e4x60"]
+[ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="4_psax1"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="5_0w8fi"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="6_6uq2k"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="7_faaxj"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="8_13kcm"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/Houses/doors/interior-timber-door.webp" id="9_w0dd8"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="10_qc41k"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="11_7h8k5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="12_y8m3l"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-shelf-empty-n.tscn" id="13_db440"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-barrel.tscn" id="14_odufs"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-crate.tscn" id="15_0xvxg"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-sacks-bundled.tscn" id="16_r1pcm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/tables/interior-tables-desk-with-chair-n.tscn" id="17_ocu67"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-rug-green-large.tscn" id="18_ohw0d"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="19_ngj2g"]
+
+[node name="watchkeeper-hideout" type="Node2D" unique_id=63706658]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=1838111362]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAADAAAAAAAAAABAAAADQAAAAAAAAACAAAADAAAAAAAAAADAAAADQAAAAAAAAAEAAAADAAAAAAAAAAFAAAADQAAAAAAAAAGAAAADAAAAAAAAAAHAAAADQAAAAAAAAAIAAAADAAAAAAAAAAJAAAADQAAAAAAAAAKAAAADAAAAAAAAAALAAAADQAAAAAAAAAMAAAADAAAAAAAAAANAAAADQAAAAAAAAAAAAEADQAAAAAAAAABAAEADAAAAAAAAAACAAEADQAAAAAAAAADAAEADAAAAAAAAAAEAAEADQAAAAAAAAAFAAEADAAAAAAAAAAGAAEADQAAAAAAAAAHAAEADAAAAAAAAAAIAAEADQAAAAAAAAAJAAEADAAAAAAAAAAKAAEADQAAAAAAAAALAAEADAAAAAAAAAAMAAEADQAAAAAAAAANAAEADAAAAAAAAAAAAAIADAAAAAAAAAABAAIADQAAAAAAAAACAAIADAAAAAAAAAADAAIADQAAAAAAAAAEAAIADAAAAAAAAAAFAAIADQAAAAAAAAAGAAIADAAAAAAAAAAHAAIADQAAAAAAAAAIAAIADAAAAAAAAAAJAAIADQAAAAAAAAAKAAIADAAAAAAAAAALAAIADQAAAAAAAAAMAAIADAAAAAAAAAANAAIADQAAAAAAAAAAAAMADQAAAAAAAAABAAMADAAAAAAAAAACAAMADQAAAAAAAAADAAMADAAAAAAAAAAEAAMADQAAAAAAAAAFAAMADAAAAAAAAAAGAAMADQAAAAAAAAAHAAMADAAAAAAAAAAIAAMADQAAAAAAAAAJAAMADAAAAAAAAAAKAAMADQAAAAAAAAALAAMADAAAAAAAAAAMAAMADQAAAAAAAAANAAMADAAAAAAAAAAAAAQADAAAAAAAAAABAAQADQAAAAAAAAACAAQADAAAAAAAAAADAAQADQAAAAAAAAAEAAQADAAAAAAAAAAFAAQADQAAAAAAAAAGAAQADAAAAAAAAAAHAAQADQAAAAAAAAAIAAQADAAAAAAAAAAJAAQADQAAAAAAAAAKAAQADAAAAAAAAAALAAQADQAAAAAAAAAMAAQADAAAAAAAAAANAAQADQAAAAAAAAAAAAUADQAAAAAAAAABAAUADAAAAAAAAAACAAUADQAAAAAAAAADAAUADAAAAAAAAAAEAAUADQAAAAAAAAAFAAUADAAAAAAAAAAGAAUADQAAAAAAAAAHAAUADAAAAAAAAAAIAAUADQAAAAAAAAAJAAUADAAAAAAAAAAKAAUADQAAAAAAAAALAAUADAAAAAAAAAAMAAUADQAAAAAAAAANAAUADAAAAAAAAAAAAAYADAAAAAAAAAABAAYADQAAAAAAAAACAAYADAAAAAAAAAADAAYADQAAAAAAAAAEAAYADAAAAAAAAAAFAAYADQAAAAAAAAAGAAYADAAAAAAAAAAHAAYADQAAAAAAAAAIAAYADAAAAAAAAAAJAAYADQAAAAAAAAAKAAYADAAAAAAAAAALAAYADQAAAAAAAAAMAAYADAAAAAAAAAANAAYADQAAAAAAAAAAAAcADQAAAAAAAAABAAcADAAAAAAAAAACAAcADQAAAAAAAAADAAcADAAAAAAAAAAEAAcADQAAAAAAAAAFAAcADAAAAAAAAAAGAAcADQAAAAAAAAAHAAcADAAAAAAAAAAIAAcADQAAAAAAAAAJAAcADAAAAAAAAAAKAAcADQAAAAAAAAALAAcADAAAAAAAAAAMAAcADQAAAAAAAAANAAcADAAAAAAAAAAAAAgADAAAAAAAAAABAAgADQAAAAAAAAACAAgADAAAAAAAAAADAAgADQAAAAAAAAAEAAgADAAAAAAAAAAFAAgADQAAAAAAAAAGAAgADAAAAAAAAAAHAAgADQAAAAAAAAAIAAgADAAAAAAAAAAJAAgADQAAAAAAAAAKAAgADAAAAAAAAAALAAgADQAAAAAAAAAMAAgADAAAAAAAAAANAAgADQAAAAAAAAAAAAkADQAAAAAAAAABAAkADAAAAAAAAAACAAkADQAAAAAAAAADAAkADAAAAAAAAAAEAAkADQAAAAAAAAAFAAkADAAAAAAAAAAGAAkADQAAAAAAAAAHAAkADAAAAAAAAAAIAAkADQAAAAAAAAAJAAkADAAAAAAAAAAKAAkADQAAAAAAAAALAAkADAAAAAAAAAAMAAkADQAAAAAAAAANAAkADAAAAAAAAAAAAAoADAAAAAAAAAABAAoADQAAAAAAAAACAAoADAAAAAAAAAADAAoADQAAAAAAAAAEAAoADAAAAAAAAAAFAAoADQAAAAAAAAAGAAoADAAAAAAAAAAHAAoADQAAAAAAAAAIAAoADAAAAAAAAAAJAAoADQAAAAAAAAAKAAoADAAAAAAAAAALAAoADQAAAAAAAAAMAAoADAAAAAAAAAANAAoADQAAAAAAAAA=")
+tile_set = ExtResource("1_myryg")
+script = ExtResource("2_wxrar")
+metadata/tile_seed = 7
+metadata/source_cell_count = 154
+metadata/columns = 14
+metadata/rows = 11
+
+[node name="TileCollision" type="Node2D" parent="ground" unique_id=785426146]
+
+[node name="old-props" type="TileMapLayer" parent="." unique_id=1900221968]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAIABMAEABAABsAAAAYABMAEABAABsAAAAoABMAEABAABsAAAA4ABMAEABAABsAAABIABMAEABAABsAAABYABMAEABAABsAAABoABMAEABAABsAAABuABMAEAAzABsAAAADABoAEAAaAAAAAABtABoAEAAaAAAAAAADACkAEAAaAAAAAABtACkAEAAaAAAAAAADADcAEAAaAAAAAABtADcAEAAaAAAAAAADAEYAEAAaAAAAAABtAEYAEAAaAAAAAAADAFQAEAAaAAAAAABtAFQAEAAaAAAAAAAIAFgAEAAeAAAAAAAWAFgAEAAeAAAAAAAkAFgAEAAeAAAAAABMAFgAEAAeAAAAAABaAFgAEAAeAAAAAABoAFgAEAAeAAAAAAAvAFgAEABVABIAAABCAFgAEABVABIAAAA4AFcA//////////84ABkA//////////84ACIA//////////8YABcA//////////8lABcA//////////8oAB0A//////////9IABgA//////////9WAA0A//////////9lAA4A//////////8UAC0A//////////8iAC0A//////////8iACoA//////////9QACYA//////////9QACIA//////////84AD0A//////////9jADsA//////////9kAE8A//////////9ZAFAA//////////8NAEYA//////////8MAFEA//////////8KADcA//////////8eAFEA//////////8=")
+tile_set = ExtResource("3_e4x60")
+script = ExtResource("4_psax1")
+
+[node name="cell-props" type="TileMapLayer" parent="." unique_id=1690882647]
+y_sort_enabled = true
+tile_set = ExtResource("5_0w8fi")
+script = ExtResource("4_psax1")
+
+[node name="details" type="TileMapLayer" parent="." unique_id=842681330]
+y_sort_enabled = true
+tile_set = ExtResource("6_6uq2k")
+script = ExtResource("4_psax1")
+
+[node name="world-definition" type="Node" parent="." unique_id=1351063169]
+script = ExtResource("7_faaxj")
+map_id = "watchkeeper-hideout"
+tile_size = 64
+columns = 14
+rows = 11
+metadata = {
+"objects": [],
+"player": {
+"entries": {
+"south": {
+"x": 448,
+"y": 624
+}
+},
+"spawn": {
+"x": 448,
+"y": 624
+}
+}
+}
+camera_mode = "fixed"
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=1216781882]
+y_sort_enabled = true
+position = Vector2(448, 624)
+
+[node name="player-entry-south" type="Node2D" parent="." unique_id=2138779099]
+y_sort_enabled = true
+position = Vector2(448, 624)
+
+[node name="house-door" type="Node2D" parent="." unique_id=529840526]
+y_sort_enabled = true
+position = Vector2(448, 694)
+
+[node name="door-script" type="Node" parent="house-door" unique_id=1105275881 node_paths=PackedStringArray("house_art")]
+script = ExtResource("8_13kcm")
+map_id = "watchkeeper-hideout"
+door_id = "house-door"
+target_area_id = "level-1"
+target_door_id = "watchkeeper-hideout-door"
+kind = "door"
+side = "south"
+house_art = NodePath("../../house-door-art")
+door_rect = Rect2(-57.5, -50.6, 114.8, 49.1)
+double_leaf = true
+
+[node name="arrival" type="Node2D" parent="house-door" unique_id=244960087]
+y_sort_enabled = true
+position = Vector2(0, -70)
+
+[node name="house-door-art" type="Sprite2D" parent="." unique_id=198575041]
+position = Vector2(448, 643)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("9_w0dd8")
+centered = false
+offset = Vector2(-120, 0)
+
+[node name="Ambience" type="AudioStreamPlayer" parent="." unique_id=2140903368]
+process_mode = 3
+stream = ExtResource("10_qc41k")
+volume_db = -9.1186
+bus = &"Ambience"
+script = ExtResource("11_7h8k5")
+loop = true
+autoplay_cue = true
+
+[node name="keeper-coffer" parent="." unique_id=1428888084 instance=ExtResource("12_y8m3l")]
+position = Vector2(224, 328)
+
+[node name="ChestScript" parent="keeper-coffer" index="2"]
+map_id = "level-1-c4"
+instance_id = "level-1-c4-watch-post-chest"
+initial_contents = {
+"coins": 20,
+"hp-potion": 1
+}
+
+[node name="keeper-shelf" parent="." unique_id=2016624118 instance=ExtResource("13_db440")]
+position = Vector2(704, 312)
+
+[node name="water-barrel" parent="." unique_id=69788597 instance=ExtResource("14_odufs")]
+position = Vector2(744, 438)
+
+[node name="stored-crate" parent="." unique_id=1856710524 instance=ExtResource("15_0xvxg")]
+position = Vector2(660, 448)
+
+[node name="grain-sacks" parent="." unique_id=1998063390 instance=ExtResource("16_r1pcm")]
+position = Vector2(164, 444)
+
+[node name="keeper-desk" parent="." unique_id=1410173357 instance=ExtResource("17_ocu67")]
+position = Vector2(448, 352)
+
+[node name="faded-rug" parent="." unique_id=1596332003 instance=ExtResource("18_ohw0d")]
+position = Vector2(448, 528)
+
+[node name="pot-west" parent="." unique_id=1247381520 instance=ExtResource("19_ngj2g")]
+position = Vector2(166, 568)
+
+[node name="PotLoot" parent="pot-west" index="3"]
+loot = "coins"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-west-small" parent="." unique_id=121797178 instance=ExtResource("19_ngj2g")]
+position = Vector2(230, 598)
+
+[node name="PotLoot" parent="pot-west-small" index="3"]
+loot = "heart"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-east" parent="." unique_id=1008354039 instance=ExtResource("19_ngj2g")]
+position = Vector2(700, 566)
+
+[node name="PotLoot" parent="pot-east" index="3"]
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-east-small" parent="." unique_id=2078041238 instance=ExtResource("19_ngj2g")]
+position = Vector2(762, 592)
+
+[node name="PotLoot" parent="pot-east-small" index="3"]
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[editable path="keeper-coffer"]
+[editable path="pot-west"]
+[editable path="pot-west-small"]
+[editable path="pot-east"]
+[editable path="pot-east-small"]

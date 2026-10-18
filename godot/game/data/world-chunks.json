@@ -102,7 +102,10 @@
         "home-door": "level-1-c4",
         "mushroom-home-door": "level-1-c4",
         "fatty-lair-mouth": "level-1-d5",
-        "fatty-lair-bolt-hole-mouth": "level-1-d4"
+        "hollow-hill-cave-mouth": "level-1-d5",
+        "lake-island-cave-mouth": "level-1-c5",
+        "fatty-lair-bolt-hole-mouth": "level-1-d4",
+        "watchkeeper-hideout-door": "level-1-c4"
       },
       "spawn": "level-1-c4",
       "written": {

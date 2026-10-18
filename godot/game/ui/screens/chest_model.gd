@@ -31,6 +31,8 @@ static func entries(remaining: Dictionary) -> Array:
 
 ## The status after a take: "Moved <n> × <name>", or the no-room text when nothing moved.
 static func moved_text(moved: int, item_id: String) -> String:
+	if moved > 0 and item_id == "coins":
+		return "%d coins added to your pouch." % moved
 	return MOVED_FORMAT % [moved, ItemCatalog.item_name(item_id)] if moved > 0 else NO_ROOM_STATUS
 
 
@@ -52,13 +54,15 @@ static func snapshot(remaining: Dictionary, selected_id: String, status: String)
 		var item_id := str(stack[0])
 		cells.append({
 			"id": item_id,
-			"label": "%s ×%d" % [ItemCatalog.item_name(item_id), int(stack[1])],
+			"label": "%s ×%d" % ["Coins" if item_id == "coins" else ItemCatalog.item_name(item_id), int(stack[1])],
 			"count_text": str(int(stack[1])),
 			"defined": not ItemCatalog.definition(item_id).is_empty(),
 		})
 	var details := EMPTY_DETAILS
 	var definition := ItemCatalog.definition(selected) if index >= 0 else {}
-	if not definition.is_empty():
+	if selected == "coins":
+		details = "Coins\nPOUCH · ×%d\n\nTaken straight into your coin pouch." % int(stacks[index][1])
+	elif not definition.is_empty():
 		details = "\n".join([
 			str(definition.get("name", selected)),
 			"%s · ×%d" % [str(definition.get("category", "")).to_upper(), int(stacks[index][1])],

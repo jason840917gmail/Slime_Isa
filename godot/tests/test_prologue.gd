@@ -376,6 +376,11 @@ func test_the_way_out_leads_to_slimeshire_where_plop_meets_the_slime(t: TestCont
 	t.check(not run.can_save(), "saving works before Plop's meeting is over")
 	await _close_dialogues(t, func() -> bool: return PrologueState.has_beat(run, PrologueState.DONE), 6000.0)
 	t.check(PrologueState.has_beat(run, PrologueState.DONE), "the prologue did not end with Plop's meeting")
+	if plop != null:
+		var body := plop.get(&"body") as Node2D
+		t.near_vec(body.global_position, meeting.get(&"_home_position"), 4.0, "Plop returned to his saved village position")
+		t.near(body.modulate.a, 1.0, 0.01, "Plop faded back in")
+		t.equal(t.world().elevation.level_of(body), 0, "Plop returned to the town's ground level")
 	t.equal(int(run.inventory.get("max_slots", 0)), 10, "Plop's satchel has 10 pockets")
 	t.check(run.can_save(), "saving does not work after the prologue")
 	t.check(ReworkMode.is_on(), "Slimeshire after the prologue is not in the shapes mode")

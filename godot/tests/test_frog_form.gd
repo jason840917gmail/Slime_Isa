@@ -9,8 +9,8 @@ extends RefCounted
 ## - No abilities while swimming.
 ##
 ## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
-## docs/godot/WORLD_ATLAS.md): chunk row 4 has deep water at x = 0..5 and shallow water at x = 6..12;
-## (8, 7) is open deep water north of the island in the middle of the lake.
+## docs/godot/WORLD_ATLAS.md): chunk row 15 has deep water at x = 0..9 and shallow water at x = 10..13;
+## (8, 18) is open deep water north of the island in the middle of the lake.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -20,9 +20,9 @@ const WaterWake := preload("res://game/world/water_wake.gd")
 
 const MAP_ID := "level-1-c5"
 const CELL := 64.0
-const ROW := 4
-const SHALLOW := Vector2i(7, ROW)
-const DEEP := Vector2i(8, 7)
+const ROW := 15
+const SHALLOW := Vector2i(10, ROW)
+const DEEP := Vector2i(8, 18)
 ## Long enough to walk about two cells (walk speed 200).
 const WALK_MS := 700.0
 
@@ -67,9 +67,9 @@ func test_the_frog_walks_from_the_shallows_into_deep_water(t: TestContext) -> vo
 	await t.sim_wait(WALK_MS)
 	t.release_all()
 	await t.steps(2)
-	# Deep water ends at x = 6 cells (walking west); without the form the body stops at that cell side.
+	# Deep water ends at x = 10 cells (walking west); without the form the body stops at that cell side.
 	var x := body.global_position.x
-	t.check(x < 5.5 * CELL, "the frog crossed into the deep water (x = %.1f)" % x)
+	t.check(x < 9.5 * CELL, "the frog crossed into the deep water (x = %.1f)" % x)
 	t.check(player.is_swimming(), "swimming after walking in")
 
 

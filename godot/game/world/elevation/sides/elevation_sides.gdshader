@@ -6,7 +6,7 @@ shader_type canvas_item;
 // draws them, so they join it without a seam), a shade, a jagged outline and a shadow, as in the
 // owner's reference (2026-10-13: "simpler borders").
 // Vertex colour r = the kind of piece: 0 … 0.2 wall (front … side), 0.3 corner stone, 0.5 foot
-// (0.54 standing in water: foam),
+// (0.54 where that edge's lower ground is water: foam),
 // 0.6 / 0.7 the lower / the top's ground filling a corner, 1 top edge; a = the height in levels ((level + 4) / 8, elevation_light.gdshaderinc).
 // - Wall: UV = (px along the border, px down the fibre + the course of its level); g = the face's
 //   light, b = px down the fibre / 512 (the top edge's shadow on the wall). r / 0.2 = how much it is
@@ -58,8 +58,6 @@ uniform float foot_outline = 2.2;
 uniform vec4 foot_line_colour : source_color = vec4(0.16, 0.1, 0.05, 1.0);
 uniform float foot_clumps = 4.0;
 uniform float foot_shadow_width = 18.0;
-// 1 when the lower ground is water: the foot is a band of foam lapping at the wall instead.
-uniform float low_is_water = 0.0;
 uniform vec4 foam_colour : source_color = vec4(0.88, 0.96, 1.0, 0.8);
 
 varying vec2 world;
@@ -116,7 +114,7 @@ void fragment() {
 		float line = smoothstep(-reach - foot_outline - aa, -reach - foot_outline + aa, d) * above_tips;
 		float blade = (1.0 - above_tips) * (1.0 - step(0.0, d));
 		vec4 art = vec4(mix(grass, foot_line_colour.rgb, line), max(line, blade) * (1.0 - data.b));
-		if (low_is_water > 0.5 || kind > 0.52) {
+		if (kind > 0.52) {
 			// Foam: a band up the wall's base and onto the water, lapping (presentation time).
 			float lap = 1.2 + 1.2 * sin(UV.x * 0.13 + TIME * 1.6) + 0.6 * sin(UV.x * 0.37 - TIME * 2.3);
 			float band = smoothstep(-lap - 1.5 - aa, -lap - 1.5 + aa, d) * (1.0 - smoothstep(1.5 - aa, 1.5 + aa, d));

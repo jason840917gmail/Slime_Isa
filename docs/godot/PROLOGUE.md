@@ -97,7 +97,7 @@ walking, no input) and shows letterbox bars (`cinema_bars.gd`, layer 20, over th
    Plop to his spot, holds the slime, and Plop meets it (the "!" over him: his first quest's marker,
    else its own); he gives **his satchel**, the 10-slot bag (`max_slots` 10, the item ceremony "New
    bag"), and his first tips; then `PrologueState.finish`: saving works again, Slimeshire's banner
-   shows, and Plop walks back to his place.
+   shows, and Plop fades out, returns to his saved village position, then fades in; NPCs cannot use the plateau stairs. His elevation is refreshed at both positions, and completion/saving waits until control is released.
 
 **The Spear in the story:** the Spear is a body shape, which only the body-shapes mode plays. A run
 that plays the prologue, or has learned a shape for good, plays in that mode in every world
@@ -167,7 +167,8 @@ mist, dawn light and fireflies are drawn in code (`soft_glow.gd`, `fireflies.gd`
 - The Wellspring's campfire and the Pearls' homecoming scenes (5.17); a come-back secret in sight
   of the birth (the level-design guide's proposal: a heart quarter on a rooted ledge, after Feral).
 - ~~The first bell, near the town's edge~~: built 2026-10-17 in `level-1-c4` (an islet in a little
-  pond south of the road from the forest path, pots on its shore; it opens the old watch post's
-  stone door north of the road: [Chapter 1](../story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
+  pond south of the road from the forest path, pots on its shore; it unlocks the keeper's
+  storehouse, whose coffer is in a separate furnished interior:
+  [Chapter 1](../story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
   The arrival and Plop's spot are unchanged; a road of forest soil now leads from them to the town.
 - The 10-slot bag for runs that do not play the prologue (5.7): they keep `inventory.initialMaxSlots`.

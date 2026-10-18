@@ -18,6 +18,10 @@ const BOB_RATE := 3.0
 const TEXT_RISE := 40.0
 const TEXT_MS := 2000.0
 const CUE := &"Heal"
+## The heart's picture: the heart painted in frame 5 of the gulp props sheet (goo-heart.tscn's
+## frame), its pixels in that sheet.
+const HEART_SHEET := "res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp"
+const HEART_REGION := Rect2(5 * 256 + 70, 130, 116, 126)
 
 ## JSON `heartId`.
 @export var heart_id: String = ""
@@ -91,20 +95,58 @@ func _vanish() -> void:
 
 ## `WorldScene.collectGooHeart`: the flag, one more heart (max HP + 10, HP full), the text.
 func _collect(player: Node, at: Vector2) -> void:
+	grant(get_tree() if is_inside_tree() else null, player, heart_id, hearts, at, _heart_icon())
+
+
+## Grants the Goo Heart `id` (`count` hearts' worth) to `player` as its pickup does: the flag
+## "goo-heart.<id>", max HP + `gooHeart.maxHpBonus` each (HP full), the cue, "+10 max HP" over `at`
+## and the ceremony (`ceremony_delay_s` of real time later: a chest's heart rises first). False (and
+## nothing given) when the flag is already set. Also used by chests that hold a heart (chest.gd).
+static func grant(tree: SceneTree, player: Node, id: String, count: int, at: Vector2, icon: Texture2D, ceremony_delay_s: float = 0.0) -> bool:
 	var run := Services.run()
-	if run == null or run.has_flag(FLAG_PREFIX + heart_id):
-		return
-	run.set_flag(FLAG_PREFIX + heart_id)
-	for i in maxi(1, hearts):
+	if run == null or id.is_empty() or id == UNASSIGNED or run.has_flag(FLAG_PREFIX + id):
+		return false
+	run.set_flag(FLAG_PREFIX + id)
+	for i in maxi(1, count):
 		player.call(&"grant_goo_heart")
 	var constants := Services.constants()
-	var bonus := (constants.integer("character.player.gooHeart.maxHpBonus") if constants != null else 0) * maxi(1, hearts)
+	var bonus := (constants.integer("character.player.gooHeart.maxHpBonus") if constants != null else 0) * maxi(1, count)
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(CUE)
-		feel.floating_text(at - Vector2(0.0, TEXT_RISE), "+%d max HP" % bonus, &"green", true, TEXT_MS)
-	if is_inside_tree() and AbilityCeremony.enabled(get_tree()):
-		AbilityCeremony.request_heart(get_tree(), bonus, _heart_icon())
+		if tree == null or ceremony_delay_s <= 0.0:
+			feel.floating_text(at - Vector2(0.0, TEXT_RISE), "+%d max HP" % bonus, &"green", true, TEXT_MS)
+		else:
+			var player_ref: WeakRef = weakref(player)
+			tree.create_timer(ceremony_delay_s, true, false, true).timeout.connect(func() -> void:
+				if player_ref.get_ref() != null:
+					var current_feel := Services.feel()
+					if current_feel != null:
+						current_feel.floating_text(at - Vector2(0.0, TEXT_RISE), "+%d max HP" % bonus, &"green", true, TEXT_MS))
+	if tree != null and AbilityCeremony.enabled(tree):
+		if ceremony_delay_s <= 0.0:
+			AbilityCeremony.request_heart(tree, bonus, icon)
+		else:
+			tree.create_timer(ceremony_delay_s, true, false, true).timeout.connect(
+				func() -> void: AbilityCeremony.request_heart(tree, bonus, icon))
+	return true
+
+
+## True when the Goo Heart `id` was taken (its flag is set).
+static func is_heart_taken(id: String) -> bool:
+	var run := Services.run()
+	return run != null and run.has_flag(FLAG_PREFIX + id)
+
+
+## The Goo Heart's picture (the gulp props sheet's heart, as the pickup's scene shows it).
+static func default_icon() -> Texture2D:
+	var sheet := load(HEART_SHEET) as Texture2D
+	if sheet == null:
+		return null
+	var icon := AtlasTexture.new()
+	icon.atlas = sheet
+	icon.region = HEART_REGION
+	return icon
 
 
 ## The heart's first frame, for the ceremony's bubble.

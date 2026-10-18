@@ -3,7 +3,7 @@ extends RefCounted
 ## - The mask has one texel per tile: r = 1 on `water` (shallow), g = 1 on `deep-water`, black
 ##   elsewhere; a world without water gets no surface.
 ## - level-1-c5 (the chunk world of level-1's lake, where the tests start; level-1 is cut into chunk
-##   worlds, docs/godot/WORLD_ATLAS.md): 31 shallow and 202 deep tiles; the WaterSurface quad is the
+##   worlds, docs/godot/WORLD_ATLAS.md): 24 shallow and 394 deep tiles; the WaterSurface quad is the
 ##   ground layer's child (drawn right after its tiles, z -2), below the underwater life (z -2,
 ##   y-sorted after the ground), the world-sorted decals (z -1: lily pads, bubbles) and the entities
 ##   (z 0: reeds).
@@ -11,7 +11,7 @@ extends RefCounted
 ##   one for the next world: gloop-forest's chunk E4 (where its west entry is; gloop-forest is cut into
 ##   chunk worlds, docs/godot/WORLD_ATLAS.md) has 106 deep tiles and no shallow ones, so both texture
 ##   slots hold the deep-water sheet.
-## - level-1-c5's 47 water-life instances (painted on its prop layers) play their looping
+## - level-1-c5's 69 water-life instances (painted on its prop layers) play their looping
 ##   `object.water-life.idle` clip with the authored tint and alpha (fish #b9dcef at 0.72, kelp
 ##   #7ea4bf at 0.5, waterweed #a9d2e3 at 0.6, fish shadows 0.75, bubbles 0.9).
 
@@ -21,9 +21,9 @@ const WaterSurface := preload("res://game/world/water_surface.gd")
 const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 const WATER_SHADER_PATH := "res://game/world/water_surface.gdshader"
 const MAP_ID := "level-1-c5"
-const LEVEL1_SHALLOW_TILES := 31
-const LEVEL1_DEEP_TILES := 202
-const LEVEL1_WATER_LIFE := 47
+const LEVEL1_SHALLOW_TILES := 24
+const LEVEL1_DEEP_TILES := 394
+const LEVEL1_WATER_LIFE := 69
 const GLOOP_FOREST_DEEP_TILES := 106
 const IDLE_CLIP := &"object.water-life.idle"
 const WATER_LIFE_SCENE_PREFIX := "water-life--"
@@ -67,7 +67,7 @@ func test_mask_marks_shallow_and_deep_tiles(t: TestContext) -> void:
 			t.equal(surface.mask_image.get_pixel(x, y), codes[rows[y][x]], "mask texel (%d, %d)" % [x, y])
 	t.equal(surface.kind_at(1, 1), WaterSurface.Kind.SHALLOW, "kind at (1, 1)")
 	t.equal(surface.kind_at(3, 2), WaterSurface.Kind.DEEP, "kind at (3, 2)")
-	t.equal(surface.kind_at(0, 0), WaterSurface.Kind.NONE, "kind at (0, 0)")
+	t.equal(surface.kind_at(17, 0), WaterSurface.Kind.NONE, "kind at (0, 0)")
 	# Water spans tiles (1,1)-(3,2); one tile of margin, clamped to the grid.
 	t.equal(surface.water_rect, Rect2(0, 0, 5 * 64, 4 * 64), "drawn rectangle")
 	var shader_material := surface.material as ShaderMaterial
@@ -93,11 +93,11 @@ func test_level1_surface_covers_the_water_tiles_in_draw_order(t: TestContext) ->
 		return
 	t.equal(surface.shallow_cells, LEVEL1_SHALLOW_TILES, "shallow tiles")
 	t.equal(surface.deep_cells, LEVEL1_DEEP_TILES, "deep tiles")
-	t.equal(surface.kind_at(23, 1), WaterSurface.Kind.DEEP, "the river at (23, 1) is deep")
-	t.equal(surface.kind_at(9, 4), WaterSurface.Kind.SHALLOW, "the lake's north shore (9, 4) is shallow")
-	t.equal(surface.kind_at(8, 7), WaterSurface.Kind.DEEP, "the lake centre (8, 7) is deep")
+	t.equal(surface.kind_at(28, 1), WaterSurface.Kind.DEEP, "the river at (28, 1) is deep")
+	t.equal(surface.kind_at(10, 15), WaterSurface.Kind.SHALLOW, "the lake's shallows (10, 15) is shallow")
+	t.equal(surface.kind_at(8, 18), WaterSurface.Kind.DEEP, "the lake centre (8, 18) is deep")
 	t.equal(surface.kind_at(8, 12), WaterSurface.Kind.NONE, "the lake island (8, 12) is dry")
-	t.equal(surface.kind_at(0, 0), WaterSurface.Kind.NONE, "(0, 0) is dry")
+	t.equal(surface.kind_at(17, 0), WaterSurface.Kind.NONE, "(17, 0) is dry")
 	var mismatches := 0
 	for cell: Vector2i in ground.get_used_cells():
 		var tile_id: Variant = ground.get_cell_tile_data(cell).get_custom_data("tile_id")

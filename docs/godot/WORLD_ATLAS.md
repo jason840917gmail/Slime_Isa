@@ -312,3 +312,11 @@ the picture while the next chunk builds (about 0.2-1.4 s), then scrolls for 0.65
 - The atlas instances every world in the editor's memory: opening it takes a few seconds.
 - After the Wilds' blocks were moved on 2026-10-10 some sketch rivers and roads stop at a block's
   edge inside the Wilds; repaint them in the sketch tool and rebuild the placeholders.
+
+### Slimeshire second pass (2026-10-17)
+
+C4 now has a fenced level-1 plateau, north/south stairs and three drop gaps. The river
+runs across the C4/D4 border, with the road bridge centred on that seam. C5 expands the
+lake, adds an island reached by charged Roll over falling planks, a ford islet, a jetty
+and a future Swim secret. `lake-island-cave` and `hollow-hill-cave` are separate interiors.
+D4's pen and plateau hearts and the hill cave heart hide in chests.

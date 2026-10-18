@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/house-world-solid.tscn" id="1_house"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="2_door"]
+[ext_resource type="Script" path="res://game/scripts/gate.gd" id="3_gate"]
+[ext_resource type="Script" path="res://game/world_objects/gate_lock_look.gd" id="4_look"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/padlock-2x1.webp" id="5_lock"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/bolt-2x1.webp" id="6_bar"]
+
+[node name="watchkeeper-hideout" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Building" parent="." instance=ExtResource("1_house")]
+scale = Vector2(0.8, 0.8)
+
+[node name="LockLook" type="Node2D" parent="Building/Visual" node_paths=PackedStringArray("gate", "door")]
+position = Vector2(-10, -28.5)
+script = ExtResource("4_look")
+gate = NodePath("../../../GateScript")
+door = NodePath("../../../Door/DoorScript")
+
+[node name="Bar" type="Sprite2D" parent="Building/Visual/LockLook"]
+scale = Vector2(0.58, 0.32)
+texture = ExtResource("6_bar")
+hframes = 2
+
+[node name="Padlock" type="Sprite2D" parent="Building/Visual/LockLook"]
+position = Vector2(0, 3)
+scale = Vector2(0.35, 0.35)
+texture = ExtResource("5_lock")
+hframes = 2
+
+[node name="Door" type="Node2D" parent="."]
+position = Vector2(-8, -8)
+
+[node name="DoorScript" type="Node" parent="Door" node_paths=PackedStringArray("house_art")]
+script = ExtResource("2_door")
+map_id = "level-1-c4"
+door_id = "watchkeeper-hideout-door"
+target_area_id = "watchkeeper-hideout"
+target_door_id = "house-door"
+kind = "door"
+side = "north"
+trigger_rect = Rect2(-28, -32, 56, 64)
+house_art = NodePath("../../Building/Visual")
+door_rect = Rect2(-18, -40, 36, 40)
+door_arch = 10.0
+gate = {
+"id": "level-1-c4-watch-post",
+"requiredItemId": "",
+"consumeOnUnlock": false,
+"lockedMessage": "The keeper's storehouse is shut. A faint chime echoes from the pond."
+}
+
+[node name="arrival" type="Node2D" parent="Door"]
+position = Vector2(0, 44)
+
+[node name="GateScript" type="Node" parent="."]
+script = ExtResource("3_gate")
+map_id = "level-1-c4"
+gate_id = "level-1-c4-watch-post"
+
+[editable path="Building"]
