@@ -9,7 +9,10 @@ extends SceneTree
 ## lily pads, reeds, fish). Run headless with the world closed in the editor:
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/paint_to_nodes.gd -- \
 ##         --scene=res://game/scenes/worlds/chunks/level-1-c4.tscn [--scene=...] \
-##         [--keep=interiors/mushroom-floor/,water-life] [--dry]
+##         [--keep=interiors/mushroom-floor/,water-life] [--group] [--dry]
+## `--keep=` (empty) converts every prop. `--group` puts the nodes in y-sorted folders under
+## `Scenery/<GROUP_ROOT>` by kind (Rocks, Twigs, Flowers, Plants, Mushrooms, Leaves, else the scene's
+## folder), so the scene tree stays tidy; a rerun reuses the folders.
 
 const Props := preload("res://game/world/props/prop_layer.gd")
 const SceneSave := preload("res://tools/lib/scene_save.gd")
@@ -17,12 +20,24 @@ const Pictures := preload("res://tools/lib/prop_pictures.gd")
 const OBJECTS := "res://game/scenes/objects/"
 const CONTAINER := "Scenery"
 const KEEP: PackedStringArray = ["interiors/mushroom-floor/", "water-life"]
+const GROUP_ROOT := "Ground details"
+## The folder of a prop whose scene file name holds one of the words (checked in order).
+const GROUPS: Array = [
+	["Water life", ["lilypad", "lily", "reed", "rush", "sedge", "waterweed", "eelgrass", "fish"]],
+	["Rocks", ["rock", "stone", "pebble", "boulder"]],
+	["Twigs", ["twig", "branch", "stick", "log", "root"]],
+	["Flowers", ["flower", "daisy", "buttercup", "tulip", "poppy", "petal", "forget-me-not"]],
+	["Mushrooms", ["mushroom", "toadstool"]],
+	["Leaves", ["leaf", "leaves", "acorn"]],
+	["Plants", ["clover", "grass", "moss", "fern", "bush", "plant", "weed", "shrub"]],
+]
 
 
 func _initialize() -> void:
 	var scenes := PackedStringArray()
 	var keep := KEEP
 	var dry := false
+	var group := false
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--scene="):
 			scenes.append(arg.trim_prefix("--scene="))
@@ -30,12 +45,14 @@ func _initialize() -> void:
 			keep = arg.trim_prefix("--keep=").split(",", false)
 		elif arg == "--dry":
 			dry = true
+		elif arg == "--group":
+			group = true
 	for path in scenes:
-		_convert(path, keep, dry)
+		_convert(path, keep, dry, group)
 	quit(0)
 
 
-func _convert(path: String, keep: PackedStringArray, dry: bool) -> void:
+func _convert(path: String, keep: PackedStringArray, dry: bool, group: bool = false) -> void:
 	var before := FileAccess.get_file_as_string(path)
 	var root := (load(path) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
 	var layers: Array[TileMapLayer] = []
@@ -72,7 +89,8 @@ func _convert(path: String, keep: PackedStringArray, dry: bool) -> void:
 			if node == null:
 				continue
 			node.position = to_container * (to_root * node.position)
-			container.add_child(node, true)
+			var parent := _folder(container, _group_of(rel)) if group else container
+			parent.add_child(node, true)
 			node.owner = container.owner
 			layer.erase_cell(cell)
 			made[layer.name] = int(made.get(layer.name, 0)) + 1
@@ -88,6 +106,38 @@ func _convert(path: String, keep: PackedStringArray, dry: bool) -> void:
 	root.free()
 	if err != OK:
 		push_error("paint_to_nodes: %s: %s" % [path, error_string(err)])
+
+
+## The folder for a prop of scene `rel` (path after game/scenes/objects/).
+static func _group_of(rel: String) -> String:
+	# The kind is the name after its family prefix ("interior-mushroom-floor-clover-1", "water-life--reeds").
+	var file := rel.get_file().get_basename().to_lower()
+	for cut: String in ["--", "floor-"]:
+		var at := file.rfind(cut)
+		if at >= 0:
+			file = file.substr(at + cut.length())
+			break
+	for entry: Array in GROUPS:
+		for word: String in entry[1]:
+			if file.contains(word):
+				return entry[0]
+	var folder := rel.get_base_dir().get_file()
+	return folder.capitalize() if folder != "" else "Other"
+
+
+## `Scenery/<GROUP_ROOT>/<group>`, made (y-sorted, owned by the scene) when missing.
+func _folder(container: Node2D, group: String) -> Node2D:
+	var parent := container
+	for name: String in [GROUP_ROOT, group]:
+		var next := parent.get_node_or_null(name) as Node2D
+		if next == null:
+			next = Node2D.new()
+			next.name = name
+			next.y_sort_enabled = true
+			parent.add_child(next)
+			next.owner = container.owner
+		parent = next
+	return parent
 
 
 ## An instance of `prop`'s scene (as the editor makes them) showing its picture exactly where the

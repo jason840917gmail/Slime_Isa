@@ -71,7 +71,7 @@ const ElevationOcclusion := preload("res://game/world/elevation/elevation_occlus
 const ElevationStairs := preload("res://game/world/elevation/elevation_stairs.gd")
 const ElevationRamp := preload("res://game/world/elevation/elevation_ramp.gd")
 const GroundSurface := preload("res://game/world/ground_surface.gd")
-const ElevationFences := preload("res://game/world/elevation/fences/elevation_fences.gd")
+const Fences := preload("res://game/world/fences/fences.gd")
 const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materials.gd")
 const TileColours := preload("res://game/ui/map/map_terrain.gd")
 const GROUND_SHADER := preload("res://game/world/elevation/elevation_ground.gdshader")
@@ -251,8 +251,9 @@ var _ramps: Array[ElevationRamp] = []
 var occlusion: ElevationOcclusion
 ## Bodies in the air (a hop or a drop): body -> depth (elevation_occlusion.gd) while they fly.
 var flights: Dictionary = {}
-## The painted fences and their collision (fences/elevation_fences.gd, docs/godot/FENCES.md), null without.
-var fences: ElevationFences
+## The painted fences and their collision (game/world/fences/fences.gd, docs/godot/FENCES.md), null
+## without.
+var fences: Fences
 ## The wall style of each wall (index into `grid.bands`).
 var band_styles := PackedStringArray()
 
@@ -308,7 +309,7 @@ static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 	if painted == null or painted.get_used_cells().is_empty():
 		if existing != null:
 			existing.queue_free()
-		ElevationFences.mount(ground_layer, null, null, null, collide)
+		Fences.mount(ground_layer, null, null, null, collide)
 		return null
 	var elevation := existing
 	if elevation == null:
@@ -577,7 +578,7 @@ func rebuild() -> void:
 	elif has_node("Collision"):
 		get_node("Collision").free()
 	# Painted fences add their own art, collision and depth without creating elevation rims.
-	fences = ElevationFences.mount(ground, self, grid, occlusion, _collide)
+	fences = Fences.mount(ground, self, grid, occlusion, _collide)
 	if _cache_record != null and _saves_on_its_own():
 		save_cache()
 
@@ -851,15 +852,16 @@ static func setting(key: String) -> float:
 
 
 ## True when a body of `level` with its feet at `feet` fits: its collision rect stands on ground
-## it can walk on, off solid tiles (deep water) and off a fence's blocking band.
+## it can walk on, off solid tiles (deep water) and off every fence's band (the whole rect: a band is
+## thinner than the body).
 func body_fits(feet: Vector2, level: int) -> bool:
+	if fences != null and fences.blocks_rect(Rect2(feet - Vector2(BODY_HALF.x, 2.0 * BODY_HALF.y), BODY_HALF * 2.0), level):
+		return false
 	var world := Services.world()
 	for corner: Vector2 in [Vector2.ZERO, Vector2(-BODY_HALF.x, 0.0), Vector2(BODY_HALF.x, 0.0),
 			Vector2(-BODY_HALF.x, -2.0 * BODY_HALF.y), Vector2(BODY_HALF.x, -2.0 * BODY_HALF.y)]:
 		var point := feet + corner
 		if not is_walkable(point, level):
-			return false
-		if fences != null and fences.blocks_point(point, level):
 			return false
 		if world != null and world.is_solid_tile(floori(point.x / cell), floori(point.y / cell)):
 			return false
@@ -891,7 +893,8 @@ func ledge_below(feet: Vector2, level: int, direction: Vector2, reach: float = R
 		if offset.dot(unit) <= 0.0:
 			continue
 		var probe := centre + offset + unit * reach
-		if fences != null and fences.blocks_point(probe, level):
+		# The whole way from the body's side to the probe: a fence band is thinner than `reach`.
+		if fences != null and fences.blocks_sweep(centre + offset, probe, level):
 			return NO_LEDGE
 		# An open cliff's tapered face drops like any rim (`_open_zone`).
 		if not _ramps.is_empty() and _on_tapered_face(probe - global_position) and _open_pair(probe - global_position) == Vector2i.ZERO:

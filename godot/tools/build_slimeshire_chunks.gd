@@ -66,9 +66,11 @@ const WALL_STONE := Vector2i(0, 0)
 ## elevation_tileset.tres: a front flight of stairs pointing south.
 const STAIRS_SOUTH := Vector2i(0, 1)
 const STAIRS_NORTH := Vector2i(4, 1)
-const FENCE_WOOD := Vector2i(1, 0)
-const FENCE_TILESET := "res://game/world/elevation/fences/fence_tileset.tres"
-const FENCE_LAYER := "res://game/world/elevation/fences/fence_layer.gd"
+## fence_tileset.tres: the wood column's all-neighbour tile (row 0) and its east arrow (row 3).
+const FENCE_WOOD := Vector2i(0, 0)
+const FENCE_WOOD_EAST := Vector2i(0, 3)
+const FENCE_TILESET := "res://game/world/fences/fence_tileset.tres"
+const FENCE_LAYER := "res://game/world/fences/fence_layer.gd"
 ## cliff_tileset.tres: the red-rock wall style.
 const RED_ROCK := Vector2i(8, 0)
 const CLIFF_TILESET := "res://game/world/elevation/cliffs/cliff_tileset.tres"
@@ -165,6 +167,8 @@ const D5_HILL := Rect2i(13, 2, 16, 8)
 const D5_NOTCH := Rect2i(20, 8, 4, 2)
 const D5_FORECOURT := Rect2i(15, 10, 14, 6)
 const D5_MOAT := Rect2i(15, 17, 2, 8)
+## Where every fall from the moat returns the slime (units): the maze's top gap, cells (12-13, 17).
+const MOAT_SAFE_SPOT := Vector2(832, 1110)
 const D5_STAIRS: Array[Vector2i] = [Vector2i(27, 16), Vector2i(28, 16)]
 ## The maze: its wall rows and columns (inclusive bounds), the rooms between them two cells each.
 const D5_MAZE := Rect2i(2, 16, 28, 10)
@@ -373,6 +377,15 @@ func _d5_maze_things() -> void:
 		marker.position = _t(spot.x, spot.y) - (hazard as Node2D).position
 		hazard.add_child(marker)
 		marker.owner = _root
+	# Every fall from the moat puts the slime back on one safe spot at the maze's top gap (owner,
+	# 2026-10-18: one known spot, so a fall never misplaces it or leaves it stuck).
+	var safe := Node2D.new()
+	safe.name = "moat-safe-spot"
+	safe.position = MOAT_SAFE_SPOT
+	_hazards.add_child(safe)
+	_hazards.move_child(safe, 0)
+	safe.owner = _root
+	hazard.set(&"fixed_return", hazard.get_path_to(safe))
 	# The bridge: two slabs east-west, two lanes (one quick Roll from the rim's edge crosses it).
 	for y in [20, 21]:
 		for x in [15, 16]:
@@ -516,10 +529,16 @@ const C4_TOP: Array[Rect2i] = [Rect2i(0, 18, 30, 9), Rect2i(0, 27, 29, 1), Rect2
 ## inside C4, so the slime crosses into C5 at level 0).
 const C4_STAIRS_NORTH: Array[Vector2i] = [Vector2i(10, 17), Vector2i(11, 17)]
 const C4_STAIRS_SOUTH: Array[Vector2i] = [Vector2i(18, 30), Vector2i(19, 30)]
-## The jump-down gaps in the rim's wood fence (top cells left unfenced): two on the north rim (into
-## Lili's yard by the woodpile, a shortcut from the forest path into the village; behind the forge,
-## from the camp to the smithy), one on the south rim (down to the river road, past the stairs).
-const C4_GAPS: Array[Rect2i] = [Rect2i(6, 18, 2, 1), Rect2i(23, 18, 2, 1), Rect2i(23, 29, 2, 1)]
+## The plateau's wood fence as level-1-c4.tscn paints it (hand-repainted 2026-10-17): the north
+## rim's row of east arrows (cols 0-28, open over the north stairs: an arrow run that joins only
+## along the row), and all-neighbour tiles down the east rim, round the south-east corner and along
+## the south rim (open over the south stairs). The west rim (the map's edge) is not fenced.
+const C4_FENCE_ARROW_ROW := 18
+const C4_FENCE_ARROW_END := 28
+const C4_FENCE_ALL: Array[Rect2i] = [Rect2i(29, 18, 1, 9), Rect2i(26, 27, 3, 1), Rect2i(26, 28, 1, 1),
+		Rect2i(0, 29, 18, 1), Rect2i(20, 29, 7, 1)]
+## Two lone east arrows on the river bank, either side of the town bridge's deck (row 9).
+const C4_FENCE_BRIDGE: Array[Vector2i] = [Vector2i(29, 8), Vector2i(29, 10)]
 ## The river on the C4/D4 border: C4's last two columns (D4 the first two) from the top to row 26,
 ## then it turns south-west into C5 (C4 cols 27-30 from row 28).
 const C4_RIVER_X := 30
@@ -584,21 +603,19 @@ func _c4() -> void:
 		elevation.set_cell(cell, 0, STAIRS_NORTH)
 	for cell in C4_STAIRS_SOUTH:
 		elevation.set_cell(cell, 0, STAIRS_SOUTH)
-	# The rim's fence: wood on every border cell of the top but the gaps (the stairs leave their own).
+	# The plateau's fence (C4_FENCE_*): the north row of arrows, all-neighbour tiles elsewhere.
 	var fences := _fence_layer()
 	fences.clear()
-	for rect: Rect2i in C4_TOP:
+	for x in range(0, C4_FENCE_ARROW_END + 1):
+		var cell := Vector2i(x, C4_FENCE_ARROW_ROW)
+		if not C4_STAIRS_NORTH.has(cell + Vector2i.UP):
+			fences.set_cell(cell, 0, FENCE_WOOD_EAST)
+	for rect: Rect2i in C4_FENCE_ALL:
 		for y in range(rect.position.y, rect.end.y):
 			for x in range(rect.position.x, rect.end.x):
-				var cell := Vector2i(x, y)
-				if not _c4_rim_cell(cell):
-					continue
-				var gap := false
-				for hole: Rect2i in C4_GAPS:
-					if hole.has_point(cell):
-						gap = true
-				if not gap:
-					fences.set_cell(cell, 0, FENCE_WOOD)
+				fences.set_cell(Vector2i(x, y), 0, FENCE_WOOD)
+	for cell: Vector2i in C4_FENCE_BRIDGE:
+		fences.set_cell(cell, 0, FENCE_WOOD_EAST)
 	# Painted scenery out of the river, the rim, the wall, its foot and the ponds.
 	for layer_name: String in PROP_LAYERS:
 		var layer := _root.get_node_or_null(layer_name) as TileMapLayer
@@ -625,19 +642,6 @@ func _c4() -> void:
 static func _c4_top(cell: Vector2i) -> bool:
 	for rect: Rect2i in C4_TOP:
 		if rect.has_point(cell):
-			return true
-	return false
-
-
-## True for a top cell beside a rim (a 4-neighbour inside the map that is not top).
-static func _c4_rim_cell(cell: Vector2i) -> bool:
-	if not _c4_top(cell):
-		return false
-	for step: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
-		var next := cell + step
-		if next.x < 0 or next.y < 0 or next.x >= 32 or next.y >= 32:
-			continue
-		if not _c4_top(next):
 			return true
 	return false
 

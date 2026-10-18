@@ -1,12 +1,12 @@
 shader_type canvas_item;
 render_mode blend_disabled;
 
-// A fence's silhouette in the terrain's depth map (docs/godot/FENCES.md; elevation_fences.gd hands
-// it to ElevationOcclusion.add_occluder). The vertex colour is the depth texel
+// A fence's silhouette in the terrain's depth map (docs/godot/FENCES.md; fences.gd hands it to
+// ElevationOcclusion.add_occluder). The vertex colour is the depth texel
 // (ElevationOcclusion.encode: the fence's level and how far above its foot line the point is), drawn
 // only where the fence's art is opaque, so a body shows through the gaps between the rails. Its
 // alpha is written as 0.5 (no blending): the mark of a fence, which cuts a body behind it out
-// instead of ghosting it (elevation_occlusion.gdshaderinc). UV as elevation_fence.gdshader's, moved
+// instead of ghosting it (elevation_occlusion.gdshaderinc). UV as fence.gdshader's, moved
 // by -uv_offset in y for rails and in x for side rails.
 
 uniform sampler2D posts_texture : filter_nearest;

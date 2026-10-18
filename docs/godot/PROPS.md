@@ -49,7 +49,7 @@ painted one was, and erases their cells; props whose scene path starts with a `-
 painted (by default the ground details and the water life). A node's size and mirror are its own
 Scale (negative x when mirrored), as for props dropped from the dock, so its collision follows its
 size (a painted prop's collision kept the scene's size). The four level-1 chunks had theirs turned on
-2026-10-14: 120 props became nodes (13 mirrored, 22 resized), 745 stayed painted.
+2026-10-14: 120 props became nodes (13 mirrored, 22 resized), 745 stayed painted. `--group` files the new nodes in y-sorted folders under `Scenery/Ground details/` by kind (Rocks, Twigs, Flowers, Plants, Mushrooms, Leaves, Water life, else the scene's folder) so the scene tree stays tidy; `--keep=` (empty) converts every prop, the ground details too (level-1-c4's 136 painted props were converted this way on 2026-10-18).
 
 ## Using it
 

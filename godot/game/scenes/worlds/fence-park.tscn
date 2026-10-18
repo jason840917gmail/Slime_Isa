@@ -5,8 +5,8 @@
 [ext_resource type="Script" path="res://game/world/world_ground.gd" id="world_ground"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="elevation_tiles"]
 [ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="elevation_layer"]
-[ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="fence_tiles"]
-[ext_resource type="Script" path="res://game/world/elevation/fences/fence_layer.gd" id="fence_layer"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="fence_tiles"]
+[ext_resource type="Script" path="res://game/world/fences/fence_layer.gd" id="fence_layer"]
 
 [node name="fence-park" type="Node2D"]
 y_sort_enabled = true

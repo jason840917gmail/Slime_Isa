@@ -5,8 +5,8 @@
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_xs0v4"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="3_bkcxe"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="4_rplt3"]
-[ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="5_1a1e0"]
-[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/elevation/fences/fence_layer.gd" id="6_x5xcu"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="5_1a1e0"]
+[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="6_x5xcu"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="7_xcjqt"]
 [ext_resource type="Script" uid="uid://71vyo7j20xgb" path="res://game/crystal_mine/mine_rails.gd" id="8_qah3s"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/brazier.tscn" id="9_ngdaw"]
@@ -113,7 +113,7 @@ script = ExtResource("4_rplt3")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=312168891]
 z_index = -1
-tile_map_data = PackedByteArray("AAAgAB0A//////////8gAB4A//////////8gAB8A//////////8gACAA//////////8gACEAAAAAAAAAAAAgACIAAAAAAAAAAAAgACMAAAAAAAAAAAAgACQAAAAAAAAAAAAgACUAAAAAAAAAAAAgACYA//////////8hACYAAAAAAAAAAAAiACYAAAAAAAAAAAAjACYAAAAAAAAAAAAkACYAAAAAAAAAAAAlACYAAAAAAAAAAAAoACYAAAAAAAAAAAApACYAAAAAAAAAAAAqACYAAAAAAAAAAAArACYAAAAAAAAAAAAsACYAAAAAAAAAAAAtACYAAAAAAAAAAAAuACYAAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAgAB8AAAACAAAAAAAgACAAAAACAAAAAAAgACEAAAACAAAAAAAgACIAAAACAAAAAAAgACMAAAACAAAAAAAgACQAAAACAAAAAAAgACUAAAACAAAAAAAgACYAAAACAAAAAAAhACYAAAACAAAAAAAiACYAAAACAAAAAAAjACYAAAACAAAAAAAkACYAAAACAAAAAAAlACYAAAACAAAAAAAoACYAAAACAAAAAAApACYAAAACAAAAAAAqACYAAAACAAAAAAArACYAAAACAAAAAAAsACYAAAACAAAAAAAtACYAAAACAAAAAAAuACYAAAACAAAAAAA=")
 tile_set = ExtResource("5_1a1e0")
 script = ExtResource("6_x5xcu")
 

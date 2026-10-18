@@ -66,7 +66,9 @@
     "stairsAlong": 0.35
   },
   "fences": {
-    "clearance": 8
+    "bandAbove": 10,
+    "bandBelow": 2,
+    "sideHalfWidth": 7
   },
   "rest": {
     "sleepHpRegenPerSec": 2

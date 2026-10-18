@@ -6,8 +6,8 @@
 [ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="4_dribp"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="5_i6u7p"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="6_v0qyk"]
-[ext_resource type="TileSet" path="res://game/world/elevation/fences/fence_tileset.tres" id="7_8wfmk"]
-[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/elevation/fences/fence_layer.gd" id="8_b6f8s"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="7_8wfmk"]
+[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="8_b6f8s"]
 [ext_resource type="TileSet" path="res://game/world/props/walls_tileset.tres" id="9_e6kag"]
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_gl2wn"]
 [ext_resource type="Script" uid="uid://bnv258pdrb612" path="res://game/world/props/prop_layer.gd" id="10_n70bd"]
@@ -55,7 +55,7 @@ script = ExtResource("6_v0qyk")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=820552523]
 z_index = -1
-tile_map_data = PackedByteArray("AAAfABgAAAACAAAAAAAfABkA//////////8fABoA//////////8fABsA//////////8fABwA//////////8fAB0A//////////8fAB4A//////////8fAB8A//////////8=")
+tile_map_data = PackedByteArray("AAAfABgAAAACAAAAAAAfABkAAAACAAAAAAAfABoAAAACAAAAAAAfABsAAAACAAAAAAAfABwAAAACAAAAAAAfAB0AAAACAAAAAAAfAB4AAAACAAAAAAAfAB8AAAACAAAAAAA=")
 tile_set = ExtResource("7_8wfmk")
 script = ExtResource("8_b6f8s")
 

@@ -88,7 +88,7 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `--path godot -s res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few
   close-ups with the game's own drawing and prints how many walls each style has.
 - `python scripts/art/build-fence-art.py [style ...] [--preview DIR]` (**numpy**) — cuts each style's
-  generated front view (`asset/Originals/elevation/fences/`) into its kit (posts,
+  generated front view (`asset/Originals/fences/`) into its kit (posts,
   a seamless rail strip, the rail seen from above, a JSON of measures) in
     `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
     draws the single fences layer's picture-based material and direction palette and builds its TileSet.

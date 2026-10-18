@@ -1,9 +1,8 @@
 shader_type canvas_item;
 
-// A fence along a hill's rim (docs/godot/FENCES.md), drawn by elevation_fences.gd in pieces that
-// Y-sort with bodies. Posts come from `posts_texture` (UV = px of the atlas), rails from
-// `rails_texture` (UV = (world x · 2, row px): it repeats along every front and diagonal run, which
-// shears it) and the upper rail seen from above from `side_texture` (UV = (column px, ground y · 2),
+// A painted fence (docs/godot/FENCES.md), drawn by fences.gd in pieces that Y-sort with bodies.
+// Posts come from `posts_texture` (UV = px of the atlas), rails from `rails_texture` (UV = (world
+// x · 2, row px): it repeats along every front and diagonal run, which shears it) and the upper rail seen from above from `side_texture` (UV = (column px, ground y · 2),
 // east and west runs). Vertex colour: r = shade (the way the run's face looks), g = how far the
 // point lies below its piece's foot line ((dy + 128) / 512 world units, as the depth map), b = kind
 // (0 post, 0.5 rails, 1 side), a = level ((level + 4) / 8, elevation_light.gdshaderinc). A fence

@@ -93,15 +93,27 @@ func build(depth: MeshData, rect: Rect2, origin: Vector2) -> void:
 
 ## Draws `mesh` (ground-layer space, vertex colours as `encode`) over the terrain in the depth map,
 ## through `material` (which may discard where its art is see-through), and renders the map again:
-## things standing on the terrain that hide what is behind them like it does (fences,
-## fences/elevation_fences.gd). Call after `build`; the next `build` drops them.
-func add_occluder(mesh: Mesh, material: Material) -> void:
+## things standing on the terrain that hide what is behind them like it does (the painted fences,
+## game/world/fences/fences.gd). Call after `build`; the next `build` drops them, and
+## `remove_occluder` drops one before that (the fences rebuilt on their own). Returns the occluder,
+## null without a depth map.
+func add_occluder(mesh: Mesh, material: Material) -> MeshInstance2D:
 	if _viewport == null:
-		return
+		return null
 	var instance := MeshInstance2D.new()
 	instance.mesh = mesh
 	instance.material = material
 	_viewport.add_child(instance)
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	return instance
+
+
+## Drops an occluder `add_occluder` returned (when it is still in this depth map) and renders the
+## map again.
+func remove_occluder(instance: MeshInstance2D) -> void:
+	if _viewport == null or instance == null or instance.get_parent() != _viewport:
+		return
+	instance.free()
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
