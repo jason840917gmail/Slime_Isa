@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-floor--wooden-footbridge.tscn" id="11_8kxt7"]
 [ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_uge0h"]
 [ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_o3dk6"]
+[ext_resource type="Script" uid="uid://c0dxyajir0usg" path="res://game/world/bridge_deck.gd" id="16_o3dk6"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_volcano_ridge_1"]
 size = Vector2(32, 256)
@@ -51,7 +52,7 @@ script = ExtResource("6_n4lfg")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=473266822]
 z_index = -1
-tile_map_data = PackedByteArray("AAACABIAAAADAAAAAAADABIAAAADAAAAAAAMABQAAAADAAAAAAANABQAAAADAAAAAAADABUAAAADAAAAAAAMABUAAAADAAAAAAADABYAAAADAAAAAAAKABYAAAADAAAAAAALABYAAAADAAAAAAAMABYAAAADAAAAAAADABcAAAADAAAAAAAKABcAAAADAAAAAAADABgAAAADAAAAAAAEABgAAAADAAAAAAAFABgAAAADAAAAAAAKABgAAAADAAAAAAAFABkAAAADAAAAAAAKABkAAAADAAAAAAAFABoAAAADAAAAAAAGABoAAAADAAAAAAAHABoAAAADAAAAAAAIABoAAAADAAAAAAAJABoAAAADAAAAAAAKABoAAAADAAAAAAAGABsAAAADAAAAAAAHABsAAAADAAAAAAAIABsAAAADAAAAAAAJABsAAAADAAAAAAAKABsAAAADAAAAAAALABsAAAADAAAAAAAEAB0AAAADAAAAAAAFAB0AAAADAAAAAAA=")
+tile_map_data = PackedByteArray("AAACABIAAAACAAAAAAADABIAAAACAAAAAAAMABQAAAACAAAAAAANABQAAAACAAAAAAADABUAAAACAAAAAAAMABUAAAACAAAAAAADABYAAAACAAAAAAAKABYAAAACAAAAAAALABYAAAACAAAAAAAMABYA//////////8DABcAAAACAAAAAAAKABcAAAACAAAAAAADABgA//////////8EABgAAAACAAAAAAAFABgAAAACAAAAAAAKABgAAAACAAAAAAAFABkAAAACAAAAAAAKABkAAAACAAAAAAAFABoA//////////8GABoAAAACAAAAAAAHABoAAAACAAAAAAAIABoAAAACAAAAAAAJABoAAAACAAAAAAAKABoA//////////8GABsAAAACAAAAAAAHABsAAAACAAAAAAAIABsAAAACAAAAAAAJABsAAAACAAAAAAAKABsAAAACAAAAAAALABsAAAACAAAAAAAEAB0AAAACAAAAAAAFAB0AAAACAAAAAAA=")
 tile_set = ExtResource("7_dy6ba")
 script = ExtResource("8_hperw")
 
@@ -168,8 +169,10 @@ area = NodePath("..")
 [node name="props" type="Node2D" parent="." unique_id=1520364974]
 y_sort_enabled = true
 
-[node name="footbridge-003" parent="props" unique_id=1535753306 instance=ExtResource("11_8kxt7")]
+[node name="footbridge-003" type="Node2D" parent="props" unique_id=1535753306 instance=ExtResource("11_8kxt7")]
+y_sort_enabled = true
 position = Vector2(512, 1805)
+script = ExtResource("16_o3dk6")
 
 [node name="notes" type="Node2D" parent="." unique_id=1299518566]
 

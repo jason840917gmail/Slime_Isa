@@ -133,6 +133,8 @@ var _leaf: DoorLeaf
 var _leaf_tween: Tween
 ## Arrived through this door: close the leaf once the slime has walked out.
 var _close_pending: bool = false
+## A bell opened this door for good, so arrivals must not close it behind the slime.
+var _stays_open: bool = false
 
 
 func _enter_tree() -> void:
@@ -325,7 +327,25 @@ func on_arrival() -> void:
 		return
 	_kill_leaf_tween()
 	_leaf.progress = 1.0
-	_close_pending = true
+	_close_pending = not _stays_open
+
+
+## A linked gate may open a real facade door when a bell rings. Saved-open gates restore the leaf
+## without animation; the live bell signal plays the usual door opening animation.
+func set_gate_door_open(open_now: bool, animate: bool = true) -> void:
+	_stays_open = open_now
+	_close_pending = false
+	if kind != "door":
+		return
+	if not has_leaf():
+		_build_leaf()
+	if not has_leaf():
+		return
+	if animate:
+		_swing(1.0 if open_now else 0.0, _number("doorOpenMs", 250.0))
+	else:
+		_kill_leaf_tween()
+		_leaf.progress = 1.0 if open_now else 0.0
 
 
 func _play_lead(lead: float) -> void:

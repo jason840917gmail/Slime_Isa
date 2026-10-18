@@ -51,9 +51,11 @@ extends it and also mounts in the game, since the lab has no WorldService.
 3. At a corner where grounds meet, **level 0** fills the corner with the lowest of them (its fully
    covered tile, or the animated water), and **each higher ground** draws its edge tile on the next
    level: index = TL + 2·TR + 4·BL + 8·BR, with 1 where the cell's ground stacks at least that
-   high. Corners with one ground, a hard-edged tile (rock wall, wood and mushroom floors), the
-   map border, or cells of different elevation levels (the cliff draws its own rims there,
-   [ELEVATION.md](ELEVATION.md)) get nothing.
+   high. Corners with one ground, a hard-edged tile (rock wall, wood and mushroom floors), or
+   cells of different elevation levels (the cliff draws its own rims there,
+   [ELEVATION.md](ELEVATION.md)) get nothing. Corners on the map's border (since 2026-10-17) take
+   the border cells carried on past it (`_inside`), so a shore or a road running off the map into
+   the next chunk keeps its edge to the border instead of a straight cut half a cell short of it.
 
 The edge tiles are art. Alpha is where the ground covers, colour its painted rim, and a second
 image with the same layout (`…-edges-rim.png`) says where that rim shows.

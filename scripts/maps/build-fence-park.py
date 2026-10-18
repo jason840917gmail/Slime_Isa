@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the Fence Park, a dev world for the fences along hill rims (docs/godot/FENCES.md).
+"""Builds the Fence Park, a dev world for connected fences on ground and elevations.
 
 Writes godot/game/scenes/worlds/fence-park.tscn from scratch: a grass field with hills and holes of
 every shape, fenced on the `fences` layer (fence_tileset.tres + fence_layer.gd):
@@ -13,10 +13,12 @@ every shape, fenced on the `fences` layer (fence_tileset.tres + fence_layer.gd):
 - a level-2 square fenced on its south rim only (a run with open ends);
 - a level-1 diamond fenced on its east half only, ending at its tips;
 - a level-3 block, fenced all round (the tallest wall under a fence);
-- two rows of plots, one per ground, each with its own hill (an octagon, a diamond, a square, a
-  terrace, a hole) fenced with "auto", so the fence takes the ground's style: snowy wood on snow,
-  sandstone on sand, vine-wrapped branches on forest floor and moss, pickets on fallen leaves, a
-  stone wall on cavern rock and on cobble, crystal posts on crystal rock.
+- two rows of plots across different grounds, each with its own hill (an octagon, a diamond, a
+  square, a terrace, a hole); each hill uses the material explicitly chosen for its fence cells,
+  including examples where the fence material differs from the ground.
+- directly painted connected runs on normal ground and a raised platform, plus isolated tiles in
+  all eight selected directions; these fences add their own shadows and collision without painting
+  or changing the platform's elevation rim.
 
 Re-running it rebuilds the world from scratch (hand edits are lost). Run it while the Godot editor
 does not have the scene open (or reload it there afterwards).
@@ -49,7 +51,9 @@ COBBLE = 19
 ## style (fence_tileset.tres).
 LEVEL_ATLAS = {-3: (0, 0), -2: (1, 0), -1: (2, 0), 1: (3, 0), 2: (4, 0), 3: (5, 0),
                "stairs-s": (0, 1), "stairs-w": (2, 1)}
-FENCE_ATLAS = {"auto": 0, "wood": 1, "snow": 2, "stone": 3, "sandstone": 4, "twig": 5, "picket": 6, "crystal": 7}
+FENCE_ATLAS = {"wood": 0, "snow": 1, "stone": 2, "sandstone": 3, "twig": 4, "picket": 5, "crystal": 6}
+CONNECTED_ROW = 0
+DIRECTION_ROW = 1
 SPAWN_CELL = (6, 5)
 
 
@@ -77,19 +81,31 @@ def ring(cells: set[tuple[int, int]]) -> set[tuple[int, int]]:
     return out
 
 
-def park() -> tuple[dict[tuple[int, int], int | str], dict[tuple[int, int], str], dict[tuple[int, int], int]]:
+def boundary(cells: set[tuple[int, int]]) -> set[tuple[int, int]]:
+    """Cells on the outside edge of a painted top, including its 45-degree corners."""
+    directions = [(dx, dy) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dx or dy]
+    return {cell for cell in cells if any((cell[0] + dx, cell[1] + dy) not in cells for dx, dy in directions)}
+
+
+def park() -> tuple[dict[tuple[int, int], int | str], dict[tuple[int, int], str], dict[tuple[int, int], int], dict[tuple[int, int], tuple[str, int]]]:
     levels: dict[tuple[int, int], int | str] = {}
     fences: dict[tuple[int, int], str] = {}
     grounds: dict[tuple[int, int], int] = {}
+    connected: dict[tuple[int, int], tuple[str, int]] = {}
 
     def hill(cells: set[tuple[int, int]], level: int, fenced: set[tuple[int, int]] | None = None, style: str = "wood") -> None:
         for cell in cells:
             levels[cell] = level
-        for cell in cells if fenced is None else fenced:
+        edge_cells = boundary(cells)
+        selected = edge_cells if fenced is None else edge_cells.intersection(fenced)
+        for cell in selected:
             fences[cell] = style
 
     square = rect(2, 2, 11, 8)
-    hill(square, 1, {c for c in square if not (c[0] == 11 and 4 <= c[1] <= 5)})
+    # Fence openings are ordinary gaps in the painted cells: east for the drop, south and west at
+    # the stairs. The fence renderer does not inspect rims or stairs to invent these gaps.
+    openings = {(11, 4), (11, 5), (5, 8), (2, 6)}
+    hill(square, 1, {c for c in square if c not in openings})
     # Stairs on the first cell past the rim, pointing down (docs/godot/ELEVATION.md, Authoring).
     levels[(5, 9)] = "stairs-s"
     levels[(1, 6)] = "stairs-w"
@@ -110,32 +126,48 @@ def park() -> tuple[dict[tuple[int, int], int | str], dict[tuple[int, int], str]
     hill(half, 1, {c for c in half if c[0] >= 8})
     hill(rect(20, 26, 27, 30), 3)
 
-    # Plots, one per ground, fenced "auto": each fence takes its ground's style.
+    # Each plot has an explicit palette material. Several deliberately contrast with their ground
+    # to show that fence style comes from paint and never changes with terrain.
     def plot(x0: int, y0: int, source: int) -> None:
         for cell in rect(x0, y0, x0 + 9, y0 + 12):
             grounds[cell] = source
 
     plot(0, 35, SNOW)
-    hill(octagon(1, 37, 8, 43, 2), 1, style="auto")
+    hill(octagon(1, 37, 8, 43, 2), 1, style="wood")
     plot(10, 35, SAND)
-    hill(diamond(15, 40, 4), 1, style="auto")
+    hill(diamond(15, 40, 4), 1, style="stone")
     plot(20, 35, FOREST_FLOOR)
-    hill(rect(22, 37, 27, 42), 2, style="auto")
+    hill(rect(22, 37, 27, 42), 2, style="picket")
     plot(30, 35, FOREST_MOSS)
-    hill(octagon(31, 37, 38, 44, 3), 1, style="auto")
+    hill(octagon(31, 37, 38, 44, 3), 1, style="twig")
     plot(0, 49, AMBERLEAF)
-    hill(octagon(1, 51, 8, 58, 2), 1, style="auto")
-    hill(rect(3, 53, 6, 55), 2, style="auto")
+    hill(octagon(1, 51, 8, 58, 2), 1, style="crystal")
+    hill(rect(3, 53, 6, 55), 2, style="wood")
     plot(10, 49, CAVERN)
-    hill(rect(11, 51, 18, 56), 1, style="auto")
+    hill(rect(11, 51, 18, 56), 1, style="snow")
     plot(20, 49, CRYSTAL)
-    hill(diamond(25, 54, 4), 2, style="auto")
+    hill(diamond(25, 54, 4), 2, style="sandstone")
     plot(30, 49, COBBLE)
     cobble_hole = octagon(32, 52, 37, 57, 1)
     hill(cobble_hole, -1, set())
     for cell in ring(cobble_hole):
-        fences[cell] = "auto"
-    return levels, fences, grounds
+        fences[cell] = "crystal"
+
+    # A new raised platform with a directly painted fence down its middle. Its outer elevation
+    # rim is deliberately unpainted, so the cliff remains visible without a painted fence.
+    raised_test = rect(2, 31, 9, 33)
+    for cell in raised_test:
+        levels[cell] = 1
+    for x in range(4, 8):
+        connected[(x, 32)] = ("wood", -1)  # all-neighbor links on a raised level
+
+    # Normal ground: isolated examples show all eight selectable orientations, followed by a
+    # multi-cell connected run. The isolated tiles also exercise full-tile collision.
+    for direction in range(8):
+        connected[(10 + direction * 2, 33)] = ("wood", direction)
+    for x in range(28, 34):
+        connected[(x, 33)] = ("twig", 2)
+    return levels, fences, grounds, connected
 
 
 def tile_data(cells: list[tuple[int, int, int, int, int, int]]) -> str:
@@ -144,10 +176,12 @@ def tile_data(cells: list[tuple[int, int, int, int, int, int]]) -> str:
 
 
 def main() -> None:
-    levels, fences, grounds = park()
+    levels, fences, grounds, connected = park()
     ground = [(x, y, grounds.get((x, y), GRASS), x % SHEET_CELLS, y % SHEET_CELLS, 0) for y in range(ROWS) for x in range(COLUMNS)]
     elevation = [(x, y, 0, *LEVEL_ATLAS[level], 0) for (x, y), level in sorted(levels.items(), key=lambda kv: (kv[0][1], kv[0][0]))]
-    fence = [(x, y, 0, FENCE_ATLAS[style], 0, 0) for (x, y), style in sorted(fences.items(), key=lambda kv: (kv[0][1], kv[0][0]))]
+    fence = [(x, y, 0, FENCE_ATLAS[style], CONNECTED_ROW, 0) for (x, y), style in sorted(fences.items(), key=lambda kv: (kv[0][1], kv[0][0]))]
+    fence.extend((x, y, 0, FENCE_ATLAS[style], CONNECTED_ROW if direction < 0 else DIRECTION_ROW + direction, 0)
+                 for (x, y), (style, direction) in sorted(connected.items(), key=lambda kv: (kv[0][1], kv[0][0])))
     spawn = ((SPAWN_CELL[0] + 0.5) * TILE, (SPAWN_CELL[1] + 0.5) * TILE)
     text = f"""[gd_scene format=3]
 
@@ -205,7 +239,7 @@ y_sort_enabled = true
 position = Vector2({int(spawn[0])}, {int(spawn[1])})
 """
     SCENE.write_text(text, encoding="utf-8", newline="\n")
-    print(f"{MAP_ID}: {COLUMNS}x{ROWS} cells, {len(levels)} elevation cells, {len(fences)} fence cells")
+    print(f"{MAP_ID}: {COLUMNS}x{ROWS} cells, {len(levels)} elevation cells, {len(fences) + len(connected)} fence cells ({len(connected)} connected)")
 
 
 if __name__ == "__main__":

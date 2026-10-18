@@ -16,15 +16,15 @@ extends RefCounted
 ##   bounds, and are used up by a rejected (i-framed) hit too.
 ## - Slime spider: spits a web for 50 - 3 = 47 with a 1000 ms `web` effect.
 ## - Worm brawler: melee 52 - 3 = 49, knockback 340, `enemy-worm-brawler-hit` 22 px along the swing.
-## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests run in chunk C5
-## (`level-1-c5`, its origin at level-1's (0, 2048)) on open ground west of the south meadow camp
+## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests run in chunk D4
+## (`level-1-d4`, its origin at level-1's (2048, 0)) on open ground south of the old camp
 ## (outside every camp and safe zone); the camps test also travels to D4 and D5. The world's camps
 ## are placed enemies since 2026-10-16 (roadmap 5.25: their old spawn areas' maxPopulation, the
 ## types by weight under maxAlive); legacy player-relative spawning is left only in the dev world
 ## icege, and the crystal caverns' old spawn table is placed enemies too (5 a chunk, in two camps).
 
-## run_tests.gd starts every test of this file in level-1's south-west chunk.
-const MAP_ID := "level-1-c5"
+## run_tests.gd starts every test of this file in level-1's north-east chunk.
+const MAP_ID := "level-1-d4"
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -39,8 +39,8 @@ const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 
 ## Open ground (a 700 x 260 rectangle free of walls, water and NPCs around it, measured on the
-## chunk), over 300 px west of the south meadow camp's old pursue rectangle.
-const OPEN := Vector2(528.0, 1640.0)
+## chunk), south of the old camp clearing.
+const OPEN := Vector2(480.0, 1408.0)
 ## level-1's camps: their chunk world and their placed enemies by type.
 const CAMPS := {
 	"level-1-south-meadow": ["level-1-c5", {"worm-brawler": 2, "slime-spider": 1}],
@@ -425,17 +425,17 @@ func test_slow_scales_movement_and_skips_bosses(t: TestContext) -> void:
 	worm.rank = "boss"
 	worm.apply_slow(0.5, 1000.0)
 	t.check(not worm.is_slowed(), "a boss was slowed")
-	# The world's slowEnemiesNear: only live population members near a point (the south meadow
+	# The world's slowEnemiesNear: only live population members near a point (the Webwood
 	# camp's placed enemies are members).
 	var population := t.main.get("enemy_population") as EnemyPopulation
 	if not t.check(population != null, "main has no enemy_population"):
 		return
 	var member: EnemyScript = null
 	for placed: PlacedEnemyScript in population.placed_enemies():
-		if placed.wander_area_id == "level-1-south-meadow" and placed.is_standing():
+		if placed.wander_area_id == "level-1-webwood" and placed.is_standing():
 			member = placed.get_enemy() as EnemyScript
 			break
-	if not t.check(member != null, "the south meadow camp has no standing enemy"):
+	if not t.check(member != null, "the Webwood camp has no standing enemy"):
 		return
 	var near_point := member.get_centre() + Vector2(20.0, 0.0)
 	t.equal(population.slow_enemies_near([near_point], 26.0, 0.55, 400.0), _members_near(population, near_point, 26.0), "enemies slowed near a point")

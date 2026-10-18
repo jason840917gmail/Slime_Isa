@@ -29,6 +29,9 @@ extends SceneTree
 ## It rebuilds the whole world: hand edits to the scene are lost when it runs again.
 ##
 ## Owner: dungeons (the Crystal Mine).
+## Also writes the editable room scenes through tools/lib/dungeon_room_splitter.gd.
+
+const RoomSplitter := preload("res://tools/lib/dungeon_room_splitter.gd")
 
 const SceneSave := preload("res://tools/lib/scene_save.gd")
 
@@ -151,6 +154,8 @@ func _initialize() -> void:
 	var err := SceneSave.save(_root, OUT, before)
 	print("crystal mine: ", OUT, " ", error_string(err))
 	_root.free()
+	if err == OK:
+		err = RoomSplitter.new().split(MAP_ID)
 	quit(0 if err == OK else 1)
 
 

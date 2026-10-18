@@ -61,6 +61,16 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 		var visited := DungeonState.is_visited(run, id, str(room["key"]))
 		if not visited and not has_map:
 			continue
+		var room_node := room.get("node") as Node
+		var outline: Variant = room_node.get(&"outline") if room_node != null else null
+		if outline is PackedVector2Array and outline.size() >= 3:
+			var polygon := PackedVector2Array()
+			for point: Vector2 in room["outline"]:
+				polygon.append(to_view.call(point))
+			canvas.draw_colored_polygon(polygon, VISITED_FILL if visited else Color(MAPPED_FILL, 0.55))
+			polygon.append(polygon[0])
+			canvas.draw_polyline(polygon, CURRENT_RING if str(room["key"]) == current else (VISITED_EDGE if visited else MAPPED_EDGE), 1.5)
+			continue
 		var box := _view_rect(room["rect"], to_view)
 		var inset := minf(box.size.x, box.size.y) * INSET_SHARE
 		box = box.grow(-inset)

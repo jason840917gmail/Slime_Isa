@@ -6,8 +6,10 @@ extends SceneTree
 ## Writes res://game/scenes/worlds/weaver-hollow-<floor>.tscn for the floors trunk, roots, boughs and
 ## crown. The scenes are the builder's: rebuilding overwrites edits made in the editor, so change the
 ## floor here (tools/weaver_hollow/hollow_floors.gd) and build again.
+## Also writes the editable room scenes through tools/lib/dungeon_room_splitter.gd.
 
 const HollowFloors := preload("res://tools/weaver_hollow/hollow_floors.gd")
+const RoomSplitter := preload("res://tools/lib/dungeon_room_splitter.gd")
 const SceneSave := preload("res://tools/lib/scene_save.gd")
 
 const PATH := "res://game/scenes/worlds/weaver-hollow-%s.tscn"
@@ -29,6 +31,8 @@ func _initialize() -> void:
 		var before := FileAccess.get_file_as_string(path) if FileAccess.file_exists(path) else ""
 		var err := SceneSave.save(root, path, before)
 		root.free()
+		if err == OK:
+			err = RoomSplitter.new().split("weaver-hollow-" + floor_name)
 		if err != OK:
 			push_error("build_weaver_hollow: could not save %s (%s)" % [path, error_string(err)])
 			failed = true

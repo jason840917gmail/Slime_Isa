@@ -259,7 +259,7 @@ The map is cut into 8 × 8 chunks, A1 in the north-west; a region's chunks are t
 | Fatty's Hollow | Landmark | Slimeshire Meadow | D5 |  | D5's red-rock hill, crowned with maples; the Lair's drop gate in a notch of its south face, over a paved forecourt (a campfire, an energy flower, a pot hiding a heart) |
 | Field maze and moat slabs | Landmark | Slimeshire Meadow | D5 | Roll | The old fort's field before the hill: a maze of fieldstone walls cut by a dry moat; two falling slabs cross it in one Roll, a walk falls back to the rim |
 | Hill crack | Secret / heart | Slimeshire Meadow | D5 | Goo Bomb | A crack in the hill's face beside the Lair's gate opens into a cave pocket with a goo heart, seen from the forecourt (a Chapter 2 come-back) |
-| First bell and watch post | Secret / heart | Slimeshire Meadow | C4 |  | C4: a bell on a pond islet; a thrown pot rings it and opens the old watch post's stone door (a chest) |
+| First bell and keeper storehouse | Secret / heart | Slimeshire Meadow | C4 |  | C4: the pond bell unlocks a timber storehouse; its coffer, pots and supplies are inside a separate furnished room. |
 | Lookout bell | Secret / heart | Slimeshire Meadow | C5 |  | C5: a bell on a lookout rock; a pot thrown from its foot rings it and raises a hidden chest |
 | Old pen, grey planks | Secret / heart | Slimeshire Meadow | D4 | Heavy skin | D4: an old Thorn Guard pen by the road, its gap shut by grey planks a Heavy Roll breaks; a goo heart inside (a come-back with Pearl 1) |
 | Gorge | Boss | Volcano Ridge | F2 |  | Finale, in the crater |
@@ -466,3 +466,8 @@ ability, built in the rework mode) lights, given by the smith at his mine camp
 - **Later locks** (question 135): only a few War Axe, Stretch Lash, Hammer
   and Swim locks show in Release 1, each with a line that says it needs
   something not found yet.
+
+Chapter 1 second pass (2026-10-17): Slimeshire's south plateau has fences and north/south
+stairs; the river lies on the C4/D4 seam. The larger lake has a charged-Roll island
+bridge, a bomb cave, a shallow ford islet, a fishing jetty and a future Swim secret.
+The three meadow hearts hide in chests, including the separate hollow-hill-cave.

@@ -123,8 +123,13 @@ power.
   the Webwood, a climbable wall by the Wellspring. When the power comes, the player remembers.
 - A lock says what it needs in its refusal line ("Barred from the other side.", "Too heavy..."),
   without naming a key (quest text never names keys). A player coming back knows what to bring.
-- A prize in sight and out of reach is the strongest pull a map has: a chest on a ledge, a heart
-  quarter on an islet, a glint behind bars. Show it, then make the way to it the puzzle.
+- A prize in sight and out of reach is the strongest pull a map has: a chest on a ledge, a chest
+  across water, a glint behind bars. Show it, then make the way to it the puzzle.
+- **Hearts are the exception (owner, 2026-10-17): almost never in sight.** In Zelda only a few heart
+  pieces can be seen; most hide in chests, caves and odd corners, so finding one is a surprise.
+  Show the chest, not the heart: at most one heart in plain sight per map, and a heart quarter
+  usually waits in a chest. The player finds things by being curious, and some players will miss
+  some secrets; that is fine. Hearts in pots and grass (refills) do not count.
 - In a dungeon, show the boss door early, from a balcony or across a pit. The player then reads
   every room as "the way to that door".
 - **Teach a power where it is won.** *Hollow Knight* puts a gap only the dash crosses right after
@@ -196,7 +201,8 @@ first breakable wall). Our tells:
   wall);
 - **an odd shape**: a gap in a tree band, a path that runs into a wall, a stair with nothing at its
   top, a pool with a dark square under the water;
-- **a glint or a prize in sight**: the chest across water, the heart quarter on a ledge;
+- **a glint or a prize in sight**: the chest across water, a glint on a ledge (rarely a heart:
+  hearts hide, [section 3](#3-show-the-lock-before-the-key-sight-before-reach));
 - **a hint from an NPC** (Lili's tip for Yoi's home) or a lore page.
 
 Every secret also has a **lock it belongs to** (one power, the clarity rule) and a **prize**: a
@@ -493,7 +499,7 @@ example, not a plan:
 Chunk: level-1-d5 (the autumn grove)
 Landmark: the great red maple on the river bend
 Main way: road from C5 (west edge) to the Wilds (south opening); river crossing at the ford
-Secrets: [HQ] heart quarter on the cliff above the grove (Feral: roots and handholds, seen from the ford)
+Secrets: [HQ] a chest on the cliff above the grove, a heart quarter inside (Feral: roots and handholds, the chest seen from the ford)
          [way] the grey leaning tree knocked over the river (Heavy Roll): a shortcut back to the road
          [small] a potion in a hollow stump by the ford (open on the first visit)
 Enemies: camp 1 (2 archers + 1 brawler, grove clearing), camp 2 (1 brawler, by the ford); quiet road north
@@ -661,6 +667,8 @@ main path, locks and secrets drawn on it, and check it against any approved mock
 - [ ] Each tell is visible from where the slime can stand, in the game's view (16 × 14 tiles).
 - [ ] At least one come-back secret per chunk, shown on the first visit.
 - [ ] Prizes are spread: no two heart quarters in one chunk; secrets spread over the whole game.
+- [ ] Hearts hide: at most one heart in plain sight per map; the others in chests, caves or odd
+      corners (owner, 2026-10-17).
 
 **Enemies**
 - [ ] Each enemy's tell is readable where it stands: room to see the wind-up, light to see it,
@@ -697,8 +705,9 @@ The [prologue design](2026-10-16-prologue.md) sets the beats. On the map:
 - **The barred gate:** the lever one tile behind the bars, straight in line with a thrust (the
   Spear aims to the four directions or an exact diagonal), in jab reach (about 110 px). A thrown pot
   clinks off the bars, and bars stop arrows (question 131).
-- **A first come-back tell:** a heart quarter on a rocky ledge with thick roots and handholds
-  above the Wellspring, seen at birth and climbed after the Colossus, on a homecoming (proposal).
+- **A first come-back tell:** a chest on a rocky ledge with thick roots and handholds above the
+  Wellspring (a heart quarter inside), seen at birth and climbed after the Colossus, on a homecoming
+  (proposal).
   The player learns in the first minute that the world has locks for later.
 - No save, no game over: fainting wakes the slime at the glade's edge.
 

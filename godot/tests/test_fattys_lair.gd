@@ -35,7 +35,7 @@ const ORIGINS := {
 	"r9": Vector2(0, 14), "r10": Vector2(0, 0), "r11": Vector2(32, 28), "r12": Vector2(32, 14),
 	"r13": Vector2(48, 28), "r14": Vector2(48, 14), "bolt": Vector2(48, 0), "weigh": Vector2(32, 0),
 }
-const ROOMS: PackedStringArray = ["r10-dung-roller-run", "c2-weigh-house", "bolt-hole", "r9-watcher-hall",
+const ROOMS: PackedStringArray = ["burr-cell", "r1-store", "r5-lower-hall", "r5-key-alcove", "r10-dung-roller-run", "c2-weigh-house", "bolt-hole", "r9-watcher-hall",
 	"r8-guard-crypt", "r12-larder", "r14-postern", "old-armoury", "r11-drop-gate-bridge", "r13-fattys-arena",
 	"glow-moss-burrow", "map-nook", "r4-squint-den", "r3-pit-hall", "r6-pipe-gallery", "sally-port",
 	"r5-eye-hall", "r1-gatehouse", "r2-slab-steps", "r7-bell-bridge"]

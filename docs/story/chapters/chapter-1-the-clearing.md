@@ -421,23 +421,31 @@ asks:
 ```
 Chunk: level-1-c4 (the village)
 Landmark: the plaza's well
-Main way: the forest path from the prologue (west edge) -> a road to the town's south gate;
-          roads east over the river (D4) and south through the worm camp (C5)
+Main way: the forest path from the prologue onto the fenced level-1 plateau; north stairs
+          to town, south stairs to C5. The river bridge crosses the C4/D4 border. Three
+          fence gaps offer ledge drops; the river and lake rims remain fenced.
 Secrets: [first lock, open now] the first bell, on an islet in the little pond at the town's
-         edge, pots on its shore: a thrown pot rings it and opens the old watch post's stone
-         door (a chest: coins, a tonic). Tell: the bell and the shut door, both in sight of
-         Plop's meeting spot. Way back: the door stays open (question 136).
+         edge, pots on its shore: a thrown pot rings it and unlocks the keeper's storehouse.
+         Its door is built into the timber facade; the coffer (coins, a tonic) is hidden from
+         outside in a separate interior with pots, grain sacks, a barrel, crate, desk and shelf.
+         Tell: an ordinary shut storehouse and the pond bell. Way back: the bell's unlock stays
+         remembered (question 136). The coffer retains its old save record.
          [come-back] Yoi's home under Lili's west yard (not built yet, roadmap 5.12)
 Enemies: the starter camp (3 worm swordsmen, unchanged); a quiet road from the forest path
 Rest: the town's campfire (the camp square)
 
 Chunk: level-1-c5 (the lake)
 Landmark: the blossom tree on its island in the lake
-Main way: from C4's south gate over the footbridge, down the lake road on the east shore
+Main way: from C4's south stairs across the road bridge, down the lake road on the east shore
           to the camp, east into D5 (rows 8-9)
 Secrets: [open now] the lookout rock by the copse (no way up): a bell on its top, rung by a
          pot thrown from its foot, raises a chest (coins, an energy potion)
-Enemies: the south meadow camp (2 brawlers, a slime spider: the Roll aside before D5)
+         [open now] south-west islet chest and pots, reached by a shallow ford
+         [come-back, charged Roll + Goo Bomb] six falling planks without a landing to the
+         north island; two swordsmen and an archer guard a cracked rock. The cave beyond
+         holds chests and pots; its future secret spot is empty.
+         [come-back, Swim skin] the dark square in the shallows near the fishing jetty
+Enemies: the south meadow camp (2 brawlers, a slime spider); three island worms
 Rest: the lake camp's campfire
 Comes back: deep water for the Swim skin, after Release 1 (no heart quarter behind it: the
             goo heart that waited on the west islet moved to D4's pen, question 135)
@@ -447,9 +455,9 @@ Landmark: the Verdant Gate
 Main way: the road from C4's bridges east to the gate; south through Fatty's old camp
           clearing (a torn banner, crates) to D5's north road
 Secrets: [come-back, Heavy] an old Thorn Guard pen by the road, its gap shut by grey planks
-         (the Heavy Roll): the lake's goo heart inside, seen through the planks. Seen on the
+         (the Heavy Roll): the lake's goo heart hidden in a chest inside. Seen on the
          way to the Verdant Gate; opens on the way home with Pearl 1.
-         [open] the plateau's goo heart (the cliff secret, unchanged)
+         [open] the plateau's goo heart hidden in a chest (the cliff secret)
 Enemies: the Webwood's 3 slime spiders (unchanged)
 Out of the Lair: the bolt-hole's mouth by the Verdant Gate, Burr waiting
 The south-east field's way into D5 closed with trees (the hill stands behind it)
@@ -464,7 +472,7 @@ Main way: the north road from D4's clearing and the lake road from C5 meet at a 
 Secrets: [open] the west dead end: two pots, a heart and coins; the east dead end: a chest
          (coins, a tonic), guarded by an archer
          [come-back, Goo Bomb] a crack in the hill's face beside the gate: blown, a passage
-         into a cave pocket on the hill with the grove's goo heart, seen from the forecourt
+         into hollow-hill-cave, a separate room with the grove's goo heart hidden in a chest
 Enemies: an archer alone in the maze's long west row (step off its line by the loop);
          an archer by the east chest, two brawlers before the stairs
 Rest: the forecourt's campfire, an energy flower, a pot hiding a heart (the calm spot
@@ -484,7 +492,7 @@ river), a climbable wall (Feral).
 - Today two Goo Hearts are placed in `level-1`. They become quarter spots, or
   move to harder ones. *Since 2026-10-17 three goo hearts stand in for
   quarters ([Slimeshire's places](#slimeshires-places-built-2026-10-17)): D4's
-  pen (the Heavy Roll), D5's hill pocket (the Goo Bomb) and D4's plateau
+  pen (the Heavy Roll), D5's hill cave chest (the Goo Bomb) and D4's plateau
   (open); Yoi's home holds the fourth when it is built.*
 - At least one quarter should need a later power (the Silk skin, the Feral
   skin's climbing, the Heavy skin's Roll, the Goo Bomb), so that coming back
@@ -536,3 +544,5 @@ river), a climbable wall (Feral).
 | Boss heart (Fatty) | 5 | Planned (owner, 2026-10-16, question 17) |
 | The first bell, by the town's edge | Secrets | Built 2026-10-17 in C4's pond (questions 115 and 132) |
 | 4 heart quarters | Secrets | Planned |
+
+Second pass (2026-10-17): the maps and cave scenes are built; visual review and the owner's playthrough remain. The island bridge requires `roll-charge`, unavailable in Release 1.

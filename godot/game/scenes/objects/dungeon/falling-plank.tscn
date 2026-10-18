@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/falling_plank.gd" id="s"]
+
+[node name="falling-plank" type="Node2D"]
+script = ExtResource("s")
+safe = false
+draw_floor = false

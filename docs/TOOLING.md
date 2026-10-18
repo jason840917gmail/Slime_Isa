@@ -87,11 +87,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   playground in the editor first. `res://tools/render_elevation_park.gd` (windowed:
   `--path godot -s res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few
   close-ups with the game's own drawing and prints how many walls each style has.
-- `python scripts/art/build-fence-art.py [style ...] [--preview DIR]` (**numpy**) — the fences along hill
-  rims: cuts each style's generated front view (`asset/Originals/elevation/fences/`) into its kit (posts,
+- `python scripts/art/build-fence-art.py [style ...] [--preview DIR]` (**numpy**) — cuts each style's
+  generated front view (`asset/Originals/elevation/fences/`) into its kit (posts,
   a seamless rail strip, the rail seen from above, a JSON of measures) in
-  `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
-  draws the fences layer's paint tiles.
+    `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
+    draws the single fences layer's picture-based material and direction palette and builds its TileSet.
 - `python scripts/art/build-tree-sets.py [set ...]` (**numpy**) — the trees of every region set (forest,
   autumn, frost, desert, volcano, swamp, crystal, ruins, village): cuts the Magnific renders in
   `asset/Originals/trees/<set>/generated/` (a medium and a tall tree each), grades leaves where set,
@@ -161,7 +161,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   cells), with each level's collision outline on request. Every world draws side walls: a world made
   later needs no setting or conversion, only a bake of its cache.
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
-  (`godot/game/scenes/worlds/fence-park.tscn`, every hill shape fenced); `res://tools/render_fence_park.gd`
+  (`godot/game/scenes/worlds/fence-park.tscn`, connected fences on every hill shape);
+  `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
   prints collision, drop and hop probes against its fences.
 - `python scripts/art/pack-hud-console.py` — packs the HUD console's art from `asset/Originals/ui/hud-console/` into
@@ -193,6 +194,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   (2 px per unit), the bag's Skins row icons into `godot/asset/UI/skins/` and the three looks'
   textures into `godot/asset/player/skins/` ([godot/SKINS.md](godot/SKINS.md#art)); it prints the
   sheets' cells and offsets.
+- `python scripts/art/pack-plank-art.py` — the plank bridge's sheet
+  (`godot/asset/MAPS/objects/dungeon/plank-2x1.webp`: the whole plank and the loose one, 128 px a
+  cell) from `asset/Originals/dungeon-kit/generated/plank.png` (Magnific GPT 2.5, 2026-10-17;
+  [godot/DUNGEONS.md](godot/DUNGEONS.md#falling-planks-over-water)). The plank lab is built by
+  `godot/tools/build_plank_lab.gd` and filmed by `godot/tools/film_planks.gd`.
 - `python scripts/art/pack-dungeon-art.py` (**numpy**) — the dungeon kit's art from
   `asset/Originals/dungeon-kit/generated/` (Magnific GPT 2.5, 2026-10-17): the doors (shut, and open
   with the doorway cut see-through), padlock, bolt, winch, shutter, drawbridge (down, up), slabs,
@@ -526,3 +532,33 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
 - `"<Godot 4.7.2 console exe>" --path godot -s res://tools/render_world_atlas.gd -- --out=<dir>`
   (windowed: it renders) — draws the world atlas (`godot/game/dev/world_atlas.tscn`: every region's
   world on the chunk grid) to PNGs and prints its warnings.
+
+Doorway review composites: `python scripts/art/build-doorway-mockups.py` reuses the generated
+wall sheets in `asset/Originals/dungeon-kit/doorways/` and runtime ground textures, writing
+`output/doorway-review/`. The comparison also uses the handover's saved current-look image;
+see [doorway study](design/2026-10-17-doorways-in-walls.md). No generation credits are spent.
+
+Dungeon doorway runtime pack: `python scripts/art/pack-doorway-art.py`, followed by Godot
+`-s res://tools/pack_doorway_textures.gd`, reuses the existing doorway sheets and saves native
+texture resources without an import run. The dungeon builders also split their output
+into editable room scenes; `-s res://tools/split_dungeon_rooms.gd` repartitions existing
+worlds. See [Dungeon room scenes](godot/DUNGEON_ROOMS.md).
+
+
+## Keeper's storehouse interior
+
+C4's old exposed watch-post door and coffer are replaced by `object.watchkeeper-hideout`,
+a timber building with its door cut from the facade. The pond bell unlocks it using the
+original `level-1-c4-watch-post` record. Entering leads to `world.watchkeeper-hideout`,
+a separate room with the original coffer, four pots, a desk, shelf, grain sacks, crate and barrel.
+The coffer retains `level-1-c4` / `level-1-c4-watch-post-chest` for existing saves.
+
+The facade has a visible crossbar and padlock while locked. The pond bell unlocks the saved gate,
+removes the bar and padlock, and swings the real house door open. It stays open on later visits.
+
+`res://tools/build_watchkeeper_hideout.gd` rebuilds only that interior from the shared timber
+room shell. It overwrites interior edits; reload the scene before saving in an open editor.
+`build_slimeshire_chunks.gd -- --only=c4` places the exterior and clears the former enclosure
+on a full C4 rebuild; it replaces that builder's other C4 paint as usual. Hand edits outside
+the old enclosure were preserved in the initial replacement. The return door is registered
+in `world-chunks.json`; the interior is listed in `scene_index.json` and the world atlas.

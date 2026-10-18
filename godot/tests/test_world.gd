@@ -41,6 +41,15 @@ func test_level1_dimensions_tiles_and_spawn(t: TestContext) -> void:
 	t.equal(world.camera_mode(), "follow", "camera mode")
 
 
+func test_spawn_fallback_chooses_nearest_open_bridge_tile(t: TestContext) -> void:
+	var world := t.world()
+	var upper_edge := Vector2(1984.0, 574.0)
+	t.check(world.is_solid_tile(31, 8), "the bridge's upper-edge arrival cell should be blocked water")
+	t.check(world.is_bridged(31, 9), "the next row should be open under the bridge deck")
+	t.near_vec(world.find_spawn_point(upper_edge), Vector2(1952.0, 608.0), 0.01,
+		"blocked upper-edge arrival should choose the nearby bridge tile, not the north shore")
+
+
 func test_camera_follows_player(t: TestContext) -> void:
 	var camera = t.world().camera
 	if not t.check(camera != null, "no camera registered with WorldService"):

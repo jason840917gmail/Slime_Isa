@@ -1,0 +1,162 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_erkqk"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_3lxm2"]
+[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="3_hgn3x"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="4_j3kom"]
+[ext_resource type="TileSet" path="res://game/world/elevation/cliffs/cliff_tileset.tres" id="5_yweqe"]
+[ext_resource type="Script" uid="uid://kwcdiy1mquk" path="res://game/world/elevation/cliffs/cliff_layer.gd" id="6_jeecp"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="7_njxpo"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="8_cmyrr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="9_yia7f"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="10_bnafs"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="11_4oiad"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-glow.tscn" id="12_u5qur"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-ring.tscn" id="13_kd20d"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-2.tscn" id="14_mwi6o"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-rock-mossy.tscn" id="15_3xb18"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-1.tscn" id="16_kv3b3"]
+
+[node name="lake-island-cave" type="Node2D" unique_id=305566906]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=1888912161]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAABAAAAAAAAAABAAAABAABAAAAAAACAAAABAACAAAAAAADAAAABAADAAAAAAAEAAAABAAEAAAAAAAFAAAABAAFAAAAAAAGAAAABAAGAAAAAAAHAAAABAAHAAAAAAAIAAAABAAIAAAAAAAJAAAABAAJAAAAAAAKAAAABAAKAAAAAAALAAAABAALAAAAAAAMAAAABAAMAAAAAAANAAAABAANAAAAAAAOAAAABAAOAAAAAAAPAAAABAAPAAAAAAAAAAEABAAAAAEAAAABAAEABAABAAEAAAACAAEABAACAAEAAAADAAEABAADAAEAAAAEAAEABAAEAAEAAAAFAAEABAAFAAEAAAAGAAEABAAGAAEAAAAHAAEABAAHAAEAAAAIAAEABAAIAAEAAAAJAAEABAAJAAEAAAAKAAEABAAKAAEAAAALAAEABAALAAEAAAAMAAEABAAMAAEAAAANAAEABAANAAEAAAAOAAEABAAOAAEAAAAPAAEABAAPAAEAAAAAAAIABAAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAKAAIAAQAKAAIAAAALAAIAAQALAAIAAAAMAAIAAQAMAAIAAAANAAIAAQANAAIAAAAOAAIAAQAOAAIAAAAPAAIABAAPAAIAAAAAAAMABAAAAAMAAAABAAMAAQABAAMAAAACAAMAAQACAAMAAAADAAMAAQADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAQAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAKAAMAAQAKAAMAAAALAAMAAQALAAMAAAAMAAMAAQAMAAMAAAANAAMAAQANAAMAAAAOAAMAAQAOAAMAAAAPAAMABAAPAAMAAAAAAAQABAAAAAQAAAABAAQAAQABAAQAAAACAAQAAQACAAQAAAADAAQAAQADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAQAFAAQAAAAGAAQAAQAGAAQAAAAHAAQAAQAHAAQAAAAIAAQAAQAIAAQAAAAJAAQAAQAJAAQAAAAKAAQAAQAKAAQAAAALAAQAAQALAAQAAAAMAAQAAQAMAAQAAAANAAQAAQANAAQAAAAOAAQAAQAOAAQAAAAPAAQABAAPAAQAAAAAAAUABAAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAQAGAAUAAAAHAAUAAQAHAAUAAAAIAAUAAQAIAAUAAAAJAAUAAQAJAAUAAAAKAAUAAQAKAAUAAAALAAUAAQALAAUAAAAMAAUAAQAMAAUAAAANAAUAAQANAAUAAAAOAAUAAQAOAAUAAAAPAAUABAAPAAUAAAAAAAYABAAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAKAAYAAQAKAAYAAAALAAYAAQALAAYAAAAMAAYAAQAMAAYAAAANAAYAAQANAAYAAAAOAAYAAQAOAAYAAAAPAAYABAAPAAYAAAAAAAcABAAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAAKAAcAAQAKAAcAAAALAAcAAQALAAcAAAAMAAcAAQAMAAcAAAANAAcAAQANAAcAAAAOAAcAAQAOAAcAAAAPAAcABAAPAAcAAAAAAAgABAAAAAgAAAABAAgAAQABAAgAAAACAAgAAQACAAgAAAADAAgAAQADAAgAAAAEAAgAAQAEAAgAAAAFAAgAAQAFAAgAAAAGAAgAAQAGAAgAAAAHAAgAAQAHAAgAAAAIAAgAAQAIAAgAAAAJAAgAAQAJAAgAAAAKAAgAAQAKAAgAAAALAAgAAQALAAgAAAAMAAgAAQAMAAgAAAANAAgAAQANAAgAAAAOAAgAAQAOAAgAAAAPAAgABAAPAAgAAAAAAAkABAAAAAkAAAABAAkAAQABAAkAAAACAAkAAQACAAkAAAADAAkAAQADAAkAAAAEAAkAAQAEAAkAAAAFAAkAAQAFAAkAAAAGAAkAAQAGAAkAAAAHAAkAAQAHAAkAAAAIAAkAAQAIAAkAAAAJAAkAAQAJAAkAAAAKAAkAAQAKAAkAAAALAAkAAQALAAkAAAAMAAkAAQAMAAkAAAANAAkAAQANAAkAAAAOAAkAAQAOAAkAAAAPAAkABAAPAAkAAAAAAAoABAAAAAoAAAABAAoAAQABAAoAAAACAAoAAQACAAoAAAADAAoAAQADAAoAAAAEAAoAAQAEAAoAAAAFAAoAAQAFAAoAAAAGAAoAAQAGAAoAAAAHAAoAAQAHAAoAAAAIAAoAAQAIAAoAAAAJAAoAAQAJAAoAAAAKAAoAAQAKAAoAAAALAAoAAQALAAoAAAAMAAoAAQAMAAoAAAANAAoAAQANAAoAAAAOAAoAAQAOAAoAAAAPAAoABAAPAAoAAAAAAAsABAAAAAsAAAABAAsABAABAAsAAAACAAsABAACAAsAAAADAAsABAADAAsAAAAEAAsABAAEAAsAAAAFAAsABAAFAAsAAAAGAAsABAAGAAsAAAAHAAsAAQAHAAsAAAAIAAsAAQAIAAsAAAAJAAsABAAJAAsAAAAKAAsABAAKAAsAAAALAAsABAALAAsAAAAMAAsABAAMAAsAAAANAAsABAANAAsAAAAOAAsABAAOAAsAAAAPAAsABAAPAAsAAAAAAAwABAAAAAwAAAABAAwABAABAAwAAAACAAwABAACAAwAAAADAAwABAADAAwAAAAEAAwABAAEAAwAAAAFAAwABAAFAAwAAAAGAAwABAAGAAwAAAAHAAwAAQAHAAwAAAAIAAwAAQAIAAwAAAAJAAwABAAJAAwAAAAKAAwABAAKAAwAAAALAAwABAALAAwAAAAMAAwABAAMAAwAAAANAAwABAANAAwAAAAOAAwABAAOAAwAAAAPAAwABAAPAAwAAAA=")
+tile_set = ExtResource("1_erkqk")
+script = ExtResource("2_3lxm2")
+metadata/columns = 16
+metadata/rows = 13
+
+[node name="elevation" type="TileMapLayer" parent="." unique_id=1289384312]
+z_index = -1
+tile_map_data = PackedByteArray("AAAAAAAAAAAEAAAAAAABAAAAAAAEAAAAAAACAAAAAAAEAAAAAAADAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAFAAAAAAAEAAAAAAAGAAAAAAAEAAAAAAAHAAAAAAAEAAAAAAAIAAAAAAAEAAAAAAAJAAAAAAAEAAAAAAAKAAAAAAAEAAAAAAALAAAAAAAEAAAAAAAMAAAAAAAEAAAAAAANAAAAAAAEAAAAAAAOAAAAAAAEAAAAAAAPAAAAAAAEAAAAAAAAAAEAAAAEAAAAAAABAAEAAAAEAAAAAAACAAEAAAAEAAAAAAADAAEAAAAEAAAAAAAEAAEAAAAEAAAAAAAFAAEAAAAEAAAAAAAGAAEAAAAEAAAAAAAHAAEAAAAEAAAAAAAIAAEAAAAEAAAAAAAJAAEAAAAEAAAAAAAKAAEAAAAEAAAAAAALAAEAAAAEAAAAAAAMAAEAAAAEAAAAAAANAAEAAAAEAAAAAAAOAAEAAAAEAAAAAAAPAAEAAAAEAAAAAAAAAAIAAAAEAAAAAAAPAAIAAAAEAAAAAAAAAAMAAAAEAAAAAAAPAAMAAAAEAAAAAAAAAAQAAAAEAAAAAAAPAAQAAAAEAAAAAAAAAAUAAAAEAAAAAAAPAAUAAAAEAAAAAAAAAAYAAAAEAAAAAAAPAAYAAAAEAAAAAAAAAAcAAAAEAAAAAAAPAAcAAAAEAAAAAAAAAAgAAAAEAAAAAAAPAAgAAAAEAAAAAAAAAAkAAAAEAAAAAAAPAAkAAAAEAAAAAAAAAAoAAAAEAAAAAAAPAAoAAAAEAAAAAAAAAAsAAAAEAAAAAAABAAsAAAAEAAAAAAACAAsAAAAEAAAAAAADAAsAAAAEAAAAAAAEAAsAAAAEAAAAAAAFAAsAAAAEAAAAAAAGAAsAAAAEAAAAAAAJAAsAAAAEAAAAAAAKAAsAAAAEAAAAAAALAAsAAAAEAAAAAAAMAAsAAAAEAAAAAAANAAsAAAAEAAAAAAAOAAsAAAAEAAAAAAAPAAsAAAAEAAAAAAAAAAwAAAAEAAAAAAABAAwAAAAEAAAAAAACAAwAAAAEAAAAAAADAAwAAAAEAAAAAAAEAAwAAAAEAAAAAAAFAAwAAAAEAAAAAAAGAAwAAAAEAAAAAAAJAAwAAAAEAAAAAAAKAAwAAAAEAAAAAAALAAwAAAAEAAAAAAAMAAwAAAAEAAAAAAANAAwAAAAEAAAAAAAOAAwAAAAEAAAAAAAPAAwAAAAEAAAAAAA=")
+tile_set = ExtResource("3_hgn3x")
+script = ExtResource("4_j3kom")
+
+[node name="cliffs" type="TileMapLayer" parent="." unique_id=948509394]
+tile_map_data = PackedByteArray("AAAAAAAAAAADAAAAAAABAAAAAAADAAAAAAACAAAAAAADAAAAAAADAAAAAAADAAAAAAAEAAAAAAADAAAAAAAFAAAAAAADAAAAAAAGAAAAAAADAAAAAAAHAAAAAAADAAAAAAAIAAAAAAADAAAAAAAJAAAAAAADAAAAAAAKAAAAAAADAAAAAAALAAAAAAADAAAAAAAMAAAAAAADAAAAAAANAAAAAAADAAAAAAAOAAAAAAADAAAAAAAPAAAAAAADAAAAAAAAAAEAAAADAAAAAAABAAEAAAADAAAAAAACAAEAAAADAAAAAAADAAEAAAADAAAAAAAEAAEAAAADAAAAAAAFAAEAAAADAAAAAAAGAAEAAAADAAAAAAAHAAEAAAADAAAAAAAIAAEAAAADAAAAAAAJAAEAAAADAAAAAAAKAAEAAAADAAAAAAALAAEAAAADAAAAAAAMAAEAAAADAAAAAAANAAEAAAADAAAAAAAOAAEAAAADAAAAAAAPAAEAAAADAAAAAAAAAAIAAAADAAAAAAAPAAIAAAADAAAAAAAAAAMAAAADAAAAAAAPAAMAAAADAAAAAAAAAAQAAAADAAAAAAAPAAQAAAADAAAAAAAAAAUAAAADAAAAAAAPAAUAAAADAAAAAAAAAAYAAAADAAAAAAAPAAYAAAADAAAAAAAAAAcAAAADAAAAAAAPAAcAAAADAAAAAAAAAAgAAAADAAAAAAAPAAgAAAADAAAAAAAAAAkAAAADAAAAAAAPAAkAAAADAAAAAAAAAAoAAAADAAAAAAAPAAoAAAADAAAAAAAAAAsAAAADAAAAAAABAAsAAAADAAAAAAACAAsAAAADAAAAAAADAAsAAAADAAAAAAAEAAsAAAADAAAAAAAFAAsAAAADAAAAAAAGAAsAAAADAAAAAAAJAAsAAAADAAAAAAAKAAsAAAADAAAAAAALAAsAAAADAAAAAAAMAAsAAAADAAAAAAANAAsAAAADAAAAAAAOAAsAAAADAAAAAAAPAAsAAAADAAAAAAAAAAwAAAADAAAAAAABAAwAAAADAAAAAAACAAwAAAADAAAAAAADAAwAAAADAAAAAAAEAAwAAAADAAAAAAAFAAwAAAADAAAAAAAGAAwAAAADAAAAAAAJAAwAAAADAAAAAAAKAAwAAAADAAAAAAALAAwAAAADAAAAAAAMAAwAAAADAAAAAAANAAwAAAADAAAAAAAOAAwAAAADAAAAAAAPAAwAAAADAAAAAAA=")
+tile_set = ExtResource("5_yweqe")
+script = ExtResource("6_jeecp")
+
+[node name="world-definition" type="Node" parent="." unique_id=1123626031]
+script = ExtResource("7_njxpo")
+map_id = "lake-island-cave"
+tile_size = 64
+columns = 16
+rows = 13
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 512,
+"y": 614
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=1927060791]
+position = Vector2(512, 614.4)
+
+[node name="lake-island-cave-door" type="Node2D" parent="." unique_id=1091883059]
+position = Vector2(512, 808)
+
+[node name="DoorScript" type="Node" parent="lake-island-cave-door" unique_id=878819226]
+script = ExtResource("8_cmyrr")
+map_id = "lake-island-cave"
+door_id = "lake-island-cave-door"
+target_area_id = "level-1-c5"
+target_door_id = "lake-island-cave-mouth"
+side = "south"
+trigger_rect = Rect2(-64, -24, 128, 48)
+
+[node name="Cave" type="Node2D" parent="." unique_id=779775380]
+y_sort_enabled = true
+
+[node name="lake-island-cave-chest-west" parent="Cave" unique_id=293426651 instance=ExtResource("9_yia7f")]
+position = Vector2(224, 313.6)
+
+[node name="ChestScript" parent="Cave/lake-island-cave-chest-west" index="2"]
+map_id = "lake-island-cave"
+instance_id = "lake-island-cave-chest-west"
+initial_contents = {
+"coins": 30
+}
+
+[node name="lake-island-cave-chest-east" parent="Cave" unique_id=1135004505 instance=ExtResource("9_yia7f")]
+position = Vector2(800, 313.6)
+
+[node name="ChestScript" parent="Cave/lake-island-cave-chest-east" index="2"]
+map_id = "lake-island-cave"
+instance_id = "lake-island-cave-chest-east"
+initial_contents = {
+"coins": 10,
+"hp-potion": 1
+}
+
+[node name="cave-pot-a" parent="Cave" unique_id=564189853 instance=ExtResource("10_bnafs")]
+position = Vector2(140.8, 588.8)
+
+[node name="PotLoot" parent="Cave/cave-pot-a" index="3"]
+loot = "coins"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-pot-b" parent="Cave" unique_id=260484363 instance=ExtResource("10_bnafs")]
+position = Vector2(185.6, 627.2)
+
+[node name="PotLoot" parent="Cave/cave-pot-b" index="3"]
+loot = "heart"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-pot-c" parent="Cave" unique_id=650907065 instance=ExtResource("10_bnafs")]
+position = Vector2(844.8, 614.4)
+
+[node name="PotLoot" parent="Cave/cave-pot-c" index="3"]
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-pot-d" parent="Cave" unique_id=675665282 instance=ExtResource("10_bnafs")]
+position = Vector2(889.6, 576)
+
+[node name="PotLoot" parent="Cave/cave-pot-d" index="3"]
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-rock-pot" parent="Cave" unique_id=1918212937 instance=ExtResource("11_4oiad")]
+position = Vector2(358.4, 486.4)
+
+[node name="LiftableScript" parent="Cave/cave-rock-pot" index="2"]
+kind = "clay-pot"
+
+[node name="cave-mushrooms-glow-18" parent="Cave" unique_id=1250327076 instance=ExtResource("12_u5qur")]
+position = Vector2(115.2, 332.8)
+
+[node name="cave-mushrooms-ring-96" parent="Cave" unique_id=1160903953 instance=ExtResource("13_kd20d")]
+position = Vector2(614.4, 550.4)
+
+[node name="cave-pebbles-2-64" parent="Cave" unique_id=743921515 instance=ExtResource("14_mwi6o")]
+position = Vector2(409.6, 396.8)
+
+[node name="cave-mushrooms-glow-140" parent="Cave" unique_id=1571319426 instance=ExtResource("12_u5qur")]
+position = Vector2(896, 358.4)
+
+[node name="cave-rock-mossy-108" parent="Cave" unique_id=191661500 instance=ExtResource("15_3xb18")]
+position = Vector2(691.2, 294.4)
+
+[node name="cave-pebbles-1-46" parent="Cave" unique_id=1226433952 instance=ExtResource("16_kv3b3")]
+position = Vector2(294.4, 601.6)
+
+[node name="KitMarkers" type="Node2D" parent="." unique_id=779215210]
+
+[node name="cave-secret-spot" type="Node2D" parent="KitMarkers" unique_id=643297794]
+position = Vector2(512, 307.2)
+metadata/kit = "chapter-1"
+metadata/contents = "a secret placed later (owner, 2026-10-17: \"we will place a secret there later\"); nothing here yet"
+
+[editable path="Cave/lake-island-cave-chest-west"]
+[editable path="Cave/lake-island-cave-chest-east"]
+[editable path="Cave/cave-pot-a"]
+[editable path="Cave/cave-pot-b"]
+[editable path="Cave/cave-pot-c"]
+[editable path="Cave/cave-pot-d"]
+[editable path="Cave/cave-rock-pot"]

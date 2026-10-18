@@ -246,8 +246,8 @@ without its numbered squares. The game hides the layer.
 `scripts/maps/build-elevation-park.py` builds the park and is the worked example; it rewrites the
 playground's park rows, so hand edits to the park are lost when it runs again.
 
-**Fences** that stop the player dropping off a rim are painted on their own `fences` layer and
-documented in [FENCES.md](FENCES.md).
+**Fences** with their own collision are painted on the `fences` layer and documented in
+[FENCES.md](FENCES.md). They do not create elevation rims or cliff art.
 
 ## Wall styles
 
@@ -362,7 +362,7 @@ shadows the model once drew over all the lower ground went with the front-only l
 |---|---|---|
 | `Patches` | chamfered corner triangles that take the ground across the corner; the top's ground over the water surface's soft edge along a rim over water | the ground's sheet (`elevation_ground.gdshader`) |
 | `Shade` | the ground of holes, darker per level of depth | multiply (`elevation_shade.gdshader`) |
-| `Sides` | every top's walls, top edge and foot ([Side walls](#side-walls)), one mesh per level, wall style and pair of grounds (`<level> <style> <top ground> <lower ground>`) | `art/<style>-wall.png`, `-side.png`, `-corners.png` and the grounds' sheets (`sides/elevation_sides.gdshader`, `_sides_material`) |
+| `Sides` | every top's walls, top edge and foot ([Side walls](#side-walls)), grouped by level, wall style and the top/lower ground pair at each edge (`<level> <style> <top ground> <lower ground>`) | `art/<style>-wall.png`, `-side.png`, `-corners.png` and the grounds' sheets (`sides/elevation_sides.gdshader`, `_sides_material`) |
 | `Ramps` | every ramp's slope and skirt as its lower ground, with the shadows at its height; an open end's cap over the top edge's ends (lower ground, and the top's ground on the top); a rimmed ramp's landing as its top's ground over its edge ([Ramps](#ramps)); where a flight of stairs leaves a top, that top's ground over its edge (`add_approach`) | the ground's sheet (`elevation_ramp.gdshader`) |
 | `RampFeet` | the foot line along a slope's edge where it runs at a face (`_add_ramp_foot`) | as a wall's foot (`elevation_sides.gdshader`) |
 | `Stairs` | every flight's faces, back to front: a front flight's steps and posts on its face, the others' treads, risers and side walls; flights in a row of one colour share a mesh (`<ground>-<n>`) | the grain of meadow rock's `meadow-rock-stairs-tread.png`, `-riser.png` and `-coping.png` (blocks) in the colour of the flight's ground (`elevation_stairs.gdshader`, `_stairs_material`) |
@@ -370,8 +370,9 @@ shadows the model once drew over all the lower ground went with the front-only l
 **Rims** (`elevation_rims.gd`): a top's boundary edges (where it meets lower ground, or a wall at
 or below its level), each with the top on its left: LIP where it hangs over the wall right below it
 (a south face), RIM elsewhere. The walls (`sides/elevation_sides.gd`) are drawn and traced along
-them, the fences ([FENCES.md](FENCES.md)) stand on them, and `add_cores` puts a thin core of the
-top's depth past each rim into the depth map. Depth darkening is shared by every shader
+them. Fences ([FENCES.md](FENCES.md)) are painted as ordinary cells on their own layer and do not
+read these edges. `add_cores` puts a thin core of the top's depth past each rim into the depth map.
+Depth darkening is shared by every shader
 (`elevation_light.gdshaderinc`).
 
 **Collision and levels.** Each level has a static body (`Collision/Level<n>`) on its own physics
@@ -436,8 +437,8 @@ paler stone, `STAIRS_SATURATION`, `STAIRS_VALUE`) and asks each for:
   is drawn: what of a flight stands higher, over ground behind it, only hides a body there (the
   depth map);
 - its silhouette, the whole structure as drawn, and `approach`, the top's ground just behind its
-  rim (`occupies`; fences leave a gap there, and `add_approach` draws that ground over the top's
-  edge);
+  rim (`occupies`; `add_approach` draws that ground over the top's edge). Fence openings beside
+  stairs are left by the painted fence cells;
 - its faces, back to front for the camera (a front flight: its steps, then its posts; else the far
   side wall's inner face, the steps from the far end, then each side wall), drawn in one mesh per
   colour and written to the depth map. Godot's 2D drawing has no depth test, so what of a flight
@@ -807,10 +808,13 @@ of the model's square cells:
   of the wall there, as the foot faces east (`SHADOW_EAST` 1) or south (`SHADOW_SOUTH` 0.3), so a
   hill throws a round shadow to the lower right, longer for a taller one, and none past a back
   corner's slanted end. A back edge keeps a short shadow on the ground behind.
-- **Water.** Where the ground at a wall's foot is water (`_ground_below`) the foot is a band of
-  foam lapping at the wall (`KIND_FOOT_WATER`, or `low_is_water` for a whole mesh; `foam_colour`;
-  presentation time), and an outer corner beside water stays nearly square (`RADIUS_WATER`, 3): a
-  round one would need the moving water surface between it and the model's square corner.
+- **Water.** A rim over water covers the water surface's soft edge with the top's ground, 30 units
+  inward onto the top (`_add_water_covers`). Where the ground at a wall's foot is water
+  (`_ground_below`, checked per edge) the foot is a band of foam lapping at the wall
+  (`KIND_FOOT_WATER`, `foam_colour`; presentation time). This follows the painted ground, not its
+  solidity: shallow water is walkable but still gets foam. An outer corner beside water stays nearly
+  square (`RADIUS_WATER`, 3): a round one would need the moving water surface between it and the
+  model's square corner.
 - **Simple edges, drawn.** Along the top edge (a piece from `EDGE_IN` (12) units over the top to
   `EDGE_OUT` (9) past the edge) the top's own ground (its sheet in world space, as the ground draws
   it: no seam) darkens over its last `band_width` (12) units (`band_shade` 0.22) and hangs a little
@@ -825,13 +829,13 @@ of the model's square cells:
   (`foot_line_colour`). The strip
   takes its way from neighbours `FOOT_SPAN` (8) units apart and shrinks where its offsets would
   cross, so it never folds over itself (its shadow would double there).
-- **Painter's order.** One mesh per level, wall style and pair of grounds (the top's and the lower
-  one, the most common along each chain; a chain's commonest style, and the style painted on the
-  `cliffs` layer for each painted stretch of it, every piece going by the style of the border point
-  it hangs from: [Wall styles](#wall-styles)), lowest level first; inside it every piece is drawn by the
-  screen y of the border point it hangs from, so where faces overlap (an inner corner) the nearer
-  face covers the farther one. A top edge is drawn `EDGE_LEAD` (8) and a foot `FOOT_LEAD` (24) units
-  of depth later than its wall, so they stay over the walls they belong to.
+- **Painter's order.** Pieces use the top and lower ground of their own edge, so a single cliff
+  perimeter can change ground treatment tile by tile; wall style still follows the chain's
+  commonest style, with the `cliffs` layer overriding each painted stretch: [Wall styles](#wall-styles).
+  Meshes are grouped by level, wall style and ground pair, lowest level first; pieces inside each are
+  drawn by the screen y of the border point they hang from, so where faces overlap (an inner corner)
+  the nearer face covers the farther one. A top edge is drawn `EDGE_LEAD` (8) and a foot `FOOT_LEAD`
+  (24) units of depth later than its wall, so they stay over the walls they belong to.
 - **Collision follows the drawing.** The model's cells are square and its walls hang only below
   front edges, so each level walks by the drawn shapes (`ElevationSides.shapes`: per chain its wall
   polygons, from the smooth border to the foot, over the points whose fibre reaches out more than
@@ -916,8 +920,8 @@ pressing straight down behind a 45° back face is held at the tip by the side wa
 line; a wall stretch painted another style on the `cliffs` layer is drawn in a mesh of its own
 after its chain's, so where it overlaps another face (an inner corner) it may cover it; a few of
 the cliff shapes lab's ramp examples (45° faces meeting a plateau's corner) show small stray wall
-pieces at the face's end; fences stand on the model's square rims, so a fence corner pokes a little
-past a round top corner.
+pieces at the face's end. Fence links follow their painted cell centers, so corners may need an
+extra direction tile to follow an irregular shape.
 
 ## Baked cache
 

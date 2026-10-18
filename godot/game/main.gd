@@ -196,6 +196,8 @@ var _rework_lending := false
 ## with the powers the slime has by then (owner, 2026-10-17: "to have the required powers if I press
 ## F6 on a dungeon"); see `dev_powers_for`.
 var direct_world_run := false
+## An authored dungeon room run with F6.
+var direct_room_run := ""
 ## The powers this run got from `dungeon.devPowers` (empty unless `direct_world_run`).
 var _dev_powers := PackedStringArray()
 ## The world being built arrives by a chunk scroll (ChunkScroll): no arrival fade.

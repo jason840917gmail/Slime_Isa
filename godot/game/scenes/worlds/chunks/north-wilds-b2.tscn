@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-floor--wooden-footbridge.tscn" id="11_2gmgx"]
 [ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="11_l1tjt"]
 [ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="12_64w57"]
+[ext_resource type="Script" uid="uid://c0dxyajir0usg" path="res://game/world/bridge_deck.gd" id="16_64w57"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_north"]
 size = Vector2(2048, 4)
@@ -57,7 +58,7 @@ script = ExtResource("6_4mitl")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=1881658315]
 z_index = -1
-tile_map_data = PackedByteArray("AAAfAAAAAAADAAAAAAAfAAEAAAADAAAAAAAfAAIAAAADAAAAAAAfAAMAAAADAAAAAAAfAAQAAAADAAAAAAAfAAUAAAADAAAAAAAfAAYAAAADAAAAAAAfAAcAAAADAAAAAAAfAA8AAAADAAAAAAAfABAAAAADAAAAAAAfABEAAAADAAAAAAAfABIAAAADAAAAAAAfABMAAAADAAAAAAAfABQAAAADAAAAAAAfABUAAAADAAAAAAAIAB8AAAADAAAAAAAJAB8AAAADAAAAAAAKAB8AAAADAAAAAAALAB8AAAADAAAAAAAMAB8AAAADAAAAAAANAB8AAAADAAAAAAAOAB8AAAADAAAAAAAPAB8AAAADAAAAAAAQAB8AAAADAAAAAAARAB8AAAADAAAAAAASAB8AAAADAAAAAAATAB8AAAADAAAAAAAUAB8AAAADAAAAAAAVAB8AAAADAAAAAAAWAB8AAAADAAAAAAAXAB8AAAADAAAAAAAYAB8AAAADAAAAAAAZAB8AAAADAAAAAAAaAB8AAAADAAAAAAAbAB8AAAADAAAAAAAcAB8AAAADAAAAAAAdAB8AAAADAAAAAAA=")
+tile_map_data = PackedByteArray("AAAfAAAA//////////8fAAEA//////////8fAAIA//////////8fAAMA//////////8fAAQA//////////8fAAUA//////////8fAAYA//////////8fAAcAAAACAAAAAAAfAA8A//////////8fABAA//////////8fABEA//////////8fABIA//////////8fABMA//////////8fABQA//////////8fABUAAAACAAAAAAAIAB8AAAACAAAAAAAJAB8A//////////8KAB8A//////////8LAB8A//////////8MAB8A//////////8NAB8A//////////8OAB8A//////////8PAB8A//////////8QAB8A//////////8RAB8A//////////8SAB8A//////////8TAB8A//////////8UAB8A//////////8VAB8A//////////8WAB8A//////////8XAB8A//////////8YAB8A//////////8ZAB8A//////////8aAB8A//////////8bAB8A//////////8cAB8A//////////8dAB8AAAACAAAAAAA=")
 tile_set = ExtResource("7_wt7mo")
 script = ExtResource("8_k3fek")
 
@@ -206,8 +207,10 @@ area = NodePath("..")
 [node name="props" type="Node2D" parent="." unique_id=1572850538]
 y_sort_enabled = true
 
-[node name="footbridge-005" parent="props" unique_id=1535753306 instance=ExtResource("11_2gmgx")]
+[node name="footbridge-005" type="Node2D" parent="props" unique_id=1535753306 instance=ExtResource("11_2gmgx")]
+y_sort_enabled = true
 position = Vector2(0, 1421)
+script = ExtResource("16_64w57")
 
 [node name="notes" type="Node2D" parent="." unique_id=21811808]
 

@@ -251,7 +251,7 @@ var _ramps: Array[ElevationRamp] = []
 var occlusion: ElevationOcclusion
 ## Bodies in the air (a hop or a drop): body -> depth (elevation_occlusion.gd) while they fly.
 var flights: Dictionary = {}
-## The fences along painted rims (fences/elevation_fences.gd, docs/godot/FENCES.md), null without.
+## The painted fences and their collision (fences/elevation_fences.gd, docs/godot/FENCES.md), null without.
 var fences: ElevationFences
 ## The wall style of each wall (index into `grid.bands`).
 var band_styles := PackedStringArray()
@@ -298,8 +298,8 @@ var _open_inner: Dictionary = {}
 static var _ground_colours: Dictionary = {}
 
 
-## Mounts the elevation over `ground_layer` from the elevation layer beside it (a second call
-## rebuilds). Removes it and returns null when the world has no elevation layer or nothing raised.
+## Mounts the elevation drawing over `ground_layer` (a second call rebuilds). Fence rendering uses
+## the same painted layer and renderer whether or not elevation is present.
 static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 	if ground_layer == null:
 		return null
@@ -308,6 +308,7 @@ static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 	if painted == null or painted.get_used_cells().is_empty():
 		if existing != null:
 			existing.queue_free()
+		ElevationFences.mount(ground_layer, null, null, null, collide)
 		return null
 	var elevation := existing
 	if elevation == null:
@@ -520,7 +521,7 @@ func _exit_tree() -> void:
 ## Rebuilds the model, the drawing and (in the game) the collision.
 func rebuild() -> void:
 	_queued = false
-	if ground == null or layer == null or ground.tile_set == null:
+	if ground == null or ground.tile_set == null:
 		return
 	cell = float(ground.tile_set.tile_size.x)
 	var used := ground.get_used_rect()
@@ -575,8 +576,8 @@ func rebuild() -> void:
 					track(walker)
 	elif has_node("Collision"):
 		get_node("Collision").free()
-	# Fences along painted rims, over the cliffs and into the depth map (docs/godot/FENCES.md).
-	fences = ElevationFences.mount(self, grid, occlusion, _collide)
+	# Painted fences add their own art, collision and depth without creating elevation rims.
+	fences = ElevationFences.mount(ground, self, grid, occlusion, _collide)
 	if _cache_record != null and _saves_on_its_own():
 		save_cache()
 
@@ -850,7 +851,7 @@ static func setting(key: String) -> float:
 
 
 ## True when a body of `level` with its feet at `feet` fits: its collision rect stands on ground
-## it can walk on, off solid tiles (deep water) and off the strip between a fence and its rim.
+## it can walk on, off solid tiles (deep water) and off a fence's blocking band.
 func body_fits(feet: Vector2, level: int) -> bool:
 	var world := Services.world()
 	for corner: Vector2 in [Vector2.ZERO, Vector2(-BODY_HALF.x, 0.0), Vector2(BODY_HALF.x, 0.0),
@@ -2125,7 +2126,7 @@ func _add_water_covers(rims_builder: ElevationRims, patches: Dictionary) -> void
 		var from: Vector2 = (edge["from"] as Vector2) * cell
 		var to: Vector2 = (edge["to"] as Vector2) * cell
 		var dir := (to - from).normalized()
-		# Into the top: left of the way along the edge.
+		# The top is to the left in screen coordinates (the same normal used by the rim samplers).
 		var into := Vector2(dir.y, -dir.x) * RIM_WATER_COVER
 		_arrays_for(patches, name_of_ground).add_flat(PackedVector2Array([from, to, to + into]), Vector2.ZERO, Color.WHITE)
 		_arrays_for(patches, name_of_ground).add_flat(PackedVector2Array([from, to + into, from + into]), Vector2.ZERO, Color.WHITE)
@@ -2518,8 +2519,6 @@ func _sides_material(style: String, top_ground: String, low_ground: String) -> M
 		var rim := Color.from_hsv(mean.h, mean.s * 0.6, clampf(mean.v * 1.9 + 0.14, 0.0, 0.9))
 		material_of.set_shader_parameter(&"outline_colour", rim)
 		material_of.set_shader_parameter(&"back_outline_colour", rim)
-	# Standing in water, the feet are foam on the water (its sheet fills the corners).
-	material_of.set_shader_parameter(&"low_is_water", 1.0 if low_ground == TerrainMaterials.WATER else 0.0)
 	for pair: Array in [[&"top_ground", top_ground], [&"low_ground", low_ground if _sheets.has(low_ground) else top_ground]]:
 		var sheet: Texture2D = _sheets[pair[1]]
 		var sharp := GroundSurface.sharp_sheet(sheet)

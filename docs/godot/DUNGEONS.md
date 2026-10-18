@@ -37,7 +37,9 @@ work on top of these.
   child that has one. Every kit piece that something opens has `trigger`: Shutter, Drawbridge, the
   hidden chest; the game's gates (`gate.gd`) and the kit's doors answer `open_for_good`. Connect a
   bell's `rung`, a cracked post's `cracked`, a lens's hit or any signal to `trigger`.
-- **Walls and doorways:** the kit draws no walls. A doorway two cells wide through a wall painted on
+- **Walls and doorways:** the raw kit/lab uses the painted walls below. The three story dungeons
+  add continuous wall courses and matching opening pieces through `doorway_art.gd`
+  ([room scenes](DUNGEON_ROOMS.md)). A doorway two cells wide through a wall painted on
   the `elevation` layer works as the lab's do: a north-south one is a two-cell gap through the wall
   rows; an east-west one also clears the two rows above it, because the wall above hangs its face
   over them (one row a level) and the slime walks under it. A door in a wall turns with `wall`
@@ -120,6 +122,15 @@ key): `game/dungeon/dungeon_chest.gd` on the `ChestScript` child, which is the g
 - `hidden`: not there until set off (a room fight's `reward`, a winch target, any signal on
   `appear` or `trigger`): it rises with a puff and the secret jingle, and stays;
 - `map_id` and `instance_id` may stay empty: the world's id and the chest root's name.
+
+**A Goo Heart inside** (owner, 2026-10-17: most hearts are hidden in chests): any chest, the world's
+(`game.chest`, `chest.gd`) or the dungeon's, has `goo_heart_id` on its `ChestScript` (empty: no
+heart; a heart id unique across maps, as an `object.goo-heart`'s `heart_id`). Opening it the first
+time lifts the heart out of the chest (it rises over it, `item_pop.gd`) and grants it exactly as the
+pickup does (`goo_heart.gd` `grant`: the flag `goo-heart.<id>`, +`gooHeart.maxHpBonus` max HP, health
+full, the max-HP text and ceremony once the heart has risen), once. The flag is the chest's record: it holds
+something until the flag is set, and is open (empty) after, in every save. With only the heart inside
+no chest window opens; with other things too, the window shows them.
 
 ## Locked doors
 
@@ -221,6 +232,40 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   last few units off. On a landing the slime walks to its far edge, then Rolls on (from the middle
   of a one-cell landing a quick Roll falls short of the far rim by about 20 units); the classic
   Roll (about 185 units) has room to spare. The charged (held) Roll crosses any bridge.
+
+### Falling planks over water
+
+The slabs' twin over deep water (owner, 2026-10-17: Slimeshire's lake, a falling bridge to an island):
+
+- **`object.falling-plank`** (`falling_plank.gd`, class `FallingPlank`, on `falling_slab.gd`): a
+  loose, cracked plank, `size` 64 x 64 (one cell; lay one per cell). The slab's states and numbers
+  (`dungeon.slab.fallDelayMs` 300, `returnMs` 10 s, `riseMs`, `shakePx`): touched it creaks
+  (`GroundCreak`) and shakes, then drops into the water with a splash (`WaterSplash` cue, rings:
+  `water_splash.gd`) and sinks over `dungeon.plank.sinkMs`. `east_west` turns the boards for a bridge
+  that runs east-west.
+- **`object.plank-landing`** (`plank_landing.gd`, class `PlankLanding`, a HazardDeck): the whole,
+  nailed plank that never falls; safe ground where a Roll may end, as a slab bridge's landing.
+- **The water hazard:** an `object.hazard` with `kind` "water" over the bridge's lane only (the cells
+  under its planks, not the banks: the slime is in it when its feet are inside and no plank holds
+  them). It draws nothing (the water shows). Fallen in, the slime sinks with a splash
+  (`dungeon.water.fallMs`), loses `dungeon.water.damage` (10) and is put back on its bank: the
+  hazard's `Return...` children (put one on each bank: the nearest to the slime's last safe ground
+  wins), else that ground. A form that swims (the Frog) never falls in; enemies never fall.
+- **The lane:** every plank and landing opens the deep water's collision under its cells when the
+  world is built (`plank_look.gd` adds a `bridge_deck.gd` child, docs/godot/specs/water.md §10), and
+  the cells stay open after a plank falls, so the slime over a fallen plank is caught by the hazard,
+  never held or pushed by the water. The lane is one cell wide; deep water on both sides keeps the
+  slime on it.
+- **A long bridge with no landing** (the owner's come-back secret) is crossed only by a Roll that
+  keeps rolling: in the body-shapes mode (the story's mode after the prologue) the **charged Roll,
+  the `roll-charge` upgrade** (planned, not yet given anywhere in the story:
+  [05-unlock-map.md](../story/05-unlock-map.md)), held all the way; in the classic game the Roll
+  held. The quick Roll (one or two planks), quick Rolls in a row (the cooldown is longer than the
+  fall delay) and walking fall in. A bridge meant for the quick Roll needs a landing every two planks.
+- Tried in the plank lab, `world.playground-planks` (`game/dev/planks/playground-planks.tscn`, built
+  by `tools/build_plank_lab.gd`; `?map=playground-planks`): an eight-plank bridge with no landing,
+  a stepped bridge (two planks, a landing, two, a landing, two), and the heart chests on the island.
+  `tools/film_planks.gd` films it. Tests: `tests/test_falling_planks.gd`, `tests/test_heart_chest.gd`.
 
 ## Refills that grow back
 
@@ -873,8 +918,7 @@ the doors between the floors go on.
 ### Limits
 
 - Heart quarters are not built (roadmap 5.3): B6's prize is a Goo Heart (+10 max HP).
-- The hub's east key door is in an east wall at the world's edge, so it shows as the kit's turned
-  front art, a sliver at the room's edge.
+- Side doors now sit in the Hollow's root-rock wall pieces; the room outline hides the world beyond.
 - The Hoard is a small vault in the east of a full-size camera room; the rest of its screen is rock.
 - C4's rows of web walls hide the slime behind them only partly: an "across" web fades to 0.45 while
   the slime stands behind it (`web_wall.gd`); the corridors are three rows deep.
@@ -1105,6 +1149,8 @@ built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapt
   bridge of two falling slabs crosses: one Roll from the rim's edge; a walk drops the slime and puts
   it back on the rim (`damage` 5). Stairs climb from the maze's far end to the forecourt; its west
   rim is a ledge drop back to the maze's door.
+- **The hill crack** opens `hollow-hill-cave` with the Goo Bomb: a separate cave room,
+  pots and a chest hiding `meadow-autumn-thicket`; the former visible hill pocket is closed.
 - **The way in** (`object.fatty-lair-mouth`, `game/scenes/objects/fatty-lair-mouth.tscn`, at
   (1408, 768) in D5, the notch's foot): the drop gate (`fatty-lair-gate`, `map_id` `level-1-d5`,
   `open_ms` 620; its lever 3.7 cells in front of it, `interact_radius` 46), a closed mound round the
@@ -1129,13 +1175,23 @@ built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapt
 
 ### Limits
 
-- R2's landing shows the kit's flat deck floor; doors in side walls show the kit's turned front art.
+- R2's landing shows the kit's flat deck floor.
 - R1's seal stands in the south doorway at the room's bottom edge, where the HUD's bar covers half
   of it (in the glimpse too).
-- The Weigh House's stone doors are the latch door's art at 0.55 in one-cell gaps of built wall:
-  their frames rise over much of the three-row north hall.
+- The Weigh House's one-cell latch doors retain their collision scale and now use matching wall
+  arches with a separate sliding slab.
 - Not built: the war journal page (the Armoury's chest holds coins), heart quarters (the Burrow's
   prize is a goo heart), the journal pointing home after Burr's talk (question 103, roadmap 5.17),
   the worm mural, Fatty's shrinking into a small calm slime (his built death clip plays), the
   drill hall's weights (the plan's other way for his exam).
 - The clods' art is the liftable `mud-ball`; a generated clod picture was not used.
+
+
+### Separate room scenes and integrated doorways (2026-10-17)
+
+The three dungeons now have 60 editable room scenes assembled by a shared shell, retaining
+their dungeon ids, puzzle paths and records. F6 on a room starts there. The camera covers
+anything beyond the current outline with darkness; Burr's cell is separate from the
+L-shaped Pit Hall. Doorways use the wall's own courses with two-cell arches (root arches
+in the Hollow, timber in the Mine), and moving leaves/blocks sit inside them. See
+[Dungeon room scenes](DUNGEON_ROOMS.md) for editing, builders, art packing and checks.

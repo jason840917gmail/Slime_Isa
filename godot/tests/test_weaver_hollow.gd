@@ -39,7 +39,7 @@ const SCENE := "res://game/scenes/worlds/weaver-hollow-%s.tscn"
 const CELL := 64.0
 ## Camera rooms by floor (hollow_floors.gd).
 const ROOMS := {
-	"trunk": ["T4-well-room", "T3-larder", "T2-hollow-heart", "T1-root-door", "S3-nook"],
+	"trunk": ["T3a-map-nook", "T4-well-room", "T3-larder", "T2-hollow-heart", "T1-root-door", "S3-nook"],
 	"roots": ["R1-root-fall", "R2-bone-cellar", "R3-drop-gate", "D1-old-cellar"],
 	"boughs": ["D2-dark-bough", "Hoard", "B5-wardens-den", "B6-the-pillar", "B1-bough-stair", "B2-drawbridge",
 			"B4-nursery", "B3-mimics-pantry"],
@@ -140,7 +140,7 @@ func test_the_larders_cracks_open_the_well_room_and_the_map_nook_once_blown(t: T
 	if not await _enter(t, WORLD % "trunk"):
 		return
 	var run := Services.run()
-	for crack: Array in [["larder-crack-well", Vector2(8.0, 18.0), "T4-well-room"], ["larder-crack-nook", Vector2(3.0, 18.0), "T4-well-room"]]:
+	for crack: Array in [["larder-crack-well", Vector2(8.0, 18.0), "T4-well-room"], ["larder-crack-nook", Vector2(3.0, 18.0), "T3a-map-nook"]]:
 		var wall: Node = t.world().world_root.get_node_or_null("Objects/" + str(crack[0]))
 		if not t.check(wall != null, "no %s in the Larder" % crack[0]):
 			continue

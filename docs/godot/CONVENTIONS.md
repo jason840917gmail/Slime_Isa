@@ -87,7 +87,7 @@ floors, the Crystal Mine, the dungeon lab) plays in the body-shapes mode with th
 then the Heavy skin and the Goo Bomb, then the Silk skin and the Lantern. They are lent for the
 session (abilities through `learn_session_ability`, the `skin.<name>` entries as lent skins:
 `SkinState.lend`, [SKINS.md](SKINS.md)) and
-the autosave is off (owner, 2026-10-17; `main.gd` `dev_powers_for`). F6 on
+the autosave is off (owner, 2026-10-17; `main.gd` `dev_powers_for`). D5 starts at its upper-west path marker (384, 384), clear of the cliff. F6 on
 `game/dev/weaver-hollow-second-half.tscn` runs the Weaver Hollow's Crown that way with the Silk
 skin lent too (won mid-dungeon from Pearl 2; [DUNGEONS.md](DUNGEONS.md#the-weaver-hollow-built)). Or launch with `?map=<id>` (web) / `-- --map=<id>` (desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
 position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest active at that stage

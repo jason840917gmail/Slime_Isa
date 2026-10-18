@@ -1,6 +1,7 @@
 [gd_scene format=4]
 
 [ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_775nh"]
+[ext_resource type="Script" uid="uid://bv7akweq7b483" path="res://game/dungeon/room_scene_shell.gd" id="1_ndaqj"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_y47ja"]
 [ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="3_1xgm1"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="4_k2vdy"]
@@ -9,82 +10,238 @@
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="7_2657q"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon.tscn" id="8_p64ji"]
 [ext_resource type="AudioStream" path="res://asset/audio/sfx/library/boss/fatty-roar.ogg" id="9_20sr2"]
+[ext_resource type="Script" uid="uid://b41hcvlmfk46v" path="res://game/dungeon/dungeon.gd" id="10_8nkkp"]
 [ext_resource type="Script" uid="uid://c11vpo6seqrft" path="res://game/crystal_mine/crystal_mine.gd" id="10_qvdsw"]
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="11_jwvee"]
-[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="12_ccn4s"]
-[ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="13_do4l0"]
-[ext_resource type="Script" uid="uid://71vyo7j20xgb" path="res://game/crystal_mine/mine_rails.gd" id="14_m7bsj"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/mine-cart.tscn" id="15_sdjxm"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/climb-wall.tscn" id="16_mgyd1"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="17_qrn30"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="18_k10ki"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/prize-glint.tscn" id="19_ynlcp"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-seal.tscn" id="20_n5urb"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="21_r6pce"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="22_pjbxv"]
-[ext_resource type="Script" uid="uid://b28llwvsknidl" path="res://game/world/fire/candle.gd" id="23_2tv14"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-unlit.tscn" id="24_djnx0"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-lit.tscn" id="25_1eiah"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="26_e7rie"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="27_esp67"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-pillar.tscn" id="28_pwcao"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-key.tscn" id="29_xyqye"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-wall.tscn" id="30_07om3"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-unlit.tscn" id="31_5nup5"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-lit.tscn" id="32_oowe1"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier.tscn" id="33_w2bb8"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/ore-lift.tscn" id="34_0aled"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/drawbridge.tscn" id="35_2wamd"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-lens.tscn" id="36_72y3e"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/energy-flower.tscn" id="37_f6m45"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/boss-door.tscn" id="38_xatuj"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/key-door.tscn" id="39_jhu2l"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rotten-timbers.tscn" id="40_eq52b"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-stone.tscn" id="41_qqfjh"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/web-wall.tscn" id="42_6so4c"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="14_4ei2i"]
+[ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="15_odaeg"]
+[ext_resource type="Script" uid="uid://71vyo7j20xgb" path="res://game/crystal_mine/mine_rails.gd" id="16_dfl1s"]
+[ext_resource type="Script" uid="uid://dclrkajfivnfr" path="res://game/scripts/silk_parcel.gd" id="18_2tt1l"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/mine-cart.tscn" id="19_7ly3e"]
+[ext_resource type="Script" uid="uid://b8pmajt5dnyb" path="res://game/crystal_mine/mine_cart.gd" id="20_wmaat"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-buffer-stop.webp" id="21_qe5n8"]
+[ext_resource type="Script" uid="uid://dlc3n8dnts8jd" path="res://game/runtime/sheet_sprite.gd" id="22_51ava"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-mine-cart.webp" id="23_dmxjf"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/climb-wall.tscn" id="24_wefoa"]
+[ext_resource type="Script" uid="uid://byw5huh6wb0yo" path="res://game/scripts/climb_wall.gd" id="25_i0m0f"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-root-wall.webp" id="26_8fiiq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="27_c4nwk"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="28_u6xd8"]
+[ext_resource type="Script" uid="uid://381jbki7cu8i" path="res://game/dungeon/dungeon_chest.gd" id="29_ylnhj"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/world/chest-open.ogg" id="30_igdqt"]
+[ext_resource type="Script" uid="uid://co13i4ekaeqoi" path="res://game/runtime/sfx_player_2d.gd" id="31_8ev5j"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/world/chest-close.ogg" id="32_d3jdi"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/pickup/generic.ogg" id="33_mcabm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/prize-glint.tscn" id="34_y3ugu"]
+[ext_resource type="Script" uid="uid://c3qlrluebvxcg" path="res://game/dungeon/prize_glint.gd" id="35_2nxkc"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-seal.tscn" id="36_xaq31"]
+[ext_resource type="Script" uid="uid://c8ybookwn7x2" path="res://game/dungeon/dungeon_seal.gd" id="37_2qws7"]
+[ext_resource type="Script" uid="uid://bagjdby0ohf22" path="res://game/prologue/soft_glow.gd" id="38_v2k65"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/dungeon-seal.webp" id="39_wj708"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/seal-ring.webp" id="40_3x3qb"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="41_qpf3w"]
+[ext_resource type="Script" uid="uid://crwxkb068o1un" path="res://game/dungeon/shutter.gd" id="42_qvutm"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/shutter.webp" id="43_6tm18"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/silk-parcel.tscn" id="43_q8joa"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/winch.tscn" id="44_lr4e8"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/lantern-gate.tscn" id="45_p8dx5"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shadow-path.tscn" id="46_t2wy3"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-ore-crate.tscn" id="47_pys2q"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-veil.tscn" id="48_p3w6f"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-big-chest.tscn" id="49_eusti"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/big-chest-2x1.webp" id="50_e2u27"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="51_yfhhv"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-fight.tscn" id="52_m18qi"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/pearl-three.tscn" id="53_ciml0"]
-[ext_resource type="Script" uid="uid://b3d625kb4d77j" path="res://game/crystal_mine/colossus_arena.gd" id="54_atl4q"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/full-heart.tscn" id="55_tv0vf"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/128x128-mine-lantern.webp" id="56_sdw2n"]
-[ext_resource type="Script" uid="uid://dlc3n8dnts8jd" path="res://game/runtime/sheet_sprite.gd" id="57_6ro78"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-beam-wood-vertical.tscn" id="58_4ypka"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-wheelbarrow.tscn" id="59_x5g4d"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-ore-basket.tscn" id="60_ah2ju"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-barrel.tscn" id="61_7g4ut"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-writing-desk.tscn" id="62_lfhn4"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-workbench.tscn" id="63_gwl4a"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-scroll-rack.tscn" id="64_7uch8"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-paper-stack.tscn" id="65_jlgdk"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-lumber-stack.tscn" id="66_1nwjj"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-tool-rack.tscn" id="67_6qxox"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-crate-banded.tscn" id="68_dpfoy"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-sack-grain.tscn" id="69_px8cv"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-crate.tscn" id="70_fx40a"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-mine-cart.webp" id="71_8nkkp"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-stump.tscn" id="72_4ei2i"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/ore-heap.tscn" id="73_odaeg"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-barrel-open.tscn" id="74_dfl1s"]
-[ext_resource type="Script" uid="uid://bagjdby0ohf22" path="res://game/prologue/soft_glow.gd" id="75_2tt1l"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-banner-red-narrow.tscn" id="76_7ly3e"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-pillar-stone.tscn" id="77_wmaat"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--03.tscn" id="78_qe5n8"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--07.tscn" id="79_51ava"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--11.tscn" id="80_dmxjf"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="81_wefoa"]
-[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="82_i0m0f"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="44_3id5d"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp" id="45_6tkhf"]
+[ext_resource type="Script" uid="uid://b2fhqqwx8ymit" path="res://game/scripts/liftable.gd" id="46_8l671"]
+[ext_resource type="Script" uid="uid://b28llwvsknidl" path="res://game/world/fire/candle.gd" id="47_7jsdb"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-unlit.tscn" id="48_veuaw"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-lit.tscn" id="49_f8p0v"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="50_f0hwi"]
+[ext_resource type="Script" uid="uid://b766phg0rchsa" path="res://game/dungeon/hazard.gd" id="51_inldo"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="52_fsc86"]
+[ext_resource type="Script" uid="uid://blg76e2q2hqk1" path="res://game/dungeon/pot_loot.gd" id="53_g2w37"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-pillar.tscn" id="54_17u30"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/caverns/256x256-crystal-pillar.webp" id="55_1l0b1"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-key.tscn" id="56_wooiy"]
+[ext_resource type="Script" uid="uid://b8cnf3vhxwbcr" path="res://game/dungeon/dungeon_key_pickup.gd" id="57_6thrf"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-wall.tscn" id="58_vkt6h"]
+[ext_resource type="Script" uid="uid://cxr74qy30cwom" path="res://game/scripts/cracked_wall.gd" id="59_g6jb4"]
+[ext_resource type="Texture2D" path="res://asset/abilities/goo-bomb/crack-overlay.webp" id="60_nc78e"]
+[ext_resource type="Texture2D" path="res://asset/abilities/goo-bomb/hole-overlay.webp" id="61_pi5l7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-unlit.tscn" id="62_qv3x0"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-lit.tscn" id="63_6eaqi"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier.tscn" id="64_chrvm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier-unlit.tscn" id="65_dcvmw"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier-lit.tscn" id="66_dnsbn"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/ore-lift.tscn" id="67_7qpcc"]
+[ext_resource type="Script" uid="uid://dfjyi1786rvl6" path="res://game/crystal_mine/ore_lift.gd" id="68_m345g"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-ore-lift.webp" id="69_lvjo8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/drawbridge.tscn" id="70_wywk1"]
+[ext_resource type="Script" uid="uid://1l5vxyp1kvve" path="res://game/dungeon/drawbridge.gd" id="71_goh5e"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/drawbridge-down.webp" id="72_o4a5j"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/drawbridge-up.webp" id="73_f3pdn"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-lens.tscn" id="74_s6n6c"]
+[ext_resource type="Script" uid="uid://ci0rgtjsd5v87" path="res://game/crystal_mine/crystal_lens.gd" id="75_vmful"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-tile_2x1-crystal-lens.webp" id="76_dtx3a"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/energy-flower.tscn" id="77_2iea3"]
+[ext_resource type="Script" uid="uid://0nx1cbog476m" path="res://game/dungeon/energy_flower.gd" id="78_pic51"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/pickups-2x2.webp" id="79_qpwse"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/boss-door.tscn" id="80_r6dtm"]
+[ext_resource type="Script" uid="uid://brbxkkdvc7aaa" path="res://game/dungeon/key_door.gd" id="81_wyjl5"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/boss-door-2x1.webp" id="82_wf6fw"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/padlock-2x1.webp" id="83_gvetv"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/key-door.tscn" id="84_ut38v"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/door-2x1.webp" id="85_h33mv"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/rotten-timbers.tscn" id="86_fudpk"]
+[ext_resource type="Script" uid="uid://dtw0wbc8ww25" path="res://game/scripts/plank_barricade.gd" id="87_kh7i8"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-tile_2x1-rotten-timbers.webp" id="88_hetr3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-stone.tscn" id="89_mtt4n"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/items/128x128-tile_3x1-gulp-essences.webp" id="90_ytlhh"]
+[ext_resource type="Script" uid="uid://bsujpbwtpgn7x" path="res://game/scripts/essence.gd" id="91_2ml7g"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/web-wall.tscn" id="92_we8pa"]
+[ext_resource type="Script" uid="uid://wkrdhwms8jp" path="res://game/scripts/web_wall.gd" id="93_y32cu"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/winch.tscn" id="94_6y17x"]
+[ext_resource type="Script" uid="uid://4i20oktnaqdx" path="res://game/dungeon/winch.gd" id="95_j60vk"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/winch-2x1.webp" id="96_ulw8w"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/lantern-gate.tscn" id="97_hcimn"]
+[ext_resource type="Script" uid="uid://bb3b3yx51gtav" path="res://game/crystal_mine/lantern_gate.gd" id="98_01uhf"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-tile_2x1-mine-gate.webp" id="99_em0cl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shadow-path.tscn" id="100_m108x"]
+[ext_resource type="Script" uid="uid://dercdog3oev18" path="res://game/dungeon/shadow_path.gd" id="101_2ro8m"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-ore-crate.tscn" id="102_eyql7"]
+[ext_resource type="Script" uid="uid://q6w55etov3g0" path="res://game/scripts/heavy_block.gd" id="103_16v27"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-ore-crate.webp" id="104_mqdne"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-veil.tscn" id="105_unmfe"]
+[ext_resource type="Script" uid="uid://bahgbl02s2xj1" path="res://game/crystal_mine/crystal_veil.gd" id="106_7dcnk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-big-chest.tscn" id="107_7elsd"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/big-chest-2x1.webp" id="108_rr3rf"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="109_uc1sy"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/decorations/128x128-tile_8x3.webp" id="110_mcb7p"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-fight.tscn" id="111_15hsn"]
+[ext_resource type="Script" uid="uid://dldj1xjnlqust" path="res://game/dungeon/room_fight.gd" id="112_lrijn"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/pearl-three.tscn" id="113_637iv"]
+[ext_resource type="Script" uid="uid://c02qk2l5b6aa8" path="res://game/scripts/pearl.gd" id="114_pofed"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-pearl.webp" id="115_3iwv0"]
+[ext_resource type="Script" uid="uid://b3d625kb4d77j" path="res://game/crystal_mine/colossus_arena.gd" id="116_20n63"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/full-heart.tscn" id="117_6iw2a"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="118_0l6le"]
+[ext_resource type="Script" uid="uid://mnbv3kfl8cow" path="res://game/scripts/full_heart.gd" id="119_f4m2p"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/128x128-mine-lantern.webp" id="120_lju7d"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-beam-wood-vertical.tscn" id="121_wjhfd"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/128x128-tile_8x8-interior-structure.webp" id="122_h8bxk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-wheelbarrow.tscn" id="123_yyf6q"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/128x128-tile_8x8-interior-workshop-crafting.webp" id="124_8fxle"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-ore-basket.tscn" id="125_lk1mm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-barrel.tscn" id="126_erf4u"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/128x128-tile_8x8-interior-storage-states.webp" id="127_h6ukh"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-writing-desk.tscn" id="128_ktena"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-workbench.tscn" id="129_n4ipt"]
+[ext_resource type="Script" uid="uid://ff77bjdu1a1u" path="res://game/scripts/workbench.gd" id="130_su76b"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-scroll-rack.tscn" id="131_krq2b"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-paper-stack.tscn" id="132_piagk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-lumber-stack.tscn" id="133_50wok"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-tool-rack.tscn" id="134_ycilx"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-crate-banded.tscn" id="135_8urj6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-sack-grain.tscn" id="136_m8nop"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-crate.tscn" id="137_df4ud"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-stump.tscn" id="138_bhvcc"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-rock-stump.webp" id="139_2fogm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/ore-heap.tscn" id="140_cphf7"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-ore-heap.webp" id="141_q4kt5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-barrel-open.tscn" id="142_y2m2s"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-banner-red-narrow.tscn" id="143_8otwe"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/128x128-tile_8x8-interior-decor-lighting-utility.webp" id="144_7nhvw"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/structure/interior-structure-pillar-stone.tscn" id="145_b3n2p"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--03.tscn" id="146_7mlcu"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/rocks/128x128-tile_8x2-crystal-clusters.webp" id="147_j8xtq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--07.tscn" id="148_tt2ha"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--11.tscn" id="149_3e8et"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="150_c6oro"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="151_csd5d"]
+[ext_resource type="Script" uid="uid://bpe1mn6lsdpc1" path="res://game/enemy/placed_enemy.gd" id="152_m3mop"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8fiiq"]
 size = Vector2(128, 24)
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(84, 39)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cr7uk"]
+size = Vector2(128, 40)
+
+[sub_resource type="RectangleShape2D" id="hurt_shape"]
+size = Vector2(136, 72)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3w67y"]
+size = Vector2(128, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(26, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0v0k5"]
+size = Vector2(62, 34)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_face"]
+size = Vector2(84, 112)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_post"]
+size = Vector2(26, 14)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_76gfi"]
+size = Vector2(136, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fnf3e"]
+size = Vector2(128, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(128, 26)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(132, 84)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2164y"]
+size = Vector2(84, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
+size = Vector2(150, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4nnf6"]
+size = Vector2(58, 50)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_21gbp"]
+size = Vector2(98, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ktb3n"]
+size = Vector2(58, 50)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3gvnq"]
+size = Vector2(41.4, 120)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7uvie"]
+size = Vector2(81.664, 28.224)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fm5bk"]
+size = Vector2(58.74, 26.145)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7d6wo"]
+size = Vector2(43.736, 25.872)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0vmin"]
+size = Vector2(86.02, 37.128)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k0qoe"]
+size = Vector2(79.288, 27.489)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vp1y5"]
+size = Vector2(65.472, 32.256)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ebt78"]
+size = Vector2(77.792, 30.702)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bs7y1"]
+size = Vector2(74.8, 31.773)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t3r6b"]
+size = Vector2(51.744, 22.344)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dxdks"]
+size = Vector2(44.968, 23.52)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4jgv"]
+size = Vector2(50.512, 26.46)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c4nwk"]
 size = Vector2(66, 26)
@@ -95,14 +252,23 @@ size = Vector2(66, 26)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ylnhj"]
 size = Vector2(66, 26)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pootg"]
+size = Vector2(70, 28)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_igdqt"]
 size = Vector2(66, 26)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tgi43"]
+size = Vector2(70, 28)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8ev5j"]
 size = Vector2(66, 26)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d3jdi"]
 size = Vector2(66, 26)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_useyd"]
+size = Vector2(42.504, 25.284)
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_mcabm"]
 blend_mode = 1
@@ -113,11 +279,42 @@ blend_mode = 1
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2nxkc"]
 blend_mode = 1
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0up7m"]
+size = Vector2(31.68, 40.32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_piqwj"]
+size = Vector2(48, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_44o2g"]
+size = Vector2(48, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6ff3g"]
+size = Vector2(48, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sq05p"]
+size = Vector2(48, 44)
+
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_xaq31"]
 blend_mode = 1
 
 [node name="crystal-mine" type="Node2D" unique_id=1027571145]
 y_sort_enabled = true
+script = ExtResource("1_ndaqj")
+room_connections = Array[Dictionary]([{
+"binds": [],
+"flags": 34,
+"method": "trigger",
+"signal": "cleared",
+"source": "Objects/M13-den-fight",
+"target": "Objects/M13-den-ledge"
+}, {
+"binds": [],
+"flags": 34,
+"method": "trigger",
+"signal": "cleared",
+"source": "Objects/M13-den-fight",
+"target": "Objects/M13-den-ledge-east"
+}])
 
 [node name="ground" type="TileMapLayer" parent="." unique_id=1477007192]
 z_index = -2
@@ -136,7 +333,7 @@ script = ExtResource("4_k2vdy")
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=807011724]
 z_index = -1
-tile_map_data = PackedByteArray("AAAgAB0AAAAAAAAAAAAgAB4AAAAAAAAAAAAgAB8AAAAAAAAAAAAgACAAAAAAAAAAAAAgACEAAAAAAAAAAAAgACIAAAAAAAAAAAAgACMAAAAAAAAAAAAgACQAAAAAAAAAAAAgACUAAAAAAAAAAAAgACYAAAAAAAAAAAAhACYAAAAAAAAAAAAiACYAAAAAAAAAAAAjACYAAAAAAAAAAAAkACYAAAAAAAAAAAAlACYAAAAAAAAAAAAoACYAAAAAAAAAAAApACYAAAAAAAAAAAAqACYAAAAAAAAAAAArACYAAAAAAAAAAAAsACYAAAAAAAAAAAAtACYAAAAAAAAAAAAuACYAAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAgAB0A//////////8gAB4A//////////8gAB8A//////////8gACAA//////////8gACEAAAAAAAAAAAAgACIAAAAAAAAAAAAgACMAAAAAAAAAAAAgACQAAAAAAAAAAAAgACUAAAAAAAAAAAAgACYA//////////8hACYAAAAAAAAAAAAiACYAAAAAAAAAAAAjACYAAAAAAAAAAAAkACYAAAAAAAAAAAAlACYAAAAAAAAAAAAoACYAAAAAAAAAAAApACYAAAAAAAAAAAAqACYAAAAAAAAAAAArACYAAAAAAAAAAAAsACYAAAAAAAAAAAAtACYAAAAAAAAAAAAuACYAAAAAAAAAAAA=")
 tile_set = ExtResource("5_i8t3o")
 script = ExtResource("6_jmf20")
 
@@ -171,8 +368,9 @@ position = Vector2(1504, 4256)
 [node name="arrive-from-camp" type="Node2D" parent="." unique_id=956329274]
 position = Vector2(1504, 4256)
 
-[node name="Dungeon" parent="." unique_id=152423768 instance=ExtResource("8_p64ji")]
+[node name="Dungeon" type="Node2D" parent="." unique_id=152423768 instance=ExtResource("8_p64ji")]
 position = Vector2(1504, 4216)
+script = ExtResource("10_8nkkp")
 dungeon_id = "crystal-mine"
 display_name = "The Crystal Mine"
 boss_id = "crystal-colossus"
@@ -208,101 +406,115 @@ area = NodePath("..")
 
 [node name="M1-mine-mouth" type="Node2D" parent="CameraRooms" unique_id=915926887]
 position = Vector2(1024, 3584)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M2-lamp-tunnel" type="Node2D" parent="CameraRooms" unique_id=1195128318]
 position = Vector2(1024, 2688)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M5-tally-room" type="Node2D" parent="CameraRooms" unique_id=530704925]
 position = Vector2(0, 2688)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M3-survey-office" type="Node2D" parent="CameraRooms" unique_id=1534071470]
 position = Vector2(0, 1792)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M4-great-shaft" type="Node2D" parent="CameraRooms" unique_id=235381830]
 position = Vector2(1024, 1792)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 size = Vector2(2048, 896)
 
 [node name="M6-bat-gallery" type="Node2D" parent="CameraRooms" unique_id=1378879427]
 position = Vector2(2048, 2688)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 size = Vector2(2048, 896)
 
 [node name="M7-ore-store" type="Node2D" parent="CameraRooms" unique_id=1024273146]
 position = Vector2(2048, 3584)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 size = Vector2(2048, 896)
 
 [node name="M8-dark-maze" type="Node2D" parent="CameraRooms" unique_id=82356951]
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 size = Vector2(2048, 1792)
 
 [node name="M9-the-chasm" type="Node2D" parent="CameraRooms" unique_id=77276542]
 position = Vector2(2048, 0)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M10-prism-gallery" type="Node2D" parent="CameraRooms" unique_id=2053605379]
 position = Vector2(3072, 0)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M11-crystal-veil" type="Node2D" parent="CameraRooms" unique_id=1224930644]
 position = Vector2(3072, 896)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M12-fort-hall" type="Node2D" parent="CameraRooms" unique_id=739193989]
 position = Vector2(4096, 896)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M13-shardback-den" type="Node2D" parent="CameraRooms" unique_id=1797865623]
 position = Vector2(2048, 896)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="M15-colossus-arena" type="Node2D" parent="CameraRooms" unique_id=1536569952]
 position = Vector2(3072, 1792)
-script = ExtResource("12_ccn4s")
+script = ExtResource("14_4ei2i")
+outline = PackedVector2Array()
 
 [node name="DarkRooms" type="Node2D" parent="." unique_id=1334221471]
 
 [node name="dark-M2-lamp-tunnel" type="Node2D" parent="DarkRooms" unique_id=217598071]
 position = Vector2(1024, 2688)
-script = ExtResource("13_do4l0")
+script = ExtResource("15_odaeg")
 size = Vector2(1024, 896)
 candles = Array[NodePath]([NodePath("../../Objects/M2-sconce-1"), NodePath("../../Objects/M2-sconce-2"), NodePath("../../Objects/M2-sconce-3")])
 lit_for_good_when_all_lit = true
 
 [node name="dark-M5-tally-room" type="Node2D" parent="DarkRooms" unique_id=877952579]
 position = Vector2(0, 2688)
-script = ExtResource("13_do4l0")
+script = ExtResource("15_odaeg")
 size = Vector2(1024, 896)
 
 [node name="dark-M6-bat-gallery" type="Node2D" parent="DarkRooms" unique_id=796644285]
 position = Vector2(2048, 2688)
-script = ExtResource("13_do4l0")
+script = ExtResource("15_odaeg")
 size = Vector2(2048, 896)
 candles = Array[NodePath]([NodePath("../../Objects/M6-sconce-1"), NodePath("../../Objects/M6-sconce-2")])
 lit_for_good_when_all_lit = true
 
 [node name="dark-M8-dark-maze" type="Node2D" parent="DarkRooms" unique_id=1124879922]
-script = ExtResource("13_do4l0")
+script = ExtResource("15_odaeg")
 size = Vector2(2048, 1792)
 
 [node name="dark-M11-crystal-veil" type="Node2D" parent="DarkRooms" unique_id=519917733]
 position = Vector2(3072, 896)
-script = ExtResource("13_do4l0")
+script = ExtResource("15_odaeg")
 size = Vector2(1024, 896)
 
 [node name="dark-M13-shardback-den" type="Node2D" parent="DarkRooms" unique_id=1930772321]
 position = Vector2(2048, 896)
-script = ExtResource("13_do4l0")
+script = ExtResource("15_odaeg")
 size = Vector2(1024, 896)
 
 [node name="dark-M15-colossus-arena" type="Node2D" parent="DarkRooms" unique_id=261146095]
 position = Vector2(3072, 1792)
-script = ExtResource("13_do4l0")
+script = ExtResource("15_odaeg")
 size = Vector2(1024, 896)
 candles = Array[NodePath]([NodePath("../../Objects/M15-brazier-nw"), NodePath("../../Objects/M15-brazier-ne"), NodePath("../../Objects/M15-brazier-sw"), NodePath("../../Objects/M15-brazier-se")])
 
@@ -310,127 +522,330 @@ candles = Array[NodePath]([NodePath("../../Objects/M15-brazier-nw"), NodePath(".
 
 [node name="rails" type="Node2D" parent="Rails" unique_id=217695781]
 position = Vector2(1760, 3584)
-script = ExtResource("14_m7bsj")
+script = ExtResource("16_dfl1s")
 points = PackedVector2Array(0, 0, 0, 512, -160, 672, -512, 672)
 
 [node name="rails-2" type="Node2D" parent="Rails" unique_id=983181302]
 position = Vector2(1760, 2688)
-script = ExtResource("14_m7bsj")
+script = ExtResource("16_dfl1s")
 points = PackedVector2Array(0, 0, 0, 832)
 
 [node name="rails-3" type="Node2D" parent="Rails" unique_id=197164806]
 position = Vector2(1760, 2624)
-script = ExtResource("14_m7bsj")
+script = ExtResource("16_dfl1s")
 points = PackedVector2Array(0, 0, 0, -512, -352, -608)
 
 [node name="rails-4" type="Node2D" parent="Rails" unique_id=2081655287]
 position = Vector2(2912, 2624)
-script = ExtResource("14_m7bsj")
+script = ExtResource("16_dfl1s")
 points = PackedVector2Array(0, 0, 0, 192, -160, 608, -736, 608)
 
 [node name="rails-5" type="Node2D" parent="Rails" unique_id=585636704]
 position = Vector2(2912, 3232)
-script = ExtResource("14_m7bsj")
+script = ExtResource("16_dfl1s")
 points = PackedVector2Array(0, 0, 1024, 0)
 
 [node name="rails-6" type="Node2D" parent="Rails" unique_id=2074556342]
 position = Vector2(2099.2, 716.8)
-script = ExtResource("14_m7bsj")
+script = ExtResource("16_dfl1s")
 points = PackedVector2Array(0, 0, 268.80005, 0)
 
 [node name="rails-7" type="Node2D" parent="Rails" unique_id=1982060381]
 position = Vector2(3168, 665.6)
-script = ExtResource("14_m7bsj")
+script = ExtResource("16_dfl1s")
 points = PackedVector2Array(0, 0, 640, 0, 640, 76.80005)
 
 [node name="Objects" type="Node2D" parent="." unique_id=1753809505]
 y_sort_enabled = true
 
-[node name="M1-cart-station" parent="Objects" unique_id=1676085625 instance=ExtResource("15_sdjxm")]
+[node name="M6-S3-parcel" type="Node2D" parent="Objects" unique_id=64808834 instance=ExtResource("43_q8joa")]
+position = Vector2(4121.6, 3174.4)
+script = ExtResource("18_2tt1l")
+coins = 30
+contents = {
+"energy-potion": 1
+}
+metadata/instance_id = "crystal-mine-M6-S3-parcel"
+metadata/persistence_key = "crystal-mine.crystal-mine-M6-S3-parcel"
+
+[node name="M1-cart-station" parent="Objects" unique_id=1676085625 node_paths=PackedStringArray("cart_visual") instance=ExtResource("19_7ly3e")]
+y_sort_enabled = true
 position = Vector2(1248, 4286)
+script = ExtResource("20_wmaat")
 station_id = "mouth"
 arrival = Vector2(80, -12)
 arrival_facing = Vector2(1, 0)
+cart_visual = NodePath("Cart")
 metadata/instance_id = "crystal-mine-M1-cart-station"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-cart-station"
 
-[node name="M1-root-wall" parent="Objects" unique_id=168168536 instance=ExtResource("16_mgyd1")]
+[node name="BufferStop" parent="Objects/M1-cart-station" index="0"]
+position = Vector2(-62, 0)
+scale = Vector2(0.27, 0.27)
+texture = ExtResource("21_qe5n8")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-buffer-stop.webp"
+
+[node name="Cart" parent="Objects/M1-cart-station" index="1"]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("23_dmxjf")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
+
+[node name="M1-root-wall" parent="Objects" unique_id=168168536 instance=ExtResource("24_wefoa")]
 position = Vector2(1248, 3770)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -120)
 art_size = Vector2(190, 76)
 metadata/instance_id = "crystal-mine-M1-root-wall"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-root-wall"
 
-[node name="M1-root-wall-down" parent="Objects" unique_id=1381236761 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M1-root-wall" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M1-root-wall-down" parent="Objects" unique_id=1381236761 instance=ExtResource("24_wefoa")]
 position = Vector2(1248, 3668)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, 110)
 prompt = "Climb down"
 show_art = false
 metadata/instance_id = "crystal-mine-M1-root-wall-down"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-root-wall-down"
 
-[node name="M1-S5-chest" parent="Objects" unique_id=969943768 instance=ExtResource("17_qrn30")]
+[node name="Visual" parent="Objects/M1-root-wall-down" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M1-S5-chest" parent="Objects" unique_id=969943768 instance=ExtResource("27_c4nwk")]
+y_sort_enabled = true
 position = Vector2(1177.6, 3660.8)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M1-S5-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-S5-chest"
 
+[node name="BodyShape" parent="Objects/M1-S5-chest" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("body_shape")
+
 [node name="Visual" parent="Objects/M1-S5-chest" index="1"]
-texture = ExtResource("18_k10ki")
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("28_u6xd8")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 
 [node name="ChestScript" parent="Objects/M1-S5-chest" index="2"]
+script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M1-S5-chest"
 initial_contents = {
 "coins": 40,
 "energy-potion": 1
 }
 
-[node name="M1-S5-glint" parent="Objects" unique_id=1710166257 instance=ExtResource("19_ynlcp")]
+[node name="OpenSfx" parent="Objects/M1-S5-chest" index="3"]
+process_mode = 3
+stream = ExtResource("30_igdqt")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="CloseSfx" parent="Objects/M1-S5-chest" index="4"]
+process_mode = 3
+stream = ExtResource("32_d3jdi")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="TakeSfx" parent="Objects/M1-S5-chest" index="5"]
+process_mode = 3
+stream = ExtResource("33_mcabm")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="M1-S5-glint" parent="Objects" unique_id=1710166257 instance=ExtResource("34_y3ugu")]
 position = Vector2(1177.6, 3616)
+script = ExtResource("35_2nxkc")
 phase = 0.3
 metadata/instance_id = "crystal-mine-M1-S5-glint"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-S5-glint"
 
-[node name="M1-mouth-seal" parent="Objects" unique_id=1329761421 instance=ExtResource("20_n5urb")]
+[node name="M1-mouth-seal" parent="Objects" unique_id=1329761421 node_paths=PackedStringArray("ring", "glow", "damage_area", "look", "body") instance=ExtResource("36_xaq31")]
+y_sort_enabled = true
 position = Vector2(1536, 4416)
 rotation = 3.1415927
+script = ExtResource("37_2qws7")
 glimpse = true
+ring = NodePath("Ring")
+glow = NodePath("Glow")
+damage_area = NodePath("DamageArea")
 wall = "south"
+look = NodePath("Look")
+body = NodePath("Body")
 metadata/instance_id = "crystal-mine-M1-mouth-seal"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-mouth-seal"
 
-[node name="M1-east-shutter" parent="Objects" unique_id=1311222633 instance=ExtResource("21_r6pce")]
+[node name="Body" parent="Objects/M1-mouth-seal" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M1-mouth-seal/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_cr7uk")
+disabled = true
+
+[node name="DamageArea" parent="Objects/M1-mouth-seal" index="1"]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="HurtShape" parent="Objects/M1-mouth-seal/DamageArea" index="0"]
+position = Vector2(0, -36)
+shape = SubResource("hurt_shape")
+
+[node name="Glow" parent="Objects/M1-mouth-seal" index="2"]
+position = Vector2(-6.8, -39.2)
+script = ExtResource("38_v2k65")
+radius = Vector2(84, 56)
+color = Color(0.83, 0.28, 0.18, 0.4)
+pulse = 0.0
+
+[node name="Look" parent="Objects/M1-mouth-seal" index="3"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("39_wj708")
+centered = false
+offset = Vector2(-136, -224)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/dungeon-seal.webp"
+
+[node name="Ring" parent="Objects/M1-mouth-seal" index="4"]
+position = Vector2(-6.8, 0)
+scale = Vector2(0.198, 0.198)
+texture = ExtResource("40_3x3qb")
+offset = Vector2(0, -198)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/seal-ring.webp"
+
+[node name="M1-east-shutter" parent="Objects" unique_id=1311222633 node_paths=PackedStringArray("look", "body") instance=ExtResource("41_qpf3w")]
+y_sort_enabled = true
 position = Vector2(1984, 3968)
 rotation = 1.5707964
+script = ExtResource("42_qvutm")
 wall = "east"
 shutter_id = "mouth-shutter"
 starts_shut = true
+look = NodePath("Look")
+body = NodePath("Body")
 metadata/instance_id = "crystal-mine-M1-east-shutter"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-east-shutter"
 
-[node name="M1-pot-a" parent="Objects" unique_id=1015222180 instance=ExtResource("22_pjbxv")]
+[node name="Body" parent="Objects/M1-east-shutter" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M1-east-shutter/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_3w67y")
+disabled = true
+
+[node name="Look" parent="Objects/M1-east-shutter" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("43_6tm18")
+centered = false
+offset = Vector2(-136, -224)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/shutter.webp"
+
+[node name="M1-pot-a" parent="Objects" unique_id=1015222180 instance=ExtResource("44_3id5d")]
+y_sort_enabled = true
 position = Vector2(1126.4, 3904)
+collision_mask = 0
+
+[node name="BodyShape" parent="Objects/M1-pot-a" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M1-pot-a" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
 
 [node name="LiftableScript" parent="Objects/M1-pot-a" index="2"]
+script = ExtResource("46_8l671")
 kind = "clay-pot"
 
-[node name="M1-pot-b" parent="Objects" unique_id=244332019 instance=ExtResource("22_pjbxv")]
+[node name="M1-pot-b" parent="Objects" unique_id=244332019 instance=ExtResource("44_3id5d")]
+y_sort_enabled = true
 position = Vector2(1894.4, 4326.4)
+collision_mask = 0
+
+[node name="BodyShape" parent="Objects/M1-pot-b" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M1-pot-b" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
 
 [node name="LiftableScript" parent="Objects/M1-pot-b" index="2"]
+script = ExtResource("46_8l671")
 kind = "clay-pot"
 
-[node name="M1-crate" parent="Objects" unique_id=678191596 instance=ExtResource("22_pjbxv")]
+[node name="M1-crate" parent="Objects" unique_id=678191596 instance=ExtResource("44_3id5d")]
+y_sort_enabled = true
 position = Vector2(1132.8, 4096)
+collision_mask = 0
+
+[node name="BodyShape" parent="Objects/M1-crate" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M1-crate" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
 
 [node name="LiftableScript" parent="Objects/M1-crate" index="2"]
+script = ExtResource("46_8l671")
 kind = "crate"
 
 [node name="M2-sconce-1" type="Node2D" parent="Objects" unique_id=349542783]
 y_sort_enabled = true
 position = Vector2(1107.2, 2905.6)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("24_djnx0")
-lit_scene = ExtResource("25_1eiah")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("48_veuaw")
+lit_scene = ExtResource("49_f8p0v")
 flame_offset = Vector2(0, -78)
 metadata/instance_id = "crystal-mine-M2-sconce-1"
 metadata/persistence_key = "crystal-mine.crystal-mine-M2-sconce-1"
@@ -438,9 +853,9 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M2-sconce-1"
 [node name="M2-sconce-2" type="Node2D" parent="Objects" unique_id=1287859372]
 y_sort_enabled = true
 position = Vector2(1958.4, 2905.6)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("24_djnx0")
-lit_scene = ExtResource("25_1eiah")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("48_veuaw")
+lit_scene = ExtResource("49_f8p0v")
 flame_offset = Vector2(0, -78)
 metadata/instance_id = "crystal-mine-M2-sconce-2"
 metadata/persistence_key = "crystal-mine.crystal-mine-M2-sconce-2"
@@ -448,15 +863,16 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M2-sconce-2"
 [node name="M2-sconce-3" type="Node2D" parent="Objects" unique_id=1171281429]
 y_sort_enabled = true
 position = Vector2(1107.2, 3488)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("24_djnx0")
-lit_scene = ExtResource("25_1eiah")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("48_veuaw")
+lit_scene = ExtResource("49_f8p0v")
 flame_offset = Vector2(0, -78)
 metadata/instance_id = "crystal-mine-M2-sconce-3"
 metadata/persistence_key = "crystal-mine.crystal-mine-M2-sconce-3"
 
-[node name="M2-void-north" parent="Objects" unique_id=1326859422 instance=ExtResource("26_e7rie")]
+[node name="M2-void-north" parent="Objects" unique_id=1326859422 instance=ExtResource("50_f0hwi")]
 position = Vector2(1216, 2944)
+script = ExtResource("51_inldo")
 size = Vector2(320, 256)
 draw_look = false
 metadata/instance_id = "crystal-mine-M2-void-north"
@@ -465,8 +881,9 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M2-void-north"
 [node name="Return0" type="Node2D" parent="Objects/M2-void-north" unique_id=1344870932]
 position = Vector2(576, 537.6001)
 
-[node name="M2-void-south" parent="Objects" unique_id=1629142138 instance=ExtResource("26_e7rie")]
+[node name="M2-void-south" parent="Objects" unique_id=1629142138 instance=ExtResource("50_f0hwi")]
 position = Vector2(1152, 3264)
+script = ExtResource("51_inldo")
 size = Vector2(384, 192)
 draw_look = false
 metadata/instance_id = "crystal-mine-M2-void-south"
@@ -475,43 +892,121 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M2-void-south"
 [node name="Return0" type="Node2D" parent="Objects/M2-void-south" unique_id=314921919]
 position = Vector2(640, 217.6001)
 
-[node name="M2-pot" parent="Objects" unique_id=1371516905 instance=ExtResource("27_esp67")]
+[node name="M2-pot" parent="Objects" unique_id=1371516905 instance=ExtResource("52_fsc86")]
+y_sort_enabled = true
 position = Vector2(1894.4, 2854.4)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M2-pot"
 metadata/persistence_key = "crystal-mine.crystal-mine-M2-pot"
 
+[node name="BodyShape" parent="Objects/M2-pot" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M2-pot" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/M2-pot" index="2"]
+script = ExtResource("46_8l671")
+kind = "clay-pot"
+
 [node name="PotLoot" parent="Objects/M2-pot" index="3"]
+script = ExtResource("53_g2w37")
 loot = "energy"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
-[node name="M5-pillar" parent="Objects" unique_id=212698472 instance=ExtResource("28_pwcao")]
+[node name="M5-pillar" parent="Objects" unique_id=212698472 instance=ExtResource("54_17u30")]
+y_sort_enabled = true
 position = Vector2(320, 2944)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M5-pillar"
 metadata/persistence_key = "crystal-mine.crystal-mine-M5-pillar"
 
-[node name="M5-pillar-2" parent="Objects" unique_id=1037812251 instance=ExtResource("28_pwcao")]
+[node name="BodyShape" parent="Objects/M5-pillar" index="0"]
+position = Vector2(0, -17)
+shape = SubResource("RectangleShape2D_0v0k5")
+
+[node name="Visual" parent="Objects/M5-pillar" index="1"]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("55_1l0b1")
+centered = false
+offset = Vector2(-128, -248)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/caverns/256x256-crystal-pillar.webp"
+
+[node name="M5-pillar-2" parent="Objects" unique_id=1037812251 instance=ExtResource("54_17u30")]
+y_sort_enabled = true
 position = Vector2(672, 2944)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M5-pillar-2"
 metadata/persistence_key = "crystal-mine.crystal-mine-M5-pillar-2"
 
-[node name="M5-pillar-3" parent="Objects" unique_id=1147200104 instance=ExtResource("28_pwcao")]
+[node name="BodyShape" parent="Objects/M5-pillar-2" index="0"]
+position = Vector2(0, -17)
+shape = SubResource("RectangleShape2D_0v0k5")
+
+[node name="Visual" parent="Objects/M5-pillar-2" index="1"]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("55_1l0b1")
+centered = false
+offset = Vector2(-128, -248)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/caverns/256x256-crystal-pillar.webp"
+
+[node name="M5-pillar-3" parent="Objects" unique_id=1147200104 instance=ExtResource("54_17u30")]
+y_sort_enabled = true
 position = Vector2(320, 3328)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M5-pillar-3"
 metadata/persistence_key = "crystal-mine.crystal-mine-M5-pillar-3"
 
-[node name="M5-pillar-4" parent="Objects" unique_id=2029344699 instance=ExtResource("28_pwcao")]
+[node name="BodyShape" parent="Objects/M5-pillar-3" index="0"]
+position = Vector2(0, -17)
+shape = SubResource("RectangleShape2D_0v0k5")
+
+[node name="Visual" parent="Objects/M5-pillar-3" index="1"]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("55_1l0b1")
+centered = false
+offset = Vector2(-128, -248)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/caverns/256x256-crystal-pillar.webp"
+
+[node name="M5-pillar-4" parent="Objects" unique_id=2029344699 instance=ExtResource("54_17u30")]
+y_sort_enabled = true
 position = Vector2(672, 3328)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M5-pillar-4"
 metadata/persistence_key = "crystal-mine.crystal-mine-M5-pillar-4"
 
-[node name="M5-K1" parent="Objects" unique_id=493924519 instance=ExtResource("29_xyqye")]
+[node name="BodyShape" parent="Objects/M5-pillar-4" index="0"]
+position = Vector2(0, -17)
+shape = SubResource("RectangleShape2D_0v0k5")
+
+[node name="Visual" parent="Objects/M5-pillar-4" index="1"]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("55_1l0b1")
+centered = false
+offset = Vector2(-128, -248)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/caverns/256x256-crystal-pillar.webp"
+
+[node name="M5-K1" parent="Objects" unique_id=493924519 instance=ExtResource("56_wooiy")]
 position = Vector2(499.2, 3225.6)
+script = ExtResource("57_6thrf")
 pickup_id = "tally-k1"
 metadata/instance_id = "crystal-mine-M5-K1"
 metadata/persistence_key = "crystal-mine.crystal-mine-M5-K1"
 
-[node name="M5-cracked-wall" parent="Objects" unique_id=896989261 instance=ExtResource("30_07om3")]
+[node name="M5-cracked-wall" parent="Objects" unique_id=896989261 instance=ExtResource("58_vkt6h")]
 position = Vector2(320, 2880)
+script = ExtResource("59_g6jb4")
 flag_id = "crystal-mine.survey-wall"
 crack_size = Vector2(120, 118)
 crack_offset = Vector2(0, -64)
@@ -521,108 +1016,306 @@ passage = Rect2(-64, -256, 128, 256)
 metadata/instance_id = "crystal-mine-M5-cracked-wall"
 metadata/persistence_key = "crystal-mine.crystal-mine-M5-cracked-wall"
 
-[node name="M3-pillar" parent="Objects" unique_id=28876106 instance=ExtResource("28_pwcao")]
+[node name="Crack" parent="Objects/M5-cracked-wall" index="0"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, -62)
+scale = Vector2(0.448598, 0.449219)
+texture = ExtResource("60_nc78e")
+
+[node name="Hole" parent="Objects/M5-cracked-wall" index="1"]
+visible = false
+z_index = -1
+z_as_relative = false
+position = Vector2(0, -52)
+scale = Vector2(0.469484, 0.46875)
+texture = ExtResource("61_pi5l7")
+
+[node name="DamageArea" parent="Objects/M5-cracked-wall" index="2"]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="DamageShape" parent="Objects/M5-cracked-wall/DamageArea" index="0"]
+position = Vector2(0, -56)
+shape = SubResource("RectangleShape2D_face")
+
+[node name="M3-pillar" parent="Objects" unique_id=28876106 instance=ExtResource("54_17u30")]
+y_sort_enabled = true
 position = Vector2(256, 2368)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M3-pillar"
 metadata/persistence_key = "crystal-mine.crystal-mine-M3-pillar"
+
+[node name="BodyShape" parent="Objects/M3-pillar" index="0"]
+position = Vector2(0, -17)
+shape = SubResource("RectangleShape2D_0v0k5")
+
+[node name="Visual" parent="Objects/M3-pillar" index="1"]
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("55_1l0b1")
+centered = false
+offset = Vector2(-128, -248)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/caverns/256x256-crystal-pillar.webp"
 
 [node name="M3-lamp" type="Node2D" parent="Objects" unique_id=1507790673]
 y_sort_enabled = true
 position = Vector2(672, 2188.8)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("31_5nup5")
-lit_scene = ExtResource("32_oowe1")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("62_qv3x0")
+lit_scene = ExtResource("63_6eaqi")
 lit_at_start = true
 burn_ms = 0.0
 metadata/instance_id = "crystal-mine-M3-lamp"
 metadata/persistence_key = "crystal-mine.crystal-mine-M3-lamp"
 
-[node name="M3-map-chest" parent="Objects" unique_id=1055175885 instance=ExtResource("17_qrn30")]
+[node name="M3-map-chest" parent="Objects" unique_id=1055175885 instance=ExtResource("27_c4nwk")]
+y_sort_enabled = true
 position = Vector2(512, 2336)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M3-map-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M3-map-chest"
 
+[node name="BodyShape" parent="Objects/M3-map-chest" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("body_shape")
+
 [node name="Visual" parent="Objects/M3-map-chest" index="1"]
-texture = ExtResource("18_k10ki")
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("28_u6xd8")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 
 [node name="ChestScript" parent="Objects/M3-map-chest" index="2"]
+script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M3-map-chest"
 initial_contents = {
 "dungeon-map": 1
 }
 
-[node name="M4-brazier-w" parent="Objects" unique_id=2033759392 instance=ExtResource("33_w2bb8")]
+[node name="OpenSfx" parent="Objects/M3-map-chest" index="3"]
+process_mode = 3
+stream = ExtResource("30_igdqt")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="CloseSfx" parent="Objects/M3-map-chest" index="4"]
+process_mode = 3
+stream = ExtResource("32_d3jdi")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="TakeSfx" parent="Objects/M3-map-chest" index="5"]
+process_mode = 3
+stream = ExtResource("33_mcabm")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="M4-brazier-w" parent="Objects" unique_id=2033759392 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(1177.6, 2035.2)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 lit_at_start = true
 burn_ms = 0.0
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M4-brazier-w"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-brazier-w"
 
-[node name="M4-brazier-e" parent="Objects" unique_id=1860088080 instance=ExtResource("33_w2bb8")]
+[node name="M4-brazier-e" parent="Objects" unique_id=1860088080 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(2003.2, 2534.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 lit_at_start = true
 burn_ms = 0.0
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M4-brazier-e"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-brazier-e"
 
-[node name="M4-lift-upper" parent="Objects" unique_id=912261890 instance=ExtResource("34_0aled")]
+[node name="M4-lift-upper" parent="Objects" unique_id=912261890 node_paths=PackedStringArray("platform_visual") instance=ExtResource("67_7qpcc")]
+y_sort_enabled = true
 position = Vector2(2016, 2252.8)
+script = ExtResource("68_m345g")
 role = "upper"
 arrival = Vector2(-40, 0)
 arrival_facing = Vector2(-1, 0)
+platform_visual = NodePath("Platform")
 metadata/instance_id = "crystal-mine-M4-lift-upper"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-lift-upper"
 
-[node name="M4-lift-lower" parent="Objects" unique_id=1321627781 instance=ExtResource("34_0aled")]
+[node name="Platform" parent="Objects/M4-lift-upper" index="0"]
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("69_lvjo8")
+centered = false
+offset = Vector2(-128, -232)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-ore-lift.webp"
+
+[node name="M4-lift-lower" parent="Objects" unique_id=1321627781 node_paths=PackedStringArray("platform_visual") instance=ExtResource("67_7qpcc")]
+y_sort_enabled = true
 position = Vector2(2176, 2278.4)
+script = ExtResource("68_m345g")
 arrival = Vector2(56, 0)
 arrival_facing = Vector2(1, 0)
+platform_visual = NodePath("Platform")
 metadata/instance_id = "crystal-mine-M4-lift-lower"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-lift-lower"
 
-[node name="M4-spire-plank" parent="Objects" unique_id=1687894729 instance=ExtResource("35_2wamd")]
+[node name="Platform" parent="Objects/M4-lift-lower" index="0"]
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("69_lvjo8")
+centered = false
+offset = Vector2(-128, -232)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-ore-lift.webp"
+
+[node name="M4-spire-plank" parent="Objects" unique_id=1687894729 node_paths=PackedStringArray("raised_look", "deck_look") instance=ExtResource("70_wywk1")]
 position = Vector2(2496, 2240)
+script = ExtResource("71_goh5e")
 bridge_id = "great-shaft-spire-plank"
+raised_look = NodePath("Raised")
+deck_look = NodePath("Deck")
+draw_floor = false
 metadata/instance_id = "crystal-mine-M4-spire-plank"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-spire-plank"
 
-[node name="M4-spire-lens" parent="Objects" unique_id=1653973596 instance=ExtResource("36_72y3e")]
+[node name="Deck" parent="Objects/M4-spire-plank" index="0"]
+visible = false
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("72_o4a5j")
+centered = false
+offset = Vector2(-128, -792)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/drawbridge-down.webp"
+
+[node name="Raised" parent="Objects/M4-spire-plank" index="1"]
+z_index = 1
+position = Vector2(0, 6)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("73_f3pdn")
+centered = false
+offset = Vector2(-128, -419)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/drawbridge-up.webp"
+
+[node name="M4-spire-lens" parent="Objects" unique_id=1653973596 node_paths=PackedStringArray("visual") instance=ExtResource("74_s6n6c")]
+y_sort_enabled = true
 position = Vector2(2406.4, 2156.8)
+collision_mask = 0
+script = ExtResource("75_vmful")
 lens_id = "great-shaft-spire"
 opens = PackedStringArray()
 targets = Array[NodePath]([NodePath("../M4-spire-plank")])
+visual = NodePath("Visual")
 metadata/instance_id = "crystal-mine-M4-spire-lens"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-spire-lens"
 
-[node name="M4-S1-chest" parent="Objects" unique_id=1162431578 instance=ExtResource("17_qrn30")]
+[node name="BodyShape" parent="Objects/M4-spire-lens" index="0"]
+position = Vector2(0, -7)
+shape = SubResource("RectangleShape2D_post")
+
+[node name="Visual" parent="Objects/M4-spire-lens" index="1"]
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("76_dtx3a")
+centered = false
+offset = Vector2(-128, -252)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-tile_2x1-crystal-lens.webp"
+
+[node name="M4-S1-chest" parent="Objects" unique_id=1162431578 instance=ExtResource("27_c4nwk")]
+y_sort_enabled = true
 position = Vector2(2604.8, 2169.6)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M4-S1-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-S1-chest"
 
+[node name="BodyShape" parent="Objects/M4-S1-chest" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("body_shape")
+
 [node name="Visual" parent="Objects/M4-S1-chest" index="1"]
-texture = ExtResource("18_k10ki")
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("28_u6xd8")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 
 [node name="ChestScript" parent="Objects/M4-S1-chest" index="2"]
+script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M4-S1-chest"
 initial_contents = {
 "coins": 50
 }
 
-[node name="M4-S1-glint" parent="Objects" unique_id=1004118342 instance=ExtResource("19_ynlcp")]
+[node name="OpenSfx" parent="Objects/M4-S1-chest" index="3"]
+process_mode = 3
+stream = ExtResource("30_igdqt")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="CloseSfx" parent="Objects/M4-S1-chest" index="4"]
+process_mode = 3
+stream = ExtResource("32_d3jdi")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="TakeSfx" parent="Objects/M4-S1-chest" index="5"]
+process_mode = 3
+stream = ExtResource("33_mcabm")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="M4-S1-glint" parent="Objects" unique_id=1004118342 instance=ExtResource("34_y3ugu")]
 position = Vector2(2604.8, 2131.2)
+script = ExtResource("35_2nxkc")
 phase = 0.6
 metadata/instance_id = "crystal-mine-M4-S1-glint"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-S1-glint"
 
-[node name="M14-shaft-roots" parent="Objects" unique_id=57294160 instance=ExtResource("16_mgyd1")]
+[node name="M14-shaft-roots" parent="Objects" unique_id=57294160 instance=ExtResource("24_wefoa")]
 position = Vector2(2816, 1940)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -124)
 art_size = Vector2(150, 160)
 metadata/instance_id = "crystal-mine-M14-shaft-roots"
 metadata/persistence_key = "crystal-mine.crystal-mine-M14-shaft-roots"
 
-[node name="M14-shaft-roots-down" parent="Objects" unique_id=1029172427 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M14-shaft-roots" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M14-shaft-roots-down" parent="Objects" unique_id=1029172427 instance=ExtResource("24_wefoa")]
 position = Vector2(2816, 1836)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, 86.44)
 prompt = "Climb down (hold)"
 grab_width = 130.0
@@ -630,60 +1323,251 @@ show_art = false
 metadata/instance_id = "crystal-mine-M14-shaft-roots-down"
 metadata/persistence_key = "crystal-mine.crystal-mine-M14-shaft-roots-down"
 
-[node name="M14-flower" parent="Objects" unique_id=146790818 instance=ExtResource("37_f6m45")]
+[node name="Visual" parent="Objects/M14-shaft-roots-down" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M14-flower" parent="Objects" unique_id=146790818 node_paths=PackedStringArray("look") instance=ExtResource("77_2iea3")]
+y_sort_enabled = true
 position = Vector2(2944, 2150.4)
+script = ExtResource("78_pic51")
+look = NodePath("Look")
 metadata/instance_id = "crystal-mine-M14-flower"
 metadata/persistence_key = "crystal-mine.crystal-mine-M14-flower"
 
-[node name="M14-pot" parent="Objects" unique_id=759422586 instance=ExtResource("27_esp67")]
+[node name="Look" parent="Objects/M14-flower" index="0"]
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("79_qpwse")
+centered = false
+offset = Vector2(-64, -120)
+hframes = 2
+vframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/pickups-2x2.webp"
+
+[node name="M14-pot" parent="Objects" unique_id=759422586 instance=ExtResource("52_fsc86")]
+y_sort_enabled = true
 position = Vector2(2713.6, 2342.4)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M14-pot"
 metadata/persistence_key = "crystal-mine.crystal-mine-M14-pot"
 
+[node name="BodyShape" parent="Objects/M14-pot" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M14-pot" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/M14-pot" index="2"]
+script = ExtResource("46_8l671")
+kind = "clay-pot"
+
 [node name="PotLoot" parent="Objects/M14-pot" index="3"]
+script = ExtResource("53_g2w37")
 loot = "heart"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
-[node name="M14-pot-2" parent="Objects" unique_id=2058643924 instance=ExtResource("27_esp67")]
+[node name="M14-pot-2" parent="Objects" unique_id=2058643924 instance=ExtResource("52_fsc86")]
+y_sort_enabled = true
 position = Vector2(2777.6, 2361.6)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M14-pot-2"
 metadata/persistence_key = "crystal-mine.crystal-mine-M14-pot-2"
 
+[node name="BodyShape" parent="Objects/M14-pot-2" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M14-pot-2" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/M14-pot-2" index="2"]
+script = ExtResource("46_8l671")
+kind = "clay-pot"
+
 [node name="PotLoot" parent="Objects/M14-pot-2" index="3"]
+script = ExtResource("53_g2w37")
 loot = "heart"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
-[node name="M14-pot-3" parent="Objects" unique_id=1459873113 instance=ExtResource("27_esp67")]
+[node name="M14-pot-3" parent="Objects" unique_id=1459873113 instance=ExtResource("52_fsc86")]
+y_sort_enabled = true
 position = Vector2(2841.6, 2342.4)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M14-pot-3"
 metadata/persistence_key = "crystal-mine.crystal-mine-M14-pot-3"
 
+[node name="BodyShape" parent="Objects/M14-pot-3" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M14-pot-3" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/M14-pot-3" index="2"]
+script = ExtResource("46_8l671")
+kind = "clay-pot"
+
 [node name="PotLoot" parent="Objects/M14-pot-3" index="3"]
+script = ExtResource("53_g2w37")
 loot = "energy"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
-[node name="M14-boss-door" parent="Objects" unique_id=381850400 instance=ExtResource("38_xatuj")]
+[node name="M14-boss-door" parent="Objects" unique_id=381850400 node_paths=PackedStringArray("locks", "body", "closed_look", "open_look") instance=ExtResource("80_r6dtm")]
+y_sort_enabled = true
 position = Vector2(3008, 2304)
 rotation = 1.5707964
+script = ExtResource("81_wyjl5")
+lock = "big"
+locks = NodePath("Shut/Locks")
 wall = "east"
 door_id = "colossus-door"
+body = NodePath("Body")
+closed_look = NodePath("Shut")
+open_look = NodePath("Open")
 metadata/instance_id = "crystal-mine-M14-boss-door"
 metadata/persistence_key = "crystal-mine.crystal-mine-M14-boss-door"
 
-[node name="M4-foremans-gate" parent="Objects" unique_id=1460980400 instance=ExtResource("39_jhu2l")]
+[node name="Body" parent="Objects/M14-boss-door" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M14-boss-door/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_76gfi")
+
+[node name="Open" parent="Objects/M14-boss-door" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("82_wf6fw")
+centered = false
+offset = Vector2(-265, -462)
+hframes = 2
+frame = 1
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/boss-door-2x1.webp"
+
+[node name="Door" parent="Objects/M14-boss-door/Shut" index="0"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("82_wf6fw")
+centered = false
+offset = Vector2(-265, -462)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/boss-door-2x1.webp"
+
+[node name="Locks" parent="Objects/M14-boss-door/Shut" index="1"]
+position = Vector2(0, -80)
+
+[node name="Lock1" parent="Objects/M14-boss-door/Shut/Locks" index="0"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("83_gvetv")
+centered = false
+offset = Vector2(-34, -47)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/padlock-2x1.webp"
+
+[node name="Lock2" parent="Objects/M14-boss-door/Shut/Locks" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("83_gvetv")
+centered = false
+offset = Vector2(-34, -47)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/padlock-2x1.webp"
+
+[node name="M4-foremans-gate" parent="Objects" unique_id=1460980400 node_paths=PackedStringArray("locks", "body", "closed_look", "open_look") instance=ExtResource("84_ut38v")]
+y_sort_enabled = true
 position = Vector2(1536, 1984)
+script = ExtResource("81_wyjl5")
 keyholes = 2
 locked_text = "Two locks. Two keys."
+locks = NodePath("Shut/Locks")
 door_id = "foremans-gate"
+body = NodePath("Body")
+closed_look = NodePath("Shut")
+open_look = NodePath("Open")
 metadata/instance_id = "crystal-mine-M4-foremans-gate"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-foremans-gate"
+
+[node name="Body" parent="Objects/M4-foremans-gate" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M4-foremans-gate/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_fnf3e")
+
+[node name="Open" parent="Objects/M4-foremans-gate" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("85_h33mv")
+centered = false
+offset = Vector2(-233, -428)
+hframes = 2
+frame = 1
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/door-2x1.webp"
+
+[node name="Door" parent="Objects/M4-foremans-gate/Shut" index="0"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("85_h33mv")
+centered = false
+offset = Vector2(-233, -428)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/door-2x1.webp"
+
+[node name="Locks" parent="Objects/M4-foremans-gate/Shut" index="1"]
+position = Vector2(0, -80)
+
+[node name="Lock1" parent="Objects/M4-foremans-gate/Shut/Locks" index="0"]
+position = Vector2(-22, 0)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("83_gvetv")
+centered = false
+offset = Vector2(-34, -47)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/padlock-2x1.webp"
+
+[node name="Lock2" parent="Objects/M4-foremans-gate/Shut/Locks" index="1"]
+position = Vector2(22, 0)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("83_gvetv")
+centered = false
+offset = Vector2(-34, -47)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/padlock-2x1.webp"
 
 [node name="M6-sconce-1" type="Node2D" parent="Objects" unique_id=675781882]
 y_sort_enabled = true
 position = Vector2(2368, 2905.6)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("24_djnx0")
-lit_scene = ExtResource("25_1eiah")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("48_veuaw")
+lit_scene = ExtResource("49_f8p0v")
 flame_offset = Vector2(0, -78)
 metadata/instance_id = "crystal-mine-M6-sconce-1"
 metadata/persistence_key = "crystal-mine.crystal-mine-M6-sconce-1"
@@ -691,68 +1575,153 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M6-sconce-1"
 [node name="M6-sconce-2" type="Node2D" parent="Objects" unique_id=801314895]
 y_sort_enabled = true
 position = Vector2(3744, 2905.6)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("24_djnx0")
-lit_scene = ExtResource("25_1eiah")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("48_veuaw")
+lit_scene = ExtResource("49_f8p0v")
 flame_offset = Vector2(0, -78)
 metadata/instance_id = "crystal-mine-M6-sconce-2"
 metadata/persistence_key = "crystal-mine.crystal-mine-M6-sconce-2"
 
-[node name="M6-rotten-timbers" parent="Objects" unique_id=1583300948 instance=ExtResource("40_eq52b")]
+[node name="M6-rotten-timbers" parent="Objects" unique_id=1583300948 instance=ExtResource("86_fudpk")]
+y_sort_enabled = true
 position = Vector2(3648, 3545.6)
+collision_mask = 0
+script = ExtResource("87_kh7i8")
 flag_id = "crystal-mine.rotten-timbers"
+refusal_text = "Rotten old timbers, but heavy. A heavier roll would smash them."
 metadata/instance_id = "crystal-mine-M6-rotten-timbers"
 metadata/persistence_key = "crystal-mine.crystal-mine-M6-rotten-timbers"
 
-[node name="M6-stone-essence" parent="Objects" unique_id=1996515706 instance=ExtResource("41_qqfjh")]
+[node name="BodyShape" parent="Objects/M6-rotten-timbers" index="0"]
+position = Vector2(0, -13)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Visual" parent="Objects/M6-rotten-timbers" index="1"]
+scale = Vector2(0.56, 0.56)
+texture = ExtResource("88_hetr3")
+centered = false
+offset = Vector2(-128, -250)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-tile_2x1-rotten-timbers.webp"
+
+[node name="DamageArea" parent="Objects/M6-rotten-timbers" index="2"]
+position = Vector2(0, -44)
+collision_layer = 8
+collision_mask = 16
+
+[node name="DamageShape" parent="Objects/M6-rotten-timbers/DamageArea" index="0"]
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="M6-stone-essence" parent="Objects" unique_id=1996515706 instance=ExtResource("89_mtt4n")]
+y_sort_enabled = true
 position = Vector2(3872, 3417.6)
 metadata/instance_id = "crystal-mine-M6-stone-essence"
 metadata/persistence_key = "crystal-mine.crystal-mine-M6-stone-essence"
 
-[node name="M6-S3-web-wall" parent="Objects" unique_id=468365321 instance=ExtResource("42_6so4c")]
+[node name="Visual" parent="Objects/M6-stone-essence" index="0"]
+position = Vector2(0, -22)
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("90_ytlhh")
+hframes = 3
+
+[node name="EssenceScript" parent="Objects/M6-stone-essence" index="1"]
+script = ExtResource("91_2ml7g")
+
+[node name="M6-S3-web-wall" parent="Objects" unique_id=468365321 instance=ExtResource("92_we8pa")]
 position = Vector2(4046, 3136)
+script = ExtResource("93_y32cu")
 orientation = "side"
 hides_secret = true
 metadata/instance_id = "crystal-mine-M6-S3-web-wall"
 metadata/persistence_key = "crystal-mine.crystal-mine-M6-S3-web-wall"
 
-[node name="M6-S3-parcel" parent="Objects" unique_id=64808834 instance=ExtResource("43_q8joa")]
-position = Vector2(4121.6, 3174.4)
-coins = 30
-contents = {
-"energy-potion": 1
-}
-metadata/instance_id = "crystal-mine-M6-S3-parcel"
-metadata/persistence_key = "crystal-mine.crystal-mine-M6-S3-parcel"
-
-[node name="M7-K2-chest" parent="Objects" unique_id=1342661152 instance=ExtResource("17_qrn30")]
+[node name="M7-K2-chest" parent="Objects" unique_id=1342661152 instance=ExtResource("27_c4nwk")]
+y_sort_enabled = true
 position = Vector2(3392, 4257.2)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M7-K2-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M7-K2-chest"
 
+[node name="BodyShape" parent="Objects/M7-K2-chest" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("body_shape")
+
 [node name="Visual" parent="Objects/M7-K2-chest" index="1"]
-texture = ExtResource("18_k10ki")
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("28_u6xd8")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 
 [node name="ChestScript" parent="Objects/M7-K2-chest" index="2"]
+script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M7-K2-chest"
 initial_contents = {
 "dungeon-small-key": 1
 }
 
-[node name="M7-crank" parent="Objects" unique_id=1154512868 instance=ExtResource("44_lr4e8")]
+[node name="OpenSfx" parent="Objects/M7-K2-chest" index="3"]
+process_mode = 3
+stream = ExtResource("30_igdqt")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="CloseSfx" parent="Objects/M7-K2-chest" index="4"]
+process_mode = 3
+stream = ExtResource("32_d3jdi")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="TakeSfx" parent="Objects/M7-K2-chest" index="5"]
+process_mode = 3
+stream = ExtResource("33_mcabm")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="M7-crank" parent="Objects" unique_id=1154512868 node_paths=PackedStringArray("body", "look") instance=ExtResource("94_6y17x")]
+y_sort_enabled = true
 position = Vector2(2240, 3827.2)
+script = ExtResource("95_j60vk")
 winch_id = "ore-store-crank"
 targets = Array[NodePath]([NodePath("../M1-east-shutter")])
+body = NodePath("Body")
+look = NodePath("Look")
 done_text = "The shutter to the mine mouth is up."
 metadata/instance_id = "crystal-mine-M7-crank"
 metadata/persistence_key = "crystal-mine.crystal-mine-M7-crank"
 
+[node name="Body" parent="Objects/M7-crank" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M7-crank/Body" index="0"]
+position = Vector2(0, -15)
+shape = SubResource("RectangleShape2D_2164y")
+
+[node name="Look" parent="Objects/M7-crank" index="1"]
+position = Vector2(0, 4)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("96_ulw8w")
+centered = false
+offset = Vector2(-104, -234)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/winch-2x1.webp"
+
 [node name="M8-candle-nw" type="Node2D" parent="Objects" unique_id=96548968]
 y_sort_enabled = true
 position = Vector2(140.8, 275.2)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("31_5nup5")
-lit_scene = ExtResource("32_oowe1")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("62_qv3x0")
+lit_scene = ExtResource("63_6eaqi")
 group = "dark-maze"
 gate_id = "dark-maze-exit"
 metadata/instance_id = "crystal-mine-M8-candle-nw"
@@ -761,9 +1730,9 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M8-candle-nw"
 [node name="M8-candle-ne" type="Node2D" parent="Objects" unique_id=747358782]
 y_sort_enabled = true
 position = Vector2(1548.8, 275.2)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("31_5nup5")
-lit_scene = ExtResource("32_oowe1")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("62_qv3x0")
+lit_scene = ExtResource("63_6eaqi")
 group = "dark-maze"
 gate_id = "dark-maze-exit"
 metadata/instance_id = "crystal-mine-M8-candle-ne"
@@ -772,9 +1741,9 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M8-candle-ne"
 [node name="M8-candle-sw" type="Node2D" parent="Objects" unique_id=291987287]
 y_sort_enabled = true
 position = Vector2(140.8, 1632)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("31_5nup5")
-lit_scene = ExtResource("32_oowe1")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("62_qv3x0")
+lit_scene = ExtResource("63_6eaqi")
 group = "dark-maze"
 gate_id = "dark-maze-exit"
 metadata/instance_id = "crystal-mine-M8-candle-sw"
@@ -783,51 +1752,113 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M8-candle-sw"
 [node name="M8-candle-se" type="Node2D" parent="Objects" unique_id=599427709]
 y_sort_enabled = true
 position = Vector2(1881.6, 1632)
-script = ExtResource("23_2tv14")
-unlit_scene = ExtResource("31_5nup5")
-lit_scene = ExtResource("32_oowe1")
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("62_qv3x0")
+lit_scene = ExtResource("63_6eaqi")
 group = "dark-maze"
 gate_id = "dark-maze-exit"
 metadata/instance_id = "crystal-mine-M8-candle-se"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-candle-se"
 
-[node name="M8-exit-gate" parent="Objects" unique_id=335091829 instance=ExtResource("45_p8dx5")]
+[node name="M8-exit-gate" parent="Objects" unique_id=335091829 node_paths=PackedStringArray("visual") instance=ExtResource("97_hcimn")]
+y_sort_enabled = true
 position = Vector2(1856, 572)
+collision_mask = 0
+script = ExtResource("98_01uhf")
 gate_id = "dark-maze-exit"
 shut_text = "The gate is shut. The maze's four candles are cold."
+visual = NodePath("Visual")
 metadata/instance_id = "crystal-mine-M8-exit-gate"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-exit-gate"
 
-[node name="M8-goal-brazier" parent="Objects" unique_id=393300471 instance=ExtResource("33_w2bb8")]
+[node name="BodyShape" parent="Objects/M8-exit-gate" index="0"]
+position = Vector2(0, -15)
+shape = SubResource("RectangleShape2D_gate")
+
+[node name="Visual" parent="Objects/M8-exit-gate" index="1"]
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("99_em0cl")
+centered = false
+offset = Vector2(-128, -250)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-tile_2x1-mine-gate.webp"
+
+[node name="M8-goal-brazier" parent="Objects" unique_id=393300471 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(1824, 256)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 lit_at_start = true
 burn_ms = 0.0
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M8-goal-brazier"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-goal-brazier"
 
-[node name="M8-S4-hoard" parent="Objects" unique_id=2088543326 instance=ExtResource("17_qrn30")]
+[node name="M8-S4-hoard" parent="Objects" unique_id=2088543326 instance=ExtResource("27_c4nwk")]
+y_sort_enabled = true
 position = Vector2(544, 678.4)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M8-S4-hoard"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-S4-hoard"
 
+[node name="BodyShape" parent="Objects/M8-S4-hoard" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("body_shape")
+
 [node name="Visual" parent="Objects/M8-S4-hoard" index="1"]
-texture = ExtResource("18_k10ki")
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("28_u6xd8")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 
 [node name="ChestScript" parent="Objects/M8-S4-hoard" index="2"]
+script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M8-S4-hoard"
 initial_contents = {
 "coins": 30,
 "energy-potion": 2
 }
 
-[node name="M8-S4-glint" parent="Objects" unique_id=1665846620 instance=ExtResource("19_ynlcp")]
+[node name="OpenSfx" parent="Objects/M8-S4-hoard" index="3"]
+process_mode = 3
+stream = ExtResource("30_igdqt")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="CloseSfx" parent="Objects/M8-S4-hoard" index="4"]
+process_mode = 3
+stream = ExtResource("32_d3jdi")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="TakeSfx" parent="Objects/M8-S4-hoard" index="5"]
+process_mode = 3
+stream = ExtResource("33_mcabm")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="M8-S4-glint" parent="Objects" unique_id=1665846620 instance=ExtResource("34_y3ugu")]
 position = Vector2(544, 640)
+script = ExtResource("35_2nxkc")
 phase = 0.1
 metadata/instance_id = "crystal-mine-M8-S4-glint"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-S4-glint"
 
-[node name="M8-void" parent="Objects" unique_id=1544584092 instance=ExtResource("26_e7rie")]
+[node name="M8-void" parent="Objects" unique_id=1544584092 instance=ExtResource("50_f0hwi")]
 position = Vector2(704, 704)
+script = ExtResource("51_inldo")
 size = Vector2(640, 704)
 draw_look = false
 metadata/instance_id = "crystal-mine-M8-void"
@@ -836,49 +1867,132 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M8-void"
 [node name="Return0" type="Node2D" parent="Objects/M8-void" unique_id=850352871]
 position = Vector2(-32, 480)
 
-[node name="M8-shadow-path" parent="Objects" unique_id=1115352984 instance=ExtResource("46_t2wy3")]
+[node name="M8-shadow-path" parent="Objects" unique_id=1115352984 instance=ExtResource("100_m108x")]
 position = Vector2(704, 960)
+script = ExtResource("101_2ro8m")
 cells = Array[Vector2i]([Vector2i(0, 3), Vector2i(1, 3), Vector2i(2, 3), Vector2i(2, 0), Vector2i(2, 1), Vector2i(2, 2), Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0), Vector2i(7, 0), Vector2i(8, 0), Vector2i(9, 0)])
+draw_floor = false
 metadata/instance_id = "crystal-mine-M8-shadow-path"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-shadow-path"
 
-[node name="M8-pot" parent="Objects" unique_id=1294489544 instance=ExtResource("27_esp67")]
+[node name="M8-pot" parent="Objects" unique_id=1294489544 instance=ExtResource("52_fsc86")]
+y_sort_enabled = true
 position = Vector2(384, 1568)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M8-pot"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-pot"
 
+[node name="BodyShape" parent="Objects/M8-pot" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M8-pot" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/M8-pot" index="2"]
+script = ExtResource("46_8l671")
+kind = "clay-pot"
+
 [node name="PotLoot" parent="Objects/M8-pot" index="3"]
+script = ExtResource("53_g2w37")
 loot = "energy"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
-[node name="M9-cart-station" parent="Objects" unique_id=909902704 instance=ExtResource("15_sdjxm")]
+[node name="M9-cart-station" parent="Objects" unique_id=909902704 node_paths=PackedStringArray("cart_visual") instance=ExtResource("19_7ly3e")]
+y_sort_enabled = true
 position = Vector2(2208, 716.8)
+script = ExtResource("20_wmaat")
 station_id = "chasm"
 starts_with_cart = true
 arrival = Vector2(0, -70)
 arrival_facing = Vector2(0, -1)
+cart_visual = NodePath("Cart")
 metadata/instance_id = "crystal-mine-M9-cart-station"
 metadata/persistence_key = "crystal-mine.crystal-mine-M9-cart-station"
 
-[node name="M9-chasm-bridge" parent="Objects" unique_id=259324523 instance=ExtResource("35_2wamd")]
+[node name="BufferStop" parent="Objects/M9-cart-station" index="0"]
+position = Vector2(-62, 0)
+scale = Vector2(0.27, 0.27)
+texture = ExtResource("21_qe5n8")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-buffer-stop.webp"
+
+[node name="Cart" parent="Objects/M9-cart-station" index="1"]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("23_dmxjf")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
+
+[node name="M9-chasm-bridge" parent="Objects" unique_id=259324523 node_paths=PackedStringArray("raised_look", "deck_look") instance=ExtResource("70_wywk1")]
 position = Vector2(2816, 576)
 rotation = 1.5707964
+script = ExtResource("71_goh5e")
 toward = "west"
 length = 6
 bridge_id = "chasm-bridge"
+raised_look = NodePath("Raised")
+deck_look = NodePath("Deck")
+draw_floor = false
 metadata/instance_id = "crystal-mine-M9-chasm-bridge"
 metadata/persistence_key = "crystal-mine.crystal-mine-M9-chasm-bridge"
 
-[node name="M9-chasm-lens" parent="Objects" unique_id=1665206420 instance=ExtResource("36_72y3e")]
+[node name="Deck" parent="Objects/M9-chasm-bridge" index="0"]
+visible = false
+scale = Vector2(0.5, 0.4848485)
+texture = ExtResource("72_o4a5j")
+centered = false
+offset = Vector2(-128, 0)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/drawbridge-down.webp"
+
+[node name="Raised" parent="Objects/M9-chasm-bridge" index="1"]
+z_index = 1
+position = Vector2(0, 6)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("73_f3pdn")
+centered = false
+offset = Vector2(-128, -419)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/drawbridge-up.webp"
+
+[node name="M9-chasm-lens" parent="Objects" unique_id=1665206420 node_paths=PackedStringArray("visual") instance=ExtResource("74_s6n6c")]
+y_sort_enabled = true
 position = Vector2(2899.2, 492.8)
+collision_mask = 0
+script = ExtResource("75_vmful")
 lens_id = "chasm-bridge"
 opens = PackedStringArray()
 targets = Array[NodePath]([NodePath("../M9-chasm-bridge")])
+visual = NodePath("Visual")
 metadata/instance_id = "crystal-mine-M9-chasm-lens"
 metadata/persistence_key = "crystal-mine.crystal-mine-M9-chasm-lens"
 
-[node name="M9-chasm" parent="Objects" unique_id=608350614 instance=ExtResource("26_e7rie")]
+[node name="BodyShape" parent="Objects/M9-chasm-lens" index="0"]
+position = Vector2(0, -7)
+shape = SubResource("RectangleShape2D_post")
+
+[node name="Visual" parent="Objects/M9-chasm-lens" index="1"]
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("76_dtx3a")
+centered = false
+offset = Vector2(-128, -252)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-tile_2x1-crystal-lens.webp"
+
+[node name="M9-chasm" parent="Objects" unique_id=608350614 instance=ExtResource("50_f0hwi")]
 position = Vector2(2432, 64)
+script = ExtResource("51_inldo")
 size = Vector2(384, 768)
 draw_look = false
 metadata/instance_id = "crystal-mine-M9-chasm"
@@ -887,44 +2001,128 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M9-chasm"
 [node name="Return0" type="Node2D" parent="Objects/M9-chasm" unique_id=443456131]
 position = Vector2(-96, 512)
 
-[node name="M10-journal-chest" parent="Objects" unique_id=1415404674 instance=ExtResource("17_qrn30")]
+[node name="M10-journal-chest" parent="Objects" unique_id=1415404674 instance=ExtResource("27_c4nwk")]
+y_sort_enabled = true
 position = Vector2(3417.6, 249.6)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M10-journal-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M10-journal-chest"
 
+[node name="BodyShape" parent="Objects/M10-journal-chest" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("body_shape")
+
 [node name="Visual" parent="Objects/M10-journal-chest" index="1"]
-texture = ExtResource("18_k10ki")
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("28_u6xd8")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 
 [node name="ChestScript" parent="Objects/M10-journal-chest" index="2"]
+script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M10-journal-chest"
 initial_contents = {
 "coins": 30
 }
 
-[node name="M11-brazier-north" parent="Objects" unique_id=1303028712 instance=ExtResource("33_w2bb8")]
+[node name="OpenSfx" parent="Objects/M10-journal-chest" index="3"]
+process_mode = 3
+stream = ExtResource("30_igdqt")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="CloseSfx" parent="Objects/M10-journal-chest" index="4"]
+process_mode = 3
+stream = ExtResource("32_d3jdi")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="TakeSfx" parent="Objects/M10-journal-chest" index="5"]
+process_mode = 3
+stream = ExtResource("33_mcabm")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="M11-brazier-north" parent="Objects" unique_id=1303028712 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(3987.2, 742.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
+burn_ms = 20000.0
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M11-brazier-north"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-brazier-north"
 
-[node name="M10-ore-crate" parent="Objects" unique_id=2132635432 instance=ExtResource("47_pys2q")]
+[node name="M10-ore-crate" parent="Objects" unique_id=2132635432 node_paths=PackedStringArray("visual", "shape_node") instance=ExtResource("102_eyql7")]
+y_sort_enabled = true
 position = Vector2(3232, 665.6)
+collision_mask = 1025
+motion_mode = 1
+script = ExtResource("103_16v27")
+visual = NodePath("Visual")
+shape_node = NodePath("BodyShape")
+kind = "ore-crate"
 metadata/instance_id = "crystal-mine-M10-ore-crate"
 metadata/persistence_key = "crystal-mine.crystal-mine-M10-ore-crate"
 
-[node name="M10-stone-essence" parent="Objects" unique_id=1713295352 instance=ExtResource("41_qqfjh")]
+[node name="BodyShape" parent="Objects/M10-ore-crate" index="0"]
+shape = SubResource("RectangleShape2D_4nnf6")
+
+[node name="Visual" parent="Objects/M10-ore-crate" index="1"]
+position = Vector2(0, 27)
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("104_mqdne")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-ore-crate.webp"
+
+[node name="M10-stone-essence" parent="Objects" unique_id=1713295352 instance=ExtResource("89_mtt4n")]
+y_sort_enabled = true
 position = Vector2(3174.4, 780.8)
 metadata/instance_id = "crystal-mine-M10-stone-essence"
 metadata/persistence_key = "crystal-mine.crystal-mine-M10-stone-essence"
 
-[node name="M11-west-roots" parent="Objects" unique_id=1433011369 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M10-stone-essence" index="0"]
+position = Vector2(0, -22)
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("90_ytlhh")
+hframes = 3
+
+[node name="EssenceScript" parent="Objects/M10-stone-essence" index="1"]
+script = ExtResource("91_2ml7g")
+
+[node name="M11-west-roots" parent="Objects" unique_id=1433011369 instance=ExtResource("24_wefoa")]
 position = Vector2(3296, 1620)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -188)
 art_size = Vector2(130, 172)
 metadata/instance_id = "crystal-mine-M11-west-roots"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-west-roots"
 
-[node name="M11-west-roots-down" parent="Objects" unique_id=1292163727 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M11-west-roots" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M11-west-roots-down" parent="Objects" unique_id=1292163727 instance=ExtResource("24_wefoa")]
 position = Vector2(3296, 1452)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, 150.44)
 prompt = "Climb down (hold)"
 grab_width = 130.0
@@ -932,15 +2130,35 @@ show_art = false
 metadata/instance_id = "crystal-mine-M11-west-roots-down"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-west-roots-down"
 
-[node name="M11-east-roots" parent="Objects" unique_id=818387987 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M11-west-roots-down" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M11-east-roots" parent="Objects" unique_id=818387987 instance=ExtResource("24_wefoa")]
 position = Vector2(3808, 1620)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -188)
 art_size = Vector2(130, 172)
 metadata/instance_id = "crystal-mine-M11-east-roots"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-east-roots"
 
-[node name="M11-east-roots-down" parent="Objects" unique_id=538424050 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M11-east-roots" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M11-east-roots-down" parent="Objects" unique_id=538424050 instance=ExtResource("24_wefoa")]
 position = Vector2(3808, 1452)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, 150.44)
 prompt = "Climb down (hold)"
 grab_width = 130.0
@@ -948,36 +2166,85 @@ show_art = false
 metadata/instance_id = "crystal-mine-M11-east-roots-down"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-east-roots-down"
 
-[node name="M11-brazier-south" parent="Objects" unique_id=1628374584 instance=ExtResource("33_w2bb8")]
+[node name="Visual" parent="Objects/M11-east-roots-down" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M11-brazier-south" parent="Objects" unique_id=1628374584 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(3756.8, 1158.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
+burn_ms = 20000.0
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M11-brazier-south"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-brazier-south"
 
-[node name="M11-veil" parent="Objects" unique_id=1931002177 instance=ExtResource("48_p3w6f")]
+[node name="M11-veil" parent="Objects" unique_id=1931002177 instance=ExtResource("105_unmfe")]
+y_sort_enabled = true
 position = Vector2(3904, 1088)
+script = ExtResource("106_7dcnk")
 size = 192.0
 braziers = Array[NodePath]([NodePath("../M11-brazier-north"), NodePath("../M11-brazier-south")])
 metadata/instance_id = "crystal-mine-M11-veil"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-veil"
 
-[node name="M11-pot" parent="Objects" unique_id=1117545813 instance=ExtResource("27_esp67")]
+[node name="M11-pot" parent="Objects" unique_id=1117545813 instance=ExtResource("52_fsc86")]
+y_sort_enabled = true
 position = Vector2(3219.2, 1190.4)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M11-pot"
 metadata/persistence_key = "crystal-mine.crystal-mine-M11-pot"
 
+[node name="BodyShape" parent="Objects/M11-pot" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/M11-pot" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("45_6tkhf")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/M11-pot" index="2"]
+script = ExtResource("46_8l671")
+kind = "clay-pot"
+
 [node name="PotLoot" parent="Objects/M11-pot" index="3"]
+script = ExtResource("53_g2w37")
 loot = "energy"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
-[node name="M12-west-roots" parent="Objects" unique_id=690937615 instance=ExtResource("16_mgyd1")]
+[node name="M12-west-roots" parent="Objects" unique_id=690937615 instance=ExtResource("24_wefoa")]
 position = Vector2(4352, 1300)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -188)
 art_size = Vector2(130, 172)
 metadata/instance_id = "crystal-mine-M12-west-roots"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-west-roots"
 
-[node name="M12-west-roots-down" parent="Objects" unique_id=1098040717 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M12-west-roots" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M12-west-roots-down" parent="Objects" unique_id=1098040717 instance=ExtResource("24_wefoa")]
 position = Vector2(4352, 1132)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, 150.44)
 prompt = "Climb down (hold)"
 grab_width = 130.0
@@ -985,15 +2252,35 @@ show_art = false
 metadata/instance_id = "crystal-mine-M12-west-roots-down"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-west-roots-down"
 
-[node name="M12-east-roots" parent="Objects" unique_id=883137068 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M12-west-roots-down" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M12-east-roots" parent="Objects" unique_id=883137068 instance=ExtResource("24_wefoa")]
 position = Vector2(4800, 1300)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -188)
 art_size = Vector2(130, 172)
 metadata/instance_id = "crystal-mine-M12-east-roots"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-east-roots"
 
-[node name="M12-east-roots-down" parent="Objects" unique_id=537695879 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M12-east-roots" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M12-east-roots-down" parent="Objects" unique_id=537695879 instance=ExtResource("24_wefoa")]
 position = Vector2(4800, 1132)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, 150.44)
 prompt = "Climb down (hold)"
 grab_width = 130.0
@@ -1001,138 +2288,410 @@ show_art = false
 metadata/instance_id = "crystal-mine-M12-east-roots-down"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-east-roots-down"
 
-[node name="M12-big-key-chest" parent="Objects" unique_id=171533560 instance=ExtResource("49_eusti")]
+[node name="Visual" parent="Objects/M12-east-roots-down" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M12-big-key-chest" parent="Objects" unique_id=171533560 instance=ExtResource("107_7elsd")]
+y_sort_enabled = true
 position = Vector2(4576, 1075.2)
+collision_mask = 0
 metadata/instance_id = "crystal-mine-M12-big-key-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-big-key-chest"
 
+[node name="BodyShape" parent="Objects/M12-big-key-chest" index="0"]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_21gbp")
+
 [node name="Visual" parent="Objects/M12-big-key-chest" index="1"]
-texture = ExtResource("50_e2u27")
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("108_rr3rf")
+centered = false
+offset = Vector2(-104, -180)
+hframes = 2
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/big-chest-2x1.webp"
 
 [node name="ChestScript" parent="Objects/M12-big-key-chest" index="2"]
+script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M12-big-key-chest"
 initial_contents = {
 "dungeon-big-key": 1
 }
 
-[node name="M12-big-key-glint" parent="Objects" unique_id=1340023382 instance=ExtResource("19_ynlcp")]
+[node name="OpenSfx" parent="Objects/M12-big-key-chest" index="3"]
+process_mode = 3
+stream = ExtResource("30_igdqt")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="CloseSfx" parent="Objects/M12-big-key-chest" index="4"]
+process_mode = 3
+stream = ExtResource("32_d3jdi")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="TakeSfx" parent="Objects/M12-big-key-chest" index="5"]
+process_mode = 3
+stream = ExtResource("33_mcabm")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("31_8ev5j")
+
+[node name="M12-big-key-glint" parent="Objects" unique_id=1340023382 instance=ExtResource("34_y3ugu")]
 position = Vector2(4576, 1017.6)
+script = ExtResource("35_2nxkc")
 phase = 0.5
 metadata/instance_id = "crystal-mine-M12-big-key-glint"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-big-key-glint"
 
-[node name="M12-statue" parent="Objects" unique_id=19956192 instance=ExtResource("51_yfhhv")]
+[node name="M12-statue" parent="Objects" unique_id=19956192 node_paths=PackedStringArray("visual", "shape_node") instance=ExtResource("109_uc1sy")]
+y_sort_enabled = true
 position = Vector2(4576, 1529.6)
+collision_mask = 1025
+motion_mode = 1
+script = ExtResource("103_16v27")
+visual = NodePath("Visual")
+shape_node = NodePath("BodyShape")
+kind = "statue"
 metadata/instance_id = "crystal-mine-M12-statue"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-statue"
 
-[node name="M12-statue-2" parent="Objects" unique_id=912511685 instance=ExtResource("51_yfhhv")]
+[node name="BodyShape" parent="Objects/M12-statue" index="0"]
+shape = SubResource("RectangleShape2D_ktb3n")
+
+[node name="Visual" parent="Objects/M12-statue" index="1"]
+position = Vector2(0, 27)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("110_mcb7p")
+centered = false
+offset = Vector2(-59, -121)
+hframes = 8
+vframes = 3
+frame = 12
+
+[node name="M12-statue-2" parent="Objects" unique_id=912511685 node_paths=PackedStringArray("visual", "shape_node") instance=ExtResource("109_uc1sy")]
+y_sort_enabled = true
 position = Vector2(4313.6, 1593.6)
+collision_mask = 1025
+motion_mode = 1
+script = ExtResource("103_16v27")
+visual = NodePath("Visual")
+shape_node = NodePath("BodyShape")
+kind = "statue"
 metadata/instance_id = "crystal-mine-M12-statue-2"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-statue-2"
 
-[node name="M12-statue-3" parent="Objects" unique_id=1423720900 instance=ExtResource("51_yfhhv")]
+[node name="BodyShape" parent="Objects/M12-statue-2" index="0"]
+shape = SubResource("RectangleShape2D_ktb3n")
+
+[node name="Visual" parent="Objects/M12-statue-2" index="1"]
+position = Vector2(0, 27)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("110_mcb7p")
+centered = false
+offset = Vector2(-59, -121)
+hframes = 8
+vframes = 3
+frame = 12
+
+[node name="M12-statue-3" parent="Objects" unique_id=1423720900 node_paths=PackedStringArray("visual", "shape_node") instance=ExtResource("109_uc1sy")]
+y_sort_enabled = true
 position = Vector2(4915.2, 1574.4)
+collision_mask = 1025
+motion_mode = 1
+script = ExtResource("103_16v27")
+visual = NodePath("Visual")
+shape_node = NodePath("BodyShape")
+kind = "statue"
 metadata/instance_id = "crystal-mine-M12-statue-3"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-statue-3"
 
-[node name="M12-statue-4" parent="Objects" unique_id=743094068 instance=ExtResource("51_yfhhv")]
+[node name="BodyShape" parent="Objects/M12-statue-3" index="0"]
+shape = SubResource("RectangleShape2D_ktb3n")
+
+[node name="Visual" parent="Objects/M12-statue-3" index="1"]
+position = Vector2(0, 27)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("110_mcb7p")
+centered = false
+offset = Vector2(-59, -121)
+hframes = 8
+vframes = 3
+frame = 12
+
+[node name="M12-statue-4" parent="Objects" unique_id=743094068 node_paths=PackedStringArray("visual", "shape_node") instance=ExtResource("109_uc1sy")]
+y_sort_enabled = true
 position = Vector2(4467.2, 1644.8)
+collision_mask = 1025
+motion_mode = 1
+script = ExtResource("103_16v27")
+visual = NodePath("Visual")
+shape_node = NodePath("BodyShape")
+kind = "statue"
 metadata/instance_id = "crystal-mine-M12-statue-4"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-statue-4"
 
-[node name="M12-statue-5" parent="Objects" unique_id=2131568837 instance=ExtResource("51_yfhhv")]
+[node name="BodyShape" parent="Objects/M12-statue-4" index="0"]
+shape = SubResource("RectangleShape2D_ktb3n")
+
+[node name="Visual" parent="Objects/M12-statue-4" index="1"]
+position = Vector2(0, 27)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("110_mcb7p")
+centered = false
+offset = Vector2(-59, -121)
+hframes = 8
+vframes = 3
+frame = 12
+
+[node name="M12-statue-5" parent="Objects" unique_id=2131568837 node_paths=PackedStringArray("visual", "shape_node") instance=ExtResource("109_uc1sy")]
+y_sort_enabled = true
 position = Vector2(4710.4, 1644.8)
+collision_mask = 1025
+motion_mode = 1
+script = ExtResource("103_16v27")
+visual = NodePath("Visual")
+shape_node = NodePath("BodyShape")
+kind = "statue"
 metadata/instance_id = "crystal-mine-M12-statue-5"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-statue-5"
 
-[node name="M12-watchfire-w" parent="Objects" unique_id=1421813271 instance=ExtResource("33_w2bb8")]
+[node name="BodyShape" parent="Objects/M12-statue-5" index="0"]
+shape = SubResource("RectangleShape2D_ktb3n")
+
+[node name="Visual" parent="Objects/M12-statue-5" index="1"]
+position = Vector2(0, 27)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("110_mcb7p")
+centered = false
+offset = Vector2(-59, -121)
+hframes = 8
+vframes = 3
+frame = 12
+
+[node name="M12-watchfire-w" parent="Objects" unique_id=1421813271 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(4192, 1510.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 lit_at_start = true
 burn_ms = 0.0
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M12-watchfire-w"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-watchfire-w"
 
-[node name="M12-watchfire-e" parent="Objects" unique_id=1850234724 instance=ExtResource("33_w2bb8")]
+[node name="M12-watchfire-e" parent="Objects" unique_id=1850234724 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(5017.6, 1510.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 lit_at_start = true
 burn_ms = 0.0
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M12-watchfire-e"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-watchfire-e"
 
-[node name="M12-stone-essence" parent="Objects" unique_id=1869343323 instance=ExtResource("41_qqfjh")]
+[node name="M12-stone-essence" parent="Objects" unique_id=1869343323 instance=ExtResource("89_mtt4n")]
+y_sort_enabled = true
 position = Vector2(4211.2, 1664)
 metadata/instance_id = "crystal-mine-M12-stone-essence"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-stone-essence"
 
-[node name="M13-brazier-w" parent="Objects" unique_id=253028447 instance=ExtResource("33_w2bb8")]
+[node name="Visual" parent="Objects/M12-stone-essence" index="0"]
+position = Vector2(0, -22)
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("90_ytlhh")
+hframes = 3
+
+[node name="EssenceScript" parent="Objects/M12-stone-essence" index="1"]
+script = ExtResource("91_2ml7g")
+
+[node name="M13-brazier-w" parent="Objects" unique_id=253028447 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(2278.4, 1318.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
+burn_ms = 20000.0
 stomp_puts_out = true
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M13-brazier-w"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-brazier-w"
 
-[node name="M13-brazier-e" parent="Objects" unique_id=1357610640 instance=ExtResource("33_w2bb8")]
+[node name="M13-brazier-e" parent="Objects" unique_id=1357610640 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(2662.4, 1254.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
+burn_ms = 20000.0
 stomp_puts_out = true
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M13-brazier-e"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-brazier-e"
 
-[node name="M13-den-shutter" parent="Objects" unique_id=665771477 instance=ExtResource("21_r6pce")]
+[node name="M13-den-shutter" parent="Objects" unique_id=665771477 node_paths=PackedStringArray("look", "body") instance=ExtResource("41_qpf3w")]
+y_sort_enabled = true
 position = Vector2(2880, 1024)
+script = ExtResource("42_qvutm")
 fight_id = "shardback-den"
 shutter_id = "den-north"
+look = NodePath("Look")
+body = NodePath("Body")
 metadata/instance_id = "crystal-mine-M13-den-shutter"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-den-shutter"
 
-[node name="M13-den-ledge" parent="Objects" unique_id=1764954269 instance=ExtResource("21_r6pce")]
+[node name="Body" parent="Objects/M13-den-shutter" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M13-den-shutter/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_3w67y")
+disabled = true
+
+[node name="Look" parent="Objects/M13-den-shutter" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("43_6tm18")
+centered = false
+offset = Vector2(-136, -224)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/shutter.webp"
+
+[node name="M13-den-ledge" parent="Objects" unique_id=1764954269 node_paths=PackedStringArray("look", "body") instance=ExtResource("41_qpf3w")]
+y_sort_enabled = true
 position = Vector2(2752, 1728)
 rotation = 3.1415927
+script = ExtResource("42_qvutm")
 wall = "south"
 shutter_id = "den-ledge"
 starts_shut = true
+look = NodePath("Look")
+body = NodePath("Body")
 metadata/instance_id = "crystal-mine-M13-den-ledge"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-den-ledge"
 
-[node name="M13-den-ledge-east" parent="Objects" unique_id=874847089 instance=ExtResource("21_r6pce")]
+[node name="Body" parent="Objects/M13-den-ledge" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M13-den-ledge/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_3w67y")
+disabled = true
+
+[node name="Look" parent="Objects/M13-den-ledge" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("43_6tm18")
+centered = false
+offset = Vector2(-136, -224)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/shutter.webp"
+
+[node name="M13-den-ledge-east" parent="Objects" unique_id=874847089 node_paths=PackedStringArray("look", "body") instance=ExtResource("41_qpf3w")]
+y_sort_enabled = true
 position = Vector2(2880, 1728)
 rotation = 3.1415927
+script = ExtResource("42_qvutm")
 wall = "south"
 shutter_id = "den-ledge-east"
 starts_shut = true
+look = NodePath("Look")
+body = NodePath("Body")
 metadata/instance_id = "crystal-mine-M13-den-ledge-east"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-den-ledge-east"
 
-[node name="M13-den-fight" parent="Objects" unique_id=1996797679 instance=ExtResource("52_m18qi")]
+[node name="Body" parent="Objects/M13-den-ledge-east" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M13-den-ledge-east/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_3w67y")
+disabled = true
+
+[node name="Look" parent="Objects/M13-den-ledge-east" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("43_6tm18")
+centered = false
+offset = Vector2(-136, -224)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/shutter.webp"
+
+[node name="M13-den-fight" parent="Objects" unique_id=1996797679 instance=ExtResource("111_15hsn")]
 position = Vector2(2048, 896)
+script = ExtResource("112_lrijn")
 fight_id = "shardback-den"
 once = true
 boss_id = "crystal-mine-shardback"
 metadata/instance_id = "crystal-mine-M13-den-fight"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-den-fight"
 
-[node name="M13-pearl-three" parent="Objects" unique_id=1285789971 instance=ExtResource("53_ciml0")]
+[node name="M13-pearl-three" parent="Objects" unique_id=1285789971 node_paths=PackedStringArray("visual") instance=ExtResource("113_637iv")]
+y_sort_enabled = true
 position = Vector2(2528, 1580.8)
+script = ExtResource("114_pofed")
+pearl_id = "crystal-colossus"
 boss_id = "crystal-mine-shardback"
+number = 3
+skin_id = "feral"
+card_name = "Feral skin"
 card_line = "The beast the Pearl woke in the Colossus is yours: you climb walls of thick roots and rocky handholds."
+card_how = "Hold the interact key at a climbable wall to climb it. Your Spear strikes twice as fast."
 take_radius = 48.0
+visual = NodePath("Visual")
 metadata/instance_id = "crystal-mine-M13-pearl-three"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-pearl-three"
 
-[node name="M13-pearl-glint" parent="Objects" unique_id=1854427951 instance=ExtResource("19_ynlcp")]
+[node name="Visual" parent="Objects/M13-pearl-three" index="0"]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("115_3iwv0")
+centered = false
+offset = Vector2(-128, -240)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-pearl.webp"
+
+[node name="M13-pearl-glint" parent="Objects" unique_id=1854427951 instance=ExtResource("34_y3ugu")]
 position = Vector2(2528, 1504)
+script = ExtResource("35_2nxkc")
 tint = Color(1, 0.86, 0.6, 1)
 metadata/instance_id = "crystal-mine-M13-pearl-glint"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-pearl-glint"
 
-[node name="M13-ledge-roots" parent="Objects" unique_id=475361740 instance=ExtResource("16_mgyd1")]
+[node name="M13-ledge-roots" parent="Objects" unique_id=475361740 instance=ExtResource("24_wefoa")]
 position = Vector2(2912, 1620)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -124)
 art_size = Vector2(130, 108)
 metadata/instance_id = "crystal-mine-M13-ledge-roots"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-ledge-roots"
 
-[node name="M13-ledge-roots-down" parent="Objects" unique_id=1895339138 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M13-ledge-roots" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M13-ledge-roots-down" parent="Objects" unique_id=1895339138 instance=ExtResource("24_wefoa")]
 position = Vector2(2912, 1516)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, 86.44)
 prompt = "Climb down (hold)"
 grab_width = 130.0
@@ -1140,37 +2699,70 @@ show_art = false
 metadata/instance_id = "crystal-mine-M13-ledge-roots-down"
 metadata/persistence_key = "crystal-mine.crystal-mine-M13-ledge-roots-down"
 
-[node name="M15-brazier-nw" parent="Objects" unique_id=396874533 instance=ExtResource("33_w2bb8")]
+[node name="Visual" parent="Objects/M13-ledge-roots-down" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M15-brazier-nw" parent="Objects" unique_id=396874533 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(3276.8, 2265.6)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 burn_ms = -1.0
 stomp_puts_out = true
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M15-brazier-nw"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-brazier-nw"
 
-[node name="M15-brazier-ne" parent="Objects" unique_id=1818713180 instance=ExtResource("33_w2bb8")]
+[node name="M15-brazier-ne" parent="Objects" unique_id=1818713180 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(3891.2, 2265.6)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 burn_ms = -1.0
 stomp_puts_out = true
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M15-brazier-ne"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-brazier-ne"
 
-[node name="M15-brazier-sw" parent="Objects" unique_id=1162842841 instance=ExtResource("33_w2bb8")]
+[node name="M15-brazier-sw" parent="Objects" unique_id=1162842841 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(3276.8, 2534.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 burn_ms = -1.0
 stomp_puts_out = true
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M15-brazier-sw"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-brazier-sw"
 
-[node name="M15-brazier-se" parent="Objects" unique_id=464766236 instance=ExtResource("33_w2bb8")]
+[node name="M15-brazier-se" parent="Objects" unique_id=464766236 instance=ExtResource("64_chrvm")]
+y_sort_enabled = true
 position = Vector2(3891.2, 2534.4)
+script = ExtResource("47_7jsdb")
+unlit_scene = ExtResource("65_dcvmw")
+lit_scene = ExtResource("66_dnsbn")
+flame_offset = Vector2(0, -52)
 burn_ms = -1.0
 stomp_puts_out = true
+light_radius = 120.0
 metadata/instance_id = "crystal-mine-M15-brazier-se"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-brazier-se"
 
 [node name="ColossusArena" type="Node2D" parent="Objects" unique_id=981569102]
 position = Vector2(3584, 2336)
-script = ExtResource("54_atl4q")
+script = ExtResource("116_20n63")
 arena_rect = Rect2(3136, 2112, 896, 512)
 braziers = Array[NodePath]([NodePath("../M15-brazier-nw"), NodePath("../M15-brazier-ne"), NodePath("../M15-brazier-sw"), NodePath("../M15-brazier-se")])
 climb_wall = NodePath("../M15-root-wall")
@@ -1178,40 +2770,81 @@ seal_cells = PackedVector2Array(3104, 2297.6, 3104, 2361.6)
 climb_spots = PackedVector2Array(3296, 2092, 3488, 2092, 3680, 2092)
 wall_rect = Rect2(3136, 1856, 896, 296)
 
-[node name="M15-claw-roots" parent="Objects" unique_id=1091635839 instance=ExtResource("16_mgyd1")]
+[node name="M15-claw-roots" parent="Objects" unique_id=1091635839 instance=ExtResource("24_wefoa")]
 position = Vector2(3200, 2132)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -197)
 art_size = Vector2(112, 250)
 holds_at_top = true
 metadata/instance_id = "crystal-mine-M15-claw-roots"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-claw-roots"
 
-[node name="M15-claw-roots-2" parent="Objects" unique_id=1467372217 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M15-claw-roots" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M15-claw-roots-2" parent="Objects" unique_id=1467372217 instance=ExtResource("24_wefoa")]
 position = Vector2(3392, 2132)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -197)
 art_size = Vector2(112, 250)
 holds_at_top = true
 metadata/instance_id = "crystal-mine-M15-claw-roots-2"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-claw-roots-2"
 
-[node name="M15-claw-roots-3" parent="Objects" unique_id=1081981963 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M15-claw-roots-2" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M15-claw-roots-3" parent="Objects" unique_id=1081981963 instance=ExtResource("24_wefoa")]
 position = Vector2(3584, 2132)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -197)
 art_size = Vector2(112, 250)
 holds_at_top = true
 metadata/instance_id = "crystal-mine-M15-claw-roots-3"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-claw-roots-3"
 
-[node name="M15-claw-roots-4" parent="Objects" unique_id=33952452 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M15-claw-roots-3" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M15-claw-roots-4" parent="Objects" unique_id=33952452 instance=ExtResource("24_wefoa")]
 position = Vector2(3776, 2132)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -197)
 art_size = Vector2(112, 250)
 holds_at_top = true
 metadata/instance_id = "crystal-mine-M15-claw-roots-4"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-claw-roots-4"
 
-[node name="M15-root-wall" parent="Objects" unique_id=765296505 instance=ExtResource("16_mgyd1")]
+[node name="Visual" parent="Objects/M15-claw-roots-4" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M15-root-wall" parent="Objects" unique_id=765296505 instance=ExtResource("24_wefoa")]
 position = Vector2(3916.8, 2132)
+script = ExtResource("25_i0m0f")
 top = Vector2(0, -312)
 exit_area_id = "crystal-caverns-h4"
 exit_marker = "arrive-from-crystal-mine"
@@ -1219,19 +2852,86 @@ art_size = Vector2(104, 300)
 metadata/instance_id = "crystal-mine-M15-root-wall"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-root-wall"
 
-[node name="M15-climb-out-seal" parent="Objects" unique_id=1306060601 instance=ExtResource("20_n5urb")]
+[node name="Visual" parent="Objects/M15-root-wall" index="0"]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("26_8fiiq")
+centered = false
+offset = Vector2(-128, -252)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+
+[node name="M15-climb-out-seal" parent="Objects" unique_id=1306060601 node_paths=PackedStringArray("ring", "glow", "damage_area", "look", "body") instance=ExtResource("36_xaq31")]
+y_sort_enabled = true
 position = Vector2(3916.8, 2116)
+script = ExtResource("37_2qws7")
+ring = NodePath("Ring")
+glow = NodePath("Glow")
+damage_area = NodePath("DamageArea")
+look = NodePath("Look")
+body = NodePath("Body")
 metadata/instance_id = "crystal-mine-M15-climb-out-seal"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-climb-out-seal"
 
-[node name="M15-full-heart" parent="Objects" unique_id=1298751930 instance=ExtResource("55_tv0vf")]
+[node name="Body" parent="Objects/M15-climb-out-seal" index="0"]
+collision_mask = 0
+
+[node name="Shape" parent="Objects/M15-climb-out-seal/Body" index="0"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_cr7uk")
+disabled = true
+
+[node name="DamageArea" parent="Objects/M15-climb-out-seal" index="1"]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="HurtShape" parent="Objects/M15-climb-out-seal/DamageArea" index="0"]
+position = Vector2(0, -36)
+shape = SubResource("hurt_shape")
+
+[node name="Glow" parent="Objects/M15-climb-out-seal" index="2"]
+position = Vector2(-6.8, -39.2)
+script = ExtResource("38_v2k65")
+radius = Vector2(84, 56)
+color = Color(0.83, 0.28, 0.18, 0.4)
+pulse = 0.0
+
+[node name="Look" parent="Objects/M15-climb-out-seal" index="3"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("39_wj708")
+centered = false
+offset = Vector2(-136, -224)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/dungeon-seal.webp"
+
+[node name="Ring" parent="Objects/M15-climb-out-seal" index="4"]
+position = Vector2(-6.8, 0)
+scale = Vector2(0.198, 0.198)
+texture = ExtResource("40_3x3qb")
+offset = Vector2(0, -198)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/objects/dungeon/seal-ring.webp"
+
+[node name="M15-full-heart" parent="Objects" unique_id=1298751930 instance=ExtResource("117_6iw2a")]
+y_sort_enabled = true
 position = Vector2(3737.6, 2457.6)
 metadata/instance_id = "crystal-mine-M15-full-heart"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-full-heart"
 
-[node name="FullHeartScript" parent="Objects/M15-full-heart" index="1"]
+[node name="Visual" parent="Objects/M15-full-heart" index="0"]
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("118_0l6le")
+centered = false
+offset = Vector2(-128, -250)
+hframes = 8
+frame = 5
+
+[node name="FullHeartScript" parent="Objects/M15-full-heart" index="1" node_paths=PackedStringArray("visual")]
+script = ExtResource("119_f4m2p")
 heart_id = "crystal-colossus"
 boss_id = "crystal-colossus"
+visual = NodePath("../Visual")
 
 [node name="Scenery" type="Node2D" parent="." unique_id=998351722]
 y_sort_enabled = true
@@ -1239,114 +2939,423 @@ y_sort_enabled = true
 [node name="mine-lantern" type="Sprite2D" parent="Scenery" unique_id=1190626400]
 position = Vector2(1408, 3788.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
 [node name="mine-lantern-2" type="Sprite2D" parent="Scenery" unique_id=960867277]
 position = Vector2(1888, 3788.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
-[node name="interior-structure-beam-wood-vertical" parent="Scenery" unique_id=324801982 instance=ExtResource("58_4ypka")]
+[node name="interior-structure-beam-wood-vertical" parent="Scenery" unique_id=324801982 instance=ExtResource("121_wjhfd")]
+y_sort_enabled = true
 position = Vector2(1420.8, 4390.4)
+collision_mask = 0
 
-[node name="interior-structure-beam-wood-vertical-2" parent="Scenery" unique_id=311053537 instance=ExtResource("58_4ypka")]
+[node name="BodyShape" parent="Scenery/interior-structure-beam-wood-vertical" index="0"]
+shape = SubResource("RectangleShape2D_3gvnq")
+
+[node name="Visual" parent="Scenery/interior-structure-beam-wood-vertical" index="1"]
+rotation = 1.5708
+texture = ExtResource("122_h8bxk")
+centered = false
+offset = Vector2(-64, -101.0048)
+hframes = 8
+vframes = 8
+frame = 28
+
+[node name="interior-structure-beam-wood-vertical-2" parent="Scenery" unique_id=311053537 instance=ExtResource("121_wjhfd")]
+y_sort_enabled = true
 position = Vector2(1651.2, 4390.4)
+collision_mask = 0
 
-[node name="interior-workshop-wheelbarrow" parent="Scenery" unique_id=171149530 instance=ExtResource("59_x5g4d")]
+[node name="BodyShape" parent="Scenery/interior-structure-beam-wood-vertical-2" index="0"]
+shape = SubResource("RectangleShape2D_3gvnq")
+
+[node name="Visual" parent="Scenery/interior-structure-beam-wood-vertical-2" index="1"]
+rotation = 1.5708
+texture = ExtResource("122_h8bxk")
+centered = false
+offset = Vector2(-64, -101.0048)
+hframes = 8
+vframes = 8
+frame = 28
+
+[node name="interior-workshop-wheelbarrow" parent="Scenery" unique_id=171149530 instance=ExtResource("123_yyf6q")]
+y_sort_enabled = true
 position = Vector2(1830.4, 3929.6)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="interior-workshop-ore-basket" parent="Scenery" unique_id=710944355 instance=ExtResource("60_ah2ju")]
+[node name="BodyShape" parent="Scenery/interior-workshop-wheelbarrow" index="0"]
+position = Vector2(0, -17.312)
+shape = SubResource("RectangleShape2D_7uvie")
+
+[node name="Visual" parent="Scenery/interior-workshop-wheelbarrow" index="1"]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 62
+
+[node name="interior-workshop-ore-basket" parent="Scenery" unique_id=710944355 instance=ExtResource("125_lk1mm")]
+y_sort_enabled = true
 position = Vector2(1139.2, 4307.2)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="interior-storage-barrel" parent="Scenery" unique_id=434007426 instance=ExtResource("61_7g4ut")]
+[node name="BodyShape" parent="Scenery/interior-workshop-ore-basket" index="0"]
+position = Vector2(-0.375, -16.0725)
+shape = SubResource("RectangleShape2D_fm5bk")
+
+[node name="Visual" parent="Scenery/interior-workshop-ore-basket" index="1"]
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 7
+
+[node name="interior-storage-barrel" parent="Scenery" unique_id=434007426 instance=ExtResource("126_erf4u")]
+y_sort_enabled = true
 position = Vector2(1920, 4160)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="M5-tally-desk" parent="Scenery" unique_id=336273949 instance=ExtResource("62_lfhn4")]
+[node name="BodyShape" parent="Scenery/interior-storage-barrel" index="0"]
+position = Vector2(-0.35, -15.736)
+shape = SubResource("RectangleShape2D_7d6wo")
+
+[node name="Visual" parent="Scenery/interior-storage-barrel" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 48
+
+[node name="M5-tally-desk" parent="Scenery" unique_id=336273949 instance=ExtResource("128_ktena")]
+y_sort_enabled = true
 position = Vector2(499.2, 3110.4)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="M3-survey-table" parent="Scenery" unique_id=1785024851 instance=ExtResource("63_gwl4a")]
+[node name="BodyShape" parent="Scenery/M5-tally-desk" index="0"]
+position = Vector2(-0.425, -21.964)
+shape = SubResource("RectangleShape2D_0vmin")
+
+[node name="Visual" parent="Scenery/M5-tally-desk" index="1"]
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 26
+
+[node name="M3-survey-table" parent="Scenery" unique_id=1785024851 instance=ExtResource("129_n4ipt")]
+y_sort_enabled = true
 position = Vector2(512, 2208)
 scale = Vector2(0.95, 0.95)
+collision_mask = 0
 
-[node name="M3-scroll-rack" parent="Scenery" unique_id=290125589 instance=ExtResource("64_7uch8")]
+[node name="BodyShape" parent="Scenery/M3-survey-table" index="0"]
+position = Vector2(0, -17.1445)
+shape = SubResource("RectangleShape2D_k0qoe")
+
+[node name="Visual" parent="Scenery/M3-survey-table" index="1"]
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 8
+
+[node name="WorkbenchScript" parent="Scenery/M3-survey-table" index="2"]
+script = ExtResource("130_su76b")
+badge_rise = 76.85
+
+[node name="M3-scroll-rack" parent="Scenery" unique_id=290125589 instance=ExtResource("131_krq2b")]
+y_sort_enabled = true
 position = Vector2(800, 2009.6)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="M3-papers" parent="Scenery" unique_id=1084578126 instance=ExtResource("65_jlgdk")]
+[node name="BodyShape" parent="Scenery/M3-scroll-rack" index="0"]
+position = Vector2(-0.4, -19.328)
+shape = SubResource("RectangleShape2D_vp1y5")
+
+[node name="Visual" parent="Scenery/M3-scroll-rack" index="1"]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 31
+
+[node name="M3-papers" parent="Scenery" unique_id=1084578126 instance=ExtResource("132_piagk")]
+y_sort_enabled = true
 position = Vector2(192, 2022.4)
 scale = Vector2(0.9, 0.9)
 
-[node name="interior-structure-beam-wood-vertical-3" parent="Scenery" unique_id=1162247671 instance=ExtResource("58_4ypka")]
-position = Vector2(1113.6, 2406.4)
+[node name="Visual" parent="Scenery/M3-papers" index="0"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 27
 
-[node name="interior-workshop-lumber-stack" parent="Scenery" unique_id=956034581 instance=ExtResource("66_1nwjj")]
+[node name="interior-structure-beam-wood-vertical-3" parent="Scenery" unique_id=1162247671 instance=ExtResource("121_wjhfd")]
+y_sort_enabled = true
+position = Vector2(1113.6, 2406.4)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/interior-structure-beam-wood-vertical-3" index="0"]
+shape = SubResource("RectangleShape2D_3gvnq")
+
+[node name="Visual" parent="Scenery/interior-structure-beam-wood-vertical-3" index="1"]
+rotation = 1.5708
+texture = ExtResource("122_h8bxk")
+centered = false
+offset = Vector2(-64, -101.0048)
+hframes = 8
+vframes = 8
+frame = 28
+
+[node name="interior-workshop-lumber-stack" parent="Scenery" unique_id=956034581 instance=ExtResource("133_50wok")]
+y_sort_enabled = true
 position = Vector2(1267.2, 2521.6)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="interior-workshop-tool-rack" parent="Scenery" unique_id=836289511 instance=ExtResource("67_6qxox")]
+[node name="BodyShape" parent="Scenery/interior-workshop-lumber-stack" index="0"]
+position = Vector2(0, -18.751)
+shape = SubResource("RectangleShape2D_ebt78")
+
+[node name="Visual" parent="Scenery/interior-workshop-lumber-stack" index="1"]
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 13
+
+[node name="interior-workshop-tool-rack" parent="Scenery" unique_id=836289511 instance=ExtResource("134_ycilx")]
+y_sort_enabled = true
 position = Vector2(1139.2, 2214.4)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="interior-storage-crate-banded" parent="Scenery" unique_id=656413916 instance=ExtResource("68_dpfoy")]
+[node name="BodyShape" parent="Scenery/interior-workshop-tool-rack" index="0"]
+position = Vector2(0, -19.2865)
+shape = SubResource("RectangleShape2D_bs7y1")
+
+[node name="Visual" parent="Scenery/interior-workshop-tool-rack" index="1"]
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 43
+
+[node name="interior-storage-crate-banded" parent="Scenery" unique_id=656413916 instance=ExtResource("135_8urj6")]
+y_sort_enabled = true
 position = Vector2(1945.6, 2022.4)
 scale = Vector2(0.85, 0.85)
+collision_mask = 0
 
-[node name="interior-workshop-ore-basket-2" parent="Scenery" unique_id=2012998437 instance=ExtResource("60_ah2ju")]
+[node name="BodyShape" parent="Scenery/interior-storage-crate-banded" index="0"]
+position = Vector2(0, -13.972)
+shape = SubResource("RectangleShape2D_t3r6b")
+
+[node name="Visual" parent="Scenery/interior-storage-crate-banded" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 57
+
+[node name="interior-workshop-ore-basket-2" parent="Scenery" unique_id=2012998437 instance=ExtResource("125_lk1mm")]
+y_sort_enabled = true
 position = Vector2(2304, 2528)
 scale = Vector2(0.85, 0.85)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/interior-workshop-ore-basket-2" index="0"]
+position = Vector2(-0.375, -16.0725)
+shape = SubResource("RectangleShape2D_fm5bk")
+
+[node name="Visual" parent="Scenery/interior-workshop-ore-basket-2" index="1"]
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 7
 
 [node name="mine-lantern-3" type="Sprite2D" parent="Scenery" unique_id=1643706038]
 position = Vector2(1280, 1990.4)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
 [node name="mine-lantern-4" type="Sprite2D" parent="Scenery" unique_id=495914826]
 position = Vector2(1715.2, 1990.4)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
-[node name="interior-workshop-wheelbarrow-2" parent="Scenery" unique_id=107205722 instance=ExtResource("59_x5g4d")]
+[node name="interior-workshop-wheelbarrow-2" parent="Scenery" unique_id=107205722 instance=ExtResource("123_yyf6q")]
+y_sort_enabled = true
 position = Vector2(2208, 2956.8)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="interior-storage-sack-grain" parent="Scenery" unique_id=1302458453 instance=ExtResource("69_px8cv")]
+[node name="BodyShape" parent="Scenery/interior-workshop-wheelbarrow-2" index="0"]
+position = Vector2(0, -17.312)
+shape = SubResource("RectangleShape2D_7uvie")
+
+[node name="Visual" parent="Scenery/interior-workshop-wheelbarrow-2" index="1"]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 62
+
+[node name="interior-storage-sack-grain" parent="Scenery" unique_id=1302458453 instance=ExtResource("136_m8nop")]
+y_sort_enabled = true
 position = Vector2(3091.2, 3430.4)
 scale = Vector2(0.85, 0.85)
+collision_mask = 0
 
-[node name="interior-structure-beam-wood-vertical-4" parent="Scenery" unique_id=2136362857 instance=ExtResource("58_4ypka")]
+[node name="BodyShape" parent="Scenery/interior-storage-sack-grain" index="0"]
+position = Vector2(-0.35, -14.56)
+shape = SubResource("RectangleShape2D_dxdks")
+
+[node name="Visual" parent="Scenery/interior-storage-sack-grain" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 61
+
+[node name="interior-structure-beam-wood-vertical-4" parent="Scenery" unique_id=2136362857 instance=ExtResource("121_wjhfd")]
+y_sort_enabled = true
 position = Vector2(2560, 3481.6)
+collision_mask = 0
 
-[node name="interior-structure-beam-wood-vertical-5" parent="Scenery" unique_id=2064871457 instance=ExtResource("58_4ypka")]
+[node name="BodyShape" parent="Scenery/interior-structure-beam-wood-vertical-4" index="0"]
+shape = SubResource("RectangleShape2D_3gvnq")
+
+[node name="Visual" parent="Scenery/interior-structure-beam-wood-vertical-4" index="1"]
+rotation = 1.5708
+texture = ExtResource("122_h8bxk")
+centered = false
+offset = Vector2(-64, -101.0048)
+hframes = 8
+vframes = 8
+frame = 28
+
+[node name="interior-structure-beam-wood-vertical-5" parent="Scenery" unique_id=2064871457 instance=ExtResource("121_wjhfd")]
+y_sort_enabled = true
 position = Vector2(3328, 3481.6)
+collision_mask = 0
 
-[node name="M7-mole-crate" parent="Scenery" unique_id=1674025159 instance=ExtResource("70_fx40a")]
+[node name="BodyShape" parent="Scenery/interior-structure-beam-wood-vertical-5" index="0"]
+shape = SubResource("RectangleShape2D_3gvnq")
+
+[node name="Visual" parent="Scenery/interior-structure-beam-wood-vertical-5" index="1"]
+rotation = 1.5708
+texture = ExtResource("122_h8bxk")
+centered = false
+offset = Vector2(-64, -101.0048)
+hframes = 8
+vframes = 8
+frame = 28
+
+[node name="M7-mole-crate" parent="Scenery" unique_id=1674025159 instance=ExtResource("137_df4ud")]
+y_sort_enabled = true
 position = Vector2(3334, 4081.2002)
+collision_mask = 0
 
-[node name="M7-mole-crate-2" parent="Scenery" unique_id=2135463508 instance=ExtResource("70_fx40a")]
+[node name="BodyShape" parent="Scenery/M7-mole-crate" index="0"]
+position = Vector2(0, -16.03)
+shape = SubResource("RectangleShape2D_g4jgv")
+
+[node name="Visual" parent="Scenery/M7-mole-crate" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 56
+
+[node name="M7-mole-crate-2" parent="Scenery" unique_id=2135463508 instance=ExtResource("137_df4ud")]
+y_sort_enabled = true
 position = Vector2(3392, 4081.2002)
+collision_mask = 0
 
-[node name="M7-mole-crate-3" parent="Scenery" unique_id=498553207 instance=ExtResource("70_fx40a")]
+[node name="BodyShape" parent="Scenery/M7-mole-crate-2" index="0"]
+position = Vector2(0, -16.03)
+shape = SubResource("RectangleShape2D_g4jgv")
+
+[node name="Visual" parent="Scenery/M7-mole-crate-2" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 56
+
+[node name="M7-mole-crate-3" parent="Scenery" unique_id=498553207 instance=ExtResource("137_df4ud")]
+y_sort_enabled = true
 position = Vector2(3450, 4081.2002)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/M7-mole-crate-3" index="0"]
+position = Vector2(0, -16.03)
+shape = SubResource("RectangleShape2D_g4jgv")
+
+[node name="Visual" parent="Scenery/M7-mole-crate-3" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 56
 
 [node name="ore-cart" type="StaticBody2D" parent="Scenery" unique_id=361201009]
 position = Vector2(3680, 3872)
@@ -1358,10 +3367,10 @@ shape = SubResource("RectangleShape2D_c4nwk")
 
 [node name="Visual" type="Sprite2D" parent="Scenery/ore-cart" unique_id=830722164]
 scale = Vector2(0.32, 0.32)
-texture = ExtResource("71_8nkkp")
+texture = ExtResource("23_dmxjf")
 centered = false
 offset = Vector2(-128, -252)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
 
 [node name="ore-cart-2" type="StaticBody2D" parent="Scenery" unique_id=246649603]
@@ -1374,10 +3383,10 @@ shape = SubResource("RectangleShape2D_u6xd8")
 
 [node name="Visual" type="Sprite2D" parent="Scenery/ore-cart-2" unique_id=1590663592]
 scale = Vector2(0.32, 0.32)
-texture = ExtResource("71_8nkkp")
+texture = ExtResource("23_dmxjf")
 centered = false
 offset = Vector2(-128, -252)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
 
 [node name="ore-cart-3" type="StaticBody2D" parent="Scenery" unique_id=1965326706]
@@ -1390,14 +3399,28 @@ shape = SubResource("RectangleShape2D_ylnhj")
 
 [node name="Visual" type="Sprite2D" parent="Scenery/ore-cart-3" unique_id=1835192642]
 scale = Vector2(0.32, 0.32)
-texture = ExtResource("71_8nkkp")
+texture = ExtResource("23_dmxjf")
 centered = false
 offset = Vector2(-128, -252)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
 
-[node name="M7-divider" parent="Scenery" unique_id=1428868353 instance=ExtResource("72_4ei2i")]
+[node name="M7-divider" parent="Scenery" unique_id=1428868353 instance=ExtResource("138_bhvcc")]
+y_sort_enabled = true
 position = Vector2(3040, 3814.4)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/M7-divider" index="0"]
+position = Vector2(0, -14)
+shape = SubResource("RectangleShape2D_pootg")
+
+[node name="Visual" parent="Scenery/M7-divider" index="1"]
+scale = Vector2(0.38, 0.38)
+texture = ExtResource("139_2fogm")
+centered = false
+offset = Vector2(-128, -250)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-rock-stump.webp"
 
 [node name="ore-cart-4" type="StaticBody2D" parent="Scenery" unique_id=952801860]
 position = Vector2(3046.4, 3942.4)
@@ -1409,17 +3432,46 @@ shape = SubResource("RectangleShape2D_igdqt")
 
 [node name="Visual" type="Sprite2D" parent="Scenery/ore-cart-4" unique_id=203827497]
 scale = Vector2(0.32, 0.32)
-texture = ExtResource("71_8nkkp")
+texture = ExtResource("23_dmxjf")
 centered = false
 offset = Vector2(-128, -252)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
 
-[node name="M7-divider-2" parent="Scenery" unique_id=1550269032 instance=ExtResource("68_dpfoy")]
+[node name="M7-divider-2" parent="Scenery" unique_id=1550269032 instance=ExtResource("135_8urj6")]
+y_sort_enabled = true
 position = Vector2(3040, 4236.8)
+collision_mask = 0
 
-[node name="M7-divider-3" parent="Scenery" unique_id=787144468 instance=ExtResource("73_odaeg")]
+[node name="BodyShape" parent="Scenery/M7-divider-2" index="0"]
+position = Vector2(0, -13.972)
+shape = SubResource("RectangleShape2D_t3r6b")
+
+[node name="Visual" parent="Scenery/M7-divider-2" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 57
+
+[node name="M7-divider-3" parent="Scenery" unique_id=787144468 instance=ExtResource("140_cphf7")]
+y_sort_enabled = true
 position = Vector2(3040, 4339.2)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/M7-divider-3" index="0"]
+position = Vector2(0, -14)
+shape = SubResource("RectangleShape2D_tgi43")
+
+[node name="Visual" parent="Scenery/M7-divider-3" index="1"]
+scale = Vector2(0.38, 0.38)
+texture = ExtResource("141_q4kt5")
+centered = false
+offset = Vector2(-128, -250)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-ore-heap.webp"
 
 [node name="ore-cart-5" type="StaticBody2D" parent="Scenery" unique_id=1931141201]
 position = Vector2(2656, 3904)
@@ -1431,10 +3483,10 @@ shape = SubResource("RectangleShape2D_8ev5j")
 
 [node name="Visual" type="Sprite2D" parent="Scenery/ore-cart-5" unique_id=1832279681]
 scale = Vector2(0.32, 0.32)
-texture = ExtResource("71_8nkkp")
+texture = ExtResource("23_dmxjf")
 centered = false
 offset = Vector2(-128, -252)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
 
 [node name="ore-cart-6" type="StaticBody2D" parent="Scenery" unique_id=182895278]
@@ -1447,78 +3499,137 @@ shape = SubResource("RectangleShape2D_d3jdi")
 
 [node name="Visual" type="Sprite2D" parent="Scenery/ore-cart-6" unique_id=1598466273]
 scale = Vector2(0.32, 0.32)
-texture = ExtResource("71_8nkkp")
+texture = ExtResource("23_dmxjf")
 centered = false
 offset = Vector2(-128, -252)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/256x256-mine-cart.webp"
 
 [node name="mine-lantern-5" type="Sprite2D" parent="Scenery" unique_id=2096254244]
 position = Vector2(2432, 3788.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
 [node name="mine-lantern-6" type="Sprite2D" parent="Scenery" unique_id=1910038702]
 position = Vector2(3520, 3788.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
 [node name="mine-lantern-7" type="Sprite2D" parent="Scenery" unique_id=1437372283]
 position = Vector2(3904, 3788.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
-[node name="interior-workshop-lumber-stack-2" parent="Scenery" unique_id=943043441 instance=ExtResource("66_1nwjj")]
+[node name="interior-workshop-lumber-stack-2" parent="Scenery" unique_id=943043441 instance=ExtResource("133_50wok")]
+y_sort_enabled = true
 position = Vector2(2176, 4339.2)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="interior-storage-barrel-open" parent="Scenery" unique_id=1025784951 instance=ExtResource("74_dfl1s")]
+[node name="BodyShape" parent="Scenery/interior-workshop-lumber-stack-2" index="0"]
+position = Vector2(0, -18.751)
+shape = SubResource("RectangleShape2D_ebt78")
+
+[node name="Visual" parent="Scenery/interior-workshop-lumber-stack-2" index="1"]
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 13
+
+[node name="interior-storage-barrel-open" parent="Scenery" unique_id=1025784951 instance=ExtResource("142_y2m2s")]
+y_sort_enabled = true
 position = Vector2(3942.4, 4000)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="interior-workshop-ore-basket-3" parent="Scenery" unique_id=1335117444 instance=ExtResource("60_ah2ju")]
+[node name="BodyShape" parent="Scenery/interior-storage-barrel-open" index="0"]
+position = Vector2(-0.35, -15.442)
+shape = SubResource("RectangleShape2D_useyd")
+
+[node name="Visual" parent="Scenery/interior-storage-barrel-open" index="1"]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("127_h6ukh")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 49
+
+[node name="interior-workshop-ore-basket-3" parent="Scenery" unique_id=1335117444 instance=ExtResource("125_lk1mm")]
+y_sort_enabled = true
 position = Vector2(2854.4, 4339.2)
 scale = Vector2(0.9, 0.9)
+collision_mask = 0
 
-[node name="M9-stump" parent="Scenery" unique_id=1108588322 instance=ExtResource("72_4ei2i")]
+[node name="BodyShape" parent="Scenery/interior-workshop-ore-basket-3" index="0"]
+position = Vector2(-0.375, -16.0725)
+shape = SubResource("RectangleShape2D_fm5bk")
+
+[node name="Visual" parent="Scenery/interior-workshop-ore-basket-3" index="1"]
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 7
+
+[node name="M9-stump" parent="Scenery" unique_id=1108588322 instance=ExtResource("138_bhvcc")]
+y_sort_enabled = true
 position = Vector2(2937.6, 358.4)
 scale = Vector2(0.8, 0.8)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/M9-stump" index="0"]
+position = Vector2(0, -14)
+shape = SubResource("RectangleShape2D_pootg")
+
+[node name="Visual" parent="Scenery/M9-stump" index="1"]
+scale = Vector2(0.38, 0.38)
+texture = ExtResource("139_2fogm")
+centered = false
+offset = Vector2(-128, -250)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-rock-stump.webp"
 
 [node name="mine-lantern-8" type="Sprite2D" parent="Scenery" unique_id=2049082107]
 position = Vector2(2176, 204.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
 [node name="mine-lantern-9" type="Sprite2D" parent="Scenery" unique_id=962514504]
 position = Vector2(2944, 204.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
 [node name="M9-vein-glow" type="Node2D" parent="Scenery" unique_id=1225733502]
 z_index = 3
 material = SubResource("CanvasItemMaterial_mcabm")
 position = Vector2(2496, 192)
-script = ExtResource("75_2tt1l")
+script = ExtResource("38_v2k65")
 radius = Vector2(60, 26)
 color = Color(0.45, 0.75, 1, 0.28)
 pulse = 0.2
@@ -1528,7 +3639,7 @@ period_s = 5.0
 z_index = 3
 material = SubResource("CanvasItemMaterial_y3ugu")
 position = Vector2(2720, 512)
-script = ExtResource("75_2tt1l")
+script = ExtResource("38_v2k65")
 radius = Vector2(60, 26)
 color = Color(0.45, 0.75, 1, 0.28)
 pulse = 0.2
@@ -1538,7 +3649,7 @@ period_s = 5.0
 z_index = 3
 material = SubResource("CanvasItemMaterial_2nxkc")
 position = Vector2(2560, 736)
-script = ExtResource("75_2tt1l")
+script = ExtResource("38_v2k65")
 radius = Vector2(60, 26)
 color = Color(0.45, 0.75, 1, 0.28)
 pulse = 0.2
@@ -1547,59 +3658,179 @@ period_s = 5.0
 [node name="mine-lantern-10" type="Sprite2D" parent="Scenery" unique_id=1592688287]
 position = Vector2(3264, 204.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
 [node name="mine-lantern-11" type="Sprite2D" parent="Scenery" unique_id=157548334]
 position = Vector2(3840, 204.8)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("56_sdw2n")
+texture = ExtResource("120_lju7d")
 centered = false
 offset = Vector2(-64, -124)
-script = ExtResource("57_6ro78")
+script = ExtResource("22_51ava")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
-[node name="rock-stump" parent="Scenery" unique_id=87943620 instance=ExtResource("72_4ei2i")]
+[node name="rock-stump" parent="Scenery" unique_id=87943620 instance=ExtResource("138_bhvcc")]
+y_sort_enabled = true
 position = Vector2(3648, 755.2)
 scale = Vector2(0.7, 0.7)
+collision_mask = 0
 
-[node name="interior-workshop-ore-basket-4" parent="Scenery" unique_id=2142499420 instance=ExtResource("60_ah2ju")]
+[node name="BodyShape" parent="Scenery/rock-stump" index="0"]
+position = Vector2(0, -14)
+shape = SubResource("RectangleShape2D_pootg")
+
+[node name="Visual" parent="Scenery/rock-stump" index="1"]
+scale = Vector2(0.38, 0.38)
+texture = ExtResource("139_2fogm")
+centered = false
+offset = Vector2(-128, -250)
+script = ExtResource("22_51ava")
+sheet_path = "res://asset/MAPS/props/mine/256x256-rock-stump.webp"
+
+[node name="interior-workshop-ore-basket-4" parent="Scenery" unique_id=2142499420 instance=ExtResource("125_lk1mm")]
+y_sort_enabled = true
 position = Vector2(3955.2, 256)
 scale = Vector2(0.85, 0.85)
+collision_mask = 0
 
-[node name="interior-decor-banner-red-narrow" parent="Scenery" unique_id=1776599878 instance=ExtResource("76_7ly3e")]
+[node name="BodyShape" parent="Scenery/interior-workshop-ore-basket-4" index="0"]
+position = Vector2(-0.375, -16.0725)
+shape = SubResource("RectangleShape2D_fm5bk")
+
+[node name="Visual" parent="Scenery/interior-workshop-ore-basket-4" index="1"]
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("124_8fxle")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 7
+
+[node name="interior-decor-banner-red-narrow" parent="Scenery" unique_id=1776599878 instance=ExtResource("143_8otwe")]
+y_sort_enabled = true
 position = Vector2(4499.2, 1283.2)
 
-[node name="interior-decor-banner-red-narrow-2" parent="Scenery" unique_id=1824613186 instance=ExtResource("76_7ly3e")]
+[node name="Visual" parent="Scenery/interior-decor-banner-red-narrow" index="0"]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("144_7nhvw")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 26
+
+[node name="interior-decor-banner-red-narrow-2" parent="Scenery" unique_id=1824613186 instance=ExtResource("143_8otwe")]
+y_sort_enabled = true
 position = Vector2(4652.8, 1283.2)
 
-[node name="interior-structure-pillar-stone" parent="Scenery" unique_id=510938490 instance=ExtResource("77_wmaat")]
-position = Vector2(4992, 1657.6)
+[node name="Visual" parent="Scenery/interior-decor-banner-red-narrow-2" index="0"]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("144_7nhvw")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 26
 
-[node name="M13-vault-crystal" parent="Scenery" unique_id=689856247 instance=ExtResource("78_qe5n8")]
+[node name="interior-structure-pillar-stone" parent="Scenery" unique_id=510938490 instance=ExtResource("145_b3n2p")]
+y_sort_enabled = true
+position = Vector2(4992, 1657.6)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/interior-structure-pillar-stone" index="0"]
+position = Vector2(-0.4, -23.36)
+shape = SubResource("RectangleShape2D_0up7m")
+
+[node name="Visual" parent="Scenery/interior-structure-pillar-stone" index="1"]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("122_h8bxk")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 8
+frame = 27
+
+[node name="M13-vault-crystal" parent="Scenery" unique_id=689856247 instance=ExtResource("146_7mlcu")]
+y_sort_enabled = true
 position = Vector2(2425.6, 1619.2)
 scale = Vector2(0.8, 0.8)
+collision_mask = 0
 
-[node name="M13-vault-crystal-2" parent="Scenery" unique_id=1111060955 instance=ExtResource("79_51ava")]
+[node name="BodyShape" parent="Scenery/M13-vault-crystal" index="0"]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_piqwj")
+
+[node name="Visual" parent="Scenery/M13-vault-crystal" index="1"]
+texture = ExtResource("147_j8xtq")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 2
+frame = 2
+
+[node name="M13-vault-crystal-2" parent="Scenery" unique_id=1111060955 instance=ExtResource("148_tt2ha")]
+y_sort_enabled = true
 position = Vector2(2630.4, 1619.2)
 scale = Vector2(0.8, 0.8)
+collision_mask = 0
 
-[node name="M13-vault-crystal-3" parent="Scenery" unique_id=2077618994 instance=ExtResource("80_dmxjf")]
+[node name="BodyShape" parent="Scenery/M13-vault-crystal-2" index="0"]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_44o2g")
+
+[node name="Visual" parent="Scenery/M13-vault-crystal-2" index="1"]
+texture = ExtResource("147_j8xtq")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 2
+frame = 6
+
+[node name="M13-vault-crystal-3" parent="Scenery" unique_id=2077618994 instance=ExtResource("149_3e8et")]
+y_sort_enabled = true
 position = Vector2(2457.6, 1676.8)
 scale = Vector2(0.8, 0.8)
+collision_mask = 0
 
-[node name="M13-vault-crystal-4" parent="Scenery" unique_id=862205543 instance=ExtResource("81_wefoa")]
+[node name="BodyShape" parent="Scenery/M13-vault-crystal-3" index="0"]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_6ff3g")
+
+[node name="Visual" parent="Scenery/M13-vault-crystal-3" index="1"]
+texture = ExtResource("147_j8xtq")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 2
+frame = 10
+
+[node name="M13-vault-crystal-4" parent="Scenery" unique_id=862205543 instance=ExtResource("150_c6oro")]
+y_sort_enabled = true
 position = Vector2(2598.4, 1676.8)
 scale = Vector2(0.8, 0.8)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/M13-vault-crystal-4" index="0"]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_sq05p")
+
+[node name="Visual" parent="Scenery/M13-vault-crystal-4" index="1"]
+texture = ExtResource("147_j8xtq")
+centered = false
+offset = Vector2(-64, -128)
+hframes = 8
+vframes = 2
+frame = 4
 
 [node name="M15-daylight" type="Node2D" parent="Scenery" unique_id=1484052090]
 z_index = 3
 material = SubResource("CanvasItemMaterial_xaq31")
 position = Vector2(3916.8, 1830.4)
-script = ExtResource("75_2tt1l")
+script = ExtResource("38_v2k65")
 radius = Vector2(110, 64)
 color = Color(1, 0.93, 0.7, 0.32)
 pulse = 0.2
@@ -1608,93 +3839,111 @@ period_s = 5.0
 [node name="Enemies" type="Node2D" parent="." unique_id=1858178518]
 y_sort_enabled = true
 
-[node name="M5-gloomling" parent="Enemies" unique_id=964259514 instance=ExtResource("82_i0m0f")]
+[node name="M5-gloomling" parent="Enemies" unique_id=964259514 instance=ExtResource("151_csd5d")]
 position = Vector2(499.2, 3225.6)
+script = ExtResource("152_m3mop")
 enemy_type = "gloomling"
 wander_radius = 96.0
 
-[node name="M3-crawler" parent="Enemies" unique_id=101072899 instance=ExtResource("82_i0m0f")]
+[node name="M3-crawler" parent="Enemies" unique_id=101072899 instance=ExtResource("151_csd5d")]
 position = Vector2(256, 2287)
+script = ExtResource("152_m3mop")
 enemy_type = "crystal-crawler"
 wander_radius = 120.0
 
-[node name="M6-bat-1" parent="Enemies" unique_id=1546869954 instance=ExtResource("82_i0m0f")]
+[node name="M6-bat-1" parent="Enemies" unique_id=1546869954 instance=ExtResource("151_csd5d")]
 position = Vector2(2688, 3232)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 80.0
 
-[node name="M6-bat-2" parent="Enemies" unique_id=353098006 instance=ExtResource("82_i0m0f")]
+[node name="M6-bat-2" parent="Enemies" unique_id=353098006 instance=ExtResource("151_csd5d")]
 position = Vector2(3200, 3232)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 80.0
 
-[node name="M6-bat-3" parent="Enemies" unique_id=1770450968 instance=ExtResource("82_i0m0f")]
+[node name="M6-bat-3" parent="Enemies" unique_id=1770450968 instance=ExtResource("151_csd5d")]
 position = Vector2(3520, 3232)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 80.0
 
-[node name="M7-pick-mole" parent="Enemies" unique_id=488956514 instance=ExtResource("82_i0m0f")]
+[node name="M7-pick-mole" parent="Enemies" unique_id=488956514 instance=ExtResource("151_csd5d")]
 position = Vector2(3392, 4147.2)
+script = ExtResource("152_m3mop")
 enemy_type = "pick-mole"
 wander_radius = 70.0
 
-[node name="M7-bone-leaper" parent="Enemies" unique_id=1093994416 instance=ExtResource("82_i0m0f")]
+[node name="M7-bone-leaper" parent="Enemies" unique_id=1093994416 instance=ExtResource("151_csd5d")]
 position = Vector2(2432, 4096)
+script = ExtResource("152_m3mop")
 enemy_type = "bone-leaper"
 wander_radius = 90.0
 
-[node name="M8-gloomling-candle" parent="Enemies" unique_id=1183957352 instance=ExtResource("82_i0m0f")]
+[node name="M8-gloomling-candle" parent="Enemies" unique_id=1183957352 instance=ExtResource("151_csd5d")]
 position = Vector2(140.8, 275.2)
+script = ExtResource("152_m3mop")
 enemy_type = "gloomling"
 wander_radius = 80.0
 
-[node name="M8-gloomling-hoard" parent="Enemies" unique_id=1395830171 instance=ExtResource("82_i0m0f")]
+[node name="M8-gloomling-hoard" parent="Enemies" unique_id=1395830171 instance=ExtResource("151_csd5d")]
 position = Vector2(544, 678.4)
+script = ExtResource("152_m3mop")
 enemy_type = "gloomling"
 wander_radius = 80.0
 
-[node name="M8-bat-top" parent="Enemies" unique_id=1159447828 instance=ExtResource("82_i0m0f")]
+[node name="M8-bat-top" parent="Enemies" unique_id=1159447828 instance=ExtResource("151_csd5d")]
 position = Vector2(896, 320)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 80.0
 
-[node name="M8-bat-west" parent="Enemies" unique_id=1141833558 instance=ExtResource("82_i0m0f")]
+[node name="M8-bat-west" parent="Enemies" unique_id=1141833558 instance=ExtResource("151_csd5d")]
 position = Vector2(192, 960)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 80.0
 
-[node name="M8-bat-bottom" parent="Enemies" unique_id=1580015238 instance=ExtResource("82_i0m0f")]
+[node name="M8-bat-bottom" parent="Enemies" unique_id=1580015238 instance=ExtResource("151_csd5d")]
 position = Vector2(1024, 1568)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 80.0
 
-[node name="M9-bone-thrower" parent="Enemies" unique_id=1820752585 instance=ExtResource("82_i0m0f")]
+[node name="M9-bone-thrower" parent="Enemies" unique_id=1820752585 instance=ExtResource("151_csd5d")]
 position = Vector2(2912, 652.8)
+script = ExtResource("152_m3mop")
 enemy_type = "bone-thrower"
 wander_radius = 70.0
 
-[node name="M10-prism-eye" parent="Enemies" unique_id=1607987061 instance=ExtResource("82_i0m0f")]
+[node name="M10-prism-eye" parent="Enemies" unique_id=1607987061 instance=ExtResource("151_csd5d")]
 position = Vector2(3552, 480)
+script = ExtResource("152_m3mop")
 enemy_type = "prism-eye"
 wander_radius = 40.0
 
-[node name="M11-bat-1" parent="Enemies" unique_id=926726705 instance=ExtResource("82_i0m0f")]
+[node name="M11-bat-1" parent="Enemies" unique_id=926726705 instance=ExtResource("151_csd5d")]
 position = Vector2(3872, 985.6)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 40.0
 
-[node name="M11-bat-2" parent="Enemies" unique_id=1569533312 instance=ExtResource("82_i0m0f")]
+[node name="M11-bat-2" parent="Enemies" unique_id=1569533312 instance=ExtResource("151_csd5d")]
 position = Vector2(3936, 934.4)
+script = ExtResource("152_m3mop")
 enemy_type = "glint-bat"
 wander_radius = 40.0
 
-[node name="M12-watcher-eye" parent="Enemies" unique_id=222511647 instance=ExtResource("82_i0m0f")]
+[node name="M12-watcher-eye" parent="Enemies" unique_id=222511647 instance=ExtResource("151_csd5d")]
 position = Vector2(4576, 1395.2)
+script = ExtResource("152_m3mop")
 enemy_type = "watcher-eye"
 wander_radius = 150.0
 
-[node name="M12-bone-marcher" parent="Enemies" unique_id=1926453862 instance=ExtResource("82_i0m0f")]
+[node name="M12-bone-marcher" parent="Enemies" unique_id=1926453862 instance=ExtResource("151_csd5d")]
 position = Vector2(4249.6, 1337.6)
+script = ExtResource("152_m3mop")
 enemy_type = "bone-marcher"
 wander_radius = 40.0
 overrides = {
@@ -1702,8 +3951,9 @@ overrides = {
 "route_loop": true
 }
 
-[node name="M13-shardback" parent="Enemies" unique_id=1405764388 instance=ExtResource("82_i0m0f")]
+[node name="M13-shardback" parent="Enemies" unique_id=1405764388 instance=ExtResource("151_csd5d")]
 position = Vector2(2457.6, 1408)
+script = ExtResource("152_m3mop")
 enemy_type = "shardback"
 wander_radius = 200.0
 
@@ -1727,20 +3977,158 @@ metadata/contents = "a page of the Thorn Guard's war journal (it lay on M12's st
 [connection signal="cleared" from="Objects/M13-den-fight" to="Objects/M13-den-ledge" method="trigger"]
 [connection signal="cleared" from="Objects/M13-den-fight" to="Objects/M13-den-ledge-east" method="trigger"]
 
+[editable path="Objects/M1-cart-station"]
+[editable path="Objects/M1-root-wall"]
+[editable path="Objects/M1-root-wall-down"]
 [editable path="Objects/M1-S5-chest"]
+[editable path="Objects/M1-S5-glint"]
+[editable path="Objects/M1-mouth-seal"]
+[editable path="Objects/M1-east-shutter"]
 [editable path="Objects/M1-pot-a"]
 [editable path="Objects/M1-pot-b"]
 [editable path="Objects/M1-crate"]
+[editable path="Objects/M2-void-north"]
+[editable path="Objects/M2-void-south"]
 [editable path="Objects/M2-pot"]
+[editable path="Objects/M5-pillar"]
+[editable path="Objects/M5-pillar-2"]
+[editable path="Objects/M5-pillar-3"]
+[editable path="Objects/M5-pillar-4"]
+[editable path="Objects/M5-K1"]
+[editable path="Objects/M5-cracked-wall"]
+[editable path="Objects/M3-pillar"]
 [editable path="Objects/M3-map-chest"]
+[editable path="Objects/M4-brazier-w"]
+[editable path="Objects/M4-brazier-e"]
+[editable path="Objects/M4-lift-upper"]
+[editable path="Objects/M4-lift-lower"]
+[editable path="Objects/M4-spire-plank"]
+[editable path="Objects/M4-spire-lens"]
 [editable path="Objects/M4-S1-chest"]
+[editable path="Objects/M4-S1-glint"]
+[editable path="Objects/M14-shaft-roots"]
+[editable path="Objects/M14-shaft-roots-down"]
+[editable path="Objects/M14-flower"]
 [editable path="Objects/M14-pot"]
 [editable path="Objects/M14-pot-2"]
 [editable path="Objects/M14-pot-3"]
+[editable path="Objects/M14-boss-door"]
+[editable path="Objects/M4-foremans-gate"]
+[editable path="Objects/M6-rotten-timbers"]
+[editable path="Objects/M6-stone-essence"]
+[editable path="Objects/M6-S3-web-wall"]
 [editable path="Objects/M7-K2-chest"]
+[editable path="Objects/M7-crank"]
+[editable path="Objects/M8-exit-gate"]
+[editable path="Objects/M8-goal-brazier"]
 [editable path="Objects/M8-S4-hoard"]
+[editable path="Objects/M8-S4-glint"]
+[editable path="Objects/M8-void"]
+[editable path="Objects/M8-shadow-path"]
 [editable path="Objects/M8-pot"]
+[editable path="Objects/M9-cart-station"]
+[editable path="Objects/M9-chasm-bridge"]
+[editable path="Objects/M9-chasm-lens"]
+[editable path="Objects/M9-chasm"]
 [editable path="Objects/M10-journal-chest"]
+[editable path="Objects/M11-brazier-north"]
+[editable path="Objects/M10-ore-crate"]
+[editable path="Objects/M10-stone-essence"]
+[editable path="Objects/M11-west-roots"]
+[editable path="Objects/M11-west-roots-down"]
+[editable path="Objects/M11-east-roots"]
+[editable path="Objects/M11-east-roots-down"]
+[editable path="Objects/M11-brazier-south"]
+[editable path="Objects/M11-veil"]
 [editable path="Objects/M11-pot"]
+[editable path="Objects/M12-west-roots"]
+[editable path="Objects/M12-west-roots-down"]
+[editable path="Objects/M12-east-roots"]
+[editable path="Objects/M12-east-roots-down"]
 [editable path="Objects/M12-big-key-chest"]
+[editable path="Objects/M12-big-key-glint"]
+[editable path="Objects/M12-statue"]
+[editable path="Objects/M12-statue-2"]
+[editable path="Objects/M12-statue-3"]
+[editable path="Objects/M12-statue-4"]
+[editable path="Objects/M12-statue-5"]
+[editable path="Objects/M12-watchfire-w"]
+[editable path="Objects/M12-watchfire-e"]
+[editable path="Objects/M12-stone-essence"]
+[editable path="Objects/M13-brazier-w"]
+[editable path="Objects/M13-brazier-e"]
+[editable path="Objects/M13-den-shutter"]
+[editable path="Objects/M13-den-ledge"]
+[editable path="Objects/M13-den-ledge-east"]
+[editable path="Objects/M13-den-fight"]
+[editable path="Objects/M13-pearl-three"]
+[editable path="Objects/M13-pearl-glint"]
+[editable path="Objects/M13-ledge-roots"]
+[editable path="Objects/M13-ledge-roots-down"]
+[editable path="Objects/M15-brazier-nw"]
+[editable path="Objects/M15-brazier-ne"]
+[editable path="Objects/M15-brazier-sw"]
+[editable path="Objects/M15-brazier-se"]
+[editable path="Objects/M15-claw-roots"]
+[editable path="Objects/M15-claw-roots-2"]
+[editable path="Objects/M15-claw-roots-3"]
+[editable path="Objects/M15-claw-roots-4"]
+[editable path="Objects/M15-root-wall"]
+[editable path="Objects/M15-climb-out-seal"]
 [editable path="Objects/M15-full-heart"]
+[editable path="Scenery/interior-structure-beam-wood-vertical"]
+[editable path="Scenery/interior-structure-beam-wood-vertical-2"]
+[editable path="Scenery/interior-workshop-wheelbarrow"]
+[editable path="Scenery/interior-workshop-ore-basket"]
+[editable path="Scenery/interior-storage-barrel"]
+[editable path="Scenery/M5-tally-desk"]
+[editable path="Scenery/M3-survey-table"]
+[editable path="Scenery/M3-scroll-rack"]
+[editable path="Scenery/M3-papers"]
+[editable path="Scenery/interior-structure-beam-wood-vertical-3"]
+[editable path="Scenery/interior-workshop-lumber-stack"]
+[editable path="Scenery/interior-workshop-tool-rack"]
+[editable path="Scenery/interior-storage-crate-banded"]
+[editable path="Scenery/interior-workshop-ore-basket-2"]
+[editable path="Scenery/interior-workshop-wheelbarrow-2"]
+[editable path="Scenery/interior-storage-sack-grain"]
+[editable path="Scenery/interior-structure-beam-wood-vertical-4"]
+[editable path="Scenery/interior-structure-beam-wood-vertical-5"]
+[editable path="Scenery/M7-mole-crate"]
+[editable path="Scenery/M7-mole-crate-2"]
+[editable path="Scenery/M7-mole-crate-3"]
+[editable path="Scenery/M7-divider"]
+[editable path="Scenery/M7-divider-2"]
+[editable path="Scenery/M7-divider-3"]
+[editable path="Scenery/interior-workshop-lumber-stack-2"]
+[editable path="Scenery/interior-storage-barrel-open"]
+[editable path="Scenery/interior-workshop-ore-basket-3"]
+[editable path="Scenery/M9-stump"]
+[editable path="Scenery/rock-stump"]
+[editable path="Scenery/interior-workshop-ore-basket-4"]
+[editable path="Scenery/interior-decor-banner-red-narrow"]
+[editable path="Scenery/interior-decor-banner-red-narrow-2"]
+[editable path="Scenery/interior-structure-pillar-stone"]
+[editable path="Scenery/M13-vault-crystal"]
+[editable path="Scenery/M13-vault-crystal-2"]
+[editable path="Scenery/M13-vault-crystal-3"]
+[editable path="Scenery/M13-vault-crystal-4"]
+[editable path="Enemies/M5-gloomling"]
+[editable path="Enemies/M3-crawler"]
+[editable path="Enemies/M6-bat-1"]
+[editable path="Enemies/M6-bat-2"]
+[editable path="Enemies/M6-bat-3"]
+[editable path="Enemies/M7-pick-mole"]
+[editable path="Enemies/M7-bone-leaper"]
+[editable path="Enemies/M8-gloomling-candle"]
+[editable path="Enemies/M8-gloomling-hoard"]
+[editable path="Enemies/M8-bat-top"]
+[editable path="Enemies/M8-bat-west"]
+[editable path="Enemies/M8-bat-bottom"]
+[editable path="Enemies/M9-bone-thrower"]
+[editable path="Enemies/M10-prism-eye"]
+[editable path="Enemies/M11-bat-1"]
+[editable path="Enemies/M11-bat-2"]
+[editable path="Enemies/M12-watcher-eye"]
+[editable path="Enemies/M12-bone-marcher"]
+[editable path="Enemies/M13-shardback"]

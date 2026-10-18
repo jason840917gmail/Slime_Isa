@@ -1,11 +1,12 @@
 extends SceneTree
 ## Renders the Fence Park (game/scenes/worlds/fence-park.tscn, scripts/maps/build-fence-park.py)
-## with the game's own drawing, for checking the fences along hill rims (docs/godot/FENCES.md).
+## with the game's own drawing, for checking rim fences and directly connected tiles (docs/godot/FENCES.md).
 ## Run windowed (it renders), from the repo:
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_fence_park.gd -- --out=<dir>
 ## Writes <dir>/fence-park.png (the whole park at 1x) and close-ups at 2x, with test slimes placed
 ## where fences must hide them (behind a fence on a hilltop, in the strip behind a hill, beside a
-## side fence, in a hole under its near rim) and where they must stand in front.
+## side fence, in a hole under its near rim) and where they must stand in front; it also probes
+## collision on normal ground and on a raised platform.
 
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -29,6 +30,8 @@ const CLOSE_UPS := {
 	"plot-cavern": Rect2(10, 48, 10, 14),
 	"plot-crystal": Rect2(20, 48, 10, 14),
 	"plot-cobble": Rect2(30, 48, 10, 14),
+	"connected-ground": Rect2(9, 30, 29, 6),
+	"connected-raised": Rect2(1, 30, 11, 6),
 }
 ## Test slimes: [feet (world units), level].
 const SLIMES: Array = [
@@ -57,6 +60,8 @@ const PROBES: Array = [
 	[Vector2(1312, 416), Vector2(-300, 300), 2, "diamond top -> south-west fence"],
 	[Vector2(500, 1400), Vector2(0, -300), 0, "south of the square hole -> near-rim fence"],
 	[Vector2(352, 450), Vector2(0, 200), 1, "square top -> the south flight's landing (gap)"],
+	[Vector2(30.5 * CELL, 31.5 * CELL), Vector2(0, 160), 0, "ground -> connected fence run"],
+	[Vector2(5.5 * CELL, 31.5 * CELL), Vector2(0, 120), 1, "raised ground -> connected fence run"],
 ]
 
 

@@ -64,12 +64,15 @@
 			"interiors": [
 				"slime-home",
 				"mushroom-home",
-				"fatty-lair"
+				"fatty-lair",
+				"lake-island-cave",
+				"hollow-hill-cave",
+				"watchkeeper-hideout"
 			],
 			"placeholder": false,
 			"theme": "meadow",
 			"boss": "Fatty One Eye",
-			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, opens in Fatty's Hollow, a red-rock hill in D5 behind the old fort's field maze and a bridge of falling slabs; the old Thorn Guard gate there only a Roll beats. Release 1."
+			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, opens in Fatty's Hollow, a red-rock hill in D5 behind the old fort's field maze and a bridge of falling slabs; the old Thorn Guard gate there only a Roll beats. Release 1. C4 has a fenced level-1 plateau with north and south stairs; the river crosses the C4/D4 border. C5 has an expanded lake, a falling-plank bridge requiring the charged Roll, an island bomb cave, a ford islet and a jetty. Hearts hide in chests."
 		},
 		{
 			"key": "b",
@@ -428,14 +431,14 @@
 			"y": 69,
 			"label": "Hill crack",
 			"needs": "Goo Bomb",
-			"notes": "A crack in the hill's face beside the Lair's gate opens into a cave pocket with a goo heart, seen from the forecourt (a Chapter 2 come-back)"
+			"notes": "Goo Bomb opens hollow-hill-cave, a separate room hiding the grove heart in a chest."
 		},
 		{
 			"type": "secret",
-			"x": 33,
-			"y": 61,
-			"label": "First bell and watch post",
-			"notes": "C4: a bell on a pond islet; a thrown pot rings it and opens the old watch post's stone door (a chest)"
+			"x": 36.25,
+			"y": 61.9,
+			"label": "First bell and keeper storehouse",
+			"notes": "C4: the pond bell unlocks the keeper's timber storehouse. The coffer is inside a separate room with pots and stored supplies; nothing reveals the reward outside."
 		},
 		{
 			"type": "secret",
@@ -450,7 +453,55 @@
 			"y": 50,
 			"label": "Old pen, grey planks",
 			"needs": "Heavy skin",
-			"notes": "D4: an old Thorn Guard pen by the road, its gap shut by grey planks a Heavy Roll breaks; a goo heart inside (a come-back with Pearl 1)"
+			"notes": "D4: Heavy Roll breaks the pen planks; the heart is hidden inside a chest."
+		},
+		{
+			"type": "secret",
+			"x": 34.5,
+			"y": 66.5,
+			"label": "Lake island cave",
+			"needs": "Charged Roll, then Goo Bomb",
+			"map": "lake-island-cave",
+			"notes": "Long falling planks with no landing; enemies, cracked rock, chests and pots. Future secret spot is empty."
+		},
+		{
+			"type": "landmark",
+			"x": 48,
+			"y": 52.75,
+			"label": "Town river bridge",
+			"notes": "Crossing the bridge crosses the C4/D4 chunk boundary."
+		},
+		{
+			"type": "landmark",
+			"x": 37.5,
+			"y": 56.75,
+			"label": "Plateau north stairs"
+		},
+		{
+			"type": "landmark",
+			"x": 41.5,
+			"y": 63.25,
+			"label": "Plateau south stairs"
+		},
+		{
+			"type": "secret",
+			"x": 34.45,
+			"y": 74.95,
+			"label": "Lake ford islet chest",
+			"needs": "Shallow ford"
+		},
+		{
+			"type": "secret",
+			"x": 38,
+			"y": 72.5,
+			"label": "Dark square in the shallows",
+			"needs": "Swim skin (after Release 1)"
+		},
+		{
+			"type": "landmark",
+			"x": 39,
+			"y": 74.25,
+			"label": "Fishing jetty"
 		}
 	],
 	"passages": [

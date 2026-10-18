@@ -25,6 +25,9 @@ extends SceneTree
 ## the big key, the hub's counterweight plate under the drawbridge), and Fatty's phase two is its exam.
 ##
 ## Owner: dungeons (Fatty's Lair).
+## Also writes the editable room scenes through tools/lib/dungeon_room_splitter.gd.
+
+const RoomSplitter := preload("res://tools/lib/dungeon_room_splitter.gd")
 
 const OUT := "res://game/scenes/worlds/fatty-lair.tscn"
 const MAP_ID := "fatty-lair"
@@ -1189,6 +1192,8 @@ func _save() -> Error:
 	if err == OK:
 		err = ResourceSaver.save(packed, OUT)
 	scene_root.free()
+	if err == OK:
+		err = RoomSplitter.new().split(MAP_ID)
 	return err
 
 

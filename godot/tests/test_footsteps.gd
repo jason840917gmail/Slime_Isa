@@ -7,17 +7,17 @@ extends RefCounted
 ## - Gulping plays the form's own transform cue; burping plays the burp.
 ##
 ## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
-## docs/godot/WORLD_ATLAS.md; as tests/test_frog_form.gd): chunk row 4 has shallow water at x = 6..12
-## and land at x = 13..17, the slime walks west into the shallows; (8, 7) is open deep water.
+## docs/godot/WORLD_ATLAS.md; as tests/test_frog_form.gd): chunk row 15 has shallow water at x = 10..13
+## with a shallow ford at column 5, rows 25..28, reached north from the south shore; (3, 18) is open deep water.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 
 const MAP_ID := "level-1-c5"
 const CELL := 64.0
-const ROW := 4
-const LAND := Vector2i(13, ROW)
-const DEEP := Vector2i(8, 7)
+const ROW := 15
+const LAND := Vector2i(5, 29)
+const DEEP := Vector2i(3, 18)
 ## Global players added with rounds 3 and 4 (game/scenes/audio/global.tscn, Effects). A lash miss stays
 ## silent (owner's pick).
 const NEW_CUES: Array[StringName] = [&"GulpTransformHeavy", &"GulpTransformSticky", &"GulpTransformFrog",
@@ -53,7 +53,7 @@ func test_walking_into_the_shallows_splashes_then_wades(t: TestContext) -> void:
 	await t.steps(5)
 	var splash := footsteps.get_node(^"WaterEnter")
 	splash.reset_cue()
-	t.press(&"move_left")
+	t.press(&"move_up")
 	var waded := await t.until(func() -> bool: return footsteps.last_surface == &"Shallow", 1500.0)
 	t.release_all()
 	t.check(waded, "a step in the shallows wades")

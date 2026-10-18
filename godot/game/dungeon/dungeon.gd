@@ -38,6 +38,8 @@ class_name Dungeon
 
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const DoorwayArt := preload("res://game/dungeon/doorway_art.gd")
+const RoomMask := preload("res://game/dungeon/room_mask.gd")
 const CameraRoom := preload("res://game/world/camera_room.gd")
 const DungeonHud := preload("res://game/dungeon/dungeon_hud.gd")
 const DungeonMinimap := preload("res://game/dungeon/dungeon_minimap.gd")
@@ -110,6 +112,7 @@ var _hud: Node
 var _minimap: Control
 var _page: Control
 var _registered := false
+var _room_mask: CanvasLayer
 
 
 func _enter_tree() -> void:
@@ -155,6 +158,10 @@ func _on_world_registered(_payload: Dictionary) -> void:
 	if world == null or world.world_root == null or not world.world_root.is_ancestor_of(self):
 		return
 	_registered = true
+	DoorwayArt.apply(world.world_root)
+	_room_mask = RoomMask.new()
+	_room_mask.name = "RoomMask"
+	add_child(_room_mask)
 	_rooms.clear()
 	for node: Node in get_tree().get_nodes_in_group(CameraRoom.GROUP):
 		if node is CameraRoom and world.world_root.is_ancestor_of(node):
@@ -228,7 +235,7 @@ func rooms() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for room: CameraRoom in _rooms:
 		if is_instance_valid(room):
-			out.append({"key": room_key_of(room), "name": String(room.name), "rect": room.rect(), "node": room})
+			out.append({"key": room_key_of(room), "name": String(room.name), "rect": room.rect(), "outline": room.outline_global(), "node": room})
 	return out
 
 
@@ -241,7 +248,7 @@ func room_key_of(room: CameraRoom) -> String:
 ## The room that holds `point` (global), or null.
 func room_at(point: Vector2) -> CameraRoom:
 	for room: CameraRoom in _rooms:
-		if is_instance_valid(room) and room.rect().has_point(point):
+		if is_instance_valid(room) and room.contains(point):
 			return room
 	return null
 
@@ -527,6 +534,8 @@ func _apply_dev_options() -> void:
 	if bool(main.call(&"has_launch_option", "sealed")):
 		_dev_seal()
 	var room_name := str(main.call(&"launch_option", "room"))
+	if room_name.is_empty():
+		room_name = str(main.get(&"direct_room_run"))
 	if not room_name.is_empty():
 		for room: CameraRoom in _rooms:
 			if String(room.name) == room_name:

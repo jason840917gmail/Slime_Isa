@@ -585,6 +585,12 @@ binary search for the largest `count <= available` that `inventory.prepareTransa
 never fits); commit inventory + chest record atomically; return the count (0 on no room or
 failure).
 
+Godot addition (2026-10-17): a chest's `coins` stack transfers to the coin pouch rather than
+the inventory. `ChestScript.transfer_stack` removes that stack from the persistent chest record,
+adds the amount through `RunState.add_coins`, and emits the same `stack_transferred` signal.
+The chest window labels it Coins and explains the pouch destination. This also makes the
+keeper's relocated coffer reward collectible without treating currency as an undefined bag item.
+
 Provider (`UniversalSceneWorldController.ts:891-917`):
 - Every poll: `syncChestFrame` on **every** chest: first `Sprite2D` under the chest root
   (`Visual`, `hframes 2`) gets `frame = empty ? 1 : 0` (`:2208-2211`). Because polls stop while

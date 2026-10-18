@@ -9,9 +9,11 @@ extends Node2D
 ## corner with the lowest of them (its fully covered tile, or the animated water) and each higher
 ## ground draws its edge tile on the next level: index = TL + 2*TR + 4*BL + 8*BR, with 1 where the
 ## cell's ground stacks at least that high (TerrainMaterials.ORDER). Corners touching a tile without
-## edges (walls, interior floors), the map's border, or a ground without art keep hard edges, and
-## so do corners where the elevation layer has different levels (the cliff draws its own rims there,
-## docs/godot/ELEVATION.md).
+## edges (walls, interior floors) or a ground without art keep hard edges, and so do corners where
+## the elevation layer has different levels (the cliff draws its own rims there,
+## docs/godot/ELEVATION.md). Corners on the map's border take the border cells carried on past it
+## (`_inside`), so a shore or a road running off the map (into the next chunk) keeps its edge to the
+## border instead of a straight cut half a cell short of it.
 ##
 ## This script only picks tiles; the art (scripts/art/build-terrain-edge-tiles.py) and the shaders
 ## (terrain_edge.gdshader, terrain_edge_water.gdshader) do the rest. Visual only: the ground cells
@@ -125,13 +127,18 @@ func rebuild() -> int:
 	for name_of_ground: String in sheets:
 		order_of[name_of_ground] = TerrainMaterials.order_of(name_of_ground) if sources.has(name_of_ground) else -1
 	var levels := Elevation.painted_levels(ground)
-	for cy in range(1, rows):
-		for cx in range(1, columns):
-			if not levels.is_empty() and not _same_level(levels, Vector2i(cx, cy)):
+	var bounds := Rect2i(0, 0, columns, rows)
+	for cy in range(0, rows + 1):
+		for cx in range(0, columns + 1):
+			var quad: Array[Vector2i] = [
+				_inside(bounds, Vector2i(cx - 1, cy - 1)), _inside(bounds, Vector2i(cx, cy - 1)),
+				_inside(bounds, Vector2i(cx - 1, cy)), _inside(bounds, Vector2i(cx, cy)),
+			]
+			if not levels.is_empty() and not _same_level(levels, quad):
 				continue
 			var around: Array[int] = [
-				_order_at(cell_ground, order_of, Vector2i(cx - 1, cy - 1)), _order_at(cell_ground, order_of, Vector2i(cx, cy - 1)),
-				_order_at(cell_ground, order_of, Vector2i(cx - 1, cy)), _order_at(cell_ground, order_of, Vector2i(cx, cy)),
+				_order_at(cell_ground, order_of, quad[0]), _order_at(cell_ground, order_of, quad[1]),
+				_order_at(cell_ground, order_of, quad[2]), _order_at(cell_ground, order_of, quad[3]),
 			]
 			if around.min() < 0:
 				continue
@@ -167,13 +174,18 @@ func queue_rebuild() -> void:
 	rebuild.call_deferred()
 
 
-## True when the four cells around corner `corner` share one painted elevation level.
-static func _same_level(levels: Dictionary, corner: Vector2i) -> bool:
-	var level := int(levels.get(corner, 0))
-	for cell: Vector2i in [corner + Vector2i(-1, -1), corner + Vector2i(0, -1), corner + Vector2i(-1, 0)]:
+## True when the four cells `quad` around a corner share one painted elevation level.
+static func _same_level(levels: Dictionary, quad: Array[Vector2i]) -> bool:
+	var level := int(levels.get(quad[0], 0))
+	for cell: Vector2i in quad:
 		if int(levels.get(cell, 0)) != level:
 			return false
 	return true
+
+
+## `cell` moved onto the map's border cells when it lies past them (the map's ground carried on).
+static func _inside(bounds: Rect2i, cell: Vector2i) -> Vector2i:
+	return Vector2i(clampi(cell.x, bounds.position.x, bounds.end.x - 1), clampi(cell.y, bounds.position.y, bounds.end.y - 1))
 
 
 func _order_at(cell_ground: Dictionary, order_of: Dictionary, cell: Vector2i) -> int:

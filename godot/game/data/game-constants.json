@@ -456,6 +456,7 @@
   },
   "dungeon": {
     "devPowers": {
+      "level-1-c4": ["shape-spear", "dodge"],
       "fatty-lair": ["shape-spear", "dodge"],
       "level-1-d5": ["shape-spear", "dodge"],
       "weaver-hollow-trunk": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
@@ -473,6 +474,8 @@
     "void": { "damage": 10, "fallMs": 600 },
     "spikes": { "damage": 8, "fallMs": 320 },
     "lava": { "damage": 12, "fallMs": 320 },
+    "water": { "damage": 10, "fallMs": 650, "sinkPx": 14, "splashRingMs": 900 },
+    "plank": { "sinkMs": 600, "ringMs": 1200, "rings": 3, "ringRadiusPx": 46, "sinkPx": 10 },
     "slab": { "fallDelayMs": 300, "dropMs": 380, "returnMs": 10000, "riseMs": 450, "shakePx": 2.5 },
     "refill": { "flowerEnergy": 25, "flowerRegrowMs": 20000, "flowerReachPx": 30, "heartHp": 20, "potEnergy": 15,
       "potCoins": 5, "pickupRadiusPx": 22 },
