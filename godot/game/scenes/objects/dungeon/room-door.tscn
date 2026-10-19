@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/room_door.gd" id="door"]
+[ext_resource type="Script" path="res://game/dungeon/room_travel.gd" id="travel"]
+
+[node name="room-door" type="Node2D"]
+script = ExtResource("door")
+
+[node name="DoorScript" type="Node" parent="."]
+script = ExtResource("travel")
+kind = "opening"
+
+[node name="arrival" type="Node2D" parent="."]
+position = Vector2(0, 176)

@@ -1,0 +1,199 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_u2dgw"]
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_ltkan"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_tqxcs"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_ci7u3"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_3hkln"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_duxjv"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="7_b8ysq"]
+[ext_resource type="Script" uid="uid://crwxkb068o1un" path="res://game/dungeon/shutter.gd" id="8_bu1rg"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-wall.tscn" id="9_8ki7o"]
+[ext_resource type="Script" uid="uid://cxr74qy30cwom" path="res://game/scripts/cracked_wall.gd" id="10_o7g0n"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/key-door.tscn" id="11_dxb36"]
+[ext_resource type="Script" uid="uid://brbxkkdvc7aaa" path="res://game/dungeon/key_door.gd" id="12_4d3rg"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="13_7a52c"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="14_y3h8a"]
+[ext_resource type="Script" uid="uid://dlc3n8dnts8jd" path="res://game/runtime/sheet_sprite.gd" id="15_3myq7"]
+[ext_resource type="Script" uid="uid://381jbki7cu8i" path="res://game/dungeon/dungeon_chest.gd" id="16_u1jla"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/world/chest-open.ogg" id="17_sttl7"]
+[ext_resource type="Script" uid="uid://co13i4ekaeqoi" path="res://game/runtime/sfx_player_2d.gd" id="18_snaml"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/world/chest-close.ogg" id="19_jo0rg"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/pickup/generic.ogg" id="20_pdx7y"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="21_0dca7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--war-banner.tscn" id="22_b66sk"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/fattys-lair/war-banner.webp" id="23_xi1oh"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(84, 39)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fll63"]
+size = Vector2(40, 20)
+
+[node name="a-square" type="Node2D" unique_id=1700332164]
+y_sort_enabled = true
+script = ExtResource("1_u2dgw")
+world_id = "box-room-lab"
+room_id = "a-square"
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=1039361722]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAAEwAAAAAAAAABAAAAEwABAAAAAAACAAAAEwACAAAAAAADAAAAEwADAAAAAAAEAAAAEwAEAAAAAAAFAAAAEwAFAAAAAAAGAAAAEwAGAAAAAAAHAAAAEwAHAAAAAAAIAAAAEwAIAAAAAAAJAAAAEwAJAAAAAAAKAAAAEwAKAAAAAAALAAAAEwALAAAAAAAMAAAAEwAMAAAAAAANAAAAEwANAAAAAAAOAAAAEwAOAAAAAAAPAAAAEwAPAAAAAAAAAAEAEwAAAAEAAAABAAEAEwABAAEAAAACAAEAEwACAAEAAAADAAEAEwADAAEAAAAEAAEAEwAEAAEAAAAFAAEAEwAFAAEAAAAGAAEAEwAGAAEAAAAHAAEAEwAHAAEAAAAIAAEAEwAIAAEAAAAJAAEAEwAJAAEAAAAKAAEAEwAKAAEAAAALAAEAEwALAAEAAAAMAAEAEwAMAAEAAAANAAEAEwANAAEAAAAOAAEAEwAOAAEAAAAPAAEAEwAPAAEAAAAAAAIAEwAAAAIAAAABAAIAEwABAAIAAAACAAIAEwACAAIAAAADAAIAEwADAAIAAAAEAAIAEwAEAAIAAAAFAAIAEwAFAAIAAAAGAAIAEwAGAAIAAAAHAAIAEwAHAAIAAAAIAAIAEwAIAAIAAAAJAAIAEwAJAAIAAAAKAAIAEwAKAAIAAAALAAIAEwALAAIAAAAMAAIAEwAMAAIAAAANAAIAEwANAAIAAAAOAAIAEwAOAAIAAAAPAAIAEwAPAAIAAAAAAAMAEwAAAAMAAAABAAMAEwABAAMAAAACAAMAEwACAAMAAAADAAMAEwADAAMAAAAEAAMAEwAEAAMAAAAFAAMAEwAFAAMAAAAGAAMAEwAGAAMAAAAHAAMAEwAHAAMAAAAIAAMAEwAIAAMAAAAJAAMAEwAJAAMAAAAKAAMAEwAKAAMAAAALAAMAEwALAAMAAAAMAAMAEwAMAAMAAAANAAMAEwANAAMAAAAOAAMAEwAOAAMAAAAPAAMAEwAPAAMAAAAAAAQAEwAAAAQAAAABAAQAEwABAAQAAAACAAQAEwACAAQAAAADAAQAEwADAAQAAAAEAAQAEwAEAAQAAAAFAAQAEwAFAAQAAAAGAAQAEwAGAAQAAAAHAAQAEwAHAAQAAAAIAAQAEwAIAAQAAAAJAAQAEwAJAAQAAAAKAAQAEwAKAAQAAAALAAQAEwALAAQAAAAMAAQAEwAMAAQAAAANAAQAEwANAAQAAAAOAAQAEwAOAAQAAAAPAAQAEwAPAAQAAAAAAAUAEwAAAAUAAAABAAUAEwABAAUAAAACAAUAEwACAAUAAAADAAUAEwADAAUAAAAEAAUAEwAEAAUAAAAFAAUAEwAFAAUAAAAGAAUAEwAGAAUAAAAHAAUAEwAHAAUAAAAIAAUAEwAIAAUAAAAJAAUAEwAJAAUAAAAKAAUAEwAKAAUAAAALAAUAEwALAAUAAAAMAAUAEwAMAAUAAAANAAUAEwANAAUAAAAOAAUAEwAOAAUAAAAPAAUAEwAPAAUAAAAAAAYAEwAAAAYAAAABAAYAEwABAAYAAAACAAYAEwACAAYAAAADAAYAEwADAAYAAAAEAAYAEwAEAAYAAAAFAAYAEwAFAAYAAAAGAAYAEwAGAAYAAAAHAAYAEwAHAAYAAAAIAAYAEwAIAAYAAAAJAAYAEwAJAAYAAAAKAAYAEwAKAAYAAAALAAYAEwALAAYAAAAMAAYAEwAMAAYAAAANAAYAEwANAAYAAAAOAAYAEwAOAAYAAAAPAAYAEwAPAAYAAAAAAAcAEwAAAAcAAAABAAcAEwABAAcAAAACAAcAEwACAAcAAAADAAcAEwADAAcAAAAEAAcAEwAEAAcAAAAFAAcAEwAFAAcAAAAGAAcAEwAGAAcAAAAHAAcAEwAHAAcAAAAIAAcAEwAIAAcAAAAJAAcAEwAJAAcAAAAKAAcAEwAKAAcAAAALAAcAEwALAAcAAAAMAAcAEwAMAAcAAAANAAcAEwANAAcAAAAOAAcAEwAOAAcAAAAPAAcAEwAPAAcAAAAAAAgAEwAAAAgAAAABAAgAEwABAAgAAAACAAgAEwACAAgAAAADAAgAEwADAAgAAAAEAAgAEwAEAAgAAAAFAAgAEwAFAAgAAAAGAAgAEwAGAAgAAAAHAAgAEwAHAAgAAAAIAAgAEwAIAAgAAAAJAAgAEwAJAAgAAAAKAAgAEwAKAAgAAAALAAgAEwALAAgAAAAMAAgAEwAMAAgAAAANAAgAEwANAAgAAAAOAAgAEwAOAAgAAAAPAAgAEwAPAAgAAAAAAAkAEwAAAAkAAAABAAkAEwABAAkAAAACAAkAEwACAAkAAAADAAkAEwADAAkAAAAEAAkAEwAEAAkAAAAFAAkAEwAFAAkAAAAGAAkAEwAGAAkAAAAHAAkAEwAHAAkAAAAIAAkAEwAIAAkAAAAJAAkAEwAJAAkAAAAKAAkAEwAKAAkAAAALAAkAEwALAAkAAAAMAAkAEwAMAAkAAAANAAkAEwANAAkAAAAOAAkAEwAOAAkAAAAPAAkAEwAPAAkAAAAAAAoAEwAAAAoAAAABAAoAEwABAAoAAAACAAoAEwACAAoAAAADAAoAEwADAAoAAAAEAAoAEwAEAAoAAAAFAAoAEwAFAAoAAAAGAAoAEwAGAAoAAAAHAAoAEwAHAAoAAAAIAAoAEwAIAAoAAAAJAAoAEwAJAAoAAAAKAAoAEwAKAAoAAAALAAoAEwALAAoAAAAMAAoAEwAMAAoAAAANAAoAEwANAAoAAAAOAAoAEwAOAAoAAAAPAAoAEwAPAAoAAAAAAAsAEwAAAAsAAAABAAsAEwABAAsAAAACAAsAEwACAAsAAAADAAsAEwADAAsAAAAEAAsAEwAEAAsAAAAFAAsAEwAFAAsAAAAGAAsAEwAGAAsAAAAHAAsAEwAHAAsAAAAIAAsAEwAIAAsAAAAJAAsAEwAJAAsAAAAKAAsAEwAKAAsAAAALAAsAEwALAAsAAAAMAAsAEwAMAAsAAAANAAsAEwANAAsAAAAOAAsAEwAOAAsAAAAPAAsAEwAPAAsAAAAAAAwAEwAAAAwAAAABAAwAEwABAAwAAAACAAwAEwACAAwAAAADAAwAEwADAAwAAAAEAAwAEwAEAAwAAAAFAAwAEwAFAAwAAAAGAAwAEwAGAAwAAAAHAAwAEwAHAAwAAAAIAAwAEwAIAAwAAAAJAAwAEwAJAAwAAAAKAAwAEwAKAAwAAAALAAwAEwALAAwAAAAMAAwAEwAMAAwAAAANAAwAEwANAAwAAAAOAAwAEwAOAAwAAAAPAAwAEwAPAAwAAAAAAA0AEwAAAA0AAAABAA0AEwABAA0AAAACAA0AEwACAA0AAAADAA0AEwADAA0AAAAEAA0AEwAEAA0AAAAFAA0AEwAFAA0AAAAGAA0AEwAGAA0AAAAHAA0AEwAHAA0AAAAIAA0AEwAIAA0AAAAJAA0AEwAJAA0AAAAKAA0AEwAKAA0AAAALAA0AEwALAA0AAAAMAA0AEwAMAA0AAAANAA0AEwANAA0AAAAOAA0AEwAOAA0AAAAPAA0AEwAPAA0AAAA=")
+tile_set = ExtResource("2_ltkan")
+script = ExtResource("3_tqxcs")
+metadata/source_cell_count = 1344
+metadata/columns = 48
+metadata/rows = 28
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=1743334493]
+tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAHAAAAAAAAAAEAAAAIAAAAAAAAAAEAAAAJAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAPAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAABAAEAAAAAAAAAAAACAAEAAAAAAAAAAAADAAEAAAAAAAAAAAAEAAEAAAAAAAAAAAAFAAEAAAAAAAAAAAAGAAEAAAAAAAAAAAAHAAEAAAAAAAEAAAAIAAEAAAAAAAEAAAAJAAEAAAAAAAAAAAAKAAEAAAAAAAAAAAALAAEAAAAAAAAAAAAMAAEAAAAAAAAAAAANAAEAAAAAAAAAAAAOAAEAAAAAAAAAAAAPAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAABAAIAAAAAAAAAAAAOAAIAAAAAAAAAAAAPAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAABAAMAAAAAAAAAAAAOAAMAAAAAAAAAAAAPAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAABAAQAAAAAAAAAAAAOAAQAAAAAAAAAAAAPAAQAAAAAAAAAAAAAAAUAAAAAAAAAAAABAAUAAAAAAAAAAAAOAAUAAAAAAAAAAAAPAAUAAAAAAAAAAAAAAAYAAAAAAAIAAAABAAYAAAAAAAIAAAAOAAYAAAAAAAEAAAAPAAYAAAAAAAEAAAAAAAcAAAAAAAIAAAABAAcAAAAAAAIAAAAOAAcAAAAAAAEAAAAPAAcAAAAAAAEAAAAAAAgAAAAAAAAAAAABAAgAAAAAAAAAAAAOAAgAAAAAAAAAAAAPAAgAAAAAAAAAAAAAAAkAAAAAAAAAAAABAAkAAAAAAAAAAAAOAAkAAAAAAAAAAAAPAAkAAAAAAAAAAAAAAAoAAAAAAAAAAAABAAoAAAAAAAAAAAAOAAoAAAAAAAAAAAAPAAoAAAAAAAAAAAAAAAsAAAAAAAAAAAABAAsAAAAAAAAAAAAOAAsAAAAAAAAAAAAPAAsAAAAAAAAAAAAAAAwAAAAAAAAAAAABAAwAAAAAAAAAAAACAAwAAAAAAAAAAAADAAwAAAAAAAAAAAAEAAwAAAAAAAAAAAAFAAwAAAAAAAAAAAAGAAwAAAAAAAAAAAAHAAwAAAAAAAEAAAAIAAwAAAAAAAEAAAAJAAwAAAAAAAAAAAAKAAwAAAAAAAAAAAALAAwAAAAAAAAAAAAMAAwAAAAAAAAAAAANAAwAAAAAAAAAAAAOAAwAAAAAAAAAAAAPAAwAAAAAAAAAAAAAAA0AAAAAAAAAAAABAA0AAAAAAAAAAAACAA0AAAAAAAAAAAADAA0AAAAAAAAAAAAEAA0AAAAAAAAAAAAFAA0AAAAAAAAAAAAGAA0AAAAAAAAAAAAHAA0AAAAAAAEAAAAIAA0AAAAAAAEAAAAJAA0AAAAAAAAAAAAKAA0AAAAAAAAAAAALAA0AAAAAAAAAAAAMAA0AAAAAAAAAAAANAA0AAAAAAAAAAAAOAA0AAAAAAAAAAAAPAA0AAAAAAAAAAAA=")
+tile_set = ExtResource("4_ci7u3")
+script = ExtResource("5_3hkln")
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=1930282583]
+
+[node name="a-square" type="Node2D" parent="CameraRooms" unique_id=1699593979]
+script = ExtResource("6_duxjv")
+outline = PackedVector2Array()
+
+[node name="RoomEntry" type="Node2D" parent="CameraRooms/a-square" unique_id=1246118549]
+position = Vector2(512, 576)
+
+[node name="Objects" type="Node2D" parent="." unique_id=171325463]
+y_sort_enabled = true
+
+[node name="a-shutter-north" type="Node2D" parent="Objects" unique_id=695497835 node_paths=PackedStringArray("look", "body") instance=ExtResource("7_b8ysq")]
+y_sort_enabled = true
+position = Vector2(512, 128)
+script = ExtResource("8_bu1rg")
+shutter_id = "a-north"
+starts_shut = true
+frame_drawn_by_wall = true
+look = NodePath("Look")
+body = NodePath("Body")
+
+[node name="a-cracked-west" type="Node2D" parent="Objects" unique_id=633683377 instance=ExtResource("9_8ki7o")]
+position = Vector2(128, 448)
+script = ExtResource("10_o7g0n")
+flag_id = "box-room-lab.a-west-blown"
+frame_drawn_by_wall = true
+passage = Rect2(-128, -32, 128, 64)
+
+[node name="a-key-door-east" type="Node2D" parent="Objects" unique_id=124432622 node_paths=PackedStringArray("locks", "body", "closed_look", "open_look") instance=ExtResource("11_dxb36")]
+y_sort_enabled = true
+position = Vector2(896, 448)
+rotation = 1.5707964
+script = ExtResource("12_4d3rg")
+keyholes = 2
+locks = NodePath("Shut/Locks")
+wall = "east"
+door_id = "a-east"
+body = NodePath("Body")
+closed_look = NodePath("Shut")
+open_look = NodePath("Open")
+frame_drawn_by_wall = true
+
+[node name="a-key-chest" parent="Objects" unique_id=1880368055 instance=ExtResource("13_7a52c")]
+y_sort_enabled = true
+position = Vector2(320, 320)
+collision_mask = 0
+
+[node name="BodyShape" parent="Objects/a-key-chest" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("body_shape")
+
+[node name="Visual" parent="Objects/a-key-chest" index="1"]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("14_y3h8a")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+script = ExtResource("15_3myq7")
+sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
+
+[node name="ChestScript" parent="Objects/a-key-chest" index="2"]
+script = ExtResource("16_u1jla")
+instance_id = "a-key-chest"
+initial_contents = {
+"dungeon-small-key": 1
+}
+
+[node name="OpenSfx" parent="Objects/a-key-chest" index="3"]
+process_mode = 3
+stream = ExtResource("17_sttl7")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("18_snaml")
+
+[node name="CloseSfx" parent="Objects/a-key-chest" index="4"]
+process_mode = 3
+stream = ExtResource("19_jo0rg")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("18_snaml")
+
+[node name="TakeSfx" parent="Objects/a-key-chest" index="5"]
+process_mode = 3
+stream = ExtResource("20_pdx7y")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("18_snaml")
+
+[node name="a-pot-0" type="StaticBody2D" parent="Objects" unique_id=1467894479 instance=ExtResource("21_0dca7")]
+y_sort_enabled = true
+position = Vector2(672, 729.6)
+collision_mask = 0
+
+[node name="a-pot-1" type="StaticBody2D" parent="Objects" unique_id=2052669778 instance=ExtResource("21_0dca7")]
+y_sort_enabled = true
+position = Vector2(742.4, 729.6)
+collision_mask = 0
+
+[node name="a-pot-2" type="StaticBody2D" parent="Objects" unique_id=1853714417 instance=ExtResource("21_0dca7")]
+y_sort_enabled = true
+position = Vector2(812.8, 729.6)
+collision_mask = 0
+
+[node name="Scenery" type="Node2D" parent="." unique_id=1706189054]
+y_sort_enabled = true
+
+[node name="a-banner-west" parent="Scenery" unique_id=449774334 instance=ExtResource("22_b66sk")]
+y_sort_enabled = true
+position = Vector2(288, 148)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/a-banner-west" index="0"]
+position = Vector2(0, -10)
+shape = SubResource("RectangleShape2D_fll63")
+
+[node name="Visual" parent="Scenery/a-banner-west" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("23_xi1oh")
+centered = false
+offset = Vector2(-99, -300)
+script = ExtResource("15_3myq7")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/war-banner.webp"
+
+[node name="a-banner-east" parent="Scenery" unique_id=378118239 instance=ExtResource("22_b66sk")]
+y_sort_enabled = true
+position = Vector2(736, 148)
+collision_mask = 0
+
+[node name="BodyShape" parent="Scenery/a-banner-east" index="0"]
+position = Vector2(0, -10)
+shape = SubResource("RectangleShape2D_fll63")
+
+[node name="Visual" parent="Scenery/a-banner-east" index="1"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("23_xi1oh")
+centered = false
+offset = Vector2(-99, -300)
+script = ExtResource("15_3myq7")
+sheet_path = "res://asset/MAPS/objects/fattys-lair/war-banner.webp"
+
+[editable path="Objects/a-key-chest"]
+[editable path="Scenery/a-banner-west"]
+[editable path="Scenery/a-banner-east"]

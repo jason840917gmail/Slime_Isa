@@ -8,6 +8,10 @@ class_name SealMoment
 ## 1. **The roar:** the boss's roar (the Dungeon's `roar_sound`), a hard shake, dust falling over
 ##    the screen in the Dungeon's `dust_color`, and one line over the slime:
 ##    "<boss> roars! The way out slams shut." (`Dungeon.roar_text`).
+##    In a dungeon of one world per room (Fatty's Lair) the entrance's seal is in another world: the
+##    glimpse is then the Dungeon's `glimpse_pictures`, made in advance (the doorway open, then the
+##    seal up), shown full screen over the paused world for `glimpseMs`, the second from
+##    `glimpseSlamMs` with the boom (owner, 2026-10-18).
 ## 2. **The glimpse**, `dungeon.seal.glimpseDelayMs` after the roar: the world pauses and the view
 ##    cuts to the entrance's seal (`target`: Dungeon.glimpse_seal) for `glimpseMs` (1.5 s); the seal
 ##    slams up out of its doorway `glimpseSlamMs` in, with a boom, and glows; then the view cuts back
@@ -31,7 +35,11 @@ const DUST_Z := 50
 const DUST_LIFETIME_S := 1.9
 const DUST_TEXTURE_PX := 24
 
-enum Step { WAIT, ROAR, GLIMPSE }
+enum Step { WAIT, ROAR, GLIMPSE, PICTURE }
+
+## Over the world, the HUD and the dust (the arrival fade is 5, the HUD 10).
+const PICTURE_LAYER := 20
+const CUE_SLAM := &"SlamImpact"
 
 ## The Dungeon node that sealed (dungeon.gd).
 var dungeon: Node2D
@@ -43,6 +51,9 @@ var _at_ms := 0.0
 var _slammed := false
 var _cut := false
 var _follow: Node2D
+## The picture glimpse's layer and its picture (null when none shows).
+var _picture_layer: CanvasLayer
+var _picture: TextureRect
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -50,6 +61,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_end_cut()
+	_end_picture()
 
 
 ## True while the view shows the entrance's seal.
@@ -72,6 +84,10 @@ func _process(_delta: float) -> void:
 			if now - _at_ms < DungeonState.number("seal.glimpseDelayMs", 600.0):
 				return
 			if target == null or not is_instance_valid(target) or not target.is_inside_tree():
+				if _start_picture():
+					_step = Step.PICTURE
+					_at_ms = now
+					return
 				queue_free()
 				return
 			_cut = _start_cut()
@@ -89,6 +105,66 @@ func _process(_delta: float) -> void:
 			if now - _at_ms >= DungeonState.number("seal.glimpseMs", 1500.0):
 				_end_cut()
 				queue_free()
+		Step.PICTURE:
+			var pictures: Array = dungeon.get(&"glimpse_pictures") if is_instance_valid(dungeon) else []
+			if not _slammed and now - _at_ms >= DungeonState.number("seal.glimpseSlamMs", 350.0):
+				_slammed = true
+				if pictures.size() > 1 and _picture != null:
+					_picture.texture = pictures[1]
+				var feel := Services.feel()
+				if feel != null:
+					feel.audio_cue(CUE_SLAM)
+					feel.shake(DungeonState.number("seal.slamShakeMs", 420.0), DungeonState.number("seal.slamShakeIntensity", 0.01))
+			if now - _at_ms >= DungeonState.number("seal.glimpseMs", 1500.0):
+				_end_picture()
+				queue_free()
+
+
+## True while the picture glimpse shows.
+func is_showing_picture() -> bool:
+	return _picture_layer != null and is_instance_valid(_picture_layer)
+
+
+## The picture glimpse (the entrance's seal in another world): false without pictures.
+func _start_picture() -> bool:
+	if dungeon == null or not is_instance_valid(dungeon) or not &"glimpse_pictures" in dungeon:
+		return false
+	var pictures: Array = dungeon.get(&"glimpse_pictures")
+	if pictures.is_empty() or not pictures[0] is Texture2D:
+		return false
+	_picture_layer = CanvasLayer.new()
+	_picture_layer.name = "SealGlimpse"
+	_picture_layer.layer = PICTURE_LAYER
+	_picture_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	var back := ColorRect.new()
+	back.color = Color.BLACK
+	back.set_anchors_preset(Control.PRESET_FULL_RECT)
+	back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_picture_layer.add_child(back)
+	_picture = TextureRect.new()
+	_picture.texture = pictures[0]
+	_picture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_picture_layer.add_child(_picture)
+	add_child(_picture_layer)
+	var world := Services.world()
+	if world != null:
+		world.set_pause_reason(PAUSE_REASON, true)
+	return true
+
+
+func _end_picture() -> void:
+	if _picture_layer == null:
+		return
+	if is_instance_valid(_picture_layer):
+		_picture_layer.queue_free()
+	_picture_layer = null
+	_picture = null
+	var world := Services.world()
+	if world != null:
+		world.set_pause_reason(PAUSE_REASON, false)
 
 
 ## True while the ceremony (game/ui/ceremony/ability_ceremony.gd, under the tree's root) plays a

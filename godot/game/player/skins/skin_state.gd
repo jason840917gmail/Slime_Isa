@@ -12,8 +12,8 @@ class_name SkinState
 ## - `is_on(player, id)`: is that skin's power on? Every lock asks this (heavy plates and blocks,
 ##   the Heavy Roll's breakables, webs, web walls, silk parcels, climbable walls, the Spear's tempo).
 ##   `player` is the slime asking; it may be null (skins belong to the run).
-## - `grant(id)`: a Pearl wins its skin, makes it the everyday look and, the first time, shows the
-##   skin's short ceremony line over the slime.
+## - `grant(id)`: a Pearl wins its skin and, the first time, shows the skin's short ceremony line
+##   over the slime; the everyday look stays as it was (a skin shows only while it works).
 ## - `lend(id)` / `give_back(id)`: a skin for this session only (the F6 dev powers, the
 ##   playground's Skins corner); no save carries it.
 ##
@@ -71,15 +71,15 @@ static func order() -> Array[StringName]:
 	return out
 
 
-## A Pearl grants skin `id`: won for good, made the everyday look, and the first time its short
-## ceremony line shows over the slime. Returns true when it was new (not won before).
+## A Pearl grants skin `id`: won for good, and the first time its short ceremony line shows over the
+## slime. The everyday look stays as it was (the goo, unless the bag's Skins row picked one): a skin
+## shows only while it works (owner, 2026-10-18). Returns true when it was new (not won before).
 static func grant(id: StringName) -> bool:
 	var run := Services.run()
 	if run == null or String(id).is_empty():
 		return false
 	var first := not is_won(id)
 	run.win_skin(String(id))
-	run.set_skin_look(String(id))
 	if first:
 		ceremony_line(id)
 	return first

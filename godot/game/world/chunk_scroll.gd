@@ -91,6 +91,9 @@ func _finish() -> void:
 ## the viewport's World2D; returns the picture two frames later (null when none was drawn). A
 ## coroutine.
 static func capture(parent: Node, viewport: Viewport, rect: Rect2, zoom: float) -> Texture2D:
+	# Headless (the tests, the tools) nothing is drawn: no picture, the scroll runs without one.
+	if DisplayServer.get_name() == "headless":
+		return null
 	var density := viewport.get_final_transform().get_scale().x
 	if not is_finite(density) or density <= 0.0:
 		density = 1.0

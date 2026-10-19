@@ -1,3 +1,4 @@
+@tool
 extends StaticBody2D
 class_name PlankBarricadeScript
 ## Scene script `game.plank-barricade`: old wood the Heavy Roll smashes (docs/godot/SKINS.md "Heavy";
@@ -18,6 +19,7 @@ class_name PlankBarricadeScript
 ## Owner: dungeons (Fatty's Lair).
 
 const Services := preload("res://game/shared/services.gd")
+const InteriorWalls := preload("res://game/world/interior/interior_wall_layer.gd")
 const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 
@@ -50,6 +52,22 @@ signal refused(payload: Dictionary)
 ## The hard shake of the smash (ms, intensity).
 @export var shake_ms: float = 450.0
 @export var shake_intensity: float = 0.014
+## In a room whose walls are an InteriorWallLayer (docs/godot/INTERIOR_WALLS.md) the wall draws the
+## opening: the barricade draws only its boards (the style's `barricade` leaf for `wall`, the wall of
+## the room its face looks into), and smashed, nothing (the opening shows). The root stands on the
+## floor line in the middle of the passage, as a dungeon door does.
+@export var frame_drawn_by_wall: bool = false:
+	set(value):
+		frame_drawn_by_wall = value
+		_refresh_look()
+@export_enum("north", "east", "south", "west") var wall: String = "north":
+	set(value):
+		wall = value
+		_refresh_look()
+@export var interior_style: String = "lair-stone":
+	set(value):
+		interior_style = value
+		_refresh_look()
 
 var _smashed := false
 var _registered: Area2D
@@ -58,11 +76,15 @@ var _next_refusal_ms := 0
 
 func _enter_tree() -> void:
 	add_to_group(GROUP)
+	if Engine.is_editor_hint():
+		return
 	var run := Services.run()
 	_smashed = not flag_id.is_empty() and run != null and run.has_flag(flag_id)
 
 
 func _ready() -> void:
+	if frame_drawn_by_wall:
+		_apply_wall_leaf()
 	if Engine.is_editor_hint():
 		return
 	if _smashed:
@@ -76,6 +98,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
 	var router := Services.router()
 	if _registered != null and router != null:
 		router.unregister_area(_registered)
@@ -108,9 +132,50 @@ func smash() -> void:
 	smashed.emit({"flagId": flag_id})
 
 
+## In the editor too (the script is a tool): the wall's leaf when the wall draws the frame, else the
+## scene's own picture of the boards in their arch.
+func _refresh_look() -> void:
+	if not is_inside_tree():
+		return
+	if frame_drawn_by_wall:
+		_apply_wall_leaf()
+	elif Engine.is_editor_hint():
+		var visual := get_node_or_null(^"Visual") as Sprite2D
+		var own := load(scene_file_path) as PackedScene if not scene_file_path.is_empty() else null
+		if visual != null and own != null:
+			var fresh := own.instantiate()
+			var art := fresh.get_node_or_null(^"Visual") as Sprite2D
+			if art != null:
+				for prop: String in ["texture", "hframes", "vframes", "frame", "region_enabled", "region_rect",
+						"centered", "offset", "scale", "rotation", "position"]:
+					visual.set(prop, art.get(prop))
+			fresh.free()
+
+
+## The boards as the wall style's leaf, filling the opening (InteriorWallLayer.leaf_at).
+func _apply_wall_leaf() -> void:
+	var visual := get_node_or_null(^"Visual") as Sprite2D
+	var place := InteriorWalls.leaf_at(interior_style, wall, "barricade")
+	if visual == null or place.is_empty():
+		return
+	visual.texture = InteriorWalls.picture(str(place["texture"]))
+	visual.hframes = 1
+	visual.vframes = 1
+	visual.frame = 0
+	visual.region_enabled = true
+	visual.region_rect = place["region"]
+	visual.centered = false
+	visual.offset = Vector2.ZERO
+	visual.scale = Vector2.ONE / InteriorWalls.DENSITY
+	visual.rotation = -rotation
+	visual.position = (place["offset"] as Vector2).rotated(-rotation)
+
+
 func _lie_smashed() -> void:
 	var visual := get_node_or_null(^"Visual") as Sprite2D
-	if visual != null:
+	if visual != null and frame_drawn_by_wall:
+		visual.visible = false
+	elif visual != null:
 		visual.frame = FRAME_SMASHED
 		visual.z_as_relative = false
 		visual.z_index = HEAP_Z

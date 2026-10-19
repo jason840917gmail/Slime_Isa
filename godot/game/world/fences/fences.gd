@@ -35,6 +35,11 @@ const ElevationOcclusion := preload("res://game/world/elevation/elevation_occlus
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
 const FENCE_SHADER := preload("res://game/world/fences/fence.gdshader")
 const DEPTH_SHADER := preload("res://game/world/fences/fence_depth.gdshader")
+const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
+## Gate tiles of a divider style (docs/godot/FENCES.md "Dungeon dividers"): no post or rail is drawn
+## or collides there; the fence layer keeps a divider gate object on the cell (fence_layer.gd
+## `sync_gates`). Style -> [the divider's style, the gate's kind].
+const GATE_STYLES := {"lair-divider-eye": ["lair-divider", "eye"], "lair-divider-pen": ["lair-divider", "pen"]}
 
 const NODE_NAME := "Fences"
 ## The y-sorted holder of the pieces, beside the ground layer.
@@ -330,7 +335,7 @@ func _painted_connections(painted: TileMapLayer) -> Dictionary:
 		if not grid.has_cell(at):
 			continue
 		var style := str(data.get_custom_data(STYLE_DATA_LAYER))
-		if style.is_empty() or _kit(style).is_empty():
+		if style.is_empty() or GATE_STYLES.has(style) or _kit(style).is_empty():
 			continue
 		var direction := int(data.get_custom_data(DIRECTION_DATA_LAYER)) if painted.tile_set.has_custom_data_layer_by_name(DIRECTION_DATA_LAYER) else ALL_NEIGHBORS_DIRECTION
 		cells[at] = {"style": style, "direction": direction, "level": grid.level_of_cell(at)}
@@ -637,13 +642,14 @@ func _kit(style: String) -> Dictionary:
 			"side_texture": KIT % [style, "-rails-side.png"]}
 	var complete := FileAccess.file_exists(json_path)
 	for path: String in textures.values():
-		complete = complete and ResourceLoader.exists(path)
+		complete = complete and (ResourceLoader.exists(path) or FileAccess.file_exists(path))
 	if complete:
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(json_path))
 		if parsed is Dictionary:
 			kit = parsed
 			for uniform: String in textures:
-				kit[uniform] = load(textures[uniform])
+				# a kit packed after the editor's last import is read from its file
+				kit[uniform] = SheetSprite.load_picture(textures[uniform])
 	if kit.is_empty():
 		push_warning("Fences: no art for the fence style '%s' (%s)" % [style, json_path])
 	_kits[style] = kit

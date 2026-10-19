@@ -59,6 +59,8 @@ func _physics_process(_delta: float) -> void:
 		return
 	if world.player_body.global_position.distance_to(global_position) > DungeonState.number("refill.flowerReachPx", 30.0):
 		return
+	if not DungeonState.on_level_of(self):
+		return
 	if float(player.call(&"get_energy")) >= float(player.call(&"get_max_energy")):
 		return
 	var gained := float(player.call(&"restore_energy", DungeonState.number("refill.flowerEnergy", 25.0)))

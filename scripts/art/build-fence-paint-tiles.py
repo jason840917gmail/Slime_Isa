@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Build the picture-only palette for the shared connected-fence layer."""
+"""Build the picture-only palette for the shared connected-fence layer.
+
+Writes fence_paint_tiles.png and the tile set; then run
+"<Godot console exe>" --headless --path godot -s res://tools/pack_fence_paint_tiles.gd, which saves
+the palette as fence_paint_tiles.res (a native texture the tile set uses: no editor import needed).
+The dungeon dividers' gate tiles (docs/godot/FENCES.md "Dungeon dividers") come after the styles,
+one tile each (row 0), showing the gate's own picture."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -20,6 +26,12 @@ STYLES = [
     ("twig", (111, 145, 65)),
     ("picket", (173, 95, 48)),
     ("crystal", (145, 113, 221)),
+    ("lair-divider", (226, 202, 152)),
+]
+## Divider gate tiles: (style, picture) in the columns after STYLES, row 0 only.
+GATES = [
+    ("lair-divider-eye", ROOT / "godot/asset/MAPS/objects/dungeon/divider-eye-block.png"),
+    ("lair-divider-pen", ROOT / "godot/asset/MAPS/objects/dungeon/divider-pen-gate.png"),
 ]
 DIRECTIONS = [
     ("N", 0, (0, -1)), ("NE", 1, (1, -1)), ("E", 2, (1, 0)), ("SE", 3, (1, 1)),
@@ -33,7 +45,7 @@ def _atlas_source() -> str:
     lines = [
         '[gd_resource type="TileSet" format=3 uid="%s"]' % TILE_UID,
         "",
-        '[ext_resource type="Texture2D" uid="%s" path="res://asset/MAPS/fences/fence_paint_tiles.png" id="1_tiles"]' % TEXTURE_UID,
+        '[ext_resource type="Texture2D" path="res://asset/MAPS/fences/fence_paint_tiles.res" id="1_tiles"]',
         "",
         '[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fences"]',
         'texture = ExtResource("1_tiles")',
@@ -47,6 +59,13 @@ def _atlas_source() -> str:
                 f'{column}:{row}/0/custom_data_0 = "{style}"',
                 f"{column}:{row}/0/custom_data_1 = {direction_id}",
             ])
+    for index, (style, _picture) in enumerate(GATES):
+        column = len(STYLES) + index
+        lines.extend([
+            f"{column}:0/0 = 0",
+            f'{column}:0/0/custom_data_0 = "{style}"',
+            f"{column}:0/0/custom_data_1 = -1",
+        ])
     lines.extend([
         "",
         "[resource]",
@@ -67,7 +86,7 @@ def _line(draw: ImageDraw.ImageDraw, points: tuple[tuple[float, float], ...], co
 
 def _post(draw: ImageDraw.ImageDraw, style: str, point: tuple[float, float], color: tuple[int, int, int]) -> None:
     x, y = point
-    if style in ("stone", "sandstone"):
+    if style in ("stone", "sandstone", "lair-divider"):
         draw.rounded_rectangle((x - 4, y - 5, x + 4, y + 5), radius=2, fill=color + (255,), outline=(37, 34, 29, 255), width=2)
         if style == "sandstone":
             _line(draw, ((x - 2, y), (x + 2, y)), (112, 72, 39), 1)
@@ -104,7 +123,7 @@ def _draw_material(draw: ImageDraw.ImageDraw, style: str, color: tuple[int, int,
         # A small eight-way connection picture: one painted cell joins its neighbors.
         for _name, _index, (dx, dy) in DIRECTIONS:
             edge = (cx + dx * 25.0, cy + dy * 25.0)
-            _line(draw, ((cx, cy), edge), color, 3 if style not in ("stone", "sandstone") else 5)
+            _line(draw, ((cx, cy), edge), color, 3 if style not in ("stone", "sandstone", "lair-divider") else 5)
             draw.ellipse((edge[0] - 2, edge[1] - 2, edge[0] + 2, edge[1] + 2), fill=(255, 246, 207, 255), outline=dark + (255,), width=1)
         _post(draw, style, (cx, cy), color)
         return
@@ -114,7 +133,7 @@ def _draw_material(draw: ImageDraw.ImageDraw, style: str, color: tuple[int, int,
     start = (cx, cy)
     end = (cx + dx * length, cy + dy * length)
     px, py = -dy, dx
-    rail_width = 5 if style in ("stone", "sandstone") else 3
+    rail_width = 5 if style in ("stone", "sandstone", "lair-divider") else 3
     for offset in (-4, 3):
         a = (start[0] + px * offset, start[1] + py * offset)
         b = (end[0] + px * offset, end[1] + py * offset)
@@ -161,15 +180,22 @@ def _draw_tile(image: Image.Image, column: int, row: int, style: str, color: tup
 
 
 def main() -> None:
-    image = Image.new("RGBA", (SIZE * len(STYLES), SIZE * len(ROWS)), (0, 0, 0, 0))
+    image = Image.new("RGBA", (SIZE * (len(STYLES) + len(GATES)), SIZE * len(ROWS)), (0, 0, 0, 0))
     for row, direction_entry in enumerate(ROWS):
         direction = None if direction_entry is None else direction_entry[2]
         for column, (style, color) in enumerate(STYLES):
             _draw_tile(image, column, row, style, color, direction)
+    for index, (_style, picture) in enumerate(GATES):
+        tile = Image.new("RGBA", (SIZE, SIZE), (18, 26, 20, 24))
+        ImageDraw.Draw(tile).rectangle((0, 0, SIZE - 1, SIZE - 1), outline=(223, 229, 211, 205), width=1)
+        art = Image.open(picture).convert("RGBA")
+        art.thumbnail((SIZE - 10, SIZE - 10), Image.Resampling.LANCZOS)
+        tile.alpha_composite(art, ((SIZE - art.width) // 2, (SIZE - art.height) // 2))
+        image.alpha_composite(tile, ((len(STYLES) + index) * SIZE, 0))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUT)
     TILESET.write_text(_atlas_source(), encoding="utf-8", newline="\n")
-    print(f"wrote {OUT.relative_to(ROOT)} and {TILESET.relative_to(ROOT)} (7 picture styles, 8 directions + all-neighbor connector)")
+    print(f"wrote {OUT.relative_to(ROOT)} and {TILESET.relative_to(ROOT)} ({len(STYLES)} picture styles, 8 directions + all-neighbor connector, {len(GATES)} gate tiles)")
 
 
 if __name__ == "__main__":

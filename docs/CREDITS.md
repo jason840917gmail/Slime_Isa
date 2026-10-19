@@ -58,6 +58,7 @@ Which flavour each cue ships is in `scripts/audio/picks.json`.
 | Generated sound effects (22 cues) | Magnific (ElevenLabs sound effects), for Slime Isa | generated | `asset/Originals/audio/magnific/` |
 | The Gulp's suck and throw (Sound Picker round 7, 2026-10-17) | the owner's own sounds | to be recorded by the owner | `asset/Originals/audio/sounds/` ([details](../godot/asset/audio/CREDITS.md#the-owners-own-sounds)) |
 | Gloop Forest music and ambience | Magnific (ElevenLabs music and sound effects), for Slime Isa | generated | `godot/asset/audio/music/gloop-forest*.mp3` |
+| Dungeon, boss fight, cave and interior music (2026-10-18) | Magnific (Google Lyria), for Slime Isa; loops cut by `scripts/audio/make-music-loop.py` | generated | `godot/asset/audio/music/{dungeon,boss-fight,cave-a,cave-b,interior-a,interior-b}.wav`; songs in `asset/Originals/audio/music/` |
 | Synthesized effects and ambience (42 cues) | made for Slime Isa | own | `scripts/audio/cues.mjs`, `pnpm audio:bake` |
 
 ## Art

@@ -1,0 +1,218 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/dungeon_layout.gd" id="1_layout"]
+[ext_resource type="Script" path="res://game/dungeon/layout_room.gd" id="2_room"]
+[ext_resource type="Script" path="res://game/dungeon/layout_mark.gd" id="3_mark"]
+
+[node name="fatty-lair-layout" type="Node2D"]
+script = ExtResource("1_layout")
+
+[node name="r10-dung-roller-run" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r10-dung-roller-run.tscn"
+world_id = "fatty-lair-r10-dung-roller-run"
+room_name = "r10-dung-roller-run"
+size = Vector2(2304, 1024)
+
+[node name="c2-weigh-house" type="Node2D" parent="."]
+position = Vector2(2304, 0)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/c2-weigh-house.tscn"
+world_id = "fatty-lair-c2-weigh-house"
+room_name = "c2-weigh-house"
+size = Vector2(1152, 1024)
+
+[node name="bolt-hole" type="Node2D" parent="."]
+position = Vector2(3456, 0)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/bolt-hole.tscn"
+world_id = "fatty-lair-bolt-hole"
+room_name = "bolt-hole"
+size = Vector2(1152, 1024)
+
+[node name="r9-watcher-hall" type="Node2D" parent="."]
+position = Vector2(0, 1024)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r9-watcher-hall.tscn"
+world_id = "fatty-lair-r9-watcher-hall"
+room_name = "r9-watcher-hall"
+size = Vector2(1152, 1024)
+
+[node name="r8-guard-crypt" type="Node2D" parent="."]
+position = Vector2(1152, 1024)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r8-guard-crypt.tscn"
+world_id = "fatty-lair-r8-guard-crypt"
+room_name = "r8-guard-crypt"
+size = Vector2(1152, 2048)
+
+[node name="r12-larder" type="Node2D" parent="."]
+position = Vector2(2304, 1024)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r12-larder.tscn"
+world_id = "fatty-lair-r12-larder"
+room_name = "r12-larder"
+size = Vector2(1152, 1024)
+
+[node name="r14-postern" type="Node2D" parent="."]
+position = Vector2(3456, 1024)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r14-postern.tscn"
+world_id = "fatty-lair-r14-postern"
+room_name = "r14-postern"
+size = Vector2(1152, 1024)
+
+[node name="old-armoury" type="Node2D" parent="."]
+position = Vector2(0, 2048)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/old-armoury.tscn"
+world_id = "fatty-lair-old-armoury"
+room_name = "old-armoury"
+size = Vector2(1152, 1024)
+
+[node name="r11-drop-gate-bridge" type="Node2D" parent="."]
+position = Vector2(2304, 2048)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r11-drop-gate-bridge.tscn"
+world_id = "fatty-lair-r11-drop-gate-bridge"
+room_name = "r11-drop-gate-bridge"
+size = Vector2(1152, 1024)
+
+[node name="r13-fattys-arena" type="Node2D" parent="."]
+position = Vector2(3456, 2048)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r13-fattys-arena.tscn"
+world_id = "fatty-lair-r13-fattys-arena"
+room_name = "r13-fattys-arena"
+size = Vector2(1152, 1024)
+
+[node name="glow-moss-burrow" type="Node2D" parent="."]
+position = Vector2(4608, 2048)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/glow-moss-burrow.tscn"
+world_id = "fatty-lair-glow-moss-burrow"
+room_name = "glow-moss-burrow"
+size = Vector2(1152, 1024)
+
+[node name="map-nook" type="Node2D" parent="."]
+position = Vector2(0, 3072)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/map-nook.tscn"
+world_id = "fatty-lair-map-nook"
+room_name = "map-nook"
+size = Vector2(1152, 1024)
+
+[node name="r4-squint-den" type="Node2D" parent="."]
+position = Vector2(1152, 3072)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r4-squint-den.tscn"
+world_id = "fatty-lair-r4-squint-den"
+room_name = "r4-squint-den"
+size = Vector2(1152, 1024)
+
+[node name="r3-pit-hall" type="Node2D" parent="."]
+position = Vector2(2304, 3072)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r3-pit-hall.tscn"
+world_id = "fatty-lair-r3-pit-hall"
+room_name = "r3-pit-hall"
+size = Vector2(2304, 1024)
+outline = PackedVector2Array(320, 0, 2304, 0, 2304, 1024, 0, 1024, 0, 576, 320, 576)
+
+[node name="r6-pipe-gallery" type="Node2D" parent="."]
+position = Vector2(4608, 3072)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r6-pipe-gallery.tscn"
+world_id = "fatty-lair-r6-pipe-gallery"
+room_name = "r6-pipe-gallery"
+size = Vector2(1152, 1024)
+
+[node name="sally-port" type="Node2D" parent="."]
+position = Vector2(0, 4096)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/sally-port.tscn"
+world_id = "fatty-lair-sally-port"
+room_name = "sally-port"
+size = Vector2(1152, 1024)
+
+[node name="r5-eye-hall" type="Node2D" parent="."]
+position = Vector2(1152, 4096)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-eye-hall.tscn"
+world_id = "fatty-lair-r5-eye-hall"
+room_name = "r5-eye-hall"
+size = Vector2(1152, 576)
+
+[node name="r1-gatehouse" type="Node2D" parent="."]
+position = Vector2(2304, 4096)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r1-gatehouse.tscn"
+world_id = "fatty-lair"
+room_name = "r1-gatehouse"
+size = Vector2(1152, 1024)
+outline = PackedVector2Array(0, 0, 832, 0, 832, 384, 1152, 384, 1152, 1024, 0, 1024)
+
+[node name="r2-slab-steps" type="Node2D" parent="."]
+position = Vector2(3456, 4096)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r2-slab-steps.tscn"
+world_id = "fatty-lair-r2-slab-steps"
+room_name = "r2-slab-steps"
+size = Vector2(1152, 1024)
+
+[node name="r7-bell-bridge" type="Node2D" parent="."]
+position = Vector2(4608, 4096)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r7-bell-bridge.tscn"
+world_id = "fatty-lair-r7-bell-bridge"
+room_name = "r7-bell-bridge"
+size = Vector2(1152, 1024)
+
+[node name="burr-cell" type="Node2D" parent="."]
+position = Vector2(2304, 3072)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/burr-cell.tscn"
+world_id = "fatty-lair-burr-cell"
+room_name = "burr-cell"
+size = Vector2(320, 576)
+
+[node name="r1-store" type="Node2D" parent="."]
+position = Vector2(3072, 4096)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r1-store.tscn"
+world_id = "fatty-lair-r1-store"
+room_name = "r1-store"
+size = Vector2(384, 448)
+
+[node name="r5-lower-hall" type="Node2D" parent="."]
+position = Vector2(1152, 4672)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-lower-hall.tscn"
+world_id = "fatty-lair-r5-lower-hall"
+room_name = "r5-lower-hall"
+size = Vector2(1152, 448)
+outline = PackedVector2Array(0, 0, 1152, 0, 1152, 448, 384, 448, 384, 128, 0, 128)
+
+[node name="r5-key-alcove" type="Node2D" parent="."]
+position = Vector2(1152, 4800)
+script = ExtResource("2_room")
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-key-alcove.tscn"
+world_id = "fatty-lair-r5-key-alcove"
+room_name = "r5-key-alcove"
+size = Vector2(384, 320)
+
+[node name="boss-0" type="Node2D" parent="."]
+position = Vector2(4032, 2560)
+script = ExtResource("3_mark")
+mark = "boss"
+
+[node name="seal-1" type="Node2D" parent="."]
+position = Vector2(2880, 5019)
+script = ExtResource("3_mark")
+mark = "seal"
+
+[node name="seal-2" type="Node2D" parent="."]
+position = Vector2(4032, 2149)
+script = ExtResource("3_mark")
+mark = "seal"

@@ -10,6 +10,7 @@ extends Sprite2D
 
 const Services := preload("res://game/shared/services.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
+const InteriorWalls := preload("res://game/world/interior/interior_wall_layer.gd")
 
 const CUE_SLIDE := &"GateOpen"
 const DUST := &"dodge-dust"
@@ -18,6 +19,11 @@ const DUST := &"dodge-dust"
 @export var slide_ms: float = 700.0
 ## The slab's picture (loaded as game/runtime/sheet_sprite.gd does, before an import).
 @export_file("*.webp", "*.png") var sheet_path: String = ""
+## In a doorway whose frame an InteriorWallLayer draws (docs/godot/INTERIOR_WALLS.md): the style
+## whose `shutter` leaf the slab is, and the wall of the room its face looks into ("": the slab's own
+## picture). The door's own frame is then hidden by the builder.
+@export var wall_leaf_style: String = ""
+@export_enum("north", "east", "south", "west") var wall_leaf_wall: String = "north"
 
 var _region := Rect2()
 var _from := 0.0
@@ -27,9 +33,19 @@ var _moving := false
 
 
 func _ready() -> void:
-	if texture == null and not sheet_path.is_empty():
+	var place := InteriorWalls.leaf_at(wall_leaf_style, wall_leaf_wall, "shutter") if not wall_leaf_style.is_empty() else {}
+	if not place.is_empty():
+		texture = InteriorWalls.picture(str(place["texture"]))
+		_region = place["region"]
+		centered = false
+		offset = Vector2.ZERO
+		scale = Vector2.ONE / InteriorWalls.DENSITY
+		position = place["offset"]
+		region_enabled = true
+		region_rect = _region
+	elif texture == null and not sheet_path.is_empty():
 		texture = SheetSprite.load_picture(sheet_path)
-	if texture != null:
+	if place.is_empty() and texture != null:
 		_region = Rect2(Vector2.ZERO, texture.get_size())
 		region_enabled = true
 		region_rect = _region
@@ -73,10 +89,10 @@ func _process(_delta: float) -> void:
 func _lift() -> float:
 	if _region.size.y <= 0.0:
 		return 0.0
-	return clampf(region_rect.position.y / _region.size.y, 0.0, 1.0)
+	return clampf((region_rect.position.y - _region.position.y) / _region.size.y, 0.0, 1.0)
 
 
 func _show(lift: float) -> void:
 	var cut := _region.size.y * lift
 	visible = cut < _region.size.y - 1.0
-	region_rect = Rect2(Vector2(0.0, cut), Vector2(_region.size.x, maxf(1.0, _region.size.y - cut)))
+	region_rect = Rect2(_region.position + Vector2(0.0, cut), Vector2(_region.size.x, maxf(1.0, _region.size.y - cut)))

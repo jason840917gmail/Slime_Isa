@@ -672,8 +672,9 @@ today, and only real blockers get fixed.
   (`boss.engaged` / `boss.disengaged`) and back, and fades music and picture
   out before any map change. A critical hit plays the `weapon/crit` sting
   once per swing. Played headless on Fatty's arena; `pnpm test:audio`.
-  Open: `BossMusic` is a placeholder (the town theme pitched up) until a boss
-  track is sourced.
+  `BossMusic` was a placeholder (the town theme pitched up) until 2026-10-18:
+  now `boss-fight.wav`, a Magnific loop, with dungeon, cave and interior
+  music in their worlds ([audio spec §1.2](godot/specs/audio.md#12-authored-audio)).
 
 ### [x] 3.11 — Steps, water and the silent actions (Sound Picker rounds 3 and 4), applied 2026-10-06
 
@@ -6145,6 +6146,12 @@ Read this first; the older notes below it are history.
   chest. The second-pass scenes and six elevation caches are built; targeted checks passed and
   owner review remain. The three meadow hearts are in chests, and Plop fades home. Built by `tools/build_slimeshire_chunks.gd`.
 - **Built, uncommitted:** dungeon wall doorways with two-cell arches and 60 separate room scenes, following the owner's choices. Room outlines hide neighbouring contents, including closed treasure pockets. See [Dungeon rooms](godot/DUNGEON_ROOMS.md). Targeted dungeon checks and live captures are in `output/doorway-review/`; visual playthrough remains.
+- **Built 2026-10-18, uncommitted: Fatty's Lair is one world per room** (the owner's decision;
+  [the plan](design/2026-10-18-lair-rooms-as-worlds.md), [DUNGEON_ROOMS.md](godot/DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)):
+  its 24 room scenes are worlds joined by room doors picked in the Inspector, the screen scrolls
+  from room to room, what ties two rooms is a record, the map is a layout scene dragged in the
+  editor, the take's glimpse is a picture of R1's seal; the shell is gone. `test_lair_rooms.gd`
+  and the updated Lair tests pass; the owner's playthrough remains.
 - **Waiting on the owner:** open questions 3, 4, 9, 10, 116, 117 and 137 to 145
   ([06](story/06-open-questions.md)); the verdict on the Chapter 1 maps; a
   playthrough of each dungeon.

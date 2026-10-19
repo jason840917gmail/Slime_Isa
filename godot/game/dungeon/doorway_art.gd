@@ -12,10 +12,14 @@ const LEAF_SIZE := Vector2(128, 128)
 static func apply(world: Node2D) -> void:
 	var definition := world.get_node_or_null("world-definition")
 	var map_id := str(definition.get(&"map_id")) if definition != null else ""
-	if not (map_id == "fatty-lair" or map_id == "crystal-mine" or map_id.begins_with("weaver-hollow-")):
+	# Fatty's Lair draws its walls and doorways with interior walls (docs/godot/INTERIOR_WALLS.md)
+	if not (map_id == "crystal-mine" or map_id.begins_with("weaver-hollow-")):
 		return
 	for node: Node in world.find_children("*", "Node2D", true, false):
 		if node.has_meta(&"wall_doorway_applied"):
+			continue
+		# a door in a room whose InteriorWallLayer draws its opening (docs/godot/INTERIOR_WALLS.md)
+		if node.get(&"frame_drawn_by_wall") == true:
 			continue
 		if node is DungeonDoor:
 			_door(world, node as DungeonDoor, map_id)

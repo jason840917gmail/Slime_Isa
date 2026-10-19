@@ -61,12 +61,26 @@ world root, `loop: true`, `autoplay: true`, `polyphony: 1`:
 |---|---|---|
 | `level-1` | `audio.music.level-1-home-town` (`godot/asset/audio/music/level-1-home-town.ogg`), volume 0.55 | `audio.sfx.world.meadow-ambience.1`, volume 0.35 |
 | `gloop-forest` | `audio.music.gloop-forest` (`gloop-forest.mp3`), volume 0.5 | `audio.music.gloop-forest-ambience` (mp3), volume 0.35 |
-| `gloop-hut`, `mushroom-home`, `slime-home` | — | `audio.sfx.world.interior-ambience.1`, volume 0.35 |
-| every other world | — | — |
+| the dungeons: `fatty-lair` (the shell, not its room scenes), `weaver-hollow-trunk`, `-roots`, `-boughs`, `-crown`, `crystal-mine` | `dungeon.wav` (72 s loop), volume 0.5 | — |
+| the caves: `gloop-cavern`, `hollow-hill-cave` | `cave-a.wav` ("bass and drops"), volume 0.5 | — |
+| the cave `lake-island-cave` | `cave-b.wav` ("chiptune bass"), volume 0.5 | — |
+| the interiors `slime-home`, `gloop-hut` | `interior-a.wav` ("solo piano"), volume 0.5 | `audio.sfx.world.interior-ambience.1`, volume 0.35 |
+| the interiors `mushroom-home`, `watchkeeper-hideout` | `interior-b.wav` ("chiptune, two voices"), volume 0.5 | `audio.sfx.world.interior-ambience.1`, volume 0.35 |
+| every other world (the playground and its caves, the labs, the old maps) | — | — |
+
+Godot (2026-10-18): the dungeon, boss, cave and interior tracks are Magnific (Google Lyria) songs
+cut into seamless loops by `scripts/audio/make-music-loop.py` ([TOOLING.md](../../TOOLING.md));
+the files in `godot/asset/audio/music/` are 44.1 kHz stereo 16-bit WAVs imported with
+`edit/loop_mode=2` (forward, `loop_begin=0`, `loop_end=-1`: the whole file) and `compress/mode=2`
+(QOA), about 2.5 MB each once imported. Their sources and the other candidate songs stay in
+`asset/Originals/audio/music/` (`dungeon/loops/`, `loops/`). The two cave and two interior tracks
+alternate between worlds; any of them can be swapped by changing a world's `MusicPlayer` stream.
 
 `audio/global.scene.json` (`audio.global`, root `GlobalAudio`):
-- `Music/BossMusic`: `music.level-1-home-town` again, bus `music`, `loop`, volume 0.5,
-  **pitch 1.12**, polyphony 1, no autoplay. The only boss track.
+- `Music/BossMusic`: Phaser: `music.level-1-home-town` again at **pitch 1.12**. Godot (2026-10-18):
+  `boss-fight.wav` (41 s loop), pitch 1.0; bus `music`, `loop`, volume 0.5, polyphony 1, no
+  autoplay. The only boss track: every boss fight with a camp (Fatty, the Matron, the Colossus)
+  plays it.
 - `Effects/<Cue>`: 43 players, all bus `effects`: 41 one-shots (pitch randomness 0.06, min
   interval 60 ms) plus `SleepBreath` (loop, volume 0.3, polyphony 1) and `Rested` (volume 0.35,
   min interval 1000 ms). Names in §5.
@@ -89,13 +103,15 @@ The world controller builds the director after mounting the player and the world
 - **World track** = the first `AudioStreamPlayerNode` (not the 2D node, which is a separate class,
   `AudioStreamPlayer2DNode.ts:10`) whose bus is `music`, in pre-order depth-first order under the
   mounted world root (`:1743`, `descendants` `:2214-2222`). level-1 and gloop-forest have one; the
-  others have none (`world` undefined).
+  others have none (`world` undefined). Godot: the dungeons, caves and interiors of §1.2 have one
+  too.
 - **Boss track** = `Music/BossMusic` of the mounted `audio.global` scene (`:801-806`), undefined
   if missing.
 - **Ambience** is not driven: it autoplays at its authored volume, is never ducked (the duck is on
   the `music` bus only) and is never faded; the page reload cuts it.
 
-The music bus has no other users (only these three nodes in all authored scenes set `bus: music`).
+The music bus has no other users (only these three nodes in all authored scenes set `bus: music`;
+Godot: every world's `MusicPlayer` of §1.2 and `BossMusic`).
 
 ---
 
@@ -321,7 +337,12 @@ On `world_registered`: forget the leave fade and every engaged camp (the old wor
 gone); the old world track, if still audible (no leave fade ran), fades out as `FadingMusic` over
 the remaining leave time or 1200 ms and is freed at silence, otherwise it is stopped and freed at
 once; the new world's track is claimed at gain 0 and fades in over 1500 ms (1200 if the boss track
-is still audible, Phaser's rule). The boss track is not restarted; with no engaged camp it fades
+is still audible, Phaser's rule). Godot: when the new world plays the same file as the track still
+playing, that track carries on and the new world's player is freed: on a scroll into the next
+chunk of a region (no leave fade, the music never dips), and on any travel of main's after the
+leave fade (the next floor of the Weaver Hollow, a door between two worlds with one track): the
+track keeps its place and fades back in over 1500 ms instead of starting over. A quit to title or a
+new main still starts the track from the top. The boss track is not restarted; with no engaged camp it fades
 out and stops by the normal rule. Then `AreaTransition` plays for main's worlds
 (`play_arrival_cue`, default true, turns it off entirely).
 
@@ -374,7 +395,7 @@ it outside the rework ([BODY_SHAPES.md](../BODY_SHAPES.md) "Juice").
 ---
 
 ## 8. Edge cases
-- A world without music (`gloop-hut`): no world track; a boss fight there still brings in the
+- A world without music (the playground): no world track; a boss fight there still brings in the
   boss track; leaving fades whatever plays.
 - Boss engaged while the arrival fade-in runs: the world gain falls from where it is at the
   crossfade rate; after the fight it rises at the crossfade rate while the boss gain is above 0,
@@ -394,7 +415,7 @@ main leaves the tree) except the travel test, which runs on real time.
 - level-1: the claimed track plays `level-1-home-town.ogg` on `Music` from under the director at
   base 0.55, nothing on `Music` plays under the world root, the ambience plays on `Ambience` in the
   world; +750 ms → gain +0.5, then 1.0; `volume_linear = 0.55 × gain`.
-- Boss: walking into the camp starts `BossMusic` (pitch 1.12, base 0.5); 600 ms → 0.5 / 0.5,
+- Boss: walking into the camp starts `BossMusic` (`boss-fight.wav`, pitch 1.0, base 0.5); 600 ms → 0.5 / 0.5,
   1200 ms → 0 / 1 with the world track still playing; five spear hits defeat Fatty → `Victory`
   plays on `Effects`; 1200 ms later the world is back at 1 and `BossMusic` has stopped.
 - Player death mid-fight → disengaged → the world music returns over 1200 ms.

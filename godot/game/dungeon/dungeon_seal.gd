@@ -43,6 +43,8 @@ const SECOND_BEAT := 0.65
 const BEAT_WIDTH := 0.07
 ## The ring's flash on the slam (real ms).
 const FLASH_MS := 450.0
+## With the frame drawn by the wall, the ring is this share of the seal leaf's size.
+const RING_IN_LEAF := 0.62
 ## The ring's light over its colour (it is added).
 const RING_BOOST := 1.6
 const RULE := {"priority": 0, "damageMultiplier": 1}
@@ -72,6 +74,7 @@ var _next_line_ms := 0
 var _flash_until := 0.0
 var _clock := 0.0
 var _ring_scale := Vector2.ZERO
+var _ring_rest := Vector2.ZERO
 
 
 func _enter_tree() -> void:
@@ -98,6 +101,10 @@ func _ready() -> void:
 	_sync_in_tree.call_deferred()
 
 
+func leaf_kind() -> String:
+	return "seal"
+
+
 func _exit_tree() -> void:
 	_register_hits(false)
 
@@ -108,6 +115,18 @@ func _apply_side_depth() -> void:
 		return
 	if _ring_scale == Vector2.ZERO:
 		_ring_scale = ring.scale
+		_ring_rest = ring.position
+	if frame_drawn_by_wall and look != null and look.region_enabled:
+		# the ring lies over the pearl in the middle of the wall-drawn seal leaf
+		var size := look.region_rect.size * look.scale
+		ring.rotation = look.rotation
+		ring.offset = Vector2.ZERO
+		ring.centered = true
+		if ring.texture != null:
+			var k := minf(size.x, size.y) * RING_IN_LEAF / float(ring.texture.get_width())
+			ring.scale = Vector2(k, k)
+		ring.position = look.position + (size * 0.5).rotated(look.rotation)
+		return
 	ring.scale = Vector2(_ring_scale.x, _ring_scale.y * (SIDE_DEPTH if wall == "east" or wall == "west" else 1.0))
 
 

@@ -56,6 +56,28 @@ report there for the final results. The final dungeon regression passed 12/12 ch
 and the six dungeon shells/any open room scenes in Godot before saving them.
 
 
+## Fatty's Lair: one world per room (2026-10-18)
+
+The owner decided (and approved the build, then left): every room of Fatty's Lair is its own world,
+the Zelda way. Built, uncommitted:
+[DUNGEON_ROOMS.md](../godot/DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18) (how it works and
+how to edit it), [the plan with every link between rooms](../design/2026-10-18-lair-rooms-as-worlds.md).
+
+- The 24 room scenes are the worlds (R1 is `fatty-lair`, the rest `fatty-lair-<room>`); the shell
+  `game/scenes/worlds/fatty-lair.tscn` and its elevation cache are deleted (backups of every touched
+  scene and test: the session's scratchpad, `rooms-worlds/`).
+- Room doors (`object.room-door`, 54, in 27 pairs) are set in the Inspector (target room and door
+  from lists, red in the editor when wrong); the screen scrolls through them.
+- Records instead of links: the kit's records under `fatty-lair`; a session record for R10's plate
+  and R9's door; a flag for the map nook's gap (new).
+- The map is `rooms/fatty-lair/layout.tscn`, dragged in the editor; the take's glimpse is a picture
+  of R1's seal (`tools/capture_lair_seal.gd`).
+- **Reload in the editor before any save-all**: all 24 room scenes of `rooms/fatty-lair/`, and close
+  `fatty-lair.tscn` if it is open (it no longer exists).
+- Left for the owner: a playthrough (the scroll's look, the pockets' walls: the lower hall, the
+  alcove and Burr's cell got copies of the rim they shared), and the doc's open questions
+  (Burr's cell as its own world, the stairs' fade, the energy flower, the quest arrow).
+
 C4 follow-up: the oversized standalone stone doorway and exposed watch-post chest are now a
 keeper's timber storehouse with a separate furnished interior (`watchkeeper-hideout`). The
 original bell unlock and chest save records are retained. The shared latch-door prefab and

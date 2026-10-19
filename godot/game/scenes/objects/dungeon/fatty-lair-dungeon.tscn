@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon.tscn" id="1_dungeon"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/boss/fatty-roar.ogg" id="2_roar"]
+[ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/fatty-lair/layout.tscn" id="3_layout"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/fattys-lair/seal-glimpse-open.res" id="4_open"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/fattys-lair/seal-glimpse-shut.res" id="5_shut"]
+
+[node name="fatty-lair-dungeon" instance=ExtResource("1_dungeon")]
+dungeon_id = "fatty-lair"
+display_name = "Fatty's Lair"
+entrance_map_id = "fatty-lair"
+record_map_id = "fatty-lair"
+layout = ExtResource("3_layout")
+boss_id = "fatty-one-eye"
+boss_name = "Fatty One Eye"
+seal_color = Color(0.7058824, 0.27450982, 0.17254902, 1)
+roar_sound = ExtResource("2_roar")
+roar_pitch = 0.9
+dust_color = Color(0.6509804, 0.5411765, 0.38431373, 1)
+glimpse_pictures = Array[Texture2D]([ExtResource("4_open"), ExtResource("5_shut")])
+dev_pearl_id = "fatty-one-eye"
+dev_pearl_guard = "fatty-lair-big-squint"
+dev_pearl_skin = "heavy"

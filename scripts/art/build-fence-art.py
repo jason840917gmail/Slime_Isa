@@ -53,6 +53,10 @@ STYLES = {
               "side_band": True, "side_width": 14.0},
     "sandstone": {"source": "sandstone-front-a.png", "post_height": 36.0, "spacing": 80.0, "inset": 12.0, "side_offset": 0.0,
                   "side_band": True, "side_width": 14.0},
+    # Dungeon dividers (docs/godot/FENCES.md "Dungeon dividers"): the Lair's fort stone, square posts
+    # with capstones and low bars, as ALttP's room dividers (owner, 2026-10-19: posts about 47 high)
+    "lair-divider": {"source": "lair-divider-front-a.png", "post_height": 47.0, "spacing": 64.0, "inset": 10.0,
+                     "side_offset": 0.0, "side_band": True, "side_width": 14.0},
 }
 
 ALPHA = 128

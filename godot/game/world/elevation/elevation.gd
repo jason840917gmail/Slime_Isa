@@ -72,6 +72,9 @@ const ElevationStairs := preload("res://game/world/elevation/elevation_stairs.gd
 const ElevationRamp := preload("res://game/world/elevation/elevation_ramp.gd")
 const GroundSurface := preload("res://game/world/ground_surface.gd")
 const Fences := preload("res://game/world/fences/fences.gd")
+const LevelCollision := preload("res://game/world/elevation/level_collision_layer.gd")
+const RoomFaces := preload("res://game/world/elevation/room_faces.gd")
+const LEVEL_COLLISION_TILESET := "res://game/world/elevation/level_collision_tileset.tres"
 const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materials.gd")
 const TileColours := preload("res://game/ui/map/map_terrain.gd")
 const GROUND_SHADER := preload("res://game/world/elevation/elevation_ground.gdshader")
@@ -278,6 +281,15 @@ var _wall_art: Dictionary = {}
 ## level -> its terrain outline (world units) while the collision is built (`_terrain_outline`).
 var _outlines: Dictionary = {}
 var _collide := false
+## The world's hand-painted level collision (level_collision_layer.gd, "Painting collision"), or
+## null; painted, it replaces the automatic collision and its walkability.
+var painted_collision: LevelCollision
+## The room faces' footprint as level-collision cells (RoomFaces; child "RoomCollision", never saved,
+## never colliding): what "Fill from the automatic collision" copies in a room; null outside rooms.
+var room_collision: LevelCollision
+## The level-collision layer in use (`painted_collision` when painted, else `room_collision`).
+var _collision_paint: LevelCollision
+var _painted_on := false
 ## ground name -> its 19x19 sheet texture, and the atlas source it is (for its average colour).
 var _sheets: Dictionary = {}
 var _sources: Dictionary = {}
@@ -321,6 +333,7 @@ static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 	elevation.ground = ground_layer
 	elevation.layer = painted
 	elevation._collide = collide
+	elevation.painted_collision = LevelCollision.find_beside(ground_layer)
 	elevation.rebuild()
 	return elevation
 
@@ -559,9 +572,21 @@ func rebuild() -> void:
 		_apply_cache(cache)
 	else:
 		_build_drawing()
+	_build_room_faces()
+	_collision_paint = null
+	if painted_collision != null and is_instance_valid(painted_collision) and painted_collision.is_painted():
+		_collision_paint = painted_collision
+	_painted_on = _collision_paint != null
 	if _collide:
 		# Passages opened at run time (`open_passage`) are not in the cache's collision.
-		if from_cache and _passages.is_empty():
+		if _painted_on:
+			# a cache being recorded keeps the automatic collision too (the layer may be cleared later)
+			if _cache_record != null:
+				_painted_on = false
+				_build_collision()
+				_painted_on = true
+			_make_painted_collision()
+		elif from_cache and _passages.is_empty():
 			_make_collision(cache.collision)
 		else:
 			_build_collision()
@@ -597,7 +622,7 @@ func open_passage(world_rect: Rect2, level: int) -> void:
 	if grid == null:
 		return
 	passage["tops"] = _passage_tops(_passage_cells(world_rect), level)
-	if grid.open_rect(_passage_cells(world_rect), level) > 0 and _collide:
+	if (grid.open_rect(_passage_cells(world_rect), level) > 0 or _painted_on) and _collide:
 		# Deferred: a blast opens it from a physics step, where bodies cannot be swapped.
 		_rebuild_level_collision.call_deferred(level)
 
@@ -640,6 +665,18 @@ func _passage_rects(level: int, top_level: int) -> Array[Rect2]:
 	return rects
 
 
+## True when `point` (Elevation space) lies in a passage opened for bodies of `level` (a slab, a
+## landing, a lowered drawbridge, a blown wall): there the round corners and slanted ends of that
+## level's own tops beside it are ground, so a body walks from the top onto the deck.
+func _in_level_passage(point: Vector2, level: int) -> bool:
+	for passage: Dictionary in _passages:
+		if int(passage["level"]) == level:
+			var rect: Rect2 = passage["rect"]
+			if Rect2(rect.position - global_position, rect.size).has_point(point):
+				return true
+	return false
+
+
 ## True when `point` (Elevation space) lies in a passage that opens the drawn walls of tops of
 ## `top_level` for bodies of `level` (`_passage_rects`).
 func _in_passage(point: Vector2, level: int, top_level: int) -> bool:
@@ -680,6 +717,18 @@ func is_walkable(world_point: Vector2, level: int) -> bool:
 	var rule := _stairs_rule(local, level)
 	if rule >= 0:
 		return rule == 1
+	if _painted_on:
+		return _painted_kind(world_point, level).is_empty()
+	return _terrain_walkable(local, level)
+
+
+## The terrain's walkability at `point` (world) for `level` with the stairs, whatever is painted on
+## a level-collision layer (`is_walkable` without the paint).
+func _ground_walkable(world_point: Vector2, level: int) -> bool:
+	var local := world_point - global_position
+	var rule := _stairs_rule(local, level)
+	if rule >= 0:
+		return rule == 1
 	return _terrain_walkable(local, level)
 
 
@@ -705,7 +754,7 @@ func _sides_walkable(point: Vector2, level: int, base: bool) -> bool:
 		if top_level < level or int(shape["lowest"]) > level or not (shape["bounds"] as Rect2).has_point(point):
 			continue
 		if top_level == level:
-			if base and _in_zone(shape, point):
+			if base and _in_zone(shape, point) and not (not _passages.is_empty() and _in_level_passage(point, level)):
 				return false
 			continue
 		var walls: Array = shape["walls"]
@@ -863,6 +912,10 @@ func body_fits(feet: Vector2, level: int) -> bool:
 		var point := feet + corner
 		if not is_walkable(point, level):
 			return false
+		# painted collision decides what collides; where a body may stand (a landing, a hop) is still
+		# the ground the terrain gives that level: never on a wall face between a rim and its foot
+		if _painted_on and not _ground_walkable(point, level):
+			return false
 		if world != null and world.is_solid_tile(floori(point.x / cell), floori(point.y / cell)):
 			return false
 	return true
@@ -883,6 +936,8 @@ func body_fits(feet: Vector2, level: int) -> bool:
 func ledge_below(feet: Vector2, level: int, direction: Vector2, reach: float = RIM_PROBE) -> int:
 	if grid == null or direction == Vector2.ZERO:
 		return NO_LEDGE
+	if _painted_on:
+		return _painted_ledge_below(feet, level, direction, reach)
 	var unit := direction.normalized()
 	var centre := feet - Vector2(0.0, BODY_HALF.y)
 	var lower := NO_LEDGE
@@ -1770,10 +1825,30 @@ func _painted_style_at(edge: Vector2, into: Vector2, level: int, painted: Dictio
 ## The wall style the ground on the top that begins at `edge` (cells) towards `into` gives it: the
 ## world's own choice (WORLD_WALL_STYLES_META), else GROUND_WALL_STYLES, else DEFAULT_WALL_STYLE.
 func _ground_style_at(edge: Vector2, into: Vector2) -> String:
+	# inside a room with interior walls (docs/godot/INTERIOR_WALLS.md "Pits and holes"), the pit's
+	# walls take the cliff style of the room's walls (the `cliffs` layer still overrides)
+	var interior := _interior_style_at(edge + into * 0.5)
+	if not interior.is_empty():
+		return _with_art(interior)
 	var tri := grid.tri_at(edge + into * 0.05)
 	var name_of_ground := grid.tri_ground[tri] if tri >= 0 else ""
 	var own: Dictionary = ground.get_meta(WORLD_WALL_STYLES_META, {}) if ground != null else {}
 	return _with_art(str(own.get(name_of_ground, GROUND_WALL_STYLES.get(name_of_ground, DEFAULT_WALL_STYLE))))
+
+
+## Interior wall style -> the cliff style of the pits inside such a room.
+const INTERIOR_CLIFF_STYLES := {"lair-stone": "masonry", "cave-rock": "cave-rock", "root-rock": "root-rock"}
+
+
+## The cliff style a room's interior walls give the top at `point` (cells), "" outside such a room.
+func _interior_style_at(point: Vector2) -> String:
+	if ground == null or ground.get_parent() == null:
+		return ""
+	var walls := ground.get_parent().get_node_or_null(^"interior-walls")
+	if walls == null or not walls.has_method(&"room_style_at"):
+		return ""
+	var style := str(walls.call(&"room_style_at", Vector2i(floori(point.x), floori(point.y))))
+	return str(INTERIOR_CLIFF_STYLES.get(style, ""))
 
 
 ## `style`, or DEFAULT_WALL_STYLE when it has no wall art (warned once).
@@ -2380,6 +2455,51 @@ func _cut_open_seams(segments: PackedVector2Array, level: int) -> PackedVector2A
 	return out
 
 
+## `segments` without the pieces along a deck's passage of `level` (a slab, a landing, a lowered
+## drawbridge, `open_passage`) that part walkable ground from walkable ground: where a deck joins a
+## top beside it (its side, its round corner) the top's old edge goes, so a body walks and Rolls
+## from the one onto the other as from a rim onto a bridge.
+func _cut_passage_seams(segments: PackedVector2Array, level: int) -> PackedVector2Array:
+	var near: Array[Rect2] = []
+	for passage: Dictionary in _passages:
+		if int(passage["level"]) == level:
+			var rect: Rect2 = passage["rect"]
+			near.append(Rect2(rect.position - global_position, rect.size).grow(SEAM_PROBE * 2.0))
+	if near.is_empty():
+		return segments
+	var out := PackedVector2Array()
+	for i in range(0, segments.size(), 2):
+		var a := segments[i]
+		var b := segments[i + 1]
+		var box := Rect2(a, Vector2.ZERO).expand(b).grow(1.0)
+		var touches := false
+		for r in near:
+			if r.intersects(box):
+				touches = true
+				break
+		if not touches:
+			out.append(a)
+			out.append(b)
+			continue
+		var pieces := maxi(1, ceili(a.distance_to(b) / SEAM_STEP))
+		var normal := (b - a).orthogonal().normalized()
+		var start := -1
+		for k in pieces + 1:
+			var keep := true
+			if k < pieces:
+				var middle := a.lerp(b, (k + 0.5) / pieces) + global_position
+				keep = not (is_walkable(middle + normal * SEAM_PROBE, level) and is_walkable(middle - normal * SEAM_PROBE, level))
+			else:
+				keep = false
+			if keep and start < 0:
+				start = k
+			elif not keep and start >= 0:
+				out.append(a.lerp(b, float(start) / pieces))
+				out.append(a.lerp(b, float(k) / pieces))
+				start = -1
+	return out
+
+
 ## True when the collision of `level` at `middle` (Elevation space, `normal` across it) is a seam of
 ## an open cliff's zone (`_cut_open_seams`).
 func _is_open_seam(middle: Vector2, normal: Vector2, level: int) -> bool:
@@ -2555,7 +2675,125 @@ func _level_segments(level: int) -> PackedVector2Array:
 		segments = _with_stairs(segments, level)
 	if not _side_shapes.is_empty():
 		segments = _with_sides(segments, level)
-	return _cut_open_seams(segments, level)
+	return _cut_passage_seams(_cut_open_seams(segments, level), level)
+
+
+## Inside dungeon rooms (an `interior-walls` layer beside the ground) the level changes are drawn as
+## the room's own wall faces (room_faces.gd) instead of the cliffs: the Sides and the corner Patches
+## go, the faces go in their place (over the pits' shade and the hazards' look, under the stairs).
+## The collision, the ledge drops and the slabs stay the outdoor ones (the faces are drawn on their
+## footprint: a front one cell a level, a side the side wall's strip). Built at every rebuild, with
+## or without the cache.
+func _build_room_faces() -> void:
+	for old_name in ["RoomFaces", "RoomCollision"]:
+		var old := get_node_or_null(NodePath(old_name))
+		if old != null:
+			old.free()
+	room_collision = null
+	var walls := ground.get_parent().get_node_or_null(^"interior-walls") if ground != null and ground.get_parent() != null else null
+	if walls == null or not walls.has_method(&"room_style_at") or layer == null:
+		return
+	var bounds := ground.get_used_rect()
+	var built := RoomFaces.build(layer, walls, bounds)
+	var faces := built["faces"] as Node2D
+	if faces.get_child_count() == 0:
+		faces.free()
+		return
+	for group_name in ["Sides", "Patches"]:
+		var old := get_node_or_null(NodePath(group_name))
+		if old != null:
+			old.free()
+	# in the painted layer's space (this node may sit higher, `position`, for rows painted above)
+	faces.position = to_local(layer.to_global(Vector2.ZERO))
+	add_child(faces)
+	var shade := get_node_or_null(^"Shade")
+	if shade != null:
+		move_child(faces, shade.get_index() + 1)
+	# the collision stays the outdoor one (the faces sit on its footprint: room_faces.gd); its cells
+	# as a level-collision layer seed "Fill from the automatic collision"
+	var collision := LevelCollision.new()
+	collision.name = "RoomCollision"
+	collision.tile_set = load(LEVEL_COLLISION_TILESET)
+	collision.show_collision = false
+	var cells: Dictionary = built["cells"]
+	for at: Vector2i in cells:
+		var entry: Array = cells[at]
+		collision.set_cell(at, 0, Vector2i(LevelCollision.KINDS.find(str(entry[0])), int(entry[1]) - LevelCollision.MIN_LEVEL))
+	add_child(collision)
+	collision.position = to_local(layer.to_global(Vector2.ZERO))
+	collision.visible = false
+	room_collision = collision
+
+
+## The hand-painted collision (`painted_collision`): a static body per level on its physics layer,
+## one rectangle per merged run of its painted cells (rims and bases alike: both are solid for that
+## level), and the stairs' steps as `_make_collision` makes them.
+func _make_painted_collision() -> void:
+	_make_collision({})
+	var holder := get_node("Collision") as Node2D
+	var rects := _collision_paint.rects_by_level(_passages)
+	for level: int in rects:
+		var body := StaticBody2D.new()
+		body.name = "Level%d" % level
+		body.collision_layer = level_bit(level)
+		body.collision_mask = 0
+		for r: Rect2 in rects[level]:
+			var shape := RectangleShape2D.new()
+			shape.size = r.size
+			var collision := CollisionShape2D.new()
+			collision.shape = shape
+			collision.position = to_local(r.get_center())
+			body.add_child(collision)
+		holder.add_child(body)
+
+
+## The painted collision's kind at `point` (world) for `level` ("" where a deck's passage opened it).
+func _painted_kind(point: Vector2, level: int) -> String:
+	if not _passages.is_empty() and LevelCollision.opens(_passages, point, level):
+		return ""
+	return _collision_paint.kind_at(point, level)
+
+
+## The level painted on the `elevation` layer at `point` (world): unpainted 0; a stair or ramp cell
+## MIN_LEVEL - 1 (no landing there).
+func painted_level_at(point: Vector2) -> int:
+	if layer == null:
+		return 0
+	var at := layer.local_to_map(layer.to_local(point))
+	var data := layer.get_cell_tile_data(at)
+	if data == null:
+		return 0
+	if layer.get_cell_atlas_coords(at).y > 0:
+		return ElevationGrid.MIN_LEVEL - 1
+	return int(data.get_custom_data(LEVEL_DATA_LAYER))
+
+
+## `ledge_below` over painted collision: the body pushes into a painted rim of its level; the level
+## it drops to is the one painted past the rim (lower, or no ledge). A painted base ahead is a wall.
+func _painted_ledge_below(feet: Vector2, level: int, direction: Vector2, reach: float) -> int:
+	var unit := direction.normalized()
+	var centre := feet - Vector2(0.0, BODY_HALF.y)
+	var lower := NO_LEDGE
+	for side: Vector2 in BODY_SIDES:
+		var offset := side * BODY_HALF
+		if offset.dot(unit) <= 0.0:
+			continue
+		var probe := centre + offset + unit * reach
+		var kind := _painted_kind(probe, level)
+		if kind == "base":
+			return NO_LEDGE
+		if kind != "rim":
+			continue
+		var past := probe
+		var walked := 0.0
+		while walked < 4.0 * cell and _painted_kind(past, level) == "rim":
+			past += unit * LANDING_SEARCH_STEP
+			walked += LANDING_SEARCH_STEP
+		var below := painted_level_at(past)
+		if below < ElevationGrid.MIN_LEVEL or below >= level:
+			return NO_LEDGE
+		lower = maxi(lower, below)
+	return lower
 
 
 ## A static body per level (on its own physics layer) with its collision outline: `by_level`
@@ -2602,6 +2840,9 @@ func _add_level_body(holder: Node2D, level: int, segments: PackedVector2Array) -
 
 ## Only `level`'s collision again (a passage opened, `open_passage`); never recorded in the cache.
 func _rebuild_level_collision(level: int) -> void:
+	if _painted_on:
+		_make_painted_collision()
+		return
 	var holder := get_node_or_null("Collision") as Node2D
 	if holder == null:
 		_build_collision()
@@ -2897,11 +3138,14 @@ func _with_sides(segments: PackedVector2Array, level: int) -> PackedVector2Array
 			candidates.append([shifted[k], shifted[(k + 1) % shifted.size()]])
 	# A passage opened through a cliff face (`open_passage`) opens the drawn wall in its rect
 	# (`_in_passage`): its rect's outline cuts the walls there.
+	# A deck's passage over a hole (no tops) opens the round corners of the tops beside it: its own
+	# outline cuts them too.
 	for passage: Dictionary in _passages:
-		if int(passage["level"]) != level or (passage.get("tops", {}) as Dictionary).is_empty():
+		if int(passage["level"]) != level:
 			continue
 		var rect: Rect2 = passage["rect"]
-		rect = Rect2(rect.position - global_position, rect.size + Vector2(0.0, PASSAGE_FOOT_SLACK))
+		var slack := PASSAGE_FOOT_SLACK if not (passage.get("tops", {}) as Dictionary).is_empty() else 0.0
+		rect = Rect2(rect.position - global_position, rect.size + Vector2(0.0, slack))
 		var corners := [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
 		for k in 4:
 			candidates.append([corners[k], corners[(k + 1) % 4]])

@@ -21,6 +21,7 @@ class_name GateScript
 const Services := preload("res://game/shared/services.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Door := preload("res://game/scripts/door.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 
 ## Plates and bells find gates here by `gate_id`.
 const GROUP := &"gate"
@@ -60,6 +61,11 @@ const STUCK_MESSAGE := "The gate will not budge."
 @export var visual: Sprite2D
 ## JSON `doors`: the StaticBody2D that blocks the passage while closed.
 @export var doors: StaticBody2D
+## Not in Phaser: a session record (game/dungeon/dungeon_state.gd `session_value`) that opens the
+## gate when its world is built while it is set: a plate in another room's world held down when the
+## slime left it (heavy_plate.gd `hold_record`; Fatty's Lair: R9's north door and R10's plate,
+## `fatty-lair.r10-plate-held`). "" = none.
+@export var open_while_record: String = ""
 
 ## The gate opened. Payload: {"gateId": String}.
 signal opened(payload: Dictionary)
@@ -86,6 +92,8 @@ func _ready() -> void:
 		interact_radius = 150.0
 	if not is_finite(badge_rise):
 		badge_rise = 120.0
+	if not open_while_record.is_empty() and bool(DungeonState.session_value(Services.run(), open_while_record, false)):
+		_opened = true
 	_apply(_opened)
 
 

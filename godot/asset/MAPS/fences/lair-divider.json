@@ -1,0 +1,40 @@
+{
+  "style": "lair-divider",
+  "source": "lair-divider-front-a.png",
+  "px_per_unit": 2.0,
+  "post_height": 47.0,
+  "spacing": 64.0,
+  "inset": 10.0,
+  "posts": {
+    "count": 5,
+    "cell": [
+      72,
+      98
+    ],
+    "foot_row": 96.62,
+    "half_width": 11.91
+  },
+  "rails": {
+    "size": [
+      143,
+      41
+    ],
+    "top": 24.48,
+    "bottom": 4.15,
+    "rows": [
+      [
+        23.83,
+        4.59
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      28,
+      143
+    ],
+    "top": 24.05,
+    "bottom": 4.59,
+    "offset": 0.0
+  }
+}

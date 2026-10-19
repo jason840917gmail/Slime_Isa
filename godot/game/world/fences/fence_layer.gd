@@ -10,10 +10,22 @@ extends TileMapLayer
 ## squares are only a painting aid: hide the layer (eye icon) to see the result. The game hides it
 ## and the Elevation (or, in a flat world, Elevation.mount) mounts the fences with their collision.
 ##
+## Divider gates (docs/godot/FENCES.md "Dungeon dividers"): a cell painted with a gate tile
+## (`lair-divider-eye`, `lair-divider-pen`) draws no post; the layer keeps a divider gate object
+## (`object.divider-gate`) on it under the scene's `Objects` (`sync_gates`, in the editor as you
+## paint): an untagged one already standing there (a converted latch door, with its gate id and
+## records) is adopted, else one is made; a gate it made whose tile is erased goes.
+##
 ## Owner: world (fences).
 
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const Fences := preload("res://game/world/fences/fences.gd")
+const GATE_SCENE := "res://game/scenes/objects/dungeon/divider-gate.tscn"
+## The metas a gate the layer keeps carries: its cell ("x,y") and its tile's style.
+const GATE_CELL_META := &"fence_gate_cell"
+const GATE_STYLE_META := &"fence_gate_style"
+## How near (units) an untagged gate must stand to a gate cell's foot to be adopted.
+const ADOPT_REACH := 40.0
 
 var _queued := false
 
@@ -44,5 +56,73 @@ func _rebuild() -> void:
 	if elevation == null or elevation.grid == null:
 		# No elevation drawing yet (or a flat world): the full mount builds what there is.
 		Elevation.mount(ground, false)
+		sync_gates(true)
 		return
 	elevation.fences = Fences.mount(ground, elevation, elevation.grid, elevation.occlusion, false)
+	sync_gates(true)
+
+
+## Keeps a divider gate on every cell painted with a gate tile (Fences.GATE_STYLES); returns the
+## gates made. `create` false only adopts (tags) what stands there.
+func sync_gates(create: bool) -> int:
+	var room := get_parent()
+	if room == null or tile_set == null or not tile_set.has_custom_data_layer_by_name(Fences.STYLE_DATA_LAYER):
+		return 0
+	var wanted := {}
+	for cell: Vector2i in get_used_cells():
+		var data := get_cell_tile_data(cell)
+		var style := str(data.get_custom_data(Fences.STYLE_DATA_LAYER)) if data != null else ""
+		if Fences.GATE_STYLES.has(style):
+			wanted["%d,%d" % [cell.x, cell.y]] = [cell, style]
+	var objects := room.get_node_or_null(^"Objects") as Node2D
+	if objects == null:
+		if wanted.is_empty() or not create:
+			return 0
+		objects = Node2D.new()
+		objects.name = "Objects"
+		objects.y_sort_enabled = true
+		room.add_child(objects)
+		objects.owner = _owner_node(room)
+	var tagged := {}
+	for node: Node in objects.get_children():
+		if node.has_meta(GATE_CELL_META):
+			tagged[str(node.get_meta(GATE_CELL_META))] = node
+	var made := 0
+	for key: String in wanted:
+		var cell: Vector2i = wanted[key][0]
+		var style: String = wanted[key][1]
+		var kind := str(Fences.GATE_STYLES[style][1])
+		var foot := objects.to_local(to_global(map_to_local(cell)))
+		var node: Node = tagged.get(key)
+		if node == null:
+			for candidate: Node in objects.get_children():
+				if candidate.has_meta(GATE_CELL_META) or not candidate is Node2D or candidate.scene_file_path != GATE_SCENE:
+					continue
+				if (candidate as Node2D).position.distance_to(foot) <= ADOPT_REACH:
+					node = candidate
+					break
+		if node == null and create:
+			var packed := load(GATE_SCENE) as PackedScene
+			node = packed.instantiate()
+			node.name = "divider-gate-%d-%d" % [cell.x, cell.y]
+			objects.add_child(node)
+			node.owner = _owner_node(room)
+			made += 1
+		if node == null:
+			continue
+		node.set_meta(GATE_CELL_META, key)
+		node.set_meta(GATE_STYLE_META, style)
+		(node as Node2D).position = foot
+		if str(node.get(&"kind")) != kind:
+			node.set(&"kind", kind)
+		tagged.erase(key)
+	if create:
+		for key: String in tagged:
+			(tagged[key] as Node).free()
+	return made
+
+
+func _owner_node(room: Node) -> Node:
+	if Engine.is_editor_hint() and is_inside_tree() and get_tree().edited_scene_root != null:
+		return get_tree().edited_scene_root
+	return room.owner if room.owner != null else room

@@ -87,7 +87,7 @@ floors, the Crystal Mine, the dungeon lab) plays in the body-shapes mode with th
 then the Heavy skin and the Goo Bomb, then the Silk skin and the Lantern. They are lent for the
 session (abilities through `learn_session_ability`, the `skin.<name>` entries as lent skins:
 `SkinState.lend`, [SKINS.md](SKINS.md)) and
-the autosave is off (owner, 2026-10-17; `main.gd` `dev_powers_for`). D5 starts at its upper-west path marker (384, 384), clear of the cliff. F6 on
+the autosave is off (owner, 2026-10-17; `main.gd` `dev_powers_for`). Fatty's Lair also lends the Heavy skin (owner, 2026-10-18: to test the second half without taking Pearl 1 first). Fatty's Lair is one world per room (2026-10-18, [DUNGEON_ROOMS.md](DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)): **F6 on one of its room scenes** (`game/scenes/worlds/rooms/fatty-lair/<room>.tscn`) runs that room's world (`fatty-lair` for R1, `fatty-lair-<room>` for the others) with the Lair's powers, its `world-definition` doing the swap (`room_scene.gd` leaves it to it); `?map=fatty-lair-<room>` does the same from the web. D5 starts at its upper-west path marker (384, 384), clear of the cliff. F6 on
 `game/dev/weaver-hollow-second-half.tscn` runs the Weaver Hollow's Crown that way with the Silk
 skin lent too (won mid-dungeon from Pearl 2; [DUNGEONS.md](DUNGEONS.md#the-weaver-hollow-built)). Or launch with `?map=<id>` (web) / `-- --map=<id>` (desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
 position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest active at that stage
@@ -106,7 +106,8 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
 skip the title; the test runner keeps the playground classic). `?prologue` / `-- --prologue`
 starts a new run in the prologue, as New Game does, and skips the title. `?skins=heavy,silk,feral`
 / `-- --skins=...` lends those skins for the session in any world ([SKINS.md](SKINS.md)). In a dungeon world,
-`keys=<n>`, `bigkey`, `dmap` (the map and the compass) and `room=<camera room>` set the dungeon up
+`keys=<n>`, `bigkey`, `dmap` (the map and the compass) and `room=<camera room>` (in Fatty's Lair a
+room of another world: it travels there) set the dungeon up
 (with `map`; [DUNGEONS.md](DUNGEONS.md#dungeon-state-no-saving-resume-at-the-entrance)), and
 `sealed` starts it with its Pearl taken and its seal shut ([DUNGEONS.md](DUNGEONS.md#the-seal));
 the kit's lab is `?map=dungeon-lab`.

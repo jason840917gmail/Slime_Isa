@@ -51,6 +51,9 @@ const EnragedLook := preload("res://game/bosses/enraged_look.gd")
 const BOSS_CAMP_GROUP := &"boss_camp"
 const ROOM_FIGHT_GROUP := &"room_fight"
 const PEARL_GROUP := &"pearl"
+## pearl.gd FLAG_PREFIX: a Pearl taken is the flag "pearl.<id>".
+const PEARL_FLAG_PREFIX := "pearl."
+const SkinState := preload("res://game/player/skins/skin_state.gd")
 const BREAK_TEXT := "The seals break!"
 const BREAK_TEXT_RISE := 60.0
 const CUE_BREAK := &"SecretFound"
@@ -81,6 +84,14 @@ signal room_entered(payload: Dictionary)
 @export var resume_saves: bool = true
 ## Walking into another room brings back its beaten enemies and its taken pots.
 @export var room_resets: bool = true
+## The id this world keeps its kit records under ("" = its map id). Every room world of a dungeon
+## that is one world per room (Fatty's Lair) sets the dungeon's id here, so a room's records
+## ("fatty-lair:fatty-lair-drawbridge") do not change with its world (DungeonState.object_key).
+@export var record_map_id: String = ""
+## The dungeon's map layout (a DungeonLayout scene, game/dungeon/dungeon_layout.gd) when it is one
+## world per room: the map and the minimap draw every room of the layout, this world's room among
+## them; null = the CameraRooms of this world only.
+@export var layout: PackedScene
 
 @export_group("The seal")
 ## The dungeon's boss: his camp's (boss_camp.gd, the Colossus's arena) or his room fight's `boss_id`.
@@ -96,6 +107,17 @@ signal room_entered(payload: Dictionary)
 @export var roar_pitch: float = 1.0
 ## The dust that falls over the screen at his roar (crystal dust in the Mine, silk in the Hollow).
 @export var dust_color: Color = Color("#e6d8b4")
+## The take's glimpse when the entrance's seal is in another world (a dungeon of one world per room):
+## pictures of the entrance made in advance (`tools/capture_lair_seal.gd`), shown full screen for
+## `seal.glimpseMs`: the first (the doorway open), then from `seal.glimpseSlamMs` with the boom the
+## second (the seal up). Empty: no glimpse there (the line and the map's red bar tell it).
+@export var glimpse_pictures: Array[Texture2D] = []
+@export_group("Dev")
+## `?sealed` in a world without the Pearl (a room of a dungeon of one world per room): the Pearl's
+## id (its flag `pearl.<id>`), its guard's `boss_id` and its skin, taken quietly.
+@export var dev_pearl_id: String = ""
+@export var dev_pearl_guard: String = ""
+@export var dev_pearl_skin: String = ""
 
 ## Dev launch options apply once a session per dungeon.
 static var _dev_applied: Dictionary = {}
@@ -113,6 +135,10 @@ var _minimap: Control
 var _page: Control
 var _registered := false
 var _room_mask: CanvasLayer
+## The layout's rooms, read once at registration: [{"key", "name", "world", "rect", "outline",
+## "node"}] in this world's coordinates, and its marks [{"mark", "at", "rotation"}].
+var _layout_rooms: Array[Dictionary] = []
+var _layout_marks: Array[Dictionary] = []
 
 
 func _enter_tree() -> void:
@@ -167,6 +193,7 @@ func _on_world_registered(_payload: Dictionary) -> void:
 		if node is CameraRoom and world.world_root.is_ancestor_of(node):
 			_rooms.append(node as CameraRoom)
 	_record_entrance()
+	_read_layout()
 	if room_resets:
 		_snapshot_light_things()
 	_hud = DungeonHud.new()
@@ -176,7 +203,7 @@ func _on_world_registered(_payload: Dictionary) -> void:
 	_page = DungeonMapPage.attach(self)
 	_sealed = is_sealed()
 	if _sealed:
-		_schedule_distant_roar()
+		_schedule_distant_roar(false)
 	_bind_bosses()
 	_apply_dev_options.call_deferred()
 
@@ -230,19 +257,75 @@ func _record_entrance() -> void:
 
 # --- rooms --------------------------------------------------------------------------------------
 
-## The dungeon's rooms in this world: [{"key", "name", "rect", "node"}].
+## The dungeon's rooms: [{"key", "name", "rect", "outline", "node"}] (global; "node" the CameraRoom,
+## null for a room of another world). With a `layout`, every room of the layout (this world's own
+## camera rooms among them, laid where the layout puts them); else this world's camera rooms.
 func rooms() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
+	var own := {}
 	for room: CameraRoom in _rooms:
 		if is_instance_valid(room):
+			own[String(room.name)] = true
 			out.append({"key": room_key_of(room), "name": String(room.name), "rect": room.rect(), "outline": room.outline_global(), "node": room})
+	for room: Dictionary in _layout_rooms:
+		if not own.has(str(room["name"])):
+			out.append(room)
 	return out
 
 
-## A room's key in the record: "<map id>/<room name>".
+## The layout's marks ({"mark": "boss" | "seal", "at": global point, "rotation"}); [] without one.
+func layout_marks() -> Array[Dictionary]:
+	return _layout_marks
+
+
+## The world of the layout's room `room_name` ("" when the layout has no such room).
+func layout_world_of(room_name: String) -> String:
+	for room: Dictionary in _layout_rooms:
+		if str(room["name"]) == room_name:
+			return str(room["world"])
+	return ""
+
+
+## A room's key in the record: "<record id>/<room name>" (the record id: `record_map_id`, else the
+## map id).
 func room_key_of(room: CameraRoom) -> String:
+	return "%s/%s" % [_record_id(), room.name]
+
+
+func _record_id() -> String:
+	if not record_map_id.is_empty():
+		return record_map_id
 	var world := Services.world()
-	return "%s/%s" % [world.map_id() if world != null else "", room.name]
+	return world.map_id() if world != null else ""
+
+
+## Reads the `layout` scene: its rooms and marks, moved into this world's coordinates (this world's
+## room's place on the layout taken off).
+func _read_layout() -> void:
+	_layout_rooms.clear()
+	_layout_marks.clear()
+	if layout == null:
+		return
+	var scene := layout.instantiate()
+	var world := Services.world()
+	var here := world.map_id() if world != null else ""
+	var offset := Vector2.ZERO
+	for child: Node in scene.get_children():
+		if child.has_method(&"outline_points") and str(child.get(&"world_id")) == here:
+			offset = (child as Node2D).position
+	for child: Node in scene.get_children():
+		if child.has_method(&"outline_points"):
+			var points := PackedVector2Array()
+			for point: Vector2 in child.call(&"outline_points"):
+				points.append(point - offset)
+			var rect: Rect2 = child.call(&"rect")
+			rect.position -= offset
+			_layout_rooms.append({"key": "%s/%s" % [_record_id(), child.get(&"room_name")], "name": str(child.get(&"room_name")),
+				"world": str(child.get(&"world_id")), "rect": rect, "outline": points, "node": null})
+		elif &"mark" in child and child is Node2D:
+			_layout_marks.append({"mark": str(child.get(&"mark")), "at": (child as Node2D).position - offset,
+				"rotation": (child as Node2D).rotation})
+	scene.free()
 
 
 ## The room that holds `point` (global), or null.
@@ -444,10 +527,18 @@ func _break_seals() -> void:
 		feel.floating_text(world.player.get_centre() - Vector2(0.0, BREAK_TEXT_RISE), BREAK_TEXT, &"yellow", true)
 
 
-func _schedule_distant_roar() -> void:
+## The next far-off roar, kept in the session (DungeonState `session_value`) so that in a dungeon of
+## one world per room the wait does not start again in every room; `again` picks a new time.
+func _schedule_distant_roar(again: bool = true) -> void:
+	var key := "%s:next-roar-ms" % dungeon_id
+	var kept := float(DungeonState.session_value(Services.run(), key, -1.0))
+	if not again and kept > Services.now_ms():
+		_next_roar_ms = kept
+		return
 	var low := DungeonState.number("seal.distantRoarMinMs", 45000.0)
 	var high := maxf(low, DungeonState.number("seal.distantRoarMaxMs", 60000.0))
 	_next_roar_ms = Services.now_ms() + randf_range(low, high)
+	DungeonState.set_session_value(Services.run(), key, _next_roar_ms)
 
 
 ## Far off: his roar, soft and low, a light shake and a little dust (presentation only).
@@ -536,6 +627,13 @@ func _apply_dev_options() -> void:
 	var room_name := str(main.call(&"launch_option", "room"))
 	if room_name.is_empty():
 		room_name = str(main.get(&"direct_room_run"))
+	var room_world := layout_world_of(room_name) if not room_name.is_empty() else ""
+	if not room_world.is_empty() and room_world != Services.world().map_id():
+		# A room of another world of the layout: go there, to its RoomEntry.
+		_dev_applied.erase(dungeon_id)
+		if main.has_method(&"travel_to"):
+			main.call(&"travel_to", room_world, "", "", ROOM_ENTRY_NAME)
+		return
 	if not room_name.is_empty():
 		for room: CameraRoom in _rooms:
 			if String(room.name) == room_name:
@@ -559,6 +657,13 @@ func _dev_seal() -> void:
 					fight.call(&"finish_quietly")
 			DungeonState.mark_boss_beaten(run, dungeon_id, guard)
 		pearl.call(&"take", true)
+	# A room without the Pearl (one world per room): its flag, its guard and its skin, quietly.
+	if not dev_pearl_id.is_empty() and not run.has_flag(PEARL_FLAG_PREFIX + dev_pearl_id):
+		if not dev_pearl_guard.is_empty():
+			DungeonState.mark_boss_beaten(run, dungeon_id, dev_pearl_guard)
+		run.set_flag(PEARL_FLAG_PREFIX + dev_pearl_id)
+		if not dev_pearl_skin.is_empty():
+			SkinState.grant(StringName(dev_pearl_skin))
 	seal_now("dev", false)
 
 

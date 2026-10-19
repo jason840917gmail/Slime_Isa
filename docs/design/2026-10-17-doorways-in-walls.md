@@ -1,9 +1,6 @@
 # Doorways in walls, doors on the room's edge
 
-> **Status:** review choices received and implementation built (2026-10-17). The owner
-> chose separate room scenes and two-cell arches. There are 60 editable room scenes,
-> an outline mask, the L-shaped Pit Hall/Burr cell split and wall-owned doorway art.
-> See [Dungeon room scenes](../godot/DUNGEON_ROOMS.md). Owner visual acceptance remains.
+> **Status (2026-10-17, evening):** the separate room scenes, the room outlines and the mask stay (the owner: "the rooms are correct"); what changes is the walls' art and painting: the elevation-cliff walls and `doorway_art.gd`'s frames are replaced by the interior wall layer of the last section (the Zelda box room), in build. See [Dungeon room scenes](../godot/DUNGEON_ROOMS.md).
 
 ## The owner's words (2026-10-17)
 
@@ -283,3 +280,25 @@ What it asks for (the box room, open choice 3 above):
 Next step: a mockup of one Lair room with all four walls and a door on each side for the owner's
 approval, then the script, then the Lair, the Hollow and the Mine.
 
+### Built (2026-10-18): the mockup, the layer, the lab
+
+- **Mockups** (session scratchpad `box-room/`): `mockup-00-side-by-side-current-vs-box-room.png`,
+  `mockup-01-square-room.png`, `-02-l-room.png`, `-03-hall-south-seal-shutter.png` and 1:1 close-ups
+  `-04` to `-06`, composed from the packed kit with the layer's own rule.
+- **The layer:** [INTERIOR_WALLS.md](../godot/INTERIOR_WALLS.md) (`game/world/interior/`), the
+  `lair-stone` sheet (`scripts/art/pack-interior-walls.py`, eight generations, 800 credits), `frame_drawn_by_wall` on the key, boss and bolted doors, the
+  shutter, the seal and the cracked wall.
+- **The box-room lab** (`?map=box-room-lab`), three room scenes under a shell; renders in
+  `box-room/lab-*.png`. Tests: `test_interior_walls.gd`.
+- **Waiting for the owner:** the look. Then the Lair's 24 rooms (repaint each rim, swap the cliff
+  walls and `doorway_art.gd`), the Hollow's roots and the Mine's timber sheets on the same layout.
+
+### The bevel (2026-10-18)
+
+The owner rejected the box room ("this is not acceptable": doors not matching their walls, the south
+wall seen from behind) and asked for Zelda's "cliff view of the 4 walls": four sloping faces of equal
+depth, mitred corners, doors cut into each face in its perspective. Built and approved as a mockup,
+walls two cells deep; rooms grow rather than shrink their puzzles. The kit (every opening on every
+side, inner corners, seamless runs and floor), the layer, the lab and its tests follow
+[INTERIOR_WALLS.md](../godot/INTERIOR_WALLS.md). Credits: 3,500 for the whole task (the rejected box
+room 1,000, the bevel 2,500). Next: one Lair room converted as the showcase, then the rest.

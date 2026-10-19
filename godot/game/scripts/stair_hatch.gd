@@ -40,6 +40,12 @@ signal opened(payload: Dictionary)
 @export var start_open: bool = false
 ## Where the slime arrives (a Node2D in the same world).
 @export var target: NodePath
+## Where the slime arrives when the stair leads into another world (Fatty's Lair is one world per
+## room since 2026-10-18: the Inner Stair goes from the hub's world down to the crypt's): that
+## world's id and the name of the Node2D there it arrives at (main.gd `travel_to`, with the fade).
+## Set, they win over `target`.
+@export var target_world: String = ""
+@export var target_marker: String = ""
 @export_enum("down", "up", "left", "right") var arrival_facing: String = "down"
 ## The well the slime walks into (relative to the node).
 @export var trigger_rect: Rect2 = Rect2(-30, -40, 60, 40)
@@ -114,8 +120,20 @@ func _physics_process(_delta: float) -> void:
 	_travel(player)
 
 
-## The fade, the move to `target`, the fade back.
+## The fade, the move to `target`, the fade back; or the travel to `target_world`.
 func _travel(player: Node) -> void:
+	if not target_world.is_empty():
+		var main := get_tree().get_first_node_in_group(&"world_main")
+		if main != null and main.has_method(&"travel_to"):
+			_travelling = true
+			var feel := Services.feel()
+			if feel != null:
+				feel.audio_cue(CUE_STEP)
+			if bool(main.call(&"travel_to", target_world, "", "", target_marker)):
+				used.emit({"hatchId": hatch_id})
+			else:
+				_travelling = false
+		return
 	var marker := get_node_or_null(target) as Node2D
 	if marker == null:
 		return

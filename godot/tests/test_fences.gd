@@ -128,7 +128,7 @@ func test_diagonal_link_collides_as_a_rotated_band(t: TestContext) -> void:
 
 func test_painted_material_does_not_change_with_ground(t: TestContext) -> void:
 	var atlas := FENCE_TILESET.get_source(0) as TileSetAtlasSource
-	t.equal(atlas.get_tiles_count(), 63, "the palette is 7 styles x (all neighbours + 8 arrows)")
+	t.equal(atlas.get_tiles_count(), 74, "the palette is 8 styles x (all neighbours + 8 arrows) + 2 divider gate tiles")
 	var painted := TileMapLayer.new()
 	painted.tile_set = FENCE_TILESET
 	painted.set_cell(Vector2i(0, 0), 0, Vector2i(0, 0))

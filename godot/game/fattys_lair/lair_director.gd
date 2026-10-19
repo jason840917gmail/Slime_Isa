@@ -25,7 +25,14 @@ extends Node2D
 ##   record too (DungeonState mark_boss_beaten). Until then the director, standing in the arena, is
 ##   the compass's boss mark (group `dungeon_map_mark`, `mark` "boss").
 ## - **Blocked gaps** (`blocked_gaps`: the map nook): a Node2D holding light things (liftables) and a
-##   `Barrier` body; once every light thing is taken the barrier goes and the secret jingle plays.
+##   `Barrier` body; once every light thing is taken the barrier goes and the secret jingle plays,
+##   and `gap_flag` is set: the gap stays open for good (its room built again has it clear).
+##
+## Since 2026-10-18 the Lair is one world per room (docs/godot/DUNGEON_ROOMS.md): a director stands
+## in each room that needs one, with only that room's paths set: the hub's (Burr, his cell door, the
+## Inner Stair, `call_room`), the arena's (Fatty's camp, the clods, his heart, the shutters), the
+## Larder's (the Pearl and its glow), R4's (the map nook's gap). Only the arena's is the compass's
+## boss mark (`boss_mark`).
 ## - **Heavy blocks reset with their room** (the guide's no-softlock rule): every heavy block and
 ##   statue in the world (group `heavy_blocks`) is put back where it stood when the world was built
 ##   each time the slime walks into the room it started in (the Dungeon node's `room_entered`), as
@@ -90,7 +97,10 @@ signal burr_freed(payload: Dictionary)
 @export var burr_exit: NodePath
 @export var cell_door: NodePath
 @export var hatch: NodePath
-## Where Burr calls out from his cell (the Pit Hall, world units).
+## Where Burr calls out from his cell: the Pit Hall's camera room (so it follows the room wherever
+## its scene sits in the dungeon); without one, `call_rect` (world units).
+@export var call_room: NodePath
+## Where Burr calls out from his cell (world units), when `call_room` is empty.
 @export var call_rect: Rect2 = Rect2()
 @export var camp: NodePath
 ## A Node2D whose children are the clods' ground points.
@@ -110,6 +120,10 @@ signal burr_freed(payload: Dictionary)
 @export var boss_shutter_fight: String = ""
 ## Gaps choked with light things (Node2Ds with liftables and a `Barrier` child).
 @export var blocked_gaps: Array[NodePath] = []
+## The story flag set when a blocked gap is cleared (read when the room is built: the gap is clear).
+@export var gap_flag: String = ""
+## This director is the compass's mark of Fatty's room (only the arena's; off in the other rooms).
+@export var boss_mark: bool = true
 
 ## Read by the dungeon map (dungeon_map_draw.gd `boss_points`).
 var mark: String = "boss"
@@ -145,8 +159,10 @@ func _ready() -> void:
 				if not bool(payload.get("defeated", false)):
 					_set_boss_shutters(false))
 	_show_heart(_boss_beaten())
-	if not _boss_beaten():
+	if boss_mark and not _boss_beaten():
 		add_to_group(MAP_MARK_GROUP)
+	if not gap_flag.is_empty() and run != null and run.has_flag(gap_flag):
+		_clear_gaps()
 	_snapshot_blocks.call_deferred()
 	var prize := get_node_or_null(pearl)
 	if prize != null and prize.has_signal(&"taken"):
@@ -170,9 +186,11 @@ func _physics_process(_delta: float) -> void:
 		free_burr()
 		return
 	var world := Services.world()
-	if world == null or world.player == null or not is_instance_valid(world.player) or call_rect.size == Vector2.ZERO:
+	var room := get_node_or_null(call_room)
+	if world == null or world.player == null or not is_instance_valid(world.player) or (room == null and call_rect.size == Vector2.ZERO):
 		return
-	var inside := call_rect.has_point(world.player.call(&"get_centre"))
+	var centre: Vector2 = world.player.call(&"get_centre")
+	var inside := bool(room.call(&"contains", centre)) if room != null else call_rect.has_point(centre)
 	if inside and not _was_inside:
 		_call_out()
 	_was_inside = inside
@@ -257,9 +275,20 @@ func _watch_blocked_gaps() -> void:
 		if left:
 			continue
 		barrier.queue_free()
+		var run := Services.run()
+		if run != null and not gap_flag.is_empty():
+			run.set_flag(gap_flag)
 		var feel := Services.feel()
 		if feel != null:
 			feel.audio_cue(CUE_SECRET)
+
+
+## A gap cleared before (`gap_flag`): its light things and its barrier go at once.
+func _clear_gaps() -> void:
+	for path: NodePath in blocked_gaps:
+		var gap := get_node_or_null(path)
+		if gap != null:
+			gap.queue_free()
 
 
 func _set_boss_shutters(shut: bool) -> void:

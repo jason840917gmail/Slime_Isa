@@ -45,7 +45,10 @@ func _process(_delta: float) -> void:
 	_material.set_shader_parameter(&"outline", points)
 	_material.set_shader_parameter(&"point_count", count)
 	var frames := PackedVector4Array()
-	for frame: Sprite2D in _wall_frames:
+	# a room with interior walls (wall_bands off, docs/godot/INTERIOR_WALLS.md) shows no frame of
+	# its neighbours' old doorways past its edge
+	var own_walls: bool = current.get_meta(&"wall_bands", true) == false
+	for frame: Sprite2D in ([] as Array[Sprite2D]) if own_walls else _wall_frames:
 		if not is_instance_valid(frame) or not _anchor_near_room_edge(current, frame.global_position):
 			continue
 		var bounds := _frame_bounds(frame)

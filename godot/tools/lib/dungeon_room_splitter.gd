@@ -1,19 +1,117 @@
 extends RefCounted
 ## Splits the three dungeon worlds into editable room scenes and a shared shell.
 ## Runtime assembly preserves the dungeon ids, coordinates, object paths and persistent signals.
+## In the worlds of LOCAL_WORLDS (Fatty's Lair since 2026-10-18) every room is written local: its
+## top-left corner at the scene's origin, its tile layers and nodes moved by the room's offset, the
+## offset kept on the room's instance in the shell (`position`, a whole number of cells), which adds
+## it back when it assembles the dungeon (room_scene_shell.gd). The Hollow and the Mine follow when
+## their walls are converted to interior walls (docs/godot/DUNGEON_ROOMS.md).
+##
+## Hand edits are safe (DUNGEON_ROOMS.md "Editing rooms by hand"): every room scene and the shell it
+## writes is recorded with the hash of the file as written, in `rooms/<world>/written.json`; a file
+## that no longer matches its hash (edited in the editor since) is not rewritten, and the run prints
+## it. Command-line options (`-- ...`): `--force` rewrites them anyway (with a warning), `--only=<a,b>`
+## writes only those rooms (and the shell only when `shell` is listed), `--dry` writes nothing and
+## prints what a run would write and skip, `--record-hashes` only records the files as they are.
 const SceneSave := preload("res://tools/lib/scene_save.gd")
 const ROOM_SCENE := preload("res://game/dungeon/room_scene.gd")
 const SHELL := preload("res://game/dungeon/room_scene_shell.gd")
 const CameraRoom := preload("res://game/world/camera_room.gd")
+const LOCAL_WORLDS: Array[String] = ["fatty-lair"]
+const CELL := 64
 const WORLDS: Array[String] = ["fatty-lair", "weaver-hollow-trunk", "weaver-hollow-roots", "weaver-hollow-boughs", "weaver-hollow-crown", "crystal-mine"]
 var _world: Node2D
 var _rooms: Array[Dictionary] = []
 var _path := ""
 
-func split(id: String) -> Error:
+var _force := false
+var _dry := false
+var _only := PackedStringArray()
+var _record := {}
+var _record_path := ""
+
+
+## The written-files record of world `id`: {"rooms": {room: hash}, "shell": hash}.
+static func record_path(id: String) -> String:
+	return "res://game/scenes/worlds/rooms/%s/written.json" % id
+
+
+static func file_hash(path: String) -> int:
+	return FileAccess.get_file_as_string(path).hash() if FileAccess.file_exists(path) else 0
+
+
+func _read_options() -> void:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg == "--force":
+			_force = true
+		elif arg == "--dry":
+			_dry = true
+		elif arg.begins_with("--only="):
+			_only = arg.trim_prefix("--only=").split(",", false)
+
+
+func _load_record(id: String) -> void:
+	_record_path = record_path(id)
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(_record_path)) if FileAccess.file_exists(_record_path) else null
+	_record = parsed if parsed is Dictionary else {}
+	if not _record.has("rooms"):
+		_record["rooms"] = {}
+
+
+func _save_record() -> void:
+	if _dry:
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_record_path.get_base_dir()))
+	var file := FileAccess.open(_record_path, FileAccess.WRITE)
+	if file != null:
+		file.store_string(JSON.stringify(_record, "\t", true) + "\n")
+
+
+## True when the tool may write `path` (recorded as `key`, or the shell): not edited by hand since it
+## wrote it, or `--force`; prints why when it may not.
+func _may_write(path: String, recorded: Variant, label: String) -> bool:
+	if not FileAccess.file_exists(path) or recorded == null:
+		return true
+	if file_hash(path) == int(recorded):
+		return true
+	if _force:
+		print("WARNING: %s was edited by hand since the tool wrote it; --force rewrites it" % label)
+		return true
+	print("skipped %s: edited by hand since the tool wrote it (-- --force rewrites it)" % label)
+	return false
+
+
+## Records every room scene and the shell of world `id` as they are on disk now.
+func record_hashes(id: String) -> Error:
+	_load_record(id)
+	var dir := "res://game/scenes/worlds/rooms/" + id
+	var rooms := {}
+	for file: String in DirAccess.get_files_at(dir):
+		if file.ends_with(".tscn"):
+			rooms[file.get_basename()] = file_hash(dir.path_join(file))
+	_record["rooms"] = rooms
+	_record["shell"] = file_hash("res://game/scenes/worlds/%s.tscn" % id)
+	_save_record()
+	print(id, ": recorded ", rooms.size(), " room scenes and the shell")
+	return OK
+
+
+## Worlds whose scenes are the source of truth (edited in the editor): never split again.
+## (Fatty's Lair is one world per room since 2026-10-18: no shell to split into.)
+const RETIRED: Array[String] = ["fatty-lair"]
+
+
+## Splits world `id` (read from `source`, else its own scene) into room scenes and its shell.
+func split(id: String, source: String = "") -> Error:
+	_read_options()
+	if id in RETIRED:
+		print("%s: its room scenes are edited in the editor; one world per room, never split" % id)
+		return OK
+	_load_record(id)
 	_path = "res://game/scenes/worlds/%s.tscn" % id
 	var before := FileAccess.get_file_as_string(_path)
-	_world = (ResourceLoader.load(_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
+	var from := source if not source.is_empty() else _path
+	_world = (ResourceLoader.load(from, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
 	_rooms.clear()
 	_partition_burr_cell(id)
 	_partition_hidden_rooms(id)
@@ -49,24 +147,96 @@ func split(id: String) -> Error:
 	holder.name = "RoomScenes"
 	_world.add_child(holder)
 	holder.owner = _world
+	var local := id in LOCAL_WORLDS
+	var rooms_record: Dictionary = _record["rooms"]
+	var written := 0
+	var skipped: PackedStringArray = []
 	for record: Dictionary in _rooms:
 		var room := record["root"] as Node2D
+		var offset := Vector2.ZERO
+		if local:
+			var rect: Rect2 = record["rect"]
+			offset = (rect.position / CELL).floor() * CELL
+			_make_local(room, offset)
+		# the doors standing in closed-door openings are the walls' (adopted, tagged)
+		var walls := room.get_node_or_null(^"interior-walls")
+		if walls != null and walls.has_method(&"sync_doors"):
+			walls.call(&"sync_doors", false)
 		var room_path := dir.path_join(str(room.name) + ".tscn")
-		var old := FileAccess.get_file_as_string(room_path) if FileAccess.file_exists(room_path) else ""
-		var error := SceneSave.save(room, room_path, old)
-		if error != OK:
-			_world.free()
-			return error
+		var key := str(room.name)
+		var wanted := _only.is_empty() or _only.has(key)
+		var allowed := wanted and _may_write(room_path, rooms_record.get(key), "room " + key)
+		if not allowed and wanted:
+			skipped.append(key)
+		if allowed and not _dry:
+			var old := FileAccess.get_file_as_string(room_path) if FileAccess.file_exists(room_path) else ""
+			var error := SceneSave.save(room, room_path, old)
+			if error != OK:
+				_world.free()
+				return error
+			rooms_record[key] = file_hash(room_path)
+			# kept at once: a run that fails later must not leave a file it wrote looking hand-edited
+			_save_record()
+		if allowed:
+			written += 1
 		room.free()
+		if not FileAccess.file_exists(room_path):
+			continue
 		var instance := (ResourceLoader.load(room_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 		holder.add_child(instance)
 		instance.owner = _world
+		if instance is Node2D:
+			(instance as Node2D).position = offset
 	_world.set_script(SHELL)
 	_world.set(&"room_connections", links)
-	var error := SceneSave.save(_world, _path, before)
-	print(id, ": ", _rooms.size(), " room scenes; ", links.size(), " persistent connections; ", error_string(error))
+	var error := OK
+	var shell_wanted := _only.is_empty() or _only.has("shell")
+	var shell_allowed := shell_wanted and _may_write(_path, _record.get("shell"), "the shell " + _path.get_file())
+	if shell_allowed and not _dry:
+		error = SceneSave.save(_world, _path, before)
+		if error == OK:
+			_record["shell"] = file_hash(_path)
+	_save_record()
+	print("%s: %s %d of %d room scenes%s; the shell %s; %d persistent connections; %s" % [id,
+		"would write" if _dry else "wrote", written, _rooms.size(),
+		(" (skipped, edited by hand: %s)" % ", ".join(skipped)) if not skipped.is_empty() else "",
+		("would be written" if _dry else "written") if shell_allowed else "kept", links.size(), error_string(error)])
 	_world.free()
 	return error
+
+## Moves room `room`'s contents by -`offset` (world units, whole cells): its tile layers by the
+## cells, every node of its holders by the units.
+func _make_local(room: Node2D, offset: Vector2) -> void:
+	room.set_meta(&"dungeon_offset", offset)
+	for child: Node in room.get_children():
+		if child is TileMapLayer:
+			var layer := child as TileMapLayer
+			var shift := Vector2i(offset / Vector2(layer.tile_set.tile_size))
+			var cells := []
+			for cell: Vector2i in layer.get_used_cells():
+				cells.append([cell, layer.get_cell_source_id(cell), layer.get_cell_atlas_coords(cell), layer.get_cell_alternative_tile(cell)])
+			layer.clear()
+			for c: Array in cells:
+				layer.set_cell((c[0] as Vector2i) - shift, c[1], c[2], c[3])
+		elif child is Node2D:
+			for item: Node in child.get_children():
+				if item is Node2D:
+					(item as Node2D).position -= offset
+
+
+## The room scene that holds `room`'s interior walls: its camera room's `walls_in` (a pocket cut
+## from another room), else itself.
+func _walls_room(room: Node2D) -> Node2D:
+	for record: Dictionary in _rooms:
+		if record["root"] == room:
+			var parent := str((record["camera"] as Node).get_meta(&"walls_in", ""))
+			if parent.is_empty():
+				return room
+			for other: Dictionary in _rooms:
+				if str((other["root"] as Node).name) == parent:
+					return other["root"] as Node2D
+	return room
+
 
 func _room_at(at: Vector2) -> Node2D:
 	for record: Dictionary in _rooms:
@@ -88,9 +258,14 @@ func _holder(room: Node2D, source: Node) -> Node:
 
 func _split_layer(layer: TileMapLayer) -> void:
 	var copies := {}
+	# a pocket room's walls stay with the room it is cut from (its `walls_in`), so each room scene's
+	# interior walls enclose its whole floor
+	var walls := layer.name == &"interior-walls"
 	for cell: Vector2i in layer.get_used_cells():
 		var point := layer.position + (Vector2(cell) + Vector2(0.5, 0.5)) * Vector2(layer.tile_set.tile_size)
 		var room := _room_at(point)
+		if walls and room != null:
+			room = _walls_room(room)
 		if room == null:
 			continue
 		if not copies.has(room):
@@ -161,16 +336,19 @@ func _partition_burr_cell(id: String) -> void:
 	var cell := CameraRoom.new()
 	cell.name = "burr-cell"
 	cell.position = hub.position
-	cell.size = Vector2(256, 512)
+	# the cell's two cells of floor behind its fieldstone wall, with the hub's rim round them
+	cell.size = Vector2(320, 576)
+	cell.set_meta(&"wall_bands", false)
+	cell.set_meta(&"walls_in", "r3-pit-hall")
 	holder.add_child(cell)
 	cell.owner = _world
 	var entry := Node2D.new()
 	entry.name = "RoomEntry"
-	entry.position = Vector2(128, 416)
+	entry.position = Vector2(192, 480)
 	cell.add_child(entry)
 	entry.owner = _world
-	hub.outline = PackedVector2Array([Vector2(256, 0), Vector2(hub.size.x, 0), hub.size,
-		Vector2(0, hub.size.y), Vector2(0, 512), Vector2(256, 512)])
+	hub.outline = PackedVector2Array([Vector2(320, 0), Vector2(hub.size.x, 0), hub.size,
+		Vector2(0, hub.size.y), Vector2(0, 576), Vector2(320, 576)])
 
 
 ## Closed treasure pockets get their own outlines, so curiosity does not reveal their contents early.
@@ -181,16 +359,19 @@ func _partition_hidden_rooms(id: String) -> void:
 	if id == "fatty-lair" and not holder.has_node("r1-store"):
 		var gatehouse := holder.get_node("r1-gatehouse") as CameraRoom
 		var origin := gatehouse.position
-		_add_camera(holder, "r1-store", origin + Vector2(704, 0), Vector2(320, 384))
-		gatehouse.outline = PackedVector2Array([Vector2.ZERO, Vector2(704, 0), Vector2(704, 384),
-			Vector2(1024, 384), Vector2(1024, 896), Vector2(0, 896)])
+		# the rooms are 18 x 16 cells with a two-cell rim (tools/build_fattys_lair.gd): each pocket
+		# is the old one moved a cell in, grown to the room's edge where it touches it
+		_add_camera(holder, "r1-store", origin + Vector2(768, 0), Vector2(384, 448)).set_meta(&"walls_in", "r1-gatehouse")
+		gatehouse.outline = PackedVector2Array([Vector2.ZERO, Vector2(768, 0), Vector2(768, 448),
+			Vector2(1152, 448), Vector2(1152, 1024), Vector2(0, 1024)])
 		var hall := holder.get_node("r5-eye-hall") as CameraRoom
 		origin = hall.position
-		hall.size.y = 512
-		var lower := _add_camera(holder, "r5-lower-hall", origin + Vector2(0, 512), Vector2(1024, 384))
-		lower.outline = PackedVector2Array([Vector2.ZERO, Vector2(1024, 0), Vector2(1024, 384),
-			Vector2(320, 384), Vector2(320, 128), Vector2(0, 128)])
-		_add_camera(holder, "r5-key-alcove", origin + Vector2(0, 640), Vector2(320, 256))
+		hall.size.y = 576
+		var lower := _add_camera(holder, "r5-lower-hall", origin + Vector2(0, 576), Vector2(1152, 448))
+		lower.set_meta(&"walls_in", "r5-eye-hall")
+		lower.outline = PackedVector2Array([Vector2.ZERO, Vector2(1152, 0), Vector2(1152, 448),
+			Vector2(384, 448), Vector2(384, 128), Vector2(0, 128)])
+		_add_camera(holder, "r5-key-alcove", origin + Vector2(0, 704), Vector2(384, 320)).set_meta(&"walls_in", "r5-eye-hall")
 	if id == "weaver-hollow-trunk" and not holder.has_node("T3a-map-nook"):
 		var well := holder.get_node("T4-well-room") as CameraRoom
 		var nook := _add_camera(holder, "T3a-map-nook", well.position, Vector2(320, 896))

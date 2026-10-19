@@ -118,6 +118,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `-- --scene=<world> [--scene=...] [--dry]`) turns a world's placed scenery into paint on its prop layers.
   Both headless converters save through `res://tools/lib/scene_save.gd`, which puts back the uids Godot's
   headless save drops.
+- `python scripts/art/pack-interior-walls.py [style ...]` (**numpy**) — the interior walls
+  ([godot/INTERIOR_WALLS.md](godot/INTERIOR_WALLS.md)): cuts each style's bevel kit (faces, mitred outer
+  and inner corners, every opening per side, the door leaves, a seamless floor) from its Magnific frame
+  renders (`asset/Originals/dungeon-kit/interior-walls/`) into `godot/asset/MAPS/walls/interior/<style>.webp`,
+  `<style>-floor.webp` and `interior-walls.json`, and the InteriorWallLayer palette (`palette.png`,
+  `godot/game/world/interior/interior_wall_tileset.tres`).
 - `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
   ([godot/WALLS.md](godot/WALLS.md)): composes each style's 16 shapes in 4 pattern parities from its three
   Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into
@@ -152,6 +158,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/game/scenes/worlds/elevation_cache/`, so worlds load without building it (a save the open
   editor holds for a moment is tried again); run (and commit)
   after changing elevation art or before exporting ([godot/ELEVATION.md](godot/ELEVATION.md#baked-cache)).
+- `"<Godot console exe>" --path godot -s res://tools/capture_lair_seal.gd [-- --out=<dir>]` (windowed)
+  — captures the two pictures of Fatty's Lair's Pearl glimpse (R1's south doorway with its seal down,
+  then up; the world only) into `godot/asset/MAPS/objects/fattys-lair/seal-glimpse-open.res` and
+  `-shut.res` (ImageTextures, no import) and PNGs in `<dir>`; run it again after repainting R1
+  ([godot/DUNGEON_ROOMS.md](godot/DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)).
 - `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
   cliffs' side walls ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
   and corner stones (`godot/asset/MAPS/elevation/<style>-side.png`, `-corners.png`) from a Magnific
@@ -410,6 +421,21 @@ icon sheet would shift colour, then lossless; transparency always exact and veri
   `--library` re-imports the library takes listed in `godot/asset/audio/CREDITS.md` (the parent folder
   must also hold a `magnific` copy of `asset/Originals/audio/magnific/`). It removes takes it no longer
   produces, with their `.import` files. Scenes reference the takes by path, so cue file names must stay.
+- `python scripts/audio/make-music-loop.py <source.mp3> <start s> <out stem> [--end <s>] [--xfade <s>] [--avoid-highs]`
+  (`pip install miniaudio lameenc numpy`, no ffmpeg) — cuts a seamless music loop out of a longer take
+  (a Magnific song). The start snaps to the strongest beat within 0.6 s of `<start s>`; the end is
+  `--end`, else the take's end without its closing fade or silence, pulled in to a whole number of
+  four-bar phrases (the tempo is found from the take). `--avoid-highs` moves the start (within two
+  phrases) and the length (whole phrases, at least 60% of the span) so neither seam holds a cymbal or
+  hi-hat burst. The last `--xfade` seconds (default 2.5) are blended, equal power, with the music just
+  before the start, so the wrap flows on. Writes `<stem>.wav` (44.1 kHz stereo 16-bit: the file the
+  game plays, looped from start to end), `<stem>.mp3` (to listen to) and `<stem>-seam.mp3` (the last
+  12 s into the first 12 s, to hear the jump). The 2026-10-18 loops are in
+  `asset/Originals/audio/music/dungeon/loops/` and `asset/Originals/audio/music/loops/`; a shipped
+  loop is copied into `godot/asset/audio/music/` with a `.wav.import` of `edit/loop_mode=2`,
+  `edit/loop_begin=0`, `edit/loop_end=-1` and `compress/mode=2` (QOA), and set as a world's
+  `MusicPlayer` stream ([audio spec §1.2](godot/specs/audio.md#12-authored-audio)). A world loads it
+  only once Godot has imported it (the editor does when it gets focus).
 
 ### Sound Picker rounds
 

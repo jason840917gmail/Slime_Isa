@@ -128,6 +128,10 @@ var session_ability_ids: Array[String] = []
 ## `lend_skin`): on while the run plays, but `serialize` leaves them out. Winning one for real
 ## (`win_skin`) keeps it. `new_run` and `install` forget the list.
 var session_skin_ids: Array[String] = []
+## Dungeon facts that last while the run plays but are never saved (game/dungeon/dungeon_state.gd
+## `session`: a plate held down in a room the slime left, an energy flower's regrow, the next far-off
+## roar). `new_run` and `install` forget them.
+var dungeon_session: Dictionary = {}
 
 ## Item categories that are permanent things, celebrated once when first gained (roadmap 4.13).
 const PERMANENT_ITEM_CATEGORIES: Array[String] = ["weapon", "key"]
@@ -173,6 +177,7 @@ func new_run() -> void:
 	debug_all_recipes_known = false
 	session_ability_ids = []
 	session_skin_ids = []
+	dungeon_session = {}
 	start_kit_pending = true
 	_navigation = {}
 	started = true
@@ -1092,6 +1097,7 @@ func install(data: Dictionary) -> bool:
 	world = fresh["world"]
 	story = fresh["story"]
 	quests = fresh.get("quests", []) if fresh.get("quests") is Array else []
+	dungeon_session = {}
 	if int(player.get("hp", 0)) <= 0:
 		player["hp"] = max_hp()
 	world.get_or_add("maps", {})

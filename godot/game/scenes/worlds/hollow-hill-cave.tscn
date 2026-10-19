@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-red.tscn" id="13_8acou"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-leaf-big.tscn" id="14_jgjfe"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-twigs.tscn" id="15_vpbja"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="music_player_script"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/cave-a.wav" id="music_track"]
 
 [node name="hollow-hill-cave" type="Node2D" unique_id=312194462]
 y_sort_enabled = true
@@ -116,6 +118,15 @@ position = Vector2(678.4, 576)
 
 [node name="cave-twigs-70" parent="Cave" unique_id=502356129 instance=ExtResource("15_vpbja")]
 position = Vector2(448, 460.8)
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1178736625]
+process_mode = 3
+stream = ExtResource("music_track")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("music_player_script")
+loop = true
+autoplay_cue = true
 
 [editable path="Cave/heart-chest-meadow-autumn-thicket"]
 [editable path="Cave/cave-pot-a"]

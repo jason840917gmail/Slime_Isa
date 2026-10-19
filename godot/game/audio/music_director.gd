@@ -304,10 +304,11 @@ func _adopt_world(root: Node) -> void:
 	_world_root_id = root.get_instance_id()
 	root.tree_exiting.connect(_on_world_exiting.bind(_world_root_id), CONNECT_ONE_SHOT)
 	var music := _claim_world_music(root)
-	# The next chunk of a region cut into chunk worlds plays the same track: it carries on. Not after
-	# a leave fade (a travel out of the region, quit to title, a new main): that world starts over.
-	if not was_leaving and music != null and _valid(_world_track) and _world_track.playing \
-			and _same_track(_world_track, music):
+	# The next chunk of a region cut into chunk worlds plays the same track: it carries on. After a
+	# leave fade, a travel of main's into a world with the same track (the next floor of a dungeon)
+	# keeps the track's place and fades it back in; a quit to title or a new main starts over.
+	if music != null and _valid(_world_track) and _world_track.playing and _same_track(_world_track, music) \
+			and (not was_leaving or _main_transitioning()):
 		_release(music)
 		_world_wanted = true
 		_ensure_boss_track()
@@ -429,6 +430,12 @@ func _on_world_exiting(root_id: int) -> void:
 func _travelling_within_region() -> bool:
 	var main := get_tree().get_first_node_in_group(MAIN_GROUP) if is_inside_tree() else null
 	return main != null and main.has_method(&"is_travelling_within_region") and bool(main.call(&"is_travelling_within_region"))
+
+
+## True while main travels (from a travel request until the next world is built).
+func _main_transitioning() -> bool:
+	var main := get_tree().get_first_node_in_group(MAIN_GROUP) if is_inside_tree() else null
+	return main != null and main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning"))
 
 
 ## True when `root` is one of main's worlds (not a title backdrop).

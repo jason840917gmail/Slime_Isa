@@ -19,16 +19,23 @@ signal bolt_slid(payload: Dictionary)
 
 ## The line from the side without the bolt.
 @export var locked_text: String = "Bolted from the other side."
+## False: this leaf has no bolt of its own (the far side of a passage whose bolt is on its partner's
+## side, `link_id`): pushed from either side it says `locked_text`, and it opens with its partner.
+@export var bolt_here: bool = true
 ## The bolt's picture (2 frames: shut, slid back).
 @export var bolt: Sprite2D
 
 var _sliding := false
 
 
+func leaf_kind() -> String:
+	return "bolt"
+
+
 func _on_push(from_face: bool) -> void:
 	if _sliding:
 		return
-	if not from_face:
+	if not from_face or not bolt_here:
 		say(locked_text)
 		return
 	_sliding = true
