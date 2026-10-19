@@ -8,3 +8,7 @@ godot/game/data/world-map.json.bak
 
 # Body-shapes prototype films and GIFs (about 400 MB of scratch renders), kept local
 asset/Originals/characters/slime-v2/shapes/prototypes/
+
+# Agents' review renders, captures and scratch scripts (about 200 MB), kept local
+/output/
+/godot/output/
