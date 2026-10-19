@@ -553,12 +553,16 @@ func _in_world() -> bool:
 
 ## A world of the game loaded: its area banner (WorldScene.ts:515-517); end cards already earned
 ## in this run stay shown. A chunk world is titled by its region's world, and walking on into the
-## next chunk of the same region shows no banner again.
+## next chunk of the same region shows no banner again. So are the rooms of a dungeon of one world
+## per room (Fatty's Lair: their Dungeon's `record_map_id`, DungeonState `world_record_id`): one
+## banner on the way in, none from room to room.
 func _on_world_registered(payload: Dictionary) -> void:
 	if not _in_world():
 		return
 	var map_id := str(payload.get("mapId", ""))
 	var region_world := WorldChunks.world_of(map_id)
+	if region_world.is_empty():
+		region_world = DungeonState.world_record_id(map_id)
 	var run := Services.run()
 	# The prologue shows no area banner: it is not the West village yet, and Slimeshire's banner
 	# waits for Plop's meeting at the town's edge (docs/godot/PROLOGUE.md).

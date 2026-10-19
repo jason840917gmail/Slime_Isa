@@ -56,6 +56,9 @@ const WORLD_SCENE_PREFIX := "world."
 ## World id -> the dungeon id its Dungeon node has ("" for a world outside every dungeon), read
 ## from the world's scene once a session (`world_dungeon_id`).
 static var _world_dungeons: Dictionary = {}
+## World id -> its Dungeon node's `record_map_id` ("" when none), read once a session
+## (`world_record_id`).
+static var _world_records: Dictionary = {}
 
 
 # --- the record ---------------------------------------------------------------------------------
@@ -255,37 +258,60 @@ static func world_dungeon_id(map_id: String) -> String:
 			return str(here.get(&"dungeon_id"))
 	if _world_dungeons.has(map_id):
 		return str(_world_dungeons[map_id])
-	var found := ""
-	var path := world.scene_path(WORLD_SCENE_PREFIX + map_id) if world != null else ""
-	if not path.is_empty() and ResourceLoader.exists(path):
-		var packed := ResourceLoader.load(path, "PackedScene") as PackedScene
-		if packed != null:
-			found = _dungeon_id_in(packed.get_state())
+	var found := _dungeon_value_in(_world_state(map_id), &"dungeon_id")
 	_world_dungeons[map_id] = found
 	return found
 
 
-## The `dungeon_id` of the Dungeon node in a world scene's state ("" when it has none).
-static func _dungeon_id_in(state: SceneState) -> String:
+## The `record_map_id` of world `map_id`'s Dungeon node: the id the worlds of a dungeon of one world
+## per room share (Fatty's Lair: "fatty-lair"); "" for a world without one. The current world's own
+## node, else read from the world's scene once a session.
+static func world_record_id(map_id: String) -> String:
+	if map_id.is_empty():
+		return ""
+	var world := Services.world()
+	if world != null and world.map_id() == map_id and world.is_inside_tree():
+		var here := current(world.get_tree())
+		if here != null:
+			return str(here.get(&"record_map_id"))
+	if not _world_records.has(map_id):
+		_world_records[map_id] = _dungeon_value_in(_world_state(map_id), &"record_map_id")
+	return str(_world_records[map_id])
+
+
+## The scene state of world `map_id` (its scene not built), or null.
+static func _world_state(map_id: String) -> SceneState:
+	var world := Services.world()
+	var path := world.scene_path(WORLD_SCENE_PREFIX + map_id) if world != null else ""
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return null
+	var packed := ResourceLoader.load(path, "PackedScene") as PackedScene
+	return packed.get_state() if packed != null else null
+
+
+## The value of `property` (`dungeon_id`, `record_map_id`) on the Dungeon node in a world scene's
+## state ("" when it has none or does not set it).
+static func _dungeon_value_in(state: SceneState, property: StringName) -> String:
 	if state == null:
 		return ""
 	for index: int in state.get_node_count():
 		var instance := state.get_node_instance(index)
 		var is_dungeon := instance != null and instance.resource_path == DUNGEON_SCENE
-		var id := ""
-		for property: int in state.get_node_property_count(index):
-			var property_name := state.get_node_property_name(index, property)
-			var value: Variant = state.get_node_property_value(index, property)
-			if property_name == &"dungeon_id":
-				id = str(value)
+		# A scene that holds the Dungeon node with its settings (Fatty's Lair's
+		# `fatty-lair-dungeon.tscn`, instanced in every room world): its own state names them.
+		var holder := instance != null and instance.resource_path.ends_with("-dungeon.tscn")
+		var found := ""
+		for index_property: int in state.get_node_property_count(index):
+			var property_name := state.get_node_property_name(index, index_property)
+			var value: Variant = state.get_node_property_value(index, index_property)
+			if property_name == property:
+				found = str(value)
 			elif property_name == &"script" and value is Script and (value as Script).resource_path == DUNGEON_SCRIPT:
 				is_dungeon = true
-		if is_dungeon and not id.is_empty():
-			return id
-		# A scene that holds the Dungeon node with its settings (Fatty's Lair's
-		# `fatty-lair-dungeon.tscn`, instanced in every room world): its own state names the id.
-		if instance != null and id.is_empty() and instance.resource_path.ends_with("-dungeon.tscn"):
-			var inner := _dungeon_id_in(instance.get_state())
+		if (is_dungeon or holder) and not found.is_empty():
+			return found
+		if holder:
+			var inner := _dungeon_value_in(instance.get_state(), property)
 			if not inner.is_empty():
 				return inner
 	return ""

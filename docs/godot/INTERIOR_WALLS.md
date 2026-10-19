@@ -57,9 +57,15 @@ hole**, **stairs**; the closed doors: **key door with one lock**, **with two loc
    only what is its own in the Inspector: a shutter's `fight_id` or `starts_shut`, a barricade's
    `flag_id`, a door's `locked_text`. A **bolted door** opens from the room its face looks into, the
    room it is painted in: paint it in the rim of the room the bolt is on. Painting another door tile
-   over the block swaps the door; painting the doorway (or wall) over it removes the door. Only doors
-   the layer made are touched (they carry the meta `interior_door_block`); a door placed by hand is
-   never removed, and one of the right kind already standing at the spot is adopted. The builder's
+   over the block swaps a door the layer made; painting the doorway (or wall) over it removes it.
+   Only a door the layer made and nobody has changed since goes this way
+   (`game/world/painted_objects.gd`): a door with a setting of its own (its `door_id`, a shutter's
+   `fight_id`, a line), or one placed by hand, is never removed. Its block erased or repainted, the
+   layer lets go of it with a warning (it loses the meta `interior_door_block`) and adopts it again,
+   settings and all, when the block is painted back, so an erase undone with Ctrl+Z keeps the door and
+   its save records (2026-10-19: before, erasing a cell of the hub's boss door block and undoing it gave
+   the door a new id). Delete such a door by hand when it should go. A door of the right kind already
+   standing at the spot is adopted. The builder's
    doors in the Lair's rims are adopted this way (all but R5's way back, which stands in the lower
    hall's painted doorway as a placed door).
 5. The camera room keeps its rect or outline; the rim is inside it (doors stay on the room's edge).
@@ -284,5 +290,6 @@ its strip; before 2026-10-18 the spikes covered the pit's walls and the pit read
 | `asset/Originals/dungeon-kit/interior-walls/` | The renders |
 | `godot/tools/build_box_room_lab.gd`, `render_box_room_lab.gd` | The lab and its pictures |
 | `godot/game/world/interior/interior_wall_fill.gd` | The dark over wall cells no piece covers |
+| `godot/game/world/painted_objects.gd` | What the layer may remove by itself: a door it made and nobody changed |
 | `godot/tools/render_lair_room.gd` | In-game captures of a dungeon's rooms at a 16:9 window (`--all-rooms`) |
 | `godot/tests/test_interior_walls.gd` | Faces and corners, collision and passages, cracked to blown, framed doors, the lab's assembly |

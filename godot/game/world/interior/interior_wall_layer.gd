@@ -28,6 +28,7 @@ extends TileMapLayer
 const Services := preload("res://game/shared/services.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const FILL_SCRIPT := preload("res://game/world/interior/interior_wall_fill.gd")
+const PaintedObjects := preload("res://game/world/painted_objects.gd")
 
 const TILESET := "res://game/world/interior/interior_wall_tileset.tres"
 const TABLE := "res://asset/MAPS/walls/interior/interior-walls.json"
@@ -61,6 +62,7 @@ const DOOR_KINDS := {
 ## block's top-left cell on this layer) and its kind.
 const DOOR_BLOCK_META := &"interior_door_block"
 const DOOR_KIND_META := &"interior_door_kind"
+const DOOR_TAGS: Array[StringName] = [DOOR_BLOCK_META, DOOR_KIND_META]
 ## How near (units) an untagged door must stand to an opening's spot to be adopted.
 const ADOPT_REACH := 40.0
 
@@ -424,7 +426,7 @@ func _rebuild() -> void:
 	if not Engine.is_editor_hint():
 		_build_collision(size)
 	elif is_inside_tree() and get_tree().edited_scene_root != null and get_tree().edited_scene_root.is_ancestor_of(self):
-		# painting a closed door makes its door object, erasing it removes it (the editor only)
+		# painting a closed door makes its door object, erasing it lets it go (the editor only)
 		sync_doors(true)
 
 
@@ -432,8 +434,11 @@ func _rebuild() -> void:
 ## `Objects` node (made when missing): an untagged door of that kind already at the opening's spot is
 ## adopted (tagged), else (with `create`) one is made from the kind's scene, placed on the floor line
 ## in the middle of the passage, `wall` its side, `frame_drawn_by_wall` on, the layer's style, a
-## unique `door_id`. A door the layer made (tagged) whose opening is no longer painted with its kind
-## is removed (with `create`); a door it did not make is never touched. Returns the doors made.
+## unique `door_id`. A tagged door whose opening is no longer painted with its kind is let go (with
+## `create`; game/world/painted_objects.gd `retire`): removed when the layer made it and nothing of it
+## was changed since, else kept, untagged, with a warning, and adopted again when its block is painted
+## back, so its settings (a door id, a fight id: save records) are never lost to a stroke or an undo.
+## Returns the doors made.
 func sync_doors(create: bool) -> int:
 	var room := get_parent()
 	if room == null or tile_set == null:
@@ -469,9 +474,9 @@ func sync_doors(create: bool) -> int:
 		var spot := _door_spot(opening)
 		var node: Node = tagged.get(key)
 		if node != null and str(node.get_meta(DOOR_KIND_META, "")) != kind:
-			# repainted with another kind: the old door goes, the new one comes
+			# repainted with another kind: the old door is let go, the new one comes
 			if create:
-				node.free()
+				PaintedObjects.retire(node, DOOR_TAGS, "InteriorWallLayer")
 			node = null
 		if node == null:
 			node = _adoptable(objects, kind, spot)
@@ -484,7 +489,7 @@ func sync_doors(create: bool) -> int:
 		tagged.erase(key)
 	if create:
 		for key: String in tagged:
-			(tagged[key] as Node).free()
+			PaintedObjects.retire(tagged[key] as Node, DOOR_TAGS, "InteriorWallLayer")
 	return made
 
 
@@ -528,7 +533,13 @@ func _make_door(objects: Node, owner_node: Node, opening: Dictionary, key: Strin
 	var node := packed.instantiate() as Node2D
 	var side := str(opening["side"])
 	var room_name := String(get_parent().name)
-	node.name = "%s-%s-%s" % [room_name, kind, key.replace(",", "-")]
+	# a name (and door id) of its own, beside a door of the same block kept for its settings
+	var base := "%s-%s-%s" % [room_name, kind, key.replace(",", "-")]
+	node.name = base
+	var n := 2
+	while objects.has_node(NodePath(String(node.name))):
+		node.name = "%s-%d" % [base, n]
+		n += 1
 	node.position = spot - ((objects as Node2D).position if objects is Node2D else Vector2.ZERO)
 	var props: Dictionary = DOOR_KINDS[kind]["props"]
 	for prop: String in props:
@@ -545,6 +556,7 @@ func _make_door(objects: Node, owner_node: Node, opening: Dictionary, key: Strin
 	node.set_meta(DOOR_KIND_META, kind)
 	objects.add_child(node)
 	node.owner = owner_node
+	PaintedObjects.remember(node)
 	return node
 
 
