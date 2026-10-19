@@ -70,7 +70,7 @@ func test_the_pearl_rises_for_its_guard_and_its_take_seals_the_dungeon(t: TestCo
 	t.check(taken, "walking into the Pearl did not take it")
 	t.check(run.has_flag("pearl.dungeon-lab"), "the Pearl's flag")
 	t.check(SkinState.is_won(SkinState.FERAL), "the take did not grant the Feral skin")
-	t.equal(SkinState.look(), SkinState.FERAL, "the take did not make the skin the look")
+	t.equal(SkinState.look(), &"", "the take changed the everyday look (a skin shows only while it works)")
 	t.check(DungeonState.is_sealed(run, LAB), "the take did not seal the dungeon")
 	t.equal(DungeonState.sealed_by(run, LAB), BOSS, "the seal's boss")
 	t.check(bool(seal.call(&"is_shut")), "the entrance's seal is not shut after the take")

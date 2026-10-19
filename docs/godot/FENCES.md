@@ -146,9 +146,42 @@ seen from above, unused: the turned front rail matches the front better); the ot
 | `twig` | gnarled branch posts, vine-wrapped branch rails, tiny mushrooms | 40, 64 |
 | `picket` | tall pointed posts, a row of shorter pickets, fallen leaves | 42, 64 |
 | `crystal` | crystal clusters on rock bases, two taut ropes | 44, 64 |
+| `lair-divider` | a dungeon divider: square fort-stone posts with capstones, low squared bars ([Dungeon dividers](#dungeon-dividers)) | 47, 64 |
 
 Walls fit the same kit: their pillars are the posts, the wall between them the rails, the wall seen
 from above its side rail. All seven await the owner's verdict.
+
+## Dungeon dividers
+
+Inside a dungeon room a division is not a wall with a door (owner, 2026-10-19, after Zelda ALttP's
+room dividers): it is a **divider**, a one-cell line of low stone posts with capstones joined by low
+bars, painted on the `fences` layer like any fence (`lair-divider`, the Lair's fort stone; cave and
+root styles later), with the fences' own collision. Its one special piece is a **divider gate**
+(`object.divider-gate`, `game/dungeon/divider_gate.gd`, `game/scenes/objects/dungeon/divider-gate.tscn`)
+on the cell between two posts:
+
+- **eye** (`lair-divider-eye`): a carved stone block with an eye that sinks into the floor: for
+  secret or latch-opened passages (an eye latch, a bell);
+- **pen** (`lair-divider-pen`): low iron bars that swing open against the west post: for switch or
+  key gates (a plate, a key).
+
+Paint the gate cell with its gate tile (the palette's last two tiles, their pictures the gates
+themselves): the cell draws no post and the fence layer keeps a divider gate object on it under the
+scene's `Objects` (`fence_layer.gd` `sync_gates`, as you paint): an untagged divider gate already
+standing there is adopted, else one is made; erasing the tile removes a gate the layer made. The
+gate's `GateScript` child (`game/scripts/gate.gd`) is the gate as before: plates, bells, eye latches
+and keys find it by `gate_id`, its records are the gate's; the divider gate only shows it shut or
+open and blocks the gap between the posts while shut (`Doors`). A lone divider cell beside a gate
+is a short fence (its post and a stub post the way its arrow points): point it away from the gate.
+
+The Lair's latch doors and their fieldstone chunks became dividers on 2026-10-19 (R5's Eye Hall
+and Lower Hall, R7, the Weigh House, the Old Armoury: each latch door's node, `gate_id` and records
+kept); R9's latch already stood in its north doorway, drawn by the room's wall (its slab the
+wall's shutter leaf). The art: `asset/Originals/dungeon-kit/dividers/` (Magnific, GPT 2.5), the kit
+cut by `scripts/art/build-fence-art.py lair-divider`, the gates' pictures
+`asset/MAPS/objects/dungeon/divider-eye-block.png` and `divider-pen-gate.png`; the paint palette
+by `scripts/art/build-fence-paint-tiles.py` then `tools/pack_fence_paint_tiles.gd` (a native
+texture, no import needed).
 
 ## Test world
 

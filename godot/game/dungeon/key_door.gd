@@ -67,6 +67,14 @@ func open_keyholes() -> int:
 	return DungeonState.keyholes_open(run, id, record_key()) if run != null and not id.is_empty() else 0
 
 
+## The wall-drawn leaf shows the padlocks still shut: two, one, then none left (the open door).
+func leaf_kind() -> String:
+	if lock == "big":
+		return "boss"
+	var open := open_keyholes() if is_inside_tree() else 0
+	return "key2" if keyholes - open >= 2 else "key1"
+
+
 func default_text() -> String:
 	if lock == "big":
 		return "A great lock. It wants the big key."
@@ -77,6 +85,8 @@ func default_text() -> String:
 
 func _restore() -> void:
 	super()
+	if frame_drawn_by_wall:
+		_apply_wall_frame()
 	if is_open():
 		return
 	var open := open_keyholes()
@@ -146,6 +156,10 @@ func _drop_lock(index: int) -> void:
 	if index < 0 or index >= sprites.size():
 		return
 	var padlock := sprites[index]
+	if frame_drawn_by_wall:
+		# the padlock is part of the leaf's picture: the leaf turns to the one with one lock less
+		_apply_wall_frame()
+		return
 	if padlock.hframes > 1:
 		padlock.frame = 1
 	var tween := padlock.create_tween()

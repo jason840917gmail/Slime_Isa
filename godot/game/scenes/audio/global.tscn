@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="1"]
-[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/music/level-1-home-town.ogg" id="2"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/music/boss-fight.wav" id="2"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/dodge-1.wav" id="3"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/dodge-2.wav" id="4"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/eat-1.ogg" id="5"]
@@ -590,7 +590,6 @@ script = ExtResource("1")
 process_mode = 3
 stream = ExtResource("2")
 volume_db = -6.0206
-pitch_scale = 1.12
 max_polyphony = 1
 bus = &"Music"
 loop = true

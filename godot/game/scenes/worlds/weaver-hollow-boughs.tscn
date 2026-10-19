@@ -21,6 +21,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-boughs/B2-drawbridge.tscn" id="17_ees2h"]
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-boughs/B4-nursery.tscn" id="18_xjvxs"]
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-boughs/B3-mimics-pantry.tscn" id="19_0bmxa"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="music_player_script"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="music_track"]
 
 [node name="weaver-hollow-boughs" type="Node2D" unique_id=1039871915]
 y_sort_enabled = true
@@ -125,5 +127,14 @@ y_sort_enabled = true
 [node name="B4-nursery" parent="RoomScenes" unique_id=1309192436 instance=ExtResource("18_xjvxs")]
 
 [node name="B3-mimics-pantry" parent="RoomScenes" unique_id=684541362 instance=ExtResource("19_0bmxa")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1777071945]
+process_mode = 3
+stream = ExtResource("music_track")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("music_player_script")
+loop = true
+autoplay_cue = true
 
 [editable path="Objects/dungeon"]

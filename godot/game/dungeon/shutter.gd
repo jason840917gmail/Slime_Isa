@@ -11,17 +11,23 @@ class_name Shutter
 ## or `open_for_good()`, recorded under `shutter_id`), such as the Crystal Mine's iron shutter.
 ##
 ## Its `look` (the block's Sprite2D, centered off, its bottom at the floor line) shows the part of
-## the block above the floor; its `body` blocks while it is up.
+## the block above the floor; its `body` blocks while it is up. In a room whose walls are an
+## InteriorWallLayer (docs/godot/INTERIOR_WALLS.md) set `frame_drawn_by_wall`: the block is fitted
+## to the wall's gap (`interior.gapUnits`), the wall draws the frame.
 ##
 ## Owner: dungeon kit.
 
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const InteriorWalls := preload("res://game/world/interior/interior_wall_layer.gd")
+const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 
 const GROUP := &"shutter"
 const WALL_TURNS := {"north": 0.0, "east": PI * 0.5, "south": PI, "west": -PI * 0.5}
 ## In an east or west wall the block is drawn this share of its height (DungeonDoor.SIDE_DEPTH).
 const SIDE_DEPTH := 0.55
+## In a north wall drawn by an InteriorWallLayer the block is at most this tall (units).
+const NORTH_BLOCK_HEIGHT := 52.0
 const CUE_SHUT := &"GateLocked"
 const CUE_OPEN := &"GateOpen"
 const DUST := &"dodge-dust"
@@ -47,6 +53,14 @@ signal moved(payload: Dictionary)
 		starts_shut = value
 		if Engine.is_editor_hint() and is_node_ready():
 			_place_look(1.0 if starts_shut else 0.0)
+## The room's InteriorWallLayer draws the doorway frame: the block is fitted to its gap.
+@export var frame_drawn_by_wall: bool = false:
+	set(value):
+		frame_drawn_by_wall = value
+		if is_node_ready():
+			_apply_side_depth()
+## The wall style whose gap the block fills (its kit's band sizes).
+@export var interior_style: String = "lair-stone"
 ## The block's picture.
 @export var look: Sprite2D
 ## Blocks the doorway while up.
@@ -90,7 +104,43 @@ func _apply_side_depth() -> void:
 		return
 	if _look_scale == Vector2.ZERO:
 		_look_scale = look.scale
+	if frame_drawn_by_wall and look.texture != null and look.texture.get_width() > 0:
+		_fit_to_wall_gap()
+		return
 	look.scale = Vector2(_look_scale.x, _look_scale.y * (SIDE_DEPTH if wall == "east" or wall == "west" else 1.0))
+
+
+## The block is the style's leaf for its side (InteriorWalls.leaf_at, `leaf_kind`), cut from the
+## same render as the wall, so it fills the opening exactly in that side's perspective; it shows
+## and hides by fading (`_place_look`).
+func _fit_to_wall_gap() -> void:
+	var place := InteriorWalls.leaf_at(interior_style, wall, leaf_kind())
+	if place.is_empty():
+		return
+	look.texture = InteriorWalls.picture(str(place["texture"]))
+	look.hframes = 1
+	look.vframes = 1
+	look.frame = 0
+	look.region_enabled = true
+	look.region_rect = place["region"]
+	look.centered = false
+	look.offset = Vector2.ZERO
+	_rest = Vector2.ZERO
+	look.scale = Vector2.ONE / InteriorWalls.DENSITY
+	look.rotation = -rotation
+	look.position = (place["offset"] as Vector2).rotated(-rotation)
+
+
+## The wall-drawn leaf of this block: "shutter" (the seal: "seal").
+func leaf_kind() -> String:
+	return "shutter"
+
+
+## The interior walls' gap (`interior.gapUnits`).
+static func _gap_units() -> float:
+	var constants := Services.constants()
+	var found: Variant = constants.value("interior.gapUnits", null) if constants != null else null
+	return float(found) if found != null else 64.0
 
 
 ## True while shut (or shutting).
@@ -160,9 +210,13 @@ func _physics_process(delta: float) -> void:
 	_place_look(_height)
 
 
-## Shows the top `share` of the block above the floor line.
+## Shows the top `share` of the block above the floor line (wall-drawn: fades it in by `share`).
 func _place_look(share: float) -> void:
 	if look == null or look.texture == null:
+		return
+	if frame_drawn_by_wall:
+		look.visible = share > 0.01
+		look.modulate.a = clampf(share, 0.0, 1.0)
 		return
 	var size := look.texture.get_size()
 	var shown := size.y * clampf(share, 0.0, 1.0)

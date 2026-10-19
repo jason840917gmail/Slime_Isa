@@ -52,6 +52,12 @@ Hand-authored manifest entries (`audio.music.*`, bundle `music`); `pnpm audio:ba
 | `level-1-home-town.ogg` | Home Town (JRPG Pack 2: Towns) | Juhani Junkala | CC0 1.0 | https://archive.org/details/JuhaniJunkala-JRPGpack2Town |
 | `gloop-forest.mp3` | Gloop Forest (120 s loop) | generated for Slime Isa with Magnific (ElevenLabs music v2) | the project | Magnific, 2026-10-01 |
 | `gloop-forest-ambience.mp3` | Gloop Forest ambience bed (20 s loop) | generated for Slime Isa with Magnific (ElevenLabs sound effects) | the project | Magnific, 2026-10-01 |
+| `dungeon.wav` | Dungeon (72 s loop; Fatty's Lair, the Weaver Hollow, the Crystal Mine) | generated for Slime Isa with Magnific (Google Lyria) | the project | Magnific, 2026-10-18; loop cut from `asset/Originals/audio/music/dungeon/loops/dungeon-loop.wav` |
+| `boss-fight.wav` | Boss fight (41 s loop; `audio.global` `Music/BossMusic`) | generated for Slime Isa with Magnific (Google Lyria) | the project | Magnific, 2026-10-18; `dungeon/loops/boss-fight-loop.wav` |
+| `cave-a.wav` | Cave C, bass and drops (loop) | generated for Slime Isa with Magnific (Google Lyria) | the project | Magnific, 2026-10-18; `loops/cave-c-bass-and-drops.wav` |
+| `cave-b.wav` | Cave D, chiptune bass (loop) | generated for Slime Isa with Magnific (Google Lyria) | the project | Magnific, 2026-10-18; `loops/cave-d-chiptune-bass.wav` |
+| `interior-a.wav` | Interior C, solo piano (loop) | generated for Slime Isa with Magnific (Google Lyria) | the project | Magnific, 2026-10-18; `loops/interior-c-solo-piano.wav` |
+| `interior-b.wav` | Interior D, chiptune two voices (loop) | generated for Slime Isa with Magnific (Google Lyria) | the project | Magnific, 2026-10-18; `loops/interior-d-chiptune-two-voices.wav` |
 
 ## One flavour per cue
 Each cue ships only the flavour picked in `scripts/audio/picks.json` (library sample or synthesized take); there is

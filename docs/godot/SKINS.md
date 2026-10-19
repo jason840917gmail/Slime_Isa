@@ -12,8 +12,9 @@ are the owner's ([Direction "The skins"](../story/01-direction.md#the-skins)):
 - **Contextual.** Each skin acts in its own places (its gate) and changes one move.
 - **It shows while it works:** stony on a heavy plate, a grab or a Heavy Roll; silvery in a web,
   a web wall or a cut; furry with claws as it climbs or strikes. Otherwise the slime wears its
-  **everyday look**, picked in the bag's Skins row (cosmetic only), or its own green goo.
-- **The Pearl grants its skin**, makes it the everyday look and, the first time, shows the skin's
+  **everyday look**, picked in the bag's Skins row (cosmetic only), else its own green goo: winning
+  or lending a skin never changes it (owner, 2026-10-18: a skin shows only while its power works).
+- **The Pearl grants its skin** and, the first time, shows the skin's
   short ceremony line (its name, big, and one line) over the slime, after the Pearl's card.
 
 The Gulp's Stone and Silk forms no longer count as the Heavy and Silk checks. The forms themselves
@@ -27,7 +28,7 @@ nothing in the dungeons needs a form.
 | Call | What it does |
 |---|---|
 | `SkinState.is_on(player, SkinState.HEAVY / SILK / FERAL)` | True once the skin is won or lent. `player` may be null (skins belong to the run). Every lock asks this |
-| `SkinState.grant(id)` | A Pearl's grant: won for good, made the look, the ceremony line the first time. True when new |
+| `SkinState.grant(id)` | A Pearl's grant: won for good, the ceremony line the first time (the look stays as it was). True when new |
 | `SkinState.lend(id)` / `give_back(id)` | For this session only (dev powers, playground pedestals, `?skins=`); no save carries it |
 | `SkinState.is_won(id)`, `on_ids()`, `order()` | Won for good (not lent); the skins on; every skin in `skins.order` |
 | `SkinState.look()` / `set_look(id)` | The everyday look (`&""` = the goo) |
@@ -50,9 +51,9 @@ skins when it loads. Signal: `skins_changed` {"skin_id", "reason": won, lent, re
 ### Dev aids
 
 - `?skins=heavy,silk,feral` (desktop `-- --skins=...`) lends those skins in any world, the last one
-  the look (main.gd `lend_launch_skins`).
+  (main.gd `lend_launch_skins`); the look stays the goo.
 - `dungeon.devPowers.<world>` (game-constants.json) entries `skin.<id>` lend that skin to an F6 run
-  of the world (main.gd `start_rework`), the last one the look.
+  of the world (main.gd `start_rework`); the look stays the goo.
 
 ## Looks
 

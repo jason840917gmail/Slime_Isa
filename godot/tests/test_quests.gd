@@ -8,8 +8,8 @@ extends RefCounted
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in the
 ## village's chunk C4 (`level-1-c4`, level-1's own coordinates); the Lair's gate is on D5's hill
 ## (`level-1-d5`, its origin at level-1's (2048, 2048); in D4 until 2026-10-17), the Verdant Gate exit
-## in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp in his Lair (`fatty-lair`,
-## since 2026-10-17), which the tests needing them travel to.
+## in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp in his Lair's arena
+## (`fatty-lair-r13-fattys-arena` since 2026-10-18), which the tests needing them travel to.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -48,7 +48,8 @@ const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": 
 const VILLAGE_MAP := "level-1-c4"
 const GATE_MAP := "level-1-d5"
 const VERDANT_MAP := "level-1-d4"
-const LAIR_MAP := "fatty-lair"
+## Fatty's camp stands in his arena, its own world since the Lair is one world per room (2026-10-18).
+const LAIR_MAP := "fatty-lair-r13-fattys-arena"
 const LAIR_CAMP := "fatty-lair-boss"
 
 

@@ -238,7 +238,8 @@ func _physics_process(_delta: float) -> void:
 			on_loose = true
 		if not bool(deck.call(&"holds")):
 			continue
-		if touching:
+		# a deck is touched from its own level only (a slime in the pit under a bridge never cracks it)
+		if touching and int(deck.call(&"deck_level")) == level:
 			deck.call(&"touch")
 		if held_by == null and bool(deck.call(&"holds_at", feet)) and int(deck.call(&"deck_level")) <= level:
 			held_by = deck
@@ -250,13 +251,19 @@ func _physics_process(_delta: float) -> void:
 			continue
 		if hazard.rect().intersects(body_rect):
 			body_over = true
-		if not hazard.rect().has_point(feet):
+		# a hazard catches only on the sunken cells painted under it (the paint is the pit; its
+		# rectangle may be bigger)
+		if not hazard.covers(feet):
 			continue
 		# A form that swims (the Frog) swims in deep water: it never falls in.
 		if hazard.kind == WATER_KIND and _swims(player):
 			continue
 		in_any = true
-		var dropped_in := level < hazard.rim_level
+		# one hazard per floor level: a body above its rim (a bridge over it, a higher floor inside its
+		# rectangle) is never in it
+		if level > hazard.rim():
+			continue
+		var dropped_in := level < hazard.rim()
 		if not dropped_in and held_by != null:
 			continue
 		_hit(hazard, player, body, level, dropped_in)
@@ -372,7 +379,7 @@ func _land(player: Node, body: CharacterBody2D) -> void:
 	var hazard := _fall_hazard
 	if _fall_kind == "pit":
 		if elevation != null and hazard != null and is_instance_valid(hazard):
-			var floor_level := hazard.rim_level - hazard.pit_depth
+			var floor_level := hazard.floor_level()
 			elevation.call(&"track", body, floor_level)
 			var spot := _floor_near(elevation, body.global_position, floor_level)
 			if spot.is_finite():
@@ -412,7 +419,8 @@ func _floor_near(elevation: Node, feet: Vector2, floor_level: int) -> Vector2:
 	while step <= PIT_SEARCH_PX:
 		for sign_y: float in [1.0, -1.0]:
 			var point := feet + Vector2(0.0, step * sign_y)
-			if bool(elevation.call(&"is_walkable", point, floor_level)):
+			# the whole body on that floor (never on the wall face over it)
+			if bool(elevation.call(&"body_fits", point, floor_level)):
 				return point
 		step += PIT_SEARCH_STEP
 	return Vector2.INF

@@ -22,7 +22,8 @@ const SPIDER_GIVER := "level-1-npc-mossy-scout"
 const PLACE := "a-place-to-work"
 ## level-1's chunk worlds: the village (where the tests start); Fatty's camp is in his Lair.
 const VILLAGE_MAP := "level-1-c4"
-const FATTY_MAP := "fatty-lair"
+## Fatty's camp stands in his arena, its own world since the Lair is one world per room (2026-10-18).
+const FATTY_MAP := "fatty-lair-r13-fattys-arena"
 const FATTY_CAMP := "fatty-lair-boss"
 ## The clearing's loose wood piles (10 each).
 const WOOD_PILES := {"level-1-loose-wood-03": Vector2(411.0, 1150.0), "level-1-loose-wood-04": Vector2(455.25, 1187.9)}

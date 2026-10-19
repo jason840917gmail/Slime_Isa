@@ -451,6 +451,12 @@ func request_exit(request: Dictionary) -> Dictionary:
 	var iris := str(request.get("transition", "")) == "iris"
 	var lead_ms := maxf(0.0, float(request.get("lead_ms", 0.0)))
 	var entry_along := float(request.get("entry_along", NAN)) if not entry_edge.is_empty() else NAN
+	# A room door of a dungeon of one world per room (game/dungeon/room_travel.gd): the screen
+	# scrolls through the door into the next room.
+	if str(request.get("transition", "")) == "scroll" and not entry_door.is_empty() and request.get("door_at") is Vector2:
+		if not travel_through_room_door(target_area, entry_door, request["door_at"]):
+			return {"status": "ignored"}
+		return {"status": "queued"}
 	if not travel_to(target_area, entry_edge, entry_door, entry_marker, iris, lead_ms, entry_along):
 		return {"status": "ignored"}
 	_entered_side = str(request.get("door_side", "")) if iris else ""
@@ -573,6 +579,66 @@ func _finish_travel(target_map_id: String, entry_edge: String, entry_door: Strin
 	run.request_navigation("area", target_map_id, entry_edge, entry_door, false, entry_marker, entry_along)
 	_teardown_world()
 	_build_world(target_map_id, run.consume_navigation())
+
+
+## Through a room door (game/dungeon/room_door.gd) into the next room's world, which is built behind
+## the screen scroll (docs/godot/DUNGEON_ROOMS.md "Room doors"): the old room's picture slides out
+## the way the slime goes while the new room comes in, laid so that the old door (`door_at`, in the
+## old world) meets the new one (`entry_door`). False when a travel is under way or the world is
+## unknown.
+func travel_through_room_door(target_map_id: String, entry_door: String, door_at: Vector2) -> bool:
+	var world_service := Services.world()
+	if _transitioning or world_service == null or player == null or player_root == null:
+		return false
+	if world_service.scene_path(WORLD_SCENE_PREFIX + target_map_id).is_empty():
+		push_warning("Main: no room world '%s' to go to" % target_map_id)
+		return false
+	_transitioning = true
+	_travel_within_region = false
+	_scroll_room_travel(target_map_id, entry_door, door_at)
+	return true
+
+
+## `travel_through_room_door`'s coroutine: the picture, the build, the scroll.
+func _scroll_room_travel(target_map_id: String, entry_door: String, door_at: Vector2) -> void:
+	var run := Services.run()
+	var world_service := Services.world()
+	var constants := Services.constants()
+	var scroll_ms := constants.number("worldNavigation.edgeScrollMs") if constants != null else 0.0
+	player.stop_movement()
+	player.clear_input()
+	player.suppress_movement(scroll_ms + TRAVEL_SUPPRESS_MARGIN_MS)
+	var old_rect: Rect2 = world_service.world_rect()
+	var old_view := world_camera.view_rect()
+	var old_feet := player_root.global_position
+	var shot_rect := old_view.intersection(old_rect)
+	player_root.visible = false
+	var shot := await ChunkScroll.capture(self, get_viewport(), shot_rect, world_camera.target_zoom)
+	if player != null and is_instance_valid(player):
+		run.capture_player(world_service.map_id(), player.run_snapshot())
+	run.request_navigation("area", target_map_id, "", entry_door, false, "", NAN)
+	_teardown_world()
+	_scroll_arrival = true
+	_build_world(target_map_id, run.consume_navigation())
+	_scroll_arrival = false
+	if player == null or player_root == null:
+		return
+	_transitioning = true
+	var door := AreaTravel.find_door(world_root, entry_door)
+	var door_node := door.get_parent() as Node2D if door != null else null
+	var offset := (door_node.global_position - door_at) if door_node != null else Vector2.ZERO
+	var picture := ChunkScroll.picture(shot, Rect2(shot_rect.position + offset, shot_rect.size))
+	world_container.add_child(picture)
+	var inward: Vector2 = door.call(&"inward") if door != null else Vector2.DOWN
+	# The slime walks in from the doorway to the door's arrival spot, past the wall's foot.
+	var to_feet := player_root.global_position
+	if door != null:
+		to_feet = (door.call(&"arrival_point") as Vector2) + (player_root.global_position - player.get_centre())
+	player.walk_in(inward, scroll_ms)
+	var scroll := ChunkScroll.new()
+	add_child(scroll)
+	scroll.start(world_camera, player_root, picture, old_view.get_center() + offset, world_camera.center,
+			old_feet + offset, to_feet, scroll_ms, func() -> void: _transitioning = false)
 
 
 ## The chunk scroll (game/world/chunk_scroll.gd): takes a picture of the old view without the
@@ -907,7 +973,8 @@ func dev_powers_for(target: String) -> PackedStringArray:
 	var constants := Services.constants()
 	var table: Dictionary = constants.dictionary("dungeon.devPowers") if constants != null else {}
 	var powers := PackedStringArray()
-	var listed: Variant = table.get(target, [])
+	# A room world of a dungeon of one world per room (Fatty's Lair) takes its dungeon's line.
+	var listed: Variant = table.get(target, table.get(DungeonState.world_dungeon_id(target), []))
 	if listed is Array:
 		for power: Variant in listed:
 			powers.append(str(power))
@@ -936,7 +1003,6 @@ func start_rework() -> void:
 			if power.begins_with(DEV_SKIN_PREFIX):
 				var skin := StringName(power.trim_prefix(DEV_SKIN_PREFIX))
 				SkinState.lend(skin)
-				SkinState.set_look(skin)
 			else:
 				run.learn_session_ability(power)
 	shapes = ShapeController.new()
@@ -951,12 +1017,11 @@ func start_rework() -> void:
 		world_root.add_child(testbed)
 
 ## Dev: `?skins=heavy,silk,feral` (desktop `-- --skins=...`) lends those skins for the session in any
-## world (SkinState.lend: always on, never saved; docs/godot/SKINS.md), the last one the look.
+## world (SkinState.lend: always on, never saved; docs/godot/SKINS.md); the look stays the goo, a
+## skin shows only while it works.
 func lend_launch_skins() -> void:
 	for id: String in launch_option("skins").split(",", false):
-		var skin := StringName(id.strip_edges())
-		if SkinState.lend(skin):
-			SkinState.set_look(skin)
+		SkinState.lend(StringName(id.strip_edges()))
 
 
 ## True when the run plays the story in the body-shapes mode (docs/godot/PROLOGUE.md): while the

@@ -96,6 +96,11 @@ const REFUSAL_RISE := 60.0
 ## only while something stands on it: a statue, never the slime that has to walk through
 ## (Fatty's Lair's Weigh House and R10).
 @export var shut_on_leave: bool = false
+## A session record (DungeonState `session_value`, never saved) set while the plate holds its gates
+## down and cleared when they shut: a gate in another room's world reads it when that room is built
+## (gate.gd `open_while_record`). Fatty's Lair: R10's plate, `fatty-lair.r10-plate-held`, holding
+## R9's north door. Built again, the plate starts up, so the record starts cleared.
+@export var hold_record: String = ""
 
 ## The plate reached the bottom. Payload: {"gateId"}.
 signal pressed(payload: Dictionary)
@@ -132,6 +137,7 @@ func _ready() -> void:
 		_cap_art = load(ART_CAP) as Texture2D
 	_make_ring()
 	_show()
+	_set_hold_record(false)
 
 
 ## 0 (up) .. 1 (fully down).
@@ -168,6 +174,7 @@ func _physics_process(_delta: float) -> void:
 		_holding_open = true
 		_cue(CUE_DOWN)
 		_set_gates(true)
+		_set_hold_record(true)
 		pressed.emit({"gateId": gate_id})
 		_fire_targets()
 	elif _depth < 1.0 and _down:
@@ -176,11 +183,13 @@ func _physics_process(_delta: float) -> void:
 	if shut_on_leave and _holding_open and not loaded:
 		_holding_open = false
 		_set_gates(false)
+		_set_hold_record(false)
 		released.emit({"gateId": gate_id})
 	if _depth <= 0.0 and _holding_open:
 		_holding_open = false
 		_cue(CUE_UP)
 		_set_gates(false)
+		_set_hold_record(false)
 		released.emit({"gateId": gate_id})
 	_pulse_ring()
 
@@ -199,6 +208,9 @@ func _loaded() -> bool:
 	var on_it := body != null and body.global_position.distance_to(at) <= _player_radius
 	if not on_it:
 		return false
+	# a plate is pressed from its own level only
+	if not DungeonState.on_level_of(self):
+		return false
 	if not bool(player.call(&"presses_plates")):
 		_refuse()
 		return false
@@ -215,6 +227,11 @@ func _refuse() -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.floating_text(global_position - Vector2(0.0, REFUSAL_RISE), refusal_text, &"white", false, 2000.0)
+
+
+func _set_hold_record(held: bool) -> void:
+	if not hold_record.is_empty() and not Engine.is_editor_hint():
+		DungeonState.set_session_value(Services.run(), hold_record, true if held else null)
 
 
 func _fire_targets() -> void:

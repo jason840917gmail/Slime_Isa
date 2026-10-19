@@ -252,6 +252,9 @@ the elevation they read only a cell's level and draw into its depth map.
 
 ## Wall styles
 
+Inside a dungeon room with interior walls, a hole's walls take the cliff style of the room's walls
+before the ground's choice (INTERIOR_WALLS.md "Pits and holes"); the `cliffs` layer still overrides.
+
 A wall is of one wall style (2026-10-08; before, every cliff was meadow rock; flights of stairs
 take their colour from their ground instead, [Stairs](#how-it-works)). The style of a wall is, in
 order:
@@ -924,6 +927,94 @@ the cliff shapes lab's ramp examples (45° faces meeting a plateau's corner) sho
 pieces at the face's end. Fence links follow their painted cell centers, so corners may need an
 extra direction tile to follow an irregular shape.
 
+## Faces in rooms
+
+In a world whose rooms are drawn by an `interior-walls` layer (a dungeon room world) the level
+changes are drawn as the room's own wall faces, not as cliffs (owner, 2026-10-19, after Zelda
+ALttP; `game/world/elevation/room_faces.gd`, Elevation `_build_room_faces`, at every rebuild, live
+in the editor): the Sides and corner Patches go, and in their place, over the pits' shade and the
+hazards' look and under the stairs:
+
+- **front**: a lower cell with a higher one north of it gets the room style's north-wall run
+  squashed to one cell (one cell a level), its cap on the upper floor's edge, darker at its foot;
+- **sides**: a higher cell west or east gives the west/east-wall run squashed to the side wall's
+  strip (24 units), mitred into a front in the same cell, and carried down beside a front that turns
+  round a convex corner;
+- **back**: a higher cell south leaves only the south run's cap along the edge.
+
+Everything else is the outdoor code: the level outlines' collision (the faces are drawn on its
+footprint), the ledge drops (the hop, landing one cell a level lower on screen, in front of the
+face), the decks' passages and the slabs. A world with a painted `level-collision` layer collides as
+painted instead ([Painting collision](#painting-collision)). Not drawn yet: faces taller than one
+level (a void's walls show one cell), doors and chests set into a face.
+
+Fixes found on the way that hold everywhere (2026-10-19): a deck's passage beside a top's round
+corner or side opens that edge too (`_cut_passage_seams`, `_in_level_passage`: a Roll from a landing
+onto a slab beside it was bonked); a landing or a pit fall needs the whole body on the terrain's
+ground of the level it lands on (`body_fits` with painted collision too: never on a wall face); a
+hazard catches only strictly inside its rectangle and its painted floor (a rim's edge is the rim's).
+`tests/test_fattys_lair.gd` plays R7 end to end (with its painted and its automatic collision) and
+checks every Lair room with slabs or ledges (R2, R7, R11, the hub) the same way.
+
+## Painting collision
+
+When the automatic collision of a world's levels (rims and walls from the elevation's outline) does
+not match its art, paint the collision by hand on a **`level-collision`** layer
+(`game/world/elevation/level_collision_layer.gd`, class `LevelCollisionLayer`). Painted, it
+**replaces** the world's automatic level collision: exactly what is painted collides. Which level a
+body stands on, the stairs, the hazards' floor levels and the kit objects' levels still come from the
+`elevation` paint. Empty (or absent), the automatic collision works as before.
+
+![The level-collision palette](images/level-collision-palette.png)
+
+The palette (`level_collision_tileset.tres`, made by `tools/pack_level_collision_tileset.gd`) has
+one tile per kind and level, on a **16-unit grid** (a quarter cell: fine enough to follow a 24-unit
+side wall or a rim drawn mid-cell, coarse enough to paint quickly with the rectangle tool):
+
+- **rim** (orange, striped), level *L*: the edge of a floor of level *L*. A body on *L* is held there.
+  Pushing on for `elevation.dropPushMs` drops it over to the level painted on the `elevation` layer
+  past the rim, with the outdoor ledge drop (the hop, landing one cell a level lower on screen, on
+  ground of that level the body fits on: past a painted **base**, never on the face).
+- **base** (red), level *L*: solid for bodies on *L*: the wall foot they bump into, a wall's side, a
+  pit's walls. Pushing on a base never drops.
+
+A tile only acts on its own level, so the same spot can hold a level-0 rim and, a little lower, a
+level -1 base. A deck's passage (a slab, a landing, a lowered drawbridge: `Elevation.open_passage`)
+opens the painted cells inside it, and the rim painted along its edges where it joins a floor. Paint
+the rim right across a bridge's ends; the game opens it.
+
+Step by step:
+
+1. Open the world (a room scene) in the editor. Its levels are painted on `elevation` as usual.
+2. Add a TileMapLayer child of the scene root named `level-collision`. Give it the script
+   `game/world/elevation/level_collision_layer.gd` and the tile set
+   `game/world/elevation/level_collision_tileset.tres`.
+3. Optional: in the Inspector press **Fill from the automatic collision** to start from the current
+   collision turned into cells (save the scene first: it is not undoable; it replaces the paint).
+   Interior walls collide by themselves, so it leaves them out; in a room it copies the room faces'
+   footprint (a base at each face's foot, a rim on each upper edge).
+4. Paint: rims (orange) on the edge of each upper floor where the slime should stop and can drop,
+   bases (red) where a body on the lower level should bump into the wall. Erase what should not
+   collide. Pick the level in the palette's row.
+5. Check: `show_collision` (on by default) draws the active collision over the art in the editor:
+   the painted cells' outlines in their kind's colour with their level's number. On an empty layer it
+   draws the automatic outline of every level instead. `paint_opacity` fades the tiles. In the game,
+   `tools/render_room_collision.gd -- --map=<world>` draws the collision over a capture.
+
+![The lab painted, the overlay on](images/level-collision-lab.png)
+
+The lab (`game/dev/level-collision/level-collision-lab.tscn`, world `level-collision-lab`, built by
+`tools/build_level_collision_lab.gd`; `?map=level-collision-lab`) has a raised platform (level 1)
+and a pit (level -1) painted this way, with a gap in the pit's east rim on purpose.
+`tests/test_level_collision.gd` plays it: the rim holds and drops, the bases block their level, the
+gap collides nothing, a passage opens the rim, an empty layer brings the automatic collision back.
+
+![R7 filled from the automatic collision (not saved)](images/level-collision-filled-r7.png)
+
+Limits: one tile per cell, so a cell that borders two levels takes the higher level's when filled.
+Ramps and the open cliffs' tapered faces are not painted kinds: their walkability follows the paint
+alone in a painted world.
+
 ## Baked cache
 
 (2026-10-14, at the owner's request: load time.) Building a world's elevation takes time (level-1:
@@ -1068,6 +1159,7 @@ with side walls (the playground: 0.56 s from its cache, 2.1 s built).
 | `godot/game/world/elevation/elevation_mesh.gd` | Mesh data the builders fill |
 | `godot/game/world/elevation/elevation_cache.gd`, `godot/game/scenes/worlds/elevation_cache/` | The baked cache of each world's elevation ([Baked cache](#baked-cache)) |
 | `godot/tools/bake_elevation.gd` | Bakes the caches |
+| `godot/game/world/elevation/level_collision_layer.gd`, `level_collision_tileset.tres`, `level_collision_palette.res` | [Painting collision](#painting-collision): the hand-painted `level-collision` layer (rims, bases), its palette (`tools/pack_level_collision_tileset.gd`); the lab `game/dev/level-collision/` (`tools/build_level_collision_lab.gd`) |
 | `godot/game/world/elevation/elevation_layer.gd` | The painted layer: hides itself in the game, previews the cliffs in the editor (`@tool`) |
 | `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 3, stairs in 8 directions (two rows, once a railed and an open landing; since 2026-10-11 the same flights), ramps in 8 directions (`elevation_level`, `elevation_kind`) |
 | `godot/game/world/elevation/cliffs/cliff_layer.gd`, `cliff_tileset.tres`, `cliff_paint_tiles.png` | The `cliffs` layer: wall styles painted over tops (`wall_style`; tiles by `scripts/art/build-cliff-paint-tiles.py`) |

@@ -282,6 +282,12 @@ static func _dungeon_id_in(state: SceneState) -> String:
 				is_dungeon = true
 		if is_dungeon and not id.is_empty():
 			return id
+		# A scene that holds the Dungeon node with its settings (Fatty's Lair's
+		# `fatty-lair-dungeon.tscn`, instanced in every room world): its own state names the id.
+		if instance != null and id.is_empty() and instance.resource_path.ends_with("-dungeon.tscn"):
+			var inner := _dungeon_id_in(instance.get_state())
+			if not inner.is_empty():
+				return inner
 	return ""
 
 
@@ -311,13 +317,55 @@ static func set_entrance(run: Object, dungeon_id: String, map_id: String, centre
 	found["entrance"] = {"map_id": map_id, "x": centre.x, "y": centre.y}
 
 
+# --- the session: facts kept while the run plays, never saved ------------------------------------
+
+## A session fact of the run (RunState `dungeon_session`: forgotten by a new run and a load), or
+## `fallback`. Fatty's Lair keeps here what one room tells another without a record for good: a
+## plate held down when the slime left its room (heavy_plate.gd `hold_record`, read by gate.gd
+## `open_while_record` in the next room), an energy flower's regrow, the next far-off roar.
+static func session_value(run: Object, key: String, fallback: Variant = null) -> Variant:
+	if run == null or key.is_empty() or not &"dungeon_session" in run:
+		return fallback
+	return (run.get(&"dungeon_session") as Dictionary).get(key, fallback)
+
+
+static func set_session_value(run: Object, key: String, value: Variant) -> void:
+	if run == null or key.is_empty() or not &"dungeon_session" in run:
+		return
+	var session: Dictionary = run.get(&"dungeon_session")
+	if value == null:
+		session.erase(key)
+	else:
+		session[key] = value
+
+
 # --- objects solved for good (in a dungeon or anywhere) ------------------------------------------
 
-## The key a kit object keeps its state under: its world's map id and its own id
-## ("fatty-lair:door-3").
+## The key a kit object keeps its state under: its world's record id and its own id
+## ("fatty-lair:door-3"). The record id is the world's map id, or its Dungeon node's
+## `record_map_id` when it has one: every room world of Fatty's Lair keeps its records under
+## "fatty-lair" (docs/godot/DUNGEON_ROOMS.md), so a room's records do not depend on its world.
 static func object_key(node: Node, id: String) -> String:
-	var map_id := world_map_id(node)
+	var map_id := record_map_id(node)
 	return "%s:%s" % [map_id, id] if not map_id.is_empty() else id
+
+
+## The id `node`'s world keeps its kit records under: its Dungeon node's `record_map_id`, else the
+## world's map id (`world_map_id`).
+static func record_map_id(node: Node) -> String:
+	var at := node.get_parent() if node != null else null
+	while at != null:
+		var definition := at.get_node_or_null(^"world-definition")
+		if definition != null:
+			for child: Node in at.get_children():
+				if &"record_map_id" in child and not str(child.get(&"record_map_id")).is_empty():
+					return str(child.get(&"record_map_id"))
+			return str(definition.get(&"map_id"))
+		at = at.get_parent()
+	var dungeon := current(node.get_tree()) if node != null and node.is_inside_tree() else null
+	if dungeon != null and not str(dungeon.get(&"record_map_id")).is_empty():
+		return str(dungeon.get(&"record_map_id"))
+	return world_map_id(node)
 
 
 ## The map id of the world scene `node` stands in (its `world-definition` node), known before the
@@ -428,6 +476,31 @@ static func fire(target: Node, payload: Variant = null) -> bool:
 
 ## The dungeon numbers: `dungeon.<path>` in game-constants.json (a missing one is an error);
 ## `fallback` only where there are no constants (the editor).
+## Levels, as the open world has them (docs/godot/DUNGEONS.md "Levels"): the level a kit object
+## stands on: its `level` property when it has one set (not -99), else the world's elevation under it
+## (a slab's or a bridge's opened passage counts as the rim's level).
+static func level_of_node(node: Node2D) -> int:
+	if node == null:
+		return 0
+	var own: Variant = node.get(&"level")
+	if own is int and int(own) != -99:
+		return int(own)
+	var world := Services.world()
+	if world == null or world.elevation == null or not is_instance_valid(world.elevation):
+		return 0
+	return int(world.elevation.level_at(node.global_position, 0))
+
+
+## True when the slime's body stands on the level of `node` (or no elevation tells them apart): only
+## then does it reach the object (a key, a flower, a plate, a slab); a slime in a pit under a bridge
+## touches nothing on the bridge.
+static func on_level_of(node: Node2D) -> bool:
+	var world := Services.world()
+	if world == null or world.player_body == null or world.elevation == null or not is_instance_valid(world.elevation):
+		return true
+	return int(world.elevation.level_of(world.player_body)) == level_of_node(node)
+
+
 static func number(path: String, fallback: float) -> float:
 	var constants := Services.constants()
 	return constants.number("dungeon." + path) if constants != null else fallback

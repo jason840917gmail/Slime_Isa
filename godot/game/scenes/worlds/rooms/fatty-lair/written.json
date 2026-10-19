@@ -1,0 +1,29 @@
+{
+	"rooms": {
+		"bolt-hole": 1675951501,
+		"burr-cell": 2376040502,
+		"c2-weigh-house": 2381452177,
+		"glow-moss-burrow": 2380356107,
+		"map-nook": 3230742960,
+		"old-armoury": 3357692348,
+		"r1-gatehouse": 389051912,
+		"r1-store": 3680505344,
+		"r10-dung-roller-run": 2406358655,
+		"r11-drop-gate-bridge": 3125733985,
+		"r12-larder": 2603948059,
+		"r13-fattys-arena": 689593100,
+		"r14-postern": 3256902289,
+		"r2-slab-steps": 4030025482,
+		"r3-pit-hall": 246692705,
+		"r4-squint-den": 3330037054,
+		"r5-eye-hall": 231717278,
+		"r5-key-alcove": 2685104214,
+		"r5-lower-hall": 4113387250,
+		"r6-pipe-gallery": 2930254201,
+		"r7-bell-bridge": 706231013,
+		"r8-guard-crypt": 3069920979,
+		"r9-watcher-hall": 81537866,
+		"sally-port": 2527041095
+	},
+	"shell": 3899634067
+}

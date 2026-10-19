@@ -1,0 +1,91 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://bv7akweq7b483" path="res://game/dungeon/room_scene_shell.gd" id="1_ictnv"]
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_1olxm"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_5i3ls"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_utahy"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_6vqmg"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="6_t4oqd"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon.tscn" id="7_dn85n"]
+[ext_resource type="Script" uid="uid://b41hcvlmfk46v" path="res://game/dungeon/dungeon.gd" id="8_frvyv"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="9_aqbn6"]
+[ext_resource type="PackedScene" path="res://game/dev/interior/rooms/a-square.tscn" id="10_1wirp"]
+[ext_resource type="PackedScene" path="res://game/dev/interior/rooms/b-l-room.tscn" id="11_oxv6e"]
+[ext_resource type="PackedScene" path="res://game/dev/interior/rooms/c-hall.tscn" id="12_cgpfv"]
+
+[node name="box-room-lab" type="Node2D" unique_id=26173798]
+y_sort_enabled = true
+script = ExtResource("1_ictnv")
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=895523817]
+z_index = -2
+tile_set = ExtResource("2_1olxm")
+script = ExtResource("3_5i3ls")
+metadata/source_cell_count = 1344
+metadata/columns = 48
+metadata/rows = 28
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=1999223774]
+tile_set = ExtResource("4_utahy")
+script = ExtResource("5_6vqmg")
+
+[node name="world-definition" type="Node" parent="." unique_id=1307283971]
+script = ExtResource("6_t4oqd")
+map_id = "box-room-lab"
+tile_size = 64
+columns = 48
+rows = 28
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 768,
+"y": 1408
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=2019825355]
+position = Vector2(768, 1408)
+
+[node name="dungeon-entrance" type="Node2D" parent="." unique_id=1119674277]
+position = Vector2(768, 1408)
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=682998488]
+
+[node name="Objects" type="Node2D" parent="." unique_id=2110302616]
+y_sort_enabled = true
+
+[node name="Scenery" type="Node2D" parent="." unique_id=785058454]
+y_sort_enabled = true
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1610424337]
+y_sort_enabled = true
+
+[node name="Dungeon" type="Node2D" parent="." unique_id=255098973 instance=ExtResource("7_dn85n")]
+position = Vector2(768, 1408)
+script = ExtResource("8_frvyv")
+dungeon_id = "box-room-lab"
+display_name = "Box-Room Lab"
+resume_saves = false
+
+[node name="c-way-out" type="Node2D" parent="." unique_id=1679847862]
+position = Vector2(512, 1753.6)
+
+[node name="Door" type="Node" parent="c-way-out" unique_id=632777933]
+script = ExtResource("9_aqbn6")
+map_id = "box-room-lab"
+door_id = "box-room-lab-way-out"
+target_area_id = "playground"
+target_marker = "player-spawn"
+side = "south"
+trigger_rect = Rect2(-64, 0, 128, 24)
+
+[node name="RoomScenes" type="Node2D" parent="." unique_id=264602768]
+
+[node name="a-square" parent="RoomScenes" unique_id=1700332164 instance=ExtResource("10_1wirp")]
+
+[node name="b-l-room" parent="RoomScenes" unique_id=2127556572 instance=ExtResource("11_oxv6e")]
+
+[node name="c-hall" parent="RoomScenes" unique_id=597258892 instance=ExtResource("12_cgpfv")]

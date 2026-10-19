@@ -63,6 +63,9 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 			continue
 		var room_node := room.get("node") as Node
 		var outline: Variant = room_node.get(&"outline") if room_node != null else null
+		# A room of another world (a dungeon's layout, dungeon_layout.gd): its own outline points.
+		if room_node == null and (room.get("outline", PackedVector2Array()) as PackedVector2Array).size() >= 3:
+			outline = room["outline"]
 		if outline is PackedVector2Array and outline.size() >= 3:
 			var polygon := PackedVector2Array()
 			for point: Vector2 in room["outline"]:
@@ -84,6 +87,11 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 			canvas.draw_rect(box.grow(inset * 0.5), CURRENT_RING, false, maxf(1.5, inset * 0.6))
 	for seal: Node2D in seal_nodes(dungeon):
 		_draw_seal(canvas, seal, to_view)
+	# The layout's seal marks (the seals of the other room worlds) while the dungeon is sealed.
+	if DungeonState.is_sealed(run, id) and dungeon.has_method(&"layout_marks"):
+		for mark: Dictionary in dungeon.call(&"layout_marks"):
+			if str(mark["mark"]) == "seal" and not _seal_drawn_near(dungeon, mark["at"]):
+				_draw_seal_at(canvas, mark["at"], float(mark["rotation"]), to_view)
 	if has_compass:
 		for point: Vector2 in boss_points(dungeon):
 			var at: Vector2 = to_view.call(point)
@@ -116,7 +124,20 @@ static func boss_points(dungeon: Node) -> Array[Vector2]:
 	for node: Node in tree.get_nodes_in_group(MARK_GROUP):
 		if node is Node2D and str(node.get(&"mark")) == "boss":
 			out.append((node as Node2D).global_position)
+	# The layout's boss mark (the boss's room in another world) until he is beaten.
+	if not dungeon_boss.is_empty() and not DungeonState.is_boss_beaten(run, id, dungeon_boss) and dungeon.has_method(&"layout_marks"):
+		for mark: Dictionary in dungeon.call(&"layout_marks"):
+			if str(mark["mark"]) == "boss" and out.is_empty():
+				out.append(mark["at"])
 	return out
+
+
+## True when a seal of this world is drawn near `at` already (the layout marks its seal too).
+static func _seal_drawn_near(dungeon: Node, at: Vector2) -> bool:
+	for seal: Node2D in seal_nodes(dungeon):
+		if seal.global_position.distance_to(at) < 256.0:
+			return true
+	return false
 
 
 ## The seals shut in this world (group `dungeon_map_mark`, `mark` "seal").
@@ -132,9 +153,14 @@ static func seal_nodes(dungeon: Node) -> Array[Node2D]:
 
 ## A red bar across a shut seal's doorway (along its wall), outlined dark.
 static func _draw_seal(canvas: CanvasItem, seal: Node2D, to_view: Callable) -> void:
-	var along := Vector2.RIGHT.rotated(seal.global_rotation) * SEAL_BAR.x * 0.5
-	var across := Vector2.DOWN.rotated(seal.global_rotation) * SEAL_BAR.y * 0.5
-	var middle := seal.global_position - across
+	_draw_seal_at(canvas, seal.global_position - Vector2.DOWN.rotated(seal.global_rotation) * SEAL_BAR.y * 0.5,
+		seal.global_rotation, to_view)
+
+
+## A red bar centred on `middle` (global), turned by `rotation`.
+static func _draw_seal_at(canvas: CanvasItem, middle: Vector2, rotation: float, to_view: Callable) -> void:
+	var along := Vector2.RIGHT.rotated(rotation) * SEAL_BAR.x * 0.5
+	var across := Vector2.DOWN.rotated(rotation) * SEAL_BAR.y * 0.5
 	var corners := PackedVector2Array()
 	for point: Vector2 in [middle - along - across, middle + along - across, middle + along + across, middle - along + across]:
 		corners.append(to_view.call(point))

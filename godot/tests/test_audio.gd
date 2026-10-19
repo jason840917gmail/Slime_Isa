@@ -28,12 +28,13 @@ const WorldServiceType := preload("res://game/autoload/world_service.gd")
 
 const LEVEL1_MUSIC := "res://asset/audio/music/level-1-home-town.ogg"
 const GLOOP_MUSIC := "res://asset/audio/music/gloop-forest.mp3"
+const BOSS_MUSIC := "res://asset/audio/music/boss-fight.wav"
 ## Authored volumes: level-1's MusicPlayer (every chunk's) 0.55, gloop-forest 0.5, audio.global
 ## BossMusic 0.5.
 const LEVEL1_BASE := 0.55
 const GLOOP_BASE := 0.5
 const BOSS_BASE := 0.5
-const BOSS_PITCH := 1.12
+const BOSS_PITCH := 1.0
 const CAMP_ID := "level-1-fatty-one-eye-camp"
 ## Inside Fatty's activation circle (test_boss.gd FAR_INSIDE, D4's place).
 const FAR_INSIDE := Vector2(480.0, 1852.0)
@@ -80,7 +81,7 @@ func test_boss_music_crossfades_in_and_returns_after_the_defeat(t: TestContext) 
 	if not t.check(world_track != null and boss_track != null, "missing world or boss track"):
 		return
 	t.check(not boss_track.playing, "the boss track plays before any fight")
-	t.check(_same_stream(boss_track.stream, LEVEL1_MUSIC), "boss track stream is not %s" % LEVEL1_MUSIC)
+	t.check(_same_stream(boss_track.stream, BOSS_MUSIC), "boss track stream is not %s" % BOSS_MUSIC)
 	t.equal(String(boss_track.bus), "Music", "boss track bus")
 	t.near(boss_track.pitch_scale, BOSS_PITCH, GAIN_EPS, "boss track pitch")
 	var fight := await _start_fight(t)
@@ -344,7 +345,7 @@ static func _global_cue(cue: StringName) -> AudioStreamPlayer:
 static func _same_stream(stream: AudioStream, path: String) -> bool:
 	if stream == null:
 		return false
-	if stream.resource_path == path:
+	if stream.resource_path == path or str(stream.get_meta(&"source_path", "")) == path:
 		return true
 	var source := load(path) as AudioStream
 	if stream is AudioStreamOggVorbis and source is AudioStreamOggVorbis:

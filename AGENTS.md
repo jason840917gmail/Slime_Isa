@@ -75,6 +75,7 @@ its code is in git history.
   `godot/tests/` — the test suite; `godot/addons/godot_ai/` — the editor plugin (MCP bridge);
   `godot/addons/strike_preview/` — the body shapes' strike preview in the Inspector.
   `godot/addons/scenery_dock/` — the Scenery dock (props by picture, dragged in as nodes).
+  `godot/addons/camera_room_handles/` — drag handles for camera rooms' corners and outline points.
 - `scripts/` — art and audio tools and the test runner; `tools/` is unrelated to the game build.
 
 ## Architecture Rules
@@ -101,10 +102,19 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
 - Terrain is ground only; transitions between grounds are hand-made edge tiles
   ([docs/godot/TERRAIN_LAB.md](docs/godot/TERRAIN_LAB.md)); built stone walls are painted on a
   `walls` WallLayer, whose cells join by themselves ([docs/godot/WALLS.md](docs/godot/WALLS.md)),
-  tree walls on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)).
+  tree walls on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)); interior (dungeon
+  room) walls as Zelda's bevelled frame, two cells deep, with their doors cut into the faces, on an
+  `interior-walls` InteriorWallLayer ([docs/godot/INTERIOR_WALLS.md](docs/godot/INTERIOR_WALLS.md); the box-room lab
+  only so far).
 - Hills, holes and stairs are painted on a world's `elevation` layer; the cliffs' side walls and
   each level's collision follow (bake a world's cache after painting); a wall's rock follows its ground unless a style is painted on
-  the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)).
+  the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)). A world with a painted
+  `level-collision` layer (orange rims that hold and drop, red bases that block, per level) collides
+  exactly as painted instead ([Painting collision](docs/godot/ELEVATION.md#painting-collision)).
+  Inside dungeon rooms the level changes are drawn as the room's own wall faces (the collision,
+  drops and slabs stay the outdoor ones: [Faces in rooms](docs/godot/ELEVATION.md#faces-in-rooms));
+  a division inside a room is a low divider painted on the `fences` layer with a divider gate
+  ([docs/godot/FENCES.md](docs/godot/FENCES.md#dungeon-dividers)).
 - Saves go through `RunState` to `user://saves/`.
 
 ## Status

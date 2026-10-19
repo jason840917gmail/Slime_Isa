@@ -81,7 +81,7 @@ func test_the_pearl_grants_its_skin_and_makes_it_the_look(t: TestContext) -> voi
 	t.teleport_player(pearl.position - Vector2(0.0, CENTRE_RISE))
 	t.check(await t.until(func() -> bool: return bool(pearl.call(&"is_taken")), 1000.0), "walking into the Pearl did not take it")
 	t.check(SkinState.is_won(SkinState.SILK), "Pearl 2 did not win the Silk skin")
-	t.equal(SkinState.look(), SkinState.SILK, "Pearl 2 did not make the Silk skin the look")
+	t.equal(SkinState.look(), &"", "Pearl 2 changed the everyday look (a skin shows only while it works)")
 	t.check(run.has_flag("pearl.orb-weaver-matron"), "the Pearl's own flag is not set")
 	t.check(not run.has_flag("skin.silk"), "the Pearl still sets the old stand-in flag")
 	t.check(t.player().crosses_webs(), "the won Silk skin does not cross webs")

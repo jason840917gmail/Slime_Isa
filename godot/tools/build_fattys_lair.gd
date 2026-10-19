@@ -1,4 +1,10 @@
 extends SceneTree
+## RETIRED (owner, 2026-10-18): Fatty's Lair is in place and its scenes are the source of truth; they
+## are edited in the editor. Since 2026-10-18 every room is its own world (docs/godot/DUNGEON_ROOMS.md
+## "Fatty's Lair: one world per room"), with no shell: this tool, which wrote a shell and rooms laid
+## side by side, no longer writes anything and refuses to run. Kept as the record of how the Lair was
+## first built (its tables give the rooms' intent).
+##
 ## Builds Fatty's Lair's world, game/scenes/worlds/fatty-lair.tscn (docs/godot/DUNGEONS.md "Fatty's
 ## Lair (built)"; the plan: docs/design/2026-10-16-dungeon-fattys-lair.md). Re-runnable while the Lair
 ## is being built: it rewrites the whole scene from the layout below, so hand edits are lost when it
@@ -26,18 +32,44 @@ extends SceneTree
 ##
 ## Owner: dungeons (Fatty's Lair).
 ## Also writes the editable room scenes through tools/lib/dungeon_room_splitter.gd.
+##
+## **Hand edits are safe** (DUNGEON_ROOMS.md "Editing rooms by hand"): a room scene or the shell
+## edited in the editor since the tool wrote it (its hash no longer matches
+## game/scenes/worlds/rooms/fatty-lair/written.json) is kept and the run says so. Options after `--`:
+## `--force` rewrites them anyway, `--only=<room,room,shell>` writes only those, `--dry` writes nothing
+## and prints what it would write and skip, `--record-hashes` only records the files as they are now.
+## The build itself goes to a scratch file (user://), so the shell on disk is touched only when it may be.
+##
+## Since 2026-10-18 the walls are interior walls (docs/godot/INTERIOR_WALLS.md): Zelda's bevelled
+## frame, two cells deep, painted on an `interior-walls` layer in each room's style (fort stone,
+## cave rock, root rock); the elevation layer keeps only the holes (voids, the spike pit) and their
+## stairs. A room is ROOM_W x ROOM_H cells (18 x 16, was 16 x 14): its rim is two cells, and every
+## room's own layout (the tables below, in the old 16 x 14 room's cells) sits one cell in from the
+## room's corner (`_origin`), so every puzzle keeps its cells, every doorway lands on the new floor
+## line and the rooms grew instead of shrinking their floors. Rock inside a room (R10's, the carved
+## pockets of the nook, the sally port and the bolt-hole) is wall too.
 
 const RoomSplitter := preload("res://tools/lib/dungeon_room_splitter.gd")
 
 const OUT := "res://game/scenes/worlds/fatty-lair.tscn"
+## The build before it is split (the splitter writes OUT and the rooms, keeping hand-edited ones).
+const BUILD := "user://fatty-lair-build.tscn"
 const MAP_ID := "fatty-lair"
 ## The way out by the bolt-hole (D4, by the Verdant Gate) and the way in (D5's hill, since 2026-10-17:
 ## tools/build_slimeshire_chunks.gd), with the outer gate the inner winch holds up.
 const OUTSIDE_MAP := "level-1-d4"
 const ENTRANCE_MAP := "level-1-d5"
 const TILE := 64
-const ROOM_W := 16
-const ROOM_H := 14
+const ROOM_W := 18
+const ROOM_H := 16
+## The old room's cells (the tables' frame): a room's layout sits one cell in from its corner.
+const OLD_W := 16
+const OLD_H := 14
+## Interior walls (docs/godot/INTERIOR_WALLS.md).
+const INTERIOR_TILESET := "res://game/world/interior/interior_wall_tileset.tres"
+const INTERIOR_LAYER := "res://game/world/interior/interior_wall_layer.gd"
+## A room's wall style -> its interior wall style.
+const INTERIOR_STYLES := {"masonry": "lair-stone", "cave-rock": "cave-rock", "root-rock": "root-rock"}
 const GRID := Vector2i(5, 5)
 const ROCK_LEVEL := 2
 const VOID_LEVEL := -3
@@ -134,6 +166,10 @@ var level := PackedInt32Array()
 var stairs := PackedInt32Array()
 var cliffs := PackedInt32Array()
 var walls := PackedByteArray()
+## 1 where a cell is wall (rock): every cell but the rooms' floors and holes.
+var rock := PackedByteArray()
+## Opening blocks: world cell -> opening kind ("doorway", "cracked").
+var openings: Dictionary = {}
 var scene_root: Node2D
 var scenery: Node2D
 var enemies: Node2D
@@ -149,6 +185,20 @@ var deck_cells: Dictionary = {}
 
 
 func _initialize() -> void:
+	var args := OS.get_cmdline_user_args()
+	if true:
+		print("build_fattys_lair: retired. Fatty's Lair is one world per room, edited in the editor")
+		print("(docs/godot/DUNGEON_ROOMS.md); this tool would bring back the old shell. Nothing written.")
+		quit(1)
+		return
+	if not args.has("--i-know-this-overwrites") and not args.has("--record-hashes"):
+		print("build_fattys_lair: retired. The Lair's scenes are edited in the editor now; this tool would")
+		print("regenerate them. Nothing written. Run with -- --i-know-this-overwrites only to rebuild it on purpose.")
+		quit(1)
+		return
+	if args.has("--record-hashes"):
+		quit(RoomSplitter.new().record_hashes(MAP_ID))
+		return
 	var count := cols * rows
 	ground.resize(count)
 	ground.fill(ROCK_TOP)
@@ -160,16 +210,25 @@ func _initialize() -> void:
 	cliffs.fill(STYLE_TILES["cave-rock"])
 	walls.resize(count)
 	walls.fill(0)
-	_paint_styles()
+	rock.resize(count)
+	rock.fill(1)
+	level.fill(0)
 	for key: String in ROOMS:
 		if bool(ROOMS[key].get("carve", true)):
 			_carve_room(key)
 	_carve_doors()
 	_carve_features()
+	# a room's wall cells take its floor's ground: the walls of its holes follow the floor's style
+	for key: String in ROOMS:
+		var r := _room_rect(key)
+		for y in range(r.position.y, r.end.y):
+			for x in range(r.position.x, r.end.x):
+				if rock[_i(x, y)] == 1:
+					ground[_i(x, y)] = int(ROOMS[key]["ground"])
 	_build_scene()
 	var err := _save()
 	print("fatty-lair: %s, %d x %d cells, kit pieces %d" % [
-		"saved " + OUT if err == OK else "ERROR %d" % err, cols, rows, _kit_placed])
+		"built (the splitter wrote what it may)" if err == OK else "ERROR %d" % err, cols, rows, _kit_placed])
 	quit(0 if err == OK else 1)
 
 
@@ -183,43 +242,83 @@ func _in(x: int, y: int) -> bool:
 	return x >= 0 and y >= 0 and x < cols and y < rows
 
 
-## The room's top-left cell.
+## A room two grid cells wide or tall grows four cells that way, not two: its layout (the tables,
+## in the old room's cells) moves one cell in and, past INSERT (the old room's cell, by default the
+## grid line between its two halves), three, so the doorways of both halves stay over their
+## neighbours' (the hub's falls past its drawbridge and the counterweight plate).
+const INSERT := {"hub": Vector2(20, 0)}
+
+
+## Room `key`'s layout point (old cells, fractions allowed) as new cells from the room's corner.
+func _map_local(key: String, local: Vector2) -> Vector2:
+	var size: Vector2i = ROOMS[key]["size"]
+	var at: Vector2 = INSERT.get(key, Vector2(OLD_W, OLD_H))
+	var out := local + Vector2.ONE
+	if size.x > 1 and local.x >= at.x:
+		out.x += 2.0
+	if size.y > 1 and local.y >= at.y:
+		out.y += 2.0
+	return out
+
+
+## A layout cell of room `key` as a world cell.
+func _cell_of(key: String, lx: int, ly: int) -> Vector2i:
+	return _corner(key) + Vector2i(_map_local(key, Vector2(lx, ly)))
+
+
+## The room's layout's top-left cell (the tables' cell 0, 0): one cell in from the room's corner.
 func _origin(key: String) -> Vector2i:
+	return _corner(key) + Vector2i.ONE
+
+
+## The room's top-left cell.
+func _corner(key: String) -> Vector2i:
 	var cell: Vector2i = ROOMS[key]["cell"]
 	return Vector2i(cell.x * ROOM_W, cell.y * ROOM_H)
+
+
+## The room's cells.
+func _room_rect(key: String) -> Rect2i:
+	return Rect2i(_corner(key), Vector2i(ROOMS[key]["size"]) * Vector2i(ROOM_W, ROOM_H))
 
 
 func _cell(x: int, y: int, lvl: int, ground_source: int = -2) -> void:
 	if not _in(x, y):
 		return
-	level[_i(x, y)] = lvl
+	# rock is interior wall, not a raised level
+	rock[_i(x, y)] = 1 if lvl == ROCK_LEVEL else 0
+	level[_i(x, y)] = 0 if lvl == ROCK_LEVEL else lvl
 	if ground_source != -2:
 		ground[_i(x, y)] = ground_source
 
 
 ## Room-local cells (lx, ly) of room `key`, a rectangle, at `lvl` with the room's ground.
 func _rect(key: String, lx: int, ly: int, w: int, h: int, lvl: int) -> void:
-	var o := _origin(key)
 	var source := int(ROOMS[key]["ground"])
 	if lvl == VOID_LEVEL or lvl == PIT_LEVEL:
 		source = CAVERN
 	elif lvl == ROCK_LEVEL:
 		source = ROCK_TOP
-	for y in range(ly, ly + h):
-		for x in range(lx, lx + w):
-			_cell(o.x + x, o.y + y, lvl, source)
+	if w <= 0 or h <= 0:
+		return
+	# both corners mapped: a rectangle over a room's insert stretches over it
+	var a := _cell_of(key, lx, ly)
+	var b := _cell_of(key, lx + w - 1, ly + h - 1)
+	for y in range(a.y, b.y + 1):
+		for x in range(a.x, b.x + 1):
+			_cell(x, y, lvl, source)
 
 
 func _wall_cells(key: String, cells: Array) -> void:
-	var o := _origin(key)
 	for cell: Vector2i in cells:
-		if _in(o.x + cell.x, o.y + cell.y):
-			walls[_i(o.x + cell.x, o.y + cell.y)] = 1
+		var at := _cell_of(key, cell.x, cell.y)
+		if _in(at.x, at.y):
+			walls[_i(at.x, at.y)] = 1
 
 
 func _stairs(key: String, lx: int, ly: int, way: String) -> void:
-	var o := _origin(key)
-	stairs[_i(o.x + lx, o.y + ly)] = int(STAIRS_COLUMNS[way])
+	var at := _cell_of(key, lx, ly)
+	stairs[_i(at.x, at.y)] = int(STAIRS_COLUMNS[way])
 
 
 ## Each room's own cells (its rims) take its wall style, and so does the room above's bottom rim:
@@ -244,38 +343,55 @@ func _paint_styles() -> void:
 				cliffs[_i(x, o.y - 1)] = tile
 
 
-## The floor inside the rim, at level 0.
+## The floor inside the two-cell rim, at level 0.
 func _carve_room(key: String) -> void:
-	var size: Vector2i = ROOMS[key]["size"]
-	_rect(key, 1, 1, size.x * ROOM_W - 2, size.y * ROOM_H - 2, 0)
+	var r := _room_rect(key).grow(-2)
+	for y in range(r.position.y, r.end.y):
+		for x in range(r.position.x, r.end.x):
+			_cell(x, y, 0, int(ROOMS[key]["ground"]))
+
+
+## An opening block: the 2 x 2 cells of room `key`'s rim on `side`, from world cell `along` (a
+## column for north and south, a row for east and west).
+func _opening(key: String, side: String, along: int, kind: String = "doorway") -> void:
+	var r := _room_rect(key)
+	for d in 2:
+		for i in 2:
+			var cell: Vector2i
+			match side:
+				"n":
+					cell = Vector2i(along + i, r.position.y + d)
+				"s":
+					cell = Vector2i(along + i, r.end.y - 1 - d)
+				"w":
+					cell = Vector2i(r.position.x + d, along + i)
+				_:
+					cell = Vector2i(r.end.x - 1 - d, along + i)
+			openings[cell] = kind
 
 
 ## A door gap through the band between two rooms: `a` above or left of `b`; `at` the first of its
 ## two cells along the shared wall (a column for a horizontal wall, a row for a vertical one), in
 ## world cells.
 func _door_h(top: String, bottom: String, column: int) -> void:
-	var o := _origin(bottom)
-	for x in [column, column + 1]:
-		_cell(x, o.y - 1, 0, int(ROOMS[top]["ground"]))
-		_cell(x, o.y, 0, int(ROOMS[bottom]["ground"]))
+	_opening(top, "s", column)
+	_opening(bottom, "n", column)
 
 
 ## An east-west door also clears the two rows above it: the wall above hangs its face over them
 ## (DUNGEONS.md "Walls and doorways") and the slime walks under it.
 func _door_v(left: String, right: String, row: int) -> void:
-	var o := _origin(right)
-	for y in range(row - 2, row + 2):
-		_cell(o.x - 1, y, 0, int(ROOMS[left]["ground"]))
-		_cell(o.x, y, 0, int(ROOMS[right]["ground"]))
+	_opening(left, "e", row)
+	_opening(right, "w", row)
 
 
 ## World column of room `key`'s local column `lx`; world row of its local row `ly`.
 func _cx(key: String, lx: int) -> int:
-	return _origin(key).x + lx
+	return _cell_of(key, lx, 0).x
 
 
 func _cy(key: String, ly: int) -> int:
-	return _origin(key).y + ly
+	return _cell_of(key, 0, ly).y
 
 
 func _carve_doors() -> void:
@@ -309,8 +425,14 @@ func _carve_doors() -> void:
 	_door_h("weigh", "r12", _cx("r12", 10))
 	_door_v("r10", "weigh", _cy("weigh", 8))
 	# The entrance from Fatty's Hollow: R1's south rim, open to the world's bottom edge.
-	_cell(_cx("r1", 7), _cy("r1", 13), 0, COBBLE)
-	_cell(_cx("r1", 8), _cy("r1", 13), 0, COBBLE)
+	_opening("r1", "s", _cx("r1", 7))
+	# The way out up the bolt-hole: the north face over its tunnel (lx 7..8).
+	for d in 2:
+		for i in 2:
+			openings[Vector2i(_cx("bolt", 7 + i), _cy("bolt", 1 + d))] = "doorway"
+	# The sally port's crack (R5's west wall, the Goo Bomb): cracked in both rims, blown together.
+	_opening("r5", "w", _cy("r5", 4), "cracked")
+	_opening("sally", "e", _cy("r5", 4), "cracked")
 
 
 func _carve_features() -> void:
@@ -406,7 +528,6 @@ func _build_scene() -> void:
 	scene_root.y_sort_enabled = true
 	scene_root.add_child(_ground_layer())
 	scene_root.add_child(_elevation_layer())
-	scene_root.add_child(_cliff_layer())
 	scene_root.add_child(_wall_layer())
 	var shade := Node2D.new()
 	shade.name = "VoidShade"
@@ -444,6 +565,11 @@ func _build_scene() -> void:
 	_place_nook_sally()
 	_place_kit_doors()
 	_place_hazards()
+	_fit_doors_to_walls()
+	# the walls last: the doors in them are painted as closed-door openings (the layer adopts them)
+	var walls_layer := _interior_layer()
+	scene_root.add_child(walls_layer)
+	scene_root.move_child(walls_layer, 2)
 	_fill_void_shade(shade)
 	_drop_unimported_pictures(scene_root)
 	_own(scene_root, scene_root)
@@ -472,8 +598,7 @@ func _holder(holder_name: String, y_sort: bool) -> Node2D:
 
 ## World units of room `key`'s local cell point (lx, ly), in cells (fractions allowed).
 func _at(key: String, lx: float, ly: float) -> Vector2:
-	var o := _origin(key)
-	return Vector2((o.x + lx) * TILE, (o.y + ly) * TILE)
+	return (Vector2(_corner(key)) + _map_local(key, Vector2(lx, ly))) * TILE
 
 
 func _ground_layer() -> TileMapLayer:
@@ -483,6 +608,9 @@ func _ground_layer() -> TileMapLayer:
 	layer.tile_set = load(TERRAIN_TILESET)
 	for y in rows:
 		for x in cols:
+			# only the rooms have ground: past them is the dark
+			if _room_of(Vector2i(x, y)).is_empty():
+				continue
 			layer.set_cell(Vector2i(x, y), ground[_i(x, y)], Vector2i(x % SHEET_TILES, y % SHEET_TILES))
 	layer.set_meta(&"columns", cols)
 	layer.set_meta(&"rows", rows)
@@ -506,6 +634,118 @@ func _elevation_layer() -> TileMapLayer:
 				layer.set_cell(Vector2i(x, y), 0, Vector2i(lvl + 3 if lvl < 0 else lvl + 2, 0))
 	layer.set_script(load(ELEVATION_LAYER))
 	return layer
+
+
+## The interior walls: every rock cell of a room in its style, its opening blocks (Burr's cell,
+## the store and the key alcove are fieldstone closets inside their rooms, on the `walls` layer).
+func _interior_layer() -> TileMapLayer:
+	var layer := TileMapLayer.new()
+	layer.name = "interior-walls"
+	layer.tile_set = load(INTERIOR_TILESET)
+	var tiles := {}
+	var source := layer.tile_set.get_source(0) as TileSetAtlasSource
+	for i in source.get_tiles_count():
+		var coords := source.get_tile_id(i)
+		var data := source.get_tile_data(coords, 0)
+		tiles["%s|%s" % [data.get_custom_data("interior_style"), data.get_custom_data("interior_opening")]] = coords
+	for key: String in ROOMS:
+		var style := str(INTERIOR_STYLES[ROOMS[key]["style"]])
+		var r := _room_rect(key)
+		for y in range(r.position.y, r.end.y):
+			for x in range(r.position.x, r.end.x):
+				var cell := Vector2i(x, y)
+				if rock[_i(x, y)] == 0:
+					continue
+				var kind := str(openings.get(cell, ""))
+				layer.set_cell(cell, 0, tiles["%s|%s" % [style, kind]])
+	layer.set_script(load(INTERIOR_LAYER))
+	return layer
+
+
+## The kit's doors in a room's rim stand on its floor line in the middle of their opening and draw
+## only their leaves (frame_drawn_by_wall): the north floor line is the layout's row 1 (the old
+## cliff faces put north doors two rows lower); south, east and west already stood on theirs. The
+## doors inside rooms (Burr's cell, the store, the latch doors in built walls) keep their own art.
+func _fit_doors_to_walls() -> void:
+	var rim_doors := {"hub-boss-door": "n", "hub-r1-shortcut": "s", "r5-way-back": "e", "r7-way-back": "w",
+		"r9-way-back": "e", "r11-way-back": "s", "r12-shutter-south": "s", "r13-shutter-south": "s",
+		"r1-seal": "s", "r13-seal": "n", "r12-barricade": "n", "r14-barricade": "n", "r5-sally-crack": "w",
+		"r9-north-door": "n"}
+	# the closed-door kind each is painted as (docs/godot/INTERIOR_WALLS.md "Painting a room")
+	# (not R5's way back: it stands in the lower hall, a pocket whose walls are the Eye Hall's scene's,
+	# so it stays a placed door in a painted doorway)
+	var door_kinds := {"hub-boss-door": "boss", "hub-r1-shortcut": "bolt",
+		"r7-way-back": "bolt", "r9-way-back": "bolt", "r11-way-back": "bolt", "r12-shutter-south": "shutter",
+		"r13-shutter-south": "shutter", "r1-seal": "seal", "r13-seal": "seal", "r12-barricade": "barricade",
+		"r14-barricade": "barricade"}
+	for holder: Node in [objects, lair]:
+		for node: Node in holder.get_children():
+			if not rim_doors.has(String(node.name)):
+				continue
+			var item := node as Node2D
+			var cell := Vector2i((item.position / TILE).floor())
+			var key := _room_of(cell)
+			var side: String = rim_doors[String(node.name)]
+			match side:
+				"n":
+					item.position.y = (_corner(key).y + 2) * TILE
+			var style := str(INTERIOR_STYLES[ROOMS[key]["style"]])
+			_paint_door_kind(item, side, door_kinds.get(String(node.name), ""))
+			if &"frame_drawn_by_wall" in node:
+				node.set(&"frame_drawn_by_wall", true)
+			if &"interior_style" in node:
+				node.set(&"interior_style", style)
+			if &"wall" in node and node.scene_file_path.ends_with("plank-barricade.tscn"):
+				node.set(&"wall", {"n": "north", "s": "south", "e": "east", "w": "west"}[side])
+			if node.scene_file_path.ends_with("latch-door.tscn"):
+				_latch_in_wall(item, style, side)
+	# the sally port's crack: the wall's own cracked blocks draw it
+	var crack := objects.get_node_or_null("r5-sally-crack") as Node2D
+	if crack != null:
+		crack.position = _at("r5", 1.0, 6.0)
+		crack.set(&"passage", Rect2(-128, -128, 128, 128))
+
+
+## Paints the opening block a rim door stands in with its closed-door kind (the block it fits, from
+## its place on the floor line and its side).
+func _paint_door_kind(door: Node2D, side: String, kind: String) -> void:
+	if kind.is_empty():
+		return
+	var at := door.position / TILE
+	var first: Vector2i
+	match side:
+		"n":
+			first = Vector2i(roundi(at.x) - 1, roundi(at.y) - 2)
+		"s":
+			first = Vector2i(roundi(at.x) - 1, roundi(at.y))
+		"w":
+			first = Vector2i(roundi(at.x) - 2, roundi(at.y) - 1)
+		_:
+			first = Vector2i(roundi(at.x), roundi(at.y) - 1)
+	for j in 2:
+		for i in 2:
+			var cell := first + Vector2i(i, j)
+			if openings.get(cell, "") != "doorway":
+				push_warning("fatty-lair: %s does not stand in a doorway (%s)" % [door.name, cell])
+				return
+	for j in 2:
+		for i in 2:
+			openings[first + Vector2i(i, j)] = kind
+
+
+## A stone door (object.latch-door) in a rim doorway: the wall draws its frame; its slab is the
+## style's shutter leaf, sliding as before.
+func _latch_in_wall(door: Node2D, style: String, side: String) -> void:
+	door.scale = Vector2.ONE
+	door.position.y = (_corner(_room_of(Vector2i((door.position / TILE).floor()))).y + 2) * TILE if side == "n" else door.position.y
+	var frame := door.get_node_or_null("Frame") as Sprite2D
+	if frame != null:
+		frame.visible = false
+	var slab := door.get_node_or_null("Slab") as Sprite2D
+	if slab != null:
+		slab.set(&"wall_leaf_style", style)
+		slab.set(&"wall_leaf_wall", {"n": "north", "s": "south", "e": "east", "w": "west"}[side])
+	_editable.append(door)
 
 
 func _cliff_layer() -> TileMapLayer:
@@ -581,9 +821,7 @@ func _cell_rects(want: int) -> Array[Rect2i]:
 ## The room whose cells hold world cell `cell` ("" outside every room).
 func _room_of(cell: Vector2i) -> String:
 	for key: String in ROOMS:
-		var o := _origin(key)
-		var size: Vector2i = ROOMS[key]["size"]
-		if Rect2i(o, size * Vector2i(ROOM_W, ROOM_H)).has_point(cell):
+		if _room_rect(key).has_point(cell):
 			return key
 	return ""
 
@@ -617,11 +855,13 @@ func _camera_rooms() -> Node2D:
 		var node := Node2D.new()
 		node.name = str(room["name"])
 		node.set_script(load(CAMERA_ROOM))
-		node.position = Vector2(_origin(key) * TILE)
+		node.position = Vector2(_corner(key) * TILE)
 		node.set(&"size", Vector2(room["size"]) * Vector2(ROOM_W, ROOM_H) * TILE)
+		# the room draws its own walls (doorway_art.gd and the room mask leave it alone)
+		node.set_meta(&"wall_bands", false)
 		holder.add_child(node)
 		if ROOM_ENTRIES.has(key):
-			node.add_child(_marker("RoomEntry", Vector2(ROOM_ENTRIES[key]) * TILE))
+			node.add_child(_marker("RoomEntry", _map_local(key, Vector2(ROOM_ENTRIES[key])) * TILE))
 	return holder
 
 
@@ -690,7 +930,7 @@ func _chest(kind: String, node_name: String, position: Vector2, contents: Dictio
 ## One falling slab over room `key`'s cell (lx, ly).
 func _slab(key: String, lx: int, ly: int) -> void:
 	_kit("falling-slab", "%s-slab-%d-%d" % [key, lx, ly], _at(key, lx, ly), {"size": Vector2(TILE, TILE)})
-	deck_cells[_origin(key) + Vector2i(lx, ly)] = true
+	deck_cells[_cell_of(key, lx, ly)] = true
 
 
 ## A solid landing (a kit deck) over room `key`'s cells from (lx, ly), `size` cells.
@@ -698,7 +938,7 @@ func _landing(key: String, node_name: String, lx: int, ly: int, size: Vector2i) 
 	_kit("hazard-deck", node_name, _at(key, lx, ly), {"size": Vector2(size * TILE), "level": 0, "safe": true, "draw_floor": true})
 	for y in size.y:
 		for x in size.x:
-			deck_cells[_origin(key) + Vector2i(lx + x, ly + y)] = true
+			deck_cells[_cell_of(key, lx + x, ly + y)] = true
 
 
 ## The kit's hazards: a void over every rectangle of hole cells, spikes over the pit's (not its
@@ -836,7 +1076,7 @@ func _place_hub() -> void:
 		"bridge_id": "fatty-lair-drawbridge"})
 	for y in range(5, 10):
 		for x in [15, 16]:
-			deck_cells[_origin("hub") + Vector2i(x, y)] = true
+			deck_cells[_cell_of("hub", x, y)] = true
 	var targets: Array[NodePath] = [NodePath("../hub-drawbridge")]
 	_add(objects, "heavy-plate", "hub-counterweight-plate", _at("hub", 18.5, 11.5), {"targets": targets})
 	var chain := Node2D.new()
@@ -1012,7 +1252,7 @@ func _place_r12() -> void:
 	glow_holder.add_child(glow)
 	_kit_placed += 1
 	_add(glow_holder, KIT % "prize-glint", "Glint", Vector2(0.0, -2.1 * TILE), {"only_in_dark": false, "tint": Color(1.0, 0.86, 0.55)})
-	_kit("room-fight", "r12-fight", _at("r12", 0.0, 0.0), {"fight_id": "fatty-lair-larder", "once": true,
+	_kit("room-fight", "r12-fight", Vector2(_corner("r12") * TILE), {"fight_id": "fatty-lair-larder", "once": true,
 		"boss_id": BIG_SQUINT_ID, "size": Vector2(ROOM_W, ROOM_H) * TILE})
 	_kit("shutter", "r12-shutter-south", _at("r12", 12.0, 13.0), {"wall": "south", "fight_id": "fatty-lair-larder",
 		"shutter_id": "fatty-lair-larder-south"})
@@ -1063,7 +1303,7 @@ func _place_r13_r14() -> void:
 	director.set(&"burr_exit", NodePath("../burr-exit"))
 	director.set(&"cell_door", NodePath("../../Objects/hub-burr-cell-door"))
 	director.set(&"hatch", NodePath("../inner-stair"))
-	director.set(&"call_rect", Rect2(_at("hub", 1.0, 3.0), Vector2(30, 10) * TILE))
+	director.set(&"call_room", NodePath("../../CameraRooms/r3-pit-hall"))
 	director.set(&"camp", NodePath("../fatty-camp/BossCampScript"))
 	director.set(&"clod_spots", NodePath("../clod-spots"))
 	director.set(&"heart", NodePath("../fatty-boss-heart"))
@@ -1190,10 +1430,10 @@ func _save() -> Error:
 	var packed := PackedScene.new()
 	var err := packed.pack(scene_root)
 	if err == OK:
-		err = ResourceSaver.save(packed, OUT)
+		err = ResourceSaver.save(packed, BUILD)
 	scene_root.free()
 	if err == OK:
-		err = RoomSplitter.new().split(MAP_ID)
+		err = RoomSplitter.new().split(MAP_ID, BUILD)
 	return err
 
 

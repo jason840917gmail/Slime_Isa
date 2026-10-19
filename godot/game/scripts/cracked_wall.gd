@@ -32,6 +32,7 @@ extends Node2D
 const Services := preload("res://game/shared/services.gd")
 const BlastBarrier := preload("res://game/scripts/blast_barrier.gd")
 const DoorScriptType := preload("res://game/scripts/door.gd")
+const InteriorWalls := preload("res://game/world/interior/interior_wall_layer.gd")
 
 const BREAK_TEXT := "The wall caves in!"
 const WALL_ART := "res://asset/MAPS/elevation/%s-wall.png"
@@ -43,6 +44,13 @@ const ROCK_SAMPLES := 48
 
 ## Story flag set when it is blown (and read at load: blown for good).
 @export var flag_id: String = ""
+## The room's InteriorWallLayer draws the crack and the hole (docs/godot/INTERIOR_WALLS.md): a
+## "cracked" opening painted on it where this stands. The decals stay hidden, the blast turns the
+## wall's opening into "blown" (the layer opens its gap: no `blocker` or elevation passage needed).
+@export var frame_drawn_by_wall: bool = false:
+	set(value):
+		frame_drawn_by_wall = value
+		_apply_look()
 ## Said when a weapon, a throw or the Slam hits it.
 @export var refusal_text: String = "Too deep for a hammer. It needs a blast."
 ## The crack decal: its size and its middle from the root (world units).
@@ -125,6 +133,7 @@ func _ready() -> void:
 	if _broken:
 		_remove_blocker()
 		_make_door()
+		_blow_wall_opening.call_deferred()
 		if area != null:
 			area.queue_free()
 	else:
@@ -208,6 +217,7 @@ func receive_blast(_hit: Dictionary) -> bool:
 	_remove_blocker()
 	_make_door()
 	_apply_look()
+	_blow_wall_opening()
 	BlastBarrier.give_way(global_position - Vector2(0.0, 8.0), BREAK_TEXT, _rock_tint(), 16, 10)
 	set_physics_process(true)
 	return true
@@ -232,13 +242,23 @@ func _apply_look() -> void:
 	var crack := get_node_or_null(^"Crack") as Sprite2D
 	var hole := get_node_or_null(^"Hole") as Sprite2D
 	if crack != null:
-		crack.visible = not blown
+		crack.visible = not blown and not frame_drawn_by_wall
 		_fit(crack, crack_size, crack_offset)
 	if hole != null:
-		hole.visible = blown
+		hole.visible = blown and not frame_drawn_by_wall
 		_fit(hole, hole_size, hole_offset)
 		hole.modulate = _rock_tint() if hole_tint.a <= 0.0 else hole_tint
 	queue_redraw()
+
+
+## With the frame drawn by the wall, the wall's "cracked" opening here becomes "blown" (a wall
+## already blown when the world is built asks for it from `_ready` too).
+func _blow_wall_opening() -> void:
+	if not frame_drawn_by_wall or not is_inside_tree() or Engine.is_editor_hint():
+		return
+	var layer := InteriorWalls.find(get_tree())
+	if layer != null:
+		layer.change_opening_at(global_position + passage.get_center(), "blown")
 
 
 ## Scales `sprite` (centred) to `size` world units, its middle at `offset`.

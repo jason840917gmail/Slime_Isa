@@ -17,6 +17,8 @@
 [ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/enemy/spider-hiss.wav" id="13_y0g1d"]
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-roots/R3-drop-gate.tscn" id="14_y0g1d"]
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-roots/D1-old-cellar.tscn" id="15_lxnrm"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="music_player_script"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="music_track"]
 
 [node name="weaver-hollow-roots" type="Node2D" unique_id=399522129]
 y_sort_enabled = true
@@ -113,5 +115,14 @@ y_sort_enabled = true
 [node name="R3-drop-gate" parent="RoomScenes" unique_id=770639034 instance=ExtResource("14_y0g1d")]
 
 [node name="D1-old-cellar" parent="RoomScenes" unique_id=823589499 instance=ExtResource("15_lxnrm")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=807521809]
+process_mode = 3
+stream = ExtResource("music_track")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("music_player_script")
+loop = true
+autoplay_cue = true
 
 [editable path="Objects/dungeon"]

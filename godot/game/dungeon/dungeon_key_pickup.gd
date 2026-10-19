@@ -81,6 +81,8 @@ func _physics_process(_delta: float) -> void:
 	var reach := DungeonState.number("refill.pickupRadiusPx", 22.0)
 	if world.player_body.global_position.distance_to(global_position) > reach + 12.0:
 		return
+	if not DungeonState.on_level_of(self):
+		return
 	_taken = true
 	DungeonState.mark_done(get_tree(), _record_key())
 	DungeonItems.give(get_tree(), item)

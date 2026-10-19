@@ -16,6 +16,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-2.tscn" id="14_mwi6o"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-rock-mossy.tscn" id="15_3xb18"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-1.tscn" id="16_kv3b3"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="music_player_script"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/cave-b.wav" id="music_track"]
 
 [node name="lake-island-cave" type="Node2D" unique_id=305566906]
 y_sort_enabled = true
@@ -152,6 +154,15 @@ position = Vector2(294.4, 601.6)
 position = Vector2(512, 307.2)
 metadata/kit = "chapter-1"
 metadata/contents = "a secret placed later (owner, 2026-10-17: \"we will place a secret there later\"); nothing here yet"
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1082114002]
+process_mode = 3
+stream = ExtResource("music_track")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("music_player_script")
+loop = true
+autoplay_cue = true
 
 [editable path="Cave/lake-island-cave-chest-west"]
 [editable path="Cave/lake-island-cave-chest-east"]

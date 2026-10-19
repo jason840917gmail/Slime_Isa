@@ -19,6 +19,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-trunk/T1-root-door.tscn" id="15_37q3y"]
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-trunk/S3-nook.tscn" id="16_facj8"]
 [ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow-trunk/T3a-map-nook.tscn" id="19_fuvj7"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="music_player_script"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="music_track"]
 
 [node name="weaver-hollow-trunk" type="Node2D" unique_id=122557842]
 y_sort_enabled = true
@@ -118,5 +120,14 @@ y_sort_enabled = true
 [node name="S3-nook" parent="RoomScenes" unique_id=203103715 instance=ExtResource("16_facj8")]
 
 [node name="T3a-map-nook" parent="RoomScenes" unique_id=551180610 instance=ExtResource("19_fuvj7")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=531412460]
+process_mode = 3
+stream = ExtResource("music_track")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("music_player_script")
+loop = true
+autoplay_cue = true
 
 [editable path="Objects/dungeon"]
