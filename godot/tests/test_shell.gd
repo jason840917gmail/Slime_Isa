@@ -14,6 +14,7 @@ const ShellScript := preload("res://game/shell/shell.gd")
 const GameSettings := preload("res://game/shell/game_settings.gd")
 const LaunchOptions := preload("res://game/shell/launch_options.gd")
 const AreaTitleCard := preload("res://game/shell/area_title_card.gd")
+const AreaTitles := preload("res://game/shell/area_titles.gd")
 const TitleScript := preload("res://game/shell/title.gd")
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
 const ThemeBuilder := preload("res://tools/build_ui_theme.gd")
@@ -405,6 +406,31 @@ func test_area_title_card_on_world_registration(t: TestContext) -> void:
 	t.world().world_registered.emit({"mapId": "level-1-c4"})
 	t.check(not card.is_showing(), "a card showed for a world outside main")
 	t.main.add_to_group(ShellScript.WORLD_MAIN_GROUP)
+	_free_shell(shell)
+	_restore_mix(saved)
+
+
+## The rooms of a dungeon of one world per room are titled as one world, as a region's chunks are
+## (2026-10-19 review: every room of Fatty's Lair showed a banner named from its world id): one
+## banner on the way in, none from room to room, the next on the way out.
+func test_one_banner_for_the_rooms_of_a_dungeon_of_one_world_per_room(t: TestContext) -> void:
+	var saved := _save_mix()
+	var shell := _make_shell(t)
+	var card := shell.area_title
+	var clock := {"ms": 10000.0}
+	card.clock = func() -> float: return float(clock["ms"])
+	t.world().world_registered.emit({"mapId": "level-1-d5"})
+	clock["ms"] = 20000.0
+	t.world().world_registered.emit({"mapId": "fatty-lair"})
+	t.check(card.is_showing(), "no banner on the way into Fatty's Lair")
+	t.equal(card.label.text, AreaTitles.area_name("fatty-lair"), "the Lair's banner")
+	for room: String in ["fatty-lair-r2-slab-steps", "fatty-lair-r3-pit-hall", "fatty-lair"]:
+		clock["ms"] += 5000.0
+		t.world().world_registered.emit({"mapId": room})
+		t.check(not card.is_showing(), "a banner showed again in %s (%s)" % [room, card.label.text])
+	clock["ms"] += 5000.0
+	t.world().world_registered.emit({"mapId": "level-1-d5"})
+	t.check(card.is_showing(), "no banner on the way out of the Lair")
 	_free_shell(shell)
 	_restore_mix(saved)
 

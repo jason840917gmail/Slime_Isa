@@ -79,11 +79,16 @@ const SHADOW_PER_HEIGHT := 0.45
 const SHADOW_ALPHA := 0.3
 const CONTACT_ALPHA := 0.45
 const CONTACT_RADIUS := Vector2(10.0, 4.5)
+## The `world` physics layer (project.godot layer 1): every walker's mask has it.
+const WORLD_LAYER := 1
 var grid: ElevationGrid
 var ground: TileMapLayer
 var cell := 64.0
 var _pieces: Node2D
 var _cell_offset := Vector2i.ZERO
+## Mounted on flat ground (no Elevation): no body is tracked onto a level layer there, so the level-0
+## collision goes on the `world` layer (`_build_collision`).
+var _flat := false
 ## style -> its kit (the JSON), or {} when it has no art.
 var _kits: Dictionary = {}
 var _materials: Dictionary = {}
@@ -136,6 +141,7 @@ static func mount(ground_layer: TileMapLayer, elevation: Node2D, the_grid: Eleva
 	var cell_offset := Vector2i.ZERO
 	if elevation != null:
 		cell_offset = elevation.get("cell_offset")
+	fences._flat = elevation == null
 	fences.build(ground_layer, painted, the_grid, occlusion, collide, cell_offset)
 	return fences
 
@@ -709,7 +715,9 @@ func _add_box(level: int, centre: Vector2, half: Vector2, axis: Vector2) -> void
 			"bounds": Rect2(centre - reach, reach * 2.0)})
 
 
-## One static body per level with fences, on that level's physics layer, a rectangle per box.
+## One static body per level with fences, on that level's physics layer, a rectangle per box. On
+## flat ground (no Elevation tracks the bodies onto level layers) level 0's body is on the `world`
+## layer, as a wall is.
 func _build_collision() -> void:
 	if _boxes.is_empty():
 		return
@@ -718,7 +726,7 @@ func _build_collision() -> void:
 	add_child(holder)
 	for level_value: Variant in _boxes:
 		var level := int(level_value)
-		var bit := _level_bit(level)
+		var bit := WORLD_LAYER if _flat and level == 0 else _level_bit(level)
 		if bit == 0:
 			push_warning("Fences: no physics layer named 'level %d'" % level)
 			continue

@@ -69,7 +69,11 @@ instead; every post is a 14 × 8 rect at the band's height; a lone tile is its t
 band between them. From the north a body's feet stop 10 above the posts' feet, its lower part hidden behind the
 rails; from the south its head stops 2 above them, overlapping the feet a little (the Zelda overlap).
 Run ends are open; corners are closed by the posts. Each level's collision is a static body on its
-`level <n>` physics layer. `Fences.blocks_rect` and `blocks_sweep` test the same boxes, so
+`level <n>` physics layer. In a world without levels (no `elevation` paint, no Elevation to put a
+body on a level layer) the level-0 body is on the `world` layer instead, as a wall is, so every
+walker meets it (2026-10-19; before, the Lair's flat rooms' dividers stopped nothing; whatever else
+collides with walls, a thrown thing or a ray, meets such a fence too). `Fences.blocks_rect` and
+`blocks_sweep` test the same boxes, so
 `Elevation.body_fits` (landings, hop steps) checks a body's whole rect and `ledge_below` the whole
 way from its side to its ledge probe: a hop or a drop never passes a band thinner than the body.
 
@@ -85,8 +89,9 @@ layer or cliff-edge mode.
 `Elevation.rebuild()` calls `Fences.mount(ground, self, grid, occlusion, collide)`
 (`game/world/fences/fences.gd`); a flat world (no `elevation` layer) calls the same mount from
 `Elevation.mount` with no elevation, and the fences go beside the ground layer on a level-0 grid of
-the map's size. Only the node's parent, the cell levels and the depth map differ; paint, links, art,
-shadows and collision all use one path. Of the elevation the fences use only `ElevationGrid` (a
+the map's size. Only the node's parent, the cell levels, the depth map and the collision's physics
+layer (`world` on flat ground) differ; paint, links, art, shadows and collision boxes all use one
+path. Of the elevation the fences use only `ElevationGrid` (a
 cell's level), `ElevationOcclusion` (the depth map), the mesh helper and the shader includes.
 
 - **Connections** (`connected_links`): each linked neighbouring pair (above) is drawn once.
@@ -168,7 +173,12 @@ on the cell between two posts:
 Paint the gate cell with its gate tile (the palette's last two tiles, their pictures the gates
 themselves): the cell draws no post and the fence layer keeps a divider gate object on it under the
 scene's `Objects` (`fence_layer.gd` `sync_gates`, as you paint): an untagged divider gate already
-standing there is adopted, else one is made; erasing the tile removes a gate the layer made. The
+standing there is adopted, else one is made, with a record of its own (its `GateScript`'s `gate_id`
+`<room>-gate-<x>-<y>`, `map_id` the world's record id: `fatty-lair` in the Lair). Erasing the tile
+removes a gate the layer made and nobody has changed since; a gate with a setting of its own (an
+id, a message) or one placed by hand is never removed: the layer lets go of it with a warning and
+adopts it again when its tile is painted back (Ctrl+Z), settings and all
+(`game/world/painted_objects.gd`); delete it by hand when it should go. The
 gate's `GateScript` child (`game/scripts/gate.gd`) is the gate as before: plates, bells, eye latches
 and keys find it by `gate_id`, its records are the gate's; the divider gate only shows it shut or
 open and blocks the gap between the posts while shut (`Doors`). A lone divider cell beside a gate
@@ -222,4 +232,5 @@ and `styles-review.jpg` (every style, and bodies behind fences) are its output. 
 | `asset/Originals/fences/` | Generated sources and the review sheet |
 | `scripts/maps/build-fence-park.py`, `godot/game/scenes/worlds/fence-park.tscn` | The Fence Park |
 | `godot/tools/render_fence_park.gd` | Renders and probes the Fence Park |
-| `godot/tests/test_fences.gd` | Mounting (Fence Park, C4, a flat world), links, the bands (straight, diagonal, a lone tile), movement, hops and drops |
+| `godot/game/world/painted_objects.gd` | What a painted layer may remove by itself: a gate (or interior-wall door) it made and nobody changed |
+| `godot/tests/test_fences.gd` | Mounting (Fence Park, C4, a flat world), links, the bands (straight, diagonal, a lone tile), movement (a flat world's fence stops a body), hops and drops, painted gates' records and settings |

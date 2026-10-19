@@ -9,6 +9,8 @@ const Elevation := preload("res://game/world/elevation/elevation.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
 const Fences := preload("res://game/world/fences/fences.gd")
+const FenceLayer := preload("res://game/world/fences/fence_layer.gd")
+const WorldDefinition := preload("res://game/scripts/world_definition.gd")
 const FENCE_TILESET := preload("res://game/world/fences/fence_tileset.tres")
 
 const MAP_ID := "fence-park"
@@ -286,6 +288,113 @@ func test_flat_world_mounts_fences_beside_the_ground(t: TestContext) -> void:
 	await t.steps(1)
 	t.check(root.get_node_or_null(NodePath(Fences.NODE_NAME)) == null, "erased fences were not removed")
 	root.free()
+
+
+## A flat world's fence stops a walker (2026-10-19 review: in the Lair's rooms without levels the
+## fences' level-0 bodies were on the `level 0` layer, which no body's mask has without an Elevation
+## to track it, so the slime walked through every divider).
+func test_a_flat_worlds_fence_stops_a_body(t: TestContext) -> void:
+	var root := Node2D.new()
+	root.name = "flat-fence-walk"
+	t.tree.root.add_child(root)
+	var ground := TileMapLayer.new()
+	ground.name = "ground"
+	ground.tile_set = load(Elevation.TERRAIN_TILESET_PATH)
+	var source := ground.tile_set.get_source_id(0)
+	for y in 8:
+		for x in 8:
+			ground.set_cell(Vector2i(x, y), source, Vector2i.ZERO)
+	ground.set_meta(&"columns", 8)
+	ground.set_meta(&"rows", 8)
+	root.add_child(ground)
+	var painted := TileMapLayer.new()
+	painted.name = "fences"
+	painted.tile_set = FENCE_TILESET
+	for x in range(2, 6):
+		painted.set_cell(Vector2i(x, 3), 0, Vector2i(0, 0))
+	root.add_child(painted)
+	Elevation.mount(ground, true)
+	# The player's own mask (player_slime.tscn: world, enemy, npc, water), no level bit: nothing
+	# tracks a body onto a level in a flat world.
+	var body := CharacterBody2D.new()
+	body.collision_layer = 0
+	body.collision_mask = 1 | 4 | 128 | 1024
+	var shape := CollisionShape2D.new()
+	var rectangle := RectangleShape2D.new()
+	rectangle.size = Vector2(2.0 * BODY_HALF_WIDTH, 26.0)
+	shape.shape = rectangle
+	body.add_child(shape)
+	body.position = Vector2(3.5 * 64.0, 3.5 * 64.0 + 40.0)
+	root.add_child(body)
+	await t.steps(2)
+	t.check(body.test_move(body.global_transform, Vector2(0.0, -80.0)), "a body walked north through a flat world's fence")
+	# past the run's east end nothing stops it: the fence did
+	body.position.x = 6.5 * 64.0
+	await t.steps(2)
+	t.check(not body.test_move(body.global_transform, Vector2(0.0, -80.0)), "a body was stopped where no fence stands")
+	root.free()
+
+
+## The fence palette's tile of `style` (a gate tile: `lair-divider-eye`).
+static func _style_tile(style: String) -> Vector2i:
+	var source := FENCE_TILESET.get_source(0) as TileSetAtlasSource
+	for i in source.get_tiles_count():
+		var coords := source.get_tile_id(i)
+		if str(source.get_tile_data(coords, 0).get_custom_data(Fences.STYLE_DATA_LAYER)) == style:
+			return coords
+	return Vector2i(-1, -1)
+
+
+## Painted divider gates (docs/godot/FENCES.md "Dungeon dividers"; 2026-10-19 review: erasing a gate
+## tile and undoing it lost the Weigh House gate's id, and every painted gate shared one record): a
+## gate the layer makes has a record of its own; one given a setting of its own is never removed
+## with its tile and is adopted again when the tile comes back; one nobody changed goes with its tile.
+func test_painted_gates_keep_their_settings_and_records(t: TestContext) -> void:
+	var room := Node2D.new()
+	room.name = "gate-room"
+	t.main.add_child(room)
+	var definition := WorldDefinition.new()
+	definition.name = "world-definition"
+	definition.map_id = "gate-room-world"
+	room.add_child(definition)
+	var objects := Node2D.new()
+	objects.name = "Objects"
+	room.add_child(objects)
+	var layer := FenceLayer.new()
+	layer.name = "fences"
+	layer.tile_set = FENCE_TILESET
+	room.add_child(layer)
+	var eye := _style_tile("lair-divider-eye")
+	if not t.check(eye.x >= 0, "the palette has no eye gate tile"):
+		room.free()
+		return
+	layer.set_cell(Vector2i(3, 4), 0, eye)
+	layer.set_cell(Vector2i(6, 4), 0, eye)
+	t.equal(layer.sync_gates(true), 2, "gates made for two painted gate tiles")
+	var first := objects.get_node_or_null("divider-gate-3-4")
+	var second := objects.get_node_or_null("divider-gate-6-4")
+	if not t.check(first != null and second != null, "the painted gates are missing"):
+		room.free()
+		return
+	var first_script := first.get_node("GateScript")
+	t.equal(str(first_script.get(&"gate_id")), "gate-room-gate-3-4", "a painted gate's own record")
+	t.equal(str(first_script.get(&"map_id")), "gate-room-world", "a painted gate's record map")
+	t.check(str(second.get_node("GateScript").get(&"gate_id")) != str(first_script.get(&"gate_id")), "two painted gates share one record")
+	# Given a setting of its own, the first survives its tile erased and is adopted again.
+	first_script.set(&"locked_message", "The pen is shut.")
+	layer.erase_cell(Vector2i(3, 4))
+	layer.sync_gates(true)
+	t.check(is_instance_valid(first) and first.get_parent() == objects, "a gate with a setting of its own was removed with its tile")
+	layer.set_cell(Vector2i(3, 4), 0, eye)
+	t.equal(layer.sync_gates(true), 0, "a gate was made beside the kept one")
+	if is_instance_valid(first):
+		t.equal(str(first.get_meta(FenceLayer.GATE_CELL_META, "")), "3,4", "the kept gate was not adopted again")
+		t.equal(str(first_script.get(&"locked_message")), "The pen is shut.", "the kept gate's setting")
+	# One the layer made and nobody changed goes with its tile.
+	layer.erase_cell(Vector2i(6, 4))
+	layer.sync_gates(true)
+	t.check(not is_instance_valid(second), "an untouched painted gate stayed after its tile was erased")
+	room.free()
 
 
 func test_c4_fence_art_matches_collision_with_elevation_above_the_map(t: TestContext) -> void:

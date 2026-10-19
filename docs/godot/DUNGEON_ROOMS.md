@@ -57,6 +57,9 @@ fit together: a room's door names the room and the door it leads to.
   kept while the run plays, never saved) carries what one room tells the next only while it lasts:
   R10's plate (`heavy_plate.gd` `hold_record`) holds R9's stone door (`gate.gd` `open_while_record`)
   under the same name, `fatty-lair.r10-plate-held`; the next far-off roar.
+- **One area banner**: the rooms share their records' id as their title (`shell.gd`,
+  `DungeonState.world_record_id`), so the banner shows once on the way in, not at every room door
+  (specs/shell.md §4).
 - **Each room built afresh**: ordinary enemies, pots, crates and pushed statues are back each time a
   room is entered (the owner's decision); won fights (`once`), the mini-boss and Fatty stay beaten
   by their records.

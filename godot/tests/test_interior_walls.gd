@@ -218,7 +218,9 @@ func test_the_lair_rooms_are_local_and_laid_out_in_place(t: TestContext) -> void
 
 
 ## Painting a closed door makes its door object, repainting another kind swaps it, erasing it removes
-## it; a door placed by hand is never removed (docs/godot/INTERIOR_WALLS.md "Painting a room").
+## it; a door placed by hand, or one whose settings were changed, is never removed: erased and painted
+## back (Ctrl+Z) it is adopted again with its settings (docs/godot/INTERIOR_WALLS.md "Painting a
+## room"; 2026-10-19 review: erasing a cell of the hub's boss door block and undoing it lost its id).
 func test_painting_a_closed_door_makes_its_object(t: TestContext) -> void:
 	var room := Node2D.new()
 	room.name = "paint-room"
@@ -264,5 +266,51 @@ func test_painting_a_closed_door_makes_its_object(t: TestContext) -> void:
 	layer.sync_doors(true)
 	t.check(objects.get_node_or_null("paint-room-boss-5-0") == null, "erasing the closed door did not remove its object")
 	t.check(objects.get_node_or_null("hand-door") != null, "a hand-placed door was removed")
+	# A door given a setting of its own (a door id: a save record) survives a cell of its block erased
+	# and comes back with its block, settings and all.
+	_paint_block(layer, Vector2i(5, 0), "boss")
+	layer.sync_doors(true)
+	var boss := objects.get_node_or_null("paint-room-boss-5-0") as Node2D
+	if t.check(boss != null, "repainting the boss door made no door"):
+		boss.set(&"door_id", "the-boss-door")
+		layer.erase_cell(Vector2i(5, 1))
+		layer._rebuild()
+		layer.sync_doors(true)
+		t.check(is_instance_valid(boss) and boss.get_parent() == objects, "a door with its own door id was removed when a cell of its block was erased")
+		layer.set_cell(Vector2i(5, 1), 0, _tile("boss"))
+		layer._rebuild()
+		layer.sync_doors(true)
+		if t.check(is_instance_valid(boss), "the door with its own door id is gone after its block came back"):
+			t.equal(str(boss.get_meta(InteriorWalls.DOOR_BLOCK_META, "")), "5,0", "the door was not adopted again by its block")
+			t.equal(str(boss.get(&"door_id")), "the-boss-door", "the door's id after its block came back")
+			t.equal(_doors_of(objects, "res://game/scenes/objects/dungeon/boss-door.tscn"), 1, "boss doors after the block came back")
+	# A door placed by hand at a block's spot is adopted, and never removed when its block is erased.
+	var placed := KEY_DOOR.instantiate() as Node2D
+	placed.name = "placed-key-door"
+	placed.set(&"keyholes", 1)
+	placed.position = Vector2(9.0, 2.0) * CELL
+	objects.add_child(placed)
+	_paint_block(layer, Vector2i(8, 0), "key1")
+	t.equal(layer.sync_doors(true), 0, "a door was made beside the hand-placed one")
+	t.equal(str(placed.get_meta(InteriorWalls.DOOR_BLOCK_META, "")), "8,0", "the hand-placed door was not adopted")
+	_paint_block(layer, Vector2i(8, 0), "")
+	layer._rebuild()
+	layer.sync_doors(true)
+	t.check(is_instance_valid(placed) and placed.get_parent() == objects, "an adopted hand-placed door was removed with its block")
 	room.free()
+
+
+func _paint_block(layer: InteriorWalls, top_left: Vector2i, kind: String) -> void:
+	for d in DEPTH:
+		for i in 2:
+			layer.set_cell(top_left + Vector2i(i, d), 0, _tile(kind))
+	layer._rebuild()
+
+
+static func _doors_of(objects: Node, scene: String) -> int:
+	var count := 0
+	for node: Node in objects.get_children():
+		if node.scene_file_path == scene:
+			count += 1
+	return count
 

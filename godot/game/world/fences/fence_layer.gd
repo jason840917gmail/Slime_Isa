@@ -14,16 +14,24 @@ extends TileMapLayer
 ## (`lair-divider-eye`, `lair-divider-pen`) draws no post; the layer keeps a divider gate object
 ## (`object.divider-gate`) on it under the scene's `Objects` (`sync_gates`, in the editor as you
 ## paint): an untagged one already standing there (a converted latch door, with its gate id and
-## records) is adopted, else one is made; a gate it made whose tile is erased goes.
+## records) is adopted, else one is made with a record of its own (`gate_id` `<room>-gate-<x>-<y>`,
+## `map_id` the world's record id). A gate whose tile is erased is let go
+## (game/world/painted_objects.gd `retire`): removed when the layer made it and nothing of it was
+## changed since, else kept, untagged, with a warning, and adopted again when its tile comes back.
 ##
 ## Owner: world (fences).
 
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const Fences := preload("res://game/world/fences/fences.gd")
+const PaintedObjects := preload("res://game/world/painted_objects.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const GATE_SCENE := "res://game/scenes/objects/dungeon/divider-gate.tscn"
 ## The metas a gate the layer keeps carries: its cell ("x,y") and its tile's style.
 const GATE_CELL_META := &"fence_gate_cell"
 const GATE_STYLE_META := &"fence_gate_style"
+const GATE_TAGS: Array[StringName] = [GATE_CELL_META, GATE_STYLE_META]
+## The gate's record lives on this child (game/scripts/gate.gd).
+const GATE_SCRIPT := "GateScript"
 ## How near (units) an untagged gate must stand to a gate cell's foot to be adopted.
 const ADOPT_REACH := 40.0
 
@@ -101,24 +109,40 @@ func sync_gates(create: bool) -> int:
 				if (candidate as Node2D).position.distance_to(foot) <= ADOPT_REACH:
 					node = candidate
 					break
+		var made_now := false
 		if node == null and create:
 			var packed := load(GATE_SCENE) as PackedScene
 			node = packed.instantiate()
-			node.name = "divider-gate-%d-%d" % [cell.x, cell.y]
+			var base := "divider-gate-%d-%d" % [cell.x, cell.y]
+			node.name = base
+			var n := 2
+			while objects.has_node(NodePath(String(node.name))):
+				node.name = "%s-%d" % [base, n]
+				n += 1
 			objects.add_child(node)
 			node.owner = _owner_node(room)
+			# a record of its own: two painted gates never open together
+			var gate_script := node.get_node_or_null(GATE_SCRIPT)
+			if gate_script != null:
+				gate_script.set(&"gate_id", "%s-gate-%d-%d" % [room.name, cell.x, cell.y])
+				gate_script.set(&"map_id", DungeonState.record_map_id(node))
 			made += 1
+			made_now = true
 		if node == null:
 			continue
+		# what the layer itself sets (its place, its kind) keeps a gate it made untouched
+		var untouched := made_now or PaintedObjects.is_untouched(node)
 		node.set_meta(GATE_CELL_META, key)
 		node.set_meta(GATE_STYLE_META, style)
 		(node as Node2D).position = foot
 		if str(node.get(&"kind")) != kind:
 			node.set(&"kind", kind)
+		if untouched:
+			PaintedObjects.remember(node)
 		tagged.erase(key)
 	if create:
 		for key: String in tagged:
-			(tagged[key] as Node).free()
+			PaintedObjects.retire(tagged[key] as Node, GATE_TAGS, "FenceLayer")
 	return made
 
 

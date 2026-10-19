@@ -195,7 +195,11 @@ Godot:
   `AreaTitles.region_name(region)`, which the save slots and the world map show too: without a
   trailing note in parentheses (the sketch tool's planning note, "Desert (open)" reads "Desert").
   A chunk world takes its region world's name and colour (`level-1-c4` reads "Slimeshire
-  Meadow", in the save slots too; `WorldChunks.world_of`).
+  Meadow", in the save slots too; `WorldChunks.world_of`), and walking on into the next chunk of the
+  same region shows no banner again. The rooms of a dungeon of one world per room are titled the
+  same way, by their Dungeon node's `record_map_id` (`DungeonState.world_record_id`; Fatty's Lair:
+  "fatty-lair"): one banner on the way in, none from room to room (2026-10-19; before, each room
+  showed its own banner named from its world id, "Fatty Lair R2 Slab Steps").
 
 ## 5. Controls and credits
 
