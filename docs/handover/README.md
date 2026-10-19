@@ -1,5 +1,7 @@
 # Handover (2026-10-17)
 
+> **Start here instead: [2026-10-19 session summary](2026-10-19-session-summary.md)** (the current state, the owner's rules, what is open). The rest of this file is the 2026-10-17 record.
+
 Work in flight when the owner's credits ran out. Start with the roadmap's
 "Immediate Next Sprint" → "Where things stand (2026-10-17)"
 ([GAME_ROADMAP.md](../GAME_ROADMAP.md)), then the files below.
