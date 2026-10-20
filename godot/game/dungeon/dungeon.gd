@@ -27,6 +27,10 @@ class_name Dungeon
 ##   (game/bosses/enraged_look.gd: presentation only). His fall (in the record or in
 ##   `defeated_boss_ids`) breaks the seals: "The seals break!". Set `boss_id`, `boss_name`,
 ##   `seal_color`, `roar_sound` (and `roar_pitch`) on the Dungeon node of every world of the dungeon.
+## - **Done for good** (owner, 2026-10-19: once Fatty falls the Lair caves in, as a Zelda dungeon is
+##   done): with `done_exit_map_id` set, once `boss_id` has fallen a faint or a quit never wakes the
+##   slime inside but at `done_exit_point` in that world (the entrance record moves there), and
+##   `collapsed` is true (the Lair's mouth lies buried: game/fattys_lair/lair_mouth_rubble.gd).
 ## - **Dev launch options** (once a session): `keys=<n>` small keys, `bigkey`, `dmap` (the map and
 ##   the compass), `room=<CameraRoom name>` (start in that room, at its `RoomEntry` child or its
 ##   middle), `sealed` (the Pearls in this world taken quietly, their skins lent, and the dungeon
@@ -56,6 +60,8 @@ const PEARL_FLAG_PREFIX := "pearl."
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const BREAK_TEXT := "The seals break!"
 const BREAK_TEXT_RISE := 60.0
+## Said once the boss of a dungeon that is done for good has fallen (`done_exit_map_id`).
+const COLLAPSE_TEXT := "The tunnels are caving in! Get out!"
 const CUE_BREAK := &"SecretFound"
 
 ## player.gd RESPAWN_OVERRIDE_GROUP.
@@ -112,6 +118,12 @@ signal room_entered(payload: Dictionary)
 ## `seal.glimpseMs`: the first (the doorway open), then from `seal.glimpseSlamMs` with the boom the
 ## second (the seal up). Empty: no glimpse there (the line and the map's red bar tell it).
 @export var glimpse_pictures: Array[Texture2D] = []
+@export_group("Done for good")
+## Once the boss has fallen, a faint or a quit wakes the slime in this world ("" = at the entrance,
+## as before the fall) ...
+@export var done_exit_map_id: String = ""
+## ... at this spot (the slime's centre there; Fatty's Lair: south of the bolt-hole's hatch in D4).
+@export var done_exit_point: Vector2 = Vector2.ZERO
 @export_group("Dev")
 ## `?sealed` in a world without the Pearl (a room of a dungeon of one world per room): the Pearl's
 ## id (its flag `pearl.<id>`), its guard's `boss_id` and its skin, taken quietly.
@@ -125,6 +137,8 @@ static var _dev_applied: Dictionary = {}
 var _sealed := false
 var _next_roar_ms := -1.0
 var _break_at_ms := -1.0
+## The next tremor while the dungeon caves in (`collapsed`), on the gameplay clock.
+var _next_tremor_ms := -1.0
 var _roar_player: AudioStreamPlayer
 
 var _rooms: Array[CameraRoom] = []
@@ -218,8 +232,17 @@ func entrance_world() -> String:
 	return world.map_id() if world != null else ""
 
 
-## The entrance marker's spot (an old centre) when it is in this world, else null.
+## True once the dungeon is done for good: its boss has fallen and it has a way out after
+## (`done_exit_map_id`).
+func collapsed() -> bool:
+	return not done_exit_map_id.is_empty() and not boss_id.is_empty() 			and DungeonState.is_boss_beaten(Services.run(), dungeon_id, boss_id)
+
+
+## The entrance marker's spot (an old centre) when it is in this world, else null (and null once the
+## dungeon is done for good: the slime wakes outside, `respawn_elsewhere`).
 func entrance_point() -> Variant:
+	if collapsed():
+		return null
 	var world := Services.world()
 	if world == null or world.world_root == null or entrance_world() != world.map_id():
 		return null
@@ -238,7 +261,14 @@ func respawn_point() -> Variant:
 func respawn_elsewhere() -> bool:
 	var world := Services.world()
 	var run := Services.run()
-	if world == null or run == null or entrance_world() == world.map_id():
+	if world == null or run == null:
+		return false
+	if collapsed():
+		_record_entrance()
+		var main_node := get_tree().get_first_node_in_group(WORLD_MAIN_GROUP)
+		return main_node != null and main_node.has_method(&"respawn_in_world") and bool(main_node.call(&"respawn_in_world",
+				{"map_id": done_exit_map_id, "x": done_exit_point.x, "y": done_exit_point.y}))
+	if entrance_world() == world.map_id():
 		return false
 	var at := DungeonState.entrance(run, dungeon_id)
 	if at.is_empty() or str(at.get("map_id", "")) == world.map_id():
@@ -248,8 +278,12 @@ func respawn_elsewhere() -> bool:
 
 
 func _record_entrance() -> void:
-	var at: Variant = entrance_point()
 	var run := Services.run()
+	if collapsed():
+		# done for good: a quit's resume save wakes the slime outside (DungeonState.resume_data)
+		DungeonState.set_entrance(run, dungeon_id, done_exit_map_id, done_exit_point)
+		return
+	var at: Variant = entrance_point()
 	var world := Services.world()
 	if at is Vector2 and run != null and world != null:
 		DungeonState.set_entrance(run, dungeon_id, world.map_id(), at)
@@ -360,6 +394,7 @@ func _physics_process(_delta: float) -> void:
 	if not _registered:
 		return
 	_watch_seal()
+	_tremble()
 	var world := Services.world()
 	if world == null or world.player == null or not is_instance_valid(world.player):
 		return
@@ -528,9 +563,28 @@ func _watch_seal() -> void:
 			_distant_roar()
 
 
+## Once the dungeon is done for good the tunnels shake now and then (`dungeon.collapse`), dust
+## falling, until the slime is out.
+func _tremble() -> void:
+	if not collapsed():
+		return
+	var now := Services.now_ms()
+	if _next_tremor_ms < 0.0:
+		_next_tremor_ms = now + randf_range(DungeonState.number("collapse.tremorMinMs", 2500.0), DungeonState.number("collapse.tremorMaxMs", 4500.0))
+		return
+	if now < _next_tremor_ms:
+		return
+	_next_tremor_ms = -1.0
+	var feel := Services.feel()
+	if feel != null:
+		feel.shake(DungeonState.number("collapse.shakeMs", 450.0), DungeonState.number("collapse.shakeIntensity", 0.007))
+	SealMoment.dust(self, dust_color, int(DungeonState.number("collapse.dust", 40.0)))
+
+
 ## His fall: every seal sinks with a chime and stays down; "The seals break!" over the slime.
 func _break_seals() -> void:
 	DungeonState.unseal(Services.run(), dungeon_id)
+	_record_entrance()
 	for seal: Node in seals():
 		seal.call(&"break_seal")
 	var feel := Services.feel()
@@ -540,6 +594,11 @@ func _break_seals() -> void:
 	feel.audio_cue(CUE_BREAK)
 	if world != null and world.player != null and is_instance_valid(world.player):
 		feel.floating_text(world.player.get_centre() - Vector2(0.0, BREAK_TEXT_RISE), BREAK_TEXT, &"yellow", true)
+	if collapsed():
+		# presentation: the cave-in's warning after the seals' line (real time)
+		await get_tree().create_timer(DungeonState.number("collapse.lineDelayMs", 1400.0) / 1000.0).timeout
+		if is_inside_tree() and world.player != null and is_instance_valid(world.player):
+			feel.floating_text(world.player.get_centre() - Vector2(0.0, BREAK_TEXT_RISE), COLLAPSE_TEXT, &"orange", true)
 
 
 ## The next far-off roar, kept in the session (DungeonState `session_value`) so that in a dungeon of

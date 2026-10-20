@@ -46,8 +46,8 @@ const ORIGIN := Vector2(1, 1)
 ## on the map, without scenes of their own.
 const R5_PARTS: PackedStringArray = ["r5-lower-hall", "r5-key-alcove"]
 const ROOMS: PackedStringArray = ["burr-cell", "r1-store", "r5-lower-hall", "r5-key-alcove", "r10-dung-roller-run", "c2-weigh-house", "bolt-hole", "r9-watcher-hall",
-	"r8-guard-crypt", "r12-larder", "r14-postern", "old-armoury", "r11-drop-gate-bridge", "r13-fattys-arena",
-	"glow-moss-burrow", "map-nook", "r4-squint-den", "r3-pit-hall", "r6-pipe-gallery", "sally-port",
+	"r8-guard-crypt", "r12-larder", "r14-postern", "r11-drop-gate-bridge", "r13-fattys-arena",
+	"map-nook", "r4-squint-den", "r3-pit-hall", "r6-pipe-gallery",
 	"r5-eye-hall", "r1-gatehouse", "r2-slab-steps", "r7-bell-bridge"]
 ## The Larder's mini-boss fight (Pearl 1's guard) and Fatty.
 const GUARD := "fatty-lair-big-squint"
@@ -61,8 +61,6 @@ const WALKS := [
 	["r4", Vector2(8.0, 12.2), &"move_down", "r5-eye-hall"],
 	["hub", Vector2(30.4, 7.0), &"move_right", "r6-pipe-gallery"],
 	["r6", Vector2(8.0, 12.2), &"move_down", "r7-bell-bridge"],
-	["r6", Vector2(8.0, 3.6), &"move_up", "glow-moss-burrow"],
-	["r8", Vector2(1.6, 21.0), &"move_left", "old-armoury"],
 	# Door 3: an open doorway since 2026-10-17.
 	["r8", Vector2(14.4, 25.6), &"move_right", "r11-drop-gate-bridge"],
 	["r11", Vector2(12.0, 3.6), &"move_up", "r12-larder"],

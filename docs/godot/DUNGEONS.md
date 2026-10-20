@@ -325,6 +325,28 @@ The slabs' twin over deep water (owner, 2026-10-17: Slimeshire's lake, a falling
   a stepped bridge (two planks, a landing, two, a landing, two), and the heart chests on the island.
   `tools/film_planks.gd` films it. Tests: `tests/test_falling_planks.gd`, `tests/test_heart_chest.gd`.
 
+## Holes and hatches
+
+The ways down and up, for any world (owner, 2026-10-19), in the Scenery dock's **Holes & hatches**
+category (placed under `Objects`; set the DoorScript's target in the Inspector):
+
+- **Open hole** (`object.open-hole`, `scenes/objects/open-hole.tscn`): broken flagstones round a
+  black shaft (`goo-bomb/floor-hole.webp`), always open: stepping in, the slime falls (`kind` `fall`)
+  to `target_area_id`, landing on the Node2D `target_marker` there. One-way.
+- **Open hole with a ladder** (`object.open-hole-ladder`): the grassy hole with a ladder
+  (`gulp-props` frame 1), `kind` `ladder_down`, its `arrival` child below it for the way back up.
+- **Cracked floor** and **cracked ground**: the same holes, shut until a Goo Bomb blast (or a Heavy
+  slam) breaks them (`cracked_floor.gd`, `cracked_ground.gd`); **cracked wall**: a cave mouth or a hole
+  in a wall the bomb opens (`cracked_wall.gd`).
+- **Hatch exit** (`object.hatch-exit`): the trapdoor (`stair-hatch-2x1.webp`) a way up arrives at:
+  arrival only (set `door_id`, point the ladder's `target_door_id` at it); it opens as the slime comes
+  out and slams shut behind it (`bolt_hole_hatch.gd`, the bolt-hole's; `dungeon.boltHole`).
+- **Stair hatch** and **cave ladder**: the Lair's hatch down, the cave's ladder up.
+- **Hill doorway** (`object.hill-doorway`): an old fort-stone doorway with two cold iron sconces, for a
+  hill's face, always open (a DoorScript of side north; set its target).
+- A cracked wall's `crack_tint` (2026-10-19) tones its crack to its rock: a lower alpha hides a
+  secret crack in the stone.
+
 ## Refills that grow back
 
 - **Energy flower:** `object.energy-flower` (`energy_flower.gd`): walked into while energy is not
@@ -347,6 +369,13 @@ The slabs' twin over deep water (owner, 2026-10-17: Slimeshire's lake, a falling
   dark. Its `cells` are 64-unit cells from its position (put it on a cell corner). It is always a
   safe deck: a slime crossing blind by memory may; a step off is a fall (put a void hazard under
   it, with a `Return...` point at its mouth).
+  **Painted** (2026-10-19, owner): add a `shadow-path` TileMapLayer beside `ground` at (0, 0) with
+  `game/world/void/shadow_path_layer.gd` (it takes `shadow_path_tileset.tres`, a one-tile palette: the
+  moss patch; `tools/pack_shadow_path_tile.gd` packs it) and paint the ledge cell by cell; the layer
+  keeps one ShadowPath over the painted cells as you paint (never saved). Paint the pit as holes on
+  the `elevation` layer, lay one `void` hazard over the whole room (it catches only where holes are
+  painted) with `fixed_return` at the mouth, and set the `VoidShade`'s `from_paint` so its dark
+  follows the painted holes. The Glow-moss Burrow is built this way.
 - **Prize glint:** `object.prize-glint` (`prize_glint.gd`): a little star that twinkles over a
   prize, drawn above a dark room's darkness (z 46, as the Gloomling's eyes), so the slime sees from
   the doorway that something waits inside. `tint`, `phase`, `only_in_dark`, `lit_strength`.
@@ -1055,7 +1084,7 @@ sheet `godot/asset/characters/authored/npcs/burr.webp`. Tests: `godot/tests/test
   `fatty-roar.ogg` at pitch 0.9, earthy dust), a `RoomEntry` in every camera room (`?room=<name>`);
   small keys 1 and 2 in chests (R5's alcove, R7's landing; owner 2026-10-19: keys are never left floating) for Burr's door (two keyholes); the boss door; the big
   chest in R9's alcove (hidden: R9's plate raises it); chests for the map (the nook), R1's store,
-  the Armoury and the sally port; five bolted doors (the hub to R1, R5 to R1, R7 to R2, R9 to R8,
+  the Armoury; five bolted doors (the hub to R1, R5 to R1, R7 to R2, R9 to R8,
   R11 to the ledge); two shutters (the Larder's, the arena's south one) and the Larder's room fight
   (`once`, `boss_id` `fatty-lair-big-squint`: the mini-boss, Pearl 1's guard); two seals
   (`object.dungeon-seal`: R1's south doorway, the take's glimpse, and R13's north doorway, the way
@@ -1083,8 +1112,8 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 | R2 the Slab Steps | D6 | an L of void: two slabs over its west arm; two over its north arm to a landing |
 | R3 the Pit Hall | C5-D5 | the hub: the chasm round the north ledge, Burr's cell and the Inner Stair in the west gallery, the drawbridge, the boss door |
 | R4 the Squint Den | B5 | two Squints; the map nook's crates in its west wall |
-| R5 the Eye Hall | B6 | the north maze (2026-10-19): low dividers, three eye latches struck in order on a timer, three Squints on guard, three gates opening together; the alcove's timed pair, small key 1, the sally port's crack |
-| R6 the Pipe Gallery | E5 | two Pipe Worms; the Burrow's mouth in its north wall |
+| R5 the Eye Hall | B6 | the north maze (2026-10-19): low dividers, three eye latches struck in order on a timer, three Squints on guard, three gates opening together; the alcove's timed pair, small key 1 |
+| R6 the Pipe Gallery | E5 | two Pipe Worms (the Burrow's mouth walled 2026-10-19: the Burrow moved to D4) |
 | R7 the Bell Bridge | E6 | the spike pit, the bell on its rock, the turning slab bridge, small key 2 |
 | R8 the Guard Crypt | B3-B4 | the Inner Stair's foot (its ladder up), two Bone Marchers, the Thorn Guard's statues, door 3 (an open doorway into R11) |
 | R9 the Watcher Hall | A3 | the Heavy skin's twist: the Watcher Eye among four armour statues, a plate in its sight that raises the big chest in the south alcove (**the big key**); its north stone door held by R10's plate; its east door bolted on its side |
@@ -1095,9 +1124,7 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 | R13 Fatty's Arena | D4 | Fatty One Eye, the Heavy skin's exam; the south shutter; the north doorway's seal; his full heart |
 | R14 the Postern | D3 | after Fatty: the green-key chest, the bolt-hole's barricade |
 | the bolt-hole | D2 | a tunnel up to daylight in level-1-d4 |
-| the Old Armoury (dark) | A4 | two holes in its floor, four cold sconces, its chest behind a stone door |
-| the Glow-moss Burrow (dark) | E4 | the shadow path over the void to an islet's goo heart |
-| the map nook, the sally port | A5, A6 | small rooms behind R4's crates and R5's crack |
+| the map nook | A5 | a small room behind R4's crates |
 
 ### The main path
 
@@ -1160,10 +1187,42 @@ once opened from inside). Nothing the main path needs lies outside after the tak
 Secrets: the map nook (the crates jammed in R4's west gap are light things: taken by the Gulp, the
 gap's barrier goes with the secret jingle), R1's store (planks: the Heavy Roll, inside, after the
 Pearl, on the walk back after a faint or at the end; 100 coins), the Weigh House's pouch (a Heavy
-Roll into the east wall shakes the old scale pan's pouch down: 30 coins), the sally port (R5's
-crack: the Goo Bomb, Chapter 2; potions), the Old Armoury (its four sconces lit for good open its
+Roll into the east wall shakes the old scale pan's pouch down: 30 coins), the Old Armoury (its four sconces lit for good open its
 stone door: the Lantern, Chapter 3; coins for now) and the Glow-moss Burrow (the shadow path: the
-Lantern; a goo heart).
+Lantern; a goo heart). *Changed 2026-10-19 (owner): the Lair caves in once Fatty falls, so its
+come-back secrets move outside ([the plan](../design/2026-10-19-lair-secrets-outside.md)). The sally
+port is now `slimeshire-sally-port` (`game/scenes/worlds/slimeshire-sally-port.tscn`), under C4's
+fenced pen below the town wall: the slime drops off the wall into the pen, a Goo Bomb breaks its
+cracked ground (`SallyPort/sally-port-crack`, flag `level-1.sally-port-crack`) and it falls in; a
+ladder climbs back to `sally-port-way-out` south of the pen. R5's crack is plain wall.* *Changed
+again the same day: an open hole in the pen (no bomb), a winding room, the way out a hatch on the
+town's east side ([Holes and hatches](#holes-and-hatches)).* *The Glow-moss Burrow (2026-10-19) is now
+`slimeshire-glow-moss-burrow` (`game/scenes/worlds/slimeshire-glow-moss-burrow.tscn`, its heart
+`slimeshire-burrow-quarter`): in D4's south-west, a dark-forest maze (medium beeches and pines on the
+forest layer, two spiders and a worm) on the road down to D5 hides a clearing at the end of its
+longest dead end with an old dry trunk over a hole (`object.dry-trunk-hole`,
+`Chapter1/burrow-trunk`): the Lantern burns it (`burnt.level-1.burrow-trunk`); burnt, it shows the
+mossy hole with its ladder over the ash (the burnable's `reveal`), which the slime climbs down into
+the Burrow, whose ladder climbs back beside the ash
+(`burrow-way-out`). R6's tunnel to it is plain wall.* *The Old Armoury (2026-10-19) is now
+`slimeshire-old-armoury` (`game/scenes/worlds/slimeshire-old-armoury.tscn`; its candle group and
+gate `slimeshire-armoury`, `slimeshire-armoury-gate`): in D4's north-east a hill (elevation level
+2, cells 23-30, rows 1-3) stands where the woods were, its south face hidden behind a row of trees but
+for a gap from the statue's garden; there a cracked wall (`Chapter1/armoury-crack`, flag
+`level-1.armoury-crack`) whose crack barely shows on the stone (`crack_tint`, alpha 0.42: owner,
+"the crack has to match the wall") opens to a Goo Bomb and leads in; the room's east doorway
+(`armoury-way-out`) leads back. So the Armoury takes the Goo Bomb to enter and the Lantern for its
+chest. R8's doorway to it is plain wall.*
+
+**The cave-in** (2026-10-19, owner: once Fatty falls the Lair is done for good, as a Zelda dungeon).
+The Dungeon node's `done_exit_map_id` / `done_exit_point` (`fatty-lair-dungeon.tscn`: `level-1-d4`,
+south of the bolt-hole's hatch) make it `collapsed()` once `boss_id` has fallen: "The seals break!"
+is followed by "The tunnels are caving in! Get out!", the tunnels shake now and then with falling
+dust while the slime is still inside (`dungeon.collapse`), and a faint or a quit wakes it at that
+spot outside (the entrance record moves there), never at R1. `game/fattys_lair/lair_collapse.gd`
+buries the way in: the mouth in Fatty's Hollow shows its rubble and its door and R1's way out refuse
+("Rubble buries the way. The Lair has caved in."). The way out is R14 and the bolt-hole, where the
+green key waits.
 
 **Dev:** F6 on the world gives the Spear and the Roll (`dungeon.devPowers.fatty-lair`), the first
 half's powers; the Heavy skin is won at the Larder. To try the second half straight away, lend it:

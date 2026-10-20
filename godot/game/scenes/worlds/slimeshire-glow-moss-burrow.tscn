@@ -9,21 +9,21 @@
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="7_mh7rq"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="8_4qrq5"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="9_10amw"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shadow-path.tscn" id="10_flqv0"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/prize-glint.tscn" id="11_773ku"]
 [ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="12_b3m1t"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/goo-heart.tscn" id="13_m8vxg"]
 [ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="14_rw0642"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="15_rw2578"]
 [ext_resource type="Script" path="res://game/fattys_lair/void_shade.gd" id="16_rw5730"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="17_rw4536"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="18_rw6667"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="19_rw2765"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-ladder.tscn" id="20_ladder"]
+[ext_resource type="TileSet" path="res://game/world/void/shadow_path_tileset.tres" id="21_mosstiles"]
+[ext_resource type="Script" path="res://game/world/void/shadow_path_layer.gd" id="22_mosslayer"]
 
 [node name="glow-moss-burrow" type="Node2D" unique_id=1366404472]
 y_sort_enabled = true
 script = ExtResource("1_t0p88")
-world_id = "fatty-lair-glow-moss-burrow"
+world_id = "slimeshire-glow-moss-burrow"
 room_id = "glow-moss-burrow"
 
 [node name="ground" type="TileMapLayer" parent="." unique_id=1263226954]
@@ -42,9 +42,14 @@ script = ExtResource("5_tscke")
 room_back_faces = true
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1979270288]
-tile_map_data = PackedByteArray("AAAAAAAAAAACAAAAAAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAAEAAAAAAACAAAAAAAFAAAAAAACAAAAAAAGAAAAAAACAAAAAAAHAAAAAAACAAAAAAAIAAAAAAACAAAAAAAJAAAAAAACAAAAAAAKAAAAAAACAAAAAAALAAAAAAACAAAAAAAMAAAAAAACAAAAAAANAAAAAAACAAAAAAAOAAAAAAACAAAAAAAPAAAAAAACAAAAAAAQAAAAAAACAAAAAAARAAAAAAACAAAAAAAAAAEAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAAEAAEAAAACAAAAAAAFAAEAAAACAAAAAAAGAAEAAAACAAAAAAAHAAEAAAACAAAAAAAIAAEAAAACAAAAAAAJAAEAAAACAAAAAAAKAAEAAAACAAAAAAALAAEAAAACAAAAAAAMAAEAAAACAAAAAAANAAEAAAACAAAAAAAOAAEAAAACAAAAAAAPAAEAAAACAAAAAAAQAAEAAAACAAAAAAARAAEAAAACAAAAAAAAAAIAAAACAAAAAAABAAIAAAACAAAAAAAQAAIAAAACAAAAAAARAAIAAAACAAAAAAAAAAMAAAACAAAAAAABAAMAAAACAAAAAAAQAAMAAAACAAAAAAARAAMAAAACAAAAAAAAAAQAAAACAAAAAAABAAQAAAACAAAAAAAQAAQAAAACAAAAAAARAAQAAAACAAAAAAAAAAUAAAACAAAAAAABAAUAAAACAAAAAAAQAAUAAAACAAAAAAARAAUAAAACAAAAAAAAAAYAAAACAAAAAAABAAYAAAACAAAAAAAQAAYAAAACAAAAAAARAAYAAAACAAAAAAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAAAAAgAAAACAAAAAAABAAgAAAACAAAAAAAAAAkAAAACAAAAAAABAAkAAAACAAAAAAAAAAoAAAACAAAAAAABAAoAAAACAAAAAAAAAAsAAAACAAAAAAABAAsAAAACAAAAAAAQAAsAAAACAAAAAAARAAsAAAACAAAAAAAAAAwAAAACAAAAAAABAAwAAAACAAAAAAAQAAwAAAACAAAAAAARAAwAAAACAAAAAAAAAA0AAAACAAAAAAABAA0AAAACAAAAAAAQAA0AAAACAAAAAAARAA0AAAACAAAAAAAAAA4AAAACAAAAAAABAA4AAAACAAAAAAACAA4AAAACAAAAAAADAA4AAAACAAAAAAAEAA4AAAACAAAAAAAFAA4AAAACAAAAAAAGAA4AAAACAAAAAAAHAA4AAAACAAAAAAAIAA4AAAACAAEAAAAJAA4AAAACAAEAAAAKAA4AAAACAAAAAAALAA4AAAACAAAAAAAMAA4AAAACAAAAAAANAA4AAAACAAAAAAAOAA4AAAACAAAAAAAPAA4AAAACAAAAAAAQAA4AAAACAAAAAAARAA4AAAACAAAAAAAAAA8AAAACAAAAAAABAA8AAAACAAAAAAACAA8AAAACAAAAAAADAA8AAAACAAAAAAAEAA8AAAACAAAAAAAFAA8AAAACAAAAAAAGAA8AAAACAAAAAAAHAA8AAAACAAAAAAAIAA8AAAACAAEAAAAJAA8AAAACAAEAAAAKAA8AAAACAAAAAAALAA8AAAACAAAAAAAMAA8AAAACAAAAAAANAA8AAAACAAAAAAAOAA8AAAACAAAAAAAPAA8AAAACAAAAAAAQAA8AAAACAAAAAAARAA8AAAACAAAAAAAQAAcAAAACAAAAAAARAAcAAAACAAAAAAAQAAgAAAACAAAAAAARAAgAAAACAAAAAAAQAAkAAAACAAAAAAARAAkAAAACAAAAAAAQAAoAAAACAAAAAAARAAoAAAACAAAAAAA=")
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAAAAAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAAEAAAAAAACAAAAAAAFAAAAAAACAAAAAAAGAAAAAAACAAAAAAAHAAAAAAACAAAAAAAIAAAAAAACAAAAAAAJAAAAAAACAAAAAAAKAAAAAAACAAAAAAALAAAAAAACAAAAAAAMAAAAAAACAAAAAAANAAAAAAACAAAAAAAOAAAAAAACAAAAAAAPAAAAAAACAAAAAAAQAAAAAAACAAAAAAARAAAAAAACAAAAAAAAAAEAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAAEAAEAAAACAAAAAAAFAAEAAAACAAAAAAAGAAEAAAACAAAAAAAHAAEAAAACAAAAAAAIAAEAAAACAAAAAAAJAAEAAAACAAAAAAAKAAEAAAACAAAAAAALAAEAAAACAAAAAAAMAAEAAAACAAAAAAANAAEAAAACAAAAAAAOAAEAAAACAAAAAAAPAAEAAAACAAAAAAAQAAEAAAACAAAAAAARAAEAAAACAAAAAAAAAAIAAAACAAAAAAABAAIAAAACAAAAAAAQAAIAAAACAAAAAAARAAIAAAACAAAAAAAAAAMAAAACAAAAAAABAAMAAAACAAAAAAAQAAMAAAACAAAAAAARAAMAAAACAAAAAAAAAAQAAAACAAAAAAABAAQAAAACAAAAAAAQAAQAAAACAAAAAAARAAQAAAACAAAAAAAAAAUAAAACAAAAAAABAAUAAAACAAAAAAAQAAUAAAACAAAAAAARAAUAAAACAAAAAAAAAAYAAAACAAAAAAABAAYAAAACAAAAAAAQAAYAAAACAAAAAAARAAYAAAACAAAAAAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAAAAAgAAAACAAAAAAABAAgAAAACAAAAAAAAAAkAAAACAAAAAAABAAkAAAACAAAAAAAAAAoAAAACAAAAAAABAAoAAAACAAAAAAAAAAsAAAACAAAAAAABAAsAAAACAAAAAAAQAAsAAAACAAAAAAARAAsAAAACAAAAAAAAAAwAAAACAAAAAAABAAwAAAACAAAAAAAQAAwAAAACAAAAAAARAAwAAAACAAAAAAAAAA0AAAACAAAAAAABAA0AAAACAAAAAAAQAA0AAAACAAAAAAARAA0AAAACAAAAAAAAAA4AAAACAAAAAAABAA4AAAACAAAAAAACAA4AAAACAAAAAAADAA4AAAACAAAAAAAEAA4AAAACAAAAAAAFAA4AAAACAAAAAAAGAA4AAAACAAAAAAAHAA4AAAACAAAAAAAIAA4AAAACAAAAAAAJAA4AAAACAAAAAAAKAA4AAAACAAAAAAALAA4AAAACAAAAAAAMAA4AAAACAAAAAAANAA4AAAACAAAAAAAOAA4AAAACAAAAAAAPAA4AAAACAAAAAAAQAA4AAAACAAAAAAARAA4AAAACAAAAAAAAAA8AAAACAAAAAAABAA8AAAACAAAAAAACAA8AAAACAAAAAAADAA8AAAACAAAAAAAEAA8AAAACAAAAAAAFAA8AAAACAAAAAAAGAA8AAAACAAAAAAAHAA8AAAACAAAAAAAIAA8AAAACAAAAAAAJAA8AAAACAAAAAAAKAA8AAAACAAAAAAALAA8AAAACAAAAAAAMAA8AAAACAAAAAAANAA8AAAACAAAAAAAOAA8AAAACAAAAAAAPAA8AAAACAAAAAAAQAA8AAAACAAAAAAARAA8AAAACAAAAAAAQAAcAAAACAAAAAAARAAcAAAACAAAAAAAQAAgAAAACAAAAAAARAAgAAAACAAAAAAAQAAkAAAACAAAAAAARAAkAAAACAAAAAAAQAAoAAAACAAAAAAARAAoAAAACAAAAAAA=")
 tile_set = ExtResource("6_w5v3r")
 script = ExtResource("7_mh7rq")
+
+[node name="shadow-path" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAAIAAsAAAAAAAAAAAAIAAoAAAAAAAAAAAAHAAkAAAAAAAAAAAAGAAgAAAAAAAAAAAAGAAcAAAAAAAAAAAAHAAYAAAAAAAAAAAAIAAYAAAAAAAAAAAAJAAYAAAAAAAAAAAAKAAcAAAAAAAAAAAALAAcAAAAAAAAAAAA=")
+tile_set = ExtResource("21_mosstiles")
+script = ExtResource("22_mosslayer")
 
 [node name="CameraRooms" type="Node2D" parent="." unique_id=244830073]
 
@@ -59,60 +64,13 @@ position = Vector2(576, 819.2)
 
 [node name="Hazards" type="Node2D" parent="." unique_id=858725250]
 
-[node name="void-74-36" parent="Hazards" unique_id=2133489655 instance=ExtResource("9_10amw")]
-position = Vector2(128, 256)
-size = Vector2(896, 128)
+[node name="void" parent="Hazards" instance=ExtResource("9_10amw")]
+size = Vector2(1152, 1024)
 draw_look = false
-
-[node name="Return0" type="Node2D" parent="Hazards/void-74-36" unique_id=1415439426]
-position = Vector2(416, 550.3999)
-
-[node name="void-74-38" parent="Hazards" unique_id=153956993 instance=ExtResource("9_10amw")]
-position = Vector2(128, 384)
-size = Vector2(640, 192)
-draw_look = false
-
-[node name="Return0" type="Node2D" parent="Hazards/void-74-38" unique_id=290671569]
-position = Vector2(416, 422.3999)
-
-[node name="void-87-38" parent="Hazards" unique_id=206869708 instance=ExtResource("9_10amw")]
-position = Vector2(960, 384)
-size = Vector2(64, 192)
-draw_look = false
-
-[node name="Return0" type="Node2D" parent="Hazards/void-87-38" unique_id=648716832]
-position = Vector2(-416, 422.3999)
-
-[node name="void-74-41" parent="Hazards" unique_id=1446528714 instance=ExtResource("9_10amw")]
-position = Vector2(128, 576)
-size = Vector2(896, 192)
-draw_look = false
-
-[node name="Return0" type="Node2D" parent="Hazards/void-74-41" unique_id=1699906348]
-position = Vector2(416, 230.3999)
-
-[node name="void-74-44" parent="Hazards" unique_id=1455804798 instance=ExtResource("9_10amw")]
-position = Vector2(128, 768)
-size = Vector2(320, 128)
-draw_look = false
-
-[node name="Return0" type="Node2D" parent="Hazards/void-74-44" unique_id=1406324832]
-position = Vector2(416, 38.399902)
-
-[node name="void-83-44" parent="Hazards" unique_id=786675724 instance=ExtResource("9_10amw")]
-position = Vector2(704, 768)
-size = Vector2(320, 128)
-draw_look = false
-
-[node name="Return0" type="Node2D" parent="Hazards/void-83-44" unique_id=730183950]
-position = Vector2(-160, 38.399902)
+fixed_return = NodePath("../../burrow-landing")
 
 [node name="Objects" type="Node2D" parent="." unique_id=44406947]
 y_sort_enabled = true
-
-[node name="burrow-shadow-path" parent="Objects" unique_id=1500395658 instance=ExtResource("10_flqv0")]
-position = Vector2(64, 64)
-cells = Array[Vector2i]([Vector2i(7, 10), Vector2i(7, 9), Vector2i(6, 8), Vector2i(5, 7), Vector2i(5, 6), Vector2i(6, 5), Vector2i(7, 5), Vector2i(8, 5), Vector2i(9, 6), Vector2i(10, 6)])
 
 [node name="burrow-glint" parent="Objects" unique_id=1625487636 instance=ExtResource("11_773ku")]
 position = Vector2(864, 435.19995)
@@ -122,19 +80,19 @@ only_in_dark = true
 y_sort_enabled = true
 
 [node name="burrow-dark" type="Node2D" parent="Lair" unique_id=1333808074]
-position = Vector2(128, 128)
+position = Vector2(0, 0)
 script = ExtResource("12_b3m1t")
-size = Vector2(896, 768)
+size = Vector2(1152, 1024)
 
 [node name="burrow-heart" parent="Lair" unique_id=791891827 instance=ExtResource("13_m8vxg")]
 position = Vector2(864, 486.3999)
 
 [node name="GooHeartScript" parent="Lair/burrow-heart" index="1"]
-heart_id = "fatty-lair-burrow-quarter"
+heart_id = "slimeshire-burrow-quarter"
 
 [node name="world-definition" type="Node" parent="." unique_id=594301247]
 script = ExtResource("14_rw0642")
-map_id = "fatty-lair-glow-moss-burrow"
+map_id = "slimeshire-glow-moss-burrow"
 tile_size = 64
 columns = 18
 rows = 16
@@ -152,20 +110,21 @@ metadata = {
 [node name="player-spawn" type="Node2D" parent="." unique_id=1350293046]
 position = Vector2(576, 819.2)
 
-[node name="Dungeon" parent="." unique_id=1604263461 instance=ExtResource("15_rw2578")]
-
 [node name="VoidShade" type="Node2D" parent="." unique_id=1681602578]
 script = ExtResource("16_rw5730")
-rects = Array[Rect2]([Rect2(128, 256, 896, 64), Rect2(128, 320, 896, 64), Rect2(128, 384, 640, 64), Rect2(960, 384, 64, 64), Rect2(128, 448, 640, 64), Rect2(960, 448, 64, 64), Rect2(128, 512, 640, 64), Rect2(960, 512, 64, 64), Rect2(128, 576, 896, 64), Rect2(128, 640, 896, 64), Rect2(128, 704, 896, 64), Rect2(128, 768, 320, 64), Rect2(704, 768, 320, 64), Rect2(128, 832, 320, 64), Rect2(704, 832, 320, 64)])
+from_paint = true
 
-[node name="RoomDoors" type="Node2D" parent="." unique_id=1049136890]
+[node name="burrow-landing" type="Node2D" parent="."]
+position = Vector2(608, 820)
 
-[node name="burrow-to-r6" parent="RoomDoors" unique_id=1392860412 instance=ExtResource("17_rw4536")]
-position = Vector2(576, 1024)
-door_id = "burrow-to-r6"
-target_room = "r6-pipe-gallery"
-target_door = "r6-to-burrow"
-side = "south"
+[node name="ladder" parent="Objects" instance=ExtResource("20_ladder")]
+position = Vector2(512, 890)
+
+[node name="DoorScript" parent="Objects/ladder" index="2"]
+map_id = "slimeshire-glow-moss-burrow"
+door_id = "burrow-ladder"
+target_area_id = "level-1-d4"
+target_door_id = "burrow-way-out"
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=408065115]
 process_mode = 3
@@ -176,12 +135,5 @@ script = ExtResource("18_rw6667")
 loop = true
 autoplay_cue = true
 
-[editable path="Hazards/void-74-36"]
-[editable path="Hazards/void-74-38"]
-[editable path="Hazards/void-87-38"]
-[editable path="Hazards/void-74-41"]
-[editable path="Hazards/void-74-44"]
-[editable path="Hazards/void-83-44"]
-[editable path="Objects/burrow-shadow-path"]
 [editable path="Objects/burrow-glint"]
 [editable path="Lair/burrow-heart"]

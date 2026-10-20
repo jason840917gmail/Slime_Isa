@@ -47,6 +47,9 @@ DIRECTIONS = [
 ]
 # The first row connects to all neighboring fence cells. The next eight rows show one direction.
 ROWS = [None] + DIRECTIONS
+## The cracked tiles (owner, 2026-10-19): one per style, in the row after the arrows: an all-neighbour
+## post marked with a crack, which a Goo Bomb blast breaks (docs/godot/FENCES.md "Cracked fences").
+CRACKED_ROW = len(ROWS)
 
 
 def style_column(index: int) -> int:
@@ -79,6 +82,14 @@ def _atlas_source() -> str:
             # (0, the north arrow, is the data layer's default: Godot leaves it out of the file too)
             if direction_id != 0:
                 lines.append(f"{column}:{row}/0/custom_data_1 = {direction_id}")
+    for index, (style, _color) in enumerate(STYLES):
+        column = style_column(index)
+        lines.extend([
+            f"{column}:{CRACKED_ROW}/0 = 0",
+            f'{column}:{CRACKED_ROW}/0/custom_data_0 = "{style}"',
+            f"{column}:{CRACKED_ROW}/0/custom_data_1 = -1",
+            f"{column}:{CRACKED_ROW}/0/custom_data_2 = true",
+        ])
     for style, (column, row), _picture in GATES:
         lines.extend([
             f"{column}:{row}/0 = 0",
@@ -93,6 +104,8 @@ def _atlas_source() -> str:
         "custom_data_layer_0/type = 4",
         'custom_data_layer_1/name = "fence_direction"',
         "custom_data_layer_1/type = 2",
+        'custom_data_layer_2/name = "fence_cracked"',
+        "custom_data_layer_2/type = 1",
         'sources/0 = SubResource("TileSetAtlasSource_fences")',
         "",
     ])
@@ -184,14 +197,30 @@ def _draw_material(draw: ImageDraw.ImageDraw, style: str, color: tuple[int, int,
     _arrow(draw, arrow_start, arrow_end, direction)
 
 
+## The cracked posts' own pictures (scripts/art/build-cracked-fence-posts.py), shown on their tiles.
+CRACKED_POSTS = ROOT / "godot/asset/MAPS/fences/%s-post-cracked.png"
+
+
+def _draw_cracked_post(tile: Image.Image, style: str) -> None:
+    """The style's cracked post picture over the tile's connector, standing on its middle."""
+    path = Path(str(CRACKED_POSTS) % style)
+    if not path.exists():
+        return
+    post = Image.open(path).convert("RGBA")
+    post.thumbnail((SIZE - 18, SIZE - 8), Image.Resampling.LANCZOS)
+    tile.alpha_composite(post, ((SIZE - post.width) // 2, SIZE - 6 - post.height))
+
+
 def _draw_tile(image: Image.Image, column: int, row: int, style: str, color: tuple[int, int, int],
-               direction: tuple[int, int] | None) -> None:
+               direction: tuple[int, int] | None, cracked: bool = False) -> None:
     x0, y0 = column * SIZE, row * SIZE
     tile = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
     draw = ImageDraw.Draw(tile)
     background = (18, 26, 20, 24)
     draw.rectangle((0, 0, SIZE - 1, SIZE - 1), fill=background, outline=(223, 229, 211, 205), width=1)
     _draw_material(draw, style, color, direction)
+    if cracked:
+        _draw_cracked_post(tile, style)
     # A colored foot swatch identifies material without a letter or abbreviation.
     draw.rounded_rectangle((5, 54, 15, 59), radius=2,
                            fill=color + (255,), outline=(31, 31, 28, 235), width=1)
@@ -199,11 +228,13 @@ def _draw_tile(image: Image.Image, column: int, row: int, style: str, color: tup
 
 
 def main() -> None:
-    image = Image.new("RGBA", (SIZE * _columns(), SIZE * len(ROWS)), (0, 0, 0, 0))
+    image = Image.new("RGBA", (SIZE * _columns(), SIZE * (CRACKED_ROW + 1)), (0, 0, 0, 0))
     for row, direction_entry in enumerate(ROWS):
         direction = None if direction_entry is None else direction_entry[2]
         for index, (style, color) in enumerate(STYLES):
             _draw_tile(image, style_column(index), row, style, color, direction)
+    for index, (style, color) in enumerate(STYLES):
+        _draw_tile(image, style_column(index), CRACKED_ROW, style, color, None, True)
     for _style, (column, row), picture in GATES:
         tile = Image.new("RGBA", (SIZE, SIZE), (18, 26, 20, 24))
         ImageDraw.Draw(tile).rectangle((0, 0, SIZE - 1, SIZE - 1), outline=(223, 229, 211, 205), width=1)
@@ -214,7 +245,7 @@ def main() -> None:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUT)
     TILESET.write_text(_atlas_source(), encoding="utf-8", newline="\n")
-    print(f"wrote {OUT.relative_to(ROOT)} and {TILESET.relative_to(ROOT)} ({len(STYLES)} picture styles, 8 directions + all-neighbor connector, {len(GATES)} gate tiles)")
+    print(f"wrote {OUT.relative_to(ROOT)} and {TILESET.relative_to(ROOT)} ({len(STYLES)} picture styles, 8 directions + all-neighbor connector + cracked, {len(GATES)} gate tiles)")
 
 
 if __name__ == "__main__":

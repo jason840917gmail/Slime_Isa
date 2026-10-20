@@ -75,7 +75,7 @@ hole**, **stairs**; the closed doors: **key door with one lock**, **with two loc
    room and pick its target in the Inspector (DUNGEON_ROOMS.md "Fatty's Lair: one world per room").
 
 A pocket room of a shell (CameraRoom meta `walls_in`) keeps no walls of its own: paint them in the
-room it is cut from. Fatty's Lair's pockets (Burr's cell, the store, the map nook, the sally port)
+room it is cut from. Fatty's Lair's pockets (Burr's cell, the store, the map nook)
 are their own worlds and each paints its own full rim, the parent world painting rock behind its own
 faces round the pocket, the door cut into them (2026-10-19; DUNGEON_ROOMS.md "The pockets"). R5's lower
 hall and key alcove are rooms of R5's world again, behind dividers: R5 has one rim.
@@ -282,7 +282,8 @@ doors in the rims to the new floor lines (`_fit_doors_to_walls`: key, boss and b
 shutters, the seals, the Larder's and the Postern's plank barricades, R9's stone door with the
 style's shutter as its slab). Since each room is its own world, the crack's two blocks are in two
 worlds (R5's west rim, the sally port's east rim), each with its cracked wall on the one flag
-(`fatty-lair.sally-port-open`): blown in one, the other is turned when its world is built. The Lair
+(`fatty-lair.sally-port-open`): blown in one, the other is turned when its world is built (both
+gone 2026-10-19: the sally port moved under C4, DUNGEONS.md "Secrets"). The Lair
 has no latch doors left in built walls: R5's, R7's, C2's and the Old Armoury's became dividers
 (FENCES.md "Dungeon dividers"), and R9's stone door, a latch door, is drawn by the room's wall (its
 own frame hidden, its slab the style's shutter leaf: `sliding_slab.gd` `wall_leaf_style`). Burr's cell

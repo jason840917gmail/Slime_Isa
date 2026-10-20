@@ -105,6 +105,9 @@
         "hollow-hill-cave-mouth": "level-1-d5",
         "lake-island-cave-mouth": "level-1-c5",
         "fatty-lair-bolt-hole-mouth": "level-1-d4",
+        "sally-port-way-out": "level-1-c4",
+        "burrow-way-out": "level-1-d4",
+        "armoury-door": "level-1-d4",
         "watchkeeper-hideout-door": "level-1-c4"
       },
       "spawn": "level-1-c4",

@@ -22,13 +22,12 @@ func test_the_lairs_rooms_are_worlds_that_keep_their_links(t: TestContext) -> vo
 		t.check(director.get_node_or_null(director.get(&"cell_door")) != null, "Burr's door path was lost")
 		t.check(director.get_node_or_null(director.get(&"burr")) != null, "Burr is not in the hub's world")
 		t.check(not director.is_in_group(&"dungeon_map_mark"), "the hub's director marks the boss on the map")
-	if not await _travel(t, "fatty-lair-glow-moss-burrow"):
+	if not await _travel(t, "slimeshire-glow-moss-burrow"):
 		return
-	var returns := 0
-	for hazard: Node in t.world().world_root.get_node("Hazards").get_children():
-		if hazard.has_node("Return0"):
-			returns += 1
-	t.check(returns > 0, "hazard return markers survive in the Burrow's world")
+	var void_hazard := t.world().world_root.get_node("Hazards/void")
+	t.check(void_hazard.get_node_or_null(void_hazard.get(&"fixed_return")) != null, "the Burrow's void lost its way back to the mouth")
+	var moss := t.world().world_root.get_node_or_null("shadow-path/ShadowPath")
+	t.check(moss != null and not (moss.get(&"cells") as Array).is_empty(), "the Burrow's painted moss built no shadow path")
 
 
 ## Burr's cell (its own world) is rock in the hub's world behind the hub's own bevel faces, its

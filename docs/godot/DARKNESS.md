@@ -28,9 +28,11 @@ darkens the rectangle `size` from its position.
 - Every frame it hands the shader the light sources that reach the room, the
   `darkness.maxLights` (16) nearest to the slime, in its local pixels. The shader cuts a soft hole
   (`softPx` 40 inside the radius, with a faint warm rim) around each one, and the dark is `alpha`
-  0.92 elsewhere, softened over 24 px at the rectangle's edge.
-- `candles` (NodePaths): while all of them burn, the room fades to lit over `litFadeMs` (1500 ms).
-  When one goes out, it fades dark again.
+  0.98 elsewhere (0.92 until 2026-10-19: the owner found the rooms too clear), softened over 24 px at
+  the rectangle's edge. Size a dark room over its walls too, or they stay lit around it.
+- `candles` (NodePaths): each one that burns lifts `darkness.candleShare` (0.25) of the dark
+  (owner, 2026-10-19); while all of them burn, the room fades to lit over `litFadeMs` (1500 ms).
+  When one goes out, it fades darker again.
 - `lit_for_good_when_all_lit` (off by default): once all its candles burn, the room stays lit for
   good and keeps them lit. This sets the story flag `lit_flag` (default
   `dark-room-lit.<persistence key or path>`), and the overlay is removed.

@@ -33,8 +33,8 @@ const PUSH_MS := 5000.0
 ## time limit).
 const DOOR_GROUPS := [
 	["r1-gatehouse", "r1-store", "r2-slab-steps", "r7-bell-bridge"],
-	["r3-pit-hall", "burr-cell", "r4-squint-den", "map-nook", "r6-pipe-gallery", "glow-moss-burrow"],
-	["r5-eye-hall", "sally-port", "r8-guard-crypt", "old-armoury", "r9-watcher-hall", "r10-dung-roller-run"],
+	["r3-pit-hall", "burr-cell", "r4-squint-den", "map-nook", "r6-pipe-gallery"],
+	["r5-eye-hall", "r8-guard-crypt", "r9-watcher-hall", "r10-dung-roller-run"],
 	["c2-weigh-house", "r11-drop-gate-bridge", "r12-larder", "r13-fattys-arena", "r14-postern", "bolt-hole"],
 ]
 
@@ -161,13 +161,6 @@ func test_what_is_done_stays_done_across_rooms_and_a_load(t: TestContext) -> voi
 	(_objects(t).get_node("r10-statue") as Node2D).global_position = (_objects(t).get_node("r10-plate") as Node2D).global_position
 	t.check(await t.until(func() -> bool: return bool(DungeonState.session_value(run, "fatty-lair.r10-plate-held", false)), 4000.0),
 		"the statue did not hold R10's plate")
-	# The sally port's crack, blown.
-	if not await _enter(t, "r5-eye-hall"):
-		return
-	var crack := _objects(t).get_node("r5-sally-crack")
-	crack.call(&"receive_blast", {})
-	await t.steps(4)
-	t.check(run.has_flag("fatty-lair.sally-port-open"), "the blown crack is not kept")
 	# The Pearl taken (quietly), the Big Squint beaten: the Lair is sealed.
 	if not await _enter(t, "r12-larder"):
 		return
@@ -296,21 +289,6 @@ func test_the_lair_is_walked_from_the_mouth_to_the_arena_and_out_by_the_bolt_hol
 	var out := await t.until(func() -> bool: return t.in_world("level-1-d4"), 8000.0)
 	t.release(&"move_up")
 	t.check(out, "the bolt-hole did not lead up into D4 (in %s)" % t.world().map_id())
-
-
-## A door whose record is not set refuses even with no line of its own (R5's way to the sally port:
-## its crack speaks for itself), and lets the slime through once the record is set (2026-10-19 review:
-## an empty `locked_text` let it through).
-func test_a_door_with_no_line_still_waits_for_its_record(t: TestContext) -> void:
-	Services.run().set_flag(LairDirector.FLAG_CALLED)
-	if not await _enter(t, "r5-eye-hall"):
-		return
-	var room_door := t.world().world_root.get_node("RoomDoors/r5-to-sally")
-	t.equal(str(room_door.get(&"locked_text")), "", "R5's way to the sally port has a line")
-	t.check(bool(room_door.call(&"is_blocked")), "the sally port's door does not wait for the blown crack")
-	t.equal(str((room_door.get_node("DoorScript").call(&"use") as Dictionary).get("status", "")), "blocked", "the door let the slime through before the crack was blown")
-	Services.run().set_flag("fatty-lair.sally-port-open")
-	t.check(not bool(room_door.call(&"is_blocked")), "the sally port's door still waits after the crack was blown")
 
 
 ## Every room door's link checks out in the editor's check (`pairing_problem`: the far door exists,
@@ -523,16 +501,16 @@ func _walk_doors(t: TestContext, room_names: Array) -> void:
 
 
 ## Every lock of the Lair opened by its record (bolts slid, Burr's door and the boss door open,
-## barricades smashed, the crack blown, the nook's gap clear, the latch doors open, R10's plate
+## barricades smashed, the nook's gap clear, the latch doors open, R10's plate
 ## held), its fights won and Fatty fallen, so every doorway lets the slime through.
 func _open_everything() -> void:
 	var run := Services.run()
 	run.set_flag(LairDirector.FLAG_CALLED)
 	run.set_flag(LairDirector.FLAG_FREED)
 	for flag: String in ["fatty-lair.store-smashed", "fatty-lair.larder-smashed", "fatty-lair.bolt-hole-smashed",
-			"fatty-lair.sally-port-open", "fatty-lair.nook-gap-open", "fatty-lair.inner-stair-open"]:
+			"fatty-lair.nook-gap-open", "fatty-lair.inner-stair-open"]:
 		run.set_flag(flag)
-	for gate: String in ["fatty-lair-r5-inner", "fatty-lair-r5-alcove", "fatty-lair-weigh-east", "fatty-lair-weigh-west", "fatty-lair-armoury-gate", "fatty-lair-r7-gate"]:
+	for gate: String in ["fatty-lair-r5-inner", "fatty-lair-r5-alcove", "fatty-lair-weigh-east", "fatty-lair-weigh-west", "fatty-lair-r7-gate"]:
 		run.mark_gate_unlocked(MAP_ID, gate)
 	for done: String in ["fatty-lair-r5-way-back", "fatty-lair-r7-way-back", "fatty-lair-r9-way-back", "fatty-lair-r11-way-back",
 			"fatty-lair-r1-shortcut", "fatty-lair-burr-cell", "fatty-lair-boss-door"]:
@@ -566,9 +544,6 @@ func _check_kept(t: TestContext, plate_held: bool) -> void:
 	if not await _enter(t, "r8-guard-crypt"):
 		return
 	t.check((t.world().world_root.get_node("RoomDoors/r8-to-r9") as Node).call(&"refusal") == "", "R8's doorway to R9 still waits for R9's bolt")
-	if not await _enter(t, "sally-port"):
-		return
-	t.check(run.has_flag("fatty-lair.sally-port-open"), "the crack's flag is gone")
 	if not await _enter(t, "r12-larder"):
 		return
 	t.check(bool(_lair(t, "pearl-1").call(&"is_taken")), "Pearl 1 is back on its altar")
