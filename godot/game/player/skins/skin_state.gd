@@ -23,6 +23,7 @@ class_name SkinState
 ## Owner: skins.
 
 const Services := preload("res://game/shared/services.gd")
+const ControlLabels := preload("res://game/shell/control_labels.gd")
 
 const HEAVY := &"heavy"
 const SILK := &"silk"
@@ -122,6 +123,12 @@ static func display_name(id: StringName) -> String:
 	return str(definition(id).get("name", String(id).capitalize() + " skin"))
 
 
+## The skin's `line` or `how` (`skins.defs.<id>`) with its keys named from the bindings
+## (ControlLabels.with_keys: "holding {interact}" reads "holding W" in the keys-only scheme).
+static func text(id: StringName, field: String) -> String:
+	return ControlLabels.with_keys(str(definition(id).get(field, "")))
+
+
 ## The skin's look in the slime's shader (form_skin.gdshader `skin`): 4 Heavy, 5 Silk, 6 Feral; 0
 ## for none.
 static func look_index(id: StringName) -> int:
@@ -154,7 +161,7 @@ static func ceremony_line(id: StringName) -> void:
 	var centre: Vector2 = player.call(&"get_centre")
 	var ms := setting("ceremonyTextMs", 3200.0)
 	feel.floating_text(centre - Vector2(0.0, TEXT_RISE), "%s!" % display_name(id).to_upper(), &"cyan", true, ms)
-	var line := str(definition(id).get("line", ""))
+	var line := text(id, "line")
 	if not line.is_empty():
 		feel.floating_text(centre - Vector2(0.0, LINE_RISE), line, &"white", false, ms)
 	show(player, id)

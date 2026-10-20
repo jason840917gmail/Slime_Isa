@@ -112,7 +112,9 @@ energy shard stay the base enemy's.
   the Spitcap, the Cocoon Mimic and the Rook Thief borrowed the Gulp's cues; since Sound Picker round
   7 (2026-10-16) they have their own (`PipeWormCharge` / `PipeWormSpit`, `SpitcapCharge` /
   `SpitcapSpit`, `MimicWrap` / `MimicGrab` / `MimicSpit`, `RookSteal`), playing the Gulp's round-5
-  takes ([audio spec §12](specs/audio.md#12-round-7-the-gulps-suck-catch-and-throw)).
+  takes ([audio spec §12](specs/audio.md#12-round-7-the-gulps-suck-catch-and-throw)). The Pipe Worm
+  has one sound since Sound Picker round 8 (2026-10-19): its spit (`PipeWormSpit`,
+  `enemy/pipe-worm-spit.wav`, the owner's pick); its charge is silent.
 - **A hit from a point** (`_route_hit_from(origin, target, damage, knockback, knock?)`, added for
   the Caverns' rows): `_route_immediate_attack`'s request from another point than the enemy's centre
   (a beam's start, a pickaxe's landing spot), knocked away from it or along `knock`.
@@ -347,24 +349,48 @@ two plates. Nothing else in the game is plated like it.
 
 One of Gorge's worm soldiers (the red war scarf and the badge), in an old clay pipe set in a wall.
 Its scene is the pipe and the worm (`aim_direction`, the way the pipe faces; its feet at the wall's
-foot); the wall is the world's. In pen 12 it is a short fieldstone wall (the pen's supplies), which
+foot); the wall is the world's. A placed worm faces the way its placed node is turned (rotate it in
+the editor: down unturned, snapped to the four ways; the editor draws the half it sees, enemy spec
+§3.3), so a worm in a side wall or a block's top face is turned to face the open floor (R6's six and
+R11's, 2026-10-19). In pen 12 it is a short fieldstone wall (the pen's supplies), which
 blocks the slime.
+- **Its view: the half in front of its wall** (owner, 2026-10-19; it was a circle that saw through
+  the wall): it sees the slime only past its wall's foot along its pipe's line (`aim_direction`
+  snapped to up, down, left or right), within the pen (or `targeting_radius`). Behind the wall or
+  level with it the slime is not seen, however near.
 - **Hidden:** down in the pipe, two eyes glinting in the dark (`game/enemy/eye_glint.gd`): blows
-  never reach it (every hit clinks). It hides while the slime is out of the pen or within
-  `hideRangePx` 72, and looks out `unhideMs` 500 after the slime steps back.
+  never reach it (every hit clinks). It hides while the slime is out of view or within
+  `hideRangePx` 72, and looks out `unhideMs` 500 after the slime is back in view.
 - **Up** (`riseMs` 200): it spits on a beat, every `spitIntervalMs` 1700 (`firstSpitMs` 400 after it
-  comes up), but only straight out of its pipe (four-way, owner 2026-10-16): when the slime crosses
-  the pipe's line, its hurtbox middle in front of the pipe and within `alignTolerancePx` 16 of the
-  line (`aim_direction` snapped to up, down, left or right).
-- **Charge** (the tell, `spitWindupMs` 550): it swells and shakes; then a mud glob straight out along
-  the pipe's line (`projectile.mud-glob`: 150 px/s, 14 damage; a slime that stepped off the line is
-  missed) and its spitting pose (`spitPoseMs` 300). Blows still clink.
+  comes up), at the slime wherever it stands in view (the four-way rule of 2026-10-16 is gone): the
+  aim is the slime's hurtbox middle when the charge starts, kept within `aimConeDeg` 160 of the
+  pipe's line.
+- **Charge** (the tell, `spitWindupMs` 550): it swells and shakes in its pipe; then a mud glob along
+  the aim (`projectile.mud-glob`: 150 px/s, 14 damage; a slime that moved is missed) and its spitting
+  pose (`spitPoseMs` 300). Blows still clink. The worm never comes out of its wall (owner,
+  2026-10-19, after trying it): the glob is born off the wall instead, 38 px out along the pipe's
+  line from its middle and past a deep wall's foot, so it never hits the wall it leaves.
 - **Right tool:** the glob is suckable (Q catches it in flight); thrown back (Q) into the pipe, its
-  hit carries the tag `mud-glob`: one hit, it dies, hidden or not.
+  hit carries the tag `mud-glob`: one hit, it dies, hidden or not. Anything else thrown (a pot, a
+  rock: tag `thrown`) hits it too, hidden or not, for its own damage (owner, 2026-10-19): its
+  shield lets the tag through (`_shields`) and, in the rework, its phases' immunity is every class
+  but `thrown` (`"immune": ["*", "!thrown"]`).
 - **Spear + Roll:** a Roll's bonk within `bonkReachPx` 60 of its feet (rolling into the wall under
   its pipe; any bonk, heavy or not, through GroundShake) jolts it out: it lies on the floor in front
   of the pipe, dazed for `dazedMs` 2600 and open to every hit (30 health: two jabs), then wriggles
   back in.
+- **Beaten, its pipe stays** (owner, 2026-10-19): the corpse fades in front of its empty pipe, which
+  stays in the wall (`_leave_empty_pipe`: a plain picture of the empty pipe on the world's entity
+  layer, group `pipe_worm_empty_pipe`) until the world is built again and the worm is back. A worm
+  that comes back on the spot sooner (the playground's pen) takes the pipe's place.
+- **A pipe up in a deep wall** (2026-10-19; a dungeon room's walls are two cells deep and collide
+  over their whole cells, so in Fatty's Lair's R6 the globs were born inside the wall and stopped at
+  once: the worms never hit): `_wall_depth` finds, once, where the line out of the worm's centre
+  leaves the world's collision (its wall's face); the glob is born 10 units past that face (at least
+  its 38 px mouth), so a mouth just outside a face, closer than the glob's size, moves out too (R6's
+  side walls, whose globs died at once). Its view starts there, and the bonk's reach and the
+  shaken-out worm (pose and hurtbox) move out by as much. A pipe whose mouth is clear of its wall
+  (pen 12) has no depth and plays as before.
 
 ### 13. Dung Roller (patroller)
 

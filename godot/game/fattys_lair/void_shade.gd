@@ -3,8 +3,9 @@ extends Node2D
 ## A dark shade over a world's voids (Fatty's Lair, docs/godot/DUNGEONS.md "Fatty's Lair (built)"):
 ## the voids are deep holes on the elevation layer, and this darkens their floors and lower walls a
 ## little more, so a void reads as bottomless beside the dark floors of a cave. `rects` are world
-## rectangles (tools/build_fattys_lair.gd writes one per run of void cells); each is drawn as a dark
-## fill a little inset from its edges. Presentation only; it never collides.
+## rectangles in the room scene (set in the Inspector: one per run of void cells, as the retired
+## builder first wrote them); each is drawn as a dark fill a little inset from its edges. Presentation
+## only; it never collides.
 ##
 ## Owner: dungeons (Fatty's Lair).
 

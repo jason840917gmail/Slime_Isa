@@ -4,16 +4,19 @@ extends SceneTree
 const SceneSave := preload("res://tools/lib/scene_save.gd")
 const OBJ := "res://game/scenes/objects/%s.tscn"
 const INTERIOR := "res://game/scenes/worlds/watchkeeper-hideout.tscn"
+const MUSIC := "res://asset/audio/music/interior-b.wav"
 var _root: Node2D
 
 func _initialize() -> void:
-	# Reuse the timber room's floor, structural perimeter, exit facade and ambience.
+	# Reuse the timber room's floor, structural perimeter, exit facade, ambience and music player.
 	_root = (load("res://game/scenes/worlds/gloop-hut.tscn") as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 	_root.name = "watchkeeper-hideout"
 	for child: Node in _root.get_children():
-		if str(child.name) not in ["ground", "old-props", "cell-props", "details", "world-definition", "player-spawn", "player-entry-south", "house-door", "house-door-art", "Ambience"]:
+		if str(child.name) not in ["ground", "old-props", "cell-props", "details", "world-definition", "player-spawn", "player-entry-south", "house-door", "house-door-art", "Ambience", "MusicPlayer"]:
 			_root.remove_child(child)
 			child.free()
+	# The storehouse plays the second interior track (the hut plays interior-a).
+	_root.get_node("MusicPlayer").set(&"stream", load(MUSIC))
 	var props := _root.get_node("old-props") as TileMapLayer
 	for cell: Vector2i in props.get_used_cells():
 		if cell.y != 19 and cell.y != 88 and cell.x != 3 and cell.x != 109:

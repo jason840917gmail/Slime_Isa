@@ -11,9 +11,12 @@ class_name ChestScript
 ## A Goo Heart inside (`goo_heart_id`; owner, 2026-10-17: most hearts are hidden in chests, found by
 ## curiosity): opening the chest the first time lifts the heart out of it (it rises over the chest,
 ## as Zelda's heart piece) and grants it as the pickup does (goo_heart.gd `grant`: the flag
-## "goo-heart.<id>", max HP, the ceremony once the heart has risen), once. The flag is the record:
+## "goo-heart.<id>", max HP), once; when it has risen (HEART_RISE_MS of gameplay time) the chest
+## shows "+10 max HP" and asks for the ceremony (goo_heart.gd `celebrate`). The flag is the record:
 ## the chest counts as holding something until it is set, and is empty (open) after, in every save.
-## With only the heart inside, no chest window opens; with other things too, the window shows them.
+## With only the heart inside, no chest window opens; with other things too, the window shows them
+## after the heart has risen and its ceremony has played (Zelda's order: the window pauses the world,
+## which would freeze the rise). A load or a travel during the rise frees the chest and skips both.
 ##
 ## Owner: interaction.
 
@@ -21,12 +24,14 @@ const Services := preload("res://game/shared/services.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const GooHeart := preload("res://game/scripts/goo_heart.gd")
 const ItemPop := preload("res://game/dungeon/item_pop.gd")
+const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
 
 const GROUP := &"chest"
 const BOSS_CAMP_GROUP := &"boss_camp"
 const VIEW_GROUP := &"chest_window"
 ## The heart rising out of the chest: from this far above the chest's feet, this much higher, this
-## big, over this long (real time); the ceremony follows it.
+## big, over this long (the picture on real time, the text, the ceremony and the window after it on
+## the gameplay clock).
 const HEART_FROM_PX := 34.0
 const HEART_RISE_PX := 46.0
 const HEART_SIZE_PX := 40.0
@@ -52,6 +57,12 @@ signal stack_transferred(payload: Dictionary)
 signal closed(payload: Dictionary)
 
 var _open: bool = false
+## The gameplay time its given heart has risen (-1: no heart rising); then its text and ceremony
+## (`_heart_celebrated`), then the window on what else it holds.
+var _heart_risen_ms: float = -1.0
+var _heart_celebrated: bool = false
+var _heart_at: Vector2 = Vector2.ZERO
+var _heart_icon: Texture2D
 
 
 func _enter_tree() -> void:
@@ -61,7 +72,14 @@ func _enter_tree() -> void:
 		run.ensure_chest(map_id, instance_id, positive_counts(initial_contents))
 
 
+func _ready() -> void:
+	set_physics_process(false)
+
+
 func _exit_tree() -> void:
+	# Gone during the rise (a load, a travel): no text, ceremony or window after it.
+	_heart_risen_ms = -1.0
+	set_physics_process(false)
 	if _open:
 		_open = false
 		var view := _view()
@@ -99,31 +117,74 @@ func is_guarded() -> bool:
 
 
 ## "guarded" (emits `guard_blocked`) or "opened" (emits `open_requested`, then the chest window
-## shows this chest; an empty chest opens too).
+## shows this chest; an empty chest opens too). A chest giving its heart opens the window on the
+## rest once the heart has risen (`_opened_giving`); asked again meanwhile, it waits.
 func request_open() -> String:
 	if is_guarded():
 		guard_blocked.emit({"instanceId": instance_id})
 		return "guarded"
-	if give_heart() and remaining().is_empty():
-		# Only the heart: no window.
-		sync_frame()
-		_cue_heart_open()
-		open_requested.emit({"mapId": map_id, "instanceId": instance_id, "contents": {}})
+	if is_heart_rising():
+		return "opened"
+	var contents := remaining()
+	if give_heart():
+		_opened_giving(contents, true)
 		return "opened"
 	return _open_window()
 
 
+## True from the moment it gives its heart until the window on what else it holds opens.
+func is_heart_rising() -> bool:
+	return _heart_risen_ms >= 0.0
+
+
 ## The chest window shows it (emits `open_requested`).
 func _open_window() -> String:
-	_open = true
 	open_requested.emit({"mapId": map_id, "instanceId": instance_id, "contents": remaining()})
-	var view := _view()
-	if view != null:
-		view.call(&"open_chest", self)
+	_show_window()
 	return "opened"
 
 
-## Lifts its Goo Heart out and grants it (goo_heart.gd `grant`); false when it holds none.
+func _show_window() -> void:
+	_open = true
+	var view := _view()
+	if view != null:
+		view.call(&"open_chest", self)
+
+
+## The chest opened giving things away (its heart when `heart`; a dungeon chest's items): its
+## opening sound and one `open_requested` (`contents`: what it held besides the heart) now, then
+## the window on what is left, if anything: at once, or after the heart's rise and ceremony.
+func _opened_giving(contents: Dictionary, heart: bool) -> void:
+	sync_frame()
+	_cue_open()
+	open_requested.emit({"mapId": map_id, "instanceId": instance_id, "contents": contents})
+	if heart:
+		_heart_risen_ms = Services.now_ms() + HEART_RISE_MS
+		_heart_celebrated = false
+		set_physics_process(true)
+	elif not remaining().is_empty():
+		_show_window()
+
+
+## Its given heart: once it has risen, the text and the ceremony; once no ceremony plays or waits,
+## the window on what else it holds.
+func _physics_process(_delta: float) -> void:
+	if not is_heart_rising() or Services.now_ms() < _heart_risen_ms:
+		return
+	if not _heart_celebrated:
+		_heart_celebrated = true
+		GooHeart.celebrate(get_tree(), 1, _heart_at, _heart_icon)
+	var ceremony := get_tree().root.get_node_or_null(AbilityCeremony.NODE_NAME)
+	if ceremony != null and (bool(ceremony.call(&"is_playing")) or int(ceremony.call(&"waiting")) > 0):
+		return
+	_heart_risen_ms = -1.0
+	set_physics_process(false)
+	if not remaining().is_empty():
+		_show_window()
+
+
+## Lifts its Goo Heart out and grants it (goo_heart.gd `grant`; its text and ceremony follow the
+## rise: `_physics_process`); false when it holds none.
 func give_heart() -> bool:
 	if not holds_heart():
 		return false
@@ -134,8 +195,10 @@ func give_heart() -> bool:
 	var root := get_parent() as Node2D
 	var at := root.global_position if root != null else origin()
 	var icon := GooHeart.default_icon()
-	if not GooHeart.grant(get_tree(), player, goo_heart_id, 1, at, icon, HEART_RISE_MS / 1000.0):
+	if not GooHeart.grant(get_tree(), player, goo_heart_id, 1, at, icon, false):
 		return false
+	_heart_at = at
+	_heart_icon = icon
 	ItemPop.spawn(icon, at - Vector2(0.0, HEART_FROM_PX), HEART_RISE_PX, HEART_SIZE_PX, HEART_RISE_MS)
 	var feel := Services.feel()
 	if feel != null:
@@ -143,9 +206,9 @@ func give_heart() -> bool:
 	return true
 
 
-## The opening sound of a chest that held only its heart: a world chest's scene plays it on
-## `open_requested`; the dungeon chest plays its own.
-func _cue_heart_open() -> void:
+## The opening sound of a chest that gave something away as it opened: a world chest's scene plays
+## it on `open_requested`; the dungeon chest plays its own.
+func _cue_open() -> void:
 	pass
 
 

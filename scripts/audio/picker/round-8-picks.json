@@ -1,0 +1,18 @@
+{
+ "round": "round-8",
+ "decidedAt": "2026-10-19T21:26:14.014Z",
+ "source": "The Sound Picker's picks/round-8 document, version 3 (final). No option was clicked; takes 1 and 3 of option a (Wet ptuh, the one the game played) were dropped, so a ships with its take 2 alone.",
+ "note": "",
+ "picks": {
+  "enemy.pipe-worm-spit": "a"
+ },
+ "dropped": {
+  "enemy.pipe-worm-spit": {
+   "a": [
+    0,
+    2
+   ]
+  }
+ },
+ "wishes": {}
+}

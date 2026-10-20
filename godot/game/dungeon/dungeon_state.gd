@@ -297,9 +297,6 @@ static func _dungeon_value_in(state: SceneState, property: StringName) -> String
 	for index: int in state.get_node_count():
 		var instance := state.get_node_instance(index)
 		var is_dungeon := instance != null and instance.resource_path == DUNGEON_SCENE
-		# A scene that holds the Dungeon node with its settings (Fatty's Lair's
-		# `fatty-lair-dungeon.tscn`, instanced in every room world): its own state names them.
-		var holder := instance != null and instance.resource_path.ends_with("-dungeon.tscn")
 		var found := ""
 		for index_property: int in state.get_node_property_count(index):
 			var property_name := state.get_node_property_name(index, index_property)
@@ -308,13 +305,35 @@ static func _dungeon_value_in(state: SceneState, property: StringName) -> String
 				found = str(value)
 			elif property_name == &"script" and value is Script and (value as Script).resource_path == DUNGEON_SCRIPT:
 				is_dungeon = true
-		if (is_dungeon or holder) and not found.is_empty():
+		if is_dungeon and not found.is_empty():
 			return found
-		if holder:
+		# A scene instanced under the root that holds the Dungeon node with its settings (Fatty's
+		# Lair's `fatty-lair-dungeon.tscn`, in every room world): this world's own value for it, else
+		# the held scene's.
+		if instance != null and not is_dungeon and str(state.get_node_path(index, true)) == "." \
+				and _holds_dungeon(instance.get_state()):
+			if not found.is_empty():
+				return found
 			var inner := _dungeon_value_in(instance.get_state(), property)
 			if not inner.is_empty():
 				return inner
 	return ""
+
+
+## True when a scene's state has a Dungeon node (an instance of its scene, or its script).
+static func _holds_dungeon(state: SceneState) -> bool:
+	if state == null:
+		return false
+	for index: int in state.get_node_count():
+		var instance := state.get_node_instance(index)
+		if instance != null and instance.resource_path == DUNGEON_SCENE:
+			return true
+		for index_property: int in state.get_node_property_count(index):
+			var value: Variant = state.get_node_property_value(index, index_property)
+			if state.get_node_property_name(index, index_property) == &"script" and value is Script \
+					and (value as Script).resource_path == DUNGEON_SCRIPT:
+				return true
+	return false
 
 
 ## Remembers that the slime stood in room `room_key`; true when it is new.
@@ -348,7 +367,7 @@ static func set_entrance(run: Object, dungeon_id: String, map_id: String, centre
 ## A session fact of the run (RunState `dungeon_session`: forgotten by a new run and a load), or
 ## `fallback`. Fatty's Lair keeps here what one room tells another without a record for good: a
 ## plate held down when the slime left its room (heavy_plate.gd `hold_record`, read by gate.gd
-## `open_while_record` in the next room), an energy flower's regrow, the next far-off roar.
+## `open_while_record` in the next room) and the next far-off roar.
 static func session_value(run: Object, key: String, fallback: Variant = null) -> Variant:
 	if run == null or key.is_empty() or not &"dungeon_session" in run:
 		return fallback
@@ -500,11 +519,11 @@ static func fire(target: Node, payload: Variant = null) -> bool:
 	return false
 
 
-## The dungeon numbers: `dungeon.<path>` in game-constants.json (a missing one is an error);
-## `fallback` only where there are no constants (the editor).
 ## Levels, as the open world has them (docs/godot/DUNGEONS.md "Levels"): the level a kit object
-## stands on: its `level` property when it has one set (not -99), else the world's elevation under it
-## (a slab's or a bridge's opened passage counts as the rim's level).
+## stands on: its `level` property when it has one set (not -99); on a deck that holds there (a slab,
+## a landing, a lowered drawbridge over a pit: hazard_deck.gd), the deck's level, so it is reached
+## from the deck, not from the pit under it; else the level a body put there walks on
+## (Elevation.walkable_level_at).
 static func level_of_node(node: Node2D) -> int:
 	if node == null:
 		return 0
@@ -514,7 +533,12 @@ static func level_of_node(node: Node2D) -> int:
 	var world := Services.world()
 	if world == null or world.elevation == null or not is_instance_valid(world.elevation):
 		return 0
-	return int(world.elevation.level_at(node.global_position, 0))
+	if node.is_inside_tree():
+		# the decks' group (hazard_deck.gd GROUP; not preloaded: it preloads this script)
+		for deck: Node in node.get_tree().get_nodes_in_group(&"hazard_deck"):
+			if deck != node and deck.has_method(&"holds_at") and bool(deck.call(&"holds_at", node.global_position)):
+				return int(deck.call(&"deck_level"))
+	return int(world.elevation.walkable_level_at(node.global_position))
 
 
 ## True when the slime's body stands on the level of `node` (or no elevation tells them apart): only
@@ -527,6 +551,8 @@ static func on_level_of(node: Node2D) -> bool:
 	return int(world.elevation.level_of(world.player_body)) == level_of_node(node)
 
 
+## The dungeon numbers: `dungeon.<path>` in game-constants.json (a missing one is an error);
+## `fallback` only where there are no constants (the editor).
 static func number(path: String, fallback: float) -> float:
 	var constants := Services.constants()
 	return constants.number("dungeon." + path) if constants != null else fallback

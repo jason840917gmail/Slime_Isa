@@ -140,6 +140,7 @@ size = Vector2(1152, 1024)
 position = Vector2(1152, 4096)
 script = ExtResource("2_room")
 room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-eye-hall.tscn"
+camera_room = "r5-eye-hall"
 world_id = "fatty-lair-r5-eye-hall"
 room_name = "r5-eye-hall"
 size = Vector2(1152, 576)
@@ -170,12 +171,12 @@ room_name = "r7-bell-bridge"
 size = Vector2(1152, 1024)
 
 [node name="burr-cell" type="Node2D" parent="."]
-position = Vector2(2304, 3072)
+position = Vector2(2304, 2944)
 script = ExtResource("2_room")
 room_scene = "res://game/scenes/worlds/rooms/fatty-lair/burr-cell.tscn"
 world_id = "fatty-lair-burr-cell"
 room_name = "burr-cell"
-size = Vector2(320, 576)
+size = Vector2(384, 576)
 
 [node name="r1-store" type="Node2D" parent="."]
 position = Vector2(3072, 4096)
@@ -188,19 +189,23 @@ size = Vector2(384, 448)
 [node name="r5-lower-hall" type="Node2D" parent="."]
 position = Vector2(1152, 4672)
 script = ExtResource("2_room")
-room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-lower-hall.tscn"
-world_id = "fatty-lair-r5-lower-hall"
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-eye-hall.tscn"
+camera_room = "r5-lower-hall"
+world_id = "fatty-lair-r5-eye-hall"
 room_name = "r5-lower-hall"
 size = Vector2(1152, 448)
 outline = PackedVector2Array(0, 0, 1152, 0, 1152, 448, 384, 448, 384, 128, 0, 128)
+camera_offset = Vector2(0, 576)
 
 [node name="r5-key-alcove" type="Node2D" parent="."]
 position = Vector2(1152, 4800)
 script = ExtResource("2_room")
-room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-key-alcove.tscn"
-world_id = "fatty-lair-r5-key-alcove"
+room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r5-eye-hall.tscn"
+camera_room = "r5-key-alcove"
+world_id = "fatty-lair-r5-eye-hall"
 room_name = "r5-key-alcove"
 size = Vector2(384, 320)
+camera_offset = Vector2(0, 704)
 
 [node name="boss-0" type="Node2D" parent="."]
 position = Vector2(4032, 2560)

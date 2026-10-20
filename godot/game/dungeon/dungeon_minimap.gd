@@ -1,8 +1,11 @@
 extends Control
 ## The dungeon's rooms on the HUD minimap (docs/godot/DUNGEONS.md "The dungeon map"): a Control the
 ## Dungeon node puts into the minimap (game/ui/map/minimap.gd), under its Overlay (the player's dot
-## and markers stay on top). It draws DungeonMapDraw's rooms (visited ones, all of them with the map,
-## the compass's marks) at the minimap's own scale (`Minimap.to_map`). Gone with the dungeon's world.
+## and markers stay on top). It draws the slime's room only (DungeonMapDraw `only_current`, with the
+## seals and compass marks inside it) at the minimap's own scale (`Minimap.to_map`), clipped to the
+## minimap's box; every room found (or mapped) shows on the map screen (M, dungeon_map_page.gd)
+## (owner, 2026-10-19: in a dungeon of one world per room the rooms around it, drawn at the minimap's
+## scale, covered the play area). Gone with the dungeon's world.
 ##
 ## Owner: dungeon kit.
 
@@ -36,7 +39,10 @@ static func attach(owner_dungeon: Node) -> Control:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# nothing past the minimap's box (it kept a size of zero before 2026-10-19, so nothing was cut
+	# off: the rooms around the slime's covered the play area); `_process` keeps it the box's size
+	clip_contents = true
 	var run := Services.run()
 	if run != null:
 		run.world_progress_changed.connect(_on_progress)
@@ -55,6 +61,9 @@ func _on_progress(_payload: Dictionary) -> void:
 func _process(_delta: float) -> void:
 	if dungeon == null or not is_instance_valid(dungeon) or _minimap == null:
 		return
+	if position != Vector2.ZERO or size != _minimap.size:
+		position = Vector2.ZERO
+		size = _minimap.size
 	var room := str(dungeon.call(&"current_room_key"))
 	var rect: Rect2 = _minimap.call(&"map_rect")
 	if room != _drawn_room or rect != _drawn_rect:
@@ -67,4 +76,4 @@ func _draw() -> void:
 	if dungeon == null or not is_instance_valid(dungeon) or _minimap == null:
 		return
 	DungeonMapDraw.draw(self, dungeon, func(point: Vector2) -> Vector2: return _minimap.call(&"to_map", point),
-		Vector2.INF, false)
+		Vector2.INF, false, true)

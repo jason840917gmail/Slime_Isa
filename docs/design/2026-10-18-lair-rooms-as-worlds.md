@@ -1,5 +1,10 @@
 # Fatty's Lair: every room its own world
 
+> **Since 2026-10-19 (the owner's choices after the review):** R5's eye hall, lower hall and key
+> alcove are one world again (`fatty-lair-r5-eye-hall`), behind their two dividers, so 22 worlds and
+> 50 room doors in 25 pairs; Burr's cell stays its own world, a full box, and in the hub's world it is
+> rock behind the hub's faces with the two-key door cut into them (Q1). See DUNGEON_ROOMS.md.
+
 *Status: **built 2026-10-18** (the owner approved the switch: "do the change, that's the way"); how
 it works and how to edit it: [DUNGEON_ROOMS.md](../godot/DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18).
 What was built differs from this plan where marked **Built:** below; the rest of this page is the

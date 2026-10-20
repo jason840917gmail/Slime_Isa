@@ -7,8 +7,12 @@ extends Node2D
 ## the shell's layers and holders (docs/godot/DUNGEON_ROOMS.md).
 @export var room_connections: Array[Dictionary] = []
 
+## Off: an instance keeps its rooms under `RoomScenes` as saved (tools/verify_scenes.gd checks each
+## scene's saved properties against its instance, which the assembly would change).
+static var assemble_on_instantiate := true
+
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_SCENE_INSTANTIATED and not Engine.is_editor_hint():
+	if what == NOTIFICATION_SCENE_INSTANTIATED and not Engine.is_editor_hint() and assemble_on_instantiate:
 		assemble()
 
 func assemble() -> void:

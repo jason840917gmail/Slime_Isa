@@ -1,13 +1,21 @@
 extends SceneTree
 ## Captures a room world in the running game with its collision drawn over it (docs/godot/
-## INTERIOR_WALLS.md "Pits and holes"): each elevation level's outline (level 0 red, -1 blue, 1
-## yellow, -3 magenta), every static body's shape (white), the kit's decks (green) and hazards
-## (orange: its rectangle, and filled the cells of its floor level it catches on). Run windowed:
+## INTERIOR_WALLS.md "Pits and holes"): each elevation level's outline or painted cells in its
+## colour (LevelCollisionLayer.LEVEL_COLOURS: 0 red, -1 blue, 1 yellow, 2 cyan, 3 green, -2 violet,
+## -3 magenta), every static body's shape (white), the kit's decks (green) and hazards (orange: its
+## rectangle, and filled the cells it catches on) and the slime's body (cyan). Run windowed:
 ##     "<Godot console exe>" --path godot -s res://tools/render_room_collision.gd -- --map=<world> --out=<dir>
-##         [--prefix=x] [--feet=<x>,<y>] [--no-overlay]
-## Writes <dir>/<prefix>.png at a 1600 x 900 window, the slime's feet at `feet` (room units).
+##         [--prefix=x] [--feet=<x>,<y>] [--level=<n>] [--hold=<action>[+<action>]] [--hold-ms=<ms>]
+##         [--automatic] [--no-overlay]
+## Writes <dir>/<prefix>.png at a 1600 x 900 window, the slime's feet at `feet` (room units); with
+## `hold` the slime walks with those input actions held for `hold-ms` (230: less than a ledge push)
+## before the capture, to show where the collision stops it (`--hold=move_down+move_right`). Prints the
+## slime's feet and the camera's screen transform, to crop a close-up. `level` puts the slime on that
+## level (else the one it walks on there); `automatic` clears the world's painted `level-collision`
+## for the run (never saved) to show its automatic collision.
 
 const Services := preload("res://game/shared/services.gd")
+const LevelCollision := preload("res://game/world/elevation/level_collision_layer.gd")
 
 
 func _initialize() -> void:
@@ -16,6 +24,10 @@ func _initialize() -> void:
 	var map_id := "fatty-lair-r7-bell-bridge"
 	var feet := Vector2(-1, -1)
 	var overlay := true
+	var hold: PackedStringArray = []
+	var hold_ms := 230.0
+	var level := -99
+	var automatic := false
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.trim_prefix("--out=")
@@ -26,6 +38,14 @@ func _initialize() -> void:
 		elif arg.begins_with("--feet="):
 			var xy := arg.trim_prefix("--feet=").split(",")
 			feet = Vector2(float(xy[0]), float(xy[1]))
+		elif arg.begins_with("--hold="):
+			hold = arg.trim_prefix("--hold=").split("+")
+		elif arg.begins_with("--hold-ms="):
+			hold_ms = float(arg.trim_prefix("--hold-ms="))
+		elif arg.begins_with("--level="):
+			level = int(arg.trim_prefix("--level="))
+		elif arg == "--automatic":
+			automatic = true
 		elif arg == "--no-overlay":
 			overlay = false
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
@@ -40,23 +60,51 @@ func _initialize() -> void:
 	for i in 90:
 		await process_frame
 	var world := Services.world()
+	if automatic and world.world_root.get_node_or_null("level-collision") != null:
+		(world.world_root.get_node("level-collision") as TileMapLayer).clear()
+		world.elevation.rebuild()
+		for i in 4:
+			await process_frame
 	if feet.x >= 0.0:
 		var player = world.player
 		var body := world.player_body
 		player.teleport(feet - (body.global_position - player.get_centre()))
-		world.elevation.track(body)
+		if level != -99:
+			world.elevation.track(body, level)
+		else:
+			world.elevation.track(body)
 		body.reset_physics_interpolation()
 		world.camera.start_follow(body, true)
 	for i in 30:
 		await process_frame
+	if not hold.is_empty():
+		for action in hold:
+			_push(action, true)
+		var until := Time.get_ticks_msec() + int(hold_ms)
+		while Time.get_ticks_msec() < until:
+			await physics_frame
+		for action in hold:
+			_push(action, false)
+		for i in 10:
+			await process_frame
 	if overlay:
 		_draw(world)
+	print("feet ", world.player_body.global_position, " canvas ", world.world_root.get_viewport().get_canvas_transform())
 	for i in 10:
 		await process_frame
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png(ProjectSettings.globalize_path(out.path_join(prefix + ".png")))
 	print("saved to ", ProjectSettings.globalize_path(out))
 	quit()
+
+
+## An input action pressed or released, as the game reads it (tests/lib/test_context.gd `_push`).
+func _push(action: String, pressed: bool) -> void:
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = pressed
+	event.strength = 1.0 if pressed else 0.0
+	root.push_input(event)
 
 
 func _line(parent: Node, a: Vector2, b: Vector2, colour: Color, width: float = 2.0) -> void:
@@ -79,7 +127,7 @@ func _draw(world: Node) -> void:
 	var holder := Node2D.new()
 	holder.name = "CollisionOverlay"
 	world.world_root.add_child(holder)
-	var colours := {-3: Color(1, 0.3, 1), -2: Color(0.8, 0.3, 1), -1: Color(0.3, 0.6, 1), 0: Color(1, 0.2, 0.2), 1: Color(1, 0.9, 0.2), 2: Color(0.2, 1, 1)}
+	var colours := LevelCollision.LEVEL_COLOURS
 	var elevation: Node = world.elevation
 	if elevation != null:
 		for body: Node in elevation.get_node("Collision").get_children():
@@ -122,3 +170,10 @@ func _draw(world: Node) -> void:
 		if node.has_method(&"deck_rects"):
 			for r: Rect2 in node.call(&"deck_rects"):
 				_box(holder, r.grow(-2), Color(0.3, 1, 0.3))
+	# the slime's body (its collision rect)
+	var body: CharacterBody2D = world.player_body
+	for node: Node in body.get_children():
+		var shape := node as CollisionShape2D
+		if shape != null and shape.shape is RectangleShape2D:
+			var size := (shape.shape as RectangleShape2D).size
+			_box(holder, Rect2(shape.global_position - size / 2.0, size), Color(0.2, 1, 1))

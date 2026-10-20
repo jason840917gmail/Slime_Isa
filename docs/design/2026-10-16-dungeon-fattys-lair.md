@@ -33,7 +33,7 @@ is made here as a proposal and listed in [Open points](#open-points).*
 > (roadmap 12.8). **The rework is built (2026-10-17)**, as that plan's proposals: Pearl 1 in R12 the
 > Larder behind the Big Squint, door 3 open and key 3 gone, the new Weigh House in C2, R10 and R9
 > reworked for the Heavy skin (the big key in R9), the hub's counterweight plate in place of the
-> ledge's winch, the seals in R1's and R13's doorways, Fatty's Heavy Roll topple; R14 is the
+> ledge's winch (since 2026-10-19 two plates that are not heavy, the freed Burr holding one), the seals in R1's and R13's doorways, Fatty's Heavy Roll topple; R14 is the
 > Postern. The Lair as built is [DUNGEONS.md](../godot/DUNGEONS.md#fattys-lair-built); this design's
 > R9, R10, R12, R14 and the Pearl's place describe the first build.
 

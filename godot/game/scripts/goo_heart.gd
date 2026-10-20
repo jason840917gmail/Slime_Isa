@@ -99,37 +99,35 @@ func _collect(player: Node, at: Vector2) -> void:
 
 
 ## Grants the Goo Heart `id` (`count` hearts' worth) to `player` as its pickup does: the flag
-## "goo-heart.<id>", max HP + `gooHeart.maxHpBonus` each (HP full), the cue, "+10 max HP" over `at`
-## and the ceremony (`ceremony_delay_s` of real time later: a chest's heart rises first). False (and
-## nothing given) when the flag is already set. Also used by chests that hold a heart (chest.gd).
-static func grant(tree: SceneTree, player: Node, id: String, count: int, at: Vector2, icon: Texture2D, ceremony_delay_s: float = 0.0) -> bool:
+## "goo-heart.<id>", max HP + `gooHeart.maxHpBonus` each (HP full) and the cue, then (unless
+## `celebrate_now` is false) its text and ceremony (`celebrate`). False (and nothing given) when the
+## flag is already set. Also used by chests that hold a heart (chest.gd celebrates it itself once
+## the heart has risen, so a load or a travel meanwhile, which frees the chest, skips it).
+static func grant(tree: SceneTree, player: Node, id: String, count: int, at: Vector2, icon: Texture2D, celebrate_now: bool = true) -> bool:
 	var run := Services.run()
 	if run == null or id.is_empty() or id == UNASSIGNED or run.has_flag(FLAG_PREFIX + id):
 		return false
 	run.set_flag(FLAG_PREFIX + id)
 	for i in maxi(1, count):
 		player.call(&"grant_goo_heart")
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE)
+	if celebrate_now:
+		celebrate(tree, count, at, icon)
+	return true
+
+
+## A granted heart's "+10 max HP" (`count` hearts' worth) over `at` and its ceremony (with `icon`)
+## while main's `ability_ceremonies` is on.
+static func celebrate(tree: SceneTree, count: int, at: Vector2, icon: Texture2D) -> void:
 	var constants := Services.constants()
 	var bonus := (constants.integer("character.player.gooHeart.maxHpBonus") if constants != null else 0) * maxi(1, count)
 	var feel := Services.feel()
 	if feel != null:
-		feel.audio_cue(CUE)
-		if tree == null or ceremony_delay_s <= 0.0:
-			feel.floating_text(at - Vector2(0.0, TEXT_RISE), "+%d max HP" % bonus, &"green", true, TEXT_MS)
-		else:
-			var player_ref: WeakRef = weakref(player)
-			tree.create_timer(ceremony_delay_s, true, false, true).timeout.connect(func() -> void:
-				if player_ref.get_ref() != null:
-					var current_feel := Services.feel()
-					if current_feel != null:
-						current_feel.floating_text(at - Vector2(0.0, TEXT_RISE), "+%d max HP" % bonus, &"green", true, TEXT_MS))
+		feel.floating_text(at - Vector2(0.0, TEXT_RISE), "+%d max HP" % bonus, &"green", true, TEXT_MS)
 	if tree != null and AbilityCeremony.enabled(tree):
-		if ceremony_delay_s <= 0.0:
-			AbilityCeremony.request_heart(tree, bonus, icon)
-		else:
-			tree.create_timer(ceremony_delay_s, true, false, true).timeout.connect(
-				func() -> void: AbilityCeremony.request_heart(tree, bonus, icon))
-	return true
+		AbilityCeremony.request_heart(tree, bonus, icon)
 
 
 ## True when the Goo Heart `id` was taken (its flag is set).

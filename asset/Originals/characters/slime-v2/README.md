@@ -15,6 +15,7 @@ adventure games, and is built page by page.
 | `start-ball.png` | The Roll's ball (2026-10-09): the slime curled into a ball, its sprout lying flat on it (`asset/Originals/gulp/generated/ball-b.png`, GPT 2.5), on a flat #FF00FF 1024 px square; the packer spins it into page 4's `ball-side` |
 | `videos/<row>.mp4` | One Seedance 1.5 Pro clip per video row (4 s, 1:1, 1080p, no audio): `idle-down`, `idle-up`, `idle-side`, `walk-down`, `walk-up`, `walk-side`, `roll-down`, `roll-up`, `stretch-down`, `stretch-up`, `stretch-side`, `doze-down`, `sleep-down`, `die-down`, `swim-down`, `swim-up`, `swim-side`, and since 2026-10-09 `suck-down`, `suck-up`, `suck-side`, `spit-down`, `spit-up`, `spit-side`, `full-down`, `full-up`, `full-side`. The full slime's start stills are `asset/Originals/gulp/generated/start-full-<direction>.png` (1.15 times the start slime's width, on the same baseline); the spit takes start full and pop empty |
 | `page-<n>.json` | The packer's choice per row: loop (or one-shot) start and length in source frames, the 8 sampled frames, the playback fps the Godot clips use, and whether the clip loops (page 6: where each pose landed, see "Page 6 layout") |
+| `heavy-grab/` | The Heavy grab's push and pull pose sheets (2026-10-19), packed into page 7 ([heavy-grab/README.md](heavy-grab/README.md)) |
 | `shapes/` | The body shapes' art (2026-10-12): the attack pose sheets packed into page 6, the Spear's strike strips packed into the strike sheet, the jelly weapons, their effects and icons ([shapes/README.md](shapes/README.md)) |
 
 Rebuild a runtime sheet `asset/characters/256x256-tile_8x8-slime-v2-page-<n>.webp` with
@@ -205,6 +206,20 @@ The Spear's strike frames (2026-10-12) are on a sheet of their own,
 `godot/asset/characters/512x416-tile_8x8-slime-v2-strikes.webp` (larger cells centred like page
 1's), packed by `python scripts/characters/pack-slime-strikes.py` from `shapes/strikes/` with its
 manifest `godot/game/data/shape-strikes.json` ([shapes/README.md](shapes/README.md) "Strike sheet").
+
+## Page 7 layout
+
+The Heavy grab's poses (2026-10-19): still GPT 2.5 pose sheets, like page 6, packed by
+`python scripts/characters/pack-slime-heavy-grab.py` ([heavy-grab/README.md](heavy-grab/README.md)).
+`page-7.json` lists the clips the game plays and each frame's shift (where the art belongs relative to
+its cell: the pull's body leans away from the block, past the cell).
+
+| Row | Columns 0-3 | Columns 4-7 |
+|---|---|---|
+| 0 | push-side: brace, shove, step, rest | pull-side: grip, heave, tug, rest |
+| 1 | push-down: brace, shove, brace-b, shove-b | pull-down: grip, heave, tug, rest |
+| 2 | push-up: brace, shove, shove-b, rest | pull-up: grip, heave, tug, rest |
+| 3-7 | free | free |
 
 ## What worked (2026-10-05)
 

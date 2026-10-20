@@ -29,6 +29,7 @@ const MapMarkers := preload("res://game/ui/map/map_markers.gd")
 const Minimap := preload("res://game/ui/map/minimap.gd")
 const WorldMapData := preload("res://game/world/atlas/world_map_data.gd")
 const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 
 ## Opened / closed (after the GameWindows push / pop).
 signal opened
@@ -269,8 +270,9 @@ static func reload_map() -> void:
 
 
 ## The region with key `key_or_map_id`, else the region whose overworld or interior is that map, or
-## whose overworld a chunk world of that id was cut from (WorldChunks) ({} when none, or without a
-## layout).
+## whose overworld a chunk world of that id was cut from (WorldChunks), or whose interior a room
+## world of a dungeon of one world per room belongs to (its records' id: Fatty's Lair's rooms are
+## "fatty-lair"; DungeonState.world_record_id) ({} when none, or without a layout).
 static func region_of(key_or_map_id: String) -> Dictionary:
 	var map := map_data()
 	if map == null or key_or_map_id.is_empty():
@@ -280,6 +282,10 @@ static func region_of(key_or_map_id: String) -> Dictionary:
 		region = map.region_for_map(key_or_map_id)
 	if region.is_empty() and not WorldChunks.world_of(key_or_map_id).is_empty():
 		region = map.region_for_map(WorldChunks.world_of(key_or_map_id))
+	if region.is_empty():
+		var record_id := DungeonState.world_record_id(key_or_map_id)
+		if not record_id.is_empty() and record_id != key_or_map_id:
+			region = map.region_for_map(record_id)
 	return region
 
 
@@ -311,8 +317,11 @@ static func region_label(region: Dictionary, discovered: PackedStringArray, curr
 	var text := AreaTitles.region_name(region)
 	if text.is_empty():
 		text = str(region.get("key", ""))
-	# A chunk world counts as its region's world.
+	# A chunk world counts as its region's world; a room world of a dungeon of one world per room as
+	# its dungeon's (its records' id, an interior of the region).
 	var whole := WorldChunks.world_of(current_map)
+	if whole.is_empty():
+		whole = DungeonState.world_record_id(current_map)
 	return text + "\n" + CURRENT_TEXT if region_maps(region).has(whole if not whole.is_empty() else current_map) else text
 
 

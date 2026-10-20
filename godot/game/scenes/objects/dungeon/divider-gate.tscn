@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://game/scripts/gate.gd" id="2_gate_script"]
 
 [sub_resource type="RectangleShape2D" id="doors_shape"]
-size = Vector2(52, 10)
+size = Vector2(46, 10)
 
 [node name="divider-gate" type="Node2D"]
 y_sort_enabled = true
@@ -19,12 +19,6 @@ shape = SubResource("doors_shape")
 
 [node name="Look" type="Sprite2D" parent="."]
 centered = false
-
-[node name="PostWest" type="Marker2D" parent="."]
-position = Vector2(-64, 0)
-
-[node name="PostEast" type="Marker2D" parent="."]
-position = Vector2(64, 0)
 
 [node name="GateScript" type="Node" parent="." node_paths=PackedStringArray("doors")]
 script = ExtResource("2_gate_script")

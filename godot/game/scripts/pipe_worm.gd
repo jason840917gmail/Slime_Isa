@@ -5,23 +5,34 @@ class_name PipeWormScript
 ## is the world's (the Bestiary pen's is a short fieldstone wall); the scene is the pipe and the
 ## worm, its feet at the wall's foot.
 ##
+## - **Its view** (owner, 2026-10-19): the half of the world in front of its wall, 180 degrees out
+##   of its pipe (`aim_direction`, snapped to the nearest of up, down, left and right): a slime
+##   behind the wall, or level with it, is not seen however near (the old circle of
+##   `targeting_radius` alone saw it through the wall). It hides while the slime is out of view or
+##   within `hideRangePx`, and looks out again `unhideMs` after the slime is back in view.
 ## - **Hidden:** down in its pipe, two eyes glinting in the dark. Blows never reach it in the pipe
-##   (every hit clinks). It hides while the slime is away or within `hideRangePx`, and looks out
-##   again `unhideMs` after the slime stepped back.
+##   (every hit clinks).
 ## - **Up** (popping up over `riseMs`): it spits on a steady beat, every `spitIntervalMs` (the first
-##   `firstSpitMs` after it comes up), but only straight out of its pipe: four-way (owner,
-##   2026-10-16; game/enemy/four_way_aim.gd), it waits until the slime crosses the pipe's line, its
-##   hurtbox middle within `alignTolerancePx` of the line out of the pipe (`aim_direction`, snapped
-##   to the nearest of up, down, left and right).
-## - **Charge** (the tell, `spitWindupMs`): it swells and shakes; then it spits a mud glob
-##   (`projectile.mud-glob`, game/scripts/mud_glob.gd: the scene's `projectile` and
-##   `attributes.projectileSpeed`) straight out along the pipe's line (a slime that stepped off it
-##   is missed) and shows its spitting pose for `spitPoseMs`.
+##   `firstSpitMs` after it comes up), at the slime wherever it stands in view (the four-way rule of
+##   2026-10-16 is gone): the aim is the slime's hurtbox middle when the charge starts, kept within
+##   `aimConeDeg` around the pipe's line (never back along its wall).
+## - **Charge** (the tell, `spitWindupMs`): it swells and shakes in its pipe; then it spits a mud
+##   glob (`projectile.mud-glob`, game/scripts/mud_glob.gd: the scene's `projectile` and
+##   `attributes.projectileSpeed`) along the aim (a slime that moved is missed) and shows its spitting
+##   pose for `spitPoseMs`. The worm never leaves its pipe (owner, 2026-10-19): the glob is born off
+##   the wall instead, MOUTH_PX out along the pipe's line past the wall's foot (`_mouth`), so it does
+##   not hit the wall at once.
 ## - **The right tool:** the Gulp catches the glob in flight and throws it back: a hit tagged
-##   `mud-glob` kills it at once, hidden or not (`_kill_hit`).
+##   `mud-glob` kills it at once, hidden or not (`_kill_hit`). Anything else the Gulp throws (a pot,
+##   a rock: tagged `thrown`) hits it too, hidden or not, for its own damage (owner, 2026-10-19).
 ## - **Shaken out** (`dazedMs`): a Roll's bonk within `bonkReachPx` of its feet (GroundShake: the
 ##   slime rolling into the wall under its pipe) jolts it out of the pipe; it lies on the floor in
 ##   front of it, dazed and open to every hit (the Spear), then wriggles back in.
+## - **A pipe up in a deep wall** (a dungeon room's two-cell walls, which collide over their whole
+##   cells; 2026-10-19: R6's globs were born inside the wall and stopped at once): how deep it sits
+##   is how far past its mouth its line first leaves the world's collision (`_wall_depth`, found once);
+##   the glob leaves there, at the wall's foot, and the bonk's reach and the shaken-out worm move out
+##   by as much. A pipe at its wall's foot (the Bestiary pen) has no depth: nothing changes.
 ##
 ## Owner: enemy builder.
 
@@ -40,7 +51,6 @@ const FRAME_SPIT := 2
 const FRAME_DAZED := 3
 const CUE_RISE := &"DropPop"
 const CUE_HIDE := &"HitBlocked"
-const CUE_CHARGE := &"PipeWormCharge"
 const CUE_SPIT := &"PipeWormSpit"
 const CUE_SHAKEN := &"RollBonk"
 const CUE_BACK := &"DropLand"
@@ -59,9 +69,21 @@ const MOUTH_PX := 38.0
 ## Shaken out, the worm lies this far below its pipe, and its hurtbox follows it there.
 const FALLEN_POSE_PX := 16.0
 const FALLEN_HURTBOX_PX := 30.0
+## How far past its mouth a pipe's wall is looked for (a room's walls are two cells deep), in steps of
+## WALL_STEP_PX; the glob leaves GLOB_CLEAR_PX past the wall (its body's radius and a little more).
+const WALL_SEARCH_PX := 192.0
+const WALL_STEP_PX := 4.0
+const GLOB_CLEAR_PX := 10.0
+## The empty pipes beaten worms leave (`_leave_empty_pipe`); a worm back on the spot (the
+## playground's pens bring one back) takes its pipe's place within this distance.
+const EMPTY_PIPE_GROUP := &"pipe_worm_empty_pipe"
+const EMPTY_PIPE_SAME_SPOT_PX := 8.0
+## The world's layer (the walls) that stops a glob.
+const WORLD_MASK := 1
 
-## The way its pipe faces (the wall's open side); it spits only straight along it, snapped to the
-## nearest of up, down, left and right.
+## The way its pipe faces (the wall's open side), snapped to the nearest of up, down, left and
+## right: it sees the half of the world in front of it and spits within `aimConeDeg` of it. A placed
+## worm gets it from its placed node's rotation (game/enemy/placed_enemy.gd `facing()`).
 @export var aim_direction: Vector2 = Vector2.DOWN
 ## The empty pipe, shown while the worm is out of it.
 @export var hole: Sprite2D
@@ -72,6 +94,8 @@ var _next_spit_at: float = 0.0
 var _clear_since: float = 0.0
 var _aim: Vector2 = Vector2.DOWN
 var _hurtbox_rest: Vector2 = Vector2.ZERO
+## How deep its pipe sits in its wall past the mouth (`_wall_depth`); NAN until found.
+var _depth: float = NAN
 
 
 func _ready() -> void:
@@ -81,12 +105,14 @@ func _ready() -> void:
 		_hurtbox_rest = damage_area.position
 	_aim = _pipe_line()
 	_hide(Services.now_ms(), false)
+	_take_empty_pipe.call_deferred()
 
 
 func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool) -> void:
 	body.velocity = Vector2.ZERO
 	var centre := get_centre()
 	var slime: Vector2 = target.get("centre", centre)
+	engaged = engaged and _in_view(centre, slime)
 	var close := engaged and centre.distance_to(slime) <= pattern("hideRangePx", 72.0)
 	var elapsed := _elapsed(now)
 	match _phase:
@@ -102,10 +128,10 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 			set_look(0.0, Vector2(1.0 - breath, lerpf(RISE_SQUASH, 1.0, rise) + breath))
 			if close or not engaged:
 				_hide(now)
-			elif now >= _next_spit_at and rise >= 1.0 and _crosses_line(centre, _aim_point(target)):
-				_aim = _pipe_line()
+			elif now >= _next_spit_at and rise >= 1.0:
+				_aim = _aim_at(_aim_point(target))
+				# silent: its one sound is the spit (owner, 2026-10-19)
 				_transition(PHASE_CHARGE, now)
-				_cue(CUE_CHARGE)
 		PHASE_CHARGE:
 			var t := clampf(elapsed / maxf(1.0, pattern("spitWindupMs", 550.0)), 0.0, 1.0)
 			set_look(0.0, Vector2.ONE * (1.0 + CHARGE_SWELL * t), sin(elapsed / CHARGE_SHAKE_MS) * CHARGE_SHAKE_RAD * t)
@@ -119,7 +145,7 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 				_transition(PHASE_UP, now - pattern("riseMs", 200.0))
 				set_frame(FRAME_UP)
 		PHASE_DAZED:
-			set_look(-FALLEN_POSE_PX, Vector2.ONE, sin(elapsed / DAZE_SWAY_MS) * DAZE_SWAY_RAD)
+			_fallen_look(sin(elapsed / DAZE_SWAY_MS) * DAZE_SWAY_RAD)
 			if elapsed >= pattern("dazedMs", 2600.0):
 				_cue(CUE_BACK)
 				_hide(now, false)
@@ -131,12 +157,27 @@ func _pipe_line() -> Vector2:
 	return line if line != Vector2.ZERO else Vector2.DOWN
 
 
-## True when `aim_at` (the slime's hurtbox middle) is in front of the pipe, within
-## `alignTolerancePx` of its line.
-func _crosses_line(centre: Vector2, aim_at: Vector2) -> bool:
+## True when `point` (the slime's centre) is in the half of the world in front of its wall: past
+## the pipe along its line (out of a deep wall, past the wall's foot).
+func _in_view(centre: Vector2, point: Vector2) -> bool:
+	return (point - centre).dot(_pipe_line()) > _wall_depth()
+
+
+## The way to `aim_at` from its mouth out of the wall, kept within `aimConeDeg` around the pipe's
+## line.
+func _aim_at(aim_at: Vector2) -> Vector2:
 	var line := _pipe_line()
-	var offset := aim_at - centre
-	return offset.dot(line) > 0.0 and absf(offset.cross(line)) <= pattern("alignTolerancePx", 16.0)
+	var offset := aim_at - _mouth()
+	if offset.length() < 1.0:
+		return line
+	var half := deg_to_rad(pattern("aimConeDeg", 160.0)) * 0.5
+	return line.rotated(clampf(line.angle_to(offset), -half, half))
+
+
+## Where its glob is born: off its wall, MOUTH_PX out along the pipe's line from its centre and past
+## the foot of a deep wall (`_out_of_wall`), whatever way it is aimed.
+func _mouth() -> Vector2:
+	return get_centre() + _out_of_wall() + _pipe_line() * MOUTH_PX
 
 
 func _rise(now: float) -> void:
@@ -164,7 +205,8 @@ func _spit(now: float) -> void:
 	set_frame(FRAME_SPIT)
 	_next_spit_at = now + pattern("spitIntervalMs", 1700.0)
 	var config := _projectile_config()
-	var mouth := get_centre() + _aim * MOUTH_PX
+	# off the wall it is set in
+	var mouth := _mouth()
 	if not config.is_empty():
 		_attack_direction = _aim
 		_fire_projectile(mouth, config)
@@ -180,7 +222,52 @@ func _show_worm_in_pipe(in_pipe: bool) -> void:
 	if not in_pipe:
 		_show_glint(false)
 	if damage_area != null:
-		damage_area.position = _hurtbox_rest + (Vector2.ZERO if in_pipe else Vector2(0.0, FALLEN_HURTBOX_PX))
+		damage_area.position = _hurtbox_rest + (Vector2.ZERO if in_pipe else Vector2(0.0, FALLEN_HURTBOX_PX) + _out_of_wall())
+
+
+## Its fallen look: FALLEN_POSE_PX below its pipe, moved out of a deep wall to the wall's foot.
+func _fallen_look(lean: float) -> void:
+	set_look(-FALLEN_POSE_PX, Vector2.ONE, lean)
+	if pose != null:
+		pose.position += _out_of_wall()
+
+
+## How far it moves out along its line when it is out of a deep wall (zero at a wall's foot).
+func _out_of_wall() -> Vector2:
+	return _pipe_line() * _wall_depth()
+
+
+## How much further than its mouth (MOUTH_PX along its line from its centre) its glob must be born
+## to start GLOB_CLEAR_PX past the point where the line out of its centre leaves the world's
+## collision (its wall's face): 0 when the mouth is that far out already (a pipe at its wall's
+## foot). Measured from the centre, not the mouth, so a mouth just outside the face, closer to it
+## than the glob's size, moves out too (R6's side walls, 2026-10-19: such globs died at once). Found
+## once, from a physics step (the walls collide by then).
+func _wall_depth() -> float:
+	if not is_nan(_depth):
+		return _depth
+	if body == null or not body.is_inside_tree():
+		return 0.0
+	var line := _pipe_line()
+	var centre := get_centre()
+	var query := PhysicsPointQueryParameters2D.new()
+	query.collision_mask = WORLD_MASK
+	query.collide_with_bodies = true
+	query.exclude = [body.get_rid()]
+	var space := body.get_world_2d().direct_space_state
+	var walked := 0.0
+	var inside := false
+	while walked <= MOUTH_PX + WALL_SEARCH_PX:
+		query.position = centre + line * walked
+		if space.intersect_point(query, 1).is_empty():
+			break
+		inside = true
+		walked += WALL_STEP_PX
+	if not inside or walked > MOUTH_PX + WALL_SEARCH_PX:
+		_depth = 0.0
+	else:
+		_depth = maxf(0.0, walked + GLOB_CLEAR_PX - MOUTH_PX)
+	return _depth
 
 
 func _show_glint(on: bool) -> void:
@@ -188,17 +275,22 @@ func _show_glint(on: bool) -> void:
 		glint.set(&"shown", on)
 
 
-## A Roll's bonk against the wall under its pipe (any bonk, heavy or not) shakes it out.
+## A Roll's bonk against the wall under its pipe (any bonk, heavy or not) shakes it out: within
+## `bonkReachPx` of its feet, or of the wall's foot in front of a pipe up in a deep wall.
 func on_ground_shake(at: Vector2, _radius: float, _heavy: bool) -> void:
-	if is_defeated() or _phase == PHASE_DAZED or feet().distance_to(at) > pattern("bonkReachPx", 60.0):
+	if is_defeated() or _phase == PHASE_DAZED:
+		return
+	var reach := pattern("bonkReachPx", 60.0)
+	var foot := feet() + _out_of_wall()
+	if feet().distance_to(at) > reach and foot.distance_to(at) > reach:
 		return
 	var now := Services.now_ms()
 	_transition(PHASE_DAZED, now)
 	set_frame(FRAME_DAZED)
 	_show_worm_in_pipe(false)
-	set_look(-FALLEN_POSE_PX)
+	_fallen_look(0.0)
 	_cue(CUE_SHAKEN)
-	_puff(MUD, feet())
+	_puff(MUD, foot)
 
 
 ## True while it lies out of its pipe, shaken out.
@@ -207,8 +299,9 @@ func is_shaken_out() -> bool:
 
 
 ## Blows never reach it in its pipe; shaken out it is open.
-func _shields(_request: Dictionary) -> bool:
-	return _phase != PHASE_DAZED
+func _shields(request: Dictionary) -> bool:
+	# a thrown thing (a pot, a rock: the Gulp's throw) always reaches it (owner, 2026-10-19)
+	return _phase != PHASE_DAZED and not has_tag(request, THROWN_TAG)
 
 
 ## Its own glob thrown back.
@@ -226,4 +319,41 @@ func _defeat() -> void:
 		return
 	_show_worm_in_pipe(false)
 	super()
-	set_look(-FALLEN_POSE_PX)
+	_fallen_look(0.0)
+	_leave_empty_pipe()
+
+
+## Beaten, its empty pipe stays in the wall (owner, 2026-10-19) while the corpse fades and goes: a
+## plain picture of the `hole` frame on the world's entity layer, where the worm stood, until the
+## world is built again (and the worm is back). The body's own `hole` hides, so it does not fade.
+func _leave_empty_pipe() -> void:
+	var world := Services.world()
+	var parent: Node = world.entities_root() if world != null else null
+	if hole == null or hole.texture == null or parent == null or body == null:
+		return
+	var pipe := Node2D.new()
+	pipe.name = "EmptyPipe"
+	var picture := Sprite2D.new()
+	picture.texture = hole.texture
+	picture.hframes = hole.hframes
+	picture.vframes = hole.vframes
+	picture.frame = hole.frame
+	picture.centered = hole.centered
+	picture.offset = hole.offset
+	picture.region_enabled = hole.region_enabled
+	picture.region_rect = hole.region_rect
+	picture.transform = hole.transform
+	pipe.add_child(picture)
+	pipe.add_to_group(EMPTY_PIPE_GROUP)
+	parent.add_child(pipe)
+	pipe.global_position = body.global_position
+	hole.visible = false
+
+
+## A worm back where a beaten one left its empty pipe: the pipe goes (the worm's own shows).
+func _take_empty_pipe() -> void:
+	if body == null or not body.is_inside_tree():
+		return
+	for pipe: Node in body.get_tree().get_nodes_in_group(EMPTY_PIPE_GROUP):
+		if pipe is Node2D and (pipe as Node2D).global_position.distance_to(body.global_position) <= EMPTY_PIPE_SAME_SPOT_PX:
+			pipe.queue_free()

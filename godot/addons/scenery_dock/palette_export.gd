@@ -1,8 +1,8 @@
 @tool
 extends EditorExportPlugin
 ## Leaves the paint layers' palette pictures out of an exported game (docs/godot/PROPS.md). The game
-## never draws a painted cell's tile: the prop, wall and forest layers draw their props, walls and
-## trees themselves. But a world refers to its layers' tile sets, so it would load every palette
+## never draws a painted cell's tile: the prop, wall, forest, fence and interior-wall layers draw
+## their props, walls, trees, fences and rooms themselves (they read only the tiles' data). But a world refers to its layers' tile sets, so it would load every palette
 ## picture, about 170 MB of textures. In the export each of these tile sets keeps every tile and
 ## its data, its pictures turned into placeholders of the same size (no pixels), and the picture
 ## files are left out. Registered by the Scenery plugin (plugin.gd).
@@ -17,12 +17,19 @@ const TILE_SETS: PackedStringArray = [
 	"res://game/world/props/walls_tileset.tres",
 	"res://game/world/walls/wall_tileset.tres",
 	"res://game/world/forest/forest_tileset.tres",
+	"res://game/world/fences/fence_tileset.tres",
+	"res://game/world/interior/interior_wall_tileset.tres",
 ]
-## Their pictures (files, or folders ending in "/"), not exported.
+## Their pictures (files, or folders ending in "/"), not exported. The fence and interior palettes'
+## `.png` are only their packers' sources; the tile sets use the `.res`.
 const PICTURES: PackedStringArray = [
 	"res://asset/MAPS/palettes/",
 	"res://asset/MAPS/walls/sets/palette.png",
 	"res://asset/MAPS/forest/forest_paint_tiles.png",
+	"res://asset/MAPS/fences/fence_paint_tiles.png",
+	"res://asset/MAPS/fences/fence_paint_tiles.res",
+	"res://asset/MAPS/walls/interior/palette.png",
+	"res://asset/MAPS/walls/interior/palette.res",
 ]
 
 

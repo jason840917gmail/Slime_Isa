@@ -44,6 +44,26 @@ texture = ExtResource("1_io08w")
 1:6/0 = 0
 1:6/0/custom_data_0 = "base"
 1:6/0/custom_data_1 = 3
+2:0/0 = 0
+2:0/0/custom_data_0 = "edge"
+2:0/0/custom_data_1 = -3
+2:1/0 = 0
+2:1/0/custom_data_0 = "edge"
+2:1/0/custom_data_1 = -2
+2:2/0 = 0
+2:2/0/custom_data_0 = "edge"
+2:2/0/custom_data_1 = -1
+2:3/0 = 0
+2:3/0/custom_data_0 = "edge"
+2:4/0 = 0
+2:4/0/custom_data_0 = "edge"
+2:4/0/custom_data_1 = 1
+2:5/0 = 0
+2:5/0/custom_data_0 = "edge"
+2:5/0/custom_data_1 = 2
+2:6/0 = 0
+2:6/0/custom_data_0 = "edge"
+2:6/0/custom_data_1 = 3
 
 [resource]
 custom_data_layer_0/name = "collision_kind"

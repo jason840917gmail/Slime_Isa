@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp" id="1"]
 [ext_resource type="Script" path="res://game/scripts/liftable.gd" id="2"]
+[ext_resource type="Script" path="res://game/scripts/liftable_root.gd" id="3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(26, 12)
@@ -9,6 +10,7 @@ size = Vector2(26, 12)
 [node name="liftable" type="StaticBody2D"]
 y_sort_enabled = true
 collision_mask = 0
+script = ExtResource("3")
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 position = Vector2(0, -6)

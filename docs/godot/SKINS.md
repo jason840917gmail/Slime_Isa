@@ -34,6 +34,7 @@ nothing in the dungeons needs a form.
 | `SkinState.look()` / `set_look(id)` | The everyday look (`&""` = the goo) |
 | `SkinState.show(player, id)` | A lock tells the slime its skin works now (player.gd `show_skin`) |
 | `SkinState.definition(id)`, `display_name`, `look_index`, `color`, `setting(path, fallback)` | `skins.defs.<id>` and the skins' numbers |
+| `SkinState.text(id, "line" / "how")` | The skin's texts with their keys named from the bindings: a `{<action>}` in the data reads as that action's key (`ControlLabels.with_keys`: "holding {interact}" is "holding W" in the keys-only scheme, "holding right click" with the mouse). The bag card and the ceremony line read them so |
 
 player.gd keeps the old hooks, now on the skins: `presses_plates()` is the Heavy skin (heavy
 plates, pressure plates, heavy blocks, a slam's Heavy impact on cracked ground), `crosses_webs()`
@@ -79,6 +80,31 @@ barriers (crossed); the climb; the Spear's fast steps.
   pressure plates (`object.pressure-plate`, Gloop Forest's iron hollow plate), and heavy blocks
   (`object.heavy-block`, `object.heavy-statue`, `heavy-ore-crate`: a held interact grabs, walking
   pushes or pulls; without the skin "Too heavy to move.").
+- **Push and pull poses** (owner, 2026-10-19: approved from a mockup, side view first): while the
+  slime holds a heavy block it shows the grab's pose instead of its walk (heavy_grab.gd `pose`, played
+  by player.gd `_step_grab` in the grab's direction): `grab-<direction>`, the mouth latched on, while it
+  only holds; `push-<direction>`, its front pressed flat on the block, eyes squeezed (four poses, once
+  per 640 ms cell); `pull-<direction>`, its mouth stretched into a snout on the block while its body
+  heaves back (two poses), whenever a walk key pushes or pulls past `startDelayMs`: the block moving,
+  knocking or (without the skin) too heavy, where the strain also wobbles it. The pull's body is drawn
+  away from the block (the side view's `pull-left` mirrors it); the front view's slime stays hidden
+  behind a tall block, as it always was. Art: page 7 of the slime, below.
+- **It says so** (owner, 2026-10-19): the skin's texts name the held key. Its `line` (the bag's
+  Skins card and the ceremony line over the slime) reads "Heavy as stone: heavy plates sink, and
+  holding W pushes or pulls heavy blocks and statues."; Pearl 1's card (pearl.gd `card_line`, also
+  through `ControlLabels.with_keys`) "Fatty's weight is yours: you sink heavy plates, and holding W
+  you push or pull heavy statues and blocks." The data keeps the key as `{interact}`, so the words
+  follow the control scheme.
+- **The touch hint:** while the Heavy slime faces and touches a heavy block (heavy_grab.gd
+  `block_in_reach`, the grab's own test) or holds one, the control hints' pill shows "Hold W to push
+  or pull" (game/hints/control_hints.gd `heavy-grab`, the interact key's label), ahead of the other
+  hints but the move hint. It stays while the slime holds the block and is learned only once the slime
+  has both pushed and pulled a block (story flags `hint.heavy-grab.push` and `.pull`, then
+  `hint.heavy-grab`; owner, 2026-10-19: learned on the first move it flashed away before it could be
+  read); then it never shows again in that run. Without the skin it never shows (the strain line says
+  "Too heavy to move."), nor while the mouth holds something (the grab does not start then), nor in
+  the moba scheme (its right button walks, so nothing holds the grab there; the click scheme's held
+  right button does). Rework mode only, as the grab.
 - **The Heavy Roll:** every Roll with the skin on. Its bonk carries `heavy`, its screen shake is
   strong (`skins.heavy.rollBonkShakeMs` 420, `rollBonkShakeIntensity` 0.02, `rollBonkHitStopMs`
   90; a plain bonk keeps `character.player.movement.rollBonkShake*`), and its ground shake reaches
@@ -177,6 +203,13 @@ three Skins row icons (`asset/UI/skins/`) and the three looks' textures (`asset/
 The claws are drawn by code. Pictures not imported yet load through `sheet_sprite.gd`
 (`SheetSprite.load_picture`).
 
+The Heavy grab's push and pull poses (2026-10-19): Magnific GPT 2.5 pose sheets in
+`asset/Originals/characters/slime-v2/heavy-grab/` ([README](../../asset/Originals/characters/slime-v2/heavy-grab/README.md)),
+packed by `python scripts/characters/pack-slime-heavy-grab.py` into page 7 of the slime
+(`asset/characters/256x256-tile_8x8-slime-v2-page-7.webp`, `slime-v2/page-7.json`) and built into
+the player scene by `tools/build_player_clips.gd -- --only=push-,pull-,grab-`; recorded in the game by
+`tools/render_heavy_grab.gd` ([TOOLING.md](../TOOLING.md)).
+
 ## Files
 
 | File | What |
@@ -190,6 +223,8 @@ The claws are drawn by code. Pictures not imported yet load through `sheet_sprit
 | `game/scripts/pearl.gd` (`skin_id`) | The grant |
 | `game/shapes/shape_controller.gd` (`_tempo`) | The Feral Spear |
 | `game/ui/screens/inventory_screen.gd`, `game/ui/body_cards.gd` | The Skins row |
+| `game/hints/control_hints.gd` (`heavy-grab`), `game/shell/control_labels.gd` (`with_keys`) | The Heavy touch hint; key names in the skins' texts |
+| `game/player/heavy_grab.gd` (`pose`), `game/scripts/player.gd` (`_step_grab`), `scripts/characters/pack-slime-heavy-grab.py`, `tools/render_heavy_grab.gd` | The push and pull poses |
 | `game/dev/corners/skins_corner.*`, `skin_pedestal.gd` | The playground corner |
 | `tests/test_skins.gd` | The record, the grant, stacking and the look, the Heavy Roll and the prize, the climb, the Spear's tempo, the Skins row |
 

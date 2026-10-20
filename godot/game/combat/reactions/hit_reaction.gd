@@ -502,9 +502,12 @@ static func _tag_entry(value: Variant, hit_class: String) -> Dictionary:
 	return {}
 
 
-## True when `hit_class` (or the wildcard) is in `list`.
+## True when `hit_class` (or the wildcard) is in `list`, unless the list names it with a "!" in
+## front: ["*", "!thrown"] is every class but `thrown` (the Pipe Worm's, owner 2026-10-19).
 static func _listed(list: Variant, hit_class: String) -> bool:
-	return list is Array and ((list as Array).has(hit_class) or (list as Array).has(ANY_CLASS))
+	if not list is Array or (list as Array).has("!" + hit_class):
+		return false
+	return (list as Array).has(hit_class) or (list as Array).has(ANY_CLASS)
 
 
 static func _finite(value: Variant, fallback: float) -> float:

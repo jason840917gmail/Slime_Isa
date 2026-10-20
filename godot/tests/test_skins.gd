@@ -3,7 +3,7 @@ extends RefCounted
 ## with the bag's Skins row picking only the everyday look (owner, 2026-10-15 and 2026-10-17).
 ## - the record: won skins and the look are saved (RunState `story.skin_ids`, `story.skin_look`),
 ##   lent ones are not, and an old save's `skin.<id>` flags win their skins;
-## - the Pearl's grant: won for good, made the look, no stand-in flag;
+## - the Pearl's grant: won for good, the everyday look left as it was, no stand-in flag;
 ## - stacking and the look: every skin on works whatever the look; a skin shows while it works,
 ##   then the everyday look comes back;
 ## - Heavy: a Heavy Roll breaks the old things a plain Roll bonks off, and its shake knocks a loose
@@ -65,7 +65,7 @@ func test_an_old_save_with_skin_flags_wins_its_skins(t: TestContext) -> void:
 	t.check(t.player().crosses_webs(), "the migrated Silk skin does not cross webs")
 
 
-func test_the_pearl_grants_its_skin_and_makes_it_the_look(t: TestContext) -> void:
+func test_the_pearl_grants_its_skin_and_leaves_the_look(t: TestContext) -> void:
 	var run := Services.run()
 	var pearl := t.world().instantiate_scene("object.pearl-two") as Node2D
 	if not t.check(pearl != null, "object.pearl-two did not load"):

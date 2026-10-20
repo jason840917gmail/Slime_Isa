@@ -38,8 +38,9 @@ work on top of these.
   child that has one. Every kit piece that something opens has `trigger`: Shutter, Drawbridge, the
   hidden chest; the game's gates (`gate.gd`) and the kit's doors answer `open_for_good`. Connect a
   bell's `rung`, a cracked post's `cracked`, a lens's hit or any signal to `trigger`.
-- **Walls and doorways:** the raw kit/lab uses the painted walls below. The three story dungeons
-  add continuous wall courses and matching opening pieces through `doorway_art.gd`
+- **Walls and doorways:** the raw kit/lab uses the painted walls below. Fatty's Lair's rooms are
+  drawn by interior walls ([INTERIOR_WALLS.md](INTERIOR_WALLS.md)); the Weaver Hollow and the Crystal
+  Mine add continuous wall courses and matching opening pieces through `doorway_art.gd`
   ([room scenes](DUNGEON_ROOMS.md)). A doorway two cells wide through a wall painted on
   the `elevation` layer works as the lab's do: a north-south one is a two-cell gap through the wall
   rows; an east-west one also clears the two rows above it, because the wall above hangs its face
@@ -109,13 +110,16 @@ over the slime for a moment (`item_pop.gd`) with "Small Key!" and a jingle.
 - **The dungeon map** (`dungeon_map_draw.gd`): the rooms are the Dungeon world's camera rooms, or,
   for a dungeon of one world per room, every room of its layout (the Dungeon's `layout`: a
   DungeonLayout scene whose rooms and marks are dragged in the editor, DUNGEON_ROOMS.md). On the
-  HUD minimap (`dungeon_minimap.gd`, under its player dot) and on the map screen (`M`; the world map
-  window shows the dungeon's page, `dungeon_map_page.gd`, titled with `display_name`, keys and items
-  on its summary line): a room the slime stood in is filled in parchment; with the map every other
-  room shows dim (fog lifted); without it a room not visited is not drawn; the room the slime is in
-  has a gold ring. With the compass, a red mark is on the boss's room (a room fight with a
-  `boss_id` not beaten, or a node in group `dungeon_map_mark` with `mark = "boss"`) and a gold dot
-  on every chest not opened yet.
+  map screen (`M`; the world map window shows the dungeon's page, `dungeon_map_page.gd`, titled with
+  `display_name`, keys and items on its summary line): a room the slime stood in is filled in
+  parchment; with the map every other room shows dim (fog lifted); without it a room not visited is
+  not drawn; the room the slime is in has a gold ring. With the compass, a red mark is on the boss's
+  room (a room fight with a `boss_id` not beaten, or a node in group `dungeon_map_mark` with
+  `mark = "boss"`) and a gold dot on every chest not opened yet. The HUD minimap
+  (`dungeon_minimap.gd`, under its player dot, clipped to its box) shows **the slime's room only**,
+  with the seals and compass marks inside it (`only_current`; owner, 2026-10-19: in Fatty's Lair the
+  rooms around it, drawn at the minimap's scale, covered the play area); the rooms found are on the
+  map screen.
 
 ## Chests
 
@@ -134,9 +138,13 @@ key): `game/dungeon/dungeon_chest.gd` on the `ChestScript` child, which is the g
 heart; a heart id unique across maps, as an `object.goo-heart`'s `heart_id`). Opening it the first
 time lifts the heart out of the chest (it rises over it, `item_pop.gd`) and grants it exactly as the
 pickup does (`goo_heart.gd` `grant`: the flag `goo-heart.<id>`, +`gooHeart.maxHpBonus` max HP, health
-full, the max-HP text and ceremony once the heart has risen), once. The flag is the chest's record: it holds
-something until the flag is set, and is open (empty) after, in every save. With only the heart inside
-no chest window opens; with other things too, the window shows them.
+full), once; the chest shows the max-HP text and asks for the ceremony once the heart has risen
+(`HEART_RISE_MS`, 1.5 s of gameplay time; a load or a travel meanwhile skips them). The flag is the
+chest's record: it holds something until the flag is set, and is open (empty) after, in every save.
+With only the heart inside no chest window opens; with other things too (or a dungeon chest's loot
+beside its dungeon items), the window shows them after the heart has risen and its ceremony has
+played, as Zelda does (the window pauses the world, which would freeze the rise). The chest sends
+one `open_requested` as it opens.
 
 ## Locked doors
 
@@ -208,10 +216,13 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   hazard is flat floor. It draws its look (`draw_look`): the void a black abyss whose top
   `top_fade_px` fades in (set it to the hole's far wall, 64 a level, so the wall sinks into the dark),
   spikes and lava on the pit's floor below that line. Keep a hazard above its decks in the tree (they
-  draw over it at the same depth); leave an islet (ground in the hole) out of its rectangle, as the
-  lab's A2 does with four hazards round its islet.
-- **The slime is in a hazard** when its feet are inside it and no deck holds them, or when it walks
-  on a lower level than `rim_level` (it dropped into the hole). `HazardWatch` (`hazard_watch.gd`, made
+  draw over it at the same depth). Over painted elevation the hazard follows the paint (2026-10-19):
+  its floor is the lowest level painted under it (or a pit's `level` when set), its rim the lowest
+  painted level above that floor next to it, and a void or water catches only on the cells painted
+  below the rim, so an islet painted at rim level inside its rectangle is ground and never catches;
+  settings that disagree with the paint are ignored, with one warning.
+- **The slime is in a hazard** when its feet are on a cell the hazard covers (above) and no deck
+  holds them, or when it walks on a lower level than the rim (it dropped into the hole). `HazardWatch` (`hazard_watch.gd`, made
   by the world's first hazard or deck) watches it every step (not while it flies, is on stairs or
   is dead).
 - **Void:** the slime spins and shrinks away (`dungeon.void.fallMs`, the `FallDown` cue), then is put
@@ -219,13 +230,16 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   last safe ground it stood on (its body clear of every hazard and every slab, or its feet on a safe
   deck: never half on the bridge, touching a slab that would give again), or, when the hazard has
   return points (`return_points`, else its children named `Return...`), the one nearest to that
-  ground: the bridge's start, a path's mouth. A fall that faints it wakes it at the entrance. With `fixed_return` (a NodePath to any Node2D, shared by several hazards if wanted) every fall from the hazard returns to that one spot instead, wherever the slime fell (2026-10-18, owner: one known safe spot so a fall never misplaces it or leaves it stuck; D5's two moat holes use `Chapter1Hazards/moat-safe-spot`).
+  ground: the bridge's start, a path's mouth. A fall that faints it wakes it at the entrance. A pit
+  fall with no pit floor within reach below (a bridge over a hole with no room to land) puts the
+  slime back on the rim as from the void. With `fixed_return` (a NodePath to any Node2D, shared by several hazards if wanted) every fall from the hazard returns to that one spot instead, wherever the slime fell (2026-10-18, owner: one known safe spot so a fall never misplaces it or leaves it stuck; D5's two moat holes use `Chapter1Hazards/moat-safe-spot`).
 - **Spikes / lava** (`kind` "spikes" or "lava"): a sunken pit (a hole `pit_depth` levels deep with a
   flight of stairs out). In it the slime is hurt (`dungeon.spikes.damage`, `lava.damage`) each time
   its invulnerability ends (the Roll's i-frames pass), until it walks out by the stair. A slab gone
   from under it drops it into the pit first (`dungeon.spikes.fallMs`).
 - **Levels** (2026-10-18, the owner's R7): one hazard per floor level; it hurts only on its level.
-  A spikes or lava hazard's `level` (default `rim_level` - `pit_depth`) is the floor it covers: it
+  A spikes or lava hazard's floor (its `level` when set, else the lowest level painted under it; over
+  painted elevation `pit_depth` and `rim_level` come from the paint) is the floor it covers: it
   catches the slime only on the cells the `elevation` layer paints at that level (`Hazard.covers`),
   draws its look only there, under the upper floors' walls (INTERIOR_WALLS.md "Pits and holes"), and
   ignores a slime above its rim (a bridge, a higher floor) inside its rectangle. The rest of the kit
@@ -235,9 +249,17 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   object's `level` property when set, else the elevation under it). A deck opens the cells it covers
   (place it on whole cells: R7's north slabs were 3 to 5 units off and opened a column and a row
   more; they were put back on their cells, 2026-10-19). Not level-aware yet: pots
-  and other liftables, the bell's lash, switches, enemies.
+  and other liftables, the bell's lash, switches, enemies. An object standing on a deck that holds
+  takes the deck's level (`deck_level`; a key on a slab over a pit is reached from the slab, not the
+  pit), else the walkable level under it (2026-10-19).
 - **Hazards never block movement:** a hazard and its watch have no collision; the slime walks in and
-  is then caught. The decks hold it by the watch and the passages they open in the elevation.
+  is then caught. The decks hold it by the watch and the passages they open in the elevation. A
+  deck's passage is open only while the deck holds (2026-10-19, owner: "when the slab is missing the
+  player does not fall as normal"): when a slab falls the watch closes its passage, so the floor's rim
+  is back across the gap and holds the slime with the outdoor ledge drop; when the slab rises the
+  passage opens again (`HazardWatch._sync_passages`, `Elevation.close_passage`). It waits to close
+  until the slime's body on the deck's level is clear of the deck by a quarter cell, so the rim never
+  traps it; a slime on the slab as it falls is caught by the hazard as before.
 - **Decks** hold the slime over a hazard (group `hazard_deck`, `hazard_deck.gd`, class
   `HazardDeck`): `object.hazard-deck` is a landing (a flagstone, `draw_floor`; turn it off for an
   islet that is just ground), `size` from its position, `level` (the rim's), `safe`. Over an
@@ -250,8 +272,13 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   (300 ms; `fall_delay_ms` for one) later; its spot is the hazard then. It comes back
   `dungeon.slab.returnMs` (10 s) after it fell. Not safe ground (a fall goes back to the rim).
 
-  **The timing:** walking (200 units/s) a 64-unit slab takes 450 ms from the body's first touch to
-  the feet leaving it, so it always falls under a walker; a Roll crosses one in under 270 ms (the
+  **The timing:** the slime stands where the middle of its body is (its 30 x 26 collision box's
+  centre, 13 units above its feet; `hazard_watch.gd`): it falls when that point is over a fallen
+  slab, and a standing slab holds it only while that point is on it (2026-10-19: by the feet, the
+  front of the body walking south, a walker on a bridge of slabs reached the next slab 4 units
+  before the one behind fell, and sometimes crossed). From a slab's first touch the middle of the
+  body walks 77 to 79 units to the next slab or the far rim, whichever way it goes: 385 ms or more
+  at walking speed (200 units/s), so a slab always falls under a walker; a Roll crosses one in under 270 ms (the
   classic Roll launches at 460 units/s; the rework's quick Roll covers 165 units in 330 ms, ending
   at 333 units/s). The slime cannot wait on a slab between two Rolls (the Roll's cooldown is longer
   than the delay), so **a bridge longer than one Roll needs a solid landing where each Roll ends**
@@ -259,7 +286,10 @@ One hazard script for the void, spikes and lava (question 70; roadmap 5.14):
   (128 + the body's 26 units = 154 of its 165), and holding the way on after the Roll walks the
   last few units off. On a landing the slime walks to its far edge, then Rolls on (from the middle
   of a one-cell landing a quick Roll falls short of the far rim by about 20 units); the classic
-  Roll (about 185 units) has room to spare. The charged (held) Roll crosses any bridge.
+  Roll (about 185 units) has room to spare. The charged (held) Roll crosses any bridge. (These Roll
+  figures were measured with the feet rule; with the middle of the body a Roll going east or west is
+  the same, one going south needs 13 units more and one going north 13 less. R7's Roll tests in
+  `test_fattys_lair.gd` check the west slabs.)
 
 ### Falling planks over water
 
@@ -366,8 +396,9 @@ room fight's `boss_id` (`fatty-lair-big-squint`, `weaver-hollow-brood-warden`,
 boss (the Dungeon's `boss_id`), not the guard. `seals_dungeon` (on by default) is what makes its take
 seal.
 
-**The take.** Walked into: its card ("Pearl of the Wellspring (n of 8)"), its skin granted and made
-the everyday look (`SkinState.grant`), and the Dungeon's `seal_now`: the record is sealed at once
+**The take.** Walked into: its card ("Pearl of the Wellspring (n of 8)"), its skin granted
+(`SkinState.grant`; the everyday look stays as it was: a skin shows only while it works,
+[SKINS.md](SKINS.md)), and the Dungeon's `seal_now`: the record is sealed at once
 (`DungeonState.seal`), every seal of this world but the glimpse's shuts out of sight, and as the
 card closes (`game/dungeon/seal_moment.gd`, real time):
 
@@ -450,6 +481,7 @@ starts sealed.
 | `shutter.moveMs`, `shutter.insetPx`, `shutter.openDelayMs` | 260, 80, 600 | a shutter rising or sinking; how far inside the room (and from its shutters) a fight starts; the pause before they open |
 | `winch.turnMs`, `winch.reachPx` | 900, 8 | how long to push a winch; its push reach |
 | `drawbridge.lowerMs`, `shakeMs`, `shakeIntensity` | 650, 240, 0.006 | the bridge coming down and its thud |
+| `boltHole.clearPx`, `minOpenMs`, `closeAfterMs`, `shakeMs`, `shakeIntensity` | 72, 350, 2500, 160, 0.004 | the Lair's bolt-hole hatch: how far the slime walks off (and how long the hatch shows open at least) before it slams shut, the longest it stays open, the slam's shake |
 | `void.damage`, `void.fallMs` | 10, 600 | a fall's cost and length |
 | `spikes.damage`, `spikes.fallMs`; `lava.damage`, `lava.fallMs` | 8, 320; 12, 320 | a hit each time the invulnerability ends; the drop into the pit |
 | `slab.fallDelayMs`, `dropMs`, `returnMs`, `riseMs`, `shakePx` | 300, 380, 10000, 450, 2.5 | the slab's timing (above) |
@@ -508,7 +540,7 @@ numbers.
   `pearl.<id>` is there for it). The boss bar shows only for bosses with a camp (Fatty, the Matron,
   the Colossus), not for a room-fight boss such as the lab's Big Squint. The first travel refused
   while sealed reads its target world's scene once (a short hitch).
-- **Music (2026-10-18):** every dungeon world (each of Fatty's Lair's 24 room worlds, the four
+- **Music (2026-10-18):** every dungeon world (each of Fatty's Lair's 22 room worlds, the four
   `weaver-hollow-*` floors, `crystal-mine`) has a `MusicPlayer` playing `asset/audio/music/dungeon.wav`
   (volume 0.5); a room scene of a shell has none (the shell's plays through all its rooms). A travel
   between two floors keeps the track's place (it dips with the leave fade and fades back in); the
@@ -981,7 +1013,8 @@ what the slime brings (the Roll, the Spear, the Gulp's throw) and ends in the La
 Squint guards **Pearl 1**; its take grants the Heavy skin and seals the Lair ([The seal](#the-seal));
 the second half teaches, tests and twists the Heavy skin, and Fatty's phase two is its exam.
 **One world per room since 2026-10-18** (the owner's decision; [DUNGEON_ROOMS.md](DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)):
-24 rooms, each its own world built when the slime walks in (R1 the Gatehouse is `world.fatty-lair`,
+24 rooms in 22 worlds, each built when the slime walks in (R1 the Gatehouse is `world.fatty-lair`;
+R5's eye hall, lower hall and key alcove are one world behind their dividers;
 the others `world.fatty-lair-<room>`), joined by room doors that scroll the screen, laid on a 5 x 5
 map of rooms of 18 x 16 cells (a little more than a screen: the camera moves inside them; the map is
 the layout scene `rooms/fatty-lair/layout.tscn`), two of them dark. What ties two rooms is a record
@@ -993,7 +1026,7 @@ stairs. The room tables below are in the old 16 x 14 room's cells: the builder m
 layout one cell in (`_map_local`; a two-wide or two-tall room three cells past its INSERT, the hub's
 at its column 20), so every puzzle keeps its cells and every doorway lands on the new floor line;
 each room's layout starts one cell in from its own scene's origin. Its ways in and out are outside
-(below). **Edited in the editor** since 2026-10-18: its 24 room scenes
+(below). **Edited in the editor** since 2026-10-18: its 22 room scenes
 (`game/scenes/worlds/rooms/fatty-lair/`) are the source of truth (DUNGEON_ROOMS.md).
 `tools/build_fattys_lair.gd`, which first built it, is retired and writes nothing. After painting
 holes or stairs in a room, bake that room's world (`tools/bake_elevation.gd -- --world=fatty-lair-<room>`;
@@ -1013,13 +1046,14 @@ sheet `godot/asset/characters/authored/npcs/burr.webp`. Tests: `godot/tests/test
   the Deep's earth (the amberleaf sheet) in R10, the Armoury, the Burrow and the bolt-hole. The
   voids are holes at -3 floored with dark cavern stone, darkened a little more by `VoidShade`
   (`game/fattys_lair/void_shade.gd`, presentation only); R7's spike pit is a hole at -1 with a
-  flight of stairs out. Built walls (`walls` layer) make R1's store, R5's inner wall and alcove,
-  Burr's cell, R7's platform gate, R11's low wall, the Armoury's closet and the Weigh House's inner
-  walls. R10's statue niche is cut into its north rock, R9's big-chest alcove into its south rim.
+  flight of stairs out. The pockets (R1's store, Burr's cell) are rock behind their parent room's
+  own bevel faces; R5's inner wall and alcove, R7's platform gate, the Armoury's closet and the
+  Weigh House's inner walls are dividers (FENCES.md "Dungeon dividers"); R11's low wall is built
+  (`walls` layer). R10's statue niche is cut into its north rock, R9's big-chest alcove into its south rim.
 - **Kit pieces used:** the Dungeon (`fatty-lair`, "Fatty's Lair", resume at `dungeon-entrance` in
   R1; its seal: `boss_id` `fatty-one-eye`, "Fatty One Eye", his mud red `#b4462c`, his roar
   `fatty-roar.ogg` at pitch 0.9, earthy dust), a `RoomEntry` in every camera room (`?room=<name>`);
-  small keys 1 and 2 on the floor (R5, R7) for Burr's door (two keyholes); the boss door; the big
+  small keys 1 and 2 in chests (R5's alcove, R7's landing; owner 2026-10-19: keys are never left floating) for Burr's door (two keyholes); the boss door; the big
   chest in R9's alcove (hidden: R9's plate raises it); chests for the map (the nook), R1's store,
   the Armoury and the sally port; five bolted doors (the hub to R1, R5 to R1, R7 to R2, R9 to R8,
   R11 to the ledge); two shutters (the Larder's, the arena's south one) and the Larder's room fight
@@ -1033,8 +1067,9 @@ sheet `godot/asset/characters/authored/npcs/burr.webp`. Tests: `godot/tests/test
   through the Lair's director. No compass is placed (the director is the map's boss mark, group
   `dungeon_map_mark`; the Larder's fight, with its `boss_id`, is marked too until it is won).
 - **The Heavy skin's locks** ([SKINS.md](SKINS.md#heavy)), all in the second half or after the
-  Pearl: three plank barricades (the Larder's north doorway, R1's store, the bolt-hole), five heavy
-  plates (the Weigh House's two, R10's, R9's, the hub's counterweight), six armour statues that are
+  Pearl: three plank barricades (the Larder's north doorway, R1's store, the bolt-hole), four heavy
+  plates (the Weigh House's two, R10's, R9's; the hub's two drawbridge plates are not heavy since
+  2026-10-19: two bodies, the slime and Burr), six armour statues that are
   heavy blocks (the Weigh House's, R10's, R9's four) and the Weigh House's loose prize. Nothing
   before the Pearl needs a plate or the skin.
 
@@ -1048,7 +1083,7 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 | R2 the Slab Steps | D6 | an L of void: two slabs over its west arm; two over its north arm to a landing |
 | R3 the Pit Hall | C5-D5 | the hub: the chasm round the north ledge, Burr's cell and the Inner Stair in the west gallery, the drawbridge, the boss door |
 | R4 the Squint Den | B5 | two Squints; the map nook's crates in its west wall |
-| R5 the Eye Hall | B6 | the first eye latch, the alcove's timed pair, small key 1, the sally port's crack |
+| R5 the Eye Hall | B6 | the north maze (2026-10-19): low dividers, three eye latches struck in order on a timer, three Squints on guard, three gates opening together; the alcove's timed pair, small key 1, the sally port's crack |
 | R6 the Pipe Gallery | E5 | two Pipe Worms; the Burrow's mouth in its north wall |
 | R7 the Bell Bridge | E6 | the spike pit, the bell on its rock, the turning slab bridge, small key 2 |
 | R8 the Guard Crypt | B3-B4 | the Inner Stair's foot (its ladder up), two Bone Marchers, the Thorn Guard's statues, door 3 (an open doorway into R11) |
@@ -1072,13 +1107,26 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
    lever never makes it).
 2. **R1:** turn the inner winch (the outer gate stays up for good). East into R2: a Roll over two
    slabs, then two more to the landing; north into the hub, where Burr calls from his cell.
-3. **The west wing:** R4's Squints, then R5: a thrust shuts the eye over the inner wall's door (for
-   good); the alcove's two eyes each stay shut 3 s, and both shut at once open it: **small key 1**.
+3. **The west wing:** R4's Squints, then R5's **north maze** (owner, 2026-10-19; it replaced the
+   single teach latch): the hall north of the inner door is a maze of low dividers (a row across
+   with two gaps, a pocket each side, a gatehouse in the middle holding G1 and G2 above the inner
+   door, G3). Three eye latches, I under the west pocket's divider, II under the east pocket's, III
+   on the north wall (the old inner latch, `r5-latch-inner`, its records kept), must be thrust in
+   that order (`order`), all within I's 20 s (its `open_ms`; a broken run opens the later ones too):
+   out of order the run starts over. Three Squints guard the top corridor and the two lower lanes.
+   Solved, the three gates sink together, for good (each latch its own `gate_id`; together, so a
+   failed run never shuts the slime between two gates). Then the alcove's two eyes each stay shut
+   3 s, and both shut at once open it: **small key 1**.
 4. **The east wing:** R6's Pipe Worms, then R7: a thrown pot rings the bell, which opens the
    platform's door; two slabs to the rock, two to the platform: **small key 2**.
-5. **Burr's cell:** two keys, two keyholes; he thanks the slime, winds the Inner Stair's hatch up,
-   warns of the bones and walks out. On the way the hub's counterweight plate under the drawbridge's
-   chains does not budge under the slime ("It does not budge under you.").
+5. **Burr's cell:** two keys, two keyholes; he thanks the slime, winds the Inner Stair's hatch up and
+   warns of the bones. Then (owner, 2026-10-19) **the drawbridge takes two**: its chains run to two
+   plates on the hub's south walk, one body on each, at once; Burr walks to the west one and holds
+   it ("That drawbridge takes two ... I'll hold this one. You take the other."). The slime sinks the
+   east one: both down, the bridge comes down for good, the short way to the north ledge and the boss
+   door. Burr says goodbye, wishes the slime luck and walks out (he waits by the bolt-hole after
+   Fatty). Left before the bridge is down, he is back on his plate each time the hub is built.
+   Alone, the slime sinks its plate in vain.
 6. **The Deep:** down the Inner Stair into R8's crypt (Bone Marchers); door 3, an open doorway, into
    R11.
 7. **R11:** its lever lifts the inner gate for 500 ms (a Roll north makes it); two slabs north, two
@@ -1097,16 +1145,16 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
    **R9** (*twist*): under the Watcher Eye's gaze, a statue pushed onto the plate (or one as cover
    while the slime sinks it) raises the big chest in the south alcove: **the big key**. R9's bolt
    opens into R8, the ladder leads up to the hub.
-10. **The hub:** the Heavy slime sinks the counterweight plate and the drawbridge comes down for good,
-   the short way from the entrance to the boss door; the north ledge (the calm spot: pots, an energy
-   flower); the boss door with the big key.
+10. **The hub:** the drawbridge is down since Burr's freeing (step 5): the short way from the entrance
+   to the boss door; the north ledge (the calm spot: pots, an energy flower); the boss door with the
+   big key.
 11. **R13:** Fatty One Eye, enraged (below); his fall breaks the seals. Then **R14 the Postern:** the
    green key, and a Heavy Roll through the bolt-hole's barricade, up to daylight by the Verdant Gate,
    where Burr waits.
 
 **The way back after a resume** (a faint or a quit wakes the slime at R1, inside the seal): R1, the
-bolt to the hub, the drawbridge once the plate has sunk it, the ledge, the boss door. Before the
-drawbridge is down: the hub, the Inner Stair, R8, then door 3 and R11 to the Larder (or R9's bolt,
+bolt to the hub, the drawbridge (down since Burr's freeing), the ledge, the boss door. Were it still
+up (Burr not freed): the hub, the Inner Stair, R8, then door 3 and R11 to the Larder (or R9's bolt,
 once opened from inside). Nothing the main path needs lies outside after the take.
 
 Secrets: the map nook (the crates jammed in R4's west gap are light things: taken by the Gulp, the
@@ -1138,27 +1186,32 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
   FENCES.md "Dungeon dividers"; R9's in its doorway is still an `object.latch-door`, its slab the
   wall's shutter leaf): only a thrust (the `spear` tag) shuts the
   eye; a lone latch opens its doors for good; latches sharing a `group_id` (R5's alcove) each stay
-  shut `open_ms` and solve their gate only while all are shut at once.
+  shut `open_ms` and solve their gate only while all are shut at once. With an `order` (1, 2, 3 ...;
+  R5's north maze, 2026-10-19) they must be struck in it: struck while an earlier one is still open,
+  a latch clinks (`order_text`) and the group's shut latches open again; a latch whose time runs out
+  opens every later one of its group with it, so the first one's `open_ms` is the run's time. A timed
+  latch's eye flickers in its last 1.5 s. Solved, each latch opens its own `gate_id`.
 - **The plank barricade** (`object.plank-barricade`, `plank_barricade.gd`): only the Heavy Roll smashes
   it (`game/fattys_lair/heavy_check.gd`: a Roll's bonk with the Heavy skin on, which carries the
   `heavy` tag; [SKINS.md](SKINS.md#heavy)); anything else bonks with its line. Kept smashed by
   `flag_id` (`fatty-lair.larder-smashed`, `.store-smashed`, `.bolt-hole-smashed`).
 - **Heavy plates** (`object.heavy-plate`, `heavy_plate.gd`; [SKINS.md](SKINS.md#heavy)): two exports
   added for the Lair (2026-10-17). `targets` (NodePaths) are set off each time the plate reaches the
-  bottom (DungeonState.fire, as a winch's): the hub's **counterweight plate** lowers the drawbridge
-  for good, R9's raises the hidden big chest. `shut_on_leave` shuts its gates the moment the weight
+  bottom (DungeonState.fire, as a winch's): R9's raises the hidden big chest. Since 2026-10-19
+  `heavy_only` (off: any slime, and Burr, sinks it; the `plate_weights` group) and `pair_id` (plates
+  sharing it set off their targets only while all are down at once): the hub's **two drawbridge
+  plates**, a pair that is not heavy-only, lower the drawbridge for good when the slime and Burr
+  stand on them. `shut_on_leave` shuts its gates the moment the weight
   leaves, so the door is held only while something stands on the plate: the Weigh House's second
   plate and R10's, which a statue must hold (the slime could not stand there and walk through).
   The Weigh House's first plate is a plain one (its door stays open while it rises, 5 s). The
   counterweight's chain (`game/fattys_lair/counterweight_chain.gd`, presentation) hangs from the
-  raised bridge to the plate, pulls taut as it sinks and goes once the bridge is down.
+  raised bridge to the slime's (east) plate, pulls taut as it sinks and goes once the bridge is down.
 - **Heavy blocks reset with their room** (the guide's no-softlock rule): since the Lair is one world
-  per room, each room is built afresh when it is entered, its statues where its scene puts them. Before
-  (the Lair's director, still there for a world of rooms): each
-  time the slime walks into a room, the heavy blocks and statues that started in it go back to
-  their starts (not while one is moving or the slime stands there), as the room's enemies and pots
-  come back. A statue pushed into a corner never blocks the way; the plates are not saved, the
-  drawbridge and the big chest are.
+  per room, each room is built afresh when it is entered, its statues where its scene puts them, as
+  the room's enemies and pots come back (the director's own reset for a world of several rooms went
+  on 2026-10-19: every Lair world has one room). A statue pushed into a corner never blocks the way;
+  the plates are not saved, the drawbridge and the big chest are.
 - **The Inner Stair** (`object.stair-hatch`, `stair_hatch.gd`; `object.stair-ladder` at its foot):
   shut until Burr winds it ("Its winch is behind the cell door."); open, walking into its well fades
   the slime down to R8, and walking north into the ladder at the crypt's south-west brings it back
@@ -1166,7 +1219,8 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
 - **Burr** (`character.burr`, `game/fattys_lair/burr_actor.gd`) and **the Lair's director**
   (`game/fattys_lair/lair_director.gd`): his call the first time the slime comes into the hub
   (flag `fatty-lair.burr-called`), his freeing when his door opens (`fatty-lair.burr-freed`), the
-  hatch, his walk out; Fatty's phase two, the clods and the arena's shutter; the map nook's gap
+  hatch, his walk to his plate (`burr_plate`) and his hold there while the drawbridge (`bridge`) is up,
+  his goodbye and walk out once it is down; Fatty's phase two, the clods and the arena's shutter; the map nook's gap
   (kept open for good by `fatty-lair.nook-gap-open`); the heavy blocks' reset; the Larder's glow,
   which goes once Pearl 1 is taken. One world per room: a director stands in each room that needs
   one with that room's paths (the hub's: Burr, who stands in the hub's world behind his cell door;
@@ -1213,7 +1267,7 @@ built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapt
 - **The hill crack** opens `hollow-hill-cave` with the Goo Bomb: a separate cave room,
   pots and a chest hiding `meadow-autumn-thicket`; the former visible hill pocket is closed.
 - **The way in** (`object.fatty-lair-mouth`, `game/scenes/objects/fatty-lair-mouth.tscn`, at
-  (1408, 768) in D5, the notch's foot): the drop gate (`fatty-lair-gate`, `map_id` `level-1-d5`,
+  (1401, 704) in D5, the notch's foot, since the map edits of 0a6b9954): the drop gate (`fatty-lair-gate`, `map_id` `level-1-d5`,
   `open_ms` 620; its lever 3.7 cells in front of it, `interact_radius` 46), a closed mound round the
   passage behind it, and the north door `fatty-lair-mouth` into R1; coming out, the slime walks out
   of the gate's doorway even when the leaf is down. The race, tuned for the quick Roll (the story's
@@ -1229,7 +1283,11 @@ built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapt
   (`godot/tests/lib/fatty_camp_fixture.gd` puts it back in the clearing for `test_boss.gd`,
   `test_audio.gd`, `test_chest_window.gd`, `test_interaction.gd`).
 - **The bolt-hole's mouth** (`object.fatty-lair-bolt-hole-mouth`, at (1408, 960), south-west of the
-  Verdant Gate): an open hatch, an arrival-only south door (nothing leads back down).
+  Verdant Gate; `game/fattys_lair/bolt_hole_hatch.gd`): a hatch kept shut over an arrival-only south
+  door (nothing leads back down). When the slime climbs out it shows open; once the slime is
+  `dungeon.boltHole.clearPx` away (after `minOpenMs` at least), or after `closeAfterMs` at most, it
+  slams shut behind it with a thud, dust and a shake (`shakeMs`, `shakeIntensity`), so the Lair cannot
+  be entered that way (owner, 2026-10-18).
 - **Burr outside** (`character.burr-outside`, `game/fattys_lair/burr_outside.gd`, beside it): there
   once he is freed and Fatty is beaten; talked to, he says the town must see the Pearl and walks off
   home (flag `fatty-lair.burr-outside`).

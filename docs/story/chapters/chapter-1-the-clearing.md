@@ -319,7 +319,12 @@ autosave waits until the slime is out.*
    (eighth round, question 134): the cell lies on the lair's main path, so
    freeing him cannot be skipped.* The lair's deep rooms hold the skeletons,
    the fallen Thorn Guard whose bones Gorge's vassals raised to guard the old
-   forts (question 125).
+   forts (question 125). *Since 2026-10-19 (owner): Burr pays back his
+   freeing at once. The hub's drawbridge, the short way to Fatty's door,
+   takes two: one body on each of its two plates. Burr holds one; the slime
+   sinks the other, the bridge comes down for good, and Burr says goodbye,
+   wishes it luck and leaves to wait outside. The bridge no longer needs the
+   Heavy skin.*
 4. **Fatty One Eye.** The Spear on his eye beats him, and Pearl 1 gives the
    Heavy skin (Beat 5). *Since 2026-10-16 (eighth round): he also leaves a
    full heart (question 17), and the lair's way out is the Heavy skin's first

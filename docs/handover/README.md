@@ -1,6 +1,10 @@
 # Handover (2026-10-17)
 
 > **Start here instead: [2026-10-19 session summary](2026-10-19-session-summary.md)** (the current state, the owner's rules, what is open). The rest of this file is the 2026-10-17 record.
+>
+> **Then: [the review's fixes, 2026-10-19](2026-10-19-review-fixes.md)** (the second pass of the review, uncommitted: what changed, the scenes to reload, the tests, what waits for the owner).
+>
+> **For review: [the Heavy grab's poses, text and hint, 2026-10-19](2026-10-19-heavy-grab.md)** (uncommitted: push and pull poses on slime page 7, the Heavy skin's texts naming W, the touch hint; what to check).
 
 Work in flight when the owner's credits ran out. Start with the roadmap's
 "Immediate Next Sprint" → "Where things stand (2026-10-17)"

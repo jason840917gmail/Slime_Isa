@@ -239,7 +239,11 @@ Burr and young Burr, a family of its own, while the smith is Pip's father
   - In the first half of Fatty's Lair he sits in a cell. A small key found in
     the lair frees him; he thanks the slime and asks it to visit him at home.
     *Since 2026-10-16 (eighth round, question 134): his cell lies on the
-    lair's main path, so freeing him cannot be skipped.*
+    lair's main path, so freeing him cannot be skipped.* *Since 2026-10-19
+    (owner): freed, he helps at once: the hub's drawbridge takes two bodies on
+    its two plates, so he holds one while the slime takes the other; with the
+    bridge down he says goodbye, wishes the slime luck and walks out to wait by
+    the bolt-hole.*
   - Back home, he gives his thanks: an energy upgrade or a heart (which one
     is not decided; max energy grows only through secrets and bosses,
     question 19). *Changed 2026-10-16 (owner, question 80): his thanks is the

@@ -10,7 +10,7 @@ extends RefCounted
 ## heavy | boss), `material`, `knockbackScale`, `hitstunScale`, `holdCap`, `breakFree`, `poise`,
 ## `breakVerb`?, `roll` (bowl | bonk | break), `suck` (none for everyone: owner, 2026-10-11),
 ## `classes` (impact class -> a verb or {"verb", "stunMs"?, "damageTaken"?}), `byTag`, `immune`
-## (classes that clink; "*" = all), `states` (phase -> {"armor"?, "classes"?, "immune"?, "open"?}),
+## (classes that clink; "*" = all, "!class" leaves one out), `states` (phase -> {"armor"?, "classes"?, "immune"?, "open"?}),
 ## `parts` (hurtbox part -> its gate).
 ##
 ## Complete as far as the layers go (foundation, 2026-10-11); the reactions module may add keys.

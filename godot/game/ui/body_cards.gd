@@ -133,8 +133,7 @@ static func skin_card(id: StringName, worn: bool) -> Dictionary:
 	if String(id).is_empty():
 		return {"name": GOO_TITLE, "status": "Your look now" if worn else "Click to wear your own goo",
 			"status_color": CURRENT_COLOR if worn else OTHER_COLOR, "details": GOO_LINE}
-	var definition := SkinState.definition(id)
-	var lines := PackedStringArray([str(definition.get("line", "")), str(definition.get("how", "")), ""])
+	var lines := PackedStringArray([SkinState.text(id, "line"), SkinState.text(id, "how"), ""])
 	lines.append("Always on, for free: it works wherever it is needed.")
 	lines.append("Wearing it only changes how the slime looks.")
 	return {

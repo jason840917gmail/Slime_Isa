@@ -3,11 +3,14 @@ extends RefCounted
 ## player.gd.
 ##
 ## - **Suck** (hold Q): the nearest takeable suckable (game/scripts/essence.gd, liftable.gd) within
-##   `gulp.suckNearPx` of the slime's centre, or within `gulp.suckRangePx` and a cone of
+##   `gulp.suckNearPx` of the slime's feet (its origin to theirs), or within `gulp.suckRangePx` and a cone of
 ##   `gulp.suckConeDeg` around the aim, leaves the world and flies into the mouth over
 ##   `gulp.suckPullMs` of simulation time. Letting go of Q before anything comes stops the suck.
 ##   Never a live enemy: only essences and liftables (pots, rocks, pumpkins, ...:
 ##   game/scripts/liftable.gd) are suckable. The suck plays `GulpSuck`, the catch `GulpCatch`.
+## - **Vacuum** (`_sweep`, owner 2026-10-19): while it sucks, every walk-over pickup in the same reach
+##   (coins, loot piles, goo hearts, energy shards: the `collectible` group) flies in and is picked
+##   up as if walked over, never held; one that refuses (a full bag, full health) flies back.
 ## - **Holding** (`held`: {"kind": "essence", "essence": "stone"|"silk"|"swim"}, or {"kind":
 ##   <liftable kind>, "essence": "", "variant": 0|1}):
 ##   the slime cannot attack or use abilities (player.gd drops those presses), only throw (Q) or
@@ -43,6 +46,11 @@ const EssenceScript := preload("res://game/scripts/essence.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 
 const SUCKABLE_GROUP := &"suckable"
+## Walk-over pickups (game/scripts/collectible.gd and its kin: coins, loot piles, the dungeon's goo
+## hearts and coins, energy shards), swept in by any suck.
+const COLLECTIBLE_GROUP := &"collectible"
+## A swept pickup shrinks to this share of its size as it flies in.
+const SWEEP_SHRINK := 0.45
 const PULL_LOOK_PX := 30.0
 ## What the slime holds shows inside it: this size, this high over the feet (on the full slime's
 ## belly, where its art draws a lump), this see-through.
@@ -71,6 +79,16 @@ var _burst_until_ms: float = -1.0
 var _pull: Dictionary = {}
 var _fx: Node2D
 var _inside: Node2D
+## Pickups flying in (their CollectibleScript's instance id -> true).
+var _sweeping: Dictionary = {}
+## Pickups that refused the slime during this suck (a full bag, full health): not pulled again
+## until the next suck.
+var _refused: Dictionary = {}
+## Something was swept in during this suck (the burst then ends without the empty puff).
+var _swept_any: bool = false
+## The pickups lying there when this suck began: only they are swept in. One that appears during
+## the suck (what a pot hid, revealed as the pot flies in) waits for the next suck (owner, 2026-10-19).
+var _lying: Dictionary = {}
 
 
 func _init(player: Node) -> void:
@@ -91,6 +109,13 @@ func begin_suck() -> void:
 	if is_holding() or _sucking:
 		return
 	_sucking = true
+	_refused.clear()
+	_swept_any = false
+	_lying.clear()
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree != null:
+		for node: Node in tree.get_nodes_in_group(COLLECTIBLE_GROUP):
+			_lying[node.get_instance_id()] = true
 	_show_fx(true)
 	_audio(CUE_SUCK)
 	var aim := Vector2.DOWN
@@ -129,11 +154,17 @@ func is_pulling() -> bool:
 	return not _pull.is_empty()
 
 
+## True when the last suck swept in a pickup.
+func swept_loot() -> bool:
+	return _swept_any
+
+
 ## Every physics step: `q_held` is whether Q is still down, `aim` where the slime sucks from. A
 ## timed burst ignores `q_held` and ends at its time.
 func update(now_ms: float, q_held: bool, aim: Vector2) -> void:
 	if not _sucking:
 		return
+	_sweep(aim)
 	if not _pull.is_empty():
 		var progress := (now_ms - float(_pull["started"])) / maxf(1.0, _constant("gulp.suckPullMs"))
 		_move_pull_look(clampf(progress, 0.0, 1.0))
@@ -161,11 +192,10 @@ func find_target(aim: Vector2) -> Node:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree == null or _player == null:
 		return null
-	var centre: Vector2 = _player.call(&"get_centre")
-	var near := _constant("gulp.suckNearPx")
-	var reach := _constant("gulp.suckRangePx")
-	var cone := deg_to_rad(_constant("gulp.suckConeDeg")) * 0.5
-	var unit := aim.normalized() if aim != Vector2.ZERO else Vector2.DOWN
+	# Measured feet to feet: every suckable's origin is its feet, and from the slime's centre
+	# (27 px higher) a thing touching its side came out beyond suckNearPx and below the cone.
+	var body := _player.get(&"body") as Node2D
+	var centre: Vector2 = body.global_position if body != null else _player.call(&"get_centre")
 	var best: Node = null
 	var best_distance := INF
 	for node: Node in tree.get_nodes_in_group(SUCKABLE_GROUP):
@@ -173,11 +203,74 @@ func find_target(aim: Vector2) -> Node:
 			continue
 		var offset: Vector2 = (node.call(&"origin") as Vector2) - centre
 		var distance := offset.length()
-		var in_cone := distance <= reach and (distance == 0.0 or absf(unit.angle_to(offset)) <= cone)
-		if (distance <= near or in_cone) and distance < best_distance:
+		if _in_reach(offset, aim) and distance < best_distance:
 			best = node
 			best_distance = distance
 	return best
+
+
+## `offset` (from the slime's feet) is within `gulp.suckNearPx`, or within `gulp.suckRangePx` and
+## the `gulp.suckConeDeg` cone around `aim`.
+static func _in_reach(offset: Vector2, aim: Vector2) -> bool:
+	var distance := offset.length()
+	if distance <= _constant("gulp.suckNearPx"):
+		return true
+	var unit := aim.normalized() if aim != Vector2.ZERO else Vector2.DOWN
+	var cone := deg_to_rad(_constant("gulp.suckConeDeg")) * 0.5
+	return distance <= _constant("gulp.suckRangePx") and absf(unit.angle_to(offset)) <= cone
+
+
+## The vacuum (owner, 2026-10-19): while the mouth sucks, every walk-over pickup in reach that can
+## be taken (its pickup area on: not still flying from a drop) flies into the mouth over
+## `gulp.suckPullMs` and is picked up there as if walked over: coins paid, the bag filled, health
+## or energy restored. It is never held, so the suck goes on (and a pot can still be caught). One
+## that refuses the slime (a full bag, full health) flies back to where it lay and is left alone
+## until the next suck. Only what was lying there when the suck began (`_lying`): what appears
+## during it (a heart under a pot just sucked up) is left for the next suck.
+func _sweep(aim: Vector2) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var body := _player.get(&"body") as Node2D if _player != null else null
+	if tree == null or body == null:
+		return
+	for node: Node in tree.get_nodes_in_group(COLLECTIBLE_GROUP):
+		var id := node.get_instance_id()
+		if _sweeping.has(id) or _refused.has(id) or not _lying.has(id):
+			continue
+		var root := node.get_parent() as Node2D
+		var area := node.get(&"pickup_area") as Area2D
+		if root == null or area == null or not area.monitorable or root.is_queued_for_deletion():
+			continue
+		if _in_reach(root.global_position - body.global_position, aim):
+			_sweep_in(node, root, body)
+
+
+func _sweep_in(script: Node, root: Node2D, body: Node2D) -> void:
+	var id := script.get_instance_id()
+	_sweeping[id] = true
+	_swept_any = true
+	var from := root.global_position
+	var size := root.scale
+	var seconds := maxf(0.01, _constant("gulp.suckPullMs") / 1000.0)
+	var mouth := body.global_position - Vector2(0.0, MOUTH_RISE)
+	var tween := root.create_tween()
+	tween.tween_property(root, ^"global_position", mouth, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(root, ^"scale", size * SWEEP_SHRINK, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func() -> void: _swept(id, script, root, from, size, seconds))
+
+
+## A swept pickup reached the mouth: it is picked up; what is left of it (a full bag, full health)
+## flies back to `from`.
+func _swept(id: int, script: Node, root: Node2D, from: Vector2, size: Vector2, seconds: float) -> void:
+	_sweeping.erase(id)
+	if not is_instance_valid(script) or _player == null or not is_instance_valid(_player):
+		return
+	var result: Dictionary = script.call(&"request_pickup", _player.call(&"get_pickup_area"))
+	if int(result.get("remaining", 0)) <= 0 or not is_instance_valid(root) or root.is_queued_for_deletion():
+		return
+	_refused[id] = true
+	var back := root.create_tween()
+	back.tween_property(root, ^"global_position", from, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	back.parallel().tween_property(root, ^"scale", size, seconds)
 
 
 ## Q with something held: throws a liftable from the slime's feet along `direction`, or spits an

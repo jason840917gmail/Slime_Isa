@@ -14,6 +14,16 @@ extends TileMapLayer
 
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 
+## Inside dungeon rooms (an `interior-walls` layer), a raised floor shows a wall face on its north
+## side too, like its front and sides: four visible walls (docs/godot/ELEVATION.md "Faces in rooms").
+## The lower level stops at the face's foot, the upper floor's rim stays on its edge. Off, the north
+## edge shows only a cap and is the lower level's wall foot itself (an edge in level-collision).
+@export var room_back_faces: bool = false:
+	set(value):
+		room_back_faces = value
+		if Engine.is_editor_hint() and is_inside_tree():
+			_queue_rebuild()
+
 var _queued := false
 var _ground: TileMapLayer
 

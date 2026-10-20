@@ -5,23 +5,31 @@ class_name HazardWatch
 ##
 ## Every physics step, with the slime on the ground (not in the air, not on stairs, not dead):
 ## - every deck its body stands on is touched (a falling slab starts to give);
-## - its feet in a hazard (hazard.gd) and not held up by a deck there, or on a lower level than the
-##   hazard's rim: **void**: it falls (it spins and shrinks over `dungeon.void.fallMs`, the
+## - the middle of its body (its collision rect's centre: the middle of its footprint) in a hazard
+##   (hazard.gd) and not held up by a deck there, or on a lower level than the hazard's rim (the
+##   owner, 2026-10-19: by its feet, the front of its body walking south, a walker reached the next
+##   slab of a bridge just before the one behind fell, and crossed): **void**: it falls (it spins and shrinks over `dungeon.void.fallMs`, the
 ##   `FallDown` cue), then it is put back on the rim it fell from (the hazard's nearest return
 ##   point to its last safe ground, else that ground itself) and loses `dungeon.void.damage` health;
 ##   **spikes** / **lava**: it is hurt each time its invulnerability ends; a slab gone from under it
-##   over a sunken pit first drops it in (`pit_depth` levels down, `dungeon.spikes.fallMs`);
+##   over a sunken pit first drops it in (to the pit's floor, `dungeon.spikes.fallMs`; with no floor
+##   of the pit within reach, only wall faces under it, it is put back on the rim as from the void);
 ##   **water** (deep water under a plank bridge, falling_plank.gd): it sinks with a splash
 ##   (`dungeon.water.fallMs`, the `WaterSplash` cue, water_splash.gd's rings) and is put back as from
 ##   the void, losing `dungeon.water.damage`; a form that swims never falls in;
-## - elsewhere, on solid ground (its body clear of every hazard, or its feet on a safe deck, and its
-##   body clear of every slab), that spot is its last safe ground.
+## - elsewhere, on solid ground (its body clear of the cells every hazard covers, or the middle of its
+##   body on a safe deck, and its body clear of every slab), that spot is its last safe ground.
 ## Hazard damage goes through DamageRouter (true damage, no knockback; weapon id `hazard-<kind>`,
 ## tags `hazard` and the kind), so the slime's invulnerability, its Roll's i-frames and its fainting
 ## work as for any hit. A fall that faints it ends with the slime waking at the dungeon's entrance.
 ##
 ## The decks' passages over elevation holes (Elevation.open_passage) are opened here too, merged
-## into as few rectangles as their cells allow, once the world is registered.
+## into as few rectangles as their cells allow, once the world is registered, and only while each deck
+## holds (`_sync_passages`): a slab that falls (a plank that sinks) closes its cells again
+## (Elevation.close_passage), so the floor's rim beside the gap holds the slime and a push drops it
+## (the ledge drop) as at any rim; it opens them again once it is back. A deck closes only once the
+## slime's body on its level is clear of it (and of a tile round it): the rim coming back never shuts
+## the slime inside it. Falling with the deck is the hazard's, as before.
 ##
 ## Owner: dungeon kit.
 
@@ -62,7 +70,11 @@ var _fall_kind := ""
 var _fall_hazard: Hazard
 var _fall_ends_ms := 0.0
 var _fall_from := Vector2.ZERO
-var _pending: Array[Dictionary] = []
+## The decks whose passages it opens (`queue_passages`): instance id -> {"deck": Node, "open": bool
+## (its cells are in the passages)}.
+var _decks: Dictionary = {}
+## The passages it opened, per level: level -> Array[Rect2] (world).
+var _opened: Dictionary = {}
 var _source_area: Area2D
 ## The fall's look (on the player's art): stopped as the slime lands, so a tween that runs on in real
 ## time never hides the slime put back on the rim.
@@ -115,7 +127,7 @@ func _ready() -> void:
 	_source_area.collision_layer = 0
 	_source_area.collision_mask = 0
 	add_child(_source_area)
-	_flush_passages.call_deferred()
+	_sync_passages.call_deferred()
 
 
 func _exit_tree() -> void:
@@ -133,35 +145,84 @@ func safe_centre() -> Vector2:
 	return _safe_centre
 
 
-## Adds `deck`'s rectangles to the passages to open.
+## Adds `deck` to the decks whose passages it opens (while they hold).
 func queue_passages(deck: Node) -> void:
 	if not deck.has_method(&"deck_rects"):
 		return
-	for rect: Rect2 in deck.call(&"deck_rects"):
-		_pending.append({"rect": rect, "level": int(deck.call(&"deck_level"))})
+	if not _decks.has(deck.get_instance_id()):
+		_decks[deck.get_instance_id()] = {"deck": deck, "open": false}
 	if is_inside_tree():
-		_flush_passages.call_deferred()
+		_sync_passages.call_deferred()
 
 
-func _flush_passages() -> void:
-	if _pending.is_empty():
-		return
+## Opens the passages of the decks that hold and closes those of the decks that no longer do (each
+## physics step): the cells of the holding decks of each level, merged (`merged_rects`), are the
+## passages of that level; only the rectangles that changed are opened or closed.
+func _sync_passages() -> void:
 	var world := Services.world()
-	if world == null or world.elevation == null or not is_instance_valid(world.elevation):
-		_pending.clear()
+	if _decks.is_empty() or world == null or world.elevation == null or not is_instance_valid(world.elevation) \
+			or not _mine(world.elevation):
 		return
-	var cell := 64.0
+	var changed := false
+	for id: int in _decks.keys():
+		var entry: Dictionary = _decks[id]
+		var deck: Node = entry["deck"]
+		if not is_instance_valid(deck) or not deck.is_inside_tree():
+			_decks.erase(id)
+			changed = changed or bool(entry["open"])
+			continue
+		var holds := bool(deck.call(&"holds"))
+		if holds == bool(entry["open"]) or (not holds and _in_the_way(world, deck)):
+			continue
+		entry["open"] = holds
+		changed = true
+	if changed:
+		_apply_passages(world)
+
+
+## True while the slime's body, on `deck`'s level, overlaps the deck or a tile round it: closing the
+## deck's cells now would put the floor's rim back across it.
+func _in_the_way(world: Node, deck: Node) -> bool:
+	var body: CharacterBody2D = world.player_body
+	if body == null or not is_instance_valid(body) or world.elevation.level_of(body) != int(deck.call(&"deck_level")):
+		return false
+	var body_rect := Door._body_rect(body)
+	var margin := float(world.elevation.cell) * 0.25
+	for rect: Rect2 in deck.call(&"deck_rects"):
+		if rect.grow(margin).intersects(body_rect):
+			return true
+	return false
+
+
+## Opens the passages of the open decks' cells and closes the ones no deck covers any more.
+func _apply_passages(world: Node) -> void:
+	var elevation: Node = world.elevation
+	var cell := float(elevation.cell)
 	var by_level: Dictionary = {}
-	for entry: Dictionary in _pending:
-		var cells: Dictionary = by_level.get_or_add(int(entry["level"]), {})
-		var rect: Rect2 = entry["rect"]
-		for y in range(floori(rect.position.y / cell), ceili(rect.end.y / cell)):
-			for x in range(floori(rect.position.x / cell), ceili(rect.end.x / cell)):
-				cells[Vector2i(x, y)] = true
-	_pending.clear()
+	for entry: Dictionary in _decks.values():
+		if not bool(entry["open"]):
+			continue
+		var deck: Node = entry["deck"]
+		var cells: Dictionary = by_level.get_or_add(int(deck.call(&"deck_level")), {})
+		for rect: Rect2 in deck.call(&"deck_rects"):
+			for y in range(floori(rect.position.y / cell), ceili(rect.end.y / cell)):
+				for x in range(floori(rect.position.x / cell), ceili(rect.end.x / cell)):
+					cells[Vector2i(x, y)] = true
+	var wanted: Dictionary = {}
 	for level: int in by_level:
+		var rects: Array[Rect2] = []
 		for rect: Rect2i in merged_rects(by_level[level]):
-			world.elevation.open_passage(Rect2(Vector2(rect.position) * cell, Vector2(rect.size) * cell), level)
+			rects.append(Rect2(Vector2(rect.position) * cell, Vector2(rect.size) * cell))
+		wanted[level] = rects
+	for level: int in _opened:
+		for rect: Rect2 in _opened[level]:
+			if not (wanted.get(level, []) as Array).has(rect):
+				elevation.close_passage(rect, level)
+	for level: int in wanted:
+		for rect: Rect2 in wanted[level]:
+			if not (_opened.get(level, []) as Array).has(rect):
+				elevation.open_passage(rect, level)
+	_opened = wanted
 
 
 ## The cells (a set of Vector2i) as few rectangles: runs along each row, stacked where the rows
@@ -209,6 +270,7 @@ static func merged_rects(cells: Dictionary) -> Array[Rect2i]:
 
 
 func _physics_process(_delta: float) -> void:
+	_sync_passages()
 	var world := Services.world()
 	if world == null or world.player == null or not is_instance_valid(world.player) or world.player_body == null:
 		return
@@ -220,9 +282,11 @@ func _physics_process(_delta: float) -> void:
 		return
 	if bool(player.call(&"is_dead")) or bool(player.call(&"is_airborne")) or bool(player.call(&"is_on_stairs")):
 		return
-	var feet := body.global_position
 	var level := world.elevation.level_of(body) if world.elevation != null and is_instance_valid(world.elevation) else 0
 	var body_rect := Door._body_rect(body)
+	# where it stands over a hazard: the middle of its footprint, not its feet (the footprint's front
+	# edge), so it is the same walking either way across a bridge
+	var middle := body_rect.get_center()
 	var held_by: Node = null
 	# Whether the body is on a deck that is not safe ground (a slab, standing or fallen).
 	var on_loose := false
@@ -241,7 +305,7 @@ func _physics_process(_delta: float) -> void:
 		# a deck is touched from its own level only (a slime in the pit under a bridge never cracks it)
 		if touching and int(deck.call(&"deck_level")) == level:
 			deck.call(&"touch")
-		if held_by == null and bool(deck.call(&"holds_at", feet)) and int(deck.call(&"deck_level")) <= level:
+		if held_by == null and bool(deck.call(&"holds_at", middle)) and int(deck.call(&"deck_level")) <= level:
 			held_by = deck
 	var in_any := false
 	var body_over := false
@@ -249,11 +313,16 @@ func _physics_process(_delta: float) -> void:
 		var hazard := node as Hazard
 		if hazard == null or not _mine(hazard):
 			continue
-		if hazard.rect().intersects(body_rect):
-			body_over = true
+		# over the cells it covers (not merely its rectangle: R7's spikes cover the whole room)
+		if not body_over and hazard.rect().intersects(body_rect):
+			for corner: Vector2 in [body_rect.position, Vector2(body_rect.end.x, body_rect.position.y), body_rect.end,
+					Vector2(body_rect.position.x, body_rect.end.y), body_rect.get_center()]:
+				if hazard.covers(corner):
+					body_over = true
+					break
 		# a hazard catches only on the sunken cells painted under it (the paint is the pit; its
 		# rectangle may be bigger)
-		if not hazard.covers(feet):
+		if not hazard.covers(middle):
 			continue
 		# A form that swims (the Frog) swims in deep water: it never falls in.
 		if hazard.kind == WATER_KIND and _swims(player):
@@ -269,8 +338,8 @@ func _physics_process(_delta: float) -> void:
 		_hit(hazard, player, body, level, dropped_in)
 		return
 	# Safe ground, where a fall puts the slime back: its whole body clear of every slab, and either
-	# its feet on a safe deck or its body clear of every hazard (so it is never put back half on the
-	# bridge it fell from, touching a slab that would give again).
+	# the middle of its body on a safe deck or its body clear of every hazard's cells (so it is never put back half on
+	# the bridge it fell from, touching a slab that would give again).
 	if on_loose:
 		return
 	if held_by != null:
@@ -292,7 +361,7 @@ func _hit(hazard: Hazard, player: Node, body: CharacterBody2D, level: int, dropp
 		_start_fall(hazard, player, WATER_KIND, DungeonState.number("water.fallMs", 650.0))
 		return
 	var world := Services.world()
-	if not dropped_in and world.elevation != null and is_instance_valid(world.elevation) and hazard.pit_depth > 0:
+	if not dropped_in and world.elevation != null and is_instance_valid(world.elevation) and hazard.rim() > hazard.floor_level():
 		# A slab gone from under it over a sunken pit: it drops in first.
 		_start_fall(hazard, player, "pit", DungeonState.number(hazard.kind + ".fallMs", 320.0))
 		return
@@ -354,7 +423,8 @@ func _sink(player: Node, ms: float) -> void:
 		player.call(&"set_effect_offset", Vector2(0.0, sink_px * t))
 		var size := lerpf(1.0, WATER_SCALE, t)
 		player.call(&"set_effect_scale", Vector2(size, size))
-		player.call(&"set_effect_alpha", lerpf(1.0, 0.0, t)), 0.0, 1.0, maxf(ms, 1.0) / 1000.0) 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		player.call(&"set_effect_alpha", lerpf(1.0, 0.0, t)), 0.0, 1.0, maxf(ms, 1.0) / 1000.0) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 ## True when the slime's current form swims (it is let into deep water).
@@ -380,12 +450,16 @@ func _land(player: Node, body: CharacterBody2D) -> void:
 	if _fall_kind == "pit":
 		if elevation != null and hazard != null and is_instance_valid(hazard):
 			var floor_level := hazard.floor_level()
-			elevation.call(&"track", body, floor_level)
 			var spot := _floor_near(elevation, body.global_position, floor_level)
 			if spot.is_finite():
+				elevation.call(&"track", body, floor_level)
 				body.global_position = spot
 				body.reset_physics_interpolation()
-		return
+				return
+			# no floor of the pit within reach (only wall faces under where it fell, as under a bridge
+			# between two raised floors' faces): put back on the rim it fell from, as from the void
+		else:
+			return
 	var back := return_point(hazard)
 	player.call(&"teleport", back)
 	if elevation != null:

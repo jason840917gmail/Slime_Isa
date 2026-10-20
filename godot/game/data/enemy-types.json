@@ -93,10 +93,10 @@
     },
     "pipe-worm": {
       "id": "pipe-worm", "visualSetId": "enemy.pipe-worm", "maxHp": 30,
-      "pattern": { "hideRangePx": 72, "unhideMs": 500, "riseMs": 200, "firstSpitMs": 400, "spitIntervalMs": 1700, "spitWindupMs": 550, "spitPoseMs": 300, "alignTolerancePx": 16, "bonkReachPx": 60, "dazedMs": 2600, "corpseMs": 900, "corpseFadeMs": 400 },
+      "pattern": { "hideRangePx": 72, "unhideMs": 500, "riseMs": 200, "firstSpitMs": 400, "spitIntervalMs": 1700, "spitWindupMs": 550, "spitPoseMs": 300, "aimConeDeg": 160, "bonkReachPx": 60, "dazedMs": 2600, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 8 },
       "projectile": { "projectileId": "mud-glob", "assetId": "enemy.projectile.mud-glob", "damage": 14 },
-      "reactions": { "weight": "light", "material": "worm", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "hidden": { "immune": ["*"] }, "up": { "immune": ["*"] }, "charge": { "immune": ["*"] }, "spit": { "immune": ["*"] } } }
+      "reactions": { "weight": "light", "material": "worm", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "hidden": { "immune": ["*", "!thrown"] }, "up": { "immune": ["*", "!thrown"] }, "charge": { "immune": ["*", "!thrown"] }, "spit": { "immune": ["*", "!thrown"] } } }
     },
     "dung-roller": {
       "id": "dung-roller", "visualSetId": "enemy.dung-roller", "maxHp": 30,

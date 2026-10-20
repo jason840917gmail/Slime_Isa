@@ -16,6 +16,10 @@ class_name GateScript
 ## push (`GateLocked`). `prompt`, `locked_prompt` and `interact_radius` are kept from the Phaser
 ## data but no longer shown or used.
 ##
+## **Dungeon small keys (not in Phaser):** with `required_item_id` "small-key" (DungeonState.SMALL_KEY)
+## the key is a small key of the current dungeon (DungeonState, not the inventory): a push with one
+## held opens the gate for good and spends it (`consume_on_unlock`), as a small-key door does.
+##
 ## Owner: interaction.
 
 const Services := preload("res://game/shared/services.gd")
@@ -37,7 +41,7 @@ const STUCK_MESSAGE := "The gate will not budge."
 @export var map_id: String = ""
 ## JSON `gateId` (shared with a gated world exit's `gate.id`).
 @export var gate_id: String = ""
-## JSON `requiredItemId` (e.g. "green-key").
+## JSON `requiredItemId` (e.g. "green-key"); "small-key" asks for a dungeon small key (DungeonState).
 @export var required_item_id: String = ""
 ## JSON `consumeOnUnlock`.
 @export var consume_on_unlock: bool = true
@@ -66,6 +70,14 @@ const STUCK_MESSAGE := "The gate will not budge."
 ## slime left it (heavy_plate.gd `hold_record`; Fatty's Lair: R9's north door and R10's plate,
 ## `fatty-lair.r10-plate-held`). "" = none.
 @export var open_while_record: String = ""
+
+## Not in Phaser: set by a gate whose picture opens over time (game/dungeon/divider_gate.gd): `open()`
+## then leaves the doors body blocking until the picture is out of the way (`release_doors`). A gate
+## built open (its record, `open_while_record`) stops blocking at once as before.
+var doors_wait_for_look: bool = false
+## Not in Phaser: set by a gate that stands on one level (divider_gate.gd): a push counts only from the
+## slime on that level (DungeonState.on_level_of).
+var level_checked: bool = false
 
 ## The gate opened. Payload: {"gateId": String}.
 signal opened(payload: Dictionary)
@@ -128,6 +140,8 @@ func is_pushing(player: Node, player_body: CharacterBody2D) -> bool:
 	var box := doors_rect()
 	if intent == Vector2.ZERO or box.size == Vector2.ZERO:
 		return false
+	if level_checked and get_parent() is Node2D and not DungeonState.on_level_of(get_parent() as Node2D):
+		return false
 	var body := Door._body_rect(player_body)
 	if not box.grow(_number("gatePushReachPx", 6.0)).intersects(body):
 		return false
@@ -151,8 +165,8 @@ func doors_rect() -> Rect2:
 		var rectangle := shape_node.shape as RectangleShape2D
 		if rectangle == null:
 			continue
-		var size := rectangle.size * shape_node.global_scale.abs()
-		var rect := Rect2(shape_node.global_position - size * 0.5, size)
+		# (turned shapes too: a divider gate in a north-south line)
+		var rect := shape_node.global_transform * Rect2(-rectangle.size * 0.5, rectangle.size)
 		box = rect if not found else box.merge(rect)
 		found = true
 	return box
@@ -195,7 +209,7 @@ func open_for_good(_payload: Variant = null) -> void:
 func open(_payload: Variant = null) -> void:
 	if _opened:
 		return
-	_apply(true)
+	_apply(true, false)
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(CUE_OPEN)
@@ -226,25 +240,54 @@ func try_unlock() -> String:
 		return "failed"
 	if run.is_gate_unlocked(map_id, gate_id):
 		return "already-unlocked"
+	if required_item_id == DungeonState.SMALL_KEY:
+		return _unlock_with_small_key(run)
 	if run.item_count(required_item_id) < 1:
 		return "missing-item"
 	return "unlocked" if run.unlock_gate(map_id, gate_id, required_item_id, consume_on_unlock) else "failed"
 
 
-func _apply(open_now: bool) -> void:
+## A dungeon small key (see the class notes): one held in the current dungeon unlocks the gate, spent
+## when `consume_on_unlock`; the gate's record is unlocked as a key's push leaves it.
+func _unlock_with_small_key(run: Node) -> String:
+	var dungeon := DungeonState.current_id(get_tree()) if is_inside_tree() else ""
+	if dungeon.is_empty() or DungeonState.small_keys(run, dungeon) < 1:
+		return "missing-item"
+	if consume_on_unlock and not DungeonState.spend_small_key(run, dungeon):
+		return "failed"
+	run.call(&"mark_gate_unlocked", map_id, gate_id)
+	return "unlocked"
+
+
+## The picture of a gate that opens over time (`doors_wait_for_look`) is out of the way: its doors
+## body stops blocking (while the gate is still open).
+func release_doors() -> void:
+	if _opened:
+		_set_doors_disabled(true)
+
+
+## `instant` false (an `open()`): a gate with `doors_wait_for_look` keeps its doors blocking until
+## `release_doors`.
+func _apply(open_now: bool, instant: bool = true) -> void:
 	_opened = open_now
 	if visual != null:
 		visual.frame = open_frame if open_now else closed_frame
 	# Phaser's setter only ever disables the body (gates only open); `close` (heavy plates) turns
-	# it back on. Deferred: an unlock can run inside a physics step. A gate that was never opened
-	# is left as its scene made it.
-	if doors != null and (open_now or _ever_opened):
-		for shape: Node in doors.find_children("*", "CollisionShape2D", true, false):
-			(shape as CollisionShape2D).set_deferred(&"disabled", open_now)
-		for polygon: Node in doors.find_children("*", "CollisionPolygon2D", true, false):
-			(polygon as CollisionPolygon2D).set_deferred(&"disabled", open_now)
+	# it back on. A gate that was never opened is left as its scene made it.
+	if doors != null and (open_now or _ever_opened) and (instant or not open_now or not doors_wait_for_look):
+		_set_doors_disabled(open_now)
 	if open_now:
 		_ever_opened = true
+
+
+## Deferred: an unlock can run inside a physics step.
+func _set_doors_disabled(disabled: bool) -> void:
+	if doors == null:
+		return
+	for shape: Node in doors.find_children("*", "CollisionShape2D", true, false):
+		(shape as CollisionShape2D).set_deferred(&"disabled", disabled)
+	for polygon: Node in doors.find_children("*", "CollisionPolygon2D", true, false):
+		(polygon as CollisionPolygon2D).set_deferred(&"disabled", disabled)
 
 
 func _cue(cue: StringName) -> void:

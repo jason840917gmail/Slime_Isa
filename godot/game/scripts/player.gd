@@ -1030,6 +1030,8 @@ func respawn() -> void:
 		body.velocity = Vector2.ZERO
 		FeetAnchor.place_at_phaser_position(body, spawn)
 		body.reset_physics_interpolation()
+	# On the level of the ground at the spawn, not the one the slime fainted on.
+	_take_ground_level()
 	_knockback_anim_until_ms = 0.0
 	_play_idle(true)
 	_flash_until_real_ms = 0.0
@@ -1754,16 +1756,23 @@ func _rework_owns_step() -> bool:
 
 
 ## Rework: the grab on a heavy block owns the step (game/player/heavy_grab.gd): the other presses
-## are dropped, the walk keys push or pull, and the slime walks or idles facing the block.
+## are dropped, the walk keys push or pull, and the slime shows the grab's pose facing the block
+## (`grab-`, `push-` or `pull-<direction>`, page 7 of the slime: docs/godot/SKINS.md "Heavy"); without
+## those clips it walks or idles. The click scheme's held use button holds it too, as it holds the climb.
 func _step_grab(now: float) -> bool:
 	for action: StringName in [&"attack", &"dodge", &"ability_use", &"eat", &"interact", &"weapon_next", &"weapon_previous"]:
 		_input.consume(action, now, _buffer_ms)
 	_drop_roll_press()
-	var walking := _grab.step(now, get_physics_process_delta_time(), _input.is_held(&"interact"), _grab_direction)
+	var key_held := _input.is_held(&"interact") or _use_button_down
+	var walking := _grab.step(now, get_physics_process_delta_time(), key_held, _grab_direction)
 	if not _grab.is_active():
 		_play_direct(_locomotion_clip(CLIP_IDLE))
 		return true
-	_play_direct(_locomotion_clip(CLIP_WALK if walking else CLIP_IDLE))
+	var pose := String(_grab.pose())
+	if animation != null and animation.has_animation(_directional_clip(pose)):
+		_play_direct(pose)
+	else:
+		_play_direct(_locomotion_clip(CLIP_WALK if walking else CLIP_IDLE))
 	return true
 
 
@@ -2163,6 +2172,22 @@ func teleport(centre: Vector2) -> void:
 	body.velocity = Vector2.ZERO
 	FeetAnchor.place_at_phaser_position(body, centre)
 	body.reset_physics_interpolation()
+
+
+## `teleport` to a place the slime arrives at without walking there (a stair's arrival, a room's
+## entry): it stands on the level of the ground there, whatever level it left. `teleport` alone
+## keeps the body's level (a Lash's pull flies over lower ground).
+func arrive_at(centre: Vector2) -> void:
+	teleport(centre)
+	_take_ground_level()
+
+
+## The elevation puts the body on the level of the ground under its feet (on stairs, the stretch's
+## level: `Elevation.track`). Nothing to do in a world without levels.
+func _take_ground_level() -> void:
+	var world := Services.world()
+	if body != null and world != null and world.elevation != null and is_instance_valid(world.elevation):
+		world.elevation.track(body)
 
 
 ## Draws the art `offset` world px away from the body without moving it (sleeping on a mattress).

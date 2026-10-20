@@ -15,6 +15,7 @@
     "enemy.arrow-release": "library",
     "enemy.arrow-thunk": "library",
     "enemy.bow-draw": "library",
+    "enemy.pipe-worm-spit": "library",
     "enemy.spider-death": "library",
     "enemy.spider-hiss": "synth",
     "enemy.spider-hurt": "library",

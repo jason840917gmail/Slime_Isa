@@ -38,6 +38,10 @@ the pause menu's Map button.
   minimap is docked in the HUD console (roadmap 4.12): `Minimap.dock` is the console's 128-unit
   minimap rect (the frame inside it, the box 6 units in), and the view rectangle shows the camera's
   play area (the viewport above the console's `bottom_inset`). `box_for` stays the undocked place.
+  Since 2026-10-19 the view rectangle is cut to the map area, and left out when it takes in the whole
+  map (a world smaller than the screen: a dungeon room); in a dungeon the minimap shows the slime's
+  room only (`dungeon_minimap.gd`; every room found is on the map screen, DUNGEONS.md "The dungeon
+  map").
 - Frame (`minimap.scene.json:38-69`): TextureRect `ui.frame.organic-minimap`
   (`godot/asset/UI/ui-organic-minimap-frame.webp`, 1254 px square, a vine-and-slime ring with a
   transparent middle about 11 % in from each edge) filling the box grown by 6 px on every side,

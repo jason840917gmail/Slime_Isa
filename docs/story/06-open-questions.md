@@ -109,7 +109,8 @@ these need only a yes or a change. How they are built:
      *Proposal (built):* the Pearl in R12, the Larder, behind the Big Squint;
      door 3 opens without a key; the Heavy second half: the Larder's plank
      barricade, the new Weigh House (C2), R10's statue on a plate and R9's big
-     chest by a plate; the hub's counterweight plate lowers the drawbridge;
+     chest by a plate; the hub's drawbridge (since 2026-10-19: two plates,
+     the slime on one and the freed Burr on the other, no Heavy skin);
      seals in R1's south doorway and R13's north doorway; Fatty's second phase
      is answered by a Heavy Roll that topples him. The Lair's mouth moved to a
      hill in D5, behind a maze and a bridge of falling slabs (the owner's ask).

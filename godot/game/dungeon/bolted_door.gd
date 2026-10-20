@@ -7,7 +7,10 @@ class_name BoltedDoor
 ## (`dungeon.bolt.slideMs`) and the door opens for good. Walked into from the back it says
 ## `locked_text` ("Bolted from the other side.") with the locked sound.
 ##
-## The bolt's picture (`bolt`, 2 frames: shut, slid) sits on the leaf.
+## The bolt's picture (`bolt`, 2 frames: shut, slid) sits on the leaf. With the frame drawn by the
+## wall the leaf is the style's `bolt` leaf on the bolt's side; the far side's leaf (`bolt_here` off)
+## has no bolt to slide, so it is the style's plain shut slab (`shutter`: the sheet has no wooden leaf
+## without a bolt, and a door shut from the other side reads as a shutter, as in Zelda).
 ##
 ## Owner: dungeon kit.
 
@@ -21,15 +24,20 @@ signal bolt_slid(payload: Dictionary)
 @export var locked_text: String = "Bolted from the other side."
 ## False: this leaf has no bolt of its own (the far side of a passage whose bolt is on its partner's
 ## side, `link_id`): pushed from either side it says `locked_text`, and it opens with its partner.
-@export var bolt_here: bool = true
+@export var bolt_here: bool = true:
+	set(value):
+		bolt_here = value
+		if is_node_ready() and frame_drawn_by_wall:
+			_apply_wall_frame()
 ## The bolt's picture (2 frames: shut, slid back).
 @export var bolt: Sprite2D
 
 var _sliding := false
 
 
+## The wall-drawn leaf: the bolt where it can be slid, the plain shut slab on the far side.
 func leaf_kind() -> String:
-	return "bolt"
+	return "bolt" if bolt_here else "shutter"
 
 
 func _on_push(from_face: bool) -> void:

@@ -22,9 +22,15 @@ extends Node2D
 ## With `collide`, each level that has fences gets a static body on its physics layer (named
 ## "level <n>" in project.godot): one thin band per link from post foot to post foot, raised to the
 ## rails' feet (`bandAbove` to `bandBelow` above the foot line; `sideHalfWidth` each side of a
-## north-south link), one post rect per post, and a lone tile's two posts and the band between.
-## `blocks_point`, `blocks_rect` and `blocks_sweep` test the same bands, so hops, drops and landings
-## (Elevation.body_fits, ledge_below) do not pass a fence either.
+## north-south link), one post rect per post (the kit's post width), and a lone tile's two posts and
+## the band between. `blocks_point` (the tests' probe), `blocks_rect` and `blocks_sweep` test the
+## same bands, so hops, drops and landings (Elevation.body_fits, ledge_below) do not pass a fence
+## either.
+##
+## A divider gate's cell (a gate tile, GATE_STYLES) draws no post: the fence layer keeps a divider
+## gate object on it (fence_layer.gd `sync_gates`), and the fences join the posts beside it along its
+## line (`gate_axis`) to its block: rails from each post up to the block's edge and their bands
+## (`_add_gate_links`), so a shut gate closes its whole cell; the gate's own body covers the block.
 ##
 ## Owner: world (fences).
 
@@ -36,10 +42,11 @@ const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
 const FENCE_SHADER := preload("res://game/world/fences/fence.gdshader")
 const DEPTH_SHADER := preload("res://game/world/fences/fence_depth.gdshader")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
-## Gate tiles of a divider style (docs/godot/FENCES.md "Dungeon dividers"): no post or rail is drawn
-## or collides there; the fence layer keeps a divider gate object on the cell (fence_layer.gd
-## `sync_gates`). Style -> [the divider's style, the gate's kind].
-const GATE_STYLES := {"lair-divider-eye": ["lair-divider", "eye"], "lair-divider-pen": ["lair-divider", "pen"]}
+const DividerGateScript := preload("res://game/dungeon/divider_gate.gd")
+## Gate tiles of a divider style (docs/godot/FENCES.md "Dungeon dividers"): style -> the gate's kind.
+const GATE_STYLES := {"lair-divider-eye": "eye", "lair-divider-pen": "pen"}
+## How wide (px of the post art) the end of a front run's rails at a gate is (`_add_rail_end`).
+const RAIL_END_PX := 6.0
 
 const NODE_NAME := "Fences"
 ## The y-sorted holder of the pieces, beside the ground layer.
@@ -103,6 +110,10 @@ var _side_half := 7.0
 ## The depth map the silhouettes went into and the silhouettes (ElevationOcclusion.add_occluder).
 var _occlusion: ElevationOcclusion
 var _occluders: Array = []
+## level -> its physics layer's bit (`_level_bit`), read from the project settings once.
+static var _level_bits := {}
+## The painted cells outside the grid already warned about (layer path and cell), once a session.
+static var _outside_warned := {}
 
 
 ## Builds the fences from the `fences` layer beside `ground_layer`; null (and old fences removed)
@@ -117,7 +128,8 @@ static func mount(ground_layer: TileMapLayer, elevation: Node2D, the_grid: Eleva
 	var painted := find_layer(ground_layer)
 	var existing := parent.get_node_or_null(NodePath(NODE_NAME)) as Self
 	if elevation != null:
-		var flat_renderer := ground_layer.get_parent().get_node_or_null(NodePath(NODE_NAME))
+		# fences mounted on flat ground before the world had an Elevation (only a Fences node)
+		var flat_renderer := ground_layer.get_parent().get_node_or_null(NodePath(NODE_NAME)) as Self
 		if flat_renderer != null and flat_renderer != existing:
 			flat_renderer.queue_free()
 	if painted == null or painted.get_used_cells().is_empty():
@@ -168,7 +180,29 @@ static func setting(key: String) -> float:
 	return constants.number("fences." + key)
 
 
-## True when a fence's collision on `level` covers `world_point`.
+## The line a divider gate painted at `cell` of the `painted` fences layer stands in: east-west
+## (Vector2i.RIGHT) when a fence cell (not a gate) is painted east or west of it, else north-south
+## (Vector2i.DOWN) when one is painted north or south of it, else east-west. The fences join the gate
+## to the cells beside it along that line (`_add_gate_links`) and the gate turns its body with it
+## (divider_gate.gd `fit_to_line`).
+static func gate_axis(painted: TileMapLayer, cell: Vector2i) -> Vector2i:
+	for axis: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN]:
+		for side: Vector2i in [-axis, axis]:
+			var style := painted_style(painted, cell + side)
+			if not style.is_empty() and not GATE_STYLES.has(style):
+				return axis
+	return Vector2i.RIGHT
+
+
+## The style painted at `cell` of a fences layer ("" where nothing is).
+static func painted_style(painted: TileMapLayer, cell: Vector2i) -> String:
+	if painted == null or painted.tile_set == null or not painted.tile_set.has_custom_data_layer_by_name(STYLE_DATA_LAYER):
+		return ""
+	var data := painted.get_cell_tile_data(cell)
+	return str(data.get_custom_data(STYLE_DATA_LAYER)) if data != null else ""
+
+
+## True when a fence's collision on `level` covers `world_point` (the tests' probe).
 func blocks_point(world_point: Vector2, level: int) -> bool:
 	var point := world_point - global_position
 	for box: Dictionary in _boxes.get(level, []):
@@ -252,8 +286,13 @@ static func _to_box(box: Dictionary, point: Vector2) -> Vector2:
 	return Vector2(offset.dot(axis), offset.dot(Vector2(-axis.y, axis.x)))
 
 
-func _exit_tree() -> void:
-	if is_instance_valid(_pieces):
+## The pieces holder and the silhouettes live outside this node: they go when it is freed. Leaving the
+## tree keeps them (an editor tab switch takes the whole scene out of the tree for a while, pieces,
+## depth map and all, and puts it back: nothing would rebuild them).
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_PREDELETE:
+		return
+	if is_instance_valid(_pieces) and not _pieces.is_queued_for_deletion():
 		_pieces.queue_free()
 	_pieces = null
 	_drop_occluders()
@@ -328,7 +367,9 @@ func _drop_occluders() -> void:
 
 # --- painted cells and connections ---------------------------------------------------------
 
-## Every painted tile contributes material, direction and elevation. No terrain edge is read.
+## Every painted tile contributes material, direction and elevation. No terrain edge is read. A gate
+## tile's cell is {"gate": its kind, "axis": its line (`gate_axis`), "level"}. A cell outside the grid
+## is left out, with a warning (once a session).
 func _painted_connections(painted: TileMapLayer) -> Dictionary:
 	var cells := {}
 	if painted == null or painted.tile_set == null or not painted.tile_set.has_custom_data_layer_by_name(STYLE_DATA_LAYER):
@@ -339,13 +380,26 @@ func _painted_connections(painted: TileMapLayer) -> Dictionary:
 			continue
 		var at := cell_pos + _cell_offset
 		if not grid.has_cell(at):
+			_warn_outside(painted, cell_pos)
 			continue
 		var style := str(data.get_custom_data(STYLE_DATA_LAYER))
-		if style.is_empty() or GATE_STYLES.has(style) or _kit(style).is_empty():
+		if GATE_STYLES.has(style):
+			cells[at] = {"gate": str(GATE_STYLES[style]), "axis": gate_axis(painted, cell_pos), "level": grid.level_of_cell(at)}
+			continue
+		if style.is_empty() or _kit(style).is_empty():
 			continue
 		var direction := int(data.get_custom_data(DIRECTION_DATA_LAYER)) if painted.tile_set.has_custom_data_layer_by_name(DIRECTION_DATA_LAYER) else ALL_NEIGHBORS_DIRECTION
 		cells[at] = {"style": style, "direction": direction, "level": grid.level_of_cell(at)}
 	return cells
+
+
+func _warn_outside(painted: TileMapLayer, cell_pos: Vector2i) -> void:
+	var where := str(painted.get_path()) if painted.is_inside_tree() else str(painted.name)
+	var key := "%s %s" % [where, cell_pos]
+	if _outside_warned.has(key):
+		return
+	_outside_warned[key] = true
+	push_warning("Fences: the fence painted at cell %s of '%s' lies outside the world's grid and is not built" % [cell_pos, where])
 
 
 ## One link per linked neighbouring pair (`_can_link`), in reading order (north to south, west to
@@ -415,13 +469,27 @@ static func _cell_key_after(a: Vector2i, b: Vector2i) -> bool:
 
 
 ## The pieces of every painted cell and link: a post per cell, rails per link (in the style of the
-## cell whose arrow asks for the link: `from`'s, unless only `to` points back), and a lone cell's
-## stub (a second post half a cell along its arrow, `lone_stub`). Records the collision boxes.
+## cell whose arrow asks for the link: `from`'s, unless only `to` points back), the rails joining a
+## divider gate to the posts beside it (`_add_gate_links`), and a lone cell's stub (a second post half
+## a cell along its arrow, `lone_stub`). Records the collision boxes.
 func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Dictionary) -> void:
 	if cells.is_empty():
 		return
+	var posts := {}
+	var gates := {}
+	for at: Vector2i in cells:
+		if (cells[at] as Dictionary).has("gate"):
+			gates[at] = cells[at]
+		else:
+			posts[at] = cells[at]
+	cells = posts
 	var links := connected_links(cells)
 	var linked_cells := {}
+	var gate_links := _add_gate_links(gates, cells, shadows, depth)
+	# cell -> the directions it is joined in (to a post or a gate): a run's end has one
+	var joins := {}
+	for at: Vector2i in gate_links:
+		(joins.get_or_add(at, []) as Array).append_array(gate_links[at])
 	for link: Dictionary in links:
 		var from: Vector2i = link["from"]
 		var to: Vector2i = link["to"]
@@ -429,6 +497,8 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 		var to_entry: Dictionary = cells[to]
 		linked_cells[from] = true
 		linked_cells[to] = true
+		(joins.get_or_add(from, []) as Array).append(int(link["direction"]))
+		(joins.get_or_add(to, []) as Array).append(posmod(int(link["direction"]) + 4, 8))
 		var style := str(from_entry["style"])
 		# The arrow that asks for the link owns its span; two all-neighbour tiles: `from`'s style.
 		if int(to_entry.get("direction", ALL_NEIGHBORS_DIRECTION)) == posmod(int(link["direction"]) + 4, 8) \
@@ -456,18 +526,123 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 			continue
 		var level := int(entry["level"])
 		var foot := _foot(at)
+		var post_half := float(kit["posts"]["half_width"])
 		_add_post(style, kit, level, foot, shadows, _depth_for(depth, style))
-		_add_post_box(level, foot)
+		_add_post_box(level, foot, post_half)
+		# A run's end against a wall (the cell past it, away from the one join it has, is a room's wall
+		# or a built wall) reaches it: a second post at its cell's edge and the rail between, as a
+		# lone tile's stub (owner, 2026-10-19: ending on the cell's middle post, a run left a 32-unit
+		# gap at the wall's foot the slime walked through).
+		var joined: Array = joins.get(at, [])
+		if joined.size() == 1:
+			var outward := posmod(int(joined[0]) + 4, 8)
+			if not cells.has(at + DIRECTIONS[outward]) and _wall_beyond(at, outward):
+				var to_wall := foot + lone_stub(outward) * cell
+				_add_post(style, kit, level, to_wall, shadows, _depth_for(depth, style))
+				_add_post_box(level, to_wall, post_half)
+				_add_span(style, kit, level, foot, to_wall, _front_normal((to_wall - foot).normalized()), shadows, _depth_for(depth, style))
+				_add_link_box(level, foot, to_wall)
+				continue
 		if linked_cells.has(at):
+			continue
+		var direction := int(entry.get("direction", ALL_NEIGHBORS_DIRECTION))
+		# A cell joined only to gates keeps its stub when its arrow points away from them (a short
+		# fence on the gate's far side, to meet a wall); an all-neighbour tile, or an arrow at its
+		# gate, is its post and the rails to the gate.
+		if gate_links.has(at) and (direction == ALL_NEIGHBORS_DIRECTION or (gate_links[at] as Array).has(direction)):
 			continue
 		# A lone tile is a short fence of two posts: its own and one at its cell's edge (a diagonal's
 		# corner) the way its arrow points (east for an all-neighbour tile), the rail between them;
 		# it collides as both posts and that rail's band.
-		var far := foot + lone_stub(int(entry.get("direction", ALL_NEIGHBORS_DIRECTION))) * cell
+		var far := foot + lone_stub(direction) * cell
 		_add_post(style, kit, level, far, shadows, _depth_for(depth, style))
-		_add_post_box(level, far)
+		_add_post_box(level, far, post_half)
 		_add_span(style, kit, level, foot, far, _front_normal((far - foot).normalized()), shadows, _depth_for(depth, style))
 		_add_link_box(level, foot, far)
+
+
+## The rails joining each divider gate (`gates`: cell -> {"gate": kind, "axis", "level"}) to the
+## posts beside it along its line, whatever their arrows, on its level: from the post up to the
+## gate's block (DividerGate.block_half_width), in the post's style, their ends outlined
+## (`_add_rail_end`), and their bands from the post's foot to the block's edge, where the gate's own
+## body takes over. Returns post cell -> the directions (DIRECTIONS indices) from it to its gates.
+func _add_gate_links(gates: Dictionary, posts: Dictionary, shadows: MeshData, depth: Dictionary) -> Dictionary:
+	var joined := {}
+	for at: Vector2i in gates:
+		var gate: Dictionary = gates[at]
+		var level := int(gate["level"])
+		var axis: Vector2i = gate["axis"]
+		var half := DividerGateScript.block_half_width(str(gate["gate"]))
+		for side: Vector2i in [-axis, axis]:
+			var post_at := at + side
+			if not posts.has(post_at) or int((posts[post_at] as Dictionary)["level"]) != level:
+				continue
+			var style := str((posts[post_at] as Dictionary)["style"])
+			var kit := _kit(style)
+			if kit.is_empty():
+				continue
+			var foot := _foot(post_at)
+			var edge := _foot(at) + Vector2(side) * half
+			_add_span(style, kit, level, foot, edge, _front_normal((edge - foot).normalized()), shadows,
+					_depth_for(depth, style), true, false)
+			_add_rail_end(style, kit, level, edge, -side, _depth_for(depth, style))
+			_add_link_box(level, foot, edge)
+			if not joined.has(post_at):
+				joined[post_at] = []
+			(joined[post_at] as Array).append(DIRECTIONS.find(-side))
+	return joined
+
+
+## The end of the rails at a divider gate's block (`end`: the block's edge on the foot line;
+## `facing`: the way the end faces, to the gate), seen when the gate is open, so the wall ends
+## outlined as the art does: on a front run a slice of the kit's post side over the rails' height
+## (the post's shaded east side or its lit west side, with its outline); on a north-south run the
+## end facing south shows a slice of the front rails as its face (the end facing north is hidden
+## under the rails' top).
+func _add_rail_end(style: String, kit: Dictionary, level: int, end: Vector2, facing: Vector2i, depth: Array) -> void:
+	if facing == Vector2i.UP:
+		return
+	var rails: Dictionary = kit["rails"]
+	var bottom := float(rails["bottom"])
+	var arrays := MeshData.new()
+	var silhouette := MeshData.new()
+	if facing == Vector2i.DOWN:
+		var side: Dictionary = kit["side"]
+		var top := float(side["top"])
+		var half := float(side["size"][0]) * 0.25
+		# under the north-south rails' strip (fences.gd `_add_span`: along the posts' inner side)
+		var x := end.x - float(side["offset"])
+		var strip_h := float(rails["size"][1])
+		var corners := [[Vector2(x - half, end.y - top), 0.0], [Vector2(x + half, end.y - top), 0.0],
+				[Vector2(x + half, end.y - bottom), strip_h], [Vector2(x - half, end.y - bottom), strip_h]]
+		for index: int in [0, 1, 2, 0, 2, 3]:
+			var point: Vector2 = corners[index][0]
+			var uv := Vector2(point.x * 2.0, float(corners[index][1]))
+			var dy := point.y - end.y
+			arrays.add(point, uv, _color(SHADE_FRONT, dy, KIND_RAILS, level))
+			silhouette.add(point, uv - Vector2(0.0, DEPTH_UV_OFFSET), ElevationOcclusion.encode(level, dy))
+	else:
+		var top := float(rails["top"])
+		var centre_px := float(kit["posts"]["cell"][0]) * 0.5
+		var side_px := float(kit["posts"]["half_width"]) * 2.0
+		var foot_row := float(kit["posts"]["foot_row"])
+		var east := facing == Vector2i.RIGHT
+		var u0 := centre_px + side_px - RAIL_END_PX if east else centre_px - side_px
+		var x0 := end.x - RAIL_END_PX / 2.0 if east else end.x
+		var x1 := x0 + RAIL_END_PX / 2.0
+		var corners := [
+			[Vector2(x0, end.y - top), Vector2(u0, foot_row - top * 2.0)], [Vector2(x1, end.y - top), Vector2(u0 + RAIL_END_PX, foot_row - top * 2.0)],
+			[Vector2(x1, end.y - bottom), Vector2(u0 + RAIL_END_PX, foot_row - bottom * 2.0)], [Vector2(x0, end.y - bottom), Vector2(u0, foot_row - bottom * 2.0)],
+		]
+		for index: int in [0, 1, 2, 0, 2, 3]:
+			var point: Vector2 = corners[index][0]
+			var uv: Vector2 = corners[index][1]
+			var dy := point.y - end.y
+			arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_POST, level))
+			silhouette.add(point, uv, ElevationOcclusion.encode(level, dy))
+	# after the rails, before the gate (which stands in front of their ends)
+	_add_piece(style, kit, end.y - 0.5, arrays)
+	depth.append([end.y + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
 
 
 ## Where a lone tile's second post stands from its own, in cells: half a cell along its arrow
@@ -477,6 +652,26 @@ static func lone_stub(direction: int) -> Vector2:
 	if direction < 0 or direction >= DIRECTIONS.size():
 		direction = LONE_STUB_DIRECTION
 	return Vector2(DIRECTIONS[direction]) * 0.5
+
+
+## True when the cell past `at` (a painted cell, grid space) going `direction` is a wall a run ends
+## against: a dungeon room's wall (an InteriorWallLayer's `is_wall`) or a built wall (a WallLayer
+## cell), beside the ground layer.
+func _wall_beyond(at: Vector2i, direction: int) -> bool:
+	var parent := ground.get_parent() if ground != null else null
+	if parent == null:
+		return false
+	var next := at + DIRECTIONS[direction] - _cell_offset
+	for child: Node in parent.get_children():
+		var layer := child as TileMapLayer
+		if layer == null:
+			continue
+		if layer.has_method(&"is_wall"):
+			if bool(layer.call(&"is_wall", next)):
+				return true
+		elif layer is WallLayer and layer.get_cell_source_id(next) != -1:
+			return true
+	return false
 
 
 ## Where a painted cell's post stands (its foot: the cell's centre, this node's space).
@@ -529,9 +724,10 @@ func _add_post(style: String, kit: Dictionary, level: int, foot: Vector2, shadow
 
 
 ## The rails between two posts: sheared along a front or diagonal run (they stop at the posts'
-## sides), seen from above along an east or west run (the posts cover their ends).
+## sides), seen from above along an east or west run (the posts cover their ends). `a_post` or
+## `b_post` false: no post stands at that end (a divider gate's block: the rail runs to the point).
 func _add_span(style: String, kit: Dictionary, level: int, a: Vector2, b: Vector2,
-		outward: Vector2, shadows: MeshData, depth: Array) -> void:
+		outward: Vector2, shadows: MeshData, depth: Array, a_post: bool = true, b_post: bool = true) -> void:
 	var arrays := MeshData.new()
 	var silhouette := MeshData.new()
 	var sort_y := 0.0
@@ -565,8 +761,8 @@ func _add_span(style: String, kit: Dictionary, level: int, a: Vector2, b: Vector
 		var left := a if a.x < b.x else b
 		var right := b if a.x < b.x else a
 		var half_width := float(kit["posts"]["half_width"])
-		var x0 := left.x + half_width - 1.0
-		var x1 := right.x - half_width + 1.0
+		var x0 := left.x + (half_width - 1.0 if (a_post if a.x < b.x else b_post) else 0.0)
+		var x1 := right.x - (half_width - 1.0 if (b_post if a.x < b.x else a_post) else 0.0)
 		if x1 <= x0:
 			return
 		var slope := (right.y - left.y) / (right.x - left.x)
@@ -700,10 +896,11 @@ func _add_link_box(level: int, a: Vector2, b: Vector2) -> void:
 	_add_box(level, a.lerp(b, 0.5) + raise, Vector2(a.distance_to(b) * 0.5, half_thickness), (b - a).normalized())
 
 
-## A post's rect: `sideHalfWidth` each side of its foot, from `bandAbove` to `bandBelow` above it.
-func _add_post_box(level: int, foot: Vector2) -> void:
+## A post's rect: `half_width` (its kit's post, `posts.half_width`) each side of its foot, from
+## `bandAbove` to `bandBelow` above it.
+func _add_post_box(level: int, foot: Vector2, half_width: float) -> void:
 	_add_box(level, foot + Vector2(0.0, -(_band_above + _band_below) * 0.5),
-			Vector2(_side_half, (_band_above - _band_below) * 0.5), Vector2.RIGHT)
+			Vector2(half_width, (_band_above - _band_below) * 0.5), Vector2.RIGHT)
 
 
 func _add_box(level: int, centre: Vector2, half: Vector2, axis: Vector2) -> void:
@@ -745,9 +942,14 @@ func _build_collision() -> void:
 		holder.add_child(body)
 
 
-## The physics layer bit project.godot names "level <n>", 0 when none is.
+## The physics layer bit project.godot names "level <n>", 0 when none is (looked up once a level).
 static func _level_bit(level: int) -> int:
+	if _level_bits.has(level):
+		return int(_level_bits[level])
+	var bit := 0
 	for i in range(1, 33):
 		if str(ProjectSettings.get_setting("layer_names/2d_physics/layer_%d" % i, "")) == "level %d" % level:
-			return 1 << (i - 1)
-	return 0
+			bit = 1 << (i - 1)
+			break
+	_level_bits[level] = bit
+	return bit

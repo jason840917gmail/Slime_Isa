@@ -7,8 +7,9 @@ extends RefCounted
 ##   lined up (the slime's hurtbox middle within 8 px of its line), winds up and shoots down the
 ##   line; a slime that steps off the line in the wind-up is missed; too close it backs off along
 ##   the line at 80. The Slime Spider does the same at 140, sideways (looking at the slime), and
-##   backs off at 86. The Spitcap spits only along a line it shares with the slime, the Pipe Worm
-##   only straight out of its pipe.
+##   backs off at 86. The Spitcap spits only along a line it shares with the slime. The Pipe Worm
+##   (owner 2026-10-19) sees only the half of the world in front of its wall and spits at the slime
+##   anywhere in it, the glob born off its wall.
 ## - Worm archer (40 hp, range 220, fleeRange 120, windup 600, cooldown 2200): the arrow leaves
 ##   600 ms after the attack starts, from the archer's centre, along its line, at 180 px/s; it hits
 ##   for max(1, 22 - 3) = 19 with knockback 180 along its flight, then frees itself.
@@ -348,11 +349,10 @@ func test_slime_spider_lines_up_spits_webs_and_backs_off(t: TestContext) -> void
 	t.check(away.x > 0.95 * SPIDER_BACK_OFF_SPEED, "the spider does not back off along the row (velocity %s)" % away)
 
 
-## Four-way turrets (enemy spec 20, BESTIARY.md): the Spitcap spits only along a row or column it
-## shares with the slime (within 16 px), the Pipe Worm only straight out of its pipe (its scene's
-## faces down); at a diagonal neither spits.
+## The four-way turret (enemy spec 20, BESTIARY.md): the Spitcap spits only along a row or column it
+## shares with the slime (within 16 px); at a diagonal it does not spit.
 func test_turrets_spit_only_along_their_lines(t: TestContext) -> void:
-	for kind: Array in [["spitcap", "spore-seed", SEED_SPEED], ["pipe-worm", "mud-glob", GLOB_SPEED]]:
+	for kind: Array in [["spitcap", "spore-seed", SEED_SPEED]]:
 		t.teleport_player(OPEN)
 		var turret := _spawn(t, str(kind[0]), OPEN + Vector2(-150.0, -150.0))
 		if turret == null:
@@ -377,6 +377,43 @@ func test_turrets_spit_only_along_their_lines(t: TestContext) -> void:
 		for projectile: ProjectileScript in _projectiles(t):
 			projectile.expire()
 		await t.sim_wait(300.0)
+
+
+## The Pipe Worm (BESTIARY.md "Pipe Worm", owner 2026-10-19; its scene's pipe faces down): a slime
+## behind its wall (above it) is not seen, however near; one on a diagonal in front is spat at, the
+## glob flying toward it from a spot off the wall.
+func test_pipe_worm_sees_its_front_half_and_spits_at_the_slime(t: TestContext) -> void:
+	t.teleport_player(OPEN)
+	var worm := _spawn(t, "pipe-worm", OPEN + Vector2(-150.0, -150.0))
+	if worm == null:
+		return
+	var shot := {}
+	var watch := func() -> bool:
+		for script: ProjectileScript in _projectiles(t):
+			if script.projectile_id == "mud-glob":
+				shot["velocity"] = script.body.velocity
+				shot["from"] = script.body.global_position
+				return true
+		return false
+	# Behind its wall, 120 px above it: it stays down in its pipe.
+	t.teleport_player(worm.get_centre() + Vector2(0.0, -120.0))
+	var behind := await t.until(watch, 2500.0)
+	t.check(not behind, "the worm spat at a slime behind its wall (velocity %s)" % shot.get("velocity"))
+	t.equal(worm.get_phase(), "hidden", "the worm's phase with the slime behind its wall")
+	# On a diagonal in front (150 px across, 150 down): it spits at it.
+	t.teleport_player(worm.get_centre() + Vector2(150.0, 150.0))
+	shot.clear()
+	var fired := await t.until(watch, 3000.0)
+	if t.check(fired, "the worm never spat at a slime on a diagonal in front of it"):
+		var velocity: Vector2 = shot["velocity"]
+		t.near(velocity.length(), GLOB_SPEED, 0.01, "mud-glob speed")
+		var toward: Vector2 = Services.world().player.call(&"get_centre") - (shot["from"] as Vector2)
+		t.check(absf(velocity.angle_to(toward)) < deg_to_rad(20.0), "the glob flies toward the slime (velocity %s, slime %s)" % [velocity, toward])
+		t.check((shot["from"] as Vector2).y > worm.get_centre().y + 30.0, "the glob is born off the wall (at %s)" % shot["from"])
+	worm.body.queue_free()
+	for projectile: ProjectileScript in _projectiles(t):
+		projectile.expire()
+	await t.sim_wait(300.0)
 
 
 func test_brawler_melee_hit_spawns_its_impact_effect(t: TestContext) -> void:
@@ -569,11 +606,18 @@ func test_legacy_spawning_in_icege(t: TestContext) -> void:
 	t.equal(population.alive_count_all(), 8, "enemies seeded around the arrival (min(8, maxPopulation 16))")
 	var size: Vector2 = t.world().world_rect().size
 	for enemy: EnemyScript in population.live_enemies():
-		var at := enemy.get_centre()
+		t.check(enemy.get_spawn_area().is_empty(), "a legacy enemy has a spawn area")
+	# The spawn rule itself, sampled where the slime stands now (the seeded enemies have walked since
+	# they spawned, so their places no longer show it: 2026-10-19 review, this check was random):
+	# at most `radius.max` (500) px from the player's centre, clamped 40 px inside the world.
+	for _sample in 40:
+		var point: Variant = population._find_legacy_spawn_point()
+		if not t.check(point is Vector2, "no legacy spawn point found"):
+			break
+		var at: Vector2 = point
 		var clamped := Vector2(clampf(at.x, 40.0, size.x - 40.0), clampf(at.y, 40.0, size.y - 40.0))
 		t.near_vec(at, clamped, 0.5, "legacy spawn inside the 40 px inset")
-		t.check(at.distance_to(centre) <= 500.0 + 1.0, "a legacy spawn %.0f px from the player" % at.distance_to(centre))
-		t.check(enemy.get_spawn_area().is_empty(), "a legacy enemy has a spawn area")
+		t.check(at.distance_to(centre) <= 500.0 + 0.5, "a legacy spawn point %.0f px from the player" % at.distance_to(centre))
 	var seeded := population.alive_count_all()
 	await t.sim_wait(1600.0)
 	t.check(population.alive_count_all() > seeded, "no legacy spawn after the 1500 ms interval")

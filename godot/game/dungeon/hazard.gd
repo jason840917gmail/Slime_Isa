@@ -25,10 +25,20 @@ class_name Hazard
 ## wall sinks into the dark; the spike rows; the glowing lava), or is a flat pit in a world without
 ## elevation. Keep a hazard above its decks in the tree (they draw over it).
 ##
+## Over painted elevation its floor and its rim come from the paint (`_read_paint`): its floor is the
+## lowest level painted under its rectangle (a pit's `level` when set), its rim the lowest level
+## painted round that floor. It catches only on the cells painted below the rim (a pit: on its floor),
+## so a rectangle that also covers rim-level floor catches nothing there; `rim_level`, `pit_depth` and
+## a void's `level` that disagree with the paint are warned about and not used. Where nothing under it
+## is painted lower (deep water on flat ground), and without elevation, it covers its whole rectangle.
+##
+## Its `z_index` (LOOK_Z, set in `_ready`) is not stored in the scene (`_validate_property`).
+##
 ## Owner: dungeon kit.
 
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 
 const GROUP := &"hazards"
 const KINDS: PackedStringArray = ["void", "spikes", "lava", "water"]
@@ -52,6 +62,8 @@ const PIT_SIDE := 24.0
 const EDGE_EPSILON := 0.5
 ## The squares (units) a pit's floor is read in.
 const PIT_STEP := 8.0
+## `level` unset; `_paint_floor` / `_paint_rim` when the paint gives none.
+const NO_LEVEL := -99
 
 @export_enum("void", "spikes", "lava", "water") var kind: String = "void":
 	set(value):
@@ -62,14 +74,16 @@ const PIT_STEP := 8.0
 	set(value):
 		size = value
 		queue_redraw()
-## The elevation level of the ground around it and of its decks (0 without elevation).
+## The elevation level of the ground around it and of its decks (0 without elevation). Over painted
+## elevation the paint's rim is used (`rim`).
 @export var rim_level: int = 0
-## A sunken spike or lava pit: how many levels below `rim_level` its floor is.
+## A sunken spike or lava pit: how many levels below `rim_level` its floor is (without painted
+## elevation; over it, the paint's floor is used).
 @export var pit_depth: int = 1
-## The floor level it covers (one hazard per floor level; it hurts only on its level): -99 (the
-## default) takes `rim_level` - `pit_depth`. Set, it also sets the rim (`level` + `pit_depth`). Its
-## rectangle may be as big as the room: it catches and draws only on the cells the `elevation`
-## layer paints at that level, never on the levels above.
+## A spike or lava pit's floor level (one hazard per floor level; it hurts only on its level): -99
+## (the default) takes the lowest level painted under its rectangle (without paint `rim_level` -
+## `pit_depth`). Its rectangle may be as big as the room: it catches and draws only on the cells the
+## `elevation` layer paints at that level, never on the levels above. A void or deep water ignores it.
 @export var level: int = -99:
 	set(value):
 		level = value
@@ -98,6 +112,14 @@ const PIT_STEP := 8.0
 var _spikes: Texture2D
 ## The look's holder inside the elevation drawing (`_attach_look`).
 var _look: Node2D
+## Its floor and rim as the `elevation` layer paints them (`_read_paint`), NO_LEVEL when it paints no
+## floor lower than the ground round it; read once in the game.
+var _paint_floor := NO_LEVEL
+var _paint_rim := NO_LEVEL
+var _paint_read := false
+## Its world's painted `elevation` layer, once looked up (`_painted_layer`).
+var _layer: TileMapLayer
+var _layer_found := false
 
 
 func _enter_tree() -> void:
@@ -116,62 +138,158 @@ func _ready() -> void:
 	watch_script.call(&"ensure", self)
 
 
+## `z_index` is LOOK_Z, set in `_ready`: not stored, so opening a world in the editor never writes it.
+func _validate_property(property: Dictionary) -> void:
+	if property["name"] == "z_index":
+		property["usage"] = int(property["usage"]) & ~PROPERTY_USAGE_STORAGE
+
+
 ## The hazard in world coordinates.
 func rect() -> Rect2:
 	return Rect2(global_position, size)
 
 
-## The floor level the hazard covers (`level`, else `rim_level` - `pit_depth`; a void or water:
-## its rim's level, it has no floor).
+## True for a sunken pit (spikes, lava): it hurts on its floor; a void or deep water swallows.
+func is_pit() -> bool:
+	return kind == "spikes" or kind == "lava"
+
+
+## The floor level the hazard covers: over painted elevation the paint's (a pit's `level` when set,
+## else the lowest level painted under it); without, a pit's `level`, else `rim_level` - `pit_depth`,
+## and a void's or water's rim (it has no floor).
 func floor_level() -> int:
-	if level != -99:
+	if is_pit() and level != NO_LEVEL:
 		return level
-	if kind == "spikes" or kind == "lava":
+	_read_paint()
+	if _paint_floor != NO_LEVEL:
+		return _paint_floor
+	if is_pit():
 		return rim_level - pit_depth
 	return rim_level
 
 
-## The level of the ground around it, its decks' level (`rim_level`, or `level` + `pit_depth`).
+## The level of the ground around it, its decks' level: over painted elevation the paint's (the
+## lowest level painted round its floor), else `rim_level` (a pit with `level` set: `level` +
+## `pit_depth`).
 func rim() -> int:
-	return level + pit_depth if level != -99 else rim_level
+	_read_paint()
+	if _paint_rim != NO_LEVEL:
+		return _paint_rim
+	return level + pit_depth if is_pit() and level != NO_LEVEL else rim_level
 
 
-## True when `point` (world units) is in the hazard: in its rectangle and, for a pit (spikes,
-## lava), on a cell the `elevation` layer paints at its `floor_level()` (unpainted cells are level
-## 0; stairs never: they lead out). So a pit's hazard follows the painted floor of its level, however
-## big its rectangle is drawn. A void or water, or a world without elevation, covers its whole
+## True when `point` (world units) is in the hazard: in its rectangle and, over painted elevation,
+## on a cell it covers (`_cell_covered`: a pit's cells painted at its `floor_level()`, a void's or
+## water's cells painted below its `rim()`; unpainted cells are level 0, stairs never: they lead out).
+## So it follows the painted hole, however big its rectangle is drawn. A void or water with nothing
+## painted lower under it (deep water on flat ground), or a world without elevation, covers its whole
 ## rectangle.
 func covers(point: Vector2) -> bool:
 	# strictly inside: feet held at a rim stop on the hole's edge, which is the rim's, not the hole's
 	if not rect().grow(-EDGE_EPSILON).has_point(point):
 		return false
-	if kind != "spikes" and kind != "lava":
-		return true
 	var painted := _painted_layer()
 	if painted == null:
 		return true
+	if not is_pit():
+		_read_paint()
+		if _paint_floor == NO_LEVEL:
+			return true
 	# a point on a cell's edge is in only when the cells on both sides are (a rim's edge is not)
 	for d: Vector2 in [Vector2(0.0, -EDGE_EPSILON), Vector2(0.0, EDGE_EPSILON), Vector2(-EDGE_EPSILON, 0.0), Vector2(EDGE_EPSILON, 0.0)]:
-		if not _cell_on_floor(painted, painted.local_to_map(painted.to_local(point + d))):
+		if not _cell_covered(painted, painted.local_to_map(painted.to_local(point + d))):
 			return false
 	return true
 
 
-## Whether painted cell `cell` is open floor of this hazard's level (not a stair).
-func _cell_on_floor(painted: TileMapLayer, cell: Vector2i) -> bool:
+## Whether painted cell `cell` is one it covers: a pit's open floor of its level, a void's or water's
+## hole below its rim (never a stair).
+func _cell_covered(painted: TileMapLayer, cell: Vector2i) -> bool:
+	var at := _painted_level(painted, cell)
+	if at == NO_LEVEL:
+		return false
+	return at == floor_level() if is_pit() else at < rim()
+
+
+## The level painted on `cell` (unpainted 0; a stair or ramp NO_LEVEL).
+static func _painted_level(painted: TileMapLayer, cell: Vector2i) -> int:
 	var data := painted.get_cell_tile_data(cell)
 	if data == null:
-		return floor_level() == 0
+		return 0
 	if painted.get_cell_atlas_coords(cell).y > 0:
-		return false
-	return int(data.get_custom_data(&"elevation_level")) == floor_level()
+		return NO_LEVEL
+	return int(data.get_custom_data(&"elevation_level"))
 
 
-## The world's painted `elevation` layer (its holes), or null.
+## Reads its floor and rim from the `elevation` paint (`_paint_floor`, `_paint_rim`): the floor is a
+## pit's `level` when set, else the lowest level painted on the cells under its rectangle; the rim the
+## lowest level painted higher than the floor on the cells beside the floor's cells (inside its
+## rectangle or out: the ground the hole is dug into, not a higher cliff beside it). Both NO_LEVEL
+## when no cell of the floor has higher ground beside it. Once in the game (then warns when its
+## settings disagree), every time in the editor.
+func _read_paint() -> void:
+	if _paint_read and not Engine.is_editor_hint():
+		return
+	var painted := _painted_layer()
+	if painted == null:
+		return
+	_paint_read = true
+	_paint_floor = NO_LEVEL
+	_paint_rim = NO_LEVEL
+	var first := painted.local_to_map(painted.to_local(global_position))
+	var last := painted.local_to_map(painted.to_local(global_position + size - Vector2(0.01, 0.01)))
+	var lowest := NO_LEVEL
+	for y in range(first.y, last.y + 1):
+		for x in range(first.x, last.x + 1):
+			var at := _painted_level(painted, Vector2i(x, y))
+			if at != NO_LEVEL and (lowest == NO_LEVEL or at < lowest):
+				lowest = at
+	var floor_at := level if is_pit() and level != NO_LEVEL else lowest
+	var around := NO_LEVEL
+	for y in range(first.y, last.y + 1):
+		for x in range(first.x, last.x + 1):
+			if _painted_level(painted, Vector2i(x, y)) != floor_at:
+				continue
+			for d: Vector2i in [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]:
+				var beside := _painted_level(painted, Vector2i(x, y) + d)
+				if beside != NO_LEVEL and beside > floor_at and (around == NO_LEVEL or beside < around):
+					around = beside
+	if around == NO_LEVEL:
+		return
+	_paint_floor = floor_at
+	_paint_rim = around
+	if not Engine.is_editor_hint():
+		_warn_against_paint()
+
+
+## Warns (once) when its settings say another floor or rim than the paint under it does (the paint is
+## used): a pit's `rim_level` - `pit_depth` (or `level` + `pit_depth`), a void's `level`.
+func _warn_against_paint() -> void:
+	var said_rim := level + pit_depth if level != NO_LEVEL else rim_level
+	var said_floor := level if level != NO_LEVEL else rim_level - pit_depth
+	var wrong := said_rim != _paint_rim or (is_pit() and said_floor != _paint_floor) \
+		or (not is_pit() and level != NO_LEVEL and level != _paint_floor)
+	if wrong:
+		push_warning("Hazard %s (%s): its settings give floor %d, rim %d (rim_level %d, pit_depth %d, level %d); the elevation paints floor %d, rim %d under it, which it uses" % [
+			get_path(), kind, said_floor, said_rim, rim_level, pit_depth, level, _paint_floor, _paint_rim])
+
+
+## The painted `elevation` layer (its holes) of the world scene it stands in (never another world's:
+## it is read before its world is registered), or null when that world paints none. Looked up once in
+## the game.
 func _painted_layer() -> TileMapLayer:
-	var elevation := _elevation()
-	var layer: Variant = elevation.get(&"layer") if elevation != null else null
-	return layer as TileMapLayer
+	if _layer_found and not Engine.is_editor_hint():
+		return _layer if is_instance_valid(_layer) else null
+	var at: Node = get_parent()
+	while at != null:
+		var ground := at.get_node_or_null(^"ground") as TileMapLayer
+		if ground != null:
+			var painted := Elevation.find_layer(ground)
+			_layer = painted if painted != null and painted.get_used_rect().has_area() else null
+			_layer_found = true
+			return _layer
+		at = at.get_parent()
+	return null
 
 
 ## Health lost per hit or fall.
@@ -268,9 +386,10 @@ func _draw_look_on(ci: CanvasItem) -> void:
 				_draw_lava(ci, cell)
 
 
-## The cells of its floor level inside its rectangle (local rects, clipped to it), in runs along each
-## row so the spikes tile is drawn in few strips. Empty without the painted elevation layer (the
-## whole look is drawn then).
+## The cells it covers inside its rectangle (`_cell_covered`: a pit's floor; local rects, clipped to
+## it), in runs along each row so the spikes tile is drawn in few strips. Empty without the painted
+## elevation layer (the whole look is drawn then), and for a void or water with nothing painted lower
+## under it (it covers its whole rectangle).
 func _pit_floor_cells() -> Array[Rect2]:
 	var out: Array[Rect2] = []
 	if not is_inside_tree():
@@ -278,6 +397,10 @@ func _pit_floor_cells() -> Array[Rect2]:
 	var painted := _painted_layer()
 	if painted == null:
 		return out
+	if not is_pit():
+		_read_paint()
+		if _paint_floor == NO_LEVEL:
+			return out
 	var area := rect()
 	var step := float(painted.tile_set.tile_size.x) if painted.tile_set != null else PIT_CELL
 	var first := painted.local_to_map(painted.to_local(area.position))
@@ -285,7 +408,7 @@ func _pit_floor_cells() -> Array[Rect2]:
 	for y in range(first.y, last.y + 1):
 		var start := -1
 		for x in range(first.x, last.x + 2):
-			var on := x <= last.x and _cell_on_floor(painted, Vector2i(x, y))
+			var on := x <= last.x and _cell_covered(painted, Vector2i(x, y))
 			if on and start < 0:
 				start = x
 			elif not on and start >= 0:

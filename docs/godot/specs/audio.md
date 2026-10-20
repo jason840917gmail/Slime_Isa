@@ -61,7 +61,7 @@ world root, `loop: true`, `autoplay: true`, `polyphony: 1`:
 |---|---|---|
 | `level-1` | `audio.music.level-1-home-town` (`godot/asset/audio/music/level-1-home-town.ogg`), volume 0.55 | `audio.sfx.world.meadow-ambience.1`, volume 0.35 |
 | `gloop-forest` | `audio.music.gloop-forest` (`gloop-forest.mp3`), volume 0.5 | `audio.music.gloop-forest-ambience` (mp3), volume 0.35 |
-| the dungeons: `fatty-lair` (the shell, not its room scenes), `weaver-hollow-trunk`, `-roots`, `-boughs`, `-crown`, `crystal-mine` | `dungeon.wav` (72 s loop), volume 0.5 | — |
+| the dungeons: every room world of Fatty's Lair (`fatty-lair`, `fatty-lair-<room>`: each room scene has its own MusicPlayer, one track), `weaver-hollow-trunk`, `-roots`, `-boughs`, `-crown`, `crystal-mine` | `dungeon.wav` (72 s loop), volume 0.5 | — |
 | the caves: `gloop-cavern`, `hollow-hill-cave` | `cave-a.wav` ("bass and drops"), volume 0.5 | — |
 | the cave `lake-island-cave` | `cave-b.wav` ("chiptune bass"), volume 0.5 | — |
 | the interiors `slime-home`, `gloop-hut` | `interior-a.wav` ("solo piano"), volume 0.5 | `audio.sfx.world.interior-ambience.1`, volume 0.35 |
@@ -339,9 +339,12 @@ the remaining leave time or 1200 ms and is freed at silence, otherwise it is sto
 once; the new world's track is claimed at gain 0 and fades in over 1500 ms (1200 if the boss track
 is still audible, Phaser's rule). Godot: when the new world plays the same file as the track still
 playing, that track carries on and the new world's player is freed: on a scroll into the next
-chunk of a region (no leave fade, the music never dips), and on any travel of main's after the
-leave fade (the next floor of the Weaver Hollow, a door between two worlds with one track): the
-track keeps its place and fades back in over 1500 ms instead of starting over. A quit to title or a
+chunk of a region or through a room door into the next room of Fatty's Lair (main.gd
+`is_travelling_within_region`: no leave fade, the music never dips), and on any travel of main's
+after the leave fade (the next floor of the Weaver Hollow, a door between two worlds with one track,
+a stair hatch, a pause-menu load, a faint waking in another world: `load_run` and
+`respawn_in_world` travel too): the track keeps its place and fades back in over 1500 ms instead of
+starting over. A quit to title or a
 new main still starts the track from the top. The boss track is not restarted; with no engaged camp it fades
 out and stops by the normal rule. Then `AreaTransition` plays for main's worlds
 (`play_arrival_cue`, default true, turns it off entirely).
@@ -593,7 +596,7 @@ and `picks.json`), so the new Gulp sounds are the Gulp's alone:
 | `GulpThroat` | goo-inhale | the swallow ring's rising throat sound (its stream pitched up) | `mouth_hold.gd` `THROAT_SOURCE_CUE` |
 | `BubbleRise` / `BubblePop` | goo-inhale / goo-ptoo | the prologue's birth bubble rises / pops | `prologue/birth_bubble.gd` |
 | `MimicWrap` / `MimicGrab` / `MimicSpit` | goo-inhale / goo-plop / goo-ptoo | the Cocoon Mimic wraps, grabs, spits the slime out | `cocoon_mimic.gd` |
-| `PipeWormCharge` / `PipeWormSpit` | goo-inhale / goo-ptoo | the Pipe Worm charges, spits its glob | `pipe_worm.gd` |
+| `PipeWormSpit` | pipe-worm-spit (Sound Picker round 8, 2026-10-19; `PipeWormCharge` is left in `global.tscn`, never played: the charge is silent) | the Pipe Worm spits its glob, its only sound | `pipe_worm.gd` |
 | `SpitcapCharge` / `SpitcapSpit` | goo-inhale / goo-ptoo | the Spitcap charges, spits its seed | `spitcap.gd` |
 | `RookSteal` | goo-plop | the Rook Thief steals | `rook_thief.gd` |
 | `HeavyBlockGrab` | goo-plop | the slime grabs a heavy block (it played its placeholder `GulpCatch`) | `heavy_grab.gd` |

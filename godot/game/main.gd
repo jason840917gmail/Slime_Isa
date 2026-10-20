@@ -202,6 +202,8 @@ var direct_room_run := ""
 var _dev_powers := PackedStringArray()
 ## The world being built arrives by a chunk scroll (ChunkScroll): no arrival fade.
 var _scroll_arrival := false
+## The facing the current travel asked for (`travel_to` `entry_facing`; "" none), used by the spawn.
+var _arrival_facing := ""
 var _next_gate_message_ms: int = 0
 ## The door iris while a door travel runs (closed over the old world, opened on the new one).
 var _iris: IrisTransition
@@ -403,8 +405,8 @@ func is_transitioning() -> bool:
 	return _transitioning
 
 
-## True while travelling from a chunk world into another chunk of the same region (the music
-## carries on: MusicDirector).
+## True while travelling from a chunk world into another chunk of the same region, or through a room
+## door into the next room's world of a dungeon (the music carries on: MusicDirector).
 func is_travelling_within_region() -> bool:
 	return _transitioning and _travel_within_region
 
@@ -454,7 +456,7 @@ func request_exit(request: Dictionary) -> Dictionary:
 	# A room door of a dungeon of one world per room (game/dungeon/room_travel.gd): the screen
 	# scrolls through the door into the next room.
 	if str(request.get("transition", "")) == "scroll" and not entry_door.is_empty() and request.get("door_at") is Vector2:
-		if not travel_through_room_door(target_area, entry_door, request["door_at"]):
+		if not travel_through_room_door(target_area, entry_door, request["door_at"], str(request.get("door_side", ""))):
 			return {"status": "ignored"}
 		return {"status": "queued"}
 	if not travel_to(target_area, entry_edge, entry_door, entry_marker, iris, lead_ms, entry_along):
@@ -475,8 +477,10 @@ func request_exit(request: Dictionary) -> Dictionary:
 ## door's lead-in: its leaf swinging open, the slime climbing down a ladder or falling into a hole;
 ## door.gd `lead_ms`) holds the slime still for that long of simulation time before the iris or the
 ## fade starts. A whole-edge exit into the next chunk of the same region scrolls instead
-## (`_scroll_travel`); doors always take the iris.
-func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "", iris: bool = false, lead_ms: float = 0.0, entry_along: float = NAN) -> bool:
+## (`_scroll_travel`); doors always take the iris. `entry_facing` ("up", "down", "left", "right"; ""
+## keeps the slime's facing, or a sided door's) is the way the slime faces where it arrives (a stair
+## hatch's `arrival_facing`).
+func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "", iris: bool = false, lead_ms: float = 0.0, entry_along: float = NAN, entry_facing: String = "") -> bool:
 	var world_service := Services.world()
 	var run := Services.run()
 	if _transitioning or world_service == null or run == null:
@@ -486,6 +490,7 @@ func travel_to(target_map_id: String, entry_edge: String = "", entry_door: Strin
 		push_warning("Main: no world '%s' to travel to" % target_map_id)
 		return false
 	_transitioning = true
+	_arrival_facing = entry_facing
 	var region_world := WorldChunks.world_of(target_map_id)
 	_travel_within_region = not region_world.is_empty() and region_world == WorldChunks.world_of(world_service.map_id())
 	# Across a whole edge into the next chunk of the region: the screen scrolls, as in Zelda.
@@ -584,9 +589,9 @@ func _finish_travel(target_map_id: String, entry_edge: String, entry_door: Strin
 ## Through a room door (game/dungeon/room_door.gd) into the next room's world, which is built behind
 ## the screen scroll (docs/godot/DUNGEON_ROOMS.md "Room doors"): the old room's picture slides out
 ## the way the slime goes while the new room comes in, laid so that the old door (`door_at`, in the
-## old world) meets the new one (`entry_door`). False when a travel is under way or the world is
-## unknown.
-func travel_through_room_door(target_map_id: String, entry_door: String, door_at: Vector2) -> bool:
+## old world, in its `door_side` wall) meets the new one (`entry_door`). The music carries on, as
+## between a region's chunks. False when a travel is under way or the world is unknown.
+func travel_through_room_door(target_map_id: String, entry_door: String, door_at: Vector2, door_side: String = "") -> bool:
 	var world_service := Services.world()
 	if _transitioning or world_service == null or player == null or player_root == null:
 		return false
@@ -594,59 +599,44 @@ func travel_through_room_door(target_map_id: String, entry_door: String, door_at
 		push_warning("Main: no room world '%s' to go to" % target_map_id)
 		return false
 	_transitioning = true
-	_travel_within_region = false
-	_scroll_room_travel(target_map_id, entry_door, door_at)
+	_travel_within_region = true
+	_scroll_into(target_map_id, "", entry_door, NAN, _room_door_placement.bind(entry_door, door_at, door_side))
 	return true
 
 
-## `travel_through_room_door`'s coroutine: the picture, the build, the scroll.
-func _scroll_room_travel(target_map_id: String, entry_door: String, door_at: Vector2) -> void:
-	var run := Services.run()
-	var world_service := Services.world()
-	var constants := Services.constants()
-	var scroll_ms := constants.number("worldNavigation.edgeScrollMs") if constants != null else 0.0
-	player.stop_movement()
-	player.clear_input()
-	player.suppress_movement(scroll_ms + TRAVEL_SUPPRESS_MARGIN_MS)
-	var old_rect: Rect2 = world_service.world_rect()
-	var old_view := world_camera.view_rect()
-	var old_feet := player_root.global_position
-	var shot_rect := old_view.intersection(old_rect)
-	player_root.visible = false
-	var shot := await ChunkScroll.capture(self, get_viewport(), shot_rect, world_camera.target_zoom)
-	if player != null and is_instance_valid(player):
-		run.capture_player(world_service.map_id(), player.run_snapshot())
-	run.request_navigation("area", target_map_id, "", entry_door, false, "", NAN)
-	_teardown_world()
-	_scroll_arrival = true
-	_build_world(target_map_id, run.consume_navigation())
-	_scroll_arrival = false
-	if player == null or player_root == null:
-		return
-	_transitioning = true
+## Where the old room lies beside the new one after a room door's travel: the old door (`door_at`)
+## laid on the new one (`entry_door`); the slime walks in from the doorway to that door's arrival
+## spot, past the wall's foot. A door pairing that breaks the rule (a north door into a door that is
+## not south) is warned.
+func _room_door_placement(_old_rect: Rect2, entry_door: String, door_at: Vector2, door_side: String) -> Dictionary:
 	var door := AreaTravel.find_door(world_root, entry_door)
-	var door_node := door.get_parent() as Node2D if door != null else null
-	var offset := (door_node.global_position - door_at) if door_node != null else Vector2.ZERO
-	var picture := ChunkScroll.picture(shot, Rect2(shot_rect.position + offset, shot_rect.size))
-	world_container.add_child(picture)
-	var inward: Vector2 = door.call(&"inward") if door != null else Vector2.DOWN
-	# The slime walks in from the doorway to the door's arrival spot, past the wall's foot.
-	var to_feet := player_root.global_position
-	if door != null:
-		to_feet = (door.call(&"arrival_point") as Vector2) + (player_root.global_position - player.get_centre())
-	player.walk_in(inward, scroll_ms)
-	var scroll := ChunkScroll.new()
-	add_child(scroll)
-	scroll.start(world_camera, player_root, picture, old_view.get_center() + offset, world_camera.center,
-			old_feet + offset, to_feet, scroll_ms, func() -> void: _transitioning = false)
+	if door == null:
+		return {"offset": Vector2.ZERO, "walk": Vector2.DOWN, "feet": player_root.global_position}
+	var door_node := door.get_parent() as Node2D
+	var arrived_side := str(door.get(&"side"))
+	if not door_side.is_empty() and arrived_side != DoorScript.opposite(door_side):
+		push_warning("Main: a %s room door leads to '%s' door '%s', whose side is '%s' (expected %s; docs/godot/DUNGEON_ROOMS.md)"
+				% [door_side, Services.world().map_id(), entry_door, arrived_side, DoorScript.opposite(door_side)])
+	return {"offset": door_node.global_position - door_at, "walk": door.call(&"inward"),
+		"feet": (door.call(&"arrival_point") as Vector2) + (player_root.global_position - player.get_centre())}
 
 
-## The chunk scroll (game/world/chunk_scroll.gd): takes a picture of the old view without the
-## slime, records the player, builds `target_map_id` (arriving `entry_along` along `entry_edge`),
-## lays the picture beside the new chunk where the old one lay and scrolls the view into the new
-## chunk over `worldNavigation.edgeScrollMs` while the slime walks in from where it left. Travel
-## stays on (exits ignore the player) until the scroll ends. A coroutine.
+## The chunk scroll (game/world/chunk_scroll.gd) into the next chunk of the region, arriving
+## `entry_along` along `entry_edge`: the old chunk lies beside the new one where it lay, and the
+## slime walks on from where it left.
 func _scroll_travel(target_map_id: String, entry_edge: String, entry_along: float) -> void:
+	_scroll_into(target_map_id, entry_edge, "", entry_along, func(old_rect: Rect2) -> Dictionary:
+		return {"offset": ChunkScroll.old_offset(entry_edge, old_rect, Services.world().world_rect()),
+			"walk": ChunkScroll.walk_direction(entry_edge), "feet": player_root.global_position})
+
+
+## The screen scroll into another world, for the chunk scroll and the room doors: takes a picture of
+## the old view without the slime, records the player, builds `target_map_id` (arriving at
+## `entry_door`, else `entry_along` along `entry_edge`), lays the picture where `place` says the old
+## world lies ({"offset"}, given the old world's rect) and scrolls the view into the new world over
+## `worldNavigation.edgeScrollMs` while the slime walks in (`place`'s "walk") to its "feet". Travel
+## stays on (exits ignore the player) until the scroll ends. A coroutine.
+func _scroll_into(target_map_id: String, entry_edge: String, entry_door: String, entry_along: float, place: Callable) -> void:
 	var run := Services.run()
 	var world_service := Services.world()
 	var constants := Services.constants()
@@ -662,7 +652,7 @@ func _scroll_travel(target_map_id: String, entry_edge: String, entry_along: floa
 	var shot := await ChunkScroll.capture(self, get_viewport(), shot_rect, world_camera.target_zoom)
 	if player != null and is_instance_valid(player):
 		run.capture_player(world_service.map_id(), player.run_snapshot())
-	run.request_navigation("area", target_map_id, entry_edge, "", false, "", entry_along)
+	run.request_navigation("area", target_map_id, entry_edge, entry_door, false, "", entry_along)
 	_teardown_world()
 	_scroll_arrival = true
 	_build_world(target_map_id, run.consume_navigation())
@@ -670,14 +660,15 @@ func _scroll_travel(target_map_id: String, entry_edge: String, entry_along: floa
 	if player == null or player_root == null:
 		return
 	_transitioning = true
-	var offset := ChunkScroll.old_offset(entry_edge, old_rect, world_service.world_rect())
+	var placement: Dictionary = place.call(old_rect)
+	var offset: Vector2 = placement["offset"]
 	var picture := ChunkScroll.picture(shot, Rect2(shot_rect.position + offset, shot_rect.size))
 	world_container.add_child(picture)
-	player.walk_in(ChunkScroll.walk_direction(entry_edge), scroll_ms)
+	player.walk_in(placement["walk"] as Vector2, scroll_ms)
 	var scroll := ChunkScroll.new()
 	add_child(scroll)
 	scroll.start(world_camera, player_root, picture, old_view.get_center() + offset, world_camera.center,
-			old_feet + offset, player_root.global_position, scroll_ms, func() -> void: _transitioning = false)
+			old_feet + offset, placement["feet"] as Vector2, scroll_ms, func() -> void: _transitioning = false)
 
 
 ## Frees the current world (and the player in it), the enemy population and the world service's
@@ -870,6 +861,10 @@ func spawn_player(navigation: Dictionary = {}) -> PlayerScript:
 			# In the doorway, feet on the door node; `_start_arrival` walks it out.
 			var feet_to_centre := script_node.get_centre() - script_node.body.global_position
 			script_node.teleport(AreaTravel.doorway_feet(entry_door) + feet_to_centre)
+	# The travel asked for a facing (a stair hatch's `arrival_facing`): once, for this arrival.
+	if not saved_spot is Vector2 and not _arrival_facing.is_empty():
+		script_node.face(AreaTravel.facing_vector(_arrival_facing))
+	_arrival_facing = ""
 	return script_node
 
 
@@ -967,8 +962,8 @@ func decide_rework_mode(target: String) -> bool:
 ## The powers a dungeon's world gives a run started in it on its own (F6; `direct_world_run`):
 ## `dungeon.devPowers.<world>` in game-constants.json, shape and ability ids (learned for the session
 ## only, RunState.learn_session_ability) and `skin.<id>` skins (lent for the session only,
-## SkinState.lend: always on, like a won one; the last listed becomes the everyday look). Empty for
-## a world not listed.
+## SkinState.lend: always on, like a won one; the look stays the goo, a skin shows only while it
+## works: docs/godot/SKINS.md). Empty for a world not listed.
 func dev_powers_for(target: String) -> PackedStringArray:
 	var constants := Services.constants()
 	var table: Dictionary = constants.dictionary("dungeon.devPowers") if constants != null else {}

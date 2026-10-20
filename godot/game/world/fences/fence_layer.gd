@@ -11,13 +11,15 @@ extends TileMapLayer
 ## and the Elevation (or, in a flat world, Elevation.mount) mounts the fences with their collision.
 ##
 ## Divider gates (docs/godot/FENCES.md "Dungeon dividers"): a cell painted with a gate tile
-## (`lair-divider-eye`, `lair-divider-pen`) draws no post; the layer keeps a divider gate object
-## (`object.divider-gate`) on it under the scene's `Objects` (`sync_gates`, in the editor as you
-## paint): an untagged one already standing there (a converted latch door, with its gate id and
+## (`lair-divider-eye`, `lair-divider-pen`) draws no post (the fences join the posts beside it to the
+## gate's block); the layer keeps a divider gate object (`object.divider-gate`) on it under the
+## scene's `Objects`, at any depth (`sync_gates`, in the editor as you paint, only in the scene being
+## edited): an untagged one already standing there (a converted latch door, with its gate id and
 ## records) is adopted, else one is made with a record of its own (`gate_id` `<room>-gate-<x>-<y>`,
-## `map_id` the world's record id). A gate whose tile is erased is let go
-## (game/world/painted_objects.gd `retire`): removed when the layer made it and nothing of it was
-## changed since, else kept, untagged, with a warning, and adopted again when its tile comes back.
+## `map_id` the world's record id), and the gate turns with its line (DividerGate `fit_to_line`). A
+## gate whose tile is erased is let go (game/world/painted_objects.gd `retire`): removed when the
+## layer made it and nothing of it was changed since, else kept, untagged, with a warning, and
+## adopted again when its tile comes back.
 ##
 ## Owner: world (fences).
 
@@ -64,15 +66,18 @@ func _rebuild() -> void:
 	if elevation == null or elevation.grid == null:
 		# No elevation drawing yet (or a flat world): the full mount builds what there is.
 		Elevation.mount(ground, false)
-		sync_gates(true)
-		return
-	elevation.fences = Fences.mount(ground, elevation, elevation.grid, elevation.occlusion, false)
-	sync_gates(true)
+	else:
+		elevation.fences = Fences.mount(ground, elevation, elevation.grid, elevation.occlusion, false)
+	# only in the scene being edited: a world shown inside another scene (the world atlas) keeps its
+	# own gates, and gets none made in that scene
+	var edited := get_tree().edited_scene_root
+	if edited != null and (edited == self or edited.is_ancestor_of(self)):
+		sync_gates()
 
 
-## Keeps a divider gate on every cell painted with a gate tile (Fences.GATE_STYLES); returns the
-## gates made. `create` false only adopts (tags) what stands there.
-func sync_gates(create: bool) -> int:
+## Keeps a divider gate on every cell painted with a gate tile (Fences.GATE_STYLES) and lets go of the
+## gates whose tile is gone; returns the gates made.
+func sync_gates() -> int:
 	var room := get_parent()
 	if room == null or tile_set == null or not tile_set.has_custom_data_layer_by_name(Fences.STYLE_DATA_LAYER):
 		return 0
@@ -84,33 +89,35 @@ func sync_gates(create: bool) -> int:
 			wanted["%d,%d" % [cell.x, cell.y]] = [cell, style]
 	var objects := room.get_node_or_null(^"Objects") as Node2D
 	if objects == null:
-		if wanted.is_empty() or not create:
+		if wanted.is_empty():
 			return 0
 		objects = Node2D.new()
 		objects.name = "Objects"
 		objects.y_sort_enabled = true
 		room.add_child(objects)
 		objects.owner = _owner_node(room)
+	# gates anywhere under Objects (moved into a folder of their own too)
+	var standing := objects.find_children("*", "Node2D", true, false)
 	var tagged := {}
-	for node: Node in objects.get_children():
+	for node: Node in standing:
 		if node.has_meta(GATE_CELL_META):
 			tagged[str(node.get_meta(GATE_CELL_META))] = node
 	var made := 0
 	for key: String in wanted:
 		var cell: Vector2i = wanted[key][0]
 		var style: String = wanted[key][1]
-		var kind := str(Fences.GATE_STYLES[style][1])
-		var foot := objects.to_local(to_global(map_to_local(cell)))
+		var kind := str(Fences.GATE_STYLES[style])
+		var foot := to_global(map_to_local(cell))
 		var node: Node = tagged.get(key)
 		if node == null:
-			for candidate: Node in objects.get_children():
-				if candidate.has_meta(GATE_CELL_META) or not candidate is Node2D or candidate.scene_file_path != GATE_SCENE:
+			for candidate: Node in standing:
+				if not is_instance_valid(candidate) or candidate.has_meta(GATE_CELL_META) or candidate.scene_file_path != GATE_SCENE:
 					continue
-				if (candidate as Node2D).position.distance_to(foot) <= ADOPT_REACH:
+				if (candidate as Node2D).global_position.distance_to(foot) <= ADOPT_REACH:
 					node = candidate
 					break
 		var made_now := false
-		if node == null and create:
+		if node == null:
 			var packed := load(GATE_SCENE) as PackedScene
 			node = packed.instantiate()
 			var base := "divider-gate-%d-%d" % [cell.x, cell.y]
@@ -134,15 +141,18 @@ func sync_gates(create: bool) -> int:
 		var untouched := made_now or PaintedObjects.is_untouched(node)
 		node.set_meta(GATE_CELL_META, key)
 		node.set_meta(GATE_STYLE_META, style)
-		(node as Node2D).position = foot
+		var gate := node as Node2D
+		if not gate.global_position.is_equal_approx(foot):
+			gate.global_position = foot
 		if str(node.get(&"kind")) != kind:
 			node.set(&"kind", kind)
+		if node.has_method(&"fit_to_line"):
+			node.call(&"fit_to_line")
 		if untouched:
 			PaintedObjects.remember(node)
 		tagged.erase(key)
-	if create:
-		for key: String in tagged:
-			PaintedObjects.retire(tagged[key] as Node, GATE_TAGS, "FenceLayer")
+	for key: String in tagged:
+		PaintedObjects.retire(tagged[key] as Node, GATE_TAGS, "FenceLayer")
 	return made
 
 

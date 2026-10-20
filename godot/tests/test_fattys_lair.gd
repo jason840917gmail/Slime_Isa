@@ -10,7 +10,7 @@ extends RefCounted
 ## (two keys) opening the Inner Stair, the stair's walk-in; the Pearl room (the Larder's Big Squint
 ## guards Pearl 1, its take grants the Heavy skin and seals the Lair); the second half's Heavy locks
 ## (the Weigh House's two plates, R10's plate held by a statue, R9's plate raising the big chest, the
-## hub's counterweight plate lowering the drawbridge, heavy blocks back when their room is entered
+## hub's two plates lowering the drawbridge (Burr holding one), heavy blocks back when their room is entered
 ## again); Fatty's phase two, the Heavy exam (a Heavy Roll knocks him off balance, a thrown clod only
 ## splats, the Spear lands only while he is off balance) with the arena's shutter, his fall breaking
 ## the seals; and the way in and out: the gate on level-1-d5's hill, the bolt-hole's mouth in
@@ -33,7 +33,7 @@ const ROOMS_DIR := "res://game/scenes/worlds/rooms/fatty-lair/"
 ## Each room's world (the rooms' short names, as the design names them).
 const WORLDS := {
 	"r1": "fatty-lair", "r2": "fatty-lair-r2-slab-steps", "hub": "fatty-lair-r3-pit-hall",
-	"r4": "fatty-lair-r4-squint-den", "r5": "fatty-lair-r5-eye-hall", "r5-lower": "fatty-lair-r5-lower-hall",
+	"r4": "fatty-lair-r4-squint-den", "r5": "fatty-lair-r5-eye-hall", "r5-lower": "fatty-lair-r5-eye-hall",
 	"r6": "fatty-lair-r6-pipe-gallery", "r7": "fatty-lair-r7-bell-bridge", "r8": "fatty-lair-r8-guard-crypt",
 	"r9": "fatty-lair-r9-watcher-hall", "r10": "fatty-lair-r10-dung-roller-run", "r11": "fatty-lair-r11-drop-gate-bridge",
 	"r12": "fatty-lair-r12-larder", "r13": "fatty-lair-r13-fattys-arena", "r14": "fatty-lair-r14-postern",
@@ -42,6 +42,9 @@ const WORLDS := {
 ## Each room's layout's top-left cell in its own world (rooms of 18 x 16 cells, each layout one
 ## cell in from its room's corner).
 const ORIGIN := Vector2(1, 1)
+## R5's lower hall and key alcove are rooms of R5's world (2026-10-19: one world, its dividers inside):
+## on the map, without scenes of their own.
+const R5_PARTS: PackedStringArray = ["r5-lower-hall", "r5-key-alcove"]
 const ROOMS: PackedStringArray = ["burr-cell", "r1-store", "r5-lower-hall", "r5-key-alcove", "r10-dung-roller-run", "c2-weigh-house", "bolt-hole", "r9-watcher-hall",
 	"r8-guard-crypt", "r12-larder", "r14-postern", "old-armoury", "r11-drop-gate-bridge", "r13-fattys-arena",
 	"glow-moss-burrow", "map-nook", "r4-squint-den", "r3-pit-hall", "r6-pipe-gallery", "sally-port",
@@ -93,6 +96,8 @@ func test_the_lair_loads_with_its_rooms_and_the_kit(t: TestContext) -> void:
 	var hazards: Array[Rect2] = []
 	var slab_rooms := {}
 	for room_name in ROOMS:
+		if room_name in R5_PARTS:
+			continue
 		var scene := (load(ROOMS_DIR + room_name + ".tscn") as PackedScene).instantiate()
 		t.check(scene.get_node_or_null("world-definition") != null, "%s is not a world" % room_name)
 		var holder := scene.get_node_or_null("Objects")
@@ -178,24 +183,37 @@ func test_burr_calls_the_first_time_the_slime_comes_into_the_pit_hall(t: TestCon
 	t.check(run.has_flag(LairDirector.FLAG_CALLED), "Burr's call is not kept")
 
 
-func test_the_counterweight_plate_lowers_the_drawbridge_only_with_the_heavy_skin(t: TestContext) -> void:
+## The hub's drawbridge (the owner, 2026-10-19): two plates, one body each. Alone the slime sinks
+## its plate in vain; Burr, freed, holds the other (each time the hub is built while the bridge is
+## up); both down, the bridge comes down for good and Burr leaves.
+func test_the_drawbridge_takes_two_plates_and_burr_holds_one(t: TestContext) -> void:
 	if not await _enter(t, "hub"):
 		return
 	var bridge := _objects(t).get_node("hub-drawbridge")
 	var plate := _objects(t).get_node("hub-counterweight-plate") as Node2D
 	t.check(not bool(bridge.call(&"is_lowered")), "the drawbridge starts down")
-	# The first visit: the light slime stands on it in vain.
+	# Alone (Burr still in his cell): the plate sinks, the bridge stays up.
 	_stand(t, plate.global_position)
 	await t.sim_wait(3600.0)
-	t.near(float(plate.call(&"depth")), 0.0, 0.01, "the plate's depth under a light slime")
-	t.check(not bool(bridge.call(&"is_lowered")), "a light slime lowered the drawbridge")
-	# With the Heavy skin it sinks over 3 s and the bridge comes down for good.
-	SkinState.lend(SkinState.HEAVY)
+	t.near(float(plate.call(&"depth")), 1.0, 0.01, "the plate's depth under the slime")
+	t.check(not bool(bridge.call(&"is_lowered")), "one plate alone lowered the drawbridge")
+	# Burr freed: the hub built again has him on his plate; with both down the bridge comes down.
+	Services.run().set_flag(LairDirector.FLAG_FREED)
+	if not await _enter(t, "r4"):
+		return
+	if not await _enter(t, "hub"):
+		return
+	bridge = _objects(t).get_node("hub-drawbridge")
+	plate = _objects(t).get_node("hub-counterweight-plate") as Node2D
+	var burr := t.world().world_root.get_node_or_null("Lair/burr") as Node2D
+	t.check(burr != null and burr.global_position.distance_to((_objects(t).get_node("hub-burr-plate") as Node2D).global_position) < 2.0,
+		"Burr is not on his plate")
+	_stand(t, plate.global_position)
 	var lowered := await t.until(func() -> bool: return bool(bridge.call(&"is_lowered")), 4500.0)
-	t.check(lowered, "the sunk counterweight plate did not lower the drawbridge")
+	t.check(lowered, "the two plates did not lower the drawbridge")
 	_stand(t, _at("hub", Vector2(22.0, 11.5)))
 	await t.sim_wait(5600.0)
-	t.check(bool(bridge.call(&"is_lowered")), "the bridge rose again with the plate")
+	t.check(bool(bridge.call(&"is_lowered")), "the bridge rose again with the plates")
 	_stand(t, _at("hub", Vector2(16.0, 4.5)))
 	await t.steps(4)
 	t.press(&"move_down")
@@ -204,26 +222,59 @@ func test_the_counterweight_plate_lowers_the_drawbridge_only_with_the_heavy_skin
 	t.check(across, "the slime did not walk across the drawbridge (feet at %s)" % str(t.player_body().global_position / CELL))
 
 
-func test_an_eye_latch_takes_only_the_spear_and_opens_its_door_for_good(t: TestContext) -> void:
+## R5's north maze (the owner, 2026-10-19): three eye latches, struck in their order I, II, III with
+## the Spear before I's time runs out, open the gatehouse's G1 and G2 and the inner door (G3)
+## together, for good; struck out of order the run starts over.
+func test_the_north_mazes_eyes_open_their_three_gates_only_in_order(t: TestContext) -> void:
 	if not await _enter(t, "r5"):
 		return
-	var latch := _objects(t).get_node("r5-latch-inner")
-	var door := _objects(t).get_node("r5-inner-door/GateScript")
-	_route(t, latch.get(&"area"), ["roll"])
-	_route(t, latch.get(&"area"), ["thrown", "clay-pot"])
+	var one := _objects(t).get_node("r5-maze-latch-1")
+	var two := _objects(t).get_node("r5-maze-latch-2")
+	var three := _objects(t).get_node("r5-latch-inner")
+	var gates: Array[Node] = [_objects(t).get_node("r5-maze-g1/GateScript"), _objects(t).get_node("r5-maze-g2/GateScript"),
+		_objects(t).get_node("r5-inner-door/GateScript")]
+	var none_open := func() -> bool:
+		for gate: Node in gates:
+			if bool(gate.call(&"is_open")):
+				return false
+		return true
+	_route(t, one.get(&"area"), ["roll"])
+	_route(t, one.get(&"area"), ["thrown", "clay-pot"])
 	await t.steps(2)
-	t.check(not bool(latch.call(&"is_shut")), "a roll or a thrown pot shut the eye")
-	t.check(not bool(door.call(&"is_open")), "the door opened without the Spear")
-	_route(t, latch.get(&"area"), ["spear", "weapon"])
+	t.check(not bool(one.call(&"is_shut")), "a roll or a thrown pot shut the eye")
+	# out of order: II first stays open; I then III starts the run over
+	_route(t, two.get(&"area"), ["spear", "weapon"])
 	await t.steps(4)
-	t.check(bool(latch.call(&"is_shut")) and bool(latch.call(&"is_solved")), "the Spear did not shut the eye for good")
-	t.check(bool(door.call(&"is_open")), "the door did not open")
-	await t.sim_wait(4000.0)
-	t.check(bool(latch.call(&"is_shut")), "the first latch opened its eye again")
-	# The lower hall (its own world) finds its side of the door open.
-	if not await _enter(t, "r5-lower"):
+	t.check(not bool(two.call(&"is_shut")), "eye II shut before eye I")
+	_route(t, one.get(&"area"), ["spear", "weapon"])
+	await t.steps(4)
+	_route(t, three.get(&"area"), ["spear", "weapon"])
+	await t.steps(4)
+	t.check(not bool(one.call(&"is_shut")) and not bool(three.call(&"is_shut")), "eye III out of order did not start the run over")
+	t.check(none_open.call(), "a gate opened out of order")
+	# the run's time is I's: I and II shut, then I's time runs out and both open again
+	_route(t, one.get(&"area"), ["spear", "weapon"])
+	await t.steps(4)
+	_route(t, two.get(&"area"), ["spear", "weapon"])
+	await t.steps(4)
+	await t.sim_wait(float(one.get(&"open_ms")) + 300.0)
+	t.check(not bool(one.call(&"is_shut")) and not bool(two.call(&"is_shut")), "the run outlived eye I's time")
+	# in order, in time: the three gates open together, for good
+	for latch: Node in [one, two, three]:
+		_route(t, latch.get(&"area"), ["spear", "weapon"])
+		await t.steps(4)
+	await t.steps(60)
+	for gate: Node in gates:
+		t.check(bool(gate.call(&"is_open")), "%s did not open" % gate.get(&"gate_id"))
+	await t.sim_wait(float(one.get(&"open_ms")) + 300.0)
+	t.check(bool(one.call(&"is_shut")) and bool(one.call(&"is_solved")), "the solved run opened eye I again")
+	# R5 built again (after a visit to R4) finds the gates open: their records.
+	if not await _enter(t, "r4"):
 		return
-	t.check(bool(_objects(t).get_node("r5-inner-door/GateScript").call(&"is_open")), "the lower hall's side of the inner door is shut")
+	if not await _enter(t, "r5"):
+		return
+	for gate_name in ["r5-maze-g1", "r5-maze-g2", "r5-inner-door"]:
+		t.check(bool(_objects(t).get_node(gate_name + "/GateScript").call(&"is_open")), "R5's %s is shut again" % gate_name)
 
 
 func test_the_alcove_latches_must_be_shut_together(t: TestContext) -> void:
@@ -721,6 +772,25 @@ func test_the_bell_bridges_pit_has_its_stairs_out(t: TestContext) -> void:
 	t.check(out, "the slime could not climb out of the spike pit by its stairs (at %s)" % t.player().get_centre())
 
 
+## R7: a slime that faints in the spike pit wakes at the room's spawn on the north floor, on that
+## floor's level, not the pit's (the owner, 2026-10-19: it woke under the ground). Its entrance is
+## not known yet (as with F6 on the room), so it wakes in R7 itself.
+func test_a_slime_fainting_in_the_bell_bridges_pit_wakes_on_the_spawns_level(t: TestContext) -> void:
+	if not await _enter(t, "r7"):
+		return
+	DungeonState.record(Services.run(), MAP_ID)["entrance"] = {}
+	_stand(t, _at("r7", Vector2(10.0, 11.0)))
+	await t.steps(4)
+	var elevation := t.world().elevation
+	t.check(elevation.level_of(t.player_body()) < 0, "the slime is not in the pit")
+	t.player().respawn()
+	await t.steps(4)
+	t.check(t.in_world(WORLDS["r7"]), "the slime did not wake in R7")
+	var ground := elevation.level_at(t.player_body().global_position)
+	t.check(ground == 0, "R7's spawn is not on the north floor (level %d)" % ground)
+	t.equal(elevation.level_of(t.player_body()), ground, "the level the slime woke on")
+
+
 ## R7: a quick Roll from the landing crosses the two west slabs onto the platform (the owner,
 ## 2026-10-18: something stopped the Roll).
 func test_a_roll_crosses_the_bell_bridges_west_slabs(t: TestContext) -> void:
@@ -737,6 +807,102 @@ func test_a_roll_crosses_the_bell_bridges_west_slabs(t: TestContext) -> void:
 	await t.sim_wait(600.0)
 	t.check(crossed, "the Roll did not cross the slabs (stopped at %s)" % t.player().get_centre())
 	t.check(t.world().elevation.level_of(t.player_body()) == 0, "the slime fell into the pit")
+
+
+## R7 as painted, read only (2026-10-19 review H2; the owner: "bridges should hold the player in by
+## the sides"): beside the north bridge's end the north floor's rim (painted in the pit's first
+## quarter row) stays closed, so a slime walking down with its body over the bridge's east edge is
+## held on the floor, not dropped into the pit; on the bridge, its east side holds the slime and
+## pushing on drops it with the ledge drop.
+func test_the_bell_bridge_holds_the_slime_by_its_ends_and_sides(t: TestContext) -> void:
+	if not await _enter(t, "r7"):
+		return
+	var elevation := t.world().elevation
+	var watch := t.world().world_root.get_node("HazardWatch")
+	# the slabs hold while the slime is on them here
+	for node: Node in _objects(t).get_children():
+		if str(node.name).begins_with("r7-slab"):
+			node.set(&"fall_delay_ms", 60000.0)
+	var heal := func() -> void: t.player().restore_run_state({"hp": t.player().get_max_hp()})
+	# feet 1 east of the bridge (x 576): the body (30 wide) spans x 562..592, over the bridge's end and
+	# the 16 units beside it that the old rule opened
+	_stand(t, Vector2(577.0, 350.0))
+	elevation.track(t.player_body(), 0)
+	await t.steps(4)
+	t.press(&"move_down")
+	await t.sim_wait(200.0)
+	t.release_all()
+	var feet := t.player_body().global_position
+	t.check(feet.y <= 386.0 and elevation.level_of(t.player_body()) == 0 and not bool(watch.call(&"is_falling")),
+		"beside the north bridge's end the slime was not held on the floor (feet %s)" % feet)
+	# on the north bridge, against its east side (x 576)
+	_stand(t, Vector2(548.0, 470.0))
+	elevation.track(t.player_body(), 0)
+	await t.steps(4)
+	t.press(&"move_right")
+	await t.sim_wait(180.0)
+	feet = t.player_body().global_position
+	t.check(feet.x <= 576.0 - 12.0 and elevation.level_of(t.player_body()) == 0 and not bool(watch.call(&"is_falling")),
+		"the north bridge's east side did not hold the slime (feet %s)" % feet)
+	var hopped := await t.until(func() -> bool:
+		heal.call()
+		return bool(t.player().call(&"is_airborne")), 2500.0)
+	t.release_all()
+	t.check(hopped, "pushing on did not drop the slime over the bridge's side with the ledge drop")
+
+
+## R7 (the owner, 2026-10-19: "when the slab is missing the player does not fall as normal"): a slab
+## that fell closes its passage until it is back, so the west floor's rim holds a slime walking toward
+## the gap of the west bridge's first slab, and pushing on drops it with the ledge drop, landing past
+## the channel's side wall. As painted, read only. (Not under the north bridge: with R7's four visible
+## walls its two rows are the north floor's face and the landing's back face, with no pit floor
+## between them to land on.)
+func test_the_bell_bridge_holds_at_a_fallen_slabs_gap(t: TestContext) -> void:
+	await _hold_at_a_fallen_slabs_gap(t, true)
+
+
+## The same with R7's automatic collision (its painted layer cleared for the test).
+func test_the_bell_bridge_holds_at_a_fallen_slabs_gap_with_its_automatic_collision(t: TestContext) -> void:
+	await _hold_at_a_fallen_slabs_gap(t, false)
+
+
+func _hold_at_a_fallen_slabs_gap(t: TestContext, painted: bool) -> void:
+	if not await _enter(t, "r7"):
+		return
+	var elevation := t.world().elevation
+	var watch := t.world().world_root.get_node("HazardWatch")
+	if not painted:
+		(t.world().world_root.get_node("level-collision") as TileMapLayer).clear()
+		elevation.call(&"rebuild")
+		await t.steps(4)
+	var heal := func() -> void: t.player().restore_run_state({"hp": t.player().get_max_hp()})
+	# the west bridge's west slab (cell 5, 8: x 320..384, y 512..576), beside the west floor (x < 320)
+	var slab := _objects(t).get_node("r7-slab-4-7")
+	slab.call(&"touch")
+	var gone := await t.until(func() -> bool: return int(slab.get(&"state")) == 3, 2000.0)
+	await t.steps(4)
+	if not t.check(gone, "the slab did not fall"):
+		return
+	_stand(t, Vector2(290.0, 548.0))
+	elevation.track(t.player_body(), 0)
+	await t.steps(4)
+	t.press(&"move_right")
+	await t.sim_wait(180.0)
+	var feet := t.player_body().global_position
+	# (the automatic rim's drawn edge wobbles a few units round x 320)
+	t.check(feet.x <= 310.0 and elevation.level_of(t.player_body()) == 0 and not bool(watch.call(&"is_falling")),
+		"the west floor's rim did not hold the slime at the fallen slab's gap (feet %s)" % feet)
+	var hopped := await t.until(func() -> bool:
+		heal.call()
+		return bool(t.player().call(&"is_airborne")), 2500.0)
+	t.check(hopped, "pushing on did not drop the slime into the gap with the ledge drop")
+	var landed := await t.until(func() -> bool:
+		heal.call()
+		return not bool(t.player().call(&"is_airborne")) and elevation.level_of(t.player_body()) == -1, 2500.0)
+	t.release_all()
+	feet = t.player_body().global_position
+	t.check(landed, "the ledge drop did not land in the channel (level %d)" % elevation.level_of(t.player_body()))
+	t.check(feet.x >= 344.0, "the drop landed on the channel's side wall (feet %s; its foot is at x 344)" % feet)
 
 
 ## R7: the hazards and slabs work by level (the owner, 2026-10-18: walking under the bridge cracked

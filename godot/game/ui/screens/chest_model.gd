@@ -7,6 +7,9 @@ extends RefCounted
 ## Owner: interaction (UI).
 
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
+const ItemIcons := preload("res://game/inventory/item_icons.gd")
+## The coins' picture: the coins cell of the dungeon pickups sheet (dungeon_pickup.gd).
+const DungeonPickup := preload("res://game/dungeon/dungeon_pickup.gd")
 
 const TITLE := "Chest"
 const TAKE_TEXT := "Take Stack"
@@ -17,6 +20,8 @@ const TAKE_HINT := "Take Stack transfers as much as your inventory can hold."
 const EMPTY_DETAILS := "The chest is empty."
 const NO_SELECTION_DETAILS := "Select an item"
 const MOVED_FORMAT := "Moved %d × %s"
+## Coins are no item (no catalog entry): they go into the pouch, with their own name and picture.
+const COINS := "coins"
 
 
 ## The stacks still inside: [[item_id, count]] with count > 0, in record order.
@@ -36,7 +41,8 @@ static func moved_text(moved: int, item_id: String) -> String:
 	return MOVED_FORMAT % [moved, ItemCatalog.item_name(item_id)] if moved > 0 else NO_ROOM_STATUS
 
 
-## The window's model: {"cells": [{"id", "label" ("<name> ×<count>"), "count_text", "defined"}],
+## The window's model: {"cells": [{"id", "label" ("<name> ×<count>"), "count_text", "defined" (an
+## item of the catalog, or coins: drawn with its picture, `icon`)}],
 ## "selected_index", "selected_id", "details", "status", "take_disabled"}. A selection that is no
 ## longer listed falls back to the first stack (or none).
 static func snapshot(remaining: Dictionary, selected_id: String, status: String) -> Dictionary:
@@ -54,9 +60,9 @@ static func snapshot(remaining: Dictionary, selected_id: String, status: String)
 		var item_id := str(stack[0])
 		cells.append({
 			"id": item_id,
-			"label": "%s ×%d" % ["Coins" if item_id == "coins" else ItemCatalog.item_name(item_id), int(stack[1])],
+			"label": "%s ×%d" % ["Coins" if item_id == COINS else ItemCatalog.item_name(item_id), int(stack[1])],
 			"count_text": str(int(stack[1])),
-			"defined": not ItemCatalog.definition(item_id).is_empty(),
+			"defined": item_id == COINS or not ItemCatalog.definition(item_id).is_empty(),
 		})
 	var details := EMPTY_DETAILS
 	var definition := ItemCatalog.definition(selected) if index >= 0 else {}
@@ -81,3 +87,18 @@ static func snapshot(remaining: Dictionary, selected_id: String, status: String)
 		"status": status,
 		"take_disabled": selected.is_empty(),
 	}
+
+
+## The picture of a stack: an item's bag icon (ItemIcons), or the coins of the dungeon pickups sheet.
+static func icon(item_id: String) -> Texture2D:
+	if item_id != COINS:
+		return ItemIcons.icon(item_id)
+	var sheet := load(DungeonPickup.PICKUPS_ART) as Texture2D
+	if sheet == null:
+		return ItemIcons.placeholder()
+	var cell := sheet.get_size() * 0.5
+	var frame := int(DungeonPickup.FRAME_OF[COINS])
+	var picture := AtlasTexture.new()
+	picture.atlas = sheet
+	picture.region = Rect2(Vector2(frame % 2, floori(frame / 2.0)) * cell, cell)
+	return picture

@@ -8,8 +8,10 @@ extends SceneTree
 ## 1. Loads and instantiates every scene in the index. Every property a .tscn sets must exist on
 ##    its node and keep its value, and every Node-typed export must resolve (Godot skips both
 ##    silently).
-## 2. Adds level-1, the player slime, a worm swordsman and the basic sword to the tree for a few
-##    frames.
+##    A dungeon shell (game/dungeon/room_scene_shell.gd) is checked as saved, its rooms not
+##    assembled (the assembly moves them into the shell's layers and holders by design).
+## 2. Adds level-1's C4 chunk, the player slime, a worm swordsman and the basic sword to the tree for
+##    a few frames.
 ##
 ## Engine errors and warnings are captured with a Logger. Those raised in hand-written gameplay
 ## scripts (res://game/ outside res://game/runtime/ and res://game/scenes/) are listed as
@@ -25,6 +27,7 @@ const PLAY_ACTORS := ["character.player-slime", "character.worm-swordsman", "wea
 const PLAY_FRAMES := 30
 ## Paths whose errors are the scenes' own (not a gameplay script's).
 const SCENE_PATHS := ["res://game/runtime/", "res://game/scenes/"]
+const RoomSceneShell := preload("res://game/dungeon/room_scene_shell.gd")
 
 
 ## Records engine errors and warnings (thread-safe; the engine may log from any thread).
@@ -75,7 +78,9 @@ func _initialize() -> void:
 		_failures.append("missing or empty %s" % INDEX_PATH)
 		_finish()
 		return
+	RoomSceneShell.assemble_on_instantiate = false
 	_check_all_scenes(index)
+	RoomSceneShell.assemble_on_instantiate = true
 	_start_play(index)
 
 

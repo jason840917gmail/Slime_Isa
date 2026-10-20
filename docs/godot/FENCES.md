@@ -17,8 +17,10 @@ runtime does not infer fences from cliff edges.
 A fence is built at the cells painted on the `fences` layer. A post stands at each painted cell
 (its foot at the cell's centre); rails span to the neighbours it links to. The eight arrow pictures
 show which neighbour a tile selects; the all-neighbour picture joins every all-neighbour neighbour.
-Cells on different elevation levels never join. Each of the seven columns is one fixed style: wood,
-snow-capped wood, stone, sandstone, twig, picket and crystal (the ground never chooses it).
+Cells on different elevation levels never join. Each of the eight style columns is one fixed style:
+wood, snow-capped wood, stone, sandstone, twig, picket, crystal and the Lair's dungeon divider (the
+ground never chooses it); the two columns after them hold the divider gates' tiles
+([Dungeon dividers](#dungeon-dividers)).
 
 | Direction | What shows |
 |---|---|
@@ -38,8 +40,10 @@ row. The renderer uses that paint for art, soft shadows, depth and collision. Fe
 reshape cliff rims, and leave elevation painting and caches alone.
 
 The palette (`scripts/art/build-fence-paint-tiles.py` writes it and the TileSet) has one column per
-style. Its top row is the all-neighbour tile; the eight rows below are the north, north-east, east,
-south-east, south, south-west, west and north-west arrows.
+style (columns 0–7). Its top row is the all-neighbour tile; the eight rows below are the north,
+north-east, east, south-east, south, south-west, west and north-west arrows. Columns 8 and 9 hold the
+divider gates' tiles (the eye at (8, 0), the pen at (9, 0), their pictures the gates themselves), at
+fixed places: a style added later takes column 10 and on, so no painted tile ever moves.
 
 **When two cells link** (`Fences._can_link`): never across levels; two all-neighbour tiles always;
 otherwise only where an arrow points, the first cell's arrow at the second or the second's arrow
@@ -65,8 +69,10 @@ down to (`Elevation.painted_levels`); avoid painting fences on stairs.
 (`game-constants.json` `fences`, read once per build): every link is one band from post foot to post
 foot, from `bandAbove` (10) to `bandBelow` (2) units above the posts' foot line (8 thick; a 45° link
 the same band, rotated); a north-south link is `sideHalfWidth` (7) each side of the post column
-instead; every post is a 14 × 8 rect at the band's height; a lone tile is its two posts and the
-band between them. From the north a body's feet stop 10 above the posts' feet, its lower part hidden behind the
+instead; every post is a rect at the band's height as wide as its kit draws the post (`posts.half_width`
+of `<style>.json` each side: about 12 wide for wood, 24 for the Lair divider), 8 tall; a lone tile is
+its two posts and the band between them; a divider gate's cell is a band from each post beside it to
+the gate's block, the block being the gate's own body ([Dungeon dividers](#dungeon-dividers)). From the north a body's feet stop 10 above the posts' feet, its lower part hidden behind the
 rails; from the south its head stops 2 above them, overlapping the feet a little (the Zelda overlap).
 Run ends are open; corners are closed by the posts. Each level's collision is a static body on its
 `level <n>` physics layer. In a world without levels (no `elevation` paint, no Elevation to put a
@@ -79,7 +85,11 @@ way from its side to its ledge probe: a hop or a drop never passes a band thinne
 
 In the editor, a paint stroke rebuilds only the fences (on the Elevation's grid and depth map when
 the world has one); hide the `fences` layer (eye icon) to see the generated fence without its paint
-figures. The game hides the paint layer.
+figures. The pieces stay while the scene's tab is in the background and go with the fences node
+(freed, not merely out of the tree). The game hides the paint layer; an exported game has no palette
+pictures (the Scenery plugin's export step, `addons/scenery_dock/palette_export.gd`, strips
+`fence_paint_tiles` from the tile set: the fences read only the tiles' data). A painted cell outside
+the world's grid is not built; it is named in a warning once a session.
 
 World scenes now use this same `fences` layer for every painted fence. There is no separate ground
 layer or cliff-edge mode.
@@ -133,8 +143,11 @@ repeats sideways), `<style>-rails-side.png` (the upper rail turned a quarter lef
 lit on its left; for a wall its whole band, for pickets their tips, squeezed to `side_width`) and
 `<style>.json` (the measures). A new style is a new entry in its `STYLES` and a new palette column:
 add it at the end of `STYLES` in `scripts/art/build-fence-paint-tiles.py` and run it (it writes the
-palette picture and `fence_tileset.tres`; do not edit the TileSet by hand, and do not insert a
-column before others: painted scenes store the column).
+palette picture `fence_paint_tiles.png` and `fence_tileset.tres`), then
+`"<Godot console exe>" --headless --path godot -s res://tools/pack_fence_paint_tiles.gd`, which saves
+the picture as `fence_paint_tiles.res`, the native texture the tile set uses (no editor import). The
+new style takes the next column after the gates' (10 on). Do not edit the TileSet by hand, and do not
+insert a style before others: painted scenes store each cell's column and row.
 
 The wood set used 400 credits (two front views, of which `wood-front-b.png` is used, and two rails
 seen from above, unused: the turned front rail matches the front better); the other six styles 1,200
@@ -142,16 +155,20 @@ seen from above, unused: the turned front rail matches the front better); the ot
 
 ## Styles
 
-| Palette style | Look | Post height, spacing |
+| Palette style | Look | Post height |
 |---|---|---|
-| `wood` | round posts, two split-log rails, moss at the feet | 40, 64 |
-| `snow` | the same with snow caps on posts and rails, icicles, drifts | 40, 64 |
-| `stone` | square stone pillars, a low dry-stone wall between them | 34, 80 |
-| `sandstone` | rounded sandstone pillars, a low adobe-brick wall | 36, 80 |
-| `twig` | gnarled branch posts, vine-wrapped branch rails, tiny mushrooms | 40, 64 |
-| `picket` | tall pointed posts, a row of shorter pickets, fallen leaves | 42, 64 |
-| `crystal` | crystal clusters on rock bases, two taut ropes | 44, 64 |
-| `lair-divider` | a dungeon divider: square fort-stone posts with capstones, low squared bars ([Dungeon dividers](#dungeon-dividers)) | 47, 64 |
+| `wood` | round posts, two split-log rails, moss at the feet | 40 |
+| `snow` | the same with snow caps on posts and rails, icicles, drifts | 40 |
+| `stone` | square stone pillars, a low dry-stone wall between them | 34 |
+| `sandstone` | rounded sandstone pillars, a low adobe-brick wall | 36 |
+| `twig` | gnarled branch posts, vine-wrapped branch rails, tiny mushrooms | 40 |
+| `picket` | tall pointed posts, a row of shorter pickets, fallen leaves | 42 |
+| `crystal` | crystal clusters on rock bases, two taut ropes | 44 |
+| `lair-divider` | a dungeon divider: square fort-stone posts with capstones, low squared bars ([Dungeon dividers](#dungeon-dividers)) | 47 |
+
+Every painted fence stands one post a cell, 64 units apart, whatever the style. The kits' JSON also
+carries `spacing` and `inset` (64 or 80, 10 or 12), left from the cliff-edge fences of before; nothing
+reads them now.
 
 Walls fit the same kit: their pillars are the posts, the wall between them the rails, the wall seen
 from above its side rail. All seven await the owner's verdict.
@@ -165,27 +182,65 @@ root styles later), with the fences' own collision. Its one special piece is a *
 (`object.divider-gate`, `game/dungeon/divider_gate.gd`, `game/scenes/objects/dungeon/divider-gate.tscn`)
 on the cell between two posts:
 
-- **eye** (`lair-divider-eye`): a carved stone block with an eye that sinks into the floor: for
-  secret or latch-opened passages (an eye latch, a bell);
-- **pen** (`lair-divider-pen`): low iron bars that swing open against the west post: for switch or
-  key gates (a plate, a key).
+- **eye** (`lair-divider-eye`): a carved stone block with an eye (44 units wide) that sinks into
+  the floor: for secret or latch-opened passages (an eye latch, a bell);
+- **pen** (`lair-divider-pen`): low iron bars (42 wide) that swing open on their west hinge and fold
+  back flat behind the west rail, up against the west post (their tops show over the rail): for
+  switch or key gates (a plate, a key).
 
-Paint the gate cell with its gate tile (the palette's last two tiles, their pictures the gates
+Paint the gate cell with its gate tile (palette columns 8 and 9, row 0, their pictures the gates
 themselves): the cell draws no post and the fence layer keeps a divider gate object on it under the
-scene's `Objects` (`fence_layer.gd` `sync_gates`, as you paint): an untagged divider gate already
-standing there is adopted, else one is made, with a record of its own (its `GateScript`'s `gate_id`
+scene's `Objects` (`fence_layer.gd` `sync_gates`, as you paint, and only in the scene being edited: a
+world shown inside another scene, such as the world atlas, gets no gates made there). A divider gate
+already standing there (directly under `Objects` or in a folder in it) and not yet tagged is
+adopted, else one is made, with a record of its own (its `GateScript`'s `gate_id`
 `<room>-gate-<x>-<y>`, `map_id` the world's record id: `fatty-lair` in the Lair). Erasing the tile
 removes a gate the layer made and nobody has changed since; a gate with a setting of its own (an
 id, a message) or one placed by hand is never removed: the layer lets go of it with a warning and
 adopts it again when its tile is painted back (Ctrl+Z), settings and all
-(`game/world/painted_objects.gd`); delete it by hand when it should go. The
-gate's `GateScript` child (`game/scripts/gate.gd`) is the gate as before: plates, bells, eye latches
-and keys find it by `gate_id`, its records are the gate's; the divider gate only shows it shut or
-open and blocks the gap between the posts while shut (`Doors`). A lone divider cell beside a gate
-is a short fence (its post and a stub post the way its arrow points): point it away from the gate.
+(`game/world/painted_objects.gd`); delete it by hand when it should go.
 
-The Lair's latch doors and their fieldstone chunks became dividers on 2026-10-19 (R5's Eye Hall
-and Lower Hall, R7, the Weigh House, the Old Armoury: each latch door's node, `gate_id` and records
+**A shut gate closes its whole cell** (2026-10-19; before, its body covered 52 units and nothing
+joined it to the posts, so a 31-unit hole on each side let the 30-wide slime through). The fences
+treat the gate cell as part of the divider run (`Fences._add_gate_links`): the posts on each side of
+it along its line join it whatever their arrows, with the divider's own rails from the post up to
+the gate's block (the block's width from its picture, `DividerGate.block_half_width`) and their bands
+from the post's foot to the block's edge; the rails' ends at the gate are finished with a slice of
+the kit's post side (a north-south run: a slice of its front rails as the end's face), seen when the
+gate is open. The gate's own body (`Doors`, 46 × 10, a unit past the block each side) covers the
+block. The gate stands in the line its neighbours make (`Fences.gate_axis`: east-west when a fence
+cell is painted east or west of it, else north-south); in a north-south line it turns its body with
+the line (`DividerGate.fit_to_line`; its picture, a front view of the block or the bars, stays).
+
+A divider cell beside a gate always joins it. One with no other neighbour keeps its stub only when
+its arrow points away from the gate (a short fence on the far side, its second post on the cell's
+edge, to meet a wall, as R7's gate and R5's alcove gate have); pointed at the gate, or an
+all-neighbour tile, it is its post and the rails to the gate.
+
+**A run's end against a wall reaches it** (2026-10-19, any fence, by itself): a painted cell joined
+once (to a post or a gate) whose next cell the other way is a dungeon room's wall (the
+`interior-walls` layer's `is_wall`) or a built wall (a `walls` WallLayer cell) gets the same stub, a
+second post on its cell's edge at the wall's foot and the rail to it, with their collision
+(`Fences._wall_beyond`). Before, a run ended on its last cell's middle post, 32 units short of the
+wall, and the 30-wide slime walked through the gap (the Weigh House, R5). Paint the run up to the
+cell beside the wall; no arrow is needed.
+
+The gate's `GateScript` child (`game/scripts/gate.gd`) is the gate as before: plates, bells, eye
+latches and keys find it by `gate_id`, its records are the gate's. A key gate takes an inventory key
+(`required_item_id` the item), or a dungeon small key with `required_item_id` "small-key": a push with
+one held in the current dungeon (DungeonState) opens it for good and spends the key. A push counts
+only from the slime on the gate's level (`DungeonState.on_level_of`). The divider gate shows it shut
+or open on the gameplay clock (650 ms) and opens the passage when the block has sunk or the bars
+have swung (`GateScript.release_doors`), as in Zelda; a gate opened while its room is being built
+(its record, a plate already held) shows open at once, without the dust. The picture sorts at the
+gate's foot (a slime behind the gate is drawn behind it). It writes no silhouette into the depth
+map (the fence pieces do; the gate is a moving sprite): a body behind it on a higher level is not
+ghosted through it.
+
+The Lair's latch doors and their fieldstone chunks became dividers on 2026-10-19 (R5, one world
+again with its eye hall, lower hall and key alcove behind two dividers, the alcove's east side a
+divider line where its fieldstone wall stood; R7, the Weigh House, the Old Armoury: each latch door's
+node, `gate_id` and records
 kept); R9's latch already stood in its north doorway, drawn by the room's wall (its slab the
 wall's shutter leaf). The art: `asset/Originals/dungeon-kit/dividers/` (Magnific, GPT 2.5), the kit
 cut by `scripts/art/build-fence-art.py lair-divider`, the gates' pictures
@@ -212,7 +267,10 @@ and `styles-review.jpg` (every style, and bodies behind fences) are its output. 
 
 ## Limits and next steps
 
-- Gates are not built into fence tiles; leave an opening in the painted run for a gate.
+- Gates exist for the dungeon dividers only (painted gate tiles, [Dungeon dividers](#dungeon-dividers));
+  the outdoor styles have none: leave an opening in the painted run for a world gate.
+- A divider gate in a north-south line turns its body but keeps its front picture: a block reads
+  right from any side, the pen's bars face south.
 - Walls on a 45° run show only their front face, sheared, so they look thinner than on a straight
   run (no top face is drawn along the diagonal).
 - The cut-away part of a body behind a fence follows the depth map's 2-unit grid, so its edge along
@@ -225,12 +283,15 @@ and `styles-review.jpg` (every style, and bodies behind fences) are its output. 
 
 | Path | What |
 |---|---|
-| `godot/game/world/fences/fences.gd` | Links, pieces, shadows, depth silhouettes, collision, `blocks_point` / `blocks_rect` / `blocks_sweep` (`@tool`) |
+| `godot/game/world/fences/fences.gd` | Links, pieces, shadows, depth silhouettes, collision, the rails and bands joining divider gates, `blocks_point` (the tests' probe) / `blocks_rect` / `blocks_sweep` (`@tool`) |
 | `godot/game/world/fences/fence.gdshader`, `fence_depth.gdshader` | The fence art; its silhouette in the depth map |
-| `godot/game/world/fences/fence_layer.gd`, `fence_tileset.tres`; `godot/asset/MAPS/fences/fence_paint_tiles.png` | The painted layer and its tiles (`scripts/art/build-fence-paint-tiles.py`) |
+| `godot/game/world/fences/fence_layer.gd`, `fence_tileset.tres`; `godot/asset/MAPS/fences/fence_paint_tiles.res` | The painted layer (and its divider gates, `sync_gates`) and its tiles (`scripts/art/build-fence-paint-tiles.py` writes the tile set and `fence_paint_tiles.png`; `godot/tools/pack_fence_paint_tiles.gd` saves the `.res` the tile set uses) |
+| `godot/game/dungeon/divider_gate.gd`, `godot/game/scenes/objects/dungeon/divider-gate.tscn` | The divider gate (`object.divider-gate`): its picture shut and open, its body; its `GateScript` is `godot/game/scripts/gate.gd` |
+| `godot/asset/MAPS/objects/dungeon/divider-eye-block.png`, `divider-pen-gate.png` | The gates' pictures |
 | `godot/asset/MAPS/fences/` | Kits (`scripts/art/build-fence-art.py`) |
 | `asset/Originals/fences/` | Generated sources and the review sheet |
 | `scripts/maps/build-fence-park.py`, `godot/game/scenes/worlds/fence-park.tscn` | The Fence Park |
 | `godot/tools/render_fence_park.gd` | Renders and probes the Fence Park |
+| `godot/tools/render_divider_gates.gd` | Renders the Lair's divider gates shut and open, with slimes walking into each gate and beside it (windowed: `--path godot -s res://tools/render_divider_gates.gd -- --out=<dir>`) |
 | `godot/game/world/painted_objects.gd` | What a painted layer may remove by itself: a gate (or interior-wall door) it made and nobody changed |
-| `godot/tests/test_fences.gd` | Mounting (Fence Park, C4, a flat world), links, the bands (straight, diagonal, a lone tile), movement (a flat world's fence stops a body), hops and drops, painted gates' records and settings |
+| `godot/tests/test_fences.gd` | Mounting (Fence Park, C4, a flat world), links, the bands (straight, diagonal, a lone tile), posts as wide as their kit, movement (a flat world's fence stops a body), hops and drops, painted gates' records and settings, the gate tiles where the scenes paint them, a shut gate closing its cell (eye, pen, north-south, beside lone tiles) and opening, a gate opened as its room is built, a small-key gate, pieces kept out of the tree |

@@ -8,9 +8,10 @@ class_name FallingPlank
 ## (water_splash.gd) and sinks out of sight over `dungeon.plank.sinkMs`; its spot is then the water
 ## hazard under the bridge (hazard.gd, kind "water"). It rises back `returnMs` after it fell.
 ##
-## Lay one per 64-unit cell (`size` 64 x 64, or a row of cells) along the bridge's lane and a water
-## hazard over the whole lane; each plank opens the deep water's collision under it (plank_look.gd
-## `open_lane`), so the lane is walkable and stays open after a plank falls. `east_west` turns the
+## Lay one per 64-unit cell (`size` 64 x 64: its picture is one plank; a bigger `size` stretches it
+## and falls as one piece) along the bridge's lane, and a water hazard over the whole lane; each plank
+## opens the deep water's collision under it (plank_look.gd `open_lane`), so the lane is walkable and
+## stays open after a plank falls. `east_west` turns the
 ## boards for a bridge that runs east-west.
 ##
 ## Owner: dungeon kit.

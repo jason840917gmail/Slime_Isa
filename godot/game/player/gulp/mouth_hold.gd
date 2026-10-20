@@ -3,9 +3,10 @@ extends RefCounted
 ## second version of 2026-10-11; BODY_SHAPES.md "Mouth"). What a press does depends on the mouth
 ## when Q goes down (`press`); something caught during a press waits for the next press:
 ##
-## - **Empty mouth** (rows 6-8): a one-second suck burst (`gulp.rework.suckBurstMs`, Q held or not;
+## - **Empty mouth** (rows 6-8): a half-second suck burst (`gulp.rework.suckBurstMs`, Q held or not;
 ##   Mouth.begin_burst) that ends early on a catch; nothing in reach ends it with a puff of dust.
-##   It never pulls a live enemy (only essences and liftables are suckable). After a burst,
+##   It never pulls a live enemy (only essences and liftables are suckable); the pickups it sweeps in
+##   (Mouth `_sweep`) do not end it, and a burst that swept one in ends without the puff. After a burst,
 ##   `burstCooldownMs` keeps a new burst from starting, so Q cannot be mashed. **In a form**, if Q is
 ##   still held at `tapMs` and nothing has been caught (or is flying in), the spit ring starts
 ##   ("Spit out Stone"); a catch cancels it; at `spitHoldMs` the form is spat out whole, 44 px ahead
@@ -275,7 +276,7 @@ func _follow_burst(now_ms: float) -> void:
 		# Caught: it waits for the next press.
 		if _press == Press.EMPTY:
 			_end_press()
-	else:
+	elif not _mouth.swept_loot():
 		_puff()
 
 

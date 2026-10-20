@@ -176,6 +176,24 @@ func test_a_chest_gives_its_key_to_the_dungeon_and_stays_open(t: TestContext) ->
 	t.check(bool(_node(t, "b3-key-chest").get_node("ChestScript").call(&"is_empty")), "the opened chest is full again")
 
 
+func test_a_chest_with_a_key_and_loot_opens_once(t: TestContext) -> void:
+	var run := Services.run()
+	await _enter_lab(t)
+	var chest := _node(t, "b3-key-chest").get_node("ChestScript")
+	# Coins beside its key (its record, as `initial_contents` would make it).
+	run.set_chest_remaining(str(chest.get(&"map_id")), str(chest.get(&"instance_id")), {"dungeon-small-key": 1, "coins": 5})
+	var requested: Array = []
+	chest.connect(&"open_requested", func(payload: Dictionary) -> void: requested.append(payload))
+	t.equal(str(chest.call(&"request_open")), "opened", "the chest's answer")
+	await t.steps(2)
+	t.equal(requested.size(), 1, "open_requested for a key beside coins")
+	t.equal(DungeonState.small_keys(run, LAB), 1, "small keys after the chest")
+	var window := t.tree.get_first_node_in_group(&"chest_window")
+	t.check(window != null and window.call(&"current_chest") == chest, "the window did not open on the coins")
+	if window != null and window.has_method(&"close"):
+		window.call(&"close")
+
+
 # --- the void, slabs and spikes ---------------------------------------------------------------------
 
 func test_a_walk_over_falling_slabs_falls_and_a_roll_crosses(t: TestContext) -> void:

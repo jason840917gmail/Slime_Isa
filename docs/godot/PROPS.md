@@ -31,7 +31,18 @@ mirror or scale it, edit it in the Inspector, delete it with Delete. **Reload** 
 `tools/build_prop_palettes.gd`. Use it for the props you place one by one; paint the mass of small
 scenery (grass, flowers, pebbles, leaves) on the layers below, which keeps the scene tree small.
 
-**Enemies** (the last category, 2026-10-16, roadmap 5.25): every enemy type with a scene, by its
+**Suckables** (the very last category, owner 2026-10-19): every liftable kind of
+`game/data/liftables.json` (the 67 light things the Gulp sucks in and throws: pots, jars, crates,
+rocks, pinecones ...), by its picture on the liftables sheet; none of a mechanic's own (the
+skeleton's skull and bone, the Goo Bomb, essences, the enemies' shots). Dragging one places
+`object.liftable` (`game/scenes/objects/liftable.tscn`) under Scenery with its **`kind`** set, at its
+own size. Select it to change it in the Inspector, on the node itself (`game/scripts/liftable_root.gd`):
+**`kind`** (a list of the kinds; the picture follows at once) and **`under`**, what it leaves where it
+stood when the slime sucks it up (Zelda's heart under a pot; game/dungeon/pot_loot.gd): `keep` (the
+scene's own, as the dungeon pot's random one), `none`, `heart`, `energy`, `coins` or `random`. Like
+any part of its world scene it is back each time the map is entered, and so is what it hides.
+
+**Enemies** (2026-10-16, roadmap 5.25): every enemy type with a scene, by its
 picture. Dragging one places a **placed enemy** (`game/scenes/encounters/placed-enemy.tscn`) of that
 type where it is dropped, under the world's `Enemies` node (made when missing), at its own size; the
 world's enemies are these nodes, spawned once each time the world is built
@@ -44,12 +55,12 @@ converted camps have under `Areas`), and they all wander in it. Move the node to
 
 **Painted props to nodes:** `tools/paint_to_nodes.gd` (headless, the world closed in the editor:
 `--path godot -s res://tools/paint_to_nodes.gd -- --scene=<world> [--scene=...] [--keep=<prefixes>]
-[--dry]`) turns a world's painted props into nodes under `Scenery`, each picture exactly where the
+[--group] [--dry]`) turns a world's painted props into nodes under `Scenery`, each picture exactly where the
 painted one was, and erases their cells; props whose scene path starts with a `--keep` prefix stay
 painted (by default the ground details and the water life). A node's size and mirror are its own
 Scale (negative x when mirrored), as for props dropped from the dock, so its collision follows its
 size (a painted prop's collision kept the scene's size). The four level-1 chunks had theirs turned on
-2026-10-14: 120 props became nodes (13 mirrored, 22 resized), 745 stayed painted. `--group` files the new nodes in y-sorted folders under `Scenery/Ground details/` by kind (Rocks, Twigs, Flowers, Plants, Mushrooms, Leaves, Water life, else the scene's folder) so the scene tree stays tidy; `--keep=` (empty) converts every prop, the ground details too (level-1-c4's 136 painted props were converted this way on 2026-10-18).
+2026-10-14: 120 props became nodes (13 mirrored, 22 resized), 745 stayed painted. `--group` files the new ground details and water life in y-sorted folders under `Scenery/Ground details/` by kind (Water life, Rocks, Twigs, Flowers, Plants, Mushrooms, Leaves, by a whole word of the name or its plural: "stone" in `stepping-stone-1`, not in a gravestone; else the scene's folder) so the scene tree stays tidy, and every other prop straight under `Scenery`; each node is placed in its folder's own space, so a folder moved since keeps its nodes where they were painted; `--keep=` (empty) converts every prop, the ground details too (level-1-c4's 136 painted props were converted this way on 2026-10-18).
 
 ## Using it
 
@@ -114,8 +125,9 @@ changed when you paint.
 **In the game** the layers never draw their palette squares (each turns its tile drawing off; the
 cells stay readable), and an **exported** game has no palette pictures at all: the Scenery plugin's
 export step (`addons/scenery_dock/palette_export.gd`) exports the paint layers' tile sets (props,
-walls, forest) with every tile and its data but placeholders of the same size for their pictures,
-and leaves the picture files out (`asset/MAPS/palettes/`, the wall and forest palette images),
+walls, forest, fences, interior walls) with every tile and its data but placeholders of the same
+size for their pictures, and leaves the picture files out (`asset/MAPS/palettes/`, the wall, forest,
+fence and interior-wall palette images),
 about 42 million pixels, some 170 MB of textures a world would otherwise load.
 
 `tools/build_prop_palettes.gd` (windowed: it renders) builds the `cell-props` and `details`
@@ -174,6 +186,6 @@ uids Godot's headless save drops. Close or reload the world in the editor afterw
 | `godot/tools/build_old_prop_palettes.gd` | Builds the `old-props` palette |
 | `godot/tools/lib/prop_pictures.gd` | What the builders share: scenery scenes, visible pictures |
 | `godot/tools/absorb_props.gd` | Turns placed props into paint (older layers) |
-| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies |
+| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies, its Suckables category liftables |
 | `godot/game/enemy/placed_enemy.gd`, `godot/game/scenes/encounters/placed-enemy.tscn` | A placed enemy: its type, wander area and overrides, its picture in the editor |
 | `godot/tools/paint_to_nodes.gd` | Turns painted props into nodes under `Scenery` |

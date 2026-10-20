@@ -1,11 +1,12 @@
 extends RefCounted
 ## Splits the three dungeon worlds into editable room scenes and a shared shell.
 ## Runtime assembly preserves the dungeon ids, coordinates, object paths and persistent signals.
-## In the worlds of LOCAL_WORLDS (Fatty's Lair since 2026-10-18) every room is written local: its
-## top-left corner at the scene's origin, its tile layers and nodes moved by the room's offset, the
-## offset kept on the room's instance in the shell (`position`, a whole number of cells), which adds
-## it back when it assembles the dungeon (room_scene_shell.gd). The Hollow and the Mine follow when
-## their walls are converted to interior walls (docs/godot/DUNGEON_ROOMS.md).
+## In the worlds of LOCAL_WORLDS every room is written local: its top-left corner at the scene's
+## origin, its tile layers and nodes moved by the room's offset, the offset kept on the room's
+## instance in the shell (`position`, a whole number of cells), which adds it back when it assembles
+## the dungeon (room_scene_shell.gd). Fatty's Lair was the first (2026-10-18), then became one world
+## per room and is never split again (RETIRED); the Hollow and the Mine follow when their walls are
+## converted to interior walls (docs/godot/DUNGEON_ROOMS.md).
 ##
 ## Hand edits are safe (DUNGEON_ROOMS.md "Editing rooms by hand"): every room scene and the shell it
 ## writes is recorded with the hash of the file as written, in `rooms/<world>/written.json`; a file
@@ -17,9 +18,9 @@ const SceneSave := preload("res://tools/lib/scene_save.gd")
 const ROOM_SCENE := preload("res://game/dungeon/room_scene.gd")
 const SHELL := preload("res://game/dungeon/room_scene_shell.gd")
 const CameraRoom := preload("res://game/world/camera_room.gd")
-const LOCAL_WORLDS: Array[String] = ["fatty-lair"]
+const LOCAL_WORLDS: Array[String] = []
 const CELL := 64
-const WORLDS: Array[String] = ["fatty-lair", "weaver-hollow-trunk", "weaver-hollow-roots", "weaver-hollow-boughs", "weaver-hollow-crown", "crystal-mine"]
+const WORLDS: Array[String] = ["weaver-hollow-trunk", "weaver-hollow-roots", "weaver-hollow-boughs", "weaver-hollow-crown", "crystal-mine"]
 var _world: Node2D
 var _rooms: Array[Dictionary] = []
 var _path := ""
@@ -83,6 +84,9 @@ func _may_write(path: String, recorded: Variant, label: String) -> bool:
 
 ## Records every room scene and the shell of world `id` as they are on disk now.
 func record_hashes(id: String) -> Error:
+	if id in RETIRED:
+		print("%s: its room scenes are edited in the editor; no hashes to record" % id)
+		return OK
 	_load_record(id)
 	var dir := "res://game/scenes/worlds/rooms/" + id
 	var rooms := {}
@@ -113,7 +117,6 @@ func split(id: String, source: String = "") -> Error:
 	var from := source if not source.is_empty() else _path
 	_world = (ResourceLoader.load(from, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
 	_rooms.clear()
-	_partition_burr_cell(id)
 	_partition_hidden_rooms(id)
 	var cameras := _world.get_node_or_null("CameraRooms")
 	if cameras == null:
@@ -327,51 +330,11 @@ func _detach_owner(node: Node, previous: Node) -> void:
 		_detach_owner(child, previous)
 
 
-## Burr's closed cell is its own room; the Pit Hall wraps around it as an L.
-func _partition_burr_cell(id: String) -> void:
-	if id != "fatty-lair" or _world.has_node("CameraRooms/burr-cell"):
-		return
-	var holder := _world.get_node("CameraRooms")
-	var hub := holder.get_node("r3-pit-hall") as CameraRoom
-	var cell := CameraRoom.new()
-	cell.name = "burr-cell"
-	cell.position = hub.position
-	# the cell's two cells of floor behind its fieldstone wall, with the hub's rim round them
-	cell.size = Vector2(320, 576)
-	cell.set_meta(&"wall_bands", false)
-	cell.set_meta(&"walls_in", "r3-pit-hall")
-	holder.add_child(cell)
-	cell.owner = _world
-	var entry := Node2D.new()
-	entry.name = "RoomEntry"
-	entry.position = Vector2(192, 480)
-	cell.add_child(entry)
-	entry.owner = _world
-	hub.outline = PackedVector2Array([Vector2(320, 0), Vector2(hub.size.x, 0), hub.size,
-		Vector2(0, hub.size.y), Vector2(0, 576), Vector2(320, 576)])
-
-
 ## Closed treasure pockets get their own outlines, so curiosity does not reveal their contents early.
 func _partition_hidden_rooms(id: String) -> void:
 	var holder := _world.get_node_or_null("CameraRooms")
 	if holder == null:
 		return
-	if id == "fatty-lair" and not holder.has_node("r1-store"):
-		var gatehouse := holder.get_node("r1-gatehouse") as CameraRoom
-		var origin := gatehouse.position
-		# the rooms are 18 x 16 cells with a two-cell rim (tools/build_fattys_lair.gd): each pocket
-		# is the old one moved a cell in, grown to the room's edge where it touches it
-		_add_camera(holder, "r1-store", origin + Vector2(768, 0), Vector2(384, 448)).set_meta(&"walls_in", "r1-gatehouse")
-		gatehouse.outline = PackedVector2Array([Vector2.ZERO, Vector2(768, 0), Vector2(768, 448),
-			Vector2(1152, 448), Vector2(1152, 1024), Vector2(0, 1024)])
-		var hall := holder.get_node("r5-eye-hall") as CameraRoom
-		origin = hall.position
-		hall.size.y = 576
-		var lower := _add_camera(holder, "r5-lower-hall", origin + Vector2(0, 576), Vector2(1152, 448))
-		lower.set_meta(&"walls_in", "r5-eye-hall")
-		lower.outline = PackedVector2Array([Vector2.ZERO, Vector2(1152, 0), Vector2(1152, 448),
-			Vector2(384, 448), Vector2(384, 128), Vector2(0, 128)])
-		_add_camera(holder, "r5-key-alcove", origin + Vector2(0, 704), Vector2(384, 320)).set_meta(&"walls_in", "r5-eye-hall")
 	if id == "weaver-hollow-trunk" and not holder.has_node("T3a-map-nook"):
 		var well := holder.get_node("T4-well-room") as CameraRoom
 		var nook := _add_camera(holder, "T3a-map-nook", well.position, Vector2(320, 896))

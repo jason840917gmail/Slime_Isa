@@ -4,7 +4,8 @@ extends ItemList
 ## FileSystem dock does, so Godot shows the prop under the mouse and places it as a node where it is
 ## dropped (the plugin then moves it under the world's Scenery node at the dock's size). An enemy's
 ## picture hands the placed enemy scene and its type (the plugin sets the type and moves it under
-## the world's Enemies node).
+## the world's Enemies node); a suckable's, the liftable scene and its kind (set by the plugin, the
+## node under Scenery).
 
 ## The dock (scenery_dock.gd), whose prepare_drop readies the plugin for the drop.
 var dock: Control
@@ -16,10 +17,10 @@ func _get_drag_data(at_position: Vector2) -> Variant:
 		return null
 	var metadata: Variant = get_item_metadata(index)
 	var scene := str((metadata as Dictionary).get("scene", "")) if metadata is Dictionary else str(metadata)
-	var enemy_type := str((metadata as Dictionary).get("enemy_type", "")) if metadata is Dictionary else ""
+	var settings: Dictionary = (metadata as Dictionary).get("settings", {}) if metadata is Dictionary else {}
 	if dock != null:
 		var prepare: Callable = dock.get(&"prepare_drop")
-		if prepare.is_valid() and not bool(prepare.call(scene, float(dock.call(&"drop_size")), enemy_type)):
+		if prepare.is_valid() and not bool(prepare.call(scene, float(dock.call(&"drop_size")), settings)):
 			return null
 	# no picture of our own follows the mouse: over the 2D view Godot shows the prop itself
 	return {"type": "files", "files": [scene], "from": self}

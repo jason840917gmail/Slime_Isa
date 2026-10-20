@@ -92,6 +92,12 @@ func fade_out(seconds: float = 0.6) -> void:
 	visible = false
 
 
+## Where his weight presses (his feet: heavy_plate.gd's `plate_weights`, joined while he holds the
+## hub's plate for the drawbridge).
+func weight_point() -> Vector2:
+	return global_position
+
+
 func set_blocking(blocking: bool) -> void:
 	if body == null:
 		return

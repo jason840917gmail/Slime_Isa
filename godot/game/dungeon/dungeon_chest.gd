@@ -88,14 +88,15 @@ func trigger(payload: Variant = null) -> void:
 	appear(payload)
 
 
-## Opening: the dungeon items go to the dungeon, the rest to the chest window (`chest.gd`).
+## Opening: the dungeon items go to the dungeon, the rest to the chest window (`chest.gd`), which
+## opens once (one `open_requested`), after the heart's rise when a Goo Heart rises with them.
 func request_open() -> String:
 	if not _shown:
 		return "hidden"
 	var run := Services.run()
 	var contents := remaining()
 	var given := false
-	if run != null and not DungeonState.current_id(get_tree()).is_empty():
+	if run != null and not is_heart_rising() and not DungeonState.current_id(get_tree()).is_empty():
 		var kept := {}
 		for content: String in contents:
 			var item := DungeonState.item_of(content)
@@ -108,19 +109,12 @@ func request_open() -> String:
 		if given:
 			run.set_chest_remaining(map_id, instance_id, kept)
 			# A Goo Heart beside the dungeon items rises with them.
-			give_heart()
-			sync_frame()
-			_cue_open()
-			open_requested.emit({"mapId": map_id, "instanceId": instance_id, "contents": contents})
-			if kept.is_empty():
-				return "opened"
+			_opened_giving(contents, give_heart())
+			return "opened"
 	return super()
 
 
-func _cue_heart_open() -> void:
-	_cue_open()
-
-
+## Its opening sound (chest.gd: on opening with a gift).
 func _cue_open() -> void:
 	var sfx := get_parent().get_node_or_null(^"OpenSfx") if get_parent() != null else null
 	if sfx != null and sfx.has_method(&"play_cue"):

@@ -20,6 +20,7 @@ class_name PlankBarricadeScript
 
 const Services := preload("res://game/shared/services.gd")
 const InteriorWalls := preload("res://game/world/interior/interior_wall_layer.gd")
+const DungeonDoor := preload("res://game/dungeon/dungeon_door.gd")
 const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 
@@ -55,14 +56,18 @@ signal refused(payload: Dictionary)
 ## In a room whose walls are an InteriorWallLayer (docs/godot/INTERIOR_WALLS.md) the wall draws the
 ## opening: the barricade draws only its boards (the style's `barricade` leaf for `wall`, the wall of
 ## the room its face looks into), and smashed, nothing (the opening shows). The root stands on the
-## floor line in the middle of the passage, as a dungeon door does.
+## floor line in the middle of the passage and turns with `wall`, as a dungeon door does
+## (DungeonDoor.WALL_TURNS), so its body and hurt shapes close an east or west wall's taller passage
+## (`interior.sideGapUnits`) while its boards stay upright.
 @export var frame_drawn_by_wall: bool = false:
 	set(value):
 		frame_drawn_by_wall = value
+		_turn()
 		_refresh_look()
 @export_enum("north", "east", "south", "west") var wall: String = "north":
 	set(value):
 		wall = value
+		_turn()
 		_refresh_look()
 @export var interior_style: String = "lair-stone":
 	set(value):
@@ -83,6 +88,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	_turn()
 	if frame_drawn_by_wall:
 		_apply_wall_leaf()
 	if Engine.is_editor_hint():
@@ -130,6 +136,14 @@ func smash() -> void:
 	var world := Services.world()
 	SkinState.show(world.player if world != null else null, SkinState.HEAVY)
 	smashed.emit({"flagId": flag_id})
+
+
+## In an InteriorWallLayer's opening (`frame_drawn_by_wall`) the whole barricade turns for its wall,
+## its shapes with it; otherwise (an old trunk, a fence, timbers) it keeps the rotation it was placed
+## with.
+func _turn() -> void:
+	if frame_drawn_by_wall:
+		rotation = float(DungeonDoor.WALL_TURNS.get(wall, 0.0))
 
 
 ## In the editor too (the script is a tool): the wall's leaf when the wall draws the frame, else the

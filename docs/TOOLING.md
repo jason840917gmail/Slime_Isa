@@ -31,7 +31,11 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
   `scripts/characters/pack-slime-shape-poses.py`) lists poses, not rows; each pose the game shows
   becomes `shape-<shape>-<pose>-<down|up|side>`, one held frame played once (no `-left`: no keyed
   offset): only the War Axe's `load`, `swing-down` and `swing-up` (9 clips), for its Spin and its
-  charge ring (the poses of `ShapePoses.TIMELINES`). `--only=shape-` rebuilds just those. The body
+  charge ring (the poses of `ShapePoses.TIMELINES`). `--only=shape-` rebuilds just those. Grab clips:
+  page 7's manifest (`page-7.json`, written by `scripts/characters/pack-slime-heavy-grab.py`) lists whole
+  clips, `push-`, `pull-` and `grab-<down|up|side>`, each frame with its own `shift` keyed on
+  `Visual:offset` (the pull's sideways shift also makes `pull-left`); `--only=push-,pull-,grab-` rebuilds
+  just those. The body
   shapes' strikes have no clips in the scene: the game builds the `strikes` library (each strike and
   direction, and its `-hold` frame for the charge ring) at run time from `game/characters/strikes/`.
   Every other clip in the scene is removed, also on an `--only` run. `--only` rebuilds just the clips with
@@ -91,7 +95,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   generated front view (`asset/Originals/fences/`) into its kit (posts,
   a seamless rail strip, the rail seen from above, a JSON of measures) in
     `godot/asset/MAPS/fences/` ([godot/FENCES.md](godot/FENCES.md)); `scripts/art/build-fence-paint-tiles.py`
-    draws the single fences layer's picture-based material and direction palette and builds its TileSet.
+    draws the single fences layer's picture-based material and direction palette (`fence_paint_tiles.png`:
+    a column per style, the dungeon dividers' gate tiles fixed at columns 8 and 9, a new style after them)
+    and builds its TileSet; then `"<Godot console exe>" --headless --path godot -s
+    res://tools/pack_fence_paint_tiles.gd` saves the palette as `fence_paint_tiles.res`, the texture the
+    TileSet uses (no editor import needed). `res://tools/render_divider_gates.gd` (windowed: `--path godot
+    -s res://tools/render_divider_gates.gd -- --out=<dir>`) renders the Lair's divider gates shut and open.
 - `python scripts/art/build-tree-sets.py [set ...]` (**numpy**) — the trees of every region set (forest,
   autumn, frost, desert, volcano, swamp, crystal, ruins, village): cuts the Magnific renders in
   `asset/Originals/trees/<set>/generated/` (a medium and a tall tree each), grades leaves where set,
@@ -112,8 +121,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `prop_palettes.json`, and moves painted cells whose tile moved (open the editor to import the images
   after); `res://tools/build_old_prop_palettes.gd` (the same way) builds the free-placement `old-props`
   palette (`props_tileset.tres`: true-size tiles, at least 64 px, 32 for ground details);
-  `res://tools/paint_to_nodes.gd` (headless, `-- --scene=<world> [--keep=<prefixes>] [--dry]`) turns painted
-  props back into nodes under the world's `Scenery` node (the ground details and water life stay painted);
+  `res://tools/paint_to_nodes.gd` (headless, `-- --scene=<world> [--keep=<prefixes>] [--group] [--dry]`) turns
+  painted props back into nodes under the world's `Scenery` node (the ground details and water life stay
+  painted unless `--keep=` is empty; `--group` files those in folders under `Scenery/Ground details/`);
   `res://tools/absorb_props.gd` (headless,
   `-- --scene=<world> [--scene=...] [--dry]`) turns a world's placed scenery into paint on its prop layers.
   Both headless converters save through `res://tools/lib/scene_save.gd`, which puts back the uids Godot's
@@ -122,8 +132,10 @@ See [assets/README.md](assets/README.md) for the art workflow.
   ([godot/INTERIOR_WALLS.md](godot/INTERIOR_WALLS.md)): cuts each style's bevel kit (faces, mitred outer
   and inner corners, every opening per side, the door leaves, a seamless floor) from its Magnific frame
   renders (`asset/Originals/dungeon-kit/interior-walls/`) into `godot/asset/MAPS/walls/interior/<style>.webp`,
-  `<style>-floor.webp` and `interior-walls.json`, and the InteriorWallLayer palette (`palette.png`,
-  `godot/game/world/interior/interior_wall_tileset.tres`).
+  `<style>-floor.webp` and `interior-walls.json`, and the InteriorWallLayer palette (`palette.png`, a
+  fixed column per style, and `godot/game/world/interior/interior_wall_tileset.tres`, its uid kept).
+  Then `"<Godot console exe>" --headless --path godot -s res://tools/pack_interior_palette.gd` saves
+  `palette.png` as `palette.res`, the texture the tileset uses (no editor import needed).
 - `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
   ([godot/WALLS.md](godot/WALLS.md)): composes each style's 16 shapes in 4 pattern parities from its three
   Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into
@@ -147,6 +159,14 @@ See [assets/README.md](assets/README.md) for the art workflow.
   style `storybook-rock` (wall, stairs coping) in `godot/asset/MAPS/elevation/`; a world picks it with its
   ground layer's metadata `cliff_wall_styles`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd
   -- --force` rebuilds the cliff shapes lab that shows it ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
+- `"<Godot console exe>" --path godot -s res://tools/render_heavy_grab.gd -- --out=<dir>
+  [--block=<x>,<y>] [--sides=west,east,north,south] [--plain] [--map=<world id> --direct] [--quick]`
+  (windowed, 1920 x 1080) — records the Heavy grab in the running game, by default in the playground
+  beside the Skins corner's statue: from each side a touch (the hint), the grab held, a push and a pull,
+  a frame every 80 ms, the grab's pose, its clip, the slime's place on the screen and the control hint
+  showing in the log. `--plain` leaves the Heavy skin off (the strain); `--map` starts another world
+  (`--direct`: as F6 on it, e.g. `--map=fatty-lair-c2-weigh-house --direct --block=800,352`); `--quick`
+  grabs at once, without the touch ([SKINS.md](godot/SKINS.md#heavy)).
 - `"<Godot console exe>" --path godot -s res://tools/render_stairs_walk.gd -- --out=<dir> [--map=<id>]
   [--feet=<x>,<y>] [--key=move_up] [--then=move_down] [--ms=2600]` (windowed) — records the stairs walk
   in the running game: it puts the slime at `--feet`, holds the key(s) and saves a frame every 80 ms
@@ -303,6 +323,13 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/asset/MAPS/effects/`; and the shape icons (each weapon turned 45 degrees, 128 px) into
   `godot/asset/UI/shapes/<shape>-icon.webp`. Then run `tools/build_player_clips.gd -- --only=shape-` (it
   builds the poses the game shows: the War Axe's, for its Spin).
+- `python scripts/characters/pack-slime-heavy-grab.py` (**numpy**) — the Heavy grab's poses of 2026-10-19
+  ([its README](../asset/Originals/characters/slime-v2/heavy-grab/README.md), [godot/SKINS.md](godot/SKINS.md#heavy)):
+  the 2 x 2 pose sheets `asset/Originals/characters/slime-v2/heavy-grab/<push|pull>-<side|down|up>-<a|b>.png`
+  into page 7, `godot/asset/characters/256x256-tile_8x8-slime-v2-page-7.webp` (page 1's cells and
+  baseline, each sheet scaled to cover page 1's idle area), placed so the push's front and the pull's
+  snout meet the block where the grab stands the slime, and `slime-v2/page-7.json` (the clips, each
+  frame's shift). Then run `tools/build_player_clips.gd -- --only=push-,pull-,grab-`.
 - `python scripts/characters/pack-slime-strikes.py [--preview <dir>]` (**numpy**) — the Spear's strike frames
   of 2026-10-12 ([its README](../asset/Originals/characters/slime-v2/shapes/README.md#strike-sheet-2026-10-12),
   [godot/BODY_SHAPES.md](godot/BODY_SHAPES.md#the-spears-strike-frames-2026-10-12)): the six-frame body-only
@@ -425,12 +452,16 @@ icon sheet would shift colour, then lossless; transparency always exact and veri
   (`pip install miniaudio lameenc numpy`, no ffmpeg) — cuts a seamless music loop out of a longer take
   (a Magnific song). The start snaps to the strongest beat within 0.6 s of `<start s>`; the end is
   `--end`, else the take's end without its closing fade or silence, pulled in to a whole number of
-  four-bar phrases (the tempo is found from the take). `--avoid-highs` moves the start (within two
+  four-bar phrases (the tempo is found from the take to a fraction of a sample: the autocorrelation
+  peak interpolated and refined sixteen beats on), then moved by at most 40 ms to where the music
+  before it lines up best with the music before the start, so the crossfade is in phase; a take
+  shorter than four bars from the start stops with a message. `--avoid-highs` moves the start (within two
   phrases) and the length (whole phrases, at least 60% of the span) so neither seam holds a cymbal or
   hi-hat burst. The last `--xfade` seconds (default 2.5) are blended, equal power, with the music just
   before the start, so the wrap flows on. Writes `<stem>.wav` (44.1 kHz stereo 16-bit: the file the
-  game plays, looped from start to end), `<stem>.mp3` (to listen to) and `<stem>-seam.mp3` (the last
-  12 s into the first 12 s, to hear the jump). The 2026-10-18 loops are in
+  game plays, looped from start to end; its start is not faded, as every wrap lands there, and the
+  music director fades each track in), `<stem>.mp3` (to listen to: a first pass with a 15 ms fade in,
+  then the loop) and `<stem>-seam.mp3` (the last 12 s into the first 12 s, to hear the jump). The 2026-10-18 loops are in
   `asset/Originals/audio/music/dungeon/loops/` and `asset/Originals/audio/music/loops/`; a shipped
   loop is copied into `godot/asset/audio/music/` with a `.wav.import` of `edit/loop_mode=2`,
   `edit/loop_begin=0`, `edit/loop_end=-1` and `compress/mode=2` (QOA), and set as a world's
@@ -549,12 +580,14 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   `scene_index.json` and the release export's exclude list ([godot/WORLD_ATLAS.md](godot/WORLD_ATLAS.md)).
   It never touches a hand-made world.
 - `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_slimeshire_chunks.gd
-  [-- --only=d5,c4 --dry]` — Chapter 1's map rework of Slimeshire's four chunk worlds (D5's hill with
-  the Lair's gate, its field maze and slab bridge; C4's first bell; D4's pen; C5's lake road and
-  lookout bell): each chunk is read from disk and changed only inside the tool's rects, its own nodes
-  under `Chapter1`; it keeps the child overrides of the instances it repacks. Bake the changed
-  worlds' elevation after it (`tools/bake_elevation.gd -- --world=level-1-c4,...`)
-  ([Chapter 1](story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)).
+  [-- --only=d5,c5 --dry]` — Chapter 1's map rework of Slimeshire's chunk worlds (D5's hill with
+  the Lair's gate, its field maze and slab bridge; D4's pen; C5's lake road and lookout bell): each
+  chunk is read from disk and changed only inside the tool's rects, its own nodes under `Chapter1`;
+  it keeps the child overrides of the instances it repacks. Bake the changed worlds' elevation after
+  it (`tools/bake_elevation.gd -- --world=level-1-d5,...`)
+  ([Chapter 1](story/chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17)). It no
+  longer writes C4 (the first bell's village), which the owner edits by hand since (its fences and
+  props differ from the tool's): `--only=c4` refuses (2026-10-19).
 - `"<Godot 4.7.2 console exe>" --path godot -s res://tools/render_world_atlas.gd -- --out=<dir>`
   (windowed: it renders) — draws the world atlas (`godot/game/dev/world_atlas.tscn`: every region's
   world on the chunk grid) to PNGs and prints its warnings.
@@ -583,8 +616,9 @@ The facade has a visible crossbar and padlock while locked. The pond bell unlock
 removes the bar and padlock, and swings the real house door open. It stays open on later visits.
 
 `res://tools/build_watchkeeper_hideout.gd` rebuilds only that interior from the shared timber
-room shell. It overwrites interior edits; reload the scene before saving in an open editor.
-`build_slimeshire_chunks.gd -- --only=c4` places the exterior and clears the former enclosure
-on a full C4 rebuild; it replaces that builder's other C4 paint as usual. Hand edits outside
-the old enclosure were preserved in the initial replacement. The return door is registered
+room shell (it keeps the shell's `MusicPlayer`, set to `interior-b.wav`). It overwrites interior
+edits; reload the scene before saving in an open editor.
+`build_slimeshire_chunks.gd` placed the exterior and cleared the former enclosure when it
+built C4; it no longer writes C4 (the owner edits it by hand), so the exterior is edited in the
+C4 scene. Hand edits outside the old enclosure were preserved in the initial replacement. The return door is registered
 in `world-chunks.json`; the interior is listed in `scene_index.json` and the world atlas.
