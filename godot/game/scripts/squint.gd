@@ -5,7 +5,8 @@ class_name SquintScript
 ## burrow beast in slate-blue clay armour, one crimson eye behind a visor of two plates.
 ##
 ## - **Walk:** the visor shut, it creeps toward the slime at `walkSpeed` (home while the slime is
-##   away). Its armour shrugs every hit off (a clink).
+##   away), stepping through its walk cycles (`walk_frame`). Its armour shrugs every hit off (a
+##   clink).
 ## - **Rear** (the tell, `rearMs`): within `leapRangePx` of the slime (`cooldownMs` after its last
 ##   opening) it rears up, rattling, and a ring (`ringRadiusPx` x `ringRadiusYPx`) lights up on the
 ##   ground where it will come down: where the slime's feet were, `leapPx` at most away.
@@ -94,7 +95,10 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				body.velocity = _velocity_toward(_home, pattern("walkSpeed", 45.0), delta)
 				face_x(body.velocity.x)
 			var walking := body.velocity.length() > WALK_SPEED_THRESHOLD
-			set_look(0.0, _settle_squash(now), sin(now / WADDLE_MS) * WADDLE_RAD if walking else 0.0)
+			if show_walk(delta, FRAME_STAND):
+				set_look(0.0, _settle_squash(now))
+			else:
+				set_look(0.0, _settle_squash(now), sin(now / WADDLE_MS) * WADDLE_RAD if walking else 0.0)
 		PHASE_REAR:
 			body.velocity = Vector2.ZERO
 			var rear_ms := pattern("rearMs", 650.0) if _stomps_done == 0 else pattern("nextRearMs", 400.0)

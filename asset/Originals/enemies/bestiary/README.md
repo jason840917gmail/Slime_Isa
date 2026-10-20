@@ -107,11 +107,35 @@ emblem on a dark iron badge), with its first sheet as the reference for the same
 
 | File | Poses (top left, top right, bottom left, bottom right) | Packed into |
 |---|---|---|
-| `squint-sheet.png` | standing, visor shut (a crimson slit); reared up to leap; slammed flat, the visor open on its crimson eye; on its back, cracked | `256x256-tile_4x1-squint.webp` |
+| `squint-sheet.png` | standing, visor shut (a crimson slit); reared up to leap; slammed flat, the visor open on its crimson eye; on its back, cracked | `256x256-tile_16x1-squint.webp` (with sheets 2 to 4, its walk) |
 | `pipe-worm-sheet.png` | the empty clay pipe; the worm glaring out of it; spitting mud; the worm alone, fallen out, dazed | `256x256-tile_4x1-pipe-worm.webp` (the first three hang from the pipe's top: `HUNG` in the packer) |
 | `dung-roller-sheet.png` | pushing (two strides, facing right); on its back; the mud ball alone | `256x256-tile_4x1-dung-roller.webp` (the ball is frame 3, drawn by its own sprite) |
 | `big-squint-sheet.png` | the Squint's four poses, bulkier, horned and mossy | `256x256-tile_4x1-big-squint.webp` |
 | `mud-glob.png` | one image: the Pipe Worm's mud glob | `64x64-mud-glob.webp` (`SINGLES` in the packer) |
+
+**The walk cycles** (2026-10-19; [BESTIARY.md](../../../../docs/godot/BESTIARY.md#art)): the
+Squint first (300 credits), then the Big Squint, the Bramble Boar, the Thornball, the Brood Warden,
+the Shardback, the Bone Marcher and the Bone Thrower (2,700 credits: 24 sheets and the Thornball's
+side walk three more times: fog behind the first take, the head turning to the camera every other
+step in the second; the fourth, asked for "strict side profile ... the head never turns toward the
+viewer ... ONLY the four tiny pink feet change position", was kept), each with its first
+sheet and Lili as references: `<enemy>-sheet-2.png` (four steps facing right), `-3` (walking toward
+the viewer) and `-4` (walking away); the Bone Thrower's `-2` to `-4` hold its bone up, `-5` to `-7`
+are empty-handed with fists clenched. Then the Broodling, the Cocoon Mimic (its open-mouthed
+pose), the Crystal Mite, the Thorn Guard Statue, the Bone Leaper (crawling on its knuckles) and the
+prologue worm (wriggling, no legs) (2,200 credits: 18 sheets and two takes each of the Mite's and
+the Guard's side walks, whose first takes, kept out of the repo, faced the camera). A side walk
+holds its profile only when the prompt insists: "In ALL FOUR frames it is shown in strict SIDE
+PROFILE, turned fully to face the RIGHT edge ... It never faces the viewer. The body, head and size
+are identical in all four frames and ONLY its legs change". Packed after the four poses (frames 4
+on; `WALK`, `WALK_MATCHED`). Prompt (the Squint's; the others name their own body, gait and back view, the
+skeletons' legs stride and their arms swing):
+the style block, the transparent line, then "A walk-cycle sprite sheet of the exact armoured creature
+in the first reference picture, the Squint: [its description]. Same design, same colours, same
+proportions as the first reference. The sheet is a 2 by 2 grid of four separate frames of one
+walking loop, all seen from the side [from the front, walking down toward the viewer / from behind,
+walking away], ... same size in every frame, ... the body staying level, only the stubby legs moving
+in a heavy waddling trot", then each frame's legs (a step, passing, the other step, passing).
 
 `python scripts/characters/pack-bestiary-enemies.py squint pipe-worm dung-roller big-squint mud-glob`
 packs only these.

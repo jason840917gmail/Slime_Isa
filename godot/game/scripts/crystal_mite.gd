@@ -108,8 +108,11 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				var slime: Vector2 = target.get("centre", get_centre())
 				body.velocity = _velocity_toward(slime, pattern("runSpeed", 115.0), delta)
 				face_x(slime.x - get_centre().x)
-				set_frame(FRAME_RUN if int(now / STRIDE_MS) % 2 == 0 else FRAME_READY)
-				set_look(0.0, Vector2.ONE, 0.08 * signf(body.velocity.x))
+				if show_walk(delta, FRAME_READY):
+					set_look(0.0)
+				else:
+					set_frame(FRAME_RUN if int(now / STRIDE_MS) % 2 == 0 else FRAME_READY)
+					set_look(0.0, Vector2.ONE, 0.08 * signf(body.velocity.x))
 				_contact(target, _attribute("contactDamage"), _attribute("knockbackStrength"), pattern("contactReachPx", 24.0))
 			else:
 				body.velocity = Vector2.ZERO

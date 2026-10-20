@@ -91,10 +91,10 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				_turn(slime - centre)
 			_asked = _dir * movement_speed
 			body.velocity = _asked
-			_animate_march(now)
+			_animate_march(now, delta)
 		PHASE_RETURN:
 			body.velocity = _velocity_toward(_home, movement_speed, delta)
-			_animate_march(now)
+			_animate_march(now, delta)
 			if engaged:
 				_transition(PHASE_MARCH, now)
 				_asked = Vector2.ZERO
@@ -139,15 +139,19 @@ func _turn(to_slime: Vector2) -> void:
 	_dir = -_dir
 
 
-func _animate_march(now: float) -> void:
+## Its march: the walk cycles (`walk_frame`) when its sheet has them, else its two march steps; a
+## stomp bob and a step sound every `stepMs`.
+func _animate_march(now: float, delta: float) -> void:
 	var step_ms := maxf(1.0, pattern("stepMs", 280.0))
 	var flip := int(now / step_ms) % 2 == 1
 	if flip != _step_flip:
 		_step_flip = flip
 		_cue(CUE_STEP)
-	set_frame(FRAME_MARCH_B if flip else FRAME_MARCH_A)
 	var t := fmod(now, step_ms) / step_ms
 	set_look(sin(t * PI) * STOMP_PX)
+	if show_walk(delta, FRAME_MARCH_A):
+		return
+	set_frame(FRAME_MARCH_B if flip else FRAME_MARCH_A)
 	if absf(body.velocity.x) > WALK_SPEED_THRESHOLD:
 		face_x(body.velocity.x)
 

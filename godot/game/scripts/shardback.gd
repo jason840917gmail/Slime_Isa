@@ -88,8 +88,11 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			else:
 				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 50.0), delta)
 				face_x(body.velocity.x)
-			var bob := sin(now / STEP_MS * PI) * STEP_BOB if body.velocity.length() > WALK_SPEED_THRESHOLD else 0.0
-			set_look(0.0, Vector2(1.0 + bob, 1.0 - bob))
+			if show_walk(delta, FRAME_WALK):
+				set_look(0.0)
+			else:
+				var bob := sin(now / STEP_MS * PI) * STEP_BOB if body.velocity.length() > WALK_SPEED_THRESHOLD else 0.0
+				set_look(0.0, Vector2(1.0 + bob, 1.0 - bob))
 		PHASE_REAR:
 			body.velocity = Vector2.ZERO
 			var t := clampf(elapsed / maxf(1.0, pattern("rearMs", 800.0)), 0.0, 1.0)

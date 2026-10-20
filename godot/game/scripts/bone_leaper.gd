@@ -105,8 +105,10 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, engaged: bool)
 			elif centre.distance_to(_home) > pattern("homeSlackPx", 8.0):
 				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 40.0), delta)
 				face_x(body.velocity.x)
+				show_walk(delta, FRAME_WATCH)
 			else:
 				body.velocity = Vector2.ZERO
+				show_walk(delta, FRAME_WATCH)
 		PHASE_CAST:
 			body.velocity = Vector2.ZERO
 			var t := clampf(elapsed / maxf(1.0, pattern("castMs", 500.0)), 0.0, 1.0)

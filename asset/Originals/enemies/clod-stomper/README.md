@@ -13,12 +13,16 @@ with a transparent background (1024 px).
 | `slam.png` | From `idle-a`: squashed flat on landing, the eye squeezed shut, pebbles flying |
 | `defeated.png` | From `idle-a`: slumped into a heap, the eye closed |
 
+| `walk-side-sheet.png`, `walk-down-sheet.png`, `walk-up-sheet.png` | Its walk (2026-10-19, 300 credits, each the first take; `idle-a` and Lili as references): four steps in a 2 x 2 grid, waddling right, toward the viewer and away, prompted like the bestiary's walk sheets ([bestiary README](../bestiary/README.md)) |
+
 `python scripts/characters/pack-clod-stomper.py` packs them into
-`godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp` (frames: idle, crouch, air, slam,
-defeated). Every pose is drawn at one scale (the idle 170 px wide), centred at x 128 and standing on
+`godot/asset/MAPS/enemies/256x256-tile_17x1-clod-stomper.webp` (frames: idle, crouch, air, slam,
+defeated, then the walk's side, down and up steps; the walk sheets are resized so their mean area
+matches the idle's). Every pose is drawn at one scale (the idle 170 px wide), centred at x 128 and standing on
 y 248 of its 256 px cell, so the poses keep their sizes relative to each other. Walk and idle have
 no frames of their own: the scene (`character.clod-stomper`) keys them on the idle frame, a waddle
-tilt and a breath. Its script is `godot/game/scripts/clod_stomper.gd`.
+tilt and a breath. Since 2026-10-19 its `walk-side`, `walk-down` and `walk-up` clips play the walk
+frames (5 to 8, 9 to 12, 13 to 16, 0.15 s each) with the squash but no tilt. Its script is `godot/game/scripts/clod_stomper.gd`.
 
 Cost: 600 Magnific credits (six stills at 100).
 

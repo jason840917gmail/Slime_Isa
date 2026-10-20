@@ -91,6 +91,8 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, engaged: bool)
 			_keep_post(delta, slime, engaged)
 			var breath := sin(now / BREATH_MS) * BREATH
 			set_look(0.0, Vector2(1.0 - breath, 1.0 + breath))
+			if show_walk(delta, FRAME_ARMED) and engaged:
+				face_x(slime.x - centre.x)
 			var line := FourWayAim.line_direction(centre, slime, pattern("lineTolerancePx", 10.0), EIGHT_WAY)
 			if engaged and now >= _next_throw_at and line != Vector2.ZERO \
 					and centre.distance_to(slime) <= pattern("throwRangePx", 220.0) and _sees(now, target):
@@ -122,6 +124,8 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, engaged: bool)
 				_next_throw_at = now + pattern("throwEveryMs", 1500.0)
 		PHASE_UNARMED:
 			_keep_post(delta, slime, engaged)
+			if show_walk(delta, FRAME_UNARMED, walk_frame + WALK_STEPS * 3) and engaged:
+				face_x(slime.x - centre.x)
 			var since := now - _rattle_at
 			var shake := sin(since / RATTLE_SHAKE_MS) * RATTLE_SHAKE_RAD if since < RATTLE_BURST_MS else 0.0
 			set_look(0.0, Vector2.ONE, shake)

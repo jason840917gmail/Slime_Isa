@@ -107,6 +107,21 @@ energy shard stay the base enemy's.
   right and mirrored by `face_x`; the patterns lift, bob, squash and lean the `Pose` node in code
   (`set_look`), so the reactions' hit motion keeps the Visual's own transform. Flyers and jumpers get
   a code ellipse on the ground (`game/enemy/ground_shadow.gd`).
+- **Walk cycles** (2026-10-19, the owner: the swayed standing pose looked poor): a scene whose sheet
+  has them sets `walk_frame` (the first: four steps facing right, mirrored for left, then four
+  walking toward the viewer, then four walking away) and `walk_step_px` (the ground covered per
+  frame, so the feet keep pace); `show_walk(delta, stand)` picks the facing from the body's velocity
+  and shows `stand` while it stands still. A sheet without them (`walk_frame` -1) keeps the sway.
+  Every enemy that walks on legs has them: the Squint, the Big Squint, the Bramble Boar, the
+  Thornball, the Brood Warden, the Shardback, the Bone Marcher, the Bone Thrower (two sets: holding
+  its bone, and empty-handed from frame 16), the Broodling, the Cocoon Mimic (open-mouthed, while it
+  is out of its cocoon), the Crystal Mite, the Thorn Guard Statue and the Bone Leaper (a knuckle
+  crawl); the Clod Stomper's and the prologue worm's `walk-*` clips play theirs (the Stomper's
+  frames 5 to 16, the worm's wriggle 4 to 15). Not given walks, as they do not walk: the Hopper
+  (it jumps), the Rook Thief and the Glint Bat (they fly), the Popworm (a mound underground), the
+  Silk Lurker (it hangs), the Crystal Crawler (seen from above round its pillar), the Gloomling (a
+  smoke blob that drifts), the Pick Mole (ducked behind its crates), the Dung Roller (its two push
+  strides) and the turrets and eyes.
 - **Sounds:** existing global cues for now (`Jump`, `Land`, `DropPop`, `GroundCreak`, `RollBonk`,
   ...) and the scenes' hurt and death sounds from the library; nothing new is baked. The Pipe Worm,
   the Spitcap, the Cocoon Mimic and the Rook Thief borrowed the Gulp's cues; since Sound Picker round
@@ -229,8 +244,9 @@ The worm swordsman's chase and swing (the base enemy) with **1 hit point**: anyt
 thrown pot (20 damage) included. A small, scrawny, mean grunt of Gorge's army (a scarf scrap and a
 twig club; smaller on screen than the swordsman), slower (55 px/s) and weaker
 (10 damage) than the swordsman, with a longer wind-up (550 ms: it leans back, then swings the twig).
-Its clips are keyed on its four poses (idle, walk, swing, knocked over) with a code bob in the
-scene's AnimationPlayer; side clips are mirrored for left.
+Its clips are keyed on its poses (idle, walk, swing, knocked over; since 2026-10-19 its `walk-*`
+clips play its wriggle cycles, frames 4 to 15) with a code bob in the scene's AnimationPlayer; side
+clips are mirrored for left.
 
 ### 5. Popworm (burrower)
 
@@ -331,7 +347,7 @@ scene's AnimationPlayer; side clips are mirrored for left.
 A squat burrow beast of Fatty's Lair in slate-blue clay armour, its one crimson eye behind a visor of
 two plates. Nothing else in the game is plated like it.
 - **Walk:** visor shut, it creeps at the slime (`walkSpeed` 45; home while the slime is out of the
-  pen). Its armour clinks every hit.
+  pen), stepping through its walk cycles (side, down, up). Its armour clinks every hit.
 - **Rear** (the tell, `rearMs` 650): within `leapRangePx` 120 (and `cooldownMs` 900 after its last
   opening) it rears up rattling, and a ring (`ringRadiusPx` 52 x `ringRadiusYPx` 30, the boss
   telegraph) lights on the ground under the slime's feet (`leapPx` 130 at most away).
@@ -768,8 +784,8 @@ enemy), adds the bone pile:
   knockback, at most every `contactCooldownMs` 700.
 - **Any hit drops it:** every hit with damage is its kill hit: it falls into the bone pile at once
   (20 health), which stands up and marches on unless it is finished.
-- **The look:** front views marching down and to the side (mirrored for left), back views marching
-  up, two feet each, a stomp every `stepMs` 300.
+- **The look:** its walk cycles (side, mirrored for left; down; up; four steps each, a frame every
+  10.5 px), a stomp bob and a step sound every `stepMs` 300.
 - **Right tool:** time the gap to pass; any hit drops it (pen 32: a square loop of 256 px round a
   clay pot; time the gap in, take the pot, throw it), then hit the pile or take its skull.
 
@@ -804,7 +820,8 @@ into `godot/asset/MAPS/enemies/256x256-tile_4x1-<enemy>.webp` (the Spitcap's thr
 to 0.33 (the Boar and the Rook biggest, the prologue worm smallest).
 
 Fatty's Lair's four (600 credits: five sheets and the Pipe Worm's second take, regenerated for the
-army's mark): `256x256-tile_4x1-squint.webp`, `-big-squint`, `-pipe-worm` and `-dung-roller`, and the
+army's mark): `256x256-tile_16x1-squint.webp`, `-tile_16x1-big-squint`, `256x256-tile_4x1-pipe-worm.webp`
+and `-dung-roller`, and the
 glob `64x64-mud-glob.webp` (a single picture: `SINGLES` in the packer). The Pipe Worm's first three
 poses include its pipe and hang from the pipe's top (`HUNG`), so the pipe stays put as the worm comes
 out; its fourth (fallen out) stands on the bottom, and the scene draws the empty pipe (`Hole`, frame
@@ -892,6 +909,23 @@ its clips' scale) come from one props sheet. Drawn at 0.33 (the spider) and 0.46
 they cover about what the old art did; hurtboxes, collision and reach are unchanged. The old spider
 sheet and web wait in `asset/to-delete/MAPS/enemies/`; the old orb-weaver sheet and web cover stay,
 as the Orb-Weaver Matron and its web patch (`effect.matron-web-patch`) still use them.
+
+**The walk cycles** (2026-10-19, 5,500 credits: 55 generations, the Squint's three included; the Thornball's side walk taken
+four times, fog behind the first and its head turning to the camera every other step in the second,
+and the Crystal Mite's and the Thorn Guard's side walks twice each, as their first takes faced the
+camera): three more sheets per enemy after its first
+(`<enemy>-sheet-2.png` to `-4.png`, the Bone Thrower's empty-handed walk `-5` to `-7`), four steps
+each in a 2 x 2 grid: facing right, walking toward the viewer, walking away. Generated with the
+enemy's first sheet and Lili as references. The packer adds them after the four poses (`WALK`),
+each sheet resized so its poses' mean area matches the first pose's (`WALK_MATCHED`), so the sheets
+became `-tile_16x1-` (the Squint, the Big Squint, the Bramble Boar, the Thornball, the Brood
+Warden, the Shardback, the Bone Marcher, the prologue worm, the Thorn Guard, the Broodling, the
+Cocoon Mimic, the Crystal Mite, the Bone Leaper) and `-tile_28x1-bone-thrower`. Where the walk's
+bigger poses shrank the whole sheet, the scene's Visual was scaled back up to keep the old size: the
+Boar 0.329, the Thornball 0.244, the Warden 0.514, the Marcher 0.305, the Thrower 0.341, the
+prologue worm 0.269, the Crystal Mite 0.165. The Clod
+Stomper's walk is in its own sheet (`256x256-tile_17x1-clod-stomper.webp`,
+`asset/Originals/enemies/clod-stomper/README.md`).
 
 The scenes load their sheets through `game/runtime/sheet_sprite.gd` (`sheet_path`): the imported
 texture when there is one, else the file itself, so a sheet packed while an editor holds the

@@ -79,7 +79,8 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			body.velocity = velocity + _spread()
 			face_x(body.velocity.x)
 			var moving := body.velocity.length() > WALK_SPEED_THRESHOLD
-			set_frame(FRAME_SCUTTLE_B if moving and int(now / STEP_MS) % 2 == 1 else FRAME_SCUTTLE_A)
+			if not show_walk(delta, FRAME_SCUTTLE_A):
+				set_frame(FRAME_SCUTTLE_B if moving and int(now / STEP_MS) % 2 == 1 else FRAME_SCUTTLE_A)
 			set_look(0.0)
 			if engaged and now >= _ready_at and centre.distance_to(slime) <= pattern("leapRangePx", 70.0):
 				_transition(PHASE_CROUCH, now)

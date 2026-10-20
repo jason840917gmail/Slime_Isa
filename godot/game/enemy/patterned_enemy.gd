@@ -44,12 +44,20 @@ const THROWN_TAG := "thrown"
 const ROLL_TAG := "roll"
 ## The tag the Roll's bonk carries while the slime is in the Heavy (Stone) form (player_roll.gd).
 const HEAVY_TAG := "heavy"
+## A walk cycle's frames per facing (`walk_frame`).
+const WALK_STEPS := 4
 
 ## The art's parent: the patterns move it (lift, bob, squash); the Visual under it keeps its own
 ## transform for the hit motion.
 @export var pose: Node2D
 ## The sheet frame shown once it is defeated.
 @export var defeated_frame: int = 0
+## The first frame of its walk cycles (WALK_STEPS frames facing right, mirrored for left, then
+## WALK_STEPS walking toward the viewer, then WALK_STEPS walking away; docs/godot/BESTIARY.md
+## "The look"); -1: a sheet without them (the pattern sways its standing pose instead).
+@export var walk_frame: int = -1
+## Presentation: the ground covered per walk frame (px), so the feet keep pace with the body.
+@export var walk_step_px: float = 7.0
 
 ## Payload {"phase": String, "time": float (Services.now_ms())}.
 signal phase_changed(payload: Dictionary)
@@ -65,6 +73,7 @@ var _hurtbox_on: bool = true
 var _solid: bool = true
 var _contact_ready_at: float = 0.0
 var _shadow: GroundShadowLook
+var _walked_px: float = 0.0
 
 
 func _ready() -> void:
@@ -277,6 +286,33 @@ func set_solid(on: bool) -> void:
 func set_frame(index: int) -> void:
 	if visual != null and index >= 0 and index < visual.hframes * visual.vframes:
 		visual.frame = index
+
+
+## True when its sheet has the walk cycles (`walk_frame`).
+func has_walk_frames() -> bool:
+	return walk_frame >= 0 and visual != null and walk_frame + WALK_STEPS * 3 <= visual.hframes * visual.vframes
+
+
+## Shows the walk cycle's frame for the way the body moves (side, mirrored by `face_x`; down; up),
+## stepping every `walk_step_px` walked, or `stand` while it stands still. `first`: the cycles'
+## first frame (another set than `walk_frame`, as the Bone Thrower's empty-handed walk). False
+## (nothing shown) for a sheet without walk cycles.
+func show_walk(delta: float, stand: int, first: int = walk_frame) -> bool:
+	if not has_walk_frames() or first < 0 or first + WALK_STEPS * 3 > visual.hframes * visual.vframes:
+		return false
+	var velocity := body.velocity
+	if velocity.length() <= WALK_SPEED_THRESHOLD:
+		set_frame(stand)
+		return true
+	_walked_px += velocity.length() * delta
+	var step := int(_walked_px / maxf(1.0, walk_step_px)) % WALK_STEPS
+	var facing := first
+	if absf(velocity.y) > absf(velocity.x):
+		facing = first + (WALK_STEPS if velocity.y > 0.0 else WALK_STEPS * 2)
+	else:
+		face_x(velocity.x)
+	set_frame(facing + step)
+	return true
 
 
 ## Mirrors the art (drawn facing right) toward `dx` (< 0: left); 0 keeps it.

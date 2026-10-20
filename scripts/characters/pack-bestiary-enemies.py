@@ -63,45 +63,51 @@ GAP_TO = 664
 SEED_CELL = 64
 SEED_FIT = 56
 
+# A walk cycle's poses (2026-10-19): three more sheets after an enemy's first, four steps each,
+# facing right, walking toward the viewer and walking away (WALK_MATCHED; the scenes' `walk_frame`).
+WALK = [f"walk-{facing}-{step}" for facing in ("side", "down", "up") for step in "abcd"]
 # enemy -> the four poses in reading order (top left, top right, bottom left, bottom right).
 POSES = {
-    "prologue-worm": ["idle", "walk", "attack", "dazed"],
+    "prologue-worm": ["idle", "walk", "attack", "dazed"] + WALK,
     "popworm": ["mound", "tail", "bite", "dazed"],
     "spitcap": ["hidden", "up", "spit", "seed"],
     "hopper": ["stand", "crouch", "air", "flipped"],
-    "bramble-boar": ["stand", "scrape", "charge", "stunned"],
-    "thorn-guard": ["asleep", "march-a", "march-b", "rubble"],
+    "bramble-boar": ["stand", "scrape", "charge", "stunned"] + WALK,
+    "thorn-guard": ["asleep", "march-a", "march-b", "rubble"] + WALK,
     "rook-thief": ["glide", "swoop", "away", "down"],
     # Fatty's Lair (rows 11 to 14). The Pipe Worm's first three poses hang in their pipe (HUNG); the
     # Dung Roller's fourth is its mud ball, which its scene draws as a sprite of its own.
-    "squint": ["stand", "rear", "open", "flipped"],
+    # The Squint's walk (2026-10-19, sheets 2 to 4: WALK): four steps facing right, toward the
+    # viewer and away from it (WALK_MATCHED).
+    "squint": ["stand", "rear", "open", "flipped"] + WALK,
     "pipe-worm": ["hole", "up", "spit", "dazed"],
     "dung-roller": ["push-a", "push-b", "flipped", "ball"],
-    "big-squint": ["stand", "rear", "open", "flipped"],
+    "big-squint": ["stand", "rear", "open", "flipped"] + WALK,
     # Chapter 2 (rows 18 to 22). brood-props: the egg sac's three states and the real silk cocoon
     # (the Cocoon Mimic's look-alike), at one scale.
     "silk-lurker": ["hang", "drop", "spin", "down"],
-    "thornball": ["stand", "curl", "ball", "flipped"],
-    "broodling": ["scuttle-a", "scuttle-b", "leap", "popped"],
+    "thornball": ["stand", "curl", "ball", "flipped"] + WALK,
+    "broodling": ["scuttle-a", "scuttle-b", "leap", "popped"] + WALK,
     "brood-props": ["sac", "hatching", "burst", "cocoon"],
-    "cocoon-mimic": ["disguised", "burst", "hold", "dazed"],
-    "brood-warden": ["guard", "windup", "sweep", "planted"],
+    "cocoon-mimic": ["disguised", "burst", "hold", "dazed"] + WALK,
+    "brood-warden": ["guard", "windup", "sweep", "planted"] + WALK,
     # Chapter 3 (rows 23 to 29).
     "gloomling": ["rest", "flinch", "scuttle", "fade"],
     "glint-bat": ["asleep", "woken", "swoop", "down"],
     "crystal-crawler": ["crawl-a", "crawl-b", "turn", "flipped"],
     "prism-eye": ["watch", "charge", "shut", "shattered"],
     "pick-mole": ["ducked", "raise", "throw", "out"],
-    "shardback": ["walk", "rear", "slam", "broken"],
-    "crystal-mite": ["ready", "run", "ball", "shards"],
+    "shardback": ["walk", "rear", "slam", "broken"] + WALK,
+    "crystal-mite": ["ready", "run", "ball", "shards"] + WALK,
     # Every dungeon (row 33): the eye's front (a blank eyeball: the code draws its iris), charging,
     # its back (looking away), broken.
     "watcher-eye": ["front", "charge", "back", "broken"],
     # Every dungeon: the skeletons (rows 30 to 32). The Bone Marcher's front views march down and to
     # the side, its back views march up.
-    "bone-leaper": ["watch", "cast", "air", "stuck"],
-    "bone-thrower": ["armed", "windup", "thrown", "unarmed"],
-    "bone-marcher": ["front-a", "front-b", "back-a", "back-b"],
+    "bone-leaper": ["watch", "cast", "air", "stuck"] + WALK,
+    # The Bone Thrower walks armed (sheets 2 to 4), then empty-handed (5 to 7).
+    "bone-thrower": ["armed", "windup", "thrown", "unarmed"] + WALK + [f"bare-{name}" for name in WALK],
+    "bone-marcher": ["front-a", "front-b", "back-a", "back-b"] + WALK,
     # Gorge's worm soldiers (rows 1 to 3): eight poses from two sheets (SHEET_POSES a sheet), all
     # facing right but the back views (walking up, striking up). The archer shoots along four lines
     # only (owner, 2026-10-16), so its third sheet draws and shoots down (facing the viewer), shoots
@@ -121,6 +127,12 @@ POSES = {
 # Poses on one source sheet: an enemy with more is drawn from `<enemy>-sheet.png`, then
 # `<enemy>-sheet-2.png`, ... in order.
 SHEET_POSES = 4
+# Enemies whose walk sheets (every sheet after the first) were generated later, at their own
+# size: each such sheet's poses are first resized so their mean opaque area matches the first
+# pose's, so the walk draws the creature as big as its other poses whatever size the model drew it.
+WALK_MATCHED = {"squint", "big-squint", "bramble-boar", "thornball", "brood-warden", "shardback",
+    "bone-marcher", "bone-thrower", "prologue-worm", "thorn-guard", "broodling", "cocoon-mimic",
+    "crystal-mite", "bone-leaper"}
 # Enemies whose poses stand with their weight (the middle of their opaque pixels) at x CENTRE_X
 # instead of their box's middle, so a sword, a bow or a fist thrust out to one side does not push
 # the body back; their scale keeps every pose inside FIT from that middle.
@@ -259,7 +271,10 @@ def main_body(image: Image.Image) -> Image.Image:
 def pack(enemy: str, names: list[str]) -> None:
     sheets = [f"{enemy}-sheet.png"] + [f"{enemy}-sheet-{index}.png"
         for index in range(2, (len(names) + SHEET_POSES - 1) // SHEET_POSES + 1)]
-    stills = [still for name in sheets for still in cut_poses(SOURCES / name)]
+    cut = [cut_poses(SOURCES / name) for name in sheets]
+    if enemy in WALK_MATCHED:
+        cut = [cut[0]] + [matched(poses, cut[0][0]) for poses in cut[1:]]
+    stills = [still for poses in cut for still in poses]
     frames = [(name, still) for name, still in zip(names, stills) if (enemy, name) != SEED_POSE]
     frames += [(f"{name}-mirrored", still.transpose(Image.Transpose.FLIP_LEFT_RIGHT))
         for name, still in list(frames) if name in MIRRORED.get(enemy, [])]
@@ -306,6 +321,19 @@ def pack(enemy: str, names: list[str]) -> None:
             seed_out = OUTPUT / f"{SEED_CELL}x{SEED_CELL}-spore-seed.webp"
             save_game_webp(picture, seed_out)
             print(f"wrote {seed_out.relative_to(REPO)} ({size[0]} x {size[1]})")
+
+
+def opaque_area(still: Image.Image) -> int:
+    return int((np.asarray(still)[..., 3] > ALPHA_CUT).sum())
+
+
+def matched(poses: list[Image.Image], first: Image.Image) -> list[Image.Image]:
+    """`poses` (one later sheet, WALK_MATCHED) resized by one factor so their mean opaque area is
+    `first`'s."""
+    mean = sum(opaque_area(pose) for pose in poses) / len(poses)
+    factor = (opaque_area(first) / max(1.0, mean)) ** 0.5
+    return [pose.resize((max(1, round(pose.width * factor)), max(1, round(pose.height * factor))),
+        Image.LANCZOS) for pose in poses]
 
 
 def band_centre(still: Image.Image) -> float:
