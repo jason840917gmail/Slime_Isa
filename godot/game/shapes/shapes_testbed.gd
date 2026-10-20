@@ -51,6 +51,12 @@ const MASK_LAYERS: Array[String] = ["world", "player", "water"]
 
 ## The pen's enemies, one per weight, in this order (`pen_posts` gives each its spot).
 const PEN_TYPES: Array[String] = ["slime-spider", "worm-swordsman", "clod-stomper"]
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md) adds the enemies that make ammo: the
+## Worm Archer (its missed arrows stay) and the Worm Brawler (its blows knock rocks loose), at
+## these posts (from the pen's top-left).
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
+const THROW_PEN_TYPES: Array[String] = ["worm-archer", "worm-brawler"]
+const THROW_PEN_POSTS: Array[Vector2] = [Vector2(90.0, 200.0), Vector2(370.0, 200.0)]
 const ENEMY_SCENE_PREFIX := "character."
 const ENEMY_TYPES_FILE := "enemy-types.json"
 const PEN_NAME := "ShapesPen"
@@ -139,10 +145,15 @@ func _spawn_testbed() -> void:
 		dummies.append(dummy)
 	_pen_rect = Rect2(spawn + pen_offset, pen_size)
 	_draw_pen(parent)
-	for index: int in PEN_TYPES.size():
-		var post := _pen_rect.position + (pen_posts[index] if index < pen_posts.size() else _pen_rect.size * 0.5)
-		pen.append({"type": PEN_TYPES[index], "post": post, "root": null, "enemy": null, "respawn_at": -1.0})
-		world.packed_scene(ENEMY_SCENE_PREFIX + PEN_TYPES[index])
+	var types: Array[String] = PEN_TYPES.duplicate()
+	var posts: Array[Vector2] = pen_posts.duplicate()
+	if ThrowMode.is_on():
+		types.append_array(THROW_PEN_TYPES)
+		posts.append_array(THROW_PEN_POSTS)
+	for index: int in types.size():
+		var post: Vector2 = _pen_rect.position + (posts[index] if index < posts.size() else _pen_rect.size * 0.5)
+		pen.append({"type": types[index], "post": post, "root": null, "enemy": null, "respawn_at": -1.0})
+		world.packed_scene(ENEMY_SCENE_PREFIX + types[index])
 	_player_in_pen = _pen_has_player()
 	respawn_pen()
 

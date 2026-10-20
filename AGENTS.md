@@ -31,10 +31,12 @@ its code is in git history.
   `?recipes`, `?arsenal`, `?audition`, `?shapes` (the body-shapes rework mode in any world),
   `?classic` (the rework mode off in the playground, where it is on by default), `?prologue` (a new
   run in the prologue, as New Game starts it), `?skins=heavy,silk,feral` (lends those skins for the
-  session) on the web;
+  session), and on the `exp/throw-combat` branch `?melee` (the throw-combat experiment off),
+  `?gulp=<1..3>` (the Gulp's level) and `?aimhelp` on the web;
   `-- --map=<id> ...`, `-- --shapes`, `-- --classic`, `-- --prologue`, `-- --skins=<ids>` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
-  the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the prologue:
+  the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the throw-combat experiment:
+  [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md); the prologue:
   [docs/godot/PROLOGUE.md](docs/godot/PROLOGUE.md); the skins: [docs/godot/SKINS.md](docs/godot/SKINS.md)).
 - `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
   (about ten minutes for the full suite).
@@ -63,6 +65,8 @@ its code is in git history.
   with their areas. Reach every autoload through `res://game/shared/services.gd`.
 - `godot/game/scenes/` — every world, object, character, weapon, effect, projectile and encounter
   scene, with `scene_index.json` (scene id → path; add a line for a scene the game loads by id).
+- `godot/game/throw/` — the throw-combat experiment (branch `exp/throw-combat`):
+  [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md).
 - `godot/game/data/` — game constants, items, enemy types, recipes, quests, NPC definitions,
   weapons and item icons (JSON read through `GameConstants`), and the world layout
   `world-map.json` (read through `game/world/atlas/world_map_data.gd`).

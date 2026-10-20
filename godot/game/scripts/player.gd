@@ -73,7 +73,11 @@ const ClickMarker := preload("res://game/player/mouse/click_marker.gd")
 ## The body-shapes rework (docs/godot/BODY_SHAPES.md): the mode, the shape controller, the mouth's Q
 ## state machine and the Ability Box.
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md): no attack key, shapes as box powers,
+## the mouth's speed by the weight it holds.
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ShapeController := preload("res://game/shapes/shape_controller.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const MouthHold := preload("res://game/player/gulp/mouth_hold.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const HeavyGrab := preload("res://game/player/heavy_grab.gd")
@@ -1212,7 +1216,29 @@ func activate_ability_from_ui(id: StringName) -> bool:
 
 ## The ability bar's model of `id` (PlayerAbilityController.status, camelCase keys).
 func ability_status(id: StringName) -> Dictionary:
+	if ThrowMode.is_shape_power(id):
+		return _shape_power_status(id)
 	return _abilities.status(id)
+
+
+## Throw combat: a shape's power as the HUD and the bag read a box ability (PlayerAbilities.status's
+## keys): learned, never cooling down, short of its charge's energy, busy while a strike runs.
+func _shape_power_status(id: StringName) -> Dictionary:
+	var learned := is_learned(id)
+	var shapes := _shapes if _shapes != null and is_instance_valid(_shapes) else null
+	var cost := float(ShapeDefs.charge(id).get("energy", 0.0))
+	var busy := shapes == null or shapes.is_busy() or _mouth.is_holding()
+	var short := _energy < cost
+	return {
+		"unlocked": learned,
+		"earnedBy": "",
+		"cooldownRemainingMs": 0.0,
+		"insufficientEnergy": short,
+		"busy": busy,
+		"actionLocked": _action_locked,
+		"canActivate": learned and not short and not busy and not _action_locked and not _dead,
+		"energyCost": cost,
+	}
 
 
 func is_ability_busy() -> bool:
@@ -1668,8 +1694,12 @@ func _handle_action_input() -> bool:
 func _handle_rework_action_input(now: float, busy: bool) -> bool:
 	var shapes := _shapes if _shapes != null and is_instance_valid(_shapes) else null
 	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
-		if _input.consume(step[0], now, _buffer_ms) and shapes != null:
-			shapes.cycle(int(step[1]))
+		if _input.consume(step[0], now, _buffer_ms):
+			# Throw combat: E steps through the Ability Box (the shapes are powers there).
+			if ThrowMode.is_on():
+				AbilityBox.cycle(self, int(step[1]))
+			elif shapes != null:
+				shapes.cycle(int(step[1]))
 	if not busy:
 		if _update_interact_hold(now):
 			return true
@@ -1708,9 +1738,17 @@ func _handle_rework_action_input(now: float, busy: bool) -> bool:
 		return true
 	if _input.consume(&"ability_use", now, _buffer_ms):
 		_orders.cancel()
+		# Throw combat: a shape power is the shape's own charge (it owns the body from this step on).
+		var power := ThrowMode.is_shape_power(AbilityBox.selected(self))
 		if AbilityBox.use(self) and shapes != null:
-			shapes.reset_chain("ability")
+			if power:
+				body.velocity = shapes.step_velocity()
+			else:
+				shapes.reset_chain("ability")
 		return true
+	if ThrowMode.is_on():
+		# Throw combat: the attack key does nothing (owner, 2026-10-19: "Q todo, A sin uso").
+		_input.consume(&"attack", now, _buffer_ms)
 	if _input.consume(&"attack", now, _buffer_ms):
 		_orders.cancel()
 		# A step that starts owns the body from this physics step on (not one step later).
@@ -1912,7 +1950,12 @@ func _move(direction: Vector2) -> void:
 	# mouth slows the slime to `gulp.holdingSpeedMultiplier` (owner, 2026-10-09: 70%).
 	var speed: float = _resolve_movement_speed(base, 0.0, _status.speed_multiplier()) * float(_gulp.form.get("speed", 1.0))
 	if _mouth.is_holding():
-		speed *= _number("gulp.holdingSpeedMultiplier")
+		# Throw combat: the weight held sets it (`gulp.throwCombat.weights.<weight>.holdingSpeed`).
+		if ThrowMode.is_on():
+			speed *= ThrowMode.weight_number(ThrowMode.weight_of_held(_mouth.held), "holdingSpeed",
+				_number("gulp.holdingSpeedMultiplier"))
+		else:
+			speed *= _number("gulp.holdingSpeedMultiplier")
 	# Rework: while the shape's charge ring fills or waits for the release the slime walks at
 	# ShapeController.walk_scale() (`combat.chain.chargeWalkScale`; owner, 2026-10-12: half speed).
 	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
@@ -2094,6 +2137,8 @@ func _try_dodge(charged: bool = false) -> bool:
 ## Rework mode: the press goes to the ShapeController with the strike aim (`get_strike_aim`, from
 ## the slime's centre; ZERO without one); the controller faces and aims.
 func _attack() -> bool:
+	if ThrowMode.is_on():
+		return false
 	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
 		return _shapes.press_attack(get_strike_aim())
 	var aim: Vector2 = _pointer_aim()

@@ -18,6 +18,13 @@ class_name ProjectileScript
 const Services := preload("res://game/shared/services.gd")
 const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 const SpiderWebPort := preload("res://game/enemy/spider_web_port.gd")
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md): an arrow that missed stays on the ground
+## as something the Gulp can throw back (`gulp.throwCombat.ammo`).
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
+const SpentShot := preload("res://game/throw/spent_shot.gd")
+const SPENT_SHOT_IDS: Array[String] = ["worm-arrow"]
+const SPENT_SHOT_MATERIAL := "wood"
+const SPENT_SHOT_PICTURE_PX := 64.0
 
 const KNOCKBACK_EFFECT_ID := "knockback"
 ## ProjectileScript.ts:122-124 defaults when the payload names none.
@@ -59,6 +66,8 @@ var _damage: Dictionary = {}
 var _activation_id: int = 0
 ## The last move was blocked by the world (Phaser `blockingContacts`).
 var _blocked: bool = false
+## It hit its target (the slime): no spent shot is left.
+var _hit_target: bool = false
 
 
 func _ready() -> void:
@@ -148,6 +157,7 @@ func expire() -> void:
 	_launched = false
 	_end_activation()
 	expired.emit({"projectileId": projectile_id})
+	_leave_spent_shot()
 	var root := get_parent()
 	if root != null:
 		root.queue_free()
@@ -190,7 +200,27 @@ func on_area_entered(area: Area2D) -> void:
 		"impact": {"position": Vector2.ZERO, "knock": knock},
 	})
 	SpiderWebPort.after_web_hit(router.receiver_for_area(area), result)
+	_hit_target = true
 	expire()
+
+
+## Throw combat: an arrow that missed (a wall, the end of its flight) lies where it ended, for the
+## Gulp to throw back (game/throw/spent_shot.gd; `gulp.throwCombat.ammo.arrowStays`, `arrowLifeMs`).
+func _leave_spent_shot() -> void:
+	if _hit_target or not ThrowMode.is_on() or not SPENT_SHOT_IDS.has(projectile_id):
+		return
+	var constants := Services.constants()
+	if constants == null or not bool(constants.value("gulp.throwCombat.ammo.arrowStays", false)):
+		return
+	var root := get_parent() as Node2D
+	var world := Services.world()
+	var parent := world.entities_root() if world != null else null
+	if root == null or parent == null or visual == null:
+		return
+	var path := str(visual.get(&"sheet_path")) if &"sheet_path" in visual else ""
+	SpentShot.spawn(parent, root.global_position, path, SPENT_SHOT_PICTURE_PX, absf(visual.scale.x),
+		visual.global_rotation, projectile_id, SPENT_SHOT_MATERIAL,
+		constants.number("gulp.throwCombat.ammo.arrowLifeMs"))
 
 
 func _end_activation() -> void:

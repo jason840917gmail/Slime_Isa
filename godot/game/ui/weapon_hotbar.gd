@@ -34,6 +34,7 @@ const SfxPlayer := preload("res://game/runtime/sfx_player.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const BodyCards := preload("res://game/ui/body_cards.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
@@ -176,6 +177,9 @@ static func rework_snapshot() -> Dictionary:
 ## Whether the slot shows: always, except in the rework mode until a second shape is learned (the
 ## console's layout leaves it out then, HudConsole.layout).
 static func slot_shown() -> bool:
+	# Throw combat (docs/godot/THROW_COMBAT.md): the shapes are box powers, so no Shape slot.
+	if ThrowMode.is_on():
+		return false
 	return not ReworkMode.is_on() or BodyCards.learned_shapes().size() >= 2
 
 

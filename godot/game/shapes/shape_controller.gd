@@ -329,6 +329,35 @@ func set_current(id: StringName) -> bool:
 	return true
 
 
+## Throw combat (docs/godot/THROW_COMBAT.md; owner, 2026-10-19): shape `id` used as an Ability
+## Box power. Its charge (the Lunge, the Spin, the Quake) fires at once along the strike aim (else
+## the facing), with no ring, paying the charge's energy; the shape becomes the current one. Returns
+## "" when it started, else the refusal PlayerAbilities.notify_rejected knows: "locked" (not learned,
+## no charge), "busy" (a strike runs, the mouth is full, swimming, dead) or "energy".
+func power_strike(id: StringName) -> String:
+	if not _player_valid() or _player.is_dead():
+		return "busy"
+	var charge := ShapeDefs.charge(id)
+	if not learned_shape_ids().has(id) or charge.is_empty():
+		return "locked"
+	if _phase != Phase.IDLE or _player.is_swimming() or not _player.held().is_empty():
+		return "busy"
+	var energy := ShapeDefs.num(charge, "energy")
+	if energy > 0.0 and _player.get_energy() < energy:
+		return "energy"
+	if _current != id:
+		set_current(id)
+	if energy > 0.0 and not _player.spend_energy(energy):
+		return "energy"
+	_cancel_ring(false)
+	_press_ms = -1.0
+	_link_until_ms = -1.0
+	_next_index = 0
+	var aim := _player.get_strike_aim()
+	_begin_unit(Phase.CHARGE, charge, aim if aim != Vector2.ZERO else _player.get_facing())
+	return ""
+
+
 ## True while a step or a charge owns the slime (it does not walk; player.gd drives the body with
 ## `step_velocity`).
 func is_busy() -> bool:

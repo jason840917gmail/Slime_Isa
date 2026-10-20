@@ -47,6 +47,8 @@ class_name EnemyScript
 ## Owner: enemy builder.
 
 const Services := preload("res://game/shared/services.gd")
+## The throw-combat experiment: ammo the enemies make (game/throw/throw_ammo.gd).
+const ThrowAmmo := preload("res://game/throw/throw_ammo.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
 const EnemyAI := preload("res://game/enemy/enemy_ai.gd")
@@ -763,6 +765,9 @@ func _resolve_attack(target: Dictionary, origin: Vector2) -> void:
 	if not ranged.is_empty():
 		_fire_projectile(origin, ranged)
 		return
+	# Throw combat (docs/godot/THROW_COMBAT.md): a Worm Brawler's blow may knock a rock loose.
+	ThrowAmmo.knock_loose(enemy_type if not enemy_type.is_empty() or body == null \
+		else body.scene_file_path.get_file().get_basename(), origin, _attack_direction)
 	var target_area := target.get("hurtbox") as Area2D
 	if target_area == null:
 		return
