@@ -1,6 +1,7 @@
 extends Node2D
 ## The Lantern's ember inside the slime (bomb-lantern-and-secrets design section 2; BODY_SHAPES.md
-## "The Lantern"): once the Lantern is learned, inside a dark room that is still dark
+## "The Lantern"): while the Lantern is learned and is the Ability Box's chosen ability (owner,
+## 2026-10-19: "the lantern only lights inside you when equipped"), inside a dark room that is still dark
 ## (DarkRoom.is_dark_at) a warm ember shows through the slime's jelly and the slime is a light
 ## source of `abilities.lantern.glow.radiusPx` (160 px, flickering a little). Outside dark rooms
 ## nothing shows, but every flame thrown flares the ember for `glow.flareMs` (`flare`).
@@ -14,6 +15,7 @@ extends Node2D
 
 const FireTargets := preload("res://game/world/fire/fire_targets.gd")
 const FireFx := preload("res://game/world/fire/fire_fx.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 
 const NODE_NAME := &"LanternEmber"
 ## The dark rooms' group (game/world/darkness/dark_room.gd).
@@ -110,8 +112,8 @@ func _glow_sprite(px: float, color: Color) -> Sprite2D:
 func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player) or _visual == null:
 		return
-	var learned := bool(_player.call(&"is_learned", LANTERN))
-	var in_dark := learned and _in_dark_room(_player.call(&"get_centre"))
+	var equipped := bool(_player.call(&"is_learned", LANTERN)) and AbilityBox.selected(_player) == LANTERN
+	var in_dark := equipped and _in_dark_room(_player.call(&"get_centre"))
 	var target := 1.0 if in_dark else 0.0
 	_level = move_toward(_level, target, FOLLOW_PER_S * delta)
 	var flare_ms := FireTargets.lantern_number("glow.flareMs", 260.0)

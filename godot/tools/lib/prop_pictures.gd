@@ -7,7 +7,7 @@ const OBJECTS := "res://game/scenes/objects/"
 ## Scripts a scenery scene may carry.
 const PRESENTATION: PackedStringArray = [
 	"res://game/runtime/animation_player.gd", "res://game/runtime/sfx_player_2d.gd",
-	"res://game/runtime/sfx_player.gd",
+	"res://game/runtime/sfx_player.gd", "res://game/runtime/sheet_sprite.gd",
 ]
 
 static var _images := {}

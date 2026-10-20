@@ -9,7 +9,7 @@ extends Node2D
 ##   global y, radius; <= 0 is off; game/world/fire/fire_targets.gd): the slime with the Lantern
 ##   learned (lantern_glow.gd), lit candles, flames in flight, the Goo Bomb's bombs and blasts. The
 ##   `abilities.lantern.darkness.maxLights` nearest to the slime (16) that reach the room are drawn.
-## - **The darkness**: `abilities.lantern.darkness.alpha` (0.98) where no light reaches, a soft
+## - **The darkness**: `abilities.lantern.darkness.alpha` (1.0: black) where no light reaches, a soft
 ##   edge of `softPx` inside each light's radius.
 ## - **Lit by its candles**: each candle of `candles` that burns lifts `darkness.candleShare` (25 %)
 ##   of the dark (owner, 2026-10-19: "turning candles on should bring some light to the room"); while
@@ -87,7 +87,7 @@ func _ready() -> void:
 	_overlay.z_as_relative = false
 	add_child(_overlay)
 	_fit_overlay()
-	_material.set_shader_parameter(&"darkness", FireTargets.lantern_number("darkness.alpha", 0.98))
+	_material.set_shader_parameter(&"darkness", FireTargets.lantern_number("darkness.alpha", 1.0))
 	_material.set_shader_parameter(&"soft_px", FireTargets.lantern_number("darkness.softPx", 40.0))
 
 

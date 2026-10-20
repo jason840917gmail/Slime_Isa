@@ -42,6 +42,22 @@ stood when the slime sucks it up (Zelda's heart under a pot; game/dungeon/pot_lo
 scene's own, as the dungeon pot's random one), `none`, `heart`, `energy`, `coins` or `random`. Like
 any part of its world scene it is back each time the map is entered, and so is what it hides.
 
+**Dungeon decor** (2026-10-19) is a palette category like the others: the dungeons' own scenery
+(the Lair's war banner, worm bunk, weigh scale and weights, pearl altar; the Weaver Hollow's loft
+pieces and brood altar; the mine's ore heap and rock stump; braziers that only show a flame, the
+crystal pillar, the cocoon prize) and the dungeon decor set of `game/scenes/objects/dungeon-decor/`
+(2026-10-19: hanging chains, wall shackles, a hanging cage, a weapon rack, a guard table and bench,
+a barrel stack, broken crates, a sarcophagus, a broken pillar, a bone pile, a worm-head statue, a
+candelabra, a bookshelf, a floor grate, stalagmites; `scripts/art/pack-dungeon-decor-art.py` cuts
+them from `asset/Originals/dungeon-kit/decor/` and writes their scenes). **Dungeon objects** (2026-10-19) lists the dungeon pieces with
+logic by their scene's own picture: every scene of `game/scenes/objects/dungeon/` but the world-level
+Dungeon nodes, and the puzzle objects among the other objects (brazier, plates, heavy blocks and
+statues, cracked walls and floors, climb walls, hatches and ladders, gates, winches, barricades, the
+mine cart, ore lift, lens and veil, Gulp spots, Pearls, the full heart). Dragging one places its scene
+at its own size under the room's `Objects` node (a room door under `RoomDoors`, a hazard under
+`Hazards`; made when missing); set its ids in the Inspector ([DUNGEONS.md](DUNGEONS.md)). The list
+is `DUNGEON_EXTRAS` and `DUNGEON_SKIP` in `addons/scenery_dock/scenery_dock.gd`.
+
 **Enemies** (2026-10-16, roadmap 5.25): every enemy type with a scene, by its
 picture. Dragging one places a **placed enemy** (`game/scenes/encounters/placed-enemy.tscn`) of that
 type where it is dropped, under the world's `Enemies` node (made when missing), at its own size; the
@@ -71,7 +87,7 @@ size (a painted prop's collision kept the scene's size). The four level-1 chunks
 
    | Layer | Cell | Sources |
    |---|---|---|
-   | `cell-props` | 64 units, a ground tile | nature, rocks, water life, rock walls, crystal walls, houses, every interior set |
+   | `cell-props` | 64 units, a ground tile | nature, rocks, water life, rock walls, crystal walls, houses, every interior set, dungeon decor |
    | `details` | 32 units, a quarter of a ground tile | ground: leaves, branches, roots, pebbles, petals, clover, flowers, mushrooms, moss, stones |
 
 2. Every prop takes a **block of whole cells** just big enough for it: a flower, a rock or a lily
@@ -132,9 +148,11 @@ about 42 million pixels, some 170 MB of textures a world would otherwise load.
 
 `tools/build_prop_palettes.gd` (windowed: it renders) builds the `cell-props` and `details`
 palettes: every scene under `game/scenes/objects/` whose path matches a source and whose only
-scripts are presentation (idle animation, sound) is measured by its visible pixels, given its block,
+scripts are presentation (idle animation, sound, `sheet_sprite.gd`) is measured by its visible pixels, given its block,
 rendered with the game's own drawing at its true size, a unit a pixel, into its slot of
-`godot/asset/MAPS/palettes/<palette>-<source>.png` (blocks packed in rows, a scene's three sizes
+`godot/asset/MAPS/palettes/<palette>-<source>.png` (a new scene goes to the source with the longest
+prefix it matches, so the Lair's `decoration-world-solid--war-banner` is dungeon decor, not
+nature; a scene already listed keeps its source; blocks packed in rows, a scene's three sizes
 side by side, a sheet about three times wider than tall), and written as a tile covering that slot
 (`size_in_atlas`) whose texture origin puts the texture's bottom-left cell on the painted cell.
 Scenes with gameplay scripts (resources, collectibles, chests, beds, workbenches, bridge decks,
@@ -186,6 +204,6 @@ uids Godot's headless save drops. Close or reload the world in the editor afterw
 | `godot/tools/build_old_prop_palettes.gd` | Builds the `old-props` palette |
 | `godot/tools/lib/prop_pictures.gd` | What the builders share: scenery scenes, visible pictures |
 | `godot/tools/absorb_props.gd` | Turns placed props into paint (older layers) |
-| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies, its Suckables category liftables |
+| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies, its Suckables category liftables, its Dungeon objects category the dungeon pieces with logic |
 | `godot/game/enemy/placed_enemy.gd`, `godot/game/scenes/encounters/placed-enemy.tscn` | A placed enemy: its type, wander area and overrides, its picture in the editor |
 | `godot/tools/paint_to_nodes.gd` | Turns painted props into nodes under `Scenery` |

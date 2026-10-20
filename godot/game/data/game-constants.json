@@ -423,7 +423,7 @@
       "glow": { "radiusPx": 160, "flareMs": 260 },
       "candle": { "lightRadiusPx": 110, "gutterMs": 5000 },
       "burnable": { "burnMs": 600, "spreadPx": 24 },
-      "darkness": { "alpha": 0.98, "softPx": 40, "maxLights": 16, "litFadeMs": 1500, "candleShare": 0.25 }
+      "darkness": { "alpha": 1.0, "softPx": 40, "maxLights": 16, "litFadeMs": 1500, "candleShare": 0.25 }
     }
   },
   "puzzles": {

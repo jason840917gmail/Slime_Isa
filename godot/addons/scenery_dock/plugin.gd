@@ -10,7 +10,8 @@ extends EditorPlugin
 ## (game/enemy/placed_enemy.gd, roadmap 5.25): it gets its type at once (Godot's preview shows the
 ## enemy too) and goes under the world's `Enemies` node, at its own size. A suckable dragged from the
 ## Suckables category is `object.liftable` with its `kind` set (game/scripts/liftable_root.gd), under
-## Scenery at its own size.
+## Scenery at its own size. A piece from the Dungeon objects category keeps its own size and goes
+## under the node the dock names for it (`Objects`, `RoomDoors` or `Hazards`; made when missing).
 ##
 ## Also leaves the palette pictures out of exported games (palette_export.gd).
 ##
@@ -63,10 +64,10 @@ func _notification(what: int) -> void:
 
 ## Readies a drag of `scene` at `size` with `settings` (the properties the placed node gets). False
 ## when no 2D scene is being edited.
-func _prepare_drop(scene: String, size: float, settings: Dictionary = {}) -> bool:
+func _prepare_drop(scene: String, size: float, settings: Dictionary = {}, container: String = "") -> bool:
 	if not EditorInterface.get_edited_scene_root() is Node2D:
 		return false
-	_pending = {"scene": scene, "size": size, "settings": settings}
+	_pending = {"scene": scene, "size": size, "settings": settings, "container": container}
 	_dropped.clear()
 	return true
 
@@ -83,7 +84,7 @@ func _on_node_added(node: Node) -> void:
 	var root := EditorInterface.get_edited_scene_root()
 	if root != null and root.is_ancestor_of(node):
 		_dropped.append(node)
-	elif settings.is_empty():
+	elif settings.is_empty() and str(_pending.get("container", "")).is_empty():
 		(node as Node2D).scale *= float(_pending["size"])
 
 
@@ -97,16 +98,18 @@ func _finish_drop(pending: Dictionary, dropped: Array[Node]) -> void:
 		return
 	var settings: Dictionary = pending.get("settings", {})
 	var enemy := settings.has("enemy_type")
-	# enemies and suckables keep their own size
-	var size := 1.0 if not settings.is_empty() else float(pending["size"])
-	var container_name := ENEMIES_CONTAINER if enemy else CONTAINER
+	var named := str(pending.get("container", ""))
+	# enemies, suckables and dungeon pieces keep their own size
+	var size := 1.0 if not settings.is_empty() or not named.is_empty() else float(pending["size"])
+	var container_name := named if not named.is_empty() else ENEMIES_CONTAINER if enemy else CONTAINER
 	var undo := get_undo_redo()
 	undo.create_action("Place in %s" % container_name)
 	var container := root.get_node_or_null(container_name) as Node2D
 	if container == null:
 		container = Node2D.new()
 		container.name = container_name
-		container.y_sort_enabled = not enemy
+		# Scenery and Objects sort with the world; Enemies, RoomDoors and Hazards do not
+		container.y_sort_enabled = container_name == CONTAINER or container_name == "Objects"
 		undo.add_do_method(root, &"add_child", container, true)
 		undo.add_do_method(container, &"set_owner", root)
 		undo.add_do_reference(container)

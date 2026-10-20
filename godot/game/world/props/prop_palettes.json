@@ -672,7 +672,7 @@
 					2.0
 				]
 			},
-			"width": 35.0
+			"width": 35
 		},
 		{
 			"name": "rocks",
@@ -1194,7 +1194,7 @@
 					2.0
 				]
 			},
-			"width": 23.0
+			"width": 23
 		},
 		{
 			"name": "water life",
@@ -1371,7 +1371,7 @@
 					1.0
 				]
 			},
-			"width": 10.0
+			"width": 10
 		},
 		{
 			"name": "trees",
@@ -1731,7 +1731,7 @@
 					2.0
 				]
 			},
-			"width": 12.0
+			"width": 12
 		},
 		{
 			"name": "crystal walls",
@@ -2044,7 +2044,7 @@
 					3.0
 				]
 			},
-			"width": 25.0
+			"width": 25
 		},
 		{
 			"name": "houses",
@@ -2088,7 +2088,7 @@
 					5.0
 				]
 			},
-			"width": 19.0
+			"width": 19
 		},
 		{
 			"name": "interior beds",
@@ -2167,7 +2167,7 @@
 					2.0
 				]
 			},
-			"width": 11.0
+			"width": 11
 		},
 		{
 			"name": "interior decor",
@@ -3392,7 +3392,7 @@
 					2.0
 				]
 			},
-			"width": 30.0
+			"width": 30
 		},
 		{
 			"name": "interior kitchen",
@@ -3849,7 +3849,7 @@
 					1.0
 				]
 			},
-			"width": 18.0
+			"width": 18
 		},
 		{
 			"name": "interior mushroom decor",
@@ -5074,7 +5074,7 @@
 					2.0
 				]
 			},
-			"width": 37.0
+			"width": 37
 		},
 		{
 			"name": "interior mushroom furniture",
@@ -5531,7 +5531,7 @@
 					1.0
 				]
 			},
-			"width": 16.0
+			"width": 16
 		},
 		{
 			"name": "interior mushroom large",
@@ -5624,7 +5624,7 @@
 					3.0
 				]
 			},
-			"width": 19.0
+			"width": 19
 		},
 		{
 			"name": "interior mushroom shell",
@@ -5913,7 +5913,7 @@
 					1.0
 				]
 			},
-			"width": 20.0
+			"width": 20
 		},
 		{
 			"name": "interior mushroom structure",
@@ -6377,7 +6377,7 @@
 					2.0
 				]
 			},
-			"width": 27.0
+			"width": 27
 		},
 		{
 			"name": "interior seating",
@@ -6834,7 +6834,7 @@
 					2.0
 				]
 			},
-			"width": 15.0
+			"width": 15
 		},
 		{
 			"name": "interior specialty",
@@ -7291,7 +7291,7 @@
 					1.0
 				]
 			},
-			"width": 18.0
+			"width": 18
 		},
 		{
 			"name": "interior storage",
@@ -7748,7 +7748,7 @@
 					1.0
 				]
 			},
-			"width": 17.0
+			"width": 17
 		},
 		{
 			"name": "interior structure",
@@ -8212,7 +8212,7 @@
 					2.0
 				]
 			},
-			"width": 28.0
+			"width": 28
 		},
 		{
 			"name": "interior tables",
@@ -8480,7 +8480,7 @@
 					2.0
 				]
 			},
-			"width": 21.0
+			"width": 21
 		},
 		{
 			"name": "interior workshop",
@@ -8923,7 +8923,624 @@
 					2.0
 				]
 			},
-			"width": 18.0
+			"width": 18
+		},
+		{
+			"name": "dungeon decor",
+			"scenes": [
+				"res://game/scenes/objects/brazier-lit.tscn",
+				"res://game/scenes/objects/brazier-unlit.tscn",
+				"res://game/scenes/objects/cocoon-prize.tscn",
+				"res://game/scenes/objects/crystal-pillar.tscn",
+				"res://game/scenes/objects/decoration-world-solid--pearl-altar.tscn",
+				"res://game/scenes/objects/decoration-world-solid--war-banner.tscn",
+				"res://game/scenes/objects/decoration-world-solid--weigh-beam-scale.tscn",
+				"res://game/scenes/objects/decoration-world-solid--weigh-weights.tscn",
+				"res://game/scenes/objects/decoration-world-solid--worm-bunk.tscn",
+				"res://game/scenes/objects/ore-heap.tscn",
+				"res://game/scenes/objects/rock-stump.tscn",
+				"res://game/scenes/objects/weaver-hollow/brood-altar.tscn",
+				"res://game/scenes/objects/weaver-hollow/loft-peg-rail.tscn",
+				"res://game/scenes/objects/weaver-hollow/loft-rafter.tscn",
+				"res://game/scenes/objects/weaver-hollow/loft-spinning-wheel.tscn",
+				"res://game/scenes/objects/weaver-hollow/loft-spool.tscn",
+				"res://game/scenes/objects/dungeon-decor/barrel-stack.tscn",
+				"res://game/scenes/objects/dungeon-decor/bone-pile.tscn",
+				"res://game/scenes/objects/dungeon-decor/bookshelf.tscn",
+				"res://game/scenes/objects/dungeon-decor/broken-crates.tscn",
+				"res://game/scenes/objects/dungeon-decor/broken-pillar.tscn",
+				"res://game/scenes/objects/dungeon-decor/candelabra.tscn",
+				"res://game/scenes/objects/dungeon-decor/floor-grate.tscn",
+				"res://game/scenes/objects/dungeon-decor/guard-bench.tscn",
+				"res://game/scenes/objects/dungeon-decor/guard-table.tscn",
+				"res://game/scenes/objects/dungeon-decor/hanging-cage.tscn",
+				"res://game/scenes/objects/dungeon-decor/hanging-chains.tscn",
+				"res://game/scenes/objects/dungeon-decor/sarcophagus.tscn",
+				"res://game/scenes/objects/dungeon-decor/stalagmites.tscn",
+				"res://game/scenes/objects/dungeon-decor/wall-shackles.tscn",
+				"res://game/scenes/objects/dungeon-decor/weapon-rack.tscn",
+				"res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn"
+			],
+			"sized": true,
+			"slots": {
+				"res://game/scenes/objects/brazier-lit.tscn|0": [
+					0.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/brazier-lit.tscn|1": [
+					1.0,
+					0.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/brazier-lit.tscn|2": [
+					2.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/brazier-unlit.tscn|0": [
+					4.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/brazier-unlit.tscn|1": [
+					5.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/brazier-unlit.tscn|2": [
+					6.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/cocoon-prize.tscn|0": [
+					8.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/cocoon-prize.tscn|1": [
+					9.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/cocoon-prize.tscn|2": [
+					10.0,
+					0.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/crystal-pillar.tscn|0": [
+					11.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/crystal-pillar.tscn|1": [
+					12.0,
+					0.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/crystal-pillar.tscn|2": [
+					13.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--pearl-altar.tscn|0": [
+					15.0,
+					0.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--pearl-altar.tscn|1": [
+					16.0,
+					0.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--pearl-altar.tscn|2": [
+					17.0,
+					0.0,
+					2.0,
+					3.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--war-banner.tscn|0": [
+					19.0,
+					0.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--war-banner.tscn|1": [
+					20.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--war-banner.tscn|2": [
+					22.0,
+					0.0,
+					2.0,
+					3.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--weigh-beam-scale.tscn|0": [
+					0.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--weigh-beam-scale.tscn|1": [
+					2.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--weigh-beam-scale.tscn|2": [
+					4.0,
+					3.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--weigh-weights.tscn|0": [
+					7.0,
+					3.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--weigh-weights.tscn|1": [
+					8.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--weigh-weights.tscn|2": [
+					10.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--worm-bunk.tscn|0": [
+					12.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--worm-bunk.tscn|1": [
+					14.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/decoration-world-solid--worm-bunk.tscn|2": [
+					16.0,
+					3.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/dungeon-decor/barrel-stack.tscn|0": [
+					0,
+					12,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/barrel-stack.tscn|1": [
+					1,
+					12,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/barrel-stack.tscn|2": [
+					3,
+					12,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/bone-pile.tscn|0": [
+					5,
+					12,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/bone-pile.tscn|1": [
+					6,
+					12,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/bone-pile.tscn|2": [
+					7,
+					12,
+					2,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/bookshelf.tscn|0": [
+					9,
+					12,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/bookshelf.tscn|1": [
+					10,
+					12,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/bookshelf.tscn|2": [
+					11,
+					12,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/broken-crates.tscn|0": [
+					13,
+					12,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/broken-crates.tscn|1": [
+					14,
+					12,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/broken-crates.tscn|2": [
+					15,
+					12,
+					2,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/broken-pillar.tscn|0": [
+					17,
+					12,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/broken-pillar.tscn|1": [
+					18,
+					12,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/broken-pillar.tscn|2": [
+					19,
+					12,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/candelabra.tscn|0": [
+					21,
+					12,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/candelabra.tscn|1": [
+					22,
+					12,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/candelabra.tscn|2": [
+					23,
+					12,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/floor-grate.tscn|0": [
+					0,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/floor-grate.tscn|1": [
+					1,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/floor-grate.tscn|2": [
+					2,
+					14,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/guard-bench.tscn|0": [
+					4,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/guard-bench.tscn|1": [
+					5,
+					14,
+					2,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/guard-bench.tscn|2": [
+					7,
+					14,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/guard-table.tscn|0": [
+					9,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/guard-table.tscn|1": [
+					10,
+					14,
+					2,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/guard-table.tscn|2": [
+					12,
+					14,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/hanging-cage.tscn|0": [
+					14,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/hanging-cage.tscn|1": [
+					15,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/hanging-cage.tscn|2": [
+					16,
+					14,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/hanging-chains.tscn|0": [
+					17,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/hanging-chains.tscn|1": [
+					18,
+					14,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/hanging-chains.tscn|2": [
+					19,
+					14,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/sarcophagus.tscn|0": [
+					0,
+					16,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/sarcophagus.tscn|1": [
+					2,
+					16,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/sarcophagus.tscn|2": [
+					4,
+					16,
+					3,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/stalagmites.tscn|0": [
+					7,
+					16,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/stalagmites.tscn|1": [
+					8,
+					16,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/stalagmites.tscn|2": [
+					9,
+					16,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/wall-shackles.tscn|0": [
+					11,
+					16,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/wall-shackles.tscn|1": [
+					12,
+					16,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/wall-shackles.tscn|2": [
+					13,
+					16,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/weapon-rack.tscn|0": [
+					14,
+					16,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/weapon-rack.tscn|1": [
+					15,
+					16,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/weapon-rack.tscn|2": [
+					16,
+					16,
+					2,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn|0": [
+					18,
+					16,
+					1,
+					1
+				],
+				"res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn|1": [
+					19,
+					16,
+					1,
+					2
+				],
+				"res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn|2": [
+					20,
+					16,
+					2,
+					2
+				],
+				"res://game/scenes/objects/ore-heap.tscn|0": [
+					19.0,
+					3.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/ore-heap.tscn|1": [
+					21.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/ore-heap.tscn|2": [
+					23.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/rock-stump.tscn|0": [
+					0.0,
+					6.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/rock-stump.tscn|1": [
+					2.0,
+					6.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/rock-stump.tscn|2": [
+					4.0,
+					6.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/brood-altar.tscn|0": [
+					6.0,
+					6.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/brood-altar.tscn|1": [
+					7.0,
+					6.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/brood-altar.tscn|2": [
+					8.0,
+					6.0,
+					2.0,
+					3.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-peg-rail.tscn|0": [
+					10.0,
+					6.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-peg-rail.tscn|1": [
+					12.0,
+					6.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-peg-rail.tscn|2": [
+					15.0,
+					6.0,
+					4.0,
+					3.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-rafter.tscn|0": [
+					0.0,
+					9.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-rafter.tscn|1": [
+					3.0,
+					9.0,
+					4.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-rafter.tscn|2": [
+					7.0,
+					9.0,
+					5.0,
+					3.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-spinning-wheel.tscn|0": [
+					12.0,
+					9.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-spinning-wheel.tscn|1": [
+					14.0,
+					9.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-spinning-wheel.tscn|2": [
+					16.0,
+					9.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-spool.tscn|0": [
+					19.0,
+					9.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-spool.tscn|1": [
+					20.0,
+					9.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/weaver-hollow/loft-spool.tscn|2": [
+					21.0,
+					9.0,
+					2.0,
+					2.0
+				]
+			},
+			"width": 25
 		}
 	],
 	"detail": [
@@ -10150,7 +10767,7 @@
 					2.0
 				]
 			},
-			"width": 49.0
+			"width": 49
 		}
 	],
 	"props": [
@@ -10978,8 +11595,8 @@
 					6.0
 				]
 			},
-			"square": 64,
-			"width": 131
+			"square": 64.0,
+			"width": 131.0
 		},
 		{
 			"anchors": {
@@ -11603,8 +12220,8 @@
 					8.0
 				]
 			},
-			"square": 64,
-			"width": 93
+			"square": 64.0,
+			"width": 93.0
 		},
 		{
 			"anchors": {
@@ -11880,8 +12497,8 @@
 					5.0
 				]
 			},
-			"square": 64,
-			"width": 41
+			"square": 64.0,
+			"width": 41.0
 		},
 		{
 			"anchors": {
@@ -13697,8 +14314,8 @@
 					4.0
 				]
 			},
-			"square": 32,
-			"width": 96
+			"square": 32.0,
+			"width": 96.0
 		},
 		{
 			"anchors": {
@@ -13820,8 +14437,8 @@
 					7.0
 				]
 			},
-			"square": 64,
-			"width": 38
+			"square": 64.0,
+			"width": 38.0
 		},
 		{
 			"anchors": {
@@ -15051,8 +15668,8 @@
 					6.0
 				]
 			},
-			"square": 64,
-			"width": 102
+			"square": 64.0,
+			"width": 102.0
 		},
 		{
 			"anchors": {
@@ -15768,8 +16385,8 @@
 					4.0
 				]
 			},
-			"square": 64,
-			"width": 74
+			"square": 64.0,
+			"width": 74.0
 		},
 		{
 			"anchors": {
@@ -17133,8 +17750,8 @@
 					8.0
 				]
 			},
-			"square": 64,
-			"width": 133
+			"square": 64.0,
+			"width": 133.0
 		},
 		{
 			"anchors": {
@@ -17850,8 +18467,8 @@
 					4.0
 				]
 			},
-			"square": 64,
-			"width": 67
+			"square": 64.0,
+			"width": 67.0
 		},
 		{
 			"anchors": {
@@ -17995,8 +18612,8 @@
 					12.0
 				]
 			},
-			"square": 64,
-			"width": 72
+			"square": 64.0,
+			"width": 72.0
 		},
 		{
 			"anchors": {
@@ -18448,8 +19065,8 @@
 					6.0
 				]
 			},
-			"square": 64,
-			"width": 95
+			"square": 64.0,
+			"width": 95.0
 		},
 		{
 			"anchors": {
@@ -19176,8 +19793,8 @@
 					7.0
 				]
 			},
-			"square": 64,
-			"width": 109
+			"square": 64.0,
+			"width": 109.0
 		},
 		{
 			"anchors": {
@@ -19893,8 +20510,8 @@
 					6.0
 				]
 			},
-			"square": 64,
-			"width": 65
+			"square": 64.0,
+			"width": 65.0
 		},
 		{
 			"anchors": {
@@ -20610,8 +21227,8 @@
 					5.0
 				]
 			},
-			"square": 64,
-			"width": 69
+			"square": 64.0,
+			"width": 69.0
 		},
 		{
 			"anchors": {
@@ -21327,8 +21944,8 @@
 					4.0
 				]
 			},
-			"square": 64,
-			"width": 64
+			"square": 64.0,
+			"width": 64.0
 		},
 		{
 			"anchors": {
@@ -22055,8 +22672,8 @@
 					8.0
 				]
 			},
-			"square": 64,
-			"width": 114
+			"square": 64.0,
+			"width": 114.0
 		},
 		{
 			"anchors": {
@@ -22475,8 +23092,8 @@
 					7.0
 				]
 			},
-			"square": 64,
-			"width": 78
+			"square": 64.0,
+			"width": 78.0
 		},
 		{
 			"anchors": {
@@ -23170,8 +23787,8 @@
 					6.0
 				]
 			},
-			"square": 64,
-			"width": 72
+			"square": 64.0,
+			"width": 72.0
 		},
 		{
 			"anchors": {
@@ -23644,8 +24261,8 @@
 					7.0
 				]
 			},
-			"square": 64,
-			"width": 52
+			"square": 64.0,
+			"width": 52.0
 		},
 		{
 			"anchors": {
@@ -24060,8 +24677,8 @@
 					10.0
 				]
 			},
-			"square": 64,
-			"width": 85
+			"square": 64.0,
+			"width": 85.0
 		},
 		{
 			"anchors": {
@@ -24128,8 +24745,8 @@
 					20.0
 				]
 			},
-			"square": 64,
-			"width": 74
+			"square": 64.0,
+			"width": 74.0
 		}
 	],
 	"walls": [

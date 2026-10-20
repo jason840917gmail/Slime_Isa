@@ -65,6 +65,13 @@ const PALETTES := {
 			["interior structure", ["interiors/structure/"], false],
 			["interior tables", ["interiors/tables/"], false],
 			["interior workshop", ["interiors/workshop/"], false],
+			# the dungeons' own decor (2026-10-17 builds): the Lair's, the Weaver Hollow's, the mine's
+			["dungeon decor", [
+				"decoration-world-solid--pearl-altar", "decoration-world-solid--war-banner",
+				"decoration-world-solid--weigh-beam-scale", "decoration-world-solid--weigh-weights",
+				"decoration-world-solid--worm-bunk", "weaver-hollow/", "brazier-lit", "brazier-unlit",
+				"cocoon-prize", "crystal-pillar", "ore-heap", "rock-stump", "dungeon-decor/",
+			], true],
 		],
 	},
 	"detail": {
@@ -93,7 +100,8 @@ func _initialize() -> void:
 			entry.erase("retired")
 			var scenes: Array = entry["scenes"]
 			for path in Pictures.scenery(source_config[1]):
-				if not scenes.has(path):
+				if not scenes.has(path) and _owner(path, config["sources"]) == source_config[0] \
+						and not _listed(path, sources):
 					scenes.append(path)
 			for i in scenes.size():
 				if not str(scenes[i]).is_empty() and not ResourceLoader.exists(scenes[i]):
@@ -132,6 +140,28 @@ func _save_manifest(manifest: Dictionary) -> bool:
 	if err != OK:
 		push_error("build_prop_palettes: cannot write %s (%s)" % [MANIFEST, error_string(err)])
 	return err == OK
+
+
+## The source a new scene goes to: the one with the longest prefix it matches ("dungeon decor"'s
+## `decoration-world-solid--war-banner` wins over "nature"'s `decoration-world-solid`).
+static func _owner(path: String, source_configs: Array) -> String:
+	var rel := path.trim_prefix(Pictures.OBJECTS)
+	var best := ""
+	var best_length := -1
+	for source_config: Array in source_configs:
+		for prefix: String in source_config[1]:
+			if rel.begins_with(prefix) and prefix.length() > best_length:
+				best = source_config[0]
+				best_length = prefix.length()
+	return best
+
+
+## Whether a live source of the palette already lists `path` (a scene keeps its source and slots).
+static func _listed(path: String, sources: Array) -> bool:
+	for entry: Dictionary in sources:
+		if not entry.get("retired", false) and (entry["scenes"] as Array).has(path):
+			return true
+	return false
 
 
 func _source_entry(sources: Array, source_name: String) -> Dictionary:

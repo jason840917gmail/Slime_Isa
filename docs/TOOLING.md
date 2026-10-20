@@ -291,6 +291,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   and its bag icon (`MAPS/items/64x64-matron-thread.webp`); it prints where the cocoon's eyes and bottom
   are for `game/bosses/matron_cocoon_look.gd` ([godot/specs/matron.md](godot/specs/matron.md) section 8).
   `godot/tools/render_matron.gd` renders the fight's moments in the running game (run windowed).
+- `python scripts/art/pack-dungeon-decor-art.py [--scenes]` (**numpy**) — the dungeon decor set
+  (2026-10-19) from `asset/Originals/dungeon-kit/decor/` (Magnific GPT 2.5, four 2 x 2 sheets;
+  prompts in its README): sixteen props at 2 px per unit in `godot/asset/MAPS/objects/dungeon/decor/`
+  and their scenes in `godot/game/scenes/objects/dungeon-decor/` (written only when missing;
+  `--scenes` rewrites them), listed under "dungeon decor" after `tools/build_prop_palettes.gd`.
 - `python scripts/art/pack-mine-art.py [--only=colossus]` (**numpy**) — the Crystal Mine's art
   (2026-10-17) from `asset/Originals/mine/` (Magnific GPT 2.5, eight 2 x 2 sheets; prompts in its
   README): the Crystal Colossus's nine poses (`godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp`,

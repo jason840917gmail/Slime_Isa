@@ -28,15 +28,17 @@ darkens the rectangle `size` from its position.
 - Every frame it hands the shader the light sources that reach the room, the
   `darkness.maxLights` (16) nearest to the slime, in its local pixels. The shader cuts a soft hole
   (`softPx` 40 inside the radius, with a faint warm rim) around each one, and the dark is `alpha`
-  0.98 elsewhere (0.92 until 2026-10-19: the owner found the rooms too clear), softened over 24 px at
-  the rectangle's edge. Size a dark room over its walls too, or they stay lit around it.
+  1.0, pure black, elsewhere (0.92 until 2026-10-19, then 0.98: the owner wanted it "totally dark,
+  black with no light"), softened over 24 px at the rectangle's edge. Size a dark room over its walls
+  and 48 px past the room's edge, or the walls and the soft edge show.
 - `candles` (NodePaths): each one that burns lifts `darkness.candleShare` (0.25) of the dark
   (owner, 2026-10-19); while all of them burn, the room fades to lit over `litFadeMs` (1500 ms).
   When one goes out, it fades darker again.
 - `lit_for_good_when_all_lit` (off by default): once all its candles burn, the room stays lit for
   good and keeps them lit. This sets the story flag `lit_flag` (default
   `dark-room-lit.<persistence key or path>`), and the overlay is removed.
-- The slime's ember and its 160 px light show only inside a room that is still dark
+- The slime's ember and its 160 px light show only while the Lantern is the Ability Box's chosen
+  ability (owner, 2026-10-19) and only inside a room that is still dark
   (`DarkRoom.is_dark_at`). A dark room makes the player's ember node when the slime is around
   (`LanternGlow.ensure`).
 

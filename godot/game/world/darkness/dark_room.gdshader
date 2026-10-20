@@ -9,11 +9,11 @@ const int MAX_LIGHTS = 16;
 uniform vec4 lights[16];
 uniform int light_count = 0;
 // The darkness where no light reaches (0..1).
-uniform float darkness : hint_range(0.0, 1.0) = 0.92;
+uniform float darkness : hint_range(0.0, 1.0) = 1.0;
 // How far inside its radius a light starts to fade (px).
 uniform float soft_px = 40.0;
 // The darkness's colour, and the warm tint at the edge of a lit hole.
-uniform vec3 dark_color : source_color = vec3(0.02, 0.02, 0.05);
+uniform vec3 dark_color : source_color = vec3(0.0, 0.0, 0.0);
 uniform vec3 warm_color : source_color = vec3(1.0, 0.55, 0.2);
 uniform float warm_share = 0.12;
 // The room's own fade: 1 dark, 0 lit for good.

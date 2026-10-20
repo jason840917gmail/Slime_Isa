@@ -119,9 +119,9 @@ phase = 0.4
 y_sort_enabled = true
 
 [node name="armoury-dark" type="Node2D" parent="Lair" unique_id=997845504]
-position = Vector2(0, 0)
+position = Vector2(-48, -48)
 script = ExtResource("16_r1bkv")
-size = Vector2(1152, 1024)
+size = Vector2(1248, 1120)
 candles = Array[NodePath]([NodePath("../armoury-sconce-2-3"), NodePath("../armoury-sconce-13-3"), NodePath("../armoury-sconce-2-12"), NodePath("../armoury-sconce-13-12")])
 lit_for_good_when_all_lit = true
 lit_flag = "slimeshire.armoury-lit"
