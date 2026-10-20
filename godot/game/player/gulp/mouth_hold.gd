@@ -41,6 +41,12 @@ const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const GooRing := preload("res://game/shapes/goo_ring.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md): the Gulp's level, the aim help.
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
+## Throw combat: what the mouth says when only a thing too heavy for its level was in reach.
+const TEXT_TOO_HEAVY := "Too heavy! (Gulp %d needed)"
+const TOO_HEAVY_COLOR := &"orange"
+const CUE_TOO_HEAVY := &"AbilityDenied"
 
 ## What the press in progress is about, decided by the mouth when Q went down.
 enum Press { NONE, EMPTY, LIFTABLE, ESSENCE }
@@ -278,6 +284,7 @@ func _follow_burst(now_ms: float) -> void:
 			_end_press()
 	elif not _mouth.swept_loot():
 		_puff()
+		_say_too_heavy()
 
 
 ## An empty-mouth press still held: in a form, the spit ring from `tapMs` to `spitHoldMs`.
@@ -353,6 +360,11 @@ func _judge_essence() -> void:
 ## Throws the liftable held, or spits the essence held out whole, along the aim.
 func _throw() -> void:
 	var aim := _aim()
+	# Throw combat: the aim help (off unless switched on) bends the throw onto a near enemy.
+	if ThrowMode.is_on():
+		var body := _body()
+		if body != null:
+			aim = ThrowMode.assist(aim, body.global_position)
 	_player.call(&"face", aim)
 	if _mouth.throw(aim):
 		_player.call(&"play_action_clip", CLIP_SPIT)
@@ -380,6 +392,21 @@ func _puff() -> void:
 	var body := _body()
 	if feel != null and body != null:
 		feel.particles(PUFF_PRESET, body.global_position + _aim() * PUFF_AHEAD_PX)
+
+
+## Throw combat: an empty burst with a liftable in reach that the Gulp's level cannot lift says so
+## (and the refusal cue plays).
+func _say_too_heavy() -> void:
+	if not ThrowMode.is_on():
+		return
+	var heavy := _mouth.find_too_heavy(_aim())
+	if heavy == null:
+		return
+	var weight := str(heavy.call(&"weight")) if heavy.has_method(&"weight") else ThrowMode.HEAVY
+	_say(TEXT_TOO_HEAVY % ThrowMode.level_for(weight), TOO_HEAVY_COLOR)
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_TOO_HEAVY)
 
 
 ## `text` over the slime, once per press.

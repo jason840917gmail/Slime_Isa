@@ -107,6 +107,37 @@
       "catch": { "bulgeX": 1.22, "bulgeY": 0.84, "bulgeMs": 300, "settleDropPx": 9, "settleMs": 280, "settlePop": 1.3 },
       "throw": { "stretch": 0.2, "stretchMs": 200, "leanPx": 4, "leanMs": 170, "streakMs": 160, "streakPx": 40, "streakWidthPx": 4, "streakLines": 3 },
       "land": { "dustScale": 0.7, "heavyMaterials": ["metal", "stone"], "heavyKickPx": 3 }
+    },
+    "throwCombat": {
+      "enabled": true,
+      "throwDamage": 25,
+      "playgroundLevel": 1,
+      "levels": { "1": "light", "2": "medium", "3": "heavy" },
+      "weights": {
+        "light": { "level": 1, "damageScale": 1, "rangeScale": 1, "speedScale": 1, "radiusScale": 1, "holdingSpeed": 0.85, "hitClass": "thrown" },
+        "medium": { "level": 2, "damageScale": 1.8, "rangeScale": 0.85, "speedScale": 0.9, "radiusScale": 1.35, "holdingSpeed": 0.7, "hitClass": "thrown-medium" },
+        "heavy": { "level": 3, "damageScale": 3, "rangeScale": 0.65, "speedScale": 0.8, "radiusScale": 1.8, "holdingSpeed": 0.55, "hitClass": "thrown-heavy" }
+      },
+      "kindWeights": {
+        "crate": "medium", "flour-sack": "medium", "kettle": "medium", "rune-urn": "medium", "amphora": "medium",
+        "mossy-brick": "medium", "fancy-pot": "medium", "crystal-cluster": "medium", "ore-rock": "medium",
+        "ice-block": "medium", "frost-crystal": "medium", "snow-brick": "medium", "desert-urn": "medium",
+        "sandbag": "medium", "driftwood": "medium", "coral": "medium", "pumpkin": "medium", "watermelon": "medium",
+        "grain-basket": "medium", "obsidian": "medium", "lava-rock": "medium", "snowy-rock": "medium",
+        "keg": "heavy", "iron-ball": "heavy", "gargoyle-head": "heavy", "log": "heavy", "geode": "heavy",
+        "stalagmite": "heavy", "snowy-log": "heavy", "sandstone": "heavy", "fossil-stone": "heavy", "stone-lantern": "heavy"
+      },
+      "materialEffects": { "ice": "freeze", "snow": "freeze", "glass": "shatter", "crystal": "shatter", "metal": "pierce" },
+      "kindEffects": { "worm-arrow": "pierce", "puffball": "sleep", "toadstool": "sleep", "glow-mushrooms": "sleep", "honey-jar": "stick", "mud-ball": "stick" },
+      "effects": {
+        "freeze": { "hitClass": "thrown-freeze", "lookMs": 3000, "damageScale": 0.8 },
+        "sleep": { "hitClass": "thrown-sleep", "lookMs": 4500, "damageScale": 0 },
+        "stick": { "hitClass": "thrown-stick", "lookMs": 2500, "damageScale": 0.6 },
+        "shatter": { "radiusScale": 2.2, "damageScale": 0.85 },
+        "pierce": { "pierceTargets": 3 }
+      },
+      "aimAssist": { "enabled": false, "coneDeg": 24, "rangePx": 320 },
+      "ammo": { "rockOnAttack": { "worm-brawler": { "chance": 0.5, "kind": "rock" } }, "rockSpacingPx": 40, "rockAheadPx": 26, "arrowStays": true, "arrowLifeMs": 12000 }
     }
   },
   "input": {
@@ -211,6 +242,11 @@
       "ring": { "tier": 2, "poise": 2, "countsAsHold": false },
       "slam": { "tier": 3, "poise": 3, "countsAsHold": true },
       "thrown": { "tier": 2, "poise": 2, "countsAsHold": false },
+      "thrown-medium": { "tier": 3, "poise": 3, "countsAsHold": false },
+      "thrown-heavy": { "tier": 3, "poise": 4, "countsAsHold": false },
+      "thrown-freeze": { "tier": 2, "poise": 2, "countsAsHold": false },
+      "thrown-sleep": { "tier": 2, "poise": 1, "countsAsHold": false },
+      "thrown-stick": { "tier": 2, "poise": 1, "countsAsHold": false },
       "roll": { "tier": 2, "poise": 1, "countsAsHold": true },
       "suck": { "tier": 1, "poise": 0, "countsAsHold": false }
     },
@@ -229,23 +265,23 @@
     },
     "weights": {
       "tiny": {
-        "classes": { "tap": "launch", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": "launch", "slam": "launch", "ring": "launch", "roll": "launch" },
+        "classes": { "tap": "launch", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": "launch", "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": { "verb": "daze", "stunMs": 4500 }, "thrown-stick": { "verb": "daze", "stunMs": 2500 }, "slam": "launch", "ring": "launch", "roll": "launch" },
         "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "light": {
-        "classes": { "tap": "hold", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": { "verb": "daze", "stunMs": 1550 }, "slam": "launch", "ring": "bounce", "roll": "launch" },
+        "classes": { "tap": "hold", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": { "verb": "daze", "stunMs": 1550 }, "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": { "verb": "daze", "stunMs": 4500 }, "thrown-stick": { "verb": "daze", "stunMs": 2500 }, "slam": "launch", "ring": "bounce", "roll": "launch" },
         "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "medium": {
-        "classes": { "tap": "hold", "finisher": "knockback", "charge": "launch", "smash": "launch", "thrown": { "verb": "knockdown", "stunMs": 1200 }, "slam": "launch", "ring": "bounce", "roll": "knockback" },
+        "classes": { "tap": "hold", "finisher": "knockback", "charge": "launch", "smash": "launch", "thrown": { "verb": "knockdown", "stunMs": 1200 }, "thrown-medium": { "verb": "knockdown", "stunMs": 1600 }, "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 2600 }, "thrown-sleep": { "verb": "daze", "stunMs": 4000 }, "thrown-stick": { "verb": "daze", "stunMs": 2200 }, "slam": "launch", "ring": "bounce", "roll": "knockback" },
         "roll": "bonk", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "heavy": {
-        "classes": { "tap": "armor", "finisher": "armor", "charge": "stagger", "smash": "stagger", "thrown": { "verb": "stagger", "stunMs": 650 }, "slam": { "verb": "knockdown", "stunMs": 1500, "damageTaken": 2 }, "ring": { "verb": "stagger", "stunMs": 650 }, "roll": "armor" },
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "stagger", "smash": "stagger", "thrown": { "verb": "stagger", "stunMs": 650 }, "thrown-medium": { "verb": "stagger", "stunMs": 900 }, "thrown-heavy": { "verb": "knockdown", "stunMs": 1500 }, "thrown-freeze": { "verb": "stagger", "stunMs": 2000 }, "thrown-sleep": { "verb": "stagger", "stunMs": 3000 }, "thrown-stick": { "verb": "stagger", "stunMs": 1600 }, "slam": { "verb": "knockdown", "stunMs": 1500, "damageTaken": 2 }, "ring": { "verb": "stagger", "stunMs": 650 }, "roll": "armor" },
         "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 4, "breakVerb": { "verb": "stagger", "stunMs": 1150 }
       },
       "boss": {
-        "classes": { "tap": "armor", "finisher": "armor", "charge": "armor", "smash": "armor", "thrown": "armor", "slam": "armor", "ring": "armor", "roll": "armor" },
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "armor", "smash": "armor", "thrown": "armor", "thrown-medium": "armor", "thrown-heavy": "armor", "thrown-freeze": "armor", "thrown-sleep": "armor", "thrown-stick": "armor", "slam": "armor", "ring": "armor", "roll": "armor" },
         "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       }
     },

@@ -192,7 +192,7 @@ func _rework_snapshot() -> Dictionary:
 	var model := {}
 	for id: StringName in (_slots if _rework else rework_slots(player)):
 		var ability_id := AbilityBox.selected(player) if id == BOX_SLOT else id
-		var name_text := str(Definitions.BAR_NAMES.get(ability_id, Definitions.title(ability_id)))
+		var name_text := str(Definitions.BAR_NAMES.get(ability_id, AbilityBox.title(ability_id)))
 		var status: Dictionary = player.call(&"ability_status", ability_id) if live and not ability_id.is_empty() else {}
 		var cooldown := float(status.get("cooldownRemainingMs", 0.0))
 		var total := AbilityBox.cooldown_ms(ability_id)

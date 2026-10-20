@@ -206,6 +206,9 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 	# Playground tests play the classic game: the body-shapes rework mode stays off
 	# (docs/godot/BODY_SHAPES.md).
 	context.main.set(&"rework_in_playground", false)
+	# The throw-combat experiment stays off too (branch exp/throw-combat; test_throw_combat.gd turns
+	# it on): the suite plays the rework game as on main.
+	context.main.set(&"throw_combat", false)
 	root.add_child(context.main)
 	if context.player() == null:
 		context.fail("main.tscn did not register a player")

@@ -6,6 +6,10 @@ The rework of 2026-10-11 (plans: [body shapes](../design/2026-10-11-body-shapes-
 [power curve](../design/2026-10-11-world-power-curve.md)) is built here as a prototype that runs
 **beside** the old weapon system. The old game is unchanged while the rework mode is off.
 
+On the `exp/throw-combat` branch the throw-combat experiment rides on this mode and changes it: the
+attack key does nothing and the shapes are Ability Box powers (each fires its charge at once):
+[THROW_COMBAT.md](THROW_COMBAT.md).
+
 This page is the contract between the prototype's parts: who owns which file, what data passes
 between them, the exact functions each part provides and may call, what is built and what still
 stands in, and how to try each part in the playground.

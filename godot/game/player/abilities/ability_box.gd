@@ -26,6 +26,10 @@ extends RefCounted
 const Services := preload("res://game/shared/services.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md): the learned shapes stand in the box as
+## energy powers, before the box abilities.
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 ## The input action that uses the chosen box ability (F; S in keys-only).
 const USE_ACTION := &"ability_use"
@@ -37,6 +41,8 @@ const LOADOUT_KEY := "loadout"
 const ABILITY_KEY := "ability_id"
 ## PlayerAbilities' refusal reason for an ability that is not learned ("Not learned yet").
 const REFUSAL_EMPTY := "locked"
+## Throw combat: the new choice's name floats this high over the slime's centre.
+const CHOICE_TEXT_RISE_PX := 40.0
 
 ## The choice while there is no run (an editor scene played alone).
 static var _session_choice: StringName = &""
@@ -59,6 +65,10 @@ static func socket_ids() -> Array[StringName]:
 ## the ones AbilityDefinitions knows (a socket without an ability yet stays hidden).
 static func box_ids(player: Node) -> Array[StringName]:
 	var ids: Array[StringName] = []
+	if ThrowMode.is_on():
+		for id: StringName in ShapeDefs.IDS:
+			if _is_learned(player, id):
+				ids.append(id)
 	for id: StringName in socket_ids():
 		if AbilityDefinitions.has(id) and _is_learned(player, id):
 			ids.append(id)
@@ -98,10 +108,50 @@ static func use(player: Node) -> bool:
 	if id.is_empty():
 		_refuse_empty(player)
 		return false
-	var started := bool(player.call(&"use_ability", id))
+	var started := _use_shape_power(player, id) if ThrowMode.is_shape_power(id) \
+		else bool(player.call(&"use_ability", id))
 	if started:
 		_use_count += 1
 	return started
+
+
+## Throw combat: the box choice `step` (+1 / -1) along the box, wrapping (E and the wheel);
+## the new choice floats over the slime. False with fewer than two.
+static func cycle(player: Node, step: int) -> bool:
+	var ids := box_ids(player)
+	if ids.size() < 2 or step == 0:
+		return false
+	var index := ids.find(selected(player))
+	var next := ids[posmod(index + signi(step), ids.size())] if index >= 0 else ids[0]
+	if not select(player, next):
+		return false
+	var feel := Services.feel()
+	if feel != null and player != null and is_instance_valid(player) and player.has_method(&"get_centre"):
+		feel.floating_text((player.call(&"get_centre") as Vector2) - Vector2(0.0, CHOICE_TEXT_RISE_PX),
+			title(next), &"cyan", false)
+	return true
+
+
+## The box entry's name: a shape's (throw combat) or the ability's.
+static func title(id: StringName) -> String:
+	return ShapeDefs.title(id) if ThrowMode.is_shape_power(id) else AbilityDefinitions.title(id)
+
+
+## Throw combat: a shape power fires its shape's charge at once (ShapeController.power_strike),
+## paying its energy; a refusal plays the abilities' usual feedback.
+static func _use_shape_power(player: Node, id: StringName) -> bool:
+	var shapes: Variant = player.call(&"get_shapes") if player.has_method(&"get_shapes") else null
+	var reason := ""
+	if not shapes is Object or not is_instance_valid(shapes):
+		reason = REFUSAL_EMPTY
+	else:
+		reason = str((shapes as Object).call(&"power_strike", id))
+	if reason.is_empty():
+		return true
+	var abilities: Variant = player.call(&"get_abilities") if player.has_method(&"get_abilities") else null
+	if abilities is Object and (abilities as Object).has_method(&"notify_rejected"):
+		(abilities as Object).call(&"notify_rejected", id, reason)
+	return false
 
 
 ## How many box abilities `use` has started this session (it only grows).
@@ -122,11 +172,15 @@ static func key_action(id: StringName) -> StringName:
 
 ## The energy `id` spends (what the box card and the HUD chip show).
 static func energy_cost(id: StringName) -> float:
+	if ThrowMode.is_shape_power(id):
+		return float(ShapeDefs.charge(id).get("energy", 0.0))
 	return AbilityDefinitions.energy_cost(id)
 
 
 ## The cooldown of `id` in ms, from the press.
 static func cooldown_ms(id: StringName) -> float:
+	if ThrowMode.is_shape_power(id):
+		return 0.0
 	return AbilityDefinitions.cooldown_ms(id, Services.constants())
 
 

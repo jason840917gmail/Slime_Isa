@@ -68,6 +68,10 @@ const Services := preload("res://game/shared/services.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md): no attack key, so no attack hints.
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
+const THROW_SKIPPED_HINTS: Array[StringName] = [&"attack", &"charge"]
+const THROW_THRUST_TEXT := "Thrust through the bars: choose the Spear in the bag, stand at them and press %s"
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const BodyCards := preload("res://game/ui/body_cards.gd")
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
@@ -195,6 +199,8 @@ static func hint_text(id: StringName) -> String:
 		&"throw-move":
 			return "Keep moving while you aim: the worms can bite!"
 		&"thrust-bars":
+			if ThrowMode.is_on():
+				return THROW_THRUST_TEXT % ControlLabels.control_label(&"ability_use")
 			return "Thrust through the bars: stand at them and attack (%s)" % ControlLabels.control_label(&"attack")
 	if ReworkMode.is_on():
 		var rework := rework_hint_text(id, scheme)
@@ -331,10 +337,14 @@ func _pick(player: Node) -> StringName:
 		if not PrologueState.has_beat(run, PrologueState.BORN):
 			return &""
 		for id in PROLOGUE_HINT_IDS:
+			if ThrowMode.is_on() and THROW_SKIPPED_HINTS.has(id):
+				continue
 			if not is_learned(id) and is_relevant(id, player):
 				return id
 		return &""
 	for id in (REWORK_HINT_IDS if ReworkMode.is_on() else HINT_IDS):
+		if ThrowMode.is_on() and THROW_SKIPPED_HINTS.has(id):
+			continue
 		if not is_learned(id) and is_relevant(id, player):
 			return id
 	return &""

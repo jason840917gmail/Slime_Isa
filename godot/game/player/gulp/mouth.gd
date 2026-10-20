@@ -209,6 +209,25 @@ func find_target(aim: Vector2) -> Node:
 	return best
 
 
+## Throw combat (docs/godot/THROW_COMBAT.md): the nearest liftable in reach that the Gulp's level is
+## too low for (`is_too_heavy`), so the mouth can say why nothing came; null when none.
+func find_too_heavy(aim: Vector2) -> Node:
+	var tree := Engine.get_main_loop() as SceneTree
+	var body := _player.get(&"body") as Node2D if _player != null else null
+	if tree == null or body == null:
+		return null
+	var best: Node = null
+	var best_distance := INF
+	for node: Node in tree.get_nodes_in_group(SUCKABLE_GROUP):
+		if not node.has_method(&"is_too_heavy") or not bool(node.call(&"is_too_heavy")):
+			continue
+		var offset: Vector2 = (node.call(&"origin") as Vector2) - body.global_position
+		if _in_reach(offset, aim) and offset.length() < best_distance:
+			best = node
+			best_distance = offset.length()
+	return best
+
+
 ## `offset` (from the slime's feet) is within `gulp.suckNearPx`, or within `gulp.suckRangePx` and
 ## the `gulp.suckConeDeg` cone around `aim`.
 static func _in_reach(offset: Vector2, aim: Vector2) -> bool:
