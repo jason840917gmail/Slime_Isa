@@ -149,7 +149,10 @@ hide nothing (the camera looks north).
   anywhere no wall stands, taking the level of where its feet are ([What you see](#what-you-see)
   has the rule); its front rim holds and drops like any other.
 - **Changing area**: the player is spawned in the new world and takes the level
-  of the ground where it appears (`track` with no level).
+  of the ground where it appears (`track` with no level). So does a slime put somewhere inside
+  the same world: waking from a faint at the spawn, the entrance or a bed, arriving by a stair hatch
+  or at a room's entry (`player.gd` `arrive_at`), whatever level it left (2026-10-19: one that
+  fainted in R7's spike pit woke under the north floor).
 - **Ledge drops.** A rim holds the slime, as in Zelda. Pushing against it for `dropPushMs`
   (280 ms) drops it over: a small hop off the edge, then a fall. Shape does not matter (a straight
   rim, a 45° one, a tip, a wall's top): the side of the body facing the push is probed a few units
@@ -393,8 +396,9 @@ tracked (`Elevation.track`) and collides only with its own level's layer: walls 
 ground, rims keep a body on its hill or out of a hole, and the strip behind a hill is open to the
 level below. A body's level changes only on stairs (one standing on a flight takes the level of the
 height it stands at, the upper half of a one-level flight the top level; the player's stairs walk
-sets the level of the end it steps off at) and when a jump or drop lands (`track(body, level)` sets
-the new layer). While a flight (a jump's, a drop's or the stairs walk) runs it owns the body and
+sets the level of the end it steps off at), when a jump or drop lands (`track(body, level)` sets
+the new layer) and when the player is put somewhere without walking (a respawn, `arrive_at`: the
+level of the ground there). While a flight (a jump's, a drop's or the stairs walk) runs it owns the body and
 places it every step, so nothing collides on the way. `WorldService.elevation` answers `level_at`,
 `is_walkable`, `level_of(body)`, `track`, `body_fits`, `drop_target` (the ledge push in
 `player.gd`) and `hop_target` (the jump in `player_abilities.gd`).
@@ -936,17 +940,63 @@ in the editor): the Sides and corner Patches go, and in their place, over the pi
 hazards' look and under the stairs:
 
 - **front**: a lower cell with a higher one north of it gets the room style's north-wall run
-  squashed to one cell (one cell a level), its cap on the upper floor's edge, darker at its foot;
+  squashed to one cell (one cell however many levels it drops), its cap on the upper floor's edge,
+  darker at its foot;
 - **sides**: a higher cell west or east gives the west/east-wall run squashed to the side wall's
   strip (24 units), mitred into a front in the same cell, and carried down beside a front that turns
   round a convex corner;
-- **back**: a higher cell south leaves only the south run's cap along the edge.
+- **back**: a higher cell south leaves only the south run's cap along the edge. With **four visible
+  walls** (2026-10-19, the owner's choice: tick `room_back_faces` on the room's `elevation` layer;
+  on in every room of Fatty's Lair with levels: R2, the hub, R11, the Old Armoury, the Glow-Moss
+  Burrow, and R7, whose painted collision the owner redoes; the cap-only look stays an option until
+  the Lair is tested) the raised floor's north side is a face too, foreshortened like the sides: the
+  south-wall run squashed to the sides' 24 units along the south end of the lower cell north of it,
+  its foot (darker) on the lower floor, its cap on the upper floor's edge, mitred at 45° into the side
+  faces at the floor's corners (an outer corner in a 24-unit square of the diagonal cell, an inner
+  corner in the face's own cell). The rest of that cell stays lower floor. A one-cell gap between two raised floors keeps
+  the cap (the front fills it).
 
-Everything else is the outdoor code: the level outlines' collision (the faces are drawn on its
-footprint), the ledge drops (the hop, landing one cell a level lower on screen, in front of the
-face), the decks' passages and the slabs. A world with a painted `level-collision` layer collides as
-painted instead ([Painting collision](#painting-collision)). Not drawn yet: faces taller than one
-level (a void's walls show one cell), doors and chests set into a face.
+Everything else is the outdoor code: the level outlines' collision, the ledge drops (the hop,
+landing one cell a level lower on screen, in front of the face), the decks' passages and the slabs.
+The faces are drawn on the outline's footprint **only along straight runs**: the outline keeps the
+outdoor cliffs' shapes (`_side_shapes`), so at every corner it is rounded (convex corners radius
+about 40, back corners 34, inner corners 20) and every edge wobbles by about ±4 units, while the
+faces are square: at a raised floor's convex corner the slime on top stops short of the drawn corner,
+and a slime below can slide a little into the drawn corner of a face (2026-10-19 review H1, not fixed;
+a painted `level-collision` layer is square). Two marks in the model make it fit the faces
+(`_mark_room_levels`, 2026-10-19): inside a room **no hidden strip lies behind a raised floor**
+(`ElevationGrid.no_strip`, as behind the one-row open cliffs: outdoors a hill's top hides a body
+walking in behind it, a room's cap hides nothing), so a body below stops at the floor's north edge;
+and a **back face is a wall for the levels below it** (`ElevationGrid.back_face`): they stop at its
+foot, and a drop off the floor's north edge lands past it. The model's finest step is half a cell,
+so it blocks the south 32 units of the cell (a corner's quarter) against the 24 drawn: a body below
+stops 8 units short of the drawn foot, as at the side faces; "Fill" puts the base in the 16-unit
+row the foot lies in. The room's walls and the
+`room_back_faces` tick are part of the baked cache's key. A world with a painted `level-collision`
+layer collides as painted instead ([Painting collision](#painting-collision)). Not drawn yet: faces
+taller than one level (a void's walls show one cell), doors and chests set into a face.
+
+**Decks hide what is under them** (2026-10-19, everywhere): a slab, a landing, a lowered drawbridge
+or a shadow path puts its rectangles in the terrain's depth map as ground of its level while it holds
+(`hazard_deck.gd` `_sync_depth`, `ElevationOcclusion.add_occluder` as the fences do), so a body of a
+lower level walking under it shows as its ghost behind it, as behind a cliff; a fallen slab or a
+raised drawbridge hides nothing.
+
+**A deck's passage is open only while it holds** (2026-10-19, everywhere; the owner: a missing slab
+made the slime "fall differently"): `hazard_watch.gd` `_sync_passages` opens the cells of the decks
+that hold (`Elevation.open_passage`, merged per level) and closes those of a slab that fell or a
+plank that sank (`Elevation.close_passage`, `ElevationGrid.reopen`) until it is back. So the floor's
+rim beside the gap holds the slime and a push drops it with the ledge drop, landing in front of the
+face, as at any rim, automatic or painted. A deck closes only once the slime's body on its level is
+clear of it and of a quarter cell round it (the rim coming back never shuts the slime inside it); a
+slime standing on a slab as it falls is the hazard's, as before. A level's collision is rebuilt only
+when a passage changes what that level walks on (planks over flat water change nothing), once a frame.
+Where no floor of the pit lies under the gap (with four visible walls, a bridge between two raised
+floors' faces: R7's north bridge spans the north floor's face and the landing's back face), a slime
+that falls with the slab is put back on the rim it fell from, as from the void (`hazard_watch.gd`
+`_land`), and a push at the rim above it finds no room to land: no drop there. Likewise beside a back
+face's outer corner, whose mark covers half a cell (32 units) where the drawn mitre is 24: R7's north
+floor at about x 576..620 holds the slime but has no drop (2026-10-19, for the owner to decide).
 
 Fixes found on the way that hold everywhere (2026-10-19): a deck's passage beside a top's round
 corner or side opens that edge too (`_cut_passage_seams`, `_in_level_passage`: a Roll from a landing
@@ -968,8 +1018,12 @@ body stands on, the stairs, the hazards' floor levels and the kit objects' level
 ![The level-collision palette](images/level-collision-palette.png)
 
 The palette (`level_collision_tileset.tres`, made by `tools/pack_level_collision_tileset.gd`) has
-one tile per kind and level, on a **16-unit grid** (a quarter cell: fine enough to follow a 24-unit
-side wall or a rim drawn mid-cell, coarse enough to paint quickly with the rectangle tool):
+one tile per kind and level, on a **16-unit grid** (a quarter cell: fine enough to follow a rim drawn
+mid-cell, coarse enough to paint quickly with the rectangle tool). It cannot follow a 24-unit side
+wall: the wall's foot lies mid-tile. Fill (and RoomFaces) paint that foot's base on the cell's second
+quarter (16 to 32 units from the face's side), so a body below stops 8 units short of the drawn foot,
+as in R7's spike channel; painted on the first quarter instead, the body stands 8 units on the face.
+Pick one per room:
 
 - **rim** (orange, striped), level *L*: the edge of a floor of level *L*. A body on *L* is held there.
   Pushing on for `elevation.dropPushMs` drops it over to the level painted on the `elevation` layer
@@ -977,11 +1031,34 @@ side wall or a rim drawn mid-cell, coarse enough to paint quickly with the recta
   ground of that level the body fits on: past a painted **base**, never on the face).
 - **base** (red), level *L*: solid for bodies on *L*: the wall foot they bump into, a wall's side, a
   pit's walls. Pushing on a base never drops.
+- **edge** (orange stripes with a red border; 2026-10-19), level *L*: a rim for *L* and a base for
+  every level below it, in one tile. Paint it on a raised floor's north border when no face stands
+  there (without the four visible walls): the upper floor's edge and the lower floor's wall foot are
+  the same line, and a rim and a base cannot share a cell (painting one replaces the other). A deck's
+  passage opens only its rim part: a body below still cannot slip in under the deck's end.
 
-A tile only acts on its own level, so the same spot can hold a level-0 rim and, a little lower, a
-level -1 base. A deck's passage (a slab, a landing, a lowered drawbridge: `Elevation.open_passage`)
-opens the painted cells inside it, and the rim painted along its edges where it joins a floor. Paint
-the rim right across a bridge's ends; the game opens it.
+A rim or a base only acts on its own level, so the same spot can hold a level-0 rim and, a little
+lower, a level -1 base.
+
+**Bridges** (2026-10-19, the owner: "bridges should hold the player in by the sides"). A deck's
+passage (a slab, a landing, a lowered drawbridge: `Elevation.open_passage`, open while the deck holds)
+is floor of its level, as the automatic outline has it (Elevation `_update_passage_paint`):
+
+- along an edge past which floor of its level goes on (the `elevation` paint there, or another
+  passage of that level: a bridge's ends), the painted cells of its level open, inside the passage
+  and one tile out: a rim painted across a bridge's end opens, whether it lies on the floor's edge
+  (the lab) or on the hole's first quarter row (R7). The tiles diagonally off the passage's corners
+  never open, so no gap is left beside a bridge's end;
+- along an edge with nothing of its level past it (a bridge's long sides) the painted cells stay, and
+  each tile just outside it that nothing painted closes for its level is closed: a rim of its level
+  over lower ground, a base beside higher ground. So a bridge holds the slime by its sides, and a push
+  drops it with the ledge drop, whether or not its sides are painted;
+- painted cells deep inside a passage open.
+
+So paint nothing along a bridge (or paint its side rims on the deck's own edge tiles or one tile out:
+both hold), and paint the floor's rim right across the bridge's ends: the game opens it, and closes it
+again while a slab is gone. One convention per room for where a floor's rim lies: the floor's own edge
+tiles (the lab) or the hole's first quarter row (R7); both work.
 
 Step by step:
 
@@ -991,14 +1068,20 @@ Step by step:
    `game/world/elevation/level_collision_tileset.tres`.
 3. Optional: in the Inspector press **Fill from the automatic collision** to start from the current
    collision turned into cells (save the scene first: it is not undoable; it replaces the paint).
-   Interior walls collide by themselves, so it leaves them out; in a room it copies the room faces'
-   footprint (a base at each face's foot, a rim on each upper edge).
+   Outdoors it leaves interior walls out (they collide by themselves), and a rim that is also a
+   lower level's wall foot becomes an edge. In a room it copies the room faces' footprint as it is (a
+   base at each face's foot, a rim on each upper edge, an edge on a north border with no face),
+   interior walls included: a pit beside a room's wall gets its rim painted on the wall's cells too
+   (harmless, the wall collides there anyway; erase it if it is in the way). The copy is square, so
+   at corners it differs from the automatic collision (rounded, see [Faces in rooms](#faces-in-rooms)).
 4. Paint: rims (orange) on the edge of each upper floor where the slime should stop and can drop,
-   bases (red) where a body on the lower level should bump into the wall. Erase what should not
-   collide. Pick the level in the palette's row.
+   bases (red) where a body on the lower level should bump into the wall, edges where both fall on
+   the same line. Erase what should not collide. Pick the level in the palette's row.
 5. Check: `show_collision` (on by default) draws the active collision over the art in the editor:
    the painted cells' outlines in their kind's colour with their level's number. On an empty layer it
-   draws the automatic outline of every level instead. `paint_opacity` fades the tiles. In the game,
+   draws, in a room, the room faces' footprint cells (what Fill copies: the automatic collision along
+   straight runs, not its rounded corners), elsewhere the automatic outline of every level.
+   `paint_opacity` fades the tiles (never saved in the scene). In the game,
    `tools/render_room_collision.gd -- --map=<world>` draws the collision over a capture.
 
 ![The lab painted, the overlay on](images/level-collision-lab.png)
@@ -1007,13 +1090,30 @@ The lab (`game/dev/level-collision/level-collision-lab.tscn`, world `level-colli
 `tools/build_level_collision_lab.gd`; `?map=level-collision-lab`) has a raised platform (level 1)
 and a pit (level -1) painted this way, with a gap in the pit's east rim on purpose.
 `tests/test_level_collision.gd` plays it: the rim holds and drops, the bases block their level, the
-gap collides nothing, a passage opens the rim, an empty layer brings the automatic collision back.
+gap collides nothing, a passage opens the rim, an empty layer brings the automatic collision back; and
+over its pit (decks, slabs and a void added by the tests) a bridge holds by its sides and drops with
+the ledge drop, a fallen slab's gap holds at the floor's rim (painted and automatic both), a fence on
+a painted rim is never dropped over, the queries follow the paint, a key on a slab takes the slab's
+level, and a void or a spike pit takes its floor and rim from the paint.
+
+**Queries in a painted world** (2026-10-19): `is_walkable` and `body_fits` (paths, hops, Rolls,
+landings, a pit fall's landing, a Goo Bomb's checks) follow the paint and the `elevation` paint: a
+point is ground of a level where nothing painted (or closed by a passage) holds that level and the
+`elevation` layer makes it ground of that level as the model reads it (`ElevationGrid.
+is_walkable_point`: a wall face is none, a deck's passage is), square, without the drawn walls' round
+corners. A body fits when a grid of points over its rect no wider than a tile (16) does. The ledge
+probes are the outdoor ones (`ledge_below`, one loop): on a painted rim they drop to the level painted
+past it, on a base they meet a wall, and a fence stops them as outdoors. Where the paint lets a body
+walk over ground of another level (the lab's gap over the pit), it walks there, but no landing, hop
+or path stops there.
 
 ![R7 filled from the automatic collision (not saved)](images/level-collision-filled-r7.png)
 
 Limits: one tile per cell, so a cell that borders two levels takes the higher level's when filled.
 Ramps and the open cliffs' tapered faces are not painted kinds: their walkability follows the paint
-alone in a painted world.
+alone in a painted world. A flight of stairs collides there only by its steps (`STAIRS_LAYER`, which
+keeps enemies off): no flight walls are built (the automatic outline's `_with_stairs`), so paint its
+sides as bases of the levels that must not walk through them.
 
 ## Baked cache
 
@@ -1160,6 +1260,8 @@ with side walls (the playground: 0.56 s from its cache, 2.1 s built).
 | `godot/game/world/elevation/elevation_cache.gd`, `godot/game/scenes/worlds/elevation_cache/` | The baked cache of each world's elevation ([Baked cache](#baked-cache)) |
 | `godot/tools/bake_elevation.gd` | Bakes the caches |
 | `godot/game/world/elevation/level_collision_layer.gd`, `level_collision_tileset.tres`, `level_collision_palette.res` | [Painting collision](#painting-collision): the hand-painted `level-collision` layer (rims, bases), its palette (`tools/pack_level_collision_tileset.gd`); the lab `game/dev/level-collision/` (`tools/build_level_collision_lab.gd`) |
+| `godot/game/world/elevation/room_faces.gd` | [Faces in rooms](#faces-in-rooms): the level changes inside dungeon rooms drawn as the room's own bevel faces, their footprint as level-collision cells (what Fill copies in a room) and the back faces' marks |
+| `godot/tools/render_room_collision.gd` | Captures a world in the running game with its collision drawn over it (each level's outline or painted cells in its colour, static bodies, decks, the cells hazards catch on); run windowed |
 | `godot/game/world/elevation/elevation_layer.gd` | The painted layer: hides itself in the game, previews the cliffs in the editor (`@tool`) |
 | `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 3, stairs in 8 directions (two rows, once a railed and an open landing; since 2026-10-11 the same flights), ramps in 8 directions (`elevation_level`, `elevation_kind`) |
 | `godot/game/world/elevation/cliffs/cliff_layer.gd`, `cliff_tileset.tres`, `cliff_paint_tiles.png` | The `cliffs` layer: wall styles painted over tops (`wall_style`; tiles by `scripts/art/build-cliff-paint-tiles.py`) |

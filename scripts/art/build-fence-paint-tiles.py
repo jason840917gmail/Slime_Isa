@@ -4,8 +4,12 @@
 Writes fence_paint_tiles.png and the tile set; then run
 "<Godot console exe>" --headless --path godot -s res://tools/pack_fence_paint_tiles.gd, which saves
 the palette as fence_paint_tiles.res (a native texture the tile set uses: no editor import needed).
-The dungeon dividers' gate tiles (docs/godot/FENCES.md "Dungeon dividers") come after the styles,
-one tile each (row 0), showing the gate's own picture."""
+
+Painted scenes store each cell's tile by its column and row, so no tile ever moves: the styles keep
+their columns in STYLES order, the dungeon dividers' gate tiles (docs/godot/FENCES.md "Dungeon
+dividers") have fixed places of their own (GATES: columns 8 and 9, a row per divider style, row 0
+the Lair's), showing the gate's own picture, and a style added at the end of STYLES takes the next
+column after the gates' (`style_column`)."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -17,7 +21,7 @@ OUT = ROOT / "godot/asset/MAPS/fences/fence_paint_tiles.png"
 TILESET = ROOT / "godot/game/world/fences/fence_tileset.tres"
 SIZE = 64
 TILE_UID = "uid://b6hbbbrfkchxq"
-TEXTURE_UID = "uid://t4lhoo46qy2k"
+## The styles, one column each (`style_column`). Add a new style at the end, never in between.
 STYLES = [
     ("wood", (153, 98, 49)),
     ("snow", (207, 227, 247)),
@@ -28,10 +32,14 @@ STYLES = [
     ("crystal", (145, 113, 221)),
     ("lair-divider", (226, 202, 152)),
 ]
-## Divider gate tiles: (style, picture) in the columns after STYLES, row 0 only.
+## The columns the divider gates' tiles keep (eye, pen); styles never take them.
+GATE_COLUMNS = (8, 9)
+## Divider gate tiles: (style, (column, row), picture), fixed where the scenes paint them (2026-10-19
+## review H5: the gates followed the styles and moved when one was added). A later divider style's
+## gates go in the next row of the same columns.
 GATES = [
-    ("lair-divider-eye", ROOT / "godot/asset/MAPS/objects/dungeon/divider-eye-block.png"),
-    ("lair-divider-pen", ROOT / "godot/asset/MAPS/objects/dungeon/divider-pen-gate.png"),
+    ("lair-divider-eye", (8, 0), ROOT / "godot/asset/MAPS/objects/dungeon/divider-eye-block.png"),
+    ("lair-divider-pen", (9, 0), ROOT / "godot/asset/MAPS/objects/dungeon/divider-pen-gate.png"),
 ]
 DIRECTIONS = [
     ("N", 0, (0, -1)), ("NE", 1, (1, -1)), ("E", 2, (1, 0)), ("SE", 3, (1, 1)),
@@ -39,6 +47,15 @@ DIRECTIONS = [
 ]
 # The first row connects to all neighboring fence cells. The next eight rows show one direction.
 ROWS = [None] + DIRECTIONS
+
+
+def style_column(index: int) -> int:
+    """The palette column of STYLES[index]: its place in STYLES, after the gates' columns from them on."""
+    return index if index < GATE_COLUMNS[0] else index + len(GATE_COLUMNS)
+
+
+def _columns() -> int:
+    return max([style_column(len(STYLES) - 1)] + [column for _style, (column, _row), _picture in GATES]) + 1
 
 
 def _atlas_source() -> str:
@@ -53,18 +70,20 @@ def _atlas_source() -> str:
     ]
     for row, direction in enumerate(ROWS):
         direction_id = -1 if direction is None else direction[1]
-        for column, (style, _color) in enumerate(STYLES):
+        for index, (style, _color) in enumerate(STYLES):
+            column = style_column(index)
             lines.extend([
                 f"{column}:{row}/0 = 0",
                 f'{column}:{row}/0/custom_data_0 = "{style}"',
-                f"{column}:{row}/0/custom_data_1 = {direction_id}",
             ])
-    for index, (style, _picture) in enumerate(GATES):
-        column = len(STYLES) + index
+            # (0, the north arrow, is the data layer's default: Godot leaves it out of the file too)
+            if direction_id != 0:
+                lines.append(f"{column}:{row}/0/custom_data_1 = {direction_id}")
+    for style, (column, row), _picture in GATES:
         lines.extend([
-            f"{column}:0/0 = 0",
-            f'{column}:0/0/custom_data_0 = "{style}"',
-            f"{column}:0/0/custom_data_1 = -1",
+            f"{column}:{row}/0 = 0",
+            f'{column}:{row}/0/custom_data_0 = "{style}"',
+            f"{column}:{row}/0/custom_data_1 = -1",
         ])
     lines.extend([
         "",
@@ -180,18 +199,18 @@ def _draw_tile(image: Image.Image, column: int, row: int, style: str, color: tup
 
 
 def main() -> None:
-    image = Image.new("RGBA", (SIZE * (len(STYLES) + len(GATES)), SIZE * len(ROWS)), (0, 0, 0, 0))
+    image = Image.new("RGBA", (SIZE * _columns(), SIZE * len(ROWS)), (0, 0, 0, 0))
     for row, direction_entry in enumerate(ROWS):
         direction = None if direction_entry is None else direction_entry[2]
-        for column, (style, color) in enumerate(STYLES):
-            _draw_tile(image, column, row, style, color, direction)
-    for index, (_style, picture) in enumerate(GATES):
+        for index, (style, color) in enumerate(STYLES):
+            _draw_tile(image, style_column(index), row, style, color, direction)
+    for _style, (column, row), picture in GATES:
         tile = Image.new("RGBA", (SIZE, SIZE), (18, 26, 20, 24))
         ImageDraw.Draw(tile).rectangle((0, 0, SIZE - 1, SIZE - 1), outline=(223, 229, 211, 205), width=1)
         art = Image.open(picture).convert("RGBA")
         art.thumbnail((SIZE - 10, SIZE - 10), Image.Resampling.LANCZOS)
         tile.alpha_composite(art, ((SIZE - art.width) // 2, (SIZE - art.height) // 2))
-        image.alpha_composite(tile, ((len(STYLES) + index) * SIZE, 0))
+        image.alpha_composite(tile, (column * SIZE, row * SIZE))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUT)
     TILESET.write_text(_atlas_source(), encoding="utf-8", newline="\n")

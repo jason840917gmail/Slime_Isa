@@ -2,7 +2,7 @@ extends SceneTree
 ## Reworks Slimeshire Meadow's four chunk worlds for Chapter 1 (docs/story/chapters/chapter-1-the-clearing.md
 ## "Slimeshire's places"; the level design guide, docs/design/2026-10-16-level-design.md "Slimeshire's
 ## chunks and the West village"):
-##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_slimeshire_chunks.gd [-- --only=d5,c4 --dry]
+##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_slimeshire_chunks.gd [-- --only=d5,c5 --dry]
 ## then bake the changed worlds' elevation: res://tools/bake_elevation.gd -- --world=level-1-d5,...
 ##
 ## - **D5, Fatty's Hollow:** a red-rock hill (level 3) crowned with maples, the Lair's mouth (the drop
@@ -19,7 +19,9 @@ extends SceneTree
 ##   with trees (the hill stands behind it).
 ## - **C4, the village:** a road from the forest path (the prologue's way in) to the town; the first bell
 ##   near the town's edge, on an islet in a little pond, with pots on its shore: rung by a thrown pot, it
-##   unlocks a keeper's storehouse with its coffer and furnishings in a separate interior.
+##   unlocks a keeper's storehouse with its coffer and furnishings in a separate interior. RETIRED for C4
+##   (2026-10-19): the owner hand-edits C4 (its fences, props and layout differ from what `_c4` writes),
+##   so the tool refuses to write it (`HAND_EDITED`); `_c4` stays as the record of how it was built.
 ## - **C5, the lake:** the lake road on to D5 and a path to the camp; a copse and a lookout rock in the
 ##   south meadow, a bell on its top (a pot thrown from its foot rings it and raises a chest); the south
 ##   meadow's way east closed with trees. The expanded lake holds a ford islet, jetty and a charged-Roll island.
@@ -78,6 +80,9 @@ const CLIFF_LAYER := "res://game/world/elevation/cliffs/cliff_layer.gd"
 const DECALS := "res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-%s.tscn"
 const ROCK_DECAL := "res://game/scenes/objects/rock-world-wall-decorative--field-%02d.tscn"
 const PROP_LAYERS: PackedStringArray = ["old-props", "large-props", "cell-props", "details"]
+## Chunks the owner edits by hand since the tool built them: never written again (C4: its painted
+## fences, its props as grouped nodes; 2026-10-19 review M22).
+const HAND_EDITED: PackedStringArray = ["c4"]
 
 var _dry := false
 var _chunk := ""
@@ -97,6 +102,11 @@ func _initialize() -> void:
 	var failed := 0
 	for chunk: String in ["d5", "c5", "d4", "c4"]:
 		if not only.is_empty() and not only.has(chunk):
+			continue
+		if HAND_EDITED.has(chunk):
+			print("slimeshire: %s is edited by hand now (the owner's scene); this tool no longer writes it" % chunk)
+			if only.has(chunk):
+				failed += 1
 			continue
 		if _build(chunk) != OK:
 			failed += 1

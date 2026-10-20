@@ -161,6 +161,28 @@ static func control_verb(action: StringName) -> String:
 	return label.trim_suffix(" click") + "-click" if label.ends_with(" click") else label
 
 
+## `text` with each `{<action>}` replaced by that action's main key, so a text kept as data follows
+## the bindings: "holding {interact}" reads "holding W" in the keys-only scheme and "holding right
+## click" with the mouse (a mouse button in lower case, inside a sentence). An unbound or unknown
+## action reads "the <action> key".
+static func with_keys(text: String) -> String:
+	var out := text
+	var start := out.find("{")
+	while start >= 0:
+		var end := out.find("}", start)
+		if end < 0:
+			break
+		var action := out.substr(start + 1, end - start - 1)
+		var label := control_label(StringName(action))
+		if label.is_empty():
+			label = "the %s key" % action.replace("_", " ")
+		elif label.ends_with(" click"):
+			label = label.to_lower()
+		out = out.substr(0, start) + label + out.substr(end + 1)
+		start = out.find("{", start + label.length())
+	return out
+
+
 ## `codeLabel` for one InputEvent ("W", "1", "Space", "Right click"); "" for other devices.
 static func event_label(event: InputEvent) -> String:
 	var mouse := event as InputEventMouseButton

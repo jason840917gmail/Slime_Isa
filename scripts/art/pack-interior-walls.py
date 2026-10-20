@@ -18,8 +18,9 @@ matches pixel for pixel:
   lair-floor-cobble        a floor texture, made seamless here
 
 Pieces (sheet px):
-  runs      n0..n3, s0..s3 (128 x 256: one cell along, two deep), w0..w3, e0..e3 (256 x 128); a
-            four-cell period from the two plain stretches of each face
+  runs      n0.., s0.. (128 x 256: one cell along, two deep), w0.., e0.. (256 x 128): the two plain
+            stretches of each face quilted into one loop, cut into whole cells; the loop's length
+            in cells is the side's `run_period` in the table (three for every style today)
   corners   nw ne sw se (256 x 256): the mitred squares
   inner     in_se in_sw in_ne in_nw (256 x 256): two faces folding round a corner of the floor,
             split on the diagonal from the floor's corner (named by where the floor is)
@@ -33,6 +34,8 @@ Outputs:
   godot/asset/MAPS/walls/interior/<style>.webp, <style>-floor.webp
   godot/asset/MAPS/walls/interior/interior-walls.json
   godot/asset/MAPS/walls/interior/palette.png, godot/game/world/interior/interior_wall_tileset.tres
+  (a column per style, each style's column fixed by its `column` in STYLES, a row per kind; the
+  tileset keeps the uid it has, so the room scenes that use it do not change)
 
 Usage: python scripts/art/pack-interior-walls.py [style ...] [--preview]   (Pillow, numpy)
        then "<Godot console exe>" --headless --path godot -s res://tools/pack_interior_palette.gd
@@ -41,6 +44,7 @@ Usage: python scripts/art/pack-interior-walls.py [style ...] [--preview]   (Pill
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -69,8 +73,11 @@ LEAVES = ["key1", "key2", "boss", "bolt", "shutter", "seal", "barricade"]
 ## then a closed door per leaf (the layer makes the door object over it).
 KINDS = ["wall"] + OPENINGS + LEAVES
 
+## Each style's `column` is its palette column, fixed: painted cells name their tile by column, so a
+## repack of one style (or a new style, which takes the next free column) never restyles another's.
 STYLES = {
 	"lair-stone": {
+		"column": 0,
 		"frame": "lair-bevel-doorways-b.png",
 		"openings": {"cracked": "lair-bevel-cracked.png", "blown": "lair-bevel-blown.png", "stairs": "lair-bevel-stairs.png"},
 		"leaves": {k: f"lair-bevel-leaf-{k}.png" for k in LEAVES},
@@ -88,6 +95,7 @@ STYLES = {
 	},
 	"cave-rock": {
 		# the Deep: dark slate cave rock (asset/Originals/dungeon-kit/interior-walls/cave-bevel-*)
+		"column": 1,
 		"frame": "cave-bevel-doorways-b.png",
 		"openings": {"cracked": "cave-bevel-cracked.png", "blown": "cave-bevel-blown.png", "stairs": "cave-bevel-stairs.png"},
 		"leaves": {k: f"cave-bevel-leaf-{k}.png" for k in LEAVES},
@@ -101,6 +109,7 @@ STYLES = {
 	},
 	"root-rock": {
 		# Fatty's arena, the Glow-moss Burrow, the bolt-hole: umber root rock (root-bevel-*)
+		"column": 2,
 		"frame": "root-bevel-doorways-a.png",
 		"openings": {"cracked": "root-bevel-cracked.png", "blown": "root-bevel-blown.png", "stairs": "root-bevel-stairs.png"},
 		"leaves": {k: f"root-bevel-leaf-{k}.png" for k in LEAVES},
@@ -468,13 +477,36 @@ def _thumb(sheet: Image.Image, rect: list[int], size: int = 64) -> Image.Image:
 	return out
 
 
+def palette_columns(styles: list[str]) -> dict[str, int]:
+	"""Each style's fixed palette column (its `column` in STYLES)."""
+	columns = {}
+	for style in styles:
+		if "column" not in STYLES.get(style, {}):
+			raise SystemExit(f"{style}: no palette column in STYLES")
+		columns[style] = STYLES[style]["column"]
+	if len(set(columns.values())) != len(columns):
+		raise SystemExit(f"two styles share a palette column: {columns}")
+	return columns
+
+
+def tileset_uids() -> tuple[str, str]:
+	"""The uids the tileset file has now (its own, and its palette texture's): Godot gave them, the
+	room scenes name the tileset by its uid, so a repack keeps them ("" when there is none)."""
+	if not TILESET.exists():
+		return "", ""
+	text = TILESET.read_text(encoding="utf-8")
+	own = re.search(r'^\[gd_resource type="TileSet"[^\]]* uid="(uid://[^"]+)"', text, re.M)
+	texture = re.search(r'^\[ext_resource type="Texture2D"[^\]]* uid="(uid://[^"]+)"[^\]]*palette\.res"', text, re.M)
+	return (own.group(1) if own else ""), (texture.group(1) if texture else "")
+
+
 def palette(tables: dict[str, dict]) -> None:
-	"""The paint palette: per style a column of 64 px tiles, each a small picture of its piece cut
-	from the packed sheet (so it always matches the art): the wall (a north run with its corner), the
-	openings, then each closed door (the north doorway with its leaf)."""
-	styles = list(tables)
-	image = Image.new("RGBA", (64 * len(styles), 64 * len(KINDS)), (0, 0, 0, 0))
-	for col, style in enumerate(styles):
+	"""The paint palette: per style a column of 64 px tiles (the style's fixed `column`), each a small
+	picture of its piece cut from the packed sheet (so it always matches the art): the wall (a north
+	run with its corner), the openings, then each closed door (the north doorway with its leaf)."""
+	columns = palette_columns(list(tables))
+	image = Image.new("RGBA", (64 * (max(columns.values()) + 1), 64 * len(KINDS)), (0, 0, 0, 0))
+	for style, col in columns.items():
 		table = tables[style]
 		sheet = Image.open(OUT / f"{style}.webp").convert("RGBA")
 		pieces = table["pieces"]
@@ -502,11 +534,13 @@ def palette(tables: dict[str, dict]) -> None:
 				tile.alpha_composite(door, ((64 - door.width) // 2, (64 - door.height) // 2))
 			image.alpha_composite(tile, (col * 64, row * 64))
 	image.save(PALETTE)
-	lines = ['[gd_resource type="TileSet" format=3]', "",
-		'[ext_resource type="Texture2D" path="res://asset/MAPS/walls/interior/palette.res" id="1_palette"]', "",
+	own_uid, texture_uid = tileset_uids()
+	lines = ['[gd_resource type="TileSet" format=3%s]' % (f' uid="{own_uid}"' if own_uid else ""), "",
+		'[ext_resource type="Texture2D"%s path="res://asset/MAPS/walls/interior/palette.res" id="1_palette"]'
+			% (f' uid="{texture_uid}"' if texture_uid else ""), "",
 		'[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_interior"]',
 		'texture = ExtResource("1_palette")', "texture_region_size = Vector2i(64, 64)"]
-	for col, style in enumerate(styles):
+	for style, col in sorted(columns.items(), key=lambda item: item[1]):
 		for row, kind in enumerate(KINDS):
 			lines.append(f"{col}:{row}/0 = 0")
 			lines.append(f'{col}:{row}/0/custom_data_0 = "{style}"')

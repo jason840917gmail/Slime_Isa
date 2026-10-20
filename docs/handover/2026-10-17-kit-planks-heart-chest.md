@@ -1,6 +1,6 @@
 # Handover 2026-10-17: falling planks over water, and a Goo Heart inside a chest
 
-Not committed. The full description is in [DUNGEONS.md](../godot/DUNGEONS.md#falling-planks-over-water)
+Committed in 2a04028b (2026-10-17's snapshot). The full description is in [DUNGEONS.md](../godot/DUNGEONS.md#falling-planks-over-water)
 ("Falling planks over water", and "Chests" for the heart).
 
 ## Done and working
@@ -79,7 +79,7 @@ One call with 2 variants, 200 credits in all.
   `godot/asset/MAPS/objects/dungeon/plank-2x1.webp`.
 - Not used: `asset/Originals/dungeon-kit/generated/rejected/plank-b.png`.
 
-The `.import` file for the new webp is still to come from the editor.
+Its `.import` file (`plank-2x1.webp.import`) came from the editor and is committed with it (2a04028b).
 
 ## Not done
 

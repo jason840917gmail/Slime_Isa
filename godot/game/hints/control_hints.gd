@@ -46,6 +46,8 @@ extends CanvasLayer
 ## | ability | "Press F to use your ability; choose it in the bag (B)" | the box holds an ability | a box ability started (AbilityBox.use_count) |
 ## | weapon-switch | "Use the mouse wheel or E to change shape" | two shapes learned | the shape changing |
 ## | swallow | "Hold Q until the ring fills to swallow the essence" | an essence in the mouth, Swallow learned | a form taken |
+## | heavy-grab | "Hold W to push or pull" (the interact key) | the Heavy skin on, and the slime touches a heavy block it faces (HeavyGrab.block_in_reach) or holds one; nothing in its mouth; not in the moba scheme | a block pushed and a block pulled in the slime's grab (story flags `hint.heavy-grab.push` and `.pull` on the way) |
+## heavy-grab comes right after move, before interact: it is the hint of the block the slime touches.
 ## The others (move, interact, dodge, inventory, crafting, journal, map, pause) are as above; the old
 ## belt's switch never teaches `weapon-switch` in the mode.
 ##
@@ -69,6 +71,8 @@ const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const BodyCards := preload("res://game/ui/body_cards.gd")
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
+const SkinState := preload("res://game/player/skins/skin_state.gd")
+const HeavyGrab := preload("res://game/player/heavy_grab.gd")
 
 const LAYER := 10
 const FLAG_PREFIX := "hint."
@@ -88,7 +92,7 @@ const HINT_IDS: Array[StringName] = [&"move", &"interact", &"attack", &"dodge", 
 const MENU_HINTS := {&"inventory": &"inventory", &"crafting": &"crafting", &"quest-journal": &"journal",
 	&"world-map": &"map", &"pause-menu": &"pause"}
 ## Rework mode: the hints in priority order.
-const REWORK_HINT_IDS: Array[StringName] = [&"move", &"interact", &"attack", &"charge", &"mouth", &"ability",
+const REWORK_HINT_IDS: Array[StringName] = [&"move", &"heavy-grab", &"interact", &"attack", &"charge", &"mouth", &"ability",
 	&"dodge", &"inventory", &"crafting", &"journal", &"weapon-switch", &"swallow", &"map", &"pause"]
 ## The prologue's hints, in its order (roadmap 5.23).
 const PROLOGUE_HINT_IDS: Array[StringName] = [&"move", &"mouth", &"throw-move", &"attack", &"thrust-bars"]
@@ -252,6 +256,8 @@ static func rework_hint_text(id: StringName, scheme: String) -> String:
 				ControlLabels.control_label(&"menu")]
 		&"swallow":
 			return "Hold %s until the ring fills to swallow the essence" % eat
+		&"heavy-grab":
+			return ControlLabels.with_keys("Hold {interact} to push or pull")
 		&"weapon-switch":
 			var labels := ControlLabels.control_labels(&"weapon_next").split(" / ")
 			if not ControlScheme.uses_mouse(scheme) or labels.size() < 2:
@@ -290,6 +296,12 @@ func is_relevant(id: StringName, player: Node) -> bool:
 			&"swallow":
 				var held: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
 				return str(held.get("kind", "")) == ESSENCE_KIND and bool(player.call(&"is_learned", &"swallow"))
+			&"heavy-grab":
+				# Not in the moba scheme (its right button walks: nothing holds the grab there), nor
+				# with the mouth full (the grab does not start then).
+				var mouth: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
+				return ControlScheme.current() != ControlScheme.MOBA and mouth.is_empty() \
+					and SkinState.is_on(player, SkinState.HEAVY) and _heavy_block_at(player) != null
 	match id:
 		&"move":
 			return true
@@ -377,7 +389,7 @@ func _learn_from_play(player: Node) -> void:
 
 ## Rework: the charge (the attack held past the charge start, or the controller charging), the
 ## mouth (a suck), the box ability (one started with `ability_use`), the shape switch (the shape
-## changing) and the swallow (a form taken).
+## changing), the swallow (a form taken) and the heavy grab (a block moving in the slime's grab).
 func _learn_rework(player: Node, shapes: Node) -> void:
 	var now := Services.now_ms()
 	var charging := shapes != null and shapes.has_method(&"is_charging") and bool(shapes.call(&"is_charging"))
@@ -406,6 +418,7 @@ func _learn_rework(player: Node, shapes: Node) -> void:
 	if not form.is_empty() and form != _form:
 		learn(&"swallow")
 	_form = form
+	_learn_heavy_grab(player)
 
 
 func _bind_sources() -> void:
@@ -472,6 +485,33 @@ func _shut_gate_near(player: Node) -> Node:
 				and (gate as Node2D).global_position.distance_to(centre) < BARRED_GATE_RANGE_PX:
 			return gate
 	return null
+
+
+## The heavy grab is learned once the slime has both pushed and pulled a block (a block moving in its
+## grab away from it, then toward it, in either order): the hint names both.
+func _learn_heavy_grab(player: Node) -> void:
+	var run := Services.run()
+	var grabbed := player.call(&"get_grabbed_block") as CharacterBody2D if player.has_method(&"get_grabbed_block") else null
+	if run == null or is_learned(&"heavy-grab") or grabbed == null or not bool(grabbed.call(&"is_moving")):
+		return
+	var facing: Vector2 = player.call(&"get_facing") if player.has_method(&"get_facing") else Vector2.ZERO
+	var along := grabbed.velocity.dot(facing)
+	if along == 0.0:
+		return
+	run.set_flag(FLAG_PREFIX + "heavy-grab." + ("push" if along > 0.0 else "pull"))
+	if run.has_flag(FLAG_PREFIX + "heavy-grab.push") and run.has_flag(FLAG_PREFIX + "heavy-grab.pull"):
+		learn(&"heavy-grab")
+
+
+## The heavy block the slime holds, else the one it faces and touches (HeavyGrab.block_in_reach), or
+## null.
+func _heavy_block_at(player: Node) -> Node2D:
+	var grabbed: Node2D = player.call(&"get_grabbed_block") if player.has_method(&"get_grabbed_block") else null
+	if grabbed != null:
+		return grabbed
+	var body := player.get(&"body") as CharacterBody2D
+	var facing: Vector2 = player.call(&"get_facing") if player.has_method(&"get_facing") else Vector2.DOWN
+	return HeavyGrab.block_in_reach(body, facing)
 
 
 func _owned_belt_weapons() -> int:

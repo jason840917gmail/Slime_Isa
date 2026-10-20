@@ -10,25 +10,29 @@ extends SceneTree
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/paint_to_nodes.gd -- \
 ##         --scene=res://game/scenes/worlds/chunks/level-1-c4.tscn [--scene=...] \
 ##         [--keep=interiors/mushroom-floor/,water-life] [--group] [--dry]
-## `--keep=` (empty) converts every prop. `--group` puts the nodes in y-sorted folders under
-## `Scenery/<GROUP_ROOT>` by kind (Rocks, Twigs, Flowers, Plants, Mushrooms, Leaves, else the scene's
-## folder), so the scene tree stays tidy; a rerun reuses the folders.
+## `--keep=` (empty) converts every prop. `--group` puts the ground details and the water life (the
+## KEEP families) in y-sorted folders under `Scenery/<GROUP_ROOT>` by kind (Water life, Rocks, Twigs,
+## Flowers, Plants, Mushrooms, Leaves: a whole word of the name, "stone" in "stepping-stone-1" but not
+## in "gravestone"; else the scene's folder), so the scene tree stays tidy; every other prop goes
+## straight under `Scenery`. A rerun reuses the folders, wherever they were moved.
 
 const Props := preload("res://game/world/props/prop_layer.gd")
 const SceneSave := preload("res://tools/lib/scene_save.gd")
 const Pictures := preload("res://tools/lib/prop_pictures.gd")
 const OBJECTS := "res://game/scenes/objects/"
 const CONTAINER := "Scenery"
+## The ground details and the water life: kept painted by default, and filed by `--group`.
 const KEEP: PackedStringArray = ["interiors/mushroom-floor/", "water-life"]
 const GROUP_ROOT := "Ground details"
-## The folder of a prop whose scene file name holds one of the words (checked in order).
+## The folder of a ground detail whose scene file name holds one of the words (checked in order) as
+## whole dash-separated words, or their plural ("reeds", "rushes"; "forget-me-not" is three words).
 const GROUPS: Array = [
-	["Water life", ["lilypad", "lily", "reed", "rush", "sedge", "waterweed", "eelgrass", "fish"]],
+	["Water life", ["lilypad", "lily", "reed", "rush", "sedge", "waterweed", "eelgrass", "fish", "kelp", "bubble"]],
 	["Rocks", ["rock", "stone", "pebble", "boulder"]],
 	["Twigs", ["twig", "branch", "stick", "log", "root"]],
 	["Flowers", ["flower", "daisy", "buttercup", "tulip", "poppy", "petal", "forget-me-not"]],
-	["Mushrooms", ["mushroom", "toadstool"]],
-	["Leaves", ["leaf", "leaves", "acorn"]],
+	["Mushrooms", ["mushroom", "toadstool", "chanterelle"]],
+	["Leaves", ["leaf", "leaves", "acorn", "pinecone"]],
 	["Plants", ["clover", "grass", "moss", "fern", "bush", "plant", "weed", "shrub"]],
 ]
 
@@ -68,8 +72,6 @@ func _convert(path: String, keep: PackedStringArray, dry: bool, group: bool = fa
 		if not layers.is_empty():
 			root.move_child(container, layers[-1].get_index() + 1)
 		container.owner = root
-	var to_container := container.get_global_transform().affine_inverse() if container.is_inside_tree() \
-			else _to_root(container).affine_inverse()
 	var made := {}
 	var kept := 0
 	for layer in layers:
@@ -88,8 +90,10 @@ func _convert(path: String, keep: PackedStringArray, dry: bool, group: bool = fa
 			var node := _node_for(prop)
 			if node == null:
 				continue
-			node.position = to_container * (to_root * node.position)
-			var parent := _folder(container, _group_of(rel)) if group else container
+			var kind := _group_of(rel) if group else ""
+			var parent := _folder(container, kind) if not kind.is_empty() else container
+			# From the layer's space to the folder's (the scene is not in the tree: its own transforms).
+			node.position = _to_root(parent).affine_inverse() * (to_root * node.position)
 			parent.add_child(node, true)
 			node.owner = container.owner
 			layer.erase_cell(cell)
@@ -108,8 +112,14 @@ func _convert(path: String, keep: PackedStringArray, dry: bool, group: bool = fa
 		push_error("paint_to_nodes: %s: %s" % [path, error_string(err)])
 
 
-## The folder for a prop of scene `rel` (path after game/scenes/objects/).
+## The folder under GROUP_ROOT for a ground detail of scene `rel` (path after
+## game/scenes/objects/); "" for any other prop (it goes straight under `Scenery`).
 static func _group_of(rel: String) -> String:
+	var detail := false
+	for prefix: String in KEEP:
+		detail = detail or rel.begins_with(prefix)
+	if not detail:
+		return ""
 	# The kind is the name after its family prefix ("interior-mushroom-floor-clover-1", "water-life--reeds").
 	var file := rel.get_file().get_basename().to_lower()
 	for cut: String in ["--", "floor-"]:
@@ -117,12 +127,29 @@ static func _group_of(rel: String) -> String:
 		if at >= 0:
 			file = file.substr(at + cut.length())
 			break
+	var tokens := file.split("-", false)
 	for entry: Array in GROUPS:
 		for word: String in entry[1]:
-			if file.contains(word):
+			if _has_word(tokens, word.split("-", false)):
 				return entry[0]
 	var folder := rel.get_base_dir().get_file()
 	return folder.capitalize() if folder != "" else "Other"
+
+
+## True when `tokens` hold the words `word` in a row, the last one maybe as a plural (+s, +es).
+static func _has_word(tokens: PackedStringArray, word: PackedStringArray) -> bool:
+	for start in tokens.size() - word.size() + 1:
+		var found := true
+		for i in word.size():
+			var token := tokens[start + i]
+			var want := word[i]
+			var last := i == word.size() - 1
+			if token != want and not (last and (token == want + "s" or token == want + "es")):
+				found = false
+				break
+		if found:
+			return true
+	return false
 
 
 ## `Scenery/<GROUP_ROOT>/<group>`, made (y-sorted, owned by the scene) when missing.

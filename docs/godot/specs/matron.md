@@ -498,7 +498,8 @@ rises when that fight is won, and its take seals the Hollow until the Matron fal
 its card ("Silk skin": webs no longer catch or stick; floor webs at full speed, web walls slowly, the
 Spear cuts silk) and the picture `256x256-pearl-silk.webp` at 0.28. Walking into it (40 px) takes it:
 the ceremony's card (while main's `ability_ceremonies` is on), the flag `pearl.orb-weaver-matron`,
-and the Silk skin (SkinState.grant: won, made the everyday look, its ceremony line the first time;
+and the Silk skin (SkinState.grant: won, its ceremony line the first time; the everyday look stays as
+it was, the skin shows only while it works;
 [SKINS.md](../SKINS.md)). `player.crosses_webs()` is true from then on, so every web rule that reads
 it (5.5, WEBS.md) treats the slime as silk-skinned. The interact key does not take it (pearl.gd takes by walking in).
 

@@ -136,7 +136,7 @@ var _page: Control
 var _registered := false
 var _room_mask: CanvasLayer
 ## The layout's rooms, read once at registration: [{"key", "name", "world", "rect", "outline",
-## "node"}] in this world's coordinates, and its marks [{"mark", "at", "rotation"}].
+## "node", "scene"}] in this world's coordinates, and its marks [{"mark", "at", "rotation"}].
 var _layout_rooms: Array[Dictionary] = []
 var _layout_marks: Array[Dictionary] = []
 
@@ -278,6 +278,18 @@ func layout_marks() -> Array[Dictionary]:
 	return _layout_marks
 
 
+## The layout's rooms in other worlds than this one ([] without a layout): {"key", "name", "world",
+## "rect" (this world's coordinates), "outline", "scene" (the room's world scene)}.
+func layout_rooms_elsewhere() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var world := Services.world()
+	var here := world.map_id() if world != null else ""
+	for room: Dictionary in _layout_rooms:
+		if str(room["world"]) != here:
+			out.append(room)
+	return out
+
+
 ## The world of the layout's room `room_name` ("" when the layout has no such room).
 func layout_world_of(room_name: String) -> String:
 	for room: Dictionary in _layout_rooms:
@@ -311,8 +323,10 @@ func _read_layout() -> void:
 	var here := world.map_id() if world != null else ""
 	var offset := Vector2.ZERO
 	for child: Node in scene.get_children():
+		# a world of several rooms (R5) has a map room per CameraRoom: any of them places the world
 		if child.has_method(&"outline_points") and str(child.get(&"world_id")) == here:
-			offset = (child as Node2D).position
+			offset = (child as Node2D).position - (child.get(&"camera_offset") as Vector2)
+			break
 	for child: Node in scene.get_children():
 		if child.has_method(&"outline_points"):
 			var points := PackedVector2Array()
@@ -321,7 +335,8 @@ func _read_layout() -> void:
 			var rect: Rect2 = child.call(&"rect")
 			rect.position -= offset
 			_layout_rooms.append({"key": "%s/%s" % [_record_id(), child.get(&"room_name")], "name": str(child.get(&"room_name")),
-				"world": str(child.get(&"world_id")), "rect": rect, "outline": points, "node": null})
+				"world": str(child.get(&"world_id")), "rect": rect, "outline": points, "node": null,
+				"scene": str(child.get(&"room_scene"))})
 		elif &"mark" in child and child is Node2D:
 			_layout_marks.append({"mark": str(child.get(&"mark")), "at": (child as Node2D).position - offset,
 				"rotation": (child as Node2D).rotation})
@@ -613,6 +628,16 @@ func _apply_dev_options() -> void:
 	var run := Services.run()
 	if main == null or run == null or not main.has_method(&"launch_option") or _dev_applied.has(dungeon_id):
 		return
+	var room_name := str(main.call(&"launch_option", "room"))
+	if room_name.is_empty():
+		room_name = str(main.get(&"direct_room_run"))
+	var room_world := layout_world_of(room_name) if not room_name.is_empty() else ""
+	if not room_world.is_empty() and room_world != Services.world().map_id():
+		# A room of another world of the layout: go there, to its RoomEntry; the options apply there,
+		# once (keys are not given twice).
+		if main.has_method(&"travel_to"):
+			main.call(&"travel_to", room_world, "", "", ROOM_ENTRY_NAME)
+		return
 	_dev_applied[dungeon_id] = true
 	var keys := str(main.call(&"launch_option", "keys"))
 	if keys.is_valid_int() and int(keys) > 0:
@@ -624,23 +649,13 @@ func _apply_dev_options() -> void:
 		DungeonState.give_item(run, dungeon_id, DungeonState.COMPASS)
 	if bool(main.call(&"has_launch_option", "sealed")):
 		_dev_seal()
-	var room_name := str(main.call(&"launch_option", "room"))
-	if room_name.is_empty():
-		room_name = str(main.get(&"direct_room_run"))
-	var room_world := layout_world_of(room_name) if not room_name.is_empty() else ""
-	if not room_world.is_empty() and room_world != Services.world().map_id():
-		# A room of another world of the layout: go there, to its RoomEntry.
-		_dev_applied.erase(dungeon_id)
-		if main.has_method(&"travel_to"):
-			main.call(&"travel_to", room_world, "", "", ROOM_ENTRY_NAME)
-		return
 	if not room_name.is_empty():
 		for room: CameraRoom in _rooms:
 			if String(room.name) == room_name:
 				var entry := room.get_node_or_null(ROOM_ENTRY_NAME) as Node2D
 				var world := Services.world()
 				if world != null and world.player != null:
-					world.player.teleport(entry.global_position if entry != null else room.rect().get_center())
+					world.player.arrive_at(entry.global_position if entry != null else room.rect().get_center())
 
 
 ## `?sealed`: the second half at once. Every Pearl of this world is taken quietly (its guard's

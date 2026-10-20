@@ -31,6 +31,9 @@ func test_the_lairs_rooms_are_worlds_that_keep_their_links(t: TestContext) -> vo
 	t.check(returns > 0, "hazard return markers survive in the Burrow's world")
 
 
+## Burr's cell (its own world) is rock in the hub's world behind the hub's own bevel faces, its
+## two-key door cut into the face (owner, 2026-10-19): Burr waits in the door's passage, behind its
+## shut leaf, where no floor leads; the rock beyond the faces is outside the hall's L outline (masked).
 func test_l_shaped_hall_keeps_burr_behind_the_closed_cell_door(t: TestContext) -> void:
 	Services.run().set_flag("fatty-lair.burr-called")
 	if not await _travel(t, HUB):
@@ -38,21 +41,22 @@ func test_l_shaped_hall_keeps_burr_behind_the_closed_cell_door(t: TestContext) -
 	var world := t.world()
 	var hub := world.world_root.get_node("CameraRooms/r3-pit-hall")
 	var burr := world.world_root.get_node("Lair/burr") as Node2D
-	t.check(not bool(hub.call(&"contains", burr.global_position)), "the hall outline includes Burr behind the door")
+	var door := world.world_root.get_node("Objects/hub-burr-cell-door") as Node2D
+	var walls := world.world_root.get_node("interior-walls")
+	t.check(not bool(door.call(&"is_open")), "Burr's cell door starts open")
+	# behind the leaf: in the door's opening, north of its floor line, on no floor of the hall
+	t.check(absf(burr.global_position.x - door.global_position.x) < 32.0 and burr.global_position.y < door.global_position.y,
+		"Burr does not wait behind his cell door (at %s, the door at %s)" % [burr.global_position, door.global_position])
+	for cell: Vector2i in [Vector2i(3, 4), Vector2i(2, 2), Vector2i(4, 6)]:
+		t.check(not bool(walls.call(&"is_floor", cell)), "the hub's world has floor in Burr's cell at %s" % cell)
+	t.check(bool(walls.call(&"is_floor", Vector2i(7, 3))) and bool(walls.call(&"is_floor", Vector2i(3, 9))), "the hall lost its floor beside the cell")
 	t.teleport_player((hub.get_node("RoomEntry") as Node2D).global_position)
 	world.camera.start_follow(t.player_body(), true)
 	await t.steps(5)
 	var mask := world.world_root.get_node("Dungeon/RoomMask")
 	var material := mask.get(&"_material") as ShaderMaterial
 	t.equal(int(material.get_shader_parameter(&"point_count")), 6, "L-shaped mask vertices")
-	var screen: Vector2 = world.camera.world_to_screen(burr.global_position) / t.tree.root.get_visible_rect().size
-	var outline: PackedVector2Array = material.get_shader_parameter(&"outline")
-	outline.resize(6)
-	t.check(not Geometry2D.is_point_in_polygon(screen, outline), "the hall mask reveals Burr")
-	var frames: PackedVector4Array = material.get_shader_parameter(&"wall_frames")
-	for i in int(material.get_shader_parameter(&"frame_count")):
-		var frame := frames[i]
-		t.check(not Rect2(Vector2(frame.x, frame.y), Vector2(frame.z - frame.x, frame.w - frame.y)).has_point(screen), "a wall frame exposes Burr")
+	t.check(not bool(hub.call(&"contains", Vector2(160.0, 224.0))), "the hall outline includes the rock of Burr's cell")
 
 
 func test_door_frames_use_wall_stone_and_keep_the_two_cell_collision(t: TestContext) -> void:

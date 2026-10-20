@@ -18,7 +18,14 @@ class_name EyeLatchScript
 ## - **Timed** (`open_ms` > 0): it stays shut that long, then opens its eye again. Latches sharing a
 ##   `group_id` solve their gate only while all of them are shut at once: then all stay shut for
 ##   good and the gate opens for good (each latch's flag set). A timed latch alone opens its gate for
-##   good too once it is shut; `open_ms` matters with a group.
+##   good too once it is shut; `open_ms` matters with a group. In its last WARN_MS a timed latch's
+##   eye flickers.
+## - **In order** (`order` > 0, 2026-10-19, R5's north maze): the latches of a group are struck in
+##   their order (1, 2, 3 ...). Struck while a latch of the group with a lower order is still
+##   open, it clinks (`order_text`) and every latch of the group already shut opens again: the run
+##   starts over. When a latch opens again (its time ran out), every later one of its group opens
+##   too, so the first latch's `open_ms` is the whole run's time. Solved, each latch opens its own
+##   `gate_id`: three openers, three gates, sinking together.
 ##
 ## Owner: dungeons (Fatty's Lair).
 
@@ -39,6 +46,10 @@ const CUE_REFUSED := &"HitBlocked"
 const SPARKLE := &"loot-sparkle"
 const REFUSAL_EVERY_MS := 1500
 const REFUSAL_RISE := 40.0
+## A timed latch's eye flickers this long before it opens again, this fast.
+const WARN_MS := 1500.0
+const WARN_FLICKER_MS := 90.0
+const WARN_ALPHA := 0.35
 
 ## Shut by a thrust. Payload: {"latchId", "groupId"}.
 signal shut(payload: Dictionary)
@@ -57,7 +68,11 @@ signal refused(payload: Dictionary)
 @export var group_id: String = ""
 ## How long a thrust keeps it shut (ms, gameplay time); 0 = for good.
 @export var open_ms: float = 0.0
+## Its place in its group's order (1 first); 0 = any time.
+@export var order: int = 0
 @export var refusal_text: String = "It stares on. Only a sharp point would reach the pupil."
+## Said when it is struck out of its group's order.
+@export var order_text: String = "The eye snaps open again. Another eye comes first."
 ## The hurtbox a thrust must reach.
 @export var area: Area2D
 ## The plaque's picture (2 frames: watching, shut).
@@ -106,19 +121,59 @@ func is_solved() -> bool:
 func _physics_process(_delta: float) -> void:
 	if not _shut or _solved or open_ms <= 0.0:
 		return
-	if Services.now_ms() - _shut_at_ms < open_ms:
+	var held := Services.now_ms() - _shut_at_ms
+	if held < open_ms:
+		# the last WARN_MS: the eye flickers (presentation, on real time)
+		if visual != null:
+			var flicker := open_ms - held < WARN_MS and int(Time.get_ticks_msec() / WARN_FLICKER_MS) % 2 == 0
+			visual.modulate.a = WARN_ALPHA if flicker else 1.0
+		return
+	reopen()
+
+
+## Its eye opens again (its time ran out, or its group's run broke); in an ordered group every later
+## latch of the group opens with it (quietly: one sound for the run).
+func reopen(sound: bool = true) -> void:
+	if not _shut or _solved:
 		return
 	_shut = false
 	_show()
 	var feel := Services.feel()
-	if feel != null:
+	if feel != null and sound:
 		feel.audio_cue(CUE_REOPEN)
 	reopened.emit({"latchId": latch_id})
+	if order > 0 and not group_id.is_empty():
+		for latch: Node in _group():
+			if latch != self and int(latch.get(&"order")) > order:
+				latch.call(&"reopen", false)
 
 
-## A thrust landed: it shuts; alone (or with its whole group shut) its gate opens for good.
+## True when a latch of its ordered group comes before it and is still open.
+func _out_of_order() -> bool:
+	if order <= 0 or group_id.is_empty():
+		return false
+	for latch: Node in _group():
+		var before := int(latch.get(&"order"))
+		if latch != self and before > 0 and before < order and not bool(latch.call(&"is_shut")):
+			return true
+	return false
+
+
+## Struck out of order: it stays open, every latch of its group already shut opens again.
+func _break_run() -> void:
+	for latch: Node in _group():
+		if latch != self:
+			latch.call(&"reopen", false)
+	_say(order_text)
+
+
+## A thrust landed: it shuts; alone (or with its whole group shut) its gate opens for good. Out of
+## its group's order it clinks and the group's run starts over (`_break_run`).
 func strike() -> void:
 	if _solved:
+		return
+	if _out_of_order():
+		_break_run()
 		return
 	_shut = true
 	_shut_at_ms = Services.now_ms()
@@ -177,10 +232,16 @@ func _group() -> Array[Node]:
 func _show() -> void:
 	if visual != null:
 		visual.frame = FRAME_SHUT if _shut else FRAME_WATCHING
+		visual.modulate.a = 1.0
 
 
 func refuse(weapon_id: String) -> void:
 	refused.emit({"latchId": latch_id, "weaponId": weapon_id})
+	_say(refusal_text)
+
+
+## The clink and `text` over it (at most every REFUSAL_EVERY_MS).
+func _say(text: String) -> void:
 	var now := Time.get_ticks_msec()
 	if now < _next_refusal_ms:
 		return
@@ -188,7 +249,7 @@ func refuse(weapon_id: String) -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(CUE_REFUSED)
-		feel.floating_text(global_position - Vector2(0.0, REFUSAL_RISE), refusal_text, &"white", false, 2200.0)
+		feel.floating_text(global_position - Vector2(0.0, REFUSAL_RISE), text, &"white", false, 2200.0)
 
 
 # --- damage receiver (DamageRouter) -----------------------------------------------------------------

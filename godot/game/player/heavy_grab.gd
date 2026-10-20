@@ -6,7 +6,7 @@ extends RefCounted
 ##
 ## - **Grab** (`try_begin`): the slime faces a heavy block (group `heavy_blocks`) and touches it
 ##   (its body within `grabReachPx` of the block's footprint, overlapping it sideways). It latches on
-##   with its mouth: it stretches toward the block and slides to stand square on that side.
+##   with its mouth and slides to stand square on that side.
 ## - **Hold**: while the interact key stays held (W in keys-only, a held right click in the
 ##   keyboard + mouse and pointer schemes), walking toward the block pushes it and walking away pulls
 ##   it, one cell (`cellPx`) per move over `moveMs`, after the walk key has been held `startDelayMs`
@@ -15,6 +15,12 @@ extends RefCounted
 ##   shows its Heavy skin while it pushes or pulls). Without it the slime strains: it wobbles, the
 ##   block trembles, a strain cue ticks and the line STRAIN_LINE shows (at most every
 ##   `strainLineMs`). Nothing moves.
+## - **Its poses** (`pose`; owner, 2026-10-19: approved from a mockup): the slime shows GRAB, the mouth
+##   latched on, while it only holds; PUSH (its body pressed flat on the block, straining) or PULL (its
+##   mouth on the block, its body heaving back) while a walk key pushes or pulls past `startDelayMs`,
+##   whether the block moves, knocks or is too heavy. player.gd plays the clip of that name in the
+##   grab's direction (page 7 of the slime: `grab-`, `push-`, `pull-<down|up|side>`; docs/godot/SKINS.md
+##   "Heavy"). The strain wobbles the pose.
 ## - A move the block cannot make (HeavyBlock.can_move: walls, cliffs, rims, holes, stairs, other
 ##   blocks, solid objects, deep water) knocks once (`bump`). A pull also needs room behind the slime
 ##   (its body's test move).
@@ -45,9 +51,10 @@ const PLACEHOLDER_CUES := {
 }
 const SLIDE_PITCH := 0.6
 const STRAIN_CUE_MS := 520.0
-## The latch: the slime stretches toward the block and leans this far into it.
-const LATCH_STRETCH := 0.06
-const LATCH_LEAN_PX := 3.0
+## The poses (`pose`): the clips player.gd plays while the slime holds the block.
+const POSE_GRAB := &"grab"
+const POSE_PUSH := &"push"
+const POSE_PULL := &"pull"
 ## The slime stands this far off the block's footprint while it grabs.
 const STAND_GAP_PX := 3.0
 ## How a held walk key must point along the grab axis to count as a push or a pull.
@@ -71,6 +78,7 @@ var _move_dir: Vector2 = Vector2.ZERO
 var _strain_line_ms: float = -INF
 var _strain_cue_ms: float = -INF
 var _straining: bool = false
+var _pose: StringName = POSE_GRAB
 
 
 static func setting(key: String, fallback: float) -> float:
@@ -99,6 +107,12 @@ func is_straining() -> bool:
 ## True while a cell move runs.
 func is_moving() -> bool:
 	return _active and _moving
+
+
+## What the slime shows: POSE_PUSH or POSE_PULL while a walk key pushes or pulls (moving the block,
+## knocking it or straining at it), else POSE_GRAB (the mouth latched on).
+func pose() -> StringName:
+	return _pose if _active else POSE_GRAB
 
 
 ## The heavy block the slime faces and touches, or null.
@@ -163,8 +177,9 @@ func try_begin(player: Node, body: CharacterBody2D, facing_dir: Vector2) -> bool
 	_push_dir = Vector2.ZERO
 	_bumped_dir = Vector2.ZERO
 	_straining = false
+	_pose = POSE_GRAB
 	_player.call(&"face", _facing)
-	_latch_look(0.0)
+	_strain_look(0.0)
 	_cue(CUE_GRAB)
 	return true
 
@@ -198,8 +213,9 @@ func step(now: float, delta: float, held: bool, direction: Vector2) -> bool:
 		return false
 	_player.call(&"face", _facing)
 	if _moving:
+		_pose = POSE_PUSH if _move_dir == _facing else POSE_PULL
 		_follow(delta)
-		_latch_look(0.0)
+		_strain_look(0.0)
 		return true
 	var along := 0.0
 	if direction != Vector2.ZERO:
@@ -216,14 +232,16 @@ func step(now: float, delta: float, held: bool, direction: Vector2) -> bool:
 		_straining = false
 	_settle(delta)
 	if want == Vector2.ZERO or now - _push_since_ms < setting("startDelayMs", 180.0):
-		_latch_look(0.0)
+		_pose = POSE_GRAB
+		_strain_look(0.0)
 		return false
+	_pose = POSE_PUSH if want == _facing else POSE_PULL
 	if not bool(_player.call(&"presses_plates")):
 		_strain(now)
 		return false
 	SkinState.show(_player, SkinState.HEAVY)
 	_straining = false
-	_latch_look(0.0)
+	_strain_look(0.0)
 	if _try_move(want):
 		_follow(delta)
 		return true
@@ -286,7 +304,7 @@ func _strain(now: float) -> void:
 	_straining = true
 	_block.call(&"strain")
 	var hz := setting("strainHz", 7.0)
-	_latch_look(sin(float(Time.get_ticks_msec()) / 1000.0 * TAU * hz) * setting("strainWobble", 0.06))
+	_strain_look(sin(float(Time.get_ticks_msec()) / 1000.0 * TAU * hz) * setting("strainWobble", 0.06))
 	if now - _strain_cue_ms >= STRAIN_CUE_MS:
 		_strain_cue_ms = now
 		_cue(CUE_STRAIN)
@@ -298,12 +316,11 @@ func _strain(now: float) -> void:
 			feel.floating_text(centre - Vector2(0.0, LINE_RISE), STRAIN_LINE, &"white", false)
 
 
-## The latch look: stretched toward the block, leaning into it; `wobble` adds the strain's shake.
-func _latch_look(wobble: float) -> void:
-	var stretch := LATCH_STRETCH + wobble
-	var scale := Vector2(1.0 + stretch, 1.0 - stretch) if _facing.x != 0.0 else Vector2(1.0 - stretch, 1.0 + stretch)
+## The strain's shake on the pose (`wobble` 0: none; the poses lean and press by themselves): a stretch
+## along the grab and back.
+func _strain_look(wobble: float) -> void:
+	var scale := Vector2(1.0 + wobble, 1.0 - wobble) if _facing.x != 0.0 else Vector2(1.0 - wobble, 1.0 + wobble)
 	_player.call(&"set_effect_scale", scale)
-	_player.call(&"set_effect_offset", _facing * LATCH_LEAN_PX)
 
 
 func _cue(cue: StringName, payload: Variant = null) -> void:

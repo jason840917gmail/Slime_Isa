@@ -151,8 +151,9 @@ export const CUES = {
     'gulp-catch': { library: ['magnific/player-gulp-catch-r7-1'], variants: 1 },
     'gulp-spit': { library: ['magnific/player-gulp-spit-r7-1', 'magnific/player-gulp-spit-r7-2', 'magnific/player-gulp-spit-r7-3'], variants: 3 },
     // The round-5 Gulp takes kept for the cues that borrowed them (Sound Picker round 7 gave the Gulp new ones): the inhale
-    // plays GulpThroat, BubbleRise, MimicWrap, PipeWormCharge and SpitcapCharge; the plop HeavyBlockGrab, MimicGrab and
-    // RookSteal; the ptoo GooBombSpit, LanternSpit, BubblePop, MimicSpit, PipeWormSpit, SpitcapSpit and FireIgnite.
+    // plays GulpThroat, BubbleRise, MimicWrap and SpitcapCharge (PipeWormCharge's player is left, silent since round 8); the
+    // plop HeavyBlockGrab, MimicGrab and RookSteal; the ptoo GooBombSpit, LanternSpit, BubblePop, MimicSpit, SpitcapSpit and
+    // FireIgnite.
     'goo-inhale': { library: ['magnific/player-gulp-suck-r5-1', 'magnific/player-gulp-suck-r5-2', 'magnific/player-gulp-suck-r5-3'], variants: 3 },
     'goo-plop': { library: ['magnific/player-gulp-catch-r5-1', 'magnific/player-gulp-catch-r5-2', 'magnific/player-gulp-catch-r5-3'], variants: 3 },
     'goo-ptoo': { library: ['magnific/player-gulp-spit-r5-1', 'magnific/player-gulp-spit-r5-2', 'magnific/player-gulp-spit-r5-3'], variants: 3 },
@@ -213,6 +214,8 @@ export const CUES = {
     'spider-hiss': { library: ['rubberduck-creature-1/bug_02'], synth: () => ({ layers: [{ type: 'noise', dur: 0.55, gain: 0.8, env: { peak: 0.35 }, filters: [{ type: 'hp', cutoff: 2800 }, { type: 'bp', cutoff: [3500, 5500], q: 0.9 }] }] }) },
     'web-spit': { library: ['rubberduck-creature-1/spit_01', 'rubberduck-creature-1/spit_03'], variants: 2, synth: (k) => ({ layers: [{ type: 'tone', wave: 'sine', dur: 0.12, freq: [380 * k, 950 * k], env: { a: 0.004, d: 0.12 }, gain: 0.6 }, squelch({ dur: 0.14, gain: 0.6, cutoff: [2200, 700] })] }) },
     // Magnific takes (sound picks 2026-09-30, "if this is being trapped by a web it should look more dramatic").
+    // Sound Picker round 8 (2026-10-19): the Pipe Worm's one sound, its spit (the owner kept take 2 of "Wet ptuh").
+    'pipe-worm-spit': { library: ['magnific/enemy-pipe-worm-spit-r8-1'], variants: 1 },
     'web-splat': { library: ['magnific/enemy-web-splat-1', 'magnific/enemy-web-splat-2'], variants: 2, synth: (k) => ({ layers: [squelch({ dur: 0.26, gain: 0.9, cutoff: [1300 * k, 280] }), thump({ f0: 160 * k, f1: 60, dur: 0.16, gain: 0.6 }), ...[0.06, 0.12].map((at) => blip({ at, f0: 300, f1: 600, dur: 0.05, wave: 'sine', gain: 0.25 }))] }) },
     // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Clod Stomper's slam.
     'stomper-slam': { library: ['magnific/enemy-stomper-slam-r5-1', 'magnific/enemy-stomper-slam-r5-2', 'magnific/enemy-stomper-slam-r5-3'], variants: 3 },

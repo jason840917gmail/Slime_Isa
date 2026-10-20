@@ -129,8 +129,8 @@ var session_ability_ids: Array[String] = []
 ## (`win_skin`) keeps it. `new_run` and `install` forget the list.
 var session_skin_ids: Array[String] = []
 ## Dungeon facts that last while the run plays but are never saved (game/dungeon/dungeon_state.gd
-## `session`: a plate held down in a room the slime left, an energy flower's regrow, the next far-off
-## roar). `new_run` and `install` forget them.
+## `session`: a plate held down in a room the slime left, the next far-off roar). `new_run` and
+## `install` forget them.
 var dungeon_session: Dictionary = {}
 
 ## Item categories that are permanent things, celebrated once when first gained (roadmap 4.13).

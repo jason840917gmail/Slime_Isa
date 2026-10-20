@@ -267,7 +267,12 @@ wandering area, and "they come back when the player reloads a chunk, like in Zel
   (EnemyScript properties set before it enters the tree; an `attributes` dictionary is merged). In
   the editor it draws the enemy's first frame, its type and its wander outline, and warns when the
   type or the area is unknown; in the game it draws nothing. The Scenery dock's **Enemies** category
-  drags them in by picture ([PROPS.md](../PROPS.md)).
+  drags them in by picture ([PROPS.md](../PROPS.md)). **Facing** (owner, 2026-10-19): an enemy that
+  faces one way (its EnemyScript has `aim_direction`: the Pipe Worm) faces the way the placed node
+  is turned, set with the editor's rotate tool as a collision shape is: unturned it faces down, and
+  the facing snaps to the nearest of down, left, up and right (`facing()`). The editor draws the
+  half it sees (its `targeting_radius`) and an arrow out, the picture and label staying upright. An
+  `aim_direction` in `overrides` still wins.
 - **`enemy-wander` areas** (`world_area.gd`): one shape (rectangle or circle), no data; the record
   is `{id, kind, data, perimeter, stay_perimeter = perimeter}`.
 - **Spawning:** `EnemyPopulation.setup` finds the world's PlacedEnemy nodes and enemy-wander areas;

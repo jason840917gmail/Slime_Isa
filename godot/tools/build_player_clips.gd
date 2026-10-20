@@ -44,6 +44,15 @@ extends SceneTree
 ## built and a run removes them. A side pose faces right and is mirrored for left by flip_h like every
 ## side row; it keys no offset, so it needs no `-left` clip.
 ##
+## Grab clips (GRAB_PAGE, 2026-10-19): page 7 holds the Heavy grab's poses
+## (asset/Originals/characters/slime-v2/heavy-grab/README.md, packed by
+## scripts/characters/pack-slime-heavy-grab.py on page 1's cells and baseline). Its manifest lists whole
+## clips (`clips` -> `push-<direction>`, `pull-<direction>`, `grab-<direction>` -> `frames`, `fps`, `loop`
+## and each frame's `shift`, where the art belongs relative to its cell): each becomes a clip of those
+## frames with a `Visual:offset` key per frame moving the art back by its shift (none when every shift is
+## zero). A side clip with a sideways shift (the pull's snout reaches the block while the body leans
+## away) also gets a mirrored `-left` clip, as the shifted page rows do.
+##
 ## Every other clip in the scene is removed: the old side-view sheet is gone from the player (owner
 ## decision 2026-10-05, "replace all old player art"), and so is every clip this tool no longer builds.
 ## Page rows that face down only (doze, sleep, die) are played after the player turns to the camera.
@@ -91,6 +100,11 @@ const POSE_CLIP_PREFIX := "shape-"
 const POSE_DIRECTIONS: Array[String] = ["down", "up", "side"]
 ## A pose clip's length in seconds: one held frame, played once.
 const POSE_CLIP_LENGTH := 0.1
+## The Heavy grab's page (see the header): its manifest lists whole clips.
+const GRAB_PAGE := {
+	"texture": "res://asset/characters/256x256-tile_8x8-slime-v2-page-7.webp",
+	"manifest": "../asset/Originals/characters/slime-v2/page-7.json",
+}
 const LIBRARY := &""
 ## Alias clip -> [page row, fps, looping] (see the header).
 const ALIASES := {
@@ -301,6 +315,33 @@ func _build(only: PackedStringArray) -> bool:
 			built += 1
 			print("build_player_clips: %s (page 6 frame %d, held)" % [clip_name, frame])
 
+	var grab_texture := load(GRAB_PAGE["texture"]) as Texture2D
+	var grab_clips: Variant = _read_manifest(GRAB_PAGE["manifest"]).get("clips")
+	if grab_texture == null or not grab_clips is Dictionary:
+		push_error("build_player_clips: missing texture or manifest for %s" % GRAB_PAGE["texture"])
+		root.free()
+		return false
+	for clip_name: String in grab_clips:
+		var spec: Dictionary = grab_clips[clip_name]
+		var frames: Array = spec["frames"]
+		var shifts: Array = spec["shifts"]
+		var sideways := false
+		for shift: Array in shifts:
+			sideways = sideways or float(shift[0]) != 0.0
+		var left_name := clip_name.trim_suffix("-side") + "-left" if clip_name.ends_with("-side") and sideways else ""
+		owned.append(clip_name)
+		if not left_name.is_empty():
+			owned.append(left_name)
+		if not _selected(clip_name, only):
+			continue
+		for mirrored: bool in ([false, true] if not left_name.is_empty() else [false]):
+			var built_name := left_name if mirrored else clip_name
+			_replace(library, built_name, _shifted_clip(frames, shifts, float(spec["fps"]), bool(spec["loop"]),
+					grab_texture, visual, mirrored))
+			built += 1
+			print("build_player_clips: %s (page 7 frames %s at %s fps%s%s)" % [built_name, str(frames), spec["fps"],
+					"" if bool(spec["loop"]) else ", once", ", mirrored" if mirrored else ""])
+
 	for clip_name: StringName in library.get_animation_list():
 		if String(clip_name) in owned:
 			continue
@@ -342,6 +383,31 @@ func _row_clip(first_frame: int, columns: int, fps: float, looping: bool, textur
 	if shift != Vector2.ZERO:
 		var back := Vector2(shift.x if mirrored else -shift.x, -shift.y)
 		animation.track_insert_key(_discrete_track(animation, "Visual:offset"), 0.0, visual.offset + back)
+	if mirrored:
+		animation.track_insert_key(_discrete_track(animation, "Visual:flip_h"), 0.0, true)
+	_set_texture_track(animation, texture)
+	return animation
+
+
+## A clip of `frames` (GRAB_PAGE) at `fps`, each drawn at its own `shifts` entry (texture px the art
+## belongs away from where its cell draws it): a `Visual:offset` key per frame, none when every shift is
+## zero. `mirrored` makes the `-left` version (flip_h on, the x shifts mirrored).
+func _shifted_clip(frames: Array, shifts: Array, fps: float, looping: bool, texture: Texture2D,
+		visual: Sprite2D, mirrored: bool) -> Animation:
+	var animation := Animation.new()
+	animation.length = frames.size() / fps
+	animation.loop_mode = Animation.LOOP_LINEAR if looping else Animation.LOOP_NONE
+	animation.step = 1.0 / fps
+	var frame_track := _discrete_track(animation, "Visual:frame")
+	var shifted := false
+	for shift: Array in shifts:
+		shifted = shifted or float(shift[0]) != 0.0 or float(shift[1]) != 0.0
+	var offset_track := _discrete_track(animation, "Visual:offset") if shifted else -1
+	for i in frames.size():
+		animation.track_insert_key(frame_track, i / fps, int(frames[i]))
+		if offset_track >= 0:
+			var shift := Vector2(float(shifts[i][0]), float(shifts[i][1]))
+			animation.track_insert_key(offset_track, i / fps, visual.offset + Vector2(-shift.x if mirrored else shift.x, shift.y))
 	if mirrored:
 		animation.track_insert_key(_discrete_track(animation, "Visual:flip_h"), 0.0, true)
 	_set_texture_track(animation, texture)

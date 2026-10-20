@@ -23,7 +23,8 @@ class_name RoomDoor
 ## passage and pushing on (door.gd's push) scrolls the screen into the target room
 ## (game/dungeon/room_travel.gd, main.gd `request_exit` "scroll"); the slime walks out of the target
 ## door. In the editor it draws its passage (the trigger), an arrow out and "-> room / door", red
-## while its target is not set or that door does not exist there.
+## (with what is wrong under it, and a warning on the node) while its target is not set, that door
+## does not exist there, is not in the opposite wall or does not lead back (`pairing_problem`).
 ##
 ## Owner: dungeon kit.
 
@@ -33,8 +34,6 @@ const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const TRAVEL_NAME := "DoorScript"
 const ARRIVAL_NAME := "arrival"
 const ROOM_DOOR_SCENE := "res://game/scenes/objects/dungeon/room-door.tscn"
-## The layout read when the room's Dungeon node names none (Fatty's Lair's).
-const DEFAULT_LAYOUT := "res://game/scenes/worlds/rooms/fatty-lair/layout.tscn"
 const OK_COLOR := Color(0.35, 0.85, 0.45, 0.9)
 const BAD_COLOR := Color(0.95, 0.3, 0.25, 0.9)
 
@@ -42,22 +41,26 @@ const BAD_COLOR := Color(0.95, 0.3, 0.25, 0.9)
 @export var door_id: String = "":
 	set(value):
 		door_id = value
+		update_configuration_warnings()
 		queue_redraw()
 ## The room it leads to (its CameraRoom's name on the layout).
 @export var target_room: String = "":
 	set(value):
 		target_room = value
 		notify_property_list_changed()
+		update_configuration_warnings()
 		queue_redraw()
 ## The door of `target_room` the slime comes out of.
 @export var target_door: String = "":
 	set(value):
 		target_door = value
+		update_configuration_warnings()
 		queue_redraw()
 ## The wall it is in: the way the slime walks to go through.
 @export_enum("north", "south", "east", "west") var side: String = "north":
 	set(value):
 		side = value
+		update_configuration_warnings()
 		queue_redraw()
 ## The opening's width (along the wall) and how deep into the passage the trigger reaches from the
 ## outer edge (world units). A Lair doorway is 128 wide and its wall 128 deep.
@@ -141,11 +144,15 @@ func target_world() -> String:
 	return str(layout_worlds(layout_path()).get(target_room, ""))
 
 
-## "" when the door lets the slime through, else `locked_text` (its `requires` is not set yet).
+## True while `requires` is not set yet: the door refuses the slime (with `locked_text`, or without a
+## line when it is empty: what stands in the passage speaks for itself, a crack, a barricade).
+func is_blocked() -> bool:
+	return not requires.is_empty() and not is_required_set()
+
+
+## The line a blocked door says ("" when it lets the slime through or has no line).
 func refusal() -> String:
-	if requires.is_empty() or is_required_set():
-		return ""
-	return locked_text
+	return locked_text if is_blocked() else ""
 
 
 ## True when `requires` is set (see the notes).
@@ -166,14 +173,14 @@ func is_required_set() -> bool:
 	return bool(run.call(&"has_flag", id))
 
 
-## The layout scene: the room world's Dungeon node's `layout`, else Fatty's Lair's.
+## The layout scene: the room world's Dungeon node's `layout` ("" when it names none: no room to go to).
 func layout_path() -> String:
 	var root := _world_root()
 	if root != null:
 		for child: Node in root.get_children():
 			if &"layout" in child and child.get(&"layout") is PackedScene:
 				return (child.get(&"layout") as PackedScene).resource_path
-	return DEFAULT_LAYOUT
+	return ""
 
 
 ## The layout's rooms: {room name: world id}, read once a session per layout.
@@ -206,7 +213,13 @@ static func layout_scene_of(path: String, room_name: String) -> String:
 
 ## The door ids of the room doors in the world scene at `scene_path` (read from its state).
 static func doors_in_scene(scene_path: String) -> PackedStringArray:
-	var out := PackedStringArray()
+	return PackedStringArray(doors_of_scene(scene_path).keys())
+
+
+## The room doors in the world scene at `scene_path` (read from its state): {door id: {"side",
+## "target_room", "target_door"}}, a property the scene leaves at its default taking it.
+static func doors_of_scene(scene_path: String) -> Dictionary:
+	var out := {}
 	if scene_path.is_empty() or not ResourceLoader.exists(scene_path):
 		return out
 	var state := (load(scene_path) as PackedScene).get_state()
@@ -214,10 +227,41 @@ static func doors_in_scene(scene_path: String) -> PackedStringArray:
 		var instance := state.get_node_instance(index)
 		if instance == null or instance.resource_path != ROOM_DOOR_SCENE:
 			continue
+		var door := {"door_id": "", "side": "north", "target_room": "", "target_door": ""}
 		for p: int in state.get_node_property_count(index):
-			if state.get_node_property_name(index, p) == &"door_id":
-				out.append(str(state.get_node_property_value(index, p)))
+			var property_name := str(state.get_node_property_name(index, p))
+			if door.has(property_name):
+				door[property_name] = str(state.get_node_property_value(index, p))
+		out[str(door["door_id"])] = door
 	return out
+
+
+## What is wrong with this door's link ("" when nothing): no target, a target door that does not
+## exist, one in a wall that is not opposite this one (the slide would run the wrong way), or one
+## that does not lead back here.
+func pairing_problem() -> String:
+	if target_room.is_empty() or target_door.is_empty():
+		return "no target room or door"
+	var path := layout_path()
+	var doors := doors_of_scene(layout_scene_of(path, target_room))
+	if not doors.has(target_door):
+		return "%s has no door %s" % [target_room, target_door]
+	var far: Dictionary = doors[target_door]
+	if str(far["side"]) != DoorScript.opposite(side):
+		return "%s/%s is in the %s wall, not the %s one" % [target_room, target_door, far["side"], DoorScript.opposite(side)]
+	var here := _world_id()
+	var back := str(layout_worlds(path).get(str(far["target_room"]), ""))
+	if str(far["target_door"]) != door_id or (not here.is_empty() and back != here):
+		return "%s/%s leads to %s/%s, not back here" % [target_room, target_door, far["target_room"], far["target_door"]]
+	return ""
+
+
+## This room's world (its world-definition's map id; "" without one). A world may hold several
+## rooms of the layout (R5), so a far door leads back when it names any room of this world.
+func _world_id() -> String:
+	var root := _world_root()
+	var definition := root.get_node_or_null(^"world-definition") if root != null else null
+	return str(definition.get(&"map_id")) if definition != null else ""
 
 
 # --- the editor ---------------------------------------------------------------------------------
@@ -269,12 +313,16 @@ func _world_root() -> Node:
 	return owner
 
 
+func _get_configuration_warnings() -> PackedStringArray:
+	var problem := pairing_problem()
+	return PackedStringArray() if problem.is_empty() else PackedStringArray(["Room door: " + problem])
+
+
 func _draw() -> void:
 	if not Engine.is_editor_hint():
 		return
-	var ok := not target_room.is_empty() and not target_door.is_empty() \
-		and target_door in doors_in_scene(layout_scene_of(layout_path(), target_room))
-	var colour := OK_COLOR if ok else BAD_COLOR
+	var problem := pairing_problem()
+	var colour := OK_COLOR if problem.is_empty() else BAD_COLOR
 	var area := trigger_rect()
 	draw_rect(area, Color(colour, 0.25))
 	draw_rect(area, colour, false, 3.0)
@@ -290,4 +338,6 @@ func _draw() -> void:
 		if not requires.is_empty():
 			label += "  (needs %s)" % requires
 		draw_string(font, inward() * (arrival_inset + 28.0) + Vector2(-120, 0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, colour)
+		if not problem.is_empty():
+			draw_string(font, inward() * (arrival_inset + 52.0) + Vector2(-120, 0), problem, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, colour)
 

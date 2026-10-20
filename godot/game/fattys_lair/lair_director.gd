@@ -8,9 +8,13 @@ extends Node2D
 ##   `opened` signal). The first time the slime comes into the Pit Hall (`call_rect`) he calls out
 ##   (once, the flag FLAG_CALLED); later he calls the short line over his hatch. When his door opens
 ##   he is freed (`free_burr`): his lines, he winds the Inner Stair's hatch up (`hatch`,
-##   game/scripts/stair_hatch.gd), the only way down to the Deep, and walks out (`burr_exit`). The
-##   flag FLAG_FREED keeps him gone; after Fatty he waits at the bolt-hole's mouth in daylight (the
-##   overworld's side, built with level-1-d4).
+##   game/scripts/stair_hatch.gd), the only way down to the Deep, then walks to `burr_plate` (one of
+##   the drawbridge's pair of plates, heavy_plate.gd `pair_id`: two bodies, one each) and holds it
+##   (owner, 2026-10-19). While the drawbridge (`bridge`) is up he stands there, each time the hub is
+##   built; once the slime sinks the other plate and the bridge is down for good, he says goodbye,
+##   wishes it luck and walks out (`burr_exit`). FLAG_FREED keeps him out of his cell; the bridge's
+##   record keeps him gone once it is down; after Fatty he waits at the bolt-hole's mouth in daylight
+##   (the overworld's side, built with level-1-d4).
 ## - **Fatty One Eye** (`camp`, game/scripts/boss_camp.gd): when the camp spawns him, his phase two is
 ##   turned on (`phase_two`: game/scripts/fatty.gd `configure_phase_two`) and his landings drop light
 ##   mud clods (`clods_requested`): at `clod_spots` (the children of that node, ground points), the
@@ -33,10 +37,11 @@ extends Node2D
 ## Inner Stair, `call_room`), the arena's (Fatty's camp, the clods, his heart, the shutters), the
 ## Larder's (the Pearl and its glow), R4's (the map nook's gap). Only the arena's is the compass's
 ## boss mark (`boss_mark`).
-## - **Heavy blocks reset with their room** (the guide's no-softlock rule): every heavy block and
-##   statue in the world (group `heavy_blocks`) is put back where it stood when the world was built
-##   each time the slime walks into the room it started in (the Dungeon node's `room_entered`), as
-##   the room's enemies and pots come back. A statue pushed into a corner never blocks the way.
+## - **Heavy blocks reset with their room** (the guide's no-softlock rule): each room is its own
+##   world, built afresh when the slime walks in, so every heavy block and statue stands where the
+##   room scene puts it again, as the room's enemies and pots come back. A statue pushed into a
+##   corner never blocks the way. (The director's own reset, for rooms of one world, went on
+##   2026-10-19: every Lair world has one room.)
 ##
 ## Owner: dungeons (Fatty's Lair).
 
@@ -63,7 +68,6 @@ const SHUTTER_GROUP := &"shutter"
 const MAP_MARK_GROUP := &"dungeon_map_mark"
 const LIFTABLE_SCRIPT := preload("res://game/scripts/liftable.gd")
 const CUE_SECRET := &"SecretFound"
-const BLOCK_GROUP := &"heavy_blocks"
 const SoftGlow := preload("res://game/prologue/soft_glow.gd")
 ## His fall's stream of light into the Pearl (presentation): the sparkles, their step, their arc.
 const POWER_PARTICLES := &"loot-sparkle"
@@ -72,8 +76,6 @@ const POWER_SPARKS := 12
 const POWER_STEP_MS := 70.0
 const POWER_ARC_PX := 60.0
 const POWER_GLOW_S := 1.2
-## A block is put back only when the slime's body is this far from its start (world units).
-const BLOCK_RESET_CLEAR_PX := 72.0
 
 const CALL_LINES: Array[String] = [
 	"Is someone there? ... A slime? Out here, in Fatty's burrow?",
@@ -85,8 +87,16 @@ const FREED_LINES: Array[String] = [
 	"My boy taught you the trick, didn't he? Curl up and roll. Good lad.",
 	"This hatch is the Inner Stair. The worms never learned the trick of its winch. There.",
 	"Mind the bones below: my old comrades of the Thorn Guard. Gorge's lot raised them to stand guard.",
-	"I'll wait for you outside, by the fort's old bolt-hole, if it still opens. Then come and see me at home.",
+	"One more thing. That drawbridge takes two: one on each plate. I'll hold this one. You take the other.",
 ]
+## When the drawbridge is down: his goodbye.
+const GOODBYE_LINES: Array[String] = [
+	"There she comes down! Two of us, as in the old days.",
+	"I'll wait for you outside, by the fort's old bolt-hole, if it still opens. Then come and see me at home.",
+	"Good luck, little one. Give Fatty one for me.",
+]
+## Said over his plate while he holds it and the bridge is still up.
+const HOLD_CALL := "The other plate! I've got this one."
 
 ## Burr freed. Payload: {}.
 signal burr_freed(payload: Dictionary)
@@ -97,6 +107,9 @@ signal burr_freed(payload: Dictionary)
 @export var burr_exit: NodePath
 @export var cell_door: NodePath
 @export var hatch: NodePath
+## The plate Burr holds once freed (one of the drawbridge's pair) and the drawbridge it lowers.
+@export var burr_plate: NodePath
+@export var bridge: NodePath
 ## Where Burr calls out from his cell: the Pit Hall's camera room (so it follows the room wherever
 ## its scene sits in the dungeon); without one, `call_rect` (world units).
 @export var call_room: NodePath
@@ -128,11 +141,12 @@ signal burr_freed(payload: Dictionary)
 ## Read by the dungeon map (dungeon_map_draw.gd `boss_points`).
 var mark: String = "boss"
 var _freeing := false
+## Burr stands on his plate, waiting for the bridge.
+var _holding := false
+var _leaving := false
 var _was_inside := false
 var _next_short_call_ms := 0
 var _bound_boss: Node = null
-## Every heavy block's start: [{"block": Node2D, "at": Vector2 (global)}].
-var _block_starts: Array[Dictionary] = []
 
 
 func _enter_tree() -> void:
@@ -144,7 +158,11 @@ func _ready() -> void:
 		return
 	var run := Services.run()
 	if run != null and run.has_flag(FLAG_FREED):
-		_remove_burr()
+		# freed: on his plate while the bridge is up (the hub built again), else gone
+		if _bridge_waiting():
+			_stand_on_plate()
+		else:
+			_remove_burr()
 	var door := get_node_or_null(cell_door)
 	if door != null and door.has_signal(&"opened"):
 		door.connect(&"opened", func(_payload: Variant = null) -> void: free_burr())
@@ -163,7 +181,6 @@ func _ready() -> void:
 		add_to_group(MAP_MARK_GROUP)
 	if not gap_flag.is_empty() and run != null and run.has_flag(gap_flag):
 		_clear_gaps()
-	_snapshot_blocks.call_deferred()
 	var prize := get_node_or_null(pearl)
 	if prize != null and prize.has_signal(&"taken"):
 		if prize.has_method(&"is_taken") and bool(prize.call(&"is_taken")):
@@ -179,6 +196,9 @@ func is_burr_freed() -> bool:
 
 func _physics_process(_delta: float) -> void:
 	_watch_blocked_gaps()
+	if _holding and not _leaving:
+		_watch_bridge()
+		return
 	if is_burr_freed() or _freeing:
 		return
 	var door := get_node_or_null(cell_door)
@@ -242,12 +262,83 @@ func free_burr() -> void:
 	var door := get_node_or_null(burr_door) as Node2D
 	if actor != null and door != null:
 		await actor.walk_to(door.global_position, 90.0)
+	var plate := get_node_or_null(burr_plate) as Node2D
+	if actor != null and plate != null and _bridge_waiting():
+		# to his plate, and he holds it until the bridge is down (`_watch_bridge`)
+		await actor.walk_to(plate.global_position, 90.0)
+		_stand_on_plate()
+		_freeing = false
+		return
+	await _walk_out()
+	_freeing = false
+
+
+## True while the drawbridge Burr helps lower is still up (no bridge: false).
+func _bridge_waiting() -> bool:
+	var drawbridge := get_node_or_null(bridge)
+	return drawbridge != null and drawbridge.has_method(&"is_lowered") and not bool(drawbridge.call(&"is_lowered"))
+
+
+## Burr on his plate: his weight presses it (`plate_weights`) until the bridge is down.
+func _stand_on_plate() -> void:
+	var actor := get_node_or_null(burr) as BurrActor
+	var plate := get_node_or_null(burr_plate) as Node2D
+	if actor == null or plate == null:
+		return
+	actor.global_position = plate.global_position
+	actor.set_blocking(true)
+	actor.face(-1.0)
+	actor.add_to_group(&"plate_weights")
+	_holding = true
+
+
+## While he holds his plate: now and then his call; the bridge down, his goodbye and his walk out.
+func _watch_bridge() -> void:
+	var actor := get_node_or_null(burr) as BurrActor
+	if actor == null:
+		_holding = false
+		return
+	if _bridge_waiting():
+		var now := Time.get_ticks_msec()
+		var world := Services.world()
+		var near: bool = world != null and world.player != null and is_instance_valid(world.player) \
+			and (world.player.call(&"get_centre") as Vector2).distance_to(actor.global_position) < 420.0
+		if near and now >= _next_short_call_ms:
+			_next_short_call_ms = now + SHORT_CALL_EVERY_MS
+			var feel := Services.feel()
+			if feel != null:
+				feel.floating_text(actor.global_position - Vector2(0.0, 90.0), HOLD_CALL, &"white", false, 2400.0)
+		return
+	_leaving = true
+	_say_goodbye()
+
+
+func _say_goodbye() -> void:
+	var actor := get_node_or_null(burr) as BurrActor
+	var world := Services.world()
+	var player: Node = world.player if world != null else null
+	var hold := func() -> void: PrologueScene.hold(player)
+	await PrologueScene.wait(get_tree(), 700.0)
+	get_tree().physics_frame.connect(hold)
+	if actor != null:
+		actor.wave(1.2)
+	await PrologueScene.say(get_tree(), SPEAKER, GOODBYE_LINES)
+	if get_tree().physics_frame.is_connected(hold):
+		get_tree().physics_frame.disconnect(hold)
+	if actor != null:
+		actor.remove_from_group(&"plate_weights")
+	_holding = false
+	await _walk_out()
+
+
+## Burr walks out by `burr_exit` and fades.
+func _walk_out() -> void:
+	var actor := get_node_or_null(burr) as BurrActor
 	var exit := get_node_or_null(burr_exit) as Node2D
 	if actor != null and exit != null:
 		await actor.walk_to(exit.global_position, 90.0)
 		await actor.fade_out(0.5)
 	_remove_burr()
-	_freeing = false
 
 
 func _remove_burr() -> void:
@@ -362,52 +453,6 @@ func _drop_glint() -> void:
 	var glint := get_node_or_null(pearl_glint)
 	if glint != null:
 		glint.queue_free()
-
-
-# --- heavy blocks reset with their room ------------------------------------------------------------
-
-## Notes where every heavy block of the world stands, and listens for the slime's room changes.
-func _snapshot_blocks() -> void:
-	if not is_inside_tree():
-		return
-	var world := Services.world()
-	_block_starts.clear()
-	for node: Node in get_tree().get_nodes_in_group(BLOCK_GROUP):
-		if node is Node2D and (world == null or world.world_root == null or world.world_root.is_ancestor_of(node)):
-			_block_starts.append({"block": node, "at": (node as Node2D).global_position})
-	var dungeon := DungeonState.current(get_tree())
-	if dungeon != null and dungeon.has_signal(&"room_entered") and not dungeon.is_connected(&"room_entered", _on_room_entered):
-		dungeon.connect(&"room_entered", _on_room_entered)
-
-
-## The slime walked into a room: the blocks that started in it go back to their starts.
-func _on_room_entered(payload: Dictionary) -> void:
-	var dungeon := DungeonState.current(get_tree())
-	if dungeon == null or not dungeon.has_method(&"room_at"):
-		return
-	var key := str(payload.get("room", ""))
-	for entry: Dictionary in _block_starts:
-		var block := entry.get("block") as Node2D
-		var at: Vector2 = entry["at"]
-		if block == null or not is_instance_valid(block) or block.global_position.is_equal_approx(at):
-			continue
-		var room: Node = dungeon.call(&"room_at", at)
-		if room == null or str(dungeon.call(&"room_key_of", room)) != key:
-			continue
-		reset_block(block, at)
-
-
-## Puts `block` back on `at` unless it is moving or the slime stands there. True when it moved.
-func reset_block(block: Node2D, at: Vector2) -> bool:
-	if block.has_method(&"is_moving") and bool(block.call(&"is_moving")):
-		return false
-	var world := Services.world()
-	var body: Node2D = world.player_body if world != null else null
-	if body != null and body.global_position.distance_to(at) < BLOCK_RESET_CLEAR_PX:
-		return false
-	block.global_position = at
-	block.reset_physics_interpolation()
-	return true
 
 
 func _show_heart(shown: bool) -> void:

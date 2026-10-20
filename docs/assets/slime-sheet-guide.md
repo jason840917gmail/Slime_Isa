@@ -95,6 +95,14 @@ are in `asset/Originals/characters/slime-v2/README.md`.
   `swing-up` are built (its Spin; every other strike plays its strike frames). Packed by
   `python scripts/characters/pack-slime-shape-poses.py` (not the page packer), at page 1's cells and
   baseline.
+- Page 7 (2026-10-19): the Heavy grab's poses (asset/Originals/characters/slime-v2/heavy-grab/README.md):
+  row 0 = push-side (columns 0-3) and pull-side (4-7: grip, heave, tug, rest), row 1 = push-down and
+  pull-down, row 2 = push-up and pull-up; rows 3-7 free. Packed by
+  `python scripts/characters/pack-slime-heavy-grab.py` at page 1's cells, scale and baseline, each pose
+  placed where it meets the block (the push's front, the pull's snout); `page-7.json` lists whole clips
+  (`push-`, `pull-`, `grab-<direction>`: frames, fps, each frame's `shift`), which
+  `tools/build_player_clips.gd -- --only=push-,pull-,grab-` builds with a `Visual:offset` key per frame
+  (and a mirrored `pull-left`).
 - Strike sheet (2026-10-12): `godot/asset/characters/512x416-tile_8x8-slime-v2-strikes.webp`, the
   Spear's body-only strike frames (asset/Originals/characters/slime-v2/shapes/README.md "Strike
   sheet"). 8 x 8 cells of 512 x 416, larger than the pages' so the lunges and the necks fit, centred

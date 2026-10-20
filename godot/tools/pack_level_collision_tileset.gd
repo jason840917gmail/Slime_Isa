@@ -2,9 +2,11 @@ extends SceneTree
 ## Writes the paint palette of the `level-collision` layer (game/world/elevation/
 ## level_collision_layer.gd; docs/godot/ELEVATION.md "Painting collision"): a native texture
 ## (level_collision_palette.res, no editor import needed) and its tile set
-## (level_collision_tileset.tres). Two columns, the two kinds: **rim** (orange, striped: the upper
-## floor's edge, a body there is held and pushing on drops it) and **base** (red: the wall foot a body
-## of that level bumps into); one row per level, −3 … 3, its number drawn in the tile. 16 units a
+## (level_collision_tileset.tres). Three columns, the three kinds: **rim** (orange, striped: the upper
+## floor's edge, a body there is held and pushing on drops it), **base** (red: the wall foot a body
+## of that level bumps into) and **edge** (a rim with a red border: a rim for its level and a base for
+## every level below, a raised floor's north border); one row per level, −3 … 3, its number drawn in
+## the tile. 16 units a
 ## tile (a quarter of a cell): fine enough to follow a 24-unit side wall or a rim drawn mid-cell.
 ##     "<Godot console exe>" --headless --path godot -s res://tools/pack_level_collision_tileset.gd
 
@@ -31,12 +33,21 @@ func _initialize() -> void:
 			# a higher level a lighter tint, so neighbouring levels read apart
 			var tint := colour.lightened(0.12 * float(levels[row] - LayerScript.MIN_LEVEL) / 2.0)
 			image.fill_rect(Rect2i(origin, Vector2i(TILE, TILE)), tint)
-			if kind == "rim":
+			if kind == "rim" or kind == "edge":
 				for i in range(-TILE, TILE, 5):
 					for t in TILE:
 						var x := i + t
 						if x >= 0 and x < TILE:
 							image.set_pixelv(origin + Vector2i(x, t), tint.darkened(0.25))
+			if kind == "edge":
+				# the base's red round it: the lower levels' wall foot
+				var red: Color = LayerScript.KIND_COLOURS["base"]
+				for b in 3:
+					var ring := Rect2i(origin + Vector2i(b, b), Vector2i(TILE - 2 * b, TILE - 2 * b))
+					image.fill_rect(Rect2i(ring.position, Vector2i(ring.size.x, 1)), red)
+					image.fill_rect(Rect2i(Vector2i(ring.position.x, ring.end.y - 1), Vector2i(ring.size.x, 1)), red)
+					image.fill_rect(Rect2i(ring.position, Vector2i(1, ring.size.y)), red)
+					image.fill_rect(Rect2i(Vector2i(ring.end.x - 1, ring.position.y), Vector2i(1, ring.size.y)), red)
 			_text(image, origin + Vector2i(3, 5), str(levels[row]), Color(1, 1, 1))
 	var texture := ImageTexture.create_from_image(image)
 	var err := ResourceSaver.save(texture, PALETTE, ResourceSaver.FLAG_COMPRESS)
@@ -63,7 +74,11 @@ func _initialize() -> void:
 			var data := source.get_tile_data(at, 0)
 			data.set_custom_data(LayerScript.KIND_DATA, LayerScript.KINDS[column])
 			data.set_custom_data(LayerScript.LEVEL_DATA, levels[row])
+	# the scenes name the tile set by its uid: keep it
+	var uid := ResourceLoader.get_resource_uid(TILESET) if ResourceLoader.exists(TILESET) else ResourceUID.INVALID_ID
 	err = ResourceSaver.save(tile_set, TILESET)
+	if err == OK and uid != ResourceUID.INVALID_ID:
+		err = ResourceSaver.set_uid(TILESET, uid)
 	print("level collision tileset: ", "saved " + TILESET if err == OK else error_string(err))
 	quit(0 if err == OK else 1)
 

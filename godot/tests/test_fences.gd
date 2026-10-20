@@ -1,8 +1,11 @@
 extends RefCounted
 ## The painted fences (docs/godot/FENCES.md) on ordinary and elevated ground, in Fence Park
 ## (scripts/maps/build-fence-park.py) and in a flat world built here: each neighbour pair draws and
-## collides once, as a thin band at the rails' feet; a lone tile is two posts along its arrow;
-## painting does not change elevation rims; hops, drops and landings do not pass a fence.
+## collides once, as a thin band at the rails' feet; a post collides as wide as its kit draws it; a
+## lone tile is two posts along its arrow; painting does not change elevation rims; hops, drops and
+## landings do not pass a fence. Dungeon dividers' gates: a shut gate closes its whole cell (eye and
+## pen, east-west and north-south lines, beside a lone tile), opens when its block is out of the way,
+## sits where the scenes paint it in the palette, and takes a dungeon small key when asked for one.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
@@ -10,6 +13,9 @@ const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
 const Fences := preload("res://game/world/fences/fences.gd")
 const FenceLayer := preload("res://game/world/fences/fence_layer.gd")
+const DividerGate := preload("res://game/dungeon/divider_gate.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const Services := preload("res://game/shared/services.gd")
 const WorldDefinition := preload("res://game/scripts/world_definition.gd")
 const FENCE_TILESET := preload("res://game/world/fences/fence_tileset.tres")
 
@@ -20,11 +26,26 @@ const SQUARE_EAST_LINK := 11.5 * 64.0
 const SQUARE_EAST := 12 * 64.0
 const GAP_Y := 5 * 64.0
 ## The band (game-constants.json `fences`): its top and bottom above the posts' foot line, and the
-## half width of a north-south band and of a post. The player's collision rect: 30 wide.
+## half width of a north-south band. A post's rect is as wide as its kit's post
+## (asset/MAPS/fences/<style>.json `posts.half_width`: `_post_half`). The player's collision rect:
+## 30 wide.
 const BAND_ABOVE := 10.0
 const BAND_BELOW := 2.0
 const SIDE_HALF := 7.0
 const BODY_HALF_WIDTH := 15.0
+## The fence palette's tiles (scripts/art/build-fence-paint-tiles.py): the Lair divider's column
+## (all neighbours, the east and west arrows) and the gates, where the Lair's scenes paint them.
+const DIVIDER := Vector2i(7, 0)
+const DIVIDER_EAST := Vector2i(7, 3)
+const DIVIDER_WEST := Vector2i(7, 7)
+const EYE_GATE := Vector2i(8, 0)
+const PEN_GATE := Vector2i(9, 0)
+## The Lair's rooms with divider gates (game/scenes/worlds/rooms/fatty-lair/).
+const GATE_ROOMS: PackedStringArray = ["c2-weigh-house", "old-armoury", "r5-eye-hall", "r7-bell-bridge"]
+const ROOMS_DIR := "res://game/scenes/worlds/rooms/fatty-lair/%s.tscn"
+## How far beside a gate's middle the hole a shut gate used to leave was (between its old 52-unit body
+## and the post's 14-unit rect, 31 units wide: the 30-wide slime fit through).
+const OLD_HOLE := 41.5
 
 
 ## A Fences node with its pieces holder, for building cells without a world.
@@ -88,7 +109,7 @@ func test_lone_tile_is_two_posts_the_way_its_arrow_points(t: TestContext) -> voi
 		var body := fences.get_node_or_null("Collision/Level0") as StaticBody2D
 		if t.check(body != null, label + ": no collision"):
 			t.equal(body.get_child_count(), 3, label + ": two posts and one band")
-			t.check(_has_fence_rectangle(body, far + raise, SIDE_HALF * 2.0, BAND_ABOVE - BAND_BELOW, 0.0),
+			t.check(_has_fence_rectangle(body, far + raise, _post_half("wood") * 2.0, BAND_ABOVE - BAND_BELOW, 0.0),
 					label + ": the far post's rect")
 		t.check(fences.blocks_point(foot + raise, 0), label + ": own post does not block")
 		t.check(fences.blocks_point(far + raise, 0), label + ": far post does not block")
@@ -207,8 +228,10 @@ func test_connected_tiles_add_ground_and_elevated_collision_without_changing_rim
 	var shift := fences.global_position
 	t.check(_has_fence_rectangle(ground_body, ground_from.lerp(ground_to, 0.5) + raise - shift, 64.0, BAND_ABOVE - BAND_BELOW, 0.0),
 			"ground fence link is not one 64 x 8 band, foot to foot, at the rails' feet")
-	t.check(_has_fence_rectangle(ground_body, ground_to + raise - shift, SIDE_HALF * 2.0, BAND_ABOVE - BAND_BELOW, 0.0),
-			"ground fence post is not a 14 x 8 rect")
+	var painted := Fences.find_layer(elevation.get_parent() as TileMapLayer)
+	var post_style := Fences.painted_style(painted, painted.local_to_map(painted.to_local(ground_to)))
+	t.check(_has_fence_rectangle(ground_body, ground_to + raise - shift, _post_half(post_style) * 2.0, BAND_ABOVE - BAND_BELOW, 0.0),
+			"ground fence post is not as wide as its kit's ('%s') post, 8 tall" % post_style)
 	t.check(_has_fence_rectangle(raised_body, raised_from.lerp(raised_to, 0.5) + raise - shift, 64.0, BAND_ABOVE - BAND_BELOW, 0.0),
 			"elevated fence link is not one 64 x 8 band")
 	var middle := ground_from.lerp(ground_to, 0.5)
@@ -370,7 +393,7 @@ func test_painted_gates_keep_their_settings_and_records(t: TestContext) -> void:
 		return
 	layer.set_cell(Vector2i(3, 4), 0, eye)
 	layer.set_cell(Vector2i(6, 4), 0, eye)
-	t.equal(layer.sync_gates(true), 2, "gates made for two painted gate tiles")
+	t.equal(layer.sync_gates(), 2, "gates made for two painted gate tiles")
 	var first := objects.get_node_or_null("divider-gate-3-4")
 	var second := objects.get_node_or_null("divider-gate-6-4")
 	if not t.check(first != null and second != null, "the painted gates are missing"):
@@ -383,16 +406,16 @@ func test_painted_gates_keep_their_settings_and_records(t: TestContext) -> void:
 	# Given a setting of its own, the first survives its tile erased and is adopted again.
 	first_script.set(&"locked_message", "The pen is shut.")
 	layer.erase_cell(Vector2i(3, 4))
-	layer.sync_gates(true)
+	layer.sync_gates()
 	t.check(is_instance_valid(first) and first.get_parent() == objects, "a gate with a setting of its own was removed with its tile")
 	layer.set_cell(Vector2i(3, 4), 0, eye)
-	t.equal(layer.sync_gates(true), 0, "a gate was made beside the kept one")
+	t.equal(layer.sync_gates(), 0, "a gate was made beside the kept one")
 	if is_instance_valid(first):
 		t.equal(str(first.get_meta(FenceLayer.GATE_CELL_META, "")), "3,4", "the kept gate was not adopted again")
 		t.equal(str(first_script.get(&"locked_message")), "The pen is shut.", "the kept gate's setting")
 	# One the layer made and nobody changed goes with its tile.
 	layer.erase_cell(Vector2i(6, 4))
-	layer.sync_gates(true)
+	layer.sync_gates()
 	t.check(not is_instance_valid(second), "an untouched painted gate stayed after its tile was erased")
 	room.free()
 
@@ -527,3 +550,259 @@ func _check_post_feet_match_collision(t: TestContext) -> void:
 		t.check(fences.blocks_point(feet + raise, level), "drawn fence post is outside its collision at %s, level %d" % [feet, level])
 		posts += 1
 	t.check(posts > 0, "no drawn fence posts checked")
+
+
+## The half width of `style`'s post as its kit draws it (asset/MAPS/fences/<style>.json).
+static func _post_half(style: String) -> float:
+	var kit: Variant = JSON.parse_string(FileAccess.get_file_as_string(Fences.KIT % [style, ".json"]))
+	return float((kit as Dictionary)["posts"]["half_width"]) if kit is Dictionary else 0.0
+
+
+## A post collides as wide as its kit draws it (2026-10-19 review M21: every post used the wood
+## kit's 7, so a body overlapped the Lair divider's 24-wide posts by about 5 units).
+func test_posts_collide_as_wide_as_their_kit_draws_them(t: TestContext) -> void:
+	var raise := Vector2(0.0, -(BAND_ABOVE + BAND_BELOW) * 0.5)
+	for style: String in ["wood", "lair-divider"]:
+		var fences := _bare_fences(6, 6)
+		fences._add_connected_network({Vector2i(2, 2): {"style": style, "direction": 2, "level": 0}}, MeshData.new(), {})
+		fences._build_collision()
+		var half := _post_half(style)
+		var foot := Vector2(2.5, 2.5) * 64.0
+		var body := fences.get_node_or_null("Collision/Level0") as StaticBody2D
+		if t.check(body != null and half > 0.0, style + ": no collision or no kit"):
+			t.check(_has_fence_rectangle(body, foot + raise, half * 2.0, BAND_ABOVE - BAND_BELOW, 0.0),
+					"%s: the post's rect is not %.1f wide" % [style, half * 2.0])
+		t.check(fences.blocks_point(foot + raise - Vector2(half - 0.5, 0.0), 0), style + ": the post's west side does not block")
+		t.check(not fences.blocks_point(foot + raise - Vector2(half + 0.5, 0.0), 0), style + ": the post blocks past its west side")
+		fences.free()
+
+
+## The palette's gate tiles sit where the Lair's scenes paint them (2026-10-19 review H5: they
+## followed the styles, so adding a style moved them and every painted gate became a post): the eye
+## at (8, 0), the pen at (9, 0), and every divider gate in a Lair room stands on a cell painted with
+## its kind's gate tile.
+func test_the_gate_tiles_sit_where_the_scenes_paint_them(t: TestContext) -> void:
+	var source := FENCE_TILESET.get_source(0) as TileSetAtlasSource
+	for tile: Array in [[EYE_GATE, "lair-divider-eye"], [PEN_GATE, "lair-divider-pen"]]:
+		var coords: Vector2i = tile[0]
+		if t.check(source.has_tile(coords), "the palette has no tile at %s" % coords):
+			t.equal(str(source.get_tile_data(coords, 0).get_custom_data(Fences.STYLE_DATA_LAYER)), tile[1], "the gate tile at %s" % coords)
+	var gates := 0
+	for room_name: String in GATE_ROOMS:
+		var room := (load(ROOMS_DIR % room_name) as PackedScene).instantiate() as Node2D
+		var layer := room.get_node_or_null("fences") as TileMapLayer
+		if not t.check(layer != null, room_name + " has no fences layer"):
+			room.free()
+			continue
+		for node: Node in room.get_node("Objects").find_children("*", "Node2D", true, false):
+			if node.scene_file_path != FenceLayer.GATE_SCENE:
+				continue
+			gates += 1
+			var cell := layer.local_to_map(layer.to_local((node as Node2D).global_position))
+			var style := Fences.painted_style(layer, cell)
+			t.equal(str(Fences.GATE_STYLES.get(style, "")), str(node.get(&"kind")),
+					"%s: the gate %s stands on %s painted '%s'" % [room_name, node.name, cell, style])
+		room.free()
+	t.check(gates >= 6, "the Lair's rooms have %d divider gates (6 or more expected)" % gates)
+
+
+## A flat room built here with Lair dividers: an east-west run (cells 1..12 of row 3) with an eye gate
+## at 4 and a pen gate at 9; R7's case (a gate at (3, 7) between a lone west arrow and a lone east
+## arrow); a north-south run (column 14, rows 2..6) with an eye gate at (14, 4). The fence layer makes
+## the gates (sync_gates) and the fences are mounted with their collision. Returns the room.
+func _gate_room(t: TestContext) -> Node2D:
+	var room := Node2D.new()
+	room.name = "divider-room"
+	t.main.add_child(room)
+	var definition := WorldDefinition.new()
+	definition.name = "world-definition"
+	definition.map_id = "divider-room-world"
+	room.add_child(definition)
+	var ground := TileMapLayer.new()
+	ground.name = "ground"
+	ground.tile_set = load(Elevation.TERRAIN_TILESET_PATH)
+	var source := ground.tile_set.get_source_id(0)
+	for y in 10:
+		for x in 16:
+			ground.set_cell(Vector2i(x, y), source, Vector2i.ZERO)
+	ground.set_meta(&"columns", 16)
+	ground.set_meta(&"rows", 10)
+	room.add_child(ground)
+	var objects := Node2D.new()
+	objects.name = "Objects"
+	objects.y_sort_enabled = true
+	room.add_child(objects)
+	var layer := FenceLayer.new()
+	layer.name = "fences"
+	layer.tile_set = FENCE_TILESET
+	for x in range(1, 13):
+		layer.set_cell(Vector2i(x, 3), 0, EYE_GATE if x == 4 else (PEN_GATE if x == 9 else DIVIDER))
+	layer.set_cell(Vector2i(2, 7), 0, DIVIDER_WEST)
+	layer.set_cell(Vector2i(3, 7), 0, EYE_GATE)
+	layer.set_cell(Vector2i(4, 7), 0, DIVIDER_EAST)
+	for y in range(2, 7):
+		layer.set_cell(Vector2i(14, y), 0, EYE_GATE if y == 4 else DIVIDER)
+	room.add_child(layer)
+	t.equal(layer.sync_gates(), 4, "the fence layer made a gate on each of the 4 gate tiles")
+	Elevation.mount(ground, true)
+	return room
+
+
+## A body with the player's collision rect and mask (no level bit: a flat world) at `feet`.
+func _walker(room: Node2D, feet: Vector2) -> CharacterBody2D:
+	var body := CharacterBody2D.new()
+	body.collision_layer = 0
+	body.collision_mask = 1 | 4 | 128 | 1024
+	var shape := CollisionShape2D.new()
+	var rectangle := RectangleShape2D.new()
+	rectangle.size = Vector2(2.0 * BODY_HALF_WIDTH, 26.0)
+	shape.shape = rectangle
+	shape.position = Vector2(0.0, -13.0)
+	body.add_child(shape)
+	body.position = feet
+	room.add_child(body)
+	return body
+
+
+## True when a body with its feet at `feet` can move by `motion` without meeting anything.
+func _passes(body: CharacterBody2D, feet: Vector2, motion: Vector2) -> bool:
+	body.global_position = feet
+	return not body.test_move(body.global_transform, motion)
+
+
+## Where a walk across a gate's line starts: 40 before the line (a north-south line's walk at the
+## height of its bands, 6 above the posts' foot line, plus half the body).
+static func _walk_start(foot: Vector2, way: Vector2) -> Vector2:
+	return foot - way * 40.0 + (Vector2(0.0, 7.0) if way == Vector2.LEFT else Vector2.ZERO)
+
+
+## A shut divider gate closes its whole cell (2026-10-19 review H3: its body covered 52 units and no
+## rail joined it, so a 31-unit hole on each side let the slime through; M19: a gate in a north-south
+## line was not turned): beside each gate the fences' bands reach its block, the block blocks, and
+## only once the gate has opened (its block sunk, its bars swung: not at once) does a body pass
+## through its middle; beside it the way stays shut. The gate's picture sorts at its foot (M16); the
+## pen's bars stay in sight folded open.
+func test_a_shut_divider_gate_closes_its_whole_cell(t: TestContext) -> void:
+	var room := _gate_room(t)
+	var objects := room.get_node("Objects")
+	await t.steps(3)
+	var body := _walker(room, Vector2.ZERO)
+	await t.steps(1)
+	var raise := Vector2(0.0, -(BAND_ABOVE + BAND_BELOW) * 0.5)
+	var fences := room.get_node(NodePath(Fences.NODE_NAME)) as Fences
+	# [gate, its foot, the way across its line]
+	var cases := [
+		[objects.get_node("divider-gate-4-3"), Vector2(4.5, 3.5) * 64.0, Vector2.UP],
+		[objects.get_node("divider-gate-9-3"), Vector2(9.5, 3.5) * 64.0, Vector2.UP],
+		[objects.get_node("divider-gate-3-7"), Vector2(3.5, 7.5) * 64.0, Vector2.UP],
+		[objects.get_node("divider-gate-14-4"), Vector2(14.5, 4.5) * 64.0, Vector2.LEFT],
+	]
+	for entry: Array in cases:
+		var gate := entry[0] as Node2D
+		var foot: Vector2 = entry[1]
+		var way: Vector2 = entry[2]
+		var along := Vector2(way.y, way.x).abs()
+		var label := "%s (%s)" % [gate.name, gate.get(&"kind")]
+		t.near_vec(gate.global_position, foot, 0.01, label + ": the gate stands on its cell's foot")
+		# a walk from 40 before the line to 40 past it, at the gate's middle and in the old holes
+		for offset: float in [0.0, -OLD_HOLE, OLD_HOLE]:
+			t.check(not _passes(body, _walk_start(foot, way) + along * offset, way * 80.0),
+					"%s: a body passed the shut gate %+.1f from its middle" % [label, offset])
+		t.check(fences.blocks_point(foot + along * OLD_HOLE + (raise if way == Vector2.UP else Vector2.ZERO), 0),
+				label + ": no band beside the gate")
+		var look := gate.get_node("Look") as Sprite2D
+		t.near(look.position.y, 0.0, 0.01, label + ": the picture does not sort at the gate's foot")
+		t.near(look.position.y + look.scale.y * (look.offset.y + look.region_rect.size.y), 0.0, 0.01,
+				label + ": the picture's bottom is not on the foot")
+	var turned := objects.get_node("divider-gate-14-4/Doors/Shape") as Node2D
+	t.near(turned.rotation, PI * 0.5, 0.001, "the gate in the north-south line did not turn its body")
+	t.near((objects.get_node("divider-gate-4-3/Doors/Shape") as Node2D).rotation, 0.0, 0.001, "a gate in an east-west line turned")
+	# R7's case: the lone arrows beside the gate keep their stubs (they point away from it)
+	t.check(fences.blocks_point(Vector2(2.0, 7.5) * 64.0 + raise, 0) and fences.blocks_point(Vector2(5.0, 7.5) * 64.0 + raise, 0),
+			"the lone tiles beside the gate lost their stubs")
+	# Open: not at once, then the middle passes and beside stays shut.
+	for entry: Array in cases:
+		(entry[0] as Node).get_node("GateScript").call(&"open")
+	await t.steps(3)
+	for entry: Array in cases:
+		t.check(not _passes(body, _walk_start(entry[1], entry[2]), (entry[2] as Vector2) * 80.0),
+				"%s: the way opened before the gate was out of the way" % (entry[0] as Node).name)
+	await t.sim_wait(DividerGate.OPEN_MS + 100.0)
+	await t.steps(2)
+	for entry: Array in cases:
+		var gate := entry[0] as Node2D
+		var way: Vector2 = entry[2]
+		var along := Vector2(way.y, way.x).abs()
+		var start := _walk_start(entry[1], way)
+		t.check(_passes(body, start, way * 80.0), "%s: a body does not pass the open gate" % gate.name)
+		for offset: float in [-OLD_HOLE, OLD_HOLE]:
+			t.check(not _passes(body, start + along * offset, way * 80.0), "%s: a body passed beside the open gate %+.1f" % [gate.name, offset])
+	t.check((objects.get_node("divider-gate-9-3/Look") as Sprite2D).visible, "the open pen gate's folded bars are hidden")
+	room.free()
+
+
+## A gate opened while its room is being built (its record, a plate already held) shows open at once
+## and lets a body through at once: no sinking, no dust (2026-10-19 review: entering a room again
+## replayed the opening).
+func test_a_gate_opened_as_its_room_is_built_is_open_at_once(t: TestContext) -> void:
+	var room := _gate_room(t)
+	var gate := room.get_node("Objects/divider-gate-9-3")
+	gate.get_node("GateScript").call(&"open")
+	var body := _walker(room, Vector2.ZERO)
+	await t.steps(2)
+	var foot := Vector2(9.5, 3.5) * 64.0
+	t.check(_passes(body, _walk_start(foot, Vector2.UP), Vector2(0.0, -80.0)), "a gate opened as its room was built still blocks")
+	t.check(not bool(gate.get(&"_moving")), "a gate opened as its room was built plays its opening")
+	room.free()
+
+
+## A gate asking for a dungeon small key (`required_item_id` "small-key", 2026-10-19 review M20: the
+## key path counted inventory items, where small keys never are): refused without one, opened with
+## one, which it spends; its record is unlocked. A gate asking for an inventory item is unchanged.
+func test_a_gate_asking_for_a_small_key_spends_one(t: TestContext) -> void:
+	t.main.travel_to("fatty-lair-c2-weigh-house")
+	if not t.check(await t.until(func() -> bool: return t.in_world("fatty-lair-c2-weigh-house") and not t.main.is_transitioning(), 8000.0),
+			"could not enter the Weigh House"):
+		return
+	var run := Services.run()
+	var dungeon := DungeonState.current_id(t.tree)
+	t.equal(dungeon, "fatty-lair", "the Weigh House's dungeon")
+	var objects := t.world().world_root.get_node("Objects")
+	var gate := objects.get_node("c2-east-door/GateScript")
+	gate.set(&"required_item_id", DungeonState.SMALL_KEY)
+	while DungeonState.small_keys(run, dungeon) > 0:
+		DungeonState.spend_small_key(run, dungeon)
+	t.equal(str(gate.call(&"try_unlock")), "missing-item", "a small-key gate opened without a small key")
+	t.check(not bool(gate.call(&"is_open")), "a refused gate opened")
+	DungeonState.add_small_key(run, dungeon)
+	t.check(bool(gate.call(&"push_open")), "a small key did not open the gate")
+	t.check(bool(gate.call(&"is_open")), "the gate is not open")
+	t.equal(DungeonState.small_keys(run, dungeon), 0, "the small key was not spent")
+	t.check(run.is_gate_unlocked(str(gate.get(&"map_id")), str(gate.get(&"gate_id"))), "the gate's record was not unlocked")
+	# an inventory key's gate still counts the inventory: a small key is not its key
+	var other := objects.get_node("c2-west-door/GateScript")
+	other.set(&"required_item_id", "green-key")
+	DungeonState.add_small_key(run, dungeon)
+	t.equal(str(other.call(&"try_unlock")), "missing-item", "a small key opened an inventory key's gate")
+	t.equal(DungeonState.small_keys(run, dungeon), 1, "an inventory key's gate spent a small key")
+
+
+## The fences keep their pieces when their scene leaves the tree and comes back (2026-10-19 review
+## M17: an editor tab switch freed them and nothing built them again); freed with the fences.
+func test_fences_keep_their_pieces_out_of_the_tree(t: TestContext) -> void:
+	var room := _gate_room(t)
+	var pieces := room.get_node_or_null(NodePath(Fences.PIECES_NAME))
+	if not t.check(pieces != null and pieces.get_child_count() > 0, "the divider room has no fence pieces"):
+		room.free()
+		return
+	var count := pieces.get_child_count()
+	t.main.remove_child(room)
+	await t.steps(2)
+	t.main.add_child(room)
+	await t.steps(2)
+	t.check(is_instance_valid(pieces) and pieces.get_child_count() == count, "the fence pieces went when the scene left the tree")
+	var fences := room.get_node(NodePath(Fences.NODE_NAME))
+	fences.free()
+	await t.steps(2)
+	t.check(not is_instance_valid(pieces), "the fence pieces stayed after their fences were freed")
+	room.free()

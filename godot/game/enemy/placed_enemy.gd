@@ -17,10 +17,18 @@ class_name PlacedEnemy
 ## door back out). In the editor it shows the enemy's picture, its type and its wander outline, and
 ## warns when the type or the wander area is unknown.
 ##
+## **Facing** (owner, 2026-10-19): an enemy that faces one way (its EnemyScript has `aim_direction`:
+## the Pipe Worm's pipe) faces the way this node is turned: rotate it with the editor's rotate tool,
+## as a collision shape. Unturned it faces down; the facing snaps to the nearest of down, left, up
+## and right (`facing()`), and the editor draws the half of the world it sees that way (its
+## `targeting_radius`) with an arrow, the picture and the label staying upright. An `aim_direction`
+## in `overrides` still wins over the rotation.
+##
 ## Owner: enemy builder.
 
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const WorldAreaScript := preload("res://game/scripts/world_area.gd")
+const FourWayAim := preload("res://game/enemy/four_way_aim.gd")
 
 ## Every placed enemy joins this group (the population and the quest waypoint find them by it).
 const GROUP := &"placed_enemy"
@@ -41,6 +49,14 @@ const LABEL_COLOR := Color(1.0, 0.95, 0.85, 0.95)
 const LABEL_SIZE := 12
 const OUTLINE_WIDTH := 2.0
 const MARKER_RADIUS := 10.0
+## The EnemyScript property a facing enemy faces by (set from this node's rotation).
+const FACING_PROPERTY := &"aim_direction"
+## Editor drawing of a facing enemy's view: the half it sees and the arrow out.
+const VIEW_FILL := Color(0.35, 0.75, 1.0, 0.12)
+const VIEW_EDGE := Color(0.35, 0.75, 1.0, 0.8)
+const VIEW_ARROW_PX := 56.0
+const VIEW_ARROW_HEAD_PX := 12.0
+const VIEW_SEGMENTS := 32
 ## Editor: how often a wander area name that found nothing is looked for again (ms).
 const SEARCH_AGAIN_MS := 1000
 
@@ -87,7 +103,15 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	set_process(Engine.is_editor_hint())
+	if Engine.is_editor_hint():
+		set_notify_transform(true)
 	queue_redraw()
+
+
+## Editor: turned, its view and its upright picture are drawn again.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED and Engine.is_editor_hint():
+		queue_redraw()
 
 
 ## Editor only: redraws when the shared wander area moved or changed size.
@@ -125,9 +149,18 @@ func wander_record(wander_areas: Array[Dictionary]) -> Dictionary:
 	return {"id": "", "kind": KIND_OWN_WANDER, "data": {}, "perimeter": circle, "stay_perimeter": circle}
 
 
-## Sets `overrides` on `enemy` (its EnemyScript, before it enters the tree). An unknown property is
-## a push_error.
+## The way a facing enemy faces: down turned by this node's rotation, snapped to the nearest of
+## down, left, up and right.
+func facing() -> Vector2:
+	var way := FourWayAim.snap(Vector2.DOWN.rotated(global_rotation))
+	return way if way != Vector2.ZERO else Vector2.DOWN
+
+
+## Sets the facing (`facing()`, on an enemy that has `aim_direction`) and then `overrides` on
+## `enemy` (its EnemyScript, before it enters the tree). An unknown property is a push_error.
 func apply_overrides(enemy: Node) -> void:
+	if FACING_PROPERTY in enemy:
+		enemy.set(FACING_PROPERTY, facing())
 	for key: Variant in overrides:
 		var property := str(key)
 		if not property in enemy:
@@ -192,22 +225,45 @@ func _draw() -> void:
 		_draw_perimeter(outline, SHARED_OUTLINE)
 	elif wander_area_id.is_empty():
 		draw_arc(Vector2.ZERO, wander_radius, 0.0, TAU, 64, OWN_OUTLINE, OUTLINE_WIDTH)
+	# the rest upright in the world, whatever this node's rotation (it is the facing)
+	var upright := Transform2D(-global_rotation, Vector2.ZERO)
+	draw_set_transform_matrix(upright)
 	var picture := picture_of(enemy_type)
+	if bool(picture.get("faces", false)):
+		_draw_view(float(picture.get("view_radius", 0.0)))
 	if picture.is_empty():
 		draw_circle(Vector2.ZERO, MARKER_RADIUS, MISSING, false, OUTLINE_WIDTH)
 		draw_line(Vector2(-MARKER_RADIUS, -MARKER_RADIUS), Vector2(MARKER_RADIUS, MARKER_RADIUS), MISSING, OUTLINE_WIDTH)
 		draw_line(Vector2(MARKER_RADIUS, -MARKER_RADIUS), Vector2(-MARKER_RADIUS, MARKER_RADIUS), MISSING, OUTLINE_WIDTH)
 	else:
 		var sprite: Transform2D = picture["transform"]
-		draw_set_transform_matrix(sprite)
+		draw_set_transform_matrix(upright * sprite)
 		draw_texture_rect_region(picture["texture"], picture["rect"], picture["region"], (picture["modulate"] as Color) * PICTURE_TINT)
-		draw_set_transform_matrix(Transform2D.IDENTITY)
+		draw_set_transform_matrix(upright)
 	var font := ThemeDB.fallback_font
 	if font != null:
 		var text := enemy_type if not enemy_type.is_empty() else "(no type)"
 		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 		draw_string(font, Vector2(-width / 2.0, LABEL_SIZE + 4.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE,
 				LABEL_COLOR if picture.size() > 0 else MISSING)
+	draw_set_transform_matrix(Transform2D.IDENTITY)
+
+
+## The half of the world a facing enemy sees (`radius` around it, in world orientation: the
+## current draw transform is upright) and an arrow the way it faces.
+func _draw_view(radius: float) -> void:
+	var way := facing()
+	var points := PackedVector2Array([Vector2.ZERO])
+	var start := way.angle() - PI * 0.5
+	for i in VIEW_SEGMENTS + 1:
+		points.append(Vector2.from_angle(start + PI * float(i) / float(VIEW_SEGMENTS)) * maxf(radius, VIEW_ARROW_PX))
+	draw_colored_polygon(points, VIEW_FILL)
+	points.append(Vector2.ZERO)
+	draw_polyline(points, VIEW_EDGE, OUTLINE_WIDTH)
+	var tip := way * VIEW_ARROW_PX
+	draw_line(Vector2.ZERO, tip, VIEW_EDGE, OUTLINE_WIDTH * 1.5)
+	draw_line(tip, tip - way.rotated(0.5) * VIEW_ARROW_HEAD_PX, VIEW_EDGE, OUTLINE_WIDTH * 1.5)
+	draw_line(tip, tip - way.rotated(-0.5) * VIEW_ARROW_HEAD_PX, VIEW_EDGE, OUTLINE_WIDTH * 1.5)
 
 
 func _changed() -> void:
@@ -289,7 +345,8 @@ static func known_types() -> PackedStringArray:
 
 ## `type_id`'s picture for the editor, read once from its scene's sprite (first frame): {"texture",
 ## "region" (in the texture), "rect" (in the sprite's space), "transform" (the sprite's in the
-## enemy root's), "modulate"}; {} when the type has no scene or sprite.
+## enemy root's), "modulate", "faces" (its EnemyScript has `aim_direction`), "view_radius" (its
+## `targeting_radius`)}; {} when the type has no scene or sprite.
 static func picture_of(type_id: String) -> Dictionary:
 	if type_id.is_empty():
 		return {}
@@ -319,6 +376,10 @@ static func picture_of(type_id: String) -> Dictionary:
 				node = node.get_parent()
 			picture = {"texture": sprite.texture, "region": frame_region, "rect": Rect2(origin, frame_size),
 				"transform": to_root, "modulate": sprite.modulate * sprite.self_modulate}
+			var script_node := instance.get_node_or_null(^"EnemyScript")
+			if script_node != null and FACING_PROPERTY in script_node:
+				picture["faces"] = true
+				picture["view_radius"] = float(script_node.get(&"targeting_radius"))
 		instance.free()
 	_pictures[type_id] = picture
 	return picture

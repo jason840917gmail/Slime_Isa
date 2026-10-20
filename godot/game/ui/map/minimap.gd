@@ -257,7 +257,12 @@ func _draw_overlay() -> void:
 		var top_left := to_map(_drawn_view.position)
 		var bottom_right := to_map(_drawn_view.end)
 		var view_size := (bottom_right - top_left).max(Vector2(VIEW_MIN_SIZE, VIEW_MIN_SIZE))
-		_overlay.draw_rect(Rect2(top_left, view_size), VIEW_COLOR, false, VIEW_WIDTH, true)
+		# inside the map area only; none when the view takes in the whole map (a room smaller than the
+		# screen, a dungeon of one world per room), where it only framed the box from outside it
+		var area := map_rect()
+		var shown := Rect2(top_left, view_size).intersection(area)
+		if shown.has_area() and not (shown.size.x >= area.size.x - 0.5 and shown.size.y >= area.size.y - 0.5):
+			_overlay.draw_rect(shown, VIEW_COLOR, false, VIEW_WIDTH, true)
 	if _drawn_player.is_finite():
 		var at := to_map(_drawn_player)
 		_overlay.draw_circle(at, PLAYER_RIM_RADIUS, MapMarkers.RIM_COLOR, true, -1.0, true)

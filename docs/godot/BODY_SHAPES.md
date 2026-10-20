@@ -173,7 +173,7 @@ strikes as it is let go; holding never strikes first.
    stars. For 400 ms after a knockback or launch stun ends (the wake guard) hits only deal damage
    and flash. Each kill has a 20 % chance to drop an **energy shard** (walk over it: +15 energy; it
    stays while energy is full, and fades after 12 s).
-7. **Q (mouth):** with an empty mouth, a press sucks for one second (essences and liftables only,
+7. **Q (mouth):** with an empty mouth, a press sucks for half a second (essences and liftables only,
    never live enemies). With a liftable in the mouth, a tap throws it: a pot on a light enemy dazes
    it (1.55 s). With an essence in the mouth, a tap spits it out whole; hold Q 2 s to swallow it (the
    ring fills in the essence's colour, both ways from the front of the slime). In a form with an
@@ -765,7 +765,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 | `character.player.rework` | the rework mode's player numbers (2026-10-12): `energyRegenPerSecond` 0 (the classic `stats.energyRegenPerSecond` 8 stays), `rollTapMs` 200 (a Roll key let go within it is a tap), the quick roll `quickRollDistancePx` 165, `quickRollMs` 330, `quickRollEndSpeedShare` 0.5, `quickRollInvulnerabilityMs` 250, `quickRollEnergy` 0 |
 | `combat.energyShard` | `dropChance` 0.2, `amount` 15, `pickupRadiusPx` 28, `fadeMs` 12000 |
 | `combat.damageNumbers` | `smallColor`, `bigColor`, `popScale`, `popMs`, `bigClasses` |
-| `gulp.rework` | `tapMs` 250, `suckBurstMs` 1000, `swallowHoldMs` 2000, `spitHoldMs` 2000, `ringCancelMs` 150, `ringRadiusPx` 30, `burstCooldownMs` 250 |
+| `gulp.rework` | `tapMs` 250, `suckBurstMs` 500, `swallowHoldMs` 2000, `spitHoldMs` 2000, `ringCancelMs` 150, `ringRadiusPx` 30, `burstCooldownMs` 250 |
 | `gulp.throwHit` | the thrown hit's class (`thrown`) and feel |
 | `gulp.feel` | the Gulp's look in both modes (2026-10-16, `game/player/gulp/gulp_feel.gd`): `suck` (the squash, the motes), `catch` (the bulge, the held thing's settle), `throw` (the stretch, the lean, the whoosh streak), `land` (the ground dust, the heavy materials' camera nudge); [abilities spec](specs/abilities.md) |
 | `abilities.squashSlam` | the improved Slam (body-shapes plan section 4): timeline (`crouchEndMs` 120, `riseEndMs` 320, `hangEndMs` 380, `impactMs` 460, `doneMs` 640), `riseUnits` 96, `airborneFromMs`/`airborneToMs` 140/440, `ignoresKnockback`, `ellipse` 140 x 96 (`innerShare` 0.5), `inner` (slam 40, launch 380, hop 16), `outer` (ring 24, launch 300, `bounceMs` 600), `stoneDamageBonus` 0.25, `feel`, `stoneFeel`, `wobbleRadiusPx`, `energy` 35, `cooldownMs` 2500 |
@@ -1370,7 +1370,7 @@ press does is decided from the mouth's state when Q goes down:
 
 | Mouth | Q | Result |
 |---|---|---|
-| empty | press | a suck burst for `suckBurstMs` (held or not); it ends early on a catch, or with a dust puff when nothing was in reach; `burstCooldownMs` blocks a new empty-mouth burst. Essences, liftables and enemy projectiles in flight that join `suckable` (the Spitcap's spore seed, [BESTIARY.md](BESTIARY.md#hooks-for-the-powers)) only, never live enemies |
+| empty | press | a suck burst for `suckBurstMs` (held or not); it ends early on a catch, or with a dust puff when nothing was in reach; `burstCooldownMs` blocks a new empty-mouth burst. Essences, liftables and enemy projectiles in flight that join `suckable` (the Spitcap's spore seed, [BESTIARY.md](BESTIARY.md#hooks-for-the-powers)) only, never live enemies; walk-over pickups in reach (coins, loot, goo hearts, energy shards) are swept in and picked up without ending it (the vacuum, owner 2026-10-19: mouth.gd `_sweep`; only what lay there when the suck began: what appears during it, as the heart under a pot just sucked up, waits for the next suck), and a burst that swept one in ends without the puff |
 | empty, in a form | hold | from `tapMs` (nothing caught or flying in) the spit ring fills ("Spit out Stone"); at `spitHoldMs` the form is spat out whole 44 px ahead ("Ptoo!"); a pull cancels it; over deep water in a swimming form: "Swim back to the shallows first" once |
 | a liftable | release | thrown along the aim (`get_gulp_aim`) |
 | an essence | tap | spat out whole |
@@ -1486,9 +1486,11 @@ static func cooldown_ms(id: StringName) -> float
   weapon_shown := true)` and `signal layout_changed`, which `hud.gd` connects to its `_layout`.
   Every part polls the mode and goes back to classic when a world build turns it off.
 - **Controls window:** `ControlLabels.rework_rows(scheme)` (`control_rows()` returns it in the mode).
-- **Hints:** `ControlHints.REWORK_HINT_IDS` adds charge, mouth, ability and swallow (story flags
-  `hint.<id>`) and a rework text for weapon-switch; the charge hint learns from
-  `ShapeController.is_charging()`.
+- **Hints:** `ControlHints.REWORK_HINT_IDS` adds charge, mouth, ability, swallow and heavy-grab
+  (story flags `hint.<id>`) and a rework text for weapon-switch; the charge hint learns from
+  `ShapeController.is_charging()`; heavy-grab ("Hold W to push or pull", right after move in the order)
+  shows while the Heavy slime touches or holds a heavy block and is learned once it has pushed and
+  pulled one ([SKINS.md](SKINS.md#heavy)).
 - `game/ui/body_cards.gd` (static): `SHAPE_ICONS` (shape id -> res://asset/UI/shapes/<shape>-icon.webp),
   `world_player()`, `shapes_of(player)`, `learned_shapes()`, `current_shape(player)`,
   `set_shape(player, id)`, `shape_icon(id)` (loaded on demand, null for an unknown id; the Shape
@@ -1751,7 +1753,8 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   right click in the keyboard + mouse and pointer schemes) while the slime faces a block and touches
   it (within 14 of its footprint) grabs it instead of interacting; anything else in reach is used
   as before. While the key is held the grab owns the step (`_rework_owns_step`; the other presses
-  are dropped): the slime stretches toward the block and squares up on its side; a walk key held
+  are dropped): the slime latches on with its mouth and squares up on its side, showing its grab,
+  push and pull poses ([SKINS.md](SKINS.md#heavy), 2026-10-19); a walk key held
   toward the block for 180 ms pushes it, away from it pulls it, one 64 cell per move over 640 ms,
   the slime moving with it (cell after cell while the key stays held); sideways does nothing.
   **Only the Heavy skin moves it**: without it the slime strains (it wobbles, the block trembles,
@@ -1759,8 +1762,12 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   hole or stairs: `Elevation.is_walkable`) with no body in it (walls, props, gates, other blocks,
   enemies, NPCs, deep water); else it knocks once (`HeavyBlockBump` = `HitBlocked`). A pull also
   needs room behind the slime. Letting go of the key releases it (a move under way finishes first);
-  a knock, a hit, death or a teleport release it too. The click and moba schemes' right button is
-  their order button, so they grab only with the `interact` key binding (none by default).
+  a knock, a hit, death or a teleport release it too. In the click scheme the held right button
+  (its use button) grabs and holds, as it holds the Feral climb (player.gd `_step_grab`); the moba
+  scheme's right button is its order button, so it grabs only with an `interact` key binding (none
+  by default). With the Heavy skin on, touching a block with nothing in the mouth shows the hint
+  "Hold W to push or pull" (the interact key's label; not in the moba scheme) until the slime has
+  pushed and pulled a block ([SKINS.md](SKINS.md#heavy)).
 - **Not built:** a block pushed into a hole does not fill it (the elevation grid has no run-time
   level change; blocks stop at holes); the plates and blocks are not saved.
 - **The playground's Heavy corner** (`game/dev/corners/heavy_corner.tscn`, instanced at the origin

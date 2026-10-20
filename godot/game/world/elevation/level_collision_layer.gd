@@ -8,26 +8,33 @@ class_name LevelCollisionLayer
 ## - **rim** (orange, striped): the upper floor's edge. A body on that level is held there and,
 ##   pushing on for `elevation.dropPushMs`, drops over it to the level painted beyond (the ledge
 ##   drop), landing past the wall foot (`base`) painted for that lower level when there is one;
-## - **base** (red): solid for bodies on that level: the wall foot they bump into.
+## - **base** (red): solid for bodies on that level: the wall foot they bump into;
+## - **edge** (orange with a red border): a rim for its level and a base for every level below it,
+##   in one tile: a raised floor's north border, where the upper floor ends and the lower floor's
+##   wall foot is the same line (no face between them), so a body below cannot walk in under it.
 ##
 ## When the layer has any cell painted it replaces the world's automatic level collision (Elevation
 ## `_build_collision`): what is painted is exactly what collides. Which level a body stands on, the
 ## stairs, the hazards' and kit objects' levels still come from the `elevation` paint. Empty, the
-## automatic collision works as before.
+## automatic collision works as before. A deck's passage (a slab, a landing, a lowered drawbridge:
+## Elevation `open_passage`) changes the paint round it as Elevation `_update_passage_paint` says
+## (`rects_by_level`'s `changes`): it opens the cells where floor of its level goes on past its edge
+## and closes its other sides, so a bridge holds a body by its sides.
 ##
 ## In the editor the tiles show at `paint_opacity`, and `show_collision` draws the active collision
 ## over the art (the painted one's outlines, else a room's faces' collision, else the automatic
 ## outlines of every level). "Fill from
 ## the automatic collision" replaces the paint with the automatic collision turned into cells, to
-## start from (save the scene first: it is not undoable). The game hides the layer.
+## start from (save the scene first: it is not undoable). The game hides the layer. The opacity is
+## never saved in the scene (`_validate_property`).
 ##
 ## Owner: world (elevation).
 
 const NODE_NAME := "level-collision"
 const KIND_DATA := &"collision_kind"
 const LEVEL_DATA := &"collision_level"
-const KINDS: PackedStringArray = ["rim", "base"]
-const KIND_COLOURS := {"rim": Color("#ff9a1f"), "base": Color("#e3343c")}
+const KINDS: PackedStringArray = ["rim", "base", "edge"]
+const KIND_COLOURS := {"rim": Color("#ff9a1f"), "base": Color("#e3343c"), "edge": Color("#ff9a1f")}
 const MIN_LEVEL := -3
 const MAX_LEVEL := 3
 ## The outline colours of the automatic collision per level (the overlay; render_room_collision.gd's).
@@ -63,6 +70,13 @@ func _ready() -> void:
 	_queue_overlay()
 
 
+## `self_modulate` follows `paint_opacity` (set in `_ready`): not stored, so opening a world in the
+## editor never writes it into the scene.
+func _validate_property(property: Dictionary) -> void:
+	if property["name"] == "self_modulate":
+		property["usage"] = int(property["usage"]) & ~PROPERTY_USAGE_STORAGE
+
+
 ## The layer beside `ground_layer` (a sibling named `level-collision`), or null.
 static func find_beside(ground_layer: Node) -> LevelCollisionLayer:
 	if ground_layer == null or ground_layer.get_parent() == null:
@@ -75,28 +89,44 @@ func is_painted() -> bool:
 	return not get_used_cells().is_empty()
 
 
-## The kind painted at `point` (world) for bodies of `level`: "rim", "base" or "".
+## What the painted tile at `point` (world) is for bodies of `level`: "rim", "base" or "". An edge is
+## a rim for its own level and a base for every level below.
 func kind_at(point: Vector2, level: int) -> String:
-	var cell := local_to_map(to_local(point))
-	var data := get_cell_tile_data(cell)
-	if data == null or int(data.get_custom_data(LEVEL_DATA)) != level:
+	return role_of(get_cell_tile_data(local_to_map(to_local(point))), level)
+
+
+## What a painted tile (`data`, null for none) is for bodies of `level` (`kind_at`).
+static func role_of(data: TileData, level: int) -> String:
+	if data == null:
 		return ""
-	return str(data.get_custom_data(KIND_DATA))
+	var own := int(data.get_custom_data(LEVEL_DATA))
+	var kind := str(data.get_custom_data(KIND_DATA))
+	if kind == "edge":
+		return "rim" if own == level else ("base" if level < own else "")
+	return kind if own == level else ""
 
 
-## The painted collision as rectangles (world space), merged: level -> Array[Rect2]. `open`: the
-## passages decks opened ([{"rect", "level"}], Elevation `open_passage`): the cells they open are left
-## out (`opens`).
-func rects_by_level(open: Array = []) -> Dictionary:
+## The painted collision as rectangles (world space), merged: level -> Array[Rect2]. An edge collides
+## for its level and every level below. `changes`: what the decks' passages do to it (Elevation
+## `_update_passage_paint`): level -> {cell: "" (left out, opened), "rim" or "base" (added, closed)}.
+func rects_by_level(changes: Dictionary = {}) -> Dictionary:
 	var cells_of := {}
 	for cell: Vector2i in get_used_cells():
 		var data := get_cell_tile_data(cell)
 		if data == null:
 			continue
-		var level := int(data.get_custom_data(LEVEL_DATA))
-		if not open.is_empty() and opens(open, to_global(map_to_local(cell)), level):
-			continue
-		(cells_of.get_or_add(level, {}) as Dictionary)[cell] = true
+		var own := int(data.get_custom_data(LEVEL_DATA))
+		var lowest := MIN_LEVEL if str(data.get_custom_data(KIND_DATA)) == "edge" else own
+		for level in range(lowest, own + 1):
+			var changed: Dictionary = changes.get(level, {})
+			if changed.has(cell) and str(changed[cell]).is_empty():
+				continue
+			(cells_of.get_or_add(level, {}) as Dictionary)[cell] = true
+	for level: int in changes:
+		var changed: Dictionary = changes[level]
+		for cell: Vector2i in changed:
+			if not str(changed[cell]).is_empty():
+				(cells_of.get_or_add(level, {}) as Dictionary)[cell] = true
 	var size := Vector2(tile_set.tile_size) if tile_set != null else Vector2(16, 16)
 	var out := {}
 	for level: int in cells_of:
@@ -108,17 +138,23 @@ func rects_by_level(open: Array = []) -> Dictionary:
 	return out
 
 
-## True when a passage of `open` ([{"rect", "level"}], world) opens the painted cell at `point` for
-## `level`: inside the passage, or on a rim painted along one of its edges (one tile out, within the
-## passage's span along that edge: where a slab, a landing or a lowered drawbridge joins a floor).
-static func opens(open: Array, point: Vector2, level: int) -> bool:
-	for passage: Dictionary in open:
-		if int(passage["level"]) != level:
-			continue
-		var rect: Rect2 = passage["rect"]
-		if rect.grow_individual(0.0, 16.0, 0.0, 16.0).has_point(point) or rect.grow_individual(16.0, 0.0, 16.0, 0.0).has_point(point):
-			return true
-	return false
+## The painted tiles as merged rectangles (world space) per kind and level, as painted (an edge
+## once, at its own level): [{"kind", "level", "rects": Array[Rect2]}]. The editor's overlay.
+func rects_by_kind() -> Array[Dictionary]:
+	var groups := {}
+	for cell: Vector2i in get_used_cells():
+		var data := get_cell_tile_data(cell)
+		if data != null:
+			var key := [str(data.get_custom_data(KIND_DATA)), int(data.get_custom_data(LEVEL_DATA))]
+			(groups.get_or_add(key, {}) as Dictionary)[cell] = true
+	var size := Vector2(tile_set.tile_size) if tile_set != null else Vector2(16, 16)
+	var out: Array[Dictionary] = []
+	for key: Array in groups:
+		var rects: Array[Rect2] = []
+		for r: Rect2i in merged(groups[key]):
+			rects.append(Rect2(to_global(map_to_local(r.position) - size * 0.5), Vector2(r.size) * size * global_scale.abs()))
+		out.append({"kind": key[0], "level": key[1], "rects": rects})
+	return out
 
 
 ## The cells (a set of Vector2i) as few rectangles: runs along each row, stacked where the rows below
@@ -202,11 +238,28 @@ func fill_from_automatic() -> int:
 					continue
 				var lower := int(elevation.call(&"_lower_level_at", centre, level))
 				var kind := "rim" if lower >= MIN_LEVEL else "base"
+				# a rim that is also a lower level's wall foot (a back border with no face): an edge
+				if kind == "rim" and _foot_below(elevation, walls, centre, near, level):
+					kind = "edge"
 				set_cell(local_to_map(to_local(centre)), 0, Vector2i(KINDS.find(kind), level - MIN_LEVEL))
 				painted += 1
 				break
 	print("level-collision: painted %d cells from the automatic collision" % painted)
 	return painted
+
+
+## True when `centre` (a cell Fill paints a rim of `level` on) also borders ground of a lower level
+## that cannot stand there: the same line is that level's wall foot.
+static func _foot_below(elevation: Node, walls: TileMapLayer, centre: Vector2, near: Array[Vector2], level: int) -> bool:
+	for lower in range(level - 1, MIN_LEVEL - 1, -1):
+		if bool(elevation.call(&"is_walkable", centre, lower)):
+			continue
+		for d in near:
+			if walls != null and bool(walls.call(&"is_wall", walls.local_to_map(walls.to_local(centre + d)))):
+				continue
+			if bool(elevation.call(&"is_walkable", centre + d, lower)):
+				return true
+	return false
 
 
 # --- the editor's overlay ------------------------------------------------------------------------
@@ -246,14 +299,16 @@ func _paint_overlay(canvas: Node2D) -> void:
 			source = room
 	if source != null:
 		var font := ThemeDB.fallback_font
-		var rects := source.rects_by_level()
-		for level: int in rects:
-			for r: Rect2 in rects[level]:
-				var kind := source.kind_at(r.get_center(), level)
-				var colour: Color = KIND_COLOURS.get(kind, Color.WHITE)
+		for group: Dictionary in source.rects_by_kind():
+			var kind := str(group["kind"])
+			var colour: Color = KIND_COLOURS.get(kind, Color.WHITE)
+			for r: Rect2 in group["rects"]:
 				canvas.draw_rect(r, colour, false, 2.0)
+				# an edge: a rim with a base's red inside it
+				if kind == "edge" and r.size.x > 8.0 and r.size.y > 8.0:
+					canvas.draw_rect(r.grow(-3.0), KIND_COLOURS["base"], false, 2.0)
 				if font != null and r.size.x >= 14.0 and r.size.y >= 14.0:
-					canvas.draw_string(font, r.position + Vector2(2, 12), str(level), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
+					canvas.draw_string(font, r.position + Vector2(2, 12), str(group["level"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
 		return
 	var elevation := _elevation()
 	if elevation == null or elevation.get(&"grid") == null:

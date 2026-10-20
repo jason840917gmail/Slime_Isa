@@ -3,7 +3,8 @@ extends Node
 ## skin lent. `game/dev/weaver-hollow-second-half.tscn` runs `weaver-hollow-crown` (C1, C4 the
 ## Spinning Loft, the Matron) as F6 on that world does (main `direct_world_run`: the floor's
 ## `dungeon.devPowers`, the Spear, the Roll, the Heavy skin and the Goo Bomb), and lends `skins` for
-## the session (SkinState.lend, worn), since the Silk skin is won mid-dungeon, from Pearl 2 in the
+## the session (SkinState.lend; the look stays the goo: a skin shows only while it works,
+## docs/godot/SKINS.md), since the Silk skin is won mid-dungeon, from Pearl 2 in the
 ## Hoard (docs/godot/DUNGEONS.md "The Weaver Hollow (built)"). On the web or a desktop launch,
 ## `?map=weaver-hollow-crown&skins=silk` does the same (`-- --map=... --skins=silk`).
 ##
@@ -17,7 +18,7 @@ const SELF_PATH := "res://game/dev/second_half_run.gd"
 
 ## The world the run starts in.
 @export var map_id: String = "weaver-hollow-crown"
-## The skins lent for the session once its world is built (the last one worn).
+## The skins lent for the session once its world is built.
 @export var skins: PackedStringArray = ["silk"]
 
 
@@ -32,17 +33,14 @@ func _ready() -> void:
 	get_tree().change_scene_to_node.call_deferred(main)
 
 
-## The world is built: on the next frame (after main has lent the floor's dev powers, whose last skin
-## it wears) lends `ids`.
+## The world is built: on the next frame (after main has lent the floor's dev powers) lends `ids`.
 static func lend(_payload: Dictionary, ids: PackedStringArray) -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree != null:
 		tree.process_frame.connect(Callable(load(SELF_PATH), &"lend_now").bind(ids), CONNECT_ONE_SHOT)
 
 
-## Lends `ids` (SkinState.lend), the last one worn.
+## Lends `ids` (SkinState.lend).
 static func lend_now(ids: PackedStringArray) -> void:
 	for id: String in ids:
-		var skin := StringName(id)
-		SkinState.lend(skin)
-		SkinState.set_look(skin)
+		SkinState.lend(StringName(id))

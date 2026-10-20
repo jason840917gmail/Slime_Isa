@@ -21,7 +21,6 @@ const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const PushProbe := preload("res://game/dungeon/push_probe.gd")
 const InteriorWalls := preload("res://game/world/interior/interior_wall_layer.gd")
-const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 
 const WALL_TURNS := {"north": 0.0, "east": PI * 0.5, "south": PI, "west": -PI * 0.5}
 ## In an east or west wall the turned front art is drawn this share of its height (a door seen
@@ -100,7 +99,8 @@ func _ready() -> void:
 	_restore_in_tree.call_deferred()
 
 
-## The leaf drawn when the wall draws the frame: "key1" (key doors), "key2", "boss", "bolt".
+## The leaf drawn when the wall draws the frame: "key1", "key2", "boss" (key_door.gd), "bolt" or, on
+## a bolted door's far side, "shutter" (bolted_door.gd).
 func leaf_kind() -> String:
 	return "key1"
 

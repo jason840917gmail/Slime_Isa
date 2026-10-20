@@ -20,7 +20,6 @@ extends "res://game/ui/screens/game_window.gd"
 const ChestModel := preload("res://game/ui/screens/chest_model.gd")
 const ChestScript := preload("res://game/scripts/chest.gd")
 const ItemCell := preload("res://game/ui/screens/item_cell.gd")
-const ItemIcons := preload("res://game/inventory/item_icons.gd")
 const WindowStyle := preload("res://game/ui/screens/window_style.gd")
 
 const SURFACE_ID := &"chest-inventory"
@@ -159,7 +158,7 @@ func refresh() -> void:
 		var cell := item_list.get_child(index) as ItemCell
 		var defined := bool(entry["defined"])
 		if defined:
-			cell.set_content(str(entry["count_text"]), ItemIcons.icon(str(entry["id"])))
+			cell.set_content(str(entry["count_text"]), ChestModel.icon(str(entry["id"])))
 			cell.set_text_color(UiTokens.WARNING)
 		else:
 			cell.set_content(str(entry["label"]), null)

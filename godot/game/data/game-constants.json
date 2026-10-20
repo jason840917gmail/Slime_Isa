@@ -77,7 +77,7 @@
     "suckRangePx": 80,
     "suckNearPx": 40,
     "suckConeDeg": 75,
-    "suckPullMs": 220,
+    "suckPullMs": 110,
     "throwSpeed": 560,
     "throwRangePx": 280,
     "throwHitRadiusPx": 30,
@@ -94,7 +94,7 @@
     },
     "rework": {
       "tapMs": 250,
-      "suckBurstMs": 1000,
+      "suckBurstMs": 500,
       "swallowHoldMs": 2000,
       "spitHoldMs": 2000,
       "ringCancelMs": 150,
@@ -103,7 +103,7 @@
     },
     "throwHit": { "class": "thrown", "hitStopMs": 50, "trauma": 0.2, "sparks": 6 },
     "feel": {
-      "suck": { "squashX": 0.9, "squashY": 1.1, "squashMs": 160, "motes": 8, "moteMs": 260, "moteStaggerMs": 110, "moteFromPx": 56, "moteSizePx": 3.4, "swirlTurns": 0.3 },
+      "suck": { "squashX": 0.9, "squashY": 1.1, "squashMs": 80, "motes": 8, "moteMs": 130, "moteStaggerMs": 55, "moteFromPx": 56, "moteSizePx": 3.4, "swirlTurns": 0.3 },
       "catch": { "bulgeX": 1.22, "bulgeY": 0.84, "bulgeMs": 300, "settleDropPx": 9, "settleMs": 280, "settlePop": 1.3 },
       "throw": { "stretch": 0.2, "stretchMs": 200, "leanPx": 4, "leanMs": 170, "streakMs": 160, "streakPx": 40, "streakWidthPx": 4, "streakLines": 3 },
       "land": { "dustScale": 0.7, "heavyMaterials": ["metal", "stone"], "heavyKickPx": 3 }
@@ -427,7 +427,7 @@
     }
   },
   "puzzles": {
-    "heavyPlate": { "sinkMs": 3000, "riseMs": 5000, "sinkPx": 6, "playerRadiusPx": 30, "blockRadiusPx": 24,
+    "heavyPlate": { "sinkMs": 3000, "riseMs": 5000, "sinkPx": 6, "playerRadiusPx": 30, "blockRadiusPx": 24, "refusalEveryMs": 4000, "refusalMs": 2000,
       "ringRadiusPx": 46, "grindIntervalMs": 420 },
     "heavyBlock": { "cellPx": 64, "moveMs": 640, "startDelayMs": 180, "grabReachPx": 14, "strainLineMs": 2400,
       "strainWobble": 0.06, "strainHz": 7 },
@@ -441,7 +441,7 @@
     "order": ["heavy", "silk", "feral"],
     "defs": {
       "heavy": {"name": "Heavy skin", "pearl": 1, "look": 4, "color": "#aab2bb",
-        "line": "Heavy as stone: heavy plates sink and heavy blocks move.",
+        "line": "Heavy as stone: heavy plates sink, and holding {interact} pushes or pulls heavy blocks and statues.",
         "how": "Your Roll smashes old, broken things: planks, rubble, loose rocks, rotten wood."},
       "silk": {"name": "Silk skin", "pearl": 2, "look": 5, "color": "#e4ecf7",
         "line": "Webs no longer slow you or stick: you pass web walls at half speed.",
@@ -469,7 +469,7 @@
       "dungeon-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
       "box-room-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"]
     },
-    "door": { "keyholeMs": 380, "openMs": 650, "lineEveryMs": 1500 },
+    "door": { "keyholeMs": 380, "openMs": 650, "lineEveryMs": 1500, "lineMs": 2000 },
     "boltHole": { "clearPx": 72, "minOpenMs": 350, "closeAfterMs": 2500, "shakeMs": 160, "shakeIntensity": 0.004 },
     "bolt": { "slideMs": 420 },
     "shutter": { "moveMs": 260, "insetPx": 80, "openDelayMs": 600 },

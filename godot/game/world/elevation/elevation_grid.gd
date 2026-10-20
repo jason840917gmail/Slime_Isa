@@ -110,6 +110,11 @@ var open_tris: Dictionary = {}
 ## Tris with no hidden strip behind them (1; empty: none): Elevation marks the tops of its one-row
 ## open cliffs, whose back the camera shows as flat ground (elevation.gd `_find_open_tops`).
 var no_strip := PackedByteArray()
+## Tris a room's back face covers (empty: none; the south half of the cell north of a raised floor,
+## a quarter at its corners): the level of the raised floor whose north side the face is
+## (elevation.gd `_mark_room_levels`, room_faces.gd). Bodies of lower levels cannot stand there:
+## the face's foot is their wall.
+var back_face := PackedInt32Array()
 var _edges: Array = []
 var _fine_parent := PackedInt32Array()
 
@@ -266,13 +271,19 @@ static func column_edge(column: int, s: int) -> Vector2:
 func is_walkable(tri: int, level: int) -> bool:
 	if tri < 0:
 		return false
-	if tri_level[tri] == level and tri_band[tri] < 0:
+	if _own_ground(tri, level):
 		return true
 	return not open_tris.is_empty() and open_tris.has(level) and (open_tris[level] as Dictionary).has(tri)
 
 
+## True when the tri is a visible top of `level` (not wall, not a back face over it), passages aside.
+func _own_ground(tri: int, level: int) -> bool:
+	return tri_level[tri] == level and tri_band[tri] < 0 and (back_face.is_empty() or back_face[tri] <= level)
+
+
 ## Opens the tris whose middle lies in `rect` (cells) for bodies of `level` (`open_tris`): a
-## passage through a wall. Returns how many tris it opened.
+## passage through a wall, a deck over a hole. Returns how many tris it made walkable (a passage over
+## ground of its own level changes nothing).
 func open_rect(rect: Rect2, level: int) -> int:
 	var opened: Dictionary = open_tris.get(level, {})
 	var count := 0
@@ -287,8 +298,24 @@ func open_rect(rect: Rect2, level: int) -> int:
 				var middle := (points[0] + points[1] + points[2]) / 3.0
 				if rect.has_point(middle) and not opened.has(tri):
 					opened[tri] = true
-					count += 1
+					if not _own_ground(tri, level):
+						count += 1
 	open_tris[level] = opened
+	return count
+
+
+## Opens for bodies of `level` only the passages `rects` (cells), closing the others it had
+## (`open_rect`): a passage closed. Returns how many tris are no longer walkable.
+func reopen(level: int, rects: Array[Rect2]) -> int:
+	var before: Dictionary = open_tris.get(level, {})
+	open_tris.erase(level)
+	for rect in rects:
+		open_rect(rect, level)
+	var now: Dictionary = open_tris.get(level, {})
+	var count := 0
+	for tri: int in before:
+		if not now.has(tri) and not _own_ground(tri, level):
+			count += 1
 	return count
 
 
@@ -355,9 +382,10 @@ func collision_segments(level: int) -> PackedVector2Array:
 	var higher := PackedByteArray()
 	higher.resize(tri_count)
 	var strips := no_strip.is_empty()
+	var faces := not back_face.is_empty()
 	for tri in tri_count:
 		if tri_band[tri] < 0:
-			if tri_level[tri] == level:
+			if tri_level[tri] == level and (not faces or back_face[tri] <= level):
 				walk[tri] = 1
 			elif tri_level[tri] > level and (strips or no_strip[tri] == 0):
 				higher[tri] = 1

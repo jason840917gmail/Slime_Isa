@@ -8,15 +8,24 @@ class_name HazardDeck
 ## `deck_rects()` (global), `holds_at(point)` (a standing slab, a lowered bridge), `is_safe_ground()`
 ## (a place a fall may put the slime back on: not a slab) and `touch()` (the slime's body is on it).
 ##
-## Over an elevation hole a deck opens a passage at its `level` (Elevation.open_passage) when its
-## world is built, so the slime walks onto it from the rim; a drawbridge opens its own once lowered.
-## In the editor it draws its outline.
+## Over an elevation hole a deck opens a passage at its `level` (Elevation.open_passage) while it
+## holds (hazard_watch.gd `_sync_passages`, from when its world is built; a drawbridge once lowered),
+## so the slime walks onto it from the rim; a slab that falls closes it again until it is back, and
+## the floor's rim beside the gap holds the slime (a push drops it, the ledge drop). The passage's
+## sides where no floor of its level goes on hold the slime as a rim (docs/godot/ELEVATION.md
+## "Painting collision", automatic or painted). Its `z_index` (DECK_Z, set in `_ready`) is not stored
+## in the scene (`_validate_property`).
+## While it holds, its rectangles are ground of its `level` in the terrain's depth map
+## (ElevationOcclusion.add_occluder, as the fences' silhouettes): a body of a lower level under it
+## hides behind it (its ghost shows) as behind higher ground; a fallen slab or a raised drawbridge
+## hides nothing. In the editor it draws its outline.
 ##
 ## Owner: dungeon kit.
 
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
+const ElevationOcclusion := preload("res://game/world/elevation/elevation_occlusion.gd")
 
 const GROUP := &"hazard_deck"
 const EDITOR_EDGE := Color(0.4, 0.9, 1.0, 0.9)
@@ -43,6 +52,9 @@ const FLOOR_EDGE := Color("#4b443c")
 		queue_redraw()
 
 var _floor_picture: Texture2D
+## Its picture in the depth map while it holds (`_sync_depth`), and the map it is in.
+var _depth: MeshInstance2D
+var _depth_map: ElevationOcclusion
 
 
 func _enter_tree() -> void:
@@ -58,6 +70,52 @@ func _ready() -> void:
 	watch_script.call(&"ensure", self)
 	if opens_passage_at_build():
 		watch_script.call(&"open_passages_for", self)
+	# every frame (the subclasses keep `_process` for their own): the depth map may be built after
+	# this deck, and built again; a slab falls and comes back
+	get_tree().process_frame.connect(_sync_depth)
+
+
+## `z_index` is DECK_Z, set in `_ready`: not stored, so opening a world in the editor never writes it.
+func _validate_property(property: Dictionary) -> void:
+	if property["name"] == "z_index":
+		property["usage"] = int(property["usage"]) & ~PROPERTY_USAGE_STORAGE
+
+
+## Puts its rectangles in the world's depth map while it holds, takes them out when it does not.
+func _sync_depth() -> void:
+	var world := Services.world()
+	var elevation: Node2D = world.elevation if world != null and world.elevation != null and is_instance_valid(world.elevation) else null
+	var occlusion: ElevationOcclusion = elevation.get(&"occlusion") if elevation != null else null
+	var shown := _depth != null and is_instance_valid(_depth) and _depth.is_inside_tree() and _depth_map == occlusion
+	var wanted := is_inside_tree() and holds() and occlusion != null and is_instance_valid(occlusion) and occlusion.texture != null
+	if shown == wanted:
+		return
+	if shown:
+		_depth_map.remove_occluder(_depth)
+		_depth = null
+		return
+	# ground of its level (no wall above it): a body below whose feet lie behind its edge hides
+	var colour := ElevationOcclusion.encode(deck_level(), 0.0)
+	var vertices := PackedVector2Array()
+	var colours := PackedColorArray()
+	for rect: Rect2 in deck_rects():
+		var a := elevation.to_local(rect.position)
+		var b := elevation.to_local(Vector2(rect.end.x, rect.position.y))
+		var c := elevation.to_local(rect.end)
+		var d := elevation.to_local(Vector2(rect.position.x, rect.end.y))
+		vertices.append_array(PackedVector2Array([a, b, c, a, c, d]))
+		for i in 6:
+			colours.append(colour)
+	if vertices.is_empty():
+		return
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_COLOR] = colours
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_depth = occlusion.add_occluder(mesh, null)
+	_depth_map = occlusion
 
 
 ## Its rectangles (global).

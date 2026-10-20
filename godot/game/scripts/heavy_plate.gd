@@ -27,6 +27,13 @@ extends Node2D
 ##   grinding cue ticks every `grindIntervalMs` while it moves (`HeavyPlateGrind`; a placeholder
 ##   until its take exists).
 ##
+## - **Not heavy** (`heavy_only` off; owner, 2026-10-19, Fatty's Lair's hub): any slime sinks it,
+##   skin or not, and so does anything in the group `plate_weights` with a `weight_point()` (Burr
+##   holding his plate), a heavy block too.
+## - **A pair** (`pair_id`): plates sharing one set off their targets only while all of them are
+##   fully down at once (two bodies: the slime on one, Burr on the other); then every plate of the
+##   pair sets off its targets, for good as targets are.
+##
 ## The gameplay clock (`Services.now_ms()`) drives the depth, so hit-stop and menus hold it.
 ## Nothing is saved: a world entered again starts with the plate up.
 ##
@@ -41,6 +48,8 @@ const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const GROUP := &"heavy_plates"
 const GATE_GROUP := &"gate"
 const BLOCK_GROUP := &"heavy_blocks"
+## Bodies that press a plate that is not heavy-only (`weight_point()`: Burr on his plate).
+const WEIGHT_GROUP := &"plate_weights"
 const CONSTANTS := "puzzles.heavyPlate"
 const CUE_GRIND := &"HeavyPlateGrind"
 const CUE_DOWN := &"HeavyPlateDown"
@@ -80,13 +89,13 @@ const PIT := Color(0.1, 0.08, 0.06, 0.92)
 ## How dark the cap gets fully down (multiplied into its colour).
 const DOWN_SHADE := 0.72
 const RING_NAME := "HeavyPlateRing"
-const REFUSAL_EVERY_MS := 4000.0
+## How far over the plate its refusal shows (presentation).
 const REFUSAL_RISE := 60.0
 
 ## The gates it opens ("" = none).
 @export var gate_id: String = ""
 ## Said when a slime without the Heavy skin stands on it (the clarity rule), at most every
-## REFUSAL_EVERY_MS ("" = never).
+## `puzzles.heavyPlate.refusalEveryMs`, for `refusalMs` ("" = never).
 @export var refusal_text: String = "It does not budge under you."
 ## Set off each time it reaches the bottom (DungeonState.fire: `trigger()`, else `appear`,
 ## `open_for_good`, `lower` or `open`; as a winch's targets): a drawbridge, a hidden chest
@@ -101,6 +110,11 @@ const REFUSAL_RISE := 60.0
 ## (gate.gd `open_while_record`). Fatty's Lair: R10's plate, `fatty-lair.r10-plate-held`, holding
 ## R9's north door. Built again, the plate starts up, so the record starts cleared.
 @export var hold_record: String = ""
+## Only a heavy weight sinks it (the Heavy slime, a heavy block); off, any slime and any
+## `plate_weights` body does.
+@export var heavy_only: bool = true
+## Plates sharing it set off their targets only while all are down at once ("" = alone).
+@export var pair_id: String = ""
 
 ## The plate reached the bottom. Payload: {"gateId"}.
 signal pressed(payload: Dictionary)
@@ -200,6 +214,10 @@ func _loaded() -> bool:
 	for block: Node in get_tree().get_nodes_in_group(BLOCK_GROUP):
 		if block.has_method(&"weight_point") and (block.call(&"weight_point") as Vector2).distance_to(at) <= _block_radius:
 			return true
+	if not heavy_only:
+		for weight: Node in get_tree().get_nodes_in_group(WEIGHT_GROUP):
+			if weight.has_method(&"weight_point") and (weight.call(&"weight_point") as Vector2).distance_to(at) <= _player_radius:
+				return true
 	var world := Services.world()
 	var player: Node = world.player if world != null else null
 	if player == null or not is_instance_valid(player) or bool(player.call(&"is_airborne")):
@@ -211,6 +229,8 @@ func _loaded() -> bool:
 	# a plate is pressed from its own level only
 	if not DungeonState.on_level_of(self):
 		return false
+	if not heavy_only:
+		return true
 	if not bool(player.call(&"presses_plates")):
 		_refuse()
 		return false
@@ -223,10 +243,11 @@ func _refuse() -> void:
 	var now := float(Time.get_ticks_msec())
 	if refusal_text.is_empty() or now < _next_refusal_ms:
 		return
-	_next_refusal_ms = now + REFUSAL_EVERY_MS
+	_next_refusal_ms = now + _setting("refusalEveryMs", 4000.0)
 	var feel := Services.feel()
 	if feel != null:
-		feel.floating_text(global_position - Vector2(0.0, REFUSAL_RISE), refusal_text, &"white", false, 2000.0)
+		feel.floating_text(global_position - Vector2(0.0, REFUSAL_RISE), refusal_text, &"white", false,
+				_setting("refusalMs", 2000.0))
 
 
 func _set_hold_record(held: bool) -> void:
@@ -234,9 +255,26 @@ func _set_hold_record(held: bool) -> void:
 		DungeonState.set_session_value(Services.run(), hold_record, true if held else null)
 
 
+## True while it is fully down.
+func is_down() -> bool:
+	return _down
+
+
 func _fire_targets() -> void:
-	for path: NodePath in targets:
-		DungeonState.fire(get_node_or_null(path), {"gateId": gate_id})
+	if pair_id.is_empty():
+		for path: NodePath in targets:
+			DungeonState.fire(get_node_or_null(path), {"gateId": gate_id})
+		return
+	# a pair: only with every plate of it down, then all of their targets
+	var pair: Array[Node] = []
+	for plate: Node in get_tree().get_nodes_in_group(GROUP):
+		if str(plate.get(&"pair_id")) == pair_id:
+			if not bool(plate.call(&"is_down")):
+				return
+			pair.append(plate)
+	for plate: Node in pair:
+		for path: NodePath in plate.get(&"targets"):
+			DungeonState.fire(plate.get_node_or_null(path), {"gateId": gate_id})
 
 
 func _set_gates(open_now: bool) -> void:

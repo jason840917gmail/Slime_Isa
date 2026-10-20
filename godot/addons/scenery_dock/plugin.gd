@@ -8,7 +8,9 @@ extends EditorPlugin
 ## that size too. Painting stays for the mass of small scenery; this is for the props to place and
 ## nudge one by one. An enemy dragged from the Enemies category is a placed enemy
 ## (game/enemy/placed_enemy.gd, roadmap 5.25): it gets its type at once (Godot's preview shows the
-## enemy too) and goes under the world's `Enemies` node, at its own size.
+## enemy too) and goes under the world's `Enemies` node, at its own size. A suckable dragged from the
+## Suckables category is `object.liftable` with its `kind` set (game/scripts/liftable_root.gd), under
+## Scenery at its own size.
 ##
 ## Also leaves the palette pictures out of exported games (palette_export.gd).
 ##
@@ -22,7 +24,8 @@ const ENEMIES_CONTAINER := "Enemies"
 
 var _dock: Control
 var _export: EditorExportPlugin
-## The drag in flight: {scene, size, enemy_type ("" for a prop)}, until the drag ends.
+## The drag in flight: {scene, size, settings (the properties the placed node gets: {"enemy_type"}
+## for an enemy, {"kind"} for a suckable, {} for a prop)}, until the drag ends.
 var _pending := {}
 ## The props the drag's drop placed in the edited scene.
 var _dropped: Array[Node] = []
@@ -58,28 +61,29 @@ func _notification(what: int) -> void:
 		_dropped.clear()
 
 
-## Readies a drag of `scene` at `size` (a placed enemy: of `enemy_type`). False when no 2D scene is
-## being edited.
-func _prepare_drop(scene: String, size: float, enemy_type: String = "") -> bool:
+## Readies a drag of `scene` at `size` with `settings` (the properties the placed node gets). False
+## when no 2D scene is being edited.
+func _prepare_drop(scene: String, size: float, settings: Dictionary = {}) -> bool:
 	if not EditorInterface.get_edited_scene_root() is Node2D:
 		return false
-	_pending = {"scene": scene, "size": size, "enemy_type": enemy_type}
+	_pending = {"scene": scene, "size": size, "settings": settings}
 	_dropped.clear()
 	return true
 
 
 ## While a drag is in flight: Godot's preview of the prop (outside the edited scene) takes the
-## dock's size at once; the prop dropped into the edited scene is kept for _finish_drop.
+## dock's size at once (a prop only) and its settings; the node dropped into the edited scene is
+## kept for _finish_drop.
 func _on_node_added(node: Node) -> void:
 	if _pending.is_empty() or node.scene_file_path != _pending["scene"] or not node is Node2D:
 		return
-	var enemy_type := str(_pending.get("enemy_type", ""))
-	if not enemy_type.is_empty():
-		node.set(&"enemy_type", enemy_type)
+	var settings: Dictionary = _pending.get("settings", {})
+	for key: String in settings:
+		node.set(StringName(key), settings[key])
 	var root := EditorInterface.get_edited_scene_root()
 	if root != null and root.is_ancestor_of(node):
 		_dropped.append(node)
-	elif enemy_type.is_empty():
+	elif settings.is_empty():
 		(node as Node2D).scale *= float(_pending["size"])
 
 
@@ -91,8 +95,10 @@ func _finish_drop(pending: Dictionary, dropped: Array[Node]) -> void:
 			and root != null and root.is_ancestor_of(node))
 	if nodes.is_empty():
 		return
-	var enemy := not str(pending.get("enemy_type", "")).is_empty()
-	var size := 1.0 if enemy else float(pending["size"])
+	var settings: Dictionary = pending.get("settings", {})
+	var enemy := settings.has("enemy_type")
+	# enemies and suckables keep their own size
+	var size := 1.0 if not settings.is_empty() else float(pending["size"])
 	var container_name := ENEMIES_CONTAINER if enemy else CONTAINER
 	var undo := get_undo_redo()
 	undo.create_action("Place in %s" % container_name)

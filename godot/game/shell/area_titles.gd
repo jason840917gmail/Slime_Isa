@@ -33,6 +33,9 @@ const AREAS := {
 	"weaver-hollow-roots": {"name": "Weaver Hollow: the Roots", "biome": "gloop-forest"},
 	"weaver-hollow-boughs": {"name": "Weaver Hollow: the Boughs", "biome": "gloop-forest"},
 	"weaver-hollow-crown": {"name": "The Matron's Crown", "biome": "gloop-forest"},
+	# Chapter 1's dungeon, under D5's hill (DUNGEONS.md "Fatty's Lair"): one banner for all its rooms'
+	# worlds (shell.gd, DungeonState.world_record_id).
+	"fatty-lair": {"name": "Fatty's Lair", "biome": "meadow"},
 }
 const DEFAULT_BIOME := "meadow"
 ## How far a region's sketch colour is mixed towards the text colour, so it reads on the banner.

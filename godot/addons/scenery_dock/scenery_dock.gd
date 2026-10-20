@@ -3,13 +3,21 @@ extends VBoxContainer
 ## The Scenery dock's panel: a category list, a name search and the props' pictures (the palettes'
 ## normal tiles, cut from the palette images), which drag into the 2D view (scenery_list.gd). The
 ## **Enemies** category lists every enemy type by its picture: dragging one places a placed enemy
-## (game/enemy/placed_enemy.gd) of that type (roadmap 5.25).
+## (game/enemy/placed_enemy.gd) of that type (roadmap 5.25). The **Suckables** category (owner,
+## 2026-10-19) lists every liftable kind (game/data/liftables.json: pots, crates, rocks, jars ...,
+## the light things the Gulp sucks in, none of a mechanic's own like the skeleton's skull or the Goo
+## Bomb): dragging one places `object.liftable` of that kind under Scenery; what it hides is its
+## `under` in the Inspector (game/scripts/liftable_root.gd).
 
 const List := preload("res://addons/scenery_dock/scenery_list.gd")
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
+const LiftableRoot := preload("res://game/scripts/liftable_root.gd")
 ## The placed enemy scene and the category listing the enemy types.
 const PLACED_SCENE := "res://game/scenes/encounters/placed-enemy.tscn"
 const ENEMIES_CATEGORY := "Enemies"
+## The suckable things' scene and their category.
+const LIFTABLE_SCENE := "res://game/scenes/objects/liftable.tscn"
+const SUCKABLES_CATEGORY := "Suckables"
 const MANIFEST := "res://game/world/props/prop_palettes.json"
 const ART_DIR := "res://asset/MAPS/palettes/"
 ## The manifest's palettes the dock lists, with their cell (px in the palette images).
@@ -20,7 +28,8 @@ const ICON := Vector2i(80, 80)
 ## The sizes a prop can be placed at.
 const SIZES := [["Small", 0.7], ["Normal", 1.0], ["Big", 1.3]]
 
-## Called before a drag starts with (scene, size, enemy type or ""): readies the drop (the plugin's).
+## Called before a drag starts with (scene, size, settings: the properties the placed node gets, as
+## {"enemy_type": ...} or {"kind": ...}, {} for a prop): readies the drop (the plugin's).
 var prepare_drop := Callable()
 
 var _categories: OptionButton
@@ -112,11 +121,37 @@ func _load() -> void:
 	for type_id in PlacedEnemyScript.known_types():
 		var picture := PlacedEnemyScript.picture_texture(type_id)
 		if picture != null:
-			enemies.append([type_id.replace("-", " "), PLACED_SCENE, picture, type_id])
+			enemies.append([type_id.replace("-", " "), PLACED_SCENE, picture, {"enemy_type": type_id}])
 	if not enemies.is_empty():
 		_props[ENEMIES_CATEGORY] = enemies
 		_categories.add_item(ENEMIES_CATEGORY)
+	var suckables := _suckables()
+	if not suckables.is_empty():
+		_props[SUCKABLES_CATEGORY] = suckables
+		_categories.add_item(SUCKABLES_CATEGORY)
 	_show()
+
+
+## Every liftable kind by its picture on the liftables sheet: [name, LIFTABLE_SCENE, picture, {"kind"}].
+static func _suckables() -> Array:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(LiftableRoot.CATALOG))
+	if not parsed is Dictionary:
+		return []
+	var catalog: Dictionary = parsed
+	var sheet := load(str(catalog.get("sheet", ""))) as Texture2D if ResourceLoader.exists(str(catalog.get("sheet", ""))) else null
+	if sheet == null:
+		return []
+	var cell := float(catalog.get("cell", 192))
+	var columns := maxi(1, int(catalog.get("columns", 8)))
+	var out: Array = []
+	for id: String in (catalog.get("kinds", {}) as Dictionary):
+		var frame := LiftableRoot.first_frame(id)
+		var picture := AtlasTexture.new()
+		picture.atlas = sheet
+		picture.region = Rect2(Vector2(frame % columns, frame / columns) * cell, Vector2(cell, cell))
+		var entry: Dictionary = catalog["kinds"][id]
+		out.append([str(entry.get("name", id)).to_lower(), LIFTABLE_SCENE, picture, {"kind": id}])
+	return out
 
 
 ## The size chosen for the next prop placed.
@@ -150,8 +185,12 @@ func _show() -> void:
 	for prop: Array in shown:
 		var index := _list.add_item(prop[0], prop[2])
 		if prop.size() > 3:
-			_list.set_item_metadata(index, {"scene": prop[1], "enemy_type": prop[3]})
-			_list.set_item_tooltip(index, "%s (a placed enemy)" % prop[3])
+			var settings: Dictionary = prop[3]
+			_list.set_item_metadata(index, {"scene": prop[1], "settings": settings})
+			if settings.has("enemy_type"):
+				_list.set_item_tooltip(index, "%s (a placed enemy)" % settings["enemy_type"])
+			else:
+				_list.set_item_tooltip(index, "%s (suckable: set what is under it in the Inspector, `under`)" % settings.get("kind", ""))
 		else:
 			_list.set_item_metadata(index, prop[1])
 			_list.set_item_tooltip(index, str(prop[1]).get_file())

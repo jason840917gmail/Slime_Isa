@@ -161,6 +161,7 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-2.wav" id="sfx_water_splash_2"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-3.wav" id="sfx_water_splash_3"]
 
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/pipe-worm-spit.wav" id="sfx_154008fb"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -1384,8 +1385,8 @@ min_interval_ms = 60.0
 [node name="PipeWormSpit" type="AudioStreamPlayer" parent="Effects"]
 script = ExtResource("1")
 process_mode = 3
-stream = SubResource("Rnd_player_goo_ptoo")
-volume_db = -7.82
+stream = ExtResource("sfx_154008fb")
+volume_db = -1.57
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06

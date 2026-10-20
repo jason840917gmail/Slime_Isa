@@ -662,9 +662,10 @@ const EMPTY_DETAILS := "The chest is empty."
 const NO_SELECTION_DETAILS := "Select an item"
 static func entries(remaining: Dictionary) -> Array    # [[item_id, count]], count > 0, record order
 static func moved_text(moved: int, item_id: String) -> String   # "Moved %d × %s" or NO_ROOM_STATUS
-## {"cells": [{"id", "label" ("<name> ×<count>"), "count_text", "defined"}], "selected_index",
-##  "selected_id", "details", "status", "take_disabled"}
+## {"cells": [{"id", "label" ("<name> ×<count>"), "count_text", "defined" (a catalog item, or coins)}],
+##  "selected_index", "selected_id", "details", "status", "take_disabled"}
 static func snapshot(remaining: Dictionary, selected_id: String, status: String) -> Dictionary
+static func icon(item_id: String) -> Texture2D    # ItemIcons.icon; coins: the dungeon pickups sheet's coins cell
 ```
 
 ```gdscript
@@ -686,7 +687,7 @@ func model() -> Dictionary
 - **Size and nodes**: `max_size = Vector2(920, 620)`, `content_height = 620`, the §2.2 rects.
   Title `PanelTitle` @22; Items = ScrollContainer over a 5-column `GridContainer` (h and v
   separation 10) of `ItemCell.new(ItemCell.Layout.TILE, 30, 10)`: `set_content(count_text,
-  ItemIcons.icon(id))`, `set_text_color(UiTokens.WARNING)`, `tooltip_text = label`, min height 52,
+  ChestModel.icon(id))` (coins too, with their picture), `set_text_color(UiTokens.WARNING)`, `tooltip_text = label`, min height 52,
   `SIZE_EXPAND_FILL`, radius 5 (box override); an undefined item: `set_content(label, null)` at
   11 px in the text colour. Details `MutedLabel` @13 (wrap, top, line pitch ≈ 18 px) in a
   ScrollContainer; Status `InfoLabel` @12, wrap; Take `PrimaryButton` @14 bold; Close

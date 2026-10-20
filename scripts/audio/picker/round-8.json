@@ -1,0 +1,23 @@
+{
+ "round": "round-8",
+ "applied": "2026-10-19 with round-8-picks.json: the spit ships option a (Wet ptuh), its take 2 alone",
+ "intro": "A new sound for the Pipe Worm's spit (2026-10-19). It used to make two sounds, a goo inhale while it charged and the slime's own goo ptoo when it spat; now the charge is silent and the spit has one sound of its own. Three new short Magnific ideas, three takes each (the game picks one at random each spit); \"Now\" is the ptoo it played before. Press Repeat to hear an option several times in a row at the game's small pitch spread. Pick one, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-8/takes",
+ "groups": [
+  {"id": "spit", "name": "Pipe Worm spit", "note": "The worm in its pipe spits a mud glob at the slime (every 1.7 s while the slime is in front of its wall). The charge before it is silent now, so this is its only sound."}
+ ],
+ "cues": [
+  {"id": "enemy.pipe-worm-spit", "group": "spit", "name": "Spit", "where": "The Pipe Worm spits its mud glob", "node": "PipeWormSpit", "ship": "enemy/pipe-worm-spit", "inGame": "a",
+   "rhythm": 1700, "rhythmLabel": "Repeat",
+   "options": [
+    {"key": "a", "label": "Wet ptuh", "note": "A short juicy spit with a tiny wet splatter", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-8/raw/spit-ptuh-1.mp3", "temp/sound-round-8/raw/spit-ptuh-2.mp3", "temp/sound-round-8/raw/spit-ptuh-3.mp3"]},
+    {"key": "b", "label": "Hollow thwop", "note": "A thick mud glob popped out of a clay pipe: a round, hollow, wet pop", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-8/raw/spit-thwop-1.mp3", "temp/sound-round-8/raw/spit-thwop-2.mp3", "temp/sound-round-8/raw/spit-thwop-3.mp3"]},
+    {"key": "c", "label": "Blowpipe puff", "note": "A quick hollow puff through a clay tube with a small wet squelch at the end", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-8/raw/spit-puff-1.mp3", "temp/sound-round-8/raw/spit-puff-2.mp3", "temp/sound-round-8/raw/spit-puff-3.mp3"]},
+    {"key": "now", "label": "Now: goo ptoo", "note": "What the worm played before: the slime's own spit (also its Goo Bomb, Lantern and Spitcap)", "kind": "oneshot",
+     "takes": ["godot/asset/audio/sfx/library/player/goo-ptoo-1.wav", "godot/asset/audio/sfx/library/player/goo-ptoo-2.wav", "godot/asset/audio/sfx/library/player/goo-ptoo-3.wav"]}
+   ]}
+ ]
+}

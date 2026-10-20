@@ -2,20 +2,32 @@ extends RefCounted
 ## Interior walls (docs/godot/INTERIOR_WALLS.md), the bevel model: a room's two-cell rim draws a
 ## two-deep face behind every floor edge, mitred corners where the floor turns (outer and inner), an
 ## opening piece over each painted opening; every wall cell is solid but an opening's passage (a
-## cracked stretch until blown); a door object with `frame_drawn_by_wall` draws only its leaf,
-## filling its opening upright; the box-room lab's room scenes assemble under the shell.
+## cracked stretch until blown, every cracked block in a blast's reach); a door object with
+## `frame_drawn_by_wall` draws only its leaf, filling its opening upright (a barricade turned for a
+## side wall closes its taller passage); painted closed doors keep their objects, also grouped deeper
+## under `Objects`, and every Fatty's Lair room has its doors; the box-room lab's room scenes assemble
+## under the shell.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
+const Services := preload("res://game/shared/services.gd")
 const InteriorWalls := preload("res://game/world/interior/interior_wall_layer.gd")
 const TILESET := preload("res://game/world/interior/interior_wall_tileset.tres")
 const KEY_DOOR := preload("res://game/scenes/objects/dungeon/key-door.tscn")
+const BOLTED_DOOR := preload("res://game/scenes/objects/dungeon/bolted-door.tscn")
 const SHUTTER := preload("res://game/scenes/objects/dungeon/shutter.tscn")
+const BARRICADE := preload("res://game/scenes/objects/plank-barricade.tscn")
 const LAB := "res://game/dev/interior/box-room-lab.tscn"
+const LAIR_ROOMS := "res://game/scenes/worlds/rooms/fatty-lair/"
 const STYLE := "lair-stone"
 const CELL := 64.0
 const DEPTH := 2
+const OUTER_CORNERS: Array[String] = ["nw", "ne", "sw", "se"]
 ## The tests need no world of their own: they start in the playground, not level-1.
 const MAP_ID := "playground"
+## Stale paint in Fatty's Lair's room scenes, left out of "every opening cell is in an opening block"
+## (test_the_lair_rooms_painted_doors_have_their_objects): room scene -> the cells. Empty since R5 is
+## one world again (2026-10-19): its rows 9-15 are the lower hall's and the alcove's own rim.
+const KNOWN_STALE_PAINT := {}
 
 
 ## The palette tile for `kind` ("" a plain wall) of the style.
@@ -185,32 +197,59 @@ func test_the_lab_rooms_assemble_under_the_shell(t: TestContext) -> void:
 
 
 ## Fatty's Lair's room scenes are local (docs/godot/DUNGEON_ROOMS.md): each room's corner is at its
-## scene's origin; each room is its own world, and the map's layout lays it at its dungeon offset.
+## scene's origin; each room is its own world (R5's three parts one world), and the map's layout lays
+## them so that every pair of room doors that slides (not the iris's closets) meets on the map: a
+## room may be dragged on the layout, its doors with it (2026-10-19: no more old shell offsets).
 func test_the_lair_rooms_are_local_and_laid_out_in_place(t: TestContext) -> void:
 	var dir := "res://game/scenes/worlds/rooms/fatty-lair/"
-	var expected := {}
 	var count := 0
+	var doors := {}
 	for file: String in DirAccess.get_files_at(dir):
 		# the map's layout is not a room
 		if not file.ends_with(".tscn") or file == "layout.tscn":
 			continue
 		count += 1
 		var room := (load(dir + file) as PackedScene).instantiate() as Node2D
-		t.check(room.has_meta(&"dungeon_offset"), "%s has no dungeon offset" % file)
-		var offset: Vector2 = room.get_meta(&"dungeon_offset", Vector2.ZERO)
-		t.check(posmod(int(offset.x), 64) == 0 and posmod(int(offset.y), 64) == 0, "%s's offset is not whole cells" % file)
+		var world := str(room.get_node("world-definition").get(&"map_id"))
 		for camera: Node in room.get_node("CameraRooms").get_children():
 			var at := (camera as Node2D).position
 			t.check(at.x >= 0.0 and at.y >= 0.0 and at.x < 2304.0 and at.y < 2048.0, "%s's room is not near its origin (%s)" % [file, at])
-			expected[String(camera.name)] = offset + at
+		for door: Node in room.get_node("RoomDoors").get_children():
+			if &"door_id" in door:
+				doors["%s/%s" % [world, door.get(&"door_id")]] = {"at": (door as Node2D).position, "world": world,
+					"target_room": str(door.get(&"target_room")), "target_door": str(door.get(&"target_door")),
+					"iris": str(door.get(&"transition")) == "iris"}
 		room.free()
-	t.equal(count, 24, "the Lair's room scenes")
+	# R5's eye hall, lower hall and key alcove are one world (2026-10-19)
+	t.equal(count, 22, "the Lair's room scenes")
+	# each world's place on the map: a map room of it, less where its CameraRoom lies in the scene
 	var layout := (load(dir + "layout.tscn") as PackedScene).instantiate() as Node2D
-	for name: String in expected:
-		var placed := layout.get_node_or_null(name) as Node2D
-		if t.check(placed != null, "%s is not on the layout" % name):
-			t.near_vec(placed.position, expected[name] as Vector2, 0.5, "%s is not laid where it lies in the dungeon" % name)
+	var world_at := {}
+	var world_of := {}
+	for child: Node in layout.get_children():
+		if not &"room_name" in child:
+			continue
+		var world := str(child.get(&"world_id"))
+		world_of[str(child.get(&"room_name"))] = world
+		if not world_at.has(world):
+			world_at[world] = (child as Node2D).position - (child.get(&"camera_offset") as Vector2)
+		t.check(posmod(int((child as Node2D).position.x), 64) == 0 and posmod(int((child as Node2D).position.y), 64) == 0,
+			"%s is not on the map's 64-unit grid" % child.name)
 	layout.free()
+	var met := 0
+	for key: String in doors:
+		var door: Dictionary = doors[key]
+		if bool(door["iris"]) or not world_of.has(door["target_room"]):
+			continue
+		var far_key := "%s/%s" % [world_of[door["target_room"]], door["target_door"]]
+		if not t.check(doors.has(far_key), "%s's far door %s is missing" % [key, far_key]):
+			continue
+		var far: Dictionary = doors[far_key]
+		var here := (world_at[door["world"]] as Vector2) + (door["at"] as Vector2)
+		var there := (world_at[far["world"]] as Vector2) + (far["at"] as Vector2)
+		met += 1
+		t.near_vec(here, there, 0.5, "%s and %s do not meet on the map" % [key, far_key])
+	t.check(met >= 40, "room doors checked on the map: %d" % met)
 	var r7 := (load(dir + "r7-bell-bridge.tscn") as PackedScene).instantiate() as Node2D
 	var walls := r7.get_node("interior-walls") as TileMapLayer
 	t.check(walls.get_cell_source_id(Vector2i(0, 0)) >= 0, "R7's rim corner is not at its scene's origin")
@@ -313,4 +352,255 @@ static func _doors_of(objects: Node, scene: String) -> int:
 		if node.scene_file_path == scene:
 			count += 1
 	return count
+
+
+## A room scene in the tree: `Objects` and an `interior-walls` layer with a two-cell rim round 12 x 10
+## cells.
+func _room(t: TestContext, room_name: String) -> Node2D:
+	var room := Node2D.new()
+	room.name = room_name
+	t.main.add_child(room)
+	var objects := Node2D.new()
+	objects.name = "Objects"
+	room.add_child(objects)
+	var layer := InteriorWalls.new()
+	layer.name = "interior-walls"
+	layer.tile_set = TILESET
+	_paint_rim(layer, Rect2i(0, 0, 12, 10))
+	room.add_child(layer)
+	return room
+
+
+## A two-cell rim of plain wall round `rect` on `layer`.
+static func _paint_rim(layer: InteriorWalls, rect: Rect2i) -> void:
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			if x < rect.position.x + DEPTH or y < rect.position.y + DEPTH or x >= rect.end.x - DEPTH or y >= rect.end.y - DEPTH:
+				layer.set_cell(Vector2i(x, y), 0, _tile(""))
+
+
+## The bounds of `shape`'s rectangle in world units, turned as the shape is.
+static func _global_rect(shape: CollisionShape2D) -> Rect2:
+	var half := (shape.shape as RectangleShape2D).size * 0.5
+	var xform := shape.global_transform
+	var bounds := Rect2(xform * -half, Vector2.ZERO)
+	for corner in [Vector2(half.x, -half.y), half, Vector2(-half.x, half.y)]:
+		bounds = bounds.expand(xform * (corner as Vector2))
+	return bounds
+
+
+## `node`'s position in `root`'s space, through the nodes between them.
+static func _position_in(node: Node2D, root: Node) -> Vector2:
+	var xform := node.transform
+	var up := node.get_parent()
+	while up != null and up != root:
+		if up is Node2D:
+			xform = (up as Node2D).transform * xform
+		up = up.get_parent()
+	return xform.origin
+
+
+## Doors grouped deeper under `Objects` (`Objects/Doors`) count: a door the layer made and that was
+## moved into the group keeps its block, a door placed by hand in the group at a block's spot is
+## adopted, and no second door is made beside either (2026-10-19 review M7).
+func test_doors_grouped_under_objects_keep_their_blocks(t: TestContext) -> void:
+	var room := _room(t, "group-room")
+	var objects := room.get_node("Objects")
+	var layer := room.get_node("interior-walls") as InteriorWalls
+	var group := Node2D.new()
+	group.name = "Doors"
+	group.position = Vector2(CELL, 0.0)
+	objects.add_child(group)
+	_paint_block(layer, Vector2i(5, 0), "key2")
+	t.equal(layer.sync_doors(true), 1, "painting a key door made no door")
+	var made := objects.get_node_or_null("group-room-key2-5-0") as Node2D
+	if t.check(made != null, "the painted door's object is missing"):
+		made.reparent(group)
+		t.equal(layer.sync_doors(true), 0, "a door moved into Objects/Doors got a second door beside it")
+		t.check(is_instance_valid(made) and made.get_parent() == group, "the door moved into Objects/Doors was removed")
+		t.equal(str(made.get_meta(InteriorWalls.DOOR_BLOCK_META, "")), "5,0", "the door moved into Objects/Doors lost its block")
+	var placed := SHUTTER.instantiate() as Node2D
+	placed.name = "grouped-shutter"
+	placed.position = Vector2(9.0, 2.0) * CELL - group.position
+	group.add_child(placed)
+	_paint_block(layer, Vector2i(8, 0), "shutter")
+	t.equal(layer.sync_doors(true), 0, "a shutter was made beside the one placed in Objects/Doors")
+	t.equal(str(placed.get_meta(InteriorWalls.DOOR_BLOCK_META, "")), "8,0", "the shutter placed in Objects/Doors was not adopted")
+	var key_doors := 0
+	for node in InteriorWalls.objects_in(objects):
+		if node.scene_file_path == str(InteriorWalls.DOOR_KINDS["key2"]["scene"]):
+			key_doors += 1
+	t.equal(key_doors, 1, "key doors under Objects")
+	room.free()
+
+
+## A plank barricade in an east or west rim turns with its wall, as a dungeon door does: its body and
+## hurt shapes stand across the side's taller passage (`interior.sideGapUnits`) in the opening, its
+## boards stay upright in the opening (2026-10-19 review M8).
+func test_a_barricade_in_a_side_wall_closes_the_side_passage(t: TestContext) -> void:
+	var side_gap := float(Services.constants().value("interior.sideGapUnits", 120.0))
+	var spot := Vector2(10.0, 5.0) * CELL
+	for wall in ["east", "west"]:
+		var barricade := BARRICADE.instantiate() as Node2D
+		barricade.set(&"frame_drawn_by_wall", true)
+		barricade.set(&"wall", wall)
+		barricade.position = spot
+		t.main.add_child(barricade)
+		var body := _global_rect(barricade.get_node("BodyShape") as CollisionShape2D)
+		t.check(body.position.y <= spot.y - side_gap * 0.5 and body.end.y >= spot.y + side_gap * 0.5,
+			"%s: the barricade's body leaves the side passage open (%s)" % [wall, body])
+		var in_opening := body.position.x >= spot.x - 0.5 if wall == "east" else body.end.x <= spot.x + 0.5
+		t.check(in_opening, "%s: the barricade's body stands in the room, not in its opening (%s)" % [wall, body])
+		var hurt := _global_rect(barricade.get_node("DamageArea/HurtShape") as CollisionShape2D)
+		t.check(hurt.size.y > hurt.size.x, "%s: the barricade's hurt shape is not turned (%s)" % [wall, hurt])
+		var boards := barricade.get_node("Visual") as Sprite2D
+		var place := InteriorWalls.leaf_at(STYLE, wall, "barricade")
+		t.check(boards.region_rect == place["region"], "%s: the boards are not the kit's leaf" % wall)
+		t.near(wrapf(boards.global_rotation, -PI, PI), 0.0, 0.01, "%s: the boards are turned" % wall)
+		t.near_vec(boards.global_position - barricade.global_position, place["offset"] as Vector2, 0.5, "%s: the boards are not in the opening" % wall)
+		barricade.free()
+
+
+## A blast opens every cracked block within reach: a crack painted in both rooms' rims opens on both
+## sides, a doorway beside it never changes, and the wall is built once (2026-10-19 review M9).
+func test_a_blast_opens_every_cracked_block_in_reach(t: TestContext) -> void:
+	var layer := InteriorWalls.new()
+	layer.tile_set = TILESET
+	# two rooms side by side, the crack in the west room's east rim and the east room's west rim
+	_paint_rim(layer, Rect2i(0, 0, 10, 9))
+	_paint_rim(layer, Rect2i(10, 0, 10, 9))
+	for top_left: Vector2i in [Vector2i(8, 3), Vector2i(10, 3)]:
+		for j in DEPTH:
+			for i in DEPTH:
+				layer.set_cell(top_left + Vector2i(i, j), 0, _tile("cracked"))
+	for j in DEPTH:
+		for i in DEPTH:
+			layer.set_cell(Vector2i(8 + i, 5 + j), 0, _tile("doorway"))
+	t.main.add_child(layer)
+	# the layer's first build and the cells' own update are done before the blast
+	await t.tree.process_frame
+	await t.tree.process_frame
+	t.equal(_count(layer, "e_cracked") + _count(layer, "w_cracked"), 2, "the crack in both rims")
+	t.check(_solid_at(layer, Vector2(9.5, 4.0) * CELL) and _solid_at(layer, Vector2(10.5, 4.0) * CELL), "the crack is open before the blast")
+	t.check(layer.change_opening_at(Vector2(10.0, 4.0) * CELL, "blown"), "the blast opened nothing")
+	t.equal(layer.opening_of(Vector2i(9, 4)), "blown", "the west room's cracked block")
+	t.equal(layer.opening_of(Vector2i(10, 4)), "blown", "the east room's cracked block")
+	t.equal(layer.opening_of(Vector2i(8, 5)), "doorway", "the doorway in reach of the blast")
+	t.check(not _solid_at(layer, Vector2(9.5, 4.0) * CELL) and not _solid_at(layer, Vector2(10.5, 4.0) * CELL), "the blown hole is still solid")
+	t.check(not layer.change_opening_at(Vector2(10.0, 4.0) * CELL, "blown"), "a second blast found a cracked block")
+	var built := layer.get_node(InteriorWalls.COLLISION)
+	await t.tree.process_frame
+	await t.tree.process_frame
+	t.check(layer.get_node(InteriorWalls.COLLISION) == built, "the wall was built again after the blast's own build")
+	layer.free()
+
+
+## An outer corner covers its whole 2 x 2 block: no dark fill under it, and it is drawn over the runs
+## (2026-10-19 review: `nw`.. were taken for runs, one cell wide).
+func test_outer_corners_cover_their_whole_block(t: TestContext) -> void:
+	var layer := _layer(t, Rect2i(0, 0, 10, 8))
+	var fill := layer.get_node("%s/Fill" % InteriorWalls.HOLDER)
+	t.equal((fill.get(&"cells") as Array).size(), 0, "wall cells under the pieces filled dark")
+	var names := {}
+	var pieces: Dictionary = (InteriorWalls.table()[STYLE] as Dictionary)["pieces"]
+	for name: String in pieces:
+		var r: Array = pieces[name]
+		names[Rect2(r[0], r[1], r[2], r[3])] = name
+	var last_run := -1
+	var first_corner := -1
+	var walls := layer.get_node(InteriorWalls.HOLDER)
+	for i in walls.get_child_count():
+		var sprite := walls.get_child(i) as Sprite2D
+		if sprite == null:
+			continue
+		var name := str(names.get(sprite.region_rect, ""))
+		if OUTER_CORNERS.has(name):
+			first_corner = i if first_corner < 0 else first_corner
+		elif name.length() == 2:
+			last_run = i
+	t.check(last_run >= 0 and first_corner > last_run, "an outer corner is drawn under a run")
+	layer.free()
+
+
+## A bolted door draws the bolt only on the side it is slid from: the far side (`bolt_here` off) shows
+## the plain shut slab, also when the bolt is taken off in the Inspector (2026-10-19 review).
+func test_a_bolted_doors_far_side_shows_no_bolt(t: TestContext) -> void:
+	for bolt_here in [true, false]:
+		var door := BOLTED_DOOR.instantiate() as Node2D
+		door.set(&"bolt_here", bolt_here)
+		door.set(&"frame_drawn_by_wall", true)
+		t.main.add_child(door)
+		var leaf := door.get_node("Shut/Door") as Sprite2D
+		var kind := "bolt" if bolt_here else "shutter"
+		t.check(leaf.region_rect == InteriorWalls.leaf_at(STYLE, "north", kind)["region"], "bolt here %s: the leaf is not the %s leaf" % [bolt_here, kind])
+		if bolt_here:
+			door.set(&"bolt_here", false)
+			t.check(leaf.region_rect == InteriorWalls.leaf_at(STYLE, "north", "shutter")["region"], "the bolt taken off: the leaf still shows it")
+		door.free()
+
+
+## Fatty's Lair's room scenes as saved: every painted closed-door block has exactly one door tagged
+## with it, of its kind, wall and style, on its spot; no opening cell lies outside an opening block
+## (2026-10-19 review M6: the layer makes doors in the editor only, so a block a tool painted would
+## show a door and leave the passage open).
+func test_the_lair_rooms_painted_doors_have_their_objects(t: TestContext) -> void:
+	var blocks := 0
+	for file: String in DirAccess.get_files_at(LAIR_ROOMS):
+		if not file.ends_with(".tscn") or file == "layout.tscn":
+			continue
+		var room := (load(LAIR_ROOMS + file) as PackedScene).instantiate() as Node2D
+		var walls := room.get_node_or_null("interior-walls") as InteriorWalls
+		if not t.check(walls != null, "%s has no interior-walls layer" % file):
+			room.free()
+			continue
+		# the layer finds its floor with its camera rooms: both are built in a bare room in the tree
+		var probe := Node2D.new()
+		probe.name = room.name
+		for part in ["interior-walls", "CameraRooms"]:
+			var node := room.get_node_or_null(NodePath(part))
+			if node != null:
+				room.remove_child(node)
+				node.owner = null
+				probe.add_child(node)
+		t.main.add_child(probe)
+		var objects := room.get_node_or_null("Objects")
+		var doors: Array[Node] = []
+		if objects != null:
+			doors = InteriorWalls.objects_in(objects)
+		var in_blocks := {}
+		for opening in walls.openings():
+			var top_left := opening["cell"] as Vector2i
+			for j in DEPTH:
+				for i in DEPTH:
+					in_blocks[top_left + Vector2i(i, j)] = true
+			var kind := str(opening["kind"])
+			if not InteriorWalls.DOOR_KINDS.has(kind):
+				continue
+			blocks += 1
+			var key := "%d,%d" % [top_left.x, top_left.y]
+			var label := "%s, the %s block at %s" % [file, kind, key]
+			var tagged: Array[Node] = []
+			for door in doors:
+				if str(door.get_meta(InteriorWalls.DOOR_BLOCK_META, "")) == key:
+					tagged.append(door)
+			if not t.equal(tagged.size(), 1, "%s: doors tagged with it" % label):
+				continue
+			var door := tagged[0] as Node2D
+			t.equal(str(door.get_meta(InteriorWalls.DOOR_KIND_META, "")), kind, "%s: the door's kind" % label)
+			t.equal(door.scene_file_path, str(InteriorWalls.DOOR_KINDS[kind]["scene"]), "%s: the door's scene" % label)
+			var props: Dictionary = InteriorWalls.DOOR_KINDS[kind]["props"]
+			for prop: String in props:
+				t.equal(door.get(prop), props[prop], "%s: the door's %s" % [label, prop])
+			t.equal(str(door.get(&"wall")), str(InteriorWalls.SIDE_WALL[str(opening["side"])]), "%s: the door's wall" % label)
+			t.equal(str(door.get(&"interior_style")), str(opening["style"]), "%s: the door's style" % label)
+			t.check(bool(door.get(&"frame_drawn_by_wall")), "%s: the door draws its own frame" % label)
+			t.near_vec(_position_in(door, room), walls._door_spot(opening), 0.5, "%s: the door is off its spot" % label)
+		var stale: Rect2i = KNOWN_STALE_PAINT.get(file, Rect2i())
+		for cell in walls.get_used_cells():
+			var kind := walls.opening_of(cell)
+			if not kind.is_empty() and not in_blocks.has(cell) and not stale.has_point(cell):
+				t.fail("%s: the %s cell %s is in no opening block" % [file, kind, cell])
+		probe.free()
+		room.free()
+	t.check(blocks >= 12, "the Lair's painted closed-door blocks: %d" % blocks)
 

@@ -278,6 +278,22 @@ func test_chest_leaves_tree(t: TestContext) -> void:
 	root.queue_free()
 
 
+## Coins are no catalog item but draw as a stack with their picture (the dungeon pickups sheet's
+## coins), their count under it, as items do.
+func test_coins_draw_as_a_stack(t: TestContext) -> void:
+	var window := await _open(t, {"coins": 20})
+	if window == null:
+		return
+	t.equal(_counts(window), ["20"], "cells")
+	t.equal(_tooltips(window), ["Coins ×20"], "tooltips")
+	var cell := _cell(window, 0)
+	if t.check(cell != null, "no cell"):
+		var icon := cell.icon_rect.texture as AtlasTexture
+		t.check(icon != null and icon.atlas.resource_path.ends_with("pickups-2x2.webp")
+			and icon.region.position == icon.atlas.get_size() * 0.5, "the coins' icon %s" % [icon.region if icon != null else null])
+	window.close()
+
+
 # --- helpers ----------------------------------------------------------------------------------
 
 func _chest(t: TestContext) -> ChestScript:

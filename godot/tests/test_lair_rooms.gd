@@ -8,13 +8,19 @@ extends RefCounted
 ## is built and after a quit and a load (chests, keys, doors, barricades, plates and statues, the
 ## blown crack, the seal, the Pearl, the bosses); ordinary enemies come back when their room is
 ## entered again, won fights and bosses do not; and the Lair is walked from D5's mouth to Fatty's
-## arena and out by the bolt-hole into D4.
+## arena and out by the bolt-hole into D4. Also: a door with no line still waits for its record; the
+## editor's link check passes every door and catches a wrong wall; the compass shows the other
+## rooms' chests; every room world is the Lair on the world map; a sealed Lair lets the slime from
+## room to room but not out; a faint in the arena wakes at the entrance; the Inner Stair arrives
+## facing its `arrival_facing`; the music carries on through a room door.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const LairDirector := preload("res://game/fattys_lair/lair_director.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
+const DungeonMapDraw := preload("res://game/dungeon/dungeon_map_draw.gd")
+const WorldMapWindow := preload("res://game/ui/map/world_map_window.gd")
 
 const MAP_ID := "fatty-lair"
 const LAYOUT := "res://game/scenes/worlds/rooms/fatty-lair/layout.tscn"
@@ -26,7 +32,7 @@ const PUSH_MS := 5000.0
 ## The room doors walked by each door test (the four tests share the doors, each under the runner's
 ## time limit).
 const DOOR_GROUPS := [
-	["r1-gatehouse", "r1-store", "r2-slab-steps", "r7-bell-bridge", "r5-lower-hall", "r5-key-alcove"],
+	["r1-gatehouse", "r1-store", "r2-slab-steps", "r7-bell-bridge"],
 	["r3-pit-hall", "burr-cell", "r4-squint-den", "map-nook", "r6-pipe-gallery", "glow-moss-burrow"],
 	["r5-eye-hall", "sally-port", "r8-guard-crypt", "old-armoury", "r9-watcher-hall", "r10-dung-roller-run"],
 	["c2-weigh-house", "r11-drop-gate-bridge", "r12-larder", "r13-fattys-arena", "r14-postern", "bolt-hole"],
@@ -38,9 +44,14 @@ func test_every_room_is_a_world_on_the_layout_and_its_doors_pair_up(t: TestConte
 	t.equal(rooms.size(), 24, "rooms on the layout")
 	var index: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://game/scenes/scene_index.json"))
 	var doors := {}
+	var scenes := {}
 	for room_name: String in rooms:
 		var room: Dictionary = rooms[room_name]
 		t.equal(str(index.get("world." + str(room["world"]), "")), str(room["scene"]), "%s's world in the scene index" % room_name)
+		# a world of several rooms (R5: the eye hall, the lower hall, the key alcove) is read once
+		if scenes.has(room["scene"]):
+			continue
+		scenes[room["scene"]] = true
 		var scene := (load(str(room["scene"])) as PackedScene).instantiate()
 		var definition := scene.get_node_or_null("world-definition")
 		if t.check(definition != null, "%s has no world-definition" % room_name):
@@ -52,19 +63,20 @@ func test_every_room_is_a_world_on_the_layout_and_its_doors_pair_up(t: TestConte
 			t.check(dungeon.get(&"layout") != null, "%s's Dungeon has no layout" % room_name)
 		t.equal(DungeonState.world_dungeon_id(str(room["world"])), MAP_ID, "%s read as a world of the Lair" % room_name)
 		for door: Node in _room_doors(scene):
-			var key := "%s/%s" % [room_name, door.get(&"door_id")]
+			var key := "%s/%s" % [room["world"], door.get(&"door_id")]
 			t.check(not doors.has(key), "two doors %s" % key)
-			doors[key] = {"room": room_name, "id": str(door.get(&"door_id")), "target_room": str(door.get(&"target_room")),
+			doors[key] = {"world": str(room["world"]), "id": str(door.get(&"door_id")), "target_room": str(door.get(&"target_room")),
 				"target_door": str(door.get(&"target_door")), "side": str(door.get(&"side"))}
 		scene.free()
-	t.equal(doors.size(), 54, "room doors")
+	t.equal(doors.size(), 50, "room doors")
 	for key: String in doors:
 		var door: Dictionary = doors[key]
-		t.check(rooms.has(door["target_room"]), "%s leads to no room on the layout (%s)" % [key, door["target_room"]])
-		var far: Variant = doors.get("%s/%s" % [door["target_room"], door["target_door"]])
+		if not t.check(rooms.has(door["target_room"]), "%s leads to no room on the layout (%s)" % [key, door["target_room"]]):
+			continue
+		var far: Variant = doors.get("%s/%s" % [rooms[door["target_room"]]["world"], door["target_door"]])
 		if not t.check(far != null, "%s leads to %s/%s, which does not exist" % [key, door["target_room"], door["target_door"]]):
 			continue
-		t.equal("%s/%s" % [far["target_room"], far["target_door"]], key, "%s's far door leads back to it" % key)
+		t.equal("%s/%s" % [rooms[far["target_room"]]["world"], far["target_door"]], key, "%s's far door leads back to it" % key)
 		t.equal(str(far["side"]), str(OPPOSITE[door["side"]]), "%s's far door is in the opposite wall" % key)
 
 
@@ -127,12 +139,12 @@ func test_what_is_done_stays_done_across_rooms_and_a_load(t: TestContext) -> voi
 	var chest := _objects(t).get_node("nook-map-chest/ChestScript")
 	t.equal(str(chest.call(&"request_open")), "opened", "the nook's chest")
 	t.check(DungeonState.has_item(run, MAP_ID, DungeonState.MAP), "the map is not held")
-	# R7's small key, picked up by walking over it.
+	# R7's small key, in its chest on the landing.
 	if not await _enter(t, "r7-bell-bridge"):
 		return
-	var key := _objects(t).get_node("r7-small-key-2") as Node2D
-	t.teleport_player(key.global_position)
-	t.check(await t.until(func() -> bool: return DungeonState.small_keys(run, MAP_ID) == 1, 2000.0), "R7's key was not picked up")
+	var key_chest := _objects(t).get_node("r7-key-chest/ChestScript")
+	t.equal(str(key_chest.call(&"request_open")), "opened", "R7's key chest")
+	t.check(await t.until(func() -> bool: return DungeonState.small_keys(run, MAP_ID) == 1, 2000.0), "R7's key was not taken")
 	# The Postern's barricade, smashed by a Heavy Roll.
 	if not await _enter(t, "r14-postern"):
 		return
@@ -286,7 +298,172 @@ func test_the_lair_is_walked_from_the_mouth_to_the_arena_and_out_by_the_bolt_hol
 	t.check(out, "the bolt-hole did not lead up into D4 (in %s)" % t.world().map_id())
 
 
+## A door whose record is not set refuses even with no line of its own (R5's way to the sally port:
+## its crack speaks for itself), and lets the slime through once the record is set (2026-10-19 review:
+## an empty `locked_text` let it through).
+func test_a_door_with_no_line_still_waits_for_its_record(t: TestContext) -> void:
+	Services.run().set_flag(LairDirector.FLAG_CALLED)
+	if not await _enter(t, "r5-eye-hall"):
+		return
+	var room_door := t.world().world_root.get_node("RoomDoors/r5-to-sally")
+	t.equal(str(room_door.get(&"locked_text")), "", "R5's way to the sally port has a line")
+	t.check(bool(room_door.call(&"is_blocked")), "the sally port's door does not wait for the blown crack")
+	t.equal(str((room_door.get_node("DoorScript").call(&"use") as Dictionary).get("status", "")), "blocked", "the door let the slime through before the crack was blown")
+	Services.run().set_flag("fatty-lair.sally-port-open")
+	t.check(not bool(room_door.call(&"is_blocked")), "the sally port's door still waits after the crack was blown")
+
+
+## Every room door's link checks out in the editor's check (`pairing_problem`: the far door exists,
+## is in the opposite wall and leads back), and a door turned to the wrong wall is caught.
+func test_every_room_doors_editor_check_passes_and_catches_a_wrong_wall(t: TestContext) -> void:
+	var rooms := _layout_rooms()
+	var checked := 0
+	var wrong: Node = null
+	var wrong_room: Node = null
+	var scenes := {}
+	for room_name: String in rooms:
+		if scenes.has(rooms[room_name]["scene"]):
+			continue
+		scenes[rooms[room_name]["scene"]] = true
+		var scene := (load(str(rooms[room_name]["scene"])) as PackedScene).instantiate()
+		for door: Node in _room_doors(scene):
+			checked += 1
+			t.equal(str(door.call(&"pairing_problem")), "", "%s/%s's link" % [room_name, door.get(&"door_id")])
+		if wrong == null and not _room_doors(scene).is_empty():
+			wrong = _room_doors(scene)[0]
+			wrong_room = scene
+		else:
+			scene.free()
+	t.equal(checked, 50, "room doors checked")
+	if t.check(wrong != null, "no room door to turn"):
+		wrong.set(&"side", DoorScript.opposite(str(wrong.get(&"side"))))
+		t.check("wall" in str(wrong.call(&"pairing_problem")), "a door turned to the wrong wall passed the check")
+		wrong_room.free()
+
+
+## The compass's chest dots cover the rooms of other worlds (read from their scenes), and a chest
+## opened there is no longer shown.
+func test_the_compass_shows_the_chests_of_the_other_rooms(t: TestContext) -> void:
+	var run := Services.run()
+	if not await _enter(t, "r1-gatehouse"):
+		return
+	var dungeon := t.world().world_root.get_node("Dungeon")
+	var nook: Dictionary = {}
+	for room: Dictionary in dungeon.call(&"layout_rooms_elsewhere"):
+		if str(room["name"]) == "map-nook":
+			nook = room
+	if not t.check(not nook.is_empty(), "the map nook is not a room of another world on the layout"):
+		return
+	var spot := (nook["rect"] as Rect2).position + Vector2(832.0, 448.0)
+	var shows := func() -> bool:
+		for point: Vector2 in DungeonMapDraw.chest_points(dungeon):
+			if point.distance_to(spot) < 1.0:
+				return true
+		return false
+	t.check(shows.call(), "the map nook's chest has no dot on the compass from R1")
+	run.ensure_chest(MAP_ID, "nook-map-chest", {"dungeon-map": 1})
+	run.set_chest_remaining(MAP_ID, "nook-map-chest", {})
+	t.check(not shows.call(), "the map nook's opened chest still has a dot")
+
+
+## On the world map every room world is the Lair (an interior of D5's region): its "Current area".
+func test_every_room_world_is_the_lair_on_the_world_map(t: TestContext) -> void:
+	var lair := WorldMapWindow.region_of(MAP_ID)
+	if not t.check(not lair.is_empty(), "the Lair is no region's interior on the world map"):
+		return
+	for room: String in ["fatty-lair-r3-pit-hall", "fatty-lair-r13-fattys-arena", "fatty-lair-burr-cell"]:
+		t.equal(str(WorldMapWindow.region_of(room).get("key", "")), str(lair.get("key", "")), "%s's region" % room)
+		var label := WorldMapWindow.region_label(lair, PackedStringArray([MAP_ID]), room)
+		t.check(label.ends_with(WorldMapWindow.CURRENT_TEXT), "%s is not the Lair's current area (%s)" % [room, label])
+
+
+## While the Lair is sealed its room doors still go from room to room; only the ways out refuse.
+func test_a_sealed_lair_lets_the_slime_from_room_to_room_but_not_out(t: TestContext) -> void:
+	var run := Services.run()
+	run.set_flag(LairDirector.FLAG_CALLED)
+	if not await _enter(t, "r1-gatehouse"):
+		return
+	t.check(DungeonState.seal(run, MAP_ID, "fatty-one-eye", "test"), "the Lair did not seal")
+	var out: Dictionary = t.main.call(&"request_exit", {"map_id": MAP_ID, "target_area_id": "level-1-d5",
+		"target_door_id": "fatty-lair-mouth", "transition": "iris"})
+	t.equal(str(out.get("status", "")), "blocked", "the way out of the sealed Lair")
+	t.check(await _push_from(t, "r1-gatehouse", "r1-to-r2", true), "a sealed Lair's room door did not lead to R2")
+
+
+## A faint in Fatty's arena wakes the slime at the Lair's entrance, in R1's world (respawn_elsewhere).
+func test_a_faint_in_fattys_arena_wakes_at_the_entrance(t: TestContext) -> void:
+	Services.run().set_flag(LairDirector.FLAG_CALLED)
+	if not await _enter(t, "r1-gatehouse"):
+		return
+	var entrance := DungeonState.entrance(Services.run(), MAP_ID)
+	if not t.check(not entrance.is_empty(), "R1 recorded no entrance"):
+		return
+	if not await _enter(t, "r13-fattys-arena"):
+		return
+	_faint(t)
+	t.check(t.player().is_dead(), "the slime did not faint")
+	var woke := await t.until(func() -> bool:
+		return t.in_world(MAP_ID) and t.player() != null and not t.player().is_dead() and not bool(t.main.call(&"is_transitioning")), 8000.0, 10000.0)
+	if not t.check(woke, "the slime did not wake in R1 (in %s)" % t.world().map_id()):
+		return
+	await t.steps(2)
+	t.near_vec(t.player().get_centre(), Vector2(float(entrance["x"]), float(entrance["y"])), 2.0, "where the fainted slime woke")
+
+
+## The Inner Stair goes to the Crypt's world and the slime arrives facing the stair's
+## `arrival_facing` (up), not the way it walked in (down).
+func test_the_inner_stair_arrives_facing_its_arrival_facing(t: TestContext) -> void:
+	var run := Services.run()
+	run.set_flag(LairDirector.FLAG_CALLED)
+	run.set_flag("fatty-lair.inner-stair-open")
+	if not await _enter(t, "r3-pit-hall"):
+		return
+	var hatch := _lair(t, "inner-stair")
+	var rect: Rect2 = hatch.get(&"trigger_rect")
+	t.teleport_player(hatch.global_position + rect.get_center())
+	t.player().face(Vector2.DOWN)
+	await t.steps(2)
+	t.press(&"move_down")
+	var down := await t.until(func() -> bool: return t.in_world("fatty-lair-r8-guard-crypt"), 5000.0)
+	t.release(&"move_down")
+	if not t.check(down, "the Inner Stair did not lead to the Crypt (in %s)" % t.world().map_id()):
+		return
+	await _settled(t)
+	t.near_vec(t.player().get_facing(), Vector2.UP, 0.01, "the slime's facing at the stair's foot")
+
+
+## The music carries on through a room door: the same track, not started over.
+func test_the_music_carries_on_through_a_room_door(t: TestContext) -> void:
+	if not await _enter(t, "r1-gatehouse"):
+		return
+	var music := Services.music()
+	var before: AudioStreamPlayer = music.world_track() if music != null else null
+	if before == null:
+		t.note("no world track in this run: nothing to check")
+		return
+	if not t.check(await _push_from(t, "r1-gatehouse", "r1-to-r2", true), "R1's east door did not lead to R2"):
+		return
+	t.check(music.world_track() == before, "the room door started the music over")
+
+
 # --- helpers ------------------------------------------------------------------------------------
+
+## A hit the slime cannot survive (true damage), from a stand-in source.
+func _faint(t: TestContext) -> void:
+	var area: Area2D = t.player().get_damage_area()
+	var router := Services.router()
+	var source := Node2D.new()
+	var attack := Area2D.new()
+	t.main.add_child(source)
+	t.main.add_child(attack)
+	var activation := router.begin_activation(source, [attack])
+	router.route({"activation_id": activation, "source": source, "attack_area": attack, "target_area": area,
+		"weapon_id": "test-hit", "weapon_tags": ["weapon"], "damage_types": ["physical"], "base_damage": 9999.0,
+		"true_damage": true, "effects": [], "impact": {"position": area.global_position, "knock": Vector2.UP}})
+	router.end_activation(activation)
+	source.queue_free()
+	attack.queue_free()
+
 
 ## Walks every room door of `room_names` with every lock opened: from its arrival spot it pushes
 ## out through the door and must come out in the target room at the far door's arrival spot, the
@@ -378,8 +555,7 @@ func _check_kept(t: TestContext, plate_held: bool) -> void:
 	t.check(bool(_objects(t).get_node("nook-map-chest/ChestScript").call(&"is_empty")), "the nook's chest is full again")
 	if not await _enter(t, "r7-bell-bridge"):
 		return
-	t.check(_objects(t).get_node_or_null("r7-small-key-2") == null or not (_objects(t).get_node("r7-small-key-2") as Node2D).visible
-		or (_objects(t).get_node("r7-small-key-2") as Node2D).is_queued_for_deletion(), "R7's key is back on the floor")
+	t.check(bool(_objects(t).get_node("r7-key-chest/ChestScript").call(&"is_empty")), "R7's key chest is full again")
 	if not await _enter(t, "r14-postern"):
 		return
 	t.check(bool(_objects(t).get_node("r14-barricade").call(&"is_smashed")), "the Postern's planks are whole again")
@@ -440,8 +616,9 @@ static func _room_doors(scene: Node) -> Array[Node]:
 	return out
 
 
+## The world of the layout's room `room_name` (R5's lower hall and key alcove are rooms of R5's world).
 static func _world_of(room_name: String) -> String:
-	return "fatty-lair" if room_name == "r1-gatehouse" else "fatty-lair-" + room_name
+	return str(_layout_rooms()[room_name]["world"])
 
 
 static func _action(direction: Vector2) -> StringName:

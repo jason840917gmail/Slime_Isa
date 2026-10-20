@@ -2,12 +2,15 @@ extends RefCounted
 ## A Goo Heart inside a chest (docs/godot/DUNGEONS.md "Chests"; chest.gd `goo_heart_id`), in the
 ## plank lab's island (game/dev/planks/playground-planks.tscn): opening the chest grants the heart
 ## once (its flag "goo-heart.<id>", max HP up by `gooHeart.maxHpBonus`, health full), with only the
-## heart inside no window opens, a heart beside other things opens the window on them, the dungeon
-## chest does the same, and the opened chest stays open in a save loaded again.
+## heart inside no window opens, a heart beside other things opens the window on them once the heart
+## has risen (one `open_requested`, the world running meanwhile), the dungeon chest does the same,
+## and the opened chest stays open in a save loaded again.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
+const Chest := preload("res://game/scripts/chest.gd")
 
+const HEART_RISE_MS := Chest.HEART_RISE_MS
 const LAB := "playground-planks"
 const SLOT := 4
 const FEET := 27.56
@@ -31,10 +34,13 @@ func test_a_chest_grants_its_heart_once_and_stays_open(t: TestContext) -> void:
 	t.equal(player.get_hp(), player.get_max_hp(), "health after the chest's heart")
 	t.check(bool(chest.call(&"is_empty")), "the chest is not empty after giving its heart")
 	t.check(_window_chest(t) == null, "a chest with only a heart opened the chest window")
-	# Opened again: nothing more.
+	# Opened again: nothing more, and still no window once the heart has risen.
 	chest.call(&"request_open")
 	await t.steps(2)
 	t.equal(player.get_max_hp(), max_before + bonus, "max HP after opening the chest again")
+	await t.sim_wait(HEART_RISE_MS + 100.0)
+	t.check(not bool(chest.call(&"is_heart_rising")), "the heart is still rising")
+	t.check(_window_chest(t) == null, "a chest with only a heart opened the chest window after its rise")
 	var window := _window(t)
 	if window != null and window.has_method(&"close"):
 		window.call(&"close")
@@ -60,13 +66,23 @@ func test_a_heart_beside_other_things_and_in_a_dungeon_chest(t: TestContext) -> 
 	var player := t.player()
 	var bonus := Services.constants().integer("character.player.gooHeart.maxHpBonus")
 	var max_before := player.get_max_hp()
-	# A heart and wood: the heart rises, the window shows the wood.
+	# A heart and wood: the heart rises first (the world runs on), then the window shows the wood.
 	var mixed := _chest(t, "heart-wood-chest")
+	var requested: Array = []
+	mixed.connect(&"open_requested", func(payload: Dictionary) -> void: requested.append(payload))
+	var opened_at := t.now()
 	t.equal(str(mixed.call(&"request_open")), "opened", "the mixed chest's opening")
 	await t.steps(2)
 	t.check(run.has_flag("goo-heart.plank-lab-heart-2"), "the mixed chest's heart flag is not set")
 	t.equal(player.get_max_hp(), max_before + bonus, "max HP after the mixed chest")
-	t.check(_window_chest(t) == mixed, "the mixed chest's window did not open on its wood")
+	t.check(_window_chest(t) == null, "the mixed chest's window opened before its heart rose")
+	t.check(not t.tree.paused, "the world paused while the heart rises")
+	t.equal(str(mixed.call(&"request_open")), "opened", "the mixed chest asked again during the rise")
+	var shown := await t.until(func() -> bool: return _window_chest(t) == mixed, HEART_RISE_MS + 1000.0)
+	t.check(shown, "the mixed chest's window did not open on its wood")
+	t.check(t.now() - opened_at >= HEART_RISE_MS - 1.0, "the window opened %.0f ms after the chest, before the heart rose" \
+		% (t.now() - opened_at))
+	t.equal(requested.size(), 1, "the mixed chest's open_requested count")
 	t.check(not bool(mixed.call(&"is_empty")), "the mixed chest lost its wood")
 	var window := _window(t)
 	if window != null and window.has_method(&"close"):

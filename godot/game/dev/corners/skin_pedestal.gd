@@ -1,8 +1,9 @@
 extends Node2D
 ## A playground skin pedestal (docs/godot/SKINS.md "The Skins corner"): a dev stand-in for a Pearl,
 ## so each skin can be tried with and without it. Interact (W / right click) lends skin `skin_id`
-## for the session (SkinState.lend: always on, made the everyday look, never saved), and again gives
-## it back (SkinState.give_back). A skin won for good stays: the pedestal says so. Its icon
+## for the session (SkinState.lend: always on, never saved; the look stays as it was, a skin shows
+## only while it works, docs/godot/SKINS.md), and again gives it back (SkinState.give_back). A skin
+## won for good stays: the pedestal says so. Its icon
 ## (asset/UI/skins/<skin>-icon.webp) floats over the stone, bright while the skin is on.
 ##
 ## Owner: skins (the playground).
@@ -80,7 +81,6 @@ func use() -> bool:
 			feel.audio_cue(&"GulpBurp")
 	else:
 		SkinState.lend(id)
-		SkinState.set_look(id)
 		text = "%s on (for this session)" % SkinState.display_name(id)
 		SkinState.ceremony_line(id)
 		if feel != null:

@@ -19,9 +19,10 @@ extends TileMapLayer
 ## with `frame_drawn_by_wall` they draw only their leaf from the style's sheet, which fills the
 ## opening exactly (`leaf_at`).
 ##
-## The pieces come from scripts/art/pack-interior-walls.py; this draws them and saves only the
-## cells. They lie under every body (z -1): bodies walk over a face's foot as in Zelda. Every wall
-## cell is solid but an opening's passage. The palette squares never show in the game.
+## The pieces come from scripts/art/pack-interior-walls.py; this draws them (nothing it draws is
+## saved: the layer keeps only its cells, and the closed doors' objects are the room's own nodes).
+## They lie under every body (z -1): bodies walk over a face's foot as in Zelda. Every wall cell is
+## solid but an opening's passage. The palette squares show in the editor only.
 ##
 ## Owner: world (interior walls).
 
@@ -65,6 +66,10 @@ const DOOR_KIND_META := &"interior_door_kind"
 const DOOR_TAGS: Array[StringName] = [DOOR_BLOCK_META, DOOR_KIND_META]
 ## How near (units) an untagged door must stand to an opening's spot to be adopted.
 const ADOPT_REACH := 40.0
+## How far (units) from a cracked block's middle a blast still opens it (`change_opening_at`).
+const BLAST_REACH := CELL * 3.0
+## How often (ms, real time) the editor looks for a repacked table or sheet (`_check_caches`).
+const CACHE_CHECK_MS := 1000
 
 ## How strongly the painted squares show over the walls in the editor (0 hides them).
 @export_range(0.0, 1.0) var paint_opacity: float = 0.3:
@@ -100,7 +105,13 @@ var _pieces: Array[Dictionary] = []
 ## Opening blocks: [{"side", "kind", "cell": top-left, "style"}].
 var _openings: Array[Dictionary] = []
 static var _table := {}
+## The table file's modified time when it was read (the editor reads it again once it changes).
+static var _table_time := 0
+## The sheets read (path -> texture) and their files' modified times when read (`picture`).
 static var _textures := {}
+static var _texture_times := {}
+## When (ms, real time) the editor last looked for a repacked table or sheet (`_check_caches`).
+static var _checked_ms := -1
 
 
 func _enter_tree() -> void:
@@ -118,25 +129,57 @@ func _ready() -> void:
 	_rebuild()
 
 
+## The palette squares show in the editor only. The layer is enabled there whatever the scene says (a
+## scene saved by a headless tool keeps the game's `enabled = false`, which hid the squares).
 func _apply_opacity() -> void:
 	self_modulate.a = paint_opacity if Engine.is_editor_hint() else 0.0
-	if not Engine.is_editor_hint():
-		enabled = false
+	enabled = Engine.is_editor_hint()
 
 
 func _queue_rebuild() -> void:
 	if _queued or not is_inside_tree():
 		return
 	_queued = true
-	_rebuild.call_deferred()
+	_rebuild_queued.call_deferred()
+
+
+## The queued rebuild, unless a direct one (`change_opening_at`) has drawn the change since.
+func _rebuild_queued() -> void:
+	if _queued:
+		_rebuild()
 
 
 ## The styles' table (interior-walls.json).
 static func table() -> Dictionary:
+	_check_caches()
 	if _table.is_empty():
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(TABLE))
 		_table = parsed if parsed is Dictionary else {}
+		_table_time = _modified(TABLE)
 	return _table
+
+
+## In the editor, drops the cached table and sheets whose files were written again since they were
+## read (a repack shows on the layer's next redraw, without restarting the editor); checked at most
+## every CACHE_CHECK_MS. The game reads them once.
+static func _check_caches() -> void:
+	if not Engine.is_editor_hint():
+		return
+	var now := Time.get_ticks_msec()
+	if _checked_ms >= 0 and now - _checked_ms < CACHE_CHECK_MS:
+		return
+	_checked_ms = now
+	if not _table.is_empty() and _modified(TABLE) != _table_time:
+		_table = {}
+	for path: String in _textures.keys():
+		if _modified(path) != int(_texture_times.get(path, 0)):
+			_textures.erase(path)
+			_texture_times.erase(path)
+
+
+## The file's modified time, 0 when it cannot be read (an exported game's packed files).
+static func _modified(path: String) -> int:
+	return FileAccess.get_modified_time(path) if FileAccess.file_exists(path) else 0
 
 
 static func _number(key: String, fallback: float) -> float:
@@ -387,6 +430,12 @@ static func _period(style: String, side: String) -> int:
 	return maxi(1, int((periods as Dictionary).get(side, 3))) if periods is Dictionary else 3
 
 
+## True for a run piece ("n0", "e2": its side and its place along the run), false for an outer corner
+## ("nw", "ne", "sw", "se"), an inner corner or an opening.
+static func _is_run(name: String) -> bool:
+	return name.length() == 2 and name[1].is_valid_int()
+
+
 # --- drawing ---------------------------------------------------------------------------------
 
 func _rebuild() -> void:
@@ -409,7 +458,7 @@ func _rebuild() -> void:
 	# runs first, corners and openings over them (an opening's ends fade into its run)
 	var order: Array[Dictionary] = []
 	for p in _pieces:
-		if str(p["piece"]).length() == 2 and not str(p["piece"]).begins_with("in"):
+		if _is_run(str(p["piece"])):
 			order.append(p)
 	for p in _pieces:
 		if not order.has(p):
@@ -431,12 +480,13 @@ func _rebuild() -> void:
 
 
 ## Keeps a door object in every opening painted with a closed door (DOOR_KINDS), under the room's
-## `Objects` node (made when missing): an untagged door of that kind already at the opening's spot is
-## adopted (tagged), else (with `create`) one is made from the kind's scene, placed on the floor line
-## in the middle of the passage, `wall` its side, `frame_drawn_by_wall` on, the layer's style, a
-## unique `door_id`. A tagged door whose opening is no longer painted with its kind is let go (with
-## `create`; game/world/painted_objects.gd `retire`): removed when the layer made it and nothing of it
-## was changed since, else kept, untagged, with a warning, and adopted again when its block is painted
+## `Objects` node (made when missing; doors grouped under plain nodes in it, `Objects/Doors`, count
+## too): an untagged door of that kind already at the opening's spot is adopted (tagged), else (with
+## `create`) one is made from the kind's scene, placed on the floor line in the middle of the passage,
+## `wall` its side, `frame_drawn_by_wall` on, the layer's style, a unique `door_id`. A tagged door
+## whose opening is no longer painted with its kind is let go (with `create`;
+## game/world/painted_objects.gd `retire`): removed when the layer made it and nothing of it was
+## changed since, else kept, untagged, with a warning, and adopted again when its block is painted
 ## back, so its settings (a door id, a fight id: save records) are never lost to a stroke or an undo.
 ## Returns the doors made.
 func sync_doors(create: bool) -> int:
@@ -463,8 +513,9 @@ func sync_doors(create: bool) -> int:
 		(objects as Node2D).y_sort_enabled = true
 		room.add_child(objects)
 		objects.owner = owner_node
+	var placed := objects_in(objects)
 	var tagged := {}
-	for node: Node in objects.get_children():
+	for node in placed:
 		if node.has_meta(DOOR_BLOCK_META):
 			tagged[str(node.get_meta(DOOR_BLOCK_META))] = node
 	var made := 0
@@ -476,16 +527,20 @@ func sync_doors(create: bool) -> int:
 		if node != null and str(node.get_meta(DOOR_KIND_META, "")) != kind:
 			# repainted with another kind: the old door is let go, the new one comes
 			if create:
-				PaintedObjects.retire(node, DOOR_TAGS, "InteriorWallLayer")
+				placed.erase(node)
+				if not PaintedObjects.retire(node, DOOR_TAGS, "InteriorWallLayer"):
+					placed.append(node)
 			node = null
 		if node == null:
-			node = _adoptable(objects, kind, spot)
+			node = _adoptable(placed, kind, spot)
 			if node != null:
 				node.set_meta(DOOR_BLOCK_META, key)
 				node.set_meta(DOOR_KIND_META, kind)
 		if node == null and create:
-			node = _make_door(objects, owner_node, opening, key, spot)
-			made += 1
+			node = _make_door(objects, owner_node, placed, opening, key, spot)
+			if node != null:
+				placed.append(node)
+				made += 1
 		tagged.erase(key)
 	if create:
 		for key: String in tagged:
@@ -510,22 +565,43 @@ func _door_spot(opening: Dictionary) -> Vector2:
 	return position + at
 
 
-## An untagged door of `kind`'s scene standing within ADOPT_REACH of `spot`, or null.
-func _adoptable(objects: Node, kind: String, spot: Vector2) -> Node:
-	var scene := str(DOOR_KINDS[kind]["scene"])
+## The objects under `objects`: its children and, through plain nodes that group them (no scene of
+## their own: `Objects/Doors`), theirs. An object's own insides are not searched.
+static func objects_in(objects: Node) -> Array[Node]:
+	var out: Array[Node] = []
 	for node: Node in objects.get_children():
+		out.append(node)
+		if node.scene_file_path.is_empty() and node.get_script() == null:
+			out.append_array(objects_in(node))
+	return out
+
+
+## `node`'s position in the room's space (this layer's parent's), through the nodes it is grouped in.
+func _room_position(node: Node2D) -> Vector2:
+	var xform := node.transform
+	var up := node.get_parent()
+	while up != null and up != get_parent():
+		if up is Node2D:
+			xform = (up as Node2D).transform * xform
+		up = up.get_parent()
+	return xform.origin
+
+
+## An untagged door of `kind`'s scene among `placed` standing within ADOPT_REACH of `spot`, or null.
+func _adoptable(placed: Array[Node], kind: String, spot: Vector2) -> Node:
+	var scene := str(DOOR_KINDS[kind]["scene"])
+	for node in placed:
 		if node.has_meta(DOOR_BLOCK_META) or not node is Node2D or node.scene_file_path != scene:
 			continue
 		if kind == "key1" or kind == "key2":
 			if int(node.get(&"keyholes")) != int(DOOR_KINDS[kind]["props"]["keyholes"]):
 				continue
-		var at := (node as Node2D).position + ((objects as Node2D).position if objects is Node2D else Vector2.ZERO)
-		if at.distance_to(spot) <= ADOPT_REACH:
+		if _room_position(node as Node2D).distance_to(spot) <= ADOPT_REACH:
 			return node
 	return null
 
 
-func _make_door(objects: Node, owner_node: Node, opening: Dictionary, key: String, spot: Vector2) -> Node:
+func _make_door(objects: Node, owner_node: Node, placed: Array[Node], opening: Dictionary, key: String, spot: Vector2) -> Node:
 	var kind := str(opening["kind"])
 	var packed := load(str(DOOR_KINDS[kind]["scene"])) as PackedScene
 	if packed == null:
@@ -533,11 +609,15 @@ func _make_door(objects: Node, owner_node: Node, opening: Dictionary, key: Strin
 	var node := packed.instantiate() as Node2D
 	var side := str(opening["side"])
 	var room_name := String(get_parent().name)
-	# a name (and door id) of its own, beside a door of the same block kept for its settings
+	# a name (and door id) of its own, beside a door of the same block kept for its settings (in
+	# `Objects` or grouped deeper in it)
+	var taken := {}
+	for other in placed:
+		taken[String(other.name)] = true
 	var base := "%s-%s-%s" % [room_name, kind, key.replace(",", "-")]
 	node.name = base
 	var n := 2
-	while objects.has_node(NodePath(String(node.name))):
+	while taken.has(String(node.name)) or objects.has_node(NodePath(String(node.name))):
 		node.name = "%s-%d" % [base, n]
 		n += 1
 	node.position = spot - ((objects as Node2D).position if objects is Node2D else Vector2.ZERO)
@@ -593,11 +673,10 @@ func _draw_fill(size: Vector2, holder: Node2D) -> void:
 	var covered := {}
 	for p in _pieces:
 		var name := str(p["piece"])
+		# a run is one cell along by two deep; corners, inner corners and openings are 2 x 2
 		var extent := Vector2i(DEPTH, DEPTH)
-		if name.length() == 2 and (name[0] == "n" or name[0] == "s"):
-			extent = Vector2i(1, DEPTH)
-		elif name.length() == 2 and (name[0] == "w" or name[0] == "e"):
-			extent = Vector2i(DEPTH, 1)
+		if _is_run(name):
+			extent = Vector2i(1, DEPTH) if name[0] == "n" or name[0] == "s" else Vector2i(DEPTH, 1)
 		for j in extent.y:
 			for i in extent.x:
 				covered[(p["cell"] as Vector2i) + Vector2i(i, j)] = true
@@ -664,13 +743,24 @@ func _ground_layer() -> TileMapLayer:
 	return null
 
 
-## The sheet at `path`: its imported texture, unless the file was packed again after its import
-## (an editor holds the project and has not imported it yet: the file is read itself), so a repack
-## shows at once (game/runtime/sheet_sprite.gd does the same for files never imported).
+## The sheet at `path`, read once and shared by the walls, the floor and every door's leaf (the
+## editor reads it again once the file is packed again: `_check_caches`).
 static func picture(path: String) -> Texture2D:
+	_check_caches()
+	if not _textures.has(path):
+		_textures[path] = _read_picture(path)
+		_texture_times[path] = _modified(path)
+	return _textures[path]
+
+
+## The sheet's imported texture, unless the file was packed again after its import (an editor holds
+## the project and has not imported it yet: the file is read itself), so a repack shows without an
+## import (game/runtime/sheet_sprite.gd does the same for files never imported).
+static func _read_picture(path: String) -> Texture2D:
 	var file := ProjectSettings.globalize_path(path)
 	var imported := file + ".import"
-	if FileAccess.file_exists(imported) and FileAccess.file_exists(file) 			and FileAccess.get_modified_time(file) > FileAccess.get_modified_time(imported):
+	if FileAccess.file_exists(imported) and FileAccess.file_exists(file) \
+			and FileAccess.get_modified_time(file) > FileAccess.get_modified_time(imported):
 		var image := Image.load_from_file(file)
 		if image != null and not image.is_empty():
 			image.generate_mipmaps()
@@ -716,10 +806,8 @@ static func piece_sprite(style: String, name: String) -> Sprite2D:
 
 
 static func _sprite(path: String, region: Rect2) -> Sprite2D:
-	if not _textures.has(path):
-		_textures[path] = picture(path)
 	var sprite := Sprite2D.new()
-	sprite.texture = _textures[path]
+	sprite.texture = picture(path)
 	sprite.region_enabled = true
 	sprite.region_rect = region
 	sprite.centered = false
@@ -757,8 +845,9 @@ static func leaf_at(style: String, wall: String, kind: String) -> Dictionary:
 		"size": Vector2(float(region[2]), float(region[3])) / DENSITY}
 
 
-## Every wall cell is solid but an opening's passage (`interior.gapUnits` wide in the middle of its
-## block, through its whole depth); a cracked stretch is solid until blown.
+## Every wall cell is solid but an opening's passage (`interior.gapUnits` wide in the middle of a north
+## or south block, `interior.sideGapUnits` tall in the middle of an east or west one, through its
+## whole depth); a cracked stretch is solid until blown.
 func _build_collision(size: Vector2) -> void:
 	var old := get_node_or_null(COLLISION)
 	if old != null:
@@ -769,7 +858,9 @@ func _build_collision(size: Vector2) -> void:
 	body.collision_mask = 0
 	add_child(body)
 	var gap := _number("gapUnits", 64.0)
-	# a side door's passage is taller: the slime walks it at its feet, below the door's middle
+	# a side door's passage is taller, centred on its block like a north or south one's: taller than
+	# the drawn passage (about 64), as the slime walks it at its feet; a door object's body (at least
+	# 128 long) still closes it whole
 	var side_gap := _number("sideGapUnits", 120.0)
 	var passage := {}
 	var passages: Array[Rect2] = []
@@ -826,29 +917,32 @@ static func _add_box(body: StaticBody2D, rect: Rect2) -> void:
 	body.add_child(shape)
 
 
-## A cracked wall's hole: the opening block nearest `point` (world units) turns into `kind`
-## ("blown") and the wall redraws. Returns false when no opening is there.
+## A cracked wall's hole: every cracked block within BLAST_REACH of `point` (world units) turns into
+## `kind` ("blown"), so a crack painted in both rooms' rims opens on both sides; a doorway or a door's
+## block nearby never changes. The wall redraws once. Returns false when no cracked block is there.
 func change_opening_at(point: Vector2, kind: String) -> bool:
 	var size := Vector2(tile_set.tile_size)
-	var best := -1
-	var best_distance := INF
-	for i in _openings.size():
-		var centre := (Vector2(_openings[i]["cell"] as Vector2i) + Vector2(DEPTH, DEPTH) * 0.5) * size
-		var distance := centre.distance_to(to_local(point))
-		if distance < best_distance:
-			best_distance = distance
-			best = i
-	if best < 0 or best_distance > CELL * 3.0:
+	var at := to_local(point)
+	var changed_any := false
+	for opening in _openings:
+		if str(opening["kind"]) != "cracked":
+			continue
+		var centre := (Vector2(opening["cell"] as Vector2i) + Vector2(DEPTH, DEPTH) * 0.5) * size
+		if centre.distance_to(at) > BLAST_REACH:
+			continue
+		var tile := _tile_for(str(opening["style"]), kind)
+		if tile.x < 0:
+			continue
+		var from := opening["cell"] as Vector2i
+		for j in DEPTH:
+			for i in DEPTH:
+				if is_wall(from + Vector2i(i, j)):
+					set_cell(from + Vector2i(i, j), 0, tile)
+		changed_any = true
+	if not changed_any:
 		return false
-	var opening := _openings[best]
-	var tile := _tile_for(str(opening["style"]), kind)
-	if tile.x < 0:
-		return false
-	var from := opening["cell"] as Vector2i
-	for j in DEPTH:
-		for i in DEPTH:
-			if is_wall(from + Vector2i(i, j)):
-				set_cell(from + Vector2i(i, j), 0, tile)
+	# the cells' change signal comes now, so the rebuild it queues is dropped for this direct one
+	update_internals()
 	_rebuild()
 	return true
 

@@ -8,9 +8,11 @@ extends DoorScript
 ##
 ## Owner: dungeon kit.
 
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+
 const CUE_REFUSED := &"GateLocked"
+## How far over the slime its refusal shows (presentation).
 const REFUSAL_RISE := 70.0
-const REFUSAL_MS := 2000.0
 
 
 func use() -> Dictionary:
@@ -18,9 +20,10 @@ func use() -> Dictionary:
 	if main == null or not main.has_method(&"request_exit"):
 		return {"status": "blocked", "message": "Navigation unavailable"}
 	var room_door := get_parent()
-	var refusal := str(room_door.call(&"refusal")) if room_door != null and room_door.has_method(&"refusal") else ""
-	if not refusal.is_empty():
-		_say(refusal)
+	if room_door != null and room_door.has_method(&"is_blocked") and bool(room_door.call(&"is_blocked")):
+		var refusal := str(room_door.call(&"refusal"))
+		if not refusal.is_empty():
+			_say(refusal)
 		return {"status": "blocked", "message": refusal}
 	var at := (room_door as Node2D).global_position if room_door is Node2D else Vector2.ZERO
 	var result: Dictionary = main.call(&"request_exit", {"map_id": map_id, "exit_id": door_id,
@@ -44,4 +47,5 @@ func _say(text: String) -> void:
 	if feel == null or world == null or world.player == null or not is_instance_valid(world.player):
 		return
 	feel.audio_cue(CUE_REFUSED)
-	feel.floating_text(world.player.call(&"get_centre") - Vector2(0.0, REFUSAL_RISE), text, &"white", false, REFUSAL_MS)
+	feel.floating_text(world.player.call(&"get_centre") - Vector2(0.0, REFUSAL_RISE), text, &"white", false,
+			DungeonState.number("door.lineMs", 2000.0))

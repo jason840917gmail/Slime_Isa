@@ -65,7 +65,9 @@ hole**, **stairs**; the closed doors: **key door with one lock**, **with two loc
    settings and all, when the block is painted back, so an erase undone with Ctrl+Z keeps the door and
    its save records (2026-10-19: before, erasing a cell of the hub's boss door block and undoing it gave
    the door a new id). Delete such a door by hand when it should go. A door of the right kind already
-   standing at the spot is adopted. The builder's
+   standing at the spot is adopted. Doors may be grouped under a plain node in `Objects` (say
+   `Objects/Doors`): the layer finds them there too, so a door moved into a group keeps its block and
+   gets no twin. The builder's
    doors in the Lair's rims are adopted this way (all but R5's way back, which stands in the lower
    hall's painted doorway as a placed door).
 5. The camera room keeps its rect or outline; the rim is inside it (doors stay on the room's edge).
@@ -73,16 +75,20 @@ hole**, **stairs**; the closed doors: **key door with one lock**, **with two loc
    room and pick its target in the Inspector (DUNGEON_ROOMS.md "Fatty's Lair: one world per room").
 
 A pocket room of a shell (CameraRoom meta `walls_in`) keeps no walls of its own: paint them in the
-room it is cut from. Fatty's Lair's pockets (Burr's cell, the store, R5's lower hall and key alcove)
-are their own worlds since 2026-10-18 and have their own `interior-walls` (the lower hall's, the
-alcove's and the cell's a copy of the rim they shared with the eye hall and the hub; their
-`walls_in` meta stays and changes nothing in a world of one room).
+room it is cut from. Fatty's Lair's pockets (Burr's cell, the store, the map nook, the sally port)
+are their own worlds and each paints its own full rim, the parent world painting rock behind its own
+faces round the pocket, the door cut into them (2026-10-19; DUNGEON_ROOMS.md "The pockets"). R5's lower
+hall and key alcove are rooms of R5's world again, behind dividers: R5 has one rim.
 
 The layer draws the style's **floor** (`draw_floor`, on by default; each style its own plain floor;
-`floor_style` names another) over the floor cells; off, the ground layer shows. Nothing is saved but
-the cells and the doors; the palette squares show in the editor only (`paint_opacity`). A void or pit
-inside a room still uses the `elevation` layer's holes and their edges. `tools/render_interior_palette_room.gd`
-renders a room painted with every closed-door tile.
+`floor_style` names another) over the floor cells; off, the ground layer shows. Nothing the layer
+draws is saved (faces, floor, fronts, collision): the scene keeps its cells, its own settings and the
+door objects with theirs. The palette squares show in the editor only (`paint_opacity`): there the
+layer is always enabled, whatever the scene says (17 of the Lair's rooms were saved by a headless tool
+with `enabled = false` and the squares at alpha 0; the editor shows their squares again since
+2026-10-19), and in the game it is disabled and see-through. A void or pit inside a room still uses
+the `elevation` layer's holes and their edges. `tools/render_interior_palette_room.gd` renders a room
+painted with every closed-door tile.
 
 ## Editing rooms by hand
 
@@ -111,12 +117,14 @@ layer and paint the sunken cells with a hole level (-1 a spike or lava pit, -3 a
 flights of stairs; the pit's rims, walls and stairs follow the paint by themselves and show in the
 editor at once (the elevation layer's preview), as in the game. **Inside a room a level change is
 drawn as the room's own wall face** (owner, 2026-10-19, after ALttP; ELEVATION.md "Faces in
-rooms"): the faces looking down at the lower floor are the room style's bevel runs, one cell a
-level, the sides the side wall's strip, mitred, their cap on the upper floor's edge; decks (slabs,
+rooms"): the faces looking down at the lower floor are the room style's bevel runs, one cell for
+any drop, the sides the side wall's strip, mitred, their cap on the upper floor's edge; decks (slabs,
 landings, drawbridges) draw over them. The collision, the ledge drops and the slabs are the
 outdoor ones. The room's floor lies under the elevation's drawing (on the ground layer), so the
 faces always show.
-After painting, bake the world's cache (`tools/bake_elevation.gd -- --world=<world>`).
+After painting, the next F5/F6 run that builds the world saves its cache by itself (ELEVATION.md
+"Baked cache"); bake it by hand (`tools/bake_elevation.gd -- --world=<world>`) only when you will not
+run it.
 
 What hurts is a hazard (`object.hazard`, DUNGEONS.md "The void, slabs and spikes"). **One hazard per
 floor level; it hurts only on its level**: its `level` (the floor it covers; -99, the default, is
@@ -167,10 +175,14 @@ scene alone, as the editor shows it.
 
 ## Collision
 
-Every wall cell is solid but an opening's **passage**: `interior.gapUnits` (64) wide in the middle of
-its block, through both rows; the jambs either side stay solid. A cracked stretch is solid until
-blown. The door objects' bodies (128 wide, on the floor line) close the passage while shut. The
-overworld's `ArcadeMover` rules apply.
+Every wall cell is solid but an opening's **passage**, through both rows of its block: in a north or
+south block `interior.gapUnits` (64) wide in its middle, in an east or west block
+`interior.sideGapUnits` (120) tall in its middle (taller than the drawn passage, about 64, as the
+slime walks it at its feet); the jambs either side stay solid. A cracked stretch is solid until
+blown. The door objects' bodies, on the floor line and turned with their `wall`, close the passage
+while shut: a dungeon door's is 128 long, a plank barricade's 132 (it turns for an east or west wall
+only while `frame_drawn_by_wall` is on; an old trunk or fence with the same script keeps the rotation
+it was placed with). The overworld's `ArcadeMover` rules apply.
 
 ## The door objects in the opening
 
@@ -183,17 +195,17 @@ it fills the opening exactly in its side's perspective (`InteriorWallLayer.leaf_
 |---|---|
 | key door (`key_door.gd`) | `key2` while two padlocks are shut, `key1` with one (a keyhole opened swaps it) |
 | boss door | `boss` (the gilded double door) |
-| bolted door (`bolted_door.gd`) | `bolt` |
+| bolted door (`bolted_door.gd`) | `bolt` on the side the bolt slides from; on the far side (`bolt_here` off, R1's north door) `shutter`, the plain shut slab: the sheet has no wooden leaf without a bolt, and a door shut from the other side reads as a shutter, as in Zelda |
 | shutter (`shutter.gd`) | `shutter` (the thorn-bordered block; it fades in and out as it rises and sinks) |
 | the seal (`dungeon_seal.gd`) | `seal` (the white block with the dark pearl; its ring of light lies over the pearl) |
-| cracked wall (`cracked_wall.gd`) | none: the wall's C block draws the crack; the blast turns it into H (`change_opening_at`), which opens the passage; a wall already blown (its flag) is turned when the world is built |
+| plank barricade (`plank_barricade.gd`) | `barricade` (grey boards); smashed, nothing (the opening shows); the barricade turns with its `wall` like a door |
+| cracked wall (`cracked_wall.gd`) | none: the wall's C block draws the crack; the blast turns every cracked block within three cells of it into H (`change_opening_at`; never a doorway or a door's block), which opens the passage; a wall already blown (its flag) is turned when the world is built |
 
 The padlocks and the bolt are part of the leaf's picture (their old sprites hide); `interior_style`
 names the sheet. Place a door object as today (DUNGEONS.md): on the floor line of the room its face
 looks into, in the middle of the passage, `wall` that room's wall. With the rim two cells deep, for a
 north opening whose block starts at column c on rows r, r + 1: (c + 1, r + 2) x 64; south (rows r,
 r + 1): (c + 1, r) x 64; west (columns c, c + 1, from row r): (c + 2, r + 1) x 64; east: (c, r + 1) x 64.
-The sheet also has a `barricade` leaf (plank boards) for the Lair's plank barricade, not wired yet.
 
 ## The sheet
 
@@ -203,9 +215,17 @@ one stone, one scale and one light, and writes `godot/asset/MAPS/walls/interior/
 `<style>-floor.webp`, `interior-walls.json` and the palette (`palette.png`, its tiles pictures of
 the pieces, and `game/world/interior/interior_wall_tileset.tres`); then
 `tools/pack_interior_palette.gd` saves the palette as `palette.res`, which the tileset uses (it needs
-no editor import, so a repacked palette shows at once). 128 px per 64-unit cell, drawn at half size. The
-layer reads the packed file itself when it is newer than its import (an open editor imports it
-later), so a repack shows at once.
+no editor import, so a repacked palette shows at once). 128 px per 64-unit cell, drawn at half size.
+Each style has a fixed palette column (`column` in its `STYLES` entry: lair-stone 0, cave-rock 1,
+root-rock 2), so a repack of one style never moves another's column (painted cells name their tile by
+column), and the packer keeps the tileset's `uid`, so the room scenes that use it do not change.
+
+The walls, the floor and every door's leaf share one read of each sheet (`InteriorWallLayer.picture`):
+the packed file itself while it is newer than its import (an open editor imports it later), else the
+import. In the editor the table and the sheets are read again once their files change (looked at
+most once a second), so a repack shows on the layer's next redraw (paint a cell, or reopen the scene)
+without restarting the editor; a door's leaf when the door is drawn again (reopen the scene). The
+game reads them once.
 
 `interior-walls.json`, per style: `model` ("bevel"), `texture`, `floor`, `floor_px`, `cell`,
 `depth_cells` (2), `run_period` (per side), `pieces` (name -> sheet rect: the runs, the corners, the
@@ -239,8 +259,8 @@ rejected first look.
 bevel frame, then from it the frame with a doorway in each face, then from that one render per leaf
 and per opening kind (the prompts say "exactly the first reference image ... the only change"), and a
 floor texture; add the style to `STYLES` in the packer (its band edges, plain stretches, doorway boxes
-and passages: measure them in the doorways render) and run it. A new style gets the next palette
-column.
+and passages: measure them in the doorways render, and its `column`: the next free palette column)
+and run it.
 
 ## The box-room lab
 
@@ -257,15 +277,26 @@ The Lair is converted (2026-10-18; its scenes are edited in the editor since, th
 writer: DUNGEON_ROOMS.md "Editing rooms by hand"): `tools/build_fattys_lair.gd` painted every room's rock (its
 two-cell rim, R10's rock, the pockets of the map nook, the sally port and the bolt-hole) on the
 `interior-walls` layer in the room's style, its doorways as opening blocks (`_opening`: both rooms'
-rims, two along by two deep), the sally port's crack as a cracked block in both rims (blown together:
-`change_opening_at` turns every cracked block within reach), and fits the doors in the rims to the
-new floor lines (`_fit_doors_to_walls`: key, boss and bolted doors, shutters, the seals, the Larder's
-and the Postern's plank barricades, R9's stone door with the style's shutter as its slab). Doors in
-built (fieldstone) walls inside rooms keep their own art: Burr's cell, the Quartermaster's store, the
-latch doors of R5, R7, C2 and the Old Armoury. Wall cells no piece covers draw as the dark beyond
-the frame (`interior_wall_fill.gd`). Rooms grew to 18 x 16 cells rather than shrinking their
-floors (DUNGEONS.md "Fatty's Lair (built)"). A side door's passage is `interior.sideGapUnits` (120)
-tall, as the slime walks it at its feet; a north or south door's `interior.gapUnits` (64) wide.
+rims, two along by two deep), the sally port's crack as a cracked block in both rims, and fits the
+doors in the rims to the new floor lines (`_fit_doors_to_walls`: key, boss and bolted doors,
+shutters, the seals, the Larder's and the Postern's plank barricades, R9's stone door with the
+style's shutter as its slab). Since each room is its own world, the crack's two blocks are in two
+worlds (R5's west rim, the sally port's east rim), each with its cracked wall on the one flag
+(`fatty-lair.sally-port-open`): blown in one, the other is turned when its world is built. The Lair
+has no latch doors left in built walls: R5's, R7's, C2's and the Old Armoury's became dividers
+(FENCES.md "Dungeon dividers"), and R9's stone door, a latch door, is drawn by the room's wall (its
+own frame hidden, its slab the style's shutter leaf: `sliding_slab.gd` `wall_leaf_style`). Burr's cell
+door in the hub is a key2 block of the hub's rim (2026-10-19), its door drawn by the wall. Wall cells no piece covers
+draw as the dark beyond the frame (`interior_wall_fill.gd`). Rooms grew to 18 x 16 cells rather than
+shrinking their floors (DUNGEONS.md "Fatty's Lair (built)"). A side door's passage is
+`interior.sideGapUnits` (120) tall, as the slime walks it at its feet; a north or south door's
+`interior.gapUnits` (64) wide.
+
+`test_interior_walls.gd` holds the Lair's rooms to their paint: every painted closed-door block has
+exactly one door tagged with it, of its kind, wall and style, on its spot, and no opening cell lies
+outside an opening block (the layer makes doors in the editor only, so a block a tool painted would
+show a door and leave the passage open). Its `KNOWN_STALE_PAINT` is empty since R5 is one world
+again (its rows 9-15 are its lower hall's and alcove's rim).
 
 **Pits.** A spike or lava hazard draws its spikes only on the pit's visible floor
 (`hazard.gd` `_pit_floor_cells`): under the far rim the wall hangs over the floor, beside a side rim
@@ -273,11 +304,13 @@ its strip; before 2026-10-18 the spikes covered the pit's walls and the pit read
 
 ## Limits
 
-- The latch door, the drawbridge and the Lair's drop gate do not draw wall leaves yet (the latch
-  door would take the shutter's).
+- The drawbridge and the Lair's drop gate do not draw wall leaves yet. A latch door takes the
+  style's shutter leaf only through its slab's `wall_leaf_style`, its own frame hidden by hand (R9).
 - A run's pieces under an opening show faintly through the opening's faded ends.
 - The floor's quilting leaves a few joined stones where the texture wraps.
-- One style per room: a room's floor takes the style of its first piece.
+- Each floor cell takes the style of the nearest wall straight out from it (`floor_style` sets one
+  for the whole layer), so a room painted in two styles shows two floors, parted where the nearest
+  wall changes.
 
 ## Files
 
@@ -285,11 +318,16 @@ its strip; before 2026-10-18 the spikes covered the pit's walls and the pit read
 |---|---|
 | `godot/game/world/interior/interior_wall_layer.gd` | The layer: faces, corners, openings, floor, collision, leaves |
 | `godot/game/world/interior/interior_wall_tileset.tres` | The palette (packer output) |
-| `godot/asset/MAPS/walls/interior/` | The sheet, the floor, `interior-walls.json`, `palette.png` (packer output) |
+| `godot/asset/MAPS/walls/interior/` | The sheet, the floor, `interior-walls.json`, `palette.png` (packer output), `palette.res` (`pack_interior_palette.gd`) |
 | `scripts/art/pack-interior-walls.py` | Builds them from the renders |
+| `godot/tools/pack_interior_palette.gd` | Saves the packed `palette.png` as `palette.res`, the texture the tileset uses (no editor import) |
 | `asset/Originals/dungeon-kit/interior-walls/` | The renders |
 | `godot/tools/build_box_room_lab.gd`, `render_box_room_lab.gd` | The lab and its pictures |
+| `godot/tools/render_interior_palette_room.gd` | A room painted with every closed-door tile, its doors made by the layer |
+| `godot/tools/render_room_scene.gd` | One room scene alone, as the editor shows it |
+| `godot/tools/render_doorway_passes.gd` | The slime halfway through a doorway on each side of a room, in the game |
+| `godot/tools/render_room_collision.gd` | A room world in the game with its collision, decks and hazards drawn over it |
 | `godot/game/world/interior/interior_wall_fill.gd` | The dark over wall cells no piece covers |
 | `godot/game/world/painted_objects.gd` | What the layer may remove by itself: a door it made and nobody changed |
 | `godot/tools/render_lair_room.gd` | In-game captures of a dungeon's rooms at a 16:9 window (`--all-rooms`) |
-| `godot/tests/test_interior_walls.gd` | Faces and corners, collision and passages, cracked to blown, framed doors, the lab's assembly |
+| `godot/tests/test_interior_walls.gd` | Faces and corners (the outer corners' fill and order), collision and passages, cracked to blown (every cracked block in reach), framed doors (the bolted door's far side, the barricade turned for a side wall), painted doors (also grouped under `Objects`), the Lair rooms' doors against their paint, the lab's assembly |

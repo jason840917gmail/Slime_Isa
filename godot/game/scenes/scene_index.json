@@ -1282,9 +1282,7 @@
   "world.fatty-lair-r2-slab-steps": "res://game/scenes/worlds/rooms/fatty-lair/r2-slab-steps.tscn",
   "world.fatty-lair-r3-pit-hall": "res://game/scenes/worlds/rooms/fatty-lair/r3-pit-hall.tscn",
   "world.fatty-lair-r4-squint-den": "res://game/scenes/worlds/rooms/fatty-lair/r4-squint-den.tscn",
-  "world.fatty-lair-r5-eye-hall": "res://game/scenes/worlds/rooms/fatty-lair/r5-eye-hall.tscn",
-  "world.fatty-lair-r5-key-alcove": "res://game/scenes/worlds/rooms/fatty-lair/r5-key-alcove.tscn",
-  "world.fatty-lair-r5-lower-hall": "res://game/scenes/worlds/rooms/fatty-lair/r5-lower-hall.tscn",
+  "world.fatty-lair-r5-eye-hall": "res://game/scenes/worlds/rooms/fatty-lair/r5-eye-hall.tscn",
   "world.fatty-lair-r6-pipe-gallery": "res://game/scenes/worlds/rooms/fatty-lair/r6-pipe-gallery.tscn",
   "world.fatty-lair-r7-bell-bridge": "res://game/scenes/worlds/rooms/fatty-lair/r7-bell-bridge.tscn",
   "world.fatty-lair-r8-guard-crypt": "res://game/scenes/worlds/rooms/fatty-lair/r8-guard-crypt.tscn",

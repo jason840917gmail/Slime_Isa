@@ -9,7 +9,10 @@ class_name LayoutRoom
 ## - `room_scene`: the room's world scene. Picking it fills in the rest from the scene (the editor
 ##   reads it, nothing is typed): `world_id` (its world-definition's map id), `room_name` (its
 ##   CameraRoom's name, the room's key on the map and in the record), `size` and `outline` (the
-##   CameraRoom's).
+##   CameraRoom's), `camera_offset` (where that CameraRoom lies in its scene).
+## - `camera_room`: which CameraRoom of the scene this map room is ("" = its first). A world may hold
+##   several rooms parted by low dividers (R5: the eye hall, the lower hall and the key alcove): each
+##   has its own map room, all naming the one scene.
 ## - Its position is where the room lies on the map (dungeon units: 64 a cell; a room of the Lair is
 ##   1152 x 1024). Dragged in the editor it snaps to the 64-unit grid.
 ## The editor draws it as the map shows it: its outline filled, its name; neighbours with a gap.
@@ -25,7 +28,15 @@ const SNAP := 64.0
 @export_file("*.tscn") var room_scene: String = "":
 	set(value):
 		room_scene = value
-		if Engine.is_editor_hint():
+		# picked in the Inspector (not while the layout loads: what it read is saved)
+		if Engine.is_editor_hint() and is_inside_tree():
+			_read_scene()
+		queue_redraw()
+## The CameraRoom of `room_scene` this map room is ("" = its first; see the notes).
+@export var camera_room: String = "":
+	set(value):
+		camera_room = value
+		if Engine.is_editor_hint() and is_inside_tree():
 			_read_scene()
 		queue_redraw()
 ## Read from `room_scene`: its world's map id.
@@ -42,6 +53,9 @@ const SNAP := 64.0
 	set(value):
 		outline = value
 		queue_redraw()
+## Read from `room_scene`: where its CameraRoom lies in its scene (zero for a world of one room). The
+## world's own place on the map is this node's position less it (Dungeon `_read_layout`).
+@export var camera_offset: Vector2 = Vector2.ZERO
 ## Press in the Inspector to read the room scene again (after its CameraRoom changed).
 @export var read_again: bool = false:
 	set(value):
@@ -78,8 +92,8 @@ func outline_points() -> PackedVector2Array:
 	return points
 
 
-## Reads `world_id`, `room_name`, `size` and `outline` from the room scene (its state: nothing is
-## built).
+## Reads `world_id`, `room_name`, `size`, `outline` and `camera_offset` from the room scene (its
+## state: nothing is built), the CameraRoom named `camera_room` (else the first).
 func _read_scene() -> void:
 	if room_scene.is_empty() or not ResourceLoader.exists(room_scene):
 		return
@@ -87,6 +101,7 @@ func _read_scene() -> void:
 	var state := packed.get_state() if packed != null else null
 	if state == null:
 		return
+	var found := false
 	for index: int in state.get_node_count():
 		var path := str(state.get_node_path(index))
 		var parent := str(state.get_node_path(index, true))
@@ -94,15 +109,20 @@ func _read_scene() -> void:
 			for p: int in state.get_node_property_count(index):
 				if state.get_node_property_name(index, p) == &"map_id":
 					world_id = str(state.get_node_property_value(index, p))
-		elif parent == "./CameraRooms" or parent == "CameraRooms":
+		elif (parent == "./CameraRooms" or parent == "CameraRooms") and not found \
+				and (camera_room.is_empty() or String(state.get_node_name(index)) == camera_room):
+			found = true
 			room_name = String(state.get_node_name(index))
 			outline = PackedVector2Array()
+			camera_offset = Vector2.ZERO
 			for p: int in state.get_node_property_count(index):
 				var property_name := state.get_node_property_name(index, p)
 				if property_name == &"size":
 					size = state.get_node_property_value(index, p)
 				elif property_name == &"outline":
 					outline = state.get_node_property_value(index, p)
+				elif property_name == &"position":
+					camera_offset = state.get_node_property_value(index, p)
 	if not room_name.is_empty():
 		name = room_name
 	queue_redraw()

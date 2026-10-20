@@ -126,10 +126,12 @@ func _travel(player: Node) -> void:
 		var main := get_tree().get_first_node_in_group(&"world_main")
 		if main != null and main.has_method(&"travel_to"):
 			_travelling = true
-			var feel := Services.feel()
-			if feel != null:
-				feel.audio_cue(CUE_STEP)
-			if bool(main.call(&"travel_to", target_world, "", "", target_marker)):
+			# The step sounds only when the travel starts (refused, another travel under way, it is
+			# asked again next frame: no cue every frame).
+			if bool(main.call(&"travel_to", target_world, "", "", target_marker, false, 0.0, NAN, arrival_facing)):
+				var feel := Services.feel()
+				if feel != null:
+					feel.audio_cue(CUE_STEP)
 				used.emit({"hatchId": hatch_id})
 			else:
 				_travelling = false
@@ -152,7 +154,7 @@ func _travel(player: Node) -> void:
 ## Behind the black: the slime moves to `marker`, then the same black layer fades away.
 func _arrive(player: Node, marker: Node2D, holder: Array[CanvasLayer]) -> void:
 	if is_instance_valid(player):
-		player.call(&"teleport", marker.global_position)
+		player.call(&"arrive_at", marker.global_position)
 		player.call(&"face", AreaTravel.facing_vector(arrival_facing))
 	used.emit({"hatchId": hatch_id})
 	await get_tree().create_timer(HOLD_MS / 1000.0, true, false, true).timeout

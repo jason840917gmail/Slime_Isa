@@ -45,8 +45,8 @@ The owner writes in Spanish and English; answer in the language he uses.
 - **Tests failing from map edits, not code:** `test_chapter_one_flow`, `test_world_objects`, `test_quests`,
   `test_world` (C4/D5 positions and ground moved in the editor). Ask him whether the new positions are
   intended; then update the tests or move the things back.
-- **A review is ready to run:** `docs/handover/2026-10-19-review-prompt.md` (a full check of this work for
-  bugs, simplifications and editor-usability improvements, keeping the directives).
+- **The review ran and its fixes are in:** `docs/reviews/2026-10-19-review.md` (first pass committed,
+  1d4d756b; the second pass uncommitted: [2026-10-19-review-fixes.md](2026-10-19-review-fixes.md)).
 - **Not built:** hazards that fill a painted hole by themselves; level faces taller than one level, and
   doors or chests set into a level face; cave and root divider styles; the drop's one-frame "ghost" on
   landing (outdoor occlusion, check in play); the energy flower refilling on each room entry, Burr's cell

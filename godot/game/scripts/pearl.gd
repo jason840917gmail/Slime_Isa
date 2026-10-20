@@ -6,7 +6,8 @@ class_name PearlScript
 ## with a glow; the slime takes it by walking into it (within `take_radius`). Taking it plays the full
 ## ceremony (game/ui/ceremony/ability_ceremony.gd `request_entry`: the Pearl's card), sets the story
 ## flag `pearl.<pearl_id>`, grants its skin (`skin_id`: SkinState.grant, docs/godot/SKINS.md: won
-## for good, always on, made the everyday look, its short ceremony line the first time; Pearl 1's is
+## for good, always on, its short ceremony line the first time; the everyday look stays as it was, a
+## skin shows only while it works; Pearl 1's is
 ## the Heavy skin, 2's the Silk skin, 3's the Feral skin), and it is gone for good. Its altar is a
 ## separate prop. With `boss_id` empty it shows from the start (a Pearl found inside its dungeon,
 ## before its boss: owner, 2026-10-17).
@@ -24,6 +25,7 @@ const Services := preload("res://game/shared/services.gd")
 const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const ControlLabels := preload("res://game/shell/control_labels.gd")
 
 const GROUP := &"pearl"
 const FLAG_PREFIX := "pearl."
@@ -46,7 +48,9 @@ signal appeared(payload: Dictionary)
 ## The skin it grants (SkinState: heavy, silk, feral; "" = none).
 @export var skin_id: String = "heavy"
 @export var card_name: String = "Heavy skin"
-@export var card_line: String = "Fatty's weight is yours: you sink heavy plates and push statues and blocks."
+## The card's texts; `{<action>}` names that action's key (ControlLabels.with_keys: "{interact}" reads
+## "W" in the keys-only scheme).
+@export var card_line: String = "Fatty's weight is yours: you sink heavy plates, and holding {interact} you push or pull heavy statues and blocks."
 @export var card_how: String = "Your Roll smashes old, broken things: planks, rubble, loose rocks, rotten wood."
 @export var take_radius: float = 40.0
 ## Taken inside a dungeon whose boss stands, it seals the dungeon (the Dungeon node's `seal_now`).
@@ -131,7 +135,8 @@ func take(quiet: bool = false) -> void:
 	# pause the next test's world: the ceremony lives under the tree's root).
 	if not quiet and AbilityCeremony.enabled(get_tree()):
 		AbilityCeremony.request_entry(get_tree(), {"kicker": "Pearl of the Wellspring (%d of 8)" % number,
-			"name": card_name, "line": card_line, "how": card_how, "icon": icon})
+			"name": card_name, "line": ControlLabels.with_keys(card_line), "how": ControlLabels.with_keys(card_how),
+			"icon": icon})
 	var feel := Services.feel()
 	if feel != null and not quiet:
 		feel.particles(SPARKLE, global_position)
