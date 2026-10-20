@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="11_y8n70"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="12_rsm0a"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/lash-bell-post.tscn" id="13_vgiiv"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="14_vgiiv"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="15_5y5ef"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/falling-slab.tscn" id="16_s3wdk"]
 [ext_resource type="Texture2D" uid="uid://bfktxqq8phn2l" path="res://asset/MAPS/objects/dungeon/divider-eye-block.png" id="17_2bact"]
@@ -20,11 +21,13 @@
 [ext_resource type="Texture2D" uid="uid://b7vxshmjd4o8p" path="res://asset/MAPS/objects/dungeon/door-2x1.webp" id="18_yx7s2"]
 [ext_resource type="Texture2D" uid="uid://isnfesgab7gl" path="res://asset/MAPS/walls/interior/lair-stone.webp" id="19_loqqe"]
 [ext_resource type="Texture2D" uid="uid://0yfap0bjxiis" path="res://asset/MAPS/objects/dungeon/bolt-2x1.webp" id="19_ycp13"]
+[ext_resource type="Texture2D" uid="uid://fb3kfri1n2rr" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="20_4yae4"]
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="20_rw1726"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="21_rw1522"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="22_rw7688"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="23_rw0297"]
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="24_rw7394"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="31_5y5ef"]
 [ext_resource type="TileSet" uid="uid://b6hbbbrfkchxq" path="res://game/world/fences/fence_tileset.tres" id="90_fencetiles"]
 [ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="91_fencelayer"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/divider-gate.tscn" id="92_dividergate"]
@@ -103,6 +106,38 @@ position = Vector2(806.3999, 332.7998)
 [node name="PotLoot" parent="Scenery/r7-pot-2" index="3"]
 weights = PackedFloat32Array(1, 1, 1, 1)
 
+[node name="liftable" parent="Scenery" unique_id=36432334 instance=ExtResource("14_vgiiv")]
+position = Vector2(1008, 160)
+kind = "keg"
+
+[node name="@StaticBody2D@55928" parent="Scenery" unique_id=1751526973 instance=ExtResource("14_vgiiv")]
+position = Vector2(465, 159)
+kind = "keg"
+
+[node name="@StaticBody2D@55929" parent="Scenery" unique_id=1372482710 instance=ExtResource("14_vgiiv")]
+position = Vector2(972, 162)
+kind = "keg"
+
+[node name="liftable2" parent="Scenery" unique_id=1956850936 instance=ExtResource("14_vgiiv")]
+position = Vector2(1005, 201)
+kind = "keg"
+
+[node name="liftable3" parent="Scenery" unique_id=582637199 instance=ExtResource("14_vgiiv")]
+position = Vector2(973, 202)
+kind = "keg"
+
+[node name="liftable4" parent="Scenery" unique_id=1450646819 instance=ExtResource("14_vgiiv")]
+position = Vector2(141, 641)
+kind = "gargoyle-head"
+
+[node name="liftable5" parent="Scenery" unique_id=1714696710 instance=ExtResource("14_vgiiv")]
+position = Vector2(144, 521)
+kind = "gargoyle-head"
+
+[node name="liftable6" parent="Scenery" unique_id=2035267989 instance=ExtResource("14_vgiiv")]
+position = Vector2(313, 517)
+kind = "gargoyle-head"
+
 [node name="Hazards" type="Node2D" parent="." unique_id=1706634466]
 
 [node name="spikes-74-74" parent="Hazards" unique_id=620647258 instance=ExtResource("12_rsm0a")]
@@ -140,6 +175,9 @@ gate_id = "fatty-lair-r7-gate"
 
 [node name="r7-key-chest" parent="Objects" unique_id=1751348877 instance=ExtResource("15_5y5ef")]
 position = Vector2(256, 208)
+
+[node name="Visual" parent="Objects/r7-key-chest" index="1"]
+texture = ExtResource("20_4yae4")
 
 [node name="ChestScript" parent="Objects/r7-key-chest" index="2"]
 map_id = "fatty-lair"
@@ -247,6 +285,18 @@ bus = &"Music"
 script = ExtResource("23_rw0297")
 loop = true
 autoplay_cue = true
+
+[node name="Enemies" type="Node2D" parent="." unique_id=436012248]
+
+[node name="PlacedEnemy" parent="Enemies" unique_id=473718833 instance=ExtResource("31_5y5ef")]
+position = Vector2(295, 402)
+enemy_type = "watcher-eye"
+wander_radius = 475.0
+
+[node name="PlacedEnemy2" parent="Enemies" unique_id=493558237 instance=ExtResource("31_5y5ef")]
+position = Vector2(536, 697)
+enemy_type = "glint-bat"
+wander_radius = 286.0
 
 [editable path="Scenery/r7-pot-0"]
 [editable path="Scenery/r7-pot-1"]

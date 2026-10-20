@@ -7,7 +7,14 @@ extends VBoxContainer
 ## 2026-10-19) lists every liftable kind (game/data/liftables.json: pots, crates, rocks, jars ...,
 ## the light things the Gulp sucks in, none of a mechanic's own like the skeleton's skull or the Goo
 ## Bomb): dragging one places `object.liftable` of that kind under Scenery; what it hides is its
-## `under` in the Inspector (game/scripts/liftable_root.gd).
+## `under` in the Inspector (game/scripts/liftable_root.gd). The **Dungeon objects** category
+## (2026-10-19) lists the dungeons' pieces with logic (doors, chests, keys, shutters, winches,
+## plates, heavy blocks, braziers ...) by their scene's own picture: dragging one places its scene
+## at its own size under the room's `Objects` node (a room door under `RoomDoors`, a hazard under
+## `Hazards`); its ids are set in the Inspector (docs/godot/DUNGEONS.md). The **Holes & hatches**
+## category (owner, 2026-10-19) lists the ways down and up for any world: open holes (fall, ladder),
+## cracked ground and walls (a Goo Bomb opens them), and hatches, placed the same way under `Objects`;
+## their targets are set in the Inspector (docs/godot/DUNGEONS.md "Holes and hatches").
 
 const List := preload("res://addons/scenery_dock/scenery_list.gd")
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
@@ -18,6 +25,29 @@ const ENEMIES_CATEGORY := "Enemies"
 ## The suckable things' scene and their category.
 const LIFTABLE_SCENE := "res://game/scenes/objects/liftable.tscn"
 const SUCKABLES_CATEGORY := "Suckables"
+## The dungeon pieces with logic: every scene of DUNGEON_DIR but the world-level ones, and the
+## puzzle objects kept among the other objects.
+const DUNGEON_CATEGORY := "Dungeon objects"
+const OBJECTS_DIR := "res://game/scenes/objects/"
+const DUNGEON_DIR := "res://game/scenes/objects/dungeon/"
+const DUNGEON_SKIP: PackedStringArray = ["dungeon.tscn", "fatty-lair-dungeon.tscn"]
+const DUNGEON_EXTRAS: PackedStringArray = [
+	"brazier", "pressure-plate", "heavy-block", "heavy-plate", "heavy-statue", "heavy-ore-crate",
+	"cracked-wall", "cracked-floor", "climb-wall", "stair-hatch", "stair-ladder", "cave-ladder",
+	"barred-gate", "drop-gate", "eye-latch", "gate-winch", "winch-post-cracked", "latch-door",
+	"lantern-gate", "plank-barricade", "rotten-timbers", "web-wall", "blast-keg", "mine-cart",
+	"ore-lift", "crystal-lens", "crystal-veil", "gulp-spot-frog", "gulp-spot-silk", "gulp-spot-stone",
+	"loose-prize", "full-heart", "pearl", "pearl-two", "pearl-three",
+]
+## The ways down and up, for the overworld as for rooms: scene ids under OBJECTS_DIR.
+const HOLES_CATEGORY := "Holes & hatches"
+const HOLES: PackedStringArray = [
+	"open-hole", "open-hole-ladder", "cracked-floor", "cracked-ground", "cracked-wall", "hill-doorway", "hatch-exit",
+	"stair-hatch", "cave-ladder",
+]
+## The node a dungeon piece goes under, by scene file name; the rest go under DUNGEON_CONTAINER.
+const DUNGEON_CONTAINERS := {"room-door.tscn": "RoomDoors", "hazard.tscn": "Hazards", "hazard-deck.tscn": "Hazards"}
+const DUNGEON_CONTAINER := "Objects"
 const MANIFEST := "res://game/world/props/prop_palettes.json"
 const ART_DIR := "res://asset/MAPS/palettes/"
 ## The manifest's palettes the dock lists, with their cell (px in the palette images).
@@ -29,7 +59,8 @@ const ICON := Vector2i(80, 80)
 const SIZES := [["Small", 0.7], ["Normal", 1.0], ["Big", 1.3]]
 
 ## Called before a drag starts with (scene, size, settings: the properties the placed node gets, as
-## {"enemy_type": ...} or {"kind": ...}, {} for a prop): readies the drop (the plugin's).
+## {"enemy_type": ...} or {"kind": ...}, {} for a prop) and container (the node a dungeon piece goes
+## under, "" otherwise): readies the drop (the plugin's).
 var prepare_drop := Callable()
 
 var _categories: OptionButton
@@ -129,7 +160,87 @@ func _load() -> void:
 	if not suckables.is_empty():
 		_props[SUCKABLES_CATEGORY] = suckables
 		_categories.add_item(SUCKABLES_CATEGORY)
+	var holes: Array = []
+	for id in HOLES:
+		var path := OBJECTS_DIR + id + ".tscn"
+		if ResourceLoader.exists(path):
+			holes.append([_title(path), path, _scene_picture(path), {}, DUNGEON_CONTAINER])
+	if not holes.is_empty():
+		_props[HOLES_CATEGORY] = holes
+		_categories.add_item(HOLES_CATEGORY)
+	var dungeon := _dungeon_objects()
+	if not dungeon.is_empty():
+		_props[DUNGEON_CATEGORY] = dungeon
+		_categories.add_item(DUNGEON_CATEGORY)
 	_show()
+
+
+## The dungeon pieces by their scene's picture: [name, scene, picture, {}, container].
+func _dungeon_objects() -> Array:
+	var paths := PackedStringArray()
+	for file in DirAccess.get_files_at(DUNGEON_DIR):
+		if file.ends_with(".tscn") and not DUNGEON_SKIP.has(file):
+			paths.append(DUNGEON_DIR + file)
+	for id in DUNGEON_EXTRAS:
+		if ResourceLoader.exists(OBJECTS_DIR + id + ".tscn"):
+			paths.append(OBJECTS_DIR + id + ".tscn")
+	var out: Array = []
+	for path in paths:
+		var container: String = DUNGEON_CONTAINERS.get(path.get_file(), DUNGEON_CONTAINER)
+		out.append([_title(path), path, _scene_picture(path), {}, container])
+	out.sort_custom(func(a: Array, b: Array) -> bool: return str(a[0]) < str(b[0]))
+	return out
+
+
+## The biggest visible sprite of a scene, its current frame (Godot's scene icon when it has none).
+func _scene_picture(path: String) -> Texture2D:
+	var packed := load(path) as PackedScene
+	var root := packed.instantiate() if packed != null else null
+	var best: AtlasTexture = null
+	var best_area := 0.0
+	if root != null:
+		for item in [root] + root.find_children("*", "", true, false):
+			var picture := _sprite_frame(item)
+			if picture != null and picture.region.get_area() > best_area:
+				best = picture
+				best_area = picture.region.get_area()
+		root.free()
+	if best != null:
+		return best
+	return EditorInterface.get_editor_theme().get_icon(&"PackedScene", &"EditorIcons")
+
+
+## A visible sprite's current frame as an AtlasTexture, or null.
+static func _sprite_frame(node: Node) -> AtlasTexture:
+	if not node is CanvasItem or not (node as CanvasItem).visible:
+		return null
+	var texture: Texture2D = null
+	var region := Rect2()
+	if node is Sprite2D:
+		var sprite := node as Sprite2D
+		texture = sprite.texture
+		if texture == null:
+			return null
+		region = sprite.region_rect if sprite.region_enabled else Rect2(Vector2.ZERO, texture.get_size())
+		var cell := region.size / Vector2(sprite.hframes, sprite.vframes)
+		region = Rect2(region.position + Vector2(sprite.frame % sprite.hframes, sprite.frame / sprite.hframes) * cell, cell)
+	elif node is AnimatedSprite2D:
+		var animated := node as AnimatedSprite2D
+		if animated.sprite_frames == null or not animated.sprite_frames.has_animation(animated.animation):
+			return null
+		texture = animated.sprite_frames.get_frame_texture(animated.animation, animated.frame)
+		if texture == null:
+			return null
+		region = Rect2(Vector2.ZERO, texture.get_size())
+	else:
+		return null
+	if texture is AtlasTexture:
+		region.position += (texture as AtlasTexture).region.position
+		texture = (texture as AtlasTexture).atlas
+	var picture := AtlasTexture.new()
+	picture.atlas = texture
+	picture.region = region
+	return picture
 
 
 ## Every liftable kind by its picture on the liftables sheet: [name, LIFTABLE_SCENE, picture, {"kind"}].
@@ -184,7 +295,10 @@ func _show() -> void:
 					shown.append(prop)
 	for prop: Array in shown:
 		var index := _list.add_item(prop[0], prop[2])
-		if prop.size() > 3:
+		if prop.size() > 4:
+			_list.set_item_metadata(index, {"scene": prop[1], "settings": {}, "container": prop[4]})
+			_list.set_item_tooltip(index, "%s (goes under %s; set its ids in the Inspector)" % [str(prop[1]).get_file(), prop[4]])
+		elif prop.size() > 3:
 			var settings: Dictionary = prop[3]
 			_list.set_item_metadata(index, {"scene": prop[1], "settings": settings})
 			if settings.has("enemy_type"):
