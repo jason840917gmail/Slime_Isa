@@ -8,8 +8,11 @@ extends "res://game/ui/screens/game_window.gd"
 ## Left: the chest's stacks, five to a row (icon and count; the name is the tooltip). Right: the
 ## selected stack's details. Below: the status line, Take Stack and Close. A left click selects a
 ## stack; a right click (or the context-menu key / Shift+F10 on a focused cell) selects and takes
-## it; Take Stack takes the selected one. A take moves as much as fits in the bag; the window stays
-## open (also on an empty chest). Stacks are re-read from the chest's record on every refresh.
+## it; Take Stack takes the selected one. Keys (owner, 2026-10-20): the first stack has the focus
+## on open, the arrows or WASD move the selection (game_window.gd turns WASD into the arrows) and
+## Space or Enter on a cell takes its stack, so the keys-only scheme needs no mouse. A take moves
+## as much as fits in the bag; the window stays open (also on an empty chest); a stack taken
+## whole hands the selection and the focus to the stack now in its place. Stacks are re-read from the chest's record on every refresh.
 ##
 ## Silent window: no MenuOpen / MenuClose (AudioEventBridge `SILENT_MODALS`); the chest scene's own
 ## players sound (OpenSfx, TakeSfx, CloseSfx). Closing it (Close, Escape, a world teardown) tells
@@ -76,7 +79,7 @@ func open_chest(chest: ChestScript) -> void:
 	_chest = chest
 	var stacks := ChestModel.entries(chest.remaining())
 	_selected_id = str(stacks[0][0]) if not stacks.is_empty() else ""
-	_status = ChestModel.INITIAL_STATUS
+	_status = ChestModel.initial_status()
 	open()
 
 
@@ -242,18 +245,28 @@ func _finish(notify: bool) -> void:
 
 
 ## `take(itemId)`: moves what fits (the chest emits `stack_transferred`, TakeSfx), says how it
-## went; a stack that is gone gives the selection to the first one left.
+## went; a stack that is gone gives the selection to the one now in its place (else the one before
+## it), and a cell that had the focus keeps it on the selection.
 func _take(item_id: String) -> void:
 	var chest := current_chest()
 	if chest == null:
 		return
+	var index := int(_model.get("selected_index", -1))
+	var focused: Control = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
+	var cell_focused := focused != null and item_list.is_ancestor_of(focused)
 	var moved := chest.transfer_stack(item_id)
 	_status = ChestModel.moved_text(moved, item_id)
 	if not chest.remaining().has(item_id):
-		_selected_id = ""
+		_selected_id = _item_at(mini(index, ChestModel.entries(chest.remaining()).size() - 1))
 	refresh()
-	var focused: Control = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
-	if is_open() and (focused == null or not is_ancestor_of(focused)):
+	if not is_open():
+		return
+	var selected := int(_model.get("selected_index", -1))
+	if cell_focused and selected >= 0 and selected < item_list.get_child_count():
+		(item_list.get_child(selected) as Control).grab_focus()
+		return
+	focused = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
+	if focused == null or not is_ancestor_of(focused):
 		focus_initial()
 
 
@@ -271,9 +284,9 @@ func _on_cell_pressed(cell: ItemCell) -> void:
 	select_item(cell.index)
 
 
-## Right click: select and take (no click cue; the select cue as the selection plays). The
-## context-menu key or Shift+F10 takes the selected stack; the arrows, Home and End move the
-## selection on the 5-column grid (ControlNodes.ts:334-362).
+## Right click: select and take (no click cue; the select cue as the selection plays). Space or
+## Enter (`ui_accept`), the context-menu key or Shift+F10 take the selected stack; the arrows (and
+## WASD), Home and End move the selection on the 5-column grid (ControlNodes.ts:334-362).
 func _on_cell_input(event: InputEvent, cell: ItemCell) -> void:
 	var mouse := event as InputEventMouseButton
 	if mouse != null:
@@ -286,7 +299,8 @@ func _on_cell_input(event: InputEvent, cell: ItemCell) -> void:
 		return
 	var key := event as InputEventKey
 	var current := int(_model.get("selected_index", -1))
-	if key != null and not key.echo and (key.keycode == KEY_MENU or (key.keycode == KEY_F10 and key.shift_pressed)):
+	var accept := event.is_action_pressed(&"ui_accept") and not event.is_echo()
+	if accept or (key != null and not key.echo and (key.keycode == KEY_MENU or (key.keycode == KEY_F10 and key.shift_pressed))):
 		cell.accept_event()
 		if current >= 0:
 			play_select()

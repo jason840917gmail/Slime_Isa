@@ -7,6 +7,13 @@ extends "res://game/ui/screens/game_window.gd"
 ## res://game/ui/screens/inventory_model.gd; the belt and item actions run through
 ## InventoryActions (group `inventory_actions`) and InventoryDrops.
 ##
+## Keys (owner, 2026-10-20: the keys-only scheme must never need the mouse): the selected bag
+## item has the focus on open (else the first focusable control); the arrows or WASD move the
+## focus (game_window.gd), and moving onto a bag cell selects it; Space or Enter on a bag cell uses
+## or holds its item (Use / Hold in hand / Place), on a belt cell holds that weapon, and on a
+## Shapes, Abilities or Skins cell chooses it. The details' buttons are reached by moving right.
+## In the keys-only scheme the titles name the keys instead of the mouse.
+##
 ## Dropping closes the bag (also when it failed, K8). Destroy has no confirmation (K7). "Place"
 ## closes the bag and starts furniture placement.
 ##
@@ -44,11 +51,15 @@ const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 const SURFACE_ID := &"inventory"
 const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
 const BELT_HELP := "Click a slot to hold that weapon. Drag a weapon from the bag onto a slot to put it there. Outside, the mouse wheel switches."
 const ITEMS_TITLE := "In the bag — click an item to see it"
+## The keys-only scheme's belt help and bag title (no mouse).
+const KEYS_BELT_HELP := "Space on a slot holds that weapon; a weapon's card in the bag puts it on a slot. Outside, %s switches."
+const KEYS_ITEMS_TITLE := "In the bag — arrows or WASD choose, Space uses"
 const ASSIGN_TITLE := "Or put it on a belt slot:"
 const IN_HAND_TAG := "IN HAND"
 ## inventory-ui.scene.json sizes.
@@ -69,6 +80,9 @@ const SHAPES_TITLE := "Shapes"
 const ABILITIES_TITLE := "Abilities"
 const SHAPES_HELP := "Click one to take it · %s: next"
 const ABILITIES_HELP := "Click one to put it on %s"
+## The band's help in the keys-only scheme (no mouse).
+const KEYS_SHAPES_HELP := "Space takes it · %s: next"
+const KEYS_ABILITIES_HELP := "Space puts it on %s"
 const NO_SHAPES := "No shapes yet"
 const NO_ABILITIES := "No abilities yet"
 const CURRENT_TAG := "NOW"
@@ -168,6 +182,17 @@ func _on_opening() -> void:
 ## The current model (inventory_model.gd keys).
 func model() -> Dictionary:
 	return _model
+
+
+## The selected bag item's cell takes the focus (the first item at open), else the first control.
+func focus_initial() -> void:
+	var index := int(_model.get("selected_index", -1))
+	if index >= 0 and index < item_list.get_child_count():
+		var cell := item_list.get_child(index) as ItemCell
+		if cell.is_visible_in_tree() and cell.focus_mode != Control.FOCUS_NONE:
+			cell.grab_focus()
+			return
+	super()
 
 
 # --- actions (InventorySurfacePort.invoke) --------------------------------------------------------
@@ -336,6 +361,9 @@ func refresh() -> void:
 	if content == null:
 		return
 	_model = InventoryModel.snapshot(state)
+	var keys_only := ControlScheme.current() == ControlScheme.KEYS
+	belt_help_label.text = KEYS_BELT_HELP % ControlLabels.control_label(&"weapon_next") if keys_only else BELT_HELP
+	items_title_label.text = KEYS_ITEMS_TITLE if keys_only else ITEMS_TITLE
 	var belt: Array = _model["belt"]
 	for index in belt.size():
 		var entry: Dictionary = belt[index]
@@ -538,8 +566,9 @@ func _refresh_band() -> void:
 	var current := BodyCards.current_shape(player)
 	var chosen := AbilityBox.selected(player)
 	var key := ControlLabels.control_label(AbilityBox.USE_ACTION)
-	shapes_help_label.text = SHAPES_HELP % ConsoleStyle.key_of(&"weapon_next")
-	abilities_help_label.text = ABILITIES_HELP % key
+	var keys_only := ControlScheme.current() == ControlScheme.KEYS
+	shapes_help_label.text = (KEYS_SHAPES_HELP if keys_only else SHAPES_HELP) % ConsoleStyle.key_of(&"weapon_next")
+	abilities_help_label.text = (KEYS_ABILITIES_HELP if keys_only else ABILITIES_HELP) % key
 	_band_shape_ids = BodyCards.learned_shapes()
 	_band_ability_ids = AbilityBox.box_ids(player)
 	_band_skin_ids = _skin_choices()
@@ -726,6 +755,31 @@ func _on_item_pressed(cell: ItemCell) -> void:
 	select_item(cell.index)
 
 
+## Moving the focus onto a bag cell (the arrows or WASD) selects it, as a click does; a click's
+## own focus waits for the click (its cue plays once).
+func _on_item_focused(cell: ItemCell) -> void:
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or not is_open():
+		return
+	if cell.index == int(_model.get("selected_index", -1)):
+		return
+	play_select()
+	select_item(cell.index)
+
+
+## Space or Enter on a bag cell: selects it and uses or holds its item (the Primary button's action;
+## a disabled Primary does nothing). The click on a cell still only selects it.
+func _on_item_input(event: InputEvent, cell: ItemCell) -> void:
+	if not event.is_action_pressed(&"ui_accept") or event.is_echo():
+		return
+	cell.accept_event()
+	if cell.index != int(_model.get("selected_index", -1)):
+		select_item(cell.index)
+	if primary_button.disabled or not primary_button.is_visible_in_tree():
+		return
+	play_click()
+	use_or_equip()
+
+
 func _on_belt_pressed(cell: ItemCell) -> void:
 	play_select()
 	hold_belt_slot(cell.index)
@@ -752,6 +806,8 @@ func _sync_items(count: int) -> void:
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cell.index = item_list.get_child_count()
 		cell.pressed.connect(_on_item_pressed.bind(cell))
+		cell.focus_entered.connect(_on_item_focused.bind(cell))
+		cell.gui_input.connect(_on_item_input.bind(cell))
 		item_list.add_child(cell)
 
 

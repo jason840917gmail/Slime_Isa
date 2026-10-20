@@ -25,6 +25,7 @@ const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const InventoryModel := preload("res://game/ui/screens/inventory_model.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
+const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 ## The bag's Skins row: each skin's icon (scripts/art/pack-skin-art.py) and the goo's name.
 const SKIN_ICON := "res://asset/UI/skins/%s-icon.webp"
@@ -131,14 +132,14 @@ static func skin_icon(id: StringName) -> Texture2D:
 ## The bag card of look `id` (a skin, or &"" for the goo); `worn` when it is the look now.
 static func skin_card(id: StringName, worn: bool) -> Dictionary:
 	if String(id).is_empty():
-		return {"name": GOO_TITLE, "status": "Your look now" if worn else "Click to wear your own goo",
+		return {"name": GOO_TITLE, "status": "Your look now" if worn else _confirm() + " to wear your own goo",
 			"status_color": CURRENT_COLOR if worn else OTHER_COLOR, "details": GOO_LINE}
 	var lines := PackedStringArray([SkinState.text(id, "line"), SkinState.text(id, "how"), ""])
 	lines.append("Always on, for free: it works wherever it is needed.")
 	lines.append("Wearing it only changes how the slime looks.")
 	return {
 		"name": SkinState.display_name(id),
-		"status": "Your look now" if worn else "Click to wear it as your look",
+		"status": "Your look now" if worn else _confirm() + " to wear it as your look",
 		"status_color": CURRENT_COLOR if worn else OTHER_COLOR,
 		"details": "\n".join(lines),
 	}
@@ -159,7 +160,7 @@ static func shape_card(id: StringName, current: bool) -> Dictionary:
 	lines.append("Next shape: %s" % _key_or_none(ControlLabels.control_labels(&"weapon_next")))
 	return {
 		"name": ShapeDefs.title(id),
-		"status": "Your shape now" if current else "Click to take this shape",
+		"status": "Your shape now" if current else _confirm() + " to take this shape",
 		"status_color": CURRENT_COLOR if current else OTHER_COLOR,
 		"details": "\n".join(lines),
 	}
@@ -178,7 +179,7 @@ static func ability_card(id: StringName, chosen: bool) -> Dictionary:
 	lines.append("Use: %s" % key)
 	return {
 		"name": AbilityDefinitions.title(id),
-		"status": ("Chosen: press %s to use it" % key) if chosen else ("Click to put it on %s" % key),
+		"status": ("Chosen: press %s to use it" % key) if chosen else (_confirm() + " to put it on %s" % key),
 		"status_color": CURRENT_COLOR if chosen else OTHER_COLOR,
 		"details": "\n".join(lines),
 	}
@@ -192,3 +193,9 @@ static func _seconds(ms: float) -> String:
 
 static func _key_or_none(label: String) -> String:
 	return label if not label.is_empty() else "no key"
+
+
+## How a card's cell is confirmed: "Space" in the keys-only control scheme (no mouse: owner,
+## 2026-10-20), else "Click".
+static func _confirm() -> String:
+	return "Space" if ControlScheme.current() == ControlScheme.KEYS else "Click"

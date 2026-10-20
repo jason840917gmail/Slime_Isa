@@ -11,6 +11,11 @@ extends Control
 ## unpauses). Escape reaches GameWindows, which calls `close()`. Every action button plays the
 ## click cue (`sfx.ui.click`), list selections the select cue (`sfx.ui.hover`, volume 0.8).
 ##
+## Keyboard (owner, 2026-10-20: the keys-only scheme must never need the mouse): W, A, S and D move
+## the focus like the arrows in every scheme (`_input` turns them into `ui_up` / `ui_left` /
+## `ui_down` / `ui_right` while the focus is in this window), Space or Enter press the focused
+## control (the chest's and the bag's cells take or use their stack), Escape closes.
+##
 ## Subclasses override `_build()`, `_layout(width)`, `refresh()` and `_on_opening()`.
 ##
 ## Owner: crafting / inventory (UI).
@@ -26,6 +31,8 @@ const SELECT_VOLUME_DB := -1.9382
 const SFX_MIN_INTERVAL_MS := 40.0
 ## The panel keeps 16 px to every viewport edge.
 const VIEWPORT_MARGIN := 32.0
+## Physical WASD -> the UI direction it moves the focus.
+const WASD_DIRECTIONS := {KEY_W: &"ui_up", KEY_A: &"ui_left", KEY_S: &"ui_down", KEY_D: &"ui_right"}
 
 signal opened(window: Control)
 signal closed(window: Control)
@@ -96,6 +103,46 @@ func open() -> void:
 		windows.call(&"push", self, surface_id)
 	focus_initial()
 	opened.emit(self)
+
+
+## WASD moves the focus as the arrows do (WASD_DIRECTIONS): the key is swallowed (in the keys-only
+## scheme W and A are also interact and attack) and the matching `ui_*` action goes in instead. Only
+## while the focus is in this open window or the menu's tab strip (or nothing has it yet), never
+## into a text field.
+func _input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not _open or not is_visible_in_tree():
+		return
+	var code: Key = key.physical_keycode
+	if not WASD_DIRECTIONS.has(code) or key.ctrl_pressed or key.alt_pressed or key.meta_pressed or key.shift_pressed:
+		return
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused is LineEdit or focused is TextEdit:
+		return
+	if focused == null:
+		if not key.pressed:
+			return
+		focus_initial()
+		get_viewport().set_input_as_handled()
+		return
+	if not is_ancestor_of(focused) and not _in_menu_tabs(focused):
+		return
+	get_viewport().set_input_as_handled()
+	var action := InputEventAction.new()
+	action.action = WASD_DIRECTIONS[code]
+	action.pressed = key.pressed
+	Input.parse_input_event(action)
+
+
+## True for a control of the menu's tab strip (menu_tabs.gd, over the bag, crafting, journal and
+## map), which WASD moves through as well while this window is open.
+static func _in_menu_tabs(control: Control) -> bool:
+	var node: Node = control
+	while node != null:
+		if node.name == &"MenuTabs":
+			return true
+		node = node.get_parent()
+	return false
 
 
 ## Hides the window (no-op when closed) and pops it from GameWindows.

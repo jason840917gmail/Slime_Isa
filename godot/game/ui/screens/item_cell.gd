@@ -8,6 +8,9 @@ extends Button
 ## Locked rows are dimmed with a grey icon; short rows get a 4 px danger edge and a danger label
 ## (styles.css:3604-3610). A cell can be a drag source (`drag_payload`) and a drop target
 ## (`drop_handler`), used by the bag's belt.
+## The keyboard focus is an inner mint ring (FOCUS_RING; the theme's outer focus ring is clipped by
+## `clip_contents`), so the cursor of the arrows / WASD reads apart from the gold selected border
+## (owner, 2026-10-20: the keys-only scheme moves through cells without the mouse).
 ##
 ## Owner: crafting / inventory (UI).
 
@@ -20,6 +23,8 @@ const LOCKED_TEXT := Color("#9aa6b8")
 const LOCKED_ALPHA := 0.5
 const LOCKED_ICON_BRIGHTNESS := 0.8
 const SHORT_EDGE_PX := 4.0
+const FOCUS_RING_PX := 3
+const FOCUS_RADIUS := 8
 const GREYSCALE_SHADER := """
 shader_type canvas_item;
 uniform float brightness = 0.8;
@@ -57,6 +62,13 @@ func _init(cell_layout: int = Layout.ROW, icon_px: int = 36, font_px: int = 13) 
 	toggle_mode = true
 	clip_contents = true
 	focus_mode = Control.FOCUS_ALL
+	var ring := StyleBoxFlat.new()
+	ring.draw_center = false
+	ring.border_color = UiTokens.ACCENT
+	ring.set_border_width_all(FOCUS_RING_PX)
+	ring.set_corner_radius_all(FOCUS_RADIUS)
+	ring.anti_aliasing = true
+	add_theme_stylebox_override(&"focus", ring)
 	_build(icon_px, font_px)
 
 

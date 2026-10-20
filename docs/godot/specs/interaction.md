@@ -228,7 +228,8 @@ Geometry in local coordinates, origin = **bottom centre** (`BADGE_SIZE = 22`, `h
 | - divider lines | `(0, -18.5)-(0, -11.75)` and `(-5.5, -11.75)-(5.5, -11.75)` | button split |
 
 (A keyboard binding would instead show the key label: bold 14 px `#e7fff5` text centred at
-(0, -11). Not reachable with the current binding.)
+(0, -11). The keys-only control scheme binds interact to W, and the Godot badge shows "W" so:
+`interaction_badge.gd` `interact_key_text`, owner 2026-10-20.)
 
 Per `update` (`:184-197`):
 

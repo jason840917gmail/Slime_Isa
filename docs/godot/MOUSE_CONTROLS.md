@@ -5,13 +5,16 @@ way it does in Diablo or Dota, or not at all. Five control schemes can be switch
 so they can be compared side by side. The keyboard scheme is the original game and stays the
 default.
 
+**The winner so far: keys only** (owner, 2026-10-19: "the winner so far is keys only"). He plays
+with the `keys` scheme; the others stay switchable for now. Not yet made the default.
+
 | Scheme | Walk | Left click | Right click |
 |---|---|---|---|
 | `keyboard` (default) | WASD | swing toward the pointer | use the target in reach |
 | `click` — Diablo | click the ground; hold to follow the pointer | **order** | **use**: what's under the pointer (walking there), else the target in reach |
 | `moba` — Dota / LoL | right-click the ground; hold to follow | swing in place toward the pointer | **order** |
 | `pointer` — face the pointer | **W** (or ↑) walks toward the pointer; A, S, D and clicks never move | swing toward the pointer | use the target in reach |
-| `keys` — keys only | the **arrows**; **A** attacks, **Space** interacts, **W** swallows, **E** switches weapons | nothing | nothing |
+| `keys` — keys only | the **arrows**; **A** attacks, **W** interacts, **E** switches weapons | nothing | nothing |
 
 **Switching:** press **F2** in game (`control_scheme_next`; the new scheme's name floats over the
 slime), or use the **Mouse** button in Settings. The choice is saved with the other settings in
@@ -119,10 +122,25 @@ What needed the mouse, and what it does without it:
   it (`furniture_placement.gd` `_aim_point`). A places, E switches the variant, W or Esc cancels.
 - **The Gulp** (2026-10-09): Q sucks and throws where the slime faces, and 1 swallows, as in the
   other schemes.
-- **Windows** (bag, crafting, chest, journal, map, dialogue): they already had keyboard focus.
-  The arrows move between buttons, Enter or Space presses them, and Esc closes. Dialogue also
-  advances on W. The bag's belt can be filled from its assignment buttons, so the drag and drop
-  isn't needed. The chest takes a stack with its Take Stack button or the menu key.
+- **The interact badge** over the chosen target shows the interact key's letter (**W**) instead of
+  the mouse glyph whenever `interact`'s first binding is a key (owner, 2026-10-20: "on coffers and
+  interact remove the mouse icon"; `interaction_badge.gd`). The prompt already read "Press W: ...".
+- **Windows** (bag, crafting, chest, journal, map, dialogue; owner, 2026-10-20: "I really
+  shouldn't have to use the mouse"): the arrows **or W, A, S, D** move a selection cursor (a mint
+  ring inside the cell, apart from the gold border of the selected one) between cells and
+  buttons, Space or Enter presses, and Esc closes (B closes the bag). WASD works in every scheme
+  (`game_window.gd` `_input` turns them into the `ui_*` arrows while the focus is in the window
+  or the menu's tab strip, never in a text field). Dialogue also advances on W.
+  - **Chest:** the first stack is selected and focused on open; moving selects; **Space takes the
+    selected stack** (as the right click does) and the selection moves to the stack now in its
+    place. The opening status names the keys.
+  - **Bag:** the selected item (the first at open) has the cursor; moving onto a bag cell selects
+    it; **Space uses or holds it** (Use / Hold in hand / Place, the Primary button). Space on a
+    belt slot holds that weapon; the belt is filled from a weapon's assignment buttons (move
+    right to the details), so drag and drop isn't needed. In the rework mode, Space on a Shapes,
+    Abilities or Skins cell chooses it (moving only shows its card). The titles, the band's help,
+    the cards and the tabs' bubble name Space instead of the click in this scheme.
+  - **Tabs:** move up past the window's top row to the tab strip and press Space (or B, J, M).
 - **Mouse buttons and the wheel** do nothing in play. Windows still take clicks.
 
 ## Walking: routes

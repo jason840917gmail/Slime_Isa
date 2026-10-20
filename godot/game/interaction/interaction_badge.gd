@@ -2,7 +2,9 @@ extends Node2D
 ## The key badge over the chosen target (Phaser `InteractionRouter.ts:33-35, 145-197`;
 ## interaction spec 2.6, 7.5): a 22 px rounded plate (#101a31 at 0.92, 2 px #9dffc8 border, a soft
 ## shadow 1 px right and 2 px down) with a mouse glyph whose right button is lit, its bottom
-## centre at the target's anchor. It bobs 2.5 px every 1400 ms and pops in (scale 0.5 -> 1, alpha
+## centre at the target's anchor. When `interact`'s first binding is a key (the keys-only control
+## scheme puts it on W) the plate shows that key's letter instead of the mouse (owner, 2026-10-20:
+## no mouse icon where the mouse isn't used); it follows the InputMap, so F2 changes it at once. It bobs 2.5 px every 1400 ms and pops in (scale 0.5 -> 1, alpha
 ## 0 -> 1, 140 ms, back-out) whenever the target changes. World space, z_index 1 (above every
 ## world sprite), so it zooms and fades with the world. PAUSABLE.
 ##
@@ -17,12 +19,18 @@ const GLYPH := Color("#e7fff5")
 const BOB_PERIOD_MS := 1400.0
 const BOB_PX := 2.5
 const POP_MS := 140.0
+## The key label: bold 14 px, centred at (0, -11) (interaction spec 7.5).
+const KEY_FONT_PX := 14
+const INTERACT_ACTION := &"interact"
+const ControlLabels := preload("res://game/shell/control_labels.gd")
 
 var _pop: Tween
 var _shadow_box: StyleBoxFlat
 var _plate_box: StyleBoxFlat
 var _lit_box: StyleBoxFlat
 var _mouse_box: StyleBoxFlat
+## The interact key's letter ("W"); "" draws the mouse glyph.
+var _key_text: String = ""
 
 
 func _ready() -> void:
@@ -41,6 +49,10 @@ func show_at(anchor: Vector2, pop: bool) -> void:
 	var bob := sin(Time.get_ticks_msec() / BOB_PERIOD_MS * TAU) * BOB_PX
 	global_position = Vector2(floorf(anchor.x + 0.5), floorf(anchor.y + bob + 0.5))
 	visible = true
+	var key_text := interact_key_text()
+	if key_text != _key_text:
+		_key_text = key_text
+		queue_redraw()
 	if pop:
 		if _pop != null and _pop.is_valid():
 			_pop.kill()
@@ -61,11 +73,34 @@ func _draw() -> void:
 	var item := get_canvas_item()
 	_shadow_box.draw(item, Rect2(-10.0, -20.0, SIZE, SIZE))
 	_plate_box.draw(item, Rect2(-11.0, -22.0, SIZE, SIZE))
+	if not _key_text.is_empty():
+		var font := _font()
+		var width := font.get_string_size(_key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, KEY_FONT_PX).x
+		var baseline := -11.0 + (font.get_ascent(KEY_FONT_PX) - font.get_descent(KEY_FONT_PX)) / 2.0
+		draw_string(font, Vector2(-width / 2.0, baseline), _key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, KEY_FONT_PX, GLYPH)
+		return
 	# Mouse glyph, right button lit (drawMouseGlyph(centerY -11, button 2)).
 	_lit_box.draw(item, Rect2(0.0, -18.5, 5.5, 6.75))
 	_mouse_box.draw(item, Rect2(-5.5, -18.5, 11.0, 15.0))
 	draw_line(Vector2(0.0, -18.5), Vector2(0.0, -11.75), GLYPH, 1.5)
 	draw_line(Vector2(-5.5, -11.75), Vector2(5.5, -11.75), GLYPH, 1.5)
+
+
+## The label of `interact`'s first binding when it is a key ("W"), else "" (a mouse button).
+static func interact_key_text() -> String:
+	var events := InputMap.action_get_events(INTERACT_ACTION) if InputMap.has_action(INTERACT_ACTION) else []
+	if events.is_empty() or not events[0] is InputEventKey:
+		return ""
+	return ControlLabels.event_label(events[0])
+
+
+func _font() -> Font:
+	var theme := ThemeDB.get_project_theme()
+	if theme != null and theme.has_font(&"font", &"BoldButton"):
+		return theme.get_font(&"font", &"BoldButton")
+	if theme != null and theme.default_font != null:
+		return theme.default_font
+	return ThemeDB.fallback_font
 
 
 static func _box(fill: Color, border: Color, border_width: int, radius: int) -> StyleBoxFlat:
