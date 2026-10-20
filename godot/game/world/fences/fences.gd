@@ -32,6 +32,12 @@ extends Node2D
 ## line (`gate_axis`) to its block: rails from each post up to the block's edge and their bands
 ## (`_add_gate_links`), so a shut gate closes its whole cell; the gate's own body covers the block.
 ##
+## A cracked tile (the palette's cracked row, data layer `fence_cracked`) is an all-neighbour post
+## with a crack drawn over it (docs/godot/FENCES.md "Cracked fences"). In the game it is a Goo Bomb
+## target (`CrackedPost`, group `blast_targets`): a blast whose ellipse holds its foot breaks it for
+## good (the story flag `crack_flag`), and the fences are built again without it, so its post, the
+## rails that joined it and their collision are gone.
+##
 ## Owner: world (fences).
 
 const Self := preload("res://game/world/fences/fences.gd")
@@ -43,6 +49,7 @@ const FENCE_SHADER := preload("res://game/world/fences/fence.gdshader")
 const DEPTH_SHADER := preload("res://game/world/fences/fence_depth.gdshader")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const DividerGateScript := preload("res://game/dungeon/divider_gate.gd")
+const BlastBarrier := preload("res://game/scripts/blast_barrier.gd")
 ## Gate tiles of a divider style (docs/godot/FENCES.md "Dungeon dividers"): style -> the gate's kind.
 const GATE_STYLES := {"lair-divider-eye": "eye", "lair-divider-pen": "pen"}
 ## How wide (px of the post art) the end of a front run's rails at a gate is (`_add_rail_end`).
@@ -55,6 +62,15 @@ const PIECES_NAME := "FencePieces"
 ## arrow points to (an index into DIRECTIONS, ALL_NEIGHBORS_DIRECTION for the all-neighbour tile).
 const STYLE_DATA_LAYER := "fence_style"
 const DIRECTION_DATA_LAYER := "fence_direction"
+const CRACKED_DATA_LAYER := "fence_cracked"
+## A cracked post's own picture, drawn in place of the post (scripts/art/build-cracked-fence-posts.py,
+## 2 px per unit), and its px below the post's foot (the build's FOOT_PAD).
+const CRACKED_POST := "res://asset/MAPS/fences/%s-post-cracked.png"
+const CRACKED_FOOT_PAD := 6.0
+## A broken post's give-way: its line, debris and dust.
+const CRACK_BREAK_TEXT := "The fence gives way!"
+const CRACK_PEBBLES := 10
+const CRACK_PUFFS := 6
 const ALL_NEIGHBORS_DIRECTION := -1
 ## Direction from a painted cell to a connected neighbor: N, NE, E, SE, S, SW, W, NW.
 const DIRECTIONS: Array[Vector2i] = [Vector2i.UP, Vector2i(1, -1), Vector2i.RIGHT, Vector2i(1, 1),
@@ -110,6 +126,9 @@ var _side_half := 7.0
 ## The depth map the silhouettes went into and the silhouettes (ElevationOcclusion.add_occluder).
 var _occlusion: ElevationOcclusion
 var _occluders: Array = []
+## The last build's inputs, to build again when a cracked post breaks (`_rebuild_after_break`).
+var _painted: TileMapLayer
+var _collide := false
 ## level -> its physics layer's bit (`_level_bit`), read from the project settings once.
 static var _level_bits := {}
 ## The painted cells outside the grid already warned about (layer path and cell), once a session.
@@ -307,6 +326,8 @@ func build(ground_layer: TileMapLayer, painted: TileMapLayer, the_grid: Elevatio
 	grid = the_grid
 	ground = ground_layer
 	_cell_offset = cell_offset
+	_painted = painted
+	_collide = collide
 	cell = float(ground.tile_set.tile_size.x)
 	_pieces = Node2D.new()
 	_pieces.name = PIECES_NAME
@@ -390,6 +411,13 @@ func _painted_connections(painted: TileMapLayer) -> Dictionary:
 			continue
 		var direction := int(data.get_custom_data(DIRECTION_DATA_LAYER)) if painted.tile_set.has_custom_data_layer_by_name(DIRECTION_DATA_LAYER) else ALL_NEIGHBORS_DIRECTION
 		cells[at] = {"style": style, "direction": direction, "level": grid.level_of_cell(at)}
+		if painted.tile_set.has_custom_data_layer_by_name(CRACKED_DATA_LAYER) and bool(data.get_custom_data(CRACKED_DATA_LAYER)):
+			var flag := crack_flag(world_id(painted), cell_pos)
+			if not Engine.is_editor_hint() and _run_has_flag(flag):
+				# broken for good: no post, no rails to it (and none across its corner: `_add_connected_network`)
+				cells[at] = {"broken": true, "level": grid.level_of_cell(at)}
+				continue
+			cells[at]["crack_flag"] = flag
 	return cells
 
 
@@ -477,13 +505,26 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 		return
 	var posts := {}
 	var gates := {}
+	var broken := {}
 	for at: Vector2i in cells:
 		if (cells[at] as Dictionary).has("gate"):
 			gates[at] = cells[at]
+		elif (cells[at] as Dictionary).has("broken"):
+			broken[at] = true
 		else:
 			posts[at] = cells[at]
 	cells = posts
 	var links := connected_links(cells)
+	# A broken cracked post leaves a gap: the posts beside it never join diagonally across its corner.
+	if not broken.is_empty():
+		var kept: Array[Dictionary] = []
+		for link: Dictionary in links:
+			var step: Vector2i = DIRECTIONS[int(link["direction"])]
+			var from: Vector2i = link["from"]
+			if step.x != 0 and step.y != 0 and (broken.has(from + Vector2i(step.x, 0)) or broken.has(from + Vector2i(0, step.y))):
+				continue
+			kept.append(link)
+		links = kept
 	var linked_cells := {}
 	var gate_links := _add_gate_links(gates, cells, shadows, depth)
 	# cell -> the directions it is joined in (to a post or a gate): a run's end has one
@@ -527,8 +568,11 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 		var level := int(entry["level"])
 		var foot := _foot(at)
 		var post_half := float(kit["posts"]["half_width"])
-		_add_post(style, kit, level, foot, shadows, _depth_for(depth, style))
+		var cracked := entry.has("crack_flag")
+		_add_post(style, kit, level, foot, shadows, _depth_for(depth, style), not cracked)
 		_add_post_box(level, foot, post_half)
+		if cracked:
+			_add_crack(style, foot, str(entry["crack_flag"]))
 		# A run's end against a wall (the cell past it, away from the one join it has, is a room's wall
 		# or a built wall) reaches it: a second post at its cell's edge and the rail between, as a
 		# lone tile's stub (owner, 2026-10-19: ending on the cell's middle post, a run left a 32-unit
@@ -550,6 +594,9 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 		# fence on the gate's far side, to meet a wall); an all-neighbour tile, or an arrow at its
 		# gate, is its post and the rails to the gate.
 		if gate_links.has(at) and (direction == ALL_NEIGHBORS_DIRECTION or (gate_links[at] as Array).has(direction)):
+			continue
+		# A post left alone by a broken cracked post beside it stands as it is (no stub into the gap).
+		if DIRECTIONS.any(func(step: Vector2i) -> bool: return broken.has(at + step)):
 			continue
 		# A lone tile is a short fence of two posts: its own and one at its cell's edge (a diagonal's
 		# corner) the way its arrow points (east for an all-neighbour tile), the rail between them;
@@ -692,10 +739,87 @@ static func _front_normal(axis: Vector2) -> Vector2:
 	return normal
 
 
+# --- cracked posts --------------------------------------------------------------------------
+
+## The story flag a cracked post painted at `cell_pos` of world `map_id`'s fences sets when it breaks.
+static func crack_flag(map_id: String, cell_pos: Vector2i) -> String:
+	return "fence-crack.%s.%d,%d" % [map_id, cell_pos.x, cell_pos.y]
+
+
+## The world id of the scene a fences layer is painted in: its `world-definition`'s `map_id`, else
+## the scene root's name.
+static func world_id(painted: TileMapLayer) -> String:
+	var room := painted.get_parent() if painted != null else null
+	if room == null:
+		return ""
+	var definition := room.get_node_or_null(^"world-definition")
+	if definition != null and not str(definition.get(&"map_id")).is_empty():
+		return str(definition.get(&"map_id"))
+	return str(room.name)
+
+
+static func _run_has_flag(flag: String) -> bool:
+	var run := Services.run()
+	return run != null and bool(run.call(&"has_flag", flag))
+
+
+## A cracked post's picture (in the editor too, so it shows as you paint) and, in the game, the blast
+## target that breaks it.
+func _add_crack(style: String, foot: Vector2, flag: String) -> void:
+	var post := CrackedPost.new()
+	post.name = "CrackedPost-%d-%d" % [roundi(foot.x), roundi(foot.y)]
+	post.fences = self
+	post.flag = flag
+	post.position = foot
+	var texture := SheetSprite.load_picture(CRACKED_POST % style) as Texture2D
+	if texture != null:
+		var sprite := Sprite2D.new()
+		sprite.texture = texture
+		sprite.centered = false
+		sprite.scale = Vector2.ONE * 0.5
+		sprite.offset = Vector2(-texture.get_width() * 0.5, CRACKED_FOOT_PAD - texture.get_height())
+		post.add_child(sprite)
+	_pieces.add_child(post)
+	if not Engine.is_editor_hint():
+		post.add_to_group(&"blast_targets")
+
+
+## A cracked post broke: build the fences again (after this frame: the blast is still running) without
+## it.
+func _rebuild_after_break() -> void:
+	if not is_inside_tree() or ground == null:
+		return
+	build(ground, _painted, grid, _occlusion, _collide, _cell_offset)
+
+
+## A cracked post's blast target (in `FencePieces`): a Goo Bomb blast whose ellipse holds its foot
+## breaks it.
+class CrackedPost extends Node2D:
+	var fences: Node
+	var flag := ""
+	var _broken := false
+
+	func blast_point() -> Vector2:
+		return global_position
+
+	func receive_blast(_hit: Dictionary) -> bool:
+		if _broken:
+			return false
+		_broken = true
+		var run := Services.run()
+		if run != null:
+			run.call(&"set_flag", flag)
+		BlastBarrier.give_way(global_position, CRACK_BREAK_TEXT, Color("#8a6a48"), CRACK_PEBBLES, CRACK_PUFFS)
+		if is_instance_valid(fences):
+			fences.call_deferred(&"_rebuild_after_break")
+		return true
+
+
 # --- drawing -------------------------------------------------------------------------------
 
 ## One post: its sprite at its foot, a contact shadow and a soft shadow towards the lower right.
-func _add_post(style: String, kit: Dictionary, level: int, foot: Vector2, shadows: MeshData, depth: Array) -> void:
+## `art` false: only its shadows (a cracked post draws its own picture: `_add_crack`).
+func _add_post(style: String, kit: Dictionary, level: int, foot: Vector2, shadows: MeshData, depth: Array, art: bool = true) -> void:
 	var cell_size := Vector2(float(kit["posts"]["cell"][0]), float(kit["posts"]["cell"][1]))
 	var foot_row := float(kit["posts"]["foot_row"])
 	var variant := absi(roundi(foot.x) * 73856093 ^ roundi(foot.y) * 19349663) % int(kit["posts"]["count"])
@@ -715,8 +839,9 @@ func _add_post(style: String, kit: Dictionary, level: int, foot: Vector2, shadow
 		var dy := point.y - foot.y
 		arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_POST, level))
 		silhouette.add(point, uv, ElevationOcclusion.encode(level, dy))
-	_add_piece(style, kit, foot.y, arrays)
-	depth.append([foot.y + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
+	if art:
+		_add_piece(style, kit, foot.y, arrays)
+		depth.append([foot.y + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
 	var post_width := float(kit["posts"]["half_width"])
 	var reach := SHADOW_FALL * float(kit["post_height"]) * SHADOW_PER_HEIGHT
 	_add_fade(shadows, foot - Vector2(post_width, 0.0), foot + Vector2(post_width, 0.0), reach, SHADOW_ALPHA)

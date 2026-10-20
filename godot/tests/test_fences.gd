@@ -41,7 +41,8 @@ const DIVIDER_WEST := Vector2i(7, 7)
 const EYE_GATE := Vector2i(8, 0)
 const PEN_GATE := Vector2i(9, 0)
 ## The Lair's rooms with divider gates (game/scenes/worlds/rooms/fatty-lair/).
-const GATE_ROOMS: PackedStringArray = ["c2-weigh-house", "old-armoury", "r5-eye-hall", "r7-bell-bridge"]
+## (the Old Armoury moved out of the Lair, 2026-10-19: res://game/scenes/worlds/slimeshire-old-armoury.tscn)
+const GATE_ROOMS: PackedStringArray = ["c2-weigh-house", "../../slimeshire-old-armoury", "r5-eye-hall", "r7-bell-bridge"]
 const ROOMS_DIR := "res://game/scenes/worlds/rooms/fatty-lair/%s.tscn"
 ## How far beside a gate's middle the hole a shut gate used to leave was (between its old 52-unit body
 ## and the post's 14-unit rect, 31 units wide: the 30-wide slime fit through).

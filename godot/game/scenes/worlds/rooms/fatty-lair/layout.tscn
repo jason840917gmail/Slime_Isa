@@ -63,14 +63,6 @@ world_id = "fatty-lair-r14-postern"
 room_name = "r14-postern"
 size = Vector2(1152, 1024)
 
-[node name="old-armoury" type="Node2D" parent="."]
-position = Vector2(0, 2048)
-script = ExtResource("2_room")
-room_scene = "res://game/scenes/worlds/rooms/fatty-lair/old-armoury.tscn"
-world_id = "fatty-lair-old-armoury"
-room_name = "old-armoury"
-size = Vector2(1152, 1024)
-
 [node name="r11-drop-gate-bridge" type="Node2D" parent="."]
 position = Vector2(2304, 2048)
 script = ExtResource("2_room")
@@ -85,14 +77,6 @@ script = ExtResource("2_room")
 room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r13-fattys-arena.tscn"
 world_id = "fatty-lair-r13-fattys-arena"
 room_name = "r13-fattys-arena"
-size = Vector2(1152, 1024)
-
-[node name="glow-moss-burrow" type="Node2D" parent="."]
-position = Vector2(4608, 2048)
-script = ExtResource("2_room")
-room_scene = "res://game/scenes/worlds/rooms/fatty-lair/glow-moss-burrow.tscn"
-world_id = "fatty-lair-glow-moss-burrow"
-room_name = "glow-moss-burrow"
 size = Vector2(1152, 1024)
 
 [node name="map-nook" type="Node2D" parent="."]
@@ -126,14 +110,6 @@ script = ExtResource("2_room")
 room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r6-pipe-gallery.tscn"
 world_id = "fatty-lair-r6-pipe-gallery"
 room_name = "r6-pipe-gallery"
-size = Vector2(1152, 1024)
-
-[node name="sally-port" type="Node2D" parent="."]
-position = Vector2(0, 4096)
-script = ExtResource("2_room")
-room_scene = "res://game/scenes/worlds/rooms/fatty-lair/sally-port.tscn"
-world_id = "fatty-lair-sally-port"
-room_name = "sally-port"
 size = Vector2(1152, 1024)
 
 [node name="r5-eye-hall" type="Node2D" parent="."]

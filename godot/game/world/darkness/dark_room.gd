@@ -9,10 +9,12 @@ extends Node2D
 ##   global y, radius; <= 0 is off; game/world/fire/fire_targets.gd): the slime with the Lantern
 ##   learned (lantern_glow.gd), lit candles, flames in flight, the Goo Bomb's bombs and blasts. The
 ##   `abilities.lantern.darkness.maxLights` nearest to the slime (16) that reach the room are drawn.
-## - **The darkness**: `abilities.lantern.darkness.alpha` (0.92) where no light reaches, a soft
+## - **The darkness**: `abilities.lantern.darkness.alpha` (0.98) where no light reaches, a soft
 ##   edge of `softPx` inside each light's radius.
-## - **Lit by its candles**: while every candle in `candles` burns, the room fades to lit over
-##   `litFadeMs`; when one goes out (candles burn 60 s by default, candle.gd) it fades dark again.
+## - **Lit by its candles**: each candle of `candles` that burns lifts `darkness.candleShare` (25 %)
+##   of the dark (owner, 2026-10-19: "turning candles on should bring some light to the room"); while
+##   every one burns, the room fades to lit over `litFadeMs`; when one goes out (candles burn 60 s by
+##   default, candle.gd) it fades darker again.
 ## - **Lit for good** (`lit_for_good_when_all_lit`, off by default): once all its candles burn, it
 ##   stays lit and keeps them lit: the story flag `lit_flag` (default
 ##   `dark-room-lit.<persistence key or path>`).
@@ -85,7 +87,7 @@ func _ready() -> void:
 	_overlay.z_as_relative = false
 	add_child(_overlay)
 	_fit_overlay()
-	_material.set_shader_parameter(&"darkness", FireTargets.lantern_number("darkness.alpha", 0.92))
+	_material.set_shader_parameter(&"darkness", FireTargets.lantern_number("darkness.alpha", 0.98))
 	_material.set_shader_parameter(&"soft_px", FireTargets.lantern_number("darkness.softPx", 40.0))
 
 
@@ -143,7 +145,8 @@ func _process(_delta: float) -> void:
 	var step := now - _last_ms if _last_ms >= 0.0 else 0.0
 	_last_ms = now
 	var fade_ms := maxf(1.0, FireTargets.lantern_number("darkness.litFadeMs", 1500.0))
-	_fade = move_toward(_fade, 0.0 if _lit else 1.0, step / fade_ms)
+	var target := 0.0 if _lit else maxf(0.0, 1.0 - FireTargets.lantern_number("darkness.candleShare", 0.25) * float(_candles_lit()))
+	_fade = move_toward(_fade, target, step / fade_ms)
 	if _for_good and _fade <= 0.0:
 		_overlay.queue_free()
 		_overlay = null
@@ -184,6 +187,16 @@ func _push_lights(player: Node) -> void:
 		lights.append(Vector4.ZERO)
 	_material.set_shader_parameter(&"lights", lights)
 	_material.set_shader_parameter(&"light_count", count)
+
+
+## How many of its candles burn.
+func _candles_lit() -> int:
+	var count := 0
+	for path in candles:
+		var candle := get_node_or_null(path)
+		if candle != null and candle.has_method(&"is_lit") and bool(candle.call(&"is_lit")):
+			count += 1
+	return count
 
 
 func _all_candles_lit() -> bool:

@@ -173,6 +173,21 @@ reads them now.
 Walls fit the same kit: their pillars are the posts, the wall between them the rails, the wall seen
 from above its side rail. All seven await the owner's verdict.
 
+## Cracked fences
+
+A **cracked tile** (2026-10-19, owner): one per style, in the palette's last row (row 9, under the
+arrows; data layer `fence_cracked`). Paint it like any tile: it is an all-neighbour post drawn with its style's own cracked
+post picture (`asset/MAPS/fences/<style>-post-cracked.png`, cut by
+`scripts/art/build-cracked-fence-posts.py` from one Magnific take per style in
+`asset/Originals/fences/cracked/`, the style's front view as reference), joined to its neighbours as
+usual. In the game a Goo Bomb blast whose ellipse holds its foot breaks it for good
+(`Fences.CrackedPost`, group `blast_targets`; the story flag `fence-crack.<world id>.<x>,<y>`, the
+painted cell): the give-way line, debris and the secret jingle, then the fences are built again
+without it. Its post, the rails that joined it and their collision are gone; the posts beside it
+never join across its corner, and a post it leaves alone stands as one post (no lone stub). Nothing
+else breaks it. Paint a cracked tile in every cell of a run that should open (one cell is a 64-unit
+gap). The palette: `scripts/art/build-fence-paint-tiles.py`, then `tools/pack_fence_paint_tiles.gd`.
+
 ## Dungeon dividers
 
 Inside a dungeon room a division is not a wall with a door (owner, 2026-10-19, after Zelda ALttP's

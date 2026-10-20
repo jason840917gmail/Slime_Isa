@@ -98,8 +98,7 @@ key alcove are one world, `fatty-lair-r5-eye-hall`, three CameraRooms (the owner
   `asset/MAPS/objects/fattys-lair/seal-glimpse-open.res` and `-shut.res`, captured by
   `tools/capture_lair_seal.gd` (windowed; run it again after repainting R1).
 - **The pockets.** R1's store (through R1's barricade), Burr's cell (through his two-key door in
-  the hub), the map nook (R4's west gap) and the sally port (R5's crack; the sally port has its own
-  blown side of it) are worlds of their own, each a full box: its own two-cell bevel rim on every
+  the hub) and the map nook (R4's west gap) are worlds of their own, each a full box: its own two-cell bevel rim on every
   side, its way out a doorway block in it, the room door on the block's outer edge. In the parent
   world the pocket is rock behind the parent's own faces, the door cut into the parent's face (the
   hub's notch, columns 0-6 by rows 0-8, with Burr's key2 block at (2..3, 7..8); Burr waits in that

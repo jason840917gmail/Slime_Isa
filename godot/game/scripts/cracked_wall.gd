@@ -62,6 +62,12 @@ const ROCK_SAMPLES := 48
 	set(value):
 		crack_offset = value
 		_apply_look()
+## The crack decal's colour: lower its alpha (and darken it toward the rock) so a secret crack hides
+## in its wall instead of standing out (owner, 2026-10-19: "the crack has to match the wall").
+@export var crack_tint: Color = Color.WHITE:
+	set(value):
+		crack_tint = value
+		_apply_look()
 ## The hole decal: its size and its middle from the root (world units).
 @export var hole_size: Vector2 = Vector2(100.0, 120.0):
 	set(value):
@@ -244,6 +250,7 @@ func _apply_look() -> void:
 	if crack != null:
 		crack.visible = not blown and not frame_drawn_by_wall
 		_fit(crack, crack_size, crack_offset)
+		crack.modulate = crack_tint
 	if hole != null:
 		hole.visible = blown and not frame_drawn_by_wall
 		_fit(hole, hole_size, hole_offset)

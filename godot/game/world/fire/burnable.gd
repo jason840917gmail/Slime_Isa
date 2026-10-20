@@ -53,6 +53,8 @@ const TURN_SHARE := 0.55
 @export var damage_area: Area2D
 ## The body whose shapes block the way until it has burnt (default: the parent).
 @export var blocker: CollisionObject2D
+## Shown once it has burnt, hidden before (what it covered: a hole under a dry trunk).
+@export var reveal: CanvasItem
 ## The fire box above its feet (width x height, px): what a flame must touch and what spreads.
 @export var fire_size: Vector2 = Vector2(150, 70)
 ## The text rises this far over its feet.
@@ -78,6 +80,8 @@ func _ready() -> void:
 	_seed = randf() * 100.0
 	if blocker == null:
 		blocker = get_parent() as CollisionObject2D
+	if reveal != null:
+		reveal.visible = false
 	var run := Services.run()
 	if run != null and run.has_flag(burnt_flag()):
 		_show_burnt()
@@ -223,6 +227,8 @@ func _show_burnt() -> void:
 	if visual != null:
 		visual.frame = FRAME_BURNT
 		visual.modulate = Color.WHITE
+	if reveal != null:
+		reveal.visible = true
 	if blocker != null:
 		for child: Node in blocker.get_children():
 			if child is CollisionShape2D or child is CollisionPolygon2D:

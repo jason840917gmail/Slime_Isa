@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="1_door"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="2_sheet"]
+
+[node name="open-hole" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Hole" type="Sprite2D" parent="."]
+z_as_relative = false
+z_index = -1
+position = Vector2(0.6, 1.5)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("2_sheet")
+sheet_path = "res://asset/abilities/goo-bomb/floor-hole.webp"
+
+[node name="DoorScript" type="Node" parent="."]
+script = ExtResource("1_door")
+kind = "fall"
+trigger_rect = Rect2(-44, -32, 88, 64)
+use_cue = &"FallDown"

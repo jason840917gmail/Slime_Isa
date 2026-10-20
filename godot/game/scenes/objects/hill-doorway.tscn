@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="1_door"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="2_sheet"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-unlit.tscn" id="3_sconce"]
+
+[node name="hill-doorway" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-120, -162)
+script = ExtResource("2_sheet")
+sheet_path = "res://asset/MAPS/objects/hill-doorway.webp"
+
+[node name="sconce-west" parent="." instance=ExtResource("3_sconce")]
+position = Vector2(-72, -30)
+
+[node name="sconce-east" parent="." instance=ExtResource("3_sconce")]
+position = Vector2(72, -30)
+
+[node name="DoorScript" type="Node" parent="."]
+script = ExtResource("1_door")
+side = "north"
+trigger_rect = Rect2(-26, -18, 52, 26)

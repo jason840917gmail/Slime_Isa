@@ -22,6 +22,7 @@
 [ext_resource type="Script" path="res://game/scripts/door.gd" id="20_rw5642"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="21_rw5907"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="22_rw0160"]
+[ext_resource type="Script" path="res://game/fattys_lair/lair_collapse.gd" id="90_collapse"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bbfy6"]
 blend_mode = 1
@@ -220,6 +221,10 @@ target_area_id = "level-1-d5"
 target_door_id = "fatty-lair-mouth"
 side = "south"
 trigger_rect = Rect2(-64, -24, 128, 48)
+
+[node name="collapse" type="Node" parent="." node_paths=PackedStringArray("door")]
+script = ExtResource("90_collapse")
+door = NodePath("../fatty-lair-entrance/DoorScript")
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1072563460]
 process_mode = 3

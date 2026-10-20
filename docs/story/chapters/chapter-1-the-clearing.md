@@ -338,6 +338,11 @@ autosave waits until the slime is out.*
    the doors to the outside sealed until he falls. The built lair keeps the
    old order until its rework
    ([roadmap 12.8](../../GAME_ROADMAP.md#the-2026-10-17-decisions)).*
+   *Changed 2026-10-19 (owner): once Fatty falls the lair caves in, as a
+   Zelda dungeon is done for good. The slime escapes by the postern and the
+   bolt-hole into D4, and the gate in Fatty's Hollow lies buried after. Its
+   come-back secrets move outside into Slimeshire
+   ([the plan](../../design/2026-10-19-lair-secrets-outside.md)).*
 5. **After Fatty** (Planned, owner, 2026-10-16, question 103). The freed Burr
    says the town must see the Pearl, the journal's main quest points home,
    and Slimeshire's well comes back when the slime brings the Pearl to it

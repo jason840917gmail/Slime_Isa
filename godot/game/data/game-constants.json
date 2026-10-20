@@ -423,7 +423,7 @@
       "glow": { "radiusPx": 160, "flareMs": 260 },
       "candle": { "lightRadiusPx": 110, "gutterMs": 5000 },
       "burnable": { "burnMs": 600, "spreadPx": 24 },
-      "darkness": { "alpha": 0.92, "softPx": 40, "maxLights": 16, "litFadeMs": 1500 }
+      "darkness": { "alpha": 0.98, "softPx": 40, "maxLights": 16, "litFadeMs": 1500, "candleShare": 0.25 }
     }
   },
   "puzzles": {
@@ -458,9 +458,12 @@
   },
   "dungeon": {
     "devPowers": {
-      "level-1-c4": ["shape-spear", "dodge"],
+      "level-1-c4": ["shape-spear", "dodge", "goo-bombs"],
       "fatty-lair": ["shape-spear", "dodge", "skin.heavy"],
       "level-1-d5": ["shape-spear", "dodge"],
+      "level-1-d4": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "lantern"],
+      "slimeshire-glow-moss-burrow": ["shape-spear", "dodge", "lantern"],
+      "slimeshire-old-armoury": ["shape-spear", "dodge", "lantern"],
       "weaver-hollow-trunk": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
       "weaver-hollow-roots": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
       "weaver-hollow-boughs": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
@@ -490,6 +493,8 @@
       "breakDelayMs": 900, "pulseMs": 1300, "lineEveryMs": 1500, "distantRoarMinMs": 45000,
       "distantRoarMaxMs": 60000, "distantRoarDb": -14, "distantRoarPitch": 0.85, "distantShakeMs": 320,
       "distantShakeIntensity": 0.0025, "distantDust": 14 },
+    "collapse": { "tremorMinMs": 2500, "tremorMaxMs": 4500, "shakeMs": 450, "shakeIntensity": 0.007,
+      "dust": 40, "lineDelayMs": 1400 },
     "enraged": { "pulseMs": 1600, "strength": 0.45, "puffEveryMs": 900, "puffRisePx": 110 }
   },
   "interior": {
