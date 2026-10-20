@@ -704,15 +704,19 @@ func model() -> Dictionary
 - **refresh()**: `m = ChestModel.snapshot(_chest.remaining(), _selected_id, _status)`;
   `_selected_id = m.selected_id`; sync cells (count, icon, tooltip, selected), details, status,
   Take disabled (+ `focus_mode` NONE). Entries are re-read on every refresh (the record is live).
-- **Cell press** (left click, `ui_accept`): `play_select()`; `select_item(index)`.
+- **Cell press** (left click): `play_select()`; `select_item(index)`. `ui_accept` (Space, Enter)
+  on a focused cell takes its stack instead (keys-only scheme, owner 2026-10-20; see below).
 - **Right click**: connect each cell's `gui_input` (a signal, so tests can emit it): an
   `InputEventMouseButton` with `MOUSE_BUTTON_RIGHT`, pressed → `accept_event()`, `play_select()`,
-  `take_at(index)`. `KEY_MENU` or Shift+F10 on a focused cell → `take_at(selected index)`.
-  Arrow keys as the journal, with ↑/↓ moving by 5 (the column count).
+  `take_at(index)`. `ui_accept` (Space, Enter), `KEY_MENU` or Shift+F10 on a focused cell →
+  `take_at(selected index)`. Arrow keys as the journal, with ↑/↓ moving by 5 (the column count);
+  W, A, S and D move the same way (game_window.gd turns them into the `ui_*` arrows). The opening
+  status in the keys-only scheme reads "Arrows or WASD choose a stack. Space takes it."
+  (`ChestModel.initial_status`).
 - **take(item_id)**: `moved = _chest.transfer_stack(item_id)` (`stack_transferred` → TakeSfx);
-  `_status = ChestModel.moved_text(moved, item_id)`; if the item is gone `_selected_id = ""` (the
-  snapshot picks the first entry); refresh; when the focused cell was removed, focus the first
-  cell, else Close. `take_selected()` needs a selection; `take_at(i)` selects `i` first.
+  `_status = ChestModel.moved_text(moved, item_id)`; if the item is gone the stack now in its
+  place (else the one before it) is selected; refresh; when a cell had the focus, the selected
+  cell takes it, else (nothing left) the first focusable control (Close). `take_selected()` needs a selection; `take_at(i)` selects `i` first.
 - **chest.gd changes** (Phaser's `CHEST_VIEW_SERVICE`, `ChestScript.ts:53-96`): the view is the
   first node of group `chest_window`.
 
