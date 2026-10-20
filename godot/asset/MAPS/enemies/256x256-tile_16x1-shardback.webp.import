@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4crwxfg1htuj"
-path="res://.godot/imported/256x256-tile_4x1-broodling.webp-99e573ab97c50ddded190935b9c6bfef.ctex"
+uid="uid://dmoer4ptkx4ip"
+path="res://.godot/imported/256x256-tile_16x1-shardback.webp-3abcf2199d5993924fd9d35ae5fbf9a3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-broodling.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-broodling.webp-99e573ab97c50ddded190935b9c6bfef.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-shardback.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-shardback.webp-3abcf2199d5993924fd9d35ae5fbf9a3.ctex"]
 
 [params]
 

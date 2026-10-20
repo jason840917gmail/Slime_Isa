@@ -4676,8 +4676,9 @@ materials), 8 (Forge), and 13 (progression pass).
     plate, and `gloop-clod-stompers-clearing` (1700, 2370), east of the
     cracked clearing. That camp keeps it about 260 px from the cracked ground,
     so it breaks the ground only for a slime that lures it over.
-  - Art: `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp`
-    (idle, crouch, air, slam, defeated) from Magnific GPT 2.5 stills in
+  - Art: `godot/asset/MAPS/enemies/256x256-tile_17x1-clod-stomper.webp`
+    (idle, crouch, air, slam, defeated, then since 2026-10-19 a four-step walk
+    side, down and up) from Magnific GPT 2.5 stills in
     `asset/Originals/enemies/clod-stomper/`, packed by
     `scripts/characters/pack-clod-stomper.py`. Tests: `test_clod_stomper.gd`.
 - Decided 2026-10-08 ([the 2026-10-08 decisions](#the-2026-10-08-decisions)).
@@ -4948,8 +4949,8 @@ fight is the skin's exam (8.7, 8.14, 12.8).
   move to `asset/to-delete/` with 7.11; the web walls are in Milestone 7's
   assets (7.9).
 - [~] The Clod Stomper's sprite sheet (8.12):
-      `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp` (idle,
-      crouch, air, slam, defeated); accepted by the owner 2026-10-09 ("the art is fine"). Its slam has its own
+      `godot/asset/MAPS/enemies/256x256-tile_17x1-clod-stomper.webp` (idle,
+      crouch, air, slam, defeated, and the walk added 2026-10-19); accepted by the owner 2026-10-09 ("the art is fine"). Its slam has its own
       sound since 2026-10-09 (`StomperSlam`, Sound Picker round 5, owner to
       pick); the rest are reused (SlamWindup, Jump, hit-dull and
       stone-crumble).

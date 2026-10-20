@@ -38,12 +38,12 @@ shape = SubResource("RectangleShape2D_body")
 [node name="Pose" type="Node2D" parent="."]
 
 [node name="Visual" type="Sprite2D" parent="Pose"]
-scale = Vector2(0.24, 0.24)
+scale = Vector2(0.244, 0.244)
 centered = false
 offset = Vector2(-128, -248)
-hframes = 4
+hframes = 16
 script = ExtResource("sheet")
-sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-thornball.webp"
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_16x1-thornball.webp"
 
 [node name="DamageArea" type="Area2D" parent="."]
 position = Vector2(0, -22)
@@ -92,6 +92,8 @@ rewards = {
 }
 pose = NodePath("../Pose")
 defeated_frame = 3
+walk_frame = 4
+walk_step_px = 6.0
 
 [node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]
 script = ExtResource("sfx")

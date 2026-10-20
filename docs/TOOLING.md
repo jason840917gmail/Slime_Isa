@@ -373,8 +373,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `tools/build_strike_animations.gd` and its library were removed; the one-off Round 3 to Round 4 migration was
   removed after it ran (the round 5 key thinning was a one-off scratch run, never in the project).
 - `python scripts/characters/pack-clod-stomper.py` (**numpy**) — the Clod Stomper's five poses (idle, crouch,
-  air, slam, defeated; one scale for all) from `asset/Originals/enemies/clod-stomper/` into
-  `godot/asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp`.
+  air, slam, defeated; one scale for all) and its walk (three 2 x 2 sheets: side, down, up) from
+  `asset/Originals/enemies/clod-stomper/` into
+  `godot/asset/MAPS/enemies/256x256-tile_17x1-clod-stomper.webp`.
 - `python scripts/characters/pack-bestiary-enemies.py` (**numpy**) — the bestiary's first batch
   (docs/godot/BESTIARY.md "Art"): each enemy's Magnific 2 x 2 pose sheet from
   `asset/Originals/enemies/bestiary/` cut along its empty lines, its four poses drawn at one scale

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bjpc1leh0tf4e"
-path="res://.godot/imported/256x256-tile_4x1-bone-leaper.webp-5043e9503b9e51f3ad4b0eaa51475f01.ctex"
+uid="uid://betlwk5rfqvmx"
+path="res://.godot/imported/256x256-tile_16x1-crystal-mite.webp-fcccd5c5857f481091f8f45c7bb71da6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-bone-leaper.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-bone-leaper.webp-5043e9503b9e51f3ad4b0eaa51475f01.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-crystal-mite.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-crystal-mite.webp-fcccd5c5857f481091f8f45c7bb71da6.ctex"]
 
 [params]
 

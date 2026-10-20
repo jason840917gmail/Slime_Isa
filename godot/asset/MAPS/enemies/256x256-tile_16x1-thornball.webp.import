@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7xk4iyeipvie"
-path="res://.godot/imported/256x256-tile_5x1-clod-stomper.webp-7d7dde9e0df4d5f68ad653c0fe85be5e.ctex"
+uid="uid://dc3i7porkkknu"
+path="res://.godot/imported/256x256-tile_16x1-thornball.webp-04af7fb54a9f52c9de23af56246815fc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_5x1-clod-stomper.webp"
-dest_files=["res://.godot/imported/256x256-tile_5x1-clod-stomper.webp-7d7dde9e0df4d5f68ad653c0fe85be5e.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-thornball.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-thornball.webp-04af7fb54a9f52c9de23af56246815fc.ctex"]
 
 [params]
 

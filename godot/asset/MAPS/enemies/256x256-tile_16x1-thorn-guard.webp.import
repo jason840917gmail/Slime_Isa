@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://j7bxjutnlygm"
-path="res://.godot/imported/256x256-tile_4x1-squint.webp-1dce5a774d347c340ee5b0f7ac198ef6.ctex"
+uid="uid://07y88a5uvdjx"
+path="res://.godot/imported/256x256-tile_16x1-thorn-guard.webp-bc2c26de4a9997483c22251a0619438c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-squint.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-squint.webp-1dce5a774d347c340ee5b0f7ac198ef6.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-thorn-guard.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-thorn-guard.webp-bc2c26de4a9997483c22251a0619438c.ctex"]
 
 [params]
 

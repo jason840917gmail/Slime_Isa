@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bflrg52p8ndwa"
-path="res://.godot/imported/256x256-tile_4x1-shardback.webp-45c6f5c81ab2348f340e36789f9b4f67.ctex"
+uid="uid://gnd6c6xi4wvp"
+path="res://.godot/imported/256x256-tile_16x1-cocoon-mimic.webp-af2bf0a2cf30cfeaf411fa520c74bcb0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-shardback.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-shardback.webp-45c6f5c81ab2348f340e36789f9b4f67.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-cocoon-mimic.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-cocoon-mimic.webp-af2bf0a2cf30cfeaf411fa520c74bcb0.ctex"]
 
 [params]
 

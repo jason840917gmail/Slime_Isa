@@ -77,7 +77,10 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 60.0), delta)
 				face_x(body.velocity.x)
 			var walking := body.velocity.length() > WALK_SPEED_THRESHOLD
-			set_look(0.0, Vector2.ONE, sin(now / WALK_SWAY_MS) * WALK_SWAY_RAD if walking else 0.0)
+			if show_walk(delta, FRAME_GUARD):
+				set_look(0.0)
+			else:
+				set_look(0.0, Vector2.ONE, sin(now / WALK_SWAY_MS) * WALK_SWAY_RAD if walking else 0.0)
 		PHASE_WINDUP:
 			body.velocity = Vector2.ZERO
 			var windup := pattern("windupMs", 650.0) if _sweep == 0 else pattern("windup2Ms", 450.0)

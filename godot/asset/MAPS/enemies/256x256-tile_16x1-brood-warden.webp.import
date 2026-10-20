@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3w15grbsgal6"
-path="res://.godot/imported/256x256-tile_4x1-prologue-worm.webp-a51f7403bcdf1957dea6d41b68be55df.ctex"
+uid="uid://bnn33tn8yfdvm"
+path="res://.godot/imported/256x256-tile_16x1-brood-warden.webp-6e407bd5e4d664496792a8e12414557c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-prologue-worm.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-prologue-worm.webp-a51f7403bcdf1957dea6d41b68be55df.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-brood-warden.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-brood-warden.webp-6e407bd5e4d664496792a8e12414557c.ctex"]
 
 [params]
 

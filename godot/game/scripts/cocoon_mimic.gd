@@ -174,7 +174,10 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 					_burst(now)
 			face_x(body.velocity.x if body.velocity.length() > WALK_SPEED_THRESHOLD else slime.x - centre.x)
 			var walking := body.velocity.length() > WALK_SPEED_THRESHOLD
-			set_look(0.0, Vector2.ONE, sin(now / WADDLE_MS) * WADDLE_RAD if walking else 0.0)
+			if _phase == PHASE_OPEN and show_walk(delta, FRAME_BURST):
+				set_look(0.0)
+			else:
+				set_look(0.0, Vector2.ONE, sin(now / WADDLE_MS) * WADDLE_RAD if walking else 0.0)
 		PHASE_WRAP:
 			body.velocity = Vector2.ZERO
 			var t := clampf(elapsed / maxf(1.0, pattern("wrapMs", 600.0)), 0.0, 1.0)

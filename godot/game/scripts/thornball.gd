@@ -98,7 +98,10 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 45.0), delta)
 				face_x(body.velocity.x)
 				var walking := body.velocity.length() > WALK_SPEED_THRESHOLD
-				set_look(0.0, Vector2.ONE, sin(now / WADDLE_MS) * WADDLE_RAD if walking else 0.0)
+				if show_walk(delta, FRAME_STAND):
+					set_look(0.0)
+				else:
+					set_look(0.0, Vector2.ONE, sin(now / WADDLE_MS) * WADDLE_RAD if walking else 0.0)
 		PHASE_CURL:
 			body.velocity = Vector2.ZERO
 			face_x(slime.x - centre.x)

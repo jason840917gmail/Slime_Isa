@@ -78,7 +78,7 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, _engaged: bool
 	var offset := _points[_next] - centre
 	_asked = offset.normalized() * movement_speed if offset != Vector2.ZERO else Vector2.ZERO
 	body.velocity = _asked
-	_animate(now)
+	_animate(now, delta)
 
 
 ## The route point after `_next`: round the loop, or back at the ends.
@@ -113,12 +113,18 @@ func _build_route() -> void:
 			_next = index
 
 
-func _animate(now: float) -> void:
+## Its march: the walk cycles (`walk_frame`) when its sheet has them, else its two front and two
+## back steps; a stomp bob and a step sound every `stepMs`.
+func _animate(now: float, delta: float) -> void:
 	var step_ms := maxf(1.0, pattern("stepMs", 300.0))
 	var flip := int(now / step_ms) % 2 == 1
 	if flip != _step_flip:
 		_step_flip = flip
 		_cue(CUE_STEP)
+	var t := fmod(now, step_ms) / step_ms
+	set_look(sin(t * PI) * STOMP_PX)
+	if show_walk(delta, FRAME_FRONT_A):
+		return
 	var velocity := body.velocity
 	if absf(velocity.y) > absf(velocity.x) + WALK_SPEED_THRESHOLD:
 		_back = velocity.y < 0.0
@@ -128,8 +134,6 @@ func _animate(now: float) -> void:
 		set_frame(FRAME_BACK_B if flip else FRAME_BACK_A)
 	else:
 		set_frame(FRAME_FRONT_B if flip else FRAME_FRONT_A)
-	var t := fmod(now, step_ms) / step_ms
-	set_look(sin(t * PI) * STOMP_PX)
 	if absf(velocity.x) > WALK_SPEED_THRESHOLD:
 		face_x(velocity.x)
 

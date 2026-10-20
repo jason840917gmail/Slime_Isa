@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://jnu38o0wpd0i"
-path="res://.godot/imported/256x256-tile_4x1-bone-thrower.webp-f828d1475b51432e372ed93ac248458d.ctex"
+uid="uid://gdxp2ecx87r8"
+path="res://.godot/imported/256x256-tile_28x1-bone-thrower.webp-ebc225684fbf81f05469828a2c6e0ce4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-bone-thrower.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-bone-thrower.webp-f828d1475b51432e372ed93ac248458d.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_28x1-bone-thrower.webp"
+dest_files=["res://.godot/imported/256x256-tile_28x1-bone-thrower.webp-ebc225684fbf81f05469828a2c6e0ce4.ctex"]
 
 [params]
 

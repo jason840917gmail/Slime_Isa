@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://coytoflr7vgwj"
-path="res://.godot/imported/256x256-tile_4x1-thorn-guard.webp-020068bb83b0efff807a9b1a2da5edd4.ctex"
+uid="uid://c3aw5ehpqfwk5"
+path="res://.godot/imported/256x256-tile_16x1-bramble-boar.webp-d40183707d83dae02959f4d10f8faaaf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-thorn-guard.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-thorn-guard.webp-020068bb83b0efff807a9b1a2da5edd4.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-bramble-boar.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-bramble-boar.webp-d40183707d83dae02959f4d10f8faaaf.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bh14mw15csygm"
-path="res://.godot/imported/256x256-tile_4x1-bone-marcher.webp-9e02e6e465d43f32a6f1c98546e20c2e.ctex"
+uid="uid://du42shd7cxnrq"
+path="res://.godot/imported/256x256-tile_16x1-broodling.webp-0973996e7405b7a40e4fbf1eb32954bb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-bone-marcher.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-bone-marcher.webp-9e02e6e465d43f32a6f1c98546e20c2e.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-broodling.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-broodling.webp-0973996e7405b7a40e4fbf1eb32954bb.ctex"]
 
 [params]
 

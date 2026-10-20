@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c2to2pub302df"
-path="res://.godot/imported/256x256-tile_4x1-crystal-mite.webp-1afbcb6fa51ffec1e83e1288a5efde09.ctex"
+uid="uid://bkg1pkkmopk7n"
+path="res://.godot/imported/256x256-tile_16x1-bone-marcher.webp-72b2ceea95e67ad52851381f62c16d17.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-crystal-mite.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-crystal-mite.webp-1afbcb6fa51ffec1e83e1288a5efde09.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-bone-marcher.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-bone-marcher.webp-72b2ceea95e67ad52851381f62c16d17.ctex"]
 
 [params]
 

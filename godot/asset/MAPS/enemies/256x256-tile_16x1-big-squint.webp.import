@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b27ih3m0oaqky"
-path="res://.godot/imported/256x256-tile_4x1-big-squint.webp-899d7cbe816d5dd5a0826f7a3436d219.ctex"
+uid="uid://dgf3qu81xmvai"
+path="res://.godot/imported/256x256-tile_16x1-big-squint.webp-0c2ef8fc60716e98750a0aa8deda2511.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/MAPS/enemies/256x256-tile_4x1-big-squint.webp"
-dest_files=["res://.godot/imported/256x256-tile_4x1-big-squint.webp-899d7cbe816d5dd5a0826f7a3436d219.ctex"]
+source_file="res://asset/MAPS/enemies/256x256-tile_16x1-big-squint.webp"
+dest_files=["res://.godot/imported/256x256-tile_16x1-big-squint.webp-0c2ef8fc60716e98750a0aa8deda2511.ctex"]
 
 [params]
 
