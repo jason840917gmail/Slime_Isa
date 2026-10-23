@@ -1191,13 +1191,13 @@ Roll into the east wall shakes the old scale pan's pouch down: 30 coins), the Ol
 stone door: the Lantern, Chapter 3; coins for now) and the Glow-moss Burrow (the shadow path: the
 Lantern; a goo heart). *Changed 2026-10-19 (owner): the Lair caves in once Fatty falls, so its
 come-back secrets move outside ([the plan](../design/2026-10-19-lair-secrets-outside.md)). The sally
-port is now `slimeshire-sally-port` (`game/scenes/worlds/slimeshire-sally-port.tscn`), under C4's
+port is now `slimeshire-sally-port` (`game/scenes/worlds/rooms/c4/slimeshire-sally-port.tscn`), under C4's
 fenced pen below the town wall: the slime drops off the wall into the pen, a Goo Bomb breaks its
 cracked ground (`SallyPort/sally-port-crack`, flag `level-1.sally-port-crack`) and it falls in; a
 ladder climbs back to `sally-port-way-out` south of the pen. R5's crack is plain wall.* *Changed
 again the same day: an open hole in the pen (no bomb), a winding room, the way out a hatch on the
 town's east side ([Holes and hatches](#holes-and-hatches)).* *The Glow-moss Burrow (2026-10-19) is now
-`slimeshire-glow-moss-burrow` (`game/scenes/worlds/slimeshire-glow-moss-burrow.tscn`, its heart
+`slimeshire-glow-moss-burrow` (`game/scenes/worlds/rooms/d4/slimeshire-glow-moss-burrow.tscn`, its heart
 `slimeshire-burrow-quarter`): in D4's south-west, a dark-forest maze (medium beeches and pines on the
 forest layer, two spiders and a worm) on the road down to D5 hides a clearing at the end of its
 longest dead end with an old dry trunk over a hole (`object.dry-trunk-hole`,
@@ -1205,7 +1205,7 @@ longest dead end with an old dry trunk over a hole (`object.dry-trunk-hole`,
 mossy hole with its ladder over the ash (the burnable's `reveal`), which the slime climbs down into
 the Burrow, whose ladder climbs back beside the ash
 (`burrow-way-out`). R6's tunnel to it is plain wall.* *The Old Armoury (2026-10-19) is now
-`slimeshire-old-armoury` (`game/scenes/worlds/slimeshire-old-armoury.tscn`; its candle group and
+`slimeshire-old-armoury` (`game/scenes/worlds/rooms/d4/slimeshire-old-armoury.tscn`; its candle group and
 gate `slimeshire-armoury`, `slimeshire-armoury-gate`): in D4's north-east a hill (elevation level
 2, cells 23-30, rows 1-3) stands where the woods were, its south face hidden behind a row of trees but
 for a gap from the statue's garden; there a cracked wall (`Chapter1/armoury-crack`, flag
