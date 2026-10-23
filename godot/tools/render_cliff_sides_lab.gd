@@ -1,5 +1,5 @@
 extends SceneTree
-## Renders the cliff sides lab (game/scenes/worlds/cliff-sides-lab.tscn, tools/build_cliff_sides_lab.gd)
+## Renders the cliff sides lab (game/scenes/worlds/dev/cliff-sides-lab.tscn, tools/build_cliff_sides_lab.gd)
 ## with the game's own drawing, for checking the side walls (docs/godot/ELEVATION.md "Side walls").
 ## Run windowed (it renders), from the repo:
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir> [--only=<name>]
@@ -12,7 +12,7 @@ extends SceneTree
 ## (`close-2x.png`).
 
 const Services := preload("res://game/shared/services.gd")
-const SCENE := "res://game/scenes/worlds/cliff-sides-lab.tscn"
+const SCENE := "res://game/scenes/worlds/dev/cliff-sides-lab.tscn"
 const DEFAULT_OUT := "user://cliff-sides-lab"
 const CELL := 64.0
 ## Whole rows at 1x: name -> rect in cells.

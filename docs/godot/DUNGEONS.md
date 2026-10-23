@@ -475,7 +475,7 @@ fall for tuning.
 
 ## The dungeon lab
 
-`game/scenes/worlds/dungeon-lab.tscn` (`world.dungeon-lab`; dev only: not in the release export).
+`game/scenes/worlds/dev/dungeon-lab.tscn` (`world.dungeon-lab`; dev only: not in the release export).
 Launch it with `?map=dungeon-lab` (web) or `-- --map=dungeon-lab` (desktop). Rebuild it with
 `"<Godot console exe>" --headless --path godot -s res://tools/build_dungeon_lab.gd -- --force` (it
 overwrites hand edits). Nine screens, masonry walls on the elevation layer (cobble ground), entered

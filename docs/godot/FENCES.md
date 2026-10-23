@@ -265,7 +265,7 @@ texture, no import needed).
 
 ## Test world
 
-`python scripts/maps/build-fence-park.py` writes `godot/game/scenes/worlds/fence-park.tscn` (a dev
+`python scripts/maps/build-fence-park.py` writes `godot/game/scenes/worlds/dev/fence-park.tscn` (a dev
 world, left out of the release export): connected fences on a level-1 square (with an east gap and
 stairs down its south and west sides; the player spawns on it), a level-2 diamond, a level-1 octagon
 with a level-2 octagon on top, a square and an octagon hole, a level-2 square fenced on its south
@@ -305,7 +305,7 @@ and `styles-review.jpg` (every style, and bodies behind fences) are its output. 
 | `godot/asset/MAPS/objects/dungeon/divider-eye-block.png`, `divider-pen-gate.png` | The gates' pictures |
 | `godot/asset/MAPS/fences/` | Kits (`scripts/art/build-fence-art.py`) |
 | `asset/Originals/fences/` | Generated sources and the review sheet |
-| `scripts/maps/build-fence-park.py`, `godot/game/scenes/worlds/fence-park.tscn` | The Fence Park |
+| `scripts/maps/build-fence-park.py`, `godot/game/scenes/worlds/dev/fence-park.tscn` | The Fence Park |
 | `godot/tools/render_fence_park.gd` | Renders and probes the Fence Park |
 | `godot/tools/render_divider_gates.gd` | Renders the Lair's divider gates shut and open, with slimes walking into each gate and beside it (windowed: `--path godot -s res://tools/render_divider_gates.gd -- --out=<dir>`) |
 | `godot/game/world/painted_objects.gd` | What a painted layer may remove by itself: a gate (or interior-wall door) it made and nobody changed |

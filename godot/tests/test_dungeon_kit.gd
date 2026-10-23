@@ -1,5 +1,5 @@
 extends RefCounted
-## The dungeon kit (docs/godot/DUNGEONS.md), in its lab (game/scenes/worlds/dungeon-lab.tscn,
+## The dungeon kit (docs/godot/DUNGEONS.md), in its lab (game/scenes/worlds/dev/dungeon-lab.tscn,
 ## built by tools/build_dungeon_lab.gd): no saving inside and a quit or a faint resuming at the
 ## entrance with everything kept; small keys opening one keyhole each, the boss door, the bolted
 ## door; chests giving their keys to the dungeon; the falling slabs' timing (a walk falls, a Roll

@@ -716,7 +716,7 @@ through its `ground` layer's metadata (Inspector > Metadata > Add Metadata, type
 wall repeats every two stones (536 px), and `storybook-rock` has no tile on the `cliffs` paint layer
 yet.
 
-The **cliff shapes lab** (`godot/game/scenes/worlds/cliff-shapes-lab.tscn`,
+The **cliff shapes lab** (`godot/game/scenes/worlds/dev/cliff-shapes-lab.tscn`,
 `world.cliff-shapes-lab`, dev only) shows it: L, T, plus, U from the north and from the south,
 joined rectangles, a 1-2-3 terrace, an octagon, a hole, walls of 1-3 courses, a terrace with a flush
 front, and in its last rows (69-89) every kind of [ramp](#ramps); beside them (columns 42-55, rows
@@ -888,7 +888,7 @@ of the model's square cells:
   with a short shadow on the slope (`RampFeet`: `_add_ramp_foot`, `RAMP_FOOT_OUT`,
   `RAMP_FOOT_SHADOW`), fading in from nothing where the face does.
 
-**The cliff sides lab** (`godot/game/scenes/worlds/cliff-sides-lab.tscn`, `world.cliff-sides-lab`,
+**The cliff sides lab** (`godot/game/scenes/worlds/dev/cliff-sides-lab.tscn`, `world.cliff-sides-lab`,
 dev only; F6, or `?map=cliff-sides-lab`) shows the owner's reference shape (a notch and a step),
 blocks of 1, 2 and 3 levels (one with a front flight), an L, U shapes from the north and the south,
 an octagon, a 1-2-3 terrace, a hole, the owner's open U with ramps, ramps along a south face and a

@@ -1,6 +1,6 @@
 extends SceneTree
 ## Creates only the NEW manual-cliff resources. Refuses to overwrite an existing lab.
-const LAB := "res://game/scenes/worlds/cliff-manual-tiles-lab.tscn"
+const LAB := "res://game/scenes/worlds/dev/cliff-manual-tiles-lab.tscn"
 const TILESET := "res://game/world/cliffs/manual_prototype/manual_cliff_tileset.tres"
 const ART := "res://asset/MAPS/cliffs/manual-prototype/128x128-tile_6x6-cliff-manual.png"
 const LabScript := preload("res://game/world/cliffs/manual_prototype/manual_lab.gd")

@@ -6,7 +6,7 @@ packing tool resampled its uniform grid once to 128px cells. No runtime deformat
 
 ## Open and paint
 
-Open `res://game/scenes/worlds/cliff-manual-tiles-lab.tscn` and press F6.
+Open `res://game/scenes/worlds/dev/cliff-manual-tiles-lab.tscn` and press F6.
 For editing, select `Cliffs` in Godot and pick individual tiles in the TileMap palette.
 The three terrace nodes are separate TileMapLayers sharing the same TileSet; their transparent
 rims reveal the lower plateau. Every layer has scale 0.5: 128px artwork = 64 world units.
