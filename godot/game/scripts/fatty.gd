@@ -33,6 +33,8 @@ const CLIP_AIRBORNE := "airborne"
 const CLIP_LANDING := "landing"
 const CLIP_RECOVERY := "recovery"
 const CLIP_DEATH := "death"
+## The one-leg mock. Placeholder: the recovery clip until a "mock" clip is drawn for his sprite.
+const CLIP_MOCK := "recovery"
 ## FattyScript.ts:107: the landing phase lasts 360 ms (the length of the `landing` clip).
 const LANDING_PHASE_MS := 360.0
 ## Bosses are hit as enemies and bosses (UniversalSceneWorldController.ts:2199-2201).
@@ -76,8 +78,12 @@ const STATE_BLOCKED_REASON := "state-blocked"
 ## back, the line a thrown thing gets, the mud ripple's hit, shove, speed, crest width and reach.
 @export var phase_two_health_share: float = 0.5
 @export var phase_two_second_air_time_ms: float = 700.0
-@export var phase_two_clods_per_landing: int = 2
-@export var phase_two_dizzy_ms: float = 1600.0
+@export var phase_two_clods_per_landing: int = 10
+@export var phase_two_dizzy_ms: float = 3000.0
+## Chance, after each pair of leaps, that he mocks (one leg, vulnerable to a Heavy Roll).
+@export var phase_two_mock_chance: float = 0.5
+## How long a mock lasts when no Heavy Roll knocks him down.
+@export var phase_two_mock_ms: float = 2000.0
 @export var phase_two_topple_lean_rad: float = 0.45
 @export var phase_two_thrown_text: String = "It splats. Fatty hardly notices."
 @export var phase_two_ripple_damage: float = 18.0
@@ -110,6 +116,8 @@ signal dizzied(payload: Dictionary)
 ## the second landing sends a mud ripple over the floor (game/fattys_lair/mud_ripple.gd) that hits for
 ## `ripple_damage` where its crest meets the slime, unless the Roll's i-frames carry it through.
 const PHASE_DIZZY := "dizzy"
+## He stands on one leg and laughs, after a pair of leaps (random): a Heavy Roll knocks him down.
+const PHASE_MOCK := "mock"
 const THROWN_TAG := "thrown"
 const ROLL_TAG := "roll"
 const MudRipple := preload("res://game/fattys_lair/mud_ripple.gd")
@@ -117,6 +125,8 @@ const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
 ## The ripple is a ground ellipse (mud_ripple.gd SQUASH_Y): its crest is measured the same way.
 const RIPPLE_SQUASH_Y := 0.5
 const DIZZY_TEXT := "Off balance!"
+const MOCK_TEXT := "Fatty laughs at you!"
+const MOCK_TIP := "A Heavy Roll knocks him down while he mocks you."
 const DIZZY_TEXT_RISE := 110.0
 ## A thrown thing's line comes at most this often (real time, presentation).
 const THROWN_TEXT_EVERY_MS := 2200.0
@@ -125,8 +135,6 @@ const TIP_IN_MS := 160.0
 const TIP_OUT_MS := 220.0
 const TIP_WOBBLE_HZ := 2.4
 const TIP_WOBBLE_SHARE := 0.25
-## The phases in which he stands on the floor (a Heavy Roll can topple him).
-const GROUND_PHASES: Array[String] = [PHASE_CHASE, PHASE_RETURN, PHASE_SMALL_HOP, PHASE_LANDING, PHASE_RECOVERY]
 
 var _phase: String = PHASE_CHASE
 var _phase_started_at: float = 0.0
@@ -143,6 +151,8 @@ var _two: Dictionary = {}
 ## see `_receiver_rule`). Empty when the router keeps no `acceptedSources` (rework mode's gate).
 var _spear_rule: Dictionary = {}
 var _two_on: bool = false
+## The first mock shows the tip (once per fight).
+var _mock_tip_shown: bool = false
 ## Leaps still to come in this leap cycle (phase two leaps twice).
 var _leaps_left: int = 0
 ## The current leap's time in the air.
@@ -204,6 +214,7 @@ func get_next_leap_at() -> float:
 func configure_phase_two(config: Dictionary = {}) -> void:
 	_two = {"health_share": phase_two_health_share, "second_air_time_ms": phase_two_second_air_time_ms,
 		"clods_per_landing": phase_two_clods_per_landing, "dizzy_ms": phase_two_dizzy_ms,
+		"mock_chance": phase_two_mock_chance, "mock_ms": phase_two_mock_ms,
 		"topple_lean_rad": phase_two_topple_lean_rad, "thrown_text": phase_two_thrown_text,
 		"ripple_damage": phase_two_ripple_damage, "ripple_knockback": phase_two_ripple_knockback,
 		"ripple_speed": phase_two_ripple_speed, "ripple_width": phase_two_ripple_width,
@@ -304,7 +315,14 @@ func _after_enemy_step(_delta: float) -> void:
 					_transition_to(PHASE_SMALL_HOP, now)
 					_play_animation(CLIP_SMALL_HOP, false)
 				else:
-					_begin_recovery(now)
+					if _two_on and randf() < float(_two.get("mock_chance", phase_two_mock_chance)):
+						_begin_mock(now)
+					else:
+						_begin_recovery(now)
+		PHASE_MOCK:
+			if _elapsed(now) >= maxf(1.0, float(_two.get("mock_ms", phase_two_mock_ms))):
+				_next_leap_at = now + maxf(1.0, leap_cadence_ms)
+				_resume_chase(now)
 		PHASE_RECOVERY:
 			if _elapsed(now) >= maxf(1.0, recovery_ms):
 				_next_leap_at = now + maxf(1.0, leap_cadence_ms)
@@ -314,7 +332,7 @@ func _after_enemy_step(_delta: float) -> void:
 # --- damage receiver (FattyScript.ts:19-43, 203-210) -----------------------------------------------
 
 ## Airborne and contact-hop phases reject hits as "state-blocked" (retryable); else the base rule.
-## Phase two: a Heavy Roll's bonk while he stands on the floor knocks him off balance (no damage);
+## Phase two: a Heavy Roll's bonk while he mocks on one leg knocks him off balance (no damage);
 ## a thrown thing splats (its line, the clink); his squinting eye refuses every other hit (the clink)
 ## unless he is off balance.
 func can_receive_damage(input: Dictionary) -> Dictionary:
@@ -327,7 +345,7 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 			_thrown_line()
 			return {"accepted": false, "reason": "immune"}
 		if _phase != PHASE_DIZZY:
-			if HeavyCheck.is_heavy_roll(request) and _phase in GROUND_PHASES:
+			if HeavyCheck.is_heavy_roll(request) and _phase == PHASE_MOCK:
 				var impact: Dictionary = request.get("impact", {})
 				_get_dizzy(Services.now_ms(), impact.get("knock", Vector2.ZERO))
 				return {"accepted": false, "reason": "pass"}
@@ -495,12 +513,25 @@ func _begin_recovery(now: float) -> bool:
 
 
 func _resume_chase(now: float) -> bool:
-	if _phase != PHASE_CONTACT_HOP and _phase != PHASE_RECOVERY and _phase != PHASE_RETURN and _phase != PHASE_DIZZY:
+	if _phase != PHASE_CONTACT_HOP and _phase != PHASE_RECOVERY and _phase != PHASE_RETURN and _phase != PHASE_DIZZY and _phase != PHASE_MOCK:
 		return false
 	_set_body_collision(true)
 	_transition_to(PHASE_CHASE, now)
 	_play_animation(CLIP_CHASE, false)
 	return true
+
+
+## The one-leg mock, after a pair of leaps: he stands on one leg and laughs. The first mock shows
+## the tip; a Heavy Roll knocks him down meanwhile (`can_receive_damage`).
+func _begin_mock(now: float) -> void:
+	_transition_to(PHASE_MOCK, now)
+	_play_animation(CLIP_MOCK, false)
+	var feel := Services.feel()
+	if feel != null:
+		feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE), MOCK_TEXT, &"white", false)
+		if not _mock_tip_shown:
+			feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE * 2.0), MOCK_TIP, &"yellow", true)
+	_mock_tip_shown = true
 
 
 func _begin_return(now: float) -> bool:

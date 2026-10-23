@@ -472,10 +472,27 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 	_route(t, fatty.get(&"damage_area"), ["roll"])
 	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him off balance")
 	t.near(_hp(fatty), hp, 0.01, "a throw or a plain Roll hurt him")
-	# The Heavy Roll (the Roll's bonk tagged heavy) knocks him off balance; the Spear lands then.
+	# The Heavy Roll knocks him down only while he mocks on one leg: on his feet in the chase it bonks off.
 	SkinState.lend(SkinState.HEAVY)
 	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
-	t.check(bool(fatty.call(&"is_dizzy")), "a Heavy Roll did not knock him off balance")
+	t.check(not bool(fatty.call(&"is_dizzy")), "a Heavy Roll knocked him off balance while he was not mocking")
+	# Make the next pair of leaps end in a mock (the chance is 0.5 otherwise).
+	var two_config: Dictionary = fatty.get(&"_two")
+	two_config["mock_chance"] = 1.0
+	var mocking := await t.until(func() -> bool:
+		var boss: Node = camp.call(&"get_live_boss")
+		_keep_safe(t, boss)
+		return boss != null and str(boss.call(&"get_phase")) == "mock", 30000.0)
+	if not t.check(mocking, "Fatty does not mock after a pair of leaps"):
+		return
+	fatty = camp.call(&"get_live_boss")
+	hp = _hp(fatty)
+	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
+	t.near(_hp(fatty), hp, 0.01, "a thrust landed while he mocks with his eye shut")
+	_route(t, fatty.get(&"damage_area"), ["roll"])
+	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him down while he mocks")
+	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
+	t.check(bool(fatty.call(&"is_dizzy")), "a Heavy Roll did not knock him down while he mocks")
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
 	t.check(_hp(fatty) < hp, "the Spear did not land while he was off balance")
 	await t.sim_wait(400.0)
@@ -493,7 +510,7 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 			return false
 		if bool(boss.call(&"is_dizzy")):
 			_route(t, boss.get(&"damage_area"), ["spear", "weapon"])
-		elif str(boss.call(&"get_phase")) == "chase":
+		elif str(boss.call(&"get_phase")) == "mock":
 			_route(t, boss.get(&"damage_area"), ["roll", "heavy"])
 		return false, 20000.0)
 	t.check(beaten, "Fatty's fall is not kept")

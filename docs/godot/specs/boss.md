@@ -351,16 +351,17 @@ Heavy skin; his strength is the built one (the kit's `EnragedLook` only shows hi
   0.008) and `phase_two_started`.
 - **Two leaps in a row:** a leap cycle leaps twice (the second with its own small hops and
   `second_air_time_ms` 700 in the air), then the recovery.
-- **Clods:** each landing emits `clods_requested({count: clods_per_landing (2), at, last})`; the
+- **Clods:** each landing emits `clods_requested({count: clods_per_landing (10), at, last})`; the
   director drops light mud clods after a shadow (they hurt where they land, then lie as liftables).
 - **The ripple:** the second landing sends a mud ripple from his feet (`ripple_speed` 300 px/s up
   to `ripple_max_radius` 560, crest `ripple_width` 30): it hits the slime once for `ripple_damage`
   18 / `ripple_knockback` 220 where the crest meets its feet, unless the Roll's i-frames carry it.
 - **The squint:** every hit is refused as `immune` (the clink), the Spear's too, except while he is
   off balance. Airborne and contact-hop still refuse as `state-blocked`.
+- **The mock:** after each pair of leaps, with `mock_chance` 0.5 (a random roll), he enters phase `mock`: one leg, laughing ("Fatty laughs at you!"; the recovery clip until a mock clip is drawn), for `mock_ms` 2000, then he chases. The first mock shows the tip "A Heavy Roll knocks him down while he mocks you."
 - **The topple:** a Heavy Roll's bonk (tags `roll` + `heavy`: game/fattys_lair/heavy_check.gd
-  `is_heavy_roll`) while he is in chase, return-to-center, small-hop, landing or recovery knocks him
-  off balance: phase `dizzy` (the old name) for `dizzy_ms` 1600, his attack cancelled, collision
+  `is_heavy_roll`) while he is in phase `mock` (only then) knocks him
+  off balance: phase `dizzy` (the old name) for `dizzy_ms` 3000 (the stand-up included), his attack cancelled, collision
   on, the `recovery` clip (his eye wide open), a light shake (120 ms, 0.004), "Off balance!"
   floating over him, daze stars until it ends, his art rocked back `topple_lean_rad` 0.45 toward the
   Roll's push and wobbling on it (presentation); no leap until `recovery_ms` after it; the hit
