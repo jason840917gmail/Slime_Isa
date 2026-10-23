@@ -111,7 +111,11 @@ func _ready() -> void:
 	add_child(_list)
 	var hint := Label.new()
 	hint.text = "Drag a picture into the map: it becomes a node under Scenery, at the size above (an enemy: a placed enemy under Enemies)."
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# one line, the rest on hover: a wrapped label in a hidden tab keeps the height of its
+	# narrowest layout and pushes the editor's bottom panel off the window
+	hint.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	hint.tooltip_text = hint.text
+	hint.mouse_filter = Control.MOUSE_FILTER_PASS
 	hint.add_theme_font_size_override(&"font_size", 12)
 	add_child(hint)
 	_load()
