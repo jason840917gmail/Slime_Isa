@@ -98,6 +98,8 @@ const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 ## The body-shapes rework (docs/godot/BODY_SHAPES.md): its mode, input layer, shapes, testbed and box.
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const ReworkInput := preload("res://game/shapes/rework_input.gd")
+## The keys-only scheme's bindings (the throw mode has its own layout there).
+const KeyBindings := preload("res://game/player/mouse/key_bindings.gd")
 const ShapeController := preload("res://game/shapes/shape_controller.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ShapesTestbed := preload("res://game/shapes/shapes_testbed.gd")
@@ -282,9 +284,9 @@ func _ready() -> void:
 ## Leaving the game (Quit to Title, a test's teardown): the rework mode goes off and its input layer
 ## comes off (nothing to do when it was off).
 func _exit_tree() -> void:
+	ThrowMode.set_on(false)
 	ReworkMode.set_on(false)
 	ReworkInput.apply(false)
-	ThrowMode.set_on(false)
 
 
 ## Steps 3-11 above for `target_map_id`; `navigation` is the area handoff ({} on a fresh boot).
@@ -974,7 +976,12 @@ func decide_rework_mode(target: String) -> bool:
 ## the aim help on.
 func decide_throw_mode(rework_on: bool, playground: bool) -> void:
 	var on := rework_on and throw_combat and ThrowMode.enabled_in_data() and not has_launch_option("melee")
+	var was := ThrowMode.is_on()
 	ThrowMode.set_on(on)
+	# The keys-only scheme has its own throw layout (A Gulp, S Roll, D ability): put it on or off.
+	if was != on and KeyBindings.is_applied():
+		KeyBindings.apply(false)
+		KeyBindings.apply(true)
 	if not on:
 		return
 	var level := launch_option("gulp").to_int()
