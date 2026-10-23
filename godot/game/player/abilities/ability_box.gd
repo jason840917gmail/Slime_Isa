@@ -142,7 +142,7 @@ static func title(id: StringName) -> String:
 static func _use_shape_power(player: Node, id: StringName) -> bool:
 	var shapes: Variant = player.call(&"get_shapes") if player.has_method(&"get_shapes") else null
 	var reason := ""
-	if not shapes is Object or not is_instance_valid(shapes):
+	if not is_instance_valid(shapes) or not shapes is Object:
 		reason = REFUSAL_EMPTY
 	else:
 		reason = str((shapes as Object).call(&"power_strike", id))
