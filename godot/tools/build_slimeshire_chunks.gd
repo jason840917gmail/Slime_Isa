@@ -995,7 +995,11 @@ const LAKE_CAVE_MOUTH := "lake-island-cave-mouth"
 const HILL_CAVE := "hollow-hill-cave"
 const HILL_CAVE_DOOR := "hollow-hill-cave-door"
 const HILL_CAVE_MOUTH := "hollow-hill-cave-mouth"
-const CAVE_PATH := "res://game/scenes/worlds/%s.tscn"
+## Each cave's scene, in the rooms folder of the chunk its mouth is in (owner, 2026-10-22).
+const CAVE_PATHS := {
+	LAKE_CAVE: "res://game/scenes/worlds/rooms/c5/lake-island-cave.tscn",
+	HILL_CAVE: "res://game/scenes/worlds/rooms/d5/hollow-hill-cave.tscn",
+}
 const CAVE_SIZE := Vector2i(16, 13)
 const CAVE_ROOM := Rect2i(1, 2, 14, 9)
 const CAVE_GAP := Rect2i(7, 11, 2, 2)
@@ -1022,7 +1026,7 @@ func _caves() -> Error:
 func _cave(map_id: String, outside: String, door_id: String, mouth_id: String, style: Vector2i) -> Error:
 	_chunk = map_id
 	_editable.clear()
-	var path := CAVE_PATH % map_id
+	var path: String = CAVE_PATHS[map_id]
 	var before := FileAccess.get_file_as_string(ProjectSettings.globalize_path(path)) if FileAccess.file_exists(path) else ""
 	_root = Node2D.new()
 	_root.name = map_id
