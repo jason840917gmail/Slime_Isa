@@ -61,67 +61,67 @@ under = "random"
 
 [node name="@StaticBody2D@23204" parent="Scenery" unique_id=1405100781 instance=ExtResource("8_vwojy")]
 position = Vector2(464, 165)
-kind = "desert-urn"
+kind = "clay-pot"
 under = "random"
 
 [node name="@StaticBody2D@23205" parent="Scenery" unique_id=1738022152 instance=ExtResource("8_vwojy")]
 position = Vector2(463, 206)
-kind = "desert-urn"
+kind = "clay-pot"
 under = "random"
 
 [node name="@StaticBody2D@23209" parent="Scenery" unique_id=678393474 instance=ExtResource("8_vwojy")]
 position = Vector2(463, 245)
-kind = "desert-urn"
+kind = "clay-pot"
 under = "random"
 
 [node name="liftable2" parent="Scenery" unique_id=1159279426 instance=ExtResource("8_vwojy")]
 position = Vector2(1005, 470)
-kind = "keg"
+kind = "bucket"
 under = "none"
 
 [node name="liftable3" parent="Scenery" unique_id=650945107 instance=ExtResource("8_vwojy")]
 position = Vector2(1007, 516)
-kind = "keg"
+kind = "bucket"
 under = "heart"
 
 [node name="liftable4" parent="Scenery" unique_id=705892633 instance=ExtResource("8_vwojy")]
 position = Vector2(1008, 567)
-kind = "keg"
+kind = "bucket"
 under = "heart"
 
 [node name="liftable5" parent="Scenery" unique_id=326970322 instance=ExtResource("8_vwojy")]
 position = Vector2(692, 188)
-kind = "desert-urn"
+kind = "clay-pot"
 under = "energy"
 
 [node name="liftable6" parent="Scenery" unique_id=274415927 instance=ExtResource("8_vwojy")]
 position = Vector2(690, 156)
-kind = "amphora"
+kind = "water-jug"
 under = "none"
 
 [node name="liftable7" parent="Scenery" unique_id=2075042294 instance=ExtResource("8_vwojy")]
 position = Vector2(691, 228)
-kind = "amphora"
+kind = "water-jug"
 under = "energy"
 
 [node name="liftable8" parent="Scenery" unique_id=1210519341 instance=ExtResource("8_vwojy")]
 position = Vector2(683, 888)
-kind = "fancy-pot"
+kind = "clay-pot"
 under = "heart"
 
 [node name="liftable9" parent="Scenery" unique_id=526657556 instance=ExtResource("8_vwojy")]
 position = Vector2(615, 493)
-kind = "crate"
+kind = "wicker-basket"
 under = "coins"
 
 [node name="liftable10" parent="Scenery" unique_id=665586781 instance=ExtResource("8_vwojy")]
 position = Vector2(574, 492)
-kind = "crate"
+kind = "wicker-basket"
 under = "coins"
 
 [node name="liftable11" parent="Scenery" unique_id=926753639 instance=ExtResource("8_vwojy")]
 position = Vector2(461, 894)
-kind = "fancy-pot"
+kind = "clay-pot"
 under = "heart"
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1063499014]
@@ -206,6 +206,33 @@ bus = &"Music"
 script = ExtResource("15_rw3655")
 loop = true
 autoplay_cue = true
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r6-pipe-worm-a-1" parent="Throwables" instance=ExtResource("8_vwojy")]
+position = Vector2(256, 552)
+kind = "clay-pot"
+
+[node name="throw-r6-pipe-worm-a-2" parent="Throwables" instance=ExtResource("8_vwojy")]
+position = Vector2(327, 535)
+kind = "rock"
+
+[node name="throw-r6-pipe-worm-a2-1" parent="Throwables" instance=ExtResource("8_vwojy")]
+position = Vector2(677, 808)
+kind = "clay-pot"
+
+[node name="throw-r6-pipe-worm-b2-1" parent="Throwables" instance=ExtResource("8_vwojy")]
+position = Vector2(679, 400)
+kind = "rock"
+
+[node name="throw-PlacedEnemy-1" parent="Throwables" instance=ExtResource("8_vwojy")]
+position = Vector2(780, 547)
+kind = "clay-pot"
+
+[node name="throw-PlacedEnemy-2" parent="Throwables" instance=ExtResource("8_vwojy")]
+position = Vector2(681, 637)
+kind = "rock"
 
 [editable path="Enemies/r6-pipe-worm-a"]
 [editable path="Enemies/r6-pipe-worm-a2"]

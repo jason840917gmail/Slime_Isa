@@ -21,7 +21,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="19_rw2121"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="20_rw2685"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="21_rw7943"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="22_rw1628"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="22_rw1628"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
 [node name="r9-watcher-hall" type="Node2D" unique_id=785736990]
 y_sort_enabled = true
@@ -182,6 +183,17 @@ bus = &"Music"
 script = ExtResource("21_rw7943")
 loop = true
 autoplay_cue = true
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r9-watcher-eye-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(630, 653)
+kind = "clay-pot"
+
+[node name="throw-r9-watcher-eye-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(582, 678)
+kind = "rock"
 
 [editable path="Scenery/r9-banner"]
 [editable path="Enemies/r9-watcher-eye"]

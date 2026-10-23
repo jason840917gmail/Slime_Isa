@@ -15,7 +15,8 @@ class_name SquintScript
 ##   A Big Squint stomps `stomps` times in a row: after each but the last it settles `betweenMs`,
 ##   visor shut, and rears again for `nextRearMs` with a new ring at the slime's feet.
 ## - **Open** (`openMs`, after the last stomp): it lies flat, dazed, the visor wide open. Only the
-##   Spear gets through (a hit tagged `spear`; every other hit still clinks): the Spear in the eye.
+##   Spear and thrown things get through (a hit tagged `spear` or `thrown`; every other hit still
+##   clinks): the Spear or a pot in the eye.
 ##   Then the visor shuts and it walks again.
 ##
 ## Owner: enemy builder.
@@ -225,9 +226,10 @@ func is_open() -> bool:
 	return _phase == PHASE_OPEN
 
 
-## Its armour: every hit clinks but the Spear while the visor is open.
+## Its armour: every hit clinks but the Spear's and a thrown thing's (THROWN_TAG, PatternedEnemyScript)
+## while the visor is open (owner, 2026-10-22: the Squints take damage from throwables as well).
 func _shields(request: Dictionary) -> bool:
-	return not (_phase == PHASE_OPEN and has_tag(request, SPEAR_TAG))
+	return not (_phase == PHASE_OPEN and (has_tag(request, SPEAR_TAG) or has_tag(request, THROWN_TAG)))
 
 
 ## In the air or rearing it does not slide; dazed and open, a hit's knockback moves it.

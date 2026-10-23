@@ -162,7 +162,7 @@
     },
     "glint-bat": {
       "id": "glint-bat", "visualSetId": "enemy.glint-bat", "maxHp": 20,
-      "pattern": { "roostHeightPx": 100, "climbSpeed": 160, "wakePadPx": 8, "wakeMs": 650, "restMs": 1200, "swoopMs": 1300, "swoopDipShare": 1.5, "swoopLowPx": 12, "lowHeightPx": 36, "waveCount": 1.5, "waveAmpPx": 36, "swoopOvershootPx": 120, "arenaInsetPx": 32, "biteRadiusPx": 26, "biteDamage": 12, "biteKnockback": 160, "returnMs": 1400, "fallMs": 280, "corpseMs": 900, "corpseFadeMs": 400 },
+      "pattern": { "roostHeightPx": 100, "climbSpeed": 160, "wakePadPx": 8, "daylightWakePx": 150, "wakeMs": 650, "restMs": 1200, "swoopMs": 1300, "swoopDipShare": 1.5, "swoopLowPx": 12, "lowHeightPx": 36, "waveCount": 1.5, "waveAmpPx": 36, "swoopOvershootPx": 120, "arenaInsetPx": 32, "biteRadiusPx": 26, "biteDamage": 12, "biteKnockback": 160, "returnMs": 1400, "fallMs": 280, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 3 },
       "reactions": { "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "asleep": { "immune": ["*"] }, "wake": { "immune": ["*"] } } }
     },

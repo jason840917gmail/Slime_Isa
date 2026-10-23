@@ -84,7 +84,7 @@ weights = PackedFloat32Array(1, 1, 1, 1)
 position = Vector2(921.6001, 640)
 
 [node name="LiftableScript" parent="Scenery/r1-pot-c" index="2"]
-kind = "crate"
+kind = "wicker-basket"
 
 [node name="Objects" type="Node2D" parent="." unique_id=363156610]
 y_sort_enabled = true

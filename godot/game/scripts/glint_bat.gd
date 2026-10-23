@@ -7,7 +7,8 @@ class_name GlintBatScript
 ## is the ground point under it (its shadow) and its art and hurtbox ride `height` above it.
 ## - **Asleep:** hanging `roostHeightPx` up, wings wrapped, out of reach (no hurtbox); in a dark room
 ##   only its eyes glint (game/enemy/dark_eyes.gd), as slits.
-## - **Wake** (the tell, `wakeMs`): light reaches it (a light source within reach of its ground
+## - **Wake** (the tell, `wakeMs`): outside a dark room, the slime within `daylightWakePx` of its
+##   roost (the day is light); in a dark one, light reaches it (a light source within reach of its ground
 ##   point, game/enemy/light_sense.gd: the slime's ember in a dark room, a candle, a flame), at least
 ##   `restMs` after its last swoop: its eyes open wide and glint, it squeaks, its shadow darkens.
 ## - **Swoop** (`swoopMs`): a dive from its roost through the point where the slime stood at the
@@ -23,6 +24,9 @@ class_name GlintBatScript
 ## Owner: enemy builder.
 
 const LightSense := preload("res://game/enemy/light_sense.gd")
+## Outside a dark room the day itself is light (owner, 2026-10-22: a bat in a lit Lair room never
+## woke): it wakes when the slime comes within `daylightWakePx` of its roost.
+const DarkRoom := preload("res://game/world/darkness/dark_room.gd")
 const DarkEyes := preload("res://game/enemy/dark_eyes.gd")
 
 const PHASE_ASLEEP := "asleep"
@@ -114,7 +118,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			_height = move_toward(_height, roost_height, pattern("climbSpeed", 160.0) * delta)
 			_fly_to(_roost, delta)
 			set_hurtbox(false)
-			if now >= _rest_until and _lit():
+			if now >= _rest_until and _lit(target):
 				_transition(PHASE_WAKE, now)
 				set_frame(FRAME_WOKEN)
 				_cue(CUE_WAKE)
@@ -159,8 +163,14 @@ func on_arrow_hit(_hit: Dictionary) -> bool:
 	return true
 
 
-func _lit() -> bool:
-	return LightSense.light_at(get_tree(), get_centre(), pattern("wakePadPx", 8.0)) > 0.0
+func _lit(target: Dictionary = {}) -> bool:
+	if LightSense.light_at(get_tree(), get_centre(), pattern("wakePadPx", 8.0)) > 0.0:
+		return true
+	if DarkRoom.is_dark_at(get_tree(), _roost if _roost != Vector2.INF else feet()):
+		return false
+	var slime_body := target.get("body") as Node2D
+	return is_instance_valid(slime_body) \
+		and slime_body.global_position.distance_to(_roost) <= pattern("daylightWakePx", 150.0)
 
 
 func _begin_swoop(now: float, target: Dictionary) -> void:

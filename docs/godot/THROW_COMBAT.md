@@ -89,6 +89,19 @@ The playground starts at level 1 (`playgroundLevel`).
 - **Hints.** The attack and charge hints never show; the barred gate's hint names the ability key
   and the Spear.
 
+## Fatty's Lair (2026-10-22)
+
+Owner, 2026-10-22: at least two throwables by every enemy in Fatty's rooms, and only light ones.
+Every medium or heavy liftable in `rooms/fatty-lair/` became a light one of the same sort (28: crate
+to wicker basket, keg to bucket, flour sack to hay bundle, desert urn and fancy pot to clay pot,
+amphora to water jug, gargoyle head to rock), and 35 pots and rocks were added under each room's
+`Throwables` node, on free floor near each enemy short of two within 170 px (9 rooms; a headless
+check found each spot walkable at the enemy's level, clear of bodies, hazards and doors). The bell
+bridge (r7) is the exception: its Watcher Eye and Glint Bat stand over the void with no floor near
+them; the room's 8 buckets and rocks are within reach of the bridge. The Squints (and the Big
+Squint) take thrown hits in the eye while their visor is open, and the Glint Bats in the lit rooms
+(c2, r7) wake when the slime comes near (BESTIARY.md).
+
 ## Data (`gulp.throwCombat` in game-constants.json)
 
 `enabled`, `throwDamage`, `playgroundLevel`, `levels`, `weights.<light|medium|heavy>`

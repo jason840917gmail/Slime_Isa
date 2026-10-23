@@ -95,13 +95,13 @@ position = Vector2(896, 806.4)
 position = Vector2(192, 409.59998)
 
 [node name="LiftableScript" parent="Scenery/r12-hoard-crate-0" index="2"]
-kind = "crate"
+kind = "wicker-basket"
 
 [node name="r12-hoard-crate-1" parent="Scenery" unique_id=678419921 instance=ExtResource("11_0py3s")]
 position = Vector2(249.6001, 409.59998)
 
 [node name="LiftableScript" parent="Scenery/r12-hoard-crate-1" index="2"]
-kind = "crate"
+kind = "wicker-basket"
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1238226104]
 
@@ -224,6 +224,17 @@ bus = &"Music"
 script = ExtResource("26_rw7428")
 loop = true
 autoplay_cue = true
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r12-big-squint-1" parent="Throwables" instance=ExtResource("11_0py3s")]
+position = Vector2(630, 589)
+kind = "clay-pot"
+
+[node name="throw-r12-big-squint-2" parent="Throwables" instance=ExtResource("11_0py3s")]
+position = Vector2(582, 614)
+kind = "rock"
 
 [editable path="Scenery/r12-altar"]
 [editable path="Scenery/r12-hoard-0"]

@@ -1,30 +1,31 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://kp6ep1y6djfl"]
 
 [ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_r0kk0"]
-[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_dlmxw"]
+[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://game/world/terrain_tileset.tres" id="2_dlmxw"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_pmfob"]
-[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="4_8cbj5"]
+[ext_resource type="TileSet" uid="uid://d0w4fj6hrum5o" path="res://game/world/elevation/elevation_tileset.tres" id="4_8cbj5"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="5_klngf"]
-[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="6_a65pa"]
+[ext_resource type="TileSet" uid="uid://dtulcyvm4c4ki" path="res://game/world/interior/interior_wall_tileset.tres" id="6_a65pa"]
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="7_ayx2r"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="10_2t5u3"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="11_wddjr"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="13_c10q3"]
 [ext_resource type="Texture2D" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="14_n1vvs"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/prize-glint.tscn" id="15_5ql4n"]
+[ext_resource type="Script" uid="uid://b1qsn0hu7y7vo" path="res://game/dungeon/divider_gate.gd" id="15_txj3t"]
 [ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="16_r1bkv"]
 [ext_resource type="Script" uid="uid://b28llwvsknidl" path="res://game/world/fire/candle.gd" id="17_k6rl1"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-unlit.tscn" id="18_wucpw"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-lit.tscn" id="19_iy4d0"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="20_rw1606"]
-[ext_resource type="Script" path="res://game/fattys_lair/void_shade.gd" id="22_rw6724"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="24_rw5357"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="25_rw7396"]
-[ext_resource type="Script" path="res://game/scripts/door.gd" id="30_door"]
-
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="20_rw1606"]
+[ext_resource type="Script" uid="uid://c1xrbb1jfupvd" path="res://game/fattys_lair/void_shade.gd" id="22_rw6724"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="24_rw5357"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="25_rw7396"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="30_door"]
 [ext_resource type="TileSet" uid="uid://b6hbbbrfkchxq" path="res://game/world/fences/fence_tileset.tres" id="90_fencetiles"]
 [ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="91_fencelayer"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/divider-gate.tscn" id="92_dividergate"]
+
 [node name="old-armoury" type="Node2D" unique_id=121515328]
 y_sort_enabled = true
 script = ExtResource("1_r0kk0")
@@ -46,13 +47,15 @@ tile_set = ExtResource("4_8cbj5")
 script = ExtResource("5_klngf")
 room_back_faces = true
 
-[node name="fences" type="TileMapLayer" parent="."]
+[node name="fences" type="TileMapLayer" parent="." unique_id=1204098266]
 z_index = -1
-tile_map_data = PackedByteArray("AAAKAAQAAAAHAAAAAAAKAAUAAAAHAAAAAAAKAAYAAAAHAAAAAAALAAYAAAAHAAAAAAAOAAQAAAAHAAAAAAAOAAUAAAAHAAAAAAAOAAYAAAAHAAAAAAANAAYAAAAHAAAAAAAMAAYAAAAIAAAAAAA=")
+tile_map_data = PackedByteArray("AAALAAUAAAAHAAAAAAAKAAUAAAAHAAAAAAAJAAUAAAAIAAAAAAAIAAUAAAAHAAAAAAAHAAUAAAAHAAAAAAAHAAQAAAAHAAAAAAAHAAMAAAAHAAAAAAAHAAIAAAAHAAAAAAALAAQAAAAHAAAAAAALAAMAAAAHAAAAAAALAAIAAAAHAAAAAAA=")
 tile_set = ExtResource("90_fencetiles")
 script = ExtResource("91_fencelayer")
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1085297021]
+self_modulate = Color(1, 1, 1, 0.3)
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAAAAAABAAAAAAABAAAAAAACAAAAAAABAAAAAAADAAAAAAABAAAAAAAEAAAAAAABAAAAAAAFAAAAAAABAAAAAAAGAAAAAAABAAAAAAAHAAAAAAABAAAAAAAIAAAAAAABAAAAAAAJAAAAAAABAAAAAAAKAAAAAAABAAAAAAALAAAAAAABAAAAAAAMAAAAAAABAAAAAAANAAAAAAABAAAAAAAOAAAAAAABAAAAAAAPAAAAAAABAAAAAAAQAAAAAAABAAAAAAARAAAAAAABAAAAAAAAAAEAAAABAAAAAAABAAEAAAABAAAAAAACAAEAAAABAAAAAAADAAEAAAABAAAAAAAEAAEAAAABAAAAAAAFAAEAAAABAAAAAAAGAAEAAAABAAAAAAAHAAEAAAABAAAAAAAIAAEAAAABAAAAAAAJAAEAAAABAAAAAAAKAAEAAAABAAAAAAALAAEAAAABAAAAAAAMAAEAAAABAAAAAAANAAEAAAABAAAAAAAOAAEAAAABAAAAAAAPAAEAAAABAAAAAAAQAAEAAAABAAAAAAARAAEAAAABAAAAAAAAAAIAAAABAAAAAAABAAIAAAABAAAAAAAQAAIAAAABAAAAAAARAAIAAAABAAAAAAAAAAMAAAABAAAAAAABAAMAAAABAAAAAAAQAAMAAAABAAAAAAARAAMAAAABAAAAAAAAAAQAAAABAAAAAAABAAQAAAABAAAAAAAQAAQAAAABAAAAAAARAAQAAAABAAAAAAAAAAUAAAABAAAAAAABAAUAAAABAAAAAAAQAAUAAAABAAAAAAARAAUAAAABAAAAAAAAAAYAAAABAAAAAAABAAYAAAABAAAAAAAQAAYAAAABAAAAAAARAAYAAAABAAAAAAAAAAcAAAABAAAAAAABAAcAAAABAAAAAAAAAAgAAAABAAAAAAABAAgAAAABAAAAAAAAAAkAAAABAAAAAAABAAkAAAABAAAAAAAAAAoAAAABAAAAAAABAAoAAAABAAAAAAAAAAsAAAABAAAAAAABAAsAAAABAAAAAAAQAAsAAAABAAAAAAARAAsAAAABAAAAAAAAAAwAAAABAAAAAAABAAwAAAABAAAAAAAQAAwAAAABAAAAAAARAAwAAAABAAAAAAAAAA0AAAABAAAAAAABAA0AAAABAAAAAAAQAA0AAAABAAAAAAARAA0AAAABAAAAAAAAAA4AAAABAAAAAAABAA4AAAABAAAAAAACAA4AAAABAAAAAAADAA4AAAABAAAAAAAEAA4AAAABAAAAAAAFAA4AAAABAAAAAAAGAA4AAAABAAAAAAAHAA4AAAABAAAAAAAIAA4AAAABAAAAAAAJAA4AAAABAAAAAAAKAA4AAAABAAAAAAALAA4AAAABAAAAAAAMAA4AAAABAAAAAAANAA4AAAABAAAAAAAOAA4AAAABAAAAAAAPAA4AAAABAAAAAAAQAA4AAAABAAAAAAARAA4AAAABAAAAAAAAAA8AAAABAAAAAAABAA8AAAABAAAAAAACAA8AAAABAAAAAAADAA8AAAABAAAAAAAEAA8AAAABAAAAAAAFAA8AAAABAAAAAAAGAA8AAAABAAAAAAAHAA8AAAABAAAAAAAIAA8AAAABAAAAAAAJAA8AAAABAAAAAAAKAA8AAAABAAAAAAALAA8AAAABAAAAAAAMAA8AAAABAAAAAAANAA8AAAABAAAAAAAOAA8AAAABAAAAAAAPAA8AAAABAAAAAAAQAA8AAAABAAAAAAARAA8AAAABAAAAAAAQAAcAAAABAAEAAAARAAcAAAABAAEAAAAQAAgAAAABAAEAAAARAAgAAAABAAEAAAAQAAkAAAABAAAAAAARAAkAAAABAAAAAAAQAAoAAAABAAAAAAARAAoAAAABAAAAAAA=")
 tile_set = ExtResource("6_a65pa")
 script = ExtResource("7_ayx2r")
@@ -89,16 +92,8 @@ position = Vector2(320, -128)
 [node name="Objects" type="Node2D" parent="." unique_id=2082564725]
 y_sort_enabled = true
 
-[node name="armoury-door" parent="Objects" unique_id=1881336916 instance=ExtResource("92_dividergate")]
-position = Vector2(800, 416)
-kind = "eye"
-
-[node name="GateScript" parent="Objects/armoury-door" index="4"]
-map_id = "slimeshire-old-armoury"
-gate_id = "slimeshire-armoury-gate"
-
 [node name="armoury-chest" parent="Objects" unique_id=575780612 instance=ExtResource("13_c10q3")]
-position = Vector2(800, 345.6001)
+position = Vector2(611, 228)
 
 [node name="Visual" parent="Objects/armoury-chest" index="1"]
 texture = ExtResource("14_n1vvs")
@@ -111,9 +106,26 @@ initial_contents = {
 }
 
 [node name="armoury-glint" parent="Objects" unique_id=783038343 instance=ExtResource("15_5ql4n")]
-position = Vector2(800, 294.3999)
+z_index = 46
+z_as_relative = false
+position = Vector2(604, 203)
 only_in_dark = true
 phase = 0.4
+
+[node name="divider-gate-9-5" type="Node2D" parent="Objects" unique_id=772928988 instance=ExtResource("92_dividergate")]
+y_sort_enabled = true
+position = Vector2(608, 352)
+script = ExtResource("15_txj3t")
+metadata/fence_gate_cell = "9,5"
+metadata/fence_gate_style = "lair-divider-eye"
+metadata/painted_object_made = "{
+\".:kind\": \"eye\",
+\"position\": Vector2(608, 352)
+}"
+
+[node name="GateScript" parent="Objects/divider-gate-9-5" index="4"]
+map_id = "slimeshire-old-armoury"
+gate_id = "slimeshire-armoury-gate"
 
 [node name="Lair" type="Node2D" parent="." unique_id=162614439]
 y_sort_enabled = true
@@ -127,7 +139,7 @@ lit_for_good_when_all_lit = true
 lit_flag = "slimeshire.armoury-lit"
 
 [node name="armoury-sconce-2-3" type="Node2D" parent="Lair" unique_id=823888569]
-position = Vector2(192, 281.6001)
+position = Vector2(192, 118)
 script = ExtResource("17_k6rl1")
 unlit_scene = ExtResource("18_wucpw")
 lit_scene = ExtResource("19_iy4d0")
@@ -136,7 +148,7 @@ group = "slimeshire-armoury"
 gate_id = "slimeshire-armoury-gate"
 
 [node name="armoury-sconce-13-3" type="Node2D" parent="Lair" unique_id=549115966]
-position = Vector2(896, 281.6001)
+position = Vector2(888, 112)
 script = ExtResource("17_k6rl1")
 unlit_scene = ExtResource("18_wucpw")
 lit_scene = ExtResource("19_iy4d0")
@@ -145,7 +157,7 @@ group = "slimeshire-armoury"
 gate_id = "slimeshire-armoury-gate"
 
 [node name="armoury-sconce-2-12" type="Node2D" parent="Lair" unique_id=373774905]
-position = Vector2(192, 857.6001)
+position = Vector2(199, 819)
 script = ExtResource("17_k6rl1")
 unlit_scene = ExtResource("18_wucpw")
 lit_scene = ExtResource("19_iy4d0")
@@ -154,7 +166,7 @@ group = "slimeshire-armoury"
 gate_id = "slimeshire-armoury-gate"
 
 [node name="armoury-sconce-13-12" type="Node2D" parent="Lair" unique_id=720952334]
-position = Vector2(896, 857.6001)
+position = Vector2(889, 806)
 script = ExtResource("17_k6rl1")
 unlit_scene = ExtResource("18_wucpw")
 lit_scene = ExtResource("19_iy4d0")
@@ -180,16 +192,17 @@ metadata = {
 }
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=640670245]
-position = Vector2(928, 544)
+position = Vector2(984, 532)
 
 [node name="VoidShade" type="Node2D" parent="." unique_id=1063502761]
+z_index = -1
 script = ExtResource("22_rw6724")
 rects = Array[Rect2]([Rect2(384, 448, 128, 64), Rect2(384, 512, 128, 64), Rect2(640, 640, 128, 64), Rect2(640, 704, 128, 64)])
 
-[node name="armoury-way-out" type="Node2D" parent="."]
+[node name="armoury-way-out" type="Node2D" parent="." unique_id=343476928]
 position = Vector2(1152, 512)
 
-[node name="DoorScript" type="Node" parent="armoury-way-out"]
+[node name="DoorScript" type="Node" parent="armoury-way-out" unique_id=2121780562]
 script = ExtResource("30_door")
 map_id = "slimeshire-old-armoury"
 door_id = "armoury-way-out"
@@ -198,7 +211,7 @@ target_door_id = "armoury-door"
 side = "east"
 trigger_rect = Rect2(-96, -64, 96, 128)
 
-[node name="arrival" type="Node2D" parent="armoury-way-out"]
+[node name="arrival" type="Node2D" parent="armoury-way-out" unique_id=1167667769]
 position = Vector2(-176, 0)
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=2073330876]
@@ -210,8 +223,11 @@ script = ExtResource("24_rw5357")
 loop = true
 autoplay_cue = true
 
+[node name="Scenery" type="Node2D" parent="." unique_id=1478905176]
+y_sort_enabled = true
+
 [editable path="Hazards/void-6-39"]
 [editable path="Hazards/void-10-42"]
-[editable path="Objects/armoury-door"]
 [editable path="Objects/armoury-chest"]
 [editable path="Objects/armoury-glint"]
+[editable path="Objects/divider-gate-9-5"]
