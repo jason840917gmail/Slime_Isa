@@ -162,7 +162,7 @@ func _spawn_testbed() -> void:
 func respawn_pen() -> void:
 	for slot: Dictionary in pen:
 		var root: Variant = slot.get("root")
-		if root is Node and is_instance_valid(root) and not (root as Node).is_queued_for_deletion():
+		if is_instance_valid(root) and root is Node and not (root as Node).is_queued_for_deletion():
 			(root as Node).queue_free()
 		_spawn_slot(slot)
 
@@ -317,9 +317,10 @@ func _pen_has_player() -> bool:
 func _slot_alive(slot: Dictionary) -> bool:
 	var root: Variant = slot.get("root")
 	var enemy: Variant = slot.get("enemy")
-	if not (root is Node) or not is_instance_valid(root) or (root as Node).is_queued_for_deletion():
+	# Validity first: `is` on a freed instance (an enemy that died and was freed) is an error.
+	if not is_instance_valid(root) or not (root is Node) or (root as Node).is_queued_for_deletion():
 		return false
-	return enemy is EnemyScript and is_instance_valid(enemy) and not (enemy as EnemyScript).is_defeated()
+	return is_instance_valid(enemy) and enemy is EnemyScript and not (enemy as EnemyScript).is_defeated()
 
 
 ## The type's `maxHp` in enemy-types.json (0 when it has none).
