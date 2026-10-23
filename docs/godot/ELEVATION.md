@@ -1063,7 +1063,7 @@ tiles (the lab) or the hole's first quarter row (R7); both work.
 Step by step:
 
 1. Open the world (a room scene) in the editor. Its levels are painted on `elevation` as usual.
-2. Add a TileMapLayer child of the scene root named `level-collision`. Give it the script
+2. Add a TileMapLayer child of the scene root (any name: the game finds it by its script's class, `LevelCollisionLayer`). Give it the script
    `game/world/elevation/level_collision_layer.gd` and the tile set
    `game/world/elevation/level_collision_tileset.tres`.
 3. Optional: in the Inspector press **Fill from the automatic collision** to start from the current

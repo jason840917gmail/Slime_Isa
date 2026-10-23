@@ -68,7 +68,7 @@ var _row_by_source: Dictionary = {}
 static func mount(layer: TileMapLayer) -> Self:
 	if layer == null or layer.tile_set == null or not layer.tile_set.has_custom_data_layer_by_name(TILE_ID_DATA_LAYER):
 		return null
-	var wake := layer.get_node_or_null(NodePath(NODE_NAME)) as Self
+	var wake := find_in(layer)
 	if wake == null:
 		wake = Self.new()
 		wake.name = NODE_NAME
@@ -217,3 +217,10 @@ func _airborne_check(body: CharacterBody2D) -> Callable:
 		if child.has_method(&"is_airborne"):
 			return Callable(child, &"is_airborne")
 	return Callable()
+
+## The water wake under `parent`, found by class (a node's name is typed by hand in the editor).
+static func find_in(parent: Node) -> Self:
+	for child: Node in parent.get_children():
+		if child is Self:
+			return child as Self
+	return null

@@ -67,7 +67,7 @@ static func mount(layer: TileMapLayer) -> Self:
 	var transform := layer.get_global_transform() if layer.is_inside_tree() else layer.transform
 	if not is_zero_approx(transform.get_rotation()) or not transform.get_scale().is_equal_approx(Vector2.ONE):
 		return null
-	var edges := layer.get_node_or_null(NodePath(NODE_NAME)) as Self
+	var edges := find_in(layer)
 	if edges == null:
 		edges = Self.new()
 		edges.name = NODE_NAME
@@ -297,3 +297,10 @@ func _snap_frames() -> void:
 		if ground.get_cell_atlas_coords(cell) != frame:
 			ground.set_cell(cell, ground.get_cell_source_id(cell), frame)
 	_snapping = false
+
+## The terrain edges under `parent`, found by class (a node's name is typed by hand in the editor).
+static func find_in(parent: Node) -> Self:
+	for child: Node in parent.get_children():
+		if child is Self:
+			return child as Self
+	return null
