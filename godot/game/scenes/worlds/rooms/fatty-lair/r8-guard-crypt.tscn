@@ -19,7 +19,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="17_rw9083"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="18_rw8501"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="19_rw5818"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="20_r8bolt"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="20_r8bolt"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
 [node name="r8-guard-crypt" type="Node2D" unique_id=1041088703]
 y_sort_enabled = true
@@ -204,6 +205,25 @@ bus = &"Music"
 script = ExtResource("18_rw8501")
 loop = true
 autoplay_cue = true
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r8-marcher-a-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(438, 493)
+kind = "clay-pot"
+
+[node name="throw-r8-marcher-a-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(390, 518)
+kind = "rock"
+
+[node name="throw-r8-marcher-b-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(822, 1709)
+kind = "clay-pot"
+
+[node name="throw-r8-marcher-b-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(774, 1734)
+kind = "rock"
 
 [editable path="Scenery/r8-bier-north"]
 [editable path="Scenery/r8-bier-south"]

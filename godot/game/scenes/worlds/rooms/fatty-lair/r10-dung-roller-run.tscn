@@ -15,7 +15,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="14_rw8905"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="15_rw3067"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="16_rw8703"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/latch-door.tscn" id="17_r10door"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/latch-door.tscn" id="17_r10door"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0rwur"]
 size = Vector2(120, 132)
@@ -157,6 +158,17 @@ bus = &"Music"
 script = ExtResource("15_rw3067")
 loop = true
 autoplay_cue = true
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r10-dung-roller-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(386, 672)
+kind = "clay-pot"
+
+[node name="throw-r10-dung-roller-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(381, 619)
+kind = "rock"
 
 [editable path="Scenery/r10-niche-sconce-0"]
 [editable path="Scenery/r10-niche-sconce-1"]

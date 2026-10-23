@@ -251,6 +251,37 @@ position = Vector2(402, 110)
 enemy_type = "glint-bat"
 wander_radius = 356.0
 
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-eye-2-1" parent="Throwables" instance=ExtResource("13_baay3")]
+position = Vector2(376, 315)
+kind = "clay-pot"
+
+[node name="throw-eye-2-2" parent="Throwables" instance=ExtResource("13_baay3")]
+position = Vector2(328, 340)
+kind = "rock"
+
+[node name="throw-sword-man1-1" parent="Throwables" instance=ExtResource("13_baay3")]
+position = Vector2(896, 649)
+kind = "clay-pot"
+
+[node name="throw-sword-man1-2" parent="Throwables" instance=ExtResource("13_baay3")]
+position = Vector2(848, 674)
+kind = "rock"
+
+[node name="throw-sword-man2S-1" parent="Throwables" instance=ExtResource("13_baay3")]
+position = Vector2(695, 652)
+kind = "clay-pot"
+
+[node name="throw-PlacedEnemy-1" parent="Throwables" instance=ExtResource("13_baay3")]
+position = Vector2(456, 155)
+kind = "rock"
+
+[node name="throw-PlacedEnemy-2" parent="Throwables" instance=ExtResource("13_baay3")]
+position = Vector2(408, 180)
+kind = "clay-pot"
+
 [editable path="Scenery/c2-beam-scale"]
 [editable path="Scenery/c2-weights-entry"]
 [editable path="Scenery/c2-weights-north"]

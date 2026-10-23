@@ -24,7 +24,8 @@
 [ext_resource type="TileSet" uid="uid://b6hbbbrfkchxq" path="res://game/world/fences/fence_tileset.tres" id="90_fencetiles"]
 [ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="91_fencelayer"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/divider-gate.tscn" id="92_dividergate"]
-[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="93_placedenemy"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="93_placedenemy"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
 [node name="r5-eye-hall" type="Node2D" unique_id=1729481366]
 y_sort_enabled = true
@@ -298,6 +299,33 @@ y_sort_enabled = true
 
 [node name="r5-screen-pillar" parent="Scenery" unique_id=1891081045 instance=ExtResource("22_rl40a")]
 position = Vector2(486.40002, 742.3999)
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r5-maze-squint-top-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(742, 294)
+kind = "clay-pot"
+
+[node name="throw-r5-maze-squint-top-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(666, 230)
+kind = "rock"
+
+[node name="throw-r5-maze-squint-west-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(154, 486)
+kind = "clay-pot"
+
+[node name="throw-r5-maze-squint-west-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(170, 435)
+kind = "rock"
+
+[node name="throw-r5-maze-squint-east-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(858, 486)
+kind = "clay-pot"
+
+[node name="throw-r5-maze-squint-east-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(874, 435)
+kind = "rock"
 
 [editable path="Objects/r5-latch-inner"]
 [editable path="Objects/r5-inner-door"]

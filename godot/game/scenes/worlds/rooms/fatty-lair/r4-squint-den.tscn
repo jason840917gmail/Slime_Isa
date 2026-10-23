@@ -143,25 +143,25 @@ y_sort_enabled = true
 position = Vector2(89.6, 480)
 
 [node name="LiftableScript" parent="Objects/nook-blocked/nook-crate-0" index="2"]
-kind = "crate"
+kind = "wicker-basket"
 
 [node name="nook-crate-1" parent="Objects/nook-blocked" instance=ExtResource("16_rw0835")]
 position = Vector2(51.2, 537.6)
 
 [node name="LiftableScript" parent="Objects/nook-blocked/nook-crate-1" index="2"]
-kind = "crate"
+kind = "wicker-basket"
 
 [node name="nook-crate-2" parent="Objects/nook-blocked" instance=ExtResource("16_rw0835")]
 position = Vector2(12.8, 480)
 
 [node name="LiftableScript" parent="Objects/nook-blocked/nook-crate-2" index="2"]
-kind = "crate"
+kind = "wicker-basket"
 
 [node name="nook-sack" parent="Objects/nook-blocked" instance=ExtResource("16_rw0835")]
 position = Vector2(51.2, 556.8)
 
 [node name="LiftableScript" parent="Objects/nook-blocked/nook-sack" index="2"]
-kind = "flour-sack"
+kind = "hay-bundle"
 
 [node name="Barrier" type="StaticBody2D" parent="Objects/nook-blocked"]
 position = Vector2(64, 512)
@@ -187,6 +187,25 @@ bus = &"Music"
 script = ExtResource("18_rw8050")
 loop = true
 autoplay_cue = true
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r4-squint-a-1" parent="Throwables" instance=ExtResource("16_rw0835")]
+position = Vector2(438, 525)
+kind = "clay-pot"
+
+[node name="throw-r4-squint-a-2" parent="Throwables" instance=ExtResource("16_rw0835")]
+position = Vector2(390, 550)
+kind = "rock"
+
+[node name="throw-r4-squint-b-1" parent="Throwables" instance=ExtResource("16_rw0835")]
+position = Vector2(790, 781)
+kind = "clay-pot"
+
+[node name="throw-r4-squint-b-2" parent="Throwables" instance=ExtResource("16_rw0835")]
+position = Vector2(742, 806)
+kind = "rock"
 
 [editable path="Scenery/r4-bunk"]
 [editable path="Scenery/r4-banner"]

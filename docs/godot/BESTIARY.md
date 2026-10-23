@@ -165,7 +165,8 @@ energy shard stay the base enemy's.
   (`game/enemy/bone_skull.gd`, a sprite under the pile's body, in the group only while it lies
   there). Both break as material `bone` (`thrown_object.gd`: dust, `BreakWood`).
 - **Spear-only openings:** the Spear's hits carry the tag `spear` (its shape's tags; the old spear
-  weapons too). The Squints' `_shields` let only those through, and only while the visor is open.
+  weapons too). The Squints' `_shields` let only those through, and thrown things (tag `thrown`,
+  owner 2026-10-22), and only while the visor is open.
 - **The Bow:** the Rook Thief is in the group `bow_targets` with `on_arrow_hit(hit) -> bool` (it is
   knocked down from any height); the Bow (12.6) calls it. The Silk Lurker is in it too (an arrow
   cuts its thread at any height). So are the Glint Bat (brought down from any height), the Crystal
@@ -355,11 +356,12 @@ two plates. Nothing else in the game is plated like it.
   the leap early.
 - **Slam:** the slime in the ring takes `slamDamage` 12 with 220 knockback; the screen shakes. The
   Roll's i-frames or a step out of the ring dodge it.
-- **Open** (`openMs` 900): it lies flat, dazed, the visor open. Only a hit tagged `spear` gets
-  through (`_shields`; the Axe, the Hammer, pots and the Roll still clink). 32 health: two jabs and
+- **Open** (`openMs` 900): it lies flat, dazed, the visor open. Only a hit tagged `spear` or
+  `thrown` gets through (`_shields`; the Axe, the Hammer and the Roll still clink; thrown things
+  since 2026-10-22). 32 health: two jabs and
   the finisher (about 42 together) kill it inside one opening. A reaction stun pauses the pattern, so
   a chain that has started keeps the eye open until it ends.
-- **Right tool:** the Spear in the eye after its slam.
+- **Right tool:** the Spear, or something thrown, in the eye after its slam.
 
 ### 12. Pipe Worm (turret)
 
@@ -438,7 +440,7 @@ Fatty's Lair's mini-boss: the Squint's script with its own numbers (`big-squint`
   again (`nextRearMs` 420) with a new ring under the slime's feet.
 - **Open** (`openMs` 1100) after the second: the Spear only, as the Squint's (taps hold it, the
   finisher knocks it back). 96 health: two openings of a Spear chain.
-- **Right tool:** the Spear in the eye after its second stomp.
+- **Right tool:** the Spear, or something thrown, in the eye after its second stomp.
 
 ### 18. Silk Lurker (ambusher)
 
@@ -577,7 +579,9 @@ neither solid nor stopped; the art and hurtbox ride its height).
   slits, brighter now and then.
 - **Wake** (the tell, `wakeMs` 650): light reaches its ground point (`wakePadPx` 8; the slime's
   ember wakes it as it walks under), at least `restMs` 1200 after its last swoop: eyes wide, a
-  squeak, its shadow darkens.
+  squeak, its shadow darkens. Outside a dark room the day is light: the slime within
+  `daylightWakePx` 150 of its roost wakes it (owner, 2026-10-22: the bats in the Lair's lit rooms
+  never woke).
 - **Swoop** (`swoopMs` 1300): a dive through where the slime stood, `swoopOvershootPx` 120 on (kept
   `arenaInsetPx` 32 inside its pen), weaving `waveAmpPx` 36 side to side (`waveCount` 1.5), down to
   `swoopLowPx` 12. Under `lowHeightPx` 36 it can be hit; touching the slime there (within

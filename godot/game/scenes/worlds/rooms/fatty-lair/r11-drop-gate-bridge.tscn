@@ -25,7 +25,8 @@
 [ext_resource type="Script" path="res://game/fattys_lair/void_shade.gd" id="23_rw0092"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="24_rw5736"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="25_rw5353"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="26_rw6426"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="26_rw6426"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
 [node name="r11-drop-gate-bridge" type="Node2D" unique_id=1037649996]
 y_sort_enabled = true
@@ -234,6 +235,17 @@ bus = &"Music"
 script = ExtResource("25_rw5353")
 loop = true
 autoplay_cue = true
+
+[node name="Throwables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="throw-r11-pipe-worm-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(984, 361)
+kind = "clay-pot"
+
+[node name="throw-r11-pipe-worm-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+position = Vector2(943, 327)
+kind = "rock"
 
 [editable path="Enemies/r11-pipe-worm"]
 [editable path="Hazards/void-38-36"]
