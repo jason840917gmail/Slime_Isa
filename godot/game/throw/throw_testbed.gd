@@ -86,7 +86,8 @@ func _physics_process(_delta: float) -> void:
 	var now := Services.now_ms()
 	for slot: Dictionary in slots:
 		var root: Variant = slot.get("root")
-		if root is Node and is_instance_valid(root) and not (root as Node).is_queued_for_deletion():
+		# Validity first: `is` on a freed instance (a thing just sucked up) is an error.
+		if is_instance_valid(root) and root is Node and not (root as Node).is_queued_for_deletion():
 			continue
 		if float(slot["respawn_at"]) < 0.0:
 			slot["respawn_at"] = now + respawn_ms
