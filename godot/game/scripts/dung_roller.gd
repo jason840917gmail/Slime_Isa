@@ -227,7 +227,7 @@ func ball_centre() -> Vector2:
 func is_from_behind(request: Dictionary) -> bool:
 	var at: Variant = null
 	var source: Variant = request.get("source")
-	if source is Object and is_instance_valid(source) and (source as Object).has_method(&"get_centre"):
+	if is_instance_valid(source) and source is Object and (source as Object).has_method(&"get_centre"):
 		at = (source as Object).call(&"get_centre")
 	if not at is Vector2:
 		var impact: Variant = request.get("impact", {})

@@ -28,7 +28,7 @@ const SCENE_PREFIX := "projectile."
 static func fire(request: Dictionary) -> Node2D:
 	var projectile_id := str(request.get("projectile_id", ""))
 	var source: Variant = request.get("source")
-	var source_id := str((source as Node).get_path()) if source is Node and is_instance_valid(source) \
+	var source_id := str((source as Node).get_path()) if is_instance_valid(source) and source is Node \
 		and (source as Node).is_inside_tree() else ""
 	if projectile_id.is_empty():
 		push_error("EnemyProjectiles: enemy '%s' projectile must reference an authored projectile scene." % source_id)

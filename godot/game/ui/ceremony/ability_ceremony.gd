@@ -406,7 +406,7 @@ func _effect(player: Node, factor: Vector2) -> void:
 func _player() -> Node:
 	var world := Services.world()
 	var player: Variant = world.player if world != null else null
-	return player if player is Node and is_instance_valid(player) else null
+	return player if is_instance_valid(player) and player is Node else null
 
 
 func _cue(cue: StringName) -> void:

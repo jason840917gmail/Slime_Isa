@@ -100,7 +100,7 @@ static func hurtbox_centre(node: Node) -> Vector2:
 static func level_of(node: Node) -> int:
 	var world := Services.world()
 	var body: Variant = node.get(&"body") if node != null and is_instance_valid(node) else null
-	if world == null or world.elevation == null or not (body is Node2D and is_instance_valid(body)):
+	if world == null or world.elevation == null or not (is_instance_valid(body) and body is Node2D):
 		return ClickPath.NO_LEVEL
 	return world.elevation.level_of(body as Node)
 
@@ -110,7 +110,7 @@ static func feet_of(node: Node) -> Vector2:
 	if node == null or not is_instance_valid(node):
 		return Vector2.ZERO
 	var body: Variant = node.get(&"body")
-	if body is Node2D and is_instance_valid(body):
+	if is_instance_valid(body) and body is Node2D:
 		return (body as Node2D).global_position
 	if node.has_method(&"world_position"):
 		return node.call(&"world_position")
@@ -119,8 +119,8 @@ static func feet_of(node: Node) -> Vector2:
 
 ## The root a usable thing stands on (its script's parent), else `fallback`.
 static func _root_of(node: Variant, fallback: Vector2) -> Vector2:
-	if node is Node2D and is_instance_valid(node):
+	if is_instance_valid(node) and node is Node2D:
 		return (node as Node2D).global_position
-	if node is Node and is_instance_valid(node) and (node as Node).get_parent() is Node2D:
+	if is_instance_valid(node) and node is Node and (node as Node).get_parent() is Node2D:
 		return ((node as Node).get_parent() as Node2D).global_position
 	return fallback

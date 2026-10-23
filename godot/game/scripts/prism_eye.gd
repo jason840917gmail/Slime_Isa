@@ -322,7 +322,7 @@ func on_arrow_hit(hit: Dictionary) -> bool:
 func is_from_behind(request: Dictionary) -> bool:
 	var source: Variant = request.get("source")
 	var from := Vector2.INF
-	if source is Node and is_instance_valid(source) and (source as Node).has_method(&"get_centre"):
+	if is_instance_valid(source) and source is Node and (source as Node).has_method(&"get_centre"):
 		from = (source as Node).call(&"get_centre")
 	else:
 		var impact: Variant = request.get("impact", {})
