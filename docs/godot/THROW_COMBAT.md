@@ -11,6 +11,8 @@ The owner's decisions (2026-10-19/20):
 - **No ammo = flee.** There is no fallback attack. Changing chunk rebuilds the screen (its liftables
   come back with it), which is a fair way out. Enemies make ammo with their attacks.
 - **Q does everything as before** (suck, throw, swallow, spit); **the attack key (A) does nothing**.
+  In the keys-only scheme (owner, 2026-10-22, to try) the keys are **A** the Gulp, **S** the Roll
+  and **D** the chosen box ability ([MOUSE_CONTROLS.md](MOUSE_CONTROLS.md#the-keys-only-scheme)).
 - **The Gulp's levels are their own upgrades** (Zelda's Power Bracelet): 1 lifts light things, 2
   medium, 3 heavy. The Heavy skin keeps its plates and heavy blocks.
 - **One thing in the mouth at a time.**
@@ -74,7 +76,7 @@ The playground starts at level 1 (`playgroundLevel`).
   from a knockdown or a launch (the reactions' wake guard): put it to sleep before you knock it
   down, not right after.
 - **Shape powers.** The learned shapes stand first in the Ability Box (the bag's Shapes row hides).
-  Choosing one and pressing the ability key (F; S in keys-only) fires that shape's charge at once
+  Choosing one and pressing the ability key (F; D in keys-only) fires that shape's charge at once
   (the Spear's Lunge, the Axe's Spin, the Hammer's Quake) along the facing or the pointer, for its
   energy (15, 20, 25), with no ring. E (or the wheel) steps the box's choice and names it over the
   slime. The HUD's Ability slot shows the shape's icon and cost; the Shape slot is hidden.

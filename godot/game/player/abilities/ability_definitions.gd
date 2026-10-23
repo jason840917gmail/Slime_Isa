@@ -103,7 +103,7 @@ const CEREMONY := {
 	LANTERN: ["An ember glows inside you: see in the dark, and throw small flames that burn and light candles.",
 		"Press %s to throw a flame"],
 	GOO_BOMBS: ["Brew a jelly bomb inside you and spit it out. It blows up cracked walls, rubble and foes, and you too!",
-		"Press %s and stand still while it grows; suck it in with Q to throw it"],
+		"Press %s and stand still while it grows; suck it in with the Gulp to throw it"],
 }
 ## The rework mode's how-to lines where they differ (body-shapes plan section 5: Swallow is a Q hold;
 ## "%s" is the key of `eat`, AbilityBox.key_action; owner, 2026-10-12: the Roll fires on the release,
