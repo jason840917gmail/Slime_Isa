@@ -293,11 +293,6 @@ position = Vector2(295, 402)
 enemy_type = "watcher-eye"
 wander_radius = 475.0
 
-[node name="PlacedEnemy2" parent="Enemies" unique_id=493558237 instance=ExtResource("31_5y5ef")]
-position = Vector2(536, 697)
-enemy_type = "glint-bat"
-wander_radius = 286.0
-
 [editable path="Scenery/r7-pot-0"]
 [editable path="Scenery/r7-pot-1"]
 [editable path="Scenery/r7-pot-2"]

@@ -1,16 +1,20 @@
 extends "res://game/enemy/patterned_enemy.gd"
 class_name GlintBatScript
 ## Scene script `game.glint-bat` (the bestiary's row 24, a flyer; docs/godot/BESTIARY.md "Glint
-## Bat"): a cave bat that sleeps hanging from the ceiling and swoops at the slime when light wakes it.
+## Bat"): a cave bat of the dark. While its room is not fully lit it wakes and swoops at the slime;
+## once the room is fully lit (its dark room's candles all lit) it sleeps. It belongs only in rooms
+## with the dark mechanic (owner, 2026-10-23).
 ##
 ## It flies like the Rook Thief: its body is neither solid nor stopped (layer and mask 0), its root
 ## is the ground point under it (its shadow) and its art and hurtbox ride `height` above it.
 ## - **Asleep:** hanging `roostHeightPx` up, wings wrapped, out of reach (no hurtbox); in a dark room
 ##   only its eyes glint (game/enemy/dark_eyes.gd), as slits.
-## - **Wake** (the tell, `wakeMs`): outside a dark room, the slime within `daylightWakePx` of its
-##   roost (the day is light); in a dark one, light reaches it (a light source within reach of its ground
-##   point, game/enemy/light_sense.gd: the slime's ember in a dark room, a candle, a flame), at least
-##   `restMs` after its last swoop: its eyes open wide and glint, it squeaks, its shadow darkens.
+## - **Wake** (the tell, `wakeMs`; owner, 2026-10-23: "awake while the room is not 100% lit, asleep
+##   once it is; that gives the Lantern more use"): its roost is in a dark room that is still dark
+##   (DarkRoom.is_dark_at) and the slime is engaged (in its pen or within its targeting radius), at
+##   least `restMs` after its last swoop: its eyes open wide and glint, it squeaks, its shadow
+##   darkens. Lighting every candle of the room (the Lantern) puts it to sleep for good: it flies home
+##   and stays there.
 ## - **Swoop** (`swoopMs`): a dive from its roost through the point where the slime stood at the
 ##   tell's end, `swoopOvershootPx` on (kept in its pen), weaving `waveAmpPx` side to side
 ##   (`waveCount` times), down to `swoopLowPx` in its middle. Under `lowHeightPx` it can be hit;
@@ -23,9 +27,7 @@ class_name GlintBatScript
 ##
 ## Owner: enemy builder.
 
-const LightSense := preload("res://game/enemy/light_sense.gd")
-## Outside a dark room the day itself is light (owner, 2026-10-22: a bat in a lit Lair room never
-## woke): it wakes when the slime comes within `daylightWakePx` of its roost.
+## Its room's darkness: awake while it lasts (`_in_darkness`).
 const DarkRoom := preload("res://game/world/darkness/dark_room.gd")
 const DarkEyes := preload("res://game/enemy/dark_eyes.gd")
 
@@ -118,7 +120,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			_height = move_toward(_height, roost_height, pattern("climbSpeed", 160.0) * delta)
 			_fly_to(_roost, delta)
 			set_hurtbox(false)
-			if now >= _rest_until and _lit(target):
+			if now >= _rest_until and engaged and _in_darkness():
 				_transition(PHASE_WAKE, now)
 				set_frame(FRAME_WOKEN)
 				_cue(CUE_WAKE)
@@ -163,14 +165,9 @@ func on_arrow_hit(_hit: Dictionary) -> bool:
 	return true
 
 
-func _lit(target: Dictionary = {}) -> bool:
-	if LightSense.light_at(get_tree(), get_centre(), pattern("wakePadPx", 8.0)) > 0.0:
-		return true
-	if DarkRoom.is_dark_at(get_tree(), _roost if _roost != Vector2.INF else feet()):
-		return false
-	var slime_body := target.get("body") as Node2D
-	return is_instance_valid(slime_body) \
-		and slime_body.global_position.distance_to(_roost) <= pattern("daylightWakePx", 150.0)
+## True while its roost lies in a dark room that is not lit yet (not 100% light).
+func _in_darkness() -> bool:
+	return DarkRoom.is_dark_at(get_tree(), _roost if _roost != Vector2.INF else feet())
 
 
 func _begin_swoop(now: float, target: Dictionary) -> void:

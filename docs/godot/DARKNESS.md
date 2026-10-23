@@ -105,7 +105,8 @@ layout is in [BODY_SHAPES.md "The Lantern"](BODY_SHAPES.md#the-lantern-2026-10-1
 The Bestiary's pens 23, 24 and 28 each hold a `DarkRoom` the size of the pen, with no candles, so
 they stay dark. Three enemies there read the light sources (they only read them:
 `game/enemy/light_sense.gd`, [BESTIARY.md](BESTIARY.md#what-the-patterned-enemies-share)): the
-Gloomling flees any light and the Glint Bat wakes in it (and a Gloomling sitting on a candle smothers
+Gloomling flees any light and the Glint Bat is awake while the room is dark (it sleeps once every
+candle burns) (and a Gloomling sitting on a candle smothers
 it, above); the Shardback's shell turns brittle in fire light (every source but the slime's own
 ember), and its slam puts out the braziers in its ring.
 
