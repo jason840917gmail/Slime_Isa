@@ -79,7 +79,10 @@ F5 runs the title screen (`game/shell/title.tscn`, the main scene); New Game sta
 (main.tscn on its own loads level-1). To test in the playground (the testbed
 where new mechanics are tried first), open `game/dev/playground.tscn` and press F6 (Run
 Current Scene); it inherits `main.tscn` with `map_id = "playground"`. F6 on a world scene
-itself (`game/scenes/worlds/<id>.tscn`) works too: run on its own, a world has no player, camera
+itself (`game/scenes/worlds/<id>.tscn`; a room you enter from a chunk lives in that chunk's folder,
+`game/scenes/worlds/rooms/<chunk>/<id>.tscn`: Slimeshire's by the short chunk name, `rooms/c4/`,
+`rooms/d4/`, other regions' by the full one, `rooms/gloop-forest-e4/`; a dungeon keeps its own
+`rooms/<dungeon>/`; owner, 2026-10-22) works too: run on its own, a world has no player, camera
 or HUD, so its `world_definition.gd` swaps it for `main.tscn` with its map id (the playground keeps
 its testbed kit). A dungeon's world run this way (listed in `dungeon.devPowers` in
 game-constants.json: Fatty's Lair and its hill outside, `level-1-d5`, the Weaver Hollow's four
