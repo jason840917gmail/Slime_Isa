@@ -23,7 +23,7 @@ func begin(source: Object, attack_areas: Array) -> int:
 		return 0
 	var area_ids: Dictionary = {}
 	for area: Variant in attack_areas:
-		if not (area is Area2D) or not is_instance_valid(area):
+		if not is_instance_valid(area) or not (area is Area2D):
 			push_error("AttackActivations.begin: invalid attack area")
 			return 0
 		area_ids[(area as Area2D).get_instance_id()] = true

@@ -71,7 +71,7 @@ static func shapes_of(player: Node) -> Node:
 	if player == null or not is_instance_valid(player) or not player.has_method(&"get_shapes"):
 		return null
 	var shapes: Variant = player.call(&"get_shapes")
-	return shapes if shapes is Node and is_instance_valid(shapes) else null
+	return shapes if is_instance_valid(shapes) and shapes is Node else null
 
 
 ## The learned shapes, in switch order (ShapeDefs.IDS), from RunState.

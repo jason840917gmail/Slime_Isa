@@ -197,7 +197,7 @@ func fill_from_automatic() -> int:
 	clear()
 	# a room's faces give their collision exactly: copy it
 	var room: Variant = elevation.get(&"room_collision")
-	if room is TileMapLayer and is_instance_valid(room):
+	if is_instance_valid(room) and room is TileMapLayer:
 		var copied := 0
 		for cell: Vector2i in (room as TileMapLayer).get_used_cells():
 			set_cell(cell, 0, (room as TileMapLayer).get_cell_atlas_coords(cell))
@@ -295,7 +295,7 @@ func _paint_overlay(canvas: Node2D) -> void:
 	var elevation_now := _elevation()
 	if source == null and elevation_now != null:
 		var room: Variant = elevation_now.get(&"room_collision")
-		if room is LevelCollisionLayer and is_instance_valid(room):
+		if is_instance_valid(room) and room is LevelCollisionLayer:
 			source = room
 	if source != null:
 		var font := ThemeDB.fallback_font

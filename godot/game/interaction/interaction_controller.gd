@@ -235,7 +235,7 @@ func target_at(pointer: Vector2) -> Dictionary:
 ## quest kind changes), else its id.
 static func key_of(candidate: Dictionary) -> Variant:
 	var node: Variant = candidate.get("node")
-	if node is Node and is_instance_valid(node):
+	if is_instance_valid(node) and node is Node:
 		return node
 	return str(candidate.get("id", ""))
 

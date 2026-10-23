@@ -302,7 +302,7 @@ static func _prepare(enemy: Node, request: Dictionary, profile: Dictionary) -> R
 
 ## The hurtbox's part when the profile has one by that name ("" otherwise).
 static func _part_of(profile: Dictionary, area: Variant) -> String:
-	if not area is Area2D or not is_instance_valid(area):
+	if not is_instance_valid(area) or not area is Area2D:
 		return ""
 	var hurtbox := area as Area2D
 	var part := str(hurtbox.get_meta(PART_META)) if hurtbox.has_meta(PART_META) else String(hurtbox.name).to_snake_case()
@@ -590,7 +590,7 @@ static func _try_splat(enemy: Node, body: CharacterBody2D, state: ReactionState,
 	if state.splats_this_chain >= int(splat.get("perChain", 0)):
 		return
 	var collider: Variant = info.get("collider")
-	if not collider is Object or not is_instance_valid(collider) or _is_player_body(collider as Object) \
+	if not is_instance_valid(collider) or not collider is Object or _is_player_body(collider as Object) \
 			or _enemy_of(collider as Object) != null:
 		return
 	var normal: Vector2 = info.get("normal", Vector2.ZERO)
@@ -733,7 +733,7 @@ static func _stun(enemy: Node, until: float, replace: bool = false) -> void:
 static func _flash(enemy: Node, hit: Dictionary) -> void:
 	var feel := Services.feel()
 	var visual: Variant = enemy.call(&"get_visual") if enemy.has_method(&"get_visual") else null
-	if feel != null and feel.has_method(&"flash_hit") and visual is CanvasItem and is_instance_valid(visual):
+	if feel != null and feel.has_method(&"flash_hit") and is_instance_valid(visual) and visual is CanvasItem:
 		feel.call(&"flash_hit", visual, _big_hit(hit))
 		return
 	if enemy.has_method(&"flash_hit"):
@@ -810,7 +810,7 @@ static func _body_of(enemy: Node) -> CharacterBody2D:
 	if enemy == null or not enemy.has_method(&"get_body"):
 		return null
 	var body: Variant = enemy.call(&"get_body")
-	return body as CharacterBody2D if body is CharacterBody2D and is_instance_valid(body) else null
+	return body as CharacterBody2D if is_instance_valid(body) and body is CharacterBody2D else null
 
 
 static func _centre_of(enemy: Node) -> Vector2:
