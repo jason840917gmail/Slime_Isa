@@ -284,6 +284,7 @@ playground sinkholes are `ladder_down` (no side, arrival child) and their cave l
 - Each body is moved only by its own scene script, with `ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`); never `move_and_slide()`, whose floating-mode slide differs from Phaser's Arcade.
 - Gameplay values come from `game/data/game-constants.json` (through
   `Services.constants()`) or from scene properties, never new literals.
+- Find a scene's node by its class (`child is LevelCollisionLayer`), never by a name: names are typed by hand in the editor and drift (a room's painted layer was named `LevelCollisionLayer` and was silently ignored). A name stays only for a node the code creates and names itself.
 - Commit the `*.gd.uid` files Godot creates next to scripts.
 
 ## Checking your work

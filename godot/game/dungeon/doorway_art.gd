@@ -3,6 +3,7 @@ extends RefCounted
 const DungeonDoor := preload("res://game/dungeon/dungeon_door.gd")
 const Shutter := preload("res://game/dungeon/shutter.gd")
 const CameraRoom := preload("res://game/world/camera_room.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 const ART := "res://asset/MAPS/objects/dungeon/doorways/%s.res"
 const FRAME_NAME := &"WallDoorway"
 const CELL := 64.0
@@ -37,7 +38,7 @@ static func _depth(wall: String) -> float:
 	return 1.0 if wall == "north" else 1.0 / 3.0
 
 static func _style(world: Node2D, at: Vector2, turn: float, map_id: String) -> String:
-	var layer := world.get_node_or_null("cliffs") as TileMapLayer
+	var layer := Elevation.find_cliff_in(world)
 	if layer != null:
 		var sample := at + Vector2(0, -160).rotated(turn)
 		var cell := Vector2i(floori(sample.x / CELL), floori(sample.y / CELL))
@@ -152,7 +153,7 @@ static func _walls(world: Node2D, map_id: String) -> void:
 	holder.name = "DoorwayWalls"
 	holder.z_index = -1
 	world.add_child(holder)
-	var elevation := world.get_node("elevation") as TileMapLayer
+	var elevation := Elevation.find_paint_in(world)
 	for camera: Node in world.get_node("CameraRooms").get_children():
 		if not camera is CameraRoom or not bool(camera.get_meta(&"wall_bands", true)):
 			continue

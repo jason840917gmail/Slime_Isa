@@ -870,7 +870,7 @@ func _hold_at_a_fallen_slabs_gap(t: TestContext, painted: bool) -> void:
 	var elevation := t.world().elevation
 	var watch := t.world().world_root.get_node("HazardWatch")
 	if not painted:
-		(t.world().world_root.get_node("level-collision") as TileMapLayer).clear()
+		LevelCollisionLayer.find_beside(t.world().ground_layer).clear()
 		elevation.call(&"rebuild")
 		await t.steps(4)
 	var heal := func() -> void: t.player().restore_run_state({"hp": t.player().get_max_hp()})
@@ -970,7 +970,7 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 		return
 	await t.steps(10)
 	var elevation: Node = t.world().elevation
-	var paint := t.world().world_root.get_node_or_null("level-collision") as TileMapLayer
+	var paint := LevelCollisionLayer.find_beside(t.world().ground_layer)
 	if not painted and paint != null:
 		paint.clear()
 		elevation.call(&"rebuild")

@@ -81,7 +81,15 @@ func _validate_property(property: Dictionary) -> void:
 static func find_beside(ground_layer: Node) -> LevelCollisionLayer:
 	if ground_layer == null or ground_layer.get_parent() == null:
 		return null
-	return ground_layer.get_parent().get_node_or_null(NodePath(NODE_NAME)) as LevelCollisionLayer
+	# By class, not name: a node's name is typed by hand in the editor (a room's was "LevelCollisionLayer").
+	var parent := ground_layer.get_parent()
+	var named := parent.get_node_or_null(NodePath(NODE_NAME))
+	if named != null and not (named is LevelCollisionLayer):
+		push_warning("%s: %s is not a LevelCollisionLayer, so its paint is ignored" % [parent.name, NODE_NAME])
+	for child: Node in parent.get_children():
+		if child is LevelCollisionLayer:
+			return child as LevelCollisionLayer
+	return null
 
 
 ## True when something is painted (the layer then replaces the automatic collision).

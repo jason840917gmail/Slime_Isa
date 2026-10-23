@@ -145,10 +145,10 @@ static func mount(ground_layer: TileMapLayer, elevation: Node2D, the_grid: Eleva
 		return null
 	var parent: Node = elevation if elevation != null else ground_layer.get_parent()
 	var painted := find_layer(ground_layer)
-	var existing := parent.get_node_or_null(NodePath(NODE_NAME)) as Self
+	var existing := find_in(parent)
 	if elevation != null:
 		# fences mounted on flat ground before the world had an Elevation (only a Fences node)
-		var flat_renderer := ground_layer.get_parent().get_node_or_null(NodePath(NODE_NAME)) as Self
+		var flat_renderer := find_in(ground_layer.get_parent())
 		if flat_renderer != null and flat_renderer != existing:
 			flat_renderer.queue_free()
 	if painted == null or painted.get_used_cells().is_empty():
@@ -1078,3 +1078,10 @@ static func _level_bit(level: int) -> int:
 			break
 	_level_bits[level] = bit
 	return bit
+
+## The fences under `parent`, found by class (a node's name is typed by hand in the editor).
+static func find_in(parent: Node) -> Self:
+	for child: Node in parent.get_children():
+		if child is Self:
+			return child as Self
+	return null

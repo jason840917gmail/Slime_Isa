@@ -36,7 +36,7 @@ var sheets: Array[Texture2D] = []
 static func mount(ground: TileMapLayer) -> Self:
 	if ground == null or ground.tile_set == null:
 		return null
-	var surface := ground.get_node_or_null(NodePath(NODE_NAME)) as Self
+	var surface := find_in(ground)
 	if surface == null:
 		surface = Self.new()
 		surface.name = NODE_NAME
@@ -120,3 +120,10 @@ func _draw() -> void:
 	if cells > 0 and material != null:
 		var tile := float((material as ShaderMaterial).get_shader_parameter(&"tile_size"))
 		draw_rect(Rect2(Vector2.ZERO, Vector2(columns, rows) * tile), Color.WHITE)
+
+## The ground surface under `parent`, found by class (a node's name is typed by hand in the editor).
+static func find_in(parent: Node) -> Self:
+	for child: Node in parent.get_children():
+		if child is Self:
+			return child as Self
+	return null

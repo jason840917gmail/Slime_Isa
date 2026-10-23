@@ -60,8 +60,9 @@ func _initialize() -> void:
 	for i in 90:
 		await process_frame
 	var world := Services.world()
-	if automatic and world.world_root.get_node_or_null("level-collision") != null:
-		(world.world_root.get_node("level-collision") as TileMapLayer).clear()
+	var painted_layer := LevelCollisionLayer.find_beside(world.ground_layer)
+	if automatic and painted_layer != null:
+		painted_layer.clear()
 		world.elevation.rebuild()
 		for i in 4:
 			await process_frame

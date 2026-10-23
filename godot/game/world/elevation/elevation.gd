@@ -325,7 +325,7 @@ static var _ground_colours: Dictionary = {}
 static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 	if ground_layer == null:
 		return null
-	var existing := ground_layer.get_node_or_null(NodePath(NODE_NAME)) as Self
+	var existing := find_in(ground_layer)
 	var painted := find_layer(ground_layer)
 	if painted == null or painted.get_used_cells().is_empty():
 		if existing != null:
@@ -349,6 +349,33 @@ static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 
 ## The elevation layer beside `ground_layer` (a sibling TileMapLayer whose tile set has the
 ## `elevation_level` data layer), or null.
+## The Elevation overlay under `parent`, found by class (a node's name is typed by hand in the editor).
+static func find_in(parent: Node) -> Self:
+	for child: Node in parent.get_children():
+		if child is Self:
+			return child as Self
+	return null
+
+
+## The painted `elevation` layer under `parent`: the TileMapLayer whose tile set has the level data
+## layer. Found by its data, not its name.
+static func find_paint_in(parent: Node) -> TileMapLayer:
+	for child: Node in parent.get_children():
+		var candidate := child as TileMapLayer
+		if candidate != null and candidate.tile_set != null and candidate.tile_set.has_custom_data_layer_by_name(LEVEL_DATA_LAYER):
+			return candidate
+	return null
+
+
+## The cliffs layer under `parent`: the TileMapLayer whose tile set is the cliff tile set.
+static func find_cliff_in(parent: Node) -> TileMapLayer:
+	for child: Node in parent.get_children():
+		var candidate := child as TileMapLayer
+		if candidate != null and candidate.tile_set != null and candidate.tile_set.resource_path == CLIFF_TILESET_PATH:
+			return candidate
+	return null
+
+
 static func find_layer(ground_layer: TileMapLayer) -> TileMapLayer:
 	return _sibling_with_data(ground_layer, LEVEL_DATA_LAYER)
 
@@ -360,11 +387,7 @@ static func find_cliff_layer(ground_layer: TileMapLayer) -> TileMapLayer:
 	var parent := ground_layer.get_parent() if ground_layer != null else null
 	if parent == null:
 		return null
-	for child: Node in parent.get_children():
-		var candidate := child as TileMapLayer
-		if candidate != null and candidate.tile_set != null and candidate.tile_set.resource_path == CLIFF_TILESET_PATH:
-			return candidate
-	return null
+	return find_cliff_in(parent)
 
 
 static func _sibling_with_data(ground_layer: TileMapLayer, data_layer: String) -> TileMapLayer:

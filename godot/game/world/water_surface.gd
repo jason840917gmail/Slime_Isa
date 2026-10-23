@@ -58,7 +58,7 @@ var water_rect: Rect2 = Rect2()
 static func mount(ground: TileMapLayer) -> Self:
 	if ground == null or ground.tile_set == null:
 		return null
-	var existing := ground.get_node_or_null(NodePath(NODE_NAME)) as Self
+	var existing := find_in(ground)
 	if existing != null:
 		return existing
 	var transform := ground.get_global_transform() if ground.is_inside_tree() else ground.transform
@@ -160,3 +160,10 @@ static func _kind_of(tile_data: TileData) -> Kind:
 	if tile_id == DEEP_TILE_ID:
 		return Kind.DEEP
 	return Kind.NONE
+
+## The water surface under `parent`, found by class (a node's name is typed by hand in the editor).
+static func find_in(parent: Node) -> Self:
+	for child: Node in parent.get_children():
+		if child is Self:
+			return child as Self
+	return null

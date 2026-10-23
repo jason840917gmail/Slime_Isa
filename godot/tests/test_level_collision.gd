@@ -120,7 +120,7 @@ func test_a_decks_passage_opens_the_painted_rim(t: TestContext) -> void:
 
 ## With the layer empty the world's automatic collision is back: the gap is a rim again.
 func test_an_empty_layer_leaves_the_automatic_collision(t: TestContext) -> void:
-	var layer := t.world().world_root.get_node(LevelCollision.NODE_NAME) as TileMapLayer
+	var layer := LevelCollision.find_beside(t.world().ground_layer)
 	var kept := {}
 	for cell: Vector2i in layer.get_used_cells():
 		kept[cell] = layer.get_cell_atlas_coords(cell)
@@ -391,7 +391,7 @@ func _bridge(t: TestContext, slab_rows: int) -> Array[Node]:
 
 ## Clears the lab's painted collision (the automatic one comes back).
 func _clear_paint(t: TestContext) -> void:
-	(t.world().world_root.get_node(LevelCollision.NODE_NAME) as TileMapLayer).clear()
+	LevelCollision.find_beside(t.world().ground_layer).clear()
 	t.world().elevation.call(&"rebuild")
 	await t.steps(4)
 
