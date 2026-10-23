@@ -704,7 +704,7 @@ func _hit_all(targets: Array[Dictionary], data: Dictionary, from: Vector2, last:
 		if _activation == 0 or not _player_valid():
 			break
 		var receiver: Variant = target.get("receiver")
-		if not (receiver is Object) or not is_instance_valid(receiver):
+		if not is_instance_valid(receiver) or not (receiver is Object):
 			continue
 		var key := (receiver as Object).get_instance_id()
 		if _resolved.has(key):

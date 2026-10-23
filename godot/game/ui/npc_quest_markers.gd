@@ -160,5 +160,5 @@ func _drop(key: Variant) -> void:
 	var entry: Dictionary = _markers.get(key, {})
 	_markers.erase(key)
 	var label: Variant = entry.get("label")
-	if label is Label and is_instance_valid(label):
+	if is_instance_valid(label) and label is Label:
 		(label as Label).queue_free()

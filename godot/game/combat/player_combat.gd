@@ -314,9 +314,9 @@ func _damage_modifier(target_tags: Variant) -> float:
 ## `body` root when it has one, else the hurtbox centre.
 static func _target_feet(target: Dictionary, centre: Vector2) -> Vector2:
 	var receiver: Variant = target.get("receiver", null)
-	if receiver is Object and is_instance_valid(receiver):
+	if is_instance_valid(receiver) and receiver is Object:
 		var body: Variant = (receiver as Object).get("body")
-		if body is Node2D and is_instance_valid(body):
+		if is_instance_valid(body) and body is Node2D:
 			return (body as Node2D).global_position
 	return centre
 

@@ -88,7 +88,7 @@ static func ensure(from: Node) -> HazardWatch:
 		return null
 	var key := root.get_instance_id()
 	var found: Variant = _watches.get(key)
-	if found is HazardWatch and is_instance_valid(found):
+	if is_instance_valid(found) and found is HazardWatch:
 		return found as HazardWatch
 	var watch: HazardWatch = (load("res://game/dungeon/hazard_watch.gd") as GDScript).new()
 	watch.name = NODE_NAME

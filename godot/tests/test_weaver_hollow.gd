@@ -366,7 +366,7 @@ func test_the_pantrys_mimic_spits_out_small_key_2(t: TestContext) -> void:
 	var key: Array[Node2D] = []
 	var dropped := await t.until(func() -> bool:
 		for node: Node in t.tree.get_nodes_in_group(&"swallowed_drops"):
-			if node is Node2D and is_instance_valid(node) and node.is_inside_tree():
+			if is_instance_valid(node) and node is Node2D and node.is_inside_tree():
 				key.append(node as Node2D)
 				return true
 		return false, 3000.0)

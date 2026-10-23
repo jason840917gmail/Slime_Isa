@@ -261,11 +261,11 @@ static func _finite_non_negative(value: Variant) -> bool:
 
 
 static func _valid_object(value: Variant) -> bool:
-	return value is Object and is_instance_valid(value)
+	return is_instance_valid(value) and value is Object
 
 
 static func _valid_area(value: Variant) -> bool:
-	return value is Area2D and is_instance_valid(value)
+	return is_instance_valid(value) and value is Area2D
 
 
 ## Unique non-empty strings, sorted; null when invalid.

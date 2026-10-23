@@ -123,7 +123,7 @@ static func hitbox_of(player: Node) -> Area2D:
 	var body := slime.body
 	if body.has_meta(HITBOX_META):
 		var known: Variant = body.get_meta(HITBOX_META)
-		if known is Area2D and is_instance_valid(known):
+		if is_instance_valid(known) and known is Area2D:
 			return known
 	var area := Area2D.new()
 	area.name = HITBOX_NAME
@@ -183,7 +183,7 @@ static func wall_reach(player: Node, _origin: Vector2, aim: Vector2, reach: floa
 ## can be hit, so it is a target, not a wall).
 static func _owns_hurtbox(node: Variant) -> bool:
 	var router := Services.router()
-	if router == null or not (node is Node) or not is_instance_valid(node):
+	if router == null or not is_instance_valid(node) or not (node is Node):
 		return false
 	for child: Node in (node as Node).get_children():
 		if child is Area2D and router.receiver_for_area(child as Area2D) != null:

@@ -576,14 +576,14 @@ func _shields(request: Dictionary) -> bool:
 ## True when the hit's source is the slime climbing a wall (the Feral skin).
 static func _from_climber(request: Dictionary) -> bool:
 	var source: Variant = request.get("source")
-	return source is Node and is_instance_valid(source) and (source as Node).has_method(&"is_climbing") \
+	return is_instance_valid(source) and source is Node and (source as Node).has_method(&"is_climbing") \
 		and bool((source as Node).call(&"is_climbing"))
 
 
 func _from_weak_side(request: Dictionary) -> bool:
 	var source: Variant = request.get("source")
 	var from := Vector2.INF
-	if source is Node and is_instance_valid(source) and (source as Node).has_method(&"get_centre"):
+	if is_instance_valid(source) and source is Node and (source as Node).has_method(&"get_centre"):
 		from = (source as Node).call(&"get_centre")
 	else:
 		var impact: Dictionary = request.get("impact", {})
