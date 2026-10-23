@@ -1286,12 +1286,11 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
   the arena's: Fatty, the compass's mark; the Larder's; R4's).
 - **Fatty's phase two, the Heavy skin's exam** (`fatty.gd` `configure_phase_two`, its `phase_two_*`
   exports; [specs/boss.md](specs/boss.md) section 3.8): under half his health he leaps twice in a
-  row; each landing drops light mud clods from the roots (after a shadow,
-  `game/fattys_lair/clod_shadow.gd`; liftable `mud-ball`s, at most four, falling hazards), and the
+  row; each landing drops ten light mud clods from the roots (after a shadow,
+  `game/fattys_lair/clod_shadow.gd`; liftable `mud-ball`s, at most ten alive, falling hazards; the arena has ten clod spots, so a landing drops up to ten), and the
   second sends a mud ripple over the floor (`game/fattys_lair/mud_ripple.gd`) that a Roll's i-frames
-  carry through; his eye stays squinted shut and he braces (every hit clinks). **A Heavy Roll into
-  him while he is on the floor** (the Roll's bonk tagged `heavy`) knocks him off balance for
-  `phase_two_dizzy_ms` (1.6 s): "Off balance!", he rocks back `phase_two_topple_lean_rad` and
+  carry through; his eye stays squinted shut and he braces (every hit clinks). **The mock, then a Heavy Roll.** After a pair of leaps he sometimes (`phase_two_mock_chance`, 0.5) stands on one leg and laughs at the slime for `phase_two_mock_ms` (2 s); a Heavy Roll's bonk (tagged `heavy`) into him then knocks him off balance for
+  `phase_two_dizzy_ms` (3 s, the stand-up included; the first mock shows the tip, `MOCK_TIP`): "Off balance!", he rocks back `phase_two_topple_lean_rad` and
   wobbles, stars over him, his eye wide open, and the Spear lands then. A thrown clod only splats
   ("It splats. Fatty hardly notices.", `phase_two_thrown_text`); a plain Roll bonks off him. Phase
   one is as built (the Spear in his open eye after a leap). Enraged while the Lair is sealed (the

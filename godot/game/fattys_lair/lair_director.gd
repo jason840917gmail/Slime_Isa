@@ -120,7 +120,7 @@ signal burr_freed(payload: Dictionary)
 @export var clod_spots: NodePath
 @export var clod_shadow_ms: float = 600.0
 @export var clod_damage: float = 12.0
-@export var max_clods: int = 4
+@export var max_clods: int = 10
 ## Fatty's phase two (game/scripts/fatty.gd `configure_phase_two`: the `phase_two_*` exports' names without the prefix).
 @export var phase_two: Dictionary = {}
 @export var heart: NodePath
