@@ -1,5 +1,7 @@
 # Handover (2026-10-17)
 
+> **Working in `D:/projects/Slime isa-throw` (branch `exp/throw-combat`)? Start with [the throw-combat handover, 2026-10-23](2026-10-23-throw-combat.md)** (the branch, the task in progress, the owner's rules).
+>
 > **Start here instead: [2026-10-19 session summary](2026-10-19-session-summary.md)** (the current state, the owner's rules, what is open). The rest of this file is the 2026-10-17 record.
 >
 > **Then: [the review's fixes, 2026-10-19](2026-10-19-review-fixes.md)** (the second pass of the review, uncommitted: what changed, the scenes to reload, the tests, what waits for the owner).
