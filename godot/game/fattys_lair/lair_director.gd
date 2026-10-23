@@ -484,7 +484,7 @@ func _free_spots() -> Array[Vector2]:
 		return out
 	var taken: Array[Vector2] = []
 	for node: Node in get_tree().get_nodes_in_group(CLOD_GROUP):
-		if node is Node2D and is_instance_valid(node):
+		if is_instance_valid(node) and node is Node2D:
 			taken.append((node as Node2D).global_position)
 	for child: Node in root.get_children():
 		if not child is Node2D:

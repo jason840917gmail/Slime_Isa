@@ -199,7 +199,7 @@ func switch_tab(tab: StringName) -> void:
 ## `close` and `is_open` (-> bool). null (or invalid callables) removes the tab's window. Callables
 ## of a freed object count as no window.
 func register_tab(tab: StringName, target: Variant, close: Callable = Callable(), is_open: Callable = Callable()) -> void:
-	if target is Node and is_instance_valid(target):
+	if is_instance_valid(target) and target is Node:
 		var window: Node = target
 		_tabs[tab] = {"open": Callable(window, &"open"), "close": Callable(window, &"close"),
 			"is_open": Callable(window, &"is_open")}
