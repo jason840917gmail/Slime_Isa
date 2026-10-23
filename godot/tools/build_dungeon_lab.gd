@@ -2,7 +2,7 @@ extends SceneTree
 ## Builds the dungeon lab (docs/godot/DUNGEONS.md "The dungeon lab"): a small dev dungeon, one
 ## example of every piece of the dungeon kit, so the dungeon builders and the owner can try them.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_dungeon_lab.gd [-- --force]
-## Writes res://game/scenes/worlds/dungeon-lab.tscn (world.dungeon-lab; launch it with
+## Writes res://game/scenes/worlds/dev/dungeon-lab.tscn (world.dungeon-lab; launch it with
 ## `?map=dungeon-lab` or `-- --map=dungeon-lab`). It does not overwrite an existing lab (where you
 ## may have edited) unless given --force.
 ##
@@ -27,7 +27,7 @@ extends SceneTree
 ##      playground) with the dungeon's seal in its doorway
 ##   C3 an ambush (once): shutters, two worms, a hidden chest with a small key
 
-const LAB_PATH := "res://game/scenes/worlds/dungeon-lab.tscn"
+const LAB_PATH := "res://game/scenes/worlds/dev/dungeon-lab.tscn"
 const MAP_ID := "dungeon-lab"
 const ELEVATION_TILESET := "res://game/world/elevation/elevation_tileset.tres"
 const ELEVATION_LAYER := "res://game/world/elevation/elevation_layer.gd"

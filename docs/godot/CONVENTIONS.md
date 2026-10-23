@@ -84,7 +84,7 @@ itself (`game/scenes/worlds/<id>.tscn`; a room you enter from a chunk lives in t
 `rooms/d4/`, other regions' by the full one, `rooms/gloop-forest-e4/`; a dungeon keeps its own
 `rooms/<dungeon>/`; owner, 2026-10-22) works too: run on its own, a world has no player, camera
 or HUD, so its `world_definition.gd` swaps it for `main.tscn` with its map id (the playground keeps
-its testbed kit). A dungeon's world run this way (listed in `dungeon.devPowers` in
+its testbed kit). The dev worlds (the labs and test worlds) live in `game/scenes/worlds/dev/`, and the playground's two caves in `game/scenes/worlds/rooms/playground/`; the web export leaves out `dev/` and `elevation_cache/dev__*` by glob (`godot/export_presets.cfg`), so a new lab or test world goes in `dev/`, and a new playground cave in `rooms/playground/`. A dungeon's world run this way (listed in `dungeon.devPowers` in
 game-constants.json: Fatty's Lair and its hill outside, `level-1-d5`, the Weaver Hollow's four
 floors, the Crystal Mine, the dungeon lab) plays in the body-shapes mode with the powers the slime has by then: the Spear and the Roll,
 then the Heavy skin and the Goo Bomb, then the Silk skin and the Lantern. They are lent for the

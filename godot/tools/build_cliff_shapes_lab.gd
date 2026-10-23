@@ -5,11 +5,11 @@ extends SceneTree
 ## (scripts/art/build-elevation-art-from-painting.py): the ground layer's metadata picks the
 ## `storybook-rock` walls for its highland ground.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_cliff_shapes_lab.gd [-- --force]
-## Writes res://game/scenes/worlds/cliff-shapes-lab.tscn (world.cliff-shapes-lab). It does not
+## Writes res://game/scenes/worlds/dev/cliff-shapes-lab.tscn (world.cliff-shapes-lab). It does not
 ## overwrite an existing lab (where you may have painted) unless given --force. The last row holds
 ## ramps (docs/godot/ELEVATION.md "Ramps"): walls that taper to nothing beside a slope.
 
-const LAB_PATH := "res://game/scenes/worlds/cliff-shapes-lab.tscn"
+const LAB_PATH := "res://game/scenes/worlds/dev/cliff-shapes-lab.tscn"
 const ELEVATION_TILESET := "res://game/world/elevation/elevation_tileset.tres"
 const ELEVATION_LAYER := "res://game/world/elevation/elevation_layer.gd"
 const TERRAIN_TILESET := "res://game/world/terrain_tileset.tres"

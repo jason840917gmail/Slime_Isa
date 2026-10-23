@@ -3,10 +3,10 @@ extends SceneTree
 ## `elevation` layer and drawn with walls on every side, in the storybook art cut from the approved
 ## H plateau painting.
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_cliff_sides_lab.gd [-- --force]
-## Writes res://game/scenes/worlds/cliff-sides-lab.tscn (world.cliff-sides-lab). It does not
+## Writes res://game/scenes/worlds/dev/cliff-sides-lab.tscn (world.cliff-sides-lab). It does not
 ## overwrite an existing lab (where you may have painted) unless given --force.
 
-const LAB_PATH := "res://game/scenes/worlds/cliff-sides-lab.tscn"
+const LAB_PATH := "res://game/scenes/worlds/dev/cliff-sides-lab.tscn"
 const ELEVATION_TILESET := "res://game/world/elevation/elevation_tileset.tres"
 const ELEVATION_LAYER := "res://game/world/elevation/elevation_layer.gd"
 const TERRAIN_TILESET := "res://game/world/terrain_tileset.tres"

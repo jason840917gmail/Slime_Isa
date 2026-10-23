@@ -192,7 +192,7 @@ See [assets/README.md](assets/README.md) for the art workflow.
   cells), with each level's collision outline on request. Every world draws side walls: a world made
   later needs no setting or conversion, only a bake of its cache.
 - `python scripts/maps/build-fence-park.py` — rebuilds the Fence Park dev world
-  (`godot/game/scenes/worlds/fence-park.tscn`, connected fences on every hill shape);
+  (`godot/game/scenes/worlds/dev/fence-park.tscn`, connected fences on every hill shape);
   `res://tools/render_fence_park.gd`
   (windowed: `--path godot -s res://tools/render_fence_park.gd -- --out=<dir>`) renders it with test slimes and
   prints collision, drop and hop probes against its fences.

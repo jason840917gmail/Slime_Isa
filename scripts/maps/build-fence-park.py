@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the Fence Park, a dev world for connected fences on ground and elevations.
 
-Writes godot/game/scenes/worlds/fence-park.tscn from scratch: a grass field with hills and holes of
+Writes godot/game/scenes/worlds/dev/fence-park.tscn from scratch: a grass field with hills and holes of
 every shape, fenced on the `fences` layer (fence_tileset.tres + fence_layer.gd):
 
 - a level-1 square (fenced all round but a gap on its east side, to drop off), where the player
@@ -31,7 +31,7 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SCENE = ROOT / "godot/game/scenes/worlds/fence-park.tscn"
+SCENE = ROOT / "godot/game/scenes/worlds/dev/fence-park.tscn"
 MAP_ID = "fence-park"
 COLUMNS = 40
 ROWS = 63

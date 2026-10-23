@@ -1,5 +1,5 @@
 extends SceneTree
-## Renders the Fence Park (game/scenes/worlds/fence-park.tscn, scripts/maps/build-fence-park.py)
+## Renders the Fence Park (game/scenes/worlds/dev/fence-park.tscn, scripts/maps/build-fence-park.py)
 ## with the game's own drawing, for checking the painted fences (on hills, round holes and on flat
 ## ground) and their links (docs/godot/FENCES.md).
 ## Run windowed (it renders), from the repo:
@@ -12,7 +12,7 @@ extends SceneTree
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const Services := preload("res://game/shared/services.gd")
 const SLIME := preload("res://asset/characters/256x256-tile_8x8-slime-v2-page-1.webp")
-const SCENE := "res://game/scenes/worlds/fence-park.tscn"
+const SCENE := "res://game/scenes/worlds/dev/fence-park.tscn"
 const DEFAULT_OUT := "user://fence-park"
 const CELL := 64.0
 ## Close-ups: name -> rect in cells.
