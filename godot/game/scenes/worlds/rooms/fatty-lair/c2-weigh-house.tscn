@@ -246,11 +246,6 @@ enemy_type = "worm-swordsman"
 position = Vector2(641, 607)
 enemy_type = "worm-swordsman"
 
-[node name="PlacedEnemy" parent="Enemies" unique_id=1155798021 instance=ExtResource("26_3q2qn")]
-position = Vector2(402, 110)
-enemy_type = "glint-bat"
-wander_radius = 356.0
-
 [node name="Throwables" type="Node2D" parent="."]
 y_sort_enabled = true
 
@@ -272,14 +267,6 @@ kind = "rock"
 
 [node name="throw-sword-man2S-1" parent="Throwables" instance=ExtResource("13_baay3")]
 position = Vector2(695, 652)
-kind = "clay-pot"
-
-[node name="throw-PlacedEnemy-1" parent="Throwables" instance=ExtResource("13_baay3")]
-position = Vector2(456, 155)
-kind = "rock"
-
-[node name="throw-PlacedEnemy-2" parent="Throwables" instance=ExtResource("13_baay3")]
-position = Vector2(408, 180)
 kind = "clay-pot"
 
 [editable path="Scenery/c2-beam-scale"]

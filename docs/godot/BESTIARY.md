@@ -177,7 +177,8 @@ energy shard stay the base enemy's.
 - **The Lantern's flame:** its hit carries the tags `fire` + `lantern` (`lantern_flame.gd`,
   unchanged) and it is a light source while it flies: it is the Glint Bat's kill hit, it makes the
   Shardback's shell brittle, and its light makes the Gloomling bolt. The ember's glow (in a dark
-  room) wakes the Glint Bat and drives the Gloomling.
+  room) drives the Gloomling; the Glint Bat is awake while its room is dark and sleeps once every
+  candle burns.
 - **The Goo Bomb's blast:** its hit carries the tag `blast` (`goo_blast.gd`, unchanged): the
   Thornball's spikes let it through and it flips it (`commit_damage`), and it is the egg sac's and
   the Cocoon Mimic's kill hit. The Thornball also reads the `goo_bombs` group: a bomb resting near it
@@ -577,11 +578,12 @@ A plum-grey cave bat with gold eyes. Two in pen 24, which is dark. It flies as t
 neither solid nor stopped; the art and hurtbox ride its height).
 - **Asleep:** hanging `roostHeightPx` 100 up, out of reach; in the dark only its eyes glint, as
   slits, brighter now and then.
-- **Wake** (the tell, `wakeMs` 650): light reaches its ground point (`wakePadPx` 8; the slime's
-  ember wakes it as it walks under), at least `restMs` 1200 after its last swoop: eyes wide, a
-  squeak, its shadow darkens. Outside a dark room the day is light: the slime within
-  `daylightWakePx` 150 of its roost wakes it (owner, 2026-10-22: the bats in the Lair's lit rooms
-  never woke).
+- **Wake** (the tell, `wakeMs` 650; owner, 2026-10-23: "awake while the room is not 100% lit,
+  asleep once it is; that gives the Lantern more use"): while its dark room is still dark and the
+  slime is in its pen (or its targeting radius), at least `restMs` 1200 after its last swoop: eyes
+  wide, a squeak, its shadow darkens. Light every candle of the room (the Lantern) and it flies home
+  and sleeps for good. Bats belong only in rooms with a `DarkRoom` (the Lair's two lit-room bats were
+  taken out).
 - **Swoop** (`swoopMs` 1300): a dive through where the slime stood, `swoopOvershootPx` 120 on (kept
   `arenaInsetPx` 32 inside its pen), weaving `waveAmpPx` 36 side to side (`waveCount` 1.5), down to
   `swoopLowPx` 12. Under `lowHeightPx` 36 it can be hit; touching the slime there (within
