@@ -32,7 +32,8 @@ Commits on the branch, oldest first:
   Brawler's rocks as ammo, aim help behind a switch, the throw yard, `tests/test_throw_combat.gd`).
 - `6197823d`, `ffe696ae` two freed-instance errors the owner hit in the playground.
 - `e69bbd4c` keys-only scheme in this mode: **A** Gulp, **S** Roll, **D** box ability, attack has no
-  key (`KeyBindings.THROW_LAYOUT`; main.gd reapplies it when the mode changes).
+  key (`KeyBindings.THROW_LAYOUT`; main.gd reapplies it when the mode changes). Changed after this
+  commit (2026-10-23): **Q** Gulp, **S** Roll, **A** box ability.
 - `a82dfb0e` Fatty's Lair: all 28 medium and heavy liftables made light, 35 pots and rocks added so
   every enemy has two within 170 px (each room's `Throwables` node); Squint and Big Squint take
   thrown hits in the open eye; the owner's armoury fix (one divider gate with the candles' gate id,

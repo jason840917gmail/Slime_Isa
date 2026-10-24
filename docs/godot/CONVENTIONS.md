@@ -104,9 +104,9 @@ recipe known (until quests teach them); `?arsenal` / `-- --arsenal` adds the six
 at a new run ([specs/crafting.md](specs/crafting.md) C2, C3, 8.2). `?audition` / `-- --audition`
 lets F8 and F7 switch the open Sound Picker round's options in the game
 ([specs/audio.md](specs/audio.md) §10.3). The body-shapes rework (branch `exp/body-shapes`,
-[BODY_SHAPES.md](BODY_SHAPES.md)) runs **by default in the playground**: `?classic` /
-`-- --classic` turns it off there, and `?shapes` / `-- --shapes` turns it on in any world (both
-skip the title; the test runner keeps the playground classic). `?prologue` / `-- --prologue`
+[BODY_SHAPES.md](BODY_SHAPES.md)) runs **in every world and every run** (2026-10-24; the classic
+game is gone from this branch), and `?shapes` / `-- --shapes` lends its shapes in any world (it and
+the playground skip the title). `?prologue` / `-- --prologue`
 starts a new run in the prologue, as New Game does, and skips the title. `?skins=heavy,silk,feral`
 / `-- --skins=...` lends those skins for the session in any world ([SKINS.md](SKINS.md)). In a dungeon world,
 `keys=<n>`, `bigkey`, `dmap` (the map and the compass) and `room=<camera room>` (in Fatty's Lair a

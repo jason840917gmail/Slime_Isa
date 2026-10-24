@@ -34,7 +34,6 @@ func _initialize() -> void:
 	DisplayServer.window_set_size(Vector2i(1024, 768))
 	_main = (load(MAIN_SCENE) as PackedScene).instantiate()
 	_main.set(&"map_id", MAP_ID)
-	_main.set(&"rework_in_playground", false)
 	_main.set(&"ability_ceremonies", false)
 	root.add_child(_main)
 	for i in 90:

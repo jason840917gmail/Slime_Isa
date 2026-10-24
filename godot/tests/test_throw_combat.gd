@@ -108,8 +108,11 @@ func test_a_shape_is_a_box_power(t: TestContext) -> void:
 	t.check(player.get_shapes().is_busy(), "S did not fire the Spear's power")
 	t.near(energy - player.get_energy(), 15.0, 0.5, "the power's energy")
 	await t.sim_wait(1200.0)
-	t.check(AbilityBox.cycle(player, 1), "E did not step the box")
-	t.equal(AbilityBox.selected(player), &"shape-axe", "the next box choice")
+	t.check(Services.shell().open_ability_carousel(), "E did not open the ability carousel")
+	t.tap(&"ui_right")
+	t.tap(&"ui_accept")
+	await t.steps(3)
+	t.equal(AbilityBox.selected(player), &"shape-axe", "the carousel's pick")
 
 
 func test_enemies_make_ammo(t: TestContext) -> void:
@@ -140,7 +143,6 @@ func test_enemies_make_ammo(t: TestContext) -> void:
 func _enter(t: TestContext) -> void:
 	ThrowMode.set_dev_level(1)
 	ThrowMode.set_assist(false)
-	t.main.set(&"rework_in_playground", true)
 	t.main.set(&"throw_combat", true)
 	t.main.call(&"travel_to", MAP_ID)
 	await t.until(func() -> bool: return ReworkMode.is_on() and ThrowMode.is_on() and t.player() != null \

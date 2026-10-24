@@ -99,10 +99,10 @@ walking, no input) and shows letterbox bars (`cinema_bars.gd`, layer 20, over th
    bag"), and his first tips; then `PrologueState.finish`: saving works again, Slimeshire's banner
    shows, and Plop fades out, returns to his saved village position, then fades in; NPCs cannot use the plateau stairs. His elevation is refreshed at both positions, and completion/saving waits until control is released.
 
-**The Spear in the story:** the Spear is a body shape, which only the body-shapes mode plays. A run
-that plays the prologue, or has learned a shape for good, plays in that mode in every world
-(`main.gd` `plays_story_shapes`) without the playground's lent shapes and box abilities
-(`_rework_lending`: only the playground and `?shapes` lend them), and keeps its autosave.
+**The Spear in the story:** the Spear is a body shape, which only the body-shapes mode plays. Every
+run plays in that mode in every world (main.gd `decide_rework_mode`, 2026-10-24) without the
+playground's lent shapes and box abilities (`_rework_lending`: only the playground and `?shapes`
+lend them), and a run that plays the prologue or has learned a shape keeps its autosave.
 
 **First-time hints** (5.23, `game/hints/control_hints.gd` `PROLOGUE_HINT_IDS`): none during the
 birth, then move, the mouth (suck and throw), `throw-move` (keep moving while you aim, worms near),

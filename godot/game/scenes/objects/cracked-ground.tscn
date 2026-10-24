@@ -1,28 +1,31 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://gbyk4xkr57ww"]
 
-[ext_resource type="Script" path="res://game/scripts/cracked_ground.gd" id="1"]
-[ext_resource type="Script" path="res://game/scripts/story_variant.gd" id="2"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="3"]
-[ext_resource type="Script" path="res://game/scripts/door.gd" id="4"]
+[ext_resource type="Script" uid="uid://ds3l23ypsd4bo" path="res://game/scripts/cracked_ground.gd" id="1"]
+[ext_resource type="Script" uid="uid://vjbkb0ei3mr1" path="res://game/scripts/story_variant.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://bahgmyqwi4l3" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="3"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="4"]
 
-[node name="cracked-ground" type="Node2D"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_oglbk"]
+radius = 39.051247
+
+[node name="cracked-ground" type="Node2D" unique_id=288236048]
 y_sort_enabled = true
 
-[node name="CrackedGroundScript" type="Node" parent="."]
+[node name="CrackedGroundScript" type="Node" parent="." unique_id=1274261288]
 script = ExtResource("1")
 flag_id = "cracked.unassigned"
 radius = 52.0
 
-[node name="StoryVariantScript" type="Node" parent="." node_paths=PackedStringArray("when_set", "when_unset")]
+[node name="StoryVariantScript" type="Node" parent="." unique_id=29743850 node_paths=PackedStringArray("when_set", "when_unset")]
 script = ExtResource("2")
 flag_id = "cracked.unassigned"
 when_set = NodePath("../Broken")
 when_unset = NodePath("../Intact")
 
-[node name="Intact" type="Node2D" parent="."]
+[node name="Intact" type="Node2D" parent="." unique_id=1420340090]
 y_sort_enabled = true
 
-[node name="Visual" type="Sprite2D" parent="Intact"]
+[node name="Visual" type="Sprite2D" parent="Intact" unique_id=73288131]
 z_index = -1
 scale = Vector2(0.62, 0.62)
 texture = ExtResource("3")
@@ -30,10 +33,10 @@ centered = false
 offset = Vector2(-128, -194)
 hframes = 8
 
-[node name="Broken" type="Node2D" parent="."]
+[node name="Broken" type="Node2D" parent="." unique_id=1561901504]
 y_sort_enabled = true
 
-[node name="Visual" type="Sprite2D" parent="Broken"]
+[node name="Visual" type="Sprite2D" parent="Broken" unique_id=1372349347]
 z_index = -1
 scale = Vector2(0.62, 0.62)
 texture = ExtResource("3")
@@ -42,19 +45,27 @@ offset = Vector2(-128, -194)
 hframes = 8
 frame = 1
 
-[node name="Door" type="Node2D" parent="Broken"]
+[node name="Door" type="Node2D" parent="Broken" unique_id=1921357320]
 y_sort_enabled = true
 
-[node name="DoorScript" type="Node" parent="Broken/Door"]
+[node name="Wall" type="StaticBody2D" parent="Broken/Door" unique_id=1507263391]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Broken/Door/Wall" unique_id=842019575]
+position = Vector2(2, -28)
+shape = SubResource("CircleShape2D_oglbk")
+
+[node name="DoorScript" type="Node" parent="Broken/Door" unique_id=1039391351 node_paths=PackedStringArray("trigger_shape")]
 script = ExtResource("4")
 map_id = "unassigned"
 door_id = "sinkhole"
 target_area_id = "unassigned"
 target_door_id = "ladder"
-use_cue = &"FallDown"
 kind = "ladder_down"
-trigger_rect = Rect2(-28, -60, 64, 60)
+trigger_shape = NodePath("../Wall/Shape")
+use_cue = &"FallDown"
 
-[node name="arrival" type="Node2D" parent="Broken/Door"]
+[node name="arrival" type="Node2D" parent="Broken/Door" unique_id=1660535641]
 y_sort_enabled = true
-position = Vector2(0, 96)
+position = Vector2(-3, 41)

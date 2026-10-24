@@ -199,7 +199,7 @@ static func shape_power_card(id: StringName, chosen: bool) -> Dictionary:
 	lines.append("Power: %s, at once along your facing" % str(CHARGE_NAMES.get(id, "Charge")))
 	lines.append("Energy: %d" % charge_energy(id))
 	lines.append("Use: %s" % key)
-	lines.append("Next in the box: %s" % _key_or_none(ControlLabels.control_labels(&"weapon_next")))
+	lines.append("Pick it in the ability carousel: %s" % _key_or_none(ControlLabels.control_labels(&"weapon_next")))
 	return {
 		"name": ShapeDefs.title(id),
 		"status": ("Chosen: press %s to use it" % key) if chosen else (_confirm() + " to put it on %s" % key),

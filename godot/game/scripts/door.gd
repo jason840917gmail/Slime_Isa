@@ -9,7 +9,7 @@ class_name DoorScript
 ##
 ## **No keys for transitions (owner, 2026-10-14; docs/godot/CONVENTIONS.md "Doors"):** a door is
 ## never offered to the interact key. The slime goes through by pushing into it, as through a map
-## edge in Zelda: its collision rect touches the door's trigger (`walk_area`, else `trigger_rect`
+## edge in Zelda: its collision rect touches the door's trigger (`trigger_shape`, else `walk_area`, else `trigger_rect`
 ## around the door's parent) while its movement input points into the door for
 ## `worldNavigation.doorPushMs` of simulation time. "Into the door" is the door's `side` (a north door
 ## = up; the input's direction within `doorPushAlignment` of it), or for a door without a side
@@ -61,6 +61,8 @@ const DEFAULT_UNLOCKED_TEXT := "The door unlocks!"
 const FALLBACK_CUE := &"DoorUse"
 ## Closer than this to the trigger's middle, any input counts as pushing into a door without a side.
 const CENTRE_SLACK_PX := 4.0
+## How far the trigger shape is grown to meet a body that stops just short of it (world units).
+const SHAPE_TOUCH_MARGIN := 3.0
 ## Turns of the slime falling into a hole.
 const FALL_TURNS := 1.5
 ## How far the slime's art climbs up a ladder (world units) and how small it gets in a hole.
@@ -95,6 +97,9 @@ signal arrived
 @export var trigger_rect: Rect2 = Rect2(-16.0, -20.0, 32.0, 40.0)
 ## Optional doorway trigger instead of `trigger_rect`: an Area2D (layer trigger, mask player).
 @export var walk_area: Area2D
+## Optional trigger that is a collision shape itself (a hole's blocking wall): the player's body
+## pressing against it is the trigger. Takes precedence over `walk_area` and `trigger_rect`.
+@export var trigger_shape: CollisionShape2D
 ## How far inside a sided door the slime arrives (world units, from the door's parent, away from
 ## its wall). < 0 = game-constants `worldNavigation.doorArrivalStep`.
 @export var arrival_step: float = -1.0
@@ -192,6 +197,9 @@ func is_pushing(player: Node, player_body: CharacterBody2D) -> bool:
 	if intent == Vector2.ZERO or not touches(player_body):
 		return false
 	intent = intent.normalized()
+	# The collision shape is the trigger: a hole is walked into from any side once the body touches it.
+	if is_hole() and trigger_shape != null:
+		return true
 	if has_side():
 		return intent.dot(-inward()) >= _number("doorPushAlignment", 0.7)
 	var trigger := trigger_global()
@@ -205,9 +213,26 @@ func is_pushing(player: Node, player_body: CharacterBody2D) -> bool:
 
 ## True when `player_body` touches the doorway (its `walk_area`, else `trigger_rect`).
 func touches(player_body: CharacterBody2D) -> bool:
+	if trigger_shape != null and is_instance_valid(trigger_shape):
+		return _shape_touches(player_body)
 	if walk_area != null and is_instance_valid(walk_area):
 		return walk_area.overlaps_body(player_body)
 	return trigger_global().intersects(_body_rect(player_body))
+
+
+## True while `player_body` presses against `trigger_shape`: the shape, grown a little, overlaps the body.
+func _shape_touches(player_body: CharacterBody2D) -> bool:
+	if trigger_shape.shape == null:
+		return false
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = trigger_shape.shape
+	query.transform = trigger_shape.global_transform
+	query.collision_mask = player_body.collision_layer
+	query.margin = SHAPE_TOUCH_MARGIN
+	for hit: Dictionary in trigger_shape.get_world_2d().direct_space_state.intersect_shape(query, 16):
+		if hit.get("collider") == player_body:
+			return true
+	return false
 
 
 ## `trigger_rect` in world space.

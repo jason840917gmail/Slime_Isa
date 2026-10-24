@@ -358,16 +358,16 @@ Heavy skin; his strength is the built one (the kit's `EnragedLook` only shows hi
   18 / `ripple_knockback` 220 where the crest meets its feet, unless the Roll's i-frames carry it.
 - **The squint:** every hit is refused as `immune` (the clink), the Spear's too, except while he is
   off balance. Airborne and contact-hop still refuse as `state-blocked`.
-- **The mock:** after each pair of leaps, with `mock_chance` 0.5 (a random roll), he enters phase `mock`: one leg, laughing ("Fatty laughs at you!"; the recovery clip until a mock clip is drawn), for `mock_ms` 2000, then he chases. The first mock shows the tip "A Heavy Roll knocks him down while he mocks you."
+- **Out of balance:** a mud ball thrown at him (tag `mud-ball`, the Gulp's throw) puts him in phase `unbalanced` for `unbalance_ms` 2000: his eye stays shut, the Spear clinks, his attack is cancelled (clip `out-of-balance`, sheet frame 38), and a floating "Out of balance!". The first time, the tip "A Heavy Roll knocks him down while he is out of balance." shows for 4 s. A plain Roll bonks off him. Then he chases again.
 - **The topple:** a Heavy Roll's bonk (tags `roll` + `heavy`: game/fattys_lair/heavy_check.gd
-  `is_heavy_roll`) while he is in phase `mock` (only then) knocks him
+  `is_heavy_roll`) while he is in phase `unbalanced` (only then) knocks him
   off balance: phase `dizzy` (the old name) for `dizzy_ms` 3000 (the stand-up included), his attack cancelled, collision
   on, the `recovery` clip (his eye wide open), a light shake (120 ms, 0.004), "Off balance!"
-  floating over him, daze stars until it ends, his art rocked back `topple_lean_rad` 0.45 toward the
+  floating over him, daze stars until it ends, his art lies back `fall_lean_rad` 0.25 on the fall clip (sheet frame 39; out of balance only sways `unbalance_lean_rad` 0.16) toward the
   Roll's push and wobbling on it (presentation); no leap until `recovery_ms` after it; the hit
-  itself does no damage (`pass`). While he is off balance the Spear lands as in phase one. Then he
+  itself does no damage (`pass`). While he is down the Spear lands as in phase one, and the first hit that lands ends the fall: he gets up with his eye shut. Then he
   chases again.
-- **A thrown thing** only splats: refused as `immune`, its line `thrown_text` ("It splats. Fatty
+- **Another thrown thing** only splats: refused as `immune`, its line `thrown_text` ("It splats. Fatty
   hardly notices.") at most every 2.2 s. A plain Roll (no Heavy skin) bonks off him (`immune`).
 - The hurtbox rule (classic hits) lets `thrown` and `roll` through to `can_receive_damage`, which
   answers them; in the rework mode the router keeps no `acceptedSources` and the gate decides.

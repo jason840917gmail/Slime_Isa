@@ -12,8 +12,9 @@ extends RefCounted
 ## sits on top of the rework's own input layer (game/shapes/rework_input.gd), which takes this one
 ## off and puts it back around every change of its own, so each restores only what it changed.
 ## In the throw-combat experiment (game/throw/throw_mode.gd, docs/godot/THROW_COMBAT.md; owner,
-## 2026-10-22) THROW_LAYOUT goes on top of that: A the Gulp (`eat`, Q no longer), S the Roll, D the
-## chosen box ability, and the attack has no key (it does nothing in that mode).
+## 2026-10-22, changed 2026-10-23) THROW_LAYOUT goes on top of that: Q the Gulp (`eat`), S the Roll,
+## A the chosen box ability, E the ability carousel (the arrows and E as in the scheme), and the
+## attack has no key (it does nothing in that mode).
 ##
 ## Owner: player builder.
 
@@ -40,10 +41,10 @@ const REWORK_LAYOUT := {
 
 ## The throw-combat experiment's keys-only layout, over REWORK_LAYOUT (only while both modes are on).
 const THROW_LAYOUT := {
-	&"eat": [KEY_A],
+	&"eat": [KEY_Q],
 	&"attack": [],
 	&"dodge": [KEY_S],
-	&"ability_use": [KEY_D],
+	&"ability_use": [KEY_A],
 }
 
 ## Action -> its events before the keys-only scheme rebound it; empty while it is off.

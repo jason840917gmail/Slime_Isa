@@ -118,7 +118,6 @@ func test_in_the_shapes_mode_only_the_charged_roll_crosses_the_long_bridge(t: Te
 
 ## Travels into the lab (`shapes`: in the body-shapes mode) and returns its hazard watch.
 func _enter_lab(t: TestContext, shapes: bool) -> Node:
-	t.main.set(&"rework_in_playground", shapes)
 	t.main.call(&"travel_to", LAB)
 	await t.until(func() -> bool: return t.in_world(LAB) and t.player() != null \
 		and not bool(t.main.call(&"is_transitioning")) and ReworkMode.is_on() == shapes, 5000.0)

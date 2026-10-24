@@ -57,6 +57,7 @@ const FLAG_FREED := "fatty-lair.burr-freed"
 const SPEAKER := "Burr"
 const LIFTABLE_SCENE := "res://game/scenes/objects/liftable.tscn"
 const CLOD_KIND := "mud-ball"
+const ClodHurtbox := preload("res://game/fattys_lair/clod_hurtbox.gd")
 const CLOD_GROUP := &"fatty_lair_clod"
 const CLOD_HIT_RADIUS := 34.0
 const CLOD_KNOCKBACK := 160.0
@@ -531,6 +532,10 @@ func _drop_clod(at: Vector2) -> void:
 	if script != null:
 		script.set(&"kind", CLOD_KIND)
 	clod.add_to_group(CLOD_GROUP)
+	# A Roll's bonk breaks it (clod_hurtbox.gd); the loot it hides is left where it stood.
+	clod.add_child(ClodHurtbox.new())
+	# What a mud ball leaves when the slime sucks it up: a heart or an energy shard, at random (liftable_root.gd `under`).
+	clod.set(&"under", "heart" if randf() < 0.5 else "energy")
 	var parent := get_parent()
 	parent.add_child(clod)
 	clod.global_position = at

@@ -495,6 +495,7 @@
   "dungeon": {
     "devPowers": {
       "level-1-c4": ["shape-spear", "dodge", "goo-bombs"],
+      "level-1-c5": ["shape-spear", "dodge", "goo-bombs"],
       "fatty-lair": ["shape-spear", "dodge", "skin.heavy"],
       "level-1-d5": ["shape-spear", "dodge"],
       "level-1-d4": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "lantern"],

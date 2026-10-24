@@ -35,13 +35,12 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
 
 ## Running it
 
-- **Playground:** the rework mode is **on** by default in `game/dev/playground.tscn` (F6, or
-  `?map=playground`), and stays on in the playground's rooms (worlds named `playground-<room>`:
-  the sinkhole's `playground-cavern`, the Bomb corner's `playground-bomb-cave`; main.gd
-  `decide_rework_mode`). `?classic` (desktop `-- --classic`) turns it off there. The test runner
-  turns it off too (`main.rework_in_playground = false`), so playground tests keep the classic game.
-- **Any other world:** `?shapes` (desktop `-- --shapes`) turns it on. Both options skip the title
-  (`LaunchOptions.SKIP_TITLE_OPTIONS`). Turned on this way the rework mode never writes the recovery
+- **Every map, every run (2026-10-24):** the rework mode is **on** in every world and from every
+  start (F5 from the title, F6 in the editor, any `?map=`); the classic game is gone from this
+  branch. The playground and its rooms (worlds named `playground-<room>`: the sinkhole's
+  `playground-cavern`, the Bomb corner's `playground-bomb-cave`; main.gd `decide_rework_mode`) lend
+  the shapes and box abilities for the session, as `?shapes` (desktop `-- --shapes`) does in any
+  world. Both options skip the title (`LaunchOptions.SKIP_TITLE_OPTIONS`). Turned on this way the rework mode never writes the recovery
   autosave (main.gd `_start_autosave`, like the playground), and the quiet grants below are lent for the
   session only: `RunState.learn_session_ability` lists them in `RunState.session_ability_ids` and
   `RunState.serialize` leaves them out of `story.learned_ability_ids`, so no save (slot 0 or one
@@ -49,11 +48,10 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
   it was, and a real lesson of a lent one (a quest's `learn_ability`, not quiet) keeps it for good
   and plays its ceremony. The box choice (`player.loadout.ability_id`) is saved; the classic game
   never reads it.
-- **The story (since 2026-10-16):** a run that plays the prologue, or has learned a shape for good
-  (the prologue's Spear from Yoi), plays in the rework mode in every world (main.gd
-  `plays_story_shapes`). Such a run is lent nothing (`_rework_lending` is only the playground's and
-  `?shapes`'): it has only the shapes it learned, no box abilities, and it keeps the recovery
-  autosave ([PROLOGUE.md](PROLOGUE.md)).
+- **The story:** a run that plays the prologue, or has learned a shape for good (the prologue's
+  Spear from Yoi), keeps the rework mode in every world, as every run does now. Such a run is lent
+  nothing (`_rework_lending` is only the playground's and `?shapes`'): it has only the shapes it
+  learned, no box abilities, and it keeps the recovery autosave ([PROLOGUE.md](PROLOGUE.md)).
 - In the playground and with `?shapes` the slime learns, quietly, the three shapes (`shape-spear`, `shape-axe`,
   `shape-hammer`) and the Ability Box abilities the game has (`squash-slam`, `stretch-lash`,
   `teleport`, `lantern`, `goo-bombs`). In the playground the **shapes testbed** (`game/shapes/shapes_testbed.gd`, exports
@@ -673,8 +671,7 @@ static func is_rework_request(request: Dictionary) -> bool # a request with a no
 ```
 
 `main.gd` `decide_rework_mode(target_map_id)` runs at the start of every world build, before the
-player spawns: on with `shapes`; on in the playground unless `classic` or `rework_in_playground` is
-off; else off. It applies the input layer at the same time (`ReworkInput.apply(on)`), and
+player spawns: on in every world (2026-10-24). It applies the input layer at the same time (`ReworkInput.apply(true)`), and
 `main._exit_tree` turns both off. `start_rework()` (after `equip_run_start`) learns the shapes and
 box abilities for the session (`RunState.learn_session_ability(id) -> bool`; `serialize` leaves
 `RunState.session_ability_ids` out of every save; `new_run` and `install` clear the list), makes
