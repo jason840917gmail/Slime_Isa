@@ -4,9 +4,8 @@ extends RefCounted
 ## prototype that runs beside the old weapon system: while the mode is off every old code path runs
 ## exactly as before, because every hook the rework adds to an old file asks `is_on()` first.
 ##
-## main.gd decides it once per world build, before the player acts (`set_on`): on in the playground
-## unless the `classic` launch option is given, on in any world with `shapes`. Anything may read it
-## at any time. A damage request that carries a top-level `hit` Dictionary is a rework request
+## main.gd decides it once per world build, before the player acts (`set_on`): on in every world, F5
+## and F6 alike (the classic game is gone from this branch). Anything may read it at any time. A damage request that carries a top-level `hit` Dictionary is a rework request
 ## whatever the mode (`is_rework_request`).
 ##
 ## Owner: rework wiring (BODY_SHAPES.md "Mode, wiring, testbed").

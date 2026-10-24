@@ -33,8 +33,9 @@ const CLIP_AIRBORNE := "airborne"
 const CLIP_LANDING := "landing"
 const CLIP_RECOVERY := "recovery"
 const CLIP_DEATH := "death"
-## The one-leg mock. Placeholder: the recovery clip until a "mock" clip is drawn for his sprite.
-const CLIP_MOCK := "recovery"
+const CLIP_CLOSED_EYE := "closed-eye"
+const CLIP_OUT_OF_BALANCE := "out-of-balance"
+const CLIP_FALL := "fall"
 ## FattyScript.ts:107: the landing phase lasts 360 ms (the length of the `landing` clip).
 const LANDING_PHASE_MS := 360.0
 ## Bosses are hit as enemies and bosses (UniversalSceneWorldController.ts:2199-2201).
@@ -80,10 +81,11 @@ const STATE_BLOCKED_REASON := "state-blocked"
 @export var phase_two_second_air_time_ms: float = 700.0
 @export var phase_two_clods_per_landing: int = 10
 @export var phase_two_dizzy_ms: float = 3000.0
-## Chance, after each pair of leaps, that he mocks (one leg, vulnerable to a Heavy Roll).
-@export var phase_two_mock_chance: float = 0.5
-## How long a mock lasts when no Heavy Roll knocks him down.
-@export var phase_two_mock_ms: float = 2000.0
+## How long a mud ball thrown at him throws him out of balance (eye shut; a Heavy Roll then knocks him down).
+@export var phase_two_unbalance_ms: float = 2000.0
+## Presentation: how far he sways while out of balance (radians), and how far he lies down when he falls.
+@export var phase_two_unbalance_lean_rad: float = 0.16
+@export var phase_two_fall_lean_rad: float = 0.25
 @export var phase_two_topple_lean_rad: float = 0.45
 @export var phase_two_thrown_text: String = "It splats. Fatty hardly notices."
 @export var phase_two_ripple_damage: float = 18.0
@@ -116,8 +118,8 @@ signal dizzied(payload: Dictionary)
 ## the second landing sends a mud ripple over the floor (game/fattys_lair/mud_ripple.gd) that hits for
 ## `ripple_damage` where its crest meets the slime, unless the Roll's i-frames carry it through.
 const PHASE_DIZZY := "dizzy"
-## He stands on one leg and laughs, after a pair of leaps (random): a Heavy Roll knocks him down.
-const PHASE_MOCK := "mock"
+## Out of balance after a mud ball hits him: his eye stays shut, and a Heavy Roll now knocks him down.
+const PHASE_UNBALANCED := "unbalanced"
 const THROWN_TAG := "thrown"
 const ROLL_TAG := "roll"
 const MudRipple := preload("res://game/fattys_lair/mud_ripple.gd")
@@ -125,8 +127,10 @@ const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
 ## The ripple is a ground ellipse (mud_ripple.gd SQUASH_Y): its crest is measured the same way.
 const RIPPLE_SQUASH_Y := 0.5
 const DIZZY_TEXT := "Off balance!"
-const MOCK_TEXT := "Fatty laughs at you!"
-const MOCK_TIP := "A Heavy Roll knocks him down while he mocks you."
+const UNBALANCED_TEXT := "Out of balance!"
+const UNBALANCED_TIP := "A Heavy Roll knocks him down while he is out of balance."
+const UNBALANCED_TIP_MS := 4000.0
+const MUD_BALL_TAG := "mud-ball"
 const DIZZY_TEXT_RISE := 110.0
 ## A thrown thing's line comes at most this often (real time, presentation).
 const THROWN_TEXT_EVERY_MS := 2200.0
@@ -151,8 +155,10 @@ var _two: Dictionary = {}
 ## see `_receiver_rule`). Empty when the router keeps no `acceptedSources` (rework mode's gate).
 var _spear_rule: Dictionary = {}
 var _two_on: bool = false
-## The first mock shows the tip (once per fight).
-var _mock_tip_shown: bool = false
+## When the out-of-balance window ends (Services.now_ms()).
+var _unbalanced_until: float = 0.0
+## The first out-of-balance shows the tip (once per fight).
+var _unbalance_tip_shown: bool = false
 ## Leaps still to come in this leap cycle (phase two leaps twice).
 var _leaps_left: int = 0
 ## The current leap's time in the air.
@@ -160,6 +166,8 @@ var _air_ms: float = 1000.0
 var _dizzy_until: float = 0.0
 var _next_thrown_text_ms: float = 0.0
 var _topple_side: float = 1.0
+## How far the topple leans this time (the fall lies him down; the unbalance only sways).
+var _lean_rad: float = 0.45
 var _ripple: Node2D = null
 var _ripple_from: Vector2 = Vector2.ZERO
 var _ripple_started: float = 0.0
@@ -214,7 +222,8 @@ func get_next_leap_at() -> float:
 func configure_phase_two(config: Dictionary = {}) -> void:
 	_two = {"health_share": phase_two_health_share, "second_air_time_ms": phase_two_second_air_time_ms,
 		"clods_per_landing": phase_two_clods_per_landing, "dizzy_ms": phase_two_dizzy_ms,
-		"mock_chance": phase_two_mock_chance, "mock_ms": phase_two_mock_ms,
+		"unbalance_ms": phase_two_unbalance_ms, "fall_lean_rad": phase_two_fall_lean_rad,
+		"unbalance_lean_rad": phase_two_unbalance_lean_rad,
 		"topple_lean_rad": phase_two_topple_lean_rad, "thrown_text": phase_two_thrown_text,
 		"ripple_damage": phase_two_ripple_damage, "ripple_knockback": phase_two_ripple_knockback,
 		"ripple_speed": phase_two_ripple_speed, "ripple_width": phase_two_ripple_width,
@@ -263,6 +272,15 @@ func _after_enemy_step(_delta: float) -> void:
 	var now := Services.now_ms()
 	_check_phase_two(now)
 	_step_ripple(now)
+	if _phase == PHASE_UNBALANCED:
+		body.velocity = Vector2.ZERO
+		if visual != null:
+			visual.rotation = sin(_elapsed(now) / 1000.0 * TAU * TIP_WOBBLE_HZ) * float(_two.get("unbalance_lean_rad", phase_two_unbalance_lean_rad))
+		if now >= _unbalanced_until:
+			if visual != null:
+				visual.rotation = 0.0
+			_resume_chase(now)
+		return
 	if _phase == PHASE_DIZZY:
 		body.velocity = Vector2.ZERO
 		if now >= _dizzy_until:
@@ -315,14 +333,7 @@ func _after_enemy_step(_delta: float) -> void:
 					_transition_to(PHASE_SMALL_HOP, now)
 					_play_animation(CLIP_SMALL_HOP, false)
 				else:
-					if _two_on and randf() < float(_two.get("mock_chance", phase_two_mock_chance)):
-						_begin_mock(now)
-					else:
-						_begin_recovery(now)
-		PHASE_MOCK:
-			if _elapsed(now) >= maxf(1.0, float(_two.get("mock_ms", phase_two_mock_ms))):
-				_next_leap_at = now + maxf(1.0, leap_cadence_ms)
-				_resume_chase(now)
+					_begin_recovery(now)
 		PHASE_RECOVERY:
 			if _elapsed(now) >= maxf(1.0, recovery_ms):
 				_next_leap_at = now + maxf(1.0, leap_cadence_ms)
@@ -332,8 +343,8 @@ func _after_enemy_step(_delta: float) -> void:
 # --- damage receiver (FattyScript.ts:19-43, 203-210) -----------------------------------------------
 
 ## Airborne and contact-hop phases reject hits as "state-blocked" (retryable); else the base rule.
-## Phase two: a Heavy Roll's bonk while he mocks on one leg knocks him off balance (no damage);
-## a thrown thing splats (its line, the clink); his squinting eye refuses every other hit (the clink)
+## Phase two: a thrown mud ball throws him out of balance for `unbalance_ms`; a Heavy Roll's bonk then knocks
+## him down (no damage); other thrown things splat (their line, the clink); his squinting eye refuses every other hit (the clink)
 ## unless he is off balance.
 func can_receive_damage(input: Dictionary) -> Dictionary:
 	if _phase == PHASE_AIRBORNE or _phase == PHASE_CONTACT_HOP:
@@ -342,10 +353,13 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 	if _two_on:
 		var tags: Variant = request.get("weapon_tags", [])
 		if tags is Array and (tags as Array).has(THROWN_TAG):
+			if (tags as Array).has(MUD_BALL_TAG) and _phase != PHASE_DIZZY and _phase != PHASE_UNBALANCED:
+				_begin_unbalanced(Services.now_ms())
+				return {"accepted": false, "reason": "pass"}
 			_thrown_line()
 			return {"accepted": false, "reason": "immune"}
 		if _phase != PHASE_DIZZY:
-			if HeavyCheck.is_heavy_roll(request) and _phase == PHASE_MOCK:
+			if HeavyCheck.is_heavy_roll(request) and _phase == PHASE_UNBALANCED:
 				var impact: Dictionary = request.get("impact", {})
 				_get_dizzy(Services.now_ms(), impact.get("knock", Vector2.ZERO))
 				return {"accepted": false, "reason": "pass"}
@@ -513,25 +527,48 @@ func _begin_recovery(now: float) -> bool:
 
 
 func _resume_chase(now: float) -> bool:
-	if _phase != PHASE_CONTACT_HOP and _phase != PHASE_RECOVERY and _phase != PHASE_RETURN and _phase != PHASE_DIZZY and _phase != PHASE_MOCK:
+	if _phase != PHASE_CONTACT_HOP and _phase != PHASE_RECOVERY and _phase != PHASE_RETURN and _phase != PHASE_DIZZY and _phase != PHASE_UNBALANCED:
 		return false
 	_set_body_collision(true)
 	_transition_to(PHASE_CHASE, now)
-	_play_animation(CLIP_CHASE, false)
+	_play_animation(_chase_clip(), false)
 	return true
 
 
-## The one-leg mock, after a pair of leaps: he stands on one leg and laughs. The first mock shows
-## the tip; a Heavy Roll knocks him down meanwhile (`can_receive_damage`).
-func _begin_mock(now: float) -> void:
-	_transition_to(PHASE_MOCK, now)
-	_play_animation(CLIP_MOCK, false)
+## A mud ball thrown at him throws him out of balance for `unbalance_ms`: his eye stays shut, and a Heavy
+## Roll now knocks him down (`can_receive_damage`).
+func _begin_unbalanced(now: float) -> void:
+	if is_defeated() or body == null:
+		return
+	cancel_attack()
+	_unbalanced_until = now + maxf(1.0, float(_two.get("unbalance_ms", phase_two_unbalance_ms)))
+	_transition_to(PHASE_UNBALANCED, now)
+	_play_animation(CLIP_OUT_OF_BALANCE, true)
 	var feel := Services.feel()
 	if feel != null:
-		feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE), MOCK_TEXT, &"white", false)
-		if not _mock_tip_shown:
-			feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE * 2.0), MOCK_TIP, &"yellow", true)
-	_mock_tip_shown = true
+		feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE), UNBALANCED_TEXT, &"yellow", true)
+		if not _unbalance_tip_shown:
+			feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE * 2.0), UNBALANCED_TIP, &"yellow", true, UNBALANCED_TIP_MS)
+	_unbalance_tip_shown = true
+
+
+## A hit that lands while he is down ends the fall at once: he gets up with his eye shut, so one
+## Spear hit is the whole opening (the fall's window closes; `_after_enemy_step` resumes the chase).
+func commit_damage(commit: Dictionary) -> void:
+	var was_down := _phase == PHASE_DIZZY
+	super(commit)
+	if was_down and _phase == PHASE_DIZZY and not is_defeated():
+		_dizzy_until = Services.now_ms()
+
+
+## His idle clip: the chase, or with his eye shut once phase two has begun.
+func _chase_clip() -> String:
+	return CLIP_CLOSED_EYE if _two_on else CLIP_CHASE
+
+
+## True while a mud ball keeps him out of balance (before a Heavy Roll knocks him down).
+func is_unbalanced() -> bool:
+	return _phase == PHASE_UNBALANCED
 
 
 func _begin_return(now: float) -> bool:
@@ -539,7 +576,7 @@ func _begin_return(now: float) -> bool:
 		return false
 	_set_body_collision(true)
 	_transition_to(PHASE_RETURN, now)
-	_play_animation(CLIP_CHASE, false)
+	_play_animation(_chase_clip(), false)
 	return true
 
 
@@ -558,6 +595,7 @@ func _check_phase_two(now: float) -> void:
 	if max_hp <= 0.0 or float(state.get("hp", max_hp)) > max_hp * float(_two.get("health_share", 0.5)):
 		return
 	_two_on = true
+	_play_animation(CLIP_CLOSED_EYE, false)
 	_shake_camera(260.0, 0.008)
 	phase_two_started.emit({"time": now})
 
@@ -574,10 +612,11 @@ func _get_dizzy(now: float, knock: Vector2 = Vector2.ZERO) -> void:
 	_dizzy_until = now + length
 	_next_leap_at = maxf(_next_leap_at, _dizzy_until + maxf(1.0, recovery_ms))
 	_transition_to(PHASE_DIZZY, now)
-	_play_animation(CLIP_RECOVERY, false)
+	_play_animation(CLIP_FALL, true)
 	_shake_camera(120.0, 0.004)
 	# He rocks back, wobbling, while it lasts (`_tip`), stars over his head.
 	_topple_side = -1.0 if knock.x < 0.0 else 1.0
+	_lean_rad = maxf(0.0, float(_two.get("fall_lean_rad", phase_two_fall_lean_rad)))
 	var motion: Node = EnemyReactions.motion_of(self)
 	if motion != null:
 		motion.call(&"show_stars", _dizzy_until)
@@ -599,7 +638,7 @@ func _tip(now: float) -> void:
 	var length := maxf(1.0, float(_two.get("dizzy_ms", 1600.0)))
 	var age := now - (_dizzy_until - length)
 	var k := clampf(age / TIP_IN_MS, 0.0, 1.0) * clampf((_dizzy_until - now) / TIP_OUT_MS, 0.0, 1.0)
-	var lean := float(_two.get("topple_lean_rad", 0.45))
+	var lean := _lean_rad
 	var wobble := sin(age / 1000.0 * TAU * TIP_WOBBLE_HZ) * lean * TIP_WOBBLE_SHARE
 	visual.rotation = _topple_side * (lean + wobble) * k
 

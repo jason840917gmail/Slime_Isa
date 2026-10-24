@@ -9,11 +9,11 @@ class_name LaunchOptions
 
 ## Options that start the game at once, skipping the title screen: every development launch option
 ## main.gd reads (`quest`, `recipes`, `arsenal` included; they make no sense from the title), and
-## the body-shapes rework's `shapes` and `classic` (docs/godot/BODY_SHAPES.md "Running it"), and
-## `prologue` (a new run in the prologue, as New Game starts it; docs/godot/PROLOGUE.md).
-## `skip-title`, `recipes`, `arsenal`, `shapes`, `classic` and `prologue` take no value.
+## the body-shapes rework's `shapes` (docs/godot/BODY_SHAPES.md "Running it"), and `prologue` (a new
+## run in the prologue, as New Game starts it; docs/godot/PROLOGUE.md).
+## `skip-title`, `recipes`, `arsenal`, `shapes` and `prologue` take no value.
 const SKIP_TITLE_OPTIONS: PackedStringArray = ["map", "spawn", "weapon", "quest", "recipes", "arsenal", "skip-title",
-	"shapes", "classic", "prologue"]
+	"shapes", "prologue"]
 
 
 ## True when this launch carries any SKIP_TITLE_OPTIONS (web query or desktop user args).

@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="12_rsm0a"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/lash-bell-post.tscn" id="13_vgiiv"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="14_vgiiv"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--stone-pedestal.tscn" id="15_4yae4"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="15_5y5ef"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/falling-slab.tscn" id="16_s3wdk"]
 [ext_resource type="Texture2D" uid="uid://bfktxqq8phn2l" path="res://asset/MAPS/objects/dungeon/divider-eye-block.png" id="17_2bact"]
@@ -137,6 +138,12 @@ kind = "rock"
 [node name="liftable6" parent="Scenery" unique_id=2035267989 instance=ExtResource("14_vgiiv")]
 position = Vector2(313, 517)
 kind = "rock"
+
+[node name="stone-pedestal" parent="Scenery" unique_id=1537041407 instance=ExtResource("15_4yae4")]
+position = Vector2(483, 306)
+
+[node name="stone-pedestal2" parent="Scenery" unique_id=826142579 instance=ExtResource("15_4yae4")]
+position = Vector2(852, 301)
 
 [node name="Hazards" type="Node2D" parent="." unique_id=1706634466]
 
@@ -291,7 +298,7 @@ autoplay_cue = true
 [node name="PlacedEnemy" parent="Enemies" unique_id=473718833 instance=ExtResource("31_5y5ef")]
 position = Vector2(295, 402)
 enemy_type = "watcher-eye"
-wander_radius = 475.0
+wander_radius = 224.0
 
 [editable path="Scenery/r7-pot-0"]
 [editable path="Scenery/r7-pot-1"]

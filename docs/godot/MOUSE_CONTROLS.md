@@ -109,8 +109,8 @@ rework's own input layer (`game/shapes/rework_input.gd`: no number keys, the Rol
 ability on F) lies under this one, and each puts back only what it changed.
 
 In the throw-combat experiment (branch `exp/throw-combat`, [THROW_COMBAT.md](THROW_COMBAT.md);
-owner, 2026-10-22) the scheme goes one step further (`KeyBindings.THROW_LAYOUT`): **A** is the Gulp
-(`eat`: suck, throw, swallow; Q no longer), **S** the Roll, **D** the chosen box ability, and the
+owner, 2026-10-22, changed 2026-10-23) the scheme goes one step further (`KeyBindings.THROW_LAYOUT`):
+**Q** is the Gulp (`eat`: suck, throw, swallow), **S** the Roll, **A** the chosen box ability, and the
 attack has no key. main.gd puts the layout on or off when the throw mode changes.
 
 What needed the mouse, and what it does without it:

@@ -11,8 +11,9 @@ The owner's decisions (2026-10-19/20):
 - **No ammo = flee.** There is no fallback attack. Changing chunk rebuilds the screen (its liftables
   come back with it), which is a fair way out. Enemies make ammo with their attacks.
 - **Q does everything as before** (suck, throw, swallow, spit); **the attack key (A) does nothing**.
-  In the keys-only scheme (owner, 2026-10-22, to try) the keys are **A** the Gulp, **S** the Roll
-  and **D** the chosen box ability ([MOUSE_CONTROLS.md](MOUSE_CONTROLS.md#the-keys-only-scheme)).
+  In the keys-only scheme (owner, 2026-10-22, changed 2026-10-23) the keys are **Q** the Gulp,
+  **S** the Roll and **A** the chosen box ability, with **E** opening the ability carousel
+  ([MOUSE_CONTROLS.md](MOUSE_CONTROLS.md#the-keys-only-scheme)).
 - **The Gulp's levels are their own upgrades** (Zelda's Power Bracelet): 1 lifts light things, 2
   medium, 3 heavy. The Heavy skin keeps its plates and heavy blocks.
 - **One thing in the mouth at a time.**
@@ -76,10 +77,13 @@ The playground starts at level 1 (`playgroundLevel`).
   from a knockdown or a launch (the reactions' wake guard): put it to sleep before you knock it
   down, not right after.
 - **Shape powers.** The learned shapes stand first in the Ability Box (the bag's Shapes row hides).
-  Choosing one and pressing the ability key (F; D in keys-only) fires that shape's charge at once
+  Choosing one and pressing the ability key (F; A in keys-only) fires that shape's charge at once
   (the Spear's Lunge, the Axe's Spin, the Hammer's Quake) along the facing or the pointer, for its
-  energy (15, 20, 25), with no ring. E (or the wheel) steps the box's choice and names it over the
-  slime. The HUD's Ability slot shows the shape's icon and cost; the Shape slot is hidden.
+  energy (15, 20, 25), with no ring. E (or the wheel) opens the ability carousel
+  (`game/shell/ability_carousel.gd`): a quick menu. The game pauses, every learned ability sits as a
+  big card (icon and name) in a matrix, the arrows move the lit card, Space or Enter makes it the
+  box's choice (named over the slime), and Escape closes it with no change. The arrows are read in
+  the window's `_input`, before the player's movement takes them. The HUD's Ability slot shows the shape's icon and cost; the Shape slot is hidden.
 - **Ammo from enemies.** A worm arrow that misses (a wall, the end of its flight) lies where it ended
   for `arrowLifeMs` (12 s, fading at the end) and can be sucked in and thrown back (it pierces). A
   Worm Brawler's blow knocks a mossy rock loose (`rockOnAttack`: half its blows, `rockAheadPx` ahead,
@@ -129,9 +133,10 @@ The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it 
 | `game/scripts/liftable.gd` | `can_take` by weight, `weight`, `is_too_heavy` |
 | `game/player/gulp/mouth.gd`, `mouth_hold.gd` | the "Too heavy" line, the aim help on the throw |
 | `game/player/gulp/thrown_object.gd` | weight and effect on the flight and the break, pierce, the looks |
-| `game/scripts/player.gd` | no attack, holding speed by weight, E steps the box, a shape power's status |
+| `game/scripts/player.gd` | no attack, holding speed by weight, E opens the ability carousel, a shape power's status |
+| `game/shell/ability_carousel.gd` | the carousel window (E): the learned box abilities in a row, picked with Space or Enter |
 | `game/shapes/shape_controller.gd` | `power_strike(id)`: a shape's charge at once, for its energy |
-| `game/player/abilities/ability_box.gd` | shapes in the box, `cycle`, `title`, their cost and use |
+| `game/player/abilities/ability_box.gd` | shapes in the box, `choose` (the carousel's pick), `title`, their cost and use |
 | `game/ui/body_cards.gd`, `screens/inventory_screen.gd`, `ability_bar.gd`, `weapon_hotbar.gd` | the bag and HUD for shape powers |
 | `game/hints/control_hints.gd` | no attack hints; the bars hint names the ability key |
 | `game/scripts/projectile.gd`, `game/scripts/enemy.gd` | the spent arrow; the Brawler's rock |

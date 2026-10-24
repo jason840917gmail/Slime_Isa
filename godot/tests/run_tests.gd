@@ -203,9 +203,6 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 	# The ability ceremony pauses the world until a key; tests see the banner instead (a test that
 	# wants the ceremony turns it back on).
 	context.main.set(&"ability_ceremonies", false)
-	# Playground tests play the classic game: the body-shapes rework mode stays off
-	# (docs/godot/BODY_SHAPES.md).
-	context.main.set(&"rework_in_playground", false)
 	# The throw-combat experiment stays off too (branch exp/throw-combat; test_throw_combat.gd turns
 	# it on): the suite plays the rework game as on main.
 	context.main.set(&"throw_combat", false)

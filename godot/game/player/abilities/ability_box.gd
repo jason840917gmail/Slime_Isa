@@ -115,20 +115,15 @@ static func use(player: Node) -> bool:
 	return started
 
 
-## Throw combat: the box choice `step` (+1 / -1) along the box, wrapping (E and the wheel);
-## the new choice floats over the slime. False with fewer than two.
-static func cycle(player: Node, step: int) -> bool:
-	var ids := box_ids(player)
-	if ids.size() < 2 or step == 0:
-		return false
-	var index := ids.find(selected(player))
-	var next := ids[posmod(index + signi(step), ids.size())] if index >= 0 else ids[0]
-	if not select(player, next):
+## Throw combat: makes `id` the box's choice (the ability carousel's pick, ability_carousel.gd) and
+## floats its name over the slime. False when `id` is not a learned box ability.
+static func choose(player: Node, id: StringName) -> bool:
+	if not select(player, id):
 		return false
 	var feel := Services.feel()
 	if feel != null and player != null and is_instance_valid(player) and player.has_method(&"get_centre"):
 		feel.floating_text((player.call(&"get_centre") as Vector2) - Vector2(0.0, CHOICE_TEXT_RISE_PX),
-			title(next), &"cyan", false)
+			title(id), &"cyan", false)
 	return true
 
 

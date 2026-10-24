@@ -1002,6 +1002,7 @@ Signal: `cracked {flagId}`. The scene also holds a `game.story-variant` on the s
 sprite frame 0 / `Broken` sprite frame 1 + a `game.door` "Climb down" with an `arrival` child at
 (0, 96); [GODOT] since 2026-10-14 that door is kind `ladder_down`, walked into, not offered to the
 interact key: interaction.md §3.2); sprites `sheet.props.gulp.8x1`, scale 0.62, visualOffset (0, 62), ground-decal band.
+[GODOT] The hole's door has a `Wall` StaticBody2D (`collision_mask = 0`, a circle of radius 52.3 at (2, -28) from the door): the hole is walled off, and the wall's own shape is the door's `trigger_shape`, so a body pressing against it walks the slime into the hole (no separate trigger rect). Only under `Broken`, so it exists once the ground has given way.
 
 ```
 _enter_tree: broken = flag_id != '' and has_flag(flag_id); seen_landing = last_heavy_landing()?.id     # :65-72

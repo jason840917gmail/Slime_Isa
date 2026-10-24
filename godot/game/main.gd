@@ -153,10 +153,6 @@ var playground_abilities := true
 ## A learned ability plays its ceremony (game/ui/ceremony/ability_ceremony.gd); the test runner turns
 ## it off (the ceremony waits for a key), and the banner shows instead.
 var ability_ceremonies := true
-## The playground runs the body-shapes rework mode (docs/godot/BODY_SHAPES.md) unless `classic`;
-## the test runner turns it off, so playground tests keep the classic game (`shapes` still turns
-## the mode on).
-var rework_in_playground := true
 ## The throw-combat experiment (docs/godot/THROW_COMBAT.md) rides on the rework mode while this is
 ## on (the test runner turns it off, so the suite plays the rework game as on main;
 ## test_throw_combat.gd turns it on).
@@ -951,23 +947,19 @@ func grant_playground_abilities() -> void:
 
 
 ## Decides the body-shapes rework mode for the world `target` is about to become, before the player
-## spawns (docs/godot/BODY_SHAPES.md "Running it"): on with the `shapes` launch option (web
-## `?shapes`, desktop `-- --shapes`) in any world; on in the playground and its rooms (worlds named
-## `playground-<room>`: the sinkhole's cavern, the Bomb corner's cave) unless `classic` (or
-## `rework_in_playground` is off); these two lend the shapes for the session (`_rework_lending`).
-## Also on, lending nothing, for a run that plays the story with shapes (`plays_story_shapes`: the
-## prologue, which teaches the Spear, and every world after it; docs/godot/PROLOGUE.md); else off.
-## Its input layer follows (ReworkInput: on puts it on, off puts every event back). Returns the mode.
-func decide_rework_mode(target: String) -> bool:
+## spawns (docs/godot/BODY_SHAPES.md "Running it"). It is on in every world and every run: the classic
+## game is gone from this branch, so F5, F6 and the launch options all start in it. What differs is
+## the shapes and box abilities lent for the session (`_rework_lending`: the playground and its rooms,
+## `?shapes`), which a story run does not get (it keeps what it learned, the Spear from the prologue),
+## and a dungeon's F6 powers (`_dev_powers`). Its input layer follows (ReworkInput), and the throw
+## combat rides on it (decide_throw_mode).
+func decide_rework_mode(target: String) -> void:
 	var playground := target == PLAYGROUND_MAP_ID or target.begins_with(PLAYGROUND_MAP_ID + "-")
-	_rework_lending = has_launch_option("shapes") \
-		or (playground and rework_in_playground and not has_launch_option("classic"))
+	_rework_lending = has_launch_option("shapes") or playground
 	_dev_powers = dev_powers_for(target) if direct_world_run else PackedStringArray()
-	var on := _rework_lending or plays_story_shapes() or not _dev_powers.is_empty()
-	ReworkMode.set_on(on)
-	ReworkInput.apply(on)
-	decide_throw_mode(on, playground)
-	return on
+	ReworkMode.set_on(true)
+	ReworkInput.apply(true)
+	decide_throw_mode(true, playground)
 
 
 ## The throw-combat experiment (docs/godot/THROW_COMBAT.md): on with the rework mode while
@@ -978,7 +970,7 @@ func decide_throw_mode(rework_on: bool, playground: bool) -> void:
 	var on := rework_on and throw_combat and ThrowMode.enabled_in_data() and not has_launch_option("melee")
 	var was := ThrowMode.is_on()
 	ThrowMode.set_on(on)
-	# The keys-only scheme has its own throw layout (A Gulp, S Roll, D ability): put it on or off.
+	# The keys-only scheme has its own throw layout (Q Gulp, S Roll, A ability): put it on or off.
 	if was != on and KeyBindings.is_applied():
 		KeyBindings.apply(false)
 		KeyBindings.apply(true)
@@ -1056,21 +1048,6 @@ func start_rework() -> void:
 func lend_launch_skins() -> void:
 	for id: String in launch_option("skins").split(",", false):
 		SkinState.lend(StringName(id.strip_edges()))
-
-
-## True when the run plays the story in the body-shapes mode (docs/godot/PROLOGUE.md): while the
-## prologue runs (it teaches the Spear) and once a shape is learned for good (the prologue's Spear; a
-## shape only lent for the session, RunState.session_ability_ids, does not count).
-func plays_story_shapes() -> bool:
-	var run := Services.run()
-	if run == null:
-		return false
-	if PrologueState.is_running(run):
-		return true
-	for id: StringName in ShapeDefs.IDS:
-		if run.has_learned_ability(String(id)) and not run.session_ability_ids.has(String(id)):
-			return true
-	return false
 
 
 ## Creates and seeds the EnemyPopulation (enemy spec 3): the world's placed enemies spawn here,

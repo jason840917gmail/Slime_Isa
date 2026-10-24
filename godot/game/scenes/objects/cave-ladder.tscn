@@ -1,15 +1,15 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://f7nab0wyrybb"]
 
-[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="1"]
-[ext_resource type="Script" path="res://game/scripts/door.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://bahgmyqwi4l3" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="1"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(110, 30)
+size = Vector2(96, 58)
 
-[node name="cave-ladder" type="Node2D"]
+[node name="cave-ladder" type="Node2D" unique_id=1962303570]
 y_sort_enabled = true
 
-[node name="Visual" type="Sprite2D" parent="."]
+[node name="Visual" type="Sprite2D" parent="." unique_id=1362941903]
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("1")
 centered = false
@@ -17,15 +17,16 @@ offset = Vector2(-128, -256)
 hframes = 8
 frame = 2
 
-[node name="Wall" type="StaticBody2D" parent="."]
+[node name="Wall" type="StaticBody2D" parent="." unique_id=1175907064]
 y_sort_enabled = true
 position = Vector2(0, -20)
 collision_mask = 0
 
-[node name="Shape" type="CollisionShape2D" parent="Wall"]
+[node name="Shape" type="CollisionShape2D" parent="Wall" unique_id=357964835]
+position = Vector2(-17, -14)
 shape = SubResource("RectangleShape2D_1")
 
-[node name="DoorScript" type="Node" parent="."]
+[node name="DoorScript" type="Node" parent="." unique_id=1653844822]
 script = ExtResource("2")
 map_id = "unassigned"
 door_id = "ladder"
@@ -35,6 +36,6 @@ kind = "ladder_up"
 side = "north"
 trigger_rect = Rect2(-24, -14, 48, 30)
 
-[node name="arrival" type="Node2D" parent="."]
+[node name="arrival" type="Node2D" parent="." unique_id=636597409]
 y_sort_enabled = true
 position = Vector2(0, 60)

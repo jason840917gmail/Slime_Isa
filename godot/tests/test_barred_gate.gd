@@ -98,7 +98,6 @@ func test_only_the_spear_opens_the_barred_gate_and_it_stays_open(t: TestContext)
 
 ## The playground again with the body-shapes mode on (the test runner keeps it off).
 func _enter_shapes_mode(t: TestContext) -> void:
-	t.main.set(&"rework_in_playground", true)
 	t.main.call(&"travel_to", MAP_ID)
 	await t.until(func() -> bool: return ReworkMode.is_on() and t.player() != null \
 		and not bool(t.main.call(&"is_transitioning")) and _gate(t) != null, 3000.0)

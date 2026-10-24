@@ -1679,6 +1679,14 @@ func _handle_action_input() -> bool:
 	return false
 
 
+## Throw combat: opens the ability carousel (shell/ability_carousel.gd) once this step is over, so the
+## pause never lands in the middle of the step.
+func _open_ability_carousel() -> void:
+	var shell := Services.shell()
+	if shell != null:
+		shell.call_deferred(&"open_ability_carousel")
+
+
 ## The rework mode's `_handle_action_input` (docs/godot/BODY_SHAPES.md "Controls in the rework
 ## mode"; body-shapes plan section 6): E and the wheel switch shapes (ShapeController.cycle; the
 ## slime keeps walking and an attack can follow in the same step); interact as before (not while
@@ -1695,9 +1703,9 @@ func _handle_rework_action_input(now: float, busy: bool) -> bool:
 	var shapes := _shapes if _shapes != null and is_instance_valid(_shapes) else null
 	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
 		if _input.consume(step[0], now, _buffer_ms):
-			# Throw combat: E steps through the Ability Box (the shapes are powers there).
+			# Throw combat: E (and the wheel) opens the ability carousel over the paused game.
 			if ThrowMode.is_on():
-				AbilityBox.cycle(self, int(step[1]))
+				_open_ability_carousel()
 			elif shapes != null:
 				shapes.cycle(int(step[1]))
 	if not busy:
