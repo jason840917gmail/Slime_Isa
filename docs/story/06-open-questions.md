@@ -51,8 +51,7 @@ are built: [DUNGEONS.md](../godot/DUNGEONS.md).
      the Pearl; Fatty's second phase throws clods and sends a mud ripple a Roll
      passes; the Glow-moss Burrow's heart quarter (a Lantern come-back) is one
      of Slimeshire's four; an armour statue in a dungeon is always a heavy
-     block (no decorative ones); the outer gate stays up once the inner winch
-     turns.
+     block (no decorative ones).
      *Superseded in part (2026-10-17):* the Pearl now lies inside, so the heavy
      plate is first used in the second half; the rework is question 142.
 138. **The Weaver Hollow, as built.**

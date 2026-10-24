@@ -1108,7 +1108,7 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 
 | Room | Cell | What is there |
 |---|---|---|
-| R1 the Gatehouse | C6 | the entrance (south, to Fatty's Hollow), the gate's inner winch, the store behind planks |
+| R1 the Gatehouse | C6 | the entrance (south, to Fatty's Hollow), the store behind planks |
 | R2 the Slab Steps | D6 | an L of void: two slabs over its west arm; two over its north arm to a landing |
 | R3 the Pit Hall | C5-D5 | the hub: the chasm round the north ledge, Burr's cell and the Inner Stair in the west gallery, the drawbridge, the boss door |
 | R4 the Squint Den | B5 | two Squints; the map nook's crates in its west wall |
@@ -1132,8 +1132,9 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
    through the old fort's field maze and over its moat's slab bridge to the forecourt; pull the worm
    lever in front of the gate, then Roll north under the old gate before it drops (walking from the
    lever never makes it).
-2. **R1:** turn the inner winch (the outer gate stays up for good). East into R2: a Roll over two
-   slabs, then two more to the landing; north into the hub, where Burr calls from his cell.
+2. **R1:** East into R2: a Roll over two slabs, then two more to the landing; north into the hub,
+   where Burr calls from his cell. The outer gate is not held up: going back out, or coming back,
+   means the lever and the Roll again, the same way as the first time.
 3. **The west wing:** R4's Squints, then R5's **north maze** (owner, 2026-10-19; it replaced the
    single teach latch): the hall north of the inner door is a maze of low dividers (a row across
    with two gaps, a pocket each side, a gatehouse in the middle holding G1 and G2 above the inner
@@ -1238,9 +1239,6 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
   raises it over `rise_ms` (220), it stays up `open_ms` (620 outside, 500 in R11) and drops in
   `drop_ms` (140), shoving out a slime caught under it; a push on the shut gate says its line.
   `hold_open_for_good()` keeps it up (recorded as the gate unlocked).
-- **The inner winch** (`object.gate-winch`, `gate_winch.gd`): in R1; used, it holds the outer gate
-  (`fatty-lair-gate` in `level-1-d5`; the gate's and the winch's `map_id`) up for good, across the
-  two worlds.
 - **Eye latches** (`object.eye-latch`, `eye_latch.gd`) over **divider gates** (since 2026-10-19,
   FENCES.md "Dungeon dividers"; R9's in its doorway is still an `object.latch-door`, its slab the
   wall's shutter leaf): only a thrust (the `spear` tag) shuts the
@@ -1287,11 +1285,11 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
 - **Fatty's phase two, the Heavy skin's exam** (`fatty.gd` `configure_phase_two`, its `phase_two_*`
   exports; [specs/boss.md](specs/boss.md) section 3.8): under half his health he leaps twice in a
   row; each landing drops ten light mud clods from the roots (after a shadow,
-  `game/fattys_lair/clod_shadow.gd`; liftable `mud-ball`s, at most ten alive, falling hazards; the arena has ten clod spots, so a landing drops up to ten), and the
+  `game/fattys_lair/clod_shadow.gd`; liftable `mud-ball`s, at most ten alive, falling hazards; each leaves a heart or an energy shard where it stood when the slime sucks it up or a Roll breaks it (`under`: liftable_root.gd; the Roll's hurtbox: `clod_hurtbox.gd`); the arena has ten clod spots, so a landing drops up to ten), and the
   second sends a mud ripple over the floor (`game/fattys_lair/mud_ripple.gd`) that a Roll's i-frames
-  carry through; his eye stays squinted shut and he braces (every hit clinks). **The mock, then a Heavy Roll.** After a pair of leaps he sometimes (`phase_two_mock_chance`, 0.5) stands on one leg and laughs at the slime for `phase_two_mock_ms` (2 s); a Heavy Roll's bonk (tagged `heavy`) into him then knocks him off balance for
-  `phase_two_dizzy_ms` (3 s, the stand-up included; the first mock shows the tip, `MOCK_TIP`): "Off balance!", he rocks back `phase_two_topple_lean_rad` and
-  wobbles, stars over him, his eye wide open, and the Spear lands then. A thrown clod only splats
+  carry through; his eye stays squinted shut and he braces (every hit clinks). **Out of balance, then a fall.** A mud ball thrown at him (the Gulp's, tagged `mud-ball`) throws him out of balance for `phase_two_unbalance_ms` (2 s), his eye still shut; a Heavy Roll's bonk (tagged `heavy`) into him then makes him fall for
+  `phase_two_dizzy_ms` (3 s, the stand-up included): "Off balance!", he rocks back `phase_two_topple_lean_rad` and
+  wobbles, stars over him, his eye wide open, and the Spear lands then. Other thrown things only splat
   ("It splats. Fatty hardly notices.", `phase_two_thrown_text`); a plain Roll bonks off him. Phase
   one is as built (the Spear in his open eye after a leap). Enraged while the Lair is sealed (the
   kit's `EnragedLook`, the same numbers). Beaten: the dungeon records him, the seals break, the
@@ -1307,7 +1305,7 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
   seal).
 - **The interaction's `usable` group** (`interaction_controller.gd` USABLE_GROUP): any node with
   `origin()`, `interact_radius`, `prompt`, `badge_rise`, `use()` and an optional `can_use()` is
-  offered to the interact key (the lever, the inner winch, Burr outside).
+  offered to the interact key (the worm levers, Burr outside).
 
 ### Outside: Fatty's Hollow and the bolt-hole
 

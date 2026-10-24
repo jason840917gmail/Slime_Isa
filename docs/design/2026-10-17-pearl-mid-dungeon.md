@@ -562,7 +562,7 @@ The contradictions the decision left open, each settled as a proposal:
 
    | Dungeon | What seals (from the take to his fall) | What stays open | After the boss |
    |---|---|---|---|
-   | Fatty's Lair | R1's south doorway (the way in; its outer gate stays up, held by the inner winch, but the seal stands inside it); R13's north doorway (the way to the bolt-hole) | the bolt to the hub, the other bolts, Burr's door, door 3, the drawbridge once down | both seals sink; the outer gate is still up for good; the bolt-hole's barricade waits for a Heavy Roll |
+   | Fatty's Lair | R1's south doorway (the way in; its outer gate drops again each time, but the seal stands inside it); R13's north doorway (the way to the bolt-hole) | the bolt to the hub, the other bolts, Burr's door, door 3, the drawbridge once down | both seals sink; the outer gate drops again each time; the bolt-hole's barricade waits for a Heavy Roll |
    | The Weaver Hollow | T1's south doorway (the blown root gate outside stays blown); C2's east doorway (the way to C3's drop) | the hatch, the drawbridges, the key doors, the stair block once sunk, cut web walls | both sink; C3's web wall and drop as built |
    | The Crystal Mine | M1's south doorway (the camp's lantern gate outside stays open); the top of the arena's climb (the tunnel to the Lookout) | the cart (Chasm and M1 are both inside), the lift, M1's iron shutter, the Foreman's Gate, the maze's gate, the Chasm's bridge | both break; the climb-out to the Lookout as built |
 5. **Where the mini-boss and the big key stand:** [the table](#where-the-mini-boss-and-the-big-key-stand).
@@ -575,7 +575,7 @@ The contradictions the decision left open, each settled as a proposal:
    | Built proposal | Now |
    |---|---|
    | 137: the way out is a plank barricade a Heavy Roll breaks; the plate's first use is on the walk home | The barricade is the Larder's north door, the skin's first lock right at the Pearl; the bolt-hole's barricade stays as the last flourish; the plate's first use is the Weigh House |
-   | 137: the outer gate stays up once the inner winch turns | Still, and the seal stands inside R1's doorway from the take until Fatty falls |
+   | 137: the outer gate drops again each time (no winch) | Still, and the seal stands inside R1's doorway from the take until Fatty falls |
    | 137: Fatty's second phase throws clods and sends a ripple a Roll passes | The ripple and the clods stay; a Heavy Roll topples him, and a thrown clod no longer dizzies him |
    | 138: the way out drops into the forecourt | Still, behind C2's east seal until she falls |
    | 138: the cocoon opens about 4 s, re-spins in 1.5 s, three rounds | The timings stay; rounds 2 and 3 become the cage and the webbed floor |

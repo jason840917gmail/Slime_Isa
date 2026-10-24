@@ -67,7 +67,7 @@ keys, enemies and secrets) and `fattys-lair-key-graph.png` (the key graph below,
 
 1. **Fatty's Hollow** (D4, where Fatty's camp stands today): pull the worm lever and **Roll**
    through the old gate before it drops.
-2. **The Gatehouse:** turn the gate's inner winch (the gate stays up for good), on to the slabs.
+2. **The Gatehouse:** on to the slabs (the outer gate drops again each time; no winch holds it up).
 3. **Slab Steps:** roll two bridges of falling slabs over the void.
 4. **The Pit Hall (hub):** the boss door is in sight across the void; Burr calls from his cell
    ("two keys, east and west"); slide the bolt of the short way back to the Gatehouse.
@@ -194,8 +194,7 @@ room is entered again.
 ### R1 The Gatehouse (C6, 1 x 1): the entrance
 
 - **Idea:** the quiet opening after the race, and the place a faint or a quit resumes.
-- **What is here:** the gate's inner winch (W: the outer gate stays up for good, so leaving and
-  coming back never needs the race again); worm bunks; pots that come back.
+- **What is here:** worm bunks; pots that come back.
 - **Doors:** south, the drop gate; east, open to R2; north, a solid door to the hub, "Bolted from
   the other side." (the bolt is on the hub's side); west, a second bolted door (its bolt in R5).
 - **Secret:** the **Quartermaster's store**, a plank barricade across an alcove in the south-west
@@ -540,7 +539,7 @@ reuses are named.
    return after 10 s, the void's damage and its return to the bridge's start, the spikes' damage
    each time the invulnerability ends, with a stair out.
 3. **The drop gate** (5.15): the old Thorn Guard gate with a worm lever (W), dropping shut a tuned
-   moment later; levers on both sides inside; the inner winch that holds the outer gate up for good.
+   moment later; levers on both sides inside.
 4. **Stone eye latches** (Spear only): open for good, or open for a few seconds in a group that
    opens its gate while all are open; a screened one that only a diagonal thrust reaches; the
    clink and line for anything else.
@@ -670,7 +669,7 @@ Each with its proposal; the build keeps to the proposals unless the owner change
 8. **The bolt-hole's mouth near the Verdant Gate** in level-1-d4, so the green key's lock is in
    sight as the slime comes up. *Proposal:* as written; the road home west passes Fatty's Hollow,
    where the Quartermaster's store waits.
-9. **The outer gate stays up for good** once the inner winch is turned, so the race is played once.
+9. **The outer gate drops again each time**: coming back means the same race as the first time.
    *Proposal:* as written.
 
 ## What this changes elsewhere

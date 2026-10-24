@@ -2170,7 +2170,6 @@ two dungeons in 12.8.
   ([DUNGEONS.md "Fatty's Lair (built)"](godot/DUNGEONS.md#fattys-lair-built)):
   `world.fatty-lair`, 19 rooms; the gate race in level-1-d4's clearing (the
   worm lever, a Roll under the gate; on D5's hill since the same day, below)
-  and the inner winch that holds it up;
   the slabs; Burr's cell on the main path (two small keys, both found before
   it), his lines, the Inner Stair he opens and his walk out; the Deep with the
   Bone Marchers; the Big Squint's ambush and the big key; Fatty in his arena
