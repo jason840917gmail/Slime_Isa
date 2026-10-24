@@ -129,9 +129,7 @@ func _travel(player: Node) -> void:
 			# The step sounds only when the travel starts (refused, another travel under way, it is
 			# asked again next frame: no cue every frame).
 			if bool(main.call(&"travel_to", target_world, "", "", target_marker, false, 0.0, NAN, arrival_facing)):
-				var feel := Services.feel()
-				if feel != null:
-					feel.audio_cue(CUE_STEP)
+				_travel_cue()
 				used.emit({"hatchId": hatch_id})
 			else:
 				_travelling = false
@@ -142,13 +140,18 @@ func _travel(player: Node) -> void:
 	_travelling = true
 	player.call(&"stop_movement")
 	player.call(&"suppress_movement", FADE_MS * 2.0 + HOLD_MS)
-	var feel := Services.feel()
-	if feel != null:
-		feel.audio_cue(CUE_STEP)
+	_travel_cue()
 	var main := get_tree().current_scene
 	var parent: Node = main if main != null else get_tree().root
 	var holder: Array[CanvasLayer] = []
 	holder.append(AreaTravel.fade(parent, FADE_LAYER, 0.0, 1.0, FADE_MS, func() -> void: _arrive(player, marker, holder), false))
+
+
+## The step sound the travel starts with. A subclass that plays its own steps overrides it.
+func _travel_cue() -> void:
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_STEP)
 
 
 ## Behind the black: the slime moves to `marker`, then the same black layer fades away.

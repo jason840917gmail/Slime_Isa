@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://b8jbs0wed1k0m"]
+
+[ext_resource type="Script" uid="uid://buxygbfs3ou6e" path="res://game/scripts/stair_door.gd" id="1_door"]
+[ext_resource type="Texture2D" uid="uid://dege2tkejr6ax" path="res://asset/MAPS/doors/256x256-tile_4x1-stair-door.webp" id="2_sheet"]
+
+[node name="stair-door" type="Node2D" unique_id=1235276899 node_paths=PackedStringArray("visual")]
+script = ExtResource("1_door")
+trigger_rect = Rect2(-48, -80, 96, 80)
+visual = NodePath("Visual")
+
+[node name="Visual" type="Sprite2D" parent="." unique_id=1707481229]
+z_index = -1
+scale = Vector2(0.65, 1)
+texture = ExtResource("2_sheet")
+offset = Vector2(0, -126)
+hframes = 4

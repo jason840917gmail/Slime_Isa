@@ -55,6 +55,7 @@
 [ext_resource type="PackedScene" path="res://game/dev/corners/barred_gate_corner.tscn" id="barred_gate_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/webs_corner.tscn" id="webs_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/skins_corner.tscn" id="skins_corner"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_pg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3"]
 size = Vector2(1024, 640)
@@ -1565,6 +1566,30 @@ kind = "pinecone"
 [node name="webs-corner" parent="." instance=ExtResource("webs_corner")]
 
 [node name="skins-corner" parent="." instance=ExtResource("skins_corner")]
+
+[node name="stair-door-test" type="Node2D" parent="." unique_id=1744100001]
+
+[node name="down-door" parent="stair-door-test" unique_id=1744100002 instance=ExtResource("stair_door_pg")]
+position = Vector2(1400, 1300)
+direction = "down"
+hatch_id = "playground-stair-down"
+start_open = true
+target = NodePath("../up-door-arrival")
+arrival_facing = "up"
+
+[node name="up-door" parent="stair-door-test" unique_id=1744100003 instance=ExtResource("stair_door_pg")]
+position = Vector2(1600, 1300)
+direction = "up"
+hatch_id = "playground-stair-up"
+start_open = true
+target = NodePath("../down-door-arrival")
+arrival_facing = "down"
+
+[node name="down-door-arrival" type="Node2D" parent="stair-door-test" unique_id=1744100004]
+position = Vector2(1400, 1380)
+
+[node name="up-door-arrival" type="Node2D" parent="stair-door-test" unique_id=1744100005]
+position = Vector2(1600, 1380)
 
 [editable path="resource-grove/tree-1"]
 [editable path="resource-grove/tree-2"]

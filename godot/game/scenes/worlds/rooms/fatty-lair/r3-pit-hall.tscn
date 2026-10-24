@@ -26,8 +26,6 @@
 [ext_resource type="Texture2D" uid="uid://coim78tnbc17v" path="res://asset/MAPS/objects/dungeon/boss-door-2x1.webp" id="23_4q36a"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="24_s6u2a"]
 [ext_resource type="Texture2D" uid="uid://0yfap0bjxiis" path="res://asset/MAPS/objects/dungeon/bolt-2x1.webp" id="25_12d80"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/stair-hatch.tscn" id="26_3f3uf"]
-[ext_resource type="Texture2D" uid="uid://b01nwiqy48irf" path="res://asset/MAPS/objects/fattys-lair/stair-hatch-2x1.webp" id="27_1d03l"]
 [ext_resource type="Script" uid="uid://bgfo236msxxcw" path="res://game/fattys_lair/counterweight_chain.gd" id="28_670rl"]
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="29_rw1156"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="30_rw9440"]
@@ -38,6 +36,7 @@
 [ext_resource type="Script" uid="uid://chb2s4byl4u2a" path="res://game/fattys_lair/lair_director.gd" id="35_rw7004"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="36_rw9321"]
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="37_rw0548"]
+[ext_resource type="PackedScene" uid="uid://b8jbs0wed1k0m" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_test"]
 
 [node name="r3-pit-hall" type="Node2D" unique_id=1925674139]
 y_sort_enabled = true
@@ -162,7 +161,7 @@ targets = Array[NodePath]([NodePath("../hub-drawbridge")])
 heavy_only = false
 pair_id = "fatty-lair.hub-bridge"
 
-[node name="hub-burr-plate" parent="Objects" instance=ExtResource("18_8sbdr")]
+[node name="hub-burr-plate" parent="Objects" unique_id=1476482369 instance=ExtResource("18_8sbdr")]
 position = Vector2(896, 800)
 targets = Array[NodePath]([NodePath("../hub-drawbridge")])
 heavy_only = false
@@ -270,16 +269,20 @@ link_id = "fatty-lair-r11-way-back"
 [node name="Lair" type="Node2D" parent="." unique_id=333291840]
 y_sort_enabled = true
 
-[node name="inner-stair" parent="Lair" unique_id=1367391673 instance=ExtResource("26_3f3uf")]
-position = Vector2(192, 889.6001)
+[node name="inner-stair" parent="Lair" unique_id=1203005831 instance=ExtResource("stair_door_test")]
+position = Vector2(792, 177)
+direction = "down"
 hatch_id = "fatty-lair-inner-stair"
 open_flag = "fatty-lair.inner-stair-open"
 target_world = "fatty-lair-r8-guard-crypt"
 target_marker = "crypt-stair-arrival"
-arrival_facing = "up"
 
-[node name="Visual" parent="Lair/inner-stair" index="0"]
-texture = ExtResource("27_1d03l")
+[node name="Visual" parent="Lair/inner-stair" index="0" unique_id=1707481229]
+position = Vector2(-36, -44)
+scale = Vector2(0.65, 1)
+
+[node name="stair-door-arrival" type="Node2D" parent="Lair" unique_id=1517208835]
+position = Vector2(750, 150)
 
 [node name="hub-stair-arrival" type="Node2D" parent="Lair" unique_id=1040032654]
 position = Vector2(307.19995, 844.80005)
