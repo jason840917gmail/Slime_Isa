@@ -1,25 +1,24 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://dqiedy04e20pb"]
 
 [ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_myjdo"]
-[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_v3bh7"]
+[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://game/world/terrain_tileset.tres" id="2_v3bh7"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_cxrw3"]
-[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_cnvbu"]
+[ext_resource type="TileSet" uid="uid://dtulcyvm4c4ki" path="res://game/world/interior/interior_wall_tileset.tres" id="4_cnvbu"]
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_rp2bd"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_0ngat"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--large-02.tscn" id="7_veeiq"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-unlit.tscn" id="8_khsqb"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--armor-statue.tscn" id="9_ar7bn"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candles-triple-lit.tscn" id="10_t4yhl"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-urn-tall.tscn" id="11_5f3xx"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-lit.tscn" id="12_g8qwd"]
-[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="13_v6tew"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/stair-ladder.tscn" id="14_t3e56"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="15_rw9512"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="13_v6tew"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="15_rw9512"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="16_rw5870"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="17_rw9083"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="18_rw8501"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="19_rw5818"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="20_r8bolt"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="18_rw8501"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="19_rw5818"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="20_r8bolt"]
+[ext_resource type="PackedScene" uid="uid://b8jbs0wed1k0m" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_north"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
 [node name="r8-guard-crypt" type="Node2D" unique_id=1041088703]
@@ -37,6 +36,8 @@ metadata/columns = 18
 metadata/rows = 32
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1985138969]
+self_modulate = Color(1, 1, 1, 0.3)
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAAAAAABAAAAAAABAAAAAAACAAAAAAABAAAAAAADAAAAAAABAAAAAAAEAAAAAAABAAAAAAAFAAAAAAABAAAAAAAGAAAAAAABAAAAAAAHAAAAAAABAAAAAAAIAAAAAAABAAAAAAAJAAAAAAABAAAAAAAKAAAAAAABAAAAAAALAAAAAAABAAAAAAAMAAAAAAABAAAAAAANAAAAAAABAAAAAAAOAAAAAAABAAAAAAAPAAAAAAABAAAAAAAQAAAAAAABAAAAAAARAAAAAAABAAAAAAAAAAEAAAABAAAAAAABAAEAAAABAAAAAAACAAEAAAABAAAAAAADAAEAAAABAAAAAAAEAAEAAAABAAAAAAAFAAEAAAABAAAAAAAGAAEAAAABAAAAAAAHAAEAAAABAAAAAAAIAAEAAAABAAAAAAAJAAEAAAABAAAAAAAKAAEAAAABAAAAAAALAAEAAAABAAAAAAAMAAEAAAABAAAAAAANAAEAAAABAAAAAAAOAAEAAAABAAAAAAAPAAEAAAABAAAAAAAQAAEAAAABAAAAAAARAAEAAAABAAAAAAAAAAIAAAABAAAAAAABAAIAAAABAAAAAAAQAAIAAAABAAAAAAARAAIAAAABAAAAAAAAAAMAAAABAAAAAAABAAMAAAABAAAAAAAQAAMAAAABAAAAAAARAAMAAAABAAAAAAAAAAQAAAABAAAAAAABAAQAAAABAAAAAAAQAAQAAAABAAAAAAARAAQAAAABAAAAAAAAAAUAAAABAAAAAAABAAUAAAABAAAAAAAQAAUAAAABAAAAAAARAAUAAAABAAAAAAAAAAYAAAABAAAAAAABAAYAAAABAAAAAAAQAAYAAAABAAAAAAARAAYAAAABAAAAAAAAAAcAAAABAAEAAAABAAcAAAABAAEAAAAAAAgAAAABAAEAAAABAAgAAAABAAEAAAAAAAkAAAABAAAAAAABAAkAAAABAAAAAAAAAAoAAAABAAAAAAABAAoAAAABAAAAAAAAAAsAAAABAAAAAAABAAsAAAABAAAAAAAQAAsAAAABAAAAAAARAAsAAAABAAAAAAAAAAwAAAABAAAAAAABAAwAAAABAAAAAAAQAAwAAAABAAAAAAARAAwAAAABAAAAAAAAAA0AAAABAAAAAAABAA0AAAABAAAAAAAQAA0AAAABAAAAAAARAA0AAAABAAAAAAAAAA4AAAABAAAAAAABAA4AAAABAAAAAAAQAA4AAAABAAAAAAARAA4AAAABAAAAAAAAAA8AAAABAAAAAAABAA8AAAABAAAAAAAQAA8AAAABAAAAAAARAA8AAAABAAAAAAAAABAAAAABAAAAAAABABAAAAABAAAAAAAQABAAAAABAAAAAAARABAAAAABAAAAAAAAABEAAAABAAAAAAABABEAAAABAAAAAAAQABEAAAABAAAAAAARABEAAAABAAAAAAAAABIAAAABAAAAAAABABIAAAABAAAAAAAQABIAAAABAAAAAAARABIAAAABAAAAAAAAABMAAAABAAAAAAABABMAAAABAAAAAAAQABMAAAABAAAAAAARABMAAAABAAAAAAAAABQAAAABAAAAAAABABQAAAABAAAAAAAQABQAAAABAAAAAAARABQAAAABAAAAAAAAABUAAAABAAAAAAABABUAAAABAAAAAAAQABUAAAABAAAAAAARABUAAAABAAAAAAAAABYAAAABAAAAAAABABYAAAABAAAAAAAQABYAAAABAAAAAAARABYAAAABAAAAAAAAABcAAAABAAAAAAABABcAAAABAAAAAAAQABcAAAABAAAAAAARABcAAAABAAAAAAAAABgAAAABAAAAAAABABgAAAABAAAAAAAQABgAAAABAAAAAAARABgAAAABAAAAAAAAABkAAAABAAAAAAABABkAAAABAAAAAAAQABkAAAABAAAAAAARABkAAAABAAAAAAAAABoAAAABAAAAAAABABoAAAABAAAAAAAQABoAAAABAAAAAAARABoAAAABAAAAAAAAABsAAAABAAAAAAABABsAAAABAAAAAAAQABsAAAABAAAAAAARABsAAAABAAAAAAAAABwAAAABAAAAAAABABwAAAABAAAAAAAQABwAAAABAAEAAAARABwAAAABAAEAAAAAAB0AAAABAAAAAAABAB0AAAABAAAAAAAQAB0AAAABAAEAAAARAB0AAAABAAEAAAAAAB4AAAABAAAAAAABAB4AAAABAAAAAAACAB4AAAABAAAAAAAFAB4AAAABAAAAAAAGAB4AAAABAAAAAAAHAB4AAAABAAAAAAAIAB4AAAABAAAAAAAJAB4AAAABAAAAAAAKAB4AAAABAAAAAAALAB4AAAABAAAAAAAMAB4AAAABAAAAAAANAB4AAAABAAAAAAAOAB4AAAABAAAAAAAPAB4AAAABAAAAAAAQAB4AAAABAAAAAAARAB4AAAABAAAAAAAAAB8AAAABAAAAAAABAB8AAAABAAAAAAACAB8AAAABAAAAAAADAB8AAAABAAAAAAAEAB8AAAABAAAAAAAFAB8AAAABAAAAAAAGAB8AAAABAAAAAAAHAB8AAAABAAAAAAAIAB8AAAABAAAAAAAJAB8AAAABAAAAAAAKAB8AAAABAAAAAAALAB8AAAABAAAAAAAMAB8AAAABAAAAAAANAB8AAAABAAAAAAAOAB8AAAABAAAAAAAPAB8AAAABAAAAAAAQAB8AAAABAAAAAAARAB8AAAABAAAAAAAQAAcAAAABAAAAAAARAAcAAAABAAAAAAAQAAgAAAABAAAAAAARAAgAAAABAAAAAAAQAAkAAAABAAAAAAARAAkAAAABAAAAAAAQAAoAAAABAAAAAAARAAoAAAABAAAAAAADAB4AAAABAAAAAAAEAB4AAAABAAAAAAA=")
 tile_set = ExtResource("4_cnvbu")
 script = ExtResource("5_rp2bd")
@@ -135,14 +136,15 @@ overrides = {
 [node name="Lair" type="Node2D" parent="." unique_id=2076833577]
 y_sort_enabled = true
 
-[node name="crypt-stair" parent="Lair" unique_id=1919381866 instance=ExtResource("14_t3e56")]
-position = Vector2(224, 1856)
-hatch_id = "fatty-lair-crypt-stair"
+[node name="crypt-north-stair" parent="Lair" unique_id=1131045910 instance=ExtResource("stair_door_north")]
+position = Vector2(581, 154)
+hatch_id = "fatty-lair-crypt-north-stair"
+start_open = true
 target_world = "fatty-lair-r3-pit-hall"
-target_marker = "hub-stair-arrival"
+target_marker = "stair-door-arrival"
 
 [node name="crypt-stair-arrival" type="Node2D" parent="Lair" unique_id=1797484711]
-position = Vector2(320, 1766.3999)
+position = Vector2(599, 161)
 
 [node name="Objects" type="Node2D" parent="." unique_id=1462079318]
 y_sort_enabled = true
@@ -150,12 +152,12 @@ y_sort_enabled = true
 [node name="r8-west-door" parent="Objects" unique_id=1185570493 instance=ExtResource("20_r8bolt")]
 position = Vector2(128, 512)
 rotation = -1.5707964
-wall = "west"
 bolt_here = false
+wall = "west"
 door_id = "fatty-lair-r8-west"
 frame_drawn_by_wall = true
-interior_style = "cave-rock"
 link_id = "fatty-lair-r9-way-back"
+interior_style = "cave-rock"
 
 [node name="world-definition" type="Node" parent="." unique_id=1304042512]
 script = ExtResource("15_rw9512")
@@ -175,7 +177,7 @@ metadata = {
 }
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=600988883]
-position = Vector2(320, 1766.4)
+position = Vector2(582, 268)
 
 [node name="Dungeon" parent="." unique_id=517881123 instance=ExtResource("16_rw5870")]
 
@@ -188,7 +190,6 @@ target_room = "r9-watcher-hall"
 target_door = "r9-to-r8"
 side = "west"
 requires = "done:fatty-lair-r9-way-back"
-locked_text = "Bolted from the other side."
 
 [node name="r8-to-r11" parent="RoomDoors" unique_id=114680918 instance=ExtResource("17_rw9083")]
 position = Vector2(1152, 1856)
@@ -206,22 +207,22 @@ script = ExtResource("18_rw8501")
 loop = true
 autoplay_cue = true
 
-[node name="Throwables" type="Node2D" parent="."]
+[node name="Throwables" type="Node2D" parent="." unique_id=6756728]
 y_sort_enabled = true
 
-[node name="throw-r8-marcher-a-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r8-marcher-a-1" parent="Throwables" unique_id=1786826933 instance=ExtResource("throw_liftable")]
 position = Vector2(438, 493)
 kind = "clay-pot"
 
-[node name="throw-r8-marcher-a-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r8-marcher-a-2" parent="Throwables" unique_id=1256783257 instance=ExtResource("throw_liftable")]
 position = Vector2(390, 518)
 kind = "rock"
 
-[node name="throw-r8-marcher-b-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r8-marcher-b-1" parent="Throwables" unique_id=1807975548 instance=ExtResource("throw_liftable")]
 position = Vector2(822, 1709)
 kind = "clay-pot"
 
-[node name="throw-r8-marcher-b-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r8-marcher-b-2" parent="Throwables" unique_id=2062576079 instance=ExtResource("throw_liftable")]
 position = Vector2(774, 1734)
 kind = "rock"
 
@@ -246,4 +247,3 @@ kind = "rock"
 [editable path="Scenery/r8-sconce-12"]
 [editable path="Enemies/r8-marcher-a"]
 [editable path="Enemies/r8-marcher-b"]
-[editable path="Lair/crypt-stair"]

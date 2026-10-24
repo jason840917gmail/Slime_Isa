@@ -33,7 +33,7 @@ const DUNGEON_DIR := "res://game/scenes/objects/dungeon/"
 const DUNGEON_SKIP: PackedStringArray = ["dungeon.tscn", "fatty-lair-dungeon.tscn"]
 const DUNGEON_EXTRAS: PackedStringArray = [
 	"brazier", "pressure-plate", "heavy-block", "heavy-plate", "heavy-statue", "heavy-ore-crate",
-	"cracked-wall", "cracked-floor", "climb-wall", "stair-hatch", "stair-ladder", "cave-ladder",
+	"cracked-wall", "cracked-floor", "climb-wall", "cave-ladder",
 	"barred-gate", "drop-gate", "eye-latch", "gate-winch", "winch-post-cracked", "latch-door",
 	"lantern-gate", "plank-barricade", "rotten-timbers", "web-wall", "blast-keg", "mine-cart",
 	"ore-lift", "crystal-lens", "crystal-veil", "gulp-spot-frog", "gulp-spot-silk", "gulp-spot-stone",
@@ -43,7 +43,7 @@ const DUNGEON_EXTRAS: PackedStringArray = [
 const HOLES_CATEGORY := "Holes & hatches"
 const HOLES: PackedStringArray = [
 	"open-hole", "open-hole-ladder", "cracked-floor", "cracked-ground", "cracked-wall", "hill-doorway", "hatch-exit",
-	"stair-hatch", "cave-ladder",
+	"cave-ladder",
 ]
 ## The node a dungeon piece goes under, by scene file name; the rest go under DUNGEON_CONTAINER.
 const DUNGEON_CONTAINERS := {"room-door.tscn": "RoomDoors", "hazard.tscn": "Hazards", "hazard-deck.tscn": "Hazards"}
