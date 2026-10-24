@@ -9,8 +9,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--war-banner.tscn" id="9_fip5n"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="11_voh6t"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="12_l3jvw"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/gate-winch.tscn" id="13_mpmmi"]
-[ext_resource type="Texture2D" uid="uid://dn58bm8yju2b5" path="res://asset/MAPS/objects/fattys-lair/gate-winch.webp" id="14_dn1av"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/plank-barricade.tscn" id="15_kqe4m"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-seal.tscn" id="17_f67ai"]
 [ext_resource type="Texture2D" uid="uid://isnfesgab7gl" path="res://asset/MAPS/walls/interior/lair-stone.webp" id="18_43q6x"]
@@ -88,14 +86,6 @@ kind = "wicker-basket"
 
 [node name="Objects" type="Node2D" parent="." unique_id=363156610]
 y_sort_enabled = true
-
-[node name="r1-gate-winch" parent="Objects" unique_id=832582675 instance=ExtResource("13_mpmmi")]
-position = Vector2(768, 857.6001)
-gate_id = "fatty-lair-gate"
-map_id = "level-1-d5"
-
-[node name="Visual" parent="Objects/r1-gate-winch" index="0"]
-texture = ExtResource("14_dn1av")
 
 [node name="r1-seal" parent="Objects" unique_id=2121817619 instance=ExtResource("17_f67ai")]
 position = Vector2(576, 896)
@@ -238,5 +228,4 @@ autoplay_cue = true
 [editable path="Scenery/r1-pot-a"]
 [editable path="Scenery/r1-pot-b"]
 [editable path="Scenery/r1-pot-c"]
-[editable path="Objects/r1-gate-winch"]
 [editable path="Objects/r1-seal"]

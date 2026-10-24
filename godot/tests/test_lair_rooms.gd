@@ -245,7 +245,7 @@ func test_the_lair_is_walked_from_the_mouth_to_the_arena_and_out_by_the_bolt_hol
 	DungeonState.give_item(run, MAP_ID, DungeonState.BIG_KEY)
 	(run.world.get_or_add("defeated_boss_ids", []) as Array).append("fatty-one-eye")
 	DungeonState.mark_boss_beaten(run, MAP_ID, "fatty-one-eye")
-	# D5: into the mouth (its gate held up by the inner winch's record).
+	# D5: into the mouth (its gate opened for this test).
 	run.mark_gate_unlocked("level-1-d5", "fatty-lair-gate")
 	if not await _travel(t, "level-1-d5"):
 		return

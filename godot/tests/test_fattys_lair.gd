@@ -6,7 +6,7 @@ extends RefCounted
 ## kit's pieces as placed (keys equal keyholes, the hidden big chest in R9, the boss door, a hazard
 ## under every slab, the two seals), the open gaps of the main path, and the Lair's own pieces: the
 ## eye latches (the Spear only; the alcove's pair shut together), the drop gate and its worm lever,
-## the inner winch that holds the outer gate up, the plank barricades (the Heavy Roll), Burr's cell
+## the plank barricades (the Heavy Roll), Burr's cell
 ## (two keys) opening the Inner Stair, the stair's walk-in; the Pearl room (the Larder's Big Squint
 ## guards Pearl 1, its take grants the Heavy skin and seals the Lair); the second half's Heavy locks
 ## (the Weigh House's two plates, R10's plate held by a statue, R9's plate raising the big chest, the
@@ -313,23 +313,6 @@ func test_the_drop_gate_rises_on_its_lever_and_drops_again(t: TestContext) -> vo
 	t.check(bool(lever.call(&"can_use")), "the lever is not offered again")
 
 
-func test_the_inner_winch_holds_the_outer_gate_up_for_good(t: TestContext) -> void:
-	if not await _enter(t, "r1"):
-		return
-	var run := Services.run()
-	var winch := _objects(t).get_node("r1-gate-winch")
-	t.check(not run.is_gate_unlocked(ENTRANCE, "fatty-lair-gate"), "the outer gate starts held")
-	t.check(bool(winch.call(&"can_use")), "the winch is not offered")
-	t.check(bool(winch.call(&"use")), "the winch did nothing")
-	t.check(run.is_gate_unlocked(ENTRANCE, "fatty-lair-gate"), "the winch did not hold the outer gate")
-	t.check(not bool(winch.call(&"can_use")), "the winch is offered again")
-	if not await _travel(t, ENTRANCE):
-		return
-	var gate := t.world().world_root.get_node_or_null("FattysLair/fatty-lair-mouth/drop-gate")
-	if t.check(gate != null, "D5 has no Lair gate"):
-		t.check(bool(gate.call(&"is_held")) and bool(gate.call(&"is_open")), "the outer gate is not up for good")
-
-
 func test_the_plank_barricade_breaks_only_to_a_heavy_roll(t: TestContext) -> void:
 	if not await _enter(t, "r14"):
 		return
@@ -466,35 +449,22 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 	var hp := _hp(fatty)
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
 	t.near(_hp(fatty), hp, 0.01, "a thrust landed while his eye is shut")
-	# A thrown clod only splats; a plain Roll (no Heavy skin) bonks off him.
-	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
-	t.check(not bool(fatty.call(&"is_dizzy")), "a thrown clod still knocks him off balance")
-	_route(t, fatty.get(&"damage_area"), ["roll"])
-	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him off balance")
-	t.near(_hp(fatty), hp, 0.01, "a throw or a plain Roll hurt him")
-	# The Heavy Roll knocks him down only while he mocks on one leg: on his feet in the chase it bonks off.
+	# A Heavy Roll on his feet in the chase bonks off him; a thrown mud ball throws him out of balance.
 	SkinState.lend(SkinState.HEAVY)
 	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
-	t.check(not bool(fatty.call(&"is_dizzy")), "a Heavy Roll knocked him off balance while he was not mocking")
-	# Make the next pair of leaps end in a mock (the chance is 0.5 otherwise).
-	var two_config: Dictionary = fatty.get(&"_two")
-	two_config["mock_chance"] = 1.0
-	var mocking := await t.until(func() -> bool:
-		var boss: Node = camp.call(&"get_live_boss")
-		_keep_safe(t, boss)
-		return boss != null and str(boss.call(&"get_phase")) == "mock", 30000.0)
-	if not t.check(mocking, "Fatty does not mock after a pair of leaps"):
-		return
-	fatty = camp.call(&"get_live_boss")
-	hp = _hp(fatty)
-	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
-	t.near(_hp(fatty), hp, 0.01, "a thrust landed while he mocks with his eye shut")
+	t.check(not bool(fatty.call(&"is_dizzy")), "a Heavy Roll knocked him down in the chase")
+	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
+	t.check(bool(fatty.call(&"is_unbalanced")), "a thrown mud ball did not throw him out of balance")
+	t.near(_hp(fatty), hp, 0.01, "the mud ball hurt him")
+	# Out of balance, a plain Roll and the Spear still do nothing; a Heavy Roll knocks him down.
 	_route(t, fatty.get(&"damage_area"), ["roll"])
-	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him down while he mocks")
-	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
-	t.check(bool(fatty.call(&"is_dizzy")), "a Heavy Roll did not knock him down while he mocks")
+	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him down while he was out of balance")
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
-	t.check(_hp(fatty) < hp, "the Spear did not land while he was off balance")
+	t.near(_hp(fatty), hp, 0.01, "a thrust landed while he was out of balance with his eye shut")
+	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
+	t.check(bool(fatty.call(&"is_dizzy")), "a Heavy Roll did not knock him down while he was out of balance")
+	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
+	t.check(_hp(fatty) < hp, "the Spear did not land while he was down")
 	await t.sim_wait(400.0)
 	var art := fatty.get(&"visual") as Node2D
 	t.check(art != null and absf(art.rotation) > 0.2, "he does not rock back while off balance (tilt %s)" % str(art.rotation if art != null else 0.0))
@@ -510,7 +480,9 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 			return false
 		if bool(boss.call(&"is_dizzy")):
 			_route(t, boss.get(&"damage_area"), ["spear", "weapon"])
-		elif str(boss.call(&"get_phase")) == "mock":
+		elif str(boss.call(&"get_phase")) == "chase":
+			_route(t, boss.get(&"damage_area"), ["thrown", "mud-ball"])
+		elif bool(boss.call(&"is_unbalanced")):
 			_route(t, boss.get(&"damage_area"), ["roll", "heavy"])
 		return false, 20000.0)
 	t.check(beaten, "Fatty's fall is not kept")
@@ -728,7 +700,7 @@ func test_the_way_in_and_out_in_fattys_hollow(t: TestContext) -> void:
 			[MAP_ID, "fatty-lair-entrance", "north"], "the mouth leads to R1")
 		t.equal(str(mouth.get(&"map_id")), ENTRANCE, "the mouth's world")
 	var gate := holder.get_node("fatty-lair-mouth/drop-gate")
-	t.equal(str(gate.get(&"map_id")), ENTRANCE, "the gate's record world (the inner winch's)")
+	t.equal(str(gate.get(&"map_id")), ENTRANCE, "the gate's record world")
 	t.check(not bool(gate.call(&"is_open")), "the outer gate starts open")
 	t.check(bool(gate.get_node("Lever").call(&"use")), "the outer lever did nothing")
 	await t.sim_wait(float(gate.get(&"rise_ms")) + 50.0)

@@ -112,7 +112,7 @@ switch, nothing to record.
 | 26 | Burr called / freed, the Inner Stair open, Burr outside (D4) | flags `fatty-lair.burr-called`, `.burr-freed`, `.inner-stair-open`, `.burr-outside` | unchanged |
 | 27 | Pearl 1 taken (R12) → the seal, the Heavy skin | flag `pearl.fatty-one-eye`, the dungeon's seal record, SkinState | unchanged |
 | 28 | Fatty beaten (R13) → seals, his heart, Burr outside | `defeated_boss_ids`, dungeon record `bosses` | unchanged |
-| 29 | R1's inner winch → D5's outer gate | RunState gate `level-1-d5` / `fatty-lair-gate` | unchanged (already across two worlds) |
+| 29 | R1's inner winch (removed: the outer gate drops again each time) | RunState gate `level-1-d5` / `fatty-lair-gate` | n/a |
 | 30 | Barricades (Larder north, R1's store, the Postern's bolt-hole way) | flags `fatty-lair.larder-smashed`, `.store-smashed`, `.bolt-hole-smashed` | each barricade becomes a travel door that opens when its flag is set |
 | 31 | The sally port's crack (R5 ↔ sally port) | flag `fatty-lair.sally-port-open` (`cracked_wall.gd`) | `cracked_wall.gd` already has a "Door (once blown)" target: the blown hole travels to another world |
 | 32 | **Kit "done for good"**: bolted doors, key doors, the drawbridge, risen chests, floor keys, won fights, winches, shutters | DungeonState `done` list, keys `"<world map id>:<kind>:<id>"` | **Key must stay `fatty-lair:...`**: a Dungeon setting `record_map_id = "fatty-lair"` used by `object_key` in every room world. Existing saves keep working. (The Hollow and the Mine keep their keys: the setting is off there.) |
