@@ -1,0 +1,56 @@
+{
+  "style": "lair-ledge",
+  "source": "lair-ledge-front-c.png",
+  "px_per_unit": 2.0,
+  "post_height": 24.5,
+  "spacing": 64.0,
+  "inset": 10.0,
+  "posts": {
+    "count": 2,
+    "cell": [
+      43,
+      52
+    ],
+    "foot_row": 52,
+    "half_width": 10.75
+  },
+  "rails": {
+    "size": [
+      128,
+      49
+    ],
+    "top": 24.5,
+    "bottom": 0.0,
+    "rows": [
+      [
+        24.5,
+        0.0
+      ]
+    ]
+  },
+  "side": {
+    "size": [
+      40,
+      128
+    ],
+    "top": 24.5,
+    "bottom": 0.0,
+    "offset": 0.0,
+    "blocks": 3
+  },
+  "pieces": {
+    "end": [
+      0,
+      0,
+      40,
+      52
+    ],
+    "corner": [
+      43,
+      0,
+      43,
+      49
+    ]
+  },
+  "edge": true
+}

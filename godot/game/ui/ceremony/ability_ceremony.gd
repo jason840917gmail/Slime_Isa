@@ -134,10 +134,17 @@ static func shape_entry(shape_id: StringName) -> Dictionary:
 		"line": str(BodyCards.SHAPE_LINES.get(shape_id, "")), "how": how, "icon": BodyCards.shape_icon(shape_id)}
 
 
-## Queues a Goo Heart's ceremony: `bonus` more max HP, `icon` its picture.
-static func request_heart(tree: SceneTree, bonus: int, icon: Texture2D) -> void:
-	_enqueue(tree, {"kicker": "Goo Heart", "name": "+%d max HP" % bonus,
-		"line": "Your goo grows tougher: you can take more hits, and you are healed in full.", "how": "", "icon": icon})
+## Queues a heart quarter's ceremony: `filled` of `per` quarters toward the next heart; `bonus` the
+## max HP the heart it completed gives (0: not complete yet); `icon` its picture.
+static func request_heart(tree: SceneTree, filled: int, per: int, bonus: int, icon: Texture2D) -> void:
+	if bonus > 0:
+		_enqueue(tree, {"kicker": "Heart Quarter", "name": "+%d max HP" % bonus,
+			"line": "Four quarters make a heart: your goo grows tougher, and you are healed in full.", "how": "", "icon": icon})
+		return
+	var missing := maxi(0, per - filled)
+	_enqueue(tree, {"kicker": "Heart Quarter", "name": "%d of %d" % [filled, per],
+		"line": "Find %d more to make a whole heart." % missing if missing != 1 else "Find one more to make a whole heart.",
+		"how": "", "icon": icon})
 
 
 static func ability_entry(ability_id: StringName) -> Dictionary:

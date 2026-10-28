@@ -208,8 +208,9 @@ func test_goo_heart_in_level_1(t: TestContext) -> void:
 	heart.call(&"request_open")
 	await t.steps(3)
 	t.check(run.has_flag("goo-heart.meadow-lakeside"), "the heart flag is not set")
-	t.equal(t.player().get_max_hp(), 110, "max HP after a heart")
-	t.equal(t.player().get_hp(), 110, "HP after a heart")
+	# One heart quarter: counted, no max HP yet (four make a heart).
+	t.equal(run.heart_quarters(), 1, "heart quarters after the chest")
+	t.equal(t.player().get_max_hp(), 100, "max HP after one quarter")
 	t.check(heart.is_empty(), "the heart chest is not empty")
 
 

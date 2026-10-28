@@ -597,7 +597,18 @@ func _physics_process(delta: float) -> void:
 	# then stays zero for the rest of a roll or knockback (CharacterBody2DNode.ts:61-66). The lash
 	# pull places the body itself.
 	if not _abilities.owns_body():
+		# Only a walk steps onto stairs (`_enter_stairs`): every other move this step (a Roll, a
+		# knockback, a shape step or charge, the grab, a push out of another body) is kept off their
+		# steps, before the move and, for what the mover adds itself, after it.
+		var off_stairs := _roll.is_active() or (_move_intent == Vector2.ZERO and not _climb.is_active())
+		if _roll.is_active():
+			_keep_roll_off_stairs()
+		elif off_stairs:
+			body.velocity = _off_stairs_velocity(body.velocity)
+		var before := body.global_position
 		ArcadeMover.move(body, delta)
+		if off_stairs:
+			_undo_steps_entered(before)
 
 
 ## Real-time work (runs during hit-stop): ends the 120 ms hit flash; after a death, respawns
@@ -1447,14 +1458,16 @@ func on_held_changed(state: Dictionary) -> void:
 	held_changed.emit(state.duplicate())
 
 
-## A Goo Heart (WorldScene.collectGooHeart): max HP grows for the run and HP fills.
-func grant_goo_heart() -> void:
+## A heart quarter (game/scripts/goo_heart.gd): the fourth completes a heart, max HP grows for the
+## run and HP fills; true then. A quarter alone changes only the life orb's pips.
+func grant_heart_quarter() -> bool:
 	var run := Services.run()
-	if run != null:
-		run.add_goo_heart()
+	var completed := run != null and run.add_heart_quarter()
+	if completed:
 		_max_hp = run.max_hp()
-	_hp = _max_hp
+		_hp = _max_hp
 	health_changed.emit({"hp": _hp, "maxHp": _max_hp})
+	return completed
 
 
 ## A boss's full heart (question 17, game/scripts/full_heart.gd): max HP grows by
@@ -1799,6 +1812,58 @@ func _rework_owns_step() -> bool:
 		_handle_rework_action_input(now, true)
 		return true
 	return false
+
+
+## A Roll (its launch, its run or its bounce) that would carry the slime onto a flight's steps this
+## physics step ends where it is, without a bonk: the ball stops at the stairs (`_off_stairs_velocity`).
+func _keep_roll_off_stairs() -> void:
+	if _off_stairs_velocity(body.velocity) == body.velocity:
+		return
+	_roll.end(Services.now_ms())
+	body.velocity = Vector2.ZERO
+	_play_idle()
+
+
+## After a move that was no walk: when it still put the slime's feet on a flight's steps they were
+## not on at `before` (the mover pushing the body out of another body, a step longer than its
+## velocity), it keeps only the axis that does not, else goes back to `before`.
+func _undo_steps_entered(before: Vector2) -> void:
+	var world := Services.world()
+	var elevation: Elevation = world.elevation if world != null else null
+	var after := body.global_position
+	if elevation == null or not elevation.steps_entered(before, after - before):
+		return
+	var x_only := Vector2(after.x, before.y)
+	var y_only := Vector2(before.x, after.y)
+	if not elevation.steps_entered(before, x_only - before):
+		body.global_position = x_only
+	elif not elevation.steps_entered(before, y_only - before):
+		body.global_position = y_only
+	else:
+		body.global_position = before
+
+
+## `velocity` without the part of this physics step's move that would put the slime's feet on a
+## flight's steps (`Elevation.steps_entered`: its middle or a side not on them yet), each axis on its
+## own so the move slides along the flight's edge. Stairs are a passage taken by walking onto them
+## (`_enter_stairs`, the stairs walk); the steps are floor to the player's collision, so a move that
+## is not a walk (a shape step or the Spear's Lunge dart, a Roll, a knockback) carried the slime up
+## or down a flight past the walk (owner, 2026-10-27).
+func _off_stairs_velocity(velocity: Vector2) -> Vector2:
+	var world := Services.world()
+	var elevation: Elevation = world.elevation if world != null else null
+	if elevation == null or body == null or velocity == Vector2.ZERO:
+		return velocity
+	var feet := body.global_position
+	var move := velocity * get_physics_process_delta_time()
+	if not elevation.steps_entered(feet, move):
+		return velocity
+	var kept := Vector2.ZERO
+	if not elevation.steps_entered(feet, Vector2(move.x, 0.0)):
+		kept.x = velocity.x
+	if not elevation.steps_entered(feet, Vector2(0.0, move.y)):
+		kept.y = velocity.y
+	return kept
 
 
 ## Rework: the grab on a heavy block owns the step (game/player/heavy_grab.gd): the other presses

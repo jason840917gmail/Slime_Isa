@@ -167,9 +167,18 @@ hide nothing (the camera looks north).
   wall, from the strip behind a hill into the hill, or off stairs (their posts and side walls are
   solid).
 - **The jump** (hidden since 2026-10-08: no key runs it; tests still do) is a low hop
-  (`hopArcHeight` 36 units, below one level) that **never climbs**: it stops before higher ground
-  and walls, and over a rim it drops to the lower ground, landing as far out as the hop carries
-  it. Without elevation it is Phaser's jump.
+  (`hopArcHeight` 36 units, below one level) that **never climbs**: it stops before higher ground,
+  walls, fences and stairs going up (the whole foot line off their steps). Its landing is worked
+  out on the ground plane, as the camera sees the world (`Elevation.hop_target`; owner,
+  2026-10-27: a jump off a level lands lower than it started, by the height it fell): the body's
+  ground point moves the hop's distance along its way while it falls, so a landing on a lower level
+  is 64 units lower on screen per level dropped (a jump east or west off a level-0 rim onto level −1
+  ends 64 units further down the screen). Over a rim (`ledge_below`) or out over a flight of stairs
+  going down from its level it is in the air: steps are no ground in the air, so it flies over them.
+  It lands at the end of the hop on the highest lower level where the body has room (`_lands`: in a
+  world with [painted collision](#painting-collision) off that level's rims and bases, so past the
+  wall foot painted for it; and never on the steps of a flight), else further out (up to two cells),
+  else back towards where it left its level. Without elevation it is Phaser's jump.
 - **The flight** (`jump_sequence.gd`, for both) is worked out in 3D: the point on the ground moves
   evenly from take-off to landing and the height falls under gravity. The body travels on screen
   with it, so the camera and the hurtbox follow smoothly; the art rides above the body, rising first
@@ -471,7 +480,15 @@ stay in the middle of them). Built on 2026-10-14; awaiting the owner's verdict.
   key, on a side flight left or right, on a 45° flight either of its two keys) starts the walk down
   or up it (`PlayerAbilities.begin_stairs`). Partway up a flight (more than a step from either end:
   knocked there, or come on from the side) any move starts it towards the nearer end. A click
-  order's route walks onto the stairs the same way.
+  order's route walks onto the stairs the same way. Only a walk steps on: the steps are floor to the
+  player's collision, so a move that is not a walk would carry the slime up or down a flight past
+  the walk (owner, 2026-10-27: a Spear strike, a Roll and a knockback did). Every other move of the
+  player's body (a shape strike's step or charge such as the Spear's jabs and Lunge dart, a
+  knockback, the grab; `player.gd` `_off_stairs_velocity`, before `ArcadeMover.move`) loses the part
+  of its move that would put a point of the slime's foot line (its middle or a side) on a flight's
+  steps it is not on yet (`Elevation.steps_entered`), so it stops at the stairs, also when a side of
+  the slime already stands over the first step (a walk along a flight's foot leaves it so); a Roll
+  that would ends there, without a bonk (`_keep_roll_off_stairs`). The Feral climb is left alone.
 - **The walk** (`stairs_sequence.gd`, an ability sequence like the jump's) locks actions and
   movement, faces the way it goes, plays the walk clip, keeps the line across the flight it came in
   on (its t, at least 14 units off the side walls) and climbs or descends in footsteps of

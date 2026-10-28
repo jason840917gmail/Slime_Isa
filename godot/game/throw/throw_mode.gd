@@ -113,8 +113,10 @@ static func weight_of(kind: String) -> String:
 	return weight if WEIGHTS.has(weight) else LIGHT
 
 
+## A held thing's weight: the one it was lifted with (its liftable's `weight`), else its kind's.
 static func weight_of_held(held: Dictionary) -> String:
-	return weight_of(str(held.get("kind", "")))
+	var weight := str(held.get("weight", ""))
+	return weight if WEIGHTS.has(weight) else weight_of(str(held.get("kind", "")))
 
 
 ## The level a weight needs (1..3).

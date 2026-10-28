@@ -7,7 +7,8 @@ class_name HopperScript
 ## - **Crouch** (the tell, `crouchMs`): it folds its legs, and a shadow on the ground marks where it
 ##   will land: toward the slime, `hopPx` at most (toward its home while the slime is away).
 ## - **Air** (`airMs`): it flies there in an arc `hopHeightPx` high. In the air nothing hurts it
-##   (every hit clinks) and the slime passes under it (not solid); a wall ends the hop early.
+##   (every hit clinks) and the slime passes under it (not solid); a wall or the water ends the hop
+##   early.
 ## - **Landing:** the slime within `landHitRadiusPx` of it takes `contactDamage` (attributes) with
 ##   `knockbackStrength`, then it rests again.
 ## A hit that stuns it in its crouch cancels the hop.
@@ -24,8 +25,6 @@ const CUE_JUMP := &"Jump"
 const CUE_LAND := &"Land"
 const DUST := &"dodge-dust"
 const MARK_NAME := "LandingMark"
-## A blocked hop: the mover left less than this share of the asked speed.
-const BLOCKED_SHARE := 0.5
 ## Presentation: the crouch's squash, the rest's breath, the shadows.
 const CROUCH_SQUASH := Vector2(1.14, 0.8)
 const BREATH := 0.03
@@ -53,7 +52,7 @@ func _exit_tree() -> void:
 	super()
 
 
-func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool) -> void:
+func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) -> void:
 	var elapsed := _elapsed(now)
 	match _phase:
 		PHASE_REST:
@@ -79,8 +78,9 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 		PHASE_AIR:
 			var air_ms := maxf(1.0, pattern("airMs", 600.0))
 			var t := clampf(elapsed / air_ms, 0.0, 1.0)
-			var blocked := _asked != Vector2.ZERO and elapsed > 0.0 \
-				and body.velocity.length() < _asked.length() * BLOCKED_SHARE
+			# A wall or the water ends the hop early; the slime, the other bodies and the liftable
+			# things do not (set_airborne).
+			var blocked := air_blocked(_asked * delta)
 			if t >= 1.0 or blocked:
 				_land(now, target, engaged)
 				return
@@ -102,7 +102,7 @@ func _crouch(now: float, goal: Vector2) -> void:
 	var reach := minf(offset.length(), pattern("hopPx", 120.0))
 	var step := offset.normalized() * reach if offset.length() > 0.0 else Vector2.ZERO
 	_from = feet()
-	_to = _from + step
+	_to = landing_point(_from, _from + step)
 	face_x(step.x)
 	_clear_mark()
 	var world := Services.world()
@@ -119,6 +119,7 @@ func _leap(now: float) -> void:
 	_transition(PHASE_AIR, now)
 	set_frame(FRAME_AIR)
 	set_solid(false)
+	set_airborne(true)
 	_asked = Vector2.ZERO
 	_cue(CUE_JUMP)
 	_puff(DUST, feet())
@@ -128,6 +129,7 @@ func _land(now: float, target: Dictionary, engaged: bool) -> void:
 	body.velocity = Vector2.ZERO
 	_asked = Vector2.ZERO
 	set_solid(true)
+	set_airborne(false)
 	set_look(0.0, Vector2(1.12, 0.88))
 	_clear_mark()
 	var shadow := ground_shadow()

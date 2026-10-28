@@ -6,7 +6,7 @@ extends Node
 ## (RunNavigationStore.ts); here it simply stays in this autoload while main.gd swaps worlds.
 ##
 ## Sections (snake_case keys; Phaser's camelCase names in brackets):
-## - `player` [GameStateData]: coins, boost_bonus, hp, energy, goo_hearts, attributes, equipment
+## - `player` [GameStateData]: coins, boost_bonus, hp, energy, heart_quarters, full_hearts, attributes, equipment
 ##   {weapon_id, weapon_slots}. The player script owns live HP; main.gd copies it in and out at
 ##   world boundaries (`capture_player` / spawn).
 ## - `inventory` [InventorySaveData]: max_slots, slots [{item_id, count}].
@@ -156,7 +156,7 @@ func new_run() -> void:
 		"boost_bonus": 0,
 		"hp": full_hp,
 		"energy": max_energy,
-		"goo_hearts": 0,
+		"heart_quarters": 0,
 		"attributes": attributes,
 		"equipment": {"weapon_id": null, "weapon_slots": weapon_slots},
 	}
@@ -191,13 +191,29 @@ func ensure_started() -> void:
 
 # --- player -----------------------------------------------------------------------------------
 
-## GameState.maxHp: `stats.maxHp + goo_hearts * gooHeart.maxHpBonus`, plus (Godot, 2026-10-17)
-## `full_hearts * fullHeart.maxHpBonus`: a boss's full heart (question 17).
+## Max HP (roadmap 5.3, owner 2026-10-26): `stats.maxHp`, plus `heartQuarter.heartMaxHpBonus` (20)
+## per whole heart made of quarters (`heartQuarter.perHeart`, 4; a quarter alone adds nothing), plus
+## `fullHeart.maxHpBonus` (20) per boss's full heart (question 17; only a beaten boss gives one).
 func max_hp() -> int:
 	var constants := Services.constants()
 	return _constant_int(constants, "character.player.stats.maxHp") \
-			+ int(player.get("goo_hearts", 0)) * _constant_int(constants, "character.player.gooHeart.maxHpBonus") \
+			+ quarter_hearts() * _constant_int(constants, "character.player.heartQuarter.heartMaxHpBonus") \
 			+ int(player.get("full_hearts", 0)) * _constant_int(constants, "character.player.fullHeart.maxHpBonus")
+
+
+## Heart quarters found this run (`player.heart_quarters`).
+func heart_quarters() -> int:
+	return int(player.get("heart_quarters", 0))
+
+
+## How many quarters make a whole heart (`heartQuarter.perHeart`, 4).
+func quarters_per_heart() -> int:
+	return maxi(1, _constant_int(Services.constants(), "character.player.heartQuarter.perHeart"))
+
+
+## The whole hearts the quarters found make.
+func quarter_hearts() -> int:
+	return heart_quarters() / quarters_per_heart()
 
 
 ## Max energy: `stats.maxEnergy` plus `player.max_energy_bonus` (the raises a beaten boss gives,
@@ -720,10 +736,13 @@ func notify_quests_changed(quest_id: String) -> void:
 	quests_changed.emit({"quest_id": quest_id})
 
 
-## One more Goo Heart (GameState.addGooHeart): max HP grows; the player fills its HP.
-func add_goo_heart() -> void:
-	player["goo_hearts"] = int(player.get("goo_hearts", 0)) + 1
-	player["hp"] = max_hp()
+## One more heart quarter; true when it completes a heart (max HP grows and HP fills).
+func add_heart_quarter() -> bool:
+	player["heart_quarters"] = heart_quarters() + 1
+	var completed := heart_quarters() % quarters_per_heart() == 0
+	if completed:
+		player["hp"] = max_hp()
+	return completed
 
 
 ## One more full heart (a boss's, question 17): max HP grows by `fullHeart.maxHpBonus`; HP fills.
@@ -1098,8 +1117,13 @@ func install(data: Dictionary) -> bool:
 	story = fresh["story"]
 	quests = fresh.get("quests", []) if fresh.get("quests") is Array else []
 	dungeon_session = {}
+	# Saves from before the heart quarters (2026-10-26): each Goo Heart taken (+10 max HP) is a quarter.
+	if player.has("goo_hearts"):
+		player["heart_quarters"] = heart_quarters() + int(player.get("goo_hearts", 0))
+		player.erase("goo_hearts")
 	if int(player.get("hp", 0)) <= 0:
 		player["hp"] = max_hp()
+	player["hp"] = mini(int(player.get("hp", 0)), max_hp())
 	world.get_or_add("maps", {})
 	world.get_or_add("discovered_areas", [])
 	_play_time_base_ms = float(fresh.get("play_time_ms", 0.0))

@@ -41,6 +41,23 @@ const INSET_SHARE := 0.06
 
 ## Room scene path -> its chests (`scene_chests`), read once a session.
 static var _scene_chests: Dictionary = {}
+static var _scene_features: Dictionary = {}
+const DOOR_MARK := Color("#c9a25a")
+const LOCKED_MARK := Color("#7f8ea3")
+const SHUTTER_MARK := Color("#e0503a")
+const STAIR_MARK := Color("#ffc866")
+
+
+## The floors the dungeon's rooms lie on, the highest first ([0] alone for a one-floor dungeon).
+static func floors(dungeon: Node) -> Array[int]:
+	var out: Array[int] = []
+	for room: Dictionary in dungeon.call(&"rooms"):
+		var floor_level := int(room.get("floor", 0))
+		if not out.has(floor_level):
+			out.append(floor_level)
+	out.sort()
+	out.reverse()
+	return out
 
 
 ## The bounding rect (global) of the dungeon's rooms in this world.
@@ -57,25 +74,35 @@ static func bounds(dungeon: Node) -> Rect2:
 ## Draws the rooms on `canvas`; `to_view` (Callable: Vector2 -> Vector2) maps global points.
 ## `player_point` (global, or Vector2.INF) gets the slime's dot when `with_dot`. `only_current`: the
 ## slime's room alone, and only the seals and compass marks inside it (the minimap).
-static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_point: Vector2, with_dot: bool, only_current: bool = false) -> void:
+## `floor_level`: the floor shown (the map's floor tabs; the minimap ignores it and shows the slime's room).
+static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_point: Vector2, with_dot: bool, only_current: bool = false, floor_level: int = 0) -> void:
 	var run := Services.run()
-	if dungeon == null or run == null:
+	if dungeon == null or run == null or not dungeon.is_inside_tree():
 		return
 	var id := str(dungeon.get(&"dungeon_id"))
 	var has_map := DungeonState.has_item(run, id, DungeonState.MAP)
 	var has_compass := DungeonState.has_item(run, id, DungeonState.COMPASS)
 	var current := str(dungeon.call(&"current_room_key"))
 	var rooms: Array = dungeon.call(&"rooms")
-	# where the marks may be drawn: anywhere, or the slime's room only
-	var shown := func(_point: Vector2) -> bool: return true
-	if only_current:
-		var here := Rect2()
-		for room: Dictionary in rooms:
-			if str(room["key"]) == current:
-				here = room["rect"]
-		shown = func(point: Vector2) -> bool: return here.has_area() and here.has_point(point)
+	# where the marks may be drawn: the slime's room (the minimap), else the rooms of this floor
+	var here := Rect2()
+	var floor_rects: Array[Rect2] = []
+	for room: Dictionary in rooms:
+		if str(room["key"]) == current:
+			here = room["rect"]
+		if int(room.get("floor", 0)) == floor_level:
+			floor_rects.append(room["rect"])
+	var shown := func(point: Vector2) -> bool:
+		if only_current:
+			return here.has_area() and here.has_point(point)
+		for rect: Rect2 in floor_rects:
+			if rect.has_point(point):
+				return true
+		return false
 	for room: Dictionary in rooms:
 		if only_current and str(room["key"]) != current:
+			continue
+		if not only_current and int(room.get("floor", 0)) != floor_level:
 			continue
 		var visited := DungeonState.is_visited(run, id, str(room["key"]))
 		if not visited and not has_map:
@@ -104,6 +131,14 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 			canvas.draw_rect(box, Color(MAPPED_EDGE, 0.7), false, 1.0)
 		if str(room["key"]) == current:
 			canvas.draw_rect(box.grow(inset * 0.5), CURRENT_RING, false, maxf(1.5, inset * 0.6))
+	for room: Dictionary in rooms:
+		if only_current and str(room["key"]) != current:
+			continue
+		if not only_current and int(room.get("floor", 0)) != floor_level:
+			continue
+		if not DungeonState.is_visited(run, id, str(room["key"])) and not has_map:
+			continue
+		_draw_features(canvas, dungeon, room, to_view, shown)
 	for seal: Node2D in seal_nodes(dungeon):
 		if bool(shown.call(seal.global_position)):
 			_draw_seal(canvas, seal, to_view)
@@ -112,12 +147,14 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 		for mark: Dictionary in dungeon.call(&"layout_marks"):
 			if str(mark["mark"]) == "seal" and not _seal_drawn_near(dungeon, mark["at"]) and bool(shown.call(mark["at"])):
 				_draw_seal_at(canvas, mark["at"], float(mark["rotation"]), to_view)
-	if has_compass:
+	# The boss shows once the map is held (owner, 2026-10-26: there is no compass in the lair).
+	if has_map:
 		for point: Vector2 in boss_points(dungeon):
 			if not bool(shown.call(point)):
 				continue
 			var at: Vector2 = to_view.call(point)
 			_draw_skull(canvas, at, 6.0)
+	if has_compass:
 		for point: Vector2 in chest_points(dungeon):
 			if not bool(shown.call(point)):
 				continue
@@ -212,6 +249,88 @@ static func chest_points(dungeon: Node) -> Array[Vector2]:
 		for chest: Dictionary in scene_chests(str(room["scene"])):
 			if _chest_full(run, chest):
 				out.append((room["rect"] as Rect2).position + (chest["at"] as Vector2))
+	return out
+
+
+## The doors, shutters and stairs of a room, read from its scene (`scene`, or the layout's scene for
+## the room this world holds), each drawn where it stands. Doors and shutters are drawn in their wall.
+static func _draw_features(canvas: CanvasItem, dungeon: Node, room: Dictionary, to_view: Callable, shown: Callable) -> void:
+	var path := str(room.get("scene", ""))
+	if path.is_empty() and room.get("node") != null:
+		path = str(dungeon.call(&"layout_scene_of", str(room["name"])))
+	if path.is_empty():
+		return
+	var origin := (room["rect"] as Rect2).position
+	for feature: Dictionary in scene_features(path):
+		var point: Vector2 = origin + (feature["at"] as Vector2)
+		if not bool(shown.call(point)):
+			continue
+		var at: Vector2 = to_view.call(point)
+		match str(feature["kind"]):
+			"door":
+				_draw_wall_mark(canvas, at, str(feature["side"]), LOCKED_MARK if bool(feature["locked"]) else DOOR_MARK)
+			"shutter":
+				_draw_wall_mark(canvas, at, str(feature["side"]), SHUTTER_MARK)
+			"stair":
+				_draw_stair(canvas, at, str(feature["direction"]))
+
+
+## A door or shutter's mark on its wall: a short bar across the opening, horizontal on a north or
+## south wall, upright on an east or west one.
+static func _draw_wall_mark(canvas: CanvasItem, at: Vector2, side: String, color: Color) -> void:
+	var size := Vector2(12.0, 4.0) if side == "north" or side == "south" else Vector2(4.0, 12.0)
+	canvas.draw_rect(Rect2(at - size * 0.5 - Vector2(0.8, 0.8), size + Vector2(1.6, 1.6)), Color(0, 0, 0, 0.55))
+	canvas.draw_rect(Rect2(at - size * 0.5, size), color)
+
+
+## A stair's arrow: up or down, gold.
+static func _draw_stair(canvas: CanvasItem, at: Vector2, direction: String) -> void:
+	var tip := -6.0 if direction == "up" else 6.0
+	var base := 5.0 if direction == "up" else -5.0
+	var points := PackedVector2Array([at + Vector2(0.0, tip), at + Vector2(-5.0, base), at + Vector2(5.0, base)])
+	canvas.draw_colored_polygon(points, STAIR_MARK)
+	canvas.draw_polyline(points + PackedVector2Array([points[0]]), Color(0, 0, 0, 0.6), 1.0)
+
+
+## The features of the room scene at `path`, read from its state once a session: [{"at" (in the scene),
+## "kind" ("door", "shutter" or "stair"), "side" (its wall; doors and shutters), "locked" (a door held
+## by a `requires`), "direction" (stairs)}]. A door is a node with a `door_id` and a `side`, a shutter
+## one with a `wall`, stairs one with a `direction`.
+static func scene_features(path: String) -> Array[Dictionary]:
+	if _scene_features.has(path):
+		return _scene_features[path]
+	var out: Array[Dictionary] = []
+	_scene_features[path] = out
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return out
+	var state := (load(path) as PackedScene).get_state()
+	var positions := {}
+	for index: int in state.get_node_count():
+		for p: int in state.get_node_property_count(index):
+			if state.get_node_property_name(index, p) == &"position":
+				positions[str(state.get_node_path(index))] = state.get_node_property_value(index, p)
+	for index: int in state.get_node_count():
+		var props := {}
+		for p: int in state.get_node_property_count(index):
+			props[str(state.get_node_property_name(index, p))] = state.get_node_property_value(index, p)
+		var feature := {}
+		if props.has("door_id") and props.has("side"):
+			feature = {"kind": "door", "side": str(props["side"]), "locked": not str(props.get("requires", "")).is_empty()}
+		elif props.has("direction"):
+			feature = {"kind": "stair", "direction": str(props["direction"])}
+		elif props.has("wall"):
+			feature = {"kind": "shutter", "side": str(props["wall"])}
+		if feature.is_empty():
+			continue
+		# Its own position plus its ancestors' (a door node carries its own position; the chests'
+		# root is their parent, so theirs starts one level up).
+		var at := Vector2.ZERO
+		var node_path := str(state.get_node_path(index))
+		while node_path != "." and not node_path.is_empty():
+			at += positions.get(node_path, Vector2.ZERO) as Vector2
+			node_path = node_path.get_base_dir()
+		feature["at"] = at
+		out.append(feature)
 	return out
 
 

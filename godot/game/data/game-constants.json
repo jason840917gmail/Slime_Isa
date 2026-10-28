@@ -201,8 +201,9 @@
         "critMultiplier": 1.75,
         "energyRegenPerSecond": 8
       },
-      "gooHeart": {
-        "maxHpBonus": 10
+      "heartQuarter": {
+        "perHeart": 4,
+        "heartMaxHpBonus": 20
       },
       "fullHeart": {
         "maxHpBonus": 20

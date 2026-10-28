@@ -45,6 +45,7 @@ script = ExtResource("2_room")
 room_scene = "res://game/scenes/worlds/rooms/fatty-lair/r8-guard-crypt.tscn"
 world_id = "fatty-lair-r8-guard-crypt"
 room_name = "r8-guard-crypt"
+floor_level = -1
 size = Vector2(1152, 2048)
 
 [node name="r12-larder" type="Node2D" parent="."]

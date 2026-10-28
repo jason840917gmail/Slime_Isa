@@ -66,12 +66,12 @@ func test_a_heart_and_a_key_play_the_ceremony_in_level_1(t: TestContext) -> void
 	heart.get_node("ChestScript").call(&"request_open")
 	var root := t.main.get_tree().root
 	# The ceremony follows the heart's rise out of its chest.
-	await t.until(func() -> bool: return _playing(root) == "Goo Heart", Chest.HEART_RISE_MS + 1000.0)
+	await t.until(func() -> bool: return _playing(root) == "Heart Quarter", Chest.HEART_RISE_MS + 1000.0)
 	var ceremony := root.get_node_or_null(AbilityCeremony.NODE_NAME)
 	if not t.check(ceremony != null, "the Goo Heart did not ask for the ceremony"):
 		notifications.disconnect(&"ceremony_requested", record)
 		return
-	t.equal(_playing(root), "Goo Heart", "the ceremony playing")
+	t.equal(_playing(root), "Heart Quarter", "the ceremony playing")
 	t.check(world.has_pause_reason(CEREMONY_PAUSE), "the world is not paused for the ceremony")
 	Services.run().add_item("green-key", 1)
 	await t.steps(2)

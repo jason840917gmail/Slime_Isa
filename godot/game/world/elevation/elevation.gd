@@ -1105,24 +1105,103 @@ func _landing_level(point: Vector2, level: int, lower: int, from_ramp: Elevation
 
 
 ## The hop of a body of `level` from `feet` along `direction` for `distance`: {"feet", "level",
-## "drop"}. It goes as far as the body fits on its level; at a rim it goes over and drops (landing
-## out by what is left of the hop); higher ground or a wall stops it before them. A hop never
-## climbs.
+## "drop"}, worked out on the ground plane, as the camera sees the world: the body's ground point
+## moves `distance` along `direction` while it falls, so where it lands on a lower level its feet are
+## drawn 64 units lower on screen per level dropped (owner, 2026-10-27: a jump off a level lands
+## lower than it started, by the height it fell). It goes as far as the body stands on its level
+## (`_stands`); over a rim (`ledge_below`) or out over a flight of stairs going down from its level
+## it is in the air, and lands at the end of the hop on the highest lower level where the body has
+## room (`_lands`: off every painted rim and base, and off the steps of every flight: a jump never
+## lands on stairs), else further out (up to two cells), else back towards where it left its level.
+## Higher ground, a wall, a fence and stairs going up stop it before them; it never climbs.
 func hop_target(feet: Vector2, level: int, direction: Vector2, distance: float) -> Dictionary:
 	var result := {"feet": feet, "level": level, "drop": 0}
 	if grid == null or direction == Vector2.ZERO or distance <= 0.0:
 		return result
 	var unit := direction.normalized()
 	var steps := maxi(1, ceili(distance / HOP_STEP))
+	var left := -1.0
 	for i in range(1, steps + 1):
-		var point := feet + unit * (distance * float(i) / steps)
-		if body_fits(point, level):
+		var along := distance * float(i) / steps
+		var point := feet + unit * along
+		if _stands(point, level):
 			result["feet"] = point
 			continue
-		var last: Vector2 = result["feet"]
-		var over := drop_target(last, level, unit, maxf(setting("dropOutward"), distance - last.distance_to(feet)), RIM_PROBE + HOP_STEP)
-		return over if not over.is_empty() else result
+		if _over_stairs_down(point, level) or ledge_below(result["feet"], level, unit, RIM_PROBE + HOP_STEP) != NO_LEDGE:
+			left = along
+			break
+		return result
+	if left < 0.0:
+		return result
+	# In the air: the end of the hop, then further out, then back towards where it left its level.
+	var out := distance
+	while out <= distance + 2.0 * cell:
+		var landing := _landing_at(feet, unit, out, level)
+		if not landing.is_empty():
+			return landing
+		out += LANDING_SEARCH_STEP
+	var back := distance - LANDING_SEARCH_STEP
+	while back >= left:
+		var landing := _landing_at(feet, unit, back, level)
+		if not landing.is_empty():
+			return landing
+		back -= LANDING_SEARCH_STEP
 	return result
+
+
+## Where a hop from `feet` on `level` lands `along` its way `unit` (ground-plane distance): on the
+## highest level below `level` where the body has room there (`_lands`), its feet 64 units lower on
+## screen per level dropped; {} when none has.
+func _landing_at(feet: Vector2, unit: Vector2, along: float, level: int) -> Dictionary:
+	for lower in range(level - 1, ElevationGrid.MIN_LEVEL - 1, -1):
+		var point := feet + unit * along + Vector2(0.0, ElevationStairs.LEVEL * float(level - lower))
+		if _lands(point, lower):
+			return {"feet": point, "level": lower, "drop": level - lower}
+	return {}
+
+
+## True when a body of `level` with its feet at `feet` stands on its level's ground there: it fits
+## (`body_fits`) and no part of its foot line is on the steps of a flight of stairs (a hop crosses
+## steps in the air, and stops before stairs going up whole, not with a side on the first step).
+func _stands(feet: Vector2, level: int) -> bool:
+	return body_fits(feet, level) and not on_steps(feet)
+
+
+## True when a hop may land with the feet at `feet` on `level` (`_stands`: off the steps).
+func _lands(feet: Vector2, level: int) -> bool:
+	return _stands(feet, level)
+
+
+## True when part of the foot line of a body with its feet at `feet` lies on the steps of a flight
+## that goes down from `level` (joins it and has its bottom lower): a hop over it is in the air
+## above a lower level.
+func _over_stairs_down(feet: Vector2, level: int) -> bool:
+	for side: float in [0.0, -BODY_HALF.x, BODY_HALF.x]:
+		var flight := flight_at(feet + Vector2(side, 0.0))
+		if flight != null and flight.bottom < level and flight.joins(level):
+			return true
+	return false
+
+
+## True when moving a body with its feet at `feet` (world) by `move` puts a point of its foot line
+## (its middle or a side) on the steps of a flight of stairs that it is not on yet: player.gd keeps a
+## shape step's and a Roll's move off the stairs with it (a body standing with a side over the first
+## step, as a walk along a flight's foot leaves it, still may not be carried further on).
+func steps_entered(feet: Vector2, move: Vector2) -> bool:
+	for side: float in [0.0, -BODY_HALF.x, BODY_HALF.x]:
+		var point := feet + Vector2(side, 0.0)
+		if flight_at(point + move) != null and flight_at(point) == null:
+			return true
+	return false
+
+
+## True when any point of the foot line of a body with its feet at `feet` (world) lies on the steps
+## of a flight of stairs (hops land off them).
+func on_steps(feet: Vector2) -> bool:
+	for side: float in [0.0, -BODY_HALF.x, BODY_HALF.x]:
+		if flight_at(feet + Vector2(side, 0.0)) != null:
+			return true
+	return false
 
 
 ## A body in the air at `depth` (its feet's y + 64 · the level it is over, blended over the

@@ -210,6 +210,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/props/pack-web-decor.py` — keys the spider web decorations (ground webs, tree webs,
   hanging and ground victim cocoons, egg sacs; generated on `#FF00FF`) out of `asset/Originals/props/webs/`
   and packs them into `godot/asset/MAPS/props/256x256-tile_4x3-web-decor.webp`.
+- `python scripts/props/pack-heart-quarter.py` — the heart quarter's four fill levels (a glass heart a
+  quarter, half, three quarters and all full of goo; owner pick 2026-10-27) from
+  `asset/Originals/props/heart-quarter/` into `godot/asset/MAPS/props/256x256-tile_4x1-heart-quarter.webp`.
 - `python scripts/props/pack-gulp-props.py` — packs the Gulp and secret props (cracked ground, sinkhole,
   cave ladder, silk cocoon, spider web, Goo Heart, pressure plate up and down) from
   `asset/Originals/props/gulp/` into `godot/asset/MAPS/props/256x256-tile_8x1-gulp-props.webp`, and the
