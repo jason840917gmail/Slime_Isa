@@ -168,6 +168,8 @@ const PLAYER_LAYER := 2
 ## A walking body's collision rect around its feet (player_slime.tscn BodyShape 30 x 26, slightly
 ## inset) and how far past its edge a ledge is looked for.
 const BODY_HALF := Vector2(13.0, 12.0)
+## How far inside the body's rect `body_fits` tests (world units).
+const FIT_INSET := 1.0
 const RIM_PROBE := 6.0
 ## Open cliffs' seams (`_cut_open_seams`): the stretch of collision tested at once, and how far off
 ## it each side is probed (Elevation space).
@@ -805,6 +807,20 @@ func is_walkable(world_point: Vector2, level: int) -> bool:
 	return _terrain_walkable(local, level)
 
 
+## With painted collision: true when a body of `level` may stand at `point` (world) as the painted
+## collision holds it (stairs as `is_walkable` has them, then nothing painted, or a passage, holds
+## it there, and a dungeon room's interior walls do not), whatever level the `elevation` paint gives
+## the cell.
+func _walkable_by_paint(point: Vector2, level: int) -> bool:
+	var rule := _stairs_rule(point - global_position, level)
+	if rule >= 0:
+		return rule == 1
+	if not _painted_kind(point, level).is_empty():
+		return false
+	var walls := InteriorWallLayer.find(get_tree()) if is_inside_tree() else null
+	return walls == null or not walls.blocks_point(point)
+
+
 ## The terrain's walkability at `point` (Elevation space) for `level`, stairs aside: the model's, and
 ## then the drawn walls' (`_sides_walkable`).
 func _terrain_walkable(point: Vector2, level: int) -> bool:
@@ -978,19 +994,29 @@ static func setting(key: String) -> float:
 ## on a wall face between a rim and its foot), off solid tiles (deep water) and off every fence's band
 ## (the whole rect: a band is thinner than the body). The rect's corners and the middle of its foot
 ## are tested; with painted collision a grid of points no further apart than a painted tile (16), so
-## no painted cell the rect overlaps is missed.
-func body_fits(feet: Vector2, level: int) -> bool:
+## no painted cell the rect overlaps is missed. `by_paint`: with painted collision, the ground is
+## where nothing painted holds the body (`_walkable_by_paint`, as it walks), whatever level the
+## `elevation` paint gives the cells there (a hop on the body's own level: where the painted rims
+## and bases sit past the cells' level change, the body walks over cells of another level).
+func body_fits(feet: Vector2, level: int, by_paint: bool = false) -> bool:
 	if fences != null and fences.blocks_rect(Rect2(feet - Vector2(BODY_HALF.x, 2.0 * BODY_HALF.y), BODY_HALF * 2.0), level):
 		return false
 	var world := Services.world()
-	var points: Array[Vector2] = [Vector2.ZERO, Vector2(-BODY_HALF.x, 0.0), Vector2(BODY_HALF.x, 0.0),
-		Vector2(-BODY_HALF.x, -2.0 * BODY_HALF.y), Vector2(BODY_HALF.x, -2.0 * BODY_HALF.y)]
+	# The rect's points sit FIT_INSET inside its edges: a body the collision stopped against a wall
+	# or a painted base rests with its edge a hair past the line (r4: feet at 800.1 on a base that
+	# starts at 800), and it still fits where it stands.
+	var half := BODY_HALF - Vector2(FIT_INSET, FIT_INSET * 0.5)
+	var foot := -FIT_INSET
+	var head := -2.0 * BODY_HALF.y + FIT_INSET
+	var points: Array[Vector2] = [Vector2(0.0, foot), Vector2(-half.x, foot), Vector2(half.x, foot),
+		Vector2(-half.x, head), Vector2(half.x, head)]
 	if _painted_on:
-		points.append_array([Vector2(0.0, -2.0 * BODY_HALF.y), Vector2(-BODY_HALF.x, -BODY_HALF.y),
-			Vector2(0.0, -BODY_HALF.y), Vector2(BODY_HALF.x, -BODY_HALF.y)])
+		points.append_array([Vector2(0.0, head), Vector2(-half.x, -BODY_HALF.y),
+			Vector2(0.0, -BODY_HALF.y), Vector2(half.x, -BODY_HALF.y)])
+	var paint_only := by_paint and _painted_on
 	for corner: Vector2 in points:
 		var point := feet + corner
-		if not is_walkable(point, level):
+		if not (_walkable_by_paint(point, level) if paint_only else is_walkable(point, level)):
 			return false
 		if world != null and world.is_solid_tile(floori(point.x / cell), floori(point.y / cell)):
 			return false
@@ -1163,13 +1189,17 @@ func _landing_at(feet: Vector2, unit: Vector2, along: float, level: int) -> Dict
 ## True when a body of `level` with its feet at `feet` stands on its level's ground there: it fits
 ## (`body_fits`) and no part of its foot line is on the steps of a flight of stairs (a hop crosses
 ## steps in the air, and stops before stairs going up whole, not with a side on the first step).
+## With painted collision the hop on its own level follows the paint alone (`body_fits` `by_paint`),
+## as the walk does: where the painted rims and bases sit past the cells' level change, a body that
+## walked there still hops (owner, 2026-10-28: r4's -1 floor along its west wall).
 func _stands(feet: Vector2, level: int) -> bool:
-	return body_fits(feet, level) and not on_steps(feet)
+	return body_fits(feet, level, true) and not on_steps(feet)
 
 
-## True when a hop may land with the feet at `feet` on `level` (`_stands`: off the steps).
+## True when a hop may land with the feet at `feet` on `level`: the body fits on ground of that level
+## (`body_fits`: the paint and the `elevation` paint's level there) and is off the steps.
 func _lands(feet: Vector2, level: int) -> bool:
-	return _stands(feet, level)
+	return body_fits(feet, level) and not on_steps(feet)
 
 
 ## True when part of the foot line of a body with its feet at `feet` lies on the steps of a flight
