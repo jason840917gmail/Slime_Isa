@@ -960,6 +960,22 @@ func _tile_for(style: String, kind: String) -> Vector2i:
 	return Vector2i(-1, -1)
 
 
+## True when `point` (world) lies inside the walls' collision (`_build_collision`'s boxes): Elevation
+## asks it where a hop follows the painted collision (`body_fits` `by_paint`), which knows nothing of
+## these walls.
+func blocks_point(point: Vector2) -> bool:
+	var body := get_node_or_null(COLLISION) as StaticBody2D
+	if body == null:
+		return false
+	var at := body.to_local(point)
+	for child: Node in body.get_children():
+		var shape := child as CollisionShape2D
+		var box := shape.shape as RectangleShape2D if shape != null else null
+		if box != null and Rect2(shape.position - box.size * 0.5, box.size).has_point(at):
+			return true
+	return false
+
+
 ## The interior wall layer of the current world, or null.
 static func find(tree: SceneTree) -> InteriorWallLayer:
 	for node: Node in tree.get_nodes_in_group(GROUP):

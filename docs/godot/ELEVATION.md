@@ -178,7 +178,13 @@ hide nothing (the camera looks north).
   It lands at the end of the hop on the highest lower level where the body has room (`_lands`: in a
   world with [painted collision](#painting-collision) off that level's rims and bases, so past the
   wall foot painted for it; and never on the steps of a flight), else further out (up to two cells),
-  else back towards where it left its level. Without elevation it is Phaser's jump.
+  else back towards where it left its level. With painted collision the hop on its own level follows
+  what collides as the walk does (`body_fits` `by_paint`: the painted rims and bases, the stairs, a
+  dungeon room's interior walls), not the `elevation` paint's level of the cells: where the painted
+  rims and bases sit past the cells' level change, a body that walked there still jumps (owner,
+  2026-10-28, r4). `body_fits` tests its points `FIT_INSET` (1 unit) inside the body's rect, so a body
+  the collision stopped against a painted base (its feet a hair past the line) still fits and jumps
+  along the wall. Without elevation it is Phaser's jump.
 - **The flight** (`jump_sequence.gd`, for both) is worked out in 3D: the point on the ground moves
   evenly from take-off to landing and the height falls under gravity. The body travels on screen
   with it, so the camera and the hurtbox follow smoothly; the art rides above the body, rising first
