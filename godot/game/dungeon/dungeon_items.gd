@@ -29,8 +29,8 @@ const NAMES := {
 const LINES := {
 	DungeonState.SMALL_KEY: "It opens one locked door of this dungeon. Each keyhole takes one.",
 	DungeonState.BIG_KEY: "It opens the great door, where this dungeon's master waits.",
-	DungeonState.MAP: "Every room of this dungeon is on your map now.",
-	DungeonState.COMPASS: "Your map marks the master's room and every chest not opened yet.",
+	DungeonState.MAP: "Every room of this dungeon is on your map now, and the master's room too.",
+	DungeonState.COMPASS: "Your map marks every chest not opened yet.",
 }
 ## Fallback colours (the drawn icons).
 const COLOURS := {

@@ -79,10 +79,23 @@ position = Vector2(224, 800)
 [node name="Enemies" type="Node2D" parent="." unique_id=1794483835]
 
 [node name="r11-pipe-worm" parent="Enemies" unique_id=1811024055 instance=ExtResource("11_wkd1w")]
-position = Vector2(1004.80005, 294.3999)
+position = Vector2(1045, 294)
 rotation = 1.5707964
 enemy_type = "pipe-worm"
 wander_radius = 40.0
+
+[node name="PlacedEnemy" parent="Enemies" unique_id=1427976559 instance=ExtResource("11_wkd1w")]
+position = Vector2(674, 356)
+enemy_type = "worm-swordsman"
+
+[node name="PlacedEnemy2" parent="Enemies" unique_id=458984216 instance=ExtResource("11_wkd1w")]
+position = Vector2(247, 642)
+enemy_type = "worm-swordsman"
+
+[node name="PlacedEnemy3" parent="Enemies" unique_id=453784548 instance=ExtResource("11_wkd1w")]
+position = Vector2(1047, 816)
+rotation = 2.2130775
+enemy_type = "pipe-worm"
 
 [node name="Hazards" type="Node2D" parent="." unique_id=238678710]
 
@@ -243,13 +256,58 @@ autoplay_cue = true
 [node name="Throwables" type="Node2D" parent="." unique_id=353710409]
 y_sort_enabled = true
 
-[node name="throw-r11-pipe-worm-1" parent="Throwables" unique_id=22220826 instance=ExtResource("throw_liftable")]
-position = Vector2(984, 361)
-kind = "clay-pot"
+[node name="Scenery" type="Node2D" parent="." unique_id=1151324965]
+y_sort_enabled = true
 
-[node name="throw-r11-pipe-worm-2" parent="Throwables" unique_id=86502013 instance=ExtResource("throw_liftable")]
-position = Vector2(943, 327)
-kind = "rock"
+[node name="liftable" parent="Scenery" unique_id=1749744745 instance=ExtResource("throw_liftable")]
+position = Vector2(461, 508)
+kind = "water-jug"
+weight = "light"
+
+[node name="@StaticBody2D@24337" parent="Scenery" unique_id=1397019162 instance=ExtResource("throw_liftable")]
+position = Vector2(462, 144)
+kind = "water-jug"
+weight = "light"
+
+[node name="@StaticBody2D@24338" parent="Scenery" unique_id=784775794 instance=ExtResource("throw_liftable")]
+position = Vector2(1012, 139)
+kind = "water-jug"
+weight = "light"
+
+[node name="@StaticBody2D@24339" parent="Scenery" unique_id=1060941621 instance=ExtResource("throw_liftable")]
+position = Vector2(1011, 508)
+kind = "water-jug"
+weight = "light"
+
+[node name="@StaticBody2D@24340" parent="Scenery" unique_id=1010341404 instance=ExtResource("throw_liftable")]
+position = Vector2(1009, 890)
+kind = "water-jug"
+weight = "light"
+
+[node name="@StaticBody2D@24341" parent="Scenery" unique_id=1386918601 instance=ExtResource("throw_liftable")]
+position = Vector2(433, 540)
+kind = "water-jug"
+weight = "light"
+
+[node name="liftable2" parent="Scenery" unique_id=1510224828 instance=ExtResource("throw_liftable")]
+position = Vector2(140, 544)
+kind = "water-jug"
+weight = "light"
+
+[node name="liftable3" parent="Scenery" unique_id=1203042414 instance=ExtResource("throw_liftable")]
+position = Vector2(304, 795)
+kind = "water-jug"
+weight = "light"
+
+[node name="liftable4" parent="Scenery" unique_id=793782798 instance=ExtResource("throw_liftable")]
+position = Vector2(746, 143)
+kind = "bucket"
+weight = "light"
+
+[node name="liftable5" parent="Scenery" unique_id=1957055942 instance=ExtResource("throw_liftable")]
+position = Vector2(745, 508)
+kind = "lantern"
+weight = "light"
 
 [editable path="Enemies/r11-pipe-worm"]
 [editable path="Hazards/void-38-38"]

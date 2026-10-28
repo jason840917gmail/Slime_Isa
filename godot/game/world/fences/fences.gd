@@ -72,6 +72,9 @@ const CRACK_BREAK_TEXT := "The fence gives way!"
 const CRACK_PEBBLES := 10
 const CRACK_PUFFS := 6
 const ALL_NEIGHBORS_DIRECTION := -1
+## An edge style's corner tiles (fence_direction this plus a diagonal's DIRECTIONS index: 9 north-east,
+## 11 south-east, 13 south-west, 15 north-west): the corner block alone in that corner of the cell.
+const EDGE_CORNER_DIRECTION := 8
 ## Direction from a painted cell to a connected neighbor: N, NE, E, SE, S, SW, W, NW.
 const DIRECTIONS: Array[Vector2i] = [Vector2i.UP, Vector2i(1, -1), Vector2i.RIGHT, Vector2i(1, 1),
 		Vector2i.DOWN, Vector2i(-1, 1), Vector2i.LEFT, Vector2i(-1, -1)]
@@ -503,6 +506,19 @@ static func _cell_key_after(a: Vector2i, b: Vector2i) -> bool:
 func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Dictionary) -> void:
 	if cells.is_empty():
 		return
+	# Edge styles draw along a side of their cell and never link (`_add_edge_cell`).
+	var linkable := {}
+	var edges := {}
+	for at: Vector2i in cells:
+		var entry: Dictionary = cells[at]
+		var edge_kit := _kit(str(entry.get("style", ""))) if not entry.has("gate") and not entry.has("broken") else {}
+		if bool(edge_kit.get("edge", false)):
+			edges[at] = entry
+		else:
+			linkable[at] = entry
+	for at: Vector2i in edges:
+		_add_edge_cell(at, edges[at], edges, shadows, depth)
+	cells = linkable
 	var posts := {}
 	var gates := {}
 	var broken := {}
@@ -606,6 +622,150 @@ func _add_connected_network(cells: Dictionary, shadows: MeshData, depth: Diction
 		_add_post_box(level, far, post_half)
 		_add_span(style, kit, level, foot, far, _front_normal((far - foot).normalized()), shadows, _depth_for(depth, style))
 		_add_link_box(level, foot, far)
+
+
+## An edge style's cell (its kit's `edge`: lair-ledge; owner, 2026-10-27): its fence lies along one
+## side of the cell, the side its arrow names, and never links to its neighbours. North and south:
+## the front blocks against that side; east and west: the side's column of blocks against it. A
+## diagonal arrow draws both of its sides (a corner), the column taking the corner; the all-neighbour
+## tile draws the south side. Both pieces repeat on world coordinates, three blocks a cell, so
+## neighbouring cells' pieces join block to block. A column whose cell below (in `edges`, the edge
+## cells) carries no column on the same side ends on the end block, its front face showing.
+func _add_edge_cell(at: Vector2i, entry: Dictionary, edges: Dictionary, shadows: MeshData, depth: Dictionary) -> void:
+	var style := str(entry["style"])
+	var kit := _kit(style)
+	var level := int(entry["level"])
+	var step := _edge_step(entry)
+	var rect := Rect2(Vector2(at) * cell, Vector2.ONE * cell)
+	var layer := _depth_for(depth, style)
+	var direction := int(entry.get("direction", ALL_NEIGHBORS_DIRECTION))
+	if direction >= EDGE_CORNER_DIRECTION:
+		_add_edge_corner(style, kit, level, rect, DIRECTIONS[direction - EDGE_CORNER_DIRECTION], shadows, layer)
+		return
+	var column := float(kit["side"]["size"][0]) * 0.5
+	if step.x != 0:
+		var below: Dictionary = edges.get(at + Vector2i.DOWN, {})
+		var continues := not below.is_empty() and int(below["level"]) == level and _edge_step(below).x == step.x
+		_add_edge_column(style, kit, level, rect, step.x, not continues, shadows, layer)
+	if step.y != 0:
+		_add_edge_front(style, kit, level, rect, step.y, column if step.x < 0 else 0.0, column if step.x > 0 else 0.0, shadows, layer)
+
+
+## The front blocks along the north (`toward` -1) or south (1) side of `rect`, short by `trim_left`
+## and `trim_right` where a corner's column stands; they collide as a front run's band does.
+func _add_edge_front(style: String, kit: Dictionary, level: int, rect: Rect2, toward: int, trim_left: float,
+		trim_right: float, shadows: MeshData, depth: Array) -> void:
+	var rails: Dictionary = kit["rails"]
+	var top := float(rails["top"])
+	var bottom := float(rails["bottom"])
+	var strip_h := float(rails["size"][1])
+	# South: the blocks stand on the cell's south side; north: their tops meet its north side.
+	var foot := rect.end.y if toward > 0 else rect.position.y + top
+	var x0 := rect.position.x + trim_left
+	var x1 := rect.end.x - trim_right
+	var arrays := MeshData.new()
+	var silhouette := MeshData.new()
+	var corners := [[Vector2(x0, foot - top), 0.0, -top], [Vector2(x1, foot - top), 0.0, -top],
+			[Vector2(x1, foot - bottom), strip_h, -bottom], [Vector2(x0, foot - bottom), strip_h, -bottom]]
+	for index: int in [0, 1, 2, 0, 2, 3]:
+		var point: Vector2 = corners[index][0]
+		var uv := Vector2(point.x * 2.0, float(corners[index][1]))
+		var dy := float(corners[index][2])
+		arrays.add(point, uv, _color(SHADE_FRONT, dy, KIND_RAILS, level))
+		silhouette.add(point, uv - Vector2(0.0, DEPTH_UV_OFFSET), ElevationOcclusion.encode(level, dy))
+	_add_piece(style, kit, foot - 0.5, arrays)
+	depth.append([foot + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
+	var reach := SHADOW_FALL * (top + bottom) * 0.5 * SHADOW_PER_HEIGHT
+	_add_fade(shadows, Vector2(x0, foot), Vector2(x1, foot), reach + Vector2(0.0, 3.0), SHADOW_ALPHA * 0.8)
+	_add_box(level, Vector2((x0 + x1) * 0.5, foot - (_band_above + _band_below) * 0.5),
+			Vector2((x1 - x0) * 0.5, (_band_above - _band_below) * 0.5), Vector2.RIGHT)
+
+
+## The side the edge cell `entry`'s arrow names (the all-neighbour tile: south; a corner tile: none).
+static func _edge_step(entry: Dictionary) -> Vector2i:
+	var direction := int(entry.get("direction", ALL_NEIGHBORS_DIRECTION))
+	if direction >= EDGE_CORNER_DIRECTION:
+		return Vector2i.ZERO
+	return Vector2i.DOWN if direction == ALL_NEIGHBORS_DIRECTION else DIRECTIONS[direction]
+
+
+## The side's column of blocks along the west (`toward` -1) or east (1) side of `rect`, the cell's
+## whole height; it collides `sideHalfWidth` each side of its middle, as a north-south run does.
+## `capped`: its last block is the end block (the kit's post picture), its front face hanging below
+## the cell.
+func _add_edge_column(style: String, kit: Dictionary, level: int, rect: Rect2, toward: int, capped: bool,
+		shadows: MeshData, depth: Array) -> void:
+	var side: Dictionary = kit["side"]
+	var half := float(side["size"][0]) * 0.25
+	var x := rect.position.x + half if toward < 0 else rect.end.x - half
+	var y0 := rect.position.y
+	var y1 := rect.end.y
+	_add_box(level, Vector2(x, (y0 + y1) * 0.5), Vector2(_side_half, (y1 - y0) * 0.5), Vector2.RIGHT)
+	if capped:
+		var block := float(side["size"][1]) * 0.5 / float(side.get("blocks", 1))
+		y1 -= block
+		_add_edge_end(style, kit, level, Vector2(x, y1), shadows, depth)
+	var arrays := MeshData.new()
+	var silhouette := MeshData.new()
+	var corners := [Vector2(x - half, y0), Vector2(x + half, y0), Vector2(x + half, y1), Vector2(x - half, y1)]
+	var us := [0.0, float(side["size"][0]), float(side["size"][0]), 0.0]
+	for index: int in [0, 1, 2, 0, 2, 3]:
+		var point: Vector2 = corners[index]
+		var uv := Vector2(float(us[index]), point.y * 2.0)
+		var dy := point.y - y0
+		arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_SIDE, level))
+		silhouette.add(point, uv - Vector2(DEPTH_UV_OFFSET, 0.0), ElevationOcclusion.encode(level, dy))
+	_add_piece(style, kit, y0 - 0.5, arrays)
+	depth.append([y0 + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
+	var reach := SHADOW_FALL * float(side["top"]) * SHADOW_PER_HEIGHT
+	_add_fade(shadows, Vector2(x, y0) + reach, Vector2(x, y1) + reach, Vector2(half * 2.0 + 4.0, 0.0), SHADOW_ALPHA * 0.8)
+
+
+## A column's end block (the kit's `pieces.end`), its top at `top` (the middle of the column's line),
+## its front face below.
+func _add_edge_end(style: String, kit: Dictionary, level: int, top: Vector2, shadows: MeshData, depth: Array) -> void:
+	var piece: Array = kit["pieces"]["end"]
+	var size := Vector2(float(piece[2]), float(piece[3])) * 0.5
+	_add_edge_piece(style, kit, level, Rect2(Vector2(top.x - size.x * 0.5, top.y), size), piece, shadows, depth)
+
+
+## A corner tile (owner, 2026-10-28): the kit's corner block alone in the corner of `rect` toward
+## `step` (a diagonal), its top-left or top-right on the cell's top edge for a north corner, its foot on
+## the cell's bottom edge for a south one; it collides as a front band the block's width.
+func _add_edge_corner(style: String, kit: Dictionary, level: int, rect: Rect2, step: Vector2i,
+		shadows: MeshData, depth: Array) -> void:
+	var piece: Array = kit["pieces"]["corner"]
+	var size := Vector2(float(piece[2]), float(piece[3])) * 0.5
+	var x := rect.position.x if step.x < 0 else rect.end.x - size.x
+	var y := rect.position.y if step.y < 0 else rect.end.y - size.y
+	_add_edge_piece(style, kit, level, Rect2(Vector2(x, y), size), piece, shadows, depth)
+	var foot := y + size.y
+	_add_box(level, Vector2(x + size.x * 0.5, foot - (_band_above + _band_below) * 0.5),
+			Vector2(size.x * 0.5, (_band_above - _band_below) * 0.5), Vector2.RIGHT)
+
+
+## One piece of the kit's pieces sheet (`piece`: [u, v, width, height] in it) drawn over `place`
+## (world units), as a post is drawn; sorted at its foot, the place's lower edge.
+func _add_edge_piece(style: String, kit: Dictionary, level: int, place: Rect2, piece: Array,
+		shadows: MeshData, depth: Array) -> void:
+	var u0 := float(piece[0])
+	var v0 := float(piece[1])
+	var u1 := u0 + float(piece[2])
+	var v1 := v0 + float(piece[3])
+	var foot := place.end.y
+	var corners := [[place.position, Vector2(u0, v0)], [Vector2(place.end.x, place.position.y), Vector2(u1, v0)],
+			[place.end, Vector2(u1, v1)], [Vector2(place.position.x, place.end.y), Vector2(u0, v1)]]
+	var arrays := MeshData.new()
+	var silhouette := MeshData.new()
+	for index: int in [0, 1, 2, 0, 2, 3]:
+		var point: Vector2 = corners[index][0]
+		var uv: Vector2 = corners[index][1]
+		var dy := point.y - foot
+		arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_POST, level))
+		silhouette.add(point, uv, ElevationOcclusion.encode(level, dy))
+	_add_piece(style, kit, foot, arrays)
+	depth.append([foot + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
+	_add_contact(shadows, Vector2(place.get_center().x, foot))
 
 
 ## The rails joining each divider gate (`gates`: cell -> {"gate": kind, "axis", "level"}) to the

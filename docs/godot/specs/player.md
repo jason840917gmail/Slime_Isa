@@ -99,7 +99,7 @@ Non-looping clips hold their last frame when they end (same in Godot).
 | Roll bonk hit | 10 damage and 300 knockback within 34 px of the impact (damage 0 turns it off) | `movement.rollBonkDamage`, `rollBonkKnockback`, `rollBonkHitRadiusPx` |
 | Roll bounce back | 400 px/s easing out to 0 over 360 ms (72 px, at least a tile), with an 18 px hop | `movement.rollBounceSpeed`, `rollBounceMs`, `rollBounceHopPx` |
 | Hit i-frames | 500 ms | `character.player.hitInvulnerabilityMs` |
-| Max HP | 100 (+10 per Goo Heart, **[OUT]**) | `character.player.stats.maxHp`, `gooHeart.maxHpBonus` |
+| Max HP | 100 (+20 per four heart quarters and per boss's full heart; Godot 2026-10-26) | `character.player.stats.maxHp`, `heartQuarter`, `fullHeart.maxHpBonus` |
 | Defense | 3 | `stats.defense` |
 | Damage-taken multiplier | 1 | literal `PlayerStats.ts:71` |
 | Attack stat | 12 (swing damage × 12/10) | `stats.attack` |

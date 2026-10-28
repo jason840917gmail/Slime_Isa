@@ -184,7 +184,10 @@ func _exit_tree() -> void:
 		if is_instance_valid(node):
 			node.free()
 	_templates.clear()
+	# Cut loose now: the HUD outlives this world, and a redraw flushed before the queued free would
+	# draw a dungeon that has left the tree.
 	if is_instance_valid(_minimap):
+		_minimap.set(&"dungeon", null)
 		_minimap.queue_free()
 	if is_instance_valid(_page):
 		_page.call(&"detach")
@@ -300,11 +303,19 @@ func rooms() -> Array[Dictionary]:
 	for room: CameraRoom in _rooms:
 		if is_instance_valid(room):
 			own[String(room.name)] = true
-			out.append({"key": room_key_of(room), "name": String(room.name), "rect": room.rect(), "outline": room.outline_global(), "node": room})
+			out.append({"key": room_key_of(room), "name": String(room.name), "rect": room.rect(), "outline": room.outline_global(), "node": room, "floor": floor_of_room(String(room.name))})
 	for room: Dictionary in _layout_rooms:
 		if not own.has(str(room["name"])):
 			out.append(room)
 	return out
+
+
+## The floor of the room `room_name` on the layout (0 the ground); 0 when the layout has no such room.
+func floor_of_room(room_name: String) -> int:
+	for room: Dictionary in _layout_rooms:
+		if str(room["name"]) == room_name:
+			return int(room["floor"])
+	return 0
 
 
 ## The layout's marks ({"mark": "boss" | "seal", "at": global point, "rotation"}); [] without one.
@@ -322,6 +333,14 @@ func layout_rooms_elsewhere() -> Array[Dictionary]:
 		if str(room["world"]) != here:
 			out.append(room)
 	return out
+
+
+## The world scene of the layout's room `room_name` ("" when the layout has no such room or scene).
+func layout_scene_of(room_name: String) -> String:
+	for room: Dictionary in _layout_rooms:
+		if str(room["name"]) == room_name:
+			return str(room["scene"])
+	return ""
 
 
 ## The world of the layout's room `room_name` ("" when the layout has no such room).
@@ -370,7 +389,7 @@ func _read_layout() -> void:
 			rect.position -= offset
 			_layout_rooms.append({"key": "%s/%s" % [_record_id(), child.get(&"room_name")], "name": str(child.get(&"room_name")),
 				"world": str(child.get(&"world_id")), "rect": rect, "outline": points, "node": null,
-				"scene": str(child.get(&"room_scene"))})
+				"scene": str(child.get(&"room_scene")), "floor": int(child.get(&"floor_level"))})
 		elif &"mark" in child and child is Node2D:
 			_layout_marks.append({"mark": str(child.get(&"mark")), "at": (child as Node2D).position - offset,
 				"rotation": (child as Node2D).rotation})

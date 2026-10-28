@@ -24,6 +24,14 @@ const PLACED_SCENE := "res://game/scenes/encounters/placed-enemy.tscn"
 const ENEMIES_CATEGORY := "Enemies"
 ## The suckable things' scene and their category.
 const LIFTABLE_SCENE := "res://game/scenes/objects/liftable.tscn"
+## A throw effect in the suckables' hover text (`gulp.throwCombat.effects`).
+const EFFECT_TEXT := {
+	"freeze": "freeze (a long stun, about 3 s)",
+	"sleep": "sleep (no damage, a longer stun, about 4.5 s)",
+	"stick": "stick (a stun, about 2.5 s)",
+	"shatter": "shatter (breaks over 2.2x the radius)",
+	"pierce": "pierce (flies on through up to 3 enemies)",
+}
 const SUCKABLES_CATEGORY := "Suckables"
 ## The dungeon pieces with logic: every scene of DUNGEON_DIR but the world-level ones, and the
 ## puzzle objects kept among the other objects.
@@ -269,6 +277,13 @@ static func _suckables() -> Array:
 	return out
 
 
+## A suckable's hover text: its kind's usual weight and its throw effect (each placed one's weight
+## can be changed in the Inspector).
+static func _suckable_tooltip(kind: String) -> String:
+	var effect := LiftableRoot.kind_effect(kind)
+	return "Weight: %s\nEffect: %s" % [LiftableRoot.kind_weight(kind), str(EFFECT_TEXT.get(effect, effect)) if not effect.is_empty() else "none"]
+
+
 ## The size chosen for the next prop placed.
 func drop_size() -> float:
 	return SIZES[maxi(_size.selected, 0)][1]
@@ -308,7 +323,7 @@ func _show() -> void:
 			if settings.has("enemy_type"):
 				_list.set_item_tooltip(index, "%s (a placed enemy)" % settings["enemy_type"])
 			else:
-				_list.set_item_tooltip(index, "%s (suckable: set what is under it in the Inspector, `under`)" % settings.get("kind", ""))
+				_list.set_item_tooltip(index, _suckable_tooltip(str(settings.get("kind", ""))))
 		else:
 			_list.set_item_metadata(index, prop[1])
 			_list.set_item_tooltip(index, str(prop[1]).get_file())

@@ -10,7 +10,7 @@ class_name BoneLeaperScript
 ##   (game/enemy/socket_glow.gd), and a ringed shadow darkens on the ground where it will land
 ##   (game/enemy/landing_mark.gd): where the slime stood when the cast began (`leapMaxPx` at most).
 ## - **Air** (`airMs`, `leapHeightPx`): one big leap there. In the air nothing hurts it (every hit
-##   clinks) and the slime passes under it (not solid); a wall ends the leap early.
+##   clinks) and the slime passes under it (not solid); a wall or the water ends the leap early.
 ## - **Landing:** the slime within `landHitRadiusPx` takes `landDamage` with `landKnockback`, and the
 ##   ground shakes a little.
 ## - **Stuck** (`stuckMs`): it lands so hard its feet sink in; it is open and takes
@@ -40,8 +40,6 @@ const CUE_LEAP := &"Jump"
 const CUE_LAND := &"StomperSlam"
 const MARK_NAME := "LandingMark"
 const GLOW_NAME := "SocketGlow"
-## A blocked leap: the mover left less than this share of the asked speed.
-const BLOCKED_SHARE := 0.5
 ## Presentation: the watch's breath, the cast's rattle and squash, the air's stretch, the landing's
 ## squash, the stuck wobble, the free hop, the shadows. The glowing eyes' pixels in each frame.
 const BREATH := 0.025
@@ -122,8 +120,9 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, engaged: bool)
 		PHASE_AIR:
 			var air_ms := maxf(1.0, pattern("airMs", 620.0))
 			var t := clampf(elapsed / air_ms, 0.0, 1.0)
-			var blocked := _asked != Vector2.ZERO and elapsed > 0.0 \
-				and body.velocity.length() < _asked.length() * BLOCKED_SHARE
+			# A wall or the water ends the leap early; the slime, the other bodies and the liftable
+			# things do not (set_airborne).
+			var blocked := air_blocked(_asked * delta)
 			if t >= 1.0 or blocked:
 				_land(now, target, engaged)
 				return
@@ -187,7 +186,7 @@ func _cast(now: float, slime: Vector2) -> void:
 	if offset.length() > pattern("leapMaxPx", 240.0):
 		offset = offset.normalized() * pattern("leapMaxPx", 240.0)
 	_from = feet()
-	_to = _from + offset
+	_to = landing_point(_from, _from + offset)
 	face_x(offset.x)
 	_cue(CUE_CAST)
 	_clear_mark()
@@ -205,6 +204,7 @@ func _leap(now: float) -> void:
 	_transition(PHASE_AIR, now)
 	set_frame(FRAME_AIR)
 	set_solid(false)
+	set_airborne(true)
 	_set_glow(1.0)
 	_asked = Vector2.ZERO
 	_cue(CUE_LEAP)
@@ -215,6 +215,7 @@ func _land(now: float, target: Dictionary, engaged: bool) -> void:
 	body.velocity = Vector2.ZERO
 	_asked = Vector2.ZERO
 	set_solid(true)
+	set_airborne(false)
 	set_look(0.0, LAND_SQUASH)
 	_set_glow(0.0)
 	_clear_mark()

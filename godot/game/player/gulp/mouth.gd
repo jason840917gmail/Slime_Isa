@@ -396,7 +396,7 @@ func restore(state: Dictionary) -> void:
 	if kind == "essence":
 		_set_held({"kind": kind, "essence": str(state.get("essence", ""))})
 	elif not LiftableScript.entry(kind).is_empty():
-		_set_held({"kind": kind, "essence": "", "variant": int(state.get("variant", 0))})
+		_set_held({"kind": kind, "essence": "", "variant": int(state.get("variant", 0)), "weight": str(state.get("weight", ""))})
 
 
 func _start_pull(target: Node, now_ms: float) -> void:

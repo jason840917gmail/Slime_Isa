@@ -25,6 +25,12 @@ const NO_MAP_TEXT := "Rooms you have walked through. The map shows the rest"
 var dungeon: Node
 var _window: Control
 var _title_text := ""
+## The floor shown: the slime's own when the map opens, then whichever tab was pressed.
+var _floor := 0
+var _was_open := false
+var _tabs: HBoxContainer
+const TAB_BAND := 42.0
+const FLOOR_NAMES := {1: "Upper floor", 0: "Ground floor", -1: "Lower floor"}
 
 
 ## Makes the page for `owner_dungeon`; it finds the map window (now or as soon as it exists).
@@ -71,6 +77,48 @@ func _process(_delta: float) -> void:
 	var summary := _window.get(&"summary_label") as Label
 	if summary != null:
 		summary.text = summary_text()
+	if open and not _was_open:
+		_floor = _current_floor()
+	_was_open = open
+	_build_tabs()
+	queue_redraw()
+
+
+## The floor of the room the slime is in (0 when unknown).
+func _current_floor() -> int:
+	var current := str(dungeon.call(&"current_room_key"))
+	for room: Dictionary in dungeon.call(&"rooms"):
+		if str(room["key"]) == current:
+			return int(room.get("floor", 0))
+	return 0
+
+
+## One tab per floor the dungeon has, highest first; none for a one-floor dungeon.
+func _build_tabs() -> void:
+	var floors := DungeonMapDraw.floors(dungeon)
+	if floors.size() < 2:
+		if _tabs != null:
+			_tabs.visible = false
+		return
+	if _tabs == null:
+		_tabs = HBoxContainer.new()
+		_tabs.name = "FloorTabs"
+		_tabs.position = Vector2(PAD, PAD)
+		_tabs.add_theme_constant_override(&"separation", 8)
+		add_child(_tabs)
+	if _tabs.get_child_count() != floors.size():
+		for child: Node in _tabs.get_children():
+			child.free()
+		for floor_level: int in floors:
+			var button := Button.new()
+			button.text = String(FLOOR_NAMES.get(floor_level, "Floor %d" % floor_level))
+			button.pressed.connect(_on_floor_pressed.bind(floor_level))
+			_tabs.add_child(button)
+	_tabs.visible = true
+
+
+func _on_floor_pressed(floor_level: int) -> void:
+	_floor = floor_level
 	queue_redraw()
 
 
@@ -115,10 +163,13 @@ func _draw() -> void:
 	if not box.has_area():
 		return
 	var room := area.grow(-PAD)
+	if _tabs != null and _tabs.visible:
+		room.position.y += TAB_BAND
+		room.size.y -= TAB_BAND
 	var scale := minf(room.size.x / box.size.x, room.size.y / box.size.y)
 	var offset := room.position + (room.size - box.size * scale) * 0.5
 	var to_view := func(point: Vector2) -> Vector2: return offset + (point - box.position) * scale
 	var world := Services.world()
 	var player_point: Vector2 = world.player.get_centre() if world != null and world.player != null \
 		and is_instance_valid(world.player) else Vector2.INF
-	DungeonMapDraw.draw(self, dungeon, to_view, player_point, true)
+	DungeonMapDraw.draw(self, dungeon, to_view, player_point, true, false, _floor)

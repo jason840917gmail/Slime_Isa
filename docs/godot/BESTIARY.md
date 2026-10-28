@@ -99,7 +99,8 @@ energy shard stay the base enemy's.
   Statue could not be killed that way, as this page said they could).
 - **No hurtbox / not solid** (`set_hurtbox`, `set_solid`): underground or high up nothing finds
   it, and the slime passes over a mound or under a flyer; the body keeps its mask, so it still keeps
-  to walls and the pen's fence.
+  to walls and the pen's fence. A leap is the exception: `set_airborne` drops the mask until landing
+  (`air_blocked` checks the walls and water by hand), so liftables and bodies never stop a jump.
 - **Numbers:** each type's `pattern` block in `game/data/enemy-types.json` (`pattern(key)`); the
   base stats (health, speeds, contact damage in `attributes`, rewards) are the scene's exports, as
   for every enemy. `corpseMs` / `corpseFadeMs`: how long the defeated pose stays and fades.
@@ -353,8 +354,11 @@ two plates. Nothing else in the game is plated like it.
 - **Rear** (the tell, `rearMs` 650): within `leapRangePx` 120 (and `cooldownMs` 900 after its last
   opening) it rears up rattling, and a ring (`ringRadiusPx` 52 x `ringRadiusYPx` 30, the boss
   telegraph) lights on the ground under the slime's feet (`leapPx` 130 at most away).
-- **Air** (`airMs` 380, `hopHeightPx` 34): it leaps there, a shadow under it; a wall or a body ends
-  the leap early.
+- **Air** (`airMs` 380, `hopHeightPx` 34): it leaps there, a shadow under it; a wall or the water
+  ends the leap early. In the air it has no body mask (`set_airborne`): the slime and the liftable
+  things (the Gulp's suckables, lying in the world) pass under it, and only the landing slam hurts.
+  It never lands on a wall, water or liftable: `landing_point` shortens the leap to the furthest
+  free spot before the planned one, and the telegraph shows that spot.
 - **Slam:** the slime in the ring takes `slamDamage` 12 with 220 knockback; the screen shakes. The
   Roll's i-frames or a step out of the ring dodge it.
 - **Open** (`openMs` 900): it lies flat, dazed, the visor open. Only a hit tagged `spear` or
@@ -735,7 +739,7 @@ enemy), adds the bone pile:
   (`game/enemy/landing_mark.gd`): where the slime stood when the cast began, `leapMaxPx` 240 at
   most. A stun in the cast cancels it.
 - **Air** (`airMs` 620, `leapHeightPx` 70): one big leap there, any angle (a pounce, not a shot).
-  Every hit clinks and the slime passes under it; a wall ends the leap early.
+  Every hit clinks and the slime passes under it; a wall or the water ends the leap early.
 - **Landing:** the slime within `landHitRadiusPx` 38 takes `landDamage` 24 with 280 knockback, and
   the ground shakes a little.
 - **Stuck** (`stuckMs` 1300): its feet sink in; it is open and takes `stuckDamageTaken` 2 times the

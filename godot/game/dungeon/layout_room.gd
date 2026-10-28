@@ -56,6 +56,9 @@ const SNAP := 64.0
 ## Read from `room_scene`: where its CameraRoom lies in its scene (zero for a world of one room). The
 ## world's own place on the map is this node's position less it (Dungeon `_read_layout`).
 @export var camera_offset: Vector2 = Vector2.ZERO
+## Its floor: 0 the ground, 1 above it, -1 below (the map's floor tabs; a stair joins the floors it
+## links). Only the map reads it.
+@export var floor_level: int = 0
 ## Press in the Inspector to read the room scene again (after its CameraRoom changed).
 @export var read_again: bool = false:
 	set(value):

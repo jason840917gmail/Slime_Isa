@@ -61,9 +61,10 @@ through:
 
 - **Crafted gear:** weapon and tool tiers (wood → stone → iron → later
   materials) are the main power curve.
-- **Goo Hearts:** collectibles that permanently raise max HP
-  (`character.player.gooHeart.maxHpBonus`, 10 each), hidden in secrets and
-  dropped by bosses. Exploration pays off in strength. Each heart has a unique
+- **Hearts:** heart quarters hidden in secrets and chests; four make a whole
+  heart that permanently raises max HP by 20
+  (`character.player.heartQuarter`), and a quarter alone adds nothing. Only a
+  beaten boss gives a full heart (+20 at once, `fullHeart.maxHpBonus`). Exploration pays off in strength. Each heart has a unique
   ID and can be taken once per run.
 - **Story-unlocked abilities:** quests and bosses teach abilities (Squash Slam,
   Stretch Lash, Teleport, and later ones; the jump was removed on 2026-10-08),

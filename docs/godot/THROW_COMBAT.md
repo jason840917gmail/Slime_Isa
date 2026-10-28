@@ -54,7 +54,10 @@ The playground starts at level 1 (`playgroundLevel`).
 - **Lifting.** Every liftable kind has a weight (`kindWeights`: the medium and heavy kinds; every
   other kind, and bones, seeds, globs and arrows, is light). A thing heavier than the Gulp's level
   is not sucked in: an empty burst with one in reach says "Too heavy! (Gulp N needed)" with the
-  refusal sound. A placed liftable with `heavy` set counts as heavy.
+  refusal sound. The thing's own **`weight`** (the root's field in the Inspector, liftable_root.gd)
+  is the source of truth: picking a kind fills it with the kind's usual weight from `kindWeights`, and
+  it can be changed per thing; the weight travels with it into the mouth and the throw. A thing
+  whose scene has no `weight` yet uses its kind's; a placed liftable with `heavy` set counts as heavy.
 - **Carrying.** The slime walks at the held weight's `holdingSpeed` (light 0.85, medium 0.7, heavy
   0.55 of its speed).
 - **Throwing.** Damage is `throwDamage` (25) x the material's `gulp.throwDamageByMaterial` x the
@@ -72,6 +75,8 @@ The playground starts at level 1 (`playgroundLevel`).
 | shatter | glass and crystal | the break's radius x 2.2 |
 | pierce | metal (kettle, lantern, iron ball) and the worm arrow | it flies on through enemies, striking up to 3, each once |
 
+  The Scenery dock's Suckables show each kind's usual weight and effect on hover
+  (`LiftableRoot.kind_weight` and `kind_effect`, read from the data files).
   The look (`game/throw/throw_status_look.gd`) lasts as long as the reaction's stun; bosses and
   armored phases shrug the effect classes off like any thrown hit, and so does an enemy getting up
   from a knockdown or a launch (the reactions' wake guard): put it to sleep before you knock it

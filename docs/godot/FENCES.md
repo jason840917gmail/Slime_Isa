@@ -40,7 +40,9 @@ row. The renderer uses that paint for art, soft shadows, depth and collision. Fe
 reshape cliff rims, and leave elevation painting and caches alone.
 
 The palette (`scripts/art/build-fence-paint-tiles.py` writes it and the TileSet) has one column per
-style (columns 0–7). Its top row is the all-neighbour tile; the eight rows below are the north,
+style (columns 0–7, then 10 on). Its top row is the all-neighbour tile, which shows a piece of the
+style's own fence, a post on its rails, read from its kit (2026-10-27; a style without a kit keeps
+the drawn cross); the eight rows below are the north,
 north-east, east, south-east, south, south-west, west and north-west arrows. Columns 8 and 9 hold the
 divider gates' tiles (the eye at (8, 0), the pen at (9, 0), their pictures the gates themselves), at
 fixed places: a style added later takes column 10 and on, so no painted tile ever moves.
@@ -165,6 +167,44 @@ seen from above, unused: the turned front rail matches the front better); the ot
 | `picket` | tall pointed posts, a row of shorter pickets, fallen leaves | 42 |
 | `crystal` | crystal clusters on rock bases, two taut ropes | 44 |
 | `lair-divider` | a dungeon divider: square fort-stone posts with capstones, low squared bars ([Dungeon dividers](#dungeon-dividers)) | 47 |
+| `lair-ledge` | a low ledge of cream bevelled blocks with mossy joints, seen a little from above ([Block ledges](#block-ledges)) | 22 |
+
+### Block ledges
+
+`lair-ledge` (owner, 2026-10-27) is a low edge the slime cannot cross, drawn like ALttP's room
+borders. It is an **edge style** (its kit's `edge`): a painted cell draws no post and links to
+nothing; its fence lies along the side of the cell its arrow names (`fences.gd` `_add_edge_cell`):
+
+- **north / south:** the front blocks against that side (south: standing on it; north: their tops on
+  it), three small blocks a cell;
+- **west / east:** the side's column of blocks against that side, the cell's whole height; where the
+  cell below carries no column on the same side, its last block is the end block, its front face
+  hanging below the cell (`_add_edge_end`);
+- **a diagonal** (north-east...): both of its sides, a corner; the column takes the corner and the
+  front blocks stop at it;
+- **the all-neighbour tile:** the south side;
+- **corner tiles** (owner, 2026-10-28; the four rows after the cracked one, edge styles only): the
+  corner block alone in the cell's north-east, south-east, south-west or north-west corner (its
+  `fence_direction` is 8 plus the diagonal's index: `Fences.EDGE_CORNER_DIRECTION`), to cap where
+  edges of neighbouring cells meet; it collides as a front band the block's width.
+
+Both pieces repeat on world coordinates three blocks a cell, so neighbouring cells join block to block
+and a run ends on a whole block. A front side collides as a front run's band (`bandAbove` to
+`bandBelow` above its foot), a column `sideHalfWidth` each side of its middle. The palette draws each
+of its tiles as the cell looks (`_draw_edge_tile`), with no arrows.
+
+Its source has no posts and rails, so `build-fence-art.py` cuts it by box (`kind` "blocks",
+`build_blocks`, one scale for every piece): three identical blocks of `lair-ledge-front-c.png` (six even
+blocks; owner, 2026-10-28: the first fronts' blocks did not align), cut joint middle to joint middle,
+make the front strip, so a cell's edge falls on a joint; the corner block is
+`lair-ledge-corner-a.png`, as wide as a front block; and the side is its own picture, `lair-ledge-side-b.png` (owner,
+2026-10-28: it has the end): a column of the same blocks seen from above, cut joint to joint by
+`side_rows` and `side_cols` and repeated to three blocks a cell; its last block (`side_end_rows`, the
+front face showing) is the column's end. The end and the corner are packed side by side as the kit's
+post picture (an edge style draws no posts), the JSON's `pieces` giving each one's place. Sources
+(GPT 2.5, the owner's picked block style as reference; 2026-10-27/28) in
+`asset/Originals/fences/lair-ledge-*.png`: fronts `-a`/`-b` (first round, unused) and `-c`/`-d` (used:
+`-c`), sides `-a`/`-b` (used: `-b`), corners `-a`/`-b` (used: `-a`).
 
 Every painted fence stands one post a cell, 64 units apart, whatever the style. The kits' JSON also
 carries `spacing` and `inset` (64 or 80, 10 or 12), left from the cliff-edge fences of before; nothing

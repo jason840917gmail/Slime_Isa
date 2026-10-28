@@ -1,7 +1,8 @@
 extends RefCounted
-## A Goo Heart inside a chest (docs/godot/DUNGEONS.md "Chests"; chest.gd `goo_heart_id`), in the
+## A heart quarter inside a chest (docs/godot/DUNGEONS.md "Chests"; chest.gd `goo_heart_id`), in the
 ## plank lab's island (game/dev/planks/playground-planks.tscn): opening the chest grants the heart
-## once (its flag "goo-heart.<id>", max HP up by `gooHeart.maxHpBonus`, health full), with only the
+## once (its flag "goo-heart.<id>", one more quarter; max HP grows only when it completes a heart),
+## with only the
 ## heart inside no window opens, a heart beside other things opens the window on them once the heart
 ## has risen (one `open_requested`, the world running meanwhile), the dungeon chest does the same,
 ## and the opened chest stays open in a save loaded again.
@@ -26,12 +27,13 @@ func test_a_chest_grants_its_heart_once_and_stays_open(t: TestContext) -> void:
 		return
 	t.check(not chest.call(&"is_empty"), "a chest holding a heart reads empty")
 	var max_before := player.get_max_hp()
-	var bonus := Services.constants().integer("character.player.gooHeart.maxHpBonus")
+	var quarters_before := run.heart_quarters()
 	t.equal(str(chest.call(&"request_open")), "opened", "the chest's opening")
 	await t.steps(2)
 	t.check(run.has_flag("goo-heart.plank-lab-heart"), "the heart's flag is not set")
-	t.equal(player.get_max_hp(), max_before + bonus, "max HP after the chest's heart")
-	t.equal(player.get_hp(), player.get_max_hp(), "health after the chest's heart")
+	t.equal(run.heart_quarters(), quarters_before + 1, "heart quarters after the chest's quarter")
+	var bonus := _bonus(run, quarters_before, 1)
+	t.equal(player.get_max_hp(), max_before + bonus, "max HP after the chest's quarter")
 	t.check(bool(chest.call(&"is_empty")), "the chest is not empty after giving its heart")
 	t.check(_window_chest(t) == null, "a chest with only a heart opened the chest window")
 	# Opened again: nothing more, and still no window once the heart has risen.
@@ -64,8 +66,8 @@ func test_a_heart_beside_other_things_and_in_a_dungeon_chest(t: TestContext) -> 
 	await _enter_lab(t)
 	var run := Services.run()
 	var player := t.player()
-	var bonus := Services.constants().integer("character.player.gooHeart.maxHpBonus")
 	var max_before := player.get_max_hp()
+	var quarters_before := run.heart_quarters()
 	# A heart and wood: the heart rises first (the world runs on), then the window shows the wood.
 	var mixed := _chest(t, "heart-wood-chest")
 	var requested: Array = []
@@ -74,7 +76,7 @@ func test_a_heart_beside_other_things_and_in_a_dungeon_chest(t: TestContext) -> 
 	t.equal(str(mixed.call(&"request_open")), "opened", "the mixed chest's opening")
 	await t.steps(2)
 	t.check(run.has_flag("goo-heart.plank-lab-heart-2"), "the mixed chest's heart flag is not set")
-	t.equal(player.get_max_hp(), max_before + bonus, "max HP after the mixed chest")
+	t.equal(player.get_max_hp(), max_before + _bonus(run, quarters_before, 1), "max HP after the mixed chest")
 	t.check(_window_chest(t) == null, "the mixed chest's window opened before its heart rose")
 	t.check(not t.tree.paused, "the world paused while the heart rises")
 	t.equal(str(mixed.call(&"request_open")), "opened", "the mixed chest asked again during the rise")
@@ -93,8 +95,38 @@ func test_a_heart_beside_other_things_and_in_a_dungeon_chest(t: TestContext) -> 
 	t.equal(str(dungeon.call(&"request_open")), "opened", "the dungeon chest's opening")
 	await t.steps(2)
 	t.check(run.has_flag("goo-heart.plank-lab-heart-3"), "the dungeon chest's heart flag is not set")
-	t.equal(player.get_max_hp(), max_before + bonus * 2, "max HP after the dungeon chest")
+	t.equal(run.heart_quarters(), quarters_before + 2, "heart quarters after the dungeon chest")
+	t.equal(player.get_max_hp(), max_before + _bonus(run, quarters_before, 2), "max HP after the dungeon chest")
 	t.check(bool(dungeon.call(&"is_empty")), "the dungeon chest is not empty after its heart")
+
+
+## Saves from before the quarters: each Goo Heart taken is a quarter; four make one +20 heart.
+func test_an_old_save_counts_its_goo_hearts_as_quarters(t: TestContext) -> void:
+	var run := Services.run()
+	run.new_run()
+	var base := run.max_hp()
+	var data := run.serialize()
+	var old_player: Dictionary = data["player"]
+	old_player.erase("heart_quarters")
+	old_player["goo_hearts"] = 5
+	old_player["hp"] = base + 50
+	t.check(run.install(data), "the old save did not install")
+	t.equal(run.heart_quarters(), 5, "the old save's quarters")
+	t.check(not run.player.has("goo_hearts"), "the old save kept goo_hearts")
+	var bonus := Services.constants().integer("character.player.heartQuarter.heartMaxHpBonus")
+	t.equal(run.max_hp(), base + bonus, "max HP from five quarters")
+	t.equal(int(run.player["hp"]), base + bonus, "HP held to the new max")
+	t.equal(run.add_heart_quarter(), false, "the sixth quarter completed a heart")
+	run.add_heart_quarter()
+	t.equal(run.add_heart_quarter(), true, "the eighth quarter did not complete a heart")
+	t.equal(run.max_hp(), base + bonus * 2, "max HP from eight quarters")
+	run.new_run()
+
+
+## The max HP `added` quarters gave on top of `before`: a heart's bonus per heart they completed.
+func _bonus(run: Node, before: int, added: int) -> int:
+	var per: int = run.quarters_per_heart()
+	return ((before + added) / per - before / per) * Services.constants().integer("character.player.heartQuarter.heartMaxHpBonus")
 
 
 func _enter_lab(t: TestContext) -> void:

@@ -33,13 +33,16 @@ scenery (grass, flowers, pebbles, leaves) on the layers below, which keeps the s
 
 **Suckables** (the very last category, owner 2026-10-19): every liftable kind of
 `game/data/liftables.json` (the 67 light things the Gulp sucks in and throws: pots, jars, crates,
-rocks, pinecones ...), by its picture on the liftables sheet; none of a mechanic's own (the
+rocks, pinecones ...), by its picture on the liftables sheet, its hover text giving its usual weight and its throw effect;
+none of a mechanic's own (the
 skeleton's skull and bone, the Goo Bomb, essences, the enemies' shots). Dragging one places
 `object.liftable` (`game/scenes/objects/liftable.tscn`) under Scenery with its **`kind`** set, at its
 own size. Select it to change it in the Inspector, on the node itself (`game/scripts/liftable_root.gd`):
 **`kind`** (a list of the kinds; the picture follows at once) and **`under`**, what it leaves where it
 stood when the slime sucks it up (Zelda's heart under a pot; game/dungeon/pot_loot.gd): `keep` (the
-scene's own, as the dungeon pot's random one), `none`, `heart`, `energy`, `coins` or `random`. Like
+scene's own, as the dungeon pot's random one), `none`, `heart`, `energy`, `coins` or `random`. On the
+`exp/throw-combat` branch also **`weight`** (`light`, `medium` or `heavy`: picking a kind fills in its
+usual weight, [THROW_COMBAT.md](THROW_COMBAT.md)), the source of truth for that thing's weight. Like
 any part of its world scene it is back each time the map is entered, and so is what it hides.
 
 **Dungeon decor** (2026-10-19) is a palette category like the others: the dungeons' own scenery

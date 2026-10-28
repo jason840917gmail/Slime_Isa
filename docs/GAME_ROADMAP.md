@@ -1399,7 +1399,17 @@ two dungeons in 12.8.
       max HP and stays taken after save and load; no Release 1 quarter needs
       a power from a later release.
 
-- Done: `object.goo-heart` (script `game.goo-heart`) is a walk-over pickup;
+- Built 2026-10-26 (owner: "all those that give 10 health should be quarter";
+  "only the boss defeated give a full heart"): every Goo Heart, placed or in
+  a chest, is a heart quarter (`RunState.player.heart_quarters`,
+  `character.player.heartQuarter`: 4 per heart, +20 max HP per whole heart,
+  HP filled then; a quarter alone adds nothing). The life orb draws a whole
+  pip per heart and a part-filled pip for the quarters toward the next. Old
+  saves load: their `goo_hearts` count becomes quarters. Its picture (owner
+  pick 2026-10-27): a glass heart filling with goo, showing the level the
+  next heart reaches by taking it (`256x256-tile_4x1-heart-quarter.webp`).
+  Not done: four quarters placed per region, and the tests (updated, not run).
+- Done (before the quarters): `object.goo-heart` (script `game.goo-heart`) is a walk-over pickup;
   each one raises max HP by `character.player.gooHeart.maxHpBonus` (10) and
   fills HP. A collected heart sets the story flag `goo-heart.<heartId>`, so it
   is taken once per run and stays gone after save and load. Two are hidden in

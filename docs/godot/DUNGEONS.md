@@ -113,9 +113,20 @@ over the slime for a moment (`item_pop.gd`) with "Small Key!" and a jingle.
   map screen (`M`; the world map window shows the dungeon's page, `dungeon_map_page.gd`, titled with
   `display_name`, keys and items on its summary line): a room the slime stood in is filled in
   parchment; with the map every other room shows dim (fog lifted); without it a room not visited is
-  not drawn; the room the slime is in has a gold ring. With the compass, a red mark is on the boss's
+  not drawn; the room the slime is in has a gold ring. With the map, a red mark is on the boss's
   room (a room fight with a `boss_id` not beaten, or a node in group `dungeon_map_mark` with
-  `mark = "boss"`) and a gold dot on every chest not opened yet. The HUD minimap
+  `mark = "boss"`); with the compass, a gold dot on every chest not opened yet. (2026-10-26: the
+  boss moved from the compass to the map; no dungeon chest holds the compass in Fatty's Lair.)
+  Doors, shutters and stairs are drawn on the map from each room's scene (`scene_features`, read
+  from the scene's state like the chests: a `door_id` + `side` is a door (gold, grey when a
+  `requires` holds it), a `wall` a shutter (red), a `direction` a stair arrow (gold)). The room
+  scene is the layout's `room_scene` for another room, or `layout_scene_of` for this world's own.
+  **Floors** (2026-10-26): each layout room has `floor_level` (0 the ground, 1 above, -1 below;
+  `layout_room.gd`, set in `layout.tscn`; a world's own rooms read it through `floor_of_room`). The
+  map page shows one tab per floor the dungeon has (`DungeonMapDraw.floors`, highest first; none
+  for one floor), opening on the slime's own floor; the minimap shows the slime's room whatever
+  its floor. Fatty's Lair: only R8 (the crypt, -1) is set so far, from the R3 stair down to it; the
+  rest are on the ground, to be confirmed by the owner. The HUD minimap
   (`dungeon_minimap.gd`, under its player dot, clipped to its box) shows **the slime's room only**,
   with the seals and compass marks inside it (`only_current`; owner, 2026-10-19: in Fatty's Lair the
   rooms around it, drawn at the minimap's scale, covered the play area); the rooms found are on the
@@ -133,12 +144,12 @@ key): `game/dungeon/dungeon_chest.gd` on the `ChestScript` child, which is the g
   `appear` or `trigger`): it rises with a puff and the secret jingle, and stays;
 - `map_id` and `instance_id` may stay empty: the world's id and the chest root's name.
 
-**A Goo Heart inside** (owner, 2026-10-17: most hearts are hidden in chests): any chest, the world's
+**A heart quarter inside** (owner, 2026-10-17: most hearts are hidden in chests; a quarter since 2026-10-26): any chest, the world's
 (`game.chest`, `chest.gd`) or the dungeon's, has `goo_heart_id` on its `ChestScript` (empty: no
 heart; a heart id unique across maps, as an `object.goo-heart`'s `heart_id`). Opening it the first
 time lifts the heart out of the chest (it rises over it, `item_pop.gd`) and grants it exactly as the
-pickup does (`goo_heart.gd` `grant`: the flag `goo-heart.<id>`, +`gooHeart.maxHpBonus` max HP, health
-full), once; the chest shows the max-HP text and asks for the ceremony once the heart has risen
+pickup does (`goo_heart.gd` `grant`: the flag `goo-heart.<id>`, one heart quarter; the fourth completes
+a heart, +20 max HP and health full), once; the chest shows the quarter's text ("Heart quarter 2 of 4") and asks for the ceremony once the heart has risen
 (`HEART_RISE_MS`, 1.5 s of gameplay time; a load or a travel meanwhile skips them). The flag is the
 chest's record: it holds something until the flag is set, and is open (empty) after, in every save.
 With only the heart inside no chest window opens; with other things too (or a dungeon chest's loot
@@ -1017,7 +1028,7 @@ the doors between the floors go on.
 
 ### Limits
 
-- Heart quarters are not built (roadmap 5.3): B6's prize is a Goo Heart (+10 max HP).
+- B6's prize is a heart quarter (roadmap 5.3, built 2026-10-26).
 - Side doors now sit in the Hollow's root-rock wall pieces; the room outline hides the world beyond.
 - The Hoard is a small vault in the east of a full-size camera room; the rest of its screen is rock.
 - C4's rows of web walls hide the slime behind them only partly: an "across" web fades to 0.45 while
@@ -1262,8 +1273,11 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
   leaves, so the door is held only while something stands on the plate: the Weigh House's second
   plate and R10's, which a statue must hold (the slime could not stand there and walk through).
   The Weigh House's first plate is a plain one (its door stays open while it rises, 5 s). The
-  counterweight's chain (`game/fattys_lair/counterweight_chain.gd`, presentation) hangs from the
-  raised bridge to the slime's (east) plate, pulls taut as it sinks and goes once the bridge is down.
+  counterweight's chains (`game/fattys_lair/counterweight_chain.gd`, presentation) hang from the
+  raised bridge to each plate in its `plates` (the east counterweight plate and the burr plate),
+  pull taut as each sinks and go once the bridge is down. It is a tool script: it draws in the
+  editor, and its top point is the `Top` Marker2D child (drag it; the plates are dragged where they
+  stand).
 - **Heavy blocks reset with their room** (the guide's no-softlock rule): since the Lair is one world
   per room, each room is built afresh when it is entered, its statues where its scene puts them, as
   the room's enemies and pots come back (the director's own reset for a world of several rooms went

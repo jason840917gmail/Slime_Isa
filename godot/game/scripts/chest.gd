@@ -8,11 +8,12 @@ class_name ChestScript
 ## `stack_transferred`; closing tells the window (`close_for`) and emits `closed`. Leaving the tree
 ## while open closes the window without `closed` (Phaser's entry disposable, owner decision K4).
 ##
-## A Goo Heart inside (`goo_heart_id`; owner, 2026-10-17: most hearts are hidden in chests, found by
-## curiosity): opening the chest the first time lifts the heart out of it (it rises over the chest,
-## as Zelda's heart piece) and grants it as the pickup does (goo_heart.gd `grant`: the flag
-## "goo-heart.<id>", max HP), once; when it has risen (HEART_RISE_MS of gameplay time) the chest
-## shows "+10 max HP" and asks for the ceremony (goo_heart.gd `celebrate`). The flag is the record:
+## A heart quarter inside (`goo_heart_id`; owner, 2026-10-17: most hearts are hidden in chests,
+## found by curiosity; a quarter since 2026-10-26): opening the chest the first time lifts the
+## quarter out of it (it rises over the chest, as Zelda's heart piece) and grants it as the pickup
+## does (goo_heart.gd `grant`: the flag "goo-heart.<id>", one quarter; the fourth completes a heart),
+## once; when it has risen (HEART_RISE_MS of gameplay time) the chest shows "Heart quarter 2 of 4"
+## (or "Heart complete!") and asks for the ceremony (goo_heart.gd `celebrate`). The flag is the record:
 ## the chest counts as holding something until it is set, and is empty (open) after, in every save.
 ## With only the heart inside, no chest window opens; with other things too, the window shows them
 ## after the heart has risen and its ceremony has played (Zelda's order: the window pauses the world,

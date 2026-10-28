@@ -57,6 +57,14 @@ STYLES = {
     # with capstones and low bars, as ALttP's room dividers (owner, 2026-10-19: posts about 47 high)
     "lair-divider": {"source": "lair-divider-front-a.png", "post_height": 47.0, "spacing": 64.0, "inset": 10.0,
                      "side_offset": 0.0, "side_band": True, "side_width": 14.0},
+    # A low ledge of bevelled blocks (owner, 2026-10-27; `build_blocks`): no posts and rails in the
+    # source, so its pieces are cut by box: three identical front blocks a cell, the side its own
+    # picture (a column of blocks from above, with its end block), and a corner block.
+    "lair-ledge": {"kind": "blocks", "source": "lair-ledge-front-c.png", "spacing": 64.0, "inset": 10.0,
+                   "side_offset": 0.0, "rail_cols": (264, 870), "rail_blocks": 3,
+                   "side_source": "lair-ledge-side-b.png", "side_rows": (364, 932), "side_cols": (249, 501),
+                   "side_crop_blocks": 2, "side_blocks": 3, "side_width": 20.0, "side_end_rows": (932, 1275),
+                   "corner_source": "lair-ledge-corner-a.png"},
 }
 
 ALPHA = 128
@@ -117,8 +125,98 @@ def to_uint8(array: np.ndarray) -> np.ndarray:
     return np.clip(np.rint(array), 0, 255).astype(np.uint8)
 
 
+def build_blocks(style: str, spec: dict, preview: Path | None) -> None:
+    """A style of blocks (`kind` "blocks"), an edge style (`edge`: fences.gd draws each cell's fence
+    along one of its sides, no posts). Its pieces are cut by box, at one scale (`rail_blocks` front
+    blocks fill a cell, `spacing`):
+
+    - the front strip: `rail_cols` of `source`, joint middle to joint middle (`rail_blocks` identical
+      blocks), so it repeats and a cell's edge falls on a joint;
+    - the side: `side_rows` x `side_cols` of `side_source` (`side_crop_blocks` blocks seen from above,
+      joint to joint), repeated to `side_blocks` blocks a cell, `side_width` wide;
+    - the pieces sheet (`<style>-posts.png`, the kit's post picture: an edge style draws no posts),
+      its cells side by side, top-left: the column's end (`side_end_rows`, its front face showing, at
+      the side's scale) and the corner block (`corner_source`, as wide as a front block). The JSON's
+      `pieces` gives each one's [u, v, width, height] in the sheet."""
+    rgba = np.array(Image.open(SOURCES / spec["source"]).convert("RGBA"))
+    opaque = rgba[:, :, 3] > ALPHA
+    cx0, cx1 = spec["rail_cols"]
+    rows = np.where(opaque[:, cx0:cx1].any(axis=1))[0]
+    top, foot = int(rows.min()), int(rows.max())
+    rails_w = int(round(spec["spacing"] * PX))
+    scale = rails_w / (cx1 - cx0)
+    rails_h = int(round((foot + 1 - top) * scale))
+    rails_out = premultiplied_resize(np.ascontiguousarray(rgba[top:foot + 1, cx0:cx1]), (rails_w, rails_h))
+    # The wrap: the two outermost columns (both in a joint) blended into each other.
+    edge = (rails_out[:, :1].astype(np.float32) + rails_out[:, -1:].astype(np.float32)) * 0.5
+    rails_out[:, :1] = to_uint8(edge)
+    rails_out[:, -1:] = to_uint8(edge)
+
+    side_src = np.array(Image.open(SOURCES / spec["side_source"]).convert("RGBA"))
+    sy0, sy1 = spec["side_rows"]
+    sx0, sx1 = spec["side_cols"]
+    crop = side_src[sy0:sy1, sx0:sx1 + 1]
+    block_rows = crop.shape[0] / spec["side_crop_blocks"]
+    repeats = int(np.ceil(spec["side_blocks"] / spec["side_crop_blocks"]))
+    side = np.concatenate([crop] * repeats, axis=0)[:int(round(block_rows * spec["side_blocks"]))]
+    side_w = int(round(spec["side_width"] * PX / 2.0)) * 2
+    side_h = int(round(spec["spacing"] * PX))
+    side_out = premultiplied_resize(np.ascontiguousarray(side), (side_w, side_h))
+
+    ey0, ey1 = spec["side_end_rows"]
+    end = side_src[ey0:ey1, sx0:sx1 + 1]
+    end_out = premultiplied_resize(np.ascontiguousarray(end), (side_w, int(round(end.shape[0] * side_h / side.shape[0]))))
+    corner_src = np.array(Image.open(SOURCES / spec["corner_source"]).convert("RGBA"))
+    ys, xs = np.where(corner_src[:, :, 3] > ALPHA)
+    corner = corner_src[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    corner_w = int(round(rails_w / spec["rail_blocks"]))
+    corner_out = premultiplied_resize(np.ascontiguousarray(corner), (corner_w, int(round(corner.shape[0] * corner_w / corner.shape[1]))))
+    pieces = {"end": end_out, "corner": corner_out}
+    cell_w = max(p.shape[1] for p in pieces.values())
+    cell_h = max(p.shape[0] for p in pieces.values())
+    sheet = np.zeros((cell_h, cell_w * len(pieces), 4), dtype=np.uint8)
+    places = {}
+    for i, (name, piece) in enumerate(pieces.items()):
+        sheet[:piece.shape[0], i * cell_w:i * cell_w + piece.shape[1]] = piece
+        places[name] = [i * cell_w, 0, piece.shape[1], piece.shape[0]]
+
+    def units_above_foot(row: float) -> float:
+        return (foot + 1 - row) * scale / PX
+
+    height = round(units_above_foot(top), 2)
+    metrics = {
+        "style": style,
+        "source": spec["source"],
+        "px_per_unit": PX,
+        "post_height": height,
+        "spacing": spec["spacing"],
+        "inset": spec["inset"],
+        "posts": {"count": len(pieces), "cell": [cell_w, cell_h], "foot_row": cell_h,
+                  "half_width": round(corner_w / PX / 2.0, 2)},
+        "rails": {"size": [rails_w, rails_h], "top": height, "bottom": 0.0, "rows": [[height, 0.0]]},
+        "side": {"size": [side_w, side_h], "top": height, "bottom": 0.0, "offset": spec["side_offset"],
+                 "blocks": spec["side_blocks"]},
+        "pieces": places,
+        # An edge style: each cell's fence runs along the side of the cell its arrow names (fences.gd
+        # `_add_edge_cell`), never linked.
+        "edge": True,
+    }
+    OUT.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(sheet, "RGBA").save(OUT / f"{style}-posts.png")
+    Image.fromarray(rails_out, "RGBA").save(OUT / f"{style}-rails.png")
+    Image.fromarray(side_out, "RGBA").save(OUT / f"{style}-rails-side.png")
+    (OUT / f"{style}.json").write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
+    print(f"{style}: rails {rails_w}x{rails_h} px, side {side_w}x{side_h} px, pieces {places}, scale {scale:.3f}")
+    if preview is not None:
+        preview.mkdir(parents=True, exist_ok=True)
+        _preview(style, sheet, rails_out, side_out, metrics, preview)
+
+
 def build(style: str, preview: Path | None) -> None:
     spec = STYLES[style]
+    if spec.get("kind") == "blocks":
+        build_blocks(style, spec, preview)
+        return
     rgba = np.array(Image.open(SOURCES / spec["source"]).convert("RGBA"))
     opaque = rgba[:, :, 3] > ALPHA
     height, width = opaque.shape

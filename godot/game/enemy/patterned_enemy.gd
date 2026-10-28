@@ -27,6 +27,8 @@ class_name PatternedEnemyScript
 ##   a Heavy Roll).
 ## - **No hurtbox** (`set_hurtbox(false)`): underground or high in the air nothing finds it.
 ## - **Not solid** (`set_solid(false)`): the slime passes over a mound or under a flyer.
+## - **Airborne** (`set_airborne(true)`, a leap): no body mask, so the slime and the liftable things
+##   pass under it; `air_blocked(motion)` is the leap's wall check (walls and water end it).
 ## - **The look**: the art is a sheet of key poses (`visual.frame`, game/runtime/sheet_sprite.gd)
 ##   hanging from `pose` (a Node2D), which the patterns lift, bob, squash and lean in code; the
 ##   reactions' hit motion keeps the Visual's own transform. The sheets face right; `face_x` mirrors
@@ -46,6 +48,14 @@ const ROLL_TAG := "roll"
 const HEAVY_TAG := "heavy"
 ## A walk cycle's frames per facing (`walk_frame`).
 const WALK_STEPS := 4
+## The physics layer bit of the slime's body (layer 2, "player").
+const PLAYER_LAYER_BIT := 2
+## The group of the liftable things (LiftableScript's GROUP) a leap passes over.
+const LIFTABLE_GROUP := &"liftable"
+## How many overlaps `air_blocked` asks the space for.
+const AIR_MAX_HITS := 8
+## The landing spot is searched back from the leap's end in steps of this many px.
+const LANDING_STEP_PX := 4.0
 
 ## The art's parent: the patterns move it (lift, bob, squash); the Visual under it keeps its own
 ## transform for the hit motion.
@@ -71,6 +81,8 @@ var _hurtbox_layer: int = 0
 var _body_layer: int = 0
 var _hurtbox_on: bool = true
 var _solid: bool = true
+var _airborne: bool = false
+var _ground_mask: int = 0
 var _contact_ready_at: float = 0.0
 var _shadow: GroundShadowLook
 var _walked_px: float = 0.0
@@ -281,6 +293,74 @@ func set_solid(on: bool) -> void:
 		return
 	_solid = on
 	body.set_deferred(&"collision_layer", _body_layer if on else 0)
+
+
+## Airborne (a leap): the body's mask is off, so it passes over the slime, the other bodies and the
+## liftable things lying in the world (the Gulp's suckables). `air_blocked` still stops it at walls
+## and water. On the ground the mask comes back as it was.
+func set_airborne(on: bool) -> void:
+	if body == null or on == _airborne:
+		return
+	_airborne = on
+	if on:
+		_ground_mask = body.collision_mask
+		body.collision_mask = 0
+	else:
+		body.collision_mask = _ground_mask
+
+
+## Airborne: whether the body, moved by `motion`, would meet a wall or water (the ground mask
+## without the slime's own body). Liftables and bodies do not count: a leap passes over them.
+func air_blocked(motion: Vector2) -> bool:
+	return motion != Vector2.ZERO and _meets_solid(motion, _ground_mask, true)
+
+
+## A leap's landing: the furthest point of `from`→`to` (at most `to`) where the body may stand, going
+## back from `to` in steps: no wall, water or liftable thing under its shape there. The slime, the
+## other bodies and the liftables it passes over on the way do not count. Call it on the ground,
+## with `from` the feet.
+func landing_point(from: Vector2, to: Vector2) -> Vector2:
+	var steps := maxi(1, ceili(from.distance_to(to) / LANDING_STEP_PX))
+	for i in range(steps, -1, -1):
+		var at := from.lerp(to, float(i) / float(steps))
+		if not _meets_solid(at - feet(), body.collision_mask, false):
+			return at
+	return from
+
+
+## True when the body's shape, moved by `motion`, meets something of `mask` (the slime's own body
+## and the player aside). With `liftables_pass` the liftable things do not count.
+func _meets_solid(motion: Vector2, mask: int, liftables_pass: bool) -> bool:
+	var shape_node := _body_shape()
+	if shape_node == null:
+		return false
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape_node.shape
+	var moved := shape_node.global_transform
+	moved.origin += motion
+	query.transform = moved
+	query.collision_mask = mask & ~PLAYER_LAYER_BIT
+	var exclude: Array[RID] = [body.get_rid()]
+	query.exclude = exclude
+	for hit: Dictionary in body.get_world_2d().direct_space_state.intersect_shape(query, AIR_MAX_HITS):
+		if not (liftables_pass and _is_liftable(hit.get("collider"))):
+			return true
+	return false
+
+
+## The body's first collision shape (the BodyShape child).
+func _body_shape() -> CollisionShape2D:
+	for child in body.get_children():
+		if child is CollisionShape2D and (child as CollisionShape2D).shape != null:
+			return child as CollisionShape2D
+	return null
+
+
+## A liftable thing: its root's LiftableScript child is in the liftable group.
+static func _is_liftable(collider: Object) -> bool:
+	var node := collider as Node
+	var script_node := node.get_node_or_null(^"LiftableScript") if node != null else null
+	return script_node != null and script_node.is_in_group(LIFTABLE_GROUP)
 
 
 func set_frame(index: int) -> void:

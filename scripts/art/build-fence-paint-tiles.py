@@ -12,6 +12,8 @@ the Lair's), showing the gate's own picture, and a style added at the end of STY
 column after the gates' (`style_column`)."""
 from __future__ import annotations
 
+import json
+
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -31,6 +33,7 @@ STYLES = [
     ("picket", (173, 95, 48)),
     ("crystal", (145, 113, 221)),
     ("lair-divider", (226, 202, 152)),
+    ("lair-ledge", (214, 182, 120)),
 ]
 ## The columns the divider gates' tiles keep (eye, pen); styles never take them.
 GATE_COLUMNS = (8, 9)
@@ -50,6 +53,12 @@ ROWS = [None] + DIRECTIONS
 ## The cracked tiles (owner, 2026-10-19): one per style, in the row after the arrows: an all-neighbour
 ## post marked with a crack, which a Goo Bomb blast breaks (docs/godot/FENCES.md "Cracked fences").
 CRACKED_ROW = len(ROWS)
+## An edge style's corner tiles (owner, 2026-10-28), in the rows after the cracked one: the corner block
+## alone in the north-east, south-east, south-west or north-west corner of the cell. Their direction is
+## EDGE_CORNER_DIRECTION + the diagonal's index (fences.gd). Other styles leave these rows empty.
+EDGE_CORNER_DIRECTION = 8
+CORNER_ROWS = [(CRACKED_ROW + 1 + i, name, index, step) for i, (name, index, step) in
+               enumerate([d for d in DIRECTIONS if d[2][0] != 0 and d[2][1] != 0])]
 
 
 def style_column(index: int) -> int:
@@ -82,6 +91,16 @@ def _atlas_source() -> str:
             # (0, the north arrow, is the data layer's default: Godot leaves it out of the file too)
             if direction_id != 0:
                 lines.append(f"{column}:{row}/0/custom_data_1 = {direction_id}")
+    for index, (style, _color) in enumerate(STYLES):
+        if not _is_edge_style(style):
+            continue
+        column = style_column(index)
+        for row, _name, direction_index, _step in CORNER_ROWS:
+            lines.extend([
+                f"{column}:{row}/0 = 0",
+                f'{column}:{row}/0/custom_data_0 = "{style}"',
+                f"{column}:{row}/0/custom_data_1 = {EDGE_CORNER_DIRECTION + direction_index}",
+            ])
     for index, (style, _color) in enumerate(STYLES):
         column = style_column(index)
         lines.extend([
@@ -118,7 +137,7 @@ def _line(draw: ImageDraw.ImageDraw, points: tuple[tuple[float, float], ...], co
 
 def _post(draw: ImageDraw.ImageDraw, style: str, point: tuple[float, float], color: tuple[int, int, int]) -> None:
     x, y = point
-    if style in ("stone", "sandstone", "lair-divider"):
+    if style in ("stone", "sandstone", "lair-divider", "lair-ledge"):
         draw.rounded_rectangle((x - 4, y - 5, x + 4, y + 5), radius=2, fill=color + (255,), outline=(37, 34, 29, 255), width=2)
         if style == "sandstone":
             _line(draw, ((x - 2, y), (x + 2, y)), (112, 72, 39), 1)
@@ -155,7 +174,7 @@ def _draw_material(draw: ImageDraw.ImageDraw, style: str, color: tuple[int, int,
         # A small eight-way connection picture: one painted cell joins its neighbors.
         for _name, _index, (dx, dy) in DIRECTIONS:
             edge = (cx + dx * 25.0, cy + dy * 25.0)
-            _line(draw, ((cx, cy), edge), color, 3 if style not in ("stone", "sandstone", "lair-divider") else 5)
+            _line(draw, ((cx, cy), edge), color, 3 if style not in ("stone", "sandstone", "lair-divider", "lair-ledge") else 5)
             draw.ellipse((edge[0] - 2, edge[1] - 2, edge[0] + 2, edge[1] + 2), fill=(255, 246, 207, 255), outline=dark + (255,), width=1)
         _post(draw, style, (cx, cy), color)
         return
@@ -165,7 +184,7 @@ def _draw_material(draw: ImageDraw.ImageDraw, style: str, color: tuple[int, int,
     start = (cx, cy)
     end = (cx + dx * length, cy + dy * length)
     px, py = -dy, dx
-    rail_width = 5 if style in ("stone", "sandstone", "lair-divider") else 3
+    rail_width = 5 if style in ("stone", "sandstone", "lair-divider", "lair-ledge") else 3
     for offset in (-4, 3):
         a = (start[0] + px * offset, start[1] + py * offset)
         b = (end[0] + px * offset, end[1] + py * offset)
@@ -199,6 +218,29 @@ def _draw_material(draw: ImageDraw.ImageDraw, style: str, color: tuple[int, int,
 
 ## The cracked posts' own pictures (scripts/art/build-cracked-fence-posts.py), shown on their tiles.
 CRACKED_POSTS = ROOT / "godot/asset/MAPS/fences/%s-post-cracked.png"
+## The styles' kits (scripts/art/build-fence-art.py): the all-neighbour tile shows the fence itself.
+KITS = ROOT / "godot/asset/MAPS/fences"
+
+
+def _fence_icon(style: str) -> Image.Image | None:
+    """A short piece of the style's fence from its kit, a post on one period of its rails, trimmed;
+    None without a kit (owner, 2026-10-27: the fence instead of the drawn cross)."""
+    metrics_path, posts_path, rails_path = KITS / f"{style}.json", KITS / f"{style}-posts.png", KITS / f"{style}-rails.png"
+    if not (metrics_path.exists() and posts_path.exists() and rails_path.exists()):
+        return None
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    cell_w, cell_h = metrics["posts"]["cell"]
+    foot_row = int(round(metrics["posts"]["foot_row"]))
+    post = Image.open(posts_path).convert("RGBA").crop((0, 0, cell_w, cell_h))
+    rails = Image.open(rails_path).convert("RGBA")
+    rails_top = int(round(metrics["rails"]["top"] * metrics["px_per_unit"]))
+    above = max(foot_row, rails_top)
+    width = max(rails.width, cell_w)
+    icon = Image.new("RGBA", (width, above + max(cell_h - foot_row, 0) + 2), (0, 0, 0, 0))
+    icon.alpha_composite(rails, ((width - rails.width) // 2, above - rails_top))
+    icon.alpha_composite(post, ((width - cell_w) // 2, above - foot_row))
+    box = icon.getbbox()
+    return icon.crop(box) if box else None
 
 
 def _draw_cracked_post(tile: Image.Image, style: str) -> None:
@@ -211,6 +253,52 @@ def _draw_cracked_post(tile: Image.Image, style: str) -> None:
     tile.alpha_composite(post, ((SIZE - post.width) // 2, SIZE - 6 - post.height))
 
 
+def _is_edge_style(style: str) -> bool:
+    """An edge style (its kit's `edge`: lair-ledge) draws along a side of its cell (fences.gd)."""
+    path = KITS / f"{style}.json"
+    return path.exists() and bool(json.loads(path.read_text(encoding="utf-8")).get("edge", False))
+
+
+def _draw_edge_tile(tile: Image.Image, style: str, direction: tuple[int, int] | None) -> None:
+    """The edge style's tile as the game draws the cell (1 tile px = 1 world unit, the kit at 2 px a
+    unit): the front blocks against its north or south side, the side's column against its west or
+    east side, both for a corner (the column takes the corner); the all-neighbour tile the south side."""
+    dx, dy = direction if direction is not None else (0, 1)
+    rails = Image.open(KITS / f"{style}-rails.png").convert("RGBA")
+    side = Image.open(KITS / f"{style}-rails-side.png").convert("RGBA")
+    rails = rails.resize((rails.width // 2, rails.height // 2), Image.Resampling.LANCZOS)
+    side = side.resize((side.width // 2, side.height // 2), Image.Resampling.LANCZOS)
+    if dy != 0:
+        left = side.width if dx < 0 else 0
+        right = SIZE - (side.width if dx > 0 else 0)
+        tile.alpha_composite(rails.crop((left, 0, right, rails.height)), (left, SIZE - rails.height if dy > 0 else 0))
+    if dx != 0:
+        # A lone tile's column ends on the end block (the kit's `pieces.end`) in its last block's place.
+        metrics = json.loads((KITS / f"{style}.json").read_text(encoding="utf-8"))
+        block = SIZE // int(metrics["side"].get("blocks", 1))
+        end = _edge_piece(style, metrics, "end")
+        x = 0 if dx < 0 else SIZE - side.width
+        tile.alpha_composite(side.crop((0, 0, side.width, SIZE - block)), (x, 0))
+        tile.alpha_composite(end.crop((0, 0, end.width, min(end.height, block))), (x, SIZE - block))
+
+
+def _edge_piece(style: str, metrics: dict, name: str) -> Image.Image:
+    """The kit's piece `name` (`pieces`: [u, v, width, height] in `<style>-posts.png`), at tile scale."""
+    u, v, w, h = metrics["pieces"][name]
+    piece = Image.open(KITS / f"{style}-posts.png").convert("RGBA").crop((u, v, u + w, v + h))
+    return piece.resize((max(1, w // 2), max(1, h // 2)), Image.Resampling.LANCZOS)
+
+
+def _draw_corner_tile(image: Image.Image, column: int, row: int, style: str, step: tuple[int, int]) -> None:
+    """An edge style's corner tile as the game draws it: the corner block alone in that corner."""
+    tile = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    ImageDraw.Draw(tile).rectangle((0, 0, SIZE - 1, SIZE - 1), fill=(18, 26, 20, 24), outline=(223, 229, 211, 205), width=1)
+    metrics = json.loads((KITS / f"{style}.json").read_text(encoding="utf-8"))
+    corner = _edge_piece(style, metrics, "corner")
+    tile.alpha_composite(corner, (0 if step[0] < 0 else SIZE - corner.width, 0 if step[1] < 0 else SIZE - corner.height))
+    image.alpha_composite(tile, (column * SIZE, row * SIZE))
+
+
 def _draw_tile(image: Image.Image, column: int, row: int, style: str, color: tuple[int, int, int],
                direction: tuple[int, int] | None, cracked: bool = False) -> None:
     x0, y0 = column * SIZE, row * SIZE
@@ -218,7 +306,16 @@ def _draw_tile(image: Image.Image, column: int, row: int, style: str, color: tup
     draw = ImageDraw.Draw(tile)
     background = (18, 26, 20, 24)
     draw.rectangle((0, 0, SIZE - 1, SIZE - 1), fill=background, outline=(223, 229, 211, 205), width=1)
-    _draw_material(draw, style, color, direction)
+    if _is_edge_style(style):
+        _draw_edge_tile(tile, style, direction)
+        image.alpha_composite(tile, (x0, y0))
+        return
+    icon = _fence_icon(style) if direction is None and not cracked else None
+    if icon is not None:
+        icon.thumbnail((SIZE - 8, SIZE - 22), Image.Resampling.LANCZOS)
+        tile.alpha_composite(icon, ((SIZE - icon.width) // 2, 48 - icon.height))
+    else:
+        _draw_material(draw, style, color, direction)
     if cracked:
         _draw_cracked_post(tile, style)
     # A colored foot swatch identifies material without a letter or abbreviation.
@@ -228,13 +325,16 @@ def _draw_tile(image: Image.Image, column: int, row: int, style: str, color: tup
 
 
 def main() -> None:
-    image = Image.new("RGBA", (SIZE * _columns(), SIZE * (CRACKED_ROW + 1)), (0, 0, 0, 0))
+    image = Image.new("RGBA", (SIZE * _columns(), SIZE * (CORNER_ROWS[-1][0] + 1)), (0, 0, 0, 0))
     for row, direction_entry in enumerate(ROWS):
         direction = None if direction_entry is None else direction_entry[2]
         for index, (style, color) in enumerate(STYLES):
             _draw_tile(image, style_column(index), row, style, color, direction)
     for index, (style, color) in enumerate(STYLES):
         _draw_tile(image, style_column(index), CRACKED_ROW, style, color, None, True)
+        if _is_edge_style(style):
+            for row, _name, _direction_index, step in CORNER_ROWS:
+                _draw_corner_tile(image, style_column(index), row, style, step)
     for _style, (column, row), picture in GATES:
         tile = Image.new("RGBA", (SIZE, SIZE), (18, 26, 20, 24))
         ImageDraw.Draw(tile).rectangle((0, 0, SIZE - 1, SIZE - 1), outline=(223, 229, 211, 205), width=1)

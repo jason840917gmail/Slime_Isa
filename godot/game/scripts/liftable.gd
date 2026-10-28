@@ -42,6 +42,9 @@ const FOOTPRINT_MIN_WIDTH := 10.0
 @export var variant: int = -1
 ## Needs a lift upgrade (Planned, 2026-10-08): the slime cannot suck it in yet.
 @export var heavy: bool = false
+## Throw combat: this thing's weight, "light", "medium" or "heavy" (set from the root's `weight`:
+## liftable_root.gd). "" falls back to its kind's usual weight (`gulp.throwCombat.kindWeights`).
+@export var weight_class: String = ""
 
 
 func _enter_tree() -> void:
@@ -123,7 +126,7 @@ func origin() -> Vector2:
 
 
 func suck_info() -> Dictionary:
-	return {"kind": kind, "essence": "", "variant": maxi(variant, 0)}
+	return {"kind": kind, "essence": "", "variant": maxi(variant, 0), "weight": weight()}
 
 
 func can_take() -> bool:
@@ -135,8 +138,11 @@ func can_take() -> bool:
 	return not heavy
 
 
-## Throw combat: "light", "medium" or "heavy" (`gulp.throwCombat.kindWeights`; `heavy` is heavy).
+## Throw combat: "light", "medium" or "heavy": `weight_class` when set, else the kind's usual weight
+## (`gulp.throwCombat.kindWeights`; `heavy` is heavy).
 func weight() -> String:
+	if ThrowMode.WEIGHTS.has(weight_class):
+		return weight_class
 	return ThrowMode.HEAVY if heavy else ThrowMode.weight_of(kind)
 
 

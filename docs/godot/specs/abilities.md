@@ -437,8 +437,10 @@ and the 420 ms duration on one level are unchanged. Pressure plates ignore a sli
 
 On a world with elevation ([ELEVATION.md](../ELEVATION.md) "Moving between levels") the target is
 `Elevation.hop_target` instead of §5.2's trace: the arc is `elevation.hopArcHeight` (36, below one
-level), the hop never climbs (it stops before higher ground and walls) and over a rim it drops to
-the lower level, taking `dropMsPerLevel` longer per level; the landing sets the body's level. The
+level), the hop never climbs (it stops before higher ground, walls and stairs going up) and over a
+rim or down over a flight of stairs it drops to the lower level, landing 64 units lower on screen
+per level dropped (worked out on the ground plane), off the steps and off that level's painted rims
+and bases, taking `dropMsPerLevel` longer per level; the landing sets the body's level. The
 same flight runs a ledge drop (`PlayerAbilities.begin_drop`: no cue, no cooldown, no energy).
 
 ---
@@ -1204,6 +1206,18 @@ across maps (5 placed, §14.1) → max HP up to 150. Godot: flag through `RunSta
 `RunState.player.goo_hearts`, the live player must take the new maximum and heal
 (`player.grant_goo_heart()`, §19.3; `restore_run_state` already reads `RunState.max_hp()`).
 
+**Godot change (owner, 2026-10-26; roadmap 5.3): every Goo Heart is a heart quarter.** The pickup
+and the heart chests add one quarter (`RunState.player.heart_quarters`, `player.grant_heart_quarter()`);
+a quarter alone adds no HP, and every `character.player.heartQuarter.perHeart` (4) make a whole heart
+of `heartMaxHpBonus` (20), which fills HP: `max_hp = 100 + (quarters / 4) × 20 + full hearts × 20`.
+The text is "Heart quarter N of 4" or "Heart complete! +20 max HP", the ceremony's kicker "Heart
+Quarter". Only a beaten boss gives a full heart (`full_heart.gd`). A save's old `goo_hearts` count
+becomes that many quarters on load (HP held to the new maximum). The `gooHeart` constants are gone.
+The picture (owner pick 2026-10-27) is a glass heart filling with goo, four levels
+(`asset/MAPS/props/256x256-tile_4x1-heart-quarter.webp`, `scripts/props/pack-heart-quarter.py`): a
+pickup shows the level taking it would bring the next heart to; the chest's rising quarter and the
+ceremony show the level reached. A boss's full heart keeps the whole goo heart.
+
 ### 13.8 `game.restoration-site` → `scripts/restoration_site.gd` [IN, quest gate stubbed; needs interaction + inventory]
 
 Descriptor `:733-751`; script `RestorationSiteScript.ts:41-78`. No signals or handlers; it is an
@@ -1367,7 +1381,7 @@ Nothing in the playground teaches jump, slam or teleport; tests teach them throu
 | `character.player.stats.maxEnergy` | 100 | Energy cap, respawn refill |
 | `character.player.stats.energyRegenPerSecond` | 8 | Regen (§4) |
 | `character.player.stats.maxHp` | 100 | Base max HP (Goo Hearts add) |
-| `character.player.gooHeart.maxHpBonus` | 10 | Per heart (§13.7) |
+| `character.player.heartQuarter.perHeart` / `heartMaxHpBonus` | 4 / 20 | Quarters per heart, max HP per whole heart (§13.7, Godot) |
 | `character.player.movement.rollSpinUpMs` / `rollMinMs` / `rollCooldownMs` | 260 / 450 / 250 | Roll cooldown 960 (§1); replaced `dodgeDurationMs` / `dodgeCooldownMs` (500 / 250) on 2026-10-09 |
 | `character.player.movement.rollLaunchSpeed` / `rollSpeed` / `rollInvulnerabilityMs` / `rollEnergyPerSecond` | 460 / 340 / 400 / 12 | The Roll itself (player spec §5); `rollTurnRadPerS` was removed on 2026-10-09 (the Roll goes straight) |
 | `character.player.movement.rollBonkShakeMs` / `rollBonkShakeIntensity` / `rollBonkHitStopMs` / `rollBonkWobbleRadiusPx` | 220 / 0.008 / 60 / 140 | The Roll's bonk: shake, hit-stop, the things that wobble (player spec §5) |

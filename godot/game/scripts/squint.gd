@@ -10,7 +10,9 @@ class_name SquintScript
 ## - **Rear** (the tell, `rearMs`): within `leapRangePx` of the slime (`cooldownMs` after its last
 ##   opening) it rears up, rattling, and a ring (`ringRadiusPx` x `ringRadiusYPx`) lights up on the
 ##   ground where it will come down: where the slime's feet were, `leapPx` at most away.
-## - **Air** (`airMs`, `hopHeightPx` high): it leaps there; a wall ends the leap early.
+## - **Air** (`airMs`, `hopHeightPx` high): it leaps there; a wall or the water ends the leap early.
+##   In the air it passes over the slime and the liftable things and hurts nothing: only the landing
+##   slam does (set_airborne, air_blocked).
 ## - **Slam:** everything in the ring takes `slamDamage` with `slamKnockback`; the screen shakes.
 ##   A Big Squint stomps `stomps` times in a row: after each but the last it settles `betweenMs`,
 ##   visor shut, and rears again for `nextRearMs` with a new ring at the slime's feet.
@@ -41,8 +43,6 @@ const CUE_SLAM := &"StomperSlam"
 const CUE_OPEN := &"GroundCreak"
 const CUE_SHUT := &"GateLocked"
 const DUST := &"dodge-dust"
-## A blocked leap: the mover left less than this share of the asked speed.
-const BLOCKED_SHARE := 0.5
 ## Presentation: the waddle, the rear's rattle and tilt, the slam's squash, the daze's sway, the
 ## shadow in the air.
 const WADDLE_RAD := 0.06
@@ -110,8 +110,9 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 		PHASE_AIR:
 			var air_ms := maxf(1.0, pattern("airMs", 380.0))
 			var t := clampf(elapsed / air_ms, 0.0, 1.0)
-			var blocked := _asked != Vector2.ZERO and elapsed > 0.0 \
-				and body.velocity.length() < _asked.length() * BLOCKED_SHARE
+			# A wall or the water ends the leap early; the slime, the other bodies and the liftable
+			# things do not (set_airborne), so the leap never sticks on them.
+			var blocked := air_blocked(_asked * delta)
 			if t >= 1.0 or blocked:
 				_slam(now, target)
 				return
@@ -153,7 +154,7 @@ func _rear(now: float, target: Dictionary) -> void:
 		goal = slime_body.global_position
 	var offset := goal - _from
 	var reach := minf(offset.length(), pattern("leapPx", 90.0))
-	_to = _from + (offset.normalized() * reach if offset.length() > 0.0 else Vector2.ZERO)
+	_to = landing_point(_from, _from + (offset.normalized() * reach if offset.length() > 0.0 else Vector2.ZERO))
 	face_x(offset.x)
 	AttackTelegraph.show_for(self, _ring_at(_to))
 	_cue(CUE_REAR)
@@ -162,6 +163,7 @@ func _rear(now: float, target: Dictionary) -> void:
 func _leap(now: float) -> void:
 	_transition(PHASE_AIR, now)
 	set_solid(false)
+	set_airborne(true)
 	_asked = Vector2.ZERO
 	_cue(CUE_LEAP)
 	_puff(DUST, feet())
@@ -171,6 +173,7 @@ func _slam(now: float, target: Dictionary) -> void:
 	body.velocity = Vector2.ZERO
 	_asked = Vector2.ZERO
 	set_solid(true)
+	set_airborne(false)
 	_landed_at = now
 	var shadow := ground_shadow()
 	if shadow != null:

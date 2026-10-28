@@ -17,16 +17,30 @@ const CATALOG := "res://game/data/liftables.json"
 const PotLoot := preload("res://game/dungeon/pot_loot.gd")
 const SCRIPT_NODE := "LiftableScript"
 const LOOT_NODE := "PotLoot"
+const CONSTANTS := "res://game/data/game-constants.json"
+const WEIGHTS: PackedStringArray = ["light", "medium", "heavy"]
 
 ## Which liftable it is ("" keeps the scene's own).
 @export var kind: String = "":
 	set(value):
 		kind = value
+		# Picking a kind in the editor fills in its usual weight (loading a scene does not).
+		if Engine.is_editor_hint() and is_inside_tree() and not value.is_empty():
+			weight = kind_weight(value)
 		_apply_kind()
 ## What it leaves where it stood when it is sucked up.
 @export_enum("keep", "none", "heart", "energy", "coins", "random") var under: String = "keep"
+## Throw combat: how heavy it is, "light", "medium" or "heavy" (the Gulp's level decides whether it
+## lifts). The source of truth for this thing's weight: picking a kind fills in that kind's usual
+## weight (`gulp.throwCombat.kindWeights`), and it can be changed after. "" (a scene not yet opened
+## in the editor) uses the kind's usual weight.
+@export var weight: String = "":
+	set(value):
+		weight = value
+		_apply_weight()
 
 static var _kinds_cache: Dictionary = {}
+static var _combat_cache: Dictionary = {}
 
 
 ## The catalog's kinds (id -> {"name", "frames", ...}), read once.
@@ -48,7 +62,10 @@ static func first_frame(id: String) -> int:
 
 
 func _validate_property(property: Dictionary) -> void:
-	if property["name"] == "kind":
+	if property["name"] == "weight":
+		property["hint"] = PROPERTY_HINT_ENUM
+		property["hint_string"] = ",".join(WEIGHTS)
+	elif property["name"] == "kind":
 		property["hint"] = PROPERTY_HINT_ENUM_SUGGESTION
 		property["hint_string"] = ",".join(PackedStringArray(catalog_kinds().keys()))
 
@@ -56,11 +73,54 @@ func _validate_property(property: Dictionary) -> void:
 ## Before the LiftableScript child's _ready (a root enters the tree before its children are ready).
 func _enter_tree() -> void:
 	_apply_kind()
+	# In the editor an older scene's thing shows its kind's usual weight (saved with the scene).
+	if Engine.is_editor_hint() and weight.is_empty():
+		var script_node := get_node_or_null(SCRIPT_NODE)
+		var id := kind if not kind.is_empty() else (str(script_node.get(&"kind")) if script_node != null else "")
+		if not id.is_empty():
+			weight = kind_weight(id)
+	_apply_weight()
 
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
 		_apply_under()
+
+
+## A kind's usual weight (`gulp.throwCombat.kindWeights`, read once): "light" when it has none.
+static func kind_weight(id: String) -> String:
+	return str(_combat_table("kindWeights").get(id, "light"))
+
+
+## A kind's throw effect, as throw_mode.gd's `effect_of` picks it (`kindEffects`, then its
+## material's `materialEffects`): "freeze", "sleep", "stick", "shatter", "pierce" or "" for none.
+## Read from the files, so the editor can show it (the Scenery dock's hover text).
+static func kind_effect(id: String) -> String:
+	var by_kind := _combat_table("kindEffects")
+	if by_kind.has(id):
+		return str(by_kind[id])
+	var entry: Variant = catalog_kinds().get(id)
+	var material := str((entry as Dictionary).get("material", "")) if entry is Dictionary else ""
+	return str(_combat_table("materialEffects").get(material, ""))
+
+
+## A table under `gulp.throwCombat` in the game constants (read once), {} when missing.
+static func _combat_table(key: String) -> Dictionary:
+	if _combat_cache.is_empty():
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(CONSTANTS))
+		var gulp: Variant = (parsed as Dictionary).get("gulp") if parsed is Dictionary else null
+		var combat: Variant = (gulp as Dictionary).get("throwCombat") if gulp is Dictionary else null
+		if combat is Dictionary:
+			_combat_cache = combat
+	var table: Variant = _combat_cache.get(key)
+	return table if table is Dictionary else {}
+
+
+## The child keeps the weight ("" leaves its kind's usual one).
+func _apply_weight() -> void:
+	var script_node := get_node_or_null(SCRIPT_NODE)
+	if script_node != null:
+		script_node.set(&"weight_class", weight)
 
 
 ## The child keeps the kind; the editor's picture shows it at once.
