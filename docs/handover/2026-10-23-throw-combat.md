@@ -7,7 +7,7 @@ experiment happens in one place.
 
 | | Folder | Branch | State |
 |---|---|---|---|
-| **This workspace** | `D:/projects/Slime isa-throw` (a git worktree) | `exp/throw-combat` | HEAD `8d557e25`, clean, **not pushed** |
+| **This workspace** | `D:/projects/Slime isa-throw` (a git worktree) | `exp/throw-combat` | HEAD `8d557e25` when this was written (2026-10-30: `64259c9d`, eight commits on, among them the world move below), **not pushed** |
 | The main checkout | `D:/projects/Slime isa` | `main` | `c3325139`, clean, 3 commits ahead of `origin/main` (not pushed) |
 
 - The owner's Godot editor has **this** folder open (`--path "D:/projects/Slime isa-throw/godot"`).
@@ -47,7 +47,10 @@ Commits on the branch, oldest first:
 
 Nothing has been played by hand by an agent; headless checks only. The suite was not run.
 
-## The task in progress (not started on disk)
+## The task in progress (done: `84ee5d69`, 2026-10-23)
+
+*Updated 2026-10-30: this move is done and committed (`84ee5d69` "move the playground caves and dev
+worlds out of worlds/"); the steps below are kept as the record of how.*
 
 The owner asked (2026-10-23): move **the two playground caves into `rooms/playground/`** and **the
 labs and test worlds into a dev folder**, and **leave his scratch worlds where they are** (`174`,

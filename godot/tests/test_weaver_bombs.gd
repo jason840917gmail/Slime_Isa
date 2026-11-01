@@ -6,7 +6,8 @@ extends RefCounted
 ##   leads down to `playground-cavern`; the Stone form's Squash Slam still breaks it; the creak hint
 ##   names a blast once the bomb is learned;
 ## - a cracked floor (`object.cracked-floor`, cracked_floor.gd) blown by a bomb is a one-way fall
-##   into another world, landing on a named marker there (door.gd `target_marker`);
+##   into another world, landing on its landing there, or with none named on its spawn (door.gd
+##   `target_door_id`);
 ## - the cracked winch post (`object.winch-post-cracked`, winch_post.gd) triggers its target once,
 ##   and built again after a save and load it stands broken and calls it with "instant";
 ## - blast kegs (`object.blast-keg`, blast_keg.gd) a blast apart go off one after another
@@ -114,7 +115,6 @@ func test_a_cracked_floor_drops_one_way_into_another_world(t: TestContext) -> vo
 		return
 	cracked_floor.set(&"flag_id", FLOOR_FLAG)
 	cracked_floor.set(&"target_area_id", CAVERN)
-	cracked_floor.set(&"target_marker", CAVERN_MARKER)
 	cracked_floor.position = OPEN
 	t.world().entities_root().add_child(cracked_floor)
 	t.teleport_player(OPEN + AWAY)
@@ -123,7 +123,7 @@ func test_a_cracked_floor_drops_one_way_into_another_world(t: TestContext) -> vo
 	if not t.check(door != null, "the cracked floor has no hole door"):
 		return
 	t.equal(str(door.get(&"kind")), "fall", "the hole's kind")
-	t.equal(str(door.get(&"target_marker")), CAVERN_MARKER, "the hole's marker")
+	t.equal(str(door.get(&"target_door_id")), "", "the hole's landing (none: the spawn)")
 	t.check(not door.is_inside_tree(), "the hole is there before the floor broke")
 	t.check(not bool(cracked_floor.call(&"is_broken")), "the cracked floor starts broken")
 	GooBlast.detonate(OPEN + Vector2(-40.0, 10.0), false)

@@ -1,8 +1,8 @@
 extends RefCounted
 ## The player's ability table (Phaser `features/player/PlayerAbilityDefinitions.ts:39-60`, literals
 ## there too; abilities spec 1). The dodge's cooldown comes from game constants at run time
-## (`rollSpinUpMs + rollMinMs + rollCooldownMs` = 960; in the body-shapes rework mode the quick
-## roll's `quickRollMs + rollCooldownMs` = 580).
+## (`rollSpinUpMs + rollMinMs + rollCooldownMs` = 1710; in the body-shapes rework mode the quick
+## roll's `quickRollMs + rollCooldownMs` = 1330).
 ##
 ## The dodge is the Roll (owner, 2026-10-09; roadmap 7.7, game/player/roll/player_roll.gd): it
 ## keeps the id `dodge` and the `dodge` action, so saves and quests stay valid, and shows as "Roll".

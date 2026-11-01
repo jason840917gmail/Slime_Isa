@@ -1,23 +1,25 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://c61tl5awj7jtw"]
 
 [ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_fmrli"]
-[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_n6r5k"]
+[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://game/world/terrain_tileset.tres" id="2_n6r5k"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_dbnq3"]
-[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="4_lxu62"]
+[ext_resource type="TileSet" uid="uid://d0w4fj6hrum5o" path="res://game/world/elevation/elevation_tileset.tres" id="4_lxu62"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="5_gacbu"]
-[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="6_727sy"]
+[ext_resource type="TileSet" uid="uid://dtulcyvm4c4ki" path="res://game/world/interior/interior_wall_tileset.tres" id="6_727sy"]
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="7_67y0l"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="8_lrjyu"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="9_pryx0"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/falling-slab.tscn" id="10_y67xo"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard-deck.tscn" id="11_rpikl"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="12_rw7870"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="12_rw7870"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="13_rw5089"]
-[ext_resource type="Script" path="res://game/fattys_lair/void_shade.gd" id="14_rw8679"]
+[ext_resource type="Script" uid="uid://c1xrbb1jfupvd" path="res://game/fattys_lair/void_shade.gd" id="14_rw8679"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="15_rw0800"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="16_rw2444"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="17_rw6125"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="16_rw2444"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="17_rw6125"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="18_r2bolt"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 
 [node name="r2-slab-steps" type="Node2D" unique_id=424114701]
 y_sort_enabled = true
@@ -41,9 +43,17 @@ script = ExtResource("5_gacbu")
 room_back_faces = true
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=910439161]
+self_modulate = Color(1, 1, 1, 0.3)
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAIAAAAAAAAAAEAAAAJAAAAAAAAAAEAAAAKAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAPAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAARAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAABAAEAAAAAAAAAAAACAAEAAAAAAAAAAAADAAEAAAAAAAAAAAAEAAEAAAAAAAAAAAAFAAEAAAAAAAAAAAAGAAEAAAAAAAAAAAAHAAEAAAAAAAAAAAAIAAEAAAAAAAEAAAAJAAEAAAAAAAEAAAAKAAEAAAAAAAAAAAALAAEAAAAAAAAAAAAMAAEAAAAAAAAAAAANAAEAAAAAAAAAAAAOAAEAAAAAAAAAAAAPAAEAAAAAAAAAAAAQAAEAAAAAAAAAAAARAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAABAAIAAAAAAAAAAAAQAAIAAAAAAAAAAAARAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAABAAMAAAAAAAAAAAAQAAMAAAAAAAAAAAARAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAABAAQAAAAAAAAAAAAQAAQAAAAAAAEAAAARAAQAAAAAAAEAAAAAAAUAAAAAAAAAAAABAAUAAAAAAAAAAAAQAAUAAAAAAAEAAAARAAUAAAAAAAEAAAAAAAYAAAAAAAAAAAABAAYAAAAAAAAAAAAQAAYAAAAAAAAAAAARAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAABAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAABAAgAAAAAAAAAAAAAAAkAAAAAAAAAAAABAAkAAAAAAAAAAAAAAAoAAAAAAAAAAAABAAoAAAAAAAAAAAAAAAsAAAAAAAEAAAABAAsAAAAAAAEAAAAQAAsAAAAAAAAAAAARAAsAAAAAAAAAAAAAAAwAAAAAAAEAAAABAAwAAAAAAAEAAAAQAAwAAAAAAAAAAAARAAwAAAAAAAAAAAAAAA0AAAAAAAAAAAABAA0AAAAAAAAAAAAQAA0AAAAAAAAAAAARAA0AAAAAAAAAAAAAAA4AAAAAAAAAAAABAA4AAAAAAAAAAAACAA4AAAAAAAAAAAADAA4AAAAAAAAAAAAEAA4AAAAAAAAAAAAFAA4AAAAAAAAAAAAGAA4AAAAAAAAAAAAHAA4AAAAAAAAAAAAIAA4AAAAAAAAAAAAJAA4AAAAAAAAAAAAKAA4AAAAAAAAAAAALAA4AAAAAAAAAAAAMAA4AAAAAAAAAAAANAA4AAAAAAAAAAAAOAA4AAAAAAAAAAAAPAA4AAAAAAAAAAAAQAA4AAAAAAAAAAAARAA4AAAAAAAAAAAAAAA8AAAAAAAAAAAABAA8AAAAAAAAAAAACAA8AAAAAAAAAAAADAA8AAAAAAAAAAAAEAA8AAAAAAAAAAAAFAA8AAAAAAAAAAAAGAA8AAAAAAAAAAAAHAA8AAAAAAAAAAAAIAA8AAAAAAAAAAAAJAA8AAAAAAAAAAAAKAA8AAAAAAAAAAAALAA8AAAAAAAAAAAAMAA8AAAAAAAAAAAANAA8AAAAAAAAAAAAOAA8AAAAAAAAAAAAPAA8AAAAAAAAAAAAQAA8AAAAAAAAAAAARAA8AAAAAAAAAAAAQAAcAAAAAAAAAAAARAAcAAAAAAAAAAAAQAAgAAAAAAAAAAAARAAgAAAAAAAAAAAAQAAkAAAAAAAAAAAARAAkAAAAAAAAAAAAQAAoAAAAAAAAAAAARAAoAAAAAAAAAAAA=")
 tile_set = ExtResource("6_727sy")
 script = ExtResource("7_67y0l")
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=729320490]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAoAAAADAAAAAAACAAsAAAADAAAAAAACAAwAAAADAAAAAAACAA0AAAADAAAAAAADAA0AAAADAAAAAAAEAA0AAAADAAAAAAAHAA0AAAADAAAAAAAIAA0AAAADAAAAAAAJAA0AAAADAAAAAAAKAA0AAAADAAAAAAALAA0AAAADAAAAAAAMAA0AAAADAAAAAAANAA0AAAADAAAAAAAOAA0AAAADAAAAAAAPAA0AAAADAAAAAAAPAAwAAAADAAAAAAAPAAsAAAADAAAAAAAPAAoAAAADAAAAAAAPAAUAAAADAAAAAAAPAAQAAAADAAAAAAAPAAMAAAADAAAAAAAPAAIAAAADAAAAAAAOAAIAAAADAAAAAAANAAIAAAADAAAAAAAMAAIAAAADAAAAAAALAAIAAAADAAAAAAAKAAIAAAADAAAAAAAJAAIAAAADAAAAAAAIAAIAAAADAAAAAAAHAAIAAAADAAAAAAAGAAIAAAADAAAAAAAFAAIAAAADAAAAAAAEAAIAAAADAAAAAAADAAIAAAADAAAAAAACAAIAAAADAAAAAAACAAMAAAADAAAAAAACAAQAAAADAAAAAAACAAUAAAADAAAAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
 
 [node name="CameraRooms" type="Node2D" parent="." unique_id=444330654]
 
@@ -102,8 +112,8 @@ size = Vector2(128, 128)
 [node name="r2-east-door" parent="Objects" unique_id=1726404917 instance=ExtResource("18_r2bolt")]
 position = Vector2(1024, 320)
 rotation = 1.5707964
-wall = "east"
 bolt_here = false
+wall = "east"
 door_id = "fatty-lair-r2-east"
 frame_drawn_by_wall = true
 link_id = "fatty-lair-r7-way-back"
@@ -131,6 +141,7 @@ position = Vector2(224, 800)
 [node name="Dungeon" parent="." unique_id=1262224426 instance=ExtResource("13_rw5089")]
 
 [node name="VoidShade" type="Node2D" parent="." unique_id=1632496486]
+z_index = -1
 script = ExtResource("14_rw8679")
 rects = Array[Rect2]([Rect2(128, 384, 576, 64), Rect2(832, 384, 192, 64), Rect2(128, 448, 576, 64), Rect2(832, 448, 192, 64), Rect2(128, 512, 576, 64), Rect2(832, 512, 192, 64), Rect2(128, 576, 576, 64), Rect2(832, 576, 192, 64), Rect2(320, 640, 128, 64), Rect2(320, 832, 128, 64)])
 
@@ -148,7 +159,6 @@ position = Vector2(576, 0)
 door_id = "r2-to-hub"
 target_room = "r3-pit-hall"
 target_door = "hub-to-r2"
-side = "north"
 
 [node name="r2-to-r7" parent="RoomDoors" unique_id=429207081 instance=ExtResource("15_rw0800")]
 position = Vector2(1152, 320)
@@ -157,7 +167,6 @@ target_room = "r7-bell-bridge"
 target_door = "r7-to-r2"
 side = "east"
 requires = "done:fatty-lair-r7-way-back"
-locked_text = "Bolted from the other side."
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1893659456]
 process_mode = 3

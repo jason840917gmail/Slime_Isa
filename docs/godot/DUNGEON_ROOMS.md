@@ -44,7 +44,7 @@ key alcove are one world, `fatty-lair-r5-eye-hall`, three CameraRooms (the owner
     be set before the door lets the slime through, when what holds the passage stands in the other
     room: `done:<door id>` (a kit door opened for good: the bolts' far sides, Burr's door),
     `gate:<gate id>` (a gate opened for good: R5's stone doors), `flag:<flag>` (a barricade
-    smashed, the crack blown, the nook's gap), `session:<name>` (R10's plate held down). While the
+    smashed, the crack blown), `session:<name>` (R10's plate held down). While the
     record is not set the door refuses (`is_blocked`), saying `locked_text`, or nothing when it is
     empty (the crack or the barricade in the passage speaks for itself);
   - `width`, `depth` (the trigger in the passage), `arrival_inset` (how far in the slime arrives).
@@ -60,9 +60,10 @@ key alcove are one world, `fatty-lair-r5-eye-hall`, three CameraRooms (the owner
   (gate `fatty-lair-r9-north`, `open_while_record` the plate's record) that R10's plate opens and
   shuts with R9's. The passage of a north or south doorway is the middle 64 units of its two
   cells (the wall's collision), so the slime goes through it centred. The music carries on from room
-  to room (as between a region's chunks). The Inner Stair and the crypt's ladder go between worlds
-  too (`stair_hatch.gd` `target_world`, `target_marker`), with their fade, arriving facing their
-  `arrival_facing`.
+  to room (as between a region's chunks). The Inner Stair and the crypt's stair back up (stair
+  doors, `stair_door.gd` on `stair_hatch.gd`) go between worlds too (`target_world`,
+  `target_door`: each names the other), with their walk and fade, and come out of the other stair
+  facing into the room (docs/design/2026-10-31-crossings-and-arrivals.md).
 - **Records instead of links.** Anything that ties two rooms is a record the other room reads when
   it is built. The kit keeps "done for good" under the dungeon's id, not the room's world
   (`Dungeon.record_map_id` = `fatty-lair`; `DungeonState.object_key`), so every bolt, door, bridge,
@@ -86,7 +87,8 @@ key alcove are one world, `fatty-lair-r5-eye-hall`, three CameraRooms (the owner
   rooms (R5) has a map room per CameraRoom, each naming the one scene and its `camera_room`; where
   that CameraRoom lies in the scene (`camera_offset`) places the world on the map. Drag rooms freely:
   `test_interior_walls.gd` checks that every pair of sliding room doors meets on the map. LayoutMark nodes
-  (`layout_mark.gd`) put the compass's skull over Fatty's room and the seals' red bars on the map.
+  (`layout_mark.gd`) put the skull over Fatty's room (once the map is held) and the seals' red bars
+  on the map.
   The map screen and the minimap draw every room of the layout (`Dungeon.rooms`), the slime's own
   room where the layout puts it. The compass's chest dots cover every room too: the other rooms'
   chests are read from their scenes once a session (`Dungeon.layout_rooms_elsewhere`,
@@ -108,8 +110,9 @@ key alcove are one world, `fatty-lair-r5-eye-hall`, three CameraRooms (the owner
   shows them as rooms of their own (LayoutRoom `camera_room`).
 - **The Lair's director** stands in each room that needs it, with that room's paths: the hub (Burr,
   his cell door, the Inner Stair), the arena (Fatty, his clods, his heart, the shutters; the
-  compass's mark), the Larder (the Pearl's glow), R4 (the nook's gap, kept by
-  `fatty-lair.nook-gap-open`).
+  map's boss mark), the Larder (the Pearl's glow). R4's has none set since its room fight
+  (2026-10-28): three Squints, and its west shutter (to the map nook) and south one (to R5), shut
+  (`starts_shut`) each time the room is built, sink when they fall.
 - **Elevation**: each room world with painted holes has its own baked cache
   (`elevation_cache/rooms__fatty-lair__<room>.res`; `tools/bake_elevation.gd -- --world=<id>`).
 

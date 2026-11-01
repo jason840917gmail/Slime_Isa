@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="13_rw7223"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/cave-ladder.tscn" id="15_ladder"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="14_rw7554"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/landing.tscn" id="16_landing"]
 
 [node name="sally-port" type="Node2D" unique_id=1439847859]
 y_sort_enabled = true
@@ -79,8 +80,9 @@ metadata = {
 [node name="player-spawn" type="Node2D" parent="." unique_id=1888956260]
 position = Vector2(320, 352)
 
-[node name="sally-port-landing" type="Node2D" parent="."]
+[node name="sally-port-landing" parent="." unique_id=1998983431 instance=ExtResource("16_landing")]
 position = Vector2(352, 352)
+door_id = "sally-port-landing"
 
 [node name="ladder" parent="Objects" instance=ExtResource("15_ladder")]
 position = Vector2(1376, 412)

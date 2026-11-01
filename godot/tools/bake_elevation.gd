@@ -36,7 +36,7 @@ func _initialize() -> void:
 		if packed == null:
 			continue
 		var world := packed.instantiate() as Node2D
-		var ground := world.get_node_or_null("ground") as TileMapLayer
+		var ground := Elevation.find_ground_in(world)
 		var painted := Elevation.find_layer(ground) if ground != null else null
 		if painted == null or painted.get_used_cells().is_empty():
 			world.free()

@@ -35,6 +35,8 @@ const LINES: Array[String] = [
 @export var badge_rise: float = 110.0
 
 var _talking := false
+## The slime his talk holds still (`_hold_player`).
+var _held_player: Node
 
 
 func _ready() -> void:
@@ -80,14 +82,14 @@ func _refresh() -> void:
 func _talk() -> void:
 	_talking = true
 	var world := Services.world()
-	var player: Node = world.player if world != null else null
-	var hold := func() -> void: PrologueScene.hold(player)
-	get_tree().physics_frame.connect(hold)
+	_held_player = world.player if world != null else null
+	# A method of this node, not a lambda: freed mid-speech, the tree drops the connection with it.
+	get_tree().physics_frame.connect(_hold_player)
 	if actor != null:
 		actor.wave(1.2)
 	await PrologueScene.say(get_tree(), SPEAKER, LINES)
-	if get_tree().physics_frame.is_connected(hold):
-		get_tree().physics_frame.disconnect(hold)
+	if get_tree().physics_frame.is_connected(_hold_player):
+		get_tree().physics_frame.disconnect(_hold_player)
 	var run := Services.run()
 	if run != null:
 		run.set_flag(FLAG_TALKED)
@@ -97,3 +99,8 @@ func _talk() -> void:
 		await actor.fade_out(0.5)
 	_talking = false
 	_refresh()
+
+
+## Each physics frame while he talks: the slime stands still.
+func _hold_player() -> void:
+	PrologueScene.hold(_held_player)

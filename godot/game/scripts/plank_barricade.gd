@@ -53,6 +53,12 @@ signal refused(payload: Dictionary)
 ## The hard shake of the smash (ms, intensity).
 @export var shake_ms: float = 450.0
 @export var shake_intensity: float = 0.014
+## How far north of the root (world units) the smashed heap reaches, for a smashed picture that
+## keeps a standing part: the plank barricade's arch (owner, 2026-11-01: a chest behind it showed
+## over it). The picture stays sorted with the bodies, from the heap's back edge, so what stands
+## behind the arch is drawn behind it and a body on the heap in front of it. 0: the whole smashed
+## picture lies flat under the bodies (HEAP_Z: a trunk, a fence, timbers).
+@export var heap_reach: float = 0.0
 ## In a room whose walls are an InteriorWallLayer (docs/godot/INTERIOR_WALLS.md) the wall draws the
 ## opening: the barricade draws only its boards (the style's `barricade` leaf for `wall`, the wall of
 ## the room its face looks into), and smashed, nothing (the opening shows). The root stands on the
@@ -191,8 +197,13 @@ func _lie_smashed() -> void:
 		visual.visible = false
 	elif visual != null:
 		visual.frame = FRAME_SMASHED
-		visual.z_as_relative = false
-		visual.z_index = HEAP_Z
+		if heap_reach > 0.0:
+			# sorted from the heap's back edge: the sprite moved north by it, its art put back in place
+			visual.position.y -= heap_reach
+			visual.offset.y += heap_reach / visual.scale.y
+		else:
+			visual.z_as_relative = false
+			visual.z_index = HEAP_Z
 	set_deferred(&"collision_layer", 0)
 	for child: Node in get_children():
 		if child is CollisionShape2D:

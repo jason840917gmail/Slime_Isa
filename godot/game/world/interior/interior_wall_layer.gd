@@ -30,6 +30,9 @@ const Services := preload("res://game/shared/services.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const FILL_SCRIPT := preload("res://game/world/interior/interior_wall_fill.gd")
 const PaintedObjects := preload("res://game/world/painted_objects.gd")
+const NodeFind := preload("res://game/shared/node_find.gd")
+## The `elevation` layer's level data layer (Elevation.LEVEL_DATA_LAYER): how its layer is found.
+const ELEVATION_DATA := "elevation_level"
 
 const TILESET := "res://game/world/interior/interior_wall_tileset.tres"
 const TABLE := "res://asset/MAPS/walls/interior/interior-walls.json"
@@ -70,6 +73,9 @@ const ADOPT_REACH := 40.0
 const BLAST_REACH := CELL * 3.0
 ## How often (ms, real time) the editor looks for a repacked table or sheet (`_check_caches`).
 const CACHE_CHECK_MS := 1000
+
+## The floor and the pieces were laid again (the floor trim beside the layer follows: InteriorTrimLayer).
+signal rebuilt
 
 ## How strongly the painted squares show over the walls in the editor (0 hides them).
 @export_range(0.0, 1.0) var paint_opacity: float = 0.3:
@@ -213,6 +219,12 @@ func is_wall(cell: Vector2i) -> bool:
 ## True when `cell` is floor: no wall there and enclosed by the painted walls.
 func is_floor(cell: Vector2i) -> bool:
 	return _floors.has(cell)
+
+
+## True when the wall cell `wall` shows its face toward the floor cell `floor_cell` beside it (a wall
+## of the floor's own room): the floor trim runs along it.
+func faces(wall: Vector2i, floor_cell: Vector2i) -> bool:
+	return is_wall(wall) and is_floor(floor_cell) and _faces_floor(wall, floor_cell)
 
 
 ## The drawn pieces after the build: [{"piece", "cell", "style"}] (a run "n0".., a corner "nw"..,
@@ -477,6 +489,7 @@ func _rebuild() -> void:
 	elif is_inside_tree() and get_tree().edited_scene_root != null and get_tree().edited_scene_root.is_ancestor_of(self):
 		# painting a closed door makes its door object, erasing it lets it go (the editor only)
 		sync_doors(true)
+	rebuilt.emit()
 
 
 ## Keeps a door object in every opening painted with a closed door (DOOR_KINDS), under the room's
@@ -715,8 +728,9 @@ func _draw_floor(size: Vector2) -> void:
 	host.move_child(holder, 0)
 	holder.position = (position - ground.position) if ground != null else Vector2.ZERO
 	var cell_px := size.x * DENSITY
-	# holes and stairs keep their own drawing (the world's elevation layer beside this one)
-	var elevation := get_parent().get_node_or_null(^"elevation") as TileMapLayer if get_parent() != null else null
+	# holes and stairs keep their own drawing (the world's elevation layer beside this one, found by
+	# its tile set's level data: a room may name it anything, R4's is "Elevation")
+	var elevation := NodeFind.layer_with_data(get_parent(), ELEVATION_DATA)
 	for cell: Vector2i in _floors:
 		if elevation != null and elevation.get_cell_source_id(cell) >= 0:
 			continue
@@ -958,22 +972,6 @@ func _tile_for(style: String, kind: String) -> Vector2i:
 		if str(data.get_custom_data(STYLE_DATA)) == style and str(data.get_custom_data(OPENING_DATA)) == kind:
 			return coords
 	return Vector2i(-1, -1)
-
-
-## True when `point` (world) lies inside the walls' collision (`_build_collision`'s boxes): Elevation
-## asks it where a hop follows the painted collision (`body_fits` `by_paint`), which knows nothing of
-## these walls.
-func blocks_point(point: Vector2) -> bool:
-	var body := get_node_or_null(COLLISION) as StaticBody2D
-	if body == null:
-		return false
-	var at := body.to_local(point)
-	for child: Node in body.get_children():
-		var shape := child as CollisionShape2D
-		var box := shape.shape as RectangleShape2D if shape != null else null
-		if box != null and Rect2(shape.position - box.size * 0.5, box.size).has_point(at):
-			return true
-	return false
 
 
 ## The interior wall layer of the current world, or null.

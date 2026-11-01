@@ -19,6 +19,8 @@ extends Node
 const Services := preload("res://game/shared/services.gd")
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ThrowAmmo := preload("res://game/throw/throw_ammo.gd")
+const ShapesTestbed := preload("res://game/shapes/shapes_testbed.gd")
+const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 
 ## Dev keys (checked free on 2026-10-20: F2 control scheme, F3 FPS, F4 pen, F5 energy, F7/F8 sound
 ## audition, F9 juice panel, shift+F10 chest menu).
@@ -32,10 +34,8 @@ const TEXT_COLOR := &"cyan"
 const TEXT_RISE_PX := 56.0
 const LABEL_FONT_SIZE := 14
 const LABEL_WIDTH := 520.0
-## The shapes testbed's pen (its numbers when there is no ShapesTestbed sibling).
+## The shapes testbed's pen (its default numbers when there is no ShapesTestbed sibling).
 const TESTBED_NAME := "ShapesTestbed"
-const FALLBACK_PEN_OFFSET := Vector2(-200.0, 128.0)
-const FALLBACK_PEN_SIZE := Vector2(460.0, 280.0)
 
 ## The columns' first spot from the pen's top corners (top-left for the light column, top-right for
 ## the other), and the step between spots.
@@ -66,8 +66,8 @@ func _spawn_yard() -> void:
 		return
 	var spawn := world.player_spawn_point()
 	var testbed := get_parent().get_node_or_null(TESTBED_NAME) if get_parent() != null else null
-	var offset: Vector2 = testbed.get(&"pen_offset") if testbed != null else FALLBACK_PEN_OFFSET
-	var size: Vector2 = testbed.get(&"pen_size") if testbed != null else FALLBACK_PEN_SIZE
+	var offset: Vector2 = testbed.get(&"pen_offset") if testbed != null else ShapesTestbed.DEFAULT_PEN_OFFSET
+	var size: Vector2 = testbed.get(&"pen_size") if testbed != null else ShapesTestbed.DEFAULT_PEN_SIZE
 	_pen_rect = Rect2(spawn + offset, size)
 	var light_from := _pen_rect.position + light_row_offset
 	for index in LIGHT_ROW.size():
@@ -121,7 +121,7 @@ func _clear(spot: Vector2) -> bool:
 	if player_body != null and is_instance_valid(player_body) and player_body.global_position.distance_to(spot) < clear_px:
 		return false
 	var tree := get_tree()
-	for node: Node in tree.get_nodes_in_group(&"enemy"):
+	for node: Node in tree.get_nodes_in_group(ThrowMode.ENEMY_GROUP):
 		var centre: Variant = node.call(&"get_centre") if node.has_method(&"get_centre") else null
 		if centre is Vector2 and (centre as Vector2).distance_to(spot) < clear_px * 1.5:
 			return false
@@ -156,8 +156,4 @@ func _refresh_title() -> void:
 
 func _say(text: String) -> void:
 	var world := Services.world()
-	var player: Node = world.player if world != null else null
-	var feel := Services.feel()
-	if feel == null or player == null or not is_instance_valid(player):
-		return
-	feel.floating_text((player.call(&"get_centre") as Vector2) - Vector2(0.0, TEXT_RISE_PX), text, TEXT_COLOR, false)
+	GulpController.say_over(world.player if world != null else null, text, TEXT_COLOR, TEXT_RISE_PX)

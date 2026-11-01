@@ -35,8 +35,6 @@ const FRAME_STAND := 0
 const FRAME_REAR := 1
 const FRAME_OPEN := 2
 const FRAME_FLIPPED := 3
-## The tag the Spear's hits carry (its shape's tags, and the old spear weapons).
-const SPEAR_TAG := "spear"
 const CUE_REAR := &"SlamWindup"
 const CUE_LEAP := &"Jump"
 const CUE_SLAM := &"StomperSlam"
@@ -58,9 +56,6 @@ const SHADOW_SIZE := Vector2(22.0, 8.0)
 ## The ring's outline is drawn with this many points.
 const RING_POINTS := 32
 
-var _from: Vector2 = Vector2.ZERO
-var _to: Vector2 = Vector2.ZERO
-var _asked: Vector2 = Vector2.ZERO
 var _ready_at: float = 0.0
 var _stomps_done: int = 0
 var _landed_at: float = -INF
@@ -111,9 +106,8 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			var air_ms := maxf(1.0, pattern("airMs", 380.0))
 			var t := clampf(elapsed / air_ms, 0.0, 1.0)
 			# A wall or the water ends the leap early; the slime, the other bodies and the liftable
-			# things do not (set_airborne), so the leap never sticks on them.
-			var blocked := air_blocked(_asked * delta)
-			if t >= 1.0 or blocked:
+			# things do not (leap_step), so the leap never sticks on them.
+			if not leap_step(t, air_ms, delta):
 				_slam(now, target)
 				return
 			var height := pattern("hopHeightPx", 34.0)
@@ -123,8 +117,6 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			if shadow != null:
 				shadow.strength = 1.0
 				shadow.size = SHADOW_SIZE * _shadow_scale() * lerpf(1.0, 0.65, lift / maxf(1.0, height))
-			_asked = (_to - _from) / (air_ms / 1000.0)
-			body.velocity = _asked
 		PHASE_SETTLE:
 			body.velocity = Vector2.ZERO
 			set_look(0.0, _settle_squash(now))
@@ -147,33 +139,28 @@ func _rear(now: float, target: Dictionary) -> void:
 	_transition(PHASE_REAR, now)
 	set_frame(FRAME_REAR)
 	body.velocity = Vector2.ZERO
-	_from = feet()
-	var goal := _from
+	var goal := feet()
 	var slime_body := target.get("body") as Node2D
 	if slime_body != null:
 		goal = slime_body.global_position
-	var offset := goal - _from
+	var offset := goal - feet()
 	var reach := minf(offset.length(), pattern("leapPx", 90.0))
-	_to = landing_point(_from, _from + (offset.normalized() * reach if offset.length() > 0.0 else Vector2.ZERO))
+	var landing := plan_leap(offset.normalized() * reach if offset.length() > 0.0 else Vector2.ZERO)
 	face_x(offset.x)
-	AttackTelegraph.show_for(self, _ring_at(_to))
+	AttackTelegraph.show_for(self, _ring_at(landing))
 	_cue(CUE_REAR)
 
 
 func _leap(now: float) -> void:
 	_transition(PHASE_AIR, now)
-	set_solid(false)
-	set_airborne(true)
-	_asked = Vector2.ZERO
+	begin_leap()
 	_cue(CUE_LEAP)
 	_puff(DUST, feet())
 
 
 func _slam(now: float, target: Dictionary) -> void:
 	body.velocity = Vector2.ZERO
-	_asked = Vector2.ZERO
-	set_solid(true)
-	set_airborne(false)
+	end_leap()
 	_landed_at = now
 	var shadow := ground_shadow()
 	if shadow != null:
@@ -201,7 +188,6 @@ func _walk(now: float) -> void:
 	_transition(PHASE_WALK, now)
 	set_frame(FRAME_STAND)
 	_stomps_done = 0
-	_asked = Vector2.ZERO
 
 
 ## The landing's squash, easing back after a slam.
@@ -229,8 +215,9 @@ func is_open() -> bool:
 	return _phase == PHASE_OPEN
 
 
-## Its armour: every hit clinks but the Spear's and a thrown thing's (THROWN_TAG, PatternedEnemyScript)
-## while the visor is open (owner, 2026-10-22: the Squints take damage from throwables as well).
+## Its armour: every hit clinks but the Spear's and a thrown thing's (SPEAR_TAG, THROWN_TAG:
+## PatternedEnemyScript) while the visor is open (owner, 2026-10-22: the Squints take damage from
+## throwables as well).
 func _shields(request: Dictionary) -> bool:
 	return not (_phase == PHASE_OPEN and (has_tag(request, SPEAR_TAG) or has_tag(request, THROWN_TAG)))
 
@@ -244,7 +231,6 @@ func _defeat() -> void:
 	if is_defeated():
 		return
 	AttackTelegraph.clear_for(self)
-	set_solid(true)
 	var shadow := ground_shadow()
 	if shadow != null:
 		shadow.strength = 0.0

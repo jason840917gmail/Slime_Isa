@@ -111,22 +111,6 @@ metadata = {
 y_sort_enabled = true
 position = Vector2(1056, 1056)
 
-[node name="player-entry-north" type="Node2D" parent="." unique_id=2027675032]
-y_sort_enabled = true
-position = Vector2(864, 352)
-
-[node name="player-entry-east" type="Node2D" parent="." unique_id=565009057]
-y_sort_enabled = true
-position = Vector2(1888, 1056)
-
-[node name="player-entry-south" type="Node2D" parent="." unique_id=336371033]
-y_sort_enabled = true
-position = Vector2(992, 1824)
-
-[node name="player-entry-west" type="Node2D" parent="." unique_id=25345852]
-y_sort_enabled = true
-position = Vector2(224, 1120)
-
 [node name="edge-north" type="Area2D" parent="." unique_id=1404638868]
 position = Vector2(1024, 2)
 collision_layer = 512

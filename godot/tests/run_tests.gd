@@ -204,7 +204,7 @@ func _setup(context: TestContext, map_id: String = "") -> void:
 	# wants the ceremony turns it back on).
 	context.main.set(&"ability_ceremonies", false)
 	# The throw-combat experiment stays off too (branch exp/throw-combat; test_throw_combat.gd turns
-	# it on): the suite plays the rework game as on main.
+	# it on): the suite plays the rework game (on in every world) with its attack key, as `?melee`.
 	context.main.set(&"throw_combat", false)
 	root.add_child(context.main)
 	if context.player() == null:

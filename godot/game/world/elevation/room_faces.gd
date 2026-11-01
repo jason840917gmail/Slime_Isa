@@ -48,6 +48,9 @@ const PER := 4
 const FOOT_TILE := 2
 ## Which kind wins a 16-unit cell two faces mark (an edge is a rim and a base at once).
 const RANK := {"base": 0, "rim": 1, "edge": 2}
+## A cell's neighbours a face looks at.
+const NEIGHBOURS := {"n": Vector2i(0, -1), "w": Vector2i(-1, 0), "e": Vector2i(1, 0), "s": Vector2i(0, 1),
+	"nw": Vector2i(-1, -1), "ne": Vector2i(1, -1), "sw": Vector2i(-1, 1), "se": Vector2i(1, 1)}
 
 
 ## Builds the faces of the levels painted on `painted` (the `elevation` layer) inside the rooms of
@@ -57,16 +60,9 @@ const RANK := {"base": 0, "rim": 1, "edge": 2}
 ## half, or a corner's "southeast" or "southwest" quarter]}. Empty when no room has a style.
 ## `back_faces`: four visible walls (the back faces drawn).
 static func build(painted: TileMapLayer, walls: Node, bounds: Rect2i, back_faces: bool = false) -> Dictionary:
-	var levels := {}
-	var stairs := {}
-	for cell: Vector2i in painted.get_used_cells():
-		var data := painted.get_cell_tile_data(cell)
-		if data == null:
-			continue
-		if painted.get_cell_atlas_coords(cell).y > 0:
-			stairs[cell] = true
-		else:
-			levels[cell] = int(data.get_custom_data(&"elevation_level"))
+	var read := _read(painted)
+	var levels: Dictionary = read[0]
+	var stairs: Dictionary = read[1]
 	var level_of := func(c: Vector2i) -> int:
 		return int(levels.get(c, 0))
 	var holder := Node2D.new()
@@ -81,20 +77,15 @@ static func build(painted: TileMapLayer, walls: Node, bounds: Rect2i, back_faces
 			if stairs.has(c):
 				continue
 			var own := int(level_of.call(c))
-			var higher := func(d: Vector2i) -> int:
-				var n := c + d
-				if stairs.has(n) or not bounds.has_point(n):
-					return -100
-				var l := int(level_of.call(n))
-				return l if l > own else -100
-			var n_up := int(higher.call(Vector2i(0, -1)))
-			var w_up := int(higher.call(Vector2i(-1, 0)))
-			var e_up := int(higher.call(Vector2i(1, 0)))
-			var s_up := int(higher.call(Vector2i(0, 1)))
-			var nw_up := int(higher.call(Vector2i(-1, -1)))
-			var ne_up := int(higher.call(Vector2i(1, -1)))
-			var sw_up := int(higher.call(Vector2i(-1, 1))) if back_faces else -100
-			var se_up := int(higher.call(Vector2i(1, 1))) if back_faces else -100
+			var ups := _ups(levels, stairs, bounds, c, back_faces)
+			var n_up := int(ups["n"])
+			var w_up := int(ups["w"])
+			var e_up := int(ups["e"])
+			var s_up := int(ups["s"])
+			var nw_up := int(ups["nw"])
+			var ne_up := int(ups["ne"])
+			var sw_up := int(ups["sw"])
+			var se_up := int(ups["se"])
 			if n_up < -99 and w_up < -99 and e_up < -99 and s_up < -99 and nw_up < -99 and ne_up < -99 \
 					and sw_up < -99 and se_up < -99:
 				continue
@@ -190,6 +181,80 @@ static func build(painted: TileMapLayer, walls: Node, bounds: Rect2i, back_faces
 					_mark(cells, c, Rect2i(PER - 2 if dx > 0 else 1, FOOT_TILE, 1, PER - FOOT_TILE), "base", own)
 					back[c] = [up, "southeast" if dx > 0 else "southwest"]
 	return {"faces": holder, "cells": cells, "back": back}
+
+
+## Where the faces `build` draws stand on the lower floors, for the floor trim laid along their feet
+## (InteriorTrimLayer): cell -> {"full": true} for a cell they cover whole (a front, a stair cell),
+## else {"sides": {"n"/"s"/"w"/"e": units}}, per side along which a face's foot runs, how far the face
+## reaches into the cell from that side ("n" 0: the front stands in the cell north of it; a side face
+## or the strip a front carries down beside a convex corner SIDE; a back face SIDE, its cap alone LIP).
+static func feet(painted: TileMapLayer, bounds: Rect2i, back_faces: bool = false) -> Dictionary:
+	var read := _read(painted)
+	var levels: Dictionary = read[0]
+	var stairs: Dictionary = read[1]
+	var out := {}
+	for c: Vector2i in stairs:
+		out[c] = {"full": true}
+	for y in range(bounds.position.y, bounds.end.y):
+		for x in range(bounds.position.x, bounds.end.x):
+			var c := Vector2i(x, y)
+			if stairs.has(c):
+				continue
+			var own := int(levels.get(c, 0))
+			var ups := _ups(levels, stairs, bounds, c, back_faces)
+			if int(ups["n"]) > -100:
+				out[c] = {"full": true}
+				var below := c + Vector2i(0, 1)
+				if not stairs.has(below) and int(levels.get(below, 0)) == own:
+					_foot(out, below, "n", 0.0)
+				continue
+			for side: Array in [["w", -1, "nw"], ["e", 1, "ne"]]:
+				var beside: Vector2i = c + Vector2i(int(side[1]), 0)
+				if int(ups[side[0]]) > -100 or (int(ups[side[2]]) > -100 and int(levels.get(beside, 0)) == own \
+						and not stairs.has(beside)):
+					_foot(out, c, str(side[0]), SIDE)
+			if int(ups["s"]) > -100:
+				_foot(out, c, "s", SIDE if back_faces else LIP)
+	return out
+
+
+static func _foot(out: Dictionary, cell: Vector2i, side: String, units: float) -> void:
+	var entry: Dictionary = out.get(cell, {})
+	if bool(entry.get("full", false)):
+		return
+	var sides: Dictionary = entry.get("sides", {})
+	sides[side] = units
+	out[cell] = {"sides": sides}
+
+
+## The levels painted on `painted` (the `elevation` layer): [cell -> level, stair cell -> true].
+static func _read(painted: TileMapLayer) -> Array:
+	var levels := {}
+	var stairs := {}
+	for cell: Vector2i in painted.get_used_cells():
+		var data := painted.get_cell_tile_data(cell)
+		if data == null:
+			continue
+		if painted.get_cell_atlas_coords(cell).y > 0:
+			stairs[cell] = true
+		else:
+			levels[cell] = int(data.get_custom_data(&"elevation_level"))
+	return [levels, stairs]
+
+
+## The level of each neighbour of `c` higher than `c` ("n", "w", "e", "s", "nw", "ne", "sw", "se"),
+## -100 for one that is not, is a stair or lies outside `bounds`; "sw" and "se" only with `back_faces`.
+static func _ups(levels: Dictionary, stairs: Dictionary, bounds: Rect2i, c: Vector2i, back_faces: bool) -> Dictionary:
+	var own := int(levels.get(c, 0))
+	var out := {}
+	for name: String in NEIGHBOURS:
+		var n: Vector2i = c + NEIGHBOURS[name]
+		var level := int(levels.get(n, 0))
+		out[name] = level if level > own and not stairs.has(n) and bounds.has_point(n) else -100
+	if not back_faces:
+		out["sw"] = -100
+		out["se"] = -100
+	return out
 
 
 ## The part of a north run piece (sheet rect) a convex corner's strip shows: its far end beside the

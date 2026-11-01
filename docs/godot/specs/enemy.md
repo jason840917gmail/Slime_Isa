@@ -899,6 +899,10 @@ holds to spit). After a sequence finishes the base rule of §13 applies (flee wh
 `fleeRange`, else chase).
 
 ## 15. Slow (`EnemyScript.ts:205-209, 365-367, 425-426, 449, 486-487, 934-944`)
+Throw combat adds a second slow, the honey throw's `apply_tempo(scale, duration_ms)` (same refusals
+and replacement rule): `_current_slow` multiplies it in, and it also stretches the attack's wind-up,
+recovery and cooldown and a patterned enemy's `pattern` times and speeds
+([THROW_COMBAT.md](../THROW_COMBAT.md)).
 `apply_slow(multiplier, duration_ms)`: ignored for `rank == "boss"`, a defeated enemy, a multiplier
 outside (0, 1) or a duration ≤ 0. Else `until = now + duration`; the multiplier is replaced when the
 old slow has run out (`now >= slowed_until`) or the new one is stronger (`multiplier <=

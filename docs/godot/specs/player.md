@@ -92,7 +92,7 @@ Non-looping clips hold their last frame when they end (same in Godot).
 | Roll launch speed → cruise speed | 460 → 340 px/s, eased over the shortest roll | `movement.rollLaunchSpeed`, `movement.rollSpeed` |
 | Shortest roll | 450 ms from the launch | `movement.rollMinMs` |
 | Roll i-frames | 400 ms from the launch | `movement.rollInvulnerabilityMs` |
-| Pause after a roll | 250 ms → ability cooldown = 260 + 450 + 250 = **960 ms from the press** | `movement.rollCooldownMs`; sum in `ability_definitions.gd` `cooldown_ms()` |
+| Pause after a roll | 1000 ms (250 until the owner's 2026-10-31 change) → ability cooldown = 260 + 450 + 1000 = **1710 ms from the press** (quick roll in the body-shapes mode: 330 + 1000 = 1330) | `movement.rollCooldownMs`; sum in `ability_definitions.gd` `cooldown_ms()` |
 | Roll energy (held part only) | 12 per second | `movement.rollEnergyPerSecond` |
 | Roll bonk shake and hit-stop | 220 ms at 0.008, then a 60 ms hit-stop | `movement.rollBonkShakeMs`, `rollBonkShakeIntensity`, `rollBonkHitStopMs` |
 | Roll bonk wobble | things within 140 px of the impact | `movement.rollBonkWobbleRadiusPx` |
@@ -233,8 +233,8 @@ Only on the normal move path: if moving now, was not moving last step, and has b
 >   bounces back at `rollBounceSpeed` (400) easing out to 0 over `rollBounceMs` (360), 72 px, with an
 >   `rollBounceHopPx` (18) hop through the effects channel (`set_effect_offset`); then the roll
 >   ends. `is_bouncing()` is true during the bounce.
-> - **Cooldown:** the next roll can start `rollCooldownMs` (250) after a roll ends; the ability
->   cooldown from the press is 260 + 450 + 250 = 960 ms. A knockback, a death or
+> - **Cooldown:** the next roll can start `rollCooldownMs` (1000) after a roll ends; the ability
+>   cooldown from the press is 260 + 450 + 1000 = 1710 ms (the quick roll's 330 + 1000 = 1330 ms). A knockback, a death or
 >   `stop_movement()` (a door's leave fade, an opened window, a web) ends a roll at once.
 > - **Webs** (owner, 2026-10-16, question 131): a Roll sticks in a web. A floor web or a web
 >   barrier catches the rolling slime as it catches a walking one (matron spec 5.5): the roll ends

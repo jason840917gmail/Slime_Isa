@@ -2,7 +2,7 @@ extends Control
 ## The dungeon's rooms on the HUD minimap (docs/godot/DUNGEONS.md "The dungeon map"): a Control the
 ## Dungeon node puts into the minimap (game/ui/map/minimap.gd), under its Overlay (the player's dot
 ## and markers stay on top). It draws the slime's room only (DungeonMapDraw `only_current`, with the
-## seals and compass marks inside it) at the minimap's own scale (`Minimap.to_map`), clipped to the
+## seals and the map's and compass's marks inside it) at the minimap's own scale (`Minimap.to_map`), clipped to the
 ## minimap's box; every room found (or mapped) shows on the map screen (M, dungeon_map_page.gd)
 ## (owner, 2026-10-19: in a dungeon of one world per room the rooms around it, drawn at the minimap's
 ## scale, covered the play area). Gone with the dungeon's world.

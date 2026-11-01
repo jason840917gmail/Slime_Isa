@@ -12,7 +12,7 @@ extends Node2D
 ##   prompt `prompt` (`use`). Letting go midway drops the slime to the lower end; a fall costs
 ##   nothing. At the top `climbed` fires, and with `exit_area_id` set the climb goes on out of the
 ##   world (the Colossus arena's way out to the Lookout): the slime travels to that world's
-##   `exit_marker`. While its dungeon is sealed (the Pearl taken, the boss standing) such a climb
+##   `exit_door`. While its dungeon is sealed (the Pearl taken, the boss standing) such a climb
 ##   out is not offered and refuses with the seal's line (`sealed_text`; DUNGEONS.md "The seal").
 ## - **Without it** it is not offered; pushing along the climb at its foot says `refusal_text` (the
 ##   clarity rule: a wrong tool is refused with a line), at most every `skins.feral.refusalEveryMs`.
@@ -48,9 +48,10 @@ const ART_FILL := Vector2(0.86, 0.9)
 @export var refusal_text: String = "Thick roots and handholds... too steep for a slime. Something wilder could climb them."
 ## The grab zone's width across the climb (0: the picture's `art_size`, else DEFAULT_WIDTH).
 @export var grab_width: float = 0.0
-## Climbing out of the world: the world to go to and the marker to arrive at ("" = stay here).
+## Climbing out of the world: the world to go to ("" = stay here) and the end there the slime comes
+## out of (a door's `door_id`: an arrival point, game/scripts/door.gd; "" = that world's spawn).
 @export var exit_area_id: String = ""
-@export var exit_marker: String = ""
+@export var exit_door: String = ""
 ## The roots' picture (`Visual`): how much of the face it covers (world units; zero: the scene's
 ## size), and whether it shows (a climb back down from a ledge shares the face's picture below).
 @export var art_size: Vector2 = Vector2.ZERO
@@ -152,7 +153,7 @@ func on_climbed(feet: Vector2) -> void:
 	if not exit_area_id.is_empty():
 		var main := get_tree().get_first_node_in_group(MAIN_GROUP)
 		if main != null and main.has_method(&"travel_to"):
-			main.call(&"travel_to", exit_area_id, "", "", exit_marker)
+			main.call(&"travel_to", exit_area_id, "", exit_door, "" if not exit_door.is_empty() else "player-spawn")
 
 
 # --- the interact prompt (game/interaction/interaction_controller.gd USABLE_GROUP) -------------

@@ -134,7 +134,7 @@ func can_take() -> bool:
 		return false
 	# Throw combat: the Gulp's level against the thing's weight (a `heavy` one is heavy).
 	if ThrowMode.is_on():
-		return ThrowMode.level_for(weight()) <= ThrowMode.gulp_level()
+		return ThrowMode.can_lift(weight())
 	return not heavy
 
 
@@ -149,7 +149,7 @@ func weight() -> String:
 ## Throw combat: it lies here but the Gulp's level is too low to lift it (the mouth says so).
 func is_too_heavy() -> bool:
 	return ThrowMode.is_on() and is_inside_tree() and not get_parent().is_queued_for_deletion() \
-		and ThrowMode.level_for(weight()) > ThrowMode.gulp_level()
+		and not ThrowMode.can_lift(weight())
 
 
 ## Sucked in: the thing leaves the world.

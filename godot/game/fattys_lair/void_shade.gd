@@ -37,7 +37,7 @@ func _ready() -> void:
 
 func _read_paint() -> void:
 	_painted.clear()
-	var ground := get_parent().get_node_or_null(^"ground") as TileMapLayer if get_parent() != null else null
+	var ground := Elevation.find_ground_in(get_parent())
 	if ground == null:
 		return
 	var levels := Elevation.painted_levels(ground)

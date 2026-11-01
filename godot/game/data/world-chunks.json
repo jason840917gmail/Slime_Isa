@@ -8,10 +8,7 @@
         "crystal-caverns-g5": "G5",
         "crystal-caverns-h5": "H5"
       },
-      "arrivals": {
-        "player-entry-west": "crystal-caverns-g4",
-        "player-entry-east": "crystal-caverns-h4"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "crystal-caverns-g4",
       "written": {
@@ -28,10 +25,7 @@
         "desert-a8": "A8",
         "desert-b8": "B8"
       },
-      "arrivals": {
-        "player-entry-east": "desert-b8",
-        "arrive-from-south-wilds-1": "desert-b8"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "desert-b8",
       "written": {
@@ -48,12 +42,7 @@
         "frostpeak-f8": "F8",
         "frostpeak-g8": "G8"
       },
-      "arrivals": {
-        "player-entry-north": "frostpeak-f7",
-        "arrive-from-south-wilds-1": "frostpeak-f7",
-        "player-entry-west": "frostpeak-f8",
-        "arrive-from-sticky-swamp-1": "frostpeak-f8"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "frostpeak-f8",
       "written": {
@@ -70,10 +59,7 @@
         "gloop-forest-e5": "E5",
         "gloop-forest-f5": "F5"
       },
-      "arrivals": {
-        "player-entry-west": "gloop-forest-e4",
-        "player-entry-east": "gloop-forest-f4"
-      },
+      "arrivals": {},
       "doors": {
         "hut-door": "gloop-forest-e4",
         "gloop-sinkhole": "gloop-forest-e5"
@@ -93,11 +79,7 @@
         "level-1-c5": "C5",
         "level-1-d5": "D5"
       },
-      "arrivals": {
-        "player-entry-south": "level-1-c4",
-        "player-entry-east": "level-1-d4",
-        "arrive-from-west-village-1": "level-1-c4"
-      },
+      "arrivals": {},
       "doors": {
         "home-door": "level-1-c4",
         "mushroom-home-door": "level-1-c4",
@@ -106,7 +88,7 @@
         "lake-island-cave-mouth": "level-1-c5",
         "fatty-lair-bolt-hole-mouth": "level-1-d4",
         "sally-port-way-out": "level-1-c4",
-        "burrow-way-out": "level-1-d4",
+        "burrow-hole": "level-1-d4",
         "armoury-door": "level-1-d4",
         "watchkeeper-hideout-door": "level-1-c4"
       },
@@ -136,17 +118,7 @@
         "north-wilds-g3": "G3",
         "north-wilds-h3": "H3"
       },
-      "arrivals": {
-        "player-entry-east": "north-wilds-c2",
-        "arrive-from-northern-ruins-1": "north-wilds-c2",
-        "player-entry-west": "north-wilds-h2",
-        "arrive-from-volcano-ridge-1": "north-wilds-h2",
-        "arrive-from-west-village-1": "north-wilds-a3",
-        "player-entry-south": "north-wilds-c3",
-        "arrive-from-level-1-1": "north-wilds-c3",
-        "arrive-from-gloop-forest-1": "north-wilds-f3",
-        "arrive-from-crystal-caverns-1": "north-wilds-h3"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "north-wilds-c3",
       "written": {
@@ -174,12 +146,7 @@
         "northern-ruins-d2": "D2",
         "northern-ruins-e2": "E2"
       },
-      "arrivals": {
-        "player-entry-west": "northern-ruins-d2",
-        "arrive-from-north-wilds-1": "northern-ruins-d2",
-        "player-entry-east": "northern-ruins-e2",
-        "arrive-from-volcano-ridge-1": "northern-ruins-e2"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "northern-ruins-e2",
       "written": {
@@ -204,18 +171,7 @@
         "south-wilds-c8": "C8",
         "south-wilds-h8": "H8"
       },
-      "arrivals": {
-        "arrive-from-west-village-1": "south-wilds-b6",
-        "player-entry-north": "south-wilds-d6",
-        "arrive-from-level-1-1": "south-wilds-d6",
-        "arrive-from-gloop-forest-1": "south-wilds-e6",
-        "arrive-from-sticky-swamp-1": "south-wilds-e6",
-        "player-entry-south": "south-wilds-f6",
-        "arrive-from-frostpeak-1": "south-wilds-f6",
-        "arrive-from-crystal-caverns-1": "south-wilds-h6",
-        "player-entry-west": "south-wilds-c8",
-        "arrive-from-desert-1": "south-wilds-c8"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "south-wilds-d6",
       "written": {
@@ -240,12 +196,7 @@
         "sticky-swamp-d8": "D8",
         "sticky-swamp-e8": "E8"
       },
-      "arrivals": {
-        "player-entry-north": "sticky-swamp-e7",
-        "arrive-from-south-wilds-1": "sticky-swamp-e7",
-        "player-entry-east": "sticky-swamp-e8",
-        "arrive-from-frostpeak-1": "sticky-swamp-e8"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "sticky-swamp-e8",
       "written": {
@@ -263,12 +214,7 @@
         "volcano-ridge-f2": "F2",
         "volcano-ridge-g2": "G2"
       },
-      "arrivals": {
-        "player-entry-west": "volcano-ridge-f2",
-        "arrive-from-northern-ruins-1": "volcano-ridge-f2",
-        "player-entry-east": "volcano-ridge-g2",
-        "arrive-from-north-wilds-1": "volcano-ridge-g2"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "volcano-ridge-f2",
       "written": {
@@ -286,14 +232,7 @@
         "west-village-a5": "A5",
         "west-village-b5": "B5"
       },
-      "arrivals": {
-        "player-entry-north": "west-village-a4",
-        "arrive-from-north-wilds-1": "west-village-a4",
-        "player-entry-east": "west-village-b4",
-        "arrive-from-level-1-1": "west-village-b4",
-        "player-entry-south": "west-village-b5",
-        "arrive-from-south-wilds-1": "west-village-b5"
-      },
+      "arrivals": {},
       "doors": {},
       "spawn": "west-village-b4",
       "written": {

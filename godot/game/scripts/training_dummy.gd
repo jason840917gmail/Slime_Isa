@@ -13,7 +13,7 @@ class_name TrainingDummyScript
 ## of its own wobble. It never attacks, never falls and never drops an energy shard. A scene dummy
 ## (a StaticBody2D root, `body` null) has no body or stun, so nothing moves it. The shapes testbed's
 ## dummies have a CharacterBody2D root (`body`): in the rework mode they take the stun and the push of
-## each reaction (knockback, launch, the break-free move), slide with `EnemyReactions.slide_decay`
+## each reaction (knockback, launch, the break-free move), slide with `EnemyReactions.slide_decay_of`
 ## through ArcadeMover, splat on walls and bowl other bodies (`EnemyReactions.after_move`), and once
 ## the stun is over walk back to where they stood at `return_speed`. Their number and their hit sound
 ## are the attacker's feel (`GameFeel.play_hit`, which follows the Damage numbers setting); the dummy's
@@ -149,7 +149,7 @@ func get_hit_stun_until() -> float:
 
 
 ## Rework, a dummy with a body only: while stunned it slides (the reaction's velocity decaying by
-## `EnemyReactions.slide_decay` per 60 Hz step), else it walks back to its post at `return_speed`;
+## `EnemyReactions.slide_decay_of` per 60 Hz step), else it walks back to its post at `return_speed`;
 ## ArcadeMover moves it, then the wall splat and bowling (`EnemyReactions.after_move`).
 func _physics_process(delta: float) -> void:
 	if body == null or not is_instance_valid(body) or not ReworkMode.is_on():
@@ -157,7 +157,8 @@ func _physics_process(delta: float) -> void:
 	if _post == Vector2.INF:
 		_post = body.global_position
 	if Services.now_ms() < _hit_stun_until:
-		body.velocity *= pow(EnemyReactions.slide_decay(), delta * 60.0)
+		EnemyReactions.keep_asleep(self)
+		body.velocity *= pow(EnemyReactions.slide_decay_of(self), delta * 60.0)
 	else:
 		body.velocity = ((_post - body.global_position) / maxf(delta, 0.0001)).limit_length(return_speed)
 	ArcadeMover.move(body, delta)

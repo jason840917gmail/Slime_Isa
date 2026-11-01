@@ -157,17 +157,24 @@ func refusal() -> String:
 
 ## True when `requires` is set (see the notes).
 func is_required_set() -> bool:
+	return requirement_met(get_tree(), DungeonState.record_map_id(self), requires)
+
+
+## True when the record `requires` names (see the notes; "" = none) is set, its world's kit records
+## kept under `record_id` (DungeonState.record_map_id). The dungeon map asks it for the doors of
+## rooms in other worlds (dungeon_map_draw.gd).
+static func requirement_met(tree: SceneTree, record_id: String, required: String) -> bool:
 	var run := Services.run()
-	if run == null or requires.is_empty():
+	if run == null or required.is_empty():
 		return true
-	var colon := requires.find(":")
-	var kind := requires.left(colon) if colon > 0 else "flag"
-	var id := requires.substr(colon + 1) if colon > 0 else requires
+	var colon := required.find(":")
+	var kind := required.left(colon) if colon > 0 else "flag"
+	var id := required.substr(colon + 1) if colon > 0 else required
 	match kind:
 		"done":
-			return DungeonState.is_done(get_tree(), "%s:%s" % [DungeonState.record_map_id(self), id])
+			return DungeonState.is_done(tree, "%s:%s" % [record_id, id])
 		"gate":
-			return bool(run.call(&"is_gate_unlocked", DungeonState.record_map_id(self), id))
+			return bool(run.call(&"is_gate_unlocked", record_id, id))
 		"session":
 			return bool(DungeonState.session_value(run, id, false))
 	return bool(run.call(&"has_flag", id))

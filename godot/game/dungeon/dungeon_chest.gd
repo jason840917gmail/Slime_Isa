@@ -34,6 +34,10 @@ signal appeared(payload: Dictionary)
 @export var hidden: bool = false
 
 var _shown := true
+## The rise running (`appear`) and where the art rests, so a sink in the middle of it (`vanish`)
+## puts the art back for the next rise.
+var _rise: Tween
+var _rest := Vector2.ZERO
 
 
 func _enter_tree() -> void:
@@ -60,10 +64,13 @@ func is_shown() -> bool:
 
 
 ## Rises into view (for good). Also takes any signal's payload, so a signal can be connected to it.
-func appear(_payload: Variant = null) -> void:
+## A payload with "held" (a plate that holds it only while pressed: heavy_plate.gd `hold_targets`)
+## raises it without the record, so it is hidden again when its world is built again.
+func appear(payload: Variant = null) -> void:
 	if _shown:
 		return
-	DungeonState.mark_done(get_tree(), _appear_key())
+	if not (payload is Dictionary and bool((payload as Dictionary).get("held", false))):
+		DungeonState.mark_done(get_tree(), _appear_key())
 	_set_shown(true)
 	var root := get_parent() as Node2D
 	var feel := Services.feel()
@@ -73,14 +80,42 @@ func appear(_payload: Variant = null) -> void:
 		feel.particles(SPARKLE, root.global_position - Vector2(0.0, 30.0))
 	var visual := _visual()
 	if visual != null:
-		var rest := visual.position
-		visual.position = rest + Vector2(0.0, RISE_PX)
+		_stop_rise(visual)
+		_rest = visual.position
+		visual.position = _rest + Vector2(0.0, RISE_PX)
 		visual.modulate.a = 0.0
-		var tween := visual.create_tween()
-		tween.set_parallel(true)
-		tween.tween_property(visual, "position", rest, RISE_S).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tween.tween_property(visual, "modulate:a", 1.0, RISE_S * 0.6)
+		_rise = visual.create_tween()
+		_rise.set_parallel(true)
+		_rise.tween_property(visual, "position", _rest, RISE_S).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_rise.tween_property(visual, "modulate:a", 1.0, RISE_S * 0.6)
 	appeared.emit({"instanceId": instance_id})
+
+
+## Sinks out of view again with a puff (the plate holding it let go: DungeonState.take_back; owner
+## 2026-11-01, R9's big chest: the plate has to stay pressed or the chest hides again) and forgets
+## that it rose. What it held stays taken.
+func vanish(_payload: Variant = null) -> void:
+	if not _shown:
+		return
+	DungeonState.clear_done(get_tree(), _appear_key())
+	var root := get_parent() as Node2D
+	var feel := Services.feel()
+	if feel != null and root != null:
+		feel.particles(PUFF, root.global_position)
+	var visual := _visual()
+	if visual != null:
+		_stop_rise(visual)
+	_set_shown(false)
+
+
+## Ends a rise still running with the art where it rests.
+func _stop_rise(visual: Node2D) -> void:
+	if _rise == null or not _rise.is_valid():
+		return
+	_rise.kill()
+	_rise = null
+	visual.position = _rest
+	visual.modulate.a = 1.0
 
 
 ## Same as `appear` (the kit's generic hookup name).

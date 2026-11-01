@@ -22,7 +22,8 @@ against C4, so the barred gate still opens onto C4's west edge: C4's south-west 
 starter worm camp's walled yard and the village's tree line (the open strip is ten tiles wide, too
 narrow for a sealed one-screen arena), `level-1-c4` is hand-made and shared, and B4's south half was
 free placeholder ground that question 112 gives to the prologue anyway. No underground cavern was
-needed. C4 got only small additions: the arrival marker `arrive-from-west-village-1`, the exit back
+needed. C4 got only small additions: the arrival marker `arrive-from-west-village-1` (gone since
+2026-10-31: the border is crossed at the same place on both sides), the exit back
 `exit-to-west-village-1` (its west edge, y 1600-1792, the stretch with no trees), and the
 `PrologueMeeting` node. B4's region exit to level-1 moved to the same stretch (y 1600-1792), so the
 two line up. The world map (`world-map.json`) still has the old markers and the g-a opening at

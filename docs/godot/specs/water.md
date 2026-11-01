@@ -403,13 +403,23 @@ or the cliffs' rounded stones).
   about 4 units, which the tool checks stays inside every ground's edge art (so no water shows
   between the grass and the bank).
 - **Look.** The earth strip (`water-bank-earth.png`: soil, pebbles, hanging roots, a damp foot; three
-  Magnific GPT 2.5 strips joined end to end, about 5.5 cells before it repeats) runs in world space
-  along x on a front face and along y on a side wall. Side walls are shaded by the way they face (the
-  light comes from the upper left: east-facing dark, west-facing lit). The waterline wobbles, the
-  water just under it darkens a little, and patches of foam lap at its foot; the surface's own shore
-  foam fades out along the bank. The shader's uniforms (`bank_*`) hold these values.
+  Magnific GPT 2.5 strips joined end to end, about 6.7 cells before it repeats on a front face, half
+  that on a side wall) runs in world space along x on a front face and along y on a side wall. Side
+  walls are shaded by the way they face, in the cliffs' side light (`elevation_sides.gd` SHADE_EAST
+  and SHADE_WEST, which TerrainEdges hands the shader: the light comes from the upper left,
+  east-facing dark, west-facing lit); a front face keeps the strip's own light. The waterline
+  wobbles, the water just under it darkens a little, and patches of foam lap at its foot; the
+  surface's own shore foam fades out along the bank. The shader's uniforms (`bank_*`) hold these
+  values.
 - **Art.** `python scripts/art/build-water-bank.py [--height 24] [--side 11]` builds both images from
-  `asset/Originals/water/generated/bank-earth-a.png` (re-run it to change the bank's size). Both
-  import lossless: the shapes are data.
+  `asset/Originals/water/generated/bank-earth-a.png` (`bank-earth-b.png` is the other take, unused).
+  Re-run it to change the bank's size, up to 27 units: a tile knows only its own four cells, so a
+  bank reaching past the tile's edge would be cut off there, and the tool refuses. It also stops
+  when the land shape leaves a ground's edge art, so re-run it with `--check` after re-baking any
+  ground's edge tiles. Both images import lossless: the shapes are data.
 - Visual only: collision, wading and swimming are unchanged. A swimmer (the Frog Gulp form) can still
   swim up to the cell line, over the face, and climb out there.
+- **Cliffs in water** share the bank's waterline (owner, 2026-11-01: the cliff's straight band of
+  foam made a hard joint): a wall standing in water draws the water up its base to the same kind
+  of wobbling waterline (`water_line_wobble`) with the same lapping foam (`water_line_foam`, both in
+  `water_surface.gdshaderinc`), on shallow water too ([ELEVATION.md](../ELEVATION.md), "Water").

@@ -1,13 +1,15 @@
 extends RefCounted
 ## Area travel (docs/godot/specs/world.md section 8, game/world/area_travel.gd, Main.travel_to):
-## level-1's east exit (`exit-1`, target gloop-forest entry "west") is gated by
-## `level-1-east-verdant-gate` (green key, consumed). level-1 is cut into chunk worlds (docs/godot/
-## WORLD_ATLAS.md): the exit is in chunk D4 (`level-1-d4`, its origin at level-1's (2048, 0)),
-## centre (2016, 576) there, and the gate's record is kept under that chunk's map id. Without the
-## key the player stays and the exit reports "blocked"; with it the key is used, the gate is
-## remembered, the picture fades out and gloop-forest is built (its chunk E4: gloop-forest is cut into chunk worlds, docs/godot/
-## WORLD_ATLAS.md) with the player on the tile centre at its `player-entry-west` marker,
-## keeping its HP. An exit's `entry_marker` (a Node2D's name in the target world) arrives there
+## level-1's east exit (`exit-1`, target gloop-forest entry "west") has no gate of its own (owner,
+## 2026-11-01: the Verdant Gate object before it takes the green key, so the border is never reached
+## locked). level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md): the exit is in chunk D4
+## (`level-1-d4`, its origin at level-1's (2048, 0)), centre (2016, 576) there. A world exit's gate
+## is tried on it with one the test gives it, its record kept under that chunk's map id. Without
+## the key the player stays and the exit reports "blocked"; with it the key is used, the gate is
+## remembered, the screen scrolls across the border into gloop-forest (its chunk E4: gloop-forest is
+## cut into chunk worlds, docs/godot/WORLD_ATLAS.md) with the player at the same height on its west
+## edge (docs/design/2026-10-31-crossings-and-arrivals.md), keeping its HP. A named spot
+## (`entry_marker`: a Node2D's name in the target world, the prologue's birth) arrives there
 ## instead, after a door and before the entry edge.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
@@ -17,7 +19,8 @@ const AreaTravel := preload("res://game/world/area_travel.gd")
 ## run_tests.gd starts every test of this file in the gate's chunk of level-1.
 const MAP_ID := "level-1-d4"
 const EXIT_CENTRE := Vector2(2016.0, 576.0)
-const GATE_ID := "level-1-east-verdant-gate"
+## The gate the test puts on exit-1 (as the gated exits of other worlds have one).
+const GATE_ID := "test-exit-gate"
 const KEY_ID := "green-key"
 const TARGET_MAP := "gloop-forest"
 const GRACE_MS := 650.0
@@ -38,6 +41,9 @@ func test_gated_exit_blocks_then_travels_with_the_key(t: TestContext) -> void:
 	var exit_node := _exit_script(t, "exit-1")
 	if not t.check(exit_node != null, "level-1-d4 has no exit-1 world exit script"):
 		return
+	t.check((exit_node as WorldExitScript).gate.is_empty(), "exit-1 has a gate of its own (the Verdant Gate object takes the key)")
+	(exit_node as WorldExitScript).gate = {"id": GATE_ID, "requiredItemId": KEY_ID, "consumeOnUnlock": true,
+			"lockedMessage": "Locked."}
 	var results: Array = []
 	t.listen(exit_node.navigation_resolved, func(result: Dictionary) -> void: results.append(result))
 	t.player().restore_run_state({"hp": CARRIED_HP})
@@ -56,11 +62,12 @@ func test_gated_exit_blocks_then_travels_with_the_key(t: TestContext) -> void:
 	t.equal(run.item_count(KEY_ID), 0, "green keys left after the unlock")
 	t.check(run.is_gate_unlocked(MAP_ID, GATE_ID), "the gate is not remembered as unlocked")
 	t.check(TARGET_MAP in (run.world["discovered_areas"] as Array), "%s not marked discovered" % TARGET_MAP)
-	var marker: Variant = AreaTravel.entry_marker(t.world().world_root, "west")
-	if not t.check(marker != null, "%s has no player-entry-west marker" % TARGET_MAP):
-		return
-	var expected: Vector2 = t.world().find_spawn_point(marker)
-	t.near_vec(t.player().get_centre(), expected, 0.01, "arrival centre (entry-west tile centre)")
+	# A border into the next region crosses by coordinates (2026-10-31, docs/design/
+	# 2026-10-31-crossings-and-arrivals.md D5): gloop-forest's chunk across the edge has its exit back
+	# there, so the screen scrolls and the slime comes out at the same height on its west edge.
+	t.check(await t.until(func() -> bool: return not t.main.is_transitioning(), 3000.0, 6000.0), "the border scroll did not end")
+	var expected: Vector2 = AreaTravel.arrival_point({"entry_edge": "west", "entry_along": EXIT_CENTRE.y}, Vector2.ZERO)
+	t.near_vec(t.player().get_centre(), expected, 1.0, "arrival centre (across the border at the same height)")
 	t.equal(t.player().get_hp(), CARRIED_HP, "HP carried across the travel")
 	t.check(not t.main.is_transitioning(), "main still transitioning after the arrival")
 
@@ -89,10 +96,10 @@ func test_travel_lead_in_waits_before_the_iris(t: TestContext) -> void:
 	t.check(travelled, "the player did not reach %s" % TARGET_MAP)
 
 
-## An exit with an `entry_marker` and no entry edge travels, and the player arrives on the tile
-## centre at the Node2D of that name. In the built world a named marker (found at any depth) wins
-## over the entry edge's marker, a door wins over the named marker, and a name the world lacks
-## falls back to the entry edge (with a warning).
+## A travel to a named spot (`entry_marker`) and no entry edge travels, and the player arrives on
+## the tile centre at the Node2D of that name. In the built world a named spot (found at any depth)
+## wins over the entry edge, a door wins over the named spot, and a name the world lacks falls back
+## to the spawn (with a warning).
 func test_exit_arrives_at_a_named_marker(t: TestContext) -> void:
 	var result: Dictionary = t.main.request_exit({"map_id": MAP_ID, "exit_id": "test-exit",
 		"target_area_id": TARGET_MAP, "entry": "", "entry_marker": NAMED_MARKER, "gate": {}})
@@ -113,9 +120,8 @@ func test_exit_arrives_at_a_named_marker(t: TestContext) -> void:
 	built.name = BUILT_MARKER
 	built.position = BUILT_MARKER_OFFSET
 	holder.add_child(built)
-	var edge: Variant = AreaTravel.entry_marker(world_root, "west")
 	var door: Variant = AreaTravel.door_arrival(world_root, DOOR_ID)
-	if not t.check(edge != null and door != null, "%s has no player-entry-west marker or %s" % [TARGET_MAP, DOOR_ID]):
+	if not t.check(door != null, "%s has no %s" % [TARGET_MAP, DOOR_ID]):
 		return
 	var handoff := {"kind": "area", "map_id": TARGET_MAP, "entry_edge": "west", "entry_marker": BUILT_MARKER}
 	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), t.world().find_spawn_point(built.global_position), 0.01,
@@ -125,8 +131,8 @@ func test_exit_arrives_at_a_named_marker(t: TestContext) -> void:
 	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), door, 0.01, "a door over the named marker")
 	handoff.erase("entry_door")
 	handoff["entry_marker"] = "no-such-marker"
-	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), t.world().find_spawn_point(edge), 0.01,
-		"a missing named marker falls back to the entry edge")
+	t.near_vec(AreaTravel.arrival_point(handoff, Vector2.ZERO), t.world().find_spawn_point(t.world().player_spawn_marker()), 0.01,
+		"a missing named spot falls back to the spawn")
 	holder.queue_free()
 
 

@@ -429,7 +429,6 @@ script = ExtResource("29_t5qcl")
 map_id = "dungeon-lab"
 door_id = "dungeon-lab-way-out"
 target_area_id = "playground"
-target_marker = "player-spawn"
 side = "south"
 trigger_rect = Rect2(-64, 0, 128, 32)
 

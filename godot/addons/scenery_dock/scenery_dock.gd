@@ -40,8 +40,8 @@ const OBJECTS_DIR := "res://game/scenes/objects/"
 const DUNGEON_DIR := "res://game/scenes/objects/dungeon/"
 const DUNGEON_SKIP: PackedStringArray = ["dungeon.tscn", "fatty-lair-dungeon.tscn"]
 const DUNGEON_EXTRAS: PackedStringArray = [
-	"brazier", "pressure-plate", "heavy-block", "heavy-plate", "heavy-statue", "heavy-ore-crate",
-	"cracked-wall", "cracked-floor", "climb-wall", "cave-ladder",
+	"brazier", "pressure-plate", "heavy-block", "heavy-plate", "heavy-statue", "heavy-statue-flipped",
+	"heavy-ore-crate", "cracked-wall", "cracked-floor", "climb-wall", "cave-ladder",
 	"barred-gate", "drop-gate", "eye-latch", "gate-winch", "winch-post-cracked", "latch-door",
 	"lantern-gate", "plank-barricade", "rotten-timbers", "web-wall", "blast-keg", "mine-cart",
 	"ore-lift", "crystal-lens", "crystal-veil", "gulp-spot-frog", "gulp-spot-silk", "gulp-spot-stone",
@@ -208,22 +208,23 @@ func _dungeon_objects() -> Array:
 func _scene_picture(path: String) -> Texture2D:
 	var packed := load(path) as PackedScene
 	var root := packed.instantiate() if packed != null else null
-	var best: AtlasTexture = null
+	var best: Texture2D = null
 	var best_area := 0.0
 	if root != null:
 		for item in [root] + root.find_children("*", "", true, false):
 			var picture := _sprite_frame(item)
-			if picture != null and picture.region.get_area() > best_area:
+			if picture != null and picture.get_size().x * picture.get_size().y > best_area:
 				best = picture
-				best_area = picture.region.get_area()
+				best_area = picture.get_size().x * picture.get_size().y
 		root.free()
 	if best != null:
 		return best
 	return EditorInterface.get_editor_theme().get_icon(&"PackedScene", &"EditorIcons")
 
 
-## A visible sprite's current frame as an AtlasTexture, or null.
-static func _sprite_frame(node: Node) -> AtlasTexture:
+## A visible sprite's current frame (an AtlasTexture; flipped as the sprite draws it, a statue facing
+## the other side, so the two read apart), or null.
+static func _sprite_frame(node: Node) -> Texture2D:
 	if not node is CanvasItem or not (node as CanvasItem).visible:
 		return null
 	var texture: Texture2D = null
@@ -252,6 +253,16 @@ static func _sprite_frame(node: Node) -> AtlasTexture:
 	var picture := AtlasTexture.new()
 	picture.atlas = texture
 	picture.region = region
+	var sprite := node as Sprite2D
+	if sprite != null and (sprite.flip_h or sprite.flip_v):
+		var image := picture.get_image()
+		if image == null:
+			return picture
+		if sprite.flip_h:
+			image.flip_x()
+		if sprite.flip_v:
+			image.flip_y()
+		return ImageTexture.create_from_image(image)
 	return picture
 
 

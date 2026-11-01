@@ -127,7 +127,8 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 		PHASE_WAKE:
 			body.velocity = Vector2.ZERO
 			if elapsed >= pattern("wakeMs", 650.0):
-				if engaged:
+				# The room lit during the tell (its last candle) sends it back to sleep: no last swoop.
+				if engaged and _in_darkness():
 					_begin_swoop(now, target)
 				else:
 					_sleep(now)

@@ -102,26 +102,6 @@ metadata = {
 y_sort_enabled = true
 position = Vector2(1056, 1056)
 
-[node name="player-entry-north" type="Node2D" parent="." unique_id=977898715]
-y_sort_enabled = true
-position = Vector2(928, 96)
-
-[node name="player-entry-east" type="Node2D" parent="." unique_id=1449122499]
-y_sort_enabled = true
-position = Vector2(1824, 928)
-
-[node name="player-entry-south" type="Node2D" parent="." unique_id=149319815]
-y_sort_enabled = true
-position = Vector2(928, 1824)
-
-[node name="player-entry-west" type="Node2D" parent="." unique_id=521399634]
-y_sort_enabled = true
-position = Vector2(96, 928)
-
-[node name="arrive-from-south-wilds-1" type="Node2D" parent="." unique_id=1740685163]
-y_sort_enabled = true
-position = Vector2(1536, 1888)
-
 [node name="exit-to-south-wilds-1" type="Area2D" parent="." unique_id=537095277]
 position = Vector2(1536, 2032)
 collision_layer = 512
@@ -137,7 +117,6 @@ map_id = "west-village-b5"
 exit_id = "west-village-to-south-wilds-1"
 target_area_id = "south-wilds"
 entry = "north"
-entry_marker = "arrive-from-west-village-1"
 area = NodePath("..")
 
 [node name="edge-north" type="Area2D" parent="." unique_id=235536423]

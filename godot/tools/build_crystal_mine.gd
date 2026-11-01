@@ -61,6 +61,7 @@ const TERRAIN_TILESET := "res://game/world/terrain_tileset.tres"
 const WORLD_GROUND := "res://game/world/world_ground.gd"
 const WORLD_DEFINITION := "res://game/scripts/world_definition.gd"
 const WORLD_EXIT := "res://game/scripts/world_exit.gd"
+const DOOR := "res://game/scripts/door.gd"
 const CAMERA_ROOM := "res://game/world/camera_room.gd"
 const DARK_ROOM := "res://game/world/darkness/dark_room.gd"
 const CANDLE := "res://game/world/fire/candle.gd"
@@ -325,12 +326,18 @@ func _definition() -> void:
 	definition.set(&"tile_size", CELL)
 	definition.set(&"columns", COLUMNS)
 	definition.set(&"rows", ROWS)
-	definition.set(&"metadata", {"objects": [], "player": {"spawn": {"x": int(spawn.x), "y": int(spawn.y)},
-		"entries": {"south": {"x": int(spawn.x), "y": int(spawn.y)}}}})
+	definition.set(&"metadata", {"objects": [], "player": {"spawn": {"x": int(spawn.x), "y": int(spawn.y)}, "entries": {}}})
 	_own(definition, _root)
 	_marker(_root, "player-spawn", spawn)
 	_marker(_root, "dungeon-entrance", spawn)
-	_marker(_root, "arrive-from-camp", spawn)
+	# Where the camp's way in comes out (an arrival point: a door with no target).
+	var entrance := _marker(_root, "mine-entrance", spawn)
+	var entrance_door := Node.new()
+	entrance_door.name = "DoorScript"
+	entrance_door.set_script(load(DOOR))
+	entrance_door.set(&"map_id", MAP_ID)
+	entrance_door.set(&"door_id", "mine-entrance")
+	_own(entrance_door, entrance)
 	var dungeon := (load(KIT + "dungeon.tscn") as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
 	dungeon.name = "Dungeon"
 	dungeon.set(&"dungeon_id", MAP_ID)
@@ -370,7 +377,7 @@ func _definition() -> void:
 	script_node.set(&"map_id", MAP_ID)
 	script_node.set(&"exit_id", "crystal-mine-to-camp")
 	script_node.set(&"target_area_id", "crystal-caverns-g4")
-	script_node.set(&"entry_marker", "arrive-from-crystal-mine")
+	script_node.set(&"target_door_id", "camp-mine-mouth")
 	script_node.set(&"area", exit)
 	_own(script_node, exit)
 
@@ -806,7 +813,7 @@ func _m15_colossus_arena() -> void:
 	var climb := _scene(objects, OBJECTS + "climb-wall.tscn", "M15-root-wall", Vector2(61.2 * CELL, 33 * CELL + 20))
 	climb.set(&"top", Vector2(0, -312))
 	climb.set(&"exit_area_id", "crystal-caverns-h4")
-	climb.set(&"exit_marker", "arrive-from-crystal-mine")
+	climb.set(&"exit_door", "lookout-from-mine")
 	climb.set(&"art_size", Vector2(104, 300))
 	arena.set(&"climb_wall", arena.get_path_to(climb))
 	# The seal stands at the climb-out's foot, in front of its roots, until he falls.

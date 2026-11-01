@@ -189,7 +189,7 @@ strikes as it is let go; holding never strikes first.
 10. **Roll:** Space [D] (moved from 2; the number keys are free in the rework mode). It fires on the
     **release**: a tap (let go within 200 ms) rolls the quick roll: no spin-up, about 165 px in
     330 ms (about 667 easing to 333 px/s), safe for 250 ms, the same bonk and bounce; tap rolls can
-    follow each other every 580 ms. With the `roll-charge` upgrade (the testbed lends it), a hold
+    follow each other every 1330 ms (the next one waits 1 s after a roll ends, 2026-10-31). With the `roll-charge` upgrade (the testbed lends it), a hold
     past 200 ms spins up while held, launches at the release or at the spin-up's end (260 ms), then
     rolls on while held (draining energy); without the upgrade a hold rolls the quick roll on the
     release. The slime walks while the key is down before the roll starts. The ability bar's click
@@ -210,9 +210,7 @@ strikes as it is let go; holding never strikes first.
     layer off and on (a layer left off keeps a reminder on screen). Settings: "Damage numbers"
     (rework mode only) hides the numbers; reduce motion drops freeze, shake, kick and stutter and
     plays the squash at 35 %.
-12. **Classic check:** `?classic` (or a world without `?shapes`): the old sword, number keys, Q,
-    Swallow on 1 and the old Slam (30 damage, radius 90) are back, with no F action.
-13. **Art** ([Art](#art-2026-10-12)): strike each shape down, up, left and right (every shape aims
+12. **Art** ([Art](#art-2026-10-12)): strike each shape down, up, left and right (every shape aims
     4-way since the owner's round 2: a diagonal key press or pointer strikes to the side, left or
     right, and movement stays 8-way): the slime's drawn pose follows the aim,
     a left strike mirrors the side pose and its weapon, an up strike draws the weapon behind the
@@ -681,8 +679,8 @@ code path runs exactly as before. The Squash Slam is picked by mode too: `Player
 `classic_slam_sequence.gd` (the old Slam, unchanged) with the mode off and `slam_sequence.gd` (the
 improved Slam) with it on; `AbilityDefinitions.energy_cost` / `cooldown_ms` read
 `abilities.squashSlam` only in the mode. In the mode the Roll's cooldown from the press is the
-quick roll's `character.player.rework.quickRollMs` + `rollCooldownMs` (580 ms; classic: spin-up +
-shortest roll + pause, 960 ms); a charged roll is held back by its own end (`PlayerRoll`).
+quick roll's `character.player.rework.quickRollMs` + `rollCooldownMs` (330 + 1000 = 1330 ms; classic: spin-up +
+shortest roll + pause, 1710 ms); a charged roll is held back by its own end (`PlayerRoll`).
 
 ## Controls in the rework mode
 
@@ -767,7 +765,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 | `combat.energyShard` | `dropChance` 0.2, `amount` 15, `pickupRadiusPx` 28, `fadeMs` 12000 |
 | `combat.damageNumbers` | `smallColor`, `bigColor`, `popScale`, `popMs`, `bigClasses` |
 | `gulp.rework` | `tapMs` 250, `suckBurstMs` 500, `swallowHoldMs` 2000, `spitHoldMs` 2000, `ringCancelMs` 150, `ringRadiusPx` 30, `burstCooldownMs` 250 |
-| `gulp.throwHit` | the thrown hit's class (`thrown`) and feel |
+| `gulp.throwHit` | the thrown hit's class (`thrown`) and feel, `knockbackPx` 52 (how far a damaging throw slides an enemy its reaction would stop) and `knockbackSpeedScale` 2 (how many times as fast as a stun slide it gets there) |
 | `gulp.feel` | the Gulp's look in both modes (2026-10-16, `game/player/gulp/gulp_feel.gd`): `suck` (the squash, the motes), `catch` (the bulge, the held thing's settle), `throw` (the stretch, the lean, the whoosh streak), `land` (the ground dust, the heavy materials' camera nudge); [abilities spec](specs/abilities.md) |
 | `abilities.squashSlam` | the improved Slam (body-shapes plan section 4): timeline (`crouchEndMs` 120, `riseEndMs` 320, `hangEndMs` 380, `impactMs` 460, `doneMs` 640), `riseUnits` 96, `airborneFromMs`/`airborneToMs` 140/440, `ignoresKnockback`, `ellipse` 140 x 96 (`innerShare` 0.5), `inner` (slam 40, launch 380, hop 16), `outer` (ring 24, launch 300, `bounceMs` 600), `stoneDamageBonus` 0.25, `feel`, `stoneFeel`, `wobbleRadiusPx`, `energy` 35, `cooldownMs` 2500 |
 | `abilities.lantern` | the Lantern (2026-10-14): `energy` 10, `cooldownMs` 300, `clipMs` 200 (the spit clip sped up to this), `releaseMs` 70 (the flame leaves the mouth), `flame` {`class` tap, `damage` 5, `holdMs` 250, `rangePx` 72, `speed` 900, `lingerMs` 150, `radiusPx` 10, `lightRadiusPx` 90, `feel`}, `glow` {`radiusPx` 160, `flareMs` 260}, `candle` {`lightRadiusPx` 110, `gutterMs` 5000}, `burnable` {`burnMs` 600, `spreadPx` 24}, `darkness` {`alpha` 1.0, `softPx` 40, `maxLights` 16, `litFadeMs` 1500} |
@@ -823,6 +821,8 @@ hit = {
 	"launch_speed": 0.0,     # this hit's launch / knockback speed (px/s)
 	"hop_px": 0.0,
 	"knock": Vector2.RIGHT,  # unit direction of the push
+	"knock_px": 0.0,         # a damaging hit slides a body its reaction stops this far (throws)
+	"knock_speed_scale": 1.0,  # ... this many times as fast as a stun slide (2: in half the time)
 	"counts_as_hold": true,  # from combat.hits[class].countsAsHold: false for rings, throws, the suck
 	"attacker": "player",
 }
@@ -853,7 +853,8 @@ sender:
 ```gdscript
 result.reaction = {
 	"verb": "hold",          # hold | bounce | knockback | launch | stagger | knockdown | daze |
-	                         # armor | clink | pulled | resist | bowl | bonk | break | pop | break-free
+	                         # sleep | armor | clink | pulled | resist | bowl | bonk | break | pop |
+	                         # break-free (sleep: a sleep throw's, until a damaging hit; THROW_COMBAT.md)
 	"stun_ms": 400.0,
 	"slime": "none",         # none | recoil | bounce | pass | break: what the attacker feels
 	"recoil_px": 0.0,
@@ -1400,10 +1401,23 @@ form and drops what the mouth holds, then `cancel("hit")` runs.
 
 The thrown hit (`thrown_object.gd`, mode only): `static func rework_hit(direction: Vector2) ->
 Dictionary` (class `gulp.throwHit.class` "thrown", step 0, last, tags ["thrown"], knock along the
-throw, launch `gulp.throwKnockback`); the break sends each hurtbox in `gulp.throwHitRadiusPx`
-(`AbilityWorld.hurtboxes_at`) one request with the hit and the impact effect, plays
-`gulp.throwHit`'s feel once at the break and each target's number at the target, and a clink
-(`combat.chain.clink.hitStopMs`, HitBlocked) when nothing took it and a target was immune.
+throw, launch `gulp.throwKnockback`, `knock_px` `gulp.throwHit.knockbackPx`, `knock_speed_scale`
+`knockbackSpeedScale`); the break sends each
+hurtbox in `gulp.throwHitRadiusPx` (`AbilityWorld.hurtboxes_at`) one request with the hit and the
+impact effect, plays `gulp.throwHit`'s feel once at the break and each target's number at the
+target, and a clink (`combat.chain.clink.hitStopMs`, HitBlocked) when nothing took it and a target
+was immune.
+
+A throw that hurts always knocks back (owner, 2026-11-01): when its reaction would stop the body
+(hold, bounce, stagger, knockdown, daze) and it dealt damage, the body slides `knock_px` x the
+enemy's `knockbackScale` along the knock instead, while the stun holds it, slowing
+`knock_speed_scale` times as fast as a stun slide (`combat.verbs.slideDecay` ^ scale, so 2 gets
+there in half the time; `EnemyReactions._knock_slide` keeps that decay in the enemy's memory for the
+stun, and every stunned body and corpse slows by `slide_decay_of`); a kill that would squash in
+place slides its corpse that far. No damage, no slide: an immune or shut-gate hit, a
+sleep throw (0 damage). Knockback and launch keep their own push (`gulp.throwKnockback` x
+`knockbackScale`); armor (bosses, armored phases, the wake guard) and an enemy whose
+`knockbackScale` is 0 (rooted ones: turrets, the eyes, the bosses) do not move.
 
 Prompts (`gulp_hud.gd`, mode only): "[Q] Suck", "[Q] Throw", "[Q] Spit out  Hold [Q] Swallow"
 ("[Q] Spit out" before Swallow is learned); none while `roots_player()`.
@@ -1667,12 +1681,12 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   and the cracked clearing's sinkholes open with the bomb; the Slam and a Clod Stomper still break
   it. **The cracked floor** (`object.cracked-floor`, `cracked_floor.gd`, the Weaver Hollow's T4):
   the same script under a root that takes every setting in the Inspector (`flag_id`, `radius`, the
-  hole's `target_area_id` and `target_marker` or `target_door_id`, `kind` fall). Intact, the bomb's
+  hole's `target_area_id` and `target_door_id`, `kind` fall). Intact, the bomb's
   crack decal laid flat on the floor (124 x 86) with dust puffing from it every 2.4 to 4.2 s; broken,
   `floor-hole.webp` (broken flagstones round a dark shaft, no ladder, 140 x 106) and a DoorScript of
-  kind `fall` on it: walking in, the slime spins down and lands in the other world on the Node2D
-  named `target_marker` (door.gd, new 2026-10-17; CONVENTIONS.md "Doors"), with nothing leading
-  back.
+  kind `fall` on it: walking in, the slime spins down and drops onto the landing named by
+  `target_door_id` in the other world (`object.landing`, since 2026-10-31; CONVENTIONS.md "Doors"),
+  with nothing leading back.
 - **The cracked winch post** (`object.winch-post-cracked`, `winch_post.gd`, the Hollow's B2
   drawbridge): a stone post with an iron chain and the crack mark (`winch-post-2x1.webp`: intact |
   stump, 70 units wide), a body that blocks and a hurtbox that clinks ("It needs a blast."). Blown
@@ -1731,7 +1745,8 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   starts with the plate up. Since 2026-10-17 (Fatty's Lair, DUNGEONS.md): `shut_on_leave` shuts
   its gates the moment the weight leaves (a door held only while a statue stands on the plate),
   and `targets` (NodePaths) are set off each time it reaches the bottom (DungeonState.fire, as a
-  winch's: a drawbridge, a hidden chest).
+  winch's: a drawbridge, a hidden chest); since 2026-11-01 `hold_targets` takes them back as its
+  gates shut (DungeonState.take_back: a hidden chest sinks away again; R9's big chest).
 - **Its look** (owner, 2026-10-14: only the pressable top moves): the **base** (a stone socket
   ring) is fixed, the **cap** (an oval stone slab with a carved weight glyph) slides 6 down into it
   as it sinks and back up as it rises, darkening; fully down the cap shows its pressed picture (the
@@ -1745,12 +1760,21 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   Stone colour) fills as it sinks and drains as it rises; fully down it turns light and pulses. A
   grinding cue (`HeavyPlateGrind`, `GroundCreak` pitched down until a take exists) ticks every
   420 ms while it moves; `HeavyPlateDown` / `HeavyPlateUp` play `PlatePress` / `PlateRelease`.
-- **Heavy blocks** (`object.heavy-block`, the stone pedestal, and `object.heavy-statue`, the armor
-  statue: the decorations sheet's art at 1.1; `heavy_block.gd`, group `heavy_blocks`): a
+- **Heavy blocks** (`object.heavy-block`, the stone pedestal, its art at 1.1, and `object.heavy-statue`,
+  the armor statue: the decorations sheet's art at its own size, as the fixed armor statues are, since
+  2026-10-31; the owner asked why the statue that moves was bigger than the one that does not: it was
+  drawn at 1.1 so its base covered the pedestal's footprint; `heavy_block.gd`, group `heavy_blocks`): a
   CharacterBody2D on the `world` layer (the slime, enemies and other blocks collide with it), its
-  footprint 58 x 50 around its root, the middle of a 64 cell. Not suckable. Its shadow grounds it
-  (owner, 2026-10-14): a contact shadow the shape of the base's ground edge, no wider than the
-  footprint, darkest at the base's front edge, and a short soft shadow to the lower right.
+  footprint around its root, the middle of a 64 cell: 58 x 50 for the pedestal, 54 x 50 for the
+  statue (its base's width). Not suckable. Its shadow grounds it (owner, 2026-10-14): a contact shadow
+  the shape of the base's ground edge (`contact_centre`, `contact_half`, set per scene to its art), no
+  wider than the footprint, darkest at the base's front edge, and a short soft shadow to the lower right.
+- **The statue facing the other side** (`object.heavy-statue-flipped`, `heavy-statue-flipped.tscn`, owner
+  2026-10-31: two versions, one flipped): the statue's scene inherited, its sprite flipped (`flip_h`, the
+  offset mirrored so the art stays on the footprint) and its contact shadow mirrored; the cast shadow
+  still falls to the lower right. In the Scenery dock's Dungeon objects beside the statue (the dock
+  shows a flipped sprite's picture flipped). A movable block is not mirrored by a negative Scale, as
+  props are (PROPS.md): it is a body that moves; the fixed armor statue is (Scale x -1).
 - **The grab** (`game/player/heavy_grab.gd`, owned by player.gd): an interact press (W in keys-only,
   right click in the keyboard + mouse and pointer schemes) while the slime faces a block and touches
   it (within 14 of its footprint) grabs it instead of interacting; anything else in reach is used

@@ -10,15 +10,18 @@ extends StaticBody2D
 ## - `under`: what it leaves where it stood when the slime sucks it up (a PotLoot, game/dungeon/
 ##   pot_loot.gd): "keep" (the scene's own PotLoot, if any, as the dungeon pot's random one),
 ##   "none", "heart", "energy", "coins" or "random".
+## - `weight` (throw combat): its usual weight comes from the data file, picked as the game picks it
+##   (ThrowMode.weight_in, effect_in on `gulp.throwCombat`, read here: the editor has no autoloads);
+##   a thing whose LiftableScript has `heavy` set is heavy.
 ##
 ## Owner: abilities.
 
 const CATALOG := "res://game/data/liftables.json"
 const PotLoot := preload("res://game/dungeon/pot_loot.gd")
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const SCRIPT_NODE := "LiftableScript"
 const LOOT_NODE := "PotLoot"
 const CONSTANTS := "res://game/data/game-constants.json"
-const WEIGHTS: PackedStringArray = ["light", "medium", "heavy"]
 
 ## Which liftable it is ("" keeps the scene's own).
 @export var kind: String = "":
@@ -26,7 +29,7 @@ const WEIGHTS: PackedStringArray = ["light", "medium", "heavy"]
 		kind = value
 		# Picking a kind in the editor fills in its usual weight (loading a scene does not).
 		if Engine.is_editor_hint() and is_inside_tree() and not value.is_empty():
-			weight = kind_weight(value)
+			weight = _usual_weight(value)
 		_apply_kind()
 ## What it leaves where it stood when it is sucked up.
 @export_enum("keep", "none", "heart", "energy", "coins", "random") var under: String = "keep"
@@ -64,7 +67,7 @@ static func first_frame(id: String) -> int:
 func _validate_property(property: Dictionary) -> void:
 	if property["name"] == "weight":
 		property["hint"] = PROPERTY_HINT_ENUM
-		property["hint_string"] = ",".join(WEIGHTS)
+		property["hint_string"] = ",".join(PackedStringArray(ThrowMode.WEIGHTS))
 	elif property["name"] == "kind":
 		property["hint"] = PROPERTY_HINT_ENUM_SUGGESTION
 		property["hint_string"] = ",".join(PackedStringArray(catalog_kinds().keys()))
@@ -73,12 +76,12 @@ func _validate_property(property: Dictionary) -> void:
 ## Before the LiftableScript child's _ready (a root enters the tree before its children are ready).
 func _enter_tree() -> void:
 	_apply_kind()
-	# In the editor an older scene's thing shows its kind's usual weight (saved with the scene).
+	# In the editor an older scene's thing shows its usual weight (saved with the scene).
 	if Engine.is_editor_hint() and weight.is_empty():
 		var script_node := get_node_or_null(SCRIPT_NODE)
 		var id := kind if not kind.is_empty() else (str(script_node.get(&"kind")) if script_node != null else "")
 		if not id.is_empty():
-			weight = kind_weight(id)
+			weight = _usual_weight(id)
 	_apply_weight()
 
 
@@ -89,31 +92,36 @@ func _ready() -> void:
 
 ## A kind's usual weight (`gulp.throwCombat.kindWeights`, read once): "light" when it has none.
 static func kind_weight(id: String) -> String:
-	return str(_combat_table("kindWeights").get(id, "light"))
+	return ThrowMode.weight_in(_combat(), id)
 
 
-## A kind's throw effect, as throw_mode.gd's `effect_of` picks it (`kindEffects`, then its
+## A kind's throw effect, as the game picks it (ThrowMode.effect_in: `kindEffects`, then its
 ## material's `materialEffects`): "freeze", "sleep", "stick", "shatter", "pierce" or "" for none.
 ## Read from the files, so the editor can show it (the Scenery dock's hover text).
 static func kind_effect(id: String) -> String:
-	var by_kind := _combat_table("kindEffects")
-	if by_kind.has(id):
-		return str(by_kind[id])
 	var entry: Variant = catalog_kinds().get(id)
 	var material := str((entry as Dictionary).get("material", "")) if entry is Dictionary else ""
-	return str(_combat_table("materialEffects").get(material, ""))
+	return ThrowMode.effect_in(_combat(), id, material)
 
 
-## A table under `gulp.throwCombat` in the game constants (read once), {} when missing.
-static func _combat_table(key: String) -> Dictionary:
+## This thing's usual weight: heavy when its LiftableScript has `heavy` set (it counts as heavy in
+## the game too: liftable.gd `weight`), else its kind's.
+func _usual_weight(id: String) -> String:
+	var script_node := get_node_or_null(SCRIPT_NODE)
+	if script_node != null and bool(script_node.get(&"heavy")):
+		return ThrowMode.HEAVY
+	return kind_weight(id)
+
+
+## `gulp.throwCombat` in the game constants (read once), {} when missing.
+static func _combat() -> Dictionary:
 	if _combat_cache.is_empty():
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(CONSTANTS))
 		var gulp: Variant = (parsed as Dictionary).get("gulp") if parsed is Dictionary else null
 		var combat: Variant = (gulp as Dictionary).get("throwCombat") if gulp is Dictionary else null
 		if combat is Dictionary:
 			_combat_cache = combat
-	var table: Variant = _combat_cache.get(key)
-	return table if table is Dictionary else {}
+	return _combat_cache
 
 
 ## The child keeps the weight ("" leaves its kind's usual one).

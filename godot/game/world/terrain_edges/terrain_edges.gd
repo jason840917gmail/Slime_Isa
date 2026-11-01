@@ -24,6 +24,7 @@ extends Node2D
 ## Owner: world (terrain edges).
 
 const Self := preload("res://game/world/terrain_edges/terrain_edges.gd")
+const NodeFind := preload("res://game/shared/node_find.gd")
 const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materials.gd")
 const LAND_SHADER := preload("res://game/world/terrain_edges/terrain_edge.gdshader")
 const WATER_SHADER := preload("res://game/world/terrain_edges/terrain_edge_water.gdshader")
@@ -32,9 +33,10 @@ const WATER_SHADER := preload("res://game/world/terrain_edges/terrain_edge_water
 const BANK_SHAPES := "res://asset/MAPS/water/water-bank-shapes.png"
 const BANK_EARTH := "res://asset/MAPS/water/water-bank-earth.png"
 const Elevation := preload("res://game/world/elevation/elevation.gd")
+const ElevationSides := preload("res://game/world/elevation/sides/elevation_sides.gd")
 const GroundSurface := preload("res://game/world/ground_surface.gd")
+const WaterSurface := preload("res://game/world/water_surface.gd")
 const NODE_NAME := "TerrainEdges"
-const WATER_SURFACE_NODE := "WaterSurface"
 ## The most grounds that can meet at one corner.
 const LEVELS := 4
 ## Edge art: 128 px tiles with a 2 px gutter (atlas margins 2, separation 4).
@@ -48,6 +50,8 @@ const TR := 2
 const BL := 4
 const BR := 8
 const FULL := 15
+## The bits of a corner's four cells, in the order TL, TR, BL, BR.
+const BITS: Array[int] = [TL, TR, BL, BR]
 
 ## The ground layer (the parent).
 var ground: TileMapLayer
@@ -160,21 +164,13 @@ func rebuild() -> int:
 			for level in stack.size():
 				var name_of_ground := TerrainMaterials.ORDER[stack[level]]
 				var index := FULL
-				var bits: Array[int] = [TL, TR, BL, BR]
 				if level > 0:
-					index = 0
-					for i in 4:
-						if around[i] >= stack[level]:
-							index |= bits[i]
-				var atlas := Vector2i(index % 4, index / 4)
-				if name_of_ground == TerrainMaterials.WATER:
-					# The bank's shape: which of the corner's cells are land (above the water).
-					var land := 0
-					for i in 4:
-						if around[i] > stack[0]:
-							land |= bits[i]
-					atlas = Vector2i(land % 4, land / 4) if _bank_shapes else Vector2i.ZERO
-				layers[level].set_cell(corner, sources[name_of_ground], atlas)
+					index = _covered(around, stack[level])
+				elif name_of_ground == TerrainMaterials.WATER:
+					# The bank's shape: the land cells (above the water), as level 1's edge tile,
+					# which covers the bank's top.
+					index = _covered(around, stack[1]) if _bank_shapes else 0
+				layers[level].set_cell(corner, sources[name_of_ground], _atlas_of(index))
 				placed += 1
 			corners += 1
 	return placed
@@ -197,6 +193,20 @@ static func _same_level(levels: Dictionary, quad: Array[Vector2i]) -> bool:
 	return true
 
 
+## The bits of the cells in `around` (TL, TR, BL, BR) that stack at least as high as `order`.
+static func _covered(around: Array[int], order: int) -> int:
+	var index := 0
+	for i in 4:
+		if around[i] >= order:
+			index |= BITS[i]
+	return index
+
+
+## Where tile `index` (TL + 2*TR + 4*BL + 8*BR) lies in a 16-tile sheet.
+static func _atlas_of(index: int) -> Vector2i:
+	return Vector2i(index % 4, index / 4)
+
+
 ## `cell` moved onto the map's border cells when it lies past them (the map's ground carried on).
 static func _inside(bounds: Rect2i, cell: Vector2i) -> Vector2i:
 	return Vector2i(clampi(cell.x, bounds.position.x, bounds.end.x - 1), clampi(cell.y, bounds.position.y, bounds.end.y - 1))
@@ -217,17 +227,20 @@ func _edge_tile_set(sheets: Dictionary) -> TileSet:
 	var tile_set := TileSet.new()
 	tile_set.tile_size = Vector2i(ART_TILE, ART_TILE)
 	var origin := ground.global_position if ground.is_inside_tree() else ground.position
+	var sheet_tiles: Array[Vector2i] = []
+	for index in 16:
+		sheet_tiles.append(_atlas_of(index))
 	for name_of_ground: String in sheets:
 		if name_of_ground == TerrainMaterials.WATER:
 			var water := _water_material(origin)
 			if water != null:
 				_bank_shapes = ResourceLoader.exists(BANK_SHAPES) and ResourceLoader.exists(BANK_EARTH)
 				if _bank_shapes:
-					var atlases: Array[Vector2i] = []
-					for index in 16:
-						atlases.append(Vector2i(index % 4, index / 4))
 					water.set_shader_parameter(&"bank_texture", load(BANK_EARTH))
-					sources[name_of_ground] = _add_source(tile_set, load(BANK_SHAPES) as Texture2D, water, atlases)
+					# The side walls in the cliffs' side light; the front keeps the earth strip's own.
+					water.set_shader_parameter(&"bank_shade_east", ElevationSides.SHADE_EAST)
+					water.set_shader_parameter(&"bank_shade_west", ElevationSides.SHADE_WEST)
+					sources[name_of_ground] = _add_source(tile_set, load(BANK_SHAPES) as Texture2D, water, sheet_tiles)
 				else:
 					push_warning("TerrainEdges: no bank art (%s); deep water keeps a flat shore" % BANK_SHAPES)
 					sources[name_of_ground] = _add_source(tile_set, _opaque_texture(), water, [Vector2i.ZERO])
@@ -243,10 +256,7 @@ func _edge_tile_set(sheets: Dictionary) -> TileSet:
 		land.set_shader_parameter(&"rim_weight", load(rim_path))
 		land.set_shader_parameter(&"ground_period", float(ground.tile_set.tile_size.x * SHEET_CELLS))
 		land.set_shader_parameter(&"ground_origin", origin)
-		var atlases: Array[Vector2i] = []
-		for index in 16:
-			atlases.append(Vector2i(index % 4, index / 4))
-		sources[name_of_ground] = _add_source(tile_set, load(edges_path) as Texture2D, land, atlases)
+		sources[name_of_ground] = _add_source(tile_set, load(edges_path) as Texture2D, land, sheet_tiles)
 	return tile_set
 
 
@@ -267,14 +277,11 @@ func _add_source(tile_set: TileSet, texture: Texture2D, material_for_tiles: Mate
 
 ## The water fill: the water surface's own parameters (mask, sheets, grid) on the edge shader.
 func _water_material(origin: Vector2) -> ShaderMaterial:
-	var surface := ground.get_node_or_null(NodePath(WATER_SURFACE_NODE)) as CanvasItem
-	var surface_material := surface.material as ShaderMaterial if surface != null else null
-	if surface_material == null:
-		return null
+	var surface := WaterSurface.find_in(ground)
 	var water := ShaderMaterial.new()
 	water.shader = WATER_SHADER
-	for parameter: StringName in [&"water_mask", &"shallow_texture", &"deep_texture", &"grid_size", &"tile_size", &"texture_period"]:
-		water.set_shader_parameter(parameter, surface_material.get_shader_parameter(parameter))
+	if surface == null or not surface.share_water(water):
+		return null
 	water.set_shader_parameter(&"ground_origin", origin)
 	return water
 
@@ -325,7 +332,4 @@ func _snap_frames() -> void:
 
 ## The terrain edges under `parent`, found by class (a node's name is typed by hand in the editor).
 static func find_in(parent: Node) -> Self:
-	for child: Node in parent.get_children():
-		if child is Self:
-			return child as Self
-	return null
+	return NodeFind.child_of(parent, Self) as Self

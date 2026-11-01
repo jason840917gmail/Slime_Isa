@@ -793,6 +793,21 @@ func get_move_intent() -> Vector2:
 	return _move_intent
 
 
+## The way the slime is going, for the ways out of a world (doors, stair doors): the walk's
+## `get_move_intent`, or while a Roll's ball rolls (not its spin-up or bounce) the way it rolls, so
+## a roll goes through an open door as a walk does instead of bonking off the room's edge (owner,
+## 2026-10-31). Pushes and climbs keep reading the walk only.
+func get_travel_intent() -> Vector2:
+	if is_rolling_on():
+		return _roll.direction()
+	return _move_intent
+
+
+## True while a Roll's ball rolls (launched, not spinning up or bouncing back).
+func is_rolling_on() -> bool:
+	return _roll.is_active() and _roll.speed() > 0.0
+
+
 ## True while the slime walks out of a door (its input is locked).
 func is_walking_out() -> bool:
 	return _walk_out.active
@@ -1233,12 +1248,13 @@ func ability_status(id: StringName) -> Dictionary:
 
 
 ## Throw combat: a shape's power as the HUD and the bag read a box ability (PlayerAbilities.status's
-## keys): learned, never cooling down, short of its charge's energy, busy while a strike runs.
+## keys): learned, never cooling down, short of its charge's energy, busy while a strike runs, the
+## mouth is full or the slime swims (ShapeController.power_strike refuses then).
 func _shape_power_status(id: StringName) -> Dictionary:
 	var learned := is_learned(id)
 	var shapes := _shapes if _shapes != null and is_instance_valid(_shapes) else null
-	var cost := float(ShapeDefs.charge(id).get("energy", 0.0))
-	var busy := shapes == null or shapes.is_busy() or _mouth.is_holding()
+	var cost := AbilityBox.energy_cost(id)
+	var busy := shapes == null or shapes.is_busy() or _mouth.is_holding() or is_swimming()
 	var short := _energy < cost
 	return {
 		"unlocked": learned,
@@ -1896,10 +1912,11 @@ func get_grabbed_block() -> Node2D:
 ## dropped; the held interact key climbs, the movement keys pick the way along the wall.
 func _step_climb(delta: float) -> void:
 	var now := Services.now_ms()
-	# The strike while clinging (the dungeons, 2026-10-17: the Colossus's claws): an attack press.
-	if _input.consume(&"attack", now, _buffer_ms):
+	# The strike while clinging (the dungeons, 2026-10-17: the Colossus's claws): an attack press; in
+	# the throw mode, whose attack has no key, the Gulp's (nothing can be gulped from a wall).
+	if _input.consume(&"eat" if ThrowMode.is_on() else &"attack", now, _buffer_ms):
 		_climb_strike()
-	for action: StringName in [&"dodge", &"ability_use", &"eat", &"interact", &"weapon_next",
+	for action: StringName in [&"attack", &"dodge", &"ability_use", &"eat", &"interact", &"weapon_next",
 			&"weapon_previous", &"swallow"]:
 		_input.consume(action, now, _buffer_ms)
 	_drop_roll_press()
@@ -1915,9 +1932,10 @@ func _step_climb(delta: float) -> void:
 
 
 ## The Feral skin strikes while it clings (docs/godot/SKINS.md "Feral", the plan's proposal; added by
-## the dungeons for the Crystal Colossus's claws, docs/godot/DUNGEONS.md): an attack press while
-## climbing (not dropping) gives the current shape (the Spear, at the Feral tempo) a press aimed along
-## the face, left or right (feral_climb.gd `strike_side`); it strikes on the release, as every press.
+## the dungeons for the Crystal Colossus's claws, docs/godot/DUNGEONS.md): an attack press (the
+## Gulp's in the throw mode) while climbing (not dropping) gives the current shape (the Spear, at the
+## Feral tempo) a press aimed along the face, left or right (feral_climb.gd `strike_side`); it strikes
+## on the attack's release, as every press (at once for the Gulp's, the attack not being held).
 ## The body-shapes mode only (the shapes strike there).
 func _climb_strike() -> void:
 	if _climb.is_falling() or not ReworkMode.is_on() or _shapes == null or not is_instance_valid(_shapes):
@@ -2659,7 +2677,8 @@ func _update_interact_hold(now: float) -> bool:
 # --- mouse control schemes (game/player/mouse/) ------------------------------------------------
 
 ## A pending order-button press (`_capture_order_buttons`) becomes an order for what is under the
-## pointer (PointerTargets.at): an enemy or a resource -> walk into reach and swing; something
+## pointer (PointerTargets.at): an enemy or a resource -> walk into reach and swing (in the throw
+## mode, which has no attack, walk to the pointer as on the ground); something
 ## usable -> walk to it and use it (the interaction controller keeps it chosen meanwhile); the
 ## ground -> walk there. A pending use-button press (the click scheme's right button) becomes the
 ## use order when something usable is under the pointer, else an `interact` press (the target in
@@ -2686,6 +2705,9 @@ func _issue_click_order() -> void:
 	var pointer := body.get_global_mouse_position()
 	var target := _pointer_target(pointer)
 	var kind := str(target.get("kind", PointerTargets.KIND_GROUND))
+	# Throw combat: the slime never strikes, so a click on an enemy only walks there.
+	if kind == PointerTargets.KIND_ATTACK and ThrowMode.is_on():
+		kind = PointerTargets.KIND_GROUND
 	var mark_at := pointer
 	match kind:
 		PointerTargets.KIND_ATTACK:

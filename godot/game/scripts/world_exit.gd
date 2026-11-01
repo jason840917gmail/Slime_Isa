@@ -13,7 +13,11 @@ class_name WorldExitScript
 ## Owner: world objects.
 
 const Services := preload("res://game/shared/services.gd")
+const BorderCrossing := preload("res://game/world/crossings/border_crossing.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const MAIN_GROUP := &"world_main"
+## How far from where the slime comes out the far side's exit back may lie (world units).
+const BORDER_SLACK := 96.0
 
 ## JSON `mapId` (the world this exit belongs to).
 @export var map_id: String = ""
@@ -21,17 +25,24 @@ const MAIN_GROUP := &"world_main"
 @export var exit_id: String = ""
 ## JSON `targetAreaId` (e.g. "gloop-forest").
 @export var target_area_id: String = ""
-## JSON `entry`: arrival edge in the target world ("west", ...).
+## JSON `entry`: arrival edge in the target world ("west", ...). Crossing a border of the atlas the
+## slime comes out at the same place across it (`_cross_by_coordinates`); otherwise at the target's
+## spawn.
 @export var entry: String = ""
-## Not in Phaser (world map, 2026-10-10): the name of a Node2D anywhere in the target world where
-## the player arrives (`AreaTravel.arrival_point`). It wins over `entry`'s `player-entry-<edge>`
-## marker, and an exit with a marker and no valid `entry` travels too. Empty = arrive by `entry`.
-@export var entry_marker: String = ""
+## Not in Phaser (2026-10-31): the end in the target world the slime comes out of (a door's
+## `door_id`: an arrival point, game/scripts/door.gd), for an exit that is no border (the mine's
+## mouth and its way out). It wins over `entry`.
+@export var target_door_id: String = ""
 ## Not in Phaser (chunk worlds, 2026-10-12): the player arrives at the same place along the `entry`
-## edge as where it left this world (`entry_along`, `AreaTravel.arrival_point`), not at the edge's
-## marker: for an exit along a whole edge between two worlds that carry on from each other (the
-## chunks of a region, godot/tools/split_region_chunks.gd).
+## edge as where it left this world (`entry_along`, `AreaTravel.arrival_point`): for an exit along a
+## whole edge between two worlds that carry on from each other (the chunks of a region,
+## godot/tools/split_region_chunks.gd).
 @export var keep_along: bool = false
+## Not in Phaser (2026-10-31): for a `keep_along` exit between two worlds that are not chunks of the
+## atlas grid (the playground and its annex), how far the target's frame is shifted along the edge:
+## the slime comes out at its place along this edge plus this (world units), and the screen scrolls
+## across. 0 for chunks, whose grid lines up.
+@export var along_offset: float = 0.0
 ## JSON `area`: the Area2D (layer trigger, mask player|npc) whose bodies are tested.
 @export var area: Area2D
 ## JSON `gate` (camelCase keys: id, requiredItemId, consumeOnUnlock, lockedMessage).
@@ -92,15 +103,87 @@ func _evaluate(body: Node) -> void:
 			"exit_id": exit_id,
 			"target_area_id": target_area_id,
 			"entry": entry,
-			"entry_marker": entry_marker,
+			"target_door_id": target_door_id,
 			"gate": gate,
 		}
 		if keep_along and world.player != null:
-			request["entry_along"] = _along(world)
+			request["entry_along"] = _along(world) + along_offset
+			if not is_zero_approx(along_offset):
+				request["scroll_across"] = true
+				request["along_shift"] = along_offset
+		elif world.player != null and target_door_id.is_empty():
+			_cross_by_coordinates(world, request)
 		result = main.call(&"request_exit", request)
 	if str(result.get("status", "")) == "queued":
 		_queued = true
 	navigation_resolved.emit(result)
+
+
+## An exit into a neighbouring region of the overworld (2026-10-31, docs/design/
+## 2026-10-31-crossings-and-arrivals.md D5): when this world and the target are chunks of the atlas
+## grid, the slime comes out across the border at the same place (BorderCrossing.across), in the
+## chunk there, and the screen scrolls (`worldNavigation.regionBorderScroll`); the exit's `entry` is
+## not used then. Where the far side's opening back lies elsewhere along the border (the two sides
+## drawn apart), it comes out of that opening, the scroll shifted to meet it (`along_shift`). Without
+## the grid, or when no exit leads back along the border (an opening drawn on this side only:
+## BorderCrossing.opening_back), `request` is left as it is: the slime arrives at the region's spawn.
+func _cross_by_coordinates(world: Node, request: Dictionary) -> void:
+	var constants := Services.constants()
+	if constants == null or constants.number("worldNavigation.regionBorderScroll") <= 0.0:
+		return
+	var here := map_id if not map_id.is_empty() else str(world.map_id())
+	var crossing := BorderCrossing.across(here, target_area_id, exit_edge(world), world.player.get_centre())
+	if crossing.is_empty():
+		return
+	# Only into an opening: the one back at this place, else the nearest one back along the border.
+	var back := BorderCrossing.opening_back(crossing, PackedStringArray([here, WorldChunks.world_of(here)]), BORDER_SLACK)
+	if back.is_empty():
+		return
+	var along := float(back["along"])
+	request["target_area_id"] = back["world"]
+	request["entry"] = back["edge"]
+	request["entry_along"] = along
+	request["scroll_across"] = true
+	if not is_equal_approx(along, float(crossing["along"])):
+		request["along_shift"] = along - float(crossing["along"])
+
+
+## The edge of this world the exit lies on (`area`'s first rectangle); "" without an area.
+func exit_edge(world: Node) -> String:
+	var rect := _area_rect()
+	if not rect.has_area():
+		return ""
+	return edge_of(rect, world.world_rect())
+
+
+## The edge of `bounds` the exit strip `rect` lies along: a strip taller than wide lies on the west or
+## east edge, a wider one on the north or south (an opening split between two chunks also touches
+## the chunk's other edge at its end); the nearest of those.
+static func edge_of(rect: Rect2, bounds: Rect2) -> String:
+	var gaps := {"north": rect.position.y - bounds.position.y, "south": bounds.end.y - rect.end.y,
+		"west": rect.position.x - bounds.position.x, "east": bounds.end.x - rect.end.x}
+	var candidates: Array = gaps.keys()
+	if rect.size.y > rect.size.x:
+		candidates = ["west", "east"]
+	elif rect.size.x > rect.size.y:
+		candidates = ["north", "south"]
+	var best := ""
+	for edge: String in candidates:
+		if best.is_empty() or float(gaps[edge]) < float(gaps[best]):
+			best = edge
+	return best
+
+
+## The trigger area's first rectangle in world space (empty without one).
+func _area_rect() -> Rect2:
+	if area == null or not is_instance_valid(area):
+		return Rect2()
+	for child: Node in area.get_children():
+		var shape_node := child as CollisionShape2D
+		if shape_node != null and shape_node.shape is RectangleShape2D:
+			var size := (shape_node.shape as RectangleShape2D).size * shape_node.global_scale.abs()
+			return Rect2(shape_node.global_position - size * 0.5, size)
+	return Rect2()
 
 
 ## Where the player (its old Phaser centre) is along the edge it arrives at: its distance from the

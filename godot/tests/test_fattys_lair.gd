@@ -155,6 +155,8 @@ func test_the_open_gaps_of_the_main_path_can_be_walked_through(t: TestContext) -
 	for walk: Array in WALKS:
 		if not await _enter(t, walk[0]):
 			return
+		# the main path with its fights won (R4's shutters)
+		_win_fights(t)
 		_stand(t, _at(walk[0], walk[1]))
 		await t.steps(4)
 		t.press(walk[2])
@@ -209,6 +211,8 @@ func test_the_drawbridge_takes_two_plates_and_burr_holds_one(t: TestContext) -> 
 	_stand(t, plate.global_position)
 	var lowered := await t.until(func() -> bool: return bool(bridge.call(&"is_lowered")), 4500.0)
 	t.check(lowered, "the two plates did not lower the drawbridge")
+	# Burr says goodbye, the slime held still while he speaks (his lines closed here), and walks out.
+	await _close_dialogues(t, func() -> bool: return t.world().world_root.get_node_or_null("Lair/burr") == null, 8000.0)
 	_stand(t, _at("hub", Vector2(22.0, 11.5)))
 	await t.sim_wait(5600.0)
 	t.check(bool(bridge.call(&"is_lowered")), "the bridge rose again with the plates")
@@ -226,6 +230,10 @@ func test_the_drawbridge_takes_two_plates_and_burr_holds_one(t: TestContext) -> 
 func test_the_north_mazes_eyes_open_their_three_gates_only_in_order(t: TestContext) -> void:
 	if not await _enter(t, "r5"):
 		return
+	# The latches, not R5's enemies: in the long waits below they would wear the idle slime down until
+	# it faints and R5 is built again (its latches freed).
+	for enemy: Node in t.tree.get_nodes_in_group(&"enemy"):
+		enemy.queue_free()
 	var one := _objects(t).get_node("r5-maze-latch-1")
 	var two := _objects(t).get_node("r5-maze-latch-2")
 	var three := _objects(t).get_node("r5-latch-inner")
@@ -393,22 +401,24 @@ func test_burrs_cell_takes_two_keys_and_opens_the_inner_stair(t: TestContext) ->
 	t.check(bool(hatch.call(&"is_open")), "Burr did not open the Inner Stair")
 	t.check(run.has_flag("fatty-lair.inner-stair-open"), "the open stair is not kept")
 	await t.steps(10)
-	# Walking into the open stair takes the slime down to the Crypt (its own world).
-	_stand(t, _at("hub", Vector2(2.0, 11.3)))
-	await t.steps(4)
-	t.press(&"move_down")
-	var down := await t.until(func() -> bool: return t.in_world(WORLDS["r8"]), 4000.0)
-	t.release(&"move_down")
-	t.check(down, "the Inner Stair did not lead down to the Crypt (in %s)" % t.world().map_id())
-	await _settled(t)
-	# Its ladder brings the slime back up (the second half's way back to the hub, from R9's bolt).
-	await t.sim_wait(1200.0)
-	_stand(t, _at("r8", Vector2(2.5, 26.7)))
+	# Walking into the open stair door (in the hub's north wall) takes the slime down to the Crypt
+	# (its own world), after its walk down the steps.
+	_walk_into_stair(t, _lair(t, "inner-stair"))
 	await t.steps(4)
 	t.press(&"move_up")
-	var up := await t.until(func() -> bool: return t.in_world(WORLDS["hub"]), 4000.0)
+	var down := await t.until(func() -> bool: return t.in_world(WORLDS["r8"]), 5000.0)
 	t.release(&"move_up")
-	t.check(up, "the crypt's ladder did not lead back up to the hub (in %s, feet at %s)" % [t.world().map_id(), str(t.player_body().global_position / CELL - ORIGIN)])
+	t.check(down, "the Inner Stair did not lead down to the Crypt (in %s)" % t.world().map_id())
+	await _settled(t)
+	# The crypt's stair door up (its north wall) brings the slime back up (the second half's way back
+	# to the hub, from R9's bolt).
+	await t.sim_wait(1200.0)
+	_walk_into_stair(t, _lair(t, "crypt-north-stair"))
+	await t.steps(4)
+	t.press(&"move_up")
+	var up := await t.until(func() -> bool: return t.in_world(WORLDS["hub"]), 5000.0)
+	t.release(&"move_up")
+	t.check(up, "the crypt's stair did not lead back up to the hub (in %s, feet at %s)" % [t.world().map_id(), str(t.player_body().global_position / CELL - ORIGIN)])
 
 
 func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: TestContext) -> void:
@@ -450,9 +460,12 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
 	t.near(_hp(fatty), hp, 0.01, "a thrust landed while his eye is shut")
 	# A Heavy Roll on his feet in the chase bonks off him; a thrown mud ball throws him out of balance.
+	# With the Heavy skin on every Roll is a Heavy Roll (HeavyCheck.is_heavy_roll), so the plain
+	# Roll below is rolled without it.
 	SkinState.lend(SkinState.HEAVY)
 	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
 	t.check(not bool(fatty.call(&"is_dizzy")), "a Heavy Roll knocked him down in the chase")
+	SkinState.give_back(SkinState.HEAVY)
 	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
 	t.check(bool(fatty.call(&"is_unbalanced")), "a thrown mud ball did not throw him out of balance")
 	t.near(_hp(fatty), hp, 0.01, "the mud ball hurt him")
@@ -461,15 +474,19 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him down while he was out of balance")
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
 	t.near(_hp(fatty), hp, 0.01, "a thrust landed while he was out of balance with his eye shut")
+	SkinState.lend(SkinState.HEAVY)
 	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
 	t.check(bool(fatty.call(&"is_dizzy")), "a Heavy Roll did not knock him down while he was out of balance")
-	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
-	t.check(_hp(fatty) < hp, "the Spear did not land while he was down")
+	# Down, he rocks back; a Spear hit that lands ends the fall at once (fatty.gd `commit_damage`: one
+	# hit is the whole opening).
 	await t.sim_wait(400.0)
 	var art := fatty.get(&"visual") as Node2D
-	t.check(art != null and absf(art.rotation) > 0.2, "he does not rock back while off balance (tilt %s)" % str(art.rotation if art != null else 0.0))
-	await t.sim_wait(float(fatty.get(&"phase_two_dizzy_ms")) + 400.0)
-	t.check(not bool(fatty.call(&"is_dizzy")), "he stays off balance past its time")
+	t.check(art != null and absf(art.rotation) > 0.2, "he does not rock back while he is down (tilt %s)" % str(art.rotation if art != null else 0.0))
+	hp = _hp(fatty)
+	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
+	t.check(_hp(fatty) < hp, "the Spear did not land while he was down")
+	await t.steps(2)
+	t.check(not bool(fatty.call(&"is_dizzy")), "the Spear's hit did not end his fall")
 	# The rest of his health: a Heavy Roll on the ground, thrusts while he is off balance, until he falls.
 	var beaten := await t.until(func() -> bool:
 		if BOSS in (Services.run().world.get("defeated_boss_ids", []) as Array):
@@ -558,6 +575,9 @@ func test_the_big_squint_guards_pearl_one_and_its_take_seals_the_lair(t: TestCon
 func test_the_weigh_house_teaches_the_heavy_skins_plates(t: TestContext) -> void:
 	if not await _enter(t, "weigh"):
 		return
+	# The plates, not the Weigh House's enemies: beside the plate they knock the slime off it.
+	for enemy: Node in t.tree.get_nodes_in_group(&"enemy"):
+		enemy.queue_free()
 	var east := _objects(t).get_node("c2-east-door/GateScript")
 	var west := _objects(t).get_node("c2-west-door/GateScript")
 	var stand := _objects(t).get_node("c2-plate-stand") as Node2D
@@ -630,8 +650,9 @@ func test_the_dung_roller_runs_plate_holds_r9s_door_only_with_the_statue(t: Test
 	t.check(bool(_objects(t).get_node("r9-north-door/GateScript").call(&"is_open")), "R9's north door is shut although R10's statue holds it")
 
 
-## R9, the twist: a plate in the Watcher Eye's sight raises the hidden big chest for good; its east
-## door's bolt opens from R9 into R8, and from R8 the doorway refuses until then.
+## R9, the twist: a plate in the Watcher Eye's sight raises the hidden big chest while something
+## holds it (it sinks away when the plate lets go, owner 2026-11-01); its east door's bolt opens
+## from R9 into R8, and from R8 the doorway refuses until then.
 func test_the_watcher_halls_plate_raises_the_big_chest(t: TestContext) -> void:
 	if not await _enter(t, "r9"):
 		return
@@ -645,8 +666,10 @@ func test_the_watcher_halls_plate_raises_the_big_chest(t: TestContext) -> void:
 	statue.global_position = plate.global_position
 	t.check(await t.until(func() -> bool: return bool(chest.call(&"is_shown")), 3800.0), "the statue on the plate did not raise the big chest")
 	statue.global_position = start
-	await t.sim_wait(5600.0)
-	t.check(bool(chest.call(&"is_shown")), "the big chest sank again with the plate")
+	await t.steps(4)
+	t.check(not bool(chest.call(&"is_shown")), "the big chest stayed up with the plate let go")
+	statue.global_position = plate.global_position
+	t.check(await t.until(func() -> bool: return bool(chest.call(&"is_shown")), 3800.0), "the statue back on the plate did not raise the big chest again")
 	# The bolted door: from R8 it holds (its doorway refuses), from R9 it opens for good.
 	if not await _enter(t, "r8"):
 		return
@@ -784,6 +807,8 @@ func test_a_roll_crosses_the_bell_bridges_west_slabs(t: TestContext) -> void:
 	if not await _enter(t, "r7"):
 		return
 	Services.run().learn_session_ability("dodge")
+	# the body-shapes mode (on everywhere): a held Roll rolls on only with its charge (BODY_SHAPES.md)
+	Services.run().learn_session_ability("roll-charge")
 	_stand(t, _at("r7", Vector2(7.0, 8.0)))
 	t.player().face(Vector2.LEFT)
 	await t.steps(4)
@@ -993,7 +1018,9 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 	t.player().face(Vector2.DOWN)
 	t.press(&"move_down")
 	await t.until(func() -> bool: return float((feet.call() as Vector2).y) > 376.0, 1000.0)
-	t.press(&"dodge")
+	# the quick Roll (a tap: the body-shapes mode, on everywhere, fires the Roll on the release; held, the
+	# slime walks on and a slab cracks under it)
+	t.tap(&"dodge")
 	var landed := await t.until(func() -> bool: return float((feet.call() as Vector2).y) > 524.0, 2000.0)
 	t.release_all()
 	await t.sim_wait(500.0)
@@ -1005,7 +1032,7 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 	await _walk_to(t, Vector2(472.0, 576.0), 3000.0)
 	t.player().face(Vector2.LEFT)
 	t.press(&"move_left")
-	t.press(&"dodge")
+	t.tap(&"dodge")
 	var crossed := await t.until(func() -> bool: return float((feet.call() as Vector2).x) < 316.0, 2000.0)
 	t.release_all()
 	await t.sim_wait(500.0)
@@ -1016,7 +1043,8 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 	_objects(t).get_node("r7-bell").find_children("*", "", true, false).filter(func(n: Node) -> bool: return n.has_method(&"ring"))[0].call(&"ring")
 	await t.sim_wait(800.0)
 	await _walk_to(t, Vector2(224.0, 560.0), 3000.0)
-	await _walk_to(t, Vector2(200.0, 360.0), 4000.0)
+	# straight north through the gate's opening (its node at x 224)
+	await _walk_to(t, Vector2(224.0, 360.0), 4000.0)
 	t.check(float((feet.call() as Vector2).y) < 420.0, "the slime did not go through the gate (at %s)" % feet.call())
 	t.press(&"move_left")
 	var left := await t.until(func() -> bool: return t.in_world(WORLDS["r2"]), 6000.0)
@@ -1241,6 +1269,13 @@ static func _at(room: String, cell: Vector2) -> Vector2:
 	return (ORIGIN + at) * CELL
 
 
+## Wins the room fights of the world the slime is in (RoomFight.finish_quietly): their shutters open.
+## R4's fight is not `once`: its `starts_shut` shutters shut again each time its world is built.
+func _win_fights(t: TestContext) -> void:
+	for fight: Node in t.tree.get_nodes_in_group(&"room_fight"):
+		fight.call(&"finish_quietly")
+
+
 func _objects(t: TestContext) -> Node:
 	return t.world().world_root.get_node("Objects")
 
@@ -1254,6 +1289,15 @@ func _door(t: TestContext, door_id: String) -> Node:
 		if str(node.get(&"door_id")) == door_id and t.world().world_root.is_ancestor_of(node):
 			return node
 	return null
+
+
+## Puts the slime's centre in a stair door's well (stair_hatch.gd `trigger_rect`), facing into it.
+func _walk_into_stair(t: TestContext, stair: Node2D) -> void:
+	if not t.check(stair != null, "no stair door"):
+		return
+	var rect: Rect2 = stair.get(&"trigger_rect")
+	t.teleport_player(stair.global_position + rect.get_center())
+	t.player().face(Vector2.UP)
 
 
 ## Puts the slime's feet at `feet` and takes its level there.

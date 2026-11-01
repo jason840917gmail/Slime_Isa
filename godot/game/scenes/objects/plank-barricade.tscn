@@ -13,6 +13,7 @@ size = Vector2(140, 56)
 y_sort_enabled = true
 collision_mask = 0
 script = ExtResource("1_barricade")
+heap_reach = 80.0
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 position = Vector2(0, -12)

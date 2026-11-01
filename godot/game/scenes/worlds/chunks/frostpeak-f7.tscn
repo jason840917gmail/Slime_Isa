@@ -103,26 +103,6 @@ metadata = {
 y_sort_enabled = true
 position = Vector2(1056, 1056)
 
-[node name="player-entry-north" type="Node2D" parent="." unique_id=1214806257]
-y_sort_enabled = true
-position = Vector2(992, 224)
-
-[node name="player-entry-east" type="Node2D" parent="." unique_id=555274100]
-y_sort_enabled = true
-position = Vector2(1952, 1056)
-
-[node name="player-entry-south" type="Node2D" parent="." unique_id=567945539]
-y_sort_enabled = true
-position = Vector2(1056, 1952)
-
-[node name="player-entry-west" type="Node2D" parent="." unique_id=1089096166]
-y_sort_enabled = true
-position = Vector2(224, 1248)
-
-[node name="arrive-from-south-wilds-1" type="Node2D" parent="." unique_id=207763419]
-y_sort_enabled = true
-position = Vector2(1280, 160)
-
 [node name="exit-to-south-wilds-1" type="Area2D" parent="." unique_id=1460321435]
 position = Vector2(1280, 16)
 collision_layer = 512
@@ -138,7 +118,6 @@ map_id = "frostpeak-f7"
 exit_id = "frostpeak-to-south-wilds-1"
 target_area_id = "south-wilds"
 entry = "south"
-entry_marker = "arrive-from-frostpeak-1"
 area = NodePath("..")
 
 [node name="edge-east" type="Area2D" parent="." unique_id=904646879]

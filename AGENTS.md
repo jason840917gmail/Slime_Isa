@@ -28,12 +28,12 @@ its code is in git history.
   with F6 runs the playground testbed (every weapon and ability); F6 on a world scene runs the game
   in that world.
 - Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
-  `?recipes`, `?arsenal`, `?audition`, `?shapes` (the body-shapes rework mode in any world),
-  `?classic` (the rework mode off in the playground, where it is on by default), `?prologue` (a new
+  `?recipes`, `?arsenal`, `?audition`, `?shapes` (lends the shapes and box abilities in any world;
+  the body-shapes rework mode itself is on in every world on this branch), `?prologue` (a new
   run in the prologue, as New Game starts it), `?skins=heavy,silk,feral` (lends those skins for the
-  session), and on the `exp/throw-combat` branch `?melee` (the throw-combat experiment off),
-  `?gulp=<1..3>` (the Gulp's level) and `?aimhelp` on the web;
-  `-- --map=<id> ...`, `-- --shapes`, `-- --classic`, `-- --prologue`, `-- --skins=<ids>` on desktop
+  session), and on the `exp/throw-combat` branch `?melee` (the throw-combat experiment off: the
+  shapes' attack back), `?gulp=<1..3>` (the Gulp's level) and `?aimhelp` on the web;
+  `-- --map=<id> ...`, `-- --shapes`, `-- --prologue`, `-- --skins=<ids>` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
   the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the throw-combat experiment:
   [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md); the prologue:
@@ -45,6 +45,13 @@ its code is in git history.
 - `"<Godot console exe>" --headless --path godot -s res://tools/bake_elevation.gd` — bakes every
   world's elevation cache (`game/scenes/worlds/elevation_cache/`, commit it); a game run from the
   project rebakes a world whose painting changed ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md#baked-cache)).
+- `"<Godot console exe>" --headless --path godot -s res://tools/check_crossings.gd` — lists every
+  crossing between worlds (doors, stairs, holes, landings, exits) and what is wrong with its link;
+  every kind can be tried on the playground's crossings corner
+  ([docs/design/2026-10-31-crossings-and-arrivals.md](docs/design/2026-10-31-crossings-and-arrivals.md)).
+- `"<Godot console exe>" --headless --path godot -s res://tools/check_chunk_lines.gd [-- --world=<text>]`
+  — lists the crossings on every line two chunk worlds share and flags the ones the chunk-line rule
+  forbids ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md#chunk-worlds-2026-10-12)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
@@ -109,14 +116,23 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   tree walls on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)); interior (dungeon
   room) walls as Zelda's bevelled frame, two cells deep, with their doors cut into the faces, on an
   `interior-walls` InteriorWallLayer ([docs/godot/INTERIOR_WALLS.md](docs/godot/INTERIOR_WALLS.md); the box-room lab
-  only so far).
+  only so far), the floor's edging along them painted per cell on a `floor-trim` InteriorTrimLayer
+  ([Floor trim](docs/godot/INTERIOR_WALLS.md#floor-trim)).
+- Chunk lines are closed by terrain (cliffs, water and canals, forest bands, walls), each chunk
+  closing its own side; two touching chunks meet at one to three crossings, each inside those two
+  chunks (never at a corner), a road wide at most and marked as a way out (bridge, ford, stairs,
+  gate, a trail gap between lantern posts); no open ground or road along a line (owner,
+  2026-11-01: [level design rule 11](docs/design/2026-10-16-level-design.md#the-rules-that-matter-most)).
 - Hills, holes and stairs are painted on a world's `elevation` layer; the cliffs' side walls and
   each level's collision follow (bake a world's cache after painting); a wall's rock follows its ground unless a style is painted on
-  the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)). A world with a painted
-  `level-collision` layer (orange rims that hold and drop, red bases that block, per level) collides
-  exactly as painted instead ([Painting collision](docs/godot/ELEVATION.md#painting-collision)).
-  Inside dungeon rooms the level changes are drawn as the room's own wall faces (the collision,
-  drops and slabs stay the outdoor ones: [Faces in rooms](docs/godot/ELEVATION.md#faces-in-rooms));
+  the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)). A world's level
+  collision can be painted on a `level-collision` layer (orange rims that hold and drop, red bases
+  that block, green open tiles, whole or 45° halves, per level): in Replace mode it collides exactly
+  as painted, in Override mode its tiles change the automatic collision only where painted
+  ([Painting collision](docs/godot/ELEVATION.md#painting-collision)); walls, trees, fences and props
+  collide by themselves. Inside dungeon rooms the level changes are drawn as the room's own wall
+  faces and collide by their square footprint (drops and slabs stay the outdoor ones:
+  [Faces in rooms](docs/godot/ELEVATION.md#faces-in-rooms));
   a division inside a room is a low divider painted on the `fences` layer with a divider gate
   ([docs/godot/FENCES.md](docs/godot/FENCES.md#dungeon-dividers)).
 - Saves go through `RunState` to `user://saves/`.

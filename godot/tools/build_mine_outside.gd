@@ -8,11 +8,11 @@ extends SceneTree
 ## - **G4, the smith's mine camp:** the mountain along the chunk's north (level 2 on a new
 ##   `elevation` layer), the mine's mouth cut into its face with the mine gate (lantern_gate.gd) and
 ##   the cold brazier beside it (lit, it burns for good and the gate opens for good), the way in
-##   (a world exit to `crystal-mine`'s `arrive-from-camp`), the smith at his anvil
+##   (a world exit to `crystal-mine`'s arrival door `mine-entrance`), the smith at his anvil
 ##   (game/scenes/characters/smith.tscn) with the camp's director (game/crystal_mine/mine_camp.gd:
 ##   the Lantern, the gate's lesson, Burr), tents, the campfire, the smith's cot (a bed), rails out
-##   of the mine, and `arrive-from-crystal-mine` in front of the gate (the mine's way out).
-## - **H4, the Lookout:** the mountain goes on as a plateau; on top, `arrive-from-crystal-mine`
+##   of the mine, and the arrival door `camp-mine-mouth` in front of the gate (the mine's way out).
+## - **H4, the Lookout:** the mountain goes on as a plateau; on top, the arrival door `lookout-from-mine`
 ##   where the climb out of the Colossus's arena comes up into daylight, and a flight of stairs down
 ##   its face to the path west to the camp.
 ## - **G5, the cave road:** a road cleared from the west edge (Gloop Forest) and north to the camp,
@@ -39,6 +39,7 @@ const PROP_LAYERS: PackedStringArray = ["forest", "large-props", "old-props", "c
 const ELEVATION_TILESET := "res://game/world/elevation/elevation_tileset.tres"
 const ELEVATION_LAYER := "res://game/world/elevation/elevation_layer.gd"
 const WORLD_EXIT := "res://game/scripts/world_exit.gd"
+const DOOR := "res://game/scripts/door.gd"
 const RAILS := "res://game/crystal_mine/mine_rails.gd"
 const MINE_CAMP := "res://game/crystal_mine/mine_camp.gd"
 const SHEET_SPRITE := "res://game/runtime/sheet_sprite.gd"
@@ -130,8 +131,8 @@ func _g4_camp() -> void:
 	brazier.set(&"gate_id", "crystal-mine-gate")
 	# The way in: behind the gate, in the mouth.
 	_exit("exit-to-crystal-mine", Vector2(16 * CELL, int(9.7 * CELL)), Vector2(128, 48), "crystal-caverns-g4",
-		"crystal-caverns-g4-to-crystal-mine", "crystal-mine", "arrive-from-camp")
-	_marker("arrive-from-crystal-mine", _t(16, 12.7))
+		"crystal-caverns-g4-to-crystal-mine", "crystal-mine", "mine-entrance")
+	_arrival_door("camp-mine-mouth", _t(16, 12.7), "crystal-caverns-g4")
 	# The smith at his anvil, the camp's director.
 	var smith := _scene(SMITH, "smith", _t(19.6, 12.9))
 	smith.set(&"start_facing", -1.0)
@@ -180,7 +181,7 @@ func _h4_lookout() -> void:
 	_crystal_top(rock)
 	_clusters([Vector2(1.5, 2.6), Vector2(3, 7), Vector2(15.6, 2.2), Vector2(16.4, 7.2)])
 	# The Lookout: where the climb out of the Colossus's arena comes up.
-	_marker("arrive-from-crystal-mine", _t(7.5, 4.6))
+	_arrival_door("lookout-from-mine", _t(7.5, 4.6), "crystal-caverns-h4")
 	_glow("lookout-daylight", _t(7.5, 4.2), Vector2(150, 80), Color(1.0, 0.94, 0.72, 0.28))
 	_scene(OBJECTS + "rock-stump.tscn", "lookout-rock", _t(5.4, 3.6))
 	_scene(OBJECTS + "rock-stump.tscn", "lookout-rock", _t(9.8, 2.8))
@@ -303,15 +304,23 @@ func _prop(path: String, node_name: String, at: Vector2, size: float) -> void:
 	prop.scale = Vector2(size, size)
 
 
-func _marker(marker_name: String, at: Vector2) -> void:
-	var marker := Node2D.new()
-	marker.name = marker_name
-	marker.position = at
-	_own(marker, _holder)
+## An arrival point (a door with no target: game/scripts/door.gd) named `door_id`, where the slime
+## comes out of a way in that leads here (the mine's way out, the Colossus's climb).
+func _arrival_door(door_id: String, at: Vector2, map_id: String) -> void:
+	var end := Node2D.new()
+	end.name = door_id
+	end.position = at
+	_own(end, _holder)
+	var door := Node.new()
+	door.name = "DoorScript"
+	door.set_script(load(DOOR))
+	door.set(&"map_id", map_id)
+	door.set(&"door_id", door_id)
+	_own(door, end)
 
 
 func _exit(exit_name: String, at: Vector2, size: Vector2, map_id: String, exit_id: String, target: String,
-		entry_marker: String) -> void:
+		target_door: String) -> void:
 	var exit := Area2D.new()
 	exit.name = exit_name
 	exit.position = at
@@ -331,7 +340,7 @@ func _exit(exit_name: String, at: Vector2, size: Vector2, map_id: String, exit_i
 	script_node.set(&"map_id", map_id)
 	script_node.set(&"exit_id", exit_id)
 	script_node.set(&"target_area_id", target)
-	script_node.set(&"entry_marker", entry_marker)
+	script_node.set(&"target_door_id", target_door)
 	script_node.set(&"area", exit)
 	_own(script_node, exit)
 

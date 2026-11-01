@@ -4,7 +4,7 @@ class_name WorldMapWindow
 ## docs/godot/specs/map.md 2 and 3.4): the overworld of res://game/data/world-map.json
 ## (WorldMapData) as its chunk grid, each region drawn over its cells, named once the run has
 ## discovered it and fogged with a `?` until then; the current region ringed, the player's dot on
-## it, the two-way passages between discovered regions and the quest waypoint badges. A centred
+## it, the passages between discovered regions and the quest waypoint badges. A centred
 ## `WindowPanel` (`panel_size_for`: 720 x 816 at most, clear of the menu tab strip above), the grid
 ## square in it. Scene: res://game/ui/map/world_map_window.tscn (Godot-owned), group "world_map".
 ##
@@ -349,25 +349,17 @@ static func link_shown(a: String, b: String, discovered: PackedStringArray) -> b
 	return not passage.is_empty() and passage_shown(map_data(), passage, discovered)
 
 
-## True when a passage of `map` gets its link: both of its regions are discovered and it can be
-## travelled both ways (`is_two_way`).
+## True when a passage of `map` gets its link: both of its regions are discovered. Every opening of
+## the layout is drawn on both sides, so each can be travelled both ways (since 2026-10-31 the
+## hand-made worlds have their exits back too; tools/check_crossings.gd lists an opening drawn on
+## one side only).
 static func passage_shown(map: WorldMapData, passage: Dictionary, discovered: PackedStringArray) -> bool:
 	if map == null:
 		return false
 	var a := map.region(str(passage.get("a", "")))
 	var b := map.region(str(passage.get("b", "")))
-	return not a.is_empty() and not b.is_empty() and is_two_way(a, b) \
+	return not a.is_empty() and not b.is_empty() \
 		and is_region_discovered(a, discovered) and is_region_discovered(b, discovered)
-
-
-## True when a passage between regions `a` and `b` can be travelled both ways, as far as the layout
-## tells (the world scenes are not read for the map): both are placeholders (the region builder
-## gives each side of every opening its exit) or both are hand-made worlds (`placeholder` false:
-## their own exits; level-1, gloop-forest and crystal-caverns lead to each other). Between a
-## placeholder and a hand-made world only the placeholder's exit is built, the hand-made worlds
-## have none back yet (docs/godot/WORLD_ATLAS.md, "Openings on hand-made worlds"): no link.
-static func is_two_way(a: Dictionary, b: Dictionary) -> bool:
-	return bool(a.get("placeholder", false)) == bool(b.get("placeholder", false))
 
 
 ## The region the current world belongs to ({} in a world off the layout, e.g. the playground).
@@ -528,8 +520,8 @@ func _style_label(label: Label, discovered: bool) -> void:
 # --- drawing ------------------------------------------------------------------------------------
 
 ## The well, the regions (fog or their tint), the chunk lines, the region edges, the links of the
-## two-way passages between discovered regions (`passage_shown`), the well's frame and the current
-## region's ring.
+## passages between discovered regions (`passage_shown`), the well's frame and the current region's
+## ring.
 func _draw_chart() -> void:
 	chart.draw_rect(_grid, GRID_FILL)
 	var map := map_data()

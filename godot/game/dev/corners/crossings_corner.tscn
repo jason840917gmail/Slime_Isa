@@ -1,0 +1,220 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="1_ddcby"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="2_hfllv"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="3_us4pl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/stair-door.tscn" id="4_f3a0j"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="6_rsy1d"]
+[ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="7_rfqyn"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8eo86"]
+radius = 39.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ddcby"]
+radius = 39.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hfllv"]
+size = Vector2(4, 1024)
+
+[node name="crossings-corner" type="Node2D" unique_id=60095752]
+y_sort_enabled = true
+
+[node name="title" type="Label" parent="." unique_id=1828736712]
+offset_left = 5504.0
+offset_top = 5900.0
+offset_right = 7904.0
+offset_bottom = 5996.0
+theme_override_font_sizes/font_size = 14
+text = "Crossings corner (docs/design/2026-10-31-crossings-and-arrivals.md): every way between worlds, each way.
+You come out of the end paired with the one you went in by, and the arrival plays the leaving backwards.
+Check the links of every world: tools/check_crossings.gd."
+
+[node name="yard-walls" type="TileMapLayer" parent="." unique_id=321613600]
+tile_map_data = PackedByteArray("AABWAGAAAAAAAAAAAABXAGAAAAAAAAAAAABYAGAAAAAAAAAAAABZAGAAAAAAAAAAAABaAGAAAAAAAAAAAABbAGAAAAAAAAAAAABcAGAAAAAAAAAAAABdAGAAAAAAAAEAAABeAGAAAAAAAAEAAABfAGAAAAAAAAAAAABgAGAAAAAAAAAAAABhAGAAAAAAAAAAAABiAGAAAAAAAAAAAABjAGAAAAAAAAAAAABkAGAAAAAAAAAAAABlAGAAAAAAAAAAAABWAGEAAAAAAAAAAABXAGEAAAAAAAAAAABYAGEAAAAAAAAAAABZAGEAAAAAAAAAAABaAGEAAAAAAAAAAABbAGEAAAAAAAAAAABcAGEAAAAAAAAAAABdAGEAAAAAAAEAAABeAGEAAAAAAAEAAABfAGEAAAAAAAAAAABgAGEAAAAAAAAAAABhAGEAAAAAAAAAAABiAGEAAAAAAAAAAABjAGEAAAAAAAAAAABkAGEAAAAAAAAAAABlAGEAAAAAAAAAAABWAGIAAAAAAAAAAABXAGIAAAAAAAAAAABkAGIAAAAAAAAAAABlAGIAAAAAAAAAAABWAGMAAAAAAAAAAABXAGMAAAAAAAAAAABkAGMAAAAAAAAAAABlAGMAAAAAAAAAAABWAGQAAAAAAAAAAABXAGQAAAAAAAAAAABkAGQAAAAAAAAAAABlAGQAAAAAAAAAAABWAGUAAAAAAAAAAABXAGUAAAAAAAAAAABkAGUAAAAAAAAAAABlAGUAAAAAAAAAAABWAGYAAAAAAAEAAABXAGYAAAAAAAEAAABkAGYAAAAAAAEAAABlAGYAAAAAAAEAAABWAGcAAAAAAAEAAABXAGcAAAAAAAEAAABkAGcAAAAAAAEAAABlAGcAAAAAAAEAAABWAGgAAAAAAAAAAABXAGgAAAAAAAAAAABkAGgAAAAAAAAAAABlAGgAAAAAAAAAAABWAGkAAAAAAAAAAABXAGkAAAAAAAAAAABkAGkAAAAAAAAAAABlAGkAAAAAAAAAAABWAGoAAAAAAAAAAABXAGoAAAAAAAAAAABkAGoAAAAAAAAAAABlAGoAAAAAAAAAAABWAGsAAAAAAAAAAABXAGsAAAAAAAAAAABkAGsAAAAAAAAAAABlAGsAAAAAAAAAAABWAGwAAAAAAAAAAABXAGwAAAAAAAAAAABYAGwAAAAAAAAAAABZAGwAAAAAAAAAAABaAGwAAAAAAAAAAABbAGwAAAAAAAAAAABcAGwAAAAAAAAAAABdAGwAAAAAAAEAAABeAGwAAAAAAAEAAABfAGwAAAAAAAAAAABgAGwAAAAAAAAAAABhAGwAAAAAAAAAAABiAGwAAAAAAAAAAABjAGwAAAAAAAAAAABkAGwAAAAAAAAAAABlAGwAAAAAAAAAAABWAG0AAAAAAAAAAABXAG0AAAAAAAAAAABYAG0AAAAAAAAAAABZAG0AAAAAAAAAAABaAG0AAAAAAAAAAABbAG0AAAAAAAAAAABcAG0AAAAAAAAAAABdAG0AAAAAAAEAAABeAG0AAAAAAAEAAABfAG0AAAAAAAAAAABgAG0AAAAAAAAAAABhAG0AAAAAAAAAAABiAG0AAAAAAAAAAABjAG0AAAAAAAAAAABkAG0AAAAAAAAAAABlAG0AAAAAAAAAAAA=")
+tile_set = ExtResource("1_ddcby")
+script = ExtResource("2_hfllv")
+
+[node name="playground-yard-north" type="Node2D" parent="." unique_id=1291554718]
+position = Vector2(6016, 6168)
+
+[node name="DoorScript" type="Node" parent="playground-yard-north" unique_id=528560463]
+script = ExtResource("3_us4pl")
+map_id = "playground"
+door_id = "playground-yard-north"
+target_area_id = "playground-crossings-hut"
+target_door_id = "hut-south"
+side = "north"
+trigger_rect = Rect2(-64, -24, 128, 48)
+
+[node name="playground-yard-south" type="Node2D" parent="." unique_id=777022986]
+position = Vector2(6016, 7016)
+
+[node name="DoorScript" type="Node" parent="playground-yard-south" unique_id=1443381606]
+script = ExtResource("3_us4pl")
+map_id = "playground"
+door_id = "playground-yard-south"
+target_area_id = "playground-crossings-hut"
+target_door_id = "hut-north"
+side = "south"
+trigger_rect = Rect2(-64, -24, 128, 48)
+
+[node name="playground-yard-west" type="Node2D" parent="." unique_id=1790647004]
+position = Vector2(5528, 6592)
+
+[node name="DoorScript" type="Node" parent="playground-yard-west" unique_id=1227515859]
+script = ExtResource("3_us4pl")
+map_id = "playground"
+door_id = "playground-yard-west"
+target_area_id = "playground-crossings-hut"
+target_door_id = "hut-east"
+side = "west"
+trigger_rect = Rect2(-24, -64, 48, 128)
+
+[node name="playground-yard-east" type="Node2D" parent="." unique_id=1695979096]
+position = Vector2(6504, 6592)
+
+[node name="DoorScript" type="Node" parent="playground-yard-east" unique_id=253704511]
+script = ExtResource("3_us4pl")
+map_id = "playground"
+door_id = "playground-yard-east"
+target_area_id = "playground-crossings-hut"
+target_door_id = "hut-west"
+side = "east"
+trigger_rect = Rect2(-24, -64, 48, 128)
+
+[node name="yard-sign" type="Label" parent="." unique_id=118385624]
+offset_left = 5632.0
+offset_top = 6300.0
+offset_right = 6432.0
+offset_bottom = 6380.0
+theme_override_font_sizes/font_size = 14
+text = "The yard: walk out of any doorway (push into it).
+It leads into the hut through the opposite wall; the hut's doorways lead back."
+
+[node name="stair-down" parent="." unique_id=1235276899 instance=ExtResource("4_f3a0j")]
+position = Vector2(6912, 6400)
+direction = "down"
+hatch_id = "playground-crossings-stair-down"
+start_open = true
+target_door = "cellar-stair-up"
+target_world = "playground-crossings-cellar"
+
+[node name="stair-sign" type="Label" parent="." unique_id=44237180]
+offset_left = 6752.0
+offset_top = 6512.0
+offset_right = 7072.0
+offset_bottom = 6572.0
+theme_override_font_sizes/font_size = 14
+text = "Stairs down to the cellar
+(and up again there)"
+
+[node name="ladder-hatch" type="Node2D" parent="." unique_id=1988629889]
+y_sort_enabled = true
+position = Vector2(7296, 6400)
+
+[node name="Visual" type="Sprite2D" parent="ladder-hatch" unique_id=1098997546]
+z_index = -1
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("6_rsy1d")
+centered = false
+offset = Vector2(-128, -194)
+hframes = 8
+frame = 1
+
+[node name="Wall" type="StaticBody2D" parent="ladder-hatch" unique_id=493061243]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="ladder-hatch/Wall" unique_id=1454157274]
+position = Vector2(2, -28)
+shape = SubResource("CircleShape2D_8eo86")
+
+[node name="DoorScript" type="Node" parent="ladder-hatch" unique_id=313424292 node_paths=PackedStringArray("trigger_shape")]
+script = ExtResource("3_us4pl")
+map_id = "playground"
+door_id = "playground-crossings-ladder-hatch"
+target_area_id = "playground-crossings-cellar"
+target_door_id = "cellar-ladder"
+kind = "ladder_down"
+trigger_shape = NodePath("../Wall/Shape")
+use_cue = &"FallDown"
+
+[node name="arrival" type="Node2D" parent="ladder-hatch" unique_id=2123375044]
+position = Vector2(-3, 41)
+
+[node name="ladder-sign" type="Label" parent="." unique_id=409336401]
+offset_left = 7156.0
+offset_top = 6512.0
+offset_right = 7436.0
+offset_bottom = 6572.0
+theme_override_font_sizes/font_size = 14
+text = "A ladder down to the cellar
+(climb back up there)"
+
+[node name="drop-hole" type="Node2D" parent="." unique_id=1708834588]
+y_sort_enabled = true
+position = Vector2(7616, 6400)
+
+[node name="Visual" type="Sprite2D" parent="drop-hole" unique_id=1306097811]
+z_index = -1
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("6_rsy1d")
+centered = false
+offset = Vector2(-128, -194)
+hframes = 8
+frame = 1
+
+[node name="Wall" type="StaticBody2D" parent="drop-hole" unique_id=1558456511]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="drop-hole/Wall" unique_id=1711479689]
+position = Vector2(2, -28)
+shape = SubResource("CircleShape2D_ddcby")
+
+[node name="DoorScript" type="Node" parent="drop-hole" unique_id=77265957 node_paths=PackedStringArray("trigger_shape")]
+script = ExtResource("3_us4pl")
+map_id = "playground"
+door_id = "playground-crossings-drop"
+target_area_id = "playground-crossings-cellar"
+target_door_id = "cellar-landing"
+kind = "fall"
+trigger_shape = NodePath("../Wall/Shape")
+
+[node name="arrival" type="Node2D" parent="drop-hole" unique_id=1271927718]
+position = Vector2(-3, 41)
+
+[node name="drop-sign" type="Label" parent="." unique_id=1490977380]
+offset_left = 7476.0
+offset_top = 6512.0
+offset_right = 7776.0
+offset_bottom = 6572.0
+theme_override_font_sizes/font_size = 14
+text = "A drop onto the cellar's landing
+(one way: take the stairs back)"
+
+[node name="annex-edge" type="Area2D" parent="." unique_id=402287783]
+position = Vector2(7934, 7680)
+collision_layer = 512
+collision_mask = 130
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="annex-edge" unique_id=643694845]
+shape = SubResource("RectangleShape2D_hfllv")
+
+[node name="world-exit-script" type="Node" parent="annex-edge" unique_id=1907235235 node_paths=PackedStringArray("area")]
+script = ExtResource("7_rfqyn")
+map_id = "playground"
+exit_id = "playground-to-crossings-annex"
+target_area_id = "playground-crossings-annex"
+entry = "west"
+keep_along = true
+along_offset = -7168.0
+area = NodePath("..")
+
+[node name="edge-sign" type="Label" parent="." unique_id=1890298939]
+offset_left = 7376.0
+offset_top = 7588.0
+offset_right = 7896.0
+offset_bottom = 7668.0
+theme_override_font_sizes/font_size = 14
+text = "The border: walk east off the playground's edge here.
+The screen scrolls into the annex at the same height."

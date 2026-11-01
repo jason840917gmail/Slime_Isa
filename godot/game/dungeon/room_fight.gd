@@ -18,7 +18,8 @@ class_name RoomFight
 ##   that is not `once` runs again each time its room is entered with its enemies back.
 ## - `boss_id`: a boss (or mini-boss) fight, once by itself: won, the boss is recorded beaten
 ##   (DungeonState.mark_boss_beaten, RunState `defeated_boss_ids`) and never comes back; the
-##   compass marks its room until then.
+##   map marks its room until then, once the map is held (only the dungeon's boss when its Dungeon
+##   node names one: dungeon_map_draw.gd `boss_points`).
 ## - The slime fainting or leaving the room (a fall, a respawn) ends the fight unwon: the shutters
 ##   open, and its beaten enemies come back with the room.
 ##

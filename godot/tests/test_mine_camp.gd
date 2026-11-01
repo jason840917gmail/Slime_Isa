@@ -28,7 +28,7 @@ func test_the_camp_has_the_smith_the_shut_gate_and_its_cold_brazier(t: TestConte
 	t.check(not bool(outside.get_node("mine-gate").call(&"is_open")), "the mine's gate starts open")
 	t.check(not bool(outside.get_node("mine-gate-brazier").call(&"is_lit")), "the gate's brazier starts lit")
 	t.check(outside.get_node_or_null("exit-to-crystal-mine") != null, "no way into the mine")
-	t.check(outside.get_node_or_null("arrive-from-crystal-mine") != null, "no arrival marker for the mine's way out")
+	t.check(outside.get_node_or_null("camp-mine-mouth") != null, "no arrival door for the mine's way out")
 	t.check(t.world().elevation != null, "G4 has no elevation (the mountain)")
 	# The camp is a rest spot: no worm camp is left in it.
 	var enemies := t.world().world_root.get_node_or_null("Enemies")
@@ -92,7 +92,7 @@ func test_the_open_gate_leads_into_the_mine_and_its_way_out_comes_back(t: TestCo
 	if not t.check(inside, "walking into the open gate did not enter the mine"):
 		return
 	await t.steps(8)
-	var arrival := t.world().world_root.get_node("arrive-from-camp") as Node2D
+	var arrival := t.world().world_root.get_node("mine-entrance") as Node2D
 	t.check(t.player().get_centre().distance_to(arrival.global_position) < 160.0, "the slime did not arrive at the mine's mouth")
 	# Out by the mine's south doorway: back in front of the gate.
 	_stand(t, Vector2(24 * CELL, 68.6 * CELL))
@@ -103,7 +103,7 @@ func test_the_open_gate_leads_into_the_mine_and_its_way_out_comes_back(t: TestCo
 	if not t.check(out, "the mine's south doorway did not lead out to the camp"):
 		return
 	await t.steps(8)
-	var marker := _outside(t).get_node("arrive-from-crystal-mine") as Node2D
+	var marker := _outside(t).get_node("camp-mine-mouth") as Node2D
 	t.check(t.player().get_centre().distance_to(marker.global_position) < 160.0, "the slime did not come out in front of the gate")
 
 

@@ -20,11 +20,12 @@
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="16_rw0188"]
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="17_rw2448"]
 [ext_resource type="Texture2D" uid="uid://fb3kfri1n2rr" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="19_bf8pv"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-05.tscn" id="22_rl40a"]
 [ext_resource type="TileSet" uid="uid://b6hbbbrfkchxq" path="res://game/world/fences/fence_tileset.tres" id="90_fencetiles"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
 [ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="91_fencelayer"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/divider-gate.tscn" id="92_dividergate"]
-[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="93_placedenemy"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="93_placedenemy"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
 [node name="r5-eye-hall" type="Node2D" unique_id=1729481366]
@@ -43,7 +44,7 @@ metadata/rows = 16
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=30035790]
 z_index = -1
-tile_map_data = PackedByteArray("AAACAAgAAAAHAAAAAAADAAgAAAAHAAAAAAAEAAgAAAAHAAAAAAAFAAgAAAAHAAAAAAAGAAgAAAAHAAAAAAAHAAgAAAAHAAAAAAAIAAgAAAAHAAAAAAAJAAgAAAAIAAAAAAAKAAgAAAAHAAAAAAALAAgAAAAHAAAAAAAMAAgAAAAHAAAAAAANAAgAAAAHAAAAAAAOAAgAAAAHAAAAAAAPAAgAAAAHAAAAAAACAAoAAAAHAAcAAAAEAAoAAAAHAAAAAAAFAAoAAAAHAAAAAAADAAoAAAAIAAAAAAAFAAsAAAAHAAAAAAAFAAwAAAAHAAAAAAAFAA0AAAAHAAAAAAACAAQAAAAHAAAAAAADAAQAAAAHAAAAAAAEAAQAAAAHAAAAAAAFAAQAAAAHAAAAAAAGAAQAAAAHAAAAAAAIAAQAAAAHAAAAAAAKAAQAAAAHAAAAAAAMAAQAAAAHAAAAAAANAAQAAAAHAAAAAAAOAAQAAAAHAAAAAAAPAAQAAAAHAAAAAAAJAAQAAAAIAAAAAAAFAAUAAAAHAAAAAAAMAAUAAAAHAAAAAAAFAAYAAAAHAAAAAAAMAAYAAAAHAAAAAAAIAAUAAAAHAAAAAAAKAAUAAAAHAAAAAAAIAAYAAAAHAAAAAAAKAAYAAAAHAAAAAAAIAAcAAAAHAAAAAAAKAAcAAAAHAAAAAAAJAAYAAAAIAAAAAAA=")
+tile_map_data = PackedByteArray("AAACAAgAAAAHAAAAAAADAAgAAAAHAAAAAAAEAAgAAAAHAAAAAAAFAAgAAAAHAAAAAAAGAAgAAAAHAAAAAAAHAAgAAAAHAAAAAAAIAAgAAAAHAAAAAAAJAAgAAAAIAAAAAAAKAAgAAAAHAAAAAAALAAgAAAAHAAAAAAAMAAgAAAAHAAAAAAANAAgAAAAHAAAAAAAOAAgAAAAHAAAAAAAPAAgAAAAHAAAAAAACAAoAAAAHAAcAAAAEAAoAAAAHAAAAAAAFAAoAAAAHAAAAAAADAAoAAAAIAAAAAAAFAAsAAAAHAAAAAAAFAAwAAAAHAAAAAAAFAA0AAAAHAAAAAAACAAQAAAAHAAAAAAADAAQAAAAHAAAAAAAEAAQAAAAHAAAAAAAFAAQAAAAHAAAAAAAGAAQAAAAHAAAAAAAIAAQAAAAHAAAAAAAKAAQAAAAHAAAAAAAMAAQAAAAHAAAAAAANAAQAAAAHAAAAAAAOAAQAAAAHAAAAAAAPAAQAAAAHAAAAAAAJAAQAAAAIAAAAAAAFAAUAAAAHAAAAAAAMAAUAAAAHAAAAAAAFAAYAAAAHAAAAAAAMAAYAAAAHAAAAAAAIAAUAAAAHAAAAAAAKAAUAAAAHAAAAAAAIAAYAAAAHAAAAAAAKAAYAAAAHAAAAAAAIAAcAAAAHAAAAAAAKAAcAAAAHAAAAAAAJAAYAAAAIAAAAAAAGAAoAAAAHAAAAAAAHAAoAAAAHAAAAAAAIAAoAAAAHAAAAAAAIAAsAAAAHAAAAAAAIAA0AAAAHAAUAAAA=")
 tile_set = ExtResource("90_fencetiles")
 script = ExtResource("91_fencelayer")
 
@@ -53,6 +54,12 @@ y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAIAAAAAAAAAAEAAAAJAAAAAAAAAAEAAAAKAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAPAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAARAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAABAAEAAAAAAAAAAAACAAEAAAAAAAAAAAADAAEAAAAAAAAAAAAEAAEAAAAAAAAAAAAFAAEAAAAAAAAAAAAGAAEAAAAAAAAAAAAHAAEAAAAAAAAAAAAIAAEAAAAAAAEAAAAJAAEAAAAAAAEAAAAKAAEAAAAAAAAAAAALAAEAAAAAAAAAAAAMAAEAAAAAAAAAAAANAAEAAAAAAAAAAAAOAAEAAAAAAAAAAAAPAAEAAAAAAAAAAAAQAAEAAAAAAAAAAAARAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAABAAIAAAAAAAAAAAAQAAIAAAAAAAAAAAARAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAABAAMAAAAAAAAAAAAQAAMAAAAAAAAAAAARAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAABAAQAAAAAAAAAAAAQAAQAAAAAAAAAAAARAAQAAAAAAAAAAAAAAAUAAAAAAAAAAAABAAUAAAAAAAAAAAAQAAUAAAAAAAAAAAARAAUAAAAAAAAAAAAAAAYAAAAAAAAAAAABAAYAAAAAAAAAAAAQAAYAAAAAAAAAAAARAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAABAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAABAAgAAAAAAAAAAAAAAAkAAAAAAAAAAAABAAkAAAAAAAAAAAAAAAoAAAAAAAAAAAABAAoAAAAAAAAAAAAAAAsAAAAAAAAAAAABAAsAAAAAAAAAAAAQAAsAAAAAAAEAAAARAAsAAAAAAAEAAAAAAAwAAAAAAAAAAAABAAwAAAAAAAAAAAAQAAwAAAAAAAEAAAARAAwAAAAAAAEAAAAAAA0AAAAAAAAAAAABAA0AAAAAAAAAAAAQAA0AAAAAAAAAAAARAA0AAAAAAAAAAAAAAA4AAAAAAAAAAAABAA4AAAAAAAAAAAACAA4AAAAAAAAAAAADAA4AAAAAAAAAAAAEAA4AAAAAAAAAAAAFAA4AAAAAAAAAAAAGAA4AAAAAAAAAAAAHAA4AAAAAAAAAAAAIAA4AAAAAAAAAAAAJAA4AAAAAAAAAAAAKAA4AAAAAAAAAAAALAA4AAAAAAAAAAAAMAA4AAAAAAAAAAAANAA4AAAAAAAAAAAAOAA4AAAAAAAAAAAAPAA4AAAAAAAAAAAAQAA4AAAAAAAAAAAARAA4AAAAAAAAAAAAAAA8AAAAAAAAAAAABAA8AAAAAAAAAAAACAA8AAAAAAAAAAAADAA8AAAAAAAAAAAAEAA8AAAAAAAAAAAAFAA8AAAAAAAAAAAAGAA8AAAAAAAAAAAAHAA8AAAAAAAAAAAAIAA8AAAAAAAAAAAAJAA8AAAAAAAAAAAAKAA8AAAAAAAAAAAALAA8AAAAAAAAAAAAMAA8AAAAAAAAAAAANAA8AAAAAAAAAAAAOAA8AAAAAAAAAAAAPAA8AAAAAAAAAAAAQAA8AAAAAAAAAAAARAA8AAAAAAAAAAAAQAAcAAAAAAAAAAAARAAcAAAAAAAAAAAAQAAgAAAAAAAAAAAARAAgAAAAAAAAAAAAQAAkAAAAAAAAAAAARAAkAAAAAAAAAAAAQAAoAAAAAAAAAAAARAAoAAAAAAAAAAAA=")
 tile_set = ExtResource("4_3r05d")
 script = ExtResource("5_cbw87")
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=1853829483]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAAPAA0AAAADAAAAAAAOAA0AAAADAAAAAAANAA0AAAADAAAAAAAMAA0AAAADAAAAAAALAA0AAAADAAAAAAAKAA0AAAADAAAAAAAJAA0AAAADAAAAAAAIAA0AAAADAAAAAAAHAA0AAAADAAAAAAAGAA0AAAADAAAAAAAFAA0AAAADAAAAAAAEAA0AAAADAAAAAAADAA0AAAADAAAAAAACAA0AAAADAAAAAAACAAwAAAADAAAAAAACAAsAAAADAAAAAAACAAoAAAADAAAAAAACAAkAAAADAAAAAAACAAgAAAADAAAAAAACAAcAAAADAAAAAAACAAYAAAADAAAAAAACAAUAAAADAAAAAAACAAQAAAADAAAAAAACAAMAAAADAAAAAAACAAIAAAADAAAAAAADAAIAAAADAAAAAAAEAAIAAAADAAAAAAAFAAIAAAADAAAAAAAGAAIAAAADAAAAAAAHAAIAAAADAAAAAAAIAAIAAAADAAAAAAAJAAIAAAADAAAAAAAKAAIAAAADAAAAAAALAAIAAAADAAAAAAAMAAIAAAADAAAAAAANAAIAAAADAAAAAAAOAAIAAAADAAAAAAAPAAIAAAADAAAAAAAPAAMAAAADAAAAAAAPAAQAAAADAAAAAAAPAAUAAAADAAAAAAAPAAYAAAADAAAAAAAPAAcAAAADAAAAAAAPAAgAAAADAAAAAAAPAAkAAAADAAAAAAAPAAoAAAADAAAAAAAPAAsAAAADAAAAAAAPAAwAAAADAAAAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
 
 [node name="CameraRooms" type="Node2D" parent="." unique_id=822262604]
 
@@ -69,15 +76,11 @@ position = Vector2(576, 352)
 y_sort_enabled = true
 
 [node name="r5-latch-inner" parent="Objects" unique_id=776023419 instance=ExtResource("9_3kmux")]
-position = Vector2(224, 152)
+position = Vector2(476, 138)
 latch_id = "fatty-lair.r5-inner"
 gate_id = "fatty-lair-r5-inner"
 group_id = "fatty-lair.r5-maze"
 order = 3
-
-[node name="Visual" parent="Objects/r5-latch-inner" index="0"]
-position = Vector2(0, -34)
-texture = ExtResource("10_mdv55")
 
 [node name="r5-inner-door" parent="Objects" unique_id=1990432513 instance=ExtResource("92_dividergate")]
 position = Vector2(608, 544)
@@ -297,37 +300,39 @@ wander_radius = 96.0
 [node name="Scenery" type="Node2D" parent="." unique_id=284314394]
 y_sort_enabled = true
 
-[node name="r5-screen-pillar" parent="Scenery" unique_id=1891081045 instance=ExtResource("22_rl40a")]
-position = Vector2(486.40002, 742.3999)
-
-[node name="Throwables" type="Node2D" parent="."]
+[node name="Throwables" type="Node2D" parent="." unique_id=233197278]
 y_sort_enabled = true
 
-[node name="throw-r5-maze-squint-top-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r5-maze-squint-top-1" parent="Throwables" unique_id=1732328903 instance=ExtResource("throw_liftable")]
 position = Vector2(742, 294)
 kind = "clay-pot"
+weight = "light"
 
-[node name="throw-r5-maze-squint-top-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r5-maze-squint-top-2" parent="Throwables" unique_id=983300283 instance=ExtResource("throw_liftable")]
 position = Vector2(666, 230)
 kind = "rock"
+weight = "light"
 
-[node name="throw-r5-maze-squint-west-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r5-maze-squint-west-1" parent="Throwables" unique_id=1981667655 instance=ExtResource("throw_liftable")]
 position = Vector2(154, 486)
 kind = "clay-pot"
+weight = "light"
 
-[node name="throw-r5-maze-squint-west-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r5-maze-squint-west-2" parent="Throwables" unique_id=1173825513 instance=ExtResource("throw_liftable")]
 position = Vector2(170, 435)
 kind = "rock"
+weight = "light"
 
-[node name="throw-r5-maze-squint-east-1" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r5-maze-squint-east-1" parent="Throwables" unique_id=121178740 instance=ExtResource("throw_liftable")]
 position = Vector2(858, 486)
 kind = "clay-pot"
+weight = "light"
 
-[node name="throw-r5-maze-squint-east-2" parent="Throwables" instance=ExtResource("throw_liftable")]
+[node name="throw-r5-maze-squint-east-2" parent="Throwables" unique_id=1294212157 instance=ExtResource("throw_liftable")]
 position = Vector2(874, 435)
 kind = "rock"
+weight = "light"
 
-[editable path="Objects/r5-latch-inner"]
 [editable path="Objects/r5-inner-door"]
 [editable path="Objects/r5-alcove-door"]
 [editable path="Objects/r5-latch-a"]
@@ -338,4 +343,3 @@ kind = "rock"
 [editable path="Objects/r5-maze-latch-2"]
 [editable path="Objects/r5-maze-g1"]
 [editable path="Objects/r5-maze-g2"]
-[editable path="Scenery/r5-screen-pillar"]

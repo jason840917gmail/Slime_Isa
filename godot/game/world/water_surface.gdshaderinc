@@ -33,14 +33,50 @@ float water_luma(vec3 c) {
 	return dot(c, vec3(0.299, 0.587, 0.114));
 }
 
+// The colour of foam.
+const vec3 WATER_FOAM = vec3(0.93, 0.98, 1.0);
+
+// The water mask at `px`: r = shallow, g = deep, each 0 .. 1.
+vec4 water_mask_at(vec2 px) {
+	return texture(water_mask, (px / tile_size) / grid_size);
+}
+
+// The deep share of the water in mask sample `m` (0 shallow .. 1 deep), whatever the land around.
+float water_deep_share(vec4 m) {
+	return m.g / max(m.r + m.g, 0.001);
+}
+
+// Foam lapping in and out (0 .. 1) at time `t`, `phase` (0 .. 1) along the shore.
+float water_lap(float t, float phase) {
+	return sin(t * 1.4 + phase * 6.2832) * 0.5 + 0.5;
+}
+
+// A waterline against a bank or a wall (specs/water.md §11): its wobble at `along` (world units
+// along it), centred on 0, within -0.75 .. 0.75.
+float water_line_wobble(float along) {
+	return (water_noise(vec2(along / 46.0, 3.0)) - 0.5) + (water_noise(vec2(along / 17.0, 9.0)) - 0.5) * 0.5;
+}
+
+// Foam lapping at a waterline, broken into patches that come and go along it (0 .. 1). `v` = how
+// far down a bank's face (1 at the waterline; one unit of it is the bank's 24-unit face), `along`
+// world units along the waterline, `t` the time in seconds.
+float water_line_foam(float along, float v, float t) {
+	float lap = water_lap(t, water_noise(vec2(along * 0.02, 5.0)));
+	float n = water_noise(vec2(along / 13.0 + t * 0.15, 11.0)) * 0.6 + water_noise(vec2(along / 5.0 - t * 0.2, 4.0)) * 0.4;
+	float reach = 0.04 + 0.14 * n + 0.08 * lap;
+	return (1.0 - smoothstep(0.0, 1.0, (v - 0.98) / reach)) * step(0.95, v) * smoothstep(0.35, 0.7, n + 0.1 * lap);
+}
+
 // The surface at `px` with its shore foam scaled by `foam_scale` (the shore fill fades it out
-// along a deep-water bank, which laps its own foam at its foot; specs/water.md §11).
-vec4 water_surface_with_foam(vec2 px, float t, float foam_scale, out float deep) {
-	vec4 m = texture(water_mask, (px / tile_size) / grid_size);
+// along a deep-water bank, which laps its own foam at its foot; specs/water.md §11) and its shore
+// lifted towards open water by `open` (0 .. 1: a wall standing in water has open water at its
+// foot, not the shore's soft edge and foam; elevation_sides.gdshader).
+vec4 water_surface_shaped(vec2 px, float t, float foam_scale, float open, out float deep) {
+	vec4 m = water_mask_at(px);
 	float wet = m.r + m.g;
-	deep = smoothstep(0.25, 0.85, m.g / max(wet, 0.001));
+	deep = smoothstep(0.25, 0.85, water_deep_share(m));
 	float edge = water_noise(px * 0.035) * 0.22 + water_noise(px * 0.09) * 0.1 - 0.16;
-	float body = wet + edge;
+	float body = wet + edge + open;
 	if (body < 0.3) {
 		return vec4(0.0);
 	}
@@ -74,9 +110,9 @@ vec4 water_surface_with_foam(vec2 px, float t, float foam_scale, out float deep)
 
 	// Foam lapping at the shore.
 	float shore = 1.0 - smoothstep(0.5, 0.95, body);
-	float lap = sin(t * 1.4 + water_noise(px * 0.02) * 6.2832) * 0.5 + 0.5;
+	float lap = water_lap(t, water_noise(px * 0.02));
 	float foam = shore * smoothstep(0.55, 0.85, water_noise(px * 0.09 + vec2(t * 0.5, -t * 0.35)) * 0.7 + lap * 0.45);
-	color = mix(color, vec3(0.93, 0.98, 1.0), foam * 0.6 * foam_scale);
+	color = mix(color, WATER_FOAM, foam * 0.6 * foam_scale);
 
 	float alpha = smoothstep(0.3, 0.62, body) * mix(0.82, 0.9, deep);
 	return vec4(color, alpha);
@@ -85,7 +121,7 @@ vec4 water_surface_with_foam(vec2 px, float t, float foam_scale, out float deep)
 // The surface at `px`: rgb = its colour, a = its alpha (0 where Phaser discards: off the water).
 // `deep` receives the deep-water factor (0 shallow .. 1 deep) at `px`.
 vec4 water_surface_at(vec2 px, float t, out float deep) {
-	return water_surface_with_foam(px, t, 1.0, deep);
+	return water_surface_shaped(px, t, 1.0, 0.0, deep);
 }
 
 // The water ground under the surface at `px`: the shallow and deep sheets at the texel a water

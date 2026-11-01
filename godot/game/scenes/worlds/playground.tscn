@@ -25,7 +25,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/pressure-plate.tscn" id="23"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-stone.tscn" id="24"]
 [ext_resource type="Script" uid="uid://i605yyx8yxyr" path="res://game/scripts/story_flag.gd" id="25"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-ground.tscn" id="26"]
+[ext_resource type="PackedScene" uid="uid://gbyk4xkr57ww" path="res://game/scenes/objects/cracked-ground.tscn" id="26"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-05.tscn" id="27"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--corner-07.tscn" id="28"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--horizontal-08.tscn" id="29"]
@@ -33,29 +33,30 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-silk.tscn" id="31"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/ability-lesson.tscn" id="32"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/lash-bell-post.tscn" id="33"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--armor-statue.tscn" id="34"]
+[ext_resource type="PackedScene" uid="uid://ditsux0cr7ksh" path="res://game/scenes/objects/decoration-world-solid--armor-statue.tscn" id="34"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/training-dummy.tscn" id="35"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-frog.tscn" id="39_l1w5o"]
+[ext_resource type="PackedScene" path="res://game/dev/corners/barred_gate_corner.tscn" id="barred_gate_corner"]
+[ext_resource type="PackedScene" path="res://game/dev/corners/bestiary_corner.tscn" id="bestiary_corner"]
+[ext_resource type="PackedScene" path="res://game/dev/corners/bomb_corner.tscn" id="bomb_corner"]
 [ext_resource type="Script" uid="uid://kwcdiy1mquk" path="res://game/world/elevation/cliffs/cliff_layer.gd" id="cliff_layer"]
 [ext_resource type="TileSet" uid="uid://swf1wl4i15uu" path="res://game/world/elevation/cliffs/cliff_tileset.tres" id="cliff_tiles"]
+[ext_resource type="PackedScene" path="res://game/dev/corners/crossings_corner.tscn" id="crossings_corner"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="elevation_layer"]
 [ext_resource type="TileSet" uid="uid://d0w4fj6hrum5o" path="res://game/world/elevation/elevation_tileset.tres" id="elevation_tiles"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable-puffball.tscn" id="gulp_puffball"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="gulp_liftable"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable-pinecone.tscn" id="gulp_pinecone"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable-puffball.tscn" id="gulp_puffball"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable-rock.tscn" id="gulp_rock"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/essence-silk.tscn" id="gulp_silk"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/essence-stone.tscn" id="gulp_stone"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/essence-swim.tscn" id="gulp_swim"]
-[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="world_ground"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="gulp_liftable"]
-[ext_resource type="PackedScene" path="res://game/dev/corners/lantern_corner.tscn" id="lantern_corner"]
-[ext_resource type="PackedScene" path="res://game/dev/corners/bomb_corner.tscn" id="bomb_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/heavy_corner.tscn" id="heavy_corner"]
-[ext_resource type="PackedScene" path="res://game/dev/corners/bestiary_corner.tscn" id="bestiary_corner"]
-[ext_resource type="PackedScene" path="res://game/dev/corners/barred_gate_corner.tscn" id="barred_gate_corner"]
-[ext_resource type="PackedScene" path="res://game/dev/corners/webs_corner.tscn" id="webs_corner"]
+[ext_resource type="PackedScene" path="res://game/dev/corners/lantern_corner.tscn" id="lantern_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/skins_corner.tscn" id="skins_corner"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_pg"]
+[ext_resource type="PackedScene" uid="uid://b8jbs0wed1k0m" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_pg"]
+[ext_resource type="PackedScene" path="res://game/dev/corners/webs_corner.tscn" id="webs_corner"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="world_ground"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3"]
 size = Vector2(1024, 640)
@@ -110,7 +111,7 @@ metadata = {
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=1966266073]
 y_sort_enabled = true
-position = Vector2(1280, 1536)
+position = Vector2(1089, 1276)
 
 [node name="areas" type="Node2D" parent="." unique_id=826448860]
 y_sort_enabled = true
@@ -124,6 +125,7 @@ monitoring = false
 monitorable = false
 
 [node name="collision-shape" type="CollisionShape2D" parent="areas/playground-spawn-safe" unique_id=1961054055]
+position = Vector2(-191, 242)
 shape = SubResource("RectangleShape2D_3")
 
 [node name="world-area-script" type="Node" parent="areas/playground-spawn-safe" unique_id=752874876 node_paths=PackedStringArray("area", "shape")]
@@ -188,7 +190,7 @@ position = Vector2(220, 380)
 metadata/instance_id = "playground-tree-1"
 metadata/persistence_key = "playground.playground-tree-1"
 
-[node name="ResourceNodeScript" parent="resource-grove/tree-1" index="3"]
+[node name="ResourceNodeScript" parent="resource-grove/tree-1" index="4" unique_id=356270168]
 map_id = "playground"
 instance_id = "playground-tree-1"
 
@@ -197,7 +199,7 @@ position = Vector2(520, 420)
 metadata/instance_id = "playground-tree-2"
 metadata/persistence_key = "playground.playground-tree-2"
 
-[node name="ResourceNodeScript" parent="resource-grove/tree-2" index="3"]
+[node name="ResourceNodeScript" parent="resource-grove/tree-2" index="4" unique_id=1278386780]
 map_id = "playground"
 instance_id = "playground-tree-2"
 
@@ -206,7 +208,7 @@ position = Vector2(260, 760)
 metadata/instance_id = "playground-tree-3"
 metadata/persistence_key = "playground.playground-tree-3"
 
-[node name="ResourceNodeScript" parent="resource-grove/tree-3" index="3"]
+[node name="ResourceNodeScript" parent="resource-grove/tree-3" index="4" unique_id=252317827]
 map_id = "playground"
 instance_id = "playground-tree-3"
 
@@ -215,7 +217,7 @@ position = Vector2(600, 820)
 metadata/instance_id = "playground-tree-4"
 metadata/persistence_key = "playground.playground-tree-4"
 
-[node name="ResourceNodeScript" parent="resource-grove/tree-4" index="3"]
+[node name="ResourceNodeScript" parent="resource-grove/tree-4" index="4" unique_id=724720371]
 map_id = "playground"
 instance_id = "playground-tree-4"
 
@@ -486,13 +488,13 @@ position = Vector2(1600, 1040)
 metadata/instance_id = "playground-cracked-ground"
 metadata/persistence_key = "playground.playground-cracked-ground"
 
-[node name="CrackedGroundScript" parent="gulp-secrets/cracked-ground" index="0"]
+[node name="CrackedGroundScript" parent="gulp-secrets/cracked-ground" index="0" unique_id=1274261288]
 flag_id = "cracked.playground-sinkhole"
 
-[node name="StoryVariantScript" parent="gulp-secrets/cracked-ground" index="1"]
+[node name="StoryVariantScript" parent="gulp-secrets/cracked-ground" index="1" unique_id=29743850]
 flag_id = "cracked.playground-sinkhole"
 
-[node name="DoorScript" parent="gulp-secrets/cracked-ground/Broken/Door" index="0"]
+[node name="DoorScript" parent="gulp-secrets/cracked-ground/Broken/Door" parent_id_path=PackedInt32Array(1063165734, 1921357320) index="1" unique_id=1039391351]
 map_id = "playground"
 door_id = "playground-sinkhole"
 target_area_id = "playground-cavern"
@@ -776,26 +778,32 @@ y_sort_enabled = true
 
 [node name="rock-1" parent="gulp-yard" unique_id=1096656775 instance=ExtResource("gulp_rock")]
 position = Vector2(1000, 1180)
+weight = "light"
 metadata/instance_id = "playground-gulp-yard-rock-1"
 
 [node name="rock-2" parent="gulp-yard" unique_id=764300946 instance=ExtResource("gulp_rock")]
 position = Vector2(1060, 1230)
+weight = "light"
 metadata/instance_id = "playground-gulp-yard-rock-2"
 
 [node name="rock-3" parent="gulp-yard" unique_id=1590764145 instance=ExtResource("gulp_rock")]
 position = Vector2(960, 1260)
+weight = "light"
 metadata/instance_id = "playground-gulp-yard-rock-3"
 
 [node name="puffball-1" parent="gulp-yard" unique_id=1589333918 instance=ExtResource("gulp_puffball")]
 position = Vector2(1160, 1180)
+weight = "light"
 metadata/instance_id = "playground-gulp-yard-puffball-1"
 
 [node name="pinecone-1" parent="gulp-yard" unique_id=1167611642 instance=ExtResource("gulp_pinecone")]
 position = Vector2(1210, 1225)
+weight = "light"
 metadata/instance_id = "playground-gulp-yard-pinecone-1"
 
 [node name="puffball-2" parent="gulp-yard" unique_id=1087549036 instance=ExtResource("gulp_puffball")]
 position = Vector2(1140, 1270)
+weight = "light"
 metadata/instance_id = "playground-gulp-yard-puffball-2"
 
 [node name="stone-essence" parent="gulp-yard" unique_id=732230762 instance=ExtResource("gulp_stone")]
@@ -810,762 +818,426 @@ metadata/instance_id = "playground-gulp-yard-silk-essence"
 position = Vector2(1300, 1250)
 metadata/instance_id = "playground-gulp-yard-swim-essence"
 
-[node name="liftable-gallery" type="Node2D" parent="."]
+[node name="liftable-gallery" type="Node2D" parent="." unique_id=1042057354]
 y_sort_enabled = true
 
-[node name="clay-pot" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="clay-pot" parent="liftable-gallery" unique_id=1000847394 instance=ExtResource("gulp_liftable")]
 position = Vector2(1600, 1540)
+weight = "light"
 metadata/instance_id = "playground-gallery-clay-pot"
 metadata/persistence_key = "playground.playground-gallery-clay-pot"
 
-[node name="Visual" parent="liftable-gallery/clay-pot"]
-frame = 0
-
-[node name="LiftableScript" parent="liftable-gallery/clay-pot"]
-kind = "clay-pot"
-
-[node name="honey-jar" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="honey-jar" parent="liftable-gallery" unique_id=1777349692 instance=ExtResource("gulp_liftable")]
 position = Vector2(1644, 1540)
+weight = "light"
 metadata/instance_id = "playground-gallery-honey-jar"
 metadata/persistence_key = "playground.playground-gallery-honey-jar"
 
-[node name="Visual" parent="liftable-gallery/honey-jar"]
-frame = 1
-
-[node name="LiftableScript" parent="liftable-gallery/honey-jar"]
-kind = "honey-jar"
-
-[node name="bucket" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="bucket" parent="liftable-gallery" unique_id=2062836616 instance=ExtResource("gulp_liftable")]
 position = Vector2(1688, 1540)
+weight = "light"
 metadata/instance_id = "playground-gallery-bucket"
 metadata/persistence_key = "playground.playground-gallery-bucket"
 
-[node name="Visual" parent="liftable-gallery/bucket"]
-frame = 2
-
-[node name="LiftableScript" parent="liftable-gallery/bucket"]
-kind = "bucket"
-
-[node name="crate" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="crate" parent="liftable-gallery" unique_id=451622748 instance=ExtResource("gulp_liftable")]
 position = Vector2(1732, 1540)
+weight = "medium"
 metadata/instance_id = "playground-gallery-crate"
 metadata/persistence_key = "playground.playground-gallery-crate"
 
-[node name="Visual" parent="liftable-gallery/crate"]
-frame = 3
-
-[node name="LiftableScript" parent="liftable-gallery/crate"]
-kind = "crate"
-
-[node name="wicker-basket" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="wicker-basket" parent="liftable-gallery" unique_id=1016692534 instance=ExtResource("gulp_liftable")]
 position = Vector2(1776, 1540)
+weight = "light"
 metadata/instance_id = "playground-gallery-wicker-basket"
 metadata/persistence_key = "playground.playground-gallery-wicker-basket"
 
-[node name="Visual" parent="liftable-gallery/wicker-basket"]
-frame = 4
-
-[node name="LiftableScript" parent="liftable-gallery/wicker-basket"]
-kind = "wicker-basket"
-
-[node name="flour-sack" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="flour-sack" parent="liftable-gallery" unique_id=990491859 instance=ExtResource("gulp_liftable")]
 position = Vector2(1820, 1540)
+weight = "medium"
 metadata/instance_id = "playground-gallery-flour-sack"
 metadata/persistence_key = "playground.playground-gallery-flour-sack"
 
-[node name="Visual" parent="liftable-gallery/flour-sack"]
-frame = 5
-
-[node name="LiftableScript" parent="liftable-gallery/flour-sack"]
-kind = "flour-sack"
-
-[node name="kettle" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="kettle" parent="liftable-gallery" unique_id=1894341849 instance=ExtResource("gulp_liftable")]
 position = Vector2(1864, 1540)
+weight = "medium"
 metadata/instance_id = "playground-gallery-kettle"
 metadata/persistence_key = "playground.playground-gallery-kettle"
 
-[node name="Visual" parent="liftable-gallery/kettle"]
-frame = 6
-
-[node name="LiftableScript" parent="liftable-gallery/kettle"]
-kind = "kettle"
-
-[node name="keg" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="keg" parent="liftable-gallery" unique_id=41959459 instance=ExtResource("gulp_liftable")]
 position = Vector2(1908, 1540)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-keg"
 metadata/persistence_key = "playground.playground-gallery-keg"
 
-[node name="Visual" parent="liftable-gallery/keg"]
-frame = 7
-
-[node name="LiftableScript" parent="liftable-gallery/keg"]
-kind = "keg"
-
-[node name="rune-urn" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="rune-urn" parent="liftable-gallery" unique_id=1246539717 instance=ExtResource("gulp_liftable")]
 position = Vector2(1952, 1540)
+weight = "medium"
 metadata/instance_id = "playground-gallery-rune-urn"
 metadata/persistence_key = "playground.playground-gallery-rune-urn"
 
-[node name="Visual" parent="liftable-gallery/rune-urn"]
-frame = 8
-
-[node name="LiftableScript" parent="liftable-gallery/rune-urn"]
-kind = "rune-urn"
-
-[node name="candle-jar" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="candle-jar" parent="liftable-gallery" unique_id=544017146 instance=ExtResource("gulp_liftable")]
 position = Vector2(1996, 1540)
+weight = "light"
 metadata/instance_id = "playground-gallery-candle-jar"
 metadata/persistence_key = "playground.playground-gallery-candle-jar"
 
-[node name="Visual" parent="liftable-gallery/candle-jar"]
-frame = 9
-
-[node name="LiftableScript" parent="liftable-gallery/candle-jar"]
-kind = "candle-jar"
-
-[node name="lantern" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="lantern" parent="liftable-gallery" unique_id=199481623 instance=ExtResource("gulp_liftable")]
 position = Vector2(2040, 1540)
+weight = "light"
 metadata/instance_id = "playground-gallery-lantern"
 metadata/persistence_key = "playground.playground-gallery-lantern"
 
-[node name="Visual" parent="liftable-gallery/lantern"]
-frame = 10
-
-[node name="LiftableScript" parent="liftable-gallery/lantern"]
-kind = "lantern"
-
-[node name="amphora" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="amphora" parent="liftable-gallery" unique_id=255339955 instance=ExtResource("gulp_liftable")]
 position = Vector2(2084, 1540)
+weight = "medium"
 metadata/instance_id = "playground-gallery-amphora"
 metadata/persistence_key = "playground.playground-gallery-amphora"
 
-[node name="Visual" parent="liftable-gallery/amphora"]
-frame = 11
-
-[node name="LiftableScript" parent="liftable-gallery/amphora"]
-kind = "amphora"
-
-[node name="mossy-brick" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="mossy-brick" parent="liftable-gallery" unique_id=619331145 instance=ExtResource("gulp_liftable")]
 position = Vector2(1600, 1588)
+weight = "medium"
 metadata/instance_id = "playground-gallery-mossy-brick"
 metadata/persistence_key = "playground.playground-gallery-mossy-brick"
 
-[node name="Visual" parent="liftable-gallery/mossy-brick"]
-frame = 12
-
-[node name="LiftableScript" parent="liftable-gallery/mossy-brick"]
-kind = "mossy-brick"
-
-[node name="iron-ball" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="iron-ball" parent="liftable-gallery" unique_id=1976477983 instance=ExtResource("gulp_liftable")]
 position = Vector2(1644, 1588)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-iron-ball"
 metadata/persistence_key = "playground.playground-gallery-iron-ball"
 
-[node name="Visual" parent="liftable-gallery/iron-ball"]
-frame = 13
-
-[node name="LiftableScript" parent="liftable-gallery/iron-ball"]
-kind = "iron-ball"
-
-[node name="gargoyle-head" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="gargoyle-head" parent="liftable-gallery" unique_id=225471791 instance=ExtResource("gulp_liftable")]
 position = Vector2(1688, 1588)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-gargoyle-head"
 metadata/persistence_key = "playground.playground-gallery-gargoyle-head"
 
-[node name="Visual" parent="liftable-gallery/gargoyle-head"]
-frame = 14
-
-[node name="LiftableScript" parent="liftable-gallery/gargoyle-head"]
-kind = "gargoyle-head"
-
-[node name="fancy-pot" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="fancy-pot" parent="liftable-gallery" unique_id=783195978 instance=ExtResource("gulp_liftable")]
 position = Vector2(1732, 1588)
+weight = "medium"
 metadata/instance_id = "playground-gallery-fancy-pot"
 metadata/persistence_key = "playground.playground-gallery-fancy-pot"
 
-[node name="Visual" parent="liftable-gallery/fancy-pot"]
-frame = 15
-
-[node name="LiftableScript" parent="liftable-gallery/fancy-pot"]
-kind = "fancy-pot"
-
-[node name="log" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="log" parent="liftable-gallery" unique_id=2135278722 instance=ExtResource("gulp_liftable")]
 position = Vector2(1776, 1588)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-log"
 metadata/persistence_key = "playground.playground-gallery-log"
 
-[node name="Visual" parent="liftable-gallery/log"]
-frame = 16
-
-[node name="LiftableScript" parent="liftable-gallery/log"]
-kind = "log"
-
-[node name="acorn" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="acorn" parent="liftable-gallery" unique_id=1584044703 instance=ExtResource("gulp_liftable")]
 position = Vector2(1820, 1588)
+weight = "light"
 metadata/instance_id = "playground-gallery-acorn"
 metadata/persistence_key = "playground.playground-gallery-acorn"
 
-[node name="Visual" parent="liftable-gallery/acorn"]
-frame = 17
-
-[node name="LiftableScript" parent="liftable-gallery/acorn"]
-kind = "acorn"
-
-[node name="toadstool" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="toadstool" parent="liftable-gallery" unique_id=1656535284 instance=ExtResource("gulp_liftable")]
 position = Vector2(1864, 1588)
+weight = "light"
 metadata/instance_id = "playground-gallery-toadstool"
 metadata/persistence_key = "playground.playground-gallery-toadstool"
 
-[node name="Visual" parent="liftable-gallery/toadstool"]
-frame = 18
-
-[node name="LiftableScript" parent="liftable-gallery/toadstool"]
-kind = "toadstool"
-
-[node name="bird-nest" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="bird-nest" parent="liftable-gallery" unique_id=520039787 instance=ExtResource("gulp_liftable")]
 position = Vector2(1908, 1588)
+weight = "light"
 metadata/instance_id = "playground-gallery-bird-nest"
 metadata/persistence_key = "playground.playground-gallery-bird-nest"
 
-[node name="Visual" parent="liftable-gallery/bird-nest"]
-frame = 19
-
-[node name="LiftableScript" parent="liftable-gallery/bird-nest"]
-kind = "bird-nest"
-
-[node name="crystal-cluster" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="crystal-cluster" parent="liftable-gallery" unique_id=1470549763 instance=ExtResource("gulp_liftable")]
 position = Vector2(1952, 1588)
+weight = "medium"
 metadata/instance_id = "playground-gallery-crystal-cluster"
 metadata/persistence_key = "playground.playground-gallery-crystal-cluster"
 
-[node name="Visual" parent="liftable-gallery/crystal-cluster"]
-frame = 20
-
-[node name="LiftableScript" parent="liftable-gallery/crystal-cluster"]
-kind = "crystal-cluster"
-
-[node name="geode" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="geode" parent="liftable-gallery" unique_id=1005419146 instance=ExtResource("gulp_liftable")]
 position = Vector2(1996, 1588)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-geode"
 metadata/persistence_key = "playground.playground-gallery-geode"
 
-[node name="Visual" parent="liftable-gallery/geode"]
-frame = 21
-
-[node name="LiftableScript" parent="liftable-gallery/geode"]
-kind = "geode"
-
-[node name="stalagmite" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="stalagmite" parent="liftable-gallery" unique_id=973031556 instance=ExtResource("gulp_liftable")]
 position = Vector2(2040, 1588)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-stalagmite"
 metadata/persistence_key = "playground.playground-gallery-stalagmite"
 
-[node name="Visual" parent="liftable-gallery/stalagmite"]
-frame = 22
-
-[node name="LiftableScript" parent="liftable-gallery/stalagmite"]
-kind = "stalagmite"
-
-[node name="ore-rock" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="ore-rock" parent="liftable-gallery" unique_id=1097747180 instance=ExtResource("gulp_liftable")]
 position = Vector2(2084, 1588)
+weight = "medium"
 metadata/instance_id = "playground-gallery-ore-rock"
 metadata/persistence_key = "playground.playground-gallery-ore-rock"
 
-[node name="Visual" parent="liftable-gallery/ore-rock"]
-frame = 23
-
-[node name="LiftableScript" parent="liftable-gallery/ore-rock"]
-kind = "ore-rock"
-
-[node name="glow-mushrooms" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="glow-mushrooms" parent="liftable-gallery" unique_id=880426716 instance=ExtResource("gulp_liftable")]
 position = Vector2(1600, 1636)
+weight = "light"
 metadata/instance_id = "playground-gallery-glow-mushrooms"
 metadata/persistence_key = "playground.playground-gallery-glow-mushrooms"
 
-[node name="Visual" parent="liftable-gallery/glow-mushrooms"]
-frame = 24
-
-[node name="LiftableScript" parent="liftable-gallery/glow-mushrooms"]
-kind = "glow-mushrooms"
-
-[node name="glowworm-pot" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="glowworm-pot" parent="liftable-gallery" unique_id=500222253 instance=ExtResource("gulp_liftable")]
 position = Vector2(1644, 1636)
+weight = "light"
 metadata/instance_id = "playground-gallery-glowworm-pot"
 metadata/persistence_key = "playground.playground-gallery-glowworm-pot"
 
-[node name="Visual" parent="liftable-gallery/glowworm-pot"]
-frame = 25
-
-[node name="LiftableScript" parent="liftable-gallery/glowworm-pot"]
-kind = "glowworm-pot"
-
-[node name="amethyst" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="amethyst" parent="liftable-gallery" unique_id=830775874 instance=ExtResource("gulp_liftable")]
 position = Vector2(1688, 1636)
+weight = "light"
 metadata/instance_id = "playground-gallery-amethyst"
 metadata/persistence_key = "playground.playground-gallery-amethyst"
 
-[node name="Visual" parent="liftable-gallery/amethyst"]
-frame = 26
-
-[node name="LiftableScript" parent="liftable-gallery/amethyst"]
-kind = "amethyst"
-
-[node name="coal" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="coal" parent="liftable-gallery" unique_id=846487488 instance=ExtResource("gulp_liftable")]
 position = Vector2(1732, 1636)
+weight = "light"
 metadata/instance_id = "playground-gallery-coal"
 metadata/persistence_key = "playground.playground-gallery-coal"
 
-[node name="Visual" parent="liftable-gallery/coal"]
-frame = 27
-
-[node name="LiftableScript" parent="liftable-gallery/coal"]
-kind = "coal"
-
-[node name="snowball" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="snowball" parent="liftable-gallery" unique_id=1031913402 instance=ExtResource("gulp_liftable")]
 position = Vector2(1776, 1636)
+weight = "light"
 metadata/instance_id = "playground-gallery-snowball"
 metadata/persistence_key = "playground.playground-gallery-snowball"
 
-[node name="Visual" parent="liftable-gallery/snowball"]
-frame = 28
-
-[node name="LiftableScript" parent="liftable-gallery/snowball"]
-kind = "snowball"
-
-[node name="ice-block" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="ice-block" parent="liftable-gallery" unique_id=809146726 instance=ExtResource("gulp_liftable")]
 position = Vector2(1820, 1636)
+weight = "medium"
 metadata/instance_id = "playground-gallery-ice-block"
 metadata/persistence_key = "playground.playground-gallery-ice-block"
 
-[node name="Visual" parent="liftable-gallery/ice-block"]
-frame = 29
-
-[node name="LiftableScript" parent="liftable-gallery/ice-block"]
-kind = "ice-block"
-
-[node name="frosted-jar" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="frosted-jar" parent="liftable-gallery" unique_id=834171921 instance=ExtResource("gulp_liftable")]
 position = Vector2(1864, 1636)
+weight = "light"
 metadata/instance_id = "playground-gallery-frosted-jar"
 metadata/persistence_key = "playground.playground-gallery-frosted-jar"
 
-[node name="Visual" parent="liftable-gallery/frosted-jar"]
-frame = 30
-
-[node name="LiftableScript" parent="liftable-gallery/frosted-jar"]
-kind = "frosted-jar"
-
-[node name="snowy-log" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="snowy-log" parent="liftable-gallery" unique_id=313920696 instance=ExtResource("gulp_liftable")]
 position = Vector2(1908, 1636)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-snowy-log"
 metadata/persistence_key = "playground.playground-gallery-snowy-log"
 
-[node name="Visual" parent="liftable-gallery/snowy-log"]
-frame = 31
-
-[node name="LiftableScript" parent="liftable-gallery/snowy-log"]
-kind = "snowy-log"
-
-[node name="icicle" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="icicle" parent="liftable-gallery" unique_id=1329994142 instance=ExtResource("gulp_liftable")]
 position = Vector2(1952, 1636)
+weight = "light"
 metadata/instance_id = "playground-gallery-icicle"
 metadata/persistence_key = "playground.playground-gallery-icicle"
 
-[node name="Visual" parent="liftable-gallery/icicle"]
-frame = 32
-
-[node name="LiftableScript" parent="liftable-gallery/icicle"]
-kind = "icicle"
-
-[node name="snowy-rock" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="snowy-rock" parent="liftable-gallery" unique_id=1114112746 instance=ExtResource("gulp_liftable")]
 position = Vector2(1996, 1636)
+weight = "medium"
 metadata/instance_id = "playground-gallery-snowy-rock"
 metadata/persistence_key = "playground.playground-gallery-snowy-rock"
 
-[node name="Visual" parent="liftable-gallery/snowy-rock"]
-frame = 33
-
-[node name="LiftableScript" parent="liftable-gallery/snowy-rock"]
-kind = "snowy-rock"
-
-[node name="frost-crystal" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="frost-crystal" parent="liftable-gallery" unique_id=864383088 instance=ExtResource("gulp_liftable")]
 position = Vector2(2040, 1636)
+weight = "medium"
 metadata/instance_id = "playground-gallery-frost-crystal"
 metadata/persistence_key = "playground.playground-gallery-frost-crystal"
 
-[node name="Visual" parent="liftable-gallery/frost-crystal"]
-frame = 34
-
-[node name="LiftableScript" parent="liftable-gallery/frost-crystal"]
-kind = "frost-crystal"
-
-[node name="snow-brick" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="snow-brick" parent="liftable-gallery" unique_id=1019889746 instance=ExtResource("gulp_liftable")]
 position = Vector2(2084, 1636)
+weight = "medium"
 metadata/instance_id = "playground-gallery-snow-brick"
 metadata/persistence_key = "playground.playground-gallery-snow-brick"
 
-[node name="Visual" parent="liftable-gallery/snow-brick"]
-frame = 35
-
-[node name="LiftableScript" parent="liftable-gallery/snow-brick"]
-kind = "snow-brick"
-
-[node name="sandstone" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="sandstone" parent="liftable-gallery" unique_id=447453862 instance=ExtResource("gulp_liftable")]
 position = Vector2(1600, 1684)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-sandstone"
 metadata/persistence_key = "playground.playground-gallery-sandstone"
 
-[node name="Visual" parent="liftable-gallery/sandstone"]
-frame = 36
-
-[node name="LiftableScript" parent="liftable-gallery/sandstone"]
-kind = "sandstone"
-
-[node name="water-jug" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="water-jug" parent="liftable-gallery" unique_id=2056900877 instance=ExtResource("gulp_liftable")]
 position = Vector2(1644, 1684)
+weight = "light"
 metadata/instance_id = "playground-gallery-water-jug"
 metadata/persistence_key = "playground.playground-gallery-water-jug"
 
-[node name="Visual" parent="liftable-gallery/water-jug"]
-frame = 37
-
-[node name="LiftableScript" parent="liftable-gallery/water-jug"]
-kind = "water-jug"
-
-[node name="dry-gourd" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="dry-gourd" parent="liftable-gallery" unique_id=1959513954 instance=ExtResource("gulp_liftable")]
 position = Vector2(1688, 1684)
+weight = "light"
 metadata/instance_id = "playground-gallery-dry-gourd"
 metadata/persistence_key = "playground.playground-gallery-dry-gourd"
 
-[node name="Visual" parent="liftable-gallery/dry-gourd"]
-frame = 38
-
-[node name="LiftableScript" parent="liftable-gallery/dry-gourd"]
-kind = "dry-gourd"
-
-[node name="tumbleweed" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="tumbleweed" parent="liftable-gallery" unique_id=115651423 instance=ExtResource("gulp_liftable")]
 position = Vector2(1732, 1684)
+weight = "light"
 metadata/instance_id = "playground-gallery-tumbleweed"
 metadata/persistence_key = "playground.playground-gallery-tumbleweed"
 
-[node name="Visual" parent="liftable-gallery/tumbleweed"]
-frame = 39
-
-[node name="LiftableScript" parent="liftable-gallery/tumbleweed"]
-kind = "tumbleweed"
-
-[node name="potted-cactus" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="potted-cactus" parent="liftable-gallery" unique_id=784653448 instance=ExtResource("gulp_liftable")]
 position = Vector2(1776, 1684)
+weight = "light"
 metadata/instance_id = "playground-gallery-potted-cactus"
 metadata/persistence_key = "playground.playground-gallery-potted-cactus"
 
-[node name="Visual" parent="liftable-gallery/potted-cactus"]
-frame = 40
-
-[node name="LiftableScript" parent="liftable-gallery/potted-cactus"]
-kind = "potted-cactus"
-
-[node name="desert-urn" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="desert-urn" parent="liftable-gallery" unique_id=157912841 instance=ExtResource("gulp_liftable")]
 position = Vector2(1820, 1684)
+weight = "medium"
 metadata/instance_id = "playground-gallery-desert-urn"
 metadata/persistence_key = "playground.playground-gallery-desert-urn"
 
-[node name="Visual" parent="liftable-gallery/desert-urn"]
-frame = 41
-
-[node name="LiftableScript" parent="liftable-gallery/desert-urn"]
-kind = "desert-urn"
-
-[node name="sandbag" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="sandbag" parent="liftable-gallery" unique_id=253836059 instance=ExtResource("gulp_liftable")]
 position = Vector2(1864, 1684)
+weight = "medium"
 metadata/instance_id = "playground-gallery-sandbag"
 metadata/persistence_key = "playground.playground-gallery-sandbag"
 
-[node name="Visual" parent="liftable-gallery/sandbag"]
-frame = 42
-
-[node name="LiftableScript" parent="liftable-gallery/sandbag"]
-kind = "sandbag"
-
-[node name="fossil-stone" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="fossil-stone" parent="liftable-gallery" unique_id=1064371181 instance=ExtResource("gulp_liftable")]
 position = Vector2(1908, 1684)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-fossil-stone"
 metadata/persistence_key = "playground.playground-gallery-fossil-stone"
 
-[node name="Visual" parent="liftable-gallery/fossil-stone"]
-frame = 43
-
-[node name="LiftableScript" parent="liftable-gallery/fossil-stone"]
-kind = "fossil-stone"
-
-[node name="coconut" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="coconut" parent="liftable-gallery" unique_id=1432057845 instance=ExtResource("gulp_liftable")]
 position = Vector2(1952, 1684)
+weight = "light"
 metadata/instance_id = "playground-gallery-coconut"
 metadata/persistence_key = "playground.playground-gallery-coconut"
 
-[node name="Visual" parent="liftable-gallery/coconut"]
-frame = 44
-
-[node name="LiftableScript" parent="liftable-gallery/coconut"]
-kind = "coconut"
-
-[node name="seashell" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="seashell" parent="liftable-gallery" unique_id=338452989 instance=ExtResource("gulp_liftable")]
 position = Vector2(1996, 1684)
+weight = "light"
 metadata/instance_id = "playground-gallery-seashell"
 metadata/persistence_key = "playground.playground-gallery-seashell"
 
-[node name="Visual" parent="liftable-gallery/seashell"]
-frame = 45
-
-[node name="LiftableScript" parent="liftable-gallery/seashell"]
-kind = "seashell"
-
-[node name="driftwood" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="driftwood" parent="liftable-gallery" unique_id=874729563 instance=ExtResource("gulp_liftable")]
 position = Vector2(2040, 1684)
+weight = "medium"
 metadata/instance_id = "playground-gallery-driftwood"
 metadata/persistence_key = "playground.playground-gallery-driftwood"
 
-[node name="Visual" parent="liftable-gallery/driftwood"]
-frame = 46
-
-[node name="LiftableScript" parent="liftable-gallery/driftwood"]
-kind = "driftwood"
-
-[node name="coral" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="coral" parent="liftable-gallery" unique_id=1227944691 instance=ExtResource("gulp_liftable")]
 position = Vector2(2084, 1684)
+weight = "medium"
 metadata/instance_id = "playground-gallery-coral"
 metadata/persistence_key = "playground.playground-gallery-coral"
 
-[node name="Visual" parent="liftable-gallery/coral"]
-frame = 47
-
-[node name="LiftableScript" parent="liftable-gallery/coral"]
-kind = "coral"
-
-[node name="mud-ball" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="mud-ball" parent="liftable-gallery" unique_id=1398439751 instance=ExtResource("gulp_liftable")]
 position = Vector2(1600, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-mud-ball"
 metadata/persistence_key = "playground.playground-gallery-mud-ball"
 
-[node name="Visual" parent="liftable-gallery/mud-ball"]
-frame = 48
-
-[node name="LiftableScript" parent="liftable-gallery/mud-ball"]
-kind = "mud-ball"
-
-[node name="swamp-gourd" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="swamp-gourd" parent="liftable-gallery" unique_id=1834882350 instance=ExtResource("gulp_liftable")]
 position = Vector2(1644, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-swamp-gourd"
 metadata/persistence_key = "playground.playground-gallery-swamp-gourd"
 
-[node name="Visual" parent="liftable-gallery/swamp-gourd"]
-frame = 49
-
-[node name="LiftableScript" parent="liftable-gallery/swamp-gourd"]
-kind = "swamp-gourd"
-
-[node name="glass-float" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="glass-float" parent="liftable-gallery" unique_id=1487121954 instance=ExtResource("gulp_liftable")]
 position = Vector2(1688, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-glass-float"
 metadata/persistence_key = "playground.playground-gallery-glass-float"
 
-[node name="Visual" parent="liftable-gallery/glass-float"]
-frame = 50
-
-[node name="LiftableScript" parent="liftable-gallery/glass-float"]
-kind = "glass-float"
-
-[node name="message-bottle" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="message-bottle" parent="liftable-gallery" unique_id=92238825 instance=ExtResource("gulp_liftable")]
 position = Vector2(1732, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-message-bottle"
 metadata/persistence_key = "playground.playground-gallery-message-bottle"
 
-[node name="Visual" parent="liftable-gallery/message-bottle"]
-frame = 51
-
-[node name="LiftableScript" parent="liftable-gallery/message-bottle"]
-kind = "message-bottle"
-
-[node name="pumpkin" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="pumpkin" parent="liftable-gallery" unique_id=2028959885 instance=ExtResource("gulp_liftable")]
 position = Vector2(1776, 1732)
+weight = "medium"
 metadata/instance_id = "playground-gallery-pumpkin"
 metadata/persistence_key = "playground.playground-gallery-pumpkin"
 
-[node name="Visual" parent="liftable-gallery/pumpkin"]
-frame = 52
-
-[node name="LiftableScript" parent="liftable-gallery/pumpkin"]
-kind = "pumpkin"
-
-[node name="cabbage" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="cabbage" parent="liftable-gallery" unique_id=591185053 instance=ExtResource("gulp_liftable")]
 position = Vector2(1820, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-cabbage"
 metadata/persistence_key = "playground.playground-gallery-cabbage"
 
-[node name="Visual" parent="liftable-gallery/cabbage"]
-frame = 53
-
-[node name="LiftableScript" parent="liftable-gallery/cabbage"]
-kind = "cabbage"
-
-[node name="watermelon" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="watermelon" parent="liftable-gallery" unique_id=1469082220 instance=ExtResource("gulp_liftable")]
 position = Vector2(1864, 1732)
+weight = "medium"
 metadata/instance_id = "playground-gallery-watermelon"
 metadata/persistence_key = "playground.playground-gallery-watermelon"
 
-[node name="Visual" parent="liftable-gallery/watermelon"]
-frame = 54
-
-[node name="LiftableScript" parent="liftable-gallery/watermelon"]
-kind = "watermelon"
-
-[node name="hay-bundle" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="hay-bundle" parent="liftable-gallery" unique_id=1897814135 instance=ExtResource("gulp_liftable")]
 position = Vector2(1908, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-hay-bundle"
 metadata/persistence_key = "playground.playground-gallery-hay-bundle"
 
-[node name="Visual" parent="liftable-gallery/hay-bundle"]
-frame = 55
-
-[node name="LiftableScript" parent="liftable-gallery/hay-bundle"]
-kind = "hay-bundle"
-
-[node name="turnip" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="turnip" parent="liftable-gallery" unique_id=799064177 instance=ExtResource("gulp_liftable")]
 position = Vector2(1952, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-turnip"
 metadata/persistence_key = "playground.playground-gallery-turnip"
 
-[node name="Visual" parent="liftable-gallery/turnip"]
-frame = 56
-
-[node name="LiftableScript" parent="liftable-gallery/turnip"]
-kind = "turnip"
-
-[node name="flower-pot" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="flower-pot" parent="liftable-gallery" unique_id=2129756098 instance=ExtResource("gulp_liftable")]
 position = Vector2(1996, 1732)
+weight = "light"
 metadata/instance_id = "playground-gallery-flower-pot"
 metadata/persistence_key = "playground.playground-gallery-flower-pot"
 
-[node name="Visual" parent="liftable-gallery/flower-pot"]
-frame = 57
-
-[node name="LiftableScript" parent="liftable-gallery/flower-pot"]
-kind = "flower-pot"
-
-[node name="obsidian" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="obsidian" parent="liftable-gallery" unique_id=342211749 instance=ExtResource("gulp_liftable")]
 position = Vector2(2040, 1732)
+weight = "medium"
 metadata/instance_id = "playground-gallery-obsidian"
 metadata/persistence_key = "playground.playground-gallery-obsidian"
 
-[node name="Visual" parent="liftable-gallery/obsidian"]
-frame = 58
-
-[node name="LiftableScript" parent="liftable-gallery/obsidian"]
-kind = "obsidian"
-
-[node name="lava-rock" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="lava-rock" parent="liftable-gallery" unique_id=426961105 instance=ExtResource("gulp_liftable")]
 position = Vector2(2084, 1732)
+weight = "medium"
 metadata/instance_id = "playground-gallery-lava-rock"
 metadata/persistence_key = "playground.playground-gallery-lava-rock"
 
-[node name="Visual" parent="liftable-gallery/lava-rock"]
-frame = 59
-
-[node name="LiftableScript" parent="liftable-gallery/lava-rock"]
-kind = "lava-rock"
-
-[node name="grain-basket" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="grain-basket" parent="liftable-gallery" unique_id=1838983341 instance=ExtResource("gulp_liftable")]
 position = Vector2(1600, 1780)
+weight = "medium"
 metadata/instance_id = "playground-gallery-grain-basket"
 metadata/persistence_key = "playground.playground-gallery-grain-basket"
 
-[node name="Visual" parent="liftable-gallery/grain-basket"]
-frame = 60
-
-[node name="LiftableScript" parent="liftable-gallery/grain-basket"]
-kind = "grain-basket"
-
-[node name="teapot" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="teapot" parent="liftable-gallery" unique_id=963937413 instance=ExtResource("gulp_liftable")]
 position = Vector2(1644, 1780)
+weight = "light"
 metadata/instance_id = "playground-gallery-teapot"
 metadata/persistence_key = "playground.playground-gallery-teapot"
 
-[node name="Visual" parent="liftable-gallery/teapot"]
-frame = 61
-
-[node name="LiftableScript" parent="liftable-gallery/teapot"]
-kind = "teapot"
-
-[node name="stone-lantern" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="stone-lantern" parent="liftable-gallery" unique_id=821494028 instance=ExtResource("gulp_liftable")]
 position = Vector2(1688, 1780)
+weight = "heavy"
 metadata/instance_id = "playground-gallery-stone-lantern"
 metadata/persistence_key = "playground.playground-gallery-stone-lantern"
 
-[node name="Visual" parent="liftable-gallery/stone-lantern"]
-frame = 62
-
-[node name="LiftableScript" parent="liftable-gallery/stone-lantern"]
-kind = "stone-lantern"
-
-[node name="piggy-bank" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="piggy-bank" parent="liftable-gallery" unique_id=1252141191 instance=ExtResource("gulp_liftable")]
 position = Vector2(1732, 1780)
+weight = "light"
 metadata/instance_id = "playground-gallery-piggy-bank"
 metadata/persistence_key = "playground.playground-gallery-piggy-bank"
 
-[node name="Visual" parent="liftable-gallery/piggy-bank"]
-frame = 63
-
-[node name="LiftableScript" parent="liftable-gallery/piggy-bank"]
-kind = "piggy-bank"
-
-[node name="rock" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="rock" parent="liftable-gallery" unique_id=1731807406 instance=ExtResource("gulp_liftable")]
 position = Vector2(1776, 1780)
+weight = "light"
 metadata/instance_id = "playground-gallery-rock"
 metadata/persistence_key = "playground.playground-gallery-rock"
 
-[node name="Visual" parent="liftable-gallery/rock"]
-frame = 64
-
-[node name="LiftableScript" parent="liftable-gallery/rock"]
-kind = "rock"
-
-[node name="puffball" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="puffball" parent="liftable-gallery" unique_id=504137246 instance=ExtResource("gulp_liftable")]
 position = Vector2(1820, 1780)
+weight = "light"
 metadata/instance_id = "playground-gallery-puffball"
 metadata/persistence_key = "playground.playground-gallery-puffball"
 
-[node name="Visual" parent="liftable-gallery/puffball"]
-frame = 66
-
-[node name="LiftableScript" parent="liftable-gallery/puffball"]
-kind = "puffball"
-
-[node name="pinecone" parent="liftable-gallery" instance=ExtResource("gulp_liftable")]
+[node name="pinecone" parent="liftable-gallery" unique_id=417012290 instance=ExtResource("gulp_liftable")]
 position = Vector2(1864, 1780)
+weight = "light"
 metadata/instance_id = "playground-gallery-pinecone"
 metadata/persistence_key = "playground.playground-gallery-pinecone"
 
-[node name="Visual" parent="liftable-gallery/pinecone"]
-frame = 68
+[node name="lantern-corner" parent="." unique_id=606889343 instance=ExtResource("lantern_corner")]
 
-[node name="LiftableScript" parent="liftable-gallery/pinecone"]
-kind = "pinecone"
+[node name="bomb-corner" parent="." unique_id=1617542675 instance=ExtResource("bomb_corner")]
 
-[connection signal="pressed" from="heavy-puzzle/end-card-plate/PressurePlateScript" to="heavy-puzzle/end-card-flag" method="on_set"]
+[node name="heavy-corner" parent="." unique_id=136523154 instance=ExtResource("heavy_corner")]
 
+[node name="bestiary-corner" parent="." unique_id=1521924649 instance=ExtResource("bestiary_corner")]
 
-[node name="lantern-corner" parent="." instance=ExtResource("lantern_corner")]
+[node name="barred-gate-corner" parent="." unique_id=437412624 instance=ExtResource("barred_gate_corner")]
 
-[node name="bomb-corner" parent="." instance=ExtResource("bomb_corner")]
+[node name="webs-corner" parent="." unique_id=1800144027 instance=ExtResource("webs_corner")]
 
-[node name="heavy-corner" parent="." instance=ExtResource("heavy_corner")]
+[node name="skins-corner" parent="." unique_id=761366087 instance=ExtResource("skins_corner")]
 
-[node name="bestiary-corner" parent="." instance=ExtResource("bestiary_corner")]
-
-[node name="barred-gate-corner" parent="." instance=ExtResource("barred_gate_corner")]
-
-[node name="webs-corner" parent="." instance=ExtResource("webs_corner")]
-
-[node name="skins-corner" parent="." instance=ExtResource("skins_corner")]
+[node name="crossings-corner" parent="." unique_id=1170069137 instance=ExtResource("crossings_corner")]
 
 [node name="stair-door-test" type="Node2D" parent="." unique_id=1744100001]
 
@@ -1574,22 +1246,15 @@ position = Vector2(1400, 1300)
 direction = "down"
 hatch_id = "playground-stair-down"
 start_open = true
-target = NodePath("../up-door-arrival")
-arrival_facing = "up"
+target_door = "playground-stair-up"
 
 [node name="up-door" parent="stair-door-test" unique_id=1744100003 instance=ExtResource("stair_door_pg")]
 position = Vector2(1600, 1300)
-direction = "up"
 hatch_id = "playground-stair-up"
 start_open = true
-target = NodePath("../down-door-arrival")
-arrival_facing = "down"
+target_door = "playground-stair-down"
 
-[node name="down-door-arrival" type="Node2D" parent="stair-door-test" unique_id=1744100004]
-position = Vector2(1400, 1380)
-
-[node name="up-door-arrival" type="Node2D" parent="stair-door-test" unique_id=1744100005]
-position = Vector2(1600, 1380)
+[connection signal="pressed" from="heavy-puzzle/end-card-plate/PressurePlateScript" to="heavy-puzzle/end-card-flag" method="on_set"]
 
 [editable path="resource-grove/tree-1"]
 [editable path="resource-grove/tree-2"]

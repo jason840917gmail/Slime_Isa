@@ -93,6 +93,12 @@ only_in_dark = true
 [node name="ladder" parent="Objects" unique_id=1452967962 instance=ExtResource("20_ladder")]
 position = Vector2(512, 890)
 
+[node name="DoorScript" parent="Objects/ladder" index="2"]
+map_id = "slimeshire-glow-moss-burrow"
+door_id = "burrow-ladder"
+target_area_id = "level-1-d4"
+target_door_id = "burrow-hole"
+
 [node name="Lair" type="Node2D" parent="." unique_id=176635228]
 y_sort_enabled = true
 

@@ -18,13 +18,11 @@ class_name ProjectileScript
 const Services := preload("res://game/shared/services.gd")
 const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 const SpiderWebPort := preload("res://game/enemy/spider_web_port.gd")
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): an arrow that missed stays on the ground
-## as something the Gulp can throw back (`gulp.throwCombat.ammo`).
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md): a shot that missed stays on the ground
+## as something the Gulp can throw back (`gulp.throwCombat.ammo.spentShots`: which projectiles, what
+## they are made of, their picture's size).
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const SpentShot := preload("res://game/throw/spent_shot.gd")
-const SPENT_SHOT_IDS: Array[String] = ["worm-arrow"]
-const SPENT_SHOT_MATERIAL := "wood"
-const SPENT_SHOT_PICTURE_PX := 64.0
 
 const KNOCKBACK_EFFECT_ID := "knockback"
 ## ProjectileScript.ts:122-124 defaults when the payload names none.
@@ -204,13 +202,17 @@ func on_area_entered(area: Area2D) -> void:
 	expire()
 
 
-## Throw combat: an arrow that missed (a wall, the end of its flight) lies where it ended, for the
-## Gulp to throw back (game/throw/spent_shot.gd; `gulp.throwCombat.ammo.arrowStays`, `arrowLifeMs`).
+## Throw combat: a shot listed in `gulp.throwCombat.ammo.spentShots` (the worm arrow) that missed (a
+## wall, the end of its flight) lies where it ended, for the Gulp to throw back
+## (game/throw/spent_shot.gd; its row's `material` and `picturePx`, `ammo.arrowStays`, `arrowLifeMs`).
 func _leave_spent_shot() -> void:
-	if _hit_target or not ThrowMode.is_on() or not SPENT_SHOT_IDS.has(projectile_id):
+	if _hit_target or not ThrowMode.is_on():
 		return
 	var constants := Services.constants()
 	if constants == null or not bool(constants.value("gulp.throwCombat.ammo.arrowStays", false)):
+		return
+	var row: Variant = constants.dictionary("gulp.throwCombat.ammo.spentShots").get(projectile_id)
+	if not row is Dictionary:
 		return
 	var root := get_parent() as Node2D
 	var world := Services.world()
@@ -218,8 +220,8 @@ func _leave_spent_shot() -> void:
 	if root == null or parent == null or visual == null:
 		return
 	var path := str(visual.get(&"sheet_path")) if &"sheet_path" in visual else ""
-	SpentShot.spawn(parent, root.global_position, path, SPENT_SHOT_PICTURE_PX, absf(visual.scale.x),
-		visual.global_rotation, projectile_id, SPENT_SHOT_MATERIAL,
+	SpentShot.spawn(parent, root.global_position, path, float((row as Dictionary).get("picturePx", 0.0)),
+		absf(visual.scale.x), visual.global_rotation, projectile_id, str((row as Dictionary).get("material", "")),
 		constants.number("gulp.throwCombat.ammo.arrowLifeMs"))
 
 

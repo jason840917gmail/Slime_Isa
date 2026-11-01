@@ -1,0 +1,117 @@
+tools/check_chunk_lines.gd -- --all, 2026-11-01, after Gloop Forest was closed (the to-do list for the other regions).
+
+  !!  crystal-caverns-g4 | crystal-caverns-h4: crossings 128-704, 736-960, 1344-2048; 128-704 wider than a road; 1344-2048 wider than a road; 1344-2048 at a corner; 0-128 open on crystal-caverns-g4's side only; 960-1088 open on crystal-caverns-g4's side only; 1152-1280 open on crystal-caverns-g4's side only; 1280-1344 open on crystal-caverns-h4's side only
+  !!  crystal-caverns-g4 / crystal-caverns-g5: crossings 128-2048; 128-2048 wider than a road; 128-2048 at a corner
+  !!  crystal-caverns-g5 | crystal-caverns-h5: crossings 0-192, 384-448, 576-2048; 0-192 at a corner; 576-2048 wider than a road; 576-2048 at a corner; 192-256 open on crystal-caverns-h5's side only; 320-384 open on crystal-caverns-h5's side only; 448-576 open on crystal-caverns-h5's side only
+  !!  crystal-caverns-g5 / south-wilds-g6: crossings none; 128-2048 open on crystal-caverns-g5's side only
+  !!  crystal-caverns-h4 / crystal-caverns-h5: crossings 0-192, 256-2048; 0-192 at a corner; 256-2048 wider than a road; 256-2048 at a corner; 192-256 open on crystal-caverns-h4's side only
+  !!  crystal-caverns-h5 / south-wilds-h6: crossings 384-640; 0-64 open on crystal-caverns-h5's side only; 960-2048 open on crystal-caverns-h5's side only
+  !!  desert-a7 | desert-b7: crossings 128-2048; 128-2048 wider than a road; 128-2048 at a corner
+  !!  desert-a7 / desert-a8: crossings 128-960, 1024-2048; 128-960 wider than a road; 1024-2048 wider than a road; 1024-2048 at a corner
+  !!  desert-a8 | desert-b8: crossings 0-1920; 0-1920 wider than a road; 0-1920 at a corner
+  !!  desert-b7 / desert-b8: crossings 0-1920; 0-1920 wider than a road; 0-1920 at a corner
+  !!  frostpeak-f7 | frostpeak-g7: crossings 128-576, 608-2048; 128-576 wider than a road; 608-2048 wider than a road; 608-2048 at a corner
+  !!  frostpeak-f7 / frostpeak-f8: crossings 128-256, 288-384, 416-2048; 416-2048 wider than a road; 416-2048 at a corner
+  !!  frostpeak-f8 | frostpeak-g8: crossings 0-1920; 0-1920 wider than a road; 0-1920 at a corner
+  !!  frostpeak-g7 / frostpeak-g8: crossings 0-768, 896-1760, 1792-1920; 0-768 wider than a road; 0-768 at a corner; 896-1760 wider than a road
+  !!  frostpeak-g8 | south-wilds-h8: crossings none; 1152-1216 open on frostpeak-g8's side only
+  !!  level-1-c4 / level-1-c5: crossings 1024-1088, 1152-1280, 1344-1664; 1344-1664 wider than a road
+  !!  level-1-c5 | level-1-d5: crossings 544-640, 736-992; 640-736 open on level-1-c5's side only; 160-544 open on level-1-d5's side only
+  !!  north-wilds-a1 | north-wilds-b1: crossings 1024-1152; 1152-1472 open on north-wilds-a1's side only
+  !!  north-wilds-a2 | north-wilds-b2: crossings 1280-1408; 384-1024 open on north-wilds-b2's side only
+  !!  north-wilds-a2 / north-wilds-a3: crossings none; no crossing
+  !!  north-wilds-b1 | north-wilds-c1: crossings 384-768; 384-768 wider than a road; 128-384 open on north-wilds-b1's side only; 768-896 open on north-wilds-b1's side only; 1280-1408 open on north-wilds-b1's side only
+  !!  north-wilds-b1 / north-wilds-b2: crossings 128-480, 512-896, 928-1248, 1312-1760, 1792-1984; 5 crossings; 128-480 wider than a road; 512-896 wider than a road; 928-1248 wider than a road; 1312-1760 wider than a road; 1792-1984 at a corner; 1248-1312 open on north-wilds-b1's side only; 1984-2048 open on north-wilds-b1's side only
+  !!  north-wilds-b2 | north-wilds-c2: crossings 768-960, 1408-1472, 1504-1536; 480-576 open on north-wilds-b2's side only; 640-768 open on north-wilds-b2's side only; 1536-2048 open on north-wilds-b2's side only; 992-1088 open on north-wilds-c2's side only
+  !!  north-wilds-b2 / north-wilds-b3: crossings 512-1920; 512-1920 wider than a road; 256-480 open on north-wilds-b2's side only; 1952-2048 open on north-wilds-b2's side only
+  !!  north-wilds-b3 | north-wilds-c3: crossings 384-768, 1408-1792; 384-768 wider than a road; 1408-1792 wider than a road
+  !!  north-wilds-c1 / north-wilds-c2: crossings 384-1024, 1088-1376, 1408-1504, 1600-1920; 4 crossings; 384-1024 wider than a road; 1088-1376 wider than a road; 1600-1920 wider than a road; 1024-1088 open on north-wilds-c1's side only; 1504-1600 open on north-wilds-c2's side only
+  !!  north-wilds-c2 | northern-ruins-d2: crossings none; 1408-1472 open on north-wilds-c2's side only; 1664-1728 open on northern-ruins-d2's side only
+  !!  north-wilds-c2 / north-wilds-c3: crossings 512-640, 704-1856; 704-1856 wider than a road; 1856-1920 open on north-wilds-c2's side only; 640-704 open on north-wilds-c3's side only
+  !!  north-wilds-c3 | north-wilds-d3: crossings 128-640, 1280-1408; 128-640 wider than a road
+  !!  north-wilds-c3 / level-1-c4: crossings none; 64-1920 open on level-1-c4's side only
+  !!  north-wilds-d3 | north-wilds-e3: crossings 512-1920; 512-1920 wider than a road
+  !!  north-wilds-d3 / level-1-d4: crossings none; 128-192 open on level-1-d4's side only
+  !!  north-wilds-e3 | north-wilds-f3: crossings 512-1920; 512-1920 wider than a road
+  !!  north-wilds-f3 | north-wilds-g3: crossings 128-512, 768-1152, 1472-1920; 128-512 wider than a road; 768-1152 wider than a road; 1472-1920 wider than a road; 1408-1472 open on north-wilds-f3's side only
+  !!  north-wilds-g3 | north-wilds-h3: crossings 512-1920; 512-1920 wider than a road
+  !!  north-wilds-g3 / crystal-caverns-g4: crossings none; 128-2048 open on crystal-caverns-g4's side only
+  !!  north-wilds-h2 / north-wilds-h3: crossings 1024-1920; 1024-1920 wider than a road; 128-256 open on north-wilds-h2's side only; 512-640 open on north-wilds-h2's side only; 896-1024 open on north-wilds-h2's side only
+  !!  north-wilds-h3 / crystal-caverns-h4: crossings 256-512; 768-1184 open on crystal-caverns-h4's side only; 1216-2048 open on crystal-caverns-h4's side only
+  !!  northern-ruins-d1 | northern-ruins-e1: crossings 128-1024, 1120-1312, 1440-1952, 2016-2048; 4 crossings; 128-1024 wider than a road; 1440-1952 wider than a road; 1440-1952 at a corner; 2016-2048 at a corner; 1312-1376 open on northern-ruins-d1's side only; 1952-2016 open on northern-ruins-d1's side only; 1376-1440 open on northern-ruins-e1's side only
+  !!  northern-ruins-d1 / northern-ruins-d2: crossings 128-2048; 128-2048 wider than a road; 128-2048 at a corner
+  !!  northern-ruins-d2 | northern-ruins-e2: crossings 0-160, 224-288, 352-1408, 1536-1920; 4 crossings; 0-160 at a corner; 352-1408 wider than a road; 1536-1920 wider than a road; 288-352 open on northern-ruins-d2's side only; 1408-1472 open on northern-ruins-d2's side only
+  !!  northern-ruins-e1 | volcano-ridge-f1: crossings 1664-1920; 384-448 open on volcano-ridge-f1's side only; 512-576 open on volcano-ridge-f1's side only
+  !!  northern-ruins-e1 / northern-ruins-e2: crossings 0-768, 832-1920; 0-768 wider than a road; 0-768 at a corner; 832-1920 wider than a road
+  !!  northern-ruins-e2 | volcano-ridge-f2: crossings none; 1792-1856 open on volcano-ridge-f2's side only; 1888-2048 open on volcano-ridge-f2's side only
+  !!  south-wilds-a6 | south-wilds-b6: crossings 1152-1472, 1504-1920; 1152-1472 wider than a road; 1504-1920 wider than a road
+  !!  south-wilds-b6 | south-wilds-c6: crossings 640-768, 1408-1792; 1408-1792 wider than a road; 256-384 open on south-wilds-b6's side only
+  !!  south-wilds-c6 | south-wilds-d6: crossings 512-640; 256-512 open on south-wilds-d6's side only
+  !!  south-wilds-c7 / south-wilds-c8: crossings 128-1920; 128-1920 wider than a road
+  !!  south-wilds-c8 | sticky-swamp-d8: crossings 1024-1088; 1664-1728 open on sticky-swamp-d8's side only
+  !!  south-wilds-d6 | south-wilds-e6: crossings 768-1920; 768-1920 wider than a road; 640-768 open on south-wilds-e6's side only
+  !!  south-wilds-e6 | south-wilds-f6: crossings 256-384, 1408-1536, 1792-1856; 1536-1664 open on south-wilds-f6's side only; 1856-1920 open on south-wilds-f6's side only
+  !!  south-wilds-f6 | south-wilds-g6: crossings 128-704, 768-1024, 1664-1920; 128-704 wider than a road; 704-768 open on south-wilds-g6's side only
+  !!  south-wilds-g6 | south-wilds-h6: crossings 128-1216, 1280-1920; 128-1216 wider than a road; 1280-1920 wider than a road; 1216-1280 open on south-wilds-h6's side only
+  !!  south-wilds-h6 / south-wilds-h7: crossings 128-1920; 128-1920 wider than a road
+  !!  south-wilds-h7 / south-wilds-h8: crossings 128-384, 768-1920; 768-1920 wider than a road
+  !!  sticky-swamp-d7 | sticky-swamp-e7: crossings 128-448, 480-1024, 1408-1664, 1792-2048; 4 crossings; 128-448 wider than a road; 480-1024 wider than a road; 1792-2048 at a corner; 1728-1792 open on sticky-swamp-e7's side only
+  !!  sticky-swamp-d7 / sticky-swamp-d8: crossings 128-640, 672-832, 896-2048; 128-640 wider than a road; 896-2048 wider than a road; 896-2048 at a corner; 832-896 open on sticky-swamp-d8's side only
+  !!  sticky-swamp-d8 | sticky-swamp-e8: crossings 0-256, 320-384, 512-640, 832-1216, 1280-1344, 1408-1600, 1664-1792; 7 crossings; 0-256 at a corner; 832-1216 wider than a road; 256-320 open on sticky-swamp-d8's side only; 640-704 open on sticky-swamp-d8's side only; 1216-1280 open on sticky-swamp-d8's side only; 1344-1408 open on sticky-swamp-d8's side only; 384-512 open on sticky-swamp-e8's side only; 704-832 open on sticky-swamp-e8's side only; 1600-1664 open on sticky-swamp-e8's side only
+  !!  sticky-swamp-e7 / sticky-swamp-e8: crossings 0-320, 384-448, 512-1088, 1152-1760, 1792-1920; 5 crossings; 0-320 wider than a road; 0-320 at a corner; 512-1088 wider than a road; 1152-1760 wider than a road; 320-384 open on sticky-swamp-e7's side only; 448-512 open on sticky-swamp-e7's side only; 1088-1152 open on sticky-swamp-e8's side only
+  !!  volcano-ridge-f1 | volcano-ridge-g1: crossings 128-576, 608-960, 1184-2048; 128-576 wider than a road; 608-960 wider than a road; 1184-2048 wider than a road; 1184-2048 at a corner; 992-1152 open on volcano-ridge-g1's side only
+  !!  volcano-ridge-f1 / volcano-ridge-f2: crossings 128-448, 512-1280, 1344-2048; 128-448 wider than a road; 512-1280 wider than a road; 1344-2048 wider than a road; 1344-2048 at a corner; 448-512 open on volcano-ridge-f1's side only; 1280-1344 open on volcano-ridge-f1's side only
+  !!  volcano-ridge-f2 | volcano-ridge-g2: crossings 0-1344, 1376-1472, 1504-2048; 0-1344 wider than a road; 0-1344 at a corner; 1504-2048 wider than a road; 1504-2048 at a corner
+  !!  volcano-ridge-f2 / north-wilds-f3: crossings none; 0-608 open on volcano-ridge-f2's side only; 800-1760 open on volcano-ridge-f2's side only; 1952-2048 open on volcano-ridge-f2's side only
+  !!  volcano-ridge-g1 | volcano-ridge-h1: crossings 128-448, 480-576, 608-704, 736-768, 800-1792, 1824-1920; 6 crossings; 128-448 wider than a road; 800-1792 wider than a road
+  !!  volcano-ridge-g1 / volcano-ridge-g2: crossings 0-704, 800-864, 960-1920; 0-704 wider than a road; 0-704 at a corner; 960-1920 wider than a road; 704-800 open on volcano-ridge-g1's side only; 864-960 open on volcano-ridge-g1's side only
+  !!  volcano-ridge-g2 | north-wilds-h2: crossings 1536-1728, 1760-1792; 1792-1856 open on volcano-ridge-g2's side only; 1888-2048 open on volcano-ridge-g2's side only
+  !!  volcano-ridge-g2 / north-wilds-g3: crossings none; 0-224 open on volcano-ridge-g2's side only; 672-864 open on volcano-ridge-g2's side only; 1312-1632 open on volcano-ridge-g2's side only; 1824-2048 open on volcano-ridge-g2's side only
+  !!  west-village-a4 | west-village-b4: crossings 256-832; 256-832 wider than a road; 832-2048 open on west-village-a4's side only
+  !!  west-village-a4 / west-village-a5: crossings 256-512, 1280-1792, 1920-2048; 1280-1792 wider than a road; 1920-2048 at a corner; 512-1152 open on west-village-a4's side only
+  !!  west-village-a5 | west-village-b5: crossings 0-832, 896-1152, 1216-1920; 0-832 wider than a road; 0-832 at a corner; 1216-1920 wider than a road; 1152-1216 open on west-village-a5's side only
+  !!  west-village-b4 | level-1-c4: crossings 1600-1792; 1504-1600 open on level-1-c4's side only; 1792-1856 open on level-1-c4's side only
+  !!  west-village-b4 / west-village-b5: crossings none; no crossing; 0-384 open on west-village-b5's side only; 768-1920 open on west-village-b5's side only
+  !!  west-village-b5 | level-1-c5: crossings none; 704-960 open on level-1-c5's side only; 1856-1952 open on level-1-c5's side only
+
+  ok  desert-b7 | south-wilds-c7: crossings none
+  ok  desert-b8 | south-wilds-c8: crossings 1280-1536
+  ok  frostpeak-g7 | south-wilds-h7: crossings none
+  ok  gloop-forest-e4 | gloop-forest-f4: crossings 512-640, 1600-1632
+  ok  gloop-forest-e4 / gloop-forest-e5: crossings 960-1088
+  ok  gloop-forest-e5 | gloop-forest-f5: crossings 512-640
+  ok  gloop-forest-e5 / south-wilds-e6: crossings 1536-1792
+  ok  gloop-forest-f4 | crystal-caverns-g4: crossings 1696-1824
+  ok  gloop-forest-f4 / gloop-forest-f5: crossings 384-512
+  ok  gloop-forest-f5 | crystal-caverns-g5: crossings none
+  ok  gloop-forest-f5 / south-wilds-f6: crossings none
+  ok  level-1-c4 | level-1-d4: crossings 576-640
+  ok  level-1-c5 / south-wilds-c6: crossings 1536-1792
+  ok  level-1-d4 | gloop-forest-e4: crossings 448-672
+  ok  level-1-d4 / level-1-d5: crossings 320-448
+  ok  level-1-d5 | gloop-forest-e5: crossings none
+  ok  level-1-d5 / south-wilds-d6: crossings none
+  ok  north-wilds-a1 / north-wilds-a2: crossings 1664-1792
+  ok  north-wilds-a3 | north-wilds-b3: crossings 1536-1664
+  ok  north-wilds-a3 / west-village-a4: crossings 1280-1536
+  ok  north-wilds-b3 / west-village-b4: crossings none
+  ok  north-wilds-c1 | northern-ruins-d1: crossings 1664-1920
+  ok  north-wilds-e3 / gloop-forest-e4: crossings none
+  ok  north-wilds-f3 / gloop-forest-f4: crossings none
+  ok  northern-ruins-d2 / north-wilds-d3: crossings none
+  ok  northern-ruins-e2 / north-wilds-e3: crossings none
+  ok  south-wilds-a6 / desert-a7: crossings none
+  ok  south-wilds-b6 / desert-b7: crossings none
+  ok  south-wilds-c6 / south-wilds-c7: crossings 256-512, 896-1024
+  ok  south-wilds-c7 | sticky-swamp-d7: crossings none
+  ok  south-wilds-d6 / sticky-swamp-d7: crossings none
+  ok  south-wilds-e6 / sticky-swamp-e7: crossings 256-512
+  ok  south-wilds-f6 / frostpeak-f7: crossings 1152-1376
+  ok  south-wilds-g6 / frostpeak-g7: crossings none
+  ok  sticky-swamp-e7 | frostpeak-f7: crossings none
+  ok  sticky-swamp-e8 | frostpeak-f8: crossings 1280-1536
+  ok  volcano-ridge-h1 / north-wilds-h2: crossings none
+  ok  west-village-a5 / south-wilds-a6: crossings none
+  ok  west-village-b5 / south-wilds-b6: crossings 1408-1664
+
+chunk lines: 73 flagged, 39 pass

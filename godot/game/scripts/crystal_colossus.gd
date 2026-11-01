@@ -63,7 +63,6 @@ const FRAME_DEFEATED := 7
 ## Sprawled face down after his fall from the wall, his back cracked open (the sheet's ninth pose;
 ## FRAME_DEFEATED's heap on an older sheet of eight).
 const FRAME_STUNNED := 8
-const SPEAR_TAG := "spear"
 ## Where his claws' crack shows on his clinging pose, and his open back on the stunned one (art
 ## units are world units here).
 const CLAW_GLOW_AT := Vector2(0, -170)

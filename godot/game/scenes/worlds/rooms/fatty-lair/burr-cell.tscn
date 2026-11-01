@@ -1,16 +1,18 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://ik2pp6v1umq3"]
 
 [ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_wrsfq"]
-[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_njd28"]
+[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://game/world/terrain_tileset.tres" id="2_njd28"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_ehtjf"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_dlvf5"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="9_rw3569"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="9_rw3569"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="10_rw8963"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="11_rw8171"]
-[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="12_rw0412"]
-[ext_resource type="Script" path="res://game/world/interior/interior_wall_layer.gd" id="13_rw1968"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="14_rw1658"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="15_rw4436"]
+[ext_resource type="TileSet" uid="uid://dtulcyvm4c4ki" path="res://game/world/interior/interior_wall_tileset.tres" id="12_rw0412"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="13_rw1968"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="14_rw1658"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="15_rw4436"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 
 [node name="burr-cell" type="Node2D" unique_id=39051978]
 y_sort_enabled = true
@@ -26,10 +28,18 @@ script = ExtResource("3_ehtjf")
 metadata/columns = 6
 metadata/rows = 9
 
-[node name="interior-walls" type="TileMapLayer" parent="."]
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=517501926]
+self_modulate = Color(1, 1, 1, 0.3)
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAABAAEAAAAAAAAAAAACAAEAAAAAAAAAAAADAAEAAAAAAAAAAAAEAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAABAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAABAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAABAAQAAAAAAAAAAAAAAAUAAAAAAAAAAAABAAUAAAAAAAAAAAAAAAYAAAAAAAAAAAABAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAABAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAABAAgAAAAAAAAAAAAFAAAAAAAAAAAAAAAFAAEAAAAAAAAAAAAEAAIAAAAAAAAAAAAFAAIAAAAAAAAAAAAEAAMAAAAAAAAAAAAFAAMAAAAAAAAAAAAEAAQAAAAAAAAAAAAFAAQAAAAAAAAAAAAEAAUAAAAAAAAAAAAFAAUAAAAAAAAAAAAEAAYAAAAAAAAAAAAFAAYAAAAAAAAAAAACAAcAAAAAAAEAAAADAAcAAAAAAAEAAAAEAAcAAAAAAAAAAAAFAAcAAAAAAAAAAAACAAgAAAAAAAEAAAADAAgAAAAAAAEAAAAEAAgAAAAAAAAAAAAFAAgAAAAAAAAAAAA=")
 tile_set = ExtResource("12_rw0412")
 script = ExtResource("13_rw1968")
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=581499340]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAIAAAADAAAAAAADAAIAAAADAAAAAAADAAMAAAADAAAAAAADAAQAAAADAAAAAAADAAUAAAADAAAAAAADAAYAAAADAAAAAAACAAYAAAADAAAAAAACAAUAAAADAAAAAAACAAQAAAADAAAAAAACAAMAAAADAAAAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
 
 [node name="CameraRooms" type="Node2D" parent="." unique_id=414189263]
 
@@ -85,4 +95,3 @@ bus = &"Music"
 script = ExtResource("14_rw1658")
 loop = true
 autoplay_cue = true
-

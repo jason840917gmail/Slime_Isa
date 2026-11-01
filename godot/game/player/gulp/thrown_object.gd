@@ -21,9 +21,10 @@ extends Node2D
 ## Body-shapes rework (docs/godot/BODY_SHAPES.md "The hit"; combat-feel plan section 3; only while
 ## ReworkMode is on): the break sends each hurtbox in reach one request that carries the contract's
 ## `hit` (`rework_hit`: class `gulp.throwHit.class` ("thrown": tier 2, never a hold), tag
-## `thrown`, the knock along the throw, launch speed `gulp.throwKnockback`) and the `impact` effect
-## instead of the old knockback, so the enemy's reaction profile decides what it does (a pot dazes
-## a light enemy). The throw's feel plays once (`gulp.throwHit` through HitJuice.swing_spec and
+## `thrown`, the knock along the throw, launch speed `gulp.throwKnockback`, `knock_px`
+## from `gulp.throwHit.knockbackPx`) and the `impact` effect instead of the old knockback, so the enemy's
+## reaction profile decides what it does (a pot dazes a light enemy, and since it dealt damage the
+## daze slides it back `knockbackPx`: EnemyReactions; owner, 2026-11-01). The throw's feel plays once (`gulp.throwHit` through HitJuice.swing_spec and
 ## GameFeel.play_hit), each target's number at the target; a clink (an immune target) plays
 ## `combat.chain.clink.hitStopMs` and HitBlocked.
 ##
@@ -31,9 +32,16 @@ extends Node2D
 ## weight (`gulp.throwCombat.weights`) scales its speed, reach, hit radius and damage
 ## (`gulp.throwCombat.throwDamage` x material x weight) and picks the hit's class (`thrown`,
 ## `thrown-medium`, `thrown-heavy`); its effect (`effect_of`: its kind's, else its material's) can
-## change the class (freeze, sleep, stick: long stuns, drawn on the enemy by throw_status_look.gd),
+## change the class (freeze: a long stun; sleep: asleep until a damaging hit, even on an invulnerable
+## enemy on the ground) or slow the enemy (stick, honey: half pace for `slowMs`; `_show_effect`),
+## drawn on the enemy by throw_status_look.gd,
 ## widen the break (shatter) or fly on through enemies (pierce: it strikes up to `pierceTargets`
 ## enemies, each once, and breaks on the last, a wall or its end).
+##
+## What it meets and strikes (rework and throw combat; owner: "nothing should cross walls"): only
+## hurtboxes on the height level it was thrown from (the slime's) with no wall between it and them
+## (AbilityWorld.hurtboxes_in_reach), each once (`_targets`); so it flies over a lower level's enemy
+## and its break never reaches round a wall or up or down a cliff.
 ##
 ## Owner: abilities (the rework hit: mouth).
 
@@ -62,8 +70,8 @@ const LiftableScript := preload("res://game/scripts/liftable.gd")
 const GooBomb := preload("res://game/scripts/goo_bomb.gd")
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ThrowStatusLook := preload("res://game/throw/throw_status_look.gd")
-## Reaction verbs that stun: an effect's look shows while they last.
-const STUN_VERBS: Array[String] = ["daze", "knockdown", "stagger", "hold"]
+## Reaction verbs that stun: an effect's look shows while they last (a sleep's while it sleeps).
+const STUN_VERBS: Array[String] = ["daze", "knockdown", "stagger", "hold", "sleep"]
 ## The throw's whoosh streak and the landing's dust and nudge (gulp_feel.gd, `gulp.feel`): the
 ## streak's colour, its lines this far apart (x their width), the side lines this share of the middle
 ## one's length, starting this share of the look's size behind its centre.
@@ -119,6 +127,8 @@ var _weight: String = ""
 var _effect: String = ""
 var _struck: Dictionary = {}
 var _pierce_left: int = 0
+## The height level it was thrown from (the slime's; AbilityWorld.ANY_LEVEL without elevation).
+var _level: int = AbilityWorld.ANY_LEVEL
 
 
 ## Starts the throw of `held` ({"kind", "essence"}) from the ground point `feet` along `direction`.
@@ -128,6 +138,7 @@ func launch(player: Node, held: Dictionary, feet: Vector2, direction: Vector2) -
 	_direction = direction.normalized() if direction != Vector2.ZERO else Vector2.RIGHT
 	_speed = _constant("gulp.throwSpeed")
 	_range_px = _constant("gulp.throwRangePx")
+	_level = AbilityWorld.body_level(player.get(&"body") as Node2D) if player != null else AbilityWorld.ANY_LEVEL
 	if ThrowMode.is_on() and GooBomb.from_held(_held) == null:
 		_weight = ThrowMode.weight_of_held(_held)
 		_effect = ThrowMode.effect_of(str(_held.get("kind", "")), HeldLook.material_of(_held))
@@ -159,22 +170,19 @@ func _physics_process(delta: float) -> void:
 	var from := _air_point()
 	var next_ground := global_position + _direction * step
 	var next_air := next_ground - Vector2(0.0, _height(minf(1.0, (_travelled + step) / maxf(1.0, _range_px))))
-	var exclude: Array[RID] = []
-	if _player != null and is_instance_valid(_player):
-		exclude = _player.call(&"body_rids")
-	var reach := AbilityWorld.line_reach(from, next_air, exclude)
-	if reach.distance_to(next_air) > 0.5:
+	var reach := AbilityWorld.line_reach(from, next_air, _player_rids())
+	if reach.distance_to(next_air) > AbilityWorld.CLEAR_LINE_SLACK_PX:
 		_break(reach)
 		return
 	global_position = next_ground
 	_travelled += step
 	_place_look()
-	var radius := _constant("gulp.throwHitRadiusPx")
-	if _player != null and not _unstruck(AbilityWorld.hurtboxes_at(_player, next_air, radius)).is_empty():
+	var met := _targets(next_air, _constant("gulp.throwHitRadiusPx"))
+	if not met.is_empty():
 		# Throw combat: a piercing thing strikes what it meets and flies on, up to its count.
-		if _pierce_left > 1 and is_instance_valid(_player):
+		if _pierce_left > 1:
 			_pierce_left -= 1
-			_strike_rework(next_air, _damage(), str(_held.get("kind", "")), radius)
+			_strike_rework(next_air, _damage(), str(_held.get("kind", "")), met)
 		else:
 			_break(next_air)
 			return
@@ -243,15 +251,17 @@ func _break(at: Vector2) -> void:
 		queue_free()
 		return
 	var material := HeldLook.material_of(_held)
-	var damage := _constant("gulp.throwDamage") * _material_damage(material)
 	if _player != null and is_instance_valid(_player):
 		if ThrowMode.is_on():
-			_strike_rework(at, _damage(), kind, _break_radius())
-		elif ReworkMode.is_on():
-			_strike_rework(at, damage, kind)
+			_strike_rework(at, _damage(), kind, _targets(at, _break_radius()))
 		else:
-			AbilityWorld.strike_area(_player, at, _constant("gulp.throwHitRadiusPx"), damage,
-				_constant("gulp.throwKnockback"), ["thrown", kind], "thrown-" + kind)
+			var damage := _constant("gulp.throwDamage") * _material_damage(material)
+			var radius := _constant("gulp.throwHitRadiusPx")
+			if ReworkMode.is_on():
+				_strike_rework(at, damage, kind, _targets(at, radius))
+			else:
+				AbilityWorld.strike_area(_player, at, radius, damage, _constant("gulp.throwKnockback"),
+					["thrown", kind], "thrown-" + kind)
 	if _look is Sprite2D:
 		BreakBurst.burst(get_parent(), at, _look as Sprite2D)
 	var feel := Services.feel()
@@ -280,13 +290,24 @@ func _break_radius() -> float:
 		* float(ThrowMode.effect_row(_effect).get("radiusScale", 1.0))
 
 
-## The areas in `areas` this throw has not struck yet.
-func _unstruck(areas: Array) -> Array:
-	var out: Array = []
-	for area: Variant in areas:
-		if area is Object and not _struck.has((area as Object).get_instance_id()):
+## The hurtboxes within `radius` of `at` this throw reaches (its own height level, no wall between:
+## AbilityWorld.hurtboxes_in_reach) and has not struck yet; none without a live player.
+func _targets(at: Vector2, radius: float) -> Array[Area2D]:
+	var out: Array[Area2D] = []
+	if _player == null or not is_instance_valid(_player):
+		return out
+	for area: Area2D in AbilityWorld.hurtboxes_in_reach(_player, at, radius, _level, _player_rids()):
+		if not _struck.has(area.get_instance_id()):
 			out.append(area)
 	return out
+
+
+## The slime's bodies (walls are looked for past them).
+func _player_rids() -> Array[RID]:
+	var rids: Array[RID] = []
+	if _player != null and is_instance_valid(_player):
+		rids = _player.call(&"body_rids")
+	return rids
 
 
 ## The `hit` a thrown thing carries in the rework mode, pushing along `direction` (unit); throw
@@ -302,23 +323,21 @@ static func rework_hit(direction: Vector2, hit_class_override: String = "") -> D
 		"tags": REWORK_TAGS.duplicate(),
 		"knock": direction.normalized() if direction != Vector2.ZERO else Vector2.ZERO,
 		"launch_speed": _constant("gulp.throwKnockback"),
+		"knock_px": float(block.get("knockbackPx", 0.0)),
+		"knock_speed_scale": float(block.get("knockbackSpeedScale", 1.0)),
 	})
 
 
-## Rework mode: every hurtbox within `gulp.throwHitRadiusPx` of `at` gets one request with the
-## throw's `hit` (AbilityWorld.hurtboxes_at: not the player's, not a resource); then the feel from
-## the outcomes, one per target: {"receiver", "area", "position", "result"} (route()'s result, with
-## the enemy's "reaction").
-func _strike_rework(at: Vector2, damage: float, kind: String, radius: float = -1.0) -> void:
+## Rework mode: each of `targets` (`_targets` around `at`: not the player's, not a resource, in
+## reach, not struck yet) gets one request with the throw's `hit`; then the feel from the outcomes,
+## one per target: {"receiver", "area", "position", "result"} (route()'s result, with the enemy's
+## "reaction").
+func _strike_rework(at: Vector2, damage: float, kind: String, targets: Array[Area2D]) -> void:
+	if targets.is_empty() or _player == null or not is_instance_valid(_player):
+		return
 	var router := Services.router()
 	var attack_area := _player.call(&"get_slam_area") as Area2D if _player.has_method(&"get_slam_area") else null
 	if router == null or attack_area == null:
-		return
-	var reach := radius if radius > 0.0 else _constant("gulp.throwHitRadiusPx")
-	var targets := AbilityWorld.hurtboxes_at(_player, at, reach)
-	if ThrowMode.is_on():
-		targets = _unstruck_areas(targets)
-	if targets.is_empty():
 		return
 	var outcomes: Array[Dictionary] = []
 	var hit := rework_hit(_direction, ThrowMode.hit_class(_weight, _effect) if ThrowMode.is_on() else "")
@@ -385,26 +404,32 @@ func _play_rework_feel(at: Vector2, hit: Dictionary, outcomes: Array[Dictionary]
 		feel.play_hit(number, outcome["position"], _direction)
 
 
-## Throw combat: a freeze, sleep or stick that stunned `receiver` shows on it while the stun lasts.
+## Throw combat: a freeze or a sleep that stunned `receiver` shows on it while the stun (the sleep)
+## lasts; honey (an effect with `slowMs`; owner, 2026-11-01) that struck it and was not shrugged off
+## (armor, a kill, a boss: enemy.gd `apply_tempo` refuses) slows it to `slowScale` of its pace for
+## `slowMs` and coats it as long.
 func _show_effect(receiver: Object, result: Dictionary) -> void:
 	if not ThrowMode.is_on() or _effect.is_empty() or str(result.get("status", "")) != "accepted":
 		return
 	var reaction: Variant = result.get("reaction")
-	if not reaction is Dictionary or not STUN_VERBS.has(str((reaction as Dictionary).get("verb", ""))):
+	if not reaction is Dictionary:
+		return
+	var verb := str((reaction as Dictionary).get("verb", ""))
+	var row := ThrowMode.effect_row(_effect)
+	var slow_ms := float(row.get("slowMs", 0.0))
+	if slow_ms > 0.0:
+		if verb == HitReaction.VERB_ARMOR or bool((reaction as Dictionary).get("killed", false)) \
+				or receiver == null or not receiver.has_method(&"apply_tempo"):
+			return
+		if bool(receiver.call(&"apply_tempo", float(row.get("slowScale", 1.0)), slow_ms)):
+			ThrowStatusLook.attach(receiver, _effect, slow_ms)
+		return
+	if not STUN_VERBS.has(verb):
 		return
 	var ms := float((reaction as Dictionary).get("stun_ms", 0.0))
 	if ms <= 0.0:
 		ms = float(ThrowMode.effect_row(_effect).get("lookMs", 0.0))
 	ThrowStatusLook.attach(receiver, _effect, ms)
-
-
-## `areas` (typed) without the ones this throw has struck.
-func _unstruck_areas(areas: Array[Area2D]) -> Array[Area2D]:
-	var out: Array[Area2D] = []
-	for area: Area2D in areas:
-		if not _struck.has(area.get_instance_id()):
-			out.append(area)
-	return out
 
 
 ## Where a target's number shows: its centre when it has one, else its hurtbox.

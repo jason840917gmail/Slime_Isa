@@ -20,8 +20,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid--green-tree-05.tscn" id="18_4vpui"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid--green-tree-04.tscn" id="20_ptiy5"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid--grove-tree-06.tscn" id="21_047ra"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/tree-forest-wall--pine-06.tscn" id="22_kybwc"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/resource-stone-node.tscn" id="23_jqipv"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/collectible-purple-berry.tscn" id="24_bwamf"]
 [ext_resource type="PackedScene" uid="uid://58hrwxrrr0sn" path="res://game/scenes/objects/decoration-world-floor--wooden-footbridge.tscn" id="25_xnjux"]
 [ext_resource type="AudioStream" uid="uid://b1x5o7gb07tmf" path="res://asset/audio/music/level-1-home-town.ogg" id="26_pcjky"]
@@ -32,23 +30,22 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-20.tscn" id="32_4vpui"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-egg-sacs-02.tscn" id="32_is7ao"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-23.tscn" id="33_hyy75"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-15.tscn" id="34_ptiy5"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-19.tscn" id="35_047ra"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-19.tscn" id="36_kybwc"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-23.tscn" id="37_jqipv"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--field-24.tscn" id="38_bwamf"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--large-03.tscn" id="39_xnjux"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--hay-bale.tscn" id="40_pcjky"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--campfire.tscn" id="41_e8ykr"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--canvas-tent.tscn" id="42_d6ist"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-ground-02.tscn" id="43_evxxd"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-tree-02.tscn" id="45_eqbty"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-cocoon-hanging-01.tscn" id="46_3ayx8"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--cooking-cauldron.tscn" id="47_42rtb"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--fish-carp-lane.tscn" id="47_hx10g"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="47_w500f"]
 [ext_resource type="PackedScene" uid="uid://dg63vo8185e5r" path="res://game/scenes/objects/decoration-world-solid--lantern-post.tscn" id="48_0k4vx"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/lash-bell-post.tscn" id="49_3ayx8"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-daisy.tscn" id="49_e8ykr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--waterweed-eelgrass.tscn" id="49_u3yoe"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="50_42rtb"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-rock-mossy-small.tscn" id="50_d6ist"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="51_51pjo"]
@@ -57,9 +54,13 @@
 [ext_resource type="Texture2D" uid="uid://fb3kfri1n2rr" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="52_sip3g"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-mossy.tscn" id="53_3ayx8"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-flowers-pink.tscn" id="54_42rtb"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--kelp-teal.tscn" id="54_ptgvr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--kelp-olive.tscn" id="55_1jupm"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-grass-tuft-1.tscn" id="55_51pjo"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-grass-tuft-2.tscn" id="56_sip3g"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-red.tscn" id="57_556y2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--waterweed-bushy.tscn" id="58_jeq4u"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--bubbles.tscn" id="59_h7gvt"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-wall.tscn" id="62_o3p3i"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="63_nps6d"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/falling-plank.tscn" id="64_hx10g"]
@@ -83,15 +84,12 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--deep-fish-shadow-oval.tscn" id="82_v7x6n"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--fish-minnow-lane.tscn" id="83_kac1b"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/water-life--fish-perch-oval.tscn" id="84_d6ttr"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-03.tscn" id="85_rskf0"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-07.tscn" id="86_d1so8"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-12.tscn" id="87_pptrb"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-05.tscn" id="88_32tld"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-09.tscn" id="89_v8pji"]
 [ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_32"]
-size = Vector2(200, 150)
+size = Vector2(332, 217)
 
 [sub_resource type="RectangleShape2D" id="shape_edge_north"]
 size = Vector2(2048, 4)
@@ -104,6 +102,9 @@ size = Vector2(486.4, 179.2)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0k4vx"]
 size = Vector2(172.8, 230.4)
+
+[sub_resource type="RectangleShape2D" id="shape_exit_to_south_wilds_1"]
+size = Vector2(256, 32)
 
 [node name="level-1-c5" type="Node2D" unique_id=1593901030]
 y_sort_enabled = true
@@ -126,21 +127,21 @@ metadata/rows = 32
 self_modulate = Color(1, 1, 1, 0.3)
 y_sort_enabled = true
 position = Vector2(0, -23)
-tile_map_data = PackedByteArray("AAAeACAAAAACAAAAAAAeACEAAAACAAAAAAAAACEAAAADAAAAAAABACEAAAADAAAAAAACACEAAAADAAAAAAADACEAAAADAAAAAAAEACEAAAADAAAAAAAFACEAAAADAAAAAAAGACEAAAADAAAAAAAHACEAAAADAAAAAAAIACEAAAADAAAAAAAJACEAAAADAAAAAAAKACEAAAADAAAAAAALACEAAAADAAAAAAAMACEAAAADAAAAAAANACEAAAADAAAAAAAOACEAAAADAAAAAAAPACEAAAADAAAAAAAQACEAAAADAAAAAAARACEAAAADAAAAAAASACEAAAADAAAAAAATACEAAAADAAAAAAAUACEAAAADAAAAAAAVACEAAAADAAAAAAAWACEAAAADAAAAAAAXACEAAAADAAAAAAAYACEAAAADAAAAAAAZACEAAAADAAAAAAAaACEAAAADAAAAAAAbACEAAAADAAAAAAAcACEAAAADAAAAAAAdACEAAAADAAAAAAAfACEAAAAEAAAAAAAgACEAAAAEAAAAAAAgACAAAAAEAAAAAAAfACAAAAAEAAAAAAAdACAAAAADAAAAAAAcACAAAAADAAAAAAAbACAAAAADAAAAAAAaACAAAAADAAAAAAAZACAAAAADAAAAAAAYACAAAAADAAAAAAAXACAAAAADAAAAAAAWACAAAAADAAAAAAAVACAAAAADAAAAAAAUACAAAAADAAAAAAATACAAAAADAAAAAAASACAAAAADAAAAAAARACAAAAADAAAAAAAQACAAAAADAAAAAAAPACAAAAADAAAAAAAOACAAAAADAAAAAAANACAAAAADAAAAAAAMACAAAAADAAAAAAALACAAAAADAAAAAAAKACAAAAADAAAAAAAJACAAAAADAAAAAAAIACAAAAADAAAAAAAHACAAAAADAAAAAAAGACAAAAADAAAAAAAFACAAAAADAAAAAAAEACAAAAADAAAAAAADACAAAAADAAAAAAACACAAAAADAAAAAAABACAAAAADAAAAAAAAACAAAAADAAAAAAD//yAAAAADAAAAAAD//x8AAAADAAAAAAD//x4AAAADAAAAAAAAAB8AAAADAAAAAAD//yEAAAADAAAAAAASAAwAAAANAAEAAAAdABMAAAAAAAEAAAAeABAAAAACAAAAAAAfABAAAAAEAAAAAAAgABAAAAAEAAAAAAAeABEAAAACAAAAAAAfABEAAAAEAAAAAAAgABEAAAAEAAAAAAAeABIAAAACAAAAAAAfABIAAAAEAAAAAAAgABIAAAAEAAAAAAAeABMAAAACAAAAAAAfABMAAAAEAAAAAAAgABMAAAAEAAAAAAAeABQAAAACAAAAAAAfABQAAAAEAAAAAAAgABQAAAAEAAAAAAAeABUAAAACAAAAAAAfABUAAAAEAAAAAAAgABUAAAAEAAAAAAAeABYAAAACAAAAAAAfABYAAAAEAAAAAAAgABYAAAAEAAAAAAAeABcAAAACAAAAAAAfABcAAAAEAAAAAAAgABcAAAAEAAAAAAAeABgAAAACAAAAAAAfABgAAAAEAAAAAAAgABgAAAAEAAAAAAAeABkAAAACAAAAAAAfABkAAAAEAAAAAAAgABkAAAAEAAAAAAAeABoAAAACAAAAAAAfABoAAAAEAAAAAAAgABoAAAAEAAAAAAAeABsAAAACAAAAAAAfABsAAAAEAAAAAAAgABsAAAAEAAAAAAAeABwAAAACAAAAAAAfABwAAAAEAAAAAAAgABwAAAAEAAAAAAAeAB0AAAACAAAAAAAfAB0AAAAEAAAAAAAgAB0AAAAEAAAAAAAeAB4AAAACAAAAAAAfAB4AAAAEAAAAAAAgAB4AAAAEAAAAAAAeAB8AAAACAAAAAAAfAB8AAAAEAAAAAAAgAB8AAAAEAAAAAAAVABYAAAACAAAAAAAXABcAAAACAAAAAAAWABkAAAACAAAAAAAYABoAAAACAAAAAAAaABgAAAACAAAAAAAbABsAAAACAAAAAAAZAB0AAAACAAAAAAAVABwAAAACAAAAAAA=")
+tile_map_data = PackedByteArray("AAAAACEAAAADAAAAAAABACEAAAADAAAAAAACACEAAAADAAAAAAADACEAAAADAAAAAAAEACEAAAADAAAAAAAFACEAAAADAAAAAAAGACEAAAADAAAAAAAHACEAAAADAAAAAAAIACEAAAADAAAAAAAJACEAAAADAAAAAAAKACEAAAADAAAAAAALACEAAAADAAAAAAAMACEAAAADAAAAAAANACEAAAADAAAAAAAOACEAAAADAAAAAAAPACEAAAADAAAAAAAQACEAAAADAAAAAAARACEAAAADAAAAAAASACEAAAADAAAAAAATACEAAAADAAAAAAAUACEAAAADAAAAAAAVACEAAAADAAAAAAAWACEAAAADAAAAAAAXACEAAAADAAAAAAAcACEAAAADAAAAAAAcACAAAAADAAAAAAAXACAAAAADAAAAAAAWACAAAAADAAAAAAAVACAAAAADAAAAAAAUACAAAAADAAAAAAATACAAAAADAAAAAAASACAAAAADAAAAAAARACAAAAADAAAAAAAQACAAAAADAAAAAAAPACAAAAADAAAAAAAOACAAAAADAAAAAAANACAAAAADAAAAAAAMACAAAAADAAAAAAALACAAAAADAAAAAAAKACAAAAADAAAAAAAJACAAAAADAAAAAAAIACAAAAADAAAAAAAHACAAAAADAAAAAAAGACAAAAADAAAAAAAFACAAAAADAAAAAAAEACAAAAADAAAAAAADACAAAAADAAAAAAACACAAAAADAAAAAAABACAAAAADAAAAAAAAACAAAAADAAAAAAD//yAAAAADAAAAAAD//x8AAAADAAAAAAD//x4AAAADAAAAAAAAAB8AAAADAAAAAAD//yEAAAADAAAAAAAdABMAAAAAAAEAAAAeABAAAAACAAAAAAAfABAAAAAEAAAAAAAgABAAAAAEAAAAAAAeABEAAAACAAAAAAAfABEAAAAEAAAAAAAgABEAAAAEAAAAAAAeABIAAAACAAAAAAAfABIAAAAEAAAAAAAgABIAAAAEAAAAAAAeABMAAAACAAAAAAAfABMAAAAEAAAAAAAgABMAAAAEAAAAAAAeABQAAAACAAAAAAAfABQAAAAEAAAAAAAgABQAAAAEAAAAAAAeABUAAAACAAAAAAAfABUAAAAEAAAAAAAgABUAAAAEAAAAAAAeABYAAAACAAAAAAAfABYAAAAEAAAAAAAgABYAAAAEAAAAAAAeABcAAAACAAAAAAAfABcAAAAEAAAAAAAgABcAAAAEAAAAAAAeABgAAAACAAAAAAAfABgAAAAEAAAAAAAgABgAAAAEAAAAAAAeABkAAAACAAAAAAAfABkAAAAEAAAAAAAgABkAAAAEAAAAAAAeABoAAAACAAAAAAAfABoAAAAEAAAAAAAgABoAAAAEAAAAAAAeABsAAAACAAAAAAAfABsAAAAEAAAAAAAgABsAAAAEAAAAAAAVABYAAAACAAAAAAAXABcAAAACAAAAAAAWABkAAAACAAAAAAAYABoAAAACAAAAAAAaABgAAAACAAAAAAAbABsAAAACAAAAAAAVABwAAAACAAAAAAAeABwAAAACAAAAAAAfABwAAAAEAAAAAAAgABwAAAAEAAAAAAAeAB0AAAACAAAAAAAfAB0AAAAEAAAAAAAgAB0AAAAEAAAAAAAeAB4AAAACAAAAAAAfAB4AAAAEAAAAAAAgAB4AAAAEAAAAAAAeAB8AAAACAAAAAAAfAB8AAAAEAAAAAAAgAB8AAAAEAAAAAAAdACAAAAADAAAAAAAeACAAAAACAAAAAAAfACAAAAAEAAAAAAAgACAAAAAEAAAAAAAdACEAAAADAAAAAAAeACEAAAACAAAAAAAfACEAAAAEAAAAAAAgACEAAAAEAAAAAAA=")
 tile_set = ExtResource("3_bh75q")
 script = ExtResource("4_ro4on")
 metadata/_custom_type_script = "uid://conqjgmraiuoc"
 
 [node name="elevation" type="TileMapLayer" parent="." unique_id=1197773577]
 position = Vector2(0, -22)
-tile_map_data = PackedByteArray("AAAQABUAAAAEAAAAAAARABUAAAAEAAAAAAASABUAAAAEAAAAAAAQABYAAAAEAAAAAAARABYAAAAEAAAAAAASABYAAAAEAAAAAAADAAEAAAAEAAAAAAAEAAEAAAAEAAAAAAAFAAEAAAAEAAAAAAAGAAEAAAAEAAAAAAADAAIAAAAEAAAAAAAEAAIAAAAEAAAAAAAFAAIAAAAEAAAAAAAGAAIAAAAEAAAAAAA=")
+tile_map_data = PackedByteArray("AAAQABUAAAADAAAAAAARABUAAAADAAAAAAASABUAAAADAAAAAAAQABYAAAADAAAAAAARABYAAAADAAAAAAASABYAAAADAAAAAAADAAEAAAAEAAAAAAAEAAEAAAAEAAAAAAAFAAEAAAAEAAAAAAAGAAEAAAAEAAAAAAADAAIAAAAEAAAAAAAEAAIAAAAEAAAAAAAFAAIAAAAEAAAAAAAGAAIAAAAEAAAAAAA=")
 tile_set = ExtResource("5_ia6bw")
 script = ExtResource("6_e74se")
 
 [node name="old-props" type="TileMapLayer" parent="." unique_id=548480342]
 self_modulate = Color(1, 1, 1, 0.3)
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAABATQABAADAAwAAQABAToABABEABcAAhABAT8ABAAMAAwAAABMAFUABAAYABcAAQCEAFYABAApABcAAADsAFYABAAtAAYAABD8AFYABAAlAAYAAwABAVYABAAPAAwAAgCDAF0ABAAYABcAARCeAF8ABAAtAAAAABDrAFoABAAlAAYAAQD7AFoABABEABcAAQD9AF8ABAAlAAYAAgBWAGcABAApABcAAACEAGYABAADABwAARCvAG4ABAAzAAwAAQC2AG0ABABRAAAAAACKAHQABAAzAAwAAhCcAHYABAAmAAAAAhCxAHUABAAYABcABBDFAH8ABAAdAAAABADLAH0ABAAVAAAAAxDUAHwABABUAAAAAhDlAHsABAAAABwAABCyAIUABAAzAAwAARDJAIQABAAzAAwAAhDaAIMABAAYABcABBDtAIQABAAsABcAARD8AIcABAAmABwAAwCBAIoABAAwAAAAAhCKAIwABAAaAAAAAACWAIwABABUAAAAAhDLAIsABAAwAAwAABDkAIsABAAlAAYAARD0AIwABAAtAAAAABCvAJUABABUAAAAAwDMAJYABAAwAAwAABDmAJUABAA8AAAAAxDvAJIABAAOAAYAABCGAJoABABRAAAAABCHAJ4ABAAVAAAAAxCKAJ8ABABUAAAAAQDdAJwABAAzAAwAAQD8AJoABAAbAAYAAgCzAOMABAAPABIAAgC9AOcABAAdAAAAAxDWAOIABAAbABIAAxD5AOcABAAbAAYAARAcAO0ABAAPABIAAgAyAO0ABAAmAAAAAhA0AOsABAAmAAAAAQBGAOwABAAlABIAAABOAOoABAAYAAYAABCtAO4ABAAbAAYAAAC8AO4ABAADAAYAAhBsADwAAgAAAAYAAABMAEQAAgANAAAAAAAkAEwAAgAXAAAAAABkAFQAAgAbAAAAAAA7AH8AAgAAAAYAAABUAHwAAgAAAAYAAAA0AIQAAgAAAAYAAABkACgAAgAeAA0AAABbACwAAgAAAA0AAABtACwAAgAQAA0AABBkADcAAgAkAAYAABB0ADQAAgAMAA0AABBbAEAAAgAaAAYAAAA0AEYAAgAUAAYAABAbAE4AAgAeAA0AABA8AE8AAgAUAAYAAABsAE4AAgAEAA0AABB+AE4AAgAMAA0AABB1AFUAAgAeAA0AABBcAF8AAgAUAAYAAABtAGAAAgAeAA0AABB0AF0AAgAgAAYAABAbAGgAAgAZAA0AAABOAGwAAgAAAAAAAABsAG4AAgAgAAYAAADqAG4AAgAMAA0AABAlAHcAAgAQAAYAAABrAHYAAgAeAA0AAABmAH8AAgAZAA0AABAjAIcAAgAeAA0AABBTAIUAAgAZAA0AABBeAIgAAgAeAA0AAAA5AI4AAgAIAA0AAABNAI0AAgAeAA0AABBNAJcAAgAkAAYAAAA=")
+tile_map_data = PackedByteArray("AAABATQABAADAAwAAQABAToABABEABcAAhABAT8ABAAMAAwAAABMAFUABAAYABcAAQCEAFYABAApABcAAADsAFYABAAtAAYAABD8AFYABAAlAAYAAwABAVYABAAPAAwAAgCDAF0ABAAYABcAARCeAF8ABAAtAAAAABDrAFoABAAlAAYAAQD7AFoABABEABcAAQD9AF8ABAAlAAYAAgBWAGcABAApABcAAACEAGYABAADABwAARCvAG4ABAAzAAwAAQC2AG0ABABRAAAAAACKAHQABAAzAAwAAhCcAHYABAAmAAAAAhCxAHUABAAYABcABBDFAH8ABAAdAAAABADLAH0ABAAVAAAAAxDUAHwABABUAAAAAhDlAHsABAAAABwAABCyAIUABAAzAAwAARDJAIQABAAzAAwAAhDaAIMABAAYABcABBDtAIQABAAsABcAARD8AIcABAAmABwAAwCBAIoABAAwAAAAAhCKAIwABAAaAAAAAACWAIwABABUAAAAAhDLAIsABAAwAAwAABDkAIsABAAlAAYAARD0AIwABAAtAAAAABCvAJUABABUAAAAAwDMAJYABAAwAAwAABDmAJUABAA8AAAAAxDvAJIABAAOAAYAABCGAJoABABRAAAAABCHAJ4ABAAVAAAAAxCKAJ8ABABUAAAAAQDdAJwABAAzAAwAAQD8AJoABAAbAAYAAgCzAOMABAAPABIAAgC9AOcABAAdAAAAAxDWAOIABAAbABIAAxD5AOcABAAbAAYAARAcAO0ABAAPABIAAgAyAO0ABAAmAAAAAhA0AOsABAAmAAAAAQBGAOwABAAlABIAAABOAOoABAAYAAYAABCtAO4ABAAbAAYAAAC8AO4ABAADAAYAAhA=")
 tile_set = ExtResource("7_6nr6g")
 script = ExtResource("8_nkx7s")
 
@@ -220,13 +221,9 @@ map_id = "level-1-c5"
 instance_id = "level-1-tree-006"
 
 [node name="level-1-tree-008" parent="Nature" unique_id=2023304617 instance=ExtResource("18_4vpui")]
-position = Vector2(1720.78, 3240.71)
+position = Vector2(1218, 3084)
 metadata/instance_id = "level-1-tree-008"
 metadata/persistence_key = "level-1.level-1-tree-008"
-
-[node name="ResourceNodeScript" parent="Nature/level-1-tree-008" index="4" unique_id=1063878714]
-map_id = "level-1-c5"
-instance_id = "level-1-tree-008"
 
 [node name="level-1-tree-010" parent="Nature" unique_id=1407069704 instance=ExtResource("18_4vpui")]
 position = Vector2(1339.51, 2666.84)
@@ -238,13 +235,9 @@ map_id = "level-1-c5"
 instance_id = "level-1-tree-010"
 
 [node name="level-1-tree-011" parent="Nature" unique_id=1267098763 instance=ExtResource("20_ptiy5")]
-position = Vector2(1612.63, 3323.51)
+position = Vector2(1651, 3074)
 metadata/instance_id = "level-1-tree-011"
 metadata/persistence_key = "level-1.level-1-tree-011"
-
-[node name="ResourceNodeScript" parent="Nature/level-1-tree-011" index="4" unique_id=1782864240]
-map_id = "level-1-c5"
-instance_id = "level-1-tree-011"
 
 [node name="level-1-tree-012" parent="Nature" unique_id=587737909 instance=ExtResource("20_ptiy5")]
 position = Vector2(1655.9, 2975.4)
@@ -263,24 +256,6 @@ metadata/persistence_key = "level-1.level-1-tree-013"
 [node name="ResourceNodeScript" parent="Nature/level-1-tree-013" index="4" unique_id=2140948742]
 map_id = "level-1-c5"
 instance_id = "level-1-tree-013"
-
-[node name="l1-meadow-tree-004" parent="Nature" unique_id=506548978 instance=ExtResource("22_kybwc")]
-position = Vector2(1248, 2934)
-metadata/instance_id = "l1-meadow-tree-004"
-metadata/persistence_key = "level-1.l1-meadow-tree-004"
-
-[node name="Visual" parent="Nature/l1-meadow-tree-004" index="2" unique_id=438585342]
-position = Vector2(-5.0000005, 163.00002)
-scale = Vector2(0.485, 0.485)
-
-[node name="level-1-stone-node-003" parent="Nature" unique_id=1426532516 instance=ExtResource("23_jqipv")]
-position = Vector2(1497.6, 3033.6)
-metadata/instance_id = "level-1-stone-node-003"
-metadata/persistence_key = "level-1.level-1-stone-node-003"
-
-[node name="ResourceNodeScript" parent="Nature/level-1-stone-node-003" index="3"]
-map_id = "level-1-c5"
-instance_id = "level-1-stone-node-003"
 
 [node name="level-1-purple-berry-001" parent="Nature" unique_id=1728434523 instance=ExtResource("24_bwamf")]
 position = Vector2(1113.6, 2656)
@@ -332,13 +307,14 @@ position = Vector2(0, -2048)
 
 [node name="level-1-south-meadow" type="Area2D" parent="Areas" unique_id=254810264]
 y_sort_enabled = true
-position = Vector2(1760, 3168)
+position = Vector2(1759.0001, 3173)
 collision_layer = 512
 collision_mask = 0
 monitoring = false
 monitorable = false
 
 [node name="wander-shape" type="CollisionShape2D" parent="Areas/level-1-south-meadow" unique_id=1176445107]
+position = Vector2(-72, 143.5)
 shape = SubResource("RectangleShape2D_32")
 
 [node name="world-area-script" type="Node" parent="Areas/level-1-south-meadow" unique_id=222138720 node_paths=PackedStringArray("area", "shape")]
@@ -354,7 +330,7 @@ position = Vector2(0, -2048)
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=1035896164]
 y_sort_enabled = true
-position = Vector2(1024, 1024)
+position = Vector2(1193, 273)
 
 [node name="edge-north" type="Area2D" parent="." unique_id=1971597195]
 position = Vector2(1024, 2)
@@ -403,9 +379,6 @@ scale = Vector2(0.7, 0.7)
 position = Vector2(1336, 992)
 scale = Vector2(0.7, 0.7)
 
-[node name="field-15" parent="Scenery" unique_id=473698935 instance=ExtResource("34_ptiy5")]
-position = Vector2(1368, 960)
-
 [node name="field-19" parent="Scenery" unique_id=1862423167 instance=ExtResource("35_047ra")]
 position = Vector2(1304, 904)
 scale = Vector2(0.7, 0.7)
@@ -419,12 +392,6 @@ position = Vector2(1512, 1032)
 [node name="field-25" parent="Scenery" unique_id=1169242150 instance=ExtResource("38_bwamf")]
 position = Vector2(1336, 1104)
 
-[node name="large-03" parent="Scenery" unique_id=1231994650 instance=ExtResource("39_xnjux")]
-position = Vector2(1296, 1192)
-
-[node name="hay-bale" parent="Scenery" unique_id=1367206101 instance=ExtResource("40_pcjky")]
-position = Vector2(1136, 680)
-
 [node name="campfire" parent="Scenery" unique_id=934696113 instance=ExtResource("41_e8ykr")]
 position = Vector2(1304, 824)
 
@@ -432,15 +399,15 @@ position = Vector2(1304, 824)
 position = Vector2(1320, 720)
 
 [node name="web-ground-02" parent="Scenery" unique_id=380371010 instance=ExtResource("43_evxxd")]
-position = Vector2(1719.9999, 1104)
+position = Vector2(1719, 1109)
 scale = Vector2(-0.8, 0.8)
 
 [node name="web-ground-03" parent="Scenery" unique_id=57236299 instance=ExtResource("43_evxxd")]
-position = Vector2(1832, 1160)
+position = Vector2(1559.0001, 1361)
 scale = Vector2(-0.7, 0.7)
 
 [node name="web-egg-sacs-02" parent="Scenery" unique_id=1414199896 instance=ExtResource("32_is7ao")]
-position = Vector2(1792, 1064)
+position = Vector2(1830, 1394)
 scale = Vector2(-1, 1)
 
 [node name="web-tree-02" parent="Scenery" unique_id=556850115 instance=ExtResource("45_eqbty")]
@@ -453,20 +420,143 @@ scale = Vector2(-1, 1)
 [node name="cooking-cauldron" parent="Scenery" unique_id=895385097 instance=ExtResource("47_42rtb")]
 position = Vector2(1416, 816)
 
+[node name="Ground details" type="Node2D" parent="Scenery" unique_id=1397941802]
+y_sort_enabled = true
+
+[node name="Water life" type="Node2D" parent="Scenery/Ground details" unique_id=1502558843]
+y_sort_enabled = true
+
+[node name="fish-minnow-lane" parent="Scenery/Ground details/Water life" unique_id=760735643 instance=ExtResource("83_kac1b")]
+position = Vector2(864, 480)
+
+[node name="fish-carp-lane" parent="Scenery/Ground details/Water life" unique_id=582323471 instance=ExtResource("47_hx10g")]
+position = Vector2(288, 608)
+
+[node name="fish-carp-oval" parent="Scenery/Ground details/Water life" unique_id=73459327 instance=ExtResource("78_o1odx")]
+position = Vector2(835, 668)
+
+[node name="fish-minnow-lane2" parent="Scenery/Ground details/Water life" unique_id=990563703 instance=ExtResource("83_kac1b")]
+position = Vector2(508, 1054)
+
+[node name="fish-minnow-lane3" parent="Scenery/Ground details/Water life" unique_id=115729770 instance=ExtResource("83_kac1b")]
+position = Vector2(838, 829)
+
+[node name="fish-minnow-lane4" parent="Scenery/Ground details/Water life" unique_id=1094787875 instance=ExtResource("83_kac1b")]
+position = Vector2(416, 1056)
+
+[node name="waterweed-eelgrass" parent="Scenery/Ground details/Water life" unique_id=376614022 instance=ExtResource("49_u3yoe")]
+position = Vector2(800, 320)
+
+[node name="lilypad-small" parent="Scenery/Ground details/Water life" unique_id=1207041669 instance=ExtResource("71_t7iun")]
+position = Vector2(728, 352)
+
+[node name="reeds-rushes" parent="Scenery/Ground details/Water life" unique_id=960599780 instance=ExtResource("75_04bpc")]
+position = Vector2(872.62, 352)
+scale = Vector2(-1, 1)
+
+[node name="lilypad-single" parent="Scenery/Ground details/Water life" unique_id=76077984 instance=ExtResource("70_araq3")]
+position = Vector2(800.52, 440)
+scale = Vector2(-1, 1)
+
+[node name="reeds-reeds" parent="Scenery/Ground details/Water life" unique_id=616964360 instance=ExtResource("74_w44qr")]
+position = Vector2(927.99994, 416)
+scale = Vector2(-1, 1)
+
+[node name="kelp-teal" parent="Scenery/Ground details/Water life" unique_id=1538216966 instance=ExtResource("54_ptgvr")]
+position = Vector2(728, 512)
+
+[node name="kelp-olive" parent="Scenery/Ground details/Water life" unique_id=332074038 instance=ExtResource("55_1jupm")]
+position = Vector2(415.1, 560)
+scale = Vector2(-1, 1)
+
+[node name="waterweed-eelgrass2" parent="Scenery/Ground details/Water life" unique_id=1899784998 instance=ExtResource("49_u3yoe")]
+position = Vector2(215.45, 624)
+scale = Vector2(-1, 1)
+
+[node name="kelp-olive2" parent="Scenery/Ground details/Water life" unique_id=1407375017 instance=ExtResource("55_1jupm")]
+position = Vector2(480, 632)
+
+[node name="lilypad-white" parent="Scenery/Ground details/Water life" unique_id=1135596987 instance=ExtResource("69_h7gvt")]
+position = Vector2(864.52, 624)
+scale = Vector2(-1, 1)
+
+[node name="reeds-reeds2" parent="Scenery/Ground details/Water life" unique_id=1959114481 instance=ExtResource("74_w44qr")]
+position = Vector2(1007.99994, 624)
+scale = Vector2(-1, 1)
+
+[node name="waterweed-eelgrass3" parent="Scenery/Ground details/Water life" unique_id=150196933 instance=ExtResource("49_u3yoe")]
+position = Vector2(935.44995, 680)
+scale = Vector2(-1, 1)
+
+[node name="kelp-olive3" parent="Scenery/Ground details/Water life" unique_id=1047426134 instance=ExtResource("55_1jupm")]
+position = Vector2(736, 760)
+
+[node name="waterweed-eelgrass4" parent="Scenery/Ground details/Water life" unique_id=2013586390 instance=ExtResource("49_u3yoe")]
+position = Vector2(871.44995, 768)
+scale = Vector2(-1, 1)
+
+[node name="lilypad-pink" parent="Scenery/Ground details/Water life" unique_id=493978887 instance=ExtResource("68_jeq4u")]
+position = Vector2(928.52, 744)
+scale = Vector2(-1, 1)
+
+[node name="waterweed-bushy" parent="Scenery/Ground details/Water life" unique_id=224175134 instance=ExtResource("58_jeq4u")]
+position = Vector2(216, 832)
+
+[node name="bubbles" parent="Scenery/Ground details/Water life" unique_id=1812612487 instance=ExtResource("59_h7gvt")]
+position = Vector2(624, 864)
+
+[node name="lilypad-pink2" parent="Scenery/Ground details/Water life" unique_id=1417658848 instance=ExtResource("68_jeq4u")]
+position = Vector2(864, 880)
+
+[node name="reeds-reeds3" parent="Scenery/Ground details/Water life" unique_id=176603398 instance=ExtResource("74_w44qr")]
+position = Vector2(1872, 880)
+scale = Vector2(-1, 1)
+
+[node name="frog-lilypad" parent="Scenery/Ground details/Water life" unique_id=1179648964 instance=ExtResource("72_0bnlg")]
+position = Vector2(296, 952)
+
+[node name="waterweed-eelgrass5" parent="Scenery/Ground details/Water life" unique_id=44020868 instance=ExtResource("49_u3yoe")]
+position = Vector2(856, 944)
+
+[node name="waterweed-bushy2" parent="Scenery/Ground details/Water life" unique_id=1658602614 instance=ExtResource("58_jeq4u")]
+position = Vector2(815.45, 1016)
+scale = Vector2(-1, 1)
+
+[node name="waterweed-eelgrass6" parent="Scenery/Ground details/Water life" unique_id=1434811393 instance=ExtResource("49_u3yoe")]
+position = Vector2(279.45, 1080)
+scale = Vector2(-1, 1)
+
+[node name="waterweed-bushy3" parent="Scenery/Ground details/Water life" unique_id=634642675 instance=ExtResource("58_jeq4u")]
+position = Vector2(663.45, 1064)
+scale = Vector2(-1, 1)
+
+[node name="waterweed-eelgrass7" parent="Scenery/Ground details/Water life" unique_id=1834874535 instance=ExtResource("49_u3yoe")]
+position = Vector2(752, 1088)
+
+[node name="reeds-cattails" parent="Scenery/Ground details/Water life" unique_id=986714689 instance=ExtResource("73_o75j5")]
+position = Vector2(456, 1136)
+
+[node name="waterweed-eelgrass8" parent="Scenery/Ground details/Water life" unique_id=1360406106 instance=ExtResource("49_u3yoe")]
+position = Vector2(615.44995, 1128)
+scale = Vector2(-1, 1)
+
+[node name="lilypad-single2" parent="Scenery/Ground details/Water life" unique_id=1243998631 instance=ExtResource("70_araq3")]
+position = Vector2(616, 1208)
+
 [node name="Enemies" type="Node2D" parent="." unique_id=2013965930]
 
 [node name="worm-brawler-1" parent="Enemies" unique_id=1861670467 instance=ExtResource("placed_enemy_1")]
-position = Vector2(1724, 1115)
+position = Vector2(1563, 1191)
 enemy_type = "worm-brawler"
 wander_area_id = "level-1-south-meadow"
 
 [node name="slime-spider-1" parent="Enemies" unique_id=1643785600 instance=ExtResource("placed_enemy_1")]
-position = Vector2(1804, 1115)
+position = Vector2(1819, 1288)
 enemy_type = "slime-spider"
 wander_area_id = "level-1-south-meadow"
 
 [node name="worm-brawler-2" parent="Enemies" unique_id=1369007028 instance=ExtResource("placed_enemy_1")]
-position = Vector2(1804, 1171)
+position = Vector2(1231, 1119)
 enemy_type = "worm-brawler"
 wander_area_id = "level-1-south-meadow"
 
@@ -495,7 +585,6 @@ metadata/contents = "the Swim skin's secret under the dark square in the shallow
 [node name="Chapter1Hazards" type="Node2D" parent="." unique_id=245223539]
 
 [node name="island-water" parent="Chapter1Hazards" unique_id=509937278 instance=ExtResource("47_w500f")]
-z_index = -1
 position = Vector2(640, 320)
 kind = "water"
 size = Vector2(384, 128)
@@ -529,15 +618,19 @@ bell_id = "level-1-c5-lookout-bell"
 
 [node name="lookout-pot-a" parent="Chapter1" unique_id=1995388777 instance=ExtResource("50_42rtb")]
 position = Vector2(1100.8, 1644.8)
+weight = "light"
 
 [node name="LiftableScript" parent="Chapter1/lookout-pot-a" index="2"]
 kind = "clay-pot"
+weight_class = "light"
 
 [node name="lookout-pot-b" parent="Chapter1" unique_id=737131796 instance=ExtResource("50_42rtb")]
 position = Vector2(1196.8, 1683.2)
+weight = "light"
 
 [node name="LiftableScript" parent="Chapter1/lookout-pot-b" index="2"]
 kind = "clay-pot"
+weight_class = "light"
 
 [node name="level-1-c5-lookout-chest" parent="Chapter1" unique_id=576438823 instance=ExtResource("51_51pjo")]
 position = Vector2(1299.2, 1593.6)
@@ -658,18 +751,26 @@ shape = NodePath("../wander-shape")
 
 [node name="island-pot-a" parent="Chapter1" unique_id=1161108711 instance=ExtResource("50_42rtb")]
 position = Vector2(172.8, 358.4)
+weight = "light"
 
 [node name="LiftableScript" parent="Chapter1/island-pot-a" index="2"]
 kind = "clay-pot"
+weight_class = "light"
 
 [node name="island-pot-b" parent="Chapter1" unique_id=2141868450 instance=ExtResource("50_42rtb")]
 position = Vector2(441.6, 467.2)
+weight = "light"
 
 [node name="LiftableScript" parent="Chapter1/island-pot-b" index="2"]
 kind = "clay-pot"
+weight_class = "light"
 
 [node name="island-pot-coins" parent="Chapter1" unique_id=1321989667 instance=ExtResource("63_nps6d")]
 position = Vector2(166.4, 153.6)
+weight = "light"
+
+[node name="LiftableScript" parent="Chapter1/island-pot-coins" index="2"]
+weight_class = "light"
 
 [node name="PotLoot" parent="Chapter1/island-pot-coins" index="3"]
 loot = "coins"
@@ -685,62 +786,50 @@ position = Vector2(595.2, 460.8)
 position = Vector2(281.6, 473.6)
 
 [node name="island-plank-10-5" parent="Chapter1" unique_id=1352251157 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(640, 320)
 east_west = true
 
 [node name="island-plank-11-5" parent="Chapter1" unique_id=1287781347 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(704, 320)
 east_west = true
 
 [node name="island-plank-12-5" parent="Chapter1" unique_id=689515440 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(768, 320)
 east_west = true
 
 [node name="island-plank-13-5" parent="Chapter1" unique_id=1448292206 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(832, 320)
 east_west = true
 
 [node name="island-plank-14-5" parent="Chapter1" unique_id=1223351891 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(896, 320)
 east_west = true
 
 [node name="island-plank-15-5" parent="Chapter1" unique_id=602986390 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(960, 320)
 east_west = true
 
 [node name="island-plank-10-6" parent="Chapter1" unique_id=2142456550 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(640, 384)
 east_west = true
 
 [node name="island-plank-11-6" parent="Chapter1" unique_id=1852282700 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(704, 384)
 east_west = true
 
 [node name="island-plank-12-6" parent="Chapter1" unique_id=41500990 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(768, 384)
 east_west = true
 
 [node name="island-plank-13-6" parent="Chapter1" unique_id=274759139 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(832, 384)
 east_west = true
 
 [node name="island-plank-14-6" parent="Chapter1" unique_id=148316397 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(896, 384)
 east_west = true
 
 [node name="island-plank-15-6" parent="Chapter1" unique_id=2028621248 instance=ExtResource("64_hx10g")]
-z_index = -1
 position = Vector2(960, 384)
 east_west = true
 
@@ -757,6 +846,10 @@ initial_contents = {
 
 [node name="islet-pot-heart" parent="Chapter1" unique_id=1648980150 instance=ExtResource("63_nps6d")]
 position = Vector2(230.4, 1529.6)
+weight = "light"
+
+[node name="LiftableScript" parent="Chapter1/islet-pot-heart" index="2"]
+weight_class = "light"
 
 [node name="PotLoot" parent="Chapter1/islet-pot-heart" index="3"]
 loot = "heart"
@@ -764,6 +857,10 @@ weights = PackedFloat32Array(1, 1, 1, 1)
 
 [node name="islet-pot-coins" parent="Chapter1" unique_id=1682463027 instance=ExtResource("63_nps6d")]
 position = Vector2(409.6, 1548.8)
+weight = "light"
+
+[node name="LiftableScript" parent="Chapter1/islet-pot-coins" index="2"]
+weight_class = "light"
 
 [node name="PotLoot" parent="Chapter1/islet-pot-coins" index="3"]
 loot = "coins"
@@ -782,15 +879,13 @@ position = Vector2(307.2, 1574.4)
 position = Vector2(1752, 363)
 
 [node name="jetty-crate" parent="Chapter1" unique_id=2017226232 instance=ExtResource("50_42rtb")]
-position = Vector2(800, 1318.4)
-
-[node name="LiftableScript" parent="Chapter1/jetty-crate" index="2"]
-kind = "crate"
+position = Vector2(1283, 1102)
+weight = "medium"
 
 [node name="shallows-glint" parent="Chapter1" unique_id=1291374223 instance=ExtResource("67_1jupm")]
 z_index = 46
 z_as_relative = false
-position = Vector2(768, 1088)
+position = Vector2(768, 1084)
 phase = 0.4
 
 [node name="lake-lilypad-pink-15" parent="Chapter1" unique_id=1907132610 instance=ExtResource("68_jeq4u")]
@@ -884,22 +979,16 @@ position = Vector2(755.2, 1638.4)
 position = Vector2(864, 422.4)
 
 [node name="lake-deep-fish-shadow-lane-66" parent="Chapter1" unique_id=91867483 instance=ExtResource("81_wytvo")]
-position = Vector2(422.4, 1190.4)
+position = Vector2(420, 1194)
 
 [node name="lake-deep-fish-shadow-oval-102" parent="Chapter1" unique_id=726962916 instance=ExtResource("82_v7x6n")]
 position = Vector2(652.8, 1459.2)
 
 [node name="lake-fish-minnow-lane-220" parent="Chapter1" unique_id=1689009523 instance=ExtResource("83_kac1b")]
-position = Vector2(1408, 384)
+position = Vector2(1414, 461)
 
 [node name="lake-fish-perch-oval-280" parent="Chapter1" unique_id=1556114360 instance=ExtResource("84_d6ttr")]
-position = Vector2(1792, 76.8)
-
-[node name="lake-rock-3" parent="Chapter1" unique_id=2070957333 instance=ExtResource("85_rskf0")]
-position = Vector2(921.6, 588.8)
-
-[node name="lake-rock-7" parent="Chapter1" unique_id=673730512 instance=ExtResource("86_d1so8")]
-position = Vector2(51.2, 1318.4)
+position = Vector2(1857, 88)
 
 [node name="lake-rock-12" parent="Chapter1" unique_id=1647601757 instance=ExtResource("87_pptrb")]
 position = Vector2(1265, 1852)
@@ -907,23 +996,34 @@ position = Vector2(1265, 1852)
 [node name="lake-rock-5" parent="Chapter1" unique_id=12279147 instance=ExtResource("88_32tld")]
 position = Vector2(460.8, 1888)
 
-[node name="lake-rock-9" parent="Chapter1" unique_id=14505528 instance=ExtResource("89_v8pji")]
-position = Vector2(665.6, 486.4)
+[node name="exit-to-south-wilds-1" type="Area2D" parent="." unique_id=607722384]
+position = Vector2(1664, 2032)
+collision_layer = 512
+collision_mask = 130
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="exit-to-south-wilds-1" unique_id=1158400533]
+shape = SubResource("shape_exit_to_south_wilds_1")
+
+[node name="world-exit-script" type="Node" parent="exit-to-south-wilds-1" unique_id=1873231974 node_paths=PackedStringArray("area")]
+script = ExtResource("31_3ayx8")
+map_id = "level-1-c5"
+exit_id = "level-1-to-south-wilds-1"
+target_area_id = "south-wilds"
+entry = "north"
+area = NodePath("..")
 
 [connection signal="body_entered" from="edge-north" to="edge-north/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-east" to="edge-east/world-exit-script" method="on_body_entered"]
 [connection signal="rung" from="Chapter1/lookout-bell/LashBellScript" to="Chapter1/level-1-c5-lookout-chest/ChestScript" method="trigger"]
+[connection signal="body_entered" from="exit-to-south-wilds-1" to="exit-to-south-wilds-1/world-exit-script" method="on_body_entered"]
 
 [editable path="Nature/level-1-ancient-blossom"]
 [editable path="Nature/level-1-ancient-green"]
 [editable path="Nature/level-1-tree-006"]
-[editable path="Nature/level-1-tree-008"]
 [editable path="Nature/level-1-tree-010"]
-[editable path="Nature/level-1-tree-011"]
 [editable path="Nature/level-1-tree-012"]
 [editable path="Nature/level-1-tree-013"]
-[editable path="Nature/l1-meadow-tree-004"]
-[editable path="Nature/level-1-stone-node-003"]
 [editable path="Nature/level-1-purple-berry-001"]
 [editable path="Nature/level-1-purple-berry-003"]
 [editable path="Chapter1/lookout-bell"]
@@ -936,4 +1036,3 @@ position = Vector2(665.6, 486.4)
 [editable path="Chapter1/level-1-c5-islet-chest"]
 [editable path="Chapter1/islet-pot-heart"]
 [editable path="Chapter1/islet-pot-coins"]
-[editable path="Chapter1/jetty-crate"]

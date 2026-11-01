@@ -56,6 +56,11 @@ const CAST_STEPS: Array[Vector3] = [Vector3(1.5, 1.0, 0.06), Vector3(3.0, 2.0, 0
 @export var shape_node: CollisionShape2D
 ## The name the strain line and the docs use ("pedestal", "statue").
 @export var kind: String = "pedestal"
+## The base's ground edge, the contact shadow's ellipse (centre and half size from the root, world
+## units), set to each scene's art: the pedestal's is CONTACT_CENTRE / CONTACT_HALF; the statue,
+## drawn at its art's own size since 2026-10-31, has the same ellipse scaled to it.
+@export var contact_centre: Vector2 = CONTACT_CENTRE
+@export var contact_half: Vector2 = CONTACT_HALF
 
 var _cell_px: float = 64.0
 var _move_ms: float = 640.0
@@ -205,9 +210,9 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	for step: Vector3 in CAST_STEPS:
-		_ellipse(CONTACT_CENTRE + Vector2(step.x, step.y), CONTACT_HALF, step.z)
+		_ellipse(contact_centre + Vector2(step.x, step.y), contact_half, step.z)
 	for layer: Vector3 in CONTACT_LAYERS:
-		_ellipse(CONTACT_CENTRE + Vector2(0.0, layer.y), CONTACT_HALF, layer.z)
+		_ellipse(contact_centre + Vector2(0.0, layer.y), contact_half, layer.z)
 
 
 func _ellipse(centre: Vector2, half: Vector2, alpha: float) -> void:

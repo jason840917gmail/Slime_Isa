@@ -53,9 +53,9 @@ crystal pillar, the cocoon prize) and the dungeon decor set of `game/scenes/obje
 a barrel stack, broken crates, a sarcophagus, a broken pillar, a bone pile, a worm-head statue, a
 candelabra, a bookshelf, a floor grate, stalagmites; `scripts/art/pack-dungeon-decor-art.py` cuts
 them from `asset/Originals/dungeon-kit/decor/` and writes their scenes). **Dungeon objects** (2026-10-19) lists the dungeon pieces with
-logic by their scene's own picture: every scene of `game/scenes/objects/dungeon/` but the world-level
+logic by their scene's own picture (flipped when its sprite is: the statue facing the other way, 2026-10-31): every scene of `game/scenes/objects/dungeon/` but the world-level
 Dungeon nodes, and the puzzle objects among the other objects (brazier, plates, heavy blocks and
-statues, cracked walls and floors, climb walls, hatches and ladders, gates, winches, barricades, the
+statues (one of them flipped), cracked walls and floors, climb walls, hatches and ladders, gates, winches, barricades, the
 mine cart, ore lift, lens and veil, Gulp spots, Pearls, the full heart). Dragging one places its scene
 at its own size under the room's `Objects` node (a room door under `RoomDoors`, a hazard under
 `Hazards`; made when missing); set its ids in the Inspector ([DUNGEONS.md](DUNGEONS.md)). The list

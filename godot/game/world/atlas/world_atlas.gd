@@ -1051,8 +1051,7 @@ func _check_region(entry: Dictionary) -> PackedStringArray:
 ## {key, exit, edge, status ("ok", "one-way" or "wrong"), reason} for one exit of world `world_id`
 ## (region `key`), against the plan. An exit on an edge of its world (or, inside the bounding
 ## block of a region that is not a rectangle, at a border of the region: `edge` is the way out)
-## must lead to the region across it, arrive on that region's facing edge (or at its
-## `entry_marker`) and have an exit back.
+## must lead to the region across it, arrive on that region's facing edge and have an exit back.
 func _judge_exit(key: String, world_id: String, exit: Dictionary) -> Dictionary:
 	var out := {"key": key, "exit": exit, "edge": str(exit["edge"]), "status": "ok", "reason": ""}
 	var where := "%s's exit %s" % [world_id, exit["name"]]
@@ -1083,15 +1082,11 @@ func _judge_exit(key: String, world_id: String, exit: Dictionary) -> Dictionary:
 	var back: Dictionary = _surveys[target]
 	if back.is_empty():
 		return _verdict(out, "one-way", "%s leads to %s, which has no scene yet." % [where, target])
-	var marker := str(exit["entry_marker"])
 	var entry := str(exit["entry"])
-	if marker != "":
-		if not (back["names"] as Dictionary).has(marker):
-			return _verdict(out, "wrong", "%s arrives at marker %s, which %s does not have." % [where, marker, target])
-	elif entry != WorldSurvey.opposite(edge):
+	if entry != WorldSurvey.opposite(edge):
 		return _verdict(out, "wrong", "%s arrives on the %s edge of %s, not its %s edge." % [where, entry if entry != "" else "(no)", target, WorldSurvey.opposite(edge)])
-	elif not (back["names"] as Dictionary).has("player-entry-" + entry):
-		return _verdict(out, "wrong", "%s arrives on %s's %s edge, which has no player-entry-%s marker (the player lands at player-spawn)." % [where, target, entry, entry])
+	# It comes out at the same place across the border, or at the far side's opening back
+	# (game/world/crossings/border_crossing.gd; tools/check_crossings.gd checks each place).
 	for other: Dictionary in back["exits"]:
 		if str(other["target"]) == world_id:
 			return out

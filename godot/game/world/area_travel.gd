@@ -8,13 +8,19 @@ extends RefCounted
 ## the arrival child of the door named by the handoff, the world's `player-entry-<edge>` marker,
 ## the `player-spawn` marker; and always snaps that anchor to the centre of the nearest open tile
 ## (`findSpawnPoint`), so an arrival lands on a tile centre even when the marker is open. The port
-## adds a named marker after the door (a world exit's `entry_marker`: any Node2D in the world).
+## arrives at the end paired with the one left by (a door, a stair door, a landing) or at the
+## crossing point along an edge (`entry_along`); a named spot (`entry_marker`: the prologue's birth,
+## a dungeon room's `RoomEntry`, `player-spawn`) is for what is not a crossing. The edges' markers
+## went on 2026-10-31 (docs/design/2026-10-31-crossings-and-arrivals.md): an edge with no place
+## along it arrives at the spawn.
 ## The run's saved location wins instead when it belongs to the target map and is valid (a bed
 ## respawn or a loaded save).
 ##
 ## A door with a `side` (door.gd, the pairing rule in docs/godot/CONVENTIONS.md "Doors") is not
 ## snapped: the slime stands exactly `arrival_step` inside it when that spot is open, facing into
 ## the room (`door_facing`). main.gd then moves it into the doorway and walks it out (`walks_out`).
+## Stair doors and landings are not snapped either (`exact_arrival`): their arrival plays from the
+## exact spot (main.gd `_start_arrival`, the end's `play_arrival`).
 ##
 ## Owner: world objects.
 
@@ -26,15 +32,14 @@ const LEAVE_FADE_MS := 320.0
 const FADE_COLOR := Color("#0b1020")
 ## Doors add themselves to this group and answer `door_id` and `arrival_point()`.
 const DOOR_GROUP := &"door"
-const ENTRY_MARKER_PREFIX := "player-entry-"
 const EDGES: PackedStringArray = ["north", "east", "south", "west"]
 
 
 ## The old Phaser (centre) position the player arrives at in the registered world for a
 ## navigation handoff (`RunState.consume_navigation()`); `fallback` when the handoff is empty.
 ## Anchor: the `entry_door`'s arrival, else the Node2D named `entry_marker`, else the point
-## `entry_along` along the `entry_edge` (`edge_point`: kept as it is when its tile is open), else the
-## `entry_edge` marker, else `player-spawn`; then `find_spawn_point`.
+## `entry_along` along the `entry_edge` (`edge_point`: kept as it is when its tile is open), else
+## `player-spawn`; then `find_spawn_point`.
 static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 	var world := Services.world()
 	if world == null or not is_instance_valid(world.world_root):
@@ -46,7 +51,7 @@ static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 	if not door_id.is_empty():
 		anchor = door_arrival(world.world_root, door_id)
 		var door := find_door(world.world_root, door_id)
-		if anchor is Vector2 and door != null and bool(door.call(&"has_side")) and _is_open(anchor):
+		if anchor is Vector2 and exact_arrival(door) and _is_open(anchor):
 			return anchor
 	var marker_name := str(navigation.get("entry_marker", ""))
 	if anchor == null and not marker_name.is_empty():
@@ -60,8 +65,6 @@ static func arrival_point(navigation: Dictionary, fallback: Vector2) -> Vector2:
 		if not world.is_solid_tile(floori(point.x / tile_size), floori(point.y / tile_size)):
 			return point
 		anchor = point
-	if anchor == null and not edge.is_empty():
-		anchor = entry_marker(world.world_root, edge)
 	if anchor == null:
 		anchor = world.player_spawn_marker()
 	return world.find_spawn_point(anchor)
@@ -139,6 +142,16 @@ static func find_door(world_root: Node, door_id: String) -> Node:
 	return null
 
 
+## True when the slime arrives exactly at `door`'s arrival point, not snapped to a tile centre (a door
+## with a side, a stair door, a landing: their `exact_arrival`).
+static func exact_arrival(door: Node) -> bool:
+	if door == null:
+		return false
+	if door.has_method(&"exact_arrival"):
+		return bool(door.call(&"exact_arrival"))
+	return door.has_method(&"has_side") and bool(door.call(&"has_side"))
+
+
 ## The facing on arriving at door `door_id`: into the room for a door with a side, ZERO otherwise
 ## (keep the slime's facing).
 static func door_facing(world_root: Node, door_id: String) -> Vector2:
@@ -176,16 +189,8 @@ static func _is_open(point: Vector2) -> bool:
 	return not world.is_solid_tile(floori(point.x / tile_size), floori(point.y / tile_size))
 
 
-## The global position of the `player-entry-<edge>` marker, or null when the world has none.
-static func entry_marker(world_root: Node, edge: String) -> Variant:
-	if not edge in EDGES:
-		return null
-	var marker := world_root.find_child(ENTRY_MARKER_PREFIX + edge, true, false) as Node2D
-	return marker.global_position if marker != null else null
-
-
-## The global position of the first Node2D named `marker_name` anywhere under `world_root` (a world
-## exit's `entry_marker`), or null when there is none.
+## The global position of the first Node2D named `marker_name` anywhere under `world_root` (a named
+## spot: the prologue's birth, a room's `RoomEntry`), or null when there is none.
 static func named_marker(world_root: Node, marker_name: String) -> Variant:
 	if marker_name.is_empty():
 		return null

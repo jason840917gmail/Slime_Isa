@@ -79,10 +79,6 @@ camera_mode = "fixed"
 y_sort_enabled = true
 position = Vector2(448, 624)
 
-[node name="player-entry-south" type="Node2D" parent="." unique_id=2138779099]
-y_sort_enabled = true
-position = Vector2(448, 624)
-
 [node name="house-door" type="Node2D" parent="." unique_id=529840526]
 y_sort_enabled = true
 position = Vector2(448, 694)

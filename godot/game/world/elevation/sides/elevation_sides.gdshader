@@ -6,7 +6,7 @@ shader_type canvas_item;
 // draws them, so they join it without a seam), a shade, a jagged outline and a shadow, as in the
 // owner's reference (2026-10-13: "simpler borders").
 // Vertex colour r = the kind of piece: 0 … 0.2 wall (front … side), 0.3 corner stone, 0.5 foot
-// (0.54 where that edge's lower ground is water: foam),
+// (0.54 where that edge's lower ground is water: the water lapping up the wall),
 // 0.6 / 0.7 the lower / the top's ground filling a corner, 1 top edge; a = the height in levels ((level + 4) / 8, elevation_light.gdshaderinc).
 // - Wall: UV = (px along the border, px down the fibre + the course of its level); g = the face's
 //   light, b = px down the fibre / 512 (the top edge's shadow on the wall). r / 0.2 = how much it is
@@ -18,9 +18,12 @@ shader_type canvas_item;
 //   dark green, not the walls' brown.
 // - Foot: UV = (world units along the foot, world units past it: negative up the wall, positive
 //   over the lower ground); g = the strength of the shadow on the ground; b = 1 on a back edge:
-//   only the shadow.
+//   only the shadow. A foot in water draws the water itself up the wall's base (`has_water`: the
+//   water surface's own maths and parameters, Elevation hands them on), as a deep-water bank's
+//   foot (docs/godot/specs/water.md §11).
 
 #include "res://game/world/elevation/elevation_light.gdshaderinc"
+#include "res://game/world/water_surface.gdshaderinc"
 
 uniform sampler2D wall_texture : source_color, repeat_enable, filter_linear;
 uniform vec2 wall_size = vec2(536.0, 256.0);
@@ -58,7 +61,22 @@ uniform float foot_outline = 2.2;
 uniform vec4 foot_line_colour : source_color = vec4(0.16, 0.1, 0.05, 1.0);
 uniform float foot_clumps = 4.0;
 uniform float foot_shadow_width = 18.0;
+// A foot in water without the water's parameters (no water surface): a band of foam.
 uniform vec4 foam_colour : source_color = vec4(0.88, 0.96, 1.0, 0.8);
+// A foot in water with them (1): the water laps `water_line_rise` units up the wall's base,
+// wobbling `water_line_sway` units either way, the rock `wet_height` units above it darkened by
+// `wet_shade`, and foam laps there `water_line_foam_strength` strong, as at a bank's foot. The
+// water is open water at the wall, the surface's own again by the foot's far end, `foot_rows`
+// past the foot line (Elevation sets it: elevation_sides.gd FOOT_OUT).
+uniform float has_water = 0.0;
+uniform float foot_rows = 20.0;
+uniform float water_line_rise = 2.8;
+uniform float water_line_sway = 2.4;
+uniform float wet_height = 2.5;
+uniform float wet_shade = 0.3;
+uniform float water_line_foam_strength = 0.6;
+// A deep-water bank's face (specs/water.md §11): the foam's reach is measured in it.
+const float BANK_FACE = 24.0;
 
 varying vec2 world;
 varying vec4 data;
@@ -84,6 +102,30 @@ float clumps(float u, float width) {
 	return max(bumps(u, width, 0.0), 0.8 * bumps(u + width * 0.43, width * 0.63, 17.0));
 }
 
+// A wall's foot in water (`has_water`), layered bottom to top: the rock just above the waterline
+// wet, the water up the wall's base to a wobbling waterline (the surface's own maths, the hole's
+// light as the Shade gives it: open water at the wall, the water around by the foot's far end),
+// the wall's shadow on the water from the waterline out, and foam lapping in patches at the
+// waterline, as at a deep-water bank's foot. `d` = world units past the foot (negative up the
+// wall; past it, rows: `foot_rows` of them to the foot's far end), `shadow` its strength, `show`
+// 0 on a back edge (no wall there: only the shadow).
+vec4 foot_in_water(vec2 px, float along, float d, float shadow, float show, float light, float t) {
+	float waterline = (-water_line_rise - water_line_sway * water_line_wobble(along)) * show;
+	float deep;
+	vec4 surface = water_surface_shaped(px, t, 1.0, (1.0 - smoothstep(0.0, foot_rows, d)) * show, deep);
+	vec3 water = mix(water_ground_at(px, deep), surface.rgb, surface.a) * light;
+	// Over the rock below the waterline and out to the foot's far end, where it is the water around.
+	float cover = smoothstep(waterline - 0.6, waterline + 0.6, d) * (1.0 - smoothstep(foot_rows - 1.0, foot_rows, d)) * show;
+	float wet = wet_shade * (1.0 - smoothstep(0.0, wet_height, waterline - d)) * (1.0 - step(0.0, d)) * show;
+	float shade = shadow * (1.0 - smoothstep(0.0, foot_shadow_width, d - waterline)) * smoothstep(waterline - 0.6, waterline + 0.6, d);
+	float foam = water_line_foam_strength * water_line_foam(along, 1.0 + (d - waterline) / BANK_FACE, t) * show;
+	vec4 layered = vec4(0.0, 0.0, 0.0, wet);
+	layered = vec4(water * cover, cover) + layered * (1.0 - cover);
+	layered = vec4(0.0, 0.0, 0.0, shade) + layered * (1.0 - shade);
+	layered = vec4(WATER_FOAM * light * foam, foam) + layered * (1.0 - foam);
+	return vec4(layered.a > 0.0 ? layered.rgb / layered.a : vec3(0.0), layered.a);
+}
+
 void fragment() {
 	float kind = data.r;
 	float light_of_level = level_light(decode_level(data.a));
@@ -103,6 +145,8 @@ void fragment() {
 		float light = data.g * light_of_level;
 		light *= 1.0 - top_shadow * (1.0 - smoothstep(0.0, top_shadow_px, depth));
 		COLOR = vec4(stone.rgb * light, stone.a * has_corners);
+	} else if (kind > 0.52 && kind < 0.55 && has_water > 0.5) {
+		COLOR = foot_in_water(world, UV.x, UV.y, data.g, 1.0 - data.b, light_of_level, TIME);
 	} else if (kind < 0.55) {
 		float d = UV.y;
 		float aa = max(fwidth(d), 0.01);
@@ -115,7 +159,8 @@ void fragment() {
 		float blade = (1.0 - above_tips) * (1.0 - step(0.0, d));
 		vec4 art = vec4(mix(grass, foot_line_colour.rgb, line), max(line, blade) * (1.0 - data.b));
 		if (kind > 0.52) {
-			// Foam: a band up the wall's base and onto the water, lapping (presentation time).
+			// Without the water's parameters, foam: a band up the wall's base and onto the water,
+			// lapping (presentation time).
 			float lap = 1.2 + 1.2 * sin(UV.x * 0.13 + TIME * 1.6) + 0.6 * sin(UV.x * 0.37 - TIME * 2.3);
 			float band = smoothstep(-lap - 1.5 - aa, -lap - 1.5 + aa, d) * (1.0 - smoothstep(1.5 - aa, 1.5 + aa, d));
 			art = vec4(foam_colour.rgb * light_of_level, band * foam_colour.a * (1.0 - data.b));

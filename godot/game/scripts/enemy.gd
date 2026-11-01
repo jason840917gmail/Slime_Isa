@@ -8,7 +8,8 @@ class_name EnemyScript
 ## slime spider, orb weaver). Part 2 of the enemy spec (2026-10-05) adds the ranged attack (the
 ## common attack fires `projectile.<id>` through res://game/enemy/enemy_projectiles.gd, §12), the
 ## keep-distance `fleeRange` rules (§13), the slime-spider AI (`attributes.behavior`,
-## res://game/enemy/slime_spider_ai.gd, §14), `apply_slow` (§15) and the `impactEffect` (§16).
+## res://game/enemy/slime_spider_ai.gd, §14), `apply_slow` (§15) and the `impactEffect` (§16). A
+## honey throw's `apply_tempo` slows its walk and its attack's timings (throw combat).
 ##
 ## Node: `EnemyScript` (plain Node child of the CharacterBody2D root, re-anchored to the feet;
 ## worm `metadata/depth_anchor = (0, 22)`). ALL AI maths use old Phaser centres
@@ -35,8 +36,9 @@ class_name EnemyScript
 ## answers `result.reaction`); its flash shows without the old number (the sender's `play_hit` shows
 ## it), and a 0-damage hit plays no hurt sound. In the rework mode `after_move` runs after each
 ## step's move (wall splats, bowling), `on_defeated` on defeat (the energy shard), a kill launch
-## slides the corpse (`set_death_slide`), the stun slide decays by `combat.verbs.slideDecay`, and a
-## hurtbox the reaction profile gates as a part (Fatty's eye) registers without its
+## slides the corpse (`set_death_slide`), the stun slide decays by `EnemyReactions.slide_decay_of`
+## (`combat.verbs.slideDecay`; a throw's knock slide faster), and a hurtbox the reaction profile
+## gates as a part (Fatty's eye) registers without its
 ## `acceptedSources`: the gate decides for rework hits, and old hits still meet the old rule in
 ## `can_receive_damage`. Old requests and the mode off keep every old path. `enemy_type` and
 ## `reaction_overrides` pick the reaction profile; the public wrappers below (`get_body`,
@@ -218,6 +220,10 @@ var _arena_left_at_ms: float = 0.0
 var _slowed_until: float = 0.0
 var _slow_multiplier: float = 1.0
 var _applied_slow: float = 1.0
+## Tempo (a honey throw, owner 2026-11-01; `apply_tempo`): everything it does at `_tempo` of its pace
+## until `_tempo_until`.
+var _tempo: float = 1.0
+var _tempo_until: float = 0.0
 ## Rework: the corpse's slide after a kill launch (ZERO = none; only EnemyReactions sets it), and
 ## whether it has started (from then on the body's own velocity, which walls cut, carries it).
 var _death_slide: Vector2 = Vector2.ZERO
@@ -309,9 +315,12 @@ func _step_enemy(delta: float) -> bool:
 			body.queue_free()
 		return sliding
 
-	# Knockback / hit-stun: slide with decay; no AI, no territory, no attack, no clip change.
+	# Knockback / hit-stun: slide with decay; no AI, no territory, no attack, no clip change. A sleep
+	# throw's sleep renews the stun until a damaging hit wakes it.
 	if now < _hit_stun_until:
-		var decay := EnemyReactions.slide_decay() if ReworkMode.is_on() else HIT_STUN_VELOCITY_DECAY
+		if ReworkMode.is_on():
+			EnemyReactions.keep_asleep(self)
+		var decay := EnemyReactions.slide_decay_of(self) if ReworkMode.is_on() else HIT_STUN_VELOCITY_DECAY
 		body.velocity *= pow(decay, delta * 60.0)
 		return true
 
@@ -507,6 +516,27 @@ func apply_slow(multiplier: float, duration_ms: float) -> void:
 ## True while a slow holds this enemy back.
 func is_slowed() -> bool:
 	return Services.now_ms() < _slowed_until
+
+
+## Everything it does at `scale` of its pace for `duration_ms` (a honey throw: 0.5, half speed;
+## docs/godot/THROW_COMBAT.md): its walk and chase (`_current_slow`, with the goo trail's slow), its
+## attack's wind-up, recovery and cooldown (`_begin_attack`), and a patterned enemy's every `pattern`
+## time and speed (patterned_enemy.gd). Bosses, defeated enemies, a scale outside (0, 1) and a
+## duration <= 0 are ignored; a fresh one replaces a weaker or expired one and never shortens it.
+## True when it took.
+func apply_tempo(scale: float, duration_ms: float) -> bool:
+	if rank == RANK_BOSS or _defeated or not (scale > 0.0 and scale < 1.0) or not (duration_ms > 0.0):
+		return false
+	var now := Services.now_ms()
+	if now >= _tempo_until or scale <= _tempo:
+		_tempo = scale
+	_tempo_until = maxf(_tempo_until, now + duration_ms)
+	return true
+
+
+## Its pace now (1 = normal; `apply_tempo`).
+func tempo() -> float:
+	return _tempo if Services.now_ms() < _tempo_until else 1.0
 
 
 ## Lifecycle cancel + end_attack (enemy spec 5.4): called on non-lethal hit, death, target lost,
@@ -720,7 +750,9 @@ func publish_damage_feedback(commit: Dictionary) -> void:
 ## clip_ms) + 250), attack area on, "attack-<facing>" restart, emit attack_started.
 func _begin_attack(direction: Vector2) -> void:
 	var now := Services.now_ms()
-	var sequence := _lifecycle.try_begin(now, attack_cooldown_ms)
+	# A honey throw's tempo stretches the cooldown, the wind-up and the recovery (`apply_tempo`).
+	var pace := tempo()
+	var sequence := _lifecycle.try_begin(now, attack_cooldown_ms / pace)
 	if sequence == NO_ID:
 		return
 	var router := Services.router()
@@ -735,8 +767,8 @@ func _begin_attack(direction: Vector2) -> void:
 	_active_sequence_id = sequence
 	var areas: Array[Area2D] = [attack_area]
 	_active_activation_id = router.begin_activation(self, areas)
-	var windup_ms := maxf(0.0, _attribute("attackWindupMs"))
-	var recovery_ms := maxf(0.0, _attribute("attackRecoveryMs"))
+	var windup_ms := maxf(0.0, _attribute("attackWindupMs")) / pace
+	var recovery_ms := maxf(0.0, _attribute("attackRecoveryMs")) / pace
 	_update_facing(_attack_direction)
 	var clip_ms := _clip_length_ms("attack-" + _facing)
 	_attack_impact_at = now + windup_ms
@@ -765,9 +797,11 @@ func _resolve_attack(target: Dictionary, origin: Vector2) -> void:
 	if not ranged.is_empty():
 		_fire_projectile(origin, ranged)
 		return
-	# Throw combat (docs/godot/THROW_COMBAT.md): a Worm Brawler's blow may knock a rock loose.
+	# Throw combat (docs/godot/THROW_COMBAT.md): a Worm Brawler's blow may knock a rock loose, ahead of
+	# its feet (the body's ground point) on the ground's level there.
 	ThrowAmmo.knock_loose(enemy_type if not enemy_type.is_empty() or body == null \
-		else body.scene_file_path.get_file().get_basename(), origin, _attack_direction)
+		else body.scene_file_path.get_file().get_basename(), body.global_position if body != null else origin,
+		_attack_direction)
 	var target_area := target.get("hurtbox") as Area2D
 	if target_area == null:
 		return
@@ -919,6 +953,9 @@ func _react_to_damage(commit: Dictionary, is_dead: bool) -> void:
 	if ReworkMode.is_rework_request(request):
 		EnemyReactions.react(self, commit, is_dead)
 		return
+	# An old hit that hurts wakes a sleeper too (the rework's are woken in `react`).
+	if ReworkMode.is_on():
+		EnemyReactions.wake_if_hurt(self, commit)
 	react_classic(commit, is_dead)
 
 
@@ -1157,7 +1194,7 @@ func _shot_clear(from: Vector2, to: Vector2) -> bool:
 
 ## The movement factor of a slow at `now` (1 when not slowed).
 func _current_slow(now: float) -> float:
-	return _slow_multiplier if now < _slowed_until else 1.0
+	return (_slow_multiplier if now < _slowed_until else 1.0) * (_tempo if now < _tempo_until else 1.0)
 
 
 ## Enemy spec 4.5: ignore |v| < 1e-6; |x| > |y| -> "side", flipped = x < 0; else up/down.
@@ -1248,7 +1285,7 @@ func _receiver_rule() -> Dictionary:
 func _step_death_slide(delta: float) -> bool:
 	var slide := body.velocity if _death_sliding else _death_slide
 	_death_sliding = true
-	slide *= pow(EnemyReactions.slide_decay(), delta * 60.0)
+	slide *= pow(EnemyReactions.slide_decay_of(self), delta * 60.0)
 	if slide.length() < WALK_SPEED_THRESHOLD:
 		_death_slide = Vector2.ZERO
 		_death_sliding = false

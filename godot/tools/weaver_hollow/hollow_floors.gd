@@ -39,6 +39,7 @@ const S := HollowScene
 
 const CRACKED_WALL := "res://game/scenes/objects/cracked-wall.tscn"
 const CRACKED_FLOOR := "res://game/scenes/objects/cracked-floor.tscn"
+const LANDING := "res://game/scenes/objects/landing.tscn"
 const WINCH_POST := "res://game/scenes/objects/winch-post-cracked.tscn"
 const BLAST_KEG := "res://game/scenes/objects/blast-keg.tscn"
 const WEB_WALL := "res://game/scenes/objects/web-wall.tscn"
@@ -329,7 +330,7 @@ static func _trunk() -> Node2D:
 	_chest(root, "nook-map-chest", 2.5, 9.9, {"dungeon-map": 1})
 	# T4 Well Room: the well and the first cracked floor, which drops into the Roots.
 	S.place(root, "Objects", "well-floor", CRACKED_FLOOR, _at(8.5, 9.5), {"flag_id": "weaver-hollow.well-floor",
-			"door_id": "trunk-well-floor", "target_area_id": world_id("roots"), "target_marker": "roots-landing"})
+			"door_id": "trunk-well-floor", "target_area_id": world_id("roots"), "target_door_id": "roots-landing"})
 	# T2 the Hollow Heart. Its east door (small key 1) to the Boughs; on the gallery (level 1, the calm
 	# room after the Pearl, before the Crown) the Crown Door (the big key; the rock's face hangs one
 	# course over row 2), pots that hide a heart or energy and an energy flower; the gallery's stair
@@ -406,8 +407,8 @@ static func _roots() -> Node2D:
 	S.camera_room(root, "R2-bone-cellar", 1, 0, 2, 1)
 	S.camera_room(root, "R3-drop-gate", 3, 0)
 	S.camera_room(root, "D1-old-cellar", 1, 1)
-	# The landing: the Well Room's blown floor drops the slime here (a marker; nothing leads back up).
-	root.get_node("Doors").add_child(S.marker("roots-landing", _at(3, 3.5)))
+	# The landing: the Well Room's blown floor drops the slime here (object.landing; nothing leads back up).
+	S.place(root, "Doors", "roots-landing", LANDING, _at(3, 3.5), {"door_id": "roots-landing"})
 	# The ladder up to the hub's hatch, at R3's east end.
 	var ladder := S.place(root, "Doors", "ladder", CAVE_LADDER, _at(60.5, 3.2))
 	var ladder_door := ladder.get_node_or_null("DoorScript")
@@ -690,7 +691,7 @@ static func _crown() -> Node2D:
 	S.door(root, "from-trunk", _at(8, 27.65), {"door_id": "crown-from-trunk", "target_area_id": world_id("trunk"),
 			"target_door_id": "trunk-crown-door", "side": "south", "kind": "opening", "trigger_rect": TRIGGER_NS})
 	S.door(root, "bough-drop", _at(29.5, 8), {"door_id": "crown-bough-drop", "target_area_id": "gloop-forest-f4",
-			"target_marker": "weaver-hollow-silk-drop", "side": "none", "kind": "fall",
+			"target_door_id": "weaver-hollow-silk-drop", "side": "none", "kind": "fall",
 			"trigger_rect": Rect2(-48.0, -96.0, 96.0, 192.0)})
 	# C1: the web wall across the stair's straight way (pass it at half speed, or cut it for good and
 	# every climb after a faint is quick), the K3 door at the top and its pots, the calm spot.

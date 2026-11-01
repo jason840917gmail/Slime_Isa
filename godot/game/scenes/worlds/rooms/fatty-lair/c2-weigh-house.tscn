@@ -21,7 +21,9 @@
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="24_rw9046"]
 [ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="26_3q2qn"]
 [ext_resource type="TileSet" uid="uid://b6hbbbrfkchxq" path="res://game/world/fences/fence_tileset.tres" id="90_fencetiles"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
 [ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="91_fencelayer"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/divider-gate.tscn" id="92_dividergate"]
 
 [node name="c2-weigh-house" type="Node2D" unique_id=1008537401]
@@ -51,6 +53,12 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAA
 tile_set = ExtResource("4_w3neg")
 script = ExtResource("5_806a3")
 
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=717998425]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAALAA0AAAADAAAAAAAMAA0AAAADAAAAAAANAA0AAAADAAAAAAAOAA0AAAADAAAAAAAPAA0AAAADAAAAAAAPAAwAAAADAAAAAAAPAAsAAAADAAAAAAAPAAoAAAADAAAAAAAPAAkAAAADAAAAAAAPAAgAAAADAAAAAAAPAAcAAAADAAAAAAAPAAYAAAADAAAAAAAPAAUAAAADAAAAAAAPAAQAAAADAAAAAAAPAAMAAAADAAAAAAAPAAIAAAADAAAAAAAOAAIAAAADAAAAAAANAAIAAAADAAAAAAAMAAIAAAADAAAAAAALAAIAAAADAAAAAAAKAAIAAAADAAAAAAAJAAIAAAADAAAAAAAIAAIAAAADAAAAAAAHAAIAAAADAAAAAAAGAAIAAAADAAAAAAAFAAIAAAADAAAAAAAEAAIAAAADAAAAAAADAAIAAAADAAAAAAACAAIAAAADAAAAAAACAAMAAAADAAAAAAACAAQAAAADAAAAAAACAAUAAAADAAAAAAACAAYAAAADAAAAAAACAAcAAAADAAAAAAACAAgAAAADAAAAAAACAAkAAAADAAAAAAACAAoAAAADAAAAAAACAAsAAAADAAAAAAACAAwAAAADAAAAAAACAA0AAAADAAAAAAADAA0AAAADAAAAAAAEAA0AAAADAAAAAAAFAA0AAAADAAAAAAAGAA0AAAADAAAAAAAHAA0AAAADAAAAAAAIAA0AAAADAAAAAAAJAA0AAAADAAAAAAAKAA0AAAADAAAAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
+
 [node name="CameraRooms" type="Node2D" parent="." unique_id=106561638]
 
 [node name="c2-weigh-house" type="Node2D" parent="CameraRooms" unique_id=103766594]
@@ -66,19 +74,17 @@ position = Vector2(763, 888)
 y_sort_enabled = true
 
 [node name="c2-beam-scale" parent="Scenery" unique_id=668137360 instance=ExtResource("9_3q2qn")]
-position = Vector2(597, 157)
+position = Vector2(599, 184)
 
 [node name="c2-weights-entry" parent="Scenery" unique_id=599657000 instance=ExtResource("11_ffvil")]
 position = Vector2(345, 888)
 
 [node name="Visual" parent="Scenery/c2-weights-entry" index="1"]
+position = Vector2(7, -19)
 texture = ExtResource("12_8ji8i")
 
 [node name="c2-weights-north" parent="Scenery" unique_id=875302413 instance=ExtResource("11_ffvil")]
-position = Vector2(172, 180)
-
-[node name="Visual" parent="Scenery/c2-weights-north" index="1"]
-texture = ExtResource("12_8ji8i")
+position = Vector2(197, 184)
 
 [node name="liftable" parent="Scenery" unique_id=1469054806 instance=ExtResource("13_baay3")]
 position = Vector2(1005, 891)
@@ -105,7 +111,7 @@ under = "none"
 weight = "light"
 
 [node name="liftable5" parent="Scenery" unique_id=1522072771 instance=ExtResource("13_baay3")]
-position = Vector2(145, 440)
+position = Vector2(150, 424)
 kind = "clay-pot"
 weight = "light"
 
@@ -245,7 +251,7 @@ enemy_type = "worm-swordsman"
 y_sort_enabled = true
 
 [node name="throw-eye-2-1" parent="Throwables" unique_id=1637956909 instance=ExtResource("13_baay3")]
-position = Vector2(1010, 434)
+position = Vector2(1003, 434)
 kind = "clay-pot"
 weight = "light"
 
@@ -260,7 +266,6 @@ kind = "clay-pot"
 weight = "light"
 
 [editable path="Scenery/c2-weights-entry"]
-[editable path="Scenery/c2-weights-north"]
 [editable path="Objects/c2-east-door"]
 [editable path="Objects/c2-plate-stand"]
 [editable path="Objects/c2-west-door"]

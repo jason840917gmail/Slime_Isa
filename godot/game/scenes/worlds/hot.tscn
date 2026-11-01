@@ -118,14 +118,6 @@ shape = NodePath("../collision-shape")
 y_sort_enabled = true
 position = Vector2(32, 32)
 
-[node name="player-entry-north" type="Node2D" parent="."]
-y_sort_enabled = true
-position = Vector2(1728, 256)
-
-[node name="player-entry-south" type="Node2D" parent="."]
-y_sort_enabled = true
-position = Vector2(1728, 3200)
-
 [node name="exit-1" type="Area2D" parent="."]
 y_sort_enabled = true
 position = Vector2(1728, 16)
@@ -142,6 +134,7 @@ map_id = "hot"
 exit_id = "exit-1"
 target_area_id = "emberleef"
 entry = "south"
+keep_along = true
 area = NodePath("..")
 gate = {}
 
@@ -161,6 +154,7 @@ map_id = "hot"
 exit_id = "exit-2"
 target_area_id = "icege"
 entry = "north"
+keep_along = true
 area = NodePath("..")
 gate = {}
 

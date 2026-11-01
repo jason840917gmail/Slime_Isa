@@ -59,9 +59,6 @@ const EYES := {
 	FRAME_AIR: [Vector2(119.0, 154.0), Vector2(148.0, 154.0)],
 }
 
-var _from: Vector2 = Vector2.ZERO
-var _to: Vector2 = Vector2.ZERO
-var _asked: Vector2 = Vector2.ZERO
 var _ready_at: float = 0.0
 var _mark: LandingMarkLook
 var _glow: SocketGlowLook
@@ -121,9 +118,8 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, engaged: bool)
 			var air_ms := maxf(1.0, pattern("airMs", 620.0))
 			var t := clampf(elapsed / air_ms, 0.0, 1.0)
 			# A wall or the water ends the leap early; the slime, the other bodies and the liftable
-			# things do not (set_airborne).
-			var blocked := air_blocked(_asked * delta)
-			if t >= 1.0 or blocked:
+			# things do not (leap_step).
+			if not leap_step(t, air_ms, delta):
 				_land(now, target, engaged)
 				return
 			var height := pattern("leapHeightPx", 70.0)
@@ -132,8 +128,6 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, engaged: bool)
 			var shadow := ground_shadow()
 			if shadow != null:
 				shadow.size = SHADOW_SIZE * lerpf(1.0, 0.55, lift / maxf(1.0, height))
-			_asked = (_to - _from) / (air_ms / 1000.0)
-			body.velocity = _asked
 		PHASE_STUCK:
 			body.velocity = Vector2.ZERO
 			set_look(0.0, Vector2.ONE, sin(elapsed / STUCK_WOBBLE_MS) * STUCK_WOBBLE_RAD)
@@ -185,8 +179,7 @@ func _cast(now: float, slime: Vector2) -> void:
 	var offset := slime - get_centre()
 	if offset.length() > pattern("leapMaxPx", 240.0):
 		offset = offset.normalized() * pattern("leapMaxPx", 240.0)
-	_from = feet()
-	_to = landing_point(_from, _from + offset)
+	var landing := plan_leap(offset)
 	face_x(offset.x)
 	_cue(CUE_CAST)
 	_clear_mark()
@@ -197,25 +190,21 @@ func _cast(now: float, slime: Vector2) -> void:
 		_mark.name = MARK_NAME
 		_mark.strength = 0.0
 		parent.add_child(_mark)
-		_mark.global_position = _to
+		_mark.global_position = landing
 
 
 func _leap(now: float) -> void:
 	_transition(PHASE_AIR, now)
 	set_frame(FRAME_AIR)
-	set_solid(false)
-	set_airborne(true)
+	begin_leap()
 	_set_glow(1.0)
-	_asked = Vector2.ZERO
 	_cue(CUE_LEAP)
 	_puff(DUST, feet())
 
 
 func _land(now: float, target: Dictionary, engaged: bool) -> void:
 	body.velocity = Vector2.ZERO
-	_asked = Vector2.ZERO
-	set_solid(true)
-	set_airborne(false)
+	end_leap()
 	set_look(0.0, LAND_SQUASH)
 	_set_glow(0.0)
 	_clear_mark()
@@ -275,7 +264,8 @@ func mitigate_damage(input: Dictionary) -> float:
 func _on_collapse(_now: float) -> void:
 	_clear_mark()
 	_set_glow(0.0)
-	_asked = Vector2.ZERO
+	# A leap cut short lands first (its mask back); the pile then lies not solid (skeleton_enemy.gd).
+	end_leap()
 	var shadow := ground_shadow()
 	if shadow != null:
 		shadow.size = SHADOW_SIZE

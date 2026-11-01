@@ -53,10 +53,13 @@ const MASK_LAYERS: Array[String] = ["world", "player", "water"]
 const PEN_TYPES: Array[String] = ["slime-spider", "worm-swordsman", "clod-stomper"]
 ## The throw-combat experiment (docs/godot/THROW_COMBAT.md) adds the enemies that make ammo: the
 ## Worm Archer (its missed arrows stay) and the Worm Brawler (its blows knock rocks loose), at
-## these posts (from the pen's top-left).
+## `throw_pen_posts`.
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const THROW_PEN_TYPES: Array[String] = ["worm-archer", "worm-brawler"]
-const THROW_PEN_POSTS: Array[Vector2] = [Vector2(90.0, 200.0), Vector2(370.0, 200.0)]
+## The pen's place and size by default (`pen_offset`, `pen_size`; the throw yard's too when it has
+## no testbed beside it: throw_testbed.gd).
+const DEFAULT_PEN_OFFSET := Vector2(-200.0, 128.0)
+const DEFAULT_PEN_SIZE := Vector2(460.0, 280.0)
 const ENEMY_SCENE_PREFIX := "character."
 const ENEMY_TYPES_FILE := "enemy-types.json"
 const PEN_NAME := "ShapesPen"
@@ -94,10 +97,12 @@ const POST_ARENA_RADIUS := 1.0
 ## The enemy pen, in old centre positions: its top-left from the player spawn point, and its size
 ## (playground layout: south of the spawn, east of the dummies, west of the liftable gallery at
 ## x 1600, north of the hill at y 1984, whose wall is there for splats).
-@export var pen_offset: Vector2 = Vector2(-200.0, 128.0)
-@export var pen_size: Vector2 = Vector2(460.0, 280.0)
+@export var pen_offset: Vector2 = DEFAULT_PEN_OFFSET
+@export var pen_size: Vector2 = DEFAULT_PEN_SIZE
 ## Each pen enemy's post (its old centre) from the pen's top-left, in PEN_TYPES order.
 @export var pen_posts: Array[Vector2] = [Vector2(90.0, 90.0), Vector2(230.0, 190.0), Vector2(370.0, 90.0)]
+## Throw combat: the posts of THROW_PEN_TYPES (the Archer, the Brawler), from the pen's top-left.
+@export var throw_pen_posts: Array[Vector2] = [Vector2(90.0, 200.0), Vector2(370.0, 200.0)]
 ## A pen enemy comes back this long after it died (simulation ms).
 @export var pen_respawn_ms: float = 3000.0
 ## The pen's enemies take their `enemy-types.json` maxHp when it is higher than their scene's.
@@ -149,7 +154,7 @@ func _spawn_testbed() -> void:
 	var posts: Array[Vector2] = pen_posts.duplicate()
 	if ThrowMode.is_on():
 		types.append_array(THROW_PEN_TYPES)
-		posts.append_array(THROW_PEN_POSTS)
+		posts.append_array(throw_pen_posts)
 	for index: int in types.size():
 		var post: Vector2 = _pen_rect.position + (posts[index] if index < posts.size() else _pen_rect.size * 0.5)
 		pen.append({"type": types[index], "post": post, "root": null, "enemy": null, "respawn_at": -1.0})

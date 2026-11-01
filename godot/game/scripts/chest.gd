@@ -63,7 +63,8 @@ var _open: bool = false
 var _heart_risen_ms: float = -1.0
 var _heart_celebrated: bool = false
 var _heart_at: Vector2 = Vector2.ZERO
-var _heart_icon: Texture2D
+## What its heart gave (goo_heart.gd `grant`: completed, filled, per, icon), for its text and ceremony.
+var _heart: Dictionary = {}
 
 
 func _enter_tree() -> void:
@@ -174,7 +175,7 @@ func _physics_process(_delta: float) -> void:
 		return
 	if not _heart_celebrated:
 		_heart_celebrated = true
-		GooHeart.celebrate(get_tree(), 1, _heart_at, _heart_icon)
+		GooHeart.celebrate(get_tree(), _heart, _heart_at)
 	var ceremony := get_tree().root.get_node_or_null(AbilityCeremony.NODE_NAME)
 	if ceremony != null and (bool(ceremony.call(&"is_playing")) or int(ceremony.call(&"waiting")) > 0):
 		return
@@ -195,12 +196,13 @@ func give_heart() -> bool:
 		return false
 	var root := get_parent() as Node2D
 	var at := root.global_position if root != null else origin()
-	var icon := GooHeart.default_icon()
-	if not GooHeart.grant(get_tree(), player, goo_heart_id, 1, at, icon, false):
+	# Granted first: the quarter rises as full as the slime's next heart is with it.
+	var heart := GooHeart.grant(get_tree(), player, goo_heart_id, 1, at, false)
+	if heart.is_empty():
 		return false
 	_heart_at = at
-	_heart_icon = icon
-	ItemPop.spawn(icon, at - Vector2(0.0, HEART_FROM_PX), HEART_RISE_PX, HEART_SIZE_PX, HEART_RISE_MS)
+	_heart = heart
+	ItemPop.spawn(heart.get("icon") as Texture2D, at - Vector2(0.0, HEART_FROM_PX), HEART_RISE_PX, HEART_SIZE_PX, HEART_RISE_MS)
 	var feel := Services.feel()
 	if feel != null:
 		feel.particles(HEART_SPARKLE, at - Vector2(0.0, HEART_FROM_PX + HEART_RISE_PX))

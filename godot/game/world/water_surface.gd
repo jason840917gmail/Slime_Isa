@@ -22,6 +22,7 @@ const SHADER := preload("res://game/world/water_surface.gdshader")
 ## This script, for the static factory and its return type: headless runs know a new script's
 ## class_name only after the editor has registered it, so the file never names itself.
 const Self := preload("res://game/world/water_surface.gd")
+const NodeFind := preload("res://game/shared/node_find.gd")
 const NODE_NAME := "WaterSurface"
 ## Custom data layer of the converted terrain TileSet that holds the terrain tile id.
 const TILE_ID_DATA_LAYER := "tile_id"
@@ -37,6 +38,8 @@ const TEXTURE_PERIOD := 1216.0
 ## tile past a water tile (a pixel draws when mask + edge >= 0.3 and edge <= 0.16), so one tile of
 ## margin covers every pixel Phaser's full-layer quad would draw.
 const DRAW_MARGIN_TILES := 1
+## What the water maths (water_surface.gdshaderinc) reads: `share_water` hands these on.
+const SHARED_PARAMETERS: Array[StringName] = [&"water_mask", &"shallow_texture", &"deep_texture", &"grid_size", &"tile_size", &"texture_period"]
 
 enum Kind { NONE, SHALLOW, DEEP }
 
@@ -134,6 +137,18 @@ func build(ground: TileMapLayer) -> bool:
 	return true
 
 
+## Hands this surface's mask, sheets and grid to `to`, a material whose shader includes
+## water_surface.gdshaderinc (the shoreline water fill, a cliff standing in water), so it draws the
+## same water at the same place. False before the surface is built.
+func share_water(to: ShaderMaterial) -> bool:
+	var own := material as ShaderMaterial
+	if own == null:
+		return false
+	for parameter in SHARED_PARAMETERS:
+		to.set_shader_parameter(parameter, own.get_shader_parameter(parameter))
+	return true
+
+
 ## The mask kind of tile (x, y): Kind.SHALLOW, Kind.DEEP or Kind.NONE (outside the mask too).
 func kind_at(x: int, y: int) -> Kind:
 	if mask_image == null or x < 0 or y < 0 or x >= columns or y >= rows:
@@ -163,7 +178,4 @@ static func _kind_of(tile_data: TileData) -> Kind:
 
 ## The water surface under `parent`, found by class (a node's name is typed by hand in the editor).
 static func find_in(parent: Node) -> Self:
-	for child: Node in parent.get_children():
-		if child is Self:
-			return child as Self
-	return null
+	return NodeFind.child_of(parent, Self) as Self

@@ -7,25 +7,25 @@
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_khcr6"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_8x0lf"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--war-banner.tscn" id="9_fip5n"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="11_voh6t"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="12_l3jvw"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/plank-barricade.tscn" id="15_kqe4m"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-seal.tscn" id="17_f67ai"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="17_rw8816"]
 [ext_resource type="Texture2D" uid="uid://isnfesgab7gl" path="res://asset/MAPS/walls/interior/lair-stone.webp" id="18_43q6x"]
-[ext_resource type="Texture2D" uid="uid://1c4ssghmbvcf" path="res://asset/MAPS/objects/dungeon/seal-ring.webp" id="19_jtlau"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="30_r1bolt"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="17_rw8816"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="18_rw6358"]
+[ext_resource type="Texture2D" uid="uid://1c4ssghmbvcf" path="res://asset/MAPS/objects/dungeon/seal-ring.webp" id="19_jtlau"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="19_rw8697"]
-[ext_resource type="Script" path="res://game/scripts/door.gd" id="20_rw5642"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="21_rw5907"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="22_rw0160"]
-[ext_resource type="Script" path="res://game/fattys_lair/lair_collapse.gd" id="90_collapse"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="20_rw5642"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="21_rw5907"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="22_rw0160"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="30_r1bolt"]
+[ext_resource type="Script" uid="uid://bt5k3g0fh4ipq" path="res://game/fattys_lair/lair_collapse.gd" id="90_collapse"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bbfy6"]
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_khcr6"]
 blend_mode = 1
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_hwmlq"]
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_8x0lf"]
 blend_mode = 1
 
 [node name="r1-gatehouse" type="Node2D" unique_id=1488894359]
@@ -49,6 +49,12 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAA
 tile_set = ExtResource("4_b7gje")
 script = ExtResource("5_khcr6")
 
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=2076912843]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAAKAA0AAAADAAAAAAALAA0AAAADAAAAAAAMAA0AAAADAAAAAAANAA0AAAADAAAAAAAOAA0AAAADAAAAAAAPAA0AAAADAAAAAAAPAAwAAAADAAAAAAAPAAsAAAADAAAAAAAPAAoAAAADAAAAAAAPAAkAAAADAAAAAAAPAAgAAAADAAAAAAAOAAgAAAADAAAAAAANAAgAAAADAAAAAAAMAAgAAAADAAAAAAALAAgAAAADAAAAAAAKAAgAAAADAAAAAAAKAAcAAAADAAAAAAAKAAYAAAADAAAAAAAKAAUAAAADAAAAAAAKAAQAAAADAAAAAAAKAAMAAAADAAAAAAAKAAIAAAADAAAAAAAJAAIAAAADAAAAAAAIAAIAAAADAAAAAAAHAAIAAAADAAAAAAAGAAIAAAADAAAAAAAFAAIAAAADAAAAAAAEAAIAAAADAAAAAAADAAIAAAADAAAAAAACAAIAAAADAAAAAAACAAMAAAADAAAAAAACAAQAAAADAAAAAAACAAUAAAADAAAAAAACAAYAAAADAAAAAAACAAcAAAADAAAAAAACAAgAAAADAAAAAAACAAkAAAADAAAAAAACAAoAAAADAAAAAAACAAsAAAADAAAAAAACAAwAAAADAAAAAAACAA0AAAADAAAAAAADAA0AAAADAAAAAAAEAA0AAAADAAAAAAAFAA0AAAADAAAAAAAGAA0AAAADAAAAAAAHAA0AAAADAAAAAAAIAA0AAAADAAAAAAAJAA0AAAADAAAAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
+
 [node name="CameraRooms" type="Node2D" parent="." unique_id=1866972264]
 
 [node name="r1-gatehouse" type="Node2D" parent="CameraRooms" unique_id=2133374393]
@@ -66,24 +72,6 @@ y_sort_enabled = true
 [node name="r1-banner" parent="Scenery" unique_id=1084979837 instance=ExtResource("9_fip5n")]
 position = Vector2(419, 148)
 
-[node name="r1-pot-a" parent="Scenery" unique_id=835497972 instance=ExtResource("11_voh6t")]
-position = Vector2(192, 640)
-
-[node name="PotLoot" parent="Scenery/r1-pot-a" index="3"]
-weights = PackedFloat32Array(1, 1, 1, 1)
-
-[node name="r1-pot-b" parent="Scenery" unique_id=800258088 instance=ExtResource("11_voh6t")]
-position = Vector2(243.19995, 678.3999)
-
-[node name="PotLoot" parent="Scenery/r1-pot-b" index="3"]
-weights = PackedFloat32Array(1, 1, 1, 1)
-
-[node name="r1-pot-c" parent="Scenery" unique_id=1515881094 instance=ExtResource("12_l3jvw")]
-position = Vector2(921.6001, 640)
-
-[node name="LiftableScript" parent="Scenery/r1-pot-c" index="2"]
-kind = "wicker-basket"
-
 [node name="Objects" type="Node2D" parent="." unique_id=363156610]
 y_sort_enabled = true
 
@@ -97,8 +85,8 @@ metadata/interior_door_block = "8,14"
 metadata/interior_door_kind = "seal"
 
 [node name="Glow" parent="Objects/r1-seal" index="2"]
-material = SubResource("CanvasItemMaterial_bbfy6")
-color = Color(0.83137256, 0.28235295, 0.18039216, 0.23874497)
+material = SubResource("CanvasItemMaterial_khcr6")
+color = Color(0.83137256, 0.28235295, 0.18039216, 0.3749258)
 
 [node name="Look" parent="Objects/r1-seal" index="3"]
 position = Vector2(30.499998, -22.500002)
@@ -109,8 +97,8 @@ region_enabled = true
 region_rect = Rect2(1032, 1792, 128, 130)
 
 [node name="Ring" parent="Objects/r1-seal" index="4"]
-modulate = Color(1.3301961, 0.45176473, 0.28862745, 0.62999195)
-material = SubResource("CanvasItemMaterial_hwmlq")
+modulate = Color(1.3301961, 0.45176473, 0.28862745, 0.84788126)
+material = SubResource("CanvasItemMaterial_8x0lf")
 position = Vector2(-1.5000057, -55)
 rotation = -3.1415927
 scale = Vector2(0.155, 0.155)
@@ -134,8 +122,8 @@ link_id = "fatty-lair-r1-shortcut"
 [node name="r1-west-door" parent="Objects" unique_id=1340577218 instance=ExtResource("30_r1bolt")]
 position = Vector2(128, 768)
 rotation = -1.5707964
-wall = "west"
 bolt_here = false
+wall = "west"
 door_id = "fatty-lair-r1-west"
 frame_drawn_by_wall = true
 link_id = "fatty-lair-r5-way-back"
@@ -158,7 +146,7 @@ metadata = {
 }
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=1186057504]
-position = Vector2(576, 640)
+position = Vector2(550, 663)
 
 [node name="Dungeon" parent="." unique_id=2068071472 instance=ExtResource("18_rw6358")]
 
@@ -169,7 +157,6 @@ position = Vector2(576, 0)
 door_id = "r1-to-hub"
 target_room = "r3-pit-hall"
 target_door = "hub-to-r1"
-side = "north"
 
 [node name="r1-to-r2" parent="RoomDoors" unique_id=1726239374 instance=ExtResource("19_rw8697")]
 position = Vector2(1152, 768)
@@ -185,17 +172,15 @@ target_room = "r5-eye-hall"
 target_door = "r5-lower-to-r1"
 side = "west"
 requires = "done:fatty-lair-r5-way-back"
-locked_text = "Bolted from the other side."
 
 [node name="r1-to-store" parent="RoomDoors" unique_id=1054829973 instance=ExtResource("19_rw8697")]
 position = Vector2(896, 384)
 door_id = "r1-to-store"
 target_room = "r1-store"
 target_door = "store-to-r1"
-side = "north"
-transition = "iris"
 requires = "flag:fatty-lair.store-smashed"
 locked_text = "Planks are nailed across it."
+transition = "iris"
 
 [node name="dungeon-entrance" type="Node2D" parent="." unique_id=1443946875]
 position = Vector2(576, 704)
@@ -212,7 +197,7 @@ target_door_id = "fatty-lair-mouth"
 side = "south"
 trigger_rect = Rect2(-64, -24, 128, 48)
 
-[node name="collapse" type="Node" parent="." node_paths=PackedStringArray("door")]
+[node name="collapse" type="Node" parent="." unique_id=45540271 node_paths=PackedStringArray("door")]
 script = ExtResource("90_collapse")
 door = NodePath("../fatty-lair-entrance/DoorScript")
 
@@ -225,7 +210,4 @@ script = ExtResource("21_rw5907")
 loop = true
 autoplay_cue = true
 
-[editable path="Scenery/r1-pot-a"]
-[editable path="Scenery/r1-pot-b"]
-[editable path="Scenery/r1-pot-c"]
 [editable path="Objects/r1-seal"]

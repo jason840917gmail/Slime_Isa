@@ -4,8 +4,9 @@ extends RefCounted
 ## weight and material set its damage and effect, the attack key does nothing, the shapes are box
 ## powers, and missed arrows and a Brawler's blows make ammo.
 ##
-## run_tests.gd starts every test of this file in the playground (with both modes off); each test
-## travels there again with them on.
+## run_tests.gd starts every test of this file in the playground (the rework mode on, as in every
+## world, and the throw mode off: main.gd `throw_combat`); each test travels there again with the
+## throw mode on.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -105,7 +106,7 @@ func test_a_shape_is_a_box_power(t: TestContext) -> void:
 	var energy := player.get_energy()
 	t.tap(&"ability_use")
 	await t.steps(3)
-	t.check(player.get_shapes().is_busy(), "S did not fire the Spear's power")
+	t.check(player.get_shapes().is_busy(), "A (ability_use) did not fire the Spear's power")
 	t.near(energy - player.get_energy(), 15.0, 0.5, "the power's energy")
 	await t.sim_wait(1200.0)
 	t.check(Services.shell().open_ability_carousel(), "E did not open the ability carousel")

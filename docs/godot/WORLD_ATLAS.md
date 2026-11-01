@@ -140,11 +140,16 @@ once, `region_canvas.gd` paints one region, `region_scene.gd` writes the scene):
   two tiles deep, except at its **openings**: one per stretch of border with each neighbour, two
   cells wide, chosen where the sketch has a road, path, gate or an existing exit crossing, else in
   the middle of the longest run of open ground on one level. Both regions leave the same gap, so
-  the openings line up. An opening has a clear corridor of road on each side.
+  the openings line up. An opening has a clear corridor of road on each side. It never lies across
+  a chunk corner (owner, 2026-11-01: walking through one changed between four chunks): it stays in
+  one chunk on each side, `CHUNK_MARGIN_CELLS` (one cell) off that chunk's sides
+  (`region_plan.gd` `_inside_one_chunk`).
 - **Roads** join a region's openings and its landmarks (cheapest path on the cells): stairs where a
   road climbs one level (two tiles wide), a bridge over one to three cells of deep
   water (the wooden footbridge prop on east-west crossings), fords through shallow water. In the
-  Wilds, trails reach every chunk.
+  Wilds, trails reach every chunk. A cell on a chunk's side costs a road more
+  (`CHUNK_SIDE_COST`), so roads cross chunk lines straight instead of running along them (owner,
+  2026-11-01).
 - **No dead ends:** every place a ledge drop (any unfenced rim) leads to has a way back to an
   opening: the builder floods each world with the game's movement rules and adds a flight of
   stairs, fences the rims (stone) or levels a small pocket where one has none.
@@ -153,9 +158,10 @@ once, `region_canvas.gd` paints one region, `region_scene.gd` writes the scene):
   pine; the Wilds those and autumn maples and ginkgos by noise; desert cacti; volcano ember and
   ash trees; swamp cypress and mangrove; frost snowy firs and frost trees; crystal crystal trees
   and cave mushrooms; ruins gnarled and ivy trees; village apple and cherry trees.
-- **Exits:** an exit at every opening (`entry_marker = arrive-from-<world>-<n>`, an arrival marker of
-  that name inside the neighbour's opening; [specs/world.md](specs/world.md)), `player-entry-<edge>`
-  markers, `player-spawn`; the sketch's markers as **MapNotes** (`map_note.gd`: an icon and a label
+- **Exits:** an exit at every opening (the slime comes out at the same place across the border, in
+  the neighbour's opening: [border crossings](#border-crossings-by-coordinates-2026-10-31) below;
+  [specs/world.md](specs/world.md)), `player-spawn` (three tiles inside the first opening); the
+  sketch's markers as **MapNotes** (`map_note.gd`: an icon and a label
   in the editor, nothing in the game).
 - **Dressing:** boulders on rock, crystal clusters on crystal, broken walls around the ruins'
   landmark, houses around the village's town.
@@ -172,23 +178,92 @@ editor keeps its own copy of the presets; reopen the project or the dialog first
 **The prologue in B4 (2026-10-16):** `west-village-b4`'s south (rows 13-31) is the prologue, made by
 hand ([PROLOGUE.md](PROLOGUE.md)); its file no longer has the hash `world-chunks.json` recorded, so
 the cut leaves it alone. Its exit to level-1 moved to the east edge's y 1600-1792 and leads straight
-to `level-1-c4` (`arrive-from-west-village-1`), which has the exit back (`exit-to-west-village-1`):
+to `level-1-c4`, which has the exit back (`exit-to-west-village-1`) at the same place:
 that opening is the prologue's forest path, so the West village's town needs its own opening onto
 Slimeshire when the layout is redrawn. The release "Web" preset ships `west-village-b4` (it
 excludes `west-village-a*` and `west-village-b5*` only); `build_region_worlds.gd` rewrites the
 presets, so check that line after running it.
 
 **Openings on hand-made worlds:** a placeholder's exit into level-1, gloop-forest or crystal-caverns
-works one way until the hand-made world has its own exit there: it carries
-`entry_marker = arrive-from-<placeholder>-1`, and while the hand-made world has no Node2D of that
-name the player arrives at its `player-entry-<edge>` marker or its spawn (with a warning in the
-Output). The builder prints, for each such opening, where it is (block tiles and units), the exit
-the hand-made world needs (`target_area_id` = the placeholder, `entry` = the opposite edge,
-`entry_marker = arrive-from-<world>-1`) and the arrival marker it needs; the atlas draws these
-exits amber or red and the in-game map draws no link for them. On 2026-10-11 they are level-1's
-west, north and south (the Plaza bridge) edges and the north and south edges of gloop-forest and
-crystal-caverns. Since 2026-10-12 those two worlds fill their 64 × 64 blocks (they were 54 × 54), so
-their north and south openings lie on their edges; the exits back are still to make.
+works one way until the hand-made world has its own opening and exit there: until then the player
+arrives at that world's spawn. The builder prints, for each such opening, where it is (block
+tiles), the opening and the exit the hand-made world needs (`target_area_id` = the placeholder,
+`entry` = the opposite edge); `tools/check_crossings.gd` lists a one-sided one ("border"). Since
+2026-10-31 each has its other side, drawn by hand in the hand-made chunks at the same place along
+the border (pictures: [design/border-openings/](../design/border-openings/)), each with an exit
+back (`exit-to-<placeholder>-1`, `target_area_id` = the placeholder region, `entry` = the opposite
+edge), or is closed:
+
+| Opening | Hand-made side | Drawn as |
+|---|---|---|
+| North Wilds H3 → crystal-caverns H4 (north, 256-512) | `crystal-caverns-h4` | a crystal grove each side of the gap (forest layer, crystal mix); a lookout rock stands in the lane |
+| level-1 C5 → South Wilds C6 (south, 1536-1792) | `level-1-c5` | a gap in the band of trees past C5's south edge, out of the meadow |
+| gloop-forest E5 → South Wilds E6 (south, 1536-1792) | `gloop-forest-e5` | a dirt trail through the forest band (13 rows of trees erased) |
+| crystal-caverns H5 → South Wilds H6 (south, 384-640) | `crystal-caverns-h5` | a crystal grove each side of the gap |
+
+**Closed (owner, 2026-10-31):** North Wilds ↔ level-1 (C3/C4) and North Wilds ↔ gloop-forest
+(F3/F4) have no opening: `north-wilds-c3` and `north-wilds-f3` lost their exit, their road's last
+stretch to the border and the gap in their border trees, and the layout lost both passages (the
+in-game map draws no link there). A way into Gloop Forest from the north may come later (a Lash
+crossing or a bridge west of the region). Running `build_region_worlds.gd` again would put both
+openings back (it plans one per stretch of border two regions share). In C3 level-1's river now
+goes on north: four cells wide on the C/D chunk line (`north-wilds-c3` and `-d3`), under a
+footbridge where the road crosses (one deck in each chunk at the same place), to a pond across the
+chunk line.
+
+**Off the chunk corners (owner, 2026-11-01):** five openings lay across a chunk corner, two tiles
+in each of four chunks, so walking through one changed chunks for nothing. Each moved into one
+chunk on each side, by hand in its scenes: the new gap in both border bands (and in the
+neighbour's trees a chunk draws past its edge), a road lane to the nearest road, the old gap
+planted and its road stub turned back to ground, one exit per side (the other chunk's exit
+deleted) and the passage in the layout moved with it:
+
+| Opening | Was | Now |
+|---|---|---|
+| level-1 ↔ South Wilds (Plaza bridge) | C5/D5 ↔ C6/D6 | C5 ↔ C6, x 1536-1792; `level-1-d5` back as it was |
+| North Wilds ↔ crystal-caverns | G3/H3 ↔ G4/H4 | H3 ↔ H4, x 256-512; `crystal-caverns-g4` back as it was |
+| North Wilds ↔ Northern Ruins | C1/C2 ↔ D1/D2 | C1 ↔ D1, y 1664-1920 |
+| Northern Ruins ↔ Volcano Ridge | E1/E2 ↔ F1/F2 | E1 ↔ F1, y 1664-1920 |
+| South Wilds ↔ Sticky Swamp (Swamp road) | D6/E6 ↔ D7/E7 | E6 ↔ E7, x 256-512, straight onto the swamp's road |
+
+The Web-wall maze's passage moved one cell up in the layout (y 61) to where its fenced lane meets
+the border (gloop-forest F4 rows 26-27). The Verdant Gate's way (level-1 D4 → gloop-forest E4)
+was walled on the gloop side: `gloop-forest-e4`'s border trees are open at rows 7-10, where D4's
+lane past the gate meets the border, and D4's `exit-1` has no gate of its own any more (the gate
+object before it takes the green key, so the border is never reached locked).
+
+**Roads off the chunk lines (owner, 2026-11-01; not enough on its own: the owner then asked for
+the lines to be closed, see [Chunk worlds](#chunk-worlds-2026-10-12)):** roads that ran along a chunk line inside a
+region (walking along one changed chunks over and over) were moved off it by hand, keeping their
+links and crossing lines straight (picture `roads-off-chunk-lines.png`): Northern Ruins D1 (straight
+on from the opening at rows 26-27) and E1/E2 (two straight crossings, the strip along E2's top row
+gone); South Wilds D6/E6 (down D6 cols 26-27, its stair moved there, then east on rows 28-29),
+G6/H6 (the road two tiles into H6, cols 2-3), A6 (a stub trimmed), F6/G6 (the sand loop two tiles
+into G6, its rock with it); Volcano Ridge F1/G1 (the road on rows 28-29, its climb to the fenced pit
+in G1 cols 4-5); North Wilds C2's bend moved two rows down; Sticky Swamp E7's old stub trimmed. What
+is left on a line is a road crossing it straight (four tiles wide at most).
+`south-wilds-d6`'s elevation changed (the stair), so its cache needs a bake.
+
+The in-game map draws every passage's link since then ([specs/map.md](specs/map.md)).
+
+**Border crossings by coordinates (2026-10-31,
+[design/2026-10-31-crossings-and-arrivals.md](../design/2026-10-31-crossings-and-arrivals.md) D5):**
+every chunk world is a square of the atlas grid, so an exit into a neighbouring region needs no
+arrival marker: the slime comes out at the same place across the border, in the
+chunk there (`game/world/crossings/border_crossing.gd`: the chunk across the edge the exit lies on,
+whichever of the target region's chunks it is), and the screen scrolls as between a region's
+chunks (`worldNavigation.regionBorderScroll`; the music changes as it does through a door). This
+comes out through the far side's exit back: at that place when there is one there, else at the
+nearest exit back along the same border line, in whichever of the region's chunks it lies
+(`BorderCrossing.opening_back` and `way_back_along`, read from the scenes without building them;
+the scroll is shifted to meet it: gloop-forest's long west edge comes out at level-1's one gate).
+An opening drawn on one side only would land at the region's spawn with the fade until its other
+side is drawn. `tools/check_crossings.gd` lists those ("border") and the ones drawn apart
+("apart"); on 2026-10-31, once six of the eight placeholder openings into level-1, gloop-forest
+and crystal-caverns had their other side and two were closed (above), 43 region exits cross at the
+same place and 2 at the opening back elsewhere, and none is one-sided (the five openings moved off
+chunk corners on 2026-11-01 have one exit a side, ten fewer). The arrival markers (`arrive-from-*`,
+`player-entry-<edge>`) were deleted that day (owner).
 
 ## Chunk worlds (2026-10-12)
 
@@ -196,6 +271,33 @@ Worlds one chunk in size, the player walking from one into the next as in *A Lin
 screens (owner: the big Wilds took long to load). A region is cut into one world scene per chunk,
 and **the chunks are the scenes to edit** from then on (owner, 2026-10-12): the region's whole
 scene is deleted.
+
+**Chunk lines are closed; chunks meet at a few marked crossings** (owner, 2026-11-01; the rule:
+[level design rule 11](../design/2026-10-16-level-design.md#the-rules-that-matter-most)). Terrain
+closes every line two chunk worlds share, inside a region or between two: cliffs, water and
+canals, forest bands, walls, each chunk closing its own side. Two touching chunks meet at one to
+three crossings, each inside those two chunks (never at a corner), a road wide at most, marked as
+a way out (a bridge, a ford, stairs, a gate, a trail gap between lantern posts, the
+`decoration-world-solid--lantern-post` scene). `tools/check_chunk_lines.gd` loads every chunk world
+alone, tries the slime's circle every 32 units just inside each edge and lists each line's
+crossings, flagging one wider than a road, near a corner, more than three (or none inside a
+region) and a stretch open on one side only:
+
+```bash
+"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/check_chunk_lines.gd [-- --world=<text>] [--all]
+```
+
+Built first in **Gloop Forest** (picture `docs/design/chunk-lines/gloop-forest.png`): a stream from
+the river down the E|F line in row 4 with a footbridge (one deck per chunk at the same place) on
+the Verdant Gate's trail to the Watch Oak; a canal along E4/E5 east of the camp and along F4/F5
+with a ford (shallow water) where the web lane's south wall opens; forest bands with a trail gap
+on E4/E5 (cols 15-16) and E5|F5 (rows 8-9); lantern posts at every gap; sand trails joining every
+crossing; the silk nook and the weaver nest made rooms with one way in. Found on the way: the camp's
+east gate never reached the web lane (the blue cottage and the camp wall fill it), so the lane, the
+way to the Crystal Caverns, could not be reached from Gloop; it is entered by the ford now and its
+west end is walled. The Crystal Caverns' west edges (G4, G5) are closed by crystal trees except
+the lane's end. The Wilds, the Ruins, the Volcano, the Swamp, the Desert, Frostpeak, the West
+village, Slimeshire and the Crystal Caverns' own lines are not yet closed: the checker lists them.
 
 ```bash
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/split_region_chunks.gd -- --region=north-wilds,volcano-ridge,south-wilds
@@ -219,7 +321,7 @@ tiles each, cut from the region's world scene:
 - its exits to other regions: one lying just past the chunk's edge (the generator puts them past
   the region's border) is moved in against it, and an opening across two chunks is split between
   them (`_exit_part`);
-- a `player-spawn` on the open cell nearest the chunk's middle and `player-entry-<edge>` markers;
+- a `player-spawn` on the open cell nearest the chunk's middle;
 - **scenery across the border:** a static prop (scene file names starting `tree-`,
   `wall-stone-solid`, `rock-world-wall`, `decoration-world-`, `crystal-cluster-wall`,
   `house-world-solid`, `water-life`: `SCENERY`) whose picture or collision reaches into a chunk is
@@ -238,10 +340,10 @@ tiles each, cut from the region's world scene:
 
 The scenes are registered in `scene_index.json`; the placeholder regions' chunks
 (`chunks/<world>-*`) are kept out of the release "Web" export, the hand-made worlds' ship. The tool also writes `godot/game/data/world-chunks.json` (read by
-`game/world/atlas/world_chunks.gd`): each cut world's chunks, which chunk holds each of its arrival
-markers (`arrive-from-*`, `player-entry-<edge>`) and doors, its spawn chunk, and a hash of every
-chunk file it wrote. A cut region has no whole scene: travel into it (an exit's marker, a door, an
-edge), a launch option (`?map=north-wilds`) or a save naming it goes to the chunk that holds the
+`game/world/atlas/world_chunks.gd`): each cut world's chunks, which chunk holds each of its doors
+(its `arrivals`, the old markers' table, is empty since 2026-10-31), its spawn chunk, and a hash of
+every chunk file it wrote. A cut region has no whole scene: travel into it (a door, a named spot,
+an edge), a launch option (`?map=north-wilds`) or a save naming it goes to the chunk that holds the
 place (`WorldChunks.redirect` in `Main.travel_to`, `_build_world` and `resolve_map_id`), else its
 spawn chunk; the region's world id stays its name in the layout. A chunk world also discovers its
 region's world, and the in-game map (M) draws the player's dot in its chunk. **F6 on any chunk

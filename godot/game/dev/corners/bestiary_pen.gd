@@ -103,7 +103,8 @@ const BOX_TEXT_RISE_PX := 56.0
 @export var supplies: Array[Dictionary] = []
 @export var supply_respawn_ms: float = 2500.0
 ## The Ability Box ability its right tool is (the Goo Bomb's "goo-bombs"; "" = none): when the
-## slime's centre comes into the pen it becomes the box's choice (F; S in keys-only), named over the
+## slime's centre comes into the pen it becomes the box's choice (F; S in keys-only, A in the throw
+## mode's keys-only layout), named over the
 ## slime, and stays chosen after it walks out (a bomb can be cast at the fence); the bag (B) changes
 ## it back.
 @export var box_ability: StringName = &""

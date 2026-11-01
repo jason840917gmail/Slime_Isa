@@ -65,6 +65,10 @@ func _process(_delta: float) -> void:
 		return
 	var open := bool(_window.call(&"is_open"))
 	visible = open
+	# Opened again: on the slime's own floor (whichever tab was pressed before).
+	if open and not _was_open:
+		_floor = _current_floor()
+	_was_open = open
 	if not open:
 		return
 	var grid: Rect2 = _window.call(&"grid_rect")
@@ -77,9 +81,6 @@ func _process(_delta: float) -> void:
 	var summary := _window.get(&"summary_label") as Label
 	if summary != null:
 		summary.text = summary_text()
-	if open and not _was_open:
-		_floor = _current_floor()
-	_was_open = open
 	_build_tabs()
 	queue_redraw()
 
@@ -172,4 +173,5 @@ func _draw() -> void:
 	var world := Services.world()
 	var player_point: Vector2 = world.player.get_centre() if world != null and world.player != null \
 		and is_instance_valid(world.player) else Vector2.INF
-	DungeonMapDraw.draw(self, dungeon, to_view, player_point, true, false, _floor)
+	# The slime's dot only on its own floor's tab.
+	DungeonMapDraw.draw(self, dungeon, to_view, player_point, _floor == _current_floor(), false, _floor)

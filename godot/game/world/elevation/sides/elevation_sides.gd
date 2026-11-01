@@ -66,7 +66,7 @@ const RADIUS_OUTER := 40.0
 const RADIUS_INNER := 20.0
 const RADIUS_BACK := 34.0
 const RADIUS_WATER := 3.0
-## TerrainMaterials.WATER, the ground whose feet are foam.
+## TerrainMaterials.WATER, the ground whose feet stand in water.
 const WATER := "water"
 ## Next to a back corner a side's wall is this wide per unit along the side from the corner (until
 ## its full width): its end is slanted, as the owner's reference draws it.
@@ -123,7 +123,7 @@ const KIND_WALL := 0.0
 const KIND_SIDE := 0.2
 const KIND_CORNER := 0.3
 const KIND_FOOT := 0.5
-## A foot standing in water: foam.
+## A foot standing in water: the water lapping up the wall's base (or, with no water surface, foam).
 const KIND_FOOT_WATER := 0.54
 ## The ground between a corner's arc and the model's square corner: the lower ground outside an
 ## outer corner, the top's inside an inner one (`_add_corner_fills`).

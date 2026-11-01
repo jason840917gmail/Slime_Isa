@@ -5,8 +5,8 @@ extends Node2D
 ## in `plates`, so the first visit shows what the plates do. As a plate sinks its chain pulls taut;
 ## once the drawbridge (`bridge`) is down the chains are gone (the bridge lies on them).
 ##
-## Editor (2026-10-27): it draws in the editor. Drag the top point (the Marker2D child named by
-## `top_marker`, else `top`) and the plates where they stand; the chains follow.
+## Editor (2026-10-27): it draws in the editor. Drag the top points (each plate's Marker2D in
+## `top_markers`, else `top`) and the plates where they stand; the chains follow.
 ##
 ## Owner: dungeons (Fatty's Lair).
 

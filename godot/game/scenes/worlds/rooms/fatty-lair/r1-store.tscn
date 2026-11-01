@@ -9,11 +9,13 @@
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_qglxr"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_rwhmf"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="7_ny2vb"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="10_rw7195"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="10_rw7195"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="11_rw0836"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="12_rw6453"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="13_rw4234"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="14_rw8981"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="13_rw4234"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="14_rw8981"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 
 [node name="r1-store" type="Node2D" unique_id=2088936565]
 y_sort_enabled = true
@@ -35,6 +37,12 @@ y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAABAAEAAAAAAAAAAAACAAEAAAAAAAAAAAADAAEAAAAAAAAAAAAEAAEAAAAAAAAAAAAFAAEAAAAAAAAAAAAFAAIAAAAAAAAAAAAFAAMAAAAAAAAAAAAFAAQAAAAAAAAAAAAFAAUAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAYAAAAAAAAAAAABAAYAAAAAAAAAAAACAAYAAAAAAAEAAAADAAYAAAAAAAEAAAAEAAYAAAAAAAAAAAAFAAYAAAAAAAAAAAADAAUAAAAAAAEAAAACAAUAAAAAAAEAAAABAAUAAAAAAAAAAAABAAIAAAAAAAAAAAABAAMAAAAAAAAAAAABAAQAAAAAAAAAAAAEAAUAAAAAAAAAAAA=")
 tile_set = ExtResource("4_n0t2l")
 script = ExtResource("5_qglxr")
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=1855585657]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAQAAAADAAAAAAADAAQAAAADAAAAAAAEAAQAAAADAAAAAAAEAAMAAAADAAAAAAAEAAIAAAADAAAAAAADAAIAAAADAAAAAAACAAIAAAADAAAAAAACAAMAAAADAAAAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
 
 [node name="walls" type="TileMapLayer" parent="." unique_id=673148162]
 self_modulate = Color(1, 1, 1, 0.3)
@@ -59,7 +67,7 @@ position = Vector2(192, 224)
 y_sort_enabled = true
 
 [node name="r1-store-chest" parent="Objects" unique_id=1089206223 instance=ExtResource("7_ny2vb")]
-position = Vector2(226, 157)
+position = Vector2(223, 217)
 
 [node name="world-definition" type="Node" parent="." unique_id=2044291445]
 script = ExtResource("10_rw7195")
@@ -93,13 +101,6 @@ target_door = "r1-to-store"
 side = "south"
 transition = "iris"
 
-[node name="ChestScript" parent="Objects/r1-store-chest" index="2"]
-map_id = "fatty-lair"
-instance_id = "r1-store-chest"
-initial_contents = {
-"coins": 100
-}
-
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=282354548]
 process_mode = 3
 stream = ExtResource("14_rw8981")
@@ -108,5 +109,3 @@ bus = &"Music"
 script = ExtResource("13_rw4234")
 loop = true
 autoplay_cue = true
-
-[editable path="Objects/r1-store-chest"]

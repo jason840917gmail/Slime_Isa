@@ -2,9 +2,10 @@ extends RefCounted
 ## One enemy's reaction memory (combat-feel plan section 5 "How decide picks a verb" and section 7
 ## "Anti-frustration rules"): the holds in a row, the wake guard, the break-free armor, the poise
 ## pool and its refill, the stun in force (the longer stun always wins), the knockdown's damage
-## multiplier, the launch the wall splat and bowling read, the wall splats of the current chain and
-## the phase and hurtbox part of the hit being judged. EnemyReactions keeps one per enemy
-## (`EnemyReactions.state_of`) and hands it to `HitReaction.decide`, which reads and writes it.
+## multiplier, the launch the wall splat and bowling read, a throw's faster knock slide, the wall
+## splats of the current chain and the phase and hurtbox part of the hit being judged.
+## EnemyReactions keeps one per enemy (`EnemyReactions.state_of`) and hands it to
+## `HitReaction.decide`, which reads and writes it.
 ## Every time is simulation ms (`Services.now_ms()`).
 ##
 ## Owner: reactions.
@@ -43,6 +44,10 @@ var launch_damage: float = 0.0
 var launch_layer: int = 0
 ## Instance ids of the bodies this launch has bowled over (each only once per launch).
 var bowled: Dictionary = {}
+## A throw's knock slide slows the body by `slide_decay` per 60 Hz step until `slide_decay_until_ms`
+## (faster than the stun slide's `combat.verbs.slideDecay`: EnemyReactions `slide_decay_of`).
+var slide_decay: float = 1.0
+var slide_decay_until_ms: float = 0.0
 ## Wall splats in the current chain (`combat.rules.wallSplat.perChain`); a chain's first step and
 ## every ability hit that lands on a free enemy (no stun in force, no wake guard) clear it.
 var splats_this_chain: int = 0
@@ -80,6 +85,8 @@ func copy() -> RefCounted:
 	twin.set(&"launch_damage", launch_damage)
 	twin.set(&"launch_layer", launch_layer)
 	twin.set(&"bowled", bowled.duplicate())
+	twin.set(&"slide_decay", slide_decay)
+	twin.set(&"slide_decay_until_ms", slide_decay_until_ms)
 	twin.set(&"splats_this_chain", splats_this_chain)
 	twin.set(&"windup_sequence", windup_sequence)
 	twin.set(&"windup_pushed_ms", windup_pushed_ms)
@@ -105,6 +112,8 @@ func reset() -> void:
 	launch_damage = 0.0
 	launch_layer = 0
 	bowled.clear()
+	slide_decay = 1.0
+	slide_decay_until_ms = 0.0
 	splats_this_chain = 0
 	windup_sequence = -1
 	windup_pushed_ms = 0.0

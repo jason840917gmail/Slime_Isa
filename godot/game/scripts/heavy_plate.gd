@@ -13,7 +13,8 @@ extends Node2D
 ##   plate of the same gate still holds them (`holds_gate_open`). A block left on it keeps it down.
 ##   With `shut_on_leave` they shut the moment the weight leaves (a door held only while a statue
 ##   stands on the plate). Each time it reaches the bottom it also sets off its `targets` (a
-##   drawbridge, a hidden chest: DungeonState.fire), which stay done.
+##   drawbridge, a hidden chest: DungeonState.fire), which stay done; with `hold_targets` they are
+##   taken back as its gates shut (R9's big chest sinks away when the plate lets go).
 ## - It shows its depth (owner, 2026-10-14: only the pressable top moves, never the whole plate):
 ##   the **base** (a stone socket ring) stays put and the **cap** (a stone slab with a carved weight
 ##   glyph) slides `sinkPx` down into it as it sinks and back up as it rises, darkening as it goes
@@ -99,8 +100,14 @@ const REFUSAL_RISE := 60.0
 @export var refusal_text: String = "It does not budge under you."
 ## Set off each time it reaches the bottom (DungeonState.fire: `trigger()`, else `appear`,
 ## `open_for_good`, `lower` or `open`; as a winch's targets): a drawbridge, a hidden chest
-## (Fatty's Lair: the hub's counterweight plate, R9's plate). They do their thing for good.
+## (Fatty's Lair: the hub's counterweight plate, R9's plate). They do their thing for good, unless
+## `hold_targets`.
 @export var targets: Array[NodePath] = []
+## Its targets only while it holds them: when it lets go, as its gates shut (the moment the weight
+## leaves with `shut_on_leave`, else once it is fully up), each is taken back (DungeonState.take_back:
+## a hidden chest sinks away again and is hidden when its world is built again). Owner, 2026-11-01:
+## R9's plate has to stay pressed or the big chest hides again.
+@export var hold_targets: bool = false
 ## Its gates shut the moment the weight leaves it (it still rises at its pace), so it holds a door
 ## only while something stands on it: a statue, never the slime that has to walk through
 ## (Fatty's Lair's Weigh House and R10).
@@ -198,12 +205,14 @@ func _physics_process(_delta: float) -> void:
 		_holding_open = false
 		_set_gates(false)
 		_set_hold_record(false)
+		_take_back_targets()
 		released.emit({"gateId": gate_id})
 	if _depth <= 0.0 and _holding_open:
 		_holding_open = false
 		_cue(CUE_UP)
 		_set_gates(false)
 		_set_hold_record(false)
+		_take_back_targets()
 		released.emit({"gateId": gate_id})
 	_pulse_ring()
 
@@ -263,7 +272,7 @@ func is_down() -> bool:
 func _fire_targets() -> void:
 	if pair_id.is_empty():
 		for path: NodePath in targets:
-			DungeonState.fire(get_node_or_null(path), {"gateId": gate_id})
+			DungeonState.fire(get_node_or_null(path), {"gateId": gate_id, "held": hold_targets})
 		return
 	# a pair: only with every plate of it down, then all of their targets
 	var pair: Array[Node] = []
@@ -275,6 +284,14 @@ func _fire_targets() -> void:
 	for plate: Node in pair:
 		for path: NodePath in plate.get(&"targets"):
 			DungeonState.fire(plate.get_node_or_null(path), {"gateId": gate_id})
+
+
+## Its targets back, with `hold_targets` (the plate let go).
+func _take_back_targets() -> void:
+	if not hold_targets:
+		return
+	for path: NodePath in targets:
+		DungeonState.take_back(get_node_or_null(path), {"gateId": gate_id})
 
 
 func _set_gates(open_now: bool) -> void:

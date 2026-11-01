@@ -137,10 +137,17 @@ func _side_point() -> Vector2:
 
 
 func _message(text: String) -> void:
+	say_over(_player, text)
+
+
+## `text` floating `rise` px over the slime's centre (`player`: player.gd), in `color`: the mouth's
+## lines, the Ability Box's choice, the throw yard's keys.
+static func say_over(player: Node, text: String, color: StringName = &"white", rise: float = MESSAGE_RISE) -> void:
 	var feel := Services.feel()
-	if feel != null:
-		var centre: Vector2 = _player.call(&"get_centre")
-		feel.floating_text(centre - Vector2(0.0, MESSAGE_RISE), text, &"white", false)
+	if feel == null or player == null or not is_instance_valid(player) or not player.has_method(&"get_centre"):
+		return
+	var centre: Vector2 = player.call(&"get_centre")
+	feel.floating_text(centre - Vector2(0.0, rise), text, color, false)
 
 
 static func _constant(path: String) -> float:

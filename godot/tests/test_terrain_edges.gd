@@ -7,7 +7,8 @@ extends RefCounted
 ##   that stack at least that high; corners with one ground or a hard-edged tile get nothing. At map borders,
 ##   the boundary cells carry on outside so shore edges reach the seam.
 ## - Shores: water is the lowest ground and fills with the water shader (the water surface's own
-##   parameters); land edge tiles draw over it.
+##   parameters), in the deep-water bank's shape picked by the land cells; land edge tiles draw
+##   over it.
 ## - level-1 (its four chunk worlds): the edges are the ground layer's child after the water
 ##   surface (drawn over it).
 
@@ -122,6 +123,8 @@ func test_shores_fill_with_the_water_shader(t: TestContext) -> void:
 	var corner := Vector2i(1, 1)   # grass TL TR BL, water BR
 	t.equal(edges.layers[0].get_cell_source_id(corner), int(edges.sources[TerrainMaterials.WATER]), "level 0: water fill")
 	t.equal(edges.layers[1].get_cell_atlas_coords(corner), Vector2i(3, 1), "level 1: grass on TL TR BL (7)")
+	# The fill takes the bank's shape by the land cells, the same index as the land's edge tile.
+	t.equal(edges.layers[0].get_cell_atlas_coords(corner), Vector2i(3, 1), "water fill: the bank's shape 7")
 	var fill := edges.layers[0].tile_set.get_source(int(edges.sources[TerrainMaterials.WATER])) as TileSetAtlasSource
 	var water_material := fill.get_tile_data(Vector2i.ZERO, 0).material as ShaderMaterial
 	var surface_material := surface.material as ShaderMaterial
@@ -131,6 +134,7 @@ func test_shores_fill_with_the_water_shader(t: TestContext) -> void:
 		t.equal(water_material.get_shader_parameter(&"grid_size"), surface_material.get_shader_parameter(&"grid_size"), "grid size")
 	# The sand strip (4, 1)-(4, 2) is a shore: corner (4, 2) has water TL and BL, sand TR and BR.
 	t.equal(edges.layers[0].get_cell_source_id(Vector2i(4, 2)), int(edges.sources[TerrainMaterials.WATER]), "sand shore over water")
+	t.equal(edges.layers[0].get_cell_atlas_coords(Vector2i(4, 2)), Vector2i(2, 2), "water fill: land TR BR (10)")
 	layer.queue_free()
 
 

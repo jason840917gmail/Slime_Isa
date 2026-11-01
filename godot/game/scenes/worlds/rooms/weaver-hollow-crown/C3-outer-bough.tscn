@@ -64,7 +64,7 @@ script = ExtResource("8_01de4")
 map_id = "weaver-hollow-crown"
 door_id = "crown-bough-drop"
 target_area_id = "gloop-forest-f4"
-target_marker = "weaver-hollow-silk-drop"
+target_door_id = "weaver-hollow-silk-drop"
 kind = "fall"
 trigger_rect = Rect2(-48, -96, 96, 192)
 

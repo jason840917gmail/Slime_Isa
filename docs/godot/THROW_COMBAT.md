@@ -20,16 +20,19 @@ The owner's decisions (2026-10-19/20):
 - **Aim help**: to try, but the owner fears it helps too much, so it is off unless switched on.
 
 Later ideas he named, not built yet: enemies immune to hits that must be lured into a trap, and
-putting enemies to sleep (a first sleep effect is built: the puffball).
+putting enemies to sleep (built: the puffball's sleep lasts until a hit hurts the enemy, and it
+lands on invulnerable enemies too, so they can be slipped past; owner, 2026-11-01).
 
 ## Running it
 
-The mode is on wherever the rework mode is on (the playground, `?shapes`, a story run with a
-shape), while `gulp.throwCombat.enabled` is true. Launch options:
+The mode rides on the body-shapes rework mode, which since 2026-10-24 (commit 9507c9e6) is on in
+every world and every run ([BODY_SHAPES.md](BODY_SHAPES.md#running-it)): so the throw mode is on
+everywhere too (F5 from the title, F6 in the editor, any `?map=`, a story run), while
+`gulp.throwCombat.enabled` is true (main.gd `decide_throw_mode`). Launch options:
 
 | Option (web / desktop) | What it does |
 |---|---|
-| `?melee` / `-- --melee` | the throw mode off: the rework game as on `main` |
+| `?melee` / `-- --melee` | the throw mode off: the rework game with its attack (the attack key strikes with the current shape, E and the wheel switch shapes, the box holds only box abilities, the keys-only scheme's layout is the rework's) |
 | `?gulp=2` / `-- --gulp=2` | the Gulp's level for the session (1 to 3) |
 | `?aimhelp` / `-- --aimhelp` | the aim help on |
 
@@ -57,7 +60,9 @@ The playground starts at level 1 (`playgroundLevel`).
   refusal sound. The thing's own **`weight`** (the root's field in the Inspector, liftable_root.gd)
   is the source of truth: picking a kind fills it with the kind's usual weight from `kindWeights`, and
   it can be changed per thing; the weight travels with it into the mouth and the throw. A thing
-  whose scene has no `weight` yet uses its kind's; a placed liftable with `heavy` set counts as heavy.
+  whose scene has no `weight` yet uses its kind's; a placed liftable with `heavy` set counts as heavy
+  (in the game, and in the `weight` the editor fills in). A weight's level is its place: light 1,
+  medium 2, heavy 3 (`ThrowMode.level_for`, `can_lift`).
 - **Carrying.** The slime walks at the held weight's `holdingSpeed` (light 0.85, medium 0.7, heavy
   0.55 of its speed).
 - **Throwing.** Damage is `throwDamage` (25) x the material's `gulp.throwDamageByMaterial` x the
@@ -65,22 +70,62 @@ The playground starts at level 1 (`playgroundLevel`).
   flight's speed and reach (heavy things fly shorter) and the break's radius, and picks the hit's
   class: `thrown`, `thrown-medium` or `thrown-heavy` (heavier classes knock enemies further; their
   reactions per enemy weight are in `combat.weights.<weight>.classes`).
+- **Knockback** (owner, 2026-11-01: a throw that hurts knocks back, one that does not hurt does
+  not). A throw that deals damage always pushes the enemy back along the throw: where its reaction
+  would hold it in place (a daze, a knockdown, a stagger) it slides `gulp.throwHit.knockbackPx`
+  (52) x the enemy's `knockbackScale` (light enemies 1, medium about 0.6, heavy 0.2) while it is
+  stunned, `knockbackSpeedScale` (2) times as fast as a stunned enemy's usual slide (it gets there
+  in about 0.3 s), and a kill that would not fly slides its corpse that far; a launch keeps its own bigger
+  push (`gulp.throwKnockback`). No damage, no push: an immune enemy (the clink), a shut part, a sleep
+  throw. Enemies whose `knockbackScale` is 0 (turrets, the eyes, the bosses) and armored hits (a
+  boss, an armored phase, the wake guard right after a launch) stay put (owner, 2026-11-01: keep
+  them still; [BODY_SHAPES.md](BODY_SHAPES.md), the thrown hit). It is every thrown hit's, with the throw mode
+  on or off.
+- **What a throw reaches** (owner: "nothing should cross walls"): only hurtboxes on the height level
+  it was thrown from (the slime's) with no wall between it and them (AbilityWorld
+  `hurtboxes_in_reach`: the same walls that stop its flight). It flies over an enemy on lower
+  ground, and neither its break (`throwHitRadiusPx` x the weight's and a shatter's `radiusScale`:
+  89 px for a crystal cluster) nor a piercing throw strikes round a wall or up or down a cliff.
 - **Effects** (`kindEffects` first, then `materialEffects`):
 
 | Effect | Things | What it does |
 |---|---|---|
 | freeze | ice and snow (snowball, ice block, icicle, frost crystal, frosted jar, snow brick) | a long stun (`thrown-freeze`: about 3 s on light enemies), an icy crust drawn on the enemy |
-| sleep | puffball, toadstool, glow mushrooms | no damage, a longer stun (`thrown-sleep`: about 4.5 s), z's over its head |
-| stick | honey jar, mud ball | a stun (`thrown-stick`: about 2.5 s), an amber puddle with drips |
+| sleep | puffball, toadstool, glow mushrooms | no damage; it sleeps (the verb `sleep`) until a hit that deals damage wakes it, even an invulnerable enemy on the ground; z's over its head while it sleeps |
+| stick | honey jar, mud ball | a normal hit of its weight (0.6 of its damage), then half pace (`slowScale` 0.5) for `slowMs` 6 s: it walks and attacks 50% slower; its picture coated in honey, dripping |
 | shatter | glass and crystal | the break's radius x 2.2 |
 | pierce | metal (kettle, lantern, iron ball) and the worm arrow | it flies on through enemies, striking up to 3, each once |
 
   The Scenery dock's Suckables show each kind's usual weight and effect on hover
   (`LiftableRoot.kind_weight` and `kind_effect`, read from the data files).
-  The look (`game/throw/throw_status_look.gd`) lasts as long as the reaction's stun; bosses and
-  armored phases shrug the effect classes off like any thrown hit, and so does an enemy getting up
-  from a knockdown or a launch (the reactions' wake guard): put it to sleep before you knock it
-  down, not right after.
+  The look (`game/throw/throw_status_look.gd`) lasts as long as the reaction's stun, the sleep or
+  the slow; bosses and armored phases shrug the effect classes off like any thrown hit, and so does
+  an enemy getting up from a knockdown or a launch (the reactions' wake guard): put it to sleep
+  before you knock it down, not right after.
+- **Sleep** (owner, 2026-11-01: "keep the enemy sleeping until new damage wakes them, so
+  invulnerable enemies can be bypassed"). Every non-boss weight answers `thrown-sleep` with the verb
+  `sleep` (`combat.weights.<weight>.classes`): its stun (`combat.verbs.sleep.stunMs`, 1 s) is
+  renewed every step while it sleeps (EnemyReactions `keep_asleep`, from enemy.gd's,
+  patterned_enemy.gd's and the dummy's stun step), so it sleeps until a hit that deals damage wakes
+  it (`wake_if_hurt`: any hit, old-style ones too; being bowled into). It lands through the enemy's
+  immunities (`immune`, a phase's `immune`, a patterned enemy's `_shields`: the Gloomling, a
+  walking Squint, a charging Bramble Boar, a Prism Eye from the front) while it is on the ground
+  (`HitReaction.sleeps_through`); the phases off the ground, where a sleep throw still clinks, are
+  marked `noSleep` in the enemy's `reactions.states` (the Hopper's, the Squints' and the Bone
+  Leaper's `air`, the Popworm's `burrowed`, `tell` and `sink`, the Pick Mole's `ducked` and
+  `line-up`, the Crystal Mite's `wait` and `drop`, the Pipe Worm's `hidden`). Bosses never sleep. A
+  hit that deals no damage (another puffball, a clink) leaves it asleep; it sways without stars.
+- **Honey** (owner, 2026-11-01: a better look than the circle, longer, the enemy moves and attacks
+  50% slower). The honey jar and the mud ball hit like any throw of their weight (the daze and the
+  knockback), then `effects.stick.slowScale` (0.5) of the enemy's pace for `slowMs` (6000): enemy.gd
+  `apply_tempo` slows its walk and chase (`_current_slow`) and stretches its attack's wind-up,
+  recovery and cooldown; a patterned enemy's every `pattern` time (a key ending in `Ms`) lasts twice
+  as long and every speed (`...Speed`, `...DegPerS`) runs at half (`_paced`), so its walks,
+  wind-ups, rests and leaps slow down. Bosses, a kill and armor shrug it off. Enemies whose timings
+  are scene exports rather than `pattern` numbers (the Clod Stomper's stomp) only walk slower. The
+  look: the enemy's own picture coated in honey (a copy of its sprite, frame for frame, under a
+  shader: a thick glossy amber coat over the top of the art with drips running down, a thin glaze
+  below; `COAT_THICKNESS`, `COAT_EDGE`), and honey drops falling from it.
 - **Shape powers.** The learned shapes stand first in the Ability Box (the bag's Shapes row hides).
   Choosing one and pressing the ability key (F; A in keys-only) fires that shape's charge at once
   (the Spear's Lunge, the Axe's Spin, the Hammer's Quake) along the facing or the pointer, for its
@@ -89,12 +134,24 @@ The playground starts at level 1 (`playgroundLevel`).
   big card (icon and name) in a matrix, the arrows move the lit card, Space or Enter makes it the
   box's choice (named over the slime), and Escape closes it with no change. The arrows are read in
   the window's `_input`, before the player's movement takes them. The HUD's Ability slot shows the shape's icon and cost; the Shape slot is hidden.
+  A shape power is busy (the slot dimmed) while a strike runs, the mouth is full or the slime swims.
+- **No attack.** The attack key does nothing, and a click on an enemy (the click scheme's order
+  button) only walks there, as a click on the ground does.
+- **Climbing** (the Feral skin): while it clings to a wall the **Gulp key (Q)** strikes from the face
+  (`_climb_strike`: a press of the current shape, the Spear unless another shape's power was used
+  last), as the attack key does outside this mode; nothing can be gulped from a wall. So the
+  Crystal Colossus's claws can still be struck.
 - **Ammo from enemies.** A worm arrow that misses (a wall, the end of its flight) lies where it ended
-  for `arrowLifeMs` (12 s, fading at the end) and can be sucked in and thrown back (it pierces). A
-  Worm Brawler's blow knocks a mossy rock loose (`rockOnAttack`: half its blows, `rockAheadPx` ahead,
-  never within `rockSpacingPx` of another liftable). Fatty already knocks rocks loose.
-- **Aim help.** When on, a throw within `aimAssist.coneDeg` (24) of a live enemy within `rangePx`
-  (320) flies straight at the one closest to the aim.
+  for `arrowLifeMs` (12 s, fading at the end) and can be sucked in and thrown back (it pierces); the
+  shots that stay, their material and picture size are `ammo.spentShots`. A Worm Brawler's blow
+  knocks a mossy rock loose (`rockOnAttack`: half its blows, `rockAheadPx` ahead of its feet along
+  the swing, only where a body fits: on its height level, not on a solid tile or against a wall or
+  other static body; never within `rockSpacingPx` of another liftable; else no rock). Fatty already
+  knocks rocks loose.
+- **Aim help.** When on, a throw within half of `aimAssist.coneDeg` either side (24: 12° each way)
+  of a live enemy within `rangePx` (320) of the slime's feet, on the slime's height level with no
+  wall between, flies straight at the feet of the one closest to the aim (the throw's ground track
+  runs from the slime's feet, so it meets the enemy's).
 - **Hints.** The attack and charge hints never show; the barred gate's hint names the ability key
   and the Spear.
 
@@ -114,13 +171,18 @@ out with the two pots placed for c2's (2026-10-23; BESTIARY.md).
 
 ## Data (`gulp.throwCombat` in game-constants.json)
 
-`enabled`, `throwDamage`, `playgroundLevel`, `levels`, `weights.<light|medium|heavy>`
-(`level`, `damageScale`, `rangeScale`, `speedScale`, `radiusScale`, `holdingSpeed`, `hitClass`),
-`kindWeights`, `materialEffects`, `kindEffects`, `effects.<id>` (`hitClass`, `lookMs`,
-`damageScale`, `radiusScale`, `pierceTargets`), `aimAssist` (`enabled`, `coneDeg`, `rangePx`),
-`ammo` (`rockOnAttack.<enemy type>` {`chance`, `kind`}, `rockSpacingPx`, `rockAheadPx`,
-`arrowStays`, `arrowLifeMs`). The hit classes `thrown-medium`, `thrown-heavy`, `thrown-freeze`,
-`thrown-sleep` and `thrown-stick` are in `combat.hits` and every `combat.weights.<weight>.classes`.
+`enabled`, `throwDamage`, `playgroundLevel`, `weights.<light|medium|heavy>`
+(`damageScale`, `rangeScale`, `speedScale`, `radiusScale`, `holdingSpeed`, `hitClass`; the
+weight's level is its place in that order), `kindWeights`, `materialEffects`, `kindEffects`,
+`effects.<id>` (`hitClass`, `lookMs`, `damageScale`, `radiusScale`, `pierceTargets`, `slowMs`,
+`slowScale`), `aimAssist`
+(`enabled`, `coneDeg`: the cone's whole width, `rangePx`), `ammo` (`rockOnAttack.<enemy type>`
+{`chance`, `kind`}, `rockSpacingPx`, `rockAheadPx`, `arrowStays`, `arrowLifeMs`,
+`spentShots.<projectile id>` {`material`, `picturePx`}). The hit classes `thrown-medium`, `thrown-heavy`, `thrown-freeze`,
+`thrown-sleep` are in `combat.hits` and every `combat.weights.<weight>.classes` (`thrown-sleep`: the
+verb `sleep`, `combat.verbs.sleep.stunMs`); honey has no class of its own.
+The knockback distance of a throw that hurts is `gulp.throwHit.knockbackPx` and its pace
+`knockbackSpeedScale` (shared with the rework's thrown hit), the launch speed of a throw that launches `gulp.throwKnockback`.
 
 The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it learned
 `gulp-lift-heavy` (RunState abilities, saved). Nothing in the story grants them yet.
@@ -129,16 +191,20 @@ The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it 
 
 | File | What it does |
 |---|---|
-| `game/throw/throw_mode.gd` | the mode, the Gulp's level, weights, effects, the aim help, shape-power ids |
-| `game/throw/throw_status_look.gd` | the freeze, sleep and stick looks on a stunned enemy |
+| `game/throw/throw_mode.gd` | the mode, the Gulp's level, weights, effects (`weight_in`, `effect_in` for the editor too), the aim help, shape-power ids |
+| `game/throw/throw_status_look.gd` | the freeze, sleep and honey looks (the honey coat's shader, `_art_rect`) |
+| `game/combat/reactions/hit_reaction.gd`, `enemy_reactions.gd`, `reaction_state.gd` | the `sleep` verb, `sleeps_through`, `keep_asleep`, `wake` |
+| `game/scripts/enemy.gd`, `game/enemy/patterned_enemy.gd` | `apply_tempo` (honey), `_paced` pattern numbers, sleep through `_shields` |
 | `game/throw/spent_shot.gd` | a missed arrow lying on the ground, suckable |
-| `game/throw/throw_ammo.gd` | the Brawler's rocks; `spawn_liftable` for any liftable at run time |
+| `game/throw/throw_ammo.gd` | the Brawler's rocks (where a body fits); `spawn_liftable` for any liftable at run time |
 | `game/throw/throw_testbed.gd` | the playground's throw yard and its keys |
 | `game/main.gd` | `decide_throw_mode` (with the rework mode), the yard, `throw_combat` (the test runner's switch) |
-| `game/scripts/liftable.gd` | `can_take` by weight, `weight`, `is_too_heavy` |
+| `game/scripts/liftable.gd`, `liftable_root.gd` | `can_take` by weight (`ThrowMode.can_lift`), `weight`, `is_too_heavy`; the root's `weight` in the Inspector |
 | `game/player/gulp/mouth.gd`, `mouth_hold.gd` | the "Too heavy" line, the aim help on the throw |
-| `game/player/gulp/thrown_object.gd` | weight and effect on the flight and the break, pierce, the looks |
-| `game/scripts/player.gd` | no attack, holding speed by weight, E opens the ability carousel, a shape power's status |
+| `game/player/gulp/thrown_object.gd` | weight and effect on the flight and the break, pierce, the looks, only what it reaches (`_targets`), the knockback distance on the hit (`knock_px`) |
+| `game/combat/reactions/enemy_reactions.gd` | the knockback slide of a throw that hurts (`_knock_slide`, `slide_decay_of`) |
+| `game/player/abilities/ability_world.gd` | `hurtboxes_in_reach` (its level, no wall between), `clear_line`, `body_level` |
+| `game/scripts/player.gd` | no attack (a click on an enemy walks there), the climb strike on Q, holding speed by weight, E opens the ability carousel, a shape power's status |
 | `game/shell/ability_carousel.gd` | the carousel window (E): the learned box abilities in a row, picked with Space or Enter |
 | `game/shapes/shape_controller.gd` | `power_strike(id)`: a shape's charge at once, for its energy |
 | `game/player/abilities/ability_box.gd` | shapes in the box, `choose` (the carousel's pick), `title`, their cost and use |
@@ -161,8 +227,10 @@ make ammo) is a first guess to tune by playing.
 Open points for the owner:
 
 - **Bosses.** Fatty One Eye's eye takes only Spear hits, so in this mode only the Spear's power
-  (15 energy) hurts it; his falling rocks are the ammo for the dazes. The bosses need throw-first
-  patterns (throwing their own things back, Zelda style).
+  (15 energy) hurts it; his falling rocks are the ammo for the dazes. The Crystal Colossus also
+  takes only Spear hits: the Spear's power on his weak spot and his back, and the Feral skin's climb
+  strike (Q here) on his claws while he clings. The bosses need throw-first patterns (throwing
+  their own things back, Zelda style).
 - **The prologue.** Yoi's lesson still talks about attacking; the barred gate's lever needs a hit
   tagged `spear`, which the Lunge should carry (not checked by playing).
 - **Gulp upgrades in the story**: where `gulp-lift-medium` and `gulp-lift-heavy` are found.
